@@ -511,17 +511,22 @@ class _error_handler {
   //!
   void compile_warning(string a,int b,string c);
 }
+
 array(_error_handler) compile_error_handlers = ({});
+
+//!
 void push_compile_error_handler( _error_handler q )
 {
   compile_error_handlers = ({q})+compile_error_handlers;
 }
 
+//!
 void pop_compile_error_handler()
 {
   compile_error_handlers = compile_error_handlers[1..];
 }
 
+//!
 class LowErrorContainer
 {
   string d;
@@ -530,15 +535,20 @@ class LowErrorContainer
   {
     return errors;
   }
+
+  //!
   string get_warnings()
   {
     return warnings;
   }
 
+  //!
   void print_warnings(string prefix) {
     if(warnings && strlen(warnings))
       report_warning(prefix+"\n"+warnings);
   }
+
+  //!
   void got_error(string file, int line, string err, int|void is_warning)
   {
     if (file[..sizeof(d)-1] == d) {
@@ -549,14 +559,20 @@ class LowErrorContainer
     else
       errors += sprintf("%s:%s\t%s\n", file, line ? (string) line : "-", err);
   }
+
+  //!
   void compile_error(string file, int line, string err)
   {
     got_error(file, line, "Error: " + err);
   }
+ 
+  //!
   void compile_warning(string file, int line, string err)
   {
     got_error(file, line, "Warning: " + err, 1);
   }
+
+  //!
   void create()
   {
     d = getcwd();
