@@ -249,10 +249,9 @@ mapping find_file_font( string f, object id )
   else
     img = img->paste_alpha_color( txt, @mkcolor(fg) );
   
-#if constant(Image.GIF)
   // Use the newer, faster encoding if available.
   string key = bg+":"+fg;
-
+  
   // Making the color table is slow. Therefor we cache it.
   object ct = cache_lookup("counter_coltables", key);
   if(!ct) {
@@ -265,10 +264,6 @@ mapping find_file_font( string f, object id )
 			      "image/gif");
   else
     return http_string_answer(Image.GIF.encode(img, ct),"image/gif");
-#else
-  return http_string_answer(img->togif( @(trans?mkcolor(bg):({})) ),
-			    "image/gif" );
-#endif
 }
 
 //
@@ -356,7 +351,6 @@ mapping find_file_ppm( string f, object id )
     result = result->scale(scale);
   if(rot)
     result = result->rotate(rot, @mkcolor(bg));
-#if constant(Image.Image.GIF)  
   object ct = cache_lookup("counter_coltables", fontname);
   if(!ct) {
     // Make a suitable color table for this ppm-font. We need all digits
@@ -379,10 +373,6 @@ mapping find_file_ppm( string f, object id )
 			      "image/gif");
   else
     return http_string_answer(Image.GIF.encode(result, ct),"image/gif");
-#else
-  return http_string_answer(result->togif(@(trans?mkcolor(bg):({}))),
-			    "image/gif");
-#endif
 }
 
 mapping find_file( string f, object id )
