@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2001 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +59,7 @@ object pop_nntp()
 
   if (sizeof(nntps) == 0)
   {
-     nntp = NNTP.connection(QUERY(nntpserver));
+     nntp = Protocols.NNTP.connection(QUERY(nntpserver));
      nntp->reader();
   }
   else
@@ -71,7 +70,7 @@ object pop_nntp()
 
   if (!nntp->reader())
   {
-     nntp = NNTP.connection(QUERY(nntpserver));
+     nntp = Protocols.NNTP.connection(QUERY(nntpserver));
      result = nntp->reader();
   }
 
@@ -154,7 +153,7 @@ string group_tag(string tag_name, mapping args, string contents,
 
   if (!xover) return "<font color=\"red\">No articles in group</font><br>";
 
-  foreach (indices(xover), int article)
+  foreach (sort(indices(xover)), int article)
   {
     mapping art = ([]);
 
