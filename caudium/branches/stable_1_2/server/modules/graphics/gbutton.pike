@@ -588,8 +588,8 @@ static array mk_url(object id, mapping args, string contents)
     if (fi)
            fi = fix_relative(fi, id);
 
-    args->icon_src = args["icon-src"] || args->icon_src || "";
-    args->icon_data = args["icon-data"] || args->icon_data || "";
+    args->icon_src = args["icon-src"] || args->icon_src || 0;
+    args->icon_data = args["icon-data"] || args->icon_data || 0;
     args->align_icon = args["align-icon"] || args->align_icon || "";
     args->valign_icon = args["valign-icon"] || args->valign_icon || "middle";
     m_delete(args, "icon-src");
@@ -630,7 +630,7 @@ static array mk_url(object id, mapping args, string contents)
     if (args->dim || (<"dim", "disabled">)[lower_case(args->state || "")])
         new_args->dim = "yes";
 
-    if (args->icon_src) 
+    if (args->icon_src && stringp(args->icon_src)) 
         new_args->icn = fix_relative(args->icon_src, id);
 
     if (args->icon_data)
