@@ -1,0 +1,64 @@
+DROP SEQUENCE faq_id_seq;
+DROP SEQUENCE annotations_id_seq;
+DROP SEQUENCE modlog_id_seq;
+DROP SEQUENCE suggested_id_seq;
+DROP TABLE faq;
+DROP TABLE annotations;
+DROP TABLE modlog;
+DROP TABLE suggested;
+
+CREATE TABLE faq (
+  id         serial,
+  question   text,
+  answer     text,
+  path       text,
+  isqa       bool default TRUE,
+  rating     real default 0.0,
+  votes      integer default 0,
+  added      timestamp default now(),
+  modified   timestamp default now(),
+  seealso    text[],
+  users      text[],
+  groups     text[],
+  section    bigint default 0,
+  has_annot  bool default FALSE
+);
+
+CREATE TABLE annotations (
+  id         serial,
+  which      integer,
+  who        text,
+  twhen      timestamp,
+  what       text
+);
+
+CREATE TABLE modlog (
+  id         serial,
+  which      integer,
+  who        text,
+  twhen      timestamp
+);
+
+CREATE TABLE suggested (
+   id        serial,
+   who       text,
+   twhen     timestamp,
+   question  text,
+   answer    text,
+   path      text
+);
+
+INSERT INTO faq (question,path,isqa,section) VALUES ('Section One', '/1', FALSE, currval('faq_id_seq'));
+INSERT INTO faq (question,path,isqa,section) VALUES ('Section Two', '/2', FALSE, currval('faq_id_seq'));
+INSERT INTO faq (question,path,isqa,section) VALUES ('Section Three', '/3', FALSE, currval('faq_id_seq'));
+INSERT INTO faq (question,path,isqa,section) VALUES ('Section Three.One', '/3/1', FALSE, currval('faq_id_seq'));
+
+INSERT INTO faq (question,answer,path,section,users) VALUES ('Question One In Section One', 'Answer to this question', '/1/1', 1, '{grendel,cd34}');
+INSERT INTO faq (question,answer,path,section,seealso) VALUES ('Question Two In Section One', 'Answer to this question', '/1/2', 1, '{/1/1,/2/1}');
+
+INSERT INTO faq (question,answer,path,section) VALUES ('Question One In Section Two', 'Answer to this question', '/2/1', 2);
+INSERT INTO faq (question,answer,path,section) VALUES ('Question Two In Section Two', 'Answer to this question', '/2/2', 2);
+INSERT INTO faq (question,answer,path,section) VALUES ('Question Three In Section Two', 'Answer to this question', '/2/3', 2);
+
+INSERT INTO faq (question,answer,path,section) VALUES ('Question Two In Section Three', 'Answer to this question', '/3/2', 3);
+INSERT INTO faq (question,answer,path,section) VALUES ('Question One In Section Three.One', 'Answer to this question', '/3/1/1', 4);
