@@ -2669,11 +2669,11 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("default_font", "lucida", "Fonts: Default font", TYPE_FONT,
 	  "The default font to use when modules request a font.");
 
-  globvar("font_dirs",({"/usr/share/caudium/local_fonts","nfonts","local_fonts/",}),
+  globvar("font_dirs",({"/usr/share/caudium/local_fonts/", "../local/nfonts/","nfonts/","local_fonts/"}),
 	  "Fonts: Font directories", TYPE_DIR_LIST,
 	  "This is where the fonts are located.");
 
-  globvar("logdirprefix", "/var/log/caudium/", "Log directory prefix",
+  globvar("logdirprefix", "../logs/", "Log directory prefix",
 	  TYPE_DIR|VAR_MORE,
 	  "This is the default file path that will be prepended to the log "
 	  " file path in all the default modules and the virtual server.");
@@ -2719,7 +2719,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  " be removed first.",
 	  0, cache_disabled_p);
 
-  globvar("cachedir", "/var/cache/caudium/",
+  globvar("cachedir", "/tmp/caudium_cache/",
 	  "Proxy disk cache: Base Cache Dir",
 	  TYPE_DIR,
 	  "This is the base directory where cached files will reside. "
@@ -2769,7 +2769,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "The URL to prepend to all documentation urls throughout the "
 	  "server. This URL should _not_ end with a '/'.");
 
-  globvar("pidfile", "/var/run/caudium/caudium.pid", "PID file",
+  globvar("pidfile", "/tmp/caudium.pid", "PID file",
 	  TYPE_FILE|VAR_MORE,
 	  "In this file, the server will write out it's PID, and the PID "
 	  "of the start script. $pid will be replaced with the pid, and "
@@ -2791,7 +2791,7 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("DOC", 1, "Configuration interface: Help texts", TYPE_FLAG|VAR_MORE,
 	  "Do you want documentation? (this is an example of documentation)");
 
-  globvar("ConfigPorts", ({ ({ 666, "http", "ANY", "" }) }),
+  globvar("ConfigPorts", ({ ({ 22202, "http", "ANY", "" }) }),
 	  "Configuration interface: Ports",
 	  TYPE_PORTS,
 	  "These are the ports through which you can configure the "
@@ -2824,12 +2824,12 @@ private void define_global_variables( int argc, array (string) argv )
 	  "this pattern will be able to use the configuration "
 	  "interface.");
 
-  globvar("ConfigurationStateDir","/var/state/caudium/", "Configuration interface: Status Directory",
+  globvar("ConfigurationStateDir","./", "Configuration interface: Status Directory",
           TYPE_DIR|VAR_MORE,
 	  "Directory where the configuration interface keeps its state - module "
 	  "cache, interface settings etc.");
 
-  globvar("User", "33:33", "Change uid and gid to", TYPE_STRING,
+  globvar("User", "", "Change uid and gid to", TYPE_STRING,
 	  "When caudium is run as root, to be able to open port 80 "
 	  "for listening, change to this user-id and group-id when the port "
 	  " has been opened. If you specify a symbolic username, the "
@@ -2843,7 +2843,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "for CGI, and also access files as user in the filesystems, but "
 	  "it gives better security.");
 
-  globvar("ModuleDirs",({"/usr/lib/caudium/local_modules/","/usr/lib/caudium/modules/","/usr/lib/caudium/more_modules/","/usr/local/share/caudium/modules/","/usr/share/roxen/modules/"}),
+  globvar("ModuleDirs",({"../local/modules", "modules/"}),
 	  "Module directories", TYPE_DIR_LIST,
 	  "This is a list of directories where Caudium should look for "
 	  "modules. Can be relative paths, from the "
@@ -2978,7 +2978,7 @@ private void define_global_variables( int argc, array (string) argv )
           0,
           lambda(){ return !QUERY(argument_cache_in_db); });
 
-  globvar( "argument_cache_dir", "/var/cache/caudium/", 
+  globvar( "argument_cache_dir", "../argument_cache", 
           "Argument Cache: Cache directory",
           TYPE_DIR|VAR_MORE,
           "The cache directory to use to store the argument cache."
