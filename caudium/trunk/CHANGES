@@ -50,4 +50,7 @@ Changes in Caudium 1.1 since CVS branching
   since that header is used to determine if the cache should or
   shouldn't be used. To solve this problem you can now use the
   prestate (nocache) to emulate this behavior. 
+- Added new special token to the access log file name format. %H will
+  be replaced with the hostname Caudium is running on. Useful if you
+  use the same configuration file for multiple machines.
  
