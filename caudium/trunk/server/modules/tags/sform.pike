@@ -1,13 +1,49 @@
+constant cvs_version="$Id$";
+
 #include <module.h>
 inherit "module";
 inherit "caudiumlib";
+
+array register_module()
+{
+  return ({ 
+    MODULE_PARSER,
+      "Superform V2", 
+      doc(),
+      ({}), 1, });
+}
 
 constant module_type   = MODULE_PARSER;
 constant module_name   = "superform version 2";
 constant thread_safe   = 1;
 constant module_unique = 1;
 
-constant cvs_version="$Id$";
+string doc()
+{
+
+string doc =#" This tag extends html forms to add new widget types, 
+provide verification functions, and generally make dealing with 
+complex input easier.\n  Eventually it will provide widgets for all 
+common database types.\n\n<p>
+<b>Usage:</b> Below shows an example demonstrating most features<br>";
+
+  //doc +=Parser.encode_html_entities(
+  doc +=#"
+&lt;sform&gt;<br>
+&lt;input type=text name=email error='Not an Email'<br>
+match='::email::'<br>
+mandatory=true&gt;<br>
+&lt;input name=name1 type=bool value=f&gt;<br>
+<input type='password' check='pass2' name='pass' size='20' maxlength='20' minlength='5'>
+<input type='password' check='pass' name='pass2' size='20' maxlength='20' minlength='5'>
+&lt;input type=submit&gt;<br>
+&lt;sform_ok&gt;<br>
+This is only executed if the verification stage succeeded<br>
+&lt;/sform_ok&gt;<br>
+&lt;/sform&gt;<br>";
+
+  return doc;
+}
 
 void create() 
 {
@@ -86,6 +122,7 @@ string container_sform(string tag_name, mapping args, string contents,
                        mapping defines, object fd) 
 {
 
+
   id->misc->sform=([]);
   if(args->sqlsource && id->misc->sqlquery && id->misc->sqlquery[args->sqlsource] && sizeof(id->misc->sqlquery[args->sqlsource]))
   { 
@@ -93,23 +130,26 @@ string container_sform(string tag_name, mapping args, string contents,
              id, "misc", "sform", "input");
   }
 
+//  if(sizeof(id->misc->sform->input))
+//    contents = do_output_tag(([ "quote":"|" ])|args, ({ id->misc->sform->input }), contents, id);
+
   contents=parse_html(contents, ([ "input" : itag_input ]),
-                      (["success":icontainer_success, 
-                        "textarea":icontainer_textarea,
+                      ([ "textarea":icontainer_textarea,
                         "select":icontainer_select
+                      ]),id);
+  contents=parse_html(contents, ([ ]),
+                      (["sform_ok":icontainer_action, 
+                        "sform_errors":icontainer_action, 
+                        "sform_warnings":icontainer_action
                       ]),id);
 
   //werror("sform: %O\n%O\n", id->raw, id->variables);
-  string formcontent=sprintf("errors: %d<br />\nwarnings: %d<br />\n",
-                       id->misc->sform->errors, 
-                       id->misc->sform->warnings);
+  string formcontent="";
   formcontent+=make_tag("input",
                         ([ "type":"hidden", "name":"_sform",
                            "value":"_true" ])
                        );
   formcontent+=contents;
-  if(!id->misc->sform->errors)
-    formcontent+=id->misc->sform->success;
   return 
     make_container("form", ([ "method":args->method||"post" ]),
                    formcontent);
@@ -268,7 +308,7 @@ string type_text(string type, mapping args, object id)
     return 0;
   else
   {
-    result+=args->error||message("Invalid input");
+    result+="<div class='error'>"+args->error||message("Invalid input")+"<div>";
     id->misc->sform->errors++;
   }
 
@@ -381,11 +421,21 @@ string message(string messagekey, string ... args)
   return messagekey+" "+(args*" ");
 }
 
-string icontainer_success(string tag_name, mapping args, string contents,
+string icontainer_action(string tag_name, mapping args, string contents,
                                  object id) 
 {
-  deep_set(contents, id, "misc", "sform", "success");
-  return "";
+  mapping data=([ "errors":(string)id->misc->sform->errors, 
+                  "warnings":(string)id->misc->sform->warnings ]);
+
+  if(id->variables->_sform &&
+     ( (id->misc->sform->warnings && tag_name=="sform_warnings")
+       || (id->misc->sform->errors && tag_name=="sform_errors")
+       || (!id->misc->sform->errors && tag_name=="sform_ok")
+     )
+    )
+    return do_output_tag(args, ({ data }), contents, id);
+  else
+    return "";
 }
 
 void deep_set(mixed val, mixed dest, mixed ... keys)
