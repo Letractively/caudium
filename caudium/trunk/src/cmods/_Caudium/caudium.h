@@ -122,7 +122,7 @@ typedef struct
   output *outp;
   input *inputs;
   input *last_input;
-  struct array *args;
+  struct svalue args;
   struct svalue cb;
 
 } nbio_storage;

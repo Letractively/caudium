@@ -98,9 +98,10 @@ static void alloc_nb_struct(struct object *obj) {
   THIS->inputs     = NULL;
   THIS->last_input = NULL;
   THIS->outp       = NULL;
-  THIS->args       = NULL;
   THIS->buf        = NULL;
   THIS->cb.type    = T_INT;
+  THIS->args.type  = T_INT;
+  THIS->args.u.integer = 0;
   THIS->buf_len    = 0;
   THIS->written    = 0;
 }
@@ -171,6 +172,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 	return;
       }
       add_ref(inp->u.file);
+      nobjects++;
     } else {
 #ifdef USE_MMAP
       if (fstat(inp->fd, &s) == 0 && S_ISREG(s.st_mode)) 
@@ -233,10 +235,6 @@ static void free_output(output *outp) {
 
 /* Free any allocated data in the struct */
 static void free_nb_struct(struct object *obj) {
-  if(THIS->args != NULL) {
-    free_array(THIS->args);
-    THIS->args = NULL;
-  }
   while(THIS->inputs != NULL) {
     free_input(THIS->inputs);
   }
@@ -251,8 +249,10 @@ static void free_nb_struct(struct object *obj) {
     free(THIS->buf);
     THIS->buf = NULL;
   }
+  free_svalue(&THIS->args);
   free_svalue(&THIS->cb);
   THIS->cb.type = T_INT; 
+  THIS->args.type = T_INT; 
 }
 
 /* Set the input file (file object, (max) bytes to read ) */
@@ -354,10 +354,6 @@ static void finished(void)
 {
   DERR(fprintf(stderr, "Done writing (%d sent)\n", THIS->written));
 
-  if(THIS->args != NULL) {
-    free_array(THIS->args);
-    THIS->args = NULL;
-  }
   while(THIS->inputs != NULL) {
     free_input(THIS->inputs);
   }
@@ -369,7 +365,8 @@ static void finished(void)
 
   if(THIS->cb.type != T_INT)
   {
-    apply_svalue(&(THIS->cb),0);
+    push_svalue(&(THIS->args));
+    apply_svalue(&(THIS->cb),1);
     pop_stack();
   }
 }
@@ -566,16 +563,27 @@ static void f__output_write_cb(INT32 args)
 /* Set the done callback */
 static void f_set_done_callback(INT32 args)
 {
-  if(args == 0)
-  {
-    free_svalue(&THIS->cb);
-    THIS->cb.type=T_INT;
-    return;
-  }
-  if (Pike_sp[-args].type != T_FUNCTION)
-    Pike_error("Illegal argument to set_done_callback()\n");
+  switch(args) {
+   case 2:
+    assign_svalue(&(THIS->args), &ARG(1)); 
 
-  assign_svalue(&(THIS->cb), Pike_sp-args); 
+   case 1:
+    if (Pike_sp[-args].type != T_FUNCTION)
+      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->set_done_callback", 1, "function");
+    assign_svalue(&(THIS->cb), &Pike_sp[-args]);
+    break;
+   case 0:
+    free_svalue(&THIS->cb);
+    free_svalue(&THIS->args);
+    THIS->cb.type=T_INT;
+    THIS->args.type=T_INT;
+    THIS->args.u.integer = 0;
+    return;
+    
+   default:
+    Pike_error("Caudium.nbio()->set_done_callback: Too many arguments.\n");
+    break;
+  }
   pop_n_elems(args - 1); 
 }
 
