@@ -6,6 +6,9 @@ array conns=({});
 
 void create(string _host, int _port, int maxconn)
 {
+#ifdef AJP_DEBUG
+  werror("Protocols.AJP.Client()\n");
+#endif
   if(!strlen(_host)) error("No host specified.");
   if(!_port) error("No port number specified.");
   hostname=_host;
@@ -13,6 +16,18 @@ void create(string _host, int _port, int maxconn)
   max_conns=maxconn;
 }
 
+void destruct()
+{
+#ifdef AJP_DEBUG
+  werror("Protocols.AJP.Client.destruct()\n");
+#endif
+  foreach(conns, object c)
+  {
+    if(c->destroy_function && functionp(c->destroy_function))
+      c->destroy_function();
+    c->destruct();
+  }
+}
 mapping handle_request(object id)
 {
   object c=get_connection();
@@ -38,10 +53,12 @@ object get_connection()
 
 void replace_connection(object conn)
 {
+#ifdef AJP_DEBUG
   werror("sizeof conns: " + sizeof(conns) + "\n");
+#endif
   if(sizeof(conns)<max_conns)
   {
-    conn->set_destroy_function(lambda(object cnx){ conns-=({cnx});});
+    conn->set_destroy_function(lambda(object cnx){conns-=({cnx});});
     conns+=({conn});
     conn->request_done();
   }
@@ -57,6 +74,9 @@ class connection
 
   void create(string host, int port)
   {
+#ifdef AJP_DEBUG
+     werror("Protocols.AJP.Client.connection()\n");
+#endif
      c=Stdio.File();    
      if(!c->connect(host, port))
        error("Protocols.AJP.client.connection(): Unable to connect to " + host + ":" + port + ".");
@@ -119,7 +139,12 @@ class connection
         keep_listening=0;
         r1=decode_end_response(r1);
         if(r1->reuse!=1)
+        {
+#ifdef AJP_DEBUG
+          werror("we will destruct this connection when done.\n");
+#endif
           destruct_on_close=1;
+        }
       }
       else error("Invalid packet type " + r1->type + " received.\n");
     }
