@@ -36,7 +36,8 @@ configure-stamp:
 	# Add here commands to configure the package.
 	
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
-	    ./autogen.sh; \
+	    patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
+    	    ./autogen.sh; \
 	fi
 	./configure --prefix=/usr --with-pike=$(PIKE)
 
@@ -56,6 +57,10 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
+	if test "$(CVS_SNAPSHOT)" = "yes"; then \
+	    patch -R -p1 < debian/patches/caudium-cvs-rpath.diff; \
+	fi
+	
 	# Add here commands to clean up after the build process.
 	-$(MAKE) spotless
 	-rm -f `find -name ".cvsignore" -type f -print`
