@@ -145,6 +145,9 @@ void create (mixed ... foo) {
          "Should contain an form with input fields named <i>httpuser</i> "
          "and <i>httppass</i>.",
          0, dont_use_formauth);
+  defvar("parseauthpage",0,"RXML parse authentication page.", TYPE_FLAG,
+         "RXML parse the authentication page before sending the contents to "
+	 "the client.",0,dont_use_formauth);
   defvar("secure", 0, "Secure Cookies", TYPE_FLAG,
 	 "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
   defvar("debug", 0, "Debug", TYPE_FLAG,
@@ -480,10 +483,10 @@ mixed first_try(object id) {
         if (result[0] == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
-          return http_low_answer(200, QUERY(authpage));
+          return QUERY(parseauthpage)?http_string_answer(parse_rxml(QUERY(authpage),id)):http_low_answer(200, QUERY(authpage));
         }
       } else {
-        return http_low_answer(200, QUERY(authpage));
+        return QUERY(parseauthpage)?http_string_answer(parse_rxml(QUERY(authpage),id)):http_low_answer(200, QUERY(authpage));
       }
     }
   }
@@ -701,6 +704,11 @@ void set_from_form_remove (string val, int type, object o) {
 //! Should contain an form with input fields named <i>httpuser</i> and <i>httppass</i>.
 //!  type: TYPE_TEXT_FIELD
 //!  name: Form authentication page.
+//
+//! defvar: parseauthpage
+//! RXML parse the authentication page before sending the contents to the client.
+//!  type: TYPE_FLAG
+//!  name: RXML parse authentication page.
 //
 //! defvar: secure
 //! If used, cookies will be flagged as 'Secure' (RFC 2109).
