@@ -343,7 +343,7 @@ fi
 ./mkdir -p $LOGDIR/debug/
 
 if [ -z "$debug" ] ; then
-  DEBUG="-DMODULE_DEBUG";
+  DEBUG="";
 else
   DEBUG="-DDEBUG -DMODULE_DEBUG"
 fi
