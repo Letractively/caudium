@@ -183,6 +183,8 @@ mixed handle_file_extension(object o, string e, object id)
     id->my_fd->set_close_callback(0);
     id->my_fd->set_blocking();
     id->misc->path_info = id->not_query;
+    id->misc->servlet_path = id->not_query;
+
     id->misc->mountpoint = "/";
     if(query("rxml"))
       id->my_fd = RXMLParseWrapper(id->my_fd, id);
