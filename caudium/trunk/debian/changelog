@@ -1,3 +1,35 @@
+caudium (2:1.3.3-10) unstable; urgency=low
+
+  * Latest CVS snapshot. Changes:
+    - Fixed bug in the Explicit Hostname Redirector module if used in a SSL
+      virtual server, and if redirection is needed, the module was doing its
+      rediretion to a non SSL server. (sf bug #602846)
+    - Added minor change to mainconfig.pike to allow Caudium version number to
+      appear in the title
+    - Updated SQLuserdb to utilize new accept group= code
+    - added new module ACL: accept group=
+      This addition augments id->auth with a fourth array member which is the 
+      user's group.
+    - defined, then promptly obsoleted and introduced a new api for MODULE_TYPES
+      (see server/modules/misc/contenttypes.pike for short docs), modified
+      server/base_server/configuration.pike:type_from_filename() so that it now
+      conforms to this new api.
+    - redid the contenttypes parser. split etc/extensions in two separate
+      files (for extensions and encodings), as it is logical.
+    - Added the handling of external mime-types definitions to contenttypes.pike
+    - Added a nifty new 3rdparty module that implements menus using prestates.
+    - Re-enabled permanent storage of the "program" datatype when using pike7.3
+      build >= 51. Pike bug #3096 resolved.
+    - Added a quick and dirty mass virtual hosting module to the third-party
+      repository.
+    - Fixed modules/tags/developer.pike.
+    - Fixed a compilation error in modules/tags/hash.pike. Now we actually do
+      have the SHA1 hashing method, with three aliases even.
+    - Fixed bug in http.pike/mainconfig.pike that didn't allow modules with a :
+      in the name to be selected in the Configuration Interface
+
+ -- Marek Habersack <grendel@debian.org>  Sun,  1 Sep 2002 19:48:36 +0200
+
 caudium (2:1.3.3-9) unstable; urgency=low
 
   * Latest CVS snapshot.
