@@ -163,7 +163,7 @@ private int really_set_config(array mod_config)
       url = "/" + url;
     }
 
-    url = add_pre_state(url, prestate);
+    url = Caudium.add_pre_state(url, prestate);
 
     if (base[-1] == '/') {
       url = base + url[1..];

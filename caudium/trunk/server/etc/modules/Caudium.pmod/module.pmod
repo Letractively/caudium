@@ -474,6 +474,43 @@ void unload_program(string p) {
   m_delete(master()->programs,search(master()->programs,(program)p));
 }
 
+//!   Prepend the URL with the prestate specified. The URL is a path
+//!   beginning with /.
+//! @param url
+//!   The URL.
+//! @param state
+//!   The multiset with prestates.
+//! @returns
+//!   The new URL
+string add_pre_state( string url, multiset state )
+{
+  if(!url)
+    error("URL needed for add_pre_state()\n");
+  if(!state || !sizeof(state))
+    return url;
+  if(strlen(url)>5 && (url[1] == '(' || url[1] == '<'))
+    return url;
+  return "/(" + sort(indices(state)) * "," + ")" + url ;
+}
+
+//!  Internal glob matching function.
+//! @param w
+//!  String to match.
+//! @param a
+//!  Glob patterns to match against the string.
+//! @returns
+//!  1 if a match occured, -1 if the string to match is invalid, 0 if
+//!  no match occured.
+int _match(string w, array (string) a)
+{
+  string q;
+  if (!stringp(w)) // Internal request..
+    return -1;
+  foreach (a, q) 
+    if (stringp(q) && strlen(q) && glob(q, w)) 
+      return 1; 
+}
+
 /*
  * If you visit a file that doesn't containt these lines at its end, please
  * cut and paste everything from here to that file.

@@ -311,7 +311,7 @@ string tag_accessed(string tag, mapping m, object id)
     counts = counter->query(m->file);
   }
   else {
-    if(!_match(id->remoteaddr, id->conf->query("NoLog")) &&
+    if(!Caudium._match(id->remoteaddr, id->conf->query("NoLog")) &&
        !id->misc->accessed) {
       counter->add(id->not_query, (int)m->add);
     }

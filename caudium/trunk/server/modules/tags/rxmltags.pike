@@ -49,15 +49,6 @@ constant cvs_version   = "$Id$";
 #define CALL_USER_TAG id->conf->parse_module->call_user_tag
 #define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
 
-// If the string 'w' match any of the patterns in 'a', return 1, else 0.
-int _match(string w, array (string) a)
-{
-  string q;
-  foreach(a, q)
-    if(stringp(w) && stringp(q) && glob(q, w))
-      return 1;
-}
-
 void create()
 {
   defvar("compat_if", 0, "Compatibility with old &lt;if&gt;",
@@ -1481,7 +1472,7 @@ string tag_deny(string a,  mapping b, string c, object d, object e,
   {							\
     string a, b;					\
     if(sscanf(m->X, "%s is %s", a, b)==2)		\
-      TEST(_match(Y[a], b/","));			\
+      TEST(Caudium._match(Y[a], b/","));			\
     else						\
       TEST(Y[m->X]);					\
   }							\
@@ -1513,7 +1504,7 @@ string tag_allow(string a, mapping (string:string) m,
   }
 
   if(m->filename)
-    TEST(_match(id->not_query, m->filename/","));
+    TEST(Caudium._match(id->not_query, m->filename/","));
 
   if(m->language)
   {
@@ -1523,7 +1514,7 @@ string tag_allow(string a, mapping (string:string) m,
       if(!m->or)
 	return "<false>";
     } else {
-      TEST(_match(lower_case(id->misc["accept-language"]*" "),
+      TEST(Caudium._match(lower_case(id->misc["accept-language"]*" "),
 		  ("*"+(lower_case(m->language)/",")*"*,*"+"*")/","));
     }
   }
@@ -1533,7 +1524,7 @@ string tag_allow(string a, mapping (string:string) m,
     string a, b;					
     if(sscanf(m->variable, "%s is %s", a, b) == 2) {
       if(a = get_scope_var(a, m->scope, id)) {
-	TEST(_match(a, b/","));
+	TEST(Caudium._match(a, b/","));
       }
     } else {
       TEST(get_scope_var(m->variable, m->scope, id));
@@ -1550,7 +1541,7 @@ string tag_allow(string a, mapping (string:string) m,
   if (m->match) {
     string a, b;
     if(sscanf(m->match, "%s is %s", a, b)==2)
-      TEST(_match(a, b/","));
+      TEST(Caudium._match(a, b/","));
   }
 
   if(m->accept)
@@ -1581,7 +1572,7 @@ string tag_allow(string a, mapping (string:string) m,
 	    return s + "<true>";
 	} else
 	  ok=1;
-      } else if (_match(id->referrer, m->referrer/",")) {
+      } else if (Caudium._match(id->referrer, m->referrer/",")) {
 	if(m->or) {
 	  if (QUERY(compat_if))
 	    return "<true>" + s;
@@ -1681,13 +1672,13 @@ string tag_allow(string a, mapping (string:string) m,
   if(m->host)
   {
     NOCACHE();
-    TEST(_match(id->remoteaddr, m->host/","));
+    TEST(Caudium._match(id->remoteaddr, m->host/","));
   }
 
   if(m->domain)
   {
     NOCACHE();
-    TEST(_match(caudium->quick_ip_to_host(id->remoteaddr), m->domain/","));
+    TEST(Caudium._match(caudium->quick_ip_to_host(id->remoteaddr), m->domain/","));
   }
   
   if(m->user)
@@ -1782,7 +1773,7 @@ string tag_aprestate(string tag, mapping m, string q, object id)
 	prestate[s]=1;
     }
   }
-  m->href = add_pre_state(href, prestate);
+  m->href = Caudium.add_pre_state(href, prestate);
   return make_container("a",m,q);
 }
 
@@ -2008,7 +1999,7 @@ string tag_client(string tag,mapping m, string s,object id,object file)
     isok=!!id->supports[m->support];
 
   if (!(isok && m->or) && m->name)
-    isok=_match(id->useragent,
+    isok=Caudium._match(id->useragent,
 		Array.map(m->name/",", lambda(string s){return s+"*";}));
   return (isok^invert)?s:""; 
 }

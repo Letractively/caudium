@@ -252,7 +252,7 @@ mixed remap_url( object id, string url )
     redirect_url = reverse( (reverse( url ) / ".")[1..] * "." );
     if (id->query)
       redirect_url += "?" + id->query;
-    redirect_url = add_pre_state( redirect_url, (id->prestate - language_list)+
+    redirect_url = Caduium.add_pre_state( redirect_url, (id->prestate - language_list)+
 				  (< extension >) );
     redirect_url = id->conf->query( "MyWorldLocation" ) +
       redirect_url[1..];

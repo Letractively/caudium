@@ -483,25 +483,6 @@ string id_cookie()
 		 caudiump()->increase_id());
 }
 
-//!   Prepend the URL with the prestate specified. The URL is a path
-//!   beginning with /.
-//! @param url
-//!   The URL.
-//! @param state
-//!   The multiset with prestates.
-//! @returns
-//!   The new URL
-static string add_pre_state( string url, multiset state )
-{
-  if(!url)
-    error("URL needed for add_pre_state()\n");
-  if(!state || !sizeof(state))
-    return url;
-  if(strlen(url)>5 && (url[1] == '(' || url[1] == '<'))
-    return url;
-  return "/(" + sort(indices(state)) * "," + ")" + url ;
-}
-
 //!   Return a response mapping which defines a redirect to the
 //!   specified URL. If the URL begins with / and the ID object is present,
 //!   a host name (and the prestates) will be prefixed to the URL. If the
@@ -520,7 +501,7 @@ mapping redirect( string url, object|void id )
   {
     if(id)
     {
-      url = add_pre_state(url, id->prestate);
+      url = Caudium.add_pre_state(url, id->prestate);
       if(id->request_headers->host) {
 	string p = ":80", prot = "http://";
 	array h;
