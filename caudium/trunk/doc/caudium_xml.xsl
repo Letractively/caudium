@@ -18,15 +18,16 @@
 <!-- Layout for modules -->
 
 <xsl:template match="module">
-  <dt><h2><xsl:value-of select="@name"/></h2></dt>
+  <sub title="{@name}">
   <xsl:apply-templates select="description"/>
-  <p><dd><xsl:apply-templates select="inherits">
-    <xsl:sort select="@link"/>
-  </xsl:apply-templates></dd></p>
+  <xsl:apply-templates select="inherits">
+  <xsl:sort select="@link"/>
+  </xsl:apply-templates>
   <xsl:apply-templates select="type"/>
   <xsl:apply-templates select="version"/>
   <xsl:apply-templates select="defvars"><xsl:sort select='@name'/></xsl:apply-templates>
   <xsl:apply-templates select="methods | tags | containers | entities"/>
+  </sub>
 </xsl:template>
 
 <xsl:template match="inherits">
@@ -37,92 +38,101 @@
 </xsl:template>
 
 <xsl:template match="description">
- <dd><xsl:apply-templates/></dd>
+ <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="defvar">
-  <p><dt><b><a name="{@name}"><xsl:value-of select="@short"/></a> (<xsl:value-of select="@type"/>)</b></dt>
-  <dd><xsl:apply-templates/></dd></p>
+  <b><a name="{@name}"><xsl:value-of select="@short"/></a> (<xsl:value-of select="@type"/>)</b><br />
+  <xsl:apply-templates/><br /><br />
 </xsl:template>
 
 <xsl:template match="defvars">
  <xsl:if test="count(defvar) > 0">
-  <p><h3>Module Variables:</h3>
-  <dl><xsl:apply-templates select="defvar"><xsl:sort select="@short"/></xsl:apply-templates></dl>
-  </p>
+  <br />
+  <dlu title="Module Variables:">
+  <xsl:apply-templates select="defvar"><xsl:sort select="@short"/></xsl:apply-templates>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="tags">
  <xsl:if test="count(tag) > 0">
-  <p><h3>Tags defined in this module:</h3>
-  <dl><xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates></dl>
-  </p>
+  <br />
+  <dlu title="Tags defined in this module:">
+  <xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="containers">
  <xsl:if test="count(tag) > 0">
-  <p><h3>Containers defined in this module:</h3>
-  <dl><xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates></dl></p>
+  <br />
+  <dlu title="Containers defined in this module:">
+  <xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="entities">
  <xsl:if test="count(scope) > 0">
-  <p><h3>Entity scopes defined in this module:</h3>
-  <xsl:apply-templates select="scope"><xsl:sort select="@name"/></xsl:apply-templates></p>
+  <br />
+  <dlu title="Entity scopes defined in this module:">
+  <xsl:apply-templates select="scope"><xsl:sort select="@name"/></xsl:apply-templates>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="tag">
-  <dt><b><a name="{@name}"><xsl:value-of select="@synopsis"/></a></b></dt>
+  <b><a name="{@name}"><xsl:value-of select="@synopsis"/></a></b><br />
   <xsl:apply-templates select="description" mode="tag"/>
   <xsl:apply-templates select="attributes"/>
 <xsl:comment>  <xsl:apply-templates select="note"/></xsl:comment>
+  <br />
 </xsl:template>
 
 <xsl:template match="scope">
-  <dl><dt><b><a name="{@name}">&amp;<xsl:value-of select="@name"/>;</a></b></dt>
+  <b><a name="{@name}">&amp;<xsl:value-of select="@name"/>;</a></b><br />
   <xsl:apply-templates select="description" mode="tag"/>
   <xsl:apply-templates select="entity">
     <xsl:sort select="@name"/>
     <xsl:with-param name="scope"><xsl:value-of select="@name"/></xsl:with-param>
   </xsl:apply-templates>
-  </dl><hr noshade="noshade" size="1"/>
+  <br />
 </xsl:template>
 
 <xsl:template match="entity">
 <xsl:param name="scope"/>
-<dl><p><dt><b><a name="{@name}">&amp;<xsl:value-of select="$scope"/>.<xsl:value-of select="@name"/>;</a></b></dt>
-  <dd><xsl:apply-templates/></dd></p>
-  </dl>
+ <b><a name="{@name}">&amp;<xsl:value-of select="$scope"/>.<xsl:value-of select="@name"/>;</a></b><br/>
+  <xsl:apply-templates/>
+  <br />
 </xsl:template>
 
 <xsl:template match="attributes">
  <xsl:if test="count(attribute) > 0">
-  <dd><p><tablify wrap="1" nice='' cellseparator="/%/" rowseparator="/@/">Attribute/%/Description
+  <br />
+  <tablify wrap="1" nice='' cellseparator="/%/" rowseparator="/@/">Attribute/%/Description
    <xsl:for-each select="attribute">/@/
      <xsl:value-of select="@syntax"/>/%/
      <xsl:apply-templates/>
    </xsl:for-each>
-  </tablify></p></dd>
+  </tablify>
+  <br />
 </xsl:if>
 </xsl:template>
 
 <xsl:template match="description" mode="tag">
-  <p><xsl:apply-templates/></p>
+  <xsl:apply-templates/><br />
 </xsl:template>
 
 <xsl:template match="type">
-  <dd><b>Module Type:</b><xsl:text> </xsl:text> <xsl:value-of select="."/></dd>
+  <b>Module Type:</b><xsl:text> </xsl:text> <xsl:value-of select="."/><br />
 </xsl:template>
 
 <!-- Layout for files (non-modules) -->
 
 <xsl:template match="file">
-  <dt><h2>File <xsl:value-of select="@name"/></h2></dt>
-  <dd><p><xsl:value-of select="description"/></p></dd>
+  <h2>File <xsl:value-of select="@name"/></h2><br />
+  <xsl:value-of select="description"/><br />
   <xsl:apply-templates select="inherits"/>
   <xsl:apply-templates select="version"/>
   <xsl:apply-templates select="classes"/>
@@ -132,24 +142,26 @@
 
 <xsl:template match="defvars" mode="globvar">
  <xsl:if test="count(defvar) > 0">
-  <p><h3>Global Variables:</h3>
-  <dl><xsl:apply-templates select="defvar"/></dl>
-  </p>
+  <br />
+  <dlu title="Global Variables:">
+  <xsl:apply-templates select="defvar"/>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="classes">
  <xsl:if test="count(class) > 0">
-  <p><dl><xsl:apply-templates select="class"/></dl>
-  </p>
+  <xsl:apply-templates select="class"/>
+  <br />
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="methods">
  <xsl:if test="count(method) > 0">
-  <p><dl><dt><h3>Methods:</h3></dt>
-  <dd><dl><xsl:apply-templates select="method"/></dl></dd></dl>
-  </p>
+  <br />
+  <dlu title="Methods:">
+  <xsl:apply-templates select="method"/>
+  </dlu>
  </xsl:if>
 </xsl:template>
 
