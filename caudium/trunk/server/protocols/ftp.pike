@@ -2748,6 +2748,10 @@ class FTPSession
 
   void ftp_EPRT(string args)
   {
+    if(!Query("passive_ftp")) {
+      send(504, ({ "Passive FTP is not enabled on this server." }));
+      return;
+    }
     if (epsv_only) {
       send(530, ({ "'EPRT': Method not allowed in EPSV ALL mode." }));
       return;
@@ -2843,6 +2847,10 @@ class FTPSession
   {
     // Specified by RFC 2428:
     // Extensions for IPv6 and NATs.
+     if(!Query("passive_ftp")) {
+      send(504, ({ "Passive FTP is not enabled on this server." }));
+      return;
+    }
 
     if (args && args != "1") {
       if (lower_case(args) == "all") {
@@ -3590,11 +3598,14 @@ class FTPSession
     master_session->not_query = user || "Anonymous";
     conf->log(([ "error":204, "request_time":(time(1)-master_session->time) ]),
 	      master_session);
-    if (fd) {
-      fd->close();
-    }
+    // I don't think those lines are usefull. I've taken from Roxen's FTP 
+    // modifications... 
+    //  -- Xavier
+    //if (fd) {
+    //  fd->close();
+    //}
     // Make sure we disappear...
-    destruct();
+    //destruct();
   }
 
   void destroy()
