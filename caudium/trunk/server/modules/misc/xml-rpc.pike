@@ -83,7 +83,7 @@ private mapping fault(int fault_code, array backtrace)
   if(QUERY(report_faults))
     report_error(describe_backtrace(backtrace));
   string xmlResult = Protocols.XMLRPC.encode_response_fault(2, backtrace[0]);
-  return http_string_answer(xmlResult, "text/xml"); 
+  return Caudium.HTTP.string_answer(xmlResult, "text/xml"); 
 }
 
 // return all the XML-RPC providers
@@ -134,7 +134,7 @@ mapping|Stdio.File|void find_file( string path, object id )
 
   // if request is not xml, return a normal error string
   if(id->request_headers["content-type"] != "text/xml")
-    return http_string_answer("<html><body>Your request must be a text/xml type request, this is a XML-RPC server.</html></body>", "text/html");
+    return Caudium.HTTP.string_answer("<html><body>Your request must be a text/xml type request, this is a XML-RPC server.</html></body>", "text/html");
   array internal_error = catch {
     Call  = Protocols.XMLRPC.decode_call(id->data);
     fcall = Call->method_name;
@@ -154,7 +154,7 @@ mapping|Stdio.File|void find_file( string path, object id )
 	      if (callResult != 0)
 	      {
 		xmlResult = Protocols.XMLRPC.encode_response(({ callResult }));
-		return http_string_answer(xmlResult, "text/xml");
+		return Caudium.HTTP.string_answer(xmlResult, "text/xml");
 	      }
 	    }
        }
