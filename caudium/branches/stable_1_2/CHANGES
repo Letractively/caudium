@@ -1,3 +1,11 @@
+Changes in Caudium 1.2.x since Caudium 1.2.2
+--------------------------------------------
+- Fixed bugs #514651 & #512647 : Scopes compatibility break RXML
+- Fixed bug #514653 : Unitialized variables get backtraces when try to
+  expr them (same code : <formoutput><set variable=GT expr="#GT# + #Z#">
+  </formoutput> was give backtrace if either GT or Z was not previously
+  initialized).
+
 Changes in Caudium 1.2 since Caudium 1.0
 ----------------------------------------
 - Added MODULE_EXPERIMENTAL to XML-Compliant RXML parser since it has sometimes
