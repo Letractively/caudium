@@ -152,4 +152,16 @@
  */
 #define COMPARE_SPIDER
 
+/*
+ * Setting this will stop warnings in Caudium logfile about
+ * API compatibility issues.
+ *
+ * This not set because this can help developpers to make
+ * more up to date modules and code, but it can slow down
+ * a bit Caudium because of heavy usage of backtrace() pike
+ * function to help find in which file and which line the 
+ * compat API was called.
+ */
+#undef SILENT_COMPAT
+
 #endif

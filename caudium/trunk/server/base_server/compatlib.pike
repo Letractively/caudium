@@ -30,6 +30,7 @@
 
 constant cvs_version = "$Id$";
 
+#ifndef SILENT_COMPAT
 // Private functions
 // Used for backtrace work
 static private string dbt(array t) {
@@ -37,9 +38,19 @@ static private string dbt(array t) {
   return (((t[0]||"Unknown program")-(getcwd()+"/"))-"base_server/")+":"+t[1];
 }        
 
+// Simple Warning compat proto
 #define WCOMPAT(Y,X) report_error("Compat "+X+"() used in %s, please consider using "+Y+"."+X+"() instead\n",dbt(backtrace()[-2]));
 
+// Variant one. Old function, new function name
 #define WCOMPAT2(Y,X) report_error("Compat "+X+"() used in %s, please consider using "+Y+"() instead\n",dbt(backtrace()[-2]));
+
+// Another variant...
+#define WCOMPAT3(Y,X) report_error("Compat "+X+"() used in %s, please consider using "+Y+" instead\n",dbt(backtrace()[-2]));
+#else /* SILENT_COMPAT */
+#define WCOMPAT(Y,X)
+#define WCOMPAT2(Y,X)
+#define WCOMPAT3(Y,X)
+#endif /* SILENT_COMPAT */
 
 //! Compat call of Stdio.mkdirhier
 //! @deprecated
@@ -470,8 +481,7 @@ static mixed parse_accessed_database(mixed ... args) {
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
 static string gif_size(object gif)
 {
-  report_error("Compat gif_size() used in %s, please consider using Image.Dims functions instead\n",dbt(backtrace()[-2]));
-
+  WCOMPAT3("Image.Dims functions","gif_size");
   array size;
   mixed err;
   
@@ -507,7 +517,7 @@ static string gif_size(object gif)
 //!
 object new(string|program prog, mixed ... args)
 {
-  report_error("Compat new() used in %s, please consider using Pike 7.4 (program) cast instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike 7.4+ (program) cast","new");
   if(stringp(prog))
   {
     if(program p=(program)(prog, backtrace()[-2][0]))
@@ -532,7 +542,7 @@ object new(string|program prog, mixed ... args)
 //!   @[destruct()], @[compile_string()], @[compile_file()], @[new()]
 
 object clone(mixed ... args) {
-  report_error("Compat clone() used in %s, please consider using Pike 7.4 (program) cast instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike 7.4+ (program) cast","clone");
   return new(@args);
 }
 
@@ -542,7 +552,7 @@ object clone(mixed ... args) {
 //! Backward compatibility with Roxen
 //! @deprecated
 static mixed build_roxen_env_vars(mixed ... args) {
-  report_error("Compat build_roxen_env_vars() used in %s, please consider using build_caudium_env_vars() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT2("Caudium.Env.build_caudium_vars","build_roxen_env_vars");
   return Caudium.Env.build_caudium_vars(@args);
 }
 
@@ -556,7 +566,7 @@ static string extention(string f) {
 //! Compat call for @[Caudium.HTTP.id_cookie]
 //! @deprecated
 static string http_roxen_id_cookie() {
-  report_error("Compat http_roxen_id_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT2("Caudium.HTTP.id_cookie","http_roxen_id_cookie");
   return Caudium.HTTP.id_cookie();
 }
 
@@ -577,7 +587,7 @@ static string http_roxen_config_cookie(string m) {
 //!   Unused.
 //! @deprecated
 static mapping http_auth_failed(string realm, string|void m, int|void d) {
-  report_error("Compat http_auth_failed() used in %s, please consider using Caudium.HTTP.auth_required() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT2("Caudium.HTTP.auth_required","http_auth_failed");
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth failed (%s)\n",realm);
 #endif
@@ -590,7 +600,7 @@ static mapping http_auth_failed(string realm, string|void m, int|void d) {
 //! Compat call from replace
 //! @deprecated
 static string do_replace(string s, mapping (string:string) m) {
-  report_error("Compat do_replace() used in %s, please consider using Pike replace() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike replace()","do_replace");
   return replace(s, m);
 }
 
@@ -598,28 +608,28 @@ static string do_replace(string s, mapping (string:string) m) {
 //! Compatibility for Image.Color(X)->rgb()
 //! @deprecated
 static mixed parse_color(mixed x) {
-  report_error("Compat parse_color() used in %s, please consider using Pike Image.Color( X )->rgb() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike Image.Color(xxx)->rgb()","parse_color");
   return Image.Color(x)->rgb();
 }
 
 //! Compatibility from Image.Color( X, X, X)->name()
 //! @deprecated
 static mixed color_name(mixed ... args) {
-  report_error("Compat color_name() used in %s, please consider using Pike Image.Color( @X )->name() instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike Image.Color(@X)->name()","color_name");
   return Image.Color(@args)->name();
 }
 
 //! Compatibility for indices(Image.Color)
 //! @deprecated
 static array list_colors() {
-  report_error("Compat list_colors() used in %s, please consider using Pike indices(Image.Color) instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike indices(Image.Color)","list_colors");
   return indices(Image.Color);
 }
 
 //! Compat for Image.Color.rgb( )->hsv();
 //! @deprecated
 static array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
-  report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike Image.Color.rgb(x,x,x)->hsv()","rgb_to_hsv");
   if(arrayp(ri))
     return Image.Color.rgb(@ri)->hsv();
   return Image.Color.rgb(ri,gi,bi)->hsv();
@@ -628,7 +638,7 @@ static array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
 //! Compat for Image.Color.hsv( )->rgb();
 //! @deprecated
 static array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
-  report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
+  WCOMPAT3("Pike Image.Color.hsv(x,x,x)->rgb()","hsv_to_rgb");
   if(arrayp(hv))
     return Image.Color.hsv(@hv)->rgv();
   return Image.Color.hsv(hv,sv,vv)->rgb();
