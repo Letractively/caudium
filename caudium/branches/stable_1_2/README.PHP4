@@ -17,7 +17,7 @@ Example Caudium Installation Instructions
      Caudium is installed in /opt/caudium/server/.
      Make also sure that you have php4 4.1.0 or more recent, the
      4.0 branch was not releable for production usage on other
-     OS than Linux.
+     OS than Linux. (*)
  2.  cd ../php-x.x.x
  3.  ./configure --with-caudium=/opt/caudium/server --enable-track-vars --other-php-options
  4.  make
@@ -38,6 +38,10 @@ Example Caudium Installation Instructions
 You can of course compile your Caudium module with support for the various extension
 modules available in PHP4. See the complete list of configure options for an
 exhaustive rundown. 
+
+(*) Some enviroments variables needed for some PHP4 are missing on php 4.1.x.
+    If you have such problems, please use CVS version of PHP4 that have this
+    bug corrected.
 
 Note: When compiling PHP4 with MySQL support you must make sure that the normal
       MySQL client code is used. Otherwise there might be conflicts if your Pike
