@@ -35,8 +35,7 @@ function encode_base64( what )
 	var base64_encodetable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	var result = "";
 	var len = what.length;
-	var x;
-	var y;
+	var x, y;
 	var ptr = 0;
 
 	while( len-- > 0 )
@@ -70,85 +69,56 @@ function encode_base64( what )
 	return result;
 }
 
+
 function decode_base64( what )
 {
 	var base64_decodetable = new Array (
-		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,		/*   0 -  15 */
-		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,		/*  16 -  31 */
-		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,  62, 255, 255, 255,  63,		/*  32 -  47 */
-		 52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255, 255, 255, 255, 255,		/*  48 -  63 */
-		255,   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,		/*  64 -  79 */
-		 15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25, 255, 255, 255, 255, 255,		/*  80 -  95 */
-		255,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,		/*  96 - 111 */
-		 41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51, 255, 255, 255, 255, 255		/* 112 - 127 */
+		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+		255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,  62, 255, 255, 255,  63,
+		 52,  53,  54,  55,  56,  57,  58,  59,  60,  61, 255, 255, 255, 255, 255, 255,
+		255,   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,
+		 15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25, 255, 255, 255, 255, 255,
+		255,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,  38,  39,  40,
+		 41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51, 255, 255, 255, 255, 255
 	);
 	var result = "";
 	var len = what.length;
-	var x;
-	var y;
+	var x, y;
 	var ptr = 0;
 
-	while( ( x = what.charCodeAt( ptr++ ) ) != NaN )
+	while( !isNaN( x = what.charCodeAt( ptr++ ) ) )
 	{
 		if( ( x > 127 ) || (( x = base64_decodetable[x] ) == 255) )
-			return "elso";
-		if( ( ( y = what.charCodeAt( ptr++ ) ) == NaN ) || (( y = base64_decodetable[y] ) == 255) )
-			return "masodik";
+			return -1;
+		if( ( isNaN( y = what.charCodeAt( ptr++ ) ) ) || (( y = base64_decodetable[y] ) == 255) )
+			return -1;
 
 		result += String.fromCharCode( (x << 2) | (y >> 4) );
 
-		if( (x = what.charCodeAt( ptr++ )) == 61 )						/* "=" */
+		if( (x = what.charCodeAt( ptr++ )) == 61 )
 		{
-			if( (what.charCodeAt( ptr++ ) != 61) || (what.charCodeAt( ptr ) != NaN) )
-				return "harmadik";
+			if( (what.charCodeAt( ptr++ ) != 61) || (!isNaN(what.charCodeAt( ptr ) ) ) )
+				return -1;
 		}
 		else
 		{
 			if( ( x > 127 ) || (( x = base64_decodetable[x] ) == 255) )
-				return "negyedik";
+				return -1;
 			result += String.fromCharCode( (y << 4) | (x >> 2) );
-			if( (x = what.charCodeAt( ptr++ )) == 61 )					/* "=" */
+			if( (y = what.charCodeAt( ptr++ )) == 61 )
 			{
-				if( what.charCodeAt( ptr ) == NaN )
-					return "otodik";
+				if( !isNaN(what.charCodeAt( ptr ) ) )
+					return -1;
 			}
 			else
 			{
 				if( (y > 127) || ((y = base64_decodetable[y]) == 255) )
-					return "hatodik";
+					return -1;
 				result += String.fromCharCode( (x << 6) | y );
 			}
 		}
 	}
 	return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
