@@ -50,6 +50,8 @@ private inherit "caudiumlib";
 int req_time = HRTIME();
 #endif
 
+//#define REQUEST_DEBUG
+
 #ifdef REQUEST_DEBUG
 #define REQUEST_WERR(X)	roxen_perror((X)+"\n")
 #else
@@ -1383,12 +1385,16 @@ void send_result(mapping|void result)
   mapping heads;
   string head_string;
 
+  MARK_FD(sprintf("send_result(%O)",result));
+
   if (result) {
     file = result;
   }
 
   if(!mappingp(file))
   {
+    MARK_FD("send_result(): not a mapping -> sending error");
+    // XB: This handle the error :) Great
     file = caudium->http_error->process_error (this_object ());
   } else {
     if((file->file == -1) || file->leave_me) 
@@ -1686,16 +1692,24 @@ void handle_request( )
   handle_magic_error();
 #endif /* MAGIC_ERROR */
 
+  MARK_FD("handle_request() is called.");
 
   remove_call_out(do_timeout);
   MARK_FD("HTTP handling request");
   if(!file) {
+    MARK_FD("handle_request(): file is not here");
     if(conf) {
-      if(err= catch(file = conf->handle_request( this_object() )))
+      MARK_FD("handle_request(): conf is here");
+      if(err= catch(file = conf->handle_request( this_object() ))) {
+        MARK_FD("handle_request(): internal error to be called.");
 	INTERNAL_ERROR( err );  
-    } else if((err=catch(file = caudium->configuration_parse( this_object() )))) {
-      if(err == -1) return;
-      INTERNAL_ERROR(err);
+        }
+    } else {
+      MARK_FD("handle_request(): conf is not here");
+      if((err=catch(file = caudium->configuration_parse( this_object() )))) {
+        if(err == -1) return;
+        INTERNAL_ERROR(err);
+      }
     }
   }  
   send_result();
