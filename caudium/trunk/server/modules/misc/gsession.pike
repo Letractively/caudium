@@ -402,7 +402,7 @@ private int check_access(object id)
   if (!sizeof(uri_regexps))
     return 1;
 
-  string path = dirname(id->not_query);
+  string path = (id->not_query && sizeof(id->not_query)) ? dirname(id->not_query) : "/";
   if (path == "")
     path = "/";
     
