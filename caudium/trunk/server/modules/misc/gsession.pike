@@ -1194,7 +1194,7 @@ private int leave_me_alone(string uri)
 
 string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
 {
-    int              hashpos, have_svar = 0;
+    int              hashpos;
     array(string)    parts;
     string           sepchar = append ? "&" : "?";
     
@@ -1203,11 +1203,9 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
     if (hashpos >= 0) {
         parts = from / "#";
         if (parts[0] == "") {
-            if (search(SVAR, parts[1]) >= 0)
-                have_svar = 1;
             parts[0] = id->raw_url;
         }
-        if (!have_svar)
+        if (search(SVAR, parts[1]) < 0)
             parts = ({parts[0], SVAR, "=" + id->misc->session_id, "#" + parts[1]});
         else
             parts = ({parts[0], "", "", "#" + parts[1]});
