@@ -432,9 +432,9 @@ mapping|int get_user_info(string u)
 
   user+=result[0];
 
-  user->groups=({});
+  user->groups=(<>);
   
-  user->groups=get_groups_for_user(user->name, s);
+  user->groups=(multiset)(get_groups_for_user(user->name, s));
 
   user->_source=QUERY(_name);
 
@@ -469,9 +469,9 @@ mapping|int get_group_info(string g)
 
   group+=result[0];
 
-  group->users=({});
+  group->users=(<>);
   
-  group->users=get_users_for_group(group->name, s);
+  group->users=(multiset)(get_users_for_group(group->name, s));
 
   group->_source=QUERY(_name);
 

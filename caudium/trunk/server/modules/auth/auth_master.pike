@@ -228,8 +228,8 @@ string|int get_groupname(int gid)
 //! numeric user id
 //! @member string "name"
 //! long user description
-//! @member array(string)|int "groups"
-//! group memberships or 0 if none
+//! @member multiset(string) "groups"
+//! group memberships
 //! @member string "shell"
 //! login shell (optional)
 //! @member string "home_directory"
@@ -260,8 +260,8 @@ mapping|int user_info(string username)
 //! numeric group id
 //! @member string "name"
 //! long group description, if any
-//! @member array(string)|int "users"
-//!  members of group or 0 if none
+//! @member multiset(string) "users"
+//!  members of group
 //! @endmapping
 mapping|int group_info(string groupname)
 {
