@@ -1,3 +1,9 @@
+caudium (2:1.2.5-6) unstable; urgency=low
+
+  * More fixes and improvements
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 10 Apr 2002 16:21:02 +0200
+
 caudium (2:1.2.5-5) unstable; urgency=low
 
   * awizard interface fixed
