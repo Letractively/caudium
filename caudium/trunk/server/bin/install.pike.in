@@ -1,4 +1,4 @@
-#!bin/pike -m lib/pike/master.pike
+#!@PIKE@ -m@CAUDIUM_SERVERDIR@etc/caudium_master.pike -M@CAUDIUM_SERVERDIR@etc/modules
 
 /*
  * Caudium - An extensible World Wide Web server
