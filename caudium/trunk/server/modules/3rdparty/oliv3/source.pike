@@ -3,7 +3,7 @@
 // Faster debugging (thanks kiwi :) )
 #define CAMAS_DEBUG
 #ifdef CAMAS_DEBUG
-# define DEBUG(X)	if(QUERY(debug)) werror("CAMAS TAGS: "+X+"\n");
+# define DEBUG(X)	if(QUERY(debug)) report_debug("CAMAS TAGS: "+X+"\n");
 #else
 # define DEBUG(X)
 #endif

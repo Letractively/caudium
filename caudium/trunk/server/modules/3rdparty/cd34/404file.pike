@@ -33,7 +33,7 @@ inherit "caudiumlib";
 //#define DEBUG
 
 #ifdef DEBUG
-# define DEBUGLOG(X) werror("REFER: "+X+"\n")
+# define DEBUGLOG(X) report_debug("REFER: "+X+"\n")
 #else
 # define DEBUGLOG(X)
 #endif
