@@ -1,4 +1,10 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
 
+- Fixed bugs #514651 & #512647 : Scopes compatibility break RXML
+- Fixed bug #514653 : Unitialized variables get backtraces when try to
+  expr them (same code : <formoutput><set variable=GT expr="#GT# + #Z#">
+  </formoutput> was give backtrace if either GT or Z was not previously
+  initialized).
+- File index.rxml is now recognized as index file.
 - New cache system added
