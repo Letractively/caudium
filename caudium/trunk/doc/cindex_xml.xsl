@@ -42,7 +42,7 @@
       </page>
     </xsl:when>
 
-<xsl:when test="$display = 'methods'">
+    <xsl:when test="$display = 'methods'">
       <page title="Caudium Method Index">
        <h3>Caudium Method Index</h3>
          <p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Method/%%/Defined in...
@@ -52,6 +52,7 @@
        <xsl:comment>XSLT Template version $Id$</xsl:comment>
       </page>
     </xsl:when>
+
     <xsl:otherwise>
       <page title="Caudium File / Method Index">
         This is an index of all documented files and methods. Please note
@@ -59,7 +60,7 @@
 	documentation is meant for programmers that want to make custom
 	modules, Pike scripts or want to work on the webserver itself.
 	<dl>
-          <xsl:apply-templates select='entry[@type="file"]' mode="top">
+          <xsl:apply-templates select='entry[@type="file" or @type="module"]' mode="filemethod">
 		<xsl:sort select="@name"/>
 	  </xsl:apply-templates>
        </dl>
@@ -71,16 +72,6 @@
 
 <xsl:template match="entry" mode="top">
   <xsl:choose>
-   <xsl:when test="@type='file'">
-    <dt><b><a href="{@path}">
-     <xsl:choose>
-     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
-     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-     </xsl:choose>
-    </a></b></dt>
-    <dl><xsl:apply-templates select='entry[@type="method" or @type="class"]' mode="top"><xsl:sort select="@name"/></xsl:apply-templates></dl><br />
-   </xsl:when>
-
    <xsl:when test="@type='module'">
     <dt><b><a href="{@path}">
      <xsl:choose>
@@ -141,6 +132,22 @@
      <xsl:when test="../@title"><xsl:value-of select="../@title"/></xsl:when>
      <xsl:otherwise><xsl:value-of select="../@name"/></xsl:otherwise>
      </xsl:choose></a>
+   </xsl:when>
+  </xsl:choose> 
+</xsl:template>
+
+<xsl:template match="entry" mode="filemethod">
+  <xsl:choose>
+   <xsl:when test="@type='file' or @type='module'">
+    <xsl:if test='count(entry[@type="method" or @type="class"]) > 0'>
+      <dt><b><a href="{@path}">
+       <xsl:choose>
+       <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+       <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+       </xsl:choose>
+      </a></b></dt>
+      <dl><xsl:apply-templates select='entry[@type="method" or @type="class"]' mode="filemethod"><xsl:sort select="@name"/></xsl:apply-templates></dl><br />
+     </xsl:if>
    </xsl:when>
 
    <xsl:otherwise>

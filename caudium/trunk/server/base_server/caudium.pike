@@ -32,7 +32,6 @@
 //! inherits: socket
 //! inherits: disk_cache
 //! inherits: language
-//! inherits: color
 //! inherits: fonts
 //! inherits: internals
 //
