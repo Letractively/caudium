@@ -6,11 +6,18 @@ void pike_module_init( void );
 void pike_module_exit( void );
 static void free_buf_struct(struct object *);
 static void alloc_buf_struct(struct object *);
-void init_nb_send(void);
+void init_nbio(void);
+void exit_nbio(void);
+
+#define READ_BUFFER_SIZE 65536
+#define READ_MORE_SIZE   40000 
+
+
 #define BUFSIZE 16535
 #define BUF ((buffer *)fp->current_storage)
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
+
 typedef struct
 {
   struct svalue data;
@@ -69,12 +76,15 @@ typedef struct
 typedef struct
 {
   int written;
+  int buf_len;
+  char buf[READ_BUFFER_SIZE];
   output *outp;
   input *inputs;
   input *last_input;
   struct array *args;
   struct svalue cb;
-} nb;
+
+} nbio_storage;
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
