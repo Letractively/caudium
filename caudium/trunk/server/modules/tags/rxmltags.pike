@@ -1098,11 +1098,9 @@ string tag_define(string tag, mapping m, string str, object id, object file,
 	id->misc->defaults[m->tag] += ([ arg[8..]:m[arg] ]);
     
     id->misc->tags[m->tag] = str;
-    if(id->misc->_xml_parser) {
+    id->misc->_tags[m->tag] = CALL_USER_TAG;
+    if(id->misc->_xml_parser) 
       id->misc->_xml_parser->add_tag(m->tag, CALL_USER_TAG);
-    } else {
-      id->misc->_tags[m->tag] = CALL_USER_TAG;
-    }
   }
   else if (m->container) 
   {
@@ -1119,11 +1117,9 @@ string tag_define(string tag, mapping m, string str, object id, object file,
 	id->misc->defaults[m->container] += ([ arg[8..]:m[arg] ]);
     
     id->misc->containers[m->container] = str;
-    if(id->misc->_xml_parser) {
+    id->misc->_containers[m->container] = CALL_USER_CONTAINER;
+    if(id->misc->_xml_parser) 
       id->misc->_xml_parser->add_container(m->container, CALL_USER_CONTAINER);
-    } else {
-      id->misc->_containers[m->container] = CALL_USER_CONTAINER;
-    }
   }
   else return "<!-- No name, tag or container specified for the define! "
 	 "&lt;define help&gt; for instructions. -->";
