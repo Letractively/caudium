@@ -154,7 +154,8 @@ void create (mixed ... foo) {
   defvar ("remove", 0, "Remove the sessions", TYPE_CUSTOM,
 	  "Pressing this button will remove all the sessions.",
 	  // function callbacks for the configuration interface
-	  ({ describe_remove, describe_form_remove, set_from_form_remove }));
+	  ({ describe_remove, describe_form_remove, set_from_form_remove }),
+	  lambda () { return (QUERY(storage) != "memory"); });
 }
 
 int hide_gc () { return (!QUERY(dogc)); }
