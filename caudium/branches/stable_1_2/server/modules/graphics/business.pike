@@ -1021,7 +1021,7 @@ mapping find_file(string f, object id)
       img = Graphics.Graph.bars(diagram_data);
       break;
     case "sumbars":
-      img = Graphics.Graph.bars(diagram_data);
+      img = Graphics.Graph.sumbars(diagram_data);
       break;
     case "norm":
       img = Graphics.Graph.norm(diagram_data);
