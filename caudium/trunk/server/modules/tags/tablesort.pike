@@ -148,7 +148,10 @@ array(array) get_table(object id)
 {
   wrong_usage(id);
   fetch_args(id);
-  id->misc->tabsort_table = id->misc->tabsort_table->sort(get_col(id));
+  if(!get_sortorder(id))
+    id->misc->tabsort_table = id->misc->tabsort_table->sort(get_col(id));
+  else
+    id->misc->tabsort_table = id->misc->tabsort_table->rsort(get_col(id));
   return values(id->misc->tabsort_table); 
 }
 
@@ -174,10 +177,7 @@ private void change_sortorder(object id, int order)
   wrong_usage(id);
   TDEBUG("Changing sort order\n");
   if(TSESSION[0] != order)
-  {
     TSESSION[0] = order;
-    id->misc->tabsort_table = id->misc->tabsort_table->rsort(get_col(id));
-  }
 }
 
 private int get_sortorder(object id)
@@ -265,18 +265,19 @@ string container_tabsort_sort_href(string tag_name, mapping args, string content
     + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
-  out += CAMAS.Tools.make_container("a", args, contents);
-  out = CAMAS.Parse.parse_html(out,
+  out = CAMAS.Parse.parse_html(contents,
                    ([
+                       "img_arrow"        : tag_tabsort_sort_href_img,
                     ]),
                    ([
-                     "img_arrow"        : container_tabsort_sort_href_img,
                     ]),
                    id, column, arrowup, arrowdown, arrownone);
+  out = CAMAS.Tools.make_container("a", args, out);
+
   return out;
 }
 
-string container_tabsort_sort_href_img(string tag_name, mapping args, string contents, object id, 
+string tag_tabsort_sort_href_img(string tag_name, mapping args, object id, 
     string column, string arrowup, string arrowdown, string arrownone)
 {
   if(column == get_col(id))
