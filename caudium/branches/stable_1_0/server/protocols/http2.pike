@@ -1186,7 +1186,6 @@ void send_result(mapping|void result)
   } else {
     
 #ifdef ENABLE_RAM_CACHE
-    wefweftrace(1);
     if( conf && (misc->cacheable > 0) && file->len > 0)
     {
       if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
@@ -1204,7 +1203,6 @@ void send_result(mapping|void result)
 	head_string = "";
       }
     }
-    trace(0);
 #endif
     if(file->len > 0 && file->len < 4000) {
       my_fd->write(head_string + (file->file ? file->file->read() :
