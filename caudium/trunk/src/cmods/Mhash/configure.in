@@ -8,7 +8,7 @@ AC_CHECK_HEADERS( mhash.h )
 AC_CHECK_LIB(mhash, mhash)
 
 
-AC_OUTPUT(Makefile.pre, [${MAKE} -f Makefile.pre depend])
+AC_OUTPUT(Makefile.pre, [${MAKE-make} -f Makefile.pre depend])
 
 
 dnl ## Local Variables:
