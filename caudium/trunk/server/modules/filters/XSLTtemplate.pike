@@ -76,7 +76,7 @@ void start() {
 #if constant(PCRE.Regexp)
   regexp = PCRE.Regexp("(.*)\\.(.*)$", "S");
 #else
-  regexp = Regexp("(.*)\\.(.*)$", "S");
+  regexp = Regexp("(.*)\\.(.*)$");
 #endif
 }
 
