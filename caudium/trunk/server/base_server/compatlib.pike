@@ -375,7 +375,7 @@ static int ipow(int what, int how) {
 //! Compat call of @[Caudium.simplify_path]
 //! @deprecated
 static string simplify_path(string file) {
-   WCOMPAT("Caudium","file");
+   WCOMPAT("Caudium","simplify_path");
    return Caudium.simplify_path(file);
 }
 
