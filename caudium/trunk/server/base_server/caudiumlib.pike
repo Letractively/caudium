@@ -19,6 +19,15 @@
  *
  */
 
+/*
+**! file: base_server/caudiumlib.pike
+**!  Caudiumlib is a collection of utility functions used by modules and
+**!  the Caudium core. 
+**!
+**! inherits: base_server/http.pike
+**! cvs_version: $Id$
+*/
+
 inherit "http";
 
 // static string _cvs_version = "$Id$";
@@ -31,6 +40,16 @@ inherit "http";
 
 #define ipaddr(x,y) (((x)/" ")[y])
 
+//! method: string gif_size(object gif)
+//!  Get the size in pixels of the file pointed to by the
+//!  object gif.
+//! arg: object gif
+//!  The opened Stdio.File object with the GIF image.
+//! returns:
+//!  The size of the image as a string in a format suitable for use
+//!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
+//! name: gif_size - get the size in pixels of a GIF
+
 string gif_size(object gif)
 {
   int x,y;
@@ -38,18 +57,29 @@ string gif_size(object gif)
   gif->seek(6);
   d = gif->read(4);
   x = (d[1]<<8) + d[0]; y = (d[3]<<8) + d[2];
-  return "width="+x+" height="+y;
-}
-
-static string extract_query(string from)
-{
-  if(!from) return "";
-  if(sscanf(from, "%*s?%s%*[ \t\n]", from))
-    return (from/"\r")[0];
-  return "";
+  return "width=\""+x+"\" height=\""+y+"\"";
 }
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
+
+//! method: mapping build_env_vars(string f, object id, string path_info)
+//!  Build a mapping with standard CGI environment variables for use with
+//!  CGI execution or Apache-style SSI.
+//! arg: string f
+//!  The patch of the accessed file.
+//! arg: object id
+//!  The request id object.
+//! arg: string path_info
+//!  The path info string - ie the path prepended to the actual file name.
+//!  This is part of the CGI specification. In Caudium it's extracted by the
+//!  PATH INFO module.
+//! note:
+//!  Normally this function won't be called by the user. It's not really
+//!  useful outside the CGI / SSI concept since all the information is easily
+//!  accessible from the request id object.
+//! returns:
+//!  The environment variable mapping.
+//! name: build_env_vars - build a mapping of CGI environment variables.
 
 static mapping build_env_vars(string f, object id, string path_info)
 {
@@ -217,7 +247,22 @@ static mapping build_env_vars(string f, object id, string path_info)
   return new;
 }
 
-static mapping build_roxen_env_vars(object id)
+
+//! method: mapping build_caudium_env_vars(object id)
+//!  Build a mapping of the Caudium extended environment variables. These
+//!  include COOKIE_[cookiename], VAR_[variablename], SUPPORTS and PRESTATES.
+//!  When programming CGI, using these variables can be rather handy. 
+//! arg: object id
+//!  The request id object.
+//! returns:
+//!  The environment variable mapping.
+//! note:
+//!  Normally this function won't be called by the user. It's not really
+//!  useful outside the CGI / SSI concept since all the information is easily
+//!  accessible from the request id object.
+//! name: build_env_vars - build a mapping of CGI environment variables.
+
+static mapping build_caudium_env_vars(object id)
 {
   mapping new = ([]);
   mixed tmp;
@@ -279,7 +324,18 @@ static mapping build_roxen_env_vars(object id)
   return new;
 }
 
+/* Backwards Roxen compatibility */
+static function build_roxen_env_vars = build_caudium_env_vars; 
 
+//! method: string decode_mode(int m)
+//!  Return a textual description of the file mode.
+//! arg: int m
+//!  The file mode to decode.
+//! returns:
+//!  The mode described as a string.
+//!  Example result: File, &lt;tt&gt;rwxr-xr--&lt;tt&gt;
+//! name:
+//!  decode_mode - convert mode integer to text
 static string decode_mode(int m)
 {
   string s;
@@ -323,6 +379,17 @@ constant MONTHS=(["Jan":0, "Feb":1, "Mar":2, "Apr":3, "May":4, "Jun":5,
 		 "jan":0, "feb":1, "mar":2, "apr":3, "may":4, "jun":5,
 	         "jul":6, "aug":7, "sep":8, "oct":9, "nov":10, "dec":11,]);
 
+//! method: int _match(string w, array (string) a)
+//!  Internal glob matching function.
+//! scope: private
+//! arg: string w
+//!  String to match.
+//! arg: array(string) a
+//!  Glob patterns to match against the string.
+//! returns:
+//!  1 if a match occured, -1 if the string to match is invalid, 0 if
+//!  no match occured.
+//! name: _match - internal glob matching
 static int _match(string w, array (string) a)
 {
   string q;
@@ -332,6 +399,26 @@ static int _match(string w, array (string) a)
     if(stringp(q) && strlen(q) && glob(q, w)) 
       return 1; 
 }
+
+//! method: int is_modified(string a, int t, void|int len)
+//!  This function performs a check to see if the specified time
+//!  is newer or older than the Is-Modified-Since header sent in the request.
+//!  It also checks whether the size of the file has changed since the
+//!  browser first requested it.
+//! scope: private
+//! arg: string a
+//!  The value of the Is-Modified-Since header .
+//! arg: int t
+//!  The modification time of the file.
+//! arg: void|int len
+//!  Optional length of the requested resource.
+//! returns:
+//!  0 if the file is modified, 1 if it isn't.
+//! note:
+//!  It's somewhat confusing that it returns 1 for "not modified" and
+//!  0 for modified. Should be the other way around.
+//! bugs:
+//!  There has previously been bugs with this function. Is it fixed?
 
 static int is_modified(string a, int t, void|int len)
 {
