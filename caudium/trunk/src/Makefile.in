@@ -4,19 +4,24 @@ prefix=@prefix@
 
 @SET_MAKE@
 
-all: cmods
+DIRS="@DIRS@"
+
+all: $(DIRS)
 
 force:
 	@:
 
 cmods: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+tools: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 
 install: force
-	( cd cmods && $(MAKE) $(MAKE_FLAGS) install)
+	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
 clean: force
-	( cd cmods && $(MAKE) $(MAKE_FLAGS) clean)
+	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) clean); done
 depend: force
-	( cd cmods && $(MAKE) $(MAKE_FLAGS) depend)
+	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) depend); done
+
 
 
