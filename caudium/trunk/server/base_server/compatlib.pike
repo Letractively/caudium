@@ -302,3 +302,43 @@ string do_replace(string s, mapping (string:string) m) {
   return replace(s, m);
 }
 
+
+//! Compatibility for Image.Color(X)->rgb()
+//! @deprecated
+mixed parse_color(mixed x) {
+  report_error("Compat parse_color() used in %s, please consider using Pike Image.Color( X )->rgb() instead\n",dbt(backtrace()[-2]));
+  return Image.Color(X)->rgb();
+}
+
+//! Compatibility from Image.Color( X, X, X)->name()
+//! @deprecated
+mixed color_name(mixed ... args) {
+  report_error("Compat color_name() used in %s, please consider using Pike Image.Color( @X )->name() instead\n",dbt(backtrace()[-2]));
+  return Image.Color(@args)->name();
+}
+
+//! Compatibility for indices(Image.Color)
+//! @deprecated
+array list_colors() {
+  report_error("Compat list_colors() used in %s, please consider using Pike indices(Image.Color) instead\n",dbt(backtrace()[-2]));
+  return indices(Image.Color);
+}
+
+//! Compat for Image.Color.rgb( )->hsv();
+//! @deprecaded
+array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
+  report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
+  if(arrayp(ri))
+    return Image.Color.rgb(@ri)->hsv();
+  return Image.Color.rgv(ri,gi,bi)->hsv();
+}
+  
+//! Compat for Image.Color.hsv( )->rgb();
+//! @deprecated
+array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
+  report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
+  if(arrayp(hv))
+    return Image.Color.hsv(@hv)->rgv();
+  return Image.Color.hsv(hv,sv,vv)->rgb();
+}
+
