@@ -35,12 +35,15 @@ constant thread_safe = 1;
 
 static mapping blocked;
 
+object module_cache;
+
 void create() {
   defvar("Extensions", ({ "jpg", "jpeg", "gif", "png" }), "File Extensions", TYPE_STRING_LIST, "The file extensions to assume are images.");
 }
 
 void start() {
   blocked = ([]);
+  module_cache=GET_CACHE();
 }
 
 string status() {
@@ -63,14 +66,14 @@ mixed handle_file_extension(object file, string extension, object id) {
     return 0;
   string blockfile = Stdio.append_path(dirname(id->realfile), ".image_block");
   if (id->pragma["no-cache"]) 
-    mc->refresh(blockfile);
-  int|mapping block = mc->retrieve(blockfile, parse_blockfile, ({ blockfile }));
+    module_cache->refresh(blockfile);
+  int|mapping block = module_cache->retrieve(blockfile, parse_blockfile, ({ blockfile }));
   if (!block)
     // We aren't doing anything about files in this directory.
     return 0; 
   else if (mappingp(block)) {
     foreach(block->ReferrerAllow, string reg) {
-      object regex = mc->retrieve(sprintf("regex:%O", reg), get_regex, ({ reg }));
+      object regex = module_cache->retrieve(sprintf("regex:%O", reg), get_regex, ({ reg }));
       if (regex->match(id->referrer))
         return 0;
       else {
@@ -83,18 +86,18 @@ mixed handle_file_extension(object file, string extension, object id) {
 
 object get_regex(string reg) {
   object regex = Regexp(reg);
-  mc->store(cache_pike(regex, sprintf("regex:%O", reg), -1));
+  module_cache->store(cache_pike(regex, sprintf("regex:%O", reg), -1));
   return regex;
 }
 
 int|mapping parse_blockfile(string blockfile) {
   if (!Stdio.exist(blockfile)) {
-    mc->store(cache_pike(0, blockfile, NOBLOCK_TTL));
+    module_cache->store(cache_pike(0, blockfile, NOBLOCK_TTL));
     return 0;
   }
   object f;
   if (catch(f = Stdio.File(blockfile, "r"))) {
-    mc->store(cache_pike(0, blockfile, NOBLOCK_TTL));
+    module_cache->store(cache_pike(0, blockfile, NOBLOCK_TTL));
     return 0;
   }
   string data = f->read();
@@ -117,7 +120,7 @@ int|mapping parse_blockfile(string blockfile) {
       break;
     }
   }
-  mc->store(cache_pike(block, blockfile, BLOCK_TTL));
+  module_cache->store(cache_pike(block, blockfile, BLOCK_TTL));
   // Store the contents of the blockfile in the cache.
 
   // Let's pre-cache the deny image so that it's in the cache in advance:
@@ -126,7 +129,7 @@ int|mapping parse_blockfile(string blockfile) {
 }
 
 mapping get_blockimage(string blockfile, mapping block) {
-  object img = mc->retrieve(sprintf("image:%O", blockfile), _get_blockimage, blockfile, ({ block }));
+  object img = module_cache->retrieve(sprintf("image:%O", blockfile), _get_blockimage, blockfile, ({ block }));
   return Caudium.HTTP.string_answer(Image.PNG.encode(img), "image/png");
 }
 
@@ -145,7 +148,7 @@ object _get_blockimage(string blockfile, mapping block) {
   string data = f->read();
   f->close();
   object img = Image.ANY.decode(data);
-  mc->store(cache_image(img, sprintf("image:%O", blockfile), BLOCK_TTL));
+  module_cache->store(cache_image(img, sprintf("image:%O", blockfile), BLOCK_TTL));
   return img;
 }
 
