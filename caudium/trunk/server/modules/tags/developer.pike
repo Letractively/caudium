@@ -88,7 +88,7 @@ mapping(string:array) developers = ([
   //    "duerrj":({"Joseph Duerr", "duerrj@caudium.net", "", "USA"}),
   //    "eMBee":({"Martin Baehr", "mbaehr@caudium.net", "", "Austria"}),
   "grendel":({"Marek Habersack", "grendel@caudium.net", "1973-09-11.", "Poland"}),
-  "james_tyson":({"James Tyson", "james@samizdat.co.nz", "1977-06-25", "New Zealand"}),
+  "james_tyson":({"James Tyson", "eugene@caudium.net", "1977-06-25", "New Zealand"}),
   "kvoigt":({"Kai Voigt","k@caudium.net", "", "Germany"}),
   "kiwi":({"Xavier Beaudouin", "kiwi@caudium.net", "1972-11-6", "France"}),
   "mikeharris":({"Mike A. Harris", "mikeharris@users.sourceforge.net", "", "Canada"}),
