@@ -9,7 +9,7 @@ import Headlines;
 
 #include <headlines/base.h>
 
-constnat name = "benews";
+constant name = "benews";
 constant site = "BeNews";
 constant url  = "http://benews.com/";
 constant path = "story/headlines/10";
