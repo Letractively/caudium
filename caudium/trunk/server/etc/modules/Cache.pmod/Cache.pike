@@ -162,8 +162,8 @@ void store(mapping cache_response) {
   write(sprintf("CACHE: store(\"%s\", \"%s\", %s)\n",
                  namespace, cache_response->name, _obj));
 #endif
-  cache_response + behavior;
   LOCK();
+  cache_response + behavior;
   last_access = time();
   if (cache_response->size > max_object_ram) {
     //if (cache_response->disk_cache) {
