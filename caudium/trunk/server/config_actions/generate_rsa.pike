@@ -25,8 +25,8 @@
 
 inherit "wizard";
 
-#if 0
-#define WERROR werror
+#if SSL_DEBUG
+#define WERROR report_debug
 #else
 #define WERROR(x)
 #endif

@@ -164,7 +164,7 @@ string wizard_done(object id)
     id->variables->_error = "File already exists.";
     return "<font size=+2>The file " + fname + "  already exists. Please choose another file name!</font>";
   }
-  werror("%s\n", safe(id->variables->description));
+  report_debug("%s\n", safe(id->variables->description));
   object file = Stdio.File();
   object privs = Privs("Creating server template file");
 

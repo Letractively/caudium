@@ -150,7 +150,7 @@ string page_2(object id)
     string conf, mod;
     if(sscanf(i, "%s/%s", conf, mod)==2)
     {
-//      werror("conf: "+conf+" mod: "+mod+"\n");
+//      report_debug("conf: "+conf+" mod: "+mod+"\n");
       mod = _Roxen.html_encode_string(mod);
       int to_enable = (id->variables[i] != "0");
       object config = find_config(conf);

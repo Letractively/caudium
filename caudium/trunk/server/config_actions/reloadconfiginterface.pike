@@ -58,7 +58,7 @@ mixed handle(object id, object conf)
   foreach(indices(master()->programs), string s)
     foreach(programs, string s2)
       if(search(s,s2)!=-1) {
-	werror("Unloading "+s+"\n");
+	report_notice("Unloading "+s+"\n");
 	m_delete(master()->programs, s);
       }
 
