@@ -118,10 +118,14 @@ void create()
 	 "GET and POST. If unset, this filesystem will be a _very_ "
 	 "public one (anyone can edit files located on it)");
 
-  defvar("stat_cache", 1, "Cache the results of stat(2)",
+  defvar("stat_cache", 0, "Cache the results of stat(2)",
 	 TYPE_FLAG|VAR_MORE,
-	 "This can speed up the retrieval of files up to 60/70% if you"
-	 " use NFS, but it does use some memory.");
+	 "The stat(2) cache might give you a minor speed benefit in "
+	 "serving files, especially if they are served from a remote server "
+	 "using NFS or another networked filesystem. However using the cache "
+	 "can result in failures to reload files and other weird problems. "
+	 "Unless you really need a few extra percent of performance we "
+	 "recommend that you leave this option disabled.");
 
   defvar("access_as_user", 0, "Access file as the logged in user",
 	 TYPE_FLAG|VAR_MORE,
