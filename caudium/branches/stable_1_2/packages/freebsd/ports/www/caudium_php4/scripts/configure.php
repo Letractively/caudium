@@ -1,5 +1,5 @@
 #!/bin/sh
-# $FreeBSD: ports/www/mod_php4/scripts/configure.php,v 1.167 2002/05/07 02:27:53 kris Exp $
+# $FreeBSD: ports/www/mod_php4/scripts/configure.php,v 1.171 2002/07/23 06:20:58 dirk Exp $
 
 if [ -f ${WRKDIRPREFIX}${REALCURDIR}/Makefile.inc ]; then
 	exit
@@ -35,7 +35,7 @@ dBase		"dBase database support" OFF \
 OpenLDAP1	"OpenLDAP 1.x support" OFF \
 OpenLDAP2	"OpenLDAP 2.x support" OFF \
 OpenSSL		"OpenSSL support" OFF \
-SNMP		"SNMP support (currently broken)" OFF \
+SNMP		"SNMP support" OFF \
 XML		"XML support" OFF \
 XMLRPC		"XMLRPC-EPI support (implies XML and iconv)" OFF \
 XSLT		"Sablotron support (implies XML and iconv)" OFF \
@@ -51,6 +51,7 @@ mbstring	"multibyte string module" OFF \
 YP		"YP/NIS support" OFF \
 BCMath		"BCMath support" OFF \
 Hyperwave	"Hyperwave support" OFF \
+mcve		"MCVE Credit Card Verification support" OFF \
 ming		"ming library support" OFF \
 MCAL		"Modular Calendar Access Library support" OFF \
 sockets		"sockets support" OFF \
@@ -102,7 +103,7 @@ while [ "$1" ]; do
 			;;
 
 		\"GD2\")
-			echo "LIB_DEPENDS+=	gd.3:\${PORTSDIR}/graphics/gd2"
+			echo "LIB_DEPENDS+=	gd.4:\${PORTSDIR}/graphics/gd2"
 			echo "LIB_DEPENDS+=	freetype.9:\${PORTSDIR}/print/freetype2"
 			echo "LIB_DEPENDS+=	png.5:\${PORTSDIR}/graphics/png"
 			echo "LIB_DEPENDS+=	jpeg.9:\${PORTSDIR}/graphics/jpeg"
@@ -243,14 +244,14 @@ while [ "$1" ]; do
 			echo "CONFIGURE_ARGS+=--with-openssl=\${OPENSSLBASE}"
 			;;
 		\"SNMP\")
-			echo "LIB_DEPENDS+=	snmp.4:\${PORTSDIR}/net/net-snmp"
+			echo "LIB_DEPENDS+=	snmp.4:\${PORTSDIR}/net/net-snmp4"
 			echo "CONFIGURE_ARGS+=--with-snmp=\${LOCALBASE} --enable-ucd-snmp-hack --with-openssl=\${OPENSSLBASE}"
 			echo "USE_OPENSSL=	yes"
 			LIBS="${LIBS} -L\${OPENSSLBASE}/lib -lcrypto -lssl"
 			;;
 		\"XML\")
 			if [ -z "$XML" ]; then
-				echo "LIB_DEPENDS+=	expat.2:\${PORTSDIR}/textproc/expat2"
+				echo "LIB_DEPENDS+=	expat.3:\${PORTSDIR}/textproc/expat2"
 				echo "CONFIGURE_ARGS+=--with-expat-dir=\${LOCALBASE}"
 				XML=1
 			fi
@@ -321,6 +322,10 @@ while [ "$1" ]; do
 		\"Hyperwave\")
 			echo "CONFIGURE_ARGS+=--with-hyperwave=yes"
 			;;
+		\"mcve\")
+			echo "LIB_DEPENDS+=	mcve.0:\${PORTSDIR}/devel/libmcve"
+			echo "CONFIGURE_ARGS+=--with-mcve=\${LOCALBASE}"
+ 			;;
 		\"ming\")
 			echo "LIB_DEPENDS+=	ming.3:\${PORTSDIR}/graphics/ming"
 			echo "CONFIGURE_ARGS+=--with-ming=\${LOCALBASE}"
