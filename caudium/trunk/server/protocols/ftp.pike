@@ -179,6 +179,7 @@ class RequestID
   string data, leftovers;
   array(int|string) auth;
   string rawauth, realauth;
+  mapping|int user=0;
   string since;
 
 #ifdef FTP2_DEBUG
@@ -2548,12 +2549,14 @@ class FTPSession
     master_session->realauth = user + ":" + password;
     master_session->auth = ({ 0, master_session->realauth, -1 });
     master_session->not_query = user;
-
+    master_session->user=0;
     if (conf && conf->auth_module) {
       mixed err = catch {
-        master_session->auth[0] = "Basic";
-        master_session->auth = conf->auth_module->auth(master_session->auth,
-                                                       master_session);
+        if(conf->auth_module->authenticate(user, password))
+        {
+          master_session->auth=({1, user, 0});
+          master_session->user=conf->auth_module->user_info(user);
+        }
       };
       if (err) {
         master_session->auth = 0;
