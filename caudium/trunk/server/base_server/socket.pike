@@ -116,7 +116,7 @@ public void my_pipe_done(object which)
 void async_pipe(object to, object from, function|void callback, 
 		mixed|void id)
 {
-  object pipe = caudium->pipe ();
+  object pipe = Caudium.nbio ();
   object cache;
 
 #ifdef SOCKET_DEBUG
