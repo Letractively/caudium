@@ -5,7 +5,7 @@
 constant country_codes = ([ 
   /* Special Top Level Domains */
   "arpa":"Old style Arpanet", 
-  "com":"USA Commercial",
+  "com":"USA Commercial (.com)",
   "edu":"USA Educational",
   "gov":"USA Government",
   "int":"International",
@@ -13,12 +13,17 @@ constant country_codes = ([
   "nato":"NATO",
   "net":"Network",
   "org":"Non-Profit Organisations",
-
+  "biz":"USA Commercial (.biz)",
+  "museum":"USA Museum",
+  "info":"Information",
+  "name":"Commercial exploitation of the formerly free DNS system",
+  "pro":"Commercial exploitation of the formerly free DNS system",
   
   "cs":"Former Czechoslovakia",
   "nt":"Neutral Zone",
   "su":"Former USSR",
  
+  "ac":"Ascension Island",
   "ad":"Andorra",
   "ae":"United Arab Emirates",
   "af":"Afghanistan",
