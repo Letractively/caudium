@@ -2470,7 +2470,7 @@ private void define_global_variables(int argc, array (string) argv)
 //   globvar("_v", CONFIGURATION_FILE_LEVEL, 0, TYPE_INT, 0, 0, 1);
   globvar("default_font_size", 32, 0, TYPE_INT, 0, 0, 1);
 
-  globvar("default_font", "lucida", "Fonts: Default font", TYPE_FONT,
+  globvar("default_font", "bitstream vera sans", "Fonts: Default font", TYPE_FONT,
           "The default font to use when modules request a font.");
 
   globvar("font_dirs",({"/usr/share/caudium/local_fonts/", "../local/nfonts/","nfonts/","local_fonts/", "fonts/ttf/"}),
