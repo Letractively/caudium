@@ -275,7 +275,7 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
             foreach(indices(m), string i)
                 attrs += ({ i + "=\"" + m[i] + "\""});
 
-            smetas += sprintf("<meta %s />", attrs * " ");
+            smetas += sprintf("<meta %s>", attrs * " ");
         }
     }
 
