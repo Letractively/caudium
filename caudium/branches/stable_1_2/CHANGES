@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- <if exists="file"> shouldn't use the cache. Thanks ot Hirling Endre.
 - The start script now changes the cwd to the directory it is started from. Prevents
   beginners from crying.
 - Fixed bug #547546 - Backtrace when using http:// URL for SSL. Now Caudium
