@@ -3,14 +3,14 @@
 <region name='Variables'>
  <var name='EnableRangeHandling'><int>1</int> </var>
  <var name='docurl2'>            <str>http://www.roxen.com/documentation/context.pike?page=</str> </var>
- <var name='logdirprefix'>       <str>/var/log/caudium/</str> </var>
+ <var name='logdirprefix'>       <str>/var/log/caudium-1.1/</str> </var>
  <var name='identpikever'>       <int>1</int> </var>
  <var name='numthreads'>         <int>5</int> </var>
  <var name='permanent_uid'>      <int>0</int> </var>
  <var name='LogST'>              <str>Daemon</str> </var>
  <var name='cache_size'>         <int>25</int> </var>
  <var name='NumAccept'>          <int>32</int> </var>
- <var name='cachedir'>           <str>/var/cache/caudium/</str> </var>
+ <var name='cachedir'>           <str>/var/cache/caudium-1.1/</str> </var>
  <var name='User'>               <str>33:33</str> </var>
  <var name='ModuleListType'>     <str>Compact</str> </var>
  <var name='LogNA'>              <str>Caudium</str> </var>
@@ -36,13 +36,13 @@
  <var name='LogA'>               <str>file</str> </var>
  <var name='font_dirs'>          
   <a>
-    <str>/usr/share/caudium/local_fonts/</str>
+    <str>/usr/share/caudium-1.1/local_fonts/</str>
     <str>nfonts/</str>
     <str>local_fonts/</str>
     <str>fonts/ttf/</str>
   </a>
  </var>
- <var name='argument_cache_dir'> <str>/var/cache/caudium/args/</str> </var>
+ <var name='argument_cache_dir'> <str>/var/cache/caudium-1.1/args/</str> </var>
  <var name='ConfigPorts'>        
   <a>
     
@@ -60,10 +60,10 @@
  <var name='ConfigurationURL'>   <str></str> </var>
  <var name='ModuleDirs'>         
   <a>
-    <str>/usr/lib/caudium/local_modules/</str>
-    <str>/usr/lib/caudium/modules/</str>
-    <str>/usr/lib/caudium/more_modules/</str>
-    <str>/usr/local/share/caudium/modules/</str>
+    <str>/usr/lib/caudium-1.1/local_modules/</str>
+    <str>/usr/lib/caudium-1.1/modules/</str>
+    <str>/usr/lib/caudium-1.1/more_modules/</str>
+    <str>/usr/local/share/caudium-1.1/modules/</str>
     <str>/usr/share/roxen/modules/</str>
   </a>
  </var>
@@ -76,7 +76,7 @@
  <var name='default_font'>       <str>lucida</str> </var>
  <var name='argument_cache_in_db'><int>0</int> </var>
  <var name='set_cookie_only_once'><int>1</int> </var>
- <var name='ConfigurationStateDir'><str>/var/state/caudium/</str> </var>
+ <var name='ConfigurationStateDir'><str>/var/state/caudium-1.1/</str> </var>
  <var name='show_internals'>     <int>0</int> </var>
  <var name='ConfigurationUser'>  <str></str> </var>
  <var name='ConfigurationPassword'><str></str> </var>
@@ -87,6 +87,6 @@
  <var name='cache_last_resort'>  <int>0</int> </var>
  <var name='DOC'>                <int>1</int> </var>
  <var name='abs_engage'>         <int>0</int> </var>
- <var name='pidfile'>            <str>/var/run/caudium/caudium.pid</str> </var>
+ <var name='pidfile'>            <str>/var/run/caudium-1.1/caudium.pid</str> </var>
 </region>
 
