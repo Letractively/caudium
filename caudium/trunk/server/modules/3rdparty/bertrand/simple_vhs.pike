@@ -25,9 +25,9 @@ inherit "modules/filesystems/filesystem.pike" : filesystem;
 #define DEBUG(X) write("VHS-FS: "+X+"\n")
 
 constant module_type = MODULE_FIRST|MODULE_LOCATION|MODULE_EXPERIMENTAL;
-constant module_name = "VHS- Simple directory structure-based virtual hosting system";
-constant module_doc = "Zero config filesystem-based virtual hosting.\n Just"
-  "put your sites in directories matching the scheme setup below:<br>"
+constant module_name = "VHS - Virtual Hosting System (Filesystem)";
+constant module_doc = "Basic Virtual Hosting module based on a directory structure.\n<br>"
+  "Just put your sites in directories matching the scheme setup below:<br>"
   +fs_struct_help+"<br><br>"
   "All the sites will then have the same modules loaded.<br><br>";
 
