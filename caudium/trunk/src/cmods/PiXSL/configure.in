@@ -8,32 +8,36 @@ AC_PROG_INSTALL
 dnl Solaris have math functions in libm
 dnl so this is needed to linking libsablot
 AC_CHECK_LIB(m, ceil)
-AC_CHECK_LIB(m, floor)
+if test "$ac_cv_lib_m_ceil" != "yes"; then 
+  AC_CHECK_LIB(m, floor)
+fi
 
 AC_CHECK_HEADERS( sablot.h )
 
 dnl No need to continue unless the header is found...
 if test "$ac_cv_header_sablot_h" = "yes"; then
   unset ac_cv_lib_sablot_SablotProcess
+  OLDLIBS="$LIBS"
+  LIBS=""
   AC_CHECK_LIB(sablot, SablotProcess,
   [
     AC_DEFINE(HAVE_LIBSABLOT)
-	LIBS="$LIBS -lsablot"
+	LIBS="-lsablot $OLDLIBS"
   ], [
     unset ac_cv_lib_sablot_SablotProcess
     AC_CHECK_LIB(sablot, SablotProcess,
     [
 	  AC_DEFINE(HAVE_LIBSABLOT)
-	  LIBS="$LIBS -lsablot -lexpat"
+	  LIBS="-lsablot -lexpat $OLDLIBS"
     ], [
       unset ac_cv_lib_sablot_SablotProcess
       AC_CHECK_LIB(sablot, SablotProcess,
       [
 		AC_DEFINE(HAVE_LIBSABLOT)
-		LIBS="$LIBS -lsablot -lxmlparse -lxmltok"
-      ],[], -lxmlparse -lxmltok)
-    ], -lexpat)
-  ])
+		LIBS="-lsablot -lxmlparse -lxmltok $OLDLIBS"
+      ],[], -lxmlparse -lxmltok $OLDLIBS)
+    ], -lexpat  $OLDLIBS)
+  ], $OLDLIBS)
 fi
 
 if test "$ac_cv_header_sablot_h" != "yes" -o \
