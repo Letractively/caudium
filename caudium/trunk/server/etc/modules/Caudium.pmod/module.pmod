@@ -1015,7 +1015,7 @@ string make_xml_tag(string tag,mapping in) {
 //!  The attributes are XML encoded and the tag is closed
 string make_xml_pi(string tag, mapping in) {
   string q = make_xml_tag_attributes(in);
-  return "<?"+tag+(strlen(q)?" "+q:"")+" ?>";
+  return "<?"+tag+(strlen(q)?" "+q:"")+"?>";
 }
 
 //! A mix of make_html_tag and make_xml_tag
