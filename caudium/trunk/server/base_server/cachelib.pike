@@ -157,3 +157,20 @@ mapping cache_string_object( string s, string name, void|int exp) {
             "_string" : 1
           ]);
 }
+
+mapping cache_image_object( object img, string name, void|int exp ) {
+  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
+    exp = exp + time();
+  }
+  return ([
+            "object" : img,
+	    "name" : name,
+	    "size" : sizeof( Image.PNM.encode( img ) ),
+	    "expires" : (exp?exp:time() + DEFAULT_TTL),
+	    "type" : "image",
+	    "ram_cache" : 1,
+	    "disk_cache" : 1,
+	    "nbio" : 0,
+	    "_image" : 1
+	  ]);
+}

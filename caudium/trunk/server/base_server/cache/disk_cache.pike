@@ -95,9 +95,7 @@ void store( mapping meta ) {
     }
     break;
   case "variable":
-	// Write the string to disk.
     if ( meta->disk_cache ) {
-     // string data = meta->object + "";
       if ( catch( data = _encode_value( meta->object ) ) ) {
         break;
       }
@@ -105,14 +103,25 @@ void store( mapping meta ) {
       m_delete( meta, "object" );
       if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
         object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object" ), "cw" );
-write( data  + "\n");
         f->write( data );
         f->close();
         disk_usage += meta->size;
         thecache += ([ meta->hash : meta ]);
       }
-    } else {
-      break;
+    }
+    break;
+  case "image":
+    if ( meta->disk_cache ) {
+      string data = Image.PNM.encode( meta->object );
+      meta->size = sizeof( data );
+      m_delete( meta, "object" );
+      if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
+        object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object" ), "cw" );
+        f->write( data );
+        f->close();
+        disk_usage += meta->size;
+        thecache += ([ meta->hash : meta ]);
+      }
     }
     break;
   default:
@@ -140,6 +149,8 @@ void|mixed retrieve( string name, void|int object_only ) {
         meta->object = Stdio.File( object_path, "r" );
       } else if ( meta->type == "variable" ) {
         meta->object = _decode_value( Stdio.File( object_path, "r" )->read() );
+      } else if ( meta->type == "image" ) {
+        meta->object = Image.PNM.decode( Stdio.File( object_path, "r" )->read() );
       }
       if ( object_only ) {
         return meta->object;
