@@ -7,6 +7,10 @@ Changes in Caudium 1.0.X (RC3, not released)
   to use it (either CVS or a snapshot).
 - Correctly find libraries for various versions of Sablotron (0.50 and
   0.44 tested). 
+- Fixed a bug in Caudium.ParseHTTP->create (http2.pike fix).
+- Applied Chris Davies custom changes to the SQL User Database. These add a
+  configurable timeout for cached user entries and an option to block sites
+  with too many failed authentication attempts.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
