@@ -54,129 +54,119 @@ constant cvs_version = "$Id$";
 #define DEFAULT_TTL 600
 // Stupid arbitary number. 10 minutes.
 
+private mapping go( string type, mixed obj, string name, void|int exp ) {
+  mapping meta = ([ ]);
+  meta->name = name;
+  meta->object = obj;
+  switch (exp) {
+  case -1:
+    meta->expires = -1;
+    break;
+  case 0:
+    meta->expires = time() + DEFAULT_TTL;
+    break;
+  default:
+    if ( ( exp < time() ) && ( exp > 0 ) ) {
+      meta->expires = exp + time();
+    } else if ( exp > time() ) {
+      meta->expires = exp;
+    }
+    break;
+  }
+#ifdef CACHE_DEBUG
+  write( "setting expiry to: %d\n", meta->expires );
+#endif
+  switch (type) {
+  case "file":
+    meta->size = obj->stat()[ 1 ];
+    meta->type = "stdio";
+    meta->ram_cache = 1;
+    meta->disk_cache = 1;
+    meta->_file = 1;
+    break;
+  case "pike":
+    meta->size = 0;
+    meta->type = "variable";
+    meta->ram_cache = 1;
+    meta->disk_cache = 1;
+    switch (sprintf( "%t", meta->object)) {
+    case "int":
+      meta->_int = 1;
+      break;
+    case "array":
+      meta->_array = 1;
+      break;
+    case "multiset":
+      meta->_multiset = 1;
+      break;
+    case "mapping":
+      meta->_mapping = 1;
+      break;
+    case "object":
+      meta->_object = 1;
+      meta->disk_cache = 0;
+      break;
+    case "function":
+      meta->_function = 1;
+      meta->disk_cache = 0;
+      break;
+    case "program":
+      meta->_program = 1;
+      meta->disk_cache = 0;
+      break;
+    }
+    break;
+  case "program":
+    meta->size = 0;
+    meta->type = "variable";
+    meta->ram_cache = 1;
+    meta->disk_cache = 1;
+    meta->_program = 1;
+    break;
+  case "string":
+    meta->size = sizeof( obj );
+    meta->type = "variable";
+    meta->ram_cache = 1;
+    meta->disk_cache = 1;
+    meta->_string = 1;
+    break;
+  case "image":
+    meta->size = sizeof( (string)obj );
+    meta->type = "image";
+    meta->ram_cache = 1;
+    meta->disk_cache = 1;
+    meta->_image = 1;
+    break;
+  }
+  return meta;
+}
+
 function cache_file = cache_file_object;
-mapping cache_file_object( object file, string name, void|int exp ) {
-	// Use this to store a file to a cache.
-	// file: The Stdio.file object that we are working with
-	// name: the name of the file.
-	// the expiry time of the object, -1 for never.
-  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
-    exp = exp + time();
-  }
-  return ([
-            "object" : file,
-            "name" : name,
-            "size" : file->stat()[1],
-            "expires" : (exp?exp:time() + DEFAULT_TTL),
-            "type" : "stdio",
-            "ram_cache" : 1,
-            "disk_cache" : 1,
-            "nbio" : 1,
-            "_file" : 1
-         ]);
-}
-
 function cache_http = cache_http_answer;
-mapping cache_http_answer( mapping http_answer, object id ) {
-	// This needs to work, for a start :)
-}
-
 function cache_pike = cache_pike_object;
-mapping cache_pike_object( mixed var, string name, void|int exp ) {
-	// Use this to place any kind of pike data structure in cache.
-	// var: The pike datatype being stored in RAM.
-	// name: the name of the object
-	// exp: the expiry time of the object, -1 for never.
-  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
-    exp = exp + time();
-  }
-  mapping retval = ([
-                    "object" : var,
-                    "name" : name,
-                    "size" : 0,
-                    "expires" : (exp?exp:time() + DEFAULT_TTL),
-                    "type" : "variable",
-                    "ram_cache" : 1,
-                    "disk_cache" : 1,
-                    "nbio" : 0
-                 ]);
-  if ( intp( var ) ) {
-    retval->_int = 1;
-  } else if ( stringp ( var ) ) {
-    retval->_string = 1;
-    retval->size = sizeof( var );
-  } else if ( arrayp( var ) ) {
-    retval->_array = 1;
-    retval->size = sizeof( var * "" );
-  } else if ( multisetp( var ) ) {
-    retval->_multiset = 1;
-    retval->size = sizeof( indices( var ) * "" );
-  } else if ( mappingp( var ) ) {
-    retval->_mapping = 1;
-    retval->size = sizeof( indices( var ) * "" + values( var ) * "" );
-  } else if ( objectp( var ) ) {
-    retval->_object = 1;
-    retval->disk_cache = 0;
-    // retval->size = sizeof( indices( var ) * "" ) + sizeof( values ( var * "" ) );
-  } else if ( functionp( var ) ) {
-    retval->_function = 1;
-  } else if ( programp( var ) ) {
-    retval->_program = 1;
-    retval->disk_cache = 1;
-  }
-  return retval;
-}
-
 function cache_program = cache_program_object;
-mapping cache_program_object( program p, string name, void|int exp ) {
-  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
-    exp = exp + time();
-  }
-  return ([
-            "object" : p,
-            "name" : name,
-            "size" : 0,
-            "expires" : (exp?exp:time() + DEFAULT_TTL),
-            "type" : "variable",
-            "ram_cache" : 1,
-            "disk_cache" : 1,
-            "nbio" : 0,
-            "_program" : 1
-          ]);
-}
-
 function cache_string = cache_string_object;
-mapping cache_string_object( string s, string name, void|int exp) {
-  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
-    exp = exp + time();
-  }
-  return ([
-            "object" : s,
-            "name" : name,
-            "size" : sizeof( s ),
-            "expires" : (exp?exp:time() + DEFAULT_TTL),
-            "type" : "variable",
-            "ram_cache" : 1,
-            "disk_cache" : 1,
-            "nbio" : 0,
-            "_string" : 1
-          ]);
+function cache_image = cache_image_object;
+
+mapping cache_file_object( object file, string name, void|int exp ) {
+  return go( "file", file, name, exp );
 }
 
-function cache_image = cache_image_object;
+mapping cache_http_answer( mapping http_answer, object id ) {
+}
+
+mapping cache_pike_object( mixed var, string name, void|int exp ) {
+  return go( "pike", var, name, exp );
+}
+
+mapping cache_program_object( program p, string name, void|int exp ) {
+  return go( "program", p, name, exp );
+}
+
+mapping cache_string_object( string s, string name, void|int exp) {
+  return go( "string", s, name, exp );
+}
+
 mapping cache_image_object( object img, string name, void|int exp ) {
-  if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
-    exp = exp + time();
-  }
-  return ([
-            "object" : img,
-	    "name" : name,
-	    "size" : sizeof( (string)img ),
-	    "expires" : (exp?exp:time() + DEFAULT_TTL),
-	    "type" : "image",
-	    "ram_cache" : 1,
-	    "disk_cache" : 1,
-	    "nbio" : 0,
-	    "_image" : 1
-	  ]);
+  return go( "image", img, name, exp );
 }

@@ -277,6 +277,9 @@ void expire_cache( void|int nocallout ) {
     }
     if ( thecache[ hash ]->expires <= time() ) {
       disk_usage -= thecache[ hash ]->size;
+#ifdef CACHE_DEBUG
+      write( "Object Expired: %s, expiry: %d, removing from disk.\n", thecache[ hash ]->name, thecache[ hash ]->expires );
+#endif
       m_delete( thecache, hash );
       Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
     }

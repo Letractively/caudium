@@ -135,7 +135,7 @@ class ThemedConfig {
 
     object tab_0() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://tab_0", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_0" ) ) {
 	  return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -147,7 +147,7 @@ class ThemedConfig {
 
     object tab_1() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://tab_1", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_1" ) ) {
 	  return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -160,7 +160,7 @@ class ThemedConfig {
 
     object tab_2() {
         object i;
-	if ( i = cache->retrieve( "auto_images://tab_2", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_2" ) ) {
 	  return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -174,7 +174,7 @@ class ThemedConfig {
 
     object tab_3() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://tab_3", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_3" ) ) {
           return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -187,7 +187,7 @@ class ThemedConfig {
 
     object tab_4() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://tab_4", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_4" ) ) {
 	  return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -201,7 +201,7 @@ class ThemedConfig {
 
     object tab_5() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://tab_5", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://tab_5" ) ) {
           return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
@@ -216,7 +216,7 @@ class ThemedConfig {
 
     object logo() {
 	object i;
-	if ( i = cache->retrieve( "auto_images://cif_logo", 1 ) ) {
+	if ( i = cache->retrieve( "auto_images://cif_logo" ) ) {
 	  return i;
 	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
