@@ -54,3 +54,6 @@ Changes since last Roxen 1.3
 + Added strftime argument to date-related tags (<modified>, <date>
   etc). Allows you to do custom formatting. See 'man strftime' normal
   UNIX box for details on strftime.
++ Added new option to <noparse>, until. See <help for=noparse> for
+  more information.
++ Fixed a bug in the help tag.

@@ -1004,7 +1004,9 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
   if (m->extend) {
     id->variables += old_variables;
   }
+  id->misc->parse_level --;  
   contents = parse_rxml(contents, id);
+  id->misc->parse_level ++;
   id->variables = old_variables;
   return ({ contents });
 }
@@ -2862,7 +2864,8 @@ string tag_help(string t, mapping args, object id)
     array tag_links = ({});
     foreach(tags, string tag)
     {
-      tag_links += ({ sprintf("<a href=?_r_t_h=%s>%s</a>", tag, tag) });
+      tag_links += ({ sprintf("<a href=\"%s?_r_t_h=%s\">%s</a>",
+			      id->not_query, tag, tag) });
     }
     return out + String.implode_nicely(tag_links);
   } else {
@@ -3238,8 +3241,10 @@ string tag_default( string tag_name, mapping args, string contents,
     return contents;
 }
 
-array(string) tag_noparse(string t, mapping m, string c)
+string|array(string) tag_noparse(string t, mapping m, string c, object id)
 {
+  if(m->until && (max((int)m->until, 1)) < id->misc->parse_level)
+    return ({ "<noparse until='"+m->until+"'>"+c+"</noparse>" });
   return ({ c });
 }
 
@@ -3451,10 +3456,12 @@ array(string) tag_trace(string t, mapping args, string c , object id)
   id->misc->trace_enter = t->trace_enter_ol;
   id->misc->trace_leave = t->trace_leave_ol;
   t->trace_enter_ol( "tag &lt;trace&gt;", tag_trace);
+  id->misc->parse_level --;  
   string r = parse_rxml(c, id);
+  id->misc->parse_level ++;  
   id->misc->trace_enter = a;
   id->misc->trace_leave = b;
-  return ({r + "<h1>Trace report</h1>"+t->res()+"</ol>"});
+  return ({ r + "<h1>Trace report</h1>"+t->res()+"</ol>" });
 }
 
 string tag_for(string t, mapping args, string c, object id)
