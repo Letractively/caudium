@@ -118,9 +118,9 @@ class CookieScope {
   inherit "scope";
   constant name = "cookie";
 
-  string get(string entity, object id) {
+  array(string) get(string entity, object id) {
     NOCACHE();
-    return id->cookies[entity]; 
+    return ({ id->cookies[entity] || "" });
   }
 }
 
@@ -134,17 +134,73 @@ class CookieScope {
 //
 class FormScope {
   inherit "scope";
-  void create(string _name) {
-    name = _name;
-  }
+  constant name = "form";
   int set(string entity, mixed value, object id) {
-    if(catch(id->variables[entity] = (string)value))
+    if(!value)
+      m_delete(id->variables, entity);
+    else if(catch(id->variables[entity] = (string)value))
       return 0;
     return 1;
   }
-  string get(string entity, object id) {
+  array(string) get(string entity, object id) {
     NOCACHE();
-    return id->variables[entity]; 
+    return ({ id->variables[entity] || "" });
+  }
+}
+
+//! class: VarScope
+//!  This class providess access to all form variables.
+//!  For detailed description of methods see [base_server/scope.pike].
+//! scope: public
+//! inherits: scope
+//! see_also: base_server/scope.pike
+//
+class VarScope {
+  inherit "scope";
+  constant name = "var";
+  mapping top_vars = ([]);
+  mapping sub_vars = ([]);
+  int set(string entity, mixed value, object id) {
+    array split = entity / ".";
+    switch(sizeof(split)) {
+    case 1:
+      if(value)
+	top_vars[split[0]] = value;
+      else
+	m_delete(top_vars, split[0]);
+      break;
+    default:
+      entity = split[1..] * ".";
+      if(value) { 
+	if(!sub_vars[ split[0] ])
+	  sub_vars[ split[0] ] = ([]);
+	sub_vars[ split[0] ] [ entity ] = value;
+      } else {
+	m_delete(sub_vars[ split[0] ], entity);
+      }
+      break;
+    }
+    return 1;
+  }
+  array(string) get(string entity, object id) {
+    NOCACHE();
+    string value;
+    array split = entity / ".";
+    switch(sizeof(split)) {
+    case 1:
+      value = top_vars[split[0]];
+      break;
+    default:
+      entity = split[1..] * ".";
+      if(sub_vars[ split[0] ])
+	value = sub_vars[ split[0] ] [ entity ];
+      break;
+    }
+    if(!value) return 0;
+    catch {
+      return ({ (string)value });
+    };
+    return 0;
   }
 }
 
@@ -153,7 +209,7 @@ array(object) query_scopes()
   return ({
     ClientScope(),
     CookieScope(),
-    FormScope("form"),
-    FormScope("var"),
+    FormScope(),
+    VarScope(),
   });
 }

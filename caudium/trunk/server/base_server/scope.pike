@@ -76,3 +76,9 @@ string query_name()
 {
   return name;
 }
+
+string _sprintf()
+{
+  return "Scope("+name+")";
+}
+  
