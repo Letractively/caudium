@@ -60,41 +60,30 @@ mapping caches;
 string path;
 int default_ttl;
 int default_halflife;
+int _really_started;
+object loader;
 
-/*
-void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path, int _default_ttl, int _default_halflife ) {
-	// store the max_ram_size and max_disk_size as properties of
-	// cache_manager. Also, create the mapping used to store the caches.
-	// set a callout to to watch_size() for calling in the not too
-	// distant future - possibly using randomness to decide when to
-	// check the total size. Obviously freeing RAM is a costly exercise
-	// because most of the data being moved will wind up being written
-	// to disk. Probably go with selecting a random number between 1 and
-	// 100, and comparing it with the analness percentage - lower analness
-	// gives faster performance but sloppier memory usage.
-	// Also, probably a good time to pre-create a cache with the namespace
-	// "DEFAULT" which is used internally by various things, and save
-	// ourselves a shitload of cpu trash during the first page request.
-	// vigilance is how vigilant the server is at keeping to the RAM and
-	// disk limits that are set (percentage).
-        // _path: the path on the filesystem to store caches objects.
-  max_ram_size = _max_ram_size;
-  max_disk_size = _max_disk_size;
-  vigilance = _vigilance;
-  path = _path;
+void create( object _loader ) {
   caches = ([ ]);
-  default_ttl = _default_ttl;
-  default_halflife = _default_halflife * 3600;
-  call_out( watch_size, sleepfor() );
-  call_out( watch_halflife, 3600 );
+  loader = _loader;
 }
-*/
 
-void create() {
-  caches = ([ ]);
+void really_start() {
+  if ( _really_started ) return;
+#ifdef CACHE_DEBUG
+  perror( "CACHE: Delayed cache start triggered. Loading caching subsystem: " );
+#endif
+  loader->caudium->cache_start();
+  _really_started = 1;
+#ifdef CACHE_DEBUG
+  perror( "done.\n" );
+#endif
 }
 
 string status() {
+  if ( ! _really_started ) {
+    return "<b>Caching Sub-System Is Currently Innactive.</b>";
+  }
   array retval = ({ });
   foreach( sort( indices( caches ) ), string cache ) {
     string ret = "";
@@ -163,6 +152,10 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 }
 
 void watch_size() {
+  if ( ! _really_started ) {
+    call_out( watch_size, sleepfor() );
+    return;
+  }
 #ifdef CACHE_DEBUG
   roxen_perror( "Running watch_size() callout.\n" );
 #endif
@@ -238,6 +231,10 @@ void watch_size() {
 }
 
 void watch_halflife() {
+  if ( ! _really_started ) {
+    call_out( watch_halflife, 3600 );
+    return;
+  }
 #ifdef CACHE_DEBUG
   roxen_perror( "CACHE: Checking cache halflives.\n" );
 #endif
@@ -253,6 +250,7 @@ void watch_halflife() {
 }
 
 object get_cache( void|string namespace ) {
+  really_start();
 	// create a cache object using the namespace given and then store
 	// it in a mapping and return the object to the caller, thus allowing
 	// us to make sure that ram and disk quotas arent exceeded.
@@ -274,6 +272,7 @@ void destroy() {
 }
 
 void stop( void|string namespace ) {
+  if ( ! _really_started ) return;
   if ( namespace ) {
     if ( caches[ namespace ] ) {
       caches[ namespace ]->stop();
