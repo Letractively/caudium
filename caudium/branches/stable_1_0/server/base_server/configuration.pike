@@ -3426,7 +3426,7 @@ object sql_cache_get(string what)
 #if !constant(this_thread)
   return Sql.sql( what );
 #else
-  string key;
+  object|string key;
 #if defined(__MAJOR__) && __MAJOR__ >= 7 
   // Reports has come in that this_thread() might return different
   // objects even if the thread is the same. We avoid this problem by using
