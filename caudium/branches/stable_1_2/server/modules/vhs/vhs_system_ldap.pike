@@ -653,7 +653,7 @@ string status()
 //!  type: TYPE_FLAG
 //!  name: Logs using VHS parameters
 //
-//! defvar: logwwDomain
+//! defvar: logwwwDomain
 //! When enabled and when "Logs using VHS parameters" is disabled, when filename used is FQDN given by wwwDomain LDAP attribute
 //!  type: TYPE_FLAG
 //!  name: Logs using wwwDomain parameter

@@ -544,6 +544,16 @@ mapping parse_directory(object id)
 //!  type: TYPE_STRING_LIST
 //!  name: Index files
 //
+//! defvar: indexredirectfiles
+//! If one of these files is present in a directory, it will be redirected into this file instead of the directory listing. This can be usefull when you have a L7 load balancer and you would like to handle special index files with a third party webserver for example. Leave this empty if you don't want to use this feature.
+//!  type: TYPE_STRING_LIST
+//!  name: Index files with redirect
+//
+//! defvar: dotfiles
+//! If set, show dotfiles (files beginning with '.') in directory listings
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Show dotfiles
+//
 //! defvar: readme
 //! If set, include readme files in directory listings
 //!  type: TYPE_FLAG|VAR_MORE
@@ -564,3 +574,17 @@ mapping parse_directory(object id)
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Include file size
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
