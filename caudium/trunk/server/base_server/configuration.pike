@@ -3245,7 +3245,7 @@ int log_is_not_enabled()
 //! Used to hide the default charset variable
 int default_charset_not_used()
 {
-  return !QUERY(content_charset);
+  return !QUERY(set_default_charset);
 }
 
 //!
