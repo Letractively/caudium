@@ -39,6 +39,8 @@ constant module_doc    = "Smart HTTP relay module. Can relay according to "
                          "regular expressions.";
 constant module_unique = 1;
 
+#define RELAY_DEBUG 1
+
 array(Relayer) relays = ({});
 
 
@@ -251,8 +253,10 @@ class Relay
     if( strlen( obuffer ) )
       obuffer = obuffer[ fd->write( obuffer ) .. ];
 #ifdef RELAY_DEBUG
-    else
+    else {
       werror("RELAY: Request sent OK\n");
+      werror(sprintf("Buffer : %O\n",obuffer));
+    }
 #endif
   }
     
