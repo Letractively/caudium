@@ -606,7 +606,7 @@ class DocGen
             ret += "<short>\n\t" + m->name + "\n</short>\n\n";
 
         /* Synopsis */
-        ret += "<syntax>\n" + pretty_syntax(method) + "\n</syntax>\n\n";
+        ret += "<syntax>" + pretty_syntax(method) + "</syntax>\n\n";
 
         /* Alternative synopses */
         if (m->altnames && sizeof(m->altnames))
