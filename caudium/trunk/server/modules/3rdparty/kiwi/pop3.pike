@@ -335,7 +335,7 @@ static class POP3_Session
   void pop3_LIST(array(string) args)
   {
    if(sizeof(args) >1) {
-     return_error("Too mutch arguments.","LIST",args);
+     return_error("Too much arguments.","LIST",args);
      return;
    }
    if(sizeof(args) ==1) {
@@ -381,7 +381,7 @@ static class POP3_Session
   void pop3_RETR(array(string) args)
   {
     if(sizeof(args) >1) {
-      return_error("Too mutch arguments.","RETR",args);
+      return_error("Too much arguments.","RETR",args);
       return;
     }
     if(sizeof(args) ==0) {

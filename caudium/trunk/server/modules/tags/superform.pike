@@ -122,7 +122,7 @@ mapping (int:string) rxmlsession=([]);
 void create() {
 
 // kiwi, 2002-06-10, email regexp should handle '_' in mail. not rfc compliant
-//                   but too mutch used.
+//                   but too much used.
 // cd34/grendel, 2002-05-31, better email regexp
 // cd34/grendel, 2002-06-01, better domain regexp
 // changed regexp method -- no longer does superform insert regexp's 
