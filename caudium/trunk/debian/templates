@@ -1,0 +1,25 @@
+Template: caudium/config_port
+Type: string
+Default: 22202
+Description: On what port should the config interface be?
+ Specify the port on which Caudium will provide its configuration
+ interface. You can access the interface using any form capable
+ web browser (like Mozilla, Lynx, Links or Galeon)
+
+Template: caudium/listen_on
+Type: string
+Description: What interface should the server listen on?
+ Type the interface address (either FQDN or IP) the server
+ will listen on in addition to localhost:80. Leave it empty
+ if you want me to use the default hostname (${hostname})
+
+Template: caudium/start_options
+Type: multiselect
+Default: threads
+Choices: threads, debug, once, profile, fd-debug
+Description: Select options that should be used on startup
+ 'threads' - use threads (if available); 
+ 'debug' - output debugging information while running; 
+ 'once' - run in foreground; 
+ 'profile' - store profiling information; 
+ 'fd-debug' - debug file descriptor usage

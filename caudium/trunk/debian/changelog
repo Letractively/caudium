@@ -1,0 +1,9 @@
+caudium (1.0.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 16 Aug 2000 02:26:56 +0200
+
+Local variables:
+mode: debian-changelog
+End:
