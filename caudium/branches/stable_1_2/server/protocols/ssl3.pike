@@ -580,8 +580,8 @@ class fallback_redirect_request {
 
 void http_fallback(object alert, object|int n, string data)
 {
-  object ctx, c;
-  ctx = get_context(c);
+  object ctx;
+  ctx = get_context(my_fd->config);
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:http_fallback(X, %O, \"%s\")\n", n, data));
 #endif /* SSL3_DEBUG */
