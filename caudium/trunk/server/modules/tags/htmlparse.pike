@@ -2749,7 +2749,7 @@ mapping pr_sizes = ([]);
 string get_pr_size(string size, string color)
 {
   if(pr_sizes[size+color]) return pr_sizes[size+color];
-  object fd = open("roxen-images/power-"+size+"-"+color+".gif", "r");
+  object fd = open("caudium-images/power-"+size+"-"+color+".gif", "r");
   if(!fd) return "NONEXISTANT COMBINATION";
   return pr_sizes[size+color] = gif_size( fd );
 }
@@ -2761,7 +2761,7 @@ string tag_pr(string tagname, mapping m)
   if(m->list)
   {
     string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
-    foreach(sort(get_dir("roxen-images")), string f)
+    foreach(sort(get_dir("caudium-images")), string f)
       if(sscanf(f, "power-%s", f))
 	res += "<tr><td>"+replace(f-".gif","-","</td><td>")+"</tr>";
     return res + "</table>";

@@ -894,7 +894,7 @@ private mapping internal_gopher_image(string from)
   // Disallow "internal-gopher-..", it won't really do much harm, but a list of
   // all files in '..' might be retrieved (that is, the actual directory
   // file was sent to the browser)
-  return (["file":open("roxen-images/dir/"+from+".gif","r"),
+  return (["file":open("caudium-images/dir/"+from+".gif","r"),
 	  "type":"image/gif"]);
 }
 
@@ -1092,10 +1092,10 @@ private mapping internal_roxen_image(string from)
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
-  if(object f=open("roxen-images/"+from+".gif", "r"))
+  if(object f=open("caudium-images/"+from+".gif", "r"))
     return (["file":f,"type":"image/gif"]);
   else
-    return (["file":open("roxen-images/"+from+".jpg", "r"),"type":"image/jpeg"]);
+    return (["file":open("caudium-images/"+from+".jpg", "r"),"type":"image/jpeg"]);
 }
 
 // The function that actually tries to find the data requested.  All
@@ -3304,7 +3304,7 @@ void create(string config)
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "
 	 "vlink='#00007f' link='#0000ff'>\n"
-	 "<h2 align=center><configimage src=roxen.gif alt=\"File not found\">\n"
+	 "<h2 align=center><configimage src=caudium.gif alt=\"File not found\">\n"
 	 "<p><hr noshade>"
 	 "\n<i>Sorry</i></h2>\n"
 	 "<br clear>\n<font size=\"+2\">The resource requested "
