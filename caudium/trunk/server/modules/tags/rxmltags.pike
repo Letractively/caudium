@@ -3989,7 +3989,7 @@ mapping query_container_callers()
 	   "trace":tag_trace,
 	   "urldecode":tag_urldecode,
 	   "cset":lambda(string t, mapping m, string c, object id)
-		  { return tag_set("set",m+([ "value":html_decode_string(c) ]),
+		  { return tag_set("set",m+([ "value":Protocols.HTTP.unentity(c) ]),
 			    id); },
 	   "source":tag_source,
 	   "case":tag_case,
