@@ -21,7 +21,7 @@ string cvs_version = "$Id$";
 //
 //! container: verify
 //!  Code enclosed within that container will be executed when leaving this
-//!  page. use &lt;error&gt error message &lt;/error&gt; containers inside
+//!  page. use &lt;error&gt; error message &lt;/error&gt; containers inside
 //!  verify if you want to prohibit user to leave the page.
 //
 //! tag: button
