@@ -1,5 +1,8 @@
-Changes in Caudium 1.3 since Caudium 1.2.1
-------------------------------------------
+Changes in Caudium 1.3 since Caudium 1.3.14
+-------------------------------------------
+- Headline module has been removed. This was mostly a hack from Headline
+  module from David Hedbor (see roxen community for that) and it is too
+  buggy and not really clean.
 - Caudium.so pike glue in now _Caudium. A Pike module library is here to handle
   all functions that are coded in C or in Pike or that uses both things.
 
