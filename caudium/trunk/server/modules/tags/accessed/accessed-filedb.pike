@@ -25,7 +25,13 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
-
+//! module: Accessed counter
+//!  This module provides access counters, through the &lt;accessed&gt; tag.
+//! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
+//! inherits: module
+//! inherits: caudiumlib
+//! cvs_version: $Id$
+//! note: depends of module provider "rxml:tags"
 #include <module.h>
 
 inherit "module";
@@ -35,8 +41,10 @@ constant cvs_version   = "$Id$";
 constant thread_safe    = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
 constant module_name   = "Accessed counter";
+// Kiwi: we do not support yet entities so =)
+//constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
-"<tt>&lt;accessed&gt;</tt> tag and the <tt>&amp;page.accessed;</tt> entity.";
+"<tt>&lt;accessed&gt;</tt> tag.";
 constant module_unique=1;
 constant language = roxen->language;
 
@@ -101,142 +109,10 @@ void create(object c) {
 	                      query("backend")!="SQL database"; } );
 }
 
-//TAGDOCUMENTATION
-#ifdef manual
-/*
-constant tagdoc=([
-  "&page.accessed;":#"<desc ent='ent'><p>
- Generates an access counter that shows how many times the page has
- been accessed. Needs the accessed module.
-</p></desc>",
-
-"accessed":#"<desc tag='tag'><p><short>
- Generates an access counter that shows how many times the page has
- been accessed.</short> A file, AccessedDB, in the logs directory is
- used to store the number of accesses to each page. By default the
- access count is only kept for files that actually contain an
- accessed-tag, but can also be configured to count all files of a
- certain type. <ex><accessed/></ex>
-</p></desc>
-
-<attr name='add' value='number'><p>
- Increments the number of accesses with this number instead of one,
- each time the page is accessed.</p></attr>
-
-<attr name='addreal'><p>
- Prints the real number of accesses as an HTML comment. Useful if you
- use the cheat attribute and still want to keep track of the
- real number of accesses.</p></attr>
-
-<attr name='case' value='upper|lower|capitalize'><p>
- Sets the result to upper case, lower case or with the first letter
- capitalized.</p>
-</attr>
-
-<attr name='cheat' value='number'><p>
- Adds this number of accesses to the actual number of accesses before
- printing the result. If your page has been accessed 72 times and you
- add <tag>accessed cheat='100'</tag> the result will be 172.</p></attr>
-
-<attr name='database'><p>
- Works like the since attribute, but counts from the day the first
- entry in the entire accessed database was made.</p>
-</attr>
-
-<attr name='factor' value='percent'><p>
- Multiplies the actual number of accesses by the factor. E.g.
- <tag>accessed factor='50'</tag> displays half the actual value.</p>
-</attr>
-
-<attr name='file' value='filename'><p>
- Shows the number of times the page filename has been
- accessed instead of how many times the current page has been accessed.
- If the filename does not begin with \"/\", it is assumed to be a URL
- relative to the directory containing the page with the
- accessed tag. Note, that you have to type in the full name
- of the file. If there is a file named tmp/index.html, you cannot
- shorten the name to tmp/, even if you've set Roxen up to use
- index.html as a default page. The filename refers to the
- virtual filesystem.</p>
-
- <p>One limitation is that you cannot reference a file that does not
- have its own <tag>accessed</tag> tag. You can use <tag>accessed
- silent='1'</tag> on a page if you want it to be possible to count accesses
- to it, but don't want an access counter to show on the page itself.</p>
-</attr>
-
-<attr name='lang' value='langcodes'><p>
- Will print the result as words in the chosen language if used together
- with type=string.</p>
-
- <ex><accessed type=\"string\"/></ex>
- <ex><accessed type=\"string\" lang=\"sv\"/></ex>
-</attr>
-
-<attr name='per' value='second|minute|hour|day|week|month|year'><p>
- Shows the number of accesses per unit of time.</p>
-
- <ex><accessed per=\"week\"/></ex>
-</attr>
-
-<attr name='prec' value='number'><p>
- Rounds the number of accesses to this number of significant digits. If
- prec=2 show 12000 instead of 12148.</p>
-</attr>
-
-<attr name='reset'><p>
- Resets the counter. This should probably only be done under very
- special conditions, maybe within an <tag>if</tag> statement.
- This can be used together with the file argument, but it is
- limited to files in the current- and sub-directories.</p>
-</attr>
-
-<attr name='silent'><p>
- Print nothing. The access count will be updated but not printed. This
- option is useful because the access count is normally only kept for
- pages with actual <tag>access</tag> on them. <tag>accessed
- file='filename'</tag> can then be used to get the access count for the
- page with the silent counter.</p>
-</attr>
-
-<attr name='since'><p>
- Inserts the date that the access count started. The language will
- depend on the <att>lang</att> attribute, default is English. All
- normal date related attributes can be used. Also see: <xref
- href='date.tag' />.</p>
-
- <ex><accessed since=\"\"/></ex>
-</attr>
-
-<attr name='type' value='number|string|roman|iso|discordian|stardate|mcdonalds|linus|ordered'><p>
- Specifies how the count are to be presented. Some of these are only
- useful together with the since attribute.</p>
-
- <ex><accessed type=\"roman\"/></ex>
- <ex><accessed since=\"\" type=\"iso\"/></ex>
- <ex><accessed since=\"\" type=\"discordian\"/></ex>
- <ex><accessed since=\"\" type=\"stardate\"/></ex>
- <ex><accessed type=\"mcdonalds\"/></ex>
- <ex><accessed type=\"linus\"/></ex>
- <ex><accessed type=\"ordered\"/></ex>
-
-</attr>
-
-<attr name='minlength' value='number'><p>
- Defines a minimum length the the resulting string should have. If it is
- shorter it is padded from the left with the padding value. Only values
- between 2 and 10 are valid.</p>
-</attr>
-
-<attr name='padding' value='character' default='0'><p>
- The padding that the minlength function should use.</p>
-</attr>
-"]);
-*/
-#endif
-
-void start() {
-//  query_tag_set()->prepare_context=set_entities;
+void start(int cnt, object conf) {
+  // Depends of rxmltags 
+  module_dependencies(conf ,({ "rxmltags" }));
+  //  query_tag_set()->prepare_context=set_entities;
   switch(query("backend")) {
   case "SQL database":
     counter=SQLCounter();
@@ -566,6 +442,90 @@ int log(object id, mapping file) {
 
 // --- Tag definition ----------------------------------
 
+// Cut & paste from rxmltags.pike (need to be tested)
+//! tag: accessed
+//!  <tt>&lt;accessed&gt;</tt> generates an access counter that shows how many
+//!  times the page has been accessed. In combination with the
+//!  <tt>&lt;gtext&gt;</tt>tag you can generate one of those popular graphical
+//!  counters.
+//!  <p>A file, <i>Accesslog</i>, in the logs directory is used to
+//!  store the number of accesses to each page. Thus it will use more
+//!  resources than most other tags and can therefore be deactivated.
+//!  By default the access count is only kept for files that actually
+//!  contain an <tt>&lt;accessed&gt;</tt> tag, but you can optionally
+//!  force access counting on file extension basis.</p>
+//! 
+//! attribute: add
+//!  Increments the number of accesses with this number instead of one,
+//!  each time the page is accessed.
+//! attribute: addreal
+//!  Prints the real number of accesses as an HTML comment. Useful if you
+//!  use the <tt>cheat</tt> attribute and still want to keep track of the
+//!  real number of accesses.
+//! attribute: capitalize
+//!  Capitalizes the first letter of the result.
+//! attribute: cheat
+//!  Adds this number of accesses to the actual number of accesses before
+//!  printing the result. If your page has been accessed 72 times and you
+//!  add <doc>{accessed cheat="100"}</doc> the result will be 172.
+//! attribute: factor
+//!  Multiplies the actual number of accesses by the factor.
+//! attribute: file
+//!  Shows the number of times the page <i>filename</i> has been
+//!  accessed instead of how many times the current page has been accessed.
+//!  If the filename does not begin with "/", it is assumed to be a URL
+//!  relative to the directory containing the page with the
+//!  <tt>&lt;accessed /&gt;</tt> tag. Note, that you have to type in the full name
+//!  of the file. If there is a file named tmp/index.html, you cannot
+//!  shorten the name to tmp/, even if you've set Caudium up to use
+//!  index.html as a default page. The <i>filename</i> refers to the
+//!  <b>virtual</b> filesystem.
+//! 
+//!  <p>One limitation is that you cannot reference a file that does not
+//!  have its own <doc>{accessed}</doc> tag. You can use <doc>{accessed
+//!  silent="silent" /}</doc> on a page if you want it to be possible to count accesses
+//!  to it, but don't want an access counter to show on the page itself.</p>
+//! attribute: lang
+//!  Will print the result as words in the chosen language if used together
+//!  with <tt>type=string</tt>. Available languages are ca, es_CA
+//!  (Catala), hr (Croatian), cs (Czech), nl (Dutch), en (English), fi
+//!  (Finnish), fr (French), de (German), hu (Hungarian), it (Italian), jp
+//!  (Japanese), mi (Maori), no (Norwegian), pt (Portuguese), ru (Russian),
+//!  sr (Serbian), si (Slovenian), es (Spanish) and sv (Swedish).
+//! attribute: lower
+//!  Prints the result in lowercase.
+//! attribute: per
+//!  Shows the number of accesses per unit of time (one of minute, hour, 
+//!  day, week and month).
+//! attribute: prec
+//!  Rounds the number of accesses to this number of significant digits. If
+//!  <tt>prec="2"</tt> show 12000 instead of 12148.
+//! attribute: reset
+//!  Resets the counter. This should probably only be done under very
+//!  special conditions, maybe within an <doc>{if}{/if}</doc> statement.
+//!  <p>This can be used together with the file argument, but it is limited
+//!  to files in the current- and sub-directories.</p>
+//! attribute: silent
+//!  Print nothing. The access count will be updated but not printed. This
+//!  option is useful because the access count is normally only kept for
+//!  pages with actual <tt>&lt;access&gt;</tt> on them. <doc>{accessed
+//!  file="filename" /}</doc> can then be used to get the access count for the
+//!  page with the silent counter.
+//! attribute: upper
+//!  Print the result in uppercase.
+//! attribute: since
+//!  Inserts the date that the access count started. The language will
+//!  depend on the <tt>lang</tt> tag, default is English. All normal [date]
+//!  related attributes can be used. See the <tt>&lt;date&gt;</tt> tag.
+//! attribute: type
+//!  Specifies how the count are to be presented. Some of these are only
+//!  useful together with the <tt>since</tt> attribute.
+//! example: rxml
+//!  This page has been accessed
+//!  {accessed type="string" cheat="90" addreal /}
+//!  times since {accessed since="since" /}.
+
+
 string tag_accessed(string tag, mapping m, object id)
 {
   NOCACHE();
@@ -705,5 +665,49 @@ string tag_accessed(string tag, mapping m, object id)
 
 mapping query_tag_callers()
 {
+  // Kiwi: Renamed this to accessed when this module is marked as Ok =)
   return([ "accessed2":tag_accessed ]);
 }
+
+/* START AUTOGENERATED DEFVAR DOCS */
+
+//! defvar: extcount
+//! Always count accesses to files ending with these extensions. By default only accessed to files that actually contain a <tt>&lt;accessed&gt;</tt> tag or the <tt>&amp;page.accessed;</tt> entity will be counted. <p>Note: This module must be reloaded before a change of this setting takes effect.</p>
+//!  type: TYPE_STRING_LIST
+//!  name: Extensions to access count
+//
+//! defvar: restrict
+//! Restrict the attribute reset so that the resetted file is in the same directory or below.
+//!  type: TYPE_FLAG
+//!  name: Restrict reset
+//
+//! defvar: backend
+//! Select a accessed database backend
+//!  type: TYPE_MULTIPLE_STRING
+//!  name: Database backend
+//
+//! defvar: close_db
+//! If set, the accessed database will be closed if it is not used for 8 seconds. This saves resourses on servers with many sites.
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Close inactive database
+//
+//! defvar: sqldb
+//! What database to use for the database backend.
+//!  type: TYPE_STRING
+//!  name: SQL Database
+//
+//! defvar: table
+//! Which table should be used for the database backend.
+//!  type: TYPE_STRING
+//!  name: SQL Table
+//
+//! defvar: serverinpath
+//! Add the server Id in the SQL table. <b>Note</b>: you will lose Roxen 2.x compatibility if this enabled.
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Add server Id in SQL table
+//
+//! defvar: serverid
+//! This will be added in the SQL database as unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> counter data will be reset to 0.
+//!  type: TYPE_STRING|VAR_MORE
+//!  name: Id to add in SQL table
+//
