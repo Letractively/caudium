@@ -56,7 +56,7 @@ constant module_doc  = "Module serving the purpose of collecting, preliminary "
                        "</ul>"
                        "All the other parameters are passed to the provider module verbatim.<br>"
                        "The provider modules are expected to export the following two functions:<br><blockquote>"
-                       "<code>mapping|int final(object id, mapping data, mapping variables, "
+                       "<code>mapping|int finale(object id, mapping data, mapping variables, "
                        "mapping tags, mapping containers);</code><br>"
                        "<code>mapping|int process(object id, mapping data, mapping variables, "
                        "mapping tags, mapping containers);</code></blockquote>"
@@ -318,7 +318,7 @@ mixed do_final(object id)
         mapping containers = ([]);
         mapping|int res;
         
-        res = procobj->final(id, DATA(id), variables, tags, containers);
+        res = procobj->finale(id, DATA(id), variables, tags, containers);
         if (!res) {
             construct_defines("final", id, variables, tags, containers);
         } else if (mappingp(res)) {
