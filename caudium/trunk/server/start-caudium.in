@@ -88,7 +88,7 @@ mapping(string:string|array) envvars = ([
   "CAUDIUM_LOGDIR" : getenv("CAUDIUM_LOGDIR") || "../logs",
   "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getuid()),
   "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket_" + getuid()),
-  "CLASSPATH" : getenv("CLASSPATH") +":" + 
+  "CLASSPATH" : (getenv("CLASSPATH")?getenv("CLASSPATH") +":":"") + 
   ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
    "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
   "PIKE_MODULE_PATH" : getenv("PIKE_MODULE_PATH") || "",
@@ -169,6 +169,7 @@ int run_caudium(array(string) args, mapping|void opts)
   if(opts->stdout && !options->quiet)
     opts->stdout->write("Running " + (args*" ") + "\n");
 
+  args-=({""});
   proc = Process.create_process(args, opts);
 
   if (!proc) {
