@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.3 since Caudium 1.4.2
 --------------------------------------------
+- Fix for the RXML parsers sending the wrong content-type header when parsing
+  a non-html document.
+     (James Tyson)
 - Error code was incorrectly set to 401 for every error.
    (David Gourdelier)
 - Pikegraphy now likes filenames with spaces.
