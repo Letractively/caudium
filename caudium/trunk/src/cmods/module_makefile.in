@@ -13,7 +13,7 @@ all:  Makefile $(MODNAME).$(SO)
 
 .SUFFIXES: .c .o
 
-install: all
+install: all extrainstall
 # Stripping probably does work but for debugging reasons and just to
 # make sure, we don't do it. Yet.
 #	-strip $(MODNAME).$(SO)

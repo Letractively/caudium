@@ -2,4 +2,7 @@
 #
 # Wrapper for the UltraLog summary program that sets correct paths...
 #
-@PIKE@  -M@prefix@/caudium/server/etc/modules/ @prefix@/caudium/server/bin/ultrasum.pike "$@"
+dir=`pwd`
+(cd  @prefix@/caudium/server/
+./start --program  ./bin/ultrasum.pike --pwd "$dir" "$@"
+)

@@ -185,12 +185,19 @@ void main(int argc, array argv)
   string noref;
   oldt = start = TIME();
   object fd;
+  if(sizeof(argv) > 2) {
+    if(argv[1] == "--pwd") {
+      cd(argv[2]);
+      argv = argv[2..];
+      argc -= 2;
+    }
+  }
   if(argc == 1)
   {
     werror("Syntax: %s <configfile>\n", argv[0]);
     exit(1);
   }
-   object profs = Profile.Master(argv[1]);
+  object profs = Profile.Master(argv[1]);
   maxsize = profs->maxsize;
   foreach(profs->profiles, object profile) {
     write("Processing %s\n", profile->name);

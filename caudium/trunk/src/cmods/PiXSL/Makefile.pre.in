@@ -3,6 +3,7 @@ OBJS= sablot.o
 SOURCES=sablot.c
 
 @module_makefile@
+extrainstall:
 
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
