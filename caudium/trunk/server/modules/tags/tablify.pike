@@ -103,17 +103,24 @@ string html_nicer_table(array(string) subtitles, array(array(string)) table,
 	string type = "text";
 	if(arrayp(opt->fields) && j < sizeof(opt->fields))
 	  type = opt->fields[j];
+        string delimiter="&nbsp;";
 	switch(type) {
+        case "cnum":
+          delimiter=",";
 	case "num":
 	  array a = s/".";
 	  r += "<td align=\"right\"><font color=\""+(opt->fgcolor||"black")+"\" size=\""+(opt->size||"2")+"\" face=\""+
 	    (opt->face||"helvetica,arial")+"\">";
 	  if(sizeof(a) > 1) {
-	    r += (format_numeric(a[0])+"."+
-		  reverse(format_numeric(reverse(a[1]), ";psbn&")));
+	    r += (format_numeric(a[0],delimiter)+"."+
+		  reverse(format_numeric(reverse(a[1]), reverse(delimiter))));
 	  } else
-	    r += format_numeric(s, "&nbsp;");
+	    r += format_numeric(s, delimiter);
 	  break;
+	case "rtext":
+	  r += "<td align=\"right\"><font color=\""+(opt->fgcolor||"black")+"\" size=\""+(opt->size||"2")+"\" face=\""+
+	    (opt->face||"helvetica,arial")+"\">"+s;
+          break;
 	case "text":
 	default:
 	  r += "<td><font color=\""+(opt->fgcolor||"black")+"\" size=\""+(opt->size||"2")+"\" face=\""+
