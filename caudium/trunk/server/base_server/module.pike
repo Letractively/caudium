@@ -55,7 +55,8 @@ object this = this_object();
 //!   Non-RIS code
 string fix_cvs(string from)
 {
-  sscanf(from, "$Id$", from);
+  from -= "$";
+  sscanf(from, "Id: %*s,v %s  Exp ", from);
   return from;
 }
 
