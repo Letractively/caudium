@@ -104,6 +104,7 @@ install_only:
 	test -d $(prefix)/caudium/server/include/. || mkdir $(prefix)/caudium/server/include
 	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/logs
 	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/configurations
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/var
 	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/server/lib/@PIKE_VERSION@
 	-chmod a+rx $(prefix)
 	-chmod a+rx $(prefix)/caudium
