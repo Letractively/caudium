@@ -1609,3 +1609,29 @@ string parse_scopes(string data, function cb, object id, mixed ... extra) {
   error("Parser.HTML is required.\n");
 }
 #endif
+
+// color.pike compatibility functions.
+#if !constant(parse_color) && constant(Image.Color)
+#define parse_color(X)	Image.Color( X )->rgb()
+#endif
+#if !constant(color_name) && constant(Image.Color)
+#define color_name(X)	Image.Color( @X )->name()
+#endif
+#if !constant(list_colors) && constant(Image.Color)
+#define list_colors()	indices(Image.Color)
+#endif
+
+#if !constant(rgb_to_hsv) && constant(Image.Color) && constant(Image.Color.rgb)
+array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
+ if( arrayp(ri)  ) return Image.Color.rgb( @ri )->hsv();
+ return Image.Color.rgb( ri,gi,bi )->hsv();
+} 
+#endif
+
+#if !constant(hsv_to_rgb) && constant(Image.Color) && constant(Image.Color.hsv)
+array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
+	if( arrayp(hv) ) return Image.Color.hsv(@hv)->rgb();
+	return Image.Color.hsv(hv,sv,vv)->rgb();
+}
+#endif
+
