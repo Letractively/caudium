@@ -1,3 +1,13 @@
+caudium (2:1.2.19-3) unstable; urgency=low
+
+  * Fix SF bug 652095 (lowercase boundary in CONTENT_TYPE)
+  * The Caudium htpasswd is not compatible with the one from Apache. 
+    Caudium no loger diverts htpasswd to point to its own version. 
+    htpasswd is accessible only using the htpasswd-caudium name.
+    (closes: Bug#148316)
+
+ -- Marek Habersack <grendel@debian.org>  Fri, 13 Dec 2002 15:32:35 +0100
+
 caudium (2:1.2.19-2) unstable; urgency=low
 
   * Added /usr/share/pike_packages/apps/modules to the modules path

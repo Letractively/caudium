@@ -35,11 +35,6 @@ PIKE=/usr/lib/caudium${EXTVER}/bin/caudium
 case "$1" in
     configure)
 
-    update-alternatives --install /usr/bin/htpasswd  htpasswd \
-				  /usr/bin/htpasswd-caudium 10 \
-			--slave /usr/share/man/man1/htpasswd.1.gz \
-			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
-
     db_get caudium${EXTVER}/config_port
     CFGPORTNO="$RET"
     if [ -n "$RET" -a "$RET" != "22202" ]; then
