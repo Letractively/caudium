@@ -769,7 +769,7 @@ private string alloc_session(object id)
 
     cur_storage = storage_plugins[sp];
     
-    mapping  sa = cur_storage->get_sessions_area(id);
+    mapping  sa = cur_storage->get_sessions_area(id) || ([]);
 
     if (id->cookies[SVAR] && sizeof(id->cookies[SVAR]) && sa[id->cookies[SVAR]]) {
         id->misc->session_id = id->cookies[SVAR];
@@ -996,7 +996,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     string   query;
     mapping  hvars = ([]);
 
-    if (id->misc->session_id && args && args->href && !leave_me_alone(args->href)) {
+    if (id->misc->session_id && args && !args->norewrite && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
             Caudium.parse_query_string(query, hvars);
         
@@ -1016,7 +1016,7 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     mapping  hvars = ([]);
     int      do_hidden = 1;
     
-    if (id->misc->session_id && args && args->action && !leave_me_alone(args->action)) {
+    if (id->misc->session_id && args && !args->norewrite && args->action && !leave_me_alone(args->action)) {
         if (!args->method || (args->method && lower_case(args->method) != "post")) {
             if (sscanf(args->action, "%*s?%s", query) == 2)
                 Caudium.parse_query_string(query, hvars);
