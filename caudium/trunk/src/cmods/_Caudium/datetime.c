@@ -55,6 +55,10 @@ RCSID("$Id$");
 
 #include "caudium.h"
 
+#if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
+static struct pike_string *getdate_errors[9];
+#endif
+
 #ifdef HAVE_STRPTIME
 /*! @decl int strptime(string date, string format)
  *!  Parse the specified date according to the given format and put the
@@ -213,8 +217,85 @@ static void f_strptime(INT32 args)
 #endif
 
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
+/*! @decl int|array(int|string) getdate(string date)
+ *!
+ *! This method converts the passed date from the string format into the
+ *! Unix time format. As it doesn't take the format string, it requires the
+ *! DATEMSK environment variable to point to a file containing all the
+ *! formats that are to be used in attempt to parse the passed date. The
+ *! file must contain one format per line and the first matching line ends
+ *! the parsing process. The matching is case-insensitive. See the
+ *! @[strptime@] function for information on the formatting codes you can
+ *! use in the pattern file.
+ *!
+ *! @param date
+ *!  The date string to be parsed.
+ *!
+ *! @returns
+ *!  The parsed date in the Unix time format or an array consisting of two
+ *!  elements:
+ *!
+ *!  @array
+ *!   @elem int 0
+ *!    The error code as follows:
+ *!    @int
+ *!     @value 1
+ *!      The DATEMSK environment variable is null or undefined.
+ *!     @value 2
+ *!      The template file cannot be opened for reading.
+ *!     @value 3
+ *!      Failed to get file status information.
+ *!     @value 4
+ *!      The template file is not a regular file.
+ *!     @value 5
+ *!      An error is encountered while reading the template file.
+ *!     @value 6
+ *!      Memory allocation failed (not enough memory available).
+ *!     @value 7
+ *!      There is no line in the file that matches the input.
+ *!     @value 8
+ *!      Invalid input specification.
+ *!    @endint
+ *!
+ *!   @elem string 1
+ *!    The error message corresponding to the error code.
+ *!  @endarray
+ *!
+ *! @note
+ *!  The API conforms to ISO 9899, POSIX 1003.1-2001
+ */
 static void f_getdate(INT32 args)
-{}
+{
+  struct tm            tmret, *tmptr;
+  time_t               ret;
+  int                  err = -1;
+  struct pike_string  *date;
+  struct array        *aret;
+  
+  get_all_args("getdate", args, "%S", &date);
+  pop_n_elems(args);
+  
+#ifdef HAVE_GETDATE_R
+  err = getdate_r(date->str, &tmret);
+  tmptr = &tmret;
+#else
+  tptr = getdate(date->str);
+  err = getdate_err;
+#endif
+
+  if (err || !tmptr) {
+    push_int(err);
+    if (err > sizeof(getdate_errors) - 1 || err < 1)
+      push_string(getdate_errors[0]);
+    else
+      push_string(getdate_errors[err]);
+    aret = aggregate_array(2);
+    push_array(aret);
+  } else{
+    ret = mktime(tmptr);
+    push_int(ret);
+  }
+}
 #endif
 
 static void f_parse_date(INT32 args)
@@ -225,12 +306,22 @@ static void f_difftime(INT32 args)
 
 void init_datetime(void)
 {
-#ifdef HAVE_STRPTIME
-  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tString tMapping, tInt), 0);
+#if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[0], "Unknown getdate error code.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[1], "The DATEMSK environment variable is null or undefined.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[2], "The template file cannot be opened for reading.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[3], "Failed to get file status information.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[4], "The template file is not a regular file.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[5], "An error is encountered while reading the template file.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[6], "Memory allocation failed (not enough memory available).");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[7], "There is no line in the file that matches the input.");
+  MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
+  
+  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid)), 0);
 #endif
   
-#if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
-  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid)), 0);
+#ifdef HAVE_STRPTIME
+  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tString tMapping, tInt), 0);
 #endif
   
   ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
