@@ -1379,7 +1379,20 @@ void send_result(mapping|void result)
 	}
       }
       head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
-      if(file->len > -1) heads["Content-Length"] = (string)file->len;
+
+    head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
+    if(file->len > -1) {
+      heads["Content-Length"] = (string)file->len;
+#ifdef KEEP_ALIVE
+      if(!file->len) {
+	request_headers->connection = heads->Connection = "close";
+      }
+#endif
+    }
+#ifdef KEEP_ALIVE
+    else request_headers->connection = heads->Connection = "close";
+#endif
+
 #if constant(_Roxen.make_http_headers)
       head_string += _Roxen.make_http_headers(heads);
 #else
