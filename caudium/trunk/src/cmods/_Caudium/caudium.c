@@ -128,7 +128,7 @@ static void f_make_tag_attributes(INT32 args)
 
   init_string_builder(&ret, max_shift);  
 
-  /* we don't check whether the string is "safe" or not. We will run replae
+  /* we don't check whether the string is "safe" or not. We will run replace
    * once over the entire resulting string in the end.
    */
   for (i = 0; i < (unsigned)indices->size; i++) {
@@ -176,14 +176,12 @@ static void f_make_tag_attributes(INT32 args)
 
   if (do_replace) {
     push_string(retstr);
-    push_array(mta_unsafe_chars);
-    push_array(mta_safe_entities);
+    push_array(copy_array(mta_unsafe_chars));
+    push_array(copy_array(mta_safe_entities));
     f_replace(3);
-    retstr = Pike_sp[-1].u.string;
-    Pike_sp--;
   }
-  
-  push_string(retstr);
+  else
+    push_string(retstr);
 }
 
 #ifndef HAVE_SETPROCTITLE
