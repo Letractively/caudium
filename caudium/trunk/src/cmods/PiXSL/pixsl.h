@@ -53,7 +53,8 @@ typedef struct
   struct pike_string *base_uri;
   int xml_type, xsl_type;
   struct mapping *variables;  
-  struct mapping *err;  
+  struct mapping *err;
+  char *content_type, *charset;
 } xslt_storage;
 
 #ifndef ADD_STORAGE
@@ -79,3 +80,5 @@ static void f_parse( INT32 args );
 static void f_create( INT32 args );
 static void f_error( INT32 args );
 static void f_parse_files( INT32 args );
+static void f_content_type( INT32 args );
+static void f_charset( INT32 args );

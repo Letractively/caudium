@@ -72,6 +72,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
   string xsl, type, key;
   string|mapping res;
   object(PiXSL.Parser) parser;
+  string content_type, charset;
   if(!args->stylesheet) args->stylesheet = QUERY(stylesheet);
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
@@ -160,6 +161,11 @@ string container_xslt(string tag, mapping args, string xml, object id)
 		res->msg || "Unknown error", line_emph);
     }
   }
+  charset = parser->charset();
+  content_type = parser->content_type() || "text/html";
+  if(charset)
+    content_type += "; charset="+charset;
+  id->misc->_content_type = content_type;
   return res+"<true>";
 }
 

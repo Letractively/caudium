@@ -4,7 +4,7 @@ int main(int argc, array argv) {
 #if constant(PiXSL.Parser)
   string xsl, xml, ofile;
   object parser;
-  string res;
+  mapping|string res;
   if(sizeof(argv) > 2) {
     if(argv[1] == "--pwd") {
       cd(argv[2]);
@@ -29,10 +29,9 @@ int main(int argc, array argv) {
   }
   if(!xml) xml = "file://stdin";
   parser = PiXSL.Parser();
-  parser->set_xml_data(xml);
-  parser->set_xsl_data(xsl);
-  
-  if(catch(res = parser.run())) {
+  parser->set_xml_file(xml);
+  parser->set_xsl_file(xsl);
+  if(catch(res = parser->run())) {
     res = parser->error();
     if(mappingp(res)) {
       werror("%s: XSLT Parsing failed with %serror code %s on\n"
