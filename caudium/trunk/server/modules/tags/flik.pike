@@ -172,17 +172,17 @@ string tag_fl_postparse( string tag, mapping m, string cont, object id,
    if (flcache[id->not_query][id->variables->fl][m->id]==1)
    {
       return "<!--"+m->id+"-->"
-	     "<a name=fl_"+m->id+" target=_self href='"+
+	     "<a name='fl_"+m->id+"' target='_self' href='"+
 	     encode_url(id,m->id,2)+"'>"
-	     "<img width=20 height=20 src=internal-caudium-unfold border=0 "
+	     "<img width='20' height='20' src='/(internal,image)/unfold' border='0' "
 	     "alt='--'></a>"+cont;
    }
    else
    {
       return "<!--"+m->id+"-->"
-	     "<a name=fl_"+m->id+" target=_self href='"+
+	     "<a name='fl_"+m->id+"' target='_self' href='"+
 	     encode_url(id,m->id,1)+"'>"
-	     "<img width=20 height=20 src=internal-caudium-fold border=0 "
+	     "<img width='20' height='20' src='/(internal,image)/fold border='0' "
 	     "alt='\/'></a>"+cont;
    }
    else

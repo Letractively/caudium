@@ -3,7 +3,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2001 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,15 +43,32 @@ private constant extype_err = "Unknown example type '%s' for class '%s'";
 private int      curline;
 private string   curpath;
 private string   realfile;
-private int      f_quiet = 0;
+private int      f_quiet;
 
-private void wrerr(string err)
+private void
+write_file(Stdio.File outfile, string str)
 {
     if (f_quiet < 2) {
         string lead = f_quiet ? (curpath + "(%d): ") : ("%d: ");
         
-        stderr->write(sprintf(lead + err + "\n", curline));
+        outfile->write(sprintf(lead + str + "\n", curline));
     }
+}
+
+void wrerr(string err)
+{
+    write_file(stderr, err);
+}
+
+void wrout(string str)
+{
+    write_file(stdout, str);
+}
+
+void trace(string str)
+{
+    if (f_quiet < 2)
+        stdout->write(sprintf("%s\n", str));
 }
 
 #ifdef DEBUG_PARSER
@@ -1910,29 +1926,24 @@ class Parse {
         if (!stbuf)
             throw(({"File not found: " + path + "\n", backtrace()}));
         stbuf = (array(int))stbuf;
-        if (stbuf[1] == -2)
+        if (stbuf[1] == -2) {
+            trace("Parsing tree...");
             parse_tree(path);
-        else
+        } else {
+            trace("Parsing a file...");
             parse_file(path);
+        }
+
+        trace("Done parsing");
     }
     
-    void create(void|string flags)
+    void create(void|int flags)
     {
-        if (flags)
-            for(int i = 0; i < sizeof(flags); i++)
-                switch(flags[i]) {
-                    case 'q':
-                        f_quiet = 1;
-                        break;
-
-                    case 'Q':
-                        f_quiet = 2;
-                        break;
-                }
+        f_quiet = flags;
         
         f = 0;
         fcount = mcount = 0;
-	dircounts = ([]);
+        dircounts = ([]);
     }
 }
 

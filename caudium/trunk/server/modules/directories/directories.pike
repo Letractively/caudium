@@ -58,7 +58,7 @@ class Dirnode
   array stat;
   inherit "base_server/struct/node";
 
-#define configurl(f) ("/internal-caudium-"+f)
+#define configurl(f) ("/(internal,image)/"+f)
 #define image(f) ("<img border=0 src="+(f)+" alt=\"\">")
 
   void create(string|void pseudoroot)

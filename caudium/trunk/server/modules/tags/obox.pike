@@ -40,7 +40,7 @@ constant module_doc  = "This is a container tag making outlined boxes.<p>"
     "<tt>&lt;obox help&gt;&lt;/obox&gt;</tt> gives help.\n\n "; // +doc();
 constant module_unique = 1;
 
-constant unit_gif = "/internal-caudium-unit";
+constant unit_gif = "/(internal,image)/unit";
 
 static private int loaded;
 

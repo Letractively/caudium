@@ -22,6 +22,9 @@
  */
 import Getopt;
 
+private int      f_quiet = 0;
+
+
 /*
  * Usage:
  *
@@ -53,7 +56,6 @@ array options = ({
 });
 
 static int gen_type = 0;
-static string quiet = "";
 static string target_dir = "./docs";
 
 void usage() 
@@ -80,7 +82,7 @@ void usage()
 int main(int argc, array(string) argv)
 {
     array  option;
-
+    
     foreach(find_all_options(argv, options), option) {
         switch(option[0]) {
             case "tree":
@@ -96,11 +98,11 @@ int main(int argc, array(string) argv)
                 break;
 
             case "quiet":
-                quiet = "q";
+                f_quiet = 1;
                 break;
 
             case "shutup":
-                quiet = "Q";
+                f_quiet = 2;
                 break;
 
             case "help":
@@ -115,18 +117,18 @@ int main(int argc, array(string) argv)
         return 1;
     }
 
-    object o = DocParser.Parse(quiet);
+    object o = DocParser.Parse(f_quiet);
     object g;
     
     o->parse(argv[1]);
     
     switch (gen_type) {
         case 0:
-            g = DocGenerator.TreeMirror(o->files, o->modules, o->dircounts, argv[1]);
+            g = DocGenerator.TreeMirror(o->files, o->modules, o->dircounts, argv[1], f_quiet);
             break;
 
         case 1:
-            g = DocGenerator.Monolith(o->files, o->modules, o->dircounts, argv[1]);
+            g = DocGenerator.Monolith(o->files, o->modules, o->dircounts, argv[1], f_quiet);
             break;
     }
     

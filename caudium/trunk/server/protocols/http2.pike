@@ -93,6 +93,7 @@ mapping (string:string) cookies         = ([ ]);
 mapping (string:string) request_headers = ([ ]);
 
 multiset (string) prestate  = (< >);
+multiset (string) internal  = (< >);
 multiset (string) config    = (< >);
 multiset (string) supports  = (< >);
 multiset (string) pragma    = (< >);
@@ -228,16 +229,23 @@ inline void do_post_processing() /*FOLD00*/
   else
     leftovers = data;
 #endif
-  if(query) Caudium.parse_query_string(query, variables);
+  if(query)
+      Caudium.parse_query_string(query, variables);
   REQUEST_WERR(sprintf("After query scan:%O", f));
 
+#if 0
   // FIXME: This should be done in C
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
     prestate = aggregate_multiset(@(a/","-({""})));
     f = "/"+f;
   }
-
+#else
+  f = "/" + Caudium.parse_prestates(f, prestate, internal);
+  REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
+                       prestate, internal));
+#endif
+  
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
   not_query = simplify_path(f);
@@ -588,7 +596,7 @@ string format_backtrace(array bt, int eid) /*FOLD00*/
 		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
 		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
 		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/internal-caudium-":"/img/")+
+		"src=\""+(conf?"/(internal,image)/":"/img/")+
 		"caudium-icon-gray.png\" alt=\"\"></td>"
 		"<td>&nbsp;</td><td width=100% height=39>"
 		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
@@ -601,7 +609,7 @@ string format_backtrace(array bt, int eid) /*FOLD00*/
 		"<p>\n\n"
 		"<font size=+2 color=darkred>"
 		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
+		(conf?"/(internal,image)/":"/img/") +"manual-warning.png>"
 		+bt[0]+"</font><br>\n"
 		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")

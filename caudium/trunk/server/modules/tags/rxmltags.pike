@@ -2386,7 +2386,7 @@ string tag_configimage(string f, mapping m)
     switch(q=indices(m)[0])
     {
      case "src":
-      args += " src=\"/internal-caudium-"+ (m->src-".png") + "\"";
+      args += " src=\"/(internal,image)/"+ (m->src-".png") + "\"";
       break;
      default:
       args += " "+q+"=\""+m[q]+"\"";
@@ -2853,37 +2853,51 @@ string tag_ximage(string tagname, mapping m, object id)
 mapping pr_sizes = ([]);
 string get_pr_size(string size, string color)
 {
-  if(pr_sizes[size+color]) return pr_sizes[size+color];
-  object fd = open("caudium-images/power-"+size+"-"+color+".png", "r");
-  if(!fd) return "NONEXISTANT COMBINATION";
-  // Kiwi: hu? gif_size() on a png ???
-  return pr_sizes[size+color] = gif_size( fd );
+  if(pr_sizes[size+color])
+      return pr_sizes[size+color];
+
+  mapping file = caudium->IFiles->get("image://power-" + size + "-" + color + ".png");
+  
+  if(!file)
+      return "NONEXISTENT COMBINATION";
+
+  return pr_sizes[size+color] = sprintf("width=\"%d\" height=\"%d\"",
+                                        file->width, file->height);
 }
 
 string tag_pr(string tagname, mapping m)
 {
-  string size = m->size || "small";
-  string color = m->color || "red";
-  if(m->list)
-  {
-    string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
-    foreach(sort(get_dir("caudium-images")), string f)
-      if(sscanf(f, "power-%s", f))
-	res += "<tr><td>"+replace(f-".png","-","</td><td>")+"</tr>";
-    return res + "</table>";
-  }
-  m_delete(m, "color");
-  m_delete(m, "size");
-  int w;
-  if(get_pr_size(size,color)  == "NONEXISTANT COMBINATION") color = "red";
-  sscanf(get_pr_size(size,color), "%*swidth=%d", w);
-  if(w != 0) m->width = (string)w;
-  sscanf(get_pr_size(size,color), "%*sheight=%d", w);
-  if(w != 0) m->height = (string)w;
-  m->src = "/internal-caudium-power-"+size+"-"+color;
-  if(!m->alt) m->alt="Powered by Caudium";
-  if(!m->border) m->border="0";
-  return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
+    string size = m->size || "small";
+    string color = m->color || "red";
+    if(m->list)
+    {
+        string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
+        foreach(sort(get_dir("caudium-images")), string f)
+            if(sscanf(f, "power-%s", f))
+                res += "<tr><td>"+replace(f-".png","-","</td><td>")+"</tr>";
+        return res + "</table>";
+    }
+    m_delete(m, "color");
+    m_delete(m, "size");
+    int w;
+
+    if(get_pr_size(size,color)  == "NONEXISTENT COMBINATION")
+        color = "red";
+    sscanf(get_pr_size(size,color), "%*swidth=%d", w);
+    if(w != 0)
+        m->width = (string)w;
+    sscanf(get_pr_size(size,color), "%*sheight=%d", w);
+    if(w != 0)
+        m->height = (string)w;
+
+    m->src = "/(internal,image)/power-"+size+"-"+color;
+    
+    if(!m->alt)
+        m->alt="Powered by Caudium";
+    if(!m->border)
+        m->border="0";
+    
+    return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
 }
 
 string tag_number(string t, mapping args)
