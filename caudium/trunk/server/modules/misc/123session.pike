@@ -49,6 +49,7 @@ inherit "roxenlib";
 mapping (string:mapping (string:mixed)) _variables = ([]);
 object myconf;
 int foundcookieandprestate = 0;
+string authtemplate = "";
 
 int storage_is_not_sql() {
   return (QUERY(storage) != "sql");
@@ -62,6 +63,10 @@ int dont_use_formauth() {
   return (QUERY(use_formauth) != 1);
 }
 
+int dont_use_formauth_file() {
+  return (QUERY(auth_template_file) != 1);
+}
+
 void start(int num, object conf) {
   if (conf) { myconf = conf; }
   if (QUERY(storage) == "memory") {
@@ -72,6 +77,10 @@ void start(int num, object conf) {
         break;
       }
   }
+  if (QUERY(auth_template_file))
+     authtemplate = Stdio.read_file(QUERY(template_file));
+  else
+     authtemplate = QUERY(authpage);
 }
 
 void stop () {
@@ -130,6 +139,11 @@ void create (mixed ... foo) {
          "/admin/\n"
          "</pre>",
          0, dont_use_formauth);
+  defvar("auth_template_file", 0, "Auth template in file", TYPE_FLAG,
+         "Auth form in file (instead in config)",
+         0, dont_use_formauth);
+  defvar("template_file", 0, "Template file", TYPE_FILE,
+         "Path to auth template", 0, dont_use_formauth_file);
   defvar("authpage",
          "<html><head><title>Login</title></head><body>\n"
          "<form method=\"post\"><table>\n"
@@ -483,10 +497,10 @@ mixed first_try(object id) {
         if (result[0] == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
-          return QUERY(parseauthpage)?http_string_answer(parse_rxml(QUERY(authpage),id)):http_low_answer(200, QUERY(authpage));
+          return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):http_low_answer(200, authtemplate);
         }
       } else {
-        return QUERY(parseauthpage)?http_string_answer(parse_rxml(QUERY(authpage),id)):http_low_answer(200, QUERY(authpage));
+        return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):http_low_answer(200, authtemplate);
       }
     }
   }
