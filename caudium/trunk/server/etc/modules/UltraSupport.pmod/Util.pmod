@@ -1,3 +1,7 @@
+//! Ultralog module
+//! @fixme
+//!  Not documented
+
 // $Id$
 
 constant PERIOD_MONTH = 0;
