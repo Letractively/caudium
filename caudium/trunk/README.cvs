@@ -14,7 +14,7 @@ commands:
 cvs -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium login
 [Hit [Return] as the password (ie empty password)]
 
-vs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
+cvs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
 
 You can later update your Caudium source from CVS by typing:
 
