@@ -57,10 +57,22 @@ void create(string _path) {
   path = _path;
   _size = ([]);
   idx = idx_get();
-  if (!mappingp(idx)) {
-    idx = ([]);
+  if (mappingp(idx)) {
+    array f = ({});
+    foreach(indices(idx), string n) {
+      f += values(idx[n]);
+    }
+    array _d = get_dir(path) - ({ "storage_index" });
+    array d = ({});
+    string _f;
+    foreach(_d, _f)
+      d += ({ Stdio.append_path(path, _f) });
+    array r = d - f;
+    foreach(r, _f)
+      rm(Stdio.append_path(path, _f));
   }
   else 
+    idx = ([]);
   call_out(idx_sync, SYNCTIME);
   if (!Stdio.is_dir(path))
     Stdio.mkdirhier(path);
