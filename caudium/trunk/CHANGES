@@ -6,6 +6,9 @@ Changes in Caudium 1.0.X (CVS)
 - Remove smartlink from the cached CC value in the beginning of the configure
   script to account for times when the smartlink binary has been removed but
   config.cache is kept.
+- Install script is now somewhat nicer. First of all it uses readline when
+  available. Secondly it also asks for administrator name and password.
+  Finally, it works with Pike 7.1 again.
 - Various bugfixes to CAMAS, including support for Pike 7.1
 - Removed NT compatibility hacks since we have no plans of ever
   supporting NT.
