@@ -14,6 +14,9 @@ Changes in Caudium 1.0.XX
   possibility of a bugs allowing access to files outside of the
   configured web page directories. Please note that there are no known
   such bugs in Caudium.
+- Small bug fixed in UltraLog - when no extensions is specified,
+  supply a default list and avoid a runtime error. Reported bu Michael
+  Stenitzer.
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------
