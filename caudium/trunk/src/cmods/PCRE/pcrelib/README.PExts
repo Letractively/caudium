@@ -1,0 +1,13 @@
+PCRE: Perl Compatible Regular Expressions in PExts
+--------------------------------------------------
+
+Regular expression support is provided by the PCRE library package,
+which is open source software, written by Philip Hazel, and copyright
+by the University of Cambridge, England.
+
+This library is modified especially for the Pike Extension library,
+and some parts unnecessary to this has been removed. To get the
+original, complete distribution of PCRE, go to http://www.pcre.org/.
+
+The original FTP dowload location is:
+ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/

@@ -1,0 +1,3 @@
+The PCRE library used by PExts doesn't include the original PCRE documentation
+to save space. Please go to http://www.pcre.org/ and download the full
+release.
