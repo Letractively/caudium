@@ -10,7 +10,7 @@ import Headlines;
 #include <headlines/base.h>
 #include <headlines/RDF.h>
 
-constant name = "freshmeat";
+constant name = "slashdot";
 constant site = "Slashdot.org";
 constant url  = "http://slashdot.org/";
 constant path  = "slashdot.rdf";
