@@ -887,10 +887,92 @@ static void f_http_decode(INT32 args)
   push_string(end_shared_string(ret));
 }
 
+/* Roxen 1.3 compat call */
+
+/* Check if the char given is safe or not */
+static int is_http_safe (char c)
+{
+   switch(c)
+   {
+     case 0:
+     case ' ':
+     case '\t':
+     case '\n':
+     case '\r':
+     case '%':
+     case '\'':
+     case '\"':
+     case '<':
+     case '>':
+     case '@':
+          return 0; break;
+     default:
+          return 1; break;
+   }
+   return 1;  /* Never used, but added to keep some compilers happy */
+}
+
+/*
+** method: string http_encode_string(string m)
+**   HTTP encode the specified string and return it. This means replacing
+**   the following characters to the %XX format: null (char 0), space, tab,
+**   carriage return, newline, percent and single and double quotes.
+** arg: string m
+**   The string to encode.
+** returns:
+**   The HTTP encode string.
+*/
+static void f_http_encode_string(INT32 args)
+{
+  char *o, *out, *in;
+  unsigned char *i;
+  int unsafe = 0;
+  int out_len, in_len;
+  struct pike_string *ret;
+  struct pike_string *src;
+
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_string", 1, "string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.http_encode_string(): Only 8-bit strings allowed.\n");
+  }
+
+  in = src->str;
+  in_len = src->len-1;
+	
+  /* count unsafe characters */
+  for(i=in; *i; i++) if(!is_http_safe((int )*i)) unsafe++;
+
+  /* no need to convert	*/
+  if(unsafe == 0) {
+    pop_n_elems(args-1);
+    return;
+  }
+	
+  out_len = in_len + (unsafe * 2) + 1;
+  ret = begin_shared_string(out_len);
+  out = ret->str;
+
+  for(o=out, i=in; *i; i++) {
+    if (!is_http_safe(*i)) {
+      *o++ = '%';
+      *o++ = hex_chars[*i >> 4];
+      *o++ = hex_chars[*i & 15];
+    } else *o++ = *i;
+  }
+
+  /* grendel: i think this _is_ needed?! - pit */
+  /* *o++ = 0; */
+  pop_n_elems(args);
+  push_string(end_shared_string(ret));
+}
+
 /* Used for cern_http_date and for http_date */
 const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
-                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
+/* Used for http_date */
 const char *days[7]= { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
 /*
@@ -1099,6 +1181,7 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
+  /* Functions to replace base_server/http.pike calls */
   add_function_constant( "http_encode", f_http_encode,
                          "function(string:string)", 0);
   add_function_constant( "http_decode", f_http_decode,
@@ -1107,6 +1190,9 @@ void pike_module_init( void )
                          "function(int|void:string)", 0);
   add_function_constant( "http_date", f_http_date,
                          "function(int|void:string)", 0);
+  /* Roxen 1.X compat functions */
+  add_function_constant( "http_encode_string", f_http_encode_string,
+                         "function(string:string)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );
