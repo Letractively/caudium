@@ -14,7 +14,7 @@ AC_CHECK_FUNCS(strptime, break, [AC_CHECK_LIB(intl, strptime)])
 
 AC_HEADER_TIME
 
-AC_HAVE_FUNCS(localtime localtime_r gmtime gmtime_r)
+AC_HAVE_FUNCS(localtime localtime_r gmtime gmtime_r strdupa strndupa)
 
 dnl Test for snprintf..
 AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
