@@ -392,8 +392,8 @@ else
   cat << EOF
 *****************************************************************************
 *** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6
-*** is no longer supported. You can download and install one of
+*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0,
+*** 7.2 or 7.3 is no longer supported. You can download and install one of
 *** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
 ***     http://caudium.net/download/source/caudiumbuild.rxml 
