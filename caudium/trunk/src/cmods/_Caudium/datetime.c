@@ -53,13 +53,41 @@ RCSID("$Id$");
 #include <sys/time.h>
 #endif
 
+#include <locale.h>
+
 #include "caudium.h"
+#include "getdate.h"
+
+static struct pike_string *gd_bad_format;
 
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
 static struct pike_string *getdate_errors[9];
 #endif
 
 #ifdef HAVE_STRPTIME
+/* the first three formats are specified in the RFC2068 document, section
+ * 3.3.1
+ * The formats with is_anal == 1 are weird formats not specified in any RFC
+ * - they are disabled by default.
+ */
+struct 
+{
+  char           *fmt;
+  unsigned char   is_anal;
+} *is_modified_formats[] = {
+  {"%a, %d %b %Y %H:%M:%S", 0}, /* RFC1123 */
+  {"%A, %d %b %y %H:%M:%S", 0}, /* RFC850 */
+  {"%a %b %d %H:%M:%S %Y", 0}, /* ANSI C asctime() format */
+  {"%d-%m-%Y %H:%M:%S", 1},
+  {"%d-%m-%y %H:%M:%S", 1},
+  {"%a, %d %b %y %H:%M:%S", 1},
+  {"%a %b %d %H:%M:%S %y", 1},
+  {"%d %b %Y %H:%M:%S", 1},
+  {"%d %b %Y %H:%M:%S", 1},
+  {"%d %b %y %H:%M:%S", 1},
+  {NULL, 0, 0},
+};
+
 /*! @decl int strptime(string date, string format)
  *!  Parse the specified date according to the given format and put the
  *!  broken-down time in the mapping passed to the function.
@@ -267,10 +295,10 @@ static void f_strptime(INT32 args)
 static void f_getdate(INT32 args)
 {
   struct tm            tmret, *tmptr;
-  time_t               ret;
   int                  err = -1;
   struct pike_string  *date;
   struct array        *aret;
+  time_t               ret;
   
   get_all_args("getdate", args, "%S", &date);
   pop_n_elems(args);
@@ -293,16 +321,91 @@ static void f_getdate(INT32 args)
     push_array(aret);
   } else{
     ret = mktime(tmptr);
-    push_int(ret);
+    if (ret >= 0)
+      push_int(ret);
+    else {
+      push_int(8);
+      push_string(getdate_errors[8]);
+      aret = aggregate_array(2);
+      push_array(aret);
+    }
   }
 }
 #endif
 
+/*! @decl int|string parse_date(string date)
+ *!
+ *! Parse the specified date and return its corresponding unix time
+ *! value. This function uses the same parser code as the GNU date(1)
+ *! utility.
+ *!
+ *! @param date
+ *!  The date to be parsed.
+ *!
+ *! @returns
+ *!  The integer unix time value on success, an error message otherwise.
+ */
 static void f_parse_date(INT32 args)
-{}
+{
+  struct pike_string   *date;
+  time_t                ret;
+  
+  get_all_args("parse_date", args, "%S", &date);
+  pop_n_elems(args);
 
-static void f_difftime(INT32 args)
-{}
+  ret = get_date(date->str);
+  if (ret < 0)
+    push_string(gd_bad_format);
+  else
+    push_int(ret);
+}
+
+static void f_is_modified(INT32 args)
+{
+  struct pike_string   *header;
+  int                   tmod, use_weird, i;
+  
+  get_all_args("is_modified", args, "%S%u%u", &header, &tmod, &use_weird);
+  pop_n_elems(args);
+
+#ifdef HAVE_STRPTIME
+  i = 0;
+  while(is_modified_formats[i].fmt) {
+    char      *tmp;
+    struct tm  ttm;
+    
+    if (!is_modified_formats[i].is_anal || use_weird)
+      if (strptime(header->str, is_modified_formats[i].fmt, &ttm))
+        break;
+    
+    i++;
+  }
+  if (!is_modified_formats[i].fmt) {
+    push_string(gd_bad_format);
+    return;
+  }
+
+  if (ttm.tm_year < 100) {
+    if (ttm.tm_year <= 68)
+      ttm.tm_year += 2000;
+    else
+      ttm.tm_year += 1900;
+  }
+
+  ret = mktime(&ttm);
+  if (ret >= 0)
+    push_int(ret);
+  else
+    push_string(gd_bad_format);
+  
+#else
+  ret = get_date(header->str);
+  if (ret < 0)
+    push_string(gd_bad_format);
+  else
+    push_int(ret);
+#endif
+}
 
 void init_datetime(void)
 {
@@ -316,6 +419,7 @@ void init_datetime(void)
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[6], "Memory allocation failed (not enough memory available).");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[7], "There is no line in the file that matches the input.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
+  MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
   
   ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid)), 0);
 #endif
@@ -325,5 +429,5 @@ void init_datetime(void)
 #endif
   
   ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
-  ADD_FUNCTION("difftime", f_difftime, tFunc(tInt tInt, tInt), 0);
+  ADD_FUNCTION("is_modified", f_is_modified, tFunc(tString tInt tOr(tInt, tVoid), tInt), 0);
 }
