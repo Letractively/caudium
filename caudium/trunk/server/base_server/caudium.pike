@@ -2491,7 +2491,7 @@ private void define_global_variables( int argc, array (string) argv )
           0, cache_disabled_p );
 
   globvar("cache_vigilance", 75,
-          "Caching Sub-system: Vigilance (%), TYPE_INT,
+          "Caching Sub-system: Vigilance (%)", TYPE_INT,
           "The caching system uses an asynchronous method of maintaining "
           "the limits to the caches RAM and slow storage methods as "
           "also configured here. A setting of 100% will mean that the "
