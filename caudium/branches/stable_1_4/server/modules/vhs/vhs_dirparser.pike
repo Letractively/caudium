@@ -499,9 +499,9 @@ mapping parse_directory(object id)
       if (got = id->conf->low_get_file(id))
       {
         if(id->query && sizeof(id->query))
-          return http_redirect(id->not_query + "?"+ id->query, id);
+          return Caudium.HTTP.redirect(id->not_query + "?"+ id->query, id);
         else
-          return http_redirect(id->not_query, id);
+          return Caudium.HTTP.redirect(id->not_query, id);
       }
     }
   }
