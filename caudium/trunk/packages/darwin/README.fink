@@ -1,0 +1,72 @@
+$Id$
+
+The Caudium fink package has been done to be as MacOS X / fink friendly as
+possible.
+
+This package is still at alpha stage. There may still be some bugs or
+weirdness. If so, don't hesitate to contact me <bertrand AT caudium DOT net>.
+
+
+
+*******************************************************************************
+** Caudium startup options
+*******************************************************************************
+
+By default, Caudium is configured:
+  - to run threaded
+  - to log in @prefix@/var/log/caudium1.3
+  - to read configuration from @prefix@/etc/caudium1.3
+
+These startup options can be changed in @prefix@/etc/defaults/caudium1.3
+
+
+
+*******************************************************************************
+** Starting/Stopping Caudium
+*******************************************************************************
+
+* Automatic startup:
+
+By default, Caudium is started at boot using Fink's daemonic system. If you
+don't want Caudium to start at boot, use the command:
+
+sudo daemonic disable caudium1.3
+
+Read the daemonic man page for more information.
+
+
+* Manual startup/restart/stop:
+
+If you want to manually start Caudium, use:
+
+sudo @prefix@/bin/caudiumctl1.3 start
+
+If you want to restart or stop Caudium, you can use:
+
+sudo @prefix@/bin/caudiumctl1.3 stop
+sudo @prefix@/bin/caudiumctl1.3 restart
+
+The web-based interface can be used in order to restart and stop Caudium, too.
+
+Don't launch yourself the start-caudium script from @prefix@/lib/caudium1.3/
+otherwise, the config from @prefix@/etc/caudium1.3 wouldn't be read and it
+could end up with unexpected results.
+
+
+
+*******************************************************************************
+** Caudium configuration
+*******************************************************************************
+
+Just after the installation, you are prompted for a login and a password in
+order to log into the Web-based configuration interface.
+
+Point your favorite web browser to http://127.0.0.1:22202/ and use the
+self-explanatory interface to configure Caudium.
+
+
+
+*******************************************************************************
+** Caudium programming
+*******************************************************************************
+
