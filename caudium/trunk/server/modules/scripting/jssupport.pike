@@ -370,7 +370,7 @@ array(string)|string pi_javascript(string tag, string js_source, object id)
   NOCACHE();
   string bytecode;
   string key = get_key_from_data(js_source, 1);
-  if(!js = id->misc->_javascript_interpreter) {
+  if(!(js = id->misc->_javascript_interpreter)) {
     js = JavaScript.Interpreter(id, options); /* init interpreter */
     add_var_scopes(id, js); /* register variable scopes */
     id->misc->_javascript_interpreter = js;
