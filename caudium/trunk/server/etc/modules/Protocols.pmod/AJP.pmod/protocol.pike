@@ -89,6 +89,23 @@ constant attribute_values=([
     "terminator" : 0xff
     ]);
 
+constant forward_header_values=([
+    0xa001: "accept",
+    0xa002: "accept-charset",
+    0xa003: "accept-encoding",
+    0xa004: "accept-language",
+    0xa005: "authorization",
+    0xa006: "connection",
+    0xa007: "content-type",
+    0xa008: "content-length",
+    0xa009: "cookie",
+    0xa00a: "cookie2",
+    0xa00b: "host",
+    0xa00c: "pragma",
+    0xa00d: "referer",
+    0xa00e: "user-agent"
+]);
+
 constant send_header_values=([
     0xa001: "Content-Type",
     0xa002: "Content-Language",
@@ -127,12 +144,24 @@ string generate_server_packet(string data)
     return sprintf("%c%c%2c%s", 0x12, 0x34, strlen(data), data);
 }
 
+string generate_container_packet(string data)
+{
+  if(strlen(data)>MAX_PACKET_SIZE) error("AJP Packet too large: " + strlen(data) + ".");
+  else
+    return sprintf("%c%c%2c%s", 'A', 'B', strlen(data), data);
+}
+
 string packet_shutdown()
 {
   return sprintf("%c", MSG_SHUTDOWN);
 }
 
 string packet_body(string d)
+{
+  return sprintf("%2c%s",strlen(d),d);
+}
+
+string packet_get_body(string d)
 {
   return sprintf("%2c%s",strlen(d),d);
 }
@@ -445,7 +474,35 @@ mapping decode_send_headers(mapping packet)
   return packet;
 }
 
-mapping decode_request_headers(mapping packet)
+string read_client_body(object f, int len)
+{
+  string body="";
+  int data_to_receive=1;
+ 
+  do 
+  {
+    string p = f->read(2);
+    int bytes; 
+    sscanf(p, "%2c", bytes);
+    if(bytes>MAX_PACKET_SIIZE-6) error("body packet too long\n");
+    if(bytes==0) data_to_receive=0;
+    else
+    {
+      string read_data=f->read(bytes);
+      if(sizeof(read_data)<bytes)
+        error("received short data\n");
+      body+=read_data;
+      if(sizeof(body)>=len) data_to_receive=0;
+      else
+        f->write(generate_container_packet(packet_get_body()));
+    }
+  }
+  while(data_to_receive);  
+
+  return body;
+}
+
+mapping decode_forward(mapping packet)
 {
 //  report_debug("decode_send_headers\n");
   if(packet->type == MSG_PING)
@@ -455,16 +512,18 @@ mapping decode_request_headers(mapping packet)
   if(packet->type == MSG_SHUTDOWN)
     error("Attempt to decode cping packet.\n");
 
-  sscanf(packet->data, "%2c%s", packet->response_code, packet->data);
-  [packet->response_msg, packet->data]=pull_string(packet->data);
-  // workaround some screwy stuff that tomcat 3 seems to do.
-  int h=search(packet->response_msg, "\000");
-  if(h!=-1)
-    packet->response_msg=packet->response_msg[0..(h-1)];
+  [packet->method, packet->data] = array_sscanf(packet->data, "%c%s");
 
-  sscanf(packet->data, "%2c%s", packet->num_headers, packet->data);
+  [packet->protocol, packet->data] = pull_string(packet->data);
+  [packet->req_uri, packet->data] = pull_string(packet->data);
+  [packet->remote_addr, packet->data] = pull_string(packet->data);
+  [packet->server_host, packet->data] = pull_string(packet->data);
+  [packet->server_name, packet->data] = pull_string(packet->data);
 
-  packet->response_headers=([]);
+  [packet->server_port, packet->is_ssl, packet->data, packet->num_headers] = 
+    array_sscanf(packet->data, "%2c%c%2c%s");
+
+  packet->request_headers=([]);
 
 //  report_debug("decoding " + packet->num_headers + " headers.\n");
 
@@ -477,7 +536,7 @@ mapping decode_request_headers(mapping packet)
     if(n==0xa0)
     {
       sscanf(packet->data[0..1], "%2c", n);
-      h=send_header_values[n];
+      h=forward_header_values[n];
       packet->data=packet->data[2..];
       [v, packet->data]=pull_string(packet->data);
      
@@ -493,6 +552,25 @@ mapping decode_request_headers(mapping packet)
     }
     packet->response_headers[h]=v;
   }
+
+  // now we get the attributes.
+  packet->attributes=([]);
+  int ended=0;
+  do 
+  {
+   int code;
+   string value;
+   [code, packet->data] = 
+    array_sscanf(packet->data, "%2c%s");
+   if(code==0xff) ended=1;
+   else
+   {
+     [value, packet->data] = pull_string(packet->data);
+     packet->attributes[search(attribute_values, code)] = value;
+   }
+  } while (!ended);
+
+  packet->request_headers=([]);
 
   return packet;
 }
