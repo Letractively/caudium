@@ -1451,7 +1451,7 @@ void send_result(mapping|void result)
   if(!leftovers) leftovers = data||"";
 #endif
 
-  if(file->len > 0 && file->len < 2000)
+  if(file->len >= 0 && file->len < 2000)
   {
     my_fd->write((head_string || "") +
 		 (file->file?file->file->read():file->data));
