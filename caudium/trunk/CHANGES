@@ -110,3 +110,4 @@ Changes in Caudium 1.1 since CVS branching
   possibility of a bugs allowing access to files outside of the
   configured web page directories. Please note that there are no known
   such bugs in Caudium.
+- CAMAS is now on a sperate CVS tree and removed from main Caudium tree.
