@@ -559,9 +559,7 @@ string quote(mapping in)
   */
   //NU: Create key
   string data=encode_value(in);
-  object o=Crypto.sha();
-  o->update(data);
-  string out=replace(Caudium.http_encode_string(MIME.encode_base64(o->digest(),1)),
+  string out=replace(Caudium.http_encode_string(MIME.encode_base64(Caudium.Crypto.hash_sha(data),1)),
 		     "/", "$");
   string cdir = _cdir();
   

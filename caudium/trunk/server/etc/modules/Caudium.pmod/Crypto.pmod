@@ -109,7 +109,7 @@ string hash_md5(string key, void|int hexify)
 #if constant(Mhash.hash_sha1)
 string sha1_hash_type = "Mhash";
 
-string hash_sha1(string key, void|int hexify)
+string hash_sha(string key, void|int hexify)
 {
   string ret = Mhash.hash_sha1(key);
 
@@ -118,7 +118,7 @@ string hash_sha1(string key, void|int hexify)
 #else
 string sha1_hash_type = "Pike.Crypto";
 
-string hash_sha1(string key, void|int hexify)
+string hash_sha(string key, void|int hexify)
 {
   string ret = Crypto.sha()->update(key)->digest();
 

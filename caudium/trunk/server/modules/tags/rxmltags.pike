@@ -2374,15 +2374,8 @@ string tag_help(string t, mapping args, object id)
 string tag_cache(string tag, mapping args, string contents, object id)
 {
 #define HASH(x) (x+id->not_query+id->query+id->realauth +id->conf->query("MyWorldLocation"))
-#if constant(Mhash.hash_md5)
-  string key=Mhash.hash_md5(HASH(contents));
-#elif constant(Crypto.md5)
-  object md5 = Crypto.md5();
-  md5->update(HASH(contents));
-  string key=md5->digest();
-#else
-  string key = (string)hash(HASH(contents));
-#endif
+  string key = Caudium.Crypto.hash_md5(contents);
+  
   if(args->key)
     key += args->key;
   string parsed = cache_lookup("tag_cache", key);

@@ -152,7 +152,7 @@ class SQLCounter {
 
   private string fix_file(string file) {
     if(sizeof(file)>255)
-      file="//"+MIME.encode_base64(Crypto.md5()->update(file)->digest(),1);
+      file="//"+MIME.encode_base64(Caudium.Crypto.hash_md5(file),1);
     return db->quote(file);
   }
 
