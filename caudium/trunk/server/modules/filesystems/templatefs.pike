@@ -1,4 +1,4 @@
-// This is a roxen module. (c) Martin Baehr 1999
+// This is a roxen module. (c) Martin Baehr 1999-2002
 
 // templatefs.pike 
 // template adding filesystem
@@ -22,6 +22,7 @@
 
 #include <module.h>
 #include <stdio.h>
+inherit "caudiumlib";
 inherit "modules/filesystems/filesystem";
 inherit "utils";
 //inherit "relinsert.pike";
@@ -84,8 +85,11 @@ static private string doc()
          "<dl>"
          "\n<dt><b><tt>&lt;tmplinsertall&gt;</tt></b>"
          "<dd>will simply insert the whole contents"
+         "\n<dt><b><tt>&lt;tmplinserblock&gt;</tt></b>"
+         "<dd>will insert the contents of the container which is "
+         "named in the argument <tt>container</tt>:"
          "\n<dt><b><tt>&lt;tmploutput&gt;&lt;/tmploutput&gt;</tt></b>"
-         "<dd>will allow to insert all kinds of variables:"
+         "<dd>will allow to insert all kinds of variables"
          "  <dl>"
          "  \n<dt><b>#file#</b>"
          "  <dd>the name of the directory (or file), the template is being "
@@ -108,6 +112,7 @@ static private string doc()
 	 "  targetdir, otherwise it is equal to the targetfile."
          "</dl>";
 }
+
 array register_module()
 {
   return ({
@@ -137,7 +142,7 @@ string apply_template(string newfile, string f, string template, object id)
     werror(" found\n");
     file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
     
-    newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, newfile);
+    newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall, "tmplinsertblock":itag_tmplinsertblock]), ([]), id, newfile);
   }
   else
     werror(" not found\n");
@@ -239,6 +244,12 @@ mixed find_file( string f, object id )
        //werror("templatefs: %O\n%O\n", id->misc, id->misc->defines);
        return http_rxml_answer(contents, id);
 
+       //ok, here we basicly take over the function of the parser module,
+       //not good, better use this:
+       //object fd=Stdio.File();
+       //object pipe = fd->pipe();
+       //fd->write(contents);
+       //return http_file_answer( pipe, type );
      }
 //       return http_string_answer( parse_rxml("<use file="+template_for(f,id)+">"
 //                                             "<tmpl-head title=\""+f+"\">"+
@@ -275,6 +286,14 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   return replace(contents, 
         ({ "#file#", "#path#", "#base#", "#targetfile#", "#targetpath#", "#targetdir#", "#target#" }), 
 	({ file, dirname, (file/".")[0], targetfile, targetpath, targetdirname, target }));
+}
+
+string itag_tmplinsertblock(string tag, mapping arguments, object id, string filecontents)
+{
+  return parse_html(filecontents, ([]), ([ arguments->container:
+       lambda(string tag, mapping arguments, string contents)
+       { return contents; }
+       ]));
 }
 
 string itag_tmplinsertall(string tag, mapping arguments, object id, string filecontents)
