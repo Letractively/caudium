@@ -3,21 +3,28 @@
 # This is only an example script.
 #############
 
+#
+# This is actually for Debian, but might come useful
+#
+if [ -f /etc/default/caudium ]; then
+    . /etc/default/caudium
+fi
+
 # The server directory where the 'start' script is located.
 #
-caudiumhome=@prefix@/caudium/server/
+caudiumhome=${caudiumhome:-@prefix@/caudium/server/}
 
 # Set this to something unique to be able to stop, reload and restart
 # with this init script. It will override the setting in the config
 # interface. '0' is typically replaced with the uid.
 #
-pidfile=/tmp/caudium_pid
+pidfile=${pidfile:-/tmp/caudium_pid}
 
 # Set these to kill all processes owned by wwwuser on stop. Useful to
 # reap CGI scripts.
 #
-# killallwww=yes
-# wwwuser=www
+killallwww=${killallwww:-no}
+wwwuser=${wwwuser:-www}
 
 umask 022
 

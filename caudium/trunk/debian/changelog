@@ -3,8 +3,10 @@ caudium (2:1.2.0-2) unstable; urgency=medium
   * Package now builds by default with pike7.2
   * Added caudiumctl - apachectl-alike script for easier migration from apache
   * Added Polish translations of the Debconf messages
-
- -- Marek Habersack <grendel@debian.org>  Mon,  7 Jan 2002 19:30:15 +0100
+  * Added French translations of the Debconf messages - translated and revised by 
+    Xavier Beaudouin <kiwi@caudium.net>, David Gourdelier <David.Gourdelier@iteam.org> and
+    Bertrand Lupart <bertrand.lupart@iteam.org>
+ -- Marek Habersack <grendel@debian.org>  Tue,  8 Jan 2002 12:07:16 +0100
 
 caudium (2:1.2.0-1) unstable; urgency=high
 
