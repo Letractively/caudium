@@ -1,0 +1,70 @@
+#!/bin/sh
+
+#
+# Simple script to exclude unwanted files from the distribution tarball
+#
+# $Id$
+#
+
+#
+# To exclude the files/directories from the tarball you need to do one
+# of the following things:
+#
+#  1. Exclusion of a directory
+#     Put a file named .exclude_dir in the directory which you want
+#     not to go in the distribution tarball. Note that it applies also
+#     to all the subdirs of that directory.
+#
+#  2. Exclusion of files
+#     Put a file named .exclude_files in the directory where the
+#     files sit and list them one per line in that file. You can give
+#     paths relative to the directory but not absolute ones.
+#
+
+is_rel()
+{
+    if [ "$1" = "x" ]; then
+	false
+    else
+	true
+    fi
+}
+
+if [ -z "$1" ]; then
+    echo You need to pass the directory path to where the
+    echo release tree was copied.
+    exit 1
+fi
+
+cd $1
+#
+# First the directories
+#
+EXPUNGE_DIRS="`find . -name '.exclude_dir' -type f -print`"
+
+for d in $EXPUNGE_DIRS; do
+    DIR=`dirname $d`
+    echo Expunging $DIR
+    rm -rf $DIR
+done
+
+#
+# Now files
+#
+EXPUNGE_FILES="`find . -name '.exclude_files' -type f -print`"
+
+for d in $EXPUNGE_FILES; do
+    SAVEDIR="`pwd`"
+    echo Removing files from `dirname $d`
+    cd `dirname $d`
+    for f in `cat .exclude_files`; do
+	is_rel x`echo $f | tr '/' ' '`
+	if [ -f $f -a $? -eq 0 ]; then
+	    echo "  $f"
+	    rm -f $f
+	fi
+    done
+    rm -f .exclude_files
+    echo
+    cd $SAVEDIR
+done
