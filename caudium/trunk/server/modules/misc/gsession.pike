@@ -24,7 +24,7 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_PARSER | MODULE_PROVIDER | MODULE_LOCATION | MODULE_EXPERIMENTAL;
+constant module_type = MODULE_PARSER | MODULE_PROVIDER | MODULE_LOCATION | MODULE_FIRST | MODULE_EXPERIMENTAL;
 constant module_name = "GSession Module";
 constant module_doc  = "This is an implementation of an (optionally) cookie-less session tracking module.";
 constant module_unique = 1;
@@ -150,6 +150,12 @@ void create()
 int hide_gc ()
 {
     return (!QUERY(dogc));
+}
+
+mixed first_try(object id)
+{
+    id->misc->session_variables = ([]);
+    id->misc->user_variables = ([]);
 }
 
 mixed find_file ( string path, object id )
@@ -657,8 +663,19 @@ private string alloc_session(object id)
 
     id->misc->_gsession_is_here = 1;
     id->misc->session_id = ret;
-    id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session")->data;
-    id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user")->data;
+
+    mapping  store = cur_storage->get_region(id, id->misc->session_id, "session")->data || ([]);
+
+    if (id->misc->session_variables)
+        store += id->misc->session_variables;
+    
+    id->misc->session_variables = store;
+
+    store = cur_storage->get_region(id, id->misc->session_id, "user")->data || ([]);
+    if (id->misc->user_variables)
+        store += id->misc->user_variables;
+    id->misc->user_variables = store;
+    
     gsession_set_cookie(id, ret);
     
     return ret;
