@@ -1,0 +1,244 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-12-02 03:09+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid "On what port should the config interface be?"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid ""
+"Specify the port on which Caudium will provide its configuration interface. "
+"You can access the interface using any form capable web browser (like "
+"Mozilla, Lynx, Links or Galeon)"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid "What port should the server listen on?"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid ""
+"Caudium is currently configured to listen on port '${portno}' of every "
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
+msgstr ""
+
+#. Type: multiselect
+#. Choices
+#: ../templates:19
+msgid "threads, debug, once, profile, fd-debug, keep-alive"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid "Select options that should be used on startup"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid ""
+"You can select zero or more options from:\n"
+" 'threads' - use threads (if available)\n"
+" 'debug' - output debugging information while running\n"
+" 'once' - run in foreground\n"
+" 'profile' - store profiling information\n"
+" 'fd-debug' - debug file descriptor usage\n"
+" 'keep-alive' - keep connections alive with HTTP/1.1"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "Tune Caudium settings for maximum performance?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid ""
+"If you select this options the Caudium default configuration will be tweaked "
+"by turning off certain features that can severely slow your server down. The "
+"features turned off are:\n"
+" - extra Roxen compatibility\n"
+" - module level security\n"
+" - the supports database\n"
+" - DNS lookups\n"
+" - URL modules"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "If you use any of the above features DO NOT turn this option on!"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid "Cannot bind to port."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid ""
+"The port you have specified for Caudium configuration interface is "
+"unavailable. Please specify another port number - Caudium cannot function "
+"properly without binding its configuration interface to a port on your "
+"system."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid "Caudium configuration"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"After your Caudium is installed and running, you should point your forms-"
+"capable browser to http://localhost:${cfgport} to further configure Caudium "
+"using its web-based configuration interface. THIS IS VERY IMPORTANT since "
+"that step involves creation of administrative login/password."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"For more information about Caudium see the documents in the /usr/share/doc/"
+"caudium directory and make sure to visit http://caudium.net/ and http://"
+"caudium.org/"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid "Use the experimental HTTP protocol module?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid ""
+"Caudium comes with an experimental HTTP module that is faster than the "
+"original one. The code is still Work-In-Progress, so you might experience "
+"problems running it. It is NOT recommended to run this code on a production "
+"server. If, however, you want to test its functionality, turn this option on."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid "Configuration interface login."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid ""
+"This is the user login name for the configuration interface access. If you "
+"don't specify anything here, anybody who will access the config interface "
+"first will be able to set the login/password and manage your server. This is "
+"probably not what you want. Please specify the login name below or accept "
+"the default value."
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid "Configuration interface password"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid ""
+"This is the password used to access the configuration interface. The default "
+"value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
+"below!"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid "Confirm the configuration interface password"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid "Configuration interface password mismatch"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "Configuration interface password reset"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "http://localhost:${cfgport}"
+msgstr ""
