@@ -391,6 +391,10 @@ inline void do_post_processing()
 
 #ifdef EXTRA_ROXEN_COMPAT
      case "content-type":
+      array ct_parts = request_headers[linename] / ";";
+      ct_part[0] = lower_case(ct_parts[0]);
+      misc[linename] = ct_parts * ";";
+      break;
      case "connection":
       misc[linename] = lower_case(request_headers[linename]);
       misc[linename] = request_headers[linename];      
