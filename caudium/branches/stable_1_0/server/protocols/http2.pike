@@ -754,13 +754,32 @@ void do_log()
   end(0,1);
 }
 
-#ifdef FD_DEBUG
-void timer(int start)
+// This function keeps track of, and shuts down, stale
+// connections. I.e a connection where no data has been sent for a
+// certain time period.
+
+static void pipe_timeout() {
+#if defined(FD_DEBUG) || defined(DEBUG)
+  werror("Sending of data (piping) timed out.\n");
+#endif
+  end("");
+}
+
+static void timer(int start, int|void last_sent, int|void called_out)
 {
   if(pipe) {
-    // FIXME: Disconnect if no data has been sent for a long while
-    //   (30min?)
-    MARK_FD(sprintf("HTTP_piping_%d_%d_%d_%d_(%s)",
+    if(pipe->sent != last_sent) {
+      if(called_out) {
+	remove_call_out(pipe_timeout);
+	called_out = 0;
+      }
+      last_sent = pipe->sent;
+    } else if(!called_out) {
+      call_out(pipe_timeout, 300);
+      called_out = 1;
+    }
+    
+    MARK_FD(sprintf("HTTP piping (st=%d, ln=%d, lc=%d, tm=%d, fl=%s)",
 		    pipe->sent,
 		    stringp(pipe->current_input) ?
 		    strlen(pipe->current_input) : -1,
@@ -768,11 +787,10 @@ void timer(int start)
 		    _time(1) - start, 
 		    not_query));
   } else {
-    MARK_FD("HTTP piping, but no pipe for "+not_query);
+    MARK_FD("HTTP piping, but no pipe for "+not_query); 
   }
-  call_out(timer, 30, start);
+  call_out(timer, 60, start, last_sent, called_out);
 }
-#endif
 
 string handle_error_file_request(array err, int eid)
 {
@@ -980,9 +998,12 @@ void start_sender()
 {  
   if (pipe) {
     MARK_FD("HTTP really handled, piping "+not_query);
-#ifdef FD_DEBUG
-    call_out(timer, 30, _time(1)); // Update FD with time...
-#endif
+    //  The timer function keeps track of the data sending. If no data
+    //  has been sent for 360 seconds, the connection is closed.
+    //  It seems like sometimes, when using poll() at least, Pike doesn't
+    //  detect that the remote end closed which w/o this function would
+    //  leave stale sockets.
+    call_out(timer, 60, _time(1), 0, 0); 
     pipe->set_done_callback( do_log );
     pipe->output(my_fd);
   } else {
@@ -1485,7 +1506,7 @@ void create(void|object f, void|object c)
     time = _time(1);
     remoteaddr = Caudium.get_address(my_fd->query_address()||"");
     MARK_FD("HTTP connection");
-  }  
+  }
 }
 
 void chain(object f, object c, string le)
