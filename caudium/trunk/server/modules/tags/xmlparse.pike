@@ -129,6 +129,11 @@ void create()
 	 "recommended as it allows for constructions like "
 	 "&lt;gtext fg=\"&amp;form.fg;\"&gt; which otherwise would not "
 	 "be allowed.");
+  defvar("unknown_ent",1,"Parse options: Return unknown entities verbatim",
+         TYPE_FLAG|VAR_MORE,
+	 "If true, the unknown entities are returned as is without any try "
+	 "to parse them. This option is usefull with CAMAS, who use lots "
+	 "links with multiple variables in it.");
   defvar("xml_conformance", 2, 
 	 "Parse options: XML syntax conformance level",
 	 TYPE_INT_LIST,
@@ -499,7 +504,8 @@ string|array(string)|int entity_callback(object parser, string entity,
     if(stringp(ret)) return roxen_encode(ret, encoding);
     if(arrayp(ret)) return Array.map(ret, roxen_encode, encoding);
   }
-  return 0;
+  if (QUERY(unknown_ent)) return "&" + entity;
+  else return 0;
 }
 
 void build_callers()
@@ -655,6 +661,11 @@ mapping query_tag_callers() {
 //! If true, the values of attributes to tags and containers will be parsed for entities (ie &amp;scope.name;). This is strongly recommended as it allows for constructions like &lt;gtext fg="&amp;form.fg;"&gt; which otherwise would not be allowed.
 //!  type: TYPE_FLAG
 //!  name: Parse options: Parse entities in attributes
+//
+//! defvar: unknown_ent
+//! If true, the unknown entities are returned as is without any try to parse them. This option is usefull with CAMAS, who use lots links with multiple variables in it.
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Parse options: Return unknown entities verbatim
 //
 //! defvar: xml_conformance
 //! Whether or not to use XML syntax to tell empty tags and  container tags apart. <br /><b>0.</b> Use HTML syntax only. If there's a '/' last in a tag, it's just treated as any other argument.<br /><b>1.</b> Use HTML syntax, but ignore a '/' if it comes last in a tag.<br /><b>2.</b> Use XML syntax, but when a tag that does not end with '/>' is found which only got a non-container tag callback, treat it as a non-container (i.e. don't start to seek for the container end). <br /><b>3.</b> Use XML syntax only. If a tag got both container and non-container callbacks, the non-container callback is called when the empty element form (i.e. the one ending with '/>') is used, and the container callback otherwise. If only a container callback exists, it gets the empty string as content when  there's none to be parsed. If only a non-container callback exists, it will be only be called for tags with empty content (ie &lt;tag/&gt; or &lt;tag&gt;&lt;/tag&gt;). Otherwise an error will be printed.
