@@ -58,18 +58,16 @@ string http_res_to_string( mapping file, object id )
   mapping heads=
     ([
       "Content-type":file["type"],
-      "Server":replace(id->version(), " ", "·"),
+      "Server":id->version(), 
       "Date":http_date(id->time)
       ]);
     
   if(file->encoding)
     heads["Content-Encoding"] = file->encoding;
     
-  if(!file->error) 
-    file->error=200;
+  if(!file->error) file->error = 200;
     
-  if(file->expires)
-      heads->Expires = http_date(file->expires);
+  if(file->expires) heads->Expires = http_date(file->expires);
 
   if(!file->len)
   {
