@@ -686,9 +686,10 @@ int act_on_args()
         case "quiet":
           options->quiet=1;
           break;
-    }
-    return 0;
+    }    
   }
+  
+  return 0;
 }
 
 void write_help()
