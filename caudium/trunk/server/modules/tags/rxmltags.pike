@@ -1689,7 +1689,7 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
   {
     if(!m->cache)
       m->nocache = "yes";
-    m->file = http_decode_string(m->cgi);
+    m->file = _Roxen.http_decode_string(m->cgi);
     m_delete(m, "cgi");
     return tag_insert(tag, m, id, file, defines);
   }
@@ -1835,7 +1835,7 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
 
   if(m->virtual && sizeof(m->virtual))
   {
-    m->virtual = http_decode_string(m->virtual);
+    m->virtual = _Roxen.http_decode_string(m->virtual);
     if (m->virtual[0] != '/') {
       // Fix relative path.
       m->virtual = combine_path(id->not_query, "../" + m->virtual);

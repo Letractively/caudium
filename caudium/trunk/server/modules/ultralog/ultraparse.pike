@@ -96,7 +96,7 @@ string query_location() { return QUERY(mountpoint); }
 string prettify (string in, int|void linkme)
 {
   if(linkme && in != "Other") {
-    in = http_decode_string((string)in);
+    in = _Roxen.http_decode_string((string)in);
     return sprintf("<a href=\"%s\">%s</a>",
 		   replace(in, ({ "\"", " " }),
 			   ({ "%22", "%20" })),
@@ -104,7 +104,7 @@ string prettify (string in, int|void linkme)
 			   ({ "&", "<", ">", "\n",  }),
 			   ({"&amp;", "&lt;", "&gt;","<br>" })));
   }
-  return replace(sprintf("%-=60s",http_decode_string(in)),
+  return replace(sprintf("%-=60s",_Roxen.http_decode_string(in)),
 		 ({ "&", "<", ">", "\n",  }),
 		 ({"&amp;", "&lt;", "&gt;","<br>" }));
 }

@@ -106,7 +106,7 @@ class ThemedConfig {
 		q+=p+"/";
 		res +=
 		    ({ "<a href=\""+q+"?"+bar+++"\"><font color='" + s->html_colour( "titlefg" ) + "'>"+
-                       dn(find_node(http_decode_string(q[..strlen(q)-2])))+
+                       dn(find_node(_Roxen.http_decode_string(q[..strlen(q)-2])))+
                        "</font></a>" });
 	    }
 	    return (res * " -&gt; ");

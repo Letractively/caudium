@@ -784,7 +784,7 @@ class CGIScript
     }
 
     if(environment->INDEX)
-      arguments = Array.map(environment->INDEX/"+", http_decode_string);
+      arguments = Array.map(environment->INDEX/"+", _Roxen.http_decode_string);
     else
       arguments = ({});
 
