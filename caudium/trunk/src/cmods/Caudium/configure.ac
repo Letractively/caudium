@@ -4,7 +4,7 @@ AC_CONFIG_HEADER(caudium_machine.h)
 CAUDIUM_MODULE_INIT()
 
 AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h)
-AC_HAVE_FUNCS(mmap munmap free)
+AC_HAVE_FUNCS(mmap munmap free snprintf)
 
 dnl For Caudium.cern_http_date() function
 AC_STRUCT_TIMEZONE
