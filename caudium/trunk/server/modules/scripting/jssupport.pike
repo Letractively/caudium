@@ -133,8 +133,14 @@ inherit Thread.Mutex;
 #define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {
-  defvar("jsexts", ({ "js" }), "Extensions", TYPE_STRING_LIST,
-	 "The extensions to parse as stand-alone JavaScripts");
+  defvar("exts", ({ "js", "jsc" }), "Extensions", TYPE_STRING_LIST,
+	 "The extensions to parse as stand-alone JavaScripts.");
+  defvar("jscexts", ({ "jsc" }), "Precompiled script extensions",
+	 TYPE_STRING_LIST,
+	 "Any file with extensions here will be considered pre-compiled. "
+	 "I.e the module will not byte compile the script before trying to "
+	 "execute it. Please note that these extensions also have to be "
+	 "listed in the <tt>Extensions</tt> setting!");
   defvar("securefile", 0, "Security: Allow file accesses", TYPE_FLAG,
 	 "Should JavaScript code be allowed to read and write files? "
 	 "Generally this is not recommended since all file accesses would be "
@@ -189,12 +195,12 @@ void create()
 }
 
 private mapping options;
-private mapping byte_code_cache;
+private multiset jscexts;
 private JavaScript.Interpreter compile_interpreter;
 private string parse_byte_code;
 
 void start() {
-  byte_code_cache = ([]);
+  jscexts = (multiset)QUERY(jscexts);
 
   options = ([]);
   options->secure_builtin_file   = !QUERY(securefile);
@@ -208,12 +214,12 @@ void start() {
 
 string comment()
 {
-  return "JavaScript Support (handled extensions: "+QUERY(jsexts)*" " +")";
+  return "JavaScript Support (handled extensions: "+QUERY(exts)*" " +")";
 }
 
 array (string) query_file_extensions()
 {
-  return QUERY(jsexts);
+  return QUERY(exts);
 }
 
 void add_var_scopes(object id, JavaScript.Interpreter js)
@@ -267,11 +273,15 @@ string js_to_byte_code(string js)
 }
 
 JavaScript.Interpreter do_js_compile_and_cache_all(string source, object id,
-						   string key)
+						   string key, int is_jsc)
 {
   JavaScript.Interpreter js;
   js = JavaScript.Interpreter(id, options);
-  js->execute(js_to_byte_code(source));
+  if(is_jsc) /* Is precompiled JS */
+    js->execute(source);
+  else
+    js->execute(js_to_byte_code(source));
+  
   add_var_scopes(id, js);
   cache_set("js_interpreters", key, js);
   return js;
@@ -296,9 +306,11 @@ mapping handle_file_extension(object f, string e, object id)
   if(!id->pragma["no-cache"]) js = cache_lookup("js_interpreters", key);
   build_var_scopes(id);
   if(!js) {
-    err = catch(js = do_js_compile_and_cache_all(js_source, id, key));
+    err = catch(js = do_js_compile_and_cache_all(js_source, id, key,
+						 jscexts[e]));
   }
   if(err) {
+    err[0] = replace(err[0], "StringStream", id->not_query);
     report_error("An error occured when compiling JavaScript.\n"+
 		 describe_backtrace(err));
     return JSERR(500, "Internal Server Error",
@@ -317,6 +329,7 @@ mapping handle_file_extension(object f, string e, object id)
 		   "The JavaScript script is lacking a parse() "
 		   "function and thus couldn't be evaluated.");
     } else {
+      err[0] = replace(err[0], "StringStream", id->not_query);
       report_error("An error occured when executing parse() in JavaScript .\n"+
 		   describe_backtrace(err));
       return JSERR(500, "Internal Server Error",
