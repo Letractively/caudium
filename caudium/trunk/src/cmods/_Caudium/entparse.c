@@ -161,7 +161,7 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   cbackres.buf = NULL;
   cbackres.buflen = 0;
   
-  while(tmp && curpos < buflen) {
+  while(tmp && curpos <= buflen) {
     switch (*tmp) {
         case '&':
           if (*(tmp+1) == '&') {
@@ -181,12 +181,17 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
 
         case ';':
           if (!cback || !in_entity)
+          {
             goto append_data;
-          tmp++; curpos++;
+          }
+          tmp++;
           in_entity = 0;
           cback(entname, entparts, &cbackres, userdata);
           if (!cbackres.buf)
             cbackres.buflen = entlen;
+          else
+            curpos++;
+          goto append_data;
           
           continue;
 
@@ -212,8 +217,10 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
           
         default:
           if (!cback || !in_entity)
+          {
             goto append_data;
-          
+          }          
+
           if (entlen >= ENT_MAX_ENTSIZE) {
             retval->errcode = ENT_ERR_ENTNAMELONG;
             tmp = 0;
@@ -251,8 +258,12 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
       }
     }
 
+    /* we have no result from the callback */
     if (!cbackres.buf && !cbackres.buflen)
+{
       retval->buf[curlen++] = *tmp++;
+}
+    /* we do have results from the callback */
     else if (cbackres.buf) {
       memcpy(&retval->buf[curlen], cbackres.buf, cbackres.buflen);
       curlen += cbackres.buflen;
@@ -268,115 +279,13 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
       cbackres.buflen = 0;
     }
     
-    curpos++;
+    curpos++; 
   }
 
   if (retval->errcode == ENT_ERR_OK && in_entity)
       retval->errcode = ENT_ERR_OPENENTITY;
+
   
   retval->buflen = curlen;
   return retval;
 }
-
-#ifdef TEST
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-void callback(char *entname, char params[], ENT_CBACK_RESULT *res, void *userdata)
-{
-  static int dummy = 0;
-  char  *tmp = params;
-  printf("Got entity: %s ", entname);
-
-  while (tmp && tmp[0]) {
-    printf("%s ", tmp);
-    tmp += strlen(tmp) + 1;
-  }
-  printf("\n");
-
-  res->buf = NULL;
-  if (dummy != 3) {
-    asprintf((char**)&res->buf, "entity%04d", ++dummy);
-    res->buflen = strlen(res->buf);
-  }
-}
-
-int main(int argc, char **argv)
-{
-  if (argc < 2) {
-    fprintf(stderr, "Please pass the path to the file to parse on the command line\n\n");
-    return 1;
-  }
-
-  FILE *f = fopen(argv[1], "r");
-  if (!f) {
-    fprintf(stderr, "Cannot open %s for input\n", argv[1]);
-    return 1;
-  }
-
-  struct stat sbuf;
-
-  if (fstat(fileno(f), &sbuf) < 0) {
-    fclose(f);
-    fprintf(stderr, "Cannot stat %s\n", argv[1]);
-    return 1;
-  }
-
-  char  *inbuf = (char*)malloc(sbuf.st_size * sizeof(*inbuf));
-  if (!inbuf) {
-    fclose(f);
-    fprintf(stderr, "Out of memory\n");
-    return 1;
-  }
-
-  if (fread((void*)inbuf, 1, sbuf.st_size, f) != sbuf.st_size) {
-    fclose(f);
-    fprintf(stderr, "Error reading from %s\n", argv[1]);
-    return 1;
-  }
-  fclose(f);
-  
-  ENT_RESULT  *eres = ent_parser(inbuf, sbuf.st_size, callback, NULL);
-  if (!eres) {
-    fprintf(stderr, "Out of memory in the entity parser\n");
-    return 1;
-  }
-
-  if (eres->errcode != ENT_ERR_OK)
-    switch (eres->errcode) {
-        case ENT_ERR_OOM:
-          fprintf(stderr, "Out of memory in the entity parser\n");
-          break;
-
-        case ENT_ERR_INVPARM:
-          fprintf(stderr, "Invalid parameter in the entity parser\n");
-          break;
-
-        case ENT_ERR_BUFTOOLONG:
-          fprintf(stderr, "Buffer too long in the entity parser\n");
-          break;
-
-        case ENT_ERR_INVALIDNAME:
-          fprintf(stderr, "Invalid entity name in the entity parser\n");
-          break;
-          
-        default:
-          fprintf(stderr, "Unknown error in the entity parser\n");
-          break;
-    }
-
-  free(inbuf);
-  printf("The parsed file:\n\n");
-
-  if (eres->buf) {
-    fwrite(eres->buf, 1, eres->buflen, stdout);
-    free(eres->buf);
-  } else {
-    fprintf(stderr, "No data was returned\n");
-  }
-
-  free(eres);
-  return 0;
-}
-#endif

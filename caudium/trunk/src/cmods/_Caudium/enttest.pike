@@ -9,15 +9,18 @@ int main()
      "scope doesnt exit, but no subpart: &ent; -- should be ampentsemi\n\n"
      "scope exists, but no subpart: &blah; -- should be ampblahsemi\n\n";
 
-string s1 = "1: &test; &test.test2; &nbsp; "; 
-string s2 = "1: &test; &test.test2; &nbsp; 1"; 
+string s1 = "1: &nbsp; &test; &test.test2; &nbsp;"; 
+string s2 = "1: &nbsp; &nbsp; &test; &test.test2; &nbsp; 12345 &nbsp; 12345 &test; &test.test2;"; 
 
-write(  _Caudium.parse_entities(s1, 
-(["test": z])));
+string s3, s4;
+s3= _Caudium.parse_entities(s1, (["test": z]));
+
+s4= _Caudium.parse_entities(s2, (["test": z]));
+
+write("LEN: " + strlen(s3) + " " +  s3);
 
 write("\n\n");
-write(  _Caudium.parse_entities(s2, 
-(["test": z])));
+write("LEN: " + strlen(s4) + " " +  s4);
 
   return 0;
 }
