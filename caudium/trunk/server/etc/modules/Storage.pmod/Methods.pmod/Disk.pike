@@ -106,8 +106,7 @@ void store(string namespace, string key, string value) {
     return;
   string objpath = idx_path(namespace, key);
   string data = encode(namespace, key, value);
-  //Stdio.write_file(objpath, encode(namespace, key, value));
-  catch(SendFile(data, objpath, sending, unsending));
+  Stdio.write_file(objpath, encode(namespace, key, value));
 }
 
 void unlock(void|object key) {
@@ -318,8 +317,7 @@ void idx_sync(void|int stop) {
   FLOCK(ipath, "w", 1);
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
   data = MIME.encode_base64(data, 1);
-  //catch(Stdio.write_file(ipath, data));
-  catch(SendFile(data, ipath, sending, unsending));
+  catch(Stdio.write_file(ipath, data));
   FUNLOCK();
   if (stop)
     idx_sync_stop = 1;
@@ -368,139 +366,4 @@ void idx_rm(string namespace, void|string key) {
 void stop() {
   idx_sync(1);
   flush();
-}
-
-class SendFile {
-
-#ifdef THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define PRELOCK() object __key
-#define LOCK() __key = mutex->lock()
-#define UNLOCK() destruct(__key)
-#else
-#define PRELOCK()
-#define LOCK()
-#define UNLOCK()
-#endif
-
-#define BLOCKSIZE 4096
-
-#ifdef NFS_LOCK
-  static object hitch = HitchingPost;
-#endif
-
-  static string from;
-  static string to;
-  static object fto;
-  static object key;
-  static int pos;
-  function start;
-  function stop;
-  static int _flush;
-
-  void create(string _from, string _to, function _start, function _stop) {
-    PRELOCK();
-    LOCK();
-    from = _from;
-    to = _to;
-    start = _start;
-    stop = _stop;
-    key = lock("w");
-    start(this_object());
-  #ifdef CACHE_DEBUG
-    write("[%s] sending %d bytes.\n", to, sizeof(from));
-  #endif
-    fto = Stdio.File(to, "cwt");
-    UNLOCK();
-    // non-blocking doesn't work on disk files, for me anyway.
-    // could do with a better solution.
-    //fto->set_nonblocking(0, write_cb, close_cb);
-    writeloop();
-  }
-
-  void writeloop() {
-    if (pos != -1) {
-      write_cb();
-      call_out(writeloop, 0);
-    }
-  }
-
-  void flush() {
-    _flush = 1;
-  }
-
-  void write_cb() {
-    if ((pos >= sizeof(from)) || (pos == -1)) {
-#ifdef CACHE_DEBUG
-      write("[%s] end of file, closing.\n", to);
-#endif
-      pos = -1;
-      close_cb(0);
-    }
-    else {
-      if (_flush) {
-#ifdef CACHE_DEBUG
-	write("[%s] flushing file from position %d\n", to, pos);
-#endif
-	fto->write(from[pos..]);
-	pos = -1;
-	close_cb(0);
-      }
-      else if (sizeof(from) > pos + BLOCKSIZE) {
-#ifdef CACHE_DEBUG
-	write("[%s] writing %d bytes from position %d\n", to, BLOCKSIZE, pos);
-#endif
-	fto->write(from[pos..(pos+BLOCKSIZE)]);
-	pos += BLOCKSIZE + 1;
-      }
-      else {
-#ifdef CACHE_DEBUG
-	write("[%s] writing %d bytes from position %d\n", to, sizeof(from) - pos, pos);
-#endif
-	fto->write(from[pos..]);
-	pos = -1;
-	close_cb(0);
-      }
-    }
-  }
-
-  void close_cb(int errno) {
-#ifdef CACHE_DEBUG
-    write("[%s] closing file.\n", to);
-#endif
-    fto->close();
-    if (errno)
-      rm(to);
-    unlock(key);
-    stop(this_object());
-    destruct(this_object());
-  }
-
-#ifdef NFS_LOCK
-  object lock(string t) {
-    return hitch->lock(to, t, 1);
-  }
-#else
-
-  class FakeLock() {
-  }
-
-  object lock(string t) {
-    return FakeLock();
-  }
-#endif
-
-  void unlock(void|object l) {
-    if (objectp(l)) {
-      PRELOCK();
-      LOCK();
-      destruct(l);
-      UNLOCK();
-    }
-  }
-
-  string _sprintf() {
-    return sprintf("SendFile(%O /* %d%% */)", to, (int)(((float)pos / (float)sizeof(from)) * 100));
-  }
-
 }
