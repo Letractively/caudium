@@ -3,11 +3,6 @@ AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
 
 CAUDIUM_LOW_MODULE_INIT()
 
-# need to specifically enable JavaScript support 
-if test "$with_JavaScript" = ""; then
-  with_JavaScript="no"
-fi
-
 dirs=""
 for a in `(cd $srcdir ; echo *)`
 do
