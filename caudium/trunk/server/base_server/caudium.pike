@@ -3452,6 +3452,9 @@ int main(int|void argc, array (string)|void argv)
   initiate_languages();
   mixed tmp;
 
+  if (zero_type(argv))
+    argv = ({});
+
   start_time = boot_time = time();
 
   add_constant("write", perror);
