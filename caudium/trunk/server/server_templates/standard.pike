@@ -39,6 +39,8 @@ constant modules = ({
   "userfs#0",
   "filesystem#0",
   "graphic_text#0",
+  "rxmltags#0",
+  "corescopes#0"
 });
 
 void enable(object config)
