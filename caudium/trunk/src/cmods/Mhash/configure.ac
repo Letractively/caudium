@@ -17,7 +17,10 @@ void pike_module_exit(void);
 AC_CHECK_HEADERS( mhash.h )
 AC_CHECK_LIB(mhash, mhash)
 
-
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
 AC_OUTPUT(Makefile.pre, [${MAKE:-make} -f Makefile.pre depend])
 
 

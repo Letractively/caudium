@@ -21,11 +21,11 @@ do
   fi
 done
 
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
+
 AC_CONFIG_SUBDIRS($dirs)
 
 AC_OUTPUT(Makefile module_makefile)	
-
-
-
-
-

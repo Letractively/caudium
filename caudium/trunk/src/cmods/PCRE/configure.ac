@@ -26,6 +26,11 @@ AC_CHECK_HEADERS(  locale.h)
 AC_CHECK_FUNCS( setlocale )
 AC_CONFIG_SUBDIRS(pcrelib)
 
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
+
 AC_SUBST(makefile_rules)
 AC_OUTPUT(Makefile)
 

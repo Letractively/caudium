@@ -61,4 +61,8 @@ if test x$with_openssl = xyes; then
   fi
 fi
 
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
 AC_OUTPUT(Makefile.pre,[${MAKE:-make} -f Makefile.pre depend] )

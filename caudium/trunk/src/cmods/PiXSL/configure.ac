@@ -102,6 +102,11 @@ void pike_module_exit( void );
 
 ])
 
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
+
 AC_OUTPUT(Makefile.pre pixsl, [make -f Makefile.pre depend])
 
 

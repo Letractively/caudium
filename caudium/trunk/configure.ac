@@ -805,6 +805,14 @@ CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
 CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
+#
+# CPPFLAGS is a precious variable in Autoconf, it is saved with its
+# initial value. We must resort to a different way of substituting that
+# in the makefile. Ugh.
+#
+CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
+CAUDIUM_CPPFLAGS="$CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
 
 #
 # Some variables we want to export to the other configure scripts.
