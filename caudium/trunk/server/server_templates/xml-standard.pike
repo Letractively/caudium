@@ -31,7 +31,6 @@ constant desc = "A virtual server with the most popular modules and using XML-Co
 constant modules = ({
   "cgi#0",
   "contenttypes#0",
-  "ismap#0",
   "htaccess#0",
   "xmlparse#0",
   "directories#0",

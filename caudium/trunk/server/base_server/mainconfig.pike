@@ -643,7 +643,7 @@ string configuration_list()
 string configuration_types()
 {
   string res="";
-  foreach(get_dir("server_templates"), string c)
+  foreach(sort(get_dir("server_templates")), string c)
   {
     array err;
     if (err = catch {
