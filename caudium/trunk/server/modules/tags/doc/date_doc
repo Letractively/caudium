@@ -37,4 +37,6 @@ The return value of these parts are modified by both
 <dd>Lowercases the string.<p>
 <dt><kbd><b>upper</b></kbd>
 <dd>Uppercases the string. <p>
+<dt><kbd><b>strftime</b></kbd>
+<dd>Accepts a valid strftime argument to print formatted dates<p>
 </dl>

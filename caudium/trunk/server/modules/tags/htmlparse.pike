@@ -190,7 +190,7 @@ string strftime(string fmt, int t)
 		 * next week is week 1
 		 */
       break;
-    case 'W':	/* FIXME: Week number of year as a decimal number [00,53],
+   case 'W':	/* FIXME: Week number of year as a decimal number [00,53],
 		 * with Monday as the first day of week 1
 		 */
       break;
@@ -847,7 +847,8 @@ string tagtime(int t,mapping m)
   string s;
   mixed eris;
   string res;
-
+  if (m->strftime)
+    return strftime( m->strftime, t );
   if (m->part)
   {
     string sp;
