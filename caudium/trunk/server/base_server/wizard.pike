@@ -1,4 +1,3 @@
-
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2002 The Caudium Group
@@ -20,73 +19,71 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
  * $Id$
- *  name="Wizard generator";
- *  doc="This file generates all the nice wizards";
- * 
  */
 
-/* wizard_automaton operation (old behavior if it isn't defined):
-
-   mapping(string:array) wizard_automaton = ([
-     "foo": ({dispatch, prev_page, next_page, page_name}),
-     ...
-   ]);
-
-   dispatch:  A string redirects the wizard to that page. 0 or the
-    name of this page continues with it.
-   prev_page: A string is the page for the previous button. 0 if none.
-   next_page: A string is the page for the next button. 0 makes an
-    ok button instead. -1 gives neither button.
-   page_name: Optional page name. Defaults to "".
-
-   Any of these may be a function that returns the value:
-
-   lambda (object id, string page, mixed ... args);
-
-   id:    Request id.
-   page:  The entry in wizard_automaton.
-   args:  The extra args to wizard_menu() or wizard_for().
-
-   Other callbacks:
-
-   o  string|mapping page_foo (object id, mixed ... args);
-
-      The function that produces page "foo". May return 0 to cause a
-      redirect to the next page (or the previous one if the user
-      pressed previous to enter it). Goes to the done page if there
-      isn't any such page.
-
-   o  int verify_foo (object id, mixed ... args);
-
-      A verify function that's run when the user presses next or ok in
-      page "foo". Returns 0 if it's ok to leave the page, anything
-      else re-runs the page function to redisplay the page.
-
-   o  string|mapping wizard_done (object id, mixed ... args);
-
-      The function for the done page, from which it's not possible to
-      return to the other wizard pages. May return 0 to skip the page.
-      (Differences from old behavior: -1 is not a meaningful return
-      value and a string is run through parse_wizard_page().)
-
-   The dispatch function is always run before any other function for a
-   page. That makes it suitable to contain all page init stuff and
-   also state sanity checks, since it can bail to other pages on
-   errors etc. The intention is also that it should be shared between
-   several pages that has init code in common.
-
-   Special pages:
-
-   "start": Start page.
-   "done":  Finish page. The page function is wizard_done(). Only
-    dispatch is used in the wizard_automaton entry.
-   "cancel":  Cancels the wizard. Has no wizard_automaton entry.
-
-   Bugs: There's no good way to share variables between the functions.
-   Can we say id->misc? :P */
+//! Wizard generator for Caudium.
+//! $Id$
+//! @example
+//!   mapping(string:array) wizard_automaton = ([
+//!     "foo": ({dispatch, prev_page, next_page, page_name}),
+//!     ...
+//!   ]);
+//!
+//!   dispatch:  A string redirects the wizard to that page. 0 or the
+//!    name of this page continues with it.
+//!   prev_page: A string is the page for the previous button. 0 if none.
+//!   next_page: A string is the page for the next button. 0 makes an
+//!    ok button instead. -1 gives neither button.
+//!   page_name: Optional page name. Defaults to "".
+//!
+//!   Any of these may be a function that returns the value:
+//!
+//!   lambda (object id, string page, mixed ... args);
+//!
+//!   id:    Request id.
+//!   page:  The entry in wizard_automaton.
+//!   args:  The extra args to wizard_menu() or wizard_for().
+//!
+//!   Other callbacks:
+//!
+//!   o  string|mapping page_foo (object id, mixed ... args);
+//!
+//!      The function that produces page "foo". May return 0 to cause a
+//!      redirect to the next page (or the previous one if the user
+//!      pressed previous to enter it). Goes to the done page if there
+//!      isn't any such page.
+//!
+//!   o  int verify_foo (object id, mixed ... args);
+//!
+//!      A verify function that's run when the user presses next or ok in
+//!      page "foo". Returns 0 if it's ok to leave the page, anything
+//!      else re-runs the page function to redisplay the page.
+//!
+//!   o  string|mapping wizard_done (object id, mixed ... args);
+//!
+//!      The function for the done page, from which it's not possible to
+//!      return to the other wizard pages. May return 0 to skip the page.
+//!      (Differences from old behavior: -1 is not a meaningful return
+//!      value and a string is run through parse_wizard_page().)
+//!
+//!   The dispatch function is always run before any other function for a
+//!   page. That makes it suitable to contain all page init stuff and
+//!   also state sanity checks, since it can bail to other pages on
+//!   errors etc. The intention is also that it should be shared between
+//!   several pages that has init code in common.
+//!
+//!   Special pages:
+//!
+//!   "start": Start page.
+//!   "done":  Finish page. The page function is wizard_done(). Only
+//!    dispatch is used in the wizard_automaton entry.
+//!   "cancel":  Cancels the wizard. Has no wizard_automaton entry.
+//!
+//! @bugs
+//!   There's no good way to share variables between the functions.
+//!   Can we say id->misc? 
 
 inherit "caudiumlib";
 
@@ -97,7 +94,7 @@ inherit "caudiumlib";
 #define DEBUGMSG(msg) do {} while (0)
 #endif
 
-
+//!
 string loc_encode(string val, void|mapping args, void|string def)
 {
   string quote = args->quote || def || "html";
@@ -109,7 +106,7 @@ string loc_encode(string val, void|mapping args, void|string def)
   return val;
 }
 
-
+//!
 string wizard_tag_var(string n, mapping m, mixed a, mixed b)
 {
   object id;
@@ -421,6 +418,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
   }
 }
 
+//!
 mapping decompress_state(string from)
 {
   if(!from) return ([]);
@@ -434,7 +432,7 @@ mapping decompress_state(string from)
   return ([]);
 }
   
-
+//!
 string compress_state(mapping state)
 {
   state = copy_value(state);
@@ -457,6 +455,7 @@ string compress_state(mapping state)
   return MIME.encode_base64( from );
 }
 
+//!
 string parse_wizard_help(string t, mapping m, string contents, object id,
        mapping v)
 {
@@ -465,6 +464,7 @@ string parse_wizard_help(string t, mapping m, string contents, object id,
   return contents;
 }
 
+//!
 string make_title()
 {
   string s = (this_object()->wizard_name||this_object()->name||"No name") -
@@ -474,6 +474,7 @@ string make_title()
   return s;
 }
 
+//!
 int num_pages(string wiz_name)
 {
   int max_page;
@@ -494,6 +495,7 @@ int num_pages(string wiz_name)
 #define PREVIOUS Q((this_object()->previous_label?this_object()->previous_label:"<- Previous"))
 #define COMPLETED Q((this_object()->completed_label?this_object()->completed_label:"Completed"))
 
+//!
 string parse_wizard_page(string form, object id, string wiz_name, void|string page_name)
 {
   mapping(string:array) automaton = this_object()->wizard_automaton;
@@ -578,6 +580,7 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
 
 #define PAGE(X)  ((string)(((int)v->_page)+(X)))
 
+//!
 mapping|string wizard_for(object id,string cancel,mixed ... args)
 {
   string data;
@@ -810,6 +813,8 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
 
 mapping wizards = ([]);
 string err;
+
+//!
 object get_wizard(string act, string dir, mixed ... args)
 {
   act-="/";
@@ -818,6 +823,8 @@ object get_wizard(string act, string dir, mixed ... args)
 }
 
 int zonk=time();
+
+//!
 mapping get_actions(object id, string base,string dir, array args)
 {
   mapping acts = ([  ]);
@@ -859,6 +866,7 @@ mapping get_actions(object id, string base,string dir, array args)
   return acts;
 }
 
+//!
 string act_describe_submenues(array menues, string base,string sel)
 {
   if(sizeof(menues)==1) return "";
@@ -872,6 +880,8 @@ string act_describe_submenues(array menues, string base,string sel)
 }
 
 string focused_wizard_menu;
+
+//!
 mixed wizard_menu(object id, string dir, string base, mixed ... args)
 {
   mapping acts;
@@ -924,6 +934,7 @@ mixed wizard_menu(object id, string dir, string base, mixed ... args)
 
 /*** Additional Action Functions ***/
 
+//!
 string format_numeric(string s, string|void sep)
 {
   sep = reverse(sep||"&nbsp;");
@@ -940,6 +951,7 @@ string format_numeric(string s, string|void sep)
   return (({reverse(t)})+as[1..])*" "; 
 }
 
+//!
 string html_table(array(string) subtitles, array(array(string)) table,
       mapping|void opt)
 {
@@ -1011,7 +1023,7 @@ string html_table(array(string) subtitles, array(array(string)) table,
   return r;
 }
 
-
+//!
 string html_notice(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Notice: src=\""+
@@ -1019,6 +1031,7 @@ string html_notice(string notice, object id)
         +"err_1.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_warning(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Warning: src=\""+
@@ -1026,6 +1039,7 @@ string html_warning(string notice, object id)
         +"err_2.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_error(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Error: src=\""+
@@ -1033,6 +1047,7 @@ string html_error(string notice, object id)
         +"err_3.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_border(string what, int|void width, int|void ww,
        string|void bgcolor, string|void bdcolor)
 {
@@ -1044,6 +1059,7 @@ string html_border(string what, int|void width, int|void ww,
           "</td></tr></table>");
 }
 
+//!
 void filter_checkbox_variables(mapping v)
 {
   foreach(indices(v), string s) {
