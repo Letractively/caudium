@@ -178,7 +178,7 @@ mapping|int parse_htaccess(object f, object id, string rht)
   array(int) s;
   mixed in_cache;
   mapping access = ([ ]);
-  cache_key = "htaccess:" + id->host;
+  cache_key = "htaccess:" + id->site_id;
     
 
   s = (array(int))f->stat();
@@ -417,7 +417,7 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
   object f;
   mixed in_cache;
 
-  cache_key = "groupfile:" + id->host;
+  cache_key = "groupfile:" + id->site_id;
 
   if (!groupfile) {
 #ifdef HTACCESS_DEBUG
@@ -720,7 +720,7 @@ string|int cache_path_of_htaccess(string path, object id)
 {
   mixed f;
 
-	string cache_key = "htaccess_files:"+id->host;
+	string cache_key = "htaccess_files:"+id->site_id;
 	
   f = cache_lookup(cache_key, path);
 #ifdef HTACCESS_DEBUG
@@ -741,7 +741,7 @@ void cache_set_path_of_htaccess(string path, string|int htaccess_file, object id
 	 +path+" to "+htaccess_file+"");
 #endif
 
-	string cache_key = "htaccess_files:"+id->host;
+	string cache_key = "htaccess_files:"+id->site_id;
 
   cache_set(cache_key, path, htaccess_file);
 }
