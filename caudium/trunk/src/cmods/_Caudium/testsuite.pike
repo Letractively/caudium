@@ -258,7 +258,8 @@ int TEST4_parse_entities()
 int TEST_http_date() {
   int tmstmp = time();
   prtest("http_date");
-  mapping tst = ([ tmstmp: Calendar.ISO_UTC.Second(tmstmp)->format_http() ]);
+  mapping tst = ([ tmstmp: Calendar.ISO_UTC.Second(tmstmp)->format_http(),
+  		   0: Calendar.ISO_UTC.Second(0)->format_http() ]);
 
   return mapping_test(tst, _Caudium.http_date);
 }
