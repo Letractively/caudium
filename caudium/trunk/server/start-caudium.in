@@ -42,6 +42,7 @@ array(array(string | array(string))) arguments = ({
   ({"log-dir", Getopt.HAS_ARG, ({"--log-dir", "--logdir"})}),
   ({"config-dir", Getopt.HAS_ARG, ({"--config-dir", "--configdir"})}),
   ({"pike-version", Getopt.HAS_ARG, ({"--pike-version", "--pikeversion"})}),
+  ({"watchdog-socket", Getopt.HAS_ARG, ({"--watchdog-socket", "--watchdog-socket"})}),
   ({"pid-file", Getopt.HAS_ARG, ({"--pid-file", "--pidfile"})}),
   ({"debug", Getopt.NO_ARG, ({"--debug", "--with-debug", "--enable-debug"})}),
   ({"watchdog", Getopt.NO_ARG, ({"--with-watchdog", "--watchdog", "--enable-watchdog"})}),
@@ -85,6 +86,7 @@ mapping(string:string|array) envvars = ([
   "CAUDIUM_CONFIGDIR" : getenv("CAUDIUM_CONFIGDIR") || "../configurations",
   "CAUDIUM_LOGDIR" : getenv("CAUDIUM_LOGDIR") || "../logs",
   "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getenv("UID")),
+  "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket" + getenv("UID")),
   "CLASSPATH" : getenv("CLASSPATH") +":" + 
   ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
    "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
@@ -125,11 +127,14 @@ mapping(string:string|array) command_line = ([
 // to be filled in by the watchdog starter.
 mapping watchdog_params = ([ ]);
 
+// the watchdog communication socket
+Stdio.File watchdog_socket;
+
 // a list of valid interpreters we should try to use.
 array valid_interpreters=({"@PIKE@", "bin/caudium", "bin/pike"});
 
 // call out for the watchdog
-mixed ct_callout;
+mixed cs_callout;
 
 // object for the watchdog
 object conn;
@@ -432,6 +437,7 @@ void signal_term()
     write("Sending shutdown request to Caudium.\n");
     proc->kill(signum("SIGTERM"));
   }
+  cleanup_watchdog();
   exit(0);
 }
 
@@ -443,6 +449,7 @@ void signal_int()
     if(proc && proc->status()==0)
     {
       proc->kill(signum("SIGTERM"));
+      // we shouldn't have a watchdog running since we're only running once.
       exit(0);
     }
   }
@@ -481,6 +488,11 @@ void continue_startup()
   {
     do_multi_run(o, opt);
   }
+
+  // give caudium 60 seconds to start up, then fire up the watchdog.
+  if(options->watchdog)
+    call_out(start_watchdog, 60);
+
   return 0;
 }
 
@@ -512,14 +524,13 @@ void do_multi_run(array o, mapping opt)
     opt->setsid=1;
 
     // remove the watchdog while we're restarting Caudium
-    if(ct_callout)
-      remove_call_out(ct_callout);
+    if(cs_callout)
+      remove_call_out(cs_callout);
 
     run_caudium(o, opt);
 
-    // give caudium 60 seconds to start up, then fire up the watchdog.
-    call_out(start_watchdog, 60);
   }
+
 }
 
 void rotate_logs(array o, mapping opt)
@@ -582,92 +593,96 @@ int act_on_args()
         case "truss":
           options->precmd=({"truss"});
           options->once=1;
-          continue;
+          break;
         case "strace":
           options->precmd=({"strace", "-f"});
           options->once=1;
-          continue;
+          break;
         case "ltrace":
           options->precmd=({"ltrace", "-f"});
           options->once=1;
-          continue;
+          break;
         case "ktrace":
           options->precmd=({"ktrace", "-d"});
           options->once=1;
-          continue;
+          break;
         case "log-dir":
           envvars->CAUDIUM_LOGDIR=m[1];        
-          continue;
+          break;
 	case "watchdog":
 	  options->watchdog=1;
-          continue;
+          break;
 	case "nowatchdog":
 	  options->watchdog=0;
-          continue;
+          break;
         case "config-dir":
           envvars->CAUDIUM_CONFIGDIR=m[1];        
-          continue;
+          break;
         case "pike-version":
           options->pikever=m[1];
-          continue;
+          break;
         case "pid-file":
           envvars->CAUDIUM_PID_FILE=m[1];
-          continue;
+          break;
+        case "watchdog-socket":
+          envvars->CAUDIUM_WATCHDOG_SOCKET=m[1];
+          break;
         case "backgrounded":
           options->backgrounded=1;
-          continue;
+          break;
         case "help":
           write_help();
           return 1;
-          continue;
+          break;
         case "threads":
           options->threads=1;
-          continue;
+          break;
         case "nothreads":
           options->threads=0;
-          continue;
+          break;
         case "profile":
           command_line->DEFINES+=({"PROFILE"});
-          continue;
+          break;
         case "fileprofile":
           command_line->DEFINES+=({"FILE_PROFILE"});
-          continue;
+          break;
         case "once":
           options->once=1;
           options->watchdog=0;
-          continue;
+          break;
         case "gdb":
           options->precmd=({"gdb"});
           options->once=1;
-          continue;
+          break;
         case "nodebug":
           command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
-          continue;
+          break;
         case "debug":
           command_line->DEFINES+=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
-          continue;
+          break;
         case "fddebug":
           command_line->DEFINES+=({"FD_DEBUG"});
-          continue;
+          break;
         case "keepalive":
           command_line->DEFINES+=({"KEEP_ALIVE"});
-          continue;
+          break;
         case "version":
 	  write(CaudiumVersion.real_version + "\n");
 	  return 1;
+          break;
 	case "piketrace":
 	  command_line->OTHER+=({"-t"+m[1] });
-	  continue;
+          break;
         case "pike":
           options->pike=m[1];
-          continue;
+          break;
         case "program":
           options->program=m[1];
           options->once=1;
-          continue;
+          break;
         case "quiet":
           options->quiet=1;
-          continue;
+          break;
     }
     return 0;
   }
@@ -738,6 +753,8 @@ will
 				  intented for anything but debugging purposes.
       .B--pid-file=<file>B.:  Store the caudium and startscript pids in this
 				  file. Defaults to .B/tmp/caudium_\$UIDB.
+      .B--watchdog-socket=<file>B.:  Create a watchdog communication socket at this 
+				  path. Defaults to .B/tmp/caudium_watchdog_socket\$UIDB.
          
   .BArguments passed to pike:B.
        .B-DDEFINEB.:  Define the symbol .BDEFINEB..
@@ -754,6 +771,7 @@ will
   .BEnvironment variables:B.
      .BCAUDIUM_CONFIGDIRB.:  Same as .B--config-dir=... B.
      .BCAUDIUM_PID_FILEB.:  Same as .B--pid-file=... B.
+     .BCAUDIUM_WATCHDOG_SOCKETB.:  Same as .B--watchdog-socket=... B.
      .BCAUDIUM_LANGB.:  The default language for all language
 				    related tags. Defaults to 'en' for english.
 
@@ -775,6 +793,7 @@ array get_servers() {
   if(!config_dir)
   {
     werror("unable to open config dir.\n");
+    cleanup_watchdog();
     exit(1);
   }
   foreach(config_dir->list_files(), mapping cf)
@@ -820,6 +839,7 @@ void get_watchdog_params()
   if(!config_dir)
   {
     werror("unable to open config dir.\n");
+    cleanup_watchdog();
     exit(1);
   }
 
@@ -840,17 +860,110 @@ void get_watchdog_params()
   if(srvrs && sizeof(srvrs))
     watchdog_params->site=srvrs[0];
  
+  // try to avoid having multiple loops of get_watchdog_params going.
+  remove_call_out(get_watchdog_params);
   call_out(get_watchdog_params, 7200);
 
 } 
+
+void watchdog_accept()
+{
+  int pid;
+  string cmd;
+
+  Stdio.File ds=watchdog_socket->accept();
+  string s = ds->read();
+ 
+  if(sscanf(s,"WATCHDOG %s %d", cmd,pid)!=2)
+  {
+    flex_write("Got invalid command from watchdog control socket.\n");    
+    ds->close();
+    return;
+  }
+
+  if(pid != proc->pid())
+  {
+    flex_write("Got invalid PID for caudium on the watchdog control socket.\n");    
+    ds->close();
+    return;
+  }  
+
+  switch(cmd)
+  {
+    case "ON":
+      watchdog_on();
+      break;
+
+    case "OFF":
+      watchdog_off();
+      break;  
+    
+    default:
+      flex_write("Got invalid command for caudium on the watchdog control socket.\n");    
+      break;
+  }
+      
+  ds->close();
+}
+
+void cleanup_watchdog()
+{
+  string s = getenv("CAUDIUM_WATCHDOG_SOCKET");
+ 
+  // close the socket.
+  watchdog_socket->close();
+  
+  // turn the watchdog off.
+  watchdog_off();
+
+  // remove the socket
+  if(strlen(s) && file_stat(s))
+    rm(s);
+}
+
+void watchdog_on()
+{
+  // easiest to shut it off first, that way we don't have 2 loops running.
+  watchdog_off();
+
+  get_watchdog_params();
+  check_site();
+}
+
+void watchdog_off()
+{
+  int rco;
+
+  do
+  {
+    rco=zero_type(remove_call_out(get_watchdog_params));
+  } while (rco!=1);
+
+  do
+  {
+    rco=zero_type(remove_call_out(check_site));
+  } while (rco!=1);
+
+  do
+  {
+    rco=zero_type(remove_call_out(check_timedout));
+  } while (rco!=1);
+
+
+}
 
 void start_watchdog()
 {
   flex_write("Starting the watchdog\n");    
 
-  get_watchdog_params();
-
-  check_site();
+  // first, create the socket.
+  watchdog_socket = Stdio.Port();
+  flex_write("creating watchdog communication socket at " + getenv("CAUDIUM_WATCHDOG_SOCKET") + "\n");
+  if(!watchdog_socket->bind_unix(getenv("CAUDIUM_WATCHDOG_SOCKET"), watchdog_accept))
+  {
+    flex_write("unable to create watchdog communication socket. not starting watchdog.\n");
+    return;
+  }
 }
 
 void check_site()
@@ -885,10 +998,7 @@ void check_site()
     conn->set_nonblocking();
     conn->set_read_callback(response_received);
     conn->write("PING\r\n");
-    if(first_ping)
-      ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
-    else
-      ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
+    cs_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
   }
   else
    flex_write("Can't get a site to connect to: Not starting watchdog\n");
@@ -904,7 +1014,7 @@ void response_received(mixed id, mixed data)
   if(data=="PONG\r\n")
   {
     // request was successful.
-    remove_call_out(ct_callout);
+    remove_call_out(cs_callout);
     conn->close();
     conn=0;
 
@@ -926,6 +1036,7 @@ void kill_caudium()
   if(proc)
   {
     flex_write("Killing Caudium...\n");
+    watchdog_off();
     // try to make caudium describing all the threads
     proc->kill(signum("SIGTRAP"));
     proc->kill(signum("SIGKILL"));
@@ -943,12 +1054,7 @@ void check_timedout()
   kill_caudium();
 
   // remove any of the check call outs.
-  if(ct_callout) remove_call_out(ct_callout);
-
-  first_ping=1;
-
-  // add a new call out for the check after it's had time to restart.
-  call_out(check_site, 60);
+  if(cs_callout) remove_call_out(cs_callout);
 }
 
 void flex_write(string s)
