@@ -3754,10 +3754,15 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Configuration interface: Help texts
 //
+//! defvar: RequestCacheTimeout
+//! Time after which a single cached request is removed from the data cache
+//!  type: TYPE_INT|VAR_MORE
+//!  name: Request Tuning: Cache expiration value
+//
 //! defvar: NumAccept
 //! You can here state the maximum number of accepts to attempt for each read callback from the main socket. <p> Increasing this value will make the server faster for users making many simultaneous connections to it, or if you have a very busy server.</p><p>It won't work on some systems, though, eg. IBM AIX 3.2.</p><p> To see if it works, change this variable, <b> but don't press save</b>, and then try connecting to your server. If it works, come back here and press the save button.</p><p>If it doesn't work, just restart the server and be happy with having '1' in this field.</p><p>The higher you set this value, the less load balancing between virtual servers. (If there are 256 more or less simultaneous requests to server 1, and one to server 2, and this variable is set to 256, the 256 accesses to the first server might very well be handled before the one to the second server.)</p>
 //!  type: TYPE_INT_LIST|VAR_MORE
-//!  name: Number of accepts to attempt
+//!  name: Request Tuning: Number of accepts to attempt
 //
 //! defvar: ConfigPorts
 //! These are the ports through which you can configure the server.<br />Note that you should at least have one open port, since otherwise you won't be able to configure your server.
