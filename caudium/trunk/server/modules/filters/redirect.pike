@@ -353,7 +353,7 @@ void start()
 	report_error(sprintf ("Invalid redirect keyword: %s\n", a[0]));
 	break;
       }
-      if(modifier) {
+      if(modifier && sizeof (new_patterns)) {
 	sscanf(modifier, "%s=%s", value);
 	switch(lower_case(modifier)) {
 	case "host":
