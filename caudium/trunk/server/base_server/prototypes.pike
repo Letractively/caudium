@@ -225,7 +225,7 @@ string since;
 
 //! description of user, if authenticated.
 //! if not authenticated, this element will be 0 (zero).
-int|mapping user=0;
+private int|mapping user=0;
 
 // FIXME: Why this was private ?
 //private int cache_control_ok = 0;
@@ -262,6 +262,14 @@ string scan_for_query( string f )
     raw_url = raw_url[ strlen(p).. ];
     misc->site_prefix_path = p;
   }
+
+
+//!  retrieve information about the current authenticated user, if any
+//!  @returns
+//!    a mapping describing the user (contents may vary depending on the
+//!    user database the user is stored in) or zero if the user has not
+//!    been authenticated.
+int|mapping get_user();
 
 
 //! Get the base portion of a URL
