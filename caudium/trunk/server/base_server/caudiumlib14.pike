@@ -2178,17 +2178,6 @@ string parse_scopes(string data, function cb, object id, mixed ... extra) {
   return mp->finish(data)->read();
 }
 
-
-//! Unload a program for Caudium master
-//! @param p
-//!   The name of program to unload
-//! @note
-//!   Convenience function to ease reloading of inherited modules.
-//!   Usefull for module development. Non RIS call.
-void unload_program(string p)
-{
-  m_delete(master()->programs,search(master()->programs,(program)p));
-}
 /*
  * If you visit a file that doesn't contain these lines at its end, please
  * cut and paste everything from here to that file.
