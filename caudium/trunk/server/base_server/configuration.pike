@@ -2302,11 +2302,23 @@ public string real_file(string file, object id)
   }
 }
 
-// Convenience functions used in quite a lot of modules. Tries to
-// read a file into memory, and then returns the resulting string.
-
-// NOTE: A 'file' can be a cgi script, which will be executed, resulting in
-// a horrible delay.
+//
+//! method: mixed try_get_file(string s, object id, int|void status, int|void nocache)
+//!  Convenience function used in quite a lot of modules. Tries to read a file
+//!  into memory, and then returns the resulting string. Note that a 'file' 
+//!  can be a CGI script, which will executed, resulting in a horrible delay.
+//! arg: string s
+//!  The file to read.
+//! arg: object id
+//!  The Caudium Object Id
+//! arg: int|void status
+//!  Ask the function to return 1 if file exist or 0 if it doesn't.
+//! arg: int|void nocache
+//!  Set to 1 if you don't want to cache or use the caudium cache for this
+//!  access.
+//! returns:
+//!  A string with the content of file or int if you ask a status of the file
+//
 
 public mixed try_get_file(string s, object id, int|void status, int|void nocache)
 {
@@ -2379,7 +2391,14 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
   return res;
 }
 
-// Is 'what' a file in our virtual filesystem?
+//! method: int is_file(string what, object id)
+//!  Is 'what' a file in ou virtual filesystem ?
+//! arg: string what
+//!  The file to test
+//! arg: object id
+//!  The Caudium Object Id
+//! returns:
+//!  1 if this a file. 0 otherwise.
 public int is_file(string what, object id)
 {
   return !!stat_file(what, id);
