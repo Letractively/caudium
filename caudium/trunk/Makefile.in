@@ -312,7 +312,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
 	echo "Building Distribution..."
-	tar cf $$version.tar
+	tar cf $$version.tar $$version
 	gzip -9 < $$version.tar >$$version.tar.gz
 	bzip2 -9 < $$version.tar >$$version.tar.bz2
 	rm $$version.tar
