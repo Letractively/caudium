@@ -119,6 +119,10 @@ install: build
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
 	   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
 
+	# linitian doesn't like images in /usr/lib, let's move them to /usr/share
+	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
+	ln -s debian/tmp/usr/share/caudium$(EXTVER)/caudium-images debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images
+
 	for p in $(CURDIR)/debian/www/*.png.uu; do \
 	    uudecode -o $(CURDIR)/debian/tmp/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
 	done
@@ -126,6 +130,16 @@ install: build
 	ln -sf ../../../bin/$(PIKE) $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium
 	cp -dp $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/pike
 	rm -rf debian/tmp/usr/local/
+
+	#
+	# copy perl
+	#
+	cp -pad $(CURDIR)/server/perl/ $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/
+	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
+	    debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new && \
+	mv debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new \
+	   debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 
 	#
 	# the -p debhelper param seems to be not working... 
@@ -173,7 +187,7 @@ binary-arch: build install
 #	dh_suidregister
 	dh_installdeb
 #	dh_makeshlibs
-#	dh_perl
+	dh_perl
 	dh_shlibdeps
 	dh_gencontrol -- -Vpike:ver=$(PIKE_VERSION) -Vpike:name=$(PIKE)
 	dh_md5sums
