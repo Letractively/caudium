@@ -35,8 +35,16 @@ RCSID("$Id$");
 
 #ifdef HAVE_MHASH
 
-
-/* Create a new hash object.  */
+//! class: Mhash.Hash
+//!  An instance of a normal Mhash object. This object can be used to
+//!  calculate various hashes supported by the Mhash library.
+//! see_also: Mhash.HMAC
+//! method: void create(int|void type)
+//!  Called when instantiating a new object. It takes an optional first
+//!  argument with the type of hash to use.
+//! arg: int|void type
+//!  The hash type to use. Can also be set with set_type();
+//! name: create - Create a new hash instance.
 
 void f_hash_create(INT32 args)
 {
@@ -54,11 +62,6 @@ void f_hash_create(INT32 args)
       error("Invalid argument 1. Expected integer.\n");
     }
     THIS->type = sp[-args].u.integer;
-    THIS->hash = mhash_init(THIS->type);
-    if(THIS->hash == MHASH_FAILED) {
-      THIS->hash = NULL;
-      error("Failed to initialize hash.\n");
-    }
     break;
   case 0:
     break;
@@ -67,7 +70,13 @@ void f_hash_create(INT32 args)
   pop_n_elems(args);
 }
 
-/* Add feed to a the hash */
+//! method: void feed(string data)
+//! method: void update(string data)
+//!  Update the current hash context with data.
+//!  update() is here for compatibility reasons with Crypto.md5.
+//! arg: string data
+//!  The data to update the context with.
+//! name: feed - Update the current hash context.
 void f_hash_feed(INT32 args) 
 {
   if(THIS->hash == NULL) {
@@ -100,6 +109,12 @@ static int get_digest(void)
   return mhash_get_block_size(THIS->type);
 }
 
+//! method: string digest()
+//!  Get the result of the hashing operation. 
+//! name: digest, hexdigest - Return the resulting hash
+//! see_also: Mhash.to_hex
+//! returns:
+//!   The resulting digest.
 void f_hash_digest(INT32 args)
 {
   int len, i;
@@ -114,23 +129,12 @@ void f_hash_digest(INT32 args)
   push_string(res);
 }
 
-void f_hash_hexdigest(INT32 args)
-{
-  int len, i, e;
-  char hex[3];
-  struct pike_string *res;
-  len = get_digest();
-  res = begin_shared_string(len*2);
-  for(e = 0, i = 0; i < len; i++, e+=2) {
-    snprintf(hex, 3, "%.2x", THIS->res[i]);
-    STR0(res)[e] = hex[0];
-    STR0(res)[e+1] = hex[1];
-  }
-  res = end_shared_string(res);
-  pop_n_elems(args);
-  push_string(res);
-}
-
+//! method: string query_name()
+//!  Get the name of the selected hash routine. 
+//! name: query_name - Get hash routine name
+//! returns: 
+//!  The name of the selected hash routine, zero if none is selected or
+//!  -1 if the selected hash is invalid.
 void f_hash_query_name(INT32 args)
 {
   char *name;
@@ -138,17 +142,20 @@ void f_hash_query_name(INT32 args)
   if(THIS->type != -1) {
     name = mhash_get_hash_name(THIS->type);
     if(name == NULL) {
-      push_int(0);
+      push_int(-1);
     } else {
       push_text(name);
       free(name);
     }
   } else {
-    error("Hash object not initialized!\n");
+    push_int(0);
   }
 }
 
-/* Reset the hash */
+//! method: void reset()
+//!  Clean up the current hash context and start from the beginning. Use
+//!  this if you want to hash another string.
+//! name: reset - Reset hash context
 void f_hash_reset(INT32 args)
 {
   free_hash();
@@ -162,7 +169,10 @@ void f_hash_reset(INT32 args)
   pop_n_elems(args);
 }
 
-/* Change hash type */
+//! method: void set_type(int type)
+//!  Set or change the type of the has in the current context.
+//!  This function will also reset any hashing in progress.
+//! name: set_type - Change the hash type
 void f_hash_set_type(INT32 args)
 {
   if(args == 1) {
@@ -191,7 +201,6 @@ void mhash_init_mhash_program(void) {
   ADD_FUNCTION("update", f_hash_feed,   	tFunc(tStr,tVoid), 0 ); 
   ADD_FUNCTION("feed", f_hash_feed,     	tFunc(tStr,tVoid), 0 );
   ADD_FUNCTION("digest", f_hash_digest, 	tFunc(tVoid,tStr), 0);
-  ADD_FUNCTION("hexdigest", f_hash_hexdigest, 	tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hash_reset,   	tFunc(tVoid,tVoid), 0 ); 
   ADD_FUNCTION("set_type", f_hash_set_type, 	tFunc(tVoid,tVoid), 0 ); 

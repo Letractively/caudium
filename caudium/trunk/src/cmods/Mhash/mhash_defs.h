@@ -47,10 +47,11 @@ void f_hmac_digest(INT32 args);
 void f_hmac_hexdigest(INT32 args);
 void f_hmac_reset(INT32 args);
 void f_hmac_set_type(INT32 args);
-void f_hmac_set_password(INT32 args);
+void f_hmac_set_key(INT32 args);
 void mhash_init_hmac_program(void);
 
 /* Class global funcs */
+void f_to_hex(INT32 args);
 void mhash_init_globals(void);
 void f_query_name(INT32 args);
      

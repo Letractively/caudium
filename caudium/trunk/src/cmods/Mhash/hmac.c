@@ -34,6 +34,16 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
+//! class: Mhash.HMAC
+//!  The Mhash library supports HMAC generation (a mechanism for message
+//!  authentication using cryptographic hash functions, which is
+//!  described in rfc2104). HMAC can be used to create message
+//!  digests using a secret key, so that these message digests
+//!  cannot be regenerated (or replaced) by someone else.  
+//! see_also: Mhash.Hash
+
+
+
 /* Initialize this hash. If it fails, return != 0 */
 static int init_hmac(void)
 {
@@ -51,9 +61,14 @@ static int init_hmac(void)
   return HMAC_OK;
 }
 
-/* Create a new hmac object.  */
+//! method: void create(int|void type)
+//!  Called when instantiating a new object. It takes an optional first
+//!  argument with the type of hash to use.
+//! arg: int|void type
+//!  The hash type to use. Can also be set with set_type();
+//! name: create - Create a new hash instance.
 
-  void f_hmac_create(INT32 args)
+void f_hmac_create(INT32 args)
 {
   if(THIS->type != -1 || THIS->hmac || THIS->res) {
     error("Recursive call to create. Use Mhash.HMAC()->reset() or \n"
@@ -82,8 +97,12 @@ static int init_hmac(void)
   pop_n_elems(args);
 }
 
-/* Set the HMAC password */
-void f_hmac_set_password(INT32 args) 
+//! method: void create(string key)
+//!  Set the secret key to use when generating the HMAC.
+//! arg: string key
+//!  The secret key, or password, to use.
+//! name: set_key - Set the HMAC secret key
+void f_hmac_set_key(INT32 args) 
 {
   int ret;
   if(args == 1) {
@@ -104,7 +123,13 @@ void f_hmac_set_password(INT32 args)
   pop_n_elems(args);
 }
 
-/* Add feed to a the hash */
+//! method: void feed(string data)
+//! method: void update(string data)
+//!  Update the current hash context with data.
+//!  update() is here for compatibility reasons with Crypto.md5.
+//! arg: string data
+//!  The data to update the context with.
+//! name: feed - Update the current hash context.
 void f_hmac_feed(INT32 args) 
 {
   int ret;
@@ -114,7 +139,7 @@ void f_hmac_feed(INT32 args)
     error("The hash type is not set. Use Mhash.HMAC()->set_type() "
 	  "to set it.\n");
    case HMAC_PASS:
-    error("The HMAC password is missing. Use Mhash.HMAC()->set_password() "
+    error("The HMAC password is missing. Use Mhash.HMAC()->set_key() "
 	  "to set it.\n");
    case HMAC_FAIL:
     error("Failed to initialize the hash due to an unknown error.\n");
@@ -148,6 +173,15 @@ static int get_digest(void)
   return mhash_get_block_size(THIS->type);
 }
 
+//! method: string digest()
+//! method: string hexdigest()
+//!  Get the result of the hashing operation. digest() returns a binary string.
+//!  You can use Mhash.to_hex to convert it to hexadecimal format.
+//! name: digest, hexdigest - Return the resulting hash
+//! see_also: to_hex
+//! returns:
+//!   The resulting digest.
+
 void f_hmac_digest(INT32 args)
 {
   int len, i;
@@ -162,25 +196,22 @@ void f_hmac_digest(INT32 args)
   push_string(res);
 }
 
-void f_hmac_hexdigest(INT32 args)
-{
-  int len, i, e;
-  char hex[3];
-  struct pike_string *res;
-  len = get_digest();
-  res = begin_shared_string(len*2);
-  for(e = 0, i = 0; i < len; i++, e+=2) {
-    snprintf(hex, 3, "%.2x", THIS->res[i]);
-    STR0(res)[e] = hex[0];
-    STR0(res)[e+1] = hex[1];
-  }
-  res = end_shared_string(res);
-  pop_n_elems(args);
-  push_string(res);
-}
+//! method: string query_name()
+//!  Get the name of the selected hash routine. 
+//! name: query_name - Get hash routine name
+//! returns: 
+//!  The name of the selected hash routine, zero if none is selected or
+//!  -1 if the selected hash is invalid.
+/* Same function that's in the mhash object so docs are repeated here but
+ * the function is not.
+ */
 
-
-/* Reset the hash */
+//! method: void reset()
+//!  Clean up the current hash context and start from the beginning. Use
+//!  this if you want to hash another string. 
+//! name: reset - Reset hash context
+//! note:
+//!  This will note reset the chosen password.
 void f_hmac_reset(INT32 args)
 {
   int ret;
@@ -192,7 +223,11 @@ void f_hmac_reset(INT32 args)
   pop_n_elems(args);
 }
 
-/* Change hash type */
+
+//! method: void set_type(int type)
+//!  Set or change the type of the has in the current context.
+//!  This function will also reset any hashing in progress.
+//! name: set_type - Change the HMAC hash type
 void f_hmac_set_type(INT32 args)
 {
   int ret;
@@ -220,11 +255,10 @@ void mhash_init_hmac_program(void) {
   start_new_program();
   ADD_STORAGE( mhash_storage  );
   ADD_FUNCTION("create", f_hmac_create,   tFunc(tOr(tInt,tVoid),tVoid), 0);
-  ADD_FUNCTION("set_password", f_hmac_set_password, tFunc(tStr,tVoid), 0);
+  ADD_FUNCTION("set_key", f_hmac_set_key, tFunc(tStr,tVoid), 0);
   ADD_FUNCTION("update", f_hmac_feed,   	tFunc(tStr,tVoid), 0 ); 
   ADD_FUNCTION("feed", f_hmac_feed,     	tFunc(tStr,tVoid), 0 );
   ADD_FUNCTION("digest", f_hmac_digest, 	tFunc(tVoid,tStr), 0);
-  ADD_FUNCTION("hexdigest", f_hmac_hexdigest, 	tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hmac_reset,   	tFunc(tVoid,tVoid), 0 ); 
   ADD_FUNCTION("set_type", f_hmac_set_type, 	tFunc(tVoid,tVoid), 0 ); 
