@@ -4,6 +4,7 @@ usr/bin
 usr/lib/caudium/lib
 usr/lib/caudium/local_modules
 usr/lib/caudium/local_fonts
+usr/share/roxen/modules
 var/log/caudium
 var/run/caudium
 var/state/caudium
