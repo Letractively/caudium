@@ -559,23 +559,23 @@ caudium/server/etc/modules/UltraSupport.pmod/Storage.pmod/File.pike
 caudium/server/etc/modules/UltraSupport.pmod/Storage.pmod/Gdbm.pike
 caudium/server/etc/modules/UltraSupport.pmod/Profile.pmod
 caudium/server/etc/modules/UltraSupport.pmod/Util.pmod
-caudium/server/etc/modules/SSL.pmod/VERSION
-caudium/server/etc/modules/SSL.pmod/DOC
-caudium/server/etc/modules/SSL.pmod/TODO
-caudium/server/etc/modules/SSL.pmod/connection.pike
-caudium/server/etc/modules/SSL.pmod/alert.pike
-caudium/server/etc/modules/SSL.pmod/cipher.pike
-caudium/server/etc/modules/SSL.pmod/client.pike
-caudium/server/etc/modules/SSL.pmod/constants.pike
-caudium/server/etc/modules/SSL.pmod/context.pike
-caudium/server/etc/modules/SSL.pmod/handshake.pike
-caudium/server/etc/modules/SSL.pmod/https.pike
-caudium/server/etc/modules/SSL.pmod/packet.pike
-caudium/server/etc/modules/SSL.pmod/server.pike
-caudium/server/etc/modules/SSL.pmod/session.pike
-caudium/server/etc/modules/SSL.pmod/sslfile.pike
-caudium/server/etc/modules/SSL.pmod/sslport.pike
-caudium/server/etc/modules/SSL.pmod/state.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/VERSION
+caudium/server/etc/modules/CaudiumSSL.pmod/DOC
+caudium/server/etc/modules/CaudiumSSL.pmod/TODO
+caudium/server/etc/modules/CaudiumSSL.pmod/connection.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/alert.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/cipher.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/client.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/constants.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/context.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/handshake.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/https.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/packet.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/server.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/session.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/sslfile.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/sslport.pike
+caudium/server/etc/modules/CaudiumSSL.pmod/state.pike
 caudium/server/etc/modules/RoxenRPC.pmod/HTTP.pmod/Client.pike
 caudium/server/etc/modules/RoxenRPC.pmod/HTTP.pmod/Server.pike
 caudium/server/etc/modules/RoxenRPC.pmod/Client.pike
@@ -778,7 +778,7 @@ caudium/server/.cvsignore
 @dirrm caudium/server/etc/modules/UltraSupport.pmod/Period.pmod
 @dirrm caudium/server/etc/modules/UltraSupport.pmod/Storage.pmod
 @dirrm caudium/server/etc/modules/UltraSupport.pmod
-@dirrm caudium/server/etc/modules/SSL.pmod
+@dirrm caudium/server/etc/modules/CaudiumSSL.pmod
 @dirrm caudium/server/etc/modules/RoxenRPC.pmod/HTTP.pmod
 @dirrm caudium/server/etc/modules/RoxenRPC.pmod
 @dirrm caudium/server/etc/modules/InternalFiles.pmod

@@ -6,7 +6,7 @@
 #
 
 PORTNAME=	caudium
-PORTVERSION=	1.2.4
+PORTVERSION=	1.2.5
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
