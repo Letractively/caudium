@@ -699,6 +699,48 @@ static void f_get_address( INT32 args ) {
 }
 
 /*
+** method: string get_port(string addr)
+**  Get the IPv4 port from Pike query_address string
+** string: string addr
+**  The address + port given from Pike with the following
+**  format "ip.ad.dr.ess port" like this example "127.0.0.1 5601"
+** returns:
+**  The port string
+*/
+static void f_get_port(INT32 args) {
+  int i, found=0;
+  struct pike_string *src;
+  char *orig, *ptr;
+  
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.get_port",1,"string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.get_port(): only 8-bit strings allowed.\n");
+  }
+  if(src->len < 7) {
+    pop_n_elems(args);
+    push_text("0"); 
+  } else {
+    orig = src->str;
+    for(i = src->len-1; i >=0; i--) {
+      if(orig[i] == 0x20) { /* " " */
+        found = 1;
+        i++;
+        break;
+      }
+    }
+    pop_n_elems(args);
+    if (found) {
+      int len = src->len -i ;
+      push_string(make_shared_binary_string(orig+i, len));
+    } else {
+      push_text("0");
+    }
+  }
+}
+
+/*
 ** method: string extension(string file)
 **  Returns the extension name from the file. Eg foo.c will return c
 **  checks also that file is not a known backup file.
@@ -1341,6 +1383,8 @@ void pike_module_init( void )
                          "function(string,multiset,multiset:string)",
                          OPT_SIDE_EFFECT);
   add_function_constant( "get_address", f_get_address,
+                         "function(string:string)", 0);
+  add_function_constant( "get_port", f_get_port,
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
