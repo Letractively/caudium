@@ -3,8 +3,26 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
-AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h sdtlib.h)
+AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h)
 AC_HAVE_FUNCS(mmap munmap free)
+
+dnl For Caudium.cern_http_date() function
+AC_STRUCT_TIMEZONE
+AC_CHECK_MEMBER(struct tm.tm_gmtoff, [AC_DEFINE(STRUCT_TM_TM_GMTOFF,,[Define if you have struct tm/tm_gmtoff])],,[
+#include <sys/types.h>
+#include <$ac_cv_struct_tm>
+])
+AC_MSG_CHECKINK([whether timezone is scalar])
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <$ac_cv_struct_tm
+   ],
+   [timezone = 42L],
+   [
+       AC_MSG_RESULT(yes)
+       AC_DEFINE(HAVE_SCALAR_TIMEZONE,,[Define if your timezone is a scalar number]),
+   ],
+   [   AC_MSG_RESULT(no)    ])
 
 AH_TOP([
 /*
