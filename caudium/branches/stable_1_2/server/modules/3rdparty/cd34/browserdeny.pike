@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2001 The Caudium Group
+ * Copyright © 2001-2002 The Caudium Group
  * Copyright © 2001 Davies, Inc
  * 
  * This program is free software; you can redistribute it and/or
@@ -17,6 +17,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ */
+/*
+ * $Id$
  */
 /*
  * See http://www.daviesinc.com/modules/ for more informations.
