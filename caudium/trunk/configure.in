@@ -259,8 +259,11 @@ for a in $DEFPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
     echo "no."
   fi
 done
-
+tmppike=`ls -l /usr/local/bin/pike|awk -F ' -> ' '{ print $2 }' 2>/dev/null`
 if test "$PIKE" != ""; then 
+if test -x $tmppike; then
+	PIKE=$tmppike
+fi
   echo "Pike binary used:      $PIKE
 Pike include dir:      $PIKE_INCLUDE_DIR
 Pike module directory: $PIKE_MODULE_DIR"
@@ -270,6 +273,7 @@ else
 fi
 
 export PIKE PIKE_INCLUDE_DIR PIKE_MODULE_DIR
+AC_SUBST(PIKE)
 
 #############################################################################
 
