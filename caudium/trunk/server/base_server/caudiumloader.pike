@@ -889,7 +889,11 @@ int main(mixed ... args)
 #if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
   add_constant("http_decode_string", _Roxen.http_decode_string);
 #endif
-  
+  // Some magic to handle name conflicts between Pike 7.0 without SSL.pmod
+  // and Pike 7.2 that have allready SSL.pmod inside...
+#if !constant(SSL)
+  add_constnat("SSL",CaudiumSSL);
+#endif
 
   add_constant("mark_fd", mark_fd);
 
