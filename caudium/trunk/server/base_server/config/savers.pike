@@ -18,11 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
 
-/* $Id$ */
+//! Saver module for Caudium CIF
+//! $Id$
+
 #include <confignode.h>
 #include <module.h>
 
+//!
 string module_short_name(object m, object cf)
 {
   string sn;
@@ -44,6 +50,7 @@ string module_short_name(object m, object cf)
   error("Module not found.\n");
 }
 
+//!
 inline int is_module(object node)
 {
   if(!node) return 1;
@@ -55,6 +62,7 @@ inline int is_module(object node)
   }
 }
 
+//!
 void save_module_variable(object o)
 {
   object module;
@@ -79,7 +87,7 @@ void save_module_variable(object o)
   if(o->changed) o->change(-o->changed);
 }
 
-
+//!
 void save_global_variables(object o)
 {
   caudium->store("Variables", caudium->variables, 0, 0);
@@ -90,6 +98,7 @@ void save_global_variables(object o)
   if(o->changed) o->change(-o->changed);
 }
 
+//!
 void save_module_master_copy(object o, object config)
 {
   string s;
@@ -102,6 +111,7 @@ void save_module_master_copy(object o, object config)
   if(o->changed) o->change(-o->changed);
 }
 
+//!
 void save_configuration_global_variables(object o, object config)
 {
   caudium->store("spider#0", o->config()->variables, 0, o->config());
@@ -109,6 +119,7 @@ void save_configuration_global_variables(object o, object config)
   o->config()->start(2, config);
 }
 
+//!
 void save_configuration(object o, object config)
 {
   if(o->changed) o->change(-o->changed);
@@ -116,6 +127,7 @@ void save_configuration(object o, object config)
 //o->config()->start(2, config);
 }
 
+//!
 void save_module_copy(object o, object config)
 {
   string s;
