@@ -22,6 +22,11 @@ void create(string _permstore, string path) {
   start(_permstore, path);
   storage = ([ ]);
   clients = ([ ]);
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Creating new Storage.Manager with backend %O and option %O\n",
+        _permstore,
+	path);
+#endif
 }
 
 void start(string _permstore, string path) {

@@ -83,8 +83,10 @@ mixed retrieve(string namespace, string key) {
     mixed tmp = decode(Stdio.read_file(objpath));
     if(mappingp(tmp) && (tmp->value))
       return tmp->value;
-    else
+    else {
+      rm(objpath);
       return 0;
+    }
   }
   else
     return 0;
@@ -154,14 +156,16 @@ void unlink_regexp(string namespace, string regexp) {
 }
 
 static string encode(string namespace, string key, string value) {
-  string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : %O, \"key\" : %O, \"value\" : \"%s\" ]);", namespace, (string)replace(key, "\"", "\\\""), (string)replace(value, "\"", "\\\""));
+  mapping tmp = ([ "namespace" : namespace, "key" : key, "value" : value ]);
+  string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;", tmp);
   return MIME.encode_base64(data, 1);
 }
 
 static mixed decode(string data) {
   program p;
-  if (catch(p = compile_string(MIME.decode_base64(data))))
+  if (mixed err = catch(p = compile_string(MIME.decode_base64(data)))) {
     return 0;
+  }
   return p()->data;
 }
 
