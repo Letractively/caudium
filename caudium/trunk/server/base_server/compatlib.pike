@@ -517,7 +517,7 @@ static string gif_size(object gif)
 //!
 object new(string|program prog, mixed ... args)
 {
-  WCOMPAT3("Pike 7.4+ (program) cast","new");
+  WCOMPAT3("Pike 7.5+ (program) cast","new");
   if(stringp(prog))
   {
     if(program p=(program)(prog, backtrace()[-2][0]))
@@ -542,7 +542,7 @@ object new(string|program prog, mixed ... args)
 //!   @[destruct()], @[compile_string()], @[compile_file()], @[new()]
 
 object clone(mixed ... args) {
-  WCOMPAT3("Pike 7.4+ (program) cast","clone");
+  WCOMPAT3("Pike 7.5+ (program) cast","clone");
   return new(@args);
 }
 
@@ -638,7 +638,6 @@ object clone(mixed ... args) {
 //! @seealso
 //!   @[time()], @[System.getrusage()]
 
-#if !constant(rusage)
 array(int) rusage() {
   WCOMPAT3("Pike 7.5+ System.getrusage","rusage");
   mapping(string:int) m=System.getrusage();
@@ -650,7 +649,6 @@ array(int) rusage() {
 	    m->slptime, m->wtime, m->stoptime, m->brksize,
 	    m->stksize });
 }
-#endif
 
 // Roxenlib / Caudiumlib API compat
 
