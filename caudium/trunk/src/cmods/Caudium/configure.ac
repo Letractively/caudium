@@ -4,7 +4,11 @@ AC_CONFIG_HEADER(caudium_machine.h)
 CAUDIUM_MODULE_INIT()
 
 AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h time.h sys/time.h)
-AC_HAVE_FUNCS(mmap munmap free snprintf)
+AC_HAVE_FUNCS(mmap munmap free)
+
+dnl Test for snprintf..
+AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define if you have snprintf function])],[
+	AC_MSG_ERROR([Your OS leak of snprintf call. Please send a bug report to bugs@caudium.info. Caudium will not able to be build on your OS])])
 
 dnl For Caudium.cern_http_date() function
 AC_STRUCT_TIMEZONE
@@ -53,6 +57,7 @@ AH_TOP([
 AH_BOTTOM([
 #endif
 ])
+
 AC_CHECK_HEADERS([stdio.h alloca.h])
 
 AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
