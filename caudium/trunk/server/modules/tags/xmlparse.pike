@@ -41,7 +41,7 @@ inherit "caudiumlib";
 string date_doc=Stdio.read_bytes("modules/tags/doc/date_doc");
 constant language = caudium->language;
 
-constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER;
+constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "XML-Compliant RXML Parser";
 constant module_doc  = "This is a new XML-compliant RXML parser. It requires \
 Pike 7.0 or newer, since it depends on Parser.HTML which doesn't exist in \
