@@ -434,6 +434,9 @@ void precache_rewrite(object id)
     }
   }
 
+	// we assume a one-to-one hostname-site_id relation
+	id->site_id = host;
+
   vhs->wwwpath = virtcache[hostname]->virtpath;
   vhs->logpath = virtcache[hostname]->logpath;
   vhs->cgipath = virtcache[hostname]->cgipath;
