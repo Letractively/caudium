@@ -1171,6 +1171,8 @@ private mapping internal_caudium_image(string from)
 //  sscanf(from, "%s.gif", from);
 //  sscanf(from, "%s.jpg", from);
 //  sscanf(from, "%s.xcf", from);
+  if (!ext)
+      ext = "any";
 
   // Disallow "internal-caudium-..", it won't really do much harm, but a list of
   // all files in '..' might be retrieved (that is, the actual directory
@@ -1200,11 +1202,12 @@ private mapping internal_caudium_image(string from)
   ]);
   
   switch(ext) {
+    case "any":
     case "png":
     case "jpg":
     case "gif":
     case "jpeg":
-        foreach(indices(img_types), string e)
+        foreach(indices(img_types) - ({"xcf"}), string e)
 	    if(img = open("caudium-images/"+from+"."+e, "r")) 
 		return (["file": img, "type":img_types[e]]);
 	break;
