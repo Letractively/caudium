@@ -384,8 +384,6 @@ static string make_weekdays_row(object id, mapping my_args, object now, object t
     dnum = 1;
   }
 
-  report_notice("days == %O\n", days);
-  
   if (id->misc->_calendar->sunday_pos == 7)
     days = days[1..6] + days[0..0];
     
@@ -472,7 +470,7 @@ string make_monthdays_grid(object id, mapping my_args, object now,
   int            ndays = month->number_of_days(), grid_rows = 5;
 
   if (id->misc->_calendar->sunday_pos == 1)
-    dow_start = (days[0]->week_day() %7) + 1;
+    dow_start = days[0]->week_day() % 7;
   else
     dow_start = days[0]->week_day();
   curday = 0;
@@ -484,7 +482,7 @@ string make_monthdays_grid(object id, mapping my_args, object now,
 
   if (my_args->do_week)
     weeks = target->month()->weeks();
-    
+  
   for(y = 1; y <= grid_rows; y++) {
     for(x = 1; x <= 7; x++) {
       if (curday >= ndays) {
@@ -1143,11 +1141,17 @@ string calendar_tag(string tag, mapping args, string cont,
   else
     id->misc->_calendar->cols = "7";
 
-  target = Calendar.parse("%Y-%M-%D", sprintf("%s-%s-%s",
-                                              id->variables->calyear,
-                                              id->variables->calmonth,
-                                              id->variables->calday));
-
+  if (id->misc->_calendar->sunday_pos == 7)
+    target = Calendar.parse("%Y-%M-%D", sprintf("%s-%s-%s",
+                                                id->variables->calyear,
+                                                id->variables->calmonth,
+                                                id->variables->calday));
+  else
+    target = Calendar.Gregorian.parse("%Y-%M-%D", sprintf("%s-%s-%s",
+                                                          id->variables->calyear,
+                                                          id->variables->calmonth,
+                                                          id->variables->calday));
+  
   active_days = mark_active_days(target, id);
   active_weeks = mark_active_weeks(target, id);
   
