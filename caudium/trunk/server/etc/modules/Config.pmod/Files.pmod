@@ -478,8 +478,8 @@ class File
         return parse();
     }
     
-    //! Retrieves the given variable from the given region in this
-    //! configuration.
+    //! Retrieves a variable from the specified region or the entire region
+    //! if the variable isn't specified.
     //!
     //! @param region
     //!  The region name
@@ -488,8 +488,8 @@ class File
     //!  The variable name
     //!
     //! @returns
-    //!  value of the variable or 0, if the variable/region don't exist.
-    mixed retrieve(string region, string var)
+    //!  value of the variable/region or 0, if the variable/region don't exist.
+    mixed retrieve(string region, string|void var)
     {
         if (regions)
             return regions->retrieve(region, var);
@@ -575,8 +575,8 @@ class Config
                     backtrace()}));
     }
 
-    //! Retrieves the given variable from the given region in this
-    //! configuration.
+    //! Retrieves a variable from the specified region or the entire region
+    //! if the variable isn't specified.
     //!
     //! @param region
     //!  The region name
@@ -585,18 +585,20 @@ class Config
     //!  The variable name
     //!
     //! @returns
-    //!  value of the variable or 0, if the variable/region don't exist.
-    mixed retrieve(string region, string var)
+    //!  value of the variable/region or 0, if the variable/region don't exist.
+    mixed retrieve(string region, string|void var)
     {
         if (!regions || !sizeof(regions))
             return 0;
 
-        if (!regions[region] || !regions[region][var])
+        if (!regions[region])
             return 0;
 
-        if (mappingp(regions[region][var]))
+        if (var && regions[region][var])
             return regions[region][var]->value;
-
+        else if (!var && regions[region])
+            return regions[region];
+        
         return 0;
     }
 
@@ -835,3 +837,8 @@ class Config
         return walk_children(root);
     }
 };
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
