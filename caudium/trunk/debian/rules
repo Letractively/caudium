@@ -74,7 +74,7 @@ install: build
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp
 	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium/COPYING
-	cp debian/localhost `pwd`/debian/tmp/etc/caudium/servers/
+	cp debian/localhost `pwd`/debian/tmp/etc/caudium/localhost.sample
 	
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium;g'< \
 	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
