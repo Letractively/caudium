@@ -22,6 +22,8 @@ Changes in Caudium 1.0.X (CVS)
 - Some minor cosmetic changes with ports in the configuration interface.
 - Use Mhash.Hash and PCRE.Regexp from Pexts (when available) in most
   situations where Crypto.md5/sha and Regexps are used.
+- Fixed a 0.6 compatibility bug and noted that SSL will not work with
+  Pike 0.6. This will not be fixed. If you need SSL, use Pike 7.0.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
