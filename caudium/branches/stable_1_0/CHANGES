@@ -1,5 +1,5 @@
-Changes in Caudium 1.0 Release 1
---------------------------------------------
+Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
+--------------------------------------------------------
 - Removed htmlparse dependency from the Enhanced Directory Listings
   module since we have two parsing modules now.
 - Quote the chars < > @ in http_encode_url and http_encode_string.
