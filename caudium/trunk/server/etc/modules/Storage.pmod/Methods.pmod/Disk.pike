@@ -85,6 +85,9 @@ void store(string namespace, string key, string value) {
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   LOCK();
+  if (!namespace || !key)
+    return 0;
+
   string objpath = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
   if (Stdio.exist(objpath)) {
     PREFLOCK();
