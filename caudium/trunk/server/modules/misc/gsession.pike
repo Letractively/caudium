@@ -701,8 +701,6 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
     if (memory_validate_storage(region, sid, "memory_retrieve") < 0)
         return 0;
 
-    _memory_storage["_sessions_"][sid]->lastused = time();
-    
     if (!_memory_storage[region][sid]->data[key])
         return 0;
 
