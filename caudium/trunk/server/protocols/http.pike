@@ -1284,7 +1284,7 @@ void send_result(mapping|void result)
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(!file->is_dynamic || !id->misc->is_dynamic) {
+	if(!file->is_dynamic || !misc->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
 	  if(prot != "HTTP/0.9") {
 #endif
