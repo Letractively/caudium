@@ -7,7 +7,7 @@
 
 PORTNAME=	caudium
 PORTVERSION=	1.2.8
-PORTREVISION=	4
+PORTREVISION=	5
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
@@ -19,7 +19,7 @@ DISTNAME=	caudium-${PORTVERSION}
 MAINTAINER=	kiwi@oav.net
 
 BUILD_DEPENDS=	pike:${PORTSDIR}/lang/pike72cvs/
-LIB_DEPENDS=	sablot.68:${PORTSDIR}/textproc/sablotron/
+LIB_DEPENDS=	sablot.69:${PORTSDIR}/textproc/sablotron/
 DEPENDS=	${PORTSDIR}/lang/pexts/
 
 WRKSRC=		${WRKDIR}/${DISTNAME}
