@@ -236,7 +236,7 @@ static void f_run(INT32 args)
   THREADS_ALLOW();
 
   if (THIS->do_callbacks &&
-      SablotRegHandler(THIS->sproc, HLR_SCHEME, &THIS->sab_scheme_handler, THIS))
+      SablotRegHandler(sproc, HLR_SCHEME, &THIS->sab_scheme_handler, THIS))
     Pike_error("Failed to register the scheme handler\n");
   
   success |= SablotRunProcessorGen(situation, sproc, xslsrc, xmlsrc, "arg:/_output");
