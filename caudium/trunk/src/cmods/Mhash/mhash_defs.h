@@ -41,7 +41,7 @@ void f_hash_hexdigest(INT32 args);
 void f_hash_name(INT32 args);
 void f_hash_reset(INT32 args);
 void f_hash_set_type(INT32 args);
-struct program *mhash_init_mhash_program(void);
+void mhash_init_mhash_program(void);
 
 
 /* Class global funcs */
