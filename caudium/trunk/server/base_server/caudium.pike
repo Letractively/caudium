@@ -43,7 +43,7 @@ object argcache;
 
 // Inherits
 inherit "read_config";
-#ifndef ENABLE_DNS
+#ifdef NO_DNS
 inherit "dummy_hosts";
 #else
 inherit "hosts";
