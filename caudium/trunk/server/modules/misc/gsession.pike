@@ -778,7 +778,6 @@ private mapping memory_get_all_regions(object id)
     return _memory_storage;
 }
 
-
 private int memory_session_exists(object id, string sid)
 {
     if (memory_validate_storage("session", sid, "memory_session_exists") < 0)
@@ -795,9 +794,144 @@ private mapping memory_get_sessions_area(object id)
     return 0;
 }
 
+
 //
-// Find out whether we have a session id available anywhere and/or create a
-// new session if necessary. Returns a session id string.
+// provider interface
+//
+//     "store" : memory_store,
+//     "retrieve" : memory_retrieve,
+//     "delete_variable" : memory_delete_variable,
+//     "delete_session" : memory_delete_session,
+//     "get_sessions_area" : memory_get_sessions_area
+
+// STORE
+//
+//  Params:
+//
+//    id     - request id
+//    key    - name of the variable to store if a string, mapping of
+//             key/value pairs otherwise. Every entry in a mapping contains
+//             a string index called 'key' and a mixed value called 'data'.
+//    data   - contents of the variable to store. Ignored if key is a
+//             mapping.
+//    reg    - (optional) region name, defaults to "session" which is the
+//             region compatible with the old 123session storage and
+//             available through the id->misc->session_variables mapping.
+//
+//  Returns:
+//     -1    - when an error ocurred
+//      0    - when everything's fine
+//
+int store(object id, string|mapping(string:mapping(string:mixed)) key, void|mixed data, void|string reg)
+{
+    if (!cur_storage || !id->misc->session_id)
+        return -1;
+
+    if (mappingp(key)) {
+        foreach(indices(key), string s) {
+            cur_storage->store(id, key[s]->key, key[s]->data, reg);
+        }
+    } else
+        cur_storage->store(id, key, data, reg);
+    
+    return 0;
+}
+
+// RETRIEVE
+//
+//  Params:
+//
+//   id       - the request id
+//   key      - a variable name or an array of variable names to retrieve
+//   reg      - (optional) region from which to retrieve the data. Defaults
+//              to "session".
+//
+//  Returns:
+//   a mixed value of the given variable if 'key' is a string, a mapping of
+//   key/value ('key' and 'data' indices, respectively) if 'key' is an
+//   array.
+//
+mixed|mapping(string:mixed) retrieve(object id, string|array(string) key, void|string reg)
+{
+    if (!cur_storage || !id->misc->session_id)
+        return 0;
+
+    mixed|mapping(string:mixed) ret;
+    
+    if (arrayp(key)) {
+        ret = ([]);
+        foreach(key, string k)
+            ret += ([ "key" : k, "data" : cur_storage->retrieve(id, k, reg) ]);
+    } else
+        ret = cur_storage->retrieve(id, key, reg);
+
+    return ret;
+}
+
+// DELETE VARIABLE
+//
+//  Params:
+//
+//   id       - the request id
+//   key      - a name, or an array of names, of the variable(s) to remove
+//   reg      - (optional) region name, defaults to "sessions"
+//
+//  Returns:
+//   a mixed value of the variable that was deleted if 'key' is a string or
+//   a mapping of key/value pairs if 'key' is an array.
+//
+mixed|mapping(string:mixed) delete_variable(object id, string|array(string) key, void|string reg)
+{
+    if (!cur_storage || !id->misc->session_id)
+        return 0;
+
+    mixed|mapping(string:mixed) ret;
+
+    if (arrayp(key)) {
+        ret = ([]);
+        foreach(key, string k)
+            ret += ([ "key" : k, "data" : cur_storage->delete_variable(id, k, reg) ]);
+    } else
+        ret = cur_storage->delete_variable(id, key, reg);
+    
+    return ret;
+}
+
+// DELETE SESSION
+//
+//  Params:
+//
+//    id     - the request object
+//
+void delete_session(object id)
+{
+    if (!cur_storage || !id->misc->session_id)
+        return;
+
+    cur_storage->delete_session(id->misc->session_id);
+}
+
+// GET SESSIONS AREA
+//
+//  Params:
+//    id     - the request object
+//
+//  Returns:
+//    a mapping containing the current session settings
+mapping get_session_area(object id)
+{
+    if (!cur_storage || !id->misc->session_id)
+        return 0;
+
+    mapping sa = cur_storage->get_sessions_area(id);
+    if (sa && sa[id->misc->session_id])
+        return sa[id->misc->session_id];
+
+    return 0;
+}
+
+
+// module code
 //
 private int referrer_ok(object id)
 {
@@ -813,6 +947,10 @@ private int referrer_ok(object id)
     return 0;
 }
 
+//
+// Find out whether we have a session id available anywhere and/or create a
+// new session if necessary. Returns a session id string.
+//
 private string alloc_session(object id)
 {
     string    ret = "";
