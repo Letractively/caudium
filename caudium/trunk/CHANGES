@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Adding chroot support to CGI (and then FastCgi, Uniscript...).
+   (Xavier Beaudouin)
 - Removed usage of alloca in do_encode_stuff(). This give some segfault
   on FreeBSD when called from _Caudium.http_encode_url(). SF Bug #902691.
    (Xavier Beaudouin) 
