@@ -81,7 +81,7 @@ mixed retrieve(string namespace, string key) {
   PRELOCK();
   LOCK();
   if (!namespace || !key)
-    return;
+    return 0;
 
   string _hash = get_hash(sprintf("%s|%s", namespace, key));
   DB()->fetch(_hash);
