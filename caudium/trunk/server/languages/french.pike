@@ -176,7 +176,10 @@ array aliases()
 
 void create()
 {
-    Now = Calendar.now()->set_language("french");
+    // we use gregorian for compatibility with the older versions of 
+    // caudium and Roxen which used to have a static array of day
+    // names starting from Sunday.
+    Now = Calendar.Gregorian.now()->set_language("french");
     initialize_months(Now);
     initialize_days(Now);
 }

@@ -384,8 +384,10 @@ static string make_weekdays_row(object id, mapping my_args, object now, object t
     dnum = 1;
   }
 
-  if (id->misc->_calendar->sunday_pos == 1)
-    days = days[6..6] + days[0..5];
+  report_notice("days == %O\n", days);
+  
+  if (id->misc->_calendar->sunday_pos == 7)
+    days = days[1..6] + days[0..0];
     
   for(; dnum <= 7; dnum++) {
     if (my_args->nocss || dnum != id->misc->_calendar->sunday_pos)
