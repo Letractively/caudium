@@ -83,9 +83,10 @@ static void f_buf_append( INT32 args )
   struct svalue *tmp;
   int os=0, i, j=0, l, qmark = -1;
   unsigned char *in, *query;
-
+  
   if( sp[-1].type != T_STRING )
     Pike_error("Wrong type of argument to append()\n");
+  
   str = sp[-1].u.string;
   
   if( str->len >= BUF->free ) {
@@ -96,12 +97,10 @@ static void f_buf_append( INT32 args )
 
   MEMCPY( BUF->pos, str->str, str->len );
 
-  fprintf(stderr, "Append: before loop\n");
   for( ep = (BUF->pos + str->len), pp = MAX(BUF->data, BUF->pos-3); 
        pp < ep && slash_n < 2; pp++ )
     if( *pp == '\n' )       slash_n++;
     else if( *pp != '\r' )  slash_n=0;
-  fprintf(stderr, "Append: after loop\n");
   
   BUF->free -= str->len;
   BUF->pos += str->len;
@@ -134,9 +133,9 @@ static void f_buf_append( INT32 args )
     }
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
-  mapping_insert(BUF->other, SVAL(method), &sval);
+    mapping_insert(BUF->other, SVAL(method), &sval);
   free_string(sval.u.string);
-
+  
   i++; in += i; l -= i;
 
   /* find file */

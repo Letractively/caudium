@@ -1390,7 +1390,11 @@ void got_data(mixed fdid, string s)
   // is not killed prematurely.
   raw += s;
   if(!method) {
-    tmp = htp->append(s);
+	if (htp)
+    	tmp = htp->append(s);
+	else
+		return; /* or should we twist and shout?? */
+	
     switch(tmp)
     { 
      case 0:
@@ -1407,9 +1411,22 @@ void got_data(mixed fdid, string s)
       wanted_data = misc->len = (int)request_headers["content-length"];
       break;
      default:
-      // Some error so we return an error message
-      end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>Broken request</h1>");
-      return;
+	 {
+	   string err = "Broken request";
+	   
+	   switch(tmp) {
+	   	 case 400: /* bad request */
+		   err = "Bad request";
+		   break;
+		   
+		 case 413: /* Request entity too large */
+		   err = "Request Entity Too Large (trying to overflow, eh?)";
+		   break;
+	   }
+	   
+       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
+       return;
+	 }
     }
   } else if(wanted_data) {
     data += s;
@@ -1539,8 +1556,12 @@ void create(void|object f, void|object c)
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
-    htp = Caudium.ParseHTTP(misc, request_headers, QUERY(RequestBufSize));
   }
+  
+  /* htp should *always* exist */	
+  htp = Caudium.ParseHTTP(misc, request_headers, QUERY(RequestBufSize));
+  if (!htp)
+		report_error("htp is 0 in create!!\n"); /* should never happen */
 }
 
 void chain(object f, object c, string le)
