@@ -1,3 +1,8 @@
+Changes in Caudium 1.2.xx since 1.2.22
+--------------------------------------
+- Fix a error in disk_cache.pike on hash() call since it has changed a lot
+  since pike 7.0
+
 Changes in Caudium 1.2.22 since 1.2.20
 --------------------------------------
 - Fix a typo in http2.pike
