@@ -26,6 +26,7 @@ Changes in Caudium 1.0.X (RC3, not released)
   log will be closed (can be disabled). Also made the "reopen timeout"
   somewhat random to avoid the "all log files reopen at the same time"
   misfeature.
+- Print a nice error message when a suitable Pike isn't found.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------

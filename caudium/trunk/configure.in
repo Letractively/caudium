@@ -390,7 +390,26 @@ done
 if test "$PIKE" != ""; then 
   PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 else
-  echo "Failed to find a suitable pike!"
+  cat << EOF
+*********************************************************************
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.1
+*** requires Pike 7.0.268 or newer. Running Caudium with Pike 0.6
+*** is no longer supported. You can download and install one of
+*** our Pike 7.0 snapshots available from our website at:
+***
+***     http://caudium.net/download/snapshot.html
+***
+*** IMPORTANT: Do not try using Pike 7.0.78 from the Pike website 
+*** since that version is to old to work with Caudium 1.1!
+***
+*** Although Caudium 1.1 should function with Pike 7.1, we don't
+*** recommend this, since Pike 7.1 is still in development which has
+*** had several obscure bugs on and off during the Caudium
+*** development. 
+***
+*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6!
+*********************************************************************
+EOF
   exit 1;
 fi
 
