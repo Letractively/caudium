@@ -3994,6 +3994,7 @@ void create(string config)
          "$referer       -- the header 'referer' from the request, or '-'.\n"
          "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
          "$agent_unquoted -- the unquoted header 'User-Agent' from the request, or '-'.\n\n"
+         "$site_id       -- the site ID used for 2nd level virtual hosting\n"
          "$user          -- the name of the auth user used, if any\n"
          "$user_id       -- A unique user ID, if cookies are supported,\n"
          "                  by the client, otherwise '0'\n"
