@@ -249,7 +249,7 @@ class client
 					     "content-type":
 					       "text/plain;charset=iso-8859-1",
 					     "content-transfer-encoding":
-					       "8bit"])),dns_options);
+					       "8bit"])),dsn_options);
   }
 
   //! Verifies the mail address @[addr] against the mail server.
