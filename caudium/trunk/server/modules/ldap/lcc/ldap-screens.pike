@@ -57,7 +57,9 @@ private mapping(string:string) reserved_screens = ([
     "add" : "screen_add",
     "modify" : "screen_modify",
     "error" : "screen_error",
-    "mainmenu" : "screen_mainmenu"
+    "mainmenu" : "screen_mainmenu",
+    "auth" : "screen_auth",
+    "logout" : "screen_logout"
 ]);
 
 private mapping(string:string) module_screens = ([]);
@@ -99,6 +101,13 @@ void create()
 
     defvar("screen_mainmenu", "mainmenu.html", "Screens: 'MAIN MENU' template file", TYPE_STRING,
            "Name of the file that contains the 'main menu' screen template.");
+
+    defvar("screen_auth", "auth.html", "Screens: 'AUTH' template file", TYPE_STRING,
+           "Name of the file that contains the 'auth' screen template. This template "
+           "is used for the login page.");
+
+    defvar("screen_logout", "logout.html", "Screens: 'LOGOUT' template file", TYPE_STRING,
+           "Name of the file that contains the 'logout' screen template.");
 
     defvar("screen_custom", "", "Screens: custom screens", TYPE_TEXT_FIELD,
            "Definitions of the custom screens, one per line. The format is as follows: "

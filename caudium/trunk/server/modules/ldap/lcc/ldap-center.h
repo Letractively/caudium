@@ -25,9 +25,9 @@
 #define ERR_INVALID_REQUEST     0x0002
 #define ERR_PROVIDER_ABSENT     0x0003
 #define ERR_LDAP_CONNECT        0x0004
-#define ERR_NO_USERNAME         0x0005
+#define ERR_AUTH_FAILED         0x0005
 #define ERR_LDAP_BIND           0x0006
-
+#define ERR_SCREEN_ABSENT       0x0007
 
 //
 // Session storage shortcuts

@@ -77,11 +77,26 @@ mapping auth(object id, mapping user, object ldap)
 {
     mixed    error;
     
-    if (user->name == "")
-        return ([
-            "lcc_error" : ERR_NO_USERNAME,
-            "lcc_error_extra" : user->name
-        ]);
+    if (user->name == "" && (!id->variables || !id->variables->lcc_login)) {
+        object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
+        if (!sprov)
+            return ([
+                "lcc_error" : ERR_PROVIDER_ABSENT,
+                "lcc_error_extra" : "No 'screens' provider"
+            ]);
+        
+        string authscr = sprov->retrieve(id, "auth");
+        if (authscr && authscr != "")
+            return http_string_answer(authscr);
+        else
+            return ([
+                "lcc_error" : ERR_SCREEN_ABSENT,
+                "lcc_error_extra" : "No 'auth' scren found"
+            ]);
+    } else if (id->variables && id->variables->lcc_login) {
+        user->name = id->variables->lcc_login;
+        user->password = id->variables->lcc_password;
+    }
     
     switch(QUERY(ldap_scope)) {
         case "subtree":

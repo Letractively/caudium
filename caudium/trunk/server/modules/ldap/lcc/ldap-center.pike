@@ -105,7 +105,7 @@ void create()
     defvar("mountpoint", "/", "Mount point", TYPE_LOCATION,
            "This is where the module will be visible in the "
            "virtual server namespace.");
-    defvar("prov_prefix", "lcc", "Provider module name prefix", TYPE_STRING,
+    defvar("provider_prefix", "lcc", "Provider module name prefix", TYPE_STRING,
            "This string (plus an underscore) will be prepended to all the "
            "provider module names this module uses. For example, if a request "
            "is made to find a provider module named <code>add</code> the "
@@ -246,7 +246,7 @@ void start(int cnt, object conf)
             "flags" : PROVIDER_REQUEST
         ]);
         
-        menu->name = QUERY(prov_prefix) + "_" + name;
+        menu->name = QUERY(provider_prefix) + "_" + name;
         if (String.trim_whites(line[1]) != "0")
             menu->flags |= PROVIDER_REQUIRED;
 
@@ -254,14 +254,14 @@ void start(int cnt, object conf)
     }
         
     foreach(indices(providers), string idx) {
-        providers[idx]->name = sprintf("%s_%s", QUERY(prov_prefix), idx);
+        providers[idx]->name = sprintf("%s_%s", QUERY(provider_prefix), idx);
         if (providers[idx]->flags & PROVIDER_REQUIRED)
             if (!conf->get_provider(providers[idx]->name))
                 throw(({sprintf("Required provider '%s' absent!\n", providers[idx]->name),
                         backtrace()}));
     }
 
-    my_menus[0]->provider = QUERY(prov_prefix) + my_menus[0]->provider;
+    my_menus[0]->provider = QUERY(provider_prefix) + my_menus[0]->provider;
 }
 
 void stop()
@@ -294,7 +294,7 @@ private mapping init_user(object id)
     ret->authenticated = 0;
     ret->session = id->misc->session_id;
     ret->ldap = ([]);
-    ret->prefix = QUERY(prov_prefix);
+    ret->prefix = QUERY(provider_prefix);
     ret->my_world = id->conf->QUERY(MyWorldLocation);
     ret->mountpoint = QUERY(mountpoint);
     ret->lang = "en";
@@ -305,11 +305,34 @@ private mapping init_user(object id)
 //
 // Actions we handle in this module
 //
+private mixed do_logout(object id, mapping data, string f)
+{
+    object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
+    if (!sprov)
+        return ([
+            "lcc_error" : ERR_PROVIDER_ABSENT,
+            "lcc_error_extra" : "No 'screens' provider"
+        ]);
+    
+    //TODO: kill the session, the LDAP connection, everything here!
+    data->user->name = "";
+    data->user->password = "";
+    
+    string logoutscr = sprov->retrieve(id, "logout");
+    if (logoutscr && logoutscr != "")
+        return http_string_answer(logoutscr);
+    else
+        return ([
+            "lcc_error" : ERR_SCREEN_ABSENT,
+            "lcc_error_extra" : "No 'auth' scren found"
+        ]);
+}
+
 mixed handle_request(object id, mapping data, string f)
 {
     switch(f) {
         case "logout":
-            return http_redirect("http://loo.net-vision.pl/pike/");
+            return do_logout(id, data, f);
 
         case "about":
         default:
@@ -331,38 +354,12 @@ mixed find_file(string f, object id)
     if (!SVARS(id))
         return p_err->error(id, ERR_NO_SESSION_VARS);
 
-    if ((!SDATA(id) || !SUSER(id) || !SUSER(id)->authenticated))
-        if (!id->auth || !id->auth[0])
-            return http_auth_required(QUERY(auth_realm), QUERY(auth_failed));
-    
     if (!SDATA(id)) 
         SDATA(id) = ([]);
     
     if (!SUSER(id))
         SUSER(id) = init_user(id);
-
-    //
-    // Find the appropriate provider to handle the request
-    //
-    object    req_prov = 0;
     
-    if (providers[f] && (providers[f]->flags && PROVIDER_REQUEST)) {
-        req_prov = PROVIDER(providers[f]->name);
-
-        if (!req_prov)
-            return p_err->error(id, ERR_PROVIDER_ABSENT, providers[f]->name);
-    } else {
-        switch(f) {
-            case "logout":
-            case "about":
-                req_prov = this_object();
-                break;
-                
-            default:
-                return p_err->error(id, ERR_INVALID_REQUEST);
-        }
-    }
-
     mixed     error = 0;
 
     //
@@ -383,15 +380,10 @@ mixed find_file(string f, object id)
         }
     }
     
-    mapping   response = 0;
-
-    //
-    // Now, since we have the info user typed in while logging in, we can
-    // try to authenticate them using the auth module.
-    //
-    if (!SUSER(id)->authenticated) {
+    mapping response = 0;
+    
+    if ((!SDATA(id) || !SUSER(id) || !SUSER(id)->authenticated)) {
         object auth_prov = PROVIDER(providers->auth->name);
-
         if (!auth_prov)
             return p_err->error(id, ERR_PROVIDER_ABSENT, providers->auth->name);
 
@@ -425,6 +417,28 @@ mixed find_file(string f, object id)
                 continue;
             
             menu_prov->register_menus(id, menus);
+        }        
+    }
+
+    //
+    // Find the appropriate provider to handle the request
+    //
+    object    req_prov = 0;
+    
+    if (providers[f] && (providers[f]->flags && PROVIDER_REQUEST)) {
+        req_prov = PROVIDER(providers[f]->name);
+
+        if (!req_prov)
+            return p_err->error(id, ERR_PROVIDER_ABSENT, providers[f]->name);
+    } else {
+        switch(f) {
+            case "logout":
+            case "about":
+                req_prov = this_object();
+                break;
+                
+            default:
+                return p_err->error(id, ERR_INVALID_REQUEST);
         }
     }
     
