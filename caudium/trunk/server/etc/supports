@@ -125,7 +125,17 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 .*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
 
+#section portalmm {
 
+# portalmm is iMode terminal (Wap terminal but really faster than others..
+# For now I don't have any clue of what does support that. I someone have any idea 
+# on where I can get that. Write to us
+portalmm/1..*	basic,tables,font,cookies,imode
+
+# Toshiba TS21i terminal
+portalmm/1.0.*21i	ts21i
+
+# }
 
 #section netsurfer {
 # Netsurfer is a popular commercial Web browser for NEXTSTEP. for more
