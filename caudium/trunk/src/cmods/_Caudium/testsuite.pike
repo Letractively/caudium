@@ -91,7 +91,8 @@ int TEST_http_encode_cookie() {
 int TEST_http_encode_string() {
   mapping tst = ([ " ":"%20", "\t":"%09", "\n":"%0A", "\r":"%0D",
                    "%":"%25", "'":"%27", "\"":"%22", "<":"%3C",
-                   ">":"%3E", "@":"%40", "This is a test":"This%20is%20a%20test" ]);
+                   ">":"%3E", "@":"%40", "This is a test":"This%20is%20a%20test",
+		   "http://elvira.linkeo.intra/(SessionID=7dae0552e4e9ad8fa7163dedd273dae3)/mail_camastemplates/Caudium%20WWW/images/ico-messageattachment.gif": "http://elvira.linkeo.intra/(SessionID=7dae0552e4e9ad8fa7163dedd273dae3)/mail_camastemplates/Caudium%2520WWW/images/ico-messageattachment.gif" ]);
   prtest("http_encode_string");
   return mapping_test(tst, _Caudium.http_encode_string);
 }
