@@ -97,6 +97,10 @@ array|void real_port(array port, object cfg)
 
   ctx->certificates=({});
   ctx->port = port[0];
+
+  // enable use of the session cache
+  ctx->use_cache = 1;
+
   mapping options = parse_args(port[3]);
 
 #ifdef SSL3_DEBUG
