@@ -1,0 +1,3 @@
+usr/lib/caudium/lib/*/PiXSL.so
+usr/lib/caudium/modules/tags/XSLTtag.pike
+usr/lib/caudium/modules/filters/XSLTtemplate.pike
