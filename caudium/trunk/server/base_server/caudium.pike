@@ -1098,7 +1098,6 @@ int increase_id()
   if (current_user_id_file->stat()[2] != current_user_id_file_last_mod)
     restore_current_user_id_number();
   current_user_id_number++;
-  report_notice("New unique id: 0x%x\n",current_user_id_number);
   current_user_id_file->seek(0);
   current_user_id_file->write((string)current_user_id_number);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
