@@ -2467,7 +2467,7 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
     error("No ID passed to 'try_get_file'\n");
 
   if(!id->pragma["no-cache"] && !nocache && !id->auth)
-    if(res = cache_lookup("file:"+id->conf->name, s))
+    if(res = cache_lookup("file:"+id->host, s))
       return res;
 
   if(sscanf(s, "%s?%s", s, q))
@@ -2512,7 +2512,7 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
     if(!sscanf(res, "%*s\n\n%s", res))
       sscanf(res, "%*s\n%s", res);
   }
-  cache_set("file:"+id->conf->name, s, res);
+  cache_set("file:"+id->host, s, res);
   return res;
 }
 
