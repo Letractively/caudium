@@ -1,6 +1,7 @@
 caudium (2:1.0.53-2) unstable; urgency=high
 
   * Latest CVS snapshot.
+  * lobotomized-crypto is no more.
 
  -- Marek Habersack <grendel@debian.org>  Fri,  7 Jun 2002 13:39:21 +0200
 
