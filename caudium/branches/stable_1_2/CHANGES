@@ -1,7 +1,8 @@
 Changes in Caudium 1.2.xx since 1.2.22
 --------------------------------------
 - Fix a error in disk_cache.pike on hash() call since it has changed a lot
-  since pike 7.0
+  since pike 7.0. NOTE: if you upgrade from a caudium using pike 0.6 to 
+  one using pike >= 7.0 please consider empty disk cache from proxy.pike.
 
 Changes in Caudium 1.2.22 since 1.2.20
 --------------------------------------
