@@ -1481,7 +1481,7 @@ void send_result(mapping|void result)
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(prot != "HTTP/0.9")
+	if(!file->is_dynamic && prot != "HTTP/0.9")
 	{
 	  heads["Last-Modified"] = http_date(fstat[3]);
 	  if(since)
@@ -1511,14 +1511,14 @@ void send_result(mapping|void result)
 #else
 	"Connection"	: "close",
 #endif
-	"Server":replace(version(), " ", "·"),
+	"Server":version(),
 	"Date":http_date(time) ]);    
 
       if(file->encoding)
 	heads["Content-Encoding"] = file->encoding;
     
       if(!file->error) 
-	file->error=200;
+	file->error = 200;
     
       if(file->expires)
 	heads->Expires = http_date(file->expires);

@@ -610,11 +610,13 @@ string do_parse(string to_parse, object id, object file, mapping defines,
     id->misc->_tags = copy_value(tag_callers[0]);
   if(!id->misc->_containers)
     id->misc->_containers = copy_value(container_callers[0]);
+  id->misc->parse_level ++;
   to_parse=parse_html_lines(to_parse,id->misc->_tags,id->misc->_containers,
 			    0, id, file, defines, my_fd);
   for(int i = 1; i<sizeof(tag_callers); i++)
     to_parse=parse_html_lines(to_parse,tag_callers[i], container_callers[i],
 			      i, id, file, defines, my_fd);
+  id->misc->parse_level --;
   return to_parse;
 }
 
@@ -720,10 +722,11 @@ mapping handle_file_extension( object file, string e, object id)
     catch(file->close());
     destruct(file);
   }
-//   report_debug(sprintf("%O", id->misc->defines));
+  //   report_debug(sprintf("%O", id->misc->defines));
   return (["data":to_parse,
 	   "type":"text/html",
 	   "stat":_stat,
+	   "is_dynamic": 1,
 	   "error":_error,
 	   "rettext":_rettext,
 	   "extra_heads":_extra_heads,
@@ -2665,10 +2668,8 @@ string tag_expire_time(string tag, mapping m, object id, object file,
 
   add_header(_extra_heads, "Expires", http_date(t));
   if(m->now)
-  {
-    add_header(_extra_heads, "Last-Modified", http_date(t+1));
     id->since=http_date(0);
-  }
+
   return "";
 }
 
