@@ -42,13 +42,13 @@ inherit "caudiumlib";
 //!  images or files from your server without your permission.
 //! inherits: module
 //! inherits: caudiumlib
-//! type: MODULE_FIRST
+//! type: MODULE_PRECACHE | MODULE_FIRST
 //! cvs_version: $Id$
 //! todo: Agent type deny e.g. can deny somewhat GetRight/*, Wget/* apents
 //!  to stop leaching some files.
 //! todo: Add some regexp to deny some kind of referer regexp... =)
 
-constant module_type   = MODULE_FIRST;
+constant module_type   = MODULE_PRECACHE | MODULE_FIRST;
 constant module_name   = "Referrer Deny";
 constant module_doc    = "A module which allow you to deny accesses to files "
                          "matching a certain regexp based on their referrer. "
@@ -122,27 +122,33 @@ void start()
   };
 }
 
-mixed first_try(object id)
+mapping first_try(object id)
+{
+  return id->misc->_referrer_denied_request;
+}
+
+void precache_rewrite(object id)
 {
   if(!QUERY(switch)) 			// Do we active our cool referrer deny ?
   {
-  	LOG("switched off...");		// No I don't think so ;-(
-	return 0;
+    LOG("switched off...");		// No I don't think so ;-(
+    return;
   }
   url_counts++;				// Add some statistics
   if(QUERY(allowroot))
   {
-  	LOG("allow root is on...");
-	if (sizeof(id->not_query / "/") <= 2)	// This is a file in the root directory
-	{
-		LOG(sprintf("%s is in root VFS : allowed...",id->not_query));
-		root_access++;		// Add some statistics
-		return 0;
-	}
+    LOG("allow root is on...");
+    if (sizeof(id->not_query / "/") <= 2)	// This is a file in the root directory
+    {
+      LOG(sprintf("%s is in root VFS : allowed...",id->not_query));
+      root_access++;		// Add some statistics
+      return;
+    }
   }
-  if (( (freg->match(id->not_query) && QUERY(deny)) || (!freg->match(id->not_query) && !QUERY(deny)) ) &&
-   (!areg->match(id->referer * " ") ||
-      (!sizeof(id->referer) && QUERY(noempty)))) {
+  if (( (freg->match(id->not_query) && QUERY(deny)) ||
+	(!freg->match(id->not_query) && !QUERY(deny)) ) &&
+      (!areg->match(id->referer * " ") ||
+       (!sizeof(id->referer) && QUERY(noempty)))) {
     // Tada. This sucker is asking to be denied. We won't let them down.
     // Cowabunga.
 #ifdef REFERERDEBUG
@@ -150,9 +156,12 @@ mixed first_try(object id)
 	   "  with user agent [%s]\n",
 	   id->not_query, id->referer * " ", id->client * " ");
 #endif
-//    return http_low_answer(403, QUERY(msg));
+    //    return http_low_answer(403, QUERY(msg));
     deny_counts++;			// Add some statistics
-    return http_low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id));
+    
+    NOCACHE(); // We don't want to cache negative responses
+    id->misc->_referrer_denied_request =
+      http_low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id));
   }
 }
 
