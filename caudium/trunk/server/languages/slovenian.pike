@@ -27,7 +27,7 @@
    Please consult me before modifying slovenian.pike.
 */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 string month(int num)
 {
   return ({ "Januar", "Februar", "Marec", "April", "Maj",

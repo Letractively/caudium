@@ -19,7 +19,7 @@
  *
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 // Mounts a virtual server on a location in the virtual filesystem of
 // another one (or, infact, the same one, but that is probably quite
 // useless).

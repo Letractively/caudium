@@ -32,7 +32,7 @@
 
 #include <module.h>
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 int thread_safe=1;
 
 inherit "module";

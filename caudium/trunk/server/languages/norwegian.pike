@@ -20,7 +20,7 @@
  */
 
 /*
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
   norwegian.lpc         morten@nvg.unit.no
   Støtte for norsk på www-serveren..
   name="Norwegian language plugin";

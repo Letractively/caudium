@@ -1,7 +1,7 @@
 inherit "module";
 #include <module.h>
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 //! module: Advanced Wizard
 //!  This module contains code that implements advanced wizard interface. You can

@@ -37,7 +37,7 @@
  * location module.
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #include <module.h>
 

@@ -19,7 +19,7 @@
  *
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 object           Now;
 array(string)    months;

@@ -4,7 +4,7 @@
 // Written by Bill Welliver, <hww3@riverweb.com>
 //
 //
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <process.h>
 inherit "module";

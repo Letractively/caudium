@@ -27,7 +27,7 @@
  *      on the page since Netscape caches charsets.
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 string month(int num);
 
 /* The following function is correct for -10**12 < n < 10**12 (I think...) */

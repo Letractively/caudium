@@ -27,7 +27,7 @@
 #endif
 #endif
 #ifndef IN_INSTALL
-// string cvs_version = "$Id$";
+// constant cvs_version = "$Id$";
 #endif
 
 #include <caudium.h>

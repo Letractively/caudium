@@ -22,7 +22,7 @@
 // Hedbor module. Quite 'hedbor.org' specific parsing. Kinda
 // redundant, but heck... :-)
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 inherit "module";
 #include <module.h>
 

@@ -21,7 +21,7 @@
 
 /* Example module that returns a random "deep thouht" */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #include <module.h>
 inherit "module";

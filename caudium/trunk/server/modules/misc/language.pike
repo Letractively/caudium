@@ -47,7 +47,7 @@
 #include <module.h>
 inherit "modules/directories/directories";
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 /* Is threadsafe. */
 
 #if DEBUG_LEVEL > 20

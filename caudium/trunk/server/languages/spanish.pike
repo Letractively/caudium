@@ -20,7 +20,7 @@
  */
 
 /* Bugs by: Per */
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 /*
  * name = "Spanish language plugin ";
  * doc = "Handles the conversion of numbers and dates to spanish. Translated by jordi@lleida.net. You have to restart the server for updates to take effect.";

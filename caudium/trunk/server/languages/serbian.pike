@@ -29,7 +29,7 @@
    Please consult me before upgrading serbian.pike.
 */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 string month(int num)
 {
   return ({ "Januar", "Februar", "Mart", "April", "Maj",

@@ -20,7 +20,7 @@
  */
 
 /* Created by Janne Edelman, Turku Unix Users Group ry, Turku, Finland
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
    http://www.tuug.utu.fi/~edelman/ or http://website.tuug.utu.fi/ 
    */
 /*
