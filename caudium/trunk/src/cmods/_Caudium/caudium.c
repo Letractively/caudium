@@ -456,7 +456,6 @@ static void f_buf_append( INT32 args )
 
   sval.u.string = make_shared_binary_string( (char *)pp, BUF->pos - pp);
   low_mapping_insert(BUF->other, SVAL(data), &sval, 1); /* data */
-/*   free_string(sval.u.string); */
   
   in = BUF->data;
   l = pp - BUF->data;
@@ -472,7 +471,6 @@ static void f_buf_append( INT32 args )
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
   low_mapping_insert(BUF->other, SVAL(method), &sval, 1);
-/*   free_string(sval.u.string); */
   
   i++; in += i; l -= i;
 
@@ -487,7 +485,6 @@ static void f_buf_append( INT32 args )
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
   low_mapping_insert(BUF->other, SVAL(raw_url), &sval, 1);
-/*   free_string(sval.u.string); */
 
   /* Decode file part and return pointer to query, if any */
   query = char_decode_url(in, i);
@@ -495,13 +492,11 @@ static void f_buf_append( INT32 args )
   /* Decoded, query-less file up to the first \0 */
   sval.u.string = make_shared_string((char *)in); 
   low_mapping_insert(BUF->other, SVAL(file), &sval, 1);
-/*   free_string(sval.u.string); */
   
   if(query != NULL)  {
     /* Store the query string */
     sval.u.string = make_shared_binary_string((char *)query, i - (query-in)); /* Also up to first null */
     low_mapping_insert(BUF->other, SVAL(query), &sval, 1);
-/*     free_string(sval.u.string); */
   }
   
   i++; in += i; l -= i;
@@ -518,7 +513,6 @@ static void f_buf_append( INT32 args )
     i++;
   sval.u.string = make_shared_binary_string((char *)in, i-1);
   low_mapping_insert(BUF->other, SVAL(protocol), &sval, 1);
-/*   free_string(sval.u.string); */
 
   in += i; l -= i;
   if( *in == '\n' ) (in++),(l--);
@@ -555,8 +549,6 @@ static void f_buf_append( INT32 args )
       if( in[j+1] == '\n' ) j++;
       os = j+1;
       i = j;
-/*       free_string(sval.u.string); */
-/*       free_string(skey.u.string); */
     }
   }
   push_int(1);
@@ -729,18 +721,6 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
 }
 
 
-#if 0
-/* Code to add a string to a string */
-value = begin_shared_string(count2 - data + exist->u.string->len+1);
-MEMCPY(value->str, exist->u.string->str, exist->u.string->len+1);
-MEMCPY(value->str + exist->u.string->len + 1,
-       heads + data, count2 - data + 1);
-value->str[count2 - data + 1 + exist->u.string->len] = '\0';
-value = end_shared_string(value);
-sval.u.string = value;
-mapping_insert(headermap, &skey, &sval);
-#endif
-
 static int get_next_header(unsigned char *heads, int len,
                                   struct mapping *headermap)
 {
@@ -766,11 +746,8 @@ static int get_next_header(unsigned char *heads, int len,
                                                     count2 - data);
           low_mapping_insert(headermap, &skey, &sval, 1);
           count = count2;
-/*           free_string(skey.u.string); */
-/*           free_string(sval.u.string); */
           break;
         case '\n':
-          /*printf("Returning %d read\n", count);*/
           return count+1;
     }
   }
@@ -932,13 +909,7 @@ static void f_parse_entities( INT32 args )
    /* we've gotten this far, so we were probably successful. */
 
   pop_n_elems(2);
-/*
-  printf("~ %d ~>%s<~~\n", eres->buflen, eres->buf);
-*/
   result = make_shared_binary_string(eres->buf, eres->buflen);
-/*
-  printf("~ .%d. ~>%s<~~\n", result->len, result->str);
-*/
   free(eres->buf);
   free(eres);
 
@@ -1042,8 +1013,6 @@ static void f_parse_query_string( INT32 args )
             free_string(tmp);
           }
           low_mapping_insert(variables, &skey, &sval, 1);
-/*           free_string(skey.u.string); */
-/*           free_string(sval.u.string); */
 
           /* Reset pointers */
           equal = NULL;
