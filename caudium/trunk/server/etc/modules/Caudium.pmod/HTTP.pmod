@@ -22,6 +22,8 @@
 
 //! This module will handle all HTTP related things.
 
+#include <variables.h>  // For mapping errors.
+
 //!  Return the specified date (as returned by time()) formated in the 
 //!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
 //! @param t
@@ -486,7 +488,7 @@ string caudium_id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
 		 Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/",
-		 caudium->increase_id());
+		 caudiump()->increase_id());
 }
 
 //!   Prepend the URL with the prestate specified. The URL is a path
@@ -608,7 +610,7 @@ mapping auth_required(string realm, string|void message, void|int dohtml)
 //!   An option message which defaults to a simple "Authentication failed.".
 //! @returns
 //!   The HTTP response mapping.
-mapping Caudium.HTTP.proxy_auth_required(string realm, void|string message)
+mapping proxy_auth_required(string realm, void|string message)
 {
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Proxy auth required (%s)\n",realm);
