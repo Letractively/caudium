@@ -3126,20 +3126,20 @@ int load_module(string module_file)
     };
   } else {
     string dir;
-
-    //_master->set_inhibit_compile_errors("");
+    object e = ErrorContainer();
+    master()->set_inhibit_compile_errors(e);
 
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
 				  this_object());
     };
 
-    string errors = (string)_master->errors;
+    string errors = e->get();
 
     _master->set_inhibit_compile_errors(0);
 
     if (sizeof(errors)) {
-      report_error(sprintf("While compiling module (\"%s\"):\n%s\n",
+      report_error(sprintf("Error while compiling module (\"%s\"):\n%s\n",
 			   module_file, errors));
       return(0);
     }
@@ -3148,7 +3148,7 @@ int load_module(string module_file)
   }
 
   if (err) {
-    report_error("While enabling module (" + module_file + "):\n" +
+    report_error("Error while enabling module (" + module_file + "):\n" +
 		 describe_backtrace(err) + "\n");
     return(0);
   }

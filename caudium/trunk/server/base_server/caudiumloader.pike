@@ -505,6 +505,80 @@ static private void initiate_cache()
   add_constant("capitalize", lambda(string s){return upper_case(s[0..0])+s[1..];});
 }
 
+class _error_handler {
+  void compile_error(string a,int b,string c);
+  void compile_warning(string a,int b,string c);
+}
+array(_error_handler) compile_error_handlers = ({});
+void push_compile_error_handler( _error_handler q )
+{
+  compile_error_handlers = ({q})+compile_error_handlers;
+}
+
+void pop_compile_error_handler()
+{
+  compile_error_handlers = compile_error_handlers[1..];
+}
+
+class LowErrorContainer
+{
+  string d;
+  string errors="", warnings="";
+  string get()
+  {
+    return errors;
+  }
+  string get_warnings()
+  {
+    return warnings;
+  }
+  void got_error(string file, int line, string err, int|void is_warning)
+  {
+    if (file[..sizeof(d)-1] == d) {
+      file = file[sizeof(d)..];
+    }
+    if( is_warning)
+      warnings+= sprintf("%s:%s\t%s\n", file, line ? (string) line : "-", err);
+    else
+      errors += sprintf("%s:%s\t%s\n", file, line ? (string) line : "-", err);
+  }
+  void compile_error(string file, int line, string err)
+  {
+    got_error(file, line, "Error: " + err);
+  }
+  void compile_warning(string file, int line, string err)
+  {
+    got_error(file, line, "Warning: " + err, 1);
+  }
+  void create()
+  {
+    d = getcwd();
+    if (sizeof(d) && (d[-1] != '/') && (d[-1] != '\\'))
+      d += "/";
+  }
+}
+
+class ErrorContainer
+{
+  inherit LowErrorContainer;
+
+  void compile_error(string file, int line, string err)
+  {
+    if( sizeof(compile_error_handlers) )
+      compile_error_handlers->compile_error( file,line, err );
+    else
+      ::compile_error(file,line,err);
+  }
+  void compile_warning(string file, int line, string err)
+  {
+    if( sizeof(compile_error_handlers) )
+      compile_error_handlers->compile_warning( file,line, err );
+    else
+      ::compile_warning(file,line,err);
+  }
+}
+
+
 // privs.pike placeholder during bootstrap.
 class myprivs
 {
@@ -578,6 +652,7 @@ void trace_destruct(mixed x)
 // Set up efuns and load Caudium.
 void load_caudium()
 {
+  add_constant("ErrorContainer", ErrorContainer);
   add_constant("cd", restricted_cd());
 #ifdef TRACE_DESTRUCT
   add_constant("destruct", trace_destruct);

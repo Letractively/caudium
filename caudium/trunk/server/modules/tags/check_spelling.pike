@@ -91,7 +91,6 @@ void start(int arg)
   if(arg) return;
 
   string l,*r,wrong,right;
-  int e;
 
   l=Stdio.read_bytes(FILE);
   r=lower_case(l)/"\n";

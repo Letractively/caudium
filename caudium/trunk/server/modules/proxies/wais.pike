@@ -1257,8 +1257,6 @@ mapping readSearchResponseInfo(string buf)
 			 "originCity" : originCity ]) });
       break;
     case DT_DocumentShortHeaderGroup:
-      string docID,buf1;
-      int versionNumber,score,bestMatch,docLength,lines;
   
 #ifdef WAIS_DEBUG
       perror("WAIS: got DT_DocumentShortHeaderGroup\n");
@@ -1360,9 +1358,8 @@ mapping readSearchResponseInfo(string buf)
 
       break;
     case DT_DocumentLongHeaderGroup:
-      int versionNumber,score,bestMatch,docLength,lines;
-      string docID,types,source,date,headline,originCity,stockCodes,
-      companyCodes,industryCodes,buf1;
+     string companyCodes,industryCodes;
+     string stockCodes, documentText;
 
       /* readWAISDocumentHeader */
 
@@ -1566,9 +1563,6 @@ mapping readSearchResponseInfo(string buf)
 			  "industryCodes" : industryCodes ]) });      
       break;
     case DT_DocumentTextGroup:
-      int versionNumber;
-      string docID, documentText, buf1;
-
       /* readUserInfoHeader */
 
       buf = skipCompressedInteger(buf);
@@ -1627,9 +1621,6 @@ mapping readSearchResponseInfo(string buf)
 		   "documentText" : documentText ]) });
       break;
     case DT_DocumentHeadlineGroup:
-      int versionNumber;
-      string docID,source,date,headline,originCity,buf1;
-
       /* readWAISDocumentHeader */
 
 #ifdef WAIS_DEBUG
@@ -1726,9 +1717,6 @@ mapping readSearchResponseInfo(string buf)
 			"originCity" : originCity ]) });      
       break;
     case DT_DocumentCodeGroup:
-      int versionNumber;
-      string docID,stockCodes,companyCodes,industryCodes,buf1;
-
       /* readWAISDocumentHeader */
 
 #ifdef WAIS_DEBUG

@@ -3030,11 +3030,6 @@ void initiate_configuration_port( int|void first )
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
 
-void catch_err(string file, int line, string err)
-{
-  _master->errors += sprintf("%s:%s: %s\n",
-			     (file/"/")[-1], line ? (string )line : "-", err);
-}
 void scan_module_dir(string d)
 {
   if(sscanf(d, "%*s.pmod")!=0) return;
@@ -3054,7 +3049,8 @@ void scan_module_dir(string d)
   MD_PERROR(("There are "+language("en","number")(sizeof(q))+" files.\n"));
   foreach( q, file )
   {
-    _master->set_inhibit_compile_errors(catch_err);
+    object e = ErrorContainer();
+    master()->set_inhibit_compile_errors(e);
     if ( file[0]!='.' && !backup_extension(file) && (file[-1]!='z'))
     {
       array stat = file_stat(path+file);
@@ -3143,6 +3139,7 @@ void scan_module_dir(string d)
 	  } else {
 	    // Load failed.
 	    module_stat_cache[path+file]=0;
+#if 0
 	    _master->errors += "\n";
 	    if (arrayp(err)) {
 	      _master->errors += path + file + ": " +
@@ -3150,16 +3147,18 @@ void scan_module_dir(string d)
 	    } else {
 	      _master->errors += path + file + ": " + err;
 	    }
+#endif
 	  }
 	}
 	MD_PERROR(("\n"));
       }
     }
-    if(strlen(_master->errors)) {
+    master()->clear_compilation_failures();
+    if(strlen(e->get())) {
       report_debug("Compilation errors found while scanning modules in "+
-		    d+":\n"+ _master->errors+"\n");
+		   d+":\n"+ e->get()+"\n");
     }
-    _master->set_inhibit_compile_errors(0);
+    master()->set_inhibit_compile_errors(0);
   }
 }
 

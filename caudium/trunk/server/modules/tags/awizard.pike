@@ -126,28 +126,29 @@ string ce = "";
 string container_awizard_pike(string t, mapping m, string c, int line, int i,
 			    object id)
 {
-  array e;
+  array err;
   string res;
-
+  object e = ErrorContainer();
   string code = 
     ("#define error(x) return \"<error>\"+x+\"</error>\";\n"
      "string parse(object id, mapping args) { "+c+"; }");
-  master()->set_inhibit_compile_errors("");
-  e = catch {
+  master()->set_inhibit_compile_errors(e);
+  err = catch {
     res=compile_string(code)()->parse(id, m);
   };
-  if(strlen(_master->errors)) 
+  if(strlen(e->get())) 
   {
     string res="";
     int line = 1;
     foreach(code/"\n", string s)
       res += sprintf("%3d: %s\n", line++, s);
     code = res;
-    return "<preparse tag=error><b><font color=darkred><doc magic pre>"+_master->errors+"</doc><doc magic pre>"+code+"</doc></font></b><p></preparse>";
+    return "<preparse tag=error><b><font color=darkred><doc magic pre>"+
+      e->get()+"</doc><doc magic pre>"+code+"</doc></font></b><p></preparse>";
   }
-  _master->set_inhibit_compile_errors(0);
-
-  if(e)throw(e);
+  master()->set_inhibit_compile_errors(0);
+  master()->clear_compilation_failures();
+  if(e) throw(e);
   return res||"";
 }
 

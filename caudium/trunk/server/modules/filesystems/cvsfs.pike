@@ -152,7 +152,7 @@ string lookup_cvs_module(string prog, string root, string module)
   if (!strlen(mods))
     return 0;
   // werror("cvsmodules: " + mods + "\n");
-  string mods = handle_cvs_comments_etc(mods);
+  mods = handle_cvs_comments_etc(mods);
   // werror("cvsmodules: " + mods + "\n");
   
   array mod = parse_modules_file(mods)[module];
