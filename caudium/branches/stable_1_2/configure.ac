@@ -15,6 +15,7 @@ REQ_PIKE_BUILD=268
 REQ_PIKE_VER="$REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD"
 REQ_PIKE_VERNUM="$REQ_PIKE_MAJOR$REQ_PIKE_MINOR$REQ_PIKE_BUILD"
 
+AC_PROG_CPP
 AC_SET_MAKE
 
 AC_PROG_INSTALL
@@ -329,6 +330,8 @@ if test "$prefix" != "NONE"; then
 fi
 FOUND_PIKE=0
 PIKE_INCLUDE_DIRS=""
+OLD_DIR=`pwd`
+
 for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74 /opt/bin/pike /opt/local/bin/pike /opt/local/bin/pike74; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
@@ -355,7 +358,6 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     PIKE_INCDIR="`dirname $PIKE`/.."
     for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/include/`basename $PIKE` $PIKE_INCDIR/include/pike/${THIS_PIKE_VER} \
                   $PIKE_INCDIR/include/pike$THIS_PIKE_VER $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} $PIKE_INCDIR/include/pike; do
-      OLD_DIR=`pwd`
       cd $INCDIR &> /dev/null
       if test $? -ne 0; then
         continue
@@ -374,7 +376,6 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
         FOUND_PIKE=1
         PIKE_VERSION=$THIS_PIKE_VER
         PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
-        cd $OLD_DIR
         break
       else
         echo
@@ -385,6 +386,8 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     break
   fi
 done
+
+cd $OLD_DIR
 
 if test x"$FOUND_PIKE" = "x1"; then 
   AC_MSG_RESULT([found Pike $PIKE_VERSION ($PIKE) with C headers in $PIKE_INCLUDE_DIRS])
