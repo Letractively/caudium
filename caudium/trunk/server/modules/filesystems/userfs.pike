@@ -789,7 +789,7 @@ array(int) stat_file(string f, object id)
   {
     mapping us;
     array st;
-    if(id->config->auth_module)
+    if(id->conf->auth_module)
       us = id->conf->auth_module->user_info( u );
     if(query("homedir"))
     {
