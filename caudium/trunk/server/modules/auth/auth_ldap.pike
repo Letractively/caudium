@@ -705,25 +705,10 @@ int authenticate (string user, string password)
 //!  type: TYPE_STRING
 //!  name: LDAP server: Search Base name
 //
-//! defvar: CI_search_templ
-//! Template used by LDAP search operation as filter.<b>%u%</b> : Will be replaced by entered username.
-//!  type: TYPE_STRING
-//!  name: Defaults: Search template
-//
 //! defvar: CI_level
 //! Scope used by LDAP search operation.
 //!  type: TYPE_STRING_LIST
-//!  name: LDAP query depth
-//
-//! defvar: CI_required_attr
-//! Which attribute must be present to successfully authenticate user (optional). <br />For example: memberOf
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: LDAP server: Required attribute
-//
-//! defvar: CI_required_value
-//! Which value must be in required attribute (optional)<br />For example: cn=KISS-PEOPLE
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: LDAP server: Required value
+//!  name: LDAP server: LDAP query depth
 //
 //! defvar: CI_dir_username
 //! This Distinguished Name (DN) will be used to authenticate when connecting to the LDAP server to perform non-authentication related searches. Refer to your LDAP server documentation, this could be irrelevant. (optional)
@@ -735,58 +720,148 @@ int authenticate (string user, string password)
 //!  type: TYPE_STRING|VAR_MORE
 //!  name: LDAP server: Directory user's password
 //
-//! defvar: CI_default_uid
-//! Some modules require an user ID to work correctly. This is the user ID which will be returned to such requests if the information is not supplied by the directory search.
-//!  type: TYPE_INT
-//!  name: Defaults: User ID
+//! defvar: CI_uidsearch_templ
+//! Template used by LDAP search operation as filter for searching for users by their numeric userid<b>%U%</b> : Will be replaced by entered numeric userid.
+//!  type: TYPE_STRING
+//!  name: Search: User ID search template
 //
-//! defvar: CI_default_attrname_uid
+//! defvar: CI_gidsearch_templ
+//! Template used by LDAP search operation as filter for searching for groups by their numeric groupid<b>%G%</b> : Will be replaced by entered numeric groupid.
+//!  type: TYPE_STRING
+//!  name: Search: Group ID search template
+//
+//! defvar: CI_search_templ
+//! Template used by LDAP search operation as filter for searching for users<b>%u%</b> : Will be replaced by entered username.
+//!  type: TYPE_STRING
+//!  name: Search: User Search template
+//
+//! defvar: CI_groupsearch_templ
+//! Template used by LDAP search operation as filter for searching for groups<b>%g%</b> : Will be replaced by entered groupname.
+//!  type: TYPE_STRING
+//!  name: Search: Group Search template
+//
+//! defvar: CI_userforgroup_search_templ
+//! Search template used as filter when searching for user members of groups.<b>%g%</b> : Will be replaced by entered groupname.<b>%d%</b> : Will be replaced by group's full dn.
+//!  type: TYPE_STRING
+//!  name: Search: Users in groups Search template
+//
+//! defvar: CI_groupforuser_search_templ
+//! Template used by LDAP search operation as filter.<b>%u%</b> : Will be replaced by entered username.<b>%d%</b> : Will be replaced by user's full dn.
+//!  type: TYPE_STRING
+//!  name: Search: Groups for user Search template
+//
+//! defvar: CI_userlist_search_templ
+//! Template used by LDAP userlist search operation
+//!  type: TYPE_STRING
+//!  name: Search: Userlist search query
+//
+//! defvar: CI_grouplist_search_templ
+//! Template used by LDAP grouplist search operation
+//!  type: TYPE_STRING
+//!  name: Search: Grouplist search query
+//
+//! defvar: CI_attr_userforgroup
+//! Attribute in group object containing a user's name
+//!  type: TYPE_STRING
+//!  name: User Attributes: Username in group entry
+//
+//! defvar: CI_attr_group_extra
+//! Comma separated list of extra attributes to return.
+//!  type: TYPE_MULTIPLE_STRING
+//!  name: Group Attributes: Extra Attributes
+//
+//! defvar: CI_attr_group_groupname
+//! Attribute in group object containing a group's name
+//!  type: TYPE_STRING
+//!  name: Group Attributes: Groupname
+//
+//! defvar: CI_attr_group_fullname
+//! Attribute in group object containing a group's description
+//!  type: TYPE_STRING
+//!  name: Group Attributes: Long Description
+//
+//! defvar: CI_attr_group_gid
+//! Attribute in group object containing a group's numerid ID
+//!  type: TYPE_STRING
+//!  name: Group Attributes: Group ID
+//
+//! defvar: CI_attr_user_extra
+//! Comma separated list of extra attributes to return.
+//!  type: TYPE_MULTIPLE_STRING
+//!  name: User Attributes: Extra Attributes
+//
+//! defvar: CI_attr_user_uid
 //! The attribute containing the user's numeric ID.
 //!  type: TYPE_STRING
-//!  name: Attributes: User ID
+//!  name: User Attributes: User ID
 //
-//! defvar: CI_default_gid
-//! Default GID to be supplied when directory entry does not provide one.
-//!  type: TYPE_INT
-//!  name: Defaults: Group ID
-//
-//! defvar: CI_default_attrname_gid
+//! defvar: CI_attr_user_gid
 //! The attribute containing the user's primary GID.
 //!  type: TYPE_STRING
-//!  name: Attributes: Group ID
+//!  name: User Attributes: Group ID
 //
-//! defvar: CI_default_gecos
-//! The default Full NAme (Gecos).
+//! defvar: CI_attr_user_username
+//! The attribute containing the user name in user object.
 //!  type: TYPE_STRING
-//!  name: Defaults: Gecos
+//!  name: User Attributes: User
 //
-//! defvar: CI_default_attrname_gecos
-//! The attribute containing the user Full Name.
-//!  type: TYPE_STRING
-//!  name: Attribute: Full Name
-//
-//! defvar: CI_default_home
-//! It is possible to specify an user's home directory. This is used if it's not provided.
-//!  type: TYPE_DIR
-//!  name: Defaults: Home Directory
-//
-//! defvar: CI_default_attrname_homedir
+//! defvar: CI_attr_user_homedir
 //! The attribute containing the user Home Directory.
 //!  type: TYPE_STRING
-//!  name: Attributes: Home Directory
+//!  name: User Attributes: Home Directory
 //
-//! defvar: CI_default_shell
-//! The shell name for entries without a shell.
-//!  type: TYPE_STRING
-//!  name: Defaults: Shell
-//
-//! defvar: CI_default_attrname_shell
+//! defvar: CI_attr_user_shell
 //! The attribute containing the user Login Shell.
 //!  type: TYPE_STRING
-//!  name: Attributes: Login Shell
+//!  name: User Attributes: Login Shell
 //
-//! defvar: CI_default_addname
+//! defvar: CI_attr_user_email
+//! The attribute containing the user E-Mail Address.
+//!  type: TYPE_STRING
+//!  name: User Attributes: E-Mail Address
+//
+//! defvar: CI_attr_user_fullname
+//! The attribute containing the user Full Name.
+//!  type: TYPE_STRING
+//!  name: User Attributes: Full Name
+//
+//! defvar: CI_default_group_gid
+//! Some modules require an group ID to work correctly. This is the group ID which will be returned to such requests if the information is not supplied by the directory search.
+//!  type: TYPE_INT
+//!  name: Group Defaults: Group ID
+//
+//! defvar: CI_default_group_fullname
+//! The default Full Name (Gecos).
+//!  type: TYPE_STRING
+//!  name: Group Defaults: Full Name
+//
+//! defvar: CI_default_user_uid
+//! Some modules require an user ID to work correctly. This is the user ID which will be returned to such requests if the information is not supplied by the directory search.
+//!  type: TYPE_INT
+//!  name: User Defaults: User ID
+//
+//! defvar: CI_default_user_gid
+//! Default GID to be supplied when directory entry does not provide one.
+//!  type: TYPE_INT
+//!  name: User Defaults: Group ID
+//
+//! defvar: CI_default_user_fullname
+//! The default Full Name (Gecos).
+//!  type: TYPE_STRING
+//!  name: User Defaults: Full Name
+//
+//! defvar: CI_default_user_homedir
+//! It is possible to specify an user's home directory. This is used if it's not provided.
+//!  type: TYPE_DIR
+//!  name: User Defaults: Home Directory
+//
+//! defvar: CI_default_user_shell
+//! The shell name for entries without a shell.
+//!  type: TYPE_STRING
+//!  name: User Defaults: Shell
+//
+//! defvar: CI_default_user_addname
 //! Setting this will add username to path to default directory, when the home directory is not provided.
 //!  type: TYPE_FLAG
-//!  name: Defaults: Username add
+//!  name: User Defaults: Add username to Home
 //

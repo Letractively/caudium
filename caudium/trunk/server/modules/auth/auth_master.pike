@@ -571,6 +571,11 @@ private int set_group_info(string groupname, mapping data)
 //!  type: TYPE_INT
 //!  name: Cache Timeout
 //
+//! defvar: allowemptypass
+//! Should empty passwords be allowed? If set to no, attempts to authenticate with an empty password will be denied.
+//!  type: TYPE_FLAG
+//!  name: Allow Empty Passwords?
+//
 //! defvar: listcachetimeout
 //! Number of seconds a full user or group list should be kept.
 //!  type: TYPE_INT
