@@ -707,10 +707,9 @@ void end(string|void s, int|void keepit)
      && my_fd)
   {
     // Now.. Transfer control to a new http-object. Reset all variables etc..
-    object o = object_program(this_object())();
+    object o = object_program(this_object())(my_fd, conf);
     o->remoteaddr = remoteaddr;
     o->supports = supports;
-    o->host = host;
 #ifdef EXTRA_ROXEN_COMPAT
     o->client = client;
 #endif
@@ -898,6 +897,14 @@ array get_error(string eid)
   return 0;
 }
 
+
+// This macro ensures that something gets reported even when the very
+// call to internal_error() fails. That happens eg when this_object()
+// has been destructed.
+#define INTERNAL_ERROR(err)							\
+  if (mixed __eRr = catch (internal_error (err)))				\
+    report_error("Internal server error: " + describe_backtrace(err) +		\
+		 "internal_error() also failed: " + describe_backtrace(__eRr))
 
 void internal_error(array err)
 {
@@ -1217,7 +1224,6 @@ void send_result(mapping|void result)
   int tmp;
   mapping heads;
   string head_string;
-  object thiso = this_object();
 
   if (result) {
     file = result;
@@ -1232,12 +1238,12 @@ void send_result(mapping|void result)
     else if(err = catch {
       file=http_low_answer(404,
 			   replace(parse_rxml(conf->query("ZNoSuchFile"),
-					      thiso),
+					      this_object()),
 				   ({"$File", "$Me"}), 
 				   ({html_encode_string(not_query),
 				     conf->query("MyWorldLocation")})));
     }) {
-      internal_error(err);
+      INTERNAL_ERROR(err);
     }
   } else {
     if((file->file == -1) || file->leave_me) 
@@ -1445,7 +1451,6 @@ void handle_request( )
 {
   mixed err;
   function funp;
-  object thiso=this_object();
 
 #ifdef MAGIC_ERROR
   if(prestate->old_error)
@@ -1487,44 +1492,15 @@ void handle_request( )
 
   remove_call_out(do_timeout);
   MARK_FD("HTTP handling request");
-  if(!file && conf)
-  {
-//  perror("Handle request, got conf.\n");
-    object oc = conf;
-    foreach(conf->first_modules(), funp) 
-    {
-      mapping m;
-      if(m = funp( thiso)) {
-	if (mappingp(m)) {
-	  file = m;
-	}
-	break;
-      }
-      if(conf != oc) {
-	handle_request();
-	return;
-      }
-    }    
-    if(!file) err = catch(file = conf->get_file(thiso));
-
-    if(err) internal_error(err);
-
-    if(!mappingp(file)) {
-      mixed ret;
-      foreach(conf->last_modules(), funp) if(ret = funp(thiso)) break;
-      if (ret == 1) {
-	// Recurse.
-	handle_request();
-	return;
-      }
-      file = ret;
+  if(!file) {
+    if(conf) {
+      if(err= catch(file = conf->handle_request( this_object() )))
+	INTERNAL_ERROR( err );  
+    } else if((err=catch(file = caudium->configuration_parse( this_object() )))) {
+      if(err == -1) return;
+      INTERNAL_ERROR(err);
     }
-  } else if(!file &&
-	    (err=catch(file = caudium->configuration_parse( thiso )))) {
-    if(err == -1) return;
-    internal_error(err);
-  }
-
+  }  
   send_result();
 }
 

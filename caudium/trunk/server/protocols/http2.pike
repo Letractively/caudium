@@ -364,6 +364,8 @@ private int do_post_processing()
      case "pragma":
       pragma = aggregate_multiset(@replace(request_headers[linename],
 					   " ", "")/ ",");
+      if(pragma["no-cache"])
+	misc->cacheable = 0;
       break;
       
      case "user-agent":
@@ -574,10 +576,9 @@ void end(string|void s, int|void keepit)
      && my_fd)
   {
     // Now.. Transfer control to a new http-object. Reset all variables etc..
-    object o = object_program(this_object())();
+    object o = object_program(this_object())(0,0);
     o->remoteaddr = remoteaddr;
     o->supports = supports;
-    o->host = host;
 #ifdef EXTRA_ROXEN_COMPAT
     o->client = client;
 #endif
@@ -589,7 +590,8 @@ void end(string|void s, int|void keepit)
     o->chain(fd,conf,leftovers);
     disconnect();
     return;
-  }
+  } 
+
 #endif
 
   if(objectp(my_fd))
@@ -1170,7 +1172,8 @@ void send_result(mapping|void result)
       "Content-Type":file["type"],
       "Accept-Ranges": "bytes",
 #ifdef KEEP_ALIVE
-      "Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
+      "Connection": (request_headers->connection == "close" ?
+		     "close": "keep-alive"),
 #else
       "Connection"	: "close",
 #endif
@@ -1355,9 +1358,15 @@ void handle_request( )
   remove_call_out(do_timeout);
   MARK_FD("HTTP handling request");
   TIMER("handle_request");
-  array e;
-  if(e= catch(file = conf->handle_request( this_object() )))
-    INTERNAL_ERROR( e );  
+  if(!file) {
+    if(conf) {
+      if(err= catch(file = conf->handle_request( this_object() )))
+	INTERNAL_ERROR( err );  
+    } else if((err=catch(file = caudium->configuration_parse( this_object() )))) {
+      if(err == -1) return;
+      INTERNAL_ERROR(err);
+    }
+  }  
   send_result();
 }
 
@@ -1422,6 +1431,10 @@ void got_data(mixed fdid, string s)
     conf->requests++;
   }
 
+  my_fd->set_close_callback(0); 
+  my_fd->set_read_callback(0); 
+  processed=1;
+
 #ifdef RAM_CACHE
   array cv;
   if( misc->cacheable && conf && (cv = conf->datacache->get( raw_url )) )
@@ -1443,9 +1456,6 @@ void got_data(mixed fdid, string s)
   }
 #endif
 
-  my_fd->set_close_callback(0); 
-  my_fd->set_read_callback(0); 
-  processed=1;
   TIMER("pre_handle");
 #ifdef THREADS
   handle(handle_request);

@@ -2800,19 +2800,6 @@ private void define_global_variables( int argc, array (string) argv )
 }
 
 
-
-// To avoid stack error :-) This is really a bug in Pike, that is
-// probably fixed by now, but since I needed a catch() as well, I
-// never did come around to removing the hack.
-
-void do_dest(object|void o)
-{
-  catch {
-    destruct(o);
-  };
-}
-
-
 // Get the current domain. This is not as easy as one could think.
 
 #ifdef __NT__
@@ -3335,12 +3322,7 @@ void exit_when_done()
   // First kill off all listening sockets.. 
   foreach(indices(portno)||({}), o)
   {
-#ifdef THREADS
-    object fd = Stdio.File();
-    fd->connect( portno[o][2]!="Any"?portno[o][2]:"127.0.0.1", portno[o][0] );
-    destruct(fd);
-#endif
-    do_dest(o);
+    catch { destruct(o); };
   }
   
   // Then wait for all sockets, but maximum 10 minutes.. 
