@@ -261,8 +261,8 @@ string tag_accessed(string tag, mapping m, object id)
     if (objectp(rxmltags_module))
     {
      if(m->database)
-      return rxmltags_module->api_tagtime(counter->creation_date(), m, id, language); // From rxmltags
-     return rxmltags_module->api_tagtime(counter->creation_date(m->file), m, id, language);
+      return rxmltags_module->api_tagtime(id, counter->creation_date(), m, language); // From rxmltags
+     return rxmltags_module->api_tagtime(id, counter->creation_date(m->file), m, language);
     }
     return "<!-- No RXML Tag module ? -->";
   }
