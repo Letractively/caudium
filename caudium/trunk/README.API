@@ -1,0 +1,54 @@
+API Changes inside Caudium 1.4
+------------------------------
+
+There are several API that have changed between Caudium 1.2 and 1.4.
+Some of them are comming from the Caudium Group developpers, because of
+optimizations or some other reasons.
+There is also some code that are now inside Pike so we have here a list
+of what have been changed.
+
+Pike API changes
+----------------
+
+Caudium 1.4 need Pike 7.6. This implies lots of change inside the low
+level language that is used both inside piketag code and modules code.
+
+We have tryed to provide some important calls inside compatlib.pike, but
+all of them cannot be "emulated" so, check your code if you are making some
+<pike></> or modules.
+
+Summary of changes from Pike 7.2 to 7.6 are located here 
+http://pike.ida.liu.se/download/notes/
+
+Please have a look to theses releases notes because some of your code can 
+break if you rely on some of theses changes.
+
+But there is come old pike emulation code that is handled if you use 
+caudiumlib. The caudiumlib, is in fact now made of two libs : compatlib and
+caudiumlib14.
+
+The compatlib write a warning in the debug log everytime it finds a "old API"
+code that should be replaced to a newone. 
+
+WARNING: compatlib can SLOW your caudium webserver if you don't fix the
+         code / module to new API.
+         You can remove the warning messages from debug log by adding
+         SILENT_COMPAT to 1 inside etc/include/performance.h, but this
+         NOT recommanded, since this compat lib API calls can be removed
+         in future releases of Caudium.
+
+
+new()		is now handled by	(program) cast
+clone()		is now handled by	(program) cast
+getpwent()	is now handled by	System.getpwent()
+endpwent()	is now handled by	System.endpwent()
+setpwent()	is now handled by	System.setpwent()
+rusage()	is now handled by	System.getrusage()
+
+
+Caudium API changes
+-------------------
+
+TODO
+
+$Id$
