@@ -70,61 +70,27 @@ void create(object c) {
   defvar("restrict", 1, "Restrict reset", TYPE_FLAG, "Restrict the attribute reset "
 	 "so that the resetted file is in the same directory or below.");
 
-  defvar("backend", "File database", "Database backend", TYPE_MULTIPLE_STRING,
-	 "Select a accessed database backend",
-         ({ "File database", "SQL database", "Memory database" }) );
-
-  //------ File database settings
-
-  defvar("Accesslog",GLOBVAR(logdirprefix)+short_name(c?c->name:".")+"/Accessed",
-	 "Access database file", TYPE_FILE|VAR_MORE,
-	 "This file will be used to keep the database of file accesses.",
-	 0, lambda(){ return query("backend")!="File database"; } );
-
-  defvar("close_db", 1, "Close inactive database",
-	 TYPE_FLAG|VAR_MORE,
-	 "If set, the accessed database will be closed if it is not used for "
-	 "8 seconds. This saves resourses on servers with many sites.",
-	 0, lambda(){ return query("backend")!="File database"; } );
-
-  //------ SQL database settings
-
   defvar("sqldb", "mysql://localhost", "SQL Database", TYPE_STRING, 
-	 "What database to use for the database backend.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
+	 "What database to use for the database backend." );
 
   defvar("table", "accessed", "SQL Table", TYPE_STRING,
-	 "Which table should be used for the database backend.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
+	 "Which table should be used for the database backend." );
 
   defvar("serverinpath",1,"Add server Id in SQL table", TYPE_FLAG|VAR_MORE,
          "Add the server Id in the SQL table. <b>Note</b>: you will lose "
-	 "Roxen 2.x compatibility if this enabled.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
+	 "Roxen 2.x compatibility if this enabled.");
+
   defvar("serverid",c->query("MyWorldLocation"),"Id to add in SQL table",
          TYPE_STRING|VAR_MORE,"This will be added in the SQL database as "
 	 "unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> "
-	 "counter data will be reset to 0.",
-	 0, lambda() { return !query("serverinpath") ||
-	                      query("backend")!="SQL database"; } );
+	 "counter data will be reset to 0.");
 }
 
 void start(int cnt, object conf) {
   // Depends of rxmltags 
   module_dependencies(conf ,({ "rxmltags" }));
   //  query_tag_set()->prepare_context=set_entities;
-  switch(query("backend")) {
-  case "SQL database":
-    counter=SQLCounter();
-    break;
-  case "Memory database":
-    counter=MemCounter();
-    break;
-  case "File database":
-  default:
-    counter=FileCounter();
-    break;
-  }
+  counter=SQLCounter();
 }
 
 // Kiwi: Can someone do an compatible entity for this module ???
@@ -144,177 +110,6 @@ void start(int cnt, object conf) {
 //  c->set_var("accessed", Entity_page_accessed(), "page");
 //}
 
-
-// --- File access databases -------------------------
-
-class FileCounter {
-  // The old file based access database.
-
-  int cnum=0;
-  mapping fton=([]);
-
-  int size() {
-    return sizeof(fton);
-  }
-
-  Stdio.File database, names_file;
-
-  void create() {
-    if(olf != module::query("Accesslog"))
-    {
-      olf = module::query("Accesslog");
-      Stdio.mkdirhier(module::query("Accesslog"));
-      if(names_file=open(olf+".names", "wrca"))
-      {
-	cnum=0;
-	array tmp=spider.parse_accessed_database(names_file->read(0x7ffffff));
-	fton=tmp[0];
-	cnum=tmp[1];
-	names_file = 0;
-      }
-    }
-  }
-
-  static string olf; // Used to avoid reparsing of the accessed index file...
-  static mixed names_file_callout_id;
-  inline void open_names_file()
-  {
-    if(objectp(names_file)) return;
-    remove_call_out(names_file_callout_id);
-    names_file=open(module::query("Accesslog")+".names", "wrca");
-    names_file_callout_id = call_out(destruct, 1, names_file);
-  }
-
-#ifdef THREADS
-  object db_lock = Thread.Mutex();
-#endif /* THREADS */
-
-  static void close_db_file(object db)
-  {
-#ifdef THREADS
-    mixed key = db_lock->lock();
-#endif /* THREADS */
-    if (db) {
-      destruct(db);
-    }
-  }
-
-  static mixed db_file_callout_id;
-  inline mixed open_db_file()
-  {
-    mixed key;
-#ifdef THREADS
-    catch { key = db_lock->lock(); };
-#endif /* THREADS */
-    if(objectp(database)) return key;
-    if(!database)
-    {
-      if(db_file_callout_id) remove_call_out(db_file_callout_id);
-      database=open(module::query("Accesslog")+".db", "wrc");
-      if (!database) {
-	throw(({ sprintf("Failed to open \"%s.db\". "
-			 "Insufficient permissions or out of fd's?\n",
-			 module::query("Accesslog")), backtrace() }));
-      }
-      if (module::query("close_db")) {
-	db_file_callout_id = call_out(close_db_file, 9, database);
-      }
-    }
-    return key;
-  }
-
-  static int mdc;
-  int main_database_created() {
-    if(!mdc) {
-      mixed key = open_db_file();
-      database->seek(0);
-      sscanf(database->read(4), "%4c", mdc);
-    }
-    return mdc;
-  }
-
-  void database_set_created(string file, void|int t) {
-    int p=fton[file];
-    if(!p) return 0;
-    mixed key = open_db_file();
-    database->seek((p*8)+4);
-    database->write(sprintf("%4c", t||time(1)));
-  }
-
-  int creation_date(void|string file) {
-    if(!file) return main_database_created();
-    int p=fton[file];
-    if(!p) return 0;
-    mixed key = open_db_file();
-    database->seek((p*8)+4);
-    int w;
-    sscanf(database->read(4), "%4c", w);
-    if(!w) {
-      database_set_created(file, main_database_created() );
-      return 0;
-    }
-    return w;
-  }
-
-  inline int create_entry(string file) {
-    if(!cnum) {
-      database->seek(0);
-      database->write(sprintf("%4c", time(1)));
-    }
-    fton[file]=++cnum;
-    int p=cnum;
-
-    open_names_file();
-    names_file->write(file+":"+cnum+"\n");
-
-    database->seek(p*8);
-    database->write(sprintf("%4c", 0));
-    database_set_created(file);
-    return p;
-  }
-
-  void add(string file, void|int count) {
-    int p, n;
-
-    mixed key = open_db_file();
-
-    if(!(p=fton[file]))
-      p=create_entry(file);
-
-    if(database->seek(p*8) > -1) {
-      sscanf(database->read(4), "%4c", n);
-      n+=count||1;
-      database->seek(p*8);
-      database->write(sprintf("%4c", n));
-    }
-  }
-
-  int query(string file) {
-    int p,n;
-    if(!(p=fton[file])) return 0;
-
-    mixed key = open_db_file();
-    if(database->seek(p*8) > -1)
-      sscanf(database->read(4), "%4c", n);
-    return n;
-  }
-
-  void reset(string file) {
-    int p, n;
-
-    mixed key = open_db_file();
-
-    if(!(p=fton[file]))
-      p=create_entry(file);
-    else
-      database_set_created(file);
-
-    if(database->seek(p*8) > -1) {
-      database->seek(p*8);
-      database->write(sprintf("%4c", 0));
-    }
-  }
-}
 
 class SQLCounter {
   // SQL backend counter.
@@ -383,42 +178,6 @@ class SQLCounter {
     return (int)(x[0]["count(*)"])-1;
   }
 }
-
-class MemCounter {
-  //Proof-of-concept nonpersistent counter. 
-
-  mapping(string:int) db_count=([]);
-  mapping(string:int) db_time=([]);
-  int created;
-
-  void create() {
-    created=time(1);
-  }
-
-  int creation_date(void|string file) {
-    if(!file) return created;
-    return db_time[file];
-  }
-
-  void add(string file, void|int count) {
-    if(!db_time[file]) db_time[file]=time(1);
-    db_count[file]+=count||1;
-  }
-
-  int query(string file) {
-    return db_count[file];
-  }
-
-  void reset(string file) {
-    if(!db_time[file]) db_time[file]=time(1);
-    db_count[file]=0;
-  }
-
-  int size() {
-    return sizeof(db_count);
-  }
-}
-
 
 // --- Log callback ------------------------------------
 
