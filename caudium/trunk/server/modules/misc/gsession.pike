@@ -1317,7 +1317,7 @@ private string alloc_session(object id)
   //
   string digest;
     
-  digest = Caudium.Crypto.hash_sha((string)(time()) + Crypto.randomness.reasonably_random()->read(15));
+  digest = Caudium.Crypto.hash_sha((string)(time()) + Caudium.Crypto.urandom(15));
   ret = replace(MIME.encode_base64(digest), ({"+","/","="}), ({"_","|","-"}));    
     
   cur_storage->setup(id, ret);

@@ -114,6 +114,29 @@ constant cvs_version = "$Id$";
 //!  Size of the string. Note that the size is depending of hex encoding
 //!  of the internal Crypto thing.
 
+//! @decl string urandom(int len)
+//!  Random a string from /dev/(u)random it it exist or from
+//!  random string using a failback system.
+//!
+//! @returns
+//!  A random string
+//!
+//! @param len
+//!  Size of the string.
+//!
+//! @note
+//!  This is can be used directly as a replacement of 
+//!  Crypto.randomness.reasonably_random()->read(len)
+
+string urandom(int len)
+{
+#if constant(Crypto.Random.random_string)
+  return Crypto.Random.random_string(len);
+#else
+  return Crypto.randomness.reasonably_random()->read(len);
+#endif
+}
+
 #if constant(Mhash.hash_md5)
 string md5_hash_type = "Mhash";
 
@@ -204,7 +227,7 @@ string string_to_hex(string data) {
 }
 
 string rand_string(int len) {
-  return Mhash.to_hex(Crypto.randomness.reasonably_random()->read(5+len));
+  return Mhash.to_hex(urandom(5+len));
 }
 
 #else
@@ -213,6 +236,6 @@ string string_to_hex(string data) {
 }
 
 string rand_string(int len) {
-  return Crypto.string_to_hex(Crypto.randomness.reasonably_random()->read(5+len));
+  return Crypto.string_to_hex(urandom(5+len));
 }
 #endif
