@@ -20,6 +20,7 @@ CXX=gcc
 export PAGER EDITOR CC CFLAGS CXX CXXFLAGS
 PS1='\u@\h:\w\$ '
 export PS1
+TEMPDIR=/tmp
 
 # Make the Daily Package of Caudium webserver
 #
@@ -33,22 +34,61 @@ DIRTMP=/tmp/$0.$$
 # Creation dirs..
 #
 mkdirhier ${BUILDIR}
+
 #
 # Mise a jour du CVS
 #
 cd ${CVSDIR}/caudium
 cvs -z3 update -Pd > /dev/null
+
 #
-# Copie des fichiers dans un rep temporaire
+# Copy the files to a temporary repository
 #
 cd ${CVSDIR}
+
 #
 mkdir $DIRTMP
-tar cflp - caudium | (cd $DIRTMP && tar xvflp -)
+tar -c -l -p -f - caudium | (cd $DIRTMP && tar -x -v -l -p -f -)
 cd $DIRTMP
 cd caudium
 ./autogen.sh
 cd ..
-tar czflp /opt/webservers/oav/htdocs/caudium/caudium-1.00.$DATE.tar.gz caudium
+tar -c -l -p -f $TEMPDIR/caudium-1.0.0.$DATE.tar caudium
+
+#
+# Try to find the packer we have
+#
+PACKERS="bzip2 gzip compress"
+DIRS="/usr/bin /usr/local/bin"
+
+#
+# Try to find the packer we have
+#
+PACKERS="bzip2 gzip compress"
+DIRS="/usr/bin /usr/local/bin"
+
+for d in ${DIRS}; do
+    for f in ${PACKERS}; do
+	if test -x ${d}/${f}; then
+	    PACKER=${f}
+	    PACKER_DIR=${d}
+	    break
+	fi
+    done
+done
+
+if test -z "$PACKER"; then
+    echo Cannot find any compression utility. Aborting.
+    exit 1
+fi
+
+case ${PACKER} in
+    bzip2) PFLAGS=-9f ;;
+    gzip) PFLAGS=-9nf ;;
+    compress) PFLAGS= ;;
+esac
+
+${PACKER_DIR}/${PACKER} ${PFLAGS} ${TEMPDIR}/caudium-1.0.0.${DATE}.tar
+
 cd /tmp
 rm -rf $DIRTMP
