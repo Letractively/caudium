@@ -1389,7 +1389,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
   {
     if(n!="variables")
       return Array.map(replace(n, ",", " ")/ " " - ({ "" }), 
-		       lambda(string s, object id) {
+		       lambda(string s, object id, mapping m, array encodings) {
 			 mixed val;
 			 val = get_scope_var(s, 0, id);
 			 if(arrayp(val))
@@ -1398,9 +1398,9 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 			   sprintf("%s=%O\n<br>", s,
 				   do_safe_replace(val||
 						   (id->misc->debug ?
-						    "No such variable: "+n:""),
+						    "No such variable: "+s:""),
 						   m, encodings));
-		       }, id)*"\n";
+		       }, id, m, encodings)*"\n";
     return do_safe_replace(String.implode_nicely(indices(id->variables)),
 			   m, encodings);
   }

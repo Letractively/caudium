@@ -229,7 +229,10 @@ void clear_compilation_failures()
 
 void compile_error(string file,int line,string err)
 {
-  if(stringp(inhibit_compile_errors))
+  if(objectp(inhibit_compile_errors)) {
+    if(functionp(inhibit_compile_errors->compile_error))
+      inhibit_compile_errors->compile_error(file, line, err);
+  } else if(stringp(inhibit_compile_errors))
     errors += sprintf("%s:%d:%s\n",trim_file_name(file),line,err);
   else
     ::compile_error(file,line,err);
