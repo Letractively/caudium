@@ -839,7 +839,7 @@ string tag_gtext_url(string t, mapping arg, string ctn,
   if(!arg->format)
     arg->format = "gif";
   if( arg->content && lower_case(arg->content) == "html" ) 
-  	ctn = html_to_unicode(ctn);
+  	ctn = Caudium.html_to_unicode(ctn);
 
   arg->text = ctn;
 
@@ -894,7 +894,7 @@ string tag_graphicstext(string t, mapping arg, string contents,
     return "";
 
   if( arg->content && lower_case(arg->content) == "html" ) 
-  	contents = html_to_unicode(contents);
+  	contents = Caudium.html_to_unicode(contents);
 
 //Allow <accessed> and others inside <gtext>.
   if(arg->nowhitespace)

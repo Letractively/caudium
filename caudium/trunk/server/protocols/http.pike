@@ -62,8 +62,6 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-private int cache_control_ok = 0;
-
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
@@ -1358,7 +1356,7 @@ void send_result(mapping|void result)
             heads["Last-Modified"] = Caudium.HTTP.date(fmtime);
             if(since)
             {
-              if(is_modified(since, fmtime, fsize))
+              if(Caudium.is_modified(since, fmtime, fsize))
               {
                 file->error = 304;
                 file->file = 0;

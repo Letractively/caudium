@@ -521,7 +521,7 @@ void connected_to_server(object o, string file, object id, int is_remote,
   } else {
     if(id->since)
     {
-      if(is_modified(id->since, ((array(int))o->stat())[3]))
+      if(Caudium.is_modified(id->since, ((array(int))o->stat())[3]))
       {
 	id->end("HTTP/1.0 304 Not Modified\r\n\r\n");
 	destruct(new_request);

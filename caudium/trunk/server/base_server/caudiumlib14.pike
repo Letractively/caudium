@@ -26,7 +26,6 @@
 //
 //  build_env_vars
 //  decode_mode
-//  is_modified (GROSS!!)
 //  parse_rxml
 //  msectos
 //  get_size
@@ -388,109 +387,6 @@ static string decode_mode(int m)
   return s;
 }
 
-//!  Internal glob matching function.
-//! @param w
-//!  String to match.
-//! @param a
-//!  Glob patterns to match against the string.
-//! @returns
-//!  1 if a match occured, -1 if the string to match is invalid, 0 if
-//!  no match occured.
-static int _match(string w, array (string) a)
-{
-  string q;
-  if (!stringp(w)) // Internal request..
-    return -1;
-  foreach (a, q) 
-    if (stringp(q) && strlen(q) && glob(q, w)) 
-      return 1; 
-}
-
-//!  This function performs a check to see if the specified time
-//!  is newer or older than the If-Modified-Since header sent in the request.
-//!  It also checks whether the size of the file has changed since the
-//!  browser first requested it.
-//! @param a
-//!  The value of the If-Modified-Since header .
-//! @param t
-//!  The modification time of the file.
-//! @param len
-//!  Optional length of the requested resource.
-//! @returns
-//!  0 if the file is modified, 1 if it isn't.
-//! @note
-//!  It's somewhat confusing that it returns 1 for "not modified" and
-//!  0 for modified. Should be the other way around.
-//! @bugs
-//!  There have previously been bugs with this function. Is it fixed?
-static int is_modified(string a, int t, void|int len)
-{
-  mapping t1;
-  int day, year, month, hour, minute, second, length;
-  string m, extra;
-
-  // Some debug used to analyze what in given to this
-  // function and how to make it better
-  // Add define NO_TEST if you need to disable this
-  // /Kiwi
-  report_debug("is_modified called : (%O,%O,%O)\n",a,t,len);
-
-  if (!a)
-    return 1;
-  t1=gmtime(t);
-  // Expects 't' as returned from time(), not UTC.
-  if (len) {
-    sscanf(lower_case(a), "%*s, %s; %s", a, extra);
-    if (extra && sscanf(extra, "length=%d", length) && length != len)
-      return 0;
-  }
-
-  // Replace all this bloody things with:
-  // Calendar.dwim_time(a)->set_timezone("localtime")->unix_time();
-  //
-  // Nope. We'll have a date parser soon. In C. Fast.
-  // /grendel
-
-  if (search(a, "-") != -1) {
-    sscanf(a, "%d-%s-%d %d:%d:%d", day, m, year, hour, minute, second);
-    year += 1900;
-    month=Caudium.Const.MONTHS[m];
-  } else if (search(a, ",") == 3) {
-    sscanf(a, "%*s, %d %s %d %d:%d:%d", day, m, year, hour, minute, second);
-    if (year < 1900)
-      year += 1900;
-    month=Caudium.Const.MONTHS[m];
-  } else if (!(int)a) {
-    sscanf(a, "%*[^ ] %s %d %d:%d:%d %d", m, day, hour, minute, second, year);
-    month=Caudium.Const.MONTHS[m];
-  } else {
-    sscanf(a, "%d %s %d %d:%d:%d", day, m, year, hour, minute, second);
-    month=Caudium.Const.MONTHS[m];
-    if(year < 1900)
-      year += 1900;
-  }
-
-  //gross!!!!!
-  if (year < (t1["year"]+1900))
-    return 0;
-  else if (year == (t1["year"]+1900))
-    if (month < (t1["mon"]))
-      return 0;
-    else if (month == (t1["mon"]))
-      if (day < (t1["mday"]))
-        return 0;
-      else if (day == (t1["mday"]))
-        if (hour < (t1["hour"]))
-          return 0;
-        else if(hour == (t1["hour"]))
-          if (minute < (t1["min"]))
-            return 0;
-          else if (minute == (t1["min"]))
-            if (second < (t1["sec"]))
-              return 0;
-  return 1;
-}
-
 #define _error defines[" _error"]
 #define _extra_heads defines[" _extra_heads"]
 #define _rettext defines[" _rettext"]
@@ -537,24 +433,6 @@ static string parse_rxml(string what, object id,
   id->misc->defines = defines;
 
   return what;
-}
-
-//!  Converts html entity coded chars to unicode
-//! @param str
-//!  The string to convert, contains the html entities
-//! @returns
-//!  a unicode string
-string html_to_unicode( string str ) {
-  return replace((string) str, Caudium.Const.replace_entities, Caudium.Const.replace_values );
-}
-
-//!  Converts unicode string to html entity coded string
-//! @param str
-//!  The string to convert, contains unicode string
-//! @returns
-//!  html encoded string
-string unicode_to_html( string str ) {
-  return replace((string) str, Caudium.Const.replace_values, Caudium.Const.replace_entities );
 }
 
 private constant safe_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"/"";

@@ -570,7 +570,7 @@ object cache_file(string cl, string entry)
 
   if(cf->headers["expires"])
   {
-    if(!is_modified(cf->headers["expires"], time()))
+    if(!Caudium.is_modified(cf->headers["expires"], time()))
     {
 #ifdef CACHE_DEBUG
       perror("refresh(expired): " + name + "(" + entry +
@@ -584,7 +584,7 @@ object cache_file(string cl, string entry)
   else if(cf->headers["last-modified"])
   {
     if(QUERY(cache_check_last_modified) &&
-       is_modified(cf->headers["last-modified"],
+       Caudium.is_modified(cf->headers["last-modified"],
 		   stat[ST_CTIME] - time() + stat[ST_CTIME]))
     {
 #ifdef CACHE_DEBUG
@@ -735,7 +735,7 @@ void http_check_cache_file(object cachef)
   if(cachef->headers[" returncode"] == 304) {
     array fstat = file_stat(cachef->rfiledone);
     if(fstat && cachef->headers["last-modified"]) {
-      if(is_modified(cachef->headers["last-modified"], fstat[ST_CTIME])) {
+      if(Caudium.is_modified(cachef->headers["last-modified"], fstat[ST_CTIME])) {
         rmold(cachef->rfiledone);
 #ifdef CACHE_DEBUG
         perror(cachef->rfiledone+"("+cachef->headers->name+"): "+
@@ -781,7 +781,7 @@ void http_check_cache_file(object cachef)
       stat[ST_SIZE] - cachef->headers->headers_size;
 
   if(cachef->headers["expires"]&&
-     !is_modified(cachef->headers["expires"], time())) {
+     !Caudium.is_modified(cachef->headers["expires"], time())) {
 #ifdef CACHE_DEBUG
     perror(cachef->rfile + "(" + cachef->headers->name +
 	   "): already expired " + cachef->headers["expires"] + "\n");

@@ -489,11 +489,11 @@ void init_datetime(void)
 #endif
   
 #ifdef HAVE_STRPTIME
-  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tInt, tString), 0);
+  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tString tMapping, tInt), 0);
 #endif
 
 #ifdef HAVE_STRFTIME
-  ADD_FUNCTION("strftime", f_strftime, tFunc(tString tString tMapping, tInt), 0);
+  ADD_FUNCTION("strftime", f_strftime, tFunc(tString tInt, tString), 0);
 #endif
   
   ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
