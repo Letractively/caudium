@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added the handling of external mime-types definitions to contenttypes.pike
 - Added a nifty new 3rdparty module that implements menus using prestates.
 - Re-enabled permanent storage of the "program" datatype when using pike7.3
   build >= 51. Pike bug #3096 resolved.
