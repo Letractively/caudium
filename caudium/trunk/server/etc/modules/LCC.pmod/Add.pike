@@ -17,6 +17,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+//! LCC Add module
+
+//!
 constant cvs_version = "$Id$";
 
 import ".";
@@ -24,8 +27,14 @@ import ".";
 //
 // Error constants
 //
+
+//!
 int ERR_REQUIRED_MISSING = 0x0001;
+
+//!
 int ERR_DEFAULT_USED = 0x0002;
+
+//!
 int ERR_NOT_IN_POLICY = 0x0003;
 
 //
@@ -94,17 +103,13 @@ private mapping(string:mapping(string:string|int)) policy = ([
     RECOM_ATTRIBUTE("user", "User")
 ]);
 
-//
-// Return the current policy mapping - user can modify it.
-//
+//! Return the current policy mapping - user can modify it.
 mapping(string:mapping(string:string|int)) get_policy()
 {
     return policy;
 }
 
-//
-// Set the policy to the passed mapping. No verification is done.
-//
+//! Set the policy to the passed mapping. No verification is done.
 void set_policy(mapping(string:mapping(string:string|int)) npolicy)
 {
     policy = npolicy;
@@ -118,14 +123,12 @@ void set_policy(mapping(string:mapping(string:string|int)) npolicy)
 //    value     - (array of strings) values for this item
 //
 
-//
-// Verify the passed user structure. Note that by default the items that
-// aren't found in the policy mapping are ignored. You can, however, tell
-// this function to check for such items and report them as errors.
-// If an int < 0 is returned it means that policy exists but the user record
-// was empty - thus it fails the verification. 0 is returned on success.
-// The user record is not modified at this stage.
-//
+//! Verify the passed user structure. Note that by default the items that
+//! aren't found in the policy mapping are ignored. You can, however, tell
+//! this function to check for such items and report them as errors.
+//! If an int < 0 is returned it means that policy exists but the user record
+//! was empty - thus it fails the verification. 0 is returned on success.
+//! The user record is not modified at this stage.
 mapping(string:mapping(string:string|int))|int verify(mapping(string:array(string)) user, int|void strict)
 {
     mapping(string:mapping(string:string|int)) ret = ([]);
@@ -178,20 +181,18 @@ mapping(string:mapping(string:string|int))|int verify(mapping(string:array(strin
     return ret;
 }
 
-//
-// Add the record to the LDAP database. The given dn is added to the
-// database - no checks are performed whether the fields contained in the
-// record to be added are unique throughout the database (like unique mail
-// addresses, uids etc.) - the method relies upon the client having
-// checked those or upon the LDAP server checks. In case of error, the method
-// reports the LDAP error in a mapping. The 'ldap' object is assumed to be
-// connected to the server and ready for operations. Also, no validation of
-// the user record is performed - use the 'verify' function above to do
-// that prior to using this one. Non-LDAP errors are signalled by returning
-// integers < 0. On success 0 is returned.
-// Note also that this function shouldn't be used when a record with the
-// given dn exists in the LDAP - it will fail then.
-//
+//! Add the record to the LDAP database. The given dn is added to the
+//! database - no checks are performed whether the fields contained in the
+//! record to be added are unique throughout the database (like unique mail
+//! addresses, uids etc.) - the method relies upon the client having
+//! checked those or upon the LDAP server checks. In case of error, the method
+//! reports the LDAP error in a mapping. The 'ldap' object is assumed to be
+//! connected to the server and ready for operations. Also, no validation of
+//! the user record is performed - use the 'verify' function above to do
+//! that prior to using this one. Non-LDAP errors are signalled by returning
+//! integers < 0. On success 0 is returned.
+//! Note also that this function shouldn't be used when a record with the
+//! given dn exists in the LDAP - it will fail then.
 mapping|int add(object ldap, string dn, mapping(string:array(string)) user)
 {
     if (!objectp(ldap) || !dn || !sizeof(dn))
