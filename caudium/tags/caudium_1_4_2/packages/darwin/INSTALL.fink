@@ -1,0 +1,40 @@
+$Id$
+
+
+For now, the Caudium package hasn't been submitted to the fink community, so
+you'll have to download the data from the Caudium FTP.
+
+You have two options: build from source or install precompiled binaries.
+
+While building from source, you can compile Caudium against any Pike >= 7.6.7.
+If you want to compile Caudium with another Pike version, just adapt the info
+file in the *Depends fields and the hardcoded paths in SplittOff fields.
+
+While using the precompiled binaries, you have to install the exact Pike version
+used during package compilation.
+
+
+
+*******************************************************************************
+** Build from source:
+*******************************************************************************
+
+  - download the latest info and patch files for Caudium from the Caudium FTP;
+  - download the latest info file for Pike 7.6 from the Caudium FTP;
+  - put these files in "@prefix@/fink/dist/local/main/finkinfo";
+	- install Caudium with the command "sudo fink install caudium1.3"
+
+Read "man fink" as well as the Fink documentation for more information.
+
+
+
+*******************************************************************************
+** Use precompiled binary
+*******************************************************************************
+
+	- download the latest deb file for Caudium on the Caudium FTP;
+	- download the latest deb file for Pike 7.6 on the Caudium FTP;
+	- put these files in "@prefix@/fink/dist/local/main/binary-darwin-powerpc/";
+	- install Caudium with the command "sudo apt-get install caudium1.3"
+
+Read "man apt-get" as well as the Fink documentation for more information.

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+#
+# This is a HORRIBLE hack, but it's the only way to remain compatible
+# accross the various broken autoconf versions (and yes, the incompatible
+# autoconf versions are all 2.x - there's a shitload of broken stuff
+# between 2.53 and 2.59 - now go figure). Hail EPITA!
+#
+# $Id$
+#
+
+if [ -z "$1" ]; then
+TOPDIR=.
+else
+TOPDIR="$1"
+fi
+
+#
+# Relative to the topdir
+FIXPERMS="server/start-caudium server/bin/install.pike"
+
+for f in $FIXPERMS; do
+  if [ -f $TOPDIR/$f ]; then
+    echo Fixing permissions for $f
+    chmod 755 $TOPDIR/$f
+  fi
+done
+
+echo "Hail EPITA!"
