@@ -2634,6 +2634,13 @@ void start(int num, void|object conf_id, array|void args)
       port[1] = "ssl3";
       // FIXME: Should probably mark node as changed.
     }
+    if ((< "http2" >)[port[1]]) {
+      // http2 is old and unused protocol.
+      report_warning("%s: Obsolete HTTP2 protocol-module \"%s\".\n"
+                     "Converted to HTTP.\n",server_name, port[1]);
+      // Note: change in-place
+      port[1] = "http";
+    }
     string key = MKPORTKEY(port);
     if (!server_ports[key]) {
       report_notice(sprintf("%s: New port: %s\n", server_name, key));
