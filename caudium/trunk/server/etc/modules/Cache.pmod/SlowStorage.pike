@@ -82,9 +82,6 @@ void store( mapping meta ) {
     disk_usage += meta->size;
     break;
   case "variable":
-    if (meta->_program && (__VERSION__ == 7.3) && (__BUILD__ < 51 )) 
-      // ***KLUDGE** pike7.3.x where x < 51 segfaults when decoding a program.
-      break;
     if ( meta->disk_cache ) {
       if ( catch( data = _encode_value( meta->object ) ) )
         break;
