@@ -490,3 +490,22 @@ class request
 //!  type: TYPE_LOCATION|VAR_MORE
 //!  name: Location
 //
+//! defvar: transparent
+//! Set this to enable transparent proxy support. In this mode, the module will use the HTTP host header to proxy the remote website to the client. With the Virtual Host module and several virtual  servers defined, it can also be used as  a reverse proxy for multiple webservers.<br />Please also note that checking only the host header for transparent proxy has some security concerns as the proxy choose the destination based on a DNS resolution.
+//!  type: TYPE_FLAG
+//!  name: Transparent proxy
+//
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
