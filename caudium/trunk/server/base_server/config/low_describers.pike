@@ -152,7 +152,7 @@ string describe_variable_as_text(array var, int|void verbose)
     tmp=({});
     foreach(var[VAR_VALUE], m)
       tmp += ({ name_of_module( m ) });
-    return Simulate.implode_nicely(tmp);
+    return String.implode_nicely(tmp);
    case TYPE_MODULE:
     name = name_of_module( var[VAR_VALUE] );
     return replace(name, ({ "<", ">", "&" }), ({ "&lt;", "&gt;", "&amp;" }));

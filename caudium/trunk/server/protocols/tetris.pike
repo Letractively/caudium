@@ -37,7 +37,7 @@
 #define TELOPT_LINEMODE "\042"
 #define LM_MODE "\001"
 #define SE "\360"
-import Simulate;mixed a,h,Q,e=([]),q=Q=([]),c,s,I,_,j,K,x=252,m,f=map(values(
+mixed a,h,Q,e=([]),q=Q=([]),c,s,I,_,j,K,x=252,m,f=map(values(
 "H45BBI65@CJ@BMED45@GM@LBFP@NBHS@BCDA5@LBB5BNCK5BMEL5@BEC5@MEN5MNFO6@BFE45MFQ6"
 "5MHR4B@HF5MLHG5MYD"),`-,65),n=25,io,tm;int u(){foreach(sort(indices(Q)),_)_>11
 &&_<264&&Q[_]-e[_]&&io->write((_-++I||_%12<1?sprintf("\33[%d;%dH",(I=_)/12,_%12

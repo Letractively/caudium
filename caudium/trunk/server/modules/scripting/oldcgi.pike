@@ -58,8 +58,6 @@ constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/do
 constant module_unique = 0;
 constant module_obsolete = 1;
 
-import Simulate;
-
 static mapping env=([]);
 static array runuser;
 static function log_function;
@@ -485,14 +483,14 @@ static class nat_wrapper // Wrapper emulator when not using the binary wrapper.
 #ifdef CGI_WRAPPER_DEBUG
     werror("CGI wrapper: handle_headers()\n");
 #endif
-    if(((pointer = strstr(headers, "Location:"))!=-1||
-	((pointer = strstr(headers, "location:")))!=-1))
+    if(((pointer = search(headers, "Location:"))!=-1||
+	((pointer = search(headers, "location:")))!=-1))
     {
       retcode = "302 Redirection";
     }
     
-    if(((pointer = strstr(headers, "status:"))!=-1||
-	((pointer = strstr(headers, "Status:")))!=-1))
+    if(((pointer = search(headers, "status:"))!=-1||
+	((pointer = search(headers, "Status:")))!=-1))
     {
       int end;
       sscanf(headers[pointer+7..], "%s%n\n", retcode, end);
