@@ -63,13 +63,13 @@ constant module_doc  = "Adds the &lt;navbar&gt; &lt;/navbar&gt; container."
         "&nbsp;&lt;previous&gt; &lt;href action=\"prevpage\"&gt; &amp;lt &lt;/href&gt; &lt;/previous&gt;<br/>"
         "&nbsp;&lt;!-- the previous pages (numbered) --&gt;<br/>"
         "<-- You can use basehref to specify the path part of the URI -->"
-        "&nbsp;&lt;emit source=\"navbar_loop_previous\" scope=\"loop_previous\">"
-        "&gt; &lt;href basehref=\"/foobar\" action=\"gopage\"&gt; &loop_previous.number; &lt;/href&gt; &lt;/emit&gt;<br/>"
+        "&nbsp;&lt;emit source=\"navbar_loop_previous\" scope=\"loop_previous\""
+        "&gt; &lt;href countpageloop=\"&loop_previous.number;\" basehref=\"/foobar\" action=\"gopage\"&gt; &loop_previous.number; &lt;/href&gt; &lt;/emit&gt;<br/>"
         "&nbsp;&lt;!-- the current page --&gt;<br/>"
         "&nbsp;&lt;current/&gt;<br/>"
         "&nbsp;&lt;!-- the next pages (numbered) --&gt;<br/>"
         "&nbsp;&lt;emit source=\"navbar_loop_next\" scope=\"loop_next\" "
-        "&gt;&lt;href action=\"gopage\"&gt; &loop_next.number; &lt;/href&gt; &lt;/emit&gt;<br/>"
+        "&gt;&lt;href action=\"gopage\" countpageloop=\"&loop_next.number;\"&gt; &loop_next.number; &lt;/href&gt; &lt;/emit&gt;<br/>"
         "&nbsp;&lt;!-- A link to go to the next page --&gt;<br/>"
         "&nbsp;&lt;next&gt;  &lt;href action=\"nextpage\"&gt; &amp;gt &lt;/href&gt;  &lt;/next&gt;<br/>"
         "&nbsp;&lt;!-- A link to go to the current page + 10, allows navigation when you have lots of pages --&gt;<br/>"
@@ -408,6 +408,8 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
     break;
 
     case "gopage":
+      if(!args->countpageloop)
+        return "<!-- This container requires the countpageloop argument -->\n";
       vars->navbargotoblock ="1";
   }
   m_delete(args, "action");
