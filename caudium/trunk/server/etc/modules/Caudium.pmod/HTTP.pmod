@@ -118,7 +118,7 @@ string res_to_string( mapping file, object id )
     ([
       "Content-type":file["type"],
       "Server":id->version(), 
-      "Date":Caudium.HTTP.date(id->time)
+      "Date":date(id->time)
       ]);
     
   if(file->encoding)
@@ -127,7 +127,7 @@ string res_to_string( mapping file, object id )
   if(!file->error) file->error = 200;
     
   if(!zero_type(file->expires)) 
-    heads->Expires = file->expires ? Caudium.HTTP.date(file->expires) : "0";
+    heads->Expires = file->expires ? date(file->expires) : "0";
 
   if(!file->len)
   {
@@ -140,7 +140,7 @@ string res_to_string( mapping file, object id )
       if(file->file && !file->len)
 	file->len = fstat[1];
       
-      heads["Last-Modified"] = Caudium.HTTP.date(fstat[3]);
+      heads["Last-Modified"] = date(fstat[3]);
     }
     if(stringp(file->data)) 
       file->len += strlen(file->data);
@@ -467,7 +467,7 @@ string decode_url (string f)
 string config_cookie(string from)
 {
   return "CaudiumConfig="+Caudium.http_encode_cookie(from)
-    +"; expires=" + Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/";
+    +"; expires=" + date (3600*24*365*2 + time (1)) + "; path=/";
 }
 
 //!   Make a unique user id cookie. This is an internal function which is used
@@ -477,7 +477,7 @@ string config_cookie(string from)
 string id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
-		 Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/",
+		 date (3600*24*365*2 + time (1)) + "; path=/",
 		 caudiump()->increase_id());
 }
 
@@ -521,7 +521,7 @@ mapping redirect( string url, object|void id )
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Redirect -> %s\n",Caudium.http_encode_string(url));
 #endif  
-  return Caudium.HTTP.low_answer( 302, "") 
+  return low_answer( 302, "") 
     + ([ "extra_heads":([ "Location":Caudium.http_encode_string( url ) ]) ]);
 }
 
@@ -566,7 +566,7 @@ mapping auth_required(string realm, string|void message, void|int dohtml)
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth required (%s)\n",realm);
 #endif  
-  return Caudium.HTTP.low_answer(401, message)
+  return low_answer(401, message)
     + ([ "extra_heads":([ "WWW-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
@@ -588,7 +588,7 @@ mapping proxy_auth_required(string realm, void|string message)
 #endif  
   if(!message)
     message = "<h1>Proxy authentication failed.\n</h1>";
-  return Caudium.HTTP.low_answer(407, message)
+  return low_answer(407, message)
     + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
