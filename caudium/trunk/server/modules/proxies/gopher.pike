@@ -24,6 +24,11 @@
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 
+inherit "module";
+inherit "socket";
+inherit "caudiumlib";
+
+#include <module.h>
 #include <config.h>
 
 constant module_type = MODULE_LOCATION | MODULE_PROXY;
@@ -44,13 +49,8 @@ constant module_unique = 1;
 # endif
 #endif
 
-inherit "module";
-inherit "socket";
-inherit "caudiumlib";
-
 import Array;
 
-#include <module.h>
 #include <proxyauth.pike>
 
 array register_module()

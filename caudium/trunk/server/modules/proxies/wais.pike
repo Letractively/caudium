@@ -27,6 +27,11 @@
 
 string cvs_version = "$Id$";
 
+inherit "module";
+inherit "socket";
+inherit "caudiumlib";
+
+#include <module.h>
 #include <config.h>
 
 constant module_type = MODULE_LOCATION | MODULE_PROXY;
@@ -285,11 +290,6 @@ constant module_unique = 1;
 #define CompressedInt3Byte	2097152 	/* 2 ^ 21 */
 
 
-inherit "module";
-inherit "socket";
-inherit "caudiumlib";
-
-#include <module.h>
 #include <proxyauth.pike>
 
 
