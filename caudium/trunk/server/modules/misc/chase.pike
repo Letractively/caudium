@@ -19,8 +19,9 @@
  */
 
 //
-//! module: Spindle Search Engine
-//!  An interface to the Lucene based Spindle Search engine
+//! module: Chase Search Engine
+//!  Caudium Has A Search Engine, based on the Jakarta Lucene
+//!  Full Text Engine
 //! inherits: module
 //! inherits: caudiumlib
 //! inherits: http
@@ -40,15 +41,13 @@ static inherit "http";
 #if constant(Lucene.Index)
 
 constant module_type = MODULE_PARSER;
-constant module_name = "Lucene Search Engine";
-constant module_doc  = "A search engine built on the Lucene text index engine.";
+constant module_name = "Chase Search Engine";
+constant module_doc  = "Caudium Has A Search Engine, based on the"
+    "Jakarta Lucene full text engine.";
 constant module_unique = 1;
 
-//
-// usage: <lucene_search query="search query">
-//
-
 object index;
+object cache;
 
 void start()
 {
@@ -56,8 +55,11 @@ void start()
   {
     start_engines(QUERY(dir));
   }
+  if(!cache)
+     cache=caudium->cache_manager->get_cache(
+        my_configuration()->query("MyWorldLocation") 
+       + "chase"); 
 }
-
 
 string status_info="";
 
@@ -80,26 +82,86 @@ mapping query_tag_callers()
   return (["lucene_search": tag_lucene]);
 }
 
-mixed tag_lucene (string tag_name, mapping args,
+mixed tag_chaseform (string tag_name, mapping args,
                     object id, object f,
                     mapping defines, object fd)
 {
-  if(!args->query) return "<!-- no query specified -->";
+  string retval="<form action=\"" + id->not_query + "\" method=\"get\">";
   
-  string ret="";
+  retval+="<input type=text size=20 name=q value=\"" + 
+    (id->variables->q||"") +  "\">\n";
+  retval+="<input type=submit value=\"Search\">"
+  if(!args->nohelp)
+    retval+=" <a href=\"" + id->not_query + "?help=1\">QueryHelp</a>";
+  retval+="</form>";
 
-  array result=index->search(args->query);
+  return retval;
+}
+
+mixed tag_chaseresults(string tag_name, mapping args,
+                    object id, object f,
+                    mapping defines, object fd)
+{
+  if(!id->variables->q || id->variables->q=="") return "<!-- no query -->\n";
+  if(!id->variables->p || id->variables->p=="") return "<!-- no profile  -->\n";
+
+  string ret="";
+  int ransearch=0;
+  array result;
+
+  result=cache->retrieve(id->variables->p + "|" + id->variables->q);
+
+  if(pragma["no-cache"] || !result)
+  {
+    result=engines[id->variables->p]->search(id->variables->q);
+    ransearch=1;
+  }
+
+  int rpp=20;
+ 
+  if(args->resultsperpage)
+    rpp=(int)(args->resultsperpage);
+
+  if(sizeof(result)>rpp && ransearch)
+  {
+    // we have more than will fit on one page, so we cache the results
+    cache->store(
+      cache_pike(result, id->variables->p + "|" + id->variables->q));    
+  }
 
   if(!result || sizeof(result)==0)
-     return "no results found for your query <i>" + args->query + "</i>.";
+     return "No results were found for your query <i>" + args->query + "</i>.";
+
+  int pages=result/rpp;
+  if(result%rpp) pages++;
+
+  int displayfrom=(int)(id->variables->s||1);
+  int displayto=((displayfrom+rpp)<=sizeof(result)?(displayfrom+rpp):sizeof(result));
 
   ret+="Found " + sizeof(result) + " matches to your query \"<i>" + args->query + "</i>\":<p>\n"; 
+  ret+="Displaying results " + displayfrom + "-" + displayto + " of " + sizeof(result);
+  ret+="<br>\n";
 
-  foreach(result, mapping r)
+  for(int i=1; i<=pages; i++)
+  {
+    if((i*rpp)==displayfrom)
+      ret+=i + " ";
+    else
+      ret=ret+"<a href=\"" + id->not_query + "?p=" + id->variables->p + 
+        "&q=" + id->variables->q + "&s=" + (i*rpp) +"\">" + i + "</a> ";
+    
+  }  
+
+  ret+="<p>\n";
+  
+  for(int i=displayfrom-1; i<displayto; i++)
+  {
+    mapping r=result[i];
+
     ret+="<dt><a href=\"" +r->url + "\">" + r->title + "</a> ( " + 
 	r->score + ", " + r->type + " )<br>\n"
        "<dd><i>" + r->desc + "</i> " + r->date + "<p>";
-
+  }
   return ret;
   
 }

@@ -84,11 +84,17 @@ int main(int argc, array argv)
   {
     write("query: ");
     q=Stdio.FILE("stdin")->gets();
-    if(strlen(q)==0) continue;
+    if(strlen(q)==0) break;
     write("processing query!\n");
     if(!q) break;
-    index->search(q);
+    array results=index->search(q);
     Lucene->check_exception();
+    foreach(results, mapping row)
+    {
+      write("URL:   " + row->url + "\n");
+      write("Score: " + row->score + "\n");
+      write("Type:  " + row->type + "\n\n");
+    }
   }
   while(1);
 }
