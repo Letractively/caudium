@@ -1,3 +1,45 @@
+caudium (2:1.2.6-1) unstable; urgency=low
+
+  * Latest upstream release. Changes:
+    - New define ENABLE_NEW404 / DISABLE_NEW404 to allow administrator to
+      disable on the whole server the new 404 handler.
+    - perl scripting module and subsystem removed. Anyway the uniscript.pike
+      can allow administrator to support perl scripting. SF bug 512601
+    - mnogosearch pike module removed since the pike glue doesn't work.
+    - Fix a problem when Caudium is not running as root : display a warning if 
+      the user tries to run lsof in open ports action tab.
+    - The Generate a self signed certificate and a RSA key-pair was not delivering
+      any warning to the user. Now it displays in red on the HTML output.
+    - Added a link to the caudium.info website from the CIF.
+    - 404 handler is not set per default on Old 404 system. To avoid 1.0 -> 1.2 
+      compatiblity and keep the XML-Compliant parser quiet.
+    - Fixed SF bug 530674: passive mode FTP connection problem (with Mozilla  
+      and derivative browsers).
+    - <if exists="file"> shouldn't use the cache. Thanks to Endre Hirling.
+    - The start script now changes the cwd to the directory it is started from. 
+      Prevents beginners from crying.
+    - Fixed SF bug 547546 - Backtrace when using http:// URL for SSL. Now Caudium
+      redirect to the https:// url like it did before.
+    - Fixed SF bug 547354 - <aconf> URIs don't work
+    - Fixed SF bug 542177 that makes incorrect listings from directories2.pike.
+    - Fixed SF bug 514391 (user listing in userfs), seems that Caudium Cache.
+    - Fixed SF bug 533861 <wizard> was broken. Autodocs now added, new features like
+      formname attribute to wizard conatiner, hidden "verify" container.
+    - Fixed name space conflict between Pike 7.2's SSL.pmod and Caudium's one.
+      SSL.pmod has been renamed CaudiumSSL and it is used only when Pike 7.0
+      is used with Caudium. Otherwise, Caudium use Pike 7.2+ builtin SSL.pmod
+      for SSL3 connections.
+    - Fixed the Last-Modified code in http.pike and http2.pike. If the request is
+      not marked as dynamic (!id->misc->is_dynamic), then the header will be sent 
+      properly. 
+    - Added SF patch 534125 to ultralog that check the file exist before set 
+      filewatch and a status of the module.
+    - Added SF patch 534118 that fix for TYPE_FILE and TYPE_DIR checks.
+    - Half fixed SF bug 533124. Needs more investigation.
+    - Fixed SF bug 530674
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 23 May 2002 18:04:56 +0200
+
 caudium (2:1.2.5-9) unstable; urgency=low
 
   * Latest snapshot
