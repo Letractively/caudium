@@ -1064,6 +1064,8 @@ int|mapping check_security(function a, object id, void|int slevel)
   if(!(seclevels = misc_cache[ a ])) {
     int seclvl;
     mixed secgroup;
+    if(!function_object(a)->query_seclevels)
+      return 0;
     catch { seclvl = function_object(a)->query("_seclvl"); };
     catch { secgroup = function_object(a)->query("_sec_group"); };
     misc_cache[ a ] = seclevels = ({
