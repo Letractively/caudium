@@ -1899,7 +1899,7 @@ mixed handle_error_request( object id ) {
 //!
 //! @fixme 
 //!   To be documented
-mixed handle_request( object id  )
+mixed handle_request(object id)
 {
   function funp;
   mixed file;
