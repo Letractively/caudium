@@ -64,6 +64,7 @@ class scheme {
 #endif
 	    scheme = all_themes[ "default" ];
 	}
+        scheme = all_themes[ themename ];
     }
 
     string colour( string index ) {
