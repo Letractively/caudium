@@ -61,7 +61,8 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	if test -f stamp-patch; then \
-	    patch -R -p1 < debian/patches/caudium-cvs-rpath.diff; \
+	    patch -R -p1 < debian/patches/smartlink.diff; \
+	    patch -R -p1 < debian/patches/configure.in.diff; \
 	    rm -f stamp-patch; \
 	fi
 	
