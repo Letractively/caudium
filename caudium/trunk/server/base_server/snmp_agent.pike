@@ -21,13 +21,24 @@
  * $Id$
  */
 
+//! $Id$
+//! 
+//! This file implements SNMP agent for Caudium
+//!
+
 constant cvs_version = "$Id$";
 
+//! SNMP Agent
 object agent;
+
+//! Caudium Configuration Object Hook
 object caudium;
 
 #include <module.h>
 
+//! Create the SNMP agent
+//! @param c
+//!    The Caudium Configuration Object.
 void create(object c)
 {
   caudium=c;
@@ -46,6 +57,7 @@ void create(object c)
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.1", snmp_get_server_version);
 }
 
+//! Return the server version for SNMP for oid 100.1 (under Caudium OID)
 array snmp_get_server_version(string oid, mapping rv)
 {
   return ({1, "str", caudium->real_version});
