@@ -36,6 +36,9 @@ RCSID("$Id$");
 #include "svalue.h"
 #include "threads.h"
 
+/* Caudium Pexts Related */
+#include "caudium_util.h"
+
 #ifdef HAVE_OPENSSL
 
 #include <openssl/crypto.h>
@@ -350,6 +353,10 @@ static void openssl_SSL_program_exit(struct object *o) {
 *****************************************************************************/
 
 void pike_module_init(void) {
+#ifdef PEXTS_VERSION
+	pexts_init();
+#endif
+
 #ifdef HAVE_OPENSSL
 	SSL_load_error_strings();
 	SSL_library_init();
@@ -395,7 +402,6 @@ void pike_module_init(void) {
 	openssl_SSL_program = end_program();
 	add_program_constant("SSL", openssl_SSL_program, 0);
 #endif /* HAVE_OPENSSL */
-	return;
 }
 
 void pike_module_exit(void) {
@@ -405,5 +411,4 @@ void pike_module_exit(void) {
 	free_program(openssl_SSL_CTX_program);
 	openssl_SSL_CTX_program = NULL;
 #endif /* HAVE_OPENSSL */
-	return;
 }
