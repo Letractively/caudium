@@ -688,10 +688,11 @@ INLINE void summarize_sessions(INT32 hour,
     time_per_session[hour] +=
       (low_mapping_lookup(session_end, sind)->u.integer -
        k->val.u.integer);
-    /*    if(!session || session->type != T_OBJECT)*/
-    /*      continue; /* Should never happen but just to be safe... */
-    /*    len = G_ENDTIME - G_STARTTIME;*/
-    /*    time_per_session[hour] += (float)len / 60.0;*/
+    /*    if(!session || session->type != T_OBJECT)
+          continue;  Should never happen but just to be safe... 
+	  len = G_ENDTIME - G_STARTTIME;
+	  time_per_session[hour] += (float)len / 60.0;
+    */
   }
   /*  printf("\nok: %ld\n", time_per_session[hour]);*/
 }
