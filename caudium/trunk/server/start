@@ -18,7 +18,7 @@ fi
 # being Caudium base path
 cd `pwd`; cd `dirname $0`
 
-  # Make sure $CLASSPATH contains the servlet stuff
+# Make sure $CLASSPATH contains the servlet stuff
 CLASSPATH=etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
 export CLASSPATH
 
