@@ -1,0 +1,35 @@
+This file contains description of all the WIP projects contained in
+this directory and subdirectories thereof. The format of the description
+is:
+
++ project path     short description
+ long description
+
+Each project description must start with the '+' sign, as show above and
+each line of the description must be indented with at least a single space. The
+whole entry ends with an empty line. If you need to put an empty line in the
+description, put a dot as its only character. The project path is relative to the
+top directory of caudium with / marking the top.
+
+---DESCRIPTIONS---[do not change this line]
+
++ /server/modules/tags/sqlupdate.pike    generic sql update function
+ generic function to write an array of mappings to an sql table
+ code taken from chris davies sqlformedit module.
+ this function could be added to the sqltags module,
+ or put in a place for generic helper functions.
+
++ /server/modules/tags/sqltag.pike   sqltag with sqlupdate
+ this module includes the sqlupdate function and
+ makes it accessible through the <sqlupdate> tag.
+
++ /server/modules/tags/superform.pike   superform rewrite
+ clean design to allow easy expandability of new checks,
+ no need for hidden variables.
+
++ /server/modules/tags/charset.pike   browser charset detection
+ trying to come up with a way to safely detect the charset the browser uses to
+ send forminput.
+
+---DESCRIPTIONS---[do not change this line]
+$Id$
