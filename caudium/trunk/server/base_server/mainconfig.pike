@@ -239,7 +239,7 @@ mapping stores( string s )
       "type":"text/html",
       "extra_heads":
       ([
-	"Title":"Roxen Challenger maintenance",
+	"Title":"Caudium maintenance",
 //      "Expires":http_date(time(1)+2),
 //	"Pragma":"no-cache",
 	"Last-Modified":http_date(time(1)),
@@ -258,7 +258,7 @@ static private constant default_ports = ([
 
 mapping verify_changed_ports(object id, object o)
 {
-  string res = default_head("Roxen Config: Setting Server URL") +
+  string res = default_head("Caudium Config: Setting Server URL") +
     ("<h1>Set the correct server URL</h1>"
      "As you have changed the open ports in one or more servers "
      "you might have to adjust the default server URL(s). Check the "
@@ -991,7 +991,7 @@ mapping initial_configuration(object id)
     }
   }
   
-  res = default_head("Welcome to Roxen Challenger " +
+  res = default_head("Welcome to Caudium " +
 		     roxen->__caudium_version__ + "." + roxen->__caudium_build__);
 
   res += Stdio.read_bytes("etc/welcome.html");
@@ -1318,7 +1318,7 @@ mapping configuration_parse(object id)
 	 && strlen(roxen->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
-      return http_auth_failed("Roxen server maintenance"); // Denied
+      return http_auth_failed("Caudium maintenance"); // Denied
   } else {
     id->prestate = aggregate_multiset(@indices(id->prestate)
                                       &({"fold","unfold"}));
@@ -1360,7 +1360,7 @@ mapping configuration_parse(object id)
     };
 #endif
 
-    return http_string_answer(default_head("Roxen Challenger " +
+    return http_string_answer(default_head("Caudium " +
 					   roxen->__caudium_version__ + "." +
 					   roxen->__caudium_build__)+
 			      status_row(root)+
@@ -1499,11 +1499,11 @@ mapping configuration_parse(object id)
       }
       break;
       
-      /* Shutdown Roxen... */
+      /* Shutdown Caudium... */
     case "shutdown":	
       return roxen->shutdown();
       
-      /* Restart Roxen, somewhat more nice. */
+      /* Restart Caudium, somewhat more nice. */
     case "restart":	
        return roxen->restart();
       
@@ -1531,7 +1531,7 @@ mapping configuration_parse(object id)
       /* This only asks "do you really want to...", it does not delete
        * the node */
     case "delete":	
-     PUSH(default_head("Roxen Configuration")+
+     PUSH(default_head("Caudium Configuration")+
 	  status_row(o));
 //     PUSH("<hr noshade>");
        
@@ -1779,7 +1779,7 @@ mapping configuration_parse(object id)
 
   check_login(id);
   
-  PUSH(default_head("Roxen server configuration"));
+  PUSH(default_head("Caudium configuration"));
 //  PUSH("<table><tr><td>&nbsp;<td>"
   PUSH("<dl>\n");
   PUSH("\n"+status_row(o)+"\n"+display_tabular_header( o )+"\n");
