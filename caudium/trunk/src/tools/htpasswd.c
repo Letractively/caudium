@@ -87,7 +87,7 @@ void to64(register char *s, register long v, register int n)
   }
 }
 
-char *crypt(char *pw, char *salt); /* why aren't these prototyped in include */
+/*char *crypt(char *pw, char *salt); why aren't these prototyped in include */
 #ifdef HEAD_GETPASS
 char *getpass(char *prompt);
 #endif
