@@ -44,3 +44,10 @@ Description: Log Parser module for Caudium
  shared extension module that provides Caudium with a built-in log file parser that
  is capable of generating extensive statistics on the fly for virtual servers configured
  in your Caudium WebServer.
+
+Package: caudium-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99)
+Description: Development files for Caudium
+ A small package that contains files required for developing Caudium extension packages
+ without installing Caudium itself.
