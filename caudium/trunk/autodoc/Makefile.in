@@ -5,8 +5,41 @@
 #
 
 PIKE=@PIKE_BIN@
+HACKS=base_server/caudium.pike
 
-all: html
+all: crefhtml
+
+crefhtml: do_hacks make_crefhtml undo_hacks
+
+do_hacks:
+	@for h in $(HACKS); do \
+		cp -p ../server/$$h ../server/$$h.orig ; \
+		sed -e 's#@PIKEPARSER_HACK_START@\*/# #g' -e 's#/\*@PIKEPARSER_HACK_END@# #g' < ../server/$$h.orig > ../server/$$h ; \
+	done
+
+undo_hacks:
+	@for h in $(HACKS); do \
+		mv ../server/$$h.orig ../server/$$h ; \
+	done
+
+make_crefhtml: makecrefdirs makeautodoc makecrefxml
+	rm -rf generated/caudiumref || /bin/true
+	mkdir generated/caudiumref
+	cp structure/caudiumref.css generated/caudiumref/
+	$(PIKE) bin/tree-split-autodoc.pike build/cref.xml structure/caudiumref.html generated/caudiumref/
+
+makecrefxml: makeautodoc structure/caudiumref.xml
+	$(PIKE) bin/assembler.pike structure/caudiumref.xml build/autodoc.xml > build/cref.xml
+
+makeautodoc: makeserver
+	$(PIKE) bin/join.pike --post-process build/autodoc.xml build/server.xml
+
+makeserver:
+	$(PIKE) bin/cextract.pike ../server/base_server/ build/server/ build/images/
+	$(PIKE) bin/join.pike build/server.xml build/server/
+
+makecrefdirs:
+	@install -d -m 755 build/server/
 
 spotless:
 	@for f in `cat .cvsignore`; do \
@@ -16,4 +49,6 @@ spotless:
 		rm -f bin/$$f; \
 	done
 	@rm -f bin/.deleteus
-
+	@rm -rf build/server/
+	@rm -rf build/*.xml
+	@rm -rf generated/caudiumref

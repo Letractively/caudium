@@ -74,8 +74,8 @@ PIKE_MAJOR=`echo $PIKE_VERSION | cut -d '.' -f 1`
 PIKE_MINOR=`echo $PIKE_VERSION | cut -d '.' -f 2`
 PIKE_BUILD=`echo $PIKE_VERSION | cut -d '.' -f 3`
 
-if test $PIKE_MAJOR -lt 7 -a $PIKE_MINOR -lt 2; then
-  AC_MSG_ERROR([you need at least Pike 7.2])
+if test $PIKE_MAJOR -lt 7 -a $PIKE_MINOR -lt 3; then
+  AC_MSG_ERROR([you need at least Pike 7.3])
 else
   AC_MSG_RESULT([ok - $PIKE_MAJOR.$PIKE_MINOR.$PIKE_BUILD])
 fi
