@@ -1,11 +1,11 @@
 # $Id$
 
-VPATH=@srcdir@
+VPATH=@srcdir@:@srcdir@/../
 prefix=@prefix@
 SRCDIR=@srcdir@
 INSTALL=@INSTALL@
 CC=@CC@
-CFLAGS=@CFLAGS@ @CPPFLAGS@
+CFLAGS=@CFLAGS@ @CPPFLAGS@ -I@srcdir@/ -I.
 LDFLAGS=@LDFLAGS@ @LIBS@
 
 all: htpasswd 
@@ -17,13 +17,13 @@ install: htpasswd
 	$(INSTALL) htpasswd $(prefix)/bin/
 
 clean:
-	$(RM) htpasswd
+	rm -f htpasswd
 
 spotless: clean
-	-$(RM) config.*
+	rm -f config.*
 
 distribute: spotless
-	-$(RM) Makefile
+	rm -f Makefile
 
 Makefile: $(SRCDIR)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
