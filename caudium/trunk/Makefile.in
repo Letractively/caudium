@@ -148,7 +148,7 @@ install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_pmods
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/man/man1
