@@ -44,20 +44,12 @@ entities, you need the XML Compliant RXML parser. It's easy to insert \
 the value of an entity - just do &amp;scope.entity; in your RXML page.";
 constant module_unique = 1;
 
-//
-//! file: modules/tags/corescopes.pike
-//!  This file contains definitions of the basic Caudium entity scopes and
-//!  corresponding classes.
-//! cvs_version: $Id$
-//
-//! class: ClientScope
-//!  This class implements the scope which contains all variables related
-//!  to the client on the other end of the current request. For detailed
-//!  description see [base_server/scope.pike]
-//! scope: public
-//! inherits: scope
+//! entity-scope: client
+//!  This scope contains information related to the client on the other end
+//!  of the current request. 
 //! see_also: base_server/scope.pike
 //
+
 class ClientScope {
   inherit "scope";  
   constant name = "client";
@@ -66,37 +58,63 @@ class ClientScope {
     mixed tmp;
     mixed ret = -1;
     switch(entity) {
+      //! entity: authenticated
+      //!  Returns the authenticated user. If a user was sent but the
+      //!  authentication was incorrect, this will be empty.
     case "authenticated":
       NOCACHE();
       ret = (id->auth && id->auth[0] && id->auth[1]);
       break;
+      //! entity: fullname
+      //!  Returns the full user agent string, i.e. the name of the browser
+      //!  and additional info like operating system and more.
+      //!  E.g. "<tt>Mozilla/4.73 [en] (X11; U; Linux 2.2.16-9mdk i686)</tt>"
     case "fullname":
       NOCACHE();
       ret = id->useragent;
       break;
+      //! entity: host
+      //!  The hostname of the client, or the ip-address if it's not (yet)
+      //!  resolved. 
     case "host":
       NOCACHE();
       ret = caudium->quick_ip_to_host(id->remoteaddr);
       break;
+      //! entity: ip
+      //!  The ip-address of the client computer.
     case "ip":
       NOCACHE();
       ret = id->remoteaddr;
       break;
+      //! entity: name
+      //!  The name of the client, i.e. "Mozilla/4.73". 
     case "name":
       NOCACHE();
       if(id->useragent) ret = (id->useragent / " " - ({""}))[0];
       break;
+      //! entity: password
+      //!  The authentication password sent to this request. Please note
+      //!  that this password isn't necessarily correct.
     case "password":
       NOCACHE();
-      ret = id->rawauth && (sizeof(tmp = id->rawauth/":") > 1) && tmp[1];
+      ret = id->realauth && (sizeof(tmp = id->realauth/":") > 1) && tmp[1];
       break;
+      //! entity: referrer
+      //!  The URL of the page on which the user followed a link that
+      //!  brought her to this page. The information comes from the Referrer
+      //!  header sent by the browser and can't always be trusted.
     case "referrer":
       NOCACHE();
       ret = id->referrer;
       break;
+      //! entity: user
+      //!  The user sent in the authentication header to this request.
+      //!  It will be available even if Caudium failed to authenticate
+      //!  the user. If you want to see whether authentication succeeded,
+      //!  use &amp;client.authenticated;.
     case "user":
       NOCACHE();
-      ret = (id->rawauth  && (id->rawauth/":")[0]);
+      ret = (id->realauth  && (id->realauth/":")[0]);
       break;
     }
     if(ret == -1)
@@ -106,32 +124,31 @@ class ClientScope {
   }
 }
 
-//
-//! class: CookieScope
-//!  This class providess access to cookies using the entity syntax.
-//!  For detailed description of methods see [base_server/scope.pike].
-//! scope: public
-//! inherits: scope
-//! see_also: base_server/scope.pike
-//
+
+//! entity-scope: cookie
+//!  This scope provides access to cookies using the entity syntax. There are
+//!  no predefined entities for this scope.
+//! bugs:
+//!  You can't set cookies using the &lt;set variable="cookie.name"> syntax
+//!  yet.
+
 class CookieScope {
   inherit "scope";
   constant name = "cookie";
 
-  array(string) get(string entity, object id) {
+  string get(string entity, object id) {
     NOCACHE();
     return id->cookies[entity];
   }
 }
 
-//
-//! class: FormScope
-//!  This class providess access to all form variables.
-//!  For detailed description of methods see [base_server/scope.pike].
-//! scope: public
-//! inherits: scope
-//! see_also: base_server/scope.pike
-//
+
+//! entity-scope: form
+//!  This class provides access to all form variables sent in the request
+//!  in the query string or as POST data. It is also the default scope when
+//!  using &lt;set variable> and &lt;insert variable>. Since it's based on the
+//!  data sent in the request, it has no predefined entities.
+
 class FormScope {
   inherit "scope";
   constant name = "form";
@@ -142,19 +159,19 @@ class FormScope {
       return 0;
     return 1;
   }
-  array(string) get(string entity, object id) {
+  string get(string entity, object id) {
     NOCACHE();
     return id->variables[entity];
   }
 }
 
-//! class: VarScope
-//!  This class providess access to all form variables.
-//!  For detailed description of methods see [base_server/scope.pike].
-//! scope: public
-//! inherits: scope
-//! see_also: base_server/scope.pike
-//
+//! entity-scope: var
+//!  This scope is to be used for storage of request specific user
+//!  variables. In addition to allowing normal variables, i.e. &var.name;, 
+//!  it can store second level variables, like &var.prices.banana;. This is
+//!  useful if you want to group variables together. It has no predefined
+//!  entities and is always empty at the beginning of a request.
+
 class VarScope {
   inherit "scope";
   constant name = "var";
@@ -182,7 +199,7 @@ class VarScope {
     }
     return 1;
   }
-  array(string) get(string entity, object id) {
+  string get(string entity, object id) {
     NOCACHE();
     string value;
     array split = entity / ".";
@@ -202,6 +219,11 @@ class VarScope {
     };
     return 0;
   }
+
+  object clone()
+  {
+    return object_program(this_object())();
+  }    
 }
 
 array(object) query_scopes()
