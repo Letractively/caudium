@@ -108,13 +108,13 @@ int main(int argc, array argv)
   write("Checking for potential compatibility problems with your Pike installation...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver < 7.4 ||
-     (ver == 7.4 && rel < 1))
-    warning("Caudium 1.3 requires Pike 7.4.1 or newer.");
+  if(ver < 7.5 ||
+     (ver == 7.5 && rel < 1))
+    warning("Caudium 1.3 requires Pike 7.5.1 or newer.");
 
-  if(ver == 7.5) {
-    warning("We strongly recommend the use of Pike 7.4 for Caudium. "
-            "Pike 7.5 is less\n"
+  if(ver == 7.7) {
+    warning("We strongly recommend the use of Pike 7.6 for Caudium. "
+            "Pike 7.7 is less\n"
 	    "tested and still a development version.");
   }
   
