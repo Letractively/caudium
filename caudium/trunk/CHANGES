@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed a bug where PATH_INFO environnement variable wasn't give to scripts 
+  executed throught uniscript modules.
+   (David Gourdelier)
 - Fixed a bug in store() and added debug mode in Gsession.
    (David Gourdelier)
 - Allow for having tags & containers which are not in a Caudium module but for
