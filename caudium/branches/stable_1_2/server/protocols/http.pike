@@ -389,7 +389,7 @@ private int parse_got()
 
   /* Fix %00 (NULL) bug */
   sscanf( f, "%s\0", f );
-  if (sscanf(f, "/<%s>/%s", a, f)==2)
+  if ((sscanf(f, "/<%s>/%s", a, f)==2) || (sscanf(f, "/%%3C%s%%3E%s", a, f)==2))
   {
     config_in_url = 1;
     mod_config = (a/",");
