@@ -1849,7 +1849,7 @@ void handle_precache(object id) {
 //! Call the handle_error function in all MODULE_ERROR, if any.
 //! This is done at the end of request if there is nothing from others module
 //!
-//! @params id
+//! @param id
 //!   Caudium Object id
 //!
 //! @returns 
