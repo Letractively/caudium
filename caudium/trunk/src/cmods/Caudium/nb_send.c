@@ -66,7 +66,7 @@ extern int fd_from_object(struct object *o);
 /*#define NB_DEBUG*/
 /*#define TEST_MMAP_FAILOVER NBIO_BLOCK_OBJ*/
 #ifdef NB_DEBUG
-# define DERR(X) do { fprintf(stderr, "** Caudium.nbio:%d: ", __LINE__); X; } while(0)
+# define DERR(X) do { fprintf(stderr, "** Caudium.nbio(%p):%d: ", THISOBJ, __LINE__); X; } while(0)
 #else
 # define DERR(X) 
 #endif
