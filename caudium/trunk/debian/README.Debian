@@ -1,0 +1,15 @@
+Caudium Webserver for Debian
+----------------------------
+
+  This package comes with one virtual host preconfigured, namely localhost.
+The virtual host will listen on localhost:80 - no external interfaces are
+bound by default! To configure additional ports point your favorite web
+browser (it must be capable of processing forms - Mozilla, Galeon, Links and
+lynx are some of such browsers) to the Caudium configuration interface on
+the port you specified during the installation (22202 by default). Caudium 
+listens on that port on every interface it finds on your machine by default.
+This is done in such way to allow for cases when you're installing Caudium
+remotely and want to configure it from a machine different to the one where
+Caudium runs.
+
+ -- Marek Habersack <grendel@vip.net.pl>, Tue, 15 Aug 2000 13:47:27 +0200
