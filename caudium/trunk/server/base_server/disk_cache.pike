@@ -485,7 +485,7 @@ object cache_file(string cl, string entry)
   cf->done_callback = 0;
   cf->rfile = QUERY(cachedir)+name;
   
-  array (int) stat = cf->file->stat();
+  array (int) stat = (array(int))cf->file->stat();
 
   if(stat[ST_SIZE]<=0)
   {
@@ -670,7 +670,7 @@ void default_check_cache_file(object stream)
 {
   if (QUERY(cache)) {
     int s;
-    array (int) stat = stream->file->stat();
+    array (int) stat = (array(int))stream->file->stat();
 
     rmold(stream->rfiledone);
 
@@ -697,7 +697,7 @@ string get_garb_info()
 void http_check_cache_file(object cachef)
 {
   if(!cachef->file) RETURN();
-  array (int) stat = cachef->file->stat();
+  array (int) stat = (array(int))cachef->file->stat();
   int i;
   /*  soo..  Lets check if this is a file we want to keep. */
   /*  Initial screening is done in the proxy module. */
@@ -805,7 +805,7 @@ void http_check_cache_file(object cachef)
     while(tocheck[strlen(tocheck)-1]=='+') {
       tocheck=tocheck[.. strlen(tocheck)-2];
       if((tc = open(tocheck,"rx")) &&
-	 (stat = tc->stat()) &&
+	 (stat = (array(int))tc->stat()) &&
 	 (stat[ST_SIZE]>=0) &&
 	 (stat[ST_CTIME]<last_init)) {
 #ifdef CACHE_DEBUG

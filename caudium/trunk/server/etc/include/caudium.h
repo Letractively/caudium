@@ -7,7 +7,9 @@
 #endif
 
 #define perror	roxen_perror
-
+#if constant(Stdio.Stat)
+#define file_stat caudium_fstat
+#endif
 #define CONFIGURATION_FILE_LEVEL 6
 
 #ifdef DEBUG_LEVEL

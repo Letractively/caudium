@@ -73,7 +73,7 @@ string http_res_to_string( mapping file, object id )
   {
     if(objectp(file->file))
       if(!file->stat && !(file->stat=id->misc->stat))
-	file->stat = (int *)file->file->stat();
+	file->stat = (array(int))file->file->stat();
     array fstat;
     if(arrayp(fstat = file->stat))
     {
@@ -443,7 +443,7 @@ mapping http_redirect( string url, object|void id )
     if(id)
     {
       url = add_pre_state(url, id->prestate);
-      if(id->misc->host) {
+      if(id->request_headers->host) {
 	string p = ":80", prot = "http://";
 	array h;
 	if(id->ssl_accept_callback) {
@@ -451,12 +451,12 @@ mapping http_redirect( string url, object|void id )
 	  p = ":443";
 	  prot = "https://";
 	}
-	h = id->misc->host / p  - ({""});
+	h = id->request_headers->host / p  - ({""});
 	if(sizeof(h) == 1)
 	  // Remove redundant port number.
 	  url=prot+h[0]+url;
 	else
-	  url=prot+id->misc->host+url;
+	  url=prot+id->request_headers->host+url;
       } else
 	url = id->conf->query("MyWorldLocation") + url[1..];
     }

@@ -109,7 +109,7 @@ void save_it(string cl)
 #endif
 	  "\n");
   }
-  config_stat_cache[cl] = fd->stat();
+  config_stat_cache[cl] = (array(int)) fd->stat();
   catch(fd->close("w"));
   destruct(fd);
 }
@@ -184,7 +184,7 @@ private static void read_it(string cl)
       m_delete(config_stat_cache, cl);
       } else {
       configs[cl] = decode_config_file( fd->read( 0x7fffffff ));
-      config_stat_cache[cl] = fd->stat();
+      config_stat_cache[cl] = (array(int))fd->stat();
       fd->close("rw");
       fix_config(configs[cl]);
       destruct(fd);

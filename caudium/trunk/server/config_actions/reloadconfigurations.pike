@@ -34,7 +34,7 @@ constant more=1;
 mixed handle(object id, object mc)
 {
   caudium->reload_all_configurations();
-  return http_redirect(caudium->config_url()+"Actions/?"+time());  
+  return http_redirect(caudium->config_url(id)+"Actions/?"+time());  
 }
 
 

@@ -1259,7 +1259,7 @@ string examine_return_mapping(mapping m)
       res+=strlen(m->data)+" bytes";
    else if (objectp(m->file))
       if (catch {
-	 array a=m->file->stat();
+	array a=(array(int))m->file->stat();
 	 res+=(a[1]-m->file->tell())+" bytes ";
       }) res+="? bytes";
 

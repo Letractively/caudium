@@ -53,7 +53,7 @@ mixed page_0(object id, object mc)
   if(ru[0])
     tmp=ru[0]/(time(1) - caudium->start_time+1);
 
-  return (/* "<font size=\"+1\"><a href=\""+ caudium->config_url()+
+  return (/* "<font size=\"+1\"><a href=\""+ caudium->config_url(id)+
 	     "Actions/?action=processstatus.pike&foo="+ time(1)+
 	     "\">Process status</a></font>"+ */
 	  "<pre>"+

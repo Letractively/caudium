@@ -32,5 +32,5 @@ constant doc = ("Change the configuration interface username and/or password. "
 
 mixed handle(object id, object mc)
 {
-  return http_redirect(caudium->config_url()+"(changepass)/Actions/?"+time());
+  return http_redirect(caudium->config_url(id)+"(changepass)/Actions/?"+time());
 }

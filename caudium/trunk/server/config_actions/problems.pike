@@ -23,6 +23,7 @@
  * $Id$
  */
 
+#include <caudium.h>
 inherit "wizard";
 
 constant name= "Maintenance//Check your Caudium configuration for problems...";
