@@ -1,3 +1,14 @@
+--- TODO Urgent project ---
+
+Use _r function if they are present in system instead of plain function
+in C modules, especialy _Caudium module.
+
+ Summary :
+
+  localtime() -> localtime_r() : WIP
+  gmtime()    -> gmtime_r()    : TODO
+
+
 --- TODO (more long term projects..)
 
 ** This one is from Roxen and might be more or less out of date. I
