@@ -1180,6 +1180,7 @@ mapping auto_image(string in, object id)
 
   object ct;
 
+#if constant(Image.GIF.encode)
   if (!(ct=my_colortable[key]))
      ct=my_colortable[key]=Image.colortable(i,256,4,4,4);
 //		  colortable(4,4,8,
@@ -1190,10 +1191,14 @@ mapping auto_image(string in, object id)
   e=Image.GIF.encode(i,ct);
   i=0;
   if(o) { o->write(e); o=0; }
+  
 #ifdef DEBUG
   else {perror("Cannot open file for "+in+"\n");}
 #endif
   return http_string_answer(e,"image/gif");
+#else
+  return 0;
+#endif
 }
 
 
