@@ -361,7 +361,7 @@ string http_encode_url (string f)
 
 /*
 **! method: string http_caudium_config_cookie(string from)
-**!   Make a configuration cookie. This is is not a function ment to
+**!   Make a configuration cookie. This is is not a function meant to
 **!   be used by the average user.
 **! arg: string from
 **!   The cookie value to encode and put in the cookie.
@@ -534,7 +534,7 @@ function http_auth_failed = http_auth_required;
 **! method: mapping http_proxy_auth_required(string realm, string|void message)
 **!   Returns a http proxy authentication response mapping which will make the
 **!   browser request the user for authentication information for use with
-**!   a proxy. This is different than the normal auth in that it's ment for
+**!   a proxy. This is different than the normal auth in that it's meant for
 **!   proxies only. The optional message will be used as the body of the page. 
 **! arg: string realm
 **!   The realm of this authentication. This is show in various methods by the

@@ -2459,7 +2459,7 @@ private void define_global_variables( int argc, array (string) argv )
 	    "headers and documentation for each module. There is also a "
 	    "compact mode which allows for addition of one or more modules "
 	    "simultaneously. This mode has no module documentation and is "
-	    "therefore ment for more advanced users.",
+	    "therefore meant for more advanced users.",
 	    ({ "Standard", "Compact" }));
     
 //   globvar("_v", CONFIGURATION_FILE_LEVEL, 0, TYPE_INT, 0, 0, 1);
@@ -3640,7 +3640,7 @@ string check_variable(string name, mixed value)
 //!  name: Range: Enable range handling
 //
 //! defvar: ModuleListType
-//! This variable decides how the <tt>Add Module</tt> page should look like. The standard mode is very verbose with graphical headers and documentation for each module. There is also a compact mode which allows for addition of one or more modules simultaneously. This mode has no module documentation and is therefore ment for more advanced users.
+//! This variable decides how the <tt>Add Module</tt> page should look like. The standard mode is very verbose with graphical headers and documentation for each module. There is also a compact mode which allows for addition of one or more modules simultaneously. This mode has no module documentation and is therefore meant for more advanced users.
 //!  type: TYPE_STRING_LIST
 //!  name: Configuration interface: Add module page layout
 //
