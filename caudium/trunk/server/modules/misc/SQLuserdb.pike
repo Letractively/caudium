@@ -23,7 +23,7 @@
 //! module: SQL user database
 //!  This module handles a SQL-based User Database. 
 //!  It uses the generic-SQL pike module, so it should run on any server
-//!  pike supports. This includes at least MiniSQL, MySql and Postgres (more
+//!  pike supports. This includes at least mSQL, MySql and Postgres (more
 //!  could be supported in the future)
 //! inherits: module
 //! inherits: caudiumlib
@@ -32,11 +32,6 @@
 //
 
 /*
- * This module handles a SQL-based User Database. 
- * It uses the generic-SQL pike module, so it should run on any server
- * pike supports. This includes at least MiniSQL, MySql and Postgres (more
- * could be supported in the future)
- *
  * Documentation can be found at 
  * http://kame.usr.dsi.unimi.it:1111/sw/roxen/sqlauth/
  * or should have been shipped along with the module.
@@ -53,9 +48,9 @@ inherit "module";
 constant module_type = MODULE_AUTH;
 constant module_name = "SQL user database";
 constant module_doc  = "This module implements user authentication via a SQL server.<p>\n "
-	"For setup instruction, see the comments at the beginning of the module "
-	"code.<P>"
-	"&copy; 1997 Francesco Chemolli, distributed freely under GPL license.";
+"For setup instruction, see the comments at the beginning of the module "
+"code.<P>"
+"&copy; 1997 Francesco Chemolli, distributed freely under GPL license.";
 constant module_unique = 1;
 
 #ifdef SQLAUTHDEBUG
@@ -132,7 +127,7 @@ void create()
 	  0
 #endif	  
 	  , "Defaults: User ID", TYPE_INT,
-		"Some modules require an user ID to work correctly. "
+	  "Some modules require an user ID to work correctly. "
 	  "This is the user ID which will be returned to such "
 	  "requests if the information is not supplied by the database."
 	  );
@@ -161,6 +156,22 @@ void create()
 	  "Same as the default home, only referring to the user's "
 	  "login shell."
 	  );
+
+  defvar ("cachetimer", 10, "Maximum cache time", TYPE_INT,
+          "User information is cached in memory to speed up authorization "
+	  "and to avoid unnecessary requests to the database server. This "
+	  "option sets the maximum age in minute of individual cache entries. "
+	  "If they are too old the entry is refreshed from the database.");
+
+  defvar ("ignorenumber401", 30, "Number of failed 401 attempts before ignoring",
+	  TYPE_INT,
+	  "This option sets the number of 401 attempts allowed from a particular IP "
+          "address before completely ignoring the requests. This is useful to "
+	  "block potential password cracking attempts.");
+
+  defvar ("ignoretimer401", 10, "Blocked IP ignore time", TYPE_INT,
+          "The number of minutes to block an IP that exceeded the failed "
+	  "authentication limit.");
 }
 
 /*
@@ -172,14 +183,14 @@ void create()
 //This leaves a degree of uncertainty on when the DB will be effectively
 //closed, but it's below the value of the module variable "timer" for sure.
 void close_db() {
-	if (!QUERY(closedb))
-		return;
-	if( (time(1)-last_db_access) > QUERY(timer) ) {
-		db=0;
-		DEBUGLOG("closing the database");
-		return;
-	}
-	call_out(close_db,QUERY(timer));
+  if (!QUERY(closedb))
+    return;
+  if( (time(1)-last_db_access) > QUERY(timer) ) {
+    db=0;
+    DEBUGLOG("closing the database");
+    return;
+  }
+  call_out(close_db,QUERY(timer));
 }
 
 void open_db() {
@@ -212,86 +223,100 @@ void open_db() {
  * Module Callbacks
  */
 string *userinfo (string u) {
-	string *dbinfo;
-	array sql_results;
-	mixed err,tmp;
-	DEBUGLOG ("userinfo ("+u+")");
+  string *dbinfo;
+  array sql_results;
+  mixed err,tmp;
+  DEBUGLOG ("userinfo ("+u+")");
 
-	if (QUERY(usecache))
-		dbinfo=cache_lookup("sqlauthentries",u);
-	if (dbinfo)
-		return dbinfo;
+  if (QUERY(usecache))
+    dbinfo=cache_lookup("sqlauthentries",u);
+  if (dbinfo && time() < (dbinfo[7]+QUERY(cachetimer)*60)) 
+    return dbinfo;
 
-	open_db();
+  open_db();
 
-	if (!db) {
-		perror ("SQLauth: Returning 'user unknown'.\n");
-		return 0;
-	}
-	sql_results=db->query("select username,passwd,uid,gid,homedir,shell "
+  if (!db) {
+    perror ("SQLauth: Returning 'user unknown'.\n");
+    return 0;
+  }
+  sql_results=db->query("select username,passwd,uid,gid,homedir,shell "
 			"from "+QUERY(table)+" where username='"+u+"'");
-	if (!sql_results||!sizeof(sql_results)) {
-		DEBUGLOG ("no entry in database, returning unknown")
-		return 0;
-	}
-	tmp=sql_results[0];
-//	DEBUGLOG(sprintf("userinfo: got %O",tmp));
-	dbinfo= ({
-			u,
-			tmp->passwd,
-			tmp->uid||QUERY(defaultuid),
-			tmp->gid||QUERY(defaultgid),
-			QUERY(defaultgecos),
-			tmp->homedir||QUERY(defaulthome),
-			tmp->shell||QUERY(defaultshell)
-			});
-	if (QUERY(usecache))
-		cache_set("sqlauthentries",u,dbinfo);
-	DEBUGLOG(sprintf("Result: %O",dbinfo)-"\n");
-	return dbinfo;
-	return 0;
+  if (!sql_results||!sizeof(sql_results)) {
+    DEBUGLOG ("no entry in database, returning unknown")
+      return 0;
+  }
+  tmp=sql_results[0];
+  //	DEBUGLOG(sprintf("userinfo: got %O",tmp));
+  dbinfo= ({
+    u,
+    tmp->passwd,
+    tmp->uid||QUERY(defaultuid),
+    tmp->gid||QUERY(defaultgid),
+    QUERY(defaultgecos),
+    tmp->homedir||QUERY(defaulthome),
+    tmp->shell||QUERY(defaultshell),
+    time()
+  });
+  if (QUERY(usecache))
+    cache_set("sqlauthentries",u,dbinfo);
+  DEBUGLOG(sprintf("Result: %O",dbinfo)-"\n");
+  return dbinfo;
+  return 0;
 }
 
 array(string) userlist() {
-	if (QUERY(disable_userlist))
-		return ({});
-	mixed err;
-	array data;
+  if (QUERY(disable_userlist))
+    return ({});
+  mixed err;
+  array data;
 
-	DEBUGLOG ("userlist()");
-	open_db();
-	if (!db) {
-		perror ("SQLauth: returning empty user index!\n");
-		return ({});
-	}
-	data=db->query("select username from "+QUERY(table));
-	return data->username;
+  DEBUGLOG ("userlist()");
+  open_db();
+  if (!db) {
+    perror ("SQLauth: returning empty user index!\n");
+    return ({});
+  }
+  data=db->query("select username from "+QUERY(table));
+  return data->username;
 }
 
 string user_from_uid (int u) 
 {
-	array data;
-	if(!u)
-		return 0;
-	open_db(); //it's not easy to cache in this case.
-	if (!db) {
-		perror("SQLauth: returning no_such_user\n");
-		return 0;
-	}
-	data=db->query("select username from " + QUERY(table) +
-		       " where uid='" + (int)u +"'");
-	if(sizeof(data)!=1) //either there's noone with that uid or there's many
-		return 0;
-	return data[0]->username;
+  array data;
+  if(!u)
+    return 0;
+  open_db(); //it's not easy to cache in this case.
+  if (!db) {
+    perror("SQLauth: returning no_such_user\n");
+    return 0;
+  }
+  data=db->query("select username from " + QUERY(table) +
+		 " where uid='" + (int)u +"'");
+  if(sizeof(data)!=1) //either there's noone with that uid or there's many
+    return 0;
+  return data[0]->username;
 }
 
 array|int auth (string *auth, object id)
 {
-	string u,p,*dbinfo;
-	mixed err;
+  string u,p,*dbinfo,*ip401;
+  mixed err;
 
-	att++;
-	DEBUGLOG (sprintf("auth(%O)",auth)-"\n");
+  att++;
+  DEBUGLOG (sprintf("auth(%O)",auth)-"\n");
+
+  ip401=cache_lookup("sqluser401",id->remoteaddr);
+  if (ip401 && ip401[1]>QUERY(ignorenumber401)) {
+    DEBUGLOG("you're in my cache");
+    DEBUGLOG(time() + " > " + (ip401[2]+QUERY(ignoretimer401)*60) );
+    if (time() < (ip401[2]+QUERY(ignoretimer401)*60) ) {
+      DEBUGLOG("blast away killroy!");
+      return ({0, auth[1], -1});
+    } else {
+      DEBUGLOG("removed from cache!");
+      cache_remove("sqluser401",id->remoteaddr);
+    }
+  }
 
 	sscanf (auth[1],"%s:%s",u,p);
 
@@ -317,17 +342,25 @@ array|int auth (string *auth, object id)
 	if (!dbinfo) {
 		DEBUGLOG ("no such user");
 		nouser++;
+      		block401(id);
 		return ({0,u,p});
 	}
+
+  if  ( dbinfo && ( time() > (dbinfo[7]+QUERY(cachetimer)*60) ) ) {
+    DEBUGLOG("cache expired");
+    dbinfo=userinfo(u);
+  }
   
   if (QUERY(crypted)) {
     if (!crypt (p,dbinfo[1])) {
       DEBUGLOG ("password check ("+dbinfo[1]+","+p+") failed");
+      block401(id);
       return ({0,u,p});
     }
   } else {
     if (p != dbinfo[1]) {
       DEBUGLOG ("clear password check (XXX,"+p+") failed");
+      block401(id);
       return ({0,u,p});
     }
   }
@@ -345,30 +378,44 @@ array|int auth (string *auth, object id)
  * Support Callbacks
  */
 string status() {
-	return "<H2>Security info</H2>"
-			"Attempted authentications: "+att+"<BR>\n"
-			"Failed: "+(att-succ+nouser)+" ("+nouser+" because of wrong username)"
-			"<BR>\n"+
-			db_accesses +" accesses to the database were required.<BR>\n"
-			;
+  return "<H2>Security info</H2>"
+    "Attempted authentications: "+att+"<BR>\n"
+    "Failed: "+(att-succ+nouser)+" ("+nouser+" because of wrong username)"
+    "<BR>\n"+
+    db_accesses +" accesses to the database were required.<BR>\n"
+    ;
 }
 
 string|void check_variable (string name, mixed newvalue)
 {
-	switch (name) {
-		case "timer":
-			if (((int)newvalue)<=0) {
-				set("timer",QUERY(timer));
-				return "What? Have you lost your mind? How can I close the database"
-					" before using it?";
-			}
-			return 0;
-		default:
-			return 0;
-	}
-	return 0; //should never reach here...
+  switch (name) {
+   case "timer":
+    if (((int)newvalue)<=0) {
+      set("timer",QUERY(timer));
+      return "What? Have you lost your mind? How can I close the database"
+	" before using it?";
+    }
+    return 0;
+   default:
+    return 0;
+  }
+  return 0; //should never reach here...
 }
 
+void block401(object id) {
+  array ip401;
+ 
+  ip401 = cache_lookup("sqluser401",id->remoteaddr);
+  if (!ip401) {
+    ip401= ({
+      id->remoteaddr,
+      0,
+      time()
+    });
+  }
+  ip401[1]++;
+  cache_set("sqluser401", id->remoteaddr,ip401);
+}
 
 /* START AUTOGENERATED DEFVAR DOCS */
 
