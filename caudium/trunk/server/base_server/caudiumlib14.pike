@@ -172,28 +172,6 @@ string get_modname (object module)
   return 0;
 }
 
-//! This determines the full module name in approximately the same way
-//! as the config UI.
-//!
-//! @param module
-//!  Module object whos name is needed.
-//!
-//! @returns
-//!  The module name
-string get_modfullname (object module)
-{
-  if (module) {
-    string name = 0;
-    if (module->query_name)
-      name = module->query_name();
-    
-    if (!name || !sizeof (name))
-      name = module->register_module()[1];
-    return name;
-  } else
-    return 0;
-}
-
 //! Quote content in a multitude of ways. Used primarily by do_output_tag
 //!
 //! @param val
