@@ -1,14 +1,36 @@
+// This is a roxen module. (c) Martin Baehr 1999
+
+// templatefs.pike 
+// template adding filesystem
+// based on code from per hedbor
+
+//  This code is (c) 1999 Martin Baehr, and can be used, modified and
+//  redistributed freely under the terms of the GNU General Public License,
+//  version 2.
+//  This code comes on a AS-IS basis, with NO WARRANTY OF ANY KIND, either
+//  implicit or explicit. Use at your own risk.
+//  You can modify this code as you wish, but in this case please
+//  - state that you changed the code in the modified version
+//  - do not remove my name from it
+//  - send me a copy of the modified version or a patch, so that
+//    I can include it in the 'official' release.
+//  If you find this code useful, please e-mail me. It would definitely
+//  boost my ego :)
+//  
+//  For risks and side-effects please read the code or ask your local 
+//  unix or roxen-guru.
+
 constant cvs_version="$Id$";
 #include <module.h>
 #include <stdio.h>
 inherit "modules/filesystems/filesystem";
 inherit "utils.pike";
-inherit "relinsert.pike";
+//inherit "relinsert.pike";
 
 void create()
 {
   unload_program("utils");
-  unload_program("relinsert");
+  //unload_program("relinsert");
   unload_program("modules/filesystems/filesystem");
 
   ::create();
@@ -18,7 +40,7 @@ array register_module()
 {
   return ({
     MODULE_LOCATION,
-    "per.hedbor.org filesystem",
+    "template filesystem",
     "Indeed. Template adding filesystem with image viewing extras",
   });
 }
@@ -47,7 +69,7 @@ string apply_template( string f, string newfile, object id )
     {
       werror(" found\n");
       file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, query_location()+cd[..i+1]*"/");
-      file = parse_html(file, ([ "path":itag_path ]), ([]), id, query_location()+cd[..i]*"/"+"/");
+      //file = parse_html(file, ([ "path":itag_path ]), ([]), id, query_location()+cd[..i]*"/"+"/");
       //contents = parse_html(contents, ([ "path":itag_path, "relinsert":itag_relinsert ]), ([]), id, vtemplate);
       newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, newfile);
 //      return query_location()+cd[..i]*"/"+"/template";
