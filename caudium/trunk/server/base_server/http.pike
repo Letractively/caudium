@@ -31,8 +31,6 @@
 #define caudium caudiump()
 #endif
 
-string http_date(int t);
-
 #include <variables.h>
 
 //! 
@@ -432,6 +430,7 @@ string cern_http_date(int t)
 #endif /* 1 */
 }
 
+#if 0
 //!   Return the specified date (as returned by time()) formatted in the
 //!   HTTP-protocol standard date format. Used in for example the Last-Modified
 //!   header.
@@ -445,7 +444,6 @@ string http_date(int t)
     return Calendar.ISO_UTC.Second(t)->format_http();
 }
 
-#if 0
 //!   HTTP encode the specified string and return it. This means replacing
 //!   the following characters to the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
