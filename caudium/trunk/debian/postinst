@@ -140,6 +140,7 @@ fi
     #
     # Some modules inherit other with relative paths
     #
+    cd /usr/lib/caudium/
     for d in ../../share/caudium/*; do
 	ln -sf ${d} /usr/lib/caudium/
     done
