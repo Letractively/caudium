@@ -1,3 +1,11 @@
+caudium (2:1.2.19-2) unstable; urgency=low
+
+  * Added /usr/share/pike_packages/apps/modules to the modules path
+    for Caudium. This path can be used by 3rd party packages extending or
+    depending upon Caudium to install their files in.
+
+ -- Marek Habersack <grendel@debian.org>  Fri,  6 Dec 2002 20:23:49 +0100
+
 caudium (2:1.2.19-1) unstable; urgency=low
 
   * Latest upstream release. Changes:

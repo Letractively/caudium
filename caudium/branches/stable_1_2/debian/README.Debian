@@ -23,6 +23,16 @@ bit from its predecessor, Roxen.
    instead of the /usr/share/roxen/modules one. Likewise, name the module
    libcaudium-MODULENAME.
 
+ - External packages
+   If you are a packager of an external package that requires or extends
+   Caudium, you can put the files that have to be found by Caudium in a
+   subdirectory of the /usr/share/pike_packages/apps/modules/ directory.
+   That directory is part of the standard Caudium module path.
+   NOTE: if you are upgrading from a previous version of the Caudium 1.2
+   or newer package, this path will not be added automatically. In such
+   case you will have to extend the modules path manually using the
+   Configuration Interface.
+
  $Id$
  
  -- Marek Habersack <grendel@debian.org>, Tue, 15 Aug 2000 13:47:27 +0200
