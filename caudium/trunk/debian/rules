@@ -145,10 +145,10 @@ install: build
 	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(EXTVER)/"\3;' \
 	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
 	    -e 's#^string __caudium_extra_ver__ = ""#string __caudium_extra_ver__ = "Debian GNU/Linux"#' \
-	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
-	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
-	mv debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
-	   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
+	       debian/caudium/usr/lib/caudium$(EXTVER)/etc/modules/CaudiumVersion.pmod > \
+	       debian/caudium/usr/lib/caudium$(EXTVER)/etc/modules/CaudiumVersion.pmod.new && \
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/etc/modules/CaudiumVersion.pmod.new \
+	   debian/caudium/usr/lib/caudium$(EXTVER)/etc/modules/CaudiumVersion.pmod
 
 	for p in $(CURDIR)/debian/www/*.png.uu; do \
 	    uudecode -o $(CURDIR)/debian/caudium/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
