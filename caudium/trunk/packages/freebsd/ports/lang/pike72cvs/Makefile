@@ -29,8 +29,8 @@ LIB_DEPENDS=	gmp.6:${PORTSDIR}/math/libgmp4 \
 		jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
-		mird.1:${PORTSDIR}/databases/mird \
-		rsaref.2:${PORTSDIR}/security/rsaref
+		mird.1:${PORTSDIR}/databases/mird 
+#		rsaref.2:${PORTSDIR}/security/rsaref
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
@@ -64,8 +64,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm \
-		 --without-ssleay \
-		 --with-rsaref=${PREFIX}
+		 --without-ssleay
+#		 --with-rsaref=${PREFIX}
 
 .include <bsd.port.pre.mk>
 
