@@ -53,7 +53,7 @@ int returnok(int z) {
 
 // Write the test name ;-)
 void prtest(string name) {
-  write(sprintf("  Testing Caudium.%s()...\t",name));
+  write(sprintf("  Testing Caudium.%-25s\t",name+"()..."));
 }
 
 // Do test with mapping in format "source":"destination" with function given
