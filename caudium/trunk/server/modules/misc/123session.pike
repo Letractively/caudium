@@ -692,3 +692,8 @@ mapping sessions () {
 //!  type: TYPE_FLAG
 //!  name: Secure Cookies
 //
+//! defvar: debug
+//! When on, debug messages will be logged in Caudium's debug logfile. This information is very useful to the developers when fixing bugs.
+//!  type: TYPE_FLAG
+//!  name: Debug
+//
