@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed a bug preventing caching of ActiveDirectory authentication
+  information. Authentication using ActiveDirectory should be much faster.
+   (Bill Welliver)
 - Fixed a bug where PATH_INFO environnement variable wasn't give to scripts 
   executed throught uniscript modules.
    (David Gourdelier)
