@@ -764,6 +764,28 @@ string make_path(string ... from)
   }, getcwd())*":";
 }
 
+#if !constant(String.common_prefix)
+string common_prefix(array(string) strs)
+{
+  if(!sizeof(strs))
+    return "";
+
+  string strs0 = strs[0];
+  int n, i;
+  
+  catch
+  {
+    for(n = 0; n < sizeof(strs0); n++)
+      for(i = 1; i < sizeof(strs); i++)
+	if(strs[i][n] != strs0[n])
+	  return strs0[0..n-1];
+  };
+
+  return strs0[0..n-1];
+}
+#endif
+
+
 // Caudium bootstrap code.
 int main(mixed ... args)
 {
@@ -783,6 +805,11 @@ int main(mixed ... args)
   add_constant("has_value", lambda(mixed haystack, mixed needle) {
 			      return search(haystack, needle) != -1;
 			    });
+#endif
+#if !constant(String.common_prefix)
+  add_constant("common_prefix", common_prefix);
+#else
+  add_constant("common_prefix", String.common_prefix);
 #endif
   add_constant("fish_version", version());
   add_constant("open_db", open_db);
