@@ -42,7 +42,7 @@
 	<var name='watchdog_checkall'><int>1</int></var>
 	<var name='cache_vigilance'><int>75</int></var>
 	<var name='LogSP'><int>1</int></var>
-	<var name='ModuleDirs'><a><str><![CDATA[]]></str></a></var>
+	<var name='ModuleDirs'><a><str><![CDATA[modules/, local_modules/]]></str></a></var>
 	<var name='suicide_engage'><int>0</int></var>
 	<var name='suicide_timeout'><int>7</int></var>
 	<var name='cache_default_ttl'><int>5</int></var>
