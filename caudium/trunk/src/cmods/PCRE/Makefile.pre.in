@@ -7,9 +7,6 @@ EXTRA_CLEAN=pcre_config.h pcre_config.h.in PCRE.so
 
 @module_makefile@
 
-extraclean:
-	rm -f $(EXTRA_CLEAN)
-
 extrainstall:
 
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
