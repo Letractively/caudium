@@ -399,17 +399,7 @@ string cern_http_date(int t)
 //!   Example : Thu, 03 Aug 2000 05:40:39 GMT
 string http_date(int t)
 {
-#if constant(gmtime)
-  mapping l = gmtime( t );
-#else
-  mapping l = localtime(t);
-  t += l->timezone - 3600*l->isdst;
-  l = localtime(t);
-#endif
-  return(sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
-		 days[l->wday], l->mday, months[l->mon], 1900+l->year,
-		 l->hour, l->min, l->sec));
-
+    return Calendar.ISO_UTC.Second(t)->format_http();
 }
 
 //!   HTTP encode the specified string and return it. This means replacing
