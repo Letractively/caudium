@@ -1,3 +1,10 @@
+caudium (1:1.0.5-2) unstable; urgency=low
+
+  * Language files for CAMAS work now
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sun, 19 Nov 2000 02:47:36 +0100
+
 caudium (1:1.0.5-1) unstable; urgency=low
 
   * Latest CVS snapshot
