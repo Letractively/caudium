@@ -298,7 +298,9 @@ private static void accept_callback( object port )
  	return;
 
        case 24:
-	report_fatal("Out of sockets. Restarting server gracefully.\n");
+        report_fatal(sprintf("Out of sockets (%d active). "
+			     "Restarting server gracefully.\n",
+			     sizeof(get_all_active_fd())));
 	low_shutdown(-1);
 	return;
       }

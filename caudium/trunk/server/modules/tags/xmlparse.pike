@@ -111,6 +111,13 @@ void create()
 	 TYPE_FLAG,
 	 "Unquoted nested tag starters and enders will be balanced when "
 	 "parsing tags. ");
+  defvar("parse_arg_entities", 1, "Parse options: Parse entities in attributes",
+	 TYPE_FLAG,
+	 "If true, the values of attributes to tags and containers will be "
+	 "parsed for entities (ie &amp;scope.name;). This is strongly "
+	 "recommended as it allows for constructions like "
+	 "&lt;gtext fg=\"&amp;form.fg;\"&gt; which otherwise would not "
+	 "be allowed.");
   defvar("xml_conformance", 2, 
 	 "Parse options: XML syntax conformance level",
 	 TYPE_INT_LIST,
@@ -183,6 +190,19 @@ array(string)|string tag_with_contents(object parser, mapping args,
     "Did you forget the /?</b></p>" + contents;
 }
 
+void parse_args(mapping args, object id, mixed ... extra) {
+  object mp = Parser.HTML();
+  mp->_set_entity_callback(entity_callback);
+  mp->lazy_entity_end(QUERY(lazy_entity_end));
+  mp->ignore_tags(1);
+  mp->set_extra(id, @extra);
+  id->misc->_default_encoding = "none";
+  foreach(indices(args), string arg) {
+    object mmp = mp->clone();
+    args[arg] = mmp->finish(args[arg])->read();
+  }
+  m_delete(id->misc, "_default_encoding");
+}
 string call_tag(object parser, mapping args,
 		object id, object file, mapping defines,
 		object client)
@@ -209,6 +229,9 @@ string call_tag(object parser, mapping args,
     return 0;
   }
 #endif
+  if(sizeof(args) && QUERY(parse_arg_entities)) {
+    parse_args(args, id, file, defines, client);
+  }
   mixed result=rf(tag,args,id,file,defines,client);
   TRACE_LEAVE("");
   return result;
@@ -246,6 +269,9 @@ call_container(object parser, mapping args, string contents,
     return 0;
   }
 #endif
+  if(sizeof(args) && QUERY(parse_arg_entities)) {
+    parse_args(args, id, file, defines, client);
+  }
   mixed result=rf(tag,args,contents,id,file,defines,client);
   TRACE_LEAVE("");
   if(args->noparse && stringp(result)) return ({ result });
@@ -437,7 +463,7 @@ string|array(string)|int entity_callback(object parser, string entity,
   entity = tmp[0];
   encoding = tmp[1..] * ":";
   if(!encoding || !strlen(encoding))
-    encoding = "html";
+    encoding = id->misc->_default_encoding || "html";
   if(sscanf(entity, "%s.%s", scope, name) != 2)
     return 0;
   if(id->misc->scopes[scope]) {
