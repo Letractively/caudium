@@ -18,7 +18,7 @@
  *
  */
 
-#define THIS ((mhash_storage *)fp->current_object->storage)
+#define THIS ((mhash_storage *)fp->current_storage)
 
 typedef struct
 {
