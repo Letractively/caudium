@@ -42,7 +42,7 @@ static_strings strs;
 **! class: ParseHTTP
 */
 
-static INLINE char *char_decode_url(unsigned char *str, int len) {
+static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
   unsigned char *ptr, *end, *endl2;
   int i, nlen;
   ptr = str;
@@ -79,7 +79,7 @@ static void f_buf_append( INT32 args )
   struct pike_string *str;
   struct svalue skey, sval; /* header, value */
   int slash_n = 0, cnt, num;
-  char *pp,*ep;
+  unsigned char *pp,*ep;
   struct svalue *tmp;
   int os=0, i, j=0, l, qmark = -1;
   unsigned char *in, *query;
@@ -115,7 +115,7 @@ static void f_buf_append( INT32 args )
   skey.type = T_STRING;
   sval.type = T_STRING;
 
-  sval.u.string = make_shared_binary_string( pp, BUF->pos - pp );
+  sval.u.string = make_shared_binary_string( (char *)pp, BUF->pos - pp);
   mapping_insert(BUF->other, SVAL(data), &sval); /* data */
   free_string(sval.u.string);
   
@@ -131,7 +131,7 @@ static void f_buf_append( INT32 args )
       return;
     }
   }
-  sval.u.string = make_shared_binary_string(in, i);
+  sval.u.string = make_shared_binary_string((char *)in, i);
   mapping_insert(BUF->other, SVAL(method), &sval);
   free_string(sval.u.string);
 
@@ -146,7 +146,7 @@ static void f_buf_append( INT32 args )
       return;
     }
   }
-  sval.u.string = make_shared_binary_string(in, i);
+  sval.u.string = make_shared_binary_string((char *)in, i);
   mapping_insert(BUF->other, SVAL(raw_url), &sval);
   free_string(sval.u.string);
 
@@ -154,13 +154,13 @@ static void f_buf_append( INT32 args )
   query = char_decode_url(in, i);
 
   /* Decoded, query-less file up to the first \0 */
-  sval.u.string = make_shared_string(in); 
+  sval.u.string = make_shared_string((char *)in); 
   mapping_insert(BUF->other, SVAL(file), &sval);
   free_string(sval.u.string);
   
   if(query != NULL)  {
     /* Store the query string */
-    sval.u.string = make_shared_binary_string(query, i - (query-in)); /* Also up to first null */
+    sval.u.string = make_shared_binary_string((char *)query, i - (query-in)); /* Also up to first null */
     mapping_insert(BUF->other, SVAL(query), &sval);
     free_string(sval.u.string);
   }
@@ -174,7 +174,7 @@ static void f_buf_append( INT32 args )
   if( in[i-1] != '\r' ) 
     i++;
    
-  sval.u.string = make_shared_binary_string(in, i-1);
+  sval.u.string = make_shared_binary_string((char *)in, i-1);
   mapping_insert(BUF->other, SVAL(protocol), &sval);
   free_string(sval.u.string);
 
@@ -272,7 +272,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
                      * to set one bit :-). */
     }
   }
-  pstr = make_shared_binary_string(mystr, len);
+  pstr = make_shared_binary_string((char *)mystr, len);
 #ifndef HAVE_ALLOCA
   free(mystr);
 #endif
@@ -334,7 +334,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist)
     }
   }
 
-  newstr = make_shared_binary_string(mystr, nlen+exist);
+  newstr = make_shared_binary_string((char *)mystr, nlen+exist);
 #ifndef HAVE_ALLOCA
   free(mystr);
 #endif
@@ -375,7 +375,8 @@ INLINE static int get_next_header(unsigned char *heads, int len,
       
       skey.u.string = lowercase(heads, colon);      
       if (skey.u.string == NULL) return -1;
-      sval.u.string = make_shared_binary_string(heads+data, count2 - data);
+      sval.u.string = make_shared_binary_string((char *)(heads+data),
+						count2 - data);
       mapping_insert(headermap, &skey, &sval);
       count = count2;
       free_string(skey.u.string);
@@ -398,7 +399,7 @@ static void f_parse_headers( INT32 args )
   int len = 0, parsed = 0;
   get_all_args("Caudium.parse_headers", args, "%S", &headers);
   headermap = allocate_mapping(1);
-  ptr = headers->str;
+  ptr = (unsigned char *)headers->str;
   len = headers->len;
   /*
    * FIXME:
@@ -438,8 +439,8 @@ static void f_parse_query_string( INT32 args )
   sval.type = T_STRING;
 
   /* end of query string */
-  end = query->str + query->len;
-  name = ptr = query->str;
+  end = (unsigned char *)(query->str + query->len);
+  name = ptr = (unsigned char *)query->str;
   equal = NULL;
   for(; ptr <= end; ptr++) {
     switch(*ptr)

@@ -57,7 +57,7 @@ INLINE struct pike_string *http_decode_string(unsigned char *foo, int len)
        proc=1;
        break;
      } 
-   if (!proc) { return make_shared_binary_string(bar, len);  }
+   if (!proc) { return make_shared_binary_string((char *)bar, len);  }
    foo = bar;
    for (proc=0; bar < end; proc++) {
      if (*bar=='%') 
@@ -73,7 +73,7 @@ INLINE struct pike_string *http_decode_string(unsigned char *foo, int len)
      else { foo[proc]=*(bar++); nlen++; }
    }
    foo[proc] = '\0';
-   return make_shared_binary_string(foo, nlen);
+   return make_shared_binary_string((char *)foo, nlen);
 }
 
 INLINE int ultra_lowercase(unsigned char *str, INT32 len)
@@ -97,11 +97,11 @@ INLINE unsigned char *ultra_lowercase_host(unsigned char *ref, INT32 *trunc,
   int len, sub_len;
   unsigned char *kss = NULL; /* Pointer for kolon slash slash  */
   unsigned char *work;
-  len = strlen(ref);
+  len = strlen((char *)ref);
   work = malloc(len+1);
   strcpy(work, ref);
   *changed = 0;
-  if(len < 8 || (kss = strstr(ref, "://")) == NULL) {
+  if(len < 8 || (kss = (unsigned char *)strstr((char *)ref, "://")) == NULL) {
     if(trunc) {
       free(work);
       return NULL;
@@ -110,7 +110,7 @@ INLINE unsigned char *ultra_lowercase_host(unsigned char *ref, INT32 *trunc,
     }
   }
   kss += 3;
-  slash = MEMCHR (kss, '/', strlen(kss));
+  slash = (unsigned char *)MEMCHR ((char *)kss, '/', strlen((char *)kss));
   
   if(slash) {
     sub_len = ((unsigned char *)slash - ref) + 1;
@@ -356,7 +356,7 @@ INT32 hourly_page_hits(struct mapping *urls,
   {
     sind = &k->ind;
     sval = &k->val;
-    qmark = STRCHR(sind->u.string->str, '?');
+    qmark = (unsigned char *)STRCHR(sind->u.string->str, '?');
     if(qmark) {
       MEMCPY(decode_buf, sind->u.string->str,
 	      len = MIN(MAX_LINE_LEN, ((INT32)qmark - (INT32)sind->u.string->str - 1)));
@@ -418,22 +418,23 @@ void summarize_refsites(struct mapping *refsites,
   {
     sind = &k->ind;
     str = sind->u.string;
-    lowered = ultra_lowercase_host(str->str, &trunc, &changed);
+    lowered = ultra_lowercase_host((unsigned char *)str->str,
+				   &trunc, &changed);
     if(lowered) {
       sval = &k->val;
       if(changed) {
-	str2 = make_shared_binary_string(lowered, str->len);
+	str2 = make_shared_binary_string((char *)lowered, str->len);
 	mapaddstrnum(new_referrers, str2, sval);
 	if(trunc != str->len) {
 	  free_string(str2);
-	  str2 = make_shared_binary_string(lowered, trunc);
+	  str2 = make_shared_binary_string((char *)lowered, trunc);
 	}
 	mapaddstrnum(refsites, str2, sval);
 	free_string(str2);
       } else {
 	mapaddstrnum(new_referrers, str, sval);
 	if(trunc != str->len) {
-	  str2 = make_shared_binary_string(lowered, trunc);
+	  str2 = make_shared_binary_string((char *)lowered, trunc);
 	  mapaddstrnum(refsites, str2, sval);
 	  free_string(str2);
 	} else 
@@ -470,7 +471,7 @@ void summarize_hosts(struct mapping *hosts,
 	changed = ultra_lowercase(tmpstr, str->len);
 	tmpstr[str->len] = '\0';
 	if(changed) {
-	  str2 = make_shared_binary_string(tmpstr, str->len);
+	  str2 = make_shared_binary_string((char *)tmpstr, str->len);
 	  mapaddstrnum(newhosts, str2, sval);	  
 	  free_string(str2);
 	} else {
@@ -490,14 +491,14 @@ void summarize_hosts(struct mapping *hosts,
 		break;
 	      } else {
 		/* This is a resolved ip */
-		str2 = make_shared_string(point+1);
+		str2 = make_shared_string((char *)(point+1));
 		mapaddstrnum(topdomains, str2, sval);
 		free_string(str2);
 		top_done = 1;
 	      }
 	    } else {
 	      /* second level domain */
-	      str2 = make_shared_string(point+1);
+	      str2 = make_shared_string((char *)(point+1));
 	      mapaddstrnum(domains, str2, sval);
 	      free_string(str2);
 	      top_done = 2;
@@ -574,7 +575,7 @@ INLINE void clean_refto(struct mapping *refto, struct mapping *refdest, struct m
   ULTRA_MAPPING_LOOP(refto, e, k)
   {
     sind = &k->ind;
-    qmark = STRCHR(sind->u.string->str, '?');
+    qmark = (unsigned char *)STRCHR(sind->u.string->str, '?');
     if(qmark) {
       MEMCPY(decode_buf, sind->u.string->str,
 	     len = MIN(MAX_LINE_LEN, ((INT32)qmark - (INT32)sind->u.string->str - 1)));
@@ -595,7 +596,7 @@ INLINE void clean_refto(struct mapping *refto, struct mapping *refdest, struct m
 	decode_buf[len] = 0;
 	lowered = ultra_lowercase_host(decode_buf, 0, &changed);
 	if(lowered) {
-	  plowered = make_shared_binary_string(lowered, len);
+	  plowered = make_shared_binary_string((char *)lowered, len);
 	  map2addstrnum(refdest, decoded, plowered, sval2);
 	  /*	  printf("%s -> %s : %d\n",  plowered->str, decoded->str,*/
 	  /*		 sval2->u.integer);*/
@@ -770,7 +771,7 @@ INLINE void process_session(unsigned char *host, INT32 t, INT32 hour,
   struct svalue key;
   INT32 len;
   key.type = T_STRING;
-  key.u.string = make_shared_binary_string(host, strlen(host));
+  key.u.string = make_shared_binary_string((char *)host, strlen((char *)host));
   end = LML( session_end, &key );                 
   mapaddsval(sites, &key);
   if(end) {

@@ -34,8 +34,8 @@ typedef struct
 
 typedef struct
 {
-  char data[BUFSIZE];
-  char *pos;
+  unsigned char data[BUFSIZE];
+  unsigned char *pos;
   int free;
   struct mapping *headers;
   struct mapping *other;

@@ -40,16 +40,16 @@ struct program *xslt_program=NULL;
 static MH_ERROR mh_makecode( void *ud, SablotHandle sproc,
 	int severity, unsigned short f, unsigned short code){
   return code; /* use internal codes */
-};
+}
 
 static MH_ERROR mh_log(void *ud, SablotHandle sproc,
 		       MH_ERROR code, MH_LEVEL level, char **fields)
 {
   /* No logging... */
   return code;
-};
+}
 
-inline static MH_ERROR low_mh_error(void *ud, SablotHandle sproc,
+INLINE static MH_ERROR low_mh_error(void *ud, SablotHandle sproc,
 			 MH_ERROR code, MH_LEVEL level, char **fields)
 {
   struct mapping *map = *(struct mapping **)ud;
@@ -98,7 +98,7 @@ static MH_ERROR mh_error(void *ud, SablotHandle sproc,
 {
   THREAD_SAFE_RUN(low_mh_error(ud, sproc, code, level, fields));
   return 1;
-};
+}
 
 MessageHandler sablot_mh = {
   mh_makecode,
@@ -131,7 +131,7 @@ static void f_run( INT32 args )
   char *parsed = NULL;
   struct mapping *err = NULL;
   int success, count;
-  unsigned char *xmlsrc, *xslsrc;
+  char *xmlsrc, *xslsrc;
   char **vars = NULL;
   char *argums[] =
   {
