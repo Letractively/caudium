@@ -410,4 +410,28 @@ inherit _Caudium;
 //!               "toto":"zzz"
 //!             ])
 
+// private form sexpr_eval()
+private array permitted = ({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+                             "-", "*", "+", "/", "%", "&", "|", "(",")" });
 
+//! Do some expression calculation (eg addition etc).
+//! @param what
+//!   What to calculate
+string sexpr_eval(string what) {
+  array  q = what / " ";
+  mixed  error;
+  string ret;
+
+  if(!what || !sizeof(what))
+    return "";
+
+  what = "mixed foo() { return "+(q - (q - permitted))*""+";}";
+
+  error = catch {
+    ret = compile_string(what)()->foo();
+  };
+
+  if (error) return "";
+
+  return ret;
+}
