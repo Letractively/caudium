@@ -21,9 +21,9 @@ Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
   Stenitzer.
 - 123session backported from 1.1 source tree, with updated and modification
   submitted by Chris Davies
-- LDAP Tag and LDAP Auth now support pike 7.0.xxx Protocols.LDAP and have
+- LDAP Tag and LDAP Auth now support pike 7.x Protocols.LDAP and have
   a configurable version
-- PiXSL now compile on FreeBS
+- PiXSL now compiles on FreeBSD
 - Supports updated with Opera 5.0 browser
 - SQLuserdb backported from 1.1 with Chris Davies modifications
 
