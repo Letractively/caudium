@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fix HTML 4.01 strict compliance in gsession.
+   (Jeff Utter, David Gourdelier)
 - Added make_html_tag, make_html_container, make_html_tag_attributes that 
   output HTML compliant strings escaping any unsafe characters (only " 
   actually).
