@@ -815,7 +815,7 @@ int _match(string w, array (string) a) {
   if (!stringp(w)) // Internal request..
     return -1;
   foreach (a, q) 
-    if (stringp(q) && strlen(q) && glob(q, w)) 
+    if (stringp(q) && glob(q, w)) 
       return 1; 
 }
 
