@@ -202,7 +202,8 @@ class PHPScript
     if(!query("rxml"))
     {
       mid->my_fd->set_blocking();
-      options->my_fd = mid->my_fd;
+      if(_typeof(mid->my_fd) == _typeof(Stdio.File()))
+	options->my_fd = mid->my_fd;
     }
 
     mid->my_fd->set_close_callback(done);
