@@ -693,7 +693,9 @@ array query_seclevels()
                     groupregex += "|(^" + group + "$)";
                 }
               }
-              patterns += ({ ({ MOD_ACCEPT_GROUP, Regexp(value)->match, }) });
+              
+              if (groupregex)
+                patterns += ({ ({ MOD_ACCEPT_GROUP, Regexp(groupregex)->match, }) });
             }
             break;
             
