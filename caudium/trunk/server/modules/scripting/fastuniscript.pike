@@ -35,7 +35,7 @@ inherit "modules/scripting/fastcgi.pike": fastcgi;
 constant cvs_version = "$Id$";
 
 constant module_type = MODULE_FILE_EXTENSION|MODULE_EXPERIMENTAL;
-constant module_name = "Universal script parser (FastCGI)";
+constant module_name = "Universal script parser - FastCGI";
 constant module_doc  = "This module provides extensions handling by miscellaneous script interpreters. "
 			"Scripts can be run as choosen user, or by owner. This module uses FastCGI "
                         "to communicate with the script interpreter.";
