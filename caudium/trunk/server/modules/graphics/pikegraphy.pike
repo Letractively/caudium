@@ -383,7 +383,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
      for(int i = startpic; i<(sizeof(cnt_dir)) && i<QUERY(nb_pic_max)+startpic;i++) {
        cnt += "\t\t<td><a href=\"" + id->not_query 
 	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
-       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+replace_string(cnt_dir[i])+"\" format=jpeg quant=\"64\" maxwidth=\"100\" border=0 ></a></td>\n";
+       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+cnt_dir[i]+"\" format=jpeg quant=\"64\" maxwidth=\"100\" border=0 ></a></td>\n";
 
        cnt += "\t\t<td align=left><a href=\"" + id->not_query 
 	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
@@ -494,7 +494,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    if (id->variables && id->variables->hi ) {
       cnt += "<td ><br><center><img src="+QUERY(root_images)+dir+"/"+filename+" ></center><br><br></td>";
    } else {
-      cnt += "\t\t<tr>\n\t\t\t<td><br><center><cimg src="+QUERY(root_images)+dir+"/"+filename+" maxwidth=800 maxheight=600 quant=64 format=\"jpeg\" border=0 ></center><br></td>";
+      cnt += "\t\t<tr>\n\t\t\t<td><br><center><cimg src=\""+QUERY(root_images)+dir+"/"+filename+"\" maxwidth=800 maxheight=600 quant=64 format=\"jpeg\" border=0 ></center><br></td>";
    }
    cnt += "\n\t\t</tr>\n\t\t<tr>\n";
    cnt += "\t\t\t<td align=right> <a href=\"\" onClick='enterWindow=window.open(\"?id="+dir+"/"+filename+"&addcomment=1\",\"commentadd\",\"width=400,height=260,top=250,left=500\"); return false'>Click to add comment</a> <br></td>\n";
