@@ -2841,6 +2841,7 @@ string get_pr_size(string size, string color)
   if(pr_sizes[size+color]) return pr_sizes[size+color];
   object fd = open("caudium-images/power-"+size+"-"+color+".png", "r");
   if(!fd) return "NONEXISTANT COMBINATION";
+  // Kiwi: hu? gif_size() on a png ???
   return pr_sizes[size+color] = gif_size( fd );
 }
 
@@ -2861,9 +2862,9 @@ string tag_pr(string tagname, mapping m)
   int w;
   if(get_pr_size(size,color)  == "NONEXISTANT COMBINATION") color = "red";
   sscanf(get_pr_size(size,color), "%*swidth=%d", w);
-  m->width = (string)w;
+  if(w != 0) m->width = (string)w;
   sscanf(get_pr_size(size,color), "%*sheight=%d", w);
-  m->height = (string)w;
+  if(w != 0) m->height = (string)w;
   m->src = "/internal-caudium-power-"+size+"-"+color;
   if(!m->alt) m->alt="Powered by Caudium";
   if(!m->border) m->border="0";
