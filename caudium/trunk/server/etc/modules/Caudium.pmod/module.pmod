@@ -202,4 +202,34 @@ inherit _Caudium;
 //! @note
 //!   Non RIS function, handled by _Caudium C module.
 
+//! @decl string get_address(string addr)
+//!   Get the IP Address from Pike query_address string.
+//! @param addr
+//!   The address + port from Pike with the following format :
+//!   "aaa.bbb.ccc.ddd portnumber".
+//! @returns
+//!   The IP Address string.
+//! @example
+//!   Pike v7.4 release 1 running Hilfe v3.5 (Incremental Pike Frontend)
+//!   > Caudium.get_address("127.0.0.1 46021");
+//!   (1) Result: "127.0.0.1"
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!   @[get_port]
 
+//! @decl string get_port(string addr)
+//!   Get the IPv4 port from Pike query_address string.
+//! @param addr
+//!   The address + port from Pike with the following format :
+//!   "aaa.bbb.ccc.ddd portnumber".
+//! @returns
+//!   The IP Port string.
+//! @example
+//!   Pike v7.4 release 1 running Hilfe v3.5 (Incremental Pike Frontend)
+//!   > Caudium.get_address("127.0.0.1 46021");
+//!   (1) Result: "46021"
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!   @[get_address]
