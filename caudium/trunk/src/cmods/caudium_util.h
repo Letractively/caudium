@@ -83,3 +83,7 @@
   for(COUNT=0;COUNT < md->data->hashsize; COUNT++ ) \
 	for(KEY=md->data->hash[COUNT];KEY;KEY=KEY->next)
 
+#ifndef ARG
+/* Get argument # _n_ */
+#define ARG(_n_) sp[-(args - _n_)]
+#endif
