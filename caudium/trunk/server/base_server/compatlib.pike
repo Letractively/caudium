@@ -200,6 +200,26 @@ object new(string|program prog, mixed ... args)
 //! @seealso
 //!   @[destruct()], @[compile_string()], @[compile_file()], @[new()]
 
-function(string|program, mixed ... : object) clone = new;
+object clone(mixed ... args) {
+  report_error("Compat clone() used in %s, please consider using Pike 7.4 (program) cast instead\n",dbt(backtrace()[-2]));
+  return new(@args);
+}
 
+// Roxenlib / Caudiumlib API compat
 
+// This is inside caudiumlib14
+static mapping build_caudium_env_vars(object id);
+
+//! Backward compatibility with Roxen
+//! @deprecated
+mixed build_roxen_env_vars(mixed ... args) {
+  report_error("Compat build_roxen_env_vars() used in %s, please consider using build_caudium_env_vars() instead\n",dbt(backtrace()[-2]));
+  return build_caudium_env_vars(@args);
+}
+
+//! Compat call for Caudium.extension
+//! @deprecated
+string extention(string f) {
+  WCOMPAT("Caudium","extension");
+  return Caudium.extentions(f);
+}

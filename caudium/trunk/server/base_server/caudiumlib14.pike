@@ -301,11 +301,6 @@ static mapping build_caudium_env_vars(object id)
   return new;
 }
 
-//FIXME: This shouldn't be under API_COMPAT ?
-
-//! Backwards Roxen compatibility
-static function build_roxen_env_vars = build_caudium_env_vars; 
-
 //!  Return a textual description of the file mode.
 //! @param m
 //!  The file mode to decode.
@@ -846,22 +841,6 @@ values( symbols ) +
 values( greek ) +
 ({"<",">","&","\"","\'","\"","\"","\'","\000"});
 
-#if 0
-//! Decodes a HTML-encoded string
-//!
-//! @param str
-//!  String to decode
-//!
-//! @returns
-//!  The decoded string
-string html_decode_string(string str)
-{
-  return replace(str,
-		 ({"&amp;","&lt;","&gt;","&#34;","&#39;","&#0;","&#58;"}),
-		 ({"&", "<", ">", "\"", "\'", "\000", ":" }) );
-}
-#endif
-
 //!  Converts html entity coded chars to unicode
 //! @param str
 //!  The string to convert, contains the html entities
@@ -977,18 +956,6 @@ string msectos(int t)
   
   return sprintf("%d:%02d h:m", t/3600000, (t%3600000)/60000);
 }
-
-//! @decl string extension( string f)
-//! @decl string Caudium.extension( string f)
-//!
-//! This function gets the right extension name from 
-//! filename @[f].
-//!
-//! @note
-//!   Non RIS code.
-
-
-static function extension = Caudium.extension;
 
 //! Gets the backup extension
 //! 
