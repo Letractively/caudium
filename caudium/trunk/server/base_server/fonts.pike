@@ -253,6 +253,8 @@ object get_font(string f, int size, int bold, int italic,
   object fnt;
   string key, name;
   mixed err;
+  if(f == "")  f = "default";  // To load the default font if
+                               // it is badly specified.
 
   key = f+size+bold+italic+justification+xspace+yspace;
   if(fnt=cache_lookup("fonts", key))
