@@ -54,6 +54,7 @@ constant cvs_version = "$Id$";
 #define DEFAULT_TTL 600
 // Stupid arbitary number. 10 minutes.
 
+function cache_file = cache_file_object;
 mapping cache_file_object( object file, string name, void|int exp ) {
 	// Use this to store a file to a cache.
 	// file: The Stdio.file object that we are working with
@@ -75,10 +76,12 @@ mapping cache_file_object( object file, string name, void|int exp ) {
          ]);
 }
 
+function cache_http = cache_http_answer;
 mapping cache_http_answer( mapping http_answer, object id ) {
 	// This needs to work, for a start :)
 }
 
+function cache_pike = cache_pike_object;
 mapping cache_pike_object( mixed var, string name, void|int exp ) {
 	// Use this to place any kind of pike data structure in cache.
 	// var: The pike datatype being stored in RAM.
@@ -124,6 +127,7 @@ mapping cache_pike_object( mixed var, string name, void|int exp ) {
   return retval;
 }
 
+function cache_program = cache_program_object;
 mapping cache_program_object( program p, string name, void|int exp ) {
   if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
     exp = exp + time();
@@ -141,6 +145,7 @@ mapping cache_program_object( program p, string name, void|int exp ) {
           ]);
 }
 
+function cache_string = cache_string_object;
 mapping cache_string_object( string s, string name, void|int exp) {
   if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
     exp = exp + time();
@@ -158,6 +163,7 @@ mapping cache_string_object( string s, string name, void|int exp) {
           ]);
 }
 
+function cache_image = cache_image_object;
 mapping cache_image_object( object img, string name, void|int exp ) {
   if ( ( exp ) && ( exp > 0 ) && ( exp < time() ) ) {
     exp = exp + time();
