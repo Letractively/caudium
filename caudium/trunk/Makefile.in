@@ -173,7 +173,7 @@ install_alt:
 	mv $(DESTDIR)/$(prefix)/lib/caudium/start.new $(DESTDIR)/$(prefix)/lib/caudium/start
 	@(cd src;$(MAKE) "prefix=$(prefix)" "DESTDIR=$(DESTDIR)" \ "CC=$(CC)" \
 	                 "LDFLAGS=$(LDFLAGS)" \
-	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@/" install)
+	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@/" install_alt)
 	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium/bin/caudium
 	-@for f in fcgi install.pike pdbi.pike pike caudium; \
 	do \

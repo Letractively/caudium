@@ -16,6 +16,10 @@ htpasswd: $(SRCDIR)/htpasswd.c
 install: htpasswd
 	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
 
+install_alt: htpasswd
+	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
+	-strip --strip-unneeded $(DESTDIR)/$(prefix)/bin/htpasswd
+
 clean:
 	rm -f htpasswd
 
