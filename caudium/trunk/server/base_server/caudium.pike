@@ -3470,9 +3470,8 @@ int main(int argc, array(string) argv)
   
   start_time = boot_time = time();
 
-
-  // FIXME: This should be report_error() instead ?
-  add_constant("write", perror);
+  //add_constant("write", perror);
+  add_constant("write", report_error);
 
   report_notice("Starting Caudium\n");
 
