@@ -715,7 +715,7 @@ class CGIScript
     if( limits )
       options->rlimit = limits;
 
-    if(!(pid = Caudium.create_process( ({ command }) + arguments, options ))) {
+    if(!(pid = Process.create_process( ({ command }) + arguments, options ))) {
       error("Failed to create CGI process.\n");
     }
   // XXX Caudium.create_process returns int (pid number) now

@@ -675,7 +675,7 @@ class CGIScript
 
     DWERROR(sprintf("%O\n%O\n%O\n", ({ interpreter, command }), arguments, options));
 
-    Caudium.create_process( ({ interpreter, command }) + arguments, options );
+    Process.create_process( ({ interpreter, command }) + arguments, options );
 
 //    if(!(pid = Process.create_process( ({ interpreter, command }) + arguments, options ))) 
 //      error("Failed to create CGI process.\n");
