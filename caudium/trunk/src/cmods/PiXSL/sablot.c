@@ -21,6 +21,7 @@
 /* $Id$ */
 #include "global.h"
 RCSID("$Id$");
+#include "interpret.h"
 #include "stralloc.h"
 #include "pike_macros.h"
 #include "module_support.h"
