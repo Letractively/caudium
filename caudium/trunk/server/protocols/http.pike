@@ -1663,7 +1663,6 @@ int processed;
 void got_data(mixed fdid, string s)
 {
 
-werror(sprintf("conf: %O\n", indices(conf)));
   int tmp;
   MARK_FD("HTTP got data");
   remove_call_out(do_timeout);
