@@ -488,6 +488,7 @@ if test $cflags_is_set = no; then
 	-Wpointer-arith  -Wmissing-declarations -Winline -Wcast-align"
   AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
   AC_SYS_COMPILER_FLAG(-ffast-math,ffast_math,OPTIMIZE)
+#  AC_SYS_COMPILER_FLAG(-fexpensive-optimizations,fexpensive-optimizations,OPTIMIZE)
   AC_SYS_OS_COMPILER_FLAG(AIX,-mprototype,mprototype,WARN)
 ### Optimize for different SUN machines. If there is no working 'uname'
 ### no extra optimization will be done, but nothing should break either.
