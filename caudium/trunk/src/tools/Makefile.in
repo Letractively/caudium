@@ -5,13 +5,13 @@ prefix=@prefix@
 SRCDIR=@srcdir@
 INSTALL=@INSTALL@
 CC=@CC@
-CFLAGS=@CFLAGS@
-LIBS=@LIBS@
+CFLAGS=@CFLAGS@ @CPPFLAGS@
+LDFLAGS=@LDFLAGS@ @LIBS@
 
 all: htpasswd 
 
 htpasswd: $(SRCDIR)/htpasswd.c
-	-$(CC) $(CFLAGS) -o htpasswd $(SRCDIR)/htpasswd.c $(LIBS)
+	-$(CC) $(CFLAGS) -o htpasswd $(SRCDIR)/htpasswd.c $(LDFLAGS)
 
 install: htpasswd
 	$(INSTALL) htpasswd $(prefix)/bin/
