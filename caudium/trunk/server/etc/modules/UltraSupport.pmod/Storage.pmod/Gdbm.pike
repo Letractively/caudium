@@ -23,6 +23,7 @@
 
 //! $Id$
 
+#if constant (Gdbm.gdbm)
 object db;
 string key;
 string path;
@@ -190,3 +191,5 @@ void destroy() {
     destruct(db);
   }
 }
+
+#endif
