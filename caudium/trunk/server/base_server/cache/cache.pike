@@ -39,6 +39,7 @@ int max_object_disk;
 string path;
 int default_ttl;
 int last_access;
+string _cache_desc;
 
 void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, program rcache, program dcache, int _default_ttl ) {
 	// Create the cache, and memory management.
@@ -195,11 +196,14 @@ void free_disk( int nbytes ) {
   disk_cache->free( nbytes );
 }
 
-void flush() {
+void flush( void|string regexp ) {
+#ifdef CACHE_DEBUG
+  write( "CACHE: Flushing cache" + (regexp?" with regexp":"") + ".\n" );
+#endif
 	// Flush the entire cache
   last_access = time();
-  ram_cache->flush();
-  disk_cache->flush();
+  ram_cache->flush( regexp );
+  disk_cache->flush( regexp );
 }
 
 void stop() {
@@ -209,4 +213,12 @@ void stop() {
 #endif
   ram_cache->stop();
   disk_cache->stop();
+}
+
+void|string cache_description( void|string desc ) {
+  if ( desc ) {
+    _cache_desc = desc;
+    return 0;
+  }
+  return _cache_desc;
 }

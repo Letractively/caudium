@@ -27,34 +27,31 @@ inherit "caudiumlib";
 inherit "cachelib";
 
 object cache_manager;
-mapping caches;
+object my_cache;
 
 void create( object cm ) {
   cache_manager = cm;
-  caches = ([ ]);
 #ifdef CACHE_DEBUG
   perror("CACHE: Compatibility now online.\n");
 #endif
 }
 
-private object find_cache( string in ) {
-  if (! caches[ in ] ) {
-    object res = cache_manager->get_cache( in );
-    caches[ in ] = res;
-    return res;
+void start_cache() {
+  if ( ! objectp( my_cache ) ) {
+    my_cache = cache_manager->get_cache( "DEFAULT" );
+    my_cache->cache_description( "Cache for the Caudium server's internal needs.\n" );
   }
-  return caches[ in ];
 }
 
 void cache_expire(string in)
 {
-  object this_cache = find_cache( in );
-  this_cache->flush();
+  start_cache();
+  my_cache->flush( sprintf( "^%s://", in ) );
 }
 
 mixed cache_lookup( string in, string what ) {
-  object this_cache = find_cache( in );
-  return this_cache->retrieve( what, 1 )||0;
+  start_cache();
+  return my_cache->retrieve( sprintf( "%s://%s", in, what ), 1 )||0;
 }
 
 string status() {
@@ -65,13 +62,13 @@ string status() {
 }
 
 void cache_remove(string in, string what) {
-  object this_cache = find_cache( in );
-  this_cache->refresh( what );
+  start_cache();
+  my_cache->refresh( sprintf( "%s://%s", in, what ) );
 }
 
 mixed cache_set(string in, string what, mixed to, int|void tm) {
-  object this_cache = find_cache( in );
-  this_cache->store( cache_pike_object( to, what, tm ) );
+  start_cache();
+  my_cache->store( cache_pike_object( to, sprintf( "%s://%s", in, what ), tm ) );
   return to;
 }
 
