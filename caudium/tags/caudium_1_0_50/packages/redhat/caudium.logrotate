@@ -1,0 +1,6 @@
+/var/log/caudium/*/Log {
+  compress
+  copytruncate
+  missingok
+  notifempty
+}
