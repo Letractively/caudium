@@ -3394,7 +3394,7 @@ string desc()
 
 mapping(string:string) sql_urls = ([]);
 
-mapping sql_cache = ([]);
+mapping(string|object:object) sql_cache = ([]);
 
 object sql_cache_get(string what)
 {
@@ -3402,13 +3402,23 @@ object sql_cache_get(string what)
 #if !constant(this_thread)
   return Sql.sql( what );
 #else
-  if(sql_cache[what] && sql_cache[what][this_thread()])
-    return sql_cache[what][this_thread()];
+  string key;
+#if defined(__MAJOR__) && __MAJOR__ >= 7 
+  // Reports has come in that this_thread() might return different
+  // objects even if the thread is the same. We avoid this problem by using
+  // the textual representation which includes the thread id. Only works
+  // in Pike 7.0 where _sprintf is supported.
+  key = sprintf("%O\n", this_thread());
+#else
+  key = this_thread();
+#endif
+  if(sql_cache[what] && sql_cache[what][key])
+    return sql_cache[what][key];
   if(!sql_cache[what])
-    sql_cache[what] =  ([ this_thread():Sql.sql( what ) ]);
+    sql_cache[what] =  ([ key:Sql.sql( what ) ]);
   else
-    sql_cache[what][ this_thread() ] = Sql.sql( what );
-  return sql_cache[what][ this_thread() ];
+    sql_cache[what][ key ] = Sql.sql( what );
+  return sql_cache[what][ key ];
 #endif   /* !this_thread */
 #else /* !THREADS */
   if(!sql_cache[what])
