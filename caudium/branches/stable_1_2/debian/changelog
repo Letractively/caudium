@@ -1,4 +1,4 @@
-caudium (2:1.2.27-2) unstable; urgency=low
+caudium (2:1.2.27-1) unstable; urgency=low
 
   * Added the Brazilian Portuguese translation of the debconf templates
     provided by Andre Luis Lopes. Thank you. (closes: Bug#197541)
