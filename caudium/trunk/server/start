@@ -363,9 +363,9 @@ rotate () {
 
 start_caudium() {
   if [ "$nocaudium" = "" -a "x$DIR" != "x../configurations/" ] ; then
-    args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program --config-dir=$DIR $pass"
+    args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program --config-dir=$DIR $pass"
   else
-    args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program $pass"
+    args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program $pass"
   fi
   if [ "x$gdb" = "xno" ]; then
     if [ "$quiet" != "yes" ]; then 
