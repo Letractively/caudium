@@ -22,8 +22,6 @@
 
 //! This module will handle all HTTP related things.
 
-#include <variables.h>  // For mapping errors.
-
 //!  Return the specified date (as returned by time()) formated in the 
 //!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
 //! @param t
@@ -154,7 +152,7 @@ string res_to_string( mapping file, object id )
   if(mappingp(id->misc->moreheads))
     heads |= id->misc->moreheads;
     
-  array myheads=({id->prot+" "+(file->rettext||errors[file->error])});
+  array myheads=({id->prot+" "+(file->rettext||Caudium.Const.errors[file->error])});
   foreach(indices(heads), string h)
     if(arrayp(heads[h]))
       foreach(heads[h], string tmp)
