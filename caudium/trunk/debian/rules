@@ -32,7 +32,7 @@ CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
 PIKE7_CHANGELOG=/usr/share/doc/$(PIKE)/changelog.Debian.gz
 PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
-ADD_VER=-1.1
+ADD_VER=
 
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike 
@@ -127,9 +127,9 @@ install: build
 	# the -p debhelper param seems to be not working... 
 	# so let's do it by hand
 	#
-	install -m 755 -d debian/caudium-ultralog-1.1/usr/share/man/man1/
+	install -m 755 -d debian/caudium-ultralog/usr/share/man/man1/
 	cp src/cmods/UltraLog/docs/ultrasum.1 \
-	   debian/caudium-ultralog-1.1/usr/share/man/man1/
+	   debian/caudium-ultralog/usr/share/man/man1/
 
 	dh_movefiles
 	

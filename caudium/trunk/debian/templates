@@ -1,4 +1,4 @@
-Template: caudium-1.1/config_port
+Template: caudium/config_port
 Type: string
 Default: 22202
 Description: On what port should the config interface be?
@@ -6,7 +6,7 @@ Description: On what port should the config interface be?
  interface. You can access the interface using any form capable
  web browser (like Mozilla, Lynx, Links or Galeon)
 
-Template: caudium-1.1/listen_on
+Template: caudium/listen_on
 Type: string
 Default: 80
 Description: What port should the server listen on?
@@ -15,7 +15,7 @@ Description: What port should the server listen on?
  however, that this port is already taken by some other
  application. Please specify a different port.
 
-Template: caudium-1.1/start_options
+Template: caudium/start_options
 Type: multiselect
 Choices: threads, debug, once, profile, fd-debug, keep-alive
 Description: Select options that should be used on startup
@@ -26,7 +26,7 @@ Description: Select options that should be used on startup
  'fd-debug' - debug file descriptor usage
  'keep-alive' - keep connections alive
 
-Template: caudium-1.1/cfg_port_taken
+Template: caudium/cfg_port_taken
 Type: note
 Description: Cannot bind to port.
  The port you have specified for Caudium configuration interface
@@ -34,7 +34,7 @@ Description: Cannot bind to port.
  cannot function properly without binding its configuration 
  interface to a port on your system.
 
-Template: caudium-1.1/last_screen
+Template: caudium/last_screen
 Type: text
 Description: Caudium configuration
  After your Caudium is installed and running, you should point your
@@ -45,7 +45,7 @@ Description: Caudium configuration
  /usr/share/doc/caudium directory and make sure to visit
  http://caudium.net/ and http://caudium.org/
 
-Template: caudium-1.1/experimental_http
+Template: caudium/experimental_http
 Type: boolean
 Default: false
 Description: Use the experimental HTTP protocol module?

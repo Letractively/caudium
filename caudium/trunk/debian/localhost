@@ -91,7 +91,7 @@ page.%3cp%3e
 </str> </var>
  <var name='Domain'>             <str></str> </var>
  <var name='shells'>             <str>/etc/shells</str> </var>
- <var name='LogFile'>            <str>/var/log/caudium-1.1/localhost/Log</str> </var>
+ <var name='LogFile'>            <str>/var/log/caudium/localhost/Log</str> </var>
  <var name='named_ftp'>          <int>0</int> </var>
  <var name='name'>               <str></str> </var>
  <var name='LogFormat'>          <str>404: $host $referer - [$cern_date] "$method $resource $protocol" 404 -

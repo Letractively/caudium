@@ -14,7 +14,7 @@
 # Caudium init.d startup file
 #
 # $Id$
-EXTVER=-1.1
+EXTVER=
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON_DIR=/usr/lib/caudium${EXTVER}
 DAEMON=$DAEMON_DIR/start
