@@ -2021,6 +2021,9 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
   if(!id->conf->auth_module)
     return "<!-- user requires an user database! -->\n";
 
+  if (m->queryname) 
+    return id->auth[1];
+  
   if (!(b=m->name)) {
     return(tag_modified("modified", m | ([ "by":"by" ]), id, file,defines));
   }
