@@ -1,0 +1,19 @@
+Search Engine powered by Jakarta Lucene
+---------------------------------------
+
+You will need a pike that supports Java (see pike --features for that).
+
+How to install :
+
+uses the Spindle search engine by bitmechanics (http://www.bitmechanic.com/projects/spindle/)
+
+very very basic
+to use, download spindle, and liblist from the above site
+add the jar files (4 of them) to your classpath and start caudium.
+generate the lucene database using the spindle tools.
+
+insert this to get search results for "my query":
+<spindle_search db="/webdev/lucene/db" query="my query">
+
+
+
