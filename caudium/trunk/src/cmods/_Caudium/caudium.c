@@ -55,21 +55,6 @@ RCSID("$Id$");
 # define DERR(X)
 #endif
 
-/* AIX requires this to be the first thing in the file.  */
-#ifndef __GNUC__
-# if HAVE_ALLOCA_H
-#  include <alloca.h>
-# else
-#  ifdef _AIX
- #pragma alloca
-#  else
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#   endif
-#  endif
-# endif
-#endif
-
 #include "caudium.h"
 #include "datetime.h"
 
@@ -147,13 +132,9 @@ static void f_make_tag_attributes(INT32 args)
     len = indices->real_item[i].u.string->len +
       values->real_item[i].u.string->len + 5;
     
-#ifdef HAVE_ALLOCA
-    tmp = (char*)alloca(len);
-#else
     tmp = (char*)malloc(len);
     if (!tmp)
       Pike_error("Out of memory");
-#endif
     /* ugly code, but fast */
     tmp[len] = 0;
     len = indices->real_item[i].u.string->len;
@@ -166,9 +147,7 @@ static void f_make_tag_attributes(INT32 args)
     len += 2;
     
     string_builder_append(&ret, MKPCHARP(tmp, 0), (ptrdiff_t)len);
-#ifndef HAVE_ALLOCA
     free(tmp);
-#endif
   }
 
   retstr = finish_string_builder(&ret);
@@ -232,17 +211,11 @@ static void setproctitle_init(int argc, char **argv)
 static void setproctitle(char *fmt, ...)
 {
   va_list     ap;
-#if defined(__GNUC__) || defined(HAVE_ALLOCA)
-  char       *buf = alloca(_maxargvlen);
-#else
   char       *buf = malloc(_maxargvlen);
-#endif
 
   if (!argv0 || !_maxargvlen || !fmt || !strlen(fmt)) {
-#if !defined(__GNUC__) && !defined(HAVE_ALLOCA)
     if (buf)
       free(buf);
-#endif
     return;
   }
 
@@ -264,10 +237,8 @@ static void setproctitle(char *fmt, ...)
   memset(argv0, 0, _maxargvlen);
   strncpy(argv0, buf, _maxargvlen - 1);
 
-#if !defined(__GNUC__) && !defined(HAVE_ALLOCA)
   if (buf)
     free(buf);
-#endif
 }
 #endif
 
@@ -528,19 +499,12 @@ static void alloc_buf_struct(struct object *o)
 
 
 /* helper functions */
-#ifndef HAVE_ALLOCA
-INLINE
-#endif
 static struct pike_string *lowercase(unsigned char *str, INT32 len)
 {
   unsigned char *p, *end;
   unsigned char *mystr;
   struct pike_string *pstr;
-#ifdef HAVE_ALLOCA
-  mystr = (unsigned char *)alloca((len + 1) * sizeof(char));
-#else
   mystr = (unsigned char *)malloc((len + 1) * sizeof(char));
-#endif
   if (mystr == NULL)
     return (struct pike_string *)NULL;
   MEMCPY(mystr, str, len);
@@ -554,9 +518,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
     }
   }
   pstr = make_shared_binary_string((char *)mystr, len);
-#ifndef HAVE_ALLOCA
   free(mystr);
-#endif
   return pstr;
 }
 
@@ -567,9 +529,6 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
    the "+" will be decodes as " " and "%" will still be decoded as "%".
    If simple = 0, then "%" -> "\0" and "+" -> " ".
  */
-#ifndef HAVE_ALLOCA
-INLINE
-#endif
 static struct pike_string *url_decode(unsigned char *str, int len, int exist,
                                       int simple)
 {
@@ -578,11 +537,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   unsigned char *ptr, *end; /* beginning and end pointers */
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
-#ifdef HAVE_ALLOCA
-  mystr = (unsigned char *)alloca((len + 2) * sizeof(char));
-#else
   mystr = (unsigned char *)malloc((len + 2) * sizeof(char));
-#endif
   if (mystr == NULL)
     return (struct pike_string *)NULL;
   if(exist) {
@@ -629,9 +584,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   }
 
   newstr = make_shared_binary_string((char *)mystr, nlen+exist);
-#ifndef HAVE_ALLOCA
   free(mystr);
-#endif
   return newstr;
 }
 
@@ -1032,11 +985,7 @@ static void f_get_port(INT32 args) {
     if (!orig)
       Pike_error("Out of stack space");
 #else
-#ifdef HAVE_ALLOCA
-    orig = alloca(src->len + 1);
-#else
     orig = malloc(src->len + 1);
-#endif
     if (!orig)
       Pike_error("Out of memory.");
     MEMCPY(orig, src->str, src->len);
@@ -1060,7 +1009,7 @@ static void f_get_port(INT32 args) {
       push_text("0");
     }
 
-#if !defined(HAVE_STRNDUPA) && !defined(HAVE_ALLOCA)
+#if !defined(HAVE_STRNDUPA)
     if (orig)
       free(orig);
 #endif
@@ -1088,11 +1037,7 @@ static void f_extension( INT32 args ) {
   if (!orig)
     Pike_error("Out of stack space");
 #else
-#ifdef HAVE_ALLOCA
-  orig = alloca(src->len + 1);
-#else
   orig = malloc(src->len + 1);
-#endif
   if (!orig)
     Pike_error("Out of memory.");
   MEMCPY(orig, src->str, src->len);
@@ -1121,7 +1066,7 @@ static void f_extension( INT32 args ) {
     push_text("");
   }
 
-#if !defined(HAVE_STRNDUPA) && !defined(HAVE_ALLOCA)
+#if !defined(HAVE_STRNDUPA)
   if (orig)
     free(orig);
 #endif
@@ -1155,9 +1100,6 @@ static void f_http_decode_url(INT32 args) {
 static char *hex_chars = "0123456789ABCDEF";
 
 /* routine used by all the *_encode_* functions below */
-#ifndef HAVE_ALLOCA
-INLINE
-#endif
 static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun)
 {
   int                 unsafe = 0;
@@ -1467,11 +1409,7 @@ static void f_cern_http_date(INT32 args)
    }
   
 #ifdef HAVE_LOCALTIME_R
-#ifdef HAVE_ALLOCA
-   tm = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
    tm = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
    if (tm == NULL) {
      Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
      return;
@@ -1492,9 +1430,7 @@ static void f_cern_http_date(INT32 args)
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
          free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
         return;
     }
@@ -1507,9 +1443,7 @@ static void f_cern_http_date(INT32 args)
 #endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
          free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
          return;
      }
@@ -1525,11 +1459,7 @@ static void f_cern_http_date(INT32 args)
     int days, hours, minutes;
 
 #ifdef HAVE_GMTIME_R
-#ifdef HAVE_ALLOCA
-    gmt = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
     gmt = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     if (gmt==NULL) {
       Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
       return;
@@ -1542,11 +1472,7 @@ static void f_cern_http_date(INT32 args)
 #endif /* HAVE_GMTIME_R */
 
 #ifdef HAVE_LOCALTIME_R
-#ifdef HAVE_ALLOCA
-    t = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
     t = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     if (t==NULL) {
       Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
       return;
@@ -1562,14 +1488,12 @@ static void f_cern_http_date(INT32 args)
              + t->tm_hour - gmt->tm_hour);
     minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
-#ifndef HAVE_ALLOCA
 #ifdef HAVE_LOCALTIME_R
     free(t);
 #endif /* HAVE_LOCALTIME_R */
 #ifdef HAVE_GMTIME_R
     free(gmt);
 #endif /* HAVE_GMTIME_R */
-#endif /* HAVE_ALLOCA */
   }
 #endif
   if (diff > 0L) {
@@ -1583,16 +1507,12 @@ static void f_cern_http_date(INT32 args)
               tm->tm_hour, tm->tm_min, tm->tm_sec, sign, diff / 60L,
               diff % 60L) == sizeof date) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
      free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
      return;
   }
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
   free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
@@ -1638,11 +1558,7 @@ static void f_http_date(INT32 args)
    }
 
 #ifdef HAVE_LOCALTIME_R
-#ifdef HAVE_ALLOCA
-    tm = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
     tm = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     if (tm==NULL) {
        Pike_error("_Caudium.http_date(): Out of Memory!\n");
        return;
@@ -1664,9 +1580,7 @@ static void f_http_date(INT32 args)
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
          free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
         return;
     }
@@ -1679,9 +1593,7 @@ static void f_http_date(INT32 args)
 #endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
          free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
          return;
      }
@@ -1697,11 +1609,7 @@ static void f_http_date(INT32 args)
     int days, hours, minutes;
 
 #ifdef HAVE_GMTIME_R
-#ifdef HAVE_ALLOCA
-    gmt = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
     gmt = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     if (gmt==NULL) {
        Pike_error("_Caudium.http_date(): Out of Memory!\n");
        return;
@@ -1714,11 +1622,7 @@ static void f_http_date(INT32 args)
 #endif /* HAVE_GMTIME_R */
 
 #ifdef HAVE_LOCALTIME_R
-#ifdef HAVE_ALLOCA
-    t = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
     t = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     if (gmt==NULL) {
        Pike_error("_Caudium.http_date(): Out of Memory!\n");
        return;
@@ -1734,14 +1638,12 @@ static void f_http_date(INT32 args)
              + t->tm_hour - gmt->tm_hour);
     minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
-#ifndef HAVE_ALLOCA
 #ifdef HAVE_LOCALTIME_R
     free(t);
 #endif /* HAVE_LOCALTIME_R */
 #ifdef HAVE_GMTIME_R
     free(gmt);
 #endif /* HAVE_GMTIME_R */
-#endif /* HAVE_ALLOCA */
 
   }
 #endif
@@ -1757,16 +1659,12 @@ static void f_http_date(INT32 args)
               hour, (tm->tm_min) - (int)(diff % 60L), 
               tm->tm_sec ) == sizeof date) {
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
      free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
      return;
   }
 #ifdef HAVE_LOCALTIME_R
-#ifndef HAVE_ALLOCA
   free(tm);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
