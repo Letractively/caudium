@@ -116,7 +116,11 @@ class http_error_handler {
             // in the *core*core* server.
 	    local_template = default_template;
 	} else {
+#ifdef ENABLE_NEW404
             string ErrorTheme = id->conf->query( "ErrorTheme" );
+#else
+            string ErrorTheme = id->conf->query( "" );
+#endif /* ENABLE_NEW404 */
 	    if ( ErrorTheme != template->name ) {
 		set_template( ErrorTheme );
 	    }
