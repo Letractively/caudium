@@ -2,16 +2,18 @@
 # $Id$
 #
 AC_PREREQ(2.53)
-AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
+AC_INIT(Caudium, 1.2.9, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
 #
 # Some prerequisites of ours
 #
+# How can we check for >= 7.3.49 ??
+#
 REQ_PIKE_MAJOR=7
-REQ_PIKE_MINOR=3
-REQ_PIKE_BUILD=56
+REQ_PIKE_MINOR=0
+REQ_PIKE_BUILD=268
 REQ_PIKE_VER="$REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD"
 
 AC_SET_MAKE
