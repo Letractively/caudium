@@ -3156,24 +3156,27 @@ string tag_smallcaps(string t, mapping m, string s)
     int end = sizeof(s);
     int last_cut = 0;
     int i = 0;
-    int bigsize = 0;
-    int smallsize = -1;
+    string bigsize = "0";
+    string smallsize = "-1";
 
-    string switch_to_small;
-    string switch_to_big;
+    if (m->size) {
+        bigsize = m->size;
+        if ((int)bigsize && (bigsize[0..0] == "+"))
+            smallsize = "+"+((int)bigsize-1);
+        else
+            smallsize = ""+((int)bigsize-1);
+    }
+    if (m->small) { smallsize = m->small; }
 
-    if (m->size) { bigsize = (int)m->size; smallsize = bigsize-1; }  
-    if (m->small) { smallsize = (int)m->small; }
+    string switch_to_small =
+        ((int)bigsize  ? "</font>" : "") +
+        ((int)smallsize ? ("<font size=\""+smallsize+"\">") : "");
 
-    switch_to_small =
-        (bigsize ? "</font>" : "") +
-        (smallsize ? ("<font size="+smallsize+">") : "");
+    string switch_to_big =
+        ((int)smallsize ? "</font>" : "") +   
+        ((int)bigsize ? ("<font size=\""+bigsize+"\">") : "");
 
-    switch_to_big =
-        (smallsize ? "</font>" : "") +
-        (bigsize ? ("<font size="+bigsize+">") : "");
-
-    if (bigsize) build = "<font size="+bigsize+">";
+    if ((int)bigsize) build = "<font size=\""+bigsize+"\">";
 
     while(i < end) {
         if (s[i] == '<') {
@@ -3197,7 +3200,7 @@ string tag_smallcaps(string t, mapping m, string s)
         last_cut = i;
     }
 
-    if (bigsize) build += "</font>";
+    if ((int)bigsize) build += "</font>";
     return build;
 }
 
