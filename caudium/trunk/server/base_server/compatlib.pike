@@ -639,6 +639,7 @@ object clone(mixed ... args) {
 //!   @[time()], @[System.getrusage()]
 
 array(int) rusage() {
+#if constant(System.getrusage)
   WCOMPAT3("Pike 7.5+ System.getrusage","rusage");
   mapping(string:int) m=System.getrusage();
   return ({ m->utime, m->stime, m->maxrss, m->ixrss, m->idrss,
@@ -648,6 +649,9 @@ array(int) rusage() {
 	    m->ttime, m->tftime, m->dftime, m->kftime, m->ltime,
 	    m->slptime, m->wtime, m->stoptime, m->brksize,
 	    m->stksize });
+#else
+  return predef::rusage();
+#endif;
 }
 
 // Roxenlib / Caudiumlib API compat
