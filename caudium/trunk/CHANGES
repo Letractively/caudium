@@ -40,3 +40,5 @@ Changes in Caudium 1.1 since CVS branching
 - Applied Chris Davies custom changes to the SQL User Database. These add a
   configurable timeout for cached user entries and an option to block sites
   with too many failed authentication attempts.
+- Fixed some bugs in the XSLT Template module, added more configurable
+  options. Also fixed the setting of the base uri.

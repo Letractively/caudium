@@ -11,6 +11,8 @@ Changes in Caudium 1.0.X (RC3, not released)
 - Applied Chris Davies custom changes to the SQL User Database. These add a
   configurable timeout for cached user entries and an option to block sites
   with too many failed authentication attempts.
+- Fixed some bugs in the XSLT Template module, added more configurable
+  options. Also fixed the setting of the base uri.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
