@@ -53,7 +53,7 @@ int returnok(int z) {
 
 // Write the test name ;-)
 void prtest(string name) {
-  write(sprintf("  Testing Caudium.%-25s\t",name+"()..."));
+  write(sprintf("  Testing _Caudium.%-25s\t",name+"()..."));
 }
 
 // Do test with mapping in format "source":"destination" with function given
@@ -74,7 +74,7 @@ int TEST_extension() {
                    "zorgl.php":"php",
                    "again.pof.rxml":"rxml" ]);
   prtest("extension");
-  return mapping_test(tst, Caudium.extension);
+  return mapping_test(tst, _Caudium.extension);
 }  
 
 int TEST_http_encode_cookie() {
@@ -85,7 +85,7 @@ int TEST_http_encode_cookie() {
                    ":":"%3A",
                    "CaudiumCookie=Zorglub; expires= baf":"CaudiumCookie%3DZorglub%3B expires%3D baf" ]);
   prtest("http_encode_cookie");
-  return mapping_test(tst, Caudium.http_encode_cookie);
+  return mapping_test(tst, _Caudium.http_encode_cookie);
 }
 
 int TEST_http_encode_string() {
@@ -93,7 +93,7 @@ int TEST_http_encode_string() {
                    "%":"%25", "'":"%27", "\"":"%22", "<":"%3C",
                    ">":"%3E", "@":"%40", "This is a test":"This%20is%20a%20test" ]);
   prtest("http_encode_string");
-  return mapping_test(tst, Caudium.http_encode_string);
+  return mapping_test(tst, _Caudium.http_encode_string);
 }
 
 int TEST_http_encode_url() {
@@ -103,7 +103,7 @@ int TEST_http_encode_url() {
                    ":":"%3A", "+":"%2B", "<":"%3C", ">":"%3E",
                    "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F" ]);
   prtest("http_encode_url");
-  return mapping_test(tst, Caudium.http_encode_url);
+  return mapping_test(tst, _Caudium.http_encode_url);
 }
 
 int TEST_get_address() {
@@ -115,7 +115,7 @@ int TEST_get_address() {
                    "3ffe:200::1 6667":"3ffe:200::1", // IPv6 compatible :)
                   ]);
   prtest("get_address");
-  return mapping_test(tst, Caudium.get_address);
+  return mapping_test(tst, _Caudium.get_address);
 }
 
 int TEST_get_port() {
@@ -128,7 +128,7 @@ int TEST_get_port() {
                    "3ffe:200::1 6667":"6667", // IPv6 compatible :)
                   ]);
   prtest("get_port");
-  return mapping_test(tst, Caudium.get_port);
+  return mapping_test(tst, _Caudium.get_port);
 }
 
          
@@ -139,7 +139,7 @@ int TEST_http_date() {
   prtest("http_date");
   
   a = Calendar.ISO_UTC.Second(tmstmp)->format_http();
-  b = Caudium.http_date(tmstmp);
+  b = _Caudium.http_date(tmstmp);
 
   return returnok(result(a,b));
 }
@@ -162,7 +162,7 @@ int TEST_cern_http_date() {
   a = sprintf("%02d/%s/%04d:%02d:%02d:%02d %s%02d00",
               lt->mday, months[lt->mon], 1900+lt->year,
               lt->hour, lt->min, lt->sec, c, tzh);
-  b = Caudium.cern_http_date(tmstmp);
+  b = _Caudium.cern_http_date(tmstmp);
  
   return returnok(result(a,b));
 }
@@ -170,7 +170,7 @@ int TEST_cern_http_date() {
 int main() {
   int failtests = 0;
   int alltests = 0;
-  write("Starting testsuite for Caudium module...\n");
+  write("Starting testsuite for _Caudium module...\n");
   
   foreach(indices(this_object()), string fun) {
     if(fun[..4]=="TEST_") {
