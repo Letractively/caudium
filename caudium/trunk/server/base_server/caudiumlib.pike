@@ -160,7 +160,7 @@ static mapping build_env_vars(string f, object id, string path_info)
        (tmp = (tmpid->defined && tmpid->defines[" _stat"])) ||
        (tmpid->conf &&
        (tmp = tmpid->conf->stat_file(tmpid->not_query||"", tmpid)))))
-    new["LAST_MODIFIED"]=Protocols.HTTP.Server.http_date(tmp[3]);
+    new["LAST_MODIFIED"]=Caudium.http_date(tmp[3]);
 
   // End SSI vars.
     

@@ -246,9 +246,9 @@ mapping stores( string s )
       "extra_heads":
       ([
 	"Title":"Caudium maintenance",
-//      "Expires":Protocols.HTTP.Server.http_date(time(1)+2),
+//      "Expires":Caudium.http_date(time(1)+2),
 //	"Pragma":"no-cache",
-	"Last-Modified":Protocols.HTTP.Server.http_date(time(1)),
+	"Last-Modified":Caudium.http_date(),
 	])
       ]);
 }

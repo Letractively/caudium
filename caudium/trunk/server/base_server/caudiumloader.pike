@@ -953,7 +953,7 @@ int main(int argc, array(string) argv)
   add_constant("html_encode_string", _Roxen.html_encode_string);
 //  add_constant("http_encode_string", Protocols.HTTP.http_encode_string);
   add_constant("http_encode_cookie", Protocols.HTTP.http_encode_cookie);
-  add_constant("http_date", Protocols.HTTP.Server.http_date);
+  add_constant("http_date", Caudium.http_date);
   add_constant("html_decode_string", Protocols.HTTP.unentity);
   add_constant("cern_http_date", Caudium.cern_http_date);
 #endif
