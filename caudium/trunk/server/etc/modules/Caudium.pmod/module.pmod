@@ -27,6 +27,8 @@ inherit _Caudium;
 
 //! 
 constant cvs_version = "$Id$";
+constant dont_dump_module = 1;
+constant dont_dump_program = 1;
 
 // Some documentation for some call handled by _Caudium module.
 
@@ -930,9 +932,10 @@ int is_safe_string(string in) {
 //!  You can define -DUSE_OLD_MAKE_TAG_ATTRIBUTES if you have some 
 //!  unstability with Caudium. But this hint will be removed on Caudium
 //!  1.4 release.
-string make_tag_attributes(mapping in){
+//!  The result is HTML encoded
+string make_html_tag_attributes(mapping in){
 #ifndef USE_OLD_MAKE_TAG_ATTRIBUTES
-  return _Caudium._make_tag_attributes(in);
+  return _make_tag_attributes(in, 0);
 #else /* USE_OLD_MAKE_TAG_ATTRIBUTES */  
   // remove "/" that can remain from the parsing of a <tag /> 
   m_delete(in, "/");
@@ -952,6 +955,29 @@ string make_tag_attributes(mapping in){
 #endif /* USE_OLD_MAKE_TAG_ATTRIBUTES */  
 }
 
+//!  Convert a mapping with key-value pairs to tag attribute format.
+//! @param in
+//!  The mapping with the attributes
+//! @returns
+//!  The string of attributes.
+//! @note
+//!  The result is XML encoded
+string make_xml_tag_attributes(mapping in){
+  return _make_tag_attributes(in, 1);
+}
+
+//! A mix of make_html_tag_attributes and make_xml_tag_attributes
+//! that can output either HTML or XML depending on the value of 
+//! format
+//! @param format
+//!  If 0 or void, output is HTML compliant. If 1, output is XML
+//!  compliant. If use the XML Compliant parser, you can use
+//!  id->misc->is_xml to know if the output is to be XML. Indeed
+//!  id->misc->is_xml equal 1 if the output contains <?xml ... ?> 
+string make_tag_attributes(mapping in, void|int format) {
+  return _make_tag_attributes(in, format);
+}
+  
 //!  Build a tag with the specified name and attributes.
 //! @param tag
 //!  The name of the tag.
@@ -959,9 +985,38 @@ string make_tag_attributes(mapping in){
 //!  The mapping with the attributes
 //! @returns
 //!  A string containing the tag with attributes.
-string make_tag(string tag,mapping in) {
+string make_html_tag(string tag,mapping in) {
   string q = make_tag_attributes(in);
   return "<"+tag+(strlen(q)?" "+q:"")+">";
+}
+
+//!  Build a tag with the specified name and attributes.
+//! @param tag
+//!  The name of the tag.
+//! @param in
+//!  The mapping with the attributes
+//! @returns
+//!  A string containing the tag with attributes.
+//! @note
+//!  The attributes are XML encoded and the tag is closed
+string make_xml_tag(string tag,mapping in) {
+  string q = make_xml_tag_attributes(in);
+  return "<"+tag+(strlen(q)?" "+q:"")+"/>";
+}
+
+//! A mix of make_html_tag and make_xml_tag
+//! that can output either HTML or XML depending on the value of 
+//! format
+//! @param format
+//!  If 0 or void, output is HTML compliant. If 1, output is XML
+//!  compliant. If use the XML Compliant parser, you can use
+//!  id->misc->is_xml to know if the output is to be XML. Indeed
+//!  id->misc->is_xml equal 1 if the output contains <?xml ... ?> 
+string make_tag(string tag, mapping in, void|int format)
+{
+  if(format) 
+    return make_xml_tag(tag, in);
+  return make_html_tag(tag, in);
 }
 
 //!  Build a container with the specified name, attributes and content.
@@ -973,8 +1028,38 @@ string make_tag(string tag,mapping in) {
 //!  The contents of the container.
 //! @returns
 //!  A string containing the finished container
-string make_container(string tag,mapping in, string contents) {
-  return make_tag(tag,in)+contents+"</"+tag+">";
+string make_html_container(string tag,mapping in, string contents) {
+  return make_html_tag(tag,in)+contents+"</"+tag+">";
+}
+
+//!  Build a container with the specified name, attributes and content.
+//! @param tag
+//!  The name of the container.
+//! @param in
+//!  The mapping with the attributes
+//! @param contents
+//!  The contents of the container.
+//! @returns
+//!  A string containing the finished container
+//! @note
+//!  The attributes are XML encoded
+string make_xml_container(string tag,mapping in, string contents) {
+  string q = make_xml_tag_attributes(in);
+  return "<"+tag+(strlen(q)?" "+q:"")+contents+"</"+tag+">";
+}
+
+//! A mix of make_html_container and make_xml_container
+//! that can output either HTML or XML depending on the value of 
+//! format
+//! @param format
+//!  If 0 or void, output is HTML compliant. If 1, output is XML
+//!  compliant. If use the XML Compliant parser, you can use
+//!  id->misc->is_xml to know if the output is to be XML. Indeed
+//!  id->misc->is_xml equal 1 if the output contains <?xml ... ?> 
+string make_container(string tag, mapping in, string contents, void|int format) {
+  if(format)
+    return make_xml_container(tag, in, contents);
+  return make_html_container(tag, in, contents);
 }
 
 //! Add config part and prestate
