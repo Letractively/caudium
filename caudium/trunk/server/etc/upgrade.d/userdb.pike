@@ -44,7 +44,7 @@ int run()
     enabled_modules["auth_userdb#0"] = 1;
    
     if(sizeof(vars)>0)
-      caudium->store("auth_userdb#1", vars, 1, config);
+      caudium->store("auth_userdb#0", vars, 1, config);
 
     caudium->store("EnabledModules",enabled_modules, 1, config);
     caudium->save_it(config->name);
