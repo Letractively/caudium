@@ -56,33 +56,47 @@ int main(int argc, array argv)
   sscanf(version(), "Pike v%f release %d", ver, rel);
   write("Checking for potential compatibility reasons with your Pike...");
   master()->set_inhibit_compile_errors("");
+
+  if(ver == 7.1)
+    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
+	    "tested and still a development version.");
+  if(ver < 7.0)
+    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 0.6 is\n"
+	    "probably less stable and slower than 7.0 and it also lacks various \n"
+	    "non-critical features used in Caudium. In Caudium 1.1 and later versions, \n"
+	    "Pike 0.6 support will be dropped.");
+
+
   /* Pike 7.11 might have several problems... */
   if(ver == 7.1 && rel == 11)
-    warning("You are using Pike 7.1.11. You might encounter the following problems if it\n"
-	    "a too old version: embedded PHP4 failures, Pipe.pipe memory leak and potential\n"
-	    "problems with Parser.HTML (too deep recursion errors). We also strongly\n"
-	    "recommend the use of Pike 7.0 for Caudium for stability reasons.");
+    warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
+	    "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
+	    "version of if, the problems might very well still be there. We recommend an\n"
+	    "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
+
 
   /* PHP 4 check */
   if(ver < 7.0
      || (ver == 7.0 && rel < 268)
-     || (ver == 7.1 && rel < 11))
-    warning("Pike 7.0.268 or Pike 7.1.11 is required for embedded PHP4 support.");
+     || (ver == 7.1 && rel < 12))
+    warning("Pike 7.0 w/ build >= 268 or 7.1 build >= 12 is required for embedded PHP4\n"
+	    "scripting support. Please note that you also need to get a late version\n"
+	    "of PHP4 to enable it.");
 
   /* Pipe.pipe leak */
   if((ver == 7.0 && rel < 146)
-     || (ver == 7.1 && rel < 11))
-    warning("In Pike 7.0 builds earlier than 146 and in Pike 7.1 prior to build 11,\n"
-	    "there is a severe leak in Pipe.pipe, which is used for sending data in Caudium."
-	    "You will need a newer version of Pike to fix this problem.");
+     || (ver == 7.1 && rel < 12))
+    warning("In Pike 7.0 builds <= 145 and in Pike 7.1 builds <= 11, there is a severe\n"
+	    "leak in Pipe.pipe, which is used for sending data in Caudium. You will need\n"
+	    "a newer version of Pike to fix this problem.");
 
 #if constant(Parser.HTML) 
   /* Parser.HTML recursion stuff */
   if(!(Parser.HTML()->max_stack_depth))
     warning("Your Parser.HTML is missing the max_stack_depth() function. This might cause\n"
 	    "'too deep recursion' errors when using the new XML compliant RXML parser.\n"
-	    "CAMAS is known to show this problem. Upgrade your Pike 7.0 build 286 or newer,\n"
-	    "or a late Pike 7.1.11 from CVS to fix this problem.");
+	    "CAMAS is known to show this problem. Upgrade your Pike 7.0 to build >= 286\n"
+	    "or Pike 7.1 to build >= 12 to fix this problem.");
 #endif
 
   array missing = ({});
