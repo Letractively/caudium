@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2001 The Caudium Group
+ * Copyright © 2000-2002 The Caudium Group
  * Copyright © ???? David Hedbor <david@hedbor.org>
  * Copyright © 1999 Xavier Beaudouin <kiwi@oav.net>
  *
