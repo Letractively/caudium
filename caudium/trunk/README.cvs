@@ -5,8 +5,8 @@ It's easy to compile Caudium from CVS. Just run ./autogen.sh before
 following the standard installation instructions. Please note that
 this step requires a new version of the autoconf package.
 
-To get Caudium  from CVS:
--=-=-=-=-=-=-=--=-=-=-=-=
+To get Caudium from CVS:
+-=-=-=-=-=-=-=--=-=-=-=-
 
 To checkout the current development version of Caudium from CVS, follow these
 commands:
