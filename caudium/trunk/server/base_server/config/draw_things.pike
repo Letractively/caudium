@@ -156,8 +156,7 @@ object selected_tab_image = load_image("../tab_selected.ppm");
 Image.Image draw_config_button(string name, object font, int lm, int rm,
 			       void|array bg, void|array fg, void|array page)
 {
-  Image.Color bgc, fgc;
-  object pagec;
+  Image.Color.Color bgc, fgc, pagec;
   if(bg) bgc = Image.Color(@bg);
   else bgc = Image.Color(dR, dG, dB);
   if(fg) fgc = Image.Color(@fg);
