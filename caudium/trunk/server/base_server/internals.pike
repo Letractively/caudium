@@ -117,6 +117,7 @@ class InternalResolver
         }
 
         mapping qvars;
+        multiset qemptyvars;
         mapping ret;
         string  query;
 
@@ -124,7 +125,7 @@ class InternalResolver
             file = "/" + file;
         
         if (sscanf("%s?%s", file, query) == 2)
-	    Caudium.parse_query_string(query, qvars);
+          Caudium.parse_query_string(query, qvars, qemptyvars);
 	
         switch(method) {
             case "HTML":

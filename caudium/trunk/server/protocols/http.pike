@@ -97,8 +97,11 @@ void send(string|object what, int|void len)
 //!  The string to parse
 string scan_for_query( string f )
 {
-  if(sscanf(f,"%s?%s", f, query) == 2)
-    Caudium.parse_query_string(query, variables);
+  if(sscanf(f,"%s?%s", f, query) == 2) {
+    Caudium.parse_query_string(query, variables, empty_variables);
+    id->rest_query = indices(empty_variables) * ";";
+  }
+  
   return f;
 }
 
@@ -185,9 +188,11 @@ void handle_body_encoding(int content_length)
       string v;
       if ( method != "POST" )
 	return; // no encoding if not POST method
-      if(content_length < 200000)
-	Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
-					   ({"", ""})), variables);
+      if(content_length < 200000) {
+        Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
+                                           ({"", ""})), variables, empty_variables);
+        id->rest_query = indices(empty_variables) * ";";
+      }
       break;
       
     case "multipart/form-data":
@@ -407,8 +412,10 @@ private int parse_got()
     }
   }
   
-  if(sscanf(f,"%s?%s", f, query) == 2)
-    Caudium.parse_query_string(query, variables);
+  if(sscanf(f,"%s?%s", f, query) == 2) {
+    Caudium.parse_query_string(query, variables, empty_variables);
+    id->rest_query = indices(empty_variables) * ";";
+  }
   
   REQUEST_WERR(sprintf("After query scan:%O", f));
 

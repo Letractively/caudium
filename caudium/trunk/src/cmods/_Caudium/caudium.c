@@ -668,6 +668,9 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 
+  if (!str)
+    return (struct pike_string *)NULL;
+  
   mystr = (unsigned char *)scratchpad_get((len + 2) * sizeof(char));/* it always returns a valid pointer */
   
   if (mystr == NULL)
@@ -952,15 +955,17 @@ static void f_parse_headers( INT32 args )
 static void f_parse_query_string( INT32 args )     
 {
   struct pike_string *query; /* Query string to parse */
-  struct svalue *exist, skey, sval; /* svalues used */
-  struct mapping *variables; /* Mapping to store vars in */
-  unsigned char *ptr;   /* Pointer to current char in loop */
-  unsigned char *name;  /* Pointer to beginning of name */
-  unsigned char *equal; /* Pointer to the equal sign */
-  unsigned char *end;   /* Pointer to the ending null char */
+  struct svalue      *exist, skey, sval; /* svalues used */
+  struct mapping     *variables; /* Mapping to store vars in */
+  struct multiset    *emptyvars; /* multiset for empty variables */
+  unsigned char      *ptr;   /* Pointer to current char in loop */
+  unsigned char      *name;  /* Pointer to beginning of name */
+  unsigned char      *equal; /* Pointer to the equal sign */
+  unsigned char      *end;   /* Pointer to the ending null char */
   int namelen, valulen; /* Length of the current name and value */
   
-  get_all_args("_Caudium.parse_query_string", args, "%S%m", &query, &variables);
+  get_all_args("_Caudium.parse_query_string", args, "%S%m%U", &query,
+               &variables, &emptyvars);
   skey.type = sval.type = T_STRING;
   /* end of query string */
   end = (unsigned char *)(query->str + query->len);
@@ -980,35 +985,58 @@ static void f_parse_query_string( INT32 args )
         case ';': /* It's recommended to support ';'
                      instead of '&' in query strings... */
         case '&':
-          if(equal == NULL) { /* value less variable, we can ignore this */
-            name = ptr+1;     /* Can we really? What if an app relies
-                               * upon the presence of a variable but
-                               * doesn't give a damn about its
-                               * value?
-                               * /grendel
-                               */
+          if (equal == NULL) { /* valueless variable, these go to the */
+            if (ptr == (unsigned char*)query->str) {
+              ptr++;
+              break;
+            }
+            
+            valulen = 0;       /* multiset  */
+            name = ptr - 1;
+            
+            /* back up to the start of this var */
+            while (name >= (unsigned char*)query->str) {
+              if (*name == '&' || *name == ';') {
+                name++;
+                break;
+              }
+              name--;
+            }
+            if (name < (unsigned char*)query->str)
+              name++;
+            namelen = ptr - name;
+          } else {
+            namelen = equal - name;
+            valulen = ptr - ++equal;
+          }
+          
+          skey.u.string = url_decode(name, namelen, 0, 0);
+          if (!skey.u.string) /* OOM. Bail out */
+            Pike_error(" Out of memory.\n");
+
+          if (!valulen) {
+            /* valueless, add the name to the multiset */
+            sval.type = T_STRING;
+            sval.u.string = make_shared_binary_string(name, namelen);
+            if (!sval.u.string)
+              Pike_error("Out of memory.\n");
+            multiset_insert(emptyvars, &sval);
+            name = ptr + 1;
             break;
           }
-          namelen = equal - name;
-          valulen = ptr - ++equal;
-          skey.u.string = url_decode(name, namelen, 0, 0);
-          if (skey.u.string == NULL) { /* OOM. Bail out */
-            Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
-          }
+          
           exist = low_mapping_lookup(variables, &skey);
-          if(exist == NULL || exist->type != T_STRING) {
+          if (!exist || exist->type != T_STRING) {
             sval.u.string = url_decode(equal, valulen, 0, 0);
-            if (sval.u.string == NULL) { /* OOM. Bail out */
-              Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
-            }
+            if (!sval.u.string) /* OOM. Bail out */
+              Pike_error("Out of memory.\n");
           } else {
             /* Add strings separed with '\0'... */
             struct pike_string *tmp;
             tmp = url_decode(equal, valulen, 1, 0);
-            if (tmp == NULL) {
+            if (tmp == NULL)
               Pike_error("_Caudium.parse_query_string(): "
                          "Out of memory in url_decode().\n");
-            }
             sval.u.string = add_shared_strings(exist->u.string, tmp);
             free_string(tmp);
           }
@@ -1914,7 +1942,7 @@ void pike_module_init( void )
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
   add_function_constant( "parse_query_string", f_parse_query_string,
-                         "function(string,mapping:void)",
+                         "function(string,mapping,multiset:void)",
                          OPT_SIDE_EFFECT);
   add_function_constant( "parse_prestates", f_parse_prestates,
                          "function(string,multiset,multiset:string)",
