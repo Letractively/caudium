@@ -1,4 +1,4 @@
-/* $Id$ */
+;/* $Id$ */
 #include "global.h"
 RCSID("$Id$");
 #include "stralloc.h"
@@ -10,6 +10,11 @@ RCSID("$Id$");
 #include "threads.h"
 #include <stdio.h>
 #include <fcntl.h>
+#include <errno.h>
+
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
 
 static void f_parse_headers( INT32 args );
 
@@ -26,12 +31,13 @@ void pike_module_exit( void )
 }
 
 /* helper functions */
-INLINE static unsigned char *lowercase(unsigned char *str, INT32 len)
+INLINE static unsigned char *lowercasee(unsigned char *str, INT32 len)
 {
 /*  int changed = 0; */
   unsigned char *p, *end;
   unsigned char *mystr;
-  mystr = malloc((len + 1));
+
+  mystr = (char*)malloc((len + 1) * sizeof(char));
   MEMCPY(mystr, str, len);
   end = mystr + len;
   mystr[len] = '\0';
@@ -41,6 +47,7 @@ INLINE static unsigned char *lowercase(unsigned char *str, INT32 len)
       *p |= *p;
     }
   }
+  
   return mystr;
 }
 
@@ -62,7 +69,9 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
   struct pike_string *name, *value;
   int data, count, colon, count2=0;
   struct svalue skey, sval;
-  unsigned char *lowered;
+#ifndef HAVE_ALLOCA
+  unsigned char *lowered = NULL;
+#endif
 
   /* FIXME: error checking would be nice */
   for(count=0, colon=0; count < len; count++) {
@@ -74,9 +83,28 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
 	/* find end of header data */
 	if(heads[count2] == '\r') break;
       while(heads[data] == ' ') data++;
+#ifndef HAVE_ALLOCA
       lowered = lowercase(heads, colon);
       name = make_shared_binary_string(lowered, colon);
-      free(lowered);
+      free(lowered);      
+#else
+#warning "using alloca!"
+      {
+          unsigned char *p, *end;
+          unsigned char *mystr = alloca(colon + 1);
+	  
+          MEMCPY(mystr, heads, colon);
+          end = mystr + colon;
+          mystr[colon] = '\0';
+          for(p = mystr; p < end; p++)
+          {
+              if(*p >= 'A' && *p <= 'Z') {
+                  *p |= *p;
+              }
+          }
+          name = make_shared_binary_string(mystr, colon);
+      }
+#endif
       skey.type = T_STRING;
       sval.type = T_STRING;
       skey.u.string = name;
@@ -93,6 +121,14 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
       return count+1;
     }
   }
+
+#ifndef HAVE_ALLOCA  
+  if (!lowered)
+    return 0;
+    
+  free(lowered);
+#endif
+
   return 0;
 }
 
