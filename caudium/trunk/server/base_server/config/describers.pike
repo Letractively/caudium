@@ -31,8 +31,8 @@ int zonk=time();
 inherit "low_describers";
 //inherit "config/low_describers";
 
-import Array;
-import String;
+//import Array;
+//import String;
 #define ABS(X) ((X)<0?-(X):(X))
 
 //!
@@ -112,7 +112,7 @@ string describe_times(array (int) times)
 {
   __lt=0;
   if(sizeof(times) < 6)
-    return implode_nicely(map(times, describe_time));
+    return String.implode_nicely(map(times, describe_time));
 
   int d, every=1;
   int ot = times[0];
@@ -129,7 +129,7 @@ string describe_times(array (int) times)
       d = t-ot;
   if(every && (times[-1]+d) >= time(1)-10)
     return "every "+describe_interval(d)+" since "+describe_time(times[0]);
-  return implode_nicely(map(times[..4], describe_time)+({"..."})+
+  return String.implode_nicely(map(times[..4], describe_time)+({"..."})+
 			map(times[sizeof(times)-3..], describe_time));
 }
 
