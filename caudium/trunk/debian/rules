@@ -20,8 +20,8 @@ export DH_OPTIONS
 
 # we need to know what pike are we using
 
-ifdef NEW_PIKE
-PIKE=pike7.2
+ifdef USE_PIKE
+PIKE=pike$(USE_PIKE)
 else
 PIKE=pike7
 endif
