@@ -42,7 +42,6 @@ mapping profile_map = ([]);
 inherit Configuration;
 
 inherit "caudiumlib14";
-inherit "logformat";
 
 public string real_file(string file, object id);
 
@@ -52,6 +51,8 @@ function retrieve = caudium->retrieve;
 function remove = caudium->remove;
 function do_dest = caudium->do_dest;
 function create_listen_socket = caudium->create_listen_socket;
+
+object logger = Logging.Logger();
 
 //! the parser module for this configuration
 object   parse_module;
@@ -368,17 +369,6 @@ int|function log_function;
 //! The last time an item was logged. Used to determine if the log file
 //! descriptor should be closed 
 int last_log_time;
-
-// The logging format used. This will probably move the the above
-// mentioned module in the future.
-private mapping (string:string) log_format = ([]);
-
-//! The objects for each logging format. Each of the objects has the function
-//! format_log which takes the file and id object as arguments and returns
-//! a formatted string. the hashost variable is 1 if there is a $host that
-//! needs to be resolved.
-mapping (string:object) log_format_objs = ([]);
-
 
 // A list of priority objects (used like a 'struct' in C, really)
 private array (object) pri = allocate_pris();
@@ -809,89 +799,6 @@ int init_log_file(int|void force_open)
   }
 }
 
-// Parse the logging format strings.
-private inline string fix_logging(string s)
-{
-  string pre, post, c;
-  sscanf(s, "%*[\t ]", s);
-  s = replace(s, ({"\\t", "\\n", "\\r" }), ({"\t", "\n", "\r" }));
-
-  // FIXME: This looks like a bug.
-  // Is it supposed to strip all initial whitespace, or do what it does?
-  //  /grubba 1997-10-03
-  while(s[0] == ' ') s = s[1..];
-  while(s[0] == '\t') s = s[1..];
-  while(sscanf(s, "%s$char(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%c%s", pre, c, post);
-  while(sscanf(s, "%s$wchar(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%2c%s", pre, c, post);
-  while(sscanf(s, "%s$int(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%4c%s", pre, c, post);
-  if(!sscanf(s, "%s$^%s", pre, post))
-    s+="\n";
-  else
-    s=pre+post;
-  return s;
-}
-
-private void parse_log_formats()
-{
-  string b;
-  array foo=query("LogFormat")/"\n";
-  log_format = ([]);
-  log_format_objs = ([]);
-  foreach(foo, b)
-    if(strlen(b) && b[0] != '#' && sizeof(b/":")>1) 
-      log_format[(b/":")[0]] = fix_logging((b/":")[1..]*":");
-  foreach(indices(log_format), string code) {
-    string format = parse_log_format(log_format[code]);
-    object formatter;
-    if(catch(formatter = compile(format)()) || !formatter) {
-      report_error(sprintf("Failed to compile log format // %s //.",
-                           format));
-    }
-    log_format_objs[code] = formatter;
-  }
-}
-
-// Really write an entry to the log.
-private void write_to_log( string host, string rest, string oh, function fun )
-{
-  int s;
-  if(!host) host=oh;
-  if(!stringp(host))
-    host = "error:no_host";
-  else
-    host = (host/" ")[0]; // In case it's an IP we don't want the port.
-  if(fun) fun(replace(rest, "$host", host));
-}
-
-// Logging format support functions.
-nomask private inline string host_ip_to_int(string s)
-{
-  int a, b, c, d;
-  sscanf(s, "%d.%d.%d.%d", a, b, c, d);
-  return sprintf("%c%c%c%c",a, b, c, d);
-}
-
-nomask private inline string unsigned_to_bin(int a)
-{
-  return sprintf("%4c", a);
-}
-
-nomask private inline string unsigned_short_to_bin(int a)
-{
-  return sprintf("%2c", a);
-}
-
-nomask private inline string extract_user(string from)
-{
-  array tmp;
-  if (!from || sizeof(tmp = from/":")<2)
-    return "-";
-  
-  return tmp[0];      // username only, no password
-}
 #ifdef THREADS
 private object log_file_mutex = Thread.Mutex();
 #endif
@@ -923,12 +830,12 @@ public void log(mapping file, object request_id)
 #endif
   }
   if(functionp(log_function)) {
-    if(!(fobj = log_format_objs[(string)file->error]))
-      if(!(fobj = log_format_objs["*"]))
+    if(!(fobj = logger->log_format_objs[(string)file->error]))
+      if(!(fobj = logger->log_format_objs["*"]))
         return; // no logging for this one.
     last_log_time = time(1);
     if(fobj->hashost)
-      caudium->ip_to_host(request_id->remoteaddr, write_to_log,
+      caudium->ip_to_host(request_id->remoteaddr, Logging.write_to_log,
                           fobj->format_log(file, request_id),
                           request_id->remoteaddr, log_function);
     else
@@ -2728,7 +2635,7 @@ void start(int num, void|object conf_id, array|void args)
                                return sprintf("%5d %-10s %-20s\n", @p);
                              })*"");
   }
-  parse_log_formats();
+  logger->parse_log_formats(QUERY(LogFormat));
   // We are not automatically opening the logfile until it's needed
   // to save file descriptors.
   // init_log_file();
@@ -3791,7 +3698,7 @@ void low_enable_all_modules() {
   array modules_to_process=sort(indices(retrieve("EnabledModules",this)));
   string tmp_string;
 
-  parse_log_formats();
+  logger->parse_log_formats(QUERY(LogFormat));
   // Don't automatically open the log file until it's used.
   //  init_log_file();
   perror("\nEnabling all modules for "+query_name()+"... \n");

@@ -45,78 +45,7 @@ constant module_name = "VHS - Logger module";
 constant module_doc  = "This module logs the accesses of each virtaul in VHS.";
 constant module_unique = 1;
 
-// Parse the logging format strings.
-private inline string fix_logging(string s)
-{
-  string pre, post, c;
-  sscanf(s, "%*[\t ]", s);
-  s = replace(s, ({"\\t", "\\n", "\\r" }), ({"\t", "\n", "\r" }));
-  // FIXME: This looks like a bug.
-  // Is it supposed to strip all initial whitespace, or do what it does?
-  //    /grubba 1997-10-03
-  while(s[0] == ' ') s = s[1..];
-  while(s[0] == '\t') s = s[1..];
-  while(sscanf(s, "%s$char(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%c%s", pre, c, post);
-  while(sscanf(s, "%s$wchar(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%2c%s", pre, c, post);
-  while(sscanf(s, "%s$int(%d)%s", pre, c, post)==3)
-    s=sprintf("%s%4c%s", pre, c, post);
-  if(!sscanf(s, "%s$^%s", pre, post))
-    s+="\n";
-  else
-    s=pre+post;
-  return s;
-}
-
-// Really write an entry to the log.
-private void write_to_log( string host, string rest, string oh, function fun )
-{
-  int s;
-  if(!host) host=oh;
-  if(!stringp(host))
-    host = "error:no_host";
-  if(fun) fun(replace(rest, "$host", host));
-}
-
-// Logging format support functions.
-nomask private inline string host_ip_to_int(string s)
-{
-  int a, b, c, d;
-  sscanf(s, "%d.%d.%d.%d", a, b, c, d);
-  return sprintf("%c%c%c%c",a, b, c, d);
-}
-
-nomask private inline string unsigned_to_bin(int a)
-{
-  return sprintf("%4c", a);
-}
-
-nomask private inline string unsigned_short_to_bin(int a)
-{
-  return sprintf("%2c", a);
-}
-
-nomask private inline string extract_user(string from)
-{
-  array tmp;
-  if (!from || sizeof(tmp = from/":")<2)
-    return "-";
-  
-  return tmp[0];      // username only, no password
-}
-
-mapping (string:string) log_format = ([]);
-
-private void parse_log_formats()
-{
-  string b;
-  array foo=query("LogFormat")/"\n";
-  log_format = ([]);
-  foreach(foo, b)
-    if(strlen(b) && b[0] != '#' && sizeof(b/":")>1)
-      log_format[(b/":")[0]] = fix_logging((b/":")[1..]*":");
-}
+object logger = Logging.Logger();
 
 string create()
 {
@@ -319,7 +248,7 @@ string start()
   object f;
   if(cache_head) destruct(cache_head);
   cache_head = CacheFile(QUERY(num), QUERY(delay), this_object(), mutex);
-  parse_log_formats();
+  logger->parse_log_formats(QUERY(LogFormat));
 }
 
 static void do_log(mapping file, object request_id, function log_function)
@@ -330,8 +259,8 @@ static void do_log(mapping file, object request_id, function log_function)
 
   if (!log_function) return;	// No file is open for logging.
 
-  if (!(form=log_format[(string)file->error]))
-     form = log_format["*"];
+  if (!(form=logger->log_format[(string)file->error]))
+     form = logger->log_format["*"];
   
   if(!form) return;
 
@@ -345,18 +274,18 @@ static void do_log(mapping file, object request_id, function log_function)
 		 "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id", "$virtname",
 	       }), ({
 		 (string)request_id->remoteaddr,
-		 host_ip_to_int(request_id->remoteaddr),
+		 Logging.host_ip_to_int(request_id->remoteaddr),
 		 Caudium.HTTP.cern_date(request_id->time),
-		 unsigned_to_bin(time(1)),
+		 Logging.unsigned_to_bin(time(1)),
 		 (string)request_id->method,
 		 Caudium.http_encode_string(request_id->not_query+
 				    (request_id->query?"?"+request_id->query:
 				     "")),
 		 (string)request_id->prot,
 		 (string)(file->error||200),
-		 unsigned_short_to_bin(file->error||200),
+		 Logging.unsigned_short_to_bin(file->error||200),
 		 (string)(file->len>=0?file->len:"?"),
-		 unsigned_to_bin(file->len),
+		 Logging.unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
 		 Caudium.http_encode_string(request_id->useragent||"-"),
 		 request_id->useragent||"-",
@@ -366,7 +295,7 @@ static void do_log(mapping file, object request_id, function log_function)
 	       }) );
   
   if(search(form, "host") != -1)
-    caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
+    caudium->ip_to_host(request_id->remoteaddr, Logging.write_to_log, form,
 		      request_id->host||request_id->remoteaddr, log_function);
   else
     log_function(form);
