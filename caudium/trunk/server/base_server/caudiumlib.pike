@@ -20,11 +20,8 @@
  * $Id$
  */
 
-/*
-**  Caudiumlib is a collection of utility functions used by modules and
-**  the Caudium core. 
-**
-*/
+//! Caudiumlib is a collection of utility functions used by modules and
+//! the Caudium core. 
 
 inherit "http";
 

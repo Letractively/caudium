@@ -19,9 +19,9 @@
  * $Id$
  */
 
-//  The base scope class. Implements the default versions of all scope
-//  callback functions. You should inherit this class if you make your
-//  own scope.
+//!  The base scope class. Implements the default versions of all scope
+//!  callback functions. You should inherit this class if you make your
+//!  own scope.
 
 //!  Set the value of an entity in the current scope.
 //! @param name
