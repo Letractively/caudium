@@ -155,6 +155,9 @@ array lookup_user( string what )
 {
   array uid;
   if(pwuid_cache[what]) return pwuid_cache[what];
+  if(!strlen(what)) // Empty user, assume nobody
+    what = "nobody";
+  
   if((int)what)
     uid = getpwuid( (int)what );
   else
@@ -1149,8 +1152,8 @@ void create(object conf)
          "only happend if the 'Run scripts as' variable is set to root (or 0)",
          0, getuid);
 
-  defvar("runuser", "", "Run scripts as", TYPE_STRING,
-	 "If you start caudium as root, and this variable is set, CGI scripts "
+  defvar("runuser", "nobody", "Run scripts as", TYPE_STRING,
+	 "If you start Caudium as root, and this variable is set, CGI scripts "
 	 "will be run as this user. You can use either the user name or the "
 	 "UID. Note however, that if you don't have a working user database "
 	 "enabled, only UID's will work correctly. If unset, scripts will "
