@@ -84,6 +84,9 @@ string tag_header(string tag_name, mapping arguments,
   string headtype;
   string headvalue;
 
+  headtype=replace(headtype, ({":", "\r", "\n"}), ({"", "", ""}));
+  headvalue=replace(headvalue, ({"\r", "\n"}), ({"", ""}));
+
   if (arguments->subject)
     {
     headtype="Subject";
