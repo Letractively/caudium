@@ -190,7 +190,7 @@ mapping query_container_callers()
 //
 // Session handling functions
 //
-private void co_session_gc() 
+void co_session_gc() 
 {
     if (!cur_storage) {
         if (QUERY(dogc))
@@ -389,7 +389,7 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //     called from a callout to expire aged sessions. Ran in a separate
 //     thread, if available.
 //
-//  function delet_session; (mandatory)
+//  function delete_session; (mandatory)
 //     delete a session from all the regions of the storage.
 //
 // Function synopses:
@@ -438,8 +438,6 @@ private int memory_validate_storage(string reg, string sid)
 //
 private void memory_setup(object id, string sid) 
 {
-    report_notice("memory_setup\n");
-    
     if (!_memory_storage || !sizeof(_memory_storage)) {
         //
         // set up the compatibility regions. These are the only regions
@@ -567,6 +565,8 @@ private string alloc_session(object id)
     string    ret = "";
     int       sesstag;
 
+    id->misc->_gsession_is_here = 0;
+    
     string   sp = QUERY(splugin);
     if (!storage_plugins[sp])
         throw(({
@@ -590,6 +590,7 @@ private string alloc_session(object id)
     
     if (id->misc->session_id) {
         cur_storage->setup(id, id->misc->session_id);
+        id->misc->_gsession_is_here = 1;
         return id->misc->session_id;
     }
     
@@ -607,8 +608,9 @@ private string alloc_session(object id)
     
     ret = sprintf("%s%d", session_hash, session_counter);
     cur_storage->setup(id, ret);
-    
-    id->misc->_gsession_id = ret;
+
+    id->misc->_gsession_is_here = 1;
+    id->misc->session_id = ret;
     gsession_set_cookie(id, ret);
     
     return ret;
@@ -676,6 +678,14 @@ private int leave_me_alone(string uri)
     return 1;
 }
 
+string rewrite_uri(object id, string from, void|int append)
+{
+    if (!append)
+        return sprintf("%s?%s=%s", from, SVAR, id->misc->session_id);
+    else
+        return sprintf("%s&%s=%s", from, SVAR, id->misc->session_id);
+}
+
 mixed container_a(string tag, mapping args, string contents, object id, mapping defines)
 {
     string   query;
@@ -686,12 +696,12 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     if (args && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
             Caudium.parse_query_string(query, hvars);
-
+        
         if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
             if (!sizeof(hvars))
-                args->href = sprintf("%s?%s=%s", args->href, SVAR, id->misc->session_id);
+                args->href = rewrite_uri(id,  args->href);
             else
-                args->href = sprintf("%s&%s=%s", args->href, SVAR, id->misc->session_id);
+                args->href = rewrite_uri(id,  args->href, 1);
     }
     
     return ({ make_container("a", args, parse_rxml(contents, id)) });
@@ -712,9 +722,9 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
 
             if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite)))) {
                 if (!sizeof(hvars))
-                    args->action = sprintf("%s?%s=%s", args->action, SVAR, id->misc->session_id);
+                    args->action = rewrite_uri(id, args->action);
                 else
-                    args->action = sprintf("%s&%s=%s", args->action, SVAR, id->misc->session_id);
+                    args->action = rewrite_uri(id, args->action, 1);
                 do_hidden = 0;
             }
         }
