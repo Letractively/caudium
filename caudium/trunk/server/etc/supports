@@ -39,8 +39,12 @@
 #define some_html3	divisions, div, supsub, bigsmall, align
 
 
-## Netscape is named "mozilla/major.minor system ..."
+#section opera {
+/5.*            -java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+                 ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline
+#}
 
+## Netscape is named "mozilla/major.minor system ..."
 
 #section mozilla {
 
@@ -92,10 +96,7 @@ mozilla/[5-9].*		pnginline
 .*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
 
-#section Opera {
-/5.0		-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies, \
-                 ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline
-#}
+
 
 #section netsurfer {
 # Netsurfer is a popular commercial Web browser for NEXTSTEP. for more
