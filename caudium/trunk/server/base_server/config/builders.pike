@@ -18,8 +18,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-/* $Id$ */
+/*
+ * $Id$ *
+ */
+//! Builder 
+//! $Id$
 
 #include <module.h>
 #include <confignode.h>
@@ -32,6 +35,7 @@ import Array;
 
 import Array;
 
+//!
 void low_build_variables(object node, mapping from)
 {
   array m;
@@ -100,6 +104,7 @@ void low_build_variables(object node, mapping from)
   }
 }
 
+//!
 void build_module_copy_variables(object node)
 {
 #ifdef CONFIG_DEBUG
@@ -110,6 +115,7 @@ void build_module_copy_variables(object node)
   low_build_variables(node, node->data->query());
 }
 
+//!
 void build_module_master_copy_variables(object node)
 {
 #ifdef CONFIG_DEBUG
@@ -118,6 +124,7 @@ void build_module_master_copy_variables(object node)
   low_build_variables(node, node->data->master->query());
 }
 
+//!
 void build_module_copy_status(object node)
 {
 #ifdef CONFIG_DEBUG
@@ -125,6 +132,7 @@ void build_module_copy_status(object node)
 #endif
 }
 
+//!
 void build_module_copy(object node)
 {
   string res;
@@ -144,6 +152,7 @@ void build_module_copy(object node)
   build_module_copy_variables(node);
 }
 
+//!
 void build_module(object node)
 {
   string res;
@@ -190,12 +199,14 @@ void build_module(object node)
   }
 }
 
+//!
 void build_global_variables(object node)
 {
   node->saver = save_global_variables;
   low_build_variables(node, node->data);
 }
 
+//!
 void build_configuration(object node)
 {
   object cf;
@@ -245,6 +256,7 @@ void build_configuration(object node)
   }
 }
 
+//!
 void build_configurations(object node)
 {
   int i;
@@ -281,6 +293,7 @@ void build_configurations(object node)
     }
 }
 
+//!
 void build_root(object root, void|int nodes)
 {
   object o;
