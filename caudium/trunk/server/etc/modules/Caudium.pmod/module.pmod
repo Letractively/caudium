@@ -214,7 +214,7 @@ inherit _Caudium;
 //!    form or the full name.
 //!   @item %A
 //!    Same as %a
-//!   @item %b or %B or %h
+//!   @item %b
 //!     The month name according to the current locale, in abbreviated form
 //!     or the full name.
 //!   @item %B
