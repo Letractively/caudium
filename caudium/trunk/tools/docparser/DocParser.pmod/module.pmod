@@ -29,13 +29,15 @@
  */
 import Stdio;
 
+#define DEBUG_PARSER
+
 multiset wspace = (<' ', '\t', '\n'>);
 
-private constant kwtype_err = "Wrong keyword type for '%s' in class '%s'\n";
-private constant kwname_err = "Unknown keyword '%s' for class '%s'\n";
-private constant obtype_err = "Wrong object type '%s' for keyword '%s' in class '%s'\n";
-private constant field_redef = "Field '%s' redefined in class '%s'\n";
-private constant fappend_err = "Appending line to one-line field '%s' in class '%s'. Overriding value.\n";
+private constant kwtype_err = "Wrong keyword type for '%s' in class '%s'";
+private constant kwname_err = "Unknown keyword '%s' for class '%s'";
+private constant obtype_err = "Wrong object type '%s' for keyword '%s' in class '%s'";
+private constant field_redef = "Field '%s' redefined in class '%s'";
+private constant fappend_err = "Appending line to one-line field '%s' in class '%s'. Overriding value.";
 
 private int      curline;
 private string   curpath;
@@ -47,9 +49,19 @@ private void wrerr(string err)
     if (f_quiet < 2) {
         string lead = f_quiet ? (curpath + "(%d): ") : ("%d: ");
         
-        stderr->write(sprintf(lead + err, curline));
+        stderr->write(sprintf(lead + err + "\n", curline));
     }
 }
+
+#ifdef DEBUG_PARSER
+static private void
+debug(string str) 
+{
+    write(sprintf("%s(%d): %s\n", (curpath / "/")[-1], curline, str));
+}
+#else
+#define debug(x)
+#endif
 
 /*
  * Classes corresponding to documentation classes
@@ -1021,18 +1033,13 @@ constant IN_DOC = 1;
  * returns an object corresponding to the current keyword or 0 if
  * the keyword is just an argument, not a container.
  */
-static private void zero_return(object curob, string line)
-{
-    return 0;
-}
-
-mapping(string:object) file_scope = ([
-    "module":lambda(object curob, string line) {
-                 return Module(line);
-             },
+mapping(string:object|string) file_scope = ([
+//  "module":lambda(object curob, string line) {
+//               return Module(line);
+//           },
 	     
-    "cvs_version": zero_return,
-    "inherits":zero_return,
+    "cvs_version":"",
+    "inherits":"",
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
@@ -1042,17 +1049,18 @@ mapping(string:object) file_scope = ([
               },
     "class":lambda(object curob, string line) {
                 return Class(line, curob);
-            }
+            },
+    "ScopeName":"file"
 ]);
 
-mapping(string:object) module_scope = ([
-    "file":lambda(object curob, string line) {
-               return PikeFile(line);
-           },
-    "cvs_version": zero_return,
-    "inherits":zero_return,
-    "type": zero_return,
-    "provides": zero_return,
+mapping(string:object|string) module_scope = ([
+//  "file":lambda(object curob, string line) {
+//            return PikeFile(line);
+//         },
+    "cvs_version":"",
+    "inherits":"",
+    "type":"",
+    "provides":"",
     "variable":lambda(object curob, string line) {
                    return Variable(line, curob);
                },
@@ -1064,99 +1072,116 @@ mapping(string:object) module_scope = ([
                 },    
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
-             }
+             },
+    "ScopeName":"module"
 ]);
 
-mapping(string:object) tag_scope = ([
-    "tag":lambda(object curob, string line) {
-                    return Tag(line, curob);
-                },
-    "example": zero_return,
+mapping(string:object|string) tag_scope = ([
+//  "tag":lambda(object curob, string line) {
+//                  return Tag(line, curob);
+//              },
+    "example":"",
     "attribute":lambda(object curob, string line) {
                     return Attribute(line, curob);
                 },
     
-    "returns": zero_return,
-    "see_also": zero_return,
-    "note": zero_return,
-    
+    "returns":"",
+    "see_also":"",
+    "note":"",
+    "ScopeName":"tag"
 ]);
 
-mapping(string:object) container_scope = ([
-    "container":lambda(object curob, string line) {
-                    return Container(line, curob);
-                },
-    "example": zero_return,
+mapping(string:object|string) container_scope = ([
+//  "container":lambda(object curob, string line) {
+//                  return Container(line, curob);
+//              },
+    "example":"",
     "attribute":lambda(object curob, string line) {
                     return Attribute(line, curob);
                 },
-    "returns": zero_return,
-    "see_also": zero_return,
-    "note": zero_return,
+    "returns":"",
+    "see_also":"",
+    "note":"",
+    "ScopeName":"container"
 ]);
 
-mapping(string:object) method_scope = ([
-    "method":lambda(object curob, string line) {
-               return Method(line, curob);
-           },
-    "name": zero_return,
-    "scope": zero_return,
-    "arg": zero_return,
-    "returns": zero_return,
-    "see_also": zero_return,
-    "note": zero_return,
-    "example": zero_return,
-    "bugs": zero_return,
+mapping(string:object|string) method_scope = ([
+//  "method":lambda(object curob, string line) {
+//             return Method(line, curob);
+//         },
+    "name":"",
+    "scope":"",
+    "arg":"",
+    "returns":"",
+    "see_also":"",
+    "note":"",
+    "example":"",
+    "bugs":"",
+    "ScopeName":"method"
 ]);
 
-mapping(string:object) globvar_scope = ([
-    "globvar":lambda(object curob, string line) {
-                  return GlobVar(line, curob);
-              }
+mapping(string:object|string) globvar_scope = ([
+//  "globvar":lambda(object curob, string line) {
+//                return GlobVar(line, curob);
+//            }
+    "ScopeName":"globvar"
 ]);
 
-mapping(string:object) class_scope = ([
-    "class":lambda(object curob, string line) {
-               return Class(line, curob);
-           },
-    "scope": zero_return,
-    "inherits": zero_return,
+mapping(string:object|string) class_scope = ([
+//  "class":lambda(object curob, string line) {
+//             return Class(line, curob);
+//         },
+    "scope":"",
+    "inherits":"",
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
     "globvar":lambda(object curob, string line) {
                   return GlobVar(line, curob);
               },
-    "see_also": zero_return,
-    "example": zero_return,
-    "bugs": zero_return,
+    "see_also":"",
+    "example":"",
+    "bugs":"",
+    "ScopeName":"class"
 ]);
 
-mapping(string:object) variable_scope = ([
-    "variable":lambda(object curob, string line) {
-                   return Variable(line, curob);
-               },
-    "type": zero_return,
-    "default": zero_return,
+mapping(string:object|string) variable_scope = ([
+//  "variable":lambda(object curob, string line) {
+//                 return Variable(line, curob);
+//             },
+    "type":"",
+    "default":"",
+    "ScopeName":"variable"
 ]);
 
-mapping(string:object) attribute_scope = ([
-    "attribute":lambda(object curob, string line) {
-                    return Attribute(line, curob);
-                },
-    "default": zero_return,
+mapping(string:object|string) attribute_scope = ([
+//  "attribute":lambda(object curob, string line) {
+//                  return Attribute(line, curob);
+//              },
+    "default":"",
+    "ScopeName":"attribute"
 ]);
 
-mapping(string:object) top_scope = ([
+mapping(string:object|string) top_scope = ([
     "file":lambda(object curob, string line) {
                return PikeFile(line, curob);
            },
     "module":lambda(object curob, string line) {
                  return Module(line, curob);
-             }
+             },
+    "ScopeName":"top"
 ]);
 
-mapping(string:object) cur_scope;
+/*
+ * Scope environment.
+ *
+ */
+mapping(string:mixed) cur_scope = ([
+    "parent":0, /* Previous scope, 0 if this is top */
+    "child":0,  /* Immediate ancestor scope */
+    "curob":0,  /* Current object (father of child objects) */
+    "scope":0   /* Current scope of keywords */
+]);
 
 /*
  * Scope switching keywords
@@ -1179,7 +1204,6 @@ class Parse {
     private int	           indent;
     private object(Regexp) kwreg = Regexp("(^[a-zA-Z0-9_]+):(.*)");
     private object         curob;
-    private object         curparent;
     private string         lastkw;
     private int            fadded;
     private int            madded;
@@ -1201,7 +1225,7 @@ class Parse {
 		
         return 0;
     }
-    
+
     private void parse_line(string line)
     {
         array(string) spline;
@@ -1209,69 +1233,80 @@ class Parse {
         spline = kwreg->split(String.trim_whites(line));
 
         if (spline) {
-            spline[0] = lower_case(spline[0]);
+            /* We have something that ends with ':' */
+            lastkw = lower_case(spline[0]);
             
-            if (!cur_scope[spline[0]]) {
-                /*
-                 * Keyword is invalid in this scope, but
-                 * it might be switching scopes
-                 */
-                if (scopes[spline[0]]) {
-                    cur_scope = scopes[spline[0]];
-		    if (curob)
-			curparent = curob->parent;
-		} else
-                    wrerr(sprintf("Unknown keyword in active scope '%s'\n", spline[0]));
-            }
-        
-            if (cur_scope[spline[0]]) {
-                object  o;
-        
-                lastkw = spline[0];
-            
-                o = cur_scope[lastkw](curparent, spline[1]);
-        	if (scopes[lastkw])
-		    curparent = o;
+            /* Is it a keyword in the current scope? */
+            if (cur_scope->scope[lastkw]) {
+                /* Yes, see whether it's an object or just a field */
+                debug(sprintf("Keyword '%s' in scope '%s' found", lastkw, cur_scope->scope->ScopeName));
 
-                /* Check whether it's a new container */
-                if (o) {
-		    /* 
-		     * If curparent isn't set, it means we're at
-		     * the very top level and the object that's just
-		     * been created is either a 'file' or 'module'
-		     */
-		    if (!curparent)
-			curparent = curob;
-//                    if (curob)
-//                        curob->add(o, lastkw);
-                    curob = o;
-                    curob->add(String.trim_whites(spline[1]), lastkw);
-                
-                    if (scopes[lastkw])
-                        cur_scope = scopes[lastkw];
-                
-                    return;
-                }
+                if (functionp(cur_scope->scope[lastkw])) {
+                    /* We have an object here */
+                    mapping curob = cur_scope->curob;
+
+                    debug(sprintf("Keyword creates an object (%s)",
+                                  curob ? "child of " + curob->myName : "top-level"));
+                    
+                    object o = cur_scope->scope[lastkw](curob, String.trim_whites(spline[1]));
+
+                    /* Does the object switch scopes? */
+                    if (scopes[lastkw]) {
+                        /* Yep. Make it happen. */
+                        cur_scope->child = ([]);
+                        cur_scope->child->scope = scopes[lastkw];
+                        cur_scope->child->parent = cur_scope;
+                        cur_scope->child->child = 0;
+                        cur_scope = cur_scope->child;
+
+                        debug(sprintf("Scope switched to '%s' by object '%s'",
+                                      cur_scope->scope->ScopeName, o->myName));
+                        
+                        cur_scope->curob = o;
+                        debug(sprintf("Object '%s' set current for scope '%s'",
+                                      o->myName, cur_scope->scope->ScopeName));
+                    } else {
+                        /* Nope. It just becomes current for this scope. */
+                        cur_scope->curob = o;
+                        debug(sprintf("Object '%s' set current for scope '%s'\n",
+                                      o->myName, cur_scope->scope->ScopeName));                        
+                    }
+                } else {
+                    /*
+                     * We have a simple field. Add it to the current object
+                     * in this scope
+                     */
+                    debug(sprintf("Keyword is a field of %s\n", cur_scope->curob->myName));
+                }   
+            } else {
+                /* No, find out whether it switches scopes */
+                debug(sprintf("Keyword '%s' unknown in scope '%s'\n",
+                              lastkw, cur_scope->scope->ScopeName));
+            }
+            
+        } else {
+            /*
+             * It's a normal line - it will be appended to the current
+             * object/field
+             */
+            if (!cur_scope->curob) {
+                wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
+                return;
             }
         }
-        
-        if (!curob) {
-            stderr->write("  " + curline + ": no current container!\n");
+
+        if (!cur_scope->curob) {
+            wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
             return;
         }
-
-        if (spline) /* new keyword, but not an object */
-            curob->add(String.trim_whites(spline ? spline[1] : line), lastkw);
-        else
-            curob->add(String.trim_whites(spline ? spline[1] : line));
         
-        switch(curob->myName) {
+        switch(cur_scope->curob->myName) {
             case "PikeFile":
                 if (!files) {
-                    files = ({curob});
+                    files = ({cur_scope->curob});
                     fadded = 1;
                 } else if (!fadded) {
-                    files += ({curob});
+                    files += ({cur_scope->curob});
                     fcount++;
                     fadded = 1;
                 }
@@ -1279,10 +1314,10 @@ class Parse {
 		
             case "Module":
                 if (!modules) {
-                    modules = ({curob});
+                    modules = ({cur_scope->curob});
                     madded = 1;
                 } else if (!madded) {
-                    modules += ({curob});
+                    modules += ({cur_scope->curob});
                     mcount++;
                     madded = 1;
                 }
@@ -1310,10 +1345,12 @@ class Parse {
         indent = -1;
         where = IN_SPACE;
         curob = 0;
-	curparent = 0;
         fadded = madded = 0;
 	
-        cur_scope = top_scope;
+        cur_scope->scope  = top_scope;
+        cur_scope->parent = 0;
+        cur_scope->child = 0;
+        cur_scope->curob = 0;
 	
         foreach(curfile, string line) {
             int       i = -1;
@@ -1335,7 +1372,7 @@ class Parse {
         array(string)   dirs = ({}), files = ({});
 
         foreach(get_dir(top), string s) {
-	  array(int) stbuf = (array)file_stat(top + s);
+            array(int) stbuf = (array)file_stat(top + s);
 
             if (glob("CVS", s))
                 continue;
