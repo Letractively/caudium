@@ -49,6 +49,8 @@ static string extract_query(string from)
   return "";
 }
 
+#define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
+
 static mapping build_env_vars(string f, object id, string path_info)
 {
   string addr=id->remoteaddr || "Internal";
@@ -133,10 +135,7 @@ static mapping build_env_vars(string f, object id, string path_info)
   if ((hdrs = id->request_headers)) {
     foreach(indices(hdrs) - ({ "authorization", "proxy-authorization",
 			       "security-scheme", }), string h) {
-      string hh = "HTTP_" + replace(upper_case(h),
-				    ({ " ", "-", "\0", "=" }),
-				    ({ "_", "_", "", "_" }));
-
+      string hh = "HTTP_" + upper_case(VARQUOTE(h));      
       new[hh] = replace(hdrs[h], ({ "\0" }), ({ "" }));
     }
     if (!new["HTTP_HOST"]) {
@@ -226,23 +225,25 @@ static mapping build_roxen_env_vars(object id)
 
   new["COOKIES"] = "";
   foreach(indices(id->cookies), tmp)
-    {
-      new["COOKIE_"+tmp] = id->cookies[tmp];
-      new["COOKIES"]+= tmp+" ";
-    }
+  {
+    tmp = VARQUOTE(tmp);
+    new["COOKIE_"+tmp] = id->cookies[tmp];
+    new["COOKIES"]+= tmp+" ";
+  }
 	
   foreach(indices(id->config), tmp)
-    {
-      new["WANTS_"+replace(tmp, " ", "_")]="true";
-      if(new["CONFIGS"])
-	new["CONFIGS"] += " " + replace(tmp, " ", "_");
-      else
-	new["CONFIGS"] = replace(tmp, " ", "_");
-    }
+  {
+    tmp = VARQUOTE(tmp);
+    new["WANTS_"+tmp]="true";
+    if(new["CONFIGS"])
+      new["CONFIGS"] += " " + tmp;
+    else
+      new["CONFIGS"] = tmp;
+  }
 
   foreach(indices(id->variables), tmp)
   {
-    string name = replace(tmp," ","_");
+    string name = VARQUOTE(tmp);
     if (id->variables[tmp] && (sizeof(id->variables[tmp]) < 8192)) {
       /* Some shells/OS's don't like LARGE environment variables */
       new["QUERY_"+name] = replace(id->variables[tmp],"\000"," ");
@@ -256,20 +257,22 @@ static mapping build_roxen_env_vars(object id)
       
   foreach(indices(id->prestate), tmp)
   {
-    new["PRESTATE_"+replace(tmp, " ", "_")]="true";
+    tmp = VARQUOTE(tmp);
+    new["PRESTATE_"+tmp]="true";
     if(new["PRESTATES"])
-      new["PRESTATES"] += " " + replace(tmp, " ", "_");
+      new["PRESTATES"] += " " + tmp;
     else
-      new["PRESTATES"] = replace(tmp, " ", "_");
+      new["PRESTATES"] = tmp;
   }
 	
   foreach(indices(id->supports), tmp)
   {
-    new["SUPPORTS_"+replace(tmp-",", " ", "_")]="true";
+    tmp = VARQUOTE(tmp);
+    new["SUPPORTS_"+tmp]="true";
     if (new["SUPPORTS"])
-      new["SUPPORTS"] += " " + replace(tmp, " ", "_");
+      new["SUPPORTS"] += " " + tmp;
     else
-      new["SUPPORTS"] = replace(tmp, " ", "_");
+      new["SUPPORTS"] = tmp;
   }
   return new;
 }
