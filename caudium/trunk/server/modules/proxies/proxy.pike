@@ -210,7 +210,7 @@ void create()
   defvar("logfile", "", "Logfile", TYPE_FILE,
 	 "Empty the field for no log at all");
   
-  defvar("mountpoint", "http:/", "Location", TYPE_LOCATION|VAR_MORE,
+  defvar("mountpoint", "/http:/", "Location", TYPE_LOCATION|VAR_MORE,
 	 "By default, this is http:/. If you set anything else, all "
 	 "normal WWW-clients will fail. But, other might be useful"
 	 ", like /http/. if you set this location, a link formed like "
