@@ -30,6 +30,11 @@
  * 
  * $Id$
  */
+
+// Fields for ports configuration in spider module
+#define CFG_PORT_NUMBER 0
+#define CFG_PORT_PROTOCOL 1
+#define CFG_PORT_BIND 2
  
 // for convenience
 string pikever = sprintf("%u.%u.%u/", __REAL_MAJOR__, __REAL_MINOR__, __REAL_BUILD__);
@@ -502,6 +507,7 @@ array parse_arguments(array(string) argv)
 
   argv-=({0});
   if(sizeof(argv)>1) command_line->PROG_OTHER += argv[1..];
+
   return parsed;
 }
 
@@ -957,6 +963,9 @@ will
 array get_servers() {
   array srvs=({});
   object config_dir=Config.Files.Dir(envvars->CAUDIUM_CONFIGDIR);
+
+	flex_debug("Getting virtual server configurations from "+envvars->CAUDIUM_CONFIGDIR+"\n");
+
   if(!config_dir)
   {
     werror("unable to open config dir.\n");
@@ -966,13 +975,20 @@ array get_servers() {
   foreach(config_dir->list_files(), mapping cf)
   {
     // we can skip global variables, as it won't have a virtual server
-    if(cf->name=="Global_Variables") continue;
+    if(cf->name=="Global_Variables")
+			continue;
+
+		flex_debug("Parsing "+cf->name+"\n");
 
     object cfr=Config.Files.File(config_dir, cf->name);
     cfr->parse();
+
     mapping cfg=cfr->retrieve_region("spider#0");
+
     if(cfg)
     {
+			flex_debug("spider#0 region found for "+cf->name+"\n");
+
       int port;
       string host, prot;
       object uri;
@@ -982,16 +998,34 @@ array get_servers() {
       };
       if(err)
         werror("Can't parse URI: %O\n", cfg->MyWorldLocation);
-      if(uri && uri->scheme=="http" && uri->host)
+      
+			if(uri && uri->scheme=="http" && uri->host)
       {
-        int port = uri->port;
-        if(!port)
-          port = 80;
-        srvs+=({ ({ uri->host, port}) });
+				// Getting the ports configuration for the virtual server
+				foreach(cfg->Ports, array port)
+				{
+					if(port[CFG_PORT_PROTOCOL]=="http")
+					{
+						// If Caudium binds on all interfaces or one that match the uri
+						if(
+							port[CFG_PORT_BIND]=="ANY" ||
+							search(gethostbyname(uri->host)[1], port[CFG_PORT_BIND]) != -1
+						)
+						{
+							array to_watch = ({ uri->host, port[CFG_PORT_NUMBER] });
+							flex_debug("Adding "+to_watch[0]+":"+to_watch[1]+" to the watch list\n");
+							srvs += ({ to_watch });
+						}
+						else
+							flex_debug("Not adding "+uri->host+":"+port[CFG_PORT_NUMBER]+" to the watch list: watchdog won't be able to connect because of "+port[CFG_PORT_BIND]+":"+port[CFG_PORT_NUMBER]+" restriction\n");
+					}
+					else
+						flex_debug("Not adding "+uri->host+":"+port[CFG_PORT_NUMBER]+" to the watch list: watchdog don't handle protocol "+port[CFG_PORT_PROTOCOL]+"\n");
+				}
       }
     }
   }
-           
+	  
   return srvs;
 } 
 
