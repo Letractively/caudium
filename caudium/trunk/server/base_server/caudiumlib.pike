@@ -1212,7 +1212,7 @@ static string int2roman(int m)
 //! @returns
 //!  String representation of the passed integer.
 //!
-//! @notes
+//! @note
 //!  Non-RIS implementation
 static string number2string(int num ,mapping params, mixed names)
 {
