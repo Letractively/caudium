@@ -354,7 +354,7 @@ void create()
 	 "Specify the default gidnumber when new account is created\n");
   defvar("default_uid", 100, "Add: uid if no uidNumber found",
   	 TYPE_INT,
-	 "uidNumber should only happen if you don't have previously users in LDAP. Never put this to something < 1.\n");
+	 "uidNumber should only happen if you don't have previously users in LDAP. Never put this to something &lt; 1.\n");
   defvar("addlastslash", 0, "Add: add a slash to the home directory",
   	 TYPE_FLAG,
 	 "It can be useful to add a '/' to home directory for example to tell your MTA you have a Maildir box format");
@@ -1354,7 +1354,7 @@ mixed find_file(string path, object id)
 //!  name: Add: gidnumber for new accounts
 //
 //! defvar: default_uid
-//! uidNumber should only happen if you don't have previously users in LDAP. Never put this to something < 1.
+//! uidNumber should only happen if you don't have previously users in LDAP. Never put this to something &lt; 1.
 //!
 //!  type: TYPE_INT
 //!  name: Add: uid if no uidNumber found
