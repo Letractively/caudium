@@ -67,13 +67,23 @@ int default_uid() {
 #endif
 }
 
+int default_gid() {
+
+#if constant(getegid)
+  return(getegid());
+#else
+  return(0);
+#endif
+}
+
 /*
  * Object management and configuration variables definitions
  */
 
 void create()
 {
-	// LDAP server:
+// LDAP server definitions
+
         defvar ("CI_dir_server","localhost","LDAP server: Location",
                    TYPE_STRING, "This is LDAP URL for the LDAP server with "
                    "the authentication information. Example: ldap(s)://myldaphost");
@@ -82,42 +92,6 @@ void create()
                    TYPE_STRING, "The distinguished name to use as a base for queries."
 		   "Typically, this would be an 'o' or 'ou' entry "
 		   "local to the DSA which contains the user entries.");
-
-        defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Search: User Search template",
-                   TYPE_STRING, "Template used by LDAP search operation "
-                   "as filter for searching for users"
-		   "<b>%u%</b> : Will be replaced by entered username." );
-
-        defvar ("CI_groupsearch_templ","(&(objectclass=group)(cn=%g%))","Search: Group Search template",
-                   TYPE_STRING, "Template used by LDAP search operation "
-                   "as filter for searching for groups"
-		   "<b>%g%</b> : Will be replaced by entered groupname." );
-
-        defvar ("CI_userforgroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Users in groups Search template",
-                   TYPE_STRING, "Search template used as filter "
-                   "when searching for user members of groups."
-		   "<b>%g%</b> : Will be replaced by entered groupname."
-		   "<b>%d%</b> : Will be replaced by group's full dn." );
-
-        defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Search: Groups for user Search template",
-                   TYPE_STRING, "Template used by LDAP search operation"
-		   " as filter."
-		   "<b>%u%</b> : Will be replaced by entered username."
-		   "<b>%d%</b> : Will be replaced by user's full dn." );
-
-        defvar ("CI_userlist_search_templ","(objectclass=posixuser)","Search: Userlist search query",
-                   TYPE_STRING, "Template used by LDAP userlist search operation");
-
-        defvar ("CI_grouplist_search_templ","(objectclass=posixgroup)","Search: Grouplist search query",
-                   TYPE_STRING, "Template used by LDAP grouplist search operation");
-
-        defvar ("CI_userforgroup_attr","memberuid","User Attributes: Username in group entry",
-                   TYPE_STRING, 
-		   "Attribute in group object containing a user's name" );
-
-        defvar ("CI_groupname_attr","memberuid","Group Attributes: Groupname",
-                   TYPE_STRING, 
-		   "Attribute in group object containing a group's name" );
 
         defvar ("CI_level","subtree","LDAP server: LDAP query depth",
                    TYPE_STRING_LIST, "Scope used by LDAP search operation."
@@ -138,50 +112,115 @@ void create()
 		    "connection to directory (optional).",
 		   0);
 
-        defvar ("CI_default_uid",default_uid(),"User Defaults: User ID", TYPE_INT,
+
+
+// SEARCH TEMPLATE DEFINITIONS
+
+        defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Search: User Search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for users"
+		   "<b>%u%</b> : Will be replaced by entered username." );
+
+        defvar ("CI_groupsearch_templ","(&(objectclass=group)(cn=%g%))","Search: Group Search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for groups"
+		   "<b>%g%</b> : Will be replaced by entered groupname." );
+
+        defvar ("CI_userforgroup_search_templ","(&(objectclass=group)(cn=%g%))","Search: Users in groups Search template",
+                   TYPE_STRING, "Search template used as filter "
+                   "when searching for user members of groups."
+		   "<b>%g%</b> : Will be replaced by entered groupname."
+		   "<b>%d%</b> : Will be replaced by group's full dn." );
+
+        defvar ("CI_groupforuser_search_templ","(&(objectclass=group)(memberuid=%u%))","Search: Groups for user Search template",
+                   TYPE_STRING, "Template used by LDAP search operation"
+		   " as filter."
+		   "<b>%u%</b> : Will be replaced by entered username."
+		   "<b>%d%</b> : Will be replaced by user's full dn." );
+
+        defvar ("CI_userlist_search_templ","(objectclass=person)","Search: Userlist search query",
+                   TYPE_STRING, "Template used by LDAP userlist search operation");
+
+        defvar ("CI_grouplist_search_templ","(objectclass=group)","Search: Grouplist search query",
+                   TYPE_STRING, "Template used by LDAP grouplist search operation");
+
+// ATTRIBUTE DEFINITIONS
+
+        defvar ("CI_attr_userforgroup","memberuid","User Attributes: Username in group entry",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a user's name" );
+
+        defvar ("CI_attr_group_groupname","cn","Group Attributes: Groupname",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a group's name" );
+
+        defvar ("CI_attr_group_fullname","description","Group Attributes: Long Description",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a group's description" );
+
+        defvar ("CI_attr_group_gid","gidNumber","Group Attributes: Group ID",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a group's numerid ID" );
+
+        defvar ("CI_attr_user_uid", "uidNumber",
+		   "User Attributes: User ID", TYPE_STRING,
+                   "The attribute containing the user's numeric ID.");
+
+        defvar ("CI_attr_user_gid", "gidNumber",
+		   "User Attributes: Group ID", TYPE_STRING,
+                   "The attribute containing the user's primary GID.");
+
+        defvar ("CI_attr_user_username", "uid",
+		   "User Attributes: User", TYPE_STRING,
+                   "The attribute containing the user name in user object.");
+
+        defvar ("CI_attr_user_homedir", "homeDirectory",
+		   "User Attributes: Home Directory", TYPE_STRING,
+                   "The attribute containing the user Home Directory.");
+
+        defvar ("CI_attr_user_shell", "loginShell",
+		   "User Attributes: Login Shell", TYPE_STRING,
+                   "The attribute containing the user Login Shell.");
+
+        defvar ("CI_attr_user_email", "mail",
+		   "User Attributes: E-Mail Address", TYPE_STRING,
+                   "The attribute containing the user E-Mail Address.");
+
+        defvar ("CI_attr_user_fullname", "gecos",
+		   "User Attributes: Full Name", TYPE_STRING,
+                   "The attribute containing the user Full Name.");
+
+
+// DEFAULT VALUE DEFINITIONS
+
+        defvar ("CI_default_group_gid",default_gid(),"Group Defaults: Group ID", TYPE_INT,
+                   "Some modules require an group ID to work correctly. This is the "
+                   "group ID which will be returned to such requests if the information "
+                   "is not supplied by the directory search.");
+
+        defvar ("CI_default_group_fullname", "", "Group Defaults: Full Name", TYPE_STRING,
+                   "The default Full Name (Gecos).");
+
+        defvar ("CI_default_user_uid",default_uid(),"User Defaults: User ID", TYPE_INT,
                    "Some modules require an user ID to work correctly. This is the "
                    "user ID which will be returned to such requests if the information "
                    "is not supplied by the directory search.");
 
-        defvar ("CI_default_attrname_uid", "uidNumber",
-		   "User Attributes: User ID", TYPE_STRING,
-                   "The attribute containing the user's numeric ID.");
-
-        defvar ("CI_default_gid", getegid(),
+        defvar ("CI_default_user_gid", default_gid(),
 		"User Defaults: Group ID", TYPE_INT,
                    "Default GID to be supplied when directory entry does not provide one.");
 
-        defvar ("CI_default_attrname_gid", "gidNumber",
-		   "User Attributes: Group ID", TYPE_STRING,
-                   "The attribute containing the user's primary GID.");
-
-        defvar ("CI_default_gecos", "", "User Defaults: Gecos", TYPE_STRING,
+        defvar ("CI_default_user_fullname", "", "User Defaults: Full Name", TYPE_STRING,
                    "The default Full Name (Gecos).");
 
-        defvar ("CI_default_attrname_gecos", "gecos",
-		   "User Attributes: Full Name", TYPE_STRING,
-                   "The attribute containing the user Full Name.");
-
-        defvar ("CI_default_attrname_user", "uid",
-		   "User Attributes: User", TYPE_STRING,
-                   "The attribute containing the user name in user object.");
-
-        defvar ("CI_default_home","/", "User Defaults: Home Directory", TYPE_DIR,
+        defvar ("CI_default_user_homedir","/", "User Defaults: Home Directory", TYPE_DIR,
                    "It is possible to specify an user's home "
                    "directory. This is used if it's not provided.");
 
-        defvar ("CI_default_attrname_homedir", "homeDirectory",
-		   "User Attributes: Home Directory", TYPE_STRING,
-                   "The attribute containing the user Home Directory.");
-
-        defvar ("CI_default_shell","/bin/false", "User Defaults: Shell", TYPE_STRING,
+        defvar ("CI_default_user_shell","/bin/false", "User Defaults: Shell", TYPE_STRING,
                    "The shell name for entries without a shell.");
 
-        defvar ("CI_default_attrname_shell", "loginShell",
-		   "User Attributes: Login Shell", TYPE_STRING,
-                   "The attribute containing the user Login Shell.");
-
-        defvar ("CI_default_addname",0,"User Defaults: Add username to Home",TYPE_FLAG,
+        defvar ("CI_default_user_addname",0,"User Defaults: Add username to Home",TYPE_FLAG,
                    "Setting this will add username to path to default "
                    "directory, when the home directory is not provided.");
 
@@ -191,7 +230,7 @@ void create()
 void close_dir(object dir) {
   dir->unbind();
   dir=0;
-  DEBUGLOG("closing the directory");
+  DEBUGLOG("closing the directory\n");
   return;
 }
 
@@ -238,7 +277,7 @@ int|object open_dir() {
 
     dir->set_basedn(QUERY(CI_basename));
 
-    DEBUGLOG("directory successfully opened");
+    DEBUGLOG("directory successfully opened\n");
 
     return dir;
 }
@@ -281,7 +320,7 @@ mapping|int get_user_info(string user) {
 
     mapping(string:array(string)) tmp, attrsav;
 
-    DEBUGLOG ("userinfo ("+user+")");
+    DEBUGLOG ("userinfo ("+user+")\n");
 
     dir=open_dir();
 
@@ -293,23 +332,23 @@ mapping|int get_user_info(string user) {
     sr=get_user_object(dir, user);
     if(!sr)
     {
-      DEBUGLOG("no user object for " + user);
+      DEBUGLOG("no user object for " + user + "\n");
       return 0;
     }
 
     tmp=sr->fetch();
 
-    dirinfo->username=user;
-    dirinfo->name=get_attrval(tmp, QUERY(CI_default_attrname_gecos), QUERY(CI_default_gecos));
-    dirinfo->uid=get_attrval(tmp, QUERY(CI_default_attrname_uid), QUERY(CI_default_uid));
-    dirinfo->primary_group=get_attrval(tmp, QUERY(CI_default_attrname_gid), QUERY(CI_default_gid));
-    dirinfo->shell=get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell));
-    dirinfo->home_directory=get_attrval(tmp, QUERY(CI_default_attrname_homedir), QUERY(CI_default_home));
+    dirinfo->username=tmp[QUERY(CI_attr_user_username)][0];
+    dirinfo->name=get_attrval(tmp, QUERY(CI_attr_user_fullname), QUERY(CI_default_user_fullname));
+    dirinfo->uid=get_attrval(tmp, QUERY(CI_attr_user_uid), QUERY(CI_default_user_uid));
+    dirinfo->primary_group=get_attrval(tmp, QUERY(CI_attr_user_gid), QUERY(CI_default_user_gid));
+    dirinfo->shell=get_attrval(tmp, QUERY(CI_attr_user_shell), QUERY(CI_default_user_shell));
+    dirinfo->home_directory=get_attrval(tmp, QUERY(CI_attr_user_homedir), QUERY(CI_default_user_homedir));
 
-    if(QUERY(CI_attrname_email))
-      dirinfo->email=getattrval(tmp, QUERY(CI_attrname_email), "");
+    if(QUERY(CI_attr_user_email) && tmp[QUERY(CI_attr_user_email)])
+      dirinfo->email=tmp[QUERY(CI_attr_user_email)][0];
 
-    if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
+    if(QUERY(CI_default_user_addname) && dirinfo->home_directory==QUERY(CI_default_user_homedir))
       dirinfo->home_directory+=user;
 
     dirinfo->groups=get_groups_for_user(dir, user, sr->get_dn());
@@ -327,7 +366,7 @@ mapping|int get_group_info(string group) {
 
     mapping(string:array(string)) tmp, attrsav;
 
-    DEBUGLOG ("groupinfo ("+group+")");
+    DEBUGLOG ("groupinfo ("+group+")\n");
 
     dir=open_dir();
 
@@ -339,27 +378,15 @@ mapping|int get_group_info(string group) {
     sr=get_group_object(dir, group);
     if(!sr)
     {
-      DEBUGLOG("no group object for " + group);
+      DEBUGLOG("no group object for " + group + "\n");
       return 0;
     }
 
     tmp=sr->fetch();
 
-    dirinfo->groupname=group;
-/*
-    dirinfo->name=get_attrval(tmp, QUERY(CI_default_attrname_gecos), QUERY(CI_default_gecos));
-    dirinfo->uid=get_attrval(tmp, QUERY(CI_default_attrname_uid), QUERY(CI_default_uid));
-    dirinfo->primary_group=get_attrval(tmp, QUERY(CI_default_attrname_gid), QUERY(CI_default_gid));
-    dirinfo->shell=get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell));
-    dirinfo->home_directory=get_attrval(tmp, QUERY(CI_default_attrname_homedir), QUERY(CI_default_home));
-
-    if(QUERY(CI_attrname_email))
-      dirinfo->email=getattrval(tmp, QUERY(CI_attrname_email), "");
-
-    if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
-      dirinfo->home_directory+=user;
-
-*/
+    dirinfo->groupname=tmp[QUERY(CI_attr_group_groupname)][0];
+    dirinfo->name=get_attrval(tmp, QUERY(CI_attr_group_fullname), QUERY(CI_default_group_fullname));
+    dirinfo->gid=get_attrval(tmp, QUERY(CI_attr_group_gid), QUERY(CI_default_group_gid));
     dirinfo->users=get_users_for_group(dir, group, sr->get_dn());
 
     dirinfo->_source=QUERY(_name);
@@ -373,13 +400,13 @@ multiset get_groups_for_user(object dir, string user, string dn)
 
     string q=QUERY(CI_groupforuser_search_templ);
     q=replace(q, ({"%u%", "%d%"}), ({user, dn}));
-    object sr=dir->search(q, ({QUERY(CI_groupname_attr)}));
+    object sr=dir->search(q, ({QUERY(CI_attr_group_groupname)}));
 
     if(sr->num_entries()==0) return (<>);
 
     for(int i=0; i< sr->num_entries(); i++)
     {
-      v+=(<sr->fetch()[QUERY(CI_groupname_attr)][0]>);
+      v+=(<sr->fetch()[QUERY(CI_attr_group_groupname)][0]>);
       sr->next();
     }
     
@@ -392,19 +419,19 @@ multiset get_users_for_group(object dir, string group, string dn)
 
     string q=QUERY(CI_userforgroup_search_templ);
     q=replace(q, ({"%g%", "%d%"}), ({group, dn}));
-    object sr=dir->search(q, ({QUERY(CI_userforgroup_attr)}));
+    object sr=dir->search(q, ({QUERY(CI_attr_userforgroup)}));
 
     if(sr->num_entries()!=1) return (<>);
     else
     {
        array g=sr->fetch();
-       v=(multiset)(g[QUERY(CI_userforgroup_attr)]);
+       v=(multiset)(g[QUERY(CI_attr_userforgroup)]);
     }
     
    return v;
 }
 
-array(string) userlist() 
+array(string) list_all_users() 
 {
   object dir=open_dir();
 
@@ -413,17 +440,41 @@ array(string) userlist()
 
   array users=({});
 
-  object sr=dir->search(QUERY(CI_userlist_search_templ), QUERY(CI_default_attrname_user));
+  object sr=dir->search(QUERY(CI_userlist_search_templ), QUERY(CI_attr_user_username));
 
   if(sr->num_entries()==0) return ({});
 
   for(int i=0; i<sr->num_entries(); i++)
   {
-    users+=({ sr->fetch()[QUERY(CI_default_attrname_user)][0] });
+    if(sr->fetch()[QUERY(CI_attr_user_username)])
+      users+=({ sr->fetch()[QUERY(CI_attr_user_username)][0] });
     sr->next();
   }
 
   return users;
+}
+
+array(string) list_all_groups() 
+{
+  object dir=open_dir();
+
+  if(!dir)
+    return ({});
+
+  array groups=({});
+
+  object sr=dir->search(QUERY(CI_grouplist_search_templ), QUERY(CI_attr_group_groupname));
+
+  if(sr->num_entries()==0) return ({});
+
+  for(int i=0; i<sr->num_entries(); i++)
+  {
+    if(sr->fetch()[QUERY(CI_attr_group_groupname)])
+      groups+=({ sr->fetch()[QUERY(CI_attr_group_groupname)][0] });
+    sr->next();
+  }
+
+  return groups;
 }
 
 private int|object get_user_object(object dir, string user)
@@ -434,7 +485,7 @@ private int|object get_user_object(object dir, string user)
    mapping dirinfo;
 
    // first, we find the dn for the user we are about to authenticate as.
-   userdn=replace(QUERY(CI_search_templ), "%u", user);
+   userdn=replace(QUERY(CI_search_templ), "%u%", user);
 
    err=catch(sr=dir->search(userdn));    
 
@@ -468,7 +519,7 @@ private int|object get_group_object(object dir, string group)
    mapping dirinfo;
 
    // first, we find the dn for the group we are about to search as.
-   userdn=replace(QUERY(CI_groupsearch_templ), "%g", group);
+   groupdn=replace(QUERY(CI_groupsearch_templ), "%g%", group);
 
    err=catch(sr=dir->search(groupdn));    
 
@@ -481,6 +532,7 @@ private int|object get_group_object(object dir, string group)
    if(sr->num_entries()==0)
    {
       report_error("LDAPAuth: group not found: " + group + "\n");
+      report_error("LDAPAuth: Search used: " + groupdn + "\n");
       close_dir(dir);
       return 0;
    }
@@ -525,12 +577,12 @@ int authenticate (string user, string password)
     if(!res) 
     {
       close_dir(dir);
-      DEBUGLOG (user+" authentication failed");
+      DEBUGLOG (user+" authentication failed\n");
       return -1;
     }
 
     // successful authentication
-    DEBUGLOG (user +" positively recognized");
+    DEBUGLOG (user +" positively recognized\n");
     close_dir(dir);
     succ++;
     return 1;
