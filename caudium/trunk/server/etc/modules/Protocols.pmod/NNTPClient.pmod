@@ -19,6 +19,8 @@
 // (c) Daniel Podlejski
 // $Id$
 
+#define POSTINGOK "(posting ok)"
+
 #define NNTPCMD(X) \
 	if (!connection) return 0;\
 	err = catch { \
@@ -34,7 +36,11 @@ class connection
   object connection = 0;
   int lastreply = 0;
   int locked = 0;
+  // global error (socket, network, ...)
   mixed err = 0;
+  // error in protocol
+  string proto_err = ""; 
+  int allowed2post = 0;
   
   void create(void|string connectionserver, void|int argport)
   {
@@ -53,8 +59,12 @@ class connection
     }
   
     string status = connection->gets();
-  
     sscanf(status, "%d %s", lastreply, string rest);
+    if(lastreply != 200)
+    {
+      proto_err = status;
+      return 0;
+    }
   }
   
   int close()
@@ -86,8 +96,13 @@ class connection
 
     sscanf(res, "%d %s", lastreply, res);
 
+    if(search(res, POSTINGOK) != -1)
+      allowed2post = 1;
+
     if (!err && lastreply >= 200 && lastreply < 300) return 1;
 
+    proto_err = lastreply + " " + res;
+    
     destruct(connection);
 
     connection = 0;
@@ -114,15 +129,23 @@ class connection
 
     NNTPCMD(sprintf("group %s", name));
 
-    if (!err && sscanf(res, "%d %d %d %d %s",
-                       lastreply, int msgcount, int minmsg, int maxmsg, name))
-       return ({ msgcount, minmsg, maxmsg, name });
+    sscanf(res, "%d %d %d %d %s",
+              lastreply, int msgcount, int minmsg, int maxmsg, name);
 
-    destruct(connection);
-
-    connection = 0;
-
-    return 0;
+    if(err)
+    {
+      destruct(connection);
+      connection = 0;
+      return 0;
+    }
+    
+    if(lastreply != 211)
+    {
+      proto_err = res;
+      return 0;
+    }
+    
+    return ({ msgcount, minmsg, maxmsg, name });
   }
 
   string article(void|int|string msgspec)
@@ -142,8 +165,11 @@ class connection
        return 0;
     }
 
-    if (lastreply != 220) return 0;
-
+    if (lastreply != 220) 
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
     res = _gets();
 
     while (res != ".")
@@ -172,8 +198,11 @@ class connection
        return 0;
     }
 
-    if (lastreply != 221) return 0;
-
+    if (lastreply != 221) 
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
     res = _gets();
 
     while (res != ".")
@@ -202,8 +231,12 @@ class connection
        return 0;
     }
 
-    if (lastreply != 222) return 0;
-
+    if (lastreply != 222)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -237,8 +270,12 @@ class connection
        return 0;
     }
 
-    if (lastreply != 215) return 0;
-
+    if (lastreply != 215) 
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -268,8 +305,12 @@ class connection
        return 0;
     }
 
-    if (lastreply != 215) return 0;
-
+    if (lastreply != 215)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -305,8 +346,46 @@ class connection
        return 0;
     }
 
-    if (lastreply != 215) return 0;
+    if (lastreply != 215)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
+    res = _gets();
 
+    while (res != ".")
+    {
+      if (sscanf(res, "%s%[\t ]%s", string grp, string sep, string desc))
+         result[grp] = desc;
+
+      res = _gets();
+    }
+
+    return result;
+  }
+
+  mapping newgroups(string date)
+  {
+    string res;
+    mapping result = ([]);
+
+    NNTPCMD(sprintf("newgroups %s", date));
+    sscanf(res, "%d %s", lastreply, res);
+
+    if (err)
+    {
+       destruct(connection);
+       connection = 0;
+       return 0;
+    }
+
+    if (lastreply != 231 && lastreply != 235)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -336,8 +415,12 @@ class connection
        return 0;
     }
 
-    if (lastreply != 221) return 0;
-
+    if (lastreply != 221) 
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -371,8 +454,12 @@ class connection
        connection = 0;
        return 0;
     }
-    if (lastreply != 224) return 0;
-
+    if (lastreply != 224)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
     res = _gets();
 
     while (res != ".")
@@ -384,5 +471,42 @@ class connection
     }
 
     return result;
+  }
+
+  int post(string message)
+  {
+    string res;
+    NNTPCMD("post");
+
+    sscanf(res, "%d %s", lastreply, res);
+    
+    if (err)
+    {
+       destruct(connection);
+       connection = 0;
+       return 0;
+    }
+    if (lastreply != 340)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    
+    NNTPCMD(message + "\r\n.\r\n");
+
+    sscanf(res, "%d %s", lastreply, res);
+
+    if (err)
+    {
+       destruct(connection);
+       connection = 0;
+       return 0;
+    }
+    if(lastreply != 240)
+    {
+      proto_err = lastreply + " " + res;
+      return 0;
+    }
+    return 1;
   }
 }
