@@ -3899,7 +3899,7 @@ string tag_for(string t, mapping args, string c, object id)
  */
 string tag_scopecontrol(string t, mapping args, string c, object id)
 {
-    int    cond = 0, on = 0, global = 0;
+    int    cond = 0, on = 0, globl = 0;
 
     if (args->cond) {
         switch(lower_case(args->cond)) {
@@ -3925,13 +3925,13 @@ string tag_scopecontrol(string t, mapping args, string c, object id)
         m_delete(args, "on");
     }
 
-    if (args->global) {
-        switch(lower_case(args->global)) {
+    if (args["global"]) {
+        switch(lower_case(args["global"])) {
             case "yes":
             case "on":
             case "1":
             case "true":
-                global = 1;
+                globl = 1;
                 break;
         }
         m_delete(args, "global");
@@ -3951,7 +3951,7 @@ string tag_scopecontrol(string t, mapping args, string c, object id)
     
     string ret = parse_rxml(c, id);
 
-    if (!global) {
+    if (!globl) {
         id->misc->_use_scopes = oldus;
         id->misc->_scope_status = oldss;
     }
