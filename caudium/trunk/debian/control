@@ -7,8 +7,8 @@ Build-Depends: pike7-cvs, debconf-utils
 
 Package: caudium
 Architecture: any
-Pre-Depends: debconf (>= 0.2.17)
-Depends: ${shlibs:Depends}, caudium-modules (= ${Source-Version}), pike7-cvs (= ${pikever}), pike7-cvs-image (= ${pikever}), pike7-cvs-gz (= ${pikever}), pike7-cvs-crypto (= ${pikever}), pike7-cvs-gmp (= ${pikever}), logrotate
+Pre-Depends: debconf (>= 0.2.17), pike7-cvs (= ${pikever})
+Depends: ${shlibs:Depends}, caudium-modules (= ${Source-Version}), pike7-cvs-image (= ${pikever}), pike7-cvs-gz (= ${pikever}), pike7-cvs-crypto (= ${pikever}), pike7-cvs-gmp (= ${pikever}), logrotate
 Suggests: roxen-doc (>= 1.3.122-1)
 Recommends: caudium-pixsl, caudium-ultralog
 Provides: httpd
