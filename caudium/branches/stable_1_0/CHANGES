@@ -1,5 +1,8 @@
 Changes in Caudium 1.0.xx since Caudium 1.0.52
 ----------------------------------------------
+- Fix htaccess module for redirecttemp, redirecttemporary, redirectperm,
+  redirectpermanent, authuserfile, authname, authgroupfile, redirect and
+  errorfile.
 - Added .htaccess manual link... Usefull since our is NSCA compatible...
 - index.php and index.php3 now added in all directories modules.
 - Added support for RFC 3236 (XHTML media type)
