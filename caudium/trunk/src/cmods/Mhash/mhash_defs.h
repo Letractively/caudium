@@ -18,19 +18,34 @@
  *
  */
 
-#ifndef MHASH_CONFIG_H
-#define MHASH_CONFIG_H
+#define THIS ((mhash_storage *)fp->current_object->storage)
 
-@TOP@
+typedef struct
+{
+  MHASH hash;
+  int type;
+  unsigned char *res;
+} mhash_storage;
 
-@BOTTOM@
-
-#if defined(HAVE_MHASH_H) && defined(HAVE_LIBMHASH)
-#define HAVE_MHASH
-#include <mhash.h>
-#include "mhash_defs.h"
+#ifndef ADD_STORAGE
+/* Pike 0.6 */
+#define ADD_STORAGE(x) add_storage(sizeof(x))
 #endif
 
-void pike_module_init(void);
-void pike_module_exit(void);
-#endif
+
+/* Mhash object functions */
+void f_hash_create(INT32 args);
+void f_hash_feed(INT32 args);
+void f_hash_digest(INT32 args);
+void f_hash_hexdigest(INT32 args);
+void f_hash_name(INT32 args);
+void f_hash_reset(INT32 args);
+void f_hash_set_type(INT32 args);
+struct program *mhash_init_mhash_program(void);
+
+
+/* Class global funcs */
+void mhash_init_globals(void);
+void f_query_name(INT32 args);
+
+     

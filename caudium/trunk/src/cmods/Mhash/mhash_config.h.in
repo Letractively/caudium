@@ -1,3 +1,4 @@
+/* mhash_config.h.in.  Generated automatically from configure.in by autoheader.  */
 /*
  * Pike Extension Modules - A collection of modules for the Pike Language
  * Copyright © 2000 The Caudium Group
@@ -21,9 +22,12 @@
 #ifndef MHASH_CONFIG_H
 #define MHASH_CONFIG_H
 
-@TOP@
 
-@BOTTOM@
+/* Define if you have the <mhash.h> header file.  */
+#undef HAVE_MHASH_H
+
+/* Define if you have the mhash library (-lmhash).  */
+#undef HAVE_LIBMHASH
 
 #if defined(HAVE_MHASH_H) && defined(HAVE_LIBMHASH)
 #define HAVE_MHASH

@@ -199,29 +199,6 @@ void f_hash_set_type(INT32 args)
   pop_n_elems(args);
 }
 
-/* Hash id -> name */
-void f_query_name(INT32 args)
-{
-  char *name;
-  if(args == 1) {
-    if(sp[-args].type != T_INT) {
-      error("Invalid argument 1. Expected integer.\n");
-    } 
-    name = mhash_get_hash_name(sp[-args].u.integer);
-    pop_n_elems(args);
-    if(name == NULL) {
-      push_int(0);
-    } else {
-      push_text(name);
-      free(name);
-    }
-  } else {
-    error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
-  }
-}
-
-
-static struct program *hash_program;
 static void free_hash_storage(struct object *o)
 {
   free_hash();
@@ -233,9 +210,8 @@ static void init_hash_storage(struct object *o)
   THIS->type = -1;
 }
 
-/* Init the module */
-void pike_module_init(void)
-{
+struct program *mhash_init_mhash_program(void) {
+  struct program *prog;
   start_new_program();
   ADD_STORAGE( mhash_storage  );
   add_function("create", f_hash_create, "function(int|void:void)", 0 ); 
@@ -248,44 +224,9 @@ void pike_module_init(void)
   add_function("set_type", f_hash_set_type, "function(void:void)", 0 ); 
   set_init_callback(init_hash_storage);
   set_exit_callback(free_hash_storage);
-  hash_program = end_program();
-  add_program_constant("Hash", hash_program, 0);
+  prog = end_program();
+  add_program_constant("Hash", prog, 0);
+  return prog;
+}
 
-  add_function("query_name", f_query_name,
-	       "function(int:string)", 0 ); 
-  add_integer_constant("CRC32", MHASH_CRC32, 0);
-  add_integer_constant("MD5", MHASH_MD5, 0);
-  add_integer_constant("SHA1", MHASH_SHA1, 0);
-  add_integer_constant("HAVAL256", MHASH_HAVAL256, 0);
-  add_integer_constant("RIPEMD160", MHASH_RIPEMD160, 0);
-  add_integer_constant("TIGER", MHASH_TIGER, 0);
-  add_integer_constant("GOST", MHASH_GOST, 0);
-  add_integer_constant("CRC32B", MHASH_CRC32B, 0);
-  add_integer_constant("HAVAL192", MHASH_HAVAL192, 0);
-  add_integer_constant("HAVAL160", MHASH_HAVAL160, 0);
-  add_integer_constant("HAVAL128", MHASH_HAVAL128, 0);
-  add_integer_constant("HAVAL224", MHASH_HAVAL224, 0);
-#if 0
-  /* Not existing yet...  */
-  add_integer_constant("SNEFRU", MHASH_SNEFRU, 0);
-  add_integer_constant("MD2", MHASH_MD2, 0);
 #endif
-}
-
-
-/* Restore and exit module */
-void pike_module_exit( void )
-{
-  free_program(hash_program);
-}
-
-#else /* HAVE_MHASH */
-void pike_module_exit( void ) { }
-void pike_module_init( void ) { }
-#endif /* HAVE_MHASH */
-
-/*
- * Local variables:
- * c-basic-offset: 2
- * End:
- */
