@@ -440,7 +440,7 @@ string container_emit(string t, mapping args, string contents, object id,
 
   NOCACHE();
 
-  object retval = String.Buffer(sizeof(contents));
+  object retval = String.Buffer(sizeof(contents) * sizeof(dataset));
 
   //
   // we should do filtering and ordering here (or anything else that 
