@@ -22,6 +22,7 @@
 /*
  * Authors: 
  *   Marek Habersack <grendel@caudium.net>
+ *   Bill Welliver <hww3@riverweb.com>
  *
  * License: MPL/LGPL
  * 
@@ -29,11 +30,10 @@
  */
  
 // for convenience
-string pikever = sprintf("lib/%u.%u.%u/", __REAL_MAJOR__, __REAL_MINOR__, __REAL_BUILD__);
+string pikever = sprintf("%u.%u.%u/", __REAL_MAJOR__, __REAL_MINOR__, __REAL_BUILD__);
 
-// argumentss we understand
+// arguments we understand
 array(array(string | array(string))) arguments = ({
-  ({"D", Getopt.HAS_ARG, ({"-D", "--define"})}),
   ({"quiet", Getopt.NO_ARG, ({"--quiet"})}),
   ({"truss", Getopt.NO_ARG, ({"--truss"})}),
   ({"strace", Getopt.NO_ARG, ({"--strace"})}),
@@ -50,13 +50,12 @@ array(array(string | array(string))) arguments = ({
   ({"profile", Getopt.NO_ARG, ({"--profile", "--with-profile", "--enable-profile"})}),
   ({"fileprofile", Getopt.NO_ARG, ({"--file-profile", "--with-file-profile", "--enable-file-profile"})}),
   ({"keepalive", Getopt.NO_ARG, ({"--keep-alive", "--with-keep-alive", "--enable-keep-alive"})}),
+  ({"pike", Getopt.HAS_ARG, ({"--with-pike"})}),
   ({"once", Getopt.NO_ARG, ({"--once"})}),
   ({"gdb", Getopt.MAY_HAVE_ARG, ({"--gdb"}), 0, "gdb"}),
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
-  ({"pikeargs", Getopt.MAY_HAVE_ARG, ({"-r", "-d", "-t", "-l", "-w"})}),
-  ({"pikedefines", Getopt.HAS_ARG, ({"-D", "-M", "-I", "-P"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
-  ({"help", Getopt.NO_ARG, ({"--help"})})
+  ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
 });
 
 // loader options (with defaults)
@@ -64,14 +63,8 @@ mapping(string:mixed) options = ([
   "gdb" : "gdb",
   "pike" : 0,
   "pikever" : 0,
-  "program" : 0, 
-]);
-
-// files we load/use
-// paths relative to the caudium server dir
-mapping(string:string) files = ([
-  "environment" : "etc/environment",
-  "loader" : "base_server/caudiumloader.pike"
+  "threads" : 1,
+  "program" : "base_server/caudiumloader.pike", 
 ]);
 
 // default directory locations. Relative to the caudium server dir.
@@ -79,10 +72,10 @@ mapping(string:string|array) dirs = ([
   "LOG" : "../logs/",
   "CONFIG" : "../configurations/",
   "extra_modpath" : ({
-    "etc/modules/", pikever
+    "etc/modules/"
   }),
   "extra_incpath" : ({
-    "etc/include", "base_server"
+    "etc/include",  "base_server"
   }),
   "extra_progpath" : ({
   })
@@ -98,11 +91,21 @@ mapping(string:string|array) envvars = ([
   "PIKE_MODULE_PATH" : getenv("PIKE_MODULE_PATH") || "",
 ]);
 
+// arguments that should go to pike
+array pike_args=({});
+
+// parsed arguments
+array parsed_args=({});
+
 // components of the Caudium command line.
 mapping(string:string|array) command_line = ([
   "DEFINES" : ({}),
-  "INCLUDES" : ({})
+  "INCLUDES" : ({}),
+  "COTHER": ({})
 ]);
+
+// a list of valid interpreters we should try to use.
+array valid_interpreters=({"bin/caudium", "bin/pike"});
 
 // standard descriptors for caudium
 Stdio.File   stdout;
@@ -130,11 +133,10 @@ int run_caudium(array(string) args, mapping|void opts)
   Process.Process   proc;
   mapping           myopts = opts || ([]);
 
-  opts->stdout = stdout;
-  opts->stderr = stderr;
-  opts->cwd = "/usr/src/tmp";
-
-  proc = Process.create_process(({"/usr/bin/pike7.4", "-M /usr/src/tmp", "/usr/src/tmp/t.pike"}), opts);
+  opts->cwd = getcwd();
+  opts->env = getenv() | envvars;
+  write("args: %O opts: %O", args, opts);
+  proc = Process.create_process(args, opts);
 
   if (!proc) {
     stderr->write("Failed to execute the child process\n");
@@ -177,20 +179,36 @@ void preamble()
       write("Cannot find Pike v%s in %s/bin/\n", options->pikever, getcwd());
       exit(1);
     }
-  } else {
-    if (!options->program) {
-      fstat = file_stat("bin/caudium");
-      if (fstat && fstat->isreg && (fstat->mode & 0111))
-        options->pike = "bin/caudium";
+  }
+
+  // we're not specifying a pike version to use internally
+  else {
+    if(options->pike)
+    {
+      fstat=file_stat(options->pike);
+      if(!(fstat && fstat->isreg && (fstat->mode & 0111)))
+      {
+        write("Specificed Pike %s does not exist or is not executable.\n", options->pike);
+        exit(1);
+      }
     }
-    if (!options->pike) {
-      fstat = file_stat("bin/pike");
-      if (fstat && fstat->isreg && (fstat->mode & 0111))
-        options->pike = "bin/pike";
-    }
-    if (!options->pike) {
-      write("Cannot find Pike in %s/bin/\n", getcwd());
+    else
+    {
+      foreach(valid_interpreters, string vi)
+      {
+        fstat=file_stat(vi);
+        if (fstat && fstat->isreg && (fstat->mode & 0111))
+        {
+          options->pike = vi;
+          break;
+        }
+      }
+    if(!options->pike || options->pike=="")
+    {
+      write("Unable to find a usable Pike interpreter.\n");
       exit(1);
+    }
+
     }
   }
 
@@ -226,32 +244,65 @@ void preamble()
         break;
   }
 
-  if (go_threads) {
-    write("%s detected, enabling threads by default (if available in Pike)\n",
+  if (go_threads && options->threads) {
+    write("%s detected, enabling threads (if available in Pike)\n",
           os_label);
     command_line->DEFINES += ({"ENABLE_THREADS"});
   }
+
+  command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN"});
 
   System.umask(022);
 
   if (!getenv("PIKE_NO_DEFAULT_PATHS")) {
     if (!getenv("PIKE_MASTER")) { // Pike default master program
-      // obsolete code, but kept for compatibility
-      if (Stdio.is_dir("share/pike/")) {
-        command_line->INCLUDES += ({"share/pike/include/"});
-        append_env_path("PIKE_MODULE_PATH", "share/pike/modules/");
+//write(pikever + "\n");
+//      array master_locations=({"lib/master.pike", "etc/caudium_master.pike"});
+      array lib_locations=({"lib/modules", 
+        "lib/pike/modules", "etc/modules", "lib/" + pikever,
+        "share/pike/modules"});
+      array program_locations=({getcwd()});
+      array include_locations=({"lib/include", "etc/include", 
+        "share/pike/include", "base_server"});
+
+      command_line->OTHER += ({"-w"});
+/*
+      foreach(master_locations, string ml)
+      {
+         if(Stdio.is_file(ml))
+         {
+           command_line->OTHER += ({"-m" + ml});
+         }
+      }
+*/
+      foreach(include_locations, string il)
+      {
+         if(Stdio.is_dir(il))
+         {
+           command_line->INCLUDES += ({il});
+           add_include_path(il);
+         }
       }
 
-      if (Stdio.is_file("lib/master.pike")) {
-        command_line->OTHER += ({"-mlib/master.pike"});
-        command_line->INCLUDES += ({"lib/include/"});
-        append_env_path("PIKE_MODULE_PATH", "lib/modules/");
-      } else if (Stdio.is_file("lib/pike/master.pike")) {
-        command_line->OTHER += ({"-mlib/pike/master.pike"});
-        command_line->INCLUDES += ({"lib/pike/include/"});
-        append_env_path("PIKE_MODULE_PATH", "lib/pike/modules/");
+      foreach(lib_locations, string ll)
+      {
+         if(Stdio.is_dir(ll))
+         {
+           command_line->MODULES += ({ll});
+           add_module_path(ll);
+         }
+       }
+
+      foreach(program_locations, string pl)
+      {
+         if(Stdio.is_dir(pl))
+         {
+           command_line->PROGRAMS += ({pl});
+           add_program_path(pl);
+         }
       }
-    } else {
+   }
+   else {
       command_line->OTHER += ({"-m" + getenv("PIKE_MASTER")});
     }
   }
@@ -266,17 +317,257 @@ void preamble()
   }
 }
 
-void parse_arguments(array(string) argv)
+array parse_arguments(array(string) argv)
 {
   array(array)  parsed = Getopt.find_all_options(argv, arguments, 0);
+  argv-=({0});
+  if(sizeof(argv)>1) command_line->OTHER += argv[1..];
+  return parsed;
+}
 
+string dirname(string p)
+{
+  array x=p/"/";
+  if(sizeof(x)<2) return 0;
+  x=x[0..(sizeof(x)-2)];
+  p=x*"/";
+  return p;
 }
 
 int main(int argc, array(string) argv)
 {
+  // first, change into the directory that start is living in.
+
+  string d=dirname(argv[0]);
+  if(d) cd(d);
+
+  // is the directory we're in a valid caudium server root?
+  if(!file_stat("base_server")) 
+  {
+    write("Cannot find Caudium server root\n");
+    exit(1);
+  }       
+
+  parsed_args=parse_arguments(argv);
+
+  int code=act_on_args();
+
+  // do we get a "quit" code from the arg handler?
+  if(code) return 0;
+
   preamble();
 
-  write("command_line: %O\nenvvars: %O\n", command_line, envvars);
-  
+//  write("options: %O\n", options);
+//  write("args: %O\ncommand_line: %O\nenvvars: %O\n", parsed_args, command_line, envvars);
+
+  array o = generate_command_options();
+
+  if(options->once)
+  {
+    mapping opt=([]);
+    opt->stdout = Stdio.File("stdout");
+    opt->stderr = Stdio.File("stderr");
+
+    run_caudium(o, opt);
+  }
+
   return 0;
+}
+
+array generate_command_options()
+{
+  array o=({});
+
+  if(options->precmd)
+    o+=options->precmd;
+ 
+  o+=({options->pike});
+
+  if(!options->precmd || options->precmd[0] != "gdb")
+  {
+    if(command_line->DEFINES)
+      foreach(command_line->DEFINES, string d)
+        o+=({"-D" + d});
+    if(command_line->INCLUDES)
+      foreach(command_line->INCLUDES, string d)
+        o+=({"-I" + d});
+    if(command_line->MODULES)
+      foreach(command_line->MODULES, string d)
+        o+=({"-M" + d});
+    if(command_line->PROGRAMS)
+      foreach(command_line->PROGRAMS, string d)
+        o+=({"-P" + d});
+    if(command_line->OTHER)
+      foreach(command_line->OTHER, string d)
+        o+=({d});
+
+    o+=({options->program});
+  }
+  return o;
+} 
+
+int act_on_args()
+{
+  foreach(parsed_args, array m)
+  {
+    switch(m[0])
+    {
+      case "truss":
+        options->precmd=({"truss"});
+        options->once=1;
+        continue;
+      case "strace":
+        options->precmd=({"strace", "-f"});
+        options->once=1;
+        continue;
+      case "ltrace":
+        options->precmd=({"ltrace", "-f"});
+        options->once=1;
+        continue;
+      case "log-dir":
+        envvars->CAUDIUM_LOGDIR=m[1];        
+        continue;
+      case "config-dir":
+        envvars->CAUDIUM_CONFIGDIR=m[1];        
+        continue;
+      case "pike-version":
+        options->pikever=m[1];
+        continue;
+      case "pid-file":
+        envvars->CAUDIUM_PID_FILE=m[1];
+        continue;
+      case "help":
+        write_help();
+        return 1;
+        continue;
+      case "threads":
+        options->threads=1;
+        continue;
+      case "nothreads":
+        options->threads=0;
+        continue;
+      case "profile":
+         command_line->DEFINES+=({"PROFILE"});
+         continue;
+      case "fileprofile":
+         command_line->DEFINES+=({"FILE_PROFILE"});
+         continue;
+      case "once":
+         options->once=1;
+         continue;
+      case "gdb":
+         options->precmd=({"gdb"});
+         options->once=1;
+         continue;
+      case "nodebug":
+         command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
+         continue;
+      case "debug":
+         command_line->DEFINES+=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
+         continue;
+      case "fddebug":
+         command_line->DEFINES+=({"FD_DEBUG"});
+         continue;
+      case "keepalive":
+        command_line->DEFINES+=({"KEEP_ALIVE"});
+        continue;
+      case "version":
+         command_line->COTHER+=({"--version"});
+         options->once=1;
+         continue;
+      case "pike":
+        options->pike=m[1];
+        continue;
+      case "program":
+        options->program=m[1];
+        continue;
+      case "quiet":
+        options->quiet=1;
+        continue;
+    }
+  return 0;
+  }
+}
+
+void write_help()
+{
+   object ti=Stdio.Terminfo.getTerm();
+   string bon=ti->tgetstr("md");
+   string boff=ti->tgetstr("me");
+
+   write( replace(
+# ".BThis command will start the Caudium serverB..
+The environment variable .BCAUDIUM_ARGSB. can be used to specify the
+default arguments.
+   .BArguments:B.
+      .B--versionB.:  Output version information.
+      .B--help -?B.:  This information
+      .B--pike-version=VERB.:  Use an alternate pike version. For this to
+				  work correctly, you need a
+bin/caudium-VER
+				  and the Caudium pike modules in
+lib/VER/.
+      .B--log-dir=DIRB.:  Set the log directory. Defaults to .B../logsB..
+      .B--config-dir=DIRB.:  Use an alternate configuration directory
+				  Defaults to .B../configurationB..
+      .B--with-threadsB.:  If threads are available, use them.
+      .B--without-threadsB.:  Even if threads are enabled by default,
+                                  disable them.
+      .B--with-profileB.:  Store runtime profiling information on
+				  a directory basis. This information is
+ 				  not saved on permanent storage, it is
+only
+				  available until the next server restart
+				  This will enable a new 'action' in the
+				  configuration interface
+      .B--with-file-profileB.:  Like .B--with-profileB., but save
+information
+                                  for each and every file.
+      .B--with-keep-aliveB.:  Enable keep alive in the HTTP
+			          protocol module. This will soon be
+                                  the default. Some clients might have
+				  problems with keepalive.
+				  
+      .B--onceB.:  Run the server only once, in the foreground.
+			   	  This is very useful when debugging.
+      .B--gdbB.:  Run the server in gdb. Implies .B--onceB..
+      .B--programB.:  Start a different program with the caudium pike. As
+an example,
+                                  .B./start --program bin/install.pikeB.  
+will
+				  start the installation program normally
+                                  started with .B./installB.
+      .B--quietB.:  Run without normal debug output from the
+                                  start script. Useful mainly when starting
+				  other programs with --program.
+      .B--with-debugB.:  Enable debug
+      .B--without-debugB.:  Disable all debug
+	
+      .B--with-fd-debugB.:  Enable FD debug.
+      .B--truss,--strace,--ltraceB.: Run the server under the selected tracer
+                   		  program. This is extremely noisy, and is not
+				  intented for anything but debugging purposes.
+      .B--pid-file=<file>B.:  Store the caudium and startscript pids in this
+				  file. Defaults to .B/tmp/caudium_\$UIDB.
+         
+  .BArguments passed to pike:B.
+       .B-DDEFINEB.:  Define the symbol .BDEFINEB..
+       .B-d<level>B.:  Set the runtime pike debug to level.
+				  This only works if pike is compiled
+				  with debug.
+       .B-s<size>B.:  Set the stack size.
+       .B-M <path>B.:  Add the path to the pike module path.
+       .B-I <path>B.:  Add the path to the pike include path.
+       .B-dtB.:  Turn of tail recursion optimization.
+       .B-tB.:  Turn on pike level tracing.
+       .B-t<level>B.:  Turn on more pike tracing. This only
+				  works if pike is compiled with debug.
+  .BEnvironment variables:B.
+     .BCAUDIUM_CONFIGDIRB.:  Same as .B--config-dir=... B.
+     .BCAUDIUM_PID_FILEB.:  Same as .B--pid-file=... B.
+     .BCAUDIUM_LANGB.:  The default language for all language
+				    related tags. Defaults to 'en' for english.
+", ({".B", "B."}), ({bon, boff}))
+);
+
 }
