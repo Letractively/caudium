@@ -135,7 +135,7 @@ private void fetch_args(object id)
 int get_current_page(object id)
 {
   wrong_usage(id);
-  if(!NSESSION[2])
+  if(id->misc->navbar_session_flushed)
   {
     NSESSION[2] =
      ceil((float) NSESSION[0] / NSESSION[1]);
