@@ -660,14 +660,129 @@ static array mk_url(object id, mapping args, string contents)
 //! container: gbutton
 //!  Creates graphical buttons.
 //
-//! attribute: [pagebgcolor]
+//! attribute: [pagebgcolor="color"]
 //!  Set the page background color. If missing, the value is taken from 
 //!  the bgcolor define (if present), from the bgcolor attribute to this
-//!  container or set to #eeeeee as the last resort.
+//!  container or set to &lt;tt&gt;#eeeeee&lt;/tt&gt; as the last resort.
 //! default: #eeeeee
 //
-//! attribute: [bgcolor]
-
+//! attribute: [bgcolor="color"]
+//!  Sets the background for the button. If missing, the value is taken
+//!  from the bgcolor define (if present), from the bgcolor attribute to
+//!  this container or set to &lt;tt&gt;#eeeeee&lt;/tt&gt; as the last resort.
+//! default: #eeeeee
+//
+//! attribute: [textcolor="color"]
+//!  Sets the color of the text for the button. If missing, the value is taken
+//!  from the fgcolor define (if present) or set to &lt;tt&gt;#000000&lt;/tt&gt; 
+//!  as the last resort.
+//! default: #000000
+//
+//! attribute: [frame-image="path"]
+//!  Specifies the XCF image to be used as a frame for the button. The image is
+//!  required to have at least the following layers: background, mask and frame.
+//!  Caudium ships with two images of that kind - the default gbutton canvas
+//!  (use path: internal-caudium-gbutton.xcf) or the tab image canvas
+//!  (use path: internal-caudium-tabframe.xcf).
+//! default: interna-caudium-gbutton.xcf
+//
+//! attribute: [alt="string"]
+//!  Alternative button text.
+//
+//! attribute: [href="URI"]
+//!  Sets the button URI.
+//
+//! attribute: [textstyle="{normal, condensed}"]
+//!  Sets the text output style, either <em>normal</em> or <em>condensed</em>
+//!  spacing.
+//! default: normal
+//
+//! attribute: [width="integer"]
+//!  Sets the maximum button width. Defaults to no limit.
+//
+//! attribute: [align="{left, center, right}"]
+//!  Sets the text alignment. There are some restrictions when text alignment is either 
+//!  <em>left</em> or <em>right</em> - the icons, if used, must also be aligned in 
+//!  the same way as the text.
+//! default: left
+//
+//! attribute: [state="{enabled, disabled}"]
+//!  Sets the button state. Note that if state is <em>disabled</em> and you have
+//!  used the <tt>href</tt> attribute, no anchor will be generated.
+//! default: enabled
+//
+//! attribute: [icon-src="URI"]
+//!  Fetch the icon image from the given URI.
+//
+//! attribute: [icon-data="CDATA"]
+//!  The attribute contents will be used as the icon inline data.
+//
+//! attribute: [align-icon="{left,center-before,center-after,right}"]
+//!  Sets the icon alignment:<br />
+//!    
+//!   <deftable>
+//!	<row name="left">Place the icon on the left side of the text</row>
+//!     <row name="center-before">Center the icon before the text. Requires the
+//!                               <em>align="center"</em> attribute.</row>
+//!     <row name="center-after">Center the icon after the text. Requires the
+//!                               <em>align="center"</em> attribute.</row>
+//!     <row name="right">Place the icon on the right side of the text</row>
+//!   </deftable>
+//! default: left
+//
+//! attribute: [valign-icon="{above,middle,below}"]
+//!  Sets the icon vertical alignment. Requires three horizontal guidelines
+//!  in the frame image. If set to <tt>above</tt>, the icon is placed between
+//!  the first and the second guideline and the text goes inbetween the second
+//!  and third one. If set to <tt>below</tt> the order is reversed. <tt>middle</tt>
+//!  means neutral placement.
+//! default: middle
+//
+//! attribute: [font="fontname"]
+//!  Sets the font for this button.
+//! default: the default font as set in the Config Interface
+//
+//! attribute: [extra-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [extra-left-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [extra-right-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [extra-background-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [extra-mask-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [extra-frame-layers="{[],[first,last],[selected,unselected],[background,mask,frame,left,right]}"]
+//
+//! attribute: [format="{gif,jpeg,avs,bmp,gd,hrz,ilbm,pcx,pnm,ps,pvr,tga,tiff,wbf,xbm,xpm}"]
+//!  Sets the output format of the generated image:
+//!
+//!  <deftable>
+//!     <row name="gif">Graphics Interchange Format</row>
+//!     <row name="jpeg">Joint Photography Expert Group image compression</row>
+//!     <row name="avs"></row>
+//!     <row name="bmp">Windows or OS/2 BitMaP file</row>
+//!     <row name="gd"></row>
+//!     <row name="hrz">HRZ is (was?) used fo amateur radio slow-scan TV</row>
+//!     <row name="ilbm"></row>
+//!     <row name="pcx">Zsoft PCX file format (PC/DOS)</row>
+//!     <row name="pnm">Portable aNy Map</row>
+//!     <row name="ps">Adobe PostScript file</row>
+//!     <row name="pvr">Power VR (dreamcast image)</row>
+//!     <row name="tga">True Vision Targa (PC/DOS)</row>
+//!     <row name="tiff">Tagged Image File Format</row>
+//!     <row name="wbf">WAP Bitmap File</row>
+//!     <row name="xbm">XWindows BitMap file</row>
+//!     <row name="xpm">XWindows PixMap file</row>
+//!  </deftable>
+//! default: png
+//
+//! attribute: [quant="integer"]
+//!  Sets the quantization level of the generated image (i.e. the number of colors
+//!  in the image's color map). Most image formats don't need this parameter and
+//!  effectively ignore it. Only the indexed formats use colortables - those formats
+//!  are, among others, GIF and PCX. For gif the default value is 32.
+//
 string tag_gbutton(string tag, mapping args, string contents,
                    object id, object foo, mapping defines)
 {
