@@ -78,6 +78,10 @@ caudium/server/server_templates/basic.pike
 caudium/server/server_templates/xml-basic.pike
 caudium/server/server_templates/ftp.pike
 caudium/server/server_templates/proxy.pike
+caudium/server/server_templates/vhs-ldap-basic.pike
+caudium/server/server_templates/vhs-ldap-standard.pike
+caudium/server/server_templates/vhs-sql-basic.pike
+caudium/server/server_templates/vhs-sql-standard.pike
 caudium/server/protocols/gopher.pike
 caudium/server/protocols/ftp.pike
 caudium/server/protocols/http2.pike
