@@ -1,5 +1,8 @@
-Changes in Caudium 1.3.19 since Caudium 1.3.18
+Changes in Caudium 1.3.21 since Caudium 1.3.19
 ----------------------------------------------
+- Removed Mirror Server / Mirror Filesystem since it is not used nor
+  maintainer and it is half working.
+   (Xavier Beaudouin)
 - Removed mnoGo search module from Caudium because now we have Lucene
   instead.
    (James Tyson)
