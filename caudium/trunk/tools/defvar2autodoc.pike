@@ -2,6 +2,22 @@
 // Generate inline auto-doc from the defvar statements in Caudium modules.
 #define THIS split[i][e+1]
 
+#define ENDINGS "\n" \
+"/*\n" \
+" * If you visit a file that doesn't contain these lines at its end, please\n" \
+" * cut and paste everything from here to that file.\n" \
+" */\n" \
+"\n" \
+"/*\n" \
+" * Local Variables:\n" \
+" * c-basic-offset: 2\n" \
+" * End:\n" \
+" *\n" \
+" * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2\n" \
+" */\n" \
+"\n" 
+
+
 int get_next_string(array arr, int pos, mapping res) {
   string s = "";
   int i;
@@ -106,6 +122,7 @@ int main(int argc, array(string) argv)
 	    werror("Failed to write backup-file "+file+"~ - aborting.\n");
 	    exit(1);
 	  }
+          data += ENDINGS;
 	  Stdio.write_file(file, data);
 	  write("+++ "+ file+" updated\n");
 	} else
