@@ -27,7 +27,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
   {
   case "item":
     hl = ([]);
-    parse_html(contents, ([ ]), ([ "text": parse_it, "url": parse_it,
+    spider.parse_html(contents, ([ ]), ([ "text": parse_it, "url": parse_it,
 				   "linetext": parse_it  ]),
 	       hl);
     headlines += ({ hl });
@@ -51,7 +51,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
 
 private static void parse_reply(string data)
 {
-  parse_html(data, ([]), (["item" : parse_it ]) );
+  spider.parse_html(data, ([]), (["item" : parse_it ]) );
 }
 
 private static void fetch_failed(object http)

@@ -422,7 +422,7 @@ array(int)|int find_subc(string strbody) {
 string recurse_parse_ldapfor(string contents, mapping m, object request_id)
 {
 
-  return parse_html(contents,([]),
+  return spider.parse_html(contents,([]),
 	(["ldapfor":
 	  lambda(string tag, mapping args, string contents, mapping m,
 		 object request_id)

@@ -535,7 +535,7 @@ array(string) cont_faqpage(string tag, mapping args, string contents,
   if (!entries || !sizeof(entries))
     return ({""});
 
-  // we could use parse_html_lines instead, but that way we'd lost the
+  // we could use spider.parse_html_lines instead, but that way we'd lost the
   // other tags for the inside of the <faqpage> container, which we don't
   // want to lose. And at the same time we do not want any of the inner
   // tags parsed outside of this container.

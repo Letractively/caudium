@@ -126,7 +126,7 @@ class http_error_handler {
 	error_name = error_name?error_name:"Unknown error";
 	error_message = error_message?error_message:"An unknown error has occurred - this should never have happenned.";
 	error_name = ((int)error_name[0..2] == error_code)?error_name[3..]:error_name;
-	string error_page = parse_html( local_template->data, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]) );
+	string error_page = spider.parse_html( local_template->data, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]) );
 	error_page = (id?parse_rxml(error_page,id):error_page);
 	//return http_low_answer( error_code, (id?parse_rxml(error_page,id):error_page) );
 	return

@@ -198,7 +198,7 @@ string name_of_module( object m )
 
 void parse(string s, mapping mr)
 {
-  parse_html(s, ([ ]),  
+  spider.parse_html(s, ([ ]),  
 	     (["array":decode_array, 
 	      "mapping":decode_mapping,
 	      "list":decode_list,
@@ -211,7 +211,7 @@ void parse(string s, mapping mr)
 
 void new_parse(string s, mapping mr)
 {
-  parse_html(s, ([ ]),  
+  spider.parse_html(s, ([ ]),  
 	     (["a":new_decode_array, 
 	      "map":new_decode_mapping,
 	      "lst":new_decode_list,
@@ -224,7 +224,7 @@ void new_parse(string s, mapping mr)
 string decode_config_region(string foo, mapping mr, string s, mapping res2)
 {
   mapping res = ([ ]);
-  parse_html(s, ([]), ([ "variable":decode_variable ]), res);
+  spider.parse_html(s, ([]), ([ "variable":decode_variable ]), res);
   res2[mr->name] = res;
   return "";
 }
@@ -232,7 +232,7 @@ string decode_config_region(string foo, mapping mr, string s, mapping res2)
 string new_decode_config_region(string foo, mapping mr, string s, mapping res2)
 {
   mapping res = ([ ]);
-  parse_html(s, ([]), ([ "var":new_decode_variable ]), res);
+  spider.parse_html(s, ([]), ([ "var":new_decode_variable ]), res);
   res2[mr->name] = res;
   return "";
 }
@@ -302,7 +302,7 @@ mapping decode_config_file(string s)
    case '4': // Pre b15 configuration format. Could encode most stuff, but not
 	     // everything.
     perror("Reading old (pre b15) configuration file format.\n");
-    parse_html(s, ([]), ([ "region":decode_config_region ]), res);
+    spider.parse_html(s, ([]), ([ "region":decode_config_region ]), res);
     return res;
    case '5': // New (binary) format. Fast and lean, but not very readable
 	     // for a human.. :-)
@@ -311,7 +311,7 @@ mapping decode_config_file(string s)
              // a mere human can edit it.
     
 //    trace(1);
-    parse_html(s, ([]), ([ "region":new_decode_config_region ]), res);
+    spider.parse_html(s, ([]), ([ "region":new_decode_config_region ]), res);
 //    trace(0);
 //    werror(sprintf("Decoded value is: %O\n", res));
     return res;

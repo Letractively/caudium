@@ -126,7 +126,7 @@ string internal_parse_layer(string t, mapping m, string c, int line,
   /* generate the image and the mask.. */
   array q = available_plugins();
   mapping empty = ([ ]);
-  parse_html_lines( c, mkmapping(q,({internal_tag_image})*sizeof(q)), 
+  spider.parse_html_lines( c, mkmapping(q,({internal_tag_image})*sizeof(q)), 
 		    empty, id, this );
   /* done. Post process the images. */
   if(this->image->xsize() > res->xsize)
@@ -148,7 +148,7 @@ mapping low_render_image(string how, object id)
 {
   mapping res = ([ "layers":({}) ]);
 
-  parse_html_lines( how, ([]), ([ "layer":internal_parse_layer]), id, res );
+  spider.parse_html_lines( how, ([]), ([ "layer":internal_parse_layer]), id, res );
 
   object i = Image.image( (int)res->xsize, (int)res->ysize );
   foreach(res->layers, mapping l)

@@ -127,7 +127,7 @@ string do_background(string t, mapping m)
 
 string fix_absolute(string from)
 {
-  return parse_html(from, ([ "a":do_href, "img":do_src, "form":do_action, 
+  return spider.parse_html(from, ([ "a":do_href, "img":do_src, "form":do_action, 
 			   "input":do_src, "body":do_background  ]), ([ ]));
 }
 

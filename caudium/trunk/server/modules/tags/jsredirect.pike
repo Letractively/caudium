@@ -67,7 +67,8 @@ mixed container_jsredirect(string tag_name, mapping arguments,
 {
 if(arguments->preparse)
 contents = parse_rxml(contents, id);
-contents = parse_html(contents,([]),([ "option":container_option ]), id );
+
+contents = spider.parse_html(contents,([]),([ "option":container_option ]), id );
    i++;
 string retval="";
 retval+="<script language=\"javascript\">\n<!--\n"

@@ -162,7 +162,7 @@ string tag_tablify( string tag, mapping m, string q, object request_id,
   }
 
   mapping arg_list = ([]);
-  q = parse_html(q, ([]), (["fields":container_fields]), m, arg_list);
+  q = spider.parse_html(q, ([]), (["fields":container_fields]), m, arg_list);
 
   if(sep = m->rowseparator)
     m->rowseparator = 0;

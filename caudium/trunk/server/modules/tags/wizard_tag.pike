@@ -156,7 +156,7 @@ string tag_wizard(string t, mapping args, string contents, object id,
 #endif /* __VERSION__ >= 0.6 */
   }
 
-  parse_html(contents,
+  spider.parse_html(contents,
 		   ([]),
 		   ([ "page":internal_page,
 		      "verify": internal_verify,
