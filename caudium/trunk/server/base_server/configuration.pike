@@ -3720,7 +3720,7 @@ void create(string config)
 	 "FTP:FTP user session limit", TYPE_INT|VAR_MORE,
 	 "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
 
-  defvar("FTP:shells", "/etc/shells", "Shell database", TYPE_FILE|VAR_MORE,
+  defvar("shells", "/etc/shells", "FTP:Shell database", TYPE_FILE|VAR_MORE,
 	 "File which contains a list of all valid shells\n"
 	 "(usually /etc/shells). Used for named ftp.\n"
 	 "Specify the empty string to disable shell database lookup.\n");
