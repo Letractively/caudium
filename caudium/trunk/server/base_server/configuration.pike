@@ -1427,7 +1427,7 @@ mapping|int low_get_file(object id, int|void no_magic)
   if (!id->misc)
     id->misc = ([]);
 
-  switch(QUERY(_use_scopes)) {
+  switch(QUERY(use_scopes)) {
       case "Off":
           id->misc->_use_scopes = 0;
           id->misc->_scope_status = 0;
@@ -3927,7 +3927,7 @@ void create(string config)
 	 "be used for such purposes.  Simply select a location that you are "
 	 "not likely to use for regular resources.");
 	 
-  defvar("_use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
+  defvar("use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
          "<p>This compatibility option manages the new feature of the Caudium Webserver "
          "known as <em>scopes</em>.</p>"
          "<p>Under Roxen 1.3, variable names can contain periods "
