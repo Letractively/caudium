@@ -40,7 +40,6 @@ int max_disk_size;
 int vigilance;
 mapping caches;
 mapping client_caches;
-string path;
 int default_ttl;
 int default_halflife;
 int _really_started;
@@ -129,7 +128,7 @@ static void create_cache( string namespace ) {
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
-  caches += ([ namespace : Cache.Cache( namespace, path, max_object_ram, max_object_disk, caudium->storage_manager->get_storage(namespace), default_ttl ) ]);
+  caches += ([ namespace : Cache.Cache( namespace, max_object_ram, max_object_disk, caudium->storage_manager->get_storage(namespace), default_ttl ) ]);
 }
 
 //! internal method that uses randomness to decide how long to wait in between
@@ -156,10 +155,6 @@ static int sleepfor() {
 //! a somewhat magical value that tells the cache how often to check it's size
 //! constraints. a value of zero means never, and 100 is every 30 seconds.
 //!
-//! @param _path
-//! a string containing the slow storage path to use, most likely a filesystem
-//! path, or a SQL URL.
-//!
 //! @param _default_ttl
 //! set the default time to live for cache objects that arent stored with a
 //! TTL value. (seconds)
@@ -167,7 +162,7 @@ static int sleepfor() {
 //! @param _default_halflife
 //! default halflife for caches, ie, after a certain idle time the cache is
 //! written out to slow storage and the clones are destructed.
-void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path, int _default_ttl, int _default_halflife ) {
+void start( int _max_ram_size, int _max_disk_size, int _vigilance, int _default_ttl, int _default_halflife ) {
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
 	// Call set_max_ram_size() and set_max_disk_size() on every cache.
@@ -175,14 +170,13 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
   LOCK();
   _really_started = 1;
 #ifdef CACHE_DEBUG
-  write( sprintf( "CACHE_MANAGER: start( %d, %d, %d, \"%s\", %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _path, _default_ttl, _default_halflife ) );
+  write( sprintf( "CACHE_MANAGER: start( %d, %d, %d, %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _default_ttl, _default_halflife ) );
 #endif
   max_ram_size = _max_ram_size;
   max_disk_size = _max_disk_size;
   vigilance = _vigilance;
   default_ttl = _default_ttl;
   default_halflife = _default_halflife;
-  path = _path;
   foreach( indices( caches ), string namespace ) {
     caches[ namespace ]->set_sizes( max_ram_size * 0.25, max_disk_size * 0.25 );
   }
