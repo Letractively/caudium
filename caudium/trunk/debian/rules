@@ -19,6 +19,9 @@ export DH_COMPAT=1
 export DH_OPTIONS
 
 # we need to know what pike are we using
+
+# The ugly hack is here because CVS keeps losing the perm bits...
+UGLY_HACK=$(shell chmod 755 debian/debian_pike_version)
 PIKE=/usr/bin/pike7-cvs
 PIKE_VERSION=$(shell $(PIKE) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
 CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
