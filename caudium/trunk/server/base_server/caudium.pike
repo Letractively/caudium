@@ -193,6 +193,7 @@ private static void really_low_shutdown(int exit_code)
 private static void low_shutdown(int exit_code)
 {
   // Change to root user if possible ( to kill the start script... )
+  
 #if constant(seteuid)
   seteuid(getuid());
   setegid(getgid());
@@ -262,7 +263,7 @@ mapping shutdown()
                      "docurl":caudium->docurl,
 					 "PWD":getcwd()]));
 } 
-
+static int shutting_down;
 // This is called for each incoming connection.
 private static void accept_callback( object port )
 {
@@ -296,7 +297,7 @@ private static void accept_callback( object port )
       switch(port->errno())
       {
        case 0:
-       case 11:
+       case system.EAGAIN:
 	return;
 
        default:
@@ -308,11 +309,14 @@ private static void accept_callback( object port )
 #endif /* DEBUG */
  	return;
 
-       case 24:
-        report_fatal(sprintf("Out of sockets (%d active). "
-			     "Restarting server gracefully.\n",
-			     sizeof(get_all_active_fd())));
-	low_shutdown(-1);
+       case system.EMFILE:
+	if(!shutting_down) {
+	  shutting_down=1;
+	  report_fatal(sprintf("Out of sockets (%d active). "
+			       "Restarting server gracefully.\n",
+			       sizeof(get_all_active_fd())));
+	  low_shutdown(-1);
+	}
 	return;
       }
     }
