@@ -46,6 +46,22 @@ RCSID("$Id$");
 # endif
 #endif
 
+/*
+ * Includes *BSD netincludes only if we are sure we have a BSD
+ */
+#ifdef HAVE_NET_IF_DL_H && HAVE_IF_ADDRS_H && HAVE_NETINET_IN_H && HAVE_GETIFADDRS && HAVE_GETNAMEINFO
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <net/if.h>
+# include <net/if_dl.h>
+# include <arpa/inet.h>
+# include <assert.h>
+# include <ifaddrs.h>
+# include <netdb.h>
+# define BSD_NET_FLAVOR 1
+#endif /* HAVE_NET_IF_DL_H && HAVE_IF_ADDRS_H && HAVE_NETINET_IN_H && HAVE_GETIFADDRS && HAVE_GETNAMEINFO */
+
 #define THISOBJ (Pike_fp->current_object)
 
 /*#define C_DEBUG 1 */
@@ -1919,6 +1935,42 @@ static void f_program_object_memory_usage(INT32 args)
   }
 }
 
+#ifdef BSD_NET_FLAVOR
+static void f_getip(INT32 args) 
+{
+  struct mapping	*result;
+  struct pike_string	*key = NULL, *val = NULL;
+  struct ifaddrs 	*ifaddr;
+  struct sockaddr 	*a;
+  int			ret;
+
+  ifaddr = malloc(sizeof(struct ifaddrs));
+  assert (ifaddr != NULL);
+
+  ret = getifaddrs(&ifaddr);
+  if (ret != 0) {
+    Pike_error("_Caudium.getip(): error in getifaddrs()\n");
+  }
+  /*
+   * We have some result, so we can allocate the mapping
+   */
+  result = allocate_mapping(1);
+  for (a = ifaddr->ifa_addr; ifaddr->ifa_next;
+       ifaddr = ifaddr->ifa_next, a = ifaddr->ifa_addr)
+     if(a->sa_family == AF_INET) {
+          char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
+
+          getnameinfo(a, a->sa_len, hbuf, sizeof(hbuf), sbuf, sizeof(sbuf),
+                      NI_NUMERICHOST | NI_NUMERICSERV);
+          /*printf("%s inet %s\n", ifaddr->ifa_name, hbuf);*/
+          key = (make_shared_string(ifaddr->ifa_name));
+          val = (make_shared_string(hbuf));
+          mapping_string_insert_string(result, key, val);
+     } 
+
+  push_mapping(result);
+}
+#endif
   
 /* Initialize and start module */
 void pike_module_init( void )
@@ -2007,6 +2059,11 @@ void pike_module_init( void )
   add_function_constant( "program_object_memory_usage", f_program_object_memory_usage,
 	                 "function(void:mapping)", 0);
 
+  /* Function to get ips from BSD stacks */
+#ifdef BSD_NET_FLAVOR
+  add_function_constant( "getip", f_getip,
+                         "function(void:mapping)", 0);
+#endif
   init_datetime();
 
   start_new_program();
