@@ -31,7 +31,7 @@ inherit "caudiumlib";
 constant cvs_version = "$Id$";
 
 constant thread_safe=1;
-constant module_type = MODULE_LOCATION;
+constant module_type = MODULE_FILE_EXTENSION|MODULE_LOCATION;
 constant module_name = "AJP | Tomcat 4 Connector";
 constant module_doc  =
 #"This module allows you to connect to a Tomcat 4 servlet container
@@ -40,9 +40,18 @@ constant module_doc  =
 constant module_unique = 0;
 
 void create () {
-    defvar( "mountpoint", "/", "Filesystem mountpoint", TYPE_STRING,
+  defvar("ex", 0, "File extension connector", TYPE_FLAG,
+         "Use a servlet mapping based on file extension rather than "
+         "path location.");
+  defvar("ext", ({}), "Handle extensions", TYPE_STRING_LIST,
+         "All files ending with these extensions, will be handled by "+
+         "this connector.", 0,
+         lambda() { return !query("ex"); });
+    defvar( "mountpoint", "/ajp/NONE", "Filesystem mountpoint", TYPE_STRING,
 	    "This is the location in the virtual file system where this "
-	    "module will be mounted." );
+	    "module will be mounted.",0, lambda() {return query("ex");} );
+    defvar("rxml", 1, "Parse output?", TYPE_FLAG,
+            "If set to yes, html output will be RXML-parsed.");
     defvar("server", "localhost", "Container Host", TYPE_STRING,
             "This is the hostname or ip address for your Tomcat host");
     defvar("port", 8009, "Container Port", TYPE_INT,
@@ -56,8 +65,30 @@ void start (int cnt, object conf) {
     client=Protocols.AJP.client(QUERY(server), QUERY(port), 2);
 }
 
-string query_location () {
-  return QUERY(mountpoint);
+mixed handle_file_extension(object o, string e, object id)
+{
+  if(!client)
+    return "ERROR: AJP Connector not configured.";
+  mapping res= client->handle_request(id);
+  mapping ret=([]);  
+  ret->error= res->response_code;
+
+  if(res->body)
+  {
+    if(QUERY(rxml) && res->response_headers["Content-Type"] 
+     && ((((res->response_headers["Content-Type"])/";")[0])=="text/html"))
+        ret->data=parse_rxml(res->body, id);
+     else
+        ret->data=res->body;
+
+    ret->len=strlen(ret->data);
+  }
+  if(res->response_msg && res->response_msg!="")
+    ret->rettext=res->response_msg;
+
+  ret->extra_heads=res->response_headers;
+
+  return ret;
 }
 
 mixed find_file ( string path, object id )
@@ -67,10 +98,16 @@ mixed find_file ( string path, object id )
   mapping res= client->handle_request(id);
   mapping ret=([]);  
   ret->error= res->response_code;
+
   if(res->body)
   {
-    ret->data=res->body;
-    ret->len=strlen(res->body);
+    if(QUERY(rxml) && res->response_headers["Content-Type"] 
+     && ((((res->response_headers["Content-Type"])/";")[0])=="text/html"))
+        ret->data=parse_rxml(res->body, id);
+     else
+        ret->data=res->body;
+
+    ret->len=strlen(ret->data);
   }
   if(res->response_msg && res->response_msg!="")
     ret->rettext=res->response_msg;
@@ -90,7 +127,25 @@ void|string real_file ( string path, object id ) {
 
 string query_name()
 {
-  return sprintf("mounted on <i>%s</i>",
+  if(query("ex"))
+    return sprintf("Server %s:%d handling extension %s",
+                   query("server"), 
+                   query("port"),
+                   query("ext")*", ");
+
+  else return sprintf("%s:%d mounted on <i>%s</i>",
+		 query("server"),
+		 query("port"),
 		 query("mountpoint"));
 }
+
+array(string) query_file_extensions()
+{
+  return (query("ex")? QUERY(ext) : ({}));
+}
+
+string query_location () {
+  return query("ex") ? "NONE/" : QUERY(mountpoint);
+}
+
 
