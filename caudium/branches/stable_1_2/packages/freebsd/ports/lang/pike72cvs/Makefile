@@ -65,6 +65,7 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-gdbm \
 		 --without-ssleay
 #		 --with-gdbm=${PREFIX} \
+#		 --without-relocatable-dumped-modules \
 
 .include <bsd.port.pre.mk>
 
