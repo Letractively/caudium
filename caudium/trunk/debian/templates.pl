@@ -76,7 +76,7 @@ Description: Caudium configuration
  .
  For more information about Caudium see the documents in the
  /usr/share/doc/caudium directory and make sure to visit
- http://caudium.net/ and http://caudium.org/
+ http://caudium.net/.
 Description-pl: Konfiguracja Caudium
  Po zainstalowaniu i uruchomieniu Caudium nale¿y niezw³ocznie otworzyæ
  w przegl±darce obs³uguj±cej formularze adres http://localhost:${cfgport}/
@@ -86,7 +86,6 @@ Description-pl: Konfiguracja Caudium
  .
  By uzyskaæ wiêcej informacji o Caudium proszê przeczytaæ dokumenty
  w katalogu /usr/share/doc/caudium i odwiedziæ strony http://caudium.net/
- oraz http://caudium.org/
 
 Template: caudium/experimental_http
 Type: boolean

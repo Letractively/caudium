@@ -76,7 +76,7 @@ Description: Caudium configuration
  .
  For more information about Caudium see the documents in the
  /usr/share/doc/caudium directory and make sure to visit
- http://caudium.net/ and http://caudium.org/
+ http://caudium.net/.
 Description-fr: Configuration de Caudium
  Après l'installation de Caudium et son lancement effectué, vous pourrez
  pointer votre navigateur web supportant les formulaires sur 
@@ -85,7 +85,7 @@ Description-fr: Configuration de Caudium
  sachant que vous allez créer un utilisateur/mot de passe administrateur.
  Pour plus d'information sur Caudium, veuillez consulter les documents 
  dans le répertoire /usr/share/doc/caudium et veillez à visitez les sites
- web http://caudium.net/ et http://caudium.org/
+ web http://caudium.net/.
 
 Template: caudium/experimental_http
 Type: boolean

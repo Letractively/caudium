@@ -19,7 +19,7 @@ Description: An extensible WWW server written in Pike
  server, can be turned on. 
  Caudium features built-in log parsing engine (UltraLog), XSLT parser, native
  PHP4 support, multiple execution threads and many more features - see 
- http://caudium.net/ and http://caudium.org/ for more information.
+ http://caudium.net/ for more information.
 
 Package: caudium-modules
 Architecture: any
