@@ -35,7 +35,7 @@
  *
  * Implements a restricted filesystem.
  * This filesystem only allows accesses to files that are a prefix of
- * id->misc->home (ie the users home-directory).
+ * id->user->home_directory (ie the users home-directory).
  * Usable for eg ftp-servers allowing named ftp.
  *
  * Thanks to Zsolt Varga <redax@agria.hu> for the idea.
@@ -71,7 +71,9 @@ void create()
 
 mixed stat_file(string f, object id)
 {
-  string home = id->misc->home;
+  string home;
+  if(id->user && id->user->home_directory)
+    home = id->user->home_directory;
   if (!stringp(home)) {
     // No home-directory
     return(0);
@@ -99,8 +101,10 @@ mixed stat_file(string f, object id)
 
 string real_file( mixed f, mixed id ) 
 { 
-  string home = id->misc->home; 
-  
+  string home;
+  if(id->user && id->user->home_directory)
+    home = id->user->home_directory;
+
   if (!stringp(home)) { 
     return(0); 
   } 
@@ -111,7 +115,10 @@ string real_file( mixed f, mixed id )
 
 array find_dir(string f, object id)
 {
-  string home = id->misc->home;
+  string home;
+  if(id->user && id->user->home_directory)
+    home = id->user->home_directory;
+
   if (!stringp(home)) {
     // No home-directory
     return(0);
@@ -139,7 +146,10 @@ array find_dir(string f, object id)
 
 mixed find_file(string f, object id)
 {
-  string home = id->misc->home;
+  string home;
+  if(id->user && id->user->home_directory)
+    home = id->user->home_directory;
+
   if (!stringp(home)) {
     // No home-directory
     return(0);

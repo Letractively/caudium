@@ -183,11 +183,10 @@ mixed not_allowed(string f, object id)
 	   string user,pass,last;
 	   array(string) y=({ "","" });
 	   sscanf(id->cookies["httpauth"],"%s:%s:%s", user, pass, last);
-	   y[1]=user+":"+pass;
-	   id->auth=id->conf->auth_module->auth(y,id);
+	   id->auth=id->conf->auth_module->authenticate(user, pass);
 	 }
 
-	 if(!(id->auth && id->auth[0])) {
+	 if(!(id->user)) {
 	   if(query("page")) {
 	     return http_low_answer(200,
 				    replace(parse_rxml(query("authpage"), id),
@@ -200,7 +199,7 @@ mixed not_allowed(string f, object id)
 	   }
 	 }
 	 foreach(level[2]/",", uname) {
-	   if((id->auth[1]==uname) || (uname=="any") || (uname=="*")) {
+	   if((id->user && id->user->username==uname) || (uname=="any") || (uname=="*")) {
 	     return 0;
 	   }
 	 }
