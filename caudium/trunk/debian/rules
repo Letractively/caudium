@@ -104,7 +104,7 @@ install: build
 	# add libroxen modules path
 	# change the state directory
 	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
-	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2"local_fonts/",\3;' \
+	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/",\3;' \
 	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium/"\3;' \
 	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
 	       debian/tmp/usr/lib/caudium/base_server/caudium.pike > \
