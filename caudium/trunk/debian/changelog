@@ -1,3 +1,9 @@
+caudium (1:1.1.1-9) unstable; urgency=low
+
+  * Latest upstream sources
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu,  5 Apr 2001 16:17:16 +0200
+
 caudium (1:1.1.1-8) unstable; urgency=low
 
   * Name cleanup :)
