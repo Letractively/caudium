@@ -1,0 +1,709 @@
+AC_INIT(caudium.c)
+
+AC_PROG_CC
+
+### Optimization stuff ###
+##########################
+
+# option, cache_name, variable
+AC_DEFUN(AC_SYS_COMPILER_FLAG,
+[
+  AC_MSG_CHECKING($1)
+  AC_CACHE_VAL(pike_cv_option_$2,
+  [
+    OLD_CFLAGS="[$]CFLAGS"
+    CFLAGS="[$]OLD_CFLAGS $1"
+    AC_TRY_RUN([int main(){exit(0);}],pike_cv_option_$2=yes,pike_cv_option_$2=no,pike_cv_option_$2=no)
+    CFLAGS="[$]OLD_CFLAGS"
+  ])
+  
+  if test x"[$]pike_cv_option_$2" = "xyes" ; then
+    $3="[$]$3 $1"
+    case "$3" in
+      OPTIMIZE)
+        CFLAGS="[$]CFLAGS $1"
+      ;;
+    esac
+    AC_MSG_RESULT(yes)
+    $5
+  else
+    AC_MSG_RESULT(no)
+    $4
+  fi
+])
+
+# arch, option, cache_name, variable
+AC_DEFUN(AC_SYS_CPU_COMPILER_FLAG,
+[
+ if test "`uname -m 2>/dev/null`" = "$1" ; then
+    AC_SYS_COMPILER_FLAG($2,$3,$4,$5,$6)
+    $7
+ fi
+])
+
+# os, option, cache_name, variable
+AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
+[
+ if test "x$pike_cv_sys_os" = "x$1" ; then
+    AC_SYS_COMPILER_FLAG($2,$3,$4,$5,$6)
+    $7
+ fi
+])
+
+define([DO_IF_OS],
+[
+ if test "x$pike_cv_sys_os" = "x$1" ; then
+$2
+fi
+])
+
+define([DO_IF_CPU],
+[
+if test "`uname -m 2>/dev/null`" = "$1" ; then
+$2
+fi
+])
+
+AC_PATH_PROG(uname_prog,uname,no)
+AC_MSG_CHECKING(operating system)
+AC_CACHE_VAL(pike_cv_sys_os,
+[
+if test "$uname_prog" != "no"; then
+  pike_cv_sys_os="`uname`"
+
+  case "$pike_cv_sys_os" in
+    SunOS)
+      case "`uname -r`" in
+        5.*) pike_cv_sys_os="Solaris" ;;
+      esac
+    ;;
+  esac
+else
+  pike_cv_sys_os="Not Solaris"
+fi
+])
+AC_MSG_RESULT($pike_cv_sys_os)
+
+LD='$(CC) $(CFLAGS)'
+
+case "$pike_cv_sys_os" in
+  SCO*)
+     case "$CFLAGS" in
+        *-belf*) 
+          AC_SYS_COMPILER_FLAG(-belf,sco_belf_option,CFLAGS,[],[
+            case "$LDFLAGS" in
+              *-belf*) ;;
+              *)
+                echo "Adding -belf option to ldflags."
+                LDFLAGS="$LDFLAGS -belf"
+              ;;
+            esac
+          ])
+       ;;
+       *)
+	 AC_SYS_COMPILER_FLAG(-belf,belf,CFLAGS)
+       ;;
+     esac
+     case "$LDFLAGS" in
+       *-belf*) ;;
+       *)
+	  AC_SYS_COMPILER_FLAG(-belf,belf,LDFLAGS)
+       ;;
+     esac
+  ;;
+  SunOS*)
+    # gcc on SunOS 4 forgets to define this:
+    echo "SunOS. Adding -D__USE_FIXED_PROTOTYPES__"
+    CFLAGS="$CFLAGS -D__USE_FIXED_PROTOTYPES__"
+  ;;
+  BSD/OS*)
+    LD="$BINDIR/smartlink shlicc"
+  ;;
+  UnixWare*)
+    case "$CFLAGS" in
+      *-Kalloca*) ;;
+      *)
+	if test "$GCC" != "yes"; then
+	  # We are using built-in inline function
+	  CFLAGS="$CFLAGS -Kalloca"
+	  CXX="$CXX -DNO_CPLUSPLUS_ALLOCA"
+	fi
+      ;;
+    esac
+  ;;
+esac
+
+AC_SUBST(LD)
+
+WARN=""
+OPTIMIZE=""
+cflags_is_set=no
+if test $cflags_is_set = no; then
+  if test "x$with_cdebug" = "xno" ; then
+    CFLAGS=`echo " $CFLAGS " | sed -e 's@ -g @ @g'`
+  else
+    :
+  fi
+
+
+ if test "x${GCC-}" = xyes ; then
+  WARN="-W -Wall -Wpointer-arith -Wno-unused"
+
+  if test "x${with_static_linking-}" = "xyes" ; then
+    AC_SYS_COMPILER_FLAG(-static,link_static,CFLAGS)
+  else
+    :
+  fi
+
+  ##
+  ## -fomit-frame-pointer does not work with egcs 1.1.1
+  ## /Hubbe 1998-12-20
+  ##
+  #if test "x$with_cdebug" = "xno" ; then
+  #  AC_SYS_COMPILER_FLAG(-fomit-frame-pointer,fomit_frame_pointer,OPTIMIZE)
+  #else
+  #  :
+  #fi  
+
+### Optimize for different SUN machines. If there is no working 'uname'
+### no extra optimization will be done, but nothing should break either.
+  case "`uname -m 2>/dev/null`" in
+   sun4c)
+    # The -sparclite option seems to generate assembler that /bin/as doesn't
+    # understand.	/grubba 1998-07-17
+    # AC_SYS_COMPILER_FLAG(-msparclite,sparclite,OPTIMIZE) 
+   ;;
+   sun4m)
+    AC_SYS_COMPILER_FLAG(-mv8,microsparc,OPTIMIZE)
+   ;;
+   sun4d)
+    AC_SYS_COMPILER_FLAG(-msupersparc,supersparc,OPTIMIZE)
+   ;;
+   sun4u)
+    # FIXME: Optimize for V9
+    AC_SYS_COMPILER_FLAG(-msupersparc,ultrasparc,OPTIMIZE)
+   ;;
+   i586)
+    AC_SYS_COMPILER_FLAG(-mpentium,pentium,OPTIMIZE)
+   ;;
+   i686)
+    AC_SYS_COMPILER_FLAG(-mpentiumpro,pentiumpro,OPTIMIZE,[
+       AC_SYS_COMPILER_FLAG(-mpentium,pentium,OPTIMIZE)
+    ])
+   ;;
+  esac
+
+  # AIX
+  DO_IF_OS(AIX,
+  [
+    # Tell the linker to generate a large toc if needed
+    AC_SYS_COMPILER_FLAG(-bbigtoc,bbigtoc,LDFLAGS)
+    AC_SYS_COMPILER_FLAG([-Wl,-bbigtoc],Wlbbigtoc,LDFLAGS)
+  ])
+
+ else if test "x${TCC-}" = xyes ; then
+
+  # Yikes! We're using the TenDRA compiler!
+
+  # Make sure we can use the system headerfiles...
+  AC_SYS_COMPILER_FLAG(-Ysystem, ysystem, CFLAGS)
+
+  # Use lenient ANSI compliance...
+  AC_SYS_COMPILER_FLAG(-Xa, xa, CFLAGS)
+
+  # Find out where libtdf.a is hidden.
+  AC_MSG_CHECKING(for machine dependant library directory)
+  AC_CACHE_VAL(pike_cv_tcc_lib_path,
+  [
+    pike_cv_tcc_lib_path="`${CC-cc} -dry conftest.c -i 2>&1 | sed -e '/tdfc/s/bin\/tdfc.*/lib\/sys/p' -ed| head -1`"
+    if test -d "$pike_cv_tcc_lib_path/." ; then :; else
+      # Failed.
+      pike_cv_tcc_lib_path="no"
+    fi
+  ])
+  AC_MSG_RESULT($pike_cv_tcc_lib_path)
+
+  if test "$pike_cv_tcc_lib_path" = "no" ; then :; else
+    LDFLAGS="$LDFLAGS -L$pike_cv_tcc_lib_path"
+
+    # This library is needed for 64bit support on 32bit machines/OS's.
+    AC_CHECK_LIB(tdf, __TDFUnot)
+  fi
+
+ else
+
+  # Assume system compiler "cc".
+
+  if test "x${with_static_linking-}" = "xyes" ; then
+    DO_IF_OS(AIX,
+    [
+      AC_SYS_COMPILER_FLAG([-Wl,-bstatic],wl_link_static,CFLAGS)
+      LD_FALLBACK_FLAGS="${LD_FALLBACK_FLAGS} -bstatic"
+    ])
+
+    DO_IF_OS(OSF1,
+    [
+      AC_SYS_COMPILER_FLAG(-non_shared,non_shared,CFLAGS)
+      LD_FALLBACK_FLAGS="${LD_FALLBACK_FLAGS} -non_shared"
+    ])
+
+    DO_IF_OS(IRIX,
+    [
+      AC_SYS_COMPILER_FLAG(-non_shared,non_shared,CFLAGS)
+      LD_FALLBACK_FLAGS="${LD_FALLBACK_FLAGS} -B static"
+    ])
+
+    # how do you link statically on HP-UX ?
+  else
+    :
+  fi
+
+### Non-gcc thingies. This should probably be enhanced...
+
+  # Solaris
+  DO_IF_OS(Solaris,
+  [
+    AC_SYS_COMPILER_FLAG(-fast,fast,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-xdepend,xdepend,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-xs,xs,CFLAGS)
+    # Causes __STDC__ to be 1 which causes several headerfiles to behave
+    # differently.
+    # AC_SYS_OS_COMPILER_FLAG(-Xc,Xc,WARN)
+  ])
+
+  # AIX
+  DO_IF_OS(AIX,
+  [
+    # This one is needed to get the compiler to fail on errors,
+    # which is needed for several configure-scripts.
+    AC_SYS_COMPILER_FLAG(-qhalt=e,qhalt_e,CFLAGS)
+    AC_SYS_COMPILER_FLAG(-qro,qro,OPTIMIZE)
+    # Tell the linker to generate a large toc if needed
+    AC_SYS_COMPILER_FLAG(-bbigtoc,bbigtoc,LDFLAGS)
+  ])
+
+  # HP-UX
+  DO_IF_OS(HP-UX,
+  [
+    AC_SYS_COMPILER_FLAG(-D__STDC_EXT__,stdc_ext,CFLAGS)
+    AC_SYS_COMPILER_FLAG([-Wp,-H50000],cpp_buffer_size,CFLAGS)
+    AC_SYS_COMPILER_FLAG(+ESlit,plus_ESlit,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(+Odataprefetch,plus_Odataprefetch,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(+Ofailsafe,plus_Ofailsafe,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(+O3,plus_O3,OPTIMIZE)
+    # Ignore the following warnings if you enable +w1
+    #   414 Optimization reduced to +O2 for compatibility with Debug.
+    #   530 Casting from loose to strict alignment
+    #   558 Empty declaration.
+    # AC_SYS_COMPILER_FLAG(+w1,plus_w1,WARN)
+  ])
+
+  # OSF/1
+  DO_IF_OS(OSF1,
+  [
+    AC_SYS_COMPILER_FLAG(-fast,fast,OPTIMIZE)
+    # The need for -ieee is not detected properly by the FPE tests below.
+    # AC_SYS_COMPILER_FLAG(-ieee,ieee,CFLAGS)
+    AC_SYS_COMPILER_FLAG(-readonly_strings,readonly_strings,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-assume trusted_short_alignment,
+      assume_trusted_short_alignment,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-assume aligned_objects,
+      assume_aligned_objects,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-no_misalign,no_misalign,OPTIMIZE)
+  
+    if test "x$with_cdebug" = "xyes" ; then
+      # FIXME:
+      # Maybe should remove the -g flag if this succeeds.
+      AC_SYS_COMPILER_FLAG(-g3,g3,OPTIMIZE)
+      AC_SYS_COMPILER_FLAG(-trapuv,trapuv,WARN)
+    fi
+    AC_SYS_COMPILER_FLAG(-host,host,OPTIMIZE)
+
+    # Flags that cause errors or change compiler behaviour
+    # must go in CFLAGS, they can not go in WARN
+    # /Hubbe
+    AC_SYS_COMPILER_FLAG(-std1,std1,CFLAGS)
+    AC_SYS_COMPILER_FLAG(-warnprotos,warnprotos,WARN)
+  ])
+
+  # IRIX
+  DO_IF_OS(IRIX,
+  [
+    # sopt disabled since it takes too long time on interpret.c (>45min on an O²)
+    # AC_SYS_COMPILER_FLAG(-sopt,sopt,OPTIMIZE)
+
+    # -n32 moved to smartlink so it will affekt cc as well as linker
+    # this way the user can override it by setting LDFLAGS and/or CFLAGS
+    # AC_SYS_COMPILER_FLAG(-n32,n32,CFLAGS)
+    AC_SYS_COMPILER_FLAG(-fullwarn,fullwarn,WARN)
+    AC_SYS_COMPILER_FLAG(-woff 1209,woff_1209,WARN)
+    if test x$with_cdebug = xyes ; then
+      AC_SYS_COMPILER_FLAG(-g3,g3,OPTIMIZE)
+    fi
+    if test x$with_rtldebug = xyes ; then
+      AC_SYS_COMPILER_FLAG(-trapuw,trapuw,WARN)
+    fi
+  ])
+
+dnl
+dnl This does not work with Digital UNIX cc/ld (cc thinks it is ok, ld does not)
+dnl  
+dnl AC_SYS_COMPILER_FLAG(-native,native,OPTIMIZE)
+dnl
+
+dnl ### Ok. This is for apcc...
+case "$CC" in
+  *apcc)
+    AC_SYS_COMPILER_FLAG(-XO=5,apcc_opt,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-Xcallmod=2,apcc_opt_2,OPTIMIZE)
+  ;;
+esac
+
+case "${CFLAGS-} $OPTIMIZE" in
+    *-O*) ;;
+    *+O*) ;;
+    *-fast*) ;;
+    *)
+      case "$pike_cv_sys_os:$GCC" in
+        UnixWare*:no)
+	  OPTIMIZE=""
+	;;
+	*)
+	  AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
+	  if test "x$pike_cv_option_O2" != "xyes"; then
+	    AC_SYS_COMPILER_FLAG(-O,O,OPTIMIZE)
+	  fi
+	;;
+      esac
+    ;;
+  esac
+ fi
+ fi
+fi
+
+if test "$GCC" = "yes"; then
+  if test $cflags_is_set = no; then
+    AC_SYS_COMPILER_FLAG(-pipe, pipe, CFLAGS)
+  fi
+else
+#
+# Special hack for HP-UX stupid cc
+#
+  if test "$pike_cv_sys_os" = "HP-UX"; then
+    AC_TRY_COMPILE([int foo(int bar);],[],[],
+    [
+      OLD_CC="${CC-cc}"
+      OLD_CFLAGS="$CFLAGS"
+      case "/$CC" in
+        */smartlink\ cc)
+           if test -x /usr/bin/cc; then
+             CC="$SMARTLINK /usr/bin/cc"
+           else
+             : ;
+           fi
+        ;;
+      esac
+      CFLAGS="-Ae +Olibcalls $CFLAGS"
+      AC_TRY_COMPILE([int foo(int bar);],[],[],[
+        CC="$OLD_CC"
+	CFLAGS="$OLD_CFLAGS"
+      ])
+      pike_cv_prog_CC="${CC}"
+    ])
+  fi
+fi
+
+
+
+### Pike Detection ###
+######################
+
+DEFPIKE="/usr/local/bin/pike"
+
+AC_ARG_WITH(cdebug,      [  --without-cdebug        Disable -g],[],[
+  case "$pike_cv_sys_os:$GCC" in
+    Solaris:no)
+      # Solaris/cc has problems with combining optimizations and debuginfo.
+      AC_MSG_WARN([Defaulting to --without-cdebug since the OS is Solaris,
+and gcc is not being used.])
+      with_cdebug=no
+    ;;
+    *)
+      with_cdebug=
+    ;;
+  esac
+])
+AC_ARG_WITH(pike, 
+[  --with-pike[=binary]    Use this Pike when building. ],
+[
+    if test ! -z "$withval" -a "$withval" != "yes"; then 
+		if test -f "$withval" -a  ! -x "$withval" ; then
+			echo "$withval is not an executable file"
+ 			exit 1
+		elif test -x "$withval" -a -f "$withval"; then
+			DEFPIKE="$withval"
+		else
+			echo "$withval doesn't exist or isn't an executable file."
+ 			exit 1
+		fi
+	fi
+])
+
+# Set info about shared libraries.
+AC_SUBST(SO)
+AC_SUBST(LDSHARED)
+AC_SUBST(CCSHARED)
+AC_SUBST(LINKFORSHARED)
+
+# SO is the extension of shared libraries
+# -- usually so, sl on HP-UX
+AC_MSG_CHECKING(SO)
+if test -z "$SO"
+then
+	case "$pike_cv_sys_os" in
+	hp*|HP*)   SO=sl;;
+	*)	   SO=so;;
+	esac
+fi
+AC_MSG_RESULT($SO)
+# LDSHARED is the ld *command* used to create shared library
+# -- "ld" on SunOS 4.x.x, "ld -G" on SunOS 5.x, "ld -shared" on IRIX 5
+AC_MSG_CHECKING(LDSHARED)
+if test -z "$LDSHARED" ; then
+  case "$pike_cv_sys_os" in
+    AIX*)
+      if test "$GCC" = yes ; then
+        if test "`uname -r`" -ge 2 -a "`uname -v`" -ge 4 ; then
+          LDSHARED="ld -G -bexpall"
+	else if test "`uname -v`" -gt 4 ; then
+	    # Extra forward compatibility...
+	    # AIX 5+
+	    LDSHARED="ld -G -bexpall"
+	  else
+	    # AIX 4.1 and earlier don't have/have unreliable
+	    # handling of dlopen et al.
+	    #
+	    # Even AIX 4.2.1 has buggy dlopen -- NEVER attempt
+	    # to dlopen a file that hasn't been linked with -G.
+	    pike_cv_sys_dynamic_loading=no
+	    LDSHARED="ld"
+	  fi
+        fi
+      else
+        # Dynamic linking turned off for AIX-cc
+	#
+	# In addition, the dynamic loading test seems to
+	# cause our RS/6000 to hang, which causes the
+	# watchdog-timer to PANIC.
+	pike_cv_sys_dynamic_loading=no
+        LDSHARED="ld"
+      fi
+    ;;
+    IRIX*)
+      if test "$GCC" = yes ; then
+        # egcs defaults to building -n32 objects
+        LDSHARED="ld -shared -n32"
+      else
+        LDSHARED="ld -shared"
+      fi
+      # -woff isn't understood by ld on Irix 5.
+      if test "`uname -r`" -ge 6 ; then
+        LDSHARED="$LDSHARED -woff 84,85,134"
+      else :; fi
+    ;;
+    SunOS*) LDSHARED="ld";;
+    Solaris) LDSHARED="/usr/ccs/bin/ld -G";;
+    hp*|HP*) LDSHARED="ld -b";;
+    OSF*) LDSHARED="ld -expect_unresolved '*' -shared -msym -O3";;
+    DYNIX/ptx*) LDSHARED="ld -G";;
+    next*) LDSHARED="$CC $CFLAGS -nostdlib -r";;
+    Linux*) LDSHARED="$CC -shared";;
+    GNU*) LDSHARED="ld -Bshareable";;
+    FreeBSD*) LDSHARED="$CC -Wl,-Bshareable";;
+    NetBSD*) LDSHARED="ld -Bshareable";;
+    OpenBSD*) LDSHARED="ld -Bshareable";;
+    BSD/OS*) LDSHARED="shlicc -r";;
+    SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
+    UNIX_SV*) LDSHARED="ld -G";;
+    UnixWare*)
+      if test "$GCC" = yes ; then
+        LDSHARED="ld -G"
+      else
+        LDSHARED="cc -G -KPIC -Wl,-Bexport"
+      fi
+    ;;
+    Windows_NT*) LDSHARED="$CC -shared";;
+    *) LDSHARED="ld";;
+  esac
+fi
+AC_MSG_RESULT($LDSHARED)
+
+# CCSHARED are the C *flags* used to create objects to go into a shared
+# library -- this is only needed for a few systems
+AC_MSG_CHECKING(CCSHARED)
+AC_CACHE_VAL(pike_cv_sys_ccshared,[
+  if test -z "$CCSHARED" ; then
+    if test "$GCC" = yes ; then
+      case $pike_cv_sys_os in
+	BSD/OS*)
+	  CCSHARED=""
+	;;
+	Solaris*)
+	  # The Image module runs out of symbol reference space unless we
+	  # use the large PIC model:
+	  # ld: fatal: too many symbols require `small' PIC references:
+	  # 	have 2205, maximum 2048 -- recompile some modules -K PIC.
+	  CCSHARED="-fPIC"
+	;;
+	*)
+	  CCSHARED="-fpic"
+	;;
+      esac
+    else
+      case $pike_cv_sys_os in
+        IRIX*)
+          AC_SYS_COMPILER_FLAG(-share,cc_shared,CCSHARED)
+        ;;
+	hp*|HP*) CCSHARED="+z"; ;;
+	FreeBSD*) CCSHARED="-fpic";;
+	SCO_SV*) CCSHARED="-KPIC -dy -Bdynamic";;
+        UnixWare*) CCSHARED="-KPIC -dy -Bdynamic";;
+	Solaris*) CCSHARED="-KPIC -Bdynamic";;
+	Windows_NT*) CCSHARED="-shared" ;;
+      esac
+    fi
+  fi
+  OLD_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $CCSHARED"
+  AC_TRY_COMPILE([], [int main() { exit(0); }],
+    pike_cv_sys_ccshared="$CCSHARED", pike_cv_sys_ccshared='')
+  CFLAGS="$OLD_CFLAGS"
+])
+CCSHARED="$pike_cv_sys_ccshared"
+AC_MSG_RESULT($CCSHARED)
+
+
+RESULT=no
+echo "looking for Pike..."
+
+for a in $DEFPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
+		 /usr/gnu/bin/pike /usr/bin/pike; do    
+  if test  "$PIKE" != "" ; then
+    break;
+  fi
+  echo -n "looking in $a..."
+  if test -x ${a}; then
+	PIKE="${a}"
+	echo -n "verifying version..."
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116) exit(1); exit(0);'; then
+		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep lib|grep modules|head -1 | sed -e 's/.*: //'`"
+		PIKE_INCLUDE_DIR="`echo $PIKE_MODULE_DIR | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
+
+		if test -z "$PIKE_INCLUDE_DIR" -o -z "$PIKE_MODULE_DIR"; then
+			echo "can't find mod/inc dirs"
+			PIKE=""
+		else
+		   echo "ok!"
+		fi
+	else
+		echo "too old."
+		PIKE=""
+	fi
+  else
+    echo "no."
+  fi
+done
+
+if test "$PIKE" != ""; then 
+  echo "Pike binary used:      $PIKE
+Pike include dir:      $PIKE_INCLUDE_DIR
+Pike module directory: $PIKE_MODULE_DIR"
+else
+  echo "Failed to find a suitable pike!"
+  exit 1;
+fi
+
+if test $ac_cv_prog_gcc = yes; then
+  AC_MSG_CHECKING(for libgcc file name)
+  AC_CACHE_VAL(pike_cv_libgcc_filename,
+  [
+    pike_cv_libgcc_filename="`${CC-cc} -print-libgcc-file-name`"
+    if test -z "$pike_cv_libgcc_filename"; then
+      pike_cv_libgcc_filename=no
+    else
+       if test -f "$pike_cv_libgcc_filename"; then
+         :
+       else
+         pike_cv_libgcc_filename=no
+       fi
+    fi
+  ])
+  AC_MSG_RESULT($pike_cv_libgcc_filename)
+  if test x"$pike_cv_libgcc_filename" = xno; then
+    LIBGCC=""
+  else
+    LIBGCC="$pike_cv_libgcc_filename"
+  fi
+else
+  LIBGCC=""
+fi
+AC_SUBST(LIBGCC)
+AC_SUBST(PIKE_INCLUDE_DIR)
+AC_SUBST(PIKE_MODULE_DIR)
+AC_SUBST(PIKE)
+AC_SUBST(WARN)
+AC_SUBST(OPTIMIZE)
+
+echo Searching for include-file directories...
+
+if test x${C_INCLUDE_PATH-} = x ; then
+  real_include_dirs=''
+  for d in `echo ${with_include_path} | sed 's/:/ /g'` \
+    `echo $prefix | sed "s@^NONE@$ac_default_prefix@g"`/include \
+    /usr/local/include /sw/local/include /usr/gnu/include /opt/gnu/include \
+    /sw/gnu/include /sw/include /usr/freeware/include /usr/pkg/include
+  do
+    AC_MSG_CHECKING($d)
+    case x$d in
+      x/usr/include | x/usr//include)
+      ;;
+      *)
+        if test -d "$d/." ; then
+          REALDIR="`cd $d/. ; /bin/pwd`"
+          if test "x$REALDIR" = x ; then
+            REALDIR=UNKNOWN
+          else
+            :
+          fi
+
+          case " $CPPFLAGS $real_include_dirs " in
+            *\ -I$d\ * | *\ -I$REALDIR\ *)
+               AC_MSG_RESULT(already added)
+            ;;
+            *)
+              AC_MSG_RESULT(added)
+              CPPFLAGS="${CPPFLAGS} -I$d"
+              if test "x$REALDIR" != xUNKNOWN; then
+                real_include_dirs="${real_include_dirs} -I$REALDIR"
+              else
+                :
+              fi
+            ;;
+          esac
+        else
+          AC_MSG_RESULT(no)
+        fi
+      ;;
+    esac
+  done
+else
+  :
+fi
+
+AC_OUTPUT(Makefile)
+
+
+dnl ## Local Variables:
+dnl ## tab-width: 4
+dnl ## End:
+	
