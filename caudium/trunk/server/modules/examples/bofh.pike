@@ -33,7 +33,7 @@ string cvs_version = "$Id$";
 #include <module.h>
 inherit "module";
 
-string *excuses = ({
+array(string) excuses = ({
 "clock speed ",
 "solar flares ",
 "electromagnetic radiation from satellite debris ",
