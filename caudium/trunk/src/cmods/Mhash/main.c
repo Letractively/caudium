@@ -28,11 +28,14 @@ RCSID("$Id$");
 #include "pexts.h"
 #include "mhash_config.h"
 
+#include "pexts_ver.c"
+
 #ifdef HAVE_MHASH
 
 /* Init the module */
 void pike_module_init(void)
 {  
+  pexts_init();
   mhash_init_mhash_program();
   mhash_init_hmac_program();
   mhash_init_globals();
@@ -45,8 +48,15 @@ void pike_module_exit( void )
 }
 
 #else /* HAVE_MHASH */
-void pike_module_exit( void ) { }
-void pike_module_init( void ) { }
+void pike_module_exit( void ) 
+{ 
+    pexts_init();
+}
+
+void pike_module_init( void ) 
+{ 
+    pexts_init();
+}
 #endif /* HAVE_MHASH */
 
 /*
