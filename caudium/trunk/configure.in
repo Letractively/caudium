@@ -659,8 +659,8 @@ if test -z "$LDSHARED" ; then
     NetBSD*) LDSHARED="ld -Bshareable";;
     OpenBSD*) LDSHARED="ld -Bshareable";;
     BSD/OS*) LDSHARED="shlicc -r";;
-    SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
     UNIX_SV*) LDSHARED="ld -G";;
+    SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
     UnixWare*)
       if test "$GCC" = yes ; then
         LDSHARED="ld -G"
@@ -672,6 +672,10 @@ if test -z "$LDSHARED" ; then
     *) LDSHARED="ld";;
   esac
 fi
+
+# Strip smartlink from $CC
+LDSHARED="smartlink `echo $LDSHARED|sed -e 's/.*smartlink //'`"
+
 AC_MSG_RESULT($LDSHARED)
 
 # CCSHARED are the C *flags* used to create objects to go into a shared
