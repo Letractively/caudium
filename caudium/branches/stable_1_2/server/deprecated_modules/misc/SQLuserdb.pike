@@ -37,7 +37,7 @@
  * or should have been shipped along with the module.
  */
 
-string cvs_version="$Id$";
+constant cvs_version="$Id$";
 
 //#define SQLAUTHDEBUG
 
@@ -52,6 +52,7 @@ constant module_doc  = "This module implements user authentication via a SQL ser
 "code.<P>"
 "&copy; 1997 Francesco Chemolli, distributed freely under GPL license.";
 constant module_unique = 1;
+constant thread_safe   = 1;
 
 #ifdef SQLAUTHDEBUG
 #define DEBUGLOG(X) perror("SQLuserdb: "+X+"\n");

@@ -69,7 +69,7 @@
  * 1.12  may '97
  *       Applied some patches from  Wilhelm Koehler <wk@cs.tu-berlin.de>
  */
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
 #include <pcre.h>
