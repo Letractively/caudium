@@ -345,7 +345,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 		   if test "$prefix" != "NONE"; then
 		       PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
 		   else
-		       PIKE_C_INCLUDE=/usr/local/include/`basename ${PIKE}`
+		       PIKE_C_INCLUDE=/usr/include/`basename ${PIKE}`
 		   fi
 		   AC_MSG_CHECKING(for C includes in ${PIKE_C_INCLUDE})
 		   if test -f $PIKE_C_INCLUDE/version.h; then
