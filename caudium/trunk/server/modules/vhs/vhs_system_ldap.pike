@@ -142,6 +142,25 @@ void ldap_reconnect()
   if (!init_err) _initialized_ok = 1;
 }
 
+//! Gets the log file to use according of module configuration 
+//! LDAP parameters
+string get_ldap_logfile(string vpath, string hostname, mapping res) {
+  string logfile;
+
+  if(QUERY(log2vhs)) {
+    logfile = vpath + QUERY(logdir);
+  } else {
+    // We get 2 solutions 
+    // 1- don't use LDAP wwwDomain value 
+    // 2- use it if exist
+    if(QUERY(logwwwDomain) && stringp(res->wwwDomain[0])) 
+      logfile = combine_path(caudium->QUERY(logdirprefix)+"/",res->wwwDomain[0]);
+    else
+      logfile = combine_path(caudium->QUERY(logdirprefix)+"/",hostname);
+  }
+  return logfile;
+}
+
 string ldap_getvirt(string hostname, object id)
 {
 #ifdef THREADS
@@ -181,11 +200,11 @@ string ldap_getvirt(string hostname, object id)
   destruct(key);
 #endif
 
-  if (res)
+  if (res->homeDirectory)
   {
      string vpath;
 
-     vpath = res->homeDirectory[0];
+     vpath = (string)res->homeDirectory[0];
 
      if (vpath[-1] != '/') vpath += "/";
 
@@ -194,7 +213,7 @@ string ldap_getvirt(string hostname, object id)
 				       hostname,
 				       vpath + QUERY(wwwdir),
 				       vpath + QUERY(cgidir),
-				       (QUERY(log2vhs))?(vpath + QUERY(logdir)):combine_path(caudium->QUERY(logdirprefix)+"/",hostname),
+				       get_ldap_logfile(vpath,hostname,res),
 				       vpath,
 				       res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
 				       res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
@@ -245,7 +264,7 @@ string ldap_getvirt(string hostname, object id)
                        			       hostname,
                        			       vpath + QUERY(wwwdir),
                        			       vpath + QUERY(cgidir),
-                       			       (QUERY(log2vhs))?(vpath + QUERY(logdir)):combine_path(caudium->QUERY(logdirprefix)+"/",hostname),
+                       			       get_ldap_logfile(vpath,hostname,res),
                        			       vpath,
                        			       res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
                        			       res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
@@ -417,6 +436,10 @@ void create()
 
   defvar("log2vhs", 1, "Logs using VHS parameters", TYPE_FLAG,
          "Disable it to log to system wide configurated directory");
+
+  defvar("logwwwDomain", 0, "Logs using wwwDomain parameter", TYPE_FLAG,
+         "When enabled and when \"Logs using VHS parameters\" is disabled, when "
+         "filename used is FQDN given by wwwDomain LDAP attribute");
 
   defvar("ttl_positive", 1800, "TTL: Positive TTL", TYPE_INT,
          "Time to cache positive config hits.");
