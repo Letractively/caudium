@@ -670,6 +670,8 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
 
   if (!str)
     return (struct pike_string *)NULL;
+  if(len < 0)
+    Pike_error("len variable in url_decode can't be negative!\n");
   
   mystr = (unsigned char *)scratchpad_get((len + 2) * sizeof(char));/* it always returns a valid pointer */
   
