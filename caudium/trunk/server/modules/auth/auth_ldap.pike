@@ -15,7 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
+ * $Id$
  */
 
 constant cvs_version = "$Id$";
@@ -31,7 +33,7 @@ import Array;
 constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "Authentication Provider: LDAP";
 constant module_doc  = "Provides access to user and group accounts "
-	"located in LDAP directories."
+	"located in LDAP directories.";
 
 constant module_unique = 0;
 
