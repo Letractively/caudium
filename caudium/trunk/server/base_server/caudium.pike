@@ -155,13 +155,14 @@ private void co_really_low_shutdown()
     exit(0);
 }
 
-//! Function that actually shuts down Caudium.
+//! @decl void really_low_shutdown(int exit_code)
 //!
-//! @param exit_code
-//!  The Caudium process exit code to be returned to the parent process.
+//! Function that actually shuts down Caudium. @[exit_code]is the code
+//! to be returned to the parent process.
 //!
 //! @seealso
 //!   @[low_shutdown()]
+
 private static void really_low_shutdown(int exit_code)
 {
   // Die nicely.
@@ -221,18 +222,19 @@ private static void really_low_shutdown(int exit_code)
 #endif /* constant(fork) && !constant(thread_create) */
 }
 
-//! Shutdown Caudium. This function can also be used to restart the server.
-//!
-//! @param exit_type
-//!  Specifies the type of shutdown this function is supposed to do:
-//!
-//!  @int
-//!   @value 0
-//!     True shutdown (stop the process)
-//!
-//!   @value -1
-//!     Restart the process.
-//!  @endint
+// Shutdown Caudium. This function can also be used to restart the server.
+//
+// @param exit_type
+//  Specifies the type of shutdown this function is supposed to do:
+//
+//  @int
+//   @value 0
+//     True shutdown (stop the process)
+//
+//   @value -1
+//     Restart the process.
+//  @endint
+
 private static void low_shutdown(int exit_type)
 {
   // Change to root user if possible ( to kill the start script... )
@@ -359,10 +361,11 @@ static void create_js_context()
 
 static int shutting_down;
 
-//! This is called for each incoming connection.
-//!
-//! @param port
-//!  Represents the object that handled the connection.
+// This is called for each incoming connection.
+//
+// @param port
+//  Represents the object that handled the connection.
+
 private static void accept_callback( object port )
 {
   object file;
