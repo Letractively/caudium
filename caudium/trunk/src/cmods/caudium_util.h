@@ -40,6 +40,7 @@
 #include "stralloc.h"
 #include "svalue.h"
 #include "threads.h"
+#include "bignum.h"
 #include "version.h"
 
 #if (PIKE_MAJOR_VERSION == 7 && PIKE_MINOR_VERSION == 1 && PIKE_BUILD_VERSION >= 12) || PIKE_MAJOR_VERSION > 7 || (PIKE_MAJOR_VERSION == 7 && PIKE_MINOR_VERSION > 1)
@@ -50,3 +51,22 @@
 #  define Pike_error error
 # endif
 #endif
+
+
+/* This allows calling of pike functions from functions called by callbacks
+ * in code running in threaded mode.
+ */
+#define THREAD_SAFE_RUN(COMMAND, what)  do {\
+  struct thread_state *state;\
+  if((state = thread_state_for_id(th_self()))!=NULL) {\
+    if(!state->swapped) {\
+      COMMAND;\
+    } else {\
+      mt_lock(&interpreter_lock);\
+      SWAP_IN_THREAD(state);\
+      COMMAND;\
+      SWAP_OUT_THREAD(state);\
+      mt_unlock(&interpreter_lock);\
+    }\
+  }\
+} while(0)

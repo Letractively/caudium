@@ -21,17 +21,34 @@
 #ifndef NJS_GLOBAL_H
 #define NJS_GLOBAL_H
 
-#define THIS ((njs_storage *)fp->current_storage)
+#define ARG(_n_) sp[-(args - _n_)]
+#define THIS ((njs_storage *)(Pike_fp->current_storage))
+#define SCOPE ((scope_storage *)context)
+#define GET_SCOPE() scope_storage *context = js_class_context(cls)
 
+/* Interpreter storage */
 typedef struct
 {
   JSInterpPtr interp;
+  struct object *request_id;
+  struct object *conf;
 } njs_storage;
+
+/* Var scope storage */
+typedef struct
+{
+  struct pike_string *name;
+  struct svalue get;
+  struct svalue set;
+  JSClassPtr class;
+} scope_storage;
+
 
 /* njs_glue.c */
 void pike_module_init(void);
 void pike_module_exit(void);
-void push_js_type(JSType val);
+void push_js_type(JSType);
+int pike_type_to_js_type(JSInterpPtr,struct svalue *, JSType *);
 
 /* njs_obj.c */
 void njs_init_interpreter_program(void);
