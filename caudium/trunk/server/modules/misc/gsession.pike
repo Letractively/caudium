@@ -1213,9 +1213,7 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
     } else
         parts = ({from, SVAR, "=" + id->misc->session_id, ""});
     
-    string t = sprintf("%s%s%s%s%s", parts[0], sepchar, parts[1], parts[2], parts[3]);
-c    
-    return t;
+    return sprintf("%s%s%s%s%s", parts[0], sepchar, parts[1], parts[2], parts[3]);
 
 }
 
