@@ -200,7 +200,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   dirname = simplify_path((thepath[..sizeof(thepath)-2])*"/");
 
   werror("templatefs: tmploutput: %s, %s\n", dirname, file);
-  return replace(contents, ({ "#file#", "#path#" }), ({ file, dirname }));
+  return replace(contents, ({ "#file#", "#path#", "#base#" }), ({ file, dirname, (file/".")[0] }));
 }
 
 string itag_tmplinsertall(string tag, mapping arguments, object id, string filecontents)
