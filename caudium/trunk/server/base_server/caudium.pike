@@ -62,7 +62,6 @@ inherit "hosts";
 #endif
 inherit "module_support";
 inherit "socket";
-inherit "disk_cache";
 inherit "language";
 inherit "fonts";
 inherit "internals";
@@ -1264,14 +1263,14 @@ string|array type_from_filename( string|void file, int|void to )
 
 #define COMPAT_ALIAS(X) mixed X(string file, object id){return id->conf->X(file,id);}
 
-/*@PIKEPARSER_HACK_START@*/  
+/*   
 COMPAT_ALIAS(find_dir);
 COMPAT_ALIAS(stat_file);
 COMPAT_ALIAS(access);
 COMPAT_ALIAS(real_file);
 COMPAT_ALIAS(is_file);
 COMPAT_ALIAS(userinfo);
-/*@PIKEPARSER_HACK_END@*/
+ */
 
 mapping|int get_file(object id, int|void no_magic)
 {
@@ -1339,7 +1338,6 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
   string   cvs;
   array    st;
   program  prog;
-  
   if(st = file_stat(s+".pike")) {
     if(prog = compile_file(s+".pike")) {
       my_loaded[prog] = s+".pike";
@@ -1877,7 +1875,6 @@ public string config_url(void|object id)
 // are not used. This makes the user-interface clearer and quite a lot
 // less clobbered.
   
-int cache_disabled_p() { return !QUERY(cache);         }
 int syslog_disabled()  { return QUERY(LogA)!="syslog"; }
 int range_disabled_p() { return !QUERY(EnableRangeHandling);  }
 int storage_disk_p() { return QUERY(storage_type)!="MySQL"; }
@@ -2481,91 +2478,6 @@ private void define_global_variables(int argc, array (string) argv)
           "This is the default file path that will be prepended to the log "
           " file path in all the default modules and the virtual server.");  
 
-  // Cache variables. The actual code recides in the file
-  // 'disk_cache.pike'
-  
-  globvar("cache", 0, "Proxy disk cache: Enabled", TYPE_FLAG,
-          "If set to Yes, caching will be enabled.");
-  
-  globvar("garb_min_garb", 1, "Proxy disk cache: Clean size", TYPE_INT,
-          "Minimum number of Megabytes removed when a garbage collect is done.",
-          0, cache_disabled_p);
-
-  globvar("cache_minimum_left", 5, "Proxy disk cache: Minimum "
-          "available free space and inodes (in %)", TYPE_INT,
-          "If less than this amount of disk space or inodes (in %) is left, "
-          "the cache will remove a few files. This check may work "
-          "half-hearted if the diskcache is spread over several filesystems.",
-          0,
-#if constant(filesystem_stat)
-          cache_disabled_p
-#else
-          1
-#endif /* filesystem_stat */
-         );
-
-  globvar("cache_size", 25, "Proxy disk cache: Size", TYPE_INT,
-          "How many MB may the cache grow to before a garbage collect is done?",
-          0, cache_disabled_p);
-
-  globvar("cache_max_num_files", 0, "Proxy disk cache: Maximum number "
-          "of files", TYPE_INT, "How many cache files (inodes) may "
-          "be on disk before a garbage collect is done ? May be left "
-          "zero to disable this check.",
-          0, cache_disabled_p);
-  
-  globvar("bytes_per_second", 50, "Proxy disk cache: Bytes per second", 
-          TYPE_INT,
-          "How file size should be treated during garbage collect. "
-          " Each X bytes counts as a second, so that larger files will"
-          " be removed first.",
-          0, cache_disabled_p);
-
-  globvar("cachedir", "../caudium_cache/",
-          "Proxy disk cache: Base Cache Dir",
-          TYPE_DIR,
-          "This is the base directory where cached files will reside. "
-          "To avoid mishaps, 'caudium_cache/' is always prepended to this "
-          "variable.",
-          0, cache_disabled_p);
-
-  globvar("hash_num_dirs", 500,
-          "Proxy disk cache: Number of hash directories",
-          TYPE_INT,
-          "This is the number of directories to hash the contents of the disk "
-          "cache into.  Changing this value currently invalidates the whole "
-          "cache, since the cache cannot find the old files.  In the future, "
-          " the cache will be recalculated when this value is changed.",
-          0, cache_disabled_p); 
-  
-  globvar("cache_keep_without_content_length", 1, "Proxy disk cache: "
-          "Keep without Content-Length", TYPE_FLAG, "Keep files "
-          "without Content-Length header information in the cache?",
-          0, cache_disabled_p);
-
-  globvar("cache_check_last_modified", 0, "Proxy disk cache: "
-          "Refresh on Last-Modified", TYPE_FLAG,
-          "If set, refreshes files without Expire header information "
-          "when they have reached double the age they had when they got "
-          "cached. This may be useful for some regularly updated docs as "
-          "online newspapers.",
-          0, cache_disabled_p);
-
-  globvar("cache_last_resort", 0, "Proxy disk cache: "
-          "Last resort (in days)", TYPE_INT,
-          "How many days shall files without Expires and without "
-          "Last-Modified header information be kept?",
-          0, cache_disabled_p);
-
-  globvar("cache_gc_logfile",  "",
-          "Proxy disk cache: "
-          "Garbage collector logfile", TYPE_FILE,
-          "Information about garbage collector runs, removed and refreshed "
-          "files, cache and disk status goes here.",
-          0, cache_disabled_p);
-
-  /// End of cache variables..
-
     /// Beginning of *new* cache variables. Watch the old ones dissappear over time...
 
     globvar("cache_max_ram", 128,
@@ -2629,6 +2541,13 @@ private void define_global_variables(int argc, array (string) argv)
 	    "to connect to the MySQL server. In the format "
 	    "mysql://user:password@host/database");
 
+   globvar("cachedir", "../caudium_cache/",
+          "Caching engine: Base Cache Dir",
+          TYPE_DIR,
+          "This is the base directory where cached files will reside. "
+          "To avoid mishaps, 'caudium_cache/' is always prepended to this "
+          "variable.");
+
     globvar("cache_storage_disk_path", Stdio.append_path(QUERY(cachedir), "cache"),
             "Caching engine: Disk Storage Path", TYPE_STRING,
 	    "If you have selected Disk as the default storage type "
@@ -2664,6 +2583,7 @@ private void define_global_variables(int argc, array (string) argv)
             "Caudium's competing for access to files.</i>"
 #endif
            , 0, storage_disk_p());
+    
 
  
     globvar("docurl2", "http://www.roxen.com/documentation/context.pike?page=",
@@ -3544,7 +3464,6 @@ int main(int argc, array(string) argv)
 
   http_error->init ();
 
-  init_garber();
   initiate_supports();
 
 
