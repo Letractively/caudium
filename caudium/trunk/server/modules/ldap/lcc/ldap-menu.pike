@@ -38,7 +38,8 @@ constant module_unique = 0;
 
 private mapping tags = ([
         "_menu" : tag_lcc_menu,
-        "_menus" : tag_lcc_menus
+        "_menus" : tag_lcc_menus,
+        "_registered_menus" : tag_lcc_registered_menus
 ]);
 
 void create()
@@ -47,6 +48,9 @@ void create()
            "This prefix must match one of the LDAP Command Center prefixes used "
            "in this virtual server or otherwise the LCC module won't load. Initially "
            "both LCC and this module share the <code>lcc</code> prefix.");
+    defvar("def_gbutton", 1, "Use gbutton by default", TYPE_FLAG,
+           "Use the &lt;gbutton&gt; tag by default to generate the menu entries "
+           "when generating the individual menus.");
 }
 
 void start(int cnt, object conf)
@@ -65,7 +69,7 @@ string status()
         ret += sprintf("<li><strong>%s</strong></li>", idx);
 
     ret += "</ul></blockquote>";
-
+    
     return ret;
 }
 
@@ -175,8 +179,20 @@ private void do_register_menu(object id, mapping menu)
             "_id" : 1
         ]);
 
-    menu->_id = SMENU(id, menu->provider)->_id++;
+    int i = 1;
     
+    while(1) {
+        if (i == SMENU(id, menu->provider)->_id)
+            break;
+        
+        if (SMENU(id, menu->provider)[i]->name == menu->name) {
+            SMENU(id, menu->provider)[i] = menu;
+            return;
+        }
+        i++;
+    }
+
+    menu->_id = SMENU(id, menu->provider)->_id++;    
     SMENU(id, menu->provider)[menu->_id] = menu;
 }
 
@@ -261,6 +277,9 @@ private multiset(string) anchor_attr = (<
 //
 //   - every standard attribute for the <a></a> HTML4 tag (note that 'href'
 //     will be ignored)
+//   - gbutton - if present, use gbutton tag for the entry
+//   - every other parameter prefixed with 'gb_' will be passed to the
+//     gbutton tag (without the 'gb_') if gbutton is to be used, otherwise ignored.
 //   - provider  - provider name from which the menu should come (required)
 //   - menu  - menu name that the tag should output (required)
 //   - always - if present, output the menu even if there's no URL for it
@@ -283,6 +302,8 @@ string tag_lcc_menu(string tag,
     if (args->provider == "" || args->menu == "")
         return "<!-- Neither the 'provider' or the 'menu' parameter can be empty in the lcc_menu tag -->";
 
+    args->provider = QUERY(provider_prefix) + "_" + args->provider;
+    
     if (!SMENU(id, args->provider))
         return sprintf("<!-- No provider '%s' in the lcc_menu tag -->", args->provider);
     
@@ -294,17 +315,45 @@ string tag_lcc_menu(string tag,
     // now ours
     mapping menu = find_one_menu(id, args->provider, args->menu);
     if (!menu || !sizeof(menu))
-        return sprintf("<-- no such menu: %s->%s -->",
+        return sprintf("<!-- no such menu: %s->%s -->",
                        args->provider, args->menu);
 
-    if (menu->url)
-        ret += sprintf("href='%s'>%s</a>",
-                       menu->url, (menu->name ? menu->name : "Unnamed Menu"));
-    else if (args->always)
-        ret += sprintf(">%s</a>", menu->name);
-    else
-        return "";
+    if (args->gbutton || QUERY(def_gbutton)) {
+        string gbargs = "";
+        int    have_href = 0;
+        
+        // get all the gbutton params
+        foreach(indices(args), string idx) {
+            if (sizeof(idx) > 3 && idx[0..2] == "gb_") {
+                if (idx[2..] != "href")
+                    gbargs += sprintf("%s='%s' ", idx[3..], args[idx]);
+                else if (menu->url) {
+                    have_href = 1;
+                    gbargs += sprintf("href='%s' ", menu->url);
+                }
+            }
+        }
 
+        if (!have_href)
+            gbargs += sprintf("href='%s' ", menu->url);
+
+        if (menu->url)
+            ret = sprintf("<gbutton %s>%s</gbutton>", gbargs,
+                          (menu->name ? menu->name : "Unnamed Menu"));
+        else if (args->always)
+            ret += sprintf("<gbutton dim='yes' %s>%s</a>", gbargs, menu->name);
+        else
+            return "";
+    } else {
+        if (menu->url)
+            ret += sprintf("href='%s'>%s</a>",
+                           menu->url, (menu->name ? menu->name : "Unnamed Menu"));
+        else if (args->always)
+            ret += sprintf(">%s</a>", menu->name);
+        else
+            return "";
+    }
+    
     return ret;
 }
 
@@ -313,6 +362,42 @@ string tag_lcc_menus(string tag,
                      object id)
 {
     return make_all_menus(id, SDATA(id));
+}
+
+//
+// For debugging and your convenience
+//
+string tag_lcc_registered_menus(string tag,
+                                mapping args,
+                                object id)
+{
+    if (!SMENUAREA(id))
+        return "<strong>No menus defined</strong>";
+    
+    string ret = sprintf("The following menus are defined (you can use the values given below "
+                         "in the &lt;%s&gt; tag):<br /><blockquote><table border='1'>"
+                         "<tr><th>Provider</th><th>Menu</th><th>Tag</th></tr>",
+                         QUERY(provider_prefix) + "_menu");
+
+    foreach(sort(indices(SMENUAREA(id))), string idx) {
+        mapping prov = SMENU(id, idx);
+        int i = 1;
+
+        while(1) {
+            if (!prov[i])
+                break;
+
+            mapping menu = prov[i++];
+            ret += sprintf("<tr><td>%s</td><td>%s</td><td>&lt;%s_menu provider='%s' menu='%s'&gt;</td></tr>",
+                           idx - (QUERY(provider_prefix) + "_"), menu->name,
+                           QUERY(provider_prefix),
+                           idx - (QUERY(provider_prefix) + "_"), menu->name);
+        }
+    }
+
+    ret += "</table></blockquote>";
+
+    return ret;
 }
 
 mapping query_tag_callers()
