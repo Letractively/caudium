@@ -3556,6 +3556,7 @@ void enable_all_modules()
 #endif
 	);
   caudium->current_configuration = 0;
+  if(parse_module) parse_module->build_callers();
 #if constant(gethrtime)
   perror("\nAll modules for %s enabled in %4.3f seconds\n\n", query_name(),
 	 (gethrtime()-start_time)/1000000.0);
@@ -3597,8 +3598,7 @@ class DataCache
 
   void set( string url, string data, mapping meta, int expire )
   {
-//     if( strlen( data ) > max_file_size ) // checked in conf
-//       return 0;
+    remove_call_out(url);
     call_out( expire_entry, expire, url );
     current_size += strlen(data);
     if(current_size > max_size)

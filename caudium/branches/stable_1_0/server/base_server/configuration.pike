@@ -3485,6 +3485,7 @@ void enable_all_modules()
                     +describe_backtrace(err)+"\n"
 #endif
 	);
+  if(parse_module) parse_module->build_callers();
   caudium->current_configuration = 0;
 #if constant(gethrtime)
   perror("\nAll modules for %s enabled in %4.3f seconds\n\n", query_name(),

@@ -30,6 +30,9 @@ Changes in Caudium 1.0.X (RC3, not released)
   configuration.
 - Fixed a bug in the UltraLog module when threads are unavailable.
 - Corrected QUERY calls in the sql filesystem module.
+- Fixed security bug which allowed people to ge the RXML source code
+  of a page if a request was made to an RXML file while Caudium was
+  loading.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
