@@ -1,5 +1,9 @@
 Changes in Caudium 1.2.32 since 1.2.30
--------------------------------
+--------------------------------------
+- Caudium configure script now checks if pike version is > 7.0.268 and
+  < 7.3.0 to avoid "bug" reports from users that want to use Caudium
+  with pike 7.4
+   (Xavier Beaudouin)
 - Fixes usage of Pike_sp instead of sp. Thanks to Karl Pitrich that reports
   this bug.
    (Xavier Beaudouin)
