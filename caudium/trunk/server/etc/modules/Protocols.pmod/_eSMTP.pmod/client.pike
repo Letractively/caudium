@@ -57,7 +57,7 @@ private mapping this_connection = ([
 	"tls":			0,
 	"authenticated":	0
 ]);							// current connection's properties
-#if constant(Crypto.md5)
+#if constant(Crypto.MD5)
 private multiset known_auth_methods = (<
 	"cram-md5",
 	"plain",
@@ -101,7 +101,7 @@ private array auth_login(string user, string pass) {
 	});
 }
 	
-#if constant(Crypto.md5)
+#if constant(Crypto.MD5)
 private string auth_cram_md5(string user, string pass, string challenge) {
 	string opad, inner, outer;
 	int i;
@@ -112,8 +112,8 @@ private string auth_cram_md5(string user, string pass, string challenge) {
 		pass[i] ^= 0x36;
 		opad[i] ^= 0x5c;
 	}
-	inner = Crypto.md5()->update(pass)->update(challenge)->digest();
-	outer = Caudium.Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
+	inner = Crypto.MD5()->update(pass)->update(challenge)->digest();
+	outer = Caudium.Crypto.string_to_hex( Crypto.MD5()->update(opad)->update(inner)->digest() );
 	return MIME.encode_base64( user + " " + outer );
 }
 #endif
@@ -284,7 +284,7 @@ int auth(string user, string pass) {
 			smtp_tell( auth_login_data[1] );
 			return ( CODECLASS(200) ? 1 : 0 );
 		break;
-#if constant(Crypto.md5)
+#if constant(Crypto.MD5)
 		case "cram-md5":
 			smtp_tell("AUTH CRAM-MD5");
 			if(!CODECLASS(300))

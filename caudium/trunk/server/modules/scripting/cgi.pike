@@ -670,7 +670,7 @@ class CGIScript
     stdin = stdin->pipe(); /* Stdio.PROP_IPC | Stdio.PROP_NONBLOCKING */
 
     if (sizeof(QUERY(chroot)))
-      options += ([ "chroot" : QUERY(chroot)) ]);
+      options += ([ "chroot" : QUERY(chroot) ]);
 
     if(!getuid())
     {

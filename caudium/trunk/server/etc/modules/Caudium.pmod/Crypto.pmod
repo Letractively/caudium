@@ -167,9 +167,9 @@ string hash_md5(string|array key, void|int hexify)
 
   error = catch {
     if (key && arrayp(key))
-      ret = Crypto.md5()->update(key * "")->digest();
+      ret = Crypto.MD5()->update(key * "")->digest();
     else
-      ret = Crypto.md5()->update(key)->digest();
+      ret = Crypto.MD5()->update(key)->digest();
   };
 
   if (error)
