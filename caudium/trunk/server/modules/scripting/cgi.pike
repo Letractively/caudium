@@ -46,7 +46,7 @@ constant module_unique = 0;
 
 // This is used to send any POST data to the CGI script.
 
-void sendfile( string data, object fromfd, object tofd, function done )
+void sendfile( string data, object tofd, function done )
 {
   object pipe = Caudium.nbio();
   pipe->write(data);
@@ -583,9 +583,8 @@ class CGIScript
     DWERROR("CGI:CGIScript::get_fd()\n");
 
     // Send input to script..
-    if( tosend || ffd ) 
-      sendfile( tosend||"",ffd, stdin,
-		lambda(int i,mixed q){ stdin=0; });
+    if(tosend) 
+      sendfile(tosend, stdin, lambda(int i,mixed q){ stdin=0; });
     else
     {
       stdin->close();

@@ -173,7 +173,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
   if(inval.type == T_STRING) {
     inp->type   = NBIO_STR;
     add_ref(inp->u.data = inval.u.string);
-    inp->len    = inval.u.string->len << inval.u.string->size_shift;
+    inp->len    = len || (inval.u.string->len << inval.u.string->size_shift);
     nstrings++;
     DERR(fprintf(stderr, "string input added: %ld bytes\n", (long)inp->len));
   } else if(inval.type == T_OBJECT) {
@@ -402,7 +402,9 @@ static void f_write(INT32 args) {
     if(ARG(0).type != T_STRING) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->write", 1, "string");
     } else {
-      new_input(ARG(0), 0, 0);
+      int len = ARG(0).u.string->len << ARG(0).u.string->size_shift;
+      if(len > 0)
+	new_input(ARG(0), len, 0);
     }
   } else {
     SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->write", 1);

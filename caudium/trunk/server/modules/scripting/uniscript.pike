@@ -33,7 +33,7 @@ constant module_doc  = "This module provides extensions handling by misc script 
 			"CGI module.";
 constant module_unique = 0;
 
-void sendfile( string data, object fromfd, object tofd, function done )
+void sendfile( string data, object tofd, function done )
 {
   object pipe = Caudium.nbio();
   pipe->write(data);
@@ -530,9 +530,8 @@ class CGIScript
     DWERROR("CGI:CGIScript::get_fd()\n");
 
     // Send input to script..
-    if( tosend || ffd )
-      sendfile( tosend||"",ffd, stdin,
-		lambda(int i,mixed q){ stdin=0;});
+    if(tosend)
+      sendfile( tosend, stdin, lambda(int i,mixed q){ stdin=0;});
     else
     {
       stdin->close();
