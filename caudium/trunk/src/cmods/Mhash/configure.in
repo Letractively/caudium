@@ -1,0 +1,17 @@
+AC_INIT(mhash.c)
+AC_CONFIG_HEADER(mhash_config.h)
+
+PEXTS_MODULE_INIT()
+
+
+AC_CHECK_HEADERS( mhash.h )
+AC_CHECK_LIB(mhash, mhash)
+
+
+AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
+
+
+dnl ## Local Variables:
+dnl ## tab-width: 4
+dnl ## End:
+	
