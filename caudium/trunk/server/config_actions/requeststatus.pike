@@ -37,7 +37,7 @@ mixed page_0(object id, object mc)
   return sprintf("<h2>Server Overview</h2>"
 		 "This is the summary status of all virtual servers. "
 		 "Click <b>[Next->]</b> to see the statistics for each "
-		 "indiviual server, or <b>[Cancel]</b> to return to the "
+		 "individual server, or <b>[Cancel]</b> to return to the "
 		 "previous menu.<p>%s", 
 		 caudium->full_status());
 }
@@ -61,7 +61,7 @@ mixed page_1(object id)
   return
     "<b>These are all active virtual servers. They are sorted by the "
     "number of requests they have received - the most active being first. "
-    "Servers which haven't recevied any requests are not listed.</b>" +
+    "Servers which haven't received any requests are not listed.</b>" +
     res;
 }
 
