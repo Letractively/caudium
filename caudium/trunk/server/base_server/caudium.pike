@@ -321,7 +321,8 @@ private static void accept_callback( object port )
       }
     }
 #ifdef FD_DEBUG
-    mark_fd( file->query_fd(), "Connection from "+file->query_address());
+    mark_fd( file->query_fd(), "Connection from "+
+	     replace(file->query_address(), " ", ":"));
 #endif
     pn[-1](file,pn[1]);
 #ifdef SOCKET_DEBUG
