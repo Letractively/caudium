@@ -221,6 +221,7 @@ sv4cpic application/x-sv4cpio
 sv4cpio	application/x-sv4cpio
 sv4crc	application/x-sv4crc
 swf	application/x-shockwave-flash
+sxw application/vnd.sun.xml.writer
 t	application/x-troff
 tar	application/x-tar
 tbk	application/toolbook
