@@ -12,6 +12,31 @@ dnl SCO has strftime() and strptime() in libint.
 AC_CHECK_FUNCS(strftime, break, [AC_CHECK_LIB(intl, strftime)])
 AC_CHECK_FUNCS(strptime, break, [AC_CHECK_LIB(intl, strptime)])
 
+dnl if we have strftime, check whether it supports the %z format
+if test "$ac_cv_func_strftime" = "yes"; then
+  AC_MSG_CHECKING([whether strftime supports the %z format])
+  AC_TRY_RUN([
+  #include <time.h>
+
+  int main(void) {
+    time_t     tim = time(NULL);
+    struct tm *tm = localtime(&time);
+    if (tm) {
+      char buf[16];
+      size_t  siz = strftime(buf, sizeof(buf), "%z", tm);
+      if (siz == 5 && strlen(buf) == 5)
+        return 0;
+      else
+        return 1;
+    }
+    
+    return 1;
+  }],[
+   AC_MSG_RESULT([yes])
+   AC_DEFINE(STRFTIME_SUPPORTS_Z,,[Define if strftime(3) supports the %z format])
+  ])
+fi
+
 AC_HEADER_TIME
 
 AC_HAVE_FUNCS(localtime localtime_r gmtime gmtime_r strdupa strndupa)
