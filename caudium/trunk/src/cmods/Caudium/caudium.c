@@ -21,9 +21,7 @@
  * $Id$
  */
 
-/*
 #define EXPERIMENTAL 1
-*/
 
 #include "global.h"
 RCSID("$Id$");
@@ -39,7 +37,12 @@ RCSID("$Id$");
 #include <errno.h>
 #include <string.h>
 
+#ifdef HAVE_TIME_H
 #include <time.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
@@ -902,8 +905,6 @@ static void f_cern_http_date(INT32 args)
   if ((now = time(NULL)) == (time_t) -1 ||
       (tm = localtime(&now)) == NULL ||
       tm->tm_mon > 11 || tm->tm_mon < 0) {
-      pop_stack();
-      push_string(make_shared_string("test2")); 
       return;
   }
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
@@ -934,15 +935,19 @@ static void f_cern_http_date(INT32 args)
   if(snprintf(date, sizeof date, "%02d/%s/%d:%02d:%02d:%02d %c%02ld%02ld",
               tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
               tm->tm_hour, tm->tm_min, tm->tm_sec, sign, diff / 60L,
-              diff % 60L)) {
-     pop_stack();
-     push_string(make_shared_string("test2"));
+              diff % 60L) == sizeof date) {
      return;
   }
 /*  pop_stack();
 */
+/*
   pop_n_elems(args);
+*/
   push_string(make_shared_string(date));
+/*
+  pop_stack();
+  push_string(make_shared_string("fooo"));
+*/
 
 }
 
