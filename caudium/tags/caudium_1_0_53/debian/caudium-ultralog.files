@@ -1,0 +1,5 @@
+usr/lib/caudium/lib/*/UltraLog.so
+usr/lib/caudium/etc/modules/UltraSupport.pmod/*
+usr/lib/caudium/bin/ultrasum.pike
+usr/share/caudium/modules/ultralog/*
+usr/bin/ultrasum

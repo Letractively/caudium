@@ -1,0 +1,3 @@
+var/log/caudium/ultralog
+usr/lib/caudium/etc/modules/UltraSupport.pmod
+usr/share/caudium/modules/ultralog
