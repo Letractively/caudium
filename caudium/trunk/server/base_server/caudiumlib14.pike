@@ -433,9 +433,7 @@ static int is_modified(string a, int t, void|int len)
   // function and how to make it better
   // Add define NO_TEST if you need to disable this
   // /Kiwi
-#ifndef NO_TEST
   report_debug("is_modified called : (%O,%O,%O)\n",a,t,len);
-#endif /* NO_TEST */
 
   if (!a)
     return 1;
@@ -444,6 +442,9 @@ static int is_modified(string a, int t, void|int len)
   sscanf(lower_case(a), "%*s, %s; %s", a, extra);
   if (extra && sscanf(extra, "length=%d", length) && len && length != len)
     return 0;
+
+  // Replace all this bloody things with:
+  // Calendar.dwim_time(a)->set_timezone("localtime")->unix_time();
 
   if (search(a, "-") != -1) {
     sscanf(a, "%d-%s-%d %d:%d:%d", day, m, year, hour, minute, second);
