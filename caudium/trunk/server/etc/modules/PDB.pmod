@@ -1,4 +1,4 @@
-/*
+/* Dear Emacs, this is -*-pike-*-
  * $Id$
  */
 
@@ -12,7 +12,7 @@
 #define UNLOCK() } while(0)
 #endif
 
-#define PDB_ERR(msg) (exceptions?throw(({ "(PDB) "+msg+"\n",backtrace() })):0)
+#define PDB_ERR(msg) {if (exceptions) throw(({ "(PDB) "+msg+"\n",backtrace() }));}
 #define PDB_WARN(msg) werror("(PDB Warning) "+msg+"\n")
 
 #define DISABLE_BUG 1

@@ -764,13 +764,13 @@ static void f_create_process( INT32 args ) {
   switch(args)
   {
     default:
-      optional=sp[1-args].u.mapping;
+      optional=Pike_sp[1-args].u.mapping;
       mapping_fix_type_field(optional);
 
       if(m_ind_types(optional) & ~BIT_STRING)
         Pike_error("Bad index type in argument 2 to Caudium.create_process()\n");
 
-    case 1: cmd=sp[-args].u.array;
+    case 1: cmd=Pike_sp[-args].u.array;
       if(cmd->size < 1)
         Pike_error("Too few elements in argument array.\n");
 
@@ -917,7 +917,7 @@ static void f_create_process( INT32 args ) {
           push_string(make_shared_string("="));
           ref_push_string(ITEM(v)[e].u.string);
           f_add(3);
-          storage.env[ptr++]=sp[-1].u.string->str;
+          storage.env[ptr++]=Pike_sp[-1].u.string->str;
         }
       }
       storage.env[ptr++]=0;
