@@ -42,21 +42,6 @@ typedef struct
   unsigned char *data;
 } buffer;
 
-#ifdef NEW_MAPPING_LOOP
-/* Pike 7.x and newer */
-#define MY_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->data->hashsize; COUNT++ ) \
-	for(KEY=md->data->hash[COUNT];KEY;KEY=KEY->next)
-#else
-/* Pike 0.6 */
-#define MY_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->hashsize; COUNT++ ) \
-	for(KEY=md->hash[COUNT];KEY;KEY=KEY->next)
-#define ADD_STORAGE(x) add_storage(sizeof(x))
-#endif
-
-
-
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
 #endif

@@ -21,29 +21,6 @@
 #define SX_FILE 0
 #define SX_DATA 1
 
-/* This allows execution of c-code that requires the Pike interpreter to 
- * be locked from the Sablotron callback functions.
- */
-#if defined(PIKE_THREADS) && defined(_REENTRANT)
-#define THREAD_SAFE_RUN(COMMAND)  do {\
-  struct thread_state *state;\
- if((state = thread_state_for_id(th_self()))!=NULL) {\
-    if(!state->swapped) {\
-      COMMAND;\
-    } else {\
-      mt_lock(&interpreter_lock);\
-      SWAP_IN_THREAD(state);\
-      COMMAND;\
-      SWAP_OUT_THREAD(state);\
-      mt_unlock(&interpreter_lock);\
-    }\
-  }\
-} while(0)
-#else
-#define THREAD_SAFE_RUN(COMMAND) COMMAND
-#endif
-
-
 #define THIS ((xslt_storage *)fp->current_storage)
 
 typedef struct

@@ -30,8 +30,7 @@
 typedef struct
 {
   JSInterpPtr interp;
-  struct object *request_id;
-  struct object *conf;
+  struct object *id;
 } njs_storage;
 
 /* Var scope storage */

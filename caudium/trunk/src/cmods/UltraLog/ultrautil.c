@@ -352,7 +352,7 @@ INT32 hourly_page_hits(struct mapping *urls,
   struct keypair *k;
   decode_buf = malloc(MAX_LINE_LEN+1);
 
-  ULTRA_MAPPING_LOOP(urls, e, k)
+  MY_MAPPING_LOOP(urls, e, k)
   {
     sind = &k->ind;
     sval = &k->val;
@@ -392,7 +392,7 @@ void http_decode_mapping(struct mapping *source,
   unsigned char *decode_buf;
   struct keypair *k;
   decode_buf = malloc(MAX_LINE_LEN+1);
-  ULTRA_MAPPING_LOOP(source, e, k)
+  MY_MAPPING_LOOP(source, e, k)
   {
     sind = &k->ind;
     sval = &k->val;
@@ -414,7 +414,7 @@ void summarize_refsites(struct mapping *refsites,
   struct keypair *k;
   unsigned char *lowered;
   int len, changed, trunc=1;
-  ULTRA_MAPPING_LOOP(referrers, e, k)
+  MY_MAPPING_LOOP(referrers, e, k)
   {
     sind = &k->ind;
     str = sind->u.string;
@@ -460,7 +460,7 @@ void summarize_hosts(struct mapping *hosts,
   unsigned char tmpstr[MAX_LINE_LEN+1];
   unknown = make_shared_binary_string("Unresolved", 10);
 
-  ULTRA_MAPPING_LOOP(hosts, e, k)
+  MY_MAPPING_LOOP(hosts, e, k)
   {
     sind = &k->ind;
     str = sind->u.string;
@@ -533,7 +533,7 @@ void summarize_directories(struct mapping *dirs, struct mapping *files)
   struct pike_string *str, *str2;
   void *slash = NULL;
 
-  ULTRA_MAPPING_LOOP(files, e, k)
+  MY_MAPPING_LOOP(files, e, k)
   {
     sind = &k->ind;
     str = sind->u.string;
@@ -572,7 +572,7 @@ INLINE void clean_refto(struct mapping *refto, struct mapping *refdest, struct m
   int changed;
   decode_buf = malloc(MAX_LINE_LEN+1);
   
-  ULTRA_MAPPING_LOOP(refto, e, k)
+  MY_MAPPING_LOOP(refto, e, k)
   {
     sind = &k->ind;
     qmark = (unsigned char *)STRCHR(sind->u.string->str, '?');
@@ -587,7 +587,7 @@ INLINE void clean_refto(struct mapping *refto, struct mapping *refdest, struct m
     if(ispage(decoded, pagexts)) {
       sval = &k->val;
 
-      ULTRA_MAPPING_LOOP(sval->u.mapping, i, k2)
+      MY_MAPPING_LOOP(sval->u.mapping, i, k2)
       {
 	sind2 = &k2->ind;
 	sval2 = &k2->val;
@@ -653,7 +653,7 @@ void do_map_addition(struct mapping *to, struct mapping *from) {
   INT32 e;
   struct keypair *k;
 
-  ULTRA_MAPPING_LOOP(from, e, k)
+  MY_MAPPING_LOOP(from, e, k)
   {
     sind = &k->ind;
     sval = &k->val;
@@ -692,7 +692,7 @@ INLINE void summarize_sessions(INT32 hour,
   struct keypair *k;
   INT32 e, len;
   /*  printf("\nSummarizining (%2d)...\n", hour);*/
-  ULTRA_MAPPING_LOOP(session_start, e, k)
+  MY_MAPPING_LOOP(session_start, e, k)
   {
     sind = &k->ind;
     sessions_per_hour[hour] ++;

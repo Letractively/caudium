@@ -267,20 +267,4 @@ INLINE void summarize_sessions(INT32 hour,
 void http_decode_mapping(struct mapping *source,
 			 struct mapping *dest);
 
-#ifdef NEW_MAPPING_LOOP
-/* Pike 7.x and newer */
-#define ULTRA_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->data->hashsize; COUNT++ ) \
-	for(KEY=md->data->hash[COUNT];KEY;KEY=KEY->next)
-#else
-/* Pike 0.6 */
-#define ULTRA_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->hashsize; COUNT++ ) \
-	for(KEY=md->hash[COUNT];KEY;KEY=KEY->next)
-#endif
-#endif
-
-
-
- 
- 
+#endif /* ULTRA_LOGDEF */
