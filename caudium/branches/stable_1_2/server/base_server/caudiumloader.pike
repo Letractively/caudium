@@ -398,7 +398,13 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
 #else
   object proc;
 #endif
-  proc = Process.create_process( ({"/bin/sh", "-c", s }), opts );
+  mixed err = { 
+     proc = Process.create_process( ({"/bin/sh", "-c", s }), opts );
+  };
+  if (err) {
+    perror("Cannot Process.popen() : %O\n", err);
+    proc = 0;
+  }
   p->close();
   destruct(p);
 
