@@ -11,28 +11,66 @@ void create()
 {
 
  defvar("regexps",
-        "::int::\t^[0-9]+$\n"
-        "::float::\t^[0-9]+[.][0-9]+$\n"
-        "::email::\t^[a-zA-Z0-9]+[-+a-zA-Z0-9._]*@[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
-        "::domain::\t[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
-        "::money::\t^[0-9]+[.][0-9][0-9]$\n"
-        "::login::\t[-a-zA-Z0-9._]+$\n",
+        "::int:: ^[0-9]+$\n"
+        "::float:: ^[0-9]+[.][0-9]+$\n"
+        "::email:: ^[a-zA-Z0-9]+[-+a-zA-Z0-9._]*@[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
+        "::domain:: [-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
+        "::money:: ^[0-9]+[.][0-9][0-9]$\n"
+        "::login:: [-a-zA-Z0-9._]+$\n",
         "Predefined Regular expressions", TYPE_TEXT_FIELD,
-        "In the match strings each of the fixed strings on the left will "
+        "If the match string is one of the fixed strings on the left it will "
         "be replaced with the regular expression on the right before "
-        "carrying out any pattern matching.  A single tab should be used as "
-        "a separator.  N.B. Pike regexps are slightly different to those in "
+        "carrying out any pattern matching. "
+        "N.B. Pike regexps are slightly different to those in "
         "some other languages (e.g. perl)");
+}
+
+mapping regexps_storage=([]);
+
+void start()
+{
+  string result=check_variable("regexps", QUERY(regexps));
+  if(result)
+    report_error(result);
+}
+
+string check_variable( string s, mixed value )
+{ 
+  // Check if `value' is O.K. to store in the variable `s'.  If so,
+  // return 0, otherwise return a string, describing the error.
+
+  if(s!="regexps")
+    return 0;
+
+  string result="";
+  array regexps=value/"\n";
+  foreach(regexps,string p) 
+  {
+    string name, value;
+    object reg;
+    [name, value]= array_sscanf(p, "%s%*[\t ]%s");
+
+    mixed catcherror = catch
+    {
+      reg=Regexp(value);
+    };
+    if (catcherror)
+    {
+      result+=sprintf("%s %s %s<br>\n", name, value, catcherror[0]);
+    }
+    else
+      deep_set(value, regexps_storage, name);
+  }
+  if(result!="")
+  {
+    return(message("Bad regular expression")+"<br>\n"+result);
+  }
+  return 0;
 }
 
 string replace_predefined(string match) 
 {
-  array regexps=QUERY(regexps)/"\n";
-  foreach(regexps,string p) {
-    if (sizeof(p/"\t")!=2) continue;
-    match=replace(match, (p/"\t")[0], (p/"\t")[1]);
-  }
-  return match;
+  return regexps_storage[match]||match;
 }
 
 
@@ -94,11 +132,14 @@ string type_text(string type, mapping args, object id)
   mixed catcherror = catch 
   {
     match = 0;
-    if (Regexp(pattern)->match(id->variables[args->name]))
-          match = id->variables[args->name];
+    if (Regexp(pattern)->match(args->value||""))
+          match = args->value;
   };
   if (catcherror) 
-    result+=message("Bad regular expression ", pattern);
+  {
+    result+=message("Bad regular expression ", pattern+" "+catcherror[0]);
+//    werror("BRE: %O\n%O\n", id->variables, args);
+  }
   else if(match)
     return 0;
   else
