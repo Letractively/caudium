@@ -513,3 +513,13 @@ void init_datetime(void)
   ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
   ADD_FUNCTION("is_modified", f_is_modified, tFunc(tString tInt tOr(tInt, tVoid), tInt), 0);
 }
+
+void exit_datetime(void)
+{
+  unsigned int i;
+  for(i = 0; getdate_errors[i] != NULL; i++)
+  {
+    free_string(getdate_errors[i]);
+  }
+  free_string(gd_bad_format);
+}

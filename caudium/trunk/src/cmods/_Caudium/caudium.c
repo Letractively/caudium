@@ -1608,6 +1608,7 @@ void pike_module_exit( void )
   free_string(STRS(query));
   free_string(STRS(raw_url));
   exit_nbio();
+  exit_datetime();
 }
 
 /*

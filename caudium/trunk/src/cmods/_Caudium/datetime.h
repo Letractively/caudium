@@ -5,5 +5,6 @@
 #endif
 
 void init_datetime(void);
+void exit_datetime(void);
 
 #endif
