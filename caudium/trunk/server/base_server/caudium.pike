@@ -313,7 +313,7 @@ void shut_down_cache() {
 void cache_shutdown_failled() {
   write("***WARNING***\n\n");
   write("Caudium was able to cleanly shutdown the cache.\n");
-  write("You may have to manually clean %s.\n", QUERY(cache_fs_path));
+  write("You may have to manually clean %s.\n", QUERY(cachedir));
   exit(1);
 }
 
@@ -1354,7 +1354,6 @@ void restart_if_stuck (int force)
 void cache_start() {
   cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576,
                         QUERY(cache_vigilance),
-                        QUERY(cache_fs_path),
                         QUERY(cache_default_ttl),
                         QUERY(cache_default_halflife) * 3600 );
 }
@@ -2502,12 +2501,6 @@ private void define_global_variables(int argc, array (string) argv)
             "of what you're doing.",
             0 );
 
-    globvar("cache_fs_path", "../var/cache",
-            "Caching Sub-system: Slow Storage Path", TYPE_DIR,
-            "Path on the filesystem for storage of cached data if, indeed the "
-            "disk storage method is being used.",
-            0 );
-
     globvar("cache_default_ttl", 5,
             "Caching Sub-system: Default time to live (Minutes)", TYPE_INT,
             "This is the default length of time to hold onto objects that have "
@@ -2525,15 +2518,6 @@ private void define_global_variables(int argc, array (string) argv)
             "period of inactivity.",
             0, );
 
-    /* NOT IMPLEMENTED YET
-       globvar("cache_slow_store", "Disk Cache",
-       "Caching Sub-system: Slow Storage Method", TYPE_STRING_LIST,
-       "There are several methods of slow storage available, including "
-       "disk storage and SQL storage. Please select the method.",
-       caudium->cache->slow_store_methods() );
-    */
-    // End of *new* cache variabled.
- 
     globvar("storage_type", "Disk",
             "Storage Manager: Storage Backend", TYPE_STRING_LIST,
             "Select the backend that you want Caudium to use for permanent "
@@ -2547,7 +2531,7 @@ private void define_global_variables(int argc, array (string) argv)
             "In the format mysql://user:password@host/database",
             0, storage_mysql_p());
 
-    globvar("storage_disk_path", "../var/cache",
+    globvar("storage_disk_path", lambda() {return QUERY(cachedir);},
             "Storage Manager: Disk storage path", TYPE_STRING,
             "Please enter a filesystem path for Caudium to use to store "
             "data on the disk as the permanent storage backend."

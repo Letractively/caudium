@@ -41,7 +41,6 @@ object disk_cache;
 string namespace;
 int max_object_ram;
 int max_object_disk;
-string path;
 int default_ttl;
 int last_access;
 string _cache_desc;
@@ -52,10 +51,6 @@ string _cache_desc;
 //!
 //! @param _namespace
 //! This is our namespace, ie, our name.
-//!
-//! @param _path
-//! The is a path for the Cache.SlowStorage.* object, ie a file system path
-//! or q Sql.SQL URL.
 //!
 //! @param _max_object_ram
 //! Maximum size of an object before it is too big to be stored in RAM
@@ -75,12 +70,11 @@ string _cache_desc;
 //! SlowStorage is a bit of a hack - at this stage disk storage is the only
 //! supported backend, and this is hacked in as a constant. This needs to be
 //! changed to support a pluggable method.
-void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, object dcache, int _default_ttl ) {
+void create( string _namespace, int _max_object_ram, int _max_object_disk, object dcache, int _default_ttl ) {
   LOCK();
   namespace = _namespace;
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
-  path = _path;
   default_ttl = _default_ttl;
   disk_cache = Cache.SlowStorage(namespace, dcache);
   ram_cache = Cache.FastStorage(namespace, disk_cache);
