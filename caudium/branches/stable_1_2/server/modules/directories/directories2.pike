@@ -222,7 +222,7 @@ string describe_directory(string d, object id)
     string icon;
     int len = stats?stats[1]:0;
 
-    werror(sprintf("stat_file(\"%s\")=>%O\n", d+file, stats));
+    // werror(sprintf("stat_file(\"%s\")=>%O\n", d+file, stats));
 
     switch(-len) {
     case 3:
