@@ -21,6 +21,13 @@
 
 // $Id$
 
+#ifdef THREADS
+  static Thread.Mutex mutex = Thread.Mutex();
+# define LOCK() object __key = mutex->lock()
+#else
+# define LOCK() 
+#endif
+
 #include <config.h>
 
 inherit "base_server/cachelib";
@@ -29,6 +36,7 @@ object cache_manager;
 object my_cache;
 
 void create( object cm ) {
+  LOCK();
   cache_manager = cm;
 #ifdef CACHE_DEBUG
   write("CACHE: Compatibility now online.\n");
@@ -36,6 +44,7 @@ void create( object cm ) {
 }
 
 void start_cache() {
+  LOCK();
   if ( ! objectp( my_cache ) ) {
     my_cache = cache_manager->get_cache( "DEFAULT" );
     string desc =

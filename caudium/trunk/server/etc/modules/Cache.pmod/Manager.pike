@@ -19,6 +19,13 @@
  *
  */
 
+#ifdef THREADS
+  static Thread.Mutex mutex = Thread.Mutex();
+# define LOCK() object __key = mutex->lock()
+#else
+# define LOCK() 
+#endif
+
 constant cvs_version = "$id: cache_manager.pike,v 1.0 2001/12/26 18:21:00 james_tyson Exp $";
 
 int max_ram_size;
@@ -38,11 +45,13 @@ object caudium;
 #define dcache Cache.SlowStorage.Disk
 
 void create() {
+  LOCK();
   caches = ([ ]);
   client_caches = ([ ]);
 }
 
 void really_start() {
+  LOCK();
   if ( _really_started ) return;
 #ifdef CACHE_DEBUG
   write( "CACHE: Delayed cache start triggered. Loading caching subsystem: " );
@@ -55,6 +64,7 @@ void really_start() {
 }
 
 string status() {
+  LOCK();
   if ( ! _really_started ) {
     return "<b>Caching Sub-System Is Currently Innactive.</b>";
   }
@@ -91,6 +101,7 @@ string status() {
 }
 
 private void create_cache( string namespace ) {
+  LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
   caches += ([ namespace : Cache.Cache( namespace, path, max_object_ram, max_object_disk, dcache, default_ttl ) ]);
@@ -109,6 +120,7 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
 	// Call set_max_ram_size() and set_max_disk_size() on every cache.
+  LOCK();
 #ifdef CACHE_DEBUG
   write( sprintf( "CACHE_MANAGER: start( %d, %d, %d, \"%s\", %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _path, _default_ttl, _default_halflife ) );
 #endif
@@ -126,6 +138,7 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 }
 
 void watch_size() {
+  LOCK();
   if ( ! _really_started ) {
     call_out( watch_size, sleepfor() );
     return;
@@ -205,6 +218,7 @@ void watch_size() {
 }
 
 void watch_halflife() {
+  LOCK();
   if ( ! _really_started ) {
     call_out( watch_halflife, 3600 );
     return;
@@ -225,6 +239,7 @@ void watch_halflife() {
 
 object get_cache( void|string|object one ) {
   really_start();
+  LOCK();
   string namespace;
   if ( stringp( one ) )
     namespace = one;
@@ -257,6 +272,7 @@ object get_cache( void|string|object one ) {
 
 object low_get_cache( string namespace ) {
   really_start();
+  LOCK();
   if ( ! caches[ namespace ] )
     create_cache( namespace );
   return caches[ namespace ];
@@ -267,6 +283,7 @@ void destroy() {
 }
 
 void stop( void|string namespace ) {
+  LOCK();
   if ( ! _really_started ) return;
   if ( namespace ) {
     if ( caches[ namespace ] ) {

@@ -22,6 +22,13 @@
 
 constant cvs_version = "$Id$";
 
+#ifdef THREADS
+  static Thread.Mutex mutex = Thread.Mutex();
+# define LOCK() object __key = mutex->lock()
+#else
+# define LOCK() 
+#endif
+
 #define EXPIRE_CHECK 300
 inherit "helpers";
 
@@ -39,6 +46,7 @@ void create( string _namespace, void|object _disk_cache ) {
 	// call disk_cache->get_index() to retrieve the metadata about
 	// any objects that are on the disk after being stored last time
 	// we we're here.
+  LOCK();
   namespace = _namespace;
   thecache = ([ ]);
   if ( _disk_cache ) {
@@ -50,6 +58,7 @@ void create( string _namespace, void|object _disk_cache ) {
 }
 
 void store( mapping meta ) {
+  LOCK();
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
@@ -92,6 +101,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 	// as long as it's not bigger than the pre-decided limit for 
 	// object size. this will be done with a flash bi-directional
 	// non-blocking io class, kindof like a proxy for file objects.
+  LOCK();
   string hash = get_hash( name );
 	// search for the hash in thecache and return it. This could be tricky.
   if ( thecache[ hash ] ) {
@@ -117,6 +127,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 }
 
 private mixed get_stdio( string hash ) {
+  LOCK();
   mapping tmp = thecache[ hash ] + ([ ]);
   string data = tmp->object;
   tmp->object = Stdio.File();
@@ -128,6 +139,7 @@ private mixed get_stdio( string hash ) {
 }
 
 void refresh( string name ) {
+  LOCK();
 	// remove the object from cache.
   string hash = get_hash( name );
   if (thecache[ hash ]) {
@@ -137,6 +149,7 @@ void refresh( string name ) {
 }
 
 void flush( void|string regexp ) {
+  LOCK();
   if ( regexp ) {
     // Just flush some of the cache.
     object r = Regexp( regexp );
@@ -168,6 +181,7 @@ void stop() {
 	// disk_cache->store() on it.
 	// how do we make destroy() wait until all that's done to make sure
 	// the data is written before the object is destroyed?
+  LOCK();
   if ( objectp( disk_cache ) ) {
 #ifdef CACHE_DEBUG
     write( "RAM_CACHE: stop() called, writing contents of cache to disk..\n" );
@@ -192,6 +206,7 @@ void stop() {
 }
 
 void free( int n ) {
+  LOCK();
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE: Cache asked to reduce RAM usage by " + n + " bytes\n" );
 #endif
