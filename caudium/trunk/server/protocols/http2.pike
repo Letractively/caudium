@@ -64,9 +64,9 @@ int req_time = HRTIME();
 #endif
 
 #ifdef FD_DEBUG
-#define MARK_FD(X) catch{REQUEST_WERR("MARK_FD: "+X); 1/0; mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
+#define MARK_FD(X) catch{REQUEST_WERR(X); 1/0; mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
 #else
-#define MARK_FD(X) REQUEST_WERR("NO_MARK_FD: "+X)
+#define MARK_FD(X) REQUEST_WERR(X)
 #endif
 #undef REQUEST_DEBUG
 constant decode        = MIME.decode_base64;
