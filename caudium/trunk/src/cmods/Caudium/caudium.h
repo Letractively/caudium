@@ -10,8 +10,6 @@ void init_nbio(void);
 void exit_nbio(void);
 
 #define READ_BUFFER_SIZE 65536
-#define READ_MORE_SIZE   40000 
-
 
 #define BUFSIZE 16535
 #define BUF ((buffer *)fp->current_storage)
@@ -51,7 +49,7 @@ typedef struct
 /* Input data (object or string) */
 typedef struct _input_struct
 {
-  int len;  /* Length of input, or -1 for 'till end' */
+  int len;  /* Length of input, or -1 for 'till end' for files */
   int pos;  /* current position */
   INT16 type; /* type of input  */
   union {
