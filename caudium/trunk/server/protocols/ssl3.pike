@@ -156,7 +156,7 @@ array|void real_port(array port, object cfg)
     ({ report_error, throw }) ("ssl3: Certificate and private key do not match.\n");
 #endif
 
-  function r = Caudium.Crypto.f_urandom;
+  function r = Caudium.Crypto.f_urandom();
 
 #ifdef SSL3_DEBUG
   werror(sprintf("RSA key size: %d bits\n", rsa->rsa_size()));
@@ -165,9 +165,8 @@ array|void real_port(array port, object cfg)
   if (rsa->rsa_size() > 512)
   {
     /* Too large for export */
-    ctx->short_rsa = Crypto.rsa()->generate_key(512, r);
+    ctx->short_rsa = Crypto.RSA()->generate_key(512, r);
 
-    // ctx->long_rsa = Crypto.rsa()->generate_key(rsa->rsa_size(), r);
   }
 
   // we need the certificates to be in the opposite order (my cert first) for ssl to work.
@@ -658,7 +657,7 @@ class roxen_sslfile {
 #ifdef SSL3_DEBUG
     roxen_perror(sprintf("SSL3:roxen_sslfile::die(%d)\n", status));
 #endif /* SSL3_DEBUG */
-    ssl::die(status);
+    ssl::shutdown();
     if ((destructme |= 2) == 3) destruct();
   }
 
