@@ -7,7 +7,7 @@ else
   CFLAGS="$REALCFLAGS"
   export CFLAGS
 fi
-DIRS="cmods tools"
+DIRS="cmods tools fast_cgi"
 AC_SUBST(DIRS)
 
 AC_SET_MAKE

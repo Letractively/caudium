@@ -65,8 +65,8 @@ void create(object c)
 	 "CGI-script extensions variable).");
 
   set("ext", ({"fcgi"}));
-  if (mkdir("/tmp/.Roxen_fcgi_pipes")) {
-    chmod("/tmp/.Roxen_fcgi_pipes/.", 01777);
+  if (mkdir("/tmp/.Caudium_fcgi_pipes")) {
+    chmod("/tmp/.Caudium_fcgi_pipes/.", 01777);
   }
 }
 
@@ -87,7 +87,7 @@ string make_pipe_name(string from)
   
   if(s = stof[from])
     return s;
-  s = "/tmp/.Roxen_fcgi_pipes/"+hash(from);
+  s = "/tmp/.Caudium_fcgi_pipes/"+hash(from);
   while(search(stof,s))
     s+=".2";
   return stof[from] = s;

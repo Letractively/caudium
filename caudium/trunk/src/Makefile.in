@@ -13,6 +13,8 @@ cmods: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 tools: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+fast_cgi: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 
 install: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done

@@ -26,8 +26,11 @@ install_bin:
 clean:
 	rm -f htpasswd
 
+
+depend:
+
 spotless: clean
-	rm -f config.*
+	rm -f config.* 
 
 distribute: spotless
 	rm -f Makefile
