@@ -23,7 +23,7 @@
 //!  This module is responsible for pretty-printing the directory contents.
 //!  Unlike the other two directory modules 
 //!  ([modules/directories/directories.pike] and 
-//!   [modules/directories/directories.pike]) this one doesn't use the 
+//!   [modules/directories/directories2.pike]) this one doesn't use the 
 //!  folding/unfolding feature.
 //! inherits: module
 //! inherits: caudiumlib
@@ -102,9 +102,16 @@ string head(string path,object id)
 
   if(QUERY(readme)) 
     rm=find_readme(path,id);
-  
-  return ("<h1>Directory listing of "+path+"</h1>\n<p>"+rm
+
+  return ("<html><head><title>Directory listing of "+path+"</title>"
+          "</head><body>"
+          "<h1>Directory listing of "+path+"</h1>\n<p>"+rm
 	  +"<pre>\n<hr noshade>");
+}
+
+string foot()
+{
+  return ("</pre><hr noshade></body></html>");
 }
 
 string describe_dir_entry(string path, string filename, array stat)
@@ -202,7 +209,7 @@ mapping parse_directory(object id)
   if(id->pragma["no-cache"] || !(dir = cache_lookup(key, f))) {
     cache_set(key, f, dir=new_dir(f, id));
   }
-  return http_string_answer(head(f, id) + dir);
+  return http_string_answer(head(f, id) + dir + foot());
 }
 
 
