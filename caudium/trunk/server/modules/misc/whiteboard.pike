@@ -85,7 +85,7 @@ void create() {
  defvar ("sqlserver", "mysql://localhost/todolist", "SQL: server",
 	 TYPE_STRING,
 	 "This is the host running the SQL server with the "
-	 "authentication information.<br>\n"
+	 "whiteboard information.<br>\n"
 	 "Specify an \"SQL-URL\":<ul>\n"
 	 "<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@]"
 	 "[<i>host</i>[:<i>port</i>]]/<i>database</i></pre></ul><br>\n"
@@ -137,12 +137,12 @@ void open_db() {
     db=Sql.sql(QUERY(sqlserver));
   };
   if (err) {
-    perror ("SQLauth: Couldn't open authentication database!\n");
+    perror ("Whiteboard: Couldn't open database!\n");
     if (db)
-      perror("SQLauth: database interface replies: "+db->error()+"\n");
+      perror("Whiteboard: database interface replies: "+db->error()+"\n");
     else
-      perror("SQLauth: unknown reason\n");
-    perror ("SQLauth: check the values in the configuration interface, and "
+      perror("Whiteboard: unknown reason\n");
+    perror ("Whiteboard: check the values in the configuration interface, and "
 	    "that the user\n\trunning the server has adequate permissions "
 	    "to the server\n");
     db=0;
@@ -510,9 +510,9 @@ string addcomment(string project, string user, string comment) {
 mixed find_file(string path, object id) {
 
   // check to see if the user is authenticated!
-  if(!(id->auth && id->auth[0]))
+  if(!id->user)
     return http_auth_required("Whiteboard for "+QUERY(mountpoint));
-  string user = id->auth[1];
+  string user = id->user->username;
 
   array a=QUERY(allowedusers)-({""});
   if(sizeof(a)>0)
@@ -655,7 +655,7 @@ string query_location()
 //!  name: Time before closed projects get deleted.
 //
 //! defvar: sqlserver
-//! This is the host running the SQL server with the authentication information.<br />
+//! This is the host running the SQL server with the whiteboard information.<br />
 //!Specify an "SQL-URL":<ul>
 //!<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@][<i>host</i>[:<i>port</i>]]/<i>database</i></pre></ul><br />
 //!Valid values for "sqlserver" depend on which sql-servers your pike has support for, but the following might exist: msql, mysql, odbc, oracle, postgres.

@@ -784,7 +784,7 @@ class CGIScript
       environment["HTTP_AUTHORIZATION"] = (string)id->rawauth;
     else
       m_delete(environment, "HTTP_AUTHORIZATION");
-    if(QUERY(clearpass) && id->auth && id->realauth ) {
+    if(QUERY(clearpass) && id->user && id->realauth ) {
       // Already set in caudiumlib.pike
       //      environment["REMOTE_USER"] = (id->realauth/":")[0];
       environment["REMOTE_PASSWORD"] = (id->realauth/":")[1];

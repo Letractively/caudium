@@ -148,14 +148,11 @@ void stop() {
 
 void log(object id, mapping file)  {
   string log_query, username, url_query;
-  array auth;
   object sql_conn=db->handle();
   
   mixed err=catch {
-    if (sizeof(id->realauth)) {
-      auth=id->realauth/":";
-      if(sizeof(auth[0])) {
-	username=auth[0];
+    if (id->user) {
+	username=id->user->username;
       } else {
 	username="nobody";
       }

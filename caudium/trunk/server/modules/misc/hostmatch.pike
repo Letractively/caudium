@@ -133,7 +133,7 @@ void precache_rewrite(object id)
     }
     config_cache[host] = id->conf;
   }
-  if (id->conf != old_conf && id->rawauth) {
+  if (id->conf != old_conf && id->user) {
     /* Need to re-authenticate with the new server */    
     array(string) y = id->rawauth / " ";
     
@@ -141,12 +141,7 @@ void precache_rewrite(object id)
     id->auth = 0;
     
     if (sizeof(y) >= 2) {
-      y[1] = MIME.decode_base64(y[1]);
-      id->realauth = y[1];
-      if (id->conf && id->conf->auth_module) {
-	y = id->conf->auth_module->auth(y, id);
-      }
-      id->auth = y;
+      low_handle_authorization(y);
     }
   }
 
