@@ -7,13 +7,19 @@
 
 %define name	caudium
 %define version	cvs20000930
-%define release	1
+%define release	2
 %define packager Mike A. Harris <mharris@meteng.on.ca>
 
 # This line creates a macro _initdir which is where initscripts will
 # get placed.  This is done to maintain backwards compatibility now
 # that FHS compliance changes have made it into Red Hat 7.0
 %define _initdir %([ -d /etc/init.d -a ! -L /etc/init.d ] && echo /etc/init.d || echo /etc/rc.d/init.d)
+
+# Detect the pike version that is installed
+#%%define PIKEVERSION %(rpm -q pike | sed -e 's/^pike-\(.*\)-.*//' )
+
+# Manual Pike version override
+%define PIKEVERSION 7.0.71
 
 Summary: An extensible high performance web server written in Pike
 Name: %{name}
@@ -77,6 +83,7 @@ log file parser that is capable of generating extensive statistics on the
 fly for virtual servers configured in your Caudium WebServer.
 
 %prep
+#echo "PIKEVERSION=%{PIKEVERSION}" |mail -s "PIKEVERSION=%{PIKEVERSION}" mharris
 
 %setup
  
@@ -123,7 +130,7 @@ cp redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
 
 # Create various dirs required for proper operation
 mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
-
+rm -rf /usr/share/caudium/unfinishedmodules
 
 ###############  CLEAN SECTION  ########################################
 %clean
@@ -169,21 +176,25 @@ mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
 
 ###############  FILES SECTION (caudium-modules)  ######################
 %files modules
-%_libdir/caudium/lib/7.0.71/Caudium.so
+%_libdir/caudium/lib/%{PIKEVERSION}/Caudium.so
 
 ###############  FILES SECTION (caudium-pixsl)  ######################
 %files pixsl
 /usr/bin/pixsl
 %_libdir/caudium/bin/pixsl.pike
-%_libdir/caudium/lib/7.0.71/PiXSL.so
+%_libdir/caudium/lib/%{PIKEVERSION}/PiXSL.so
 
 ###############  FILES SECTION (caudium-ultralog)  ######################
 %files ultralog
 /usr/bin/ultrasum
-%_libdir/caudium/lib/7.0.71/UltraLog.so
+%_libdir/caudium/lib/%{PIKEVERSION}/UltraLog.so
 
 
 %changelog
+* Tue Oct 2 2000 Mike A. Harris <mharris@meteng.on.ca>
+  Added pike version detection to spec file, then took it back away
+  until the RPM guys get back to me with a fix.  ;o)
+
 * Sat Sep 30 2000 Mike A. Harris <mharris@meteng.on.ca>
   Now that the redhat stuff is built into the CVS sources, I changed
   the spec to use the files in the main tarball instead of being
