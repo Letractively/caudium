@@ -1,7 +1,7 @@
 AC_INIT(mhash.c)
 AC_CONFIG_HEADER(mhash_config.h)
 
-PEXTS_MODULE_INIT()
+CAUDIUM_MODULE_INIT()
 
 
 AC_CHECK_HEADERS( mhash.h )

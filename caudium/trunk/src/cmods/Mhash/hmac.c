@@ -25,7 +25,7 @@
 #include "global.h"
 RCSID("$Id$");
 
-#include "pexts.h"
+#include "caudium_util.h"
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH

@@ -25,17 +25,19 @@
 #include "global.h"
 RCSID("$Id$");
 
-#include "pexts.h"
+#include "caudium_util.h"
 #include "mhash_config.h"
 
-#include "pexts_ver.c"
+
 
 #ifdef HAVE_MHASH
 
 /* Init the module */
 void pike_module_init(void)
 {  
+  #ifdef PEXTS_VERSION
   pexts_init();
+#endif
   mhash_init_mhash_program();
   mhash_init_hmac_program();
   mhash_init_globals();
@@ -50,12 +52,16 @@ void pike_module_exit( void )
 #else /* HAVE_MHASH */
 void pike_module_exit( void ) 
 { 
-    pexts_init();
+    #ifdef PEXTS_VERSION
+  pexts_init();
+#endif
 }
 
 void pike_module_init( void ) 
 { 
-    pexts_init();
+    #ifdef PEXTS_VERSION
+  pexts_init();
+#endif
 }
 #endif /* HAVE_MHASH */
 
