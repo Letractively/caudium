@@ -3,6 +3,7 @@ caudium (2:1.0.40-2) unstable; urgency=low
   * Split the debconf template files into a separate file per language.
   * Added the French translation by Philippe Batailler <pbatailler@teaser.fr>
     (closes: #138523) - thank you
+  * Added the Polish translation.
 
  -- Marek Habersack <grendel@debian.org>  Sat, 16 Mar 2002 01:27:47 +0100
 
