@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed bug in vhs_logger.pike that stopped it from logging remote hostnames.
+   (James Tyson)
 - Bunch of cleanup about inlining that are not necessary.
    (Xavier Beaudouin)
 - Caudium now requires Pike 7.5
