@@ -3373,16 +3373,16 @@ string desc()
     
     if(port[2] && port[2]!="ANY") {
       prt += port[2];
-      prtfile += port[2];
-    } else {
+      prtfile += port[2] ;
+    } 
 #if efun(gethostname)
+    else {
       prt += (gethostname()/".")[0] + "." + QUERY(Domain);
       prtfile = prt;
     }
-#else
-    ;
 #endif
     prt += ":"+port[0]+"/";
+    prtfile += ":" + port[0] + "/";
     if(port_open( port ))
       res += "<font color=darkblue><b>Open:</b></font> <a target=server_view href=\""+prt+"\">"+prtfile+"</a> \n<br>";
     else
