@@ -57,6 +57,8 @@ struct SSL_t { SSL *ssl; };
 static struct program *openssl_SSL_CTX_program;
 static struct program *openssl_SSL_program;
 
+#define sp Pike_sp
+
 /*****************************************************************************
 **  openssl_SSL_CTX_create()                                                **
 **  openssl_SSL_CTX_werror()                                                **
