@@ -1082,17 +1082,29 @@ void send_result(mapping|void result)
       if(objectp(file->file))
 	if(!file->stat && !(file->stat=misc->stat))
 	  file->stat = (array(int))file->file->stat();
-      if(arrayp(fstat = file->stat))
+	 
+      fstat = file->stat;
+      if(arrayp(fstat) || objectp(fstat))
       {
+        int fsize, fmtime;
+	
+	if (objectp(fstat)) {
+	    fsize = fstat->size;
+	    fmtime = fstat->mtime;
+	} else {
+	    fsize = fstat[1];
+	    fmtime = fstat[3];
+	}
+	
 	if(file->file && !file->len)
-	  file->len = fstat[1];
+	  file->len = fsize;
     	
 	if(!file->is_dynamic && !misc->is_dynamic)
 	{
-	  heads["Last-Modified"] = http_date(fstat[3]);
+	  heads["Last-Modified"] = http_date(fmtime);
 	  if(since)
 	  {
-	    if(is_modified(since, fstat[3], fstat[1]))
+	    if(is_modified(since, fmtime, fsize))
 	    {
 	      file->error = 304;
 	      file->file = 0;
