@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fixed bad HTML code in initial sreen setup that prevented some browsers to
+  show the page
 - Fix comma placement in defvar in superform
 - Minor changes to Tablify.pike/Wizard.pike to generate HTML that is
   able to be validated
