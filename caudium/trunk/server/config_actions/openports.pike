@@ -46,7 +46,7 @@ mixed page_1(object id)
     res += ("You will need to install <a href=\""
 	   "ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/lsof.tar.gz\">"
 	   "'lsof'</a> for full info.\n");
-  }
+  } else (
   res += (sprintf("Use this lsof binary:\n"
 		 "<var type=select name=lsof default='%s'\n"
 		 "choices='%s'><p>\n", id->variables->lsof || lsofs[0],
@@ -59,6 +59,7 @@ mixed page_1(object id)
 		 "GNU/Linux and other Unix flavor </font><br />"
 	         "Caudium currently does not run as root. You can continue but "
 		 "it may not work</p>\n");
+  }
   return res;
 }
 
