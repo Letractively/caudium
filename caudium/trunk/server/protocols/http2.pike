@@ -34,6 +34,7 @@ constant cvs_version = "$Id$";
 // HTTP protocol module.
 #include <config.h>
 private inherit "caudiumlib";
+private inherit "cachelib";
 // int first;
 
 #ifdef DO_TIMER
