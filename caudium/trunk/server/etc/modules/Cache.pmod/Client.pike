@@ -213,7 +213,7 @@ void|string cache_description(void|string desc) {
 //! @param behavior
 //! If 0 then keep default behavior. If 1 then use only RAM cache.
 //! If 2 then use only disk cache.
-void override_behavior(void|int(0..2) behavior) {
+void behavior(void|int(0..2) _behavior) {
   restart_cache();
-  real_cache->override_behavior(behavior);
+  real_cache->behavior(_behavior);
 }
