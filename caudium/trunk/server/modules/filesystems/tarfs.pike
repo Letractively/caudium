@@ -122,6 +122,7 @@ class WrapperFile
   void set_nonblocking() { return 0; };
   void set_blocking() { return 0; };
   void stat() { return 0; };
+  int query_fd() { return 0; }
 }
 
 
