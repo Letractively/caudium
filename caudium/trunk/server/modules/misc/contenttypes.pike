@@ -92,7 +92,7 @@ void create()
     "# Feel free to add to this, but do it after the #include line if\n"
     "# you want to override any defaults\n"
     "\n"
-    "#include <etc/content-encodings>\n\n", "Extensions", 
+    "#include <etc/content-types>\n\n", "Extensions", 
     TYPE_TEXT_FIELD, 
     "This is file extension "
     "to content type mapping. The format is as follows:\n"
