@@ -42,6 +42,7 @@
 #include "threads.h"
 #include "bignum.h"
 #include "version.h"
+#include "operators.h"
 
 #if (PIKE_MAJOR_VERSION == 7 && PIKE_MINOR_VERSION == 1 && PIKE_BUILD_VERSION >= 12) || PIKE_MAJOR_VERSION > 7 || (PIKE_MAJOR_VERSION == 7 && PIKE_MINOR_VERSION > 1)
 # include "pike_error.h"
