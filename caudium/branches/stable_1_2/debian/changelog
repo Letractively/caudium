@@ -1,6 +1,6 @@
 caudium (2:1.2.31-4) unstable; urgency=high
 
-  * Removed a stray dot from the build depends line (closes Bug#212054)
+  * Removed a stray dot from the build depends line (closes: Bug#212054)
 
  -- Marek Habersack <grendel@debian.org>  Mon, 22 Sep 2003 17:49:02 +0200
 
