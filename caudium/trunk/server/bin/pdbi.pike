@@ -13,8 +13,6 @@
  * doc = "This is a tool to inspect PDB databases.";
  */
 
-object (Stdio.Readline) readline;
-
 int rowsize(object o, string table, string row)
 {
   return sizeof(encode_value(o[table][row]));
@@ -48,7 +46,7 @@ void main(int argc, array argv)
 
   string cmd, table, arg;
   do {
-    array a = ((readline("> ") || "exit")/" ") - ({});
+    array a = ((Stdio.Readline()->read("> ") || "exit")/" ") - ({});
     cmd = a[0];
     arg = a[1..]*" ";
     if(!sizeof(arg))
