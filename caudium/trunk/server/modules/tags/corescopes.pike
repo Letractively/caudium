@@ -44,11 +44,9 @@ entities, you need the XML Compliant RXML parser. It's easy to insert \
 the value of an entity - just do &amp;scope.entity; in your RXML page.";
 constant module_unique = 1;
 
-//! entity-scope: client
+//! entity_scope: client
 //!  This scope contains information related to the client on the other end
 //!  of the current request. 
-//! see_also: base_server/scope.pike
-//
 
 class ClientScope {
   inherit "scope";  
@@ -125,7 +123,7 @@ class ClientScope {
 }
 
 
-//! entity-scope: cookie
+//! entity_scope: cookie
 //!  This scope provides access to cookies using the entity syntax. There are
 //!  no predefined entities for this scope.
 //! bugs:
@@ -143,7 +141,7 @@ class CookieScope {
 }
 
 
-//! entity-scope: form
+//! entity_scope: form
 //!  This class provides access to all form variables sent in the request
 //!  in the query string or as POST data. It is also the default scope when
 //!  using &lt;set variable> and &lt;insert variable>. Since it's based on the
@@ -165,7 +163,7 @@ class FormScope {
   }
 }
 
-//! entity-scope: var
+//! entity_scope: var
 //!  This scope is to be used for storage of request specific user
 //!  variables. In addition to allowing normal variables, i.e. &var.name;, 
 //!  it can store second level variables, like &var.prices.banana;. This is

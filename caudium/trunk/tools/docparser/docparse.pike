@@ -1,4 +1,4 @@
-#!/usr/bin/pike7-cvs -M./
+#!/usr/local/bin/pike -M./
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000 The Caudium Group
