@@ -25,14 +25,21 @@
 //! module: Superform
 //!  This tag extends html forms to add new widget type, provide
 //!  verification functions, and generally make dealing with
-//!  complex input easiers. Eventually it will provide widgets for
-//!  all common database type.
+//!  complex input easier. Eventually it will provide widgets for
+//!  all common database types.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PARSER|MODULE_FIRST
 //! cvs_version: $Id$
 // todo: finish doc/examples
 //
+
+// modifications by cd34/grendel, 2002-05-31
+// fixed CIF documentation, gramatical/spelling errors
+// adjusted regexp handling slightly to handle more strict regexps
+// Adjusted some regexps to be more strict
+// Added Date Control, returns data as YYYY-MM-DD
+
 constant cvs_version="$Id$";
 constant thread_safe=1;
 #include <module.h>
@@ -52,7 +59,7 @@ static private string doc()
 {
   string doc="This tag extends html forms to add new widget types, "+
     "provide verification functions, and generally make dealing with <br>"+
-    "complex input easier.  Eventually it will provide widgets for all "+
+    "complex input easier.\n  Eventually it will provide widgets for all "+
     "common database types.<br><p>"+
     "<b>Usage:</b> Below shows an example demonstrating most features<br>"+
     "Number of hits: {accessed}{br}<br>"+
@@ -113,12 +120,18 @@ string demo_widget(string widget,string descr) {
 mapping (int:string) rxmlsession=([]);
 
 void create() {
+
+// cd34/grendel, 2002-05-31, better email regexp
+// cd34/grendel, 2002-06-01, better domain regexp
+// changed regexp method -- no longer does superform insert regexp's 
+// into * ( ) * which caused some invalid matchs with suitably 
+// constructed patterns
  defvar("regexps", 
-	"::int::\t[0-9]+\n"
-	"::float::\t[0-9]+[.][0-9]+\n"
-	"::email::\t[a-zA-Z.\\-0-9]+@[a-zA-Z.\\-0-9]+\n"
-	"::domain::\t[-a-z\.0-9]+\n"
-	"::money::\t[0-9]+[.][0-9][0-9]\n",
+	"::int::\t^[0-9]+$\n"
+	"::float::\t^[0-9]+[.][0-9]+$\n"
+	"::email::\t^[a-zA-Z0-9]+[-+a-zA-Z0-9.]*@[-a-zA-Z0-9.]+\.[a-zA-Z][a-zA-Z]+$\n"
+	"::domain::\t^[-a-zA-Z0-9.]+\.[a-zA-Z][a-zA-Z]+$\n"
+	"::money::\t^[0-9]+[.][0-9][0-9]$\n",
 	"Predefined Regular expressions", TYPE_TEXT_FIELD,
 	"In the match strings each of the fixed strings on the left will "
 	"be replaced with the regular expression on the right before "
@@ -170,6 +183,36 @@ mixed tag_input(string tag_name, mapping args,
       "<select name=\""+args->name+"\" >"+
       "<option value=t>True<option value=f>False</select></default>";
     return result;
+  }
+
+// cd34, 2002-05-31, date control
+  if (args->type && args->type=="date") {
+    string t="<default name='sform_date_month_#name#' value='#month#'>"
+      "<select name='sform_date_month_#name#'>"
+      "<option value='01'>January<option value='02'>February<option value='03'>March<option value='04'>April<option value='05'>May<option value='06'>June"
+      "<option value='07'>July<option value='08'>August<option value='09'>September<option value='10'>October<option value='11'>November<option value='12'>December"
+      "</select></default> "
+      "<input type='text' name='sform_date_day_#name#' size='4' value='#day#'>"
+      " <default name='sform_date_year_#name#' value='#year#'>"
+      "<select name='sform_date_year_#name#' value='#year#'>";
+    // get this year
+    int thisyear=((localtime(time(1))->year)+1900);
+    // get the biggest year
+    int biggestyear=abs((int)args->years||7);
+    if (biggestyear > 40) biggestyear=40;
+    for (int i=1900; i<(thisyear+5); i++)
+      t+="<option"+(i==thisyear?" selected":"")+">"+sprintf("%04d",i)+"</option>";
+    t+="</select></default>";
+   
+    string month,year,day;
+    if (args->value && sizeof(args->value/"/")==3) {
+      year=(args->value/"/")[0];
+      month=(args->value/"/")[1];
+      day=(args->value/"/")[2];
+    } else { month="1"; year=sprintf("%02d",(thisyear+2)% 100); day="1";}
+    return replace(t,
+                   ({"#name#","#month#","#year#","#day#"}),
+                   ({(string)args->name,(string)month,(string)year,(string)day}));
   }
   
   if (args->type && args->type=="select") {
@@ -279,7 +322,7 @@ string tag_rxml(string tag_name, mapping args, string contents,
 //!  Extended form tag.
 //! attribute: action
 //!  Where to go (URL) when the form is executed (and when all
-//!  verification stage are successfull). 
+//!  verification stage are successful). 
 //! attribute: erroraction
 //!  Where to go (URL) when the form has an error. The variable
 //!  sformerror, is then setup with the error that fails the
@@ -384,6 +427,23 @@ string replace_predefined(string match) {
 int process_widgets(object rid) {
   string var;
   foreach(indices(rid->variables),string v) {
+    if (sscanf(v,"sform_date_year_%s",var)) {
+      rid->variables[var]=
+        sprintf("%4d-%02d-%02d",
+	(int)rid->variables["sform_date_year_"+var],
+	(int)rid->variables["sform_date_month_"+var],
+	(int)rid->variables["sform_date_day_"+var]);
+// cd34, 2002-06-05, date validation
+      int|string result=date_check(
+        (int)rid->variables["sform_date_year_"+var],
+        (int)rid->variables["sform_date_month_"+var],
+        (int)rid->variables["sform_date_day_"+var]);
+
+      if (result !=1) {
+	rid->variables["sformerror"]=result; return 1;
+      }
+      continue;
+    }
     if (sscanf(v,"sform_expire_year_%s",var)) {
       rid->variables[var]=
 	rid->variables["sform_expire_month_"+var]+"/"+
@@ -453,14 +513,33 @@ mixed first_try(object rid)
       pattern=replace_predefined(pattern);
       // we want to make sure the regexp is of the form:
       // blah(stuff we want)blah
-      if ((search(pattern,"(") && search(pattern,")"))) {
-	pattern="("+pattern+")";
-      }
+
+// cd34, 2002-05-31, removed
+//      if ((search(pattern,"(") && search(pattern,")"))) {
+//	pattern="("+pattern+")";
+//      }
       // strip leading and trailing spaces..
-      pattern="^ *"+pattern+" *$";
-      if (catch(match=Regexp(pattern)->split(rid->variables[v]))) {
-	  err=1; rid->variables["sformerror"]="Bad regular expression "+
-		   pattern; break; }
+// cd34, 2002-05-31, removed and added trim_whites to remove leading and 
+// trailing spaces in the pattern
+//      pattern="^ *"+pattern+" *$";
+      pattern = String.trim_whites(pattern);
+
+// cd34/grendel, 2002-05-31, replaced 3 lines with the following 10
+      mixed catcherror = catch {
+        match = 0;
+        if (Regexp(pattern)->match(rid->variables[v])) 
+          match = ({rid->variables[v]});
+      };
+      if (catcherror) {
+        err=1; 
+        rid->variables["sformerror"]="Bad regular expression "+pattern;
+        break;
+      }
+//      if (catch(match=Regexp(pattern)->split(rid->variables[v]))) {
+//	  err=1; rid->variables["sformerror"]="Bad regular expression "+
+//		   pattern; break; }
+// cd34/grendel, 2002-05-31, end of replace
+
       if (match) {
 //        werror(" ==> GOT IT <== " + match[0] + "\n");
 //	werror("mail " + rid->variables[mail] + "\n");
@@ -487,7 +566,7 @@ mixed first_try(object rid)
 	   break;
 	  }
 	 }
-	else rid->variables[v]=match[0];
+          else rid->variables[v]=match[0];
       }
       else { 
 	err=1;
@@ -532,6 +611,14 @@ int|string luhn_check(string number) {
   sum %= 10;
   
   if (sum) return ("Invalid card number (LUHN check failed)");
+  return 1;
+}
+int|string date_check(int year, int mon, int day) {
+array dim = ({ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 });
+  if ( Calendar.Gregorian.Year(year)->leap_year() )
+    dim[2] = 29;
+  if ( (day > dim[mon]) || (day < 0) ) 
+    return ("Invalid date");
   return 1;
 }
 
