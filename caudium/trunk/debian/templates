@@ -24,9 +24,8 @@ Type: string
 Default: 80
 Description: What port should the server listen on?
  Caudium is currently configured to listen on port
- '${portno}' of every interface in your machine. It seems,
- however, that this port is already taken by some other
- application. Please specify a different port.
+ '${portno}' of every interface in your machine. You can, however,
+ specify a different port here if there's such need.
 Description-sv: Vilken port ska servern lyssna på?
  Caudium är för tillfället konfigurerad för att lyssna på port
  '${portno}' på varje nätverksenhet i din dator. Det verkar
@@ -35,8 +34,8 @@ Description-sv: Vilken port ska servern lyssna på?
 Description-pl: Na którym porcie serwer ma nas³uchiwaæ?
  Caudium jest w tej chwili skonfigurowany by oczekiwaæ na
  po³±czenia na porcie '${portno}' ka¿dego interfejsu w twoim
- komputerze. Wydaje siê jednak, i¿ ów port jest ju¿ zajêty
- przez inny program. Podaj, proszê, inny numer portu.
+ komputerze. Mo¿esz jednak¿e podaæ inny numer portu poni¿ej, je¶li
+ istnieje taka potrzeba.
 Description-fr: Sur quel port le serveur doit-il écouter ?
  Caudium utilise actuellement le port '${portno}' sur toutes les
  interfaces de votre machine. Il semble que ce port soit déjà 
@@ -45,33 +44,54 @@ Description-fr: Sur quel port le serveur doit-il écouter ?
 Template: caudium/start_options
 Type: multiselect
 Choices: threads, debug, once, profile, fd-debug, keep-alive
+Defaukt: threads
 Description: Select options that should be used on startup
- 'threads' - use threads (if available); 
- 'debug' - output debugging information while running; 
- 'once' - run in foreground; 
- 'profile' - store profiling information; 
+ 'threads' - use threads (if available)
+ .
+ 'debug' - output debugging information while running
+ .
+ 'once' - run in foreground
+ .
+ 'profile' - store profiling information
+ .
  'fd-debug' - debug file descriptor usage
+ .
  'keep-alive' - keep connections alive with HTTP/1.1
 Description-sv: Välj de inställningar som ska användas från start
  "trådar" - Använd trådar (om möjligt)
+ .
  "avlusning" - Skriv ut avlusningsinformation under körning
+ .
  "förgrund" - Kör i förgrunden
+ .
  "profilering" - Spara profileringsinformation
+ .
  "fd-avlusning" - Avlusa användandet av filidentifierare
+ .
  "håll-vid-liv" - Håll anslutningar vid liv
 Description-pl: Wybierz opcje startowe serwera
  'threads' - u¿yj w±tków (je¶li s± osi±galne)
+ .
  'debug' - wy¶wietlaj dodatkowe informacje podczas pracy serwera
+ .
  'once' - uruchom serwer w jednej kopii
+ .
  'profile' - zapisz informacjê dot. profilowania serwera
+ .
  'fd-debug' - wy¶wietlaj dodatkowe informacje o deskryptorach plików
+ .
  'keep-alive' - stosuj opcjê 'keep alive' protoko³u HTTP/1.1
 Description-fr: Sélectionnez les options à utiliser lors du lancement
- 'threads' - utilise les threads (si disponible);
- 'debug' - informations de deboggage en sortie standard;
- 'once' - exécute en premier plan;
- 'profile' - affiche les informations de profilage;
- 'fd-debug' - deboggue les descripteurs de fichier;
+ 'threads' - utilise les threads (si disponible)
+ .
+ 'debug' - informations de deboggage en sortie standard
+ .
+ 'once' - exécute en premier plan
+ .
+ 'profile' - affiche les informations de profilage
+ .
+ 'fd-debug' - deboggue les descripteurs de fichier
+ .
  'keep-alive' - garde les connection ouvertes avec le protocole HTTP/1.1;
 
 Template: caudium/cfg_port_taken
@@ -101,7 +121,7 @@ Template: caudium/last_screen
 Type: note
 Description: Caudium configuration
  After your Caudium is installed and running, you should point your
- forms-capable browser to localhost:${cfgport} to further configure
+ forms-capable browser to http://localhost:${cfgport} to further configure
  Caudium using its web-based configuration interface. THIS IS VERY
  IMPORTANT since that step involves creation of administrative
  login/password.
@@ -111,7 +131,7 @@ Description: Caudium configuration
  http://caudium.net/ and http://caudium.org/
 Description-sv: Caudium-konfiguration
  När Caudium är installerat och är igång, bör du rikta din formulär-
- anpassade webbläsare till localhost:${cfgport} för vidare konfiguration
+ anpassade webbläsare till http://localhost:${cfgport} för vidare konfiguration
  av Caudium via dess webbaserade konfigurationsgränssnitt.
  .
  För mer information om Caudium, se dokumenten i katalogen
@@ -130,7 +150,7 @@ Description-pl: Konfiguracja Caudium
 Description-fr: Configuration de Caudium
  Après l'installation de Caudium et son lancement effectué, vous pourrez
  pointer votre navigateur web supportant les formulaires sur 
- localhost:${cfgport} pour affiner la configuration de Caudium en utilisant
+ http://localhost:${cfgport} pour affiner la configuration de Caudium en utilisant
  son interface de configuration web. Cette étape est VRAIMENT IMPORTANTE
  sachant que vous allez créer un utilisateur/mot de passe administrateur.
  Pour plus d'information sur Caudium, veuillez consulter les documents 

@@ -11,7 +11,7 @@ db_capb
 
 get_cfg_port() {
     local yesno;
-    local port="22203";
+    local port="22202";
     
     db_title 'Config Interface Port'
         
@@ -20,6 +20,7 @@ get_cfg_port() {
      db_go
      
      db_get caudium${EXTVER}/config_port || true
+     port=$RET
      if test -z "$RET"; then
       db_reset caudium${EXTVER}/config_port || true
       continue
@@ -31,7 +32,7 @@ get_cfg_port() {
 }
 
 get_iface() {
-    local port="81";
+    local port="80";
     local yesno;
     
     db_title 'Port number'
