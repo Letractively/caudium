@@ -720,6 +720,7 @@ if test -z "$LDSHARED" ; then
     NetBSD*) LDSHARED="ld -Bshareable";;
     OpenBSD*) LDSHARED="ld -Bshareable";;
     BSD/OS*) LDSHARED="shlicc -r";;
+    Darwin*) LDSHARED="$CC -bundle -undefined error -bundle_loader $PIKE";;
     UNIX_SV*) LDSHARED="ld -G";;
     SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
     UnixWare*)
@@ -746,13 +747,15 @@ AC_CACHE_VAL(caudium_cv_sys_ccshared,[
 if test -z "$CCSHARED" ; then
   if test "$GCC" = yes ; then
     case $caudium_cv_sys_os in
-      BSD/OS*) CCSHARED="";;
-      *) CCSHARED="-fpic";;
+	BSD/OS*) CCSHARED="";;
+	Darwin*) CCSHARED="-fPIC";;
+	*) CCSHARED="-fpic";;
     esac
   else
     case $caudium_cv_sys_os in
 	hp*|HP*) CCSHARED="+z"; ;;
 	FreeBSD*) CCSHARED="-fpic";;
+	Darwin*) CCSHARED="-fPIC";;
 	SCO_SV*) CCSHARED="-KPIC -dy -Bdynamic";;
 	UnixWare*) CCSHARED="-KPIC -dy -Bdynamic";;
 	Solaris*) CCSHARED="-KPIC -Bdynamic";;
