@@ -26,8 +26,8 @@
 
 #include <module.h>
 #include <confignode.h>
-inherit "describers";
-inherit "savers";
+inherit "config/describers";
+inherit "config/savers";
 
 import Array;
 
