@@ -365,7 +365,7 @@ class Page
 
         num =  m->num;
         name = m->name;
-        page = spider.parse_html(from, ([ ]), ([
+        page = Caudium.parse_html(from, ([ ]), ([
             "verify":internal_tag_verify,
             "ebutton":internal_tag_ebutton,
             "come-from":internal_tag_come_from,
@@ -391,7 +391,7 @@ class Page
             id->misc->_containers[ s ] = call_container_wrapper;
         }
 
-	string tmp = spider.parse_html(what,(["var":wizard_tag_var,]),
+	string tmp = Caudium.parse_html(what,(["var":wizard_tag_var,]),
                                      (["cvar":wizard_tag_var]),id);
         return parse_rxml(tmp,id);
     }  
@@ -527,11 +527,11 @@ class Store
 
             string tmp, tmp2;
             
-	    tmp2 = spider.parse_html_lines(contents, 
+	    tmp2 = Caudium.parse_html_lines(contents, 
                                     ([ "awizard_include":internal_tag_include]),
                                     ([ "comment":lambda(){ return ""; } ]),id);
 				    
-            tmp = spider.parse_html_lines(tmp2, 
+            tmp = Caudium.parse_html_lines(tmp2, 
                                     ([ ]),
                                     ([ "page":internal_tag_page,
                                        "header":internal_tag_header,

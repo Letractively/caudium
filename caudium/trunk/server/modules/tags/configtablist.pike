@@ -170,7 +170,7 @@ string tag_config_tablist(string t, mapping a, string contents)
   if(contents_cache[key])
     return contents_cache[key];
 #endif
-  string res=replace(spider.parse_html(contents, ([]), (["tab":tag_config_tab])),
+  string res=replace(Caudium.parse_html(contents, ([]), (["tab":tag_config_tab])),
 		 ({ "\n", "\r" }), ({ "", "" }));
 #if use_contents_cache  
   contents_cache[key]=res;

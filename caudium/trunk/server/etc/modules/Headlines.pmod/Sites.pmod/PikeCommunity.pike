@@ -28,7 +28,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
   {
   case "headline":
     hl = ([]);
-    spider.parse_html(contents, ([ ]), ([ "title": parse_it, "url": parse_it,
+    Caudium.parse_html(contents, ([ ]), ([ "title": parse_it, "url": parse_it,
 				   "name": parse_it, "added": parse_it,
 				   "body": parse_it ]),   hl);
     headlines += ({ hl });
@@ -54,7 +54,7 @@ private static void fetch_failed(object http)
 
 private static void parse_reply(string data)
 {
-  spider.parse_html(data, ([]), (["headline" : parse_it ]) );
+  Caudium.parse_html(data, ([]), (["headline" : parse_it ]) );
   headlines = reverse(headlines);
 }
 

@@ -321,7 +321,7 @@ string tag_lysator(string t, mapping m, string s, object id, object file)
 
   pre += "<br clear><hr noshade>";
 
-  return pre + spider.parse_html(s, 
+  return pre + Caudium.parse_html(s, 
 			  ([
 			    "endtable":lys_endtable,
 			    "fot":lys_fot,

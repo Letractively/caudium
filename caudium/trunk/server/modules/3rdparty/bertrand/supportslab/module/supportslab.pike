@@ -147,7 +147,7 @@ string container_supportslab_form(string tagname, mapping args, string contents,
 #if constant(parse_html)
   out += parse_html(contents, tags, containers, id);
 #else
-  out += spider.parse_html(contents, tags, containers, id);
+  out += Caudium.parse_html(contents, tags, containers, id);
 #endif
   out += "</form>";
 
