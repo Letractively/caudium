@@ -111,7 +111,11 @@ WITH_FREETYPE=	yes
 .endif
 
 .if defined(WITH_OPTIMIZED_CFLAGS)
+.if (${MACHINE} == "i386")
 CFLAGS+=	-O3 -ffast-math -fomit-frame-pointer
+.else
+CFLAGS+=	-ffast-math -fomit-frame-pointer
+.endif
 .endif
 
 .if defined(WITH_TTF)
