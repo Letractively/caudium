@@ -160,7 +160,7 @@
   <xsl:choose>
    <xsl:when test="@type='method'">
     /@@/<a href="{@path}#{@name}">
-     &lt;<xsl:value-of select="@name"/> /&gt;
+     <xsl:value-of select="@name"/>()
     </a>/%%/<a href="{../@path}">
      <xsl:choose>
      <xsl:when test="../@title"><xsl:value-of select="../@title"/></xsl:when>
