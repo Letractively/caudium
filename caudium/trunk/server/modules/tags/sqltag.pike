@@ -559,21 +559,3 @@ string status()
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Enable the log_error attribute
 //
-//! defvar: database
-//! Specifies the name of the default SQL-database.
-//!
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: Default SQL-database (deprecated)
-//
-//! defvar: user
-//! Specifies the default username to use for access.
-//!
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: Default username (deprecated)
-//
-//! defvar: password
-//! Specifies the default password to use for access.
-//!
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: Default password (deprecated)
-//
