@@ -1368,7 +1368,7 @@ static string make_content_type(object conf, mapping file)
   if (file->charset)
     charset = file->charset;
   else if (conf && objectp(conf)) {
-    if (conf->query("set_default_charset")
+    if (conf->query("set_default_charset"))
       charset = conf->query("content_charset");
   } else
     charset = content_charset;
