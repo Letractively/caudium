@@ -19,6 +19,25 @@
  *
  */
 
+/*
+   very simple virtual hosting module.
+   
+   create a directory structure like:
+   
+     hu/
+        wormhole/
+                 www/
+     com/
+         whatever/
+                  www/
+   
+   place files in directories as you please. set searchpath to the root of this
+   tree. sit back and relax.
+   
+   not too heavily tested, but works for me(tm).
+   
+   to bertrand, with love [*grin*].
+*/
 
 
 #include <module.h>
