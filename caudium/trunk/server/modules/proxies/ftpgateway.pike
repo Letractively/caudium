@@ -148,7 +148,7 @@ class Request {
   string last_read="";
   string buffer;
   string what_now;
-  array(string)links=({});
+  array(string) links=({});
 #ifdef SESSION_INFO
   string session="";
 #endif
