@@ -58,27 +58,30 @@ inherit "http";
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
 string gif_size(object gif)
 {
-  int x,y;
-  string d;
-  gif->seek(6);
-  d = gif->read(4);
-  x = (d[1]<<8) + d[0]; y = (d[3]<<8) + d[2];
-  return "width=\""+x+"\" height=\""+x+"\"";
+//  int x,y;
+//  string d;
+//  gif->seek(6);
+//  d = gif->read(4);
+//  x = (d[1]<<8) + d[0]; y = (d[3]<<8) + d[2];
+//  return "width=\""+x+"\" height=\""+x+"\"";
 
 // This need to be fixed and tested... Will try this later.  
-//  array size;
-//  mixed err;
-//
-//  err = catch{
-//  size = Image.Dims.get(gif);
-//  };
-//  if(err) return "";
-//  else {
-//    if(arrayp(size))
-//      return "width=\""+size[0]+"\" height=\""+size[1]+"\"";
-//    else
-//      return "";
-//  }
+  array size;
+  mixed err;
+  
+  perror("COMPAT: gif_size() called\n");
+
+  err = catch{
+  size = Image.Dims.get(gif);
+  };
+  if(err) return "";
+  else {
+    if(arrayp(size))
+      return "width=\""+size[0]+"\" height=\""+size[1]+"\"";
+    else
+      return "";
+  }
+  return "";
 }
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
