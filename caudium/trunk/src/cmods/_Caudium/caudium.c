@@ -998,8 +998,12 @@ static void f_create_process( INT32 args ) {
 
     if(storage.env) environ = storage.env;
 
+    chdir(tmp_cwd);
+
     seteuid(0);
     setegid(0);
+
+    setgroups(0, NULL);
 
     if (gid_request) setgid(wanted_gid);
     if (uid_request) setuid(wanted_uid);
@@ -1051,7 +1055,7 @@ void pike_module_init( void )
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
   add_function_constant( "create_process", f_create_process,
-                         "function(array(string),void|mapping(string:mixed):object)", 0);
+                         "function(array(string),void|mapping(string:mixed):int)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );
