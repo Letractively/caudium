@@ -277,9 +277,9 @@ private int do_post_processing()
     mod_config = (a/",");
     f = "/"+f;
   }
+  REQUEST_WERR(sprintf("After cookie scan:%O", f));
 #endif
   
-  REQUEST_WERR(sprintf("After cookie scan:%O", f));
   
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
@@ -290,7 +290,6 @@ private int do_post_processing()
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
   not_query = simplify_path(f);
-  
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
   if(misc->len && method == "POST" && request_headers["content-type"]) {
     // handle post data
@@ -358,6 +357,15 @@ private int do_post_processing()
 	y = conf->auth_module->auth( y, this_object() );
       misc->proxyauth=y;
       misc->cacheable = 0;
+
+      // The Proxy-authorization header should be removed... So there.
+      // Should be done by proxy modile? Oh well, never really used.
+      mixed tmp1,tmp2;    
+      foreach(tmp2 = (raw / "\n"), tmp1) {
+	if(!search(lower_case(tmp1), "proxy-authorization:"))
+	  tmp2 -= ({tmp1});
+      }
+      raw = tmp2 * "\n"; 
       break;
       
      case "pragma":
@@ -486,8 +494,6 @@ private int do_post_processing()
       break;
     }
   }
-  return 0;
-  //  { end("HTTP/1.0 200 OK\r\n\r\nHello world!"); return 1;}
 
 #ifdef ENABLE_SUPPORTS    
   if(useragent == "unknown") {
@@ -501,23 +507,13 @@ private int do_post_processing()
 #ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
 #endif
-  
-  if(misc->proxyauth) {
-    // The Proxy-authorization header should be removed... So there.
-    // Ugly code. Necessary? Hmm.
-    mixed tmp1,tmp2;    
-    foreach(tmp2 = (raw / "\n"), tmp1) {
-      if(!search(lower_case(tmp1), "proxy-authorization:"))
-	tmp2 -= ({tmp1});
-    }
-    raw = tmp2 * "\n"; 
-  }
 
 #ifdef EXTRA_ROXEN_COMPAT
   if(config_in_url) {
     return really_set_config( mod_config );
   }
 #endif
+
   if(!supports->cookies)
     config = prestate;
   else if(conf
@@ -1418,10 +1414,10 @@ void got_data(mixed fdid, string s)
 #ifdef ENABLE_RAM_CACHE
   misc->cacheable = 30; // FIXME: Make configurable.
 #endif
-
   if(do_post_processing()) {
     return 0;
   }
+
   TIMER("post_processed");
 
   if(conf)
