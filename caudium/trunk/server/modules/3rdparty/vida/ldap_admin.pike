@@ -563,7 +563,7 @@ void create()
 
 // Generic functions (used by add and modify)
 
-array(string) checkuid(array(string) errors, string argv)
+array checkuid(array errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_uid)) > 0 ? !Regexp(QUERY(regexp_uid))->match(argv): 0))
   {
@@ -573,7 +573,7 @@ array(string) checkuid(array(string) errors, string argv)
   return errors;
 }
 
-array(string) checkgecos(array(string) errors, string argv)
+array checkgecos(array errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_gecos)) > 0 ? !Regexp(QUERY(regexp_gecos))->match(argv): 0))
   {
@@ -583,7 +583,7 @@ array(string) checkgecos(array(string) errors, string argv)
   return errors;
 }
 
-array(string) checkpasswd(array(string) errors, string argv, string argv2)
+array checkpasswd(array errors, string argv, string argv2)
 {
   if(strlen(argv) == 0 || strlen(argv2) == 0)
   {
@@ -606,7 +606,7 @@ array(string) checkpasswd(array(string) errors, string argv, string argv2)
   return errors;
 }
 
-array(string) checkmail(array(string) errors, string argv)
+array checkmail(array errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_mail)) > 0 ? !Regexp(QUERY(regexp_mail))->match(argv): 0))
   {
