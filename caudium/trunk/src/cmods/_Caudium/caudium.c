@@ -696,6 +696,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
   void *userdata)
 {
   struct svalue *tmp;
+  char * tmp2;
 
   tmp = simple_mapping_string_lookup((struct mapping *)userdata, entname);
 
@@ -708,16 +709,50 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
    i=find_identifier("get", tmp->u.object->prog);
    if(!i)
       Pike_error("_Caudium.parse_entities(): no get() method present in scope.\n");
+
+   /* push the entity and call the get function from the scope object. */
    push_text(params);
    apply_low(tmp->u.object, i, 1);
-   
+   if(Pike_sp[-1].type==T_STRING)
+   {
+      tmp2 = malloc(Pike_sp[-1].u.string->len);
+
+      if(tmp2 == NULL)
+      {
+         pop_stack();
+         Pike_error("_Caudium.parse_entities(): unable to allocate space for returned entity.\n");
+        
+      }
+
+      memcpy(tmp2, Pike_sp[-1].u.string->str, 
+         (Pike_sp[-1].u.string->len));
+
+     res->buf = tmp2;
+     res->buflen = Pike_sp[-1].u.string->len;
+
+     pop_stack();
+
+   }
+   else if(Pike_sp[-1].type == T_INT && Pike_sp[-1].u.integer == 0)
+   {
+    printf("got zero from entity get\n");
+    res->buf = NULL;
+    res->buflen = 0;
+    pop_stack();
+   }
+   else
+   {
+     pop_stack();
+     Pike_error("_Caudium.parse_entities(): get() method returned non-string result\n");
+   }
   }
   else
   {
+    printf("scope %s not found.\n", entname);
     res->buf = NULL;
+    res->buflen = 0;
   }
 
-  printf("Got entity: %s\n", entname); 
 }
 
 static void f_parse_entities( INT32 args )
@@ -725,6 +760,7 @@ static void f_parse_entities( INT32 args )
   struct mapping *scopemap;
   struct pike_string *input;
   struct pike_string *result;
+
   ENT_RESULT *eres;
 
   get_all_args("_Caudium.parse_entities", args, "%S%m",
@@ -756,6 +792,8 @@ static void f_parse_entities( INT32 args )
     }
 
    /* we've gotten this far, so we were probably successful. */
+
+  pop_n_elems(args);
 
   result = make_shared_binary_string(eres->buf, eres->buflen);
 
