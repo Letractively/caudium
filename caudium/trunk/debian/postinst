@@ -141,7 +141,7 @@ fi
     # Some modules inherit other with relative paths
     #
     for d in ../../share/caudium/*; do
-	ln -sf ../../share/caudium/modules /usr/lib/caudium/
+	ln -sf ${d} /usr/lib/caudium/
     done
 
     # Now let's take care of permissions
