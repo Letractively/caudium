@@ -351,7 +351,7 @@ class Wrapper
 #else /* !CGI_DEBUG */
     function read_cb = lambda(){};
 #endif /* CGI_DEBUG */
-    catch { tofd->set_nonblocking( read_cb, write_callback, destroy ); };
+    catch { tofd->set_nonblocking( read_cb, 0, destroy ); };
   }
 
 
