@@ -5,6 +5,7 @@ caudium (2:1.2.31-6) unstable; urgency=medium
   * Documented the Location option in the LDAPauth module 
     (closes: Bug#221752)
   * Caudium now recommends logrotate instead of depending on it
+  * The admin password is asked for twice now (closes: Bug#214613)
 
  -- Marek Habersack <grendel@debian.org>  Thu, 20 Nov 2003 18:33:04 +0100
 

@@ -15,7 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-05-13 01:16+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-11-20 20:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,11 +24,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
 #: ../templates:4
 msgid "On what port should the config interface be?"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:4
 msgid ""
@@ -36,11 +39,13 @@ msgid ""
 "Mozilla, Lynx, Links or Galeon)"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:12
 msgid "What port should the server listen on?"
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:12
 msgid ""
@@ -49,16 +54,19 @@ msgid ""
 "there's such need."
 msgstr ""
 
+#. Type: multiselect
 #. Choices
 #: ../templates:19
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr ""
 
+#. Type: multiselect
 #. Description
 #: ../templates:21
 msgid "Select options that should be used on startup"
 msgstr ""
 
+#. Type: multiselect
 #. Description
 #: ../templates:21
 msgid ""
@@ -71,11 +79,13 @@ msgid ""
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
 msgstr ""
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 msgid ""
@@ -89,16 +99,19 @@ msgid ""
 " - URL modules"
 msgstr ""
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 
+#. Type: note
 #. Description
 #: ../templates:47
 msgid "Cannot bind to port."
 msgstr ""
 
+#. Type: note
 #. Description
 #: ../templates:47
 msgid ""
@@ -108,11 +121,13 @@ msgid ""
 "system."
 msgstr ""
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid "Caudium configuration"
 msgstr ""
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid ""
@@ -122,6 +137,7 @@ msgid ""
 "that step involves creation of administrative login/password."
 msgstr ""
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid ""
@@ -130,11 +146,13 @@ msgid ""
 "caudium.org/"
 msgstr ""
 
+#. Type: boolean
 #. Description
 #: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
 msgstr ""
 
+#. Type: boolean
 #. Description
 #: ../templates:69
 msgid ""
@@ -144,11 +162,13 @@ msgid ""
 "server. If, however, you want to test its functionality, turn this option on."
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:79
 msgid "Configuration interface login."
 msgstr ""
 
+#. Type: string
 #. Description
 #: ../templates:79
 msgid ""
@@ -159,15 +179,66 @@ msgid ""
 "the default value."
 msgstr ""
 
+#. Type: password
 #. Description
 #: ../templates:89
 msgid "Configuration interface password"
 msgstr ""
 
+#. Type: password
 #. Description
 #: ../templates:89
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
 "below!"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid "Confirm the configuration interface password"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid "Configuration interface password mismatch"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "Configuration interface password reset"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "http://localhost:${cfgport}"
 msgstr ""

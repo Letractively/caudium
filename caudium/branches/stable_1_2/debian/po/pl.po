@@ -15,7 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 2:1.2.27\n"
-"POT-Creation-Date: 2003-05-13 01:16+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-11-20 20:24+0100\n"
 "PO-Revision-Date: 2003-06-16 12:29+0200\n"
 "Last-Translator: Marek Habersack <grendel@debian.org>\n"
 "Language-Team: grendel@caudium.net\n"
@@ -23,11 +24,13 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Type: string
 #. Description
 #: ../templates:4
 msgid "On what port should the config interface be?"
 msgstr "Numer portu interfejsu konfiguracyjnego?"
 
+#. Type: string
 #. Description
 #: ../templates:4
 msgid ""
@@ -39,11 +42,13 @@ msgstr ""
 "Interfejs jest osi±galny przez wpisanie adresu w dowolnej przegl±darce WWW, "
 "która obs³uguje formularze (np. Mozilla, Lynx, Links czy Galeon)"
 
+#. Type: string
 #. Description
 #: ../templates:12
 msgid "What port should the server listen on?"
 msgstr "Na którym porcie serwer ma nas³uchiwaæ?"
 
+#. Type: string
 #. Description
 #: ../templates:12
 #, fuzzy
@@ -56,16 +61,19 @@ msgstr ""
 "porcie '${portno}' ka¿dego interfejsu w twoim komputerze. Mo¿esz jednak¿e "
 "podaæ inny numer portu poni¿ej, je¶li istnieje taka potrzeba."
 
+#. Type: multiselect
 #. Choices
 #: ../templates:19
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "threads, debug, once, profile, fd-debug, keep-alive"
 
+#. Type: multiselect
 #. Description
 #: ../templates:21
 msgid "Select options that should be used on startup"
 msgstr "Wybierz opcje startowe serwera"
 
+#. Type: multiselect
 #. Description
 #: ../templates:21
 msgid ""
@@ -85,11 +93,13 @@ msgstr ""
 " 'fd-debug' - ¶led¼ u¿ytkowanie deskryptorów plików\\n\n"
 " 'keep-alive' - podtrzymuj po³±czenie gdy u¿ywany jest protokAó³ HTTP v1.1"
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
 msgstr "Zmodyfikuj ustawienia Caudium pod k±tem najwy¿szej wydajno¶ci"
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 #, fuzzy
@@ -112,17 +122,20 @@ msgstr ""
 " - zapytania DNS\\n\n"
 " - modu³y typu URL"
 
+#. Type: boolean
 #. Description
 #: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 "Je¶li u¿ywasz którejolwiek z powy¿szych w³a¶ciwosci, NIE W£¡CZAJ tej opcji!"
 
+#. Type: note
 #. Description
 #: ../templates:47
 msgid "Cannot bind to port."
 msgstr "Nie mo¿na otworzyæ portu"
 
+#. Type: note
 #. Description
 #: ../templates:47
 msgid ""
@@ -135,11 +148,13 @@ msgstr ""
 "inny numer portu - Caudium nie mo¿e funkcjonowaæ prawid³owo bez pod³±czenia "
 "interfejsu konfiguracyjnego do portu w twoim systemie."
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid "Caudium configuration"
 msgstr "Konfiguracja Caudium"
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid ""
@@ -154,6 +169,7 @@ msgstr ""
 "TO NIEZMIERNIE WA¯NE gdy¿ ten krok zawiera tworzenie konta/has³a "
 "administracyjnego."
 
+#. Type: note
 #. Description
 #: ../templates:55
 msgid ""
@@ -165,11 +181,13 @@ msgstr ""
 "katalogu /usr/share/doc/caudium i odwiedziæ strony http://caudium.net/ oraz "
 "http://caudium.org/"
 
+#. Type: boolean
 #. Description
 #: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
 msgstr "Czy u¿ywaæ experymentalnego modu³u HTTP?"
 
+#. Type: boolean
 #. Description
 #: ../templates:69
 #, fuzzy
@@ -185,11 +203,13 @@ msgstr ""
 "u¿ywania tego modu³u na \"¿ywym\" serwerze. Je¶li, jednak¿e, chcesz "
 "przetestowac ten modu³ odpowiedz TAK na powy¿sze pytanie."
 
+#. Type: string
 #. Description
 #: ../templates:79
 msgid "Configuration interface login."
 msgstr "Login do interfejsu konfiguracyjnego."
 
+#. Type: string
 #. Description
 #: ../templates:79
 msgid ""
@@ -206,11 +226,13 @@ msgstr ""
 "Prawdopodobnie nie jest to twoim zamiarem. Proszê podaæ login w polu "
 "poni¿ej, lub zaakceptowaæ domy¶ln± warto¶æ."
 
+#. Type: password
 #. Description
 #: ../templates:89
 msgid "Configuration interface password"
 msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
 
+#. Type: password
 #. Description
 #: ../templates:89
 msgid ""
@@ -220,3 +242,55 @@ msgid ""
 msgstr ""
 "Has³o dostêpu do interfejsu konfiguracyjnego. Domy¶ln± warto¶ci± has³a jest "
 "'password' - ZALECA siê zmianê domy¶lnej warto¶ci!"
+
+#. Type: password
+#. Description
+#: ../templates:97
+#, fuzzy
+msgid "Confirm the configuration interface password"
+msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:103
+#, fuzzy
+msgid "Configuration interface password mismatch"
+msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+#, fuzzy
+msgid "Configuration interface password reset"
+msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "http://localhost:${cfgport}"
+msgstr ""
