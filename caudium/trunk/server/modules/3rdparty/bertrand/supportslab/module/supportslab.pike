@@ -20,7 +20,11 @@
  * $Id$
  */
 
-/*
+/* Module allowing interactive tests of user-agent strings against the
+ * supports database for finding bugs in it.
+ * 
+ * Tests against supports of well-known user agents are planned too.
+ *
  * Authors:
  *  Bertrand LUPART <bertrand@caudium.net>
  */
@@ -35,6 +39,8 @@ constant module_name = "Supports lab";
 constant cvs_version = "$Id$";
 constant module_doc  = "Interactive tests of the supports database.\n <br>"
   "Add this module in a virtual server and the put the example file in it.";
+
+// TODO: add_constant make_[tag|container]() -> Caudium.make_[tag|container]()
 
 //! method: mapping query_container_callers()
 //!  Public containers handled by this module
@@ -124,8 +130,6 @@ void override_supports(string useragent, object id)
 //!  supportslab_supports
 string container_supportslab_form(string tagname, mapping args, string contents, object id, mapping defines)
 {
-  string out = "";
- 
   // if a user_agent is specified, override the supports with this
   if(id->variables->user_agent && id->variables->user_agent!="")
     override_supports(id->variables->user_agent, id);
@@ -142,16 +146,16 @@ string container_supportslab_form(string tagname, mapping args, string contents,
       "supportslab_supports"  : container_supportslab_supports,
     ]);
 
-  out += "<form name=\"supportslab_form\" method=\"get\" ";
-  out == "action=\""+id->raw_url+"\">";
 #if constant(parse_html)
-  out += parse_html(contents, tags, containers, id);
+  contents = parse_html(contents, tags, containers, id);
 #else
-  out += Caudium.parse_html(contents, tags, containers, id);
+  contents = spider.parse_html(contents, tags, containers, id);
 #endif
-  out += "</form>";
-
-  return out;
+  
+  args->name   = "supportslab_form";
+  args->method = "get";
+  args->action = id->raw_url;
+  return make_container("form", args, contents);
 }
 
 //! tag: supportslab_useragent
@@ -159,18 +163,16 @@ string container_supportslab_form(string tagname, mapping args, string contents,
 //! parentcontainer: supportslab_form
 string tag_supportslab_useragent(string tagname, mapping args, object id, mapping defines)
 {
-  string out = "";
-
-  out = "<input type=\"text\" size=\"80\" name=\"user_agent\" ";
+  args->type = "text";
+  args->name = "user_agent";
+  args->size = args->size ? args->size : "80";
 
   if(id->variables->user_agent && id->variables->user_agent!="")
-    out += "value=\""+id->variables->user_agent+"\"";
+    args->value = id->variables->user_agent;
   else
-    out += "value=\""+id->request_headers["user-agent"]+"\"";
-
-  out += ">";
+    args->value = id->request_headers["user-agent"];
   
-  return out;
+  return make_tag("input", args);
 }
 
 //! tag: supportslab_submit
@@ -178,7 +180,8 @@ string tag_supportslab_useragent(string tagname, mapping args, object id, mappin
 //! parentcontainer: supportslab_form
 string tag_supportslab_submit(string tagname, mapping args, object id, mapping defines)
 {
-  return "<input type=\"submit\">";
+  args->type = "submit";
+  return make_tag("input", args);
 }
 
 //! container: supportslab_test
@@ -191,7 +194,7 @@ string tag_supportslab_submit(string tagname, mapping args, object id, mapping d
 string container_supportslab_tests(string tagname, mapping args, string contents, object id, mapping defines)
 {
   string out = "";
-  
+
   foreach(graphical_tests, array test)
   {
     mapping entities = ([
@@ -217,7 +220,7 @@ string container_supportslab_tests(string tagname, mapping args, string contents
 string container_supportslab_supports(string tagname, mapping args, string contents, object id, mapping defines)
 {
   string out = "";
-  
+
   foreach(sort((array)id->supports), string support)
   {
     // TODO: add sentence and link as well when all data test are better stored
