@@ -128,7 +128,7 @@ string http_res_to_string( mapping file, object id )
 **! arg: string data
 **!   The data to return.
 **! returns:
-**!   The HTTP respone mapping.
+**!   The HTTP response mapping.
 **! name: http_low_answer - return a response mapping with the specified info
 */
 mapping http_low_answer( int errno, string data )
@@ -153,7 +153,7 @@ mapping http_low_answer( int errno, string data )
 **!   and such will be handled by the module. If this is used and you 
 **!   fail to close connections correctly, FD leaking will be the result. 
 **! returns:
-**!   The HTTP respone mapping.
+**!   The HTTP response mapping.
 **! name: http_pipe_in_progress - return a response mapping 
 */
 mapping http_pipe_in_progress()
@@ -210,7 +210,7 @@ mapping http_rxml_answer( string rxml, object id,
 **! arg: string|void
 **!   The optional content type to override the default text/html.
 **! returns:
-**!   The HTTP respone mapping.
+**!   The HTTP response mapping.
 **! name: http_string_answer - return a response mapping as specified
 */
 mapping http_string_answer(string text, string|void type)
@@ -233,7 +233,7 @@ mapping http_string_answer(string text, string|void type)
 **!   The number of bytes of data to read from the object. The default is to
 **!   read until EOF
 **! returns:
-**!   The HTTP respone mapping.
+**!   The HTTP response mapping.
 **! name: http_file_answer - return a response mapping as specified
 */
 mapping http_file_answer(object fd, string|void type, void|int len)
@@ -280,11 +280,6 @@ string cern_http_date(int t)
 		 s[11..18], c ,tzh);
 #endif /* 1 */
 }
-
-/* Returns a http_date, as specified by the HTTP-protocol standard. 
- * This is used for logging as well as the Last-Modified and Time
- * heads in the reply.  */
-
 
 /*
 **! method: string http_date(int t)
@@ -373,6 +368,7 @@ string http_encode_url (string f)
 **! arg: string from
 **!   The cookie value to encode and put in the cookie.
 **! name: http_caudium_config_cookie - make a config cookie
+**! scope: private
 **! returns:
 **!   The cookie value.
 */
@@ -389,6 +385,7 @@ function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
 **!   Make a unique user id cookie. This is an internal function which is used
 **!   to set a cookie for all visitors
 **! name: http_caudium_id_cookie - make a unique user cookie
+**! scope: private
 **! returns:
 **!   The cookie value.
 */
@@ -400,6 +397,19 @@ string http_caudium_id_cookie()
 }
 function(string:string) http_roxen_id_cookie = http_caudium_id_cookie;
 
+/*
+**! method: static string add_pre_state()
+**!   Prepend the URL with the prestate specified. The URL is a path
+**!   beginning with /.
+**! name: add_pre_state - add a prestate to an url
+**! arg: string url
+**!   The URL.
+**! arg: multiset state
+**!   The multiset with prestates.
+**! scope: private
+**! returns:
+**!   The new URL
+*/
 static string add_pre_state( string url, multiset state )
 {
   if(!url)
@@ -411,7 +421,23 @@ static string add_pre_state( string url, multiset state )
   return "/(" + sort(indices(state)) * "," + ")" + url ;
 }
 
-/* Simply returns a http-redirect message to the specified URL.  */
+/*
+**! method: mapping http_string_answer( string text, string|void type )
+**!   Return a response mapping which defines a redirect to the
+**!   specified URL. If the URL begins with / and the ID object is present,
+**!   a host name (and the prestates) will be prefixed to the URL. If the
+**!   url doesn't begin with /, it won't be modified. This means that you
+**!   either need a complete URL (ie http://www.somewhere.com/a/path) or an
+**!   absolute url /a/path. Relative URLs won't work (ie path/index2.html).
+**! arg: string url
+**!   The URL to redirect to.
+**! arg: object|void
+**!   The request id object.
+**! returns:
+**!   The HTTP response mapping for the redirect
+**! name: http_redirect - return a response mapping for a redirect
+*/
+
 mapping http_redirect( string url, object|void id )
 {
   if(url[0] == '/')
@@ -444,12 +470,42 @@ mapping http_redirect( string url, object|void id )
     + ([ "extra_heads":([ "Location":http_encode_string( url ) ]) ]);
 }
 
+/*
+**! method: mapping http_stream(object file)
+**!   Returns a response mapping that tells Caudium that this request
+**!   is to be streamed as-is from the specified fd-object (until there is
+**!   nothing more to read). This differs from http_pipe_in_progress in that
+**!   this function makes Roxen read the data from the specified object and will
+**!   close the connection when it's done. With http_pipe_in_progress you are
+**!   responsible for writing the content to the client and closing the
+**!   connection. Please note that a http_stream reply also inhibits the
+**!   sending of normal HTTP headers.
+**! arg: object from
+**!   The object Roxen should read data from. This can be any object that
+**!   implements the correct functions - read() is _probably_ enough.
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_stream - return a response mapping from the input data
+*/
 mapping http_stream(object from)
 {
   return ([ "raw":1, "file":from, "len":-1, ]);
 }
 
-
+/*
+**! method: http_auth_required(string realm, string|void message)
+**!   Returns a http authentication response mapping which will make the
+**!   browser request the user for authentication information. The optional
+**!   message will be used as the body of the page. 
+**! arg: string realm
+**!   The realm of this authentication. This is show in various methods by the
+**!   authenticating browser.
+**! arg: string|void message
+**!   An option message which defaults to a simple "Authentication failed.".
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_auth_required - return a response mapping from the input data
+*/
 mapping http_auth_required(string realm, string|void message)
 {
   if(!message)
@@ -462,6 +518,7 @@ mapping http_auth_required(string realm, string|void message)
 }
 
 #ifdef API_COMPAT
+/* Not documented since it's an out-of-date API function */
 mapping http_auth_failed(string realm)
 {
 #ifdef HTTP_DEBUG
@@ -475,6 +532,21 @@ function http_auth_failed = http_auth_required;
 #endif
 
 
+/*
+**! method: http_proxy_auth_required(string realm, string|void message)
+**!   Returns a http proxy authentication response mapping which will make the
+**!   browser request the user for authentication information for use with
+**!   a proxy. This is different than the normal auth in that it's ment for
+**!   proxies only. The optional message will be used as the body of the page. 
+**! arg: string realm
+**!   The realm of this authentication. This is show in various methods by the
+**!   authenticating browser.
+**! arg: string|void message
+**!   An option message which defaults to a simple "Authentication failed.".
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_proxy_auth_required - return a response mapping from the input data
+*/
 mapping http_proxy_auth_required(string realm, void|string message)
 {
 #ifdef HTTP_DEBUG
