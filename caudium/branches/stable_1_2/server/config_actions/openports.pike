@@ -33,11 +33,6 @@ constant doc = ("Show all open ports on "+gethostname()+".");
 mixed page_1(object id)
 {
   string res = "";
-  // lsof does not display all informations if not launched as root
-  if(geteuid() != 0)
-     res = "<p><font color=red>Caudium must run as root for this program to work.</font><br />" +
-     "This is currently not the case. You may continue but it should not work</p>\n";
-
   array(string) path = (getenv("PATH")||"/sbin:/bin:/usr/sbin:/usr/bin")/":";
 
   array(string) lsofs =
@@ -56,6 +51,14 @@ mixed page_1(object id)
 		 "<var type=select name=lsof default='%s'\n"
 		 "choices='%s'><p>\n", id->variables->lsof || lsofs[0],
 		 lsofs * ","));
+  // lsof does not display all informations if not launched as root
+    if(geteuid() != 0)
+         res += ("<p><font color=red>Caudium must run as root for this program "
+	         "to work if you have enabled HASSECURITY compile time option "
+		 "in lsof. This option is the default option for Debian "
+		 "GNU/Linux and other Unix flavor </font><br />"
+	         "Caudium currently does not run as root. You can continue but "
+		 "it may not work</p>\n");
   return res;
 }
 

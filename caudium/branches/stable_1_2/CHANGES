@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
+- Updated the error message that occured when the user want to list the open 
+  ports in the CIF and Caudium does not run as root.
 - Changed the regexp in superform.pike for email, it is now more realistic
   than the previous one.
 - Fixed in XSLTtag the problem with retrieving templates from the virtual
