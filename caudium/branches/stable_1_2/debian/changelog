@@ -2,7 +2,7 @@ caudium (2:1.2.31-7) unstable; urgency=low
 
   * The latest upstream update.
   * Updated the French language debconf translation submitted by
-    Philippe Batailler, thanks.
+    Philippe Batailler, thanks (closes: Bug#227227).
 
  -- Marek Habersack <grendel@debian.org>  Tue, 13 Jan 2004 00:36:33 +0100
 
