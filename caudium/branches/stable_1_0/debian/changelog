@@ -1,3 +1,13 @@
+caudium (2:1.0.51-1) unstable; urgency=high
+
+  * Fixed SF bug 530674: passive mode FTP connection problem (with Mozilla
+    and derivative browsers).
+  * <if exists="file"> shouldn't use the cache. Thanks to Endre Hirling.
+  * Fixed SF bug 542177 that makes incorrect listings from directories2.pike.
+  * Fixed SF bug 530674
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 16 May 2002 04:09:10 +0200
+
 caudium (2:1.0.40-2) unstable; urgency=low
 
   * Split the debconf template files into one file per language.
