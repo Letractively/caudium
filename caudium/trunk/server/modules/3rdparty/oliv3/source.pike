@@ -118,7 +118,7 @@ string my_make_attributes (mapping m, int highlight) {
       ret += LT "/font" GT;
     }
     else
-      ret += " \"" + attr + "\"";
+      ret += " " + attr;
 
     ret += "=";
 
