@@ -4031,6 +4031,7 @@ void create(string config)
          "</pre></blockquote>",
          ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
 
+  /* CONFIGS LOADER IS HERE!! AND I CURSE WHOMEVER CREATED THAT MESS! /grendel :P */
   setvars(retrieve("spider#0", this));
 
 }
