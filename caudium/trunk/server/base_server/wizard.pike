@@ -998,15 +998,21 @@ string html_table(array(string) subtitles, array(array(string)) table,
   string type = "text";
   if(arrayp(opt->fields) && j < sizeof(opt->fields))
     type = opt->fields[j];
+  string delimiter="&nbsp;";
   switch(type) {
+  case "cnum":
+    delimiter=",";
   case "num":
     array a = s/".";
     r += "<td nowrap align=\"right\">";
     if(sizeof(a) > 1) {
-      r += (format_numeric(a[0])+"."+
-      reverse(format_numeric(reverse(a[1]), ";psbn&")));
+      r += (format_numeric(a[0],delimiter)+"."+
+      reverse(format_numeric(reverse(a[1]), reverse(delimiter))));
     } else
-      r += format_numeric(s, "&nbsp;");
+      r += format_numeric(s, delimiter);
+    break;
+  case "rtext":
+    r += "<td align=\"right\" nowrap>"+s;
     break;
   case "text":
   default:
