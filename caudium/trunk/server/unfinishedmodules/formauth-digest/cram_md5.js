@@ -28,26 +28,24 @@
 
 function cram_md5(secret, challenge)
 {
-	var my_secret = secret;
-	var len = my_secret.length;
-	var ipad = opad = "";
-	var ipad_x = opad_x = "";
+	var len = secret.length;
+	var ipad = opad = ipad_x = opad_x = "";
 	var i;
 
 	if( len > 64 )
 	{
-		my_secret = md5( my_secret );
+		secret = md5( secret );
 		len = 16;
 	}
 
-	ipad = my_secret;
-	opad = my_secret;
+	ipad = secret;
 
 	for(i=len; i<64; i++)
 	{
 		ipad += String.fromCharCode(0);
-		opad += String.fromCharCode(0);
 	}
+
+	opad = ipad;
 
 	for(i=0; i<64; i++)
 	{
