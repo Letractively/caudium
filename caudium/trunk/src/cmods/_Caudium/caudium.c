@@ -1259,12 +1259,21 @@ static void f_cern_http_date(INT32 args)
   diff = -(timezone) / 60L;
 #else
   {
-    struct tm gmt;
+    struct tm *gmt;
     struct tm *t;
     int days, hours, minutes;
 
-    /* FIXME: use if possible gmtime_r if exist !!! */
-    gmt = *gmtime(&now);
+#ifdef HAVE_GMTIME_R
+#ifdef HAVE_ALLOCA
+    gmt = (struct tm *)alloca(sizeof(struct tm));
+#else /* HAVE_ALLOCA */
+    gmt = (struct tm *)malloc(sizeof(struct tm));
+#endif /* HAVE_ALLOCA */
+    gmt = gmtime_r(&now, gmt);
+#else /* HAVE_GMTIME_R */
+    gmt = gmtime(&now);
+#endif /* HAVE_GMTIME_R */
+
 #ifdef HAVE_LOCALTIME_R
 #ifdef HAVE_ALLOCA
     t = (struct tm *)alloca(sizeof(struct tm));
@@ -1275,16 +1284,19 @@ static void f_cern_http_date(INT32 args)
 #else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */
-    days = t->tm_yday - gmt.tm_yday;
+    days = t->tm_yday - gmt->tm_yday;
     hours = ((days < -1 ? 24 : 1 < days ? -24 : days * 24)
-             + t->tm_hour - gmt.tm_hour);
-    minutes = hours * 60 + t->tm_min - gmt.tm_min;
+             + t->tm_hour - gmt->tm_hour);
+    minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
-#ifdef HAVE_LOCALTIME_R
 #ifndef HAVE_ALLOCA
+#ifdef HAVE_LOCALTIME_R
     free(t);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
+#ifdef HAVE_GMTIME_R
+    free(gmt);
+#endif /* HAVE_GMTIME_R */
+#endif /* HAVE_ALLOCA */
   }
 #endif
   if (diff > 0L) {
@@ -1404,12 +1416,21 @@ static void f_http_date(INT32 args)
   diff = -(timezone) / 60L;
 #else
   {
-    struct tm gmt;
+    struct tm *gmt;
     struct tm *t;
     int days, hours, minutes;
 
-    /* FIXME: use if possible gmtime_r if exist !!! */
-    gmt = *gmtime(&now);
+#ifdef HAVE_GMTIME_R
+#ifdef HAVE_ALLOCA
+    gmt = (struct tm *)alloca(sizeof(struct tm));
+#else /* HAVE_ALLOCA */
+    gmt = (struct tm *)malloc(sizeof(struct tm));
+#endif /* HAVE_ALLOCA */
+    gmt = gmtime_r(&now, gmt);
+#else /* HAVE_GMTIME_R */
+    gmt = gmtime(&now);
+#endif /* HAVE_GMTIME_R */
+
 #ifdef HAVE_LOCALTIME_R
 #ifdef HAVE_ALLOCA
     t = (struct tm *)alloca(sizeof(struct tm));
@@ -1420,16 +1441,19 @@ static void f_http_date(INT32 args)
 #else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */
-    days = t->tm_yday - gmt.tm_yday;
+    days = t->tm_yday - gmt->tm_yday;
     hours = ((days < -1 ? 24 : 1 < days ? -24 : days * 24)
-             + t->tm_hour - gmt.tm_hour);
-    minutes = hours * 60 + t->tm_min - gmt.tm_min;
+             + t->tm_hour - gmt->tm_hour);
+    minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
-#ifdef HAVE_LOCALTIME_R
 #ifndef HAVE_ALLOCA
+#ifdef HAVE_LOCALTIME_R
     free(t);
-#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
+#ifdef HAVE_GMTIME_R
+    free(gmt);
+#endif /* HAVE_GMTIME_R */
+#endif /* HAVE_ALLOCA */
 
   }
 #endif

@@ -6,7 +6,7 @@ in C modules, especialy _Caudium module.
  Summary :
 
   localtime() -> localtime_r() : WIP
-  gmtime()    -> gmtime_r()    : TODO
+  gmtime()    -> gmtime_r()    : WIP
 
 
 --- TODO (more long term projects..)
