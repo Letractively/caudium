@@ -299,6 +299,7 @@ mapping restart()
 
 //! Shut down the Caudium cache subsystem.
 void shut_down_cache() {
+  call_out(cache_shutdown_failled, 30);
 #ifdef CACHE_DEBUG
   roxen_perror( "Calling shutdown on all caches: " );
 #endif
@@ -306,6 +307,13 @@ void shut_down_cache() {
 #ifdef CACHE_DEBUG
   roxen_perror( "done." );
 #endif
+}
+
+void cache_shutdown_failled() {
+  write("***WARNING***\n\n");
+  write("Caudium was able to cleanly shutdown the cache.\n");
+  write("You may have to manually clean %s.\n", QUERY(cache_fs_path));
+  exit(1);
 }
 
 //! Shut the server down

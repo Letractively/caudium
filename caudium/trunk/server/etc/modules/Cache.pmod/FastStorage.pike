@@ -23,12 +23,14 @@
 
 constant cvs_version = "$Id$";
 
-#ifdef THREADS
+#ifdef ENABLE_THREADS
   static Thread.Mutex mutex = Thread.Mutex();
-#define LOCK() object __key = mutex->lock()
+#define LOCK() __key = mutex->lock()
+#define PRELOCK() object __key
 #define UNLOCK() destruct(__key)
 #else
 #define LOCK() 
+#define PRELOCK()
 #define UNLOCK()
 #endif
 
@@ -50,6 +52,7 @@ int _hits, _misses;
 //! Optional copy of the slow storage object, for moving non-expired objects
 //! to slow storage when shutting down, or when freeing ram.
 void create( string _namespace, void|object _disk_cache ) {
+  PRELOCK();
   LOCK();
   namespace = _namespace;
   thecache = ([ ]);
@@ -67,6 +70,7 @@ void create( string _namespace, void|object _disk_cache ) {
 //! @param meta
 //! The mapping created by one of the functions in cachelib
 void store( mapping meta ) {
+  PRELOCK();
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
@@ -115,6 +119,7 @@ void store( mapping meta ) {
 //! or just the object itself.
 void|mixed retrieve( string name, void|int object_only ) {
   string hash = get_hash( name );
+  PRELOCK();
   LOCK();
   if ( thecache[ hash ] ) {
     thecache[ hash ]->hits++;
@@ -145,6 +150,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 //! @param hash
 //! The hash that is used to uniquely identify the object.
 private mixed get_stdio( string hash ) {
+  PRELOCK();
   LOCK();
   mapping tmp = thecache[ hash ] + ([ ]);
   string data = tmp->object;
@@ -162,6 +168,7 @@ private mixed get_stdio( string hash ) {
 //! The name of the object.
 void refresh( string name ) {
   string hash = get_hash( name );
+  PRELOCK();
   LOCK();
   if (thecache[ hash ]) {
     ram_usage -= thecache[ hash ]->size;
@@ -175,6 +182,7 @@ void refresh( string name ) {
 //! Optional regular expression used to selectively delete objects from
 //! the cache.
 void flush( void|string regexp ) {
+  PRELOCK();
   LOCK();
   if ( regexp ) {
     // Just flush some of the cache.
@@ -206,11 +214,7 @@ int usage() {
 //! slow storage. If we dont have it then there's not much we can do.
 //! Just delete it all.
 void stop() {
-	// use the standard stuff to move everything to disk_cache
-	// cycle through all the data in the ram cache and call
-	// disk_cache->store() on it.
-	// how do we make destroy() wait until all that's done to make sure
-	// the data is written before the object is destroyed?
+  PRELOCK();
   LOCK();
   if ( objectp( disk_cache ) ) {
 #ifdef CACHE_DEBUG
@@ -250,6 +254,7 @@ void free( int n ) {
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE: Calling expire_cache()....\n" );
 #endif
+  PRELOCK();
   LOCK();
   int _usage = ram_usage;
   UNLOCK();
@@ -321,6 +326,7 @@ void expire_cache( void|int nocallout ) {
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE::expire_cache() called.\n" );
 #endif
+  PRELOCK();
   LOCK();
   foreach( indices( thecache ), string hash ) {
     if ( thecache[ hash ]->expires == -1 ) {
@@ -341,18 +347,21 @@ void expire_cache( void|int nocallout ) {
 
 //! Return the total number of hits against this cache.
 int hits() {
+  PRELOCK();
   LOCK();
   return _hits;
 }
 
 //! Return the total number of misses against this cache.
 int misses() {
+  PRELOCK();
   LOCK();
   return _misses;
 }
 
 //! Return the total number of objects in this cache.
 int object_count() {
+  PRELOCK();
   LOCK();
   return sizeof( thecache );
 }
