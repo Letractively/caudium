@@ -5,6 +5,7 @@ Changes in Caudium 1.0.XX
   mode, long connections (ie large downloads) would be timed out
   incorrectly.
 - Fixed a couple of problem related to ssl3.
+- Fixed <if variable> to work with scopes.
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------

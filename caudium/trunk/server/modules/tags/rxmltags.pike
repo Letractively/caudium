@@ -2205,7 +2205,18 @@ string tag_allow(string a, mapping (string:string) m,
     }
   }
 
-  IS_TEST(variable, id->variables);
+  if(m->variable)
+  {							
+    string a, b;					
+    if(sscanf(m->variable, "%s is %s", a, b) == 2) {
+      if(a = get_scope_var(a, 0, id)) {
+	TEST(_match(a, b/","));
+      }
+    } else {
+      TEST(get_scope_var(m->variable, 0, id));
+    }
+  }
+
   if(m->cookie) NOCACHE();
   IS_TEST(cookie, id->cookies);
   IS_TEST(defined, defines);

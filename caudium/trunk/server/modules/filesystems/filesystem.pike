@@ -594,7 +594,7 @@ mixed find_file( string f, object id )
 
     mkdirhier( f );
 
-    object to = open(f, "arw");
+    to = open(f, "arw");
     
     privs = 0;
 
