@@ -108,6 +108,9 @@ int use_syslog, loggingfield;
 #ifdef FD_DEBUG
 mapping fd_marker = ([]);
 #endif
+
+//! @appears mark_fd
+//!  Marks a fd for debug (will be really marked if FD_DEBUG define is set)
 mixed mark_fd(int fd, mixed|void marker) {
 #ifdef FD_DEBUG
   if(marker) fd_marker[fd] = marker;
@@ -1002,6 +1005,7 @@ void load_caudium()
 }
 
 #ifdef FD_DEBUG
+
 //! Code to trace fd usage.
 class mf
 {
@@ -1043,7 +1047,8 @@ class mf
 constant mf = Stdio.File;
 #endif
 
-//! open() constant.
+//! @appears open
+//! Open Wrapper
 object|void open(string filename, string mode, int|void perm)
 {
   object o;
@@ -1078,26 +1083,12 @@ string make_path(string ... from)
                          }, getcwd())*":";
 }
 
-#if !constant(String.common_prefix)
-string common_prefix(array(string) strs)
-{
-  if(!sizeof(strs))
-    return "";
-
-  string strs0 = strs[0];
-  int n, i;
-  
-  catch
-  {
-    for(n = 0; n < sizeof(strs0); n++)
-      for(i = 1; i < sizeof(strs); i++)
-        if(strs[i][n] != strs0[n])
-          return strs0[0..n-1];
-  };
-
-  return strs0[0..n-1];
-}
-#endif
+//! @decl string common_prefix(array(string) strs)
+//! @appears common_prefix
+//!  Find the longest common prefix from an array of
+//!  strings
+//! @fixme
+//!   Compat call. Use String.common_prefix() instead.
 
 
 //! Caudium bootstrap code.
@@ -1125,11 +1116,7 @@ int main(int argc, array(string) argv)
                               return search(haystack, needle) != -1;
                             });
 #endif
-#if !constant(String.common_prefix)
-  add_constant("common_prefix", common_prefix);
-#else
   add_constant("common_prefix", String.common_prefix);
-#endif
 #if !constant(strftime)
   add_constant("strftime", strftime);
 #endif
