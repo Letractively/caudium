@@ -131,8 +131,13 @@ mixed first_try(object id)
 
 mixed find_file ( string path, object id )
 {
-    return http_string_answer(sprintf("Current storage: <strong>%s</strong>",
-                                     cur_storage ? cur_storage->name : "unset"));
+    string ret;
+
+    ret = sprintf("Module version: <strong>%s</strong><br>"
+                  "Current storage: <strong>%s</strong>",
+                  cvs_version, cur_storage ? cur_storage->name : "unset");
+        
+    return http_string_answer(ret);
 }
 
 string query_location()
@@ -300,6 +305,11 @@ void register_plugins(void|object conf)
                 rec_item_missing("get_all_regions", regrec->name);
                 continue;
             }
+
+            if (!functionp(regrec->session_exists) || !regrec->session_exists) {
+                rec_item_missing("session_exists", regrec->name);
+                continue;
+            }
             
             if (storage_plugins[regrec->name])
                 report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -400,6 +410,9 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //  function get_all_regions; (mandatory)
 //     returns a mapping of all the regions in use - i.e. full storage.
 //
+//  function session_exists; (mandatory)
+//     checks whether the given session exists in the storage
+//
 // Function synopses:
 //
 //   void setup(object id, string sid);
@@ -410,6 +423,7 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //   void delete_session(sid);
 //   mapping get_region(object id, string sid, string reg);
 //   mapping get_all_regions(object id);
+//   int session_exists(object id, string sid);
 //
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
@@ -422,6 +436,7 @@ private mapping memory_storage_registration_record = ([
     "delete_session" : memory_delete_session,
     "get_region" : memory_get_region,
     "get_all_regions" : memory_get_all_regions,
+    "session_exists" : memory_session_exists
 ]);
 
 //
@@ -579,6 +594,15 @@ private mapping memory_get_all_regions(object id)
     return _memory_storage;
 }
 
+
+private int memory_session_exists(object id, string sid)
+{
+    if (memory_validate_storage("session", sid) < 0)
+        return 0;
+
+    return 1;
+}
+
 //
 // Find out whether we have a session id available anywhere and/or create a
 // new session if necessary. Returns a session id string.
@@ -624,13 +648,15 @@ private string alloc_session(object id)
             id->misc->session_id = id->variables[SVAR];
     }
     
-    if (id->misc->session_id) {
+    if (id->misc->session_id && cur_storage->session_exists(id, id->misc->session_id)) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
         if (!id->misc->_gsession_cookie)
             gsession_set_cookie(id, id->misc->session_id);
         return id->misc->session_id;
     }
+
+    id->misc->session_id = 0;
     
     //
     // new session it seems
