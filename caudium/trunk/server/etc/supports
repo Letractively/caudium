@@ -79,14 +79,16 @@ mozilla/[5-9].*		pnginline
 .*compatible.*			-push
 .*compatible.*msie		msie
 .*compatible.*msie.1		-javascript
-.*compatible.*msie.[1-2]	-java
-.*compatible.*msie.[1-3]	-netscape_javascript
+.*compatible.*msie.[1-2]	-java ssl_faulty
+.*compatible.*msie.[1-3]	-netscape_javascript, ssl_faulty
 
-.*compatible.*msie.[2-9]	tablecolor, javascript
-.*compatible.*msie.[3-9]	activex, tableimages
+.*compatible.*msie.[2-9]	tablecolor, javascript, ssl_faulty
+.*compatible.*msie.[3-9]	activex, tableimages, ssl_faulty
 # MSIE3 stylesheets are broken
-.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer
-.*compatible.*msie.[5-9]	pnginline
+.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer, ssl_faulty
+.*compatible.*msie.[5-9]	pnginline, ssl_faulty
+.*compatible.*msie.[5-9]\.01	-ssl_faulty
+.*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
 
 
