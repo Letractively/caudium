@@ -972,14 +972,10 @@ void check_site()
 {
 
   if(in_check)
-    flex_write("watchdog is already in a check... skipping.\n");
+    flex_write("Watchdog is already in a check... skipping.\n");
 
   if(watchdog_params->site && !in_check)
   {
-    flex_write(sprintf("watchdog is checking %s, %s\n", 
-watchdog_params->site[0], 
-      (string)watchdog_params->site[1]));
-
     in_check=1;
     // we have a site to check.    
     conn=Stdio.File();
@@ -1027,7 +1023,6 @@ void response_received(mixed id, mixed data)
   if(data=="PONG\r\n")
   {
     // request was successful.
-    flex_write("Check was successfull.\n");
     remove_call_out(cs_callout);
     conn->close();
     conn=0;
