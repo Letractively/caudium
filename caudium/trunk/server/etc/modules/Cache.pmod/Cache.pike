@@ -44,6 +44,7 @@ int max_object_disk;
 int default_ttl;
 int last_access;
 string _cache_desc;
+mapping behavior = ([ ]);
 
 //! Initiate a new cache, this means creating a Cache.FastStorage object to
 //! store objects in RAM, and a Cache.SlowStorage.* object to store objects
@@ -161,6 +162,7 @@ void store(mapping cache_response) {
   write(sprintf("CACHE: store(\"%s\", \"%s\", %s)\n",
                  namespace, cache_response->name, _obj));
 #endif
+  cache_response + behavior;
   LOCK();
   last_access = time();
   if (cache_response->size > max_object_ram) {
@@ -344,4 +346,23 @@ void|string cache_description(void|string desc) {
     return 0;
   }
   return _cache_desc;
+}
+
+//! Override the default storage behavior of this cache.
+//!
+//! @param behavior
+//! If 0 then keep default behavior. If 1 then use only RAM cache.
+//! If 1 then use only disk cache.
+void override_behavior(void|int(0..3) _behavior) {
+  switch(_behavior) {
+  case 0:
+    behavior = ([ ]);
+    break;
+  case 1:
+    behavior = ([ "disk_cache" : 0 ]);
+    break;
+  case 2:
+    behavior = ([ "ram_cache" : 0 ]);
+    break;
+  }
 }
