@@ -30,8 +30,15 @@
 //! cvs_version: $Id$
 //
 
+inherit "module";
+inherit "caudiumlib";
+inherit "cachelib";
+
 constant cvs_version = "$Id$";
-constant thread_safe = 0;
+constant thread_safe = 1;
+
+// we should be thread safe, as we create a new connection with each
+// request. hopefully that's not a problem.
 
 #include <caudium.h>
 #include <module.h>
@@ -79,13 +86,14 @@ constant thread_safe = 0;
 #define CSE_END             'Z'
 #define CSE_CLOSE           'X'
 
-inherit "module";
-inherit "caudiumlib";
+array resin_hosts=({});
+object session_cache;
 
 constant module_type	= MODULE_FILE_EXTENSION | MODULE_LAST;
 constant module_unique	= 0;
 constant module_name	= "mod_caucho for Caudium";
-constant module_doc	= "This module provides srun Caudium interface.\n";
+constant module_doc	= "This module provides an interface to "
+                          "Caucho Resin servers using the srun protocol.\n";
 
 // srun protocol class
 class CseStream
@@ -99,15 +107,22 @@ class CseStream
   int lastcode;
   int session;
 
-  object open(void|string hostname, void|int port)
+  string host;
+  int port;
+
+  object open(string _hostname, int _port)
   {
     int result;
 
-    result = fd->connect(hostname || "localhost", port || DEFAULT_PORT);
+    result = fd->connect(_hostname, _port);
 
     string res = fd?"open ok":"open fail";
 
     RESINWERR(res);
+
+    if(result)
+    host=_hostname;
+    port=_port; 
 
     if (result) return fd;
     else return 0;
@@ -342,15 +357,62 @@ string caucho_request(object id)
   if (id->cookies->JSESSIONID) jsid = id->cookies->JSESSIONID;
   if (id->misc->jspquery) sscanf(id->misc->jspquery, "jsessionid=%s", jsid);
 
+  // connect to srun, else throw error
+  string shost;
+  int sport;
+  array r;
+  array h; 
+
+  if(jsid)  // we have an existing session, which resin do we connect to?
+  {
+     r=session_cache->retrieve(jsid);
+  }
+
+ if(!jsid || !r) // we don't know the current session's destination, so pick one.
+  {
+    h=resin_hosts[random(sizeof(resin_hosts))];
+    shost=h[0];
+    sport=h[1];
+  }
+
   // create connection handler
   id->misc->srun = CseStream();
 
   // throw error if no CseStream
   if (!id->misc->srun) return caucho_error(id, "Can't create CseStream.");
 
-  // connect to srun, else thrwo error
-  // TODO - choose host determined by jsessionid
-  if (!id->misc->srun->open(query("host"), query("port")))
+  int srun_connected;
+  array hosts_to_try=resin_hosts;
+
+  // try to connect, trying the available hosts if our preference fails.
+  do
+  {
+
+    if(id->misc->srun->open(shost, sport))
+    {
+      // success!
+      srun_connected=1;
+      break;
+    }
+    else
+    {
+      // for some reason, we need to make sure we close after a failure.
+      // go figure.
+      id->misc->srun->close();
+
+      hosts_to_try-=({ h });
+      if(sizeof(hosts_to_try)<1) break;
+
+      h=hosts_to_try[random(sizeof(hosts_to_try))];
+      shost=h[0];
+      sport=h[1];
+    }
+  }
+  while(sizeof(hosts_to_try)>0);
+
+
+  // did we give up and not connect?
+  if(!srun_connected)
      return caucho_error(id, "Can't connect to srun.\n");
 
   // set sessionid
@@ -374,11 +436,30 @@ string caucho_request(object id)
 
 void start(int n, object conf)
 {
+  resin_hosts=({});
+
+  if(QUERY(hosts) && QUERY(hosts)!="")
+  {
+     array r=QUERY(hosts)/"\n";
+     foreach(r, string h)
+     {
+        if(!h || h=="") continue;
+        array hp=h/":";
+        if(sizeof(hp)==2)
+          resin_hosts+=({ ({hp[0], (int)(hp[1])}) });
+        else
+          resin_hosts+=({ ({hp[0], DEFAULT_PORT}) });
+     }
+
+     // create the cache for session to srun hosts mapping.
+     session_cache=caudium->cache_manager->get_cache(this_object());
+  }
+
 }
 
 string status()
 {
-  return "Loaded";
+  return "Loaded with " + sizeof(resin_hosts) + " Resin servers in queue.";
 }
 
 void create(object conf)
@@ -387,12 +468,11 @@ void create(object conf)
          "Resin extensions", TYPE_STRING_LIST,
          "All files ending with these extensions, " +
          "will be parsed by Resin.");
-  defvar("host", "localhost",
-         "srun host", TYPE_STRING,
-         "Host, where srun is running.");
-  defvar("port", 6802,
-         "srun port", TYPE_INT,
-         "Port, where srun listen.");
+  defvar("hosts", "localhost",
+         "srun hosts", TYPE_TEXT_FIELD,
+         "Hosts where srun is running, provided in the format: host:port, "
+         "one per line. Omitting the port will cause the default port "
+         "of DEFAULT_PORT to be used");
 }
 
 array(string) query_file_extensions()
