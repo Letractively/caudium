@@ -3291,31 +3291,6 @@ void create_pid_file(string where)
     report_error("I cannot create the pid file (%s).\n",where);
 }
 
-// External multi-threaded data shuffler. This leaves caudium free to
-// serve new requests. The file descriptors of the open files and the
-// clients are sent to the program, then the shuffler just shuffles 
-// the data to the client.
-void shuffle(object from, object to,
-             object|void to2, function(:void)|void callback)
-{
-  if (!to2) {
-    object p = pipe();
-    p->input(from);
-    p->set_done_callback(callback);
-    p->output(to);
-  } else {
-    // Sad but we need Pipe.pipe here...
-    object p = Pipe.pipe();
-    if (callback)
-      p->set_done_callback(callback);
-    p->output(to);
-    if (to2)
-      p->output(to2);
-    p->input(from);
-  }
-}
-
-
 static private int _recurse;
 
 private void __close_connections(function me)
