@@ -1269,7 +1269,6 @@ void create()
 	 " this: &lt;a href=\"/ftp/\"&lt;my.www.server&gt;/a&gt; will enable"
 	 " accesses to local WWW-servers through a firewall.<p>"
 	 "Please consider security, though.</p>");
-  p
   defvar("Proxies", "", "Remote gateway regular expressions",
 	 TYPE_TEXT_FIELD|VAR_MORE,
 	 "Here you can add redirects to remote gateways. If a file is "
