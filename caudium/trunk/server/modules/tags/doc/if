@@ -421,8 +421,9 @@ file system.
 <p><dt><tt><b><a name="group">group</a></b></tt>=<i>group, groupfile path</i>
 <dd>
 Used together with the <tt>user</tt> attribute to check if the
-current user is a member of the group according the the groupfile. The
-groupfile is of the following format:
+current user is a member of the group according the the groupfile. If 
+groupfile is not specified, the internal user databases will be searched 
+for group membership. The groupfile is of the following format:
 
 <p><pre>
 group : user1, user2, user3
