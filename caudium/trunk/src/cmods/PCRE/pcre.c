@@ -29,8 +29,15 @@ RCSID("$Id$");
 
 #include <stdio.h>
 #include <fcntl.h>
+
+#ifdef HAVE_PCRE
+
+#ifdef HAVE_PCRE_H
+# include <pcre.h>
+#endif
+
 #ifdef HAVE_LOCALE_H
-#include <locale.h>
+# include <locale.h>
 #endif
 
 
@@ -304,9 +311,13 @@ static void init_regexp(struct object *o)
   MEMSET(THIS, 0, sizeof(PCRE_Regexp));
 }
 
+#endif /* HAVE_PCRE */
+
 /* Init the module */
 void pike_module_init(void)
 {
+#ifdef HAVE_PCRE
+
 #ifdef PEXTS_VERSION
   pexts_init();
 #endif
@@ -323,6 +334,7 @@ void pike_module_init(void)
   set_exit_callback(free_regexp);
   end_class("Regexp", 0);
   add_integer_constant("version", 2, 0);
+#endif
 }
 
 /* Restore and exit module */
