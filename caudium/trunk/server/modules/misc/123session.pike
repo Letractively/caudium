@@ -67,6 +67,9 @@ int dont_use_formauth_file() {
   return (QUERY(auth_template_file) != 1);
 }
 
+// cd34, 10/4/2001, regexp objects for include/exclude
+object incl=0,excl=0;
+
 void start(int num, object conf) {
   if (conf) { myconf = conf; }
   if (QUERY(storage) == "memory") {
@@ -77,6 +80,13 @@ void start(int num, object conf) {
         break;
       }
   }
+// cd34, 10/4/2001, code to exclude or include files for processing
+  catch {
+    if (strlen(query("regexpinclude")))
+      incl = Regexp(query("regexpinclude"));
+    if (strlen(query("regexpexclude")))
+      excl = Regexp(query("regexpexclude"));
+  };
   if (QUERY(auth_template_file))
      authtemplate = Stdio.read_file(QUERY(template_file));
   else
@@ -123,6 +133,10 @@ void create (mixed ... foo) {
          "Garbage collection will be done by this module." );
   defvar("garbage", 100, "Garbage Collection Frequency", TYPE_INT,
          "after how many connects expiration of old session should happen", 0, hide_gc);
+// cd34, 10/4/2001, Allow cookies to be set with expire times
+  defvar("cookieexpire", -1, "Cookie Expiration Time", TYPE_INT,
+         "if 0, do not set a cookie expiration, if >0, set cookie expiration "
+         "for that many seconds.  If <0, set cookie with date 10 years in the future" );
   defvar("expire", 600, "Expiration Time", TYPE_INT,
          "after how many seconds an unactive session is removed", 0, hide_gc);
   defvar("storage", "memory",
@@ -179,6 +193,20 @@ void create (mixed ... foo) {
   defvar("debug", 0, "Debug", TYPE_FLAG,
 	 "When on, debug messages will be logged in Caudium's debug logfile. "
 	 "This information is very useful to the developers when fixing bugs.");
+// cd34, 10/4/2001, code to allow regexp includes/excludes & sql caching
+  defvar("regexpinclude", ".*",
+         "Regexp Include Specification", TYPE_STRING,
+         "An expression here will include processing for anything that matches this Pike Syntax Regexp<br>"
+         "For Example:<br>.*<br>will include processing for all files.  id->not_query is automatically "
+         "lowercased");
+  defvar("regexpexclude", "",
+         "Regexp Exclude Specification", TYPE_STRING,
+         "An expression here will exclude processing for anything that matches this Pike Syntax Regexp<br>"
+         "For Example:<br>\\.(jpe*g|gif|png)$ <br>will exclude processing for jpg, gif and png files "
+         "id->not_query is automatically lowercased");
+  defvar("sql_cache", 1, "Cache SQL traffic?", TYPE_FLAG,
+         "Implements a simple in-memory write-through cache when used with an SQL server",
+         0, storage_is_not_sql);
   
   defvar ("remove", 0, "Remove the sessions", TYPE_CUSTOM,
 	  "Pressing this button will remove all the sessions.",
@@ -315,10 +343,21 @@ mapping (string:mixed) variables_retrieve_memory(string region, string key) {
 
 mapping (string:mixed) variables_retrieve_sql(string region, string key) {
   object(Sql.sql) con;
+// cd34, 10/4/2001, SQL Caching
+  array dbinfo;
+  if (QUERY(sql_cache))
+    dbinfo=cache_lookup("123"+region,key);
+  if (dbinfo)
+    return(sizeof(dbinfo[1])>0?string2values(dbinfo[1]):([]));
   function sql_connect = myconf->sql_connect;
   con = sql_connect(QUERY(sql_url));
    string query = "select svalues from variables where region='"+region+"' and id='"+key+"'";
   array(mapping(string:mixed)) result = con->query(query);
+// cd34, 10/4/2001, SQL Caching
+  if ( (QUERY(sql_cache)) && (!dbinfo) ) {
+    dbinfo = ({ key, sizeof(result)?result[0]->svalues:([]) });
+    cache_set("123"+region,key,dbinfo);
+  }
   if (sizeof(result) != 0) {
     return (string2values(result[0]->svalues));
   } else {
@@ -373,6 +412,11 @@ void variables_store_sql(string region, string key, mapping values) {
   con = sql_connect(QUERY(sql_url));
   con->query("delete from variables where region='"+region+"' and id='"+key+"'");
   con->query("insert into variables(id, region, lastusage, svalues) values ('"+key+"', '"+region+"', '"+time()+"', '"+values2string(values)+"')");
+// cd34, 10/4/2001, SQL Caching
+  if (QUERY(sql_cache)) {
+    array dbinfo = ({ key, values2string(values) });
+    cache_set("123"+region,key,dbinfo);
+  }
 }
 
 void variables_store_file(string region, string key, mapping values) {
@@ -403,6 +447,8 @@ void variables_store(string region, string key, mapping values) {
 
 string sessionid_create() {
   object md5 = Crypto.md5();
+  // Kiwi: Add a Crypto.randomness.reasonably_random()->read(size) in this
+  //       function may add some more random session id ?
   md5->update(QUERY(secret));
   md5->update(sprintf("%d", roxen->increase_id()));
   md5->update(sprintf("%d", time(1)));
@@ -424,6 +470,11 @@ mixed sessionid_remove_prestate(object id) {
 
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
+// cd34, 10/4/2001, set cookie expiration based on info in the config interface
+  if (query ("cookieexpire") > 0)
+    Cookie += "; Expires=" + http_date(time()+query("cookieexpire")) +";";
+  if (query ("cookieexpire") < 0)
+    Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
   if (query ("secure"))
     Cookie += "; Secure";
   id->cookies->SessionID = SessionID;
@@ -456,6 +507,12 @@ string sessionid_get(object id) {
 }
 
 mixed first_try(object id) {
+
+// cd34, 10/4/2001, code to exclude or include processing by regexp
+  if (id->not_query && (incl && !incl->match(lower_case(id->not_query))) ||
+      (excl &&  excl->match(lower_case(id->not_query)))) {
+    return(0);
+  }
 
   if (QUERY (inc_excl) == "exclude") {
     foreach (QUERY(exclude_urls)/"\n", string exclude) {
@@ -721,6 +778,11 @@ void set_from_form_remove (string val, int type, object o) {
 //!  type: TYPE_INT
 //!  name: Garbage Collection Frequency
 //
+//! defvar: cookieexpire
+//! if 0, do not set a cookie expiration, if >0, set cookie expiration for that many seconds.  If <0, set cookie with date 10 years in the future
+//!  type: TYPE_INT
+//!  name: Cookie Expiration Time
+//
 //! defvar: expire
 //! after how many seconds an unactive session is removed
 //!  type: TYPE_INT
@@ -782,6 +844,21 @@ void set_from_form_remove (string val, int type, object o) {
 //! When on, debug messages will be logged in Caudium's debug logfile. This information is very useful to the developers when fixing bugs.
 //!  type: TYPE_FLAG
 //!  name: Debug
+//
+//! defvar: regexpinclude
+//! An expression here will include processing for anything that matches this Pike Syntax Regexp<br />For Example:<br />.*<br />will include processing for all files.  id->not_query is automatically lowercased
+//!  type: TYPE_STRING
+//!  name: Regexp Include Specification
+//
+//! defvar: regexpexclude
+//! An expression here will exclude processing for anything that matches this Pike Syntax Regexp<br />For Example:<br />\.(jpe*g|gif|png)$ <br />will exclude processing for jpg, gif and png files id->not_query is automatically lowercased
+//!  type: TYPE_STRING
+//!  name: Regexp Exclude Specification
+//
+//! defvar: sql_cache
+//! Implements a simple in-memory write-through cache when used with an SQL server
+//!  type: TYPE_FLAG
+//!  name: Cache SQL traffic?
 //
 //! defvar: remove
 //! Pressing this button will remove all the sessions.
