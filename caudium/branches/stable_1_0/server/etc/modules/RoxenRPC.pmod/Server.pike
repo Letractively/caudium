@@ -381,7 +381,7 @@ void create(string|object host, int|string|void p, string|void key)
   if(objectp(host))
   {
     if(!low_got_connection(host))
-      werror("Remote host failed authentification test.\n");
+      werror("Remote host failed authentication test.\n");
     else
       host->write("=");
   } 

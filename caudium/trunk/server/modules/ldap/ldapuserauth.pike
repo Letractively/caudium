@@ -21,7 +21,7 @@
 
 //
 //! module: LDAP directory authorization
-//!  LDAP User authentification. Reads the directory and use it to
+//!  LDAP User authentication. Reads the directory and use it to
 //!  authentificate users.
 //!  Basic authentication names and passwords are mapped onto attributes
 //!  in entries in preselected portions of an LDAP DSA.
@@ -36,7 +36,7 @@
 
 /* This module is Copyright © Honza Petrous 1998-2000 */
 
-/* LDAP User authentification. Reads the directory and use it to
+/* LDAP User authentication. Reads the directory and use it to
    authentificate users.
 
    Basic authentication names and passwords are mapped onto attributes
@@ -371,7 +371,7 @@ void open_dir(string u, string p) {
 	return;
     }
     if(dir->error_code) {
-	werror ("LDAPauth: authentification error ["+dir->error_string+"]\n");
+	werror ("LDAPauth: authentication error ["+dir->error_string+"]\n");
 	dir=0;
 	return;
     }
@@ -501,7 +501,7 @@ string *userinfo (string u,mixed p) {
 	    return 0;
 	  }
 	  if(dir->error_code) {
-	    werror ("LDAPauth: authentification error ["+dir->error_string+"]\n");
+	    werror ("LDAPauth: authentication error ["+dir->error_string+"]\n");
 	    dir=0;
 	    return 0;
 	  }

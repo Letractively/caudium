@@ -1131,11 +1131,11 @@ int|mapping check_security(function a, object id, void|int slevel)
   } else {
     // IP OK, or no IP restrictions.
     if (auth_ok == 1) {
-      // Bad authentification.
-      // Query for authentification.
+      // Bad authentication.
+      // Query for authentication.
       return(http_auth_failed(seclevels[2]));
     } else {
-      // No auth required, or authentification OK.
+      // No auth required, or authentication OK.
       return(0);
     }
   }
