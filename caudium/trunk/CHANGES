@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Added cnum and rtext to column types in tablify.  cnum uses , as the 
+  thousands delimiter and rtext right aligns text.
 - Avoid using -O2 optimization on FreeBSD Alpha
 - Fix detection of alloca() for _Caudium C module.
 - Uses if exist thread safe calls (the _r() ones) from libc in function 
