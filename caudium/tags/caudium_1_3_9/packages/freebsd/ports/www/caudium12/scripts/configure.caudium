@@ -1,0 +1,44 @@
+#!/bin/sh
+
+if [ -f ${WRKDIRPREFIX}${CURDIR}/Makefile.inc ]; then
+	exit
+fi
+
+/usr/bin/dialog --title "configuration options" --clear \
+	--checklist "\n\
+Please select desired options:" -1 -1 11 \
+PiXSL		"PiXSL, Sablotron XML Parser" ON \
+2> /tmp/checklist.tmp.$$
+retval=$?
+
+if [ -s /tmp/checklist.tmp.$$ ]; then
+	set `cat /tmp/checklist.tmp.$$`
+fi
+rm -f /tmp/checklist.tmp.$$
+
+case $retval in
+	0)	if [ -z "$*" ]; then
+			echo "Nothing selected"
+		fi
+		;;
+	1)	echo "Cancel pressed."
+		exit 1
+		;;
+esac
+
+mkdir -p ${WRKDIRPREFIX}${CURDIR}
+> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+
+while [ "$1" ]; do
+	case $1 in
+		\"PiXSL\")
+			echo "LIB_DEPENDS+=	sablot.65:\${PORTSDIR}/textproc/sablotron" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+			echo "CONFIGURE_ARGS+=	--with-PiXSL" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+			PiXSL=1
+			;;
+	esac
+	shift
+done
+if [ -z "$PiXSL" ]; then
+	echo "CONFIGURE_ARGS+=  --without-PiXSL" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc  
+fi
