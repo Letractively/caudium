@@ -490,7 +490,7 @@ private int parse_got()
 	 
 	 if( have_data < wanted_data )
 	 {
-	   if ( clientprot = "HTTP/1.1" )
+	   if ( clientprot == "HTTP/1.1" )
 	     my_fd->write("HTTP/1.1 100 Continue\r\n\r\n");
 	     REQUEST_WERR("HTTP: parse_request(): More data needed.");
 	     return 0;
