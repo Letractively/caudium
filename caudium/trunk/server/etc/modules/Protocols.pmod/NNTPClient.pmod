@@ -209,15 +209,23 @@ class connection
     return body;
   }
 
-  mapping active()
+  mapping active(void|string wildmat)
   {
     string res;
     mapping result = ([]);
-
-    NNTPCMD("list active");
+    
+    // BUG: don't remove {} or pike cpp will fail
+    if(stringp(wildmat))
+    {
+      NNTPCMD(sprintf("list active %s", wildmat));
+    }
+    else
+    {
+      NNTPCMD("list active");
+    }
 
     sscanf(res, "%d %s", lastreply, res);
-
+    
     if (err)
     {
        destruct(connection);
@@ -236,7 +244,6 @@ class connection
 
       res = _gets();
     }
-
     return result;
   }
 
@@ -271,12 +278,19 @@ class connection
     return result;
   }
 
-  mapping newsgroups()
+  mapping newsgroups(void|string group)
   {
     string res;
     mapping result = ([]);
-
-    NNTPCMD("list newsgroups");
+ 
+    if(stringp(group))
+    {
+      NNTPCMD(sprintf("list newsgroups %s", group));
+    }
+    else
+    {
+      NNTPCMD("list newsgroups");
+    }
 
     sscanf(res, "%d %s", lastreply, res);
 
