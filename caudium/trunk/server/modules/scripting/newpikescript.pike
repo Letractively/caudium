@@ -29,6 +29,9 @@ constant thread_safe=1;
 #if !constant(report_notice)
 #define report_notice werror
 #endif
+#if !constant(report_debug)
+#define report_debug werror
+#endif
 
 #if !constant(Remote)
 #if constant(roxen)
@@ -507,8 +510,10 @@ int main()
     cd(u[5]);
     if(cd(".pikescripts"))
     {
+      report_notice("Found a use pikescript directory\n");
       if(file_stat("rc.pike"))
       {
+        report_notice("RC file found. Using it now\n");
 	object f = compile_file("rc.pike")(this_object(),remote_server);
 	if(f->call_pikescript) call_pikescript = f->call_pikescript;
 	if(f->get_pikescript)  get_pikescript = f->get_pikescript;
@@ -527,6 +532,7 @@ int main()
   add_constant("error", lambda(string what, mixed ... args){array b = backtrace();
             throw(({ sprintf(what, @args), b[..sizeof(b)-2]}));});
   add_constant("report_debug", werror);
+  add_constant("report_notice", werror);
 
   // ok.. Now write the location to the correct file.
   // pwd is the 'server' directory.
