@@ -91,9 +91,7 @@ void start(int num, object conf)
     throw(({"No Crypto.sha found!", backtrace()}));
 #endif
     
-    session_counter = cache_lookup(CACHE, "session_counter");
-
-    cache_expire(CACHE);
+    session_counter = 0;
 
     register_plugins(conf);
     
@@ -105,11 +103,7 @@ void start(int num, object conf)
 }
 
 void stop()
-{
-    // it might be a reload, save what's valuable
-    cache_clear(CACHE);
-    cache_set(CACHE, "session_counter", session_counter);
-}
+{}
 
 void create()
 {
@@ -342,29 +336,37 @@ void register_plugins(void|object conf)
 // This is the default, memory, storage medium. As opposite to other
 // storage mechanism, this one is built in albeit using the same interface
 // as the other mechanisms.
-// The structure is as follows:
+// The structure is as follows (fields in single quotes denote literal names):
 //
 //  storage_mapping
 //      region1_name:region1_mapping
-//         session1_id:session2_data
-//           key1_name:key1_value
-//           key2_name:key2_value
-//           ...
-//         session2_id:session2_data
-//           key1_name:key1_value
-//           key2_name:key2_value
-//           ...
+//         session1_id:session1_storage
+//           'lastused':time_when_last_used
+//           'data':session1_data
+//             key1_name:key1_value
+//             key2_name:key2_value
+//             ...
+//         session2_id:session2_storage
+//           'lastused':time_when_last_used
+//           'data':session2_data
+//             key1_name:key1_value
+//             key2_name:key2_value
+//             ...
 //      region2_name:region2_mapping
-//         session1_id:session2_data
-//           key1_name:key1_value
-//           key2_name:key2_value
-//           ...
-//         session2_id:session2_data
-//           key1_name:key1_value
-//           key2_name:key2_value
-//           ...
+//         session1_id:session1_storage
+//           'lastused':time_when_last_used
+//           'data':session1_data
+//             key1_name:key1_value
+//             key2_name:key2_value
+//             ...
+//         session2_id:session2_storage
+//           'lastused':time_when_last_used
+//           'data':session2_data
+//             key1_name:key1_value
+//             key2_name:key2_value
+//             ...
 //
-// Two predefined regions exist, for compatibility with 123sessions:
+// Two predefined regions MUST exist, for compatibility with 123sessions:
 // "session" and "user" they are available through the
 // id->misc->session_variables and id->misc->user_variables,
 // respectively. All regions are available through the
@@ -480,7 +482,10 @@ private void memory_setup(object id, string sid)
     
     foreach(indices(_memory_storage), string region) {
         if (!_memory_storage[region][sid])
-            _memory_storage[region][sid] = ([]);
+            _memory_storage[region][sid] = ([
+                "lastused" : time(),
+                "data" : ([])
+            ]);
         
         if (!id->misc->gsession[region])
             id->misc->gsession[region] = _memory_storage[region][sid];
@@ -497,12 +502,10 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
     if (memory_validate_storage(region, sid) < 0)
         return;
 
-    _memory_storage[region][sid] += ([
-        key : ([
-            "lastused" : time(),
-            "data" : data
-        ])
+    _memory_storage[region][sid]->data += ([
+        key : data
     ]);
+    _memory_storage[region][sid]->lastused = time();
 }
 
 //
@@ -519,8 +522,8 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
         return 0;
 
 
-    _memory_storage[region][sid][key]->lastused = time();
-    return _memory_storage[region][sid][key]->data;
+    _memory_storage[region][sid]->lastused = time();
+    return _memory_storage[region][sid]->data[key];
 }
 
 //
@@ -616,8 +619,8 @@ private string alloc_session(object id)
     if (id->misc->session_id) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
-        id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session");
-        id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user");
+        id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session")->data;
+        id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user")->data;
         return id->misc->session_id;
     }
     
@@ -638,8 +641,8 @@ private string alloc_session(object id)
 
     id->misc->_gsession_is_here = 1;
     id->misc->session_id = ret;
-    id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session");
-    id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user");
+    id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session")->data;
+    id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user")->data;
     gsession_set_cookie(id, ret);
     
     return ret;
