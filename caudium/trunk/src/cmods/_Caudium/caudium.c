@@ -1672,7 +1672,7 @@ static void f_cern_http_date(INT32 args)
      }
    }
 
-#if !defined(HAVE_STRFTIME)
+#if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
    long diff;
    int sign;
 #ifdef STRUCT_TM_TM_GMTOFF
