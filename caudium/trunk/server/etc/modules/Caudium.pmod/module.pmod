@@ -1143,6 +1143,249 @@ string sizetostring(int size) {
   return String.int2size(size);  
 }
 
+//! Encodes str for use as a value in an html tag.  
+//!
+//! @param str
+//!   String to encode
+string html_encode_tag_value(string str)  
+{  
+   return "\"" + replace(str, ({"&", "\""}), ({"&amp;", "&quot;"})) + "\"";  
+}
+
+//! This function exist to aid in finding a module object identified by the
+//! passed module name.
+//!
+//! @param modname
+//!  Name of the requested module.
+//!
+//! @returns
+//!  The corresponding module object (if any)
+object get_module (string modname)
+{
+  string cname, mname;
+  int mid = 0;
+
+  if (sscanf (modname, "%s/%s", cname, mname) != 2 ||
+      !sizeof (cname) || !sizeof(mname)) return 0;
+  sscanf (mname, "%s#%d", mname, mid);
+
+  foreach (caudiump()->configurations, object conf) {
+    mapping moddata;
+    if (conf->name == cname && (moddata = conf->modules[mname])) {
+      if (mid >= 0) {
+        if (moddata->copies)
+          return moddata->copies[mid];
+      } else if (moddata->enabled)
+        return moddata->enabled;
+      
+      if (moddata->master)
+        return moddata->master;
+      return 0;
+    }
+  }
+
+  return 0;
+}
+
+//!   Given a copy of a Caudium module object create a uniquely identifying
+//!   for that object. Along the lines of localhost/filesystem#copy
+//! @param module
+//!   An object containing an active caudium module (probably this_object()
+//!   from inside a modules namespace).
+//! @returns
+//!   A unique name string.
+string get_modname (object module)
+{
+  if (!module)
+    return 0;
+
+  foreach (caudiump()->configurations, object conf) {
+    string mname = conf->otomod[module];
+    if (mname) {
+      mapping moddata = conf->modules[mname];
+      if (moddata)
+        if (moddata->copies)
+          foreach (indices (moddata->copies), int i) {
+            if (moddata->copies[i] == module)
+              return conf->name + "/" + mname + "#" + i;
+          } else if (moddata->master == module || moddata->enabled == module)
+            return conf->name + "/" + mname + "#0";
+    }
+  }
+
+  return 0;
+}
+
+//! This determines the full module name in approximately the same way
+//! as the config UI.
+//!
+//! @param module
+//!  Module object whos name is needed.
+//!
+//! @returns
+//!  The module name
+string get_modfullname (object module)
+{
+  if (module) {
+    string name = 0;
+    if (module->query_name)
+      name = module->query_name();
+    
+    if (!name || !sizeof (name))
+      name = module->register_module()[1];
+    return name;
+  } else
+    return 0;
+}
+
+//! Quote content in a multitude of ways. Used primarily by do_output_tag
+//!
+//! @param val
+//!  Value to encode.
+//!
+//! @param encoding
+//!  Desired string encoding on return:
+//!
+//!  @dl
+//!    @item none
+//!      Returns the value verbatim
+//!    @item http
+//!      HTTP encoding.
+//!    @item cookie
+//!      HTTP cookie encoding
+//!    @item url
+//!      HTTP encoding, including special characters in URLs
+//!    @item html
+//!      For generic html text and in tag arguments. Does
+//!      not work in RXML tags (use dtag or stag instead)
+//!    @item dtag
+//!      Quote quotes for a double quoted tag argument. Only
+//!      for internal use, i.e. in arguments to other RXML tags
+//!    @item stag
+//!      Quote quotes for a single quoted tag argument. Only
+//!      for internal use, i.e. in arguments to other RXML tags
+//!    @item pike
+//!      Pike string quoting (e.g. for use in the &lt;pike&gt; tag)
+//!    @item js|javascript
+//!      Javascript string quoting
+//!    @item mysql
+//!      MySQL quoting
+//!    @item mysql-dtag
+//!      MySQL quoting followed by dtag quoting
+//!    @item mysql-pike
+//!      MySQL quoting followed by Pike string quoting
+//!    @item sql|oracle
+//!      SQL/Oracle quoting
+//!    @item sql-dtag/oracle-dtag
+//!      SQL/Oracle quoting followed by dtag quoting
+//!  @enddl
+//!
+//! @returns
+//!  The encoded string
+string roxen_encode( string val, string encoding )
+{
+  switch (encoding) {
+      case "none":
+      case "":
+        return val;
+   
+      case "http":
+        // HTTP encoding.
+        return http_encode_string (val);
+     
+      case "cookie":
+        // HTTP cookie encoding.
+        return http_encode_cookie (val);
+     
+      case "url":
+        // HTTP encoding, including special characters in URL:s.
+        return http_encode_url(val);
+       
+      case "html":
+        // For generic html text and in tag arguments. Does
+        // not work in RXML tags (use dtag or stag instead).
+        return _Roxen.html_encode_string (val);
+     
+      case "dtag":
+        // Quote quotes for a double quoted tag argument. Only
+        // for internal use, i.e. in arguments to other RXML tags.
+        return replace (val, "\"", "\"'\"'\"");
+     
+      case "stag":
+        // Quote quotes for a single quoted tag argument. Only
+        // for internal use, i.e. in arguments to other RXML tags.
+        return replace(val, "'", "'\"'\"'");
+       
+      case "pike":
+        // Pike string quoting (e.g. for use in a <pike> tag).
+        return replace (val,
+                        ({ "\"", "\\", "\n" }),
+                        ({ "\\\"", "\\\\", "\\n" }));
+
+      case "js":
+      case "javascript":
+        // Javascript string quoting.
+        return replace (val,
+                        ({ "\b", "\014", "\n", "\r", "\t", "\\", "'", "\"" }),
+                        ({ "\\b", "\\f", "\\n", "\\r", "\\t", "\\\\",
+                           "\\'", "\\\"" }));
+       
+      case "mysql":
+        // MySQL quoting.
+        return replace (val,
+                        ({ "\"", "'", "\\" }),
+                        ({ "\\\"" , "\\'", "\\\\" }) );
+       
+      case "sql":
+      case "oracle":
+        // SQL/Oracle quoting.
+        return replace (val, "'", "''");
+       
+      case "mysql-dtag":
+        // MySQL quoting followed by dtag quoting.
+        return replace (val,
+                        ({ "\"", "'", "\\" }),
+                        ({ "\\\"'\"'\"", "\\'", "\\\\" }));
+       
+      case "mysql-pike":
+        // MySQL quoting followed by Pike string quoting.
+        return replace (val,
+                        ({ "\"", "'", "\\", "\n" }),
+                        ({ "\\\\\\\"", "\\\\'",
+                           "\\\\\\\\", "\\n" }) );
+       
+      case "sql-dtag":
+      case "oracle-dtag":
+        // SQL/Oracle quoting followed by dtag quoting.
+        return replace (val,
+                        ({ "'", "\"" }),
+                        ({ "''", "\"'\"'\"" }) );
+       
+      default:
+        // Unknown encoding. Let the caller decide what to do with it.
+        return 0;
+  }
+}
+
+//! method: string fix_relative(string file, object id)
+//!  Transforms relative paths to absolute ones in the virtual filesystem
+//! arg: string file
+//!  The relative path to transform
+//! arg: object id
+//!  The caudium id object
+//! returns:
+//!  A string containing the absolute path in he virtual filesystem
+string fix_relative(string file, object id)
+{
+  if(file != "" && file[0] == '/') 
+    ;
+  else if(file != "" && file[0] == '#') 
+    file = id->not_query + file;
+  else
+    file = dirname(id->not_query) + "/" +  file;
+  
+  return simplify_path(file);
+}
 
 /*
  * If you visit a file that doesn't containt these lines at its end, please
