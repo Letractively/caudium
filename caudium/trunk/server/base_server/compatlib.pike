@@ -406,8 +406,28 @@ static string parse_html_lines(mixed ... args) {
    return Caudium.parse_html_lines(@args);
 }
 
+//! Compat call of Caudium.Env.build_vars
+//! @deprecated
+//! @seealso
+//!  @[Caudium.Env.build_vars]
+static mapping build_env_vars(string f, object id, string path_info) {
+   WCOMPAT2("Caudium.Env.build_vars", "build_env_vars");
+   return Caudium.Env.build_vars(f,id,path_info);
+}
+
+//! Compat call of Caudium.Env.build_caudium_vars
+//! @deprecated
+//! @seealso
+//!  @[Caudium.Env.build_caudium_vars]
+static mapping build_caudium_env_vars(object id) {
+   WCOMPAT2("Caudium.Env.build_caudium_vars", "build_caudium_env_vars");
+   return Caudium.Env.build_caudium_vars(id);
+}
+
 //! Compat call of spider.parse_accessed_database
 //! @deprecated
+//! @seealso
+//!  @[spider.parse_accessed_database]
 static mixed parse_accessed_database(mixed ... args) {
    WCOMPAT("spider","parse_accessed_database");
    return spider.parse_accessed_database(@args);
