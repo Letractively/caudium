@@ -2893,9 +2893,9 @@ mapping query_tag_callers()
 	    "modified":tag_modified,
 	    "pr":tag_pr,
 	    "ipv6":tag_ipv6,
-        "remoteip":tag_remoteip,
-        "pike_version":tag_pikeversion,
-        "pike-version":tag_pikeversion,
+            "remoteip":tag_remoteip,
+            "pike_version":tag_pikeversion,
+            "pike-version":tag_pikeversion,
 	    "use":tag_use,
 	    "set-max-cache":lambda(string t, mapping m, object id) { 
 			      id->misc->cacheable = (int)m->time; 
