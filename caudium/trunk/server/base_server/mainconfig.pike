@@ -1034,8 +1034,10 @@ mapping initial_configuration(object id)
     }
   }
   
-  res = cif->head("Welcome to Caudium " + cif->body() +
+  res = cif->head("Welcome to Caudium " +
 		     caudium->__caudium_version__ + "." + caudium->__caudium_build__);
+
+  res += cif->body();
 
   res += Stdio.read_bytes("etc/welcome.html");
   if(error && strlen(error))
@@ -1054,6 +1056,8 @@ mapping initial_configuration(object id)
 	  "<tr><td align=left><input type=submit value=\" Ok \">\n</td>"
 	  "<td align=right><input type=submit name=nope value=\" Cancel \"></td></tr>\n"
 	  "</form></table></table></blockquote>");
+  
+  res += "</body></html>";
   
   return stores(res);
 }
