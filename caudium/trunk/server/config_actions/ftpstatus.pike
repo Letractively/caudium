@@ -76,8 +76,10 @@ string page_0(object id)
   multiset(object) ftps = (< >);
   object o = next_object();
   for(;;) {
-    if(o && object_program(o) == object_program(pc) && o->cmd_fd)
+    if(o && object_program(o) == object_program(pc) && o->cmd_fd) {
+      report_notice(sprintf("%O\n", indices(o)));
       ftps += (<o>);
+    }
     if(catch(o = next_object(o)))
       break;
   }
