@@ -49,7 +49,6 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "caudiumlib";
 
-import Image;
 constant thread_safe = 1;
 
 // HEX to Array Color conversion.
@@ -91,15 +90,26 @@ mapping find_file(string f, object id)
     }
 
     object ourimage;
-
-    if(catch(ourimage = PNM.decode(buff))) {
-      if(catch(ourimage = GIF.decode(buff))) {
-	if(catch(ourimage = JPEG.decode(buff))) {
-	  return 0;
-	}
-      }
-    }
-
+#if constant(Image.ANY.decode)
+    if(catch(ourimage = Image.ANY.decode(buff))) 
+#endif
+#if constant(Image.GIF.decode)
+      if(catch(ourimage = Image.GIF.decode(buff)))
+#endif
+#if constant(Image.JPEG.decode)
+	if(catch(ourimage = Image.JPEG.decode(buff)))
+#endif
+#if constant(Image.PNG.decode)
+	  if(catch(ourimage = Image.PNG.decode(buff)))
+#endif
+#if constant(Image.BMP.decode)
+	    if(catch(ourimage = Image.BMP.decode(buff)))
+#endif
+#if constant(Image.PNM.decode)
+	      if(catch(ourimage = Image.PNM.decode(buff)))
+#endif
+		if(!ourimage) return 0;
+    
     float scale = 1.0;
     int xoffs = 0;
     int yoffs = 0;
@@ -127,8 +137,8 @@ mapping find_file(string f, object id)
       
     }
     
-    result = image((width?width:(int) (xsize*scale)),
-		   (height?height:(int) (ysize*scale)), @mkcolor(bg));
+    result = Image.Image((width?width:(int) (xsize*scale)),
+			 (height?height:(int) (ysize*scale)), @mkcolor(bg));
 
     result = result->paste(ourimage, xoffs, yoffs);
 
@@ -142,16 +152,17 @@ mapping find_file(string f, object id)
   object ct = cache_lookup("thumbnail_coltables", filename);
   if(!ct) {
     // Make a suitable color table for this thumbnail.
-    ct = colortable(result->copy(0, 0, result->xsize()-1, result->ysize()-1),
-		    64)->cubicles(20, 20, 20);
+    ct = Image.Colortable(result->copy(0, 0, result->xsize()-1,
+				       result->ysize()-1),
+			  64)->cubicles(20, 20, 20);
     cache_set("thumbnail_coltables", filename, ct);
   }
 
   if(trans)
-    return http_string_answer(GIF.encode_trans(result, ct, @mkcolor(bg)), 
+    return http_string_answer(Image.GIF.encode_trans(result, ct, @mkcolor(bg)), 
 			      "image/gif");
   else
-    return http_string_answer(GIF.encode(result, ct), "image/gif");
+    return http_string_answer(Image.GIF.encode(result, ct), "image/gif");
 }
 
 // MODULE_TAG functions
@@ -189,13 +200,26 @@ string tag_thumbnail(string tag, mapping args, object id, object file, mapping d
     }
     filename += args->src;
 
-    url = "<img _parsed=\"1\" src=\""+query("mountpoint")+
-      (args->trans?"1":"0")+"/"+
-      (args->rot?args->rot:"0")+"/"+
-      (args->bg?args->bg-"#":"ffffff")+"/"+
-      height+"/"+width+"/$"+filename+"\""+
-      (args->border?(" border=\""+args->border+"\""):"")+
-      (args->align?(" align=\""+args->align+"\""):"")+">";
+    mapping  imgtag = ([
+      "src" : sprintf("%s/%s/%s/%s/%d/%d/$%s", QUERY(mountpoint), (args->trans?"1":"0"),
+                      (args->rot?args->rot:"0"), (args->bg?args->bg-"#":"ffffff"),
+		      height, width, filename)
+    ]);
+    
+    if (args->border)
+       imgtag->border = args->border;
+    if (args->align)
+       imgtag->align = args->align;
+    if (width)
+       imgtag->width = (string)width;
+    if (height)
+       imgtag->height = (string)height;
+    if (args->alt)
+       imgtag->alt = args->alt;
+    else
+       imgtag->alt = filename;
+    
+    url = make_tag("img", imgtag);
   }
 
   usecount++;
