@@ -325,7 +325,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
   AC_MSG_CHECKING(${a})
   if test -x ${a}; then
     PIKE="${a}"
-    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.0268) exit(1); exit(0);'; then
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.2200) exit(1); exit(0);'; then
 		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep '^Module' | sed -e 's/.*: //'`"
 		PIKE_INCLUDE_DIRS="-I`echo "$PIKE_MODULE_DIR" | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
 
@@ -391,24 +391,16 @@ if test "$PIKE" != ""; then
   PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 else
   cat << EOF
-*********************************************************************
-*** I couldn't find a suitable Pike for Caudium. Caudium 11.
-*** requires Pike 7.0.268 or newer. Running Caudium with Pike 0.6
+****************************************************************************
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.3
+*** requires Pike 7.2.200 or newer. Running Caudium with Pike 0.6 or 7.0
 *** is no longer supported. You can download and install one of
-*** our Pike 7.0 snapshots available from our website at:
+*** our Pike 7.2 snapshots available from our website at:
 ***
 ***     http://caudium.net/download/snapshot.html
 ***
-*** IMPORTANT: Do not try using Pike 7.0.78 from the Pike website 
-*** since that version is to old to work with Caudium 1.1!
-***
-*** Although Caudium 1.2 should function with Pike 7.3/7.4, we don't
-*** recommend this, since Pike 7.3/7.4 is still in development which has
-*** had several obscure bugs on and off during the Caudium
-*** development. 
-***
-*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6!
-*********************************************************************
+*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6 or 7.0!
+****************************************************************************
 EOF
   exit 1;
 fi
