@@ -55,8 +55,8 @@ constant module_doc  = "Indirect href. Adds a new container <tt>&lt;ai&gt;</tt>"
 	    "once. It also allows the special case 'name=random'. If this "
 	    "is used, a random link will be selected from the database. "
 	    "Example:<pre>"
-	    "   roxen=http://www.roxen.com/\n"
-	    "   idonex=http://www.idonex.se/</pre>";
+	    "   caudiumnet=http://caudium.net/\n"
+	    "   caudiumorg=http://caudium.org/</pre>";
 constant module_unique = 0;
 
 mapping hrefs;
