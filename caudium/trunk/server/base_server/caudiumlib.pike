@@ -232,6 +232,9 @@ static mapping build_env_vars(string f, object id, string path_info)
   new["REQUEST_METHOD"]=id->method||"GET";
   new["SERVER_PORT"] = id->my_fd?
     ((id->my_fd->query_address(1)||"foo unknown")/" ")[1]: "Internal";
+
+  if(id->ssl_accept_callback)
+    new["HTTPS"]="on";
     
   return new;
 }
