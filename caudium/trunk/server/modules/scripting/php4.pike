@@ -216,7 +216,7 @@ class PHPScript
     environment =([]);
     environment |= global_env;
     environment |= build_env_vars( id->realfile, id, id->misc->path_info );
-    environment |= build_roxen_env_vars(id);
+    environment |= build_caudium_env_vars(id);
     if(id->misc->ssi_env)     	environment |= id->misc->ssi_env;
     if(id->misc->is_redirected) environment["REDIRECT_STATUS"] = "1";
     if(id->rawauth && query("rawauth"))
