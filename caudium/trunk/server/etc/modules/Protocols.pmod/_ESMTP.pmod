@@ -151,6 +151,13 @@ class client
 		// now we should be all set up.
 	}
 
+	void destruct() {
+		catch {
+			smtp_tell("QUIT");
+			conn->close();
+		};
+	}
+
 	private void smtp_tell(string what) {
 		conn->write(what + "\n");
 		smtp_read();
@@ -176,43 +183,51 @@ class client
 		smtp_reply->retcode = (int)reply[0][0..2];
 	}
 
-	int sender(string address) {
-		if(address[0] != '<')
-			address = "<" + address;
-		if(address[strlen(address)-1] != '>')
-			address += ">";
-		smtp_tell("MAIL FROM: " + address);
-		if( !CODECLASS(200) )
-			return 0;
-		return 1;
-	}
-	
-	int recipient(string|array address) {
+	int sender(string|mapping address) {
 		if(stringp(address)) {
 			if(address[0] != '<')
 				address = "<" + address;
 			if(address[strlen(address)-1] != '>')
 				address += ">";
+			smtp_tell("MAIL FROM: " + address);
+			if( !CODECLASS(200) )
+				return 0;
+			return 1;
 		} else {
-			// FIXME: something's fishy here too
-			for(int i=0; i<sizeof(address); i++) {
-				string s = address[i];
-				if(s[0] != '<') address[i] = "<" + s;
-				if(s[strlen(s)-1] != '>') address[i] += ">";
+			// address = ([ "address": address, "dsn": "full" | "hdrs" ]);
+			if(!stringp(address->dsn))
+				return 0;
+			address->dsn = lower_case(address->dsn);
+
+			if(address->address[0] != '<')
+				address->address = "<" + address->address;
+			if(address->address[strlen(address->address)-1] != '>')
+				address->address += ">";
+
+			if( (address->dsn != "full") && (address->dsn != "hdrs") ) {
+				write("DDD:\n");
+				return 0;
 			}
-		}
-		if(stringp(address)) {
-			smtp_tell("RCPT TO:" + address);
+
+			smtp_tell("MAIL FROM: " + address->address + " RET=" + upper_case(address->dsn));
 			if( !CODECLASS(200) ) {
 				return 0;
 			} else {
 				return 1;
 			}
 		}
-		foreach(address, string s) {
-			smtp_tell("RCPT TO: " + s);
-			if( !CODECLASS(200) )
-				return 0;
+	}
+	
+	int recipient(string address) {
+		if(address[0] != '<')
+			address = "<" + address;
+		if(address[strlen(address)-1] != '>')
+			address += ">";
+		smtp_tell("RCPT TO:" + address);
+		if( !CODECLASS(200) ) {
+			return 0;
+		} else {
+			return 1;
 		}
 		return 1;
 	}
@@ -236,7 +251,7 @@ class client
 	void quit() {
 		smtp_tell("QUIT");
 		conn->close();
-		destruct( this_object() );
+//		destruct( this_object() );
 	}
 
 	int auth(string user, string pass) {
