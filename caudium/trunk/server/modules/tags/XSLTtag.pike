@@ -93,18 +93,18 @@ string container_xslt(string tag, mapping args, string xml, object id)
   if(!key || !type)
     ERROR("Incorrect or missing stylesheet");
   switch(type) {
-   case "virt":
-    key = id->realfile(key, id);
-   case "file":
+  case "virt":
+    key = id->conf->realfile(key, id);
+  case "file":
     xsl = Stdio.read_file(key);
     if(!args->baseuri) 
       args->baseuri = dirname(key);
     break;
-   case "var":
+  case "var":
     xsl = id->variables[key];
     break;
     
-   default:
+  default:
     ERROR("Invalid stylesheet method. Valid methods are file:, virt: and var:");
   }
   if(!xsl)
