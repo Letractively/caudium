@@ -27,7 +27,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_EXPERIMENTAL;
+constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "LDAP: Command Center";
 constant module_doc  = "Central LDAP management module. Provides the connection to the "
                        "provider modules, manages the session data for them and dispatches "
@@ -215,6 +215,11 @@ string query_location()
     return QUERY(mountpoint);
 }
 
+string query_provides()
+{
+    return QUERY(provider_prefix) + "_ldap-center";
+}
+
 void start(int cnt, object conf)
 {
     module_dependencies(conf, ({"ldapuserauth",
@@ -326,9 +331,13 @@ private mixed do_logout(object id, mapping data, string f)
     string logoutscr = sprov->retrieve(id, "logout");
 
     object session = PROVIDER("123sessions");
-    if (session)
+    if (session) {
         session->delete_session(id, id->misc->session_id, 1);
-
+        m_delete(id->misc, "session_variables");
+        m_delete(id->misc, "session_id");
+        m_delete(id->misc, "user_variables");
+    }
+    
     kill_ldap(id);
     
     if (logoutscr && logoutscr != "")
@@ -477,3 +486,14 @@ mixed find_file(string f, object id)
     return response ? response : http_string_answer("Some screwup - check your provider modules");
 }
 
+//
+// Utility functions meant to be used by the other modules
+//
+
+//
+// This notifies the center that some module was added by the admin to the
+// CIF - the module is asked for menus it provides, gets added to the
+// present providers list etc.
+//
+void module_added(string name)
+{}
