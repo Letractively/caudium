@@ -966,7 +966,7 @@ string tag_use(string tag, mapping m, object id)
     return "<use help>";
   
   if(m->file)
-    m->file = fix_relative(m->file,nid)
+    m->file = fix_relative(m->file, nid);
   if(id->pragma["no-cache"] || 
      !(res = cache_lookup("macrofiles:"+ id->conf->name ,
 			  (m->file || m->package))))
