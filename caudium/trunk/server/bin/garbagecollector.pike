@@ -28,6 +28,7 @@
 string cvs_version = "$Id$";
 
 //#define DEBUG
+#pike 7.0
 
 string version = cvs_version;
 
