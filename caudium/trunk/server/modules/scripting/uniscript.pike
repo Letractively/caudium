@@ -283,7 +283,7 @@ class CGIScript
     environment |= global_env;
     environment |= Caudium.Env.build_vars( id->realfile, id, id->misc->path_info );
     if(QUERY(Enhancements))
-      environment |= Caudium.Env.build_caudium_env_vars(id);
+      environment |= Caudium.Env.build_caudium_vars(id);
     if(id->misc->ssi_env)
       environment |= id->misc->ssi_env;
     // I assume that all scripts are internal redirected.
