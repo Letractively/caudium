@@ -878,6 +878,7 @@ values( symbols ) +
 values( greek ) +
 ({"<",">","&","\"","\'","\"","\"","\'","\000"});
 
+#if 0
 //! Decodes a HTML-encoded string
 //!
 //! @param str
@@ -891,6 +892,7 @@ string html_decode_string(string str)
 		 ({"&amp;","&lt;","&gt;","&#34;","&#39;","&#0;","&#58;"}),
 		 ({"&", "<", ">", "\"", "\'", "\000", ":" }) );
 }
+#endif
 
 //!  Converts html entity coded chars to unicode
 //! @param str
