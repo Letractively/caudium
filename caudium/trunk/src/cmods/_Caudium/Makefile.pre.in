@@ -1,5 +1,5 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
-MODNAME=Caudium
+MODNAME=_Caudium
 OBJS= caudium.o nb_send.o
 SOURCES=caudium.c nb_send.c
 MODULE_LIBS=@LIBS@

@@ -1,5 +1,10 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Caudium.so pike glue in now _Caudium. A Pike module library is here to handle
+  all functions that are coded in C or in Pike or that uses both things.
+
+Changes in Caudium 1.3 since Caudium 1.2.1
+------------------------------------------
 
 - Fixed a bug in the new compression module : when using things like <insert>
   in RXML pages the data was compressed twice.

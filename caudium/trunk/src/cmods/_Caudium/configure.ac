@@ -10,7 +10,7 @@ dnl Test for snprintf..
 AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
 	AC_MSG_ERROR([Your system lacks the snprintf function. Please send a bug report with OS/environment details to bugs@caudium.info. Caudium can not be built on your system.])])
 
-dnl For Caudium.cern_http_date() function
+dnl For _Caudium.cern_http_date() function
 AC_STRUCT_TIMEZONE
 AC_CHECK_MEMBER(struct tm.tm_gmtoff, [AC_DEFINE(STRUCT_TM_TM_GMTOFF,,[Define if you have struct tm/tm_gmtoff])],,[
 #include <sys/types.h>
