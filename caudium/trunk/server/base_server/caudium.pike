@@ -2528,7 +2528,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "The URL to prepend to all documentation urls throughout the "
 	  "server. This URL should _not_ end with a '/'.");
 
-  globvar("pidfile", "/tmp/caudium_pid:$uid", "PID file",
+  globvar("pidfile", "/tmp/caudium_pid", "PID file",
 	  TYPE_FILE|VAR_MORE,
 	  "In this file, the server will write out it's PID, and the PID "
 	  "of the start script. $pid will be replaced with the pid, and "
@@ -3470,7 +3470,7 @@ int main(int|void argc, array (string)|void argv)
 
   set_u_and_gid();		// Running with the right uid:gid from this point on.
 
-  create_pid_file(find_arg(argv, "p", "pid-file", "ROXEN_PID_FILE")
+  create_pid_file(find_arg(argv, "p", "pid-file", "CAUDIUM_PID_FILE")
 		  || QUERY(pidfile));
 
   roxen_perror("Initiating argument cache ... ");
