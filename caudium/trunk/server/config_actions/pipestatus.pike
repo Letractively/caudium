@@ -40,7 +40,7 @@ int verify_0()
 
 mixed page_0(object id, object mc)
 {
-  int *ru;
+  array(int) ru;
   if(caudium->pipe == Caudium.nbio) 
     ru = Caudium.nbio()->nbio_status();
   else

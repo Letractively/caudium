@@ -10,6 +10,10 @@ Changes in Caudium 1.0.XX
   (http2 protocol).
 - Fixed bug #432433 (redirect module fix)
 - Fix to allow / in the name of modules and variables (bug #423435).
+- Always simplify path in low_get_file. This is added to prevent the
+  possibility of a bugs allowing access to files outside of the
+  configured web page directories. Please note that there are no known
+  such bugs in Caudium.
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------

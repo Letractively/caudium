@@ -237,17 +237,17 @@ string page_0(object id)
     nid->method = "GET";
     if (id->variables->user && id->variables->user!="")
     {
-       string *y;
-       nid->rawauth 
-	  = 
-	  "Basic "+MIME.encode_base64(id->variables->user+":"+
-				      id->variables->password);
+      array(string) y;
+      nid->rawauth 
+	= 
+	"Basic "+MIME.encode_base64(id->variables->user+":"+
+				    id->variables->password);
 
-       nid->realauth=id->variables->user+":"+id->variables->password;
+      nid->realauth=id->variables->user+":"+id->variables->password;
 
-       nid->auth=({0,nid->realauth});
-       if(c && c->auth_module)
-	  nid->auth = c->auth_module->auth( nid->auth, nid );
+      nid->auth=({0,nid->realauth});
+      if(c && c->auth_module)
+	nid->auth = c->auth_module->auth( nid->auth, nid );
     }
 
     resolv_handle_request(c, nid);
