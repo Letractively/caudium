@@ -158,6 +158,15 @@ int TEST_get_port() {
   return mapping_test(tst, _Caudium.get_port);
 }
 
+int TEST__make_tag_attributes() {
+  mapping tst = ([ ([
+                    "href":"/mailmailindex--?mbox=INBOX&amp;msguid=3522&amp;actionread=1",
+                    "target":"mailindex"
+                   ]):"target=\"mailindex\" href=\"/mailmailindex--?mbox=INBOX&amp;amp;msguid=3522&amp;amp;actionread=1\" "
+                 ]);
+  prtest("_make_tag_attributes");
+  return mapping_test(tst, _Caudium._make_tag_attributes);
+}
          
 int TEST_http_date() {
   int tmstmp = time();
