@@ -1070,10 +1070,13 @@ string draw_saturation_bar(int hue,int brightness, int where)
 }
 
 
-// Inspired by the internal-gopher-... thingie, this is the images
-// from the configuration interface. :-)
-private mapping internal_roxen_image(string from)
+// Inspired by the internal-gopher-... thingie, this is the for internal
+// Caudium images, like logos etc.
+private mapping internal_caudium_image(string from)
 {
+  object img;
+  int hue,bright,w;
+  
   sscanf(from, "%s.gif", from);
   sscanf(from, "%s.jpg", from);
 
@@ -1084,17 +1087,23 @@ private mapping internal_roxen_image(string from)
   // /..
   from -= ".";
 
-  // changed 970820 by js to allow for jpeg images
-
   // New idea: Automatically generated colorbar. Used by wizard code...
-  int hue,bright,w;
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
-  if(object f=open("caudium-images/"+from+".gif", "r"))
-    return (["file":f,"type":"image/gif"]);
+
+  if(img = open("caudium-images/"+from+".gif", "r")) 
+    return (["file": img, "type":"image/gif" ]);
+  else if(object img = open("caudium-images/"+from+".jpg", "r"))
+    return (["file": img, "type":"image/jpeg" ]);
   else
-    return (["file":open("caudium-images/"+from+".jpg", "r"),"type":"image/jpeg"]);
+    return
+      http_string_answer("<html><title>No Such Internal Image!</title>"
+			 "<body bgcolor=black text=white>"
+			 "<h1 align=center>"
+			 "<img src=\"/internal-caudium-dontpanic\" "
+			 "width=\"172\" height=\"128\"><br>Don't panic!</h1>"
+			 "</body></html>");
 }
 
 // The function that actually tries to find the data requested.  All
@@ -1245,7 +1254,7 @@ mapping|int low_get_file(object id, int|void no_magic)
   TRACE_ENTER("Request for "+id->not_query, 0);
 
   string file=id->not_query;
-  string loc;
+  string loc, type;
   function funp;
   mixed tmp, tmp2;
   mapping|object fid;
@@ -1257,18 +1266,18 @@ mapping|int low_get_file(object id, int|void no_magic)
     // No, this is not beautiful... :) 
 
     if(sizeof(file) && (file[0] == '/') &&
-       sscanf(file, "%*s/internal-%s", loc))
+       sscanf(file, "%*s/internal-%s-%s", type, loc) == 3)
     {
-      if(sscanf(loc, "gopher-%[^/]", loc))    // The directory icons.
-      {
+      switch(type) {
+       case "gopher":
 	TRACE_LEAVE("Magic internal gopher image");
 	return internal_gopher_image(loc);
-      }
-      if(sscanf(loc, "caudium-%[^/]", loc)  // Configuration interface images.
-	 ||sscanf(loc, "roxen-%[^/]", loc)) // Try /internal-caudium-power
-      {
+
+       case "caudium":
+       case "roxen":
+       case "spinner":
 	TRACE_LEAVE("Magic internal Caudium image");
-	return internal_roxen_image(loc);
+	return internal_caudium_image(loc);
       }
     }
 #endif
