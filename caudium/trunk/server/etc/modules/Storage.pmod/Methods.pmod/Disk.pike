@@ -430,7 +430,7 @@ static Thread.Mutex mutex = Thread.Mutex();
   }
 
   void write_cb() {
-    if ((pos > sizeof(from)) || (pos == -1)) {
+    if ((pos >= sizeof(from)) || (pos == -1)) {
 #ifdef CACHE_DEBUG
       write("[%s] end of file, closing.\n", to);
 #endif

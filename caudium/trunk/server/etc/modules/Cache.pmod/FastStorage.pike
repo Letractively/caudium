@@ -164,11 +164,15 @@ private mixed get_stdio( string hash ) {
   LOCK();
   mapping tmp = thecache[ hash ] + ([ ]);
   string data = tmp->object;
+#if constant(Stdio.FakeFile)
+  tmp->object = Stdio.FakeFile(data);
+#else
   tmp->object = Stdio.File();
   object p = tmp->object->pipe();
   p->set_nonblocking();
   p->write( data );
   p->close();
+#endif
   return tmp;
 }
 
