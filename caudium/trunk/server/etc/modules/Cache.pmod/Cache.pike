@@ -233,14 +233,14 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
   mixed _object = ram_cache->retrieve(name);
   if (mappingp(_object)) {
 #ifdef CACHE_DEBUG
-  write("Hit\n");
+  write("Hit (FastStorage)\n");
 #endif
     return _object->object;
   }
   _object = disk_cache->retrieve(name);
   if (mappingp(_object)) {
 #ifdef CACHE_DEBUG
-  write("Hit\n");
+  write("Hit (SlowStorage)\n");
 #endif
     if (_object->size < max_object_ram) {
       ram_cache->store(_object);
