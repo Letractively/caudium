@@ -491,11 +491,6 @@ mapping query_tag_callers()
 //!  type: TYPE_STRING_LIST
 //!  name: Extensions to access count
 //
-//! defvar: ac
-//! If unset, the &lt;accessed&gt; tag will not work, and no access log will be needed. This will save one file descriptors.
-//!  type: TYPE_FLAG
-//!  name: Access log
-//
 //! defvar: close_db
 //! If set, the accessed database will be closed if it is not used for 8 seconds
 //!  type: TYPE_FLAG|VAR_MORE
