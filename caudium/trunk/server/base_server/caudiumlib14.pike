@@ -404,6 +404,12 @@ private int compare( string a, string b ) // what a mess!
 //!         The default value returned for all variables which have no
 //!         value assigned.
 //!
+//!       @member string "pad"
+//!         Padding ?
+//!
+//!       @member string "align"
+//!         Align argument
+//!
 //!       @member string "delimiter"
 //!         A string put after each replaced variable.
 //!    @endmapping
@@ -582,8 +588,10 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
           mixed val = vars[var];
           array(string) encodings = ({});
           string multisep = multi_separator;
+          string pad = args->pad || "0";
           string zero = args->zero || "";
           string empty = args->empty || "";
+          string align = args->align || "right";
 
           foreach (options[1..], string option) {
             array (string) pair = option / "=";
@@ -597,6 +605,14 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
                 case "zero":
                   zero = optval;
                   break;
+
+		case "pad":
+		  pad = (string)optval;
+		  break;
+
+		case "align":
+		  align = (string)optval;
+		  break;
                   
                 case "multisep":
                 case "multi_separator":
@@ -641,6 +657,15 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
             if (!sizeof (val))
               val = empty;
           }
+
+	  if ((int)pad) {
+		if (align=="left")
+			align="-";
+		else if (align=="center")
+			align="|";
+		else align="";
+		val = sprintf("%!" + align + pad + "s",val);
+	  }
 
           if (!sizeof (encodings))
             encodings = args->encode ?
