@@ -36,12 +36,37 @@ constant module_doc  = "Module that manages all the menu screens for the LCC.";
 
 constant module_unique = 0;
 
+private mapping tags = ([
+        "_menu" : tag_lcc_menu,
+        "_menus" : tag_lcc_menus
+]);
+
 void create()
 {
     defvar("provider_prefix", "lcc", "Provider module prefix", TYPE_STRING,
            "This prefix must match one of the LDAP Command Center prefixes used "
            "in this virtual server or otherwise the LCC module won't load. Initially "
            "both LCC and this module share the <code>lcc</code> prefix.");
+}
+
+void start(int cnt, object conf)
+{
+    foreach(indices(tags), string idx) {
+        tags[QUERY(provider_prefix) + idx] = tags[idx];
+        m_delete(tags, idx);
+    }
+}
+
+string status() 
+{
+    string ret = "This module provides the following tags:<br /><blockquote><ul>";
+
+    foreach(indices(tags), string idx)
+        ret += sprintf("<li><strong>%s</strong></li>", idx);
+
+    ret += "</ul></blockquote>";
+
+    return ret;
 }
 
 string query_provides()
@@ -292,10 +317,5 @@ string tag_lcc_menus(string tag,
 
 mapping query_tag_callers()
 {
-    mapping tags = ([
-        QUERY(provider_prefix) + "_menu" : tag_lcc_menu,
-        QUERY(provider_prefix) + "_menus" : tag_lcc_menus
-    ]);
-    
     return tags;
 }

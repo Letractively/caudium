@@ -48,5 +48,8 @@ string query_provides()
 
 mapping error(object id, int errcode, mixed|void errextra)
 {
-    return http_redirect("http://localhost/", id);
+    string retval = sprintf("Error <strong>%d</strong> (extra info: <strong><code>%s</code></strong>)",
+                            errcode, errextra ? errextra : "none");
+    
+    return http_string_answer(retval);
 }

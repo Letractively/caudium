@@ -27,7 +27,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_LOCATION | MODULE_EXPERIMENTAL;
+constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_EXPERIMENTAL;
 constant module_name = "LDAP: Command Center";
 constant module_doc  = "Central LDAP management module. Provides the connection to the "
                        "provider modules, manages the session data for them and dispatches "
