@@ -13,6 +13,11 @@ Description-pl: Numer portu interfejsu konfiguracyjnego?
  Podaj port, na którym serwer udostêpni swój interfejs konfiguracyjny.
  Interfejs jest osi±galny przez wpisanie adresu w dowolnej przegl±darce
  WWW, która obs³uguje formularze (np. Mozilla, Lynx, Links czy Galeon)
+Description-fr: Sur quel port voulez-vous que l'interface de configuration 
+ soit ? Indiquez le port sur lequel Caudium fournira son interface de
+ configuration. Vous pourrer alors accéder a cette interface en utilisant
+ n'importe quel navigateur web supportant les formulaires (comme Mozilla,
+ Lynx, Links ou Galeon)
 
 Template: caudium/listen_on
 Type: string
@@ -32,6 +37,10 @@ Description-pl: Na którym porcie serwer ma nas³uchiwaæ?
  po³±czenia na porcie '${portno}' ka¿dego interfejsu w twoim
  komputerze. Wydaje siê jednak, i¿ ów port jest ju¿ zajêty
  przez inny program. Podaj, proszê, inny numer portu.
+Description-fr: Sur quel port le server devrait-il écouter ?
+ Caudium utilise actuellement le port '${portno}' sur toutes les
+ interface de votre machine. Il semble que ce port est déjà 
+ pris par une autre application. Merci de spécifier un autre port.
 
 Template: caudium/start_options
 Type: multiselect
@@ -57,6 +66,13 @@ Description-pl: Wybierz opcje startowe serwera
  'profile' - zapisz informacjê dot. profilowania serwera
  'fd-debug' - wy¶wietlaj dodatkowe informacje o deskryptorach plików
  'keep-alive' - stosuj opcjê 'keep alive' protoko³u HTTP/1.1
+Description-fr: Sélectionnez les options a utiliser lors du lancement
+ 'threads' - utilise les threads (si disponible);
+ 'debug' - informations de deboggage en sortie standard;
+ 'once' - exécute en premier plan;
+ 'profile' - affiche les information de profilage;
+ 'fd-debug' - deboggue les descripteurs de fichier;
+ 'keep-alive' - garde les connection ouvertes avec le protocole HTTP/1.1;
 
 Template: caudium/cfg_port_taken
 Type: note
@@ -75,6 +91,11 @@ Description-pl: Nie mo¿na otworzyæ portu
  Proszê podaæ inny numer portu - Caudium nie mo¿e funkcjonowaæ
  prawid³owo bez pod³±czenia interfejsu konfiguracyjnego do
  portu w twoim systemie.
+Description-fr: Impossible d'ouvrir (bind) le port.
+ Le port que vous avez configuré pour l'interface de configuration de 
+ Caudium n'est pas disponible. Merci de préciser un autre numéro de 
+ port - Caudium ne peux fonctionner normale sans ouvrir un port pour
+ son interface de configuration sur votre système.
 
 Template: caudium/last_screen
 Type: note
@@ -106,6 +127,15 @@ Description-pl: Konfiguracja Caudium
  By uzyskaæ wiêcej informacji o Caudium proszê przeczytaæ dokumenty
  w katalogu /usr/share/doc/caudium i odwiedziæ strony http://caudium.net/
  oraz http://caudium.org/
+Description-fr: Configuration de Caudium
+ Après l'installation de Caudium et son lancement effectué, vous pourrer
+ pointer votre navigateur web supportant les formulaires sur 
+ localhost:${cfgport} pour afiner la configuration de Caudium en utilisant
+ son interface de configuration web. Cette étape est VRAIMENT IMPORTANTE
+ sachant que vous allez créer un utilisateur/mot de passe administratif.
+ Pour plus d'information sur Caudium, veuillez consulter les docuement 
+ dans le répertoire /usr/share/doc/caudium et veillez à visitez les sites
+ web http://caudium.net/ et http://caudium.org/
 
 Template: caudium/experimental_http
 Type: boolean
@@ -129,3 +159,10 @@ Description-pl: Czy u¿ywaæ experymentalnego modu³u HTTP?
  u¿ywaniu. Nie zaleca siê u¿ywania tego modu³u na "¿ywym" serwerze.
  Je¶li, jednak¿e, chcesz przetestowac ten modu³ odpowiedz TAK na
  powy¿sze pytanie.
+Description-fr: Utiliser le module expérimental HTTP ?
+ Caudium est pourvu d'un module expériemental HTTP qui est plus 
+ rapide que celui fournit en standard. Ce code est en constant 
+ travaux et il est possible que certains problèmes apparaissent
+ lors de son utilisation. Par conséquent, son utilisation N'est PAS
+ recommandé pour un serveur en production. Cepandant si vous voulez
+ tester ses fonctionnalités, répondez OUI à cette question.
