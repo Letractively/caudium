@@ -29,14 +29,31 @@
 
 constant cvs_version = "$Id$";
 
+#define WCOMPAT(X) \
+	string sourcefile; \
+        int    sourceline; \
+        sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n", \
+               sourceline,sourcefile); \
+        report_error("Compat "+X+"() used in %s:%d, please consider using " \
+                     "Caudium."+X+"() instead\n",sourcefile,sourceline);
+
 //! Compat call of Caudium.http_encode_string
 //! @deprecated
 string http_encode_string(string m) {
-   string sourcefile;
-   int    sourceline;
-   sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n",
-          sourceline,sourcefile);
-   report_error("http_encode_string() used in %s:%d, please consider using "
-                "Caudium.http_encode_string() instead",sourcefile,sourceline);
+   WCOMPAT("http_encode_string");
    return Caudium.http_encode_string(m);
+}
+
+//! Compat call of Caudium.http_encode_cookie
+//! @deprecated
+string http_encode_cookie(string m) {
+   WCOMPAT("http_encode_cookie");
+   return Caudium.http_encode_cookie(m);
+}
+
+//! Compat call of Caudium.http_encode_url
+//! @deprecated
+string http_encode_url(string m) {
+   WCOMPAT("http_encode_url");
+   return Caudium.http_encode_url(m);
 }
