@@ -61,7 +61,7 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-#define DESTRUCT_REQUESTID call_out(lambda(){ destruct(this_object()); }, 5)
+#define DESTRUCT_REQUESTID call_out(lambda(){ destruct(this_object()); }, 300)
 
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
