@@ -1,227 +1,223 @@
-6 <- Do not remove this number!   Caudium save file format>
-
-<region name='spider#0'>
- <var name='Old404'>             <int>0</int> </var>
- <var name='InternalLoc'>        <str>/_internal/</str> </var>
- <var name='Domain'>             <str></str> </var>
- <var name='NoLog'>              
-  <a>
-    
-  </a>
- </var>
- <var name='Log'>                <int>1</int> </var>
- <var name='LogFile'>            <str>/var/log/caudium/localhost/Log</str> </var>
- <var name='max_open_time'>      <int>300</int> </var>
- <var name='LogFormat'>          <str>*: $host - $user [$cern_date] "$method $resource $protocol" $response $length "$referer" "$agent_unquoted"</str> </var>
- <var name='ftp_user_session_limit'><int>0</int> </var>
- <var name='ErrorTheme'>         <str></str> </var>
- <var name='data_cache_file_max_size'><int>50</int> </var>
- <var name='data_cache_gc_cleanup'><int>25</int> </var>
- <var name='data_cache_size'>    <int>2048</int> </var>
- <var name='Ports'>              
-  <a>
-    
-  <a>
-    <int>@PORTNUM@</int>
-    <str>http</str>
-    <str>ANY</str>
-    <str></str>
-  </a>
-
-  </a>
- </var>
- <var name='anonymous_ftp'>      <int>0</int> </var>
- <var name='guest_ftp'>          <int>0</int> </var>
- <var name='shells'>             <str>/etc/shells</str> </var>
- <var name='ftphdirxtra'>        <str>htdocs:0755,cgi-bin:0755,logs:0775</str> </var>
- <var name='ftphdirautoext'>     <int>0</int> </var>
- <var name='ftpnohomedeny'>      <int>0</int> </var>
- <var name='pasvipaddr'>         <str>62.233.156.50</str> </var>
- <var name='pasvnat'>            <int>0</int> </var>
- <var name='maxpasvtry'>         <int>3</int> </var>
- <var name='hipasvport'>         <int>65530</int> </var>
- <var name='comment'>            <str></str> </var>
- <var name='FTPWelcome'>         <str>              +-------------------------------------------------
-              +-- Welcome to the Caudium Webserver FTP server ---
-              +-------------------------------------------------
-</str> </var>
- <var name='named_ftp'>          <int>0</int> </var>
- <var name='lowpasvport'>        <int>65000</int> </var>
- <var name='restricpasv'>        <int>1</int> </var>
- <var name='passive_ftp'>        <int>1</int> </var>
- <var name='MyWorldLocation'>    <str>http://localhost/</str> </var>
- <var name='ZNoSuchFile'>        <str>%3ctitle%3eSorry. I cannot find this resource%3c/title%3e
-%3cbody bgcolor='#ffffff' text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'%3e
-%3ch2 align=center%3e%3cconfigimage src=caudium.gif alt="File not found"%3e
-%3cp%3e%3chr noshade%3e
-%3ci%3eSorry%3c/i%3e%3c/h2%3e
-%3cbr clear%3e
-%3cfont size="+2"%3eThe resource requested %3ci%3e$File%3c/i%3e
-cannot be found.%3cp%3e
-
-If you feel that this is a configuration error, please contact the administrators or the author of the
-%3cif referrer%3e%3ca href="%3creferrer%3e"%3ereferring%3c/a%3e%3c/if%3e
-%3celse%3ereferring%3c/else%3e
-page.%3cp%3e
-%3c/font%3e
-%3chr noshade%3e%3cversion%3e, at %3ca href="$Me"%3e$Me%3c/a%3e.
-%3c/body%3e
-</str> </var>
- <var name='ftphomedircreate'>   <int>0</int> </var>
- <var name='name'>               <str></str> </var>
-</region>
-
-<region name='gbutton#0'>
- <var name='_priority'>          <int>5</int> </var>
- <var name='_name'>              <str></str> </var>
- <var name='_comment'>           <str></str> </var>
+<?xml version="1.0"?>
+<caudiumcfg>
+<region name='directories#0'>
+	<var name='size'><int>1</int></var>
+	<var name='indexfiles'><a><str><![CDATA[index.html]]></str><str><![CDATA[Main.html]]></str><str><![CDATA[welcome.html]]></str><str><![CDATA[index.rxml]]></str><str><![CDATA[index.cgi]]></str><str><![CDATA[index.lpc]]></str><str><![CDATA[index.pike]]></str><str><![CDATA[index.htm]]></str><str><![CDATA[index.php]]></str><str><![CDATA[index.php3]]></str><str><![CDATA[index.xhtml]]></str><str><![CDATA[index.xht]]></str></a></var>
+	<var name='sizes'><int>30</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='_priority'><int>0</int></var>
+	<var name='readme'><int>1</int></var>
+	<var name='date'><str><![CDATA[Show ISO dates]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
 </region>
 
 <region name='filesystem#1'>
- <var name='no_symlinks'>        <int>0</int> </var>
- <var name='check_auth'>         <int>1</int> </var>
- <var name='keep_old_perms'>     <int>1</int> </var>
- <var name='.files'>             <int>0</int> </var>
- <var name='mountpoint'>         <str>/doc</str> </var>
- <var name='access_as_user'>     <int>0</int> </var>
- <var name='dirperm'>            <str>0777</str> </var>
- <var name='fileperm'>           <str>0666</str> </var>
- <var name='put'>                <int>0</int> </var>
- <var name='method_mkdir'>       <int>0</int> </var>
- <var name='method_mv'>          <int>0</int> </var>
- <var name='method_chmod'>       <int>0</int> </var>
- <var name='appe'>               <int>0</int> </var>
- <var name='searchpath'>         <str>/usr/share/doc/</str> </var>
- <var name='delete'>             <int>0</int> </var>
- <var name='_sec_group'>         <str>user</str> </var>
- <var name='_seclvl'>            <int>0</int> </var>
- <var name='tilde'>              <int>0</int> </var>
- <var name='_seclevels'>         <str>accept ip=127.0.0.1/32
-</str> </var>
- <var name='_priority'>          <int>5</int> </var>
- <var name='_name'>              <str>Debian Documentation Tree</str> </var>
- <var name='_comment'>           <str>This mountpoint is accessible only through the http://localhost/doc/ URL - for security reasons.</str> </var>
- <var name='dir'>                <int>1</int> </var>
- <var name='umask'>              <str>022</str> </var>
-</region>
-
-<region name='filesystem#0'>
- <var name='method_chmod'>       <int>0</int> </var>
- <var name='method_mv'>          <int>0</int> </var>
- <var name='method_mkdir'>       <int>0</int> </var>
- <var name='put'>                <int>0</int> </var>
- <var name='fileperm'>           <str>0666</str> </var>
- <var name='dirperm'>            <str>0777</str> </var>
- <var name='access_as_user'>     <int>0</int> </var>
- <var name='.files'>             <int>0</int> </var>
- <var name='mountpoint'>         <str>/</str> </var>
- <var name='keep_old_perms'>     <int>1</int> </var>
- <var name='check_auth'>         <int>1</int> </var>
- <var name='no_symlinks'>        <int>0</int> </var>
- <var name='searchpath'>         <str>/var/www/</str> </var>
- <var name='appe'>               <int>0</int> </var>
- <var name='delete'>             <int>0</int> </var>
- <var name='_name'>              <str>WebSite Root</str> </var>
- <var name='_comment'>           <str></str> </var>
- <var name='_priority'>          <int>5</int> </var>
- <var name='_seclevels'>         <str></str> </var>
- <var name='tilde'>              <int>0</int> </var>
- <var name='_sec_group'>         <str>user</str> </var>
- <var name='_seclvl'>            <int>0</int> </var>
- <var name='dir'>                <int>1</int> </var>
- <var name='umask'>              <str>022</str> </var>
-</region>
-
-<region name='htmlparse#0'>
- <var name='parse_exec'>         <int>0</int> </var>
- <var name='no_parse_exec'>      <int>0</int> </var>
- <var name='max_parse'>          <int>200</int> </var>
- <var name='_priority'>          <int>5</int> </var>
- <var name='toparse'>            
-  <a>
-    <str>rxml</str>
-    <str>html</str>
-    <str>htm</str>
-  </a>
- </var>
- <var name='_name'>              <str></str> </var>
- <var name='_comment'>           <str></str> </var>
-</region>
-
-<region name='htaccess#0'>
- <var name='cache_all'>          <int>0</int> </var>
- <var name='_name'>              <str></str> </var>
- <var name='_seclvl'>            <int>0</int> </var>
- <var name='_sec_group'>         <str>user</str> </var>
- <var name='_priority'>          <int>5</int> </var>
- <var name='_comment'>           <str></str> </var>
- <var name='_seclevels'>         <str></str> </var>
- <var name='denyhtlist'>         
-  <a>
-    <str>.htaccess</str>
-    <str>.htpasswd</str>
-    <str>.htgroup</str>
-  </a>
- </var>
- <var name='file'>               <str>.htaccess</str> </var>
-</region>
-
-<region name='EnabledModules'>
- <var name='gbutton#0'>          <int>1</int> </var>
- <var name='filesystem#1'>       <int>1</int> </var>
- <var name='filesystem#0'>       <int>1</int> </var>
- <var name='directories#0'>      <int>1</int> </var>
- <var name='htaccess#0'>         <int>1</int> </var>
- <var name='cgi#0'>              <int>1</int> </var>
- <var name='htmlparse#0'>        <int>1</int> </var>
- <var name='userfs#0'>           <int>1</int> </var>
- <var name='rxmltags#0'>         <int>1</int> </var>
- <var name='pathinfo#0'>         <int>1</int> </var>
- <var name='ismap#0'>            <int>1</int> </var>
- <var name='corescopes#0'>       <int>1</int> </var>
- <var name='contenttypes#0'>     <int>1</int> </var>
- <var name='graphic_text#0'>     <int>1</int> </var>
- <var name='userdb#0'>           <int>1</int> </var>
+	<var name='put'><int>0</int></var>
+	<var name='keep_old_perms'><int>1</int></var>
+	<var name='_comment'><str><![CDATA[This mountpoint is accessible only through the http://localhost/doc/ URL - for security reasons.]]></str></var>
+	<var name='mountpoint'><str><![CDATA[/doc]]></str></var>
+	<var name='searchpath'><str><![CDATA[/usr/share/doc/]]></str></var>
+	<var name='_seclvl'><int>0</int></var>
+	<var name='method_mkdir'><int>0</int></var>
+	<var name='umask'><str><![CDATA[022]]></str></var>
+	<var name='dirperm'><str><![CDATA[0777]]></str></var>
+	<var name='tilde'><int>0</int></var>
+	<var name='check_auth'><int>1</int></var>
+	<var name='appe'><int>0</int></var>
+	<var name='_seclevels'><str><![CDATA[accept ip=127.0.0.1/32
+]]></str></var>
+	<var name='access_as_user'><int>0</int></var>
+	<var name='no_symlinks'><int>0</int></var>
+	<var name='delete'><int>0</int></var>
+	<var name='_name'><str><![CDATA[Debian Documentation Tree]]></str></var>
+	<var name='method_chmod'><int>0</int></var>
+	<var name='dir'><int>1</int></var>
+	<var name='fileperm'><str><![CDATA[0666]]></str></var>
+	<var name='.files'><int>0</int></var>
+	<var name='_sec_group'><str><![CDATA[user]]></str></var>
+	<var name='method_mv'><int>0</int></var>
+	<var name='_priority'><int>5</int></var>
 </region>
 
 <region name='cgi#0'>
- <var name='nice'>               <int>0</int> </var>
- <var name='_sec_group'>         <str>user</str> </var>
- <var name='_seclvl'>            <int>0</int> </var>
- <var name='location'>           <str>/cgi-bin/</str> </var>
- <var name='rawauth'>            <int>0</int> </var>
- <var name='maxtime'>            <int>60</int> </var>
- <var name='_seclevels'>         <str></str> </var>
- <var name='_name'>              <str></str> </var>
- <var name='_priority'>          <int>5</int> </var>
- <var name='_comment'>           <str></str> </var>
- <var name='stderr'>             <str>main log file</str> </var>
- <var name='rxml'>               <int>1</int> </var>
- <var name='runuser'>            <str></str> </var>
- <var name='datasize'>           <int>-2</int> </var>
- <var name='ls'>                 <int>0</int> </var>
- <var name='warn_root_cgi'>      <int>1</int> </var>
- <var name='open_files'>         <int>64</int> </var>
- <var name='allow_symlinks'>     <int>1</int> </var>
- <var name='noexec'>             <int>1</int> </var>
- <var name='cgilog'>             <str>../logs/localhost/cgi.log</str> </var>
- <var name='cgi_tag'>            <int>1</int> </var>
- <var name='stack'>              <int>-2</int> </var>
- <var name='user'>               <int>1</int> </var>
- <var name='extra_env'>          <str></str> </var>
- <var name='setgroups'>          <int>1</int> </var>
- <var name='ext'>                
-  <a>
-    <str>cgi</str>
-  </a>
- </var>
- <var name='env'>                <int>0</int> </var>
- <var name='searchpath'>         <str>/usr/lib/cgi-bin/</str> </var>
- <var name='clearpass'>          <int>0</int> </var>
- <var name='coresize'>           <int>0</int> </var>
- <var name='ex'>                 <int>1</int> </var>
- <var name='filesize'>           <int>-2</int> </var>
- <var name='priority'>           <str>normal</str> </var>
- <var name='kill_call_out'>      <int>5</int> </var>
+	<var name='clearpass'><int>0</int></var>
+	<var name='ls'><int>0</int></var>
+	<var name='open_files'><int>64</int></var>
+	<var name='nice'><int>0</int></var>
+	<var name='rxml'><int>1</int></var>
+	<var name='warn_root_cgi'><int>1</int></var>
+	<var name='_sec_group'><str><![CDATA[user]]></str></var>
+	<var name='rawauth'><int>0</int></var>
+	<var name='extra_env'><str><![CDATA[]]></str></var>
+	<var name='user'><int>1</int></var>
+	<var name='location'><str><![CDATA[/cgi-bin/]]></str></var>
+	<var name='stack'><int>-2</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='_seclvl'><int>0</int></var>
+	<var name='datasize'><int>-2</int></var>
+	<var name='priority'><str><![CDATA[normal]]></str></var>
+	<var name='cgi_tag'><int>1</int></var>
+	<var name='kill_call_out'><int>5</int></var>
+	<var name='runuser'><str><![CDATA[]]></str></var>
+	<var name='stderr'><str><![CDATA[main log file]]></str></var>
+	<var name='cgilog'><str><![CDATA[/var/caudium/log/localhost/cgi.log]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+	<var name='filesize'><int>-2</int></var>
+	<var name='searchpath'><str><![CDATA[/usr/lib/cgi-bin/]]></str></var>
+	<var name='noexec'><int>1</int></var>
+	<var name='ext'><a><str><![CDATA[cgi]]></str></a></var>
+	<var name='setgroups'><int>1</int></var>
+	<var name='_seclevels'><str><![CDATA[]]></str></var>
+	<var name='ex'><int>1</int></var>
+	<var name='allow_symlinks'><int>1</int></var>
+	<var name='maxtime'><int>60</int></var>
+	<var name='coresize'><int>0</int></var>
+	<var name='env'><int>0</int></var>
+	<var name='_priority'><int>5</int></var>
 </region>
 
+<region name='graphic_text#0'>
+	<var name='_seclvl'><int>0</int></var>
+	<var name='_seclevels'><str><![CDATA[]]></str></var>
+	<var name='colorparsing'><a><str><![CDATA[]]></str></a></var>
+	<var name='_priority'><int>5</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='colorparse'><int>0</int></var>
+	<var name='gif'><int>0</int></var>
+	<var name='deflen'><int>300</int></var>
+	<var name='_sec_group'><str><![CDATA[user]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+	<var name='colormode'><int>0</int></var>
+</region>
+
+<region name='filesystem#0'>
+	<var name='put'><int>0</int></var>
+	<var name='keep_old_perms'><int>1</int></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+	<var name='mountpoint'><str><![CDATA[/]]></str></var>
+	<var name='searchpath'><str><![CDATA[/var/www/]]></str></var>
+	<var name='_seclvl'><int>0</int></var>
+	<var name='method_mkdir'><int>0</int></var>
+	<var name='umask'><str><![CDATA[022]]></str></var>
+	<var name='dirperm'><str><![CDATA[0777]]></str></var>
+	<var name='tilde'><int>0</int></var>
+	<var name='check_auth'><int>1</int></var>
+	<var name='appe'><int>0</int></var>
+	<var name='_seclevels'><str><![CDATA[]]></str></var>
+	<var name='access_as_user'><int>0</int></var>
+	<var name='no_symlinks'><int>0</int></var>
+	<var name='delete'><int>0</int></var>
+	<var name='_name'><str><![CDATA[WebSite Root]]></str></var>
+	<var name='method_chmod'><int>0</int></var>
+	<var name='dir'><int>1</int></var>
+	<var name='fileperm'><str><![CDATA[0666]]></str></var>
+	<var name='.files'><int>0</int></var>
+	<var name='_sec_group'><str><![CDATA[user]]></str></var>
+	<var name='method_mv'><int>0</int></var>
+	<var name='_priority'><int>5</int></var>
+</region>
+
+<region name='htmlparse#0'>
+	<var name='max_parse'><int>200</int></var>
+	<var name='no_parse_exec'><int>0</int></var>
+	<var name='_priority'><int>5</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='parse_exec'><int>0</int></var>
+	<var name='toparse'><a><str><![CDATA[rxml]]></str><str><![CDATA[html]]></str><str><![CDATA[htm]]></str></a></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+</region>
+
+<region name='rxmltags#0'>
+	<var name='_priority'><int>5</int></var>
+	<var name='max_insert_depth'><int>100</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+	<var name='compat_if'><int>1</int></var>
+</region>
+
+<region name='htaccess#0'>
+	<var name='_seclvl'><int>0</int></var>
+	<var name='_seclevels'><str><![CDATA[]]></str></var>
+	<var name='file'><str><![CDATA[.htaccess]]></str></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='_priority'><int>5</int></var>
+	<var name='denyhtlist'><a><str><![CDATA[.htaccess]]></str><str><![CDATA[.htpasswd]]></str><str><![CDATA[.htgroup]]></str></a></var>
+	<var name='cache_all'><int>0</int></var>
+	<var name='_sec_group'><str><![CDATA[user]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+</region>
+
+<region name='EnabledModules'>
+	<var name='userfs#0'><int>1</int></var>
+	<var name='corescopes#0'><int>1</int></var>
+	<var name='graphic_text#0'><int>1</int></var>
+	<var name='rxmltags#0'><int>1</int></var>
+	<var name='htaccess#0'><int>1</int></var>
+	<var name='ismap#0'><int>1</int></var>
+	<var name='htmlparse#0'><int>1</int></var>
+	<var name='pathinfo#0'><int>1</int></var>
+	<var name='auth_userdb#0'><int>1</int></var>
+	<var name='filesystem#1'><int>1</int></var>
+	<var name='contenttypes#0'><int>1</int></var>
+	<var name='gbutton#0'><int>1</int></var>
+	<var name='auth_master#0'><int>1</int></var>
+	<var name='cgi#0'><int>1</int></var>
+	<var name='directories#0'><int>1</int></var>
+	<var name='filesystem#0'><int>1</int></var>
+</region>
+
+<region name='spider#0'>
+	<var name='Ports'><a><a><int>@PORTNUM@</int><str><![CDATA[http]]></str><str><![CDATA[ANY]]></str><str><![CDATA[]]></str></a></a></var>
+	<var name='comment'><str><![CDATA[Default Debian Virtual Server]]></str></var>
+	<var name='use_scopes'><str><![CDATA[On/Conditional]]></str></var>
+	<var name='PostBodySize'><int>65536</int></var>
+	<var name='NoLog'><a></a></var>
+	<var name='MyWorldLocation'><str><![CDATA[http://localhost/]]></str></var>
+	<var name='name'><str><![CDATA[Default Virtual Server]]></str></var>
+	<var name='LogFile'><str><![CDATA[/var/log/caudium/localhost/Log]]></str></var>
+	<var name='ErrorTheme'><str><![CDATA[]]></str></var>
+	<var name='ZAuthenticationFailed'><str><![CDATA[<h1>Authentication Failed.</h1>
+]]></str></var>
+	<var name='set_default_charset'><int>0</int></var>
+	<var name='data_cache_file_max_size'><int>50</int></var>
+	<var name='InternalLoc'><str><![CDATA[/_internal/]]></str></var>
+	<var name='data_cache_size'><int>2048</int></var>
+	<var name='Domain'><str><![CDATA[]]></str></var>
+	<var name='netcraft_done'><int>1</int></var>
+	<var name='Log'><int>1</int></var>
+	<var name='data_cache_gc_cleanup'><int>25</int></var>
+	<var name='content_charset'><str><![CDATA[iso-8859-1]]></str></var>
+	<var name='LogFormat'><str><![CDATA[*: $host - $user [$cern_date] "$method $resource $protocol" $response $length "$referer" "$agent_unquoted"]]></str></var>
+	<var name='max_open_time'><int>300</int></var>
+</region>
+
+<region name='gbutton#0'>
+	<var name='_priority'><int>5</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+</region>
+
+<region name='contenttypes#0'>
+	<var name='extsfile'><str><![CDATA[/etc/mime.types]]></str></var>
+	<var name='encs'><str><![CDATA[# This will include the default enodings from a file.
+# Feel free to add to this, but do it after the #include line if
+# you want to override any defaults
+
+#include <etc/content-encodings>
+
+]]></str></var>
+	<var name='exts'><str><![CDATA[
+# This will include the default extensions from a file.
+# Feel free to add to this, but do it after the #include line if
+# you want to override any defaults
+
+#include <etc/content-types>
+
+]]></str></var>
+	<var name='_priority'><int>0</int></var>
+	<var name='_name'><str><![CDATA[]]></str></var>
+	<var name='default_ct'><str><![CDATA[application/octet-stream]]></str></var>
+	<var name='_comment'><str><![CDATA[]]></str></var>
+</region>
+
+</caudiumcfg>
