@@ -27,6 +27,7 @@ constant cvs_version = "$Id$";
 //inherit "caudiumlib";
 
 inherit "config/draw_things";
+inherit "cachelib";  // Inherit the cache helper functions.
 
 // import Array;
 // import Stdio;
@@ -54,6 +55,7 @@ inherit "config/draw_things";
 
 int bar=time(1);
 multiset changed_port_servers;
+object cache = caudium->cache_manager->get_cache("my_very_own_cif");  // Get ourselves a cache to store stuff in.
 
 object cif = ThemedConfig( caudium->QUERY(cif_theme),
 			   caudium->QUERY(InternalImagePath));
@@ -232,7 +234,11 @@ mapping file_image(string img)
   object o;
   o=open(cif->path()+img, "r");
   if (!o)  return 0;
-  return ([ "file":o, "type":"image/" + ((img[-1]=='f')?"gif":"jpeg"), ]);
+  int extpos = search(reverse(img), ".");
+  string type = "jpeg";
+  if(extpos != -1)
+    type = img[sizeof(img)-extpos..];
+  return ([ "file":o, "type":"image/" + type, ]);
 }
 
 //!
@@ -364,13 +370,11 @@ mapping save_it(object id, object o)
 {
     cif = ThemedConfig( caudium->QUERY(cif_theme),
 			caudium->QUERY(InternalImagePath));
-    caudium->cache_manager->get_cache()->flush( "^auto_images\:\/\/" );
     changed_port_servers = (<>);
     root->save();
     caudium->update_supports_from_caudium_net();
     caudium->initiate_configuration_port( 0 );
     id->referrer = CONFIG_URL + o->path(1);
-    caudium->cache_start();
     caudium->update_storage_manager();
     if(sizeof(changed_port_servers))
 	return verify_changed_ports(id, o);
@@ -1222,13 +1226,12 @@ mapping auto_image(string in, object id)
 
   // if we have both PNG and GIF support we prefer PNG
   // GIF is just a fallback
-  // Well... seems we're going back to GIF --grendel/2001-02-15
   imgext = "";
-#if constant(Image.GIF.encode)
-  imgext = ".gif";
-#endif
-#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+#if constant(Image.PNG.encode)
   imgext = ".png";
+#endif
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+  imgext = ".gif";
 #endif
 
   if (imgext == "")
@@ -1236,8 +1239,8 @@ mapping auto_image(string in, object id)
 
   string img_key = "auto/"+cif->theme()+"_"+replace(in,"/","_")+imgext-" ";
   
-  if(e=file_image(img_key))
-    return e;
+  if(string tmp = cache->retrieve(img_key))
+    return ([ "data": tmp, "type":"image/" + imgext[1..], ]);
   
   if(!sscanf(in, "%s/%s", key, value)) key=in;
 
@@ -1314,29 +1317,21 @@ mapping auto_image(string in, object id)
 
   if (!i) return 0;
 
-  object o = open(cif->path()+img_key,"wct"); 
-
-#if constant(Image.GIF.encode)
-  e=Image.GIF.encode(i);
-#endif
-
-#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+#if constant(Image.PNG.encode)
   e=Image.PNG.encode(i);
 #endif
 
-  i=0;
-  if(o) { o->write(e); o=0; }
-  
-#ifdef DEBUG
-  else {perror("Cannot open file for "+in+"\n");}
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+  e=Image.GIG.encode(i);
 #endif
-
-#if constant(Image.GIF.encode)
-  return Caudium.HTTP.string_answer(e,"image/gif");
-#endif
+ cache->store(cache_image(e, img_key, -1));
 
 #if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
   return Caudium.HTTP.string_answer(e,"image/png");
+  #endif
+
+#if constant(Image.GIF.encode)
+  return Caudium.HTTP.string_answer(e,"image/gif");
 #endif
 
   return 0;
