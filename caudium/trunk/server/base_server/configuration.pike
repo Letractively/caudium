@@ -4068,7 +4068,7 @@ void create(string config)
   defvar("Log", 1, "Logging: Enabled", TYPE_FLAG, "Log requests");
   
   defvar("LogFile", caudium->QUERY(logdirprefix)+
-         short_name(name)+"/Log", 
+         Caudium.short_name(name)+"/Log", 
 
          "Logging: Log file", TYPE_FILE, "The log file. "
          ""
