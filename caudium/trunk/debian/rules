@@ -23,7 +23,7 @@ export DH_OPTIONS
 ifdef USE_PIKE
 PIKE=pike$(USE_PIKE)
 else
-PIKE=pike7
+PIKE=pike7.2
 endif
 PIKEBIN=/usr/bin/$(PIKE)
 
@@ -41,7 +41,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	
+
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
 	fi
@@ -82,31 +82,31 @@ install: build
 	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium$(ADD_VER)/COPYING
 	cp debian/localhost `pwd`/debian/tmp/etc/caudium$(ADD_VER)/localhost.sample
 	cp debian/Global_Variables `pwd`/debian/tmp/etc/caudium$(ADD_VER)/Global_Variables.sample
-	
+
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
 	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
 	mv debian/tmp/usr/bin/ultrasum.new debian/tmp/usr/bin/ultrasum ; \
 	chmod 755 debian/tmp/usr/bin/ultrasum
-	
+
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
 	 debian/tmp/usr/bin/pixsl > debian/tmp/usr/bin/pixsl.new && \
 	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
 	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pixsl.pike
-	
+
 	for s in $(SCRIPTS); do \
 	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium$(ADD_VER)/$$s > \
 	      debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new && \
 	  mv debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
 	  chmod 755 debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
 	done
-	
+
 	# perms fixing fest
 	-chmod 644 debian/tmp/usr/lib/caudium$(ADD_VER)/fonts/32/urw_itc_avant_garde-demi-r \
 	           debian/tmp/usr/lib/caudium$(ADD_VER)/etc/roxen_hilfe.pike \
 		   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/config/font
-		   
+
 	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
-	
+
 	# add libroxen modules path
 	# change the state directory
 	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
@@ -122,7 +122,7 @@ install: build
 	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pike
 	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/caudium
 	rm -rf debian/tmp/usr/local/
-	
+
 	#
 	# the -p debhelper param seems to be not working... 
 	# so let's do it by hand
@@ -132,7 +132,7 @@ install: build
 	   debian/caudium-ultralog/usr/share/man/man1/
 
 	dh_movefiles
-	
+
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
