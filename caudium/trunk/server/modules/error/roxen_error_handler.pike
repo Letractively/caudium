@@ -139,10 +139,11 @@ mapping|int handle_error(object id, void|mapping extra_heads)
       report_debug("Error code is : "+error_code);
     if(error_code == 401) 
       error_text=QUERY(401msg); 
-    if(mappingp(extra_heads))
-      return Caudium.HTTP.low_answer(error_code, error_text) +
-         ([ "extra_heads": extra_heads ]);
-    else
+    if(error_code == 404)
+      error_text=replace(parse_rxml(QUERY(404msg), id),
+                        ({"$File", "$Me"}),
+                        ({_Roxen.html_encode_string(id->not_query),
+                          id->conf->query("MyWorldLocation") }) );
       return Caudium.HTTP.low_answer(error_code, error_text);
   }
   else if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
