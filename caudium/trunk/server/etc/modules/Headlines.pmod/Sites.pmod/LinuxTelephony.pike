@@ -5,7 +5,6 @@
  *
  */
 
-import spider;
 import Headlines;
 
 #include <headlines/base.h>
