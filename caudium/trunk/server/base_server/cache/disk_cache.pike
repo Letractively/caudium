@@ -33,11 +33,30 @@ int disk_usage;
 int _hits, _misses;
 
 void create( string _namespace, string _path ) {
+  int maj,min,build;
+  sscanf( version(), "Pike v%d.%d release %d", maj, min, build );
+  string ver = sprintf( "%d.%d.%d", maj, min, build );
   namespace = _namespace;
   path = _path;
-  cache_path = Stdio.append_path( path, get_hash( version() ), get_hash( namespace ) );
+  clean_cache( path, ver );
+  cache_path = Stdio.append_path( path, ver, get_hash( namespace ) );
   thecache = get_index();
   call_out( expire_cache, EXPIRE_CHECK );
+}
+
+void clean_cache( string path, string ver ) {
+  array dirs = get_dir( path );
+  foreach( dirs, string dir ) {
+    if ( dir == ver ) continue;
+    string rm_path = Stdio.append_path( path, dir );
+#ifdef CACHE_DEBUG
+    write( "Forcibly removing directory %O -- not current pike version... ", rm_path );
+#endif
+    Stdio.recursive_rm( rm_path );
+#ifdef CACHE_DEBUG
+    write( "done.\n" );
+#endif
+  }
 }
 
 mapping get_index() {
