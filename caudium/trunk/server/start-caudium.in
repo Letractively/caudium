@@ -354,15 +354,6 @@ array parse_arguments(array(string) argv)
   return parsed;
 }
 
-string dirname(string p)
-{
-  array x=p/"/";
-  if(sizeof(x)<2) return 0;
-  x=x[0..(sizeof(x)-2)];
-  p=x*"/";
-  return p;
-}
-
 int main(int argc, array(string) argv)
 {
   // first, copy argv to a safe place.
