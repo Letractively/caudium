@@ -164,6 +164,16 @@ string day(int num)
 	    "jeudi", "vendredi", "samedi" })[ num - 1 ];
 }
 
+string day_short(int num)
+{
+  return ({ "D", "L", "M", "M", "J", "V", "S" })[ num - 1 ];
+}
+
+string words(int num)
+{
+  return ({ "année", "mois", "semaine", "jour" });
+}
+
 array aliases()
 {
   return ({ "fr", "fra", "français", "french" });
