@@ -1,3 +1,16 @@
+caudium (2:1.2.19-1) unstable; urgency=low
+
+  * Latest upstream release. Changes:
+    - Added Fast CGI module from Roxen 2. Now should work without any external
+      C glue. Note this is early work.
+    - Fix for SF bug 601976
+    - Added a minor patch in php4 scripting. And docs about the php.ini 
+      'variables' option.
+    - Added RXML parse option in Uniscript, thanks to 
+      Wim Bonis <bonis at bonis.de>
+
+ -- Marek Habersack <grendel@debian.org>  Wed,  4 Dec 2002 23:30:47 +0100
+
 caudium (2:1.2.17-2) unstable; urgency=low
 
   * Latest CVS snapshot. Changes:
