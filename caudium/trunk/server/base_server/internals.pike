@@ -76,9 +76,9 @@ class InternalResolver
     mapping(string:mixed)
         get(string URI, mapping(string:string)|void vars, object|void id)
     {
-        string method, query;
+        string method, file;
 
-        if (sscanf(URI, "%s:/%s", method, query) != 2)
+        if (sscanf(URI, "%s:/%s", method, file) != 2)
             throw(({"Wrong internal URI format\n", backtrace()}));
         
         method = upper_case(method);
@@ -92,11 +92,20 @@ class InternalResolver
             return 0;
         }
 
+        mapping qvars;
         mapping ret;
-
+        string  query;
+	
+        if (sscanf("%s?%s", file, query) == 2)
+	    Caudium.parse_query_string(query, qvars);
+	
         switch(method) {
             case "HTML":
-                ret = InternalFiles.HTML.handle(id, query, vars, paths[method]);;
+                ret = InternalFiles.HTML.handle(id, 
+		                                file, 
+						qvars, 
+						vars, 
+						paths[method]);;
                 break;
         }
         

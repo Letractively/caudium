@@ -23,7 +23,8 @@ replace_vars(string file, mapping(string:string) vars)
 }
 
 mapping(string:string) handle(object id,
-                              string query,
+                              string file,
+			      mapping(string:mixed) query,
                               mapping(string:string) vars,
                               string basedir) 
 {
