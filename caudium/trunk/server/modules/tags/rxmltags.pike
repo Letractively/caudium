@@ -2719,7 +2719,7 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
   string cookies;
   if(m->name)
     cookies = m->name+"="+Protocols.HTTP.http_encode_cookie(m->value||"")+
-      "; expires="+Procotols.HTTP.Server.http_date(0)+"; path=/";
+      "; expires="+Protocols.HTTP.Server.http_date(0)+"; path=/";
   else
     return "<!-- remove_cookie requires a `name' -->";
 
@@ -2968,9 +2968,9 @@ string tag_expire_time(string tag, mapping m, object id, object file,
   } else
     NOCACHE();
 
-  add_header(_extra_heads, "Expires", t ? Procotols.HTTP.Server.http_date(t) : "0");
+  add_header(_extra_heads, "Expires", t ? Protocols.HTTP.Server.http_date(t) : "0");
   if(m->now)
-    id->since=Procotols.HTTP.Server.http_date(0);
+    id->since=Protocols.HTTP.Server.http_date(0);
 
   return "";
 }
