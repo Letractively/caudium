@@ -41,6 +41,8 @@ constant module_doc =
 "<li><b>mapping(string:function) query_rpc_functions()</b>: Returns a mapping. It maps the function name available from XML-RPC (the index) to the real function in Caudium.</li>"
 "<li><b>mapping(string:function) query_rpc_auth_functions()</b>: Same as above but contains functions which can only be called using system.authenticate, "
 "that means you need a valid login and password to call them. This method is optional.</li>"
+"<li><b>mapping(string:function) query_rpc_nb_functions()</b>: Same as above but contains functions which are called asynchronously, "
+"using a callback : function(mixed,object:void) cb_send and the caudium object id. This method is optional.</li>"
 "<li><b>mapping(string:string) query_rpc_functions_help()</b>: This function is optional and returns a mapping that map the function name available from XML-RPC (the index) to the function help.</li></ul>"
 "<p><i>Note</i>: To return your custom XML-RPC fault code, throw an exception containing an array where the first parameter is an "
 "int for the fault code to returned and the second argument is an array whose first argument is the error description and the second "
@@ -90,6 +92,13 @@ string status()
           foreach(indices(functions), string fname)
             out += "<tr><td>" + fname + "</td><td>" + replace(rpcsystem->methodHelp(fname), "\n", "<br/>") + " (Require authentification)</td></tr>";
       }
+      if(search(indices(provider), "query_rpc_nb_functions") != -1)
+      {
+        mapping functions = provider->query_rpc_nb_functions();
+        if(functions && sizeof(functions))
+          foreach(indices(functions), string fname)
+            out += "<tr><td>" + fname + "</td><td>" + replace(rpcsystem->methodHelp(fname), "\n", "<br/>") + " (Non blocking call)</td></tr>";
+      }
       out += "</table><br/>";
     }
   }
@@ -124,6 +133,27 @@ private mapping(string:function) get_functions()
     foreach(rpc_providers, mixed provider) {
       if(search(indices(provider), "query_rpc_functions") != -1)
         functions += provider->query_rpc_functions();
+    }
+  }
+  return functions;
+}
+
+// return the non-blocking function named 'fcall' which we can call using XML-RPC
+// with a non-blocking call
+private mapping(string:function) get_nb_functions(void|string fcall)
+{
+  mapping functions = ([ ]);
+  array rpc_providers = get_xmlrpc_providers();
+  if(rpc_providers && sizeof(rpc_providers))
+  {
+    foreach(rpc_providers, mixed provider) {
+      if(search(indices(provider), "query_rpc_nb_functions") != -1) {
+      	if(!stringp(fcall))
+          functions += provider->query_rpc_nb_functions();
+        else
+          if(functionp(provider->query_rpc_nb_functions()[fcall]))
+            return ([ fcall : provider->query_rpc_nb_functions()[fcall] ]);
+      }
     }
   }
   return functions;
@@ -202,6 +232,14 @@ private mixed callfunction(mapping functions, string fcall, mixed ...args)
   throw(({ 3, ({ "Unknown method: '" + fcall + "'\n", backtrace() }) }));
 }
 
+void cb_send(mixed res, object id)
+{
+  mapping out;
+  string xmlResult = Protocols.XMLRPC.encode_response(({ res }));
+  out = Caudium.HTTP.string_answer(xmlResult, "text/xml");
+  id->send_result(out);
+}
+
 mapping|Stdio.File|void find_file( string path, object id )
 {
   string xmlResult;
@@ -218,6 +256,14 @@ mapping|Stdio.File|void find_file( string path, object id )
     Call  = Protocols.XMLRPC.decode_call(id->data);
     fcall = Call->method_name;
     args  = Call->params;
+
+	mapping nb_functions = get_nb_functions(fcall);
+    if(sizeof(nb_functions))
+    {
+      id->do_not_disconnect = 1;
+      callfunction(nb_functions, fcall, @(({ cb_send, id }) + args));
+      return Caudium.HTTP.pipe_in_progress();
+    }
 
     mapping functions = get_functions();
     if(sizeof(functions))
@@ -303,7 +349,7 @@ class RPCSystem {
 
   array listMethods()
   {
-    return sort(indices(get_functions()));
+    return sort(indices(get_functions()) + indices(get_nb_functions()));
   }
 
   string methodHelp(string method)
@@ -360,4 +406,3 @@ class RPCSystem {
  *
  * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
  */
-
