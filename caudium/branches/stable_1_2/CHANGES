@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- New define ENABLE_NEW404 / DISABLE_NEW404 to allow administrator to
+  disable on the whole server the new 404 handler.
 - perl scripting module and subsystem removed. Anyway the uniscript.pike
   can allow administrator to support perl scripting. SF bug #512601
 - mnogosearch pike module removed since the pike glue doesn't work.
