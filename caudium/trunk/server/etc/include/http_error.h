@@ -50,12 +50,6 @@ class http_error_handler {
 
     inherit "caudiumlib";
 
-    int debug = 0;
-
-#ifdef DEBUG
-    debug = 1;
-#endif
-
     string default_data = #string "ERROR.html";
 
     private mapping default_template =
@@ -78,9 +72,7 @@ class http_error_handler {
 	 ]);
 
     private mixed my_get_file (string _file, object id) {
-       object clone_id = id->clone_me (); /* open_file() modifies id */
-
-       array f = id->conf->open_file ( _file, "Rr", clone_id);
+       array f = id->conf->open_file ( _file, "Rr", id);
 
        if (f[0])
        {
@@ -97,12 +89,6 @@ class http_error_handler {
     private string get_template_data (string _name, object id)
     {
        string data;
-
-       if (_name == "default_caudium_error_template")
-          return (default_data);
-
-       if (!id)
-          return (default_data);
 
        if (!id->pragma["no-cache"])
        {
@@ -124,39 +110,25 @@ class http_error_handler {
 
     public mapping process_error (object id)
     {
-       mapping data;
-
-       array err = catch {
-          if (!id->misc->error_code)
-          {
-             if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
-             {
-                id->misc->error_code = 501;
-                id->misc->error_message = "Method (" + html_encode_string (id->method) + ") not recognised.";
-             }
-             else
-             {
-                id->misc->error_code = 404;
-                if (!id->misc->error_message)
-                   id->misc->error_message = "Unable to locate the file: " + id->not_query + ".<br>\n" +
-                           "The page you are looking for may have moved or been removed.";
-             }
-          }
-          if (!id->misc->error_message)
-             id->misc->error_message = id->errors[id->misc->error_code];
-   
-          data = handle_error (id->misc->error_code, id->errors[id->misc->error_code], id->misc->error_message, id);
-       };
-
-       if (err)
+       if (!id->misc->error_code)
        {
-          report_error ("Internal server error:\n" + describe_backtrace(err) + "\n");
-
-          data =  http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
-                                        "internal error in the error routine.</h1>" );
+          if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
+          {
+             id->misc->error_code = 501;
+             id->misc->error_text = "Method (" + html_encode_string (id->method) + ") not recognised.";
+          }
+          else
+          {
+             id->misc->error_code = 404;
+             if (!id->misc->error_text)
+                id->misc->error_text = "Unable to locate the file: " + id->not_query + ".<br>\n" +
+                        "The page you are looking for may have moved or been removed.";
+          }
        }
+       if (!id->misc->error_text)
+          id->misc->error_text = id->errors[id->misc->error_code];
 
-       return (data);
+       return (handle_error (id->misc->error_code, id->errors[id->misc->error_code], id->misc->error_text, id));
     }
 
     public void set_template( string _template_name, object id ) {
@@ -231,8 +203,13 @@ class http_error_handler {
 	}
      }
 
-    public mapping handle_error( int error_code, string error_name, string error_message, object id ) {
+    /* why isn't error_message a string? -- it would fix the problems with
+     * putting id in the 3nd argument */
+    public mapping handle_error( int error_code, string error_name, mixed error_message, object id ) {
         mapping local_template;
+
+	if (!stringp (error_message) && stringp (error_message->method)) /* trying to fix the problem */
+	   throw ( ({ "the 3rd argument should be an error_message, not id!\n", backtrace () }) );
 
 	if ( id == 0 ) {
 	    // We don't have a request id object - this is *REALLY* bad!
@@ -256,38 +233,27 @@ class http_error_handler {
 	    }
 	    local_template = template;
 	}
+	error_code = error_code?error_code:500;
+	error_name = error_name?error_name:"Unknown error";
+	error_message = error_message?error_message:"An unknown error has occurred - this should never have happenned.";
+	error_name = ((int)error_name[0..2] == error_code)?error_name[3..]:error_name;
+	string error_page = parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
+	error_page = (id?parse_rxml(error_page,id):error_page);
 
-        if (!error_code)
-           error_code = 500;
-
-        if (!error_name)
-           error_name = "Unknown error";
-
-        if (!error_message)
-           error_message = "An unknown error has occurred - this should never have happenned.";
-
-        if ((int)error_name[0..2] == error_code)
-           error_name = error_name[3..];
-
-        string error_page = parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
-
-        if (id)
-           error_page = parse_rxml (error_page,id);
-
-	if (error_code > 499 || debug) {
-           if (id)
-              report_error (sprintf ("Serving Error %d, %s to client for %s%s.\n", error_code, error_name, id->conf->query ("MyWorldLocation"), id->raw_url[1..]));
-           else
-              report_error (sprintf ("Serving error %d, %s to client for a 'core' error:\n%s\n", describe_backtrace (backtrace ())));
+#ifdef DEBUG
+        report_error ("Serving Error " + sprintf ("%d", error_code) + ", " + sprintf ("%s", error_name) + " to client for " + id->conf->query ("MyWorldLocation"), id->raw_url + ".\n" );
+#else
+	if ( error_code > 499 ) {
+	  report_error ("Serving Error " + sprintf ("%d", error_code) + ", " + sprintf ("%s", error_name) + " to client for " + id->conf->query ("MyWorldLocation") + id->raw_url + ".\n" );
 	}
-
+#endif /* DEBUG */
 	return
-	    ([
-	      "error" : error_code,
-	      "data" : error_page,
-	      "len" : strlen( error_page ),
+	  ([
+	    "error" : error_code,
+	    "data" : error_page,
+	    "len" : strlen( error_page ),
 	      "type" : local_template->type
-	     ]);
+	  ]);
     }
 
 }
