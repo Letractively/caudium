@@ -209,4 +209,25 @@ AC_ARG_WITH(quantify,
 
 AC_SUBST(CC_PURE)
 AC_SUBST(CCDEFS)
+
+AH_TOP([
+#ifndef FCGI_CONFIG_H
+#define FCGI_CONFIG_H
+])
+
+AH_BOTTOM([
+#undef HAVE_FPOS 
+#undef HAVE_SOCKADDR_UN_SUN_LEN 
+#undef HAVE_SYS_SELECT_H 
+#undef NO_FD_SET 
+#undef USE_LOCKING 
+#undef WITH_ASSERT 
+#undef WITH_DEBUG 
+#undef WITH_TEST
+#undef HAVE_VA_ARG_LONG_DOUBLE_BUG
+#undef HAVE_SOCKLEN
+#endif
+
+])
+
 AC_OUTPUT(Makefile libfcgi/Makefile cgi-fcgi/Makefile )

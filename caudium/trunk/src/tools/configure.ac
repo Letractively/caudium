@@ -23,4 +23,14 @@ AC_CHECK_FUNCS(crypt)
 AC_SUBST(LDFLAGS)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
+
+AH_TOP([
+#ifndef CONFIG_H
+#define CONFIG_H
+])
+
+AH_BOTTOM([
+#endif
+])
+
 AC_OUTPUT(Makefile)
