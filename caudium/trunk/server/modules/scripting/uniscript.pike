@@ -80,8 +80,6 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
-function trim = String.trim_whites;
-
 #ifdef CGI_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !CGI_DEBUG */
