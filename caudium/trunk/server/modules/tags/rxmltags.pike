@@ -292,29 +292,6 @@ inline string do_safe_replace(string s, mapping (string:string) m,
       return ("<b>Unknown encoding "+ encoding +" in &lt;insert&gt; </b>");
 }
 
-array permitted = ({ "1", "2", "3", "4", "5", "6", "7", "8", "9",
-		     "0", "-", "*", "+","/", "%", "&", "|", "(", ")" });
-string sexpr_eval(string what)
-{
-  array   q = what/"";
-  mixed   error;
-  string  ret;
-  
-  if (!what || !sizeof(what))
-      return "";
-  
-  what = "mixed foo(){ return "+(q-(q-permitted))*""+";}";
-
-  error = catch {
-      ret = compile_string( what )()->foo();
-  };
-
-  if (error)
-      return "";
-
-  return ret;
-}
-
 //! container: scope
 //!  Creates a new scope for RXML variables. Variables can be changed within
 //!  the <tt>&lt;scope&gt;</tt> tag without having any effect outside it.
@@ -406,7 +383,7 @@ string tag_set( string tag, mapping m, object id )
             // Set variable to value.
             ret = set_scope_var(m->variable, m->scope, m->value, id);
         } else if (m->expr) {
-            ret = set_scope_var(m->variable, m->scope, sexpr_eval( m->expr ), id);
+            ret = set_scope_var(m->variable, m->scope, Caudium.sexpr_eval( m->expr ), id);
         } else if (m->from) {
             mixed val;
             // Set variable to the value of another variable
