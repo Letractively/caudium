@@ -26,17 +26,6 @@
 
 typedef struct
 {
-  struct svalue      *getAll;
-  struct pike_string *getAllBuffer;
-  struct svalue      *freeMemory;
-  struct svalue      *open;
-  struct svalue      *get;
-  struct svalue      *put;
-  struct svalue      *close;
-} SCHEME_CALLBACKS;
-
-typedef struct
-{
   struct pike_string *xml;
   struct pike_string *xsl;
   struct pike_string *base_uri;
@@ -45,9 +34,14 @@ typedef struct
   struct mapping     *err;
   char               *content_type, *charset;
   SchemeHandler       sab_scheme_handler;
-  SCHEME_CALLBACKS    scheme_cb;
   int                 do_callbacks;
-  void               *sproc;
+  char               *getAllBuffer;
+  struct svalue       cb_getAll;
+  struct svalue       cb_freeMemory;
+  struct svalue       cb_open;
+  struct svalue       cb_get;
+  struct svalue       cb_put;
+  struct svalue       cb_close;
 } xslt_storage;
 
 static void f_set_xml_data(INT32 args); 
