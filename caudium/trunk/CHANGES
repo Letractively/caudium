@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.19 since Caudium 1.3.18
 ----------------------------------------------
+- SpiderMonkey and libxslt are now in wip/ repository.
+   (Xavier Beaudouin)
 - Pike C module OpenSSL is removed. It will be not used.
    (Xavier Beaudouin)
 - Pike C module JavaScript is removed. NJS is a dead project.
