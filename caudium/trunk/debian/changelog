@@ -1,3 +1,9 @@
+caudium (2:1.3.5-9) unstable; urgency=low
+
+  * Latest CVS snapshot. Now requires at least Pike 7.3.62 to work.
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  3 Dec 2002 23:22:38 +0100
+
 caudium (2:1.3.5-8) unstable; urgency=low
 
   * Added mod_perl support.
