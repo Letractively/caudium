@@ -68,24 +68,17 @@ int req_time = HRTIME();
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
-
+#undef REQUEST_DEBUG
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
-constant handle        = caudium->handle;
-constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
-
-private static int wanted_data, have_data;
 
 object conf;
 
 #include <caudium.h>
 #include <module.h>
-
-#undef QUERY
-#define QUERY(X)	_query( #X )
 
 int time;
 string raw_url;
@@ -96,6 +89,7 @@ mapping (string:string) cookies         = ([ ]);
 mapping (string:string) request_headers = ([ ]);
 
 multiset (string) prestate  = (< >);
+multiset (string) internal  = (< >);
 multiset (string) config    = (< >);
 multiset (string) supports  = (< >);
 multiset (string) pragma    = (< >);
@@ -169,138 +163,42 @@ string scan_for_query( string f )
   return f;
 }
 
-private int really_set_config(array mod_config)
-{
-  string url, m;
-  string base;
-  base = conf->query("MyWorldLocation")||"/";
-  if(supports->cookies)
-  {
-#ifdef REQUEST_DEBUG
-    perror("Setting cookie..\n");
-#endif
-    if(mod_config)
-      foreach(mod_config, m)
-	if(m[-1]=='-')
-	  config[m[1..]]=0;
-	else
-	  config[m]=1;
-      
-    if(sscanf(replace(raw_url,({"%3c","%3e","%3C","%3E" }),
-		      ({"<",">","<",">"})),"/<%*s>/%s",url)!=2)
-      url = "/";
-
-    if ((base[-1] == '/') && (strlen(url) && url[0] == '/')) {
-      url = base + url[1..];
-    } else {
-      url = base + url;
-    }
-
-    my_fd->write(prot + " 302 Config in cookie!\r\n"
-		 "Set-Cookie: "
-		  + http_caudium_config_cookie(indices(config) * ",") + "\r\n"
-		 "Location: " + url + "\r\n"
-		 "Content-Type: text/html\r\n"
-		 "Content-Length: 0\r\n\r\n");
-  } else {
-#ifdef REQUEST_DEBUG
-    perror("Setting {config} for user without Cookie support..\n");
-#endif
-    if(mod_config)
-      foreach(mod_config, m)
-	if(m[-1]=='-')
-	  prestate[m[1..]]=0;
-	else
-	  prestate[m]=1;
-      
-    if (sscanf(replace(raw_url, ({ "%3c", "%3e", "%3C", "%3E" }), 
-		       ({ "<", ">", "<", ">" })),   "/<%*s>/%s", url) == 2) {
-      url = "/" + url;
-    }
-    if (sscanf(replace(url, ({ "%28", "%29" }), ({ "(", ")" })),
-	       "/(%*s)/%s", url) == 2) {
-      url = "/" + url;
-    }
-
-    url = add_pre_state(url, prestate);
-
-    if (base[-1] == '/') {
-      url = base + url[1..];
-    } else {
-      url = base + url;
-    }
-
-    my_fd->write(prot + " 302 Config In Prestate!\r\n"
-		 "\r\nLocation: " + url + "\r\n"
-		 "Content-Type: text/html\r\n"
-		 "Content-Length: 0\r\n\r\n");
-  }
-  return 1;
-}
-
-private static mixed f, line;
-private int do_post_processing()
+private mixed f;
+/* Processing here not needed for cached connections. It mainly
+ * includes various URL processing and variable scanning.
+ */
+inline void do_post_processing()
 {
   multiset (string) sup;
   array mod_config;
   string a, b, linename, contents, s;
   int config_in_url;
-
-  time       = _time(1);
-  REQUEST_WERR(sprintf("HTTP: do_post_processing(%O)", raw));
-
-  if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
-
-  if(!remoteaddr) {
-    end();
-    return 1;
-  }
-
-  if(query) Caudium.parse_query_string(query, variables);
-  REQUEST_WERR(sprintf("After query scan:%O", f));
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if (sscanf(f, "/<%s>/%s", a, f)==2)
-  {
-    config_in_url = 1;
-    mod_config = (a/",");
-    f = "/"+f;
-  }
-  REQUEST_WERR(sprintf("After cookie scan:%O", f));
-#endif
-  
-  
-  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
-  {
-    prestate = aggregate_multiset(@(a/","-({""})));
-    f = "/"+f;
-  }
-
-  REQUEST_WERR(sprintf("After prestate scan:%O", f));
-
-  not_query = simplify_path(f);
-  REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
+  if(processed) return;
   if(misc->len && method == "POST") {
-    int l = wanted_data = misc->len;
-    if(strlen(data) < misc->len) return 1;
-    misc->cacheable = 0; /* No good caching posts */
+    REQUEST_WERR(sprintf("Process post data (want %d, got %d): %O",
+			 misc->len, strlen(data), data));
+    int l = misc->len;
+    if(strlen(data) < l) return;
     leftovers = data[l..];
     data = data[..l-1];
+
+    mapping tmp = ([]);
     if(request_headers["content-type"]) {
       // handle post data
       switch((lower_case(request_headers["content-type"])/";")[0]-" ")
       {
-       default: // Normal form data.
+       case "application/x-www-form-urlencoded": // Normal form data.
 	string v;
-	if(l < 200000)
+	if(l < 200000) {
 	  Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
 					     ({"", ""})), variables);
+	}
 	break;
 
        case "multipart/form-data":
 	//		perror("Multipart/form-data post detected\n");
 	object messg = MIME.Message(data, request_headers);
-	foreach(messg->body_parts, object part) {
+	foreach(messg->body_parts||({}), object part) {
 	  if(part->disp_params->filename) {
 	    variables[part->disp_params->name]=part->getdata();
 	    variables[part->disp_params->name+".filename"]=
@@ -317,6 +215,9 @@ private int do_post_processing()
 	  }
 	}
 	break;
+       default:
+	REQUEST_WERR("Unknown POST content type: "+
+		     request_headers["content-type"]);	
       }
     }
   }
@@ -324,7 +225,50 @@ private int do_post_processing()
   else
     leftovers = data;
 #endif
+  if(query)
+      Caudium.parse_query_string(query, variables);
+  REQUEST_WERR(sprintf("After query scan:%O", f));
+
+  // FIXME: This should be done in C
+  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
+  {
+    prestate = aggregate_multiset(@(a/","-({""})));
+    f = "/"+f;
+  }
   
+  REQUEST_WERR(sprintf("After prestate scan:%O", f));
+
+  not_query = simplify_path(f);
+  REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
+#endif
+
+#ifdef EXTRA_ROXEN_COMPAT
+  if(!referer) referer = ({ });
+#endif
+
+  if(!supports->cookies)
+    config = prestate;
+  else if(conf
+	  && GLOBVAR(set_cookie)
+	  && !cookies->CaudiumUserID && strlen(not_query)
+	  && not_query[0]=='/' && method!="PUT")
+  {
+    if (GLOBVAR(set_cookie_only_once)) {
+      if(!cache_lookup("hosts_for_cookie",remoteaddr)) {
+	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+	cache_set("hosts_for_cookie",remoteaddr,1);
+      }
+    } else
+      misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+  }
+
   foreach(indices(request_headers), string linename) {
     array(string) y;
     switch(linename) {
@@ -337,7 +281,6 @@ private int do_post_processing()
       if(conf && conf->auth_module)
 	y = conf->auth_module->auth( y, this_object() );
       auth = y;
-      misc->cacheable = 0;
       break;
       
      case "proxy-authorization":
@@ -361,6 +304,7 @@ private int do_post_processing()
       break;
       
      case "pragma":
+      // FIXME: Parse in C
       pragma = aggregate_multiset(@replace(request_headers[linename],
 					   " ", "")/ ",");
       if(pragma["no-cache"])
@@ -407,16 +351,13 @@ private int do_post_processing()
       }
       break;
 
-     case "connection":
-      request_headers[linename] = lower_case(request_headers[linename]);
-#ifndef EXTRA_ROXEN_COMPAT
-      break;
-#endif
-     case "content-type":
 #ifdef EXTRA_ROXEN_COMPAT
+     case "content-type":
+     case "connection":
       misc[linename] = lower_case(request_headers[linename]);
-#endif
+      misc[linename] = request_headers[linename];      
       break;
+#endif
 
      case "accept-encoding":
       if(search(request_headers[linename], "gzip") != -1)
@@ -431,6 +372,7 @@ private int do_post_processing()
       break;
 
      case "cookie": /* This header is quite heavily parsed */
+      // FIXME: Definite candidate for parsing in C 
       string c;
       contents = misc->cookies = request_headers[linename];
       if (!sizeof(contents)) {
@@ -468,9 +410,8 @@ private int do_post_processing()
       }
       break;
 
-     case "host":
-      host = lower_case(request_headers[linename]);
 #ifdef EXTRA_ROXEN_COMPAT
+     case "host":
      case "proxy-connection":
      case "security-scheme":
      case "via":
@@ -492,48 +433,12 @@ private int do_post_processing()
     pragma["no-cache"] = 1;
     misc->cacheable = 0;
   }
-  
-#ifdef ENABLE_SUPPORTS    
-  if(useragent == "unknown") {
-    supports = find_supports("", supports); // This makes it somewhat faster.
-  } else 
-    supports = find_supports(lower_case(useragent), supports);
-#else
-  supports = (< "images", "gifinline", "forms", "mailto">);
-#endif
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if(!referer) referer = ({ });
-#endif
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if(config_in_url) {
-    return really_set_config( mod_config );
-  }
-#endif
-
-  if(!supports->cookies)
-    config = prestate;
-  else if(conf
-	  && QUERY(set_cookie)
-	  && !cookies->CaudiumUserID && strlen(not_query)
-	  && not_query[0]=='/' && method!="PUT")
-  {
-    if (QUERY(set_cookie_only_once)) {
-      if(!cache_lookup("hosts_for_cookie",remoteaddr)) {
-	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
-	cache_set("hosts_for_cookie",remoteaddr,1);
-      }
-    } else
-      misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
-  }
-  return 0;	// Done.
+  processed = 1;
 }
 
-void disconnect()
+inline void disconnect()
 {
   file = 0;
-  MARK_FD("my_fd in HTTP disconnected?");
   if(do_not_disconnect) return;
   destruct();
 }
@@ -541,6 +446,7 @@ void disconnect()
 void end(string|void s, int|void keepit)
 {
   pipe = 0;
+  MARK_FD("http2 end");
 #ifdef PROFILE
   if(conf)
   {
@@ -560,7 +466,8 @@ void end(string|void s, int|void keepit)
     if(elapsed > p[2]) p[2]=elapsed;
   }
 #endif
-
+  
+  
 #ifdef KEEP_ALIVE
   if(keepit &&
      (!(file->raw || file->len <= 0))
@@ -579,6 +486,8 @@ void end(string|void s, int|void keepit)
     MARK_FD("HTTP kept alive");
     object fd = my_fd;
     my_fd=0;
+    if(!leftovers && method != "POST")
+      leftovers = data;
     if(s) leftovers += s;
     while(sscanf(leftovers, "\r\n%s", leftovers))
       ; // Remove beginning newlines..
@@ -586,20 +495,16 @@ void end(string|void s, int|void keepit)
     disconnect();
     return;
   } 
-
 #endif
 
   if(objectp(my_fd))
   {
     MARK_FD("HTTP closed");
-    catch {
-      my_fd->set_close_callback(0);
-      my_fd->set_read_callback(0);
+    if(s) catch {
+      my_fd->write(s);
       my_fd->set_blocking();
-      if(s) my_fd->write(s);
-      my_fd->close();
     };
-    my_fd = 0;
+    destruct(my_fd);
   }
   disconnect();  
 }
@@ -668,8 +573,7 @@ string link_to(string what, int eid, int qq)
 }
 
 
-string format_backtrace(array bt, int eid)
-{
+string format_backtrace(array bt, int eid) {
   // first entry is always the error, 
   // second is the actual function, 
   // rest is backtrace.
@@ -677,26 +581,8 @@ string format_backtrace(array bt, int eid)
   string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
-  string res = ("<title>Internal Server Error</title>"
-		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
-		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
-		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/internal-caudium-":"/img/")+
-		"caudium-icon-gray.png\" alt=\"\"></td>"
-		"<td>&nbsp;</td><td width=100% height=39>"
-		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
-		"<td width=\"100%\" align=right valigh=center height=28>"
-		"<b><font size=+1>Failed to complete your request</font>"
-		"</b></td></tr><tr width=\"100%\"><td bgcolor=\"#003366\" "
-		"align=right height=12 width=\"100%\"><font color=white "
-		"size=-2>Internal Server Error&nbsp;&nbsp;</font></td>"
-		"</tr></table></td></tr></table>"
-		"<p>\n\n"
-		"<font size=+2 color=darkred>"
-		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
-		+bt[0]+"</font><br>\n"
-		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
+  string res = (
+		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
 		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
 
@@ -735,8 +621,7 @@ string generate_bugreport(array from, string u, string rd)
 	  "\n\nRequest data:\n"+rd));
 }
 
-string censor(string what)
-{
+string censor(string what) {
   string a, b, c;
   if(sscanf(what, "%shorization:%s\n%s", a, b, c)==3)
     return a+" ################ (censored)\n"+c;
@@ -773,28 +658,38 @@ array get_error(string eid)
 
 void internal_error(array err)
 {
-  array err2;
-  if(QUERY(show_internals)) 
-  {
-    err2 = catch { 
-      array(string) bt = (describe_backtrace(err)/"\n") - ({""});
-      file = http_low_answer(500, format_backtrace(bt, store_error(err)));
-    };	
-    if(err2) {
-      werror("Internal server error in internal_error():\n" +
-	     describe_backtrace(err2)+"\n while processing \n"+
-	     describe_backtrace(err));
-      file = http_low_answer(500, "<h1>Error: The server failed to "
-			     "fulfill your query, due to an "
-			     "internal error in the internal error routine.</h1>");
+    string error_message;
+    array err2;
+    if(QUERY(show_internals))
+    {
+	err2 = catch {
+	    array(string) bt = (describe_backtrace(err)/"\n") - ({""});
+	    error_message = format_backtrace(bt, store_error(err));
+	};
+	if(err2) {
+	    werror("Internal server error in internal_error():\n" +
+		   describe_backtrace(err2)+"\n while processing \n"+
+		   describe_backtrace(err));
+	    error_message =
+		"<h1>Error: The server failed to " +
+		"fulfill your query, due to an " +
+		"internal error in the internal error routine.</h1>";
+	}
+    } else {
+	error_message =
+	    "<h1>Error: The server failed to " +
+	    "fulfill your query, due to an internal error.</h1>";
     }
-  } else {
-    file = http_low_answer(500, "<h1>Error: The server failed to "
-			   "fulfill your query, due to an internal error.</h1>");
-  }
-  report_error("Internal server error: " +
-	       describe_backtrace(err) + "\n");
+    report_error("Internal server error: " +
+		 describe_backtrace(err) + "\n");
+    if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
+	report_error("*** http_error object missing during internal_error() ***\n");
+	file =
+	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+			     "internal error in the internal error routine.</h1>" );
+    }
 }
+
 
 constant errors =
 ([
@@ -804,7 +699,7 @@ constant errors =
   203:"203 Provisional Information",
   204:"204 No Content",
   206:"206 Partial Content", // Byte ranges
-  
+
   300:"300 Moved",
   301:"301 Permanent Relocation",
   302:"302 Temporary Relocation",
@@ -847,7 +742,6 @@ void do_log()
     }
   }
   end(0,1);
-  return;
 }
 
 #ifdef FD_DEBUG
@@ -1072,7 +966,7 @@ array parse_range_header(int len)
   return ranges;
 }
 
-void start_sender() 
+void start_sender()
 {  
   if (pipe) {
     MARK_FD("HTTP really handled, piping "+not_query);
@@ -1087,6 +981,15 @@ void start_sender()
   }
 }
 
+private mapping old_404() {
+    return http_low_answer( 404,
+			    replace( parse_rxml( conf->query("ZNoSuchFile"), this_object() ),
+				     ({ "$File", "$Me" }),
+				     ({ html_encode_string( not_query ), conf->query( "MyWorldLocation" ) })
+				   ) );
+}
+
+
 // Send the result.
 void send_result(mapping|void result)
 {
@@ -1097,22 +1000,17 @@ void send_result(mapping|void result)
   object thiso = this_object();
   file = result || file;
   TIMER("enter_send_result");
+  MARK_FD("send_result");
   if(!mappingp(file))
   {
-    if(misc->error_code)
-      file = http_low_answer(misc->error_code, errors[misc->error]);
-    else if(method != "GET" && method != "HEAD" && method != "POST")
-      file = http_low_answer(501, "Not implemented.");
-    else if(err = catch {
-      file = http_low_answer(404,
-			     replace(parse_rxml(conf->query("ZNoSuchFile"),
-						thiso),
-				     ({"$File", "$Me"}), 
-				     ({ html_encode_string(not_query),
-					conf->query("MyWorldLocation")})));
-    }) {
-      INTERNAL_ERROR(err);
-    }
+      if ( misc->error_code ) {
+	  file = conf->http_error->handle_error( misc->error_code, errors[misc->error], this_object() );
+      }
+      else if ( method != "GET" && method != "HEAD" && method != "POST" )
+	  file = conf->http_error->handle_error( 501, "Not implemented.", "Method (" + html_encode_string( method ) + ") not recognised.", this_object() );
+      else if ( err = catch( file = conf->query( "Old404" )?old_404():conf->http_error->handle_error( 404, errors[ 404 ], "Unable to locate the file: " + not_query + ".<br>The page you are looking for may have moved or been removed.", this_object() ) ) ) {
+	  INTERNAL_ERROR( err );
+      }
   } else {
     if((file->file == -1) || file->leave_me) 
     {
@@ -1279,13 +1177,16 @@ void send_result(mapping|void result)
 #endif /* REQUEST_DEBUG */
   
   TIMER("send_result");
+  MARK_FD("send_result");
   if(method == "HEAD" || file->error == 304)
   {
     my_fd->write(head_string);
     do_log();
     return;
   } else {
+    
 #ifdef ENABLE_RAM_CACHE
+    wefweftrace(1);
     if( conf && (misc->cacheable > 0) && file->len > 0)
     {
       if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
@@ -1302,7 +1203,8 @@ void send_result(mapping|void result)
 	file = ([ "data":data, "len": strlen(data) ]);
 	head_string = "";
       }
-    } 
+    }
+    trace(0);
 #endif
     if(file->len > 0 && file->len < 4000) {
       my_fd->write(head_string + (file->file ? file->file->read() :
@@ -1326,7 +1228,7 @@ void handle_request( )
   function funp;
   object thiso=this_object();
   TIMER("enter_handle");
-
+  MARK_FD("handle request");
 #ifdef MAGIC_ERROR
   if(prestate->old_error)
   {
@@ -1365,7 +1267,7 @@ void handle_request( )
 #endif /* MAGIC_ERROR */
 
   remove_call_out(do_timeout);
-  MARK_FD("HTTP handling request");
+  MARK_FD("handling request");
   TIMER("handle_request");
   if(!file) {
     if(conf) {
@@ -1382,20 +1284,23 @@ void handle_request( )
 /* We got some data on a socket.
  * ================================================= 
  */
-int processed, headprocessed;
+int processed;
 object htp;
 void got_data(mixed fdid, string s)
 {
   int tmp;
   ITIMER();
   TIMER("got_data");
+  MARK_FD("http2 got_data");
   remove_call_out(do_timeout);
   call_out(do_timeout, 30); // Close down if we don't get more data 
-                         // within 30 seconds. Should be more than enough.
+  // within 30 seconds. Should be more than enough.
   time = _time(1); // Check is made towards this to make sure the object
   // is not killed prematurely.
   raw += s;
   if(!method) {
+    if (!htp)
+      htp = Caudium.ParseHTTP(misc, request_headers);
     tmp = htp->append(s);
     switch(tmp)
     { 
@@ -1406,48 +1311,66 @@ void got_data(mixed fdid, string s)
       // Processed OK
       method = misc->method;
       prot = clientprot = misc->protocol;
-      f = misc->file;
+      not_query = f = misc->file;
       raw_url = misc->raw_url;
       query = misc->query;
-      data = misc->data;
-      wanted_data = misc->len = (int)request_headers["content-length"];
+      data = misc->data;      
+      destruct(htp);
+      if(request_headers->host)
+      	host = lower_case(request_headers->host);
+      if(request_headers->connection)
+	request_headers->connection = lower_case(request_headers->connection);
+      if(strlen(data) < (misc->len = (int)request_headers["content-length"])) {
+	// Need more data
+	return;
+      }
       break;
      default:
-      // Some error so we return an error message
-      end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>Broken request</h1>");
+      string err = "Broken request";
+      MARK_FD("http2 broken request");
+      
+      switch(tmp) {
+       case 400: /* bad request */
+	err = "Bad request";
+	break;
+	
+       case 413: /* Request entity too large */
+	err = "Request Entity Too Large (trying to overflow, eh?)";
+	break;
+      }
+      
+      end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
       return;
     }
-  } else if(wanted_data) {
-    data += s;
-    if(strlen(data) < wanted_data)
-      // Need more data
-      return;
   }
+  
+  data += s;
+  if(strlen(data) < misc->len) {
+    // Need more data
+    return;
+  }
+  
   TIMER("parsed");
 #ifdef ENABLE_RAM_CACHE
-  misc->cacheable = 30; // FIXME: Make configurable.
+  if(!request_headers->authorization && method != "POST")
+    misc->cacheable = GLOBVAR(RequestCacheTimeout);
 #endif
-  if(do_post_processing()) {
-    return 0;
-  }
-
-  TIMER("post_processed");
-
   if(conf)
   {
     conf->received += strlen(s);
     conf->requests++;
   }
+  
+  my_fd->set_nonblocking(0,0,0);
 
-  my_fd->set_close_callback(0); 
-  my_fd->set_read_callback(0); 
-  processed=1;
   if(conf) {
     conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
     array cv;
     if( misc->cacheable && (cv = conf->datacache->get( raw_url )) )
     {
+      MARK_FD("http2 cached reply");
+
       string d = cv[ 0 ];
       file = cv[1];
       conf->hsent += file->hs;
@@ -1463,9 +1386,11 @@ void got_data(mixed fdid, string s)
     }
 #endif
   }
-  TIMER("pre_handle");
+  TIMER("post_cache_check");
+  do_post_processing();
+  TIMER("post_processed");
 #ifdef THREADS
-  handle(handle_request);
+  caudium->handle(handle_request);
 #else
   handle_request();
 #endif
@@ -1536,18 +1461,15 @@ void create(void|object f, void|object c)
 {
   if(f)
   {
-    f->set_nonblocking();
     my_fd = f;
     conf = c;
-    MARK_FD("HTTP connection");
-    my_fd->set_close_callback(end);
-    my_fd->set_read_callback(got_data);
+    f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
-    time = _time(1);    
-  }
-  
-  htp = Caudium.ParseHTTP(misc, request_headers);
+    time = _time(1);
+    remoteaddr = Caudium.get_address(my_fd->query_address()||"");
+    MARK_FD("HTTP connection");
+  }  
 }
 
 void chain(object f, object c, string le)
@@ -1556,6 +1478,7 @@ void chain(object f, object c, string le)
   conf = c;
   do_not_disconnect=-1;
   MARK_FD("Kept alive");
+  
   if(strlen(le))
     // More to handle already.
     got_data(0,le);
@@ -1577,8 +1500,7 @@ void chain(object f, object c, string le)
     if(do_not_disconnect == -1) 
       do_not_disconnect = 0;
     if(!processed) {
-      f->set_close_callback(end);
-      f->set_read_callback(got_data);
+      f->set_nonblocking(got_data, 0, end);
     }
   }
 }

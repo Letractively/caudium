@@ -2596,7 +2596,13 @@ private void define_global_variables( int argc, array (string) argv )
 	  "Do you want documentation? (this is an example of documentation)");
 
 
-  globvar("NumAccept", 1, "Number of accepts to attempt",
+#ifdef ENABLE_RAM_CACHE
+  globvar("RequestCacheTimeout", 30, "Request Tuning: Cache expiration value",
+          TYPE_INT|VAR_MORE,
+          "Time after which a single cached request is removed from the data cache");
+#endif		  
+  
+  globvar("NumAccept", 1, "Request Tuning: Number of accepts to attempt",
 	  TYPE_INT_LIST|VAR_MORE,
 	  "You can here state the maximum number of accepts to attempt for "
 	  "each read callback from the main socket. <p> Increasing this value "
@@ -3172,7 +3178,7 @@ void rescan_modules()
 {
   string file, path;
   mixed err;
-  report_notice("Scanning module directories for modules");
+  report_notice("Scanning module directories for modules.\n");
   if (!allmodules) {
     allmodules=copy_value(somemodules);
   }

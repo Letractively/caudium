@@ -883,6 +883,28 @@ public string status()
 		 "<td><b>Received data:</b></td><td>%.2fMB</td></tr>\n",
 		 requests, (float)tmp/(float)10, received->mb());
 
+
+#ifdef ENABLE_RAM_CACHE
+  if(datacache && (datacache->hits || datacache->misses)) {
+    res += sprintf("<tr align=right><td><b>Cache Requests:</b></td>"
+		   "<td>%d hits</td><td>%d misses</td></td>"
+		   "<td><b>Cache Hitrate:</b></td>"
+		   "<td>%.1f%%</td></tr>",
+		   datacache->hits, datacache->misses,
+		   datacache->misses ?
+		   (datacache->hits / (float)(datacache->hits +
+					      datacache->misses))*100 :  100);
+    
+    res += sprintf("<tr align=right><td><b>Cache Utilization:</b></td>"
+		   "<td>%s</td><td>%.1f%% free</td>"
+		   "<td><b>Cache Entries:</b></td>"
+		   "<td>%d</td></tr>",
+		   sizetostring(datacache->current_size),
+		   ((datacache->max_size - datacache->current_size)/
+		    (float)datacache->max_size)*100, sizeof(datacache->cache));
+  }
+#endif
+
   if (!zero_type(misc->ftp_users)) {
     tmp = (((float)misc->ftp_users*(float)600)/
 	   (float)((time(1)-caudium->start_time)+1));
@@ -2325,10 +2347,12 @@ void start(int num, void|object conf_id, array|void args)
 #ifdef ENABLE_RAM_CACHE
   if(!datacache)
     datacache = DataCache(query( "data_cache_size" ) * 1024,
-			  query( "data_cache_file_max_size" ) * 1024);
+			  query( "data_cache_file_max_size" ) * 1024,
+			  query( "data_cache_gc_cleanup") / 100.0);
   else
     datacache->init_from_variables(query( "data_cache_size" ) * 1024,
-				   query( "data_cache_file_max_size" ) * 1024);
+				   query( "data_cache_file_max_size" ) * 1024,
+				   query( "data_cache_gc_cleanup") / 100.0);
 #endif
 
 #if 0
@@ -3304,9 +3328,10 @@ int unload_module(string module_file)
 
 int add_modules (array(string) mods)
 {
-  foreach (mods, string mod)
+  foreach (mods, string mod) {
     if(!modules[mod] || !modules[mod]->copies && !modules[mod]->master)
       enable_module(mod+"#0");
+  }
   if(caudium->root)
     caudium->configuration_interface()->build_root(caudium->root);
 }
@@ -3500,19 +3525,20 @@ class DataCache
   mapping(string:array(string|mapping(string:mixed))) cache = ([]);
 
   int current_size;
-  int max_size;
+  int max_size, gc_size;
   int max_file_size;
-
+  
   int hits, misses;
 
   static void clear_some_cache()
   {
+    int i;
     array q = indices( cache );
-    for( int i = 0; i<sizeof( cache)/10; i++ )
+    while(current_size > gc_size && i < sizeof(q))
     {
-      string ent = q[random(sizeof(q))];
-      current_size -= strlen( cache[ent][0] );
-      m_delete( cache, q[random(sizeof(q))] );
+      current_size -= strlen( cache[ q[i] ][0] );
+      m_delete( cache, q[i] );
+      i++;
     }
   }
 
@@ -3527,41 +3553,44 @@ class DataCache
 
   void set( string url, string data, mapping meta, int expire )
   {
-//     if( strlen( data ) > max_file_size ) // checked in conf
-//       return 0;
+    remove_call_out(url);
     call_out( expire_entry, expire, url );
-    while( (strlen( data ) + current_size) > max_size )
+    current_size += strlen(data);
+    if(current_size > max_size)
       clear_some_cache();
-    current_size += strlen( data );
     cache[url] = ({ data, meta });
   }
   
-  array(string|mapping(string:mixed)) get( string url )
+  array(string|mapping(string:mixed)) get( string url, mapping request_headers )
   {
     mixed res;
-    if( res = cache[ url ] )  
+    
+    if( res = cache[ url ] ) {
+      // Fixme: we need ETag (If-Match, If-None-Match and Vary) processing here
       hits++;
-    else
+    } else
       misses++;
     return res;
   }
 
-  void init_from_variables(int _size, int _fsize)
+  void init_from_variables(int _size, int _fsize, float gc_cleanup)
   {
     max_size = _size;
     max_file_size = _fsize;
+    gc_size = (int)(max_size * (1 - gc_cleanup));
     while( current_size > max_size )
       clear_some_cache();
   }
 
-  static void create(int _size, int _fsize )
+  static void create(int _size, int _fsize, float gc_cleanup )
   {
-    init_from_variables(_size,_fsize);
+    init_from_variables(_size,_fsize, gc_cleanup);
   }
 };
 
 object(DataCache) datacache;
 #endif
+
 void create(string config)
 {
   caudium->current_configuration = this;
@@ -3578,6 +3607,12 @@ void create(string config)
   defvar( "data_cache_file_max_size", 50, "Data Cache:Max file size",
           TYPE_INT, "The maximum size of a file that is to be "
 	  "considered for the cache");
+  defvar( "data_cache_gc_cleanup", 25, "Data Cache:Garbage Collection Percentage",
+          TYPE_INT_LIST, "The amount of the cache space to clean up during "
+	  "a garbage collection run in percent. If you have a large cache, "
+	  "you can make this value lower. With a small cache and a small "
+	  "percentage the GC routine will run more often.",
+	  ({ 5, 10, 15, 20, 25, 30, 35, 40, 50 }));
 #endif
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "

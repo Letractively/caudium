@@ -30,9 +30,14 @@ Changes in Caudium 1.0.X (RC3, not released)
   configuration.
 - Fixed a bug in the UltraLog module when threads are unavailable.
 - Corrected QUERY calls in the sql filesystem module.
+- Backported improved data cache and http2 protocol from Caudium 1.1.
+- Fixed various minor bugs and typos.
+- Pike 7.1, 7.2 and 7.3 are not supported with Caudium 1.0. The verify
+  script now says this.
 - Fixed security bug which allowed people to ge the RXML source code
   of a page if a request was made to an RXML file while Caudium was
   loading.
+
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------

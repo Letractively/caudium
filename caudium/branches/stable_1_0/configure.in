@@ -325,7 +325,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
   AC_MSG_CHECKING(${a})
   if test -x ${a}; then
     PIKE="${a}"
-    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116) exit(1); exit(0);'; then
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116 || v >= 7.1) exit(1); exit(0);'; then
 		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep '^Module' | sed -e 's/.*: //'`"
 		PIKE_INCLUDE_DIRS="-I`echo "$PIKE_MODULE_DIR" | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
 
@@ -380,7 +380,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 		   fi
 		fi
 	else
-		AC_MSG_RESULT(too old)
+		AC_MSG_RESULT(too old or too new)
 		PIKE=""
 	fi
   else
@@ -392,7 +392,10 @@ if test "$PIKE" != ""; then
 else
   cat << EOF
 ******************************************************************
-*** I couldn't find a suitable Pike for Caudium. We recommend that
+*** I couldn't find a suitable Pike for Caudium. If you do have a
+*** Pike 7.0 or 0.6 installed in a non-standard location you can
+*** specify the path using the '--with-pike=/full/path/to/pike'
+*** option to the configure script. If not, we recommend that
 *** you download a Pike 7.0 snapshot from our website at
 ***
 ***     http://caudium.net/download/snapshot.html
@@ -405,6 +408,8 @@ else
 *** IMPORTANT: If choose to use Pike 7.0, get version 7.0.268 or
 *** newer. Earlier 7.0 versions have several bugs affecting
 *** Caudium.
+***
+*** NOTE: Caudium 1.0 does not work with Pike 7.1, 7.2 or 7.3. 
 ******************************************************************
 EOF
   exit 1;
