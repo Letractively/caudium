@@ -21,7 +21,7 @@
 #define SX_FILE 0
 #define SX_DATA 1
 
-#define THIS ((xslt_storage *)fp->current_storage)
+#define THIS ((xslt_storage *)Pike_fp->current_storage)
 
 typedef struct
 {
@@ -33,19 +33,6 @@ typedef struct
   struct mapping *err;
   char *content_type, *charset;
 } xslt_storage;
-
-#ifndef ADD_STORAGE
-/* Pike 0.6 */
-#define ADD_STORAGE(x) add_storage(sizeof(x))
-#define MY_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->hashsize; COUNT++ ) \
-	for(KEY=md->hash[COUNT];KEY;KEY=KEY->next)
-#else
-/* Pike 7.x and newer */
-#define MY_MAPPING_LOOP(md, COUNT, KEY) \
-  for(COUNT=0;COUNT < md->data->hashsize; COUNT++ ) \
-	for(KEY=md->data->hash[COUNT];KEY;KEY=KEY->next)
-#endif
 
 static void f_set_xml_data(INT32 args); 
 static void f_set_xml_file(INT32 args); 

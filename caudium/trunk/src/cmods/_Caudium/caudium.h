@@ -28,7 +28,7 @@ void exit_nbio(void);
 #define READ_BUFFER_SIZE 65536
 
 #define BUFSIZE 16535
-#define BUF ((buffer *)fp->current_storage)
+#define BUF ((buffer *)Pike_fp->current_storage)
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
 
