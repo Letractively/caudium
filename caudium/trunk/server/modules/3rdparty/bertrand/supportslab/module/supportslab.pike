@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
  * $Id$
  */
 
@@ -143,7 +144,11 @@ string container_supportslab_form(string tagname, mapping args, string contents,
 
   out += "<form name=\"supportslab_form\" method=\"get\" ";
   out == "action=\""+id->raw_url+"\">";
+#if constant(parse_html)
   out += parse_html(contents, tags, containers, id);
+#else
+  out += spider.parse_html(contents, tags, containers, id);
+#endif
   out += "</form>";
 
   return out;
