@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.2
 --------------------------------------------
+- business graphics module now creates the cache directory in the correct
+  location (under the argument_cache_dir hierarchy)
 - Now font name can be specified in <diagram > tag and use the CIF default
   font name.
 - The compilation process may skip rpath from the compiler/linker command line
