@@ -123,9 +123,9 @@ string date(int timestamp, mapping|void m)
             return "tomorrow, " + target->format_mod(); 
 
         if (now->year_no() != target->year_no())
-            return ((string)target->month_no() +  " " + target->year_name());
+            return month(target->month_no()) +  " " + target->year_name();
 
-        return ((string)target->month_no() + " " + ordered(target->month_day()));
+        return month(target->month_no()) + " " + ordered(target->month_day());
     }
   
     if(m["full"])
