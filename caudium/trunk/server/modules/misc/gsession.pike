@@ -354,11 +354,11 @@ private string gsession_build_cookie(object id, string sid, void|int remove)
 
   if (!remove) {
     if (QUERY(cookieexpire) > 0)
-      Cookie += "; Expires=" + http_date(time()+QUERY(cookieexpire)) +";";
+      Cookie += "; Expires=" + Protocols.HTTP.Server.http_date(time()+QUERY(cookieexpire)) +";";
     if (QUERY (cookieexpire) < 0)
       Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
   } else
-    Cookie += "; Expires=" + http_date(0) + ";";
+    Cookie += "; Expires=" + Protocols.HTTP.Server.http_date(0) + ";";
     
   if (QUERY (secure))
     Cookie += "; Secure";

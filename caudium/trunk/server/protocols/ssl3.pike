@@ -390,7 +390,7 @@ void send_result(mapping|void result)
       ([
 	"Content-type":file["type"],
 		      "Server":replace(version(), " ", "·"),
-		      "Date":http_date(time)
+		      "Date":Protocols.HTTP.Server.http_date(time)
 	 ]);
     
     if(file->encoding)
@@ -400,7 +400,7 @@ void send_result(mapping|void result)
       file->error=200;
     
     if(!zero_type(file->expires))
-      heads->Expires = file->expires ? http_date(file->expires) : "0";
+      heads->Expires = file->expires ? Protocols.HTTP.Server.http_date(file->expires) : "0";
 
     if(!file->len)
     {
@@ -414,7 +414,7 @@ void send_result(mapping|void result)
 	  file->len = fstat[1];
     
     
-	heads["Last-Modified"] = http_date(fstat[3]);
+	heads["Last-Modified"] = Protocols.HTTP.Server.http_date(fstat[3]);
 	
 	if(since)
 	{

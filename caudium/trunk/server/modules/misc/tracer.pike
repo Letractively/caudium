@@ -105,7 +105,7 @@ string query_location()
 void log_referer(string cookie, void|string query, void|string referer)
 {
   if (logok) logfile->write(sprintf("%s | %s | %s | %s\n",
-		http_date(time(1)), cookie, query || "-", referer || "-"));
+		Protocols.HTTP.Server.http_date(time(1)), cookie, query || "-", referer || "-"));
 }
 
 mixed find_file(string f, object id)
@@ -115,9 +115,9 @@ mixed find_file(string f, object id)
 		 id->query,
                  id->request_headers->referer);
 
-  id->misc->moreheads = ([ "Expires": http_date(time()),
+  id->misc->moreheads = ([ "Expires": Protocols.HTTP.Server.http_date(time()),
                            "Pragma": "no-cache",
-                           "Last-Modified": http_date(time(1)),
+                           "Last-Modified": Protocols.HTTP.Server.http_date(time(1)),
                            "Cache-Control": "no-cache, must-revalidate" ]);
 
   return ([ "data" : pixel,
