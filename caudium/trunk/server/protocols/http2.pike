@@ -19,6 +19,12 @@
  *
  */
 
+
+/* If defined, write files smaller than this define directly to
+ * the output fd instead of using the data shuffler.
+ */
+#define DIRECT_WRITE 40000
+
 #define MAGIC_ERROR
 
 #ifdef MAGIC_ERROR
@@ -457,6 +463,7 @@ inline void disconnect()
 {
   file = 0;
   if(do_not_disconnect) return;
+  TIMER("disconnected");
   destruct();
 }
 
@@ -486,6 +493,7 @@ void end(string|void s, int|void keepit)
   
   
 #ifdef KEEP_ALIVE
+  TIMER("keep alive check");
   if(keepit &&
      (!(file->raw || file->len <= 0))
      && (request_headers->connection == "keep-alive" ||
@@ -501,14 +509,12 @@ void end(string|void s, int|void keepit)
 #endif
     o->useragent = useragent;
     MARK_FD("HTTP kept alive");
-    object fd = my_fd;
-    my_fd=0;
     if(!leftovers && method != "POST")
       leftovers = data;
     if(s) leftovers += s;
-    while(sscanf(leftovers, "\r\n%s", leftovers))
-      ; // Remove beginning newlines..
-    o->chain(fd,conf,leftovers);
+    o->chain(my_fd,conf,leftovers);
+    my_fd = 0;
+    TIMER("kept alive");
     disconnect();
     return;
   } 
@@ -758,6 +764,7 @@ void do_log()
       conf->log(file, this_object());
     }
   }
+  TIMER("logged");
   end(0,1);
 }
 
@@ -1220,12 +1227,14 @@ void send_result(mapping|void result)
       }
     } 
 #endif
-    if(file->len > 0 && file->len < 4000) {
+#if DIRECT_WRITE
+    if(file->len > 0 && file->len < DIRECT_WRITE) {
       my_fd->write(head_string + (file->file ? file->file->read() :
 				  file->data[..file->len-1]));
       do_log();
       return;
-    } 
+    }
+#endif
     if(strlen(head_string))                 send(head_string);
     if(file->data && strlen(file->data))    send(file->data, file->len);
     else if(file->file)                     send(file->file, file->len);
@@ -1298,7 +1307,8 @@ void handle_request( )
 /* We got some data on a socket.
  * ================================================= 
  */
-int processed;
+static int processed;
+static int got_all_data;
 object htp;
 void got_data(mixed fdid, string s)
 {
@@ -1363,7 +1373,7 @@ void got_data(mixed fdid, string s)
     // Need more data
     return;
   }
-  
+  got_all_data = 1;
   TIMER("parsed");
 #ifdef ENABLE_RAM_CACHE
   if(!request_headers->authorization && method != "POST")
@@ -1388,14 +1398,18 @@ void got_data(mixed fdid, string s)
       string d = cv[ 0 ];
       file = cv[1];
       conf->hsent += file->hs;
-      if( strlen( d ) < 4000 )
+#ifdef DIRECT_WRITE
+      if( strlen( d ) < DIRECT_WRITE )
       {
 	my_fd->write( d );
 	do_log();
       } else {
+#endif
 	send( d );
 	start_sender();      
+#ifdef DIRECT_WRITE
       }
+#endif
       return;
     }
 #endif
@@ -1513,7 +1527,7 @@ void chain(object f, object c, string le)
   } else {
     if(do_not_disconnect == -1) 
       do_not_disconnect = 0;
-    if(!processed) {
+    if(!got_all_data) {
       f->set_nonblocking(got_data, 0, end);
     }
   }
