@@ -247,8 +247,6 @@ inherit _Caudium;
 //! @seealso
 //!  @[http_encode] @[http_encode_cookie] @[http_encode_string]
 //!  @[http_encode_url] @[http_decode_url]
-//! @fixme
-//!  Function is still buggy and still not optimized.
 
 //! @decl string http_encode(string what)
 //!   Encode the given string into "safe" string according to RFC 2396 eg.
