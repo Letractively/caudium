@@ -111,8 +111,12 @@ void store( mapping cache_response ) {
 	// After talking to hubbe I have learned that nbio wont work when
 	// writing to disk. screwed, eh?
 #ifdef CACHE_DEBUG
-  perror(sprintf("CACHE: cache_set(\"%s\", \"%s\", %O)\n",
-                 namespace, cache_response->name, cache_response->object));
+  string _obj = sprintf( "%O", cache_response->object );
+  if ( sizeof( _obj ) > 100 ) {
+    _obj = _obj[ 1..100 ];
+  }
+  perror(sprintf("CACHE: cache_set(\"%s\", \"%s\", %s)\n",
+                 namespace, cache_response->name, _obj));
 #endif
   last_access = time();
   if ( cache_response->expires ) {
