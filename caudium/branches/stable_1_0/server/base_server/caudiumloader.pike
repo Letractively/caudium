@@ -107,9 +107,16 @@ int getppid()
 int use_syslog, loggingfield;
 #endif
 
-#if !constant(mark_fd)
-mixed mark_fd(mixed ... args) { }
+#ifdef FD_DEBUG
+mapping fd_marker = ([]);
 #endif
+mixed mark_fd(int fd, mixed|void marker) {
+#ifdef FD_DEBUG
+  if(marker) fd_marker[fd] = ctime(time())[4..18] +": "+marker;
+  else return fd_marker[fd];
+#endif
+  
+}
 
 /*
  * Some efuns used by Caudium
@@ -839,9 +846,7 @@ int main(mixed ... args)
 #endif
   
 
-#if !constant(mark_fd)
-  add_constant("mark_fd", lambda(mixed ... args) { } );
-#endif
+  add_constant("mark_fd", mark_fd);
 
   initiate_cache();
   load_caudium();
