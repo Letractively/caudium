@@ -273,7 +273,7 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
                 m_delete(m, "name");
             
             foreach(indices(m), string i)
-                attrs += ({ i + "='" + m[i] + "'"});
+                attrs += ({ i + "=\"" + m[i] + "\""});
 
             smetas += sprintf("<meta %s />", attrs * " ");
         }
@@ -289,7 +289,7 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
         foreach(indices(style), string idx)
           styles += ({ idx + "{" + style[idx] + "}\n" });
 
-        sstyle = sprintf("<style type='text/css'>%s</style>",
+        sstyle = sprintf("<style type=\"text/css\">%s</style>",
                          styles * " ");
       } else if (stringp(style)) {
         sstyle = sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\">",
