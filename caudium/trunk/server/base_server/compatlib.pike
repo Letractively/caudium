@@ -548,6 +548,46 @@ object clone(mixed ... args) {
   return new(@args);
 }
 
+//! @decl array(int|string) getpwent()
+//!
+//!  Alternate name for the function @[getpwent()] (Pike 7.2 compatiblity).
+//! 
+//!  This function was moved to System.getpwent().
+//! 
+//! @deprecated
+
+array(int|string) getpwent() {
+   WCOMPAT("System","getpwent");
+   return System.getpwent();
+}
+
+//! @decl int endpwent()
+//!
+//!  Alternate name for the function @[endpwent()] (Pike 7.2 compatiblity).
+//! 
+//!  This function was moved to System.endpwent().
+//! 
+//! @deprecated
+
+int endpwent() {
+   WCOMPAT("System","endpwent");
+   return System.endpwent();
+}
+
+//! @decl setpwent()
+//!
+//!  Alternate name for the function @[setpwent()] (Pike 7.2 compatibility).
+//!
+//!  This function was moved to System.setpwent().
+//!
+//! @deprecated
+//!
+
+int setpwent() {
+   WCOMPAT("System","setpwent");
+   return System.setpwent();
+}
+
 //! @decl array(int) rusage()
 //!
 //!   Return resource usage. An error is thrown if it isn't supported
