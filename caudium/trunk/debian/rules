@@ -35,7 +35,8 @@ PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
 ADD_VER=
 
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
-        bin/ultrasum.pike bin/install.pike 
+        bin/ultrasum.pike bin/install.pike bin/pixsl.pike \
+        etc/modules/SSL.pmod/client.pike
 
 configure: configure-stamp
 configure-stamp:

@@ -18,36 +18,36 @@ Description: An extensible WWW server written in Pike
  options, mostly introduced to improve the performance, security etc. of the
  server, can be turned on. 
  Caudium features built-in log parsing engine (UltraLog), XSLT parser, native
- PHP4 support (you need ${pike:name} that has been compiled to support php4 for this
- to work), multiple execution threads and many more features - see 
+ PHP4 support, multiple execution threads and many more features - see 
  http://caudium.net/ and http://caudium.org/ for more information.
 
 Package: caudium-modules
 Architecture: any
 Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
 Description: C modules for Caudium
- Certain parts of Caudium are coded in C for speed. This package contains the
- compiled shared modules that are required by Caudium to run.
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the  compiled shared modules that are required by Caudium to run.
 
 Package: caudium-pixsl
 Architecture: any
 Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
 Description: Pike XSLT module for Caudium
- Certain parts of Caudium are coded in C for speed. This package contains the compiled
- shared extension module that provides Caudium with XSLT support.
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the compiled  shared extension module that provides Caudium with 
+ XSLT support.
 
 Package: caudium-ultralog
 Architecture: any
 Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
 Description: Log Parser module for Caudium
- Certain parts of Caudium are coded in C for speed. This package contains the compiled
- shared extension module that provides Caudium with a built-in log file parser that
- is capable of generating extensive statistics on the fly for virtual servers configured
- in your Caudium WebServer.
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the compiled shared extension module that provides Caudium with a built-in
+ log file parser that is capable of generating extensive statistics on the
+ fly for virtual servers configured in your Caudium WebServer.
 
 Package: caudium-dev
 Architecture: any
 Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99)
 Description: Development files for Caudium
- A small package that contains files required for developing Caudium extension packages
- without installing Caudium itself.
+ A small package that contains files required for developing Caudium
+ extension packages without installing Caudium itself.
