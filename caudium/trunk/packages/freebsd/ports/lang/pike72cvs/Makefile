@@ -6,8 +6,8 @@
 #
 
 PORTNAME=	pike72cvs
-PORTVERSION=	7.2.380
-PORTREVISION=	3
+PORTVERSION=	7.2.412
+PORTREVISION=	0
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -20,28 +20,26 @@ DISTNAME=	pike-${PORTVERSION}
 
 MAINTAINER=	kiwi@oav.net
 
-#BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
 USE_BISON=	yes
+
+LIB_DEPENDS=	jpeg.9:${PORTSDIR}/graphics/jpeg \
+		tiff.4:${PORTSDIR}/graphics/tiff \
+		gdbm.2:${PORTSDIR}/databases/gdbm \
+		mird.1:${PORTSDIR}/databases/mird
+
 .if (${MACHINE} == "i386")
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
-
-LIB_DEPENDS=	gmp.6:${PORTSDIR}/math/libgmp4 \
-		jpeg.9:${PORTSDIR}/graphics/jpeg \
-		tiff.4:${PORTSDIR}/graphics/tiff \
-		gdbm.2:${PORTSDIR}/databases/gdbm \
-		mird.1:${PORTSDIR}/databases/mird 
-#		rsaref.2:${PORTSDIR}/security/rsaref
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
 WANT_MESA=	yes
 WANT_GTK=	yes
 WANT_GNOME=	yes
-#USE_AUTOCONF_VER=213
-#USE_AUTOMAKE=	yes
 
 GNU_CONFIGURE=  yes
+
+.include <bsd.port.pre.mk>
 
 CONFIGURE_ARGS+= --without-debug \
 		 --with-double-precision \
@@ -67,9 +65,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-gdbm \
 		 --without-ssleay \
 		 --prefix=${PREFIX}
-#		 --with-rsaref=${PREFIX}
 
-.include <bsd.port.pre.mk>
+PLIST_SUB+=     PORTVERSION=${PORTVERSION}
 
 .if exists(${LOCALBASE}/lib/libttf.so.4)
 WITH_TTF=	yes
@@ -105,6 +102,10 @@ WITH_MESA=	yes
 
 .if exists(${LOCALBASE}/lib/libpdf.so.4)
 WITH_PDF=	yes
+.endif
+
+.if exists(${LOCALBASE}/lib/libct.so.0)
+WITH_FREETDS=	yes
 .endif
 
 .if defined(WITH_MOST)
@@ -200,11 +201,11 @@ CONFIGURE_ARGS+= --with-GTK --with-gnome --with-glade
 CONFIGURE_ARGS+= --without-GTK --without-gnome --without-glade
 .endif
 
-.if (${MACHINE} == "i386")
-CONFIGURE_ARGS+= --with-poll
+.if defined(WITH_TDS)
+LIB_DEPENDS+=	ct.0:${PORTSDIR}/databases/freetds
+CONFIGURE_ARGS+= --with-sybase
 .else
-# Alpha seems to have problems with poll() with pike... :/
-CONFIGURE_ARGS+= --without-poll
+CONFIGURE_ARGS+= --without-sybase
 .endif
 
 USE_GMAKE=	yes
@@ -244,11 +245,11 @@ pre-everything::
 	@${ECHO_MSG} "You can enable most of the features here except Sane,"
 	@${ECHO_MSG} "MesaGLi, GNOME and SQL support by defining WITH_MOST."
 .endif
-
+.if !defined(WITH_FREETDS)
+	@${ECHO_MSG} "You can enable MS SQL / Sybase support by defining WITH_FREETDS."
+.endif
 
 pre-configure:
-#	@cd ${WRKSRC}; \
-#	./run_autoconfig
 	@${ECHO} ${CONFIGURE_ARGS}
 
 post-install:
