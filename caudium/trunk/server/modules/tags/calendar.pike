@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2002 The Caudium Group
+ * Copyright © 2002-2003 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
  * $Id$
- *
+ */
+/*
  * TODO: JS and CSS docs (yuck!)
  */
 constant cvs_version="$Id$";
@@ -1071,10 +1073,6 @@ static string hotdate_tag(string tag, mapping args, object id)
   
   return "<!-- hotdate processed -->";
 }
-
-#if constant(spider.parse_html)
-function parse_html = spider.parse_html;
-#endif
 
 string calendar_tag(string tag, mapping args, string cont,
                     object id, object f, mapping defines)
