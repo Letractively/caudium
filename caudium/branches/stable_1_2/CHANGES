@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.x since Caudium 1.2.2
 --------------------------------------------
+- Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
 - business graphics module now creates the cache directory in the correct
   location (under the argument_cache_dir hierarchy)
 - Now font name can be specified in <diagram > tag and use the CIF default
