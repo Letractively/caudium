@@ -680,7 +680,7 @@ string format_backtrace(array bt, int eid)
 		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
 		"<tr><td valign=bottom align=left><img border=0 "
 		"src=\""+(conf?"/internal-caudium-":"/img/")+
-		"caudium-icon-gray.gif\" alt=\"\"></td>"
+		"caudium-icon-gray.png\" alt=\"\"></td>"
 		"<td>&nbsp;</td><td width=100% height=39>"
 		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
 		"<td width=\"100%\" align=right valigh=center height=28>"
