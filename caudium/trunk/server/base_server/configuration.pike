@@ -396,7 +396,7 @@ public array|string type_from_filename( string file, int|void to ) {
   object current_configuration;
 
   // the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
-  array retval = ({ "application/octet-stream", 0 })'
+  array retval = ({ "application/octet-stream", 0 });
 
   if( !types_fun )
     return to ? retval : retval[ 0 ];
@@ -404,7 +404,7 @@ public array|string type_from_filename( string file, int|void to ) {
 //   while(file[-1] == '/') 
 //     file = file[0..strlen(file)-2]; // Security patch? 
 
-  array retval = types_fun( file );
+  retval = types_fun( file );
   // hmm, all else is being taken care of inside types_fun...
   return to ? retval : retval[ 0 ];
 }
@@ -2994,7 +2994,7 @@ object enable_module( string modname )
   if(module->type & MODULE_TYPES)
   {
     types_module = me;
-    types_fun = me->type_from_extension;
+    types_fun = me->type_from_filename;
   }
   
   if((module->type & MODULE_MAIN_PARSER))
