@@ -45,10 +45,9 @@
 #include <module.h>
 
 inherit "module";
+
+#ifdef CAUDIUM
 inherit "caudiumlib";
-
-#if 1
-
 #else
 inherit "roxenlib";
 #endif
