@@ -43,6 +43,12 @@ case "$1" in
 	rm -f /etc/default/caudium
 	rm -rf /etc/caudium
 	
+	# Remove the links to the vera fonts
+	for f in /usr/lib/caudium/fonts/ttf/*.ttf; do
+	  if [ -L $f ]; then
+	    rm -f $f
+	  fi
+	done
 	#
 	# Clean the cache files
 	#
