@@ -1,5 +1,6 @@
---- 1.0/tools/smartlink.orig	Tue Feb 20 12:18:06 2001
-+++ 1.0/tools/smartlink	Tue Nov 20 17:12:57 2001
+diff -U3 -r caudium-1.0.37.orig/tools/smartlink caudium-1.0.37/tools/smartlink
+--- caudium-1.0.37.orig/tools/smartlink	Tue Feb 20 12:18:06 2001
++++ caudium-1.0.37/tools/smartlink	Tue Nov 20 17:12:57 2001
 @@ -40,7 +40,6 @@
         tmp=`echo $1 | sed -e 's/^-R//g'`
       fi
@@ -38,8 +39,9 @@
  #    fi
  #  ;;
  #esac
---- 1.0/tools/smartlink.c.orig	Tue Feb 20 12:18:06 2001
-+++ 1.0/tools/smartlink.c	Tue Nov 20 17:12:58 2001
+diff -U3 -r caudium-1.0.37.orig/tools/smartlink.c caudium-1.0.37/tools/smartlink.c
+--- caudium-1.0.37.orig/tools/smartlink.c	Tue Feb 20 12:18:06 2001
++++ caudium-1.0.37/tools/smartlink.c	Tue Nov 20 17:12:58 2001
 @@ -1,5 +1,5 @@
  /*
 - * $Id$

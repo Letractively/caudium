@@ -12,6 +12,7 @@ caudium (2:1.0.37-1) unstable; urgency=medium
     
   * The init script now checks whether the PID to be killed exists (closes: #120628)
   * Updated the standards version
+  * Got rid of rpath
 
  -- Marek Habersack <grendel@debian.org>  Mon, 26 Nov 2001 11:30:23 +0100
 

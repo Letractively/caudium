@@ -35,14 +35,14 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	
-	if test "$(CVS_SNAPSHOT)" = "yes"; then \
-	    if test ! -f stamp-patch; then \
-		patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
-		patch -p1 < debian/patches/smartlink.diff; \
-		touch stamp-patch; \
-	    fi; \
-    	    ./autogen.sh; \
-	fi
+	if test ! -f stamp-patch; then \
+	    patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
+	    patch -p1 < debian/patches/smartlink.diff; \
+	    patch -p1 < debian/patches/configure.in.diff; \
+	    touch stamp-patch; \
+	fi;
+	./autogen.sh;
+	
 	./configure --prefix=/usr --with-pike=$(PIKE)
 
 	touch configure-stamp
