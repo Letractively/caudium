@@ -18,13 +18,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
 
-/* $Id$ */
-
-/*************************************************************,
-* PERSIST. An implementation of persistant objects for Pike.  *
-* Variables are saved between restarts.                       *
-'*************************************************************/
+//! PERSIST. An implementation of persistant objects for Pike.
+//! Variables are saved between restarts. 
 
 //Define this to only save the database in bursts instead of every time
 //something is changed.
@@ -34,6 +33,7 @@ static void _nosave(){}
 static function nosave = _nosave;
 private static array __id;
 
+//!
 void really_save()
 {
   //Note: We'll get a backtrace here if the object is destructed before save.
@@ -59,8 +59,11 @@ void really_save()
 
 
 /* Public methods! */
+
+//!
 static int ___destructed = 0;
 
+//!
 public void begone()
 {
   remove_call_out(really_save);   //Remove SAVE_IO call_out
@@ -71,11 +74,13 @@ public void begone()
   call_out(do_destruct,8,this_object());
 }
 
+//!
 void destroy()
 {
   remove_call_out(really_save);   //Remove SAVE_IO call_out
 }
 
+//!
 static void compat_persist()
 {
   string _id;
@@ -110,6 +115,7 @@ static void compat_persist()
   }
 }
 
+//!
 nomask public void persist(mixed id)
 {
   array err;
@@ -134,7 +140,7 @@ nomask public void persist(mixed id)
     this_object()->persisted();
 }
   
-
+//!
 public void save()
 {
   if(nosave()) return;

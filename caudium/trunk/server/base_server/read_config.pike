@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ */
+/*
  * $Id$
  */
+
+//! Read Configuration file for Caudium.
+//! @note
+//!   This is old historical from Roxen 1.3.xx days
 
 #include <caudium.h>
 #include <module.h>
@@ -32,13 +38,19 @@ import spider;
 # include "newdecode.pike"
 #endif
 
+//!
 mapping(string:object)        configs = ([]);
 
-// does it make sense to cache the config files stat results? /grendel
+//!
+//! @fixme
+//!   does it make sense to cache the config files stat results? /grendel
 mapping (string:array(int))     config_stat_cache = ([]);
 
-// flatfile storage
-string configuration_dir; // Set in caudium.pike:main()
+//! flatfile storage
+//! @note
+//!  Set in caudium.pike:main()
+string configuration_dir;
+
 private object dir = 0;
 private string global_vars_name = "Global_Variables";
 
@@ -150,8 +162,10 @@ void save_it(string cl)
   }
 }
 
+// Is this really necessary with Pike 7.3 ???? - XB
 void fix_config(mapping c);
 
+//!
 array fix_array(array c)
 {
   int i;
@@ -164,6 +178,7 @@ array fix_array(array c)
       c[i]=replace(c[i],".lpc#", "#");
 }
 
+//!
 void fix_config(mixed c)
 {
   mixed l;
@@ -189,6 +204,7 @@ void fix_config(mixed c)
   }
 }
 
+//!
 array config_is_modified(string cl)
 {
   array st = file_stat(configuration_dir + replace(cl, " ", "_"));
@@ -247,6 +263,7 @@ private static void read_it(string cl)
   configs[cl] = file;
 }
 
+//!
 void remove( string reg , object current_configuration) 
 {
   string cl;
@@ -264,6 +281,9 @@ void remove( string reg , object current_configuration)
   save_it(cl);
 }
 
+//! Remove a configuration file
+//! @param name
+//!   The file name to remove
 void remove_configuration( string name )
 {
   string f;
@@ -280,6 +300,7 @@ void remove_configuration( string name )
   }
 }
 
+//!
 void store( string reg, mapping vars, int q, object current_configuration )
 {
   string cl;
@@ -309,7 +330,7 @@ void store( string reg, mapping vars, int q, object current_configuration )
   save_it(cl);
 }
 
-
+//!
 mapping retrieve(string reg, object current_configuration)
 {
   string cl;

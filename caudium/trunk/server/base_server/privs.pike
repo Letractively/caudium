@@ -18,10 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
+
+//! Caudium privs system
+//! $Id$
+//! @fixme
+//!   Documents that !
 
 #include <module.h>
 #include <caudium.h>
-// string cvs_version = "$Id$";
 
 int saved_uid;
 int saved_gid;
@@ -63,6 +70,7 @@ static object threads_disabled;
 
 int p_level;
 
+//!
 void create(string reason, int|string|void uid, int|string|void gid)
 {
 #ifdef THREADS
@@ -189,6 +197,7 @@ void create(string reason, int|string|void uid, int|string|void gid)
 #endif /* HAVE_EFFECTIVE_USER */
 }
 
+//!
 void destroy()
 {
 #ifdef HAVE_EFFECTIVE_USER
