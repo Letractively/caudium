@@ -3544,7 +3544,7 @@ void describe_all_threads()
 
 // And then we have the main function, this is the oldest function in
 // Caudium :) It has not changed all that much since Spider 2.0.
-int main(array(string) argv)
+int main(int argc, array(string) argv)
 {
   int argc = argv ? sizeof(argv) : 0;
   initiate_languages();
