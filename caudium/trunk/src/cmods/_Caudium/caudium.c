@@ -989,6 +989,11 @@ static void f_parse_query_string( INT32 args )
         case ';': /* It's recommended to support ';'
                      instead of '&' in query strings... */
         case '&':
+	  if (name && (!*name || *name == '&')) {
+	    ptr++;
+	    break; /* &=, ignore */
+	  }
+	  
           if (equal == NULL) { /* valueless variable, these go to the */
             if (ptr == (unsigned char*)query->str) {
               ptr++;
