@@ -567,14 +567,15 @@ class Class {
 class Module {
     inherit DocObject;
     
-    string           cvs_version;
-    string           type;
-    string           provides;
-    array(Variable)  variables;
-    array(Tag)       tags;
-    array(Container) containers;
-    array(Method)    methods;
-    array(string)    inherits;
+    string             cvs_version;
+    string             type;
+    string             provides;
+    array(Variable)    variables;
+    array(Tag)         tags;
+    array(Container)   containers;
+    array(Method)      methods;
+    array(string)      inherits;
+    array(EntityScope) escopes;
     
     void new_field(object|string newstuff, string kw)
     {
@@ -651,6 +652,15 @@ class Module {
                     methods += ({newstuff});
                     break;
                     
+		case "entity-scope":
+		    if (newstuff->myName != "EntityScope") {
+			wrong_otype(kw, newstuff->myName);
+			return;
+		    }
+		    
+		    escopes += ({newstuff});
+		    break;
+		    
                 default:
                     wrong_keyword(kw);
                     break;
@@ -714,6 +724,7 @@ class Module {
         tags = ({});
         containers = ({});
 	inherits = ({});
+	escopes = ({});
     }
 };
 
@@ -1023,6 +1034,111 @@ class Attribute {
     }
 };
 
+class Entity {
+    inherit DocObject;
+    
+    void new_field(string|object newstuff, string kw)
+    {
+        if (stringp(newstuff)){
+            switch(kw) {
+                case "entity":
+                    first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
+                    break;
+
+                default:
+                    wrong_keyword(kw);
+                    break;
+            }
+        }
+    }
+
+    void append_field(string newstuff)
+    {
+        switch(lastkw){
+            case "entity":
+                if (newstuff == "")
+                    contents += "\n";
+                else
+		  contents += newstuff;
+                break;
+
+            default:
+                wrong_keyword(lastkw);
+                break;
+        }        
+    }
+    
+    void create(string line, void|object p)
+    {
+        ::create(p);
+
+        myName = "EntityScope";
+
+        first_line = line;
+    }
+};
+
+class EntityScope {
+    inherit DocObject;
+    
+    array(Entity)  entities;
+
+    void new_field(string|object newstuff, string kw)
+    {
+        if (stringp(newstuff)){
+            switch(kw) {
+                case "entity-scope":
+                    first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
+                    break;
+
+                default:
+                    wrong_keyword(kw);
+                    break;
+            }
+        } else {
+	    switch(kw) {
+		case "entity":
+		    entities += ({newstuff});
+		    break;
+		    
+		default:
+		    wrong_keyword(kw);
+		    break;
+	    }
+	}
+    }
+
+    void append_field(string newstuff)
+    {
+        switch(lastkw) {
+            case "entity-scope":
+                if (newstuff == "")
+                    contents += "\n";
+                else
+		  contents += newstuff;
+                break;
+
+            default:
+                wrong_keyword(lastkw);
+                break;
+        }        
+    }
+    
+    void create(string line, void|object p)
+    {
+        ::create(p);
+
+        myName = "EntityScope";
+
+        first_line = line;
+        entities = ({});
+    }
+};
+
 /*
  * File parser
  */
@@ -1076,6 +1192,9 @@ mapping(string:object|string) module_scope = ([
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
+    "entity-scope":lambda(object curob, string line) {
+                       return EntityScope(line, curob);
+                   },
     "ScopeName":"module"
 ]);
 
@@ -1165,6 +1284,13 @@ mapping(string:object|string) attribute_scope = ([
     "ScopeName":"attribute"
 ]);
 
+mapping(string:object|string) entity_scope = ([
+    "entity":lambda(object curob, string line) {
+                 return Entity(line, curob);
+             },
+    "ScopeName":"entity-scope"
+]);
+
 mapping(string:object|string) top_scope = ([
     "file":lambda(object curob, string line) {
                return PikeFile(line, curob);
@@ -1196,7 +1322,8 @@ mapping(string:mapping) scopes = ([
     "class": class_scope,
     "tag": tag_scope,
     "container": container_scope,
-    "attribute": attribute_scope
+    "attribute": attribute_scope,
+    "entity-scope": entity_scope
 ]);
 
 class Parse {
