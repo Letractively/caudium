@@ -14,7 +14,7 @@ if test "$ac_cv_header_pcre_h" != "yes"; then
 cat << EOF
 ************************************************************
 ***** Cannot find PCRE regexp on your system. You will have
-***** Some functions that will not work on Caudium 1.3.
+***** Some functions that will not work on Caudium 1.5.
 ***** Please install lib PCRE to get a fully fonctionnal 
 ***** Caudium.
 ************************************************************
