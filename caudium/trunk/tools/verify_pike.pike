@@ -108,46 +108,16 @@ int main(int argc, array argv)
   write("Checking for potential compatibility problems with your Pike installation...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver < 7.2 ||
-     (ver == 7.2 && rel < 200))
-    warning("Caudium 1.3 requires Pike 7.2.200 or newer.");
+  if(ver < 7.4 ||
+     (ver == 7.4 && rel < 1))
+    warning("Caudium 1.3 requires Pike 7.4.1 or newer.");
 
-  if(ver == 7.1) {
-    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
+  if(ver == 7.5) {
+    warning("We strongly recommend the use of Pike 7.4 for Caudium. "
+            "Pike 7.5 is less\n"
 	    "tested and still a development version.");
-    
-    if(rel == 11)
-      /* Pike 7.1.11 _might_ have several problems... */
-      warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
-	      "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
-	      "version of if, the problems might very well still be there. We recommend an\n"
-	      "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
-    if(rel > 11 && rel < 28)
-      /* Serious string bug in these versions */
-      warning("In Pike 7.1 build 13 to build 27 there is a serious bug string bug which\n"
-	      "breaks Caudium query string parsing. If you want to use Pike 7.1, you have\n"
-	      "to upgrade it to a later version.");
-    if(rel < 12) {
-      /* PHP 4 */
-      warning("Pike 7.0 w/ build >= 268 or 7.1 build >= 12 is required for embedded PHP4\n"
-	      "scripting support. Please note that you also need to get a late version\n"
-	      "of PHP4 to enable it.");
-      /* Pipe.pipe leak */
-      warning("In Pike 7.1 builds <= 11, there is a severe leak in Pipe.pipe, which is\n"
-	      "used for sending data in Caudium. You will need a newer version of Pike 7.1\n"
-	      "to fix this problem.");
-    }
   }
   
-  /* Pike 7.11 might have several problems... */
-  if(ver == 7.1 && rel == 11)
-    warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
-	    "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
-	    "version of if, the problems might very well still be there. We recommend an\n"
-	    "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
-
-
-
 #if constant(Parser.HTML) 
   /* Parser.HTML recursion stuff */
   if(!(Parser.HTML()->max_stack_depth))
