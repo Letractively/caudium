@@ -27,10 +27,10 @@ inherit "modules/filesystems/filesystem";
 //inherit "utils";
 //inherit "relinsert.pike";
 
-constant my_cvs_version="$Id$";
+constant cvs_version="$Id$";
 
-constant cvs_version = (my_cvs_version-"Exp $")+" / "
-             +((::cvs_version -" Exp $")-"$Id: ");
+//constant cvs_version = (my_cvs_version-"Exp $")+" / "
+//             +((::cvs_version -" Exp $")-"$Id: ");
 
 void create()
 {
