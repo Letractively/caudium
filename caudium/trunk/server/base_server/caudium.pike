@@ -68,7 +68,11 @@ inherit "internals";
 inherit CaudiumVersion;
 
 //! The datashuffler program
+#ifdef USE_SHUFFLER
+constant pipe = Shuffler.Shuffler;
+#else
 constant pipe = Caudium.nbio;
+#endif
 
 object shuffler = Shuffler.Shuffler();
 

@@ -74,7 +74,11 @@ private void setup_pipe()
     end();
     return;
   }
+#ifdef USE_SHUFFLER
+  if(!pipe) pipe=thepipe()->shuffle(my_fd);
+#else
   if(!pipe) pipe=thepipe();
+#endif
 }
 
 void send(string|object what, int|void len)
@@ -86,8 +90,13 @@ void send(string|object what, int|void len)
   if(!what) return;
   if(!pipe) setup_pipe();
   if(!pipe) return;
+#ifdef USE_SHUFFLER
+  if(stringp(what))  pipe->add_source(what);
+  else               pipe->add_source(what, 0, len);
+#else
   if(stringp(what))  pipe->write(what);
   else               pipe->input(what,len);
+#endif
 }
 
 //! Parse the passed string and look for the query part of the URL (the
@@ -191,7 +200,7 @@ void handle_body_encoding(int content_length)
       if(content_length < 200000) {
         Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
                                            ({"", ""})), variables, empty_variables);
-        id->rest_query = indices(empty_variables) * ";";
+        rest_query = indices(empty_variables) * ";";
       }
       break;
       
@@ -414,7 +423,7 @@ private int parse_got()
   
   if(sscanf(f,"%s?%s", f, query) == 2) {
     Caudium.parse_query_string(query, variables, empty_variables);
-    id->rest_query = indices(empty_variables) * ";";
+    rest_query = indices(empty_variables) * ";";
   }
   
   REQUEST_WERR(sprintf("After query scan:%O", f));
@@ -1031,7 +1040,12 @@ void do_log()
   if(conf)
   {
     int len;
-    if(pipe) file->len = pipe->bytes_sent();
+    if(pipe)
+#ifdef USE_SHUFFLER
+      file->len = pipe->sent_data();
+#else
+      file->len = pipe->bytes_sent();
+#endif
     if(conf)
     {
       if(file->len > 0) conf->sent+=file->len;
@@ -1054,7 +1068,11 @@ static void pipe_timeout() {
 static void timer(int start, int|void last_sent, int|void called_out)
 {
   if(pipe) {
+#ifdef USE_SHUFFLER
+    int ps = pipe->sent_data();
+#else
     int ps = pipe->bytes_sent();
+#endif
     if(ps != last_sent) {
       if(called_out) {
 	remove_call_out(pipe_timeout);
@@ -1594,7 +1612,11 @@ void send_result(mapping|void result)
     //  leave stale sockets.
     call_out(timer, 60, _time(1), 0, 0);
     pipe->set_done_callback( do_log );
+#ifdef USE_SHUFFLER
+    pipe->start();
+#else
     pipe->output(my_fd);
+#endif
   } else {
     MARK_FD("HTTP really handled, pipe done");
     do_log();

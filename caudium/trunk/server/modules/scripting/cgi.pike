@@ -48,10 +48,17 @@ constant module_unique = 0;
 
 void sendfile( string data, object tofd, function done )
 {
+#ifdef USE_SHUFFLER
+  object pipe = Shuffler.Shuffler();
+  pipe->shuffle(tofd);
+  pipe->set_done_callback(done);
+  pipe->add_source(data);
+#else
   object pipe = Caudium.nbio();
   pipe->write(data);
   pipe->set_done_callback(done, pipe);
   pipe->output(tofd);
+#endif
 }
 
 Stdio.File open_log_file( string logfile )

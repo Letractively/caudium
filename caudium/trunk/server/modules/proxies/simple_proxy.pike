@@ -182,7 +182,7 @@ class request
 
       parse_url ();
 
-      rpipe = caudium->pipe ();
+      rpipe = Caudium.nbio ();
 
       connect_to_server ();
    }
