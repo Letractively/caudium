@@ -126,7 +126,7 @@
  * ignored. The default value should be a reasonable value.
  */
 #ifndef POST_MAX_BODY_SIZE
-#define POST_MAX_BODY_SIZE 1024*16
+#define POST_MAX_BODY_SIZE 1024*64
 #endif
 
 /*
