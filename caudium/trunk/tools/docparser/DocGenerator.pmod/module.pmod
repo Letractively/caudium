@@ -213,6 +213,7 @@ class DocGen
 {
     array(DocParser.PikeFile)     files;
     array(DocParser.Module)       modules;
+    mapping(string:int)           dirs;
     string                        rel_path;
     array(string)                 tvars;
     object(IndexGen)              index;
@@ -868,7 +869,7 @@ class DocGen
         if (f->escopes)
             ofile->write(f_entities(f));
 	 
-        ofile->write("</module>");
+        ofile->write("</module>\n\n");
     }
     
     void output_file(string tdir, DocParser.PikeFile|DocParser.Module f)
@@ -958,12 +959,13 @@ class DocGen
         return ret;
     }
     
-    void create(array(object) f, array(object) m, string rpath)
+    void create(array(object) f, array(object) m, mapping(string:int) dircounts, string rpath)
     {
         files = f;
         modules = m;
         rel_path = rpath;
-
+        dirs = dircounts;
+	
         /*
          * Create a table holding all the template variables we
          * define. The set of variables won't change, so we can safely
@@ -982,6 +984,7 @@ class TreeMirror
     private string footer = #string "footer-tree.xml";
     
     private int single_file = 0;
+    private int write_header;
     
     /*
      * This function determines whether the original directory
@@ -994,20 +997,18 @@ class TreeMirror
         string srcdir =  "../" + rel_path + (dirname(fname) / "/")[1..] * "/";
         
         if (!single_file && file_stat(srcdir + "/.docs")) {
-            array(string) tmp = get_dir(dirname(fname));
-            array(string) files = ({});
-            
-            files += glob("*.pike", tmp);
-            files += glob("*.c", tmp);
-            files += glob("*.h", tmp);
-            
-            single_file = sizeof(files);
-            
+            srcdir = combine_path(getcwd(), srcdir);
+
+	    single_file = dirs[srcdir];
+	    write_header = 1;
             return dirname(fname) + "/docs.xml";
-        } else if (file_stat(srcdir + "/.docs"))
+        } else if (single_file && file_stat(srcdir + "/.docs")) {
+	    write_header = 0;
             return dirname(fname) + "/docs.xml";
-        else
+	} else {
             single_file = 0;
+	    write_header = 1;
+	}
         
         return fname;
     }
@@ -1025,7 +1026,7 @@ class TreeMirror
             oflags = "wa";
         
         f = Stdio.File(get_fname(fname), oflags);
-        if (f)
+        if (f && write_header)
             f->write(replace(header, tvars, map_variables()));
 
         return f;
@@ -1033,14 +1034,17 @@ class TreeMirror
 
     void close_file(Stdio.File f)
     {
+	if (single_file)
+	    single_file--;
+
         if (!single_file)
             f->write(footer);
         f->close();
     }
     
-    void create(array(object) f, array(object) m, string rpath)
+    void create(array(object) f, array(object) m, mapping d, string rpath)
     {
-        ::create(f, m, rpath);
+        ::create(f, m, d, rpath);
         single_file = 0;
     }
 }
@@ -1087,9 +1091,9 @@ class Monolith
         fout = 0;
     }
     
-    void create(array(object) f, array(object) m, string rpath)
+    void create(array(object) f, array(object) m, mapping d, string rpath)
     {
-        ::create(f, m, rpath);
+        ::create(f, m, d, rpath);
         fout = 0;
     }
 }
