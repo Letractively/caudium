@@ -383,7 +383,7 @@ void start()
 	  else
 	    new_patterns += ({ RegMatch(@a) });
 	})
-	  report_error(sprintf ("Failed to compile pattern "+a[0]+"\n"));
+	  report_error(sprintf ("Failed to compile pattern %s\n", a[0]));
       } else {
 	new_patterns += ({ PrefixMatch(@a) });
       }
