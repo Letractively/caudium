@@ -8,7 +8,14 @@ else
   export CFLAGS
 fi
 DIRS="cmods tools fast_cgi"
+
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
 AC_SUBST(DIRS)
+
+
 
 AC_SET_MAKE
 
