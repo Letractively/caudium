@@ -734,9 +734,9 @@ private mapping(string:mapping(string:mapping(string:mixed))|object) _memory_sto
 //  function set_expire_hook: (mandatory)
 //  synopsis: void set_expire_hook(string sid, function|void hook);
 //     defines a hook to be called when the session is about to expire. The
-//     hook takes one argument - the session id string - and returns no
-//     result. Passing a null hook (or not passing it at all) removes any
-//     existing hook from the specified session.
+//     hook takes the session id string and a variable number of arguments
+//     - and returns no result. Passing a null hook (or not passing it at
+//     all) removes any existing hook from the specified session.
 //
 private mapping memory_storage_registration_record = ([
   "name" : "Memory",
@@ -976,7 +976,7 @@ private void memory_expire_old(int curtime)
         if (_memory_storage["_sessions_"][sid] && mappingp(_memory_storage["_sessions_"][sid])) {
           if (curtime - _memory_storage["_sessions_"][sid]->lastused > _memory_storage["_sessions_"][sid]->exptime) {
             if (_memory_storage["_sessions_"][sid]->exphook)
-              _memory_storage["_sessions_"][sid]->exphook(sid);
+              _memory_storage["_sessions_"][sid]->exphook(sid, _memory_storage["_sessions_"][sid]->exphook_args);
             memory_delete_session(sid);
             continue;
           }
@@ -1029,12 +1029,13 @@ private void memory_set_expire_time(string sid, int timeval)
   _memory_storage["_sessions_"][sid]->exptime = timeval;
 }
 
-private void memory_set_expire_hook(string sid, function exphook)
+private void memory_set_expire_hook(string sid, function exphook, mixed ... fargs)
 {  
   if (memory_validate_storage("session", sid, "memory_set_expire_hook") < 0)
     return;
 
   _memory_storage["_sessions_"][sid]->exphook = exphook;
+  _memory_storage["_sessions_"][sid]->exphook_args = fargs;
 }
 
 //
