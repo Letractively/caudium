@@ -1,3 +1,9 @@
+caudium (2:1.2.8-1) unstable; urgency=low
+
+  * Latest release. Official Caudium 1.2 release.
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  9 Jul 2002 22:08:09 +0200
+
 caudium (2:1.2.7-4) unstable; urgency=low
 
   * Latest snapshot. Changes:
