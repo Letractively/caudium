@@ -2782,27 +2782,6 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("DOC", 1, "Configuration interface: Help texts", TYPE_FLAG|VAR_MORE,
 	  "Do you want documentation? (this is an example of documentation)");
 
-
-  globvar("NumAccept", 1, "Number of accepts to attempt",
-	  TYPE_INT_LIST|VAR_MORE,
-	  "You can here state the maximum number of accepts to attempt for "
-	  "each read callback from the main socket. <p> Increasing this value "
-	  "will make the server faster for users making many simultaneous "
-	  "connections to it, or if you have a very busy server.</p>"
-	  "<p>It won't work on some systems, though, eg. IBM AIX 3.2.</p>"
-	  "<p> To see if it works, change this variable, <b> but don't press "
-	  "save</b>, and then try connecting to your server. If it works, "
-	  "come back here and press the save button.</p>"
-	  "<p>If it doesn't work, just restart the server and be happy "
-	  "with having '1' in this field.</p>"
-	  "<p>The higher you set this value, the less load balancing between "
-	  "virtual servers. (If there are 256 more or less simultaneous "
-	  "requests to server 1, and one to server 2, and this variable is "
-	  "set to 256, the 256 accesses to the first server might very well "
-	  "be handled before the one to the second server.)</p>",
-	  ({ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 }));
-  
-
   globvar("ConfigPorts", ({ ({ 22202, "http", "ANY", "" }) }),
 	  "Configuration interface: Ports",
 	  TYPE_PORTS,
@@ -3055,6 +3034,25 @@ private void define_global_variables( int argc, array (string) argv )
           TYPE_INT|VAR_MORE,
           "Time after which a single cached request is removed from the data cache");
 #endif		  
+  globvar("NumAccept", 1, "Request Tuning: Number of accepts to attempt",
+	  TYPE_INT_LIST|VAR_MORE,
+	  "You can here state the maximum number of accepts to attempt for "
+	  "each read callback from the main socket. <p> Increasing this value "
+	  "will make the server faster for users making many simultaneous "
+	  "connections to it, or if you have a very busy server.</p>"
+	  "<p>It won't work on some systems, though, eg. IBM AIX 3.2.</p>"
+	  "<p> To see if it works, change this variable, <b> but don't press "
+	  "save</b>, and then try connecting to your server. If it works, "
+	  "come back here and press the save button.</p>"
+	  "<p>If it doesn't work, just restart the server and be happy "
+	  "with having '1' in this field.</p>"
+	  "<p>The higher you set this value, the less load balancing between "
+	  "virtual servers. (If there are 256 more or less simultaneous "
+	  "requests to server 1, and one to server 2, and this variable is "
+	  "set to 256, the 256 accesses to the first server might very well "
+	  "be handled before the one to the second server.)</p>",
+	  ({ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 }));
+  
 
   setvars(retrieve("Variables", 0));
 
@@ -3384,7 +3382,7 @@ void rescan_modules()
 {
   string file, path;
   mixed err;
-  report_notice("Scanning module directories for modules");
+  report_notice("Scanning module directories for modules.\n");
   if (!allmodules) {
     allmodules=copy_value(somemodules);
   }
