@@ -36,9 +36,18 @@
 
 constant cvs_version = "$Id$";
 
+//
+//! module: Pike Tag
+//!  Automatic thumbnail tag (with caching)
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER | MODULE_LOCATION | MODULE_PROVIDER
+//! cvs_version: $Id$
+//
+
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Image;
 constant thread_safe = 1;
