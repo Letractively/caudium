@@ -24,7 +24,7 @@ array headlines;
 string entry2txt(mapping hl)
 {
   return sprintf("Program: %s\n"
-		 "URL:     %s\n"
+		 "URL:     %s\n",
 		 hl->title||"None", HTTPFetcher()->encode(hl->url||""));
 }
 
