@@ -55,13 +55,14 @@ private void wrerr(string err)
  * Classes corresponding to documentation classes
  */
 class DocObject {
-    string   lastkw;
+    string    lastkw;
+    DocObject parent;
     
-    string   rfile; /* real file */
-    string   contents;
-    string   first_line;
-    string   myName;
-    int      lineno;
+    string    rfile; /* real file */
+    string    contents;
+    string    first_line;
+    string    myName;
+    int       lineno;
     
     void wrong_keyword(string kw) 
     {
@@ -119,7 +120,7 @@ class DocObject {
         return 0;
     }
     
-    void create()
+    void create(object|void p)
     {
         rfile = realfile;
         contents = "";
@@ -127,6 +128,7 @@ class DocObject {
         myName="DocObject";
         lastkw = "";
         lineno = curline;
+	parent = p ? p : 0;
     }
 };
 
@@ -214,7 +216,7 @@ class PikeFile {
                 break;
 
 	    case "inherits":
-		inherits += ({newstuff});
+		inherits[-1] += newstuff;
 		break;
 		
             default:
@@ -231,9 +233,9 @@ class PikeFile {
             return 0;
     }
     
-    void create(string line)
+    void create(string line, object|void p)
     {
-        ::create();
+        ::create(p);
         
         myName = "PikeFile";
         
@@ -264,6 +266,8 @@ class Method {
             switch(kw) {
                 case "method":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
                 case "name":
@@ -328,27 +332,27 @@ class Method {
                 break;
 
             case "arg":
-                args += ({newstuff});
+                args[-1] += newstuff;
                 break;
 
             case "returns":
-                returns += ({newstuff});
+                returns[-1] += newstuff;
                 break;
 
             case "see_also":
-                seealso += ({newstuff});
+                seealso[-1] += newstuff;
                 break;
 
             case "note":
-                notes += ({newstuff});
+                notes[-1] += newstuff;
                 break;
 
             case "example":
-                example += ({newstuff});
+                example[-1] += newstuff;
                 break;
 
             case "bugs":
-                bugs += ({newstuff});
+                bugs[-1] += newstuff;
                 break;
                     
             default:
@@ -357,9 +361,9 @@ class Method {
         }
     }
     
-    void create(string line) 
+    void create(string line, object|void p) 
     {
-        ::create();
+        ::create(p);
 
         myName = "Method";
 
@@ -409,9 +413,9 @@ class GlobVar {
         }     
     }
     
-    void create(string line) 
+    void create(string line, void|object p) 
     {
-        ::create();
+        ::create(p);
         
         first_line = line;
     }
@@ -492,7 +496,7 @@ class Class {
                 break;
 
 	    case "inherits":
-		inherits += ({newstuff});
+		inherits[-1] += newstuff;
 		break;
 		
             case "scope":
@@ -502,15 +506,15 @@ class Class {
                 break;
 
             case "see_also":
-                seealso += ({newstuff});
+                seealso[-1] += newstuff;
                 break;
 
             case "example":
-                examples += ({newstuff});
+                examples[-1] += newstuff;
                 break;
 
             case "bugs":
-                bugs += ({newstuff});
+                bugs[-1] += newstuff;
                 break;
                     
             default:
@@ -519,9 +523,9 @@ class Class {
         }        
     }
     
-    void create(string line)
+    void create(string line, void|object p)
     {
-        ::create();
+        ::create(p);
 
         myName = "Class";
 
@@ -640,7 +644,7 @@ class Module {
                 break;
                     
 	    case "inherits":
-		inherits += ({newstuff});
+		inherits[-1] += newstuff;
 		break;
 
             case "cvs_version":
@@ -670,9 +674,9 @@ class Module {
             return 0;
     }
     
-    void create(string line)
+    void create(string line, void|object p)
     {
-        ::create();
+        ::create(p);
         
         myName = "Module";
         
@@ -741,9 +745,9 @@ class Variable {
         }        
     }
     
-    void create(string line) 
+    void create(string line, void|object p) 
     {
-        ::create();
+        ::create(p);
 
         myName = "Variable";
 
@@ -810,15 +814,15 @@ class Tag {
                 break;
 
             case "returns":
-                returns = ({newstuff});
+                returns[-1] += newstuff;
                 break;
 
             case "see_also":
-                seealso = ({newstuff});
+                seealso[-1] += newstuff;
                 break;
 
             case "note":
-                notes = ({newstuff});
+                notes[-1] = newstuff;
                 break;
                     
             default:
@@ -827,9 +831,9 @@ class Tag {
         }
     }
     
-    void create(string line)
+    void create(string line, void|object p)
     {
-        ::create();
+        ::create(p);
 
         myName = "Tag";
 
@@ -899,15 +903,15 @@ class Container {
                 break;
 
             case "returns":
-                returns = ({newstuff});
+                returns[-1] += newstuff;
                 break;
 
             case "see_also":
-                seealso = ({newstuff});
+                seealso[-1] += newstuff;
                 break;
 
             case "note":
-                notes = ({newstuff});
+                notes[-1] += newstuff;
                 break;
                     
             default:
@@ -916,9 +920,9 @@ class Container {
         }
     }
     
-    void create(string line)
+    void create(string line, void|object p)
     {
-        ::create();
+        ::create(p);
 
         myName = "Container";
 
@@ -966,7 +970,7 @@ class Attribute {
                 break;
 
             case "default":
-                def = newstuff;
+                def += newstuff;
                 break;
                     
             default:
@@ -975,9 +979,9 @@ class Attribute {
         }        
     }
     
-    void create(string line)
+    void create(string line, void|object p)
     {
-        ::create();
+        ::create(p);
 
         myName = "Attribute";
 
@@ -1012,14 +1016,14 @@ mapping(string:object) file_scope = ([
     "cvs_version": zero_return,
     "inherits":zero_return,
     "method":lambda(object curob, string line) {
-                 return Method(line);
+                 return Method(line, curob);
              },
 	     
     "globvar":lambda(object curob, string line) {
-                  return GlobVar(line);
+                  return GlobVar(line, curob);
               },
     "class":lambda(object curob, string line) {
-                return Class(line);
+                return Class(line, curob);
             }
 ]);
 
@@ -1032,26 +1036,26 @@ mapping(string:object) module_scope = ([
     "type": zero_return,
     "provides": zero_return,
     "variable":lambda(object curob, string line) {
-                   return Variable(line);
+                   return Variable(line, curob);
                },
     "tag":lambda(object curob, string line) {
-              return Tag(line);
+              return Tag(line, curob);
           },
     "container":lambda(object curob, string line) {
-                    return Container(line);
+                    return Container(line, curob);
                 },    
     "method":lambda(object curob, string line) {
-                 return Method(line);
+                 return Method(line, curob);
              }
 ]);
 
 mapping(string:object) tag_scope = ([
     "tag":lambda(object curob, string line) {
-                    return Tag(line);
+                    return Tag(line, curob);
                 },
     "example": zero_return,
     "attribute":lambda(object curob, string line) {
-                    return Attribute(line);
+                    return Attribute(line, curob);
                 },
     
     "returns": zero_return,
@@ -1062,11 +1066,11 @@ mapping(string:object) tag_scope = ([
 
 mapping(string:object) container_scope = ([
     "container":lambda(object curob, string line) {
-                    return Container(line);
+                    return Container(line, curob);
                 },
     "example": zero_return,
     "attribute":lambda(object curob, string line) {
-                    return Attribute(line);
+                    return Attribute(line, curob);
                 },
     "returns": zero_return,
     "see_also": zero_return,
@@ -1075,7 +1079,7 @@ mapping(string:object) container_scope = ([
 
 mapping(string:object) method_scope = ([
     "method":lambda(object curob, string line) {
-               return Method(line);
+               return Method(line, curob);
            },
     "name": zero_return,
     "scope": zero_return,
@@ -1089,21 +1093,21 @@ mapping(string:object) method_scope = ([
 
 mapping(string:object) globvar_scope = ([
     "globvar":lambda(object curob, string line) {
-                  return GlobVar(line);
+                  return GlobVar(line, curob);
               }
 ]);
 
 mapping(string:object) class_scope = ([
     "class":lambda(object curob, string line) {
-               return Class(line);
+               return Class(line, curob);
            },
     "scope": zero_return,
     "inherits": zero_return,
     "method":lambda(object curob, string line) {
-                 return Method(line);
+                 return Method(line, curob);
              },
     "globvar":lambda(object curob, string line) {
-                  return GlobVar(line);
+                  return GlobVar(line, curob);
               },
     "see_also": zero_return,
     "example": zero_return,
@@ -1112,7 +1116,7 @@ mapping(string:object) class_scope = ([
 
 mapping(string:object) variable_scope = ([
     "variable":lambda(object curob, string line) {
-                   return Variable(line);
+                   return Variable(line, curob);
                },
     "type": zero_return,
     "default": zero_return,
@@ -1120,17 +1124,17 @@ mapping(string:object) variable_scope = ([
 
 mapping(string:object) attribute_scope = ([
     "attribute":lambda(object curob, string line) {
-                    return Attribute(line);
+                    return Attribute(line, curob);
                 },
     "default": zero_return,
 ]);
 
 mapping(string:object) top_scope = ([
     "file":lambda(object curob, string line) {
-               return PikeFile(line);
+               return PikeFile(line, curob);
            },
     "module":lambda(object curob, string line) {
-                 return Module(line);
+                 return Module(line, curob);
              }
 ]);
 
@@ -1157,6 +1161,7 @@ class Parse {
     private int	           indent;
     private object(Regexp) kwreg = Regexp("(^[a-zA-Z0-9_]+):(.*)");
     private object         curob;
+    private object         curparent;
     private string         lastkw;
     private int            fadded;
     private int            madded;
@@ -1193,9 +1198,11 @@ class Parse {
                  * Keyword is invalid in this scope, but
                  * it might be switching scopes
                  */
-                if (scopes[spline[0]])
+                if (scopes[spline[0]]) {
                     cur_scope = scopes[spline[0]];
-                else
+		    if (curob)
+			curparent = curob->parent;
+		} else
                     wrerr(sprintf("Unknown keyword in active scope '%s'\n", spline[0]));
             }
         
@@ -1204,12 +1211,19 @@ class Parse {
         
                 lastkw = spline[0];
             
-                o = cur_scope[lastkw](curob, spline[1]);
+                o = cur_scope[lastkw](curparent, spline[1]);
             
                 /* Check whether it's a new container */
                 if (o) {
-                    if (curob)
-                        curob->add(o, lastkw);
+		    /* 
+		     * If curparent isn't set, it means we're at
+		     * the very top level and the object that's just
+		     * been created is either a 'file' or 'module'
+		     */
+		    if (!curparent)
+			curparent = curob;
+//                    if (curob)
+//                        curob->add(o, lastkw);
                     curob = o;
                     curob->add(String.trim_whites(spline[1]), lastkw);
                 
@@ -1276,6 +1290,7 @@ class Parse {
         indent = -1;
         where = IN_SPACE;
         curob = 0;
+	curparent = 0;
         fadded = madded = 0;
 	
         cur_scope = top_scope;
