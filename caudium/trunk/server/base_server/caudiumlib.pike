@@ -800,7 +800,6 @@ string msectos(int t)
 
 #if constant(Caudium.extension)
 static function extension = Caudium.extension;
-#error
 #else
 static string extension( string f )
 {
@@ -890,7 +889,7 @@ static string simplify_path(string file)
   tmp=combine_path("/", file);
 
   if(t1) tmp += "/.";
-
+  
 // perror(file+"->"+tmp+"\n");
 
   if(t2) return tmp[1..];
