@@ -170,6 +170,9 @@ string new_dir(string path, object id)
   if(!files) return "<h1>There is no such directory.</h1>";
   sort(files);
 
+  if(path != "/")
+    files = ({ ".." }) + files;
+
   for(i=0; i<sizeof(files) ; i++)
   {
     fname = replace(path+files[i], "//", "/");
