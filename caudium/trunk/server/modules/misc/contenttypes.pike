@@ -159,7 +159,6 @@ void start()
       if( strlen(line) && line[0] == '#' )
         continue;
       sscanf(line, "%s%*[ \t]%{%s%*[ ]%}", ct, atmp);
-      // beats me why "%{%s%*[ ]%}" expands to an array(array) ... ?!
       foreach(atmp, array foo)
         ext += foo;
       // lines w/o at least one extension, we don't need 'em
