@@ -15,7 +15,8 @@ Changes in Caudium 1.0.X (CVS)
 - Removed C++ comments from FastIMHO (fix compile error).
 - Fixed the server template creator.
 - Added a script that tries to find, and warn about, potential
-  problem in the Pike used.
+  problem with the configured Pike. It is run at the end of the
+  configure script.
 - Fixed PHP4 scripting support when using the SSL3 protocol.
 - FTP renaming should now work with the restricted filesystem with
   home dir remapping enabled [bug #124035].
@@ -27,6 +28,8 @@ Changes in Caudium 1.0.X (CVS)
 - Changed all '#if efun' to '#if constant'. This is a cosmetical
   change. However '#if efun' is deprecated.
 - Fixed various (new) 7.1 compatibility issues. 
+- Added the compact 'Add module' page originally added in Roxen 1.4.
+- Fixed compile error reporting when loading the configuration interface.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
