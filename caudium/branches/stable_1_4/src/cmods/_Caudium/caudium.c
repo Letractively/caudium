@@ -976,12 +976,16 @@ static void f_parse_query_string( INT32 args )
   name = ptr = (unsigned char *)query->str;
   equal = NULL;
   for(; ptr <= end; ptr++) {
+    /* printf("ptr:%c\t(%d)\n", *ptr, ptr); */
     switch(*ptr)
     {
         case '=':
           /* Allow an unencoded '=' in the value. It's invalid but... */
           if(equal == NULL)
+          {
             equal=ptr;
+            /* printf("found '=', setting equal:%s\n", equal); */
+          }
           break;
         case '\0':
           if(ptr != end)
@@ -989,12 +993,14 @@ static void f_parse_query_string( INT32 args )
         case ';': /* It's recommended to support ';'
                      instead of '&' in query strings... */
         case '&':
-	  if (name && (!*name || *name == '&')) {
-	    ptr++;
-	    break; /* &=, ignore */
-	  }
+          if (name && (!*name || *name == '&')) {
+            /* printf("ignoring &=\n"); */
+            ptr++;
+            break; /* &=, ignore */
+          }
 	  
           if (equal == NULL) { /* valueless variable, these go to the */
+            /* printf("equal is NULL\n"); */
             if (ptr == (unsigned char*)query->str) {
               ptr++;
               break;
@@ -1014,12 +1020,16 @@ static void f_parse_query_string( INT32 args )
             if (name < (unsigned char*)query->str)
               name++;
             namelen = ptr - name;
+            /* printf("name:%s, namelen:%d\n", name, namelen); */
           } else {
+            /* printf("equal:%s, name:%s\n", equal, name); */
             namelen = equal - name;
             valulen = ptr - ++equal;
+            /* printf("namelen:%d, valuelen: %d\n", namelen, valulen); */
           }
           
           skey.u.string = url_decode(name, namelen, 0, 0);
+          /* printf("skey.u.string: %s\n", skey.u.string); */
           if (!skey.u.string) /* OOM. Bail out */
             Pike_error("Out of memory.\n");
 
@@ -1615,7 +1625,10 @@ static void f_cern_http_date(INT32 args)
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
   struct pike_string *ret;
   INT_TYPE timestamp;
-
+#if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
+   long diff;
+   int sign;
+#endif
   switch(args) {
    default:
      Pike_error("Wrong number of arguments _Caudium.cern_http_date(). Expected at most 1 argument.\n");
@@ -1663,8 +1676,6 @@ static void f_cern_http_date(INT32 args)
    }
 
 #if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
-  long diff;
-  int sign;
 #ifdef STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
