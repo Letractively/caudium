@@ -19,17 +19,22 @@
  *
  */
 
-constant cvs_version = "$Id$";
+//! This module is a high level cache object, it handles the storing of objects
+//! in fast storage and slow storage, moving objects between storage methods
+//! and expiring objects.
+//! This is really the brains of the cache. If that's the case why is it
+//! so messy? Dont ask me.
 
-  // This is the cache object that is visible to the rest of caudium.
-  // Everything underneath this object is to be considered black voodoo
-  // magic from the point of view of any module that uses it.
-  // store() and retrieve() are totally wrong. I will re-write the API to
-  // use something akin to response mappings from caudiumlib, say cachelib?
-  // say, cache_file_object(), cache_pike_object(), and cache_string_object()
-  // or whatever. Basically then we already know what the data is and
-  // a) whether we can save it to disk when it gets old, and
-  // b) whether we can use nbio to copy it around and stuff.
+#ifdef THREADS
+static Thread.Mutex mutex = Thread.Mutex();
+#define LOCK() object __key = mutex->lock()
+#define UNLOCK() destruct(__key)
+#else
+#define LOCK() 
+#define UNLOCK()
+#endif
+
+constant cvs_version = "$Id$";
 
 object ram_cache;
 object disk_cache;
@@ -41,11 +46,37 @@ int default_ttl;
 int last_access;
 string _cache_desc;
 
+//! Initiate a new cache, this means creating a Cache.FastStorage object to
+//! store objects in RAM, and a Cache.SlowStorage.* object to store objects
+//! in permantent storage.
+//!
+//! @param _namespace
+//! This is our namespace, ie, our name.
+//!
+//! @param _path
+//! The is a path for the Cache.SlowStorage.* object, ie a file system path
+//! or q Sql.SQL URL.
+//!
+//! @param _max_object_ram
+//! Maximum size of an object before it is too big to be stored in RAM
+//!
+//! @param _max_object_disk
+//! Maximum size of an object before it is too big to be stored in SlowStorage
+//! i.e. it will always be a cache miss.
+//!
+//! @param dcache
+//! A copy of the SlowStorage method
+//!
+//! @param _default_ttl
+//! This is the time in seconds to keep an object before expiring, unless
+//! otherwise specified.
+//!
+//! @todo
+//! SlowStorage is a bit of a hack - at this stage disk storage is the only
+//! supported backend, and this is hacked in as a constant. This needs to be
+//! changed to support a pluggable method.
 void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, program dcache, int _default_ttl ) {
-	// Create the cache, and memory management.
-	// namespace: The namespace of the object, ie what virtual
-	//            server the data is for - or maybe for specialised
-	//            caching inside a certail module.
+  LOCK();
   namespace = _namespace;
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
@@ -55,23 +86,42 @@ void create( string _namespace, string _path, int _max_object_ram, int _max_obje
   ram_cache = Cache.FastStorage( namespace, disk_cache );
 }
 
+//! Change the size options that were set upon creation.
+//! 
+//! @param _max_object_ram
+//! The maximum size an object can be before an object is too big to be stored
+//! in RAM.
+//!
+//! @param _max_object_disk
+//! The maximum size an object can be before an object is too big to be stored
+//! in slow storage. ie. a cache miss. always.
 void set_sizes( int _max_object_ram, int _max_object_disk ) {
+  LOCK();
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
 }
 
+//! Override the default TTL for the cache.
+//!
+//! @param _default_ttl
+//! The default time in seconds that the cache will hold onto an object before
+//! it's considered stale and must be expunged.
 void set_default_ttl( int _default_ttl ) {
+  LOCK();
   default_ttl = _default_ttl;
 }
 
+//! Returns the RAM usage of this cache, in bytes.
 int ram_usage() {
   return ram_cache->usage();
 }
 
+//! Returns the slow storage usage of this cache, in bytes.
 int disk_usage() {
   return disk_cache->usage();
 }
 
+//! Magic up some numbers for a status display.
 mapping status() {
   int ram_hitrate;
   int disk_hitrate;
@@ -99,17 +149,16 @@ mapping status() {
   ]);
 }
 
+//! Store an object in the cache if we can.
+//! First, check to see if the object is too big for RAM, if it's not then
+//! call store() on the ram storage object, else check to see whether it's
+//! too big for slow storage, if it's not then call store() on the slow storage
+//! object, otherwise just ignore it and force a cache miss on this object
+//! for all eternity (or until the size constraints are lifted).
+//!
+//! @param cache_response
+//! A mapping created by the methods in cachelib.
 void store( mapping cache_response ) {
-	// Store an object in the cache, if we can.
-	// Check to see if the object is too big, if it is then check to see
-	// if it is a datatype that we can save to disk. If so then do it,
-	// else just ignore it, it will just have to be a cache miss for all
-	// eternity.
-	// Check to see whether it is an NBIO capable object, if so then use
-	// two_way_nbio to get it into the ram cache.
-	// If it's not then we may as well block and copy it to rem_cache
-	// After talking to hubbe I have learned that nbio wont work when
-	// writing to disk. screwed, eh?
 #ifdef CACHE_DEBUG
   string _obj = sprintf( "%O", cache_response->object );
   if ( sizeof( _obj ) > 100 ) {
@@ -118,6 +167,7 @@ void store( mapping cache_response ) {
   write(sprintf("CACHE: cache_set(\"%s\", \"%s\", %s)\n",
                  namespace, cache_response->name, _obj));
 #endif
+  LOCK();
   last_access = time();
   if ( cache_response->size > max_object_ram ) {
     //if ( cache_response->disk_cache ) {
@@ -131,15 +181,32 @@ void store( mapping cache_response ) {
   ram_cache->store( cache_response );
 }
 
+//! Retrieve an object from the cache.
+//! First search the RAM cache for the object, if it's there then return it
+//! to the client.
+//! If it's not, check the slow storage cache, if it's there then copy it
+//! to the RAM cache and remove it from the slow storage cache (if it's not
+//! too big, otherwise leave it there), return it to the client.
+//! If there is no matching object in either cache then check to see whether
+//! we have a valid callback to get the object, if so call it with it's
+//! arguments and return it's value. NOTE: This method does not store the
+//! result, it relies on the callback to call store() on the cache.
+//! **watch out for deadlocks**
+//!
+//! @param name
+//! The name of the object we want to retrieve.
+//!
+//! @param get_callback
+//! Optional callback to the original caller to retrieve the object in the
+//! event of a cache miss.
+//!
+//! @param cb_args
+//! Optional array of arguments to pass to get_callback when it's called.
 void|mapping retrieve( string name, void|function get_callback, void|array cb_args ) {
-	// Search the caches for the object.
-	// if there is a matching object in the ram_cache then return
-	// it to the caller, else check the disk_cache.
-	// Else, just return nothing.
 #ifdef CACHE_DEBUG
   write( sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name ) );
 #endif
-  
+  LOCK();
   last_access = time();
   mixed _object = ram_cache->retrieve( name );
   if ( mappingp( _object ) ) {
@@ -162,6 +229,7 @@ void|mapping retrieve( string name, void|function get_callback, void|array cb_ar
 #ifdef CACHE_DEBUG
   write( "Miss" );
 #endif
+  UNLOCK();
   if ( functionp( get_callback ) ) {
 #ifdef CACHE_DEBUG
     write( " - calling callback." );
@@ -173,17 +241,24 @@ void|mapping retrieve( string name, void|function get_callback, void|array cb_ar
 #endif
 }
 
+//! Force an object to be deleted from the cache.
+//!
+//! @param name
+//! The name of the object to be removed.
 void refresh( string name ) {
-	// Forcibly refresh an object in the cache
-	// name: The name of the object to retrieve.
 #ifdef CACHE_DEBUG
   write(sprintf("CACHE: cache_remove(\"%s\",\"%O\")\n", namespace, name));
 #endif
+  LOCK();
   last_access = time();
   ram_cache->refresh( name );
   disk_cache->refresh( name );
 }
 
+//! Force the cache to free a certain amount of RAM
+//!
+//! @param nbytes
+//! Remove nbytes of RAM.
 void free_ram( int nbytes ) {
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE( " + namespace + " ): Freeing " + nbytes + " RAM\n" );
@@ -191,20 +266,31 @@ void free_ram( int nbytes ) {
   ram_cache->free( nbytes );
 }
 
+//! Force the cache to free a certain amount of slow storage
+//!
+//! @param nbytes
+//! Remove nbytes of slow storage.
 void free_disk( int nbytes ) {
   disk_cache->free( nbytes );
 }
 
+//! Flush the cache
+//!
+//! @param regexp
+//! Optional regular expression to use when looking for objects to delete from
+//! the cahce, otherwise just delete everything.
 void flush( void|string regexp ) {
 #ifdef CACHE_DEBUG
   write( "CACHE: Flushing cache" + (regexp?" with regexp":"") + ".\n" );
 #endif
-	// Flush the entire cache
+  LOCK();
   last_access = time();
+  UNLOCK();
   ram_cache->flush( regexp );
   disk_cache->flush( regexp );
 }
 
+//! Stop the cache, write everything out to slow storage and shutdown.
 void stop() {
 	// Save the state of the cache
 #ifdef CACHE_DEBUG
@@ -214,7 +300,12 @@ void stop() {
   disk_cache->stop();
 }
 
+//! Get or set the description of this cache
+//!
+//! @param desc
+//! Optional description for the cache.
 void|string cache_description( void|string desc ) {
+  LOCK();
   if ( desc ) {
     _cache_desc = desc;
     return 0;

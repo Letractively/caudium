@@ -19,7 +19,10 @@
  *
  */
 
-// $Id$
+//! This module implements backwards compatibility for old chunks of the server
+//! that still use cache_set() and cache_get()
+
+constant cvs_version = "$Id$";
 
 #ifdef THREADS
   static Thread.Mutex mutex = Thread.Mutex();
@@ -35,6 +38,10 @@ inherit "base_server/cachelib";
 object cache_manager;
 object my_cache;
 
+//! Initiate the cache with a copy of the cache manager for later use
+//! 
+//! @param cm
+//! A Copy of the cache manager, so that we can get our cache when we want it.
 void create( object cm ) {
   LOCK();
   cache_manager = cm;
@@ -43,6 +50,7 @@ void create( object cm ) {
 #endif
 }
 
+//! Delayed start trigger.
 void start_cache() {
   LOCK();
   if ( ! objectp( my_cache ) ) {
@@ -57,17 +65,32 @@ void start_cache() {
   }
 }
 
+//! Compatible expire efun
+//!
+//! @param in
+//! The type of object.
 void cache_expire(string in)
 {
   start_cache();
   my_cache->flush( sprintf( "^%s://", in ) );
 }
 
+//! Compatible retrieve efun
+//!
+//! @param in
+//! The virtual namespace of the object
+//! 
+//! @param what
+//! The name of the object to retrieve
 mixed cache_lookup( string in, string what ) {
   start_cache();
   return my_cache->retrieve( sprintf( "%s://%s", in, what ) )||0;
 }
 
+//! Status information
+//!
+//! @todo
+//! make this return something relevant.
 string status() {
   /*
    * Not implemented, sorry. ***FIXME***
@@ -75,20 +98,48 @@ string status() {
   return cache_manager->status();
 }
 
+//! Compatible cache removal efun
+//!
+//! @param in
+//! The virtual namespace of the object
+//!
+//! @param what
+//! The name of the object to remove.
 void cache_remove(string in, string what) {
   start_cache();
   my_cache->refresh( sprintf( "%s://%s", in, what ) );
 }
 
+//! Compatible cache storage efun
+//!
+//! @param in
+//! The virtual namespace in which to store the object
+//!
+//! @param what
+//! The name of the object to store
+//!
+//! @param to
+//! The object to store
+//!
+//! @param tm
+//! Optional expiry time.
 mixed cache_set(string in, string what, mixed to, int|void tm) {
   start_cache();
   my_cache->store( cache_pike_object( to, sprintf( "%s://%s", in, what ), tm ) );
   return to;
 }
 
+//! Flush a cache
+//!
+//! @param in
+//! The virtual namespace to remove
 void cache_clear(string in) {
   cache_expire( in );
 }
 
+//! The method does nothing, it is only here for compatibility with the old
+//! class. The original used to cause the cache to expire old objects, the
+//! new cache system does this without any external prompting, so we dont
+//! need to do it from here.
 void cache_clean() {
 }
