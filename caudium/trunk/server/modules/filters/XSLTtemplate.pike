@@ -50,6 +50,10 @@ constant module_doc =
 "<p>You can also override the template by adding <b>__xsl=template.xsl</b> to "
 "the query string. This can be useful if the file you want to make a "
 "template for printing w/o using a different extension."
+"<p>Another special feature is post-processing RXML-parsing. "
+"To post-process a document, use <b>&lt;xsl:output&gt;</b> with the "
+"media-type attribute set to <b>rxml:real/type</b>, ie <b>rxml:text/html</b> "
+"for an HTML document. "
 #if !constant(PiXSL.Parser)
 "<p><b><blink>ERROR</blink>: "
 "<font color=red>The PiXSL.so pike-module is missing. This "
@@ -169,6 +173,10 @@ mapping|int first_try(object id)
   }
   charset = parser->charset();
   content_type = parser->content_type() || "text/html";
+  if(content_type[..4] == "rxml:") {
+    res = parse_rxml(res, id);
+    content_type=content_type[5..];
+  }
   if(charset)
     content_type += "; charset="+charset;
   return http_string_answer(res, content_type);
