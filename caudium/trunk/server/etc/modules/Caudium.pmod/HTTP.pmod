@@ -32,7 +32,7 @@
 //!  The date in the common log file format
 //! @example
 //!  Pike v7.4 release 10 running Hilfe v3.5 (Incremental Pike Frontend)
-//!  > Caudium.cern_http_date();
+//!  > Caudium.HTTP.cern_date();
 //!  (1) Result: "16/Feb/2003:23:38:48 +0100"
 //! @note
 //!  Non RIS code, handled by _Caudium C module.
@@ -53,7 +53,7 @@ string cern_date(int|void t) {
 //!  The date in the common log file format
 //! @example
 //!  Pike v7.4 release 10 running Hilfe v3.5 (Incremental Pike Frontend)
-//!  > Caudium.http_date();
+//!  > Caudium.HTTP.date();
 //!  (1) Result: "Sun, 16 Feb 2003 22:41:25 GMT"
 //! @note
 //!  Non RIS code, handled by _Caudium C module
