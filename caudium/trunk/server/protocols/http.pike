@@ -196,7 +196,15 @@ void handle_body_encoding(int content_length)
       break;
       
     case "multipart/form-data":
-      object messg = MIME.Message(data, request_headers);
+      object messg;
+      mixed formdataerr;
+      formdataerr = catch {
+        messg = MIME.Message(data, request_headers);
+      };
+      if (formdataerr) {
+        //perror("MIME Decode error...\n");
+        break;
+      }
       foreach(messg->body_parts||({}), object part) {
 	if(part->disp_params->filename) {
 	  variables[part->disp_params->name]=part->getdata();

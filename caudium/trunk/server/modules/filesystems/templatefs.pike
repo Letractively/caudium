@@ -35,7 +35,7 @@ void create()
   Caudium.unload_program("utils");
   Caudium.unload_program("modules/filesystems/filesystem");
 
-  ::create();
+ // ::create();
   defvar("mountpoint", "/", "Mount point", TYPE_LOCATION, 
          "This is where the module will be inserted in the "+
          "namespace of your server.");

@@ -421,8 +421,8 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
 mapping decompress_state(string from)
 {
   if(!from) return ([]);
-  from = MIME.decode_base64(from);
   catch {
+    from = MIME.decode_base64(from);
     object gz = Gz;
     if(sizeof(indices(gz)))
       from = gz->inflate()->inflate(from);

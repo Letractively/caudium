@@ -27,7 +27,7 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "caudiumlib";
 
-import Array;
+//import Array;
 
 //#define MY_URL (id->conf->query("MyWorldLocation") + QUERY(mountpoint))
 
@@ -45,7 +45,7 @@ void create()
 	 "Default whois++ server port number.");
 }
 #define MODULE_LOCATION 0
-mixed *register_module()
+array register_module()
 {
   return ({ 
     MODULE_LOCATION,
@@ -187,7 +187,7 @@ void serv_request(string host,object id,mapping var)
     }
     return;
   }
-  server=files.file();
+  server=Stdio.File();
   if (!server->open_socket())
   {
     destruct(server);
