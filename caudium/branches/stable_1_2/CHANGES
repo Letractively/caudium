@@ -1,6 +1,7 @@
 Changes in Caudium 1.2.16 since 1.2.14
 --------------------------------------
 
+- Fix autoconf detection of Pike's version.
 - Fix autoconf woes with moving from 2.1x version to new 2.53.
 
 Changes in Caudium 1.2.14 since 1.2.8
