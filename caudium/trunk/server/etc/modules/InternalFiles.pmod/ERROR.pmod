@@ -176,8 +176,7 @@ mapping(string:string) handle(object id,
 			      string file,
 		              mapping(string:mixed) query,
 			      mapping(string:string) vars,
-			      string basedir)
-
+			      string basedir) {
 
     if ( basedir == "template" ) {
 	return default_template;
