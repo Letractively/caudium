@@ -112,9 +112,23 @@ int TEST_http_decode_url() {
   for(i = 0; i <= 255; i++)
     tst += ([ sprintf("%%%02x",i): String.int2char(i) ]);
   for(i = ' '; i <= 'z'; i++)
-    tst += ([ String.int2char(i): String.int2char(i) ]);
+    if (String.int2char(i) == "+") 
+      tst += ([ String.int2char(i): " " ]);
+    else
+      tst += ([ String.int2char(i): String.int2char(i) ]);
   prtest("http_decode_url");
   return mapping_test(tst, _Caudium.http_decode_url);
+}
+
+int TEST_http_decode() {
+  mapping tst = ([ ]);
+  int i;
+  for(i = 0; i <= 255; i++)
+    tst += ([ sprintf("%%%02x",i): String.int2char(i) ]);
+  for(i = ' '; i <= 'z'; i++)
+    tst += ([ String.int2char(i): String.int2char(i) ]);
+  prtest("http_decode");
+  return mapping_test(tst, _Caudium.http_decode);
 }
 
 int TEST_get_address() {
