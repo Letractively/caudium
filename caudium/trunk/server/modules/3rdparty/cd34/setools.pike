@@ -168,8 +168,8 @@ void create() {
 
 void start(int num, object conf) {
   catch {
-    if (strlen(query("searchengineregexp")))
-      searchengine = Regexp(query("searchengineregexp"));
+    if (strlen(QUERY(searchengineregexp)))
+      searchengine = Regexp(lower_case(QUERY(searchengineregexp)));
   };
 }
 
