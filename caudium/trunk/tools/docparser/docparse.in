@@ -1,4 +1,4 @@
 #!/bin/sh
 PIKE=@PIKE@
 
-exec $PIKE ./docparse.pike $@
+exec $PIKE -M @srcdir@ @srcdir@/docparse.pike "$@"
