@@ -1103,6 +1103,10 @@ class TelnetSession {
 
   static private mapping(string:function) default_cb = ([
     "BRK":lambda() {
+          if(fd) {
+             fd->close();
+	     fd = 0;
+            }
             destruct();
             throw(0);
           },
@@ -1754,7 +1758,7 @@ class FTPSession
                                cmd, f) }));
           break;
         case 405:
-          send(530, ({ sprintf("'%s': %s: Method not allowed.",
+          send(550, ({ sprintf("'%s': %s: Method not allowed.",
                                cmd, f) }));
           break;
         case 413: // request entity too large
