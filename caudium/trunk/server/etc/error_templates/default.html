@@ -1,4 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!--
+	$Id$
+ -->
 <html>
 	<head>
 		<title><error code>: <error name></title>
@@ -18,14 +21,23 @@
 		</table>
 		<br>
 		<if prestate="extra_help">
+			<h1>Information about this error:</h1><blockquote>
+		        <error description><br>
 			<apre -extra_help>Less information about this error</apre><br><br>
-		        <error description>
+			</blockquote>
+			<table border=0 cellspacing=0 cellpadding=0 width=100%>
+				<tr>
+					<td bgcolor="#003366"><img border=0 alt="" src="/internal-caudium-unit"></td>
+				</tr>
+			</table>
 		</if>
 		<else>
 			<apre extra_help>More information about this error</apre><br>
 		</else>
 		<br>
+		<h1>Actual error message:</h1><blockquote>
 		<error message>
+		</blockquote>
 		<br>
 		<br>
 		<table width="100%" border=0 cellpadding=0 cellspacing=0>
