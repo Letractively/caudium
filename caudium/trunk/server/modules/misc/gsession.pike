@@ -1208,8 +1208,10 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
 
         if (!id->variables[SVAR])
             parts = ({parts[0], SVAR, "=" + id->misc->session_id, "#" + parts[1]});
-        else
-            parts = ({parts[0], "", "", "#" + parts[1]});        
+        else {
+            sepchar = "";
+            parts = ({parts[0], "", "", "#" + parts[1]});
+        }
     } else
         parts = ({from, SVAR, "=" + id->misc->session_id, ""});
     
