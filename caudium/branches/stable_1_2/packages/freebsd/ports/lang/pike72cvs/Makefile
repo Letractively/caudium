@@ -20,10 +20,6 @@ BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
 
-.if (${MACHINE} != "i386")
-BROKEN= This software cannot run on non x86 platform
-.endif
-
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
 IS_INTERACTIVE=	yes
@@ -32,6 +28,11 @@ GNU_CONFIGURE=  yes
 .include "${WRKDIRPREFIX}${.CURDIR}/Makefile.inc"
 .else
 CONFIGURE_ARGS?= \
+	--with-double-precision \
+	--with-long-double-precision \
+	--disable-rpath \
+	--without-rtldebug \
+	--without-cdebug \
 	--without-ttflib \
 	--without-gdbm \
 	--without-mysql \
