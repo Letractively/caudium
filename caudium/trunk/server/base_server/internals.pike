@@ -125,8 +125,11 @@ class InternalResolver
             file = "/" + file;
         
         if (sscanf("%s?%s", file, query) == 2)
+	{
           Caudium.parse_query_string(query, qvars, qemptyvars);
-	
+	  foreach(indices(qemptyvars), string varname)
+	    qvars[varname] = "";
+	}
         switch(method) {
             case "HTML":
                 ret = InternalFiles.HTML.handle(id, 
