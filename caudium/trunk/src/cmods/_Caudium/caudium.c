@@ -90,43 +90,181 @@ static_strings strs;
 **!  scope: private
 */
 
-#if 0
-static struct array    *mta_unsafe_chars;
-static struct array    *mta_safe_entities;
+static struct array    *xml_mta_unsafe_chars;
+static struct array    *xml_mta_safe_entities;
+static struct array    *html_mta_unsafe_chars;
+static struct array    *html_mta_safe_entities;
 
-static char            *_unsafechars[] = {"<",">","&"};
-static char            *_safeentities[] = {"&lt;", "&gt;", "&amp;"};
+/* unsafe characters and entities for encode_mapping (used by make_tag_attributes)
+ * used to generate tags and containers */
+static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\000"};
+static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
+static char            *html_unsafechars[] = { "\"" };
+static char            *html_safeentities[] = { "&34;" };
 
-#define UNSAFECHARS_SIZE sizeof(_unsafechars)/sizeof(char*)
-#endif
+#define XML_UNSAFECHARS_SIZE sizeof(xml_unsafechars)/sizeof(char*)
+#define HTML_UNSAFECHARS_SIZE sizeof(html_unsafechars)/sizeof(char*)
+
+/* helper function for encoding XHTML for make_tag_attributes in mappings 
+ * This function encode every key/value pair in the mapping according to the 
+ * given encode_type:
+ * If encode_type = 0, strings are encoded for HTML output
+ * If encode_type = 1, string are encoded for XML output
+ */
+static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode_type)
+{
+  struct array            *indices, *values;
+  struct mapping          *result;
+  struct pike_string      *key, *val, *tmp;
+  int                     i, j, k, do_replace;
+  int                     size;
+
+  indices = mapping_indices(mapping2encode);
+  values = mapping_values(mapping2encode);
+  size = (unsigned)indices->size;
+  result = allocate_mapping(size);
+  if(result == NULL)
+    Pike_error("Can't allocate result mapping\n");
+
+  /* encode any key/value pair in the mapping */
+  for(i = 0; i < size; i++)
+  {
+    for(j = 0; j < 2; j++)
+    {
+      if(indices->real_item[i].type != T_STRING 
+         || values->real_item[i].type != T_STRING)
+        Pike_error("You must have string inside mapping for this function to work\n");
+      if(j == 0)
+        tmp = indices->real_item[i].u.string;
+      if(j == 1)
+        tmp = values->real_item[i].u.string;
+      /* let's see whether we have anything to encode */
+       do_replace = 0;
+       if(encode_type == 1)
+         for (k = 0; k < XML_UNSAFECHARS_SIZE; k++) {
+           if (memchr(tmp->str, xml_unsafechars[k][0], tmp->len)) {
+             do_replace = 1;
+             break;
+           }
+         }
+       if(encode_type == 0)
+         for (k = 0; k < HTML_UNSAFECHARS_SIZE; k++) {
+           if (memchr(tmp->str, html_unsafechars[k][0], tmp->len)) {
+             do_replace = 1;
+             break;
+           }
+         }
+
+       if (do_replace) {
+         push_string(tmp);
+         if(encode_type == 1)
+         {
+           push_array(copy_array(xml_mta_unsafe_chars));
+           push_array(copy_array(xml_mta_safe_entities));
+         }
+         if(encode_type == 0)
+         {
+           push_array(copy_array(html_mta_unsafe_chars));
+           push_array(copy_array(html_mta_safe_entities));
+         }
+         f_replace(3);
+         if(j == 0)
+           copy_shared_string(key, Pike_sp[-1].u.string);
+         if(j == 1)
+           copy_shared_string(val, Pike_sp[-1].u.string);
+         pop_stack();
+      }
+      else
+      {
+        if(j == 0)
+          copy_shared_string(key, tmp);
+        if(j == 1)
+          copy_shared_string(val, tmp);
+      }
+    }
+    mapping_string_insert_string(result, key, val);
+  }
+  return result;
+}
 
 /*
-**! method: string _make_tag_attributes(mapping in)
+**! method: mapping xml_encode_mapping(mapping in)
+**!  Encode keys and values of a mapping escaping any unsafe XML characters.
+**! arg: mapping in
+**!  The mapping to encode
+**! returns:
+**!  The encoded mapping 
+*/
+static void f_xml_encode_mapping(INT32 args)
+{
+  struct mapping             *mapping2encode, *result;
+
+  get_all_args("mapping_html_encode_string", args, "%m", &mapping2encode);
+  result = encode_mapping(mapping2encode, 1);
+  pop_stack();
+  push_mapping(result);
+}
+
+/*
+**! method: mapping html_encode_mapping(mapping in)
+**!  Encode keys and values of a mapping escaping any unsafe HTML characters.
+**! arg: mapping in
+**!  The mapping to encode
+**! returns:
+**!  The encoded mapping 
+*/
+static void f_html_encode_mapping(INT32 args)
+{
+  struct mapping             *mapping2encode, *result;
+
+  get_all_args("mapping_html_encode_string", args, "%m", &mapping2encode);
+  result = encode_mapping(mapping2encode, 0);
+  pop_stack();
+  push_mapping(result);
+}
+
+/*
+**! method: string _make_tag_attributes(mapping in, void|int encoding)
 **!  Convert a mapping with key-value pairs to tag attribute format escaping
 **!  any unsafe characters.
 **! arg: mapping in
 **!  The mapping with the attributes
+**! arg: void|int encoding
+**!  The encoding to perform: 0 or void for HTML and 1 for XML
 **! returns:
 **!  The string of attributes.
 */
 static void f_make_tag_attributes(INT32 args)
 {
-  struct mapping          *in;
+  struct mapping          *in, *safe_in;
   struct array            *indices, *values;
   unsigned                 i;
   struct string_builder    ret;
   struct pike_string      *retstr;
   int                      max_shift;
   char                    *tmp;
-  int                      len, do_replace;
-  
-  get_all_args("make_tag_attributes", args, "%m", &in);
+  int                      len;
+  INT32                    encoding = 0;
+ 
+  switch(args)
+  {
+    case 1:
+      get_all_args("make_tag_attributes", args, "%m", &in);
+      break;
+    case 2:
+      get_all_args("make_tag_attributes", args, "%m%d", &in, &encoding);
+      break;
+    default:
+      Pike_error("Wrong number of arguments, expected 1 or 2.\n");
+  }
 
   /* Make sure there is no "/" that might be left from parsing <tag /> */
   map_delete(in, &strs.mta_slash);
+  /* encode in the given encoding mecanism (for now HTML and XML) */
+  safe_in = encode_mapping(in, encoding);
 
-  indices = mapping_indices(in);
-  values = mapping_values(in);
+  indices = mapping_indices(safe_in);
+  values = mapping_values(safe_in);
 
   /* Find the widest string in the mapping, we need that for the string
    * builder
@@ -151,9 +289,7 @@ static void f_make_tag_attributes(INT32 args)
     len = indices->real_item[i].u.string->len +
       values->real_item[i].u.string->len + 5;
 
-/*     tmp = (char*)CAUDIUM_ALLOCA(len); */
-/*     CAUDIUM_PTR_VALID(tmp); */
-   tmp = scratchpad_get(len);/* it always returns a valid pointer */
+    tmp = scratchpad_get(len);/* it always returns a valid pointer */
     
     /* ugly code, but fast */
     tmp[len] = 0;
@@ -167,33 +303,13 @@ static void f_make_tag_attributes(INT32 args)
     len += 2;
     
     string_builder_append(&ret, MKPCHARP(tmp, 0), (ptrdiff_t)len);
-/*     CAUDIUM_UNALLOCA(tmp); */
   }
 
   retstr = finish_string_builder(&ret);
   pop_n_elems(args);
+  free_mapping(safe_in);
 
-#if 0
-
-  /* let's see whether we have anything to encode */
-  do_replace = 0;
-  for (i = 0; i < UNSAFECHARS_SIZE; i++) {
-    if (memchr(retstr->str, _unsafechars[i][0], retstr->len)) {
-      do_replace = 1;
-      break;
-    }
-  }
-
-  if (do_replace) {
-    push_string(retstr);
-    push_array(copy_array(mta_unsafe_chars));
-    push_array(copy_array(mta_safe_entities));
-    f_replace(3);
-  }
-  else
-#endif
-
-    push_string(retstr);
+  push_string(retstr);
 }
 
 #ifndef HAVE_SETPROCTITLE
@@ -1796,15 +1912,22 @@ void pike_module_init( void )
   SVAL(mta_slash)->type  = T_STRING;
   SVAL(mta_equals)->type = T_STRING;
 
-#if 0
-  for (i = 0; i < UNSAFECHARS_SIZE; i++)
-    push_text(_unsafechars[i]);
-  mta_unsafe_chars = aggregate_array(UNSAFECHARS_SIZE);
+  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
+    push_text(xml_unsafechars[i]);
+  xml_mta_unsafe_chars = aggregate_array(XML_UNSAFECHARS_SIZE);
 
-  for (i = 0; i < UNSAFECHARS_SIZE; i++)
-    push_text(_safeentities[i]);
-  mta_safe_entities = aggregate_array(UNSAFECHARS_SIZE);
-#endif
+  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
+    push_text(xml_safeentities[i]);
+  xml_mta_safe_entities = aggregate_array(XML_UNSAFECHARS_SIZE);
+
+  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
+    push_text(html_unsafechars[i]);
+  html_mta_unsafe_chars = aggregate_array(HTML_UNSAFECHARS_SIZE);
+
+  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
+    push_text(html_safeentities[i]);
+  html_mta_safe_entities = aggregate_array(HTML_UNSAFECHARS_SIZE);
+
   
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
@@ -1841,7 +1964,11 @@ void pike_module_init( void )
   add_function_constant( "parse_entities", f_parse_entities,
                          "function(string,mapping,mixed...:string)", 0);
   add_function_constant( "_make_tag_attributes", f_make_tag_attributes,
-                               "function(mapping:string)", 0);
+                               "function(mapping,int|void:string)", 0);
+  add_function_constant( "html_encode_mapping", f_html_encode_mapping,
+                               "function(mapping:mapping)", 0);
+  add_function_constant( "xml_encode_mapping", f_xml_encode_mapping,
+                               "function(mapping:mapping)", 0);
   init_datetime();
 
   start_new_program();
@@ -1867,10 +1994,10 @@ void pike_module_exit( void )
   free_string(STRS(mta_slash));
   free_string(STRS(mta_equals));
 
-#if 0  
-  free_array(mta_unsafe_chars);
-  free_array(mta_safe_entities);
-#endif
+  free_array(xml_mta_unsafe_chars);
+  free_array(xml_mta_safe_entities);
+  free_array(html_mta_unsafe_chars);
+  free_array(html_mta_safe_entities);
   
   exit_nbio();
   exit_datetime();
