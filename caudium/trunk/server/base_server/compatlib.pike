@@ -76,6 +76,14 @@ string http_encode_string(string m) {
    return Caudium.http_encode_string(m);
 }
 
+//! Compat call of Caudium.HTTP.decode_url
+//! @deprecated
+string http_decode_url(string m) {
+   WCOMPAT2("Caudium.HTTP.decode_url","http_decode_url");
+   return Caudium.HTTP.decode_url(m);
+}
+  
+
 //! Compat call of Caudium.http_encode_cookie
 //! @deprecated
 string http_encode_cookie(string m) {

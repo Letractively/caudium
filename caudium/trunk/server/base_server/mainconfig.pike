@@ -217,7 +217,7 @@ void create()
 //!
 object find_node(string l)
 { 
-  l = http_decode_url(l);
+  l = Caudium.HTTP.decode_url(l);
   array tmp = l/"/"-({""});
   object o;
   if(!sizeof(tmp)) return root;
@@ -1434,7 +1434,7 @@ mapping configuration_parse(object id)
 
       
     if (id->variables && id->variables->goahead && stringp(id->variables->URL) && sizeof(id->variables->URL)) {
-      array(string) t = http_decode_url(id->variables->URL) / "/";
+      array(string) t = Caudium.HTTP.decode_url(id->variables->URL) / "/";
 
       if (t && sizeof(t) >= 3)
         do_netcraft = sprintf(ncurl, t[2]);
