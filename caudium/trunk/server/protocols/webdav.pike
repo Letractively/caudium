@@ -40,8 +40,8 @@ static object __handler;
 void create(void|object f, void|object c) 
 {
   __handler = WebdavHandler();
-  __handler->get_directory = 0;
-  __handler->stat_file = 0;
+  __handler->get_directory = find_dir;
+  __handler->stat_file = stat_file;
   __handler->set_property = set_property;
   __handler->get_property = get_property;
   ::create(f, c);
@@ -212,6 +212,18 @@ int set_property(mixed context, Property property, mapping namespaces)
     return 1;
 }
 
+mixed find_dir(string dirname)
+{
+  array dir = conf->find_dir(dirname, this_object());
+  if ( ! arrayp(dir) )
+    return ({ });
+  return dir;
+}
+
+mixed stat_file(string fname)
+{
+  return conf->stat_file(fname, this_object());
+}
 
 mapping|void handle_proppatch()
 {
