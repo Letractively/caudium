@@ -1,7 +1,8 @@
 caudium (2:1.1.1-3) unstable; urgency=low
 
   * Latest snapshot + sync of debian/ with the 1.0 tree
-
+  * Moved CAMAS to a separate package
+  
  -- Marek Habersack <grendel@debian.org>  Tue, 22 May 2001 11:37:18 +0200
 
 caudium (2:1.1.1-2) unstable; urgency=low
