@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     if(strchr(argv[1],' ')) len=strchr(argv[1],' ') - argv[1];
     if(len > 1 && argv[1][len-2]=='l' && argv[1][len-1]=='d')
     {
-      for(i=2; i<argc; i++) {
+      for(i=0; i<new_argc; i++) {
 	if (new_argv[i][0] == '-' && new_argv[i][1]=='W' &&
 	    new_argv[i][2]=='l' && new_argv[i][3]==',')
 	{
@@ -259,6 +259,12 @@ int main(int argc, char **argv)
 #ifdef USE_RPATH
     new_argv[new_argc++] = "-rpath";
     new_argv[new_argc++] = rpath;
+#elif defined(USE_PLUS_b)
+    if (linking) {
+      /* +b: is probaly enough, but... */
+      new_argv[new_argc++] = "+b";
+      new_argv[new_argc++] = rpath;
+    }
 #elif defined(USE_YP_)
     if (linking) {
       new_argv[new_argc++] = "-YP,";
