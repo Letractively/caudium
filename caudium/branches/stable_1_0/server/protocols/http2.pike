@@ -1538,9 +1538,10 @@ void create(void|object f, void|object c)
     my_fd->set_read_callback(got_data);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
-    time = _time(1);
-    htp = Caudium.ParseHTTP(misc, request_headers);
+    time = _time(1);    
   }
+  
+  htp = Caudium.ParseHTTP(misc, request_headers);
 }
 
 void chain(object f, object c, string le)
