@@ -3698,6 +3698,86 @@ string tag_for(string t, mapping args, string c, object id)
   return res;
 }
 
+/*
+ * This tag controls the scopes usage from within RXML. It's a container
+ * which takes the following attributes:
+ *
+ *   cond   - whether the scope status is conditional or not
+ *   on     - whether the scope is on or off
+ *   global - should the change be global or just for this container
+ *
+ * All attributes take the following values for "true":
+ *
+ *   yes
+ *   1
+ *   true
+ *   on
+ *
+ * Any other value is considered "false" and turns the corresponding switch
+ * off.
+ */
+string tag_scopecontrol(string t, mapping args, string c, object id)
+{
+    int    cond = 0, on = 0, global = 0;
+
+    if (args->cond) {
+        switch(lower_case(args->cond)) {
+            case "yes":
+            case "on":
+            case "1":
+            case "true":
+                cond = 1;
+                break;
+        }
+        m_delete(args, "cond");
+    }
+
+    if (args->on) {
+        switch(lower_case(args->on)) {
+            case "yes":
+            case "on":
+            case "1":
+            case "true":
+                on = 1;
+                break;
+        }
+        m_delete(args, "on");
+    }
+
+    if (args->global) {
+        switch(lower_case(args->global)) {
+            case "yes":
+            case "on":
+            case "1":
+            case "true":
+                global = 1;
+                break;
+        }
+        m_delete(args, "global");
+    }
+
+    int usval = 0;
+    int oldus = id->misc->_use_scopes;
+    int oldss = id->misc->_scope_status;
+    
+    if (on)
+        usval |= 0x01;
+    if (cond)
+        usval |= 0x02;
+
+    id->misc->_use_scopes = usval;
+    id->misc->_scope_status = usval & 0x01;
+    
+    string ret = parse_rxml(c, id);
+
+    if (!global) {
+        id->misc->_use_scopes = oldus;
+        id->misc->_scope_status = oldss;
+    }
+
+    return ret;
+}
+
 mapping query_pi_callers() {
   return ([ "?comment": "" ]);
 }
@@ -3758,6 +3838,7 @@ mapping query_container_callers()
 	   "trimlines" : tag_trimlines,
 	   "default" : tag_default,
 	   "recursive-output": tag_recursive_output,
+       "scopecontrol": tag_scopecontrol,
 	   ]);
 }
 
