@@ -104,7 +104,7 @@ void create()
 	 TYPE_FLAG,
 	 "A '&gt;' in a tag argument closes both the argument and "
 	 "the tag, even if the argument is quoted. ");
-  defvar("lazy_entity_end", 0, "Parse options: Lazy entity end",
+  defvar("lazy_entity_end", 1, "Parse options: Lazy entity end",
 	 TYPE_FLAG,
 	 "Normally, the parser search indefinitely for the entity end "
 	 "character (i.e. ';'). When this flag is set, the characters &amp;"
