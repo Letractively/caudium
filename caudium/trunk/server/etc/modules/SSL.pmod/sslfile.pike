@@ -48,6 +48,7 @@ void die(int status)
     werror("SSL.sslfile: Killed\n");
 #endif
   }
+  catch(socket->set_write_callback(0)); // Catch in case it's closed.
   is_closed = 1;
   if (socket)
   {
