@@ -172,40 +172,6 @@ function functionof(array f)
   return o[f[-1]];
 }
 
-//! This compile_file automatically dumped the resulted compilation to 
-//! a .o file for faster compilation times (especially for Caudium modules)
-program compile_file(string filename,
-                     object|void handler,
-                     void|program p,
-                     void|object o)
-{
-  program compiled_file;
-  Stdio.Stat ostat = file_stat(filename+".o");
-  Stdio.Stat fstat = file_stat(filename);
-  // is the .o up to date ?
-  if(ostat && ostat->mtime > fstat->mtime)
-  {
-    // ignore any compilation error while loading the .o, we'll
-    // fallback to normal compile_file() in case it fails
-    set_inhibit_compile_errors(lambda() { });
-    if(!catch(compiled_file = decode_value(Stdio.read_bytes(filename+".o"), 
-      master()->Decoder())) && compiled_file)
-    {
-      set_inhibit_compile_errors(0);
-      return compiled_file;
-    }
-    set_inhibit_compile_errors(0);
-  }
-  compiled_file = old_master::compile_file(filename, handler, p, o);
-  string encoded_program;
-  // write the compiled file to a .o file
-  if(!compiled_file->dont_dump_module && !compiled_file->dont_dump_program
-    && !catch(encoded_program = encode_value(compiled_file, 
-       master()->Encoder(compiled_file))) && encoded_program)
-         Stdio.File(filename+".o", "cw")->write(encoded_program);
-  return compiled_file; 
-}
-
 //!
 void create()
 {
