@@ -74,7 +74,11 @@ string scut(string tag_name, mapping args, string contents,
  {
   int max=(int) args->max;
   if (max > 1) max = max - 1;
+#if constant(Protocols.HTTP.unentity)
+  contents = Protocols.HTTP.unentity(contents);
+#else
   contents = html_decode_string(contents);
+#endif
   if(sizeof(contents) > max)
   {
     if(args->postfix)
@@ -86,7 +90,11 @@ string scut(string tag_name, mapping args, string contents,
     else contents = contents[..max];
   }
  }
+#if constant(_Roxen.html_encode_string)
+ return _Roxen.html_encode_string(contents);
+#else
  return html_encode_string(contents);
+#endif
 }
 
 mapping query_container_callers()
