@@ -92,4 +92,8 @@ Changes since last Roxen 1.3
   The main reason being that newer IMHO most likely will only work with
   Roxen 2.x, but there are reasons too.
 + External FastCGI program/library updated (might now work better than
-  before). 
+  before).
++ Tags are no longer priority based. Ie the priority of a tag module doesn't
+  affect the order of tag parsing. This shouldn't break anything since I don't
+  know of anyone using this feature. The reason for the change was to simplify
+  the parse modules. Also the XML parser never supported this feature.
