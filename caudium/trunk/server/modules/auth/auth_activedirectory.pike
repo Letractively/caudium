@@ -247,6 +247,7 @@ multiset list_all_groups()
   if(!ldap)
   {
     ERROR("failed to get LDAP connection");
+    ldap=0;
     return 0;
   }
   if(no_anonymous_bind) // must we bind before searching?
@@ -255,6 +256,7 @@ multiset list_all_groups()
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -264,6 +266,7 @@ multiset list_all_groups()
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -273,6 +276,7 @@ multiset list_all_groups()
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -286,6 +290,8 @@ multiset list_all_groups()
   if(!r)
   {
     ERROR("failed to perform search");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
 
@@ -296,6 +302,8 @@ multiset list_all_groups()
     groups+=(<r->fetch()->sAMAccountName[0]>);  
     r->next();
   }
+  catch(ldap->unbind());
+  ldap=0;
   return groups;
 
 }
@@ -310,6 +318,8 @@ array list_all_users()
   if(!ldap)
   {
     ERROR("failed to get LDAP connection");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
   if(no_anonymous_bind) // must we bind before searching?
@@ -318,6 +328,7 @@ array list_all_users()
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -327,6 +338,7 @@ array list_all_users()
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -336,6 +348,7 @@ array list_all_users()
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -348,6 +361,8 @@ array list_all_users()
   ERROR("search result:" + ldap->error_string() + "\n");
   if(!r)
   {
+    catch(ldap->unbind());
+    ldap=0;
     ERROR("failed to perform search");
     return 0;
   }
@@ -359,6 +374,10 @@ array list_all_users()
     users+=({r->fetch()->sAMAccountName[0]});  
     r->next();
   }
+
+  catch(ldap->unbind());
+  ldap=0;
+
   return users;
 
 }
@@ -375,6 +394,8 @@ multiset get_groups_for_user(string dn)
   if(!ldap)
   {
     ERROR("failed to get LDAP connection");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
   if(no_anonymous_bind) // must we bind before searching?
@@ -383,6 +404,7 @@ multiset get_groups_for_user(string dn)
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -392,6 +414,7 @@ multiset get_groups_for_user(string dn)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -401,6 +424,7 @@ multiset get_groups_for_user(string dn)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -414,6 +438,8 @@ multiset get_groups_for_user(string dn)
   if(!r)
   {
     ERROR("failed to perform search");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
 
@@ -424,6 +450,10 @@ multiset get_groups_for_user(string dn)
     groups+=(<r->fetch()->sAMAccountName[0]>);  
     r->next();
   }
+
+  catch(ldap->unbind());
+  ldap=0;
+
   return groups;
 }
 
@@ -439,6 +469,8 @@ multiset get_users_for_group(string dn)
   if(!ldap)
   {
     ERROR("failed to get LDAP connection");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
   if(no_anonymous_bind) // must we bind before searching?
@@ -447,6 +479,7 @@ multiset get_users_for_group(string dn)
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -456,6 +489,7 @@ multiset get_users_for_group(string dn)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + dn + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -465,6 +499,7 @@ multiset get_users_for_group(string dn)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(0) failed: " + ldap->error_string());
     return 0;
   }
@@ -478,6 +513,8 @@ multiset get_users_for_group(string dn)
   if(!r)
   {
     ERROR("failed to perform search");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
 
@@ -498,6 +535,10 @@ multiset get_users_for_group(string dn)
     users+=(<u->fetch()->sAMAccountName[0]>);  
  
   }
+
+  catch(ldap->unbind());
+  ldap=0;
+
   return users;
 }
 
@@ -510,6 +551,7 @@ mapping|void loadUserInfo(string username)
   object ldap=getLDAPConnection();
   if(!ldap)
   {
+    ldap=0;
     ERROR("failed to get LDAP connection");
     return;
   }
@@ -519,7 +561,8 @@ mapping|void loadUserInfo(string username)
     if(!res)   
     {
       catch(ldap->unbind());
-      ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
+    ldap=0;
+    ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return;
     }
   }
@@ -528,6 +571,7 @@ mapping|void loadUserInfo(string username)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return;
   }
@@ -537,6 +581,7 @@ mapping|void loadUserInfo(string username)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return;
   }
@@ -550,6 +595,8 @@ mapping|void loadUserInfo(string username)
   if(!r)
   {
     ERROR("failed to perform search");
+    catch(ldap->unbind());
+    ldap=0;
     return;
   }
 
@@ -559,12 +606,15 @@ mapping|void loadUserInfo(string username)
     for(int i=0; i<r->num_entries(); i++)
     {
       ERROR("bogus dn: " + r->get_dn());
+      catch(ldap->unbind());
+      ldap=0;
       r->next();
     }
     return;
   }
   ERROR("returning data.\n");
-
+  catch(ldap->unbind());
+  ldap=0;
   return r->fetch();
 }
 
@@ -578,6 +628,8 @@ string|int loadUserName(string uid)
   if(!ldap)
   {
     ERROR("failed to get LDAP connection");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
   if(no_anonymous_bind) // must we bind before searching?
@@ -586,6 +638,7 @@ string|int loadUserName(string uid)
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -595,6 +648,7 @@ string|int loadUserName(string uid)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -604,6 +658,7 @@ string|int loadUserName(string uid)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -616,6 +671,8 @@ string|int loadUserName(string uid)
   ERROR("search result:" + ldap->error_string() + "\n");
   if(!r)
   {
+    catch(ldap->unbind());
+    ldap=0;
     ERROR("failed to perform search");
     return 0;
   }
@@ -631,7 +688,8 @@ string|int loadUserName(string uid)
     return 0;
   }
   ERROR("returning data.\n");
-
+  catch(ldap->unbind());
+  ldap=0;
   return r->fetch()->sAMAccountName[0];
 }
 
@@ -653,6 +711,7 @@ string|int loadGroupName(string gid)
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -662,6 +721,7 @@ string|int loadGroupName(string gid)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -671,6 +731,7 @@ string|int loadGroupName(string gid)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -684,6 +745,8 @@ string|int loadGroupName(string gid)
   if(!r)
   {
     ERROR("failed to perform search");
+    catch(ldap->unbind());
+    ldap=0;
     return 0;
   }
 
@@ -698,6 +761,9 @@ string|int loadGroupName(string gid)
     return 0;
   }
   ERROR("returning data.\n");
+
+  catch(ldap->unbind());
+  ldap=0;
 
   return r->fetch()->sAMAccountName[0];
 }
@@ -720,6 +786,7 @@ mapping|void loadGroupInfo(string groupname)
     if(!res)   
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return 0;
     }
@@ -729,6 +796,7 @@ mapping|void loadGroupInfo(string groupname)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return 0;
   }
@@ -738,6 +806,7 @@ mapping|void loadGroupInfo(string groupname)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return 0;
   }
@@ -750,6 +819,8 @@ mapping|void loadGroupInfo(string groupname)
   ERROR("search result:" + ldap->error_string() + "\n");
   if(!r)
   {
+    catch(ldap->unbind());
+    ldap=0;
     ERROR("failed to perform search");
     return 0;
   }
@@ -765,6 +836,9 @@ mapping|void loadGroupInfo(string groupname)
     return 0;
   }
   ERROR("returning data.\n");
+
+  catch(ldap->unbind());
+  ldap=0;
 
   return r->fetch();
 }
@@ -813,6 +887,7 @@ string getUserDN(string username)
     if(!res)
     {
       catch(ldap->unbind());
+      ldap=0;
       ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
       return "";
     }
@@ -822,6 +897,7 @@ string getUserDN(string username)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
     return "";
   }
@@ -829,6 +905,7 @@ string getUserDN(string username)
   if(!res && ldap->error_string()!="Success")
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("set_scope(2) failed: " + ldap->error_string());
     return "";
   }
@@ -838,6 +915,7 @@ string getUserDN(string username)
   if(catch(r=ldap->search("&(SAMAccountname=" + username + ")(objectclass=user)(!(objectclass=computer))")))
   {
     catch(ldap->unbind());
+    ldap=0;
     ERROR("search failed for username: " + username);
     return "";
   }
@@ -846,16 +924,20 @@ string getUserDN(string username)
   {
     ERROR("found " + r->num_entries() + "dns for username: " + username);
     catch(ldap->unbind());
+    ldap=0;
     return "";
   }
   if(catch(userdn=r->fetch()["dn"][0]))
   {
     ERROR("fetching dn failed for username: " + username);
     catch(ldap->unbind());
+    ldap=0;
     return "";
   }
 
   catch(ldap->unbind());
+  ldap=0;
+
   return userdn;
 }
 
@@ -893,11 +975,13 @@ int authenticate(string username, string password)
   {
     ERROR("unable to bind: " + ldap->error_string());
     ldap->unbind();
+    ldap=0;
     return -1;
   }
 
   // increment the success counter.
   succ++;
+  werror("authenticate() sucessful\n");
   return 1;
 }
 

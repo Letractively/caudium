@@ -156,7 +156,7 @@ int authenticate(string user, string password)
    int auth=low_authenticate(user, password);
    if(!auth) {fail++; return 0; } // authentication failed, user doesn't exist.
    if(auth==-1) {fail++; return 0; } // authentication failed, exists.
-   data["__authdata"]=Caudium.Crypto.hash_md5(user+"|"+password);
+   data["__authdata"]=Caudium.Crypto.hash_md5(user+"|"+password, 1);
    set_user_info(user, data);
    succ++;
    return 1; // success!
@@ -324,6 +324,8 @@ array|int list_all_groups()
 array(string) userinfo(string u) 
 {
   report_warning("auth_module->userinfo() is deprecated and may not be available in future releases of this software.");
+  werror("%O\n", backtrace());
+
   if(!u || u=="") return 0;
 
   mapping data=get_user_info(u);
