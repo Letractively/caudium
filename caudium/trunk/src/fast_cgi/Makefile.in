@@ -27,11 +27,11 @@ reconfig: clean
 	./configure
 
 install: all
-	$(INSTALL) -s cgi-fcgi/cgi-fcgi $(DESTDIR)/$(prefix)/caudium/server/bin/fcgi
+	$(INSTALL) -s cgi-fcgi/cgi-fcgi $(DESTDIR)/$(prefix)/caudium$(EXTRAVER)/server/bin/fcgi
 
 install_alt: all
-	$(INSTALL) cgi-fcgi/cgi-fcgi $(DESTDIR)/$(prefix)/lib/caudium/bin/fcgi
-	-strip --strip-unneeded $(DESTDIR)/$(prefix)/lib/caudium/bin/fcgi
+	$(INSTALL) cgi-fcgi/cgi-fcgi $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/fcgi
+	-strip --strip-unneeded $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/fcgi
 
 install_bin:
 	@true

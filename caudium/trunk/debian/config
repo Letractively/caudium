@@ -2,6 +2,7 @@
 #
 # $Id$
 #
+EXTVER=-1.1
 
 . /usr/share/debconf/confmodule
 
@@ -10,37 +11,37 @@ db_capb
 
 get_cfg_port() {
     local yesno;
-    local port;
+    local port="22203";
     
     db_title 'Config Interface Port'
         
     while test 1; do
-     db_input medium caudium/config_port || true
+     db_input medium caudium${EXTVER}/config_port || true
      db_go
      
-     db_get caudium/config_port || true
+     db_get caudium${EXTVER}/config_port || true
      if test -z "$RET"; then
-      db_reset caudium/config_port || true
+      db_reset caudium${EXTVER}/config_port || true
       continue
      fi
      
-     db_subst caudium/last_screen cfgport "$port"
+     db_subst caudium${EXTVER}/last_screen cfgport "$port"
      return 0
     done
 }
 
 get_iface() {
-    local port="80";
+    local port="81";
     local yesno;
     
     db_title 'Port number'
-    db_subst caudium/listen_on portno $port
+    db_subst caudium${EXTVER}/listen_on portno $port
 
     while test 1; do
-     db_input medium caudium/listen_on || true
+     db_input medium caudium${EXTVER}/listen_on || true
      db_go
      
-     db_get caudium/listen_on
+     db_get caudium${EXTVER}/listen_on
      port=$RET
      if test -z "$port"; then
         port="`expr $port + 1`"	
@@ -48,26 +49,26 @@ get_iface() {
         return 0
      fi
      
-     db_reset caudium/listen_on
-     db_set caudium/listen_on $port || true
+     db_reset caudium${EXTVER}/listen_on
+     db_set caudium${EXTVER}/listen_on $port || true
     done
 }
 
 
 
-if test ! -f /etc/caudium/servers/Global_Variables; then
+if test ! -f /etc/caudium${EXTVER}/servers/Global_Variables; then
     get_cfg_port
     get_iface
 fi
 
 db_title 'Startup options'
-db_input medium caudium/start_options || true
+db_input medium caudium${EXTVER}/start_options || true
 
 #db_title 'Experimental code'
-#db_input low caudium/experimental_http || true
+#db_input low caudium${EXTVER}/experimental_http || true
 
 db_title 'Caudium configuration'
-db_input medium caudium/last_screen || true
+db_input medium caudium${EXTVER}/last_screen || true
     
 db_go || true
 
