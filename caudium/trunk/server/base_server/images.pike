@@ -19,6 +19,15 @@
  *
  */
 
+//
+// NOTE!!!!
+// This file duplicates some routines from caudium.pike This is because
+// I couldn't decide which ones to use and I think that the routines from
+// caudium.pike that deal with images should be moved here. The only question
+// is compatibility. Is moving the routines here going to break something?
+// or maybe just make caudium.pike inherit this file? Dunno yet - after xmas :)
+// /grendel
+//
 mapping low_decode_image(string data, void|mixed tocolor)
 {
   mapping w = Image._decode( data, tocolor );

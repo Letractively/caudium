@@ -783,6 +783,160 @@ static array mk_url(object id, mapping args, string contents)
 //!  effectively ignore it. Only the indexed formats use colortables - those formats
 //!  are, among others, GIF and PCX. For gif the default value is 32.
 //
+//! attribute: [dither="{none,random,floyd-tsteinberg}"]
+//!  Sets the dithering method.
+//!  
+//!    <deftable>
+//!       <row name="none">No dithering is performed at all</row>
+//!       <row name="random">Random scatter dither. Not visually pleasing, but it is
+//!                          useful for very high resolution printing</row>
+//!       <row name="floyd-steinberg">Error diffusion dithering. Usually the best
+//!                                   dithering method.</row>
+//!    </deftable>
+//! default: none
+//
+//! attribute: [true-alpha]
+//!  If present, render a real alpha channel instead of on/off alpha. If the file
+//!  format supports only the on/off alpha the alpha channel is dithered using
+//!  the floyd-steinberg dithering algorithm.
+//
+//! attribute: [background-color="color"]
+//!  Set the color to render the image against.
+//! default: taken from the page
+//
+//! attribute: [opaque-value="percentage"]
+//!  The transparency value to use, 100 is fully opaque and 0 is fully transparent.
+//! default: 100
+//
+//! attribute: [cs-rgb-hsv="{0,1}"]
+//!  Perform the RGB to HSV colorspace conversion
+//! default: 0
+//
+//! attribute: [gamma="float-number"]
+//!  Perform gamma adjustment.
+//! default: 1.0
+//
+//! attribute: [cs-grey="{0,1}"]
+//!  Perform the RGB to greyscale colorspace conversion
+//! default: 0
+//
+//! attribute: [cs-invert="{0,1}"]
+//!  Invert all colors.
+//! default: 0
+//
+//! attribute: [cs-hsv-rgb="{0,1}"]
+//!  Perform the HSV to RGB colorspace conversion.
+//! default: 0
+//
+//! attribute: [rotate-cw="number"]
+//!  Rotate the image clock-wise.
+//! default: 0
+//
+//! attribute: [rotate-ccw="number"]
+//!  Rotate the image counter clock-wise.
+//! default: 0
+//
+//! attribute: [rotate-unit="{rad,deg,ndeg,part}"]
+//!  Select the unit to use when rotating.
+//!  
+//!    <deftable>
+//!       <row name="rad">Radians</row>
+//!       <row name="deg">Degrees</row>
+//!       <row name="ndeg">'New' degrees (400 for each full rotation)</row>
+//!       <row name="part">0 - 1.0 (1.0 == full rotation)</row>
+//!    </deftable>
+//! default: deg
+//
+//! attribute: [mirror-x="{0,1}"]
+//!  Mirror the image around the X-axis.
+//! default: 0
+//
+//! attribute: [mirror-y="{0,1}"]
+//!  Mirror the image around the Y-axis.
+//! default: 0
+//
+//! attribute: [scale="factor|x,y"]
+//!  Scale the image by the specified value (0.5 -> half the size, 2.0 -> double the size).
+//!  If the second form is used (x,y) then scale the image exactly to be x pixels wide
+//!  and y pixels tall.
+//! default: 1.0
+//
+//! attribute: [max-width="number"]
+//!  Set the maximum width of the image to this value. If the image width exceedes this
+//!  amount it will be scaled down while keeping the aspect.
+//
+//! attribute: [max-height="number"]
+//!  Set the maximum height of the image to this value. If the image height exceedes this
+//!  amount it will be scaled down while keeping the aspect.
+//
+//! attribute: [x-offset="number"]
+//!  Cut 'number' pixels from the beginning of the X scale.
+//! default: 0
+//
+//! attribute: [y-offset="number"]
+//!  Cut 'number' pixels from the beginning of the Y scale.
+//! default: 0
+//
+//! attribute: [x-size="number"]
+//!  Keep 'number' pixels from the beginning of the X scale.
+//! default: entire image
+//
+//! attribute: [y-size="number"]
+//!  Keep 'number' pixels from the beginning of the Y scale.
+//! default: entire image
+//
+//! attribute: [crop="x0,y0-x1,y1"]
+//!  Crop the image to the rectangle specified by the coordinates given.
+//! default: keep entire image intact
+//
+//! attribute: [jpeg-quality="percentage"]
+//!  Set the quality of the output jpeg image.
+//! default: 75
+//
+//! attribute: [jpeg-optimize="{0,1}"]
+//!  If 0, do not generate optimal tables. Somewhat faster but produces bigger
+//!  files.
+//! default: 1
+//
+//! attribute: [jpeg-progressive="{0,1}"]
+//!  Generate progressive jpeg images if set to 1.
+//! default: 0
+//
+//! attribute: [jpeg-smooth="0-100"]
+//!  Smooth the image while compressing it. This produces smaller files but might
+//!  undo the effects of dithering.
+//! default: 0
+//
+//! attribute: [bmp-bpp="{1,4,8,24}"]
+//!  Set the Bits Per Pixel value for BMP images.
+//! default: 24
+//
+//! attribute: [bmp-windows="{0,1}"]
+//!  Set whether the Windows (1) or OS/2 (0) mode BMP files are to be produced.
+//! default: 1
+//
+//! attribute: [bmp-rle="{0,1}"]
+//!  Whether or not to use the RLE (Run-Length Encoding) compression of the BMP
+//!  image.
+//! default: 0
+//
+//! attribute: [gd-alpha_index="color"]
+//!  Color index into the image's colormap to make transparent in the GD images with
+//!  alpha channel.
+//! default: 0
+//
+//! attribute: [pcx-raw="{0,1}"]
+//!  If 1 do not RLE-encode he PCX image.
+//! default: 0
+//
+//! attribute: [pcx-dpy="{0-10000000.0}"]
+//!  Resolution, in pixels per inch.
+//! default: 0.75
+//
+//! attribute: [pcx-xdpy="{0-10000000.0}"]
+//!  Resolution, in pixels per inch.
+//! default: 0.75
+//
 string tag_gbutton(string tag, mapping args, string contents,
                    object id, object foo, mapping defines)
 {
