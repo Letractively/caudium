@@ -29,7 +29,7 @@ constant action_disabled = 1;
 #else /* THREADS */
 inherit "wizard";
 constant name= "Status//Module lock status";
-constant doc = ("Shows various information about the module thread locks in roxen.");
+constant doc = ("Shows various information about the module thread locks in Caudium.");
 constant more=1;
 
 string describe_module(object q)

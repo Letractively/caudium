@@ -179,7 +179,7 @@ string MKPORTKEY(array(string) p)
 
 mixed page_0(object id)
 {
-  string res = "<h1>All open ports in this Roxen</h1>\n";
+  string res = "<h1>All open ports in this Caudium</h1>\n";
   mapping ports_by_ip = ([ ]);
 
   mapping used = ([]);

@@ -26,7 +26,7 @@
 inherit "wizard";
 constant name= "Development//Debug information for developers";
 
-constant doc = ("Show some internals of Roxen, useful for debugging "
+constant doc = ("Show some internals of Caudium, useful for debugging "
 		"code.");
 
 constant more=1;

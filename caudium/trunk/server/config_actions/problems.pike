@@ -25,7 +25,7 @@
 
 inherit "wizard";
 
-constant name= "Maintenance//Check your Roxen configuration for problems...";
+constant name= "Maintenance//Check your Caudium configuration for problems...";
 constant doc = "Perform several sanity-checks of your configuration.";
 constant wizard_name = "Check configuration";
 
@@ -34,7 +34,7 @@ string page_0(object id)
 {
   return ("<b>Welcome to the problem finder wizard.</b>"
 	  "<p>This action tries to find the most "
-	  "common errors in your Roxen configuration.");
+	  "common errors in your Caudium configuration.");
 }
 
 mapping mod_recursed = ([]), mod_problems = ([]), mod_identifiers = ([]);
@@ -233,7 +233,7 @@ string page_3(object id)
     if(!pw)
       res += html_warning("'Change uid and gid to' is set to "+user+
 			  ". This does not seem to be a valid user on this "
-			  "computer. Roxen is currently running as UID#"+
+			  "computer. Caudium is currently running as UID#"+
 			  geteuid()+". You might want to change this "
 			  "variable.<br>"
 			  "<var name=mod_cvar_G/User size=20,1 default='"+user+
