@@ -394,6 +394,9 @@ wget.*			robot
 # BSD's fetch
 fetch.*			robot
 
+# Pompos, French robot to indexing sites - see http://pompos.iliad.fr
+pomops/.*		robot
+
 # The default. If nothing else matches this is used to determine the
 # supports values.
 
