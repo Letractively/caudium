@@ -1017,12 +1017,11 @@ static void f_parse_query_string( INT32 args )
           } else {
             namelen = equal - name;
             valulen = ptr - ++equal;
-	    ptr++;
           }
           
           skey.u.string = url_decode(name, namelen, 0, 0);
           if (!skey.u.string) /* OOM. Bail out */
-            Pike_error(" Out of memory.\n");
+            Pike_error("Out of memory.\n");
 
           if (!valulen) {
             /* valueless, add the name to the multiset */
@@ -1032,6 +1031,7 @@ static void f_parse_query_string( INT32 args )
               Pike_error("Out of memory.\n");
             multiset_insert(emptyvars, &sval);
             name = ptr + 1;
+            equal = NULL;
             break;
           }
           
