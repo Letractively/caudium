@@ -1830,6 +1830,38 @@ static void f_http_date(INT32 args)
   push_string(ret);
 }
 
+/* Function to count memory usage */
+/* From Grubba */
+static void f_program_object_memory_usage(INT32 args)
+{
+  struct mapping *m;
+  struct svalue o_sv;
+
+  pop_n_elems(args);
+  /*push_mapping(m = allocate_mapping(num_program)); */
+  push_mapping(m = allocate_mapping(Pike_compiler->new_program->num_program));
+
+  o_sv.type = PIKE_T_OBJECT;
+  o_sv.subtype = 0;
+
+  for (o_sv.u.object = first_object; o_sv.u.object;
+       o_sv.u.object = o_sv.u.object->next) {
+    struct svalue *val;
+    if (!o_sv.u.object->prog || !o_sv.u.object->prog->storage_needed)
+      continue;
+    if ((val = low_mapping_lookup(m, &o_sv))) {
+#ifdef PIKE_DEBUG
+      if (val->type != PIKE_T_INT) Pike_fatal("...\n");
+#endif /* PIKE_DEBUG */
+      val->u.integer += o_sv.u.object->prog->storage_needed;
+    } else {
+      push_int(o_sv.u.object->prog->storage_needed);
+      mapping_insert(m, &o_sv, Pike_sp-1);
+      pop_stack();
+    }
+  }
+}
+
   
 /* Initialize and start module */
 void pike_module_init( void )
@@ -1913,6 +1945,11 @@ void pike_module_init( void )
                                "function(mapping:mapping)", 0);
   add_function_constant( "xml_encode_mapping", f_xml_encode_mapping,
                                "function(mapping:mapping)", 0);
+  /* Function to get memory info */
+
+  add_function_constant( "program_object_memory_usage", f_program_object_memory_usage,
+	                 "function(void:mapping)", 0);
+
   init_datetime();
 
   start_new_program();

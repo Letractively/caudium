@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Added low level function : _Caudium.program_object_memory_usage() from
+  Grubba (with some little modifications) to get real memory usage.
+   (Xavier Beaudouin)
 - Fully implement Cache disk indexing.  This _really_ speeds up load times.
   but please remove your cache directory.
    (James Tyson)
