@@ -10,7 +10,7 @@ PORTVERSION=	1.2.2
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
-		ftp://ftp.oav.net/caudium/pkg/FreeBSD/distfiles/ \
+		ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://grendel.firewall.com/caudium-pkg/
 DISTNAME=	caudium-${PORTVERSION}
 
