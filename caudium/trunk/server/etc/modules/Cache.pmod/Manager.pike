@@ -19,6 +19,9 @@
  *
  */
 
+//! This module implements multi-namespaced caching of data from within
+//! Caudium.
+
 #ifdef THREADS
   static Thread.Mutex mutex = Thread.Mutex();
 # define LOCK() object __key = mutex->lock()
@@ -44,12 +47,16 @@ object caudium;
 // This is a hack until someone else writes a storage method.
 #define dcache Cache.SlowStorage.Disk
 
+//! Create the datastructures for the cache(s).
 void create() {
   LOCK();
   caches = ([ ]);
   client_caches = ([ ]);
 }
 
+//! Trigger delayed start for the cache, this stops us from having to load
+//! up indexes for potentially large caches unless they are actually needed
+//! see also: delayed module loading.
 void really_start() {
   LOCK();
   if ( _really_started ) return;
@@ -63,6 +70,10 @@ void really_start() {
 #endif
 }
 
+//! returns an HTML string containing status information about the current;y
+//! running caches; object count, hitrate, etc.
+//!
+//! @todo please help me make this not suck. it's way off at the moment.
 string status() {
   LOCK();
   if ( ! _really_started ) {
@@ -100,6 +111,7 @@ string status() {
   return "<table border=0>\n" + (retval * "<tr><td colspan=4><br></td></tr>\n") + "</table>\n";
 }
 
+//! internal method used to create a cache instance.
 private void create_cache( string namespace ) {
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
@@ -107,6 +119,8 @@ private void create_cache( string namespace ) {
   caches += ([ namespace : Cache.Cache( namespace, path, max_object_ram, max_object_disk, dcache, default_ttl ) ]);
 }
 
+//! internal method that uses randomness to decide how long to wait in between
+//! expiry and size management runs
 private int sleepfor() {
 	// sleepfor() calculates how long to sleep between callouts to
 	// watch_size(), alsolute minimum time for a sleep is 30 seconds,
@@ -116,6 +130,30 @@ private int sleepfor() {
   return random(1200 * ( 1 - ( vigilance / 100 ) ) ) + 30 + random(30);
 }
 
+//! Method called by caudium.pike when a delayed start is neccessary.
+//!
+//! @param _max_ram_size
+//! maximum size of an object that is allowed to be stored in RAM (bytes).
+//! 
+//! @param _max_disk_size
+//! maximum size of an object that is allowed to be stored in slow storage
+//! (bytes).
+//!
+//! @param _vigilance
+//! a somewhat magical value that tells the cache how often to check it's size
+//! constraints. a value of zero means never, and 100 is every 30 seconds.
+//!
+//! @param _path
+//! a string containing the slow storage path to use, most likely a filesystem
+//! path, or a SQL URL.
+//!
+//! @param _default_ttl
+//! set the default time to live for cache objects that arent stored with a
+//! TTL value. (seconds)
+//!
+//! @param _default_halflife
+//! default halflife for caches, ie, after a certain idle time the cache is
+//! written out to slow storage and the clones are destructed.
 void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path, int _default_ttl, int _default_halflife ) {
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
@@ -137,6 +175,10 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
   call_out( watch_halflife, 3600 );
 }
 
+//! internal method used to check the size of the caches, and use a fancy
+//! mathematical algorhythm (which wont be discussed here) to find the caches
+//! with the largest size and force objects to expire until the total size of
+//! all caches is back within operational tolerances.
 void watch_size() {
   LOCK();
   if ( ! _really_started ) {
@@ -217,6 +259,8 @@ void watch_size() {
   call_out( watch_size, sleepfor() );
 }
 
+//! Check to see whether any caches halflifes have expired - i.e. they havent
+//! been used for any operations within a certain period of time.
 void watch_halflife() {
   LOCK();
   if ( ! _really_started ) {
@@ -237,6 +281,16 @@ void watch_halflife() {
   call_out( watch_halflife, 3600 );
 }
 
+//! public method used to create a new cache instance, or retrieve an instance
+//! of an existing one. The trick here is that it's not actually a cache
+//! itself, but a wrapper class that allows us to destruct the cache on a
+//! halflife expiry, meaning that we dont have any dangling references.
+//!
+//! @param one
+//! if void: this is the DEFAULT namespace, used within the server itself
+//! if string: this is a specific namespace that we want a cache for
+//! if object: this is a caudium module, interpret the namespace for the
+//! cache from the module itself.
 object get_cache( void|string|object one ) {
   really_start();
   LOCK();
@@ -270,6 +324,10 @@ object get_cache( void|string|object one ) {
   }
 }
 
+//! Actually create a real cache instance, or return an existing one.
+//!
+//! @param namespace
+//! The namespace of the cache we want.
 object low_get_cache( string namespace ) {
   really_start();
   LOCK();
@@ -278,10 +336,17 @@ object low_get_cache( string namespace ) {
   return caches[ namespace ];
 }
 
+//! Oops! We're being destroyed! Probably Caudium doing something *very* bad,
+//! call stop().
 void destroy() {
   stop();
 }
 
+//! Shutdown a cache or caches.
+//! 
+//! @param namespace
+//! if this parameter exist then try and find a cache by the corresponding name
+//! and shut it down. If it's void then shut them all down.
 void stop( void|string namespace ) {
   LOCK();
   if ( ! _really_started ) return;
@@ -300,6 +365,7 @@ void stop( void|string namespace ) {
   }
 }
 
+//! Return a copy of the Argument Cache wrapper class, this is a bit of a kludge.
 object get_argcache() {
   return Cache.Argument( this_object() );
 }
