@@ -63,10 +63,10 @@ void create()
   defvar("readme", 1, "Include readme files", TYPE_FLAG,
 	 "If set, include readme files in directory listings");
 
-  defvar("head","","Header",TYPE_STRING,
+  defvar("header","","Header",TYPE_STRING,
          "The HTML text to include before the listing of the directory.");
 
-  defvar("foot","","Footer",TYPE_STRING,
+  defvar("footer","","Footer",TYPE_STRING,
          "The HTML text to include at the end of the listing.");
 
 }
