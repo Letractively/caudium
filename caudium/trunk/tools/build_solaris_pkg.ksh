@@ -38,6 +38,7 @@ echo "P CDMpike The Pike Programming Language" >> depend
 echo "  ($ACH) $PIKEMAJORVER.$PIKEMINORVER" >> depend
 make prefix=$PKGBUILDIR install
 cp tools/caudium-rc_script $PKGBUILDIR/bin/caudiumctl
+cp src/cmods/UltraLog/ultrasum $PKGBUILDIR/bin/ultrasum
 CD=`pwd`
 cd $PKGBUILDIR
 find . -exec chown root {} \; -exec chgrp bin {} \;
