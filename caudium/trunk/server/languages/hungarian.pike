@@ -30,10 +30,12 @@
  *  free to use in the Roxen Web Server, under the terms of GNU GPL.
  *  You can modify this code, as long as my name not removed from the
  *  source.
+ *
+ *  2001/11/28 corrected some syntactical bug. 
+ *		thanks to Attila Toth <cirby@rosvig.hu> 
  */
 
 string cvs_version = "$Id$";
-
 string month(int num)
 {
   return ({ "janu&aacute;r",  "febru&aacute;r", "m&aacute;rcius",
@@ -53,7 +55,7 @@ string ordered(int i)
 {
     if(!i)
       return "&eacute;rtelmezhetetlen";
-    return i+". ";
+    return i+".";
 }
 
 
@@ -81,11 +83,11 @@ string date(int timestamp, mapping|void m)
     return (month(t1["mon"]+1) + ". " + ordered(t1["mday"]));
   }
   if(m["full"])
-    return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) + ". "+
+    return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) + " " +
            ordered(t1["mday"]) + ", " + ctime(timestamp)[11..15] );
 
   if(m["date"])
-    return ( (t1["year"]+1900)+". "+month(t1["mon"]+1)+". "+
+    return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) + " " +
            ordered(t1["mday"]) );
 
   if(m["time"])
@@ -94,6 +96,8 @@ string date(int timestamp, mapping|void m)
 
 string number(int num)
 {
+  string jel = "";
+  
   if(num<0)
     return "minusz "+number(-num);
 
@@ -125,16 +129,27 @@ string number(int num)
    case 31..39: case 41..49: case 51..59: 
    case 61..69: case 71..79: case 81..89: 
    case 91..99: 
-     return number((num/10)*10)+number(num%10);
+     return number((num/10)*10) + number(num%10);
 
    case 100..999:
-     return number(num/100)+"sz&aacute;z"+number(num%100);
+     return number(num/100) + "sz&aacute;z" + number(num%100);
 
-   case 1000..999999:
-     return number(num/1000)+"ezer"+number(num%1000);
+   case 1000..2000:
+     return number(num/1000) + "ezer" + number(num%1000);
 
-   case 1000000..999999999: 
-     return number(num/1000000)+"milli&oacute;-"+number(num%1000000);
+   case 2001..999999:
+     {
+       if (num%1000>0)
+         jel = "-";
+       return number(num/1000) + "ezer" + jel + number(num%1000);
+     }
+
+   case 1000000..999999999:
+     {
+       if (num%1000000>0)
+         jel = "-";
+       return number(num/1000000) + "milli&oacute;" + jel + number(num%1000000);
+     }
 
    default:
     return "sok";
