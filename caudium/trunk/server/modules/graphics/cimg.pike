@@ -29,6 +29,7 @@ constant module_name = "Image converter";
 constant module_doc  = "Provides a tag 'cimg'. Usage: "
       "&lt;cimg src=indata format=outformat [quant=numcolors] [img args]&gt;";
 constant cvs_version="$Id$";
+constant thread_safe = 1;
 
 caudium.ImageCache the_cache;
 
