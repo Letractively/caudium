@@ -78,6 +78,7 @@ void create( string _namespace, int _max_object_ram, int _max_object_disk, objec
   max_object_disk = _max_object_disk;
   default_ttl = _default_ttl;
   disk_cache = Cache.SlowStorage(namespace, dcache);
+
   ram_cache = Cache.FastStorage(namespace, disk_cache);
 }
 
@@ -246,7 +247,7 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
   write("Miss");
 #endif
   UNLOCK();
-  if (functionp(get_callback)) {
+  if (get_callback && functionp(get_callback)) {
 #ifdef CACHE_DEBUG
     write(" - calling callback.");
 #endif
