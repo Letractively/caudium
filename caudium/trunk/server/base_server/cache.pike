@@ -171,7 +171,7 @@ mixed cache_set(string in, string what, mixed to, int|void tm)
     cache[in]=([ ]);
   cache[in][what] = allocate(ENTRY_SIZE);
   cache[in][what][DATA] = to;
-  cache[in][what][TIMEOUT] = tm;
+  cache[in][what][TIMEOUT] = tm||CACHE_TIME_OUT;
   cache[in][what][TIMESTAMP] = time(1);
   return to;
 }
@@ -192,8 +192,6 @@ void cache_clear(string in)
 void cache_clean()
 {
   remove_call_out(cache_clean);
-  remove_call_out(cache_clean);
-  call_out(cache_clean, CACHE_TIME_OUT);
   call_out(cache_clean, CACHE_TIME_OUT);
 // #ifdef THREADS
 //   mixed key;
