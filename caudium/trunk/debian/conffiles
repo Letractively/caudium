@@ -1,1 +1,4 @@
 /etc/init.d/caudium
+/etc/logrotate.d/caudium
+/etc/caudium/Global_Variables.sample
+/etc/caudium/localhost.sample
