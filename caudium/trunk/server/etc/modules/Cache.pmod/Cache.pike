@@ -352,8 +352,8 @@ void|string cache_description(void|string desc) {
 //!
 //! @param behavior
 //! If 0 then keep default behavior. If 1 then use only RAM cache.
-//! If 1 then use only disk cache.
-void override_behavior(void|int(0..3) _behavior) {
+//! If 2 then use only disk cache.
+void override_behavior(void|int(0..2) _behavior) {
   switch(_behavior) {
   case 0:
     behavior = ([ ]);
