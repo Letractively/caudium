@@ -273,7 +273,7 @@ void create()
          "The timer after which the database is closed",0,
 	 lambda() { return !(QUERY(closedb) && QUERY(webhosting) && QUERY(virtual_hosting)); } );
   defvar("sqlquery","SELECT ftpuser FROM webhosting WHERE website=#website#","Web Hosting: SQL Query for selecting users",
-         TYPE_STRING,"The SQL Query to search localuser in the SQL Database, with standart replacements :<br />"
+         TYPE_STRING,"The SQL Query to search localuser in the SQL Database, with standard replacements :<br />"
 	 "<b>#website#</b> : will replaced by the hostname asked for e.g.<br /><em>http://www.foo.com/</em> will give "
 	 "to the module <i>www.foo.com</i><br /><em>http://www.foo.com:8000/</em> will give to the module "
 	 "<i>www.foo.com:8000</i>.<br /><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.",0,hide_webhosting);
@@ -482,7 +482,7 @@ static array(string) find_user(string f, object id)
 	  string host = lower_case(id->misc->host);	// We need here the host AND the port
 	  if ( sizeof(host / ":") < 2)			// No port is specified
 	  {
-	     host  += ":80";				// This is standart HTTP access
+	     host  += ":80";				// This is standard HTTP access
 	     // FIXME : About SSL ?
 	  }
 	  if (search(host,".") != -1)
@@ -909,7 +909,7 @@ string query_name()
 //!  name: Web Hosting: Database close timer
 //
 //! defvar: sqlquery
-//! The SQL Query to search localuser in the SQL Database, with standart replacements :<br /><b>#website#</b> : will replaced by the hostname asked for e.g.<br /><em>http://www.foo.com/</em> will give to the module <i>www.foo.com</i><br /><em>http://www.foo.com:8000/</em> will give to the module <i>www.foo.com:8000</i>.<br /><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.
+//! The SQL Query to search localuser in the SQL Database, with standard replacements :<br /><b>#website#</b> : will replaced by the hostname asked for e.g.<br /><em>http://www.foo.com/</em> will give to the module <i>www.foo.com</i><br /><em>http://www.foo.com:8000/</em> will give to the module <i>www.foo.com:8000</i>.<br /><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.
 //!  type: TYPE_STRING
 //!  name: Web Hosting: SQL Query for selecting users
 //

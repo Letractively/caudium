@@ -11,7 +11,7 @@ AC_CHECK_LIB(m, ceil)
 AC_CHECK_LIB(m, floor)
 
 AC_CHECK_HEADERS( sablot.h )
-dnl The standart Sablot/Expat need the libxmlok library
+dnl The standard Sablot/Expat need the libxmlok library
 AC_CHECK_LIB(xmltok, XmlInitEncoding)
 AC_CHECK_LIB(xmlparse, XML_Parse)
 dnl The GNOME xmltok/xmlparse library is different but works OK
