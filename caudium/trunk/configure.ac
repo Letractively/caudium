@@ -361,9 +361,9 @@ AC_ARG_WITH(serverdir,
 AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directory after installation]),
 [
   if test ! -z "$withval"; then
-    CAUDIUM_SERVERDIR="$withval"
+    CAUDIUM_SERVERDIR="$withval/"
   else
-    CAUDIUM_SERVERDIR="@prefix@/caudium/server"
+    CAUDIUM_SERVERDIR="@prefix@/caudium/server/"
   fi
 ])
 
