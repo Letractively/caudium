@@ -1,6 +1,6 @@
 diff -U3 -r caudium-1.0.37.orig/configure.in caudium-1.0.37/configure.in
 --- caudium-1.0.37.orig/configure.in	Mon Jul 23 11:03:47 2001
-+++ caudium-1.0.37/configure.in	Mon Nov 26 12:26:31 2001
++++ caudium-1.0.37/configure.in	Mon Nov 26 12:36:06 2001
 @@ -208,7 +208,7 @@
      fi
      ;;
