@@ -26,6 +26,9 @@ void create(string _permstore, string path) {
     permstore = Storage.Methods.MySQL(path);
     break;
   }
+#ifdef STORAGE_DEBUG
+  write("Starting storage manager with %s backed.\n", _permstore);
+#endif
 }
 
 public object get_storage(string namespace) {
@@ -79,5 +82,7 @@ void destroy() {
 }
 
 void stop() {
-  sync();
+  foreach(indices(storage), string namespace)
+    foreach(indices(storage[namespace]), string key)
+      sync(namespace, key);
 }
