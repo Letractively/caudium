@@ -196,8 +196,6 @@ private int cache_control_ok = 0;
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
 
-void end(string|void a,int|void b);
-
 private void setup_pipe()
 {
   if(!my_fd) 
