@@ -76,9 +76,7 @@ void create()
            "Month days 'today' cell text CSS class name.");
     defvar("md_errorclass", "cal-error", "CSS Classes: Invalid date", TYPE_STRING,
            "CSS class name for the 'Invalid date' message cell.");
-    defvar("wr_rowclass", "cal-weekrow", "CSS Classes: Week number row", TYPE_STRING,
-           "CSS class name for week number row.");
-    defvar("wr_weekclass", "cal-weekdata", "CSS Classes: Week number cell", TYPE_STRING,
+    defvar("md_weekclass", "cal-weekdata", "CSS Classes: Week number cell", TYPE_STRING,
            "CSS class name for week number cell.");
     
     defvar("ds_formname", "calendarform", "Names: Calendar form name", TYPE_STRING,
@@ -309,6 +307,7 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
 {
     mapping   md_row = ([]);
     mapping   md_cell = ([]);
+    mapping   md_weekcell = ([]);
     mapping   md_todaycell = ([]);
     mapping   md_text = ([]);
     mapping   md_todaytext = ([]);
@@ -319,6 +318,7 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
     if (!my_args->nocss) {
         md_row->class = my_args->md_rowclass || QUERY(md_rowclass);
         md_cell->class = my_args->md_cellclass || QUERY(md_cellclass);
+        md_weekcell->class = my_args->md_weekclass || QUERY(md_weekclass);
         md_todaycell->class = my_args->md_todaycellclass || QUERY(md_todaycellclass);
         md_text->class = my_args->md_textcellclass || QUERY(md_textclass);
         md_todaytext->class = my_args->md_todaytextclass || QUERY(md_todaytextclass);
@@ -326,6 +326,7 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
     }
 
     md_cell->width = my_args->wdc_width || QUERY(wdc_width);
+    md_weekcell->width = my_args->wdc_width || QUERY(wdc_width);
     md_todaycell->width = my_args->wdc_width || QUERY(wdc_width);
     md_error->width = my_args->wdc_width || QUERY(wdc_width);;
     
@@ -374,6 +375,11 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
 
     if (ndays + dow_start > 36)
         grid_rows++;
+
+    array(object) weeks = 0;
+
+    if (my_args->do_week)
+        weeks = target->month()->weeks();
     
     for(y = 1; y <= grid_rows; y++) {
         for(x = 1; x <= 7; x++) {
@@ -409,16 +415,15 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
             else
                 rcontents += make_container("td", md_cell, ccontents);
         }
+
+        if (weeks && sizeof(weeks))
+            rcontents += make_container("td", md_weekcell, sprintf("%02d", weeks[y - 1]->week_no()));
+                
         ret += make_container("tr", md_row, rcontents);
         rcontents = "";
     }
     
     return ret;
-}
-
-static string make_week(object id, mapping my_args, object now, object target)
-{
-    return "";
 }
 
 static void check_array(mapping var, string name)
@@ -519,8 +524,6 @@ string calendar_tag(string tag, mapping args, string cont,
     contents += make_monthyear_selector(id, my_args, now, target);
     contents += make_weekdays_row(id, my_args, now, target);
     contents += make_monthdays_grid(id, my_args, now, target, active_days);
-    if (my_args->do_week)
-        contents += make_week(id, my_args, now, target);
     
     return make_container("table", main_table, contents);
 }
@@ -665,6 +668,13 @@ td.cal-error {
       font-family: sans-serif;
       text-align: center;
       color: yellow; 
+}
+
+td.cal-weekdata {
+      background: #edebcb;
+      font-weight: bold;
+      font-family: sans-serif;
+      text-align: center;
 }
 
 a.cal-text {
