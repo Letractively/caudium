@@ -95,6 +95,10 @@ WITH_IODBC=	yes
 WITH_SANE=	yes
 .endif
 
+.if exists(${LOCALBASE}/lib/libgtkgl.so.5)
+WITH_MESA=	yes
+.endif
+
 .if defined(WITH_MOST)
 WITH_TTF=	yes
 WITH_FREETYPE=	yes
@@ -162,6 +166,7 @@ CONFIGURE_ARGS+= --without-sane
 
 .if defined(HAVE_MESA) || defined(WITH_MESA)
 USE_MESA=	yes
+LIB_DEPENDS+=	gtkgl.5:${PORTSDIR}/x11-toolkits/gtkglarea
 CONFIGURE_ARGS+= --with-GL --with-GLUT
 .else
 CONFIGURE_ARGS+= --without-GL --without-GLUT
