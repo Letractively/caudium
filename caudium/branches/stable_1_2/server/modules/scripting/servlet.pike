@@ -41,8 +41,14 @@ static inherit "http";
 
 constant module_type = MODULE_LOCATION;
 constant module_name = "Java Servlet bridge";
+#if constant(Java)
 constant module_doc  = "An interface to Java <a href=\"http://jserv.javasoft.com/"
     "products/java-server/servlets/index.html\">Servlets</a>.";
+#else
+constant module_doc  = "An interface to Java <a href=\"http://jserv.javasoft.com/"
+    "products/java-server/servlets/index.html\">Servlets</a>."
+    "<br><font color=\"red\">You'll need Java support in your pike in order to use this module.</font>";
+#endif
 constant module_unique = 0;
 
 /* Doesn't work on NT yet */
