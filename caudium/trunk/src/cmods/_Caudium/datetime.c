@@ -425,10 +425,10 @@ static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
   int                   tmod, use_weird = 0, i;
-#ifdef HAVE_STRPTIME  
-  struct tm             ttm;
   time_t                ret;
-#endif
+#ifdef HAVE_STRPTIME  && !__FreeBSD__
+  struct tm             ttm;
+#endif /* HAVE_STRPTIME && !__FreeBSD__ */
 
   if (args == 3)
     get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
@@ -437,10 +437,10 @@ static void f_is_modified(INT32 args)
   
   pop_n_elems(args);
 
-#ifdef HAVE_STRPTIME
+#ifdef HAVE_STRPTIME && !__FreeBSD__
   i = 0;
   while(is_modified_formats[i].fmt) {
-    char      *tmp;
+/*    char      *tmp; */
     
     if (!is_modified_formats[i].is_anal || use_weird)
       if (strptime(header->str, is_modified_formats[i].fmt, &ttm))
@@ -463,11 +463,11 @@ static void f_is_modified(INT32 args)
   ret = mktime(&ttm);
   if (ret >= 0)
     push_string(gd_bad_format);  
-#else
+#else /* HAVE_STRPTIME && !__FreeBSD__ */
   ret = get_date(header->str, NULL);
   if (ret < 0)
     push_string(gd_bad_format);
-#endif
+#endif /* HAVE_STRPTIME && !__FreeBSD__ */
 
   if (tmod > ret)
     push_int(0);
