@@ -2201,7 +2201,6 @@ class StringFile
 
 }
 
-
 // this is not as trivial as it sounds. Consider gtext. :-)
 public array open_file(string fname, string mode, object id)
 {
@@ -3484,8 +3483,7 @@ int load_module(string module_file)
     report_error("Error while enabling module (" + module_file + "):\n" +
                  describe_backtrace(err) + "\n");
     return(0);
-  } else if(!obj)
-  {
+  } else if(!obj) {
     report_error("*** Module load failed: " + module_file + " (not found?)\n");
     return 0;
   }
