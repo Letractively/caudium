@@ -1,7 +1,7 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=_Caudium
-OBJS= caudium.o nb_send.o getdate.o datetime.o entparse.o
-SOURCES=caudium.c nb_send.c getdate.c datetime.c entparse.c
+OBJS= caudium.o nb_send.o getdate.o datetime.o entparse.o scratchpad.o
+SOURCES=caudium.c nb_send.c getdate.c datetime.c entparse.c scratchpad.c
 MODULE_LIBS=@LIBS@
 
 @module_makefile@
