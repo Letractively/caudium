@@ -5,17 +5,6 @@
 prefix=$PWD
 AC_INIT(Makefile.in)
 
-AC_ARG_WITH(fullwarn, [  --with-fullwarn	enable as many warnings as possible],[],[with_fullwarn=no])
-AC_ARG_WITH(rtldebug, [  --with-rtldebug	enable run-time level debug],[],[
-  if test "$with_debug" = "yes"; then
-    with_rtldebug="yes";
-  else
-    with_rtldebug=no;
-  fi
-])
-
-# Make sure with_rtldebug is propagated to the other configure-scripts.
-export with_rtldebug
 
 AC_SET_MAKE
 
@@ -64,55 +53,8 @@ If this does not work, please use an absolute path to the configure script. ])
     ;;
 esac
 
-# Check the arguments
 
-AC_ARG_WITH(gmp,     [  --with(out)-gmp        Support bignums],[],[with_gmp=yes])
-AC_ARG_WITH(zlib,    [  --with(out)-zlib       Support gzip compression],[],[with_zlib=yes])
-AC_ARG_WITH(gdbm,    [  --with(out)-gdbm       GNU database manager support ],[],[with_gdbm=yes])
-AC_ARG_WITH(iodbc,   [  --with(out)-iodbc      iODBC driver manager support ],[],[with_iodbc=yes])
-AC_ARG_WITH(pike,    [  --with-pike            Specify version of Pike],[],[with_pike=0.6])
-
-#
-# Version of Pike
-#
-
-AC_MSG_CHECKING(version of Pike to use)
-case "$with_pike" in
-  0.6)
-    pike_version=0.6
-  ;;
-  0.7)
-    pike_version=0.7
-  ;;
-  dual|multi)
-    with_pike=dual
-    pike_version=0.6
-  ;;
-  *)
-    with_pike=0.6
-    pike_version=0.6
-  ;;
-esac
-AC_MSG_RESULT($with_pike)
-
-PIKEVERSION=$pike_version
-export PIKEVERSION
-
-AC_SUBST(PIKEVERSION)
-
-AC_MSG_CHECKING(if Pike $pike_version is in this distribution)
-if test -d "$srcdir/pike/$pike_version/." ; then
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_RESULT(No -- Try another version of Pike)
-  echo Avaliable versions are:
-  (cd "$srcdir/pike"; ls -d 0.*)
-  exit 1
-fi
-
-
-
-# Check compilers and such
+# Compiler checks
 #--------------------------
 
 if test ! -z "$roxen_cv_prog_CC" -a ! -z "$CC" -a "$CC" != "$roxen_cv_prog_CC"
@@ -199,15 +141,7 @@ AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
 ])
 
 
-# Set up smartlink
-
-case $CC in
- *smartlink*) ;;
- *)
-   CC="$srcdir/pike/$pike_version/bin/smartlink $CC"
-   ac_cv_prog_CC="$CC"
- ;;
-esac
+ac_cv_prog_CC="$CC"
 
 # We need some special hacks when running slowaris
 AC_PATH_PROG(uname_prog,uname,no)
@@ -572,183 +506,8 @@ CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 export CC CFLAGS REALCFLAGS WARN OPTIMIZE
 
 ###################################################################
-## Kluges
-###################################################################
-
-if test "x`uname`" = "xLinux" ; then
-  echo
-  echo 'Warning! Linux detected, CGI may not work.'
-  echo
-#  pike_cv_select_on_unix_sockets='yes'
-fi
-
-###################################################################
 ## Libraries that are used by Pike
 ###################################################################
-
-roxen_lib_subdirs=""
-
-
-# GMP -- Gnu Multi-Precision library
-#------------------------------------
-
-MAKE_GMP=""
-AC_SUBST(MAKE_GMP)
-if test -d $srcdir/gmp/.; then
-  # Empty the config cache...
-  unset ac_cv_header_gmp_h
-  unset ac_cv_lib_gmp_mpz_set_d
-  unset ac_cv_header_gmp2_gmp_h
-  unset ac_cv_lib_gmp2_mpz_set_d
-  if test x$with_gmp = xyes; then
-    AC_CHECK_HEADERS(gmp2/gmp.h)
-    AC_CHECK_LIB(gmp2, mpz_set_d)
-    if test "$ac_cv_header_gmp2_gmp_h$ac_cv_lib_gmp2_mpz_set_d" = "yesyes";
-    then
-      echo Gmp2 installed.
-    else
-      AC_CHECK_HEADERS(gmp.h)
-      AC_CHECK_LIB(gmp, mpz_set_d)
-      if test "$ac_cv_header_gmp_h$ac_cv_lib_gmp_mpz_set_d" = "yesyes"; then
-        echo Gmp already installed.
-      else
-        echo Enabling supplied gmp...
-        MAKE_GMP=gmp
-        roxen_lib_subdirs="$roxen_lib_subdirs gmp"
-        # Fool Pike into believing Gmp is installed.
-        # It will be when Pike is being built.
-        ac_cv_header_gmp_h=yes
-        ac_cv_lib_gmp_mpz_set_d=yes
-        PWD=`pwd`
-        CPPFLAGS="-I$srcdir/gmp -I$PWD/gmp ${CPPFLAGS}"
-        LDFLAGS="-L$PWD/gmp ${LDFLAGS}"
-      fi
-    fi
-  fi
-fi
-
-# Zlib -- Compression library
-#-----------------------------
-
-MAKE_ZLIB=""
-AC_SUBST(MAKE_ZLIB)
-if test -d $srcdir/zlib/.; then
-  # We don't trust the config-cache for these two.
-  unset ac_cv_header_zlib_h
-  unset ac_cv_lib_z_compress
-  if test x$with_zlib = xyes; then
-    AC_CHECK_HEADERS(zlib.h)
-    if test "$ac_cv_header_zlib_h" = "yes"; then
-      echo Zlib already installed.
-      AC_MSG_CHECKING([if the installed libz.h is new enough])
-      AC_TRY_COMPILE([
-#include <zlib.h>
-      ],[
-int foo = (int)(Z_NO_COMPRESSION | Z_VERSION_ERROR);
-      ],[
-        AC_MSG_RESULT(yes)
-	OLDLIBS="$LIBS"
-	if test x$roxen_cv_sys_os = xIRIX ; then
-	  # The libz.so supplied with IRIX 6.3 needs this obscure symbol
-          # C++?
-          AC_CHECK_LIB(Csup, __vtbl__9type_info)
-          AC_CHECK_LIB(C, __vtbl__9type_info)
-        fi
-	AC_CHECK_LIB(z, compress, [], [
-          echo Using supplied zlib anyway.
-          ac_cv_header_zlib_h=no
-        ])
-	LIBS="$OLDLIBS"
-      ],[
-        AC_MSG_RESULT(no)
-	echo Using supplied zlib anyway.
-        ac_cv_header_zlib_h=no
-      ])
-    fi
-    if test "$ac_cv_header_zlib_h" != "yes"; then
-      echo Enabling supplied zlib...
-      MAKE_ZLIB=zlib
-      roxen_lib_subdirs="$roxen_lib_subdirs zlib"
-      # Fool Pike into believing Zlib is installed.
-      # It will be when Pike is being built.
-      ac_cv_header_zlib_h=yes
-      ac_cv_lib_z_compress=yes
-      PWD=`pwd`
-      CPPFLAGS="-I$srcdir/zlib -I$PWD/zlib ${CPPFLAGS}"
-      LDFLAGS="-L$PWD/zlib ${LDFLAGS}"
-    fi
-  fi
-fi
-
-# Gdbm -- Gnu DataBase Manager library
-#--------------------------------------
-
-MAKE_GDBM=""
-AC_SUBST(MAKE_GDBM)
-if test -d $srcdir/gdbm/.; then
-  unset ac_cv_header_gdbm_h
-  unset ac_cv_lib_gdbm_gdbm_open
-  if test x$with_gdbm = xyes; then
-    AC_CHECK_HEADERS(gdbm.h)
-    AC_CHECK_LIB(gdbm, gdbm_open)
-    if test "$ac_cv_header_gdbm_h$ac_cv_lib_gdbm_gdbm_open" = "yesyes"; then
-      echo Gdbm already installed.
-    else
-      echo Enabling supplied gdbm...
-      MAKE_GDBM=gdbm
-      roxen_lib_subdirs="$roxen_lib_subdirs gdbm"
-      # Fool Pike into believing Gdbm is installed.
-      # It will be when Pike is being built.
-      ac_cv_header_gdbm_h=yes
-      ac_cv_lib_gdbm_gdbm_open=yes
-      PWD=`pwd`
-      CPPFLAGS="-I$srcdir/gdbm -I$PWD/gdbm ${CPPFLAGS}"
-      LDFLAGS="-L$PWD/gdbm ${LDFLAGS}"
-    fi
-  fi
-fi
-
-# libiodbc -- ODBC driver manager
-#--------------------------------
-
-MAKE_LIBIODBC=""
-AC_SUBST(MAKE_LIBIODBC)
-if test -d $srcdir/libiodbc/.; then
-  unset ac_cv_header_isql_h
-  unset ac_cv_lib_iodbc_SQLConnect
-  if test x$with_iodbc = xyes; then
-    AC_CHECK_HEADERS(isql.h)
-    AC_CHECK_LIB(iodbc, SQLConnect)
-    if test "$ac_cv_header_isql_h$ac_cv_lib_iodbc_SQLConnect" = "yesyes"; then
-      echo iODBC already installed.
-    else
-      echo Enabling supplied libiodbc...
-      MAKE_LIBIODBC=libiodbc
-      roxen_lib_subdirs="$roxen_lib_subdirs libiodbc"
-      # Fool Pike into believing iODBC is installed.
-      # It will be when Pike is being built.
-      ac_cv_header_isql_h=yes
-      ac_cv_header_isqlext_h=yes
-      ac_cv_lib_iodbc_SQLConnect=yes
-      PWD=`pwd`
-      CPPFLAGS="-I$srcdir/libiodbc -I$PWD/libiodbc ${CPPFLAGS}"
-      LDFLAGS="-L$PWD/libiodbc/.libs ${LDFLAGS}"
-    fi
-  fi
-fi
-
-
-#
-# Platform
-#
-
-MAKE_PLATFORM=""
-AC_SUBST(MAKE_PLATFORM)
-if test -d $srcdir/platform/.; then
-  echo Enabling platform...
-  MAKE_PLATFORM=platform
-  roxen_lib_subdirs="$roxen_lib_subdirs platform"
-else :; fi
 
 #
 # Some variables we want to export to the other configure scripts.
@@ -756,11 +515,6 @@ else :; fi
 
 export CPPFLAGS LDFLAGS
 
-AC_CONFIG_SUBDIRS($roxen_lib_subdirs extern tools pike)
-AC_OUTPUT(Makefile, [
-  echo ${PIKEVERSION} >stamp-h;
-  echo ${PIKEVERSION} >"make_vpath.in"
-  sleep 1;
-  echo ${PIKEVERSION} >"$srcdir/make_vpath"
-])
+AC_CONFIG_SUBDIRS(extern tools src)
+AC_OUTPUT(Makefile)
 

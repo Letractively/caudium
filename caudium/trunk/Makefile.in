@@ -18,35 +18,16 @@ PIKEVERSION=@PIKEVERSION@
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 
-all:	@MAKE_GMP@ @MAKE_GDBM@ @MAKE_ZLIB@ @MAKE_LIBIODBC@ @MAKE_PLATFORM@ pike extern tools
+all:	src extern tools
 	-@$(BIN_TRUE)
-
-pike: force
-	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS) @LINKFORSHARED@")
 
 extern: force
 	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
 
 tools: force
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
-
-gmp: force
-	@(cd gmp;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
-
-gdbm: force
-	@(cd gdbm;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
-
-zlib: force
-	@(cd zlib;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" libz.a)
-
-libiodbc: force
-	@(cd libiodbc;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS) -static" libiodbc.la)
-
-# Does not work. The top level makefile contaminates the enviroment.
-#platform: force
-#	@if test -d platform/. ; then \
-#	  (cd platform/;$(MAKE)) \
-#	else :; fi;
+src: force
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
 
 force:
 	-@$(BIN_TRUE)
@@ -64,231 +45,93 @@ depend:
 verify: all verify_other
 	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify)
 
-verbose_verify: all verify_other
-	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verbose_verify)
-
-verify_other: verify_extern
-	@if test "@MAKE_ZLIB@" = "zlib"; then \
-	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_zlib; \
-	fi
-	@if test "@MAKE_GMP@" = "gmp"; then \
-	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_gmp; \
-	fi
-	@if test "@MAKE_LIBIODBC@" = "libiodbc"; then \
-	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_libiodbc; \
-	fi
-
-verify_extern:
-	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify)
-
-verify_zlib:
-	@(cd zlib;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" test)
-
-verify_gmp:
-	@(cd gmp;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" check)
-
-verify_libiodbc:
-	@(cd libiodbc;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" check)
-
-new_peep_engine:
-	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" new_peep_engine)
-
-check: verify
-	-@$(BIN_TRUE)
-
 clean:
 	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
 	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
 
-install_all: install_pike install
+install: all install_only install_src
 	-@$(BIN_TRUE)
 
-install: all install_only
-	-@$(BIN_TRUE)
+install_src: 
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
+
 
 install_only: 
-	$(SRCDIR)/mkdir -p $(prefix)/roxen/
+	$(SRCDIR)/mkdir -p $(prefix)/caudium/
 	@for f in `cd $(SRCDIR); ls [A-Z]* | grep -v Makefile`; do \
 	  if test -f $(SRCDIR)/$$f ; then \
-	    cp $(SRCDIR)/$$f $(prefix)/roxen/; \
+	    cp $(SRCDIR)/$$f $(prefix)/caudium/; \
 	  else :; fi; \
 	done
-	@if test -d $(prefix)/roxen/server.old/.; then \
-	  if test -d $(prefix)/roxen/server.older/.; then \
+	@if test -d $(prefix)/caudium/server.old/.; then \
+	  if test -d $(prefix)/caudium/server.older/.; then \
 	    echo; \
-	    echo "Warning, deleting old server \"$(prefix)/roxen/server.older\""; \
+	    echo "Warning, deleting old server \"$(prefix)/caudium/server.older\""; \
 	    echo; \
-	    rm -rf $(prefix)/roxen/server.older; \
+	    rm -rf $(prefix)/caudium/server.older; \
 	  fi; \
-	  mv -f $(prefix)/roxen/server.old $(prefix)/roxen/server.older; \
+	  mv -f $(prefix)/caudium/server.old $(prefix)/caudium/server.older; \
 	fi
-	@if test -d $(prefix)/roxen/server/.; then \
-	  mv -f $(prefix)/roxen/server $(prefix)/roxen/server.old ; \
+	@if test -d $(prefix)/caudium/server/.; then \
+	  mv -f $(prefix)/caudium/server $(prefix)/caudium/server.old ; \
 	fi
-	cp -r $(SRCDIR)/server $(prefix)/roxen/
-	@if test -f $(prefix)/roxen/server.old/etc/environment ; then \
-	  cp $(prefix)/roxen/server.old/etc/environment $(prefix)/roxen/server/etc/ ; \
+	cp -r $(SRCDIR)/server $(prefix)/caudium/
+	@if test -f $(prefix)/caudium/server.old/etc/environment ; then \
+	  cp $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
 	fi
-	@rm -rf	$(prefix)/roxen/server/CVS $(prefix)/roxen/server/*/CVS\
-		$(prefix)/roxen/server/*/*/CVS
-	cp pike/$(PIKEVERSION)/src/pike $(prefix)/roxen/server/bin
-	-@rm -f $(prefix)/roxen/server/bin/roxen >/dev/null 2>&1
-	ln $(prefix)/roxen/server/bin/pike $(prefix)/roxen/server/bin/roxen
-#	cp $(SRCDIR)/pike/$(PIKEVERSION)/bin/feature_list $(prefix)/roxen/server/bin
-	-@cp $(SRCDIR)/pike/$(PIKEVERSION)/bin/rsqld.pike $(prefix)/roxen/server/bin
-	for d in local local/modules local/nfonts server/lib server/lib/pike; \
+	@rm -rf	$(prefix)/caudium/server/CVS $(prefix)/caudium/server/*/CVS\
+		$(prefix)/caudium/server/*/*/CVS
+	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
+#	ln $(prefix)/caudium/server/bin/pike $(prefix)/caudium/server/bin/caudium
+	for d in local local/modules local/nfonts server/lib ; \
 	  do \
-	    test -d $(prefix)/roxen/$$d/. || mkdir $(prefix)/roxen/$$d; \
+	    test -d $(prefix)/caudium/$$d/. || mkdir $(prefix)/caudium/$$d; \
 	done
-	@for d in `cd pike/$(PIKEVERSION)/src/lib >/dev/null; find . -type d -print`; do \
-	  if test -d $(prefix)/roxen/server/lib/pike/$$d; then :; else \
-	    mkdir $(prefix)/roxen/server/lib/pike/$$d || exit 1;\
-	  fi; \
-	done
-	@for d in `cd $(SRCDIR)/pike/$(PIKEVERSION)/lib >/dev/null; find . -type d -print`; do \
-	  if test -d $(prefix)/roxen/server/lib/pike/$$d; then :; else \
-	    mkdir $(prefix)/roxen/server/lib/pike/$$d || exit 1;\
-	  fi; \
-	done
-	@for f in `cd $(SRCDIR)/pike/$(PIKEVERSION)/lib >/dev/null; find . -type f -print`; do \
-	  if cmp $(SRCDIR)/pike/$(PIKEVERSION)/lib/$$f $(prefix)/roxen/server/lib/pike/$$f >/dev/null 2>&1; then :; else \
-	    if test -f $(prefix)/roxen/server/lib/pike/$$f; then \
-	      mv -f $(prefix)/roxen/server/lib/pike/$$f $(prefix)/roxen/server/lib/pike/$$f.old; \
-	    else :; fi; \
-	    if cp $(SRCDIR)/pike/$(PIKEVERSION)/lib/$$f $(prefix)/roxen/server/lib/pike/$$f; then :; else \
-	      echo "Failed to copy $$f"; \
-	      exit 1; \
-	    fi; \
-	  fi; \
-	done
-	@for f in `cd pike/$(PIKEVERSION)/src/lib >/dev/null; find . -type f -print`; do \
-	  if cmp pike/$(PIKEVERSION)/src/lib/$$f $(prefix)/roxen/server/lib/pike/$$f >/dev/null 2>&1; then :; else \
-	    if test -f $(prefix)/roxen/server/lib/pike/$$f; then \
-	      mv -f $(prefix)/roxen/server/lib/pike/$$f $(prefix)/roxen/server/lib/pike/$$f.old; \
-	    else :; fi; \
-	    if cp pike/$(PIKEVERSION)/src/lib/$$f $(prefix)/roxen/server/lib/pike/$$f; then :; else \
-	      echo "Failed to copy $$f"; \
-	      exit 1; \
-	    fi; \
-	  fi; \
-	done
-	test -d $(prefix)/roxen/server/include/. || mkdir $(prefix)/roxen/server/include
-	test -d $(prefix)/roxen/server/include/pike/. || mkdir $(prefix)/roxen/server/include/pike
-	for a in $(SRCDIR)/pike/$(PIKEVERSION)/src/*.h ./pike/$(PIKEVERSION)/src/*.h; do $(INSTALL) $$a $(prefix)/roxen/server/include/pike; done
+	test -d $(prefix)/caudium/server/include/. || mkdir $(prefix)/caudium/server/include
+	test -d $(prefix)/caudium/server/include/pike/. || mkdir $(prefix)/caudium/server/include/pike
 	-@(cd extern;$(MAKE) install "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)";cd ../)
 	-@(cd tools;$(MAKE) install "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)";cd ../)
-	-@$(SRCDIR)/mkdir -p $(prefix)/roxen/logs
-	-@$(SRCDIR)/mkdir -p $(prefix)/roxen/configurations
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/logs
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/configurations
 	-chmod a+rx $(prefix)
-	-chmod a+rx $(prefix)/roxen
-	-chmod a+rx $(prefix)/roxen/server
+	-chmod a+rx $(prefix)/caudium
+	-chmod a+rx $(prefix)/caudium/server
 	-@for d in fonts nfonts modules etc bin base_server more_modules \
 		   config_actions server_templates \
-	           languages roxen-images protocols unfinishedmodules; do \
-	  echo Modifying permissions for directory $(prefix)/roxen/server/$$d... ; \
-	  find $(prefix)/roxen/server/$$d -type d -exec chmod a+x '{}' \; ; \
-	  chmod -R a+r $(prefix)/roxen/server/$$d ;\
+	           languages caudium-images protocols unfinishedmodules; do \
+	  echo Modifying permissions for directory $(prefix)/caudium/server/$$d... ; \
+	  find $(prefix)/caudium/server/$$d -type d -exec chmod a+x '{}' \; ; \
+	  chmod -R a+r $(prefix)/caudium/server/$$d ;\
 	done
 	-@for f in BUGS CHANGES CONTRIBUTORS COPYING GPL INSTALLING \
 		README README.ssl3 TODO; do \
 	  if test -f $(SRCDIR)/$$f ; then \
-	    echo Copying $$f...; cp $(SRCDIR)/$$f $(prefix)/roxen/$$f; \
+	    echo Copying $$f...; cp $(SRCDIR)/$$f $(prefix)/caudium/$$f; \
 	  else :; fi; \
 	done
-	-@for f in cgi fcgi install.pike pdbi.pike pike roxen roxen_hostname; \
+	-@for f in cgi fcgi install.pike pdbi.pike pike caudium; \
 	do \
-	  if test -f $(prefix)/roxen/server/bin/$$f ; then \
-	    echo Modifying permissions for file $(prefix)/roxen/server/bin/$$f... ; \
-	    chmod a+rx $(prefix)/roxen/server/bin/$$f; \
+	  if test -f $(prefix)/caudium/server/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/caudium/server/bin/$$f... ; \
+	    chmod a+rx $(prefix)/caudium/server/bin/$$f; \
 	  else :; fi; \
 	done; \
-	if test -f $(prefix)/bin/pike-roxen ; then :; else \
-	  if test -d $(prefix)/bin/. ; then :; else \
-	    echo "Creating directory $(prefix)/bin"; \
-	    mkdir $(prefix)/bin || exit 1; \
-	    chmod a+rx $(prefix)/bin/.; \
-	  fi; \
-	  echo "Installing $(prefix)/bin/pike-roxen"; \
-	  sed <$(SRCDIR)/pike-roxen.in -e 's!#prefix#!$(prefix)!' >$(prefix)/bin/pike-roxen || exit 1; \
-	  chmod a+rx $(prefix)/bin/pike-roxen; \
-	fi
-#FIXME: Isn't this necessary? This dir is moved, so does it still work?
-	@if test -f platform/Makefile ; then \
-	  echo "Installing supplied Roxen Platform parts..."; \
-	  ( \
-	    cd platform; \
-	    $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install \
-	  ); \
-	else :; fi
 	@if test -f $(SRCDIR)/server/manual/parsed.tar ; then \
 	  echo "Installing parsed manual..."; \
-	  (cd $(prefix)/roxen/server/manual; tar xf $(SRCDIR)/server/manual/parsed.tar; rm parsed.tar); \
+	  (cd $(prefix)/caudium/server/manual; tar xf $(SRCDIR)/server/manual/parsed.tar; rm parsed.tar); \
 	else :; fi
 	@if test -f $(SRCDIR)/server/manual/unparsed.tar ; then \
 	  echo "Installing unparsed manual..."; \
-	  (cd $(prefix)/roxen/server/manual; tar xf $(SRCDIR)/server/manual/unparsed.tar; rm unparsed.tar); \
+	  (cd $(prefix)/caudium/server/manual; tar xf $(SRCDIR)/server/manual/unparsed.tar; rm unparsed.tar); \
 	else :; fi
-	@echo "Roxen installed."
-
-install_pike: all
-	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
-
-localinstall: all
-	cp pike/$(PIKEVERSION)/src/pike $(SRCDIR)/server/bin/
-	-@rm -f $(SRCDIR)/server/bin/roxen >/dev/null 2>&1
-	ln $(SRCDIR)/server/bin/pike $(SRCDIR)/server/bin/roxen
-	@for d in lib lib/pike; do \
-	  if [ -d "$(SRCDIR)/server/$$d/." ]; then : ; else \
-	    echo "$$d"; \
-	    mkdir "$(SRCDIR)/server/$$d" || exit 1; \
-	    chmod a+rx "$(SRCDIR)/server/$$d/."; \
-	    chmod u+w "$(SRCDIR)/server/$$d/."; \
-	  fi; \
-	done
-	@(cd pike/$(PIKEVERSION)/src/lib && { \
-	  echo "Updating from pike/$(PIKEVERSION)/src/lib"; \
-	  for d in `find . -type d \( -name CVS -o -print \)`; do \
-	    if [ -d "$(SRCDIR)/server/lib/pike/$$d/." ]; then : ; else \
-	      echo "Creating directory $(SRCDIR)/server/lib/pike/$$d"; \
-	      mkdir "$(SRCDIR)/server/lib/pike/$$d" || exit 1; \
-	      chmod a+rx "$(SRCDIR)/server/lib/pike/$$d/."; \
-	      chmod u+w "$(SRCDIR)/server/lib/pike/$$d/."; \
-	    fi; \
-	  done; \
-	  for f in `find . -type d -name CVS -prune -o -type f -print`; do \
-	    if cmp "$(SRCDIR)/server/lib/pike/$$f" "$$f" >/dev/null 2>&1 ; \
-	    then : ; else \
-	      echo "Copying pike/$(PIKEVERSION)/src/lib/$$f"; \
-	      if [ -f "$(SRCDIR)/server/lib/pike/$$f" ]; then \
-		mv -f "$(SRCDIR)/server/lib/pike/$$f" \
-		      "$(SRCDIR)/server/lib/pike/$$f.old"; \
-	      else : ; fi; \
-	      cp "$$f" "$(SRCDIR)/server/lib/pike/$$f" || exit 1; \
-	      chmod a+r "$(SRCDIR)/server/lib/pike/$$f"; \
-	      chmod u+w "$(SRCDIR)/server/lib/pike/$$f"; \
-	    fi; \
-	  done; \
-	} )
-	@(if [ -d $(SRCDIR)/pike/$(PIKEVERSION)/lib ] ; then \
-	  if [ -d "$(SRCDIR)/server/share/." ]; then : ; else \
-	    echo "$(SRCDIR)/server/share"; \
-	    mkdir "$(SRCDIR)/server/share" || exit 1; \
-	    chmod a+rx "$(SRCDIR)/server/share/."; \
-	    chmod u+w "$(SRCDIR)/server/share/."; \
-	  fi; \
-	  rm -f "$(SRCDIR)/server/share/pike" >/dev/null 2>&1; \
-	  ln -s "../../pike/$(PIKEVERSION)/lib" "$(SRCDIR)/server/share/pike"; \
-	else : ; fi)
-	(cd extern; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" localinstall)
-	(cd tools; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" localinstall)
+	@echo "Caudium installed."
 
 spotless:  clean
 	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
-	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
-	rm -f server/bin/selfdir server/bin/roxen_hostname pike/$(PIKEVERSION)/src/pike\
-	pike/$(PIKEVERSION)/src/pike.old server/bin/proxygarb 
+	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	rm -f server/bin/selfdir server/bin/caudium_hostname server/bin/proxygarb 
 	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
         -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
 	config.cache -o -name config.status -o -name config.log -o -name \
@@ -313,16 +156,16 @@ bump_version.stamp:
 	@touch bump_version.stamp
 
 bump_version: bump_version.stamp
-	@if test -f $(SRCDIR)/server/base_server/roxen.pike.new; then \
-	  echo Deleting old $(SRCDIR)/server/base_server/roxen.pike.new...; \
-	  rm $(SRCDIR)/server/base_server/roxen.pike.new || exit 1; \
+	@if test -f $(SRCDIR)/server/base_server/caudium.pike.new; then \
+	  echo Deleting old $(SRCDIR)/server/base_server/caudium.pike.new...; \
+	  rm $(SRCDIR)/server/base_server/caudium.pike.new || exit 1; \
 	else : ; fi
 # Do not update the source.
 #	@(cd $(SRCDIR); \
 #	  echo Updating sources...; \
 #	  if cvs -q update -d|egrep '^[CM?]'; then exit 1; else : ; fi; \
 #	)
-# Do not update the Pike build for every Roxen build. Irritates people.
+# Do not update the Pike build for every Caudium build. Irritates people.
 #	@for d in $(SRCDIR)/pike/0.5 $(SRCDIR)/pike/0.6; do \
 #	  if test -f $$d/src/version.c; then \
 #	    (cd $$d/; \
@@ -346,21 +189,21 @@ bump_version: bump_version.stamp
 #	done
 #end pike version bump
 	@(cd $(SRCDIR)/server/base_server; \
-	  echo Bumping Roxen version...; \
-	  build=`sed <roxen.pike -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  echo Bumping Caudium version...; \
+	  build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	  newbuild=`echo $$build 1+p|dc`; \
-	  sed <roxen.pike -e"/__roxen_build__/s/$$build/$$newbuild/" >roxen.pike.new; \
-	  checkbuild=`sed <roxen.pike.new -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  sed <caudium.pike -e"/__caudium_build__/s/$$build/$$newbuild/" >caudium.pike.new; \
+	  checkbuild=`sed <caudium.pike.new -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	  if test "x$$newbuild" = "x$$checkbuild"; then \
-	    mv -f roxen.pike.new roxen.pike || exit 1; \
+	    mv -f caudium.pike.new caudium.pike || exit 1; \
 	    echo "Successfull bump to build $$newbuild."; \
 	  else \
 	    echo "Version bump failed: $$newbuild != $$checkbuild."; \
 	    exit 1; \
 	  fi; \
-	  version=`sed <roxen.pike -e'/__roxen_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." roxen.pike || exit 1; \
-	  echo "Roxen $$version.$$newbuild" >../../VERSION; \
+	  version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
+	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
 	  cat ../../VERSION; \
 	)
 	@(cd $(SRCDIR); \
@@ -371,9 +214,9 @@ bump_version: bump_version.stamp
 
 same_version:
 	@cd $(SRCDIR)/server/base_server; \
-	 build=`sed <roxen.pike -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
-	 version=`sed <roxen.pike -e'/__roxen_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "Roxen $$version.$$build" >../../VERSION;
+	 build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	 echo "Caudium $$version.$$build" >../../VERSION;
 
 
 $(SRCDIR)/ChangeLog.gz:
@@ -400,7 +243,7 @@ same_pre_dist: same_version
 	-@$(MAKE) run_autoconfig
 
 faked_pre_dist:
-	echo "Roxen 1.3.test_build" > $(SRCDIR)/VERSION
+	echo "Caudium 1.3.test_build" > $(SRCDIR)/VERSION
 	-@$(MAKE) depend
 	-@$(MAKE) new_peep_engine
 	-@$(MAKE) run_autoconfig
@@ -441,15 +284,15 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z_'`; \
-	echo "Altering some CVS files to point to developer.roxen.com..."; \
+	echo "Altering some CVS files to point to developer.caudium.com..."; \
 	for f in `find $$version/ -type d -name CVS -print`; do \
-	  if egrep '^//*cvs//*roxen_src' "$$f/Repository" 2>&1 >/dev/null; \
+	  if egrep '^//*cvs//*caudium_src' "$$f/Repository" 2>&1 >/dev/null; \
 	  then \
 	    echo "Altering $$f..."; \
-	    sed -e 's/^\/\/*cvs\/\/*roxen_src/\/cvs\/roxen/' <"$$f/Repository" \
+	    sed -e 's/^\/\/*cvs\/\/*caudium_src/\/cvs\/caudium/' <"$$f/Repository" \
 	      >"$$f/Repository.new" && \
 	      mv "$$f/Repository.new" "$$f/Repository"; \
-	    echo "anonymous@developer.roxen.com:/cvs" >"$$f/Root"; \
+	    echo "anonymous@developer.caudium.com:/cvs" >"$$f/Root"; \
 	  else :; fi; \
 	done; \
 	echo Determining if this is a 0.5, 0.6 or dual distribution...; \
