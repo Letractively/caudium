@@ -3544,7 +3544,7 @@ string desc()
 
 mapping(string:string) sql_urls = ([]);
 
-mapping(string|object:object) sql_cache = ([]);
+mapping(string|object:mapping|object) sql_cache = ([]);
 
 object sql_cache_get(string what)
 {
