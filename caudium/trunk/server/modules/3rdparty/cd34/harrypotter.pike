@@ -44,6 +44,7 @@ constant module_doc  = #"This module was designed to show how a container module
 <p>\n";
 constant module_unique = 1;
 constant thread_safe=1;
+constant cvs_version = "$Id$";
 
 // Initialize two counters just so we can keep track of how many 
 // firstyears are reloading the pages

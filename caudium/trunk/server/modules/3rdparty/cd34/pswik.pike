@@ -49,6 +49,7 @@ CREATE TABLE `content` (<br>
 ";
 constant module_unique = 1;
 constant thread_safe=1;
+constant cvs_version = "$Id$";
 
 void create()
 {

@@ -51,6 +51,7 @@ constant module_doc  = "A MODULE_FILTER to add a header and footer to pages "
                        "http://www.daviesinc.com/modules/\">module.</a>";
 constant module_unique = 1;
 constant module_version = "fslayout.pike v0.2 7-July-2001";
+constant cvs_version = "$Id$";
 constant thread_safe = 1;
 
 void create()

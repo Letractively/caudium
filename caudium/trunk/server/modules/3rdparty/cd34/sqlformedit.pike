@@ -11,7 +11,7 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_LOCATION;
 constant module_name = "SQL Form Edit: Form Data Saved to SQL";
-
+constant cvs_version = "$Id$";
 constant module_doc  = #"This MODULE_LOCATION allows you to do easy editing of SQL data via forms.<p>
 The hidden field <b>unique</b> defines the SQL field name in the table that 
 defines the where clause in the SQL Update.<br>
