@@ -10,9 +10,10 @@ pike --features for that).
 How to install and use:
 
 1. Have a pike with java support running Caudium.
-2. Generate an index using server/bin/indexer.pike (currently left as an 
-   exercise for the reader; requires a version of pike > 7.4.25, or a 
-   copy of Web.Crawler from pike CVS) 
+2. Generate an index using the following command:
+   ./start --quiet --program ./bin/indexer.pike -v --profile=/path/to/profile
+   (currently requires a version of pike > 7.4.25, or a copy of 
+     Web.Crawler from pike CVS) 
 3. Add Lucene module to a virtual server 
 4. Point that module at the lucene data directory
 5. Use this tag to get search results for "my query":
