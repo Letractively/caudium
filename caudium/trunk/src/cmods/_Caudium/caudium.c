@@ -363,7 +363,8 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
 #ifndef HAVE_ALLOCA
 INLINE
 #endif
-static struct pike_string *url_decode(unsigned char *str, int len, int exist)
+static struct pike_string *url_decode(unsigned char *str, int len, int exist,
+                                      int simple)
 {
   int nlen = 0, i;
   unsigned char *mystr; /* Work string */ 
@@ -396,13 +397,22 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist)
 	  (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
 	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
       else
-	mystr[i] = '\0';
+        if(simple == 1) { 
+          mystr[i] = (*ptr++);
+          nlen++;
+          break;
+        } else 
+	   mystr[i] = '\0';
       ptr+=3;
       nlen++;
       break;
      case '+':
-      ptr++;
-      mystr[i] = ' ';
+      if(simple == 1) {
+        mystr[i] = *(ptr++);
+      } else { 
+        ptr++;
+        mystr[i] = ' ';
+      }
       nlen++;
       break;
      default:
@@ -535,13 +545,13 @@ static void f_parse_query_string( INT32 args )
       }
       namelen = equal - name;
       valulen = ptr - ++equal;
-      skey.u.string = url_decode(name, namelen, 0);
+      skey.u.string = url_decode(name, namelen, 0, 0);
       if (skey.u.string == NULL) { /* OOM. Bail out */
 	Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
       }
       exist = low_mapping_lookup(variables, &skey);
       if(exist == NULL || exist->type != T_STRING) {
-	sval.u.string = url_decode(equal, valulen, 0);
+	sval.u.string = url_decode(equal, valulen, 0, 0);
 	if (sval.u.string == NULL) { /* OOM. Bail out */
 	  Pike_error("_Caudium.parse_query_string(): "
 		     "Out of memory in url_decode().\n");
@@ -549,7 +559,7 @@ static void f_parse_query_string( INT32 args )
       } else {
 	/* Add strings separed with '\0'... */
 	struct pike_string *tmp;
-	tmp = url_decode(equal, valulen, 1);
+	tmp = url_decode(equal, valulen, 1, 0);
 	if (tmp == NULL) {
 	  Pike_error("_Caudium.parse_query_string(): "
 		     "Out of memory in url_decode().\n");
@@ -797,7 +807,7 @@ static void f_http_decode_url(INT32 args) {
   if(src->size_shift) {
     Pike_error("_Caudium.http_decode_url(): Only 8-bits strings allowed.\n");
   }
-  tmp = url_decode(src->str, src->len, 0);
+  tmp = url_decode(src->str, src->len, 0, 1);
   if(tmp==NULL) {
     Pike_error("_Caudium.http_decode_url(): Out of memory in url_decode().\n");
   }
