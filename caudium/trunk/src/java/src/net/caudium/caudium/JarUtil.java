@@ -16,6 +16,7 @@ public class JarUtil {
     public static void expand(String sdir, String jar)
         throws MalformedURLException, IOException
     {
+	System.out.println("JarUtil: extracting " + jar );
         File dir = new File(sdir);
         FileInputStream j = new FileInputStream(jar);
 
@@ -25,7 +26,10 @@ public class JarUtil {
 	while ((ze = zis.getNextEntry()) != null) {
             try {
 		File f = new File(dir, ze.getName());
-                
+
+		File parentDir = f.getParentFile();
+		parentDir.mkdirs();
+
 		if (ze.isDirectory()) {
 		    f.mkdirs(); 
 		} else {
@@ -41,7 +45,7 @@ public class JarUtil {
 		}
 	    } catch( FileNotFoundException ex ) {
 		// XXX replace with a call to log() when available
-		System.out.println("JarUtil: FileNotFoundException: " +  ze.getName() + " / " + jar );
+		System.out.println("JarUtil: error FileNotFoundException: " +  ze.getName() + " / " + jar );
                 throw(ex);
 	    }
 	}
@@ -66,6 +70,9 @@ public class JarUtil {
 	while ((ze = zis.getNextEntry()) != null) {
             try {
 		File f = new File(dir, ze.getName());
+
+		File parentDir = f.getParentFile();
+		parentDir.mkdirs();
                 
 		if (ze.isDirectory()) {
 		    f.mkdirs(); 
@@ -83,6 +90,7 @@ public class JarUtil {
 	    } catch( FileNotFoundException ex ) {
 		// XXX replace with a call to log() when available
 		System.out.println("JarUtil: FileNotFoundException: " +  ze.getName() + " / " + s );
+                throw(ex);
 	    }
 	}
 
