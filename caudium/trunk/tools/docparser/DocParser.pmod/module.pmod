@@ -1291,7 +1291,8 @@ class Parse {
                     debug(sprintf("Keyword creates an object (%s)",
                                   curob ? "child of " + curob->myName : "top-level"));
                     
-                    object o = cur_scope->scope[lastkw](curob, String.trim_whites(spline[1]));
+                    object o = cur_scope->scope[lastkw](curob, "");
+		    o->add(String.trim_whites(spline[1]), lastkw);
 		    
                     /* Does the object switch scopes? */
                     if (scopes[lastkw]) {
