@@ -78,3 +78,11 @@ Changes in Caudium 1.1 since CVS branching
   example uploads of large files (<input type=file>) __MUCH__
   faster (data transfer of a 25 MB file went from about a minute to a
   few seconds - pure Caudium CPU usage savings).
+- Added module for embedded JavaScript support. The new variable
+  scopes are usable directly from JavaScript using the scope.name
+  syntax; i.e "form.name", "vars['test']" (the "var" scope is named
+  "vars" to avoid a name conflict). Note that "vars.name.first" won't
+  work. You need to use "vars['name.first']" instead. This is a big
+  one: To utilize this module, you need a patched version of the NJS
+  JavaScript interpreter. Send a mail to david@caudium.net if you want
+  to beta-test this!
