@@ -64,11 +64,11 @@ inherit "language";
 inherit "fonts";
 inherit "internals";
 
-// The datashuffler program
+//! The datashuffler program
 constant pipe = Caudium.nbio;
 
-// This is the real Caudium version. It should be changed before each
-// release
+//! This is the real Caudium version. It should be changed before each
+//! release
 constant __caudium_version__ = "1.3";
 constant __caudium_build__ = "3";
 constant __caudium_state_ver__ = "DEVEL";
@@ -76,6 +76,7 @@ constant __caudium_state_ver__ = "DEVEL";
 // any code may _append_ to this string - NEVER replace it!
 string __caudium_extra_ver__ = "";
 
+//! The full Caudium version string
 string real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+" "+__caudium_state_ver__;
 
 #if _DEBUG_HTTP_OBJECTS
@@ -90,20 +91,23 @@ int new_id(){ return idcount++; }
 #define MD_PERROR(X)
 #endif /* MODULE_DEBUG */
 
-// pids of the start-script and ourselves.
+//! pids of the start script and ourselves.
 int startpid, roxenpid;
+
 object caudium = this_object(), roxen=this_object(), current_configuration;
 
 program Configuration;	/*set in create*/
 object IFiles;
 
+//! An array that stores all the enabled configurations (clones of the
+//! configuration.pike program)
 array configurations = ({});
 object main_configuration_port;
 mapping allmodules, somemodules=([]);
 
-// A mapping from ports (objects, that is) to an array of information
-// about that port.  This will hopefully be moved to objects cloned
-// from the configuration object in the future.
+//! A mapping from ports (objects, that is) to an array of information
+//! about that port.  This will hopefully be moved to objects cloned
+//! from the configuration object in the future.
 mapping portno = ([]);
 
 // constant decode = caudium->decode;
@@ -113,11 +117,11 @@ mapping portno = ([]);
 function build_root;
 object root;
 
-// The SMJS context for this thread
+//! The SMJS context for this thread
 Thread.Local js_context = Thread.Local();
 
 #ifdef THREADS
-// This mutex is used by privs.pike and set_u_and_gid().
+//! This mutex is used by privs.pike and set_u_and_gid().
 object euid_egid_lock = Thread.Mutex();
 
 void stop_handler_threads(); // forward declaration
@@ -137,13 +141,20 @@ mapping(string:int) javascript_versions = ([
 #endif
 ]);
 
+//! Function to stop all the modules in the current configuration.
 void stop_all_modules()
 {
   foreach(configurations, object conf)
     conf->stop();
 }
 
-// Function that actually shuts down Caudium. (see low_shutdown).
+//! Function that actually shuts down Caudium.
+//!
+//! @param exit_code
+//!  The Caudium process exit code to be returned to the parent process.
+//!
+//! @seealso
+//!   @[low_shutdown()]
 private static void really_low_shutdown(int exit_code)
 {
   // Die nicely.
@@ -206,10 +217,19 @@ private static void really_low_shutdown(int exit_code)
 #endif /* constant(fork) && !constant(thread_create) */
 }
 
-// Shutdown Caudium
-//  exit_code = 0	True shutdown
-//  exit_code = -1	Restart
-private static void low_shutdown(int exit_code)
+//! Shutdown Caudium. This function can also be used to restart the server.
+//!
+//! @param exit_type
+//!  Specifies the type of shutdown this function is supposed to do:
+//!
+//!  @int
+//!   @value 0
+//!     True shutdown (stop the process)
+//!
+//!   @value -1
+//!     Restart the process.
+//!  @endit
+private static void low_shutdown(int exit_type)
 {
   // Change to root user if possible ( to kill the start script... )
   
@@ -226,7 +246,7 @@ private static void low_shutdown(int exit_code)
   {
     // Only _really_ do something in the main process.
     int pid;
-    if (exit_code) {
+    if (exit_type) {
       roxen_perror("Restarting Caudium.\n");
     } else {
       roxen_perror("Shutting down Caudium.\n");
@@ -248,8 +268,7 @@ private static void low_shutdown(int exit_code)
 #endif /* USE_SHUTDOWN_FILE */
 
       // Try to kill the start-script.
-      if(startpid != getpid())
-      {
+      if(startpid != getpid()) {
         kill(startpid, signum("SIGINTR"));
         kill(startpid, signum("SIGHUP"));
         kill(getppid(), signum("SIGINTR"));
@@ -261,10 +280,13 @@ private static void low_shutdown(int exit_code)
   call_out(really_low_shutdown, 5, exit_code);
 }
 
-// Perhaps somewhat misnamed, really...  This function will close all
-// listen ports, fork a new copy to handle the last connections, and
-// then quit the original process.  The 'start' script should then
-// start a new copy of Caudium automatically.
+//! Perhaps somewhat misnamed, really...  This function will close all
+//! listen ports, fork a new copy to handle the last connections, and
+//! then quit the original process.  The 'start' script should then
+//! start a new copy of Caudium automatically.
+//!
+//! @returns
+//!  A HTML file that's shown to the administrator.
 mapping restart() 
 { 
   low_shutdown(-1);
@@ -274,6 +296,7 @@ mapping restart()
     "PWD":getcwd()]));
 } 
 
+//! Shut down the Caudium cache subsystem.
 void shut_down_cache() {
 #ifdef CACHE_DEBUG
   roxen_perror( "Calling shutdown on all caches: " );
@@ -284,6 +307,10 @@ void shut_down_cache() {
 #endif
 }
 
+//! Shut the server down
+//!
+//! @returns
+//!  A HTML file that's shown to the administrator.
 mapping shutdown() 
 {
   low_shutdown(0);
@@ -318,7 +345,10 @@ static void create_js_context()
 }
 
 static int shutting_down;
-// This is called for each incoming connection.
+//! This is called for each incoming connection.
+//!
+//! @param port
+//!  Represents the object that handled the connection.
 private static void accept_callback( object port )
 {
   object file;
@@ -326,30 +356,27 @@ private static void accept_callback( object port )
   array pn=portno[port];
   
 #ifdef DEBUG
-  if(!pn)
-  {
+  if (!pn) {
     destruct(port->accept());
     perror("$&$$& Garbage Collector bug!!\n");
     return;
   }
 #endif
-  while(q--)
-  {
+  while (q--) {
     catch { file = port->accept(); };
 #ifdef SOCKET_DEBUG
-    if(!pn[-1])
-    {
+    if (!pn[-1]) {
       report_error("In accept: Illegal protocol handler for port.\n");
-      if(file) destruct(file);
+      if(file)
+        destruct(file);
       return;
     }
+    
     perror(sprintf("SOCKETS: accept_callback(CONF(%s))\n", 
                    pn[1]&&pn[1]->name||"Configuration"));
 #endif
-    if(!file)
-    {
-      switch(port->errno())
-      {
+    if (!file) {
+      switch (port->errno()) {
           case 0:
           case system.EAGAIN:
             return;
@@ -364,11 +391,10 @@ private static void accept_callback( object port )
             return;
 
           case system.EMFILE:
-            if(!shutting_down) {
+            if (!shutting_down) {
               shutting_down=1;
-              report_fatal(sprintf("Out of sockets (%d active). "
-                                   "Restarting server gracefully.\n",
-                                   sizeof(get_all_active_fd())));
+              report_fatal("Out of sockets (%d active). Restarting server gracefully.\n",
+                           sizeof(get_all_active_fd()));
               low_shutdown(-1);
             }
             return;
@@ -378,10 +404,11 @@ private static void accept_callback( object port )
     mark_fd( file->query_fd(), "Connection from "+
              replace(file->query_address(), " ", ":"));
 #endif
-    if(pn[1] && !pn[1]->inited) {
+    if (pn[1] && !pn[1]->inited) {
       array err;
       pn[1]->enable_all_modules();
     }
+    
     pn[-1](file,pn[1]);
 #ifdef SOCKET_DEBUG
     perror(sprintf("SOCKETS:   Ok. Connect on %O:%O from %O\n", 
@@ -390,7 +417,7 @@ private static void accept_callback( object port )
   }
 }
 
-// handle function used when THREADS is not enabled.
+//! Handler function used when THREADS is not enabled.
 void unthreaded_handle(function f, mixed ... args)
 {
   f(@args);
@@ -411,21 +438,25 @@ object do_thread_create(string id, function f, mixed ... args)
   return t;
 }
 
-// Queue of things to handle.
-// An entry consists of an array(function fp, array args)
+//! Queue of things to handle.
+//! An entry consists of an array(function fp, array args)
 static object (Thread.Queue) handle_queue = Thread.Queue();
 
-// Number of handler threads that are alive.
+//! Number of handler threads that are alive.
 static int thread_reap_cnt;
 
+//! This is the main handler thread. It peeks the next message from the
+//! queue and executes the function indicated in the message.
+//!
+//! @param id
+//!  The backend thread id this function is called from.
 void handler_thread(int id)
 {
   array (mixed) h, q;
 
   create_js_context();  
-  while(1)
-  {
-    if(q=catch {
+  while(1) {
+    if (q=catch {
       do {
         if((h=handle_queue->read()) && h[0]) {
           h[0](@h[1]);
@@ -464,6 +495,8 @@ void threaded_handle(function f, mixed ... args)
 }
 
 int number_of_threads;
+
+//! Start the handler threads.
 void start_handler_threads()
 {
   if (QUERY(numthreads) <= 1) {
@@ -472,24 +505,26 @@ void start_handler_threads()
   } else {
     perror("Starting "+QUERY(numthreads)+" threads to handle requests.\n");
   }
-  for(; number_of_threads < QUERY(numthreads); number_of_threads++)
+  for (; number_of_threads < QUERY(numthreads); number_of_threads++)
     do_thread_create( "Handle thread ["+number_of_threads+"]",
                       handler_thread, number_of_threads );
-  if(number_of_threads > 0)
+  if (number_of_threads > 0)
     handle = threaded_handle;
 }
 
+//! Stop all the handler threads.
 void stop_handler_threads()
 {
   int timeout=30;
   perror("Stopping all request handler threads.\n");
-  while(number_of_threads>0) {
+  while (number_of_threads>0) {
     number_of_threads--;
     handle_queue->write(0);
     thread_reap_cnt++;
   }
-  while(thread_reap_cnt) {
-    if(--timeout<=0) {
+  
+  while (thread_reap_cnt) {
+    if (--timeout<=0) {
       perror("Giving up waiting on threads!\n");
       return;
     }
@@ -505,14 +540,16 @@ void accept_thread(object port,array pn)
   mixed foo = pn[1];
   array err;
   object o;
-  while(!die_die_die)
-  {
+  
+  while (!die_die_die) {
     o = port->accept();
     err = catch {
-      if(o) port_program(o,foo);
+      if(o)
+        port_program(o,foo);
     };
+    
     if(err)
-      perror("Error in accept_thread: %O\n",describe_backtrace(err));
+      perror("Error in accept_thread: %O\n", describe_backtrace(err));
   }
 }
 
@@ -520,18 +557,17 @@ void accept_thread(object port,array pn)
 
 
 
-// Listen to a port, connected to the configuration 'conf', binding
-// only to the netinterface 'ether', using 'requestprogram' as a
-// protocol handled.
-
-// If you think that the argument order is quite unintuitive and odd,
-// you are right, the order is the same as the implementation order.
-
-// Old spinners only listened to a port number, then the
-// configurations came, then the need to bind to a specific
-// ethernetinterface, and then the need to have more than one concurrent
-// protocol (http, ftp, ssl, etc.)
-
+//! Listen to a port, connected to the configuration 'conf', binding
+//! only to the netinterface 'ether', using 'requestprogram' as a
+//! protocol handled.
+//!
+//! If you think that the argument order is quite unintuitive and odd,
+//! you are right, the order is the same as the implementation order.
+//!
+//! Old spinners only listened to a port number, then the
+//! configurations came, then the need to bind to a specific
+//! ethernetinterface, and then the need to have more than one concurrent
+//! protocol (http, ftp, ssl, etc.)
 object create_listen_socket(mixed port_no, object conf,
                             string|void ether, program requestprogram,
                             array prt)
@@ -541,25 +577,26 @@ object create_listen_socket(mixed port_no, object conf,
   perror(sprintf("SOCKETS: create_listen_socket(%d,CONF(%s),%s)\n",
                  port_no, conf?conf->name:"Configuration port", ether));
 #endif
-  if(!requestprogram)
+  if (!requestprogram)
     error("No request handling module passed to create_listen_socket()\n");
 
-  if(!port_no)
-  {
+  if (!port_no) {
     port = Stdio.Port( "stdin", accept_callback );
     port->set_id(port);
-    if(port->errno())
-    {
+    if (port->errno()) {
       report_error("Cannot listen to stdin.\n"
                    "Errno is "+port->errno()+"\n");
     }
   } else {
     port = Stdio.Port();
     port->set_id(port);
-    if(!stringp(ether) || (lower_case(ether) == "any"))
+    
+    if (!stringp(ether) || (lower_case(ether) == "any"))
       ether=0;
-    if(ether)
+    
+    if (ether)
       sscanf(ether, "addr:%s", ether);
+    
 #if defined(THREADS) && 0
     if(!port->bind(port_no, 0, ether))
 #else
@@ -569,22 +606,23 @@ object create_listen_socket(mixed port_no, object conf,
 #ifdef SOCKET_DEBUG
         perror("SOCKETS:    -> Failed.\n");
 #endif
-        report_warning("Failed to open socket on "+ether+":"+port_no+
-                       " (already bound?)\nErrno is: "+ port->errno()+"\n"
-                       "Retrying...\n");
+        report_warning("Failed to open socket on %s:%O (already bound?)\nErrno is: %O\n"
+                       "Retrying...\n", ether, port_no, port->errno());
         sleep(1);
+        
 #if defined(THREADS) && 0
         if(!port->bind(port_no, 0, ether))
 #else
           if(!port->bind(port_no, accept_callback, ether))
 #endif
           {
-            report_error("Failed to open socket on "+ether+":"+port_no+
-                         " (already bound?)\nErrno is: "+ port->errno()+"\n");
+            report_error("Failed to open socket on %s:%O (already bound?)\nErrno is: %O\n",
+                        ether, port_no, port->errno());
             return 0;
           }
       }
   }
+  
   portno[port]=({ port_no, conf, ether||"Any", 0, requestprogram });
 #if defined(THREADS) && 0
   call_out(do_thread_create,0,"Accept thread ["+port_no+":"+(ether||"ANY]"),
@@ -712,8 +750,8 @@ private static inline array positive_supports(array from)
 {
   array res = copy_value(from);
   int i;
-  for(i=0; i<sizeof(res); i++)
-    if(res[i][0] == '-')
+  for (i=0; i<sizeof(res); i++)
+    if (res[i][0] == '-')
       res[i] = 0;
   return res - ({ 0 });
 }
@@ -722,8 +760,8 @@ private inline array negative_supports(array from)
 {
   array res = copy_value(from);
   int i;
-  for(i=0; i<sizeof(res); i++)
-    if(res[i][0] != '-')
+  for (i=0; i<sizeof(res); i++)
+    if (res[i][0] != '-')
       res[i] = 0;
     else
       res[i] = res[i][1..];
@@ -743,63 +781,57 @@ private void parse_supports_string(string what)
   int i;
   lines=replace(what, "\\\n", " ")/"\n"-({""});
 
-  foreach(lines, foo)
-  {
+  foreach(lines, foo) {
     array bar, gazonk;
-    if(foo[0] == '#')
-    {
+    if (foo[0] == '#') {
       string file;
       string name, to;
-      if(sscanf(foo, "#include <%s>", file))
-      {
-        if(foo=Stdio.read_bytes(file))
+      if (sscanf(foo, "#include <%s>", file)) {
+        if (foo=Stdio.read_bytes(file))
           parse_supports_string(foo);
         else
           report_error("Supports: Cannot include file "+file+"\n");
-      } else if(sscanf(foo, "#define %[^ ] %s", name, to)) {
+      } else if (sscanf(foo, "#define %[^ ] %s", name, to)) {
         name -= "\t";
         foo_defines[name] = to;
 //	perror("#defining '"+name+"' to "+to+"\n");
-      } else if(sscanf(foo, "#section %[^ ] {", name)) {
+      } else if (sscanf(foo, "#section %[^ ] {", name)) {
 //	perror("Entering section "+name+"\n");
         current_section = name;
-        if(!supports[name])
+        if (!supports[name])
           supports[name] = ({});
-      } else if((foo-" ") == "#}") {
+      } else if ((foo-" ") == "#}") {
 //	perror("Leaving section "+current_section+"\n");
         current_section = 0;
       } else {
 //	perror("Comment: "+foo+"\n");
       }
-      
     } else {
       int rec = 10;
       string q=replace(foo,",", " ");
       foo="";
       
       // Handle all defines.
-      while((strlen(foo)!=strlen(q)) && --rec)
-      {
+      while ((strlen(foo)!=strlen(q)) && --rec) {
         foo=q;
         q = replace(q, indices(foo_defines), values(foo_defines));
       }
       
       foo=q;
       
-      if(!rec)
+      if (!rec)
         perror("Too deep recursion while replacing defines.\n");
       
 //    perror("Parsing supports line '"+foo+"'\n");
       bar = replace(foo, ({"\t",","}), ({" "," "}))/" " -({ "" });
       foo="";
       
-      if(sizeof(bar) < 2)
+      if (sizeof(bar) < 2)
         continue;
     
-      if(bar[0] == "default")
+      if (bar[0] == "default")
         default_supports = aggregate_multiset(@bar[1..]);
-      else
-      {
+      else {
         gazonk = bar[1..];
         mixed err;
         if (err = catch {
@@ -860,15 +892,14 @@ void done_with_caudium_net()
 
 void got_data_from_caudium_net(object this, string foo)
 {
-  if(!foo)
+  if (!foo)
     return;
   _new_supports += ({ foo });
 }
 
 void connected_to_caudium_net(object port)
 {
-  if(!port) 
-  {
+  if(!port) {
 #ifdef DEBUG
     perror("Failed to connect to caudium.net:80.\n");
 #endif
@@ -897,10 +928,8 @@ public void update_supports_from_caudium_net()
 {
   // FIXME:
   // This code has a race-condition, but it only occurs once a week...
-  if(QUERY(next_supports_update) <= time())
-  {
-    if(QUERY(AutoUpdate))
-    {
+  if(QUERY(next_supports_update) <= time()) {
+    if(QUERY(AutoUpdate)) {
       async_connect("caudium.net", 80, connected_to_caudium_net);
 #ifdef DEBUG
       perror("Connecting to caudium.net:80\n");
@@ -926,42 +955,45 @@ public multiset find_supports(string from, void|multiset existing_sup)
   string v;
   array f;
   
-  if(!existing_sup) existing_sup = (<>);
+  if (!existing_sup)
+    existing_sup = (<>);
   
-  if(!strlen(from) || from == "unknown")
-    return default_supports|existing_sup;
-  if(!(sup = cache_lookup("supports", from))) {
+  if (!strlen(from) || from == "unknown")
+    return default_supports | existing_sup;
+  
+  if (!(sup = cache_lookup("supports", from))) {
     sup = (<>);
-    foreach(indices(supports), v)
-    {
-      if(!v || !search(from, v))
-      {
+    
+    foreach(indices(supports), v) {
+      if (!v || !search(from, v)) {
         //  perror("Section "+v+" match "+from+"\n");
         f = supports[v];
         foreach(f, s)
-          if(s[0](from))
-          {
+          if (s[0](from)) {
             sup |= s[1];
             nsup  |= s[2];
           }
       }
     }
-    if(!sizeof(sup))
-    {
+    
+    if (!sizeof(sup)) {
       sup = default_supports;
 #ifdef DEBUG
       perror("Unknown client: \""+from+"\"\n");
 #endif
     }
+    
     sup -= nsup;
     cache_set("supports", from, sup);
   }
+  
   return sup|existing_sup;
 }
 
 public void log(mapping file, object request_id)
 {
-  if(!request_id->conf) return; 
+  if (!request_id->conf)
+    return; 
   request_id->conf->log(file, request_id);
 }
 
@@ -971,50 +1003,50 @@ private int current_user_id_number, current_user_id_file_last_mod;
 
 private void restore_current_user_id_number()
 {
-  if(!current_user_id_file)
+  if (!current_user_id_file)
     current_user_id_file = open(configuration_dir + "LASTUSER~", "rwc");
-  if(!current_user_id_file)
-  {
+  
+  if (!current_user_id_file) {
     call_out(restore_current_user_id_number, 2);
     return;
-  } 
+  }
+  
   current_user_id_number = (int)current_user_id_file->read(100);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
-  perror("Restoring unique user ID information. (" + current_user_id_number 
-         + ")\n");
+  perror("Restoring unique user ID information. (%s)\n", current_user_id_number);
 #ifdef FD_DEBUG
   mark_fd(current_user_id_file->query_fd(), "Unique user ID logfile.\n");
 #endif
 }
 
-
 int increase_id()
 {
-  if(!current_user_id_file)
-  {
+  if (!current_user_id_file) {
     restore_current_user_id_number();
     return current_user_id_number+time();
   }
-  if(current_user_id_file->stat()[2] != current_user_id_file_last_mod)
+  
+  if (current_user_id_file->stat()[2] != current_user_id_file_last_mod)
     restore_current_user_id_number();
   current_user_id_number++;
   //perror("New unique id: "+current_user_id_number+"\n");
   current_user_id_file->seek(0);
   current_user_id_file->write((string)current_user_id_number);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
+  
   return current_user_id_number;
 }
 
 public string full_status()
 {
-  int tmp;
-  string res="";
-  array foo = ({0.0, 0.0, 0.0, 0.0, 0});
-  if(!sizeof(configurations))
+  int     tmp;
+  string  res = "";
+  array   foo = ({0.0, 0.0, 0.0, 0.0, 0});
+  
+  if (!configurations || (configurations && !sizeof(configurations)))
     return "<B>No virtual servers enabled</B>\n";
   
-  foreach(configurations, object conf)
-  {
+  foreach(configurations, object conf) {
 #ifdef __AUTO_BIGNUM__ 
     foo[0] += ((conf->sent?conf->sent:0) / 1048576.0)/(float)(time(1)-start_time+1);
     foo[1] += (conf->sent?conf->sent:0) / 1048576.0;
@@ -1030,9 +1062,8 @@ public string full_status()
 #endif
   }
 
-  for(tmp = 1; tmp < 4; tmp ++)
-  {
-    if(foo[tmp] < 1024.0)     
+  for (tmp = 1; tmp < 4; tmp ++) {
+    if (foo[tmp] < 1024.0)     
       foo[tmp] = sprintf("%.2f MB", foo[tmp]);
     else
       foo[tmp] = sprintf("%.2f GB", foo[tmp]/1024.0);
@@ -1130,9 +1161,13 @@ public string last_modified_by(object file, object id)
 private object find_configuration_for(object bar)
 {
   object maybe;
-  if(!bar) return configurations[0];
-  foreach(configurations, maybe)
-    if(maybe->otomod[bar]) return maybe;
+  if (!bar)
+    return configurations[0];
+  
+  foreach (configurations, maybe)
+    if (maybe->otomod[bar])
+      return maybe;
+  
   return configurations[-1];
 }
 
@@ -1200,7 +1235,8 @@ string last_module_name;
 
 string filename(object|program o)
 {
-  if(objectp(o)) o = object_program(o);
+  if (objectp(o))
+    o = object_program(o);
   return my_loaded[(program)o]||last_module_name;
 }
 
@@ -1209,37 +1245,34 @@ mapping(string:array) module_stat_cache = ([]);
 
 object load(string s, object conf)   // Should perhaps be renamed to 'reload'. 
 {
-  string cvs;
-  array st;
-  program prog;
-  if(st = file_stat(s+".pike"))
-  {
-    if(prog = compile_file(s+".pike"))
-    {
+  string   cvs;
+  array    st;
+  program  prog;
+  
+  if(st = file_stat(s+".pike")) {
+    if(prog = compile_file(s+".pike")) {
       my_loaded[prog] = s+".pike";
       module_stat_cache[s-dirname(s)]=st;
       return prog(conf);
     } else
-      perror(s+".pike exists, but compilation failed.\n");
+      perror("%s.pike exists, but compilation failed.\n", s);
   }
 #ifdef EXTRA_ROXEN_COMPAT
-  if(st = file_stat(s+".lpc"))
-    if(prog = compile_file(s+".lpc"))
-    {
+  if (st = file_stat(s+".lpc"))
+    if (prog = compile_file(s+".lpc")) {
       my_loaded[prog] = s+".lpc";
       module_stat_cache[s-dirname(s)]=st;
       return prog(conf);
     } else
-      perror(s+".lpc exists, but compilation failed.\n");
+      perror("%s.lpc exists, but compilation failed.\n", s);
 #endif
-  if(st = file_stat(s+".so"))
-    if(prog = load_module(s+".so"))
-    {
+  if (st = file_stat(s+".so"))
+    if (prog = load_module(s+".so")) {
       my_loaded[prog] = s+".so";
       module_stat_cache[s-dirname(s)] = st;
       return prog(conf);
     } else
-      perror(s+".so exists, but compilation failed.\n");
+      perror("%s.so exists, but compilation failed.\n", s);
   return 0; // FAILED..
 }
 
@@ -1250,8 +1283,8 @@ array(string) expand_dir(string d)
 
   //  werror("Expand dir "+d+"\n");
   catch {
-    foreach((get_dir(d) || ({})) - ({"CVS"}) , nd) 
-      if(Stdio.is_dir(d+nd))
+    foreach ((get_dir(d) || ({})) - ({"CVS"}) , nd) 
+      if (Stdio.is_dir(d+nd))
         dirs += expand_dir(d+nd+"/");
   }; // This catch is needed....
   return dirs;
@@ -1259,24 +1292,25 @@ array(string) expand_dir(string d)
 
 array(string) last_dirs=0, last_dirs_expand;
 
-
 object load_from_dirs(array dirs, string f, object conf)
 {
   string dir;
   object o;
-  if (!equal(dirs,last_dirs))
-  {
+  if (!equal(dirs,last_dirs)) {
     last_dirs_expand = ({});
-    foreach(dirs, dir)
+    foreach (dirs, dir)
       last_dirs_expand += expand_dir(dir);
     last_dirs = dirs;
   }
 
   foreach (last_dirs_expand, dir)
-    if ( (o = load(dir+f, conf)) ) return o;
+    if ((o = load(dir+f, conf)))
+      return o;
   
   return 0;
 }
+
+/* GRENDEL_FINISHED_HERE */
 static int abs_started;
 void restart_if_stuck (int force) 
 {
