@@ -20,25 +20,9 @@ NO_WRKSUBDIR=	yes
 
 .include <bsd.port.pre.mk>
 
-#do-install:
-#.if !exists(${FONTDIR})
-#	@${ECHO} "*********************************************************"
-#	@${ECHO} "If you want to use these fonts from X, install"
-#	@${ECHO} "one of X-TT servers(x11-servers/Xtt*) and add ${FONTDIR}"
-#	@${ECHO} "to your font path in /etc/XF86Config."
-#	@${ECHO} "If you want to use these fonts from ghostscript,"
-#	@${ECHO} "install korean/ftghostscript5 and edit"
-#	@${ECHO} "${LOCALBASE}/share/ghostscript/5.10ft/hangul/hconfig.ps"
-#	@${ECHO} "See examples in ${FONTDIR}"
-#	@${ECHO} "*********************************************************"
-#	${MKDIR} ${FONTDIR}
-#.endif
-.for FONTNAME in ${FONTLIST}
-	${INSTALL_DATA} ${WRKSRC}/${FONTNAME}.ttf ${FONTDIR}
-.endfor
-#	${INSTALL_DATA} ${FILESDIR}/fonts.dir ${FONTDIR}/fonts.dir.baekmuk
-#	${INSTALL_DATA} ${FILESDIR}/fonts.alias ${FONTDIR}/fonts.alias.baekmuk
-#	${INSTALL_DATA} ${FILESDIR}/hconfig.ps ${FONTDIR}/hconfig.ps.baekmuk
-#	${SETENV} PKG_PREFIX=${PREFIX} ${SH} ${PKGINSTALL} ${PKGNAME} POST-INSTALL
+do-install:
+	@${FIND} ${WRKSRC} -name '*.[tT][tT][fF]' | ${XARGS} -n1 ${SH} \
+	-c '${INSTALL_DATA} $$0 ${PREFIX}/caudium/server/fonts/ttf; \
+	${CHOWN} www:www ${PREFIX}/caudium/server/fonts/ttf/$$0'
 
 .include <bsd.port.post.mk>
