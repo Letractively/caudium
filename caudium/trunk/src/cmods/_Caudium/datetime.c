@@ -361,16 +361,43 @@ static void f_parse_date(INT32 args)
     push_int(ret);
 }
 
+/*! @decl int is_modified(string header, int tmod, int|void use_weird)
+ *!
+ *!  This method is specific to Caudium and is used to test whether the
+ *!  unix time passed in the tmod parameter is newer than the date passed
+ *!  in the header argument. This method accepts formats required by
+ *!  RFC2068 for the If-Modified-Since header and it will NOT parse any
+ *!  other formats.
+ *!
+ *! @param header
+ *!  The value of the If-Modified-Since header
+ *!
+ *! @param tmod
+ *!  The unix time value to compare the header against
+ *!
+ *! @param use_weird
+ *!  Caudium and Roxen used to accept several weird date formats with this
+ *!  function. This implementation optionally supports and parses them. Set
+ *!  this parameter to 1 to enable parsing of the weird formats. By default
+ *!  the formats are not parsed.
+ *!
+ *! @returns
+ *!  0 if the file was modified, 1 if it wasn't
+ */
 static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
-  int                   tmod, use_weird, i;
+  int                   tmod, use_weird = 0, i;
 #ifdef HAVE_STRPTIME  
   struct tm             ttm;
   time_t                ret;
 #endif
+
+  if (args == 3)
+    get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
+  else
+    get_all_args("is_modified", args, "%S%d", &header, &tmod);
   
-  get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
   pop_n_elems(args);
 
 #ifdef HAVE_STRPTIME
