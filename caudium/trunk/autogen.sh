@@ -1,7 +1,7 @@
 #!/bin/sh
 
 mydir=`pwd`
-for a in $(find src -name "autogen.sh" |sort); do
+for a in `find src -name "autogen.sh" |sort`; do
   dir=`dirname $a`
   echo "Running autogen in '$dir'"
   cd $dir
