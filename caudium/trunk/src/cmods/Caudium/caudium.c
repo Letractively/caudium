@@ -754,7 +754,7 @@ static char *hex_chars = "0123456789ABCDEF";
 /* check if character given is safe */
 /* maybe we'll probably need more safe char's here ? */
 
-static int is_safe (char c) 
+static INLINE int is_safe (char c) 
 {
    if((c >= '0' && c <= 'g' ) ||
       (c >= 'A' && c <= 'Z' ) ||
@@ -890,7 +890,7 @@ static void f_http_decode(INT32 args)
 /* Roxen 1.3 compat call */
 
 /* Check if the char given is safe or not */
-static int is_http_safe (char c)
+static INLINE int is_http_safe (char c)
 {
    switch(c)
    {
@@ -956,6 +956,79 @@ static void f_http_encode_string(INT32 args)
 
   for(o=out, i=in; *i; i++) {
     if (!is_http_safe(*i)) {
+      *o++ = '%';
+      *o++ = hex_chars[*i >> 4];
+      *o++ = hex_chars[*i & 15];
+    } else *o++ = *i;
+  }
+
+  /* grendel: i think this _is_ needed?! - pit */
+  /* *o++ = 0; */
+  pop_n_elems(args);
+  push_string(end_shared_string(ret));
+}
+
+
+/* Check if the char given is safe or not */
+static INLINE int is_cookie_safe (char c)
+{
+   switch(c)
+   {
+     case '=':
+     case ',':
+     case ';':
+     case '%':
+     case ':':
+          return 0; break;
+     default:
+          return 1; break;
+   }
+   return 1;  /* Never used, but added to keep some compilers happy */
+}
+
+/*
+** method: string http_encode_cookie(string m)
+**   Encode the specified string in as to the HTTP cookie standard.
+**   The following characters will be replaced: = , ; % :
+** arg: string m
+**   The string to encode.
+** returns:
+**   The HTTP cookie encoded string.
+*/
+static void f_http_encode_cookie(INT32 args)
+{
+  char *o, *out, *in;
+  unsigned char *i;
+  int unsafe = 0;
+  int out_len, in_len;
+  struct pike_string *ret;
+  struct pike_string *src;
+
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_cookie", 1, "string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.http_encode_cookie(): Only 8-bit strings allowed.\n");
+  }
+
+  in = src->str;
+  in_len = src->len-1;
+	
+  /* count unsafe characters */
+  for(i=in; *i; i++) if(!is_cookie_safe((int )*i)) unsafe++;
+
+  /* no need to convert	*/
+  if(unsafe == 0) {
+    pop_n_elems(args-1);
+    return;
+  }
+	
+  out_len = in_len + (unsafe * 2) + 1;
+  ret = begin_shared_string(out_len);
+  out = ret->str;
+
+  for(o=out, i=in; *i; i++) {
+    if (!is_cookie_safe(*i)) {
       *o++ = '%';
       *o++ = hex_chars[*i >> 4];
       *o++ = hex_chars[*i & 15];
@@ -1192,6 +1265,8 @@ void pike_module_init( void )
                          "function(int|void:string)", 0);
   /* Roxen 1.X compat functions */
   add_function_constant( "http_encode_string", f_http_encode_string,
+                         "function(string:string)", 0);
+  add_function_constant( "http_encode_cookie", f_http_encode_cookie,
                          "function(string:string)", 0);
 
   start_new_program();
