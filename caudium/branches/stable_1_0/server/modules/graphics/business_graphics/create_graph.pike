@@ -1,4 +1,3 @@
-#!NOMODULE
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2001 The Caudium Group
