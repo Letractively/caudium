@@ -281,14 +281,14 @@ class http_error_handler {
     else 
     {
        /* check if they want old-style 404 */
-       if (id->conf->query("Old404") && error_code == 404)
-       {
-          return Caudium.HTTP.low_answer (error_code,
-                          replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
-                                  ({ "$File", "$Me" }),
-                                  ({ _Roxen.html_encode_string (id->not_query), 
-                                   id->conf->query ("MyWorldLocation") })));
-       }
+//       if (id->conf->query("Old404") && error_code == 404)
+//       {
+//          return Caudium.HTTP.low_answer (error_code,
+//                          replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
+//                                  ({ "$File", "$Me" }),
+//                                  ({ _Roxen.html_encode_string (id->not_query), 
+//                                   id->conf->query ("MyWorldLocation") })));
+//       }
 
        local_template = get_template (id->conf->query ("ErrorTheme"), id);
     }
