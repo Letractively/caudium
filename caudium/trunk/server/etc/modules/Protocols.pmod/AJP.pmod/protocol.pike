@@ -234,7 +234,7 @@ string packet_forward_request(object id)
      MSG_FORWARD_REQUEST,
      method,
      push_string(id->clientprot),
-     push_string(id->not_query),
+     push_string(Caudium.http_encode_url(id->not_query)),
      push_string(id->remoteaddr),
      push_string(rhost),
      push_string(server_name),
@@ -582,7 +582,7 @@ mapping decode_forward(mapping packet)
 
   packet->request_headers=([]);
 
- report_debug("decoding " + packet->num_headers + " headers.\n");
+// report_debug("decoding " + packet->num_headers + " headers.\n");
 
   for(int i=0; i<packet->num_headers; i++)
   {
@@ -672,7 +672,7 @@ mapping decode_container_packet(string packet)
   mapping result=([]);
   int len=0;
 
-  if(packet[0..1]!="AB")
+  if(!packet || (sizeof(packet)<2) || packet[0..1]!="AB")
   {
     error("Invalid packet from container.\n");
   }
