@@ -1,3 +1,11 @@
+caudium (1:1.0.0-10) unstable; urgency=low
+
+  * latest CVS snapshot
+  * XML parser added
+  * support for entities started
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 21 Oct 2000 01:42:45 +0200
+
 caudium (1:1.0.0-9) unstable; urgency=low
 
   * Moved UltraLog files where they belong - to the ultralog package :P
