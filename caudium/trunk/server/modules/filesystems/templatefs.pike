@@ -38,6 +38,24 @@ void create()
   unload_program("modules/filesystems/filesystem");
 
   ::create();
+
+  defvar("dirtmpl", "template.dir", "directory template",
+             TYPE_STRING, 
+	     "Template for the directory it resides in. "
+	     //"If it is missing the directory template from the parent dir "
+	     //"will be applied."
+	     );
+
+// there still some issues to be resolved, essentially in one directory
+// it should be possible to set a template for the current directory
+// and one for all subdirs 
+
+  defvar("filetmpl", "template.file", "file template",
+             TYPE_STRING, 
+	     "Template for each file in the current directory"
+	     //"If it is missing the file template from the parent dir "
+	     //"will be applied."
+	     );
 }
 
 array register_module()
@@ -57,31 +75,50 @@ int notemplate( string fn, object id )
                                  "/.notmpl", id ));
 }
 
-string apply_template( string f, string newfile, object id )
+string apply_template(string newfile, string template, object id)
 {
-  string file; 
+  string file;
+
+  werror("templatefs: loop: %s ...", template);
+  if(id->conf->real_file(template, id))
+  {
+    file = read_file( id->conf->real_file(template, id));
+    werror(" found\n");
+    file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, template);
+    
+    newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, newfile);
+  }
+  else
+    werror(" not found\n");
+
+  return newfile;
+}
+
+string apply_all_templates( string f, string file, object id )
+{
   array cd = ("/"+f) / "/";
   
   werror("templatefs: %s, %O\n", f, cd);
 
   //for(i=0; i<sizeof(cd)-1; i++)
   int i = sizeof(cd)-1;
+
+  // first apply the file template
+
+  string template=query_location()+cd[..i-1]*"/" + "/" + query("filetmpl");
+  file = apply_template(file, template, id);
+
+  // and then step down the directory path and i
+  // apply the directory template found in each dir.
   while( i-- )
   {
-    werror("templatefs: loop: %s", query_location()+cd[..i]*"/"+"/template ...");
-    if(file = read_file( id->conf->real_file(query_location()+cd[..i]*"/"+"/template", id )))
-    {
-      werror(" found\n");
-      file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, query_location()+cd[..i+1]*"/");
-      //file = parse_html(file, ([ "path":itag_path ]), ([]), id, query_location()+cd[..i]*"/"+"/");
-      //contents = parse_html(contents, ([ "path":itag_path, "relinsert":itag_relinsert ]), ([]), id, vtemplate);
-      newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, newfile);
-//      return query_location()+cd[..i]*"/"+"/template";
-    }
-    else
-      werror(" not found\n");
-  }
-  return newfile;
+    werror("templatefs: outloop: %s ...", 
+           query_location()+cd[..i]*"/" + "/" + query("dirtmpl"));
+
+    template=query_location()+cd[..i]*"/" + "/" + query("dirtmpl");
+    file = apply_template(file, template, id);
+  }  
+  return file;
 }
 
 string template_for( string f, object id )
@@ -111,8 +148,8 @@ mixed find_file( string f, object id )
   if( intp( retval ) || mappingp( retval ) )
     return retval;
 
-  if(!(template=id->conf->real_file(vtemplate = fix_relative(template_for(f,id),id),id)))
-    return retval;
+  //if(!(template=id->conf->real_file(vtemplate = fix_relative(template_for(f,id),id),id)))
+  //  return retval;
   
   if( id->variables["content-type"] )
     return http_file_answer( retval, id->variables["content-type"] );
@@ -123,7 +160,9 @@ mixed find_file( string f, object id )
     id->variables->image = id->not_query;
     m_delete( id->variables, "show_img" );
     return http_string_answer( parse_rxml( ::find_file( "/showimg", id )->read(), id ) );
-  } else {
+  } 
+  else 
+  {
     if( notemplate( f, id ) )
       return retval;
     // add template to all rxml/html pages...
@@ -133,11 +172,11 @@ mixed find_file( string f, object id )
      case "text/html":
      case "text/rxml":
      {
-       string contents = read_file(template);
+       string contents;
        string file=retval->read();
 
-       werror("templatefs: %s", apply_template(f, file, id));
-       contents = apply_template(f, file, id);
+       werror("templatefs: %s", apply_all_templates(f, file, id));
+       contents = apply_all_templates(f, file, id);
        
        //contents = parse_html(contents, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, file);
        
