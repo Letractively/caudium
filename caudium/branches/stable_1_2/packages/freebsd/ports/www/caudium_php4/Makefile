@@ -7,7 +7,7 @@
 
 PORTNAME=	caudium_php4
 PORTVERSION=	4.2.2
-PORTREVISION=	0
+PORTREVISION=	1
 CATEGORIES=	www
 MASTER_SITES=	http://us.php.net/${PHP_DISTDIR}/ \
 		http://php.he.net/${PHP_DISTDIR}/ \
@@ -42,6 +42,8 @@ CONFIGURE_ARGS=	--with-config-file-path=${PREFIX}/etc/php.caudium \
 		--enable-xml \
 		--enable-discard-path \
 		--enable-posix \
+		--enable-track-vars \
+		--enable-force-cgi-redirect \
 		--with-readline=/usr
 
 CONFIGURE_ARGS+=--enable-versioning \
