@@ -25,7 +25,7 @@
  * Written by David Hedbor <david@hedbor.org>
  */
 
-/* TODO: Caching!!! */
+/* TODO: Caching, various RXML parsing options */
 
 string cvs_version = "$Id$";
 constant thread_safe = 1;
