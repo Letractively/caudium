@@ -102,14 +102,14 @@ constant module_unique = 0;
 HTTP/1.0 500 Connection refused by remote host\r\n\
 Content-type: text/html\r\n\
 \r\n\
-<title>Roxen internal error</title>\n\
+<title>Caudium internal error</title>\n\
 <h1>Proxy request failed</h1>\
 <hr>\
 <font size=+2><i>Host unknown or connection refused</i></font>\
 <hr>\
-<font size=-2><a href=http://www.roxen.com/>"+caudium->version()+"</a></font>"
+<font size=-2><a href=http://caudium.net/>"+caudium->version()+"</a></font>"
 
-#define INFOSTRING "<font size=-2><a href=http://www.roxen.com/>"+caudium->version()+"</a> FTP Gateway "+VERSION+" / <i>law@idonex.se</i></font>"
+#define INFOSTRING "<font size=-2><a href=http://caudium.net/>"+caudium->version()+"</a> FTP Gateway "+VERSION+"</font>"
 
 #define _ERROR_MESSAGE(XXXX) ("HTTP/1.0 500 FTP gateway error\r\nContent-type: text/html\r\n\r\n<title>Ftp gateway error</title>\n<h2>FTP Gateway failed:</h2><hr><font size=+1>"XXXX"</font><hr>"+INFOSTRING)
 
@@ -937,7 +937,7 @@ class Request {
 	write_server("pass "+passw);
       else
 	// I WANT a query() function in conf. hrmpf! /kg
-	write_server("pass roxen_ftp_gateway@"+id->conf->variables->Domain[0]);
+	write_server("pass caudium_ftp_gateway@"+id->conf->variables->Domain[0]);
       read_state=password_response;
     } else if (r=="230") /* user logged in, proceed */
     {
