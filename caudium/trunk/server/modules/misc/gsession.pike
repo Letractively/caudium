@@ -131,7 +131,7 @@ void create()
     defvar("includeuris", "", "Session: Include URIs", TYPE_TEXT_FIELD,
            "A list of regular expressions (one entry per line) specifying the URIs to "
            "allocate session ID for. The regular expressions should describe only the "
-           "path part of the URI, i.e. without the protocol and server parts. Matching "
+           "path part of the URI, i.e. without the protocol, server, file and query parts. Matching "
            "is case-insensitive."
            "Examples:<br><blockquote><pre>"
            "^.*mail/\n"
@@ -141,12 +141,16 @@ void create()
     defvar("excludeuris", "", "Session: Exclude URIs", TYPE_TEXT_FIELD,
            "A list of regular expressions (one entry per line) specifying the URIs <strong>not</strong> to "
            "allocate session ID for. The regular expressions should describe only the "
-           "path part of the URI, i.e. without the protocol and server parts. "
+           "path part of the URI, i.e. without the protocol, server parts, file and query. "
            "Matching is case-insensitive."
            "Examples:<br><blockquote><pre>"
            "^.*mail/\n"
            "^/site/[0-9]+/archive\n"
            "</pre></blockquote>", 0, lambda() { return (QUERY(urimode)!="exclude"); });
+
+    defvar("excludefiles", "jpg\njpeg\npng\ngif\ncgi\npike", "Session: Exclude file types", TYPE_TEXT_FIELD,
+           "A list of file extensions for which no session should ever be allocated. "
+           "One entry per line");
 }
 
 int hide_gc ()
@@ -161,10 +165,8 @@ mixed first_try(object id)
     if (cur_storage)
         cur_storage->setup(id);
     
-    if (!check_access(id)) {
-        report_notice("Access denied for '%s'\n", id->not_query);
+    if (!check_access(id))
         return 0;
-    }
     
     alloc_session(id);
     setup_compat(id);
@@ -218,6 +220,16 @@ mapping query_container_callers()
 private int check_access(object id)
 {
     array(string)   ra;
+
+    if (!id->not_query)
+        return 1;
+
+    string          ext = (id->not_query / ".")[-1];
+
+    if (ext && ext != "")
+        foreach((QUERY(excludefiles) / "\n") - ({}) - ({""}), string e)
+            if (e == ext)
+                return 0;
     
     switch(QUERY(urimode)) {
         case "include":
@@ -232,15 +244,13 @@ private int check_access(object id)
     if (sizeof(ra) != sizeof(uri_regexps)) {
         // recompile the regexps, something's changed
         uri_regexps = ({});
-        foreach(ra, string rs) {
-            report_notice("Compiling regexp '%s'\n", rs);
+        foreach(ra, string rs)
             uri_regexps += ({ Regexp(lower_case(rs)) });
-        }
     }
 
     int   res = 0;
 
-    if (!id->not_query || !sizeof(uri_regexps))
+    if (!sizeof(uri_regexps))
         return 1;
 
     string path = dirname(id->not_query);
@@ -251,12 +261,10 @@ private int check_access(object id)
         if ((res = r->match(path)))
             break;
 
-    report_notice("match result: %d\n", res);
-    
     if (QUERY(urimode) == "include")
         return res;
-
-    return res ? 0 : 1;
+    else
+        return res ? 0 : 1;
 }
 
 private void co_session_gc() 
@@ -277,18 +285,22 @@ private void co_session_gc()
         call_out(co_session_gc, QUERY(expire) / 2);
 }
 
-private void gsession_set_cookie(object id, string sid) {
-    string Cookie = SVAR + "=" + sid + "; path=/";
+private void gsession_set_cookie(object id, string sid, void|int remove) {
+    string Cookie = SVAR + "=" + (remove ? "" : sid) + "; path=/";
 
     if(QUERY(domaincookies)) 
         if (!(dcookie_rx->match((string)id->misc->host)))
             Cookie += ";domain=."+(((string)id->misc->host / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
+
+    if (!remove) {
+        if (QUERY(cookieexpire) > 0)
+            Cookie += "; Expires=" + http_date(time()+QUERY(cookieexpire)) +";";
+        if (QUERY (cookieexpire) < 0)
+            Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
+    } else
+        Cookie += "; Expires=" + http_date(0) + ";";
     
-    if (query ("cookieexpire") > 0)
-        Cookie += "; Expires=" + http_date(time()+query("cookieexpire")) +";";
-    if (query ("cookieexpire") < 0)
-        Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
-    if (query ("secure"))
+    if (QUERY (secure))
         Cookie += "; Secure";
     
     id->misc->is_dynamic = 1;
@@ -397,6 +409,11 @@ void register_plugins(void|object conf)
                 rec_item_missing("session_exists", regrec->name);
                 continue;
             }
+
+            if (!functionp(regrec->get_sessions_area) || !regrec->get_sessions_area) {
+                rec_item_missing("get_sessions_area", regrec->name);
+                continue;
+            }
             
             if (storage_plugins[regrec->name])
                 report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -421,28 +438,33 @@ void register_plugins(void|object conf)
 // The structure is as follows (fields in single quotes denote literal names):
 //
 //  storage_mapping
+//      '_sessions_':sessions_mapping
+//         session1_id:session1_options
+//           'nocookies':1 if no cookies should be set, 0 if cookies are ok
+//           'lastused':time_when_last_used
+//           'cookieattempted':1 if a cookie set was attempted
+//         session2_id:session2_options
+//           'nocookies':1 if no cookies should be set, 0 if cookies are ok
+//           'lastused':time_when_last_used
+//           'cookieattempted':1 if a cookie set was attempted
 //      region1_name:region1_mapping
 //         session1_id:session1_storage
-//           'lastused':time_when_last_used
 //           'data':session1_data
 //             key1_name:key1_value
 //             key2_name:key2_value
 //             ...
 //         session2_id:session2_storage
-//           'lastused':time_when_last_used
 //           'data':session2_data
 //             key1_name:key1_value
 //             key2_name:key2_value
 //             ...
 //      region2_name:region2_mapping
 //         session1_id:session1_storage
-//           'lastused':time_when_last_used
 //           'data':session1_data
 //             key1_name:key1_value
 //             key2_name:key2_value
 //             ...
 //         session2_id:session2_storage
-//           'lastused':time_when_last_used
 //           'data':session2_data
 //             key1_name:key1_value
 //             key2_name:key2_value
@@ -511,6 +533,11 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //  synopsis: int session_exists(object id, string sid);
 //     checks whether the given session exists in the storage
 //
+//  function get_sessions_area; (mandatory)
+//  synopsis: mapping get_sessions_area(object id);
+//     returns the special '_sessions_' area in the storage. That area
+//     stores all the options global to any session ID.
+//
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
     "description" : "Memory-only storage of session data",
@@ -522,7 +549,8 @@ private mapping memory_storage_registration_record = ([
     "delete_session" : memory_delete_session,
     "get_region" : memory_get_region,
     "get_all_regions" : memory_get_all_regions,
-    "session_exists" : memory_session_exists
+    "session_exists" : memory_session_exists,
+    "get_sessions_area" : memory_get_sessions_area
 ]);
 
 //
@@ -562,6 +590,7 @@ private void memory_setup(object id, string|void sid)
         _memory_storage = ([]); // it might be 0
         _memory_storage->session = ([]);
         _memory_storage->user = ([]);
+        _memory_storage->_sessions_ = ([]);
     }
 
     if (!sid)
@@ -577,13 +606,19 @@ private void memory_setup(object id, string|void sid)
     foreach(indices(_memory_storage), string region) {
         if (!_memory_storage[region][sid])
             _memory_storage[region][sid] = ([
-                "lastused" : time(),
                 "data" : ([])
             ]);
         
         if (!id->misc->gsession[region])
             id->misc->gsession[region] = _memory_storage[region][sid];
     }
+    
+    if (!_memory_storage->_sessions_[sid])
+        _memory_storage->_sessions_[sid] = ([
+            "nocookies" : 0,
+            "cookieattempted" : 0,
+            "lastused" : time()
+        ]);
 }
 
 //
@@ -599,7 +634,7 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
     _memory_storage[region][sid]->data += ([
         key : data
     ]);
-    _memory_storage[region][sid]->lastused = time();
+    _memory_storage->_sessions_[sid]->lastused = time();
 }
 
 //
@@ -615,7 +650,7 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
     if (!_memory_storage[region][sid]->data[key])
         return 0;
 
-    _memory_storage[region][sid]->lastused = time();
+    _memory_storage["_sessions_"][sid]->lastused = time();
     
     return _memory_storage[region][sid]->data[key];
 }
@@ -658,7 +693,7 @@ private void memory_expire_old(int curtime)
 
     foreach(indices(_memory_storage), string region) {
         foreach(indices(_memory_storage[region]), string sid) {
-            if (curtime - _memory_storage[region][sid]->lastused > QUERY(expire)) {
+            if (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire)) {
                 memory_delete_session(sid);
             }
         }
@@ -690,6 +725,14 @@ private int memory_session_exists(object id, string sid)
         return 0;
 
     return 1;
+}
+
+private mapping memory_get_sessions_area(object id)
+{
+    if (_memory_storage["_sessions_"])
+        return _memory_storage["_sessions_"];
+
+    return 0;
 }
 
 //
@@ -725,10 +768,17 @@ private string alloc_session(object id)
         }));
 
     cur_storage = storage_plugins[sp];
+    
+    mapping  sa = cur_storage->get_sessions_area(id);
 
-    if (id->cookies[SVAR] && sizeof(id->cookies[SVAR])) {
+    if (id->cookies[SVAR] && sizeof(id->cookies[SVAR]) && sa[id->cookies[SVAR]]) {
         id->misc->session_id = id->cookies[SVAR];
         id->misc->_gsession_cookie = 1;
+        sa->cookieattempted = 0;
+        sa->nookookies = 0;
+    } else if (id->cookies[SVAR]) {
+        id->misc->_gsession_cookie = 0;
+        id->misc->_gsession_remove_cookie = 1;
     } else
         id->misc->_gsession_cookie = 0;
     
@@ -740,8 +790,17 @@ private string alloc_session(object id)
     if (id->misc->session_id && cur_storage->session_exists(id, id->misc->session_id)) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
-        if (!id->misc->_gsession_cookie)
-            gsession_set_cookie(id, id->misc->session_id);
+        sa = cur_storage->get_sessions_area(id)[id->misc->session_id];
+        
+        if (!id->misc->_gsession_cookie) {
+            if (!sa->nookookies && !sa->cookieattempted) {
+                sa->cookieattempted = 1;
+                gsession_set_cookie(id, id->misc->session_id);
+            } else {
+                sa->nocookies = 1;
+            }
+        }
+        
         return id->misc->session_id;
     }
 
@@ -767,8 +826,14 @@ private string alloc_session(object id)
 
     id->misc->_gsession_is_here = 1;
     id->misc->session_id = ret;
-    
-    gsession_set_cookie(id, ret);
+
+    sa = cur_storage->get_sessions_area(id)[id->misc->session_id];
+
+    if (!sa->nocookies && !sa->cookieattempted) {
+        gsession_set_cookie(id, ret);
+        sa->cookieattempted = 1;
+    } else if (sa->cookieattempted)
+        sa->nocookies = 1;
     
     return ret;
 }
@@ -859,8 +924,15 @@ string tag_end_session (string tag, mapping args, object id, object file)
     if (!id->misc->session_id)
         return "";
     
-    if (id->misc->session_id && cur_storage)
+    if (id->misc->session_id && cur_storage) {
+        mapping m = cur_storage->get_sessions_area(id)[id->misc->session_id];
+
+        if (!m->nocookies)
+            gsession_set_cookie(id, 0, 1);
+        
         cur_storage->delete_session (id->misc->session_id);
+    }
+    
     return "";
 }
 
@@ -956,7 +1028,7 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
         }
     }
 
-    if (do_hidden)
+    if (do_hidden && id->misc->session_id)
         contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
                            SVAR, id->misc->session_id) + contents;
     
