@@ -1723,7 +1723,15 @@ mapping|int low_get_file(object id, int|void no_magic)
 // This is done before the any raw caching is done and can be used for
 // virtual hosting and creation of a custom cache key.
 void handle_precache(object id) {
-  (precache_module_cache||precache_modules(id))(id);
+  foreach(precache_module_cache||precache_modules(id), function funp)
+  {
+    funp( id );
+    if(id->conf != this_object()) {
+      REQUEST_WERR("handle_request(): Redirected (2)");
+      id->conf->handle_precache(id);
+      return;
+    }
+  }
 }
 
 mixed handle_request( object id  )
