@@ -31,14 +31,14 @@ constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "LDAP: Auth module for the Command Center";
 constant module_doc  = "Module that manages LDAP authentication for the LCC. "
                        "In addition to authentication, this module sets up the connection for "
-                       "the current LDAP session.<br />"
-                       "This module is <strong>not supposed</strong> to ask for the browser user "
-                       "authentication - it can assume this had been done before calling the "
-                       "<code>auth</code> method. The only things this module is expected to do "
-                       "are authenticated the user with the LDAP and setting up the LDAP part of "
-                       "the user mapping stored in the session.";
+                       "the current LDAP session.<br />";
 
 constant module_unique = 0;
+
+int usedefdomain_not_set()
+{
+    return(!QUERY(user_usedefdomain));
+}
 
 void create()
 {
@@ -47,6 +47,55 @@ void create()
            "in this virtual server or otherwise the LCC module won't load. Initially "
            "both LCC and this module share the <code>lcc</code> prefix.");
 
+    // User auth
+    defvar("user_dntype", "any", "User auth: DN type", TYPE_STRING_LIST,
+           "This module can authenticate users based on number of LDAP attributes. "
+           "It is possible to create the DN using the <code>uid</code> attribute, "
+           "the <code>mail</code> attribute or both of them simultanously. Below "
+           "is a short explanation of what choices the adminstrator has:<br />"
+           "<blockquote><ul>"
+           "<li><strong><code>any</code></strong>. This means that the module will "
+           "attempt to authenticate the user using any of the two attributes mentioned "
+           "above. If the login typed by the user contains the <code>@</code> character "
+           "the login string will be treated as an email address and the user will be "
+           "sought for using the <code>mail</code> attribute. If there's no <code>@</code> "
+           "character in the login string, the search will be performed on the <code>uid</code> "
+           "attribute. If the <em>Fallback to UID</em> option below is set then, should "
+           "the <code>mail</code> search fail, the module will attempt the <code>uid</code> "
+           "authentication.</li>"
+           "<li><strong><code>uid</code></strong>. The search is performed only on the "
+           "<code>uid</code> attribute no matter what type of string the user entered "
+           "in the login box. If the string is an email address, though, only the part "
+           "before the <code>@</code> character will be used.</li>"
+           "<li><strong><code>email</code></strong>. The search is performed on the "
+           "<code>mail</code> attribute. If the string entered by the user in the login "
+           "box comes without the <code>@</code> character the further action depends upon "
+           "the value of the <em>Use default domain</em> option. If the option is unset "
+           "then the authentification will fail and if it exists the domain name "
+           "(or names - see the <em>Use default domain</em> description) will be suffixed "
+           "to the typed string and the authentication will be retried.</li>"
+           "<li><strong><code>both</strong></code>. This setting means that the user search "
+           "will be performed using both the <code>uid</code> and the <code>mail</code> "
+           "attributes. In this case the rules described in the previous section apply.</li>"
+           "</ul></blockquote>",
+           ({ "any", "uid", "email", "both"}));
+
+    defvar("user_uidfallback", 0, "User auth: Fallback to UID", TYPE_FLAG,
+           "If enabled, the failed <code>email</code> authentication will be attempted "
+           "using the <code>uid</code> attribute as explained in the <em>DN type</em> "
+           "description.");
+
+    defvar("user_usedefdomain", 0, "User auth: Use default domain", TYPE_FLAG,
+           "If set then the default domain(s) will be used during authentication as "
+           "explained in the description of the <em>DN type</em> option.");
+
+    defvar("user_defdomains", "", "User auth: Default domain(s)", TYPE_TEXT_FIELD,
+           "This is a list of default domains, one per line. If more than one domain "
+           "is listed here, then the login screen will contain a selection list "
+           "with those domains in the order given below. If there's just one line in this "
+           "box, it will be used silently when/if needed.",
+           0, usedefdomain_not_set);
+    
     // LDAP
     defvar("ldap_basedn", "", "LDAP: base DN", TYPE_STRING,
            "Base DN (Distinguished Name) to be used in all the operations throughout "
@@ -73,9 +122,13 @@ string query_provides()
     return QUERY(provider_prefix) + "_auth";
 }
 
+private string make_dn(object id, string login)
+{}
+
 mapping auth(object id, mapping user, object ldap)
 {
     mixed    error;
+    int      result = 0;
     
     if (user->name == "" && (!id->variables || !id->variables->lcc_login)) {
         object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
@@ -95,6 +148,7 @@ mapping auth(object id, mapping user, object ldap)
             ]);
     } else if (id->variables && id->variables->lcc_login) {
         user->name = id->variables->lcc_login;
+        user->dn = make_dn(id, user->name);
         user->password = id->variables->lcc_password;
     }
     
@@ -113,8 +167,10 @@ mapping auth(object id, mapping user, object ldap)
     }
     ldap->set_basedn(QUERY(ldap_basedn));
 
+    report_notice("Trying to bind with %s:%s on ldap %O\n", user->name, user->password, ldap);
+    
     error = catch {
-        ldap->bind(user->name, user->password, QUERY(ldap_protocol));
+        result = ldap->bind(user->name, user->password, QUERY(ldap_protocol));
     };
 
     if (error) {
@@ -127,6 +183,11 @@ mapping auth(object id, mapping user, object ldap)
         }
 
         return ret;
+    } else if (result) {
+        return ([
+            "lcc_error" : ERR_AUTH_FAILED,
+            "lcc_error_extra" : ldap->error_string()
+        ]);
     }
 
     //
