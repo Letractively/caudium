@@ -35,6 +35,7 @@ constant cvs_version = "$Id$";
 object backend_thread;
 object argcache;
 object cache_manager;
+object storage_manager;
 
 #define FLUSH_MODULES cache_manager->get_cache()->flush("^modules\:\/\/")
 
@@ -1363,6 +1364,10 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
+  if (QUERY(storage_type)=="Disk")
+    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_disk_path));
+  else if (QUERY(storage_type)=="MySQL")
+    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_mysql_url));
 }
 
 void create()
@@ -1389,6 +1394,14 @@ void create()
   Configuration = (program)"configuration";
 
   call_out(post_create,1); //we just want to delay some things a little
+}
+
+void update_storage_manager() {
+  destruct(storage_manager);
+  if (QUERY(storage_type)=="Disk")
+    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_disk_path));
+  else if (QUERY(storage_type)=="MySQL")
+    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_mysql_url));
 }
 
 // This is the most likely URL for a virtual server. Again, this
@@ -1750,6 +1763,9 @@ public string config_url(void|object id)
 int cache_disabled_p() { return !QUERY(cache);         }
 int syslog_disabled()  { return QUERY(LogA)!="syslog"; }
 int range_disabled_p() { return !QUERY(EnableRangeHandling);  }
+int storage_disk_p() { return QUERY(storage_type)!="MySQL"; }
+int storage_mysql_p() { return QUERY(storage_type)!="Disk"; }
+
 
 class ImageCache
 {
@@ -2518,7 +2534,32 @@ private void define_global_variables(int argc, array (string) argv)
        caudium->cache->slow_store_methods() );
     */
     // End of *new* cache variabled.
-  
+ 
+    globvar("storage_type", "Disk",
+            "Storage Manager: Storage Backend", TYPE_STRING_LIST,
+            "Select the backend that you want Caudium to use for permanent "
+            "storage backend.",
+            ({ "Disk", "MySQL" }));
+
+    globvar("storage_mysql_url", "",
+            "Storage Manager: MySQL Database URL", TYPE_STRING,
+            "Please enter a SQL URL for Caudium to use to connect to the "
+            "MySQL server being used as the permanent storage backend. "
+            "In the format mysql://user:password@host/database",
+            0, storage_mysql_p());
+
+    globvar("storage_disk_path", "../var/cache",
+            "Storage Manager: Disk storage path", TYPE_STRING,
+            "Please enter a filesystem path for Caudium to use to store "
+            "data on the disk as the permanent storage backend."
+#ifdef NFS_LOCK
+            " <i>Using NFS hitching post style locks. This is really great, but"
+            "will probably slow disk access down, especially if you have many "
+            "Caudium's competing for access to files.</i>"
+#endif
+           , 0, storage_disk_p());
+
+ 
     globvar("docurl2", "http://www.roxen.com/documentation/context.pike?page=",
             "Documentation URL", TYPE_STRING|VAR_MORE|VAR_EXPERT,
             "The URL to prepend to all documentation urls throughout the "
