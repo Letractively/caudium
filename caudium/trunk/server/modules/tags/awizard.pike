@@ -391,8 +391,9 @@ class Page
             id->misc->_containers[ s ] = call_container_wrapper;
         }
 
-        return parse_rxml(parse_html(what,(["var":wizard_tag_var,]),
-                                     (["cvar":wizard_tag_var]),id),id);
+	string tmp = parse_html(what,(["var":wizard_tag_var,]),
+                                     (["cvar":wizard_tag_var]),id);
+        return parse_rxml(tmp,id);
     }  
 
     /* We need this dirty hack, 
