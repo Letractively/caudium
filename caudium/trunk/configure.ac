@@ -896,6 +896,7 @@ export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
 AC_CONFIG_SUBDIRS(src tools)
 AC_CONFIG_FILES(Makefile)
 AC_OUTPUT
+AC_OUTPUT([server/start-caudium], [chmod a+rx server/start-caudium])
 
 
 
