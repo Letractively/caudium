@@ -260,7 +260,7 @@ static mapping build_caudium_env_vars(object id)
     new["COOKIE_"+tmp] = id->cookies[tmp];
     new["COOKIES"]+= tmp+" ";
   }
-	
+  
   foreach (indices(id->config), tmp) {
     tmp = VARQUOTE(tmp);
     new["WANTS_"+tmp]="true";
@@ -292,7 +292,7 @@ static mapping build_caudium_env_vars(object id)
     else
       new["PRESTATES"] = tmp;
   }
-	
+  
   foreach (indices(id->supports), tmp) {
     tmp = VARQUOTE(tmp);
     new["SUPPORTS_"+tmp]="true";
@@ -1828,7 +1828,7 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
                                   foreach (order, string field)
                                   {
                                     int tmp;
-				    
+            
                                     if (field[0] == '-')
                                       tmp = compare( m2[field[1..]],
                                                      m1[field[1..]] );
@@ -1935,7 +1935,7 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
                   multisep = optval;
                   break;
                   
-                case "quote":	// For backward compatibility.
+                case "quote": // For backward compatibility.
                   optval = lower_case (optval);
                   switch (optval) {
                       case "mysql": case "sql": case "oracle":
@@ -2189,13 +2189,13 @@ string parse_scopes(string data, function cb, object id, mixed ... extra) {
 
 // color.pike compatibility functions.
 #if !constant(parse_color) && constant(Image.Color)
-#define parse_color(X)	Image.Color( X )->rgb()
+#define parse_color(X)  Image.Color( X )->rgb()
 #endif
 #if !constant(color_name) && constant(Image.Color)
-#define color_name(X)	Image.Color( @X )->name()
+#define color_name(X) Image.Color( @X )->name()
 #endif
 #if !constant(list_colors) && constant(Image.Color)
-#define list_colors()	indices(Image.Color)
+#define list_colors() indices(Image.Color)
 #endif
 
 #if !constant(rgb_to_hsv) && constant(Image.Color) && constant(Image.Color.rgb)
