@@ -18,38 +18,20 @@ fi
 CLASSPATH=etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
 export CLASSPATH
 
-# Enable threads (if available) on Solaris.
-# Most other OS's have thread bugs that cause them or Caudium to crash.
-if uname | grep 'SunOS' >/dev/null 2>&1; then
-  if uname -r | grep '5\.[5-9]' >/dev/null 2>&1; then
-    if [ x"$1" != "x--help" ] ; then
-      echo 'Solaris 2.5 or later detected. Enabling threads (if available).'
-    fi
-    DEFINES="$DEFINES -DENABLE_THREADS"
-  fi
+# Try to enable threads on Solaris (2.5+), FreeBSD (4.0+) and Linux (2.2+)
+OSTYPE=`uname -s`
+OSMAJOR=`uname -r | sed 's/\..*$//'`
+OSMINOR=`uname -r | sed 's/^[^\.]\.//;s/[\.-].*$//'`
+if [ "$OSTYPE" = "SunOS" -a "$OSMAJOR" -ge 5 -a "$OSMINOR" -ge 5 ]; then
+  echo "Solaris 2.5 or later detected, enabling threads if available."
+  DEFINES="$DEFINES -DENABLE_THREADS"
+elif [ "$OSTYPE" = "FreeBSD" -a "$OSMAJOR" -ge 4 ]; then
+  echo "FreeBSD 4.0 or later detected, enabling threads if available."
+  DEFINES="$DEFINES -DENABLE_THREADS"
+elif [ "$OSTYPE" = "Linux" -a "$OSMAJOR" -ge 2 -a "$OSMINOR" -ge 2 ]; then
+  echo "Linux 2.2 or later detected, enabling threads if available."
+  DEFINES="$DEFINES -DENABLE_THREADS"
 fi
-
-# Enable thread (if available) on Linux
-if uname | grep 'Linux' >/dev/null 2>&1; then
-  if uname -r | grep '2\.[2-9]' >/dev/null 2>&1; then
-    if [ x"$1" != "x--help" ] ; then
-      echo 'Linux 2.2 or later detected. Enabling threads (if available).'
-    fi
-    DEFINES="$DEFINES -DENABLE_THREADS"
-  fi
-fi
-
-# Enable thread (if available) on FreeBSD
-if uname | grep 'FreeBSD' >/dev/null 2>&1; then
-  if uname -r | grep '[45]\.[0-9]' >/dev/null 2>&1; then
-    if [ x"$1" != "x--help" ] ; then
-      echo 'FreeBSD 4.0 or later detected. Enabling threads (if available).'
-    fi
-    DEFINES="$DEFINES -DENABLE_THREADS"
-  fi
-fi
-
-
 
 # Caudium will create files as the initial user,
 # which it expects to be able to read as the run-time user.
