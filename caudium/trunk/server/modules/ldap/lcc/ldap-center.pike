@@ -307,6 +307,10 @@ private mapping init_user(object id)
 //
 private mixed do_logout(object id, mapping data, string f)
 {
+    if (!id->misc->session_id | !data->user || !data->user->authenticated)
+        return http_redirect(id->conf->QUERY(MyWorldLocation) +
+                             QUERY(mountpoint) + "/auth");
+    
     object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
     if (!sprov)
         return ([
@@ -314,11 +318,17 @@ private mixed do_logout(object id, mapping data, string f)
             "lcc_error_extra" : "No 'screens' provider"
         ]);
     
-    //TODO: kill the session, the LDAP connection, everything here!
     data->user->name = "";
     data->user->password = "";
+    m_delete(data->user, "authenticated");
+    m_delete(data->user, "ldap_data");
     
     string logoutscr = sprov->retrieve(id, "logout");
+
+    object session = PROVIDER("123sessions");
+    if (session)
+        session->delete_session(id, id->misc->session_id, 1);
+    
     if (logoutscr && logoutscr != "")
         return http_string_answer(logoutscr);
     else
