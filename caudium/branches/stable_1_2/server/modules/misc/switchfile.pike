@@ -95,7 +95,7 @@ mapping first_try (object id)
    if (id->supports->msie404)
      return http_string_answer(parse_rxml(html,id),"text/html");
    else
-     return http_low_anwser(QUERY(return_code), parse_rxml(html,id));
+     return http_low_answer(QUERY(return_code), parse_rxml(html,id));
   } 
   // if we do not support MSIE brain damage, then fail to normal way
   return http_low_answer(QUERY(return_code), parser_rxml(html,id));
