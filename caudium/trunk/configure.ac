@@ -790,7 +790,7 @@ CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
 
 AC_CONFIG_SUBDIRS(src tools)
-AC_CONFIG_COMMANDS([hail_epita],[tools/fixperms])
+AC_CONFIG_COMMANDS([hail_epita],[sh tools/fixperms])
 AC_OUTPUT(Makefile server/start-caudium server/bin/install.pike)
 
 echo "
