@@ -186,7 +186,7 @@ mixed not_allowed(string f, object id)
 	   id->auth=id->conf->auth_module->authenticate(user, pass);
 	 }
 
-	 if(!(id->user)) {
+	 if(!(id->get_user())) {
 	   if(query("page")) {
 	     return Caudium.HTTP.low_answer(200,
 				    replace(parse_rxml(query("authpage"), id),
@@ -199,7 +199,7 @@ mixed not_allowed(string f, object id)
 	   }
 	 }
 	 foreach(level[2]/",", uname) {
-	   if((id->user && id->user->username==uname) || (uname=="any") || (uname=="*")) {
+	   if((id->get_user() && id->get_user()->username==uname) || (uname=="any") || (uname=="*")) {
 	     return 0;
 	   }
 	 }
