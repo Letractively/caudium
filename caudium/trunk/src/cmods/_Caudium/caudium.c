@@ -30,6 +30,9 @@ RCSID("$Id$");
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
 #ifdef TIME_WITH_SYS_TIME_H
 # include <sys/time.h>
@@ -73,6 +76,77 @@ static_strings strs;
 **!  This class is used to parse a HTTP/1.0 or HTTP/1.1 request.
 **!  scope: private
 */
+
+#ifndef HAVE_SETPROCTITLE
+static long   _maxargvlen = -1;
+static char  *argv0 = NULL;
+static char  *progname = "";
+
+static void setproctitle_init(int argc, char **argv)
+{
+  int     i;
+  char   *ch;
+  
+  argv0 = argv[0];
+
+  if (_maxargvlen < 0) {
+    _maxargvlen = 0;
+    for (i = 0; i < argc; i++)
+      _maxargvlen += strlen(argv[i]) + 1;
+    _maxargvlen++;
+  }
+
+  ch = strchr(argv[0], ' ');
+  if (ch)
+    progname = strndup(argv[0], ch - argv[0]);
+  else
+    progname = strdup(argv[0]);
+
+  if (!progname)
+    progname = "";
+}
+
+static void setproctitle(char *fmt, ...)
+{
+  va_list     ap;
+#if defined(__GNUC__) || defined(HAVE_ALLOCA)
+  char       *buf = alloca(_maxargvlen);
+#else
+  char       *buf = malloc(_maxargvlen);
+#endif
+
+  if (!argv0 || !_maxargvlen || !fmt || !strlen(fmt)) {
+#if !defined(__GNUC__) && !defined(HAVE_ALLOCA)
+    if (buf)
+      free(buf);
+#endif
+    return;
+  }
+
+  if (!buf)
+    return;
+
+  memset(buf, 0, _maxargvlen);
+  va_start(ap, fmt);
+  if (fmt[0] == '-')
+    (void)vsnprintf(buf, _maxargvlen - 1, fmt+1, ap);
+  else {
+    int  prlen = strlen(progname);
+    
+    (void)snprintf(buf, _maxargvlen - 1, "%s ", progname);
+    (void)vsnprintf(buf + prlen, _maxargvlen - prlen - 1, fmt, ap);
+  }
+  va_end(ap);
+  
+  memset(argv0, 0, _maxargvlen);
+  strncpy(argv0, buf, _maxargvlen - 1);
+
+#if !defined(__GNUC__) && !defined(HAVE_ALLOCA)
+  if (buf)
+    free(buf);
+#endif
+}
+#endif
 
 static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
   unsigned char *ptr, *end, *endl2;
@@ -1541,7 +1615,7 @@ static void f_http_date(INT32 args)
     pop_stack();
   push_string(ret);
 }
-
+  
 /* Initialize and start module */
 void pike_module_init( void )
 {
