@@ -20,17 +20,7 @@
 
 #include "global.h"
 RCSID("$Id$");
-#include "interpret.h"
-#include "stralloc.h"
-#include "pike_macros.h"
-#include "object.h"
-#include "program.h"
-#include "multiset.h"
-#include "mapping.h"
-#include "builtin_functions.h"
-#include "module_support.h"
-#include "error.h"
-#include "threads.h"
+#include "caudium_util.h"
 #include "ultraparse.h"
 
 extern char char_class[1<<CHAR_BIT];
