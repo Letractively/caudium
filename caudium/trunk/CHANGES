@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- svg/svgz file image format handling.
 - Fix a problem when Caudium is not running as root : display a warning if 
   the user tries to run lsof in open ports action tab.
 - The Generate a self signed certificate and a RSA key-pair was not delivering
