@@ -1,7 +1,7 @@
 #!/usr/bin/env pike
 
 int main(int argc, array argv) {
-#if constant(Sablotron.parse)
+#if constant(PiXSL.parse)
   string xsl, xml, ofile;
   string res;
   switch(argc) {
@@ -20,7 +20,7 @@ int main(int argc, array argv) {
     exit(1);
   }
   if(!xml) xml = "file://stdin";
-  res = Sablotron.parse_files(xsl, xml);
+  res = PiXSL.parse_files(xsl, xml);
   if(!res) exit(1);
   if(ofile) {
     rm(ofile);
@@ -29,7 +29,7 @@ int main(int argc, array argv) {
     write(res);
   }
 #else
-  werror("ERROR: Sabletron Pike module not available!\n");
+  werror("ERROR: PiXSL.so Pike module not available!\n");
   exit(2);
 #endif
 }
