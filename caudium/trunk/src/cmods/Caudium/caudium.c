@@ -113,8 +113,7 @@ static void f_buf_append( INT32 args )
     return;
   }
 
-  skey.type = T_STRING;
-  sval.type = T_STRING;
+  skey.type = sval.type = T_STRING;
 
   sval.u.string = make_shared_binary_string( (char *)pp, BUF->pos - pp);
   mapping_insert(BUF->other, SVAL(data), &sval); /* data */
@@ -133,7 +132,7 @@ static void f_buf_append( INT32 args )
     }
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
-    mapping_insert(BUF->other, SVAL(method), &sval);
+  mapping_insert(BUF->other, SVAL(method), &sval);
   free_string(sval.u.string);
   
   i++; in += i; l -= i;
@@ -224,49 +223,56 @@ static void f_buf_append( INT32 args )
 
 static void f_buf_create( INT32 args )
 {
-  BUF->free = BUFSIZE;
-
+  if(BUF->data != NULL)
+    Pike_error("Create already called!\n");
   switch(args) {
-    default:
-      Pike_error("Wrong number of arguments to create. Expected 2 or 3.\n");
-	  break;
+   default:
+    Pike_error("Wrong number of arguments to create. Expected 2 or 3.\n");
+    break;
 	  
-    case 3:
-	  if(sp[-1].type != T_INT) {
-        Pike_error("Wrong argument 3 to create. Expected int.\n");
-      } else {
-        BUF->free = sp[-1].u.integer;
-      }
-	  /* fall through */
+   case 3:
+    if(sp[-1].type != T_INT) {
+      Pike_error("Wrong argument 3 to create. Expected int.\n");
+    } else if(sp[-1].u.integer < 100) {
+      Pike_error("Specified buffer too small.\n");
+    } else {
+      BUF->free = sp[-1].u.integer;
+    }
+    /* fall through */
 	  
-	case 2:
-      if(sp[-(args - 1)].type != T_MAPPING)
-        Pike_error("Wrong argument 1 to create. Expected mapping.\n");	
-      if(sp[-args].type != T_MAPPING)
-        Pike_error("Wrong argument 2 to create. Expected mapping.\n");
-      break;
+   case 2:
+    if(sp[-(args - 1)].type != T_MAPPING)
+      Pike_error("Wrong argument 2 to create. Expected mapping.\n");	
+    if(sp[-args].type != T_MAPPING)
+      Pike_error("Wrong argument 1 to create. Expected mapping.\n");
+    break;
   }
 
-  if(BUF->free != BUFSIZE && BUF->free) {
-  	BUF->data = (char*)realloc(BUF->data, BUF->free * sizeof(char));
+  if(BUF->free) {
+    BUF->data = (char*)malloc(BUF->free * sizeof(char));
     if(!BUF->data)
-      Pike_error("Cannot reallocate the request buffer.\n");
+      Pike_error("Cannot allocate the request buffer. Out of memory?\n");
   }
   
   BUF->pos = BUF->data;
   add_ref(BUF->headers   = sp[-(args - 1)].u.mapping);
   add_ref(BUF->other     = sp[-args].u.mapping);
-  
   pop_n_elems(args);
 }
 
 static void free_buf_struct(struct object *o)
 {
-  free_mapping(BUF->headers);
-  free_mapping(BUF->other);
+  if(BUF->headers != NULL ) {
+    free_mapping(BUF->headers);
+    BUF->headers = NULL;
+  }
+  if(BUF->other != NULL) {
+    free_mapping(BUF->other);
+    BUF->other = NULL;
+  }
   if(BUF->data) {
-  	free(BUF->data);
-	BUF->data = NULL; /* just in case */
+    free(BUF->data);
+    BUF->data = NULL; /* just in case */
   }
 }
 
@@ -276,9 +282,10 @@ static void alloc_buf_struct(struct object *o)
    * size. If the size passed to create differs
    * then the buffer will be reallocated.
    */
-  BUF->data = (char*)malloc(BUFSIZE * sizeof(char));
-  if(!BUF->data)
-  	Pike_error("Cannot allocate the request buffer in class init.\n");
+  BUF->headers = NULL;
+  BUF->other = NULL;
+  BUF->data = NULL;
+  BUF->free = BUFSIZE;
 }
 
 /*
@@ -309,7 +316,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
   {
     if(*p >= 'A' && *p <= 'Z') {
       *p |= 32; /* OR is faster than addition and we just need
-                     * to set one bit :-). */
+		 * to set one bit :-). */
     }
   }
   pstr = make_shared_binary_string((char *)mystr, len);
@@ -395,7 +402,7 @@ mapping_insert(headermap, &skey, &sval);
 #endif
 
 INLINE static int get_next_header(unsigned char *heads, int len,
-					   struct mapping *headermap)
+				  struct mapping *headermap)
 {
   int data, count, colon, count2=0;
   struct svalue skey, sval;
@@ -430,7 +437,6 @@ INLINE static int get_next_header(unsigned char *heads, int len,
   return count;
 }
 
-
 static void f_parse_headers( INT32 args )
 {
   struct mapping *headermap;
@@ -451,7 +457,7 @@ static void f_parse_headers( INT32 args )
    * If memory allocation fails, just bail out with error()
    */
   while(len > 0 &&
-    (parsed = get_next_header(ptr, len, headermap)) >= 0 ) {
+	(parsed = get_next_header(ptr, len, headermap)) >= 0 ) {
     ptr += parsed;
     len -= parsed;
   }
@@ -473,11 +479,8 @@ static void f_parse_query_string( INT32 args )
   unsigned char *equal; /* Pointer to the equal sign */
   unsigned char *end;   /* Pointer to the ending null char */
   int namelen, valulen; /* Length of the current name and value */
-  
   get_all_args("Caudium.parse_query_string", args, "%S%m", &query, &variables);
-  skey.type = T_STRING;
-  sval.type = T_STRING;
-
+  skey.type = sval.type = T_STRING;
   /* end of query string */
   end = (unsigned char *)(query->str + query->len);
   name = ptr = (unsigned char *)query->str;
@@ -511,7 +514,7 @@ static void f_parse_query_string( INT32 args )
 	sval.u.string = url_decode(equal, valulen, 0);
 	if (sval.u.string == NULL) { /* OOM. Bail out */
 	  Pike_error("Caudium.parse_query_string(): "
-		"Out of memory in url_decode().\n");
+		     "Out of memory in url_decode().\n");
 	}
       } else {
 	/* Add strings separed with '\0'... */
@@ -519,12 +522,11 @@ static void f_parse_query_string( INT32 args )
 	tmp = url_decode(equal, valulen, 1);
 	if (tmp == NULL) {
 	  Pike_error("Caudium.parse_query_string(): "
-		"Out of memory in url_decode().\n");
+		     "Out of memory in url_decode().\n");
 	}
 	sval.u.string = add_shared_strings(exist->u.string, tmp);
 	free_string(tmp);
       }
-     
       mapping_insert(variables, &skey, &sval);
       free_string(skey.u.string);
       free_string(sval.u.string);
