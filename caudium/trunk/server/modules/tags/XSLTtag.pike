@@ -31,7 +31,9 @@
 /*
  * XSLTtag.pike - XSLT Tag for Caudium. Utilizes the Sablotron XSLT Library
  *                available from http://www.gingerall.com/
- * Written by David Hedbor <david@hedbor.org>
+ * Originally written by David Hedbor <david@hedbor.org>
+ * Fixes for virtual filesystem storage, and Caudium 1.3 caching by
+ *   James Tyson.
  */
 
 string cvs_version = "$Id$";
@@ -41,6 +43,7 @@ constant thread_safe = 1;
 
 inherit "module";
 inherit "caudiumlib";
+inherit "cachelib";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "XSLT Tag";
@@ -69,6 +72,8 @@ constant module_doc =
 "This module will not function correctly!</font></b>\n"
 #endif
 ;
+object cache;
+
 void create()
 {
   defvar("baseuri", "", "Default Base URI", TYPE_DIR,
@@ -80,6 +85,10 @@ void create()
 	 "omitted. Uses the same file:, virt: and var: syntax as the age.\n");
   defvar("use_xslt", 0, "Use libxslt Library ?", 
 	 TYPE_FLAG,"If set the libxslt library will be used !");
+}
+
+void start() {
+  cache = caudium->cache_manager->get_cache( this_object() );
 }
 
 #define ERROR(x) return "<p><b>XSLT Error: " x "</b><p><false>";
@@ -128,7 +137,33 @@ void close_include(object id, object obj)
 {
 }
 
-
+void cache_retrieve_template( string curl, object id ) {
+  string type, uri,xsl;
+  if ( sscanf( curl, "%s:/%s", type, uri ) != 2 ) {
+    uri = curl;
+    type = "test";
+  }
+  if (type == "test") {
+    if (Stdio.exist(uri)&&Stdio.is_file(uri))
+      type = "file";
+    else
+      type = "virt";
+  }
+  switch(type) {
+  case "file":
+    if (Stdio.exist(uri)&&Stdio.is_file(uri))
+      xsl = Stdio.read_file(uri);
+    else
+      xsl = "<b>ERROR:</b> XSL Template Not Found";
+    break;
+  case "virt":
+    xsl = id->conf->try_get_file(uri,id);
+    if (!xsl)
+      xsl = "<b>ERROR:</b> XSL Template Not Found";
+    break;
+  }
+  cache->store( cache_string( xsl, curl ) );
+}
 
 string container_xslt(string tag, mapping args, string xml, object id)
 {
@@ -147,7 +182,6 @@ string container_xslt(string tag, mapping args, string xml, object id)
     }
     switch(type) {
      case "virt":  
-       // key = id->realfile(key, id);   <--- why is this here? It's totally broken!
      case "file":
        args->baseuri = key;
        break;
@@ -159,25 +193,25 @@ string container_xslt(string tag, mapping args, string xml, object id)
   sscanf(args->stylesheet, "%s:%s", type, key);
   if(!key || !type)
     ERROR("Incorrect or missing stylesheet");
+
+  string curl;
+  if (args->baseuri)
+    curl = sprintf("%s:/%s", type, Stdio.append_path(args->baseuri, key));
+  else
+    curl = sprintf("%s:/%s", type, key);
+
   switch(type) {
   case "virt":
-    if (args->baseuri)
-      xsl = id->conf->try_get_file(Stdio.append_path(args->baseuri,key),id);
-    else
-      xsl = id->conf->try_get_file(key,id);
-    break;
   case "file":
-    xsl = Stdio.read_file(key);
-    if(!args->baseuri) 
-      args->baseuri = dirname(key);
+    xsl = cache->retrieve(curl, cache_retrieve_template, ({curl, id}));
     break;
   case "var":
     xsl = id->variables[key];
     break;
-
   default:
     ERROR("Invalid stylesheet method. Valid methods are file:, virt: and var:");
   }
+
   if(!xsl) 
     ERROR("Couldn't read XSLT stylesheet:");
   if ( stringp(args->xmlfile) ) {
