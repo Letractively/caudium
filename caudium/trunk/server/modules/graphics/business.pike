@@ -1087,7 +1087,7 @@ mapping find_file(string f, object id)
 //!  name: Limits:Max string length
 //
 //! defvar: cachedir
-//! The directory that will be used to store diagrams.
+//! The directory that will be used to store diagrams. This is relative to the argument cache directory.
 //!  type: TYPE_DIR|VAR_MORE
 //!  name: Cache directory
 //

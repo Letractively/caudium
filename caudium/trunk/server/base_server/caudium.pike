@@ -3711,6 +3711,36 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_FILE
 //!  name: Proxy disk cache: Garbage collector logfile
 //
+//! defvar: cache_max_ram
+//! The maximum amount of RAM that should be consumed by the caching system in Megabytes.
+//!  type: TYPE_INT
+//!  name: Caching Sub-system: Maximum RAM Usage (MB)
+//
+//! defvar: cache_max_slow
+//! The maximum amount of storage space that can be consumed by the caching systems slow storage method in Megabytes.
+//!  type: TYPE_INT
+//!  name: Caching Sub-system: Maximum Slow Storage Usage (MB)
+//
+//! defvar: cache_vigilance
+//! The caching system uses an asynchronous method of maintaining the limits to the caches RAM and slow storage methods as also configured here. A setting of 100% will mean that the cache sizes will be forced to no more than the configured values every 30 seconds, a setting of 0% will mean the sizes are checked approximately 20 minutes. If you have heaps of RAM and disk then you might mean that setting this value low will increase the performance of the server by causing it to cache more data in RAM, however this is not correct as when it does come time to clear the caches it will have to shuffle more data. 75% is the reccomended value, and should probably not be fiddled with unless you are sure of what you're doing.
+//!  type: TYPE_INT
+//!  name: Caching Sub-system: Vigilance (%)
+//
+//! defvar: cache_fs_path
+//! Path on the filesystem for storage of cached data if, indeed the disk storage method is being used.
+//!  type: TYPE_DIR
+//!  name: Caching Sub-system: Slow Storage Path
+//
+//! defvar: cache_default_ttl
+//! This is the default length of time to hold onto objects that have been placed in the cache without an expiry date.
+//!  type: TYPE_INT
+//!  name: Caching Sub-system: Default time to live (Minutes)
+//
+//! defvar: cache_default_halflife
+//! The caching subsystem is capable of handling many concurrent caches and dynamically managing their memory and disk usage - however, every now and then a cache will be created by something in Caudium (say, a module), and will never be requested. By setting this value you can tell the caching sub-system to shutdown a cache and store it's data on the disk after a configurable period of inactivity.
+//!  type: TYPE_INT
+//!  name: Caching Sub-system: Default cache halflife (Hours)
+//
 //! defvar: docurl2
 //! The URL to prepend to all documentation urls throughout the server. This URL should _not_ end with a '/'.
 //!  type: TYPE_STRING|VAR_MORE|VAR_EXPERT
