@@ -1,7 +1,7 @@
 caudium (2:1.0.35-12) unstable; urgency=low
 
   * Added the Swedish translation of the debconf template (submitted
-    by Martin Sj|gren <md9ms@mdstud.chalmers.se>)
+    by Martin Sj|gren <md9ms@mdstud.chalmers.se>, closes: #109751)
   * Removed the 'text' type from the debconf template (closes: #106331)
   * Fixed the postrm script not to try to remove the '.' and '..' 
     directories (patch submitted by David Coe <dcoe@peoplink.org>, 
