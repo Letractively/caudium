@@ -46,8 +46,8 @@
     <xsl:when test="$display = 'methods'">
       <page title="Caudium Method Index">
        <h3>Caudium Method Index</h3>
-         <p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Tag / Container/%%/In Module
-         <xsl:apply-templates select='/descendant::entry[@type="method"]' mode="top">
+         <p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Method/%%/Defined in...
+         <xsl:apply-templates select='/descendant::entry[@type="method"]' mode="method">
            <xsl:sort select="@name"/></xsl:apply-templates>
          </tablify></p>
        <xsl:comment>XSLT Template version $Id$</xsl:comment>
@@ -111,6 +111,7 @@
 </xsl:template>
 
 <xsl:template match="entry" mode="method">
+  <xsl:choose>
    <xsl:when test="@type='method'">
     /@@/<a href="{@path}#{@name}">
      &lt;<xsl:value-of select="@name"/> /&gt;
@@ -120,6 +121,7 @@
      <xsl:otherwise><xsl:value-of select="../@name"/></xsl:otherwise>
      </xsl:choose></a>
    </xsl:when>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>
