@@ -15,7 +15,14 @@ static object permstore;
 static mapping clients;
 
 void create(string _permstore, string path) {
+  start(_permstore, path);
+}
+
+void start(string _permstore, string path) {
   LOCK();
+  if (objectp(permstore)) {
+    destruct(permstore);
+  }
   storage = ([]);
   clients = ([]);
   switch (_permstore) {
