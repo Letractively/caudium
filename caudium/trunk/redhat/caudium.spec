@@ -1,5 +1,12 @@
+# $Id$
+# $Revision$
+#
+# Created by Mike A. Harris <mikeharris@users.sourceforge.net> for
+# the Caudium webserver project.  Portions of text were borrowed from
+# the debian packaging files written by Marek Habersack <grendel@caudium.org>
+
 %define name	caudium
-%define version	cvs20000926
+%define version	cvs20000930
 %define release	1
 %define packager Mike A. Harris <mharris@meteng.on.ca>
 
@@ -8,15 +15,15 @@
 # that FHS compliance changes have made it into Red Hat 7.0
 %define _initdir %([ -d /etc/init.d -a ! -L /etc/init.d ] && echo /etc/init.d || echo /etc/rc.d/init.d)
 
-Summary: Caudium high performance webserver.
+Summary: An extensible high performance web server written in Pike
 Name: %{name}
 Version: %{version}
 Release: %{release}
 Copyright: GPL
 Group: System Environment/Daemons
 Source: %{name}-%{version}.tgz
-Source1: caudium.init
-Patch: patch-pikepath.diff.gz
+#Source1: caudium.init
+#Patch: patch-pikepath.diff
 
 BuildRoot: /tmp/%{name}-build
 Packager: %packager
@@ -27,48 +34,54 @@ Requires: pike
 Conflicts: apache
 
 %description
-The Caudium web server is a high performance web server written in
-the pike programming language.  It is a development fork of the 
-award winning Roxen Challenger web server.
+Caudium is a modern, fast and extensible WWW server derived from Roxen.
+Caudium is by default compatible with Roxen 1.3 although some incompatible
+options, mostly introduced to improve the performance, security etc. of the
+server, can be turned on.
+Caudium features built-in log parsing engine (UltraLog), XSLT parser, native
+PHP4 support (you need Pike7 that has been compiled to support php4 for this
+to work), multiple execution threads and many more features - see
+http://caudium.net/ and http://caudium.org/ for more information.
 
 %package modules
-Summary: Caudium modules
+Summary: Caudium modules written in C
 License: GPL
 Group: System Environment/Daemons
 #Prereq: /sbin/chkconfig, /usr/sbin/useradd, /usr/sbin/userdel
 Requires: %name = %version
 
 %description modules
-Caudium modules package.  Complain to %packager
-for poor description.
+Certain parts of Caudium are coded in C for speed. This package contains
+the compiled shared modules that are required by Caudium to run.
 
 %package pixsl
-Summary: Caudium PiXSL (FIXME: more accurate description)
+Summary: Caudium PiXSL Pike XSLT module
 License: GPL
 Group: System Environment/Daemons
 Requires: %name = %version
 
 %description pixsl
-Caudium PiXSL package. Complain to %packager
-for poor description.
+Certain parts of Caudium are coded in C for speed. This package contains 
+the compiled shared extension module that provides Caudium with XSLT support.
 
 %package ultralog
-Summary: Caudium Ultralog (FIXME: more accurate description)
+Summary: Caudium Ultralog log parser module
 License: GPL
 Group: System Environment/Daemons
 Requires: %name = %version
 
 %description ultralog
-Caudium Ultralog package. Complain to %packager
-for poor description.
+Certain parts of Caudium are coded in C for speed. This package contains 
+the compiled shared extension module that provides Caudium with a built-in 
+log file parser that is capable of generating extensive statistics on the 
+fly for virtual servers configured in your Caudium WebServer.
 
 %prep
 
 %setup
-
  
 ###############  PATCH SECTION  ########################################
-%patch0 -p1
+#%patch0 -p1
 
 
 ###############  BUILD SECTION  ########################################
@@ -80,6 +93,8 @@ for poor description.
 find . -name '.cvsignore' -type f -exec rm -- '{}' \;
 find . -name 'CVS' -type f -exec rm -- '{}' \;
 
+# Patch caudium manually to fix the pike shebang bug
+patch -p1 < redhat/patch-pikepath.diff
 ./autogen.sh
 ./configure --prefix=/usr --with-pike=$(which pike)
 make
@@ -103,7 +118,7 @@ rmdir $RPM_BUILD_ROOT/usr/share/doc
 mkdir -p $RPM_BUILD_ROOT/etc/caudium/servers
 cp debian/localhost $RPM_BUILD_ROOT/etc/caudium/servers/localhost
 mkdir -p $RPM_BUILD_ROOT/%_initdir
-cp %SOURCE1 $RPM_BUILD_ROOT/%_initdir/caudium
+cp redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
 
 # Create various dirs required for proper operation
 mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
@@ -168,6 +183,12 @@ mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
 
 
 %changelog
+* Sat Sep 30 2000 Mike A. Harris <mharris@meteng.on.ca>
+  Now that the redhat stuff is built into the CVS sources, I changed
+  the spec to use the files in the main tarball instead of being
+  external.  I also updated the lame package descriptions I had, by
+  stealing Marek's debian package descriptions.  ;o)
+
 * Thu Sep 28 2000 Mike A. Harris <mharris@meteng.on.ca>
   Prepared first public release of RPM spec file, and submitted
   it to caudium-devel mailing list for inclusion.
