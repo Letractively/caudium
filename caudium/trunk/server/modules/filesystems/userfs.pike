@@ -697,7 +697,7 @@ string real_file(string f, object id)
       else
         f = QUERY(searchpath) + u + "/" + f;
     }
-#ifdef USERFR_DEBUG
+#ifdef USERFS_DEBUG
     roxen_perror(sprintf("USERFS: real_file(%O, X)\n", f));
 #endif
 		 
@@ -814,7 +814,7 @@ array(int) stat_file(string f, object id)
       else
         f = QUERY(searchpath) + u + "/" + f;
     }
-#ifdef USERFR_DEBUG
+#ifdef USERFS_DEBUG
     roxen_perror(sprintf("USERFR: stat_file(%O, X)\n",f));
 #endif
     st = filesystem::stat_file( f,id );
