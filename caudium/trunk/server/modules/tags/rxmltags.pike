@@ -1382,7 +1382,7 @@ string tag_echo(string tag,mapping m,object id,object file,
     return _Roxen.html_encode_string(id->method);
 
    case "auth_type":
-    return "Basic";
+    return (id->rawauth?(id->rawauth/" ")[0]):"";
       
    case "http_cookie": case "cookie":
     NOCACHE();
@@ -1705,8 +1705,8 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
       sscanf(tmp, "%s/", tmp);
       string user;
       user="Unknown";
-      if(id->auth && id->auth[0])
-	user=id->auth[1];
+      if(id->user)
+	user=id->user->username;
       string addr=id->remoteaddr || "Internal";
       NOCACHE();
       return popen(m->cmd,
@@ -2186,7 +2186,7 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
     return "<!-- user requires an user database! -->\n";
 
   if (m->queryname) 
-    return id->auth[1];
+    return (id->user?id->user->username:"");
   
   if (!(b=m->name)) {
     return(tag_modified("modified", m | ([ "by":"by" ]), id, file,defines));
@@ -2241,10 +2241,10 @@ string simple_parse_users_file(string file, string u)
  return 0;
 }
 
-int match_user(array u, string user, string f, int wwwfile, object id)
+int match_user(array raw, string user, string f, int wwwfile, object id)
 {
   string s, pass;
-  if(!u)
+  if(!raw || raw=="")
     return 0; // No auth sent
   if(!wwwfile)
     s=Stdio.read_bytes(f);
@@ -2252,12 +2252,16 @@ int match_user(array u, string user, string f, int wwwfile, object id)
     s=id->conf->try_get_file(f, id);
   if(!s)
     return 0;
-  if(u[1]!=user) return 0;
-  pass=simple_parse_users_file(s, u[1]);
+
+  array u=(raw/" ")[1];
+  u=MIME.decode_base64(u)/":";
+
+  if(u[0]!=user) return 0;
+  pass=simple_parse_users_file(s, u[0]);
   if(!pass) return 0;
-  if(u[0] == 1 && pass)
+  if(id->user && pass)
     return 1;
-  return match_passwd(u[2], pass);
+  return match_passwd(u[1], pass);
 }
 
 multiset simple_parse_group_file(string file, string g)
@@ -2539,7 +2543,7 @@ string tag_allow(string a, mapping (string:string) m,
     NOCACHE();
 
     if(m->user == "any")
-      if(m->file && id->auth) {
+      if(m->file && id->user) {
 	// FIXME: wwwfile attribute doesn't work.
 	TEST(match_user(id->auth,id->auth[1],fix_relative(m->file,id),
 			!!m->wwwfile, id));

@@ -60,7 +60,7 @@ class ClientScope {
       //!  Returns the authenticated user. If a user was sent but the
       //!  authentication was incorrect, this will be empty.
       NOCACHE();
-      ret = (id->auth && id->auth[0] && id->auth[1]);
+      ret = (id->use?id->user->username:"");
       break;
      case "fullname":
       //! entity: fullname

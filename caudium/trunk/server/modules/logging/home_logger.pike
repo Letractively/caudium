@@ -104,15 +104,6 @@ nomask private inline string unsigned_short_to_bin(int a)
   return sprintf("%2c", a);
 }
 
-nomask private inline string extract_user(string from)
-{
-  array tmp;
-  if (!from || sizeof(tmp = from/":")<2)
-    return "-";
-  
-  return tmp[0];      // username only, no password
-}
-
 mapping (string:string) log_format = ([]);
 
 private void parse_log_formats()
@@ -360,7 +351,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
 		 Caudium.http_encode_string(request_id->useragent),
-		 extract_user(request_id->realauth),
+		 (request_id->user?request_id->user->username:"-"),
 		 (string)request_id->cookies->CaudiumUserID,
 	       }) );
   

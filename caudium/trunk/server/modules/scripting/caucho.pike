@@ -207,8 +207,8 @@ class CseStream
     srun->write_string(CSE_SERVER_PORT, (string)id->conf->port || "unk");
     srun->write_string(CSE_REMOTE_ADDR, (string)id->remoteaddr || "unk");
     srun->write_string(CSE_REMOTE_PORT, (string)id->clientprot || "unk");
-    if (id->auth && sizeof(id->auth) && id->auth[0])
-       srun->write_string(CSE_REMOTE_USER, id->auth[1]);
+    if (id->user)
+       srun->write_string(CSE_REMOTE_USER, id->user->username);
     srun->write_string(CSE_SESSION_GROUP, sprintf("%d", srun->session));
   }
   

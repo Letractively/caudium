@@ -588,10 +588,8 @@ mixed first_try(object id) {
     }
     if (userauthrequired == 1) {
       if ((id->variables->httpuser) && (id->variables->httppass)) {
-        string comb = id->variables->httpuser+":"+id->variables->httppass;
-        array(string) auth = ({"Basic", comb});
-        mixed result = id->conf->auth_module->auth(auth, id);
-        if (result[0] == 1) {
+        int result = id->conf->auth_module->authenticate(httpuser, httppass);
+        if (result == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
           return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):http_low_answer(200, authtemplate);
