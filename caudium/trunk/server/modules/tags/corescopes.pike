@@ -44,8 +44,22 @@ entities, you need the XML Compliant RXML parser. It's easy to insert \
 the value of an entity - just do &amp;scope.entity; in your RXML page.";
 constant module_unique = 1;
 
+//
+//! file: modules/tags/corescopes.pike
+//!  This file contains definitions of the basic Caudium entity scopes and
+//!  corresponding classes.
+//! cvs_version: $Id$
+//
+//! class: ClientScope
+//!  This class implements the scope which contains all variables related
+//!  to the client on the other end of the current request. For detailed
+//!  description see [base_server/scope.pike]
+//! scope: public
+//! inherits: scope
+//! see_also: base_server/scope.pike
+//
 class ClientScope {
-  inherit "scope";
+  inherit "scope";  
   constant name = "client";
 
   array(string)|string get(string entity, object id) {
@@ -92,6 +106,14 @@ class ClientScope {
   }
 }
 
+//
+//! class: CookieScope
+//!  This class providess access to cookies using the entity syntax.
+//!  For detailed description of methods see [base_server/scope.pike].
+//! scope: public
+//! inherits: scope
+//! see_also: base_server/scope.pike
+//
 class CookieScope {
   inherit "scope";
   constant name = "cookie";
@@ -102,7 +124,14 @@ class CookieScope {
   }
 }
 
-
+//
+//! class: FormScope
+//!  This class providess access to all form variables.
+//!  For detailed description of methods see [base_server/scope.pike].
+//! scope: public
+//! inherits: scope
+//! see_also: base_server/scope.pike
+//
 class FormScope {
   inherit "scope";
   void create(string _name) {

@@ -366,6 +366,9 @@ class DocGen
 	/* Header */
 	ret = "<class name=\"" + c->first_line + "\">\n";
 	
+	/* Description */
+	ret += "<description>\n\t" + c->contents + "\n</description>\n\n";
+	
 	/* Scope */
 	ret += "\t<scope>" + c->scope + "</scope>\n";
 	
@@ -412,7 +415,7 @@ class DocGen
 	    ret += "\t</bugs>\n";
 	}
 	
-	ret += "</class>\n";
+	ret += "</class>\n\n";
 	
 	return ret;
     }
