@@ -261,6 +261,8 @@ wmlc	application/x-wap.wmlc		   wmlc
 wmls	text/x-wap.wmlscript
 # Compiled WMLScript
 wmlsc	application/x-wap.wmlscriptc
+# WMLBitmap
+wbmp    image/vnd.wap.wbmp
 
 # This one hasn't been registred with IANA yet, but is added anyway.
 # LivePicture PhotoVista RealSpace
