@@ -66,6 +66,11 @@ mapping first_try(object id)
      (caudium->real_file(id->not_query + ".gz", id)
       && caudium->stat_file(id->not_query + ".gz", id)))
   {
+    if ( ! id->misc ) id->misc = ([]);
+    if ( ! id->misc->moreheads ) id->misc->moreheads = ([]);
+    
+    id->misc->moreheads |= ([ "Content-Encoding" : "gzip" ]);
+    
     id->not_query += ".gz";
     return caudium->get_file( id  );
   }
