@@ -6,7 +6,7 @@
 <xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
 
 <xsl:template match="index">
- <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>hello
+ <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
  <page title="Caudium Module Index">
   <h3>List of all Caudium Modules</h3>
   <dl><xsl:apply-templates select='entry[@type="module"]' mode="top"/></dl>
