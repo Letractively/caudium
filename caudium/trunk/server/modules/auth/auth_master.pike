@@ -150,6 +150,26 @@ array|int list_all_users()
 //! array containing known group names, zero if none exist.
 array|int list_all_groups()
 
+//! return an array of information for a user
+//! @param u
+//! user name to return data for
+//! @returns
+//! @array
+//!   @elem string 0
+//!     user name
+//!   @elem string 1
+//!     password
+//!   @elem int 2
+//!     numeric user id
+//!   @elem int 3
+//!     numeric group id (primary)
+//!   @elem string 4
+//!     real name (gecos)
+//!   @elem string 5
+//!     home directory
+//!   @elem string 6
+//!     login shell
+//! @endarray
 array(string) userinfo(string u) 
 {
   if(!users[u])
@@ -157,21 +177,15 @@ array(string) userinfo(string u)
   return users[u];
 }
 
-void create()
-{
 
-}
-
-void start(object conf)
-{
-  // first, set up the group and user caches.
-  setup_cache();
-}
-
-int succ, fail, nouser;
-
-mapping failed  = ([ ]);
-
+//! authenticate a user
+//! @param auth
+//!   @array
+//!     @elem 0 string
+//!        valid value is "Basic" for basic authentication
+//!     @elem 1 string
+//!        string containing user name and password, separated by a colon (:). 
+//!   @endarray
 array|int auth(array(string) auth, object id)
 {
   string u, p;
@@ -215,6 +229,21 @@ array|int auth(array(string) auth, object id)
   succ++;
   return ({ 1, u, 0, getgrgid(id->misc->gid) }); // u is a valid user.
 }
+
+void create()
+{
+
+}
+
+void start(object conf)
+{
+  // first, set up the group and user caches.
+  setup_cache();
+}
+
+int succ, fail, nouser;
+
+mapping failed  = ([ ]);
 
 string status()
 {
