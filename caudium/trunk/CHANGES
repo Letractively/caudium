@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Floats are now hanlded by Caudium.sexpr_eval()
+   (Bertrand Lupart, Jan-Felix Wittman)
 - Fixed image generation in the Caudium configuration interface.
   Removed some duplicate caches and replaced very old cache with new one.
   Fixed some wrong return type for images from the CIF in the HTTP headers.
