@@ -1,4 +1,4 @@
-usr/share/caudium/modules/camas/*
-usr/share/caudium/modules/camas/languages/*
+usr/lib/caudium/modules/camas/*
+usr/lib/caudium/modules/camas/languages/*
 usr/lib/caudium/etc/modules/CAMAS.pmod/*
 usr/lib/caudium/etc/include/camas/*
