@@ -293,11 +293,14 @@ string tag_list_tags( string t, mapping args, object id, object f )
     if(verbose || id->variables->verbose == tag)
     {
       res += "<blockquote><table><tr><td>";
-      string tr;
+      array|string tr;
       catch(tr = call_tag(tag, (["help":"help"]), 
 			  id->misc->line,
 			  id, f, id->misc->defines, id->my_fd ));
-      if(tr) res += tr; else res += "no help";
+      if(tr && stringp(tr)) 
+        res += tr;
+      else 
+        res += "no help";
       res += "</td></tr></table></blockquote>";
     }
   }
