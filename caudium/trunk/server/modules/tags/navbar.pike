@@ -123,30 +123,21 @@ private void fetch_args(object id)
   if(!id->misc->navbar_args_fetched)
   {
     NDEBUG("Fetching args");
-    if(id->variables->navbarnextblock 
-        && (get_current_page(id) + 1) <= get_lastpage(id))
+    if(id->variables->navbarnextblock)
       set_current_page(id, get_current_page(id) + 1);
-    if(id->variables->navbarprevblock && (get_current_page(id) - 1) > 0)
+    if(id->variables->navbarprevblock)
       set_current_page(id, get_current_page(id) - 1);
     if(id->variables->navbarnextgroup)
     {
       int page_id = get_current_page (id) + NAV_MAX_PAGES;
-      // overflow catching
-      if (page_id > get_lastpage (id))
-        page_id = get_lastpage (id);
       set_current_page(id, page_id);
     }
     if(id->variables->navbarprevgroup)
     {
       int page_id = get_current_page(id) - NAV_MAX_PAGES;
-      // overflow catching
-      if (page_id < 1)
-        page_id = 1;
       set_current_page(id, page_id);
     }
-    if(id->variables->navbargotoblock 
-        && (int)id->variables->navbarelement > 0 
-        && (int)id->variables->navbarelement <= get_lastpage(id))
+    if(id->variables->navbargotoblock)
       set_current_page(id, (int)id->variables->navbarelement);
     id->misc->navbar_args_fetched = 1;
   }
@@ -157,9 +148,7 @@ int get_current_page(object id)
   wrong_usage(id);
   if(id->misc->navbar_session_flushed)
   {
-    NSESSION[NAV_CURRENT_PAGE] =
-     ceil((float) NSESSION[NAV_NB_ELEM] / NSESSION[NAV_NB_ELEM_PAGE]);
-    NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE];
+    NSESSION[NAV_CURRENT_PAGE] = get_lastpage(id);
     NDEBUG("get_current_page: page="+NSESSION[NAV_CURRENT_PAGE]);
   }
   return NSESSION[NAV_CURRENT_PAGE] || 1;
@@ -192,6 +181,16 @@ void start(int num, object conf)
     module_dependencies(conf, ({ "gsession" }));
 }
 
+// avoid overflow for every set_* functions
+private void catch_overflow(object id)
+{
+  // overflow catching
+  if(NSESSION[NAV_CURRENT_PAGE] < 1)
+    NSESSION[NAV_CURRENT_PAGE] = 1;
+  if(NSESSION[NAV_CURRENT_PAGE] > get_lastpage(id))
+    NSESSION[NAV_CURRENT_PAGE] = get_lastpage(id);
+}
+
 void set_nb_elements(object id, int nb)
 {
   if(nb < 0)
@@ -214,25 +213,19 @@ void set_nb_elements(object id, int nb)
     {
       NSESSION[NAV_CURRENT_PAGE]++;
     }
-    // overflow: we have less page(s) now than before
-    if(NSESSION[NAV_CURRENT_PAGE] > get_lastpage(id))
-    {
-      // page 0 does not exist, default to page 1
-      NSESSION[NAV_CURRENT_PAGE] = get_lastpage(id);
-    }
+    catch_overflow(id);
     NDEBUG("set_nb_elements: nb="+nb);
   }
 }
 
 void set_nb_elements_per_page(object id, int nb)
 {
-  if(nb <= 0)
-    throw(({ "Can't set a negative or null number of elements per page\n", backtrace() }));
   if(!NSESSION)
     create_session(id);
   if(nb != NSESSION[NAV_NB_ELEM_PAGE])
   {
     NSESSION[NAV_NB_ELEM_PAGE] = nb;
+    catch_overflow(id);
     NDEBUG("set_nb_elements_per_page: nb="+nb);
   }
 }
@@ -240,9 +233,8 @@ void set_nb_elements_per_page(object id, int nb)
 void set_current_page(object id, int page)
 {
   wrong_usage(id);
-  if(page <= 0)
-    throw(({ "Can't set a negative or null page\n", backtrace() }));
   NSESSION[NAV_CURRENT_PAGE] = page;
+  catch_overflow(id);
   NDEBUG("set_current_page: page="+page);
 }
 
