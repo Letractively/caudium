@@ -262,12 +262,12 @@ void create()
   defvar("sqlserver","mysql://localhost/webhosting","Web Hosting: SQL Server", TYPE_STRING,
          "This is the host running SQL server with the webhosting database "
 	 "where is stored all the webhosting informations.<br />"
-	 "Specify an \"SQL-URL\". (see roxen manual or documentation about SQL module)",0,hide_webhosting);
+	 "Specify an \"SQL-URL\". (see caudium manual or documentation about SQL module)",0,hide_webhosting);
   defvar("closedb",1,"Web Hosting: Close the database if not used", TYPE_FLAG,
          "Setting this will save one filedescriptor without a small "
 	 "performance loss.",0,hide_webhosting);
   defvar("usecache",1,"Web Hosting: Cache DB entries", TYPE_FLAG,
-         "Setting this will cache entries in the roxen cache subsystem. <br />"
+         "Setting this will cache entries in the caudium cache subsystem. <br />"
 	 "This can lower the load on the SQL Database on heavy loaded sites.", 0, hide_webhosting);
   defvar("timer",60,"Web Hosting: Database close timer", TYPE_INT,
          "The timer after which the database is closed",0,
@@ -353,7 +353,7 @@ int|string query_db(string what)
   }
 
   #ifdef USERFS_DEBUG
-  werror("Entry not in the roxen cache\n");
+  werror("Entry not in the caudium cache\n");
   #endif
   open_db();		// Open the database if it is not allready opened
 
@@ -410,7 +410,7 @@ int|string query_redir(string what)
   }
 
   #ifdef USERFS_DEBUG
-  werror("Entry not in the roxen cache\n");
+  werror("Entry not in the caudium cache\n");
   #endif
   open_db();		// Open the database if it is not allready opened
 
