@@ -73,3 +73,11 @@ static void unlink(string namespace, void|string key) {
   UNLOCK();
   permstore->unlink(key);
 }
+
+void destroy() {
+  stop();
+}
+
+void stop() {
+  sync();
+}
