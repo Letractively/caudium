@@ -543,12 +543,8 @@ class File
 
       indent += "  ";
 
-      foreach(indices(regions->regions[reg]), string var) {
-        if (var == "@name@")
-          continue;
-                
-        rcont += render_variable(regions->regions[reg][var], var);
-      }
+      foreach(indices(regions->regions[reg]), string var)
+        rcont += render_variable(regions->regions[reg][var], var);      
             
       my_file->write(render_xml("region", ([ "name" : reg ]), rcont, 1) + "\n\n");
     }
@@ -629,6 +625,59 @@ class File
       return regions->store_region(region, vals);
 
     return 0;
+  }
+
+  //! Get the entire region as a mapping
+  //!
+  //! @param region
+  //!  The name of the region to retrieve
+  //!
+  //! @returns
+  //!  A mapping with all the variables stored in the region or 0 on
+  //!  error.
+  mapping retrieve_region(string region)
+  {
+    if (regions)
+      return regions->retrieve_region(region);
+
+    return 0;
+  }
+
+  //! Get all the regions as a mapping of mappings
+  //!
+  //! @returns
+  //!  A mapping with all the regions or 0 on error.
+  mapping retrieve_regions()
+  {
+    if (regions)
+      return regions->retrieve_regions();
+
+    return 0;
+  }
+
+  //! Retrieve all the region names
+  //!
+  //! @returns
+  //!  An array with all the region names or 0 on error.
+  array(string)|int retrieve_region_names()
+  {
+    if (!regions)
+      return 0;
+
+    return regions->retrieve_region_names();
+  }
+  
+  //! Get the entire region as a mapping
+  //!
+  //! @param region
+  //!  The name of the region to retrieve
+  //!
+  //! @returns
+  //!  A mapping with all the variables stored in the region or 0 on
+  //!  error.
+  mixed `[](string region)
+  {
+    return retrieve_region(region);
   }
   
   static string _sprintf(int f)
@@ -802,6 +851,45 @@ class Config
     return 1;
   }
 
+  //! Retrieve the entire region
+  //!
+  //! @param region
+  //!  The name of the region to retrieve
+  //!
+  //! @returns
+  //!  A mapping with all the region variables or 0 on error.
+  mapping|int retrieve_region(string region) 
+  {
+    if (!regions || !regions[region])
+      return 0;
+
+    return regions[region];
+  }
+
+  //! Retrieve all the regions
+  //!
+  //! @returns
+  //!  A mapping with all the regions as mappings or 0 on error.
+  mapping|int retrieve_regions()
+  {
+    if (!regions)
+      return 0;
+
+    return regions;
+  }
+
+  //! Retrieve all the region names
+  //!
+  //! @returns
+  //!  An array with all the region names or 0 on error.
+  array(string)|int retrieve_region_names()
+  {
+    if (!regions)
+      return 0;
+
+    return indices(regions);
+  }
+  
   // FIXME: implement it
   private int var_valid(mixed value)
   {
@@ -838,6 +926,7 @@ class Config
 
     int ret = walk_children(element);
 
+    m_delete(creg, "@name@");
     creg = 0;
     
     return ret;
@@ -854,7 +943,7 @@ class Config
   // compound type (array, mapping, list).
   private int handle_var(object element, mapping attrs)
   {
-    if (!creg || !creg["@name@"]) {
+    if (!creg  || !creg["@name@"]) {
       werror("Variable found outside of any region\n");
       return 1;
     }
