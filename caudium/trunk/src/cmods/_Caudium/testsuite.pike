@@ -50,6 +50,8 @@ void prtest(string name) {
   write(sprintf("  Testing Caudium.%s()...\t",name));
 }
 
+// Do test with mapping in format "source":"destination" with function given
+// in argument.
 int mapping_test(mapping tst, function totest) {
   int out = 0;
   foreach(indices(tst), string foo) {
@@ -80,6 +82,50 @@ int TEST_http_encode_cookie() {
   return mapping_test(tst, Caudium.http_encode_cookie);
 }
 
+int TEST_http_encode_string() {
+  mapping tst = ([ " ":"%20", "\t":"%09", "\n":"%0A", "\r":"%0D",
+                   "%":"%25", "'":"%27", "\"":"%22", "<":"%3C",
+                   ">":"%3E", "@":"%40", "This is a test":"This%20is%20a%20test" ]);
+  prtest("http_encode_string");
+  return mapping_test(tst, Caudium.http_encode_string);
+}
+
+int TEST_http_encode_url() {
+  mapping tst = ([ " ":"%20", "\t":"%09", "\n":"%0A", "\r":"%0D",
+                   "%":"%25", "'":"%27", "\"":"%22", "#":"%23",
+                   "&":"%26", "?":"%3F", "=":"%3D", "/":"%2F",
+                   ":":"%3A", "+":"%2B", "<":"%3C", ">":"%3E",
+                   "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F" ]);
+  prtest("http_encode_url");
+  return mapping_test(tst, Caudium.http_encode_url);
+}
+
+int TEST_get_address() {
+  mapping tst = ([ "127.0.0.1 12313":"127.0.0.1",
+                   "192.168.255.1 0":"192.168.255.1",
+                   "10.20.10.55 10":"10.20.10.55",
+                   "zzzzzzzzz":"unknown", // Should never exist.
+                   "12.5.2.5.2.1 80":"12.5.2.5.2.1",
+                   "3ffe:200::1 6667":"3ffe:200::1", // IPv6 compatible :)
+                  ]);
+  prtest("get_address");
+  return mapping_test(tst, Caudium.get_address);
+}
+
+int TEST_get_port() {
+  mapping tst = ([ "127.0.0.1 12313":"12313",
+                   "192.168.255.1 0":"0",
+                   "192.168.255.3 1234567890":"1234567890", // Don't exist in real life... :)
+                   "10.20.10.55 10":"10",
+                   "zzzzzzzzz":"0", // Should never exist.
+                   "12.5.2.5.2.1 80":"80",
+                   "3ffe:200::1 6667":"6667", // IPv6 compatible :)
+                  ]);
+  prtest("get_port");
+  return mapping_test(tst, Caudium.get_port);
+}
+
+         
 int TEST_http_date() {
   int tmstmp = time();
   string a, b;
