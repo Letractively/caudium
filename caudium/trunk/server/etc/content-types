@@ -108,7 +108,12 @@ spml	text/html
 spml	text/html 
 tsv	text/tab-separated-values
 txt	text/plain
+# RFC 3023
 xml	text/xml
+ent	text/xml-external-parsed-entity
+ent	application/xml-external-parsed-entity
+dtd	application/xml-dtd
+mod	application/xml-dtd
 
 aab	application/x-authorware-bin
 aam	application/x-authorware-map
@@ -214,6 +219,17 @@ sv4cpic application/x-sv4cpio
 sv4cpio	application/x-sv4cpio
 sv4crc	application/x-sv4crc
 swf	application/x-shockwave-flash
+# OpenOffice 6.0
+sxw	application/vnd.sun.xml.writer
+stw	application/vnd.sun.xml.writer.template
+sxc	application/vnd.sun.xml.calc
+stc	application/vnd.sun.xml.calc.template
+sxd	application/vnd.sun.xml.draw
+std	application/vnd.sun.xml.draw.template
+sxi	application/vnd.sun.xml.impress
+sti	application/vnd.sun.xml.impress.template
+sxg	application/vnd.sun.xml.writer.global
+sxm	application/vnd.sun.xml.math
 t	application/x-troff
 tar	application/x-tar
 tbk	application/toolbook
@@ -292,3 +308,8 @@ ca_cert	application/x-x509-ca-cert
 # Mozilla extended types
 xul	application/vnd.mozilla.xul+xml
 xpi	application/x-xpinstall
+
+# RFC 3156 MIME Security with OpenPGP
+pgp	application/pgp-encrypted
+pgp	application/pgp-signature
+pgp	application/pgp-keys
