@@ -170,7 +170,7 @@ class Node {
 
 int restore_more_mode()
 {
-  return !!file_stat(".more_mode");
+  return !!file_stat(caudium->QUERY(ConfigurationStateDir) + ".more_mode");
 }
 
 object root=Node();
@@ -179,9 +179,9 @@ int expert_mode, more_mode=restore_more_mode();
 void save_more_mode()
 {
   if(more_mode)
-    open(".more_mode", "wct");
+    open(caudium->QUERY(ConfigurationStateDir) + ".more_mode", "wct");
   else
-    rm(".more_mode");
+    rm(caudium->QUERY(ConfigurationStateDir) + ".more_mode");
 }
 
 
@@ -190,6 +190,7 @@ void create()
   build_root(root);
   init_ip_list();
   call_out(init_ip_list, 0);
+  
 }
 
 // Note stringification of ACTION and ALIGN
