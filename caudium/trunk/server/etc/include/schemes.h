@@ -53,16 +53,16 @@ class scheme {
 			    "titlebg" : "04740a",
 			    "name"    : "Supposed to look like caudium.org"
 			   ]),
-            "caudium1.3" : ([
+            "caudium.net" : ([
                             "bgcolor" : "ffffff",
                             "text"    : "000000",
-                            "link"    : "990000",
-                            "vlink"   : "990000",
-                            "alink"   : "ff0000",
+                            "link"    : "36746a",
+                            "vlink"   : "36746a",
+                            "alink"   : "5477bf",
                             "bgimage" : "/image/cowfish-bg.gif",
                             "titlefg" : "ffffff",
-                            "titlebg" : "aa2222",
-                            "name"    : "If bright red doesn't say *unstable* to you, then what does?!"
+                            "titlebg" : "36746a",
+                            "name"    : "Try to look like the Blackwell page design"
                            ])
            ]);
 
