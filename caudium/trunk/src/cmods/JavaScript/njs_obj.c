@@ -65,6 +65,15 @@ static void f_njs_create(INT_TYPE args) {
    */
   options.secure_builtin_file = 1;
   options.secure_builtin_system = 1;
+
+  /* Various interesting flags... */
+  options.warn_undef = 0;
+
+  options.optimize_peephole = 1;
+  options.optimize_jumps_to_jumps = 1;
+  options.optimize_bc_size = 1;
+  options.optimize_heavy = 1;
+
   THIS->interp = js_create_interp(&options);
   if(THIS->interp == NULL) {
     Pike_error("Failed to create NJS interpreter!\n");
@@ -113,18 +122,21 @@ static void f_njs_eval(INT_TYPE args) {
 }
 
 static void njs_free_scope_data(void *context) {
-  free(SCOPE->name);
+  free_string(SCOPE->name);
   free_svalue(& SCOPE->get);
   free_svalue(& SCOPE->set);
+  free_object(SCOPE->id);
   free(context);
 }
 
 static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
-			      const char *var, unsigned int varlen,
-			      struct svalue get,  JSType *ret) {
-  ref_push_string(scope);
+			      struct object *id, const char *var,
+			      unsigned int varlen, struct svalue get,
+			      JSType *ret) {
   push_string(make_shared_binary_string(var, varlen));
-  apply_svalue(&get, 2);
+  ref_push_string(scope);
+  ref_push_object(id);
+  apply_svalue(&get, 3);
   if(sp[-1].type == T_ARRAY && sp[-1].u.array->size == 1) {
     // Currently the nice special case of "don't parse me pls"
     pike_type_to_js_type(interp, &(ITEM(sp[-1].u.array)[0]), ret);
@@ -135,13 +147,15 @@ static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
 }
 
 static void low_njs_scope_set(JSInterpPtr interp, struct pike_string *scope,
-			      const char *var, unsigned int varlen,
-			      struct svalue set, JSType set_to, int *success)
+			      struct object *id, const char *var,
+			      unsigned int varlen, struct svalue set,
+			      JSType set_to, int *success)
 {
-  ref_push_string(scope);
   push_string(make_shared_binary_string(var, varlen));
+  ref_push_string(scope);
   push_js_type(set_to);
-  apply_svalue(&set, 3);
+  ref_push_object(id);
+  apply_svalue(&set, 4);
   
   if(sp[-1].type == T_INT && sp[-1].u.integer == 0) {
     *success = 0;
@@ -167,8 +181,8 @@ static JSMethodResult njs_scope_get(JSClassPtr cls, void *instance_context,
     strcpy(error_return, "Invalid argument 1, expected string.");
     return JS_ERROR;
   }
-  THREAD_SAFE_RUN(low_njs_scope_get(interp,
-				    SCOPE->name, argv[0].u.s->data,
+  THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id,
+				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->get,
 				    result_return), "get scope variable");
   return JS_OK;
@@ -206,8 +220,8 @@ static JSMethodResult njs_scope_set(JSClassPtr cls, void *instance_context,
     return JS_ERROR;
   }
 
-  THREAD_SAFE_RUN(low_njs_scope_set(interp,
-				    SCOPE->name, argv[0].u.s->data,
+  THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id,
+				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->set,
 				    argv[1], &set_ok), "set scope variable");
   if(set_ok) {
@@ -229,7 +243,7 @@ static JSGenericResult
   GET_SCOPE();
   if(!setp) {
     /* Fetch a value */
-    THREAD_SAFE_RUN(low_njs_scope_get(interp,  SCOPE->name, property,
+    THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id, property,
 				      strlen(property), SCOPE->get,
 				      value), "get scope property");
     return JS_HANDLED;
@@ -249,8 +263,7 @@ static JSGenericResult
       return JS_FAILED;
     }
 
-    THREAD_SAFE_RUN(low_njs_scope_set(interp,
-				      SCOPE->name, property,
+    THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id, property,
 				      strlen(property), SCOPE->set,
 				      *value, &set_ok), "set scope property");
     if(set_ok) {
@@ -283,32 +296,37 @@ static void f_njs_add_scope(INT_TYPE args) {
   scope_storage *storage;
   storage = calloc(1, sizeof(scope_storage));
   switch(args) {
-   case 3:
-    if(ARG(2).type != T_FUNCTION) {
-      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 3,
+   case 4:
+    if(ARG(3).type != T_FUNCTION) {
+      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 4,
 			   "function(string,string,mixed:int)");
     }
     
    default:
-    if(ARG(1).type != T_FUNCTION) {
-      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 2,
+    if(ARG(2).type != T_FUNCTION) {
+      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 3,
 			   "function(string,string:mixed)");
+    }
+    if(ARG(1).type != T_OBJECT) {
+      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 2,
+			   "object");
     }
     if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 1,
 			   "string(8-bit)");
     }
     break;
-  case 0: case 1: 
+   case 0: case 1: case 2:
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->add_scope",3);
     break;
   }
   add_ref(storage->name = ARG(0).u.string);
-  assign_svalue_no_free(& storage->get, & ARG(1));
+  add_ref(storage->id = ARG(1).u.object);
+  assign_svalue_no_free(& storage->get, & ARG(2));
   if(args < 3) { /* No set function */
     storage->set.type = T_INT;
   } else {
-    assign_svalue_no_free(& storage->set, & ARG(2));
+    assign_svalue_no_free(& storage->set, & ARG(3));
   }
 
   storage->class = js_class_create((void *)storage, njs_free_scope_data, 0, 0);
@@ -328,8 +346,10 @@ void njs_init_interpreter_program(void) {
 	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
   ADD_FUNCTION("add_scope", f_njs_add_scope,
 	       tFunc(tString
-		     tFunc(tString tString, tMixed)
-		     tOr(tVoid, tFunc(tString tString tMixed, tInt)),
+		     tObj
+		     tFunc(tString tString tOr(tObj, tVoid), tMixed)
+		     tOr(tVoid, tFunc(tString tString tMixed tOr(tObj, tVoid),
+				      tInt)),
 		     tVoid), OPT_SIDE_EFFECT);
   set_init_callback(init_njs_storage);
   set_exit_callback(free_njs_storage);
