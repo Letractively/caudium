@@ -21,16 +21,11 @@
 /*
  * $Id$
  */
-//! Module support for caudium
-//! @fixme
-//!   Undocumented. 
 #include <caudium.h>
 #include <module.h>
 
 /* Set later on to something better in roxen.pike::main() */
 //array (object) configurations;
-
-//!
 mapping (string:array) variables=([]); 
 
 /* Variable support for the main Roxen "module". Normally this is
@@ -41,7 +36,6 @@ mapping (string:array) variables=([]);
 #define caudium caudiump()
 #endif
 
-//!
 int setvars( mapping (string:mixed) vars )
 {
   string v;
@@ -52,14 +46,12 @@ int setvars( mapping (string:mixed) vars )
   return 1;
 }
 
-//!
 static class ConfigurableWrapper
 {
   int mode;
   function f;
   object roxen;
 
-  //!
   int check()
   {
     if ((mode & VAR_EXPERT) &&
@@ -73,7 +65,6 @@ static class ConfigurableWrapper
     return(f());
   }
   
-  //!
   void create(object roxen_, int mode_, function f_)
   {
     roxen = roxen_;
@@ -82,7 +73,6 @@ static class ConfigurableWrapper
   }
 };
 
-//!
 int globvar(string var, mixed value, string name, int type,
 	    string|void doc_str, mixed|void misc,
 	    int|function|void not_in_config)
@@ -112,7 +102,6 @@ int globvar(string var, mixed value, string name, int type,
   variables[var][ VAR_SHORTNAME ] = var;
 }
 
-//!
 public mixed query(void|string var)
 {
   if(var && variables[var])
@@ -122,7 +111,6 @@ public mixed query(void|string var)
   error("query("+var+"). Unknown variable.\n");
 }
 
-//!
 mixed set(string var, mixed val)
 {
 #if DEBUG_LEVEL > 30
@@ -148,11 +136,9 @@ mixed set(string var, mixed val)
   error("No current configuration\n");					\
 }
 
-/*@PIKEPARSER_HACK_START@*/
 SIMULATE(unload_module);
 SIMULATE(disable_module);
 SIMULATE(enable_module);
 SIMULATE(load_module);
 SIMULATE(find_module);
 SIMULATE(register_module_load_hook);
-/*@PIKEPARSER_HACK_END@*/
