@@ -55,7 +55,7 @@
  */
 
 static multiset(string) known_methods = (<
-    "HTML"
+    "HTML", "IMAGE"
     >);
 
 class InternalResolver 
@@ -105,8 +105,16 @@ class InternalResolver
 		                                file, 
 						qvars, 
 						vars, 
-						paths[method]);;
+						paths[method]);
                 break;
+		
+	    case "IMAGE":
+	        ret = InternalFiles.IMAGE.handle(id,
+		                                 file,
+						 qvars,
+						 vars,
+						 paths[method]);
+	        break;
         }
         
 #ifdef DEBUG_INTERNALS
