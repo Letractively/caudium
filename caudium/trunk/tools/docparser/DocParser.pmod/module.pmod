@@ -775,6 +775,8 @@ class Tag {
             switch(kw){
                 case "tag":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
                 case "returns":
@@ -864,6 +866,8 @@ class Container {
             switch(kw){
                 case "container":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
                 case "returns":
