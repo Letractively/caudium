@@ -465,7 +465,7 @@ class VarScope {
 	if(!sub_vars[ split[0] ])
 	  sub_vars[ split[0] ] = ([]);
 	sub_vars[ split[0] ] [ entity ] = value;
-      } else {
+      } else if(sub_vars[ split[0] ]) {
 	m_delete(sub_vars[ split[0] ], entity);
       }
       break;
