@@ -1,4 +1,4 @@
-Changes in Caudium 1.2.XX since 1.2.18
+Changes in Caudium 1.2.20 since 1.2.18
 --------------------------------------
 - Fix sf bug #652095 (lowercase boundary in CONTENT_TYPE)
 
