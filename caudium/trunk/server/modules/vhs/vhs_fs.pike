@@ -31,7 +31,7 @@ constant cvs_version="$Id$";
 constant module_type = MODULE_LOCATION;
 constant module_name = "VHS - Virtual Filesystem";
 constant module_doc  = "VHS - Virtual Filesystem";
-constant module_unique = 1;
+constant module_unique = 0;
 constant thread_safe = 1;
 
 // #define VHFS_DEBUG 1
