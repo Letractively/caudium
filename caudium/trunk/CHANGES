@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Now Caudium display the compilation error when loading or reloading a
+  module like it did on 1.2 branch.
+   (Bertrand Lupart)
 - Floats are now hanlded by Caudium.sexpr_eval()
    (Bertrand Lupart, Jan-Felix Wittman)
 - Fixed image generation in the Caudium configuration interface.
