@@ -681,6 +681,17 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
     }
 }
 
+string tag_dump_session (string tag_name, mapping args, object id, object file)
+{
+    return (id->misc->session_variables) ?
+        (sprintf ("<pre>id->misc->session_variables : %O\n</pre>", id->misc->session_variables)) : "";
+}
+
+string tag_dump_sessions (string tag_name, mapping args, object id, object file)
+{
+//    return (_variables) ? (sprintf ("<pre>_variables : %O\n</pre>", _variables)) : "";
+}
+
 //
 // URI tags overloaders
 //
@@ -778,7 +789,7 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     }
 
     if (do_hidden)
-        contents = sprintf("<input type='hidden' name='%s' value='%s'>",
+        contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
                            SVAR, id->misc->session_id) + contents;
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
