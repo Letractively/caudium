@@ -1,7 +1,7 @@
 /*
  * Pike Extension Modules - A collection of modules for the Pike Language
- * Copyright © 2002 The Caudium Group
- * Copyright © 2001 Paul Wankadia <junyer@gmx.net>
+ * Copyright © 2002-2003 The Caudium Group
+ * Copyright © 2001-2003 Paul Wankadia <junyer@gmx.net>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
