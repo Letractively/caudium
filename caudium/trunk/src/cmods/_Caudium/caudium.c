@@ -684,7 +684,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
       Pike_error("_Caudium.parse_entities(): expected object.\n");
 
    i=find_identifier("get", tmp->u.object->prog);
-   if(!i)
+   if(i==-1)
       Pike_error("_Caudium.parse_entities(): no get() method present in scope.\n");
 
    /* push the entity and call the get function from the scope object. */
