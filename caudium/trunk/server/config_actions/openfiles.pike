@@ -54,10 +54,6 @@ string page_0()
 {
   return
     ("<h1>Active filedescriptors</h1>\n"+
-     //     "<br clear=left><hr>\n"+
-     //     "<table width=100% cellspacing=0 cellpadding=3>\n"+
-     //     "<tr align=right><td>fd</td><td>type</td><td>mode</td>"+
-     //     "<td>size</td><td>inode</td></tr>\n"+
      sprintf("<pre><b>%-5s  %-9s  %-10s   %-10s</b>\n\n",
 	     "fd", "type", "mode", "details")+
 	     
@@ -67,16 +63,21 @@ string page_0()
 		object f = Stdio.File(fd);
 		object stat = f->stat();
 
-		string type = ([
-			"reg":"File",
-			"dir":"Dir",
-			"lnk":"Link",
-			"chr":"Special",
-			"blk":"Device",
-			"fifo":"FIFO",
-			"sock":"Socket",
-			"unknown":"Unknown",
-		])[stat->type] || "Unknown";
+		string type;
+		mixed err = catch{
+			type = ([
+				"reg":"File",
+				"dir":"Dir",
+				"lnk":"Link",
+				"chr":"Special",
+				"blk":"Device",
+				"fifo":"FIFO",
+				"sock":"Socket",
+				"unknown":"Unknown",
+			])[stat->type] || "Unknown";
+		};
+		if (err)
+			type = "Unknown";
 
 		// Doors are not standardized yet....
 		if ((type == "Unkown") && ((stat->mode & 0xf000) == 0xd000))
