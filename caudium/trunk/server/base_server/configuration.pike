@@ -1424,10 +1424,35 @@ mapping|int low_get_file(object id, int|void no_magic)
   mixed tmp, tmp2;
   mapping|object fid;
 
+  switch(QUERY(_use_scopes)) {
+      case "Off":
+          id->misc->_use_scopes = 0;
+          id->misc->_scope_status = 0;
+          break;
+
+      case "On":
+          id->misc->_use_scopes = 1;
+          id->misc->_scope_status = 1;
+          break;
+
+      case "Off/Conditional":
+          id->misc->_use_scopes = 2;
+          id->misc->_scope_status = 0;
+          break;
+
+      case "On/Conditional":
+          id->misc->_use_scopes = 3;
+          id->misc->_scope_status = 1;
+          break;
+
+      default:
+          break;
+  }
+    
   // Simplify the path to ensure that the file never points under the
   // current directory. Generally not needed, but it's a cheap
   // operation considering the security problems it stops.
-  file = combine_path("/", file); 
+  file = combine_path("/", file);
   
   if(!no_magic)
   {
@@ -2847,6 +2872,24 @@ object enable_module( string modname )
 	     "An optional name. Set to something to remaind you what "
 	     "the module really does.");
 
+  me->defvar("_use_scopes", "Off/Conditional", "Compatibility: Scopes", TYPE_STRING_LIST,
+             "<p>This compatibility option manages the new feature of the Caudium Webserver "
+             "known as <em>scopes</em>.</p>"
+             "<p>Under Roxen 1.3, variable names can contain periods "
+             "(such as \"new.form.variable\") but with Caudium the "
+             "scope-parsing code will attempt to make this a variable "
+             "called \"form.variable\" in the \"new\" scope - and since "
+             "there is no scope called \"new\", the action will fail - "
+             "this breaks compatablity with existing RXML. A small example "
+             "to illustrate the situation:</p>"
+             "<blockquote><pre>"
+             "<if variable=\"new.formvar is \"><set"
+             "variable=\"new.formvar\" value=\"blargh\"></if>"
+             "<formoutput><form><input name=\"new.formvar\""
+             "value=\"#new.formvar#\"></form></formoutput>"
+             "</pre></blockquote>",
+             ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
+  
   me->setvars(retrieve(modname + "#" + id, this));
 
   if(module->copies)
