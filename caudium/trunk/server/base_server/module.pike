@@ -716,8 +716,8 @@ class IP_with_mask {
     net = ip_to_int(_ip);
     if (intp(_mask)) {
       if (_mask > 32) {
-        werror(sprintf("Bad netmask: %s/%d\n"
-                       "Using %s/32\n", _ip, _mask, _ip));
+        report_notice("Bad netmask: %s/%d\n"
+                      "Using %s/32\n", _ip, _mask, _ip);
         _mask = 32;
       }
       mask = ~0<<(32-_mask);
@@ -725,8 +725,8 @@ class IP_with_mask {
       mask = ip_to_int(_mask);
     }
     if (net & ~mask) {
-      werror(sprintf("Bad netmask: %s for network %s\n"
-                     "Ignoring node-specific bits\n", _ip, _mask));
+      report_notice("Bad netmask: %s for network %s\n"
+                    "Ignoring node-specific bits\n", _ip, _mask);
       net &= mask;
     }
   }
