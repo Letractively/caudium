@@ -179,6 +179,7 @@ static class ConfigurableWrapper
 };
 
 //!  Define a configuration variable in the CIF, with error checking.
+//!  Usually called by the constructor of the module (create()).
 //! @param var
 //!  Name used to identify the variable.
 //! @param value
