@@ -21,7 +21,6 @@ install: all extrainstall
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
 install_alt: all extrainstall
-	-strip --strip-unneeded $(MODNAME).$(SO)
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
 install_bin: all
