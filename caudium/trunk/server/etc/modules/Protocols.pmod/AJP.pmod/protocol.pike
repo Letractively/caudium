@@ -63,6 +63,20 @@ constant attribute_values=([
     "terminator" : 0xff
     ]);
 
+constant send_header_values=([
+    0xa001: "Content-Type",
+    0xa002: "Content-Language",
+    0xa003: "Content-Length",
+    0xa004: "Date",
+    0xa005: "Last-Modified",
+    0xa006: "Location",
+    0xa007: "Set-Cookie",
+    0xa008: "Cet-Cookie2",
+    0xa009: "Servlet-Engine",
+    0xa00a: "Status",
+    0xa00b: "WWW-Authenticate"
+]);
+
 constant header_values=([
     "accept" : 0xa001,
     "accept-charset" : 0xa002,
@@ -71,7 +85,7 @@ constant header_values=([
     "authorization" : 0xa005,
     "connection" : 0xa006,
     "content-type" : 0xa007,
-    "content-length" : 0xa0008,
+    "content-length" : 0xa008,
     "cookie" : 0xa009,
     "cookie2" : 0xa00a,
     "host" : 0xa00b,
@@ -131,13 +145,19 @@ string packet_forward_request(object id)
   if(id->query)
     attributes->query_string=id->query;
 
+  string rhost=caudium->quick_ip_to_host(id->remoteaddr);
+  if(rhost==id->remoteaddr) rhost="";
+
+  if(!id->request_headers["content-length"])
+    id->request_headers["content-length"]="0";
+
   packet=sprintf("%c%c%s%s%s%s%s%2c%c%2c%s%s%c",
      MSG_FORWARD_REQUEST,
      method,
      push_string(id->clientprot),
      push_string(id->not_query),
      push_string(id->remoteaddr),
-     push_string(caudium->quick_ip_to_host(id->remoteaddr)),
+     push_string(rhost),
      push_string(server_name),
      server_port,
      is_ssl,
@@ -327,7 +347,7 @@ string make_attributes(mapping a)
 
 string decode_send_body_chunk(mapping packet)
 {
-  werror("decode_send_body_chunk: ");
+//  werror("decode_send_body_chunk: ");
   if(packet->type != MSG_SEND_BODY_CHUNK)
     error("Attempt to decode invalid send body chunk packet.\n");
   
@@ -335,13 +355,13 @@ string decode_send_body_chunk(mapping packet)
 
   sscanf(packet->data, "%2c%s", len, packet->data);
   sscanf(packet->data, "%" + len + "s", packet->data);
-  werror(" " + len + " bytes of data.\n");
+//  werror(" " + len + " bytes of data.\n");
   return packet->data;
 }
 
 mapping decode_end_response(mapping packet)
 {
-  werror("decode_end_response\n");
+//  werror("decode_end_response\n");
   if(packet->type != MSG_END_RESPONSE)
     error("Attempt to decode invalid end response packet.\n");
 
@@ -353,21 +373,46 @@ mapping decode_end_response(mapping packet)
 
 mapping decode_send_headers(mapping packet)
 {
-  werror("decode_send_headers\n");
+//  werror("decode_send_headers\n");
   if(packet->type != MSG_SEND_HEADERS)
     error("Attempt to decode invalid send headers packet.\n");
 
   sscanf(packet->data, "%2c%s", packet->response_code, packet->data);
   [packet->response_msg, packet->data]=pull_string(packet->data);
+  // workaround some screwy stuff that tomcat 3 seems to do.
+  int h=search(packet->response_msg, "\000");
+  if(h!=-1)
+    packet->response_msg=packet->response_msg[0..(h-1)];
+
   sscanf(packet->data, "%2c%s", packet->num_headers, packet->data);
 
   packet->response_headers=([]);
 
+//  werror("decoding " + packet->num_headers + " headers.\n");
+
   for(int i=0; i<packet->num_headers; i++)
   {
     string h,v;
-    [h, packet->data]=pull_string(packet->data);
-    [v, packet->data]=pull_string(packet->data);
+    // do we have a hard coded value?
+    int n;
+    sscanf(packet->data[0..0], "%c", n);
+    if(n==0xa0)
+    {
+      sscanf(packet->data[0..1], "%2c", n);
+      h=send_header_values[n];
+      packet->data=packet->data[2..];
+      [v, packet->data]=pull_string(packet->data);
+     
+      // workaround some screwy stuff that tomcat 3 seems to do.
+      int hl=search(v, "\000");
+      if(hl!=-1)
+       v=v[0..(hl-1)];
+    }
+    else
+    {
+      [h, packet->data]=pull_string(packet->data);
+      [v, packet->data]=pull_string(packet->data);
+    }
     packet->response_headers[h]=v;
   }
 

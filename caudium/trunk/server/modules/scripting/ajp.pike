@@ -84,10 +84,11 @@ mixed handle_file_extension(object o, string e, object id)
     ret->len=strlen(ret->data);
   }
   if(res->response_msg && res->response_msg!="")
-    ret->rettext=res->response_msg;
+    ret->rettext=ret->error + " " + res->response_msg;
 
   ret->extra_heads=res->response_headers;
 
+// werror("result:" + sprintf("%O", ret) + "\n");
   return ret;
 }
 
@@ -96,6 +97,9 @@ mixed find_file ( string path, object id )
   if(!client)
     return "ERROR: AJP Connector not configured.";
   mapping res= client->handle_request(id);
+
+//  werror("servlet response: " + sprintf("%O\n", res));
+
   mapping ret=([]);  
   ret->error= res->response_code;
 
@@ -110,9 +114,11 @@ mixed find_file ( string path, object id )
     ret->len=strlen(ret->data);
   }
   if(res->response_msg && res->response_msg!="")
-    ret->rettext=res->response_msg;
+    ret->rettext=ret->error + " " + res->response_msg;
 
   ret->extra_heads=res->response_headers;
+
+//  werror("sending: " + sprintf("%O\n", ret));
 
   return ret;
 }
