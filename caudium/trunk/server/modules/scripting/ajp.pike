@@ -304,13 +304,22 @@ string query_location () {
 //!  type: TYPE_FLAG
 //!  name: Parse output?
 //
-//! defvar: server
-//! This is the hostname or ip address for your Tomcat host
-//!  type: TYPE_STRING
+//! defvar: hosts
+//! This is the hostname or ip address and port for your Tomcat host, formatted as host:port.Multiple hosts may be used for load balancing by placing one entry on each line.
+//!  type: TYPE_TEXT_FIELD
 //!  name: Container Host
 //
-//! defvar: port
-//! This is the port number Tomcat is listening on
-//!  type: TYPE_INT
-//!  name: Container Port
-//
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+

@@ -653,6 +653,11 @@ string status()
 //!  type: TYPE_FLAG
 //!  name: Logs using VHS parameters
 //
+//! defvar: logwwwDomain
+//! When enabled and when "Logs using VHS parameters" is disabled, when filename used is FQDN given by wwwDomain LDAP attribute
+//!  type: TYPE_FLAG
+//!  name: Logs using wwwDomain parameter
+//
 //! defvar: ttl_positive
 //! Time to cache positive config hits.
 //!  type: TYPE_INT
@@ -668,3 +673,17 @@ string status()
 //!  type: TYPE_FLAG
 //!  name: Enable lamers friendly mode
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+

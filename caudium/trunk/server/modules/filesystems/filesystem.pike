@@ -991,7 +991,7 @@ string query_name()
 //!  name: Directory Settings: Enable directory listings per default
 //
 //! defvar: tilde
-//! If set, files ending with '~' or '#' or '.bak' will 
+//! If set, files ending with '~', '#', '.old' or '.bak' will 
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Directory Settings: Show backup files
 //
@@ -1054,3 +1054,17 @@ string query_name()
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Permissions: Forbid access to symlinks
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
