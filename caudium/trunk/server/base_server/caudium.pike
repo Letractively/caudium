@@ -1382,7 +1382,7 @@ array(string) expand_dir(string d)
   string nd;
   array(string) dirs=({d});
 
-  //  werror("Expand dir "+d+"\n");
+  //  report_debug("Expand dir "+d+"\n");
   catch {
     foreach ((get_dir(d) || ({})) - ({"CVS"}) , nd) 
       if (Stdio.is_dir(d+nd))
@@ -1428,14 +1428,14 @@ object load_from_dirs(array dirs, string f, object conf)
 
 private void handle_sigalrm(int sig)
 {
-  werror("**** %s: ABS engaged!\nTrying to dump backlog: \n", ctime(time()) - "\n");
+  report_fatal("**** %s: ABS engaged!\nTrying to dump backlog: \n", ctime(time()) - "\n");
   send_trap("abs_engage");  
   catch {
     // Catch for paranoia reasons.
     describe_all_threads();
   };
   
-  werror("**** %s: ABS exiting caudium!\n\n", ctime(time()));
+  report_fatal("**** %s: ABS exiting caudium!\n\n", ctime(time()));
   _exit(1); 	// It might now quit correctly otherwise, if it's
   // locked up
 }
@@ -1725,7 +1725,7 @@ void reload_all_configurations()
   object conf;
   array (object) new_confs = ({});
   mapping config_cache = ([]);
-  //  werror(sprintf("%O\n", caudium->config_stat_cache));
+  //  report_debug("%O\n", caudium->config_stat_cache);
   int modified;
 
   report_notice("Reloading configuration files from disk\n");
@@ -3470,10 +3470,10 @@ void describe_all_threads()
   all_backtraces = ({ backtrace() });
 #endif /* constant(all_threads) */
 
-  werror("Describing all threads:\n");
+  report_fatal("Describing all threads:\n");
   int i;
   for (i=0; i < sizeof(all_backtraces); i++)
-    werror("Thread %d:\n%s\n", i+1, describe_backtrace(all_backtraces[i]));
+    report_fatal("Thread %d:\n%s\n", i+1, describe_backtrace(all_backtraces[i]));
 }
 
 //! And then we have the main function, this is the oldest function in

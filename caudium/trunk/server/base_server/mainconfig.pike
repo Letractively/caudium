@@ -107,7 +107,7 @@ class Node {
     }
 #endif
     if(mappingp(tmp)) {
-//      werror("Got mapping.\n");
+//      report_notice("Got mapping.\n");
       return tmp;
     }
     if(arrayp(tmp) && sizeof(tmp))
