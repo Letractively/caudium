@@ -4,7 +4,7 @@ SOURCES=sablot.c
 CFLAGS=  @CCSHARED@ @CPPFLAGS@ @CFLAGS@ @OPTIMIZE@ @WARN@ -I@PIKE_INCLUDE_DIR@
 CC=@CC@
 LIBGCC=@LIBGCC@
-LDFLAGS= @LIBS@  @LDFLAGS@
+LDFLAGS=   @LDFLAGS@ @LIBS@
 LD= @LDSHARED@
 PIKE=@PIKE@
 SO=@SO@
@@ -20,11 +20,11 @@ install: all
 
 $(MODNAME).$(SO):  $(OBJS)
 	@echo "linking $(MODNAME)" ;\
-	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
+	if $(LD)  -o $(MODNAME).$(SO) $(OBJS)  $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
 	  :\
 	else \
 	  echo "Linking failed:" >&2; \
-	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
+	  echo $(LD) -o $(MODNAME).$(SO) $(OBJS) $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
 	fi
 
 Makefile: Makefile.in configure config.status

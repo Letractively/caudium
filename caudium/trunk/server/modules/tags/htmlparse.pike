@@ -752,7 +752,8 @@ void sort_lists()
     val = values(real_tag_callers[c]);
     sort(ind);
     s = Array.map(val, lambda(function f) {
-      return function_object(f)->query("_priority");
+       if(functionp(f)) return function_object(f)->query("_priority");
+       return 5;
     });
     sort(s,val);
     real_tag_callers[c]=mkmapping(ind,val);
@@ -764,7 +765,7 @@ void sort_lists()
     sort(ind);
     s = Array.map(val, lambda(function f) {
       if (functionp(f)) return function_object(f)->query("_priority");
-      return 4;
+      return 5;
     });
     sort(s,val);
     real_container_callers[c]=mkmapping(ind,val);
