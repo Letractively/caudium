@@ -71,8 +71,9 @@ static string describe_ftp(object ftp)
 
 string page_0(object id)
 {
-  program p = ((program)"protocols/ftp");
-  object pc = clone(p);
+//  program p = ((program)"protocols/ftp");
+//  object pc = clone(p);
+  object pc = ((program)"protocols/ftp");
   multiset(object) ftps = (< >);
   object o = next_object();
   for(;;) {
