@@ -98,7 +98,7 @@ void store( mapping meta ) {
     }
     break;
   case "image":
-    if (meta->disk_cache && objectp(meta->object)) {
+    if (meta->disk_cache && objectp(meta->object) && meta->object->xsize && meta->object->ysize) {
       string data = Image.PNM.encode( meta->object );
       meta->size = sizeof( data );
       m_delete( meta, "object" );
