@@ -20,7 +20,8 @@
 
 //! file: base_server/scope.pike
 //!  The base scope class. Implements the default versions of all scope
-//!  callback functions. It should be inherited by each scope.
+//!  callback functions. You should inherit this class if you make your
+//!  own scope.
 //! cvs_version: $Id$
 
 
@@ -71,6 +72,15 @@ object clone()
 }
 
 string name;
+
+//! method: string query_name()
+//!  Return the name of this scope. It you don't override this function,
+//!  it returns the value of the variable name. You can set the value of
+//!  that variable in the create function of your scope.
+//! returns:
+//!  The name of this scope.
+//! scope: private
+//! name: scope->query_name - return the name of this scope
 
 string query_name()
 {

@@ -19,16 +19,13 @@
  *
  */
 
-/*
- * $Id$
- *
- * The core of  Caudium.
- *
- * Per Hedbor, Henrik Grubbström, Pontus Hagland, David Hedbor and others.
- */
-
 //! file: base_server/caudium.pike
-//!  Core routines of Caudium.
+//!  This file is the very core of Caudium. This is were all global
+//!  variables are configured. From a programming point of view, the
+//!  instantiated object is available using the global identifier
+//!  <tt>caudium</tt>. For example, <b>caudium->reload_all_configurations()</b>
+//!  calls the function that checks if any configuration files has changed
+//!  on disk.
 //
 //! inherits: read_config
 //! inherits: module_support
@@ -2428,7 +2425,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "<p>This is useful if you want to know if downloads were successful "
 	  "(the user has the complete file downloaded). The drawback is that "
 	  "bandwidth statistics on the log file will be incorrect. The "
-	  "statistics in Caudium will continue being correct.", 0,
+	  "statistics in Caudium will continue being correct.</p>", 0,
 	  range_disabled_p); 
 
   globvar("EnableRangeHandling", 1, "Range: Enable range handling",
@@ -2582,19 +2579,19 @@ private void define_global_variables( int argc, array (string) argv )
 	  TYPE_INT_LIST|VAR_MORE,
 	  "You can here state the maximum number of accepts to attempt for "
 	  "each read callback from the main socket. <p> Increasing this value "
-	  "will make the server "
-	  "faster for users making many simultaneous connections to it, or"
-	  " if you have a very busy server. <p> It won't work on some systems"
-	  ", though, eg. IBM AIX 3.2<p> To see if it works, change this"
-	  " variable, <b> but don't press save</b>, and then try connecting to"
-	  " your server. If it works, come back here and press the save button"
-	  ". <p> If it doesn't work, just restart the server and be happy "
-	  "with having '1' in this field.<p>"
-	  "The higher you set this value, the less load balancing between "
+	  "will make the server faster for users making many simultaneous "
+	  "connections to it, or if you have a very busy server.</p>"
+	  "<p>It won't work on some systems, though, eg. IBM AIX 3.2.</p>"
+	  "<p> To see if it works, change this variable, <b> but don't press "
+	  "save</b>, and then try connecting to your server. If it works, "
+	  "come back here and press the save button.</p>"
+	  "<p>If it doesn't work, just restart the server and be happy "
+	  "with having '1' in this field.</p>"
+	  "<p>The higher you set this value, the less load balancing between "
 	  "virtual servers. (If there are 256 more or less simultaneous "
 	  "requests to server 1, and one to server 2, and this variable is "
 	  "set to 256, the 256 accesses to the first server might very well "
-	  "be handled before the one to the second server.)",
+	  "be handled before the one to the second server.)</p>",
 	  ({ 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 }));
   
 
@@ -2618,7 +2615,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "interface. Please note that changing this password in the "
 	  "configuration interface will _not_ require an additional entry "
 	  "of the password, so it is easy to make a typo. It is recommended "
-	  "that you use the <a href=/(changepass)/Globals/>form instead</a>.");
+	  "that you use the <a href=\"/(changepass)/Globals/\">form instead</a>.");
   
   globvar("ConfigurationUser", "", "Configuration interface: User", 
 	  TYPE_STRING|VAR_EXPERT,
@@ -2699,7 +2696,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  syslog_disabled);
   
   globvar("LogWH", "Errors", "Syslog: Log what", TYPE_STRING_LIST,
-	  "When syslog is used, how much should be sent to it?<br><hr>"
+	  "When syslog is used, how much should be sent to it?<br><hr />"
 	  "Fatal:    Only messages about fatal errors<br>"+
 	  "Errors:   Only error or fatal messages<br>"+
 	  "Warning:  Warning messages as well<br>"+
@@ -2721,7 +2718,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "be able to serve multiple requests, using a select loop based "
 	  "system.\n"
 	  "<i>This is quite useful if you have more than one CPU in "
-	  "your machine, or if you have a lot of slow NFS accesses.</i>");
+	  "your machine, or if you have a lot of slow NFS accesses.</i></p>");
 #endif
   
   globvar("AutoUpdate", 1, "Update the supports database automatically",
@@ -2742,7 +2739,7 @@ private void define_global_variables( int argc, array (string) argv )
 
   globvar("neigh_tcp_ips",  ({}), "Neighborhood: TCP hosts",
   TYPE_STRING_LIST|VAR_MORE,
-  "This is the list of direct host<-->host links to establish. "
+  "This is the list of direct host &lt;--> host links to establish. "
   "The local host is always present (if the neighbourhood functionality "
   "is at all enabled).");
 
@@ -3639,7 +3636,7 @@ string check_variable(string name, mixed value)
 //!  name: Show the internals
 //
 //! defvar: RestoreConnLogFull
-//! If this toggle is enabled log entries for restored connections will log the amount of sent data plus the restoration location. Ie if a user has downloaded 100 bytes of a file already, and makes a Range request fetching the remaining 900 bytes, the log entry will log it as if the entire 1000 bytes were downloaded. <p>This is useful if you want to know if downloads were successful (the user has the complete file downloaded). The drawback is that bandwidth statistics on the log file will be incorrect. The statistics in Caudium will continue being correct.
+//! If this toggle is enabled log entries for restored connections will log the amount of sent data plus the restoration location. Ie if a user has downloaded 100 bytes of a file already, and makes a Range request fetching the remaining 900 bytes, the log entry will log it as if the entire 1000 bytes were downloaded. <p>This is useful if you want to know if downloads were successful (the user has the complete file downloaded). The drawback is that bandwidth statistics on the log file will be incorrect. The statistics in Caudium will continue being correct.</p>
 //!  type: TYPE_TOGGLE
 //!  name: Range: Log entire file length in restored connections
 //
@@ -3749,7 +3746,7 @@ string check_variable(string name, mixed value)
 //!  name: Configuration interface: Help texts
 //
 //! defvar: NumAccept
-//! You can here state the maximum number of accepts to attempt for each read callback from the main socket. <p> Increasing this value will make the server faster for users making many simultaneous connections to it, or if you have a very busy server. <p> It won't work on some systems, though, eg. IBM AIX 3.2<p> To see if it works, change this variable, <b> but don't press save</b>, and then try connecting to your server. If it works, come back here and press the save button. <p> If it doesn't work, just restart the server and be happy with having '1' in this field.<p>The higher you set this value, the less load balancing between virtual servers. (If there are 256 more or less simultaneous requests to server 1, and one to server 2, and this variable is set to 256, the 256 accesses to the first server might very well be handled before the one to the second server.)
+//! You can here state the maximum number of accepts to attempt for each read callback from the main socket. <p> Increasing this value will make the server faster for users making many simultaneous connections to it, or if you have a very busy server.</p><p>It won't work on some systems, though, eg. IBM AIX 3.2.</p><p> To see if it works, change this variable, <b> but don't press save</b>, and then try connecting to your server. If it works, come back here and press the save button.</p><p>If it doesn't work, just restart the server and be happy with having '1' in this field.</p><p>The higher you set this value, the less load balancing between virtual servers. (If there are 256 more or less simultaneous requests to server 1, and one to server 2, and this variable is set to 256, the 256 accesses to the first server might very well be handled before the one to the second server.)</p>
 //!  type: TYPE_INT_LIST|VAR_MORE
 //!  name: Number of accepts to attempt
 //
@@ -3764,7 +3761,7 @@ string check_variable(string name, mixed value)
 //!  name: Configuration interface: URL
 //
 //! defvar: ConfigurationPassword
-//! The password you will have to enter to use the configuration interface. Please note that changing this password in the configuration interface will _not_ require an additional entry of the password, so it is easy to make a typo. It is recommended that you use the <a href=/(changepass)/Globals/>form instead</a>.
+//! The password you will have to enter to use the configuration interface. Please note that changing this password in the configuration interface will _not_ require an additional entry of the password, so it is easy to make a typo. It is recommended that you use the <a href="/(changepass)/Globals/">form instead</a>.
 //!  type: TYPE_PASSWORD|VAR_EXPERT
 //!  name: Configuration interface: Password
 //
@@ -3830,7 +3827,7 @@ string check_variable(string name, mixed value)
 //!  name: Syslog: Log type
 //
 //! defvar: LogWH
-//! When syslog is used, how much should be sent to it?<br /><hr>Fatal:    Only messages about fatal errors<br />
+//! When syslog is used, how much should be sent to it?<br /><hr />Fatal:    Only messages about fatal errors<br />
 //!  type: TYPE_STRING_LIST
 //!  name: Syslog: Log what
 //
@@ -3842,7 +3839,7 @@ string check_variable(string name, mixed value)
 //! defvar: numthreads
 //! The number of simultaneous threads caudium will use.
 //!<p>Please note that even if this is one, Caudium will still be able to serve multiple requests, using a select loop based system.
-//!<i>This is quite useful if you have more than one CPU in your machine, or if you have a lot of slow NFS accesses.</i>
+//!<i>This is quite useful if you have more than one CPU in your machine, or if you have a lot of slow NFS accesses.</i></p>
 //!  type: TYPE_INT
 //!  name: Number of threads to run
 //
@@ -3857,7 +3854,7 @@ string check_variable(string name, mixed value)
 //!  name: Neighborhood: Register with other Caudium servers on the local network
 //
 //! defvar: neigh_tcp_ips
-//! This is the list of direct host<-->host links to establish. The local host is always present (if the neighbourhood functionality is at all enabled).
+//! This is the list of direct host &lt;--> host links to establish. The local host is always present (if the neighbourhood functionality is at all enabled).
 //!  type: TYPE_STRING_LIST|VAR_MORE
 //!  name: Neighborhood: TCP hosts
 //

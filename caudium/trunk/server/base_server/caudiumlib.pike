@@ -486,7 +486,7 @@ string short_name(string long_name)
 
 //! method: string strip_config(string from)
 //!  Strips the Caudium config cookie part of a path (not a URL).
-//!  The cookie part is everything within < and > right after the firstr
+//!  The cookie part is everything within &lt; and > right after the first
 //!  slash.
 //! arg: string from
 //!  The path from which the cookie part will be stripped.
@@ -1482,7 +1482,7 @@ string fix_relative(string file, object id)
 }
 
 
-//! method: array(string) parse_scope_var(string variable, void|string scope)
+//! method: array parse_scope_var(string variable, void|string scope)
 //!  Return the scope and variable name based on the input data.
 //! arg: string variable
 //!  The variable to parse. Should be either "variable" or "scope.variable".
@@ -1512,7 +1512,7 @@ array(string) parse_scope_var(string variable, string|void scope)
   return scvar;
 }
 
-//! method: array(string) get_scope_var(string variable, string scope, object id)
+//! method: mixed get_scope_var(string variable, string scope, object id)
 //!  Return the value of the specified variable in the specified scope.
 //! arg: string variable
 //!  The variable to fetch from the scope.
@@ -1538,7 +1538,7 @@ mixed get_scope_var(string variable, void|string scope, object id)
   return _get(variable, id);
 }
 
-//! method: array(string) set_scope_var(string variable, string scope, mixed value, object id)
+//! method: int set_scope_var(string variable, string scope, mixed value, object id)
 //!  Set the specified variable in the specified scope to the value.
 //! arg: string variable
 //!  The variable to fetch from the scope.
