@@ -1,7 +1,9 @@
 Changes in Caudium 1.3.19 since Caudium 1.3.18
 ----------------------------------------------
+- Removed old deprecated modules from server.
+   (Xavier Beaudouin)
 - Changed requirement of pike version to at least 7.4.25.
-  (Xavier Beaudouin)
+   (Xavier Beaudouin)
 
 Changes in Caudium 1.3.19 since Caudium 1.3.18
 ----------------------------------------------
