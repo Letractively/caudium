@@ -119,7 +119,7 @@ install: build
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
 	   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
 
-	# linitian doesn't like images in /usr/lib, let's move them to /usr/share
+	# lintian doesn't like images in /usr/lib, let's move them to /usr/share
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
 	ln -s /usr/share/caudium$(EXTVER)/caudium-images debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images
 
