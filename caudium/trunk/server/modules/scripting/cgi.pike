@@ -669,6 +669,9 @@ class CGIScript
     ]);
     stdin = stdin->pipe(); /* Stdio.PROP_IPC | Stdio.PROP_NONBLOCKING */
 
+    if (sizeof(QUERY(chroot)))
+      options += ([ "chroot" : QUERY(chroot)) ]);
+
     if(!getuid())
     {
       if (uid >= 0) {
@@ -945,6 +948,9 @@ void create(object conf)
 	 "namespace of your server. The module will, per default, also"
 	 " service one or more extensions, from anywhere in the "
 	 "namespace.");
+
+  defvar("chroot","", "Chrrot path", TYPE_STRING|VAR_MORE,
+         "This is the path that is chrooted to before running a program.");
 
   defvar("searchpath", "NONE/", "Search path", TYPE_DIR,
 	 "This is where the module will find the CGI scripts in the <b>real</b> "
