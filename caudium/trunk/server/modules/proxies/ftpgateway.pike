@@ -1,44 +1,64 @@
-// ftpgateway.pike
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
-// This module implements an ftp proxy
-
-// changelog:
-// 1.8a  dec 8 david
-//       Now handles the 213 Stat result code as well. Also fixed a
-//       bug so that you get a redirect from ftp://foo.bar.com to
-//       ftp://foo.bar.com/. The links from the first page didn't work
-//       if the trailing slash was missing.
-// 1.8   nov 19 kg
-//       Update to newer Pike/Roxen.
-//       Handle passwords.
-//       Do not reuse sessions with same host but different users.
-//       Include the request class in the main file.
-// 1.7e  oct 4 david
-//       Fixed the case when you open a directory that is a link.
-//       Some 'stat' replies with 212 instead of 211. 
-//	 The proxy now supports them as well.
-// 1.7d  aug 28 per  (95)
-//       Fixed all 'spinner' -> 'roxen'
-// 1.7c  feb 24 per
-//       Fixed all 'spider' -> 'spinner'
-// 1.7b  jan 11 law
-//       bugfix in stat_result
-//       (handle "ok" from "PASS" and 500 as stat is unknown command)
-// 1.7   nov 29 law
-//       remembers and show server information
-//       show session information (if SESSION_INFO is #defined) as comment in html
-// 1.6d  nov 25 law
-//       bugfix in one-link-only-in-directory-redirect
-//       effect is kept in links
-// 1.6c  nov 24 david h
-//       decription support in uwp directory type
-// 1.6b  nov 23 law
-//       ...version information in footers
-// 1.6   nov 23 law (96)
-//       new directory format (used by ftp.uwp.edu) 
-// 1.12  may '97
-//       Applied some patches from  Wilhelm Koehler <wk@cs.tu-berlin.de>
-
+/*
+ * ftpgateway.pike - This module implements an ftp proxy 
+ * 
+ * changelog:
+ * 1.8a  dec 8 david
+ *       Now handles the 213 Stat result code as well. Also fixed a
+ *       bug so that you get a redirect from ftp://foo.bar.com to
+ *       ftp://foo.bar.com/. The links from the first page didn't work
+ *       if the trailing slash was missing.
+ * 1.8   nov 19 kg
+ *       Update to newer Pike/Roxen.
+ *       Handle passwords.
+ *       Do not reuse sessions with same host but different users.
+ *       Include the request class in the main file.
+ * 1.7e  oct 4 david
+ *       Fixed the case when you open a directory that is a link.
+ *       Some 'stat' replies with 212 instead of 211. 
+ *	 The proxy now supports them as well.
+ * 1.7d  aug 28 per  (95)
+ *       Fixed all 'spinner' -> 'roxen'
+ * 1.7c  feb 24 per
+ *       Fixed all 'spider' -> 'spinner'
+ * 1.7b  jan 11 law
+ *       bugfix in stat_result
+ *       (handle "ok" from "PASS" and 500 as stat is unknown command)
+ * 1.7   nov 29 law
+ *       remembers and show server information
+ *       show session information (if SESSION_INFO is #defined) as comment in html
+ * 1.6d  nov 25 law
+ *       bugfix in one-link-only-in-directory-redirect
+ *       effect is kept in links
+ * 1.6c  nov 24 david h
+ *       decription support in uwp directory type
+ * 1.6b  nov 23 law
+ *       ...version information in footers
+ * 1.6   nov 23 law (96)
+ *       new directory format (used by ftp.uwp.edu) 
+ * 1.12  may '97
+ *       Applied some patches from  Wilhelm Koehler <wk@cs.tu-berlin.de>
+ */
 string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>

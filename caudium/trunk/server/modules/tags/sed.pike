@@ -1,41 +1,27 @@
-// This is a roxen module. Copyright © 1996 - 1998, Idonex AB.
-// $Id$
-// by Mirar <mirar@idonex.se>
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
-// Adds the <sed> tag, to emulate a subset of sed operations in rxml
-// 
-// <sed [suppress] [lines] [chars] [split=<linesplit>] 
-//      [append] [prepend]>
-// <e [rxml]>edit command</e>
-// <raw>raw, unparsed data</raw>
-// <rxml>data run in rxml parser before edited</rxml>
-// <source variable|cookie=name [rxml]>
-// <destination variable|cookie=name>
-// </sed>
-//
-// edit commands supported:
-// <firstline>,<lastline><edit command>
-//    ^^ numeral (17) ^^
-//       or relative (+17, -17)
-//       or a search regexp (/regexp/)
-//       or multiple (17/regexp//regexp/+2)
-//
-// D                  - delete first line in space
-// G                  - insert hold space
-// H                  - append current space to hold space
-// P                  - print current data
-// a<string>          - insert 
-// c<string>          - change current space
-// d                  - delete current space
-// h                  - copy current space to hold space 
-// i<string>          - print string
-// l                  - print current space
-// p                  - print first line in data
-// q                  - quit evaluating
-// s/regexp/with/x    - replace
-// y/chars/chars/     - replace chars
-// 
-// where line is numeral, first line==1
+/*
+ * The SED tag, a tag that allows you to do sed-like string handling.
+ */
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;
