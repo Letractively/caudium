@@ -34,31 +34,11 @@ constant thread_safe = 1;
 #define SVAR QUERY(svarname)
 
 #ifdef THREADS
-private object counter_lock = Thread.Mutex();
-private mixed  counter_key;
-
 private object gc_lock = Thread.Mutex();
 private mixed  gc_key;
 #endif
 
-private Regexp dcookie_rx = Regexp("^[0-9.]+$");
-    
-//
-// Keeps the count of sessions allocated so far.
-// This is used to append to the sha1 "cookie" generated in the start
-// function. That thing, in turn, should be pretty much unique accross the
-// persistent sessions. Since Pike 7.2+ supports very, veeeeery big
-// integers, we have enough unique numbers till the end of this millenium.
-//
-private int session_counter;
-
-//
-// This is the session base hash. Counter above is appended to it for new
-// sessions. It is generated in the start() function and doesn't change
-// during the module's life span unless ordered so by the administrator
-// using the admin interface.
-//
-private string session_hash = "";
+private Regexp dcookie_rx = Regexp("^[0-9.]+$");    
 
 //
 // All registered storage plugins
@@ -68,31 +48,13 @@ private mapping cur_storage = 0;
 
 string status()
 {
-    string ret = "Status? What status?! Buzz off, I want to sleep! And seriously:<br><blockquote>";
-
-    ret += sprintf("<table border='1'><tr><td><strong>Base hash</strong></td><td>%s</td></tr>"
-                   "<tr><td><strong>Cookie/variable name</strong></td><td>%s</td></tr>"
-                   "</table></blockquote>", session_hash,  SVAR);
+    string ret = "Status? What status?! Buzz off, I want to sleep! And seriously: status quo";
 
     return ret;
 }
 
 void start(int num, object conf)
 {
-#if constant(Crypto.sha)
-    object hash = Crypto.sha();
-
-    hash->update(sprintf("%d", time()));
-#if constant(Crypto.randomness.reasonably_random)
-    hash->update(Crypto.randomness.reasonably_random()->read(15));
-#endif
-    session_hash = replace(MIME.encode_base64(hash->digest()), ({"+","/","="}), ({"_","|","-"}));
-#else
-    throw(({"No Crypto.sha found!", backtrace()}));
-#endif
-    
-    session_counter = 0;
-
     register_plugins(conf);
     
     //
@@ -145,6 +107,14 @@ void create()
     defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
            "If set, then the sessions will expire automatically after the "
            "given period. If unset, session expiration must be done elsewhere.");
+
+    defvar("reflist", "", "Referrers treated as valid", TYPE_TEXT,
+           "This variable holds a list (one per line) of referrer addresses that "
+           "are considered valid for accepting a session id should it not be "
+           "stored in the client cookie. By default the module accepts all session "
+           "IDs when the referring site is this virtual host.<br>"
+           "<strong>Note: You must use the full URI of the referrer!</strong>");
+
 }
 
 int hide_gc ()
@@ -335,7 +305,7 @@ void register_plugins(void|object conf)
         }
     }
 
-    defvar("splugin", "Memory", "Storage: default storage module", TYPE_STRING_LIST,
+    defvar("splugin", QUERY(splugin), "Storage: default storage module", TYPE_STRING_LIST,
            "Which plugin should be used to store the session data. Registered plugins:<br>\n" +
            get_plugin_descriptions(), get_plugin_names());
 }
@@ -610,10 +580,23 @@ private mapping memory_get_all_regions(object id)
 // Find out whether we have a session id available anywhere and/or create a
 // new session if necessary. Returns a session id string.
 //
+private int referrer_ok(object id)
+{
+    if (!id->referrer || !sizeof(id->referrer))
+        return 0;
+
+    array(string)  refs = ({ id->conf->QUERY(MyWorldLocation) }) + (QUERY(reflist) / "\n") - ({}) - ({""});
+    
+    foreach(refs, string ref)
+        if (String.common_prefix(({ref, id->referrer})) == ref)
+            return 1;
+
+    return 0;
+}
+
 private string alloc_session(object id)
 {
     string    ret = "";
-    int       sesstag;
 
     id->misc->_gsession_is_here = 0;
     
@@ -626,37 +609,42 @@ private string alloc_session(object id)
         }));
 
     cur_storage = storage_plugins[sp];
-    
-    if (id->variables[SVAR]) {
-        if (id->cookies[SVAR] && id->cookies[SVAR] != id->variables[SVAR])
-            gsession_set_cookie(id, id->variables[SVAR]);
-        id->misc->session_id = id->variables[SVAR];
-    }
 
     if (id->cookies[SVAR] && sizeof(id->cookies[SVAR])) {
         id->misc->session_id = id->cookies[SVAR];
         id->misc->_gsession_cookie = 1;
+    } else
+        id->misc->_gsession_cookie = 0;
+    
+    if (!id->misc->_gsession_cookie && id->variables[SVAR]) {
+        if (referrer_ok(id))
+            id->misc->session_id = id->variables[SVAR];
     }
     
     if (id->misc->session_id) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
+        if (!id->misc->_gsession_cookie)
+            gsession_set_cookie(id, id->misc->session_id);
         return id->misc->session_id;
     }
     
     //
     // new session it seems
     //
-#ifdef THREADS
-    catch { counter_key = counter_lock->lock(); };
-#endif
-    sesstag = ++session_counter;
-#ifdef THREADS
-    if (counter_key)
-        destruct(counter_key);
-#endif
+    string digest;
     
-    ret = sprintf("%s%d", session_hash, session_counter);
+#if constant(Mhash.hash_sha1)
+    digest = Mhash.hash_sha1((string)(time()) + Crypto.randomness.reasonably_random()->read(15));
+#else
+    object hash = Crypto.sha();
+
+    hash->update((string)(time()));
+    hash->update(Crypto.randomness.reasonably_random()->read(15));
+    digest = hash->digest();
+#endif
+    ret = replace(MIME.encode_base64(digest), ({"+","/","="}), ({"_","|","-"}));    
+    
     cur_storage->setup(id, ret);
 
     id->misc->_gsession_is_here = 1;
