@@ -403,6 +403,13 @@ static string parse_html_lines(mixed ... args) {
    return Caudium.parse_html_lines(@args);
 }
 
+//! Compat call of @[Caudium.html_encode_tag_value]
+//! @deprecated
+static string html_encode_tag_value(string m) {
+   WCOMPAT("Caudium","html_encode_tag_value");
+   return Caudium.html_encode_tag_value(m);
+}
+
 //! Compat call of @[Caudium.File.decode_mode]
 //! @deprecated
 static string decode_mode(int m) {
