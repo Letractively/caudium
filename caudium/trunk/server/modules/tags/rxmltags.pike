@@ -2420,7 +2420,7 @@ string tag_configimage(string f, mapping m)
     switch(q=indices(m)[0])
     {
      case "src":
-      args += " src=\"/internal-caudium-"+ (m->src-".gif") + "\"";
+      args += " src=\"/internal-caudium-"+ (m->src-".png") + "\"";
       break;
      default:
       args += " "+q+"=\""+m[q]+"\"";
@@ -2873,7 +2873,7 @@ mapping pr_sizes = ([]);
 string get_pr_size(string size, string color)
 {
   if(pr_sizes[size+color]) return pr_sizes[size+color];
-  object fd = open("caudium-images/power-"+size+"-"+color+".gif", "r");
+  object fd = open("caudium-images/power-"+size+"-"+color+".png", "r");
   if(!fd) return "NONEXISTANT COMBINATION";
   return pr_sizes[size+color] = gif_size( fd );
 }
@@ -2887,7 +2887,7 @@ string tag_pr(string tagname, mapping m)
     string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
     foreach(sort(get_dir("caudium-images")), string f)
       if(sscanf(f, "power-%s", f))
-	res += "<tr><td>"+replace(f-".gif","-","</td><td>")+"</tr>";
+	res += "<tr><td>"+replace(f-".png","-","</td><td>")+"</tr>";
     return res + "</table>";
   }
   m_delete(m, "color");
