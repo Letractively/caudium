@@ -153,10 +153,11 @@ Image.image draw_module_header(string name, int type, object font)
 object unselected_tab_image = load_image("../tab_unselected.ppm");
 object selected_tab_image = load_image("../tab_selected.ppm");
 
-Image.image draw_config_button(string name, object font, int lm, int rm,
+Image.Image draw_config_button(string name, object font, int lm, int rm,
 			       void|array bg, void|array fg, void|array page)
 {
-  Image.Color bgc, fgc, pagec;
+  Image.Color bgc, fgc;
+  object pagec;
   if(bg) bgc = Image.Color(@bg);
   else bgc = Image.Color(dR, dG, dB);
   if(fg) fgc = Image.Color(@fg);
@@ -165,10 +166,9 @@ Image.image draw_config_button(string name, object font, int lm, int rm,
   else pagec = Image.Color(bR, bG, bB);
   
   if(!strlen(name)) return Image.Image(1,15, pagec);
-   object txt = font->write(name)->scale(0.48);
+  object txt = font->write(name)->scale(0.48);
   int w = txt->xsize();
-  object ruta = Image.image(w + (rm?40:20), 20, bgc);
-
+  object ruta = Image.Image(w + (rm?40:20), 20, bgc);
   if (lm) {
     // Left-most
     ruta->setcolor(@pagec->rgb())->polygone(({ 0,0, 15,0, 5,20, 0,20 }));
