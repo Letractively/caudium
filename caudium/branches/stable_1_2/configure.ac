@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ(2.53)
-AC_INIT(Caudium, 1.2.23, bugs@caudium.net)
+AC_INIT(Caudium, 1.2.24, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
