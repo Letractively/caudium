@@ -1,3 +1,9 @@
+caudium-1.1 (2:1.1.1-11) unstable; urgency=low
+
+  * Many changes and improvements as well as bugfixes
+
+ -- Marek Habersack <grendel@debian.org>  Fri, 13 Jul 2001 14:31:36 +0200
+
 caudium-1.1 (2:1.1.1-10) unstable; urgency=low
 
   * Relaxed the dependency on the Pike version
