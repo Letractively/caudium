@@ -1,0 +1,314 @@
+//
+// Never enclose the message in double quotes! Below are few escape sequences
+// you can use in the message text:
+//
+// \s - space (needed at the start and the end of message since the parser strips
+//             both leading and trailing whitespace)
+// \t - TAB (as above)
+// \# - # sign (only needed at the start of message if you need it to start with #).
+//      # used at the start of message makes this message a function invocation, and
+//      not a string. It means that it won't be enclosed in the quotation marks in the
+//      output.
+//
+// Comments starting with //! are "attached" to the message definition that follows them
+// and output in the target file as an attachment of that same kind.
+//
+// The target file contains also another kind of entry market with the //#DIRECTIVE 
+// comment. The following directives are defined:
+//
+//  ORIG - the line contains the original version of the string for change testing when
+//         the translation and the template are combined.
+//  FLAG - followed by several flags marks the state of this entry:
+//           <changed>  - the entry has been changed in the original (default) file
+//                        and the translation needs to be updated.
+//           <new>      - new entry merged from the default file
+//
+//  Neither the attachment comment nor the directive comment should be edited by hand!!
+//
+
+// Internal for the translation system!!!! NOT USED BY CAMAS!!!
+
+//! Maintainer of this particular file
+#define	TS_MAINTAINER	11111	Xavier Beaudouin <kiwi@isdnet.net>
+
+//! This file version
+#define	TS_VERSION	11112	1.0.0-dev
+
+//! Output in camas_XX.pike as default message (translate it to your language)
+#define	TS_NOMSGFOUND	11113	\s** MISSING MESSAGE **\s
+
+//! Native language name
+#define	TS_LANGNAME	11114	English
+
+//! Language charset
+#define	TS_CHARSET	11115	iso-8859-1
+
+//! Character encodable in the above charset
+#define	TS_ENCCHAR	11116	?
+
+//! CVS version of the file (leave set to $Id$ if you don't use CVS)
+#define	TS_CVSVER	11117	$Id$
+
+//! The copyright string put in the target .pike file
+#define	TS_COPYRIGHT	11118	2000 The Caudium Group
+
+// Messages
+//
+//login
+
+//! Label on the login screen
+#define	M_LOGIN 	1 	Login:
+#define	M_PASSWORD 	2 	Password:
+#define	M_NOLOGIN 	3 	<b>Could not log in:</b> Wrong login or password. Try again.
+#define	M_IMAPERROR 	10 	There was a problem talking to the mail (IMAP) server.\nPlease contact the administrator.
+#define	M_SMTPERROR 	11 	There was a problem talking to the outgoing mail (SMTP) server,\nand the mail was not sent. The recipient of the mail might not exist.
+#define	M_SAVEDUSERINTERFACE 	12 	From preferences
+#define	M_USERINTERFACE 	13 	"User interface:"
+#define	M_LOGIN_OK 	14 	"OK"
+#define	M_SMTPOK 	15 	\#sprintf ("The mail \"%s\" was sent to: %s", @arg)
+// page header
+#define	M_NEWMAIL 	50	Compose
+#define	M_MAILBOX 	51	\#sprintf("Mailbox: %s",@arg)
+#define	M_MAILBOXES 	52	Mailboxes
+#define	M_FILES 	53	Files
+#define	M_PREFS 	54	Preferences
+#define	M_LOGOUT 	55	Logout
+#define	M_CURRMAILBOX 	56	Current Mailbox
+#define	M_CHECKACTIVEMAILBOXES 	57	Check inboxes
+// compose
+#define	M_SEND	100	Send
+#define	M_CANCELSEND 	101	Cancel
+#define	M_SENDMOREFILES 	102	Select files to send. Press 'Ctrl' to toggle-select multiple files.
+#define	M_COMPOSEMAIL	103	Compose mail
+#define	M_SPELLCHECK	104	Spell check
+#define	M_DONTSAVEMAIL	105	Do not save this mail
+#define	M_ADDFILEASATTACHMENT 	106	Add file as an attachment
+#define	M_NOATTACHMENTS	107	No attachments
+#define	M_ADDATTACHMENT	108	Add attachment...
+#define	M_REMOVEMARKEDATTACHMENTS 	109	Remove marked attachments
+#define	M_UPLOADATTACHMENT	110	Upload attachment
+#define	M_ADDMARKEDTOATTACHMENTS	111	Add marked to attachments
+#define	M_UPLOADTOATTACHMENTS	112	Upload to attachments
+#define	M_BACKTOCOMPOSE	113	Back to compose
+#define	M_NOATTACHFILES	114	No files
+#define	M_ATTACHMENTSHEADER 	115	Attachments
+#define	M_SENDSAVEFAILED	116	Mail was sent successfully, but save in folder failed.
+#define	M_SENDNORECV	117	You must specify a recipient of the mail.
+#define	M_DSN_DELAY	118	Report delayed delivery.
+#define	M_DSN_SUCCESS 	119	Report successful delivery.
+#define	M_SAVEMAILCOPY 	120	Save a copy
+#define	M_SAVEDRAFT 	121	Save draft
+#define	M_MDN 	122	Report delivery
+#define	M_SENDBROKENADDR 	123	\#sprintf("The address \"%s\" is not a correct email address. Please correct it and try again.", arg[0])
+
+// mailindex
+#define	M_DELETEMARKED	200	Delete marked
+#define	M_MOVEMARKED	201	Move marked to
+#define	M_SELECTMBOX	202	Select a mailbox
+#define	M_CHECKNEWMAIL	203	Check for new mail
+#define	M_MAILSHOWN	204	\#sprintf("Mail %d-%d of %d", @arg)
+#define	M_BACKN	205	\#sprintf("[<< Prev %d]", @arg)
+#define	M_FORWARDN	206	\#sprintf("[Next %d >>]", @arg)
+#define	M_NUMBER	207	#
+#define	M_DELETEMARKEDP	208	\#sprintf("Are you sure you want to delete the %d marked message(s)?", @arg)
+#define	M_DELETEMARKEDNONE	209	Please mark some messages first.
+#define	M_CHANGESORTORDER	210	Change sort order
+#define	M_MOVETOTRASH	211	Move marked to trash
+#define	M_DELETEALLTRASH	212	Empty the trash folder
+#define	M_NOMAILS	213	[No mail]
+#define	M_MARKALL	214	Mark all
+//
+//#define 	M_SEARCHFROM 215
+//#define 	M_SEARCHFROMTEXT 216
+//#define 	M_SEARCHSUBJ 217
+//#define 	M_SEARCHSUBJTEXT 218
+//#define 	M_SORTMAIL 219
+//
+// mailboxlist
+#define	M_MBOXNAME	300	Mailbox (m/r/u/s)
+#define	M_DELETEMARKEDMBOX	301	Delete marked
+#define	M_CREATEMBOX	302	Create a new mailbox
+#define	M_NEWMBOXNAME	303	(Name)
+#define	M_MBOXREMOVEP	350	Are you sure you want to delete the following mailboxes?
+#define	M_MBOXMARKONE	351	Mark at least one mailbox.
+#define	M_NEWMBOXNONAME	352	Type in a name first.
+#define	M_CREATEMBOXERROR	353	Failed to create mailbox. The name may be illegal or the mailbox may exist.
+#define	M_INBOX	354	Inbox
+#define	M_PREVIOUS_LEVEL	355	[Previous level]
+#define	M_FOLDER_PATH	356	Path
+#define	M_BOXTRASH	357	Trash
+#define	M_BOXSENTMAIL	358	Sent
+#define	M_RENAMEMBOX	359	Rename a mailbox
+#define	M_RENAMEMBOXERROR	360	Failed to rename mailbox. The name may be illegal or the mailbox may exist.
+#define	M_NOMBOXERROR	361	You must select a mailbox to rename and supply a new name.
+#define	M_BOXDRAFTS	362	Drafts
+// files
+#define	M_FILENAME	400	Filename
+#define	M_SIZE	401	Size
+#define	M_MIMETYPE	402	Type
+#define	M_DELETEMARKEDFILES	403	Delete marked
+#define	M_UPLOAD	404	Upload
+#define	M_AVAILSPACE	405	\#sprintf("You have %d Kb available for upload.",@arg)
+#define	M_WINDOWSBUG	406	Windows users: Due to a bug in some browsers, filenames can be crippled. Avoid this by replacing the last \\ with \\\\ before pressing 'Upload'.
+#define	M_NOFILES 	407	You have no uploaded files
+// preferences
+#define	M_PNAME	500	Name
+#define	M_PMAILADDRESS	501	Mail address
+#define	M_PMAILPATH	502	Mail searchpath
+#define	M_PINCLUDEMAIL	503	Include mail when replying
+#define	M_PQUOTEPREFIX	504	Prefix
+#define	M_PSIGNATURE	505	Signature
+#define	M_PINACTIVELOGOUT	506	Inactive logout (minutes)
+#define	M_PSAVEANDUSE	550	Save and use
+#define	M_PVISIBLEMESSAGES	507	Messages shown in a mailbox
+#define	M_PSORTORDER	508	Mail sort order
+#define	M_PSORTORDERS	509	([ "forward": "forward", "backward":"backward"])[arg[0]]
+#define	M_PTRASHFOLDER	510	Trash folder
+#define	M_PSENTFOLDER	511	Sent mail folder
+#define	M_PDEFAULTBCC	512	Default Bcc address
+#define	M_PSAVEATTACHMENTS	513	Include attachments
+#define	M_PLANGUAGE	514	Language
+#define	M_PUSERINTERFACE	515	User interface
+#define	M_PINBOXES	516	Inboxes
+#define	M_PCOMMASEPARATED	517	(Comma separated list of mailboxes (\"box1, box2, ...\")
+#define	M_PHEADER	518	Extra headers
+#define	M_PHEADERDESC	519	(Lines with headers in this format: header:value)
+#define	M_PSORTCOLUMN	520	Sort on column
+#define	M_PSHOWHTML	521	Show HTML messages
+#define	M_PSHOWHIDDENHEADERS	522	Enable <em>\"Show full headers\"</em>-button
+#define	M_PADDRESSBOOK	523	Default addressbook (not extended)
+// <isdnet>
+#define	M_PFORWARD	524	Forward message to
+// </isdnet>
+#define	M_PSHOWTEXT	525	Show text messages
+#define	M_PDRAFTSFOLDER	526	Drafts folder
+// logout
+#define	M_LOGOUTMSG	600	<b>You have been logged out.</b> Close this browser window to make sure no one can read your mail.<br /><br />Reload this page to login.
+#define	M_LOGGEDOUT 	601	Logged out
+// dialog
+#define	M_QUESTION 	700	Question
+#define	M_INFO 	701	Info
+// readmail
+#define	M_REPLY 	800	Reply
+#define	M_READPREV 	801	Read previous
+#define	M_READNEXT 	802	Read next
+#define	M_ATTACHMENTLINK 	803	\#sprintf("%sattachment of type %s",@arg)
+#define	M_MAILMISSING 	804	<strong>Error:</strong> Failed to fetch mail. The mail might have a faulty format.<br />
+#define	M_MAILMISSINGBACK 	805	Back
+#define	M_DELETE 	806	Delete
+#define	M_FORWARD 	807	Forward
+#define	M_MAIL 	808	Mail
+#define	M_SHOWFULLHEADERS 	809	Show full headers
+#define	M_HIDEFULLHEADERS 	810	Hide full headers
+#define	M_MAILTOOBIG 	811	Mail is too big to be shown. Click here to download it.
+#define	M_REPLYTOALL 	812	Reply to all
+#define	M_MOVETHISTOTRASH 	813	Move to trash
+#define	M_CHARSETWARNING 	814	\#sprintf("Warning! Unable to decode the characterset \"%s\". Message is presented undecoded.",@arg)
+#define	M_CONTINUECOMPOSE 	815	Continue...
+#define	M_NOTIFYTO 	816	\#sprintf ("%s requested a receipt to be returned. Do you wish to send one ?", @arg)
+//spellcheck
+#define	M_SPELLDONE 	900	Done
+#define	M_SPELLPREV 	901	Previous
+#define	M_SPELLNEXT 	902	Next
+#define	M_SPELLCHANGETO 	903	Change to
+#define	M_SPELLSUGGESTIONS 	904	Suggestions
+// mailheaders
+#define	M_FROM	1000	From
+#define	M_TO 	1001	To
+#define	M_CC 	1002	Cc
+#define	M_BCC 	1003	Bcc
+#define	M_SUBJECT 	1004	Subject
+#define	M_ATTACHMENTS 	1005	Attachments
+#define	M_TIME	1006	Time
+#define	M_DATE	1007	Date
+// table heads
+#define	M_MARKFLAG	1100	M
+#define	M_NEWFLAG	1101	N
+#define	M_ANSWEREDFLAG	1102	A
+// address book
+#define	M_ADDRESSBOOKTITLE 	1200	Address Book
+#define	M_ADDRESSBOOK	1201	Address book...
+#define	M_INDEXNAMERECIPIENT 	1202	Index name (click to add as recipient)
+#define	M_INDEXNAMEEDIT	1203	Index name (click to edit)
+#define	M_ADDRESS 	1204	Address
+#define	M_NOADDRESSES	1205	No addresses
+#define	M_NEWADDRESS	1206	New address
+#define	M_EDITADDRESS	1207	Edit address
+#define	M_ADDADDRESS	1208	Add to address book
+#define	M_INDEXNAME 	1209	Index name
+#define	M_ADDRESSFORMAT 	1210	Address(es), comma separated
+#define	M_SAVEADDRESS	1211	Save and use
+#define	M_DELETEADDRESS	1212	Delete address
+#define	M_CANCELADDRESS	1213	Cancel
+#define	M_CANNOTIMPORT	1214	Cannot import this addressbook, since its\nformat is not recognized.
+#define	M_IMPORTADDRESSBOOKTITLE	1215	Import address book
+#define	M_UPLOADADDRESSBOOK	1216	Upload a Pine or exported Netscape (.ldif) address book
+#define	M_PINELOCATION	1217	The Pine address book is often in ~/.addressbook
+#define	M_UPLOADANDIMPORT 	1218	Upload and import
+#define	M_IMPORTADDRESSBOOK	1219	Import address book...
+#define	M_GLOBALADDRESSES 	1220	Common addresses:
+//#define	M_EMPTYADDRESS 	1221
+//ldap support
+#define	M_LDAPTITLE 	1300	LDAP addresses
+#define	M_LDAP 	1301	LDAP search
+#define	M_SEARCHLDAP 	1302	Search LDAP
+#define	M_NAMECONT 	1303	Search name containing:
+#define	M_OU	1304	OU
+// mail notification
+#define	M_MAILNOTIFYWINDOW 	1400	Mail notification...
+#define	M_GETNEWMAIL 	1401	Get new mail...
+// search mail
+#define	M_SEARCHMAILTITLE 	1500	Search mail
+#define	M_SEARCHMAIL 	1501	Search...
+#define	M_SEARCHMAILBOX 	1502	\#sprintf("Find mail in mailbox <strong>%s</strong> which contains",arg[0])
+#define	M_SEARCHANYWHERE 	1503	anywhere
+#define	M_SEARCHFROMFIELD 	1504	in the 'from' field
+#define	M_SEARCHTOFIELD 	1505	in the 'to' field
+#define	M_SEARCHSUBJECT 	1506	in subject
+#define	M_SEARCHBODY 	1507	in the mail body
+#define	M_SEARCHAND 	1508	AND
+#define	M_SEARCHSHOWINGMAIL 	1509	Showing mail with\s
+// mail filter book
+#define	M_FILTERBOOKTITLE	1600	Mail Filter
+#define	M_FILTERBOOK 	1601	Filters
+#define	M_INDEXNAMERECIPIENTFILTER 	1602	Index name (click to add as recipient)
+#define	M_INDEXNAMEEDITFILTER	1603	Index filter (click to edit)
+#define	M_ADDRESSFILTER 	1604	Folder
+#define	M_NOADDRESSESFILTER 	1605	No filter
+#define	M_NEWADDRESSFILTER 	1606	New filter...
+#define	M_EDITADDRESSFILTER 	1607	Edit filter
+#define	M_INDEXNAMEFIELDFILTER 	1608	Index field (click to select a field)
+#define	M_INDEXNAMEEDITFIELDFILTER 	1609	Index field
+#define	M_ADDADDRESSFILTER 	1610	Add to filter book
+#define	M_SAVEADDRESSFILTER 	1611	Save and use
+#define	M_DELETEADDRESSFILTER 	1612	Delete filter
+#define	M_CANCELADDRESSFILTER 	1613	Cancel
+#define	M_INDEXFIELDFILTER 	1614	Index field
+#define	M_FILTERFOLDER	1615	Index folder
+#define	M_INDEXNAMEFILTER 	1616	Index filter
+#define	M_EDITFILTER 	1617	Edit the filter
+#define	M_SELECTFIELD	1618	(Select a field)
+#define	M_EMPTYADDRESSFILTER	1619	You must specify non-empty index folder and filter(s).
+#define	M_PADDRESSBOOKFILTER	1620	Default filterbook (not extended)
+
+#define	M_ADDRECIPIENTS 	1700	Add recipients
+#define	M_PORGANIZATION 	1701	Organization
+
+// general
+#define	M_YES 	2000	Yes
+#define	M_NO 	2001	No
+#define	M_DIALOGOK 	2002	OK
+#define	M_DIALOGCANCEL 	2003	Cancel
+
+// box names
+//
+//#define M_BOXINBOX 	3001
+//#define M_BOXTRASH 	3002
+//#define M_BOXSENTMAIL 	3003
+//#define M_BOXDRAFTS 	3004
+
+
+// misc
+#define	M_MDNMESSAGE 	4000	\#sprintf("This is a Return Receipt for the mail that you sent to %s.Note: this Return Receipt only acknowledges that the message was displayed on the recipient's machine. There is no guarantee that the content has been read or understood.", @arg)
+#define	M_MDNHEADER 	4001	Return Receipt (displayed) -\s
+
