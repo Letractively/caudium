@@ -302,18 +302,25 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	else :; fi; \
 	mkdir $$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; make dist_clean >& /dev/null); \
+	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; ./autogen.sh); \
 	if test "`echo $$version| sed s/cvs//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
          echo "Non-test/devel version. Removing CVS directories.";\
 	 find $$version/. -type d -name 'CVS' -print0 |xargs -0 rm -rf; \
+	else \
+	 echo "Making sure CVS root is anonymous...";\
+	 for f in `find $$version/. -type f -path '*/CVS/Root' -print`; do\
+	   echo $$f;\
+           (cat $$f | sed 's/[^@]*\(.*\)/:pserver:anonymous\1/' >$$f.new)&&\
+	   mv $$f.new $$f; \
+         done;\
         fi;\
 	echo Cleaning up the copied sources...; \
 	for f in `find $$version/. -type f -name '*~' -print` \
 	  `find $$version/. -type f -name '.#*' -print` \
 	  `find $$version/. -type f -name '#*#' -print`; do \
 	  echo $$f; rm $$f || exit 1; \
-	done; \
+	done
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
