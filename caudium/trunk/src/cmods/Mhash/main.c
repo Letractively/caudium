@@ -35,7 +35,7 @@ RCSID("$Id$");
 /* Init the module */
 void pike_module_init(void)
 {  
-  #ifdef PEXTS_VERSION
+#ifdef PEXTS_VERSION
   pexts_init();
 #endif
   mhash_init_mhash_program();
@@ -52,14 +52,14 @@ void pike_module_exit( void )
 #else /* HAVE_MHASH */
 void pike_module_exit( void ) 
 { 
-    #ifdef PEXTS_VERSION
+#ifdef PEXTS_VERSION
   pexts_init();
 #endif
 }
 
 void pike_module_init( void ) 
 { 
-    #ifdef PEXTS_VERSION
+#ifdef PEXTS_VERSION
   pexts_init();
 #endif
 }
