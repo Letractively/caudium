@@ -56,7 +56,6 @@ pike/%%PORTVERSION%%/lib/modules/call_out.pmod
 pike/%%PORTVERSION%%/lib/modules/files.pmod
 pike/%%PORTVERSION%%/lib/modules/spider.so
 pike/%%PORTVERSION%%/lib/modules/sprintf.pmod
-pike/%%PORTVERSION%%/lib/modules/sybase.so
 pike/%%PORTVERSION%%/lib/modules/system.pmod
 pike/%%PORTVERSION%%/lib/modules/Unicode.so
 pike/%%PORTVERSION%%/lib/modules/Colors.pmod
