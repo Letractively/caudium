@@ -32,6 +32,12 @@ constant doc = ("Show all open ports on "+gethostname()+".");
 
 mixed page_1(object id)
 {
+  string res = "";
+  // lsof does not display all informations if not launched as root
+  if(geteuid() != 0)
+     res = "<p><font color=red>Caudium must run as root for this program to work.</font><br />" +
+     "This is currently not the case. You may continue but it should not work</p>\n";
+
   array(string) path = (getenv("PATH")||"/sbin:/bin:/usr/sbin:/usr/bin")/":";
 
   array(string) lsofs =
@@ -42,14 +48,15 @@ mixed page_1(object id)
 			   (st[0] & 0111));
 		 });
   if (!sizeof(lsofs)) {
-    return("You will need to install <a href=\""
+    res += ("You will need to install <a href=\""
 	   "ftp://vic.cc.purdue.edu/pub/tools/unix/lsof/lsof.tar.gz\">"
 	   "'lsof'</a> for full info.\n");
   }
-  return(sprintf("Use this lsof binary:\n"
+  res += (sprintf("Use this lsof binary:\n"
 		 "<var type=select name=lsof default='%s'\n"
 		 "choices='%s'><p>\n", id->variables->lsof || lsofs[0],
 		 lsofs * ","));
+  return res;
 }
 
 mixed page_2(object id)
