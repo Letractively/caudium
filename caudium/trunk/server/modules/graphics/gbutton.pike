@@ -3,30 +3,22 @@
 //
 //  Copyright © 1999-2000 Roxen IS. Author: Jonas Walldén, <jonasw@roxen.com>
 
-
-//  Usage:
-//
-//  <gbutton
-//     bgcolor         -- background color inside/outside button
-//     textcolor       -- button text color
-//     href            -- button URL
-//     alt             -- alternative button alt text
-//     border          -- image border
-//     state           -- enabled|disabled button state
-//     textstyle       -- normal|consensed text
-//     icon-src        -- icon reference
-//     icon-data       -- inline icon data
-//     align           -- left|center|right text alignment
-//     align-icon      -- left|center-before|center-after|right icon alignment
-//     valign-icon     -- above|middle|below icon vertical alignment
-//   >Button text</gbutton>
-//
-//  Alignment restriction: when text alignment is either left or right, icons
-//  must also be aligned left or right.
-
-
 constant cvs_version = "$Id$";
 constant thread_safe = 1;
+
+//
+//! module: Graphics Button
+//!  Provides the &lt;gbutton&gt; tag which enables one to create
+//!  graphical buttons on the fly in any shape.
+//
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: images
+//
+//! type: MODULE_PARSER
+//
+//! cvs_version: $Id$
+//
 
 #include <module.h>
 inherit "module";
@@ -241,6 +233,8 @@ array(Image.Layer) draw_button(mapping args, string text, object id)
         do
         {
             button_font = resolve_font( args->font+" "+th );
+	    if (!button_font)
+		error("Failed to load font for gbutton");
             text_img = button_font->write(text);
             os = text_img->ysize();
             if( !dir )
@@ -661,6 +655,18 @@ static array mk_url(object id, mapping args, string contents)
 
     return ({img_src, new_args});
 }
+
+//
+//! container: gbutton
+//!  Creates graphical buttons.
+//
+//! attribute: [pagebgcolor]
+//!  Set the page background color. If missing, the value is taken from 
+//!  the bgcolor define (if present), from the bgcolor attribute to this
+//!  container or set to #eeeeee as the last resort.
+//! default: #eeeeee
+//
+//! attribute: [bgcolor]
 
 string tag_gbutton(string tag, mapping args, string contents,
                    object id, object foo, mapping defines)
