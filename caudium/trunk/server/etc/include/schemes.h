@@ -52,7 +52,18 @@ class scheme {
 			    "titlefg" : "ffffff",
 			    "titlebg" : "04740a",
 			    "name"    : "Supposed to look like caudium.org"
-			   ])
+			   ]),
+            "caudium1.3" : ([
+                            "bgcolor" : "ffffff",
+                            "text"    : "000000",
+                            "link"    : "990000",
+                            "vlink"   : "990000",
+                            "alink"   : "ff0000",
+                            "bgimage" : "/image/cowfish-bg.gif",
+                            "titlefg" : "ffffff",
+                            "titlebg" : "aa2222",
+                            "name"    : "If bright red doesn't say *unstable* to you, then what does?!"
+                           ])
            ]);
 
     mapping scheme;
