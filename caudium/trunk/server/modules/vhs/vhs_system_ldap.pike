@@ -59,7 +59,7 @@ object mutex;
 mapping (string:object) virtcache = ([]);
 
 int virtuals;
-int ldap_last_query;
+int ldap_last_query=0;
 int ldap_err_count;
 
 object ldap;
@@ -404,7 +404,11 @@ void precache_rewrite(object id)
 
 void start()
 {
-  ldap_reconnect();
+  mixed err = catch {
+   ldap_reconnect();
+  };
+
+  if(err) { DW("Error loading LDAP... Maybe because it is not configured"); }
 
   virtcache[QUERY(defvirtual)] = ConfigCache("nobody",
   QUERY(defvirtual), QUERY(searchpath), 0, 0, "/tmp", 65500, 65500,
