@@ -2593,7 +2593,7 @@ class FTPSession
   void ftp_PASV(string args)
   {
     // Required by RFC 1123 4.1.2.6
-
+   if(Query("passive_ftp")) {
     if(pasv_port)
       destruct(pasv_port);
     pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
@@ -2601,6 +2601,8 @@ class FTPSession
     send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
 			 replace(local_addr, ".", ","),
 			 (port>>8), (port&0xff)) }));
+   }
+   else send(504, ({ "Passive FTP is not enabled on this server." }));
   }
 
   void ftp_TYPE(string args)

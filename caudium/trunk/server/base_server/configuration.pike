@@ -3600,7 +3600,7 @@ void create(string config)
 	 "<version>, at <a href=\"$Me\">$Me</a>.\n"
 	 "</body>\n", 
 
-	 "Messages: No such file", TYPE_TEXT_FIELD,
+	 "No such file Message (eg. 404 error)", TYPE_TEXT_FIELD,
 	 "What to return when there is no resource or file available "
 	 "at a certain location. $File will be replaced with the name "
 	 "of the resource requested, and $Me with the URL of this server ");
@@ -3698,23 +3698,26 @@ void create(string config)
 	 "              +-------------------------------------------------\n"
 	 "              +-- Welcome to the Caudium Webserver FTP server ---\n"
 	 "              +-------------------------------------------------\n",
-	 "Messages: FTP Welcome",
+	 "Ftp:FTP Welcome message",
 	 TYPE_TEXT_FIELD|VAR_MORE,
 	 "FTP Welcome answer; transmitted to new FTP connections if the file "
 	 "<i>/welcome.msg</i> doesn't exist.\n");
   
-  defvar("named_ftp", 0, "Allow named FTP", TYPE_FLAG|VAR_MORE,
+  defvar("named_ftp", 0, "Ftp:Allow named FTP", TYPE_FLAG|VAR_MORE,
 	 "Allow ftp to normal user-accounts (requires an authentication "
 	 "module, e.g. 'User database and security').\n");
 
-  defvar("anonymous_ftp", 1, "Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
+  defvar("passive_ftp", 1, "Ftp:Allow passive FTP", TYPE_FLAG|VAR_MORE,
+         "Allow passive transfers on ftp server.");
+
+  defvar("anonymous_ftp", 0, "Ftp:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
 	 "Allows anonymous ftp.\n");
 
-  defvar("guest_ftp", 0, "Allow FTP guest users", TYPE_FLAG|VAR_MORE,
+  defvar("guest_ftp", 0, "Ftp:Allow FTP guest users", TYPE_FLAG|VAR_MORE,
 	 "Allows FTP guest users.\n");
 
   defvar("ftp_user_session_limit", 0,
-	 "FTP user session limit", TYPE_INT|VAR_MORE,
+	 "Ftp:FTP user session limit", TYPE_INT|VAR_MORE,
 	 "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
 
   defvar("shells", "/etc/shells", "Shell database", TYPE_FILE|VAR_MORE,
