@@ -1557,7 +1557,7 @@ static void f_cern_http_date(INT32 args)
      }
    }
 
-#if !defined(STRFTIME_SUPPORTS_Z)
+#if !defined(HAVE_STRFTIME)
 #ifdef STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
