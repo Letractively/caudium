@@ -3247,24 +3247,19 @@ string tag_remoteip(string tag, mapping args, object id)
 //          
 string tag_pikeversion(string tag, mapping args, object id)
 {
-    string  pver = version();
-    int     major, minor, release;
-    
-    if (!args || !sizeof(args))
-        return pver;
-
-    sscanf(pver, "Pike v%d.%d release %d", major, minor, release);
     if (args->major)
-        return (string)major;
+        return (string)__MAJOR__;
 
     if (args->minor)
-        return (string)minor;
+        return (string)__MINOR__;
 
     if (args->release)
-        return (string)release;
+        return (string)__RELEASE__;
 
-    return pver;
+    return version();
 }
+
+
 
 mapping query_tag_callers()
 {
