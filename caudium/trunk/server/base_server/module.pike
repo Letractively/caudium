@@ -28,8 +28,13 @@
 
 mapping (string:mixed *) variables=([]);
 
+constant is_module = 1;
+constant module_type   = MODULE_ZERO;
+constant module_name   = "Unnamed module";
+constant module_doc    = "Undocumented";
+constant module_unique = 1;
 object this = this_object();
-int module_type;
+
 string fix_cvs(string from)
 {
   from = replace(from, ({ "$", "Id: "," Exp $" }), ({"","",""}));
@@ -99,7 +104,7 @@ string status() {}
 
 string info(object conf)
 { 
-  return (this->register_module(conf)[2]);
+  return module_doc;
 }
 
 static class ConfigurableWrapper
@@ -341,6 +346,37 @@ void set_module_list(string var, string what, object to)
 #endif
   } else 
     variables[var][VAR_VALUE][p]=to;
+}
+
+private string _module_identifier;
+string module_identifier()
+{
+  if (!_module_identifier) {
+    string|mapping name = this->register_module()[1];
+    if (mappingp (name)) name = name->standard;
+    string cname = sprintf ("%O", my_configuration());
+    if (sscanf (cname, "Configuration(%s", cname) == 1 &&
+	sizeof (cname) && cname[-1] == ')')
+      cname = cname[..sizeof (cname) - 2];
+    _module_identifier = sprintf ("%s,%s", name || module_name, cname);
+  }
+  return _module_identifier;
+}
+
+string _sprintf()
+{
+  return "CaudiumModule(" + module_identifier() + ")";
+}
+
+array register_module()
+{
+  return ({
+    module_type,
+    module_name,
+    module_doc,
+    0,
+    module_unique,
+  });
 }
 
 void set(string var, mixed value)
