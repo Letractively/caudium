@@ -190,6 +190,11 @@ void create (mixed ... foo) {
 	 "the client.",0,dont_use_formauth);
   defvar("secure", 0, "Secure Cookies", TYPE_FLAG,
 	 "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
+  defvar("domaincookies", 0, "Domain Cookies", TYPE_FLAG,
+         "If used, cookies will be tagged with <tt>.domain.com</tt> from "
+         "the url that requested the user browser to guarantee that "
+         "<tt>www.domain.com</tt> and <tt>domain.com</tt> have the same "
+         "session id");
   defvar("debug", 0, "Debug", TYPE_FLAG,
 	 "When on, debug messages will be logged in Caudium's debug logfile. "
 	 "This information is very useful to the developers when fixing bugs.");
@@ -473,8 +478,9 @@ void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
 // cd34, 11/25/2001, set cookie with .domain.com if it is not an IP address
 // to guarantee that www.domain.com and domain.com have the same session id
-  if (!(Regexp("^[0-9.]+$")->match((string)id->misc->host)))
-    Cookie += ";domain=."+(((string)id->misc->host / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
+  if(QUERY(domaincookies)) 
+    if (!(Regexp("^[0-9.]+$")->match((string)id->misc->host)))
+      Cookie += ";domain=."+(((string)id->misc->host / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
 // cd34, 10/4/2001, set cookie expiration based on info in the config interface
   if (query ("cookieexpire") > 0)
     Cookie += "; Expires=" + http_date(time()+query("cookieexpire")) +";";
@@ -844,6 +850,11 @@ void set_from_form_remove (string val, int type, object o) {
 //! If used, cookies will be flagged as 'Secure' (RFC 2109).
 //!  type: TYPE_FLAG
 //!  name: Secure Cookies
+//
+//! defvar: domaincookies
+//! If used, cookies will be tagged with <tt>.domain.com</tt> from the url that requested the user browser to guarantee that <tt>www.domain.com</tt> and <tt>domain.com</tt> have the same session id
+//!  type: TYPE_FLAG
+//!  name: Domain Cookies
 //
 //! defvar: debug
 //! When on, debug messages will be logged in Caudium's debug logfile. This information is very useful to the developers when fixing bugs.
