@@ -3,9 +3,9 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
-AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h)
-AC_CHECK_HEADERS([sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h])
-AC_HAVE_FUNCS(mmap munmap free getdate getdate_r)
+AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h unistd.h)
+AC_CHECK_HEADERS([sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h unistd.h])
+AC_HAVE_FUNCS(mmap munmap free getdate getdate_r setproctitle)
 AC_FUNC_MALLOC
 AC_FUNC_ALLOCA
 dnl SCO has strftime() and strptime() in libint.
