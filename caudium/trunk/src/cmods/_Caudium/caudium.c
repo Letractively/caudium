@@ -813,7 +813,7 @@ static void f_parse_entities( INT32 args )
 
    /* we've gotten this far, so we were probably successful. */
 
-  pop_stack();
+  pop_n_elems(2);
 /*
   printf("~ %d ~>%s<~~\n", eres->buflen, eres->buf);
 */
