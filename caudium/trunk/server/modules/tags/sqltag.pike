@@ -42,14 +42,8 @@ constant cvs_version="$Id$";
 constant thread_safe=1;
 #include <module.h>
 
-/* Compatibility with old versions of the sqltag module. */
-// #define SQL_TAG_COMPAT
-
 inherit "module";
 inherit "caudiumlib";
-
-import Array;
-import Sql;
 
 object conf;
 
@@ -137,14 +131,8 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
     }
 
     string host = query("hostname");
-#ifdef SQL_TAG_COMPAT
-    string database = query("database");
-    string user = query("user");
-    string password = query("password");
-#else /* SQL_TAG_COMPAT */
     string database, user, password;
-#endif /* SQL_TAG_COMPAT */
-    object(sql) con;
+    object(Sql.sql) con;
     array(mapping(string:mixed)) result;
     function sql_connect = request_id->conf->sql_connect;
     mixed error;
@@ -172,7 +160,7 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = sql(host, database, user, password));
+      error = catch(con = Sql.sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -226,14 +214,8 @@ string sqlquery_tag(string tag_name, mapping args,
     }
 
     string host = query("hostname");
-#ifdef SQL_TAG_COMPAT
-    string database = query("database");
-    string user = query("user");
-    string password = query("password");
-#else /* SQL_TAG_COMPAT */
     string database, user, password;
-#endif /* SQL_TAG_COMPAT */
-    object(sql) con;
+    object(Sql.sql) con;
     mixed error;
     function sql_connect = request_id->conf->sql_connect;
     array(mapping(string:mixed)) res;
@@ -261,7 +243,7 @@ string sqlquery_tag(string tag_name, mapping args,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = sql(host, database, user, password));
+      error = catch(con = Sql.sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -322,17 +304,11 @@ string sqltable_tag(string tag_name, mapping args,
     }
 
     string host = query("hostname");
-#ifdef SQL_TAG_COMPAT
-    string database = query("database");
-    string user = query("user");
-    string password = query("password");
-#else /* SQL_TAG_COMPAT */
     string database, user, password;
-#endif /* SQL_TAG_COMPAT */
-    object(sql) con;
+    object(Sql.sql) con;
     mixed error;
     function sql_connect = request_id->conf->sql_connect;
-    object(sql_result) result;
+    object(Sql.sql_result) result;
     string res;
 
     if (args->host) {
@@ -358,7 +334,7 @@ string sqltable_tag(string tag_name, mapping args,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = sql(host, database, user, password));
+      error = catch(con = Sql.sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -494,10 +470,10 @@ mapping query_container_callers()
  */
 
 
-object(sql) sql_object(void|string host)
+object(Sql.sql) sql_object(void|string host)
 {
   host = stringp(host) ? host : QUERY(hostname);
-  object(sql) con;
+  object(Sql.sql) con;
   function sql_connect = conf->sql_connect;
   mixed error;
   error = catch(con = sql_connect(host));
@@ -530,18 +506,6 @@ void create()
   defvar("log_error", 0, "Enable the log_error attribute",
 	 TYPE_FLAG|VAR_MORE, "Enables the attribute \"log_error\" "
 	 "which causes errors to be logged to the event-log.\n");
-
-#ifdef SQL_TAG_COMPAT
-  defvar("database", "", "Default SQL-database (deprecated)",
-	 TYPE_STRING|VAR_MORE,
-	 "Specifies the name of the default SQL-database.\n");
-  defvar("user", "", "Default username (deprecated)",
-	 TYPE_STRING|VAR_MORE,
-	 "Specifies the default username to use for access.\n");
-  defvar("password", "", "Default password (deprecated)",
-	 TYPE_STRING|VAR_MORE,
-	 "Specifies the default password to use for access.\n");
-#endif /* SQL_TAG_COMPAT */
 }
 
 /*
@@ -568,11 +532,7 @@ string status()
     if (conf->sql_connect) {
       o = conf->sql_connect(QUERY(hostname));
     } else {
-      o = Sql.sql(QUERY(hostname)
-#ifdef SQL_TAG_COMPAT
-		  , QUERY(database), QUERY(user), QUERY(password)
-#endif /* SQL_TAG_COMPAT */
-		  );
+      o = Sql.sql(QUERY(hostname));
     }
     return(sprintf("Connected to %s-server on %s<br>\n",
 		   o->server_info(), o->host_info()));
