@@ -24,6 +24,7 @@
 //!  This is a caching HTTP-proxy with quite a few bells and whistles
 //! inherits: module
 //! inherits: caudiumlib
+//! inherits: socket
 //! type: MODULE_PROXY | MODULE_LOCATION
 //! cvs_version: $Id$
 //
