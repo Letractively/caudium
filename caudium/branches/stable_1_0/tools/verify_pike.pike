@@ -79,9 +79,6 @@ int main(int argc, array argv)
   write("Checking for potential compatibility reasons with your Pike...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver == 7.1)
-    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
-	    "tested and still a development version.");
   if(ver < 7.0)
     warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 0.6 is\n"
 	    "probably less stable and slower than 7.0 and it also lacks various \n"
@@ -90,12 +87,23 @@ int main(int argc, array argv)
 
 
   /* Pike 7.11 might have several problems... */
-  if(ver == 7.1 && rel == 11)
-    warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
-	    "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
-	    "version of if, the problems might very well still be there. We recommend an\n"
-	    "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
+  if(ver == 7.1) {
+    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
+	    "tested and still a development version.");
 
+    if(rel == 11)
+      /* Pike 7.11 might have several problems... */
+      warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
+	      "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
+	      "version of if, the problems might very well still be there. We recommend an\n"
+	      "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
+  if(rel > 11 && rel < 28)
+    /* Serious string bug in these versions */
+    warning("In Pike 7.1 build 13 to build 27 there is a serious bug string bug which\n"
+	    "breaks Caudium query string parsing. If you want to use Pike 7.1, you have\n"
+	    "to upgrade it to a later version.");
+  }
+  
   /* PHP 4 check */
   if(ver < 7.0
      || (ver == 7.0 && rel < 268)
