@@ -1,0 +1,5 @@
+LogDir	../logs
+Interval	15
+ReadTimeout	9
+ConnectTimeout	5
+AdminEmail	root@localhost
