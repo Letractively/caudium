@@ -339,11 +339,25 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_MAJOR=`echo $THIS_PIKE_VER | cut -d '.' -f 1`
     THIS_PIKE_MINOR=`echo $THIS_PIKE_VER | cut -d '.' -f 2`
     THIS_PIKE_BUILD=`echo $THIS_PIKE_VER | cut -d '.' -f 3`
-
-    if test $THIS_PIKE_MAJOR -lt $REQ_PIKE_MAJOR -o $THIS_PIKE_MINOR -lt $REQ_PIKE_MINOR -o $THIS_PIKE_BUILD -lt $REQ_PIKE_BUILD; then
-      echo " => too old"
-      continue
+    
+    TOOLD=""
+    if test $THIS_PIKE_MAJOR -lt $REQ_PIKE_MAJOR; then 
+      TOOLD=" major < $REQ_PIKE_MAJOR"
     fi
+    
+    if test -n "$TOOLD" -a $THIS_PIKE_MINOR -lt $REQ_PIKE_MINOR; then
+      TOOLD="${TOOLD} minor < $REQ_PIKE_MINOR"
+    fi
+    
+    if test -n "$TOOLD" -a $THIS_PIKE_BUILD -lt $REQ_PIKE_BUILD; then
+       TOOLD="${TOOLD} build < $REQ_PIKE_BUILD"
+    fi
+    
+    if test -n "$TOOLD"; then
+       echo " => too old (tests failed:$TOOLD)"
+       continue
+    fi
+    
     echo -n " => good version"
 
     PIKE_INCDIR=`dirname $PIKE`
