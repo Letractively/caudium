@@ -144,7 +144,7 @@ void create () {
 
 void start (int cnt, object conf) {
     // Depends of sqltag
-    module_dependencies(conf, ({ "thumbnail" }));
+    module_dependencies(conf, ({ "cimg" }));
 }
 
 string status() {
@@ -268,11 +268,14 @@ class album {
     }
 
     string render_othumb(object id, int i) {
-	return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) +"\">\n" +
-	"<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
+      return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) +"\">\n" +
+	"<cimg alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
 	"src=\"" + get_photo( i )[ 0 ] + "\" " +
-	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +
-	"width=\"" + sprintf( "%d", QUERY(width) ) + "\">" +
+	/*	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +*/
+	"maxwidth=\"" + QUERY(width) +
+	" format=jpeg"+
+	"\">" +
+
 	"</a><br>\n" +
 	"<font class=\"thumbnaildesc\">" +
 	get_photo( i )[ 1 ] +
