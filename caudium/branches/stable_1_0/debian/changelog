@@ -1,3 +1,9 @@
+caudium (2:1.0.53-2) unstable; urgency=high
+
+  * Latest CVS snapshot.
+
+ -- Marek Habersack <grendel@debian.org>  Fri,  7 Jun 2002 13:39:21 +0200
+
 caudium (2:1.0.53-1) unstable; urgency=high
 
   * Fixed SF bug 530674: passive mode FTP connection problem (with Mozilla
