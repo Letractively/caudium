@@ -1221,12 +1221,9 @@ private mapping internal_caudium_image(string from)
 	break;
     }
     	
-    return http_string_answer("<html><title>No Such Internal Image!</title>"
-			      "<body bgcolor=black text=white>"
-			      "<h1 align=center>"
-			      "<img src=\"/internal-caudium-dontpanic\" "
-			      "width=\"172\" height=\"128\"><br>Don't panic!</h1>"
-			      "</body></html>");
+	mapping err = caudium->IFiles->get("html://no_internal_image.html");
+	
+    return http_string_answer(err->file);
 }
 
 // The function that actually tries to find the data requested.  All
@@ -1374,6 +1371,9 @@ mapping|int low_get_file(object id, int|void no_magic)
 #endif
   TRACE_ENTER("Request for "+id->not_query, 0);
 
+  if (id->prestate)
+  	report_notice(sprintf("low_get_file: id->prestate == %O\n", id->prestate));
+	
   string file=id->not_query;
   string loc, type;
   function funp;
