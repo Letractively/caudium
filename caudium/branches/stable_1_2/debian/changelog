@@ -2,6 +2,8 @@ caudium (2:1.2.31-3) unstable; urgency=high
 
   * Package description fixes (closes: Bug#209533)
   * All headers are where they belong (closes: Bug#204489)
+  * Tightened the build-time dependencies on pike7.2 so that
+    the autobuilders pick up the right pike version.
 
  -- Marek Habersack <grendel@debian.org>  Tue,  9 Sep 2003 23:54:23 +0200
 
