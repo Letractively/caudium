@@ -917,8 +917,8 @@ int gethrtime()
 
 // Some function that can used by Caudium
 
-//! @appears werror
 //! @decl void werror(string format, mixed ... args)
+//! @appears werror
 //!  Write into stderr. This function will write on the webserver
 //!  debug log. Please use @[report_debug], @[report_warning],
 //!  @[report_error] and @[report_fatal] calls instead.
