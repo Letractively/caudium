@@ -277,7 +277,7 @@ private static void low_shutdown(int exit_type)
     }
   }
 
-  call_out(really_low_shutdown, 5, exit_code);
+  call_out(really_low_shutdown, 5, exit_type);
 }
 
 //! Perhaps somewhat misnamed, really...  This function will close all
