@@ -1,0 +1,35 @@
+#!/usr/bin/env pike
+
+int main(int argc, array argv) {
+#if constant(Sablotron.parse)
+  string xsl, xml, ofile;
+  string res;
+  switch(argc) {
+   case 4:
+    ofile = argv[3];
+   case 3:
+    xml = argv[2];
+   case 2:
+    xsl = argv[1];
+    break;    
+   case 1:
+   default:
+    werror("Syntax: pixsl <stylesheet> [<input> [<output>]]\n"
+	   "\tApply <stylesheet> to <input>, which defaults to stdin,\n"
+	   "\tand write the output to <output> which defaults to stdout.\n\n");
+    exit(1);
+  }
+  if(!xml) xml = "file://stdin";
+  res = Sablotron.parse_files(xsl, xml);
+  if(!res) exit(1);
+  if(ofile) {
+    rm(ofile);
+    Stdio.write_file(ofile, res);
+  } else {
+    write(res);
+  }
+#else
+  werror("ERROR: Sabletron Pike module not available!\n");
+  exit(2);
+#endif
+}
