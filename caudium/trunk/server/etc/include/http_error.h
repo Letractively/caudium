@@ -162,7 +162,7 @@ class http_error_handler {
            error_name = _error_name;
         else if (id->misc->error_name)
            error_name = id->misc->error_name;
-        else id ( ( id->errors ) && ( id->errors[ error_code ] ) )
+        else if ( ( id->errors ) && ( id->errors[ error_code ] ) )
            error_name = id->errors[error_code];
 	else
 	   error_name = "No Error Message Supplied. Sorry.\n\n";
