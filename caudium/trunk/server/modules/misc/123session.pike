@@ -399,9 +399,7 @@ void sessionid_set_cookie(object id, string SessionID) {
     Cookie += "; Secure";
   id->cookies->SessionID = SessionID;
   id->misc->is_dynamic = 1;
-  id->misc->moreheads = ([ "Set-Cookie": Cookie,
-                           "Last-Modified": http_date(time(1))
-			 ]);
+  id->misc->moreheads = ([ "Set-Cookie": Cookie ]);
 }
 
 string sessionid_get(object id) {
@@ -570,12 +568,7 @@ void delete_session (object id, string session_id, void|int logout) {
       if (query ("secure"))
 	Cookie += "; Secure";
       id->misc->is_dynamic = 1;
-      id->misc->moreheads = ([ "Set-Cookie": Cookie,
-			       //"Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
-			       "Expires": "0",
-			       "Pragma": "no-cache",
-			       "Last-Modified": http_date(time(1)),
-			       "Cache-Control": "no-cache, must-revalidate" ]);
+      id->misc->moreheads = ([ "Set-Cookie": Cookie ]);
       m_delete (id->cookies, "SessionID");
     }
     
