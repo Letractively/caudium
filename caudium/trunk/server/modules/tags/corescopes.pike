@@ -56,68 +56,166 @@ class ClientScope {
     mixed tmp;
     mixed ret = -1;
     switch(entity) {
+     case "authenticated":
       //! entity: authenticated
       //!  Returns the authenticated user. If a user was sent but the
       //!  authentication was incorrect, this will be empty.
-    case "authenticated":
       NOCACHE();
       ret = (id->auth && id->auth[0] && id->auth[1]);
       break;
+     case "fullname":
       //! entity: fullname
       //!  Returns the full user agent string, i.e. the name of the browser
       //!  and additional info like operating system and more.
       //!  E.g. "<tt>Mozilla/4.73 [en] (X11; U; Linux 2.2.16-9mdk i686)</tt>"
-    case "fullname":
       NOCACHE();
       ret = id->useragent;
       break;
+     case "host":
       //! entity: host
       //!  The hostname of the client, or the ip-address if it's not (yet)
       //!  resolved. 
-    case "host":
       NOCACHE();
       ret = caudium->quick_ip_to_host(id->remoteaddr);
       break;
+     case "ip":
       //! entity: ip
       //!  The ip-address of the client computer.
-    case "ip":
       NOCACHE();
       ret = id->remoteaddr;
       break;
+     case "name":
       //! entity: name
       //!  The name of the client, i.e. "Mozilla/4.73". 
-    case "name":
       NOCACHE();
       if(id->useragent) ret = (id->useragent / " " - ({""}))[0];
       break;
+     case "password":
       //! entity: password
       //!  The authentication password sent to this request. Please note
       //!  that this password isn't necessarily correct.
-    case "password":
       NOCACHE();
       ret = id->realauth && (sizeof(tmp = id->realauth/":") > 1) && tmp[1];
       break;
+     case "referrer":
       //! entity: referrer
       //!  The URL of the page on which the user followed a link that
       //!  brought her to this page. The information comes from the Referrer
       //!  header sent by the browser and can't always be trusted.
-    case "referrer":
       NOCACHE();
       ret = id->referrer;
       break;
+     case "user":
       //! entity: user
       //!  The user sent in the authentication header to this request.
       //!  It will be available even if Caudium failed to authenticate
       //!  the user. If you want to see whether authentication succeeded,
       //!  use &amp;client.authenticated;.
-    case "user":
       NOCACHE();
       ret = (id->realauth  && (id->realauth/":")[0]);
-      break;
+      break;      
     }
     if(ret == -1)
       return "<b>Invalid entity &amp;client."+entity+";.</b>";
     if(ret) return ({ ret });
+    return 0;
+  }
+}
+
+//! entity_scope: page
+//!  This scope contains information related to the current page.
+
+class PageScope {
+  inherit "scope";  
+  constant name = "page";
+
+  array(string)|string get(string entity, object id) {
+    mixed tmp;
+    mixed ret = -4711;
+    switch(entity) {
+     case "filesize":
+      //! entity: filesize
+      //!  Returns the size in bytes of this file or -4 if the size is unknown.
+      res = id->misc->defines[" _stat"] ? id->misc->defines[" _stat"][1] : -4;
+      break;
+     case "true":
+     case "last-true":
+      //! entity: true
+      //!  Returns 1 if the last statement with a conditional result (&lt;if>,
+      //!  &lt;true> and &lt;false> for example) was true or 0 if it was false.
+      //! entity: last-true
+      //!  Roxen 2.x compatibility. Identical to &amp;page.true;.
+      ret = id->misc->defines[" _ok"];
+      break;
+     case "path":
+      //! entity: path
+      //!  Return the absolute path of this file in the virtual filesystem.
+      ret = id->not_query;
+      break;
+     case "pathinfo":
+      //! entity: pathinfo
+      //!  Return the "path info" part of the URL, if any. This is set by the
+      //!  "Path info support" module.
+      ret = id->misc->path_info||"";
+      break;
+     case "query":
+      //! entity: query
+      //!  Returns the query part for the current page.
+      ret = id->query||"";
+      break;
+     case "realfile":
+      //! entity: realfile
+      //!  Returns the path to this file in the real filesysten, if available.
+      ret = id->realfile||"";
+      break;
+     case "basename":
+     case "self":
+      //! entity: basename
+      //!  Returns the basename, ie the file name without the path, of this
+      //!  file.
+      //! entity: self
+      //!  Roxen 2.x compat. Identical to &amp;page.basename;
+      ret = basename((id->realfile||id->not_query));
+      break;
+     case "dirname":
+      //! entity: dirname
+      //!  Returns the directory part of the current path in the virtual
+      //!  filesystem.
+      ret = dirname(id->not_query);
+      break;
+     case "realdirname":
+      //! entity: realdirname
+      //!  Returns the directory part of the current path in the real
+      //!  filesystem, if available.
+      ret = id->realfile ? dirname(id->realfile) : "";
+      break;
+     case "ssl-strength":
+      //! entity: ssl-strength
+      //!  Return the strength in bits of the current SSL connection or zero
+      //!  if SSL is not used for this request.
+      NOCACHE();
+      if (!id->my_fd || !id->my_fd->session)
+	ret = 0;
+      else
+	ret = id->my_fd->session->cipher_spec->key_bits;
+      break;
+
+     case "raw-url":
+     case "url":
+      //! entity: raw-url
+      //!  The raw url of the current resource as sent to the server by
+      //!  the browser. This URL is unparsed and include Caudium specific
+      //!  parts like the prestate.
+      //! entity: url
+      //!  Roxen 2.x compatibility. Identical to &amp;page.raw-url;
+      ret = id->raw_url;
+      break;      
+    }
+    if(stringp(ret)) return ret;
+    if(ret == -4711)
+      return ({ "<b>Invalid entity &amp;"+name+"."+entity+";.</b>" });
+    else if(intp(ret) || floatp(ret))
+      return ({ (string)ret });
     return 0;
   }
 }
@@ -411,6 +509,7 @@ array(object) query_scopes()
     RandomScope(),
     CaudiumScope(),
     CaudiumScope("roxen"),
+    PageScope()
   });
 }
   
