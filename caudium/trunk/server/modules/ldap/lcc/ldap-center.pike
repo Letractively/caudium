@@ -35,13 +35,6 @@ constant module_doc  = "Central LDAP management module. Provides the connection 
 
 constant module_unique = 0;
 
-//
-// Session storage shortcuts
-//
-#define SVARS(_id_) _id_->misc->session_variables
-#define SDATA(_id_) SVARS(_id_)->ldap_center_data
-#define SUSER(_id_) SDATA(_id_)->user
-
 #define PROVIDER(name) id->conf->get_provider(name)
 
 //
@@ -77,6 +70,22 @@ private mapping(string:mapping) providers = ([
     "error" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0 ]),
     "menu" : ([ "flags" : PROVIDER_REQUIRED | PROVIDER_REQUEST, "name" : 0])
 ]);
+
+//
+// Menu registration records
+//
+private array(mapping) my_menus = ({
+    ([
+        "name" : "Logout",
+        "url" : "/logout",
+        "provider" : "_ldap-center"
+    ]),
+    ([
+        "name" : "About",
+        "url" : "/about",
+        "provider" : "_ldap-center"
+    ])
+});
 
 void create()
 {
@@ -200,6 +209,8 @@ void start(int cnt, object conf)
                 throw(({sprintf("Required provider '%s' absent!\n", providers[idx]->name),
                         backtrace()}));
     }
+
+    my_menus[0]->provider = QUERY(prov_prefix) + my_menus[0]->provider;
 }
 
 void stop()
@@ -235,11 +246,29 @@ private mapping init_user(object id)
     ret->session = id->misc->session_id;
     ret->ldap = ([]);
     ret->prefix = QUERY(prov_prefix);
-
+    ret->my_world = id->conf->QUERY(MyWorldLocation);
+    ret->mountpoint = QUERY(mountpoint);
+    
     report_notice(sprintf("ret == %O\n", ret));
 
     return ret;
 }
+
+//
+// Actions we handle in this module
+//
+mixed handle_request(object id, mapping data, string f)
+{
+    switch(f) {
+        case "logout":
+            return http_redirect("http://loo.net-vision.pl/pike/");
+
+        case "about":
+        default:
+            return http_string_answer("The <code>About</code> data will come here...");
+    }
+}
+
 
 mixed find_file(string f, object id)
 {
@@ -258,9 +287,9 @@ mixed find_file(string f, object id)
         if (!id->auth || !id->auth[0])
             return http_auth_required(QUERY(auth_realm), QUERY(auth_failed));
     
-    if (!SDATA(id))
+    if (!SDATA(id)) 
         SDATA(id) = ([]);
-
+    
     if (!SUSER(id))
         SUSER(id) = init_user(id);
 
@@ -275,7 +304,15 @@ mixed find_file(string f, object id)
         if (!req_prov)
             return p_err->error(id, ERR_PROVIDER_ABSENT, providers[f]->name);
     } else {
-        return p_err->error(id, ERR_INVALID_REQUEST);
+        switch(f) {
+            case "logout":
+            case "about":
+                req_prov = this_object();
+                break;
+                
+            default:
+                return p_err->error(id, ERR_INVALID_REQUEST);
+        }
     }
 
     mixed     error = 0;
@@ -318,12 +355,35 @@ mixed find_file(string f, object id)
                 return response;
 
         SUSER(id)->authenticated = 1;
+
+        //
+        // OK, now we can register the menus exported from the providers
+        //
+        object menu_prov= PROVIDER(providers->menu->name);
+
+        // first our menus
+        menu_prov->register_menus(id, my_menus);
+        
+        foreach(indices(providers), string idx) {
+            if (idx == "menu")
+                continue;
+            
+            object p = PROVIDER(providers[idx]->name);
+            if (!p || !p->query_menus || !functionp(p->query_menus))
+                continue;
+
+            mapping|array(mapping) menus = p->query_menus(id);
+            if (!menus || !sizeof(menus))
+                continue;
+            
+            menu_prov->register_menus(id, menus);
+        }
     }
     
     //
     // Authenticated. Fine, let's handle the request.
     //
-    response =  req_prov->handle_request(id, SDATA(id));
+    response =  req_prov->handle_request(id, SDATA(id), f);
 
     if (response && response->close_ldap) {
         if (conn_cache[id->misc->session_id] && objectp(conn_cache[id->misc->session_id])) {
