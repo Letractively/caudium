@@ -192,8 +192,8 @@ void create()
   
 
   defvar("Swashii", 1, "Turn %7d%7b%7c into едц", TYPE_FLAG|VAR_MORE,
-	 "Will make the module turn %7d%7b%7c into едц in the Real Name "+
-	 "field in the userinfo database. This is useful in a european "+
+	 "Will make the module turn %7d%7b%7c into едц in the Real Name "
+	 "field in the userinfo database. This is useful in a european "
 	 "country, Sweden.");
 
   defvar("Strip", 1, "Strip finger information from fullname",
@@ -507,7 +507,7 @@ int may_disable() { return 0; }
 //!  name: Password command arguments
 //
 //! defvar: Swashii
-//! Will make the module turn %7d%7b%7c into едц in the Real Name 
+//! Will make the module turn %7d%7b%7c into едц in the Real Name field in the userinfo database. This is useful in a european country, Sweden.
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Turn %7d%7b%7c into едц
 //
