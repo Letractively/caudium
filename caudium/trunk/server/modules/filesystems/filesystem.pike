@@ -70,7 +70,7 @@ constant module_unique = 0;
 
 
 int redirects, accesses, errors, dirlists;
-int puts, deletes, mkdirs, moves, chmods;
+int puts, deletes, mkdirs, moves, chmods, appes;
 
 static int do_stat = 1;
 
@@ -81,6 +81,7 @@ string status()
 	  (accesses?"<b>Normal files</b>: "+accesses+"<br>"
 	   :"No file accesses<br>")+
 	  (QUERY(put)&&puts?"<b>Puts</b>: "+puts+"<br>":"")+
+	  (QUERY(put)&&QUERY(appe)&&appes?"<b>Appends</b>: "+appes+"<br>":"")+
 	  (QUERY(method_mkdir)&&mkdirs?"<b>Mkdirs</b>: "+mkdirs+"<br>":"")+
 	  (QUERY(method_mv)&&moves?
 	   "<b>Moved files</b>: "+moves+"<br>":"")+
@@ -141,6 +142,9 @@ void create()
   defvar("put", 0, "Allowed Access Methods: PUT", TYPE_FLAG,
 	 "If set, allow use of the PUT method, which is used for file "
 	 "uploads. ");
+  defvar("appe", 0, "Allowed Access Methods: APPE", TYPE_FLAG,
+         "If set and if PUT method too, APPEND method can be used on "
+         "file uploads.");
   defvar("delete", 0, "Allowed Access Methods: DELETE", TYPE_FLAG,
 	 "If set, allow use of the DELETE method, which is used for file "
 	 "deletion.");
@@ -550,6 +554,77 @@ mixed find_file( string f, object id )
     id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
     TRACE_LEAVE("PUT: Pipe in progress");
     TRACE_LEAVE("PUT: Success so far");
+    return http_pipe_in_progress();
+    break;
+
+  case "APPE":
+    if(!QUERY(put)&&!QUERY(appe))
+    {
+      id->misc->error_code = 405;
+      TRACE_LEAVE("APPE disallowed");
+      return 0;
+    }    
+
+    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+      TRACE_LEAVE("APPE: Permission denied");
+      return http_auth_required("foo",
+				"<h1>Permission to 'APPE' files denied</h1>");
+    }
+    appes++;
+    
+    object privs;
+
+// #ifndef THREADS // Ouch. This is is _needed_. Well well...
+    if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+      (QUERY(access_as_user))) {
+      // NB: Root-access is prevented.
+      privs=Privs("Saving file", (int)id->misc->uid, (int)id->misc->gid );
+    }
+// #endif
+
+    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+      privs = 0;
+      errors++;
+      report_error("Creation of " + f + " failed. Permission denied.\n");
+      TRACE_LEAVE("PUT: Contains symlinks. Permission denied");
+      return http_low_answer(403, "<h2>Permission denied.</h2>");
+    }
+
+    TRACE_ENTER("APPE: Accepted", 0);
+
+    mkdirhier( f );
+
+    object to = open(f, "arw");
+    
+    privs = 0;
+
+    if(!to)
+    {
+      id->misc->error_code = 403;
+      TRACE_LEAVE(sprintf("APPE: Open (%s, wa) failed",f));
+      TRACE_LEAVE("Failure");
+      return 0;
+    }
+    chmod(f, 0666 & ~(id->misc->umask || 022));
+    putting[id->my_fd]=id->misc->len;
+    if(id->data && strlen(id->data))
+    {
+      putting[id->my_fd] -= strlen(id->data);
+      to->write( id->data );
+    }
+    if(!putting[id->my_fd]) {
+      TRACE_LEAVE("PUT: Just a string");
+      TRACE_LEAVE("Put: Success");
+      return http_string_answer("Ok");
+    }
+
+    if(id->clientprot == "HTTP/1.1") {
+      id->my_fd->write("HTTP/1.1 100 Continue\r\n");
+    }
+    id->my_fd->set_id( ({ to, id->my_fd }) );
+    id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
+    TRACE_LEAVE("APPE: Pipe in progress");
+    TRACE_LEAVE("APPE: Success so far");
     return http_pipe_in_progress();
     break;
 

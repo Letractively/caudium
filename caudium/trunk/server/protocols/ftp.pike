@@ -377,7 +377,7 @@ class PutFileWrapper
 
   static mixed my_read_callback(mixed id, string data)
   {
-    DWRITE(sprintf("FTP: PUT: my_read_callback(X, \"%s\")\n", data||""));   
+//    DWRITE(sprintf("FTP: PUT: my_read_callback(X, \"%s\")\n", data||""));   
     ftpsession->touch_me();
     if(stringp(data))
       recvd += sizeof(data);
@@ -412,7 +412,7 @@ class PutFileWrapper
 
   int write(string data)
   {
-    DWRITE(sprintf("FTP: PUT: write(\"%s\")\n", data||""));
+//    DWRITE(sprintf("FTP: PUT: write(\"%O\")\n", data||""));
 
     ftpsession->touch_me();
 
@@ -1039,7 +1039,7 @@ class TelnetSession {
 
   static private void got_oob(mixed ignored, string s)
   {
-    DWRITE(sprintf("TELNET: got_oob(\"%s\")\n", s));
+//    DWRITE(sprintf("TELNET: got_oob(\"%s\")\n", s));
 
     sync = sync || (s == "\377");
     if (cb["URG"]) {
@@ -1050,7 +1050,7 @@ class TelnetSession {
   static private string rest = "";
   static private void got_data(mixed ignored, string s)
   {
-    DWRITE(sprintf("TELNET: got_data(\"%s\")\n", s));
+    DWRITE(sprintf("TELNET: got_data(%O)\n", s));
 
     if (sizeof(s) && (s[0] == 242)) {
       DWRITE("TELNET: Data Mark\n");
@@ -1145,7 +1145,7 @@ class TelnetSession {
       }
       if (lineno < (sizeof(lines)-1)) {
 	if ((!sync) && read_cb) {
-	  DWRITE(sprintf("TELNET: Calling read_callback(X, \"%s\")\n",
+	  DWRITE(sprintf("TELNET: Calling read_callback(X, %O)\n",
 			       line));
 	  read_cb(id, line);
 	}
@@ -1329,7 +1329,7 @@ class FTPSession
     } else {
       string s = to_send->get();
 
-      DWRITE(sprintf("FTP: write_cb(): Sending \"%s\"\n", s));
+//      DWRITE(sprintf("FTP: write_cb(): Sending \"%s\"\n", s));
 
       if ((to_send->is_empty()) && (!end_marker)) {
 	::set_write_callback(0);
@@ -1528,7 +1528,7 @@ class FTPSession
       privs = 0;
       DWRITE(sprintf("FTP: socket(%d) failed. Trying with any port.\n",
 			   local_port-1));
-      if (!f->open_socket()) {
+      if (!f->open_socket(0,local_addr)) {
 	DWRITE("FTP: socket() failed. Out of sockets?\n");
 	fun(0, @args);
 	destruct(f);
@@ -1676,6 +1676,7 @@ class FTPSession
 
     file = stat_file(fname, session);
     
+    DWRITE(sprintf("FTP: open_file(%O,sess,%O) file=%O\n",fname,cmd,file));
     if (arrayp(file)) {
       array st = file;
       file = 0;
@@ -1690,14 +1691,19 @@ class FTPSession
 	send(550,({ sprintf("%s: Error, can't open file.", fname) }));
 	return 0;
       }
-    } else if ((< "STOR", "APPE", "MKD", "MOVE" >)[cmd]) {
+    } else if ((< "APPE", "STOR", "MKD", "MOVE" >)[cmd]) {
       mixed err;
+
+      DWRITE(sprintf("FTP: get_file(%O,%O,%O)\n",fname,cmd,session->method));
+      
       if ((err = catch(file = conf->get_file(session)))) {
 	report_error(sprintf("FTP: Error opening file \"%s\"\n"
 			     "%s\n", fname, describe_backtrace(err)));
 	send(550, ({ sprintf("%s: Error, can't open file.", fname) }));
 	return 0;
       }
+
+      DWRITE(sprintf("FTP: file=%O\n",file));
     }
 
     session->file = file;
@@ -1796,7 +1802,7 @@ class FTPSession
     pipe->output(fd);
   }
 
-  static private void connected_to_receive(object fd, string args)
+  static private void connected_to_receive(object fd, string args, string method)
   {
     DWRITE(sprintf("FTP: connected_to_receive(X, \"%s\")\n", args));
 
@@ -1823,12 +1829,14 @@ class FTPSession
       break;
     }
 
+    if(!method) method="STORE";
+
     object session = RequestID(master_session);
-    session->method = "PUT";
+    session->method = (method == "APPE") ? "APPE" : "PUT";
     session->my_fd = PutFileWrapper(fd, session, this_object());
     session->misc->len = 0x7fffffff;
 
-    if (open_file(args, session, "STOR")) {
+    if (open_file(args, session, method)) {
       if (!(session->file->pipe)) {
 	if (fd) {
 	  BACKEND_CLOSE(fd);
@@ -1867,14 +1875,15 @@ class FTPSession
     }
   }
 
-  static private void connect_and_receive(string arg)
+  static private void connect_and_receive(string arg, string|void method)
   {
-    DWRITE(sprintf("FTP: connect_and_receive(\"%s\")\n", arg));
+    if(!method) method="STOR";
+    DWRITE(sprintf("FTP: connect_and_receive(%O,%O)\n", arg, method));
 
     if (pasv_port) {
-      ftp_async_accept(connected_to_receive, arg);
+      ftp_async_accept(connected_to_receive, arg, method);
     } else {
-      ftp_async_connect(connected_to_receive, arg);
+      ftp_async_connect(connected_to_receive, arg, method);
     }
   }
 
@@ -2761,6 +2770,20 @@ class FTPSession
     }
   }
 
+#if 1
+  void ftp_APPE(string args)
+  {
+    if (!expect_argument("APPE", args)) {
+      return;
+    }
+
+    args = fix_path(args);
+
+    connect_and_receive(args,"APPE");
+  }
+#endif
+
+
   void ftp_STOR(string args)
   {
     if (!expect_argument("STOR", args)) {
@@ -2768,6 +2791,29 @@ class FTPSession
     }
 
     args = fix_path(args);
+
+#if 1
+    if(restart_point)
+    {
+      
+      object session = RequestID(master_session);
+      session->method = "STAT";
+      mapping|array st = stat_file(args, session);
+      
+      if (!arrayp(st)) {
+	send_error("SIZE", args, st, session);
+	return;
+      }
+      int size = st[1];
+      if(size == restart_point)
+      {
+	connect_and_receive(args,"APPE");
+	return;
+      }
+      restart_point=0;
+      send(550, ({"Resume failed."}) );
+    }
+#endif
 
     connect_and_receive(args);
   }
@@ -2868,6 +2914,7 @@ class FTPSession
     ftp_NLST("-l " + (args||""));
   }
 
+#if 0
   void ftp_MLST(string args)
   {
     args = fix_path(args || ".");
@@ -2912,6 +2959,7 @@ class FTPSession
       send_error("MLSD", args, session->file, session);
     }
   }
+#endif
 
   void ftp_DELE(string args)
   {
@@ -3288,7 +3336,7 @@ class FTPSession
 
   static private void got_command(mixed ignored, string line)
   {
-    DWRITE(sprintf("FTP: got_command(X, \"%s\")\n", line));
+    DWRITE(sprintf("FTP: got_command(X, %O)\n", line));
 
     touch_me();
 
