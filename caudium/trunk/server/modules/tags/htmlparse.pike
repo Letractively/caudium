@@ -2528,6 +2528,11 @@ string tag_else(string tag, mapping m, string s, object id, object file,
 { 
   return _ok?"":s; 
 }
+string tag_then(string tag, mapping m, string s, object id, object file, 
+		mapping defines) 
+{ 
+  return _ok?s:""; 
+}
 
 string tag_elseif(string tag, mapping m, string s, object id, object file, 
 		  mapping defines, object client) 
@@ -3514,6 +3519,7 @@ mapping query_container_callers()
 	   "elif":tag_elseif,
 	   "elseif":tag_elseif,
 	   "else":tag_else,
+	   "then":tag_then,
 	   "gauge":tag_gauge,
 	   "strlen":tag_strlen,
 	   "allow":tag_if,
