@@ -737,7 +737,7 @@ static multiset check_in_range(object date, mapping range, int maxdays)
       return ret;
 
   if (range->weeks)
-    if (!value_in_range(week, range->weeks, 0, 1, 52))
+    if (!value_in_range(week, range->weeks, 0, 1, 53))
       return ret;
   
   for (int i = 1; i <= maxdays; i++) {
@@ -762,12 +762,19 @@ static multiset mark_active_weeks(object target, object id)
   
   multiset      ret = (<>);
   array(object) weeks = target->month()->weeks();
-
+  int           deckludge = target->month_no() == 12;
+  
   foreach(id->misc->_calendar->hotdates, mapping range) {
     if (range->weeks && sizeof(range->weeks))
-      foreach(weeks, object week)
-        if (value_in_range(week->week_no(), range->weeks, 0, 1, 52))
-          ret += (<week->week_no()>);
+      foreach(weeks, object week) {
+        int weekno = week->week_no();
+        
+        if (value_in_range(weekno, range->weeks, 0, 1, 53))
+          if (deckludge && weekno == 1)
+            ret += (<53>);
+          else
+            ret += (<weekno>);
+      }
   }
 
   return ret;
@@ -1207,7 +1214,7 @@ string calendar_action_tag(string tag, mapping args, string cont,
       return "";
     if (years && sizeof(years) && !value_in_range((int)id->variables->calyear, years, 1))
       return "";
-    if (weeks && sizeof(weeks) && !value_in_range((int)id->variables->calweek, weeks, 0, 1, 52))
+    if (weeks && sizeof(weeks) && !value_in_range((int)id->variables->calweek, weeks, 0, 1, 53))
       return "";
   };
 
