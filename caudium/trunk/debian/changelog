@@ -1,3 +1,9 @@
+caudium (1.0.0-4) unstable; urgency=low
+
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 13 Sep 2000 17:10:32 +0200
+
 caudium (1.0.0-3) unstable; urgency=low
 
   * Polished up the installation
