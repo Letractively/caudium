@@ -163,15 +163,21 @@ fi
 
     # Now let's take care of permissions
     # if it is the first time we run Caudium
-    if [ -f /var/state/caudium${EXTVER}/virgin.install ]; then    
-	DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /etc/caudium/servers${EXTVER} /var/log/caudium${EXTVER}"
-	for d in $DIRS; do
-	    if test -d $d; then
-		chown -R www-data.www-data $d
-	    fi
-	done
-	rm -f /var/state/caudium${EXTVER}/virgin.install
-    fi
+    #if [ -f /var/state/caudium${EXTVER}/virgin.install ]; then    
+    #	DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /etc/caudium/servers${EXTVER} /var/log/caudium${EXTVER}"
+    #	for d in $DIRS; do
+    #	    if test -d $d; then
+    #		chown -R www-data.www-data $d
+    #	    fi
+    #	done
+    rm -f /var/state/caudium${EXTVER}/virgin.install
+    #fi
+
+    DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /etc/caudium${EXTVER}/servers /var/log/caudium${EXTVER}"
+    for d in $DIRS; do
+	dpkg-statoverride --remove $d > /dev/null 2>&1 || true
+	dpkg-statoverride --update --add www-data www-data 0664 $d
+    done
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
