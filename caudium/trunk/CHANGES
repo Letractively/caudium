@@ -5,6 +5,8 @@ Changes since last Roxen 1.3
   start on version 1.0 to point out that this is a different
   server. Check out our website at http://caudium.net/ for further
   information.
++ We use SourceForge. This means public CVS, bug tracking, task lists
+  and more. The URL is http://sourceforge.net/projects/caudium/ 
 + Now works with Pike 7. Not completely tested but at least everything
   seems to compile ok. This also means that quite a number of small
   fixes has been made, since most errors are due to the better (and
