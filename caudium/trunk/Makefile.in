@@ -40,7 +40,7 @@ force:
 	-@$(BIN_TRUE)
 
 autodefvardocs:
-	(cd $(SRCDIR); $(PIKE) tools/defvar2autodoc.pike `find server/modules/ -name "*.pike"` `find server/more_modules/ -name "*.pike"` )
+	(cd $(SRCDIR); $(PIKE) tools/defvar2autodoc.pike `find server/modules/ -name "*.pike"` )
 
 # These are here for compatibility with the easy-start makefile
 easy: all
@@ -120,7 +120,7 @@ install_only:
 	-chmod a+rx $(prefix)/caudium/server
 	-chmod a+rx $(prefix)/caudium/server/lib/
 	-chmod a+rx $(prefix)/caudium/server/lib/@PIKE_VERSION@
-	-@for d in fonts nfonts modules etc bin base_server more_modules \
+	-@for d in fonts nfonts modules etc bin base_server \
 		   config_actions server_templates \
 	           languages caudium-images protocols unfinishedmodules; do \
 	  echo Modifying permissions for directory $(prefix)/caudium/server/$$d... ; \
@@ -165,7 +165,7 @@ install_alt:
 	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
 	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name CVS -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
-	          protocols languages server_templates modules more_modules \
+	          protocols languages server_templates modules \
 			  unfinishedmodules; do \
 	 echo "Copying $$f ..."; \
 	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
@@ -180,7 +180,7 @@ install_alt:
 	done
 	@echo "Fixing paths..."
 	@MDIR="$(prefix)/lib/caudium$(EXTRAVER)"; CACHETOP="/var/cache/caudium$(EXTRAVER)"; \
-	 for v in more_modules modules local_modules; do \
+	 for v in modules local_modules; do \
 	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
 	 done; \
 	 if test "$(prefix)" != "/usr/local"; then \
