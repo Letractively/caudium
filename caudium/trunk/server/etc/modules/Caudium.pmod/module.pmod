@@ -916,11 +916,15 @@ string msectos(int t) {
   return sprintf("%d:%02d h:m", t/3600000, (t%3600000)/60000);
 }
 
-//! Gets the backup extension
-//! 
+//! Checks if the given filename ends with a backup extension
+//! Backup extensions are: #, ~, .old and .bak
+//! @param f
+//!  The filename to check
+//! @returns
+//!  1 if the filename ends with a backup extension or is empty
+//!  0 otherwise
 //! @note
 //!   RIS code ?
-//!
 //! @fixme
 //!   Optimize that since it is used in filesystem.pike (in C?).
 int backup_extension( string f ) {
