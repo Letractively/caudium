@@ -13,7 +13,7 @@ inherit "connection" : connection;
 #endif /* SSL3_DEBUG */
 object(Stdio.File) socket;
 
-object context;
+static object context;
 
 int _fd;
 
@@ -48,7 +48,6 @@ void die(int status)
     werror("SSL.sslfile: Killed\n");
 #endif
   }
-  catch(socket->set_write_callback(0)); // Catch in case it's closed.
   is_closed = 1;
   if (socket)
   {
@@ -57,8 +56,11 @@ void die(int status)
     catch(socket->close());
     socket = 0;
     // Avoid recursive calls if the close callback closes the socket.
-    if(close_callback)
-      close_callback( id );
+    if (close_callback) {
+      function(mixed:void) f = close_callback;
+      close_callback = 0;
+      f (id);
+    }
   }
 }
 
@@ -96,7 +98,7 @@ void close()
   werror("SSL.sslfile->close\n");
 #endif
 
-  if (is_closed) return;
+  if (is_closed || !socket) return;
   is_closed = 1;
 
   if (sizeof (write_buffer) && !blocking)
@@ -112,14 +114,23 @@ void close()
   write_callback = 0;
   close_callback = 0;
 
-  if (sizeof (write_buffer) && !blocking) {
-     ssl_write_callback(socket->query_id());
-   }
-  if(sizeof(write_buffer) && blocking) {
-    write_blocking();
-  }
+  if (socket) {
+    if (sizeof (write_buffer) && !blocking) {
+      ssl_write_callback(socket->query_id());
+    }
+    if(sizeof(write_buffer) && blocking) {
+      write_blocking();
+    }
 
-  socket->close();
+    if (!blocking)
+    {
+      // FIXME: Timeout?
+      return;
+    }
+
+    if (socket) socket->close();
+  }
+  socket = 0;
 }
 
 
@@ -214,7 +225,7 @@ int write(string|array(string) s)
   werror("SSL.sslfile->write\n");
 #endif
 
-  if (is_closed) return -1;
+  if (is_closed || !socket) return -1;
 
   if (arrayp(s)) {
     s = s*"";
@@ -236,14 +247,14 @@ int write(string|array(string) s)
   if (blocking)
     write_blocking();
   else {
-    if (call_write)
+    if (call_write && socket)
       ssl_write_callback(socket->query_id());
   }
   return len;
 }
 
  
-void get_blocking_to_handshake_finsihed_state() {
+void get_blocking_to_handshake_finished_state() {
   
   while(!handshake_finished) {
     write_blocking();
@@ -254,7 +265,9 @@ void get_blocking_to_handshake_finsihed_state() {
 
 // Reads a single record layer packet.
 private int|string read_blocking_packet() {
-  
+
+  if (!socket) return -1;  
+
   string header=socket->read(5);
   if(!stringp(header)) {
     return -1;    
@@ -274,7 +287,7 @@ private void write_blocking() {
 
   int res = queue_write();
 
-  while(strlen(write_buffer)) {
+  while(strlen(write_buffer) && socket) {
     
     int written = socket->write(write_buffer);
     if (written > 0) {
@@ -317,8 +330,11 @@ private void ssl_read_callback(mixed id, string s)
   } else {
     if (data > 0)
       {
-	if (close_callback)
-	  close_callback(socket->query_id());
+	if (close_callback) {
+	  function f = close_callback;
+	  close_callback = 0;
+	  f(socket->query_id());
+	}
       }
     else
       if (data < 0)
@@ -378,8 +394,16 @@ private void ssl_write_callback(mixed id)
     }
     res = queue_write();
   }
-  if (!strlen(write_buffer))
-    catch(socket->set_write_callback(0)); // Catch in case it's closed.
+  if (!strlen(write_buffer) && socket)
+  {
+    socket->set_write_callback(0);
+    if (is_closed)
+    {
+      socket->close();
+      socket = 0;
+      return;
+    }
+  }
   if (res)
     die(res);
 }
@@ -389,8 +413,11 @@ private void ssl_close_callback(mixed id)
 #ifdef SSL3_DEBUG
   werror("SSL.sslport: ssl_close_callback\n");
 #endif
-  if (close_callback)
-    close_callback(socket->query_id());
+  if (close_callback && socket) {
+    function f = close_callback;
+    close_callback = 0;
+    f(socket->query_id());
+  }
   if (this_object()) {
     die(closing ? 1 : -1);
   }
@@ -412,6 +439,9 @@ void set_read_callback(function(mixed,string:void) r)
   werror("SSL.sslport: set_read_callback\n");
 #endif
   read_callback = r;
+  if (strlen(read_buffer)&& socket)
+    ssl_read_callback(socket->query_id(), "");
+
 }
 
 function query_read_callback() { return read_callback; }
@@ -422,7 +452,7 @@ void set_write_callback(function(mixed:void) w)
   werror("SSL.sslfile->set_write_callback\n");
 #endif
   write_callback = w;
-  if (w)
+  if (w && socket)
     socket->set_write_callback(ssl_write_callback);
 }
 
@@ -444,7 +474,7 @@ void set_nonblocking(function ...args)
   werror(sprintf("SSL.sslfile->set_nonblocking(%O)\n", args));
 #endif
 
-  if (is_closed) return;
+  if (is_closed || !socket) return;
 
   switch (sizeof(args))
   {
@@ -463,6 +493,7 @@ void set_nonblocking(function ...args)
 		backtrace() }) );
   }
   blocking = 0;
+  if (!socket) return;
   socket->set_nonblocking(ssl_read_callback,ssl_write_callback,ssl_close_callback);
   if (strlen(read_buffer))
     ssl_read_callback(socket->query_id(), "");
@@ -473,12 +504,14 @@ void set_blocking()
 #ifdef SSL3_DEBUG
   werror("SSL.sslfile->set_blocking\n");
 #endif
-  if (sizeof (write_buffer) && !blocking)
+  if (sizeof (write_buffer) && !blocking && socket)
     ssl_write_callback(socket->query_id());
-  
-  socket->set_blocking();
   blocking = 1;
-  get_blocking_to_handshake_finsihed_state();
+  if(socket)
+  {
+    socket->set_blocking();
+    get_blocking_to_handshake_finished_state();
+  }
 }
 
 string query_address(int|void arg)
@@ -500,7 +533,7 @@ void create(object f, object c, int|void is_client, int|void is_blocking)
   if(blocking) {
     socket->set_blocking();
     connection::create(!is_client);
-    get_blocking_to_handshake_finsihed_state();
+    get_blocking_to_handshake_finished_state();
   } else {
     socket->set_nonblocking(ssl_read_callback,
 			  ssl_write_callback,
@@ -512,6 +545,7 @@ void create(object f, object c, int|void is_client, int|void is_blocking)
 void renegotiate()
 {
   expect_change_cipher = certificate_state = 0;
+  if (!socket) return;
   send_packet(hello_request());
   socket->set_write_callback(ssl_write_callback);
   handshake_finished = 0;
