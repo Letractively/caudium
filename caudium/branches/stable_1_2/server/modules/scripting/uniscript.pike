@@ -30,7 +30,7 @@ inherit "caudiumlib";
 //!  CGI module.
 //! inherits: module
 //! inherits: caudiumlib
-//! type: MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER
+//! type: MODULE_FILE_EXTENSION
 //! cvs_version: $Id$
 //
 
