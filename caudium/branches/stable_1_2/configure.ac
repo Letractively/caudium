@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ(2.53)
-AC_INIT(Caudium, 1.2.18, bugs@caudium.net)
+AC_INIT(Caudium, 1.2.23, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
@@ -329,7 +329,7 @@ if test "$prefix" != "NONE"; then
 fi
 FOUND_PIKE=0
 PIKE_INCLUDE_DIRS=""
-for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike ; do
+for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
     THIS_PIKE_VER=`$PIKE -e 'int maj,min,bld;sscanf(version(),"Pike v%d.%d release %d",maj,min,bld);write(sprintf("%d.%d.%d",maj,min,bld));exit(0);'`
@@ -434,7 +434,7 @@ if test $cppflags_is_set = no -a x${C_INCLUDE_PATH-} = x ; then
   for d in `echo ${with_include_path} | sed 's/:/ /g'` \
     `echo $prefix | sed "s@^NONE@$ac_default_prefix@g"`/include \
     /usr/local/include /sw/local/include /usr/gnu/include /opt/gnu/include \
-    /sw/gnu/include /sw/include /usr/freeware/include \
+    /sw/gnu/include /sw/include /usr/freeware/include /usr/pkg/include \
     `echo /usr/X11*/include | sort -r`
   do
     AC_MSG_CHECKING($d)
@@ -454,7 +454,7 @@ AC_MSG_RESULT( )
 if test $ldflags_is_set = no ; then
   for d in `echo ${with_lib_path} | sed 's/:/ /g'` \
     `echo $exec_prefix | sed "s@^NONE@$prefix/lib@g" | sed "s@^NONE@$ac_default_prefix/lib@g"` \
-    /usr/local/lib /sw/local/lib /sw/lib \
+    /usr/local/lib /sw/local/lib /sw/lib /usr/pkg/lib \
     /usr/gnu/lib /opt/gnu/lib /sw/gnu/lib /usr/freeware/lib \
     `echo /usr/X11*/lib | sort -r`
   do
