@@ -212,6 +212,11 @@ class Master {
       
      case "profile":
       tmp = ([]);
+      if(!m->name)
+      {
+	werror("Profile is missing a name.\n");
+	break;
+      }
       contents = parse_html(contents||"", 
 		 ([ "file": parse_profile, 
 		    "noref": parse_profile, 
@@ -221,11 +226,13 @@ class Master {
       else if(!strlen(m->method=String.capitalize(lower_case(m->method))) ||
 	      search(indices(Storage),m->method) == -1 ||
 	      catch(Storage[m->method])) {
-	werror("'%s' is not a valid method!\n", m->method);
-	exit(1);
+	werror("Profile %s: '%s' is not a valid method!\n", m->name,
+	       m->method);
+	break;
       }
       profiles += ({  ({ m->name +"/", m->name, tmp, m->method||method }) });
     }
+    return "";
   }
   
   void load_profile(string file)
