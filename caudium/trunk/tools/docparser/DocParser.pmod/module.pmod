@@ -70,8 +70,8 @@ debug(string str)
  */
 string xml_encode_string(string str)
 {
-  return replace(str, ({"&", "<", ">", "\"", "\'", "\000", ":" }),
-	       ({"&amp;", "&lt;", "&gt;", "&#34;", "&#39;", "&#0;", "&#58;"}));
+    return replace(str, ({"&", "<", ">", "\"", "\'", "\000", ":" }),
+                   ({"&amp;", "&lt;", "&gt;", "&#34;", "&#39;", "&#0;", "&#58;"}));
 }
 
 /*
@@ -104,7 +104,7 @@ class DocObject {
 
     void wrong_etype(string extp)
     {
-	wrerr(sprintf(extype_err, extp, myName));
+        wrerr(sprintf(extype_err, extp, myName));
     }
     
     void field_redefined(string field)
@@ -140,10 +140,10 @@ class DocObject {
         if (kw)
             new_field(newstuff, kw);
         else {
-	  if(strlen(newstuff) && !wspace[newstuff[-1]])
-	     newstuff += " ";
-	  append_field(newstuff);
-	}
+            if(strlen(newstuff) && !wspace[newstuff[-1]])
+                newstuff += " ";
+            append_field(newstuff);
+        }
     }    
     
     array(string) split_cvs_version()
@@ -159,7 +159,7 @@ class DocObject {
         myName="DocObject";
         lastkw = "";
         lineno = curline;
-	parent = p ? p : 0;
+        parent = p ? p : 0;
     }
 };
 
@@ -188,9 +188,9 @@ class PikeFile {
                     cvs_version = newstuff;
                     break;
     
-		case "inherits":
-		    inherits += ({newstuff});
-		    break;
+                case "inherits":
+                    inherits += ({newstuff});
+                    break;
 		    
                 default:
                     wrong_keyword(kw);
@@ -216,14 +216,14 @@ class PikeFile {
                     globvars += ({newstuff});
                     break;
 
-		case "defvar":
-		    if (newstuff->myName != "DefvarScope") {
-			wrong_otype(kw, newstuff->myName);
-			return;
-		    }
+                case "defvar":
+                    if (newstuff->myName != "DefvarScope") {
+                        wrong_otype(kw, newstuff->myName);
+                        return;
+                    }
 		    
-		    defvars += ({newstuff});
-		    break;
+                    defvars += ({newstuff});
+                    break;
 
                 case "class":
                     if (newstuff->myName != "Class") {
@@ -248,7 +248,7 @@ class PikeFile {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 		
             case "cvs_version":
@@ -256,9 +256,9 @@ class PikeFile {
                 cvs_version = newstuff;
                 break;
 
-	    case "inherits":
-		inherits[-1] += newstuff;
-		break;
+            case "inherits":
+                inherits[-1] += newstuff;
+                break;
 		
             default:
                 wrong_keyword(lastkw);
@@ -285,8 +285,8 @@ class PikeFile {
         methods = ({});
         globvars = ({});
         classes = ({});
-	inherits = ({});
-	defvars = ({});
+        inherits = ({});
+        defvars = ({});
     }
 };
 
@@ -301,6 +301,7 @@ class Method {
     array(string)                 notes;
     array(mapping(string:string)) examples;
     array(string)                 bugs;
+    array(mapping(string:string)) altnames;
 
     private void new_field(object|string newstuff, string kw)
     {
@@ -308,11 +309,11 @@ class Method {
             switch(kw) {
                 case "method":
                     first_line = newstuff;
-		    if (parent) {
-			debug(sprintf("Adding '%s' to parent '%s'",
-			      kw, parent->myName));
-			parent->add(this_object(), kw);
-		    }
+                    if (parent) {
+                        debug(sprintf("Adding '%s' to parent '%s'",
+                                      kw, parent->myName));
+                        parent->add(this_object(), kw);
+                    }
                     break;
 
                 case "name":
@@ -328,29 +329,35 @@ class Method {
                     break;
 
                 case "returns":
-                    returns += ({newstuff});
+                    returns += ({newstuff + "\n"});
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "note":
-                    notes += ({newstuff});
+                    notes += ({newstuff + "\n"});
                     break;
 
                 case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 
                 case "bugs":
-                    bugs += ({newstuff});
+                    bugs += ({newstuff + "\n"});
+                    break;
+
+                case "alt":
+                    altnames += ({([])});
+                    altnames[-1]->first_line = newstuff;
+                    altnames[-1]->contents = "";
                     break;
                     
                 default:
@@ -367,7 +374,7 @@ class Method {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "name":
@@ -383,33 +390,38 @@ class Method {
                 break;
 
             case "arg":
-		if (!args[-1]->description)
-		    args[-1]->description = newstuff;
-		else
-            	    args[-1]->description += newstuff;
+                if (!args[-1]->description)
+                    args[-1]->description = newstuff + "\n";
+                else
+            	    args[-1]->description += newstuff + "\n";
                 break;
 
             case "returns":
-                returns[-1] += newstuff;
+                returns[-1] += newstuff + "\n";
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "note":
-                notes[-1] += newstuff;
+                notes[-1] += newstuff + "\n";
                 break;
 
             case "example":
-		if (sizeof(examples))
+                if (sizeof(examples))
             	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
-                bugs[-1] += newstuff;
+                bugs[-1] += newstuff + "\n";
                 break;
-                    
+
+            case "alt":
+                if (sizeof(altnames))
+                    altnames[-1]->contents += newstuff + "\n";
+                break;
+                
             default:
                 wrong_keyword(lastkw);
                 break;
@@ -431,6 +443,7 @@ class Method {
         examples = ({});
         bugs = ({});
         notes = ({});
+        altnames = ({});
     }
 };
 
@@ -443,8 +456,8 @@ class GlobVar {
             switch(kw) {
                 case "globvar":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
                     
                 default:
@@ -461,7 +474,7 @@ class GlobVar {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
                 
             default:
@@ -495,30 +508,30 @@ class Class {
             switch(kw){
                 case "class":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
-		case "inherits":
-		    inherits += ({newstuff});
-		    break;
+                case "inherits":
+                    inherits += ({newstuff});
+                    break;
 		    
                 case "scope":
                     scope = newstuff;
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 
                 case "bugs":
@@ -557,12 +570,12 @@ class Class {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
-	    case "inherits":
-		inherits[-1] += newstuff;
-		break;
+            case "inherits":
+                inherits[-1] += newstuff;
+                break;
 		
             case "scope":
                 if (scope != "")
@@ -571,16 +584,16 @@ class Class {
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "example":
-		if (sizeof(examples))
+                if (sizeof(examples))
             	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
-                bugs[-1] += newstuff;
+                bugs[-1] += newstuff + "\n";
                 break;
                     
             default:
@@ -601,7 +614,7 @@ class Class {
         seealso = ({});
         examples = ({});
         bugs = ({});
-	inherits = ({});
+        inherits = ({});
     }
 };
 
@@ -627,9 +640,9 @@ class Module {
                     first_line = newstuff;
                     break;
     
-		case "inherits":
-		    inherits += ({newstuff});
-		    break;
+                case "inherits":
+                    inherits += ({newstuff});
+                    break;
 		                    
                 case "cvs_version":
                     if (cvs_version != "")
@@ -694,23 +707,23 @@ class Module {
                     methods += ({newstuff});
                     break;
                     
-		case "defvar":
-		    if (newstuff->myName != "DefvarScope") {
-			wrong_otype(kw, newstuff->myName);
-			return;
-		    }
+                case "defvar":
+                    if (newstuff->myName != "DefvarScope") {
+                        wrong_otype(kw, newstuff->myName);
+                        return;
+                    }
 		    
-		    defvars += ({newstuff});
-		    break;
+                    defvars += ({newstuff});
+                    break;
 		    
-		case "entity_scope":
-		    if (newstuff->myName != "EntityScope") {
-			wrong_otype(kw, newstuff->myName);
-			return;
-		    }
+                case "entity_scope":
+                    if (newstuff->myName != "EntityScope") {
+                        wrong_otype(kw, newstuff->myName);
+                        return;
+                    }
 		    
-		    escopes += ({newstuff});
-		    break;
+                    escopes += ({newstuff});
+                    break;
 		    
                 default:
                     wrong_keyword(kw);
@@ -726,12 +739,12 @@ class Module {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
                     
-	    case "inherits":
-		inherits[-1] += newstuff;
-		break;
+            case "inherits":
+                inherits[-1] += newstuff;
+                break;
 
             case "cvs_version":
                 wrong_field_append(lastkw);
@@ -774,9 +787,9 @@ class Module {
         variables = ({});
         tags = ({});
         containers = ({});
-	inherits = ({});
-	escopes = ({});
-	defvars = ({});
+        inherits = ({});
+        escopes = ({});
+        defvars = ({});
     }
 };
 
@@ -792,8 +805,8 @@ class Variable {
             switch(kw){
                 case "variable":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "type":
@@ -818,7 +831,7 @@ class Variable {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "type":
@@ -863,33 +876,33 @@ class Tag {
             switch(kw){
                 case "tag":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "returns":
-                    returns += ({newstuff});
+                    returns += ({newstuff + "\n"});
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "note":
-                    notes += ({newstuff});
+                    notes += ({newstuff + "\n"});
                     break;
                     
-		case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                case "example":
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 		    
-		case "bugs":
+                case "bugs":
                     bugs += ({newstuff});
                     break;
 
@@ -917,29 +930,29 @@ class Tag {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "returns":
-                returns[-1] += newstuff;
+                returns[-1] += newstuff + "\n";
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "note":
-                notes[-1] += newstuff;
+                notes[-1] += newstuff + "\n";
                 break;
                     
-	    case "example":
-		if (sizeof(examples))
-		    examples[-1]->text += xml_encode_string(newstuff) + "\n";
-		break;
+            case "example":
+                if (sizeof(examples))
+                    examples[-1]->text += xml_encode_string(newstuff) + "\n";
+                break;
 		
-	    case "bugs":
-		bugs[-1] += newstuff;
-		break;
+            case "bugs":
+                bugs[-1] += newstuff + "\n";
+                break;
 
             default:
                 wrong_keyword(lastkw);
@@ -959,7 +972,7 @@ class Tag {
         returns = ({});
         seealso = ({});
         notes = ({});
-	bugs = ({});
+        bugs = ({});
     }
 };
 
@@ -979,34 +992,34 @@ class Container {
             switch(kw){
                 case "container":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "returns":
-                    returns += ({newstuff});
+                    returns += ({newstuff + "\n"});
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "note":
-                    notes += ({newstuff});
+                    notes += ({newstuff + "\n"});
                     break;
                     
                 case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 		    
                 case "bugs":
-                    bugs += ({newstuff});
+                    bugs += ({newstuff + "\n"});
                     break;
 
                 default:
@@ -1033,28 +1046,28 @@ class Container {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "returns":
-                returns[-1] += newstuff;
+                returns[-1] += newstuff + "\n";
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "note":
-                notes[-1] += newstuff;
+                notes[-1] += newstuff + "\n";
                 break;
                     
             case "example":
-		if (sizeof(examples))
+                if (sizeof(examples))
             	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 		
             case "bugs":
-                bugs[-1] += newstuff;
+                bugs[-1] += newstuff + "\n";
                 break;
 
             default:
@@ -1075,7 +1088,7 @@ class Container {
         returns = ({});
         seealso = ({});
         notes = ({});
-	bugs = ({});
+        bugs = ({});
     }
 };
 
@@ -1090,8 +1103,8 @@ class Attribute {
             switch(kw){
                 case "attribute":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "default":
@@ -1112,7 +1125,7 @@ class Attribute {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "default":
@@ -1147,17 +1160,17 @@ class Defvar {
             switch(kw) {
                 case "defvar":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "type":
                     type = newstuff;
                     break;
 	    
-		case "name":
-		    name = newstuff;
-		    break;
+                case "name":
+                    name = newstuff;
+                    break;
 		    
                 default:
                     wrong_keyword(kw);
@@ -1166,31 +1179,31 @@ class Defvar {
         }
     }
 
-  void append_field(string newstuff)
-  {
-    switch(lastkw){
-    case "defvar":
-      if (newstuff == "")
-	contents += "\n";
-      else
-	contents += newstuff;
-      break;
+    void append_field(string newstuff)
+    {
+        switch(lastkw){
+            case "defvar":
+                if (newstuff == "")
+                    contents += "\n";
+                else
+                    contents += newstuff + "\n";
+                break;
 
-    case "type":
-      type += newstuff;
-      break;
+            case "type":
+                type += newstuff;
+                break;
       
-    case "name": 
-      if (name != "")
-          field_redefined(lastkw);
-      name = newstuff;
-      break;
+            case "name": 
+                if (name != "")
+                    field_redefined(lastkw);
+                name = newstuff;
+                break;
 
-    default:
-      wrong_keyword(lastkw);
-      break;
-    }        
-  }
+            default:
+                wrong_keyword(lastkw);
+                break;
+        }        
+    }
     
     void create(string line, void|object p)
     {
@@ -1216,30 +1229,30 @@ class Entity {
             switch(kw) {
                 case "entity":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "note":
-                    notes += ({newstuff});
+                    notes += ({newstuff + "\n"});
                     break;
 
                 case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 
                 case "bugs":
-                    bugs += ({newstuff});
+                    bugs += ({newstuff + "\n"});
                     break;
 		    
                 default:
@@ -1256,24 +1269,24 @@ class Entity {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "note":
-                notes[-1] += newstuff;
+                notes[-1] += newstuff + "\n";
                 break;
 
             case "example":
-		if (sizeof(examples))
+                if (sizeof(examples))
             	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
-                bugs[-1] += newstuff;
+                bugs[-1] += newstuff + "\n";
                 break;
 
             default:
@@ -1289,10 +1302,10 @@ class Entity {
         myName = "EntityScope";
 
         first_line = line;
-	examples = ({});
-	seealso = ({});
-	notes = ({});
-	bugs = ({});
+        examples = ({});
+        seealso = ({});
+        notes = ({});
+        bugs = ({});
     }
 };
 
@@ -1311,30 +1324,30 @@ class EntityScope {
             switch(kw) {
                 case "entity_scope":
                     first_line = newstuff;
-		    if (parent)
-			parent->add(this_object(), kw);
+                    if (parent)
+                        parent->add(this_object(), kw);
                     break;
 
                 case "see_also":
-                    seealso += ({newstuff});
+                    seealso += ({newstuff + "\n"});
                     break;
 
                 case "note":
-                    notes += ({newstuff});
+                    notes += ({newstuff + "\n"});
                     break;
 
                 case "example":
-		    if (!example_types[newstuff]) {
-			wrong_etype(newstuff);
-			break;
-		    }
+                    if (!example_types[newstuff]) {
+                        wrong_etype(newstuff);
+                        break;
+                    }
                     examples += ({([])});
-		    examples[-1]->first_line = xml_encode_string(newstuff);
-		    examples[-1]->text = "";
+                    examples[-1]->first_line = xml_encode_string(newstuff);
+                    examples[-1]->text = "";
                     break;
 
                 case "bugs":
-                    bugs += ({newstuff});
+                    bugs += ({newstuff + "\n"});
                     break;
 
                 default:
@@ -1342,16 +1355,16 @@ class EntityScope {
                     break;
             }
         } else {
-	    switch(kw) {
-		case "entity":
-		    entities += ({newstuff});
-		    break;
+            switch(kw) {
+                case "entity":
+                    entities += ({newstuff});
+                    break;
 		    
-		default:
-		    wrong_keyword(kw);
-		    break;
-	    }
-	}
+                default:
+                    wrong_keyword(kw);
+                    break;
+            }
+        }
     }
 
     void append_field(string newstuff)
@@ -1361,24 +1374,24 @@ class EntityScope {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += newstuff;
+                    contents += newstuff + "\n";
                 break;
 
             case "see_also":
-                seealso[-1] += newstuff;
+                seealso[-1] += newstuff + "\n";
                 break;
 
             case "note":
-                notes[-1] += newstuff;
+                notes[-1] += newstuff + "\n";
                 break;
 
             case "example":
-		if (sizeof(examples))
+                if (sizeof(examples))
             	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
-                bugs[-1] += newstuff;
+                bugs[-1] += newstuff + "\n";
                 break;
 
             default:
@@ -1395,10 +1408,10 @@ class EntityScope {
 
         first_line = line;
         entities = ({});
-	examples = ({});
-	seealso = ({});
-	notes = ({});
-	bugs = ({});
+        examples = ({});
+        seealso = ({});
+        notes = ({});
+        bugs = ({});
     }
 };
 
@@ -1416,15 +1429,11 @@ constant IN_DOC = 1;
  * the keyword is just an argument, not a container.
  */
 mapping(string:object|string) file_scope = ([
-//  "module":lambda(object curob, string line) {
-//               return Module(line);
-//           },
-	     
     "cvs_version":"",
     "inherits":"",
     "defvar":lambda(object curob, string line) {
-                   return Defvar(line, curob);
-               },
+                 return Defvar(line, curob);
+             },
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
@@ -1439,16 +1448,13 @@ mapping(string:object|string) file_scope = ([
 ]);
 
 mapping(string:object|string) module_scope = ([
-//  "file":lambda(object curob, string line) {
-//            return PikeFile(line);
-//         },
     "cvs_version":"",
     "inherits":"",
     "type":"",
     "provides":"",
     "defvar":lambda(object curob, string line) {
-                   return Defvar(line, curob);
-               },
+                 return Defvar(line, curob);
+             },
     "variable":lambda(object curob, string line) {
                    return Variable(line, curob);
                },
@@ -1468,9 +1474,6 @@ mapping(string:object|string) module_scope = ([
 ]);
 
 mapping(string:object|string) tag_scope = ([
-//  "tag":lambda(object curob, string line) {
-//                  return Tag(line, curob);
-//              },
     "example":"",
     "attribute":lambda(object curob, string line) {
                     return Attribute(line, curob);
@@ -1484,9 +1487,6 @@ mapping(string:object|string) tag_scope = ([
 ]);
 
 mapping(string:object|string) container_scope = ([
-//  "container":lambda(object curob, string line) {
-//                  return Container(line, curob);
-//              },
     "example":"",
     "attribute":lambda(object curob, string line) {
                     return Attribute(line, curob);
@@ -1499,9 +1499,6 @@ mapping(string:object|string) container_scope = ([
 ]);
 
 mapping(string:object|string) method_scope = ([
-//  "method":lambda(object curob, string line) {
-//             return Method(line, curob);
-//         },
     "name":"",
     "scope":"",
     "arg":"",
@@ -1510,20 +1507,15 @@ mapping(string:object|string) method_scope = ([
     "note":"",
     "example":"",
     "bugs":"",
+    "alt":"",
     "ScopeName":"method"
 ]);
 
 mapping(string:object|string) globvar_scope = ([
-//  "globvar":lambda(object curob, string line) {
-//                return GlobVar(line, curob);
-//            }
     "ScopeName":"globvar"
 ]);
 
 mapping(string:object|string) class_scope = ([
-//  "class":lambda(object curob, string line) {
-//             return Class(line, curob);
-//         },
     "scope":"",
     "inherits":"",
     "method":lambda(object curob, string line) {
@@ -1539,18 +1531,12 @@ mapping(string:object|string) class_scope = ([
 ]);
 
 mapping(string:object|string) variable_scope = ([
-//  "variable":lambda(object curob, string line) {
-//                 return Variable(line, curob);
-//             },
     "type":"",
     "default":"",
     "ScopeName":"variable"
 ]);
 
 mapping(string:object|string) attribute_scope = ([
-//  "attribute":lambda(object curob, string line) {
-//                  return Attribute(line, curob);
-//              },
     "default":"",
     "ScopeName":"attribute"
 ]);
@@ -1656,19 +1642,19 @@ class Parse {
      */
     private mapping find_parent_scope(mapping cs, string kw)
     {
-	mapping rets = cs->parent;
+        mapping rets = cs->parent;
 	    
-	while(rets) {
-	    debug(sprintf("  Spying scope '%s'", rets->scope->ScopeName));
-	    if (rets->scope && rets->scope[kw]) {
-	        debug(sprintf("   Has the '%s' keyword. Returning scope '%s'",
-		      kw, rets->child->scope->ScopeName));
-		return rets;
-	    } else
-		rets = rets->parent;
-	}
+        while(rets) {
+            debug(sprintf("  Spying scope '%s'", rets->scope->ScopeName));
+            if (rets->scope && rets->scope[kw]) {
+                debug(sprintf("   Has the '%s' keyword. Returning scope '%s'",
+                              kw, rets->child->scope->ScopeName));
+                return rets;
+            } else
+                rets = rets->parent;
+        }
 	
-	return rets;
+        return rets;
     }
     
     private void parse_line(string line)
@@ -1681,21 +1667,21 @@ class Parse {
             /* We have something that ends with ':' */
             lastkw = lower_case(spline[0]);
             
-	    if (!cur_scope->scope[lastkw]) {
+            if (!cur_scope->scope[lastkw]) {
                 debug(sprintf("Keyword '%s' unknown in scope '%s'\n",
                               lastkw, cur_scope->scope->ScopeName));
-		mapping ns = find_parent_scope(cur_scope, lastkw);
+                mapping ns = find_parent_scope(cur_scope, lastkw);
 		
-		if (!ns) {
-		    wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
-		                 lastkw));
-		    return;
-		}
+                if (!ns) {
+                    wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
+                                  lastkw));
+                    return;
+                }
 		
-		ns->child = 0;
+                ns->child = 0;
                 cur_scope = ns;
 		
-		debug(sprintf("Keyword switched the scope to '%s'\n", cur_scope->scope->ScopeName));
+                debug(sprintf("Keyword switched the scope to '%s'\n", cur_scope->scope->ScopeName));
             }            	    
 	    
             /* Is it a keyword in the current scope? */
@@ -1711,7 +1697,7 @@ class Parse {
                                   curob ? "child of " + curob->myName : "top-level"));
                     
                     object o = cur_scope->scope[lastkw](curob, "");
-		    o->add(String.trim_whites(spline[1]), lastkw);
+                    o->add(String.trim_whites(spline[1]), lastkw);
 		    
                     /* Does the object switch scopes? */
                     if (scopes[lastkw]) {
@@ -1740,7 +1726,7 @@ class Parse {
                      * in this scope
                      */
                     debug(sprintf("Keyword is a field of %s\n", cur_scope->curob->myName));
-		    cur_scope->curob->add(String.trim_whites(spline[1]), lastkw);
+                    cur_scope->curob->add(String.trim_whites(spline[1]), lastkw);
                 }   
             } 
         } else {
@@ -1752,10 +1738,12 @@ class Parse {
                 wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
                 return;
             }
-	    if (cur_scope->curob->lastkw == lastkw)
-		cur_scope->curob->add(String.trim_whites(line));
-	    else
-		cur_scope->curob->add(String.trim_whites(line), lastkw);
+            if (cur_scope->curob->lastkw == lastkw)
+                // cur_scope->curob->add(String.trim_whites(line));
+                cur_scope->curob->add(line);
+            else
+                // cur_scope->curob->add(String.trim_whites(line), lastkw);
+                cur_scope->curob->add(line, lastkw);
         }
 
         if (!cur_scope->curob) {
@@ -1833,12 +1821,13 @@ class Parse {
     private void parse_tree(string top)
     {
         array(string)   dirs = ({}), files = ({});
-
+        object(Regexp)  fpatt = Regexp(".*\.(pike$|c$|h$)");
+        
         foreach(get_dir(top), string s) {
-	  mixed st = file_stat(top + s);
-	  array(int) stbuf;
-	  if(st)
-	    stbuf = (array(int))st;
+            mixed st = file_stat(top + s);
+            array(int) stbuf;
+            if(st)
+                stbuf = (array(int))st;
 	      
 
             if (glob("CVS", s))
@@ -1846,7 +1835,7 @@ class Parse {
 		
             if (stbuf[1] == -2)
                 dirs += ({s});
-            else if ((stbuf[1] > 0) && glob("*.pike", s))
+            else if ((stbuf[1] > 0) && fpatt->match(s))
                 files += ({s});
         }
 	
@@ -1862,7 +1851,7 @@ class Parse {
     
     int parse(string path)
     {
-      object|array(int)    stbuf;
+        object|array(int)    stbuf;
 
         if (path[-1] != '/')
             path += "/";
@@ -1870,7 +1859,7 @@ class Parse {
         stbuf = file_stat(path);
         if (!stbuf)
             throw(({"File not found: " + path + "\n", backtrace()}));
-	stbuf = (array(int))stbuf;
+        stbuf = (array(int))stbuf;
         if (stbuf[1] == -2)
             parse_tree(path);
         else
