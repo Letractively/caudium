@@ -2590,7 +2590,7 @@ private void define_global_variables(int argc, array (string) argv)
             "been placed in the cache without an expiry date.",
             0 );
 
-    globvar("cache_default_halflife", 6,
+    globvar("cache_default_halflife", 1,
             "Caching Sub-system: Default cache halflife (Hours)", TYPE_INT,
             "The caching subsystem is capable of handling many concurrent "
             "caches and dynamically managing their memory and disk usage - "
