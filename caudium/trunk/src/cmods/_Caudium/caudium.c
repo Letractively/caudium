@@ -1419,7 +1419,7 @@ static void f_strftime(INT32 args) {
   printf("Out : %s\n",buf);
 #endif
   ret = make_shared_string(buf);
-  pop_stack();
+  pop_n_elems(args);
   push_string(ret);
 }
 #endif
