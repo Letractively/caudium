@@ -339,7 +339,6 @@ cern.*linemode.*           nothing
 .*			robot	lycos
 # }
 
-
 #section scooter {
 .*		robot	altavista
 # }
@@ -353,7 +352,7 @@ cern.*linemode.*           nothing
 # }
 
 #section slurp {
-.*		robot	hotbot
+.*		robot	hotbot slurp
 # }
 
 #section freeseek {
@@ -362,6 +361,10 @@ cern.*linemode.*           nothing
 
 #section webcrawler {
 .*		robot	webcrawler
+# }
+
+#section fast-webcrawler {
+.*              robot	fast
 # }
 
 #section intraseek {
@@ -388,6 +391,22 @@ cern.*linemode.*           nothing
 .*		roxen	rxml
 # }
 
+#section roxencrawler {
+.*              robot	RoxenCrawler
+# }
+
+#section getright {
+.*              robot	getright
+# }
+
+#section googlebot {
+.*              robot	googlebot
+# }
+
+#section xenu {
+.*              robot	xenu
+# }
+
 # Unknown clients:
 
 #section fly {
@@ -401,6 +420,10 @@ cern.*linemode.*           nothing
 #section infolink {
 .*	robot
 # }
+
+#section gulliver {
+.*      robot
+}
 
 # A pretty new robot that looks for images
 # See http://www.picsearch.com/bot.html
@@ -425,10 +448,48 @@ fetch.*			robot
 # Pompos, French robot to indexing sites - see http://pompos.iliad.fr
 pomops/.*		robot
 
+
+# Although not a browser I don't think you would call this a robot.
+#section w3c_validator {
+.*              basic, some_html3, backgrounds, center, fontcolor,\
+                forms, imagealign, tables, -robot
+# }
+
+
+
 # The default. If nothing else matches this is used to determine the
 # supports values.
 
 default      images, gifinline, forms, mailto
+
+
+#
+#  --------- WAP ---------
+# (taken from roxens supports file, may be usefull in the future)
+#
+
+#section nokia {
+^nokia7110.*    phone, wml1.1, wbmp0, wml, wbmp
+^nokia.7110.*   wml1.1, wbmp0, wml, wbmp
+.*              wml1.1, wbmp0, wml, wbmp
+# }
+
+#section wapide-sdk {
+.*              wml1.1, wbmp0, wml, wbmp
+# }
+
+#section up.browser {
+.*              wml1.1, wbmp0, wml, wbmp
+.*si25.*        phone, wml1.0, wbmp0, -wml1.1, *width=90, *height=33
+# }
+
+#section mc218 {
+.*              wml1.1, wml, gifinline
+# }
+
+#section jigsaw {
+.*              wml1.1, wbmp0, wml, wbmp
+# }
 
 
 # Some email gatherers most of them are used as email tracker
@@ -472,7 +533,7 @@ Getleft.*		robot,spamrobot
 GetURL.*		robot,spamrobot
 GetWebPage.*		robot,spamrobot
 go-ahead-got-it.*	robot,spamrobot
-ia_archiver.*		robot,spamrobot
+ia_archiver.*		robot,spamrobot	alexa
 IBM_Planetwide.*	robot,spamrobot
 IncyWincy.*		robot,spamrobot
 KWebGet.*		robot,spamrobot
