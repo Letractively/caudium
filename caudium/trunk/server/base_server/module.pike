@@ -70,7 +70,7 @@ int module_dependencies(object configuration, array (string) modules)
 string file_name_and_stuff()
 {
   return ("<b>Loaded from:</b> "+(caudium->filename(this))+"<br>"+
-	  (this->cvs_version?"<b>CVS Version: </b>"+fix_cvs(this->cvs_version)+"<nr>\n":""));
+          (this->cvs_version?"<b>CVS Version: </b>"+fix_cvs(this->cvs_version)+"<nr>\n":""));
 }
 
 static private object _my_configuration;
@@ -150,11 +150,11 @@ static class ConfigurableWrapper
   int check()
   {
     if ((mode & VAR_EXPERT) &&
-	(!caudium->configuration_interface()->expert_mode)) {
+        (!caudium->configuration_interface()->expert_mode)) {
       return 1;
     }
     if ((mode & VAR_MORE) &&
-	(!caudium->configuration_interface()->more_mode)) {
+        (!caudium->configuration_interface()->more_mode)) {
       return 1;
     }
     return(f());
@@ -168,8 +168,8 @@ static class ConfigurableWrapper
 
 // Define a variable, with more than a little error checking...
 void defvar(string|void var, mixed|void value, string|void name,
-	    int|void type, string|void doc_str, mixed|void misc,
-	    int|function|void not_in_config)
+            int|void type, string|void doc_str, mixed|void misc,
+            int|function|void not_in_config)
 {
   if(!strlen(var))
     error("No name for variable!\n");
@@ -189,132 +189,132 @@ void defvar(string|void var, mixed|void value, string|void name,
   
   switch (type & VAR_TYPE_MASK)
   {
-  case TYPE_NODE:
-    if(!arrayp(value))
-      error("TYPE_NODE variables should contain a list of variables "
-	    "to use as subnodes.\n");
-    break;
-  case TYPE_CUSTOM:
-    if(!misc
-       && arrayp(misc)
-       && (sizeof(misc)>=3)
-       && functionp(misc[0])
-       && functionp(misc[1])
-       && functionp(misc[2]))
-       error("When defining a TYPE_CUSTOM variable, the MISC "
-	     "field must be an array of functionpointers: \n"
-	     "({describe,describe_form,set_from_form})\n");
-    break;
+      case TYPE_NODE:
+        if(!arrayp(value))
+          error("TYPE_NODE variables should contain a list of variables "
+                "to use as subnodes.\n");
+        break;
+      case TYPE_CUSTOM:
+        if(!misc
+           && arrayp(misc)
+           && (sizeof(misc)>=3)
+           && functionp(misc[0])
+           && functionp(misc[1])
+           && functionp(misc[2]))
+          error("When defining a TYPE_CUSTOM variable, the MISC "
+                "field must be an array of functionpointers: \n"
+                "({describe,describe_form,set_from_form})\n");
+        break;
 
-  case TYPE_TEXT_FIELD:
-  case TYPE_FILE:
-  case TYPE_EXISTING_FILE:
-  case TYPE_STRING:
-  case TYPE_LOCATION:
-  case TYPE_PASSWORD:
-    if(value && !stringp(value)) {
-      report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
-			   "to string type variable.\n",
-			   caudium->filename(this), value, value));
-    }
-    break;
+      case TYPE_TEXT_FIELD:
+      case TYPE_FILE:
+      case TYPE_EXISTING_FILE:
+      case TYPE_STRING:
+      case TYPE_LOCATION:
+      case TYPE_PASSWORD:
+        if(value && !stringp(value)) {
+          report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
+                               "to string type variable.\n",
+                               caudium->filename(this), value, value));
+        }
+        break;
     
-  case TYPE_FLOAT:
-    if(!floatp(value))
-      report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
-			   "(not float) to floating point "
-			   "decimal number variable.\n",
-			   caudium->filename(this), value, value));
-    break;
-  case TYPE_INT:
-    if(!intp(value))
-      report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
-			   "(not int) to integer number variable.\n",
-			   caudium->filename(this), value, value));
-    break;
+      case TYPE_FLOAT:
+        if(!floatp(value))
+          report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
+                               "(not float) to floating point "
+                               "decimal number variable.\n",
+                               caudium->filename(this), value, value));
+        break;
+      case TYPE_INT:
+        if(!intp(value))
+          report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
+                               "(not int) to integer number variable.\n",
+                               caudium->filename(this), value, value));
+        break;
      
-  case TYPE_MODULE_LIST:
-    value = ({});
-    break;
+      case TYPE_MODULE_LIST:
+        value = ({});
+        break;
     
-  case TYPE_MODULE:
-    /* No default possible */
-    value = 0;
-    break;
+      case TYPE_MODULE:
+        /* No default possible */
+        value = 0;
+        break;
 
-  case TYPE_DIR_LIST:
-    int i;
-    if(!arrayp(value)) {
-      report_error(sprintf("%s:\nIllegal type %t to TYPE_DIR_LIST, "
-			   "must be array.\n",
-			   caudium->filename(this), value));
-      value = ({ "./" });
-    } else {
-      for(i=0; i<sizeof(value); i++) {
-	if(strlen(value[i])) {
-	  if(value[i][-1] != '/')
-	    value[i] += "/";
-	 } else {
-	   value[i]="./";
-	 }
-      }
-    }
-    break;
+      case TYPE_DIR_LIST:
+        int i;
+        if(!arrayp(value)) {
+          report_error(sprintf("%s:\nIllegal type %t to TYPE_DIR_LIST, "
+                               "must be array.\n",
+                               caudium->filename(this), value));
+          value = ({ "./" });
+        } else {
+          for(i=0; i<sizeof(value); i++) {
+            if(strlen(value[i])) {
+              if(value[i][-1] != '/')
+                value[i] += "/";
+            } else {
+              value[i]="./";
+            }
+          }
+        }
+        break;
 
-  case TYPE_DIR:
-    if(value && !stringp(value))
-      report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not string) "
-			   "to directory variable.\n",
-			   caudium->filename(this), value, value));
+      case TYPE_DIR:
+        if(value && !stringp(value))
+          report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not string) "
+                               "to directory variable.\n",
+                               caudium->filename(this), value, value));
     
-    if(value && strlen(value) && ((string)value)[-1] != '/')
-      value+="/";
-    break;
+        if(value && strlen(value) && ((string)value)[-1] != '/')
+          value+="/";
+        break;
     
-  case TYPE_INT_LIST:
-  case TYPE_STRING_LIST:
-    if(!misc && value && !arrayp(value)) {
-      report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
-			   "to multiple choice variable.\n",
-			   caudium->filename(this), value, value));
-    } else {
-      if(misc && !arrayp(misc)) {
-	report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
-			     "to multiple choice variable.\n",
-			     caudium->filename(this), misc, misc));
-      }
-      if(misc && value && search(misc, value)==-1) {
-	roxen_perror(sprintf("%s:\nPassing value (%t:%O) not present "
-			     "in the misc array.\n",
-			     caudium->filename(this), value, value));
-      }
-    }
-    break;
+      case TYPE_INT_LIST:
+      case TYPE_STRING_LIST:
+        if(!misc && value && !arrayp(value)) {
+          report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
+                               "to multiple choice variable.\n",
+                               caudium->filename(this), value, value));
+        } else {
+          if(misc && !arrayp(misc)) {
+            report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
+                                 "to multiple choice variable.\n",
+                                 caudium->filename(this), misc, misc));
+          }
+          if(misc && value && search(misc, value)==-1) {
+            roxen_perror(sprintf("%s:\nPassing value (%t:%O) not present "
+                                 "in the misc array.\n",
+                                 caudium->filename(this), value, value));
+          }
+        }
+        break;
     
-  case TYPE_FLAG:
-    value=!!value;
-    break;
+      case TYPE_FLAG:
+        value=!!value;
+        break;
     
-  case TYPE_ERROR:
-    break;
+      case TYPE_ERROR:
+        break;
 
-  case TYPE_COLOR:
-    if (!intp(value))
-      report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not int) "
-			   "to color variable.\n",
-			   caudium->filename(this), value, value));
-    break;
+      case TYPE_COLOR:
+        if (!intp(value))
+          report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not int) "
+                               "to color variable.\n",
+                               caudium->filename(this), value, value));
+        break;
     
-  case TYPE_FILE_LIST:
-  case TYPE_PORTS:
-  case TYPE_FONT:
-    // FIXME: Add checks for these.
-    break;
+      case TYPE_FILE_LIST:
+      case TYPE_PORTS:
+      case TYPE_FONT:
+        // FIXME: Add checks for these.
+        break;
 
-  default:
-    report_error(sprintf("%s:\nIllegal type (%s) in defvar.\n",
-			 caudium->filename(this), type));
-    break;
+      default:
+        report_error(sprintf("%s:\nIllegal type (%s) in defvar.\n",
+                             caudium->filename(this), type));
+        break;
   }
 
   variables[var]=allocate( VAR_SIZE );
@@ -519,9 +519,9 @@ class IP_with_mask {
     net = ip_to_int(_ip);
     if (intp(_mask)) {
       if (_mask > 32) {
-	werror(sprintf("Bad netmask: %s/%d\n"
-			     "Using %s/32\n", _ip, _mask, _ip));
-	_mask = 32;
+        werror(sprintf("Bad netmask: %s/%d\n"
+                       "Using %s/32\n", _ip, _mask, _ip));
+        _mask = 32;
       }
       mask = ~0<<(32-_mask);
     } else {
@@ -529,7 +529,7 @@ class IP_with_mask {
     }
     if (net & ~mask) {
       werror(sprintf("Bad netmask: %s for network %s\n"
-		     "Ignoring node-specific bits\n", _ip, _mask));
+                     "Ignoring node-specific bits\n", _ip, _mask));
       net &= mask;
     }
   }
@@ -548,8 +548,8 @@ array query_seclevels()
   }
   
   foreach(replace(query("_seclevels"),
-		  ({" ","\t","\\\n"}),
-		  ({"","",""}))/"\n", string sl) {
+                  ({" ","\t","\\\n"}),
+                  ({"","",""}))/"\n", string sl) {
     if(!strlen(sl) || sl[0]=='#')
       continue;
 
@@ -560,154 +560,154 @@ array query_seclevels()
       int i;
       switch(lower_case(type))
       {
-      case "allowip":
-	if (sizeof(arr = (value/"/")) == 2) {
-	  // IP/bits
-	  arr[1] = (int)arr[1];
-	  patterns += ({ ({ MOD_ALLOW, IP_with_mask(@arr) }) });
-	} else if ((sizeof(arr = (value/":")) == 2) ||
-		   (sizeof(arr = (value/",")) > 1)) {
-	  // IP:mask or IP,mask
-	  patterns += ({ ({ MOD_ALLOW, IP_with_mask(@arr) }) });
-	} else {
-	  // Pattern
-	  value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	  patterns += ({ ({ MOD_ALLOW, Regexp(value)->match, }) });
-	}
-	break;
+          case "allowip":
+            if (sizeof(arr = (value/"/")) == 2) {
+              // IP/bits
+              arr[1] = (int)arr[1];
+              patterns += ({ ({ MOD_ALLOW, IP_with_mask(@arr) }) });
+            } else if ((sizeof(arr = (value/":")) == 2) ||
+                       (sizeof(arr = (value/",")) > 1)) {
+              // IP:mask or IP,mask
+              patterns += ({ ({ MOD_ALLOW, IP_with_mask(@arr) }) });
+            } else {
+              // Pattern
+              value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+              patterns += ({ ({ MOD_ALLOW, Regexp(value)->match, }) });
+            }
+            break;
 
-      case "acceptip":
-	// Short-circuit version of allow ip.
-	if (sizeof(arr = (value/"/")) == 2) {
-	  // IP/bits
-	  arr[1] = (int)arr[1];
-	  patterns += ({ ({ MOD_ACCEPT, IP_with_mask(@arr) }) });
-	} else if ((sizeof(arr = (value/":")) == 2) ||
-		   (sizeof(arr = (value/",")) > 1)) {
-	  // IP:mask or IP,mask
-	  patterns += ({ ({ MOD_ACCEPT, IP_with_mask(@arr) }) });
-	} else {
-	  // Pattern
-	  value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	  patterns += ({ ({ MOD_ACCEPT, Regexp(value)->match, }) });
-	}
-	break;
+          case "acceptip":
+            // Short-circuit version of allow ip.
+            if (sizeof(arr = (value/"/")) == 2) {
+              // IP/bits
+              arr[1] = (int)arr[1];
+              patterns += ({ ({ MOD_ACCEPT, IP_with_mask(@arr) }) });
+            } else if ((sizeof(arr = (value/":")) == 2) ||
+                       (sizeof(arr = (value/",")) > 1)) {
+              // IP:mask or IP,mask
+              patterns += ({ ({ MOD_ACCEPT, IP_with_mask(@arr) }) });
+            } else {
+              // Pattern
+              value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+              patterns += ({ ({ MOD_ACCEPT, Regexp(value)->match, }) });
+            }
+            break;
 
-      case "denyip":
-	if (sizeof(arr = (value/"/")) == 2) {
-	  // IP/bits
-	  arr[1] = (int)arr[1];
-	  patterns += ({ ({ MOD_DENY, IP_with_mask(@arr) }) });
-	} else if ((sizeof(arr = (value/":")) == 2) ||
-		   (sizeof(arr = (value/",")) > 1)) {
-	  // IP:mask or IP,mask
-	  patterns += ({ ({ MOD_DENY, IP_with_mask(@arr) }) });
-	} else {
-	  // Pattern
-	  value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	  patterns += ({ ({ MOD_DENY, Regexp(value)->match, }) });
-	}
-	break;
+          case "denyip":
+            if (sizeof(arr = (value/"/")) == 2) {
+              // IP/bits
+              arr[1] = (int)arr[1];
+              patterns += ({ ({ MOD_DENY, IP_with_mask(@arr) }) });
+            } else if ((sizeof(arr = (value/":")) == 2) ||
+                       (sizeof(arr = (value/",")) > 1)) {
+              // IP:mask or IP,mask
+              patterns += ({ ({ MOD_DENY, IP_with_mask(@arr) }) });
+            } else {
+              // Pattern
+              value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+              patterns += ({ ({ MOD_DENY, Regexp(value)->match, }) });
+            }
+            break;
 
-      case "allowuser":
-	value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	array(string) users = (value/"," - ({""}));
+          case "allowuser":
+            value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+            array(string) users = (value/"," - ({""}));
 	
-	for(i=0; i < sizeof(users); i++) {
-	  if (lower_case(users[i]) == "any") {
-	    if(this->register_module()[0] & MODULE_PROXY) 
-	      patterns += ({ ({ MOD_PROXY_USER, lambda(){ return 1; } }) });
-	    else
-	      patterns += ({ ({ MOD_USER, lambda(){ return 1; } }) });
-	    break;
-	  } else {
-	    users[i & 0x0f] = "(^"+users[i]+"$)";
-	  }
-	  if ((i & 0x0f) == 0x0f) {
-	    value = users[0..0x0f]*"|";
-	    if(this->register_module()[0] & MODULE_PROXY) {
-	      patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
-	    } else {
-	      patterns += ({ ({ MOD_USER, Regexp(value)->match, }) });
-	    }
-	  }
-	}
-	if (i & 0x0f) {
-	  value = users[0..(i-1)&0x0f]*"|";
-	  if(this->register_module()[0] & MODULE_PROXY) {
-	    patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
-	  } else {
-	    patterns += ({ ({ MOD_USER, Regexp(value)->match, }) });
-	  }
-	}
-	break;
+            for(i=0; i < sizeof(users); i++) {
+              if (lower_case(users[i]) == "any") {
+                if(this->register_module()[0] & MODULE_PROXY) 
+                  patterns += ({ ({ MOD_PROXY_USER, lambda(){ return 1; } }) });
+                else
+                  patterns += ({ ({ MOD_USER, lambda(){ return 1; } }) });
+                break;
+              } else {
+                users[i & 0x0f] = "(^"+users[i]+"$)";
+              }
+              if ((i & 0x0f) == 0x0f) {
+                value = users[0..0x0f]*"|";
+                if(this->register_module()[0] & MODULE_PROXY) {
+                  patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
+                } else {
+                  patterns += ({ ({ MOD_USER, Regexp(value)->match, }) });
+                }
+              }
+            }
+            if (i & 0x0f) {
+              value = users[0..(i-1)&0x0f]*"|";
+              if(this->register_module()[0] & MODULE_PROXY) {
+                patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
+              } else {
+                patterns += ({ ({ MOD_USER, Regexp(value)->match, }) });
+              }
+            }
+            break;
 
-      case "acceptuser":
-	// Short-circuit version of allow user.
-	// NOTE: MOD_PROXY_USER is already short-circuit.
-	value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	users = (value/"," - ({""}));
+          case "acceptuser":
+            // Short-circuit version of allow user.
+            // NOTE: MOD_PROXY_USER is already short-circuit.
+            value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+            users = (value/"," - ({""}));
 	
-	for(i=0; i < sizeof(users); i++) {
-	  if (lower_case(users[i]) == "any") {
-	    if(this->register_module()[0] & MODULE_PROXY) 
-	      patterns += ({ ({ MOD_PROXY_USER, lambda(){ return 1; } }) });
-	    else
-	      patterns += ({ ({ MOD_ACCEPT_USER, lambda(){ return 1; } }) });
-	    break;
-	  } else {
-	    users[i & 0x0f] = "(^"+users[i]+"$)";
-	  }
-	  if ((i & 0x0f) == 0x0f) {
-	    value = users[0..0x0f]*"|";
-	    if(this->register_module()[0] & MODULE_PROXY) {
-	      patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
-	    } else {
-	      patterns += ({ ({ MOD_ACCEPT_USER, Regexp(value)->match, }) });
-	    }
-	  }
-	}
-	if (i & 0x0f) {
-	  value = users[0..(i-1)&0x0f]*"|";
-	  if(this->register_module()[0] & MODULE_PROXY) {
-	    patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
-	  } else {
-	    patterns += ({ ({ MOD_ACCEPT_USER, Regexp(value)->match, }) });
-	  }
-	}
-	break;
+            for(i=0; i < sizeof(users); i++) {
+              if (lower_case(users[i]) == "any") {
+                if(this->register_module()[0] & MODULE_PROXY) 
+                  patterns += ({ ({ MOD_PROXY_USER, lambda(){ return 1; } }) });
+                else
+                  patterns += ({ ({ MOD_ACCEPT_USER, lambda(){ return 1; } }) });
+                break;
+              } else {
+                users[i & 0x0f] = "(^"+users[i]+"$)";
+              }
+              if ((i & 0x0f) == 0x0f) {
+                value = users[0..0x0f]*"|";
+                if(this->register_module()[0] & MODULE_PROXY) {
+                  patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
+                } else {
+                  patterns += ({ ({ MOD_ACCEPT_USER, Regexp(value)->match, }) });
+                }
+              }
+            }
+            if (i & 0x0f) {
+              value = users[0..(i-1)&0x0f]*"|";
+              if(this->register_module()[0] & MODULE_PROXY) {
+                patterns += ({ ({ MOD_PROXY_USER, Regexp(value)->match, }) });
+              } else {
+                patterns += ({ ({ MOD_ACCEPT_USER, Regexp(value)->match, }) });
+              }
+            }
+            break;
       
-      case "secuname":
-        value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	users = (value/"," - ({""}));
-	mapping(string:int) userlevels = ([]);	
-	array(string) tmp;
-	int           i;
+          case "secuname":
+            value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+            users = (value/"," - ({""}));
+            mapping(string:int) userlevels = ([]);	
+            array(string) tmp;
+            int           i;
 	
-	report_notice("SecUname found (" + sizeof(users) + " users)\n");
-	for(i = 0; i < sizeof(users); i++) {
-	  tmp = users[i] / ":";
-	  if (lower_case(tmp[0]) == "any") {
-	    patterns += ({ ({ MOD_USER_SECLEVEL, (["any":tmp[1]]), }) });
-	    break;
-	  } else {
-	    userlevels += ([tmp[0]:tmp[1]]);
-	  }	    
-	}
-	patterns += ({ ({ MOD_USER_SECLEVEL, userlevels, }) });
-        break;
+            report_notice("SecUname found (" + sizeof(users) + " users)\n");
+            for(i = 0; i < sizeof(users); i++) {
+              tmp = users[i] / ":";
+              if (lower_case(tmp[0]) == "any") {
+                patterns += ({ ({ MOD_USER_SECLEVEL, (["any":tmp[1]]), }) });
+                break;
+              } else {
+                userlevels += ([tmp[0]:tmp[1]]);
+              }	    
+            }
+            patterns += ({ ({ MOD_USER_SECLEVEL, userlevels, }) });
+            break;
 	
-      case "secgname":
-        break;
+          case "secgname":
+            break;
 
-      default:
-	report_error(sprintf("Unknown Security:Patterns directive: "
-			     "type=\"%s\"\n", type));
-	break;
+          default:
+            report_error(sprintf("Unknown Security:Patterns directive: "
+                                 "type=\"%s\"\n", type));
+            break;
       }
     } else {
       report_error(sprintf("Syntax error in Security:Patterns directive: "
-			   "line=\"%s\"\n", sl));
+                           "line=\"%s\"\n", sl));
     }
   }
   return patterns;
@@ -754,16 +754,16 @@ object get_font_from_var(string base)
   int weight, slant;
   switch(query(base+"_weight"))
   {
-   case "light": weight=-1; break;
-   default: weight=0; break;
-   case "bold": weight=1; break;
-   case "black": weight=2; break;
+      case "light": weight=-1; break;
+      default: weight=0; break;
+      case "bold": weight=1; break;
+      case "black": weight=2; break;
   }
   switch(query(base+"_slant"))
   {
-   case "obligue": slant=-1; break;
-   default: slant=0; break;
-   case "italic": slant=1; break;
+      case "obligue": slant=-1; break;
+      default: slant=0; break;
+      case "italic": slant=1; break;
   }
   return get_font(query(base+"_font"), 32, weight, slant, "left", 0, 0);
 }
