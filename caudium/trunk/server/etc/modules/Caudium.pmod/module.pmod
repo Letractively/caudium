@@ -225,7 +225,7 @@ constant cvs_version = "$Id$";
 //! formats that are to be used in attempt to parse the passed date. The
 //! file must contain one format per line and the first matching line ends
 //! the parsing process. The matching is case-insensitive. See the
-//! @[strptime@] function for information on the formatting codes you can
+//! @[strptime] function for information on the formatting codes you can
 //! use in the pattern file.
 //!
 //! @param date
