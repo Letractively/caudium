@@ -356,10 +356,12 @@ string find_arg(array argv, array|string shortform,
 	{
 	  if(strlen(argv[i]) == 2)
 	  {
-	    if(i < sizeof(argv)-1)
-	      value =argv[i+1];
-	    argv[i] = argv[i+1] = 0;
-	    return value;
+	    if((i+1) < sizeof(argv)) {
+	      value = argv[i+1];
+	      argv[i+1] = 0;
+	    }
+	    argv[i] =  0;
+	    return value||1;
 	  } else {
 	    value=argv[i][2..100000];
 	    argv[i]=0;
@@ -586,7 +588,7 @@ void main(int argc, string *argv)
 
   if(find_arg(argv, "v", "version"))
   {
-    perror("Caudium Install version "+cvs_version+"\n");
+    perror("Caudium Install Version: "+(cvs_version / " ")[2]+".\n");
     exit(0);
   }
 
@@ -767,7 +769,8 @@ void main(int argc, string *argv)
 
 
   mkdirhier("../local/modules/");
-
+  mkdirhier(var_dir);
+  mkdirhier(log_dir);
   write(sprintf("\nStarting Caudium on %s%s:%d/ ...\n\n",
 		prot_spec, host, port));
   
