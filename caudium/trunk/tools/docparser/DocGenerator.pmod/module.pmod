@@ -155,18 +155,19 @@ class IndexGen
 	entry(mfile, "module", name, path, title);
     }
     
-    void file_symbol(string symbol, string path, string name)
+    void file_symbol(string symbol, string path, string name, string|void title)
     {
 	if (!ffile)
 	    open_files();
-	entry(ffile, symbol, name, path);
+
+	entry(ffile, symbol, name, path, title);
     }
     
-    void module_symbol(string symbol, string path, string name)
+    void module_symbol(string symbol, string path, string name, string|void title)
     {
 	if (!mfile)
 	    open_files();
-	entry(mfile, symbol, name, path);
+	entry(mfile, symbol, name, path, title);
     }
 
     void create(string tdir)
@@ -398,7 +399,7 @@ class DocGen
         continue;
       if(sizeof(parts) == 1) {
 	ret += " <defvar name=\""+dv->first_line+"\"";
-	sym_fn("defvar", fname, dv->first_line);
+	sym_fn("defvar", fname, dv->first_line, dv->name);
       } else {
 	ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
 	  String.trim_whites(parts[1..]*":")+"\"";
@@ -804,7 +805,7 @@ class DocGen
         
         switch(f->myName) {
             case "PikeFile":
-		index->file(fname, basename(fname));
+		index->file(fname, f->first_line);
                 do_file(tdir, f, ofile);
                 break;
 
