@@ -22,8 +22,6 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
-
-
 #ifdef PROFILE
 mapping profile_map = ([]);
 #endif
@@ -41,6 +39,7 @@ mapping profile_map = ([]);
 
 
 inherit "caudiumlib";
+inherit "logformat";
 
 public string real_file(string file, object id);
 
@@ -310,6 +309,13 @@ function log_function;
 // The logging format used. This will probably move the the above
 // mentioned module in the future.
 private mapping (string:string) log_format = ([]);
+
+// The objects for each logging format. Each of the objects has the function
+// format_log which takes the file and id object as arguments and returns
+// a formatted string. the hashost variable is 1 if there is a $host that
+// needs to be resolved.
+private mapping (string:object) log_format_objs = ([]);
+
 
 // A list of priority objects (used like a 'struct' in C, really)
 private array (object) pri = allocate_pris();
@@ -710,9 +716,20 @@ private void parse_log_formats()
 {
   string b;
   array foo=query("LogFormat")/"\n";
+  log_format = ([]);
+  log_format_objs = ([]);
   foreach(foo, b)
-    if(strlen(b) && b[0] != '#' && sizeof(b/":")>1)
+    if(strlen(b) && b[0] != '#' && sizeof(b/":")>1) 
       log_format[(b/":")[0]] = fix_logging((b/":")[1..]*":");
+  foreach(indices(log_format), string code) {
+    string format = parse_log_format(log_format[code]);
+    object formatter;
+    if(catch(formatter = compile(format)()) || !formatter) {
+      report_error(sprintf("Failed to compile log format // %s //.",
+		   format));
+    }
+    log_format_objs[code] = formatter;
+  }
 }
 
 
@@ -761,10 +778,11 @@ public void log(mapping file, object request_id)
 //    _debug(2);
   string a;
   string form;
+  object fobj;
   function f;
 
   foreach(logger_modules(request_id), f) // Call all logging functions
-    if(f(request_id,file))return;
+    if(f(request_id,file)) return;
 
   if(!log_function || !request_id) return;// No file is open for logging.
 
@@ -772,45 +790,56 @@ public void log(mapping file, object request_id)
   if(QUERY(NoLog) && _match(request_id->remoteaddr, QUERY(NoLog)))
     return;
   
+#ifdef OLD_LOGGING
   if(!(form=log_format[(string)file->error]))
     form = log_format["*"];
   
   if(!form) return;
-  
-  form=replace(form, 
-	       ({ 
-		 "$ip_number", "$bin-ip_number", "$cern_date",
-		 "$bin-date", "$method", "$resource", "$full_resource", "$protocol",
-		 "$response", "$bin-response", "$length", "$bin-length",
-		 "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id",
-		 "$request-time"
-	       }), ({
-		 (string)request_id->remoteaddr,
-		 host_ip_to_int(request_id->remoteaddr),
-		 cern_http_date(time(1)),
-		 unsigned_to_bin(time(1)),
-		 (string)request_id->method,
-		 http_encode_string((string)request_id->not_query),
-		 (string)request_id->raw_url,
-		 (string)request_id->prot,
-		 (string)(file->error||200),
-		 unsigned_short_to_bin(file->error||200),
-		 (string)(file->len>=0?file->len:"?"),
-		 unsigned_to_bin(file->len),
-		 (string)(request_id->referrer||"-"), 
-		 http_encode_string(request_id->useragent), 
-		 request_id->useragent, 
-		 extract_user(request_id->realauth),
-		 (string)request_id->cookies->CaudiumUserID,
-		 (string)(time(1)-request_id->time)
+  form = replace(form, 
+		 ({ 
+		   "$ip_number", "$bin-ip_number", "$cern_date",
+		   "$bin-date", "$method", "$resource", "$full_resource", "$protocol",
+		   "$response", "$bin-response", "$length", "$bin-length",
+		   "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id",
+		   "$request-time"
+		 }), ({
+		   (string)request_id->remoteaddr,
+		   host_ip_to_int(request_id->remoteaddr),
+		   cern_http_date(time(1)),
+		   unsigned_to_bin(time(1)),
+		   (string)request_id->method,
+		   http_encode_string((string)request_id->not_query),
+		   (string)request_id->raw_url,
+		   (string)request_id->prot,
+		   (string)(file->error||200),
+		   unsigned_short_to_bin(file->error||200),
+		   (string)(file->len>=0?file->len:"?"),
+		   unsigned_to_bin(file->len),
+		   (string)(request_id->referrer||"-"), 
+		   http_encode_string(request_id->useragent), 
+		   request_id->useragent, 
+		   extract_user(request_id->realauth),
+		   (string)request_id->cookies->CaudiumUserID,
+		   (string)(time(1)-request_id->time)
 	       }));
-  
+
   if(search(form, "host") != -1)
     caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
 		      request_id->remoteaddr, log_function);
   else
     log_function(form);
-//    _debug(0);
+#else
+  if(!(fobj = log_format_objs[(string)file->error]))
+    if(!(fobj = log_format_objs["*"]))
+      return; // no logging for this one.
+  if(fobj->hashost)
+    caudium->ip_to_host(request_id->remoteaddr, write_to_log,
+			fobj->format_log(file, request_id),
+			request_id->remoteaddr, log_function);
+  else
+    log_function(fobj->format_log(file, request_id));
+#endif
+  //    _debug(0);
 }
 
 // These are here for statistics and debug reasons only.
@@ -3480,11 +3509,6 @@ void create(string config)
 	 "Log format is normal characters, or one or more of the "
 	 "variables below:\n"
 	 "\n"
-	 "\\n \\t \\r       -- As in C, newline, tab and linefeed\n"
-	 "$char(int)     -- Insert the (1 byte) character specified by the integer.\n"
-	 "$wchar(int)    -- Insert the (2 byte) word specified by the integer.\n"
-	 "$int(int)      -- Insert the (4 byte) word specified by the integer.\n"
-	 "$^             -- Supress newline at the end of the logentry\n"
 	 "$host          -- The remote host name, or ip number.\n"
 	 "$ip_number     -- The remote ip number.\n"
 	 "$bin-ip_number -- The remote host id as a binary integer number.\n"
@@ -3503,7 +3527,7 @@ void create(string config)
 	 "$request-time  -- The time the request took (seconds)\n"
 	 "$referer       -- the header 'referer' from the request, or '-'.\n"
 	 "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
-	 "$agent_unquoted    -- the header 'User-Agent' from the request, or '-' not UTF encoded.\n\n"
+	 "$agent_unquoted -- the unquoted header 'User-Agent' from the request, or '-'.\n\n"
 	 "$user          -- the name of the auth user used, if any\n"
 	 "$user_id       -- A unique user ID, if cookies are supported,\n"
 	 "                  by the client, otherwise '0'\n"
