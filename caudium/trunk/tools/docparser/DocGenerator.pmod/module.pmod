@@ -212,11 +212,11 @@ class DocGen
 
     /* See Also */
     if (tag->seealso && sizeof(tag->seealso)) {
-      ret  += "<see>\n";
+      ret  += "<links>\n";
       foreach(tag->seealso, string n)
 	if (n != "")
-	  ret += "\t<link>\n" + n + "\n\t</link>\n";
-      ret += "</see>\n";
+	  ret += "\t<link>" + n + "</link>\n";
+      ret += "</links>\n";
     }
 
     ret += "</tag>\n\n";
@@ -336,6 +336,15 @@ class DocGen
 	    if (n != "")
 	      ret += "\t<note>\n" + n + "\n\t</note>\n";
 	  ret += "</notes>\n";
+	}
+
+	/* See Also */
+	if (m->seealso && sizeof(m->seealso)) {
+	  ret  += "<links>\n";
+	  foreach(m->seealso, string n)
+	    if (n != "")
+	      ret += "\t<link>" + n + "</link>\n";
+	  ret += "</links>\n";
 	}
 	
 	/* El Final Grande */
