@@ -134,7 +134,7 @@ string day(int num)
 	    "czwartek","pi±tek","sobota" })[ num - 1 ];
 }
 
-string day_short(int num)
+string day_really_short(int num)
 {
   return ({ "N", "P", "W", "S", "C", "P", "S" })[ num - 1 ];
 }

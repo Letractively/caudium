@@ -136,6 +136,16 @@ string day(int num)
 	    "Donnerstag","Freitag","Samstag" })[ num - 1 ];
 }
 
+string day_really_short(int num)
+{
+  return ({ "S", "M", "D", "M", "D", "F", "S" })[ num - 1 ];
+}
+
+string words(int num)
+{
+  return ({ "Jahr", "Monat", "Woche", "Tag" })[ num ];
+}
+
 array aliases()
 {
   return ({ "de", "deu", "deutsch", "german" });

@@ -157,7 +157,7 @@ string day(int num)
 	    "Thursday","Friday","Saturday" })[ num - 1 ];
 }
 
-string day_short(int num)
+string day_really_short(int num)
 {
   return ({ "S", "M", "T", "W", "T", "F", "S" })[ num - 1 ];
 }
