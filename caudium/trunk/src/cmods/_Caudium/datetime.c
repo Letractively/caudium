@@ -345,7 +345,7 @@ static void f_getdate(INT32 args)
   err = getdate_r(date->str, &tmret);
   tmptr = &tmret;
 #else
-  tptr = getdate(date->str);
+  tmptr = getdate(date->str);
   err = getdate_err;
 #endif
 
