@@ -11,6 +11,8 @@
 <page title="Caudium Documentation">
   <dl><xsl:apply-templates select="module | file"/></dl>
   <xsl:comment>XSLT Template version $Id$</xsl:comment>
+  <br />
+  <pswik host="caudium.net" rows="7" cols="50" />
  </page>
 </xsl:template>
 
