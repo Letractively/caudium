@@ -1,3 +1,10 @@
+caudium (2:1.2.33-2) unstable; urgency=low
+
+  * Included the Dutch translation by Bart Cornelis <cobaco@linux.be>. 
+    Thanks (closes: Bug#232231)
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 11 Feb 2004 18:41:19 +0100
+
 caudium (2:1.2.33-1) unstable; urgency=low
 
   * The latest upstream version
