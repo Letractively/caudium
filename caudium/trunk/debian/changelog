@@ -6,7 +6,9 @@ caudium (2:1.2.0-2) unstable; urgency=medium
   * Added French translations of the Debconf messages - translated and revised by 
     Xavier Beaudouin <kiwi@caudium.net>, David Gourdelier <David.Gourdelier@iteam.org> and
     Bertrand Lupart <bertrand.lupart@iteam.org>
- -- Marek Habersack <grendel@debian.org>  Tue,  8 Jan 2002 12:07:16 +0100
+  * Added configuration support to the caudiumctl script - sits in /etc/default/caudium
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  8 Jan 2002 12:37:07 +0100
 
 caudium (2:1.2.0-1) unstable; urgency=high
 
