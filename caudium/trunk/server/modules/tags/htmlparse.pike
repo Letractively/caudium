@@ -2747,7 +2747,7 @@ string get_pr_size(string size, string color)
 string tag_pr(string tagname, mapping m)
 {
   string size = m->size || "small";
-  string color = m->color || "blue";
+  string color = m->color || "red";
   if(m->list)
   {
     string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
@@ -2760,13 +2760,14 @@ string tag_pr(string tagname, mapping m)
   m_delete(m, "size");
   m->src = "/internal-caudium-power-"+size+"-"+color;
   int w;
+  if(get_pr_size(size,color)  == "NONEXISTANT COMBINATION") color = "red";
   sscanf(get_pr_size(size,color), "%*swidth=%d", w);
   m->width = (string)w;
   sscanf(get_pr_size(size,color), "%*sheight=%d", w);
   m->height = (string)w;
-  if(!m->alt) m->alt="Powered by Roxen";
+  if(!m->alt) m->alt="Powered by Caudium";
   if(!m->border) m->border="0";
-  return ("<a href=\"http://www.roxen.com/\">"+make_tag("img", m)+"</a>");
+  return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
 }
 
 string tag_number(string t, mapping args)
