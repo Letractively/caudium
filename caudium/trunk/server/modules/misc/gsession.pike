@@ -1012,28 +1012,8 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 
 mixed container_form(string tag, mapping args, string contents, object id, mapping defines)
 {
-    string   query;
-    mapping  hvars = ([]);
-    int      do_hidden = 1;
-    
-    if (id->misc->session_id && args && !args->norewrite && args->action && !leave_me_alone(args->action)) {
-        if (!args->method || (args->method && lower_case(args->method) != "post")) {
-            if (sscanf(args->action, "%*s?%s", query) == 2)
-                Caudium.parse_query_string(query, hvars);
-
-            if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite)))) {
-                if (!sizeof(hvars))
-                    args->action = rewrite_uri(id, args->action);
-                else
-                    args->action = rewrite_uri(id, args->action, 1);
-                do_hidden = 0;
-            }
-        }
-    }
-
-    if (do_hidden && id->misc->session_id)
-        contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
-                           SVAR, id->misc->session_id) + contents;
+    contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
+                       SVAR, id->misc->session_id) + contents;
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
 }
