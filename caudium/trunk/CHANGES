@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Allow for having tags & containers which are not in a Caudium module but for
+  example in Pike module using the XML parser.
+   (David Gourdelier)
 - Added mimetype for XSL stylesheets.
    (James Tyson)
 - Removed proxy.pike, use simple_proxy instead.
