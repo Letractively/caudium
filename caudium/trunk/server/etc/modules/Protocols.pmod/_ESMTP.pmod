@@ -24,7 +24,7 @@
  * #1 most important TODO: dsn support.
  * other things TODO:
  *	general error handling is very close to nothing (from behind, that is)
- *	destruct
+ *	destruct. i meant a better one...
  */
 
 constant cvs_version = "$Id$";
@@ -87,6 +87,10 @@ class client
 		]),
 		"size":		0
 	]);						// server capability list
+	private mapping this_connection = ([
+		"dsn":		0,
+		"tls":		0
+	]);						// current connection's properties.
 
 	void create(void|string server, void|string|int port, void|string maildomain)
 	{
@@ -204,13 +208,12 @@ class client
 			if(address->address[strlen(address->address)-1] != '>')
 				address->address += ">";
 
-			if( (address->dsn != "full") && (address->dsn != "hdrs") ) {
-				write("DDD:\n");
+			if( (address->dsn != "full") && (address->dsn != "hdrs") )
 				return 0;
-			}
 
 			smtp_tell("MAIL FROM: " + address->address + " RET=" + upper_case(address->dsn));
 			if( !CODECLASS(200) ) {
+				this_connection->dsn = 1;
 				return 0;
 			} else {
 				return 1;
@@ -218,18 +221,51 @@ class client
 		}
 	}
 	
-	int recipient(string address) {
-		if(address[0] != '<')
-			address = "<" + address;
-		if(address[strlen(address)-1] != '>')
-			address += ">";
-		smtp_tell("RCPT TO:" + address);
-		if( !CODECLASS(200) ) {
-			return 0;
+	int recipient(string|mapping address) {
+		if(stringp(address)) {
+			if(address[0] != '<')
+				address = "<" + address;
+			if(address[strlen(address)-1] != '>')
+				address += ">";
+			smtp_tell("RCPT TO:" + address);
+			if( !CODECLASS(200) ) {
+				return 0;
+			} else {
+				return 1;
+			}
 		} else {
-			return 1;
+			// address = ([ "address": address, "dsn": ({ *"success", *"failure", *"delay", *"never" }) ]);
+			// FIXME: removed to see what's  wrong
+#if 0
+			if(!this_connection->dsn)
+				return 0;
+			if(!arrayp(address->dsn))
+				return 0;
+			if(address->address[0] != '<')
+				address->address = "<" + address->address;
+			if(address->address[strlen(address->address)-1] != '>')
+				address->address += ">";
+#endif
+			string dsns = " ";
+			for(int i=0; i<sizeof(address->dsn); i++) {
+				address->dsn[i] = lower_case(address->dsn[i]);
+				// just a quick hack, 'll be cleaned
+				// if (!Regexp("^(success|failure|delay|never)$")->match(address->dsn[i]))
+				//	return 0;
+				dsns += upper_case(address->dsn[i]) + ",";
+			}
+
+			dsns = dsns[..strlen(dsns)-2];
+			dsns += " ORCPT=rfc822;" + address->address;
+
+			smtp_tell("RCPT TO: " + address->address + dsns);
+			if( !CODECLASS(200) ) {
+				return 0;
+			} else {
+				return 1;
+			}
 		}
-		return 1;
+		return 0;
 	}
 
 	int body(string body) {
