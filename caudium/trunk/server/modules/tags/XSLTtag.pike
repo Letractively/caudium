@@ -106,7 +106,8 @@ string container_xslt(string tag, mapping args, string xml, object id)
     ERROR("Incorrect or missing stylesheet");
   switch(type) {
   case "virt":
-    key = id->conf->realfile(key, id);
+    xsl = id->conf->try_get_file(key, id);
+    break;
   case "file":
     xsl = Stdio.read_file(key);
     if(!args->baseuri) 
