@@ -77,7 +77,7 @@ string status()
 
 void create()
 {
-  defvar("toparse", ({ "rxml","spml", "html", "htm" }), "Extensions to parse", 
+  defvar("toparse", ({ "rxml", "html", "htm" }), "Extensions to parse", 
 	 TYPE_STRING_LIST, "Parse all files ending with these extensions. "
 	 "Note: This module must be reloaded for a change here to take "
 	 "effect.");
@@ -113,6 +113,12 @@ void create()
 	 "for the entity end, and the entity text is then  ignored, i.e. "
 	 "treated as data. ");
   
+  defvar("recurse_levels", 50, "Parse options: Maximum Recursion Level",
+	 TYPE_INT|VAR_MORE,
+	 "This setting decides how deep the parser should recurse before "
+	 "throwing an error. Recursion happens when a tag or entity returns "
+	 "a simple string as opposed to a string in an array.",0, 
+	 lambda() { return !Parser.HTML()->max_stack_depth; });
   defvar("match_tag", 1, "Parse options: Match tags",
 	 TYPE_FLAG,
 	 "Unquoted nested tag starters and enders will be balanced when "
@@ -282,6 +288,66 @@ call_container(object parser, mapping args, string contents,
   TRACE_LEAVE("");
   if(args->noparse && stringp(result)) return ({ result });
   return result;
+}
+
+
+
+string call_user_tag(object parser, mapping args,
+		     object id, object file, mapping defines,
+		     object client)
+{
+  string tag = parser->tag_name();
+  if(QUERY(case_insensitive_tag))
+    tag = lower_case(tag);
+  id->misc->line = (string)parser->at_line();
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
+  array replace_from = ({"#args#"})+
+    Array.map(indices(args) + indices(id->misc->up_args),
+	      lambda(string q) { return "&"+q+";"; });
+  array replace_to = (({ make_tag_attributes( args + id->misc->up_args ) })+
+		      values(args)+values(id->misc->up_args));
+  foreach(indices(args), string a)
+  {
+    id->misc->up_args["::"+a]=args[a];
+    id->misc->up_args[tag+"::"+a]=args[a];
+  }
+  string r = replace(id->misc->tags[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
+}
+
+array(string)|string 
+call_user_container(object parser, mapping args, string contents,
+	       object id, object file, mapping defines, object client)
+{
+  string tag = parser->tag_name();
+  if(QUERY(case_insensitive_tag))
+    tag = lower_case(tag);
+  string|function rf = real_container_callers[tag][0];
+  id->misc->line = (string)parser->at_line();
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  if(args->preparse
+     && (args->preparse=="preparse" || (int)args->preparse))
+    contents = parse_rxml(contents, id);
+  if(args->trimwhites) {
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+  }
+  TRACE_ENTER("user defined container &lt;"+tag+"&gt", call_user_container);
+  array replace_from = ({"#args#", "<contents>"})+
+    Array.map(indices(args),
+	      lambda(string q){return "&"+q+";";});
+  array replace_to = (({make_tag_attributes( args  ),
+			contents })+
+		      values(args));
+  string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
 }
 
 string do_parse(string to_parse, object id, object file, mapping defines,
@@ -547,6 +613,8 @@ void build_callers()
    parse_object->match_tag(QUERY(match_tag));
    parse_object->splice_arg("::");
    parse_object->_set_entity_callback(entity_callback);
+   if(parse_object->max_stack_depth)
+     parse_object->max_stack_depth(QUERY(recurse_levels));
 }
 
 void add_parse_module(object o)
