@@ -14,8 +14,6 @@ RCSID("$Id$");
 
 #ifdef HAVE_SABLOT
 #include <sablot.h>
-
-static SablotHandle sproc;
 #endif
 
 /* Initialize and start module */
@@ -26,22 +24,19 @@ void pike_module_init( void )
 			 "function(string,string,void|string:string)", 0);
   add_function_constant( "parse_files", f_parse_files,
 			 "function(string,string:string)", 0);
-  SablotCreateProcessor(&sproc);
 #endif
 }
 
 /* Restore and exit module */
 void pike_module_exit( void )
 {
-#ifdef HAVE_SABLOT
-  SablotDestroyProcessor(&sproc);
-#endif
 }
 
 /** Functions implementing Pike functions **/
 #ifdef HAVE_SABLOT
 
-static void really_do_parse(char *xsl, char *xml, char **argums, char **res)
+static void really_do_parse(SablotHandle sproc, char *xsl, char *xml,
+			    char **argums, char **res)
 {
   SablotRunProcessor(sproc, xsl, xml, "arg:/_output",
 			       NULL, argums);
@@ -50,6 +45,7 @@ static void really_do_parse(char *xsl, char *xml, char **argums, char **res)
 
 static void f_parse( INT32 args )
 {
+  SablotHandle sproc;
   struct pike_string *xml, *xsl, *out = NULL;
   struct svalue base;
   char *parsed = NULL;
@@ -61,6 +57,7 @@ static void f_parse( INT32 args )
     "/_output", NULL, 
     NULL
   };
+  SablotCreateProcessor(&sproc);
   if(args == 3) {
     /* Use a base URI */ 
     base = sp[-1]; 
@@ -88,7 +85,9 @@ static void f_parse( INT32 args )
   get_all_args("Sablotron.parse", args, "%S%S", &xsl, &xml);
   argums[1] = xsl->str;
   argums[3] = xml->str;
-  really_do_parse("arg:/_xsl", "arg:/_xml", argums, &parsed);
+  THREADS_ALLOW();
+  really_do_parse(sproc, "arg:/_xsl", "arg:/_xml", argums, &parsed);
+  THREADS_DISALLOW();
   pop_n_elems(args);
   if(parsed != NULL) {
     out = make_shared_string(parsed);
@@ -98,9 +97,11 @@ static void f_parse( INT32 args )
     push_int(0);
   SablotSetBase(sproc,"");
   SablotFreeResultArgs(sproc); 
+  SablotDestroyProcessor(&sproc);
 }
 static void f_parse_files( INT32 args )
 {
+  SablotHandle sproc;
   struct pike_string *xml, *xsl, *out = NULL;
   char *parsed = NULL;
   int success;
@@ -111,7 +112,10 @@ static void f_parse_files( INT32 args )
   };
   get_all_args("Sablotron.parse_lines", args, "%S%S", &xsl, &xml);
   /*   SablotRegHandler(p, HLR_MESSAGE,  */
-  really_do_parse(xsl->str, xml->str, argums, &parsed);
+  THREADS_ALLOW();
+  SablotCreateProcessor(&sproc);
+  really_do_parse(sproc, xsl->str, xml->str, argums, &parsed);
+  THREADS_DISALLOW();
   pop_n_elems(args);
   if(parsed != NULL) {
     out = make_shared_string(parsed);
@@ -120,5 +124,6 @@ static void f_parse_files( INT32 args )
   } else
     push_int(0);
   SablotFreeResultArgs(sproc); 
+  SablotDestroyProcessor(&sproc);
 }
 #endif  

@@ -6,6 +6,7 @@ MODULE_LIBS=@LIBS@
 
 @module_makefile@
 extrainstall:
+	$(INSTALL) pixsl $(DESTDIR)/@prefix@/bin/
 
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
