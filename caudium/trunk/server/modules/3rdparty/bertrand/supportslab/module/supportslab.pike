@@ -107,8 +107,8 @@ string scope_callback(object parser, string scope, string name, object id, strin
 //!  Here's the trick: supports are recomputed given some arbitrary user agent
 void override_supports(string useragent, object id)
 {
-  useragent = lower_case(useragent);
-  // TODO: force reload the supports file
+  useragent = lower_case(useragent[..150]);
+  // TODO: provide a way to reload the supports file
   multiset newsupports = caudium->find_supports(useragent);
   id->supports = newsupports;
 }
