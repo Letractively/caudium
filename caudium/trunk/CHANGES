@@ -1,11 +1,15 @@
-Changes in Caudium 1.3 since Caudium 1.3.14
--------------------------------------------
+Changes in Caudium 1.3.16 since Caudium 1.3.14
+----------------------------------------------
 - Added cnum and rtext to column types in tablify.  cnum uses , as the 
   thousands delimiter and rtext right aligns text.
+   (Chris Davies)
 - Avoid using -O2 optimization on FreeBSD Alpha
+   (Xavier Beaudouin)
 - Fix detection of alloca() for _Caudium C module.
+   (Xavier Beaudouin)
 - Uses if exist thread safe calls (the _r() ones) from libc in function 
   _Caudium.http_date() _Caudium.cern_http_date().
+   (Xavier Beaudouin)
 - AJP | Tomcat connector can now load balance requests across multiple
   Tomcat instances.
    (Bill Welliver)
