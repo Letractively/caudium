@@ -62,7 +62,7 @@ string http_res_to_string( mapping file, object id )
   if(!file->error) file->error = 200;
     
   if(!zero_type(file->expires)) 
-    heads->Expires = file->expires ? Procotols.HTTP.Server.http_date(file->expires) : "0";
+    heads->Expires = file->expires ? Protocols.HTTP.Server.http_date(file->expires) : "0";
 
   if(!file->len)
   {
@@ -75,7 +75,7 @@ string http_res_to_string( mapping file, object id )
       if(file->file && !file->len)
 	file->len = fstat[1];
       
-      heads["Last-Modified"] = Procotols.HTTP.Server.http_date(fstat[3]);
+      heads["Last-Modified"] = Protocols.HTTP.Server.http_date(fstat[3]);
     }
     if(stringp(file->data)) 
       file->len += strlen(file->data);
@@ -537,7 +537,7 @@ string http_decode_url (string f)
 string http_caudium_config_cookie(string from)
 {
   return "CaudiumConfig="+Protocols.HTTP.http_encode_cookie(from)
-    +"; expires=" + Procotols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/";
+    +"; expires=" + Protocols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/";
 }
 
 function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
@@ -550,7 +550,7 @@ function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
 string http_caudium_id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
-		 Procotols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/",
+		 Protocols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/",
 		 caudium->increase_id());
 }
 
