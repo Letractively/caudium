@@ -341,8 +341,11 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_MINOR=`echo $THIS_PIKE_VER | cut -d '.' -f 2`
     THIS_PIKE_BUILD=`echo $THIS_PIKE_VER | cut -d '.' -f 3`
     THIS_PIKE_VERNUM=$THIS_PIKE_MAJOR$THIS_PIKE_MINOR$THIS_PIKE_BUILD
-    
-    if test $THIS_PIKE_VERNUM -lt $REQ_PIKE_VERNUM; then
+    THIS_PIKE_DECNUM=$(($THIS_PIKE_MAJOR*10000+$THIS_PIKE_MINOR*1000+$THIS_PIKE_BUILD))
+
+    REQ_PIKE_DECNUM=$(($REQ_PIKE_MAJOR*10000+$REQ_PIKE_MINOR*1000+$REQ_PIKE_BUILD))
+	    
+    if test $THIS_PIKE_DECNUM -lt $REQ_PIKE_DECNUM; then
        echo " => too old"
        continue
     fi
@@ -393,7 +396,7 @@ else
 *** is no longer supported. You can download and install one of
 *** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
-***     http://caudium.net/download/snapshot.html
+***     http://caudium.net/download/source/ 
 ***
 *** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD!
 *****************************************************************************
