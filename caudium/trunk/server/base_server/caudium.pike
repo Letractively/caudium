@@ -2197,7 +2197,6 @@ class ArgCache
       if(path[-1] != '/' && path[-1] != '\\')
         path += "/";
       path += replace(name, "/", "_")+"/";
-      perror("argcache : path = "+path+", name = "+name+"\n");
       mkdirhier( path + "/tmp" );
       object test = Stdio.File();
       if (!test->open (path + "/.testfile", "wc"))
