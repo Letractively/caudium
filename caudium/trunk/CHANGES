@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fix submitted in caudium_general ml about corrupted Accessed db.
 - Fix for sf bug #634688: Backtrace with cache and start as user.
 - Fixed error in setools.pike regarding user agent & regexp
 - We can now accept a certification chain instead of just a single certificate.

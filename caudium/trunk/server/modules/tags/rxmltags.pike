@@ -404,7 +404,7 @@ int database_created(string file)
   mixed key = open_db_file();
   database->seek((p*8)+4);
   sscanf(database->read(4), "%4c", w);
-  if(!w)
+  if(!w || (w>>31) > 0)
   {
     w=main_database_created();
     database_set_created(file, w);
