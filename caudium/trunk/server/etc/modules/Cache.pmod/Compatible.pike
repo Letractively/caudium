@@ -26,7 +26,7 @@ constant cvs_version = "$Id$";
 
 #ifdef ENABLE_THREADS
   static Thread.Mutex mutex = Thread.Mutex();
-# define LOCK() object __key = mutex->lock()
+# define LOCK() object __key = mutex->lock(2)
 #else
 # define LOCK() 
 #endif

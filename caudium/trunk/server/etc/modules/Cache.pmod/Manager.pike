@@ -25,7 +25,7 @@
 #ifdef ENABLE_THREADS
   static Thread.Mutex mutex = Thread.Mutex();
 #define PRELOCK() object __key;
-#define LOCK() __key = mutex->lock()
+#define LOCK() __key = mutex->lock(2)
 #define UNLOCK() destruct(__key)
 #else
 #define PRELOCK()
