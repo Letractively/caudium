@@ -13,8 +13,7 @@ Some notes for Perl support for the Caudium Webserver
  will need :
 
  o A working Caudium
- o A perl 5.8 or more recent (may run on 5.6 or 5.0 but this is not
-   supported by The Caudium Group).
+ o A perl 5.8 or more recent.
  o Some script with perl inside.
 
 3- How this works ?
@@ -27,5 +26,13 @@ Some notes for Perl support for the Caudium Webserver
 
  The server/perl/lib/ directory will contain Perl modules, and should
  be added to @INC for Caudium-related Perl scripts.
+
+5- Some examples :
+
+ Inside a rxml file :
+
+ <perl>
+   printf("Hello world");
+ </perl>
 
 
