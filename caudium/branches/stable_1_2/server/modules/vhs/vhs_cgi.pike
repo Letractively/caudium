@@ -29,7 +29,7 @@ inherit "module";
 inherit "caudiumlib";
 
 //! module: VHS - CGI executable support
-//!   Support for the <a href="http://hoohoo.ncsa.uiuc.edu/docs/cgi/interface.html>
+//!   Support for the <a href="http://hoohoo.ncsa.uiuc.edu/docs/cgi/interface.html">
 //!   CGI/1.1 interface</a>, and more.
 //! inherits: module
 //! inherits: caudiumlib
