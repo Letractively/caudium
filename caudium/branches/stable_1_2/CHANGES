@@ -1,3 +1,9 @@
+Changes in Caudium 1.2.32 since 1.2.30
+-------------------------------
+- Added support for chained SSL certificates. Chained certs should be provided as a 
+  comma separated list, with the host certificate last.
+   (Bill Welliver)
+
 Changes in Caudium 1.2.30 since 1.2.26
 --------------------------------------
 - Modified ultraparse.pile to include an explicit list of profiles to show.
