@@ -227,7 +227,7 @@ INT32 hourly_page_hits(struct mapping *urls,
 
 
 #define DO_REFERRER()  \
- if((tmpinteger = strlen(field_buf = (buf + buf_points[REFER]))) > 1 &&  \
+ if((tmpinteger = strlen(field_buf = (char *)(buf + buf_points[REFER]))) > 1 &&  \
     (!notref || !strstr(field_buf, notref))) { \
     ref_str = make_shared_binary_string(field_buf, tmpinteger); \
     map2addstr(referredto, url_str, ref_str); \
@@ -237,8 +237,9 @@ INT32 hourly_page_hits(struct mapping *urls,
   } 
 
 #define DO_ERREF()  \
- if(strlen(field_buf = (buf + buf_points[REFER])) > 1) { \
-    ref_str = make_shared_binary_string(field_buf, strlen(field_buf)); \
+ if(strlen(field_buf = (char *)(buf + buf_points[REFER])) > 1) { \
+    ref_str = make_shared_binary_string(field_buf, \
+					strlen(field_buf)); \
     map2addstr(error_refs, url_str, ref_str);\
     free_string(ref_str); \
     ref_str = 0; \

@@ -98,8 +98,8 @@ INT32 parse_log_format(struct pike_string *log_format, INT32 *state_list,
 {
   int i=0,state_pos = 0,  got_state = 0;
   int fieldnum = 0, required_fields=0;
-  unsigned char *bufpointer = log_format->str;
-  unsigned char *end = log_format->str + log_format->len;
+  unsigned char *bufpointer = (unsigned char *)log_format->str;
+  unsigned char *end = bufpointer + log_format->len;
   if(!log_format->len) {
     fprintf(stderr, "Log format null length.\n");
     fflush(stderr);
@@ -269,7 +269,8 @@ static void f_ultraparse( INT32 args )
   time_t start;
   unsigned char *read_buf;
   struct svalue *statfun, *daily, *pagexts=0, *file,  *refsval, *log_format;
-  unsigned char *buf, *field_buf;
+  unsigned char *buf;
+  char *field_buf;
 #ifdef BROKEN_LINE_DEBUG
   INT32 broken_line_pos=0;
   unsigned char *broken_line;
@@ -341,7 +342,7 @@ static void f_ultraparse( INT32 args )
   } else if(file->type == T_STRING &&
 	    file->u.string->size_shift == 0) {
     do {
-      f=fd_open(STR0(file->u.string), fd_RDONLY, 0);
+      f=fd_open(file->u.string->str, fd_RDONLY, 0);
     } while(f < 0 && errno == EINTR);
     
     if(errno < 0)
@@ -744,7 +745,8 @@ static void f_ultraparse( INT32 args )
       process_session(buf+buf_points[ADDR], h*3600+m*60+s, h, 
 		      sessions_per_hour, session_length, session_start,
 		      session_end, sites);
-      url_str = make_shared_binary_string(buf + buf_points[URL], strlen(buf + buf_points[URL]));
+      url_str = make_shared_binary_string((char *)(buf + buf_points[URL]),
+					  strlen((char *)(buf + buf_points[URL])));
 #if 1
       switch(v) {
       /* Do error-code specific logging. Error urls that are
@@ -780,9 +782,9 @@ static void f_ultraparse( INT32 args )
       kb_per_hour[h] += (float)bytes / 1024.0;
       hits_per_hour[h]++;
       /*#endif*/
-      if(strlen(buf + buf_points[AGENT])>1) {
+      if(strlen((char *)(buf + buf_points[AGENT]))>1) {
 	/* Got User Agent */
-	tmpagent = make_shared_string(buf + buf_points[AGENT]);
+	tmpagent = make_shared_string((char *)(buf + buf_points[AGENT]));
 	mapaddstr(user_agents, tmpagent);
 	free_string(tmpagent);
       }
