@@ -718,6 +718,11 @@ mapping|array find_dir(string f, object id)
 
   array a = find_user(f, id);
 
+  // dir searched by filesystem is name "" when trying to find the
+  // users listing. But this is cached by Caudium Cache and need to
+  // intercepted before then...
+  if (!QUERY(user_listing) && (f == "") ) return 0;
+
   if (!a) {
     if (QUERY(user_listing)) {
       array l;
