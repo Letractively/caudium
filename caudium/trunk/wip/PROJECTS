@@ -1,0 +1,19 @@
+This file contains description of all the WIP projects contained in
+this directory and subdirectories thereof. The format of the description
+is:
+
++ project path     short description
+ long description
+
+Each project description must start with the '+' sign, as show above and
+each line of the description must be indented with at least a single space. The
+whole entry ends with an empty line. If you need to put an empty line in the
+description, put a dot as its only character. The project path is relative to the
+top directory of caudium with / marking the top.
+
+---DESCRIPTIONS---[do not change this line]
+
++ /server/start    a new start script for Caudium.
+ This is a Pike reimplementation of the shell start script currently used
+ by Caudium.
+
