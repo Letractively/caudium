@@ -1,5 +1,9 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed try_get_file so that it can run in 2nd level virtual hosting mode.
+   (Bertrand Lupart)
+- Fixed htaccess module so that it can run in 2nd level virtual hosting mode.
+   (Bertrand Lupart)
 - Fixed a bug preventing caching of ActiveDirectory authentication
   information. Authentication using ActiveDirectory should be much faster.
    (Bill Welliver)
