@@ -1544,13 +1544,10 @@ void reload_all_configurations()
   caudium->setvars(caudium->retrieve("Variables", 0));
   caudium->initiate_configuration_port( 0 );
 
-  foreach(caudium->list_all_configurations(), mapping config)
-  {
+  foreach(caudium->list_all_configurations(), mapping config) {
     array err, st;
-    foreach(caudium->configurations, conf)
-    {
-      if(lower_case(conf->name) == lower_case(config->name))
-      {
+    foreach(caudium->configurations, conf) {
+      if(lower_case(conf->name) == lower_case(config->name)) {
         break;
       } else
         conf = 0;
@@ -3568,10 +3565,9 @@ int main(array(string) argv)
   // Open all the ports before changing uid:gid in case permanent_uid is set.
   enabling_configurations = 1;
   configurations = ({});
-  foreach(list_all_configurations(), mapping config)
-  {
+  foreach(list_all_configurations(), mapping config) {
     array err;
-    if(err=catch { enable_configuration(config->name)->start(0,0,argv);  })
+    if (err=catch { enable_configuration(config->name)->start(0,0,argv);  })
       werror("Error while loading configuration '%s':\n%s\n",
              config->name, describe_backtrace(err));
   };

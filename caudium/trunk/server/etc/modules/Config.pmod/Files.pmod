@@ -490,7 +490,7 @@ class File
   {
     string         vcontents;
 
-    vcontents = get_type_desc((arrayp(var) ? var[0] : var));
+    vcontents = get_type_desc(var);
     if (!vcontents)
       return "";
 
@@ -510,9 +510,11 @@ class File
     if (!regions || !sizeof(regions))
       return 0;
         
-    if (my_file && objectp(my_file) && functionp(my_file->close))
+    if (my_file && objectp(my_file) && functionp(my_file->close)) {
       my_file->close();
-
+      my_file = 0;
+    }
+    
     if (!nobackup && !my_dir->move(my_name, my_name + "~"))
       return "Error creating a backup copy of the file";
 
@@ -545,7 +547,8 @@ class File
 
     my_file->write(xml_epilog);
     my_file->close();
-
+    my_file = 0;
+    
     init_object(my_dir, my_name);
     return parse();
   }
@@ -674,7 +677,7 @@ class Config
       return 0;
 
     if (var && regions[region][var])
-      return regions[region][var]->value;
+      return regions[region][var];
     else if (!var && regions[region])
       return regions[region];
         
