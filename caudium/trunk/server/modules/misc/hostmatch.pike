@@ -164,7 +164,7 @@ void start()
   config_cache = ([]);
   rewrite_info = ([]);  
   regexp_pairs = ({});
-  lines = QUERY(matches) / "\n" - ({});
+  lines = QUERY(matches) / "\n" - ({""});
   foreach(lines, string l)
   {
     array pair = replace(l, "\t", " ") / " " - ({""});
