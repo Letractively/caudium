@@ -92,14 +92,6 @@ void create()
 	 "If set, include readme files in directory listings",
 	 0, dirlisting_not_set);
   
-  defvar("override", 0, "Allow directory index file overrides", TYPE_FLAG,
-	 "If this variable is set, you can get a listing of all files "
-	 "in a directory by appending '.' or '/' to the directory name, like "
-	 "this: <b>http://caudium.net//</b>"
-	 ". It is _very_ useful for debugging, but some people regard it as a "
-	 "security hole.",
-	 0, dirlisting_not_set);
-  
   defvar("size", 1, "Include file size", TYPE_FLAG,
 	 "If set, include the size of the file in the listing.",
 	 0, dirlisting_not_set);
@@ -182,15 +174,11 @@ string describe_directory(string d, object id)
 {
   array(string) path = d/"/" - ({ "" });
   array(string) dir;
-  int override = (path[-1] == ".");
   string result = "";
   int toplevel;
 
   // werror(sprintf("describe_directory(%s)\n", d));
   
-  path -= ({ "." });
-  d = "/"+path*"/" + "/";
-
   dir = caudium->find_dir(d, id);
 
   if (dir && sizeof(dir)) {
@@ -261,7 +249,7 @@ string describe_directory(string d, object id)
 		      icon, file, file, sizetostring(len), type);
     
     array(string) split_type = type/"/";
-    string extras = "Not supported for this file type";
+    string extras = "";
     
     switch(split_type[0]) {
     case "text":
@@ -327,6 +315,9 @@ string describe_directory(string d, object id)
 string|mapping parse_directory(object id)
 {
   string f = id->not_query;
+  string file, old_file;
+  string old_not_query;
+  mapping got;
 
   // werror(sprintf("parse_directory(%s)\n", id->raw_url));
 
@@ -339,25 +330,16 @@ string|mapping parse_directory(object id)
 	(f == "/"))) {
     return(http_redirect(f + "/", id));
   }
-  /* If the pathname ends with '.', and the 'override' variable
-   * is set, a directory listing should be sent instead of the
-   * indexfile.
-   */
-  if(!(sizeof(f)>1 && f[-2]=='/' && f[-1]=='.' &&
-       QUERY(dirlisting) && QUERY(override))) {
-    /* Handle indexfiles */
-    string file, old_file;
-    string old_not_query;
-    mapping got;
-    old_file = old_not_query = id->not_query;
-    if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
-    foreach(query("indexfiles")-({""}), file) { // Make recursion impossible
-      id->not_query = old_file+file;
-      if(got = caudium->get_file(id))
-	return got;
-    }
-    id->not_query = old_not_query;
+  /* Handle indexfiles */
+  old_file = old_not_query = id->not_query;
+  if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
+  foreach(query("indexfiles")-({""}), file) { // Make recursion impossible
+    id->not_query = old_file+file;
+    if(got = caudium->get_file(id))
+      return got;
   }
+  id->not_query = old_not_query;
+
   if (!QUERY(dirlisting)) {
     return 0;
   }
@@ -388,11 +370,6 @@ string|mapping parse_directory(object id)
 //! If set, include readme files in directory listings
 //!  type: TYPE_FLAG
 //!  name: Include readme files
-//
-//! defvar: override
-//! If this variable is set, you can get a listing of all files in a directory by appending '.' or '/' to the directory name, like this: <b>http://caudium.net//</b>. It is _very_ useful for debugging, but some people regard it as a security hole.
-//!  type: TYPE_FLAG
-//!  name: Allow directory index file overrides
 //
 //! defvar: size
 //! If set, include the size of the file in the listing.

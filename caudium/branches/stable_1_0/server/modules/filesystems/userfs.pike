@@ -534,7 +534,7 @@ static array(string) find_user(string f, object id)
   return ({ u, f });
 }
 
-int|mapping|Stdio.File find_file(string f, object id)
+int|mapping|object(Stdio.File) find_file(string f, object id)
 {
   string u, of = f;
 

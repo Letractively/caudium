@@ -379,20 +379,6 @@ mixed find_file( string f, object id )
 	 *	/grubba 1998-08-26
 	 */
 	return 0; 
-	/* Do not try redirect on top level directory */
-	if(sizeof(id->not_query) < 2)
-	  return 0;
-	redirects++;
-
-	// Note: Keep the query part.
-	/* FIXME: Should probably keep prestates etc too.
-	 *	/grubba 1999-01-14
-	 */
-	string new_query =
-	  http_encode_string(id->not_query[..sizeof(id->not_query)-2]) +
-	  (id->query?("?" + id->query):"");
-	TRACE_LEAVE("Redirecting to \"" + new_query + "\"");
-	return http_redirect(new_query, id);
       }
 
       if(!id->misc->internal_get && !QUERY(.files)
