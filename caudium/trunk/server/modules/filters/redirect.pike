@@ -20,7 +20,7 @@
  */
 
 //
-//! module: Redirect Module v3.0
+//! module: Redirect v3.0
 //!  The redirect module. Redirects requests from one filename to
 //!  another. This can be done using "internal" redirects (much
 //!  like a symbolic link in unix), or with normal HTTP redirects.
