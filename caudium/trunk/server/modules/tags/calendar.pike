@@ -22,10 +22,7 @@
  * TODO: remove all debugging code
  * TODO: clean the code up
  *
- * BUGS: test 13 fails. week 15 is active, it shouldn't be.
- * BUGS: all tests with after/before mark week 50 as active.
  */
-
 constant cvs_version="$Id$";
 constant thread_safe=1;
 #include <module.h>
@@ -469,7 +466,7 @@ static void check_array(mapping var, string name)
 //TODO: too many options here, rel is not needed anymore
 static int value_in_range(int val, array(mapping) range, int rel, void|int min, void|int max)
 {
-//  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
+  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
 
   if (!range || !sizeof(range))
     return 0;
@@ -691,7 +688,8 @@ static multiset mark_active_weeks(object target, object id)
   
   multiset      ret = (<>);
   array(object) weeks = target->month()->weeks();
-  
+
+  report_notice("weeks: %O\n", weeks);
   foreach(id->misc->_calendar->hotdates, mapping range) {
     if (range->weeks && sizeof(range->weeks))
       foreach(weeks, object week)
@@ -925,11 +923,6 @@ static array(mapping) make_ba_range(object date, string when, string how)
     "rend" : -1
   ])});
 
-  range->weeks = ({([
-    "rstart" : then->week_no(),
-    "rend" : -1
-  ])});
-
 //  report_notice("make_ba_range returning: %O\n", ({range}));
   
   return ({range});
@@ -967,9 +960,9 @@ static string hotdate_tag(string tag, mapping args, object id)
       months = parse_ranges(args->month);
     if (args->year)
       years = parse_ranges(args->year);
-    if (args->week)
+    if (args->week) 
       weeks = parse_ranges(args->week);
-
+    
     // construct a combined range
     mapping   range = ([
       "days" : days,
@@ -994,11 +987,14 @@ static string hotdate_tag(string tag, mapping args, object id)
     };
 
     if (!error) {
+      report_notice("hotdates before parsing: %O\n", id->misc->_calendar->hotdates);
       if (after)
         id->misc->_calendar->hotdates += make_ba_range(now, after, "after");
         
       if (before)
         id->misc->_calendar->hotdates += make_ba_range(now, before, "before");
+
+      report_notice("hotdates after parsing: %O\n", id->misc->_calendar->hotdates);
     }
   }
   
