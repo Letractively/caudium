@@ -1,3 +1,15 @@
+# 
+msgid ""
+msgstr "Project-Id-Version: Caudium 1.2.27"
+"POT-Creation-Date: 2003-06-16 12:02+0200"
+"PO-Revision-Date: 2003-06-16 12:04+0200"
+"Last-Translator: grendel <grendel@debian.org>"
+"Language-Team: Polish <gnomepl@pandora.info.bielsko.pl>"
+"MIME-Version: 1.0"
+"Content-Type: text/plain; charset=iso-8859-2"
+"Content-Transfer-Encoding: 8bit"
+""
+
 #
 #    Translators, if you are not familiar with the PO format, gettext
 #    documentation is worth reading, especially sections dedicated to
@@ -11,17 +23,8 @@
 #
 #    Developers do not need to manually edit POT or PO files.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2:1.2.27-1\n"
-"POT-Creation-Date: 2003-05-13 01:16+0200\n"
-"PO-Revision-Date: 2003-06-03 18:28+0200\n"
-"Last-Translator: Marek Habersack <grendel@debian.org>\n"
-"Language-Team: Polish <grendel@caudium.net>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
-"Content-Transfer-Encoding: 8bit\n"
 
 #. Description
 #: ../templates:4
@@ -35,14 +38,14 @@ msgid ""
 "You can access the interface using any form capable web browser (like "
 "Mozilla, Lynx, Links or Galeon)"
 msgstr ""
-"Podaj port, na którym serwer udostêpni swój interfejs konfiguracyjny. "
-"Interfejs jest osi±galny przez wpisanie adresu w dowolnej przegl±darce WWW, "
-"która obs³uguje formularze (np. Mozilla, Lynx, Links czy Galeon)"
+"Podaj port, na ktÃ³rym serwer udostÄ™pni swÃ³j interfejs konfiguracyjny. "
+"Interfejs jest osiÄ…galny przez wpisanie adresu w dowolnej przeglÄ…darce WWW, "
+"ktÃ³ra obsÅ‚uguje formularze (np. Mozilla, Lynx, Links czy Galeon)"
 
 #. Description
 #: ../templates:12
 msgid "What port should the server listen on?"
-msgstr "Na którym porcie serwer ma nas³uchiwaæ?"
+msgstr "Na ktÃ³rym porcie serwer ma nasÅ‚uchiwaÄ‡?"
 
 #. Description
 #: ../templates:12
@@ -52,9 +55,9 @@ msgid ""
 "interface in your machine. You can however specify a different port here if "
 "there's such need."
 msgstr ""
-"Caudium jest w tej chwili skonfigurowany by oczekiwaæ na po³±czenia na "
-"porcie '${portno}' ka¿dego interfejsu w twoim komputerze. Mo¿esz jednak¿e "
-"podaæ inny numer portu poni¿ej, je¶li istnieje taka potrzeba."
+"Caudium jest w tej chwili skonfigurowany by oczekiwaÄ‡ na poÅ‚Ä…czenia na "
+"porcie '${portno}' kaÅ¼dego interfejsu w twoim komputerze. MoÅ¼esz jednakÅ¼e "
+"podaÄ‡ inny numer portu poniÅ¼ej, jeÅ›li istnieje taka potrzeba."
 
 #. Choices
 #: ../templates:19
@@ -77,18 +80,18 @@ msgid ""
 " 'fd-debug' - debug file descriptor usage\n"
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
-"Mo¿esz wybrac zero lub wiêcej opcji z poni¿szego zestawu:\\n\n"
-" 'threads' - u¿ywaj w±tkAów (je¶li dostêpne w systemie)\\n\n"
-" 'debug' - wysy³aj komunikaty ¶ledzenia podczas dzia³ania programu\\n\n"
+"MoÅ¼esz wybrac zero lub wiÄ™cej opcji z poniÅ¼szego zestawu:\\n\n"
+" 'threads' - uÅ¼ywaj wÄ…tkAÃ³w (jeÅ›li dostÄ™pne w systemie)\\n\n"
+" 'debug' - wysyÅ‚aj komunikaty Å›ledzenia podczas dziaÅ‚ania programu\\n\n"
 " 'once' - uruchom program w jednej kopii bez przechodzenia w tryb demona\\n\n"
 " 'profile' - zachowaj informacje o profilowaniu\\n\n"
-" 'fd-debug' - ¶led¼ u¿ytkowanie deskryptorów plików\\n\n"
-" 'keep-alive' - podtrzymuj po³±czenie gdy u¿ywany jest protokAó³ HTTP v1.1"
+" 'fd-debug' - Å›ledÅº uÅ¼ytkowanie deskryptorÃ³w plikÃ³w\\n\n"
+" 'keep-alive' - podtrzymuj poÅ‚Ä…czenie gdy uÅ¼ywany jest protokAÃ³Å‚ HTTP v1.1"
 
 #. Description
 #: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
-msgstr "Zmodyfikuj ustawienia Caudium pod k±tem najwy¿szej wydajno¶ci"
+msgstr "Zmodyfikuj ustawienia Caudium pod kÄ…tem najwyÅ¼szej wydajnoÅ›ci"
 
 #. Description
 #: ../templates:33
@@ -103,25 +106,25 @@ msgid ""
 " - DNS lookups\n"
 " - URL modules"
 msgstr ""
-"Je¶li wybra³e¶ tê opcjê, domy¶lna konfiguracja Caudium zostanie "
-"zmodyfikowana przez wy³±czenie pewnych w³a¶ciwo¶ci które mog± spowalniaæ "
-"twój serwer. W³a¶ciwo¶ci, które zostan± wy³±czone to:\\n\n"
-" - dodatkowa zgodno¶æ z Roxen'em\\n\n"
-" - bezpieczeñstwo na poziomie modu³ów\\n\n"
-" - baza danych o w³a¶ciwo¶ciach klienta\\n\n"
+"JeÅ›li wybraÅ‚eÅ› tÄ™ opcjÄ™, domyÅ›lna konfiguracja Caudium zostanie "
+"zmodyfikowana przez wyÅ‚Ä…czenie pewnych wÅ‚aÅ›ciwoÅ›ci ktÃ³re mogÄ… spowalniaÄ‡ "
+"twÃ³j serwer. WÅ‚aÅ›ciwoÅ›ci, ktÃ³re zostanÄ… wyÅ‚Ä…czone to:\\n\n"
+" - dodatkowa zgodnoÅ›Ä‡ z Roxen'em\\n\n"
+" - bezpieczeÅ„stwo na poziomie moduÅ‚Ã³w\\n\n"
+" - baza danych o wÅ‚aÅ›ciwoÅ›ciach klienta\\n\n"
 " - zapytania DNS\\n\n"
-" - modu³y typu URL"
+" - moduÅ‚y typu URL"
 
 #. Description
 #: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
-"Je¶li u¿ywasz którejolwiek z powy¿szych w³a¶ciwosci, NIE W£¡CZAJ tej opcji!"
+"JeÅ›li uÅ¼ywasz ktÃ³rejolwiek z powyÅ¼szych wÅ‚aÅ›ciwosci, NIE WÅÄ„CZAJ tej opcji!"
 
 #. Description
 #: ../templates:47
 msgid "Cannot bind to port."
-msgstr "Nie mo¿na otworzyæ portu"
+msgstr "Nie moÅ¼na otworzyÄ‡ portu"
 
 #. Description
 #: ../templates:47
@@ -131,8 +134,8 @@ msgid ""
 "properly without binding its configuration interface to a port on your "
 "system."
 msgstr ""
-"Port podany dla interfejsu konfiguracyjnego jest nieosi±galny. Proszê podaæ "
-"inny numer portu - Caudium nie mo¿e funkcjonowaæ prawid³owo bez pod³±czenia "
+"Port podany dla interfejsu konfiguracyjnego jest nieosiÄ…galny. ProszÄ™ podaÄ‡ "
+"inny numer portu - Caudium nie moÅ¼e funkcjonowaÄ‡ prawidÅ‚owo bez podÅ‚Ä…czenia "
 "interfejsu konfiguracyjnego do portu w twoim systemie."
 
 #. Description
@@ -148,10 +151,10 @@ msgid ""
 "using its web-based configuration interface. THIS IS VERY IMPORTANT since "
 "that step involves creation of administrative login/password."
 msgstr ""
-"Po zainstalowaniu i uruchomieniu Caudium nale¿y niezw³ocznie otworzyæ w "
-"przegl±darce obs³uguj±cej formularze adres http://localhost:${cfgport}/ aby "
-"dokoñczyæ konfiguracjê serwera przy u¿yciu interfejsu konfiguracyjnego. JEST "
-"TO NIEZMIERNIE WA¯NE gdy¿ ten krok zawiera tworzenie konta/has³a "
+"Po zainstalowaniu i uruchomieniu Caudium naleÅ¼y niezwÅ‚ocznie otworzyÄ‡ w "
+"przeglÄ…darce obsÅ‚ugujÄ…cej formularze adres http://localhost:${cfgport}/ aby "
+"dokoÅ„czyÄ‡ konfiguracjÄ™ serwera przy uÅ¼yciu interfejsu konfiguracyjnego. JEST "
+"TO NIEZMIERNIE WAÅ»NE gdyÅ¼ ten krok zawiera tworzenie konta/hasÅ‚a "
 "administracyjnego."
 
 #. Description
@@ -161,14 +164,14 @@ msgid ""
 "caudium directory and make sure to visit http://caudium.net/ and http://"
 "caudium.org/"
 msgstr ""
-"By uzyskaæ wiêcej informacji o Caudium proszê przeczytaæ dokumenty w "
-"katalogu /usr/share/doc/caudium i odwiedziæ strony http://caudium.net/ oraz "
+"By uzyskaÄ‡ wiÄ™cej informacji o Caudium proszÄ™ przeczytaÄ‡ dokumenty w "
+"katalogu /usr/share/doc/caudium i odwiedziÄ‡ strony http://caudium.net/ oraz "
 "http://caudium.org/"
 
 #. Description
 #: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
-msgstr "Czy u¿ywaæ experymentalnego modu³u HTTP?"
+msgstr "Czy uÅ¼ywaÄ‡ experymentalnego moduÅ‚u HTTP?"
 
 #. Description
 #: ../templates:69
@@ -179,11 +182,11 @@ msgid ""
 "problems running it. It is NOT recommended to run this code on a production "
 "server. If, however, you want to test its functionality, turn this option on."
 msgstr ""
-"Caudium zawiera eksperymentalny modu³ HTTP, który jest znacznie szybszy od "
-"standardowego. Kod ten, jednak¿e, jest jeszcze w fazie testowania, tak wiêc "
-"mog± wyst±piæ niewielkie problemy przy jego u¿ywaniu. Nie zaleca siê "
-"u¿ywania tego modu³u na \"¿ywym\" serwerze. Je¶li, jednak¿e, chcesz "
-"przetestowac ten modu³ odpowiedz TAK na powy¿sze pytanie."
+"Caudium zawiera eksperymentalny moduÅ‚ HTTP, ktÃ³ry jest znacznie szybszy od "
+"standardowego. Kod ten, jednakÅ¼e, jest jeszcze w fazie testowania, tak wiÄ™c "
+"mogÄ… wystÄ…piÄ‡ niewielkie problemy przy jego uÅ¼ywaniu. Nie zaleca siÄ™ "
+"uÅ¼ywania tego moduÅ‚u na \"Å¼ywym\" serwerze. JeÅ›li, jednakÅ¼e, chcesz "
+"przetestowac ten moduÅ‚ odpowiedz TAK na powyÅ¼sze pytanie."
 
 #. Description
 #: ../templates:79
@@ -199,17 +202,17 @@ msgid ""
 "probably not what you want. Please specify the login name below or accept "
 "the default value."
 msgstr ""
-"Nazwa u¿ytkownika wykorzystywana przy logowaniu siê do interfejsu "
-"konfiguracyjnego. Je¶li nie podasz niczego w polu poni¿ej ka¿da osoba, która "
-"otworzy stronê interfejsu konfiguracyjnego jako pierwsza, bêdzie mog³a "
-"ustawiæ login/has³o i przej±æ kontrolê nad zarz±dzaniem serwerem. "
-"Prawdopodobnie nie jest to twoim zamiarem. Proszê podaæ login w polu "
-"poni¿ej, lub zaakceptowaæ domy¶ln± warto¶æ."
+"Nazwa uÅ¼ytkownika wykorzystywana przy logowaniu siÄ™ do interfejsu "
+"konfiguracyjnego. JeÅ›li nie podasz niczego w polu poniÅ¼ej kaÅ¼da osoba, ktÃ³ra "
+"otworzy stronÄ™ interfejsu konfiguracyjnego jako pierwsza, bÄ™dzie mogÅ‚a "
+"ustawiÄ‡ login/hasÅ‚o i przejÄ…Ä‡ kontrolÄ™ nad zarzÄ…dzaniem serwerem. "
+"Prawdopodobnie nie jest to twoim zamiarem. ProszÄ™ podaÄ‡ login w polu "
+"poniÅ¼ej, lub zaakceptowaÄ‡ domyÅ›lnÄ… wartoÅ›Ä‡."
 
 #. Description
 #: ../templates:89
 msgid "Configuration interface password"
-msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
+msgstr "HasÅ‚o dostÄ™pu do interfejsu konfiguracyjnego."
 
 #. Description
 #: ../templates:89
@@ -218,5 +221,6 @@ msgid ""
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
 "below!"
 msgstr ""
-"Has³o dostêpu do interfejsu konfiguracyjnego. Domy¶ln± warto¶ci± has³a jest "
-"'password' - ZALECA siê zmianê domy¶lnej warto¶ci!"
+"HasÅ‚o dostÄ™pu do interfejsu konfiguracyjnego. DomyÅ›lnÄ… wartoÅ›ciÄ… hasÅ‚a jest "
+"'password' - ZALECA siÄ™ zmianÄ™ domyÅ›lnej wartoÅ›ci!"
+
