@@ -410,7 +410,12 @@ void init_logger()
 #endif
 }
 
-//! Print a debug message
+//! @appear report_debug
+//! Print a debug message in the servers's debug log.
+//! Shares argument prototype with @[sprintf()]
+//! @seealso
+//!  @[report_warning] @[report_notice] @[report_error]
+//!  @[report_fatal]
 void report_debug(string message, mixed ... args)
 {
   mixed error;
@@ -436,7 +441,12 @@ void report_debug(string message, mixed ... args)
 #endif
 }
 
-//! Print a warning
+//! @appear report_warning
+//! Print a warning messages, that will show up in the server's debug log and
+//! in the even logs, aloing with the yellow exclamation mark warning sign.
+//! Shares argument prototype with @[sprintf()]
+//! @seealso
+//!  @[report_debug] @[report_notice] @[report_error] @[report_fatal]
 void report_warning(string message, mixed ... args)
 {
   mixed error;
@@ -462,7 +472,12 @@ void report_warning(string message, mixed ... args)
 #endif
 }
 
-//! Print a notice
+//! @appear report_notice
+//! Print a notice message of some sort for the servers's debug log and event
+//! logs, along with the blue informational notification sign. Share argument
+//! prototype from @[sprintf()].
+//! @seealso
+//!  @[report_debug] @[report_warning] @[report_error] @[report_fatal]
 void report_notice(string message, mixed ... args)
 {
   mixed error;
@@ -488,7 +503,12 @@ void report_notice(string message, mixed ... args)
 #endif
 }
 
-//! Print an error message
+//! @appear report_error
+//! Print an error message, that will show up in the server's debug log
+//! and in the even logs, along with the red exclamation mark sign. Shares
+//! argument prototype with @[sprintf()]
+//! @seealso
+//!  @[report_debug] @[report_warning] @[report_notice] @[report_fatal]
 void report_error(string message, mixed ... args)
 {
   mixed error;
@@ -514,7 +534,10 @@ void report_error(string message, mixed ... args)
 #endif
 }
 
-//! Print a fatal error message
+//! @appear report_fatal
+//! Print a fatal error message. Shares argument prototype with @[sprintf()]
+//! @seealso
+//! @[report_debug] @[report_warning] @[report_notice] @[report_error]
 void report_fatal(string message, mixed ... args)
 {
   mixed error;
