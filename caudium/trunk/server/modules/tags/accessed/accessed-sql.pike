@@ -175,7 +175,14 @@ class SQLCounter {
   }
 
   int size() {
-    array x=db->query("SELECT count(*) from "+table);
+    mixed err;
+    array x;
+    err = catch {
+       x=db->query("SELECT count(*) from "+table);
+    };
+    if(err)
+      return 0;
+
     return (int)(x[0]["count(*)"])-1;
   }
 }
