@@ -116,7 +116,90 @@ string parse_html(mixed ... args) {
 
 //! Compat call of spider.parse_html_lines
 //! @deprecated
-string parser_html_lines(mixed ... args) {
+string parse_html_lines(mixed ... args) {
    WCOMPAT("spider","parse_html_lines");
    return spider.parse_html_lines(@args);
 }
+
+//! Compat call of spider.parse_accessed_database
+//! @deprecated
+mixed parse_accessed_database(mixed ... args) {
+   WCOMPAT("spider","parse_accessed_database");
+   return spider.parse_accessed_database(@args);
+}
+
+// some API calls thats are not used in current caudium.
+
+//!  Get the size in pixels of the file pointed to by the
+//!  object gif.
+//! @param gif
+//!  The opened Stdio.File object with the GIF image.
+//! @returns
+//!  The size of the image as a string in a format suitable for use
+//!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
+string gif_size(object gif)
+{
+  report_error("Compat gif_size() used in %s, please consider using Image.Dims functions instead\n",dbt(backtrace()[-2]));
+
+  array size;
+  mixed err;
+  
+  err = catch{
+  size = Image.Dims.get(gif);
+  };
+  if(err) return "";
+  else {
+    if(arrayp(size))
+      return "width=\""+size[0]+"\" height=\""+size[1]+"\"";
+    else
+      return "";
+  }
+  return "";
+}
+
+// Pike API compat (taken from pike 7.4 sources)
+
+//!   Instantiate a program (Pike 7.2 compatibility).
+//!
+//!   A new instance of the class @[prog] will be created.
+//!   All global variables in the new object be initialized, and
+//!   then @[lfun::create()] will be called with @[args] as arguments.
+//!
+//!   This function was removed in Pike 7.3, use
+//!   @code{((program)@[prog])(@@@[args])@}
+//!   instead.
+//!
+//! @deprecated
+//!
+//! @seealso
+//!   @[destruct()], @[compile_string()], @[compile_file()], @[clone()]
+//!
+object new(string|program prog, mixed ... args)
+{
+  report_error("Compat new() used in %s, please consider using Pike 7.4 (program) cast instead\n",dbt(backtrace()[-2]));
+  if(stringp(prog))
+  {
+    if(program p=(program)(prog, backtrace()[-2][0]))
+      return p(@args);
+    else
+      error("Failed to find program %s.\n", prog);
+  }
+  return prog(@args);
+}
+
+//! @decl object clone(string|program prog, mixed ... args)
+//!
+//!   Alternate name for the function @[new()] (Pike 7.2 compatibility).
+//!
+//!   This function was removed in Pike 7.3, use
+//!   @code{((program)@[prog])(@@@[args])@}
+//!   instead.
+//!
+//! @deprecated
+//!
+//! @seealso
+//!   @[destruct()], @[compile_string()], @[compile_file()], @[new()]
+
+function(string|program, mixed ... : object) clone = new;
+
+

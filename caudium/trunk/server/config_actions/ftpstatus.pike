@@ -1,4 +1,3 @@
-#pike 7.2
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2003 The Caudium Group
@@ -22,6 +21,7 @@
 
 /* $Id$ */
 
+inherit "compatlib";
 inherit "wizard";
 
 constant name= "Status//Current FTP sessions";
