@@ -1,0 +1,470 @@
+
+<!-- THIS-IS-INTERNAL-RXML-DOC-AUTOMATICLY-GENERATED-FROM-THE-MANUAL -->
+</dump-if>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table cellpadding=1 cellspacing=0 border=0>
+<tr>
+<td bgcolor=#113377 width=1%>
+
+
+
+<b><font color=#ffffff size=+3 >&nbsp;&lt;accessed&gt;&nbsp;</font></b>
+
+</td>
+<td>
+<img src=/internal-roxen-unit width=200 height=1 alt=""></td>
+</tr>
+
+<tr>
+<td bgcolor=black colspan=2>
+
+
+<table cellpadding=4 border=0 cellspacing=0 width=100%>
+<tr>
+<td bgcolor=#ffffff>
+
+
+
+<tt>&lt;accessed&gt;</tt> is defined in the <i>Main RXML parser</i> module.
+<p>
+<tt>&lt;accessed&gt;</tt> generates an access counter that shows how many
+times the page has been accessed. In combination with the
+<tt>&lt;gtext&gt;</tt>tag you can generate one of those popular graphical
+counters.
+
+<p>A file, <i>AccessedDB</i>, in the logs directory is used to
+store the number of accesses to each page. Thus it will use more
+resources than most other tags and can therefore be deactivated in the
+<i>RXML parser</i> module. By default the access count is
+only kept for files that actually contain an <tt>&lt;accessed&gt;</tt> tag,
+but that can also be configured.
+
+
+<br clear=all>
+<img src=/internal-roxen-unit width=1 height=10 alt="">
+
+</td>
+</tr>
+</table>
+
+
+<table cellpadding=4 border=0 cellspacing=0>
+<tr>
+<td bgcolor=#113377 width=1%>
+<font color=white>Attributes</font>
+</td>
+<td bgcolor=#ffffff>
+<img src=/internal-roxen-unit width=100% height=1 alt=""></td>
+</tr>
+<tr>
+
+<td bgcolor=#ffffff colspan=2>
+
+
+
+
+
+
+<a href="#add">add</a>,
+<a href="#addreal">addreal</a>,
+<a href="#capitalize">capitalize</a>,
+<a href="#cheat">cheat</a>,
+<a href="#factor">factor</a>,
+<a href="#file">file</a>,
+<a href="#lang">lang</a>,
+<a href="#lower">lower</a>,
+<a href="#per">per</a>,
+<a href="#prec">prec</a>,
+<a href="#reset">reset</a>,
+<a href="#silent">silent</a>,
+<a href="#upper">upper</a>,
+<a href="#since">since</a>,
+<a href="#type">type</a>,
+&nbsp;
+
+</td>
+</tr>
+</table>
+
+
+</td>
+</tr>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>
+<b><font color=#113377 size=+2 >Attributes</font></b>
+
+
+
+<dl>
+
+<p><dt><tt><b><a name="add">add</a></b></tt>=<i>number</i>
+<dd>
+Increments the number of accesses with this number instead of one,
+each time the page is accessed.
+
+
+
+
+<p><dt><tt><b><a name="addreal">addreal</a></b></tt>
+
+<dd>
+Prints the real number of accesses as an HTML comment. Useful if you
+use the <tt>cheat</tt> attribute and still want to keep track of the
+real number of accesses.
+
+
+
+<p><dt><tt><b><a name="capitalize">capitalize</a></b></tt>
+
+<dd>
+Capitalizes the first letter of the result.
+
+
+
+<p><dt><tt><b><a name="cheat">cheat</a></b></tt>=<i>number</i>
+<dd>
+Adds this number of accesses to the actual number of accesses before
+printing the result. If your page has been accessed 72 times and you
+add <doc><tt>{accessed cheat=100}</font></tt></doc> the result will be 172.
+
+
+
+
+<p><dt><tt><b><a name="factor">factor</a></b></tt>=<i>percent</i>
+<dd>
+Multiplies the actual number of accesses by the factor.
+
+
+
+
+<p><dt><tt><b><a name="file">file</a></b></tt>=<i>filename</i>
+<dd>
+Shows the number of times the page <i>filename</i> has been
+accessed instead of how many times the current page has been accessed.
+If the filename does not begin with "/", it is assumed to be a URL
+relative to the directory containing the page with the
+<tt>&lt;accessed&gt;</tt> tag. Note, that you have to type in the full name
+of the file. If there is a file named tmp/index.html, you cannot
+shorten the name to tmp/, even if you've set Challenger up to use
+index.html as a default page. The <i>filename</i> refers to the
+<b>virtual</b> filesystem.
+
+<p>One limitation is that you cannot reference a file that does not
+have its own <doc><tt>{accessed}</font></tt></doc> tag. You can use <doc><tt>{accessed
+silent}</font></tt></doc> on a page if you want it to be possible to count accesses
+to it, but don't want an access counter to show on the page itself.
+
+
+
+
+<p><dt><tt><b><a name="lang">lang</a></b></tt>=ca
+es_CA
+hr
+cs
+nl
+en
+fi
+fr
+de
+hu
+it
+jp
+mi
+no
+pt
+ru
+sr
+si
+es
+sv
+
+<dd>
+Will print the result as words in the chosen language if used together
+with <tt>type=string</tt>. Available languages are ca, es_CA
+(Catala), hr (Croatian), cs (Czech), nl (Dutch), en (English), fi
+(Finnish), fr (French), de (German), hu (Hungarian), it (Italian), jp
+(Japanese), mi (Maori), no (Norwegian), pt (Portuguese), ru (Russian),
+sr (Serbian), si (Slovenian), es (Spanish) and sv (Swedish).
+
+
+
+<dl>
+
+</dl>
+
+
+
+<p><dt><tt><b><a name="lower">lower</a></b></tt>
+
+<dd>
+Prints the result in lowercase.
+
+
+
+<p><dt><tt><b><a name="per">per</a></b></tt>=second
+minute
+hour
+day
+week
+month
+
+<dd>
+Shows the number of accesses per unit of time.
+
+
+
+<dl>
+
+</dl>
+
+
+
+<p><dt><tt><b><a name="prec">prec</a></b></tt>=<i>number</i>
+<dd>
+Rounds the number of accesses to this number of significant digits. If
+<tt>prec=2</tt> show 12000 instead of 12148.
+
+
+
+
+<p><dt><tt><b><a name="reset">reset</a></b></tt>
+
+<dd>
+Resets the counter. This should probably only be done under very
+special conditions, maybe within an <doc><tt>{if}</font></tt></doc> statement.
+
+<p>This can be used together with the file argument, but it is limited
+to files in the current- and sub-directories.
+
+
+
+<p><dt><tt><b><a name="silent">silent</a></b></tt>
+
+<dd>
+Print nothing. The access count will be updated but not printed. This
+option is useful because the access count is normally only kept for
+pages with actual <tt>&lt;access&gt;</tt> on them. <doc><tt>{accessed
+file=filename}</font></tt></doc> can then be used to get the access count for the
+page with the silent counter.
+
+
+
+<p><dt><tt><b><a name="upper">upper</a></b></tt>
+
+<dd>
+Print the result in uppercase.
+
+
+
+<p><dt><tt><b><a name="since">since</a></b></tt>
+
+<dd>
+Inserts the date that the access count started. The language will
+depend on the <tt>lang</tt> tag, default is English. All normal date
+related attributes can be used. See the <tt>&lt;date&gt;</tt> tag.
+
+
+
+<p><dt><tt><b><a name="type">type</a></b></tt>=number
+string
+roman
+iso
+discordian
+stardate
+
+<dd>
+Specifies how the count are to be presented. Some of these are only
+useful together with the <tt>since</tt> attribute.
+
+
+
+<dl>
+
+</dl>
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+<b><font color=#113377 size=+2 >Example</font></b>
+
+
+<table border=0 cellpadding=1 cellspacing=0 bgcolor=#000000>
+<tr>
+<td>
+<table border=0 cellspacing=0 cellpadding=4>
+ <tr>
+  <td valign=top bgcolor=#113377>
+   <font color=#ffffff><b>source code</b></font>
+  </td>
+  <td bgcolor=white>
+<pre><define name=foo>
+This page has been accessed
+<accessed type=string cheat=90 addreal>
+times since <accessed since>.
+</define>
+<insert name=foo "<"=&lt; ">"=&gt; ></pre>
+   <br clear=all>
+   <img src=/internal-roxen-unit width=1 height=1 alt="">
+  </td>
+ </tr>
+ <tr>
+  <td height=1 bgcolor=#113377><img src=/internal-roxen-unit width=1 height=1 alt=""></td>
+  <td height=1 bgcolor=#ffffff>
+
+   <table border=0 cellpadding=0 cellspacing=0 width=100%>
+    <tr>
+     <td bgcolor=#000000>
+     <img src=/internal-roxen-unit width=1 height=1 alt=""></td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+ <tr>
+  <td valign=top bgcolor=#113377>
+  <font color=#ffffff><b>result</b></font>
+</td>
+<td valign=top bgcolor=#ffffff>
+
+
+This page has been accessed
+<accessed type=string cheat=90 addreal>
+times since <accessed since>.
+
+
+   <br clear=all>
+   <img src=/internal-roxen-unit width=1 height=1 alt="">
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table><p>
+
+
+<if not cookie=rxml-help>
+
+</td></tr>
+</table>
+</body>
+</html>
+
+
