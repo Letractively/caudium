@@ -696,7 +696,7 @@ void pike_module_init( void )
   set_init_callback(alloc_buf_struct);
   set_exit_callback(free_buf_struct);
   end_class("ParseHTTP", 0);
-  init_nb_send();
+  init_nbio();
 }
 
 /* Restore and exit module */
@@ -708,6 +708,7 @@ void pike_module_exit( void )
   free_string(STRS(protocol));
   free_string(STRS(query));
   free_string(STRS(raw_url));
+  exit_nbio();
 }
 
 /*
