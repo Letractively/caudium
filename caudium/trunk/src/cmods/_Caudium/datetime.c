@@ -57,6 +57,7 @@ RCSID("$Id$");
 
 #include "caudium.h"
 #include "getdate.h"
+#include "datetime.h"
 
 static struct pike_string *gd_bad_format;
 
@@ -74,7 +75,7 @@ struct
 {
   char           *fmt;
   unsigned char   is_anal;
-} *is_modified_formats[] = {
+} is_modified_formats[] = {
   {"%a, %d %b %Y %H:%M:%S", 0}, /* RFC1123 */
   {"%A, %d %b %y %H:%M:%S", 0}, /* RFC850 */
   {"%a %b %d %H:%M:%S %Y", 0}, /* ANSI C asctime() format */
@@ -85,7 +86,7 @@ struct
   {"%d %b %Y %H:%M:%S", 1},
   {"%d %b %Y %H:%M:%S", 1},
   {"%d %b %y %H:%M:%S", 1},
-  {NULL, 0, 0},
+  {NULL, 0},
 };
 
 /*! @decl int strptime(string date, string format)
@@ -313,7 +314,7 @@ static void f_getdate(INT32 args)
 
   if (err || !tmptr) {
     push_int(err);
-    if (err > sizeof(getdate_errors) - 1 || err < 1)
+    if ((unsigned int)err > sizeof(getdate_errors) - 1 || err < 1)
       push_string(getdate_errors[0]);
     else
       push_string(getdate_errors[err]);
@@ -353,7 +354,7 @@ static void f_parse_date(INT32 args)
   get_all_args("parse_date", args, "%S", &date);
   pop_n_elems(args);
 
-  ret = get_date(date->str);
+  ret = get_date(date->str, NULL);
   if (ret < 0)
     push_string(gd_bad_format);
   else
@@ -364,6 +365,10 @@ static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
   int                   tmod, use_weird, i;
+#ifdef HAVE_STRPTIME  
+  struct tm             ttm;
+  time_t                ret;
+#endif
   
   get_all_args("is_modified", args, "%S%u%u", &header, &tmod, &use_weird);
   pop_n_elems(args);
@@ -372,7 +377,6 @@ static void f_is_modified(INT32 args)
   i = 0;
   while(is_modified_formats[i].fmt) {
     char      *tmp;
-    struct tm  ttm;
     
     if (!is_modified_formats[i].is_anal || use_weird)
       if (strptime(header->str, is_modified_formats[i].fmt, &ttm))
@@ -399,7 +403,7 @@ static void f_is_modified(INT32 args)
     push_string(gd_bad_format);
   
 #else
-  ret = get_date(header->str);
+  ret = get_date(header->str, NULL);
   if (ret < 0)
     push_string(gd_bad_format);
   else
@@ -421,7 +425,7 @@ void init_datetime(void)
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
   MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
   
-  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid)), 0);
+  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
 #endif
   
 #ifdef HAVE_STRPTIME
