@@ -32,6 +32,7 @@ constant cvs_version="$Id$";
 
 void create()
 {
+  Caudium.unload_program("utils");
   Caudium.unload_program("modules/filesystems/filesystem");
 
  // ::create();
