@@ -48,7 +48,7 @@ constant module_name = ".htaccess support";
 constant module_doc  = "Almost complete support for NCSA/Apache .htaccess files. See "
 	      "<a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information."
 		       "Manual is also <a href=\"http://manuals.oav.net/creator/security/index.html\">"
-		       ">available</a>.";
+		       "available</a>.";
 constant module_unique = 1;
 // constant thread_safe = 1;	// Is this module thread safe or not ?
 
