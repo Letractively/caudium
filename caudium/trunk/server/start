@@ -123,6 +123,8 @@ parse_args() {
    FILES=`echo $1 | sed -e's/--config-dir=//' -e's/\.//g' -e's./..g' -e 's.-..g'`
 #override setting of FILES through --program:
    config_dir=1
+   CAUDIUM_CONFIGDIR="$DIR"
+   export CAUDIUM_CONFIGDIR
   ;;
   --pike-version=*)
    pikever=`echo $1 | sed -e 's/--pike-version=//'`
@@ -182,8 +184,8 @@ parse_args() {
     DEFINES="$DEFINES $1"
   ;;
   '--version')
-    VERSION=`sed <base_server/roxen.pike -e'/__caudium_version__/s/[^0-9.]*//gp' -ed|head -1`
-    BUILD=`sed <base_server/roxen.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`
+    VERSION=`sed <base_server/caudium.pike -e'/__caudium_version__/s/[^0-9.]*//gp' -ed|head -1`
+    BUILD=`sed <base_server/caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`
     echo Caudium $VERSION.$BUILD
     exit 0
   ;;
