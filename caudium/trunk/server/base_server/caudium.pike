@@ -176,6 +176,9 @@ private static void really_low_shutdown(int exit_code)
     catch(destruct(f[i]));
 #else /* !constant(fork) || constant(thread_create) */
 
+  /* Shutdown the cache */
+  shut_down_cache();
+
   // FIXME:
   // Should probably attempt something similar to the above,
   // but this should be sufficient for the time being.
@@ -203,15 +206,6 @@ private static void low_shutdown(int exit_code)
 #endif
   stop_all_modules();
 
-  // Not sure if this is the right place for this - does anyone want to enlighten me?
-#ifdef CACHE_DEBUG
-  roxen_perror( "Calling shutdown on all caches: " );
-#endif
-  cache_manager->stop();
-#ifdef CACHE_DEBUG
-  roxen_perror( "done." );
-#endif
-  
   if(main_configuration_port && objectp(main_configuration_port))
   {
     // Only _really_ do something in the main process.
@@ -236,8 +230,6 @@ private static void low_shutdown(int exit_code)
 	roxen_perror("cannot open shutdown file.\n");
       else f->write(""+getpid());
 #endif /* USE_SHUTDOWN_FILE */
-
-      shut_down_cache();
 
       // Try to kill the start-script.
       if(startpid != getpid())
