@@ -198,7 +198,7 @@ class SiteChecker
 		flex_write("GET request to "+url+" "+(string)port+"\n");
 
 		conn->set_nonblocking();
-		conn->set_read_callback(get_response_received);
+		conn->set_read_callback(GET_response_received);
 		conn->write("GET / HTTP/1.0\r\n");
 		conn->write("Host: "+url+"\r\n");
 		conn->write("User-Agent: Caudium_Watchdog ("+(string)getpid()+") (Pike/"+pikever+" "+CaudiumVersion.real_version+")\r\n");
@@ -207,7 +207,7 @@ class SiteChecker
 	}
 
 	//! Callback called when some data is received
-	void get_response_received(mixed id, string data)
+	void GET_response_received(mixed id, string data)
 	{
 		// we are now not at the first request.
 		first_ping=0;
@@ -1009,6 +1009,9 @@ void get_watchdog_params()
      if(cfg->watchdog_method)
 		   watchdog_params->method=cfg->watchdog_method;
 
+			if(cfg->watchdog_checkall)
+				watchdog_params->checkall=cfg->watchdog_checkall;
+
   }
 
   array srvrs=get_servers() || ({});
@@ -1135,17 +1138,17 @@ void check_sites()
 {
 	switch(watchdog_params->method)
 	{
-		case "get":
-			check_using_get();
+		case "GET":
+			check_using_GET();
 			break;
 
 		default:
-			check_using_ping();
+			check_using_PING();
 	}
 }
 
 // Check site using PING
-void check_using_ping()
+void check_using_PING()
 {
   if(in_check)
     flex_write("Watchdog is already in a check... skipping.\n");
@@ -1184,7 +1187,7 @@ void check_using_ping()
     }
     // let's send the request and wait for a response.
     conn->set_nonblocking();
-    conn->set_read_callback(ping_response_received);
+    conn->set_read_callback(PING_response_received);
     conn->write("PING\r\n");
     cs_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
   }
@@ -1193,7 +1196,7 @@ void check_using_ping()
 }
 
 // Check site using GET
-void check_using_get()
+void check_using_GET()
 {
   if(in_check)
     flex_write("Watchdog is already in a check... skipping.\n");
@@ -1204,8 +1207,17 @@ void check_using_get()
     // we have a site to check.    
 
 		int current_site = 0;
- 
-		foreach(watchdog_params->sites, array site)
+
+		array sites_to_check = ({ });
+
+		// Do we want to check all the virtual servers or only the first one?
+		if(watchdog_params->checkall)
+			sites_to_check = watchdog_params->sites;
+		else
+			sites_to_check = ({ watchdog_params->sites[0] });
+
+		// Do the check for all virtual servers we want to
+		foreach(sites_to_check, array site)
 		{
 			flex_write("Checking #"+current_site+" "+site[0]+":"+site[1]+"\n");
 
@@ -1231,7 +1243,7 @@ void check_using_get()
 
 
 //! Handle data received from watchdog's PING request
-void ping_response_received(mixed id, mixed data)
+void PING_response_received(mixed id, mixed data)
 {
   // we are now not at the first request.
   first_ping=0;
