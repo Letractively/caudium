@@ -133,7 +133,7 @@ inherit Thread.Mutex;
 #define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {
-  defvar("exts", ({ "js", "jsc" }), "Extensions", TYPE_STRING_LIST,
+  defvar("exts", ({ "jss", "jsc" }), "Extensions", TYPE_STRING_LIST,
 	 "The extensions to parse as stand-alone JavaScripts.");
   defvar("jscexts", ({ "jsc" }), "Precompiled script extensions",
 	 TYPE_STRING_LIST,
@@ -381,8 +381,11 @@ array(string)|string pi_javascript(string tag, string js_source, object id)
   NOCACHE();
   string bytecode;
   string key = get_key_from_data(js_source, 1);
-  js = JavaScript.Interpreter(id, options); /* init interpreter */
-  add_var_scopes(id, js); /* register variable scopes */
+  if(!js = id->misc->_javascript_interpreter) {
+    js = JavaScript.Interpreter(id, options); /* init interpreter */
+    add_var_scopes(id, js); /* register variable scopes */
+    id->misc->_javascript_interpreter = js;
+  } 
   if(!id->pragma["no-cache"]) bytecode = cache_lookup("js_byte_code", key);
   if(!bytecode) {
     err = catch(bytecode = do_js_compile_and_cache(js_source, id, key));
