@@ -1,6 +1,8 @@
 #! /bin/sh
 # prerm script for caudium
 #
+# $Id$
+#
 # see: dh_installdeb(1)
 
 set -e
@@ -24,6 +26,8 @@ case "$1" in
 	if [ -d /usr/lib/caudium/caudium-images/auto ]; then
 	    rm -rf /usr/lib/caudium/caudium-images/auto
 	fi
+	update-alternatives --remove htpasswd /usr/bin/htpasswd-caudium
+
         ;;
     failed-upgrade)
         ;;

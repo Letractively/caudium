@@ -36,7 +36,7 @@ case "$1" in
   start)
 	echo -n "Starting $DESC: "
 	cd $DAEMON_DIR
-	$DAEMON $START_OPTIONS > /dev/null
+	$DAEMON $DEFSTART_OPTIONS $START_OPTIONS > /dev/null
 	echo "$NAME."
 	;;
   stop)

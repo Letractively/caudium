@@ -1,5 +1,7 @@
 #! /bin/sh
 # postinst script for caudium
+# 
+# $Id$
 #
 # see: dh_installdeb(1)
 
@@ -28,11 +30,16 @@ CAUDIUM_PIKE=/usr/lib/caudium/base_server/caudium.pike
 case "$1" in
     configure)
 
+    update-alternatives --install /usr/bin/htpasswd  htpasswd \
+				  /usr/bin/htpasswd-caudium 10 \
+			--slave /usr/share/man/man1/htpasswd.1.gz \
+			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
+
     db_get caudium/config_port
     if test -n "$RET" -a "$RET" != "22202"; then
         CONFIG_PORT="$RET"
-	$(sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new) \
-	  && mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
+	sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new && \
+	mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
     fi
 
     db_get caudium/listen_on
@@ -58,7 +65,7 @@ case "$1" in
 	esac
     done
     if test -n "$START_OPTIONS"; then
-	cat <<EOF > /etc/caudium
+	cat <<EOF > /etc/caudium/start_options
 #
 # This variable will be joined with the default
 # Caudium startup options in the init script
@@ -66,7 +73,7 @@ case "$1" in
 # For available options type
 # /usr/lib/caudium/start --help
 #
-START_OPTIONS=$START_OPTIONS
+START_OPTIONS="$START_OPTIONS"
 EOF
     fi
 
@@ -77,16 +84,61 @@ EOF
 	mv /usr/lib/caudium/protocols/http.new /usr/lib/caudium/protocols/http.pike
     fi
         
+
+    
+# -----------------------
+if [ ! -f /var/www/index.html ]; then
+    cat<<EOT > /var/www/index.html
+<html>
+<head><title>Welcome to Your New Home Page!</title></head>
+
+<body>
+<h1>Welcome to Your New Home Page!</h1>
+
+<!-- Most of the text is stolen from the Apache package (and then from the Roxen package :) -->
+
+  <p>This is the default web page installed by the Debian package of the Caudium Webserver.
+  It is the responsibility of the administrator of the machine to replace it with
+  a local page.
+
+  <p><strong>If you encounter this page when you were expecting some other content, you
+  should report it to the administrator of the machine.</strong> Please note that
+  this machine is not affiliated with Debian. Debian is software installed on the
+  machine. Do not report problems with this site to Debian.
+
+  <p>Debian is a free operating system for your computer.
+  See our <a href="http://www.debian.org/"> web page</a> for more information.
+  Information about the Caudium Webserver can be found on
+  <a href="http://caudium.net/">their home page</a>.
+<!--  For information and downloading The Debian package of Roxen please take a look at the
+  <a href="http://www.debian.org/Packages/stable/web/roxen.html">Roxen package page</a>. -->
+
+Unless you changed its configuration, the server is configured as follows:<p>
+
+<ul>
+<li> Configuration files can be found in /etc/caudium and /etc/caudium/servers .
+<li> The DocumentRoot, which is the directory under which all your HTML files should exist, is set to /var/www.
+<li> CGI scripts are looked for in /usr/lib/cgi-bin, which is where Debian packages will place their scripts.
+<li> Log files are placed in /var/log/caudium, and will be rotated monthly.
+<li> The default directory index is index.html, meaning that requests for a directory /foo/bar/ will give the contents of
+       the file /var/www/foo/bar/index.html if it exists (assuming that /var/www is your DocumentRoot).
+<li> User directories are enabled, and user documents will be looked for in the public_html directory of the users' homes.
+</ul>
+<hr width="75%">
+<center>
+<pr size="medium" color="blue">
+</center>
+</body>
+</html>
+EOT
+fi
     db_stop
+    
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
     db_stop
     
-    update-alternatives --install /usr/bin/htpasswd  htpasswd \
-				  /usr/bin/htpasswd-caudium 1 \
-			--slave /usr/share/man/man1/htpasswd.1.gz \
-			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
     ;;
 
     *)
