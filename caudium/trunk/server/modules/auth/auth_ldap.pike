@@ -493,6 +493,8 @@ private int|object get_user_object(object dir, string user)
    {
      report_error("LDAPAuth: Search failed for query " + userdn + "\n", 
        dir->error_string());
+     close_dir(dir);
+     return 0;
    }
 
    if(sr->num_entries()==0)
@@ -570,7 +572,7 @@ int authenticate (string user, string password)
     userdn=sr->get_dn();
 
     // in case we are bound already.
-    dir->unbind();
+//    dir->unbind();
 
     res=dir->bind(userdn, password);
 
