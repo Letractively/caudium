@@ -12,6 +12,10 @@ if test "$ac_cv_lib_m_floor" != "yes"; then
   AC_CHECK_LIB(m, ceil)
 fi
 
+dnl FreeBSD of Sablot + Expart uses iconv lib 
+dnl when linking
+AC_CHECK_LIB(iconv, iconv)
+
 AC_CHECK_HEADERS( sablot.h )
 echo $LIBS
 dnl No need to continue unless the header is found...
