@@ -254,6 +254,11 @@ void init_ip_list()
  
   array new_ip_number_list = ({ "ANY",  });
  
+#if constant(Caudium.getip)
+  foreach(values(_Caudium.getip()), string ip) {
+    new_ip_number_list |= ({ to_hostname(ip) });
+  }
+#else /* constant(Caudium.getip) */
   if(!ifconfig) ifconfig = "ifconfig";
 
   // LINUX
@@ -285,6 +290,7 @@ void init_ip_list()
       new_ip_number_list |= ({ to_hostname(ip) });
     }
   }
+#endif /* constant(Caudium.getip) */
     
   sort(new_ip_number_list);
   if(sizeof(new_ip_number_list) == 2)
