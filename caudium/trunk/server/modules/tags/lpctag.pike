@@ -255,9 +255,9 @@ mapping query_container_callers()
 //!<li><i>Log</i> - System debug log.</li>
 //!<li><i>HTML comment</i> - Include in the generated page as an HTML comment.</li>
 //!<li><i>HTML text</i> - Include in the generated page as normal text.</li>
-//!</ul>
+//!</ul></p>
 //!
-//!  type: TYPE_STRING_LIST|VAR_MORE
+//!  type: TYPE_STRING_LIST
 //!  name: Error messages
 //
 //! defvar: program_cache_limit
