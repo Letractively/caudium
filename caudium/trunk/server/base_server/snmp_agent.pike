@@ -68,6 +68,11 @@ void create(object c)
   agent->set_threaded();
 #endif
   agent->set_get_communities(({GLOBVAR(snmp_get_community)}));
+
+  // if we allow set access, let it be done here
+  if(GLOBVAR(snmp_set_community) && GLOBVAR(snmp_set_community)!="")
+    agent->set_set_communities(({GLOBVAR(snmp_set_community)}));
+
   agent->set_managers_only(0);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.1", snmp_get_server_version);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.2", snmp_get_server_boottime);
@@ -79,6 +84,9 @@ void create(object c)
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.8", snmp_get_server_average_requests);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.9", snmp_get_server_average_received);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.10", snmp_get_server_average_sent);
+
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.1", snmp_set_server_shutdown);
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.2", snmp_set_server_restart);
 
   sent_history=ADT.History(5);
   received_history=ADT.History(5);
@@ -177,6 +185,36 @@ array snmp_get_server_average_sent(string oid, mapping rv)
   sent=ave(sent_history);
 
   return ({1, "count64", sent});
+}
+
+//! Restart the server for oid 101.2
+array snmp_set_server_restart(string oid, mixed val, mapping req)
+{
+  if(val=="1" || val==1)
+  {
+    call_out(caudium->restart, 5);
+    return({1, "str", "Restart Scheduled"});
+  }
+
+  else
+  {
+    return ({0, Protocols.SNMP.ERROR_BADVALUE});
+  }
+}
+
+//! Shutdown the server for oid 101.1
+array snmp_set_server_shutdown(string oid, mixed val, mapping req)
+{
+  if(val=="1" || val==1)
+  {
+    call_out(caudium->shutdown, 5);
+    return({1, "str", "Shutdown Scheduled"});
+  }
+
+  else
+  {
+    return ({0, Protocols.SNMP.ERROR_BADVALUE});
+  }
 }
 
 void destroy()

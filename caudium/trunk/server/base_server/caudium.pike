@@ -2308,6 +2308,9 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("snmp_get_community", "public", "SNMP Agent: Get Community", TYPE_STRING,
         "The community to enable get access.");
 
+  globvar("snmp_set_community", "", "SNMP Agent: Set Community", TYPE_STRING,
+        "The community to enable set access.(Leave empty to disable set access.)");
+
   globvar("snmp_port", 161, "SNMP Agent: Listen Port", TYPE_INT,
         "The port to start the SNMP listener on. Caudium must be "
         "started as super user to start the listener on a port less than "
