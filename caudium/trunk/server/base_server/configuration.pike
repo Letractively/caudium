@@ -2227,7 +2227,7 @@ public array open_file(string fname, string mode, object id)
     mode -= "R";
     if(f = real_file(fname, id))
     {
-      //      werror("opening "+fname+" in raw mode.\n");
+      //      report_debug("opening "+fname+" in raw mode.\n");
       return ({ open(f, mode), ([]) });
     }
 //     return ({ 0, (["error":302]) });
@@ -3803,8 +3803,8 @@ void enable_all_modules()
   array err;
   inited = 1;
   if(err = catch { low_enable_all_modules();  })
-    werror("Error while loading modules in configuration "+
-           name+":\n"+ describe_backtrace(err)+"\n");
+    report_notice("Error while loading modules in configuration "+
+                  name+":\n"+ describe_backtrace(err)+"\n");
   
 }
 
