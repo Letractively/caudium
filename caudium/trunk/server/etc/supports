@@ -112,11 +112,15 @@ mozilla/[5-9].*applewebkit/[4-8].*safari/[4-8].*	java, javascript, stylesheets, 
 				konqueror3, safari
 
 
-# Omniweb browser Mac OS X Brownser only (http://www.omnigroup.com)
+# Omniweb browser Mac OS X Browser only (http://www.omnigroup.com)
 mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				omniweb
+
+# SecuritySpace WebSurvey crawler masqueraded as mozilla
+# http://www.securityspace.com/s_survey/data/index.html
+.*securityspace.* robot securityspace
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
