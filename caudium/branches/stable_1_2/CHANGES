@@ -1,3 +1,8 @@
+Changes in Caudium 1.2.xx since 1.2.16
+--------------------------------------
+
+- Added RXML parse option in Uniscript, thanks to Wim Bonis <bonis at bonis.de>
+
 Changes in Caudium 1.2.16 since 1.2.14
 --------------------------------------
 
