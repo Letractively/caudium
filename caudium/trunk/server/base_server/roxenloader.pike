@@ -107,6 +107,10 @@ int getppid()
 int use_syslog, loggingfield;
 #endif
 
+#if !constant(mark_fd)
+mixed mark_fd(mixed ... args) { }
+#endif
+
 /*
  * Some efuns used by Roxen
  */
@@ -712,6 +716,9 @@ int main(mixed ... args)
   add_constant("init_logger", init_logger);
   add_constant("open", open);
   add_constant("mkdirhier", mkdirhier);
+#if !constant(mark_fd)
+  add_constant("mark_fd", lambda(mixed ... args) { } );
+#endif
 
   initiate_cache();
   load_roxen();

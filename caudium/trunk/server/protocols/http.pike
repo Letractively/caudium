@@ -382,6 +382,7 @@ private int parse_got(string s)
 
   if(sizeof(s)) {
 #if constant(Caudium.parse_headers)
+    write("%O\n", s);
     request_headers = Caudium.parse_headers(s);
 
     foreach(indices(request_headers), string linename) {
