@@ -23,7 +23,7 @@
  * Wizard tag module, mainly written by Per Hedbor.
  */
 
-//! module: Advanced Wizard
+//! module: Wizard Generator
 //!  This module contains code that implements basic wizard dialogs.
 //! type: MODULE_PARSER
 //! cvs_version: $Id$ 
