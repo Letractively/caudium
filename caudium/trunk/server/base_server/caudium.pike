@@ -2283,7 +2283,7 @@ class ImageCache
   void create(string id, function draw_func, string|void d)
   {
     if(!d)
-      d = caudiump()->QUERY(argument_cache_dir);
+      d = Stdio.append_path(caudiump()->QUERY(cachedir), "args");
     
     if(d[-1] != '/')
       d+="/";
