@@ -168,6 +168,8 @@ string not_query;
 string extra_extension = ""; // special hack for the language module
 string data, leftovers;
 
+//! @deprecated
+//!
 //! The array containing the authentication information. The format in case
 //! the authentication module is present is as follows:
 //!
@@ -594,31 +596,8 @@ private int parse_got()
 	y = rawauth / " ";
 	if(sizeof(y) < 2) break;
 
-        // y[0] == auth type, typically "Basic"
-        // y[1] == username:password
-	y[1]     = decode(y[1]);
-	realauth = y[1];
-	if(conf && conf->auth_module)
-        {
-          if(y[0]=="Basic") // we can handle basic authentication right now.
-          {
-            int res;
-            array a=y[1]/":";
-            res = conf->auth_module->authenticate(a[0], a[1]);
-            if(res==1) // successful authentication
-            {
-               auth=({1, a[0], 0});
-               // should we really do this? will caching be fast enough?
-               user=conf->auth_module->user_info(a[0]);
-            }
-            else // failed authentication
-            {
-               auth=({0, a[0], a[1]});
-            }
-          }
-        }
-        else // we don't have an authentication handler, so just give 'em the raw data.
-          auth = y;
+        low_handle_authorization(y);
+
 	break;
 	  
        case "proxy-authorization":
@@ -627,6 +606,7 @@ private int parse_got()
 	  break;
 	y[1] = decode(y[1]);
 
+        // note: can we modify this to use low_handle_authorization()?
 	if(conf && conf->auth_module)
         {
           if(y[0]=="Basic") // we can handle basic authentication right now.
@@ -957,6 +937,46 @@ string link_to(string file, int line, int eid, int qq)
 	  "line="+line+"#here\">");
 }
 
+//! low handle authentication
+//! @param y
+//!    an array containing authentication string ala http authorization 
+//!    header. Element 0 is a string describing the authentication type,
+//!    typically "Basic", which is all we handle right now.
+//!    element 2 is a base64 encoded string containing username:password
+//!
+//! @returns
+//!    nothing, but will set user and auth if authentication was successful.
+void low_handle_authorization(array y)
+{
+  if(sizeof(y)!=2) return;
+
+  // y[0] == auth type, typically "Basic"
+  // y[1] == username:password
+  y[1]     = decode(y[1]);
+  realauth = y[1];
+  if(conf && conf->auth_module)
+  {
+    if(y[0]=="Basic") // we can handle basic authentication right now.
+    {
+      int res;
+       array a=y[1]/":";
+       res = conf->auth_module->authenticate(a[0], a[1]);
+       if(res==1) // successful authentication
+       {
+         auth=({1, a[0], 0});
+         // should we really do this? will caching be fast enough?
+         user=conf->auth_module->user_info(a[0]);
+        }
+        else // failed authentication
+        {
+          auth=({0, a[0], a[1]});
+        }
+      }
+    }
+    else // we don't have an authentication handler, so just give 'em the raw data.
+      auth = y;
+  return
+}
 
 string format_backtrace(array bt, int eid)
 {
