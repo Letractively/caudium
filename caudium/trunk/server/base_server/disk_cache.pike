@@ -388,7 +388,7 @@ public void reinit_garber()
   if(!sscanf(QUERY(cachedir), "%*s/roxen_cache"))
     QUERY(cachedir)+="roxen_cache/";
   
-  mkdirhier(QUERY(cachedir)+"logs/oo");
+  Stdio.mkdirhier(QUERY(cachedir)+"logs/oo");
   if(Stdio.file_size(QUERY(cachedir)+"logs")>-2)
   {
     report_error("Cache directory ("+QUERY(cachedir)+") cannot be"
@@ -619,7 +619,7 @@ object create_cache_file(string cl, string entry)
   // to reduce IO-load try open before making directories
   if(!(cf=open(rfile, "rwcx")))
   {
-    mkdirhier(rfile);
+    Stdio.mkdirhier(rfile);
 
     for(i=10; i>=0; i--) {
       if(cf=open(rfile, "rwcx"))

@@ -56,7 +56,7 @@ array (string) list_all_configurations()
   fii=get_dir(configuration_dir);
   if(!fii)
   {
-    mkdirhier(configuration_dir+"test", 0700); // removes the last element..
+    Stdio.mkdirhier(configuration_dir+"test", 0700); // removes the last element..
     fii=get_dir(configuration_dir);
     if(!fii)
     {

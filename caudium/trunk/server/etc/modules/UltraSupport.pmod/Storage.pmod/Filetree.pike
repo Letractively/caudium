@@ -76,7 +76,7 @@ void create(string _path)
 {
   path = _path;
   if(!strlen(path) || path[-1] != '/')  path+= "/";
-  Util.mkdirhier(path);
+  Stdio.mkdirhier(path);
   get_available_dates();
 }
 
@@ -160,7 +160,7 @@ void save(string table, mixed data)
       Stdio.write_file(path+"available_dates", encode_value(available));
     }
   }
-  Util.mkdirhier(key);
+  Stdio.mkdirhier(key);
   rm(key+table);
   Stdio.write_file(key+table, Util.compress(encode_value(data)));
   modified = 1;

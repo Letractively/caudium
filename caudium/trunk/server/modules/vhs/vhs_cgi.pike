@@ -62,7 +62,7 @@ Stdio.File open_log_file( string logfile )
     object lf=Stdio.File( logfile, "wac");
     if(!lf) 
     {
-      mkdirhier(logfile);
+      Stdio.mkdirhier(logfile);
       if(!(lf=Stdio.File( logfile, "wac")))
       {
         report_error("Failed to open logfile. ("+logfile+"): "

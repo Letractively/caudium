@@ -768,9 +768,9 @@ void main(int argc, string *argv)
   } while( strlen( tmp = read_string(rl, "Are the settings above correct [Y/n]?", 0) ) && lower_case(tmp)[0]=='n' );
 
 
-  mkdirhier("../local/modules/");
-  mkdirhier(var_dir);
-  mkdirhier(log_dir);
+  Stdio.mkdirhier("../local/modules/");
+  Stdio.mkdirhier(var_dir);
+  Stdio.mkdirhier(log_dir);
   write(sprintf("\nStarting Caudium on %s%s:%d/ ...\n\n",
 		prot_spec, host, port));
   

@@ -2595,7 +2595,7 @@ class FTPSession
 #endif
             seteuid((int)fullauth[2]);
             setegid((int)fullauth[3]);
-            if(mkdirhier(homedir))
+            if(Stdio.mkdirhier(homedir))
               created = 1;
             if(objectp(privs))
               destruct(privs);

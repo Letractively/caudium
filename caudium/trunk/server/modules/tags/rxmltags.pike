@@ -353,7 +353,7 @@ void start()
   if(olf != QUERY(Accesslog))
   {
     olf = QUERY(Accesslog);
-    mkdirhier(query("Accesslog"));
+    Stdio.mkdirhier(query("Accesslog"));
     if(names_file=open(olf+".names", "wrca"))
     {
       cnum=0;

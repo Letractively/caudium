@@ -42,7 +42,7 @@ void create(object c)
 
 void start()
 {
-  mkdirhier(query("cache-dir")+"foo");
+  Stdio.mkdirhier(query("cache-dir")+"foo");
 }
 #endif // __VERSION__ > 0.5
 
