@@ -34,7 +34,7 @@ class DB {
 
   static private int timeout = 0;		// Timeout to close the
 						// DB.
-  static private string sqlurl;			// The SqlURL
+  static private string dburl;			// The SqlURL
   object id;					// The Caudium Id
 
   //!  Create and open the database
@@ -59,7 +59,7 @@ class DB {
   //! @returns
   //!  Nothing directly, used internally only
   void close_db() {
-   if((time(1)-last_db_access) > timeout {
+   if((time(1)-last_db_access) > timeout) {
      db = 0;
      db_close++;
      return;
