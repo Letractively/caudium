@@ -17,7 +17,7 @@ fi
 
 AC_CHECK_LIB(sablot, SablotProcess)
 
-AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
+AC_OUTPUT(Makefile.pre pixsl, [make -f Makefile.pre depend])
 
 
 dnl ## Local Variables:
