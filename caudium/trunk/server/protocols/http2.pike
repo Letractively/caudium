@@ -262,7 +262,7 @@ inline void do_post_processing()
             {
               auth=({1, a[0], 0});
               // should we really do this? will caching be fast enough?
-              user=conf->auth_module->user_info(a[0]);
+              //user=conf->auth_module->user_info(a[0]);
             }
           else // failed authentication
           {
