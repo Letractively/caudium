@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Stdio.mkdirhier() used everywhere. 
+  *COMPAT Warning* Direct calls to mkdirhier() work only when API_COMPAT
+  is set.
 - Caudium.http_date() used instead of Pike's base_server/http.pike one.
   *COMPAT Warning* Direct calls to http_date() work only when API_COMPAT
   is set.

@@ -946,9 +946,9 @@ int main(int argc, array(string) argv)
   add_constant("report_fatal", report_fatal);
   add_constant("init_logger", init_logger);
   add_constant("open", open);
-  add_constant("mkdirhier", Stdio.mkdirhier);
 #ifdef API_COMPAT
   // Old API functions
+  add_constant("mkdirhier", Stdio.mkdirhier);
   add_constant("http_decode_string", _Roxen.http_decode_string);
   add_constant("html_encode_string", _Roxen.html_encode_string);
 //  add_constant("http_encode_string", Protocols.HTTP.http_encode_string);
