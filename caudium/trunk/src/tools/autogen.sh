@@ -1,4 +1,11 @@
 #!/bin/sh
 
-autoheader
-autoconf 
+# FreeBSD specify hack
+if [ -x /usr/local/bin/autoconf213 ];
+then
+  autoconf213 
+  autoheader213
+else
+  autoconf
+  autoheader
+fi
