@@ -22,6 +22,9 @@
 
 //! This module will handle all HTTP related things.
 
+//!
+constant cvs_version = "$Id$";
+
 //!  Return the specified date (as returned by time()) formated in the 
 //!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
 //! @param t
