@@ -618,9 +618,9 @@ mapping|string|int htaccess(mapping access, object id)
     {
       if(id->remoteaddr)
       {
-	if(!((hname=roxen->quick_ip_to_host(id->remoteaddr)) && 
+	if(!((hname=caudium->quick_ip_to_host(id->remoteaddr)) && 
 	     hname != id->remoteaddr))
-	  hname = roxen->blocking_ip_to_host(id->remoteaddr);
+	  hname = caudium->blocking_ip_to_host(id->remoteaddr);
       }
     
       if(!hname)

@@ -58,7 +58,7 @@ string page_0(object id)
 #if constant(available_fonts)
 	  available_fonts(),
 #else /* !constant(available_fonts) */
-	  roxen->available_fonts(1),
+	  caudium->available_fonts(1),
 #endif /* constant(available_fonts) */
 	  string font)
     res+=list_font(font);

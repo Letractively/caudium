@@ -100,7 +100,7 @@ string tag_wizard(string t, mapping args, string contents, object id,
     pike += sprintf("mixed wizard_done(object id)\n"
 		    "{\n"
 		    "  id->not_query = %O;\n\""+
-		    "  return roxen->get_file( id );\n"
+		    "  return caudium->get_file( id );\n"
 		    "}\n\n",
 		    fix_relative(args->ok, id));
 #else
@@ -110,7 +110,7 @@ string tag_wizard(string t, mapping args, string contents, object id,
 	     "  id->not_query = \""+
 	     fix_relative(replace(args->ok, ({"\"","\n","\r", "\\"}), 
 				  ({"\\\"", "\\n", "\\r", "\\\\"})),id)+"\";\n"
-	     "  return roxen->get_file( id );\n"
+	     "  return caudium->get_file( id );\n"
 	     "}\n\n");
 #endif /* __VERSION__ >= 0.6 */
   }

@@ -139,7 +139,7 @@ mixed page_2(object id)
   {
     string su;
     string oip = ip;
-    if(ip != "ANY") ip = su = roxen->blocking_ip_to_host(ip);
+    if(ip != "ANY") ip = su = caudium->blocking_ip_to_host(ip);
     else { su = gethostname(); ip="All interfaces"; }
     res += "<h2>"+ip+"</h2>";
 
@@ -183,7 +183,7 @@ mixed page_0(object id)
   mapping ports_by_ip = ([ ]);
 
   mapping used = ([]);
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     if (mappingp(c->open_ports)) {
       // Roxen 1.2.25 and earlier.
@@ -254,9 +254,9 @@ mixed page_0(object id)
   }
 
   // Fool the compiler... (backward compatibility).
-  mixed fun = roxen->get_configuration_ports;
+  mixed fun = caudium->get_configuration_ports;
 
-  foreach(((fun && fun()) || roxen->configuration_ports), object o)
+  foreach(((fun && fun()) || caudium->configuration_ports), object o)
   {
     string port, ip;
     sscanf(o->query_address(1), "%s %s", ip, port);
@@ -281,7 +281,7 @@ mixed page_0(object id)
       su = gethostname();
       ip="All interfaces (bound to ANY)";
     } else {
-      ip = su = roxen->blocking_ip_to_host(ip);
+      ip = su = caudium->blocking_ip_to_host(ip);
     }
     array a,tbl=({});
     a = ports_by_ip[oip];

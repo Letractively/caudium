@@ -36,7 +36,7 @@ static string describe_ftp(object ftp)
   string res = "<tr>";
 
   res += "<td>"+
-    roxen->blocking_ip_to_host(((ftp->cmd_fd->query_address()||"")/" ")[0])+
+    caudium->blocking_ip_to_host(((ftp->cmd_fd->query_address()||"")/" ")[0])+
     "</td>";
 
   if(ftp->session_auth)

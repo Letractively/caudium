@@ -146,11 +146,11 @@ array register_module()
 // month->number code that did not depend on a static mapping.
 // Currently, this means that you can enter the name of the month or day in
 // your nativ language, if it is supported by roxen.
-constant language = roxen->language;
+constant language = caudium->language;
 int find_a_month(string which)
 {
   which = lower_case(which);
-  foreach(indices(roxen->languages), string lang)
+  foreach(indices(caudium->languages), string lang)
     for(int i=1; i<13; i++)
       catch {
       if(which == lower_case(language(lang,"month")(i))[..strlen(which)])
@@ -162,7 +162,7 @@ int find_a_month(string which)
 int find_a_day(string which)
 {
   which = lower_case(which);
-  foreach(indices(roxen->languages), string lang)
+  foreach(indices(caudium->languages), string lang)
     for(int i=1; i<8; i++)
       if(which == lower_case(language(lang,"day")(i))[..strlen(which)])
 	return i;

@@ -22,8 +22,8 @@
 // This code has to work both in 'roxen.pike' and all modules
 // $Id$
 
-#if !efun(roxen)
-#define roxen roxenp()
+#if !constant(caudium)
+#define caudium caudiump()
 #endif
 
 #if DEBUG_LEVEL > 19
@@ -96,7 +96,7 @@ void async_connect(string host, int port, function|void callback,
 #ifdef SOCKET_DEBUG
   perror("SOCKETS: async_connect requested to "+host+":"+port+"\n");
 #endif
-  roxen->host_to_ip(host, got_host_name, host, port, callback, @args);
+  caudium->host_to_ip(host, got_host_name, host, port, callback, @args);
 }
 
 
@@ -123,7 +123,7 @@ void async_pipe(object to, object from, function|void callback,
   if(callback) 
     pipe->set_done_callback(callback, id);
   else if(cl) {
-    cache = roxen->cache_file(cl, file);
+    cache = caudium->cache_file(cl, file);
     if(cache)
     {
 #ifdef SOCKET_DEBUG
@@ -136,7 +136,7 @@ void async_pipe(object to, object from, function|void callback,
       pipe->start();
       return;
     }
-    if(cache = roxen->create_cache_file(cl, file))
+    if(cache = caudium->create_cache_file(cl, file))
     {
 #ifdef SOCKET_DEBUG
       perror("Using normal pipe with cache.\n");
@@ -163,7 +163,7 @@ void async_cache_connect(string host, int port, string cl,
 #ifdef SOCKET_DEBUG
   perror("SOCKETS: async_cache_connect requested to "+host+":"+port+"\n");
 #endif
-  cache = roxen->cache_file(cl, entry);
+  cache = caudium->cache_file(cl, entry);
   if(cache)
   {
     object f;
@@ -173,7 +173,7 @@ void async_cache_connect(string host, int port, string cl,
     destruct(cache);
     return callback(f, @args);
   }
-  roxen->host_to_ip(host, got_host_name, host, port, callback, @args);
+  caudium->host_to_ip(host, got_host_name, host, port, callback, @args);
 }
 
 

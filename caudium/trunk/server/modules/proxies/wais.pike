@@ -927,7 +927,7 @@ void write_to_client_and_cache(object client, string data, string key)
   object pip;
   if(query("cache"))
     if(key)
-      cache = roxen->create_cache_file("wais", key);
+      cache = caudium->create_cache_file("wais", key);
 
   pip=Pipe.pipe( );
   if(cache)
@@ -2000,7 +2000,7 @@ void done_fetch_data(array in)
 						   bin),0);
   }
   destruct(to);
-  --roxen->num_connections;
+  --caudium->num_connections;
 }
 
 
@@ -2107,7 +2107,7 @@ void done_search_data(array in)
 							key)+"</BODY></HTML>",
 			    0);
   destruct(to);
-  --roxen->num_connections;
+  --caudium->num_connections;
 }
 
 

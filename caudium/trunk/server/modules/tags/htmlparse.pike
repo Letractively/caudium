@@ -44,7 +44,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "roxenlib";
 
-constant language = roxen->language;
+constant language = caudium->language;
 
 int cnum=0;
 mapping fton=([]);
@@ -246,8 +246,8 @@ void create()
 {
   defvar("Accesslog", 
 	 GLOBVAR(logdirprefix)+
-	 short_name(roxen->current_configuration?
-		    roxen->current_configuration->name:".")+"/Accessed", 
+	 short_name(caudium->current_configuration?
+		    caudium->current_configuration->name:".")+"/Accessed", 
 	 "Access log file", TYPE_FILE|VAR_MORE,
 	 "In this file all accesses to files using the &lt;accessed&gt;"
 	 " tag will be logged.", 0, ac_is_not_set);
@@ -530,7 +530,7 @@ string parse_doc(string doc, string tag)
 {
   return replace(doc, ({"{","}","<tag>","<roxen-languages>"}),
 		 ({"&lt;", "&gt;", tag, 
-	String.implode_nicely(sort(indices(roxen->languages)), "and")}));
+	String.implode_nicely(sort(indices(caudium->languages)), "and")}));
 }
 
 string handle_help(string file, string tag, mapping args)
@@ -1336,7 +1336,7 @@ string tag_echo(string tag,mapping m,object id,object file,
     return tag_modified(tag, m, id, file, defines);
       
    case "server_software":
-    return roxen->version();
+    return caudium->version();
       
    case "server_name":
     string tmp;
@@ -1810,7 +1810,7 @@ string tag_accessed(string tag,mapping m,object id,object file,
    case "mcdonalds":
     q=0;
     while(counts>10) { counts/=10; q++; }
-    res="More than "+roxen->language("eng", "number")(counts*ipow(10, q))
+    res="More than "+caudium->language("eng", "number")(counts*ipow(10, q))
         + " served.";
     break;
     
@@ -1841,7 +1841,7 @@ string tag_modified(string tag, mapping m, object id, object file,
   {
     if(!id->conf->auth_module)
       return "<!-- modified by requires an user database! -->\n";
-    m->name = roxen->last_modified_by(file, id);
+    m->name = caudium->last_modified_by(file, id);
     CACHE(10);
     return tag_user(tag, m, id, file, defines);
   }
@@ -1859,7 +1859,7 @@ string tag_modified(string tag, mapping m, object id, object file,
 
     if(f = open(m->realfile, "r"))
     {
-      m->name = roxen->last_modified_by(f, id);
+      m->name = caudium->last_modified_by(f, id);
       destruct(f);
       CACHE(10);
       return tag_user(tag, m, id, file,defines);
@@ -1883,7 +1883,7 @@ string tag_modified(string tag, mapping m, object id, object file,
 
 string tag_version(string rag, mapping m) 
 {
-  return roxen->version(); 
+  return caudium->version(); 
 }
 
 string tag_clientname(string tag, mapping m, object id)
@@ -2245,7 +2245,7 @@ string tag_allow(string a, mapping (string:string) m,
   if(m->domain)
   {
     NOCACHE();
-    TEST(_match(roxen->quick_ip_to_host(id->remoteaddr), m->domain/","));
+    TEST(_match(caudium->quick_ip_to_host(id->remoteaddr), m->domain/","));
   }
   
   if(m->user)
@@ -2284,7 +2284,7 @@ string tag_allow(string a, mapping (string:string) m,
 
 string tag_configurl(string f, mapping m)
 {
-  return roxen->config_url();
+  return caudium->config_url();
 }
 
 string tag_configimage(string f, mapping m)
@@ -2297,7 +2297,7 @@ string tag_configimage(string f, mapping m)
     switch(q=indices(m)[0])
     {
      case "src":
-      args += " src=\"/internal-roxen-"+ (m->src-".gif") + "\"";
+      args += " src=\"/internal-caudium-"+ (m->src-".gif") + "\"";
       break;
      default:
       args += " "+q+"=\""+m[q]+"\"";
@@ -2769,7 +2769,7 @@ string tag_pr(string tagname, mapping m)
   }
   m_delete(m, "color");
   m_delete(m, "size");
-  m->src = "/internal-roxen-power-"+size+"-"+color;
+  m->src = "/internal-caudium-power-"+size+"-"+color;
   int w;
   sscanf(get_pr_size(size,color), "%*swidth=%d", w);
   m->width = (string)w;

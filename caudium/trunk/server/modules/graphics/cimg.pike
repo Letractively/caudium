@@ -23,7 +23,7 @@
 inherit "module";
 inherit "roxenlib";
 
-roxen.ImageCache the_cache;
+caudium.ImageCache the_cache;
 
 array register_module()
 {
@@ -39,12 +39,12 @@ array register_module()
 
 void start()
 {
-  the_cache = roxen.ImageCache( "cimg", generate_image );
+  the_cache = caudium.ImageCache( "cimg", generate_image );
 }
 
 mapping generate_image( mapping args, object id )
 {
-  return roxen.low_load_image( args->src, id );
+  return caudium.low_load_image( args->src, id );
 }
 
 mapping find_internal( string f, object id )

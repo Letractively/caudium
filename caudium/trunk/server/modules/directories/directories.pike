@@ -40,7 +40,7 @@ class Dirnode
   array stat;
   inherit "base_server/struct/node";
 
-#define configurl(f) ("/internal-roxen-"+f)
+#define configurl(f) ("/internal-caudium-"+f)
 #define image(f) ("<img border=0 src="+(f)+" alt=\"\">")
 
   void create(string|void pseudoroot)
@@ -271,7 +271,7 @@ string find_readme(object node, object id)
   foreach(({ "README.html", "README"}), f)
     if(n=node->descend(f,1))
     {
-      rm=roxen->try_get_file(n->path(), id);
+      rm=caudium->try_get_file(n->path(), id);
       if(rm) if(f[-1] == 'l')
 	return "<hr noshade>"+rm;
       else
@@ -326,7 +326,7 @@ array|string describe_dir_node_mac(object node, object id)
       
      default:
       mixed tmp;
-      tmp = roxen->type_from_filename(filename, 1);
+      tmp = caudium->type_from_filename(filename, 1);
       if(!tmp) tmp=({ "Unknown", 0 });
       type = tmp[0];
       icon = image_from_type(type);
@@ -390,14 +390,14 @@ object create_node(string f, object id, int nocache)
     my_node = my_node->descend(tmp);
   
   if(!strlen(f) || (f[-1] != '/')) f += "/";
-  dir = roxen->find_dir(f, id);
+  dir = caudium->find_dir(f, id);
   
   if(sizeof(path))
     my_node->data = path[-1];
   else
     my_node->data = "";
   
-  my_node->stat = roxen->stat_file(f, id);
+  my_node->stat = caudium->stat_file(f, id);
   my_node->finished=1;
   my_node->describer = global_describer;
   
@@ -407,7 +407,7 @@ object create_node(string f, object id, int nocache)
   {
     node = my_node->descend(file);
     node->data = file;
-    node->stat = roxen->stat_file(f + file, id);
+    node->stat = caudium->stat_file(f + file, id);
     if(node->stat && node->stat[1] >= 0) node->finished=1;
     node->describer = global_describer;
   }

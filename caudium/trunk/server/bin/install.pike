@@ -57,7 +57,7 @@ void report_fatal(string s)
   werror(s);
 }
 
-object roxenp()
+object caudiump()
 {
   return this_object();
 }

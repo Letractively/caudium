@@ -159,13 +159,13 @@ object interface_lock = Thread.Mutex();
 object load_interface()
 {
 #if constant(thread_create)
-  // Only one thread at a time may call roxen->configuration_interface().
+  // Only one thread at a time may call caudium->configuration_interface().
   //
   // load_interface() shouldn't be called recursively,
   // so don't protect against it.
   mixed key = interface_lock->lock();
 #endif /* constant(thread_create) */
-  return(roxen->configuration_interface());
+  return(caudium->configuration_interface());
 }
 
 mapping find_file(string f, object id)

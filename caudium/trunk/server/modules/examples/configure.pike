@@ -129,7 +129,7 @@ array find_dir( string f, object id )
 array stat_file( string f, object id)
 {
   mapping map;
-  map = roxen->configuration_parse( id );
+  map = caudium->configuration_parse( id );
   if(map->code/100 == 2)
     if(map->file)
       return map->file->stat();
@@ -165,14 +165,14 @@ mapping find_file( string f, object id )
   
   id->conf = 0;
   id->not_query = "/" + f;
-  ret = roxen->configuration_parse( id );
+  ret = caudium->configuration_parse( id );
   id->not_query = old_file;
   id->conf = old_conf;
   id->auth = old_auth;
   if(ret->extra_heads && ret->extra_heads->Location)
   {
     string nl;
-    if(sscanf(ret->extra_heads->Location, roxen->config_url()+"%s", nl))
+    if(sscanf(ret->extra_heads->Location, caudium->config_url()+"%s", nl))
       return http_redirect(query("mountpoint") + nl);
   }
   if(ret->type == "text/html" && ret->data && strlen(ret->data))

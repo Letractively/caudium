@@ -86,7 +86,7 @@ void create()
   defvar("override", 0, "Allow directory index file overrides", TYPE_FLAG,
 	 "If this variable is set, you can get a listing of all files "
 	 "in a directory by appending '.' or '/' to the directory name, like "
-	 "this: <a href=http://www.roxen.com//>http://www.roxen.com//</a>"
+	 "this: http://caudium.net//</a>"
 	 ". It is _very_ useful for debugging, but some people regard it as a "
 	 "security hole.",
 	 0, dirlisting_not_set);
@@ -134,7 +134,7 @@ string tag_insert_quoted(string tag_name, mapping args, object request_id,
 			 mapping defines)
 {
   if (args->file) {
-    string s = roxen->try_get_file(args->file, request_id);
+    string s = caudium->try_get_file(args->file, request_id);
 
     if (s) {
       return(quote_plain_text(s));
@@ -157,7 +157,7 @@ mapping query_tag_callers()
 string find_readme(string d, object id)
 {
   foreach(({ "README.html", "README"}), string f) {
-    string readme = roxen->try_get_file(d+f, id);
+    string readme = caudium->try_get_file(d+f, id);
 
     if (readme) {
       if (f[strlen(f)-5..] != ".html") {
@@ -182,7 +182,7 @@ string describe_directory(string d, object id)
   path -= ({ "." });
   d = "/"+path*"/" + "/";
 
-  dir = roxen->find_dir(d, id);
+  dir = caudium->find_dir(d, id);
 
   if (dir && sizeof(dir)) {
     dir = sort(dir);
@@ -201,7 +201,7 @@ string describe_directory(string d, object id)
 		       return("<a href=\""+f+"/.\">"+f+"/</a>");
 		     } else {
 		       return("<a href=\""+f+"\">"+f+"</a>");
-		     } }, d, roxen, id)*"\n"+"</pre></body></html>\n"));
+		     } }, d, caudium, id)*"\n"+"</pre></body></html>\n"));
   }
 
   if ((toplevel = !id->misc->dir_no_head)) {
@@ -218,7 +218,7 @@ string describe_directory(string d, object id)
   result += "<fl folded>\n";
 
   foreach(sort(dir), string file) {
-    array stats = roxen->stat_file(d + file, id);
+    array stats = caudium->stat_file(d + file, id);
     string type = "Unknown";
     string icon;
     int len = stats?stats[1]:0;
@@ -236,7 +236,7 @@ string describe_directory(string d, object id)
       
       break;
     default:
-      array tmp = roxen->type_from_filename(file,1);
+      array tmp = caudium->type_from_filename(file,1);
       if (tmp) {
 	type = tmp[0];
       }
@@ -344,7 +344,7 @@ string|mapping parse_directory(object id)
     if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
     foreach(query("indexfiles")-({""}), file) { // Make recursion impossible
       id->not_query = old_file+file;
-      if(got = roxen->get_file(id))
+      if(got = caudium->get_file(id))
 	return got;
     }
     id->not_query = old_not_query;

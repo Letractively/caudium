@@ -883,7 +883,7 @@ class LSFile
       session->method = "LIST";
       string long = fix_path(short);
       array st = stat_file(long, session);
-      if (st && st != -1) {
+      if (st && st[1] != -1) {
 	if ((< -2, -3 >)[st[1]] && 
 	    (!(flags & LS_FLAG_d))) {
 	  // Directory 
@@ -1718,7 +1718,7 @@ class FTPSession
 
     touch_me();
 
-    object pipe=roxen->pipe();
+    object pipe=caudium->pipe();
 
     if(!file->len)
       file->len = file->data?(stringp(file->data)?strlen(file->data):0):0;
@@ -2008,7 +2008,7 @@ class FTPSession
               array(string) dir;
 	      object id = RequestID(master_session);
 	      id->method = "LIST";
-              dir = roxen->find_dir(combine_path(cwd, path*"/")+"/", id);
+              dir = caudium->find_dir(combine_path(cwd, path*"/")+"/", id);
               if (dir && sizeof(dir)) {
                 dir = glob(part, dir);
                 if ((< '*', '?' >)[part[0]]) {
@@ -2447,7 +2447,7 @@ class FTPSession
 	master_session->misc->home += "/";
       }
 
-      // NOTE: roxen->stat_file() might change master_session->auth.
+      // NOTE: caudium->stat_file() might change master_session->auth.
       array auth = master_session->auth;
 
       array(int) st = conf->stat_file(master_session->misc->home,
@@ -3294,8 +3294,8 @@ class FTPSession
     string s = replace(Query("FTPWelcome"),
 		       ({ "$roxen_version", "$roxen_build", "$full_version",
 			  "$pike_version", "$ident", }),
-		       ({ roxen->__caudium_version__, roxen->__caudium_build__,
-			  roxen->real_version, version(), roxen->version() }));
+		       ({ caudium->__caudium_version__, caudium->__caudium_build__,
+			  caudium->real_version, version(), caudium->version() }));
 
     send(220, s/"\n", 1);
   }

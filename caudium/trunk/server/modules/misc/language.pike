@@ -201,7 +201,7 @@ multiset (string) find_files( string url, object id )
 
   filename = reverse( (reverse( url ) / "/")[0] );
   basename = reverse( (reverse( url ) / "/")[1..] * "/" ) + "/";
-  tmp = roxen->find_dir( basename, id );
+  tmp = caudium->find_dir( basename, id );
   if (tmp)
     files = aggregate_multiset( @tmp );
   foreach (indices( language_list ), extension)

@@ -34,20 +34,20 @@ constant more=1;
 
 string describe_module(object q)
 {
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     foreach(indices(c->modules), string m)
     {
 	int w;
 	mapping mod = c->modules[m];
 	if(mod->enabled == q)
-	  return c->name+"/"+m+"</td><td>"+roxen->filename(q);
+	  return c->name+"/"+m+"</td><td>"+caudium->filename(q);
 	else if(mod->copies && !zero_type(search(mod->copies,q)))
 	  return (c->name+"/"+m+"#"+search(mod->copies,q)+
-		  "</td><td>"+roxen->filename(q));
+		  "</td><td>"+caudium->filename(q));
     }
   }
-  return "Unknown module</td><td>"+roxen->filename(q)+"";
+  return "Unknown module</td><td>"+caudium->filename(q)+"";
 }
 
 
@@ -62,7 +62,7 @@ int verify_0()
 mixed page_0(object id, object mc)
 {
   mapping l = ([]), locks=([]), L=([]);
-  foreach(roxen->configurations, object c) {
+  foreach(caudium->configurations, object c) {
     if (c->locked) {
       l += c->locked;
     }

@@ -207,7 +207,7 @@ string get_status(int pid)
 
 mixed page_1(object id, object mc)
 {
-  int pid = (int)id->variables->pid || roxen->roxenpid || roxen->startpid;
+  int pid = (int)id->variables->pid || caudium->roxenpid || caudium->startpid;
   string environ =
     Array.map(sort((Stdio.read_file("/proc/"+pid+"/environ") || "") / "\0"),
 	      format_env_line, pid)*"";
@@ -224,7 +224,7 @@ mixed page_1(object id, object mc)
 mixed page_0(object id, object mc)
 {
   object p = Privs("Process status");
-  int pid = (int)id->variables->pid || roxen->roxenpid || roxen->startpid;
+  int pid = (int)id->variables->pid || caudium->roxenpid || caudium->startpid;
  
   string tree = Array.map((Array.map(popen("/usr/bin/pstree -pa "+pid)/"\n" -
 				     ({""}), format_proc_line, pid)*"") / "\n",
@@ -236,7 +236,7 @@ mixed page_0(object id, object mc)
   
   return ("<h2>Process Tree for "+pid+"</h2><pre>\n"+
 	  tree+"</pre>"+
-	  (roxen->euid_egid_lock ? 
+	  (caudium->euid_egid_lock ? 
 	   "<p><i>Please note that when using threads on Linux, each "
 	   "thread is more or less<br> a separate process, with the exception "
 	   "that they share all their memory.</b>" : "")+

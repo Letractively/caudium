@@ -224,7 +224,7 @@ string find_one(string ... of)
   foreach(of, s) if(file_stat( s )) return s;
 }
 
-#define to_hostname roxen->blocking_ip_to_host
+#define to_hostname caudium->blocking_ip_to_host
 
 void init_ip_list()
 {
@@ -365,7 +365,7 @@ string encode_one_port(array port, int id)
     sscanf(port[3], "%*sid %s\n", arg1);
     sscanf(port[3], "%*ssize %s\n", arg2);
     if(!arg1 || !strlen(arg1))
-      arg1 = "ESMTP "+roxen->real_version;
+      arg1 = "ESMTP "+caudium->real_version;
     if(!arg2 || !strlen(arg2))
       arg2 = "1000000"; // 1MB
     
@@ -446,7 +446,7 @@ string describe_variable_low(mixed *var, mixed path, int really_short,
     object o;
     array (string) rs = ({});
 
-    foreach(values(roxen->current_configuration->modules), mod)
+    foreach(values(caudium->current_configuration->modules), mod)
     {
       if(mod->copies)
       {
@@ -586,7 +586,7 @@ string describe_variable_low(mixed *var, mixed path, int really_short,
   /* Now in res: <input ...> */
   
   res = (name||var[VAR_NAME]) + "<br><dd>" + res;
-  if(roxen->QUERY(DOC))
+  if(caudium->QUERY(DOC))
     return res + "<br>" + "<p>" + var[VAR_DOC_STR] + "<p>" 
       + describe_type(var[VAR_TYPE], var[VAR_MISC]) + "<p>";
   return res;

@@ -122,7 +122,7 @@ void log(string file, string more)
 #endif /* PROXY_DEBUG */
   if(!logfile) return;
   sscanf(file, "%s:%s", host, rest);
-  roxen->ip_to_host(host, do_write, host, rest, more);
+  caudium->ip_to_host(host, do_write, host, rest, more);
 }
 
 
@@ -319,7 +319,7 @@ class Connection {
   
   string hostname(string s)
   {
-    return roxen->quick_ip_to_host(s);
+    return caudium->quick_ip_to_host(s);
   }
 
   int new;
@@ -395,14 +395,14 @@ class Connection {
      */
     if(!no_cache && (!i || cache_wanted(i)))
     {
-      if(cache = roxen->create_cache_file("http", f))
+      if(cache = caudium->create_cache_file("http", f))
       {
-	cache->done_callback = roxen->http_check_cache_file;
+	cache->done_callback = caudium->http_check_cache_file;
 	/* For fresh incoming cachefiles we have two pipe outputs
 	 * where the order in which they are given to the fallback
 	 * pipe->output in the global shuffle function is relevant.
 	 */
-	roxen->shuffle(s, cache->file, i->my_fd,
+	caudium->shuffle(s, cache->file, i->my_fd,
 		       lambda(){my_pipe_done(cache);});
 	return;
       }
@@ -414,7 +414,7 @@ class Connection {
     if(!new){
       stat = s->stat();
     }
-    roxen->shuffle(s, i->my_fd, 0, lambda(){my_pipe_done(0);});
+    caudium->shuffle(s, i->my_fd, 0, lambda(){my_pipe_done(0);});
   }
     
   int send_to(object o, object b)

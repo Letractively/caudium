@@ -47,17 +47,17 @@ mixed wizard_done(object id)
     array types=Array.map(id->variables->types/"\0",
 			  lambda(string s){
       return (s[0]=='I'?1:s[0]=='W'?2:3);});
-    foreach(indices(roxen->error_log), string err)
+    foreach(indices(caudium->error_log), string err)
     {
       int type;
       sscanf(err, "%d,%*s", type);
-      if(search(types,type) != -1) m_delete(roxen->error_log, err);
+      if(search(types,type) != -1) m_delete(caudium->error_log, err);
     }
-    roxen->last_error = "";
+    caudium->last_error = "";
     report_notice("Event log cleared by admin from "+
-		  roxen->blocking_ip_to_host(id->remoteaddr)+".\n");
+		  caudium->blocking_ip_to_host(id->remoteaddr)+".\n");
   }
-  return http_redirect(roxen->config_url()+"Errors/?"+time());
+  return http_redirect(caudium->config_url()+"Errors/?"+time());
 }
 
 string handle(object id)

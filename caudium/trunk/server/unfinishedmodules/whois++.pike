@@ -215,7 +215,7 @@ mapping search_entry(string f,object id,mapping var)
   {
      sscanf(var["hosttype"],"%s %s",var["host"],var["port"]);
   }
-  roxen->host_to_ip(var["host"], serv_request, id, var);
+  caudium->host_to_ip(var["host"], serv_request, id, var);
   return http_pipe_in_progress();
 }
 

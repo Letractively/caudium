@@ -223,7 +223,7 @@ void build_configuration(object node)
   build_module_copy_status( o );
 
   o=node->descend("Global");
-/*  roxen->current_configuration = o->config();*/
+/*  caudium->current_configuration = o->config();*/
   o->data = cf->query();
   o->describer = describe_configuration_global_variables;
   o->type = NODE_CONFIG_GLOBAL_VARIABLES;
@@ -287,13 +287,13 @@ void build_root(object root, void|int nodes)
 #endif
 
   root->describer = describe_root;
-/*root->data = roxen->configurations;*/
+/*root->data = caudium->configurations;*/
   
   o=root->descend("Errors");
   if(!o->data)
   {
     o->describer = describe_errors;
-    o->data = roxen->error_log;
+    o->data = caudium->error_log;
     o->type = NODE_ERRORS;
   }
 
@@ -301,7 +301,7 @@ void build_root(object root, void|int nodes)
   {
     o=root->descend("Globals");
     o->describer = describe_global_variables;
-    o->data=roxen->variables;
+    o->data=caudium->variables;
     o->type = NODE_GLOBAL_VARIABLES;
     build_global_variables( o );
 
@@ -312,7 +312,7 @@ void build_root(object root, void|int nodes)
    
     o=root->descend("Configurations");
     o->describer = describe_configurations;
-    o->data = roxen->configurations;
+    o->data = caudium->configurations;
     o->type = NODE_CONFIGURATIONS;
     build_configurations( o );
   }

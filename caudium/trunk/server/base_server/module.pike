@@ -48,7 +48,7 @@ int module_dependencies(object configuration, array (string) modules)
 
 string file_name_and_stuff()
 {
-  return ("<b>Loaded from:</b> "+(roxen->filename(this))+"<br>"+
+  return ("<b>Loaded from:</b> "+(caudium->filename(this))+"<br>"+
 	  (this->cvs_version?"<b>CVS Version: </b>"+fix_cvs(this->cvs_version)+"<nr>\n":""));
 }
 
@@ -59,7 +59,7 @@ object my_configuration()
   if(_my_configuration)
     return _my_configuration;
   object conf;
-  foreach(roxen->configurations, conf)
+  foreach(caudium->configurations, conf)
     if(conf->otomod[this])
       return conf;
   return 0;
@@ -109,11 +109,11 @@ static class ConfigurableWrapper
   int check()
   {
     if ((mode & VAR_EXPERT) &&
-	(!roxen->configuration_interface()->expert_mode)) {
+	(!caudium->configuration_interface()->expert_mode)) {
       return 1;
     }
     if ((mode & VAR_MORE) &&
-	(!roxen->configuration_interface()->more_mode)) {
+	(!caudium->configuration_interface()->more_mode)) {
       return 1;
     }
     return(f());
@@ -173,7 +173,7 @@ void defvar(string|void var, mixed|void value, string|void name,
     if(value && !stringp(value)) {
       report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
 			   "to string type variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     }
     break;
     
@@ -182,13 +182,13 @@ void defvar(string|void var, mixed|void value, string|void name,
       report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
 			   "(not float) to floating point "
 			   "decimal number variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     break;
   case TYPE_INT:
     if(!intp(value))
       report_error(sprintf("%s:\nPassing illegal value (%t:%O) "
 			   "(not int) to integer number variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     break;
      
   case TYPE_MODULE_LIST:
@@ -205,7 +205,7 @@ void defvar(string|void var, mixed|void value, string|void name,
     if(!arrayp(value)) {
       report_error(sprintf("%s:\nIllegal type %t to TYPE_DIR_LIST, "
 			   "must be array.\n",
-			   roxen->filename(this), value));
+			   caudium->filename(this), value));
       value = ({ "./" });
     } else {
       for(i=0; i<sizeof(value); i++) {
@@ -223,7 +223,7 @@ void defvar(string|void var, mixed|void value, string|void name,
     if(value && !stringp(value))
       report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not string) "
 			   "to directory variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     
     if(value && strlen(value) && ((string)value)[-1] != '/')
       value+="/";
@@ -234,17 +234,17 @@ void defvar(string|void var, mixed|void value, string|void name,
     if(!misc && value && !arrayp(value)) {
       report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
 			   "to multiple choice variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     } else {
       if(misc && !arrayp(misc)) {
 	report_error(sprintf("%s:\nPassing illegal misc (%t:%O) (not array) "
 			     "to multiple choice variable.\n",
-			     roxen->filename(this), misc, misc));
+			     caudium->filename(this), misc, misc));
       }
       if(misc && value && search(misc, value)==-1) {
 	roxen_perror(sprintf("%s:\nPassing value (%t:%O) not present "
 			     "in the misc array.\n",
-			     roxen->filename(this), value, value));
+			     caudium->filename(this), value, value));
       }
     }
     break;
@@ -260,7 +260,7 @@ void defvar(string|void var, mixed|void value, string|void name,
     if (!intp(value))
       report_error(sprintf("%s:\nPassing illegal value (%t:%O) (not int) "
 			   "to color variable.\n",
-			   roxen->filename(this), value, value));
+			   caudium->filename(this), value, value));
     break;
     
   case TYPE_FILE_LIST:
@@ -271,7 +271,7 @@ void defvar(string|void var, mixed|void value, string|void name,
 
   default:
     report_error(sprintf("%s:\nIllegal type (%s) in defvar.\n",
-			 roxen->filename(this), type));
+			 caudium->filename(this), type));
     break;
   }
 
@@ -349,14 +349,14 @@ void set(string var, mixed value)
     error( "Setting undefined variable.\n" );
   else
     if(variables[var][VAR_TYPE] == TYPE_MODULE && stringp(value))
-      roxenp()->register_module_load_hook( value, set, var );
+      caudiump()->register_module_load_hook( value, set, var );
     else if(variables[var][VAR_TYPE] == TYPE_MODULE_LIST)
     {
       variables[var][VAR_VALUE]=value;
       if(arrayp(value))
 	foreach(value, value)
 	  if(stringp(value))
-	    roxenp()->register_module_load_hook(value,set_module_list,var,value);
+	    caudiump()->register_module_load_hook(value,set_module_list,var,value);
     }
     else
       variables[var][VAR_VALUE]=value;

@@ -56,11 +56,11 @@ int req_time = HRTIME();
 #endif
 
 constant decode        = MIME.decode_base64;
-constant find_supports = roxen->find_supports;
-constant version       = roxen->version;
-constant handle        = roxen->handle;
-constant _query        = roxen->query;
-constant thepipe       = roxen->pipe;
+constant find_supports = caudium->find_supports;
+constant version       = caudium->version;
+constant handle        = caudium->handle;
+constant _query        = caudium->query;
+constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
 private static array(string) cache;
@@ -253,7 +253,7 @@ private int parse_got(string s)
   string a, b, linename, contents;
   int config_in_url;
 
-//  roxen->httpobjects[my_id] = "Parsed data...";
+//  caudium->httpobjects[my_id] = "Parsed data...";
   raw = s;
 
   if (!line) {
@@ -422,8 +422,8 @@ private int parse_got(string s)
 		  else
 		    variables[ a ] = b;
 		}
-	    }
 #endif
+	    }
 	    break;
 
 	   case "multipart/form-data":
@@ -886,7 +886,7 @@ void disconnect()
 {
   file = 0;
   MARK_FD("my_fd in HTTP disconnected?");
-  if(do_not_disconnect)return;
+  if(do_not_disconnect) return;
   destruct();
 }
 
@@ -1021,15 +1021,15 @@ string format_backtrace(array bt, int eid)
   // second is the actual function, 
   // rest is backtrace.
 
-  string reason = roxen->diagnose_error( bt );
+  string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
   string res = ("<title>Internal Server Error</title>"
 		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
 		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
 		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/internal-roxen-":"/img/")+
-		"roxen-icon-gray.gif\" alt=\"\"></td>"
+		"src=\""+(conf?"/internal-caudium-":"/img/")+
+		"caudium-icon-gray.gif\" alt=\"\"></td>"
 		"<td>&nbsp;</td><td width=100% height=39>"
 		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
 		"<td width=\"100%\" align=right valigh=center height=28>"
@@ -1041,7 +1041,7 @@ string format_backtrace(array bt, int eid)
 		"<p>\n\n"
 		"<font size=+2 color=darkred>"
 		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-roxen-":"/img/") +"manual-warning.gif>"
+		(conf?"/internal-caudium-":"/img/") +"manual-warning.gif>"
 		+bt[0]+"</font><br>\n"
 		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
@@ -1072,9 +1072,9 @@ string format_backtrace(array bt, int eid)
 string generate_bugreport(array from, string u, string rd)
 {
   add_id(from);
-  return ("<pre>"+html_encode_string("Roxen version: "+version()+
-	  (roxen->real_version != version()?
-	   " ("+roxen->real_version+")":"")+
+  return ("<pre>"+html_encode_string("Caudium version: "+version()+
+	  (caudium->real_version != version()?
+	   " ("+caudium->real_version+")":"")+
 	  "\nRequested URL: "+u+"\n"
 	  "\nError: "+
 	  describe_backtrace(from)-(getcwd()+"/")+
@@ -1092,9 +1092,9 @@ string censor(string what)
 
 int store_error(array err)
 {
-  mapping e = roxen->query_var("errors");
-  if(!e) roxen->set_var("errors", ([]));
-  e = roxen->query_var("errors"); /* threads... */
+  mapping e = caudium->query_var("errors");
+  if(!e) caudium->set_var("errors", ([]));
+  e = caudium->query_var("errors"); /* threads... */
   
   int id = ++e[0];
   if(id>1024) id = 1;
@@ -1104,7 +1104,7 @@ int store_error(array err)
 
 array get_error(string eid)
 {
-  mapping e = roxen->query_var("errors");
+  mapping e = caudium->query_var("errors");
   if(e) return e[(int)eid];
   return 0;
 }
@@ -1677,8 +1677,8 @@ void handle_request( )
 	  else
 	  {
 	    array auth = (realauth+":")/":";
-	    if((auth[0] != roxen->query("ConfigurationUser"))
-	       || !crypt(auth[1], roxen->query("ConfigurationPassword")))
+	    if((auth[0] != caudium->query("ConfigurationUser"))
+	       || !crypt(auth[1], caudium->query("ConfigurationPassword")))
 	      file = http_auth_required("admin");
 	    else
 	      file = ([
@@ -1729,7 +1729,7 @@ void handle_request( )
       file = ret;
     }
   } else if(!file &&
-	    (err=catch(file = roxen->configuration_parse( thiso )))) {
+	    (err=catch(file = caudium->configuration_parse( thiso )))) {
     if(err == -1) return;
     internal_error(err);
   }
@@ -1795,7 +1795,7 @@ void got_data(mixed fooid, string s)
   my_fd->set_read_callback(0); 
   processed=1;
 #ifdef THREADS
-  roxen->handle(this_object()->handle_request);
+  caudium->handle(this_object()->handle_request);
 #else
   handle_request();
 #endif

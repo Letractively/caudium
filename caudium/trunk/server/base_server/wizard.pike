@@ -252,13 +252,13 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      ("<table><tr>\n"
       "<td width=258 rowspan=2>\n"
       "  <table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=258><tr><td>\n"
-      "  <input type=image name='"+m->name+".foo' src=/internal-roxen-colsel width=256 height=256 border=0></td>"
+      "  <input type=image name='"+m->name+".foo' src=/internal-caudium-colsel width=256 height=256 border=0></td>"
       "</table>\n"
       "</td>\n"
       "<td width=30 rowspan=2></td>\n"
       "<td width=32 rowspan=2>\n"
       "  <table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=32><tr><td>\n"
-      "<input type=image src=\"/internal-roxen-colorbar:"+
+      "<input type=image src=\"/internal-caudium-colorbar:"+
       (string)h+","+(string)v+","+(string)s+"\" "
       "name='"+m->name+".bar' width=30 height=256 border=0></td>"
       "</table>\n"
@@ -318,19 +318,19 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       "<td rowspan=2>\n"
       "  <table bgcolor=black cellpadding=1 border=0 cellspacing=0><tr><td>\n"
       "    <input type=image name='"+m->name+".foo' "
-      "      src=/internal-roxen-colsel-small "
+      "      src=/internal-caudium-colsel-small "
       "      width=128 height=128 border=0></td>"
       "  </table>\n"
       "</td>\n"
-      "<td width=8 rowspan=2><img src=/internal-roxen-unit width=8></td>\n"
+      "<td width=8 rowspan=2><img src=/internal-caudium-unit width=8></td>\n"
       "<td width=18 rowspan=2>\n"
       "  <table bgcolor=black cellpadding=1 border=0 cellspacing=0><tr><td>\n"
-      "    <input type=image src=\"/internal-roxen-colorbar:"+
+      "    <input type=image src=\"/internal-caudium-colorbar:"+
              (string)h+","+(string)v+","+(string)s+"\" "
       "      name='"+m->name+".bar' width=16 height=128 border=0></td>"
       "  </table>\n"
       "</td>\n"
-      "<td width=8 rowspan=2><img src=/internal-roxen-unit width=8></td>\n"
+      "<td width=8 rowspan=2><img src=/internal-caudium-unit width=8></td>\n"
       "<td>\n"
       "  <table bgcolor=black width=64 border=3 "
       "         cellpadding=1 cellspacing=0><tr>\n"
@@ -537,11 +537,11 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
 	  " \n<td align=right>"+
 	 (foo->help && !id->variables->help?
 	  "<font size=-1><input type=image name=help src="+
-	  (id->conf?"/internal-roxen-help":"/image/help.gif")+
+	  (id->conf?"/internal-caudium-help":"/image/help.gif")+
 	  " border=0 value=\"Help\"></font>":"")
 	 +"</td>\n"
 	 " </tr><tr><td colspan=3><table cellpadding=0 cellspacing=0 border=0 width=100%><tr  bgcolor=#000000><td><img src="+
-	 (id->conf?"/internal-roxen-unit":"/image/unit.gif")+
+	 (id->conf?"/internal-caudium-unit":"/image/unit.gif")+
 	 " width=1 height=1 alt=\"\"></td></tr></table></td></tr>\n"
 	 "  </table><table cellpadding=6><tr><td>\n"
 	 "<!-- The output from the page function -->\n"
@@ -1006,21 +1006,21 @@ string html_table(array(string) subtitles, array(array(string)) table,
 string html_notice(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Notice: src=\""+
-        (id->conf?"/internal-roxen-":"/image/")
+        (id->conf?"/internal-caudium-":"/image/")
         +"err_1.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
 string html_warning(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Warning: src=\""+
-        (id->conf?"/internal-roxen-":"/image/")
+        (id->conf?"/internal-caudium-":"/image/")
         +"err_2.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
 string html_error(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Error: src=\""+
-        (id->conf?"/internal-roxen-":"/image/")
+        (id->conf?"/internal-caudium-":"/image/")
         +"err_3.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 

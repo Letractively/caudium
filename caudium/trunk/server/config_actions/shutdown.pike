@@ -37,8 +37,8 @@ string page_0(object id)
 mapping wizard_done(object id)
 {
   if(id->variables->how == "shutdown")
-    return http_redirect(roxen->config_url()+"(shutdown)/Actions/");
-  return http_redirect(roxen->config_url()+"(restart)/Actions/");
+    return http_redirect(caudium->config_url()+"(shutdown)/Actions/");
+  return http_redirect(caudium->config_url()+"(restart)/Actions/");
 }
 
 mixed handle(object id) { return wizard_for(id,0); }

@@ -25,9 +25,14 @@ string cvs_version="$Id$";
 inherit "module";
 inherit "roxenlib";
 
+#if constant(Image.image)
+#define IMAGE Image.image
+#else
+#define IMAGE Image.Image
+#endif
+
 class Constructors
 {
-  inherit Image;
   class Animation
   {
     object img, my_fd;
@@ -169,7 +174,7 @@ class Constructors
     class FunctionCall
     {
       function f; object img;
-      void `()(mixed ... args)
+      mixed `()(mixed ... args)
       {
 	mixed res=f(@args);
 	return (objectp(res)&&(img->image=res))?img:res;
@@ -220,7 +225,7 @@ class Constructors
       if(percent != old_progress)
       {
 	old_progress=percent;
-	object image = Image.image(302,24,  255, 255, 255), i2;
+	object image = IMAGE(302,24,  255, 255, 255), i2;
 	object text = (get_font("lucida",32,0,0,0,0.0,0.0)->
 		       write(percent==100?"Done":percent+"%")
 		       ->scale(0.5));
@@ -229,7 +234,7 @@ class Constructors
 				       (image->xsize()/2-text->xsize()/2),
 				       (image->ysize()/2-text->ysize()/2));
 	
-	i2 = Image.image(3*percent+3, 28, 0x11,0x33,0x77);
+	i2 = IMAGE(3*percent+3, 28, 0x11,0x33,0x77);
 	i2= i2->paste_alpha_color(text,255,255,255,
 				  (image->xsize()/2-text->xsize()/2),
 				  (image->ysize()/2-text->ysize()/2));
@@ -258,7 +263,7 @@ class Constructors
     {
       float w=len*2.0, h=len/5.0, mp, h2, w2;
       if(hour) w*=0.7;
-      object c = Image.image((int)w,(int)h);
+      object c = IMAGE((int)w,(int)h);
       mp = (w2 = w/2.0)+w2/2.0; h2 = h/2.0;
       c->setcolor( 255, 255, 255 );
       c->polygone( ({ w2,h2-2, mp,0, w,h2, mp,h, w2, h2+2, w2-8, h2}));
@@ -332,14 +337,14 @@ class Constructors
   object Text(string font, string text, mixed fg, mixed bg)
   {
     object m = get_font(font, 32, 0, 0, 0, 0, 0, 0)->write(text);
-    return myimage(bg(),image(m->xsize(),m->ysize(),@bg)
+    return myimage(bg(),IMAGE(m->xsize(),m->ysize(),@bg)
 		   ->paste_alpha_color(m,@to_color(fg)));
   }
 
   object PPM(string fname)
   {
     string q = Stdio.read_bytes(fname);
-    if(!q) q = roxen->try_get_file(dirname(id->not_query)+fname,id);
+    if(!q) q = caudium->try_get_file(dirname(id->not_query)+fname,id);
     if(!q) throw("Unknown PPM image '"+fname+"'");
     mixed g = Gz;
     if (g->inflate) {
@@ -347,7 +352,7 @@ class Constructors
 	q = g->inflate()->inflate(q);
       };
     }
-    return myimage(bg(),image()->fromppm(q));
+    return myimage(bg(),IMAGE()->fromppm(q));
   }
 
   object Roxen( )
@@ -362,7 +367,7 @@ class Constructors
   
   object PImage(int xs, int ys, mixed bgc)
   {
-    return myimage(bg(),image(xs,ys,@to_color(bgc)));
+    return myimage(bg(),IMAGE(xs,ys,@to_color(bgc)));
   }
   
 }

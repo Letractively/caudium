@@ -57,7 +57,7 @@ mapping preprocess(mapping in)
 string page_0(object id, mixed f, int|void detail)
 {
   string res = "";
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     res += "<h1>"+c->name+"</h1><p>";
     

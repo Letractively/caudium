@@ -172,12 +172,12 @@ mapping neighbours = ([ ]);
 
 array (string) network_numbers()
 {
-  return roxen->query("neigh_ips")-({""});
+  return caudium->query("neigh_ips")-({""});
 }
 
 array (string) tcp_numbers()
 {
-  return roxen->query("neigh_tcp_ips")-({""});
+  return caudium->query("neigh_tcp_ips")-({""});
 }
 
 int seq;
@@ -230,19 +230,19 @@ array config_info(object c)
 mapping neigh_data()
 {
   mapping m = (["last_reboot":lr]);
-  m->configurl=roxen->config_url();
+  m->configurl=caudium->config_url();
   m->seq=seq++;
   switch(seq & 1)
   {
    case 0:
-    m->comment=roxen->query("neigh_com");
+    m->comment=caudium->query("neigh_com");
     m->host=gethostname();
     m->uid=getuid();
     break;
    case 1:
-    m->server_urls=Array.map(roxen->configurations, config_info);
+    m->server_urls=Array.map(caudium->configurations, config_info);
     m->pid=getpid();
-    m->version=roxen->real_version;
+    m->version=caudium->real_version;
     m->ppid=getppid();
   }
   return m;
@@ -348,7 +348,7 @@ void create()
     add_neighbour(TCPNeigh(s,51521,this_object()),0);
   foreach(network_numbers(), string s)
     add_neighbour(UDPNeigh(s,51521,this_object()),0);
-  if(roxen->query("neighborhood")) broadcast();else remove_call_out(broadcast);
+  if(caudium->query("neighborhood")) broadcast();else remove_call_out(broadcast);
   remove_call_out(create);
   add_constant("neighborhood", neighborhood);
   call_out(create, 1800);

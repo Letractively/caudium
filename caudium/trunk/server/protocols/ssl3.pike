@@ -62,13 +62,13 @@ private object new_context(object c)
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:new_context(X)\n"));
 #endif /* SSL3_DEBUG */
-  mapping contexts = roxen->query_var("ssl3_contexts");
+  mapping contexts = caudium->query_var("ssl3_contexts");
   object ctx = roxen_ssl_context();
   
   if (!contexts)
   {
     contexts = ([ c : ctx ]);
-    roxen->set_var("ssl3_contexts", contexts);
+    caudium->set_var("ssl3_contexts", contexts);
   }
   else
     contexts[c] = ctx;
@@ -80,7 +80,7 @@ private object get_context(object c)
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:get_context()\n"));
 #endif /* SSL3_DEBUG */
-  mapping contexts = roxen->query_var("ssl3_contexts");
+  mapping contexts = caudium->query_var("ssl3_contexts");
 
   return contexts && contexts[c];
 }

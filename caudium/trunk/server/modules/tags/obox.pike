@@ -34,7 +34,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "roxenlib";
 
-constant unit_gif = "/internal-roxen-unit";
+constant unit_gif = "/internal-caudium-unit";
 
 static private int loaded;
 

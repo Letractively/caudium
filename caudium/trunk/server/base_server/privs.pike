@@ -35,7 +35,7 @@ int new_gid;
 #define report_warning werror
 #endif
 
-#define LOGP (roxen && roxen->variables && roxen->variables->audit && GLOBVAR(audit))
+#define LOGP (roxen && caudium->variables && caudium->variables->audit && GLOBVAR(audit))
 
 #define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
 
@@ -76,15 +76,15 @@ void create(string reason, int|string|void uid, int|string|void gid)
   array u;
 
 #ifdef THREADS
-  if (roxen->euid_egid_lock) {
-    catch { mutex_key = roxen->euid_egid_lock->lock(); };
+  if (caudium->euid_egid_lock) {
+    catch { mutex_key = caudium->euid_egid_lock->lock(); };
   }
 #if constant(_disable_threads)
   threads_disabled = _disable_threads();
 #endif
 #endif /* THREADS */
 
-  p_level = roxen->privs_level++;
+  p_level = caudium->privs_level++;
 
   if (getuid()) return;
 
@@ -193,24 +193,24 @@ void destroy()
 {
 #ifdef HAVE_EFFECTIVE_USER
   /* Check that we don't increase the privs level */
-  if (p_level >= roxen->privs_level) {
+  if (p_level >= caudium->privs_level) {
     report_error(sprintf("Change back to uid#%d gid#%d from uid#%d gid#%d\n"
 			 "in wrong order! Saved level:%d Current level:%d\n"
 			 "Occurs in:\n%s\n",
 			 saved_uid, saved_gid, new_uid, new_gid,
-			 p_level, roxen->privs_level,
+			 p_level, caudium->privs_level,
 			 describe_backtrace(backtrace())));
     return(0);
   }
-  if (p_level != roxen->privs_level-1) {
+  if (p_level != caudium->privs_level-1) {
     report_error(sprintf("Change back to uid#%d gid#%d from uid#%d gid#%d\n"
 			 "Skips privs level. Saved level:%d Current level:%d\n"
 			 "Occurs in:\n%s\n",
 			 saved_uid, saved_gid, new_uid, new_gid,
-			 p_level, roxen->privs_level,
+			 p_level, caudium->privs_level,
 			 describe_backtrace(backtrace())));
   }
-  roxen->privs_level = p_level;
+  caudium->privs_level = p_level;
 
   if(LOGP) {
     catch {

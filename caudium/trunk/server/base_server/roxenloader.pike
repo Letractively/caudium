@@ -231,11 +231,11 @@ mixed query(string arg)
 {
   if(!roxen)
     error("No roxen object!\n");
-  if(!roxen->variables)
+  if(!caudium->variables)
     error("No roxen variables!\n");
-  if(!roxen->variables[arg])
+  if(!caudium->variables[arg])
     error("Unknown variable: "+arg+"\n");
-  return roxen->variables[arg][VAR_VALUE];
+  return caudium->variables[arg][VAR_VALUE];
 }
 
 // used for debug messages. Sent to the configuration interface and STDERR.
@@ -597,13 +597,13 @@ void load_caudium()
   add_constant("Privs", (Privs=empty_class));
   roxen = really_load_caudium();
 #endif
-  perror("Caudium version "+roxen->cvs_version+"\n"
-	 "Caudium release "+roxen->real_version+"\n"
+  perror("Caudium version "+caudium->cvs_version+"\n"
+	 "Caudium release "+caudium->real_version+"\n"
 #ifdef __NT__
 	 "Running on NT\n"
 #endif
     );
-  nwrite = roxen->nwrite;
+  nwrite = caudium->nwrite;
 }
 
 // Code to trace fd usage.
@@ -722,7 +722,7 @@ int main(mixed ... args)
 
   initiate_cache();
   load_caudium();
-  int retval = roxen->main(@args);
+  int retval = caudium->main(@args);
   perror_status_reported = 0;
   roxen_perror("\n-- Total boot time %4.3f seconds ---------------------------\n\n",
 	       (gethrtime()-start_time)/1000000.0);

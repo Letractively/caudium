@@ -32,7 +32,14 @@ constant LITET = 1.0e-38;
 constant STORTLITET = 1.0e-30;
 constant STORT = 1.0e30;
 
-import Image;
+#if constant(Image.image)
+#define OLDSTYLE
+#define IMAGE Image.image
+#define FONT Image.font
+#else
+#define IMAGE Image.Image
+#define FONT Image.Font
+#endif
 import Array;
 import Stdio;
 
@@ -64,7 +71,7 @@ object tileimage(object img, int xs, int ys)
 {
   //written by js@idonex.se
 
-  object dest=image(xs,ys);
+  object dest=IMAGE(xs,ys);
   int srcx=img->xsize();
   int srcy=img->ysize();
   if(srcx <= 0 || srcy <= 0)
@@ -125,7 +132,7 @@ string diagram_neng(float a)
   return foo+s;
 }
 
-void draw(object(image) img, float h, array(float|string) coords,
+void draw(object(IMAGE) img, float h, array(float|string) coords,
 	  void|int|float zerolength)
 {
   if ((sizeof(coords)==2)||
@@ -491,10 +498,10 @@ mapping(string:mixed) init(mapping(string:mixed) diagram_data)
   return diagram_data;
 };
 
-#ifndef ROXEN
+#ifndef CAUDIUM
 object get_font(string j, int p, int t, int h, string fdg, int s, int hd)
 {
-  return Image.font()->load("avant_garde");
+  return FONT()->load("avant_garde");
 };
 #endif
 
@@ -525,10 +532,10 @@ mapping(string:mixed) create_text(mapping(string:mixed) diagram_data)
 	  -> scale(0,diagram_data["fontsize"]);
       else
 	diagram_data["xnamesimg"][i]=
-	  image(diagram_data["fontsize"],diagram_data["fontsize"]);
+	  IMAGE(diagram_data["fontsize"],diagram_data["fontsize"]);
       
       if (diagram_data["xnamesimg"][i]->xsize()<1)
-	diagram_data["xnamesimg"][i]=image(diagram_data["fontsize"],
+	diagram_data["xnamesimg"][i]=IMAGE(diagram_data["fontsize"],
 					   diagram_data["fontsize"]);
     }
       
@@ -548,10 +555,10 @@ mapping(string:mixed) create_text(mapping(string:mixed) diagram_data)
 	}
 	else
 	  diagram_data["ynamesimg"][i]=
-	    image(diagram_data["fontsize"],diagram_data["fontsize"]);
+	    IMAGE(diagram_data["fontsize"],diagram_data["fontsize"]);
 	
 	if (diagram_data["ynamesimg"][i]->xsize()<1)
-	  diagram_data["ynamesimg"][i]=image(diagram_data["fontsize"],
+	  diagram_data["ynamesimg"][i]=IMAGE(diagram_data["fontsize"],
 					     diagram_data["fontsize"]);
       }
     else
@@ -565,10 +572,10 @@ mapping(string:mixed) create_text(mapping(string:mixed) diagram_data)
 	    ->scale(0,diagram_data["fontsize"]);
 	else
 	  diagram_data["ynamesimg"][i]=
-	    image(diagram_data["fontsize"],diagram_data["fontsize"]);
+	    IMAGE(diagram_data["fontsize"],diagram_data["fontsize"]);
 	
 	if (diagram_data["ynamesimg"][i]->xsize()<1)
-	  diagram_data["ynamesimg"][i]=image(diagram_data["fontsize"],
+	  diagram_data["ynamesimg"][i]=IMAGE(diagram_data["fontsize"],
 					     diagram_data["fontsize"]);
       }
       
@@ -754,7 +761,7 @@ mapping set_legend_size(mapping diagram_data)
   int xmax=0, ymax=0;
   int b;
   int columnnr;
-  array(object(image)) texts;
+  array(object(IMAGE)) texts;
   array(mixed) plupps; //Det som ska ritas ut före texterna
   object notext;
 
@@ -790,11 +797,11 @@ mapping set_legend_size(mapping diagram_data)
 	      ->scale(0,diagram_data["legendfontsize"]);
 	  else
 	    texts[i]=
-	      image(diagram_data["legendfontsize"],
+	      IMAGE(diagram_data["legendfontsize"],
 		    diagram_data["legendfontsize"]);
 		
 	  if (texts[i]->xsize()<1)
-	    texts[i]=image(diagram_data["legendfontsize"],
+	    texts[i]=IMAGE(diagram_data["legendfontsize"],
 			   diagram_data["legendfontsize"]);
 	}
 	    
@@ -815,7 +822,7 @@ mapping set_legend_size(mapping diagram_data)
 	    (diagram_data["type"]=="pie"))
 	  for(int i=0; i<j; i++)
 	  {
-	    plupps[i]=image(diagram_data["legendfontsize"],
+	    plupps[i]=IMAGE(diagram_data["legendfontsize"],
 			    diagram_data["legendfontsize"]);
 		
 	    plupps[i]->setcolor(255,255,255);
@@ -930,7 +937,7 @@ mapping set_legend_size(mapping diagram_data)
 mapping(string:mixed) init_bg(mapping diagram_data)
 {
   if (diagram_data["bgcolor"])
-    diagram_data["image"]=image(diagram_data["xsize"],diagram_data["ysize"],
+    diagram_data["image"]=IMAGE(diagram_data["xsize"],diagram_data["ysize"],
 				@(diagram_data["bgcolor"]));
   else
     if ((diagram_data["xsize"]==0)||(0==diagram_data["ysize"]))
@@ -945,7 +952,7 @@ mapping(string:mixed) init_bg(mapping diagram_data)
 					diagram_data["xsize"], 
 					diagram_data["ysize"]);
       else
-	diagram_data["image"]=image(diagram_data["xsize"],
+	diagram_data["image"]=IMAGE(diagram_data["xsize"],
 				    diagram_data["ysize"],
 				    255,255,255);
 }
@@ -999,7 +1006,7 @@ mapping(string:mixed) create_graph(mapping diagram_data)
   //Fixa defaultfärger!
   setinitcolors(diagram_data);
 
-  object(image) graph;
+  object(IMAGE) graph;
   init_bg(diagram_data);
   graph=diagram_data["image"];
 
@@ -1174,10 +1181,10 @@ mapping(string:mixed) create_graph(mapping diagram_data)
       labelimg=notext
 	-> write(label)->scale(0,diagram_data["labelsize"]);
     else
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
       
     if (labelimg->xsize()<1)
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
 
     if (labelimg->xsize()>
 	diagram_data["xsize"]/2)
@@ -1609,10 +1616,10 @@ mapping(string:mixed) create_graph(mapping diagram_data)
       labelimg=notext->write(label)
 	-> scale(0,diagram_data["labelsize"]);
     else
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
     
     if (labelimg->xsize()<1)
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
     
     //if (labelimg->xsize()> graph->xsize())
     //labelimg->scale(graph->xsize(),labelimg->ysize());

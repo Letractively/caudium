@@ -72,7 +72,7 @@ class MirrorServer {
   object open_file(string url)
   {
     url = replace(base+url,"//","/");
-    string foo = roxen->real_file(url, fid);
+    string foo = caudium->real_file(url, fid);
     if(foo) return MyFile(foo);
     return MyStringFile(fid->conf->try_get_file(url, fid));
   }
@@ -80,7 +80,7 @@ class MirrorServer {
   string get_file(string url)
   {
     url = replace(base+url,"//","/");
-    string foo = roxen->real_file(url, fid);
+    string foo = caudium->real_file(url, fid);
     if(foo) return read_bytes(foo);
     return fid->conf->try_get_file(url, fid);
   }

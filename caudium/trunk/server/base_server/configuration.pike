@@ -39,11 +39,11 @@ inherit "roxenlib";
 public string real_file(string file, object id);
 
 
-function store = roxen->store;
-function retrieve = roxen->retrieve;
-function remove = roxen->remove;
-function do_dest = roxen->do_dest;
-function create_listen_socket = roxen->create_listen_socket;
+function store = caudium->store;
+function retrieve = caudium->retrieve;
+function remove = caudium->remove;
+function do_dest = caudium->do_dest;
+function create_listen_socket = caudium->create_listen_socket;
 
 
 
@@ -110,11 +110,11 @@ static class ConfigurableWrapper
   int check()
   {
     if ((mode & VAR_EXPERT) &&
-	(!roxen->configuration_interface()->expert_mode)) {
+	(!caudium->configuration_interface()->expert_mode)) {
       return 1;
     }
     if ((mode & VAR_MORE) &&
-	(!roxen->configuration_interface()->more_mode)) {
+	(!caudium->configuration_interface()->more_mode)) {
       return 1;
     }
     return(f());
@@ -800,7 +800,7 @@ public void log(mapping file, object request_id)
 	       }));
   
   if(search(form, "host") != -1)
-    roxen->ip_to_host(request_id->remoteaddr, write_to_log, form,
+    caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
 		      request_id->remoteaddr, log_function);
   else
     log_function(form);
@@ -816,7 +816,7 @@ public string status()
   if(!sent||!received||!hsent)
     return "Fatal error in status(): Bignum object gone.\n";
 
-  tmp = (sent->mb()/(float)(time(1)-roxen->start_time+1));
+  tmp = (sent->mb()/(float)(time(1)-caudium->start_time+1));
   res = sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%.2fMB"
 		"</td><td>%.2f Kbit/sec</td>",
 		sent->mb(),tmp * 8192.0);
@@ -825,7 +825,7 @@ public string status()
 		 hsent->mb());
   
   tmp=(((float)requests*(float)600)/
-       (float)((time(1)-roxen->start_time)+1));
+       (float)((time(1)-caudium->start_time)+1));
 
   res += sprintf("<tr align=right><td><b>Number of requests:</b></td>"
 		 "<td>%8d</td><td>%.2f/min</td>"
@@ -834,7 +834,7 @@ public string status()
 
   if (!zero_type(misc->ftp_users)) {
     tmp = (((float)misc->ftp_users*(float)600)/
-	   (float)((time(1)-roxen->start_time)+1));
+	   (float)((time(1)-caudium->start_time)+1));
 
     res += sprintf("<tr align=right><td><b>FTP users (total):</b></td>"
 		   "<td>%8d</td><td>%.2f/min</td>"
@@ -843,7 +843,7 @@ public string status()
   }
   res += "</table><p>\n\n";
 
-  if ((roxen->configuration_interface()->more_mode) &&
+  if ((caudium->configuration_interface()->more_mode) &&
       (extra_statistics->ftp) && (extra_statistics->ftp->commands)) {
     // FTP statistics.
     res += "<b>FTP statistics:</b><br>\n"
@@ -1078,10 +1078,10 @@ private mapping internal_roxen_image(string from)
   sscanf(from, "%s.gif", from);
   sscanf(from, "%s.jpg", from);
 
-  // Disallow "internal-roxen-..", it won't really do much harm, but a list of
+  // Disallow "internal-caudium-..", it won't really do much harm, but a list of
   // all files in '..' might be retrieved (that is, the actual directory
   // file was sent to the browser)
-  // /internal-roxen-../.. was never possible, since that would be remapped to
+  // /internal-caudium-../.. was never possible, since that would be remapped to
   // /..
   from -= ".";
 
@@ -1266,7 +1266,7 @@ mapping|int low_get_file(object id, int|void no_magic)
 	return internal_gopher_image(loc);
       }
       if(sscanf(loc, "caudium-%[^/]", loc)  // Configuration interface images.
-	 ||sscanf(loc, "roxen-%[^/]", loc)) // Try /internal-roxen-power
+	 ||sscanf(loc, "roxen-%[^/]", loc)) // Try /internal-caudium-power
       {
 	TRACE_LEAVE("Magic internal Caudium image");
 	return internal_roxen_image(loc);
@@ -2381,7 +2381,7 @@ object enable_module( string modname )
   string id;
   mapping module;
   mapping enabled_modules;
-  roxen->current_configuration = this_object();
+  caudium->current_configuration = this_object();
   modname = replace(modname, ".lpc#","#");
   
   sscanf(modname, "%s#%s", modname, id );
@@ -2963,7 +2963,7 @@ int load_module(string module_file)
   int start_time = gethrtime();
 #endif
   // It is not thread-safe to use this.
-  roxen->current_configuration = this_object();
+  caudium->current_configuration = this_object();
 #ifdef MODULE_DEBUG
   perror("\nLoading " + module_file + "... ");
 #endif
@@ -2978,7 +2978,7 @@ int load_module(string module_file)
     //_master->set_inhibit_compile_errors("");
 
     err = catch {
-      obj = roxen->load_from_dirs(roxen->QUERY(ModuleDirs), module_file,
+      obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
 				  this_object());
     };
 
@@ -2992,7 +2992,7 @@ int load_module(string module_file)
       return(0);
     }
 
-    prog = roxen->last_loaded();
+    prog = caudium->last_loaded();
   }
 
   if (err) {
@@ -3018,7 +3018,7 @@ int load_module(string module_file)
   }
 
   err = "";
-  roxen->somemodules[module_file]=
+  caudium->somemodules[module_file]=
     ({ module_data[1], module_data[2]+"<p><i>"+
        replace(obj->file_name_and_stuff(),"0<br>", module_file+"<br>")
        +"</i>", module_data[0] });
@@ -3124,8 +3124,8 @@ int add_modules (array(string) mods)
   foreach (mods, string mod)
     if(!modules[mod] || !modules[mod]->copies && !modules[mod]->master)
       enable_module(mod+"#0");
-  if(roxen->root)
-    roxen->configuration_interface()->build_root(roxen->root);
+  if(caudium->root)
+    caudium->configuration_interface()->build_root(caudium->root);
 }
 
 int port_open(array prt)
@@ -3141,16 +3141,16 @@ string desc()
 
   if(!sizeof(QUERY(Ports)))
   {
-/*    array ips = roxen->configuration_interface()->ip_number_list;*/
-/*    if(!ips) roxen->configuration_interface()->init_ip_list;*/
-/*    ips = roxen->configuration_interface()->ip_number_list;*/
+/*    array ips = caudium->configuration_interface()->ip_number_list;*/
+/*    if(!ips) caudium->configuration_interface()->init_ip_list;*/
+/*    ips = caudium->configuration_interface()->ip_number_list;*/
 /*    foreach(ips||({}), string ip)*/
 /*    {*/
       
 /*    }*/
 
     array handlers = ({});
-    foreach(roxen->configurations, object c)
+    foreach(caudium->configurations, object c)
       if(c->modules["ip-less_hosts"])
 	handlers+=({({http_encode_string("/Configurations/"+c->name),
 			strlen(c->query("name"))?c->query("name"):c->name})});
@@ -3287,7 +3287,7 @@ void enable_all_modules()
                     +describe_backtrace(err)+"\n"
 #endif
 	);
-  roxen->current_configuration = 0;
+  caudium->current_configuration = 0;
 #if efun(gethrtime)
   perror("\nAll modules for %s enabled in %4.3f seconds\n\n", query_name(),
 	 (gethrtime()-start_time)/1000000.0);
@@ -3296,7 +3296,7 @@ void enable_all_modules()
 
 void create(string config)
 {
-  roxen->current_configuration = this;
+  caudium->current_configuration = this;
   name=config;
 
   perror("Creating virtual server '"+config+"'\n");
@@ -3383,7 +3383,7 @@ void create(string config)
   
   defvar("Log", 1, "Logging: Enabled", TYPE_FLAG, "Log requests");
   
-  defvar("LogFile", roxen->QUERY(logdirprefix)+
+  defvar("LogFile", caudium->QUERY(logdirprefix)+
 	 short_name(name)+"/Log", 
 
 	 "Logging: Log file", TYPE_FILE, "The log file. "
@@ -3403,7 +3403,7 @@ void create(string config)
 	 "of the patterns in this list. This also affects the access counter "
 	 "log.\n",0, log_is_not_enabled);
   
-  defvar("Domain", roxen->get_domain(), "Domain", TYPE_STRING,
+  defvar("Domain", caudium->get_domain(), "Domain", TYPE_STRING,
 	 "Your domainname, should be set automatically, if not, "
 	 "enter the correct domain name here, and send a bug report to "
 	 "<a href=\"mailto:caudium-bugs@caudium.net\">caudium-bugs@caudium.net"

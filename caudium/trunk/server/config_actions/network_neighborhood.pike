@@ -100,7 +100,7 @@ string page_0()
 	       RE+(vanished?"(down since "+
 		   time_interval(time()-ns->rec_time)+"???)":
 		   time_interval(time()-ns->last_reboot))+ER,
-	       RE+roxen->language("en","date")(ns->last_reboot)+ER,
+	       RE+caudium->language("en","date")(ns->last_reboot)+ER,
 	       RE+sv(ns->pid)+ER,
 	       RE+sv(ns->ppid)+ER,
 	       RE+sv(ns->version)+ER}) +

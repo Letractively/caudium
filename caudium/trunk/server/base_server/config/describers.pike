@@ -79,7 +79,7 @@ string describe_time(int t)
   }
 
   if(full)
-    return capitalize(roxen->language("en","date")(t));
+    return capitalize(caudium->language("en","date")(t));
   else
     return sprintf("%02d:%02d",localtime(t)->hour,localtime(t)->min);
 }
@@ -367,7 +367,7 @@ string describe_module_copy(object node)
 	 (node->data->query("_comment")||""));
 
   return ("<font size=\"+1\">" + link( name ) + "</font><dd>" 
-	  + shorten((roxen->QUERY(DOC)?node->data->info():""), node)
+	  + shorten((caudium->QUERY(DOC)?node->data->info():""), node)
 	  + (strlen(com)?"<p><i>"+com+"</i></p>":"")
 	  +"<dd>");
 }

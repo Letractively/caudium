@@ -39,13 +39,13 @@ mixed page_0(object id, object mc)
 		 "Click <b>[Next->]</b> to see the statistics for each "
 		 "indiviual server, or <b>[Cancel]</b> to return to the "
 		 "previous menu.<p>%s", 
-		 roxen->full_status());
+		 caudium->full_status());
 }
 
 mixed page_1(object id)
 {
   string res="";
-  foreach(Array.sort_array(roxen->configurations,
+  foreach(Array.sort_array(caudium->configurations,
 			   lambda(object a, object b) {
 			     return a->requests < b->requests;
 			   }), object o) {

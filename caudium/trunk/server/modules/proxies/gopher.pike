@@ -87,7 +87,7 @@ void write_to_client_and_cache(object client, string data, string key)
   object cache;
   object pip;
   if(key)
-    cache = roxen->create_cache_file("gopher", key);
+    cache = caudium->create_cache_file("gopher", key);
 
   pip=Pipe.pipe();
   if(cache)
@@ -190,7 +190,7 @@ void done_dir_data(array in)
     write_to_client_and_cache(to, dirl*"\n", 0);
   }
   destruct(to);
-  --roxen->num_connections;
+  --caudium->num_connections;
 }
 
 void got_dir_data(array i, string s)
@@ -248,8 +248,7 @@ void connected(object ok, string file, object send_to, string query,
 #ifdef GOPHER_DEBUG
     perror("GOPHER: Is a menu\n");
 #endif
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     ok->set_id(({ "", send_to, ok, key}));
     ok->set_nonblocking(got_dir_data, lambda(){}, done_dir_data);
     send_to->my_fd->write("HTTP/1.0 200 Yo! Gopher dir comming soon to a "
@@ -261,44 +260,38 @@ void connected(object ok, string file, object send_to, string query,
     /* 3 is error (?) */
 
    case "4": /* Mac binhex (of all types...) */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Yo! Gopher data comming soon to a "
 			  "screen near you\n"
 			  "Content-Type: application/mac-binhex\n\n");
     break;
     
    case "5": /* Dos binary (of all types...) */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Yo!\n"
 			  "Content-Type: application/x-dosbinary\n\n");
     break;
 
    case "6": /* Unix UUENCODE */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Yo!\n"
 		   "Content-Type: application/x-uuencode\n\n");
     break;
 
    case "9": /* Binary */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Yo!\n"
 			  "Content-Type: application/binary\n\n");
     break;
     
    case "g": /* Gif image */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Gopher data\n"
 			  "Content-Type: image/gif\n\n");
     break;
 
    case "I": /* _some_ image, lets pretend it's a jpeg.. :) */
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200  to a screen near you\n"
 			  "Content-Type: image/jpeg\n\n");
     break;
@@ -318,8 +311,7 @@ void connected(object ok, string file, object send_to, string query,
 		   "screen near you\nContent-Type: text/html\n\n"
 		   "<h1>Gopher Search</h1>"
 		   "<isindex prompt=\"Gopher search:  \">");
-    ok->write(file + "	" + query + "
-\n");
+    ok->write(file + "	" + query + "\n");
     ok->set_id(({ "", send_to, ok})); 
     ok->set_nonblocking(got_dir_data, lambda(){}, done_dir_data);
     return;
@@ -328,8 +320,7 @@ void connected(object ok, string file, object send_to, string query,
    case "+": /* Extra server, shouldn't be here */
    case "8": /* Shouldn't be here... */
    default:   
-    ok->write(file + "
-\n");
+    ok->write(file + "\n");
     send_to->my_fd->write("HTTP/1.0 200 Yo! Gopher data comming soon to a "
 			  "screen near you\nContent-Type: text/plain\n\n");
     

@@ -39,18 +39,18 @@ constant programs = ({
 
 mixed handle(object id, object mc)
 {
-  if (roxen->unload_configuration_interface) {
+  if (caudium->unload_configuration_interface) {
     /* Fool the type-checker of in old Roxen's */
-    mixed foo = roxen->unload_configuration_interface;
+    mixed foo = caudium->unload_configuration_interface;
     foo();
   } else {
     /* Some backward compatibility */
-    roxen->configuration_interface_obj=0;
-    roxen->loading_config_interface=0;
-    roxen->enabling_configurations=0;
-    roxen->build_root=0;
-    catch{roxen->root->dest();};
-    roxen->root=0;
+    caudium->configuration_interface_obj=0;
+    caudium->loading_config_interface=0;
+    caudium->enabling_configurations=0;
+    caudium->build_root=0;
+    catch{caudium->root->dest();};
+    caudium->root=0;
   }
 
   report_notice("Reloading the configuration interface from disk...\n");
@@ -64,5 +64,5 @@ mixed handle(object id, object mc)
 
   report_notice("Configuration interface reloaded from disk.\n");
   
-  return http_redirect(roxen->config_url()+"Actions/?"+time(1));
+  return http_redirect(caudium->config_url()+"Actions/?"+time(1));
 }

@@ -527,7 +527,7 @@ class CGIWrapper
       }
     }
     if(!sv_received)
-      result += "Server: "+roxen.version()+"\r\n";
+      result += "Server: "+caudium.version()+"\r\n";
     if(!ct_received)
       result += "Content-Type: text/html\r\n";
     return "HTTP/1.0 "+code+"\r\n"+result+"\r\n"+post;
@@ -839,7 +839,7 @@ class CGIScript
     if(id->misc->orig) // An <insert file=...> operation, and we have no threads.
       blocking = 1;
 #else
-    if(id->misc->orig && this_thread() == roxen.backend_thread)
+    if(id->misc->orig && this_thread() == caudium.backend_thread)
       blocking = 1; 
     // An <insert file=...> and we are 
     // currently in the backend thread.
@@ -924,7 +924,7 @@ void start(int n, object conf)
     sscanf(tmp, "%s:", tmp);
     sscanf(tmp, "%s/", tmp);
     global_env["SERVER_NAME"]=tmp;
-    global_env["SERVER_SOFTWARE"]=roxen.version();
+    global_env["SERVER_SOFTWARE"]=caudium.version();
     global_env["GATEWAY_INTERFACE"]="CGI/1.1";
     global_env["SERVER_PROTOCOL"]="HTTP/1.0";
     global_env["SERVER_URL"]=conf->query("MyWorldLocation");
@@ -1027,7 +1027,7 @@ int run_as_user_enabled() { return (getuid() || !QUERY(user)); }
 void create(object conf)
 {
   defvar("env", 0, "Pass environment variables", TYPE_FLAG|VAR_MORE,
-	 "If this is set, all environment variables roxen has will be "
+	 "If this is set, all environment variables caudium has will be "
          "passed to CGI scripts, not only those defined in the CGI/1.1 standard. "
          "This includes PATH. (For a quick test, try this script with "
 	 "and without this variable set:"
@@ -1094,7 +1094,7 @@ void create(object conf)
 	 short_name(conf? conf->name:".")+"/cgi.log", 
 	 "Log file", TYPE_STRING,
 	 "Where to log errors from CGI scripts. You can also choose to send "
-	 "the errors to the browser or to the main Roxen log file. "
+	 "the errors to the browser or to the main Caudium log file. "
 	 " Some substitutions of the file name will be done to allow "
 	 "automatic rotating:"
 	 "<pre>"
@@ -1150,7 +1150,7 @@ void create(object conf)
          0, getuid);
 
   defvar("runuser", "", "Run scripts as", TYPE_STRING,
-	 "If you start roxen as root, and this variable is set, CGI scripts "
+	 "If you start caudium as root, and this variable is set, CGI scripts "
 	 "will be run as this user. You can use either the user name or the "
 	 "UID. Note however, that if you don't have a working user database "
 	 "enabled, only UID's will work correctly. If unset, scripts will "
