@@ -272,9 +272,12 @@ private static void low_shutdown(int exit_type)
       // Try to kill the start-script.
       if(startpid != getpid()) {
         kill(startpid, signum("SIGINTR"));
-        kill(startpid, signum("SIGHUP"));
-        kill(getppid(), signum("SIGINTR"));
-        kill(getppid(), signum("SIGHUP"));
+	kill(getppid(), signum("SIGINTR"));
+	if(ext_type)
+	{
+          kill(startpid, signum("SIGHUP"));
+          kill(getppid(), signum("SIGHUP"));
+	}
       }
     }
   }
@@ -1741,7 +1744,10 @@ void reload_all_configurations()
 //    config_cache[config] = st;
     if(conf) {
       // Closing ports...
-      Array.map(values(conf->server_ports), conf->do_dest);
+      if(conf->do_dest)
+        Array.map(values(conf->server_ports), conf->do_dest);
+      else
+        Array.map(values(conf->server_ports), destruct);
       conf->stop();
       conf->invalidate_cache();
       conf->modules = ([]);
@@ -1772,7 +1778,10 @@ void reload_all_configurations()
     modified = 1;
     report_notice("Disabling old configuration %s\n", conf->name);    
 
-    Array.map(values(conf->server_ports), conf->do_dest);
+    if(conf->do_dest)
+      Array.map(values(conf->server_ports), conf->do_dest);
+    else
+      Array.map(values(conf->server_ports), destruct);
 
     conf->stop();
     destruct(conf);
