@@ -3,6 +3,8 @@
 # $Id$
 #
 . /usr/share/debconf/confmodule
+db_version 2.0
+db_capb
 
 get_cfg_port() {
     local yesno;
@@ -21,7 +23,7 @@ get_cfg_port() {
      fi
      
      db_subst caudium/last_screen cfgport "$port"
-     return
+     return 0
     done
 }
 
@@ -41,7 +43,7 @@ get_iface() {
      if test -z "$port"; then
         port="`expr $port + 1`"	
      else
-        return
+        return 0
      fi
      
      db_reset caudium/listen_on
@@ -49,8 +51,7 @@ get_iface() {
     done
 }
 
-db_version 2.0
-db_capb
+
 
 if test ! -f /etc/caudium/servers/Global_Variables; then
     get_cfg_port
@@ -67,3 +68,5 @@ db_title 'Caudium configuration'
 db_input medium caudium/last_screen || true
     
 db_go || true
+
+exit 0
