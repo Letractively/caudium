@@ -921,9 +921,6 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     string   query;
     mapping  hvars = ([]);
 
-    if (!id->misc->session_id)
-        return "";
-    
     if (id->misc->session_id && args && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
             Caudium.parse_query_string(query, hvars);
@@ -943,9 +940,6 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     string   query;
     mapping  hvars = ([]);
     int      do_hidden = 1;
-
-    if (!id->misc->session_id)
-        return "";
     
     if (id->misc->session_id && args && args->action && !leave_me_alone(args->action)) {
         if (!args->method || (args->method && lower_case(args->method) != "post")) {
