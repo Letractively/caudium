@@ -25,7 +25,7 @@
 #define SQLUTILS_H
 
 #if defined(DEBUG)
-# define SQLUDW(x) werror("sqlutils.h: " + x + "\n")
+# define SQLUDW(x) report_debug("sqlutils.h: " + x + "\n")
 #else
 # define SQLUDW(x)
 #endif

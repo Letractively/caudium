@@ -216,7 +216,7 @@ int index(string uri, string data, string title, string type, string date)
 
   data=(((data/" ")-({""}))*" ");
 
-  //werror(data + "\n\n");
+  //report_debug(data + "\n\n");
   object us=summary_class->alloc();
   Lucene->check_exception();
   summary_init(us);
@@ -235,7 +235,7 @@ int index(string uri, string data, string title, string type, string date)
   Lucene->check_exception();
   index_add(ie, us);
   Lucene->check_exception();
-//werror((string)us);
+//report_debug((string)us);
   return 1;
 }
 
@@ -274,7 +274,7 @@ int index(string uri, string data, string title, string type, string date)
          else break;
        } 
        while(1);
-	werror(e->read(1024,1));
+	report_debug(e->read(1024,1));
        return ret;
     }
   }
@@ -316,7 +316,7 @@ int index(string uri, string data, string title, string type, string date)
            else break;
           } 
          while(1);
-         werror(e->read(1024,1));
+         report_debug(e->read(1024,1));
          do
          {
            p->wait();

@@ -13,7 +13,7 @@ mapping scripthandlers = ([ ]);
 
 //!
 static void diag(string x)
-{ // werror(x);
+{ // report_debug(x);
 }
 
 //!
