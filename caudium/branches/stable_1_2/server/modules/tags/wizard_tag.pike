@@ -23,6 +23,33 @@
  * Wizard tag module, mainly written by Per Hedbor.
  */
 
+//! module: Advanced Wizard
+//!  This module contains code that implements basic wizard dialogs.
+//! type: MODULE_PARSER
+//! cvs_version: $Id$ 
+//
+//! tag: wizard
+//!  Defines a new wizard.
+//! attribute: title
+//!  Set title of the new wizard.
+//! attribute: cancel
+//! attribute: ok-label
+//!  Set the text of the OK button.
+//! attribute: cancel-label
+//!  Set the text of the cancel button.
+//! attribute: done
+//! attribute: formname
+//!  Set the name attribute of the generated form. Useful for DHTML.
+//
+//! container: page
+//!  Creates a new wizard page.
+//! attribute: name
+//!  Optional attribute to set the page name.
+//!
+//!
+//! container: done
+//!  contents displayed at completion of all other pages.
+
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 #include <module.h>
@@ -34,14 +61,21 @@ constant module_name = "Wizard generator";
 constant module_doc  = "Generates wizards<p>See &lt;wizard help&gt; for more information\n";
 constant module_unique = 1;
 
-string internal_page(string t, mapping args, string contents, int l, int ol,
-		     mapping f)
+string internal_page(string t, mapping args, string contents, mixed f,
+		     mapping d)
 {
-  f->pages +=({({contents,ol+l})});
+  f->pages +=({({contents, 1})});
 }
 
-string internal_done(string t, mapping args, string contents, int l, int ol,
-		     mapping f)
+string internal_verify(string t, mapping args, string contents, mixed f,
+                     mapping d)
+{
+  f->verify +=({({contents, 1})});
+}
+
+
+string internal_done(string t, mapping args, string contents, mixed f,
+		     mapping d)
 {
   f->done=contents;
 }
@@ -56,12 +90,21 @@ string fix_relative(string file, object id)
 string old_pike = "";
 object old_wizard = 0;
 
+string tag_verify_message(string t, mapping args, string contents, object id,
+                  object file, mapping defines)
+{
+  if(id->misc->wizardpagefailed)
+     return contents;
+}
+
 string tag_wizard(string t, mapping args, string contents, object id,
 		  object file, mapping defines)
 {
   if(!id->misc->line)
     id->misc->line=-1;
-  mapping f = ([ "pages":({}) ]);
+  if(args->formname) id->misc->wizardformname=args->formname;
+
+  mapping f = ([ "pages":({}), "verify":({}) ]);
   string pike = ("inherit \"wizard\";\n" +
 #if (__VERSION__ >= 0.6)
 		 sprintf("# "+id->misc->line+" %O\n"
@@ -113,11 +156,12 @@ string tag_wizard(string t, mapping args, string contents, object id,
 #endif /* __VERSION__ >= 0.6 */
   }
 
-  parse_html_lines(contents,
+  parse_html(contents,
 		   ([]),
 		   ([ "page":internal_page,
+		      "verify": internal_verify,
 		      "done":internal_done ]), 
-		   (int)id->misc->line,f);
+		   f);
   if (f->done && !args->ok) {
 #if __VERSION__ >= 0.6
     pike += sprintf("mixed wizard_done(object id)\n"
@@ -146,6 +190,22 @@ string tag_wizard(string t, mapping args, string contents, object id,
     pike += ("string page_"+p+"(object id) {" +
 	     "return \""+replace(q[0], ({"\"","\n","\r", "\\"}), 
 				 ({"\\\"", "\\n", "\\r", "\\\\"}))+"\";}\n");
+#endif /* __VERSION__ >= 0.6 */
+    p++;
+  }
+  p=0;
+  foreach(f->verify, array q)
+  {
+#if __VERSION__ >= 0.6
+    pike += sprintf("# "+q[1]+" %O\n", id->not_query);
+    pike += sprintf("mixed verify_"+p+"(object id) {" +
+                    "%s\n"
+                    "}\n", q[0]);
+#else
+    pike += ("# "+q[1]+" \""+id->not_query+"\"\n");
+    pike += ("string verify_"+p+"(object id) {" +
+             "return \""+replace(q[0], ({"\"","\n","\r", "\\"}),
+                                 ({"\\\"", "\\n", "\\r", "\\\\"}))+"\";}\n");
 #endif /* __VERSION__ >= 0.6 */
     p++;
   }
