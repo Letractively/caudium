@@ -1348,26 +1348,12 @@ mapping configuration_parse(object id)
     // We also need to determine wether this is the full or the
     // lobotomized international version.
 
-    int full_version=0;
-    int half_version=0;
-#if constant(_Crypto) && constant(SSL)
-    full_version = 1;
-    catch {
-      if(!SSL.constants()->CIPHER_des) {
-	half_version = 1;
-	full_version = 0;
-      }
-    };
-#endif
-
     return http_string_answer(default_head("Caudium " +
 					   caudium->__caudium_version__ + "." +
 					   caudium->__caudium_build__)+
 			      status_row(root)+
 			      display_tabular_header(root)+
-			      Stdio.read_bytes(full_version?"etc/config.html":
-					 (half_version?"etc/config.40bit.html":
-					  "etc/config.int.html")),"text/html");
+			      Stdio.read_bytes("etc/config.html"),"text/html");
   }
   
   if(sizeof(id->prestate))
