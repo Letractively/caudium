@@ -17,14 +17,19 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */ 
 
-// $Id$
-//import "../";
+//! $Id$
+
 object db;
 string key;
 string path;
 array tdate;
 mapping available;
+
+//!
 mapping get_available_dates()
 {
   object dates = Gdbm.gdbm(path+"available_dates.gdbm", "rwc");
@@ -40,6 +45,7 @@ mapping get_available_dates()
   return available = tmp;
 }
 
+//!
 void create(string _path)
 {
   path = _path;
@@ -48,6 +54,7 @@ void create(string _path)
   get_available_dates();
 }
 
+//!
 void set_period(array period)
 {
   if(db) {
@@ -73,7 +80,10 @@ void set_period(array period)
   }
 }
 
+//!
 int modified;
+
+//!
 void invalidate(mapping dates)
 {
   foreach(indices(dates), int y) {
@@ -99,6 +109,7 @@ void invalidate(mapping dates)
   }
 }
 
+//!
 array(int) get_days()
 {
   get_available_dates();
@@ -108,6 +119,7 @@ array(int) get_days()
   return ({ });
 }
 
+//!
 array(int) get_months()
 {
   get_available_dates();
@@ -116,6 +128,7 @@ array(int) get_months()
   return ({ });
 }
 
+//!
 mixed load(string table)
 {
   if(!table || !strlen(table))
@@ -126,13 +139,14 @@ mixed load(string table)
   catch { tmp = UltraSupport.Util.uncompress(tmp); };
   mixed err = catch { tmp = decode_value(tmp); };
   if(err) {
-    werror("Error decoding data for %s (%s)\n%s\n",
-	   table, key, describe_backtrace(err));
+    report_error("Error decoding data for %s (%s)\n%s\n",
+	         table, key, describe_backtrace(err));
     return 0;
   }
   return tmp;
 }
 
+//!
 mapping load_list(array list)
 {
   mapping tmp = ([]);
@@ -142,6 +156,7 @@ mapping load_list(array list)
 }
 
 
+//!
 void save(string table, mixed data)
 {
   get_available_dates();
@@ -160,13 +175,15 @@ void save(string table, mixed data)
   }
   if(!db) db = Gdbm.gdbm(path+tdate[1]+"_stats.gdbm", "rwcf");
   if(db)  db->store(key+table, UltraSupport.Util.compress(encode_value(data)));
-  else    werror("Failed to open database and save...\n");
+  else    report_error("Failed to open database and save...\n");
 }
 
+//!
 void sync() {
   db && db->sync();
 }
 
+//!
 void destroy() {
   if(db) {
     db->sync();

@@ -17,9 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
- /* $Id$ */
-//import "../";
+//! $Id$
 
 constant multiload = 1;
 
@@ -30,6 +32,8 @@ string savedir;
 string key;
 int modified;
 mapping load_cache;
+
+//!
 mapping get_available_dates()
 {
   mapping dates;
@@ -57,6 +61,7 @@ mapping get_available_dates()
   return available = dates;
 }
 
+//!
 array(int) get_days()
 {
   get_available_dates();
@@ -66,6 +71,7 @@ array(int) get_days()
   return ({ });
 }
 
+//!
 array(int) get_months()
 {
   get_available_dates();
@@ -73,6 +79,8 @@ array(int) get_months()
     return indices(available[ tdate[1] ]);
   return ({ });
 }
+
+//!
 void create(string _path)
 {
   path = _path; 
@@ -81,11 +89,13 @@ void create(string _path)
   get_available_dates();
 }
 
+//!
 void remove_cache()
 {
   load_cache = 0;
 }
 
+//!
 void set_period(array period)
 {
   if(equal(period, tdate))
@@ -111,6 +121,7 @@ void set_period(array period)
   call_out(remove_cache, 30);
 }
 
+//!
 void invalidate(mapping dates)
 {
 #define urm(x) do { write("%s\n", x); rm(x); } while(0)
@@ -126,6 +137,7 @@ void invalidate(mapping dates)
   }
 }
 
+//!
 mapping load_list(void|array list)
 {
   mixed tmp, tmp2;
@@ -135,8 +147,8 @@ mapping load_list(void|array list)
     catch { tmp = UltraSupport.Util.uncompress(tmp); };
     mixed err = catch { tmp = decode_value(tmp); };
     if(err) {
-      werror("Error decoding data for %s\n%s\n",
-	     key, describe_backtrace(err));
+      report_debug("Error decoding data for %s\n%s\n",
+	           key, describe_backtrace(err));
       return 0;
     }
     load_cache = tmp;
@@ -151,6 +163,7 @@ mapping load_list(void|array list)
   return tmp || ([]);
 }
 
+//!
 mixed load(string table)
 {
   if(!table || !strlen(table))
@@ -158,7 +171,11 @@ mixed load(string table)
   mapping tmp = load_cache || load_list() || ([]);
   return tmp[table];
 }
+
+//!
 mapping savetmp;
+
+//!
 void save(string table, mixed data)
 {
   get_available_dates();
@@ -177,6 +194,7 @@ void save(string table, mixed data)
   savetmp[table] = data;
 }
 
+//!
 void sync() {
   if(savetmp) {
     Stdio.mkdirhier(savedir);
@@ -186,6 +204,7 @@ void sync() {
   }
 }
 
+//!
 void destroy() {
   sync();
 }

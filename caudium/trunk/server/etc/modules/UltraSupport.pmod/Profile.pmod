@@ -1,8 +1,29 @@
-// Log Profile Handling.
-// $Id$
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2003 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+//! Log Profile Handling.
+//! $Id$
 
 import ".";
 
+//!
 class File {
   int restore, ispipe, reload;
   int size = 0x7fffffff;
@@ -11,6 +32,8 @@ class File {
   string format="%H %j %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b \"%R\" \"%U\"";
   // string format = "%H %R %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b";
   //  string format = "%H %R %j [%D/%M/%Y:%h:%m:%s %z] \"%j %f %j\" %c %b";
+
+  //!
   void create(string f, int _restore, int|void _reload,
 	      string|void _format, string|void _filter)
   {
@@ -20,12 +43,14 @@ class File {
     if(_format) format = _format;
     if(_filter) filter = _filter;
   }
+
+  //!
   object get_fd()
   {
     array arg;
     if(fd) return fd;
     fd = Stdio.File();  
-    werror("get_fd(%s)\n", fname);
+    report_debug("get_fd(%s)\n", fname);
 
     if(filter)
     {
@@ -62,7 +87,7 @@ class File {
     return fd;
   }
 
-  // "seek()" on pipes.
+  //! "seek()" on pipes.
   int seek(int to)
   {
     int rd, orig = to;
@@ -84,6 +109,7 @@ class File {
   }
 }
 
+//!
 class profile {
   // Individual profile
   import ".";
@@ -95,6 +121,7 @@ class profile {
   string name;
   mapping pos;
   
+  //!
   void create(string _savedir, string _name, mapping data, string _method)
   {
     name = _name;
@@ -114,6 +141,8 @@ class profile {
     if(!pos) pos = ([]);
     
   }
+  
+  //!
   void save() {
     Stdio.mkdirhier(savedir);
     mv(savedir +"saved_pos", savedir +"saved_pos.old");
@@ -122,18 +151,20 @@ class profile {
   }
 }
 
+//! Master Profile
 class Master {
-  //import spider;
-  // Master Profile
   array profiles = ({});
   string savedir, method;
   int maxsize;
+
+  //!
   void create(string|void file)
   {
     if(file)
       catch(load_profile(file));
   }
 
+  //!
   string parse_profile(string tag, mapping m, mapping tmp) {
     switch(tag) {
      case "file":
@@ -158,6 +189,7 @@ class Master {
     }
   }
 
+  //!
   string parse_profdata(string tag, mapping m, string|void contents)
   {
     mapping tmp;
@@ -175,7 +207,7 @@ class Master {
       if(!strlen(method) ||
 	 search(indices(Storage),method) == -1 ||
 	 catch(Storage[method])) {
-	werror("'%s' is not a valid method!\n", method);
+	report_debug("'%s' is not a valid method!\n", method);
 	exit(1);
       }
       master()->set_inhibit_compile_errors(0);
@@ -218,7 +250,7 @@ class Master {
       tmp = ([]);
       if(!m->name)
       {
-	werror("Profile is missing a name.\n");
+	report_notice("Profile is missing a name.\n");
 	break;
       }
       contents = Caudium.parse_html(contents||"", 
@@ -232,7 +264,7 @@ class Master {
 	if(!strlen(m->method = String.capitalize(lower_case(m->method))) ||
 	   search(indices(Storage),m->method) == -1 ||
 	   catch(Storage[m->method])) {
-	  werror("Profile %s: '%s' is not a valid method!\n", m->name,
+	  report_notice("Profile %s: '%s' is not a valid method!\n", m->name,
 		 m->method);
 	  master()->set_inhibit_compile_errors(0);
 	  break;
@@ -245,6 +277,7 @@ class Master {
     return "";
   }
   
+  //!
   void load_profile(string file)
   {
     string profdata = Stdio.read_file(file);
@@ -255,7 +288,7 @@ class Master {
 			  (["profile": parse_profdata,
 			    "ispprofile": parse_profdata]));
     if(!savedir) {
-      werror("*** ERROR: No save directory specified => no valid profiles!\n");
+      report_notice("*** ERROR: No save directory specified => no valid profiles!\n");
       profiles = ({});
     } else {
       profiles = Array.map(profiles,
