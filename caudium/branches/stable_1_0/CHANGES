@@ -40,6 +40,8 @@ Changes in Caudium 1.0 Release 1
 - Fixed error message when a modules was not found (accidently broken).
 - Fixed <use> cache lookup (use the full path as the key, not the unresolved
   path).
+- Added timeout for sending connections to work around problem in Pike where
+  remotely closed connections aren't handled correctly. 
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
