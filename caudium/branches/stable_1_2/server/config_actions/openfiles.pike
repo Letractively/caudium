@@ -63,16 +63,21 @@ string page_0()
 		object f = Stdio.File(fd);
 		object stat = f->stat();
 
-		string type = ([
-			"reg":"File",
-			"dir":"Dir",
-			"lnk":"Link",
-			"chr":"Special",
-			"blk":"Device",
-			"fifo":"FIFO",
-			"sock":"Socket",
-			"unknown":"Unknown",
-		])[stat->type] || "Unknown";
+		string type;
+		mixed err = catch{
+			type = ([
+				"reg":"File",
+				"dir":"Dir",
+				"lnk":"Link",
+				"chr":"Special",
+				"blk":"Device",
+				"fifo":"FIFO",
+				"sock":"Socket",
+				"unknown":"Unknown",
+			])[stat->type] || "Unknown";
+		};
+		if (err) 
+			type = "Unknown";
 
 		// Doors are not standardized yet....
 		if ((type == "Unkown") && ((stat->mode & 0xf000) == 0xd000))
