@@ -36,8 +36,11 @@ mapping read_profile(string filename)
   Node configxml = Parser.XML.Tree->parse_input(f);
   
   configxml->iterate_children(lambda(Node c, mapping profile){
-    if(c->get_tag_name()=="profile") c->iterate_children(parse_profile, profile);}, profile);
-  
+    if(c->get_tag_name()=="profile")
+    { 
+       profile->name=c->get_attributes()["name"];
+       c->iterate_children(parse_profile, profile);
+    }}, profile);
   return profile;
 }
 
