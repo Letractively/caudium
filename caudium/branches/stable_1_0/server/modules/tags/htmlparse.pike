@@ -371,6 +371,7 @@ mapping handle_file_extension( object file, string e, object id)
 void build_callers()
 {
    object o;
+   remove_call_out(build_callers);
    tag_callers=([]);
    container_callers=([]);
    real_tag_callers=([]);

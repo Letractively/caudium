@@ -505,6 +505,7 @@ string|array(string)|int entity_callback(object parser, string entity,
 void build_callers()
 {
    object o;
+   remove_call_out(build_callers);
    tag_callers = ([]);
    container_callers = ([]);
    scopes = ([]);

@@ -59,3 +59,8 @@ Changes in Caudium 1.1 since CVS branching
   log will be closed (can be disabled). Also made the "reopen timeout"
   somewhat random to avoid the "all log files reopen at the same time"
   misfeature.
+- Fixed security bug which allowed people to ge the RXML source code
+  of a page if a request was made to an RXML file while Caudium was
+  loading.
+
+  
