@@ -59,49 +59,77 @@
  *
  */
 
-//! @decl string hash_sha(string key, void|int hexify)
+//! @decl string hash_sha(string|array(string) key, void|int hexify)
 //!  Return a SHA1 hash of the passed string.
 //!
 //! @param key
-//!  The string you want to create the hash for.
+//!  The string(s) you want to create the hash for. If it is an array of
+//!  strings, then the strings will be concatenated before generating the
+//!  digest.
 //!
 //! @param hexify
 //!   If present and != 0, the returned hash will be presented in the ASCII
 //!   hex mode, otherwise it will be a binary string.
 //!
 //! @returns
-//!  The SHA1 digest string either in ASCII hex or in the binary form.
+//!  The SHA1 digest string either in ASCII hex or in the binary form. An
+//!  empty string will be returned if an error returns.
 
-//! @decl string hash_md5(string key, void|int hexify)
+//! @decl string hash_md5(string|array(string) key, void|int hexify)
 //!  Return an MD5 hash of the passed string.
 //!
 //! @param key
-//!  The string you want to create the hash for.
+//!  The string you want to create the hash for. If it is an array of
+//!  strings, then the strings will be concatenated before generating the
+//!  digest.
 //!
 //! @param hexify
 //!   If present and != 0, the returned hash will be presented in the ASCII
 //!   hex mode, otherwise it will be a binary string.
 //!
 //! @returns
-//!  The MD5 digest string either in ASCII hex or in the binary form.
+//!  The MD5 digest string either in ASCII hex or in the binary form. An
+//!  empty string will be returned when an error occurs.
 
 
 #if constant(Mhash.hash_md5)
 string md5_hash_type = "Mhash";
 
-string hash_md5(string key, void|int hexify)
+string hash_md5(string|array(string) key, void|int hexify)
 {
-  string ret = Mhash.hash_md5(key);
+  string ret = "";
+  mixed  error;
 
+  error = catch {
+    if (key && arrayp(key))
+      ret = Mhash.hash_md5(key * "");
+    else
+      ret = Mhash.hash_md5(key);
+  };
+
+  if (error)
+    return "";
+  
   return (hexify ? Crypto.string_to_hex(ret) : ret);
 }
 #else
 string md5_hash_type = "Pike.Crypto";
 
-string hash_md5(string key, void|int hexify)
+string hash_md5(string|array key, void|int hexify)
 {
-  string ret = Crypto.md5()->update(key)->digest();
+  string ret = "";
+  mixed  error;
 
+  error = catch {
+    if (key && arrayp(key))
+      ret = Crypto.md5()->update(key * "")->digest();
+    else
+      ret = Crypto.md5()->update(key)->digest();
+  };
+
+  if (error)
+    return "";
+  
   return (hexify ? Crypto.string_to_hex(ret) : ret);
 }
 #endif
@@ -109,19 +137,41 @@ string hash_md5(string key, void|int hexify)
 #if constant(Mhash.hash_sha1)
 string sha1_hash_type = "Mhash";
 
-string hash_sha(string key, void|int hexify)
+string hash_sha(string|array key, void|int hexify)
 {
-  string ret = Mhash.hash_sha1(key);
+  string ret = "";
+  mixed  error;
 
+  error = catch {
+    if (key && arrayp(key))
+      ret = Mhash.hash_sha1(key * "");
+    else
+      ret = Mhash.hash_sha1(key);
+  };
+
+  if (error)
+    return "";
+  
   return (hexify ? Crypto.string_to_hex(ret) : ret);
 }
 #else
 string sha1_hash_type = "Pike.Crypto";
 
-string hash_sha(string key, void|int hexify)
+string hash_sha(string|array key, void|int hexify)
 {
-  string ret = Crypto.sha()->update(key)->digest();
+  string ret = "";
+  mixed  error;
 
+  error = catch {
+    if (key && arrayp(key))
+      ret = Crypto.sha()->update(key * "")->digest();
+    else
+      ret = Crypto.sha()->update(key)->digest();
+  };
+
+  if (error)
+    return "";
+  
   return (hexify ? Crypto.string_to_hex(ret) : ret);
 }
 #endif
