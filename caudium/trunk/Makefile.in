@@ -317,6 +317,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
          done;\
         fi;\
 	echo Cleaning up the copied sources...; \
+	tools/exclude-dist $$version; \
 	for f in `find $$version/. -type f -name '*~' -print` \
 	  `find $$version/. -type f -name '.#*' -print` \
 	  `find $$version/. -type f -name '#*#' -print`; do \
