@@ -253,7 +253,7 @@ mixed first_try(object id)
 //!<p>
 //!The two last lines from the examples above are special cases. If the first word on the line is 'exact', the filename following must match _exactly_. This is equivalent to entering ^FILE$, but faster. </p><p>You can use '(' and ')' in the regular expression to separate parts of the from-pattern when using regular expressions. The parts can then be insterted into the 'to' string with  $1, $2 etc.
 //!</p><p>More examples:<pre>.*/SE/liu/lysator/(.*).class    /java/classes/SE/liu/lysator/$1.class<br />/(.*).en.html                   /(en)/$1.html<br />(.*)/index.html                 %u/$1/
-//!</pre></p><p>If the to file isn't an URL, the redirect will always be handled internally, so add %u to generate an actual redirect.</p><p><b>Note:</b> For speed reasons: If the from pattern does _not_ containany '*' characters, it will not be treated like an regularexpression, instead it will be treated as a prefix that must match exactly.</p>
+//!</pre></p><p>If the to file isn't an URL, the redirect will always be handled internally, so add %u to generate an actual redirect.</p><p><b>Note:</b> For speed reasons: If the from pattern does _not_ contain any '*' characters, it will not be treated like a regular expression, instead it will be treated as a prefix that must match exactly.</p>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Redirect patterns
 //
