@@ -77,8 +77,6 @@ constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
-private static int wanted_data, have_data;
-
 object conf;
 
 #include <caudium.h>
@@ -181,8 +179,8 @@ inline void do_post_processing()
   if(misc->len && method == "POST") {
     REQUEST_WERR(sprintf("Process post data (want %d, got %d): %O",
 			 misc->len, strlen(data), data));
-    int l = wanted_data = misc->len;
-    if(strlen(data) < misc->len) return;
+    int l = misc->len;
+    if(strlen(data) < l) return;
     leftovers = data[l..];
     data = data[..l-1];
 
@@ -1301,7 +1299,7 @@ void got_data(mixed fdid, string s)
   MARK_FD("http2 got_data");
   remove_call_out(do_timeout);
   call_out(do_timeout, 30); // Close down if we don't get more data 
-                         // within 30 seconds. Should be more than enough.
+  // within 30 seconds. Should be more than enough.
   time = _time(1); // Check is made towards this to make sure the object
   // is not killed prematurely.
   raw += s;
@@ -1321,14 +1319,16 @@ void got_data(mixed fdid, string s)
       not_query = f = misc->file;
       raw_url = misc->raw_url;
       query = misc->query;
-      data = misc->data;
-      wanted_data = misc->len = (int)request_headers["content-length"];
+      data = misc->data;      
       destruct(htp);
       if(request_headers->host)
       	host = lower_case(request_headers->host);
       if(request_headers->connection)
 	request_headers->connection = lower_case(request_headers->connection);
-
+      if(strlen(data) < (misc->len = (int)request_headers["content-length"])) {
+	// Need more data
+	return;
+      }
       break;
      default:
       string err = "Broken request";
@@ -1347,11 +1347,12 @@ void got_data(mixed fdid, string s)
       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
       return;
     }
-  } else if(wanted_data) {
-    data += s;
-    if(strlen(data) < wanted_data)
-      // Need more data
-      return;
+  }
+  
+  data += s;
+  if(strlen(data) < misc->len) {
+    // Need more data
+    return;
   }
   
   TIMER("parsed");
