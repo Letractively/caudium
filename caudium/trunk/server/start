@@ -100,6 +100,9 @@ parse_args() {
    ARGS="$ARGS $1"
 # Used by the 'install' script
     ;;
+  --quiet)
+     quiet="yes"
+  ;;
   --truss)
      precmd="truss "
      once=1
@@ -224,7 +227,7 @@ the default arguments.
 			          protocol module. This will soon be 
                                   the default. Some clients might have 
 				  problems with keepalive.
-
+				  
       .B--onceB.:                     Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
 
@@ -235,6 +238,10 @@ the default arguments.
                                   .B./start --program bin/install.pikeB. will 
 				  start the installation program normally 
                                   started with .B./installB.
+
+      .B--quietB.:                    Run without normal debug output from the
+                                  start script. Useful mainly when starting
+				  other programs with --program.
 
       .B--with-debugB.:               Enable debug
 
@@ -321,15 +328,17 @@ fi
 ####### END PREAMBLE
 
 if [ ! "X$CAUDIUM_ARGS" = "X" ]; then
-  echo $$: Using $CAUDIUM_ARGS from CAUDIUM_ARGS.
+  if [ "$quiet" != "yes" ]; then 
+    echo $$: Using $CAUDIUM_ARGS from CAUDIUM_ARGS.
+  fi
   parse_args $CAUDIUM_ARGS
 fi
 
 if [ ! "X$pass" = "X" ] ; then set -- $pass ;fi
 
-
-echo $$: "$program_echo"
-
+if [ "$quiet" != "yes" ]; then 
+  echo $$: "$program_echo"
+fi
 ./mkdir -p $LOGDIR/debug/
 
 if [ -z "$debug" ] ; then
@@ -358,11 +367,15 @@ start_caudium() {
     args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program $pass"
   fi
   if [ "x$gdb" = "xno" ]; then
-    echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
-    echo Executing $precmd$pike $args $@
+    if [ "$quiet" != "yes" ]; then 
+      echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
+      echo Executing $precmd$pike $args $@
+    fi
     $precmd $pike $args $@
   else
-    echo Executing gdb $pike $args $@
+    if [ "$quiet" != "yes" ]; then 
+      echo Executing gdb $pike $args $@
+    fi
     echo >.gdbinit handle SIGPIPE nostop noprint pass
     echo >>.gdbinit handle SIGUSR1 nostop noprint pass
     echo >>.gdbinit handle SIGUSR2 nostop noprint pass
@@ -418,7 +431,9 @@ oo
   ) < /dev/null > $LOGDIR/debug/start_$FILES.output 2>&1 &
 
 else
-  echo $$: "Server restart at `date`"
+  if [ "$quiet" != "yes" ]; then 
+    echo $$: "Server restart at `date`"
+  fi
   start_caudium
 fi
     
