@@ -179,6 +179,21 @@ mapping http_file_answer(object fd, string|void type, void|int len) {
    return Caudium.HTTP.file_answer(fd,type,len);
 }
 
+//! Compat call of Caudium.HTTP.config_cookie
+//! @deprecated
+string http_caudium_config_cookie(string from) {
+   WCOMPAT2("Caudium.HTTP.config_cookie", "http_caudium_config_cookie");
+   return Caudium.HTTP.config_cookie(from);
+}
+
+//! Compat call of Caudium.HTTP.id_cookie
+//! @deprecated
+string http_caudium_id_cookie() {
+   WCOMPAT2("Caudium.HTTP.id_cookie", "http_caudium_id_cookie");
+   return Caudium.HTTP.id_cookie();
+}
+
+
 // Some spider calls are not under spider module so here is some compat
 // things
 
@@ -305,20 +320,15 @@ string extention(string f) {
 //! @deprecated
 string http_roxen_id_cookie() {
   report_error("Compat http_roxen_id_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
-  return http_caudium_id_cookie();
+  return Caudium.HTTP.id_cookie();
 }
 
-//FIXME: Bloody hell ? With this bugs ?
-#if 0
-string http_caudium_config_cookie(string from);
-
-//! Compat call for http_caudium_config_cookie
+//! Compat call for Caudium.HTTP.config_cookie
 //! @deprecated
 string http_roxen_config_cookie(string m) {
-  report_error("Compat http_roxen_config_cookie() used in %s, please consider using http_caudium_config_cookie() instead\n",dbt(backtrace()[-2]));
-  return http_caudium_config_cookie(string m);
+   WCOMPAT2("Caudium.HTTP.config_cookie", "http_roxen_config_cookie");
+   return Caudium.HTTP.config_cookie(m);
 }
-#endif
 
 //! Compat call from http_auth_required
 //! @param realm

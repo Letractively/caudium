@@ -53,29 +53,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//!   Make a configuration cookie. This is is not a function meant to
-//!   be used by the average user.
-//! @param from
-//!   The cookie value to encode and put in the cookie.
-//! @returns
-//!   The cookie value.
-string http_caudium_config_cookie(string from)
-{
-  return "CaudiumConfig="+Caudium.http_encode_cookie(from)
-    +"; expires=" + Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/";
-}
-
-//!   Make a unique user id cookie. This is an internal function which is used
-//!   to set a cookie for all visitors
-//! @returns
-//!   The cookie value.
-string http_caudium_id_cookie()
-{
-  return sprintf("CaudiumUserID=0x%x; expires=" +
-		 Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/",
-		 caudium->increase_id());
-}
-
 //!   Prepend the URL with the prestate specified. The URL is a path
 //!   beginning with /.
 //! @param url

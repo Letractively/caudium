@@ -295,11 +295,11 @@ inline void do_post_processing()
   {
     if (GLOBVAR(set_cookie_only_once)) {
       if(!cache_lookup("hosts_for_cookie",remoteaddr)) {
-	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+	misc->moreheads = ([ "Set-Cookie": Caudium.HTTP.id_cookie(), ]);
 	cache_set("hosts_for_cookie",remoteaddr,1);
       }
     } else
-      misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+      misc->moreheads = ([ "Set-Cookie": Caudium.HTTP.id_cookie(), ]);
   }
 
   foreach(indices(request_headers), string linename) {
