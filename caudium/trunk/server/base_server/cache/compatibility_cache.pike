@@ -39,7 +39,13 @@ void create( object cm ) {
 void start_cache() {
   if ( ! objectp( my_cache ) ) {
     my_cache = cache_manager->get_cache( "DEFAULT" );
-    my_cache->cache_description( "Cache for the Caudium server's internal needs.\n" );
+    string desc =
+      "This is the default cache used by the internals of Caudium, it is used "
+      "for such intricacies as storing bytecode compiled versions of modules, "
+      "fonts, htaccess information, supports data, etc. This is what you want "
+      "to flush if your trying to develop a module and it keeps reloading "
+      "with the same version.";
+    my_cache->cache_description( desc );
   }
 }
 
