@@ -679,7 +679,7 @@ array query_seclevels()
 
           case "acceptgroup":
             value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-            string groups = (value/"," - ({""}));
+            array(string) groups = (value/"," - ({""}));
             string groupregex = 0;
             
             if (groups && sizeof(groups)) {
