@@ -232,10 +232,10 @@ string rand_string(int len) {
 
 #else
 string string_to_hex(string data) {
-  return Crypto.string_to_hex(data);
+  return String.string2hex(data);
 }
 
 string rand_string(int len) {
-  return Crypto.string_to_hex(urandom(5+len));
+  return String.string2hex(urandom(5+len));
 }
 #endif
