@@ -17,6 +17,7 @@ all:  Makefile $(MODNAME).$(SO)
 .SUFFIXES: .c .o
 
 install: all
+	-strip $(MODNAME).$(SO)
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
 $(MODNAME).$(SO):  $(OBJS)
