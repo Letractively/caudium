@@ -55,7 +55,7 @@ while [ "$1" ]; do
 			FreeType=1
 			;;
 		\"FreeType2\")
-			echo "LIB_DEPENDS+=	freetype.8:\${PORTSDIR}/print/freetype2" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+			echo "LIB_DEPENDS+=	freetype.9:\${PORTSDIR}/print/freetype2" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			echo "CONFIGURE_ARGS+=	--with-freetype" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			FreeType2=1
 			;;
