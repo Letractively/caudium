@@ -20,7 +20,7 @@ constant module_unique = 0;
 
 array status_requests = ({ });
 
-// #define VPROXY_DEBUG
+#define VPROXY_DEBUG
 
 #define WANT_HEADERS /* needs to be defined to get returned error code */
 
@@ -359,13 +359,13 @@ class request
          id->end ();
       }
 
-      int timesince = time (1) - start_time;
-      if (timesince < 0)
-         timesince = 1;
+      float timesince = time(start_time);
+      if (timesince <= 0.0)
+         timesince = 1.0;
 
-      int bps = bytesent / timesince;
+      float bps = bytesent / timesince;
 
-      VDEBUG ("sent %s in %d seconds - %s/s", sizetostring (bytesent), timesince, sizetostring (bps));
+      VDEBUG ("sent %s in %.2f seconds - %s/s", sizetostring (bytesent), timesince, sizetostring ((int)bps));
 
       VDEBUG ("done with connection");
 
@@ -404,6 +404,6 @@ class request
 
    string _sprintf ()
    {
-      return (sprintf ("simple_proxy::request (http://%s/%s)", host_header, file));
+     return (sprintf ("simple_proxy::request (http://%s/%s)", host_header||"N/A", file||""));
    }
 };
