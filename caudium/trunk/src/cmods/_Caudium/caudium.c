@@ -976,12 +976,16 @@ static void f_parse_query_string( INT32 args )
   name = ptr = (unsigned char *)query->str;
   equal = NULL;
   for(; ptr <= end; ptr++) {
+    /* printf("ptr:%c\t(%d)\n", *ptr, ptr); */
     switch(*ptr)
     {
         case '=':
           /* Allow an unencoded '=' in the value. It's invalid but... */
           if(equal == NULL)
+          {
             equal=ptr;
+            /* printf("found '=', setting equal:%s\n", equal); */
+          }
           break;
         case '\0':
           if(ptr != end)
@@ -989,12 +993,14 @@ static void f_parse_query_string( INT32 args )
         case ';': /* It's recommended to support ';'
                      instead of '&' in query strings... */
         case '&':
-	  if (name && (!*name || *name == '&')) {
-	    ptr++;
-	    break; /* &=, ignore */
-	  }
+          if (name && (!*name || *name == '&')) {
+            /* printf("ignoring &=\n"); */
+            ptr++;
+            break; /* &=, ignore */
+          }
 	  
           if (equal == NULL) { /* valueless variable, these go to the */
+            /* printf("equal is NULL\n"); */
             if (ptr == (unsigned char*)query->str) {
               ptr++;
               break;
@@ -1014,15 +1020,18 @@ static void f_parse_query_string( INT32 args )
             if (name < (unsigned char*)query->str)
               name++;
             namelen = ptr - name;
+            /* printf("name:%s, namelen:%d\n", name, namelen); */
           } else {
+            /* printf("equal:%s, name:%s\n", equal, name); */
             namelen = equal - name;
             valulen = ptr - ++equal;
-	    ptr++;
+            /* printf("namelen:%d, valuelen: %d\n", namelen, valulen); */
           }
           
           skey.u.string = url_decode(name, namelen, 0, 0);
+          /* printf("skey.u.string: %s\n", skey.u.string); */
           if (!skey.u.string) /* OOM. Bail out */
-            Pike_error(" Out of memory.\n");
+            Pike_error("Out of memory.\n");
 
           if (!valulen) {
             /* valueless, add the name to the multiset */
@@ -1032,6 +1041,7 @@ static void f_parse_query_string( INT32 args )
               Pike_error("Out of memory.\n");
             multiset_insert(emptyvars, &sval);
             name = ptr + 1;
+            equal = NULL;
             break;
           }
           
