@@ -1,5 +1,12 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Starting Caudium with --gdb now turns the watchdog off.
+   (Bertrand LUPART)
+- Some work on accessed-sql:
+  - now 2nd level virtual hosting safe
+	- fix for a first loading bug that required to restart Caudium
+	- now possible to use <counter add="0"> for not incrementing the counter
+	 (Bertrand LUPART)
 - _Caudium.getip() call to get interfaces names and ips for *BSD flavors.
    (Xavier Beaudouin)
 - <if> no longer evaluates true if using the "element is value" syntax and the
