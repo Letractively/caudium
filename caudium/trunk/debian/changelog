@@ -1,3 +1,10 @@
+caudium (1:1.0.0-13) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Fixes for PHP4 support (you need latest pike7 and PHP4 from CVS)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue,  7 Nov 2000 10:45:05 +0100
+
 caudium (1:1.0.0-12) unstable; urgency=low
 
   * Caudium uses PNG by default
