@@ -1,0 +1,19 @@
+#
+# makefile for generating documentation from the Caudium sources
+#
+# $Id$
+#
+
+PIKE=@PIKE_BIN@
+
+all: html
+
+spotless:
+	@for f in `cat .cvsignore`; do \
+		rm -rf $$f; \
+	done
+	@for f in `cat bin/.deleteus`; do \
+		rm -f bin/$$f; \
+	done
+	@rm -f bin/.deleteus
+
