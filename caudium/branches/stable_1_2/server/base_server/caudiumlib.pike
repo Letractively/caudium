@@ -886,14 +886,15 @@ static string make_tag_attributes(mapping in)
 {
   array a=indices(in), b=values(in);
   for(int i=0; i<sizeof(a); i++)
-    if(is_safe_string(b[i]))
-      a[i]+="=\""+b[i]+"\"";
-    else
-      // Bug inserted again. Grmbl.
-      a[i]+="=\""+replace(b[i], ({ "\"", "<", ">" //, "&"
-      }) ,
-                          ({ "&quot;", "&lt;", "&gt;" //, "&amp;"
-                          }))+"\"";
+    if(lower_case(b[i]) != a[i])
+      if(is_safe_string(b[i]))
+        a[i]+="=\""+b[i]+"\"";
+      else
+        // Bug inserted again. Grmbl.
+        a[i]+="=\""+replace(b[i], ({ "\"", "<", ">" //, "&"
+        }) ,
+                            ({ "&quot;", "&lt;", "&gt;" //, "&amp;"
+                            }))+"\"";
   return a*" ";
 }
 
