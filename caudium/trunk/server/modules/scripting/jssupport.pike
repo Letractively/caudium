@@ -125,11 +125,16 @@ any output but that normally would. I.e write
 ";
 
 constant module_unique = 0;
-#ifdef THREADS
+
+#if constant(thread_create)
 inherit Thread.Mutex;
 #endif
 
-#define JSERR(CODE, SHORT, LONG)  id->conf->http_error->handle_error(CODE, SHORT, LONG, id)
+#if constant(thread_create)
+object thfarm; 
+#endif
+#define SEND(X) do { id->do_not_disconnect = 0; id->send_result(X); return; } while(0)
+#define JSERR(CODE, SHORT, LONG)  SEND(http_string_answer(id->conf->http_error->handle_error(CODE, SHORT, LONG, id)));
 #define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {
@@ -155,6 +160,14 @@ void create()
 	 TYPE_INT, "The maximum number of file descriptors an interpreter "
 	 "should be allowed to have open at any time.");
 
+#if constant(thread_create)
+  defvar("threads", 5, "JavaScript Handler Threads", TYPE_INT,
+	 "The number of handler threads to use for running JS scripts. "
+	 "The created thread pool is "
+	 "shared among different instances of this module (even across "
+	 "virtual servers). The thread pool size will be that of the "
+	 "largest value in all module instances.");
+#endif
   /*
   } else if(OPT_IS("annotate_assembler")) {
     options.annotate_assembler = !IS_ZERO(sval);
@@ -200,8 +213,13 @@ private JavaScript.Interpreter compile_interpreter;
 private string parse_byte_code;
 
 void start() {
+#if constant(thread_create)
+  thfarm = caudium->query_var("njs_thread_farm");
+  if(!thfarm) {
+    thfarm = ThreadFarm.Farm(QUERY(threads));
+  }
+#endif
   jscexts = (multiset)QUERY(jscexts);
-
   options = ([]);
   options->secure_builtin_file   = !QUERY(securefile);
   options->secure_builtin_system = !QUERY(securesystem);
@@ -248,7 +266,7 @@ void build_var_scopes(object id) {
 string get_key_from_data(string js, void|int no_threadid)
 {
   string key = strlen(js)+":";
-#ifdef THREADS
+#if constant(thread_create)
   if(!no_threadid) key += sprintf("%s", this_thread());
 #endif
 #if constant(Mhash.hash_md5)
@@ -266,14 +284,14 @@ string get_key_from_data(string js, void|int no_threadid)
 string js_to_byte_code(string js)
 {
   string bc;
-#ifdef THREADS
+#if constant(thread_create)
   object mtx;
 #endif
-#ifdef THREADS
+#if constant(thread_create)
   mtx = lock();
 #endif
   bc = compile_interpreter->compile(js);
-#ifdef THREADS
+#if constant(thread_create)
   destruct(mtx);
 #endif
   return bc;
@@ -301,8 +319,18 @@ string do_js_compile_and_cache(string source, object id, string key)
   return bc;
 }
 
+mapping handle_file_extension(object f, string e, object id) {
+  id->do_not_disconnect = 1;
+#if constant(thread_create)
+  call_out(thfarm->enqueue, 0, real_handle_file_extension, f, e, id);
+#else
+  call_out(real_handle_file_extension, 0, f, e, id);
+#endif
+  return http_pipe_in_progress();
 
-mapping handle_file_extension(object f, string e, object id)
+}
+
+void real_handle_file_extension(object f, string e, object id)
 {
   JavaScript.Interpreter js;
   mixed eval_ret, ret;
@@ -320,10 +348,10 @@ mapping handle_file_extension(object f, string e, object id)
     err[0] = replace(err[0], "StringStream", id->not_query);
     report_error("An error occured when compiling JavaScript.\n"+
 		 describe_backtrace(err));
-    return JSERR(500, "Internal Server Error",
-		 "An error occured when compiling a JavaScript script. "
-		 "This is the reported problem:<p>"
-		 "<pre>"+html_encode_string(err[0])+"</pre>");
+    JSERR(500, "Internal Server Error",
+	  "An error occured when compiling a JavaScript script. "
+	  "This is the reported problem:<p>"
+	  "<pre>"+html_encode_string(err[0])+"</pre>");
   }
   js->set_id_object(id);
 
@@ -332,32 +360,32 @@ mapping handle_file_extension(object f, string e, object id)
   };
   if(err) {
     if(err[0] == "illegal function object in jsr\n") {
-      return JSERR(500, "Internal Server Error",
-		   "The JavaScript script is lacking a parse() "
-		   "function and thus couldn't be evaluated.");
+      JSERR(500, "Internal Server Error",
+	    "The JavaScript script is lacking a parse() "
+	    "function and thus couldn't be evaluated.");
     } else {
       err[0] = replace(err[0], "StringStream", id->not_query);
       report_error("An error occured when executing parse() in JavaScript .\n"+
 		   describe_backtrace(err));
-      return JSERR(500, "Internal Server Error",
-		   "An error occured when executing parse() JavaScript script. "
-		   "This is the reported problem:<p>"
-		   "<pre>"+html_encode_string(err[0])+"</pre>");
+      JSERR(500, "Internal Server Error",
+	    "An error occured when executing parse() JavaScript script. "
+	    "This is the reported problem:<p>"
+	    "<pre>"+html_encode_string(err[0])+"</pre>");
     }
   }
   if(arrayp(ret) && sizeof(ret) == 2 && stringp(ret[0]) && stringp(ret[1])) {
     // Data returned from the parse function. If it's an array with two strings
     // the first entry is data and the second content type. Otherwise use
     // default handle.
-    return http_string_answer(@ret);
+    SEND(http_string_answer(@ret));
   }
   if(!ret) {
-    return JSERR(500, "Internal Server Error",
-		 "The JavaScript script returned no data.");
+    JSERR(500, "Internal Server Error",
+	  "The JavaScript script returned no data.");
   } else if(stringp(ret))
-    return http_string_answer(ret);
+    SEND(http_string_answer(ret));
   else
-    return http_string_answer(sprintf("%O", ret), "text/plain");
+    SEND(http_string_answer(sprintf("%O", ret), "text/plain"));
 }
 
 /* pi instruction call method */
@@ -442,4 +470,9 @@ mapping query_pi_callers() {
 //! The maximum number of file descriptors an interpreter should be allowed to have open at any time.
 //!  type: TYPE_INT
 //!  name: Security: Max file descriptors per interpreter
+//
+//! defvar: threads
+//! The number of handler threads to use for running JS scripts. The created thread pool is shared among different instances of this module (even across virtual servers). The thread pool size will be that of the largest value in all module instances.
+//!  type: TYPE_INT
+//!  name: JavaScript Handler Threads
 //
