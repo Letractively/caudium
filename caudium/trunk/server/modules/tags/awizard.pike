@@ -63,7 +63,7 @@ void init_tags()
 
 
 string ce = "";
-string container_store_pike(string t, mapping m, string c, int line, int i,
+string container_awizard_pike(string t, mapping m, string c, int line, int i,
 			    object id)
 {
   array e;
