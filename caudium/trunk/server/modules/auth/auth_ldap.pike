@@ -178,7 +178,8 @@ int|object open_dir() {
     int res;
     object dir;
 
-    dir_accesses++; //I count accesses here, since this is called before each
+    // FIXME: there is no reference to this variable .. :p
+    //dir_accesses++; //I count accesses here, since this is called before each
 
 
     err = catch 
@@ -224,7 +225,7 @@ int|object open_dir() {
 /*
  * Statistics
  */
-
+#if 0
 string status() {
 
     return ("<H2>Security info</H2>"
@@ -236,6 +237,7 @@ string status() {
 	   );
 
 }
+#endif
 
 
 /*
@@ -256,7 +258,7 @@ mapping|int get_user_info(string user) {
 
     mapping(string:array(string)) tmp, attrsav;
 
-    DEBUGLOG ("userinfo ("+u+")");
+    DEBUGLOG ("userinfo ("+user+")");
 
     dir=open_dir();
 
