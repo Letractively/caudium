@@ -29,7 +29,8 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_PROVIDER;
 constant module_name = "CIF - User Interface Module";
-constant module_doc  = "CIF module that implements the UI routines.";
+constant module_doc  = "CIF module that implements the UI routines. It contains both theme "
+                       "code and the widgets code.";
 constant module_unique = 1;
 
 #define EPREFIX "CIF UI: "
@@ -94,5 +95,5 @@ string get_screen(string name, mapping session, object id)
     } else
         theme = QUERY(themesdir) + session->theme;
 
-    
+    return theme;
 }
