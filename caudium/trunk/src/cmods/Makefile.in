@@ -20,6 +20,10 @@ $(MODULES): force
 
 modules: $(MODULES)
 
+spotless: force
+	for a in $(MODULES); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) spotless); done
+	rm -f Makefile config.log config.status module_makefile
+
 Makefile: Makefile.in configure config.status
 	@echo "configure or Makefile.in changed."
 	@if test -f config.status; then \

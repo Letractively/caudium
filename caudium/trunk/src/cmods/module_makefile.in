@@ -1,0 +1,72 @@
+CFLAGS=  @CPPFLAGS@ @CFLAGS@ -I@PIKE_INCLUDE_DIR@
+CC=@CC@
+LIBGCC=@LIBGCC@
+LDFLAGS= @LIBS@  @LDFLAGS@
+LD= @LDSHARED@
+PIKE=@PIKE@
+SO=@SO@
+all: $(MODNAME).$(SO)
+INSTALLDIR=$(prefix)/caudium/server/lib/@PIKE_VERSION@/
+INSTALL=@INSTALL@
+
+all:  Makefile $(MODNAME).$(SO)
+
+.SUFFIXES: .c .o
+
+install: all
+# Stripping probably does work but for debugging reasons and just to
+# make sure, we don't do it. Yet.
+#	-strip $(MODNAME).$(SO)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
+
+$(MODNAME).$(SO):  $(OBJS)
+	@echo "linking $(MODNAME)" ;\
+	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
+	  : ;\
+	else \
+	  echo "Linking failed:" >&2; \
+	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
+	fi
+
+Makefile.pre: Makefile.pre.in configure config.status
+	@echo "configure or Makefile.in changed."
+	@if test -f config.status; then \
+           echo -n "Rebuilding Makefile myself using: ";\
+	   echo "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   eval "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   echo "$@";\
+           echo "You must rerun make now"; exit 1;\
+	else\
+	   echo "You must rerun configure now."; \
+	   exit 1; \
+	fi
+
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+configure: configure.in
+	@echo "configure.in changed. Rebuilding."
+	@autoconf
+
+config.status: configure
+	./config.status --recheck
+
+force:
+	@:
+
+depend: force
+	@echo "Calculating dependencies..."
+	@cat Makefile.pre > Makefile
+	@$(CC) -MM $(CFLAGS) $(SOURCES) >> Makefile
+
+clean:
+	rm -f *.o *~ $(MODNAME).$(SO) 
+
+distclean: clean
+	rm -f config.* Makefile dependencies Makefile.pre
+
+spotless: distclean
+	rm -f configure  sablot_config.h.in
+

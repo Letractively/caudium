@@ -4,5 +4,6 @@ SOURCES=ultrautil.c ultraparse.c
 
 @module_makefile@
 
-# Dependencies goes here...
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
 
