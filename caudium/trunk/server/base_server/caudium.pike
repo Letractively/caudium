@@ -3158,9 +3158,8 @@ void rescan_modules()
                 sizeof(allmodules));
 }
 
-// ================================================= 
-// Parse options to Caudium. This function is quite generic, see the
-// main() function for more info about how it is used.
+//! Parse options to Caudium. This function is quite generic, see the
+//! main() function for more info about how it is used.
 private string find_arg(array argv, array|string shortform, 
                         array|string|void longform, 
                         array|string|void envvars, 
@@ -3227,9 +3226,9 @@ private string find_arg(array argv, array|string shortform,
   return def;
 }
 
-// do the chroot() call. This is not currently recommended, since
-// caudium dynamically loads modules, all module files must be
-// available at the new location.
+//! do the chroot() call. This is not currently recommended, since
+//! caudium dynamically loads modules, all module files must be
+//! available at the new location.
 private void fix_root(string to)
 {
   if (getuid()) {
@@ -3372,8 +3371,8 @@ void describe_all_threads()
     werror("Thread %d:\n%s\n", i+1, describe_backtrace(all_backtraces[i]));
 }
 
-// And then we have the main function, this is the oldest function in
-// Caudium :) It has not changed all that much since Spider 2.0.
+//! And then we have the main function, this is the oldest function in
+//! Caudium :) It has not changed all that much since Spider 2.0.
 int main(int argc, array(string) argv)
 {
   initiate_languages();
