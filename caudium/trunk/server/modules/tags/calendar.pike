@@ -19,7 +19,7 @@
  * $Id$
  *
  * TODO: documentation
- * TODO: "callback" tags
+ * TODO: week navigation column
  */
 
 constant cvs_version="$Id$";
