@@ -7,7 +7,7 @@
 
 PORTNAME=	pike72cvs
 PORTVERSION=	7.2.380
-PORTREVISION=	0
+PORTREVISION=	1
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -25,7 +25,7 @@ BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
 
-LIB_DEPENDS=	gmp.5:${PORTSDIR}/math/libgmp4 \
+LIB_DEPENDS=	gmp.6:${PORTSDIR}/math/libgmp4 \
 		jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
