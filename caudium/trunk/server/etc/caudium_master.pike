@@ -87,7 +87,7 @@ array|string low_nameof(object|program|function fo)
   {
     mixed a;
     post = sprintf("%O", function_object( fo ));
-    werror("%O\n", objects);
+    //    werror("%O\n", objects);
     if(a = search(objects, function_object( fo ))) 
       return ({ a[0], a[1], post });
   } else
