@@ -1012,7 +1012,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 
 mixed container_form(string tag, mapping args, string contents, object id, mapping defines)
 {
-    if (args && !args->norewrite)
+    if (args && !args->norewrite && id->misc->session_id)
         contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
                            SVAR, id->misc->session_id) + contents;
     
