@@ -119,8 +119,8 @@ Installing Caudium 1.2 from source:
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.2.24.tar.gz
-bash$ cd caudium-1.2.24
+bash$ tar xzf caudium-1.2.28.tar.gz
+bash$ cd caudium-1.2.28
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
