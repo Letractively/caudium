@@ -281,7 +281,11 @@ class http_error_handler {
     else 
     {
        /* check if they want old-style 404 */
+#ifdef ENABLE_NEW404
        if (id->conf->query("Old404") && error_code == 404)
+#else
+       if (error_code == 404)
+#endif /* ENABLE_NEW404 */
        {
           return http_low_answer (error_code,
                           replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
