@@ -1,0 +1,345 @@
+# @configure_input@
+SRCDIR=@srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+DESTDIR=
+EXTRAVER=
+
+@SET_MAKE@
+
+INSTALL=@INSTALL@
+INSTALLFILES=BUGS README.ssl3 README.history CONTRIBUTORS README TODO COPYING \
+	     README.compatibility
+
+CC=@CC@
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+PIKE=@PIKE@
+PIKE_VERISON=@PIKE_VERSION@
+# Used to avoid make compatibility problems.
+BIN_TRUE=":"
+#extern tools
+all:	src tools
+	-@$(BIN_TRUE)
+
+extern: force
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "LDFLAGS=$(LDFLAGS)" all)
+
+tools: force
+	@(cd tools;$(MAKE) "prefix=$(prefix)"  "LDFLAGS=$(LDFLAGS)" all)
+src: force
+	@(cd src;$(MAKE) "prefix=$(prefix)" all)
+
+force:
+	-@$(BIN_TRUE)
+
+autodefvardocs:
+	(cd $(SRCDIR); $(PIKE) tools/defvar2autodoc.pike server/base_server/caudium.pike `find server/modules/ -name "*.pike"` `find server/more_modules/ -name "*.pike"` )
+
+# These are here for compatibility with the easy-start makefile
+easy: all
+	-@$(BIN_TRUE)
+
+hard: all
+	-@$(BIN_TRUE)
+
+depend:
+	-@(cd src/cmods/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" depend)
+
+clean:
+#	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+install: all install_only
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" INSTALL="$(INSTALL)" install)
+	-@$(BIN_TRUE)
+
+install_bin:
+	@if [ ! -d "$(prefix)/caudium/" -o \
+              ! -d "$(prefix)/caudium/server/" -o \
+              ! -d "$(prefix)/caudium/server/lib" ]; then \
+         echo "install_bin only works when there is an existing Caudium "; \
+         echo "installation. Please run 'make install' to install.";\
+         exit 1; \
+       fi;
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	-chmod a+rx $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install_bin)
+	-@rm -f $(prefix)/caudium/server/bin/caudium-@PIKE_VERSION@
+	@ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium-@PIKE_VERSION@
+	@echo "";\
+	echo "*** Binaries for Pike @PIKE_VERSION@ installed. To start Caudium with";\
+	echo "*** these binaries, run start with the --pike-version=@PIKE_VERSION@ argument.";\
+	echo
+
+install_only: 
+	@$(SRCDIR)/mkdir -p $(prefix)/caudium/readme/
+	$(SRCDIR)/mkdir -p $(prefix)/bin/
+	@for f in $(INSTALLFILES); do \
+          echo "Copying $$f..."; \
+	  cp -p $(SRCDIR)/$$f $(prefix)/caudium/readme/; \
+	done
+	@if test -d $(prefix)/caudium/server.old/.; then \
+	  if test -d $(prefix)/caudium/server.older/.; then \
+	    echo; \
+	    echo "Warning, deleting old server \"$(prefix)/caudium/server.older\""; \
+	    echo; \
+	    rm -rf $(prefix)/caudium/server.older; \
+	  fi; \
+	  mv -f $(prefix)/caudium/server.old $(prefix)/caudium/server.older; \
+	fi
+	@if test -d $(prefix)/caudium/server/.; then \
+	  mv -f $(prefix)/caudium/server $(prefix)/caudium/server.old ; \
+	fi
+	cp -pr $(SRCDIR)/server $(prefix)/caudium/
+	@if test -f $(prefix)/caudium/server.old/etc/environment ; then \
+	  cp -p $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
+	fi
+#	OpenBSD rm doesn't like empty args
+#	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
+	@find $(prefix)/caudium/server/ -name CVS -print | xargs rm -rf
+	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
+	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
+	for d in local local/modules local/nfonts server/lib ; \
+	  do \
+	    test -d $(prefix)/caudium/$$d/. || mkdir $(prefix)/caudium/$$d; \
+	done
+	test -d $(prefix)/caudium/server/include/. || mkdir $(prefix)/caudium/server/include
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/logs
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/configurations
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/var
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	-chmod a+rx $(prefix)
+	-chmod a+rx $(prefix)/caudium
+	-chmod a+rx $(prefix)/caudium/server
+	-chmod a+rx $(prefix)/caudium/server/lib/
+	-chmod a+rx $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	-@for d in fonts nfonts modules etc bin base_server more_modules \
+		   config_actions server_templates \
+	           languages caudium-images protocols unfinishedmodules; do \
+	  echo Modifying permissions for directory $(prefix)/caudium/server/$$d... ; \
+	  find $(prefix)/caudium/server/$$d -type d -exec chmod a+x '{}' \; ; \
+	  chmod -R a+r $(prefix)/caudium/server/$$d ;\
+	done
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
+	-@for f in fcgi install.pike pdbi.pike pike caudium; \
+	do \
+	  if test -f $(prefix)/caudium/server/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/caudium/server/bin/$$f... ; \
+	    chmod a+rx $(prefix)/caudium/server/bin/$$f; \
+	  else :; fi; \
+	done
+	@echo "Caudium installed."
+
+#
+# This target exists specifically for those people who make various distribution 
+# packages, mainly on Linux systems but possibly useful on other systems as 
+# well
+#
+install_alt:
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium$(EXTRAVER)/servers/
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/man/man1
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/log/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/run/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/usr/local/share/caudium$(EXTRAVER)/modules
+	@for f in $(INSTALLFILES); do \
+	 echo "Copying $$f ..."; \
+	 cp -p $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/; \
+	done
+	@echo "Copying examples ..."
+	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name CVS -print`	
+	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
+	          protocols languages server_templates modules more_modules \
+			  unfinishedmodules; do \
+	 echo "Copying $$f ..."; \
+	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
+	done
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -print`
+	@echo "Copying modules..."
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
+	@for f in $(SRCDIR)/server/*; do \
+	 if test -f $$f; then \
+	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
+	 fi; \
+	done
+	@echo "Fixing paths..."
+	@MDIR="$(prefix)/lib/caudium$(EXTRAVER)"; CACHETOP="/var/cache/caudium$(EXTRAVER)"; \
+	 for v in more_modules modules local_modules; do \
+	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
+	 done; \
+	 if test "$(prefix)" != "/usr/local"; then \
+	  MODS="$$MODS\\\"/usr/local/share/caudium$(EXTRAVER)/modules/\\\""; \
+	 else \
+	  MODS="`echo $$MODS | sed -e 's;,$$;;g'`"; \
+	 fi; \
+	 sed -e "s;\(globvar(.*\"ModuleDirs\",\).*;\1({$$MODS}),;g" \
+	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"$(prefix)/share/caudium$(EXTRAVER)/local_fonts\",\"nfonts\"}),;g" \
+	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium$(EXTRAVER)/\"\2;g" \
+	     -e "s;\(globvar(.*\"cachedir\",.*\)\"/tmp/caudium_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
+	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium$(EXTRAVER)/caudium.pid\"\2;g" \
+	     -e "s;\(globvar(.*\"argument_cache_dir\",.*\)\"../argument_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
+	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike > \
+	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new; \
+	 mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new \
+	    $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike
+	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium$(EXTRAVER)/;g" \
+	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium$(EXTRAVER)/servers/;g" \
+	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start > \
+	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new; \
+	mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
+	@(cd src;$(MAKE) "prefix=$(prefix)" "DESTDIR=$(DESTDIR)" \ "CC=$(CC)" \
+	                 "LDFLAGS=$(LDFLAGS)" "EXTRAVER=$(EXTRAVER)"\
+	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@/" install_alt)
+	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/caudium$(EXTRAVER)
+	-@for f in fcgi install.pike pdbi.pike pike caudium$(EXTRAVER); \
+	do \
+	  if test -f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/lib/caudium$(EXTRAVER)/bin/$$f... ; \
+	    chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f; \
+	  else :; fi; \
+	done
+	@cp -p doc/caudiumctl.1 $(DESTDIR)/$(prefix)/share/man/man1/
+	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
+	@echo "Caudium installed."
+
+spotless:  clean
+#	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	@(cd tools/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	rm -f $srcdir/tools/caudium-rc_script smartlink
+	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
+        -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
+	config.cache -o -name config.status -o -name config.log -o -name \
+	"*.a" -o -name configure ')'  -print -exec /bin/rm '{}'  ';'
+	rm -rf server/logs
+	rm -rf logs
+
+./Makefile: $(SRCDIR)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
+	@echo "Run make again"
+	@exit 1
+
+only_bump_version:  force
+	@if test -f $(SRCDIR)/server/base_server/caudium.pike.new; then \
+	  echo Deleting old $(SRCDIR)/server/base_server/caudium.pike.new...; \
+	  rm $(SRCDIR)/server/base_server/caudium.pike.new || exit 1; \
+	else : ; fi
+	@(cd $(SRCDIR)/server/base_server; \
+	  echo Bumping Caudium version...; \
+	  build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  newbuild=`echo $$build 1+p|dc`; \
+	  sed <caudium.pike -e"/__caudium_build__/s/$$build/$$newbuild/" >caudium.pike.new; \
+	  checkbuild=`sed <caudium.pike.new -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  if test "x$$newbuild" = "x$$checkbuild"; then \
+	    mv -f caudium.pike.new caudium.pike || exit 1; \
+	    echo "Successfull bump to build $$newbuild."; \
+	  else \
+	    echo "Version bump failed: $$newbuild != $$checkbuild."; \
+	    exit 1; \
+	  fi; \
+	  version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
+	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
+	  cat ../../VERSION; \
+	)
+
+bump_version: force only_bump_version
+	@(cd $(SRCDIR); \
+	  echo Tagging...; \
+	  cvs tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
+	)
+	@touch bump_version
+
+
+same_version: force
+	@cd $(SRCDIR)/server/base_server; \
+	 build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	 echo "Caudium $$version.$$build" >../../VERSION;
+
+date_version: force
+	@cd $(SRCDIR)/server/base_server; \
+	 build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../VERSION;
+
+
+$(SRCDIR)/ChangeLog.gz:
+	cd $(SRCDIR); pike tools/make_changelog.pike | gzip -9 > ChangeLog.gz
+
+$(SRCDIR)/ChangeLog.rxml.gz:
+	cd $(SRCDIR); pike tools/make_changelog.pike --rxml | gzip -9 > ChangeLog.rxml.gz
+
+force_update: force
+	@rm $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz \
+	    $(SRCDIR)/VERSION bump_version bump_version.stamp \
+	    2>/dev/null || true
+	@echo Prepared for version update.
+
+pre_dist: bump_version
+#	@(cd pike; $(MAKE) pre_dist)
+
+same_pre_dist: same_version
+
+faked_pre_dist:
+	echo "Caudium 1.2-test" > $(SRCDIR)/VERSION
+
+date_pre_dist:  date_version
+
+copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
+	@if test -f $(SRCDIR)/VERSION; then :; else \
+	  echo 'You need to make pre_dist first!'; \
+	  exit 1; \
+	fi
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
+	if ls -d $$version* >/dev/null 2>&1; then \
+	  echo Deleting old distributions...; \
+	  rm -rf $$version* || exit 1; \
+	else :; fi; \
+	mkdir $$version; \
+	echo Copying files...; \
+	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; ./autogen.sh); \
+	if test "`echo $$version| sed s/cvs//`" = "$$version" -a \
+		"`echo $$version| sed s/test//`" = "$$version" ; then \
+         echo "Non-test/devel version. Removing CVS directories.";\
+	 find $$version/. -type d -name 'CVS' -print0 |xargs -0 rm -rf; \
+	else \
+	 echo "Making sure CVS root is anonymous...";\
+	 for f in `find $$version/. -type f -path '*/CVS/Root' -print`; do\
+	   echo $$f;\
+           (cat $$f | sed 's/[^@]*\(.*\)/:pserver:anonymous\1/' >$$f.new)&&\
+	   mv $$f.new $$f; \
+         done;\
+        fi;\
+	echo Cleaning up the copied sources...; \
+	for f in `find $$version/. -type f -name '*~' -print` \
+	  `find $$version/. -type f -name '.#*' -print` \
+	  `find $$version/. -type f -name '#*#' -print`; do \
+	  echo $$f; rm $$f || exit 1; \
+	done
+
+tar_dist:
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
+	echo -n "Building tarfile..."; \
+	tar cf $$version.tar $$version; \
+	echo -n "tar.gz..."; \
+	gzip -9 < $$version.tar >$$version.tar.gz; \
+	echo -n "tar.bz2..."; \
+	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
+	echo "done."; \
+	rm $$version.tar
+
+dist: copy_dist tar_dist 
+	@echo "Distribution build complete. Don't forget to run"
+	@echo "'make only_bump_version' if this is not a test release."
+
+
