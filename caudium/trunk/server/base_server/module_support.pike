@@ -122,7 +122,7 @@ public mixed query(void|string var)
   error("query("+var+"). Unknown variable.\n");
 }
 
-//§
+//!
 mixed set(string var, mixed val)
 {
 #if DEBUG_LEVEL > 30
