@@ -139,7 +139,7 @@ private int really_set_config(array mod_config)
 
     my_fd->write(prot + " 302 Config in cookie!\r\n"
 		 "Set-Cookie: "
-		  + http_caudium_config_cookie(indices(config) * ",") + "\r\n"
+		  + Caudium.HTTP.config_cookie(indices(config) * ",") + "\r\n"
 		 "Location: " + url + "\r\n"
 		 "Content-Type: text/html\r\n"
 		 "Content-Length: 0\r\n\r\n");
@@ -669,7 +669,7 @@ private int parse_got()
     {
       if (!(QUERY(set_cookie_only_once) &&
 	    cache_lookup("hosts_for_cookie",remoteaddr))) {
-	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+	misc->moreheads = ([ "Set-Cookie": Caudium.HTTP.id_cookie(), ]);
       }
       if (QUERY(set_cookie_only_once))
 	cache_set("hosts_for_cookie",remoteaddr,1);

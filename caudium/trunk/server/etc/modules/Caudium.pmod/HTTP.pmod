@@ -466,7 +466,7 @@ string decode_url (string f)
 //!   The cookie value to encode and put in the cookie.
 //! @returns
 //!   The cookie value.
-string caudium_config_cookie(string from)
+string config_cookie(string from)
 {
   return "CaudiumConfig="+Caudium.http_encode_cookie(from)
     +"; expires=" + Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/";
@@ -476,7 +476,7 @@ string caudium_config_cookie(string from)
 //!   to set a cookie for all visitors
 //! @returns
 //!   The cookie value.
-string caudium_id_cookie()
+string id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
 		 Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/",
