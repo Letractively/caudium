@@ -39,7 +39,7 @@ typedef struct
   struct pike_string *name;
   struct svalue get;
   struct svalue set;
-  struct object *id;
+  njs_storage *parent;
   JSClassPtr class;
 } scope_storage;
 
