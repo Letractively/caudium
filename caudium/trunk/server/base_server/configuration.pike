@@ -3582,6 +3582,7 @@ class DataCache
     while( (strlen( data ) + current_size) > max_size )
       clear_some_cache();
     current_size += strlen( data );
+    meta += (["ETag":Crypto.sha()->update(url)->digest()]);
     cache[url] = ({ data, meta });
   }
   
