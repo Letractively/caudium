@@ -28,20 +28,21 @@ PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
 
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
-        bin/ultrasum.pike bin/install.pike 
+        bin/ultrasum.pike bin/install.pike bin/pixsl.pike \
+        etc/modules/SSL.pmod/client.pike
 
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# Add here commands to configure the package.
-	
+# Add here commands to configure the package.
+
 	if test ! -f stamp-patch; then \
 	    patch -p1 < debian/patches/smartlink.diff; \
 	    patch -p1 < debian/patches/configure.in.diff; \
 	    touch stamp-patch; \
 	fi;
 	./autogen.sh;
-	
+
 	./configure --prefix=/usr --with-pike=$(PIKE)
 
 	touch configure-stamp
@@ -50,7 +51,7 @@ build: configure-stamp build-stamp
 build-stamp:
 	dh_testdir
 
-	# Add here commands to compile the package.
+# Add here commands to compile the package.
 	$(MAKE)
 
 	touch build-stamp
@@ -65,8 +66,8 @@ clean:
 	    patch -R -p1 < debian/patches/configure.in.diff; \
 	    rm -f stamp-patch; \
 	fi
-	
-	# Add here commands to clean up after the build process.
+
+# Add here commands to clean up after the build process.
 	-$(MAKE) spotless
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
@@ -80,38 +81,38 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp.
+# Add here commands to install the package into debian/tmp.
 	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp
 	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium/COPYING
 	cp debian/localhost `pwd`/debian/tmp/etc/caudium/localhost.sample
-	
+
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium;g'< \
 	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
 	mv debian/tmp/usr/bin/ultrasum.new debian/tmp/usr/bin/ultrasum ; \
 	chmod 755 debian/tmp/usr/bin/ultrasum
-	
+
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium;g'< \
 	 debian/tmp/usr/bin/pixsl > debian/tmp/usr/bin/pixsl.new && \
 	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
 	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium/bin/pixsl.pike
-	
+
 	for s in $(SCRIPTS); do \
 	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium/$$s > \
 	      debian/tmp/usr/lib/caudium/$$s.new && \
 	  mv debian/tmp/usr/lib/caudium/$$s.new debian/tmp/usr/lib/caudium/$$s ; \
 	  chmod 755 debian/tmp/usr/lib/caudium/$$s ; \
 	done
-	
-	# perms fixing fest
+
+# perms fixing fest
 	-chmod 644 debian/tmp/usr/lib/caudium/fonts/32/urw_itc_avant_garde-demi-r \
 	           debian/tmp/usr/lib/caudium/etc/roxen_hilfe.pike \
 		   debian/tmp/usr/lib/caudium/base_server/config/font
-		   
+
 	-rm -f debian/usr/share/doc/caudium/COPYING
 	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
-	
-	# add libroxen modules path
-	# change the state directory
+
+# add libroxen modules path
+# change the state directory
 	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
 	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/","fonts/",\3;' \
 	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium/"\3;' \
@@ -121,28 +122,28 @@ install: build
 	mv debian/tmp/usr/lib/caudium/base_server/caudium.pike.new \
 	   debian/tmp/usr/lib/caudium/base_server/caudium.pike
 
-	# fix what lintian whines about
+# fix what lintian whines about
 	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/pike
 	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
 	rm -rf debian/tmp/usr/local/
-	
+
 	chmod 644 debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_graph.pike \
 	          debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_bars.pike
 
-	#
-	# the -p debhelper param seems to be not working... 
-	# so let's do it by hand
-	#
+#
+# the -p debhelper param seems to be not working... 
+# so let's do it by hand
+#
 	install -m 755 -d debian/caudium-ultralog/usr/share/man/man1/
 	cp src/cmods/UltraLog/docs/ultrasum.1 \
 	   debian/caudium-ultralog/usr/share/man/man1/
-	   
+
 	dh_movefiles
-	
-	# clean up CAMAS debris here
-	#rm -rf debian/tmp/usr/share/caudium/modules/camas
-	#rm -rf debian/caudium-camas/usr/lib/caudium/etc/include/camas/language.templates
-	#rm -rf debian/caudium-camas/usr/share/caudium/modules/camas/docs
+
+# clean up CAMAS debris here
+#rm -rf debian/tmp/usr/share/caudium/modules/camas
+#rm -rf debian/caudium-camas/usr/lib/caudium/etc/include/camas/language.templates
+#rm -rf debian/caudium-camas/usr/share/caudium/modules/camas/docs
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
@@ -153,7 +154,7 @@ binary-indep: build install
 # Pass -a to all debhelper commands in this target to reduce clutter.
 binary-arch: DH_OPTIONS=-a
 binary-arch: build install
-	# Need this version of debhelper for DH_OPTIONS to work.
+# Need this version of debhelper for DH_OPTIONS to work.
 #	dh_testversion 1.1.17
 	dh_testdir
 	dh_testroot
@@ -174,7 +175,7 @@ binary-arch: build install
 	dh_link
 	dh_compress
 	dh_fixperms
-	# You may want to make some executables suid here.
+# You may want to make some executables suid here.
 #	dh_suidregister
 	dh_installdeb
 #	dh_makeshlibs
