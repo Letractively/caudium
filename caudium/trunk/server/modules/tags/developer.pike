@@ -101,6 +101,7 @@ mapping(string:array) developers = ([
   "ice":({"Tamas Tevesz", "ice@caudium.net", "1976-06-24", "Hungary"}),
   "kazmer":({"Tamas Tevesz", "ice@caudium.net", "1976-06-24", "Hungary"}),
   "bertrand_lupart":({"Bertrand Lupart", "bertrand@caudium.net", "1977-05-15", "France"}),
+  "gourdelier":({"David Gourdelier", "vida@caudium.net", "1979-02-16", "France"})
   "vida":({"David Gourdelier", "vida@caudium.net", "1979-02-16", "France"})
 ]);
 
