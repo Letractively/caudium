@@ -2884,10 +2884,10 @@ string tag_pr(string tagname, mapping m)
 
     if(get_pr_size(size,color)  == "NONEXISTENT COMBINATION")
         color = "red";
-    sscanf(get_pr_size(size,color), "%*swidth=%d", w);
+    sscanf(get_pr_size(size,color), "%*swidth=\"%d", w);
     if(w != 0)
         m->width = (string)w;
-    sscanf(get_pr_size(size,color), "%*sheight=%d", w);
+    sscanf(get_pr_size(size,color), "%*sheight=\"%d", w);
     if(w != 0)
         m->height = (string)w;
 
