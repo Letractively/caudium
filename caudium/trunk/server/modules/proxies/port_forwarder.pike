@@ -81,7 +81,7 @@ object accept_port;
  */
 class Connection
 {
-	object *fdescs;
+	array(object) fdescs;
 	mapping buffer;
 	object mastermodule, master_id;
 	int traffic=0;

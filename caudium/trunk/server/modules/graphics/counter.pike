@@ -51,7 +51,6 @@ string copyright = ("<BR>Copyright 1997 "
 inherit "module";
 inherit "caudiumlib";
 
-import Image;
 constant thread_safe = 1;
 
 constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER;
@@ -236,7 +235,7 @@ mapping find_file_font( string f, object id )
     counter = "0" + counter;
   
   object txt  = fnt->write(counter);
-  object img  = image(txt->xsize(), txt->ysize(), @mkcolor(bg));
+  object img  = Image.Image(txt->xsize(), txt->ysize(), @mkcolor(bg));
 
   if(scale != 1)
     if(rot)
@@ -257,15 +256,15 @@ mapping find_file_font( string f, object id )
   // Making the color table is slow. Therefor we cache it.
   object ct = cache_lookup("counter_coltables", key);
   if(!ct) {
-    ct = colortable(img, 32)->cubicles(20,20,20);
+    ct = Image.Colortable(img, 32)->cubicles(20,20,20);
     cache_set("counter_coltables", key, ct);
   }
   
   if(trans)
-    return http_string_answer(GIF.encode_trans(img, ct, @mkcolor(bg)), 
+    return http_string_answer(Image.GIF.encode_trans(img, ct, @mkcolor(bg)), 
 			      "image/gif");
   else
-    return http_string_answer(GIF.encode(img, ct),"image/gif");
+    return http_string_answer(Image.GIF.encode(img, ct),"image/gif");
 #else
   return http_string_answer(img->togif( @(trans?mkcolor(bg):({})) ),
 			    "image/gif" );
@@ -282,7 +281,8 @@ mapping find_file_ppm( string f, object id )
   string counter;
   object digit, result;
   float scale;
-  string buff, dir, *us;
+  string buff, dir;
+  array(string) us;
   array (string)strcounter;
   if(sscanf(f, "%s/%s/%s/%d/%d/%f/%d/%s/%s.%*s", 
 	    user, bg, fg, trans, len, scale, rot, fontname, counter) != 10 )
@@ -316,9 +316,7 @@ mapping find_file_ppm( string f, object id )
       buff = Stdio.read_bytes(dir + fontname+"/"+dn+".ppm" );// Try .ppm
       if (!buff 
 #if constant(Image.PNM)
-	  || catch( digit = PNM.decode( buff ))
-#else
-	  || catch( digit = image()->fromppm( buff ))
+	  || catch( digit = Image.PNM.decode( buff ))
 #endif
 	  || !digit)
       {
@@ -327,12 +325,7 @@ mapping find_file_ppm( string f, object id )
 	  return ppmlist( fontname, user, dir );	// Failed !!
 	mixed err;
 #if constant(Image.GIF) && constant(Image.GIF.decode)
-	err =  catch( digit = GIF.decode( buff ));
-#else
-	int|function f;
-
-	if(f = image()->fromgif)
-	  err = catch( digit = f( buff ));
+	err =  catch( digit = Image.GIF.decode( buff ));
 #endif
 	if(err || !digit)
 	  return ppmlist( fontname, user, dir );
@@ -346,10 +339,8 @@ mapping find_file_ppm( string f, object id )
   if (fontname=="ListAllStyles")
 	return ppmlist( fontname, user, dir );
 
-  
-
-result = image(digits[0]->xsize()*2 * numdigits,
-		 digits[0]->ysize(), @mkcolor(bg));
+  result = Image.Image(digits[0]->xsize()*2 * numdigits,
+		       digits[0]->ysize(), @mkcolor(bg));
   for( int dn=0; dn < numdigits; dn++ )
   {
     int c = (int)strcounter[dn];
@@ -365,29 +356,29 @@ result = image(digits[0]->xsize()*2 * numdigits,
     result = result->scale(scale);
   if(rot)
     result = result->rotate(rot, @mkcolor(bg));
-#if constant(Image.GIF)  
+#if constant(Image.Image.GIF)  
   object ct = cache_lookup("counter_coltables", fontname);
   if(!ct) {
     // Make a suitable color table for this ppm-font. We need all digits
     // loaded, as some fonts have completely different colors.
     object data;
     int x;
-    data = image(digits[0]->xsize()*2 * numdigits,
+    data = Image.Image(digits[0]->xsize()*2 * numdigits,
 		       digits[0]->ysize());
     for( int dn = 0; dn < 10; dn++ ) {
       data = data->paste(digits[dn], x, 0);
       x += digits[dn]->xsize();
     }
-    ct = colortable(data->copy(0,0,x-1,data->ysize()-1), 64)
+    ct = Image.Colortable(data->copy(0,0,x-1,data->ysize()-1), 64)
       ->cubicles(20,20,20);
     cache_set("counter_coltables", fontname, ct);
   }
   
   if(trans)
-    return http_string_answer(GIF.encode_trans(result, ct, @mkcolor(bg)), 
+    return http_string_answer(Image.GIF.encode_trans(result, ct, @mkcolor(bg)), 
 			      "image/gif");
   else
-    return http_string_answer(GIF.encode(result, ct),"image/gif");
+    return http_string_answer(Image.GIF.encode(result, ct),"image/gif");
 #else
   return http_string_answer(result->togif(@(trans?mkcolor(bg):({}))),
 			    "image/gif");
@@ -399,7 +390,7 @@ mapping find_file( string f, object id )
   if(f[0..1] == "0/")
     return find_file_font( f, id );	// Umm, standard Font
   else
-    return find_file_ppm( f, id ); // Otherwise PPM/GIF 
+    return find_file_ppm( f, id ); // Otherwise PPM/Image.GIF 
 }
 
 string tag_counter( string tagname, mapping args, object id )
@@ -508,17 +499,17 @@ mapping query_tag_callers()
 //!  name: Mount point
 //
 //! defvar: ppmpath
-//! Were are located PPM/GIF digits (Ex: 'digits/')
+//! Were are located PPM/Image.GIF digits (Ex: 'digits/')
 //!  type: TYPE_DIR
-//!  name: PPM GIF Digits Path
+//!  name: PPM Image.GIF Digits Path
 //
 //! defvar: userpath
-//! Where are users PPM/GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME
+//! Where are users PPM/Image.GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME
 //!  type: TYPE_STRING
-//!  name: PPM GIF path under Users HOME
+//!  name: PPM Image.GIF path under Users HOME
 //
 //! defvar: ppm
-//! Default PPM/GIF-Digits style for counters (Ex: 'a')
+//! Default PPM/Image.GIF-Digits style for counters (Ex: 'a')
 //!  type: TYPE_STRING
-//!  name: Default PPM GIF-Digit style
+//!  name: Default PPM Image.GIF-Digit style
 //

@@ -21,9 +21,9 @@ constant thread_safe = 1;
 //
 
 #include <module.h>
+inherit "images";
 inherit "module";
 inherit "caudiumlib";
-inherit "images";
 
 caudium.ImageCache  button_cache;
 
@@ -55,14 +55,15 @@ void start()
     button_cache = caudium.ImageCache("gbutton", TIMER(draw_button));
 }
 
+#if 0
 string status() {
-//    array s=button_cache->status();
-//    return sprintf("<b>Images in cache:</b> %d images<br />\n<b>Cache size:</b> %s",
-//                   s[0]/2, 0); //Roxen.sizetostring(s[1]));
-    return "errr... I've got nothing to say...";
+  array s=button_cache->status();
+  return sprintf("<b>Images in cache:</b> %d images<br />\n<b>Cache size:</b> %s",
+		 s[0]/2, sizetostring(s[1]));
 }
+#endif
 
-#ifdef ROXEN
+#ifndef CAUDIUM
 //
 // This is used in Roxen 2.x config interface
 //

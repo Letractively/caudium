@@ -371,7 +371,7 @@ string time_period(int t,
 		   mapping m)
 {
   int i;
-  string *tmp=({});
+  array(string) tmp = ({});
   if(!t)
     return "zero seconds";
   if(!noseconds)

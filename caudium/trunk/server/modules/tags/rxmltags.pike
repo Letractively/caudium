@@ -1997,7 +1997,7 @@ string tag_signature(string tag, mapping m, object id, object file,
 
 string tag_user(string tag, mapping m, object id, object file,mapping defines)
 {
-  string *u;
+  array(string) u;
   string b, dom;
 
   if(!id->conf->auth_module)
@@ -2399,7 +2399,8 @@ string tag_configimage(string f, mapping m)
 
 string tag_aprestate(string tag, mapping m, string q, object id)
 {
-  string href, s, *foo;
+  string href, s;
+  array(string) foo;
   multiset prestate=(< >);
 
   if(!(href = m->href))

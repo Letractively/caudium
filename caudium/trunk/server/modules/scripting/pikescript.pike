@@ -353,6 +353,7 @@ mapping handle_file_extension(object f, string e, object id)
       }
       throw( err );
     }
+    e->print_warnings("Error compiling pike script "+id->not_query+":");
     
 #if constant(setegid)
     add_constant("setegid", ban[0]);

@@ -73,7 +73,7 @@ void create()
 }
 
 
-string make_html_line(string *s)
+string make_html_line(array(string) s)
 {
   if(s)
     return sprintf("<a href=\"%s\"> <img hspace=5 border=0 "

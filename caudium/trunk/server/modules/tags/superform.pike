@@ -129,7 +129,7 @@ void create() {
 
 // How can I change this with Caudium constant thing to support
 // variables ? - Xavier
-mixed *register_module()
+array register_module()
 {
   return ({ 
     MODULE_PARSER|MODULE_FIRST,
@@ -518,7 +518,7 @@ int|string luhn_check(string number) {
   array digits = Array.map(reverse(number/""), 
 		     lambda(string n) { return (int)n; });
 
-  int* hash_function = ({ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 });
+  array(int) hash_function = ({ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 });
 
   for(int i=1; i<sizeof(digits); i+=2) {
     digits[i] = hash_function[digits[i]];

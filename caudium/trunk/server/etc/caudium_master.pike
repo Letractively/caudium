@@ -199,39 +199,8 @@ void create()
   add_constant("nameof", nameof);
 }
 
-
-string errors = "";
-void set_inhibit_compile_errors(mixed f)
-{
-  ::set_inhibit_compile_errors(f);
-  errors="";
-}
-
-
 void clear_compilation_failures()
 {
   foreach (indices (programs), string fname)
     if (!programs[fname]) m_delete (programs, fname);
 }
-
-#if !defined(__MAJOR__) || __MAJOR__ < 7
-/*
- * This function is called whenever a compiling error occurs,
- * It is only required for Pike 0.6 since Pike 7.0 and higher
- * performs the correct task by default.
- */
-
-void compile_error(string file,int line,string err)
-{
-  mixed inhibit;
-  inhibit = inhibit_compile_errors;
-  if(objectp(inhibit)) {
-    if(functionp(inhibit->compile_error)) {
-      inhibit->compile_error(file, line, err);
-    }
-  } else if(stringp(inhibit))
-    errors += sprintf("%s:%d:%s\n",trim_file_name(file),line,err);
-  else
-    ::compile_error(file,line,err);
-}
-#endif

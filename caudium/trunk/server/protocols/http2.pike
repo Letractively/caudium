@@ -1077,7 +1077,7 @@ void send_result(mapping|void result)
       array fstat;
       if(objectp(file->file))
 	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (int *)file->file->stat();
+	  file->stat = (array(int))file->file->stat();
       if(arrayp(fstat = file->stat))
       {
 	if(file->file && !file->len)

@@ -50,16 +50,18 @@ program Privs;
 private static int perror_status_reported=0;
 
 int pid = getpid();
-object stderr = Stdio.File("stderr");
+Stdio.File stderr = Stdio.File("stderr");
 
-mapping pwn=([]);
+mapping(int:string) pwn=([]);
 string pw_name(int uid)
 {
 #if !constant(getpwuid)
   return "uid #"+uid;
 #else
   if(pwn[uid]) return pwn[uid];
-  return pwn[uid]=(getpwuid(uid)||((""+uid)/":"))[0];
+  array tmp = getpwuid(uid);
+  if(tmp) return pwn[uid] = (string)tmp[0];
+  return pwn[uid] = "uid #"+uid;
 #endif
 }
 
@@ -122,16 +124,16 @@ mixed mark_fd(int fd, mixed|void marker) {
  * Some efuns used by Caudium
  */
 
-array(int) caudium_fstat(string|object file, int|void nolink) {
+array(int) caudium_fstat(string|Stdio.File file, int|void nolink) {
   mixed st;
   if(objectp(file)) {
     if(file->stat)
-      st = (array(int))file->stat();
+      st = (array(int))([object(Stdio.File)]file)->stat();
     else
       throw("caudium_fstat: Object not a file.\n");
   }    
   else
-    st = file_stat(file, nolink);
+    st = file_stat((string)file, nolink);
   if(st) return (array(int))st;
   return 0;
 }
@@ -170,7 +172,7 @@ int mkdirhier(string from, int|void mode)
 {
   int r = 1;
   string a, b;
-  array f;
+  array(string) f;
 
   f=(from/"/");
   b="";
@@ -201,7 +203,7 @@ int mkdirhier(string from, int|void mode)
  * PDB support
  */
 object db;
-mapping dbs = ([ ]);
+mapping(string:object) dbs = ([ ]);
 
 #if constant(thread_create)
 static private inherit Thread.Mutex:db_lock;
@@ -218,14 +220,14 @@ object open_db(string id)
   if(!db) db = PDB->db("pdb_dir", "wcCr");
 #endif
   if(dbs[id]) return dbs[id];
-  return dbs[id]=db[id];
+  return dbs[id] = [object]db[id];
 }
 
 
 // Help function used by low_spawne()
-mapping make_mapping(string *f)
+mapping(string:string) make_mapping(array(string) f)
 {
-  mapping foo=([ ]);
+  mapping(string:string) foo=([ ]);
   string s, a, b;
   foreach(f, s)
   {
@@ -240,7 +242,8 @@ mapping make_mapping(string *f)
 object caudium;
 
 // The function used to report notices/debug/errors etc.
-function nwrite;
+
+function(string,int|void,int|void:void) nwrite = stderr->write;
 
 
 /*
@@ -359,8 +362,8 @@ void report_fatal(string message)
 // Pipe open 
 string popen(string s, void|mapping env, int|void uid, int|void gid)
 {
-  object p;
-  object f;
+  Stdio.File p;
+  Stdio.File f;
 
   f = Stdio.File();
 #if constant(Stdio.PROP_IPC)
@@ -371,7 +374,7 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
   if(!p) 
     error("Popen failed. (couldn't create pipe)\n");
 
-  mapping opts = ([
+  mapping(string:mixed) opts = ([
     "env": (env || getenv()),
     "stdout":p,
   ]);
@@ -385,7 +388,11 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
       break;
     }
   }
+#if constant(Process.Process)
+  Process.Process proc;
+#else
   object proc;
+#endif
   proc = Process.create_process( ({"/bin/sh", "-c", s }), opts );
   p->close();
   destruct(p);
@@ -402,16 +409,17 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
   return 0;
 }
 
-// Low level create process on Pike 0.5
-int low_spawne(string s,string *args, mapping|array env, object stdin, 
-	   object stdout, object stderr, void|string wd)
+int low_spawne(string s, array args,
+	       mapping(string:string)|array(string) env,
+	       Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
+	       void|string wd)
 {
   object p;
   int pid;
   string t;
 
   if(arrayp(env))
-    env = make_mapping(env);
+    env = make_mapping([array(string)]env);
   if(!mappingp(env)) 
     env=([]);
   
@@ -421,16 +429,17 @@ int low_spawne(string s,string *args, mapping|array env, object stdin,
   stderr->dup2(Stdio.File("stderr"));
   if(stringp(wd) && sizeof(wd))
     cd(wd);
-  exece(s, args, env);
+  exece(s, args, [mapping(string:string)]env);
   perror(sprintf("Spawne: Failed to exece %s\n", s));
   exit(99);
 }
 
 // Create a process
-int spawne(string s,string *args, mapping|array env, object stdin, 
+int spawne(string s, array(string) args, mapping|array env, object stdin, 
 	   object stdout, object stderr, void|string wd, void|array (int) uid)
 {
-  int pid, *olduid = allocate(2);
+  int pid;
+  array(int) olduid = allocate(2);
 
   int u, g;
   if(uid) { u = uid[0]; g = uid[1]; } else
@@ -439,7 +448,12 @@ int spawne(string s,string *args, mapping|array env, object stdin,
 #else
   ;
 #endif
-  object proc = Process.create_process(({ s }) + (args || ({})), ([
+#if constant(Process.Process)
+  Process.Process proc;
+#else
+  object proc;
+#endif
+  proc = Process.create_process(({ s }) + (args || ({})), ([
     "toggle_uid":1,
     "stdin":stdin,
     "stdout":stdout,
@@ -460,15 +474,20 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 		  object|void stdout, object|void stderr)
 {
   string cwd = getcwd();
-  string pikebin = combine_path(cwd, new_master->_pike_file_name ||
+  string pikebin = combine_path(cwd, [string]new_master->_pike_file_name ||
 				"bin/pike");
-  string mast = combine_path(cwd, new_master->_master_file_name ||
+  string mast = combine_path(cwd, [string]new_master->_master_file_name ||
 			     "../pike/src/lib/master.pike");
   array preargs = ({ });
 
   if (caudium_fstat(mast))
     preargs += ({ "-m"+mast });
-  object proc = Process.create_process(({ pikebin }) + preargs + args, ([
+#if constant(Process.Process)
+  Process.Process proc;
+#else
+  object proc;
+#endif
+  proc = Process.create_process(({ pikebin }) + preargs + args, ([
     "toggle_uid":1,
     "stdin":stdin,
     "stdout":stdout,
@@ -528,6 +547,11 @@ class LowErrorContainer
   string get_warnings()
   {
     return warnings;
+  }
+
+  void print_warnings(string prefix) {
+    if(warnings && strlen(warnings))
+      report_warning(prefix+"\n"+warnings);
   }
   void got_error(string file, int line, string err, int|void is_warning)
   {
@@ -645,6 +669,7 @@ object really_load_caudium()
     werror(describe_backtrace(err));
     exit(1);
   }
+  ee->print_warnings("compilation warnings:");
 		 
   roxen_perror("done in "+sprintf("%4.3fs\n", (gethrtime()-start_time)/1000000.0));
   return res;

@@ -39,7 +39,8 @@ mapping languages = ([ ]);
 
 void initiate_languages()
 {
-  string lang, *langs, p;
+  string lang, p;
+  array(string) langs;
   langs = get_dir("languages");
   if(!langs)
   {

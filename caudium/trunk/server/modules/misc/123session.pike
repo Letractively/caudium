@@ -635,7 +635,7 @@ string describe_remove () {
   return "";
 }
 
-string describe_form_remove (mixed *var, mixed path) {
+string describe_form_remove (array var, mixed path) {
   string ret = "<input type=\"hidden\" name=\"foo\" value=bar>"; /* strange,
 								    but won't work
 								    without */

@@ -576,6 +576,7 @@ object configuration_interface()
       report_error(sprintf("Failed to load the configuration interface!\n%s\n",
 			   describe_backtrace(err)));
     }
+    e->print_warnings("Compilation warnings while loading configuration interface:");
   }
   return configuration_interface_obj;
 }
@@ -1026,7 +1027,7 @@ public string full_status()
 
 #ifndef NO_COMPAT
 
-public string *userlist(void|object id)
+public array(string) userlist(void|object id)
 {
   object conf;
 
@@ -1041,7 +1042,7 @@ public string *userlist(void|object id)
   return 0;
 }
 
-public string *user_from_uid(int u, void|object id)
+public array(string) user_from_uid(int u, void|object id)
 {
   object conf;
   if(id) {
@@ -1056,9 +1057,9 @@ public string *user_from_uid(int u, void|object id)
 
 public string last_modified_by(object file, object id)
 {
-  int *s;
+  array(int) s;
   int uid;
-  mixed *u;
+  array u;
   
   if(objectp(file)) s = (array(int))file->stat();
   if(!s || sizeof(s)<5) return "A. Nonymous";
@@ -1184,7 +1185,6 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
 {
   string cvs;
   array st;
-  object e = ErrorContainer();
   program prog;
   if(st = file_stat(s+".pike"))
   {
@@ -3265,7 +3265,7 @@ void scan_module_dir(string d)
 	  if(!file) break;
 	case "mod":
 	case "so":
-	  string *module_info;
+	  array(string) module_info;
 	  if (!(err=catch( module_info = lambda ( string file ) {
 	    array foo;
 	    object o;
@@ -3329,6 +3329,8 @@ void scan_module_dir(string d)
       report_debug("Compilation errors found while scanning modules in "+
 		   d+":\n"+ e->get()+"\n");
     }
+    e->print_warnings("Warnings while scanning modules in "+d+":");
+    
     master()->set_inhibit_compile_errors(0);
   }
 }

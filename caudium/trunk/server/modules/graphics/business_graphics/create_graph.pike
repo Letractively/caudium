@@ -160,7 +160,7 @@ void draw(object(IMAGE) img, float h, array(float|string) coords,
 mapping(string:mixed) setinitcolors(mapping(string:mixed) diagram_data)
 {
   //diagram_data["datasize"]=0;
-  foreach(diagram_data["data"], mixed* fo)
+  foreach(diagram_data["data"], array fo)
     if (sizeof(fo)>diagram_data["datasize"])
       diagram_data["datasize"]=sizeof(fo);
   
@@ -210,7 +210,7 @@ mapping(string:mixed) setinitcolors(mapping(string:mixed) diagram_data)
     else
       numbers=sizeof(diagram_data["data"]);
     
-    int** carr=allocate(numbers);
+    array(array) carr=allocate(numbers);
     int steg=128+128/(numbers);
 
     switch( numbers ) {

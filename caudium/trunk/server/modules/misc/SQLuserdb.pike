@@ -222,8 +222,8 @@ void open_db() {
 /*
  * Module Callbacks
  */
-string *userinfo (string u) {
-  string *dbinfo;
+array(string) userinfo (string u) {
+  array(string) dbinfo;
   array sql_results;
   mixed err,tmp;
   DEBUGLOG ("userinfo ("+u+")");
@@ -297,9 +297,10 @@ string user_from_uid (int u)
   return data[0]->username;
 }
 
-array|int auth (string *auth, object id)
+array|int auth (array(string) auth, object id)
 {
-  string u,p,*dbinfo,*ip401;
+  string u,p;
+  array(string) dbinfo, ip401;
   mixed err;
 
   att++;
