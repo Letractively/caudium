@@ -269,7 +269,11 @@ string scan_for_query( string f )
 //!    a mapping describing the user (contents may vary depending on the
 //!    user database the user is stored in) or zero if the user has not
 //!    been authenticated.
-int|mapping get_user();
+int|mapping get_user()
+{
+  if(user) return copy_value(user);
+  else return 0;
+} 
 
 
 //! Get the base portion of a URL
