@@ -29,8 +29,7 @@ LIB_DEPENDS=	gmp.6:${PORTSDIR}/math/libgmp4 \
 		jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
-		mird.1:${PORTSDIR}/databases/mird 
-#		rsaref:2:${PORTSDIR}/security/rsaref
+		mird.1:${PORTSDIR}/databases/mird
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
@@ -105,6 +104,10 @@ WITH_PDF=	yes
 
 .if exists(${LOCALBASE}/lib/librsvg-2.so.2)
 WITH_SVG2=	yes
+.endif
+
+.if exists(${LOCALBASE}/lib/libct.so.0)
+WITH_TDS=	yes
 .endif
 
 .if defined(WITH_MOST)
@@ -208,6 +211,13 @@ CONFIGURE_ARGS+= --with-svg
 CONFIGURE_ARGS+= --without-svg
 .endif
 
+.if defined(WITH_TDS)
+LIB_DEPENDS+=	ct.0:${PORTSDIR}/databases/freetds
+CONFIGURE_ARGS+= --with-sybase
+.else
+CONFIGURE_ARGS+= --without-sybase
+.endif
+
 .if defined(HAVE_MESA) || defined(WITH_MESA)
 USE_MESA=	yes
 LIB_DEPENDS+=	gtkgl.5:${PORTSDIR}/x11-toolkits/gtkglarea
@@ -220,9 +230,9 @@ CONFIGURE_ARGS+= --without-GL --without-GLUT
 USE_GNOME=	yes
 USE_GTK=	yes
 USE_GLI=	yes
-CONFIGURE_ARGS+= --with-GTK --with-gnome --with-glade
+CONFIGURE_ARGS+= --with-GTK --with-gnome --with-glade --with-libglade-config=/usr/X11R6/bin/libglade-config
 .else
-CONFIGURE_ARGS+= --without-GTK --without-gnome --without-glade
+CONFIGURE_ARGS+= --without-GTK --without-gnome --without-glade --without-libglade-config
 .endif
 
 .if (${MACHINE} == "i386")
@@ -268,6 +278,22 @@ pre-everything::
 .if !defined(WITH_MOST)
 	@${ECHO_MSG} "You can enable most of the features here except Sane,"
 	@${ECHO_MSG} "MesaGLi, GNOME and SQL support by defining WITH_MOST."
+.endif
+.if !defined(WITH_SVG2)
+	@${ECHO_MSG} "You can enable SVG2 image support by "
+	@${ECHO_MSG} "defining WITH_SVG2."
+.endif
+.if !defined(WITHOUT_RELOCATABLE_DUMPED_MODULES)
+	@${ECHO_MSG} "You can disable relocatable dumped modules by "
+	@${ECHO_MSG} "defining WITHOUT_RELOCATABLE_DUMPED_MODULES."
+.endif
+.if !defined(WITH_EXPIREMENTAL_FEATURES)
+	@${ECHO_MSG} "You can enable experemental features and optimization "
+	@${ECHO_MSG} "at you own risk by defining WITH_EXPIREMENTAL_FEATURES."
+.endif
+.if !defined(WITH_TDS)
+	@${ECHO_MSG} "You can enable direct access to Sybase and MS-SQL "
+	@${ECHO_MSG} "database using FreeTDS be defining WITH_TDS."
 .endif
 
 
