@@ -196,7 +196,7 @@ mixed find_file ( string path, object id )
     return 0;
 }
 
-void collect_standard_params(object id)
+private void collect_standard_params(object id)
 {
     if (!DATA(id)->std_params)
         DATA(id)->std_params = ([]);
@@ -288,13 +288,16 @@ private void construct_defines(string which, object id,
     }
 }
 
-mixed provider_error(object id, mapping res)
+private mixed provider_error(object id, mapping res)
 {
     if (res->url)
         return http_redirect(res->url, id);
     else if (res->text) {
-        string ret = sprintf("<html><head><title>%s</title></head>"
+        string ret = sprintf("<html><head>"
+                             "<meta http-equiv=\"content-type\" content=\"text/html; charset=%s\">"
+                             "<title>%s</title></head>"
                              "<body>%s</body></html>",
+                             res->charset ? res->charset : "ISO-8859-1",
                              res->title ? res->title : "Error",
                              res->text);
         
@@ -307,12 +310,12 @@ mixed provider_error(object id, mapping res)
 //
 // File handlers
 //
-mixed do_final(object id)
+private mixed do_final(object id)
 {
     object procobj = PROCOBJ(id);
 
     collect_variables(id, "final");
-    if (procobj) {
+    if (procobj && functionp(procobj->finale)) {
         mapping variables = ([]);
         mapping tags = ([]);
         mapping containers = ([]);
@@ -321,9 +324,14 @@ mixed do_final(object id)
         res = procobj->finale(id, DATA(id), variables, tags, containers);
         if (!res) {
             construct_defines("final", id, variables, tags, containers);
+        } else if (res < 0) {
+            return get_redirect(id);
         } else if (mappingp(res)) {
             return provider_error(id, res);
         }
+    } else if (procobj) {
+        warning("final - provider '%s' has no 'finale' function!",
+                QUERY(data_plugin));
     } else {
         warning("final - no '%s' provider found in the virtual server '%s'\n",
                 QUERY(data_plugin), id->conf->name);
@@ -332,12 +340,12 @@ mixed do_final(object id)
     return get_redirect(id);
 }
 
-mixed do_process(object id)
+private mixed do_process(object id)
 {
     object procobj = PROCOBJ(id);
 
     collect_variables(id, "process");    
-    if (procobj) {
+    if (procobj && functionp(procobj->process)) {
         mapping variables = ([]);
         mapping tags = ([]);
         mapping containers = ([]);
@@ -345,10 +353,15 @@ mixed do_process(object id)
         
         res = procobj->process(id, DATA(id), variables, tags, containers);
         if (!res) {
-            construct_defines("final", id, variables, tags, containers);
+            construct_defines("process", id, variables, tags, containers);
+        } else if (res < 0) {  
+            return get_redirect(id);
         } else if (mappingp(res)) {
             return provider_error(id, res);
         }
+    } else if (procobj) {
+        warning("process - provider '%s' has no 'process' function!",
+                QUERY(data_plugin));
     } else {
         warning("process - no '%s' provider found in the virtual server '%s'\n",
                 QUERY(data_plugin), id->conf->name);
@@ -399,11 +412,16 @@ string tag_dcenv(string tag, mapping m, object id,
             id->misc->tags = ([]);
         if (!id->misc->defaults)
             id->misc->defaults = ([]);
+        
         foreach(indices(TAGS(id)), string idx) {
             string tmp = lower_case(idx);
 
             if (!id->misc->defaults[tmp])
                 id->misc->defaults[tmp] = ([]);
+            
+            if (TAGS(id)->__defaults && TAGS(id)->__defaults[tmp])
+                id->misc->defaults[tmp] = TAGS(id)->__defaults[tmp];
+            
             id->misc->tags[tmp] = TAGS(id)[idx];
             id->misc->_tags[tmp] = CALL_USER_TAG;
             if (id->misc->_xml_parser)
@@ -420,8 +438,12 @@ string tag_dcenv(string tag, mapping m, object id,
 
             if (!id->misc->defaults[tmp])
                 id->misc->defaults[tmp] = ([]);
+
+            if (CONTAINERS(id)->__defaults && CONTAINERS(id)->__defaults[tmp])
+                id->misc->defaults[tmp] = CONTAINERS(id)->__defaults[tmp];
+            
             id->misc->containers[tmp] = CONTAINERS(id)[idx];
-            id->misc->_containers[tmp] = CALL_USER_TAG;
+            id->misc->_containers[tmp] = CALL_USER_CONTAINER;
             if (id->misc->_xml_parser)
                 id->misc->_xml_parser->add_container(tmp, CALL_USER_CONTAINER);
         }
