@@ -2287,17 +2287,29 @@ static string make_proto_name(string p)
 {
     // Note these are only the protocols that
     // Caudium can directly use
-    multiset(string) known_protos = (<"http", "ftp", "tetris", "https">);
-	  
+    multiset(string) known_protos = (<"http", "ftp", "https">);
+    multiset(string) telnet_protos = (<"smtp", "pop", "pop2", "pop3", "imap", "tetris">);
+    
     if (known_protos[p])
 	return p;
 	
+    if (telnet_protos[p])
+	return "telnet";
+
     foreach(indices(known_protos), string proto) {
 	string ret;
 	
 	ret = String.common_prefix(({proto, p}));
 	if (ret && ret != "")
 	    return ret;
+    }
+    
+    foreach(indices(telnet_protos), string proto) {
+	string ret;
+	
+	ret = String.common_prefix(({proto, p}));
+	if (ret && ret != "")
+	    return "telnet";
     }
     
     return "about";
