@@ -188,7 +188,7 @@ void start(int num, object configuration)
             foreach(get_dir(cdir), string file)
                 rm(cdir+file);
         else
-            if (!mkdirhier(cdir))
+            if (!Stdio.mkdirhier(cdir))
                 report_warning ("BG: Cache directory "+
                                 cdir+" can not be created.\n");
     }
