@@ -92,6 +92,15 @@ case "$1" in
 # /usr/lib/caudium${EXTVER}/start --help
 #
 START_OPTIONS="$START_OPTIONS"
+
+#
+# Stuff for caudiumctl(1)
+#
+caudiumhome=/usr/lib/caudium${EXTVER}
+pidfile=/var/run/caudium${EXTVER}/caudium.pid
+killallwww=no
+wwwuser=www-data
+flags="$START_OPTIONS"
 EOF
     fi
 

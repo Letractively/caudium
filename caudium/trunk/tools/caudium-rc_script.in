@@ -1,6 +1,10 @@
 #!/bin/sh
+#
+# $Id$
+#
 # init.d script for Caudium. Set the variables below to something fitting..
 # This is only an example script.
+#
 #############
 
 #

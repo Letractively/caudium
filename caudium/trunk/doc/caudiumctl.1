@@ -9,6 +9,15 @@ caudiumctl start|stop|restart|reload
 .LP 
 This program works similarily to the \fIapachectl\fR one \- it enables the user to control
 the \fBCaudium WebServer\fR from the command line. One is able to start, stop, restart and reload the configuration of the server.
+
+\fBcaudiumctl\fR supports a config file, placed in /etc/default/caudium which is sourced by
+the script if found. The file can contain the following variables.
+
+.TP caudiumhome \- directory (the toplevel one) where Caudium lives.
+.TP pidfile \- file containing the PID of the Caudium process.
+.TP wwwuser \- user name under which Caudium is supposed to run.
+.TP killallwww \- set to 'yes' if you want to kill all the processes owned by $wwwuser.
+.TP flags \- the start script flags (see caudium(8) for details)
 .SH "OPTIONS"
 .LP 
 .TP 
@@ -23,30 +32,11 @@ Restarts a running server.
 .TP 
 \fBreload\fR
 Reloads the configuration of the running server.
-.SH "ENVIRONMENT VARIABLES"
-.LP 
-.TP 
-\fBHOME\fP
-Specifies the home directory
-.TP 
-\fBLOGINNAME\fP
-Specifies the user's login name
-.TP 
-\fBPRINTER\fP
-Specifies the printer
 .SH "FILES"
-.SH "EXAMPLES"
-.LP 
-To run this program the standard way type:
-.LP 
-myprogram /tmp/myfile
-.LP 
-Alternativly you can run it as:
-.LP 
-myprogram \-dscan /tmp
+.TP /etc/default/caudium \- contains Caudium and caudiumctl default flags
 .SH "AUTHORS"
 .LP 
 The Caudium Group \- \fBhttp://caudium.net/\fR
 .SH "SEE ALSO"
 .LP 
-myotherprogram(2) mynextprogram(2)
+caudium(8)
