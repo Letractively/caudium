@@ -372,7 +372,7 @@ string encode_one_port(array port, int id)
     res += ("<tr><td colspan=3>"
 	    "<table width=100% cellspacing=0  border=0 bgcolor=#f0f0ff>\n"
 	    "<tr width=100%><td colspan=2 width=100%><b>SSL Options</b></td></tr>\n");
-    res += ("<tr><td>Certificate file:</td> <td><input size=30,1 "
+    res += ("<tr><td>Certificate file(s):</td> <td><input size=30,1 "
 	    "name=cert_"+id+" value="+html_encode_tag_value(cf||"")+
 	    "></td></tr>\n"
 	    "<tr><td>Key file: (OPTIONAL)</td><td><input size=30,1 "
