@@ -199,13 +199,13 @@ mapping render_image(string how, object id)
 mapping cached_image(int hmm, object id)
 {
   mapping rv;
-  if(rv = cache_lookup("rimage:"+id->conf->name, (string)hmm))
+  if(rv = cache_lookup("rimage:"+id->site_id, (string)hmm))
      return rv;
   
   if(file_stat(query("cache-dir")+hmm))
   {
     catch {
-      return cache_set("rimage:"+id->conf->name, (string)hmm, 
+      return cache_set("rimage:"+id->site_id, (string)hmm, 
 		       decode_value(Stdio.read_bytes(query("cache-dir")+hmm)));
     };
     rm(query("cache-dir")+hmm);
