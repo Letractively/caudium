@@ -105,7 +105,7 @@ string query_location()
 void log_referer(string cookie, void|string query, void|string referer)
 {
   if (logok) logfile->write(sprintf("%s | %s | %s | %s\n",
-		Caudium.http_date(), cookie, query || "-", referer || "-"));
+		Caudium.HTTP.date(), cookie, query || "-", referer || "-"));
 }
 
 mixed find_file(string f, object id)
@@ -115,9 +115,9 @@ mixed find_file(string f, object id)
 		 id->query,
                  id->request_headers->referer);
 
-  id->misc->moreheads = ([ "Expires": Caudium.http_date(),
+  id->misc->moreheads = ([ "Expires": Caudium.HTTP.date(),
                            "Pragma": "no-cache",
-                           "Last-Modified": Caudium.http_date(),
+                           "Last-Modified": Caudium.HTTP.date(),
                            "Cache-Control": "no-cache, must-revalidate" ]);
 
   return ([ "data" : pixel,

@@ -474,16 +474,16 @@ private string gsession_build_cookie(object id, string sid, void|int remove)
 
   if (!remove) {
     if (QUERY(cookieexpire) > 0)
-#if constant(Caudium.http_date)
-      Cookie += "; Expires=" + Caudium.http_date(time()+QUERY(cookieexpire)) +";";
+#if constant(Caudium.HTTP.date)
+      Cookie += "; Expires=" + Caudium.HTTP.date(time()+QUERY(cookieexpire)) +";";
 #else
       Cookie += "; Expires=" + http_date(time()+QUERY(cookieexpire)) +";";
 #endif  
     if (QUERY (cookieexpire) < 0)
       Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
   } else
-#if constant(Caudium.http_date)
-    Cookie += "; Expires=" + Caudium.http_date(0) + ";";
+#if constant(Caudium.HTTP.date)
+    Cookie += "; Expires=" + Caudium.HTTP.date(0) + ";";
 #else
     Cookie += "; Expires=" + http_date(0) + ";";
 #endif

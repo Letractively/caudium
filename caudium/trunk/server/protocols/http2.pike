@@ -702,7 +702,7 @@ string generate_bugreport(array from, string u, string rd)
 	  "\nRequested URL: "+u+"\n"
 	  "\nError: "+
 	  describe_backtrace(from)-(getcwd()+"/")+
-	  "\n\nDate: "+Caudium.http_date(predef::time())+
+	  "\n\nDate: "+Caudium.HTTP.date(predef::time())+
 	  "\n\nRequest data:\n"+rd));
 }
 
@@ -1157,7 +1157,7 @@ void send_result(mapping|void result)
     	
         if(!file->is_dynamic && !misc->is_dynamic)
         {
-          heads["Last-Modified"] = Caudium.http_date(fmtime);
+          heads["Last-Modified"] = Caudium.HTTP.date(fmtime);
           if(since)
           {
             if(is_modified(since, fmtime, fsize))
@@ -1207,7 +1207,7 @@ void send_result(mapping|void result)
 #endif
       "Server":version(),
       "X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"), 
-      "Date":Caudium.http_date(time) ]);    
+      "Date":Caudium.HTTP.date(time) ]);    
 
     if(file->encoding)
       heads["Content-Encoding"] = file->encoding;
@@ -1216,7 +1216,7 @@ void send_result(mapping|void result)
       file->error = 200;
     
     if(!zero_type(file->expires))
-      heads->Expires = file->expires ? Caudium.http_date(file->expires) : "0";
+      heads->Expires = file->expires ? Caudium.HTTP.date(file->expires) : "0";
     
     if(mappingp(file->extra_heads)) {
       heads |= file->extra_heads;

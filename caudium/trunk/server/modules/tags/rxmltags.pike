@@ -1860,7 +1860,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
     if (m->years)   t+=((int)(m->years))*(3600*(24*365+6));   /* 365.25d */
   }
 
-  if(t) cookies += "; expires="+Caudium.http_date(t+time());
+  if(t) cookies += "; expires="+Caudium.HTTP.date(t+time());
 
   //obs! no check of the parameter's usability
   cookies += "; path=" +(Caudium.http_encode_cookie(m->path||"/"));
@@ -1877,7 +1877,7 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
   string cookies;
   if(m->name)
     cookies = m->name+"="+Caudium.http_encode_cookie(m->value||"")+
-      "; expires="+Caudium.http_date(0)+"; path=/";
+      "; expires="+Caudium.HTTP.date(0)+"; path=/";
   else
     return "<!-- remove_cookie requires a `name' -->";
 
@@ -2126,9 +2126,9 @@ string tag_expire_time(string tag, mapping m, object id, object file,
   } else
     NOCACHE();
 
-  add_header(_extra_heads, "Expires", t ? Caudium.http_date(t) : "0");
+  add_header(_extra_heads, "Expires", t ? Caudium.HTTP.date(t) : "0");
   if(m->now)
-    id->since=Caudium.http_date(0);
+    id->since=Caudium.HTTP.date(0);
 
   return "";
 }
