@@ -225,7 +225,7 @@ string find_one(string ... of)
 }
 
 #ifdef CONFIG_IF_IP_LOOKUPS
-# define to_hostname caudium->blocking_ip_to_hostx
+# define to_hostname caudium->blocking_ip_to_host
 #else
 # define to_hostname(x) x
 #endif
