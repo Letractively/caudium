@@ -122,9 +122,9 @@ void open_db(object id) {
 void log(object id, mapping file) 
 {
  if ( ( id->useragent ) && ( sizeof(id->useragent) > 1 )) {
-     open_db(id);
    if ( lower_case((id->useragent)[0..6]) == "caudium" ) {
      // This a caudium
+     open_db(id);
      if( id->not_query == QUERY(supports)) {
   //     werror(sprintf("%O",mkmapping(indices(id),values(id))));
        mixed err = catch{
