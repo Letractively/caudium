@@ -935,7 +935,7 @@ void create(object conf)
 
   defvar("rxml", 0, "Parse RXML in CGI-scripts", TYPE_FLAG|VAR_MORE,
 	 "If this is set, the output from CGI-scripts handled by this "
-         "module will be RXMl parsed. NOTE : No data will be returned to the "
+         "module will be RXML parsed. NOTE : No data will be returned to the "
          "client until the CGI-script is fully parsed.");
 
   defvar("extra_env", "", "Extra environment variables", TYPE_TEXT_FIELD|VAR_MORE,
@@ -1113,7 +1113,7 @@ void create(object conf)
 //!  name: CGI-script extensions
 //
 //! defvar: rxml
-//! If this is set, the output from CGI-scripts handled by this module will be RXMl parsed. NOTE : No data will be returned to the client until the CGI-script is fully parsed.
+//! If this is set, the output from CGI-scripts handled by this module will be RXML parsed. NOTE : No data will be returned to the client until the CGI-script is fully parsed.
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Parse RXML in CGI-scripts
 //
