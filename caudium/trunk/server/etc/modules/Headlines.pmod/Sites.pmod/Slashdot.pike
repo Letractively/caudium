@@ -6,10 +6,8 @@
  */
 
 import spider;
-//import "..";
 import Headlines;
 
-//#include "../base.pike"
 #include <headlines/base.h>
 
 constant name = "slashdot";
