@@ -32,7 +32,8 @@ PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
 EXTVER=
 
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
-        bin/ultrasum.pike bin/install.pike bin/pixsl.pike 
+        bin/ultrasum.pike bin/install.pike bin/pixsl.pike \
+	bin/indexer.pike bin/searcher.pike
 
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
 
@@ -85,7 +86,6 @@ install: build
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
 	 debian/caudium/usr/bin/ultrasum > debian/caudium/usr/bin/ultrasum.new && \
 	mv debian/caudium/usr/bin/ultrasum.new debian/caudium/usr/bin/ultrasum ; \
-	chmod 755 debian/caudium/usr/bin/ultrasum
 
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
 	 debian/caudium/usr/bin/pixsl > debian/caudium/usr/bin/pixsl.new && \
@@ -109,7 +109,9 @@ install: build
 	# perms fixing fest
 	-chmod 644 debian/caudium/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
 	           debian/caudium/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
-		   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/config/font
+		   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/config/font \
+		   debian/caudium/usr/lib/caudium$(EXTVER)/etc/classes/*.jar \
+		   debian/caudium/usr/share/caudium$(EXTVER)/modules/scripting/webapp.pike
 
 	mv debian/caudium/usr/bin/htpasswd debian/caudium/usr/bin/htpasswd-caudium
 
@@ -137,7 +139,6 @@ install: build
 	mv debian/caudium/usr/lib/caudium$(EXTVER)/caudium-images debian/caudium/usr/share/caudium$(EXTVER)/
 
 	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
-	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/local/share/caudium/modules/
 
 	#
 	# copy perl
