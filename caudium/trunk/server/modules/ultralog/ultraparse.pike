@@ -84,6 +84,8 @@ void create() {
 	 "sites. Use with caution. ");
   defvar("dontshow", ({}), "Excluded Profiles", TYPE_STRING_LIST,
 	 "A list of profiles to hide from the display.");
+  defvar("onlyshow", ({}), "Included Profiles", TYPE_STRING_LIST,
+  	 "A list of profiles that you want to be displayed.");
   defvar("hidden", ({}), "Hidden Stats", TYPE_STRING_LIST,
 	 "A list with statistic groups to hide unless the prestate "
 	 "showall is present. Hiding can be used to remove unnecessary "
@@ -668,7 +670,11 @@ array do_match(array in, function filter, int negate)
 
 array(string)|string get_profile_list(void|int raw)
 {
-  array servers = indices(profiles) - QUERY(dontshow);
+  array servers = indices(profiles);
+  if (sizeof(QUERY(dontshow) - ({ "" })))
+    servers -= (QUERY(dontshow) - ({ "" }));
+  if (sizeof(QUERY(onlyshow) - ({ "" })))
+    servers = servers - (servers - (QUERY(onlyshow) - ({ "" })));
 
   servers = 
     sort(Array.filter(servers,
