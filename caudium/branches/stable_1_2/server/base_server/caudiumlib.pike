@@ -886,6 +886,8 @@ static int is_safe_string(string in)
 //! name: make_tag_attributes - convert a mapping to tag attributes
 static string make_tag_attributes(mapping in)
 {
+  // remove "/" that can remain from the parsing of a <tag />
+  m_delete(in, "/");
   array a=indices(in), b=values(in);
   for(int i=0; i<sizeof(a); i++)
     if(lower_case(b[i]) != a[i])

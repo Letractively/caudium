@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.xx since 1.2.24
 --------------------------------------
+- make_tag_attributes() now don't output any "/" that could be in the argument.
+  That affects both make_tag() and make_container()
 - Backported Highlight pike system from 1.3 that now support CSS :)
 - Backported Open Files wizard from 1.3 tree to show more accurate informations.
 - Fix a bug with icons and virtual directories like /mail/ in gbutton module.
