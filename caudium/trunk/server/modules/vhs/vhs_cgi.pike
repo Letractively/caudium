@@ -28,7 +28,7 @@ inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
 
-constant module_type = MODULE_LOCATION;
+constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
 constant module_name = "VHS - CGI executable support";
 constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
     "interface.html\">CGI/1.1 interface</a>, and more.";
@@ -546,6 +546,7 @@ class CGIScript
   // stderr is handled by run().
   mapping (string:string) environment;
   int blocking;
+  int child_pid;
 
   string priority;   // generic priority
   object pid;       // the process id of the CGI script
@@ -620,21 +621,7 @@ class CGIScript
 
   void kill_script()
   {
-    DWERROR(sprintf("CGI:CGIScript::kill_script()\n"
-		    "next_kill: %d\n", next_kill));
-
-    if(pid && !pid->status())
-    {
-      int signum = 9;
-      if (next_kill < sizeof(kill_signals)) {
-	signum = kill_signals[next_kill++];
-      }
-      if(pid->kill)  // Pike 0.7, for roxen 1.4 and later 
-        pid->kill( signum );
-      else
-        kill( pid->pid(), signum); // Pike 0.6, for roxen 1.3 
-      call_out(kill_script, kill_interval);
-    }
+	if (child_pid) kill(child_pid, 9);
   }
 
   CGIScript run()
@@ -708,7 +695,7 @@ class CGIScript
     if( limits )
       options->rlimit = limits;
 
-    Caudium.create_process( ({ command }) + arguments, options );
+    child_pid = Caudium.create_process( ({ command }) + arguments, options );
 
 //    if(!(pid = Process.create_process( ({ command }) + arguments, options ))) 
 //      error("Failed to create CGI process.\n");
@@ -774,7 +761,7 @@ class CGIScript
     array(int) statres = file_stat(id->realfile);
 
     if (statres[5] >= 100) uid = statres[5];
-    if (statres[6] >= 100) gid = statres[5];
+    if (statres[6] >= 100) gid = statres[6];
 
     environment =(QUERY(env)?getenv():([]));
     environment |= global_env;
@@ -833,6 +820,17 @@ void start(int n, object conf)
       if(sscanf(tmp, "%s=%s", us[0], us[1])==2)
         global_env[us[0]] = us[1];
   }
+}
+
+mapping handle_file_extension(object o, string e, object id)
+{
+  DWERROR("CGI:handle_file_extension()\n");
+
+  if (o && !(o->stat()[0]&0100))
+     return (http_error_answer (id, 500, "CGI ERROR",
+             "<b>The script you tried to run is not executable.</b>"));
+
+  return http_stream( CGIScript( id )->run()->get_fd() );
 }
 
 array stat_file( string f, object id )
@@ -897,7 +895,16 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
   return http_stream( CGIScript( id )->run()->get_fd() );
 }
 
-int run_as_user_enabled() { return (getuid() || !QUERY(user)); }
+int run_as_user_enabled()
+{
+  return (getuid() || !QUERY(user));
+}
+
+array (string) query_file_extensions()
+{
+  return query("ext");
+}
+
 void create(object conf)
 {
   defvar("env", 1, "Pass environment variables", TYPE_FLAG|VAR_MORE,
@@ -911,6 +918,10 @@ void create(object conf)
 	 "echo ''<br>"
 	 "env<br>"
 	 "</pre>");
+
+  defvar("ext", ({"cgi",}), "CGI-script extensions", TYPE_STRING_LIST,
+         "All files ending with these extensions, will be parsed as "+
+	 "CGI-scripts.");
 
   defvar("rxml", 0, "Parse RXML in CGI-scripts", TYPE_FLAG|VAR_MORE,
 	 "If this is set, the output from CGI-scripts handled by this "
