@@ -897,6 +897,11 @@ string common_prefix(array(string) strs)
 //! Caudium bootstrap code.
 int main(int argc, array(string) argv)
 {
+  // a hack for Pike 7.4+ installed in the traditional way
+  // without this you will get a nice, long, voluminous
+  // backtrace...
+  object hack = Calendar.now();
+
   int start_time = gethrtime();
   string path = make_path("base_server", "etc/include", ".");
   roxen_perror(version()+"\n");
