@@ -22,14 +22,14 @@ NAME=caudium
 DESC="Caudium Webserver"
 
 PIDFILE=/var/run/caudium/caudium.pid
-START_OPTIONS="--pid-file=$PIDFILE"
+DEFSTART_OPTIONS="--pid-file=$PIDFILE"
 
 test -f $DAEMON || exit 0
 
 set -e
 
 if test -f /etc/caudium/start_options; then
-    START_OPTIONS="$START_OPTIONS `cat /etc/caudium/start_options`"
+    . cat /etc/caudium/start_options
 fi
 
 case "$1" in
@@ -42,7 +42,7 @@ case "$1" in
   stop)
 	echo -n "Stopping $DESC: "
 	for p in `cat $PIDFILE`; do
-    	    kill -TERM $p || true
+    	    kill -TERM $p > /dev/null || true
 	done
 	rm -f $PIDFILE
 	echo "$NAME."
@@ -51,7 +51,7 @@ case "$1" in
 	if test -f $PIDFILE; then
 	    echo -n "Restarting $DESC: "
 	    for p in `cat $PIDFILE | sed -e 1d`; do
-		kill -HUP $p || true
+		kill -HUP $p > /dev/null || true
 	    done
 	    echo "$NAME."
 	else

@@ -45,7 +45,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE) DEBIAN_GNU_LINUX="yes"
+	$(MAKE)
 
 	touch build-stamp
 
@@ -56,7 +56,8 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) spotless
-
+	-rm -f `find -name ".cvsignore" -type f -print`
+	-rm -rf `find -name "CVS" -type d -print`
 	dh_clean
 
 install: DH_OPTIONS=
@@ -68,6 +69,7 @@ install: build
 
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp
+	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium/COPYING
 	mv -f `pwd`/debian/tmp/usr/lib/caudium/lib/$(PIKE_VERSION)/* \
 	   `pwd`/debian/caudium-modules/usr/lib/caudium/lib/$(PIKE_VERSION)
 	rm -rf `pwd`/debian/tmp/usr/lib/caudium/lib/$(PIKE_VERSION)/
@@ -92,6 +94,14 @@ install: build
 		   
 	-rm -f debian/usr/share/doc/caudium/COPYING
 	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
+	
+	# add libroxen modules path
+	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
+	       debian/tmp/usr/lib/caudium/base_server/caudium.pike > \
+	       debian/tmp/usr/lib/caudium/base_server/caudium.pike.new && \
+	mv debian/tmp/usr/lib/caudium/base_server/caudium.pike.new \
+	   debian/tmp/usr/lib/caudium/base_server/caudium.pike
+	
 	dh_movefiles
 
 # Build architecture-independent files here.

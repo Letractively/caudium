@@ -17,13 +17,15 @@ Description: What port should the server listen on?
 
 Template: caudium/start_options
 Type: multiselect
-Choices: threads, debug, once, profile, fd-debug
+Default: keep-alive
+Choices: threads, debug, once, profile, fd-debug, keep-alive
 Description: Select options that should be used on startup
  'threads' - use threads (if available); 
  'debug' - output debugging information while running; 
  'once' - run in foreground; 
  'profile' - store profiling information; 
  'fd-debug' - debug file descriptor usage
+ 'keep-alive' - keep connections alive
 
 Template: caudium/cfg_port_taken
 Type: note

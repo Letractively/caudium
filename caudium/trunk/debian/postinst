@@ -54,10 +54,20 @@ case "$1" in
 	    once) START_OPTIONS="$START_OPTIONS --once" ;;
 	    profile) START_OPTIONS="$START_OPTIONS --with-profile" ;;
 	    fd-debug) START_OPTIONS="$START_OPTIONS --with-fd-debug" ;;
+	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
     if test -n "$START_OPTIONS"; then
-	echo $START_OPTIONS > /etc/caudium/start_options
+	cat <<EOF > /etc/caudium
+#
+# This variable will be joined with the default
+# Caudium startup options in the init script
+#
+# For available options type
+# /usr/lib/caudium/start --help
+#
+START_OPTIONS=$START_OPTIONS
+EOF
     fi
 
     db_get caudium/experimental_http
@@ -72,7 +82,11 @@ case "$1" in
 
     abort-upgrade|abort-remove|abort-deconfigure)
     db_stop
-    db_purge
+    
+    update-alternatives --install /usr/bin/htpasswd  htpasswd \
+				  /usr/bin/htpasswd-caudium 1 \
+			--slave /usr/share/man/man1/htpasswd.1.gz \
+			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
     ;;
 
     *)
