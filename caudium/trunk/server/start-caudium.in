@@ -1048,13 +1048,6 @@ void watchdog_accept()
 		return;
 	}
 
-  if(pid != proc->pid())
-  {
-    flex_write("Got invalid PID for caudium on the watchdog control socket.\n");    
-    ds->close();
-    return;
-  }  
-
   switch(cmd)
   {
     case "ON":
