@@ -777,7 +777,7 @@ void main(int argc, array argv)
   if(configuration_dir_changed || logdir_changed)
     write("\nAs you use non-standard directories for the configuration \n"
 	  "and/or the logging, you must remember to start the server using\n"
-	  "the correct options. Run './start --help' for more information.\n");
+	  "the correct options. Run './start-caudium --help' for more information.\n");
   
   sleep(4);
   

@@ -163,7 +163,7 @@ rm -rf $RPM_BUILD_ROOT/usr/share/caudium/unfinishedmodules
 %_libdir/caudium/demo_certificate.pem
 %_libdir/caudium/install
 %_libdir/caudium/mkdir
-%_libdir/caudium/start
+%_libdir/caudium/start-caudium
 %_libdir/caudium/testca.pem
 %_datadir/caudium/modules/directories
 %_datadir/caudium/modules/filesystems

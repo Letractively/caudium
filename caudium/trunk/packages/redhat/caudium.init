@@ -15,7 +15,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON_DIR=/usr/lib/caudium
-DAEMON=$DAEMON_DIR/start
+DAEMON=$DAEMON_DIR/start-caudium
 NAME=caudium
 DESC="Caudium Webserver"
 
