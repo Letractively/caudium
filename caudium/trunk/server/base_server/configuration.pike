@@ -3355,20 +3355,20 @@ string desc()
   
   foreach(QUERY(Ports), port)
   {
-    string prt, prtfile;
+    string prt, prtfile, modprt;
     
     prtfile = port[1] + "://";
     switch(port[1][0..2])
     {
-    case "ssl":
+     case "ssl":
       prt = "https://";
       break;
-    case "ftp":
+     case "ftp":
       prt = "ftp://";
       break;
       
-    default:
-      prt = make_proto_name(port[1])+"://";
+     default:
+      prt = (modprt = make_proto_name(port[1]))+"://";
     }
     
     if(port[2] && port[2]!="ANY") {
@@ -3378,11 +3378,12 @@ string desc()
 #if efun(gethostname)
     else {
       prt += (gethostname()/".")[0] + "." + QUERY(Domain);
-      prtfile = prt;
+      prtfile = modprt ? replace(prt, modprt, port[1]) : prt;
     }
 #endif
     prt += ":"+port[0]+"/";
     prtfile += ":" + port[0] + "/";
+
     if(port_open( port ))
       res += "<font color=darkblue><b>Open:</b></font> <a target=server_view href=\""+prt+"\">"+prtfile+"</a> \n<br>";
     else
