@@ -640,12 +640,6 @@ void handle_request()
     if ( mappingp(result) ) {
 	if ( !stringp(result->type) )
 	    result["type"] = "text/xml; charset=\"utf-8\"";
-	
-	if ( stringp(result->data) ) {
-	    object f = Stdio.File("/root/www/dav.log", "wct");
-	    f->write(result->data);
-	    f->close();
-	}
 	send_result(result);
     }
 }
