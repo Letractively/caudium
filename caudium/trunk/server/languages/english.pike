@@ -99,7 +99,7 @@ string ordered(int i)
 
 string date(int timestamp, mapping|void m)
 {
-    object  target = Calendar.Second("unix", timestamp)->set_language("english");
+    object  target = Calendar.Second("unix", timestamp);
     object  now = Now;
     string  curtime = target->format_mod();
     string  curday = ordered(target->month_day());
@@ -241,7 +241,7 @@ array aliases()
 
 void create()
 {
-    Now = Calendar.now()->set_language("english");
+    Now = Calendar.now();
     
     initialize_months(Now);
     initialize_days(Now);
