@@ -152,8 +152,7 @@ void create()
            "<p>This module must export the following functions:<br><ul>"
            "<li>modify [TODO: syntax]</li>"
            "</ul></p>"
-           "<p>This module is used to modify the user data, within the allowed limits. Only the "
-           "administrators can modify all data in all the accounts.</p>"
+           "<p>This module is used to modify the user data, within the allowed limits. </p>"
           );
 
     defvar("pm_auth_name", "auth", "Provider modules: 'auth' module name",
@@ -261,7 +260,8 @@ void start(int cnt, object conf)
                         backtrace()}));
     }
 
-    my_menus[0]->provider = QUERY(provider_prefix) + my_menus[0]->provider;
+    foreach(my_menus, mapping mnu)
+        mnu->provider = QUERY(provider_prefix) + mnu->provider;
 }
 
 void stop()
