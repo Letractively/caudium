@@ -86,12 +86,33 @@ constant module_doc =
 ;
 void create()
 {
-  defvar("stylesheet", "", "Default XSLT Stylesheet", TYPE_FILE,
+  defvar("stylesheet", "", "Default XSLT stylesheet", TYPE_FILE,
 	 "The default style sheet to use when no other stylesheet is "
 	 "found. This should be a full path in the real filesystem.");
-  defvar("xsldir", "", "Template Directory", TYPE_DIR,
+  defvar("xsldir", "", "Template directory", TYPE_DIR,
          "If non-empty, this path in the real filesystem will be prepended "
 	 "to all stylesheet names as specified in the DOCTYPE attribute. ");
+  defvar("indexfile", "index.xml", "Index file name", TYPE_STRING,
+         "The name of the file to use as the XML source file for directory "
+	 "accesses. For example a request made to <i>/docs/</i> would result "
+	 "in the file <i>/docs/index.xml</i> to be used with the default "
+	 "setting. If this variable is the empty string, directory requests "
+	 "will be ignored.");
+  defvar("indexext", "html", "Index file extension", TYPE_STRING,
+         "When a directory request (i.e <i>/docs/</i> without an explicit "
+	 "file name) is received, the wanted extension (which is used to "
+	 "locate the correct stylesheet) is unknown. This variable sets the "
+	 "extension to be used in those cases. <b>Important:</b> "
+	 "Do not prepend the extension with a dot!");
+  defvar("xmlext", ".xml", "XML source file extension", TYPE_STRING,
+         "The extension of the requested file is stripped and replaced with "
+	 "this string to find the XML source file. I.e if the default value "
+	 "<i>.xml</i> is used and the requested file is test.html, the "
+	 "module would use the file test.xml as the XML source file. ");
+  defvar("xslext", ".xsl", "XSLT stylesheet extension", TYPE_STRING,
+         "The extension appended to the value specified in the &lt;!DOCTYPE> "
+	 "attribute. This variable is not for the default template or "
+	 "templates specified using the <i>&amp;__xsl=template</i> syntax.");
   defvar("showxml", 0, "Show raw XML files", TYPE_FLAG,
          "If this flag is set to Yes, requests for files ending will "
 	 ".xml will result in the file being sent as back as text/xml "
@@ -119,8 +140,12 @@ mapping|int first_try(object id)
   string content_type, charset;
   string basedir, basename, extension;
   if(id->not_query[-1] == '/') {
-    basename = id->not_query + "index.xml";
-    extension = "html";
+    if(strlen(QUERY(indexfile))) {
+      basename = id->not_query + QUERY(indexfile);
+      extension = QUERY(indexext);
+    } else {
+      return 0;
+    }
   } else {
     array tmp;
     tmp = regexp->split(id->not_query);
@@ -129,13 +154,13 @@ mapping|int first_try(object id)
     basename = tmp[-2];
     extension = tmp[-1];
   }
+  if ( (extension == "xml") && (QUERY(showxml)==1) ) 
+    return 0; /* This passes on the request to the underlying filesystem */
   basedir = id->conf->real_file(dirname(id->not_query)+"/", id);
   if(!basedir) return 0; /* non-existing directory */
   basename = combine_path(basedir, predef::basename(basename));
-  if ( (extension == "xml") && (QUERY(showxml)==1) ) 
-    return 0; /* This passes on the request to the underlying filesystem */
     
-  xml = Stdio.read_file(xml_name=basename+".xml");
+  xml = Stdio.read_file(xml_name=basename+QUERY(xmlext));
   if(!xml) return 0; /* not for us... */
   if(id->variables->__xsl) {
     xsl_name = combine_path(basedir, id->variables->__xsl);
@@ -152,28 +177,37 @@ mapping|int first_try(object id)
     sscanf(xml, "%*[\n\t\r ]%s", xml);
     sscanf(xml, "%*s<!DOCTYPE %s%*[ >]", tmp);
     if(!tmp) {
-      xsl = (Stdio.read_file(combine_path(basedir, QUERY(stylesheet))) ||
-	     (xsldir &&  Stdio.read_file(combine_path(xsldir,
-						      QUERY(stylesheet)))));
+      if(strlen(QUERY(stylesheet))) {
+	xsl_name = combine_path(basedir, QUERY(stylesheet));
+	catch {
+	  xsl = Stdio.read_file(xsl_name);
+	};
+	if(!xsl && xsldir) {
+	  xsl_name = combine_path(xsldir, QUERY(stylesheet));
+	  catch {
+	    xsl = Stdio.read_file(xsl_name);
+	  };
+	}
+      }
       if(!xsl) 
 	ERROR("Missing template specification in XML source file and no "
 	      "default template configured / found.");
     } else {
-      xsl_name = combine_path(basedir, tmp+"_"+extension+".xsl");
+      xsl_name = combine_path(basedir, tmp+"_"+extension+QUERY(xslext));
       xsl = Stdio.read_file(xsl_name);
       if(!xsl && xsldir) {
-	xsl_name = combine_path(xsldir, tmp+"_"+extension+".xsl");
+	xsl_name = combine_path(xsldir, tmp+"_"+extension+QUERY(xslext));
 	xsl = Stdio.read_file(xsl_name);
       }
       if(!xsl)
 	ERROR("Couldn't find a wanted stylesheet '"+xsl_name+"'.");
     }
   }
-
   parser = PiXSL.Parser();
   parser->set_xsl_data(xsl);
   parser->set_xml_data(xml);
   parser->set_variables(id->variables);
+  parser->set_base_uri(xsl_name);
   if(catch(res = parser->run())) {
     res = parser->error();
     if(!res) 
@@ -233,12 +267,32 @@ mapping|int first_try(object id)
 //! defvar: stylesheet
 //! The default style sheet to use when no other stylesheet is found. This should be a full path in the real filesystem.
 //!  type: TYPE_FILE
-//!  name: Default XSLT Stylesheet
+//!  name: Default XSLT stylesheet
 //
 //! defvar: xsldir
 //! If non-empty, this path in the real filesystem will be prepended to all stylesheet names as specified in the DOCTYPE attribute. 
 //!  type: TYPE_DIR
-//!  name: Template Directory
+//!  name: Template directory
+//
+//! defvar: indexfile
+//! The name of the file to use as the XML source file for directory accesses. For example a request made to <i>/docs/</i> would result in the file <i>/docs/index.xml</i> to be used with the default setting. If this variable is the empty string, directory requests will be ignored.
+//!  type: TYPE_STRING
+//!  name: Index file name
+//
+//! defvar: indexext
+//! When a directory request (i.e <i>/docs/</i> without an explicit file name) is received, the wanted extension (which is used to locate the correct stylesheet) is unknown. This variable sets the extension to be used in those cases. <b>Important:</b> Do not prepend the extension with a dot!
+//!  type: TYPE_STRING
+//!  name: Index file extension
+//
+//! defvar: xmlext
+//! The extension of the requested file is stripped and replaced with this string to find the XML source file. I.e if the default value <i>.xml</i> is used and the requested file is test.html, the module would use the file test.xml as the XML source file. 
+//!  type: TYPE_STRING
+//!  name: XML source file extension
+//
+//! defvar: xslext
+//! The extension appended to the value specified in the &lt;!DOCTYPE> attribute. This variable is not for the default template or templates specified using the <i>&amp;__xsl=template</i> syntax.
+//!  type: TYPE_STRING
+//!  name: XSLT stylesheet extension
 //
 //! defvar: showxml
 //! If this flag is set to Yes, requests for files ending will .xml will result in the file being sent as back as text/xml without trying to find and apply a stylesheet.
