@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added minor change to mainconfig.pike to allow Caudium version number to
+  appear in the title
 - Updated SQLuserdb to utilize new accept group= code
 - added new module ACL: accept group=
   This addition augments id->auth with a fourth array member which is the
@@ -103,5 +105,3 @@ Changes in Caudium 1.3 since Caudium 1.2.1
   initialized).
 - File index.rxml is now recognized as index file.
 - New cache system added
-- Added minor change to mainconfig.pike to allow Caudium version number to
-  appear in the title
