@@ -42,6 +42,27 @@ constant module_doc  = "Interactive tests of the supports database.\n <br>"
 
 // TODO: add_constant make_[tag|container]() -> Caudium.make_[tag|container]()
 
+constant supports_ok = "Supports feature is enabled in Caudium. All should run properly.";
+constant supports_ko = "Supports feature is not enabled in Caudium. Every user agent will have the same default supports, regardless their user-agent. Restart Caudium with -DENABLE_SUPPORTS to enable it.";
+
+//! method: void start()
+void start()
+{
+#ifndef ENABLE_SUPPORTS
+	report_warning(supports_ko+"\n");
+#endif
+}
+
+//! method: status()
+string status()
+{
+#ifdef ENABLE_SUPPORTS
+	return supports_ok;
+#else
+	return supports_ko;
+#endif
+}
+
 //! method: mapping query_container_callers()
 //!  Public containers handled by this module
 mapping query_container_callers()
@@ -155,7 +176,13 @@ string container_supportslab_form(string tagname, mapping args, string contents,
   args->name   = "supportslab_form";
   args->method = "get";
   args->action = id->raw_url;
-  return make_container("form", args, contents);
+  string out =  make_container("form", args, contents);
+
+#ifndef ENABLE_SUPPORTS
+	out += make_container("strong", ([ ]), supports_ko);
+#endif
+
+	return out;
 }
 
 //! tag: supportslab_useragent
