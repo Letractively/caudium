@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fixed bug #547354 - <aconf> URIs don't work
 - Fixed bug #542177 that makes incorrect listings from directories2.pike.
 - Fixed bug #514391 (user listing in userfs), seems that Caudium Cache.
 - Fixed bug #533861 <wizard> was broken. Autodocs now added, new features like
