@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "animangacommunity";
 constant site = "Animanga Community";
 constant url  = "http://community.animearchive.org/";
 constant path = "ultra.html";

@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "solariscentral";
 constant site = "Solaris Central";
 constant url  = "http://www.SolarisCentral.org/";
 constant path = "news/ultramode.txt";

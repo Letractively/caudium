@@ -6,11 +6,15 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
-#include "../RDF.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
+//#include "../RDF.pike"
+#include <headlines/RDF.h>
 
+constant name = "digitaltheatre";
 constant site = "Digital Theatre";
 constant url  = "http://www.dtheatre.com/";
 constant path  = "backend.php3?xml=yes";

@@ -6,11 +6,14 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
-constant site = "GCU Squad";
+constant name = "filewatcher";
+constant site = "File Watcher";
 constant url  = "http://filewatcher.org/";
 constant path = "backend/1.0/";
 constant names =  ({ "title", "link", "time","author","empty1","empty2","empty3","type","empty" });

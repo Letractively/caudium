@@ -6,11 +6,15 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
-#include "../RDF.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
+//#include "../RDF.pike"
+#include <headlines/RDF.h>
 
+constant name = "mozillazine";
 constant site = "MozillaZine";
 constant url  = "http://www.mozillazine.org/";
 constant path = "contents.rdf";

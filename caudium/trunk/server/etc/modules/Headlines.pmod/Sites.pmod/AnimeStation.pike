@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "aninestation";
 constant site = "Anime Station";
 constant url  = "http://animestation.com/";
 constant path = "ultramode.txt";

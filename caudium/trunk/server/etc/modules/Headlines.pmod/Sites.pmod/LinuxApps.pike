@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <include/base.h>
 
+constant name = "linuxapps";
 constant site = "Linux Applications";
 constant url  = "http://www.linuxapps.com/";
 constant path = "backend/detailed.txt";

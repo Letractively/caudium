@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "itn";
 constant site = "ITN";
 constant url  = "http://www.itn.co.uk/";
 //constant path = "Java/ticker.txt";

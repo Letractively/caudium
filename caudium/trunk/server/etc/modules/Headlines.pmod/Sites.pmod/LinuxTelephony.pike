@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "linuxtelephony";
 constant site = "Linux Telephony";
 constant url  = "http://www.linuxtelephony.org/";
 constant path = "backend/linuxtelnews.txt";
