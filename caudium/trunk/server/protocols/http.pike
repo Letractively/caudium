@@ -28,6 +28,7 @@ private inherit "caudiumlib";
 // HTTP protocol module.
 #include <config.h>
 #include <module.h>
+#include <variables.h>
 
 #undef QUERY
 #define QUERY(X)  _query( #X )
@@ -975,8 +976,6 @@ void internal_error(array err)
             "internal error in the internal error routine.</h1>" );
     }
 }
-
-#include <variables.h> // For errors mapping.
 
 void do_log()
 {

@@ -33,6 +33,7 @@ mapping to_send;
 #include <stdio.h>
 #include <caudium.h>
 #include <module.h>
+#include <variables.h>
 
 // #define SSL3_DEBUG
 
