@@ -3607,7 +3607,7 @@ static string netcraft_submit()
     "host ever again.<br>"
     "Thank you in advance for your support!</td></tr>"
     "<tr><td>"
-    "<form action='/(netcraft)/Configurations/%s/Global/netcraft_done' method='POST' name='netcraftform' target='self_'>"
+    "<form action='/(netcraft)/Configurations/%s/Global/netcraft_done' method='POST' name='netcraftform'>"
     "<input type='hidden' name='/Configurations/%s/Global/netcraft_done' value='1'>"
     "<input type='hidden' name='URL' value='%s'>"
     "<input type='hidden' name='random' value='%d'>"
