@@ -8,7 +8,7 @@ AC_INIT(Makefile.in)
 AC_SET_MAKE
 
 AC_PROG_INSTALL
-
+BUILDDIR=`pwd`
 case "$ac_cv_path_install" in
   *installbsd*)
     AC_MSG_CHECKING(if $ac_cv_path_install works)
@@ -129,18 +129,26 @@ AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
   fi
 ])
 
-SMARTLINK="$srcdir/tools/smartlink"
-case $CC in
- *smartlink*) ;;
- *)
-   CC="$SMARTLINK $CC"
-   ac_cv_prog_CC="$CC"
- ;;
-esac
-
 # We need some special hacks when running slowaris
+## Build smartlink
+
+AC_CHECK_HEADERS(stdlib.h string.h unistd.h sys/stat.h sys/types.h sys/errno.h)
+
 AC_PATH_PROG(uname_prog,uname,no)
+if test "$uname_prog" != "no"; then
+  UNAME=`$uname_prog -sr`
+elif test -x /usr/bin/uname 2>/dev/null; then
+  UNAME=`/usr/bin/uname -sr`
+elif test -x /usr/bin/uname 2>/dev/null; then
+  UNAME=`/usr/bin/uname -sr`
+elif test -x /bin/uname 2>/dev/null; then
+  UNAME=`/bin/uname -sr`
+else
+  UNAME=unknown
+fi
+
 AC_MSG_CHECKING(operating system)
+
 AC_CACHE_VAL(caudium_cv_sys_os,
 [
 if test "$uname_prog" != "no"; then
@@ -152,12 +160,82 @@ if test "$uname_prog" != "no"; then
         5.*) caudium_cv_sys_os="Solaris";
       esac
     ;;
+    Monterey64)
+      # According to the release notes, the string "Monterey64"
+      # will be changed to "AIX" in the final release.
+      # (Monterey 64 is also known as AIX 5L).
+      caudium_cv_sys_os="AIX"
+    ;;
   esac
 else
   caudium_cv_sys_os="Not Solaris"
 fi
 ])
 AC_MSG_RESULT($caudium_cv_sys_os)
+
+if test "$caudium_cv_sys_os" = "Solaris" ; then
+  AC_DEFINE(SOLARIS)
+else
+  :
+fi
+
+# FIXME: Add proper tests
+case "$UNAME" in
+  OSF1\ V4.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  IRIX\ 6.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  IRIX\ 5.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  SunOS\ 5.*)
+    if test "$TCC" = "yes"; then
+      # tcc doesn't know about -R
+      AC_DEFINE(USE_Wl_R)
+    else
+      AC_DEFINE(USE_R)
+    fi
+    ;;
+  Linux\ 2.*)
+    AC_DEFINE(USE_Wl)
+    ;;
+  UnixWare\ 7.*)
+    if test "$ac_cv_prog_gcc" = "yes"; then
+      AC_DEFINE(USE_XLINKER_YP_)
+    else
+      AC_DEFINE(USE_YP_)
+    fi
+    ;;
+  *)
+    AC_DEFINE(USE_LD_LIBRARY_PATH)
+    ;;
+esac
+
+# Strip smartlink from $CC
+CC="`echo $CC|sed -e 's/.*smartlink //'`"
+
+# Fix a smartlink
+SMARTLINK="$BUILDDIR/smartlink"
+
+AC_MSG_CHECKING(if $SMARTLINK exists is up to date and works)
+if ls -1tr "$SMARTLINK" "$srcdir/tools/smartlink.c" 2>/dev/null | head -1 | grep "smartlink" >/dev/null 2>&5 && "$SMARTLINK" -v >/dev/null 2>&5; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+  rm -f "$SMARTLINK"
+  AC_MSG_CHECKING(whether smartlink compiles)
+
+  link_cmd='${CC} -o smartlink $CFLAGS -I. $CPPFLAGS $LDFLAGS $srcdir/tools/smartlink.c $LIBS 2>&5'
+   if { (eval echo Compiling smartlink: \"$link_cmd\") 1>&5; (eval $link_cmd) 2>&5; } && "$BUILDDIR/smartlink" -v >/dev/null 2>&5; then
+      AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no - use the sh script)
+    SMARTLINK="$srcdir/tools/smartlink" 
+ fi
+fi
+CC="$SMARTLINK $CC"
 
 case "$caudium_cv_sys_os" in
   SCO*)
