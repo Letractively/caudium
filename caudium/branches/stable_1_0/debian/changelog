@@ -1,3 +1,9 @@
+caudium (1:1.0.25-1) unstable; urgency=low
+
+  * Now that pike7 in Debian is at the latest version, we can depend on it
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 16 Feb 2001 19:32:10 +0100
+
 caudium (1:1.0.15-1) unstable; urgency=low
 
   * Latest CVS snapshot

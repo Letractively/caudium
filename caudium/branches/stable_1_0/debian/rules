@@ -20,10 +20,10 @@ export DH_OPTIONS
 
 # we need to know what pike are we using
 
-PIKE=/usr/bin/pike7-cvs
+PIKE=/usr/bin/pike7
 PIKE_VERSION=$(shell $(PIKE) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
 CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
-PIKE7_CHANGELOG=/usr/share/doc/pike7-cvs/changelog.Debian.gz
+PIKE7_CHANGELOG=/usr/share/doc/pike7/changelog.Debian.gz
 PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
 
@@ -86,7 +86,7 @@ install: build
 	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium/bin/pixsl.pike
 	
 	for s in $(SCRIPTS); do \
-	  sed -e 's;^#\!.*;#\!/usr/bin/pike7-cvs;' debian/tmp/usr/lib/caudium/$$s > \
+	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium/$$s > \
 	      debian/tmp/usr/lib/caudium/$$s.new && \
 	  mv debian/tmp/usr/lib/caudium/$$s.new debian/tmp/usr/lib/caudium/$$s ; \
 	  chmod 755 debian/tmp/usr/lib/caudium/$$s ; \
@@ -112,8 +112,8 @@ install: build
 	   debian/tmp/usr/lib/caudium/base_server/caudium.pike
 
 	# fix what lintian whines about
-	ln -sf ../../../bin/pike7-cvs `pwd`/debian/tmp/usr/lib/caudium/bin/pike
-	ln -sf ../../../bin/pike7-cvs `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
+	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/pike
+	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
 	rm -rf debian/tmp/usr/local/
 	
 	dh_movefiles
