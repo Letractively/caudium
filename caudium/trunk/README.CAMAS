@@ -1,0 +1,20 @@
+CAMAS 1.0
++++++++++++++
+
+Copyright
+---------
+CAMAS is Copyright © The Caudium Group, 2000-
+Based on IMHO Copyright © Stefan Wallström and Bosse Lincoln.
+
+This software is distributed under GPL, see the file COPYING for
+more details.
+
+WARNING
+-------
+
+CAMAS is in heavy developpement, without any documentation and this
+is possible that some bugs are still in the code.
+Modules CAMAS:* are marqued as experimental and all use should be in
+mind that you use an experimental project.
+
+
