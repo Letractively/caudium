@@ -1,5 +1,6 @@
 .pure
 Makefile
+Makefile.pre
 config.h
 config.h.in
 config.log
