@@ -5,6 +5,7 @@
   <a>
     <str>nfonts/</str>
     <str>fonts/</str>
+		<str>@PREFIX@/local/caudium1.2/fonts/</str>
     <str>/System/Library/Fonts/</str>
     <str>/Library/Fonts/</str>
   </a>
