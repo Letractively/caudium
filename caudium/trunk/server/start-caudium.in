@@ -481,8 +481,9 @@ void do_one_run(array o, mapping opt)
   }
   else if(proc->status()!=0)
   {
-    if(options->precmd[0]=="gdb")
+    if(options->precmd && options->precmd[0]=="gdb")
       rm(".gdbinit");
+    exit(0);
   }
 
 
