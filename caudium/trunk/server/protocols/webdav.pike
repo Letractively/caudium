@@ -356,6 +356,11 @@ static mapping mHandler = ([
     "OPTIONS": handle_options,
     ]);
 
+void outp(string x)
+{
+    werror("TRACE_LEAVE("+x+")\n");
+}
+
 /**
  * Handle the normal http commands, but convert successfull results
  * 200 response, because some commands are aware of ftp and return
@@ -367,7 +372,10 @@ void|mapping handle_http()
 {
     mixed err;
 
-    DAV_WERR("clientprot="+clientprot);
+    DAV_WERR("clientprot="+clientprot+ ", method="+method);
+#ifdef WEBDAV_DEBUG
+    misc->trace_leave = outp;
+#endif
 #ifdef MAGIC_ERROR
     handle_magic_error();
 #endif
@@ -384,11 +392,12 @@ void|mapping handle_http()
         if ( err != 0 )
 	    internal_error( err );
 	DAV_WERR("Result="+sprintf("%O", file));
-	if ( !file ) 
-	    file = caudium->configuration_parse( this_object() );
-	else if ( mappingp(file) && file->error >= 200 && file->error < 200 )
+	if ( mappingp(file) && file->error >= 200 && file->error < 200 )
 	    file = http_low_answer(200, "");
     }
+    else
+	file = caudium->configuration_parse( this_object() );
+
     return file;
 }
 
@@ -402,6 +411,18 @@ mapping handle_options()
     return result;
 }
 
+mapping|string resolve_destination(string destination)
+{
+    string dest_host;
+
+    if ( sscanf(destination, "http://%s/%s", dest_host, destination) == 2 )
+    {
+	if ( dest_host != host ) 
+	    return http_low_answer(502, "Bad Gateway");
+    }
+    return destination;
+}
+
 mapping|void handle_move()
 {
     string destination = request_headers->destination;
@@ -410,10 +431,15 @@ mapping|void handle_move()
     if ( !stringp(overwrite) )
 	overwrite = "T";
     misc->overwrite = overwrite;
+    misc->destination = resolve_destination(destination);
 
     // create copy variables before calling filesystem module
-    if ( stringp(destination) )
-	misc["new-uri"] = destination;
+    if ( mappingp(misc->destination) )
+	return misc->destination;
+    else if ( stringp(misc->destination) )
+	misc["new-uri"] = misc->destination;
+    DAV_WERR("Handling move:misc=\n"+sprintf("%O\n", misc));
+    
     mapping res = handle_http();
     if ( mappingp(res) && res->error == 200 )
 	return http_low_answer(201, "Created");
@@ -438,13 +464,10 @@ mapping|void handle_copy()
     if ( !stringp(overwrite) )
 	overwrite = "T";
     misc->overwrite = overwrite;
+    misc->destination = resolve_destination(destination);
+    if ( mappingp(misc->destination) )
+	return misc->destination;
 
-    if ( sscanf(destination, "http://%s/%s", dest_host, destination) == 2 )
-    {
-	if ( dest_host != host ) 
-	    return http_low_answer(502, "Bad Gateway");
-    }
-    misc->destination = destination;
     mixed result =  handle_http();
     if ( mappingp(result) && result->error == 200 ) {
 	return http_low_answer(201, "Created");
@@ -642,6 +665,8 @@ void handle_request()
 	    result["type"] = "text/xml; charset=\"utf-8\"";
 	send_result(result);
     }
+    else
+	send_result();
 }
 
 
