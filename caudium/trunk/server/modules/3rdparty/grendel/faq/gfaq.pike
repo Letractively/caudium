@@ -224,7 +224,7 @@ mixed find_file(string f, object id)
   
   faqpath = array_sscanf(myfile, fmt);
   if (!faqpath || !arrayp(faqpath) || sizeof(faqpath) != parts)
-    return http_error_answer(id);
+    return Caudium.HTTP.error_answer(id);
 
   /* set up the environment */
   if (!id->variables)
@@ -291,7 +291,7 @@ mixed find_file(string f, object id)
 
   if (!lf || error) {
     report_error("gFAQ: the layout file not found.\n");
-    return http_error_answer(id);
+    return Caudium.HTTP.error_answer(id);
   }
 
   string lfile = lf->read();

@@ -432,8 +432,8 @@ mixed find_file( string f, object id )
 
          TRACE_LEAVE("");
          TRACE_LEAVE("Permission denied.");
-         return (http_error_answer (id, 403, 0, 
-                  "File exists, but access forbidden by user"));
+         return Caudium.HTTP.error_answer (id, 403, 0, 
+                  "File exists, but access forbidden by user");
       }
 
       id->realfile = f;
@@ -477,7 +477,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("MKDIR: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer(id, 403, 0, "Permission denied.");
     }
 
     TRACE_ENTER("MKDIR: Accepted", 0);
@@ -525,7 +525,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("PUT: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     TRACE_ENTER("PUT: Accepted", 0);
@@ -600,7 +600,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("PUT: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     TRACE_ENTER("APPE: Accepted", 0);
@@ -668,7 +668,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("CHMOD: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     chmods++;
@@ -743,7 +743,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("MV: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     TRACE_ENTER("MV: Accepted", 0);
@@ -836,7 +836,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("MOVE: Contains symlinks. Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     TRACE_ENTER("MOVE: Accepted", 0);
@@ -863,19 +863,19 @@ mixed find_file( string f, object id )
 
    case "COPY":
     if(!QUERY(copy) )
-	return http_error_answer(id, 405, "Copy disallowed");
+	return Caudium.HTTP.error_answer(id, 405, "Copy disallowed");
     id->misc->destination = path + id->misc->destination;
     size = FILE_SIZE(id->misc->destination);
     if ( size != -1 && id->misc->overwrite != "T" )
-	return http_error_answer(id, 403, "Forbidden");
+	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     if(QUERY(check_auth) && (!id->user))
 	return http_auth_required("copy", "Permission to 'COPY' files denied");
     if(QUERY(no_symlinks) && 
        (contains_symlinks(path, f) || 
 	contains_symlinks(path,id->misc->destination)))
-	return http_error_answer(id, 403, "Forbidden");
+	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     if ( !stringp(id->misc->destination) ) 
-	return http_error_answer(id, 403, "No destination");
+	return Caudium.HTTP.error_answer(id, 403, "No destination");
 	
     accesses++;
     report_notice("COPYING the file "+f+" to " + id->misc->destination + "\n");
@@ -883,11 +883,11 @@ mixed find_file( string f, object id )
 	privs = Privs("Copying file", (int)id->user->uid,(int) id->user->gid);
     if ( f == id->misc->destination || !Stdio.cp(f, id->misc->destination) ) {
 	privs = 0;
-	return http_error_answer(id, 403, "Forbidden");
+	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     }
     privs = 0;
     TRACE_LEAVE("COPY: Success");
-    return http_error_answer(id, 201, "Created"); // hmm, error answer ?
+    return Caudium.HTTP.error_answer(id, 201, "Created"); // hmm, error answer ?
     break;
 	
    case "DELETE":
@@ -899,14 +899,14 @@ mixed find_file( string f, object id )
     }
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("DELETE: Permission denied");
-      return (http_error_answer (id, 403, 0, "Permission to DELETE file denied"));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission to DELETE file denied");
     }
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
       errors++;
       report_error("Deletion of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("DELETE: Contains symlinks");
-      return (http_error_answer (id, 403, 0, "Permission denied."));
+      return Caudium.HTTP.error_answer (id, 403, 0, "Permission denied.");
     }
 
     report_notice("DELETING the file "+f+"\n");
