@@ -135,6 +135,8 @@ mixed ct_callout;
 // object for the watchdog
 object conn;
 
+int first_ping=1;
+
 // run Caudium and return its exit status.
 int run_caudium(array(string) args, mapping|void opts)
 {
@@ -507,8 +509,8 @@ void do_multi_run(array o, mapping opt)
 
     run_caudium(o, opt);
 
-    // give caudium 30 seconds to start up, then fire up the watchdog.
-    call_out(start_watchdog, 30);
+    // give caudium 60 seconds to start up, then fire up the watchdog.
+    call_out(start_watchdog, 60);
   }
 }
 
@@ -855,13 +857,19 @@ void check_site()
     conn->set_nonblocking();
     conn->set_read_callback(response_received);
     conn->write("PING\r\n");
-    ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
+    if(first_ping)
+      ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
+    else
+      ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
   }
     
 }
 
 void response_received(mixed id, mixed data)
 {
+  // we are now not at the first request.
+  first_ping=0;
+
   // did we get the expected response?
   if(data=="PONG\r\n")
   {
@@ -906,6 +914,8 @@ void check_timedout()
   // remove any of the check call outs.
   if(cs_callout) remove_call_out(cs_callout);
   if(ct_callout) remove_call_out(ct_callout);
+
+  first_ping=1;
 
   // add a new call out for the check after it's had time to restart.
   call_out(check_site, 60);
