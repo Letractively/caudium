@@ -142,7 +142,7 @@ void|string check_variable(string name, mixed value)
     }
   }
 
-  else if(sizeof(name/"_")>1)
+  else if(name[0..0]!="_" && sizeof(name/"_")>1)
   {
     if(QUERY(sqlserver))
     {
@@ -226,9 +226,10 @@ void setup_queries()
        user_table + " WHERE " + QUERY(user_usernamef) + "=%s";
     query_getuserbyuserid="SELECT " + usertablefields*", " + " FROM " + 
        user_table + " WHERE " + QUERY(user_uidf) + "=%s";
-
-    werror("byname: " + query_getuserbyname + "\n\n");
-    werror("byid: " + query_getuserbyuserid + "\n\n");
+#ifdef AUTH_DEBUG
+    werror("AUTH_SQL: byname: " + query_getuserbyname + "\n\n");
+    werror("AUTH_SQL: byid: " + query_getuserbyuserid + "\n\n");
+#endif
   }      
 
   if(group_table)
@@ -250,9 +251,10 @@ void setup_queries()
 
     query_getgroupbygroupid="SELECT " + grouptablefields*", " + " FROM " + 
        group_table + " WHERE " + QUERY(group_groupidf) + "=%s";
-
-    werror("byname: " + query_getgroupbyname + "\n\n");
-    werror("byid: " + query_getgroupbygroupid + "\n\n");
+#ifdef AUTH_DEBUG
+    werror("AUTH_SQL: byname: " + query_getgroupbyname + "\n\n");
+    werror("AUTH_SQL: byid: " + query_getgroupbygroupid + "\n\n");
+#endif
   }      
 
   if(usergroup_table)
@@ -268,8 +270,10 @@ void setup_queries()
     query_getgroupsforuser="SELECT " + usergrouptablefields*", " + " FROM " + 
        usergroup_table + " WHERE " + QUERY(usergroup_userf) + "=%s";
 
-    werror("bygroup: " + query_getusersforgroup + "\n\n");
-    werror("byuser: " + query_getgroupsforuser + "\n\n");
+#ifdef AUTH_DEBUG
+    werror("AUTH_SQL: bygroup: " + query_getusersforgroup + "\n\n");
+    werror("AUTH_SQL: byuser: " + query_getgroupsforuser + "\n\n");
+#endif
   }      
 
 }
@@ -372,6 +376,32 @@ string status()
 }
 
 /*
+ * Internal functions
+ */
+
+private array get_groups_for_user(string username, object s)
+{
+  if(!username || !s) return ({});
+  array result=s->query(query_getgroupsforuser, username);
+  if(!result || sizeof(result)==0) return ({});
+  array groups=({});  
+  foreach(result, mapping row)
+    groups+=({row->_group});
+  return groups;
+}
+
+private array get_users_for_group(string groupname, object s)
+{
+  if(!groupname || !s) return ({});
+  array result=s->query(query_getusersforgroup, groupname);
+  if(!result || sizeof(result)==0) return ({});
+  array users=({});  
+  foreach(result, mapping row)
+    users+=({row->_user});
+  return users;
+}
+
+/*
  * Auth functions
  */
 
@@ -384,7 +414,7 @@ mapping|int get_user_info(string u)
   object s=conf->sql_connect(sqldb);
   mixed result=s->query(query_getuserbyname, (string)u);
 
-  if(sizeof(result!=1) return 0;
+  if(sizeof(result)!=1) return 0;
   
   mapping user=([]);
 
@@ -397,13 +427,20 @@ mapping|int get_user_info(string u)
     user->home_directory=result[0]->_home;  
 
   foreach(indices(result[0]), string f)
-    if(f[0..0]=="_")
+    if(f[0..0]=="_" || search(f, ".")!=-1)
       m_delete(result[0], f);
 
+  user+=result[0];
+
   user->groups=({});
+  
+  user->groups=get_groups_for_user(user->name, s);
 
   user->_source=QUERY(_name);
 
+#ifdef AUTH_DEBUG
+werror(sprintf("AUTH_SQL: user res: %O\n", user));
+#endif
   return user;
 }
 
@@ -416,6 +453,29 @@ mapping|int get_group_info(string g)
 
   object s=conf->sql_connect(sqldb);
   mixed result=s->query(query_getgroupbyname, (string)g);
+
+  if(sizeof(result)!=1) return 0;
+  
+  mapping group=([]);
+
+  group->groupname=result[0]->_groupname;
+  group->name=result[0]->_groupname;  
+  group->gid=result[0]->_gid;  
+  group->name=result[0]->_fullname;  
+
+  foreach(indices(result[0]), string f)
+    if(f[0..0]=="_" || search(f, ".")!=-1)
+      m_delete(result[0], f);
+
+  group+=result[0];
+
+  group->users=({});
+  
+  group->users=get_users_for_group(group->name, s);
+
+  group->_source=QUERY(_name);
+
+  return group;
 
   return 0;
 }
