@@ -25,7 +25,7 @@ case "$1" in
             
             for d in $OLDSYMLINKS; do
                 if [ -L /usr/lib/caudium${EXTVER}/$d ]; then
-                    rm -f /usr/lib/caudium${EXTVER}/$d
+                    rm /usr/lib/caudium${EXTVER}/$d
                 fi
             done
         fi
