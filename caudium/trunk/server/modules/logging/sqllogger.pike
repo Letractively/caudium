@@ -283,3 +283,13 @@ void log(object id, mapping file)  {
 //!  type: TYPE_FLAG
 //!  name: Use SQL time
 //
+//! defvar: addhost
+//! Add the hostname / Ip of web server to the request logged into the database.
+//!  type: TYPE_FLAG
+//!  name: Add hostname to request
+//
+//! defvar: useraw
+//! Logs all the request with the query part (eg the thing after the ? part) instead of not query part...
+//!  type: TYPE_FLAG
+//!  name: Use Raw query
+//
