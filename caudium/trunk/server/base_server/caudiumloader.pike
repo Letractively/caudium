@@ -794,7 +794,7 @@ object really_load_caudium()
   object res;
   object ee = ErrorContainer();
   master()->set_inhibit_compile_errors(ee);
-  array err = catch {
+  mixed err = catch {
     res = ((program)"caudium")();
   };
   master()->set_inhibit_compile_errors(0);
