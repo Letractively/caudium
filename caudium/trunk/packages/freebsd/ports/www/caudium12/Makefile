@@ -7,7 +7,7 @@
 
 PORTNAME=	caudium
 PORTVERSION=	1.2.8
-PORTREVISION=	5
+PORTREVISION=	6
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
@@ -42,7 +42,7 @@ post-build:
 	@${SED} 's,@@PREFIX@@,${PREFIX},g' ${FILESDIR}/caudium.sh >${WRKDIR}/caudium.sh
 
 post-install:
-	@${RM} ${PREFIX}/caudium/server/base_server/caudium.pike.orig
+#	@${RM} ${PREFIX}/caudium/server/base_server/caudium.pike.orig
 	@${CHOWN} -R www:www ${PREFIX}/caudium
 	@${INSTALL_SCRIPT} ${WRKDIR}/caudium.sh ${PREFIX}/etc/rc.d/caudium.sh.sample
 	@${CAT} ${PKGMESSAGE}
