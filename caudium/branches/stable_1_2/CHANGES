@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.30 since 1.2.26
 --------------------------------------
+- Added ability to add a link to a stylesheet in Ultralog module.
+   (James Tyson)
 - Fixed a bug in htaccess module that make it ignoring .htaccess files.
    (Xavier Beaudouin)
 - Added robot.txt generator from Roxen 2.x/3.x and updated it a bit.
