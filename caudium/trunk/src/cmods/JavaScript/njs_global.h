@@ -56,4 +56,35 @@ void njs_init_interpreter_program(void);
 /* from libnjs */
 int js_snprintf (char *str, unsigned long len, const char *fmt, ...);
 
+#define __NJS_ERROR                                            \
+    char *err = js_error_message(THIS->interp);                \
+    if(err != NULL) {                                          \
+      ONERROR tmp;                                             \
+      char *msg = malloc(strlen(err)+2);                       \
+      strcpy(msg, err);                                        \
+      strcat(msg, "\n");                                       \
+      SET_ONERROR(tmp, free, msg);                             \
+      Pike_error(msg);                                         \
+      UNSET_ONERROR(tmp);                                      \
+    } else {                                                   \
+      Pike_error("unknown error\n");                           \
+    }                                                          
+
+#define NJS_PROCESS_EVAL_RESULT()                              \
+  if(!res) {                                                   \
+    __NJS_ERROR                                                \
+  } else {                                                     \
+    js_result(THIS->interp, &ret);                             \
+    pop_n_elems(args);                                         \
+    push_js_type(ret);                                         \
+  }                                                             
+
+#define NJS_PROCESS_COMPILE_RESULT()                           \
+  if(!res) {                                                   \
+    __NJS_ERROR                                                \
+  } else {                                                     \
+    pop_n_elems(args);                                         \
+    push_string(make_shared_binary_string(bc_str, bc_len));    \
+  }                                                             
+
 #endif
