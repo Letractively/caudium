@@ -1282,8 +1282,8 @@ void send_result(mapping|void result)
     {
       array|object fstat;
       if(objectp(file->file))
-	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (array(int))file->file->stat();
+        if(!file->stat && !(file->stat=misc->stat))
+          file->stat = (array(int))file->file->stat();
       
       //
       // I think it's the highest time to decide on which pike we support...
@@ -1295,39 +1295,39 @@ void send_result(mapping|void result)
       {
         int fsize, fmtime;
 	
-	if (objectp(fstat)) {
-	    fsize = fstat->size;
-	    fmtime = fstat->mtime;
-	} else {
-	    fsize = fstat[1];
-	    fmtime = fstat[3];
-	}
+        if (objectp(fstat)) {
+          fsize = fstat->size;
+          fmtime = fstat->mtime;
+        } else {
+          fsize = fstat[1];
+          fmtime = fstat[3];
+        }
 	
-	if(file->file && !file->len)
-	  file->len = fsize;
+        if(file->file && !file->len)
+          file->len = fsize;
 
-	if(!file->is_dynamic && !misc->is_dynamic) {
+        if(!file->is_dynamic && !misc->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
-	  if(prot != "HTTP/0.9") {
+          if(prot != "HTTP/0.9") {
 #endif
-	    heads["Last-Modified"] = http_date(fmtime);
-	    if(since)
-	    {
-	      if(is_modified(since, fmtime, fsize))
-	      {
-		file->error = 304;
-		file->file = 0;
-		file->data="";
-		// 	    method="";
-	      }
-	    }
+            heads["Last-Modified"] = http_date(fmtime);
+            if(since)
+            {
+              if(is_modified(since, fmtime, fsize))
+              {
+                file->error = 304;
+                file->file = 0;
+                file->data="";
+                // 	    method="";
+              }
+            }
 #ifdef SUPPORT_HTTP_09
-	  }
+          }
 #endif
-	} 
+        } 
       }
       if(stringp(file->data)) 
-	file->len += strlen(file->data);
+        file->len += strlen(file->data);
     }
 
     //
@@ -1736,3 +1736,9 @@ void chain(object f, object c, string le)
     }
   }
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
