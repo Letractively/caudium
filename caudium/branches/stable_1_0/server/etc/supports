@@ -39,8 +39,12 @@
 #define some_html3	divisions, div, supsub, bigsmall, align
 
 
-## Netscape is named "mozilla/major.minor system ..."
+#section opera {
+opera/5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera
+#}
 
+## Netscape is named "mozilla/major.minor system ..."
 
 #section mozilla {
 
@@ -71,23 +75,35 @@ mozilla/4\.[5-9].*	pnginline
 mozilla/5\.0b1		-java, pnginline, tcl
 mozilla/[5-9].*		pnginline
 
-# Opera
+# Opera 3
 
-.*compatible.*opera.3.*		-java, javascript
+.*compatible.*opera.3.*	-java, javascript, opera
+
+# Opera 5.0 "hided" as MSIE
+.*compatible.*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera
+# Opera 5.0 "hided" as Mozilla
+mozilla/[3-5].*opera.5.*	
+mozilla/[3-5].*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
+				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
+				opera
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push
 .*compatible.*msie		msie
 .*compatible.*msie.1		-javascript
-.*compatible.*msie.[1-2]	-java
-.*compatible.*msie.[1-3]	-netscape_javascript
+.*compatible.*msie.[1-2]	-java ssl_faulty
+.*compatible.*msie.[1-3]	-netscape_javascript, ssl_faulty
 
-.*compatible.*msie.[2-9]	tablecolor, javascript
-.*compatible.*msie.[3-9]	activex, tableimages
+.*compatible.*msie.[2-9]	tablecolor, javascript, ssl_faulty
+.*compatible.*msie.[3-9]	activex, tableimages, ssl_faulty
 # MSIE3 stylesheets are broken
-.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer
-.*compatible.*msie.[5-9]	pnginline
+.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer, ssl_faulty
+.*compatible.*msie.[5-9]	pnginline, ssl_faulty
+.*compatible.*msie.[5-9]\.01	-ssl_faulty
+.*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
+
 
 
 #section netsurfer {
