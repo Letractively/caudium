@@ -114,7 +114,7 @@ public void my_pipe_done(object which)
 }
 
 void async_pipe(object to, object from, function|void callback, 
-		mixed|void id, mixed|void cl, mixed|void file)
+		mixed|void id)
 {
   object pipe = caudium->pipe ();
   object cache;
@@ -124,58 +124,9 @@ void async_pipe(object to, object from, function|void callback,
 #endif
   if(callback) 
     pipe->set_done_callback(callback, id);
-  else if(cl) {
-    cache = caudium->cache_file(cl, file);
-    if(cache)
-    {
-#ifdef SOCKET_DEBUG
-      perror("Using normal pipe with done callback.\n");
-#endif
-      pipe->input(cache->file);
-      pipe->set_done_callback(my_pipe_done, cache);
-      pipe->output(to);
-      destruct(from);
-      return;
-    }
-    if(cache = caudium->create_cache_file(cl, file))
-    {
-#ifdef SOCKET_DEBUG
-      perror("Using normal pipe with cache.\n");
-#endif
-      pipe->output(cache->file);
-      pipe->set_done_callback(my_pipe_done, cache);
-      pipe->input(from);
-      pipe->output(to);
-      return;
-    }
-  }
 #ifdef SOCKET_DEBUG
   perror("Using normal pipe.\n");
 #endif
   pipe->input(from);
   pipe->output(to);
 }
-
-void async_cache_connect(string host, int port, string cl, 
-			 string entry, function|void callback,
-			 mixed ... args)
-{
-  object cache;
-#ifdef SOCKET_DEBUG
-  perror("SOCKETS: async_cache_connect requested to "+host+":"+port+"\n");
-#endif
-  cache = caudium->cache_file(cl, entry);
-  if(cache)
-  {
-    object f;
-    f=cache->file;
-//    perror("Cache file is %O\n", f);
-    cache->file = 0; // do _not_ close the actual file when returning...
-    destruct(cache);
-    return callback(f, @args);
-  }
-  caudium->host_to_ip(host, got_host_name, host, port, callback, @args);
-}
-
-
-
