@@ -2474,10 +2474,31 @@ private void define_global_variables(int argc, array (string) argv)
 	"The number of seconds Caudium has to pat the watchdog before it tries to restart Caudium.");
 
   globvar("watchdog_checkall", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
-	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?");
+	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?", 0, lambda(){ return !(QUERY(watchdog_method)=="GET"); });
 
   globvar("watchdog_enable", 1, "Watchdog: Enable Watchdog", TYPE_FLAG,
 	"Should the Caudium Watchdog be enabled?");
+
+	globvar(
+		"watchdog_method",
+		"PING",
+		"Watchdog: Check method",
+		TYPE_MULTIPLE_STRING,
+		"<p>Which method whould the watchdog use?<p>"
+		"<ul>"
+		"<li><strong>PING</strong>: This method will make a PING request to "
+		"the Caudium server which should repond with a PONG. This will basically "
+		"check a Caudium server is still listening and can perform very basic "
+		"operations.</li>"
+		"<li><strong>GET</strong>: This method will make an HTTP GET request to "
+		"the Caudium server, which should answer <strong>anything</strong>. You "
+		"can optionnaly check every 1<sup>st</sup> level virtual host or only the "
+		"first of them. This will check a virtual server is still up and delivers "
+		"data. The watchdog will be happy with any HTTP error return code, since "
+		"restarting Caudium because of an HTTP 404 or 500 error code probably "
+		"won't help and end up in an infinite Caudium restart loop.</li>"
+		"</ul>",
+		({ "PING", "GET" }));
 
 #if constant(SpiderMonkey.Context);
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
