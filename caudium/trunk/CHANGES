@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Added a XML-RPC server. Contributed by David Gourdelier, Martin Baehr and
+  Karl Pitrich. (David Gourdelier)
 - On SSI Compat Tags module don't cache include virtual if the included
   url is a dynamic one.
    (Tamas Tevesz [from endre at interware dot hu]).
