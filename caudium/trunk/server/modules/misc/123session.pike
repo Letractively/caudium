@@ -347,7 +347,7 @@ void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
   id->cookies->SessionID = SessionID;
   id->misc->moreheads = ([ "Set-Cookie": Cookie,
-                           "Expires": "Mon, 26 Jul 1997 05:00:00 GMT",
+                           "Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
                            "Pragma": "no-cache",
                            "Last-Modified": http_date(time(1)),
                            "Cache-Control": "no-cache, must-revalidate" ]);
