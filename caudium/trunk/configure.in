@@ -225,12 +225,12 @@ AC_ARG_WITH(pike,
 RESULT=no
 AC_MSG_CHECKING(for a working Pike)
 AC_MSG_RESULT( )
-pikes="`type -a pike 2>/dev/null`"
+pathpike="`type  pike 2>/dev/null`"
 if test "$prefix" != "NONE"; then
   PREFIXPIKE="$prefix/bin/pike"
 fi
-for a in $DEFPIKE $PREFIXPIKE $pikes /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
-		 /usr/gnu/bin/pike /usr/bin/pike ; do    
+for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
+  /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike ; do
   if test  "x$PIKE" != "x" ; then
     break;
   fi

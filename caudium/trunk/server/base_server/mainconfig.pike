@@ -303,15 +303,18 @@ mapping verify_changed_ports(object id, object o)
       string prt;
       if(port[1] == "tetris")
 	continue;
-      switch(port[1][0..2])
+      switch(port[1])
       {
-       case "ssl":
+       case "ssl3":
 	prt = "https";
 	break;
        case "ftp":
+       case "ftp2":
 	prt = "ftp";
 	break;
-	
+       case "http2":
+	prt = "http";
+	break;
        default:
 	prt = port[1];
       }
