@@ -136,8 +136,10 @@ string describe_times(array (int) times)
 //!
 string fix_err(string s)
 {
+  mixed err = catch {
   while(s[-1]=='\n' || s[-1]==' ' || s[-1]=='\t') s=s[..strlen(s)-2];
   if(!(<'.','!','?'>)[s[-1]]) s+=".";
+  };
   return capitalize(s);
 }
 

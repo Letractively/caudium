@@ -88,7 +88,7 @@ int new_id(){ return idcount++; }
 #endif
 
 #ifdef MODULE_DEBUG
-#define MD_PERROR(X)	perror X;
+#define MD_PERROR(X)	report_debug( X );
 #else
 #define MD_PERROR(X)
 #endif /* MODULE_DEBUG */
@@ -169,7 +169,7 @@ private static void really_low_shutdown(int exit_code)
 {
   // Die nicely.
 #ifdef SOCKET_DEBUG
-  roxen_perror("SOCKETS: really_low_shutdown\n"
+  report_debug("SOCKETS: really_low_shutdown\n"
                "                        Bye!\n");
 #endif
 
@@ -255,10 +255,10 @@ private static void low_shutdown(int exit_type)
     // Only _really_ do something in the main process.
     int pid;
     if (exit_type) {
-      roxen_perror("Restarting Caudium.\n");
+      report_notice("Restarting Caudium.\n");
       send_trap("server_restart");
     } else {
-      roxen_perror("Shutting Caudium down.\n");
+      report_notice("Shutting Caudium down.\n");
       send_trap("server_shutdown");
 
       // This has to be refined in some way. It is not all that nice to do
@@ -273,7 +273,7 @@ private static void low_shutdown(int exit_type)
       f = open("/tmp/Caudium_Shutdown_"+startpid, "wc");
       
       if(!f) 
-        roxen_perror("cannot open shutdown file.\n");
+        report_error("cannot open shutdown file.\n");
       else f->write(""+getpid());
 #endif /* USE_SHUTDOWN_FILE */
 
@@ -310,11 +310,11 @@ mapping restart()
 void shut_down_cache() {
   call_out(cache_shutdown_failed, 30);
 #ifdef CACHE_DEBUG
-  roxen_perror( "Calling shutdown on all caches: " );
+  report_debug( "Calling shutdown on all caches: " );
 #endif
   cache_manager->stop();
 #ifdef CACHE_DEBUG
-  roxen_perror( "done." );
+  report_debug( "done." );
 #endif
 }
 
@@ -414,7 +414,7 @@ private static void accept_callback( object port )
 #ifdef DEBUG
   if (!pn) {
     destruct(port->accept());
-    perror("$&$$& Garbage Collector bug!!\n");
+    report_debug("$&$$& Garbage Collector bug!!\n");
     return;
   }
 #endif
@@ -428,8 +428,8 @@ private static void accept_callback( object port )
       return;
     }
     
-    perror(sprintf("SOCKETS: accept_callback(CONF(%s))\n", 
-                   pn[1]&&pn[1]->name||"Configuration"));
+    report_debug("SOCKETS: accept_callback(CONF(%s))\n", 
+                  pn[1]&&pn[1]->name||"Configuration");
 #endif
     if (!file) {
       switch (port->errno()) {
@@ -439,7 +439,7 @@ private static void accept_callback( object port )
 
           default:
 #ifdef DEBUG
-            perror("Accept failed.\n");
+            report_debug("Accept failed.\n");
 #if constant(real_perror)
             real_perror();
 #endif
@@ -467,8 +467,8 @@ private static void accept_callback( object port )
     
     pn[-1](file,pn[1]);
 #ifdef SOCKET_DEBUG
-    perror(sprintf("SOCKETS:   Ok. Connect on %O:%O from %O\n", 
-                   pn[2], pn[0], file->query_address()));
+    report_debug("SOCKETS:   Ok. Connect on %O:%O from %O\n", 
+                 pn[2], pn[0], file->query_address());
 #endif
   }
 }
@@ -491,7 +491,7 @@ object do_thread_create(string id, function f, mixed ... args)
 {
   object t = thread_create(f, @args);
   catch(t->set_name( id ));
-  roxen_perror(id+" started\n");
+  report_notice("%s started\n",id);
   return t;
 }
 
@@ -558,9 +558,9 @@ void start_handler_threads()
 {
   if (QUERY(numthreads) <= 1) {
     QUERY(numthreads) = 1;
-    perror("Starting 1 thread to handle requests.\n");
+    report_notice("Starting 1 thread to handle requests.\n");
   } else {
-    perror("Starting "+QUERY(numthreads)+" threads to handle requests.\n");
+    report_notice("Starting "+QUERY(numthreads)+" threads to handle requests.\n");
   }
   for (; number_of_threads < QUERY(numthreads); number_of_threads++)
     do_thread_create( "Handle thread ["+number_of_threads+"]",
@@ -573,7 +573,7 @@ void start_handler_threads()
 void stop_handler_threads()
 {
   int timeout=30;
-  perror("Stopping all request handler threads.\n");
+  report_notice("Stopping all request handler threads.\n");
   while (number_of_threads>0) {
     number_of_threads--;
     handle_queue->write(0);
@@ -582,7 +582,7 @@ void stop_handler_threads()
   
   while (thread_reap_cnt) {
     if (--timeout<=0) {
-      perror("Giving up waiting on threads!\n");
+      report_warning("Giving up waiting on threads!\n");
       return;
     }
     sleep(1);
@@ -609,7 +609,7 @@ void accept_thread(object port,array pn)
     };
     
     if(err)
-      perror("Error in accept_thread: %O\n", describe_backtrace(err));
+      report_error("Error in accept_thread: %O\n", describe_backtrace(err));
   }
 }
 
@@ -632,7 +632,7 @@ object create_listen_socket(mixed port_no, object conf,
 {
   object port;
 #ifdef SOCKET_DEBUG
-  perror(sprintf("SOCKETS: create_listen_socket(%d,CONF(%s),%s)\n",
+  report_debug(sprintf("SOCKETS: create_listen_socket(%d,CONF(%s),%s)\n",
                  port_no, conf?conf->name:"Configuration port", ether));
 #endif
   if (!requestprogram)
@@ -662,7 +662,7 @@ object create_listen_socket(mixed port_no, object conf,
 #endif
       {
 #ifdef SOCKET_DEBUG
-        perror("SOCKETS:    -> Failed.\n");
+        report_debug("SOCKETS:    -> Failed.\n");
 #endif
         report_warning("Failed to open socket on %O:%O (already bound?)\nErrno is: %O\n"
                        "Retrying...\n", ether, port_no, port->errno());
@@ -687,7 +687,7 @@ object create_listen_socket(mixed port_no, object conf,
            accept_thread, port,portno[port]);
 #endif
 #ifdef SOCKET_DEBUG
-  perror("SOCKETS:    -> Ok.\n");
+  report_debug("SOCKETS:    -> Ok.\n");
 #endif
   return port;
 }
@@ -706,12 +706,12 @@ object configuration_interface()
   if(enabling_configurations)
     return 0;
   if(loading_config_interface) {
-    perror("Recursive calls to configuration_interface()\n"
+    report_error("Recursive calls to configuration_interface()\n"
            + describe_backtrace(backtrace())+"\n");
   }
   
   if (!configuration_interface_obj) {
-    perror("Loading configuration interface.\n");
+    report_notice("Loading configuration interface.\n");
     loading_config_interface = 1;
     object e = ErrorContainer();
     master()->set_inhibit_compile_errors(e);
@@ -876,7 +876,7 @@ private void parse_supports_string(string what)
       foo=q;
       
       if (!rec)
-        perror("Too deep recursion while replacing defines.\n");
+        report_error("Too deep recursion while replacing defines.\n");
       
 //    perror("Parsing supports line '"+foo+"'\n");
       bar = replace(foo, ({"\t",","}), ({" "," "}))/" " -({ "" });
@@ -929,14 +929,14 @@ void done_with_caudium_net()
     return;
   
   if(old != new) {
-    perror("Got new supports data from caudium.net\n");
-    perror("Replacing old file with new data.\n");
+    report_notice("Got new supports data from caudium.net\n");
+    report_notice("Replacing old file with new data.\n");
     mv("etc/supports", "etc/supports~");
     Stdio.write_file("etc/supports", new);
     old = Stdio.read_bytes( "etc/supports" );
     if(old != new)
     {
-      perror("FAILED to update the supports file.\n");
+      report_error("FAILED to update the supports file.\n");
       mv("etc/supports~", "etc/supports");
     } else {
       initiate_supports();
@@ -944,7 +944,7 @@ void done_with_caudium_net()
   }
 #ifdef DEBUG
   else
-    perror("No change to the supports file.\n");
+    report_debug("No change to the supports file.\n");
 #endif
 }
 
@@ -962,12 +962,12 @@ void connected_to_caudium_net(object port)
 {
   if(!port) {
 #ifdef DEBUG
-    perror("Failed to connect to caudium.net:80.\n");
+    report_debug("Failed to connect to caudium.net:80.\n");
 #endif
     return 0;
   }
 #ifdef DEBUG
-  perror("Connected to caudium.net:80\n");
+  report_debug("Connected to caudium.net:80\n");
 #endif
   _new_supports = ({});
   port->set_id(port);
@@ -996,7 +996,7 @@ void update_supports_from_caudium_net()
     if(QUERY(AutoUpdate)) {
       async_connect("caudium.net", 80, connected_to_caudium_net);
 #ifdef DEBUG
-      perror("Connecting to caudium.net:80\n");
+      report_debug("Connecting to caudium.net:80\n");
 #endif
     }
     remove_call_out( update_supports_from_caudium_net );
@@ -1029,7 +1029,7 @@ multiset find_supports(string from, void|multiset existing_sup)
     
     foreach(indices(supports), v) {
       if (!v || !search(from, v)) {
-        //  perror("Section "+v+" match "+from+"\n");
+        //  report_debug("Section "+v+" match "+from+"\n");
         f = supports[v];
         foreach(f, s)
           if (s[0](from)) {
@@ -1042,7 +1042,7 @@ multiset find_supports(string from, void|multiset existing_sup)
     if (!sizeof(sup)) {
       sup = default_supports;
 #ifdef DEBUG
-      perror("Unknown client: \""+from+"\"\n");
+      report_debug("Unknown client: \""+from+"\"\n");
 #endif
     }
     
@@ -1078,8 +1078,8 @@ private void restore_current_user_id_number()
   current_user_id_number = (int)current_user_id_file->read(100);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
 
-  perror("Restoring unique user ID information. (0x%x)\n",
-          current_user_id_number); 
+  report_notice("Restoring unique user ID information. (0x%x)\n",
+                current_user_id_number); 
 #ifdef FD_DEBUG
   mark_fd(current_user_id_file->query_fd(), "Unique user ID logfile.\n");
 #endif
@@ -1096,7 +1096,7 @@ int increase_id()
   if (current_user_id_file->stat()[2] != current_user_id_file_last_mod)
     restore_current_user_id_number();
   current_user_id_number++;
-  //perror("New unique id: "+current_user_id_number+"\n");
+  report_notice("New unique id: 0x%x\n",current_user_id_number);
   current_user_id_file->seek(0);
   current_user_id_file->write((string)current_user_id_number);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
@@ -1345,7 +1345,7 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
       module_stat_cache[s-dirname(s)]=st;
       return prog(conf);
     } else
-      perror("%s.pike exists, but compilation failed.\n", s);
+      report_error("%s.pike exists, but compilation failed.\n", s);
   }
 #ifdef EXTRA_ROXEN_COMPAT
   if (st = file_stat(s+".lpc"))
@@ -1354,7 +1354,7 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
       module_stat_cache[s-dirname(s)]=st;
       return prog(conf);
     } else
-      perror("%s.lpc exists, but compilation failed.\n", s);
+      report_error("%s.lpc exists, but compilation failed.\n", s);
 #endif
   if (st = file_stat(s+".so"))
     if (prog = load_module(s+".so")) {
@@ -1362,7 +1362,7 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
       module_stat_cache[s-dirname(s)] = st;
       return prog(conf);
     } else
-      perror("%s.so exists, but compilation failed.\n", s);
+      report_error("%s.so exists, but compilation failed.\n", s);
   return 0; // FAILED..
 }
 
@@ -1438,7 +1438,7 @@ void restart_if_stuck (int force)
     return;
   if(!abs_started) {
     abs_started = 1;
-    roxen_perror("Anti-Block System Enabled.\n");
+    report_notice("Anti-Block System Enabled.\n");
   }
   call_out (restart_if_stuck,10);
   signal(signum("SIGALRM"), handle_sigalrm);
@@ -2891,7 +2891,7 @@ private void define_global_variables(int argc, array (string) argv)
         if (variables[c])
           variables[c][VAR_VALUE]=compile_string("mixed f(){ return"+v+";}")()->f();
         else
-          perror("Unknown global variable: "+c+"\n");
+          report_notice("Unknown global variable: "+c+"\n");
     }
     docurl=QUERY(docurl2);
 }
@@ -3313,18 +3313,18 @@ private string find_arg(array argv, array|string shortform,
 private void fix_root(string to)
 {
   if (getuid()) {
-    perror("It is impossible to chroot() if the server is not run as root.\n");
+    report_error("It is impossible to chroot() if the server is not run as root.\n");
     return;
   }
 
   if (!chroot(to)) {
-    perror("Caudium: Cannot chroot to "+to+": ");
+    report_error("Caudium: Cannot chroot to "+to+": ");
 #if constant(real_perror)
     real_perror();
 #endif
     return;
   }
-  perror("Root is now "+to+".\n");
+  report_notice("Root is now %s.\n");
 }
 
 void create_pid_file(string where)
@@ -3336,7 +3336,7 @@ void create_pid_file(string where)
 
   rm(where);
   if (catch(Stdio.write_file(where, sprintf("%d\n%d", getpid(), getppid()))))
-    perror("I cannot create the pid file ("+where+").\n");
+    report_error("I cannot create the pid file (%s).\n",where);
 }
 
 // External multi-threaded data shuffler. This leaves caudium free to
@@ -3370,7 +3370,7 @@ private void __close_connections(function me)
 { 
   call_out(me, 5);
   if (!_pipe_debug()[0]) {
-    roxen_perror("Exiting Caudium (all connections closed).\n");
+    report_notice("Exiting Caudium (all connections closed).\n");
     stop_all_modules();
 #ifdef THREADS
     stop_handler_threads();
@@ -3378,13 +3378,13 @@ private void __close_connections(function me)
     add_constant("roxen", 0);	// Paranoia...
     add_constant("caudium", 0);	// Paranoia...
     exit(-1);	// Restart.
-    perror("Odd. I am not dead yet.\n");
+    report_error("Odd. I am not dead yet.\n");
   }
 };
 
 private void __close_caudium()
 {
-  roxen_perror("Exiting Caudium (timeout).\n");
+  report_error("Exiting Caudium (timeout).\n");
   stop_all_modules();
 #ifdef THREADS
   stop_handler_threads();
@@ -3399,11 +3399,11 @@ void exit_when_done()
 {
   object o;
   int i;
-  perror("Interrupt request received. Exiting,\n");
+  report_notice("Interrupt request received. Exiting,\n");
   die_die_die=1;
 //   trace(9);
   if (++_recurse > 4) {
-    roxen_perror("Exiting Caudium (spurious signals received).\n");
+    report_notice("Exiting Caudium (spurious signals received).\n");
     stop_all_modules();
 #ifdef THREADS
     stop_handler_threads();
@@ -3431,7 +3431,7 @@ void exit_when_done()
 
 void exit_it()
 {
-  perror("Recursive signals.\n");
+  report_error("Recursive signals.\n");
   exit(-1);	// Restart.
 }
 
@@ -3464,6 +3464,8 @@ int main(int argc, array(string) argv)
   
   start_time = boot_time = time();
 
+
+  // FIXME: This should be report_error() instead ?
   add_constant("write", perror);
 
   report_notice("Starting Caudium\n");
@@ -3491,7 +3493,7 @@ int main(int argc, array(string) argv)
   argv -= ({ 0 });
   argc = sizeof(argv);
 
-  perror("Restart initiated at "+ctime(time())); 
+  report_notice("Restart initiated at "+ctime(time())); 
 
   define_global_variables(argc, argv);
 
@@ -3527,7 +3529,7 @@ int main(int argc, array(string) argv)
   create_pid_file(find_arg(argv, "p", "pid-file", "CAUDIUM_PID_FILE")
                   || QUERY(pidfile));
 
-  roxen_perror("Initiating argument cache ... ");
+  report_notice("Initiating argument cache ... ");
 
   mixed e;
   e = catch(argcache = cache_manager->get_argcache());
@@ -3535,7 +3537,7 @@ int main(int argc, array(string) argv)
     report_error("Failed to initialize the global argument cache:\n%s\n",
                  (describe_backtrace( e )/"\n")[0]+"\n");
   }
-  roxen_perror("\n");
+  report_notice("\n");
 
 #if 0
   foreach(configurations, object config)
