@@ -117,6 +117,7 @@ string query_provides()
 
 private void create_session(object id)
 {
+  write("create_session called from %s\n", describe_backtrace(backtrace()));
   // don't create the session more than one time for each HTTP request
   if(!id->misc->navbar_session_flushed)
   {
@@ -131,7 +132,8 @@ private void create_session(object id)
 private void wrong_usage(object id)
 {
   if(!NSESSION)
-    throw("You must call set_nb_elements() and set_nb_elements_per_page() before using this function\n");
+    throw(({ "You must call set_nb_elements() and "
+          "set_nb_elements_per_page() before using this function\n", backtrace() }));
 }
 
 private void fetch_args(object id)
@@ -160,6 +162,8 @@ int get_current_page(object id)
     NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE];
     NDEBUG("get_current_page: page="+NSESSION[NAV_CURRENT_PAGE]);
   }
+  else
+    write("session not flushed\n");
   return NSESSION[NAV_CURRENT_PAGE];
 }
 
@@ -192,16 +196,38 @@ void start(int num, object conf)
 
 void set_nb_elements(object id, int nb)
 {
-  if(!NSESSION || nb != NSESSION[NAV_NB_ELEM])
+  if(nb < 0)
+    throw(({ "Can't get a negative number of elements", backtrace() }));
+  if(!NSESSION)
   {
     create_session(id);
     NSESSION[NAV_NB_ELEM] = nb;
+    NDEBUG("set_nb_elements: nb="+nb);
+  }
+  if(nb != NSESSION[NAV_NB_ELEM])
+  {
+    int old_nb = NSESSION[NAV_NB_ELEM];
+    NSESSION[NAV_NB_ELEM] = nb;
+    // we were on the last page and one element come
+    // put the last page again so that the user can see
+    // the new element more easily
+    if(NSESSION[NAV_CURRENT_PAGE] == get_lastpage(id) - 1 &&
+        (int)ceil((float)old_nb/(float)get_nb_elements_per_page(id)) < get_lastpage(id))
+      NSESSION[NAV_CURRENT_PAGE]++;
+    // overflow: we have less page(s) now than before
+    if(NSESSION[NAV_CURRENT_PAGE] > get_lastpage(id))
+    {
+      create_session(id);
+      NSESSION[NAV_NB_ELEM] = nb;
+    }
     NDEBUG("set_nb_elements: nb="+nb);
   }
 }
 
 void set_nb_elements_per_page(object id, int nb)
 {
+  if(nb < 0)
+    throw(({ "Can't get a negative number of elements per page", backtrace() }));
   if(!NSESSION || nb != NSESSION[NAV_NB_ELEM_PAGE])
   {
     create_session(id);
@@ -222,6 +248,8 @@ int get_min_element(object id)
 {
   wrong_usage(id); 
   fetch_args(id);
+  write("get_current_page=%d, get_nb_elements_per_page=%d\n",
+      get_current_page(id), get_nb_elements_per_page(id));
   int min_elem = (get_current_page(id) -1) * get_nb_elements_per_page(id);
   int offset = min_elem%get_nb_elements_per_page(id);
 
