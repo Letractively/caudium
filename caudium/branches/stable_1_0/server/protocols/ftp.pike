@@ -1651,6 +1651,10 @@ class FTPSession
       send(530, ({ sprintf("'%s': %s: Method not allowed.",
 			   cmd, f) }));
       break;
+     case 413: // request entity too large
+      send(552, ({ sprintf("'%s': %s: Entity too large, storage limit exceeded.",
+			   cmd, f) }));
+      break;
     case 500:
       send(451, ({ sprintf("'%s': Requested action aborted: "
 			   "local error in processing.", cmd) }));
