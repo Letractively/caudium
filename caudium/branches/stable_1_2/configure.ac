@@ -386,8 +386,8 @@ if test x"$FOUND_PIKE" = "x1"; then
 else
   cat << EOF
 *****************************************************************************
-*** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.2
+*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6
 *** is no longer supported. You can download and install one of
 *** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
