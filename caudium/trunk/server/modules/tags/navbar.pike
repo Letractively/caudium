@@ -117,7 +117,6 @@ string query_provides()
 
 private void create_session(object id)
 {
-  write("create_session called from %s\n", describe_backtrace(backtrace()));
   // don't create the session more than one time for each HTTP request
   if(!id->misc->navbar_session_flushed)
   {
@@ -162,8 +161,6 @@ int get_current_page(object id)
     NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE];
     NDEBUG("get_current_page: page="+NSESSION[NAV_CURRENT_PAGE]);
   }
-  else
-    write("session not flushed\n");
   return NSESSION[NAV_CURRENT_PAGE];
 }
 
@@ -248,8 +245,6 @@ int get_min_element(object id)
 {
   wrong_usage(id); 
   fetch_args(id);
-  write("get_current_page=%d, get_nb_elements_per_page=%d\n",
-      get_current_page(id), get_nb_elements_per_page(id));
   int min_elem = (get_current_page(id) -1) * get_nb_elements_per_page(id);
   int offset = min_elem%get_nb_elements_per_page(id);
 
