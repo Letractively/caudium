@@ -1276,23 +1276,27 @@ void send_result(mapping|void result)
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(!file->is_dynamic
+	if(!file->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
-	   && prot != "HTTP/0.9"
+	  if(prot != "HTTP/0.9") {
 #endif
-	   )
-	{
-	  heads["Last-Modified"] = http_date(fstat[3]);
-	  if(since)
-	  {
-	    if(is_modified(since, fstat[3], fstat[1]))
+	    heads["Last-Modified"] = http_date(fstat[3]);
+	    if(since)
 	    {
-	      file->error = 304;
-	      file->file = 0;
-	      file->data="";
-	      // 	    method="";
+	      if(is_modified(since, fstat[3], fstat[1]))
+	      {
+		file->error = 304;
+		file->file = 0;
+		file->data="";
+		// 	    method="";
+	      }
 	    }
+#ifdef SUPPORT_HTTP_09
 	  }
+#endif
+	} else {
+	  /* Do not cache! */
+	  heads["Cache-Control"] = "no-cache";
 	}
       }
       if(stringp(file->data)) 

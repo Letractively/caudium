@@ -1154,6 +1154,9 @@ void send_result(mapping|void result)
 	      // 	    method="";
 	    }
 	  }
+	} else {
+	  /* Do not cache! */
+	  heads["Cache-Control"] = "no-cache";
 	}
       }
       if(stringp(file->data)) 
