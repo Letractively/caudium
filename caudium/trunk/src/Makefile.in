@@ -4,9 +4,7 @@ prefix=@prefix@
 
 @SET_MAKE@
 
-DIRS="@DIRS@"
-
-all: $(DIRS)
+all: @DIRS@
 
 force:
 	@:
@@ -17,11 +15,11 @@ tools: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 
 install: force
-	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
 clean: force
-	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) clean); done
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) clean); done
 depend: force
-	for a in $(DIRS); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) depend); done
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) depend); done
 
 
 

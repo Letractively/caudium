@@ -3,6 +3,17 @@ AC_CONFIG_HEADER(sablot_config.h)
 
 AC_PROG_CC
 
+# The AC_PROG_INSTALL test is broken if $INSTALL is specified by hand.
+# The FreeBSD ports system does this...
+# Workaround:
+
+if test "x$INSTALL" = "x"; then :; else
+  # $INSTALL overrides ac_cv_path_install anyway...
+  ac_cv_path_install="$INSTALL"
+fi
+
+AC_PROG_INSTALL
+
 AC_CHECK_HEADERS( sablot.h )
 AC_CHECK_LIB(xmlparse, XML_Parse)
 AC_CHECK_LIB(sablot, SablotProcess)
@@ -17,7 +28,7 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(LDSHARED)
 AC_SUBST(SO)
 AC_SUBST(LIBGCC)
-
+AC_SUBST(SMARTLINK)
 AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
 
 

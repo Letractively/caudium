@@ -1,15 +1,16 @@
 MODNAME=PiXSL
 OBJS= sablot.o
 SOURCES=sablot.c
-CFLAGS=  @CPPFLAGS@ @CFLAGS@ -I@PIKE_INCLUDE_DIR@
+CFLAGS=  @CFLAGS@ -I@PIKE_INCLUDE_DIR@
 CC=@CC@
-LDFLAGS=   @LDFLAGS@ @LIBS@
+LDFLAGS=@LIBS@ @LDFLAGS@ 
 LIBGCC=@LIBGCC@
 LD= @LDSHARED@
 PIKE=@PIKE@
 SO=@SO@
 all: $(MODNAME).$(SO)
 INSTALLDIR=@PIKE_MODULE_DIR@
+INSTALL=@INSTALL@
 
 all:  Makefile.pre $(MODNAME).$(SO)
 
@@ -19,17 +20,16 @@ force:
 	@:
 
 install: all
-	cp -f $(MODNAME).$(SO) $(INSTALLDIR)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
-$(MODNAME).$(SO):  $(OBJS)
+$(MODNAME).$(SO): $(OBJS)  $(MODULE_ARCHIVES)
 	@echo "linking $(MODNAME)" ;\
-	if $(LD)  -o $(MODNAME).$(SO) $(OBJS)  $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
-	  :\
+	if @SMARTLINK@ "@LDSHARED@" $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
+	  : ; \
 	else \
 	  echo "Linking failed:" >&2; \
-	  echo $(LD) -o $(MODNAME).$(SO) $(OBJS) $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
+	  echo @SMARTLINK@ "@LDSHARED@" $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS)  $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
 	fi
-
 Makefile.pre: Makefile.pre.in configure config.status
 	@echo "configure or Makefile.in changed."
 	@if test -f config.status; then \
