@@ -580,6 +580,8 @@ class fallback_redirect_request {
 
 void http_fallback(object alert, object|int n, string data)
 {
+  object ctx, c;
+  ctx = get_context(c);
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:http_fallback(X, %O, \"%s\")\n", n, data));
 #endif /* SSL3_DEBUG */
@@ -599,7 +601,7 @@ void http_fallback(object alert, object|int n, string data)
     fallback_redirect_request(my_fd->raw_file, data,
 			      my_fd->config && 
 			      my_fd->config->query("MyWorldLocation"),
-			      my_fd->context->port);
+			      ctx->port);
     destruct(my_fd);
     destruct(this_object());
 //    my_fd = 0; /* Forget ssl-object */
@@ -675,14 +677,6 @@ void create(void|object f, void|object c)
     object ctx;
     array port;
 
-#if 0
-    werror(sprintf("%O\n", indices(conf)));
-    werror(sprintf("port_open: %O\n", conf->port_open));
-    werror(sprintf("open_ports: %O\n", conf->open_ports));
-    if (sizeof(conf->open_ports) != 1)
-      report_error("ssl3->assign bug: Only one ssl port supported\n");
-    port = values(conf->open_ports)[0];
-#endif
     ctx = get_context(c);
     if (!ctx)
     {
