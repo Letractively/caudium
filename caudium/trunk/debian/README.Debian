@@ -11,9 +11,8 @@ bit from its predecessor, Roxen.
    /usr/lib/pike7/PIKE_VER/modules directory.
    I'm sorry, but until the php4 packages in Debian contain Caudium
    support there's no other way to do it...
-   NOTE!! PHP4 doesn't work at all with Pike/Caudium on systems with
-          glibc 2.2.x (such as Debian woody, sid). You can use PHP4 only
-	  as CGI on such systems.
+   NOTE!!! TO use PHP4 on Debian/Sid and newer you need the latest
+           PHP4 release.
    
  - libroxen
    All the modules with names starting with libroxen- install themselves

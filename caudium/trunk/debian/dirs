@@ -7,4 +7,6 @@ usr/lib/caudium/local_fonts
 var/log/caudium
 var/run/caudium
 var/state/caudium
+var/cache/caudium
+var/cache/caudium/args
 var/www
