@@ -62,6 +62,9 @@ void create() {
           TYPE_STRING,
           "URL to redirect to",
           );
+  defvar ("msie", 1, "Return a 200 to MSIE", TYPE_FLAG,
+          "Returns a 200 response to Microsoft Internet Explorer browser "
+          "instead of 404.");
 }
 
 mapping|int last_resort(object id)
@@ -83,8 +86,12 @@ mapping|int last_resort(object id)
     DEBUGLOG("in cache: "+QUERY(error404document));
     html = dbinfo[1];
   }
-  // FIXME: should we not use Caudium.HTTP.low_answer() with a 404 
-  //        on needed solutions... ?
+  if(QUERY(msie)) {
+    if(id->supports->msie404)
+      return Caudium.HTTP.rxml_answer(html, id, 0, "text/html");
+    else
+      return Caudium.HTTP.low_answer(404, parse_rxml(html,id));
+  }
   return Caudium.HTTP.rxml_answer(html, id, 0, "text/html");
 }
 
