@@ -153,7 +153,9 @@ void save(string table, mixed data)
       destruct(dates);
     }
   }
-  db->store(key+table, Util.compress(encode_value(data)));
+  if(!db) db = Gdbm.gdbm(path+tdate[1]+"_stats.gdbm", "rwcf");
+  if(db)  db->store(key+table, Util.compress(encode_value(data)));
+  else    werror("Failed to open database and save...\n");
 }
 
 void sync() {
