@@ -268,6 +268,7 @@ mapping query_tag_callers()
 **! container: arrayoutput
 **!   Insert element(s) from arrays. Works like other &lt;*output&gt; tags. The
 **!   replaced variables are array names and index. 
+**! see_also: formoutput
 **! attribute: arrays
 **!   The name(s) of the array(s) to output, separated by commas.
 **! attribute: from
@@ -281,7 +282,6 @@ mapping query_tag_callers()
 **!   array listed in the arrays attribute. 
 **! attribute: std output attributes
 **!   all normal &lt;*output&gt; vars like encode and quote (see formoutput).
-**! see also: &lt;formoutput&gt;
 **! 
 **! tag: arrayfetch
 **!   Fetch a single element from an array.
