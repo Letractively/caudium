@@ -71,11 +71,13 @@ static inline int scratchpad_grow(SCRATCHPAD *spad, size_t wanted_size)
 static inline unsigned char *scratchpad_get(size_t wanted_size)
 {
   extern pthread_key_t __scratch_key;
+  extern unsigned __scratchpad_initialized;
   SCRATCHPAD *spad = pthread_getspecific(__scratch_key);
 
-  if (!spad)
+  if (!spad || !__scratchpad_initialized) {
     scratchpad_init(SPAD_MAX_SIZE, wanted_size, SPAD_GROWTH_FACTOR);
-  else if (spad->buf_size < wanted_size) {
+    spad = pthread_getspecific(__scratch_key);
+  } else if (spad->buf_size < wanted_size) {
     switch(scratchpad_grow(spad, wanted_size)) {
         case -1:
           Pike_error("Impossible happened! Magic!\n");
@@ -91,8 +93,9 @@ static inline unsigned char *scratchpad_get(size_t wanted_size)
 static inline unsigned char *scratchpad_get(size_t wanted_size)
 {
   extern SCRATCHPAD *__scratch_pad;
-
-  if (!__scratch_pad)
+  extern unsigned __scratchpad_initialized;
+  
+  if (!__scratch_pad || !__scratchpad_initialized)
     scratchpad_init(SPAD_MAX_SIZE, wanted_size, SPAD_GROWTH_FACTOR);
   else if (__scratch_pad->buf_size < wanted_size) {
     switch(scratchpad_grow(__scratch_pad, wanted_size)) {
@@ -104,6 +107,7 @@ static inline unsigned char *scratchpad_get(size_t wanted_size)
                      wanted_size, __scratch_pad->buf_max_size);
     }
   }
+  
   return __scratch_pad->buf;
 }
 #endif /* PIKE_THREADS && POSIX_THREADS */

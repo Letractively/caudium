@@ -41,8 +41,9 @@ RCSID("$Id$");
 pthread_key_t          __scratch_key;
 static pthread_once_t  scratch_key_once = PTHREAD_ONCE_INIT;
 #else
-SCRATCHPAD            *__scratch_pad;
+SCRATCHPAD            *__scratch_pad = NULL;
 #endif
+unsigned               __scratchpad_initialized = 0;
 
 static SCRATCHPAD *scratchpad_allocate(size_t max_size,
                                        size_t init_size,
@@ -86,6 +87,7 @@ void scratchpad_init(size_t max_size, size_t init_size, size_t growth_factor)
   
   pthread_once(&scratch_key_once, scratchpad_key_alloc);  
   pthread_setspecific(__scratch_key, spad);
+  __scratchpad_initialized = 1;
 }
 #else
 static scratchpad_at_exit(void)
@@ -98,6 +100,7 @@ void scratchpad_init(size_t max_size, size_t init_size, size_t grow_factor)
 {
   __scratch_pad = scratchpad_allocate(max_size, init_size, grow_factor);
   atexit(scratchpad_at_exit);
+  __scratchpad_initialized = 1;
 }
 #endif
 
