@@ -30,9 +30,20 @@
 #endif
   
 #include "caudium_machine.h"
-  
-#ifdef HAVE_ALLOCA_H
+
+/* AIX requires this to be the first thing in the file.  */
+#ifndef __GNUC__
+# if HAVE_ALLOCA_H
 #  include <alloca.h>
+# else
+#  ifdef _AIX
+ #pragma alloca
+#  else
+#   ifndef alloca /* predefined by HP cc +Olibcalls */
+char *alloca ();
+#   endif
+#  endif
+# endif
 #endif
 
 /* Since the code of getdate.y is not included in the Emacs executable

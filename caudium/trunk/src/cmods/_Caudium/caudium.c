@@ -46,8 +46,19 @@ RCSID("$Id$");
 # endif
 #endif
 
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
+/* AIX requires this to be the first thing in the file.  */
+#ifndef __GNUC__
+# if HAVE_ALLOCA_H
+#  include <alloca.h>
+# else
+#  ifdef _AIX
+ #pragma alloca
+#  else
+#   ifndef alloca /* predefined by HP cc +Olibcalls */
+char *alloca ();
+#   endif
+#  endif
+# endif
 #endif
 
 #include "caudium.h"
@@ -1217,17 +1228,24 @@ static void f_cern_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
    tm = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+   if (tm == NULL) {
+     Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
+     return;
+   }
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) { 
 
+    now = time(NULL);
 #ifdef HAVE_LOCALTIME_R
+    THREADS_ALLOW();
     tm = localtime_r(&now, tm);
+    THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     tm = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */
 
-    if ((now = time(NULL)) == (time_t) -1 ||
+    if (now == (time_t) -1 ||
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
@@ -1269,7 +1287,13 @@ static void f_cern_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
     gmt = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+    if (gmt==NULL) {
+      Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
+      return;
+    }
+    THREADS_ALLOW();
     gmt = gmtime_r(&now, gmt);
+    THREADS_DISALLOW();
 #else /* HAVE_GMTIME_R */
     gmt = gmtime(&now);
 #endif /* HAVE_GMTIME_R */
@@ -1280,7 +1304,13 @@ static void f_cern_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
     t = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+    if (t==NULL) {
+      Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
+      return;
+    }
+    THREADS_ALLOW();
     t = localtime_r(&now, t);
+    THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */
@@ -1374,17 +1404,24 @@ static void f_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
     tm = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+    if (tm==NULL) {
+       Pike_error("_Caudium.http_date(): Out of Memory!\n");
+       return;
+    }
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) { 
+    now = time(NULL);
 
 #ifdef HAVE_LOCALTIME_R
+    THREADS_ALLOW();
     tm = localtime_r(&now, tm);
+    THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     tm = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */
 
-    if ((now = time(NULL)) == (time_t) -1 ||
+    if (now == (time_t) -1 ||
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
@@ -1426,7 +1463,13 @@ static void f_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
     gmt = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+    if (gmt==NULL) {
+       Pike_error("_Caudium.http_date(): Out of Memory!\n");
+       return;
+    }
+    THREADS_ALLOW();
     gmt = gmtime_r(&now, gmt);
+    THREADS_DISALLOW();
 #else /* HAVE_GMTIME_R */
     gmt = gmtime(&now);
 #endif /* HAVE_GMTIME_R */
@@ -1437,7 +1480,13 @@ static void f_http_date(INT32 args)
 #else /* HAVE_ALLOCA */
     t = (struct tm *)malloc(sizeof(struct tm));
 #endif /* HAVE_ALLOCA */
+    if (gmt==NULL) {
+       Pike_error("_Caudium.http_date(): Out of Memory!\n");
+       return;
+    }
+    THREADS_ALLOW();
     t = localtime_r(&now, t);
+    THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
 #endif /* HAVE_LOCALTIME_R */

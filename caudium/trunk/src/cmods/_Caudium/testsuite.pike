@@ -173,7 +173,8 @@ int TEST_cern_http_date() {
   int tmstmp = time();
   string a, b, c;
   mapping lt = localtime(tmstmp);
-  int tzh = lt->timezone/3600 - lt->isdst;
+  // Do we have to take care of Day Light time ? I think no - XB.
+  int tzh = lt->timezone/3600; // - lt->isdst;
   prtest("cern_http_date");
 
   if(tzh > 0)

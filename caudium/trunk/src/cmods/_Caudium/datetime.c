@@ -347,7 +347,9 @@ static void f_getdate(INT32 args)
   pop_n_elems(args);
   
 #ifdef HAVE_GETDATE_R
+  THREADS_ALLOW();
   err = getdate_r(date->str, &tmret);
+  THREADS_DISALLOW();
   tmptr = &tmret;
 #else
   tmptr = getdate(date->str);
