@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
-constant thread_safe = 0; // not sure about this? anyone?
+constant thread_safe = 0; // maybe more like "constant will_kill_your_box_if_sneezed_at = 1;"
 constant module_type = MODULE_LOCATION|MODULE_PARSER|MODULE_EXPERIMENTAL;
 constant module_name = "Fishcast";
 #if constant(thread_create)
@@ -45,8 +45,9 @@ void create() {
     defvar( "listing_incoming", 0, "Listing: Incoming Directory", TYPE_FLAG, "Enable listing of available incoming streams", ({ "Yes", "No" }) );
     defvar( "listing_playlists", 0, "Listing: Playlist Directory", TYPE_FLAG, "Enable listing of available playlists", ({ "Yes", "No" }) );
     defvar( "maxclients", 20, "Clients: Maximum Clients", TYPE_INT, "Maximum connected clients. Zero is infinite (*very dangerous*)" );
-    defvar( "sessiontimeout", 3600, "Clients: Maximum Session Length", TYPE_INT, "Disconnect clients after this many seconds" );
+    defvar( "sessiontimeout", 0, "Clients: Maximum Session Length", TYPE_INT, "Disconnect clients after this many seconds" );
     defvar( "pauseplayback", 1, "Clients: Pause Playback", TYPE_FLAG, "Pause the &quot;playback&quot; of streams when there are no clients listening to it", ({ "Yes", "No" }) );
+    defvar( "titlestreaming", 0, "Clients: Title Streaming", TYPE_FLAG, "Enable streaming of track titles to clients, this is known to cause issues with some MP3 players", ({ "Yes", "No" }) );
     defvar( "promos_enable", 0, "Promo's: Enable Promo's", TYPE_FLAG, "Enable Promo Streaming", ({ "Yes", "No" }) );
     defvar( "promos_freq", 10, "Promo's: Frequency", TYPE_INT, "Insert Promo into stream every how many tracks?", 0, promos_enable );
     defvar( "promos_shuffle", 0, "Promo's: Shuffle", TYPE_FLAG, "If selected then the Promo's will be randomly ordered, otherwise they will be ordered alphabetically", ({ "Yes", "No" }), promos_enable );
@@ -232,12 +233,13 @@ string _tag_stream( string tag, mapping args, string contents, object id ) {
 	    "<b>Arguments:</b>\n"
 	    "<blockquote>\n"
 	    "name: The name of the stream, mostly usefull in the config interface. If it's not specified then a value of &quot;Untitled Stream&quot; is used.<br>\n"
-	    "bitrate: Override the bitrate of the mp3 files, this means that any file with a bitrate thats different to what's specified will be skipped.<br>\n"
+	    "bitrate: Override the bitrate of the mp3 files, this means that any file with a bitrate thats different to what's specified will be skipped. If it's omitted then the server will change the bitrate according to the bitrate of the file being streamed. <b>WONT WORK FOR VARIABLE BITRATE FILES</b>. Of course, that's the idea, it doesnt go yet however!<br>\n"
 	    "loop: Loop the stream forever<br>\n"
 	    "shuffle: Shuffle the running order<br>\n"
 	    "link: The text to place inside the link<br>\n"
             "</blockquote>\n";
     }
+    string name = (args->name?args->name:"Untitled Stream");
     int bitrate = args->bitrate?(int)args->bitrate:0;
     if ( bitrate == 0 ) {
 	return "ERROR: I need a bitrate until someone want's to help me and show me how to <a href='http://www.dv.co.yu/mpgscript/mpeghdr.htm'>parse the bitrate out of the mp3</a>\n";
@@ -267,8 +269,10 @@ string _tag_stream( string tag, mapping args, string contents, object id ) {
 	       "shuffle" : shuffle,
 	       "bitrate" : bitrate,
 	       "maxclients" : QUERY(maxclients),
+	       "maxsession" : QUERY(sessiontimeout),
 	       "pause" : QUERY(pauseplayback),
-	       "name" : (args->name?args->name:"Untitled Stream"),
+	       "name" : name,
+	       "titlestreaming" : QUERY(titlestreaming)
 	     ]);
 	if ( QUERY(promos_enable) ) {
 	    vars += ([
@@ -290,7 +294,7 @@ string _tag_stream( string tag, mapping args, string contents, object id ) {
 #endif
 	streams += ([ stream_id : s ]);
     }
-    return "<a href='" + fix_relative( "/" + QUERY(location) + sprintf( "/playlists/%d.pls", (int)stream_id ), id ) + "'>" + (args->link?args->link:"Listen") + "</a>";
+    return "<a href='" + fix_relative( "/" + QUERY(location) + sprintf( "/playlists/%d.pls", (int)stream_id ), id ) + "'>" + (args->link?args->link:"Listen to " + name) + "</a>";
 }
 
 class stream {
@@ -303,7 +307,7 @@ class stream {
     bytes, bitrate,
     wait, maxclients,
     promos_enable, promos_freq,
-    promos_shuffle;
+    promos_shuffle, maxsession;
     string name, base, playing, search_promo;
 
     void create( mapping vars ) {
@@ -314,11 +318,12 @@ class stream {
 	name = vars->name;
 	bitrate = vars->bitrate;
 	maxclients = vars->maxclients;
+        maxsession = vars->maxsession;
 	pause = vars->pause;
 	if ( vars->promos_enable ) {
 	    promos_enable = 1;
-	    promos_shuffle = vars->promo_shuffle;
-	    promos_freq = vars->promo_freq;
+	    promos_shuffle = vars->promos_shuffle;
+	    promos_freq = vars->promos_freq;
             search_promo = vars->search_promo;
 	}
 	ident = time() * random( time() );
@@ -335,12 +340,36 @@ class stream {
 	int _loop = 1;
 	string filename;
 	int block = (int)( bitrate * 12.8 );
-        int thyme = time();
+	int thyme = time();
+        array promos;
+	if ( promos_enable ) {
+	    promos = sort( get_dir( search_promo ) );
+	}
 	while( _loop == 1 ) {
 	    _loop = loop;
-	    foreach( (shuffle?Array.shuffle(files):files), filename ) {
+	    files = (shuffle?Array.shuffle(files):files);
+	    int cnt = 1;
+	    int promocnt;
+	    string file;
+	    array playlist = ({ });
+	    foreach( files, file ) {
+		if ( promos_enable ) {
+		    if ( cnt % promos_freq == 0 ) {
+			string p = (promos_shuffle?promos[ random( sizeof( promos ) ) ]:promos[ promocnt ]);
+			playlist += ({ Stdio.append_path( search_promo, p ) });
+			promocnt++;
+		    }
+		}
+		playlist += ({ Stdio.append_path( base, file ) });
+		cnt++;
+	    }
+	    foreach( playlist, filename ) {
+		// Disconnect clients at the end of the last song once
+		// they have used up their max session time, unless
+                // maxsession = 0
+		check_client_timeouts();
 		object f;
-		if ( catch( f = Stdio.File( base + filename, "r" ) ) ) {
+		if ( catch( f = Stdio.File( filename, "r" ) ) ) {
 #ifdef DEBUG
 		    write( "Can't locate file: " + base + filename + "\n" );
 #endif
@@ -408,6 +437,18 @@ class stream {
 		    unregister_client( id );
 		}
 		clients[ id ][ "bytes" ] += sizeof( buffer );
+	    }
+	}
+    }
+
+    void check_client_timeouts() {
+	if ( ( sizeof( clients )  > 0 ) && ( maxsession > 0 ) ) {
+            int thyme = time();
+	    int id;
+	    foreach( indices( clients ), id ) {
+		if ( clients[ id ][ "start" ] + maxsession < thyme ) {
+		    unregister_client( id );
+		}
 	    }
 	}
     }
