@@ -149,7 +149,7 @@ static mixed not_allowed( object id )
 }
 
 
-#define FILE_SIZE(X) (stat_cache?_file_size((X),id):Stdio.file_size(X))
+#define FILE_SIZE(X) (Stdio.file_size(X))
 
 
 static mixed lose_file( string f, object id )
