@@ -1,5 +1,11 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Add support for creating Storage.pmod tables on Postgres too.
+   (Jeff Utter, James Tyson)
+- Remove all thread locking from Cache.pmod/* and Storage.pmod/* since pike's
+  threads don't really work anyway, and there is really very little chance of
+  contention.
+   (James Tyson)
 - In Gsession, you can give any number of arguments to the function to call
   when the session expires using set_expire_hook().
    (David Gourdelier)
