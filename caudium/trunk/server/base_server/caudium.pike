@@ -47,6 +47,7 @@ object cache_manager;
 #include <pcre.h>
 #include <schemes.h>;
 #include <http_error.h>
+#include <stat.h>
 
 object http_error = http_error_handler();
 
@@ -1310,7 +1311,20 @@ object load_from_dirs(array dirs, string f, object conf)
   return 0;
 }
 
-/* GRENDEL_FINISHED_HERE */
+private void handle_sigalrm(int sig)
+{
+  werror("**** %s: ABS engaged!\nTrying to dump backlog: \n", ctime(time()) - "\n");
+  
+  catch {
+    // Catch for paranoia reasons.
+    describe_all_threads();
+  };
+  
+  werror("**** %s: ABS exiting caudium!\n\n", ctime(time()));
+  _exit(1); 	// It might now quit correctly otherwise, if it's
+  // locked up
+}
+
 static int abs_started;
 void restart_if_stuck (int force) 
 {
@@ -1323,26 +1337,17 @@ void restart_if_stuck (int force)
     roxen_perror("Anti-Block System Enabled.\n");
   }
   call_out (restart_if_stuck,10);
-  signal(signum("SIGALRM"),
-         lambda( int n ) {
-           werror(sprintf("**** %s: ABS engaged!\n"
-                          "Trying to dump backlog: \n",
-                          ctime(time()) - "\n"));
-           catch {
-             // Catch for paranoia reasons.
-             describe_all_threads();
-           };
-           werror(sprintf("**** %s: ABS exiting caudium!\n\n",
-                          ctime(time())));  
-           _exit(1); 	// It might now quit correctly otherwise, if it's
-           //  locked up
-         });
+  signal(signum("SIGALRM"), handle_sigalrm);
   alarm (60*QUERY(abs_timeout)+10);
 #endif
 }
 
 void cache_start() {
-  cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576, QUERY(cache_vigilance), QUERY(cache_fs_path), QUERY(cache_default_ttl), QUERY(cache_default_halflife) * 3600 );
+  cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576,
+                        QUERY(cache_vigilance),
+                        QUERY(cache_fs_path),
+                        QUERY(cache_default_ttl),
+                        QUERY(cache_default_halflife) * 3600 );
 }
 
 void post_create () {
@@ -1362,11 +1367,11 @@ void create()
   if (__caudium_extra_ver__ && sizeof(__caudium_extra_ver__))
     real_version += " (" + __caudium_extra_ver__ + ")";
   
-  catch
-  {
+  catch {
     module_stat_cache = decode_value(Stdio.read_bytes(QUERY(ConfigurationStateDir) + ".module_stat_cache"));
     allmodules = decode_value(Stdio.read_bytes(QUERY(ConfigurationStateDir) + ".allmodules"));
   };
+  
   add_constant("roxen", this_object()); /* Roxen compat */
   add_constant("caudium", this_object());
   add_constant("load",    load);
@@ -1377,7 +1382,6 @@ void create()
 
   call_out(post_create,1); //we just want to delay some things a little
 }
-
 
 // This is the most likely URL for a virtual server. Again, this
 // should move into the actual 'configuration' object. It is not all
@@ -1409,49 +1413,59 @@ int set_u_and_gid()
   
   u=QUERY(User);
   sscanf(u, "%s:%s", u, g);
-  if(strlen(u))
-  {
-    if(getuid())
-    {
+  if (strlen(u)) {
+    if (getuid()) {
       report_error ("It is only possible to change uid and gid if the server "
                     "is running as root.\n");
     } else {
       if (g) {
 #if constant(getgrnam)
         pw = getgrnam (g);
-        if (!pw)
-          if (sscanf (g, "%d", gid)) pw = getgrgid (gid), g = (string) gid;
-          else report_error ("Couldn't resolve group " + g + ".\n"), g = 0;
-        if (pw) g = pw[0], gid = pw[2];
+        if (!pw) {
+          if (sscanf (g, "%d", gid))
+            pw = getgrgid (gid), g = (string) gid;
+          else
+            report_error ("Couldn't resolve group " + g + ".\n"), g = 0;
+        }
+        
+        if (pw)
+          g = pw[0], gid = pw[2];
 #else
         if (!sscanf (g, "%d", gid))
-          report_warning ("Can't resolve " + g + " to gid on this system; "
-                          "numeric gid required.\n");
+          report_warning ("Can't resolve %s to gid on this system; "
+                          "numeric gid required.\n", g);
 #endif
       }
 
       pw = getpwnam (u);
-      if (!pw)
-        if (sscanf (u, "%d", uid)) pw = getpwuid (uid), u = (string) uid;
-        else {
-          report_error ("Couldn't resolve user " + u + ".\n");
+      if (!pw) {
+        if (sscanf (u, "%d", uid)) {
+          pw = getpwuid (uid), u = (string) uid;
+        } else {
+          report_error ("Couldn't resolve user %s.\n", u);
           return 0;
         }
+      }
+      
       if (pw) {
         u = pw[0], uid = pw[2];
-        if (!g) gid = pw[3];
+        if (!g)
+          gid = pw[3];
       }
 
 #ifdef THREADS
       object mutex_key;
-      catch { mutex_key = euid_egid_lock->lock(); };
+      catch {
+        mutex_key = euid_egid_lock->lock();
+      };
 #if constant(_disable_threads)
       object threads_disabled = _disable_threads();
 #endif
 #endif
 
 #if constant(seteuid)
-      if (geteuid() != getuid()) seteuid (getuid());
+      if (geteuid() != getuid())
+        seteuid (getuid());
 #endif
 #if constant(initgroups)
       catch {
@@ -1480,35 +1494,38 @@ int set_u_and_gid()
 #  endif
         }
         setuid(uid);
-        if (getuid() != uid) report_error ("Failed to set uid.\n"), u = 0;
+        if (getuid() != uid)
+          report_error ("Failed to set uid.\n"), u = 0;
 #else
         report_warning ("Setting uid not supported on this system.\n");
         u = g = 0;
 #endif
-      }
-      else {
+      } else {
 #if constant(seteuid)
         if (g) {
 #  if constant(setegid)
           setegid(gid);
-          if (getegid() != gid) report_error ("Failed to set effective gid.\n"), g = 0;
+          if (getegid() != gid)
+            report_error ("Failed to set effective gid.\n"), g = 0;
 #  else
           report_warning ("Setting effective gid not supported on this system.\n");
           g = 0;
 #  endif
         }
         seteuid(uid);
-        if (geteuid() != uid) report_error ("Failed to set effective uid.\n"), u = 0;
+        if (geteuid() != uid)
+          report_error ("Failed to set effective uid.\n"), u = 0;
 #else
         report_warning ("Setting effective uid not supported on this system.\n");
         u = g = 0;
 #endif
       }
 
-      if (u) report_notice("Setting uid to "+uid+" ("+u+")"+
-                           (g ? " and gid to "+gid+" ("+g+")" : "")+
-                           permanently+".\n");
-      return !!u;
+      if (u)
+        report_notice("Setting uid to "+uid+" ("+u+")"+
+                      (g ? " and gid to "+gid+" ("+g+")" : "")+
+                      permanently+".\n");
+      return !!u; // geez!!
     }
   }
   return 0;
@@ -1520,16 +1537,47 @@ static mapping __vars = ([ ]);
 // set global, but non-persistent, variables in Caudium. By using
 // these functions modules can "communicate" with one-another. This is
 // not really possible otherwise.
+
+//! Set a global (non-persistent, though) variable. This mechanism,
+//! together with the @[query_var()] function, can be
+//! used to implement poor man's inter-module communication.
+//!
+//! @param var
+//!  The variable name
+//!
+//! @param to
+//!  The variable value
+//!
+//! @returns
+//!  The stored value
+//!
+//! @seealso
+//!  @[query_var()]
 mixed set_var(string var, mixed to)
 {
   return __vars[var] = to;
 }
 
+//! Get a global (non-persistent, though) variable. This mechanism,
+//! together with the @[set_var()] function, can be
+//! used to implement poor man's inter-module communication.
+//!
+//! @note
+//!  Querying a non-existent variable will result in an exception thrown!
+//!  Make sure to catch{} it.
+//!
+//! @param var
+//!  The variable name
+//!
+//! @returns
+//!  The variable value
+//!
+//! @seealso
+//!  @[sety_var()]
 mixed query_var(string var)
 {
   return __vars[var];
 }
-
 
 void reload_all_configurations()
 {
@@ -1570,7 +1618,7 @@ void reload_all_configurations()
       conf->modules = ([]);
       conf->create(conf->name);
     } else {
-      if(err = catch(conf = caudium->enable_configuration(config->name))) {
+      if (err = catch(conf = caudium->enable_configuration(config->name))) {
         report_error("Error while enabling configuration %s:\n%s\n",
                      config,describe_backtrace(err));
         continue;
@@ -1582,7 +1630,7 @@ void reload_all_configurations()
       conf->enable_all_modules();
     };
     
-    if(err) {
+    if (err) {
       report_error("Error while enabling configuration %s:\n%s\n",
                    config, describe_backtrace(err));
       continue;
@@ -1591,8 +1639,7 @@ void reload_all_configurations()
     new_confs += ({ conf });
   }
     
-  foreach(caudium->configurations - new_confs, conf)
-  {
+  foreach(caudium->configurations - new_confs, conf) {
     modified = 1;
     report_notice("Disabling old configuration %s\n", conf->name);    
 
@@ -1614,21 +1661,20 @@ object enable_configuration(string name)
   object cf = Configuration(name);
   configurations += ({ cf });
   current_configuration = cf;
-  report_notice("Enabled the virtual server \""+name+"\".\n");
+  report_notice("Enabled the virtual server \"%s\".\n", name);
   
   return cf;
 }
 
 
-// return the URL of the configuration interface. This is not as easy
-// as it sounds, unless the administrator has entered it somewhere.
-
+//! Return the URL of the configuration interface. This is not as easy
+//! as it sounds, unless the administrator has entered it somewhere.
 public string config_url(void|object id)
 {
   int p;
   string prot;
   string host;
-  if(id && id->request_headers->host) {
+  if (id && id->request_headers->host) {
     string p = ":80", url="/";
     prot = "http://";
     if(id->ssl_accept_callback) {
@@ -1705,47 +1751,48 @@ class ImageCache
   mapping data_cache = ([]); // not normally used.
   mapping meta_cache = ([]);
 
-  static mapping meta_cache_insert( string i, mapping what )
+  static mapping meta_cache_insert(string i, mapping what)
   {
     return meta_cache[i] = what;
   }
   
-  static string data_cache_insert( string i, string what )
+  static string data_cache_insert(string i, string what)
   {
     return data_cache[i] = what;
   }
 
-  static mixed frommapp( mapping what )
+  static mixed frommapp(mapping what)
   {
-    if( !zero_type(what[""]) )
+    if (!zero_type(what[""]))
       return what[""];
     return what;
   }
 
-  static void draw( string name, object id )
+  static void draw(string name, object id)
   {
+    if (!name)
+      return;
+    
     mixed args = Array.map( Array.map( name/"$", argcache->lookup,
                                        id->useragent), frommapp);
     mapping meta;
     string data;
-    mixed reply = draw_function( @copy_value(args), id );
+    mixed reply = draw_function(@copy_value(args), id);
 
-    if( arrayp( args ) )
+    if (arrayp(args))
       args = args[0];
 
     if (arrayp(reply)) // Returned layers
       reply = Image.lay(reply);
 
-    if (objectp(reply) && reply->image)
-    {
+    if (objectp(reply) && reply->image) {
       reply = ([
         "img": reply->image(),
         "alpha": reply->alpha()
       ]);
     }
     
-    if( objectp( reply ) || (mappingp(reply) && reply->img) )
-    {
+    if(objectp(reply) || (mappingp(reply) && reply->img)) {
       int quant = (int)args->quant;
       string format = lower_case(args->format || "gif");
       string dither = args->dither;
@@ -1754,51 +1801,48 @@ class ImageCache
       object alpha;
       int true_alpha; 
 
-      if( args->fs  || dither == "fs" )
+      if (args->fs || dither == "fs")
         dither = "floyd_steinberg";
 
-      if(  dither == "random" )
+      if (dither == "random")
         dither = "random_dither";
 
-      if( format == "jpg" ) 
+      if (format == "jpg") 
         format = "jpeg";
 
       if (dither)
         dither = replace(dither, "-", "_");
       
-      if(mappingp(reply))
-      {
+      if (mappingp(reply)) {
         alpha = reply->alpha;
         reply = reply->img;
       }
 
-      if( args["true-alpha"] )
+      if (args["true-alpha"])
         true_alpha = 1;
 
-      if ( args["background"] || args["background-color"])
+      if (args["background"] || args["background-color"])
         bgcolor = Image.Color((args["background"] || args["background-color"]));
       
-      if( args["opaque-value"] )
-      {
+      if (args["opaque-value"]) {
         if (!bgcolor)
           true_alpha = 1;
           
         int ov = (int)(((float)args["opaque-value"])*2.55);
-        if( ov < 0 )
+        if (ov < 0)
           ov = 0;
-        else if( ov > 255 )
+        else if(ov > 255)
           ov = 255;
-        if( alpha )
+        if (alpha)
           alpha *= ov;
         else
           alpha = Image.image( reply->xsize(), reply->ysize(), ov,ov,ov );
       }
 
-      if( args->gamma )
+      if (args->gamma)
         reply = reply->gamma( (float)args->gamma );
 
-      if( bgcolor && alpha && !true_alpha )
-      {
+      if (bgcolor && alpha && !true_alpha) {
         reply = Image.Image( reply->xsize(),
                              reply->ysize(), bgcolor )
           ->paste_mask( reply, alpha );
@@ -1806,19 +1850,20 @@ class ImageCache
       }
 
       int x0, y0, x1, y1;
-      if( args["x-offset"] || args["xoffset"] )
+      if (args["x-offset"] || args["xoffset"])
         x0 = (int)(args["x-offset"]||args["xoffset"]);
-      if( args["y-offset"] || args["yoffset"] )
+      
+      if (args["y-offset"] || args["yoffset"])
         y0 = (int)(args["y-offset"]||args["yoffset"]);
-      if( args["width"] || args["x-size"] )
+      
+      if (args["width"] || args["x-size"])
         x1 = (int)(args["x-size"]||args["widt h"]);
-      if( args["height"] || args["y-size"] )
+      
+      if (args["height"] || args["y-size"])
         y1 = (int)(args["y-size"]||args["height"]);
 
-      if( args->crop )
-      {
-        if( sscanf( args->crop, "%d,%d-%d,%d", x0, y0, x1, y1 ) )
-        {
+      if(args->crop) {
+        if (sscanf( args->crop, "%d,%d-%d,%d", x0, y0, x1, y1 )) {
           x1 -= x0;
           y1 -= y0;
         } else {
@@ -1828,58 +1873,53 @@ class ImageCache
         }
       }
 
-      if( x0 || x1 || y0 || y1 )
-      {
-        if( !x1 ) x1 = reply->xsize()-x0;
-        if( !y1 ) y1 = reply->ysize()-y0;
+      if (x0 || x1 || y0 || y1) {
+        if (!x1)
+          x1 = reply->xsize()-x0;
+        
+        if (!y1)
+          y1 = reply->ysize()-y0;
+        
         reply = reply->copy( x0,y0,x0+x1-1,y0+y1-1 );
-        if( alpha )
+        if (alpha)
           alpha = alpha->copy( x0,y0,x0+x1-1,y0+y1-1 );
       }
       
-      if( args->scale )
-      {
+      if (args->scale) {
         int x, y;
-        if( sscanf( args->scale, "%d,%d", x, y ) == 2)
-        {
+        if (sscanf( args->scale, "%d,%d", x, y ) == 2) {
           reply = reply->scale( x, y );
-          if( alpha )
+          if (alpha)
             alpha = alpha->scale( x, y );
-        }
-        else if( (float)args->scale < 3.0)
-        {
-          reply = reply->scale( ((float)args->scale) );
-          if( alpha )
-            alpha = alpha->scale( ((float)args->scale) );
+        } else if( (float)args->scale < 3.0) {
+          reply = reply->scale(((float)args->scale)) ;
+          
+          if (alpha)
+            alpha = alpha->scale(((float)args->scale));
         }
       }
 
-      if( args->maxwidth || args->maxheight ||
-          args["max-width"] || args["max-height"])
-      {
+      if (args->maxwidth || args->maxheight ||
+          args["max-width"] || args["max-height"]) {
         int x = (int)args->maxwidth || (int)args["max-width"];
         int y = (int)args->maxheight || (int)args["max-height"];
           
-        if( x && reply->xsize() > x )
-        {
-          reply = reply->scale( x, 0 );
-          if( alpha )
-            alpha = alpha->scale( x, 0 );
+        if(x && reply->xsize() > x) {
+          reply = reply->scale(x, 0);
+          if (alpha)
+            alpha = alpha->scale(x, 0);
         }
           
-        if( y && reply->ysize() > y )
-        {
-          reply = reply->scale( 0, y );
+        if (y && reply->ysize() > y) {
+          reply = reply->scale(0, y);
           if( alpha )
-            alpha = alpha->scale( 0, y );
+            alpha = alpha->scale(0, y);
         }
       }
 
-      if( args["rotate-cw"] || args["rotate-ccw"])
-      {
+      if (args["rotate-cw"] || args["rotate-ccw"]) {
         float degree = (float)(args["rotate-cw"] || args["rotate-ccw"]);
-        switch( args["rotate-unit"] && args["rotate-unit"][0..0] )
-        {
+        switch( args["rotate-unit"] && args["rotate-unit"][0..0] ) {
             case "r":
               degree = (degree / (2*3.1415)) * 360;
               break;
@@ -1895,49 +1935,50 @@ class ImageCache
               degree = (degree / 1.0) * 360;
               break;
         }
-        if( args["rotate-cw"] )
+        
+        if (args["rotate-cw"])
           degree = -degree;
-        if(!alpha)
+        if (!alpha)
           alpha = reply->copy()->clear(255,255,255);
         reply = reply->rotate_expand( degree );
         alpha = alpha->rotate( degree, 0,0,0 );
       }
 
-      if( args["mirror-x"] )
-      {
-        if( alpha )
+      if (args["mirror-x"]) {
+        if (alpha)
           alpha = alpha->mirrorx();
         reply = reply->mirrorx();
       }
 
-      if( args["mirror-y"] )
-      {
-        if( alpha )
+      if (args["mirror-y"]) {
+        if (alpha)
           alpha = alpha->mirrory();
         reply = reply->mirrory();
       }
 
-      if( bgcolor && alpha && !true_alpha )
+      if (bgcolor && alpha && !true_alpha)
       {
-        reply = Image.Image( reply->xsize(),
-                             reply->ysize(), bgcolor )
+        reply = Image.Image(reply->xsize(),
+                            reply->ysize(), bgcolor)
           ->paste_mask( reply, alpha );
       }
 
-      if( args["cs-rgb-hsv"] )
+      if (args["cs-rgb-hsv"])
         reply = reply->rgb_to_hsv();
-      if( args["cs-grey"] )
+      
+      if (args["cs-grey"])
         reply = reply->grey();
-      if( args["cs-invert"] )
+      
+      if (args["cs-invert"])
         reply = reply->invert();
-      if( args["cs-hsv-rgb"] )
+      
+      if (args["cs-hsv-rgb"])
         reply = reply->hsv_to_rgb();
 
-      if( !true_alpha && alpha )
+      if (!true_alpha && alpha)
         alpha = alpha->threshold( 4 );
       
-      if( quant || (format=="gif") )
-      {
+      if (quant || (format=="gif")) {
         int ncols = quant;
         
         if (format == "gif") {
@@ -1947,7 +1988,7 @@ class ImageCache
         }
 
         ct = Image.Colortable( reply, ncols );
-        if( dither ) {
+        if (dither) {
           if (dither == "random")
             dither = "random_grey";
           if( ct[ dither ] )
@@ -1958,30 +1999,29 @@ class ImageCache
       }
 
       mapping enc_args = ([]);
-      if( ct )
+      if (ct)
         enc_args->colortable = ct;
 
-      if( alpha )
+      if (alpha)
         enc_args->alpha = alpha;
 
-      foreach( glob( "*-*", indices(args)), string n )
-        if(sscanf(n, "%*[^-]-%s", string opt ) == 2)
+      foreach (glob( "*-*", indices(args)), string n)
+        if (sscanf(n, "%*[^-]-%s", string opt ) == 2)
           if (opt != "alpha")
             enc_args[opt] = (int)args[n];
 
-      switch(format)
-      {
+      switch(format) {
           case "gif":          
 #if constant(Image.GIF.encode)
-            if( alpha && true_alpha )
-            {
+            if (alpha && true_alpha) {
               Image.Colortable bw = Image.Colortable( ({ ({ 0,0,0 }),
                                                          ({ 255,255,255 }) }) );
               bw->floyd_steinberg();
               alpha = ct->map( alpha );
             }
-            if( catch {
-              if( alpha )
+            
+            if (catch {
+              if (alpha)
                 data = Image.GIF.encode_trans( reply, ct, alpha );
               else
                 data = Image.GIF.encode( reply, ct );
@@ -1992,8 +2032,9 @@ class ImageCache
             format = "png";
        
           case "png":
-            if( ct )
-              enc_args->palette = ct;	   
+            if (ct)
+              enc_args->palette = ct;
+            
             m_delete( enc_args, "colortable" );
             if ((!args["png-use-alpha"] || args["true-alpha"]))
               m_delete(enc_args, "alpha");
@@ -2020,33 +2061,30 @@ class ImageCache
         "ysize":reply->ysize(),
         "type":"image/"+format,
       ]);
-    }
-    else if( mappingp(reply) ) 
-    {
+    } else if (mappingp(reply)) {
       meta = reply->meta;
       data = reply->data;
-      if( !meta || !data )
+      if(!meta || !data)
         error("Invalid reply mapping.\n"
               "Should be ([ \"meta\": ([metadata]), \"data\":\"data\" ])\n");
     }
+    
     store_meta( name, meta );    
     store_data( name, data );
   }
 
-
-
-  static void store_meta( string id, mapping meta )
+  static void store_meta(string id, mapping meta)
   {
-    meta_cache_insert( id, meta );
+    meta_cache_insert(id, meta);
 
-    string data = encode_value( meta );
+    string data = encode_value(meta);
     Stdio.File f = Stdio.File(  dir+id+".i", "wct" );
-    if(!f) 
-    {
-      report_error( "Failed to open image cache persistant cache file "+
-                    dir+id+".i: "+strerror( errno() )+ "\n" );
+    if(!f) {
+      report_error( "Failed to open image cache persistant cache file '%s.i': %s\n",
+                    dir+id, strerror(errno()));
       return;
     }
+    
     f->write( data );
   }
 
@@ -2055,119 +2093,129 @@ class ImageCache
     if (!data)
       return;
 
-    Stdio.File f = Stdio.File(  dir+id+".d", "wct" );
-    if(!f) 
-    {
-      data_cache_insert( id, data );
-      report_error( "Failed to open image cache persistant cache file "+
-                    dir+id+".d: "+strerror( errno() )+ "\n" );
+    Stdio.File f = Stdio.File(dir+id+".d", "wct");
+    if(!f) {
+      data_cache_insert(id, data);
+      report_error( "Failed to open image cache persistant cache file '%s.d': %s"+
+                    dir+id, strerror(errno()));
       return;
     }
+    
     f->write( data );
   }
 
-
-  static mapping restore_meta( string id )
+  static mapping restore_meta(string id)
   {
     Stdio.File f;
-    if( meta_cache[ id ] )
+    
+    if (meta_cache[ id ])
       return meta_cache[ id ];
+    
     f = Stdio.File( );
-    if( !f->open(dir+id+".i", "r" ) )
+    if(!f->open(dir+id+".i", "r" ))
       return 0;
 
     string s = f->read();
     mapping m;
+    
     if (catch (m = decode_value (s))) {
       rm (dir + id + ".i");
-      report_error( "Corrupt data in persistent cache file "+
-                    dir+id+".i; removed it.\n" );
+      report_error( "Corrupt data in persistent cache file %s.i; removed it.\n",
+                    dir+id );
       return 0;
     }
+    
     return meta_cache_insert( id, m );
   }
 
-  static mapping restore( string id )
+  static mapping restore(string id)
   {
+    if (!id)
+      return 0;
+    
     string|object(Stdio.File) f;
     mapping m;
 
-    if( data_cache[ id ] )
-      f = data_cache[ id ];
+    if (data_cache[id])
+      f = data_cache[id];
     else 
       f = Stdio.File( );
 
     if(!f->open(dir+id+".d", "r" ))
       return 0;
 
-    m = restore_meta( id );
+    m = restore_meta(id);
     
     if(!m)
       return 0;
 
-    if( stringp( f ) )
+    if (stringp(f))
       return http_string_answer( f, m->type||("image/gif") );
-    return caudiump()->http_file_answer( f, m->type||("image/gif") );
+    
+    return caudiump()->http_file_answer(f, m->type||("image/gif"));
   }
 
-  string data( string|mapping args, object id, int|void nodraw )
+  string data(string|mapping args, object id, int|void nodraw)
   {
-    string na = store( args, id );
+    string na = store(args, id);
     mixed res;
 
-    if(!( res = restore( na )) )
-    {
-      if(nodraw)
+    if (!(res = restore( na ))) {
+      if (nodraw)
         return 0;
-      draw( na, id );
+      draw(na, id);
       res = restore( na );
     }
-    if( res->file )
+    
+    if (res->file )
       return res->file->read();
+    
     return res->data;
   }
 
-  mapping http_file_answer( string|mapping data, object id, int|void nodraw )
+  mapping http_file_answer(string|mapping data, object id, int|void nodraw)
   {
     string na = store( data,id );
     mixed res;
-    if(!( res = restore( na )) )
-    {
+
+    if (!(res = restore( na ))) {
       if(nodraw)
         return 0;
+      
       if (catch (draw ( na, id )))
-      {
         return (http_error_answer (id, 404));
-      }
+      
       res = restore( na );
     }
     return res;
   }
 
-  mapping metadata( string|mapping data, object id, int|void nodraw )
+  mapping metadata(string|mapping data, object id, int|void nodraw)
   {
     string na = store( data,id );
-    if(!restore_meta( na ))
-    {
+    
+    if (!restore_meta( na )) {
       if(nodraw)
         return 0;
-      draw( na, id );
+      draw(na, id);
       return restore_meta( na );
     }
+    
     return restore_meta( na );
   }
 
-  mapping tomapp( mixed what )
+  mapping tomapp(mixed what)
   {
-    if( mappingp( what ))
+    if(mappingp(what))
       return what;
+    
     return ([ "":what ]);
   }
 
-  string store( array|string|mapping data, object id )
+  string store(array|string|mapping data, object id)
   {
     string ci;
-    if( mappingp( data ) ) {
+    if(mappingp(data)) {
       if (!data->format) {
 #if constant(Image.GIF.encode)
         data->format = "gif";
@@ -2177,7 +2225,7 @@ class ImageCache
 #endif
       }
       ci = argcache->store( data );
-    }else if( arrayp( data ) ) {
+    } else if(arrayp(data)) {
       if (!data[0]->format) {
 #if constant(Image.GIF.encode)
         data[0]->format = "gif";
@@ -2192,25 +2240,26 @@ class ImageCache
     return ci;
   }
 
-  void set_draw_function( function to )
+  void set_draw_function(function to)
   {
     draw_function = to;
   }
 
-  void create( string id, function draw_func, string|void d )
+  void create(string id, function draw_func, string|void d)
   {
-    if(!d) d = caudiump()->QUERY(argument_cache_dir);
-    if( d[-1] != '/' )
+    if(!d)
+      d = caudiump()->QUERY(argument_cache_dir);
+    
+    if(d[-1] != '/')
       d+="/";
     d += id+"/";
 
-    Stdio.mkdirhier( d+"foo");
+    Stdio.mkdirhier(d+"foo");
 
     dir = d;
     name = id;
     draw_function = draw_func;
   }
-
 }
 
 class ArgCache
@@ -2236,27 +2285,24 @@ class ArgCache
 
   void setup_table()
   {
-    if(catch(db->query("select id from "+name+" where id=-1")))
-      if(catch(db->query("create table "+name+" ("
-                         "id int auto_increment primary key, "
-                         "lkey varchar(80) not null default '', "
-                         "contents blob not null default '', "
-                         "atime bigint not null default 0)")))
+    if (catch(db->query("select id from "+name+" where id=-1")))
+      if (catch(db->query("create table "+name+" ("
+                          "id int auto_increment primary key, "
+                          "lkey varchar(80) not null default '', "
+                          "contents blob not null default '', "
+                          "atime bigint not null default 0)")))
         throw("Failed to create table in database\n");
   }
 
-  void create( string _name, 
-               string _path, 
-               int _is_db )
+  void create(string _name, string _path, int _is_db)
   {
     name = _name;
     path = _path;
     is_db = _is_db;
 
-    if(is_db)
-    {
+    if (is_db) {
       db = Sql.sql( path );
-      if(!db)
+      if (!db)
         error("Failed to connect to database for argument cache\n");
       setup_table( );
     } else {
@@ -2274,40 +2320,38 @@ class ArgCache
     }
   }
 
-  static string read_args( string id )
+  static string read_args(string id)
   {
-    if( is_db )
-    {
+    if (is_db) {
       mapping res = db->query("select contents from "+name+" where id='"+id+"'");
-      if( sizeof(res) )
-      {
+      
+      if(sizeof(res)) {
         db->query("update "+name+" set atime='"+
                   time()+"' where id='"+id+"'");
         return res[0]->contents;
       }
       return 0;
     } else {
-      if( file_stat( path+id ) )
+      if (file_stat(path+id))
         return Stdio.read_bytes(path+"/"+id);
     }
     return 0;
   }
 
-  static string create_key( string long_key )
+  static string create_key(string long_key)
   {
-    if( is_db )
-    {
+    if (is_db) {
       array(mapping) data =
         db->query(sprintf("select id,contents from %s where lkey='%s'",
                           name,long_key[..79]));
-      foreach( data, mapping m )
-        if( m->contents == long_key )
+      foreach(data, mapping m)
+        if(m->contents == long_key)
           return m->id;
 
-      db->query( sprintf("insert into %s (contents,lkey,atime) values "
-                         "('%s','%s','%d')", 
-                         name, long_key, long_key[..79], time() ));
-      return create_key( long_key );
+      db->query(sprintf("insert into %s (contents,lkey,atime) values "
+                        "('%s','%s','%d')", 
+                         name, long_key, long_key[..79], time()));
+      return create_key(long_key);
     } else {
 #if constant(Mhash.hash_md5)
       string _key=MIME.encode_base64(Mhash.hash_md5(long_key),1);
@@ -2317,103 +2361,105 @@ class ArgCache
       _key = replace(_key-"=","/","=");
       string short_key = _key[0..1];
 
-      while( file_stat( path+short_key ) )
-      {
-        if( Stdio.read_bytes( path+short_key ) == long_key )
+      while (file_stat( path+short_key )) {
+        if (Stdio.read_bytes( path+short_key ) == long_key)
           return short_key;
         short_key = _key[..strlen(short_key)];
-        if( strlen(short_key) >= strlen(_key) )
+        if (strlen(short_key) >= strlen(_key))
           short_key += "."; // Not very likely...
       }
-      object f = Stdio.File( path + short_key, "wct" );
-      f->write( long_key );
+      object f = Stdio.File(path + short_key, "wct");
+      f->write(long_key);
+      
       return short_key;
     }
   }
 
-
-  int key_exists( string key )
+  int key_exists(string key)
   {
     LOCK();
-    if( !is_db ) 
+    if (!is_db) 
       return !!file_stat( path+key );
+    
     return !!read_args( key );
   }
 
-  string store( mapping args )
+  string store(mapping args)
   {
     LOCK();
+    
     array b = values(args), a = sort(indices(args),b);
     string data = MIME.encode_base64(encode_value(({a,b})),1);
 
-    if( cache[ data ] )
-      return cache[ data ][ CACHE_SKEY ];
+    if (cache[data])
+      return cache[data][CACHE_SKEY];
 
-    if( sizeof( cache ) >= CACHE_SIZE )
-    {
+    if (sizeof(cache) >= CACHE_SIZE) {
       array i = indices(cache);
-      while( sizeof(cache) > CACHE_SIZE-CLEAN_SIZE ) {
+      while (sizeof(cache) > CACHE_SIZE-CLEAN_SIZE) {
         string idx=i[random(sizeof(i))];
-        if(arrayp(cache[idx])) {
-          m_delete( cache, cache[idx][CACHE_SKEY] );
-          m_delete( cache, idx );
-        }
-        else {
-          m_delete( cache, cache[idx] );
-          m_delete( cache, idx );
+        
+        if (arrayp(cache[idx])) {
+          m_delete(cache, cache[idx][CACHE_SKEY]);
+          m_delete(cache, idx);
+        } else {
+          m_delete(cache, cache[idx]);
+          m_delete(cache, idx);
         }
       }
     }
 
-    string id = create_key( data );
-    cache[ data ] = ({ 0, 0 });
-    cache[ data ][ CACHE_VALUE ] = copy_value( args );
-    cache[ data ][ CACHE_SKEY ] = id;
-    cache[ id ] = data;
+    string id = create_key(data);
+    cache[data] = ({ 0, 0 });
+    cache[data][CACHE_VALUE] = copy_value(args);
+    cache[data][CACHE_SKEY] = id;
+    cache[id] = data;
     return id;
   }
 
-  mapping lookup( string id, void|string client)
+  mapping lookup(string id, void|string client)
   {
     LOCK();
-    if(cache[id])
+    if (cache[id])
       return cache[cache[id]][CACHE_VALUE];
 
     string q = read_args( id );
 
-    if(!q) error("Key does not exist! (Thinks "+ (client||"") +")\n");
-    mixed data = decode_value(MIME.decode_base64( q ));
-    data = mkmapping( data[0],data[1] );
+    if (!q)
+      error("Key does not exist! (Thinks "+ (client||"") +")\n");
+    
+    mixed data = decode_value(MIME.decode_base64(q));
+    data = mkmapping(data[0],data[1]);
 
-    cache[ q ] = ({0,0});
-    cache[ q ][ CACHE_VALUE ] = data;
-    cache[ q ][ CACHE_SKEY ] = id;
-    cache[ id ] = q;
+    cache[q] = ({0,0});
+    cache[q][CACHE_VALUE] = data;
+    cache[q][CACHE_SKEY] = id;
+    cache[id] = q;
     return data;
   }
 
-  void delete( string id )
+  void delete(string id)
   {
     LOCK();
-    if(cache[id])
-    {
-      m_delete( cache, cache[id] );
-      m_delete( cache, id );
+    
+    if (cache[id]) {
+      m_delete(cache, cache[id]);
+      m_delete(cache, id);
     }
-    if( is_db )
-      db->query( "delete from "+name+" where id='"+id+"'" );
+    
+    if (is_db)
+      db->query("delete from "+name+" where id='"+id+"'");
     else
       rm( path+id );
   }
 }
 
-
-array(int) invert_color(array color )
+array(int) invert_color(array color)
 {
   return ({ 255-color[0], 255-color[1], 255-color[2] });
 }
 
-private void define_global_variables( int argc, array (string) argv )
+private void define_global_variables(int argc, array (string) argv)
 {
   int p;
 
@@ -2495,11 +2541,8 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("cif_theme", "caudiumnet", "Configuration interface: Theme", TYPE_STRING_LIST,
           scheme()->theme_list(), scheme()->theme_select() );
 
-
-
 //   globvar("_v", CONFIGURATION_FILE_LEVEL, 0, TYPE_INT, 0, 0, 1);
   globvar("default_font_size", 32, 0, TYPE_INT, 0, 0, 1);
-
 
   globvar("default_font", "lucida", "Fonts: Default font", TYPE_FONT,
           "The default font to use when modules request a font.");
@@ -2511,8 +2554,7 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("logdirprefix", "../logs/", "Log directory prefix",
           TYPE_DIR|VAR_MORE,
           "This is the default file path that will be prepended to the log "
-          " file path in all the default modules and the virtual server.");
-  
+          " file path in all the default modules and the virtual server.");  
 
   // Cache variables. The actual code recides in the file
   // 'disk_cache.pike'
@@ -2930,19 +2972,16 @@ private void define_global_variables( int argc, array (string) argv )
 
     setvars(retrieve("Variables", 0));
 
-    for(p = 1; p < argc; p++)
-    {
+    for(p = 1; p < argc; p++) {
       string c, v;
-      if(sscanf(argv[p],"%s=%s", c, v) == 2)
-        if(variables[c])
-          variables[c][VAR_VALUE]=compile_string(
-                                                 "mixed f(){ return"+v+";}")()->f();
+      if (sscanf(argv[p],"%s=%s", c, v) == 2)
+        if (variables[c])
+          variables[c][VAR_VALUE]=compile_string("mixed f(){ return"+v+";}")()->f();
         else
           perror("Unknown global variable: "+c+"\n");
     }
     docurl=QUERY(docurl2);
 }
-
 
 // Get the current domain. This is not as easy as one could think.
 
@@ -2964,12 +3003,12 @@ string get_domain(int|void l)
   }
 #if constant(gethostbyname)
 #if constant(gethostname)
-  if(!s) {
+  if (!s) {
     f = gethostbyname(gethostname()); // First try..
-    if(f)
-      foreach(f, f) {
+    if (f)
+      foreach (f, f) {
         if (arrayp(f)) {
-          foreach(f, t) {
+          foreach (f, t) {
             f = t/".";
             if ((sizeof(f) > 1) &&
                 (replace(t, ({ "0", "1", "2", "3", "4", "5",
@@ -2985,20 +3024,22 @@ string get_domain(int|void l)
   }
 #endif
 #endif
-  if(!s) {
+  if (!s) {
     t = Stdio.read_bytes("/etc/resolv.conf");
-    if(t) {
-      if(!sscanf(t, "domain %s\n", s))
-        if(!sscanf(t, "search %s%*[ \t\n]", s))
+    if (t) {
+      if (!sscanf(t, "domain %s\n", s))
+        if (!sscanf(t, "search %s%*[ \t\n]", s))
           s="nowhere";
     } else {
       s="nowhere";
     }
   }
-  if(s && strlen(s))
-  {
-    if(s[-1] == '.') s=s[..strlen(s)-2];
-    if(s[0] == '.') s=s[1..];
+  
+  if (s && strlen(s)) {
+    if (s[-1] == '.')
+      s=s[..strlen(s)-2];
+    if (s[0] == '.')
+      s=s[1..];
   } else {
     s="unknown"; 
   }
@@ -3016,29 +3057,32 @@ void initiate_configuration_port( int|void first )
   array port;
 
   // Hm.
-  if(!first && !config_ports_changed )
+  if (!first && !config_ports_changed)
     return 0;
   
   config_ports_changed = 0;
 
   // First find out if we have any new ports.
   mapping(string:array(string)) new_ports = ([]);
-  foreach(QUERY(ConfigPorts), port) {
+  
+  foreach (QUERY(ConfigPorts), port) {
     if ((< "ssl", "ssleay" >)[port[1]]) {
       // Obsolete versions of the SSL protocol.
       report_warning("Obsolete SSL protocol-module \""+port[1]+"\".\n"
                      "Converted to SSL3.\n");
       port[1] = "ssl3";
     }
+    
     if ((< "ftp2" >)[port[1]]) {
       // Obsolete versions of the SSL protocol.
       report_warning("Obsolete FTP protocol-module \""+port[1]+"\"."
                      " Converted to FTP.\n");
       port[1] = "FTP";
     }
+    
     string key = MKPORTKEY(port);
     if (!configuration_ports[key]) {
-      report_notice(sprintf("New configuration port: %s\n", key));
+      report_notice("New configuration port: %s\n", key);
       new_ports[key] = port;
     } else {
       // This is needed not to delete old unchanged ports.
@@ -3047,20 +3091,19 @@ void initiate_configuration_port( int|void first )
   }
 
   // Then disable the old ones that are no more.
-  foreach(indices(configuration_ports), string key) {
+  foreach (indices(configuration_ports), string key) {
     if (zero_type(new_ports[key])) {
-      report_notice(sprintf("Disabling configuration port: %s...\n", key));
+      report_notice("Disabling configuration port: %s...\n", key);
       object o = configuration_ports[key];
-      if (main_configuration_port == o) {
+      if (main_configuration_port == o)
         main_configuration_port = 0;
-      }
       m_delete(configuration_ports, key);
       mixed err;
       if (err = catch{
         destruct(o);
       }) {
-        report_warning(sprintf("Error disabling configuration port: %s:\n"
-                               "%s\n", key, describe_backtrace(err)));
+        report_warning("Error disabling configuration port: %s:\n"
+                               "%s\n", key, describe_backtrace(err));
       }
       o = 0;	// Be sure that there are no references left...
     }
@@ -3069,8 +3112,7 @@ void initiate_configuration_port( int|void first )
   current_configuration = 0;	// Compatibility...
 
   // Now we can create the new ports.
-  foreach(indices(new_ports), string key)
-  {
+  foreach (indices(new_ports), string key) {
     port = new_ports[key];
     if (port) {
       array old = port;
@@ -3079,48 +3121,49 @@ void initiate_configuration_port( int|void first )
         program requestprogram = (program)(getcwd()+"/protocols/"+port[1]);
         function rp;
         array tmp;
-        if(!requestprogram) {
-          report_error("No request program for "+port[1]+"\n");
+        
+        if (!requestprogram) {
+          report_error("No request program for %s\n", port[1]);
           continue;
         }
-        if(rp = requestprogram()->real_port)
-          if(tmp = rp(port, 0))
+        
+        if (rp = requestprogram()->real_port)
+          if (tmp = rp(port, 0))
             port = tmp;
 
         object privs;
-        if(port[0] < 1024)
+        if (port[0] < 1024)
           privs = Privs("Opening listen port below 1024");
-        if(o=create_listen_socket(port[0],0,port[2],requestprogram,port)) {
-          report_notice(sprintf("Opening configuration port: %s\n", key));
-          if (!main_configuration_port) {
+        
+        if (o=create_listen_socket(port[0],0,port[2],requestprogram,port)) {
+          report_notice("Opening configuration port: %s\n", key);
+          
+          if (!main_configuration_port)
             main_configuration_port = o;
-          }
           configuration_ports[key] = o;
         } else {
-          report_error(sprintf("The configuration port %s "
-                               "could not be opened\n", key));
+          report_error("The configuration port %s could not be opened\n", key);
         }
       };
+      
       if (erro) {
-        report_error(sprintf("Failed to open configuration port %s:\n"
-                             "%s\n", key,
-                             (stringp(erro)?erro:describe_backtrace(erro))));
+        report_error("Failed to open configuration port %s:\n%s\n",
+                     key, (stringp(erro)?erro:describe_backtrace(erro)));
       }
     }
   }
-  if(!main_configuration_port)
-  {
+  
+  if (!main_configuration_port) {
     report_error("No configuration ports could be created.\n"
                  "Is caudium already running?\n");
-    if(first)
+    if (first)
       exit( -1 );	// Restart.
   }
 }
-#include <stat.h>
+
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
-
-private int|array compile_and_load ( string file ) {
+private int|array compile_and_load (string file) {
   array       foo;
   object      o;
   program     p;
@@ -3168,45 +3211,46 @@ private int|array compile_and_load ( string file ) {
                                  
 void scan_module_dir(string d)
 {
-  if(sscanf(d, "%*s.pmod")!=0) return;
+  if(sscanf(d, "%*s.pmod")!=0)
+    return;
+  
   MD_PERROR(("\n\nLooking for modules in "+d+" "));
 
   string file,path=d;
   mixed err;
   array q  = (get_dir( d )||({})) - ({".","..","CVS","RCS" });
-  if(!sizeof(q)) {
+
+  if (!sizeof(q)) {
     MD_PERROR(("No modules in here. Continuing elsewhere\n"));
     return;
   }
-  if(search(q, ".no_modules")!=-1) {
+  
+  if (search(q, ".no_modules")!=-1) {
     MD_PERROR(("No modules in here. Continuing elsewhere\n"));
     return;
   }
+  
   MD_PERROR(("There are "+language("en","number")(sizeof(q))+" files.\n"));
-  foreach( q, file )
-  {
+  foreach(q, file) {
     object e = ErrorContainer();
+    
     master()->set_inhibit_compile_errors(e);
-    if ( file[0]!='.' && !backup_extension(file) && (file[-1]!='z'))
-    {
+    if (file[0]!='.' && !backup_extension(file) && (file[-1]!='z')) {
       array stat = file_stat(path+file);
-      if(!stat || (stat[ST_SIZE] < 0))
-      {
-        if(err = catch ( scan_module_dir(path+file+"/") ))
+      
+      if (!stat || (stat[ST_SIZE] < 0)) {
+        if (err = catch ( scan_module_dir(path+file+"/") ))
           MD_PERROR((sprintf("Error in module rescanning directory code:"
                              " %s\n",describe_backtrace(err))));
       } else {
         MD_PERROR(("Considering "+file+" - "));
-        if((module_stat_cache[path+file] &&
-            module_stat_cache[path+file][ST_MTIME])==stat[ST_MTIME])
-        {
+        if ((module_stat_cache[path+file] && module_stat_cache[path+file][ST_MTIME])==stat[ST_MTIME]) {
           MD_PERROR(("Already tried this one.\n"));
           continue;
         }
         module_stat_cache[path+file]=stat;
 	
-        switch(extension(file))
-        {
+        switch(extension(file)) {
             case "pike":
             case "lpc":
               if(catch{
@@ -3219,7 +3263,9 @@ void scan_module_dir(string d)
                 MD_PERROR(("Couldn't open file\n"));
                 file=0;
               }
-              if(!file) break;
+              if(!file)
+                break;
+              
             case "mod":
             case "so":
               array(string) module_info;
@@ -3231,7 +3277,7 @@ void scan_module_dir(string d)
                   allmodules[ file-("."+extension(file)) ] = module_info;
                 } else {
                   // Disabled module.
-                  report_notice(sprintf("Module %O is disabled.\n", path+file));
+                  report_notice("Module %O is disabled.\n", path+file);
                 }
               } else {
                 // Load failed.
@@ -3241,11 +3287,11 @@ void scan_module_dir(string d)
         MD_PERROR(("\n"));
       }
     }
+    
     master()->clear_compilation_failures();
-    if(strlen(e->get())) {
-      report_debug("Compilation errors found while scanning modules in "+
-                   d+":\n"+ e->get()+"\n");
-    }
+    if (strlen(e->get()))
+      report_debug("Compilation errors found while scanning modules in %s:\n%s\n", d, e->get());
+    
     e->print_warnings("Warnings while scanning modules in "+d+":");
     
     master()->set_inhibit_compile_errors(0);
@@ -3256,34 +3302,35 @@ void rescan_modules()
 {
   string file, path;
   mixed err;
+  
   report_notice("Scanning module directories for modules.\n");
   if (!allmodules) {
     allmodules=copy_value(somemodules);
   }
 
-  foreach(QUERY(ModuleDirs), path)
-  {
+  foreach (QUERY(ModuleDirs), path) {
     array err;
-    err = catch(scan_module_dir( path ));
-    if(err) {
-      report_error("While scanning module dir (\""+path+"\"): " +
-                   describe_backtrace(err) + "\n");
+    err = catch(scan_module_dir(path));
+    if (err) {
+      report_error("While scanning module dir (\"%s\"): %s\n",
+                   path, describe_backtrace(err));
     }
   }
+  
   catch {
     rm(QUERY(ConfigurationStateDir) + ".module_stat_cache");
     rm(QUERY(ConfigurationStateDir) + ".allmodules");
     Stdio.write_file(QUERY(ConfigurationStateDir) + ".module_stat_cache", encode_value(module_stat_cache));
     Stdio.write_file(QUERY(ConfigurationStateDir) + ".allmodules", encode_value(allmodules));
   };
-  report_notice("Done with module directory scan. Found "+
-                sizeof(allmodules)+" modules.\n");
+  
+  report_notice("Done with module directory scan. Found %d modules.\n",
+                sizeof(allmodules));
 }
 
 // ================================================= 
 // Parse options to Caudium. This function is quite generic, see the
 // main() function for more info about how it is used.
-
 private string find_arg(array argv, array|string shortform, 
                         array|string|void longform, 
                         array|string|void envvars, 
@@ -3292,44 +3339,38 @@ private string find_arg(array argv, array|string shortform,
   string value;
   int i;
 
-  for(i=1; i < (argv ? sizeof(argv) : 0); i++)
-  {
-    if(argv[i] && strlen(argv[i]) > 1)
-    {
-      if(argv[i][0] == '-')
-      {
-        if(argv[i][1] == '-')
-        {
+  for (i=1; i < (argv ? sizeof(argv) : 0); i++) {
+    if (argv[i] && strlen(argv[i]) > 1) {
+      if (argv[i][0] == '-') {
+        if (argv[i][1] == '-') {
           string tmp;
           int nf;
-          if(!sscanf(argv[i], "%s=%s", tmp, value))
-          {
-            if(i < sizeof(argv)-1)
+          
+          if (!sscanf(argv[i], "%s=%s", tmp, value)) {
+            if (i < sizeof(argv)-1)
               value = argv[i+1];
             else
               value = argv[i];
             tmp = argv[i];
             nf=1;
           }
-          if(arrayp(longform) && search(longform, tmp[2..]) != -1)
-          {
+          
+          if (arrayp(longform) && search(longform, tmp[2..]) != -1) {
             argv[i] = 0;
-            if(i < sizeof(argv)-1)
+            if (i < sizeof(argv)-1)
               argv[i+nf] = 0;
             return value;
-          } else if(longform && longform == tmp[2..]) {
+          } else if (longform && longform == tmp[2..]) {
             argv[i] = 0;
-            if(i < sizeof(argv)-1)
+            if (i < sizeof(argv)-1)
               argv[i+nf] = 0;
             return value;
           }
         } else {
-          if((arrayp(shortform) && search(shortform, argv[i][1..1]) != -1) 
-             || stringp(shortform) && shortform == argv[i][1..1])
-          {
-            if(strlen(argv[i]) == 2)
-            {
-              if(i < sizeof(argv)-1)
+          if ((arrayp(shortform) && search(shortform, argv[i][1..1]) != -1) 
+              || stringp(shortform) && shortform == argv[i][1..1]) {
+            if (strlen(argv[i]) == 2) {
+              if (i < sizeof(argv)-1)
                 value =argv[i+1];
               argv[i] = argv[i+1] = 0;
               return value;
@@ -3344,13 +3385,13 @@ private string find_arg(array argv, array|string shortform,
     }
   }
 
-  if(arrayp(envvars))
-    foreach(envvars, value)
-      if(getenv(value))
+  if (arrayp(envvars))
+    foreach (envvars, value)
+      if (getenv(value))
         return getenv(value);
   
-  if(stringp(envvars))
-    if(getenv(envvars))
+  if (stringp(envvars))
+    if (getenv(envvars))
       return getenv(envvars);
 
   return def;
@@ -3359,17 +3400,14 @@ private string find_arg(array argv, array|string shortform,
 // do the chroot() call. This is not currently recommended, since
 // caudium dynamically loads modules, all module files must be
 // available at the new location.
-
 private void fix_root(string to)
 {
-  if(getuid())
-  {
+  if (getuid()) {
     perror("It is impossible to chroot() if the server is not run as root.\n");
     return;
   }
 
-  if(!chroot(to))
-  {
+  if (!chroot(to)) {
     perror("Caudium: Cannot chroot to "+to+": ");
 #if constant(real_perror)
     real_perror();
@@ -3381,12 +3419,13 @@ private void fix_root(string to)
 
 void create_pid_file(string where)
 {
-  if(!where) return;
+  if (!where)
+    return;
   where = replace(where, ({ "$pid", "$uid" }), 
                   ({ (string)getpid(), (string)getuid() }));
 
   rm(where);
-  if(catch(Stdio.write_file(where, sprintf("%d\n%d", getpid(), getppid()))))
+  if (catch(Stdio.write_file(where, sprintf("%d\n%d", getpid(), getppid()))))
     perror("I cannot create the pid file ("+where+").\n");
 }
 
@@ -3397,8 +3436,7 @@ void create_pid_file(string where)
 void shuffle(object from, object to,
              object|void to2, function(:void)|void callback)
 {
-  if(!to2)
-  {
+  if (!to2) {
     object p = pipe();
     p->input(from);
     p->set_done_callback(callback);
@@ -3406,15 +3444,45 @@ void shuffle(object from, object to,
   } else {
     // Sad but we need Pipe.pipe here...
     object p = Pipe.pipe();
-    if (callback) p->set_done_callback(callback);
+    if (callback)
+      p->set_done_callback(callback);
     p->output(to);
-    if(to2) p->output(to2);
+    if (to2)
+      p->output(to2);
     p->input(from);
   }
 }
 
 
 static private int _recurse;
+
+private void __close_connections(function me)
+{ 
+  call_out(me, 5);
+  if (!_pipe_debug()[0]) {
+    roxen_perror("Exiting Caudium (all connections closed).\n");
+    stop_all_modules();
+#ifdef THREADS
+    stop_handler_threads();
+#endif /* THREADS */
+    add_constant("roxen", 0);	// Paranoia...
+    add_constant("caudium", 0);	// Paranoia...
+    exit(-1);	// Restart.
+    perror("Odd. I am not dead yet.\n");
+  }
+};
+
+private void __close_caudium()
+{
+  roxen_perror("Exiting Caudium (timeout).\n");
+  stop_all_modules();
+#ifdef THREADS
+  stop_handler_threads();
+#endif /* THREADS */
+  add_constant("roxen", 0);	// Paranoia...
+  add_constant("caudium", 0);	// Paranoia...
+  exit(-1); // Restart.
+}
 
 // FIXME: Ought to use the shutdown code.
 void exit_when_done()
@@ -3424,8 +3492,7 @@ void exit_when_done()
   perror("Interrupt request received. Exiting,\n");
   die_die_die=1;
 //   trace(9);
-  if(++_recurse > 4)
-  {
+  if (++_recurse > 4) {
     roxen_perror("Exiting Caudium (spurious signals received).\n");
     stop_all_modules();
 #ifdef THREADS
@@ -3441,39 +3508,15 @@ void exit_when_done()
   }
 
   // First kill off all listening sockets.. 
-  foreach(indices(portno)||({}), o)
-  {
-    catch { destruct(o); };
+  foreach (indices(portno)||({}), o) {
+    catch {
+      destruct(o);
+    };
   }
   
-  // Then wait for all sockets, but maximum 10 minutes.. 
-  function callout1 =
-    lambda(function me ) { 
-      call_out(me, 5);
-      if(!_pipe_debug()[0])
-      {
-        roxen_perror("Exiting Caudium (all connections closed).\n");
-        stop_all_modules();
-#ifdef THREADS
-        stop_handler_threads();
-#endif /* THREADS */
-        add_constant("roxen", 0);	// Paranoia...
-        add_constant("caudium", 0);	// Paranoia...
-        exit(-1);	// Restart.
-        perror("Odd. I am not dead yet.\n");
-      }
-    };
-  call_out(callout1, 0, callout1);
-  call_out(lambda() {
-             roxen_perror("Exiting Caudium (timeout).\n");
-             stop_all_modules();
-#ifdef THREADS
-             stop_handler_threads();
-#endif /* THREADS */
-             add_constant("roxen", 0);	// Paranoia...
-             add_constant("caudium", 0);	// Paranoia...
-             exit(-1); // Restart.
-           }, 600, 0); // Slow buggers..
+  // Then wait for all sockets, but maximum 10 minutes..
+  call_out(__close_connection, 0, __close_connections);
+  call_out(__close_caudium, 600, 0); // Slow buggers..
 }
 
 void exit_it()
@@ -3486,6 +3529,7 @@ void exit_it()
 void describe_all_threads()
 {
   array(mixed) all_backtraces;
+  
 #if constant(all_threads)
   all_backtraces = all_threads()->backtrace();
 #else /* !constant(all_threads) */
@@ -3494,12 +3538,8 @@ void describe_all_threads()
 
   werror("Describing all threads:\n");
   int i;
-  for(i=0; i < sizeof(all_backtraces); i++) {
-    werror(sprintf("Thread %d:\n"
-                   "%s\n",
-                   i+1,
-                   describe_backtrace(all_backtraces[i])));
-  }
+  for (i=0; i < sizeof(all_backtraces); i++)
+    werror("Thread %d:\n%s\n", i+1, describe_backtrace(all_backtraces[i]));
 }
 
 // And then we have the main function, this is the oldest function in
@@ -3529,15 +3569,15 @@ int main(array(string) argv)
     find_arg(argv, "d",({"config-dir","configuration-directory" }),
              ({ "CAUDIUM_CONFIGDIR", "CONFIGURATIONS" }), "../configurations");
 
-  if(configuration_dir[-1] != '/')
+  if (configuration_dir[-1] != '/')
     configuration_dir += "/";
-
 
   startpid = getppid();
   roxenpid = getpid();
 
   // Dangerous...
-  if(tmp = find_arg(argv, "r", "root")) fix_root(tmp);
+  if (tmp = find_arg(argv, "r", "root"))
+    fix_root(tmp);
 
   argv -= ({ 0 });
   argc = sizeof(argv);
@@ -3565,8 +3605,9 @@ int main(array(string) argv)
   // Open all the ports before changing uid:gid in case permanent_uid is set.
   enabling_configurations = 1;
   configurations = ({});
-  foreach(list_all_configurations(), mapping config) {
+  foreach (list_all_configurations(), mapping config) {
     array err;
+    
     if (err=catch { enable_configuration(config->name)->start(0,0,argv);  })
       werror("Error while loading configuration '%s':\n%s\n",
              config->name, describe_backtrace(err));
@@ -3581,28 +3622,23 @@ int main(array(string) argv)
 
   int id;
   string cp = QUERY(argument_cache_dir), na = "args";
-  if( QUERY(argument_cache_in_db) )
-  {
+  if (QUERY(argument_cache_in_db)) {
     id = 1;
     cp = QUERY(argument_cache_db_path);
     na = "argumentcache";
   }
+  
   mixed e;
   e = catch( argcache = ArgCache(na,cp,id) );
-  if( e )
-  {
-    report_error( "Failed to initialize the global argument cache:\n"
-                  + (describe_backtrace( e )/"\n")[0]+"\n");
+  if (e) {
+    report_error("Failed to initialize the global argument cache:\n%s\n",
+                 (describe_backtrace( e )/"\n")[0]+"\n");
   }
-  roxen_perror( "\n" );
-
-
+  roxen_perror("\n");
 
 #if 0
   foreach(configurations, object config)
-  {
     config->enable_all_modules(); 
-  };
 #endif
   enabling_configurations = 0;
 
@@ -3611,8 +3647,7 @@ int main(array(string) argv)
 // virtual server, perhaps the name should be changed internally as
 // well.. :-)
 
-  if(root)
-  {
+  if(root) {
     destruct(configuration_interface());
     configuration_interface()->build_root(root);
   }
@@ -3632,14 +3667,16 @@ int main(array(string) argv)
   create_js_context();
 
   // Signals which cause a restart (exitcode != 0)
-  foreach( ({ "SIGINT" }), string sig) {
+  foreach(({ "SIGINT" }), string sig) {
     catch { signal(signum(sig), exit_when_done); };
   }
   catch { signal(signum("SIGHUP"), reload_all_configurations); };
+
   // Signals which cause a shutdown (exitcode == 0)
-  foreach( ({ "SIGTERM" }), string sig) {
+  foreach (({ "SIGTERM" }), string sig) {
     catch { signal(signum(sig), shutdown); };
   }
+  
   // Signals which cause Caudium to dump the thread state
   foreach( ({ "SIGUSR1", "SIGUSR2", "SIGTRAP" }), string sig) {
     catch { signal(signum(sig), describe_all_threads); };
@@ -3661,14 +3698,13 @@ void|string diagnose_error(array from)
 // Called from the configuration interface.
 string check_variable(string name, mixed value)
 {
-  switch(name)
-  {
+  switch(name) {
       case "ConfigPorts":
         config_ports_changed = 1;
         break;
+        
       case "cachedir":
-        if(!sscanf(value, "%*s/caudium_cache"))
-        {
+        if (!sscanf(value, "%*s/caudium_cache")) {
           object node;
           node = (configuration_interface()->root->descend("Globals", 1)->
                   descend("Proxy disk cache: Base Cache Dir", 1));
@@ -3680,7 +3716,7 @@ string check_variable(string name, mixed value)
 
       case "ConfigurationURL":
       case "MyWorldLocation":
-        if(strlen(value)<7 || value[-1] != '/' ||
+        if (strlen(value)<7 || value[-1] != '/' ||
            !(sscanf(value,"%*s://%*s/")==2))
           return "The URL should follow this format: protocol://computer[:port]/";
         break;
