@@ -26,11 +26,11 @@ void PIKE_CONCAT(f_hash_,NAME)(INT32 args) { \
   struct pike_string *str;\
   int len, i;\
   if(args != 1 && sp[-1].type != T_STRING) {\
-    error("Invalid / incorrect args to hash_" #NAME ". Expected string.\n");\
+    Pike_error("Invalid / incorrect args to hash_" #NAME ". Expected string.\n");\
   }\
   hash = mhash_init(TYPE);\
   if(hash == MHASH_FAILED) {\
-    error("Failed to initialize hash.\n");\
+    Pike_error("Failed to initialize hash.\n");\
   }\
   mhash(hash, sp[-1].u.string->str,\
 	sp[-1].u.string->len << sp[-1].u.string->size_shift);\

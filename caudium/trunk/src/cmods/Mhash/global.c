@@ -25,12 +25,7 @@
 #include "global.h"
 RCSID("$Id$");
 
-#include "stralloc.h"
-#include "pike_macros.h"
-#include "module_support.h"
-#include "program.h"
-#include "error.h"
-#include "threads.h"
+#include "pexts.h"
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
@@ -55,7 +50,7 @@ void f_query_name(INT32 args)
   char *name;
   if(args == 1) {
     if(sp[-args].type != T_INT) {
-      error("Invalid argument 1. Expected integer.\n");
+      Pike_error("Invalid argument 1. Expected integer.\n");
     } 
     name = mhash_get_hash_name(sp[-args].u.integer);
     pop_n_elems(args);
@@ -66,7 +61,7 @@ void f_query_name(INT32 args)
       free(name);
     }
   } else {
-    error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
+    Pike_error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
   }
 }
  
@@ -98,7 +93,7 @@ void f_to_hex(INT32 args)
   struct pike_string *str;
   int len, i, e;
   if(args != 1 && sp[-1].type != T_STRING) {
-    error("Invalid / incorrect args to to_hex. Expected string.\n");
+    Pike_error("Invalid / incorrect args to to_hex. Expected string.\n");
   }
   len = sp[-1].u.string->len << sp[-1].u.string->size_shift;
   str = begin_shared_string(len*2);
