@@ -1902,6 +1902,11 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
   return "";
 }
 
+string tag_addprestate(string tag, mapping m, string q, object id)
+{
+  return "(" + sort(indices(id->prestate)) * "," + ")";
+} 
+  
 string tag_prestate(string tag, mapping m, string q, object id)
 {
   if(m->help) return "DEPRECATED: This tag is here for compatibility reasons only";
@@ -3181,6 +3186,7 @@ mapping query_container_callers()
            "allow":tag_if,
            "prestate":tag_prestate,
            "apre":tag_aprestate,
+	   "add_pre_state":tag_addprestate,
            "aconf":tag_aconfig,
            "aconfig":tag_aconfig,
            "deny":tag_deny,
