@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Removed usage of alloca in do_encode_stuff(). This give some segfault
+  on FreeBSD when called from _Caudium.http_encode_url(). SF Bug #902691.
+   (Xavier Beaudouin) 
 - Added Caudium.Crypto.urandom() function to wrap easyly the good random
   source according of pike version.
    (Xavier Beaudouin)
