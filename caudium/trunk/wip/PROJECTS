@@ -17,5 +17,11 @@ top directory of caudium with / marking the top.
  This is a Pike reimplementation of the shell start script currently used
  by Caudium.
 
++ /server/modules/tags/sqlupdate.pike    generic sql update function
+ generic function to write an array of mappings to an sql table
+ code taken from chris davies sqlformedit module.
+ this function could be added to the sqltags module,
+ or put in a place for generic helper functions.
+
 ---DESCRIPTIONS---[do not change this line]
 $Id$
