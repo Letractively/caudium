@@ -340,7 +340,7 @@ mapping handle_file_extension(object file, string ext, object id)
       throw(err);
     }
     id->do_not_disconnect = 1;
-    return http_pipe_in_progress();
+    return Caudium.HTTP.pipe_in_progress();
   }
 }
 #else

@@ -370,7 +370,7 @@ mapping find_file(string fi, object id)
 			connected, f, id, q, h+":"+p+"/"+f);
   }
   id->do_not_disconnect = 1;  
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 string info()

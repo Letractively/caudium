@@ -971,45 +971,12 @@ void internal_error(array err)
     if ( catch( file = caudium->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
         report_error("*** http_error object missing during internal_error() ***\n");
 	file =
-	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+	    Caudium.HTTP.low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
             "internal error in the internal error routine.</h1>" );
     }
 }
 
-constant errors =
-([
-  200:"200 OK",
-  201:"201 URI follows",
-  202:"202 Accepted",
-  203:"203 Provisional Information",
-  204:"204 No Content",
-  206:"206 Partial Content", // Byte ranges
-  
-  300:"300 Moved",
-  301:"301 Permanent Relocation",
-  302:"302 Temporary Relocation",
-  303:"303 Temporary Relocation method and URI",
-  304:"304 Not Modified",
-
-  400:"400 Bad Request",
-  401:"401 Access denied",
-  402:"402 Payment Required",
-  403:"403 Forbidden",
-  404:"404 No such file or directory.",
-  405:"405 Method not allowed",
-  407:"407 Proxy authorization needed",
-  408:"408 Request timeout",
-  409:"409 Conflict",
-  410:"410 This document is no more. It has gone to meet it's creator. It is gone. It will not be coming back. Give up. I promise. There is no such file or directory.",
-  416:"416 Requested range not satisfiable",
-  
-  500:"500 Internal Server Error.",
-  501:"501 Not Implemented",
-  502:"502 Gateway Timeout",
-  503:"503 Service unavailable",
-  
-  ]);
-
+#include <variables.h> // For errors mapping.
 
 void do_log()
 {
@@ -1105,7 +1072,7 @@ mapping handle_error_file_request(array err, int eid)
   if ( catch( file = caudium->http_error->handle_error( 500, "Internal Server Error",  format_backtrace(bt,eid)+(data ? "<hr noshade><pre>"+data+"</pre>" : ""), this_object() ) ) ) {
     report_error("*** http_error object missing during internal_error() ***\n");
     file =
-      http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+      Caudium.HTTP.low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
 		       "internal error in the internal error routine.</h1>" );
   }
   return file;
@@ -1331,11 +1298,11 @@ void send_result(mapping|void result)
       file = (mapping)tmperr;
     else {  // Fallback error handler.
       if(misc->error_code)
-        file = http_low_answer(misc->error_code, errors[misc->error]);
+        file = Caudium.HTTP.low_answer(misc->error_code, errors[misc->error]);
       else if(method != "GET" && method != "HEAD" && method != "POST")
-        file = http_low_answer(501,"Not implemented.");
+        file = Caudium.HTTP.low_answer(501,"Not implemented.");
       else 
-        file = http_low_answer(404,"Not found.");
+        file = Caudium.HTTP.low_answer(404,"Not found.");
     }
   } else {
     if((file->file == -1) || file->leave_me) 

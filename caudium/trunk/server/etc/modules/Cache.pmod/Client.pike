@@ -153,7 +153,7 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
 }
 
 //! Retrieve an object from the cache and write it directly to a Stdio.File
-//! object, which is handy for things like http_pipe_in_progress().
+//! object, which is handy for things like @[Caudium.HTTP.pipe_in_progress].
 //! Returns 1 if the object exists in the cache, and 0 if it's not.
 //!
 //! @param name

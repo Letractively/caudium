@@ -168,7 +168,7 @@ mixed find_file( string f, object id )
     servlet->service(id);
   }
 
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 mixed handle_file_extension(object o, string e, object id)
@@ -189,7 +189,7 @@ mixed handle_file_extension(object o, string e, object id)
     servlet->service(id);
   }
 
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 #else

@@ -1117,7 +1117,7 @@ int|mapping check_security(function a, object id, void|int slevel)
   
           case MOD_DENY: // deny ip=...
             if(level[1](id->remoteaddr))
-              return http_low_answer(403, "<h2>Access forbidden</h2>");
+              return Caudium.HTTP.low_answer(403, "<h2>Access forbidden</h2>");
             break;
 
           case MOD_USER: // allow user=...
@@ -1863,7 +1863,7 @@ void handle_precache(object id) {
 //!   Caudium Object id
 //!
 //! @returns 
-//!   object or data from http_low_answer function or 0 if error
+//!   object or data from @[Caudium.HTTP.low_answer] function or 0 if error
 //!
 //! @note
 //!   Non RIS implementation

@@ -112,6 +112,28 @@ string http_date(int t) {
    return Caudium.HTTP.date(t);
 }
 
+//! Compat call of Caudium.HTTP.res_to_string
+//! @deprecated
+string http_res_to_string(mapping file, object id) {
+   WCOMPAT2("Caudium.HTTP.res_to_string", "http_res_to_string");
+   return Caudium.HTTP.res_to_string(file, id);
+}
+
+//! Compat call of Caudium.HTTP.low_answer
+//! @deprecated
+mapping http_low_answer(int errno, string data, void|int dohtml) {
+   WCOMPAT2("Caudium.HTTP.low_answer", "http_low_answer");
+   return Caudium.HTTP.low_answer(errno, data, dohtml);
+} 
+
+//! Compat call of Caudium.HTTP.pipe_in_progress
+//! @deprecated
+mapping http_pipe_in_progress() {
+   WCOMPAT2("Caudium.HTTP.pipe_in_progress", "http_pipe_in_progress");
+   return Caudium.HTTP.pipe_in_progress();
+}
+
+
 // Some spider calls are not under spider module so here is some compat
 // things
 

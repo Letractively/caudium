@@ -105,8 +105,9 @@ mapping first_try(object id) {
     return http_redirect(QUERY(nastyurl));
   }
 
-  return http_low_answer( 403, QUERY(errmessage));
+  return Caudium.HTTP.low_answer( 403, QUERY(errmessage));
 }
+
 string status() {
 
   return(sprintf("%d surfer%s blocked.<br>\n", blocks, (blocks != 1) ? "s" : ""));

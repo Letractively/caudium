@@ -213,7 +213,7 @@ mixed handle_file_extension(Stdio.File file, string ext, object id)
 	id->my_fd->write("HTTP/1.0 200 OK\r\n");
 	id->my_fd->write(r);
 	id->my_fd->close();
-	return http_pipe_in_progress();
+	return Caudium.HTTP.pipe_in_progress();
        default:
 	return http_string_answer("SCRIPT ERROR: "
 				  "bad output mode configured.\n");

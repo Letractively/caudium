@@ -606,10 +606,10 @@ mixed find_file(string path, object id) {
       }
       break;
     case "PUT":
-      return http_low_answer(405, "Method not allowed");
+      return Caudium.HTTP.low_answer(405, "Method not allowed");
       break;
     default:
-      return http_low_answer(400, "Bad Request");
+      return Caudium.HTTP.low_answer(400, "Bad Request");
       break;
   }
 

@@ -127,7 +127,7 @@ void start()
 mapping first_try(object id)
 {
   return id->misc->_referrer_denied_request ?
-    http_low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id)) : 0;
+    Caudium.HTTP.low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id)) : 0;
 
 }
 
@@ -164,7 +164,7 @@ void precache_rewrite(object id)
 	   id->not_query, REFERRER||"empty",
 	   id->request_headers["user-agent"]||"unknown");
 #endif
-    //    return http_low_answer(403, QUERY(msg));
+    //    return Caudium.HTTP.low_answer(403, QUERY(msg));
     deny_counts++;			// Add some statistics
     
     NOCACHE(); // We don't want to cache negative responses

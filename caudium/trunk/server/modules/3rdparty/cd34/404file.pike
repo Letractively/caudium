@@ -83,6 +83,8 @@ mapping|int last_resort(object id)
     DEBUGLOG("in cache: "+QUERY(error404document));
     html = dbinfo[1];
   }
+  // FIXME: should we not use Caudium.HTTP.low_answer() with a 404 
+  //        on needed solutions... ?
   return http_rxml_answer(html, id, 0, "text/html");
 }
 

@@ -1059,7 +1059,7 @@ int is_touched(object id, string|mapping(string:mapping(string:mixed)) key)
 //     "delete_session" : memory_delete_session,
 //     "get_sessions_area" : memory_get_sessions_area
 //     "build_cookie" : build the cookie to set (to be used by the code
-//                      that returns http_pipe_in_progress)
+//                      that returns Caudium.HTTP.pipe_in_progress)
 // STORE
 //
 //  Params:

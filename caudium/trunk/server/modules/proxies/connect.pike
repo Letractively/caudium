@@ -208,7 +208,7 @@ mapping relay(object fid)
     async_connect(find_host(fid->not_query), p, connected, fid);
   else
     return http_string_answer(query("InvalidPort"));
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 mapping first_try(object fid)

@@ -148,7 +148,7 @@ mapping relay(object fid)
   fid -> do_not_disconnect = 1;
   
   async_connect(QUERY(relayh), QUERY(relayp), connected, fid->my_fd, fid );
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 mapping last_resort(object fid)

@@ -311,7 +311,7 @@ void done_with_put( array(object) id )
 {
 //  perror("Done with put.\n");
   id[0]->close();
-  id[1]->send_result(http_low_answer(201,""));
+  id[1]->send_result(Caudium.HTTP.low_answer(201,""));
   m_delete(putting, id[1]->my_fd);
   destruct(id[0]);
   destruct(id[1]->my_fd);
@@ -567,7 +567,7 @@ mixed find_file( string f, object id )
     id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
     TRACE_LEAVE("PUT: Pipe in progress");
     TRACE_LEAVE("PUT: Success so far");
-    return http_pipe_in_progress();
+    return Caudium.HTTP.pipe_in_progress();
     break;
 
   case "APPE":
@@ -638,7 +638,7 @@ mixed find_file( string f, object id )
     id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
     TRACE_LEAVE("APPE: Pipe in progress");
     TRACE_LEAVE("APPE: Success so far");
-    return http_pipe_in_progress();
+    return Caudium.HTTP.pipe_in_progress();
     break;
 
    case "CHMOD":
@@ -930,7 +930,7 @@ mixed find_file( string f, object id )
     privs = 0;
     deletes++;
     TRACE_LEAVE("DELETE: Success");
-    return http_low_answer(200,(f+" DELETED from the server"));
+    return Caudium.HTTP.low_answer(200,(f+" DELETED from the server"));
 
    default:
     TRACE_LEAVE("Not supported");

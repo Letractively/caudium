@@ -375,11 +375,11 @@ void send_result(mapping|void result)
       file = (mapping)tmperr;
     else {  // Fallback error handler.
       if(misc->error_code)
-        file = http_low_answer(misc->error_code, errors[misc->error]);
+        file = Caudium.HTTP.low_answer(misc->error_code, errors[misc->error]);
       else if(method != "GET" && method != "HEAD" && method != "POST")
-        file = http_low_answer(501,"Not implemented.");
+        file = Caudium.HTTP.low_answer(501,"Not implemented.");
       else 
-        file = http_low_answer(404,"Not found.");
+        file = Caudium.HTTP.low_answer(404,"Not found.");
     }
   } else {
     if((file->file == -1) || file->leave_me) 

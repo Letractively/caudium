@@ -478,7 +478,7 @@ mixed first_try(object id)
        to[5]==':' || to[6]==':')))
   {
     to=replace(to, ({ "\000", " " }), ({"%00", "%20" }));
-    return http_low_answer( 302, "You have been redirected!") 
+    return Caudium.HTTP.low_answer( 302, "You have been redirected!") 
       + ([ "extra_heads":([ "Location":to ]) ]);
   } else {
     id->misc->is_redirected = 1; // Prevent recursive internal redirects
