@@ -476,7 +476,9 @@ void start(int x, object conf)
     case "Jasper":
       if (!url_to_servlet["*.jsp"])
       {
-        codebase += glob_expand("java/lib/jasper/*.jar");
+        codebase += glob_expand("etc/classes/jasper/*.jar");
+        if(getenv("JAVA_HOME"))
+          codebase+=({getenv("JAVA_HOME") +"/lib/tools.jar"});
 
         mapping(string:mixed) data = ([ ]);
         url_to_servlet["*.jsp"] = "jasper_internal";
