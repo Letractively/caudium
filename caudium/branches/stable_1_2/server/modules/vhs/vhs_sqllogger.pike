@@ -166,7 +166,7 @@ void log(object id, mapping file)  {
 		    (string)id->not_query,
                     id->query?sprintf("'?%s'",(string)id->query):"NULL",
 		    (int)(file->error||200),
-		    time();
+		    time(),
 		    (string)id->misc->host,
 		    );
   
