@@ -1,3 +1,36 @@
+caudium (2:1.0.36-1) unstable; urgency=medium
+
+  * Latest upstream release. Changes:
+    - Fix for bug 450757 (SourceForge BTS): When calling parse_rxml() 
+      when using the XML compliant RXML parser, make sure to propagate 
+      and keep custom tags correctly.
+    - Removed old network neighbourhood code.
+    - Fixed bug in connection timeout code. When running in non-threaded
+      mode, long connections (ie large downloads) would be timed out
+      incorrectly.
+    - Fixed a couple of problem related to ssl3.
+    - Fixed <if variable> to work with scopes.
+    - Throw a bad request answer if the file contains unencoded spaces
+      (http2 protocol).
+    - Fixed bugs 432433 (SF) and 449140 (SF) (redirect module fixed)
+    - Fix to allow / in the name of modules and variables (bug 423435 /SF/).
+    - Always simplify path in low_get_file. This is added to prevent the
+      possibility of a bugs allowing access to files outside of the
+      configured web page directories. Please note that there are no known
+      such bugs in Caudium.
+    - Small bug fixed in UltraLog - when no extensions is specified,
+      supply a default list and avoid a runtime error. Reported bu Michael
+      Stenitzer.
+    - 123session backported from 1.1 source tree, with updated and modification
+      submitted by Chris Davies
+    - LDAP Tag and LDAP Auth now support pike 7.x Protocols.LDAP and have
+      a configurable version
+    - PiXSL now compiles on FreeBSD
+    - Supports updated with Opera 5.0 browser
+    - SQLuserdb backported from 1.1 with Chris Davies' modifications
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  6 Nov 2001 13:41:37 +0100
+
 caudium (2:1.0.35-16) unstable; urgency=low
 
   * Package now provides a virtual package called httpd-cgi - following
