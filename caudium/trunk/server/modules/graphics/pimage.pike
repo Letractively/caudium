@@ -244,7 +244,7 @@ class Constructors
 
   private static array (int) to_color(mixed in)
   {
-    if(stringp(in)) return parse_color(in);
+    if(stringp(in)) return Colors.parse_color(in);
     return ({ in, in, in });
   }
 
@@ -330,7 +330,7 @@ class Constructors
     void create(int t_offset,object bg,string fg,array(int)|void center, int|void len)
     {
       if(!fg) fg="black";
-      foreground = parse_color(fg);
+      foreground = Colors.parse_color(fg);
       background = bg;
       time_offset = t_offset;
       if(!center) center = ({ bg->xsize()/2, bg->ysize()/2 });
@@ -344,7 +344,7 @@ class Constructors
 
   array (int) bg()
   {
-    if(id->misc->defines) return parse_color(id->misc->defines->bg);
+    if(id->misc->defines) return Colors.parse_color(id->misc->defines->bg);
     return ({ 0xcc, 0xcc, 0xcc });
   }
 

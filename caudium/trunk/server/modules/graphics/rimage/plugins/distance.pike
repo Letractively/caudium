@@ -25,5 +25,5 @@ void render( mapping args, mapping this, string channel, object id, object m )
 {
   if(!this[channel]) return;
   this[channel]=
-    this[channel]->distanceq(@Colors.parse_color(args->color||"black"));
+    this[channel]->distanceq(@Colors.Colors.parse_color(args->color||"black"));
 }

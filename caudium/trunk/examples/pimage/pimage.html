@@ -88,7 +88,7 @@ object draw()
   // Generate a Roxen logotype image, scale it to 50%.
   roxen_image = Roxen();
   // Use white ink.
-  roxen_image->setcolor(@parse_color("darkgreen"));
+  roxen_image->setcolor(@Colors.parse_color("darkgreen"));
   // Add a white border around the roxen logotype
   roxen_image = roxen_image->copy(-2,-2,roxen_image->xsize()+2,roxen_image->ysize()+2);
   // Use black ink

@@ -22,6 +22,7 @@
 #include <module.h>
 inherit "module";
 inherit "caudiumlib";
+inherit "images";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Image converter";
@@ -37,7 +38,7 @@ void start()
 
 mapping generate_image( mapping args, object id )
 {
-  return caudium.low_load_image( args->src, id );
+  return low_load_image( args->src, id );
 }
 
 mapping find_internal( string f, object id )

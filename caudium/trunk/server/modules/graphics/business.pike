@@ -24,6 +24,7 @@
 //!  Draws various diagrams for data presentation purposes.
 //! inherits: module
 //! inherits: caudiumlib
+//! inherits: images.pike
 //! type: MODULE_PARSER | MODULE_LOCATION
 //! cvs_version: $Id$
 //
@@ -46,7 +47,7 @@ constant thread_safe=1;
 
 inherit "module";
 inherit "caudiumlib";
-import Array;
+inherit "images";
 
 constant module_type = MODULE_PARSER | MODULE_LOCATION;
 constant module_name = "Business Graphics";
@@ -167,12 +168,6 @@ constant module_doc  =
 "  <b>unit</b>           Name the unit.\n"
 "</pre>";
 
-#if constant(Image.image)
-#define OLDSTYLE
-#endif
-
-function create_pie, create_bars, create_graph;
-
 #ifdef BG_DEBUG
   mapping bg_timers = ([]);
 #endif
@@ -187,9 +182,6 @@ void start(int num, object configuration)
 {
   if (!loaded) {
     loaded = 1;
-    create_pie   = ((program)"create_pie")()->create_pie;
-    create_bars  = ((program)"create_bars")()->create_bars;
-    create_graph = ((program)"create_graph")()->create_graph;
     if (get_dir(query("cachedir")))
       foreach(get_dir(query("cachedir")), string file)
 	rm(query("cachedir")+file);
@@ -202,12 +194,6 @@ void start(int num, object configuration)
 
 void stop()
 {
-  /* Reload Pie, Bars and Graph */
-  mapping progs = master()->programs;
-  foreach(glob(combine_path(caudium->filename(this),"../*"), indices(progs)),
-          string to_delete)
-    m_delete(progs, to_delete);
-  loaded = 0;
   if (get_dir(query("cachedir")))
     foreach(get_dir(query("cachedir")), string file)
       rm(query("cachedir")+file);
@@ -509,7 +495,7 @@ string itag_colors(string tag, mapping m, string contents,
 
   string sep = m->separator || SEP;
   
-  res->colors = map(contents/sep, parse_color); 
+  res->colors = map(contents/sep, Colors.parse_color); 
 
   return "";
 }
@@ -638,9 +624,9 @@ string tag_diagram(string tag, mapping m, string contents,
     if (m->namesize)
       res->namesize=(int)m->namesize;
     if (m->namecolor)
-      res->namecolor=parse_color(m->namecolor);
+      res->namecolor=Colors.parse_color(m->namecolor);
     else
-      res->namecolor=parse_color(defines->fg);
+      res->namecolor=Colors.parse_color(defines->fg);
   }
 
   res->voidsep = m->voidseparator || m->voidsep;
@@ -656,19 +642,19 @@ string tag_diagram(string tag, mapping m, string contents,
     array a = m->tonedbox/",";
     if(sizeof(a) != 4)
       return syntax("tonedbox must have a comma separated list of 4 colors.");
-    res->tonedbox = map(a, parse_color);
+    res->tonedbox = map(a, Colors.parse_color);
   }
   else if (m->colorbg)
-    res->colorbg=parse_color(m->colorbg);
+    res->colorbg=Colors.parse_color(m->colorbg);
   
   if ((m->bgcolor)&&(m->notrans))
   {
-    res->colorbg=parse_color(m->bgcolor);
+    res->colorbg=Colors.parse_color(m->bgcolor);
     m_delete(m, "bgcolor");
   }
   else
     if (m->notrans)
-      res->colorbg=parse_color("white");
+      res->colorbg=Colors.parse_color("white");
   
   res->drawtype="linear";
 
@@ -683,16 +669,13 @@ string tag_diagram(string tag, mapping m, string contents,
    case "bars":
    case "barc":
      res->type = "bars";
-     res->subtype = "box";
      m_delete( res, "drawtype" );
      break;
    case "line":
-     res->type = "bars";
-     res->subtype = "line";
+     res->type = "line";
      break;
    case "norm":
-     res->type = "sumbars";
-     res->subtype = "norm";
+     res->type = "norm";
      break;
    case "grap":
      res->type = "graph";
@@ -730,8 +713,8 @@ string tag_diagram(string tag, mapping m, string contents,
   if ( !res->data || !sizeof(res->data))
     return syntax("No data for the diagram");
 
-  res->bg = parse_color(m->bgcolor || defines->bg || "white");
-  res->fg = parse_color(m->textcolor || defines->fg || "black");
+  res->bg = Colors.parse_color(m->bgcolor || defines->bg || "white");
+  res->fg = Colors.parse_color(m->textcolor || defines->fg || "black");
 
   if(m->center) res->center = (int)m->center;
   if(m->eng) res->eng=1;
@@ -741,9 +724,9 @@ string tag_diagram(string tag, mapping m, string contents,
   res->legendfontsize = (int)m->legendfontsize || res->fontsize;
   res->labelsize      = (int)m->labelsize || res->fontsize;
 
-  if(m->labelcolor) res->labelcolor=parse_color(m->labelcolor || defines->fg);
-  res->axcolor   = parse_color(m->axcolor || defines->fg);
-  res->gridcolor = parse_color(m->gridcolor || defines->fg);
+  if(m->labelcolor) res->labelcolor=Colors.parse_color(m->labelcolor || defines->fg);
+  res->axcolor   = Colors.parse_color(m->axcolor || defines->fg);
+  res->gridcolor = Colors.parse_color(m->gridcolor || defines->fg);
   res->linewidth = m->linewidth || "2.2";
   res->axwidth   = m->axwidth || "2.2";
 
@@ -985,23 +968,14 @@ mapping find_file(string f, object id)
     }
   } else if(res->tonedbox) {
     m_delete( res, "bgcolor" );
-#ifdef OLDSTYLE
-    res->image = Image.image(res->xsize, res->ysize)->
-      tuned_box(0, 0, res->xsize, res->ysize, res->tonedbox);
-#else
     res->image = Image.Image(res->xsize, res->ysize)->
       tuned_box(0, 0, res->xsize, res->ysize, res->tonedbox);
-#endif    
   }
   else if (res->colorbg)
   {
     back=0; //res->bgcolor;
     m_delete( res, "bgcolor" );
-#ifdef OLDSTYLE
-    res->image = Image.image(res->xsize, res->ysize, @res->colorbg);
-#else
     res->image = Image.Image(res->xsize, res->ysize, @res->colorbg);
-#endif
   } 
   /*else if (res->notrans)
     {
@@ -1011,30 +985,34 @@ mapping find_file(string f, object id)
   */
   
   diagram_data = res;
-#if constant(Image.image)
-  object(Image.image) img;
-#else
   Image.Image img;
-#endif
+
   if(res->image)
     diagram_data["image"] = res->image; //FIXME: Why is this here?
 
 #ifdef BG_DEBUG
   bg_timers->drawing = gauge {
 #endif
-
-  switch(res->type) {
-   case "pie":
-     img = create_pie(diagram_data)["image"];
-     break;
-   case "bars":
-   case "sumbars":
-     img = create_bars(diagram_data)["image"];
-     break;
-   case "graph":
-     img = create_graph(diagram_data)["image"];
-     break;
-  }
+    switch(diagram_data->type) {
+    case "pie":
+      img = Graphics.Graph.pie(diagram_data);
+      break;
+    case "bars":
+      img = Graphics.Graph.bars(diagram_data);
+      break;
+    case "sumbars":
+      img = Graphics.Graph.bars(diagram_data);
+      break;
+    case "norm":
+      img = Graphics.Graph.norm(diagram_data);
+      break;
+    case "line":
+      img = Graphics.Graph.line(diagram_data);
+      break;
+    case "graph":
+      img = Graphics.Graph.graph(diagram_data);
+      break;
+    }
 #ifdef BG_DEBUG
   };
   if (diagram_data->bg_timers)
@@ -1049,38 +1027,14 @@ mapping find_file(string f, object id)
 	   Image.colortable(img)->nodither();
   }
 
-//   if (res->image)
-//   {
-//     werror("blablasdfbsdfgbdfgb");
   if (res->turn)
     img=img->rotate_ccw();
 	
-//   if (back)
-//     return http_string_answer(
-//       Image.GIF.encode( img,
-// 			Image.colortable( 6,6,6,
-// 					  ({0,0,0}),
-// 					  ({255,255,255}),
-// 					  39)->floyd_steinberg(), 
-// 			@back ),
-//       "image/gif");  
-//     else
-//       return http_string_answer(
-// 	Image.GIF.encode( img,
-// 			  Image.colortable( 6,6,6,
-// 					    ({0,0,0}),
-// 					    ({255,255,255}),
-// 					    39)->floyd_steinberg() ),
-// 	"image/gif");
-//   }
-//   else
-//   {
 #ifdef BG_DEBUG
   if(id->prestate->debug)
     werror("Timers: %O\n", bg_timers);
 #endif
-  if(!ct) ct = Image.colortable(img)->nodither();
-
+  if(!ct) ct = Image.Colortable(img)->nodither();
 
   //NU: Save the created gif as <f>.gif!
 
