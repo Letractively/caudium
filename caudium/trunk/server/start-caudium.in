@@ -761,7 +761,9 @@ array get_servers() {
   }
   foreach(config_dir->list_files(), mapping cf)
   {
-    werror("looking at the configuration file " + cf->name + "\n");
+    // we can skip global variables, as it won't have a virtual server
+    if(cf->name=="Global_Variables") continue;
+
     object cfr=Config.Files.File(config_dir, cf->name);
     cfr->parse();
     mapping cfg=cfr->retrieve_region("spider#0");
