@@ -1244,7 +1244,7 @@ static string MKPORTKEY(array(string) p)
   }
 }
 
-//! Holds all the information about the config ports.
+// Holds all the information about the config ports.
 private mapping(string:object) configuration_ports = ([]);
 
 // Used by openports.pike
@@ -1743,8 +1743,8 @@ object enable_configuration(string name)
 }
 
 
-//! Return the URL of the configuration interface. This is not as easy
-//! as it sounds, unless the administrator has entered it somewhere.
+// Return the URL of the configuration interface. This is not as easy
+// as it sounds, unless the administrator has entered it somewhere.
 public string config_url(void|object id)
 {
   int p;
@@ -3162,8 +3162,8 @@ void rescan_modules()
                 sizeof(allmodules));
 }
 
-//! Parse options to Caudium. This function is quite generic, see the
-//! main() function for more info about how it is used.
+// Parse options to Caudium. This function is quite generic, see the
+// main() function for more info about how it is used.
 private string find_arg(array argv, array|string shortform, 
                         array|string|void longform, 
                         array|string|void envvars, 
@@ -3230,9 +3230,9 @@ private string find_arg(array argv, array|string shortform,
   return def;
 }
 
-//! do the chroot() call. This is not currently recommended, since
-//! caudium dynamically loads modules, all module files must be
-//! available at the new location.
+// do the chroot() call. This is not currently recommended, since
+// caudium dynamically loads modules, all module files must be
+// available at the new location.
 private void fix_root(string to)
 {
   if (getuid()) {
