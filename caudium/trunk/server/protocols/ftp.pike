@@ -3645,7 +3645,7 @@ class FTPSession
     conf = c;
 
     master_session = RequestID();
-    master_session->remoteaddr = Caudium.parse_address(fd->query_address());
+    master_session->remoteaddr = (fd->query_address()/" ")[0];
     master_session->conf = c;
     master_session->my_fd = fd;
     ::create(fd, got_command, 0, con_closed, ([]));
