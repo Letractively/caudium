@@ -50,6 +50,7 @@ ras	image/x-cmu-raster
 ras	image/cmu-raster
 rgb	image/x-rgb
 rs	image/x-sun-raster
+svg	image/svg+xml
 tga	image/x-targa
 tif	image/tiff
 tiff	image/tiff
