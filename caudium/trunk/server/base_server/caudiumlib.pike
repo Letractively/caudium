@@ -2187,7 +2187,8 @@ array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
 //! @param p
 //!   The name of program to unload
 //! @note
-//!   Used often in development to reload inherited module. Non RIS call.
+//!   Convenience function to ease reloading of inherited modules.
+//!   Usefull for module development. Non RIS call.
 void unload_program(string p)
 {
   m_delete(master()->programs,search(master()->programs,(program)p));
