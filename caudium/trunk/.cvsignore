@@ -8,10 +8,10 @@ config.log
 config.status
 config.h.in
 logs
-ulpc
 configure
 build
 local
 VERSION
 commercial_modules
 make_vpath
+smartlink
