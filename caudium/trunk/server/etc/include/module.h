@@ -55,7 +55,7 @@
 #define VAR_MORE          512
 
 // Fast but unreliable.
-#define QUERY(var)	(variables[#var][VAR_VALUE] ? variables[#var][VAR_VALUE] : 0)
+#define QUERY(var)	(variables[#var] ? variables[#var][VAR_VALUE] : 0)
 
 // Like query, but for global variables.
 #define GLOBVAR(var) caudium->variables[#var][VAR_VALUE]
