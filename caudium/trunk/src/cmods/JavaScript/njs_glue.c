@@ -37,7 +37,11 @@ void push_js_type(JSType val) {
   unsigned int i;
   switch(val.type) {
    case JS_TYPE_UNDEFINED:
+    /*     printf("pushed undefined.\n"); */
+     push_int(0);
+    break;
    case JS_TYPE_NULL:
+    /*     printf("pushed null.\n");*/
     push_int(0);
     break;
    case JS_TYPE_BOOLEAN:
