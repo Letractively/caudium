@@ -66,43 +66,7 @@ AH_TOP([
 
 AH_BOTTOM([
 
-/*
- * Local blacklist of alloca
- */
-#ifdef __FreeBSD__
-# undef HAVE_ALLOCA
-# undef HAVE_ALLOCA_H
-#endif
-
-#ifdef __NetBSD__
-# undef HAVE_ALLOCA
-# undef HAVE_ALLOCA_H
-#endif
-
-#ifdef __OpenBSD__
-# undef HAVE_ALLOCA
-# undef HAVE_ALLOCA_H
-#endif
-
-#ifdef __APPLE__
-# undef HAVE_ALLOCA
-# undef HAVE_ALLOCA_H
-#endif
-
-/*
- * For INLINE with alloca
- */
-#ifndef HAVE_ALLOCA
-# ifndef __FreeBSD__
-#  ifndef __OpenBSD__
-#   ifndef __NetBSD__
-#    ifndef __APPLE__
-#     define DO_INLINE
-#    endif
-#   endif
-#  endif
-# endif
-#endif
+#include "alloca_klundge.h"
 
 #endif /* CAUDIUM_MACHINE_H */
 ])
