@@ -944,6 +944,7 @@ int main(int argc, array(string) argv)
   add_constant("mkdirhier", Stdio.mkdirhier);
   add_constant("http_decode_string", _Roxen.http_decode_string);
   add_constant("html_encode_string", _Roxen.html_encode_string);
+  add_constant("http_encode_string", Protocols.HTTP.encode_string);
 
   add_constant("mark_fd", mark_fd);
 
