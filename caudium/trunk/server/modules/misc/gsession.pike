@@ -119,7 +119,8 @@ void create()
            "session id");
     
     defvar("secure", 0, "Cookies: Secure Cookies", TYPE_FLAG,
-           "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
+           "If used, cookies will be flagged as 'Secure' (RFC 2109). It means that the cookie "
+           "will be read/set only if the connection is over a secure channel (SSL/TLS).");
 
     defvar("cookienorewrite", 1, "Cookies: no URI rewrite", TYPE_FLAG,
            "If used, the URIs won't be rewritten to include the session id "
@@ -592,19 +593,27 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
 {
     string   query;
     mapping  hvars = ([]);
-
+    int      do_hidden = 1;
+    
     alloc_session(id);
     
     if (args && args->action) {
-        if (sscanf(args->action, "%*s?%s", query) == 2)
-            Caudium.parse_query_string(query, hvars);
+        if (!args->method || (args->method && lower_case(args->method) != "post")) {
+            if (sscanf(args->action, "%*s?%s", query) == 2)
+                Caudium.parse_query_string(query, hvars);
 
-        if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
-            if (!sizeof(hvars))
-                args->action = sprintf("%s?%s=%s", args->action, SVAR, id->misc->session_id);
-            else
-                args->action = sprintf("%s&%s=%s", args->action, SVAR, id->misc->session_id);
+            if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite)))) {
+                if (!sizeof(hvars))
+                    args->action = sprintf("%s?%s=%s", args->action, SVAR, id->misc->session_id);
+                else
+                    args->action = sprintf("%s&%s=%s", args->action, SVAR, id->misc->session_id);
+                do_hidden = 0;
+            }
+        }
     }
+
+    contents = sprintf("<input type='hidden' name='%s' value='%s'>",
+                       SVAR, id->misc->session_id) + contents;
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
 }
