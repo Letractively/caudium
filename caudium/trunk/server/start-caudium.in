@@ -24,6 +24,7 @@
  *   Marek Habersack <grendel@caudium.net>
  *   Bill Welliver <hww3@riverweb.com>
  *   David Gourdelier <vida@caudium.net>
+ *   Bertrand Lupart <bertrand@caudium.net>
  *
  * License: MPL/LGPL
  * 
@@ -143,6 +144,112 @@ mixed cs_callout;
 
 // object for the watchdog
 object conn;
+
+
+class SiteChecker
+{
+	string url;
+	int port;
+	mixed conn;
+	mixed timeout_callout;
+
+	//! Constructor for the SiteCheck object
+	//!
+	//! @param _url
+	//! The URL of the site to check
+	//!
+	//! @param _port
+	//! The port of the site to check
+	void create(string _url, int _port)
+	{
+		url = _url;
+		port = _port;
+		conn = Stdio.File();
+	}
+
+	//! Runs an HTTP GET on the site
+	//! 
+	void check()
+	{
+		if(!conn->connect(url, port))
+		{
+			flex_write("Unable to connect to " + url + ":" + (string)port + "\n");
+			in_check=0;
+			// if we're running, we need to be kicked, otherwise it will get
+			// restarted at the next check of the starter. 
+
+			int proc_status = proc->status();
+			flex_write("proc->status: "+proc_status+"\n");
+
+			if(proc && proc->status()==1)
+			{
+				flex_write("Killing Caudium...\n");
+				// try to make caudium describing all the threads
+				proc->kill(signum("SIGTRAP"));
+				proc->kill(signum("SIGKILL"));
+			}
+			else
+			{
+				flex_write("Not killing Caudium because we are not running\n");
+			}
+		}
+
+		// let's send the request and wait for a response.
+		flex_write("GET request to "+url+" "+(string)port+"\n");
+
+		conn->set_nonblocking();
+		conn->set_read_callback(get_response_received);
+		conn->write("GET / HTTP/1.0\r\n");
+		conn->write("Host: "+url+"\r\n");
+		conn->write("User-Agent: Caudium_Watchdog ("+(string)getpid()+") (Pike/"+pikever+" "+CaudiumVersion.real_version+")\r\n");
+		conn->write("\r\n");
+		timeout_callout=call_out(check_timedout, (int)(watchdog_params->timeout));
+	}
+
+	//! Callback called when some data is received
+	void get_response_received(mixed id, string data)
+	{
+		// we are now not at the first request.
+		first_ping=0;
+		in_check=0;
+		// did we get the expected response?
+		if(sizeof(data))
+		{
+			// request was successful.
+			flex_write("Got response for GET on "+url+":"+(string)port+"\n");
+			remove_call_out(timeout_callout);
+			conn->close();
+			conn=0;
+		}
+		else  // we got no response. kill the process.
+		{
+			flex_write("Got no response for GET on "+url+":"+(string)port+"\n");
+			conn->close();
+			conn=0;
+			kill_caudium();
+		}
+	}
+
+	//! Callout method called in case the connection to the site did timeout
+	//! 
+	//! If called, this method kills Caudium
+	void check_timedout()
+	{
+		conn->close();
+		conn=0;
+
+		flex_write("Timeout on "+url+":"+port+". Killing Caudium...\n");
+
+		in_check=0;
+
+		kill_caudium();
+
+		// remove any of the check call outs.
+		if(timeout_callout)
+			remove_call_out(timeout_callout);
+	}
+}
+
 
 int first_ping=1;
 
@@ -391,6 +498,7 @@ array parse_arguments(array(string) argv)
 
 int main(int argc, array(string) argv)
 {
+
   // first, copy argv to a safe place.
   passed_args=copy_value(argv);
   // next, change into the directory that start is living in.
@@ -897,12 +1005,16 @@ void get_watchdog_params()
 
      if(cfg->watchdog_timeout)
        watchdog_params->timeout=cfg->watchdog_timeout;
+
+     if(cfg->watchdog_method)
+		   watchdog_params->method=cfg->watchdog_method;
+
   }
 
   array srvrs=get_servers() || ({});
-  if(srvrs && sizeof(srvrs))
-    watchdog_params->site=srvrs[0];
- 
+	
+	watchdog_params->sites = srvrs;
+
   // try to avoid having multiple loops of get_watchdog_params going.
   remove_call_out(get_watchdog_params);
   call_out(get_watchdog_params, 7200);
@@ -984,7 +1096,7 @@ void watchdog_on()
   watchdog_off();
 
   get_watchdog_params();
-  check_site();
+  check_sites();
 }
 
 void watchdog_off()
@@ -998,7 +1110,7 @@ void watchdog_off()
 
   do
   {
-    rco=zero_type(remove_call_out(check_site));
+    rco=zero_type(remove_call_out(check_sites));
   } while (rco!=1);
 
   do
@@ -1026,31 +1138,48 @@ void start_watchdog()
 
 int in_check=0;
 
-void check_site()
+void check_sites()
 {
+	switch(watchdog_params->method)
+	{
+		case "get":
+			check_using_get();
+			break;
 
+		default:
+			check_using_ping();
+	}
+}
+
+// Check site using PING
+void check_using_ping()
+{
   if(in_check)
     flex_write("Watchdog is already in a check... skipping.\n");
 
-  if(watchdog_params->site && !in_check)
+  if(watchdog_params->sites && !in_check)
   {
     in_check=1;
     // we have a site to check.    
     conn=Stdio.File();
    
     // do we have a valid server and port?
-    if(!(watchdog_params->site[0] && watchdog_params->site[1])) 
+    if(!(watchdog_params->sites[0][0] && watchdog_params->sites[0][1])) 
       return;
 
     // if so, can we connect?
-    if(!conn->connect(watchdog_params->site[0], 
-        (int)(watchdog_params->site[1])))
+    if(!conn->connect(watchdog_params->sites[0][0], 
+        (int)(watchdog_params->sites[0][1])))
     {
-      flex_write("Unable to connect to " + watchdog_params->site[0] + ":" 
-        + watchdog_params->site[1] + "\n");       
+      flex_write("Unable to connect to " + watchdog_params->sites[0][0] + ":" 
+        + watchdog_params->sites[0][1] + "\n");       
       in_check=0;
       // if we're running, we need to be kicked, otherwise it will get
       // restarted at the next check of the starter. 
+			int proc_status = proc->status();
+			flex_write("proc->status(): "+proc_status+"\n");	
+			
+      //if(proc && proc->status()==1) 
       if(proc && proc->status()==1) 
       {
         flex_write("Killing Caudium...\n");
@@ -1062,16 +1191,54 @@ void check_site()
     }
     // let's send the request and wait for a response.
     conn->set_nonblocking();
-    conn->set_read_callback(response_received);
+    conn->set_read_callback(ping_response_received);
     conn->write("PING\r\n");
     cs_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
   }
   else
    flex_write("Can't get a site to connect to: Not starting watchdog\n");
-    
 }
 
-void response_received(mixed id, mixed data)
+// Check site using GET
+void check_using_get()
+{
+  if(in_check)
+    flex_write("Watchdog is already in a check... skipping.\n");
+
+  if(watchdog_params->sites && !in_check)
+  {
+    in_check=1;
+    // we have a site to check.    
+
+		int current_site = 0;
+ 
+		foreach(watchdog_params->sites, array site)
+		{
+			flex_write("Checking #"+current_site+" "+site[0]+":"+site[1]+"\n");
+
+    	// do we have a valid server and port?
+    	if(!(site[0] && site[1])) 
+			{
+				flex_write("No server or not port, not checking\n");
+      	continue;
+			}
+
+			object site_checker = SiteChecker(site[0], site[1]);
+			site_checker->check();
+
+			current_site++;
+  	}
+		call_out(check_sites, watchdog_params->timer);
+	}
+ 	else
+	{
+ 	 	flex_write("Can't get a site to connect to: Not starting watchdog\n");
+	}
+}
+
+
+//! Handle data received from watchdog's PING request
+void ping_response_received(mixed id, mixed data)
 {
   // we are now not at the first request.
   first_ping=0;
@@ -1087,7 +1254,7 @@ void response_received(mixed id, mixed data)
     conn=0;
 
     // restart the watchdog.
-    call_out(check_site, watchdog_params->timer);
+    call_out(check_sites, watchdog_params->timer);
   }
   else  // we got something else. kill the process.
   {
@@ -1098,6 +1265,7 @@ void response_received(mixed id, mixed data)
   }
 }
 
+//! Kill Caudium
 void kill_caudium()
 {
   // kill the Caudium process with extreme prejudice
@@ -1110,7 +1278,6 @@ void kill_caudium()
 		sleep(2);
     proc->kill(signum("SIGKILL"));
   }
-
 }
 
 void check_timedout()
@@ -1131,5 +1298,5 @@ void check_timedout()
 
 void flex_write(string s)
 {
-  stderr->write(s);
+  stderr->write("Watchdog: "+s);
 }
