@@ -6,12 +6,9 @@ that is missing, but here is a list of packages that you will most likely
 have to install yourself.
 
 Required Packages:
-  Pike 7.0:
-    You will need version 7.0.268 or better.  Do not use the official
-    7.0.78 available from pike.roxen.com, as it has bugs that affect
-    Caudium's stability and performance.  Grab a CVS snapshot of Pike
-    from http://caudium.net/download/snapshot.html until a newer
-    version is officially released.
+  Pike 7.2:
+    You will need version 7.2.197 or better. Caudium 1.3 will not be
+    able to run with older pike (eg pike 7.0 or 0.6).
 
 Optional Packages (recommended)
   Sablotron (requires expat)
@@ -46,7 +43,7 @@ Optional Packages (recommended)
 
 ----------------------------------------------------------------------------
 
-Installing Caudium 1.2 from source:
+Installing Caudium 1.3 from source:
 +++++++++++++++++++++++++++++++++++
 
   1. Get the source server package.
@@ -117,8 +114,8 @@ Installing Caudium 1.2 from source:
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.0.10.tar.gz
-bash$ cd caudium-1.0.10
+bash$ tar xzf caudium-1.3.1.tar.gz
+bash$ cd caudium-1.3.1
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
