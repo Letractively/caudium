@@ -124,10 +124,43 @@ static string print_developer(string dev, array devdata, int full)
     return (ret + info);
 }
 
-// Gotta read Calendar docs for that to work first :))
+static string birthday_text(array(string) dev, object cal)
+{
+    string      ret = "";
+    
+    if (dev[0] != "")
+	ret += dev[0];
+    else if (dev[1] != "")
+	ret += dev[1];
+    else
+	ret += "Somebody";
+    
+    ret += "'s birthday today! It was on " + cal->dateofyear();
+    
+    if (dev[3])
+	ret += " in " + dev[3];
+	
+    return ret;
+}
+
 static string birthday_notify()
 {
-    return "";
+    object cal;
+    object today = Calendar.ISO.Day();
+    
+    string ret = "";
+        
+    foreach(indices(developers), string dev) {
+	cal = Calendar.ISO.parse("%Y-%M-%D", developers[dev][2]);
+	
+	if (!cal)
+	    continue;
+	    
+	if (cal->iso_name() == today->iso_name())
+	    ret += birthday_text(developers[dev], cal);
+    }
+	
+    return ret;
 }
 
 string tag_developer( string tag, 
@@ -151,9 +184,9 @@ string tag_developer( string tag,
 	if (developers[attr->name])
 	    ret += print_developer(attr->name, developers[attr->name], 1);
     } else if (attr->birthday) {
-	if (attr->birthday == "notify")
-	    birthday_notify();
-	else {
+	if (attr->birthday == "notify") {
+	    ret += birthday_notify();
+	} else {
 	    ret += "<ul>\n";
 	    foreach(indices(developers), string dev)
 		if (developers[dev][2] != "")
