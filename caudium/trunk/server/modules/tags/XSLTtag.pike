@@ -69,7 +69,8 @@ void create()
 
 string container_xslt(string tag, mapping args, string xml, object id)
 {
-  string xsl, type, key, res;
+  string xsl, type, key;
+  string|mapping res;
   if(!args->stylesheet) args->stylesheet = QUERY(stylesheet);
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
@@ -113,7 +114,24 @@ string container_xslt(string tag, mapping args, string xml, object id)
     res = PiXSL.parse(xsl, xml, args->baseuri);
   else 
     res = PiXSL.parse(xsl, xml);
-  if(!res) return  "<false>";
+  if(!res)
+    return  "<b>ERROR:</b> XSLT Parsing failed with unknown error.<false>";
+  else if(mappingp(res)) {
+    if(!res->URI) res->URI = "unknown file";
+    if(search(res->URI, "xsl") != -1)
+      res->URI = "XSLT input <i>"+args->stylesheet+"</i>";
+    if(search(res->URI, "xml") != -1)
+      res->URI = "XML source data";
+    return 
+      sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
+	      "line %s in %s:<br>\n%s<br>\n<false>",
+	      res->level||upper_case(res->msgtype||"ERROR"), 
+	      res->module ? res->module + " " : "",
+	      res->code || "???",
+	      res->line || "???",
+	      res->URI || "unknown file",
+	      res->msg || "Unknown error");
+  }
   return res+"<true>";
 }
 
