@@ -215,7 +215,7 @@ string retrieve(object id, string name, string|void lang)
 {
     if (!name || name == "")
         return "";
-
+    
     if (!module_screens[name])
         return "<!-- No screen named '" + name + "' found -->\n";
 
@@ -223,7 +223,7 @@ string retrieve(object id, string name, string|void lang)
     if (finfo[0] == "")
         return "<!-- no file for screen '" + name + "' -->";
     
-    if (finfo[1] > (QUERY(misc_max_size) * 1024))
+    if (finfo[1] > (QUERY(misc_max_fsize) * 1024))
         return sprintf("<!-- Screen file '%s' is too big (allowed max is %dKb)\n -->",
                            module_screens[name], QUERY(misc_max_size));
     
@@ -234,7 +234,11 @@ string retrieve(object id, string name, string|void lang)
     string fdata = f->read();
     f->close();
 
-    mapping rdata = SSTORE(id)[name];
+    mapping rdata = 0;
+
+    if (SSTORE(id) && SSTORE(id)[name])
+        rdata = SSTORE(id)[name];
+    
     if (rdata) {
         array(array(string)) fromto = make_replace_array(rdata);
 

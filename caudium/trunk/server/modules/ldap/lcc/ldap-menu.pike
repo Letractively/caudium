@@ -30,7 +30,7 @@ inherit "caudiumlib";
 #define SMENUAREA(_id_) SDATA(_id_)->menus
 #define SMENU(_id_, _p_) SMENUAREA(_id_)[_p_]
 
-constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
+constant module_type = MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "LDAP: Menu module for the Command Center";
 constant module_doc  = "Module that manages all the menu screens for the LCC.";
 
@@ -245,9 +245,7 @@ private multiset(string) anchor_attr = (<
 //
 string tag_lcc_menu(string tag,
                     mapping args,
-                    object id,
-                    object file,
-                    mapping defines)
+                    object id)
 {
     string ret = "<a ";
 
@@ -287,17 +285,17 @@ string tag_lcc_menu(string tag,
 
 string tag_lcc_menus(string tag,
                      mapping args,
-                     object id,
-                     object file,
-                     mapping defines)
+                     object id)
 {
     return make_all_menus(id, SUSER(id));
 }
 
 mapping query_tag_callers()
 {
-    return ([
-        "lcc_menu" : tag_lcc_menu,
-        "lcc_menus" : tag_lcc_menus
+    mapping tags = ([
+        QUERY(provider_prefix) + "_menu" : tag_lcc_menu,
+        QUERY(provider_prefix) + "_menus" : tag_lcc_menus
     ]);
+    
+    return tags;
 }
