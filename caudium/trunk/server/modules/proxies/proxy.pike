@@ -588,7 +588,7 @@ mapping find_file( string f, object id )
   host = lower_case(host);
   sscanf(host, "%*s@%s", host);
   id->misc->proxyhost = host; // Used if the host is unknown.
-  if(tmp = Caudium.proxy_auth_needed(id))
+  if(tmp = Caudium.HTTP.proxy_auth_needed(id))
     return tmp;
 
   if(!file) file="";

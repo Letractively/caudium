@@ -26,7 +26,8 @@ static array(mapping) image_types =
     (["ext": "png","type":"image/png"]),
     (["ext": "jpg","type":"image/jpeg"]),
     (["ext":"jpeg","type":"image/jpeg"]),
-    (["ext": "xcf","type":"image/x-xcf"])
+    (["ext": "xcf","type":"image/x-xcf"]),
+    (["ext": "ico","type":"image/x-icon"]),
 });
 
 private Stdio.File
