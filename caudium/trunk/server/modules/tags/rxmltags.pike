@@ -3202,12 +3202,41 @@ string tag_fsize(string tag, mapping args, object id)
     return (string)strlen(s);
 }
 
+string tag_remoteip(string tag, mapping args, object id)
+{
+    return id->remoteaddr;
+}
+
+string tag_pikeversion(string tag, mapping args, object id)
+{
+    string  pver = version();
+    int     major, minor, release;
+    
+    if (!args || !sizeof(args))
+        return pver;
+
+    sscanf(pver, "Pike v%d.%d release %d", major, minor, release);
+    if (args->major)
+        return (string)major;
+
+    if (args->minor)
+        return (string)minor;
+
+    if (args->release)
+        return (string)release;
+
+    return pver;
+}
+
 mapping query_tag_callers()
 {
    return (["accessed":tag_accessed,
 	    "modified":tag_modified,
 	    "pr":tag_pr,
 	    "ipv6":tag_ipv6,
+        "remoteip":tag_remoteip,
+        "pike_version":tag_pikeversion,
+        "pike-version":tag_pikeversion,
 	    "use":tag_use,
 	    "set-max-cache":lambda(string t, mapping m, object id) { 
 			      id->misc->cacheable = (int)m->time; 
