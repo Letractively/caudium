@@ -1092,14 +1092,14 @@ public string|array type_from_filename( string|void file, int|void to )
   
 #define COMPAT_ALIAS(X) mixed X(string file, object id){return id->conf->X(file,id);}
 
-/* 
+/*@PIKEPARSER_HACK_START@*/
 COMPAT_ALIAS(find_dir);
 COMPAT_ALIAS(stat_file);
 COMPAT_ALIAS(access);
 COMPAT_ALIAS(real_file);
 COMPAT_ALIAS(is_file);
 COMPAT_ALIAS(userinfo);
- */
+/*@PIKEPARSER_HACK_END@*/
 
 public mapping|int get_file(object id, int|void no_magic)
 {
