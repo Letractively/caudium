@@ -488,6 +488,8 @@ static void f_is_modified(INT32 args)
 void init_datetime(void)
 {
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
+  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
+  
   /* FIXME: how to make this working ????? */
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[0], "Unknown getdate error code.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[1], "The DATEMSK environment variable is null or undefined.");
@@ -498,8 +500,8 @@ void init_datetime(void)
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[6], "Memory allocation failed (not enough memory available).");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[7], "There is no line in the file that matches the input.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
-  ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
 #endif
+  MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
   
 #ifdef HAVE_STRPTIME
   add_function_constant("strptime", f_strptime, "function(string,string,mapping:int)", 0);
@@ -507,8 +509,7 @@ void init_datetime(void)
 
 #ifdef HAVE_STRFTIME
   add_function_constant("strftime", f_strftime, "function(string,int:string)",0);
-#endif
-   MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
+#endif 
   
   add_function_constant("parse_date", f_parse_date, "function(string:int)", 0);
   add_function_constant("is_modified", f_is_modified, "function(string,int,int|void:int)", 0);
