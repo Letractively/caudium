@@ -28,16 +28,17 @@
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
+//! tag: killframe
+//!  Prevents your page from being placed in a frame, by adding some
+//!  JavaScript code.
+//!
+//!  As an added bonus index.html will be removed from the end of the URL,
+//!  as shown in the Location field in your browser.
+//
 
 /* 
- * <killframe> tag module.
- *
- * Adds some java script that will prevent others from putting
- * your page in a frame.
  * 
- * Will also remove occuranses of "indexfiles" from the end of the URL.
- * 
- * made by Peter Bortas <peter@idonex.se> Januari -97
+ * made by Peter Bortas <peter@idonex.se> January -97
  *
  * Thanks for suggestions and bugreports:
  * Barry Treahy <treahy@allianceelec.com>
