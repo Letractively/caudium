@@ -1,7 +1,0 @@
-#!/bin/sh
-# This script can be installed somewhere in the path to start Headlines.
-# Please make sure the path to the source directory is correct.
-
-PRGDIR="$HOME/src/headlines/"
-
-(cd $PRGDIR ; exec ./headlines.pike "$@")
