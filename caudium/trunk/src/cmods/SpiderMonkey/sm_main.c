@@ -129,6 +129,12 @@ void pike_module_exit(void)
   global = NULL;
   JS_ShutDown();
 }
+#else
+void pike_module_init(void)
+{}
+
+void pike_module_exit(void)
+{}
 #endif
 /*
  * Local Variables:

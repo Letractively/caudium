@@ -45,7 +45,7 @@ configure-stamp:
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
 	fi
-	./configure --prefix=/usr --with-pike=$(PIKEBIN)
+	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-smlib=smjs
 
 	touch configure-stamp
 
