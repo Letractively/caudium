@@ -851,9 +851,11 @@ class Config
   {
     if (!regions)
       regions = ([]);
-    
+
+#ifdef DEBUG    
     if (regions[region])
       werror("Warning: region '%s' already exists, overwriting.\n", region);
+#endif
     
     regions[region] = vals || ([]);
     
