@@ -62,12 +62,16 @@ constant module_doc  = "This module handles the security in roxen, and uses "
 
 constant module_unique = 1;
 
+int timeout, listtimeout =300; // keep for 5 minutes
 object cache;
 
 void create()
 {
   defvar("cachetimeout", 300, "Cache Timeout", TYPE_INT, 
     "Number of seconds a cached user or group entry should be kept."
+  );
+  defvar("listcachetimeout", 3600, "List Cache Timeout", TYPE_INT, 
+    "Number of seconds a full user or group list should be kept."
   );
 }
 
@@ -76,7 +80,11 @@ void start(int level, object conf)
   // first, set up the map, group and user caches.
 
   if(conf)
+  {
     setup_cache(conf);
+    int timeout=query("cachetimeout");
+    int listtimeout=query("listcachetimeout");
+  }
 }
 
 string status()
@@ -267,6 +275,9 @@ mapping|int group_info(string groupname)
 //! array containing known user names, zero if none exist.
 array|int list_all_users()
 {
+  array data=cache->retrieve("userlist", low_list_all_users, ({}));
+  return data;
+
 }
 
 //! listing of known groups
@@ -274,6 +285,8 @@ array|int list_all_users()
 //! array containing known group names, zero if none exist.
 array|int list_all_groups()
 {
+  array data=cache->retrieve("grouplist", low_list_all_groups, ({}));
+  return data;
 }
 
 //! return an array of information for a user
@@ -398,6 +411,32 @@ private mapping|int low_get_user_info(string username)
   return data;
 }
 
+private array low_list_all_users()
+{
+  array data=({});
+
+  array m=my_configuration()->get_providers("authentication");
+
+  foreach(m, object module)
+    data+=module->list_all_users();
+
+  int i=set_user_list(data);
+  return data;
+}
+
+private array low_list_all_groups()
+{
+  array data=({});
+
+  array m=my_configuration()->get_providers("authentication");
+
+  foreach(m, object module)
+    data+=module->list_all_groups();
+
+  int i=set_group_list(data);
+  return data;
+}
+
 private string|int low_get_username(int uid)
 {
   string data=my_configuration()->call_provider("authentication", "get_username", uid);
@@ -430,14 +469,38 @@ private mapping|int low_get_group_info(string groupname)
   return data;
 }
 
+private int set_user_list(array data)
+{
+  ERROR("set_user_list\n");
+  if(data)
+  {
+    cache->store(cache_pike(data, "userlist", listtimeout));
+  }
+  else
+    ERROR("not storing zero\n");
+  return 1;
+}
+
+private int set_group_list(array data)
+{
+  ERROR("set_group_list\n");
+  if(data)
+  {
+    cache->store(cache_pike(data, "grouplist", listtimeout));
+  }
+  else
+    ERROR("not storing zero\n");
+  return 1;
+}
+
 private int set_user_info(string username, mapping data)
 {
   ERROR("set_user_info" + username + "\n");
   if(data)
   {
-    cache->store(cache_pike(data, "user-" + username));
+    cache->store(cache_pike(data, "user-" + username, timeout));
     if(data->uid!="")
-      cache->store(cache_string(data->username, "uid-" + data->uid));
+      cache->store(cache_string(data->username, "uid-" + data->uid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -449,7 +512,7 @@ private int set_username(int uid, string data)
   ERROR("set_username" + uid + "\n");
   if(data)
   {
-    cache->store(cache_string(data, "uid-" + uid));
+    cache->store(cache_string(data, "uid-" + uid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -461,7 +524,7 @@ private int set_groupname(int gid, string data)
   ERROR("set_groupname" + gid + "\n");
   if(data)
   {
-    cache->store(cache_string(data, "gid-" + gid));
+    cache->store(cache_string(data, "gid-" + gid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -473,9 +536,9 @@ private int set_group_info(string groupname, mapping data)
   ERROR("set_group_info" + groupname + "\n");
   if(data)
   {
-    cache->store(cache_pike(data, "group-" + groupname));
+    cache->store(cache_pike(data, "group-" + groupname, timeout));
     if(data->gid!="")
-      cache->store(cache_string(data->groupname, "gid-" + data->gid));
+      cache->store(cache_string(data->groupname, "gid-" + data->gid, timeout));
   }
   else
     ERROR("not storing zero\n");

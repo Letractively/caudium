@@ -235,6 +235,133 @@ mapping|int get_group_info(string groupname)
 
 }
 
+array list_all_groups()
+{
+  ERROR("list_all_groups()");
+
+  int res;
+  array groups=({});
+
+  object ldap=getLDAPConnection();
+  if(!ldap)
+  {
+    ERROR("failed to get LDAP connection");
+    return 0;
+  }
+  if(no_anonymous_bind) // must we bind before searching?
+  {
+    res=ldap->bind(aduser, adpassword);
+    if(!res)   
+    {
+      catch(ldap->unbind());
+      ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
+      return 0;
+    }
+  }
+  ERROR("setting base dn.\n");
+  res=ldap->set_basedn(addomain);
+  if(!res && ldap->error_string()!="Success")
+  {
+    catch(ldap->unbind());
+    ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
+    return 0;
+  }
+  ERROR("setting scope.\n");
+  
+  res=ldap->set_scope(2);
+  if(!res && ldap->error_string()!="Success")
+  {
+    catch(ldap->unbind());
+    ERROR("set_scope(2) failed: " + ldap->error_string());
+    return 0;
+  }
+
+  ERROR("preparing to do search.\n");
+
+  object r;
+  catch( r=ldap->search("&(objectclass=group)", ({"sAMAccountName"})));
+
+  ERROR("search result:" + ldap->error_string() + "\n");
+  if(!r)
+  {
+    ERROR("failed to perform search");
+    return 0;
+  }
+
+  ERROR("got " + r->num_entries() + " groups");
+
+  for(int i=0; i<r->num_entries(); i++)
+  {
+    groups+=({r->fetch()->sAMAccountName[0]});  
+    r->next();
+  }
+  return groups;
+
+}
+array list_all_users()
+{
+  ERROR("list_all_users()");
+
+  int res;
+  array users=({});
+
+  object ldap=getLDAPConnection();
+  if(!ldap)
+  {
+    ERROR("failed to get LDAP connection");
+    return 0;
+  }
+  if(no_anonymous_bind) // must we bind before searching?
+  {
+    res=ldap->bind(aduser, adpassword);
+    if(!res)   
+    {
+      catch(ldap->unbind());
+      ERROR("no_anonymous_bind failed ("+ aduser + ", " + adpassword+ "): " + ldap->error_string());
+      return 0;
+    }
+  }
+  ERROR("setting base dn.\n");
+  res=ldap->set_basedn(addomain);
+  if(!res && ldap->error_string()!="Success")
+  {
+    catch(ldap->unbind());
+    ERROR("set_basedn(" + addomain + ") failed: " + ldap->error_string());
+    return 0;
+  }
+  ERROR("setting scope.\n");
+  
+  res=ldap->set_scope(2);
+  if(!res && ldap->error_string()!="Success")
+  {
+    catch(ldap->unbind());
+    ERROR("set_scope(2) failed: " + ldap->error_string());
+    return 0;
+  }
+
+  ERROR("preparing to do search.\n");
+
+  object r;
+  catch( r=ldap->search("(&(objectclass=user)(!(objectclass=computer)))", ({"sAMAccountName"})));
+
+  ERROR("search result:" + ldap->error_string() + "\n");
+  if(!r)
+  {
+    ERROR("failed to perform search");
+    return 0;
+  }
+
+  ERROR("got " + r->num_entries() + " users");
+
+  for(int i=0; i<r->num_entries(); i++)
+  {
+    users+=({r->fetch()->sAMAccountName[0]});  
+    r->next();
+  }
+  return users;
+
+}
+
 array get_groups_for_user(string dn)
 {
 
@@ -416,7 +543,7 @@ mapping|void loadUserInfo(string username)
   ERROR("preparing to do search.\n");
 
   object r;
-  catch( r=ldap->search("&(SAMAccountname=" + username + ")(objectclass=user)"));
+  catch( r=ldap->search("&(SAMAccountname=" + username + ")(objectclass=user)(!(objectclass=computer))"));
 
   ERROR("search result:" + ldap->error_string() + "\n");
   if(!r)
@@ -483,7 +610,7 @@ string|int loadUserName(string uid)
   ERROR("preparing to do search.\n");
 
   object r;
-  catch( r=ldap->search("&(ObjectSID=" + uid + ")(objectclass=user)"));
+  catch( r=ldap->search("&(ObjectSID=" + uid + ")(objectclass=user)(!(objectclass=computer))"));
 
   ERROR("search result:" + ldap->error_string() + "\n");
   if(!r)
@@ -707,7 +834,7 @@ string getUserDN(string username)
   
   object r;
 
-  if(catch(r=ldap->search("&(SAMAccountname=" + username + ")(objectclass=user)")))
+  if(catch(r=ldap->search("&(SAMAccountname=" + username + ")(objectclass=user)(!(objectclass=computer))")))
   {
     catch(ldap->unbind());
     ERROR("search failed for username: " + username);
