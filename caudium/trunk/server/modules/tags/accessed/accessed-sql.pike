@@ -440,16 +440,6 @@ mapping query_tag_callers()
 //!  type: TYPE_FLAG
 //!  name: Restrict reset
 //
-//! defvar: backend
-//! Select a accessed database backend
-//!  type: TYPE_MULTIPLE_STRING
-//!  name: Database backend
-//
-//! defvar: close_db
-//! If set, the accessed database will be closed if it is not used for 8 seconds. This saves resourses on servers with many sites.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Close inactive database
-//
 //! defvar: sqldb
 //! What database to use for the database backend.
 //!  type: TYPE_STRING

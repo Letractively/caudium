@@ -3849,26 +3849,6 @@ int may_disable()  { return 0; }
 //!  type: TYPE_FLAG
 //!  name: Access log
 //
-//! defvar: ssi
-//! If set, Roxen will parse NCSA / Apache server side includes.
-//!  type: TYPE_FLAG
-//!  name: SSI support: NSCA and Apache SSI support
-//
-//! defvar: exec
-//! If set and if server side include support is enabled, Roxen will accept NCSA / Apache &lt;!--#exec cmd="XXX" --&gt;. Note that this will allow your users to execute arbitrary commands.
-//!  type: TYPE_FLAG
-//!  name: SSI support: execute command
-//
-//! defvar: execuid
-//! UID to run NCSA / Apache &lt;!--#exec cmd="XXX" --&gt; commands with.
-//!  type: TYPE_INT
-//!  name: SSI support: execute command uid
-//
-//! defvar: execgid
-//! GID to run NCSA / Apache &lt;!--#exec cmd="XXX" --&gt; commands with.
-//!  type: TYPE_INT
-//!  name: SSI support: execute command gid
-//
 //! defvar: close_db
 //! If set, the accessed database will be closed if it is not used for 8 seconds
 //!  type: TYPE_FLAG|VAR_MORE
