@@ -152,7 +152,6 @@ string scan_for_query( string f )
 {
   if(sscanf(f,"%s?%s", f, query) == 2)
   {
-    string v, a, b;
 #if constant(Caudium.parse_query_string)
     Caudium.parse_query_string(query, variables);
 #else
