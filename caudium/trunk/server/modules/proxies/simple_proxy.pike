@@ -20,7 +20,7 @@ constant module_unique = 0;
 
 array status_requests = ({ });
 
-//#define VPROXY_DEBUG
+// #define VPROXY_DEBUG
 
 #define WANT_HEADERS /* needs to be defined to get returned error code */
 
@@ -132,6 +132,8 @@ class request
       id->do_not_disconnect = 1;
 
       parse_url ();
+
+      rpipe = caudium->pipe ();
 
       connect_to_server ();
    }
@@ -245,11 +247,15 @@ class request
       headers = filter (headers, filter_host);
 
       headers += ({ sprintf ("Host: %s", host_header) });
+      headers += ({ "Connection: close" });
 
       head = headers * "\r\n";
 
       string request = sprintf ("%s /%s %s\r\n"
                                 "%s\r\n\r\n%s", id->method, file, id->prot, head, id->data || "");
+
+
+      VDEBUG ("sending headers:\n%s\n", request);
 
       con->write (request);
 
@@ -280,6 +286,12 @@ class request
    {
       if (lower_case (elem)[0..4] == "host:")
          return (0);
+      else if (lower_case (elem)[0..10] == "connection:")
+         return (0);
+      else if (lower_case (elem)[0..10] == "keep-alive:")
+         return (0);
+      else if (lower_case (elem)[0..16] == "proxy-connection:")
+         return (0);
       return (1);
    }
 
@@ -288,7 +300,7 @@ class request
    {
       if (strlen (s))
       {
-         if (found_server_headers == 0)
+         if (!found_server_headers)
          {
             int i;
 
@@ -305,22 +317,31 @@ class request
                server_headers = server_headers[..i - 1];
             }
 
-            if (found_server_headers == 1)
+            if (found_server_headers)
                parse_server_headers ();
 
             bytesent += strlen (s);
             buffer += s;
-            id->my_fd->write (s);
+            rpipe->write (s);
 
-            if (found_server_headers == 1)
+            if (found_server_headers)
             {
                 VDEBUG ("server headers:\n%s\n--\n", server_headers);
+
+                /* paranoia */
+                con->set_blocking (); 
+                con->set_read_callback (0);
+                con->set_write_callback (0);
+                con->set_close_callback (0);
+
                 nbio (con, id->my_fd, completed);
             }
          }
          else
          {
-            nbio (con, id->my_fd, completed);
+            report_error ("VPROXY: shouldn't call got_data () after we have found headers:\n%s\n", 
+                          describe_backtrace (backtrace ()));
+            completed ();
          }
       }
    }
@@ -328,7 +349,7 @@ class request
 
    void nbio (object from, object to, function(:void)|void callback)
    {
-      rpipe = caudium->pipe ();
+      VDEBUG ("nbio (%O)", this_object ());
       rpipe->input (from);
       rpipe->set_done_callback (callback);
       rpipe->output (to);
@@ -336,7 +357,7 @@ class request
 
    void completed ()
    {
-      VDEBUG ("completed ()");
+      VDEBUG ("completed (%O)", this_object ());
 
       if (con)
       {
@@ -350,7 +371,7 @@ class request
 
       if (id)
       {
-         if (returned_error_code == 0)
+         if (!returned_error_code)
             returned_error_code = 200;
 
          id->conf->log (([ "error":returned_error_code,
@@ -358,6 +379,9 @@ class request
 
          id->end ();
       }
+
+      if (rpipe)
+         destruct (rpipe);
 
       float timesince = time(start_time);
       if (timesince <= 0.0)
@@ -367,7 +391,7 @@ class request
 
       VDEBUG ("sent %s in %.2f seconds - %s/s", sizetostring (bytesent), timesince, sizetostring ((int)bps));
 
-      VDEBUG ("done with connection");
+      VDEBUG ("done with connection (%O)", this_object ());
 
       parent->status_requests -= ({ this_object () });
       VDEBUG ("completed::status_requests = %O\n", parent->status_requests);
@@ -399,11 +423,11 @@ class request
    {
       parent->status_requests -= ({ this_object () });
       VDEBUG ("destroy::status_requests = %O\n", parent->status_requests);
-      VDEBUG ("destroy (%s)", host_header);
+      VDEBUG ("destroy (%O)", this_object ());
    }
 
    string _sprintf ()
    {
-     return (sprintf ("simple_proxy::request (http://%s/%s)", host_header||"N/A", file||""));
+     return (sprintf ("simple_proxy::request (http://%s/%s)", host_header||"<UNKNOWN>", file||""));
    }
 };
