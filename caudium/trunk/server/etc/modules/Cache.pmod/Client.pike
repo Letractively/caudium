@@ -44,6 +44,7 @@ constant cvs_version = "$Id$";
 
 object real_cache;
 function get_cache;
+function delete_cache;
 string namespace;
 
 //! Check that real_cache is actually a Cache.Cache object and not null, if
@@ -67,9 +68,10 @@ private void restart_cache() {
 //!
 //! @param _namespace
 //! the namespace we live in.
-void create(object _real_cache, function _get_cache, string _namespace) {
+void create(object _real_cache, function _get_cache, string _namespace, function _delete_cache) {
   real_cache = _real_cache;
   get_cache = _get_cache;
+  delete_cache = _delete_cache;
   namespace = _namespace;
 #ifdef CACHE_DEBUG
   write(sprintf("CLIENT_CACHE: Client cache in namespace %O created.\n", namespace));
@@ -201,6 +203,8 @@ void free_disk(int nbytes) {
 void flush(void|string regexp) {
   restart_cache();
   real_cache->flush(regexp);
+  if(!regexp)
+    delete_cache(namespace);
 }
 
 //! Shut down this cache
