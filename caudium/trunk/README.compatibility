@@ -77,8 +77,6 @@ NO_REVERSE_LOOKUP (disabled)
  	hostname->ip lookups are still functional. This _is_ usable if
  	you run a proxy, but still breaks host based authentication.
 
-
-
 COMPAT (disabled)
 	Compatibility with some Really Old version of the
 	server. Quite possibly not even used at all anymore.
