@@ -661,7 +661,7 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
 	for (i=0; i < sizeof(content_array); i++) {
 	  int ord = 0;
 	  if (i & 1) {
-	    atype = lower_case((content_array[i] / ":")[0]);
+	    atype = (content_array[i] / ":")[0];
 	    //DEBUGLOG(sprintf("DEB2: atype: %s",atype));
 	    if (sizeof(content_array[i] / ":") == 2)
 	      ord = ((int)(content_array[i] / ":")[1]) - 1;
