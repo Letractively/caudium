@@ -1,5 +1,12 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Watchdog debug can be enabled using --watchdog-debug
+   (Bertrand Lupart)
+- If set using HTTP GET, the watchdog can now be set up either to check every
+  1st level virtual server or either only the first one.
+   (Bertrand Lupart)
+- The watchdog can now check virtual servers using HTTP GET
+   (Bertrand Lupart)
 - The id->variables isn't set as before regarding variables with emtpy values,
   this broke the screen for adding a new virtual server.
    (Bertrand Lupart)
