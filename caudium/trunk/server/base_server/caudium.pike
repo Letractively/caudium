@@ -3137,7 +3137,7 @@ private int|array compile_and_load (string file) {
   caudium->last_module_name = 0;
 
   if (err) {
-    MD_PERROR((" load failed"));
+    MD_PERROR((" load failed : " + describe_backtrace(err)));
     throw(err);
   } else if (!o) {
     MD_PERROR((" load failed"));
