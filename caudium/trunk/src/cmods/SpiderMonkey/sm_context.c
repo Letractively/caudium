@@ -31,6 +31,76 @@ RCSID("$Id$");
 #include "sm_globals.h"
 #include "sm_context.h"
 
+static JSBool output_write(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+static JSBool output_writeln(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+/* Custom Caudium objects/functions */
+static JSFunctionSpec output_functions[] = {
+    {"write", output_write, 1, 0, 0},
+    {"writeln", output_writeln, 1, 0, 0}
+};
+
+inline static void write_out(char *str, js_context *data)
+{
+    int    strbytes = strlen(str);
+    
+    if (data->output_buf_last + strbytes >= data->output_buf_len) {
+        data->output_buf_len <<= 1; /* TODO: check for overflows and max
+                                     * size limit */
+        data->output_buf = (unsigned char*)realloc(data->output_buf, data->output_buf_len);
+        if (!data->output_buf)
+            Pike_error("Out of memory");
+    }
+
+    strncat(data->output_buf, str, data->output_buf_len);
+}
+
+static JSBool output_write(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
+    JSString     *str;
+    uintN         i;
+    
+    if (!data)
+        return JS_FALSE;
+
+    if (!data->output_buf || !data->output_buf_len) {
+        data->output_buf = (unsigned char*)malloc(sizeof(unsigned char) * DEF_OUTPUTBUF_LEN);
+        if (!data->output_buf)
+            Pike_error("Out of memory\n");
+        data->output_buf_len = DEF_OUTPUTBUF_LEN;
+        data->output_buf_last = 0;
+        memset(data->output_buf, 0, data->output_buf_len);
+    }
+    
+    for (i = 0; i < argc; i++) {
+        str = JS_ValueToString(ctx, argv[i]);
+        if (!str)
+            return JS_FALSE;
+
+        argv[i] = STRING_TO_JSVAL(str);
+        write_out(JS_GetStringBytes(str), data);
+    }
+
+    return JS_TRUE;
+}
+
+static JSBool output_writeln(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+    js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
+    JSBool        ret = output_write(ctx, obj, argc, argv, rval);
+
+    if (!ret)
+        return JS_FALSE;
+
+    if (data)
+        write_out("\n", data);
+    else
+        return JS_FALSE;
+
+    return JS_TRUE;
+}
+
 /*! @class Context
  *!
  *! The Context class implements a SpiderMonkey JavaScript engine
@@ -85,14 +155,25 @@ static void ctx_create(INT32 args)
     }
 
     THIS->ctx = JS_NewContext(smrt, stacksize);
-    if (!init_globals(ctx))
-        Pike_error("Could not create a new context.");
+    if (!THIS->ctx)
+        Pike_error("Could not create a new context\n");
+    
+    if (!init_globals(THIS->ctx))
+        Pike_error("Could not initialize the new context.\n");
 
+    if (!JS_DefineFunctions(THIS->ctx, global, output_functions))
+        Pike_error("Could not populate the global object with output functions\n");
+    
     JS_SetVersion(THIS->ctx, version);
+
+    /* create some privacy for us */
+    if (!JS_SetPrivate(THIS->ctx, global, THIS))
+        Pike_error("Could not set the private storage for the global object\n");
 }
 
 void init_context()
 {
+    ADD_STORAGE(js_context);
     ADD_FUNCTION("create", ctx_create,
                  tFunc(tOr(tVoid, tInt) tOr(tVoid, tInt), tVoid), 0);
 }

@@ -28,6 +28,7 @@ RCSID("$Id$");
 #include <string.h>
 #include <jsapi.h>
 
+#include "sm_globals.h"
 #include "sm_main.h"
 
 #ifndef RT_MAXBYTES
@@ -35,14 +36,15 @@ RCSID("$Id$");
 #endif
 
 JSRuntime      *smrt = NULL; /* the runtime */
-JSObject       *glob = NULL; /* the global object */
+JSObject       *global = NULL; /* the global object */
 
 static JSClass global_class = {
-    "global", JS_CLASS_NEW_RESOLVE,
+    "global", JSCLASS_NEW_RESOLVE,
     JS_PropertyStub, JS_PropertyStub,
     JS_PropertyStub, JS_PropertyStub,
     global_enumerate, (JSResolveOp)global_resolve,
-    JS_ConvertStub, JS_FinalizeStub
+    JS_ConvertStub, JS_FinalizeStub,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0
 };
 
 static JSBool global_enumerate(JSContext *ctx, JSObject *obj)
@@ -69,58 +71,59 @@ static JSBool global_resolve(JSContext *ctx, JSObject *obj, jsval id, uintN flag
 
 int init_globals(JSContext *ctx)
 {
-    if (glob || !smrt || !ctx)
-        return;
+  if (global || !smrt || !ctx)
+    return 0;
 
-    glob = JS_NewObject(ctx, &global_class, NULL, NULL);
-    if (!glob) {
-        fprintf(stderr, "SMJS: Failed to create the global object\n");
-        return 0;
-    }
+  global = JS_NewObject(ctx, &global_class, NULL, NULL);
+  if (!global) {
+    fprintf(stderr, "SMJS: Failed to create the global object\n");
+    return 0;
+  }
 
-    /*
-     * The standard classess will be resolved when requested in the
-     * global_resolve function, thus we don't have to initialize the
-     * standard classes for the global object over here. That might speed
-     * things up a bit.
-     */
-    JS_SetGlobalObject(ctx, glob);
+  /*
+   * The standard classess will be resolved when requested in the
+   * global_resolve function, thus we don't have to initialize the
+   * standard classes for the global object over here. That might speed
+   * things up a bit.
+   */
+  JS_SetGlobalObject(ctx, global);
+
+  return 1;
 }
 
 void pike_module_init()
 {
-    fprintf(stderr, "Initializing the JavaScript engine. ");
+  fprintf(stderr, "Initializing the JavaScript engine. ");
 
-    smrt = JS_NewRuntime(RT_MAXBYTES);
-    if (!smrt) {
-        fprintf(stderr, "Failed.\n");
-        return;
-    }
+  smrt = JS_NewRuntime(RT_MAXBYTES);
+  if (!smrt) {
+    fprintf(stderr, "Failed.\n");
+    return;
+  }
+  
+  fprintf(stderr, "Succeeded.\n");
 
-    fprintf(stderr, "Succeeded.\n");
-
-    add_integer_constant("JSVERSION_1_0", JSVERSION_1_0);
-    add_integer_constant("JSVERSION_1_1", JSVERSION_1_1);
-    add_integer_constant("JSVERSION_1_2", JSVERSION_1_2);
-    add_integer_constant("JSVERSION_1_3", JSVERSION_1_3);
-    add_integer_constant("JSVERSION_1_4", JSVERSION_1_4);
-    add_integer_constant("JSVERSION_1_5", JSVERSION_1_5);
+  add_integer_constant("JSVERSION_1_0", JSVERSION_1_0, 0);
+  add_integer_constant("JSVERSION_1_1", JSVERSION_1_1, 0);
+  add_integer_constant("JSVERSION_1_2", JSVERSION_1_2, 0);
+  add_integer_constant("JSVERSION_1_3", JSVERSION_1_3, 0);
+  add_integer_constant("JSVERSION_1_4", JSVERSION_1_4, 0);
+  add_integer_constant("JSVERSION_1_5", JSVERSION_1_5, 0);
     
-    start_new_program();
-    ADD_STORAGE(js_context);
-    init_context();
-    end_class("Context");
+  start_new_program();
+  init_context();
+  end_class("Context", 0);
 }
 
 void pike_module_exit()
 {
-    if (!smrt)
-        return;
+  if (!smrt)
+    return;
 
-    JS_DestroyRuntime(smrt);
-    smrt = NULL; /* just in case... */
-    glob = NULL;
-    JS_ShutDown();
+  JS_DestroyRuntime(smrt);
+  smrt = NULL; /* just in case... */
+  global = NULL;
+  JS_ShutDown();
 }
 #endif
 /*

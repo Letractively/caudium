@@ -1,8 +1,8 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=SpiderMonkey
-OBJS= sm_main.c
-SOURCES=sm_main.c
-MODULE_LIBS=@SM_LIBS@
+OBJS= sm_main.o sm_context.o
+SOURCES=sm_main.c sm_context.c
+MODULE_LIBS=@LIBS@ @SM_LIBS@
 MODULE_CFLAGS=@SM_CFLAGS@
 
 @module_makefile@

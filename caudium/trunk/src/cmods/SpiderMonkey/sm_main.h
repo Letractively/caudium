@@ -22,6 +22,6 @@
 #ifndef __SM_MAIN_H
 #define __SM_MAIN_H
 
-JSBool global_enumerate(JSContext*, JSObject*);
-JSBool global_resolve(JSContext*, JSObject*, jsval, uintN, JSObject**);
+static JSBool global_enumerate(JSContext*, JSObject*);
+static JSBool global_resolve(JSContext*, JSObject*, jsval, uintN, JSObject**);
 #endif

@@ -28,11 +28,25 @@ AC_CHECK_LIB(perl, PL_gid)
 
 OLD_LIBS="$LIBS"
 LIBS="$PERL_LDFLAGS $LIBS"
+SM_LIBS=""
 AC_CHECK_LIB($caudium_cv_smlib, JS_NewContext,
     AC_DEFINE(HAVE_LIB_SMJS, 1, [Define if you have the SpiderMonkey library installed])
+    SM_LIBS="$SM_LIBS -l$caudium_cv_smlib $PERL_LDFLAGS"
 )
-
 LIBS="$OLD_LIBS"
+
+dnl try to find the jsapi.h file
+SM_CFLAGS="-DXP_UNIX"
+AC_MSG_CHECKING([the SpiderMonkey CFLAGS])
+for d in $prefix/include/$caudium_cv_smlib $prefix/include ; do
+    if test -f $d/jsapi.h ; then
+        SM_CFLAGS="$SM_CFLAGS -I$d"
+        break
+    fi
+done
+AC_MSG_RESULT([$SM_CFLAGS])
+AC_SUBST(SM_CFLAGS)
+AC_SUBST(SM_LIBS)
 
 AC_CONFIG_FILES(Makefile.pre, [make -f Makefile.pre depend])
 AC_OUTPUT
