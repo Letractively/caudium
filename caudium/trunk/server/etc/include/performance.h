@@ -45,7 +45,7 @@
 #define ENABLE_SUPPORTS
 
 
-/* Define this if you don't want Roxen to use DNS. Note: This is a
+/* Define this if you don't want Caudium to use DNS. Note: This is a
  * minor speed optimization It's mainly used to reload network / dns
  * server load on busy servers. Please note that option turns off ALL
  * ip -> hostname and hostname -> ip conversion. Thus you can't use if
