@@ -220,7 +220,7 @@ class servlet {
   //!
   void create(string|object name, string|array(string)|object|void dir)
   {
-    werror("Servlet.servlet()\n");
+    report_notice("Servlet.servlet()\n");
     if(stringp(name)) {
       classname = name;
       if(!objectp(dir))
@@ -391,7 +391,7 @@ class context {
   //!
   void log(string msg)
   {
-    werror(msg+"\n");
+    report_notice(msg+"\n");
   }
 
   //!
@@ -586,7 +586,7 @@ static void native_log(object ctx, object msg)
   if (ctx_object(ctx))
     ctx_object(ctx)->log((string)msg);
   else
-    werror((string)msg + "\n");
+    report_notice((string)msg + "\n");
 }
 
 //!
