@@ -1126,6 +1126,9 @@ class TelnetSession {
 
     array lines = s/"\r\n";
 
+    // Censor the raw string
+    s = sprintf("string(%d bytes)", sizeof(s));
+
     int lineno;
     for(lineno = 0; lineno < sizeof(lines); lineno++) {
       string line = lines[lineno];
@@ -1585,7 +1588,7 @@ class FTPSession
     object(Stdio.File) f = Stdio.File();
 
     object privs;
-    if(local_port-1 < 1024 && getuid())
+    if(local_port-1 < 1024 && geteuid())
       privs = Privs("FTP: Opening the data connection on " + local_addr +
 		    ":" + (local_port-1) + ".");
 
@@ -1757,7 +1760,7 @@ class FTPSession
 	send(550,({ sprintf("%s: Error, can't open file.", fname) }));
 	return 0;
       }
-    } else if ((< "APPE", "STOR", "MKD", "XMKD", "MOVE" >)[cmd]) {
+    } else if ((< "APPE", "STOR", "XMKD", "MKD", "MOVE" >)[cmd]) {
       mixed err;
 
       DWRITE(sprintf("FTP: get_file(%O,%O,%O)\n",fname,cmd,session->method));
@@ -2759,6 +2762,7 @@ class FTPSession
 
       if (pasv_port) {
 	destruct(pasv_port);
+	pasv_port = 0;
       }
       send(200, ({ "PORT command ok ("+dataport_addr+
 		   " port "+dataport_port+")" }));
@@ -2810,6 +2814,7 @@ class FTPSession
 
     if (pasv_port) {
       destruct(pasv_port);
+      pasv_port = 0;
     }
     send(200, ({ "EPRT command ok ("+dataport_addr+
 		 " port "+dataport_port+")" }));
@@ -2824,8 +2829,10 @@ class FTPSession
     }
 
     if(Query("passive_ftp")) {
-      if(pasv_port)
+      if(pasv_port) {
 	destruct(pasv_port);
+	pasv_port = 0;
+      }
       if(Query("restricpasv")) {
 	int port_to_bind, attempt;
 	int found_pasv_port = 0;
@@ -2884,8 +2891,10 @@ class FTPSession
       }
       return;
     }
-    if (pasv_port)
+    if (pasv_port) {
       destruct(pasv_port);
+      pasv_port = 0;
+    }
     if(Query("restricpasv")) {
       int port_to_bind, attempt;
       int found_pasv_port = 0;
@@ -3540,6 +3549,7 @@ class FTPSession
 	}
 	if (objectp(pasv_port)) {
 	  destruct(pasv_port);
+	  pasv_port = 0;
 	}
 	master_session->method = "QUIT";
 	master_session->not_query = user || "Anonymous";
