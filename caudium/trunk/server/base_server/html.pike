@@ -188,7 +188,7 @@ string th(string t, string|void align, int|void rows,
 }
 
 //! Add <H1></H1>
-//! @parm h
+//! @param h
 //!   The string
 //! @returns
 //!   Html results
@@ -198,7 +198,7 @@ string h1(string h)
 }
 
 //! Add <H2></H2>
-//! @parm h
+//! @param h
 //!   The string
 //! @returns
 //!   Html results
@@ -208,7 +208,7 @@ string h2(string h)
 }
 
 //! Add <H3></H3>
-//! @parm h
+//! @param h
 //!   The string
 //! @returns
 //!   Html results
