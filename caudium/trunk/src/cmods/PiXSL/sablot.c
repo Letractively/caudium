@@ -241,7 +241,7 @@ static void f_run(INT32 args)
 
   SablotDestroyProcessor(sproc);
   SablotDestroySituation(situation);
-  
+
   if (parsed != NULL) {
     pop_n_elems(args);
     push_text(parsed);
@@ -439,17 +439,17 @@ static int sh_getAll(void *userData, SablotHandle processor,
 
   *byteCount = 0;
   *buffer = NULL;
-  
+
   push_text(scheme);
   push_text(rest);
   apply_svalue(&(This->cb_getAll), 2);
-
+  
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
     return 1;
   }
 
-  if (retcode.u.integer) {
+  if (retcode.u.integer != 0) {
     pop_stack();
     return retcode.u.integer;
   }
@@ -464,7 +464,7 @@ static int sh_getAll(void *userData, SablotHandle processor,
     pop_stack();
     return 1;
   }
-
+  
   *byteCount = retval.u.string->len;
   MEMCPY(*buffer, retval.u.string->str, retval.u.string->len);
   This->getAllBuffer = *buffer;
@@ -496,14 +496,14 @@ static int sh_freeMemory(void *userData, SablotHandle processor, char *buffer)
     apply_svalue(&This->cb_freeMemory, 0);
     if (getRespValues(&retcode, &retval, T_VOID))
       retcode.u.integer = 1;
+    pop_stack();
   }
   
   if (This->getAllBuffer) {
     free(This->getAllBuffer);
     This->getAllBuffer = NULL;
   }
-
-  pop_stack();
+  
   if (retcode.u.integer)
     return retcode.u.integer;
 
@@ -573,7 +573,7 @@ static int sh_put(void *userData, SablotHandle processor, int handle,
 {
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
-  
+
   if (!buffer || !byteCount || !This || This->cb_put.type != T_FUNCTION)
     return 1;
 
@@ -767,7 +767,7 @@ void pike_module_init( void )
                OPT_SIDE_EFFECT);
   add_function("set_variables", f_set_variables, "function(mapping:void)",
                OPT_SIDE_EFFECT);
-  ADD_FUNCTION("run", f_run, tFunc(tVoid, tString), 0);
+  add_function("run", f_run, "function(void:string)", OPT_SIDE_EFFECT);
   ADD_FUNCTION("set_scheme_callbacks", f_set_scheme_callbacks, tFunc(tMapping, tVoid), 0);
   
   xslt_program = end_program();
