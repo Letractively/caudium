@@ -41,14 +41,6 @@ void create()
 }
 
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LOCATION, 
-    "Demo module", 
-    "This module makes it possible to develop, RXML code interactively." });
-}
-
 #define FOO "<title>Demo</title>\n" \
 "<body bgcolor=white>\n" \
 "<form action=%d>\n" \

@@ -212,33 +212,6 @@ object tab(string name, int select, int n, int last, string font,
   return img;
 }
 
-array register_module()
-{
-  return ({
-    MODULE_PARSER | MODULE_LOCATION,
-      "Tab lists",
-      ("This module makes graphical tablists.<p>"
-       "<b>NOTE:</b> This module is not supported and is only here "
-       "for compatibility reasons. Please use ``<b>Config tab-list</b>'' "
-       "instead.<p>"
-#if 0
-       "<p> It defines the tag "
-       "&lt;tablist&gt;.<p>"
-       "Arguments:\n<br>"
-       "font=string: Select font<br>\n"
-       "1= 2= 3= ...: Set the destination for one of the tags<br>\n"
-       "bg=#rrggbb: Set background color<br>\n"
-       "tc=#rrggbb: Set tab color<br>\n"
-       "fc=#rrggbb: Set font color<br>\n"
-       "scale=<float>: Scale the result<br>\n"
-       "names=foo;bar;gazonk: Set the text on the tabs, separated by ';'<br>\n"
-       "selected=<int>: Select which tab to select<br>\n"
-#endif
-       ""),
-    0, 1,
-      });
-}
-
 void create()
 {
   defvar("foo", "/tablists/", "mount point", TYPE_LOCATION|VAR_MORE, "");

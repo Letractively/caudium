@@ -44,16 +44,6 @@ object servlet;
 
 string status_info="";
 
-array register_module()
-{
-  return ({
-    MODULE_LOCATION, "Java Servlet bridge",
-    "An interface to Java <a href=\"http://jserv.javasoft.com/"
-    "products/java-server/servlets/index.html\">Servlets</a>.",
-    0
-  });
-}
-
 void stop()
 {
   if(servlet) {

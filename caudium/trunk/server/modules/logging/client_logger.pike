@@ -38,19 +38,6 @@ constant module_doc  = "This is a client logger. It simply logs the 'user-agent'
 	      " this saves a file descriptor, but breaks some log analyzers. ";
 constant module_unique = 0;
 
-array register_module()
-{
-  return ({ MODULE_LOGGER, 
-	      "Client logger", 
-	      "This is a client logger. It simply logs the 'user-agent'"
-	      " field in a log somewhere, the format should be compatible "
-	      "with other client loggers out there, making it somewhat useful"
-	      ". It is also possible to add the clientname to the normal log,"
-	      " this saves a file descriptor, but breaks some log analyzers. "
-	      
-	  });
-}
-
 void create()
 {
   defvar("logfile", GLOBVAR(logdirprefix)+"/Clients", "Client log file", 

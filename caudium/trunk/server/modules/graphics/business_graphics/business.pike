@@ -41,9 +41,122 @@ import Array;
 
 constant module_type = MODULE_PARSER | MODULE_LOCATION;
 constant module_name = "Business Graphics";
-constant module_doc  = "The Business Graphics tag. This module draws\n"
-       "line charts, pie charts, graphs and bar charts.<p>\n"
-       "&lt;diagram help&gt;&lt;/diagram&gt; gives help.\n";
+constant module_doc  =
+"<font size=+1><b>The Business Graphics tag</b></font>\n<br>"
+"Draws different kinds of diagrams.<br>"
+"<p><pre>"
+"\n&lt;<b>diagram</b>&gt; (container)\n"
+"Options:\n"
+"  <b>help</b>           Displays this text.\n"
+"  <b>type</b>           Mandatory. Type of graph. Valid types are:\n"
+"                 <b>sumbars</b>, <b>normsumbars</b>, <b>linechart</b>,"
+" <b>barchart</b>,\n"
+"                 <b>piechart</b> and <b>graph</b>\n"
+#if constant(Image.JPEG.decode)
+"  <b>background</b>     Takes the filename of a pnm-, gif- or\n"
+"                 jpeg-image as input.\n"
+#else
+"  <b>background</b>     Takes the filename of a pnm image as input.\n"
+#endif
+"  <b>width</b>          Width of diagram image in pixels.\n"
+"                 (will not have any effect below 100)\n"
+"  <b>height</b>         Height of diagram image in pixels.\n"
+"                 (will not have any effect below 100)\n"
+"  <b>fontsize</b>       Height of text in pixels.\n"
+"  <b>font</b>           Name of the font used. This can be\n"
+"                 overridden in the legend-, axis- and\n"
+"                 names-tags.\n"
+"  <b>namefont</b>       Name of the font for the diagram name.\n"
+"  <b>legendfontsize</b> Height of legend text in pixels.\n"
+"                 <b>fontsize</b> is used if this is undefined.\n"
+"  <b>name</b>           Writes a name at the top of the diagram.\n"
+"  <b>namecolor</b>      The color of the name-text. Textcolor\n"
+"                 is used if this is not defined.\n"
+"  <b>namesize</b>       Height of the name text in pixels.\n"
+"                 <b>Fontsize</b> is used if this is undefined.\n"
+"  <b>grey</b>           Makes the default colors in greyscale.\n"
+
+"  <b>3D</b>             Render piecharts on top of a cylinder, takes"
+" the\n                 height in pixels of the cylinder as argument.\n"
+/* " tone         Do nasty stuff to the background.\n"
+   " Requires dark background to be visible.\n" */
+"  <b>eng</b>            If present, numbers are shown like 1.2M.\n"
+"  <b>neng</b>           As above but 0.1-1.0 is written 0.xxx .\n"
+"  <b>tonedbox</b>       Creates a background shading between the\n"
+"                 colors assigned to each of the four corners.\n"
+"  <b>center</b>         (Only for <b>pie</b>) center=n centers the nth"
+" slice\n"
+"  <b>rotate</b>         (Only for <b>pie</b>) rotate=X rotate the pie"
+" X degrees.\n"
+"  <b>turn</b>           If given, the diagram is turned 90 degrees.\n"
+"                 (To make big diagrams printable)\n"
+"  <b>voidsep</b>        If this separator is given it will be used\n"
+"                 instead of VOID (This option can also\n"
+"                 be given i <b>xnames</b> and so on)\n"
+"  <b>bgcolor</b>        Use this background color for antialias.\n"
+"  <b>notrans</b>        If given, the bgcolor will be opaque.\n"
+
+// Not supported any more!     "  <b>colorbg</b>        Sets the color for the background\n"
+"  <b>textcolor</b>      Sets the color for all text\n"
+"                 (Can be overrided)\n"
+"  <b>labelcolor</b>     Sets the color for the labels of the axis\n"
+
+"  <b>horgrid</b>        If present a horizontal grid is drawn\n"
+"  <b>vertgrid</b>       If present a vertical grid is drawn\n"
+"  <b>xgridspace</b>     The space between two vertical grids in the\n"
+"                 same unit as the data.\n"
+"  <b>ygridspace</b>     The space between two horizontal grids in\n"
+"                 the same unit as the data.\n"
+
+"\n  You can also use the regular &lt;<b>img</b>&gt; arguments. They"
+" will be passed\n  on to the resulting &lt;<b>img</b>&gt; tag.\n\n"
+"The following internal tags are available:\n"
+"\n&lt;<b>data</b>&gt; (container) Mandatory.\n"
+"Tab and newline separated list of data values for the diagram."
+" Options:\n"
+"  <b>separator</b>      Use the specified string as separator instead"
+" of tab.\n"
+"  <b>lineseparator</b>  Use the specified string as lineseparator\n"
+"                 instead of newline.\n"
+"  <b>form</b>           Can be set to either row or column. Default\n"
+"                 is row.\n"
+"  <b>xnames</b>         If given, the first line or column is used as\n"
+"                 xnames. If set to a number N, N lines or columns\n"
+"                 are used.\n"
+"  <b>xnamesvert</b>     If given, the xnames are written vertically.\n" 
+"  <b>noparse</b>        Do not run the content of the tag through\n"
+"                 the RXML parser before data extraction is done.\n"
+"\n&lt;<b>colors</b>&gt; (container)\n"
+"Tab separated list of colors for the diagram. Options:\n"
+"  <b>separator</b>      Use the specified string as separator instead"
+" of tab.\n"
+"\n&lt;<b>legend</b>&gt; (container)\n"
+"Tab separated list of titles for the legend. Options:\n"
+"  <b>separator</b>      Use the specified string as separator instead"
+" of tab.\n"
+"\n&lt;<b>xnames</b>&gt; (container)\n"
+"Tab separated list of datanames for the diagram. Options:\n"
+"  <b>separator</b>      Use the specified string as separator instead"
+" of tab.\n"
+"  <b>orient</b>         If set to vert the xnames will be written"
+" vertically.\n"
+"\n&lt;<b>ynames</b>&gt; (container)\n"
+"Tab separated list of datanames for the diagram. Options:\n"
+"  <b>separator</b>      Use the specified string as separator instead"
+" of tab.\n"
+"\n&lt;<b>xaxis</b>&gt; and &lt;<b>yaxis</b>&gt; (tags)\n"
+"Options:\n"
+/* " name=        Dunno what this does.\n" */
+//I know!!! /Hedda
+"  <b>start</b>          Limit the start of the diagram at this"
+" quantity.\n"
+"                 If set to <b>min</b> the axis starts at the lowest"
+" value.\n\n"
+"  <b>stop</b>           Limit the end of the diagram at this"
+" quantity.\n"
+"  <b>quantity</b>       Name things represented in the diagram.\n"
+"  <b>unit</b>           Name the unit.\n"
+"</pre>";
 
 #if constant(Image.image)
 #define OLDSTYLE
@@ -60,135 +173,6 @@ function create_pie, create_bars, create_graph;
   do { voidsep = m->voidseparator||m->voidsep||res->voidsep||"VOID"; } while(0)
 
 int loaded;
-
-mixed *register_module()
-{
-  return ({ 
-    MODULE_PARSER|MODULE_LOCATION,
-    "Business Graphics",
-    (  !loaded?
-       "The Business Graphics tag. This module draws\n"
-       "line charts, pie charts, graphs and bar charts.<p>\n"
-       "&lt;diagram help&gt;&lt;/diagram&gt; gives help.\n"
-       :
-       "<font size=+1><b>The Business Graphics tag</b></font>\n<br>"
-       "Draws different kinds of diagrams.<br>"
-       "<p><pre>"
-       "\n&lt;<b>diagram</b>&gt; (container)\n"
-       "Options:\n"
-       "  <b>help</b>           Displays this text.\n"
-       "  <b>type</b>           Mandatory. Type of graph. Valid types are:\n"
-       "                 <b>sumbars</b>, <b>normsumbars</b>, <b>linechart</b>,"
-       " <b>barchart</b>,\n"
-       "                 <b>piechart</b> and <b>graph</b>\n"
-#if constant(Image.JPEG.decode)
-       "  <b>background</b>     Takes the filename of a pnm-, gif- or\n"
-       "                 jpeg-image as input.\n"
-#else
-       "  <b>background</b>     Takes the filename of a pnm image as input.\n"
-#endif
-       "  <b>width</b>          Width of diagram image in pixels.\n"
-       "                 (will not have any effect below 100)\n"
-       "  <b>height</b>         Height of diagram image in pixels.\n"
-       "                 (will not have any effect below 100)\n"
-       "  <b>fontsize</b>       Height of text in pixels.\n"
-       "  <b>font</b>           Name of the font used. This can be\n"
-       "                 overridden in the legend-, axis- and\n"
-       "                 names-tags.\n"
-       "  <b>namefont</b>       Name of the font for the diagram name.\n"
-       "  <b>legendfontsize</b> Height of legend text in pixels.\n"
-       "                 <b>fontsize</b> is used if this is undefined.\n"
-       "  <b>name</b>           Writes a name at the top of the diagram.\n"
-       "  <b>namecolor</b>      The color of the name-text. Textcolor\n"
-       "                 is used if this is not defined.\n"
-       "  <b>namesize</b>       Height of the name text in pixels.\n"
-       "                 <b>Fontsize</b> is used if this is undefined.\n"
-       "  <b>grey</b>           Makes the default colors in greyscale.\n"
-
-       "  <b>3D</b>             Render piecharts on top of a cylinder, takes"
-       " the\n                 height in pixels of the cylinder as argument.\n"
-       /* " tone         Do nasty stuff to the background.\n"
-	  " Requires dark background to be visible.\n" */
-       "  <b>eng</b>            If present, numbers are shown like 1.2M.\n"
-       "  <b>neng</b>           As above but 0.1-1.0 is written 0.xxx .\n"
-       "  <b>tonedbox</b>       Creates a background shading between the\n"
-       "                 colors assigned to each of the four corners.\n"
-       "  <b>center</b>         (Only for <b>pie</b>) center=n centers the nth"
-       " slice\n"
-       "  <b>rotate</b>         (Only for <b>pie</b>) rotate=X rotate the pie"
-       " X degrees.\n"
-       "  <b>turn</b>           If given, the diagram is turned 90 degrees.\n"
-       "                 (To make big diagrams printable)\n"
-       "  <b>voidsep</b>        If this separator is given it will be used\n"
-       "                 instead of VOID (This option can also\n"
-       "                 be given i <b>xnames</b> and so on)\n"
-       "  <b>bgcolor</b>        Use this background color for antialias.\n"
-       "  <b>notrans</b>        If given, the bgcolor will be opaque.\n"
-       
-       // Not supported any more!     "  <b>colorbg</b>        Sets the color for the background\n"
-       "  <b>textcolor</b>      Sets the color for all text\n"
-       "                 (Can be overrided)\n"
-       "  <b>labelcolor</b>     Sets the color for the labels of the axis\n"
-
-       "  <b>horgrid</b>        If present a horizontal grid is drawn\n"
-       "  <b>vertgrid</b>       If present a vertical grid is drawn\n"
-       "  <b>xgridspace</b>     The space between two vertical grids in the\n"
-       "                 same unit as the data.\n"
-       "  <b>ygridspace</b>     The space between two horizontal grids in\n"
-       "                 the same unit as the data.\n"
-
-       "\n  You can also use the regular &lt;<b>img</b>&gt; arguments. They"
-       " will be passed\n  on to the resulting &lt;<b>img</b>&gt; tag.\n\n"
-       "The following internal tags are available:\n"
-       "\n&lt;<b>data</b>&gt; (container) Mandatory.\n"
-       "Tab and newline separated list of data values for the diagram."
-       " Options:\n"
-       "  <b>separator</b>      Use the specified string as separator instead"
-       " of tab.\n"
-       "  <b>lineseparator</b>  Use the specified string as lineseparator\n"
-       "                 instead of newline.\n"
-       "  <b>form</b>           Can be set to either row or column. Default\n"
-       "                 is row.\n"
-       "  <b>xnames</b>         If given, the first line or column is used as\n"
-       "                 xnames. If set to a number N, N lines or columns\n"
-       "                 are used.\n"
-       "  <b>xnamesvert</b>     If given, the xnames are written vertically.\n" 
-       "  <b>noparse</b>        Do not run the content of the tag through\n"
-       "                 the RXML parser before data extraction is done.\n"
-       "\n&lt;<b>colors</b>&gt; (container)\n"
-       "Tab separated list of colors for the diagram. Options:\n"
-       "  <b>separator</b>      Use the specified string as separator instead"
-       " of tab.\n"
-       "\n&lt;<b>legend</b>&gt; (container)\n"
-       "Tab separated list of titles for the legend. Options:\n"
-       "  <b>separator</b>      Use the specified string as separator instead"
-       " of tab.\n"
-       "\n&lt;<b>xnames</b>&gt; (container)\n"
-       "Tab separated list of datanames for the diagram. Options:\n"
-       "  <b>separator</b>      Use the specified string as separator instead"
-       " of tab.\n"
-       "  <b>orient</b>         If set to vert the xnames will be written"
-       " vertically.\n"
-       "\n&lt;<b>ynames</b>&gt; (container)\n"
-       "Tab separated list of datanames for the diagram. Options:\n"
-       "  <b>separator</b>      Use the specified string as separator instead"
-       " of tab.\n"
-       "\n&lt;<b>xaxis</b>&gt; and &lt;<b>yaxis</b>&gt; (tags)\n"
-       "Options:\n"
-       /* " name=        Dunno what this does.\n" */
-       //I know!!! /Hedda
-       "  <b>start</b>          Limit the start of the diagram at this"
-       " quantity.\n"
-       "                 If set to <b>min</b> the axis starts at the lowest"
-       " value.\n\n"
-       "  <b>stop</b>           Limit the end of the diagram at this"
-       " quantity.\n"
-       "  <b>quantity</b>       Name things represented in the diagram.\n"
-       "  <b>unit</b>           Name the unit.\n"
-       "</pre>"
-       ), ({}), 1,
-    });
-}
 
 void start(int num, object configuration)
 {
@@ -622,7 +606,7 @@ string tag_diagram(string tag, mapping m, string contents,
   bg_timers->all = gauge {
 #endif
 
-  if(m->help) return register_module()[2];
+  if(m->help) return module_doc;
 
   if(m->colortable_cache) res->colortable_cache=m->colortable_cache;
   if(m->type) res->type = m->type;

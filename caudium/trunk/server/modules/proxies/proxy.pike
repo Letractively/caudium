@@ -248,13 +248,6 @@ void create()
 	 "<a href=$configurl/regexp.html>Regular Expressions</a>.");
 }
 
-mixed *register_module()
-{
-  return ({  MODULE_PROXY|MODULE_LOCATION, 
-	       "HTTP-Proxy", "This is a caching HTTP-proxy with quite "
-	       " a few bells and whistles", });
-}
-
 string query_location()  { return QUERY(mountpoint); }
 
 string status()

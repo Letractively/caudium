@@ -54,17 +54,6 @@ string isright(string word)
   return right_to_wrong_data[word];
 }
 
-array register_module()
-{
-  return ({
-    MODULE_PARSER,
-    "Spell checker",
-      "Checks for and marks common misspellings inside the &lt;spell&gt; tag.<p>"
-      " &lt;spell [help] [warn]&gt;text to spellcheck[&lt;/spell&gt;]<p>If "
-      "warn is defined, all unknown words will be reported",
-      0,1
-  });
-}
 
 array (string) magic(string text,int warn);
 
@@ -72,7 +61,7 @@ string do_spell(string q, mapping args, string words)
 {
   int w;
   if(args->warn) w = 1;
-  if(args->help) return register_module()[2]+"<p>";
+  if(args->help) return module_doc+"<p>";
   return words + "<p><b>Spell checking report:</b><p>"+magic(words, w)*"<br>";
 }
 

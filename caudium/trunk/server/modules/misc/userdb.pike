@@ -464,19 +464,5 @@ string status()
 );
 }
 
-mixed *register_module()
-{
-  return 
-    ({ MODULE_AUTH, 
-       "User database and security",
-       ("This module handles the security in roxen, and uses "
-	"the normal system password and user database to validate "
-	"users. It also maintains the user database for all other "
-	"modules in roxen, e.g. the user homepage module."),
-       ({  }),
-       1 
-     });
-}
-
 int may_disable() { return 0; }
 

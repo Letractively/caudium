@@ -25,31 +25,6 @@ constant module_doc  = "<B>Advanced Wizards module</b><p><br>\n"
 	    "<b>&lt;/page&gt;</b>";
 constant module_unique = 1;
 
-array register_module()
-{
-  return ({ MODULE_PARSER, "Advanced Wizards",
-	    "<B>Advanced Wizards module</b><p><br>\n"
-	    "Tags:<br>"
-	    "<b>&lt;awizard title=...&gt;</b><br>"
-	    "<b>&lt;page [name=...]&gt;</b><br>"
-	    "<b>&lt;verify&gt;</b>...<b>&lt;/verify&gt;</b>"
-	    "  --&gt; Will be executed when leaving the page.<br>"
-	    "<b>&lt;button [page=...] [title=...] [image=...]&gt;</b><br>"
-	    "<b>&lt;ebutton [href=...] [title=...] [image=...]&gt;</b>"
-	    "  RXML code to execute when the button is pressed<b>&lt;/ebutton&gt;</b><br>"
-	    "<b>&lt;come-from page=...&gt;</b>"
-	    "  RXML to be executed when arriving from page<b>&lt;/come-from&gt;</b><br>"
-	    "<b>&lt;goto page=...&gt;</b><br>"
-	    "<b>&lt;goto href=...&gt;</b><br>"
-	    "<b>&lt;warn&gt;</b>string<b>&lt;/warn&gt;</b><br>"
-	    "<b>&lt;notice&gt;</b>string<b>&lt;/notice&gt;</b><br>"
-	    "<b>&lt;error&gt;</b>string<b>&lt;/error&gt;</b>"
-	    "  (can be used to prevent the user from leaving this page)<br>"
-	    "<b>&lt;/page&gt;</b>",
-	    0, 1 });
-	    
-}
-
 
 // Store (advanced wizards with procedures) module...
 

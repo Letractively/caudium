@@ -44,6 +44,9 @@
 // -----------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2000/09/20 22:46:43  neotron
+// Now uses the new module_*** constants instead of register_module()
+//
 // Revision 1.7  2000/09/14 18:59:01  grendel
 // OK. First step towards getting rid of register_module. The module_ variables
 // have been added to those modules. If I missed some semicolon, kill me
@@ -243,54 +246,6 @@ void create()
 
   defvar("ppm", "a", "Default PPM GIF-Digit style", TYPE_STRING,
 	 "Default PPM/GIF-Digits style for counters (Ex: 'a')"); 
-}
-
-//
-// Module Definition
-//
-array register_module()
-{
-  return ({ 
-    MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER,
-    "Graphical Counter", 
-    "This is the Graphic &lt;Counter&gt; Module.<br><p>"
-	"\n<p><pre>"
-	"&lt;counter\n"
-    "         border=...                 | like &lt;IMG BORDER=...\n"  
-    "         bordercolor=...            | Changes the color of the border, if\n"
-    "                                    | the border is enabled.\n"  
-    "         align=[left|center|right]  | like &lt;IMG ALIGN=...\n"
-    "         width=...                  | like &lt;IMG WIDTH=...\n"
-    "         height=...                 | like &lt;IMG HEIGHT=...\n"
-    "\n" 
-    "         cheat=xxx                  | Add xxx to the actual number of accesses.\n"
-    "         factor=...                 | Modify the number of accesses by factor/100, \n"
-    "                                    | that is, factor=200 means 5 accesses will\n" 
-    "                                    | be seen as 10.\n"
-    "         file=xx                    | Show the number of times the file xxx has \n"
-    "                                    | been accessed instead of current page.\n"
-    "         prec=...                   | Number of precision digits. If prec=2\n"
-    "         precision=...              | show 1500 instead of 1543 \n"
-    "         add                        | Add one to the number of accesses \n"
-    "                                    | of the file that is accessed, or, \n"
-    "                                    | in the case of no file, the current\n"
-    "                                    | document. \n"
-    "         reset                      | Reset the counter.\n"
-    "         per=[second|minute|        | Access average per unit of time.\n" 
-    "         hour|day|week|month]       | \n"
-    "         size=[1..10]               | 2.5=half, 5=normal, 10=double\n"
-    "         len=[1..10]                | Number of Digits (1=no leading zeroes)\n" 
-    "         rotate=[-360..360]         | Rotation Angle \n"
-    "         fg=#rrggbb                 | Foreground Filter\n" 
-    "         bg=#rrggbb                 | Bakground Color\n"
-    "         trans                      | make Background transparent\n"
-    "         user=\"user\"                | Search 'stylename' in user directory\n"
-    "\n"
-    "         style=\"stylename\"          | Cool PPM font name (default style=a)\n"
-    "         nfont=\"fontname\" &gt;          | Standard NFONT name\n</pre>",
-    0,
-    1,	// Allow only a copy per server.
-    });
 }
 
 //

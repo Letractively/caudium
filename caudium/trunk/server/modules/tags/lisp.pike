@@ -23,7 +23,6 @@
  * unknown.
  */
 
-#if constant(Languages)
 #define error(X) throw( ({ (X), backtrace() }) )
 constant cvs_version = "$Id$";
 
@@ -34,19 +33,14 @@ constant thread_safe=1;
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Lisp tag module";
+constant module_unique = 1;
 constant module_doc  = "This module defines a new tag, "
-	    "&lt;lisp [context=foo]&gt;&lt;/lisp&gt;";
-constant module_unique = 0;
-#endif // constant(Languages)
-
-array register_module()
-{
-#if constant(Languages)
-  return ({ MODULE_PARSER, "Lisp tag module", 
-	    "This module defines a new tag, "
-	    "&lt;lisp [context=foo]&gt;&lt;/lisp&gt;", 0, ({}) });
-#endif // constant(Languages)
-}
+"&lt;lisp [context=foo]&gt;&lt;/lisp&gt;"
+#if !constant(Languages)
+" The Languages Pike module is missing. Thus this module will not function "
+"correctly."
+#endif
+;
 
 #if constant(Languages)
 void create()
@@ -255,7 +249,7 @@ string tag_lisp(string t, mapping m, string c,
 		object id, object f, mapping defines)
 {
   if(m->help)
-    return register_module()[2];
+    return module_doc;
 
 //   NOCACHE();
   

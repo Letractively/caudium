@@ -348,18 +348,6 @@ void create(object c)
 }
 
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LOCATION | MODULE_FILE_EXTENSION,
-    "CGI executable support", 
-    "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
-      "interface.html\">CGI/1.1 interface</a>, and more. It is too bad "
-      "that the CGI specification is a moving target, it is hard to "
-      "implement a fully compatible copy of it."
-    });
-}
-
 string check_variable(string name, string value)
 {
   if(name == "mountpoint" && value[-1] != '/')

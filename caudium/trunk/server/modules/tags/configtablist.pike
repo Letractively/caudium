@@ -71,29 +71,6 @@ mapping(string:string) gif_cache = ([]);
  * Functions
  */
 
-array register_module()
-{
-  return(({ MODULE_PARSER|MODULE_LOCATION, "Config tab-list", 
-	      "Adds some tags for making a config-interface "
-	      "look-alike tab-list.<br>\n"
-	      "Usage:<br>\n"
-	      "<ul><pre>&lt;config_tablist&gt;\n"
-	      "&lt;tab href=\"/tab1/\"&gt;Some text&lt;/tab&gt;\n"
-	      "&lt;tab href=\"/tab2/\"&gt;Some more text&lt;/tab&gt;\n"
-	      "&lt;tab href=\"a/strange/place/\"&gt;Tab 3&lt;/tab&gt;\n"
-	      "&lt;/config_tablist&gt;\n"
-	      "</pre></ul>Attributes for the &lt;tab&gt; tag:<br>\n"
-	      "<ul><table border=0>\n"
-	      "<tr><td><b>selected</b></td><td>Whether the tab is selected "
-	      "or not.</td></tr>\n"
-	      "<tr><td><b>bgcolor</b></td><td>What color to use as background. "
-	      "Defaults to white.</td></tr>\n"
-	      "<tr><td><b>alt</b></td><td>Alt-text for the image (default: "
-	      "\"_/\" + text + \"\\_\").</td></tr>\n"
-	      "<tr><td><b>border</b></td><td>Border for the image (default: "
-	      "0).</td></tr>\n"
-	      "</table></ul>\n", 0, 1 }));
-}
 
 void create()
 {
@@ -105,7 +82,7 @@ string tag_config_tab(string t, mapping a, string contents)
 {
   string dir = "u/";
   mapping img_attrs = ([]);
-  if(a->help) return register_module()[2];
+  if(a->help) return module_doc;
   if (a->selected) {
     dir = "s/";
   }

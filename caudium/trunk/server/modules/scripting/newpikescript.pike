@@ -42,19 +42,15 @@ mixed *register_module()
 inherit "module";
 inherit "caudiumlib";
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_FILE_EXTENSION,
-    "Pike script support mark II", 
-    "This is an enhanced version of the normal 'pike scripts' module. "
-    "Major features:<ul>\n"
-    "<li> A separate process for each user."
-    "<li> The processes are quite persistent"
-    "</ul>"
-    });
-}
-
+constant module_type = MODULE_FILE_EXTENSION;
+constant module_name = "Pike script support mark II";
+constant module_doc   =
+"This is an enhanced version of the normal 'pike scripts' module. "
+"Major features:<ul>\n"
+"<li> A separate process for each user."
+"<li> The processes are quite persistent"
+"</ul>";
+constant module_unique = 0;
 
 void create()
 {

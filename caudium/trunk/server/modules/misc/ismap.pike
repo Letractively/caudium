@@ -45,17 +45,6 @@ void create()
 	 "All files ending with this extension will be parsed as map-files.");
 }
 
-mixed *register_module()
-{
-  return ({ MODULE_FILE_EXTENSION, 
-	   "ISMAP image-maps",
-	   "Internal support for server side image-maps, including a quite "
-	      "odd color-per-url imagemap method" ,
-	   ({ }),1
-	   });
-
-}
-
 inline int sqr(int a) { return a*a; }
 
 int parse_color(string col, int multi)

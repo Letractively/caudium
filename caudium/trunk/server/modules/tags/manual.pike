@@ -100,16 +100,6 @@ string tag_manual(string tag_name, mapping args, object id,
 	  "See <tt>&lt;manual help&gt</tt> for more information.<p>");
 }
 
-array register_module()
-{
-  return ({
-    MODULE_PARSER,
-      "Manual tag",
-      "This tag is the manual librarian.<p>"
-      "See <tt>&lt;manual help&gt</tt> for more information.\n\n<p>"+doc(),
-      0, 1 });
-}
-
 void start(int num, object configuration)
 {
   loaded = 1;

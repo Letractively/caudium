@@ -33,7 +33,8 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "SED tag";
-constant module_doc  = "";
+constant module_doc  = "Implements a tag that allows you to do SED-like "
+"replacement in RXML. &lt;sed help&gt; gives more information.";
 constant module_unique = 1;
 
 mapping flcache=([]); 
@@ -45,13 +46,6 @@ void create()
 {
 }
 
-
-array (mixed) register_module()
-{
-  return ({ MODULE_PARSER, "SED tag", 
-	    "",
-	    ({}),1 });
-}
 
 void start()
 {

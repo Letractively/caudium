@@ -109,14 +109,6 @@ void start()
   parse_ext_string(QUERY(exts));
 }
 
-array register_module()
-{
-  return ({ MODULE_TYPES, "Content types",
-	    ("This module handles all normal extension to "+
-	     "content type mapping. Given the file 'foo.html', it will "+
-	     "normally set the content type to 'text/html'."), ({}), 1 });
-}
-
 array type_from_extension(string ext)
 {
   if(ext == "default") {

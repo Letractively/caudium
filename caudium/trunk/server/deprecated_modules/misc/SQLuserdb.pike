@@ -357,15 +357,3 @@ string|void check_variable (string name, mixed newvalue)
 	return 0; //should never reach here...
 }
 
-array register_module() {
-	return ({
-	MODULE_AUTH,
-	"SQL user database",
-	"This module implements user authentication via a SQL server.<p>\n "
-	"For setup instruction, see the comments at the beginning of the module "
-	"code.<P>"
-	"&copy; 1997 Francesco Chemolli, distributed freely under GPL license.",
-	0,
-	1
-	});
-};

@@ -57,20 +57,6 @@ void start( int num, object conf )
   module_dependencies (conf, ({ "flik", "htmlparse" }));
 }
 
-array register_module()
-{
-  return ({ MODULE_DIRECTORIES | MODULE_PARSER,
-	      "Enhanced directory listings",
-	      "This module is an experimental directory parsing module. "
-	      "It pretty prints a list of files much like the ordinary "
-	      "directory parsing module. "
-	      "The difference is that this one uses the flik-module "
-	      "for the fold/unfolding, and uses relative URL's with "
-	      "the help of some new tags: "
-	      "&lt;REL&gt;, &lt;AREL&gt; and &lt;INSERT-QUOTED&gt;.",
-	      ({ }), 1 });
-}
-
 int dirlisting_not_set()
 {
   return(!QUERY(dirlisting));

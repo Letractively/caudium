@@ -141,17 +141,6 @@ void create()
 }
 
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LOCATION, 
-    "Filesystem", 
-    ("This is a virtual filesystem, use it to make files available to "+
-     "the users of your WWW-server. If you want to serve any 'normal' "
-      "files from your server, you will have to have atleast one filesystem.") 
-    });
-}
-
 string path;
 int stat_cache;
 

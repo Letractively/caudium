@@ -91,24 +91,6 @@ void gc()
    if (k) call_out(gc,GC_LOOP_TIME);
 }
 
-array (mixed) register_module()
-{
-  return ({ MODULE_PARSER, "Folder list tag", 
-	      "Adds the &lt;fl&gt;, &lt;ft&gt; and &lt;fd&gt; tags."
-	       " This makes it easy to build a folder list or an outline. "
-	       "Example:<pre>"
-	       "&lt;fl unfolded&gt;\n"
-	       "  &lt;ft folded&gt;ho\n"
-	       "   &lt;fd&gt;heyhepp\n"
-	       "  &lt;ft&gt;alakazot\n"
-	       "   &lt;fd&gt;no more\n"
-	       "&lt;/fl&gt;</pre>",
-	       ({}),1 });
-}
-
-void start()
-{
-}
 
 string encode_url(object id, 
 		  int flno,

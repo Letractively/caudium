@@ -690,24 +690,3 @@ array|int auth (string *auth, object id)
     succ++;
     return ({1,u,0});
 }
-
-
-
-/*
- * Registration and initialization
- */
-
-array register_module()
-{
-
-    return(({ MODULE_AUTH | MODULE_EXPERIMENTAL,
-	"LDAP directory authorization",
-	"Experimental module for authorization using "
-	"Pike's internal Ldap directory interface."
-	"<p>&copy; 1998,99 Honza Petrous (with enhancements by Wim Bonis)<br>"
-	"distributed freely under GPL license.",
-
-	({}), 1 }));
-}
-
-

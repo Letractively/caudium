@@ -41,21 +41,6 @@ constant module_doc  = "Index files only module, a directory module that will no
 	      "to use index.html with friends";
 constant module_unique = 1;
 
-array register_module()
-{
-  return ({ MODULE_DIRECTORIES, 
-	    "Index files only",
-	      "Index files only module, a directory module that will not try "
-	      "to generate any directory listings, instead only using the  "
-	      "specified index files.<p>"
-	      "You can use this directory module if you do not want "
-	      "any automatic directory listings at all, but still want \n"
-	      "to use index.html with friends",
-	    ({ }), 
-	    1
-         });
-}
-
 void create()
 {
   defvar("indexfiles", ({ "index.html", "Main.html", "welcome.html", }),

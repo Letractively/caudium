@@ -509,17 +509,6 @@ int query_num(string file, int count)
   return 0;
 }
 
-array register_module()
-{
-  return ({ MODULE_FILE_EXTENSION|MODULE_PARSER|MODULE_MAIN_PARSER, 
-	    "Main RXML parser", 
-	    ("This module makes it possible for other modules to add "
-	     "new tags to the RXML parsing, in addition to the "
-	     "default ones.  The default error message (no such resource) "
-	     "use this parser, so if you do not want it, you will also "
-	     "have to change the error message."), ({}), 1 });
-}
-
 string *query_file_extensions() 
 { 
   return query("toparse") + query("noparse"); 

@@ -147,15 +147,6 @@ array|int auth(array(string) auth, object id)
  * Registration and initialization
  */
 
-array register_module()
-{
-  return(({ MODULE_AUTH,
-	      "YP (NIS) authorization",
-	      "Experimental module for authorization using "
-	      "Pike's internal YP-database interface.",
-	      ({}), 1 }));
-}
-
 void start(int i)
 {
   if (!domain) 

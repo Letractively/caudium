@@ -72,17 +72,11 @@ constant name = "UltraStats Longterm Hits / Page loads ";
 string query_provides() { return "ultrareporter"; }
 string query_report_name() { return "ul_long"; }
 
-mixed *register_module()
-{
-  return 
-  ({ MODULE_PROVIDER, 
-     "UltraLog: Long Term Monthly Hit Statistics ",
-     ("A plugin module for Ultraparse to display monthly hit / page load "
-      "statistics for a custom time period."),
-       ({  }),
-     1 
-     });
-}
+constant module_type = MODULE_PROVIDER;
+constant module_name = "UltraLog: Long Term Monthly Hit Statistics ";
+constant module_doc =
+"A plugin module for Ultraparse to display monthly hit / page load "
+"statistics for a custom time period.";
 
 #define OK(x) (id->variables->x && strlen(id->variables->x))
 mixed view_report(string f, object id, object ultralog)

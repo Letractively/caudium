@@ -230,14 +230,6 @@ string find_cvs_dir(string path)
   return 0;
 }
 
-array register_module()
-{
-  return ({ MODULE_LOCATION,
-	      "CVS File system",
-	      "Accessing files under CVS control.",
-	      0, 0 });
-}
-
 string query_name()
 {
   return sprintf("<i>%s</i> mounted on <i>%s</i>",

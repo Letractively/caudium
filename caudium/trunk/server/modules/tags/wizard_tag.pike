@@ -34,13 +34,6 @@ constant module_name = "Wizard generator";
 constant module_doc  = "Generates wizards<p>See &lt;wizard help&gt; for more information\n";
 constant module_unique = 1;
 
-mixed *register_module()
-{
-  return ({MODULE_PARSER,"Wizard generator",
-          "Generates wizards<p>See &lt;wizard help&gt; for more information\n",
-          ({}),1,});
-}
-
 string internal_page(string t, mapping args, string contents, int l, int ol,
 		     mapping f)
 {
