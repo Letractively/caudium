@@ -652,7 +652,7 @@ class Module {
                     methods += ({newstuff});
                     break;
                     
-		case "entity-scope":
+		case "entity_scope":
 		    if (newstuff->myName != "EntityScope") {
 			wrong_otype(kw, newstuff->myName);
 			return;
@@ -1134,7 +1134,7 @@ class EntityScope {
     {
         if (stringp(newstuff)){
             switch(kw) {
-                case "entity-scope":
+                case "entity_scope":
                     first_line = newstuff;
 		    if (parent)
 			parent->add(this_object(), kw);
@@ -1176,7 +1176,7 @@ class EntityScope {
     void append_field(string newstuff)
     {
         switch(lastkw) {
-            case "entity-scope":
+            case "entity_scope":
                 if (newstuff == "")
                     contents += "\n";
                 else
@@ -1273,7 +1273,7 @@ mapping(string:object|string) module_scope = ([
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
-    "entity-scope":lambda(object curob, string line) {
+    "entity_scope":lambda(object curob, string line) {
                        return EntityScope(line, curob);
                    },
     "ScopeName":"module"
@@ -1373,7 +1373,7 @@ mapping(string:object|string) entityscope_scope = ([
     "see_also":"",
     "note":"",
     "example":"",
-    "ScopeName":"entity-scope"
+    "ScopeName":"entity_scope"
 ]);
 
 mapping(string:object|string) entity_scope = ([
@@ -1416,7 +1416,7 @@ mapping(string:mapping) scopes = ([
     "tag": tag_scope,
     "container": container_scope,
     "attribute": attribute_scope,
-    "entity-scope": entityscope_scope,
+    "entity_scope": entityscope_scope,
     "entity": entity_scope
 ]);
 
