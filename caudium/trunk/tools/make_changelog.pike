@@ -139,7 +139,7 @@ void twiddle()
 
 void main(int argc, array (string) argv)
 {
-#if efun(thread_create)
+#if constant(thread_create)
   thread_create(twiddle);
 #endif
   werror("Running CVS log ");

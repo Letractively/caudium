@@ -124,7 +124,7 @@ string get_status(int pid)
 
      case "uid":
       data->uid = unmod / "\t" - ({""});
-#if efun(getpwuid)
+#if constant(getpwuid)
       for(int i = 0; i < sizeof(data->uid); i++)
 	catch {
 	  data->uid[i] = getpwuid((int)data->uid[i])[0];
@@ -134,7 +134,7 @@ string get_status(int pid)
 
      case "gid":
       data->gid = unmod / "\t" - ({""});
-#if efun(getgrgid)
+#if constant(getgrgid)
       for(int i = 0; i < sizeof(data->gid); i++)
 	catch {
 	  data->gid[i] = getgrgid((int)data->gid[i])[0];

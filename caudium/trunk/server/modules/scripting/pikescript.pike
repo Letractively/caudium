@@ -62,7 +62,7 @@ constant module_doc  = "Support for user Pike-scripts, like CGI, but handled int
     " programs with the same right as the server!";
 constant module_unique = 0;
 
-#if constant(_static_modules) && efun(thread_create)
+#if constant(_static_modules) && constant(thread_create)
 constant Mutex=__builtin.mutex;
 #endif /* _static_modules */
 
@@ -117,7 +117,7 @@ void create()
 	 TYPE_STRING|VAR_MORE,
 	 "Never run scripts matching this permission mask");
 
-#if efun(set_max_eval_time)
+#if constant(set_max_eval_time)
   defvar("evaltime", 4, "Maximum evaluation time", TYPE_INT,
 	 "The maximum time (in seconds) that a script is allowed to run for. "
 	 "This might be changed in the script, but it will stop most mistakes "
@@ -163,7 +163,7 @@ array|mapping call_script(function fun, object id, object file)
   if(id->realauth && QUERY(fork_exec) && !QUERY(clearpass))
     id->realauth=0;
 
-#if efun(fork)
+#if constant(fork)
   if(QUERY(fork_exec)) {
     if(fork())
       return ([ "leave_me":1 ]);
@@ -215,13 +215,13 @@ array|mapping call_script(function fun, object id, object file)
   }
 #endif
 
-#if efun(set_max_eval_time)
+#if constant(set_max_eval_time)
   if(catch {
     set_max_eval_time(query("evaltime"));
 #endif
     err=catch(result=fun(id)); 
 // The eval-time might be exceeded in here..
-#if efun(set_max_eval_time)
+#if constant(set_max_eval_time)
     remove_max_eval_time(); // Remove the limit.
   })
     remove_max_eval_time(); // Remove the limit.
@@ -229,7 +229,7 @@ array|mapping call_script(function fun, object id, object file)
 
   if(privs) destruct(privs);
 
-#if efun(fork)
+#if constant(fork)
   if (QUERY(fork_exec)) {
     if (err = catch {
       if (err) {
@@ -354,7 +354,7 @@ mapping handle_file_extension(object f, string e, object id)
       throw( err );
     }
     
-#if efun(setegid)
+#if constant(setegid)
     add_constant("setegid", ban[0]);
     add_constant("seteuid", ban[2]);
 #endif
@@ -409,7 +409,7 @@ string status()
 
 }
 
-#if efun(fork)
+#if constant(fork)
 void start()
 {
   if(QUERY(fork_exec))

@@ -41,7 +41,7 @@ string resolv;
 int level;
 
 mapping et = ([]);
-#if efun(gethrvtime)
+#if constant(gethrvtime)
 mapping et2 = ([]);
 #endif
 
@@ -52,32 +52,32 @@ void trace_enter_ol(string type, function|object module)
   string efont="", font="";
   if(level>2) {efont="</font>";font="<font size=-1>";} 
   resolv += (font+"<b><li></b> "+type+" "+module_name(module)+"<ol>"+efont);
-#if efun(gethrvtime)
+#if constant(gethrvtime)
   et2[level] = gethrvtime();
 #endif
-#if efun(gethrtime)
+#if constant(gethrtime)
   et[level] = gethrtime();
 #endif
 }
 
 void trace_leave_ol(string desc)
 {
-#if efun(gethrtime)
+#if constant(gethrtime)
   int delay = gethrtime()-et[level];
 #endif
-#if efun(gethrvtime)
+#if constant(gethrvtime)
   int delay2 = gethrvtime()-et2[level];
 #endif
   level--;
   string efont="", font="";
   if(level>1) {efont="</font>";font="<font size=-1>";} 
   resolv += (font+"</ol>"+
-#if efun(gethrtime)
+#if constant(gethrtime)
 	     "Time: "+sprintf("%.5f",delay/1000000.0)+
 #endif
-#if efun(gethrvtime)
+#if constant(gethrvtime)
 	     " (CPU = "+sprintf("%.2f)", delay2/1000000.0)+
-#endif /* efun(gethrvtime) */
+#endif /* constant(gethrvtime) */
 	     "<br>"+html_encode_string(desc)+efont)+"<p>";
 
 }
@@ -91,21 +91,21 @@ void trace_enter_table(string type, function|object module)
 	     +(level>1?"<td width=1 bgcolor=blue><img src=/image/unit.gif alt=|></td>":"")
 	     +"<td width=100%>"+font+type+" "+module_name(module)+
 	     "<table width=100% border=0 cellspacing=10 border=0 cellpadding=0>");
-#if efun(gethrtime)
+#if constant(gethrtime)
   et[level]= gethrtime();
 #endif
 }
 
 void trace_leave_table(string desc)
 {
-#if efun(gethrtime)
+#if constant(gethrtime)
   int delay = gethrtime()-et[level];
 #endif
   level--;
   string efont="", font="";
   if(level>1) {font="<font size=-1>";} 
   resolv += ("</td></tr></table><br>"+font+
-#if efun(gethrtime)
+#if constant(gethrtime)
 	     "Time: "+sprintf("%.5f",delay/1000000.0)+
 #endif
 	     "<br>"+html_encode_string(desc)+efont)+"</td></tr>";

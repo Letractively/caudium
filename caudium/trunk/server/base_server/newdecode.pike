@@ -22,7 +22,7 @@
 // The magic below is for the 'install' program
 
 #ifndef roxenp
-#if !efun(roxenp)
+#if !constant(roxenp)
 #define roxenp this_object()
 #endif
 #endif

@@ -646,7 +646,7 @@ void init_disk_check(string dir, int minfree)
   if(minfree<=0)
     return;
 
-#if efun(filesystem_stat)
+#if constant(filesystem_stat)
   remove_call_out(init_disk_check);
 
   mapping(string:int|string) st = filesystem_stat(dir);

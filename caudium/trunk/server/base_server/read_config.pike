@@ -88,7 +88,7 @@ void save_it(string cl)
   if(!fd)
   {
     error("Creation of configuration file failed ("+f+") "
-#if 0&&efun(strerror)
+#if 0&&constant(strerror)
 	  " ("+strerror()+")"
 #endif
 	  "\n");
@@ -100,7 +100,7 @@ void save_it(string cl)
   if(num != strlen(data))
   {
     error("Failed to write all data to configuration file ("+f+") "
-#if efun(strerror)
+#if constant(strerror)
 	  " ("+strerror(fd->errno())+")"
 #endif
 	  "\n");
@@ -219,7 +219,7 @@ void remove_configuration( string name )
   if(!rm(f) && file_stat(f))
   {
     error("Failed to remove configuration file ("+f+")! "+
-#if 0&&efun(strerror)
+#if 0&&constant(strerror)
 	  strerror()
 #endif
 	  "\n");

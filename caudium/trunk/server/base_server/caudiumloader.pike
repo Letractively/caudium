@@ -70,7 +70,7 @@ int getppid()
 }
 #endif
 
-#if efun(syslog)
+#if constant(syslog)
 #define  LOG_CONS   (1<<0)
 #define  LOG_NDELAY (1<<1)
 #define  LOG_PERROR (1<<2)
@@ -138,7 +138,7 @@ void roxen_perror(string format,mixed ... args)
     stderr->write("[1mCaudium is alive!\n"
 		  "   Time: "+ctime(t)+
 		  "   pid: "+pid+"   ppid: "+getppid()+
-#if efun(geteuid)
+#if constant(geteuid)
 		  (geteuid()!=getuid()?"   euid: "+pw_name(geteuid()):"")+
 #endif
 		  "   uid: "+pw_name(getuid())+"[0m\n");
@@ -150,7 +150,7 @@ void roxen_perror(string format,mixed ... args)
   if(sizeof(args)) format=sprintf(format,@args);
   if (format=="") return;
 
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_DEBUG))
     foreach(format/"\n"-({""}), string message)
       syslog(LOG_DEBUG, replace(message+"\n", "%", "%%"));
@@ -255,7 +255,7 @@ mixed query(string arg)
 // used for debug messages. Sent to the configuration interface and STDERR.
 void init_logger()
 {
-#if efun(syslog)
+#if constant(syslog)
   int res;
   use_syslog = !! (query("LogA") == "syslog");
 
@@ -298,7 +298,7 @@ void init_logger()
 void report_debug(string message)
 {
   nwrite(message,0,2);
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_DEBUG))
     foreach(message/"\n", message)
       syslog(LOG_DEBUG, replace(message+"\n", "%", "%%"));
@@ -309,7 +309,7 @@ void report_debug(string message)
 void report_warning(string message)
 {
   nwrite(message,0,2);
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_WARNING))
     foreach(message/"\n", message)
       syslog(LOG_WARNING, replace(message+"\n", "%", "%%"));
@@ -320,7 +320,7 @@ void report_warning(string message)
 void report_notice(string message)
 {
   nwrite(message,0,1);
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_NOTICE))
     foreach(message/"\n", message)
       syslog(LOG_NOTICE, replace(message+"\n", "%", "%%"));
@@ -331,7 +331,7 @@ void report_notice(string message)
 void report_error(string message)
 {
   nwrite(message,0,3);
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_ERR))
     foreach(message/"\n", message)
       syslog(LOG_ERR, replace(message+"\n", "%", "%%"));
@@ -342,7 +342,7 @@ void report_error(string message)
 void report_fatal(string message)
 {
   nwrite(message,0,3);
-#if efun(syslog)
+#if constant(syslog)
   if(use_syslog && (loggingfield&LOG_EMERG))
     foreach(message/"\n", message)
       syslog(LOG_EMERG, replace(message+"\n", "%", "%%"));
@@ -427,7 +427,7 @@ int spawne(string s,string *args, mapping|array env, object stdin,
 
   int u, g;
   if(uid) { u = uid[0]; g = uid[1]; } else
-#if efun(geteuid)
+#if constant(geteuid)
   { u=geteuid(); g=getegid(); }
 #else
   ;
@@ -612,7 +612,7 @@ class empty_class {
 int getuid(){ return 17; }
 int getgid(){ return 42; }
 #endif
-#if !efun(gethrtime)
+#if !constant(gethrtime)
 int gethrtime()
 {
   return (time()*1000000);
@@ -729,7 +729,7 @@ class mf
 constant mf = Stdio.File;
 #endif
 
-// open() efun.
+// open() constant.
 object|void open(string filename, string mode, int|void perm)
 {
   object o;

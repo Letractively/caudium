@@ -42,7 +42,7 @@ static int global_timer, global_total_timer;
 #  define TIMER(X)
 #endif
 
-#if efun(gethrtime)
+#if constant(gethrtime)
 # define HRTIME() gethrtime()
 # define HRSEC(X) ((int)((X)*1000000))
 # define SECHR(X) ((X)/(float)1000000)

@@ -423,7 +423,7 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
 
     foreach(indices(grps), grp) {
       array gr
-#if efun(getgrnam)
+#if constant(getgrnam)
 	= getgrnam(grp)
 #endif
 	;
