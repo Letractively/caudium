@@ -29,31 +29,76 @@
 
 constant cvs_version = "$Id$";
 
-#define WCOMPAT(X) \
+#define WCOMPAT(Y,X) \
 	string sourcefile; \
         int    sourceline; \
         sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n", \
                sourceline,sourcefile); \
         report_error("Compat "+X+"() used in %s:%d, please consider using " \
-                     "Caudium."+X+"() instead\n",sourcefile,sourceline);
+                     ""+Y+"."+X+"() instead\n",sourcefile,sourceline);
+
+#define WCOMPAT2(Y,X) \
+	string sourcefile; \
+        int    sourceline; \
+        sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n", \
+               sourceline,sourcefile); \
+        report_error("Compat "+X+"() used in %s:%d, please consider using " \
+                     ""+Y+"() instead\n",sourcefile,sourceline);
+
+//! Compat call of _Roxen.http_decode_string
+//! @deprecated
+string http_decode_string(string m) {
+   WCOMPAT("_Roxen","http_decode_string");
+   return _Roxen.http_decode_string(m);
+}
+
+//! Compat call of _Roxen.html_encode_string
+//! @deprecated
+string html_encode_string(string m) {
+   WCOMPAT("_Roxen","html_encode_string");
+   return _Roxen.html_decode_string(m);
+}
+
+//! Compat call of Protocols.HTTP.unentity
+//! @deprecated
+string html_decode_string(string m) {
+   WCOMPAT2("Protocols.HTTP.unentity","html_decode_string");
+   return Protocols.HTTP.unentity(m);
+}
 
 //! Compat call of Caudium.http_encode_string
 //! @deprecated
 string http_encode_string(string m) {
-   WCOMPAT("http_encode_string");
+   WCOMPAT("Caudium","http_encode_string");
    return Caudium.http_encode_string(m);
 }
 
 //! Compat call of Caudium.http_encode_cookie
 //! @deprecated
 string http_encode_cookie(string m) {
-   WCOMPAT("http_encode_cookie");
+   WCOMPAT("Caudium","http_encode_cookie");
    return Caudium.http_encode_cookie(m);
 }
 
 //! Compat call of Caudium.http_encode_url
 //! @deprecated
 string http_encode_url(string m) {
-   WCOMPAT("http_encode_url");
+   WCOMPAT("Caudium","http_encode_url");
    return Caudium.http_encode_url(m);
 }
+
+//! Compat call of Caudium.cern_http_date
+//! @deprecated
+string cern_http_date(int t) {
+   WCOMPAT("Caudium","cern_http_date");
+   return Caudium.cern_http_date(t);
+}
+
+//! Compat call of Caudium.http_date
+//! @deprecated
+string http_date(int t) {
+   WCOMPAT("Cadium","http_date");
+   return Caudium.http_date(t);
+}
+
+
