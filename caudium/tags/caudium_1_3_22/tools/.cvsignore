@@ -1,0 +1,7 @@
+Makefile
+config.status
+config.log
+configure
+caudium-rc_script
+autom4te.cache
+
