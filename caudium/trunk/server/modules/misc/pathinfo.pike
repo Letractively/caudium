@@ -73,9 +73,11 @@ mapping|int last_resort(object id)
   int lo = (offsets[0] != 0);	// Skip testing the empty string.
   int hi = sizeof(offsets) - 1;
 
+  string saved_query = id->not_query;
+
   while(lo <= hi) {		// Don't let the beams cross.
     int probe = (lo + hi)/2;
-    string file = id->not_query[..offsets[probe]-1];
+    string file = saved_query[..offsets[probe]-1];
 
 #ifdef PATHINFO_DEBUG
     roxen_perror(sprintf("PATHINFO: Trying %O...\n", file));
@@ -85,7 +87,7 @@ mapping|int last_resort(object id)
     if (st) {
       if (st[1] >= 0) {
 	// Found a file!
-	id->misc->path_info = id->not_query[offsets[probe]..];
+	id->misc->path_info = saved_query[offsets[probe]..];
 	id->not_query = file;
 #ifdef PATHINFO_DEBUG
 	roxen_perror(sprintf("PATHINFO: Found: %O:%O\n",
