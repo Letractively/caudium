@@ -333,6 +333,8 @@ private mixed do_logout(object id, mapping data, string f)
 
     object session = PROVIDER("123sessions");
     if (session) {
+        report_notice("Killing the session...\n");
+
         session->delete_session(id, id->misc->session_id, 1);
         m_delete(id->misc, "session_variables");
         m_delete(id->misc, "session_id");
@@ -365,7 +367,8 @@ mixed handle_request(object id, mapping data, string f)
 private void kill_ldap(object id)
 {
     mixed error;
-    
+
+    report_notice("Killing ldap...\n");
     if (conn_cache[id->misc->session_id] && objectp(conn_cache[id->misc->session_id])) {
         error = catch(conn_cache[id->misc->session_id]->unbind());
         destruct(conn_cache[id->misc->session_id]);
@@ -449,7 +452,9 @@ mixed find_file(string f, object id)
         SUSER(id)->authenticated = 1;
     }
 
-    if (rescan_providers(id)) {
+    rescan_providers(id);
+    
+    {
         //
         // OK, now we can register the menus exported from the providers
         //
