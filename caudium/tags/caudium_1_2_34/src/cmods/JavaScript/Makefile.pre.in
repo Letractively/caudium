@@ -1,0 +1,14 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=JavaScript
+OBJS= njs_glue.o njs_obj.o
+SOURCES=njs_glue.o njs_obj.o
+MODULE_LIBS=@NJS_LIBS@
+MODULE_CFLAGS=@NJS_CFLAGS@
+
+@module_makefile@
+
+extrainstall:
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
+
