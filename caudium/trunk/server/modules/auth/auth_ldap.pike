@@ -160,6 +160,10 @@ void create()
                    TYPE_STRING, 
 		   "Attribute in group object containing a user's name" );
 
+        defvar ("CI_attr_group_extra", 0,
+		   "Group Attributes: Extra Attributes", TYPE_MULTIPLE_STRING,
+                   "Comma separated list of extra attributes to return.");
+
         defvar ("CI_attr_group_groupname","cn","Group Attributes: Groupname",
                    TYPE_STRING, 
 		   "Attribute in group object containing a group's name" );
@@ -171,6 +175,10 @@ void create()
         defvar ("CI_attr_group_gid","gidNumber","Group Attributes: Group ID",
                    TYPE_STRING, 
 		   "Attribute in group object containing a group's numerid ID" );
+
+        defvar ("CI_attr_user_extra", 0,
+		   "User Attributes: Extra Attributes", TYPE_MULTIPLE_STRING,
+                   "Comma separated list of extra attributes to return.");
 
         defvar ("CI_attr_user_uid", "uidNumber",
 		   "User Attributes: User ID", TYPE_STRING,
@@ -348,7 +356,7 @@ mapping|int get_user_info(string user) {
 
     tmp=sr->fetch();
 
-    dirinfo->username=tmp[QUERY(CI_attr_user_username)][0];
+    dirinfo->username=get_attrval(tmp, QUERY(CI_attr_user_username), "");
     dirinfo->name=get_attrval(tmp, QUERY(CI_attr_user_fullname), QUERY(CI_default_user_fullname));
     dirinfo->uid=get_attrval(tmp, QUERY(CI_attr_user_uid), QUERY(CI_default_user_uid));
     dirinfo->primary_group=get_attrval(tmp, QUERY(CI_attr_user_gid), QUERY(CI_default_user_gid));
@@ -363,6 +371,10 @@ mapping|int get_user_info(string user) {
 
     dirinfo->groups=get_groups_for_user(dir, user, sr->get_dn());
 
+    if(QUERY(CI_attr_user_extra) && sizeof(QUERY(CI_attr_user_extra)))
+      foreach(QUERY(CI_attr_user_extra), string a)
+         dirinfo[a]=get_attrval(tmp, a, "");
+
     dirinfo->_source=QUERY(_name);
 
     return dirinfo;
@@ -371,13 +383,77 @@ mapping|int get_user_info(string user) {
 string|int get_username(string uid)
 {
   DEBUGLOG ("get_username ("+uid+")\n");
-  return 0;
+
+   object sr;
+   mixed err;
+   object dir;
+  
+   dir=open_dir();
+
+   // first, we find the dn for the user we are about to search as.
+   string udn=replace(QUERY(CI_uidsearch_templ), "%U%", uid);
+
+   err=catch(sr=dir->search(udn));    
+
+   if(err) 
+   {
+     report_error("LDAPAuth: Search failed for query " + udn + "\n", 
+       dir->error_string());
+   }
+
+   if(sr->num_entries()==0)
+   {
+      report_error("LDAPAuth: uid not found: " + uid + "\n");
+      report_error("LDAPAuth: Search used: " + udn + "\n");
+      close_dir(dir);
+      return 0;
+   }
+   else if(sr->num_entries()>1)
+   {
+      report_error("LDAPAuth: we have more than one match for uid " + uid + "!\n");
+   }
+
+   // we will work with the first entry.
+   return sr->fetch()[QUERY(CI_attr_user_username)][0];  
+
 }
 
 string|int get_groupname(string gid)
 {
   DEBUGLOG ("get_groupname ("+gid+")\n");
-  return 0;
+
+   object sr;
+   mixed err;
+   object dir;
+  
+   dir=open_dir();
+
+   // first, we find the dn for the group we are about to search as.
+   string gdn=replace(QUERY(CI_gidsearch_templ), "%G%", gid);
+
+   err=catch(sr=dir->search(gdn));    
+
+   if(err) 
+   {
+     report_error("LDAPAuth: Search failed for query " + gdn + "\n", 
+       dir->error_string());
+   }
+
+   if(sr->num_entries()==0)
+   {
+      report_error("LDAPAuth: gid not found: " + gid + "\n");
+      report_error("LDAPAuth: Search used: " + gdn + "\n");
+      close_dir(dir);
+      return 0;
+   }
+   else if(sr->num_entries()>1)
+   {
+      report_error("LDAPAuth: we have more than one match for gid " + gid + "!\n");
+   }
+
+   // we will work with the first entry.
+   return sr->fetch()[QUERY(CI_attr_group_groupname)][0];  
+
 }
 
 mapping|int get_group_info(string group) {
@@ -410,6 +486,11 @@ mapping|int get_group_info(string group) {
     dirinfo->name=get_attrval(tmp, QUERY(CI_attr_group_fullname), QUERY(CI_default_group_fullname));
     dirinfo->gid=get_attrval(tmp, QUERY(CI_attr_group_gid), QUERY(CI_default_group_gid));
     dirinfo->users=get_users_for_group(dir, group, sr->get_dn());
+
+    if(QUERY(CI_attr_group_extra) && sizeof(QUERY(CI_attr_group_extra)))
+      foreach(QUERY(CI_attr_group_extra), string a)
+         dirinfo[a]=get_attrval(tmp, a, "");
+
 
     dirinfo->_source=QUERY(_name);
 
