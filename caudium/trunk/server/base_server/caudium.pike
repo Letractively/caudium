@@ -2527,7 +2527,7 @@ private void define_global_variables( int argc, array (string) argv )
           "of what you're doing.",
           0 );
 
-  globvar("cache_fs_path", "/var/cache/caudium/cache",
+  globvar("cache_fs_path", "../var/cache",
           "Caching Sub-system: Slow Storage Path", TYPE_DIR,
           "Path on the filesystem for storage of cached data if, indeed the "
           "disk storage method is being used.",
