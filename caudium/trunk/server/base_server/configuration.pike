@@ -2639,10 +2639,6 @@ void hooks_for( string modname, object mod )
   }
 }
 
-
-int unload_module( string modname );
-int load_module( string modname );
-
 object enable_module( string modname )
 {
   string id;
