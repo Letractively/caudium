@@ -130,6 +130,9 @@ static void sync_all(void|string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing all objects\n");
 #endif
+  if (!storage || !sizeof(storage))
+     return;
+
   if (namespace)
     if (storage[namespace])
       foreach(indices(storage[namespace]), string key)
