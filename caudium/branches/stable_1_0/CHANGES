@@ -1,4 +1,4 @@
-Changes in Caudium 1.0.38 (stable release 3, 2002-02-27)
+Changes in Caudium 1.0.40 (stable release 3, 2002-02-27)
 --------------------------------------------------------
 - Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
 - business graphics module now creates the cache directory in the correct
