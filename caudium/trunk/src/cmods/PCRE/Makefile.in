@@ -5,7 +5,7 @@ SOURCES=pcre.c
 MODULE_LIBS=@LIBS@
 EXTRA_CLEAN=pcre_config.h pcre_config.h.in PCRE.so
 
-@module_makefile@
+include @makefile_rules@
 
 extrainstall:
 

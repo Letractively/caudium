@@ -1,7 +1,7 @@
 AC_INIT(pcre.c)
 AC_CONFIG_HEADER(pcre_config.h)
 
-CAUDIUM_MODULE_INIT()
+CAUDIUM_MODULE_INIT([PCRE])
 
 AH_BOTTOM([
 #include "pcrelib/pcre.h"
@@ -26,10 +26,9 @@ AC_CHECK_HEADERS(  locale.h)
 AC_CHECK_FUNCS( setlocale )
 AC_CONFIG_SUBDIRS(pcrelib)
 
-AC_OUTPUT(Makefile.pre, [${MAKE:-make} -f Makefile.pre depend])
-
+AC_SUBST(makefile_rules)
+AC_OUTPUT(Makefile)
 
 dnl ## Local Variables:
 dnl ## tab-width: 4
 dnl ## End:
-	
