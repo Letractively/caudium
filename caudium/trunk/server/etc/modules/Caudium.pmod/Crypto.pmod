@@ -91,6 +91,14 @@
 //!  The MD5 digest string either in ASCII hex or in the binary form. An
 //!  empty string will be returned when an error occurs.
 
+//! @decl string string_to_hex(string data)
+//!  Return an ASCII hex representation of the passed string.
+//!
+//! @param data
+//!  The string to hexify.
+//!
+//! @returns
+//!  The ASCII hex representation of the string.
 
 #if constant(Mhash.hash_md5)
 string md5_hash_type = "Mhash";
@@ -110,7 +118,7 @@ string hash_md5(string|array(string) key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Crypto.string_to_hex(ret) : ret);
+  return (hexify ? Mhash.to_hex(ret) : ret);
 }
 #else
 string md5_hash_type = "Pike.Crypto";
@@ -152,7 +160,7 @@ string hash_sha(string|array key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Crypto.string_to_hex(ret) : ret);
+  return (hexify ? Mhash.to_hex(ret) : ret);
 }
 #else
 string sha1_hash_type = "Pike.Crypto";
@@ -173,5 +181,17 @@ string hash_sha(string|array key, void|int hexify)
     return "";
   
   return (hexify ? Crypto.string_to_hex(ret) : ret);
+}
+#endif
+
+#if constant(Mhash.to_hex)
+string string_to_hex(string data)
+{
+  return Mhash.to_hex(data);
+}
+#else
+string string_to_hex(string data)
+{
+  return Crypto.string_to_hex(data);
 }
 #endif
