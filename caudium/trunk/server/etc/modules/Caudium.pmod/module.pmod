@@ -24,3 +24,18 @@
 //! our C pike glue _Caudium.
 
 inherit _Caudium;
+
+
+// Some documentation for some call handled by _Caudium module.
+
+//! @decl string cern_http_date(int|void t)
+//!  Return the specified date (as returned by time()) formated in the 
+//!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
+//! @param t
+//!  The time in seconds since 00:00:00 UTC, January 1, 1970. If this
+//!  argument is void, then the function will return the current date
+//!  in common log format.
+//! @returns
+//!  The date in the common log file format
+//! @note
+//!  Non RIS code, handled by _Caudium C module.
