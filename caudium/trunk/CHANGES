@@ -38,4 +38,9 @@ Changes since last Roxen 1.3
   so than http.pike), uses ram cache code from Roxen 2.1 + various
   rewrites for speed. This one, with the ram cache, is much faster
   than the other http protocol.
++ new options to modules/filesystems/userfs.pike : banish list can
+  be disabled if needed, the virtual user system has now the option
+  to add a kind of "workaround" to add some prefix to username on the
+  url, and when the option "Look at the user dir" is set to No, the 
+  home filesystem can be hashed. Very good for home pages hosting.
 - Fixed the bug that sometimes added \r\n to the POST data.
