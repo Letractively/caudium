@@ -86,6 +86,30 @@ void create()
 		   " as filter."
 		   "<b>%u%</b> : Will be replaced by entered username." );
 
+        defvar ("CI_useringroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Defaults: Users in groups Search template",
+                   TYPE_STRING, "Template used by LDAP search operation"
+		   " as filter."
+		   "<b>%u%</b> : Will be replaced by entered groupname."
+		   "<b>%d%</b> : Will be replaced by group's full dn." );
+
+        defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Defaults: Groups for user Search template",
+                   TYPE_STRING, "Template used by LDAP search operation"
+		   " as filter."
+		   "<b>%u%</b> : Will be replaced by entered username."
+		   "<b>%d%</b> : Will be replaced by user's full dn." );
+
+        defvar 
+("CI_userlist_search_templ","(objectclass=posixuser)","Defaults: Userlist search query",
+                   TYPE_STRING, "Template used by LDAP userlist search operation");
+
+        defvar ("CI_useringroup_attr","memberuid","Attributes: Username in group",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a user's name" );
+
+        defvar ("CI_groupname_attr","memberuid","Attributes: Groupname",
+                   TYPE_STRING, 
+		   "Attribute in group object containing a group's name" );
+
         defvar ("CI_level","subtree","LDAP query depth",
                    TYPE_STRING_LIST, "Scope used by LDAP search operation."
                    "",
@@ -142,6 +166,10 @@ void create()
         defvar ("CI_default_attrname_gecos", "gecos",
 		   "Attribute: Full Name", TYPE_STRING,
                    "The attribute containing the user Full Name.");
+
+        defvar ("CI_default_attrname_user", "uid",
+		   "Attribute: User", TYPE_STRING,
+                   "The attribute containing the user name in user object.");
 
         defvar ("CI_default_home","/", "Defaults: Home Directory", TYPE_DIR,
                    "It is possible to specify an user's home "
@@ -286,25 +314,52 @@ mapping|int get_user_info(string user) {
     if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
       dirinfo->home_directory+=user;
 
-    dirinfo->groups=get_groups_for_user(dir, user);
+    dirinfo->groups=get_groups_for_user(dir, user, sr->get_dn());
 
     dirinfo->_source=QUERY(_name);
 
     return dirinfo;
 }
 
-array(string) userlist() 
+multiset get_groups_for_user(object dir, string user, string dn)
 {
+    multiset v=(<>);
 
-    return ({});
+    string q=QUERY(CI_groupforuser_search_templ);
+    q=replace(q, ({"%u%", "%d%"}), ({user, dn}));
+    object sr=dir->search(q, ({QUERY(CI_groupname_attr)}));
+
+    if(sr->num_entries()==0) return (<>);
+
+    for(int i=0; i< sr->num_entries(); i++)
+    {
+      v+=(<sr->fetch()[QUERY(CI_groupname_attr)][0]>);
+      sr->next();
+    }
+    
+   return v;
 }
 
-string user_from_uid (int u) 
+array(string) userlist() 
 {
+  object d=open_dir();
 
-    if(!zero_type(uids[(string)u]))
-	return(uids[(string)u][0]);
-    return 0;
+  if(!dir)
+    return ({});
+
+  array users=({});
+
+  object sr=dir->search(QUERY(CI_userlist_search_templ), QUERY(CI_default_attrname_user));
+
+  if(sr->num_entries()==0) return ({});
+
+  for(int i=0; i<sr->num_entries(); i++)
+  {
+    users+=({ sr->fetch()[QUERY(CI_default_attrname_user][0] });
+    sr->next();
+  }
+
+  return users;
 }
 
 private int|object get_user_object(object dir, string user)
