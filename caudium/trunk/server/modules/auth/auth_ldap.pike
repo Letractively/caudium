@@ -698,7 +698,7 @@ int authenticate (string user, string password)
 //! defvar: CI_dir_server
 //! This is LDAP URL for the LDAP server with the authentication information. Example: ldap(s)://myldaphost
 //!  type: TYPE_STRING
-//!  name: LDAP server: Location
+//!  name: LDAP server: Server
 //
 //! defvar: CI_basename
 //! The distinguished name to use as a base for queries.Typically, this would be an 'o' or 'ou' entry local to the DSA which contains the user entries.
