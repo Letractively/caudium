@@ -60,7 +60,7 @@ constant thread_safe = 1;
 void create() {
   defvar ("error404document", "NONE/", "Filename",
           TYPE_STRING,
-          "URL to redirect to",
+          "The filename to use",
           );
   defvar ("msie", 1, "Return a 200 to MSIE", TYPE_FLAG,
           "Returns a 200 response to Microsoft Internet Explorer browser "
