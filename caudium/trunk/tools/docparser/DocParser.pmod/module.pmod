@@ -969,7 +969,7 @@ class Attribute {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
                 break;
 
             case "default":
@@ -1318,7 +1318,7 @@ class Parse {
         array(string)   dirs = ({}), files = ({});
 
         foreach(get_dir(top), string s) {
-            array(int) stbuf = file_stat(top + s);
+	  array(int) stbuf = (array)file_stat(top + s);
 
             if (glob("CVS", s))
                 continue;
@@ -1346,7 +1346,7 @@ class Parse {
         if (path[-1] != '/')
             path += "/";
         
-        stbuf = file_stat(path);
+        stbuf = (array(int))file_stat(path);
         if (!stbuf)
             throw(({"File not found: " + path + "\n", backtrace()}));
 
