@@ -148,6 +148,9 @@ void create()
   defvar("delete", 0, "Allowed Access Methods: DELETE", TYPE_FLAG,
 	 "If set, allow use of the DELETE method, which is used for file "
 	 "deletion.");
+  defvar("copy", 0, "Allowed Access Methods: COPY", TYPE_FLAG,
+	 "If set, allow use of the COPY method, which is used for file "
+	 "copy by WebDAV.");
   defvar("method_mkdir", 0, "Allowed Access Methods: MKDIR", TYPE_FLAG,
 	 "If set, allow use of the MKDIR method, enabling the ability to "
 	 "the create new directories.");
@@ -558,7 +561,7 @@ mixed find_file( string f, object id )
     }
 
     if(id->clientprot == "HTTP/1.1") {
-      id->my_fd->write("HTTP/1.1 100 Continue\r\n");
+      id->my_fd->write("HTTP/1.1 100 Continue\r\n\r\n");
     }
     id->my_fd->set_id( ({ to, id->my_fd }) );
     id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
@@ -858,7 +861,33 @@ mixed find_file( string f, object id )
     TRACE_LEAVE("Success");
     return http_string_answer("Ok");
 
-   
+   case "COPY":
+    if(!QUERY(copy) )
+	return http_error_answer(id, 405, "Copy disallowed");
+    size = FILE_SIZE(id->destination);
+    if ( size != -1 && id->overwrite != "T" )
+	return http_error_answer(id, 403, "Forbidden");
+    if(QUERY(check_auth) && (!id->auth || !id->auth[0]))
+	return http_auth_required("copy", "Permission to 'COPY' files denied");
+    if(QUERY(no_symlinks) && 
+       (contains_symlinks(path, f) || contains_symlinks(path,id->destination)))
+	return http_error_answer(id, 403, "Forbidden");
+    if ( !stringp(id->destination) ) 
+	return http_error_answer(id, 403, "No destination");
+	
+    accesses++;
+    report_notice("COPYING the file "+f+" to " + id->destination + "\n");
+    if ( ((int)id->misc->uid) && ((int)id->misc->gid) ) 
+	privs = Privs("Copying file", (int)id->misc->uid,(int) id->misc->gid);
+    if ( f == id->destination || !Stdio.cp(f, id->destination) ) {
+	privs = 0;
+	return http_error_answer(id, 403, "Forbidden");
+    }
+    privs = 0;
+    TRACE_LEAVE("COPY: Success");
+    return http_error_answer(id, 201, "Created"); // hmm, error answer ?
+    break;
+	
    case "DELETE":
     if(!QUERY(delete) || size==-1)
     {

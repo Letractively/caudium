@@ -291,7 +291,7 @@ private int really_set_config(array mod_config)
 
 // handle the encryption of the body data
 // this is usually just the case for the POST method
-static void handle_body_encoding(int content_length)
+void handle_body_encoding(int content_length)
 {
   string content_type =lower_case(
     (((request_headers["content-type"]||"")+";")/";")[0]-" "); 
@@ -542,6 +542,8 @@ private int parse_got()
 	 
 	 if( have_data < wanted_data )
 	 {
+	   if ( clientprot = "HTTP/1.1" )
+	     my_fd->write("HTTP/1.1 100 Continue\r\n\r\n");
 	     REQUEST_WERR("HTTP: parse_request(): More data needed.");
 	     return 0;
 	 }
@@ -1596,14 +1598,11 @@ void send_result(mapping|void result)
   }
 }
 
-
-//! Handle the request
-void handle_request( )
+void handle_magic_error()
 {
-  mixed err;
   function funp;
+  mixed     err;
 
-#ifdef MAGIC_ERROR
   if(prestate->old_error)
   {
     err = get_error(variables->error);
@@ -1634,6 +1633,15 @@ void handle_request( )
       }
     }
   }
+}
+
+//! Handle the request
+void handle_request( )
+{
+  mixed err;
+
+#ifdef MAGIC_ERROR
+  handle_magic_error();
 #endif /* MAGIC_ERROR */
 
 
