@@ -55,7 +55,7 @@ constant module_unique = 1;
 //!  RXML. This scope contains no predefined entities.
 class SessionScope {
   inherit "scope";
-  constant name = "session";
+  string name = "session";
   string|int get(string var, object id) {
     if (mappingp(id->misc->session_variables) &&
 	id->misc->session_variables[var]) {
