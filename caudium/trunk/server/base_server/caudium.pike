@@ -2994,6 +2994,12 @@ void initiate_configuration_port( int|void first )
 #include <stat.h>
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
+
+void catch_err(string file, int line, string err)
+{
+  _master->errors += sprintf("%s:%s: %s\n",
+			     (file/"/")[-1], line ? (string )line : "-", err);
+}
 void scan_module_dir(string d)
 {
   if(sscanf(d, "%*s.pmod")!=0) return;
@@ -3011,10 +3017,9 @@ void scan_module_dir(string d)
     return;
   }
   MD_PERROR(("There are "+language("en","number")(sizeof(q))+" files.\n"));
-
   foreach( q, file )
   {
-    _master->set_inhibit_compile_errors("");
+    _master->set_inhibit_compile_errors(catch_err);
     if ( file[0]!='.' && !backup_extension(file) && (file[-1]!='z'))
     {
       array stat = file_stat(path+file);
@@ -3054,10 +3059,10 @@ void scan_module_dir(string d)
 	    array foo;
 	    object o;
 	    program p;
-	     
 	    if (catch(p = my_compile_file(file)) || (!p)) {
 	      MD_PERROR((" compilation failed"));
 	      throw("Compilation failed.\n");
+
 	    }
 	    // Set the module-filename, so that create in the
 	    // new object can get it.
