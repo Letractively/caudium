@@ -66,7 +66,9 @@ void create() {
 
 mapping|int last_resort(object id)
 { 
-  string *dbinfo,html;
+  string html;
+  array  dbinfo;
+
   dbinfo = cache_lookup("404Cache",QUERY(error404document));
 
   if (!(dbinfo)) {
