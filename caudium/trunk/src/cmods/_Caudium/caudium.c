@@ -81,6 +81,7 @@ static_strings strs;
 static long   _maxargvlen = -1;
 static char  *argv0 = NULL;
 static char  *progname = "";
+extern char **ARGV; /* in pike's main.c */
 
 static void setproctitle_init(int argc, char **argv)
 {
