@@ -791,11 +791,9 @@ export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
 
 AC_CONFIG_SUBDIRS(src tools)
 AC_CONFIG_FILES(Makefile)
+AC_CONFIG_COMMANDS([server/start-caudium], [chmod a+rx server/start-caudium])
+AC_CONFIG_COMMANDS([server/bin/install.pike], [chmod a+rx server/bin/install.pike])
 AC_OUTPUT
-AC_OUTPUT([server/start-caudium], [chmod a+rx server/start-caudium])
-AC_OUTPUT([server/bin/install.pike], [chmod a+rx server/bin/install.pike])
-
-
 
 echo "
 
