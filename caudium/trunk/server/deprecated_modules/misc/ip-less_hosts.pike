@@ -87,7 +87,7 @@ object find_server_for(object id, string host)
 #ifdef IP_LESS_DEBUG
     roxen_perror("IPLESS: find_server_for(object, \""+host+"\")...\n");
 #endif /* IP_LESS_DEBUG */
-    foreach(roxen->configurations, object s) {
+    foreach(caudium->configurations, object s) {
       string h = lower_case(s->query("MyWorldLocation"));
 
       // Remove http:// and trailing slash...
@@ -135,7 +135,7 @@ object find_server_for(object id, string host)
 #ifdef IP_LESS_DEBUG
     roxen_perror("IPLESS: find_server_for(object, \""+host+"\")...\n");
 #endif /* IP_LESS_DEBUG */
-    foreach(roxen->configurations, object s) {
+    foreach(caudium->configurations, object s) {
       string h = lower_case(s->query("MyWorldLocation"));
 
       // Remove http:// et al here...
@@ -178,7 +178,7 @@ object find_server_for(object id, string host)
   
 #else /* !constant(Array.diff_longest_sequence) */
     array possible = ({});
-    foreach(roxen->configurations, object s)
+    foreach(caudium->configurations, object s)
       if(search(lower_case(s->query("MyWorldLocation")), host)+1)
 	possible += ({ s });
     id->conf=config_cache[host]=

@@ -160,7 +160,7 @@ void resolv_handle_request(object c, object nid)
 string page_0(object id)
 {
   string res = ("Virtual server <var type=select name=config options='"+
-		roxen->configurations->query_name()*","+"'>")+" Use tables <var type=toggle name=table> <nobr>Allow Cache <var type=toggle name=cache default=1></nobr>\n";
+		caudium->configurations->query_name()*","+"'>")+" Use tables <var type=toggle name=table> <nobr>Allow Cache <var type=toggle name=cache default=1></nobr>\n";
   res += "<br>Path: <var name=path type=string> \n";
   res += "<table cellpadding=0 cellspacing=10 border=0>"
          "<tr><td align=left>User: <var name=user type=string size=12></td>\n"
@@ -170,7 +170,7 @@ string page_0(object id)
   if(id->variables->config)
   {
     object c;
-    foreach(roxen->configurations, c)
+    foreach(caudium->configurations, c)
       if(c->query_name() == id->variables->config)
 	break;
     

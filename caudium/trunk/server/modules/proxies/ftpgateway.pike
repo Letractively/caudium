@@ -87,9 +87,9 @@ Content-type: text/html\r\n\
 <hr>\
 <font size=+2><i>Host unknown or connection refused</i></font>\
 <hr>\
-<font size=-2><a href=http://www.roxen.com/>"+roxen->version()+"</a></font>"
+<font size=-2><a href=http://www.roxen.com/>"+caudium->version()+"</a></font>"
 
-#define INFOSTRING "<font size=-2><a href=http://www.roxen.com/>"+roxen->version()+"</a> FTP Gateway "+VERSION+" / <i>law@idonex.se</i></font>"
+#define INFOSTRING "<font size=-2><a href=http://www.roxen.com/>"+caudium->version()+"</a> FTP Gateway "+VERSION+" / <i>law@idonex.se</i></font>"
 
 #define _ERROR_MESSAGE(XXXX) ("HTTP/1.0 500 FTP gateway error\r\nContent-type: text/html\r\n\r\n<title>Ftp gateway error</title>\n<h2>FTP Gateway failed:</h2><hr><font size=+1>"XXXX"</font><hr>"+INFOSTRING)
 
@@ -223,7 +223,7 @@ class Request {
     if (!type)
     {
       array tmp;
-      tmp=roxen->type_from_filename(filename,1);
+      tmp=caudium->type_from_filename(filename,1);
       if (tmp&&tmp[0]) 
       {
 	type=tmp[0]; 
@@ -236,7 +236,7 @@ class Request {
     {
       array tmp;
       string type2;
-      tmp=roxen->type_from_filename(typename,1);
+      tmp=caudium->type_from_filename(typename,1);
       if (tmp&&tmp[0]) 
       {
 	type2=tmp[0]; 
@@ -636,12 +636,12 @@ class Request {
       return;
     }
 
-    type=roxen->type_from_filename(file);
+    type=caudium->type_from_filename(file);
 
     pipe=Pipe.pipe();
     pipe->write("HTTP/1.0 200 FTP transfer initiated\r\n");
 
-    tmp=roxen->type_from_filename(file,1);
+    tmp=caudium->type_from_filename(file,1);
     if (arrayp(tmp)&&tmp[0]) 
     {
       pipe->write("Content-type: "+tmp[0]+"\r\n");
@@ -1193,7 +1193,7 @@ void log(string file, string more)
 
   if(!logfile) return;
   sscanf(file, "%s@%s:%s", user, host, rest);
-  roxen->ip_to_host(host, do_write, host, rest, more);
+  caudium->ip_to_host(host, do_write, host, rest, more);
 }
 
 
@@ -1245,7 +1245,7 @@ string check_variable(string name, mixed value)
 void create()
 {         
   defvar("logfile", GLOBVAR(logdirprefix)+
-	 short_name(roxen->current_configuration?roxen->current_configuration->name:".")+"/ftp_proxy_log",
+	 short_name(caudium->current_configuration?caudium->current_configuration->name:".")+"/ftp_proxy_log",
 	 "Logfile", TYPE_FILE,  "Empty the field for no log at all");
   
   defvar("mountpoint", "ftp:/", "Location", TYPE_LOCATION|VAR_MORE,
@@ -1343,7 +1343,7 @@ string process_request(object id, int is_remote)
 
 string hostname(string s)
 {
-  return roxen->quick_ip_to_host(s);
+  return caudium->quick_ip_to_host(s);
 }
 
 void connected_to_server(object o, string file, object id, int is_remote)

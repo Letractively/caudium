@@ -63,7 +63,7 @@ string status()
 	 "<p>\n"
 	 "<h3>Failure by host</h3>" +
 	 (Array.map(indices(failed), lambda(string s) {
-	   return roxen->quick_ip_to_host(s) + ": " + failed[s] + "<br>\n";
+	   return caudium->quick_ip_to_host(s) + ": " + failed[s] + "<br>\n";
 	 }) * "") +
 	 "<p>The database has " + sizeof(domain->all("passwd.byname")) +
 	 " entries.");

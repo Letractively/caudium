@@ -179,7 +179,7 @@ string name_of_module( object m )
 #ifndef IN_INSTALL
   string name;
   mapping mod;
-  foreach(values(roxenp()->current_configuration->modules), mod)
+  foreach(values(caudiump()->current_configuration->modules), mod)
   {
     if(mod->copies)
     {

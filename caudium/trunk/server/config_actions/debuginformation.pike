@@ -46,14 +46,14 @@ string remove_cwd(string from)
 
 array (program) all_modules()
 {
-  return values(master()->programs) | indices(roxen->my_loaded);
+  return values(master()->programs) | indices(caudium->my_loaded);
 }
 
 string program_name(program|object what)
 {
   string p;
   if(p = search(master()->programs,what)) return remove_cwd(p);
-  if(roxen->filename(what)) return remove_cwd(roxen->filename(what));
+  if(caudium->filename(what)) return remove_cwd(caudium->filename(what));
 }
 
 mapping get_prof(string|void foo)
@@ -133,7 +133,7 @@ int wizard_done()
 mixed page_0(object id, object mc)
 {
 
-  if(!last_usage) last_usage = roxen->query_var("__memory_usage");
+  if(!last_usage) last_usage = caudium->query_var("__memory_usage");
   if(!last_usage) last_usage = ([]); 
 
   string res="";
@@ -198,7 +198,7 @@ mixed page_0(object id, object mc)
 		     (foo[f]/1024.0),((foo[f]-last_usage[f])/1024.0));
     }
   last_usage=foo;
-  roxen->set_var("__memory_usage", last_usage);
+  caudium->set_var("__memory_usage", last_usage);
   res+="</table></td></tr></table>";
   first = html_border( res, 0, 5 );
   res = "";

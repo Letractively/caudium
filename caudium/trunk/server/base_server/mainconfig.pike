@@ -160,7 +160,7 @@ class Node {
     }
     if(changed && type == NODE_MODULE_COPY_VARIABLE &&
        data[VAR_TYPE] == TYPE_PORTS) {
-      roxen->configuration_interface_obj->changed_port_servers[config()] = 1;
+      caudium->configuration_interface_obj->changed_port_servers[config()] = 1;
       // A port was changed in the current server...
     }
     if(saver) saver(this_object(), config());
@@ -235,7 +235,7 @@ mapping stores( string s )
 {
   return 
     ([
-      "data":replace(s, "$docurl", roxen->docurl),
+      "data":replace(s, "$docurl", caudium->docurl),
       "type":"text/html",
       "extra_heads":
       ([
@@ -247,7 +247,7 @@ mapping stores( string s )
       ]);
 }
 
-#define CONFIG_URL roxen->config_url()
+#define CONFIG_URL caudium->config_url()
 
 // Holds the default ports for various protocols.
 static private constant default_ports = ([
@@ -271,7 +271,7 @@ mapping verify_changed_ports(object id, object o)
     string name;
     if(!server) {
       glob = 1;
-      server = roxen;
+      server = caudium;
       name="Global Variables";
 #if 0
       perror("Config Interface, URL %s, Ports %O\n",
@@ -323,7 +323,7 @@ mapping verify_changed_ports(object id, object o)
       } else {
 #if efun(gethostname)
 	prt += (gethostname()/".")[0] + "." +
-	  (glob ? roxen->get_domain() : server->query("Domain"));
+	  (glob ? caudium->get_domain() : server->query("Domain"));
 #else
 	prt += "localhost";
 #endif
@@ -354,8 +354,8 @@ mapping save_it(object id, object o)
 {
   changed_port_servers = (<>);
   root->save();
-  roxen->update_supports_from_roxen_com();
-  roxen->initiate_configuration_port( 0 );
+  caudium->update_supports_from_roxen_com();
+  caudium->initiate_configuration_port( 0 );
   id->referer = ({ CONFIG_URL + o->path(1) });
   if(sizeof(changed_port_servers))
     return verify_changed_ports(id, o);
@@ -589,7 +589,7 @@ string configuration_list()
   string res="";
   /* FIXME
   object o;
-  foreach(roxen->configurations, o)
+  foreach(caudium->configurations, o)
     res += "<option>Copy of '"+o->name+"'\n";
   */
   return res;
@@ -625,14 +625,14 @@ string describe_config_modules(array mods)
   foreach(mods, string mod)
   {
     sscanf(mod, "%s#", mod);
-    if(!roxen->allmodules)
+    if(!caudium->allmodules)
     {
       roxen_perror("CONFIG: Rescanning modules (doc string).\n");
-      roxen->rescan_modules();
+      caudium->rescan_modules();
       roxen_perror("CONFIG: Done.\n");
     }
-    if(!roxen->allmodules[mod]) res += "<li>The unknown module '"+mod+"'\n";
-    else res += "<li>"+roxen->allmodules[mod][0]+"\n";
+    if(!caudium->allmodules[mod]) res += "<li>The unknown module '"+mod+"'\n";
+    else res += "<li>"+caudium->allmodules[mod][0]+"\n";
   }
   return res+"</ul>";
 }
@@ -762,16 +762,16 @@ string new_module_form(object id, object node)
   array mods;
   array (string) res;
   
-  if(!roxen->allmodules || sizeof(id->pragma))
+  if(!caudium->allmodules || sizeof(id->pragma))
   {
     roxen_perror("CONFIG: Rescanning modules.\n");
-    roxen->current_configuration = node->config();
-    roxen->rescan_modules();
-    roxen->current_configuration = 0;
+    caudium->current_configuration = node->config();
+    caudium->rescan_modules();
+    caudium->current_configuration = 0;
     roxen_perror("CONFIG: Done.\n");
   }
   
-  a=roxen->allmodules;
+  a=caudium->allmodules;
   mods=Array.sort_array(indices(a), lambda(string a, string b, mapping m) { 
     return m[a][0] > m[b][0];
   }, a);
@@ -830,7 +830,7 @@ int check_config_name(string name)
   if(strlen(name) && name[-1] == '~') name = "";
   if(search(name, "/")!= -1) return 1;
   
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
     if(lower_case(c->name) == lower_case(name))
       return 1;
 
@@ -857,22 +857,22 @@ int low_enable_configuration(string name, string type)
     mapping tmp;
     if ((sizeof(arr) > 1) &&
 	(sscanf(arr[1..]*" ", "%*s'%s'", from) == 2) &&
-	(tmp = roxen->copy_configuration(from, name)))
+	(tmp = caudium->copy_configuration(from, name)))
     {
       tmp["spider#0"]->LogFile = GLOBVAR(logdirprefix) + "/" +
-	roxenp()->short_name(name) + "/Log";
-      roxenp()->save_it(name);
-      roxen->enable_configuration(name);
+	caudiump()->short_name(name) + "/Log";
+      caudiump()->save_it(name);
+      caudium->enable_configuration(name);
     }
   } else
-    (template = get_template(type))->enable(roxen->enable_configuration(name));
+    (template = get_template(type))->enable(caudium->enable_configuration(name));
 
   confnode = root->descend("Configurations");
   node=confnode->descend(name);
   
   node->describer = describe_configuration;
   node->saver = save_configuration;
-  node->data = roxen->configurations[-1];
+  node->data = caudium->configurations[-1];
   node->type = NODE_CONFIGURATION;
   build_configuration(node);
   node->folded=0;
@@ -911,7 +911,7 @@ mapping new_configuration(object id)
   if(!sizeof(id->variables))
     return stores(new_configuration_form());
   if(id->variables->no)
-    return http_redirect(roxen->config_url()+id->not_query[1..]+"?"+bar++);
+    return http_redirect(caudium->config_url()+id->not_query[1..]+"?"+bar++);
   
   if(!id->variables->name)
     return stores(default_head("Bad luck")+
@@ -939,8 +939,8 @@ int conf_auth_ok(mixed auth)
   if(sscanf(auth[1], "%s:%s", auth[0], auth[1]) < 2)
     return 0;
   
-  if((auth[0] == roxen->QUERY(ConfigurationUser))
-     && crypt(auth[1], roxen->QUERY(ConfigurationPassword)))
+  if((auth[0] == caudium->QUERY(ConfigurationUser))
+     && crypt(auth[1], caudium->QUERY(ConfigurationPassword)))
     return 1;
 }
 
@@ -975,15 +975,15 @@ mapping initial_configuration(object id)
       if(!node)
 	return stores("Fatal configuration error, no 'Globals' node found.\n");
       
-      roxen->QUERY(ConfigurationPassword) = crypt(id->variables->pass);
-      roxen->QUERY(ConfigurationUser) = id->variables->user;
+      caudium->QUERY(ConfigurationPassword) = crypt(id->variables->pass);
+      caudium->QUERY(ConfigurationUser) = id->variables->user;
 
       n2 = node->descend("Configuration interface", 1)->descend("Password", 1);
-      n2->data[VAR_VALUE]=roxen->QUERY(ConfigurationPassword);
+      n2->data[VAR_VALUE]=caudium->QUERY(ConfigurationPassword);
       n2->change(1);	
 
       n2 = node->descend("Configuration interface", 1)->descend("User", 1);
-      n2->data[VAR_VALUE] = roxen->QUERY(ConfigurationUser);
+      n2->data[VAR_VALUE] = caudium->QUERY(ConfigurationUser);
       n2->change(1);	
 	
       root->save();
@@ -992,7 +992,7 @@ mapping initial_configuration(object id)
   }
   
   res = default_head("Welcome to Caudium " +
-		     roxen->__caudium_version__ + "." + roxen->__caudium_build__);
+		     caudium->__caudium_version__ + "." + caudium->__caudium_build__);
 
   res += Stdio.read_bytes("etc/welcome.html");
   if(error && strlen(error))
@@ -1025,7 +1025,7 @@ object module_of(object node)
       return node->data->master;
     node = node->up;
   }
-  return roxen;
+  return caudium;
 }
 
 string extract_almost_top(object node)
@@ -1140,8 +1140,8 @@ mapping auto_image(string in, object id)
   {
    case "module":
      sscanf(value, "%*d/%s", value);
-     i = draw_module_header(roxen->allmodules[value][0],
-			    roxen->allmodules[value][2],
+     i = draw_module_header(caudium->allmodules[value][0],
+			    caudium->allmodules[value][2],
 			    module_font);
      break;
     
@@ -1287,7 +1287,7 @@ void check_login(object id)
 {
   if(logged[id->remoteaddr] + 1000 < time()) {
     report_notice("Administrator logged on from " +
-		  roxen->blocking_ip_to_host(id->remoteaddr) + ".\n");
+		  caudium->blocking_ip_to_host(id->remoteaddr) + ".\n");
   }
   logged[id->remoteaddr] = time(1);
 }
@@ -1307,15 +1307,15 @@ mapping configuration_parse(object id)
 
   // Permisson denied by address?
   if(id->remoteaddr)
-    if(strlen(roxen->QUERY(ConfigurationIPpattern)) &&
-       !glob(roxen->QUERY(ConfigurationIPpattern),id->remoteaddr))
+    if(strlen(caudium->QUERY(ConfigurationIPpattern)) &&
+       !glob(caudium->QUERY(ConfigurationIPpattern),id->remoteaddr))
       return stores("Permission denied.\n");
   
   // Permission denied by userid?
   if(!id->misc->read_allow)
   {
-    if(!(strlen(roxen->QUERY(ConfigurationPassword))
-	 && strlen(roxen->QUERY(ConfigurationUser))))
+    if(!(strlen(caudium->QUERY(ConfigurationPassword))
+	 && strlen(caudium->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
       return http_auth_failed("Caudium maintenance"); // Denied
@@ -1361,8 +1361,8 @@ mapping configuration_parse(object id)
 #endif
 
     return http_string_answer(default_head("Caudium " +
-					   roxen->__caudium_version__ + "." +
-					   roxen->__caudium_build__)+
+					   caudium->__caudium_version__ + "." +
+					   caudium->__caudium_build__)+
 			      status_row(root)+
 			      display_tabular_header(root)+
 			      Stdio.read_bytes(full_version?"etc/config.html":
@@ -1431,7 +1431,7 @@ mapping configuration_parse(object id)
       mapping cmod;
       
       mod = module_of(o);
-      if(!mod || mod==roxen)
+      if(!mod || mod==caudium)
 	error("This module cannot be updated.\n");
       name = module_short_name(mod, o->config());
       if(!name)
@@ -1454,7 +1454,7 @@ mapping configuration_parse(object id)
 	mapping rep;
 	rep = http_string_answer("The reload of this module failed.\n"
 				 "This is (probably) the reason:\n<pre>"
-				 + roxen->last_error + "</pre>" );
+				 + caudium->last_error + "</pre>" );
 	// _master->set_inhibit_compile_errors(0);
 	return rep;
       }
@@ -1465,7 +1465,7 @@ mapping configuration_parse(object id)
 	mapping rep;
 	rep = http_string_answer("Failed to disable this module.\n"
 				 "This is (probably) the reason:\n<pre>"
-				 + roxen->last_error + "</pre>" );
+				 + caudium->last_error + "</pre>" );
 	return rep;
       }
       cache_set ("modules", modname, newprg); // Do not compile again in enable_module.
@@ -1473,7 +1473,7 @@ mapping configuration_parse(object id)
 	mapping rep;
 	rep = http_string_answer("Failed to enable this module.\n"
 				 "This is (probably) the reason:\n<pre>"
-				 + roxen->last_error + "</pre>" );
+				 + caudium->last_error + "</pre>" );
 	// Recover..
 	master()->programs = oldprgs;
 	cache_set ("modules", modname, oldprg);
@@ -1485,7 +1485,7 @@ mapping configuration_parse(object id)
       }
 
       o->clear();
-//    roxen->fork_it();
+//    caudium->fork_it();
       
       if(mappingp(o->data))
       {
@@ -1501,11 +1501,11 @@ mapping configuration_parse(object id)
       
       /* Shutdown Caudium... */
     case "shutdown":	
-      return roxen->shutdown();
+      return caudium->shutdown();
       
       /* Restart Caudium, somewhat more nice. */
     case "restart":	
-       return roxen->restart();
+       return caudium->restart();
       
        /* Rename a configuration. Not Yet Used... */
 #if 0
@@ -1585,21 +1585,21 @@ mapping configuration_parse(object id)
        case NODE_CONFIGURATION:
 	object oroot;
 	
-	for(i=0; i<sizeof(roxen->configurations); i++)
-	  if(roxen->configurations[i] == o->data)
+	for(i=0; i<sizeof(caudium->configurations); i++)
+	  if(caudium->configurations[i] == o->data)
 	    break;
 	
-	if(i==sizeof(roxen->configurations))
+	if(i==sizeof(caudium->configurations))
 	  error("Configuration not found.\n");
 	
-	roxen->remove_configuration(o->data->name);
+	caudium->remove_configuration(o->data->name);
 
-	if(roxen->configurations[i]->ports_open)
-	  Array.map(values(roxen->configurations[i]->ports_open), destruct);
-	destruct(roxen->configurations[i]);
+	if(caudium->configurations[i]->ports_open)
+	  Array.map(values(caudium->configurations[i]->ports_open), destruct);
+	destruct(caudium->configurations[i]);
 	
-	roxen->configurations = 
-	  roxen->configurations[..i-1] + roxen->configurations[i+1..];
+	caudium->configurations = 
+	  caudium->configurations[..i-1] + caudium->configurations[i+1..];
 	
 	o->change(-o->changed);
 	o->dest();
@@ -1617,7 +1617,7 @@ mapping configuration_parse(object id)
 	name = module_short_name(o->data, o->config());
 	o->config()->disable_module(name);
 	// Remove the suitable part of the configuration file.
-	roxen->remove(name, o->config());
+	caudium->remove(name, o->config());
 	o->change(-o->changed);
 	n=o->up;
 	o->dest();
@@ -1656,7 +1656,7 @@ mapping configuration_parse(object id)
 	    while(i--) 
 	    {
 	      o->config()->disable_module(name+"#"+a[i]);
-	      roxen->remove(name+"#"+a[i], o->config());
+	      caudium->remove(name+"#"+a[i], o->config());
 	    }
 	  } else if(o->data->master) {
 	    name=o->config()->otomod[o->data->enabled];
@@ -1664,7 +1664,7 @@ mapping configuration_parse(object id)
 	} else if(o->data->enabled) {
 	  name=o->config()->otomod[o->data->enabled];
 	  o->config()->disable_module(name+"#0");
-	  roxen->remove(name+"#0", o->config());
+	  caudium->remove(name+"#0", o->config());
 	}
 	o->change(-o->changed);
 	o->dest();
@@ -1857,7 +1857,7 @@ mapping configuration_parse(object id)
   PUSH_BUTTONS(0);
 
 //  PUSH("<br clear=all>");
-//  PUSH("<p align=right><font size=-1 color=blue><a href=\"$docurl\"><font color=blue>"+roxen->real_version +"</font></a></font></p>");
+//  PUSH("<p align=right><font size=-1 color=blue><a href=\"$docurl\"><font color=blue>"+caudium->real_version +"</font></a></font></p>");
 //  PUSH("</table>");
   PUSH("</body>\n");
   return stores(res*"");

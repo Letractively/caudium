@@ -100,7 +100,7 @@ mixed wizard_done(object id, object mc)
   if(CHECKED(user_cache))
   {
     info += ({ "the userdb" });
-    foreach(roxen->configurations, object c)
+    foreach(caudium->configurations, object c)
       if(c->modules["userdb"] && c->modules["userdb"]->master)
 	c->modules["userdb"]->master->read_data();
   }
@@ -116,7 +116,7 @@ mixed wizard_done(object id, object mc)
   if(CHECKED(gtext_cache))
   {
     info += ({ "the graphical text cache" });
-    foreach(roxen->configurations, object c)
+    foreach(caudium->configurations, object c)
     {
       if(c->modules["graphic_text"] && 
 	 (c=c->modules["graphic_text"]->enabled))
@@ -133,7 +133,7 @@ mixed wizard_done(object id, object mc)
   if(CHECKED(dir_cache))
   {
     info += ({ "the directory cache" });
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
     if(c->modules["directories"] && (c=c->modules["directories"]->enabled))
     {
       catch{
@@ -147,8 +147,8 @@ mixed wizard_done(object id, object mc)
   if(CHECKED(module_cache))
   {
     info += ({ "the module cache" });
-    roxen->allmodules=0;
-    roxen->module_stat_cache=([]);
+    caudium->allmodules=0;
+    caudium->module_stat_cache=([]);
   }
 
   if(info)

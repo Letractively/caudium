@@ -77,7 +77,7 @@ string status(object mc)
         int idle = time()-(foo->bytes_sent_time||time());
         res += (foo->bytes_sent||"")+"\t"+(idle?idle+"s idle":"");
       }
-      res += "\t"+roxen->quick_ip_to_host(id->remoteaddr)+
+      res += "\t"+caudium->quick_ip_to_host(id->remoteaddr)+
              "\t\<a href=\"http://"+foo->name+"\">"+foo->name+"</a>";
     times += ({ id->time });
     rows += ({ res/"\t" });
@@ -94,7 +94,7 @@ string status(object mc)
 mixed page_0(object id, object mc)
 {
   string res="";
-  foreach(Array.sort_array(roxen->configurations,
+  foreach(Array.sort_array(caudium->configurations,
 			   lambda(object a, object b) {
 			     return a->requests < b->requests;
 			   }), object o) {

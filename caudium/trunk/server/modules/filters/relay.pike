@@ -100,7 +100,7 @@ void connected( object to, object from, object id )
   }
   to->write(id->raw);
   id->do_not_disconnect = 0;
-  roxen->shuffle( to, from );
+  caudium->shuffle( to, from );
 }
 
 array (string) always_list=({ });

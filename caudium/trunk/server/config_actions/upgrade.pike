@@ -194,11 +194,11 @@ void find_modules(int mode)
 {
   if(mode)
   {
-    roxen->rescan_modules();
-    modules = copy_value(roxen->allmodules);
+    caudium->rescan_modules();
+    modules = copy_value(caudium->allmodules);
   } else {
     modules = ([]);
-    foreach(roxen->configurations, object c)
+    foreach(caudium->configurations, object c)
     {
       mapping tmpm = c->modules;
       foreach(indices(tmpm), string mod)
@@ -274,7 +274,7 @@ string page_0(object id)
 
 string upgrade_module(string m, object rpc)
 {
-  array rm = rpc->get_module(m,roxen->real_version);
+  array rm = rpc->get_module(m,caudium->real_version);
   string res="";
   object privs = ((program)"privs")("Upgrading modules");
   if(!rm) return "Failed to fetch the module '"+m+"'.";
@@ -314,12 +314,12 @@ string upgrade_module(string m, object rpc)
     res+="Fetched modules/"+rm[0]+", "+strlen(rm[1])+" bytes.<br>";
     report_notice("Upgraded "+rm[0]+".\n");
   }
-  if (roxen->allmodules) {
-    m_delete(roxen->allmodules, m);
+  if (caudium->allmodules) {
+    m_delete(caudium->allmodules, m);
   }
   cache_remove("modules", m);
 
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
     if(c->modules[m])
       if(!c->load_module(m))
 	report_error("The newly upgraded module could not be reloaded!\n");
@@ -350,7 +350,7 @@ string page_1(object id)
   if(!rpc) return "Failed to connect to update server.\n";
 
   find_modules((int)id->variables->how);
-  mapping mv = rpc->module_versions( modules, roxen->real_version );
+  mapping mv = rpc->module_versions( modules, caudium->real_version );
   array tbl = ({});
   foreach(sort(indices(modules)), string m)
   {
@@ -391,7 +391,7 @@ string page_2(object id)
 
   find_modules(1);
 
-  mapping rm = rpc->all_modules(roxen->real_version);
+  mapping rm = rpc->all_modules(caudium->real_version);
   int num;
   array tbl = ({});
   foreach(sort(indices(rm)), string s)
@@ -428,7 +428,7 @@ string page_3(object id)
      "be updated\n<p>");
 
 
-  mapping rm = rpc->all_components(roxen->real_version);
+  mapping rm = rpc->all_components(caudium->real_version);
   array tbl = ({});
   int num;
   foreach(sort(indices(rm)), string s)
@@ -456,7 +456,7 @@ string page_3(object id)
 
 string upgrade_component(string m, object rpc)
 {
-  array rthingie = rpc->get_component(m,roxen->real_version);
+  array rthingie = rpc->get_component(m,caudium->real_version);
   string res="";
   object privs = ((program)"privs")("Upgrading components");
   string ext="";
@@ -529,7 +529,7 @@ string wizard_done(object id)
   string res = "<font size=+2>Upgrade report</font><p>";
   object rpc = connect_to_rpc(id);
   if(rpc) foreach(todo, array a) res+=a[1](@replace(a[2..], "RPC", rpc));
-  roxen->rescan_modules();
+  caudium->rescan_modules();
   res += "<p>Done in "+(time()-t)+" seconds.";
   return (html_border(res+
 	  "<form action=/Actions/>"

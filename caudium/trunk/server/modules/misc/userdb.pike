@@ -423,7 +423,7 @@ array|int auth(string *auth, object id)
   {
     fail++;
     failed[id->remoteaddr]++;
-    roxen->quick_ip_to_host(id->remoteaddr);
+    caudium->quick_ip_to_host(id->remoteaddr);
     return ({ 0, u, p }); 
   }
   id->misc->uid = users[u][2];
@@ -451,7 +451,7 @@ string status()
 //     + "<P>The netgroup database has "+sizeof(group)+" entries"
      + "<h3>Failure by host</h3>" +
      Array.map(indices(failed), lambda(string s) {
-       return roxen->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
+       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
      }) * "" 
 );
 }

@@ -161,9 +161,9 @@ array|mapping call_script(function fun, object got, object file)
     
     catch {
       /* Close all listen ports in copy. */
-      foreach(indices(roxen->portno), object o) {
-	roxen->do_dest(o);
-	roxen->portno[o] = 0;
+      foreach(indices(caudium->portno), object o) {
+	caudium->do_dest(o);
+	caudium->portno[o] = 0;
       }
     };
     

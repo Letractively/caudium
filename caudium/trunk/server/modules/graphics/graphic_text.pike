@@ -56,11 +56,11 @@ void create()
 	 "This will affect documents without gtext as well as documents "
 	 "with it, the parsing time is relative to the number of parsed "
 	 "tags in a document. You have to reload this module or restart "
-	 "roxen for changes of this variable to take effect.", 0,
+	 "caudium for changes of this variable to take effect.", 0,
 	 lambda(){return !query("colorparse");});
 
   defvar("colormode", 1, "Normalize colors in parsed tags", TYPE_FLAG,
-	 "If set, replace 'roxen' colors (@c,m,y,k etc) with "
+	 "If set, replace 'caudium' colors (@c,m,y,k etc) with "
 	 "'netscape' colors (#rrggbb). Setting this to off will lessen the "
 	 "performance impact of the 'Tags to parse for color' option quite"
 	 " dramatically. You can try this out with the &lt;gauge&gt; tag.",
@@ -276,7 +276,7 @@ object make_text_image(mapping args, object font, string text,object id)
 
   if(args->texture)
   {
-    object t = roxen.load_image(args->texture,id);
+    object t = caudium.load_image(args->texture,id);
     if( t )
     {
       foreground = t;
@@ -312,13 +312,13 @@ object make_text_image(mapping args, object font, string text,object id)
   }
   int background_is_color;
   if(args->background &&
-     ((background = roxen.load_image(args->background, id)) ||
+     ((background = caudium.load_image(args->background, id)) ||
       (sizeof(args->background)>1 &&
        (background=Image.image(xsize,ysize, @(parse_color(args->background[1..]))))
        && (background_is_color=1))))
   {
     object alpha;
-    if(args->alpha && (alpha = roxen.load_image(args->alpha,id)) && background_is_color)
+    if(args->alpha && (alpha = caudium.load_image(args->alpha,id)) && background_is_color)
     {
       xsize=MAX(xsize,alpha->xsize());
       ysize=MAX(ysize,alpha->ysize());
@@ -568,11 +568,11 @@ object make_text_image(mapping args, object font, string text,object id)
   return background;
 }
 
-roxen.ImageCache image_cache;
+caudium.ImageCache image_cache;
 
 void start(int|void val, object|void conf)
 {
-  image_cache = roxen.ImageCache( "gtext", draw_callback );
+  image_cache = caudium.ImageCache( "gtext", draw_callback );
 }
 
 constant nbsp = iso88591["&nbsp;"];
@@ -731,7 +731,7 @@ mapping find_internal(string f, object rid)
     array id_text = f/"/";
     if( sizeof(id_text)==2 )
     {   // It's a gtext-id
-      string second_key = roxen.argcache.store( (["":id_text[1]]) );
+      string second_key = caudium.argcache.store( (["":id_text[1]]) );
       return image_cache->http_file_answer( id_text[0][1..] +"$"+ second_key, rid );
     }
   }

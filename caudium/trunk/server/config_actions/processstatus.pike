@@ -36,7 +36,7 @@ constant cancel_label = " Done ";
 string describe_global_status()
 {
   return "Server uptime             : "+
-    roxen->msectos((time(1) - roxen->start_time)*1000) +"\n";
+    caudium->msectos((time(1) - caudium->start_time)*1000) +"\n";
 }
 
 #define MB (1024*1024)
@@ -51,14 +51,14 @@ mixed page_0(object id, object mc)
 		   describe_backtrace(err));
 
   if(ru[0])
-    tmp=ru[0]/(time(1) - roxen->start_time+1);
+    tmp=ru[0]/(time(1) - caudium->start_time+1);
 
-  return (/* "<font size=\"+1\"><a href=\""+ roxen->config_url()+
+  return (/* "<font size=\"+1\"><a href=\""+ caudium->config_url()+
 	     "Actions/?action=processstatus.pike&foo="+ time(1)+
 	     "\">Process status</a></font>"+ */
 	  "<pre>"+
 	  describe_global_status()+
-	  "CPU-Time used             : "+roxen->msectos(ru[0]+ru[1])+
+	  "CPU-Time used             : "+caudium->msectos(ru[0]+ru[1])+
 	  " ("+tmp/10+"."+tmp%10+"%)\n"
 	  +(ru[-2]?(sprintf("Resident set size (RSS)   : %.3f Mb\n",
 			    (float)ru[-2]/(float)MB)):"")

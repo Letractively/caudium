@@ -85,7 +85,7 @@ string find_readme(string path, object id)
   object n;
   foreach(({ "README.html", "README" }), f)
   {
-    rm=roxen->try_get_file(path+f, id);
+    rm=caudium->try_get_file(path+f, id);
     if(rm) if(f[-1] == 'l')
       return "<hr noshade>"+rm;
     else
@@ -130,7 +130,7 @@ string describe_dir_entry(string path, string filename, array stat)
       
    default:
     array tmp;
-    tmp = roxen->type_from_filename(filename, 1);
+    tmp = caudium->type_from_filename(filename, 1);
     if(!tmp)
       tmp=({ "Unknown", 0 });
     type = tmp[0];
@@ -149,7 +149,7 @@ static private string key;
 
 void start()
 {
-  key="file:"+roxen->current_configuration->name;
+  key="file:"+caudium->current_configuration->name;
 }
 
 string new_dir(string path, object id)
@@ -158,14 +158,14 @@ string new_dir(string path, object id)
   array files;
   string fname;
 
-  files = roxen->find_dir(path, id);
+  files = caudium->find_dir(path, id);
   if(!files) return "<h1>There is no such directory.</h1>";
   sort(files);
 
   for(i=0; i<sizeof(files) ; i++)
   {
     fname = replace(path+files[i], "//", "/");
-    files[i] = describe_dir_entry(path,files[i],roxen->stat_file(fname, id));
+    files[i] = describe_dir_entry(path,files[i],caudium->stat_file(fname, id));
   }
   return files * "";
 }
@@ -195,10 +195,10 @@ mapping parse_directory(object id)
   {
     string file;
     foreach(query("indexfiles") - ({""}), file) {
-      if(roxen->stat_file(f+file, id))
+      if(caudium->stat_file(f+file, id))
       {
 	id->not_query = f + file;
-	mapping got = roxen->get_file(id);
+	mapping got = caudium->get_file(id);
 	if (got) {
 	  return(got);
 	}

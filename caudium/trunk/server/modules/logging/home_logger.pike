@@ -358,7 +358,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 }));
   
   if(search(form, "host") != -1)
-    roxen->ip_to_host(request_id->remoteaddr, write_to_log, form,
+    caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
 		      request_id->remoteaddr, log_function);
   else
     log_function(form);
@@ -417,7 +417,7 @@ string home(string of, object id)
       if(cached_homes[l] && !(cached_homes[l] == -1 && id->pragma["no-cache"]))
 	return (l = cached_homes[l]) == -1?0:l;
       f=l;
-      l=roxen->real_file(l+QUERY(AccessLog), id);
+      l=caudium->real_file(l+QUERY(AccessLog), id);
       if(l) cached_homes[f]=l;
       else cached_homes[f]=-1;
       return l;
@@ -427,7 +427,7 @@ string home(string of, object id)
       catch{f=sprintf(l,f);};
       if(cached_homes[f] && !(cached_homes[f]==-1 && id->pragma["no-cache"]))
 	return (l=cached_homes[f])==-1?0:l;
-      l=roxen->real_file(f+QUERY(AccessLog), id);
+      l=caudium->real_file(f+QUERY(AccessLog), id);
       if(l) cached_homes[f]=l;
       else cached_homes[f]=-1;
       return l;
@@ -440,7 +440,7 @@ string home(string of, object id)
 inline string format_log(object id, mapping file)
 {
   return sprintf("%s %s %s [%s] \"%s %s %s\" %s %s\n",
-		 roxen->quick_ip_to_host(id->remoteaddr),
+		 caudium->quick_ip_to_host(id->remoteaddr),
 		 (string)(sizeof(id->referer)?id->referer*", ":"-"),
 		 replace((string)(id->client?id->client*" ":"-")," ","%20"),
 		 cern_http_date(id->time),

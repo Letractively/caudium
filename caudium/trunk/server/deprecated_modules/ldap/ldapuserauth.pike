@@ -385,14 +385,14 @@ string status() {
 	     "<p>"+
 	     "<h3>Failure by host</h3>" +
 	     Array.map(indices(failed), lambda(string s) {
-	       return roxen->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
+	       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
 	     }) * ""
 	     //+ "<p>The database has "+ sizeof(users)+" entries"
 #ifdef LOG_ALL
 	     + "<p>"+
 	     "<h3>Auth attempt by host</h3>" +
 	     Array.map(indices(accesses), lambda(string s) {
-	       return roxen->quick_ip_to_host(s) + ": "+accesses[s]->cnt+" ["+accesses[s]->name[0]+
+	       return caudium->quick_ip_to_host(s) + ": "+accesses[s]->cnt+" ["+accesses[s]->name[0]+
 		((sizeof(accesses[s]->name) > 1) ?
 		  (Array.map(accesses[s]->name, lambda(string u) {
 		    return (", "+u); }) * "") : "" ) + "]" +
@@ -584,7 +584,7 @@ array|int auth (string *auth, object id)
     if (!p||!strlen(p)) {
 	DEBUGLOG ("no password supplied by the user");
 	failed[id->remoteaddr]++;
-	roxen->quick_ip_to_host(id->remoteaddr);
+	caudium->quick_ip_to_host(id->remoteaddr);
 	return ({0, auth[1], -1});
     }
 
@@ -595,7 +595,7 @@ array|int auth (string *auth, object id)
 	DEBUGLOG ("no such user");
 	nouser++;
 	failed[id->remoteaddr]++;
-	roxen->quick_ip_to_host(id->remoteaddr);
+	caudium->quick_ip_to_host(id->remoteaddr);
 	return ({0,u,p});
     }
     pw = dirinfo[1];
@@ -627,7 +627,7 @@ array|int auth (string *auth, object id)
 	    DEBUGLOG ("password check (" + pw + ", " + p + ") failed");
 	    //fail++;
 	    failed[id->remoteaddr]++;
-	    roxen->quick_ip_to_host(id->remoteaddr);
+	    caudium->quick_ip_to_host(id->remoteaddr);
 	    return ({0,u,p});
 	}
     }
@@ -654,14 +654,14 @@ array|int auth (string *auth, object id)
 		    } else {
 			werror("LDAPuserauth: User "+u+" has not value "+value+"\n");
 			failed[id->remoteaddr]++;
-			roxen->quick_ip_to_host(id->remoteaddr);
+			caudium->quick_ip_to_host(id->remoteaddr);
 			return ({0,u,p});
 		    }
 		}
 	    } else {
 		werror("LDAPuserauth: User "+u+" has no attr "+attr+"\n");
 		failed[id->remoteaddr]++;
-		roxen->quick_ip_to_host(id->remoteaddr);
+		caudium->quick_ip_to_host(id->remoteaddr);
 		return ({0,u,p});
 	    }
 

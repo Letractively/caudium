@@ -52,10 +52,10 @@ mapping first_try(object id)
 {
   NOCACHE();
   if(id->supports->autogunzip &&
-     (roxen->real_file(id->not_query + ".gz", id)
-      && roxen->stat_file(id->not_query + ".gz", id)))
+     (caudium->real_file(id->not_query + ".gz", id)
+      && caudium->stat_file(id->not_query + ".gz", id)))
   {
     id->not_query += ".gz";
-    return roxen->get_file( id  );
+    return caudium->get_file( id  );
   }
 }

@@ -60,7 +60,7 @@ array file_finder(string entry, int lvl)
 array module_files()
 {
   array files = ({});
-  foreach(roxen->query("ModuleDirs"), string dir)
+  foreach(caudium->query("ModuleDirs"), string dir)
     files += file_finder(dir, 0);
   return files;
 }

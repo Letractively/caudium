@@ -81,7 +81,7 @@ string page_0(object id)
   foreach(sort(not_tags(indices(features))), string s)
     if(q=features[s]->help)
       pre += "<help><dl><dt><b>"+s+"</b><dd>"+q+"</dl><p></help>";
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     array tblr = ({ config_name(c) });
     foreach(sort(not_tags(indices(features))), string f)
@@ -104,7 +104,7 @@ string page_1(object id)
   foreach(sort(tags(indices(features))), string s)
     if(q=features[s]->help)
       pre += "<help><dl><dt><b>"+s+"</b><dd>"+q+"</dl><p></help>";
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     if((id->variables[c->name+"/RXML"]!="0"))
     {
@@ -126,7 +126,7 @@ string page_1(object id)
 
 object find_config(string n)
 {
-  foreach(roxen->configurations, object c) if (c->name==n) return c;
+  foreach(caudium->configurations, object c) if (c->name==n) return c;
 }
 
 array actions;
@@ -181,18 +181,18 @@ string page_2(object id)
 void wizard_done(object id)
 {
   foreach(actions, array action) action[1](@action[2..]);
-  if (roxen->unload_configuration_interface) {
+  if (caudium->unload_configuration_interface) {
     /* Fool the type-checker of in old Roxen's */
-    mixed foo = roxen->unload_configuration_interface;
+    mixed foo = caudium->unload_configuration_interface;
     foo();
   } else {
     /* Some backward compatibility */
-    roxen->configuration_interface_obj=0;
-    roxen->loading_config_interface=0;
-    roxen->enabling_configurations=0;
-    roxen->build_root=0;
-    catch{roxen->root->dest();};
-    roxen->root=0;
+    caudium->configuration_interface_obj=0;
+    caudium->loading_config_interface=0;
+    caudium->enabling_configurations=0;
+    caudium->build_root=0;
+    catch{caudium->root->dest();};
+    caudium->root=0;
   }
 }
 

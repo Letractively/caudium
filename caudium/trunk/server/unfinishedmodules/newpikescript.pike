@@ -141,7 +141,7 @@ class FakedRoxen
 {
   // So. What do we allow?
 
-#define FAKE(x) case #x: return roxen->x;
+#define FAKE(x) case #x: return caudium->x;
   mixed `[](string what)
   {
     switch(what)

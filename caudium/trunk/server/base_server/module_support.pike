@@ -31,6 +31,9 @@ mapping (string:mixed *) variables=([]);
  * inherited from module.pike, but this is not possible, or wanted, in
  * this case.  Instead we define a few support functions.
  */
+#if !constant(caudium)
+#define caudium caudiump()
+#endif
 
 int setvars( mapping (string:mixed) vars )
 {
@@ -51,11 +54,11 @@ static class ConfigurableWrapper
   int check()
   {
     if ((mode & VAR_EXPERT) &&
-	(!roxen->configuration_interface()->expert_mode)) {
+	(!caudium->configuration_interface()->expert_mode)) {
       return 1;
     }
     if ((mode & VAR_MORE) &&
-	(!roxen->configuration_interface()->more_mode)) {
+	(!caudium->configuration_interface()->more_mode)) {
       return 1;
     }
     return(f());
@@ -126,8 +129,8 @@ mixed set(string var, mixed val)
 
 #define SIMULATE(X)  mixed X( mixed ...a )				\
 {									\
-  if(roxenp()->current_configuration)					\
-    return roxenp()->current_configuration->X(@a);	                \
+  if(caudium->current_configuration)					\
+    return caudium->current_configuration->X(@a);	                \
   error("No current configuration\n");					\
 }
 

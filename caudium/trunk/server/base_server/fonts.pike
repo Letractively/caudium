@@ -31,8 +31,9 @@ string fix_name(string in)
   return replace(lower_case(in), ({"-"," "}), ({ "_", "_" }));
 }
 
-#if !constant(roxen)
-#define roxen this_object()
+
+#if !constant(caudium)
+#define caudium caudiump()
 #endif
 
 // name:([ version:fname, version:fname, ... ])
@@ -98,7 +99,7 @@ array available_font_versions(string name, int size)
 
   if(ttf_font_names_cache[ name ])
     return indices(ttf_font_names_cache[ name ]);
-  foreach(roxen->query("font_dirs"), dir)
+  foreach(caudium->query("font_dirs"), dir)
   {
     foreach(get_dir( dir )||({}), string fname)
     {
@@ -133,15 +134,15 @@ array available_font_versions(string name, int size)
     return  indices(ttf_font_names_cache[ lower_case(name) ]);
 #endif
 
-  foreach(roxen->query("font_dirs"), dir)
+  foreach(caudium->query("font_dirs"), dir)
   {
     base_dir = dir+size+"/"+fix_name(name);
     if((available = get_dir(base_dir)))
       break;
-    base_dir=dir+"/"+roxen->query("default_font_size")+"/"+fix_name(name);
+    base_dir=dir+"/"+caudium->query("default_font_size")+"/"+fix_name(name);
     if((available = get_dir(base_dir)))
       break;
-    base_dir=dir+"/"+roxen->query("default_font_size")+"/"+roxen->query("default_font");
+    base_dir=dir+"/"+caudium->query("default_font_size")+"/"+caudium->query("default_font");
     if((available = get_dir(base_dir)))
       break;
   }
@@ -269,7 +270,7 @@ object get_font(string f, int size, int bold, int italic,
     }
 #endif
     fnt = Font();
-    foreach(roxen->query("font_dirs"), string f)
+    foreach(caudium->query("font_dirs"), string f)
     {
       name = fix_name(name);
       if(file_stat( f + size + "/" + name ))
@@ -280,12 +281,12 @@ object get_font(string f, int size, int bold, int italic,
     }
     if(!fnt->load( name ))
     {
-      if(f == roxen->QUERY(default_font))
+      if(f == caudium->QUERY(default_font))
       {
 	report_error("Failed to load the default font.\n");
 	return 0;
       }
-      return get_font(roxen->QUERY(default_font), 
+      return get_font(caudium->QUERY(default_font), 
 		      size,bold,italic,justification,xspace,yspace);
     }
     if(justification=="right") fnt->right();
@@ -307,7 +308,7 @@ object resolve_font(string f, string|void justification)
   float xspace=0.0;
   string a,b;
   if( !f ) 
-    f = roxen->query("default_font");
+    f = caudium->query("default_font");
   if(sscanf(f, "%sbold%s", a,b)==2)
   {
     bold=1;
@@ -357,11 +358,11 @@ object resolve_font(string f, string|void justification)
   fn = get_font((f/" ")[0], size, bold, italic, 
 	      justification||"left",xspace, 0.0);
   if(!fn)
-    fn = get_font(roxen->query("default_font"),size,bold,italic,
+    fn = get_font(caudium->query("default_font"),size,bold,italic,
 		  justification||"left",xspace, 0.0);
   if(!fn)
     report_error("failed miserably to open the default font ("+
-                 roxen->query("default_font")+")\n");
+                 caudium->query("default_font")+")\n");
   return fn;
 }
 
@@ -372,7 +373,7 @@ array available_fonts( )
   // Populate the TTF font cache.
   available_font_versions( "No, there is no such font as this",32 );
 #endif
-  foreach(roxen->query("font_dirs"), string dir)
+  foreach(caudium->query("font_dirs"), string dir)
   {
     dir+="32/";
     array d;

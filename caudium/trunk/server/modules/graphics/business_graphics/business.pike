@@ -205,7 +205,7 @@ void stop()
 {
   /* Reload Pie, Bars and Graph */
   mapping progs = master()->programs;
-  foreach(glob(combine_path(roxen->filename(this),"../*"), indices(progs)),
+  foreach(glob(combine_path(caudium->filename(this),"../*"), indices(progs)),
           string to_delete)
     m_delete(progs, to_delete);
   loaded = 0;

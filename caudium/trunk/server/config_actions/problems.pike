@@ -79,7 +79,7 @@ void module_recurse_dir(string dir)
 string page_1(object id)
 {
   mod_recursed = ([]); mod_identifiers = ([]); mod_problems = ([]);
-  foreach(roxen->query("ModuleDirs"), string dir) module_recurse_dir(dir);
+  foreach(caudium->query("ModuleDirs"), string dir) module_recurse_dir(dir);
 
   if(mod_problems)
   {
@@ -91,7 +91,7 @@ string page_1(object id)
 #if constant(readlink)
 	int in_main_path;
 	string symlink;
-	if(search(roxen->query("ModuleDirs"), n)+1)
+	if(search(caudium->query("ModuleDirs"), n)+1)
 	  in_main_path = 1;
 	if(array a=file_stat(n, 1))
 	  if(a[1]<-1) {
@@ -142,7 +142,7 @@ string page_2(object id)
 {
   int errs;
   string res="<font size=+1>Checking enabled virtual servers</font><p>";
-  foreach(roxen->configurations, object c)
+  foreach(caudium->configurations, object c)
   {
     res+=html_notice("<b>Checking "+(strlen(c->query("name"))?
 				     c->query("name"):c->name)+"</b>",id);
@@ -170,7 +170,7 @@ string page_2(object id)
 		     (c->query("NoLog")*"\0")+"\'>", id);
     }
 
-    foreach(sort(indices(roxen->retrieve("EnabledModules",c))), string m)
+    foreach(sort(indices(caudium->retrieve("EnabledModules",c))), string m)
     {
       sscanf(m,"%s#",m);
       if(!c->modules[m])
@@ -198,7 +198,7 @@ string page_3(object id)
   int errs;
   string res="<font size=+1>Checking Global Variables</font><p>";
 
-  if(roxen->query("NumAccept")>16 && sizeof(roxen->configurations)>3)
+  if(caudium->query("NumAccept")>16 && sizeof(caudium->configurations)>3)
   {
     errs++;
     res += html_warning("It is not advisable to have the 'Number of "
@@ -208,12 +208,12 @@ string page_3(object id)
 			"load-balancing between virtual servers<br>"
 			"Set to: <var type=select name=\""
 			"mod_cvar_G/NumAccept\" choices=1,2,4,8,16,"+
-			roxen->query("NumAccept")+" "
-			"default="+roxen->query("NumAccept")+"><br>",id);
+			caudium->query("NumAccept")+" "
+			"default="+caudium->query("NumAccept")+"><br>",id);
   }
   
   string user;
-  if(strlen(user=roxen->query("User")))
+  if(strlen(user=caudium->query("User")))
   {
     string u,g;
     if(getuid())      
@@ -253,7 +253,7 @@ string page_3(object id)
 
 void remove_module_dir(string dir)
 {
-  roxen->set("ModuleDirs", roxen->query("ModuleDirs")-({dir}));
+  caudium->set("ModuleDirs", caudium->query("ModuleDirs")-({dir}));
 }
 
 array fix_array(array in)
@@ -271,14 +271,14 @@ void modify_variable(string v, string to)
   sscanf(v, "%s/%s", c, v);
   if(c=="G")
   {
-    if(arrayp(roxen->query(v))) roxen->set(v,fix_array(to/"\0"-({""})));
-    else if(intp(roxen->query(v))) roxen->set(v,(int)to);
-    else if(floatp(roxen->query(v))) roxen->set(v,(float)to);
-    else  roxen->set(v,to);
-    roxen->store("Variables", roxen->variables, 0, 0);
+    if(arrayp(caudium->query(v))) caudium->set(v,fix_array(to/"\0"-({""})));
+    else if(intp(caudium->query(v))) caudium->set(v,(int)to);
+    else if(floatp(caudium->query(v))) caudium->set(v,(float)to);
+    else  caudium->set(v,to);
+    caudium->store("Variables", caudium->variables, 0, 0);
     return;
   } else {
-    foreach(roxen->configurations, object co)
+    foreach(caudium->configurations, object co)
       if(co->name == c)
       {
 	if(arrayp(co->query(v))) co->set(v,fix_array(to/"\0"-({""})));
@@ -294,19 +294,19 @@ void remove_module(string m)
 {
   string c;
   sscanf(m, "%s/%s", c, m);
-  foreach(roxen->configurations, object co)
+  foreach(caudium->configurations, object co)
     if(co->name == c)
     {
-      mapping en = roxen->retrieve("EnabledModules",co);
+      mapping en = caudium->retrieve("EnabledModules",co);
       foreach(indices(en), string q)
       {
 	if(!search(q,m))
 	{
-	  roxen->remove(q,co);
+	  caudium->remove(q,co);
 	  m_delete(en,q);
 	}
       }	
-      roxen->store("EnabledModules", en, 1, co);
+      caudium->store("EnabledModules", en, 1, co);
     }
 }
 

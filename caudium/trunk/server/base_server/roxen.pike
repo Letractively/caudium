@@ -104,7 +104,7 @@ mapping allmodules, somemodules=([]);
 // from the configuration object in the future.
 mapping portno = ([]);
 
-// constant decode = roxen->decode;
+// constant decode = caudium->decode;
 
 // Function pointer and the root of the configuration interface
 // object.
@@ -149,6 +149,7 @@ private static void really_low_shutdown(int exit_code)
   if(fork()) {
     // Kill the parent.
     add_constant("roxen", 0);	// Remove some extra refs...
+    add_constant("caudium", 0);	// Remove some extra refs...
 
     exit(exit_code);		// Die...
   }
@@ -172,6 +173,7 @@ private static void really_low_shutdown(int exit_code)
   // Should probably attempt something similar to the above,
   // but this should be sufficient for the time being.
   add_constant("roxen", 0);	// Paranoia...
+  add_constant("caudium", 0);	// Remove some extra refs...
 
   exit(exit_code);		// Now we die...
 
@@ -242,7 +244,7 @@ mapping restart()
 { 
   low_shutdown(-1);
   return ([ "data": replace(Stdio.read_bytes("etc/restart.html"),
-			    ({"$docurl", "$PWD"}), ({roxen->docurl, getcwd()})),
+			    ({"$docurl", "$PWD"}), ({caudium->docurl, getcwd()})),
 		  "type":"text/html" ]);
 } 
 
@@ -250,7 +252,7 @@ mapping shutdown()
 {
   low_shutdown(0);
   return ([ "data":replace(Stdio.read_bytes("etc/shutdown.html"),
-			   ({"$docurl", "$PWD"}), ({roxen->docurl, getcwd()})),
+			   ({"$docurl", "$PWD"}), ({caudium->docurl, getcwd()})),
 	    "type":"text/html" ]);
 } 
 
@@ -1269,8 +1271,8 @@ void create()
     module_stat_cache = decode_value(Stdio.read_bytes(".module_stat_cache"));
     allmodules = decode_value(Stdio.read_bytes(".allmodules"));
   };
-  add_constant("roxen", this_object());
-  add_constant("spinner", this_object());
+  //  add_constant("roxen", this_object());
+  add_constant("caudium", this_object());
   add_constant("load",    load);
   Configuration = (program)"configuration";
   call_out(post_create,1); //we just want to delay some things a little
@@ -1436,18 +1438,18 @@ void reload_all_configurations()
   object conf;
   array (object) new_confs = ({});
   mapping config_cache = ([]);
-  //  werror(sprintf("%O\n", roxen->config_stat_cache));
+  //  werror(sprintf("%O\n", caudium->config_stat_cache));
   int modified;
 
   report_notice("Reloading configuration files from disk\n");
-  roxen->configs = ([]);
-  roxen->setvars(roxen->retrieve("Variables", 0));
-  roxen->initiate_configuration_port( 0 );
+  caudium->configs = ([]);
+  caudium->setvars(caudium->retrieve("Variables", 0));
+  caudium->initiate_configuration_port( 0 );
 
-  foreach(roxen->list_all_configurations(), string config)
+  foreach(caudium->list_all_configurations(), string config)
   {
     array err, st;
-    foreach(roxen->configurations, conf)
+    foreach(caudium->configurations, conf)
     {
       if(lower_case(conf->name) == lower_case(config))
       {
@@ -1455,9 +1457,9 @@ void reload_all_configurations()
       } else
 	conf = 0;
     }
-    if(!(st = roxen->config_is_modified(config))) {
+    if(!(st = caudium->config_is_modified(config))) {
       if(conf) {
-	config_cache[config] = roxen->config_stat_cache[config];
+	config_cache[config] = caudium->config_stat_cache[config];
 	new_confs += ({ conf });
       }
       continue;
@@ -1479,7 +1481,7 @@ void reload_all_configurations()
     } else {
       if(err = catch
       {
-	conf = roxen->enable_configuration(config);
+	conf = caudium->enable_configuration(config);
       }) {
 	report_error("Error while enabling configuration "+config+":\n"+
 		     describe_backtrace(err)+"\n");
@@ -1498,7 +1500,7 @@ void reload_all_configurations()
     new_confs += ({ conf });
   }
     
-  foreach(roxen->configurations - new_confs, conf)
+  foreach(caudium->configurations - new_confs, conf)
   {
     modified = 1;
     report_notice("Disabling old configuration "+conf->name+"\n");
@@ -1512,9 +1514,9 @@ void reload_all_configurations()
     destruct(conf);
   }
   if(modified) {
-    roxen->configurations = new_confs;
-    roxen->config_stat_cache = config_cache;
-    roxen->unload_configuration_interface();
+    caudium->configurations = new_confs;
+    caudium->config_stat_cache = config_cache;
+    caudium->unload_configuration_interface();
   }
 }
 
@@ -1848,7 +1850,7 @@ class ImageCache
 
     if( stringp( f ) )
       return http_string_answer( f, m->type||("image/gif") );
-    return roxenp()->http_file_answer( f, m->type||("image/gif") );
+    return caudiump()->http_file_answer( f, m->type||("image/gif") );
   }
 
 
@@ -1922,7 +1924,7 @@ class ImageCache
 
   void create( string id, function draw_func, string|void d )
   {
-    if(!d) d = roxenp()->QUERY(argument_cache_dir);
+    if(!d) d = caudiump()->QUERY(argument_cache_dir);
     if( d[-1] != '/' )
       d+="/";
     d += id+"/";
@@ -3075,11 +3077,11 @@ void scan_module_dir(string d)
 	    }
 	    // Set the module-filename, so that create in the
 	    // new object can get it.
-	    roxen->last_module_name = file;
+	    caudium->last_module_name = file;
 
 	    array err = catch(o =  p());
 
-	    roxen->last_module_name = 0;
+	    caudium->last_module_name = 0;
 
 	    if (err) {
 	      MD_PERROR((" load failed"));
@@ -3324,8 +3326,10 @@ void exit_when_done()
 #ifdef THREADS
     stop_handler_threads();
 #endif /* THREADS */
-    add_constant("roxen", 0);	// Paranoia...
-    add_constant("roxenp", 0);	// Paranoia...
+    add_constant("caudiump", 0);
+    add_constant("caudium", 0);	
+    add_constant("roxen", 0);	
+    add_constant("roxenp", 0);	
     exit(-1);	// Restart.
     // kill(getpid(), 9);
     // kill(0, -9);
@@ -3353,6 +3357,7 @@ void exit_when_done()
       stop_handler_threads();
 #endif /* THREADS */
       add_constant("roxen", 0);	// Paranoia...
+      add_constant("caudium", 0);	// Paranoia...
       exit(-1);	// Restart.
       perror("Odd. I am not dead yet.\n");
     }
@@ -3364,6 +3369,7 @@ void exit_when_done()
     stop_handler_threads();
 #endif /* THREADS */
     add_constant("roxen", 0);	// Paranoia...
+    add_constant("caudium", 0);	// Paranoia...
     exit(-1); // Restart.
   }, 600, 0); // Slow buggers..
 }

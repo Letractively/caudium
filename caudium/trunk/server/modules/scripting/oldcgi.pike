@@ -392,7 +392,7 @@ void start(int n, object conf)
   sscanf(tmp, "%s/", tmp);
 
   env["SERVER_NAME"]=tmp;
-  env["SERVER_SOFTWARE"]=roxen->version();
+  env["SERVER_SOFTWARE"]=caudium->version();
   env["GATEWAY_INTERFACE"]="CGI/1.1";
   env["SERVER_PROTOCOL"]="HTTP/1.0";
   env["SERVER_URL"]=conf->query("MyWorldLocation");

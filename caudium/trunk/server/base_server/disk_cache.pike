@@ -31,7 +31,7 @@ inherit "roxenlib";
 object this = this_object();
 
 #undef QUERY
-#define QUERY(x) roxenp()->variables->x[VAR_VALUE]
+#define QUERY(x) caudiump()->variables->x[VAR_VALUE]
 
 string file_name_r(string what, int nd, int hv)
 {

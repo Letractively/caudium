@@ -54,13 +54,13 @@ search(values(Z),a[4]);if(i==-1)return;io->write("\33[H\33[J\33[7m");h=m;
 call_out(tick,h);keypress(foo,Z[i+1..]);io->set_read_callback(keypress);}int z(
 int p){io->write("\33[H\33[J\33[0m"+s+"\n");
 #if constant(roxen)
-catch{Q=roxen->retrieve("tetris-highscores",0)->idi;};if(!Q)
+catch{Q=caudium->retrieve("tetris-highscores",0)->idi;};if(!Q)
 #endif
 Q=({});if(p){io->normal();Q+=({ ({s,tm+"\n"}) });}sort(Q);j=([]);foreach(
 reverse(Q),m)if(++j[m[1]]<4&&(io->write(sprintf("\t%5d by %s\r",m[0],m[1])),j[0
 ]++>19))break;m=h;
 #if constant(roxen)
-catch{roxen->store("tetris-highscores",(["idi":({Q})]),0,0);};
+catch{caudium->store("tetris-highscores",(["idi":({Q})]),0,0);};
 #endif
 if(p){io->quit();destruct(this_object());return 1;}io->raw();Q=q;K=0;e=([]);
 remove_call_out(tick);io->set_read_callback(pause);return 1;}void tetris2(

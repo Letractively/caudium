@@ -23,8 +23,8 @@ inherit "http";
 
 // static string _cvs_version = "$Id$";
 // This code has to work both in the roxen object, and in modules
-#if !efun(roxen)
-#define roxen roxenp()
+#if !constant(caudium)
+#define caudium caudiump()
 #endif
 
 #include <stat.h>
@@ -82,7 +82,7 @@ static mapping build_env_vars(string f, object id, string path_info)
     while(1)
     {
       // Fix PATH_TRANSLATED correctly.
-      t2 = roxen->real_file(path_info, id);
+      t2 = caudium->real_file(path_info, id);
       if(t2)
       {
 	new["PATH_TRANSLATED"] = t2 + t;
@@ -114,10 +114,10 @@ static mapping build_env_vars(string f, object id, string path_info)
 
   // End SSI vars.
     
-  if(tmp = roxen->real_file(new["SCRIPT_NAME"], id))
+  if(tmp = caudium->real_file(new["SCRIPT_NAME"], id))
     new["SCRIPT_FILENAME"] = tmp;
     
-  if(tmp = roxen->real_file("/", id))
+  if(tmp = caudium->real_file("/", id))
     new["DOCUMENT_ROOT"] = tmp;
 
   if(!new["PATH_TRANSLATED"])
@@ -175,8 +175,8 @@ static mapping build_env_vars(string f, object id, string path_info)
 
   new["REMOTE_ADDR"]=addr;
     
-  if(roxen->quick_ip_to_host(addr) != addr)
-    new["REMOTE_HOST"]=roxen->quick_ip_to_host(addr);
+  if(caudium->quick_ip_to_host(addr) != addr)
+    new["REMOTE_HOST"]=caudium->quick_ip_to_host(addr);
 
   catch {
     if(id->my_fd) {
@@ -870,7 +870,7 @@ mapping proxy_auth_needed(object id)
 
 string program_filename()
 {
-  return roxen->filename(this_object()) ||
+  return caudium->filename(this_object()) ||
     search(master()->programs, object_program(this_object()));
 }
 
@@ -912,7 +912,7 @@ object get_module (string modname)
       !sizeof (cname) || !sizeof(mname)) return 0;
   sscanf (mname, "%s#%d", mname, mid);
 
-  foreach (roxen->configurations, object conf) {
+  foreach (caudium->configurations, object conf) {
     mapping moddata;
     if (conf->name == cname && (moddata = conf->modules[mname])) {
       if (mid >= 0) {
@@ -934,7 +934,7 @@ string get_modname (object module)
 {
   if (!module) return 0;
 
-  foreach (roxen->configurations, object conf) {
+  foreach (caudium->configurations, object conf) {
     string mname = conf->otomod[module];
     if (mname) {
       mapping moddata = conf->modules[mname];

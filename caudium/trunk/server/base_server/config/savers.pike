@@ -74,7 +74,7 @@ void save_module_variable(object o)
   else if(o->config())
     o->config()->set(o->data[VAR_SHORTNAME], o->data[VAR_VALUE]);
   else
-    roxen->set(o->data[VAR_SHORTNAME], o->data[VAR_VALUE]);
+    caudium->set(o->data[VAR_SHORTNAME], o->data[VAR_VALUE]);
       
   if(o->changed) o->change(-o->changed);
 }
@@ -82,11 +82,11 @@ void save_module_variable(object o)
 
 void save_global_variables(object o)
 {
-  roxen->store("Variables", roxen->variables, 0, 0);
-  roxen->initiate_configuration_port();
+  caudium->store("Variables", caudium->variables, 0, 0);
+  caudium->initiate_configuration_port();
   init_logger();
-  roxen->initiate_supports();
-  roxen->reinit_garber();
+  caudium->initiate_supports();
+  caudium->reinit_garber();
   if(o->changed) o->change(-o->changed);
 }
 
@@ -95,8 +95,8 @@ void save_module_master_copy(object o, object config)
   string s;
   object n;
 
-  roxen->current_configuration = config;
-  roxen->store(s=o->data->sname+"#0", o->data->master->query(), 0, o->config());
+  caudium->current_configuration = config;
+  caudium->store(s=o->data->sname+"#0", o->data->master->query(), 0, o->config());
   o->data->master->start(2, config);
   o->config()->invalidate_cache();
   if(o->changed) o->change(-o->changed);
@@ -104,7 +104,7 @@ void save_module_master_copy(object o, object config)
 
 void save_configuration_global_variables(object o, object config)
 {
-  roxen->store("spider#0", o->config()->variables, 0, o->config());
+  caudium->store("spider#0", o->config()->variables, 0, o->config());
   if(o->changed) o->change(-o->changed);
   o->config()->start(2, config);
 }
@@ -126,7 +126,7 @@ void save_module_copy(object o, object config)
 
   cf->invalidate_cache();
   
-  roxen->store(s, o->data->query(), 0, cf);
+  caudium->store(s, o->data->query(), 0, cf);
   if(o->data->start) o->data->start(2, config);
   if(o->changed) o->change(-o->changed);
 }

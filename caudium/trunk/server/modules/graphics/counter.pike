@@ -44,6 +44,9 @@
 // -----------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2000/08/07 00:50:43  neotron
+// major changes, caudium -> roxen. some 7.0 changes
+//
 // Revision 1.4  2000/08/02 19:26:26  neotron
 // Changed copyright notices in all pike files
 //
@@ -66,7 +69,7 @@
 // Added bordercolor documentation.
 //
 // Revision 1.18  1998/04/17 01:58:39  grubba
-// Now uses id->conf->X instead of roxen->X where possible.
+// Now uses id->conf->X instead of caudium->X where possible.
 //
 // Revision 1.17  1998/03/23 08:20:57  neotron
 // o Added new module type, MODULE_PROVIDER. This is a module type which
@@ -269,7 +272,7 @@ mapping fontlist(string bg, string fg, int scale)
     "<H2>Available Graphic Counter Fonts</H2><HR>"+
     cvs_version + "<BR>" + copyright + "<HR>";
 		 
-  catch( fnts = sort( roxen->available_fonts() ));
+  catch( fnts = sort( caudium->available_fonts() ));
   if( fnts ) {
     out += "<B>Available Fonts:</B><MENU>";
     for( i=0; i<sizeof(fnts); i++ ) {

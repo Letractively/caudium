@@ -31,8 +31,8 @@
 
 #include <config.h>
 
-#if !efun(roxen)
-#define roxen roxenp()
+#if !constant(caudium)
+#define caudium caudiump()
 #endif
 
 string http_date(int t);
@@ -148,7 +148,7 @@ mapping http_low_answer( int errno, string data )
 
 /*
 **! method: mapping http_pipe_in_progress( )
-**!   Returns a response mapping that tells Roxen that this request
+**!   Returns a response mapping that tells Caudium that this request
 **!   is in progress and that sending of data, closing the connection
 **!   and such will be handled by the module. If this is used and you 
 **!   fail to close connections correctly, FD leaking will be the result. 
@@ -170,10 +170,10 @@ static string parse_rxml(string what, object id,
 
 /*
 **! method: string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
-**!   Convenience function to use in Roxen modules and Pike scripts. When you
+**!   Convenience function to use in Caudium modules and Pike scripts. When you
 **!   just want to return a string of data, with an optional type, this is the
 **!   easiest way to do it if you don't want to worry about the internal
-**!   Roxen structures. This function creates a response mapping containing the
+**!   Caudium structures. This function creates a response mapping containing the
 **!   RXML parsed data you send to it.
 **! arg: string rxml
 **!   The text to RXML parse and return.
@@ -396,7 +396,7 @@ string http_caudium_id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
 		 http_date (3600*24*365*2 + time (1)) + "; path=/",
-		 roxen->increase_id());
+		 caudium->increase_id());
 }
 function(string:string) http_roxen_id_cookie = http_caudium_id_cookie;
 

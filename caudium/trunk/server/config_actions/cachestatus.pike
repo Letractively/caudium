@@ -39,10 +39,10 @@ mixed page_0(object id, object mc)
 
   ret = "<font size=\"+1\">Memory</font>";
   ret += html_border(cache->status());
-  if( roxen->query("cache") )
+  if( caudium->query("cache") )
   {
     ret += "<p><font size=\"+1\">Disk</font>";
-    ret += html_border( roxen->get_garb_info(), 0, 5 );
+    ret += html_border( caudium->get_garb_info(), 0, 5 );
   }
   return ret;
 }

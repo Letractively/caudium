@@ -59,7 +59,7 @@ string query_location() { return QUERY(mountpoint); }
 object find_configuration( string what )
 {
   object c;
-  foreach(roxen->configurations, c)
+  foreach(caudium->configurations, c)
     if(objectp(c))
       if(lower_case(c->name) == lower_case(what))
 	return c;
@@ -76,7 +76,7 @@ array find_dir( string f, object id )
   oc = id->conf;
   id->not_query = f;
   id->conf = config;
-  res = roxen->find_dir( f, id );
+  res = caudium->find_dir( f, id );
   id->not_query = oq;
   id->conf = oc;
 #ifdef DEBUG
@@ -100,7 +100,7 @@ array stat_file( string f, object id )
   oc = id->conf;
   id->not_query = f;
   id->conf = config;
-  res = roxen->stat_file( f, id );
+  res = caudium->stat_file( f, id );
   id->not_query = oq;
   id->conf = oc;
 #ifdef DEBUG
@@ -123,7 +123,7 @@ array real_file( string f, object id )
   oc = id->conf;
   id->not_query = f;
   id->conf = config;
-  res = roxen->real_file( f, id );
+  res = caudium->real_file( f, id );
   id->not_query = oq;
   id->conf = oc;
 #ifdef DEBUG
@@ -244,7 +244,7 @@ mapping find_file(string f, object id)
   oc = id->conf;
   id->not_query = f;
   id->conf = config;
-  res = roxen->get_file( id, 1 );
+  res = caudium->get_file( id, 1 );
   id->not_query = oq;
   id->conf = oc;
 #ifdef DEBUG
@@ -253,7 +253,7 @@ mapping find_file(string f, object id)
   if(intp(res)) return res;
   if(mappingp(res) && res->data)
     res->data = fix_absolute( res->data );
-  roxen->current_configuration = oc;
+  caudium->current_configuration = oc;
   return res;
 }
 

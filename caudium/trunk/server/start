@@ -6,7 +6,7 @@
 DIR=../configurations/
 LOGDIR=../logs/
 FILES="default"
-program=base_server/roxenloader.pike
+program=base_server/caudiumloader.pike
 
 # Set up environment
 if test -f etc/environment; then
