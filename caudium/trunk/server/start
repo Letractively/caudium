@@ -376,6 +376,8 @@ rotate () {
 start_caudium() {
   if [ "$nocaudium" = "" -a "x$DIR" != "x../configurations/" ] ; then
     args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program --config-dir=$DIR $pass"
+  elif [ "$nocaudium" = "1" ] ; then
+     args="$DEBUG $DEFINES $ARGS $program $pass"
   else
     args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program $pass"
   fi
