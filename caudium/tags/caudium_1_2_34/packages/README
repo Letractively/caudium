@@ -1,0 +1,14 @@
+This directory is meant to keep all the packaging systems stuff.
+If you are a maintainer of Caudium package for some OS distribution,
+be it Linux, Solaris, whatever - you should put your files here.
+
+A quick howto:
+
+ - create a directory named after your distribution, e.g.:
+     redhat/
+     debian/
+     solaris/
+     mandrake/
+     
+ - put all your files there
+ 
