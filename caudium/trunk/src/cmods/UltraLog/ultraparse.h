@@ -90,9 +90,9 @@ struct two_ints
 
 /* Session array */
 
-//#define SESS(X,Y) (session->item[X].u.Y)
-//#define G_ENDTIME	SESS(0,integer)
-//#define G_STARTTIME	SESS(1,integer)
+/*#define SESS(X,Y) (session->item[X].u.Y)*/
+/*#define G_ENDTIME	SESS(0,integer)*/
+/*#define G_STARTTIME	SESS(1,integer)*/
 #define SESS(X) (TI(session->u.object)->X)
 #define G_ENDTIME	SESS(end)
 #define G_STARTTIME	SESS(start)
@@ -128,7 +128,7 @@ struct two_ints
 /* Set a character in the line buffer */
 #define RISKY_BUSINESS
 #ifdef  RISKY_BUSINESS
-//#define BUFSET(X) if(save_field_num[state_pos]>-1){buf[bufpos] = X; if(bufpos == MAX_LINE_LEN)   goto skip;  bufpos++;}
+/*#define BUFSET(X) if(save_field_num[state_pos]>-1){buf[bufpos] = X; if(bufpos == MAX_LINE_LEN)   goto skip;  bufpos++;}*/
 #define BUFSET(X) buf[bufpos] = X; if(bufpos == MAX_LINE_LEN)   goto skip;  bufpos++
 #else
 #define BUFSET(X)  { \
