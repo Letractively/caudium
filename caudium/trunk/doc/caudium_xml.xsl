@@ -5,7 +5,7 @@
      Very early version - don't expect any bells and whistles.
 -->
 <xsl:include href="base_html.xsl"/>
-<xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
+<xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
 <xsl:template match="documentation">
  <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
 <page title="Caudium Documentation">
