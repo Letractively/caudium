@@ -1165,10 +1165,12 @@ private mapping internal_caudium_image(string from)
 {
   object img;
   int hue,bright,w;
+  string ext;
   
-  sscanf(from, "%s.png", from);
-  sscanf(from, "%s.gif", from);
-  sscanf(from, "%s.jpg", from);
+  sscanf(from, "%s.%s", from, ext);
+//  sscanf(from, "%s.gif", from);
+//  sscanf(from, "%s.jpg", from);
+//  sscanf(from, "%s.xcf", from);
 
   // Disallow "internal-caudium-..", it won't really do much harm, but a list of
   // all files in '..' might be retrieved (that is, the actual directory
@@ -1182,20 +1184,43 @@ private mapping internal_caudium_image(string from)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
 
-  if(img = open("caudium-images/"+from+".png", "r")) 
-    return (["file": img, "type":"image/png" ]);
-  else if(object img = open("caudium-images/"+from+".jpg", "r"))
-    return (["file": img, "type":"image/jpeg" ]);
-  else if(object img = open("caudium-images/"+from+".gif", "r"))
-    return (["file": img, "type":"image/gif" ]);
-  else
-    return
-      http_string_answer("<html><title>No Such Internal Image!</title>"
-			 "<body bgcolor=black text=white>"
-			 "<h1 align=center>"
-			 "<img src=\"/internal-caudium-dontpanic\" "
-			 "width=\"172\" height=\"128\"><br>Don't panic!</h1>"
-			 "</body></html>");
+  // If the requested image had .xcf extension then we should treat
+  // it especially. It differs from the other types in that it's a
+  // layered image, and not a flat bitmap. Since some code asks
+  // for .xcf it is highly probable it needs the layers (like gbutton,
+  // for example). So, in case of XCF we either find the exact file
+  // or return null.
+  
+  mapping img_types = ([
+     "gif":"image/gif",
+     "png":"image/png",
+     "jpg":"image/jpeg",
+    "jpeg":"image/jpeg",
+     "xcf":"image/x-xcf"
+  ]);
+  
+  switch(ext) {
+    case "png":
+    case "jpg":
+    case "gif":
+    case "jpeg":
+        foreach(indices(img_types), string e)
+	    if(img = open("caudium-images/"+from+"."+e, "r")) 
+		return (["file": img, "type":img_types[e]]);
+	break;
+	
+    case "xcf":
+	if(img = open("caudium-images/"+from+"."+ext, "r")) 
+		return (["file": img, "type":img_types[ext]]);
+	break;
+    }
+    	
+    return http_string_answer("<html><title>No Such Internal Image!</title>"
+			      "<body bgcolor=black text=white>"
+			      "<h1 align=center>"
+			      "<img src=\"/internal-caudium-dontpanic\" "
+			      "width=\"172\" height=\"128\"><br>Don't panic!</h1>"
+			      "</body></html>");
 }
 
 // The function that actually tries to find the data requested.  All
