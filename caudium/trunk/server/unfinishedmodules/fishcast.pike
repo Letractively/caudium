@@ -19,25 +19,32 @@ constant module_doc = "Your pike doesn't seem to have support for threads. That 
 #endif
 constant module_unique = 1;
 
-mapping streams;
+mapping streams = ([ ]);
 
 void create() {
     defvar( "mountpoint", "/_streams/", "Mountpoint", TYPE_STRING, "The mountpoint in the virtual filesystem" );
     defvar( "mp3files", "/var/spool/mp3/", "MP3 Search Path", TYPE_STRING, "The path in the real filesystem to the MP3 directory" );
     defvar( "listing", 0, "Listing", TYPE_FLAG, "Enable stream listing", ({ "yes", "no" }) );
+    defvar( "maxclients", 20, "Maximum Clients", TYPE_INT, "Maximum connected clients" );
 }
 
 void start( int cnt, object conf ) {
     // might do something here later.
+    if ( sizeof( streams ) > 0 ) {
+	write( "Calling stop()...\n" );
+	stop();
+    }
     streams = ([ ]);
 }
 
 void stop() {
+    write( "Forced module stop, terminating threads: " );
     int id;
     foreach( indices( streams ), id ) {
         streams[ id ]->terminate();
     }
     streams = ([ ]);
+    write( "done.\n" );
 }
 
 string status() {
@@ -140,7 +147,7 @@ string _tag_stream( string tag, mapping args, string contents, object id ) {
     if ( ! stream_id ) {
 	// create a new stream!
 	write( "Creating new stream: " );
-	object s = stream( files, query( "mp3files" ), loop, shuffle, bitrate, args->name );
+	object s = stream( files, query( "mp3files" ), loop, shuffle, bitrate, query( "maxclients" ), args->name );
         write( "done. (id = " + (string)s->get_ID() + ")\n" );
 	write( "Creating thread: " );
 	thread_create( s->start );
@@ -156,16 +163,17 @@ class stream {
 
     array files;
     mapping clients = ([ ]);
-    int loop, shuffle, ident, running, pause, term, bytes, bitrate, wait;
+    int loop, shuffle, ident, running, pause, term, bytes, bitrate, wait, maxclients;
     string name, base, playing;
 
-    void create( array _files, string _base, int _loop, int _shuffle, int _bitrate, void|string _name ) {
+    void create( array _files, string _base, int _loop, int _shuffle, int _bitrate, int _maxclients, void|string _name ) {
 	files = _files;
 	loop = _loop;
 	shuffle = _shuffle;
 	base = _base; // QUERY( "mp3files" )
 	name = _name?_name:"Untitled Stream";
-        bitrate = _bitrate;
+	bitrate = _bitrate;
+        maxclients = _maxclients;
 	ident = time() * random( time() );
     }
 
@@ -179,7 +187,7 @@ class stream {
         bytes = 0;
 	int _loop = 1;
 	string filename;
-	int block = (int)( bitrate * 32 );
+	int block = (int)( bitrate * 12.8 );
         int thyme = time();
 	while( _loop == 1 ) {
 	    _loop = loop;
@@ -191,9 +199,13 @@ class stream {
 		playing = filename;
 		write( "Stream: " + name + ", playing: " + playing + "\n" );
 		string buff;
-                float elapsed = (float)time( thyme );
-		while( buff = f->read( block ) ) {
+		int eof;
+                float elapsed;
+		while( eof == 0 ) {
+		    elapsed = (float)time( thyme );
+		    buff = f->read( block );
 		    if ( buff == "" ) {
+                        eof = 1;
                         break;
 		    }
                     bytes += block;
@@ -203,16 +215,16 @@ class stream {
 		    while( sizeof( clients ) == 0 ) {
 			sleep( 0.5 );
 		    }
-		    send( buff );
 		    if ( term == 1 ) {
                         write( "Terminating thread.\n" );
 			return;
 		    }
+		    send( buff );
 		    // this really needs to be changed so that if it takes
 		    // longer than 1/10th of a second to send data to the clients
 		    // then we are too busy, and should reduce samples to 9/second
 		    // and increase the sample size. Or else maybe disconenct a client :)
-                    sleep( ( 0.25 - ( (float)time( thyme ) - elapsed ) ) );
+		    sleep( ( 0.1 - ( (float)time( thyme) - elapsed ) ) );
 		}
                 f->close();
 	    }
@@ -240,14 +252,29 @@ class stream {
     }
 
     void register_client( object fd, string remoteaddr ) {
-        write( "Client connected to stream\n" );
-	if ( fd->query_id() == 0 ) {
-	    fd->set_id( time() * random( time() ) );
-	}
-	clients += ([ fd->query_id() : ([ "fd" : fd, "start" : time(), "bytes" : 0, "remoteaddr" : remoteaddr ]) ]);
-	fd->set_close_callback( unregister_client, fd->query_id() );
-	if ( running == 0 ) {
-	    thread_create( start );
+	write( "Client " + remoteaddr + " connecting: " );
+	if ( ( sizeof( clients ) == maxclients ) && ( maxclients != 0 ) ) {
+	    write( "rejecting.\n" );
+	    fd->write(
+		      "HTTP/1.1 502 Server Too Busy\n"
+		      "Content-Type: text/html\n\n"
+		      "<head>\n"
+		      "<title>Server Too Busy</title>\n"
+		      "<body>\n"
+		      "I'm sorry, the maximum number of clients for this stream has been exceeded\n"
+                      "</body>\n"
+		     );
+	    fd->close();
+	} else {
+	    if ( fd->query_id() == 0 ) {
+		fd->set_id( time() * random( time() ) );
+	    }
+	    clients += ([ fd->query_id() : ([ "fd" : fd, "start" : time(), "bytes" : 0, "remoteaddr" : remoteaddr ]) ]);
+	    fd->set_close_callback( unregister_client, fd->query_id() );
+	    if ( running == 0 ) {
+		thread_create( start );
+	    }
+            write( "done.\n" );
 	}
     }
 
