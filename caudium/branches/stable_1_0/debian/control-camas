@@ -54,3 +54,11 @@ Description: A webmail module for Caudium
  with it (as far as the config files are concerned). It contains many improvements,
  bug fixes, new features - better national language support, better layout manager,
  more configuration options, multi-domain mail support and more.
+
+Package: caudium-dev
+Architecture: any
+Depends: ${shlibs:Depends}, pike7 (= ${pikever})
+Description: Developement files for Caudium
+ This package is really a commodity one to facilate building the prospective PHP4
+ package for Caudium. It contains only the files needed for the latter to detect 
+ the presence of Caudium on the system.
