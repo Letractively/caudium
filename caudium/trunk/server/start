@@ -7,6 +7,7 @@ DIR=../configurations/
 LOGDIR=../logs/
 FILES="default"
 program=base_server/caudiumloader.pike
+program_echo="Starting the Caudium World Wide Web server."
 
 # Set up environment
 if test -f etc/environment; then
@@ -117,6 +118,8 @@ parse_args() {
   --config-dir=*)
    DIR=`echo $1 | sed -e 's/--config-dir=//'`
    FILES=`echo $1 | sed -e's/--config-dir=//' -e's/\.//g' -e's./..g' -e 's.-..g'`
+#override setting of FILES through --program:
+   config_dir=1
   ;;
   --pike-version=*)
    pikever=`echo $1 | sed -e 's/--pike-version=//'`
@@ -158,6 +161,11 @@ parse_args() {
   ;;
   '--program')
     program="$2"
+    program_echo="Starting $program."
+# don't set FILES if the --config-dir arg is present:
+    if [ "x$config_dir" = "x" ]; then
+    FILES=`basename $program .pike`
+    fi
     once=1
     shift
   ;;
@@ -320,7 +328,7 @@ fi
 if [ ! "X$pass" = "X" ] ; then set -- $pass ;fi
 
 
-echo $$: Starting the Caudium Challenger World Wide Web server.
+echo $$: "$program_echo"
 
 ./mkdir -p $LOGDIR/debug/
 
