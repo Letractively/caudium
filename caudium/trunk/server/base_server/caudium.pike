@@ -3515,7 +3515,7 @@ void exit_when_done()
   }
   
   // Then wait for all sockets, but maximum 10 minutes..
-  call_out(__close_connection, 0, __close_connections);
+  call_out(__close_connections, 0, __close_connections);
   call_out(__close_caudium, 600, 0); // Slow buggers..
 }
 
