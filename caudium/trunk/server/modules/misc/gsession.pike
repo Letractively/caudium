@@ -1531,11 +1531,12 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 {
   string   query;
   mapping  hvars = ([]);
+  multiset evars = (<>);
   int      have_query = 0;
     
   if (id->misc->session_id && args && !args->norewrite && args->href && !leave_me_alone(args->href)) {
     if (sscanf(args->href, "%*s?%s", query) == 2) {
-      Caudium.parse_query_string(query, hvars);
+      Caudium.parse_query_string(query, hvars, evars);
       have_query = 1;
     }
         
@@ -1569,11 +1570,12 @@ mixed tag_frame (string tag, mapping args, object id, object file)
 {
   string   query;
   mapping  hvars = ([]);
+  multiset evars = (<>);
   int      have_query = 0;
     
   if (id->misc->session_id && args && !args->norewrite && args->src && !leave_me_alone(args->src)) {
     if (sscanf(args->src, "%*s?%s", query) == 2) {
-      Caudium.parse_query_string(query, hvars);
+      Caudium.parse_query_string(query, hvars, evars);
       have_query = 1;
     }
         

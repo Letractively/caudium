@@ -110,6 +110,10 @@ int do_not_disconnect;
 //! is a variable name.
 mapping (string:string) variables       = ([ ]);
 
+//! Variables that were found in the query part of the request URL but
+//! had no value assigned to them.
+multiset (string) empty_variables  = (< >);
+  
 //! Miscellaneous variables used by both the core server and the modules -
 //! you are free to add your own variables over here as long as you make
 //! sure that they do not conflict with any of the existing ones.
