@@ -23,6 +23,10 @@ top directory of caudium with / marking the top.
  this function could be added to the sqltags module,
  or put in a place for generic helper functions.
 
++ /server/modules/tags/sqltag.pike   sqltag with sqlupdate
+ this module includes the sqlupdate function and
+ makes it accessible through the <sqlupdate> tag.
+
 + /server/modules/tags/superform.pike   superform rewrite
  clean design to allow easy expandability of new checks,
  no need for hidden variables.
