@@ -70,7 +70,19 @@ int main(int argc, array argv)
 
   profile=Lucene->read_profile(profile_path);
 
-  index=Lucene.Index(profile->index->location[0]->value);
+  // load the stopwords file, if any.
+  array stopwords=({});
+  if(profile->index->stopwordsfile)
+  {
+    foreach(profile->index->stopwordsfile, mapping s)
+    {
+      string f=Stdio.read_file(s->value);
+      if(f)
+        stopwords+=f/"\n";
+    }
+  }
+
+  index=Lucene.Index(profile->index->location[0]->value, stopwords);
   Lucene->check_exception();
   index->search(argv[-1]);
   Lucene->check_exception();
