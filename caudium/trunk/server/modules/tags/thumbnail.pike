@@ -201,7 +201,7 @@ string tag_thumbnail(string tag, mapping args, object id, object file, mapping d
     filename += args->src;
 
     mapping  imgtag = ([
-      "src" : sprintf("\"%s/%s/%s/%s/%d/%d/$%s\"", QUERY(mountpoint), (args->trans?"1":"0"),
+      "src" : sprintf("%s/%s/%s/%s/%d/%d/$%s", QUERY(mountpoint), (args->trans?"1":"0"),
                       (args->rot?args->rot:"0"), (args->bg?args->bg-"#":"ffffff"),
 		      height, width, filename)
     ]);
