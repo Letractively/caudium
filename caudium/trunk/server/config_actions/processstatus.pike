@@ -59,7 +59,7 @@ mixed page_0(object id, object conf)
 	     "\">Process status</a></font>"+ */
 	  "<pre>"+
 	  describe_global_status()+
-	  "CPU-Time used             : "+caudium->msectos(ru[0]+ru[1])+
+	  "CPU-Time used             : "+Caudium.msectos(ru[0]+ru[1])+
 	  " ("+tmp/10+"."+tmp%10+"%)\n"
 	  +(ru[-2]?(sprintf("Resident set size (RSS)   : %.3f Mb\n",
 			    (float)ru[-2]/(float)MB)):"")
