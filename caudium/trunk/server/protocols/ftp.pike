@@ -3294,7 +3294,7 @@ class FTPSession
     string s = replace(Query("FTPWelcome"),
 		       ({ "$roxen_version", "$roxen_build", "$full_version",
 			  "$pike_version", "$ident", }),
-		       ({ roxen->__roxen_version__, roxen->__roxen_build__,
+		       ({ roxen->__caudium_version__, roxen->__caudium_build__,
 			  roxen->real_version, version(), roxen->version() }));
 
     send(220, s/"\n", 1);

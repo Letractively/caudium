@@ -58,6 +58,7 @@ inherit "disk_cache";
 inherit "language";
 inherit "color";
 inherit "fonts";
+
 // The datashuffler program
 #if constant(spider.shuffle) && (defined(THREADS) || defined(__NT__))
 constant pipe = (program)"smartpipe";
@@ -65,23 +66,15 @@ constant pipe = (program)"smartpipe";
 constant pipe = Pipe.pipe;
 #endif
 
-/* Pike 0.5 does not have _exit. */
-#if !constant(_exit)
-void _exit(int n)
-{
-  kill(getpid(), 9);
-}
-#endif
-
-// This is the real Roxen version. It should be changed before each
+// This is the real Caudium version. It should be changed before each
 // release
-constant __roxen_version__ = "1.0";
-constant __roxen_build__ = "0";
+constant __caudium_version__ = "1.0";
+constant __caudium_build__ = "0";
 
 #ifdef __NT__
-constant real_version = "Caudium/"+__roxen_version__+"."+__roxen_build__+"-NT";
+constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+"-NT";
 #else
-constant real_version = "Caudium/"+__roxen_version__+"."+__roxen_build__;
+constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__;
 #endif
 
 #if _DEBUG_HTTP_OBJECTS
@@ -98,7 +91,7 @@ int new_id(){ return idcount++; }
 
 // pids of the start-script and ourselves.
 int startpid, roxenpid;
-object roxen=this_object(), current_configuration;
+object caudium = this_object(), roxen=this_object(), current_configuration;
 
 program Configuration;	/*set in create*/
 
@@ -109,7 +102,7 @@ mapping allmodules, somemodules=([]);
 // A mapping from ports (objects, that is) to an array of information
 // about that port.  This will hopefully be moved to objects cloned
 // from the configuration object in the future.
-mapping portno=([]);
+mapping portno = ([]);
 
 // constant decode = roxen->decode;
 
@@ -134,11 +127,10 @@ void stop_all_modules()
     conf->stop();
 }
 
-// Function that actually shuts down Roxen. (see low_shutdown).
+// Function that actually shuts down Caudium. (see low_shutdown).
 private static void really_low_shutdown(int exit_code)
 {
   // Die nicely.
-
 #ifdef SOCKET_DEBUG
   roxen_perror("SOCKETS: really_low_shutdown\n"
 	       "                        Bye!\n");
@@ -186,7 +178,7 @@ private static void really_low_shutdown(int exit_code)
 #endif /* constant(fork) && !constant(thread_create) */
 }
 
-// Shutdown Roxen
+// Shutdown Caudium
 //  exit_code = 0	True shutdown
 //  exit_code = -1	Restart
 private static void low_shutdown(int exit_code)
@@ -206,21 +198,21 @@ private static void low_shutdown(int exit_code)
     // Only _really_ do something in the main process.
     int pid;
     if (exit_code) {
-      roxen_perror("Restarting Roxen.\n");
+      roxen_perror("Restarting Caudium.\n");
     } else {
-      roxen_perror("Shutting down Roxen.\n");
+      roxen_perror("Shutting down Caudium.\n");
 
       // This has to be refined in some way. It is not all that nice to do
       // it like this (write a file in /tmp, and then exit.)  The major part
       // of code to support this is in the 'start' script.
 #ifndef __NT__
 #ifdef USE_SHUTDOWN_FILE
-      // Fallback for systems without geteuid, Roxen will (probably)
+      // Fallback for systems without geteuid, Caudium will (probably)
       // not be able to kill the start-script if this is the case.
-      rm("/tmp/Roxen_Shutdown_"+startpid);
+      rm("/tmp/Caudium_Shutdown_"+startpid);
 
       object f;
-      f=open("/tmp/Roxen_Shutdown_"+startpid, "wc");
+      f = open("/tmp/Caudium_Shutdown_"+startpid, "wc");
       
       if(!f) 
 	roxen_perror("cannot open shutdown file.\n");
@@ -245,7 +237,7 @@ private static void low_shutdown(int exit_code)
 // Perhaps somewhat misnamed, really...  This function will close all
 // listen ports, fork a new copy to handle the last connections, and
 // then quit the original process.  The 'start' script should then
-// start a new copy of roxen automatically.
+// start a new copy of Caudium automatically.
 mapping restart() 
 { 
   low_shutdown(-1);
@@ -363,7 +355,7 @@ void handler_thread(int id)
 	  h[0](@h[1]);
 	  h=0;
 	} else if(!h) {
-	  // Roxen is shutting down.
+	  // Caudium is shutting down.
 	  werror("Handle thread ["+id+"] stopped\n");
 	  thread_reap_cnt--;
 	  return;
@@ -372,11 +364,11 @@ void handler_thread(int id)
     }) {
       report_error("Uncaught error in handler thread: " +
 		   describe_backtrace(q) +
-		   "Client will not get any response from Roxen.\n");
+		   "Client will not get any response from Caudium.\n");
       if (q = catch {h = 0;}) {
 	report_error("Uncaught error in handler thread: " +
 		     describe_backtrace(q) +
-		     "Client will not get any response from Roxen.\n");
+		     "Client will not get any response from Caudium.\n");
       }
     }
   }
@@ -524,7 +516,7 @@ object create_listen_socket(mixed port_no, object conf,
 
 // The configuration interface is loaded dynamically for faster
 // startup-time, and easier coding in the configuration interface (the
-// Roxen environment is already finished when it is loaded)
+// Caudium environment is already finished when it is loaded)
 object configuration_interface_obj;
 int loading_config_interface;
 int enabling_configurations;
@@ -612,13 +604,13 @@ void nwrite(string s, int|void perr, int|void type)
   if(type>=1) roxen_perror(s);
 }
 
-// When was Roxen started?
+// When was Caudium started?
 int boot_time;
 int start_time;
 
 string version()
 {
-  return QUERY(default_ident)?real_version:QUERY(ident);
+  return QUERY(identversion) ? real_version:"Caudium";
 }
 
 // The db for the nice '<if supports=..>' tag.
@@ -986,7 +978,7 @@ public string full_status()
 
 
 // These are now more or less outdated, the modules really _should_
-// pass the information about the current configuration to roxen,
+// pass the information about the current configuration to caudium,
 // to enable async operations. This information is in id->conf.
 //
 // In the future, most, if not all, of these functions will be moved
@@ -1138,7 +1130,7 @@ array(object) get_configuration_ports()
 
 string docurl;
 
-// I will remove this in a future version of roxen.
+// I will remove this in a future version of caudium.
 private program __p;
 mapping my_loaded = ([]);
 program last_loaded() { return __p; }
@@ -1253,7 +1245,7 @@ void restart_if_stuck (int force)
 	     // Catch for paranoia reasons.
 	     describe_all_threads();
 	   };
-	   werror(sprintf("**** %s: ABS exiting roxen!\n\n",
+	   werror(sprintf("**** %s: ABS exiting caudium!\n\n",
 			  ctime(time())));  
 	   _exit(1); 	// It might now quit correctly otherwise, if it's
 	   //  locked up
@@ -1304,7 +1296,7 @@ private string get_my_url()
 // Set the uid and gid to the ones requested by the user. If the sete*
 // functions are available, and the define SET_EFFECTIVE is enabled,
 // the euid and egid is set. This might be a minor security hole, but
-// it will enable roxen to start CGI scripts with the correct
+// it will enable caudium to start CGI scripts with the correct
 // permissions (the ones the owner of that script have).
 
 int set_u_and_gid()
@@ -1425,7 +1417,7 @@ int set_u_and_gid()
 static mapping __vars = ([ ]);
 
 // These two should be documented somewhere. They are to be used to
-// set global, but non-persistent, variables in Roxen. By using
+// set global, but non-persistent, variables in Caudium. By using
 // these functions modules can "communicate" with one-another. This is
 // not really possible otherwise.
 mixed set_var(string var, mixed to)
@@ -1605,7 +1597,6 @@ public string config_url()
 int cache_disabled_p() { return !QUERY(cache);         }
 int syslog_disabled()  { return QUERY(LogA)!="syslog"; }
 int range_disabled_p() { return !QUERY(EnableRangeHandling);  }
-private int ident_disabled_p() { return QUERY(default_ident); }
 
 class ImageCache
 {
@@ -2386,7 +2377,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "used in the log and in scripts to track individual users.");
 
   globvar("set_cookie_only_once",1,"Set ID cookies only once",TYPE_FLAG,
-	  "If set to Yes, Roxen will attempt to set unique user ID cookies "
+	  "If set to Yes, Caudium will attempt to set unique user ID cookies "
 	  "only upon receiving the first request (and again after some "
 	  "minutes). Thus, if the user doesn't allow the cookie to be set, "
 	  "he won't be bothered with multiple requests.",0,
@@ -2408,14 +2399,16 @@ private void define_global_variables( int argc, array (string) argv )
 	  "<p>This is useful if you want to know if downloads were successful "
 	  "(the user has the complete file downloaded). The drawback is that "
 	  "bandwidth statistics on the log file will be incorrect. The "
-	  "statistics in Roxen will continue being correct.", 0,
+	  "statistics in Caudium will continue being correct.", 0,
 	  range_disabled_p); 
 
-  globvar("EnableRangeHandling", 0, "Range: Enable range handling",
+  globvar("EnableRangeHandling", 1, "Range: Enable range handling",
 	  TYPE_TOGGLE,
 	  "Enable handling of the range headers. This allows browsers to "
 	  "download partial files. Mostly used to continue interrupted "
-	  "connections");	
+	  "connections. It might be desirable to disable this feature since "
+	  "some download programs like to open a number of connections each "
+	  "downloading a separate part of a file.");	
 
   // Hidden variables (compatibility ones, or internal or too
   // dangerous
@@ -2483,11 +2476,11 @@ private void define_global_variables( int argc, array (string) argv )
 	  " be removed first.",
 	  0, cache_disabled_p);
 
-  globvar("cachedir", "/tmp/roxen_cache/",
+  globvar("cachedir", "/tmp/caudium_cache/",
 	  "Proxy disk cache: Base Cache Dir",
 	  TYPE_DIR,
 	  "This is the base directory where cached files will reside. "
-	  "To avoid mishaps, 'roxen_cache/' is always prepended to this "
+	  "To avoid mishaps, 'caudium_cache/' is always prepended to this "
 	  "variable.",
 	  0, cache_disabled_p);
 
@@ -2533,30 +2526,22 @@ private void define_global_variables( int argc, array (string) argv )
 	  "The URL to prepend to all documentation urls throughout the "
 	  "server. This URL should _not_ end with a '/'.");
 
-  globvar("pidfile", "/tmp/roxen_pid:$uid", "PID file",
+  globvar("pidfile", "/tmp/caudium_pid:$uid", "PID file",
 	  TYPE_FILE|VAR_MORE,
 	  "In this file, the server will write out it's PID, and the PID "
 	  "of the start script. $pid will be replaced with the pid, and "
 	  "$uid with the uid of the user running the process.");
 
-  globvar("default_ident", 1, "Identify: Use default identification string",
-	  TYPE_FLAG|VAR_MORE,
-	  "Setting this variable to No will display the \"Identify as\" node "
-	  "where you can state what Roxen should call itself when talking "
-	  "to clients, otherwise it will present it self as \""+ real_version
-	  +"\".<br>"
-	  "It is possible to disable this so that you can enter an "
-	  "identification-string that does not include the actual version of "
-	  "Roxen, as recommended by the HTTP/1.0 draft 03:<p><blockquote><i>"
-	  "Note: Revealing the specific software version of the server "
-	  "may allow the server machine to become more vulnerable to "
-	  "attacks against software that is known to contain security "
-	  "holes. Server implementors are encouraged to make this field "
-	  "a configurable option.</i></blockquote>");
+  globvar("identversion", 1, "Show Caudium Version Number ",
+	  TYPE_INT, "The default behavior is to display the Caudium "
+	  "version number in the Server field in HTTP responses. You can "
+	  "disable it here for security reasons, since it might be easier "
+	  "to crack a server if the exact version is known.");
+	  
 
   globvar("ident", replace(real_version," ","·"), "Identify: Identify as",
 	  TYPE_STRING /* |VAR_MORE */,
-	  "Enter the name that Roxen should use when talking to clients. ",
+	  "Enter the name that Caudium should use when talking to clients. ",
 	  0, ident_disabled_p);
 
 
@@ -2618,7 +2603,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "interface.");
   
   globvar("User", "", "Change uid and gid to", TYPE_STRING,
-	  "When roxen is run as root, to be able to open port 80 "
+	  "When caudium is run as root, to be able to open port 80 "
 	  "for listening, change to this user-id and group-id when the port "
 	  " has been opened. If you specify a symbolic username, the "
 	  "default group of that user will be used. "
@@ -2626,16 +2611,16 @@ private void define_global_variables( int argc, array (string) argv )
 
   globvar("permanent_uid", 0, "Change uid and gid permanently", 
 	  TYPE_FLAG,
-	  "If this variable is set, roxen will set it's uid and gid "
+	  "If this variable is set, caudium will set it's uid and gid "
 	  "permanently. This disables the 'exec script as user' fetures "
 	  "for CGI, and also access files as user in the filesystems, but "
 	  "it gives better security.");
 
   globvar("ModuleDirs", ({ "../local/modules/", "modules/" }),
 	  "Module directories", TYPE_DIR_LIST,
-	  "This is a list of directories where Roxen should look for "
+	  "This is a list of directories where Caudium should look for "
 	  "modules. Can be relative paths, from the "
-	  "directory you started roxen, " + getcwd() + " this time."
+	  "directory you started caudium, " + getcwd() + " this time."
 	  " The directories are searched in order for modules.");
   
   globvar("Supports", "#include <etc/supports>\n", 
@@ -2689,16 +2674,16 @@ private void define_global_variables( int argc, array (string) argv )
 	  ({ "Fatal", "Errors",  "Warnings", "Debug", "All" }),
 	  syslog_disabled);
   
-  globvar("LogNA", "Roxen", "Syslog: Log as", TYPE_STRING,
+  globvar("LogNA", "Caudium", "Syslog: Log as", TYPE_STRING,
 	  "When syslog is used, this will be the identification of the "
-	  "Roxen daemon. The entered value will be appended to all logs.",
+	  "Caudium daemon. The entered value will be appended to all logs.",
 	  0, syslog_disabled);
 #endif
 
 #ifdef THREADS
   globvar("numthreads", 5, "Number of threads to run", TYPE_INT,
-	  "The number of simultaneous threads roxen will use.\n"
-	  "<p>Please note that even if this is one, Roxen will still "
+	  "The number of simultaneous threads caudium will use.\n"
+	  "<p>Please note that even if this is one, Caudium will still "
 	  "be able to serve multiple requests, using a select loop based "
 	  "system.\n"
 	  "<i>This is quite useful if you have more than one CPU in "
@@ -2708,7 +2693,7 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("AutoUpdate", 1, "Update the supports database automatically",
 	  TYPE_FLAG, 
 	  "If set to Yes, the etc/supports file will be updated automatically "
-	  "from www.roxen.com now and then. This is recomended, since "
+	  "from www.caudium.com now and then. This is recomended, since "
 	  "you will then automatically get supports information for new "
 	  "clients, and new versions of old ones.");
 
@@ -2716,10 +2701,10 @@ private void define_global_variables( int argc, array (string) argv )
   
 #ifdef ENABLE_NEIGHBOURHOOD
   globvar("neighborhood", 0,
-	  "Neighborhood: Register with other Roxen servers on the local network"
+	  "Neighborhood: Register with other Caudium servers on the local network"
 	  ,TYPE_FLAG|VAR_MORE,
-	  "If this option is set, Roxen will automatically broadcast it's "
-	  "existence to other Roxen servers on the local network.");
+	  "If this option is set, Caudium will automatically broadcast it's "
+	  "existence to other Caudium servers on the local network.");
 
   globvar("neigh_tcp_ips",  ({}), "Neighborhood: TCP hosts",
   TYPE_STRING_LIST|VAR_MORE,
@@ -2767,8 +2752,8 @@ private void define_global_variables( int argc, array (string) argv )
 	   0,
 	   "Automatic Restart: Enable",
 	   TYPE_FLAG|VAR_MORE,
-	   "If set, Roxen will automatically restart after a configurable number "
-	   "of days. Since Roxen uses a monolith, non-forking server "
+	   "If set, Caudium will automatically restart after a configurable number "
+	   "of days. Since Caudium uses a monolith, non-forking server "
 	   "model the process tends to grow in size over time. This is mainly due to "
 	   "heap fragmentation but also because of memory leaks."
 	   );
@@ -2787,10 +2772,10 @@ private void define_global_variables( int argc, array (string) argv )
          TYPE_FLAG|VAR_MORE,
          "If set, store the argument cache in a mysql "
          "database. This is very useful for load balancing using multiple "
-         "roxen servers, since the mysql database will handle "
+         "caudium servers, since the mysql database will handle "
           " synchronization"); 
 
-  globvar( "argument_cache_db_path", "mysql://localhost/roxen", 
+  globvar( "argument_cache_db_path", "mysql://localhost/caudium", 
           "Argument Cache: Database URL to use",
           TYPE_STRING|VAR_MORE,
           "The database to use to store the argument cache",
@@ -3022,7 +3007,7 @@ void initiate_configuration_port( int|void first )
   if(!main_configuration_port)
   {
     report_error("No configuration ports could be created.\n"
-		 "Is roxen already running?\n");
+		 "Is caudium already running?\n");
     if(first)
       exit( -1 );	// Restart.
   }
@@ -3188,7 +3173,7 @@ void rescan_modules()
 }
 
 // ================================================= 
-// Parse options to Roxen. This function is quite generic, see the
+// Parse options to Caudium. This function is quite generic, see the
 // main() function for more info about how it is used.
 
 private string find_arg(array argv, array|string shortform, 
@@ -3264,7 +3249,7 @@ private string find_arg(array argv, array|string shortform,
 }
 
 // do the chroot() call. This is not currently recommended, since
-// roxen dynamically loads modules, all module files must be
+// caudium dynamically loads modules, all module files must be
 // available at the new location.
 
 private void fix_root(string to)
@@ -3278,7 +3263,7 @@ private void fix_root(string to)
 
   if(!chroot(to))
   {
-    perror("Roxen: Cannot chroot to "+to+": ");
+    perror("Caudium: Cannot chroot to "+to+": ");
 #if efun(real_perror)
     real_perror();
 #endif
@@ -3301,7 +3286,7 @@ void create_pid_file(string where)
 #endif
 }
 
-// External multi-threaded data shuffler. This leaves roxen free to
+// External multi-threaded data shuffler. This leaves caudium free to
 // serve new requests. The file descriptors of the open files and the
 // clients are sent to the program, then the shuffler just shuffles 
 // the data to the client.
@@ -3341,7 +3326,7 @@ void exit_when_done()
 //   trace(9);
   if(++_recurse > 4)
   {
-    roxen_perror("Exiting roxen (spurious signals received).\n");
+    roxen_perror("Exiting Caudium (spurious signals received).\n");
     stop_all_modules();
 #ifdef THREADS
     stop_handler_threads();
@@ -3369,7 +3354,7 @@ void exit_when_done()
     call_out(Simulate.this_function(), 5);
     if(!_pipe_debug()[0])
     {
-      roxen_perror("Exiting roxen (all connections closed).\n");
+      roxen_perror("Exiting Caudium (all connections closed).\n");
       stop_all_modules();
 #ifdef THREADS
       stop_handler_threads();
@@ -3380,7 +3365,7 @@ void exit_when_done()
     }
   }, 0.1);
   call_out(lambda(){
-    roxen_perror("Exiting roxen (timeout).\n");
+    roxen_perror("Exiting Caudium (timeout).\n");
     stop_all_modules();
 #ifdef THREADS
     stop_handler_threads();
@@ -3422,7 +3407,7 @@ void describe_all_threads()
 }
 
 // And then we have the main function, this is the oldest function in
-// Roxen :) It has not changed all that much since Spider 2.0.
+// Caudium :) It has not changed all that much since Spider 2.0.
 int main(int|void argc, array (string)|void argv)
 {
   initiate_languages();
@@ -3432,7 +3417,7 @@ int main(int|void argc, array (string)|void argv)
 
   add_constant("write", perror);
 
-  report_notice("Starting roxen\n");
+  report_notice("Starting Caudium\n");
   
 #ifdef FD_DEBUG  
   mark_fd(0, "Stdin");
@@ -3442,7 +3427,7 @@ int main(int|void argc, array (string)|void argv)
 
   configuration_dir =
     find_arg(argv, "d",({"config-dir","configuration-directory" }),
-	     ({ "ROXEN_CONFIGDIR", "CONFIGURATIONS" }), "../configurations");
+	     ({ "CAUDIUM_CONFIGDIR", "CONFIGURATIONS" }), "../configurations");
 
   if(configuration_dir[-1] != '/')
     configuration_dir += "/";
@@ -3550,12 +3535,12 @@ int main(int|void argc, array (string)|void argv)
   foreach( ({ "SIGTERM" }), string sig) {
     catch { signal(signum(sig), shutdown); };
   }
-  // Signals which cause Roxen to dump the thread state
+  // Signals which cause Caudium to dump the thread state
   foreach( ({ "SIGUSR1", "SIGUSR2", "SIGTRAP" }), string sig) {
     catch { signal(signum(sig), describe_all_threads); };
   }
 
-  report_notice("Roxen started in "+(time()-start_time)+" seconds.\n");
+  report_notice("Caudium started in "+(time()-start_time)+" seconds.\n");
 #ifdef __RUN_TRACE
   trace(1);
 #endif
@@ -3577,14 +3562,14 @@ string check_variable(string name, mixed value)
     config_ports_changed = 1;
     break;
    case "cachedir":
-    if(!sscanf(value, "%*s/roxen_cache"))
+    if(!sscanf(value, "%*s/caudium_cache"))
     {
       object node;
       node = (configuration_interface()->root->descend("Globals", 1)->
 	      descend("Proxy disk cache: Base Cache Dir", 1));
       if(node && !node->changed) node->change(1);
-      mkdirhier(value+"roxen_cache/foo");
-      call_out(set, 0, "cachedir", value+"roxen_cache/");
+      mkdirhier(value+"caudium_cache/foo");
+      call_out(set, 0, "cachedir", value+"caudium_cache/");
     }
     break;
 

@@ -992,7 +992,7 @@ mapping initial_configuration(object id)
   }
   
   res = default_head("Welcome to Roxen Challenger " +
-		     roxen->__roxen_version__ + "." + roxen->__roxen_build__);
+		     roxen->__caudium_version__ + "." + roxen->__caudium_build__);
 
   res += Stdio.read_bytes("etc/welcome.html");
   if(error && strlen(error))
@@ -1361,8 +1361,8 @@ mapping configuration_parse(object id)
 #endif
 
     return http_string_answer(default_head("Roxen Challenger " +
-					   roxen->__roxen_version__ + "." +
-					   roxen->__roxen_build__)+
+					   roxen->__caudium_version__ + "." +
+					   roxen->__caudium_build__)+
 			      status_row(root)+
 			      display_tabular_header(root)+
 			      Stdio.read_bytes(full_version?"etc/config.html":

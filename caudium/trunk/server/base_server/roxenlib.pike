@@ -221,8 +221,8 @@ static mapping build_roxen_env_vars(object id)
   mapping new = ([]);
   mixed tmp;
 
-  if(id->cookies->RoxenUserID)
-    new["ROXEN_USER_ID"]=id->cookies->RoxenUserID;
+  if(id->cookies->CaudiumUserID)
+    new["CAUDIUM_USER_ID"]=id->cookies->CaudiumUserID;
 
   new["COOKIES"] = "";
   foreach(indices(id->cookies), tmp)

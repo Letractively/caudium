@@ -40,7 +40,6 @@ string http_date(int t);
 #include <variables.h>
 
 /*
-**! name: http_res_to_string - convert file result to HTTP header
 **! method: string http_res_to_string( mapping file, object id )
 **!   Convert the file result sent in the first argument to a HTTP
 **!   response header (what you would get for a HEAD request on the
@@ -51,6 +50,7 @@ string http_date(int t);
 **!   The request object.
 **! returns:
 **!   The HTTP header string.
+**! name: http_res_to_string - convert file result to HTTP header
 */
 
 string http_res_to_string( mapping file, object id )
@@ -118,7 +118,6 @@ string http_res_to_string( mapping file, object id )
 }
 
 /*
-**! name: http_low_answer - return a response mapping with the specified info
 **! method: mapping http_low_answer( int errno, string data )
 **!   Return a response mapping with the error and data specified. The
 **!   error is infact the status response, so '200' is HTTP Document
@@ -130,6 +129,7 @@ string http_res_to_string( mapping file, object id )
 **!   The data to return.
 **! returns:
 **!   The HTTP respone mapping.
+**! name: http_low_answer - return a response mapping with the specified info
 */
 mapping http_low_answer( int errno, string data )
 {
@@ -147,7 +147,6 @@ mapping http_low_answer( int errno, string data )
 }
 
 /*
-**! name: http_pipe_in_progress - return a response mapping 
 **! method: mapping http_pipe_in_progress( )
 **!   Returns a response mapping that tells Roxen that this request
 **!   is in progress and that sending of data, closing the connection
@@ -155,6 +154,7 @@ mapping http_low_answer( int errno, string data )
 **!   fail to close connections correctly, FD leaking will be the result. 
 **! returns:
 **!   The HTTP respone mapping.
+**! name: http_pipe_in_progress - return a response mapping 
 */
 mapping http_pipe_in_progress()
 {
@@ -169,7 +169,6 @@ static string parse_rxml(string what, object id,
 			 void|mapping defines);
 
 /*
-**! name: http_rxml_answer - parse and return the specified data
 **! method: string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
 **!   Convenience function to use in Roxen modules and Pike scripts. When you
 **!   just want to return a string of data, with an optional type, this is the
@@ -186,6 +185,7 @@ static string parse_rxml(string what, object id,
 **!   Optional file type, like text/html or application/octet-stream
 **! returns:
 **!   The http response mapping with the parsed data.
+**! name: http_rxml_answer - parse and return the specified data
 */
 mapping http_rxml_answer( string rxml, object id, 
                           void|object(Stdio.File) file, string|void type )
@@ -202,7 +202,6 @@ mapping http_rxml_answer( string rxml, object id,
 
 
 /*
-**! name: http_string_answer - return a response mapping as specified
 **! method: mapping http_string_answer( string text, string|void type )
 **!   Return a response mapping with the text and the specified content type.
 **!   If the content type argument is left out, text/html will be used.
@@ -212,6 +211,7 @@ mapping http_rxml_answer( string rxml, object id,
 **!   The optional content type to override the default text/html.
 **! returns:
 **!   The HTTP respone mapping.
+**! name: http_string_answer - return a response mapping as specified
 */
 mapping http_string_answer(string text, string|void type)
 {
@@ -222,7 +222,6 @@ mapping http_string_answer(string text, string|void type)
 }
 
 /*
-**! name: http_file_answer - return a response mapping as specified
 **! method: mapping http_file_answer( object fd, string|void type, int|void len)
 **!   Return a response mapping with the specified file descriptior using the
 **!   specified content type and length.
@@ -235,6 +234,7 @@ mapping http_string_answer(string text, string|void type)
 **!   read until EOF
 **! returns:
 **!   The HTTP respone mapping.
+**! name: http_file_answer - return a response mapping as specified
 */
 mapping http_file_answer(object fd, string|void type, void|int len)
 {
@@ -246,7 +246,6 @@ constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
 /*
-**! name: cern_http_date - return a date in the common log file format
 **! method: string cern_http_date(int t)
 **!   Return the specified date (as returned by time()) formatted in the
 **!   common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ". 
@@ -255,6 +254,7 @@ constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 **! returns:
 **!   The date in the common log file format.
 **!   Example: 02/Aug/2000:22:36:27 -0700
+**! name: cern_http_date - return a date in the common log file format
 */
 string cern_http_date(int t)
 {
@@ -287,7 +287,6 @@ string cern_http_date(int t)
 
 
 /*
-**! name: cern_http_date - return a date in the HTTP standard format
 **! method: string http_date(int t)
 **!   Return the specified date (as returned by time()) formatted in the
 **!   HTTP-protocol standard date format. Used in for example the Last-Modified
@@ -297,6 +296,7 @@ string cern_http_date(int t)
 **! returns:
 **!   The date in the HTTP standard date format.
 **!   Example: Thu, 03 Aug 2000 05:40:39 GMT
+**! name: cern_http_date - return a date in the HTTP standard format
 */
 string http_date(int t)
 {
@@ -315,7 +315,6 @@ string http_date(int t)
 
 
 /*
-**! name: http_encode_string - HTTP encode a string
 **! method: string http_encode_string(string s)
 **!   HTTP encode the specified string and return it. This means replacing
 **!   the following characters to the %XX format: null (char 0), space, tab,
@@ -324,6 +323,7 @@ string http_date(int t)
 **!   The string to encode.
 **! returns:
 **!   The HTTP encoded string.
+**! name: http_encode_string - HTTP encode a string
 */
 string http_encode_string(string f)
 {
@@ -332,7 +332,6 @@ string http_encode_string(string f)
 }
 
 /*
-**! name: http_encode_cookie - HTTP cookie encode a string
 **! method: string http_encode_cookie(string s)
 **!   Encode the specified string in as to the HTTP cookie standard.
 **!   The following characters will be replaced: = , ; % :
@@ -340,6 +339,7 @@ string http_encode_string(string f)
 **!   The string to encode.
 **! returns:
 **!   The HTTP cookie encoded string.
+**! name: http_encode_cookie - HTTP cookie encode a string
 */
 string http_encode_cookie(string f)
 {
@@ -348,13 +348,13 @@ string http_encode_cookie(string f)
 }
 
 /*
-**! name: http_encode_url - URL encode a string
 **! method: string http_encode_url(string s)
 **!   URL encode the specified string and return it. This means replacing
 **!   the following characters to the %XX format: null (char 0), space, tab,
 **!   carriage return, newline, and % ' " # & ? = / : +
 **! arg: string s
 **!   The string to encode.
+**! name: http_encode_url - URL encode a string
 **! returns:
 **!   The URL encoded string.
 */
@@ -366,18 +366,39 @@ string http_encode_url (string f)
 		    "%26", "%3f", "%3d", "%2f", "%3a", "%2b"}));
 }
 
-string http_roxen_config_cookie(string from)
+/*
+**! method: string http_caudium_config_cookie(string from)
+**!   Make a configuration cookie. This is is not a function ment to
+**!   be used by the average user.
+**! arg: string from
+**!   The cookie value to encode and put in the cookie.
+**! name: http_caudium_config_cookie - make a config cookie
+**! returns:
+**!   The cookie value.
+*/
+string http_caudium_config_cookie(string from)
 {
-  return "RoxenConfig="+http_encode_cookie(from)
+  return "CaudiumConfig="+http_encode_cookie(from)
     +"; expires=" + http_date (3600*24*365*2 + time (1)) + "; path=/";
 }
+function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
 
-string http_roxen_id_cookie()
+
+/*
+**! method: string http_caudium_id_cookie()
+**!   Make a unique user id cookie. This is an internal function which is used
+**!   to set a cookie for all visitors
+**! name: http_caudium_id_cookie - make a unique user cookie
+**! returns:
+**!   The cookie value.
+*/
+string http_caudium_id_cookie()
 {
-  return sprintf("RoxenUserID=0x%x; expires=" +
+  return sprintf("CaudiumUserID=0x%x; expires=" +
 		 http_date (3600*24*365*2 + time (1)) + "; path=/",
 		 roxen->increase_id());
 }
+function(string:string) http_roxen_id_cookie = http_caudium_id_cookie;
 
 static string add_pre_state( string url, multiset state )
 {
