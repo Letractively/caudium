@@ -94,7 +94,8 @@ find . -name '.cvsignore' -type f -exec rm -- '{}' \;
 find . -name 'CVS' -type f -exec rm -- '{}' \;
 
 # Patch caudium manually to fix the pike shebang bug
-patch -p1 < redhat/patch-pikepath.diff
+#patch -p1 < redhat/patch-pikepath.diff
+
 ./autogen.sh
 ./configure --prefix=/usr --with-pike=$(which pike)
 make
