@@ -25,6 +25,8 @@
 
 inherit _Caudium;
 
+//! 
+constant cvs_version = "$Id$";
 
 // Some documentation for some call handled by _Caudium module.
 

@@ -23,6 +23,7 @@
 
 //! Used to build some Environments variables for SSI / CGI
 
+//! 
 constant cvs_version = "$Id$";
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))

@@ -59,6 +59,9 @@
  *
  */
 
+//!
+constant cvs_version = "$Id$";
+
 //! @decl string hash_sha(string|array(string) key, void|int hexify)
 //!  Return a SHA1 hash of the passed string.
 //!
