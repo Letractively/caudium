@@ -21,7 +21,7 @@
 // This is a roxen module. Copyright © 1996 - 1998, Idonex AB.
 
 //
-//! module: Fast-CGI executable support
+//! module: Fast-CGI executable support (DEPRECATED)
 //!  Partial support for the Fast-CGI interface. This module is useful, but not finished.
 //! inherits: modules/scripting/oldcgi
 //! type: MODULE_FIRST | MODULE_LOCATION | MODULE_FILE_EXTENSION
@@ -34,12 +34,12 @@
 constant cvs_version = "$Id$";
 
 #include <module.h>
-inherit "modules/scripting/oldcgi";
+inherit "deprecated/scripting/oldcgi";
 
 #define ipaddr(x,y) (((x)/" ")[y])
 
 constant module_type = MODULE_FIRST | MODULE_LOCATION | MODULE_FILE_EXTENSION;
-constant module_name = "Fast-CGI executable support";
+constant module_name = "Fast-CGI executable support (DEPRECATED)";
 constant module_doc  = "Partial support for the "
       "<a href=http://www.fastcgi.com>Fast-CGI interface</a>. "
       "This module is useful, but not finished.";
