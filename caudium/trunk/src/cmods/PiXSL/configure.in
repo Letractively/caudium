@@ -11,18 +11,30 @@ AC_CHECK_LIB(m, ceil)
 AC_CHECK_LIB(m, floor)
 
 AC_CHECK_HEADERS( sablot.h )
-dnl The standard Sablot/Expat need the libxmlok library
-AC_CHECK_LIB(xmltok, XmlInitEncoding)
-AC_CHECK_LIB(xmlparse, XML_Parse)
-dnl The GNOME xmltok/xmlparse library is different but works OK
-dnl on some systems that run sablotron modified to use
-dnl the GNOME lib (like, e.g. Debian GNU/Linux woody)
-if test "$ac_cv_lib_xmlparse_XML_Parse" = no; then
-    AC_CHECK_LIB(xmltok, XmlInitEncoding)
-    AC_CHECK_LIB(xmlparse, XML_ParserCreate)
-fi
 
-AC_CHECK_LIB(sablot, SablotProcess)
+dnl No need to continue unless the header is found...
+if test "$ac_cv_header_sablot_h" = "yes"; then
+  unset ac_cv_lib_sablot_SablotProcess
+  AC_CHECK_LIB(sablot, SablotProcess,
+  [
+    AC_DEFINE(HAVE_LIBSABLOT)
+	LIBS="$LIBS -lsablot"
+  ], [
+    unset ac_cv_lib_sablot_SablotProcess
+    AC_CHECK_LIB(sablot, SablotProcess,
+    [
+	  AC_DEFINE(HAVE_LIBSABLOT)
+	  LIBS="$LIBS -lsablot -lexpat"
+    ], [
+      unset ac_cv_lib_sablot_SablotProcess
+      AC_CHECK_LIB(sablot, SablotProcess,
+      [
+		AC_DEFINE(HAVE_LIBSABLOT)
+		LIBS="$LIBS -lsablot -lxmlparse -lxmltok"
+      ],[], -lxmlparse -lxmltok)
+    ], -lexpat)
+  ])
+fi
 
 if test "$ac_cv_header_sablot_h" != "yes" -o \
 	    "$ac_cv_lib_sablot_SablotProcess" != "yes"; then
