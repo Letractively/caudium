@@ -408,7 +408,6 @@ mixed first_try(object id) {
 
   if (id->variables->logout && id->misc->session_variables->username) {
     if (id->variables->logout == id->misc->session_variables->username) {
-      werror("deleting username from session\n");
       m_delete(id->misc->session_variables, "username");
       store_everything(([]), id);
     }
@@ -439,7 +438,6 @@ mixed first_try(object id) {
   }
 
   if (id->misc->session_variables->username) {
-    werror("retrieving user variables\n");
     id->misc->user_variables =
       variables_retrieve("user", id->misc->session_variables->username);
   } else {
