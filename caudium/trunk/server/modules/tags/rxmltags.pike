@@ -2241,7 +2241,7 @@ string simple_parse_users_file(string file, string u)
  return 0;
 }
 
-int match_user(array raw, string user, string f, int wwwfile, object id)
+int match_user(string raw, string user, string f, int wwwfile, object id)
 {
   string s, pass;
   if(!raw || raw=="")
@@ -2256,7 +2256,7 @@ int match_user(array raw, string user, string f, int wwwfile, object id)
   array u=(raw/" ")[1];
   u=MIME.decode_base64(u)/":";
 
-  if(u[0]!=user) return 0;
+  if(user!="" && u[0]!=user) return 0;
   pass=simple_parse_users_file(s, u[0]);
   if(!pass) return 0;
   if(id->user && pass)
@@ -2282,9 +2282,9 @@ multiset simple_parse_group_file(string file, string g)
  return res;
 }
 
-int group_member(array auth, string group, string groupfile, object id)
+int group_member(array rawauth, string group, string groupfile, object id)
 {
-  if(!auth)
+  if(!rawauth)
     return 0; // No auth sent
 
   string s;
@@ -2309,8 +2309,9 @@ int group_member(array auth, string group, string groupfile, object id)
   s = replace(s, ({ " ", "\t", "\r" }), ({ "", "", "" }));
 
   multiset(string) members = simple_parse_group_file(s, group);
-
-  return members && members[replace(auth[1],
+  string u=(rawauth/" ")[1];
+  u=(MIME.decode_base64(u)/":")[0];
+  return members && members[replace(u,
 				    ({ " ", "\t", "\r" }), ({ "", "", "" }))];
 }
 
@@ -2321,7 +2322,7 @@ string tag_deny(string a,  mapping b, string c, object d, object e,
 
 
 #define TEST(X)\
-do { if(X) if(m->or) {if (QUERY(compat_if)) return "<true>"+s; else return s+"<true>";} else ok=1; else if(!m->or) return "<false>"; } while(0)
+ do { if(X) if(m->or) {if (QUERY(compat_if)) return "<true>"+s; else return s+"<true>";} else ok=1; else if(!m->or) return "<false>"; } while(0)
 
 #define IS_TEST(X, Y) do                		\
 {							\
@@ -2543,19 +2544,19 @@ string tag_allow(string a, mapping (string:string) m,
     NOCACHE();
 
     if(m->user == "any")
-      if(m->file && id->user) {
+      if(m->file && id->rawauth) {
 	// FIXME: wwwfile attribute doesn't work.
-	TEST(match_user(id->auth,id->auth[1],fix_relative(m->file,id),
+	TEST(match_user(id->rawauth, "", fix_relative(m->file,id),
 			!!m->wwwfile, id));
       } else
-	TEST(id->auth && id->auth[0]);
+	TEST(id->user);
     else
       if(m->file && id->auth) {
 	// FIXME: wwwfile attribute doesn't work.
-	TEST(match_user(id->auth,m->user,fix_relative(m->file,id),
+	TEST(match_user(id->rawauth,m->user,fix_relative(m->file,id),
 			!!m->wwwfile, id));
       } else
-	TEST(id->auth && id->auth[0] && search(m->user/",", id->auth[1])
+	TEST(id->user && search(m->user/",", id->user->username)
 	     != -1);
   }
 
@@ -2563,9 +2564,11 @@ string tag_allow(string a, mapping (string:string) m,
     NOCACHE();
 
     if (m->groupfile && sizeof(m->groupfile)) {
-      TEST(group_member(id->auth, m->group, m->groupfile, id));
-    } else {
-      return("<!-- groupfile not specified --><false>");
+      TEST(group_member(id->rawauth, m->group, m->groupfile, id));
+    } else { // we can use the nifty new group functionality.
+      if(!id->user) return "<false>";
+      else if(search(id->user->groups, m->group)!=-1) return "<true>";
+      else return "<false>";
     }
   }
 
