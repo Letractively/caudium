@@ -52,7 +52,8 @@ inherit "config/draw_things";
 int bar=time(1);
 multiset changed_port_servers;
 
-object cif = ThemedConfig( caudium->QUERY(cif_theme) );
+object cif = ThemedConfig( caudium->QUERY(cif_theme),
+			   caudium->QUERY(InternalImagePath));
 
 class Node {
   inherit "struct/node";
@@ -215,7 +216,7 @@ object find_node(string l)
 mapping file_image(string img)
 {
   object o;
-  o=open("caudium-images/"+img, "r");
+  o=open(cif->path()+img, "r");
   if (!o)  return 0;
   return ([ "file":o, "type":"image/" + ((img[-1]=='f')?"gif":"jpeg"), ]);
 }
@@ -344,7 +345,8 @@ mapping verify_changed_ports(object id, object o)
 
 mapping save_it(object id, object o)
 {
-    cif = ThemedConfig( caudium->QUERY(cif_theme) );
+    cif = ThemedConfig( caudium->QUERY(cif_theme),
+			caudium->QUERY(InternalImagePath));
     changed_port_servers = (<>);
     root->save();
     caudium->update_supports_from_caudium_net();
@@ -1154,7 +1156,7 @@ mapping auto_image(string in, object id)
   if (imgext == "")
      return 0; /* no img format we support */
 
-  string img_key = "auto/"+replace(in,"/","_")+imgext-" ";
+  string img_key = "auto/"+cif->theme()+"_"+replace(in,"/","_")+imgext-" ";
   
   if(e=file_image(img_key))
     return e;
@@ -1174,21 +1176,24 @@ mapping auto_image(string in, object id)
      int lm,rm;
      if(sscanf(value, "lm/%s", value)) lm=1;
      if(sscanf(value, "rm/%s", value)) rm=1;
-     i=draw_config_button(value,button_font,lm,rm);
+     i=draw_config_button(value,button_font,lm,rm,
+			  cif->s->rgb_colour("titlebg"),
+			  cif->s->rgb_colour("titlefg"),
+			  cif->s->rgb_colour("bgcolor"));
      break;
 
    case "fold":
    case "fold2":
-     i = draw_fold((int)reverse(key));
+     i = draw_fold((int)reverse(key), cif->s);
      break;
     
    case "unfold":
    case "unfold2":
-     i = draw_unfold((int)reverse(key));
+     i = draw_unfold((int)reverse(key), cif->s);
      break;
 
    case "back":
-     i = draw_back((int)reverse(key));
+     i = draw_back((int)reverse(key), cif->s);
      break;
     
    case "selected":
@@ -1231,22 +1236,10 @@ mapping auto_image(string in, object id)
 
   if (!i) return 0;
 
-  object ct;
-
-
-#if constant(Image.GIF.encode)
-  if (!(ct=my_colortable[key]))
-     ct=my_colortable[key]=Image.colortable(i,256,4,4,4);
-#endif
-
-//		  colortable(4,4,8,
-//			     ({0,0,0}),({255,255,0}),16,
-//			     ({0,0,0}),({170,170,255}),48,
-//			     )
-  object o = open("caudium-images/"+img_key,"wct"); 
+  object o = open(cif->path()+img_key,"wct"); 
 
 #if constant(Image.GIF.encode)
-  e=Image.GIF.encode(i,ct);
+  e=Image.GIF.encode(i);
 #endif
 
 #if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
