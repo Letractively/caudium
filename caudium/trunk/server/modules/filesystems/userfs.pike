@@ -96,7 +96,7 @@ void open_db()
   if(objectp(db))	// allready openned ?
     return;
   err=catch{
-    db=Sql.sql(QUERY(sqlserver));
+    db=Sql.Sql(QUERY(sqlserver));
   };
   if(err)
   {

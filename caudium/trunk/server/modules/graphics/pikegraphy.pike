@@ -80,14 +80,14 @@ string replace_string2 (string what)
 
 int get_nb_comment (string filename)
 {
-  object db = Sql.sql(QUERY(sqlserver));
+  object db = Sql.Sql(QUERY(sqlserver));
   array x = db->query("select * from comments where pic_name='"+filename+"'");
   return (int) (sizeof(x));
 }
 
 mixed get_comment (string filename)
 {
-  object db = Sql.sql(QUERY(sqlserver));
+  object db = Sql.Sql(QUERY(sqlserver));
   array x = db->query("select * from descr where name='"+filename+"'");
   if ( sizeof(x) == 0 ) {
      return "";
@@ -98,7 +98,7 @@ mixed get_comment (string filename)
 
 int get_level (string dir)
 {
-  object db = Sql.sql(QUERY(sqlserver));
+  object db = Sql.Sql(QUERY(sqlserver));
   array x = db->query("select * from descr where name='"+dir+"'");
   if ( sizeof(x) == 0 ) {
      return 0;
@@ -160,7 +160,7 @@ if (id->variables && id->variables->login) {
  }
 
 if (id->variables && id->variables->startlogin) {
-   object db = Sql.sql(QUERY(sqlserver));
+   object db = Sql.Sql(QUERY(sqlserver));
    array x = (db->query("select * from users where login=\""+id->variables->user+"\" and pass=\""+id->variables->pass+"\""));
    if ( (sizeof(x)) != 0 ) {
    	cnt += "<set_cookie name=LoginValue value=\""+x[0]->cookieval+"\" minutes=15>";
@@ -175,7 +175,7 @@ if (id->variables && id->variables->startlogin) {
    }
 } else {
    if (id->cookies && id->cookies->LoginValue ) {
-       object db = Sql.sql(QUERY(sqlserver));
+       object db = Sql.Sql(QUERY(sqlserver));
        array x = (db->query("select * from users where cookieval=\""+id->cookies->LoginValue+"\" "));
        if ( sizeof(x) == 1 ) {
           if ((int)x[0]->seclevel==999) {
@@ -191,17 +191,17 @@ if (id->variables && id->variables->startlogin) {
  }
    
 if (id->variables && id->variables->dirlevel && admin == 1) {
-   object db = Sql.sql(QUERY(sqlserver));
+   object db = Sql.Sql(QUERY(sqlserver));
    db->query("replace into descr values('"+id->variables->dir+"','','"+id->variables->dirlevel+"')");
 }
 
 if (id->variables && id->variables->updpic && admin == 1 ) {
-   object db = Sql.sql(QUERY(sqlserver));
+   object db = Sql.Sql(QUERY(sqlserver));
    db->query("replace into descr values('"+id->variables->display+"','"+id->variables->dsc+"','"+id->variables->lev+"')");
 }
 
  if (id->data != "" && id->variables && id->variables->comment ){
-   object db = Sql.sql(QUERY(sqlserver));
+   object db = Sql.Sql(QUERY(sqlserver));
    db->query("insert into comments values (0,'"+id->variables->picname+"','"+id->variables->comment+"','2001-10-12 12:00','"+id->variables->username+"','"+id->variables->remoteaddr+"')");
    cnt = "<html><script language=\"javascript\">window.opener.location=\"?display="+id->variables->id+"\";window.close();</script></html>";
    return cnt;

@@ -72,7 +72,7 @@ mapping query_tag_callers()
 object get_sql() {
   object db;
   array err = catch {
-    db = Sql.sql(QUERY(sqlurl));
+    db = Sql.Sql(QUERY(sqlurl));
   };
   if(err)
   {

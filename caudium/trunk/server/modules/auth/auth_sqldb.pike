@@ -66,7 +66,7 @@ void|string check_variable(string name, mixed value)
 {
   if(name=="sqlserver" && value=="")
     return "You must provide a SQL URL for this setting.";
-  else if(name=="sqlserver" && catch(Sql.sql(value)))
+  else if(name=="sqlserver" && catch(Sql.Sql(value)))
     return "Unable to connect to SQL server " + value + ".";
 
   else if(name=="usertable" && value=="")
@@ -82,7 +82,7 @@ void|string check_variable(string name, mixed value)
   {
     if(QUERY(sqlserver))
     {
-      object o=Sql.sql(QUERY(sqlserver));
+      object o=Sql.Sql(QUERY(sqlserver));
       if(catch(o->list_fields(value)))
       {
         return "Unable to find table " + value + ".";
@@ -94,7 +94,7 @@ void|string check_variable(string name, mixed value)
   else if(name=="user_otherf")
   {
      array f=((value-"")/",");
-     object o=Sql.sql(QUERY(sqlserver));
+     object o=Sql.Sql(QUERY(sqlserver));
      foreach(f, string field)
      {
        array x;
@@ -119,7 +119,7 @@ void|string check_variable(string name, mixed value)
   else if(name=="group_otherf")
   {
      array f=((value-"")/",");
-     object o=Sql.sql(QUERY(sqlserver));
+     object o=Sql.Sql(QUERY(sqlserver));
      foreach(f, string field)
      {
        array x;
@@ -155,7 +155,7 @@ void|string check_variable(string name, mixed value)
       if((name/"_")[0]=="usergroup")
         table=QUERY(usergrouptable);
     
-      object o=Sql.sql(QUERY(sqlserver));
+      object o=Sql.Sql(QUERY(sqlserver));
       array x;
 
       if(catch(x=o->list_fields(table, value)))

@@ -213,7 +213,7 @@ void open_db() {
     };
   } else {
     err=catch{
-     db = Sql.sql(QUERY(sqlserver));
+     db = Sql.Sql(QUERY(sqlserver));
     };
   }
   if (err) {

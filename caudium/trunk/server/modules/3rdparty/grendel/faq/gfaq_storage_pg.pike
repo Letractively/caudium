@@ -86,7 +86,7 @@ private void open_database(object id)
   if (id->conf->sql_connect)
     db = id->conf->sql_connect(QUERY(pg_db));
   else
-    db = Sql.sql(QUERY(pg_db));
+    db = Sql.Sql(QUERY(pg_db));
   UNLOCK();
 
   if (!db)

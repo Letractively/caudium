@@ -94,7 +94,7 @@ int main(int argc, array argv) {
 	}
 	write("Using "+dburl+" as database.\n");
 	err = catch {
-		sql =  Sql.sql(dburl);
+		sql =  Sql.Sql(dburl);
 	};
 	if (err) {
 		write("Cannot connect to the database.\n");

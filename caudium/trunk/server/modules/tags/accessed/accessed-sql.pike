@@ -119,7 +119,7 @@ class SQLCounter {
   int srvname = 0;
 
   void create() {
-    db=Sql.sql(module::query("sqldb"));
+    db=Sql.Sql(module::query("sqldb"));
     table = module::query("table");
     if (module::query("serverinpath")) {
       srvname = 1;

@@ -162,7 +162,7 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = Sql.sql(host, database, user, password));
+      error = catch(con = Sql.Sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -245,7 +245,7 @@ string sqlquery_tag(string tag_name, mapping args,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = Sql.sql(host, database, user, password));
+      error = catch(con = Sql.Sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -336,7 +336,7 @@ string sqltable_tag(string tag_name, mapping args,
       error = catch(con = sql_connect(host));
     } else {
       host = (lower_case(host) == "localhost")?"":host;
-      error = catch(con = Sql.sql(host, database, user, password));
+      error = catch(con = Sql.Sql(host, database, user, password));
     }
     if (error) {
       if (!args->quiet) {
@@ -538,7 +538,7 @@ string status()
     if (conf->sql_connect) {
       o = conf->sql_connect(QUERY(hostname));
     } else {
-      o = Sql.sql(QUERY(hostname));
+      o = Sql.Sql(QUERY(hostname));
     }
     return(sprintf("Connected to %s-server on %s<br>\n",
 		   o->server_info(), o->host_info()));
