@@ -4,12 +4,14 @@ AC_CONFIG_HEADER(caudium_machine.h)
 CAUDIUM_MODULE_INIT()
 
 AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h alloca.h)
-AC_HAVE_FUNCS(mmap munmap free getdate getdate_r localtime localtime_r)
+AC_HAVE_FUNCS(mmap munmap free getdate getdate_r)
 dnl SCO has strftime() and strptime() in libint.
 AC_CHECK_FUNCS(strftime, break, [AC_CHECK_LIB(intl, strftime)])
 AC_CHECK_FUNCS(strptime, break, [AC_CHECK_LIB(intl, strptime)])
 
 AC_HEADER_TIME
+
+AC_HAVE_FUNCS(localtime localtime_r)
 
 dnl Test for snprintf..
 AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
