@@ -1,0 +1,79 @@
+          Installing Caudium 1.0 from source:
+          +++++++++++++++++++++++++++++++++++
+
+  1. Get the source server package.
+
+  2. Issue the command to unpack the archive:
+
+          .tar.gz:
+               If you have GNU tar; "tar xzf Caudium-archive-name"
+               If you don't have GNU tar: 
+               "gunzip < Caudium-archive-name| tar xf -" 
+          .tar.Z
+               If you have GNU tar; "tar xzf Caudium-archive-name"
+               If you don't have GNU tar: 
+               "uncompress < Caudium-archive-name| tar xf -"
+          .tar
+               "tar xf Caudium-archive-name"
+
+     (where "Caudium-archive-name" is the name of the Caudium archive
+     file.).
+
+  3. Type "cd <caudium_version>" to change to the new directory. This
+     directory should contain at the very least four directories:
+     server (Caudium server source), src (extra pike modules), extern
+     (misc. programs used by Caudium) and tools (misc tools). See README
+     for more information about the directory structure.
+
+     (Where caudium_version is the name of the unarchived Caudium directory.)
+
+ 4.  Type ./configure --prefix=<wanted_base_path_for_caudium>
+     (prefix is optional and defaults to /usr/local, thus placing Caudium in
+     /usr/local/caudium/) followed by make and make install to build
+     the binaries and copy them to the correct place.
+
+     You can later on move the 'caudium' directory that will be
+     created when you type 'make install' to anywhere in your
+     filesystem. Caudium does not keep any absolute paths.
+     
+  5. If everything worked fine and the compilation is done, type 
+     cd <dir>/server.
+
+     (Where <wanted_base_path_for_caudium>/caudium if you used 4.)
+
+  6. Start the install script by typing ./install.
+
+  7. Answer the simple questions and wait for your client.
+
+  9. If everything worked, configure the server, otherwise move on to the
+     troubleshooting section on the Caudium WWW-pages. 
+
+ Once you have installed the server, consider joining the Caudium
+ mailinglist (by sending a mail to caudium-request@caudium.net, with
+ Subject: subscribe).
+
+ For more information about Caudium, read the online documentation at
+ http://caudium.net/
+
+----------------------------------------------------------------------------
+Example installation session:
+
+bash$ tar xzf caudium-1.0.tar.gz
+bash$ cd caudium-1.0
+bash$ mkdir solaris
+bash$ cd solaris
+bash$ ../configure --prefix=/usr/www
+
+<various checks...>
+
+bash$ make 
+
+<compilations>
+
+bash$ make  install
+bash$ cd /usr/www/caudium/server
+bash$ ./install
+<answer a few questions>
+
+
+
