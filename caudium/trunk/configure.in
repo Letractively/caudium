@@ -258,9 +258,6 @@ if test "$PIKE" != ""; then
   if test -x "$tmppike"; then
  	PIKE=$tmppike
   fi
-  echo "Pike binary used:      $PIKE
-Pike include dir:      $PIKE_INCLUDE_DIR
-Pike module directory: $PIKE_MODULE_DIR"
 else
   echo "Failed to find a suitable pike!"
   exit 1;
@@ -624,15 +621,33 @@ fi
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
-# Pass a joined CFLAGS to the other configure-scripts.
-CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
-
-export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO SMARTLINK
-
 #
 # Some variables we want to export to the other configure scripts.
 #
+CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
+export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO 
 
-AC_SUBST(SMARTLINK)
 AC_CONFIG_SUBDIRS(src tools)
 AC_OUTPUT(Makefile)
+
+
+
+echo "
+
+Caudium is now configured.  This is some information about
+the build environment. If the wrong pike was selected, try
+re-running configure with '--with-pike=/path/to/correct/pike'.
+
+	CC:         $CC
+        LDSHARED:   $LDSHARED
+
+        CFLAGS:     $CFLAGS
+
+        CPPFLAGS:   $CPPFLAGS
+
+        LDFLAGS:    $LDFLAGS
+
+        Pike binary used:      $PIKE
+        Pike include dir:      $PIKE_INCLUDE_DIR
+        Pike module directory: $PIKE_MODULE_DIR"
+
