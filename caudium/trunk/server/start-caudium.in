@@ -374,6 +374,12 @@ int main(int argc, array(string) argv)
     exit(1);
   }       
 
+  if(search(argv, "--help")!=-1)
+  {
+    write_help();
+    return 1;
+  }
+
   parsed_args=parse_arguments(argv);
 
   int code=act_on_args();
