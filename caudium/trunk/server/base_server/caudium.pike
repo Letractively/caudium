@@ -548,6 +548,7 @@ void stop_handler_threads()
 }
 
 mapping accept_threads = ([]);
+
 //! A thread which accepts all the incoming connections and hands the
 //! connection over to the associated protocol module.
 void accept_thread(object port,array pn)
@@ -1205,14 +1206,14 @@ string|array type_from_filename( string|void file, int|void to )
 
 #define COMPAT_ALIAS(X) mixed X(string file, object id){return id->conf->X(file,id);}
 
-/*@PIKEPARSER_HACK_START@*/
+/* 
 COMPAT_ALIAS(find_dir);
 COMPAT_ALIAS(stat_file);
 COMPAT_ALIAS(access);
 COMPAT_ALIAS(real_file);
 COMPAT_ALIAS(is_file);
 COMPAT_ALIAS(userinfo);
-/*@PIKEPARSER_HACK_END@*/
+ */
 
 mapping|int get_file(object id, int|void no_magic)
 {
