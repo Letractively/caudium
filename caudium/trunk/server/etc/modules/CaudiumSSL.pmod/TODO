@@ -1,9 +1,9 @@
 $Id$
 
-CaudiumSSL TODO-list
+SSL TODO-list
 
 * ASN.1 support
 * Splitting of large handshake packets
 * Combining small application packets
 * Blocking I/O
-* TLS (CaudiumSSL v3.1) support
+* TLS (SSL v3.1) support

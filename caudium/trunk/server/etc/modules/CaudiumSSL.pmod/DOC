@@ -3,12 +3,12 @@ Overview of the CaudiumSSL implementation.
 FILES
 
   alert.pike:      Used for creating the alert packets we transmit.
-  cipher.pike:     Encryption and MAC algorithms used in CaudiumSSL.
-  connection.pike: CaudiumSSL packet layer. Inherits handshake.
+  cipher.pike:     Encryption and MAC algorithms used in SSL.
+  connection.pike: SSL packet layer. Inherits handshake.
                    Described below.
   constants.pike:  Protocol constants.
   context.pike:    "Context" state (see below).
-  handshake.pike:  CaudiumSSL handshake and key exchange.
+  handshake.pike:  SSL handshake and key exchange.
   https.pike:      Dummy https-server. (*)
   packet.pike:     Handle formatting and parsing of packets.
   server.pike:     Not used.
@@ -24,7 +24,7 @@ bit-decay.
 
 STATE
 
-There's lot of state in an CaudiumSSL-server, at several levels. We start at
+There's lot of state in an SSL-server, at several levels. We start at
 the top.
 
 CaudiumSSL.context keeps the state that is shared by all SSL-connections for

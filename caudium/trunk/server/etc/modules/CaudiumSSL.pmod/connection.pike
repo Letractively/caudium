@@ -1,6 +1,6 @@
 /* $Id$
  *
- * CaudiumSSL packet layer
+ * SSL packet layer
  */
 
 
