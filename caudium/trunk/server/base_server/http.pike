@@ -407,8 +407,6 @@ function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
 **! scope: private
 **! returns:
 **!   The new URL
-**! bugs: 
-//! A bug a  bug 
 */
 static string add_pre_state( string url, multiset state )
 {
@@ -422,7 +420,7 @@ static string add_pre_state( string url, multiset state )
 }
 
 /*
-**! method: mapping http_string_answer( string text, string|void type )
+**! method: mapping http_redirect( string url, object|void id )
 **!   Return a response mapping which defines a redirect to the
 **!   specified URL. If the URL begins with / and the ID object is present,
 **!   a host name (and the prestates) will be prefixed to the URL. If the
@@ -431,7 +429,7 @@ static string add_pre_state( string url, multiset state )
 **!   absolute url /a/path. Relative URLs won't work (ie path/index2.html).
 **! arg: string url
 **!   The URL to redirect to.
-**! arg: object|void
+**! arg: object|void id
 **!   The request id object.
 **! returns:
 **!   The HTTP response mapping for the redirect

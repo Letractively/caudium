@@ -262,7 +262,7 @@ mapping keywords=
   "scope":lambda(string arg)
 	  {
 	    if (!(nowM = methodM || classM)) 
-	      return complain("returns w/o method");
+	      return complain("scope w/o method or class");
 	    nowM->scope=stripws(arg);
 	    descM=0; nowM=0;
 	  }
@@ -319,7 +319,7 @@ string synopsis_to_html(string s,mapping huh)
 string htmlify(string s) 
 {
 #define HTMLIFY(S) \
-   (replace((S),({"&lt;","&gt;",">","&","\240"}),({"&lt;","&gt;","&gt;","&amp;","&nbsp;"})))
+   (replace((S),({"&lt;","&gt;",">","&","\240"}),({"&lt;","&gt;","&gt;","&amp;", "&#xa0;"})))
 
    string t="",u,v;
    while (sscanf(s,"%s<%s>%s",u,v,s)==3)
@@ -439,7 +439,7 @@ array fix_dotstuff(array(string) in)
 {
    if (!sizeof(in)) return ({});
    array(string) last;
-   in=Array.map(in,replace,({"->",">","<"}),({".","&lt;","&gt;"}));
+   in=Array.map(in,replace,({"->",">","<"}),({".","&gt;","&lt;"}));
    last=in[0]/"."; 
    last=last[..sizeof(last)-2];
    int i;
@@ -731,11 +731,11 @@ void make_doc_files()
 {
    stderr->write("modules: "+sort(indices(parse) - ({ "_order"}))*", "+"\n");
    
+   stdout->write("<!DOCTYPE caudium>\n<documentation>\n\n");
    foreach (sort(indices(parse)-({"_order"})),string module) {
-     stdout->write("<documentation>\n\n");
      document(parse[module]->_type,parse[module],module,module+".",stdout);
-     stdout->write("\n</documentation>\n\n");
    }
+   stdout->write("\n</documentation>\n\n");
 }
 
 int main(int ac,string *files)
@@ -766,6 +766,7 @@ int main(int ac,string *files)
       if (!f) 
       {
 	 if (!sizeof(files)) break;
+         moduleM = classM = methodM = argM = nowM = descM = tagM = 0;
 	 verbose("extract: reading "+files[0]+"...\n");
 	 f=File();
 	 currentfile=files[0];

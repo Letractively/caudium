@@ -281,7 +281,7 @@ mapping query_tag_callers()
 **!   array listed in the arrays attribute. 
 **! attribute: std output attributes
 **!   all normal &lt;*output&gt; vars like encode and quote (see formoutput).
-**! see also: <formoutput>
+**! see also: &lt;formoutput&gt;
 **! 
 **! tag: arrayfetch
 **!   Fetch a single element from an array.
@@ -365,7 +365,7 @@ mapping query_tag_callers()
 **! tag: arrayset
 **!   Change an existing index to a different value. If index is larger
 **!   than the array, nothing changes. Indexing starts with 0. If index is
-**!   missing, this tags works like <arraycset>, replacing the old array
+**!   missing, this tags works like &lt;arraycset&gt;, replacing the old array
 **!   with the new one.
 **! attribute: name
 **!   Name of the array to change a value in
