@@ -53,9 +53,6 @@ mapping client_caches;
 int default_ttl;
 int default_halflife;
 int _really_started;
-#if constant(Caudium)
-program pipe = Caudium.nbio;
-#endif
 object caudium;
 object slow;
 
