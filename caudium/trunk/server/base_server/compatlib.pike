@@ -382,7 +382,9 @@ static string simplify_path(string file) {
 //! Compat call of @[Caudium.httpdate_to_time]
 //! @deprecated
 static int httpdate_to_time(string date) {
-   WCOMPAT("Caudium","httpdate_to_time");
+   WCOMPAT2("Caudium.parse_date", "httpdate_to_time");
+   // Caudium.httpdate_to_time() has all needed things
+   // to emulate the code for that.
    return Caudium.httpdate_to_time(date);
 }
 
