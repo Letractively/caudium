@@ -2213,6 +2213,13 @@ array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
 #endif
 
 /*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * vim: softtabstop=2 tabstop=2 expandtab
+ *
  * Local Variables:
  * c-basic-offset: 2
  * End:
