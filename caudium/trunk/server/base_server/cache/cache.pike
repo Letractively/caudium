@@ -131,7 +131,7 @@ void store( mapping cache_response ) {
   ram_cache->store( cache_response );
 }
 
-void|mapping retrieve( string name, void|function get_callback, array cb_args ) {
+void|mapping retrieve( string name, void|function get_callback, void|array cb_args ) {
 	// Search the caches for the object.
 	// if there is a matching object in the ram_cache then return
 	// it to the caller, else check the disk_cache.
