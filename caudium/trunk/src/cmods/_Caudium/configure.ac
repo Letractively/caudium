@@ -7,7 +7,6 @@ AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h cty
 AC_CHECK_HEADERS([sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h unistd.h])
 AC_HAVE_FUNCS(mmap munmap free getdate getdate_r setproctitle)
 AC_FUNC_MALLOC
-AC_FUNC_ALLOCA
 dnl SCO has strftime() and strptime() in libint.
 AC_CHECK_FUNCS(strftime, break, [AC_CHECK_LIB(intl, strftime)])
 AC_CHECK_FUNCS(strptime, break, [AC_CHECK_LIB(intl, strptime)])
