@@ -3184,7 +3184,7 @@ string tag_smallcaps(string t, mapping m, string s)
             build += s[last_cut..(i-1)];
             last_cut = i+1;
         } else if (s[i] == '&') {
-            while ((i < end) && (search("; \t\n",s[i]) == -1)) i++;
+            while ((i < end) && (s[i] != ';') && (s[i] != ' ') && (s[i] != '\t') && (s[i] != '\n')) i++;
             build += s[last_cut..(i-1)];
         } else if (s[i] != uc[i]) {
             while ((i < end) && (s[i] != uc[i])) i++;
