@@ -77,5 +77,17 @@ void start(int cnt, object conf)
 
 array(mapping) query_menus(object id)
 {
+    report_notice("Returning menus: %O\n", my_menus);
+    
     return my_menus;
+}
+
+string query_provides()
+{
+    return QUERY(provider_prefix) + "_modify";
+}
+
+mixed handle_request(object id, mapping data, string f)
+{
+    return http_string_answer("<strong>To Be Done</strong>");
 }

@@ -64,14 +64,14 @@ private multiset(string) reserved_providers = (<
 >);
 
 private mapping(string:mapping) providers = ([
-    "add" : ([ "flags" : PROVIDER_REQUEST, "name" : 0 ]),
-    "modify" : ([ "flags" : PROVIDER_REQUEST, "name" : 0 ]),
-    "auth" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0 ]),
-    "log" : ([ "flags" : 0, "name" : 0 ]),
-    "admin" : ([ "flags" : PROVIDER_REQUEST, "name" : 0 ]),
-    "screens" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0 ]),
-    "error" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0 ]),
-    "menu" : ([ "flags" : PROVIDER_REQUIRED | PROVIDER_REQUEST, "name" : 0])
+    "add" : ([ "flags" : PROVIDER_REQUEST, "name" : 0, "exists" : 0 ]),
+    "modify" : ([ "flags" : PROVIDER_REQUEST, "name" : 0, "exists" : 0 ]),
+    "auth" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0, "exists" : 0 ]),
+    "log" : ([ "flags" : 0, "name" : 0, "exists" : 0 ]),
+    "admin" : ([ "flags" : PROVIDER_REQUEST, "name" : 0, "exists" : 0 ]),
+    "screens" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0, "exists" : 0 ]),
+    "error" : ([ "flags" : PROVIDER_REQUIRED, "name" : 0, "exists" : 0 ]),
+    "menu" : ([ "flags" : PROVIDER_REQUIRED | PROVIDER_REQUEST, "name" : 0, "exists" : 0 ])
 ]);
 
 //
@@ -247,7 +247,8 @@ void start(int cnt, object conf)
         }
         
         mapping menu = ([
-            "flags" : PROVIDER_REQUEST
+            "flags" : PROVIDER_REQUEST,
+            "exists" : 0
         ]);
         
         menu->name = QUERY(provider_prefix) + "_" + name;
@@ -372,6 +373,24 @@ private void kill_ldap(object id)
     }
 }
 
+//
+// Refresh the providers data. 
+//
+private int rescan_providers(object id)
+{
+    int have_it;
+    int ret = 0;
+    
+    foreach(indices(providers), string idx) {
+        have_it = PROVIDER(providers[idx]->name);
+        if (!providers[idx]->exists && have_it)
+            ret++;
+        providers[idx]->exists = have_it;
+    }
+
+    return ret;
+}
+
 mixed find_file(string f, object id)
 {
     object  p_err = PROVIDER(providers->error->name);
@@ -428,7 +447,9 @@ mixed find_file(string f, object id)
                 return response;
 
         SUSER(id)->authenticated = 1;
+    }
 
+    if (rescan_providers(id)) {
         //
         // OK, now we can register the menus exported from the providers
         //
@@ -450,9 +471,9 @@ mixed find_file(string f, object id)
                 continue;
             
             menu_prov->register_menus(id, menus);
-        }        
+        }
     }
-
+    
     //
     // Find the appropriate provider to handle the request
     //
@@ -478,7 +499,11 @@ mixed find_file(string f, object id)
     //
     // Authenticated. Fine, let's handle the request.
     //
-    response =  req_prov->handle_request(id, SDATA(id), f);
+    if (functionp(req_prov->handle_request))
+        response =  req_prov->handle_request(id, SDATA(id), f);
+    else
+        report_warning("LCC: provider '%s' is missing the 'handle_request' method\n",
+                       req_prov->query_provides());
 
     if (response && response->close_ldap)
         kill_ldap(id);
@@ -486,14 +511,3 @@ mixed find_file(string f, object id)
     return response ? response : http_string_answer("Some screwup - check your provider modules");
 }
 
-//
-// Utility functions meant to be used by the other modules
-//
-
-//
-// This notifies the center that some module was added by the admin to the
-// CIF - the module is asked for menus it provides, gets added to the
-// present providers list etc.
-//
-void module_added(string name)
-{}
