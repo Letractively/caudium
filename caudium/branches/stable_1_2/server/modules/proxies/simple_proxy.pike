@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2003 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +91,15 @@ void create ()
            "the mountpoint of your proxy on your virtual filesystem.<br><br>"
            "don't forget to set the \"<b>Proxy security</b>\" settings "
            "under <b>Builtin Variables</b>.");
-
+   defvar ("transparent", 0, "Transparent proxy", TYPE_FLAG,
+           "Set this to enable transparent proxy support. In this mode, "
+           "the module will use the HTTP host header to proxy the remote website"
+           "to the client. With the Virtual Host module and several virtual "
+           "servers defined, it can also be used as "
+           "a reverse proxy for multiple webservers.<br>"
+           "Please also note that checking only the host header for transparent "
+           "proxy has some security concerns as the proxy choose the destination"
+           " based on a DNS resolution.");
 }
 
 string info ()
@@ -182,6 +189,8 @@ class request
    void parse_url ()
    {
       string query = id->raw_url[sizeof (QUERY (mountpoint)) ..];
+      if(QUERY(transparent))
+        query = id->host + id->raw_url;
 
       while (query[0] == '/')
          query = query[1..];
@@ -480,3 +489,22 @@ class request
 //!  type: TYPE_LOCATION|VAR_MORE
 //!  name: Location
 //
+//! defvar: transparent
+//! Set this to enable transparent proxy support. In this mode, the module will use the HTTP host header to proxy the remote websiteto the client. With the Virtual Host module and several virtual servers defined, it can also be used as a reverse proxy for multiple webservers.<br />Please also note that checking only the host header for transparent proxy has some security concerns as the proxy choose the destination based on a DNS resolution.
+//!  type: TYPE_FLAG
+//!  name: Transparent proxy
+//
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
