@@ -714,18 +714,12 @@ INLINE static void install_callbacks(struct mapping *cbmap)
 
   /* if any callback was present, try to install the handler */
   if (THIS->do_callbacks) {
-    if (THIS->scheme_cb.getAll)
-      THIS->sab_scheme_handler.getAll = sh_getAll;
-    if (THIS->scheme_cb.freeMemory)
-      THIS->sab_scheme_handler.freeMemory = sh_freeMemory;
-    if (THIS->scheme_cb.open)
-      THIS->sab_scheme_handler.open = sh_open;
-    if (THIS->scheme_cb.get)
-      THIS->sab_scheme_handler.get = sh_get;
-    if (THIS->scheme_cb.put)
-      THIS->sab_scheme_handler.put = sh_put;
-    if (THIS->scheme_cb.close)
-      THIS->sab_scheme_handler.close = sh_close;
+    THIS->sab_scheme_handler.getAll = sh_getAll;    
+    THIS->sab_scheme_handler.freeMemory = sh_freeMemory;
+    THIS->sab_scheme_handler.open = sh_open;
+    THIS->sab_scheme_handler.get = sh_get;
+    THIS->sab_scheme_handler.put = sh_put;
+    THIS->sab_scheme_handler.close = sh_close;
   }
 }
 
