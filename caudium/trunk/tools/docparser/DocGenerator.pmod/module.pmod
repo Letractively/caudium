@@ -134,7 +134,7 @@ class IndexGen
     void entry(string type, string name, string path, object(Stdio.File) f)
     {
 	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" />\n",
-	         type, path, name));
+	         type, name, path));
     }
     
     /*
@@ -154,18 +154,18 @@ class IndexGen
 	entry("module", name, path, mfile);
     }
     
-    void file_symbol(string path, string name)
+    void file_symbol(string symbol, string path, string name)
     {
 	if (!ffile)
 	    open_files();
-	entry("symbol", name, path, ffile);
+	entry(symbol, name, path, ffile);
     }
     
-    void module_symbol(string path, string name)
+    void module_symbol(string symbol, string path, string name)
     {
 	if (!mfile)
 	    open_files();
-	entry("symbol", name, path, mfile);
+	entry(symbol, name, path, mfile);
     }
 
     void create(string tdir)
@@ -182,6 +182,7 @@ class DocGen
     string                        rel_path;
     array(string)                 tvars;
     object(IndexGen)              index;
+    function                      sym_fn; /* current symbol index function */
     string                        fname; /* current file path */
     
     object(Stdio.File) create_file(string tdir, string fpath)
@@ -255,6 +256,7 @@ class DocGen
     {
         string   ret = "";
 
+	sym_fn("globvar", fname, gv->first_line);
         if (gv->first_line && gv->first_line != "")
             ret += "<globvar synopsis=\"" + gv->first_line + "\"";
         else
@@ -288,6 +290,7 @@ class DocGen
   {
     string   ret = "";
     
+    sym_fn("tag", fname, tag->first_line);
     if (tag->first_line && tag->first_line != "") {
       if(is_container)
 	ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;"
@@ -381,13 +384,15 @@ class DocGen
     foreach(f->defvars, DocParser.Defvar dv)
     {
       array parts = dv->first_line / ":" - ({""});
-      if(!sizeof(parts)) continue;
-      if(sizeof(parts) == 1)
+      if(!sizeof(parts)) 
+        continue;
+      if(sizeof(parts) == 1) {
 	ret += " <defvar name=\""+dv->first_line+"\"";
-      else {
-	
+	sym_fn("defvar", fname, dv->first_line);
+      } else {
 	ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
 	  String.trim_whites(parts[1..]*":")+"\"";
+	sym_fn("defvar", fname,  String.trim_whites(parts[1..]*":"));
       }
       if (dv->name)
         ret += " short=\"" + dv->name + "\"";
@@ -446,7 +451,9 @@ class DocGen
 	mapping(string:string|array(string))   method;
 	
 	method = dissect_method(m->first_line);
-	
+
+	sym_fn("method", fname, method->name);
+		
 	/* Method start */
 	ret += "<method name=\"" + method->name + "\">\n";
 	
@@ -525,6 +532,8 @@ class DocGen
     {
 	string   ret = "";
 	
+	sym_fn("class", fname, c->first_line);
+	
 	/* Header */
 	ret = "<class name=\"" + c->first_line + "\">\n";
 	
@@ -600,6 +609,8 @@ class DocGen
     {
 	string ret = "";
 	
+	sym_fn("entity", fname, e->first_line);
+	
 	ret = "<entity name=\"" + e->first_line + "\">\n\t";
 	
 	/* See Also */
@@ -646,6 +657,8 @@ class DocGen
     private string do_f_escope(DocParser.EntityScope es)
     {
 	string ret = "";
+	
+	sym_fn("scope", fname, es->first_line);
 	
 	ret = "<scope name=\"" + es->first_line + "\">\n";
 	ret += "<description>\n\t" + es->contents + "\n</description>\n\n";
@@ -711,6 +724,8 @@ class DocGen
         
     void do_file(string tdir, DocParser.PikeFile f, Stdio.File ofile)
     {
+	sym_fn = index->file_symbol;
+	
         /* First take care of the file itself */
         if (f->first_line)
 	  ofile->write(f_file(f, "file"));
@@ -735,6 +750,8 @@ class DocGen
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
     {
+	sym_fn = index->module_symbol;
+	
         /* First take care of the file itself */
         if (f->first_line)
             ofile->write(f_file(f, "module"));
@@ -777,12 +794,12 @@ class DocGen
         
         switch(f->myName) {
             case "PikeFile":
-		index->file(basename(fname), fname);
+		index->file(fname, basename(fname));
                 do_file(tdir, f, ofile);
                 break;
 
             case "Module":
-		index->module(basename(fname), fname);
+		index->module(fname, basename(fname));
                 do_module(tdir, f, ofile);
                 break;
         }
