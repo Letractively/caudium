@@ -65,7 +65,7 @@ mozilla/2.*Macintosh	-java
 
 mozilla/[3-9].*		javascript, tablecolor
 
-mozilla/[4-9].*		stylesheets, tableimages, javascript1.2
+mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
 mozilla/4\.0[4-9].*	pnginline
 mozilla/4\.[5-9].*	pnginline
 mozilla/5\.0b1		-java, pnginline, tcl
