@@ -1,0 +1,18 @@
+AC_INIT(Makefile.in)
+
+# Restore CFLAGS to the initial value
+if test "x$REALCFLAGS" = "x" ; then
+  :
+else
+  CFLAGS="$REALCFLAGS"
+  export CFLAGS
+fi
+
+AC_SUBST(WARN)
+AC_SUBST(OPTIMIZE)
+
+AC_SET_MAKE
+
+AC_CONFIG_SUBDIRS(cmods)
+
+AC_OUTPUT(Makefile)
