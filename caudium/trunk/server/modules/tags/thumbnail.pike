@@ -49,7 +49,6 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "caudiumlib";
 
-import Image;
 constant thread_safe = 1;
 
 // HEX to Array Color conversion.
@@ -138,8 +137,8 @@ mapping find_file(string f, object id)
       
     }
     
-    result = image((width?width:(int) (xsize*scale)),
-		   (height?height:(int) (ysize*scale)), @mkcolor(bg));
+    result = Image.Image((width?width:(int) (xsize*scale)),
+			 (height?height:(int) (ysize*scale)), @mkcolor(bg));
 
     result = result->paste(ourimage, xoffs, yoffs);
 
@@ -153,16 +152,17 @@ mapping find_file(string f, object id)
   object ct = cache_lookup("thumbnail_coltables", filename);
   if(!ct) {
     // Make a suitable color table for this thumbnail.
-    ct = colortable(result->copy(0, 0, result->xsize()-1, result->ysize()-1),
-		    64)->cubicles(20, 20, 20);
+    ct = Image.Colortable(result->copy(0, 0, result->xsize()-1,
+				       result->ysize()-1),
+			  64)->cubicles(20, 20, 20);
     cache_set("thumbnail_coltables", filename, ct);
   }
 
   if(trans)
-    return http_string_answer(GIF.encode_trans(result, ct, @mkcolor(bg)), 
+    return http_string_answer(Image.GIF.encode_trans(result, ct, @mkcolor(bg)), 
 			      "image/gif");
   else
-    return http_string_answer(GIF.encode(result, ct), "image/gif");
+    return http_string_answer(Image.GIF.encode(result, ct), "image/gif");
 }
 
 // MODULE_TAG functions
