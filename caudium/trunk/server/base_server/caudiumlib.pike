@@ -1639,6 +1639,32 @@ private int compare( string a, string b )
 //! @param id
 //!   The request id.
 //!
+//! @example
+//! //
+//! // a simple tag that outputs a list of parts of 'something'
+//! // it defines an array of mappings containing two indexes:
+//! //  'url' and 'name'. The sample usage of the container is:
+//! //
+//! // <show_parts><a href='#url#'>#name#</a></show_parts>
+//! //
+//! array(string) show_parts(string tag, mapping args, string
+//!                          contents, object id, mapping defines) {
+//!   array(mapping)   rep = ({});
+//!   int              i = 0;
+//!
+//!   foreach(configs, mapping cfg) {
+//!       mapping nmap = ([]);
+//!
+//!       nmap->url = sprintf("%s(showpart)/?name=%d",
+//!                         id->conf->query("MyWorldLocation"),
+//!                         i);
+//!       nmap->name = sprintf("Part %d", i++);
+//!       rep += ({nmap});
+//!   }
+//!
+//!   return ({ do_output_tag(args, rep, contents, id) });
+//! }
+//!
 //! @returns
 //!  Contents with all the variables found in @[var_arr] replaced with
 //!  their values.
