@@ -569,6 +569,7 @@ string short_date(int timestamp) {
     return ctimet[4..9] +" "+ ctimet[20..23];
 
   return ctimet[4..9] +" "+ ctimet[11..15];
+#endif /* constant(_Caudium.strftime) */
 }
 
 /*
