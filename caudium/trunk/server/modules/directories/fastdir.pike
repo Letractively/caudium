@@ -179,14 +179,8 @@ mapping parse_directory(object id)
 
   f=id->not_query;
 
-  if(strlen(f) > 1)
-  {
-    if(!f[-1] == '/')
-      return http_redirect(id->not_query+"/", id);
-  } else {
-    if(f != "/" )
-      return http_redirect(id->not_query+"/", id);
-  }
+  if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
+    return http_redirect(id->not_query+"/", id);
 
   if(f[-1] == '/') /* Handle indexfiles */
   {

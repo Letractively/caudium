@@ -354,23 +354,23 @@ mixed find_file( string f, object id )
 
   switch(id->method)
   {
-  case "GET":
-  case "HEAD":
-  case "POST":
+   case "GET":
+   case "HEAD":
+   case "POST":
   
     switch(-size)
     {
-    case 1:
-    case 3:
-    case 4:
+     case 1:
+     case 3:
+     case 4:
       TRACE_LEAVE("No file");
       return 0; /* Is no-file */
 
-    case 2:
+     case 2:
       TRACE_LEAVE("Is directory");
       return -1; /* Is dir */
 
-    default:
+     default:
       if(f[ -1 ] == '/') /* Trying to access file with '/' appended */
       {
 	/* Neotron was here. I changed this to always return 0 since
@@ -385,20 +385,6 @@ mixed find_file( string f, object id )
 	 *	/grubba 1998-08-26
 	 */
 	return 0; 
-	/* Do not try redirect on top level directory */
-	if(sizeof(id->not_query) < 2)
-	  return 0;
-	redirects++;
-
-	// Note: Keep the query part.
-	/* FIXME: Should probably keep prestates etc too.
-	 *	/grubba 1999-01-14
-	 */
-	string new_query =
-	  http_encode_string(id->not_query[..sizeof(id->not_query)-2]) +
-	  (id->query?("?" + id->query):"");
-	TRACE_LEAVE("Redirecting to \"" + new_query + "\"");
-	return http_redirect(new_query, id);
       }
 
       if(!id->misc->internal_get && !QUERY(.files)
@@ -447,7 +433,7 @@ mixed find_file( string f, object id )
     }
     break;
   
-  case "MKDIR":
+   case "MKDIR":
     if(!QUERY(method_mkdir))
     {
       id->misc->error_code = 405;
@@ -463,7 +449,7 @@ mixed find_file( string f, object id )
     mkdirs++;
 
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
-      (QUERY(access_as_user))) {
+	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Creating directory",
 		  (int)id->misc->uid, (int)id->misc->gid );
@@ -495,7 +481,7 @@ mixed find_file( string f, object id )
 
     break;
 
-  case "PUT":
+   case "PUT":
     if(!QUERY(put))
     {
       id->misc->error_code = 405;
@@ -512,7 +498,7 @@ mixed find_file( string f, object id )
     
 
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
-      (QUERY(access_as_user))) {
+	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Saving file", (int)id->misc->uid, (int)id->misc->gid );
     }
@@ -583,7 +569,7 @@ mixed find_file( string f, object id )
 				"<h1>Permission to 'CHMOD' files denied</h1>");
     }
     
-// #ifndef THREADS // Ouch. This is is _needed_. Well well...
+    // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
       privs=Privs("CHMODing file", (int)id->misc->uid, (int)id->misc->gid );
@@ -656,12 +642,12 @@ mixed find_file( string f, object id )
     }
     moves++;
     
-// #ifndef THREADS // Ouch. This is is _needed_. Well well...
+    // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
       privs=Privs("Moving file", (int)id->misc->uid, (int)id->misc->gid );
     }
-// #endif
+    // #endif
     
     if (QUERY(no_symlinks) &&
 	((contains_symlinks(path, oldf)) ||
@@ -694,7 +680,7 @@ mixed find_file( string f, object id )
     TRACE_LEAVE("Success");
     return http_string_answer("Ok");
 
-  case "MOVE":
+   case "MOVE":
     // This little kluge is used by NETSCAPE 4.5
      
     if(!QUERY(method_mv))
@@ -749,12 +735,12 @@ mixed find_file( string f, object id )
       return 0;
     }
 
-// #ifndef THREADS // Ouch. This is is _needed_. Well well...
+    // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
       privs=Privs("Moving file", (int)id->misc->uid, (int)id->misc->gid );
     }
-// #endif
+    // #endif
 
     if (QUERY(no_symlinks) &&
         ((contains_symlinks(path, f)) ||
@@ -788,7 +774,7 @@ mixed find_file( string f, object id )
     return http_string_answer("Ok");
 
    
-  case "DELETE":
+   case "DELETE":
     if(!QUERY(delete) || size==-1)
     {
       id->misc->error_code = 405;
@@ -811,7 +797,7 @@ mixed find_file( string f, object id )
     accesses++;
 
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
-      (QUERY(access_as_user))) {
+	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Deleting file", id->misc->uid, id->misc->gid );
     }
@@ -830,7 +816,7 @@ mixed find_file( string f, object id )
     TRACE_LEAVE("DELETE: Success");
     return http_low_answer(200,(f+" DELETED from the server"));
 
-  default:
+   default:
     TRACE_LEAVE("Not supported");
     return 0;
   }
