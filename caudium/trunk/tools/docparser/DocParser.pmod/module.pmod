@@ -1227,7 +1227,9 @@ class Parse {
                 lastkw = spline[0];
             
                 o = cur_scope[lastkw](curparent, spline[1]);
-            
+        	if (scopes[lastkw])
+		    curparent = o;
+
                 /* Check whether it's a new container */
                 if (o) {
 		    /* 
