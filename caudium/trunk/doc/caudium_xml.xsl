@@ -20,6 +20,7 @@
 <xsl:template match="module">
   <sub title="{@name}">
   <xsl:apply-templates select="description"/>
+  <br />
   <xsl:apply-templates select="inherits">
   <xsl:sort select="@link"/>
   </xsl:apply-templates>
@@ -225,7 +226,7 @@
 <!-- Shared templates -->
 
 <xsl:template match="version">
-  <dd><b>Version:</b><xsl:text> </xsl:text> <xsl:value-of select="."/></dd>
+  <b>Version:</b><xsl:text> </xsl:text> <xsl:value-of select="."/><br />
 </xsl:template>
 
 
