@@ -1239,13 +1239,13 @@ mapping modify(object id, string action)
       if(sizeof(QUERY(defvarmaildrop)) > 0)
       {
         /* can the user change maildrop ? */
-        if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1)
+        if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1 && id->variables->maildrop)
         {
 	  checkmail(errors, id->variables->maildrop);
 	  defines["maildrop"] = ({ id->variables->maildrop });
 	}
       }
-      if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
+      if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0 && id->variables->mailacceptinggeneralid)
       {
         array mailaccept = id->variables->mailacceptinggeneralid / ",";
         for(int i = 0; i < sizeof(mailaccept); i++)

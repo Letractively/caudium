@@ -1241,7 +1241,7 @@ mapping modify(object id, string action)
 	defines["userPassword"] = ({  "{crypt}" + crypt(id->variables->passwd)  });
       }
       /* do we know maildrop ? */
-      if(sizeof(QUERY(defvarmaildrop)) > 0)
+      if(sizeof(QUERY(defvarmaildrop)) > 0 && id->variables->maildrop)
       {
         /* can the user change maildrop ? */
         if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1)
@@ -1250,7 +1250,7 @@ mapping modify(object id, string action)
 	  defines["maildrop"] = ({ id->variables->maildrop });
 	}
       }
-      if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
+      if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0 && id->variables->mailacceptinggeneralid)
       {
         array mailaccept = id->variables->mailacceptinggeneralid / ",";
         for(int i = 0; i < sizeof(mailaccept); i++)
