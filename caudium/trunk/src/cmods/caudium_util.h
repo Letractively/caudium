@@ -93,3 +93,23 @@
 #ifdef WITH_DMALLOC
 # include <dmalloc.h>
 #endif
+
+#ifdef HAVE_ALLOCA
+#define USE_ALLOCA 1
+#endif
+
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
+# if !(__FreeBSD_version >= 50200)
+#  undef USE_ALLOCA
+# endif
+#endif
+
+#ifdef USE_ALLOCA
+#define CAUDIUM_ALLOCA(_size_) alloca((_size_))
+#define CAUDIUM_UNALLOCA(_ptr_) 
+#else
+#define CAUDIUM_ALLOCA(_size_) malloc((_size_))
+#define CAUDIUM_UNALLOCA(_ptr_) if ((_ptr_)) free((_ptr_))
+#endif
+
+#define CAUDIUM_PTR_VALID(_ptr_) if (!(_ptr_)) Pike_error("Out of memory\n")
