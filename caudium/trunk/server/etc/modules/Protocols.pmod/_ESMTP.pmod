@@ -173,7 +173,9 @@ class client {
   		} else if(port && stringp(port)) {
   			int tmp = Protocols.Ports.tcp[port];
   			port = ( tmp == 0 ? 25 : tmp );
-  		};
+  		} else if(port < 1 || port > 65534) {
+			port = 25;
+		};
   		fqdn = gethostname() + ( maildomain ? "." + maildomain : "" );
   
   		if(!conn->connect(server, port))
@@ -327,7 +329,9 @@ class client {
   		} else if (port && stringp(port)) {
   			int tmp = Protocols.Ports.tcp[port];
   			smtp_server->port = ( tmp == 0 ? 25 : tmp );
-  		};
+  		} else if(port < 1 || port > 65534) {
+			port = 25;
+		};
   		smtp_server->fqdn = (maildomain && stringp(maildomain)) ? gethostname() + "." + maildomain : gethostname();
   	}
   
