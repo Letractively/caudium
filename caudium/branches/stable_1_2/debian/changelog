@@ -1,3 +1,9 @@
+caudium (2:1.2.23-5) unstable; urgency=low
+
+  * Recompiled to catch up with the latest pike
+
+ -- Marek Habersack <grendel@debian.org>  Sat,  8 Mar 2003 03:12:38 +0100
+
 caudium (2:1.2.23-4) unstable; urgency=low
 
   * Fixed a bug in UltraLog that prevented it from running.
