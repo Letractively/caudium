@@ -64,7 +64,7 @@ void recurse(string srcdir, string builddir) {
     Stdio.Stat dstat = file_stat(builddir+fn+".xml");
 
     if(!dstat || dstat->mtime < stat->mtime) {
-      string res = extract( srcdir+fn, imgdir, 0, builddir);
+      string res = extract( srcdir+fn, imgdir, 1, builddir);
       if(!res) exit(1);
       Stdio.write_file(builddir+fn+".xml", res);
     }
@@ -92,7 +92,8 @@ string extract(string filename, string imgdest, int(0..1) rootless, string build
   string suffix;
   if(!has_value(filename, "."))
     error("No suffix in file %O.\n", filename);
-  sscanf((filename/"/")[-1], "%*s.%s", suffix);
+//  sscanf((filename/"/")[-1], "%*s.%s", suffix);
+  suffix = (filename / ".")[-1];
   if( !(< "c", "pike", "pike.in", "pmod", "pmod.in" >)[suffix] )
     error("Unknown filetype %O.\n", suffix);
 
