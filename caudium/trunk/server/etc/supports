@@ -104,7 +104,7 @@ mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascr
 				konqueror3
 
 # Omniweb browser Mac OS X Brownser only (http://www.omnigroup.com)
-mozilla/[4-9].*konqueror/.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				omniweb
