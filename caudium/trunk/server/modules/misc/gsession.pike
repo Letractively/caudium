@@ -1489,7 +1489,6 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
   int              hashpos;
   array(string)    parts;
   string           sepchar = append ? "&amp;" : "?";
-    :
   hashpos = search(from, "#");
 
   if (hashpos >= 0) {
