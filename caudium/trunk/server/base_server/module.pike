@@ -431,7 +431,7 @@ void definvisvar(string name, mixed value, int type, mixed|void misc)
 //! Check a variable if 'value' is OK to store into variable 's'.
 //! If so, return 0 otherwise return a string describing the error.
 //! @param s
-//!  The variable name to check (that is given in defvar() function)
+//!  The variable name to check (that is given in @[defvar()] function)
 //! @param value
 //!  The value given but CIF user
 //! @returns
@@ -449,7 +449,7 @@ string check_variable( string s, mixed value )
 //! Return the value of a variable.
 //!
 //! @param var
-//!  Variable name (first param in defvar())
+//!  Variable name (first param in @[defvar()])
 //!
 //! @param ok
 //!  If it is ok for the variable to be absent, set this parameter to a
@@ -527,7 +527,7 @@ array register_module()
 //! Method used to set the value of a configuration variable within the module.
 //!
 //! @param var
-//!  Name of the variable (first param in defvar())
+//!  Name of the variable (first param in @[defvar()])
 //!
 //! @param value
 //!  Value the variable should be given
@@ -550,7 +550,7 @@ void set(string var, mixed value)
       variables[var][VAR_VALUE]=value;
 }
 
-//! Wrapper for bulk calling set()
+//! Wrapper for bulk calling @[set()]
 //!
 //! @param vars
 //!  Mapping containing the var:value pairs
@@ -575,7 +575,9 @@ string comment()
   return "";
 }
 
-//! Return internal location of this module
+//! Return internal mountpoint of this module
+//! Requests done to this mountpoint (eg http://domain.tld/_internal/mount/)
+//! will be sent to the module's @[find_internal()] method
 string query_internal_location()
 {
   if(!_my_configuration)
@@ -583,7 +585,7 @@ string query_internal_location()
   return _my_configuration->query_internal_location(this_object());
 }
 
-//! Returns the mountpoint in the virtual filesystem
+//! Return the mountpoint in the virtual filesystem
 //! It is rarely necessary to implement since this information can be
 //! automatically obtained via a defvar named 'location' or whose type is
 //! TYPE_LOCATION.
@@ -595,7 +597,10 @@ string query_location()
   return s;
 }
 
-//! What the module provides.
+//! Set the service the module provides.
+//! Then, another module can rely on this service by implementing the
+//! @[module_dependencies()] method
+//!
 //! @note
 //!  By default, provide nothing.
 string query_provides() { return 0; } 
