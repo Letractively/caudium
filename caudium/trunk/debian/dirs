@@ -7,3 +7,4 @@ usr/share/caudium/local_fonts
 var/log/caudium
 var/run/caudium
 var/state/caudium
+var/www
