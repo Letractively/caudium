@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "linuxtoday";
 constant site = "Linux Today";
 constant url  = "http://linuxtoday.com/";
 constant path = "lthead.txt";

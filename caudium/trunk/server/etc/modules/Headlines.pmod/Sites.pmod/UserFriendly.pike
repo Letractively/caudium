@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "userfriendly";
 constant site = "User Friendly";
 constant url  = "http://www.userfriendly.org/";
 constant path  = "/static/index.html";

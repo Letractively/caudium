@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "gcu";
 constant site = "GCU Squad";
 constant url  = "http://gcu-squad.org/";
 constant path = "gcunews.txt";

@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "centraleurope";
 constant site = "Central Europe";
 constant url  = "http://www.centraleurope.com/";
 constant path = "ticker.dat";

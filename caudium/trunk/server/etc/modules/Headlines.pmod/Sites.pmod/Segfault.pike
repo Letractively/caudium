@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "segfault";
 constant site = "Segfault.org";
 constant url  = "http://segfault.org/";
 constant path = "stories.txt";

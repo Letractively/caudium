@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "q3arena";
 constant site = "Q3 Arena";
 constant url  = "http://q3arena.com/";
 constant path = "backend.php3";

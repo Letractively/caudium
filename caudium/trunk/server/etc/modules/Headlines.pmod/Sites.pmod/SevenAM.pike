@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "sevenam";
 constant site = "7am News on the Net";
 constant url  = "http://www.7am.com/";
 constant path = "cgi-bin/server2.cgi";

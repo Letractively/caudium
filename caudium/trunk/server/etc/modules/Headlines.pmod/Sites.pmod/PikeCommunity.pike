@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "pikecommunity";
 constant site = "Pike Community";
 constant url  = "http://pike-community.org/";
 constant path = "ultra.pike";

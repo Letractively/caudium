@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "themes";
 constant site = "Themes.Org";
 constant url  = "http://themes.org/";
 constant path = "textnews.cgi";

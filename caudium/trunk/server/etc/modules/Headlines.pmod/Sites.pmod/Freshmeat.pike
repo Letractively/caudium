@@ -6,11 +6,15 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
-#include "../RDF.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
+//#include "../RDF.pike"
+#include <headlines/RDF.h>
 
+constant name = "freshmeat";
 constant site = "Freshmeat.Net";
 constant url  = "http://freshmeat.net/";
 constant path  = "backend/fm.rdf";

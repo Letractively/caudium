@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "barrapunto";
 constant site = "Barra Punto";
 constant url  = "http://barrapunto.com/";
 constant path = "ultramode.txt";

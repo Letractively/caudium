@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constnat name = "benews";
 constant site = "BeNews";
 constant url  = "http://benews.com/";
 constant path = "story/headlines/10";

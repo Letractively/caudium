@@ -6,10 +6,13 @@
  */
 
 import spider;
-import "..";
+//import "..";
+import Headlines;
 
-#include "../base.pike"
+//#include "../base.pike"
+#include <headlines/base.h>
 
+constant name = "32bitsonline";
 constant site = "32BitsOnline.com";
 constant url  = "http://www.32bitsonline.com/";
 constant path = "backend/latest_feature.txt";
