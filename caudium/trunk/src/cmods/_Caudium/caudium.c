@@ -1244,6 +1244,7 @@ static void f_http_date(INT32 args)
   char date[sizeof "Wed, 11 Dec 2002 17:13:15 GMT"];
   struct pike_string *ret;
   INT_TYPE timestamp;
+  int hour;
 
   switch(args) {
    default:
@@ -1298,9 +1299,13 @@ static void f_http_date(INT32 args)
   if (diff <= 0L) {
     diff = -diff;
   }
+  hour = tm->tm_hour;
+  hour = hour - (int)(diff / 60L);
+  if (hour < 0)
+    hour = 24 + hour;
   if(snprintf(date, sizeof date, "%s, %02d %s %d %02d:%02d:%02d GMT",
               days[tm->tm_wday], tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
-              (tm->tm_hour) - (int)(diff / 60L), (tm->tm_min) - (int)(diff % 60L), 
+              hour, (tm->tm_min) - (int)(diff % 60L), 
               tm->tm_sec ) == sizeof date) {
      return;
   }
