@@ -2350,7 +2350,7 @@ static string make_proto_name(string p)
 {
     // Note these are only the protocols that
     // Caudium can directly use
-    multiset(string) known_protos = (<"http", "ftp", "https">);
+    multiset(string) known_protos = (<"http", "ftp", "https", "ssl3">);
     multiset(string) telnet_protos = (<"smtp", "pop", "pop2", "pop3", "imap", "tetris">);
     
     if (known_protos[p])
