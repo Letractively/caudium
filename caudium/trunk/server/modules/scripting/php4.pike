@@ -62,7 +62,7 @@ will cause many crashes. To fix this change \
 Hopefully this patch will soon be incorporated into the Pike source. \
 If you want to use embedded PHP, you HAVE to apply this patch to get a \
 usable environment.\
-</p></b>";
+</p></font>";
 constant module_unique = 0;
 
 
@@ -325,7 +325,7 @@ constant dont_dump_program = 1;
 string status()
 {
   return
-    "<font color=\"red\"><p>The PHP4 interpreter isn't available."
+    "<p><font color=\"red\">The PHP4 interpreter isn't available."
     "To get PHP4 installed:"
     "<ol>"
     "<li> Check php4 out from CVS or download the release from "
@@ -334,8 +334,7 @@ string status()
     "<li> Configure php4 with --with-caudium="+getcwd()+"</li>"
     "<li> Make and install php4</li>"
     "<li> Restart Caudium</li>"
-    "</ol></p>"
-    "</font>";
+    "</ol></font></p>";
 }
 
 int|mapping handle_file_extension(object o, string e, object id)
