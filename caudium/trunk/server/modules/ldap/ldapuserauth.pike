@@ -22,7 +22,7 @@
 //
 //! module: LDAP directory authorization
 //!  LDAP User authentication. Reads the directory and use it to
-//!  authentificate users.
+//!  authenticate users.
 //!  Basic authentication names and passwords are mapped onto attributes
 //!  in entries in preselected portions of an LDAP DSA.
 //!  Uses 'uid' and 'userPassword' from entries with 'objectclass=person'.
@@ -37,7 +37,7 @@
 /* This module is Copyright © Honza Petrous 1998-2000 */
 
 /* LDAP User authentication. Reads the directory and use it to
-   authentificate users.
+   authenticate users.
 
    Basic authentication names and passwords are mapped onto attributes
    in entries in preselected portions of an LDAP DSA.
