@@ -152,27 +152,47 @@ mapping status() {
 //!
 //! @param cache_response
 //! A mapping created by the methods in cachelib.
-void store( mapping cache_response ) {
+void store(mapping cache_response) {
 #ifdef CACHE_DEBUG
-  string _obj = sprintf( "%O", cache_response->object );
-  if ( sizeof( _obj ) > 100 ) {
-    _obj = _obj[ 1..100 ];
+  string _obj = sprintf("%O", cache_response->object);
+  if (sizeof(_obj) > 100) {
+    _obj = _obj[1..100];
   }
-  write(sprintf("CACHE: cache_set(\"%s\", \"%s\", %s)\n",
+  write(sprintf("CACHE: store(\"%s\", \"%s\", %s)\n",
                  namespace, cache_response->name, _obj));
 #endif
   LOCK();
   last_access = time();
-  if ( cache_response->size > max_object_ram ) {
-    //if ( cache_response->disk_cache ) {
-      if ( cache_response->size > max_object_disk ) {
+  if (cache_response->size > max_object_ram) {
+    //if (cache_response->disk_cache) {
+      if (cache_response->size > max_object_disk) {
         return 0;
       }
-      disk_cache->store( cache_response );
+      disk_cache->store(cache_response);
       return 0;
     //}
   }
-  ram_cache->store( cache_response );
+  ram_cache->store(cache_response);
+}
+
+//! Copy from one file descriptior to another, and store it in the cache
+//! at the same time.
+//! For example, tie a file on the filesystem to id->my_fd and also cache
+//! it on the way through.
+//!
+//! @param name
+//! The name of the object which we are going to store.
+//!
+//! @param in
+//! The Stdio.File() object which we're reading from.
+//!
+//! @param out
+//! The Stdio.File() object which we're writing to.
+//!
+//! @param ext
+//! The optional expiry time for the cached data.
+void store_async(string name, object in, object out, void|int exp) {
+  Cache.Async.Store(store, name, in, out, exp);
 }
 
 //! Retrieve an object from the cache.
@@ -196,76 +216,94 @@ void store( mapping cache_response ) {
 //!
 //! @param cb_args
 //! Optional array of arguments to pass to get_callback when it's called.
-void|mapping retrieve( string name, void|function get_callback, void|array cb_args ) {
+void|mapping retrieve(string name, void|function get_callback, void|array cb_args) {
 #ifdef CACHE_DEBUG
-  write( sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name ) );
+  write(sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name));
 #endif
   LOCK();
   last_access = time();
-  mixed _object = ram_cache->retrieve( name );
-  if ( mappingp( _object ) ) {
+  mixed _object = ram_cache->retrieve(name);
+  if (mappingp(_object)) {
 #ifdef CACHE_DEBUG
-  write( "Hit\n" );
+  write("Hit\n");
 #endif
     return _object->object;
   }
-  _object = disk_cache->retrieve( name );
-  if ( mappingp( _object ) ) {
+  _object = disk_cache->retrieve(name);
+  if (mappingp(_object)) {
 #ifdef CACHE_DEBUG
-  write( "Hit\n" );
+  write("Hit\n");
 #endif
-    if ( _object->size < max_object_ram ) {
-      ram_cache->store( _object );
-      disk_cache->refresh( name );
+    if (_object->size < max_object_ram) {
+      ram_cache->store(_object);
+      disk_cache->refresh(name);
     }
     return _object->object;
   }
 #ifdef CACHE_DEBUG
-  write( "Miss" );
+  write("Miss");
 #endif
   UNLOCK();
-  if ( functionp( get_callback ) ) {
+  if (functionp(get_callback)) {
 #ifdef CACHE_DEBUG
-    write( " - calling callback." );
+    write(" - calling callback.");
 #endif
-    return get_callback( @cb_args );
+    return get_callback(@cb_args);
   }
 #ifdef CACHE_DEBUG
-  write( "\n" );
+  write("\n");
 #endif
+}
+
+//! Asynchonously retrieve an object from the cache and send it to an
+//! open Stdio.File() object.
+//!
+//! @param name
+//! The name of the object we want to retrieve it from the cache.
+//!
+//! @param out
+//! The open Stdio.File() object to send the output to.
+void|int retrieve_async(string name, object out) {
+  object obj = retrieve(name);
+  if (!objectp(obj))
+    return 0;
+  if (!obj->set_id)
+    return 0;
+  Cache.Async.Retrieve(retrieve, name, out);
+  return 1;
 }
 
 //! Force an object to be deleted from the cache.
 //!
 //! @param name
 //! The name of the object to be removed.
-void refresh( string name ) {
+void refresh(string name) {
 #ifdef CACHE_DEBUG
   write(sprintf("CACHE: cache_remove(\"%s\",\"%O\")\n", namespace, name));
 #endif
   LOCK();
   last_access = time();
-  ram_cache->refresh( name );
-  disk_cache->refresh( name );
+  ram_cache->refresh(name);
+  disk_cache->refresh(name);
 }
 
 //! Force the cache to free a certain amount of RAM
 //!
 //! @param nbytes
 //! Remove nbytes of RAM.
-void free_ram( int nbytes ) {
+void free_ram(int nbytes) {
 #ifdef CACHE_DEBUG
-  write( "RAM_CACHE( " + namespace + " ): Freeing " + nbytes + " RAM\n" );
+  write("RAM_CACHE( " + namespace + " ): Freeing " + nbytes + " RAM\n");
 #endif
-  ram_cache->free( nbytes );
+  ram_cache->free(nbytes);
 }
 
 //! Force the cache to free a certain amount of slow storage
 //!
 //! @param nbytes
 //! Remove nbytes of slow storage.
-void free_disk( int nbytes ) {
-  disk_cache->free( nbytes );
+void free_disk(int nbytes) {
+  disk_cache->free(nbytes);
 }
 
 //! Flush the cache
@@ -273,22 +311,22 @@ void free_disk( int nbytes ) {
 //! @param regexp
 //! Optional regular expression to use when looking for objects to delete from
 //! the cahce, otherwise just delete everything.
-void flush( void|string regexp ) {
+void flush(void|string regexp) {
 #ifdef CACHE_DEBUG
-  write( "CACHE: Flushing cache" + (regexp?" with regexp":"") + ".\n" );
+  write("CACHE: Flushing cache" + (regexp?" with regexp":"") + ".\n");
 #endif
   LOCK();
   last_access = time();
   UNLOCK();
-  ram_cache->flush( regexp );
-  disk_cache->flush( regexp );
+  ram_cache->flush(regexp);
+  disk_cache->flush(regexp);
 }
 
 //! Stop the cache, write everything out to slow storage and shutdown.
 void stop() {
 	// Save the state of the cache
 #ifdef CACHE_DEBUG
-  write( "[" + namespace + "] " );
+  write("[" + namespace + "] ");
 #endif
   ram_cache->stop();
   disk_cache->stop();
@@ -298,9 +336,9 @@ void stop() {
 //!
 //! @param desc
 //! Optional description for the cache.
-void|string cache_description( void|string desc ) {
+void|string cache_description(void|string desc) {
   LOCK();
-  if ( desc ) {
+  if (desc) {
     _cache_desc = desc;
     return 0;
   }

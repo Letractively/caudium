@@ -41,8 +41,8 @@ string namespace;
 //! index to be re-read from disk and cloned.
 private void restart_cache() {
   LOCK();
-  if ( ! real_cache ) {
-    real_cache = get_cache( namespace, 1 );
+  if (! real_cache) {
+    real_cache = get_cache(namespace, 1);
   }
 }
 
@@ -57,12 +57,12 @@ private void restart_cache() {
 //!
 //! @param _namespace
 //! the namespace we live in.
-void create( object _real_cache, function _get_cache, string _namespace ) {
+void create(object _real_cache, function _get_cache, string _namespace) {
   real_cache = _real_cache;
   get_cache = _get_cache;
   namespace = _namespace;
 #ifdef CACHE_DEBUG
-  write( sprintf( "CLIENT_CACHE: Client cache in namespace %O created.\n", namespace ) );
+  write(sprintf("CLIENT_CACHE: Client cache in namespace %O created.\n", namespace));
 #endif
 
 }
@@ -76,9 +76,9 @@ void create( object _real_cache, function _get_cache, string _namespace ) {
 //!
 //! @param max_object_disk
 //! Maximum size for an object before it is too big to be stored in slow storage.
-void set_sizes( int max_object_ram, int max_object_disk ) {
+void set_sizes(int max_object_ram, int max_object_disk) {
   restart_cache();
-  real_cache->set_sizes( max_object_ram, max_object_disk );
+  real_cache->set_sizes(max_object_ram, max_object_disk);
 }
 
 //! Override the system default time to live of objects in our cache.
@@ -86,9 +86,9 @@ void set_sizes( int max_object_ram, int max_object_disk ) {
 //!
 //! @param default_ttl
 //! TTL (seconds).
-void set_default_ttl( int default_ttl ) {
+void set_default_ttl(int default_ttl) {
   restart_cache();
-  real_cache->set_default_ttl( default_ttl );
+  real_cache->set_default_ttl(default_ttl);
 }
 
 //! Report how much RAM we're using.
@@ -113,9 +113,18 @@ mapping status() {
 //!
 //! @param cache_response
 //! The output of one of the cache_* methods in cachelib
-void store( mapping cache_response ) {
+void store(mapping cache_response) {
   restart_cache();
-  real_cache->store( cache_response );
+  real_cache->store(cache_response);
+}
+
+//! Store an Stdio.File() object in the cache using non-blocking I/O.
+//!
+//! @param cache_response
+//! The output of one of the cache_* methods in cachelib
+void store_async(string name, object in, object out, void|int exp) {
+  restart_cache();
+  real_cache->store_async(name, in, out, exp);
 }
 
 //! Retrieve an object from the cache
@@ -127,46 +136,61 @@ void store( mapping cache_response ) {
 //! Optional callback used to get the object in the event of a cache miss.
 //!
 //! @param cb_args
-//! An array of optional arguments to the cache callback.
-void|mapping retrieve( string name, void|function get_callback, void|array cb_args ) {
+//! An array of optional arguments to the callback.
+void|mapping retrieve(string name, void|function get_callback, void|array cb_args) {
   restart_cache();
-  return real_cache->retrieve( name, get_callback, cb_args );
+  return real_cache->retrieve(name, get_callback, cb_args);
 }
+
+//! Retrieve an object from the cache and write it directly to a Stdio.File
+//! object, which is handy for things like http_pipe_in_progress().
+//! Returns 1 if the object exists in the cache, and 0 if it's not.
+//!
+//! @param name
+//! The name of the object we want to retrieve.
+//!
+//! @param out
+//! The output file descriptor (Stdio.File()).
+void|int retrieve_async(string name, object out) {
+  restart_cache();
+  return real_cache->retrieve_async(name, out);
+}
+
 
 //! Refresh a specific object (i.e. delete it)
 //!
 //! @param name
 //! Name of the object we want to remove.
-void refresh( string name ) {
+void refresh(string name) {
   restart_cache();
-  real_cache->refresh( name );
+  real_cache->refresh(name);
 }
 
 //! Make the caches RAM usage smaller.
 //!
 //! @param nbytes
 //! How many bytes smaller the RAM cache needs to be.
-void free_ram( int nbytes ) {
+void free_ram(int nbytes) {
   restart_cache();
-  real_cache->free_ram( nbytes );
+  real_cache->free_ram(nbytes);
 }
 
 //! Make the caches slow storage smaller.
 //!
 //! @param nbytes
 //! How many bytes smaller the slow storage needs to be.
-void free_disk( int nbytes ) {
+void free_disk(int nbytes) {
   restart_cache();
-  real_cache->free_disk( nbytes );
+  real_cache->free_disk(nbytes);
 }
 
 //! Flush the cache
 //!
 //! @param regexp
 //! Optional regexp to use for selectively deleting objects.
-void flush( void|string regexp ) {
+void flush(void|string regexp) {
   restart_cache();
-  real_cache->flush( regexp );
+  real_cache->flush(regexp);
 }
 
 //! Shut down this cache
@@ -179,7 +203,7 @@ void stop() {
 //!
 //! @param desc
 //! Optional description to set on this cache.
-void|string cache_description( void|string desc ) {
+void|string cache_description(void|string desc) {
   restart_cache();
-  return real_cache->cache_description( desc );
+  return real_cache->cache_description(desc);
 }
