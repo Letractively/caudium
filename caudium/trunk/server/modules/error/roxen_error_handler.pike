@@ -136,7 +136,7 @@ mapping|int handle_error(object id, void|mapping extra_heads)
   if(id->misc->error_code)
   {
     if(QUERY(debug))
-      werror("Error code is : "+error_code);
+      report_debug("Error code is : "+error_code);
     if(error_code = 401) 
       error_text=QUERY(401msg); 
     if(mappingp(extra_heads))
