@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2004 The Caudium Group
+ * Copyright © 2000-2005 The Caudium Group
  * Copyright © 1994-2001 Roxen Internet Software
  * Some modifications by Francesco Chemolli
  * 
