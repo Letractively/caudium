@@ -43,28 +43,6 @@ void display_help()
    exit(0);
 }
 
-void read_profile(string filename)
-{
-  if(!file_stat(filename))
-  {
-    werror("profile " + filename + " does not exist.\n");
-    exit(1);
-  }
-
-  string f=Stdio.read_file(filename);
-  if(!f) 
-  {
-    werror("profile " + filename + " is empty.\n");
-    exit(1);
-  }
-
-  array lines=f/"\n";
-
-  profile->dbdir=lines[0];
-
-  return;
-}
-
 int main(int argc, array argv)
 {
   array options=({ ({"profile", Getopt.HAS_ARG, ({"--profile"}) }),
@@ -90,9 +68,12 @@ int main(int argc, array argv)
 
 
 
-  read_profile(profile_path);
-  index=Lucene.Index(profile->dbdir);
+  profile=Lucene->read_profile(profile_path);
+
+  index=Lucene.Index(profile->index->location[0]->value);
+  Lucene->check_exception();
   index->search(argv[-1]);
+  Lucene->check_exception();
 }
 
 #endif

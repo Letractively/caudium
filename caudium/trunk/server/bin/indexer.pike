@@ -24,10 +24,15 @@
 
 string cvs_version = "$Id$";
 
+import Parser.XML.Tree;
+
 #if constant(Java)
 
 static constant jvm = Java.machine;
 
+int start;
+int files;
+int filesize;
 string profile_path;
 int verbose;
 object index;
@@ -40,36 +45,17 @@ void display_help()
    exit(0);
 }
 
-void read_profile(string filename)
-{
-  if(!file_stat(filename))
-  {
-    werror("profile " + filename + " does not exist.\n");
-    exit(1);
-  }
-
-  string f=Stdio.read_file(filename);
-  if(!f)
-  {
-    werror("profile " + filename + " is empty.\n");
-    exit(1);
-  }
-
-  array lines=f/"\n";
-
-  profile->dbdir=lines[0];
-  profile->site=lines[1];
-
-  return;
-}
-
 void error_cb(mixed real_uri, int status, mapping headers)
 {
 //  werror("error " + status + " received for " + (string)real_uri + "\n");
 }
 void done_cb()
 {
-  werror("done\n");
+  if(verbose)
+  {
+    werror("Indexer finished at " + ctime(time()) + "\n");
+    werror(" Indexed " + files + " files, " + filesize + " bytes in " + (time()-start) + "  seconds.\n");
+  }
   quit();
 }
 
@@ -79,7 +65,9 @@ object current_uri;
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
   if(verbose)
-    werror("got page " + (string)uri + "\n");
+    werror("Received Page: " + (string)uri + "\n");
+  files++;
+  filesize+=sizeof(data);
   page_urls=({});
   current_uri=uri;
   parser->feed(data);  
@@ -87,14 +75,16 @@ array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
   stripper->feed(data);
   data=stripper->read();
   if(verbose)
-    werror("title: " + title + "\n");
+    werror("  Title: " + title + "\n");
   title="";
   string type=(headers["content-type"]/";")[0]||"text/html";
   string date=headers["last-modified"]||"";
   if(verbose)
-    werror(type  + "\n");
+    werror("  Content type: " + type  + "\n");
   if(type=="text/html" || type=="text/plain")
-    index->index((string)uri, data, title, type, date);
+  {
+    index->index((string)uri, data, title, type, date);    
+  }
   return page_urls;
 }
 
@@ -156,24 +146,53 @@ int main(int argc, array argv)
     exit(1);
   }
 
-  read_profile(profile_path);
+  start=time();
+  werror("Indexer starting at " + ctime(start) + "\n");
 
-  index=Lucene.Indexer(profile->dbdir);
+  profile=Lucene->read_profile(profile_path);
+  werror("Lucene Database location: " + profile->index->location[0]->value + "\n");
+  index=Lucene.Indexer(profile->index->location[0]->value);
+
+   array url=({});
+   foreach(profile->crawler->startingpoint, mapping s)
+   {
+     werror("Adding Starting Point " + s->value + "\n");
+     url+=({s->value});
+   }
+
+   object allow=Web.Crawler.RuleSet();
+   object deny=Web.Crawler.RuleSet();
+
+   foreach(profile->crawler->allow, mapping s)
+   {
+     werror("Adding Allow Rule " + s->type + " " + s->value + "\n");
+     if(s->type=="glob")
+       allow->add_rule(Web.Crawler.GlobRule(s->value));
+     if(s->type=="regexp")
+       allow->add_rule(Web.Crawler.RegexpRule(s->value));
+   }
+
+   foreach(profile->crawler->deny, mapping s)
+   {
+     werror("Adding Deny Rule " + s->type + " " + s->value + "\n");
+     if(s->type=="glob")
+       deny->add_rule(Web.Crawler.GlobRule(s->value));
+     if(s->type=="regexp")
+       deny->add_rule(Web.Crawler.RegexpRule(s->value));
+   }
 
 
-   mixed url=profile->site;
    parser=Parser.HTML();
    stripper=Parser.HTML();
    parser->add_container("title", set_title);
    parser->add_container("a", add_url);
    parser->add_container("script", strip_tag);
    parser->add_container("style", strip_tag);
+   parser->add_entity("nbsp", "");
    stripper->_set_tag_callback(strip_tag);
 
-   object allow=Web.Crawler.RuleSet();
-   object deny=Web.Crawler.RuleSet();
 
-   allow->add_rule(Web.Crawler.GlobRule(profile->site + "*"));
+
    q=Web.Crawler.MemoryQueue(Web.Crawler.Stats(2,1),Web.Crawler.Policy(), allow, deny);
 
 
