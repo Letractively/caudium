@@ -1,6 +1,6 @@
-Changes since last Roxen Challenger 1.3
+Changes since last Roxen 1.3
 -----------------------------------------------
-+ Caudium is a Roxen Challenger 1.3 fork. We have different goals and
++ Caudium is a Roxen 1.3 fork. We have different goals and
   ideas on what the server need to become successful. We have opted to
   start on version 1.0 to point out that this is a different
   server. Check out our website at http://caudium.net/ for further
@@ -20,3 +20,7 @@ Changes since last Roxen Challenger 1.3
 + Don't send the Last-Modified header for dynamic (RXML-parsed)
   pages. Fixes caching problems with clients that correctly handles
   If-Modified-Since, like MSIE and Galeon.
++ Changed files named roxen to caudium, as well as refences to roxen->
+  etc. It should still be compatible however.
++ Demo ssl-certificate remade.
+
