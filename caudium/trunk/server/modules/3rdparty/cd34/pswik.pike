@@ -1,7 +1,7 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright \xa9 2002 The Caudium Group
- * Copyright \xa9 2002 Davies, Inc
+ * Copyright © 2002 The Caudium Group
+ * Copyright © 2002 Davies, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
