@@ -49,6 +49,7 @@
  <var name='default_font_size'>  <int>32</int> </var>
  <var name='ModuleDirs'>         
   <a>
+    <str>/usr/share/pike_packages/apps/modules/</str>
     <str>/usr/lib/caudium/local_modules/</str>
     <str>/usr/lib/caudium/modules/</str>
     <str>/usr/lib/caudium/more_modules/</str>

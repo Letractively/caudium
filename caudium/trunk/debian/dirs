@@ -14,3 +14,4 @@ var/cache/caudium/args
 var/cache/caudium/cache
 var/www
 var/www/caudiumimages
+usr/share/pike_packages/apps/modules/
