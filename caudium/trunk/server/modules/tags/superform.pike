@@ -117,6 +117,7 @@ void create() {
 	"::int::\t[0-9]+\n"
 	"::float::\t[0-9]+[.][0-9]+\n"
 	"::email::\t[a-zA-Z.\\-0-9]+@[a-zA-Z.\\-0-9]+\n"
+	"::domain::\t[-a-z\.0-9]+\n"
 	"::money::\t[0-9]+[.][0-9][0-9]\n",
 	"Predefined Regular expressions", TYPE_TEXT_FIELD,
 	"In the match strings each of the fixed strings on the left will "
@@ -127,7 +128,7 @@ void create() {
 }
 
 // How can I change this with Caudium constant thing to support
-// varibles ? - Xavier
+// variables ? - Xavier
 mixed *register_module()
 {
   return ({ 
@@ -144,19 +145,20 @@ void start(int num, object configuration)
 
 //! tag: input
 //!  The forms &lt;input&gt; tag used inside of &lt;sform&gt; container
-//! arg: type
+//! attribute: type
 //!  The type used, standart forms type can be used, but extended ones
 //!  are bool, expirydate, cardnumder which can support extended actions
-//! arg: error
+//! attribute: error
 //!  Text to send when there is an error
-//! arg: match
+//! attribute: match
 //!  The regexp used to verify (see configuration interface).
-//! arg: mail
+//! attribute: mail
 //!  Check this is a really a email and there is really a MX on this
 //!  mail. Warning a match="::email::" is need to enable the check.
-//! arg: mailerror
+//! attribute: mailerror
 //!  The message to send if the mail check fails.
-//! todo: Add a email type that verify, domain, mx etc... :)
+//! attribute: mxdomain
+//!  Check if a MX exist (need a match="::domain::"). 
 mixed tag_input(string tag_name, mapping args,
 		 object request_id, object f,
 		 mapping defines, object fd)
@@ -237,6 +239,11 @@ mixed tag_input(string tag_name, mapping args,
         result +="<input type=hidden name=sform_mailerror_"+
 	  args->name+" value=\""+args->mailerror+"\">\n";
     }
+    if (args->match == "::domain::") {
+      if (args->mxdomain)
+        result +="<input type=hidden name=sform_mxdomain_"+
+          args->name+" value=\""+args->mxdomain+"\">\n";
+    }
   }
   if (args->error) 
     result+="<input type=hidden name=sform_error_"+
@@ -270,16 +277,16 @@ string tag_rxml(string tag_name, mapping args, string contents,
 
 //! container: sform
 //!  Extended form tag.
-//! arg: action
+//! attribute: action
 //!  Where to go (URL) when the form is executed (and when all
 //!  verification stage are successfull). 
-//! arg: erroraction
+//! attribute: erroraction
 //!  Where to go (URL) when the form has an error. The variable
 //!  sformerror, is then setup with the error that fails the
 //!  the correct execution of the form.
-//! arg: multi_separator
+//! attribute: multi_separator
 //!  To be documented
-//! arg: method
+//! attribute: method
 //!  The HTTP method used for this form
 string tag_sform(string tag_name, mapping args, string contents,
 		 object request_id, object f,
@@ -401,7 +408,7 @@ int process_widgets(object rid) {
 mixed first_try(object rid)
 {
   mixed match;
-  string error,value,mail,mailerror,mandatory;
+  string error,value,mail,mailerror,domain,mxdomain,mandatory;
   int err=0;
   mixed tmp;
   if (!rid->variables["sform_rand"]) {
@@ -421,6 +428,7 @@ mixed first_try(object rid)
     error="sform_error_"+v;  // get the error
     mail="sform_mail_"+v;    // get the mail error if needed
     mailerror="sform_mailerror_"+v; // get the mail error message if needed
+    mxdomain="sform_mxdomain_"+v; // get the mxdomaincheck
     mandatory="sform_mandatory_"+v;
     
     // is the value empty?
@@ -468,7 +476,18 @@ mixed first_try(object rid)
 	    break;
 	  }
 	}
-	else  rid->variables[v]=match[0];
+	else 
+	 if ((pattern2 == "::domain::")&&(rid->variables[mxdomain])) {
+          if((rid->variables[mxdomain])&&(stringp(Protocols.DNS.client()->get_primary_mx(match[0])))) 
+	   rid->variables[v]=match[0];
+	  else {
+	   err=1;
+	   rid->variables["sformerror"]=
+	     rid->variables[error]||"There is no MX for this domain "+v;
+	   break;
+	  }
+	 }
+	else rid->variables[v]=match[0];
       }
       else { 
 	err=1;
