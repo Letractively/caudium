@@ -198,6 +198,71 @@ int hide_expidle ()
 }
 
 //
+// A private class to wrap the id->misc storage. It is needed in case user
+// is doing something like id->misc->session_variables->variable = "stuff"
+// and we need to know whether the session was modified or not.
+//
+private class SettableWrapper
+{
+  private object id;
+  private string sid;
+  private string reg;
+  
+  void create(object reqid, string reqsid, void|string r)
+  {
+    id = reqid;
+    sid = reqsid;
+    reg = r;
+  }
+  
+  mixed `[](string what) 
+  {
+    mixed ret;
+
+    if (!cur_storage)
+      return ([])[0];
+    
+    return cur_storage->retrieve(id, what, sid, reg);
+  }
+
+  mixed `[]=(string what, mixed contents)
+  {
+    if (!cur_storage)
+      return ([])[0];
+
+    cur_storage->store(id, what, contents, sid, reg);
+    return contents;
+  }
+
+  mixed `->(string what)
+  {
+    return `[](what);
+  }
+
+  mixed `->=(string what, mixed contents)
+  {
+    return `[]=(what, contents);
+  }
+
+  static string _sprintf(int f)
+  {
+    switch(f) {
+        case 't':
+          return sprintf("SettableWrapper(%s%s)", sid, reg ? "," + reg : "");
+          
+        case 'O':
+          if (!cur_storage)
+            return sprintf("SettableWrapper(%s%s)", sid, reg ? "," + reg : "");
+          
+          mapping data = cur_storage->get_region(id, sid, reg);
+          if (!data)
+            return sprintf("SettableWrapper(%s%s)", sid, reg ? "," + reg : "");
+          return sprintf("%O", data);
+    }
+  }
+};
+
+//
 // This is the 123sessions compatibility scope, thus the name and behavior
 // are exactly the same.
 //
@@ -584,7 +649,7 @@ void register_plugins(void|object conf)
 // id->misc->gsession->region_name mapping. This is true for all the
 // storage mechanisms.
 //
-private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = ([]);
+private mapping(string:mapping(string:mapping(string:mixed))|object) _memory_storage = ([]);
 
 //
 // Registration record for the "plugin". Such record is used for all the
@@ -726,8 +791,8 @@ private void memory_setup(object id, string|void sid)
   if (!id->misc->gsession)
     id->misc->gsession = ([]);
 
-  if (!_memory_storage->_sessions_[sid]) {
-    _memory_storage->_sessions_[sid] = ([
+  if (!_memory_storage["_sessions_"][sid]) {
+    _memory_storage["_sessions_"][sid] = ([
       "nocookies" : 0,
       "cookieattempted" : 0,
       "lastused" : time(),
@@ -744,7 +809,7 @@ private void memory_setup(object id, string|void sid)
       ]);
         
     if (!id->misc->gsession[region])
-      id->misc->gsession[region] = _memory_storage[region][sid];
+      id->misc->gsession[region] = SettableWrapper(id, sid, region);
   }
 }
 
@@ -783,9 +848,7 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
     _memory_storage["_sessions_"]->idle_sessions--;
     _memory_storage["_sessions_"][sid]->fresh = 0;
   }
-  _memory_storage[region][sid]->data += ([
-    key : data
-  ]);
+  _memory_storage[region][sid]->data[key] = data;
   _memory_storage["_sessions_"][sid]->lastchanged = t;
 }
 
@@ -1191,33 +1254,18 @@ private string alloc_session(object id)
 //
 private void setup_compat(object id)
 {
-  mapping data;
-
   if (!cur_storage) {
     report_warning("gSession: cur_storage unset!\n");
     return;
   }
-    
-  data = cur_storage->get_region(id, id->misc->session_id, "session");
 
-  if (data)
-    id->misc->session_variables = data->data;
-  else {
-    report_warning("gSession: the 'session' region absent from storage '%s'\n",
-                   cur_storage->name);
-    id->misc->session_variables = ([]);
+  if (!id->misc->session_id) {
+    report_warning("gSession: no session allocated\n");
+    return;
   }
-    
-  data = cur_storage->get_region(id, id->misc->session_id, "user");
 
-  if (data)
-    id->misc->user_variables = data->data;
-  else {
-    report_warning("gSession: the 'user' region absent from storage '%s'\n",
-                   cur_storage->name);
-    id->misc->user_variables = ([]);
-  }
-    
+  id->misc->session_variables = SettableWrapper(id, id->misc->session_id, "session");
+  id->misc->user_variables = SettableWrapper(id, id->misc->session_id, "user");
 }
 
 //
