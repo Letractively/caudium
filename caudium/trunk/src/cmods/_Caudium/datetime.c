@@ -504,7 +504,7 @@ void init_datetime(void)
 #endif
   
 #ifdef HAVE_STRPTIME
-  add_function_constant("strptime", f_strptime, "function(string,string,mapping:int)", tInt), 0);
+  add_function_constant("strptime", f_strptime, "function(string,string,mapping:int)", 0);
 #endif
 
 #ifdef HAVE_STRFTIME
