@@ -1,0 +1,17 @@
+AC_INIT(caudium-rc_script.in Makefile.in)
+AC_PROG_CC
+# The AC_PROG_INSTALL test is broken if $INSTALL is specified by hand.
+# The FreeBSD ports system does this...
+# Workaround:
+
+if test "x$INSTALL" = "x"; then :; else
+  # $INSTALL overrides ac_cv_path_install anyway...
+  ac_cv_path_install="$INSTALL"
+fi
+
+AC_PROG_INSTALL
+AC_SUBST(LDFLAGS)
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(PIKE)
+AC_OUTPUT(caudium-rc_script docparser/docparse Makefile, [chmod +x caudium-rc_script docparser/docparse])
