@@ -310,6 +310,14 @@ cern.*linemode.*           nothing
 .*url.*control		robot	ms-url-control
 # }
 
+#section chimera {
+# Browser using athena (see http://www.w3.org/Clients.html)
+# Isn't the gecko-based Cocoa browser for MacOS X - This one declares itself as
+# Mozilla/5.0 (stuff) Gecko/timestamp Chimera/version and thus is handled by the
+# mozilla section
+.*	basic, -mailto
+# }
+
 #section architext {
 # How nice it would have been if all robots had 'robot' in their name..
 .*		robot   architex
