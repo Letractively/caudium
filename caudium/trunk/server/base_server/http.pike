@@ -117,30 +117,37 @@ string http_res_to_string( mapping file, object id )
 }
 
 /*
-**! method: mapping http_low_answer( int errno, string data )
+**! method: mapping http_low_answer( int errno, string data, void|int dohtml )
 **!   Return a response mapping with the error and data specified. The
 **!   error is infact the status response, so '200' is HTTP Document
 **!   follows, and 500 Internal Server error, etc. The content type will
-**!   always be text/plain
+**!   always be text/html
 **! arg: int errno
 **!   The HTTP error code to use in the reply.
 **! arg: string data
 **!   The data to return.
+**! arg: void|int dohtml
+**!   If != 0 then use a valid HTML document as an answer.
 **! returns:
 **!   The HTTP response mapping.
 **! name: http_low_answer - return a response mapping with the specified info
 */
-mapping http_low_answer( int errno, string data )
+mapping http_low_answer( int errno, string data, void|int dohtml )
 {
   if(!data) data="";
 #ifdef HTTP_DEBUG
   perror("HTTP: Return code "+errno+" ("+data+")\n");
-#endif  
+#endif
+  string ddata = data;
+  
+  if (dohtml)
+      ddata = make_htmldoc_string(data, sprintf("Error %d", errno));
+  
   return 
     ([ 
       "error" : errno,
-      "data"  : data,
-      "len"   : strlen( data ),
+      "data"  : ddata,
+      "len"   : strlen( ddata ),
       "type"  : "text/html",
       ]);
 }
@@ -251,41 +258,8 @@ private mapping(string:string) doctypes = ([
 
 private string docstart = "%s\n<html><head><title>%s</title>%s%s</head><body>%s</body></html>";
 
-/*
-**! method: mapping http_htmldoc_answer(string contents, string title,void|mapping meta, void|mapping style, string|void dtype)
-**!   Return a response mapping with the 'contents' wrapped up to form a
-**!   valid HTML document. The document is always of the 'text/html' type
-**!   and you can modify its look (using CSS) and add any meta tags you
-**!   find necessary. It is also specify one of the predefined document
-**!   types. The generated document is always identified as one following
-**!   the HTML 4.01 standard.
-**! arg: string contents
-**!   The document body.
-**! arg: string title
-**!   The document tile.
-**! arg: void|mapping meta
-**!   A mapping of meta entries. Each index in the mapping is also a
-**!   mapping and describes a single &lt;meta&gt; tag. The indices in the
-**!   inner mapping are the attribute names and their value constitutes the
-**!   attribute value. If both 'name' and 'http_equiv' indices exist in the
-**!   inner mapping, 'http_equiv' is used (to generate the http-equiv) meta
-**!   attribute. It is your responsibility to specify attributes that are
-**!   valid for the meta tag.
-**! arg: void|mapping style
-**!   Modifies the document style. Contents of this mapping is coverted to
-**!   the style container put in the document head section. Every index in
-**!   the mapping is considered to be the classifier and its value the
-**!   style assigned to the given classifier. The style is put between
-**!   curly braces.
-**! arg: string|void dtype
-**!   Specifies the name of the document type definition. The following
-**!   names are known: 'transitional' (the default), 'strict', 'frameset'.
-**! returns:
-**!   The HTTP response mapping.
-**! name: http_string_answer - return a response mapping as specified
-*/
-mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
-                            void|mapping style, string|void dtype)
+private string make_htmldoc_string(string contents, string title,void|mapping meta,
+                                   void|mapping style, string|void dtype)
 {
     string doctype, smetas = "", sstyle = "";
     
@@ -325,7 +299,47 @@ mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
                          styles * " ");
     }
 
-    return http_string_answer(sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents));
+    return sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
+}
+
+
+/*
+**! method: mapping http_htmldoc_answer(string contents, string title,void|mapping meta, void|mapping style, string|void dtype)
+**!   Return a response mapping with the 'contents' wrapped up to form a
+**!   valid HTML document. The document is always of the 'text/html' type
+**!   and you can modify its look (using CSS) and add any meta tags you
+**!   find necessary. It is also specify one of the predefined document
+**!   types. The generated document is always identified as one following
+**!   the HTML 4.01 standard.
+**! arg: string contents
+**!   The document body.
+**! arg: string title
+**!   The document tile.
+**! arg: void|mapping meta
+**!   A mapping of meta entries. Each index in the mapping is also a
+**!   mapping and describes a single &lt;meta&gt; tag. The indices in the
+**!   inner mapping are the attribute names and their value constitutes the
+**!   attribute value. If both 'name' and 'http_equiv' indices exist in the
+**!   inner mapping, 'http_equiv' is used (to generate the http-equiv) meta
+**!   attribute. It is your responsibility to specify attributes that are
+**!   valid for the meta tag.
+**! arg: void|mapping style
+**!   Modifies the document style. Contents of this mapping is coverted to
+**!   the style container put in the document head section. Every index in
+**!   the mapping is considered to be the classifier and its value the
+**!   style assigned to the given classifier. The style is put between
+**!   curly braces.
+**! arg: string|void dtype
+**!   Specifies the name of the document type definition. The following
+**!   names are known: 'transitional' (the default), 'strict', 'frameset'.
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_string_answer - return a response mapping as specified
+*/
+mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
+                            void|mapping style, string|void dtype)
+{
+    return http_string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
 }
 
 /*
@@ -661,10 +675,14 @@ mapping http_stream(object from)
 **!   The HTTP response mapping.
 **! name: http_auth_required - return a response mapping from the input data
 */
-mapping http_auth_required(string realm, string|void message)
+mapping http_auth_required(string realm, string|void message, void|int dohtml)
 {
   if(!message)
     message = "<h1>Authentication failed.\n</h1>";
+
+  if (dohtml)
+      message = make_htmldoc_string(message, "Caudium: Authentication failed");
+  
 #ifdef HTTP_DEBUG
   perror("HTTP: Auth required ("+realm+")\n");
 #endif  
