@@ -1,0 +1,660 @@
+<!- $Id -->
+<html>
+
+<head>
+<title>Caudium Inline Documentation Specification</title>
+</head>
+<body bgcolor="#efefef" text="#000000" link="#370fa0" vlink="#969696" alink="#ef1b11">
+
+<h1>Introduction</h1>
+
+<p>
+There are two types of fields: <em>containers</em> and <em>terminal</em>. Containers describe Pike language "objects" like a <em>function</em>, 
+<em>variable</em>, <em>class</em> etc. or structural source code elements like a <em>file</em> or <em>module</em>. Terminal fields are the given object's 
+description properties. The container fields must always appear before the terminal fields they contain! The terminal fields available for the given container have
+to (if they appear) be in the same comment as their container.
+</p>
+
+<p>
+Descriptions are organized in a tree structure resembling the Pike code lexical structure - the variables, methods and classes belong in files where they are defined.
+This allows for documenting objects with the same names but defined in different files.
+</p>
+<p>
+As Caudium is extensible through the use of <em>modules</em> a separate container to describe the public interface and task of the given module is also provided. Keep
+in mind that the Caudium <strong><u>module</u></strong> is different to Pike module and its description has a different purpose than that of the source code methods,
+variables and classes although certain elements appear (or may appear) in both descriptions. Generally, the rule is that the source (Pike) code descriptions are intended
+for the developer documentation, while the module descriptions are meant for the user/administrator of the Caudium server. For that reason the documentation parser
+generates two sets of documentation - one containing all the source code documentation and the other containing only the Caudium module documentation.
+</p>
+<hr align="center" width="45%">
+<h1>Documentation specification</h1>
+<p>
+The general format of the inline Caudium documentation is as follows:
+</p>
+
+<blockquote>
+<em>field_name</em><strong>:</strong> <em>field contents</em>
+</blockquote>
+
+<p>
+Below you will find a description of all recognized documentation fields. Each container field is described in a separate table. Some fields take a set of
+predefined values while the other fields have textual contents. The former fields may have a default value which is marked in the <em>Value</em> column with
+bold text. The word <strong>none</strong> means that the given field has no default value. The <em>Type</em> column can contain the following combinations
+of symbols:
+<ul>
+ <li><strong>C</strong> - the field is a container</li>
+ <li><strong>CT</strong> - the field is a top-level container</li>
+ <li><strong>T</strong> - the field is a terminal one</li>
+ <li><strong>TR</strong> - the field is a required terminal one</li>
+</ul>
+</p>
+
+<h2>Source code documentation</h2>
+
+<table width="100%" border="2"><a name="container_file"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>file</td>
+
+  <!- Description -->
+  <td>Briefly documents the source file</td>
+
+  <!- Value -->
+  <td>
+    file name (e.g. <em>http.pike</em>) in the first line and a file purpose description in the following lines. Each
+    description line must start with at least one whitespace character (space, tab)
+  </td>
+ 
+  <!- Type -->
+  <td>CT</td>
+
+  <!- Contains -->
+  <td>
+     <ul>
+       <li><a href="#field_cvs_version">cvs_version</a></li>
+       <li><a href="#container_method">method</a></li>
+       <li><a href="#container_globvar">globvar</a></li>
+       <li><a href="#container_class">class</a></li>
+   </td>
+</tr>
+
+<tr><a name="field_cvs_version"></a>
+  <!- Field -->
+  <td>cvs_version</td>
+
+  <!- Description -->
+  <td>the CVS version of the file</td>
+
+  <!- Value -->
+  <td>The <em>$Id$</em> string in most cases - replaced with the actual version by the CVS system</td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_method"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>method</td>
+
+  <!- Description -->
+  <td>Full description of a pike method</td>
+
+  <!- Value -->
+  <td>
+    valid Pike method declaration in the first line, method description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)    
+  </td>
+ 
+  <!- Type -->
+  <td>CT</td>
+
+  <!- Contains -->
+  <td>
+    <ul>
+     <li><a href="#field_name">name</a></li>
+     <li><a href="#field_scope">scope</a></li>
+     <li><a href="#field_arg">arg</a></li>
+     <li><a href="#field_returns">returns</a></li>
+     <li><a href="#field_see_also">see also</a></li>
+     <li><a href="#field_note">note</a></li>
+     <li><a href="#field_example">example</a></li>
+     <li><a href="#field_fixme">fixme</a></li>
+    </ul>
+  </td>
+</tr>
+
+<tr><a name="field_name"></a>
+  <!- Field -->
+  <td>name</td>
+
+  <!- Description -->
+  <td>
+     method name followed by a short description. This field is used for generation of the "see also" links as well as the table of
+     contents and indices. It contains only one line of text strictly in the format described in the Value column.
+   </td>
+
+  <!- Value -->
+  <td>
+     <em>method_name</em> - <em>short description</em>
+  </td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_scope"></a>
+  <!- Field -->
+  <td>scope</td>
+
+  <!- Description -->
+  <td>defines the visibility scope of the method</td>
+
+  <!- Value -->
+  <td>
+      <strong>public</strong> | private
+    </ul>
+  </td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_arg"></a>
+  <!- Field -->
+  <td>arg</td>
+
+  <!- Description -->
+  <td>method argument description. This field must appear once for every method argument.</td>
+
+  <!- Value -->
+  <td>
+    valid Pike argument declaration (type name) in the first line followed by the description lines. Each
+    description line must start with at least one whitespace (space, tab).
+  </td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_returns"></a>
+  <!- Field -->
+  <td>returns</td>
+
+  <!- Description -->
+  <td>description of the method return value. If omitted, the method is assumed to return <strong>void</strong></td>
+
+  <!- Value -->
+  <td>
+    valid Pike type declaration in the first line followed by the description lines. Each
+    description line must start with at least one whitespace (space, tab).
+  </td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_see_also"></a>
+  <!- Field -->
+  <td>see also</td>
+
+  <!- Description -->
+  <!- FIXME: describe HOW to specify the links -->
+  <td>
+     any directions and comments on further documentation related to this method but found elsewhere. Can contain embedded
+     links to other methods/files/classes/variables/modules.
+  </td>
+
+  <!- Value -->
+  <td>
+    free text with embedded links. Each line except for the one immediately following the colon must start with at least
+    one whitespace (space, tab)
+  </td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_note"></a>
+  <!- Field -->
+  <td>note</td>
+
+  <!- Description -->
+  <td>additional notes about the method</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_example"></a>
+  <!- Field -->
+  <td>example</td>
+
+  <!- Description -->
+  <td>a commented example of the function usage</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_fixme"></a>
+  <!- Field -->
+  <td>fixme</td>
+
+  <!- Description -->
+  <td>notes about known bugs/errors/limitations of the method that are planned to be fixed by the maintainer</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_globvar"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>globvar</td>
+
+  <!- Description -->
+  <td>Full description of a pike variable</td>
+
+  <!- Value -->
+  <td>
+    valid Pike variable declaration in the first line, variable description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)    
+  </td>
+ 
+  <!- Type -->
+  <td>C</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_class"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>class</td>
+
+  <!- Description -->
+  <td>Full description of a pike class</td>
+
+  <!- Value -->
+  <td>
+    valid Pike class name in the first line, class description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)    
+  </td>
+ 
+  <!- Type -->
+  <td>C</td>
+
+  <!- Contains -->
+  <td>
+    <ul>
+     <li><a href="#field_scope">scope</a></li>
+     <li><a href="#container_method">method</a></li>
+     <li><a href="#container_globvar">globvar</a></li>
+     <li><a href="#field_see_also">see also</a></li>
+     <li><a href="#field_note">note</a></li>
+     <li><a href="#field_example">example</a></li>
+     <li><a href="#field_fixme">fixme</a></li>
+    </ul>
+  </td>
+</tr>
+</table>
+
+<h2>Module interface documentation</h2>
+
+<table width="100%" border="2"><a name="container_module"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>module</td>
+
+  <!- Description -->
+  <td>Briefly documents the Caudium module. Unlike the file container, module has to be described in one comment block.</td>
+
+  <!- Value -->
+  <td>module name as seen in the configuration interface</td>
+ 
+  <!- Type -->
+  <td>CT</td>
+
+  <!- Contains -->
+  <td>
+     <ul>
+       <li><a href="#field_cvs_version">cvs_version</a></li>
+       <li><a href="#field_type">type</a></li>
+       <li><a href="#field_provides">provides</a></li>
+       <li><a href="#container_variable">variable</a></li>
+       <li><a href="#container_tag">tag</a></li>
+       <li><a href="#container_method">method</a></li>
+   </td>
+</tr>
+
+<tr><a name="field_type"></a>
+  <!- Field -->
+  <td>type</td>
+
+  <!- Description -->
+  <td>Caudium module type</td>
+
+  <!- Value -->
+  <td>One or more of the Caudium module type constants</td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_provides"></a>
+  <!- Field -->
+  <td>provides</td>
+
+  <!- Description -->
+  <td>If the module is a provider, a description of what it provides</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_variable"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>variable</td>
+
+  <!- Description -->
+  <td>describes a variable exported by the module</td>
+
+  <!- Value -->
+  <td>
+    variable name in the first line, variable description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)
+  </td>
+ 
+  <!- Type -->
+  <td>C</td>
+
+  <!- Contains -->
+  <td>
+     <ul>
+      <li><a href="#field_var_type">type</a></li>
+      <li><a href="#field_default">default</a></li>
+     </ul>
+   </td>
+</tr>
+
+<tr><a name="field_var_type"></a>
+  <!- Field -->
+  <td>type</td>
+
+  <!- Description -->
+  <td>variable type</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_default"></a>
+  <!- Field -->
+  <td>default</td>
+
+  <!- Description -->
+  <td>default value of the variable</td>
+
+  <!- Value -->
+  <td>free text. One line only.</td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_tag"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>tag</td>
+
+  <!- Description -->
+  <td>describes a tag defined by the module</td>
+
+  <!- Value -->
+  <td>
+    tag name in the first line, tag description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)
+  </td>
+ 
+  <!- Type -->
+  <td>C</td>
+
+  <!- Contains -->
+  <td>
+     <ul>
+      <li><a href="#field_tag_example">example</a></li>
+      <li><a href="#container_tag_attribute">attribute</a></li>
+      <li><a href="#field_tag_returns">returns</a></li>
+      <li><a href="#field_tag_see_also">see also</a></li>
+      <li><a href="#field_tag_note">note</a></li>
+     </ul>
+   </td>
+</tr>
+
+<tr><a name="field_tag_example"></a>
+  <!- Field -->
+  <td>example</td>
+
+  <!- Description -->
+  <td>tag usage example demonstrating all attributes</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_tag_returns"></a>
+  <!- Field -->
+  <td>returns</td>
+
+  <!- Description -->
+  <td>return value of the tag with possible side effects</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>TR</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_tag_see_also"></a>
+  <!- Field -->
+  <td>see also</td>
+
+  <!- Description -->
+  <td>related tags and information</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+
+<tr><a name="field_tag_note"></a>
+  <!- Field -->
+  <td>note</td>
+
+  <!- Description -->
+  <td>additional notes and comments on the tag and its usage</td>
+
+  <!- Value -->
+  <td>free text. Each line except for the one immediately following the colon must start with at least one whitespace (space, tab)</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<br />
+
+<table width="100%" border="2"><a name="container_tag_attribute"></a>
+<tr>
+<th>Field</th><th>Description</th><th>Value</th><th>Type</th><th>Contains</th>
+</tr>
+
+<tr>
+  <!- Field -->
+  <td>attribute</td>
+
+  <!- Description -->
+  <td>describes a tag attribute</td>
+
+  <!- Value -->
+  <td>
+    attribute name in the first line, attribute description in the following lines. Each description
+    line must start with at least one whitespace (space, tab)
+  </td>
+ 
+  <!- Type -->
+  <td>C</td>
+
+  <!- Contains -->
+  <td>
+     <ul>
+      <li><a href="#field_attribute_default">default</a></li>
+    </ul>
+   </td>
+</tr>
+
+<tr><a name="field_attribute_default"></a>
+  <!- Field -->
+  <td>default</td>
+
+  <!- Description -->
+  <td>default value of the attribute</td>
+
+  <!- Value -->
+  <td>free text. One line only</td>
+ 
+  <!- Type -->
+  <td>T</td>
+
+  <!- Contains -->
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<p>
+<font size="-1">Copyright &copy; 2000 The Caudium Group</font>
+</p>
+
+<blockquote>
+<font size="-2">$Id$</font>
+</blockquote>
+</body>
+</html>
