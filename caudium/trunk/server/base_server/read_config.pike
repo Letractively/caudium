@@ -293,7 +293,8 @@ void store( string reg, mapping vars, int q, object current_configuration )
   read_it(cl);
   
   if (q) {
-    configs[cl][reg] = copy_value(vars);
+    mapping m = copy_value(vars);
+    configs[cl]->store_region(reg, m);
   } else {
     mixed var;
     
