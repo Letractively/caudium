@@ -12,7 +12,7 @@ force:
 
 verify: modules
 	@echo Verifying modules....
-	@(cd Caudium && $(MAKE) $(MAKE_FLAGS) verify)
+	@(cd _Caudium && $(MAKE) $(MAKE_FLAGS) verify)
 
 $(MODULES): force
 	  @echo Making $@; \
