@@ -115,12 +115,12 @@ static INLINE void free_input(input *inp) {
   DERR(fprintf(stderr, "Freeing input 0x%x\n", (unsigned int)inp));
   ninputs--;
   switch(inp->type) {
-   case NBIO_STR: 
+  case NBIO_STR: 
     free_string(inp->u.data);
     nstrings--;
     break;
 #ifdef USE_MMAP
-   case NBIO_MMAP:
+  case NBIO_MMAP:
     if(inp->u.mmap_storage->data != MAP_FAILED) {
       munmap(inp->u.mmap_storage->data, inp->u.mmap_storage->m_len);
       mmapped -= inp->u.mmap_storage->m_len;
@@ -129,12 +129,15 @@ static INLINE void free_input(input *inp) {
     free(inp->u.mmap_storage);
     break;
 #endif
-   case NBIO_OBJ:
+  case NBIO_OBJ:
+    push_int(0);    push_int(0);    push_int(0);
+    apply_low(inp->u.file, inp->set_nb_off, 3);
+    pop_stack();
     apply_low(inp->u.file, inp->set_b_off, 0);
     pop_stack();
     /* FALL THROUGH */
     
-   case NBIO_BLOCK_OBJ:
+  case NBIO_BLOCK_OBJ:
     free_object(inp->u.file);
     nobjects--;
     break;
@@ -322,14 +325,14 @@ static void free_nb_struct(struct object *obj) {
 static void f_input(INT32 args) {
   NBIO_INT_T len = -1;
   switch(args) {
-   case 2:
+  case 2:
     if(ARG(2).type != T_INT) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 2, "integer");
     } else {
       len = ARG(2).u.integer;
     }
     /* FALL THROUGH */
-   case 1:
+  case 1:
     if(ARG(1).type != T_OBJECT) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 1, "object");
     } else {
@@ -338,7 +341,7 @@ static void f_input(INT32 args) {
     }
     break;
     
-   case 0:
+  case 0:
     SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->input", 1);
     break;
   }
@@ -420,6 +423,9 @@ static void finished(void)
   }
 
   if(THIS->outp != NULL) {
+    push_int(0);    push_int(0);    push_int(0);
+    apply_low(THIS->outp->file, THIS->outp->set_nb_off, 3);
+    pop_stack();
     apply_low(THIS->outp->file, THIS->outp->set_b_off, 0);
     pop_stack();
     free_output(THIS->outp);
@@ -503,19 +509,19 @@ static INLINE int read_data(void)
     pop_stack();
   }
   switch(to_read) {
-   case 0: /* EOF */
+  case 0: /* EOF */
     free_input(inp);
     DERR(fprintf(stderr, "read zero blocking bytes == EOF\n"));
     break;
 
-   case -1:
+  case -1:
     if(errno != EAGAIN) {
       /* Got an error. Free input and continue */
       free_input(inp); 
     }
-   goto redo;
+    goto redo;
 
-   default:
+  default:
     inp->pos += to_read;
     if(inp->pos == inp->len)
       free_input(inp);
@@ -548,16 +554,13 @@ static INLINE int do_write(char *buf, int buf_len) {
     DERR(fprintf(stderr, "write returned -1 (errno %d)\n", errno));
     switch(errno)
     {      
-     default:
+    default:
       DERR(perror("Error while writing"));
       finished();
       return -1; /* -1 == write failed and that's it */
-
-     case EINTR: /* interrupted by signal - try again */
+    case EINTR: /* interrupted by signal - try again */
       goto write_retry;
-      
-
-     case EWOULDBLOCK:
+    case EWOULDBLOCK:
       return 0; /* Treat this as if we wrote no data */      
     }
   } else {
@@ -594,13 +597,13 @@ static void f__output_write_cb(INT32 args)
     DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
     written = do_write(THIS->buf + THIS->buf_pos, THIS->buf_len);
     switch(written) {
-     case -1: /* We're done here. The write failed. Goodbye. */
-     case 0:  /* Done, but because the write would block or
-	       * nothing was written. I.e try again later.
-	       */
+    case -1: /* We're done here. The write failed. Goodbye. */
+    case 0:  /* Done, but because the write would block or
+	      * nothing was written. I.e try again later.
+	      */
       return; 
 
-     default:
+    default:
       /* Write succeeded */
       THIS->buf_len -= written;
       THIS->buf_pos += written;
@@ -621,10 +624,10 @@ static void f__output_write_cb(INT32 args)
     return;
   }
   switch(inp->type) {
-   case NBIO_OBJ: /* non-blocking input - if no data available,
-		   * just return. once data is available, write_cb will
-		   * be called. 
-		   */
+  case NBIO_OBJ: /* non-blocking input - if no data available,
+		  * just return. once data is available, write_cb will
+		  * be called. 
+		  */
     if(written <= 0) {
       /* We didn't write anything previously */
       THIS->outp->mode = IDLE;
@@ -640,7 +643,7 @@ static void f__output_write_cb(INT32 args)
     }
     return;
     
-   case NBIO_STR: 
+  case NBIO_STR: 
     buf = inp->u.data->str + inp->pos;
     len = inp->len - inp->pos;
     DERR(fprintf(stderr, "Sending string data (%ld bytes left)\n", (long)len));
@@ -654,7 +657,7 @@ static void f__output_write_cb(INT32 args)
     break;
 
 #ifdef USE_MMAP
-   case NBIO_MMAP:
+  case NBIO_MMAP:
     len = inp->u.mmap_storage->m_end - inp->pos;
     if(!len) {
       /* need to mmap more data. No need to check if there's more to allocate
@@ -696,28 +699,28 @@ static void f__output_write_cb(INT32 args)
 #endif
     break;
     
-   case NBIO_BLOCK_OBJ: {
-     int read;
-     read = read_data(); /* At this point we have no data, so read some */
-     switch(read) {
-      case  -1:
-       /* We are done. No more inputs */
-       finished();
-       return;
-      case -2: /* Invalid input for read_data == redo this function */
-      case -3: /* We read from a fake object and got a string == redo */
-       f__output_write_cb(0);
-       return;
-     }
-     len = THIS->buf_len;
-     buf = THIS->buf;
-     DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
-     written = do_write(buf, len);
-     if(written > 0) {
-       THIS->buf_len -= written;
-       THIS->buf_pos += written;
-     }
-   }
+  case NBIO_BLOCK_OBJ: {
+    int read;
+    read = read_data(); /* At this point we have no data, so read some */
+    switch(read) {
+    case  -1:
+      /* We are done. No more inputs */
+      finished();
+      return;
+    case -2: /* Invalid input for read_data == redo this function */
+    case -3: /* We read from a fake object and got a string == redo */
+      f__output_write_cb(0);
+      return;
+    }
+    len = THIS->buf_len;
+    buf = THIS->buf;
+    DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
+    written = do_write(buf, len);
+    if(written > 0) {
+      THIS->buf_len -= written;
+      THIS->buf_pos += written;
+    }
+  }
   }   
   if(written < 0) {
     return;
@@ -790,15 +793,15 @@ static void f__input_read_cb(INT32 args)
 static void f_set_done_callback(INT32 args)
 {
   switch(args) {
-   case 2:
+  case 2:
     assign_svalue(&(THIS->args), &ARG(2)); 
 
-   case 1:
+  case 1:
     if (Pike_sp[-args].type != T_FUNCTION)
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->set_done_callback", 1, "function");
     assign_svalue(&(THIS->cb), &Pike_sp[-args]);
     break;
-   case 0:
+  case 0:
     free_svalue(&THIS->cb);
     free_svalue(&THIS->args);
     THIS->cb.type=T_INT;
@@ -806,7 +809,7 @@ static void f_set_done_callback(INT32 args)
     THIS->args.u.integer = 0;
     return;
     
-   default:
+  default:
     Pike_error("Caudium.nbio()->set_done_callback: Too many arguments.\n");
     break;
   }
