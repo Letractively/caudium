@@ -58,7 +58,7 @@ void create()
  defvar("mailport",25,"SMTP port",TYPE_INT,
         "The SMTP port to use when using SMTP protocol",0,use_smtp);
 
- defvar("defaultrecepient","nobody@nobody.com","Default Recipient", TYPE_STRING,
+ defvar("defaultrecipient","nobody@nobody.com","Default Recipient", TYPE_STRING,
         "The default recepient email address, if the user doesn't specify a recipient.",0,use_smtp);
  
  defvar("defaultsender","nobody@nobody.com","Default Sender", TYPE_STRING,
@@ -235,7 +235,7 @@ request_id->misc->mailitattachments;
 	      toa = ({ request_id->misc->mailithdrs->to || query("defaultrecipient") });
 	   
 Protocols.SMTP.client(query("mailserver"),query("mailport"))->send_message(request_id->misc->mailithdrs->from
-|| query("defaultsender"), ({"grendel@vip.net.pl"}), (string)mpmsg);
+|| query("defaultsender"), toa, (string)mpmsg);
         }
         else
         {
