@@ -1268,8 +1268,6 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
-  cache_manager = get_cache_manager();
-  //cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576, QUERY(cache_vigilance), QUERY(cache_fs_path), QUERY(cache_default_ttl), QUERY(cache_default_halflife) );
 }
 
 void create()
