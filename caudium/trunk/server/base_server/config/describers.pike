@@ -23,8 +23,6 @@
  */
 
 //! Describer for Caudium CIF
-//! @todo
-//!   Docs ?
 
 #include <module.h>
 int zonk=time();
