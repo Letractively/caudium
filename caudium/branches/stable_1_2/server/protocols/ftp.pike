@@ -1083,6 +1083,10 @@ class TelnetSession {
 
   static private mapping(string:function) default_cb = ([
     "BRK":lambda() {
+            if(fd) {
+               fd->close();
+               fd = 0;
+            }
             destruct();
             throw(0);
           },
@@ -1720,12 +1724,15 @@ class FTPSession
           }
           break;
         case 401:
-        case 403:
           send(530, ({ sprintf("'%s': %s: Access denied.",
                                cmd, f) }));
           break;
+        case 403:
+          send(451, ({ sprintf("'%s': %s: Access denied.",
+                               cmd, f) }));
+          break;
         case 405:
-          send(530, ({ sprintf("'%s': %s: Method not allowed.",
+          send(550, ({ sprintf("'%s': %s: Method not allowed.",
                                cmd, f) }));
           break;
         case 413: // request entity too large
@@ -2799,7 +2806,7 @@ class FTPSession
     }
     array(string) segments = args/delimiter;
 
-    if (sizeof(args) != 4) {
+    if (sizeof(args) != 5) {
       send(501, ({ "I don't understand your parameters." }));
       return;
     }
