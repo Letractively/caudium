@@ -1079,7 +1079,7 @@ void send_result(mapping|void result)
 
     if(!file->len)
     {
-      array fstat;
+      mixed fstat;
       if(objectp(file->file))
         if(!file->stat && !(file->stat=misc->stat))
           file->stat = (array(int))file->file->stat();
@@ -1267,7 +1267,7 @@ void send_result(mapping|void result)
       string data = head_string +
         (file->file?file->file->read(file->len):
         (file->data[..file->len-1]));
-      conf->cache_manager->get_cache()->store(
+      caudium->cache_manager->get_cache()->store(
         cache_pike(
 	  ({
 	    data,
@@ -1277,7 +1277,7 @@ void send_result(mapping|void result)
 	      "error" : error
 	    ])
 	  }),
-	  sprintf("http2|%s", raw_url)
+	  sprintf("http2|%s", raw_url),
 	  misc->cacheable
 	)
       );
@@ -1447,7 +1447,7 @@ void got_data(mixed fdid, string s)
     conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
     array cv;
-    if( misc->cacheable && (cv = conf->cache_manager->get_cache()->retrieve(sprintf("http2:%s", raw_url))) )
+    if( misc->cacheable && (cv = caudium->cache_manager->get_cache()->retrieve(sprintf("http2:%s", raw_url))) )
     {
       MARK_FD("http2 cached reply");
 
