@@ -197,7 +197,11 @@ string tag_tablify( string tag, mapping m, string q, object request_id,
   if(m->nice)
   {
     rows = Array.map(rows,lambda(string r, string s){return r/s;}, sep);
-    return html_table(title, rows, m + arg_list);
+    string res = html_table(title, rows, m + arg_list);
+    if(m->wrap)
+      return replace(res, ({ "<td nowrap", "<th nowrap" }),
+		     ({ "<td", "<th"}));
+    return res;
   }
 
   if(m->nicer)
