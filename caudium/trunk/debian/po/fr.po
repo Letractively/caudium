@@ -89,7 +89,7 @@ msgstr ""
 " - once - exécution au premier plan ;\n"
 " - profile - garder les informations de profilage ;\n"
 " - fd-debug - renseigner sur l'utilisation des descripteurs de fichier ;\n"
-" - keep-alive - garder les connection ouvertes avec le protocole HTTP/1.1."
+" - keep-alive - garder les connexions ouvertes avec le protocole HTTP/1.1."
 
 #. Type: boolean
 #. Description
