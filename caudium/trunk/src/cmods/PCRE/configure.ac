@@ -4,7 +4,7 @@ AC_CONFIG_HEADER(pcre_config.h)
 CAUDIUM_MODULE_INIT([PCRE])
 
 AH_BOTTOM([
-#include "pcrelib/pcre.h"
+#include <pcre.h>
 #define THIS ((PCRE_Regexp *)Pike_fp->current_storage)
 
 typedef struct
@@ -24,15 +24,14 @@ static void free_regexp(struct object *);
 
 AC_CHECK_HEADERS(  locale.h)
 AC_CHECK_FUNCS( setlocale )
-AC_CONFIG_SUBDIRS(pcrelib)
+dnl AC_CONFIG_SUBDIRS(pcrelib)
 
 # reset it just in case
 CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
 AC_SUBST(CAUDIUM_CPPFLAGS)
 export CAUDIUM_CPPFLAGS
 
-AC_SUBST(makefile_rules)
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
 
 dnl ## Local Variables:
 dnl ## tab-width: 4

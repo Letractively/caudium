@@ -5,3 +5,4 @@ configure
 Makefile
 pcre_config.h
 pcre_config.h.in
+Makefile.pre

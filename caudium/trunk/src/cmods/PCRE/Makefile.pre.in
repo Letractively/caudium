@@ -1,11 +1,11 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=PCRE
-OBJS= pcre.o pcrelib/libpcre.a
+OBJS= pcre.o
 SOURCES=pcre.c
 MODULE_LIBS=@LIBS@
 EXTRA_CLEAN=pcre_config.h pcre_config.h.in PCRE.so
 
-include @makefile_rules@
+@module_makefile@
 
 extrainstall:
 
