@@ -1179,11 +1179,7 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   out_len = in_len + (unsafe << 1) + 1;
 
-#ifdef HAVE_ALLOCA
-  out = alloca(out_len);
-#else
   out = malloc(out_len);
-#endif
   if (!out)
     Pike_error("Out of memory.");
 
@@ -1198,10 +1194,8 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   *o++ = 0;
 
-#ifndef HAVE_ALLOCA
   if (out)
     free(out);
-#endif
   
   return make_shared_string(out);
 }
