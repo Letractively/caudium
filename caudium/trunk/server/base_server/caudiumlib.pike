@@ -1381,7 +1381,7 @@ string get_modfullname (object module)
   else return 0;
 }
 
-//! Quote content in a multitude of ways. Used primarily bu do_output_tag
+//! Quote content in a multitude of ways. Used primarily by do_output_tag
 //!
 //! @param val
 //!  Value to encode.
