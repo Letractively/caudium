@@ -126,16 +126,6 @@ void add_mapping_int(mapping orig, mapping add)
 }
 
 
-void mkdirhier(string dir)
-{
-  string now="/";
-  foreach(dir / "/" - ({""}), string d)
-  {
-    now += d+"/";
-    mkdir(now);
-  }
-}
-
 string compress(string data)
 {
 #if constant(Gz.deflate)
