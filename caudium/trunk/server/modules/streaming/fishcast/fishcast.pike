@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
-constant version = "1.0rc3";
+constant version = "1.0rc4";
 constant thread_safe = 0; // maybe more like "constant will_kill_your_box_if_sneezed_at = 1;"
 constant module_type = MODULE_LOCATION|MODULE_PARSER|MODULE_EXPERIMENTAL;
 constant module_name = "Fishcast";
@@ -57,6 +57,8 @@ void create() {
     defvar( "sessiontimeout", 0, "Clients: Maximum Session Length", TYPE_INT, "Target client session length (in seconds). This option disconnects a client from a stream at the end of a track, once they have been on longer than this. If you have very long tracks it's not worth setting this at all." );
     defvar( "pauseplayback", 1, "Clients: Pause Playback", TYPE_FLAG, "Pause the &quot;playback&quot; of streams when there are no clients listening to them", ({ "Yes", "No" }) );
     defvar( "titlestreaming", 0, "Clients: Title Streaming", TYPE_FLAG, "Enable streaming of track titles to clients, this is known to cause issues with some MP3 players", ({ "Enabled", "Disabled" }) );
+    defvar( "allowtrackskip", 1, "Clients: Enable Track Skipping", TYPE_FLAG, "Enable track skip from clients", ({ "Enabled", "Disabled" }) );
+    defvar( "allowtrackrepeat", 0, "Clients: Enable Track Repeat", TYPE_FLAG, "Enable track repeat from clients", ({ "Enabled", "Disabled" }) );
     defvar( "promos_enable", 0, "Promo's: Enable Promo's", TYPE_FLAG, "Enable Promo Streaming", ({ "Yes", "No" }) );
     defvar( "promos_freq", 10, "Promo's: Frequency", TYPE_INT, "Insert Promo into stream every how many tracks?", 0, promos_enable );
     defvar( "promos_shuffle", 0, "Promo's: Shuffle", TYPE_FLAG, "If selected then the Promo's will be randomly ordered, otherwise they will be ordered alphabetically", ({ "Yes", "No" }), promos_enable );
@@ -148,6 +150,19 @@ mixed find_file( string path, object id ) {
 	case "streams":
 	    int sid = (int)parts[ 1 ];
 	    if ( streams[ sid ] ) {
+		if ( sizeof( parts ) == 3 ) {
+		    switch( parts[ 2 ] ) {
+		    case "skip":
+			streams[ sid ]->skip_track();
+                        return http_string_answer( "Track Skipped" );
+			break;
+		    case "repeat":
+			streams[ sid ]->repeat_track( 1 );
+                        return http_string_answer( "Track Repeat Queued" );
+			break;
+		    }
+                    return http_string_answer( "Invalid Option" );
+		}
 		id->my_fd->set_blocking();
 		streams[ sid ]->register_client( id );
 		return http_pipe_in_progress();
@@ -170,7 +185,7 @@ mixed find_file( string path, object id ) {
 		    break;
 		case "m3u":
 		    return http_string_answer(
-					      replace( id->host + "/" + QUERY(location) + "/streams/" + (string)sid, "//", "/" ) + "\n",
+					      "http://" + replace( id->host + "/" + QUERY(location) + "/streams/" + (string)sid, "//", "/" ) + "\n",
 					      "audio/mpegurl"
 					     );
 		    break;
@@ -209,7 +224,7 @@ mixed find_dir( string path, object id ) {
 	    array tmp = indices( streams );
 	    int sid;
 	    foreach( tmp, sid ) {
-		retval += ({ (string)sid + ".pls" });
+		retval += ({ (string)sid + ".pls", (string)sid + ".m3u" });
 	    }
 	    return retval;
 	} else {
@@ -230,11 +245,89 @@ void|string real_file( string path, object id ) {
 }
 
 void|array stat_file( string path, object id ) {
-    return 0;
+    int time = time();
+    int size;
+    array parts = ( path / "/" ) - ({ "" });
+
+    switch( sizeof( parts ) ) {
+    case 1:
+	switch( parts[ 0 ] ) {
+	case "streams":
+	    size = -2;
+	    break;
+	case "playlists":
+	    size = -2;
+	    break;
+	case "incoming":
+	    size = -2;
+	    break;
+	}
+	break;
+    case 2:
+	int sid = (int)parts[ 1 ];
+	if ( ! streams[ sid ] ) return;
+	break;
+    }
+    return ({ 16877, size, time, time, time, 0, 0 });
 }
 
 mapping query_container_callers() {
-    return ([ "stream":_tags_stream ]);
+    return ([
+	     "stream":_tags_stream,
+	     "skip" : _tags_skip,
+	     "repeat" : _tags_repeat,
+	     "pls" : _tags_pls,
+	     "status" : status
+	    ]);
+}
+
+
+string _tags_skip( string tag, mapping args, string contents, object id ) {
+    if ( args->stream_id ) {
+	int sid = (int)args->stream_id;
+	if ( streams[ sid ] ) {
+	    return
+		"<a href='" +
+		fix_relative( sprintf( "/" + QUERY(location) + "/streams/%d/skip", vars->sid), id ) +
+                "'>" + contents + "</a>";
+	} else {
+            return "<b>stream_id doesn't match an active stream</b>";
+	}
+    }
+    return "<b>No stream_id provided</b>";
+}
+
+string _tags_repeat( string tag, mapping args, string contents, object id ) {
+    if ( args->stream_id ) {
+	int sid = (int)args->stream_id;
+	if ( streams[ sid ] ) {
+	    return
+		"<a href='" +
+		fix_relative( sprintf( "/" + QUERY(location) + "/streams/%d/repeat", vars->sid), id ) +
+                "'>" + contents + "</a>";
+	} else {
+            return "<b>stream_id doesn't match an active stream</b>";
+	}
+    }
+    return "<b>No stream_id provided</b>";
+}
+
+string _tags_pls( string tag, mapping args, string contents, object id ) {
+    if ( args->stream_id ) {
+	int sid = (int)args->stream_id;
+	if ( streams[ sid ] ) {
+	    string ext = ( args->m3u?"m3u":"pls" );
+	    string link = sprintf(
+				  "<a href='%s'>%s</a>",
+				  fix_relative( sprintf( "/" + QUERY(location) + "/playlists/%d.%s", vars->sid, ext ), id ),
+				  (contents?contents:"Listen to " + streams[ vars->sid ]->meta->name)
+				 );
+	    return link;
+	} else {
+            return "<b>stream_id doesn't match an active stream</b>";
+	}
+    }
+    return "<b>No stream_id provided</b>";
 }
 
 string _tags_stream( string tag, mapping args, string contents, object id ) {
@@ -243,11 +336,12 @@ string _tags_stream( string tag, mapping args, string contents, object id ) {
 	return #string "stream_help.html";
     }
     object meta = metadata();
-    parse_html( contents, ([ ]), ([ "playlist" : _tags_playlist ]) );
+    parse_html( contents, ([ ]), ([ "playlist" : __tags_playlist ]) );
     if ( sizeof( vars->playlist ) > 0 ) {
 	foreach( indices( streams ), int _sid ) {
 	    if ( streams[ _sid ]->meta->playlist - vars->playlist == ({ }) ) {
 		vars += ([ "sid" : _sid ]);
+                id->variables->stream_id = (string)_sid;
 	    }
 	}
 	if ( ! vars->sid ) {
@@ -264,6 +358,8 @@ string _tags_stream( string tag, mapping args, string contents, object id ) {
 	    meta->max_session = QUERY(sessiontimeout);
 	    meta->pause = QUERY(pauseplayback);
 	    meta->search = QUERY(search_mp3);
+	    meta->track_skip = QUERY(allowtrackskip);
+            meta->track_repeat = QUERY(allowtrackrepeat);
 	    if ( QUERY(promos_enable) ) {
 		meta->promos_enable = 1;
 		meta->promos_freq = QUERY(promos_freq);
@@ -274,28 +370,21 @@ string _tags_stream( string tag, mapping args, string contents, object id ) {
 	    object s = new_stream( meta );
 	    vars->sid = s->get_ID();
 	    streams += ([ s->get_ID() : s ]);
-            thread_create( s->start );
+	    // BIG HACK!!
+            id->variables->stream_id = (string)vars->sid;
 	}
 	if ( ! vars->sid ) {
 	    return "<b>ERROR</b>: Failed to create new stream!";
 	}
-	if ( args->action == "stream_id" ) {
-	    return (string)vars->sid;
-	} else {
-            // action=playlist??
-	    return
-		sprintf(
-			"<a href='%s'>%s</a>",
-			fix_relative( sprintf( "/" + QUERY(location) + "/playlists/%d.pls", vars->sid ), id ),
-			"Listen to " + streams[ vars->sid ]->meta->name
-		       );
+	if ( args->debug ) {
+	    return "Created Stream: " + (string)vars->sid;
 	}
     } else {
 	return "Whatcyou talkin' 'bout Willis?";
     }
 }
 
-string _tags_playlist( string tag, mapping args, string contents ) {
+string __tags_playlist( string tag, mapping args, string contents ) {
     vars +=
 	([ "playlist" : (contents / "\n") - ({ "" }) ]);
     if ( args->loop ) {
@@ -333,6 +422,8 @@ class metadata {
     int live_source = 0;
     int running;
     int bytes;
+    int track_skip;
+    int track_repeat;
     array playlist;
     mapping current_track =
 	([
@@ -538,6 +629,8 @@ class new_stream {
     int term;
     object fifo;
     int sending_to_clients;
+    int _skip_track;
+    int _repeat_track;
 
     // Used to convert kilobytes per second to to bytes per 10th of a second.
     float scale = 12.8;
@@ -556,6 +649,9 @@ class new_stream {
 
     void start() {
 	// I am the actual reader thread
+#ifdef DEBUG
+	perror( sprintf( "Starting reader stread for %s with PID: %d\n", meta->name, getpid() ) );
+#endif
 	meta->running = 1;
         meta->bytes = 0;
 	int _loop = 1;
@@ -657,23 +753,34 @@ class new_stream {
 	float elapsed;
 	while( eof == 0 ) {
 	    elapsed = (float)time( delay_loop );
+	    if ( _skip_track == 1 ) {
+                _skip_track = 0;
+		return 0;
+	    }
 	    buff = f->read( block );
 	    if ( buff == "" ) {
-		eof = 1;
-		break;
+		if ( _repeat_track > 0 ) {
+		    _repeat_track--;
+		    f->seek( 0 );
+		    buff = f->read( block );
+		} else {
+		    eof = 1;
+		    break;
+		}
 	    }
 	    meta->bytes += block;
             meta->current_track->file_read += block;
 	    // If there are no clients listening then you might as well
 	    // wait until there are some.
-	    while( ( sizeof( clients ) == 0 ) && ( meta->pause == 1 ) ) {
-		sleep( 0.1 );
-	    }
 	    if ( term == 1 ) {
 #ifdef DEBUG
 		perror( "Terminating thread.\n" );
 #endif
 		return -1;
+	    }
+
+	    while( ( sizeof( clients ) == 0 ) && ( meta->pause == 1 ) ) {
+		sleep( 0.1 );
 	    }
 	    if ( sizeof( clients ) > 0 ) {
 		fifo->write( ({ buff, title }) );
@@ -688,8 +795,11 @@ class new_stream {
     }
 
     void send_to_clients() {
-        sending_to_clients = 1;
-	while( term == 0 ) {
+	sending_to_clients = 1;
+#ifdef DEBUG
+        perror( sprintf( "Creating client thread PID %d for write callbacks\n", getpid() ) );
+#endif
+	while( ( term == 0 ) && ( sizeof( clients ) > 0 ) ) {
 	    // This is a really big issue!!
 	    // If it takes too long to send data to one of the clients
 	    // then this Thread.Fifo.read blocks the start() thread
@@ -698,17 +808,20 @@ class new_stream {
 	    // Also, do you think that making the Fifo buffer is the
             // solution, or just an ugly hack?
 	    array buff = fifo->read();
-	    if ( sizeof( clients ) > 0 ) {
-		foreach( write_callbacks, function write ) {
-		    catch( mixed c = write( buff[ 0 ], buff[ 1 ] ) );
-		    if ( ! intp( c ) ) {
-			unregister_client( c );
-		    }
+	    foreach( write_callbacks, function write ) {
+		catch( mixed c = write( buff[ 0 ], buff[ 1 ] ) );
+		if ( ! intp( c ) ) {
+		    unregister_client( c );
 		}
 	    }
 	}
 #ifdef DEBUG
-	perror( "Forced quit: closing sender thread!\n" );
+	if ( term == 1 ) {
+	    perror( "Forced quit: closing sender thread!\n" );
+	}
+	if ( sizeof( clients ) == 0 ) {
+	    perror( "No more clients for this stream, terminating\n" );
+	}
 #endif
 	sending_to_clients = 0;
     }
@@ -748,11 +861,16 @@ class new_stream {
             c->set_nonblocking();
 	    clients += ({ c });
 	    write_callbacks += ({ c->client_write });
+            mixed err;
 	    if ( sending_to_clients == 0 ) {
-                thread_create( send_to_clients );
+		if ( err = catch ( thread_create( send_to_clients ) ) ) {
+		    perror( sprintf( "Couldn't client create thread: %O", err ) );
+		}
 	    }
 	    if ( meta->running == 0 ) {
-		thread_create( start );
+		if ( err = catch ( thread_create( start ) ) ) {
+		    perror( sprintf( "Couldn't reader create thread: %O", err ) );
+		}
 	    }
 #ifdef DEBUG
 	    perror( "done.\n" );
@@ -804,6 +922,24 @@ class new_stream {
     int get_bitrate( object f ) {
 	object mh = mpeg( f );
         return mh->bitrate_of();
+    }
+
+    void skip_track() {
+	if ( meta->track_skip == 1 ) {
+#ifdef DEBUG
+	    perror( "Track Skip Queued\n" );
+#endif
+	    _skip_track = 1;
+	}
+    }
+
+    void repeat_track( void|int count ) {
+	if ( meta->track_repeat == 1 ) {
+#ifdef DEBUG
+	    perror( "Track Repeat Queued\n" );
+#endif
+	    _repeat_track = (count?count:_repeat_track + 1);
+	}
     }
 
 }
