@@ -1636,11 +1636,9 @@ void create(void|object f, void|object c)
 {
   if(f)
   {
-    f->set_nonblocking();
     my_fd = f;
     conf = c;
-    my_fd->set_close_callback(end);
-    my_fd->set_read_callback(got_data);
+    f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
