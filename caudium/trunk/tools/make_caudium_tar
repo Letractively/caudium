@@ -31,15 +31,15 @@ BUILDIR=${CHROOTDIR}/tmp
 SETUPCHROOT=/usr/local/sbin/setup_chroot
 DIRTMP=/tmp/$0.$$
 #
-# Creation dirs..
+# Creating Directories..
 #
 mkdirhier ${BUILDIR}
 
 #
-# Mise a jour du CVS
+# Update the CVS directory
 #
 cd ${CVSDIR}/caudium
-cvs -z3 update -Pd > /dev/null
+cvs -Q -z3 update -Pd > /dev/null
 
 #
 # Copy the files to a temporary repository
