@@ -20,7 +20,7 @@
  */
 
 #include <module.h>
-inherit "modules/scripting/cgi.pike";
+inherit "modules/scripting/fastcgi.pike";
 
 //! module: Universal script parser
 //!  This module provides extensions handling by misc script interpreters. 
@@ -283,7 +283,7 @@ class CGIScript
     environment |= global_env;
     environment |= Caudium.Env.build_vars( id->realfile, id, id->misc->path_info );
     if(QUERY(Enhancements))
-      environment |= Caudium.Env.build_caudium_env_vars(id);
+      environment |= Caudium.Env.build_caudium_vars(id);
     if(id->misc->ssi_env)
       environment |= id->misc->ssi_env;
     // I assume that all scripts are internal redirected.
@@ -338,7 +338,7 @@ void create(object conf)
   killvar("ls");
   killvar("ex");
   killvar("ext");
-  killvar("cgi_tag");
+//  killvar("fcgi_tag");
   killvar("noexec");
 
   defvar("interpreter", "/usr/bin/php3", "Interpreter path", TYPE_LOCATION, 
