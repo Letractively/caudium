@@ -997,7 +997,13 @@ private void memory_expire_old(int curtime)
         if (_memory_storage["_sessions_"][sid] && mappingp(_memory_storage["_sessions_"][sid])) {
           if (curtime - _memory_storage["_sessions_"][sid]->lastused > _memory_storage["_sessions_"][sid]->exptime) {
             if (_memory_storage["_sessions_"][sid]->exphook)
-              _memory_storage["_sessions_"][sid]->exphook(sid, _memory_storage["_sessions_"][sid]->exphook_args);
+            {
+              if(_memory_storage["_sessions_"][sid]->exphook_args
+                  && sizeof(_memory_storage["_sessions_"][sid]->exphook_args))
+                _memory_storage["_sessions_"][sid]->exphook(@_memory_storage["_sessions_"][sid]->exphook_args);
+              else
+                _memory_storage["_sessions_"][sid]->exphook();
+            }
             memory_delete_session(sid);
             continue;
           }
@@ -1050,11 +1056,10 @@ private void memory_set_expire_time(string sid, int timeval)
   _memory_storage["_sessions_"][sid]->exptime = timeval;
 }
 
-private void memory_set_expire_hook(string sid, function exphook, mixed ... fargs)
+private void memory_set_expire_hook(string sid, function exphook, mixed ...fargs)
 {  
   if (memory_validate_storage("session", sid, "memory_set_expire_hook") < 0)
     return;
-
   _memory_storage["_sessions_"][sid]->exphook = exphook;
   _memory_storage["_sessions_"][sid]->exphook_args = fargs;
 }
@@ -1211,7 +1216,7 @@ void set_expire_time(int timeval, string|object id)
   cur_storage->set_expire_time(sid, timeval);
 }
 
-void set_expire_hook(function exphook, string|object id)
+void set_expire_hook(function exphook, string|object id, mixed ...fargs)
 {
   if (!cur_storage || (objectp(id) && !id->misc->session_id))
     return;
@@ -1222,8 +1227,10 @@ void set_expire_hook(function exphook, string|object id)
     sid = id;
   else if (objectp(id))
     sid = id->misc->session_id;
-  
-  cur_storage->set_expire_hook(sid, exphook);
+  if(fargs && sizeof(fargs))
+    cur_storage->set_expire_hook(sid, exphook, @fargs);
+  else
+    cur_storage->set_expire_hook(sid, exphook);
 }
 
 // GET SESSIONS AREA
