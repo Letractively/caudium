@@ -528,10 +528,11 @@ object request(object context, mapping(string:array(string))|object id,
   check_exception();
   object pa = params_field->get(r);
   foreach(indices(id), string v) {
-    array(string) vals = id[v];
-    object sa = string_class->new_array(sizeof(vals));
-    foreach(indices(vals), int vi)
-      sa[vi] = vals[vi];
+//    array(string) vals = id[v]/"";
+    object sa = string_class->new_array(1);
+    sa[0]=id[v];
+//    foreach(indices(vals), int vi)
+//      sa[vi] = vals[vi];
     dic_put(pa, v, sa);
   }
   if(attrs) {
