@@ -288,8 +288,8 @@ private int do_post_processing()
     int l = wanted_data = misc->len;
     if(strlen(data) < misc->len) return 1;
     misc->cacheable = 0; /* No good caching posts */
-    leftovers = data[l+2..];
-    data = data[..l+1];
+    leftovers = data[l..];
+    data = data[..l-1];
     if(request_headers["content-type"]) {
       // handle post data
       switch((lower_case(request_headers["content-type"])/";")[0]-" ")
@@ -579,6 +579,8 @@ void end(string|void s, int|void keepit)
     object fd = my_fd;
     my_fd=0;
     if(s) leftovers += s;
+    while(sscanf(leftovers, "\r\n%s", lefovers))
+      ; // Remove beginning newlines..
     o->chain(fd,conf,leftovers);
     disconnect();
     return;
