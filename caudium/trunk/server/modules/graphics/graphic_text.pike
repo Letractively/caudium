@@ -829,6 +829,8 @@ string tag_gtext_url(string t, mapping arg, string ctn,
     arg->magicbg = fix_relative(arg->magicbg,id);
   if(arg->alpha) 
     arg->alpha = fix_relative(arg->alpha,id);
+  if(!arg->format)
+    arg->format = "gif";
 
   arg->text = ctn;
 
@@ -865,6 +867,8 @@ string tag_gtext_id(string t, mapping arg, object id, object foo,
     arg->magicbg = fix_relative(arg->magicbg,id);
   if(arg->alpha) 
     arg->alpha = fix_relative(arg->alpha,id);
+  if(!arg->format)
+    arg->format = "gif";
 
   //  arg->text = ctn;
 
@@ -900,7 +904,8 @@ string tag_graphicstext(string t, mapping arg, string contents,
     arg->magicbg = fix_relative(arg->magicbg,id);
   if(arg->alpha) 
     arg->alpha = fix_relative(arg->alpha,id);
-  
+  if(!arg->format)
+    arg->format = "gif";
 
   string gif="";
   if(query("gif")) gif="."+(arg->format?arg->format[..2]:"gif");
