@@ -281,9 +281,9 @@ mapping http_file_answer(object fd, string|void type, void|int len)
 }
 
 // FIXME: do we have to keep that ? - Xavier
-constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+private constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
-constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
+private constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
 //!   Make a configuration cookie. This is is not a function meant to
 //!   be used by the average user.
@@ -773,7 +773,7 @@ static string decode_mode(int m)
   return s;
 }
 
-constant MONTHS=(["Jan":0, "Feb":1, "Mar":2, "Apr":3, "May":4, "Jun":5,
+private constant MONTHS=(["Jan":0, "Feb":1, "Mar":2, "Apr":3, "May":4, "Jun":5,
                   "Jul":6, "Aug":7, "Sep":8, "Oct":9, "Nov":10, "Dec":11,
                   "jan":0, "feb":1, "mar":2, "apr":3, "may":4, "jun":5,
                   "jul":6, "aug":7, "sep":8, "oct":9, "nov":10, "dec":11,]);
@@ -947,7 +947,7 @@ static string parse_rxml(string what, object id,
   return what;
 }
 
-constant iso88591 = ([
+private constant iso88591 = ([
   "&nbsp;":   " ",
   "&iexcl;":  "¡",
   "&cent;":   "¢",
@@ -1046,7 +1046,7 @@ constant iso88591 = ([
   "&yuml;":   "ÿ",
 ]);
 
-constant international = ([
+private constant international = ([
   "&OElig;":  "\x0152",
   "&oelig;":  "\x0153",
   "&Scaron;": "\x0160",
@@ -1085,7 +1085,7 @@ constant international = ([
   "&Udblac;": "\x0170",
 ]);
 
-constant symbols = ([
+private constant symbols = ([
   "&fnof;":     "\x0192",
   "&thetasym;": "\x03D1",
   "&upsih;":    "\x03D2",
@@ -1163,7 +1163,7 @@ constant symbols = ([
   "&diams;":    "\x2666",
 ]);
 
-constant greek = ([
+private constant greek = ([
   "&Alpha;":   "\x391",
   "&Beta;":    "\x392",
   "&Gamma;":   "\x393",
@@ -1245,8 +1245,8 @@ string unicode_to_html( string str ) {
   return replace((string) str, replace_values, replace_entities );
 }
 
-constant safe_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"/"";
-constant empty_strings = ({
+private constant safe_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"/"";
+private constant empty_strings = ({
   "","","","","","","","","","","","","","","","","","","","","","","","","",
   "","","","","","","","","","","","","","","","","","","","","","","","","",
   "","","","","","","","","","","","",
