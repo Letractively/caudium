@@ -85,7 +85,7 @@ mozilla/[5-9].*		pnginline
 .*compatible.*msie.[2-9]	tablecolor, javascript
 .*compatible.*msie.[3-9]	activex, tableimages
 # MSIE3 stylesheets are broken
-.*compatible.*msie.[4-9]	stylesheets, javascript1.2
+.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer
 # }
 
 
