@@ -88,7 +88,9 @@ void create()
          "Name of the function that will handle the year change.");
   defvar("js_day", "disp_day", "JavaScript: Day change function", TYPE_STRING,
          "Name of the function that will handle the day change.");
-
+  defvar("js_week", "disp_week", "JavaScript: Week click function", TYPE_STRING,
+         "Name of the function that will handle the week click.");
+  
   defvar("wdc_width", "14", "Dimensions: Width of the calendar cells", TYPE_STRING,
          "Width of a single cell in the calendar grid. In percent.");
 }
@@ -242,6 +244,10 @@ static string make_ds_form(object id, mapping my_args, object now, object target
   input->value = id->variables->calday;
   fcontents += make_tag("input", input);
 
+  input->name = "calweek";
+  input->value = id->variables->calweek || "0";
+  fcontents += make_tag("input", input);
+  
   fcontents += make_tag("input", ds_changetype);
     
   tcontents += make_container("form", ds_form, fcontents) + "</td></tr>";
@@ -311,7 +317,8 @@ static string make_weekdays_row(object id, mapping my_args, object now, object t
   return make_container("tr", wd_row, rcontents);
 }
 
-string make_monthdays_grid(object id, mapping my_args, object now, object target, multiset active_days)
+string make_monthdays_grid(object id, mapping my_args, object now,
+                           object target, multiset active_days, multiset active_weeks)
 {
   mapping   md_row = ([]);
   mapping   md_cell = ([]);
@@ -322,7 +329,8 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
   mapping   md_error = ([]);
   string    rcontents, ccontents, ret;
   multiset  adays = active_days || (<>);    
-
+  multiset  aweeks = active_weeks || (<>);
+  
   if (!my_args->nocss) {
     md_row->class = my_args->md_rowclass || QUERY(md_rowclass);
     md_cell->class = my_args->md_cellclass || QUERY(md_cellclass);
@@ -424,9 +432,19 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
         rcontents += make_container("td", md_cell, ccontents);
     }
 
-    if (weeks && sizeof(weeks) && y <= sizeof(weeks))
-      rcontents += make_container("td", md_weekcell, sprintf("%02d", weeks[y - 1]->week_no()));
-                
+    if (weeks && sizeof(weeks) && y <= sizeof(weeks)) {
+      int weekno = weeks[y - 1]->week_no();
+      
+      if (!aweeks[weekno])
+        rcontents += make_container("td", md_weekcell, sprintf("%02d", weekno));
+      else {
+        md_text->onClick = sprintf("%s(%2d); return false;", QUERY(js_week), weekno);
+        md_text->onMouseOver = "window.status = ''; return true;";
+        ccontents = make_container("a", md_text, (string)weekno);
+        rcontents += make_container("td", md_weekcell, ccontents);
+      }
+    }
+    
     ret += make_container("tr", md_row, rcontents);
     rcontents = "";
   }
@@ -456,7 +474,7 @@ static int value_in_range(int val, array(mapping) range, int rel, void|int min, 
   if (!zero_type(max) && val > max)
     return 0;
   
-//  report_notice("value_in_range: val == %d, range:\n\t%O\n", val, range);
+  report_notice("value_in_range: val == %d, range:\n\t%O\n", val, range);
   
   int  checks_counter;
   
@@ -656,6 +674,27 @@ static multiset check_in_range(object date, mapping range, int maxdays)
   
   report_notice("match_ret: %O\n", ret);
   
+  return ret;
+}
+
+static multiset mark_active_weeks(object target, object id)
+{
+  if (!target || !objectp(target))
+    return (<>);    
+
+  if (!id->misc->_calendar->hotdates || !sizeof(id->misc->_calendar->hotdates))
+    return (<>);
+  
+  multiset      ret = (<>);
+  array(object) weeks = target->month()->weeks();
+  
+  foreach(id->misc->_calendar->hotdates, mapping range) {
+    if (range->weeks && sizeof(range->weeks))
+      foreach(weeks, object week)
+        if (value_in_range(week->week_no(), range->weeks, 0, 1, 52))
+          ret += (<week->week_no()>);
+  }
+
   return ret;
 }
 
@@ -899,6 +938,7 @@ static string hotdate_tag(string tag, mapping args, object id)
   array(mapping)   days;
   array(mapping)   months;
   array(mapping)   years;
+  array(mapping)   weeks;
   string           before, after;
 
   if (!id->misc->_calendar->hotdates)
@@ -917,12 +957,15 @@ static string hotdate_tag(string tag, mapping args, object id)
       months = parse_ranges(args->month);
     if (args->year)
       years = parse_ranges(args->year);
+    if (args->week)
+      weeks = parse_ranges(args->week);
 
     // construct a combined range
     mapping   range = ([
       "days" : days,
       "months" : months,
-      "years" : years
+      "years" : years,
+      "weeks" : weeks
     ]);
 
     if (after)
@@ -962,7 +1005,7 @@ string calendar_tag(string tag, mapping args, string cont,
   mapping    my_args;
   mapping    main_table = ([]);
   string     contents = "", tmp;
-  multiset   active_days;
+  multiset   active_days, active_weeks;
   mixed      error;
   
   if (!id->misc->_calendar)
@@ -1043,13 +1086,18 @@ string calendar_tag(string tag, mapping args, string cont,
   
   active_days = mark_active_days(target, id);
   report_notice("active_days: %O\n", active_days);
+
+  active_weeks = mark_active_weeks(target, id);
+  report_notice("active_weeks: %O\n", active_weeks);
   
   contents += make_monthyear_selector(id, my_args, now, target);
   contents += make_weekdays_row(id, my_args, now, target);
-  contents += make_monthdays_grid(id, my_args, now, target, active_days);
+  contents += make_monthdays_grid(id, my_args, now, target, active_days, active_weeks);
     
   return tmp +make_container("table", main_table, contents);
 }
+
+static multiset  changetypes = (<"day", "week">);
 
 string calendar_action_tag(string tag, mapping args, string cont,
                            object id, object f, mapping defines)
@@ -1057,31 +1105,34 @@ string calendar_action_tag(string tag, mapping args, string cont,
   mapping     myargs = args || ([]);
   int         doit = 0;
   array(int)  wanted = allocate(3), has = allocate(3);
-  string      wantedweek = 0;
   
   if (!id->variables->year || !id->variables->month || !id->variables->changetype)
     // not a submission from the calendar form
     return "";
 
-  if (!myargs->default && id->variables->changetype != "day")
-    return "";
-    
-  if (!myargs->default && !id->variables->calweek) {
-    wanted[0] = (int)(myargs->day || 0);
-    wanted[1] = (int)(myargs->month || 0);
-    wanted[2] = (int)(myargs->year || 0);
-    
-    has[0] = myargs->day ? (int)(id->variables->calday || 0) : 0;
-    has[1] = myargs->month ? (int)(id->variables->calmonth || 0) : 0;
-    has[2] = myargs->year ? (int)(id->variables->calyear || 0) : 0;
-  } else if (!myargs->default)
-    wantedweek = id->variables->calweek;
-
-  if (!myargs->default && myargs->wantedweek && myargs->wantedweek != wantedweek)
-    return "";
-  else if (!myargs->default && !wantedweek && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
+  if (!myargs->default && !changetypes[id->variables->changetype])
     return "";
 
+  if (id->variables->changetype == "week") {
+    if (!myargs->default && !myargs->week || !id->variables->calweek || ((int)id->variables->calweek <= 0 || (int)id->variables->calweek > 52))
+      return "";
+    else if (!myargs->default && myargs->week != id->variables->calweek)
+      return "";
+  } else {
+    if (!myargs->default) {
+      wanted[0] = (int)(myargs->day || 0);
+      wanted[1] = (int)(myargs->month || 0);
+      wanted[2] = (int)(myargs->year || 0);
+    
+      has[0] = myargs->day ? (int)(id->variables->calday || 0) : 0;
+      has[1] = myargs->month ? (int)(id->variables->calmonth || 0) : 0;
+      has[2] = myargs->year ? (int)(id->variables->calyear || 0) : 0;
+    }
+
+    if (!myargs->default && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
+      return "";
+  }
+  
   string ret = parse_rxml(cont, id);
 
   return ret;
@@ -1131,6 +1182,7 @@ function disp_month()
       document.@calendarform@.calyear.value = myyear;
       document.@calendarform@.calmonth.value = mymonth;
       document.@calendarform@.calday.value = myday;
+      document.@calendarform@.calweek.value = '0';
       document.@calendarform@.changetype.value = \"month\";
 
       document.@calendarform@.submit();
@@ -1145,6 +1197,7 @@ function disp_year()
       document.@calendarform@.calyear.value = myyear;
       document.@calendarform@.calmonth.value = mymonth;
       document.@calendarform@.calday.value = myday;
+      document.@calendarform@.calweek.value = '0';
       document.@calendarform@.changetype.value = \"year\";
 
       document.@calendarform@.submit();
@@ -1158,7 +1211,21 @@ function disp_day(daynum)
       document.@calendarform@.calyear.value = myyear;
       document.@calendarform@.calmonth.value = mymonth;
       document.@calendarform@.calday.value = daynum;
+      document.@calendarform@.calweek.value = '0';
       document.@calendarform@.changetype.value = \"day\";
+
+      document.@calendarform@.submit();
+}
+
+function disp_week(weeknum)
+{
+      var mymonth=document.@calendarform@.month.options[document.@calendarform@.month.selectedIndex].value;
+      var myyear=document.@calendarform@.year.options[document.@calendarform@.year.selectedIndex].value;
+
+      document.@calendarform@.calyear.value = myyear;
+      document.@calendarform@.calmonth.value = mymonth;
+      document.@calendarform@.calweek.value = weeknum;
+      document.@calendarform@.changetype.value = \"week\";
 
       document.@calendarform@.submit();
 }
