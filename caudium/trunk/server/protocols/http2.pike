@@ -1126,7 +1126,7 @@ void send_result(mapping|void result)
     if(!file->error) 
       file->error = 200;
     
-    if(file->expires)
+    if(!zero_type(file->expires))
       heads->Expires = http_date(file->expires);
     
     if(mappingp(file->extra_heads)) {
