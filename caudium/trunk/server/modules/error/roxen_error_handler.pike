@@ -137,7 +137,7 @@ mapping|int handle_error(object id, void|mapping extra_heads)
   {
     if(QUERY(debug))
       report_debug("Error code is : "+error_code);
-    if(error_code = 401) 
+    if(error_code == 401) 
       error_text=QUERY(401msg); 
     if(mappingp(extra_heads))
       return Caudium.HTTP.low_answer(error_code, error_text) +
