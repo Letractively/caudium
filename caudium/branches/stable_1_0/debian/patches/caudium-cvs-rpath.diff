@@ -1,12 +1,12 @@
 diff -U3 -r caudium-1.0.35.orig/configure.in caudium-1.0.35/configure.in
---- caudium-1.0.35.orig/configure.in	Tue Apr 24 16:09:37 2001
-+++ caudium-1.0.35/configure.in	Tue Feb 20 12:18:11 2001
+--- caudium-1.0.35/configure.in	Tue Apr 24 16:09:37 2001
++++ caudium-1.0.35.orig/configure.in	Tue Feb 20 12:18:11 2001
 @@ -208,7 +208,7 @@
      fi
      ;;
    Linux\ 2.*)
--    #AC_DEFINE(USE_Wl)
-+    AC_DEFINE(USE_Wl)
+-    AC_DEFINE(USE_Wl)
++    #AC_DEFINE(USE_Wl)
      ;;
    UnixWare\ 7.*)
      if test "$ac_cv_prog_gcc" = "yes"; then
