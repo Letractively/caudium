@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix a backtrace in Config-Action openports when there is no lsof located 
+  on the hosted machine.
+   (Xavier Beaudouin)
 - Fixed loading of Crypto related Configuration Actions in CIF.
    (Xavier Beaudouin)
 - Fixed a segfault in Caudium C module when some HTTP queries doesn't have 
