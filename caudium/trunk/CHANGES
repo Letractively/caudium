@@ -1,5 +1,9 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Modified Servlet module so that Jasper can run on its own. 
+   (Bill Welliver)
+- Web Applications work again, including Jasper JSP 
+   (Bill Welliver)
 - Added Caudium.Crypto_Randomnesis API. This should help developpers
   that still use Crypto.randomness to get random data to be still 
   compatible without changing too mutch their code.
