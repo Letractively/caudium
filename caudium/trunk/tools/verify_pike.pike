@@ -172,7 +172,8 @@ int main(int argc, array argv)
 #endif
 #if !constant(Gdbm.gdbm)
   warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
-	  "for storing log summaries.");
+	  "for storing log summaries. You can still use UltraLog with the File and\n"
+	  " Filetree backends however.");
 #endif
   endreport();
 }
