@@ -142,7 +142,6 @@ int authenticate(string user, string password)
    if(data["__authdata"] && 
         (data["__authdata"] == Caudium.Crypto.hash_md5(user+"|"+password, 1))
         )
-     )
      {
        succ++;
        return 1;  // password matches previous cached success.
