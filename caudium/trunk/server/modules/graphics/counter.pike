@@ -19,165 +19,21 @@
  *
  */
 
+//
+//! module: Graphical Counter
+//!  This module provides you with the ability to put a graphics access
+//!  counter on your page.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER
+//! cvs_version: $Id$
+//
+
 // $Id$
 // 
 // Roxen Graphic Counter Module	by Jordi Murgo <jordi@lleida.net>
 // Modifications  1 OCT 1997 by Bill Welliver <hww3@riverweb.com>
 // Optimizations 22 FEB 1998 by David Hedbor <david@hedbor.org>
-//
-// -----------------------------------------------------------------------
-//
-//  This program is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 2 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
-// -----------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.10  2000/10/24 00:15:50  neotron
-// s/defvar/globvar/ for globvars - no need to separate them. Also changed syntax
-// in the output (yeps, lots of changes). Defvars are now also parsed and
-// written by the doc generator.
-//
-// Revision 1.9  2000/10/23 23:27:28  neotron
-// Wrote program to generate inline autodocs from defvars to avoid having to do
-// duplicate documentation. Requires Pike 7.1 but that's not a major problem.
-//
-// Revision 1.8  2000/09/20 22:46:43  neotron
-// Now uses the new module_*** constants instead of register_module()
-//
-// Revision 1.7  2000/09/14 18:59:01  grendel
-// OK. First step towards getting rid of register_module. The module_ variables
-// have been added to those modules. If I missed some semicolon, kill me
-// without hesitation :)).
-//
-// Revision 1.6  2000/08/07 00:56:13  neotron
-// moved roxen.pike to caudium.pike and renamed roxenlib to caudiumlib, with a compat roxenlib
-//
-// Revision 1.5  2000/08/07 00:50:43  neotron
-// major changes, caudium -> roxen. some 7.0 changes
-//
-// Revision 1.4  2000/08/02 19:26:26  neotron
-// Changed copyright notices in all pike files
-//
-// Revision 1.3  2000/08/02 06:03:10  neotron
-// PiXSL now links with libs correctly, fixed bug in htmlparse.pike and fixed a 0.7 but in counter.pike.
-//
-// Revision 1.2  2000/07/28 16:40:14  neotron
-// Pike 7 fixes
-//
-// Revision 1.23  1999/01/07 08:09:47  neotron
-// Removed duplicate return.
-//
-// Revision 1.22  1998/12/17 23:05:05  neotron
-// Applied patch by Jan Legenhausen.
-//
-// Revision 1.21  1998/10/31 08:25:39  neotron
-// Fixed a bug which occured when used without a userdb.
-//
-// Revision 1.20  1998/08/07 09:20:38  neotron
-// Added bordercolor documentation.
-//
-// Revision 1.18  1998/04/17 01:58:39  grubba
-// Now uses id->conf->X instead of caudium->X where possible.
-//
-// Revision 1.17  1998/03/23 08:20:57  neotron
-// o Added new module type, MODULE_PROVIDER. This is a module type which
-//   enables other modules, scripts or protocols to call it very
-//   simply. Function needed in the module:
-//   "string|array|multiset query_provides()" - Return the name of the
-//   data this module provides. One existing example is "counter"
-//   (which is the graphical counter module).
-//
-//   Functions available to other modules:
-//    object conf->get_provider(string for);
-//      Get the first (highest priority) provider for "for".
-//    array (object) conf->get_providers(string for);
-//      Dito, but return all matching modules.
-//    void map_providers(string for, string fun, mixed ... args);
-//      Run the function "fun" in all modules providing "for", with the
-//      optional arguments "args".
-//    mixed call_provider(string for, string fun, mixed ... args);
-//      Run the function "fun" in all modules providing "for", with the
-//      optional arguments "args" until a positive response
-//      (!zero). Return the result. This is the main way of calling
-//      functions in provider modules from other places.
-//
-// o Added new tag - echo. It's usable with one of the following syntaxes:
-//   <echo var='Remote Host'> <echo remote_host>  <insert remote_host>
-//   Case doesn't matter and in the first syntax, ' ' and '_' are
-//   interchangable. The available variables are identical to the SSI
-//   <!--#echo var="..." -->
-//
-// Revision 1.16  1998/03/18 19:51:20  neotron
-// Added Jordi's nicer ppm-fontlist.
-//
-// Revision 1.15  1998/03/18 19:30:31  neotron
-// - Now handles counter numbers larger than MAXINT.
-// - Adds ".gif" to the URL, being nice to browsers. :-)
-// - Fixes incorrect lengths.
-//
-// Revision 1.14  1998/03/18 18:50:44  neotron
-// Fixed a bunch of bugs. Before, the first time a font was used, it turned out
-// as 012345, due to an error in the colormap making...
-//
-// Revision 1.13  1998/03/17 23:35:55  neotron
-// Changed counter default dir, and added default ppm fonts (a).
-//
-// Revision 1.12  1998/03/17 23:11:33  neotron
-// Added thread safe constant.
-//
-// Revision 1.11  1998/02/23 01:00:33  neotron
-// Some minor fixes, which makes it possible to compile the module...
-//
-// Revision  1.10 1998/02/22 02:38:01 neotron
-// Optimized using new Image.GIF / Image.colortable code. Also did
-// other optimizations, resulting int a very slight speed
-// increase. The Image.GIF optimization results in 2.5 (normal fonts)
-// to 7.5 times faster image generation.
-//
-// Revision  1.9 1997/10/01 14:24:56 hww3
-// Added support for Roxen 1.2
-// Support for nfont fonts.
-//
-// Revision 1.8  1997/01/13 18:19:12  jordi
-// Added gif support for digits, but it is not usable because internal
-// problems in Image()->from_gif() library.
-// Fixed some bugs in rotate.
-// Now paints correctly backgroud and foreground in standard fonts.
-// Addeded support for users own digits.
-//
-// Revision 1.7  1997/01/11 21:43:28  jordi
-// <counter revision> now returns "x.x" correctly
-//
-// Revision 1.6  1997/01/11 21:36:11  jordi
-// Bypass compatible attributes to <accessed tag>
-// GNU disclamer.
-//
-// Revision 1.5  1997/01/10 19:33:36  jordi
-// Bugfix in Cool Font List
-//
-// Revision 1.4  1997/01/10 18:16:18  jordi
-// Size in standard an cool fonts are equivalents.
-//
-// Revision 1.3  1997/01/10 16:01:50  jordi
-// size=x align=x rotate=x border=x implemented.
-//
-// Revision 1.2  1997/01/09 19:36:59  jordi
-// Implemented PPM support.
-//
-// Revision 1.1  1997/01/07 16:30:21  jordi
-// Initial revision
 //
 
 string cvs_version = "$Id$";
@@ -646,6 +502,148 @@ mapping query_tag_callers()
   return ([ "counter":     tag_counter,
 	    "counter_url": tag_counter ]);
 }
+
+//
+// $Log$
+// Revision 1.11  2000/10/24 09:47:38  grendel
+// - added the module: header needed for correct doc parsing
+// - moved the Log CVS tag to the end of file (do we really need it??)
+//
+// Revision 1.10  2000/10/24 00:15:50  neotron
+// s/defvar/globvar/ for globvars - no need to separate them. Also changed syntax
+// in the output (yeps, lots of changes). Defvars are now also parsed and
+// written by the doc generator.
+//
+// Revision 1.9  2000/10/23 23:27:28  neotron
+// Wrote program to generate inline autodocs from defvars to avoid having to do
+// duplicate documentation. Requires Pike 7.1 but that's not a major problem.
+//
+// Revision 1.8  2000/09/20 22:46:43  neotron
+// Now uses the new module_*** constants instead of register_module()
+//
+// Revision 1.7  2000/09/14 18:59:01  grendel
+// OK. First step towards getting rid of register_module. The module_ variables
+// have been added to those modules. If I missed some semicolon, kill me
+// without hesitation :)).
+//
+// Revision 1.6  2000/08/07 00:56:13  neotron
+// moved roxen.pike to caudium.pike and renamed roxenlib to caudiumlib, with a compat roxenlib
+//
+// Revision 1.5  2000/08/07 00:50:43  neotron
+// major changes, caudium -> roxen. some 7.0 changes
+//
+// Revision 1.4  2000/08/02 19:26:26  neotron
+// Changed copyright notices in all pike files
+//
+// Revision 1.3  2000/08/02 06:03:10  neotron
+// PiXSL now links with libs correctly, fixed bug in htmlparse.pike and fixed a 0.7 but in counter.pike.
+//
+// Revision 1.2  2000/07/28 16:40:14  neotron
+// Pike 7 fixes
+//
+// Revision 1.23  1999/01/07 08:09:47  neotron
+// Removed duplicate return.
+//
+// Revision 1.22  1998/12/17 23:05:05  neotron
+// Applied patch by Jan Legenhausen.
+//
+// Revision 1.21  1998/10/31 08:25:39  neotron
+// Fixed a bug which occured when used without a userdb.
+//
+// Revision 1.20  1998/08/07 09:20:38  neotron
+// Added bordercolor documentation.
+//
+// Revision 1.18  1998/04/17 01:58:39  grubba
+// Now uses id->conf->X instead of caudium->X where possible.
+//
+// Revision 1.17  1998/03/23 08:20:57  neotron
+// o Added new module type, MODULE_PROVIDER. This is a module type which
+//   enables other modules, scripts or protocols to call it very
+//   simply. Function needed in the module:
+//   "string|array|multiset query_provides()" - Return the name of the
+//   data this module provides. One existing example is "counter"
+//   (which is the graphical counter module).
+//
+//   Functions available to other modules:
+//    object conf->get_provider(string for);
+//      Get the first (highest priority) provider for "for".
+//    array (object) conf->get_providers(string for);
+//      Dito, but return all matching modules.
+//    void map_providers(string for, string fun, mixed ... args);
+//      Run the function "fun" in all modules providing "for", with the
+//      optional arguments "args".
+//    mixed call_provider(string for, string fun, mixed ... args);
+//      Run the function "fun" in all modules providing "for", with the
+//      optional arguments "args" until a positive response
+//      (!zero). Return the result. This is the main way of calling
+//      functions in provider modules from other places.
+//
+// o Added new tag - echo. It's usable with one of the following syntaxes:
+//   <echo var='Remote Host'> <echo remote_host>  <insert remote_host>
+//   Case doesn't matter and in the first syntax, ' ' and '_' are
+//   interchangable. The available variables are identical to the SSI
+//   <!--#echo var="..." -->
+//
+// Revision 1.16  1998/03/18 19:51:20  neotron
+// Added Jordi's nicer ppm-fontlist.
+//
+// Revision 1.15  1998/03/18 19:30:31  neotron
+// - Now handles counter numbers larger than MAXINT.
+// - Adds ".gif" to the URL, being nice to browsers. :-)
+// - Fixes incorrect lengths.
+//
+// Revision 1.14  1998/03/18 18:50:44  neotron
+// Fixed a bunch of bugs. Before, the first time a font was used, it turned out
+// as 012345, due to an error in the colormap making...
+//
+// Revision 1.13  1998/03/17 23:35:55  neotron
+// Changed counter default dir, and added default ppm fonts (a).
+//
+// Revision 1.12  1998/03/17 23:11:33  neotron
+// Added thread safe constant.
+//
+// Revision 1.11  1998/02/23 01:00:33  neotron
+// Some minor fixes, which makes it possible to compile the module...
+//
+// Revision  1.10 1998/02/22 02:38:01 neotron
+// Optimized using new Image.GIF / Image.colortable code. Also did
+// other optimizations, resulting int a very slight speed
+// increase. The Image.GIF optimization results in 2.5 (normal fonts)
+// to 7.5 times faster image generation.
+//
+// Revision  1.9 1997/10/01 14:24:56 hww3
+// Added support for Roxen 1.2
+// Support for nfont fonts.
+//
+// Revision 1.8  1997/01/13 18:19:12  jordi
+// Added gif support for digits, but it is not usable because internal
+// problems in Image()->from_gif() library.
+// Fixed some bugs in rotate.
+// Now paints correctly backgroud and foreground in standard fonts.
+// Addeded support for users own digits.
+//
+// Revision 1.7  1997/01/11 21:43:28  jordi
+// <counter revision> now returns "x.x" correctly
+//
+// Revision 1.6  1997/01/11 21:36:11  jordi
+// Bypass compatible attributes to <accessed tag>
+// GNU disclamer.
+//
+// Revision 1.5  1997/01/10 19:33:36  jordi
+// Bugfix in Cool Font List
+//
+// Revision 1.4  1997/01/10 18:16:18  jordi
+// Size in standard an cool fonts are equivalents.
+//
+// Revision 1.3  1997/01/10 16:01:50  jordi
+// size=x align=x rotate=x border=x implemented.
+//
+// Revision 1.2  1997/01/09 19:36:59  jordi
+// Implemented PPM support.
+//
+// Revision 1.1  1997/01/07 16:30:21  jordi
+// Initial revision
+//
 
 /* START AUTOGENERATED DEFVAR DOCS */
 
