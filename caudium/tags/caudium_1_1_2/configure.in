@@ -1,0 +1,827 @@
+#
+# $Id$
+#
+
+AC_INIT(Makefile.in)
+
+
+AC_SET_MAKE
+
+AC_PROG_INSTALL
+BUILDDIR=`pwd`
+case "$ac_cv_path_install" in
+  *installbsd*)
+    AC_MSG_CHECKING(if $ac_cv_path_install works)
+    AC_CACHE_VAL(caudium_cv_install_works,
+[
+    if $ac_cv_path_install "$srcdir/configure.in" ./conftest >/dev/null 2>&1
+    then
+      if cmp "$srcdir/configure.in" ./conftest >/dev/null 2>&1; then
+        caudium_cv_install_works=yes;
+      else
+        caudium_cv_install_works=no;
+      fi
+    else
+      caudium_cv_install_works=no;
+    fi
+    if test -f ./conftest; then
+      rm -f ./conftest
+    fi
+])
+    AC_MSG_RESULT($caudium_cv_install_works)
+    if test "$caudium_cv_install_works" = "no"; then
+      echo "Warning: Falling back to $ac_install_sh"
+      INSTALL="$ac_install_sh"
+    fi
+  ;;
+esac
+
+# We want an absolute path to the source-dir.
+case "$srcdir" in
+    /*)
+    ;;
+    *)
+	oldsrcdir="$srcdir"
+	srcdir="`cd \"$srcdir\";pwd`"
+	AC_MSG_WARN([ Converted $oldsrcdir to $srcdir,
+If this does not work, please use an absolute path to the configure script. ])
+    ;;
+esac
+
+
+# Compiler checks
+#--------------------------
+
+# Strip smartlink from cached CC if it's there.
+if test ! -z "$ac_cv_prog_CC"; then
+ ac_cv_prog_CC="`echo $ac_cv_prog_CC|sed -e 's/.*smartlink //'`"
+ export ac_cv_prog_CC
+fi
+
+if test ! -z "$caudium_cv_prog_CC" -a ! -z "$CC" -a "$CC" != "$caudium_cv_prog_CC"
+then
+  AC_MSG_WARN([CC is different than last time Caudium was compiled,
+It is probably best to delete ./config.cache before proceeding])
+fi
+
+#
+# NOTE: These tests must be before AC_PROG_CC
+# since AC_PROG_CC sets CFLAGS by itself.
+#
+
+if test "x${CFLAGS-}" = "x" ; then
+  cflags_is_set=no
+else
+  cflags_is_set=yes
+fi
+
+if test "x${CPPFLAGS-}" = "x" ; then
+  cppflags_is_set=no
+else
+  cppflags_is_set=yes
+fi
+
+if test "x${LDFLAGS-}" = "x" ; then
+  ldflags_is_set=no
+else
+  ldflags_is_set=yes
+fi
+
+caudium_cv_prog_CC="$CC"
+
+AC_PROG_CC
+AC_AIX
+AC_MINIX
+
+AC_CHECK_LIB(dl, dlopen)
+AC_CHECK_LIB(dld, shl_load)
+AC_CHECK_LIB(dld, dld_link)
+
+#############################################################
+# Set some OS/Compiler Specific flags...
+# Compiler flags...
+
+AC_DEFUN(AC_SYS_COMPILER_FLAG,
+[
+  AC_MSG_CHECKING($1)
+  OLD_CFLAGS="[$]CFLAGS"
+  AC_CACHE_VAL(caudium_cv_option_$2,
+  [
+    CFLAGS="[$]OLD_CFLAGS $1"
+    AC_TRY_RUN([int main(){exit(0);}],caudium_cv_option_$2=yes,caudium_cv_option_$2=no)
+  ])
+  
+  CFLAGS="[$]OLD_CFLAGS"
+  
+  if test x"[$]caudium_cv_option_$2" = "xyes" ; then
+    $3="[$]$3 $1"
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
+])
+
+AC_DEFUN(AC_SYS_CPU_COMPILER_FLAG,
+[
+  if test "`uname -m 2>/dev/null`" = "$1" ; then
+    AC_SYS_COMPILER_FLAG($2,$3,$4)
+  fi
+])
+
+AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
+[
+  if test "x$caudium_cv_sys_os" = "x$1" ; then
+    AC_SYS_COMPILER_FLAG($2,$3,$4)
+  fi
+])
+
+# We need some special hacks when running slowaris
+## Build smartlink
+
+AC_CHECK_HEADERS(stdlib.h string.h unistd.h sys/stat.h sys/types.h sys/errno.h)
+
+AC_PATH_PROG(uname_prog,uname,no)
+if test "$uname_prog" != "no"; then
+  UNAME=`$uname_prog -sr`
+elif test -x /usr/bin/uname 2>/dev/null; then
+  UNAME=`/usr/bin/uname -sr`
+elif test -x /usr/bin/uname 2>/dev/null; then
+  UNAME=`/usr/bin/uname -sr`
+elif test -x /bin/uname 2>/dev/null; then
+  UNAME=`/bin/uname -sr`
+else
+  UNAME=unknown
+fi
+
+AC_MSG_CHECKING(operating system)
+
+AC_CACHE_VAL(caudium_cv_sys_os,
+[
+if test "$uname_prog" != "no"; then
+  caudium_cv_sys_os="`uname`"
+
+  case "$caudium_cv_sys_os" in
+    SunOS)
+      case "`uname -r`" in
+        5.*) caudium_cv_sys_os="Solaris";
+      esac
+    ;;
+    Monterey64)
+      # According to the release notes, the string "Monterey64"
+      # will be changed to "AIX" in the final release.
+      # (Monterey 64 is also known as AIX 5L).
+      caudium_cv_sys_os="AIX"
+    ;;
+  esac
+else
+  caudium_cv_sys_os="Not Solaris"
+fi
+])
+AC_MSG_RESULT($caudium_cv_sys_os)
+
+if test "$caudium_cv_sys_os" = "Solaris" ; then
+  AC_DEFINE(SOLARIS)
+else
+  :
+fi
+
+# FIXME: Add proper tests
+case "$UNAME" in
+  OSF1\ V4.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  HPUX\ 11.*)
+    AC_DEFINE(USE_PLUS_b)
+    ;;
+  IRIX\ 6.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  IRIX\ 5.*)
+    AC_DEFINE(USE_RPATH)
+    ;;
+  SunOS\ 5.*)
+    if test "$TCC" = "yes"; then
+      # tcc doesn't know about -R
+      AC_DEFINE(USE_Wl_R)
+    else
+      AC_DEFINE(USE_R)
+    fi
+    ;;
+  Linux\ 2.*)
+    AC_DEFINE(USE_Wl)
+    ;;
+  UnixWare\ 7.*)
+    if test "$ac_cv_prog_gcc" = "yes"; then
+      AC_DEFINE(USE_XLINKER_YP_)
+    else
+      AC_DEFINE(USE_YP_)
+    fi
+    ;;
+  *)
+    AC_DEFINE(USE_LD_LIBRARY_PATH)
+    ;;
+esac
+
+# Fix a smartlink
+SMARTLINK="$BUILDDIR/smartlink"
+
+AC_MSG_CHECKING(if $SMARTLINK exists is up to date and works)
+if ls -1tr "$SMARTLINK" "$srcdir/tools/smartlink.c" 2>/dev/null | head -1 | grep "smartlink" >/dev/null 2>&5 && "$SMARTLINK" -v >/dev/null 2>&5; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+  rm -f "$SMARTLINK"
+  AC_MSG_CHECKING(whether smartlink compiles)
+
+  link_cmd='${CC} -o smartlink $CFLAGS -I. $CPPFLAGS $LDFLAGS $srcdir/tools/smartlink.c $LIBS 2>&5'
+   if { (eval echo Compiling smartlink: \"$link_cmd\") 1>&5; (eval $link_cmd) 2>&5; } && "$BUILDDIR/smartlink" -v >/dev/null 2>&5; then
+      AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no - use the sh script)
+    SMARTLINK="$srcdir/tools/smartlink" 
+ fi
+fi
+CC="$SMARTLINK $CC"
+ac_cv_prog_CC="$CC"
+case "$caudium_cv_sys_os" in
+  SCO*)
+    case "$CFLAGS" in
+      *-belf*) 
+        AC_SYS_COMPILER_FLAG(-belf,sco_belf_option,CFLAGS,[],[
+          case "$LDFLAGS" in
+            *-belf*) ;;
+            *)
+	      echo "Adding -belf option to ldflags."
+              LDFLAGS="$LDFLAGS -belf"
+            ;;
+          esac
+        ])
+      ;;
+      *)
+        AC_SYS_COMPILER_FLAG(-belf,sco_belf_option,CFLAGS,[],[
+          case "$LDFLAGS" in
+            *-belf*) ;;
+            *)
+	      echo "Adding -belf option to ldflags."
+              LDFLAGS="$LDFLAGS -belf"
+            ;;
+          esac
+        ])
+      ;;
+    esac
+  ;;
+ 
+  UnixWare*)
+    case "$CFLAGS" in
+      *-Kalloca*) ;;
+      *)
+	if test "$GCC" != "yes"; then
+ 	# We are using built-in inline function
+          CFLAGS="$CFLAGS -Kalloca"
+          CXX="CC -DNO_CPLUSPLUS_ALLOCA"
+ 	fi
+      ;;
+    esac
+  ;;
+esac
+  
+AC_SUBST(CXX)
+AC_SUBST(LD)
+
+### Pike Detection ###
+######################
+
+AC_ARG_WITH(pike, 
+[  --with-pike[=binary]    Use the specified Pike. ],
+[
+    if test ! -z "$withval" -a "$withval" != "yes"; then 
+		extpike="`type  $withval |sed "s:$withval is ::" 2>/dev/null`"
+                if test "$extpike" != ""; then
+                   withval="$extpike";
+                fi
+		if test -f "$withval" -a  ! -x "$withval" ; then
+			echo "$withval is not an executable file"
+ 			exit 1
+		elif test -x "$withval" -a -f "$withval"; then
+			DEFPIKE="$withval"
+		else
+			echo "$withval doesn't exist or isn't an executable file."
+ 			exit 1
+		fi
+	fi
+])
+RESULT=no
+AC_MSG_CHECKING(for a working Pike)
+AC_MSG_RESULT( )
+pathpike="`type  pike 2> /dev/null |sed 's/pike is//' 2>/dev/null`"
+if test "$prefix" != "NONE"; then
+  PREFIXPIKE="$prefix/bin/pike"
+fi
+for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
+  /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike ; do
+  if test  "x$PIKE" != "x" ; then
+    break;
+  fi
+  AC_MSG_CHECKING(${a})
+  if test -x ${a}; then
+    PIKE="${a}"
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.0268) exit(1); exit(0);'; then
+		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep '^Module' | sed -e 's/.*: //'`"
+		PIKE_INCLUDE_DIRS="-I`echo "$PIKE_MODULE_DIR" | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
+
+		if test -z "$PIKE_INCLUDE_DIRS" -o -z "$PIKE_MODULE_DIR"; then
+			AC_MSG_RESULT(no dirs found)
+			PIKE=""
+		else
+		   AC_MSG_RESULT(ok)
+	           PIKE=`echo $PIKE | $PIKE -e 'int tries=100;
+		   string orig,pike=Stdio.File("stdin")->read()-"\n";
+		   orig=pike;
+		   if(search(orig, "/"))
+		     orig = combine_path(getcwd(), orig);
+		   while(!catch(pike=readlink(pike)) && tries--)
+		     ;
+		   write(combine_path(dirname(orig), pike)); '`
+		   if test "$prefix" != "NONE"; then
+		       PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
+		   else
+		       PIKE_C_INCLUDE=/usr/include/`basename ${PIKE}`
+		   fi
+		   AC_MSG_CHECKING(for C includes in ${PIKE_C_INCLUDE})
+		   if test -f $PIKE_C_INCLUDE/version.h; then
+		      PIKE_TEST_VER=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+		      ###### VERSION MATCH CHECK #######
+		      PMAJOR="^#define PIKE_MAJOR_VERSION"
+		      PMINOR="^#define PIKE_MINOR_VERSION"
+		      PBUILD="^#define PIKE_BUILD_VERSION"
+
+		      PIKE_CMAJOR_VERSION=0
+		      PIKE_CMINOR_VERSION=0
+		      PIKE_CBUILD_VERSION=0
+
+		      PIKE_CMAJOR_VERSION=`grep "$PMAJOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+    		      if test -z "$PIKE_CMAJOR_VERSION"; then
+			if test -n "`grep f_version $PIKE_C_INCLUDE/version.h`"; then
+			   PIKE_CMAJOR_VERSION=6
+			fi
+		      else
+		        PIKE_CMINOR_VERSION=`grep "$PMINOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+			PIKE_CBUILD_VERSION=`grep "$PBUILD" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+                      fi
+		      
+		      if test "$PIKE_TEST_VER" = "${PIKE_CMAJOR_VERSION}.${PIKE_CMINOR_VERSION}.${PIKE_CBUILD_VERSION}"; then
+		         PIKE_INCLUDE_DIRS=" $PIKE_INCLUDE_DIRS -I$PIKE_C_INCLUDE"
+		         AC_MSG_RESULT(found)
+		      else
+		         AC_MSG_RESULT(version mismatch)
+		      fi
+		   else
+			AC_MSG_RESULT(not found)
+		   fi
+		fi
+	else
+		AC_MSG_RESULT(too old)
+		PIKE=""
+	fi
+  else
+    AC_MSG_RESULT(no)
+  fi
+done
+if test "$PIKE" != ""; then 
+  PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+else
+  cat << EOF
+*********************************************************************
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.1
+*** requires Pike 7.0.268 or newer. Running Caudium with Pike 0.6
+*** is no longer supported. You can download and install one of
+*** our Pike 7.0 snapshots available from our website at:
+***
+***     http://caudium.net/download/snapshot.html
+***
+*** IMPORTANT: Do not try using Pike 7.0.78 from the Pike website 
+*** since that version is to old to work with Caudium 1.1!
+***
+*** Although Caudium 1.1 should function with Pike 7.1, we don't
+*** recommend this, since Pike 7.1 is still in development which has
+*** had several obscure bugs on and off during the Caudium
+*** development. 
+***
+*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6!
+*********************************************************************
+EOF
+  exit 1;
+fi
+
+export PIKE PIKE_INCLUDE_DIRS PIKE_VERSION
+AC_SUBST(PIKE)
+AC_SUBST(PIKE_VERSION)
+
+#############################################################################
+
+# Set some of the compiler flags.
+
+for ac_site_file in $CONFIG_SITE; do
+  if test -r "$ac_site_file"; then
+    AC_MSG_WARN([You are using a site file to initialize configure, please
+note that this can lead to problems if anything in
+$ac_site_file is not correct. If Caudium does not compile, or
+does not run, please try this to compile Caudium again:
+rm ./config.cache ; CONFIG_SITE=x ./configure ; make])
+  fi
+done
+
+#############################################################################
+
+## Search for some popular places where libraries may be hidden.
+
+#############################################################################
+
+AC_MSG_CHECKING(for extra include directories)
+AC_MSG_RESULT( )
+if test $cppflags_is_set = no -a x${C_INCLUDE_PATH-} = x ; then
+  for d in `echo ${with_include_path} | sed 's/:/ /g'` \
+    `echo $prefix | sed "s@^NONE@$ac_default_prefix@g"`/include \
+    /usr/local/include /sw/local/include /usr/gnu/include /opt/gnu/include \
+    /sw/gnu/include /sw/include /usr/freeware/include \
+    `echo /usr/X11*/include | sort -r`
+  do
+    AC_MSG_CHECKING($d)
+    if test -d "$d/." ; then
+      AC_MSG_RESULT(added)
+      CPPFLAGS="${CPPFLAGS} -I$d"
+    else
+      AC_MSG_RESULT(no)
+    fi
+  done
+else
+  :
+fi
+
+AC_MSG_CHECKING(for extra library directories)
+AC_MSG_RESULT( )
+if test $ldflags_is_set = no ; then
+  for d in `echo ${with_lib_path} | sed 's/:/ /g'` \
+    `echo $exec_prefix | sed "s@^NONE@$prefix/lib@g" | sed "s@^NONE@$ac_default_prefix/lib@g"` \
+    /usr/local/lib /sw/local/lib /sw/lib \
+    /usr/gnu/lib /opt/gnu/lib /sw/gnu/lib /usr/freeware/lib \
+    `echo /usr/X11*/lib | sort -r`
+  do
+    AC_MSG_CHECKING($d)
+    if test -d "$d/." ; then
+      AC_MSG_RESULT(added)
+      LDFLAGS="${LDFLAGS} -R$d -L$d"
+    else
+      AC_MSG_RESULT(no)
+    fi
+  done
+else
+  :
+fi
+
+#############################################################
+# Optimization flags...
+
+WARN=""
+OPTIMIZE=""
+
+if test $cflags_is_set = no; then
+ if test "x${GCC-}" = xyes ; then
+  WARN="-W -Wall -Wpointer-arith -Wno-unused -Wstrict-prototypes \
+	-Wpointer-arith  -Wmissing-declarations -Winline -Wcast-align"
+  AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-ffast-math,ffast_math,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(AIX,-mprototype,mprototype,WARN)
+### Optimize for different SUN machines. If there is no working 'uname'
+### no extra optimization will be done, but nothing should break either.
+
+# The -sparclite option seems to generate assembler that /bin/as doesn't
+# understand.	/grubba 1998-07-17
+#  AC_SYS_CPU_COMPILER_FLAG(sun4c,-msparclite,sparclite,OPTIMIZE)
+  AC_SYS_CPU_COMPILER_FLAG(sun4m,-mv8,microsparc,OPTIMIZE)
+  AC_SYS_CPU_COMPILER_FLAG(sun4d,-msupersparc,supersparc,OPTIMIZE)
+  AC_SYS_CPU_COMPILER_FLAG(sun4u,-msupersparc,ultrasparc,OPTIMIZE)
+ else
+
+### Non-gcc thingies. This should probably be enhanced...
+
+  # Solaris
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-dalign,dalign,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-fast,fast,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-native,native,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-xdepend,xdepend,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-fd,fd,WARN)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-xtransition,xtransition,WARN)
+  AC_SYS_OS_COMPILER_FLAG(Solaris,-xs,xs,CFLAGS)
+  # Causes __STDC__ to be 1 which causes several headerfiles to behave
+  # differently.
+  # AC_SYS_OS_COMPILER_FLAG(Solaris,-Xc,Xc,WARN)
+
+  # HP-UX
+  AC_SYS_OS_COMPILER_FLAG(HP-UX,-D__STDC_EXT__,stdc_ext,CFLAGS)
+  AC_SYS_OS_COMPILER_FLAG(HP-UX,+z,plus_z,CFLAGS)
+  AC_SYS_OS_COMPILER_FLAG(HP-UX,+Odataprefetch,plus_Odataprefetch,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(HP-UX,+Ofailsafe,plus_Ofailsafe,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(HP-UX,+O3,plus_O3,OPTIMIZE)
+  if test x$ac_with_fullwarn = xyes ; then
+    # Ignore warnings 530 and 414 if you turn this on.
+    AC_SYS_OS_COMPILER_FLAG(HP-UX,+w1,plus_w1,WARN)
+  fi
+
+  # OSF/1
+  AC_SYS_OS_COMPILER_FLAG(OSF1,-fast,fast,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(OSF1,-g3,g3,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(OSF1,-host,host,OPTIMIZE)
+  AC_SYS_OS_COMPILER_FLAG(OSF1,-std1,std1,WARN)
+  AC_SYS_OS_COMPILER_FLAG(OSF1,-warnprotos,warnprotos,WARN)
+
+  # IRIX
+  # sopt disabled since it takes too much time on interpret.c (>45min on an O²)
+  # AC_SYS_OS_COMPILER_FLAG(IRIX,-sopt,sopt)
+  AC_SYS_OS_COMPILER_FLAG(IRIX,-n32,n32,CFLAGS)
+  if test x$caudium_cv_option_n32 = xyes ; then
+    echo Adding -n32 to LDFLAGS.
+    LDFLAGS="$LDFLAGS -n32"
+  fi
+  AC_SYS_OS_COMPILER_FLAG(IRIX,-g3,g3,OPTIMIZE)
+  if test x$ac_with_fullwarn = xyes ; then
+    # This warns about a lot of standard constructs, so it isn't enabled
+    # by default.
+    AC_SYS_OS_COMPILER_FLAG(IRIX,-fullwarn,fullwarn,WARN)
+  fi
+  if test x$with_debug = xyes ; then
+    AC_SYS_OS_COMPILER_FLAG(IRIX,-trapuw,trapuw,WARN)
+  fi
+
+dnl
+dnl This does not work with Digital UNIX cc/ld (cc thinks it is ok, ld does not)
+dnl  
+dnl AC_SYS_COMPILER_FLAG(-native,native)
+dnl
+
+dnl ### Ok. This is for apcc...
+case "$CC" in
+  *apcc)
+    AC_SYS_COMPILER_FLAG(-XO=5,apcc_opt,OPTIMIZE)
+    AC_SYS_COMPILER_FLAG(-Xcallmod=2,apcc_opt_2,OPTIMIZE)
+  ;;
+esac
+
+
+  AC_SYS_CPU_COMPILER_FLAG(sun4m,-Xpipe=micro,microsparc,OPTIMIZE)
+  AC_SYS_CPU_COMPILER_FLAG(sun4d,-Xpipe=super,supersparc,OPTIMIZE)
+  AC_SYS_CPU_COMPILER_FLAG(sun4u,-Xpipe=super,ultrasparc,OPTIMIZE)
+
+  case "${CFLAGS-} $OPTIMIZE" in
+     *-O*) ;;
+     *+O*) ;;
+     *-fast*) ;;
+     *)
+       if test "$GCC" != "yes"; then
+         case "$caudium_cv_sys_os" in
+           UnixWare*)
+             OPTIMIZE=""
+	   ;;
+         esac
+       else
+         AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
+         if test "x$caudium_cv_option_O2" != "xyes"; then
+           AC_SYS_COMPILER_FLAG(-O,O,OPTIMIZE)
+         fi
+       fi
+     ;;
+  esac
+ fi
+fi
+
+if test "$GCC" = "yes"; then
+# Disabled since -pipe causes gcc to hang on some systems
+# (gcc-2.7.2 on Slackware Linux 3.2 when compiling assembler files).
+# Thanks to Michael Finken <finken@nentec.de> for pointing it out.
+#	/grubba 1997-10-07
+#   if test $cflags_is_set = no; then
+#     AC_SYS_COMPILER_FLAG(-pipe, pipe, CFLAGS)
+#   fi
+    :
+else
+#
+# Special hack for HP-UX stupid cc
+#
+  if test "$caudium_cv_sys_os" = "HP-UX"; then
+    AC_TRY_COMPILE([int foo(int bar);],[],[],
+    [
+      OLD_CC="${CC-cc}"
+      OLD_CFLAGS="$CFLAGS"
+      if test "$CC" = "$SMARTLINK cc" -a -x /usr/bin/cc ; then
+        CC="$SMARTLINK /usr/bin/cc"
+      fi
+      CFLAGS="-Ae +Olibcalls $CFLAGS"
+      AC_TRY_COMPILE([int foo(int bar);],[],[],[
+        CC="$OLD_CC"
+	CFLAGS="$OLD_CFLAGS"
+      ])
+    ])
+  fi
+fi
+
+if test $ac_cv_prog_gcc = yes; then
+  AC_MSG_CHECKING(for libgcc file name)
+  AC_CACHE_VAL(caudium_cv_libgcc_filename,
+  [
+    caudium_cv_libgcc_filename="`${CC-cc} -print-libgcc-file-name`"
+    if test -z "$caudium_cv_libgcc_filename"; then
+      caudium_cv_libgcc_filename=no
+    else
+       if test -f "$caudium_cv_libgcc_filename"; then
+         :
+       else
+         caudium_cv_libgcc_filename=no
+       fi
+    fi
+  ])
+  AC_MSG_RESULT($caudium_cv_libgcc_filename)
+  if test x"$caudium_cv_libgcc_filename" = xno; then
+    LIBGCC=""
+  else
+    LIBGCC="$caudium_cv_libgcc_filename"
+  fi
+else
+  LIBGCC=""
+fi
+
+export LIBGCC
+
+# SO is the extension of shared libraries
+# -- usually so, sl on HP-UX
+AC_MSG_CHECKING(SO)
+if test -z "$SO"
+then
+	case "$caudium_cv_sys_os" in
+	hp*|HP*)   SO=sl;;
+	*)	   SO=so;;
+	esac
+fi
+AC_MSG_RESULT($SO)
+
+# LDSHARED is the ld *command* used to create shared library
+# -- "ld" on SunOS 4.x.x, "ld -G" on SunOS 5.x, "ld -shared" on IRIX 5
+AC_MSG_CHECKING(LDSHARED)
+if test -z "$LDSHARED" ; then
+  case "$caudium_cv_sys_os" in
+    AIX*)
+      if test "$GCC" = yes ; then
+        if test "`uname -r`" -ge 2 -a "`uname -v`" -ge 4 ; then
+          LDSHARED="ld -G -bexpall"
+	else if test "`uname -v`" -gt 4 ; then
+	    # Extra forward compatibility...
+	    # AIX 5+
+	    LDSHARED="ld -G -bexpall"
+	  else
+	    # AIX 4.1 and earlier don't have/have unreliable
+	    # handling of dlopen et al.
+	    #
+	    # Even AIX 4.2.1 has buggy dlopen -- NEVER attempt
+	    # to dlopen a file that hasn't been linked with -G.
+	    caudium_cv_sys_dynamic_loading=no
+	    LDSHARED="ld"
+	  fi
+        fi
+      else
+        # Dynamic linking turned off for AIX-cc
+	#
+	# In addition, the dynamic loading test seems to
+	# cause our RS/6000 to hang, which causes the
+	# watchdog-timer to PANIC.
+	caudium_cv_sys_dynamic_loading=no
+        LDSHARED="ld"
+      fi
+    ;;
+    IRIX*)
+      if test "$GCC" = yes ; then
+        # egcs defaults to building -n32 objects
+        LDSHARED="ld -shared -n32"
+      else
+        LDSHARED="ld -shared"
+      fi
+      # -woff isn't understood by ld on Irix 5.
+      if test "`uname -r`" -ge 6 ; then
+        LDSHARED="$LDSHARED -woff 84,85,134"
+      else :; fi
+    ;;
+    SunOS*) LDSHARED="ld";;
+    Solaris) LDSHARED="/usr/ccs/bin/ld -G";;
+    hp*|HP*) LDSHARED="ld -b";;
+    OSF*) LDSHARED="ld -expect_unresolved '*' -shared -msym -O3";;
+    DYNIX/ptx*) LDSHARED="ld -G";;
+    next*) LDSHARED="$CC $CFLAGS -nostdlib -r";;
+    Linux*) LDSHARED="$CC -shared";;
+    GNU*) LDSHARED="ld -Bshareable";;
+    FreeBSD*) LDSHARED="$CC -Wl,-Bshareable";;
+    NetBSD*) LDSHARED="ld -Bshareable";;
+    OpenBSD*) LDSHARED="ld -Bshareable";;
+    BSD/OS*) LDSHARED="shlicc -r";;
+    UNIX_SV*) LDSHARED="ld -G";;
+    SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
+    UnixWare*)
+      if test "$GCC" = yes ; then
+        LDSHARED="ld -G"
+      else
+        LDSHARED="cc -G -KPIC -Wl,-Bexport"
+      fi
+    ;;
+    Windows_NT*) LDSHARED="$CC -shared";;
+    *) LDSHARED="ld";;
+  esac
+fi
+
+# Strip smartlink from $CC
+LDSHARED="$SMARTLINK `echo $LDSHARED|sed -e 's/.*smartlink //'`"
+
+AC_MSG_RESULT($LDSHARED)
+
+# CCSHARED are the C *flags* used to create objects to go into a shared
+# library -- this is only needed for a few systems
+AC_MSG_CHECKING(CCSHARED)
+AC_CACHE_VAL(caudium_cv_sys_ccshared,[
+if test -z "$CCSHARED" ; then
+  if test "$GCC" = yes ; then
+    case $caudium_cv_sys_os in
+      BSD/OS*) CCSHARED="";;
+      *) CCSHARED="-fpic";;
+    esac
+  else
+    case $caudium_cv_sys_os in
+	hp*|HP*) CCSHARED="+z"; ;;
+	FreeBSD*) CCSHARED="-fpic";;
+	SCO_SV*) CCSHARED="-KPIC -dy -Bdynamic";;
+	UnixWare*) CCSHARED="-KPIC -dy -Bdynamic";;
+	Solaris*) CCSHARED="-KPIC -Bdynamic";;
+        Windows_NT*) CCSHARED="-shared" ;;
+    esac
+  fi
+fi
+  OLD_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $CCSHARED"
+  AC_TRY_COMPILE([], [int main() { exit(0); }],
+    caudium_cv_sys_ccshared="$CCSHARED", caudium_cv_sys_ccshared='')
+  CFLAGS="$OLD_CFLAGS"
+])
+
+if test "$GCC" != "yes"; then
+  case $caudium_cv_sys_os in
+    UnixWare*)
+	CCSHARED="-KPIC -dy -Bdynamic"
+	caudium_cv_sys_ccshared="$CCSHARED"
+    ;;
+  esac
+fi
+
+
+CLIBRARY_LINK="-lc"
+# In special cases we don't want -lc...
+case $caudium_cv_sys_os in
+  UnixWare*|SCO_SV*)
+    CLIBRARY_LINK=""      
+  ;;
+esac
+
+CCSHARED="$caudium_cv_sys_ccshared"
+AC_MSG_RESULT($CCSHARED)
+
+CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
+
+#
+# Some variables we want to export to the other configure scripts.
+#
+CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
+export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
+
+AC_CONFIG_SUBDIRS(src tools)
+AC_OUTPUT(Makefile)
+
+
+
+echo "
+
+Caudium is now configured.  This is some information about
+the build environment. If the wrong pike was selected, try
+re-running configure with '--with-pike=/path/to/correct/pike'.
+
+	CC:         $CC
+        LDSHARED:   $LDSHARED
+
+        CFLAGS:     $CFLAGS
+
+        CPPFLAGS:   $CPPFLAGS
+
+        LDFLAGS:    $LDFLAGS
+
+        Pike binary used:      $PIKE
+        Pike version:          $PIKE_VERSION
+        Pike include dir:      $PIKE_INCLUDE_DIRS
+
+	"
+
+# Verify the pike ... 
+$PIKE $srcdir/tools/verify_pike.pike
+
