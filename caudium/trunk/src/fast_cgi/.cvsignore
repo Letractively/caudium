@@ -3,3 +3,4 @@ config.log
 config.status
 stamp-h.in
 configure
+autom4te.cache

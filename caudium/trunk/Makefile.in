@@ -223,6 +223,7 @@ spotless:  clean
 	"*.a" -o -name configure ')'  -print -exec /bin/rm '{}'  ';'
 	rm -rf server/logs
 	rm -rf logs
+	find . -name 'autom4te.cache' -print | xargs /bin/rm -rf
 
 ./Makefile: $(SRCDIR)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
