@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Marek Habersack <grendel@debian.org>
 Standards-Version: 3.5.6
-Build-Depends: pike7.2, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf (>= 0.2.26)
+Build-Depends: pike7.2, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf (>= 0.2.26), sharutils
 
 Package: caudium
 Architecture: any
