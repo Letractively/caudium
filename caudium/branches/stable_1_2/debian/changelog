@@ -1,3 +1,11 @@
+caudium (2:1.2.3-1) unstable; urgency=medium
+
+  * Latest upstream release
+  * Added a preinstallation script to correctly remove symlinks from the
+    caudium 1.0.x packages
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 30 Jan 2002 13:43:27 +0100
+
 caudium (2:1.2.1-1) unstable; urgency=medium
 
   * Latest upstream release.

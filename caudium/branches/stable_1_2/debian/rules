@@ -32,7 +32,7 @@ CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
 PIKE7_CHANGELOG=/usr/share/doc/$(PIKE)/changelog.Debian.gz
 PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
-ADD_VER=
+EXTVER=
 
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike bin/pixsl.pike \
@@ -79,32 +79,32 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp EXTRAVER=$(ADD_VER)
-	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium$(ADD_VER)/COPYING
-	cp debian/localhost `pwd`/debian/tmp/etc/caudium$(ADD_VER)/localhost.sample
-	cp debian/Global_Variables `pwd`/debian/tmp/etc/caudium$(ADD_VER)/Global_Variables.sample
+	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp EXTRAVER=$(EXTVER)
+	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium$(EXTVER)/COPYING
+	cp debian/localhost `pwd`/debian/tmp/etc/caudium$(EXTVER)/localhost.sample
+	cp debian/Global_Variables `pwd`/debian/tmp/etc/caudium$(EXTVER)/Global_Variables.sample
 
-	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
 	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
 	mv debian/tmp/usr/bin/ultrasum.new debian/tmp/usr/bin/ultrasum ; \
 	chmod 755 debian/tmp/usr/bin/ultrasum
 
-	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
 	 debian/tmp/usr/bin/pixsl > debian/tmp/usr/bin/pixsl.new && \
 	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
-	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pixsl.pike
+	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
 
 	for s in $(SCRIPTS); do \
-	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium$(ADD_VER)/$$s > \
-	      debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new && \
-	  mv debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
-	  chmod 755 debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
+	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/tmp/usr/lib/caudium$(EXTVER)/$$s > \
+	      debian/tmp/usr/lib/caudium$(EXTVER)/$$s.new && \
+	  mv debian/tmp/usr/lib/caudium$(EXTVER)/$$s.new debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
+	  chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
 	done
 
 	# perms fixing fest
-	-chmod 644 debian/tmp/usr/lib/caudium$(ADD_VER)/fonts/32/urw_itc_avant_garde-demi-r \
-	           debian/tmp/usr/lib/caudium$(ADD_VER)/etc/roxen_hilfe.pike \
-		   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/config/font
+	-chmod 644 debian/tmp/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
+	           debian/tmp/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
+		   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/config/font
 
 	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
 
@@ -112,16 +112,16 @@ install: build
 	# change the state directory
 	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
 	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/",\3;' \
-	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(ADD_VER)/"\3;' \
+	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(EXTVER)/"\3;' \
 	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
-	       debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike > \
-	       debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike.new && \
-	mv debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike.new \
-	   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike
+	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
+	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
+	mv debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
+	   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
 
 	# fix what lintian whines about
-	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pike
-	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/caudium
+	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium
+	cp -dp `pwd`/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium `pwd`/debian/tmp/usr/lib/caudium$(EXTVER)/bin/pike
 	rm -rf debian/tmp/usr/local/
 
 	#
@@ -159,7 +159,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installmanpages
 #	dh_installinfo
-	dh_undocumented htpasswd-caudium.1 pixsl.1
+	dh_undocumented htpasswd-caudium.1 pixsl.1 caudiumctl.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link
