@@ -288,7 +288,12 @@ void free( int n ) {
 #endif
   foreach( indices( thecache ), string hash ) {
     _hash += ({ hash });
-    _hitrate += ({ (float)thecache[ hash ]->hits / (float)( time() - thecache[ hash ]->create_time ) });
+    float hit = (float)thecache[hash]->hits;
+    float rate = (float)(time() - thecache[hash]->create_time);
+    if (hit && rate)
+      _hitrate += ({ hit / rate });
+    else
+      _hitrate += ({ 0.0 });
   }
   sort( _hitrate, _hash );
 #ifdef CACHE_DEBUG

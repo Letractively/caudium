@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fix bug in Cache.FastStorage which caused devide by zero when calculating
+  object hitrates.
+   (James Tyson)
 - Add tests around System.getrusage() so that Caudium can fall back to
   predef::rusage if necessary.
    (James Tyson)
