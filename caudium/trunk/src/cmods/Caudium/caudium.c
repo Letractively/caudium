@@ -709,6 +709,8 @@ static void f_extension( INT32 args ) {
   }
 }
 
+#ifdef 0
+/* This is not used anymore *
 /* Caudium.create_process */
 
 extern int fd_from_object(struct object *o);
@@ -987,6 +989,8 @@ static void f_create_process( INT32 args ) {
   push_int(0);
 }
 
+#endif
+
 /* Initialize and start module */
 void pike_module_init( void )
 {
@@ -1016,8 +1020,10 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
+#ifdef 0
   add_function_constant( "create_process", f_create_process,
                          "function(array(string),void|mapping(string:mixed):int)", 0);
+#endif
 
   start_new_program();
   ADD_STORAGE( buffer );
