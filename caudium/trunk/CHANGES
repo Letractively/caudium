@@ -93,4 +93,4 @@ Changes in Caudium 1.1 since CVS branching
   + Added glob match method.
   + Compilation of regular expression is cached, which should greatly
     improve matching speed when there are many regexp patterns.
-- Fixed a potential problem with relaying and ssl3.
+- Fixed a couple of problem related to ssl3.

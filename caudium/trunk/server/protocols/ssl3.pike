@@ -697,6 +697,7 @@ void create(void|object f, void|object c)
       roxen_perror("ssl3.pike: No SSL context!\n");
       throw( ({ "ssl3.pike: No SSL context!\n", backtrace() }) );
     }
+    remoteaddr = Caudium.get_address(f->query_address()||"");
     my_fd_for_destruct = my_fd = roxen_sslfile(f, ctx, c);
     if(my_fd->set_alert_callback)
       my_fd->set_alert_callback(http_fallback);
