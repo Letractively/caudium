@@ -174,7 +174,7 @@ binary-arch: build install
 #	dh_makeshlibs
 #	dh_perl
 	dh_shlibdeps
-	dh_gencontrol -- -Vpike:ver=$(PIKE_DEBIAN_VER) -Vpike:name=$(PIKE)
+	dh_gencontrol -- -Vpike:ver=$(PIKE_VERSION) -Vpike:name=$(PIKE)
 	dh_md5sums
 	dh_builddeb
 
