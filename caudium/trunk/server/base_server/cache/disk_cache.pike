@@ -151,15 +151,17 @@ void|mixed retrieve( string name, void|int object_only ) {
       mapping meta = thecache[ hash ] + ([ ]);
       if ( meta->type == "stdio" ) {
         meta->object = Stdio.File( object_path, "r" );
-      } else if ( meta->type == "variable" ) {
+      }
+      else if ( meta->type == "variable" ) {
         meta->object = _decode_value( Stdio.File( object_path, "r" )->read() );
-	}
-      } else if ( meta->type == "image" ) {
+      }
+      else if ( meta->type == "image" ) {
         meta->object = Image.PNM.decode( Stdio.File( object_path, "r" )->read() );
       }
       if ( ! meta->object ) {
         refresh( name );
 	return 0;
+      }
       if ( object_only ) {
         return meta->object;
       }
