@@ -2,6 +2,10 @@
  * $Id$
  */
 
+//! PDB module... 
+//! @fixme
+//!   Needs to be documented.
+
 #if constant(thread_create)
 #define THREAD_SAFE
 #define LOCK() do { object key; catch(key=lock())
@@ -17,6 +21,7 @@
 
 #define DISABLE_BUG 1
 
+//!
 class FileIO {
 
 #ifdef THREAD_SAFE
@@ -32,7 +37,8 @@ class FileIO {
       PDB_ERR("Failed to open file. "+f+": "+strerror(o->errno()));
     return o;
   }
-  
+
+  //! 
   static int safe_write(object o, string d, string ctx)
   {
     int warned_already=0;
@@ -55,7 +61,8 @@ class FileIO {
       PDB_WARN(ctx+": I'm OK now.");
     return (n<0? n : (n==strlen(d)? 1 : 0));
   }
-
+ 
+  ///
   static int write_file(string f, mixed d)
   {
     d = encode_value(d);
@@ -77,6 +84,7 @@ class FileIO {
     PDB_ERR("Failed to write file. Disk full?");
   }
   
+  //!
   static mixed read_file(string f)
   {
     object o = open(f,"r");
@@ -92,6 +100,7 @@ class FileIO {
 }
 
 
+//!
 class Bucket
 {
   inherit FileIO;
@@ -102,11 +111,13 @@ class Bucket
   static function db_log;
   int size;
 
+  //!
   static int log(int subtype, mixed arg)
   {
     return db_log('B', subtype, size, arg);
   }
 
+  //!
   static int write_at(int offset, string to)
   {
     if(file->seek(offset*size) < 0)
@@ -118,6 +129,7 @@ class Bucket
     PDB_ERR("Failed to write file. Disk full?");
   }
   
+  //!
   static string read_at(int offset)
   {
     if(file->seek(offset*size) == -1)
@@ -125,6 +137,7 @@ class Bucket
     return file->read(size);
   }
   
+  //!
   mixed get_entry(int offset)
   {
     LOCK();
@@ -132,12 +145,14 @@ class Bucket
     UNLOCK();
   }
   
+  //!
   static void save_free_blocks()
   {
     if(write_file(rf+".free", ({last_block, free_blocks})))
       dirty = 0;
   }
   
+  //!
   void free_entry(int offset)
   {
     LOCK();
@@ -149,6 +164,7 @@ class Bucket
     UNLOCK();
   }
 
+  //!
   int allocate_entry()
   {
     int b;
@@ -165,6 +181,7 @@ class Bucket
     return b;
   }
 
+  //!
   int sync()
   {
     LOCK();
@@ -174,6 +191,7 @@ class Bucket
     UNLOCK();
   }
 
+  //!
   int set_entry(int offset, string to)
   {
     if(strlen(to) > size) return 0;
@@ -182,6 +200,7 @@ class Bucket
     UNLOCK();
   }
 
+  //!
   void restore_from_log(array log)
   {
     multiset alloced = (< >);
@@ -218,6 +237,7 @@ class Bucket
     }
   }
   
+  //!
   void create(string d, int ms, int write, function logfun, int exceptions_in,
 	      int sov_in)
   {
@@ -236,6 +256,7 @@ class Bucket
     if(!file->open(rf,mode)) destruct();
   }
 
+  //!
   void destroy()
   {
     sync();
@@ -244,7 +265,7 @@ class Bucket
   }
 };
 
-
+//!
 class Table
 {
   inherit FileIO;
@@ -255,11 +276,13 @@ class Table
   static int dirty;
   static function db_log;
 
+  //!
   static int log(int subtype, mixed ... arg)
   {
     return db_log('T', subtype, name, @arg);
   }
 
+  //!
   int sync()
   {
     LOCK();
@@ -271,6 +294,7 @@ class Table
     UNLOCK();
   }
 
+  //!
   int find_nearest_2x(int num)
   {
     for(int b=4;b<32;b++) if((1<<b) >= num) return (1<<b);
@@ -279,6 +303,7 @@ class Table
   function scheme = find_nearest_2x;
 
 
+  //!
   void delete(string in)
   {
     if(!write) return;
@@ -294,6 +319,7 @@ class Table
     UNLOCK();
   }
 
+  //!
   mixed set(string in, mixed to)
   {
     if(!write) return 0;
@@ -334,10 +360,12 @@ class Table
     return to;
   }
 
+  //!
   mixed `[]=(string in,mixed to) {
     return set(in,to);
   }
   
+  //!
   mixed get(string in)
   {
     array i;
@@ -356,25 +384,30 @@ class Table
     return decode_value( d );
   }
 
+  //!
   mixed `[](string in) {
     return get(in);
   }
 
+  //!
   array list_keys() {
 //  LOCK();
     return indices(index);
 //  UNLOCK();
   }
   
+  //!
   array _indices() {
     return list_keys();
   }
 
+  //!
   array match(string match)
   {
     return glob(match, _indices());
   }
 
+  //!
   void purge()
   {
     // remove table...
@@ -389,11 +422,13 @@ class Table
     UNLOCK();
   }
 
+  //!
   void rehash()
   {
     // TBD ...
   }
   
+  //!
   void restore_from_log(array log)
   {
     int purge = 0;
@@ -418,6 +453,7 @@ class Table
       dirty = sizeof(log)>0;
   }
 
+  //!
   void create(string n, string d, int wp, int cp, function fn, function logfun, int exceptions_in, int sov_in)
   {
     name = n;
@@ -431,13 +467,14 @@ class Table
     catch { index = read_file(dir+".INDEX"); };
   }
 
+  //!
   void destroy()
   {
     sync();
   }
 };
 
-
+//!
 class db
 {
   inherit FileIO;
@@ -451,6 +488,7 @@ class db
   static mapping (string:object(Table)) tables = ([]);
   static object(Stdio.File) logfile;
 
+  //!
   static int log(int major, int minor, mixed ... args)
   {
     LOCK();
@@ -469,6 +507,7 @@ class db
     return 1;
   }
 
+  //!
   static object(Bucket) get_bucket(int s)
   {
     object bucket;
@@ -479,6 +518,7 @@ class db
     return bucket;
   }
 
+  //!
   object(Table) table(string tname)
   {
     tname -= "/";
@@ -490,11 +530,13 @@ class db
     UNLOCK();
   }
 
+  //!
   object(Table) `[](string t)
   {
     return table(t);
   }
   
+  //!
   array(string) list_tables()
   {
     LOCK();
@@ -505,17 +547,20 @@ class db
     UNLOCK();
   }
 
+  //!
   array(string) _indices()
   {
     return list_tables();
   }
 
+  //!
   static void rotate_logs()
   {
     mv(dir+"log.1", dir+"log.2");
     logfile->open(dir+"log.1", "cwta");
   }
 
+  //!
   int sync()
   {
     array b, t;
@@ -542,6 +587,7 @@ class db
   }
 
   // Remove maximum one level of directories and files
+  //!
   static void level2_rm(string f)
   {
     if(sizeof(f) > 1 && f[-1] == '/')
@@ -552,6 +598,7 @@ class db
     rm(f);  // delete file/directory
   }
 
+  //!
   void purge()
   {
     // remove whole db...
@@ -567,6 +614,7 @@ class db
     UNLOCK();
   }
 
+  //!
   static void restore_logs()
   {
     string log = "\n"+(Stdio.read_file(dir+"log.2")||"")+
@@ -615,6 +663,7 @@ class db
       table(t)->restore_from_log(table_log[t]);
   }
   
+  //!
   void create(string d, string mode)
   {
     if(search(mode,"e")+1) exceptions=1;
