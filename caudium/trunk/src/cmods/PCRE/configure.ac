@@ -8,7 +8,7 @@ AC_PROG_INSTALL
 AC_CHECK_HEADERS( locale.h )
 AC_CHECK_FUNCS( setlocale )
 AC_CHECK_HEADERS( pcre.h )
-AC_CHECK_LIB(pcre, pcre_complile)
+AC_CHECK_LIB(pcre, pcre_compile)
 
 if test "$ac_cv_header_pcre_h" != "yes"; then
 cat << EOF
