@@ -1391,28 +1391,18 @@ void send_result(mapping|void result)
     heads = ([]);
     if(!file->len)
     {
-      array|object fstat;
+      object fstat;
       if(objectp(file->file))
         if(!file->stat && !(file->stat=misc->stat))
-          file->stat = (array(int))file->file->stat();
+          file->stat = file->file->stat();
       
-      //
-      // I think it's the highest time to decide on which pike we support...
-      // I vote for 7.2 onwards only
-      // /grendel
-      //
       fstat = file->stat;
-      if(arrayp(fstat) || objectp(fstat))
+      if(objectp(fstat))
       {
         int fsize, fmtime;
 	
-        if (objectp(fstat)) {
-          fsize = fstat->size;
-          fmtime = fstat->mtime;
-        } else {
-          fsize = fstat[1];
-          fmtime = fstat[3];
-        }
+        fsize = fstat->size;
+        fmtime = fstat->mtime;
 	
         if(file->file && !file->len)
           file->len = fsize;
