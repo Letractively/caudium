@@ -20,7 +20,7 @@
 
 /* $Id$ */
    
-import "../";
+//import "../";
 mapping available;
 array tdate;
 string path;
@@ -76,7 +76,7 @@ void create(string _path)
 {
   path = _path;
   if(!strlen(path) || path[-1] != '/')  path+= "/";
-  Util.mkdirhier(path);
+  Stdio.mkdirhier(path);
   get_available_dates();
 }
 
@@ -85,16 +85,16 @@ void set_period(array period)
   tdate = period;
   switch(period[0])
   {
-   case Util.PERIOD_DAY:
+   case UltraSupport.Util.PERIOD_DAY:
     key = sprintf("%s/%d/%d/%d/", path, @period[1..]);
     break;
-   case Util.PERIOD_WEEK:
+   case UltraSupport.Util.PERIOD_WEEK:
     key = sprintf("%s/%d/week_%d/", path, @period[1..]);
     break;
-   case Util.PERIOD_MONTH:
+   case UltraSupport.Util.PERIOD_MONTH:
     key = sprintf("%s/%d/%d/", path, @period[1..]);
     break;
-   case Util.PERIOD_YEAR:
+   case UltraSupport.Util.PERIOD_YEAR:
     key = sprintf("%s/%d/", path, period[1]);
     break;
   }
@@ -128,7 +128,7 @@ mixed load(string table)
   mixed tmp;
   tmp = Stdio.read_file(key+table);
   if(!tmp) return 0;
-  catch { tmp = Util.uncompress(tmp); };
+  catch { tmp = UltraSupport.Util.uncompress(tmp); };
   mixed err = catch { tmp = decode_value(tmp); };
   if(err) {
     werror("Error decoding data for %s (%s)\n%s\n",
@@ -149,7 +149,7 @@ mapping load_list(array list)
 void save(string table, mixed data)
 {
   get_available_dates();
-  if(tdate && tdate[0] == Util.PERIOD_DAY) {
+  if(tdate && tdate[0] == UltraSupport.Util.PERIOD_DAY) {
     if(!available[ tdate[1] ])
       available[ tdate[1] ] = ([]);
     if(!available[ tdate[1] ][ tdate[2] ])
@@ -160,9 +160,9 @@ void save(string table, mixed data)
       Stdio.write_file(path+"available_dates", encode_value(available));
     }
   }
-  Util.mkdirhier(key);
+  Stdio.mkdirhier(key);
   rm(key+table);
-  Stdio.write_file(key+table, Util.compress(encode_value(data)));
+  Stdio.write_file(key+table, UltraSupport.Util.compress(encode_value(data)));
   modified = 1;
 }
 
