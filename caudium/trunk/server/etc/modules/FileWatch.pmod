@@ -32,7 +32,7 @@
 //!    // Password loader
 //!    int passwd_load(string passwdfile) {
 //!      mixed err = catch { 
-//!        passwd = Sdtio.read_bytes(passwdfile);
+//!        passwd = Stdio.read_bytes(passwdfile);
 //!      };
 //!      if (err) return -1;		// Cannot load. Then stop FileWatch
 //!      return 0;

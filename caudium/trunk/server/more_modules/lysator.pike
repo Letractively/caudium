@@ -222,7 +222,7 @@ inline array maintainer(string file)
   array res;
 
   if(!maintainerlist)
-    catch(maintainerlist = read_bytes(MAINTAINERS));
+    catch(maintainerlist = Stdio.read_bytes(MAINTAINERS));
   if(!maintainerlist)
   {
     report_error("Lysmodul: Failed to read the maintainerlist\n");

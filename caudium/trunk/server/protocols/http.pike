@@ -828,7 +828,8 @@ void low_handle_authorization(array y)
        {
          auth=({1, a[0], 0});
          // should we really do this? will caching be fast enough?
-         user=conf->auth_module->user_info(a[0]);
+         // Why this fails ? Is this normal ??? - Kiwi
+         //user=conf->auth_module->user_info(a[0]);
         }
         else // failed authentication
         {
