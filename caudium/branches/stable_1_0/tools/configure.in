@@ -1,3 +1,3 @@
 AC_INIT(caudium-rc_script.in)
 AC_SUBST(PIKE)
-AC_OUTPUT(caudium-rc_script camas/calta docparser/docparse, [chmod +x caudium-rc_script camas/calta docparser/docparse])
+AC_OUTPUT(caudium-rc_script docparser/docparse, [chmod +x caudium-rc_script camas/calta docparser/docparse])
