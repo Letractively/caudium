@@ -984,11 +984,14 @@ void rchown(string dir, int uid, int gid)
   foreach(filenames, filename)
   {
     type = file_stat(dir + filename);
-    if((type != 0) && (type[1] == -2))
-      rchown(dir + filename, uid, gid);
-    // problem when file pointed by a link doesn't exist
-    if(type[1] != -3)
-      chown(dir + filename, uid, gid);
+    if(type != 0)
+    { 
+      if(type[1] == -2)
+        rchown(dir + filename, uid, gid);
+      // problem when file pointed by a link doesn't exist
+      if(type[1] != -3)
+        chown(dir + filename, uid, gid);
+    }
   }
 }
 
