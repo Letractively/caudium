@@ -410,6 +410,13 @@ static string html_encode_tag_value(string m) {
    return Caudium.html_encode_tag_value(m);
 }
 
+//! Compat call of @[Caudium.get_modfullname]
+//! @deprecated
+static string get_modfullname(object m) {
+   WCOMPAT("Caudium","get_modfullname");
+   return Caudium.get_modfullname(m);
+}
+
 //! Compat call of @[Caudium.File.decode_mode]
 //! @deprecated
 static string decode_mode(int m) {
