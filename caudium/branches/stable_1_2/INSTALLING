@@ -6,12 +6,14 @@ that is missing, but here is a list of packages that you will most likely
 have to install yourself.
 
 Required Packages:
-  Pike 7.0:
+  Pike 7.0 or 7.2:
     You will need version 7.0.268 or better.  Do not use the official
     7.0.78 available from pike.roxen.com, as it has bugs that affect
     Caudium's stability and performance.  Grab a CVS snapshot of Pike
     from http://caudium.net/download/snapshot.html until a newer
     version is officially released.
+    However, we recommend pike 7.2 with Caudium 1.2 especialy because
+    the next Caudium branch will require it...
 
 Optional Packages (recommended)
   Sablotron (requires expat)
