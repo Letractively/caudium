@@ -2,6 +2,7 @@ VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=PiXSL
 OBJS= sablot.o
 SOURCES=sablot.c
+MODULE_LIBS=@LIBS@
 
 @module_makefile@
 extrainstall:
