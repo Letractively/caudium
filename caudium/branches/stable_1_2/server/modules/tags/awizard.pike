@@ -1,3 +1,26 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2002 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+/*
+ * $Id$
+ */
+
 inherit "module";
 #include <module.h>
 
@@ -660,8 +683,8 @@ void create()
 	 "<b>&lt;awizard-pike&gt</b>...pike code...<b>&lt;/awizard-pike&gt;</b>"
 	 "in your pages, or procedures.<br>"
 	 "this is doing somewhat same like pike tag support.<br>"
-	 "<font color=red>NOTE: Enabling awizard-pike is the same thing as letting your users"
-	 "run programs with the same right as the server!</font>" );
+	 "<B>NOTE: Enabling awizard-pike is the same thing as letting your users"
+	 "run programs with the same right as the server!</b>" );
 }
 
 
@@ -712,7 +735,7 @@ mapping query_container_callers()
 //!  name: Procedure library
 //
 //! defvar: allow_awizard_pike
-//! If set, you can use, and additonal tag for scripting in AWizards: <b>&lt;awizard-pike&gt</b>...pike code...<b>&lt;/awizard-pike&gt;</b>in your pages, or procedures.<br />this is doing somewhat same like pike tag support.<br /><font color=red>NOTE: Enabling awizard-pike is the same thing as letting your usersrun programs with the same right as the server!</font>
+//! If set, you can use, and additonal tag for scripting in AWizards: <b>&lt;awizard-pike&gt</b>...pike code...<b>&lt;/awizard-pike&gt;</b>in your pages, or procedures.<br />this is doing somewhat same like pike tag support.<br /><B>NOTE: Enabling awizard-pike is the same thing as letting your usersrun programs with the same right as the server!</b>
 //!  type: TYPE_FLAG
 //!  name: Awizard-Pike tag
 //
