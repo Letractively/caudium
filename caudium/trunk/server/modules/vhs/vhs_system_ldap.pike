@@ -421,7 +421,7 @@ void create()
   defvar("ttl_negative", 60, "TTL: Negative TTL", TYPE_INT,
          "Time to cache negative config hits.");
 
-  defvar("lamers_mode", 1, "Enable lamers friendly mode", TYPE_INT,
+  defvar("lamers_mode", 1, "Enable lamers friendly mode", TYPE_FLAG,
          "Append www prefix to each wirtual.");
 }
 
@@ -630,6 +630,6 @@ string status()
 //
 //! defvar: lamers_mode
 //! Append www prefix to each wirtual.
-//!  type: TYPE_INT
+//!  type: TYPE_FLAG
 //!  name: Enable lamers friendly mode
 //
