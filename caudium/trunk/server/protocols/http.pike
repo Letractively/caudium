@@ -1046,7 +1046,7 @@ mapping handle_error_file_request(array err, int eid)
       start = 0;
     }
     int end = (int)variables->line+30;
-    lines=highlight_pike("foo", ([ "nopre":1 ]), lines[start..end]*"\n")/"\n";
+    lines=Caudium.HighLight.Pike.highlight("foo", ([ "nopre":1 ]), lines[start..end]*"\n")/"\n";
     for(int st = start+1, i = 0; i < sizeof(lines); st++, i++) {
       lines[i] = sprintf("%4d:\t%s", st, lines[i]);
     }

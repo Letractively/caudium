@@ -30,9 +30,6 @@ class RequestID
 
 #define MAGIC_ERROR
 
-#ifdef MAGIC_ERROR
-inherit "highlight_pike";
-#endif
 constant cvs_version = "$Id$";
 
 #include <config.h>

@@ -25,7 +25,6 @@
 #include <module.h> 
 inherit "module"; 
 inherit "caudiumlib"; 
-inherit "highlight_pike";
 constant cvs_version	= "$Id$";
 constant module_type	= MODULE_PARSER;
 constant module_name	= "Pike Source Highlighter";
@@ -41,5 +40,5 @@ mapping query_container_callers() {
 
 string cont_phigh(string tag_name, mapping args, string contents, object id, object f, mapping defines, object fd) {
 
-  return highlight_pike("foo", args, contents);
+  return Caudium.HighLight.Pike.highlight("foo", args, contents);
 }
