@@ -1392,6 +1392,38 @@ static void f_http_date(INT32 args)
   push_string(ret);
 }
 
+/*
+** method: string strftime(string f, int t)
+**   strftime() function for pike
+*/
+#ifdef HAVE_STRFTIME
+static void f_strftime(INT32 args) {
+  time_t now;
+  INT_TYPE timestamp = NULL;
+  struct pike_string *ret;
+  struct pike_string *format;
+  /* FIXME:  Use dynamic loading... */
+  char buf[1024];	/* I hate buf size... */
+
+  get_all_args("_Caudium.strftime",args,"%S%i", &format, &timestamp);
+  if(format->len > 1023)
+    Pike_error("_Caudium.strftime(): Out of length in arg 1\n");
+  if(format->len == 0)
+    Pike_error("_Caudium.strftime(): Empty string in arg 1\n");
+#ifdef DEBUG
+  printf("IN : %s : %d\n",format->str, timestamp);
+#endif
+  now = (time_t)timestamp;
+  strftime(buf, sizeof(buf), format->str, localtime(&now));
+#ifdef DEBUG
+  printf("Out : %s\n",buf);
+#endif
+  ret = make_shared_string(buf);
+  pop_stack();
+  push_string(ret);
+}
+#endif
+
 /* Initialize and start module */
 void pike_module_init( void )
 {
@@ -1441,6 +1473,10 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "http_decode_url", f_http_decode_url,
                          "function(string:string)", 0);
+#ifdef HAVE_STRFTIME
+  add_function_constant( "strftime", f_strftime,
+                         "function(string,int:string)", 0);
+#endif
 
   start_new_program();
   ADD_STORAGE( buffer );
