@@ -2393,7 +2393,7 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("watchdog_timeout", 15, "Watchdog: Check Timeout", TYPE_INT,
 	"The number of seconds Caudium has to pat the watchdog before it tries to restart Caudium.");
 
-  globvar("watchdog_timeout", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
+  globvar("watchdog_checkall", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
 	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?");
 
 #if constant(SpiderMonkey.Context);
