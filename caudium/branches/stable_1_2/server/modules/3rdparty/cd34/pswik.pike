@@ -227,7 +227,7 @@ mapping find_file(string f,object id)
         simple_mail((string)id->variables->content, id); 
       };
       if (err) {
-        perror("Mail not send\n");
+        perror("Mail not sent\n");
       }
     }
   }      
