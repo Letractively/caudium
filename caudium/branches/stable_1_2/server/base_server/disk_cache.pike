@@ -42,7 +42,7 @@ string file_name_r(string what, int nd, int hv)
 
 string file_name(string what)
 {
-  int hn = hash(what,0xffffffff);
+  int hn = hash(what);
   return file_name_r(what, QUERY(hash_num_dirs), hn);
 }
 
