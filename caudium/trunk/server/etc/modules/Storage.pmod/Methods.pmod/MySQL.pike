@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+//! Storage Module : MySQL Method
 
 /*
  * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
@@ -28,9 +33,14 @@
  *
  */
 
+//!
 constant storage_type    = "MySQL";
+
+//!
 constant storage_doc     = "Please enter the SQL URL for the mysql server you would like "
                             "to store data in.";
+
+//!
 constant storage_default = "mysql://localhost/caudium";
 
 #ifdef THREADS
@@ -45,10 +55,16 @@ static Thread.Mutex mutex = Thread.Mutex();
 #endif
 #define DB() get_database()
 
+//!
 static string sqlurl;
+
+//!
 static string version = sprintf("%d.%d.%d", __MAJOR__, __MINOR__, __BUILD__); 
+
+//!
 static object db;
 
+//!
 void create(string _sqlurl) {
   PRELOCK();
   LOCK();
@@ -59,6 +75,7 @@ void create(string _sqlurl) {
   init_tables();
 }
 
+//!
 void store(string namespace, string key, string value) {
   PRELOCK();
   object db = DB();
@@ -70,6 +87,7 @@ void store(string namespace, string key, string value) {
     db->query("insert into storage values (%s, %s, %s, %s)", version, namespace, key, value);
 }
 
+//!
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   object db = DB();
@@ -81,6 +99,7 @@ mixed retrieve(string namespace, string key) {
     return 0;
 }
 
+//!
 void unlink(string namespace, void|string key) {
   PRELOCK();
   LOCK();
@@ -92,6 +111,7 @@ void unlink(string namespace, void|string key) {
     db->query("delete from storage where namespace = %s", namespace);
 }
 
+//!
 void unlink_regexp(string namespace, string regexp) {
   PRELOCK();
   LOCK();
@@ -100,6 +120,7 @@ void unlink_regexp(string namespace, string regexp) {
   db->query("delete from storage where namespace = %s and dkey regexp %s", namespace, regexp);
 }
 
+//!
 static object get_database() {
   PRELOCK();
   LOCK();
@@ -108,6 +129,7 @@ static object get_database() {
   return db;
 }
 
+//!
 static object init_tables() {
   PRELOCK();
   LOCK();
@@ -126,6 +148,7 @@ static object init_tables() {
     );
 }
 
+//!
 int size(string namespace) {
   PRELOCK();
   LOCK();
@@ -142,6 +165,7 @@ int size(string namespace) {
   return total;
 }
 
+//!
 array list(string namespace) {
   PRELOCK();
   LOCK();

@@ -17,14 +17,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
- * The Caudium/Camas ESMTP client module
- *
- * This class implements the synchronous ("traditional") smtp client.
+ * $Id$
  */
 
+//! The Caudium/Camas ESMTP client module
+//! This class implements the synchronous ("traditional") smtp client.
 
+//!
 constant cvs_version = "$Id$";
 
 #define CODECLASS(X)    ( ((smtp_reply->retcode / 100) * 100 == X) ? 1 : 0 )
@@ -154,7 +154,7 @@ private void smtp_read() {
  ************************
  */
 
-
+//!
 void create(void|string server, void|string|int port, void|string maildomain)
 {
 	string fqdn;
@@ -209,6 +209,7 @@ void create(void|string server, void|string|int port, void|string maildomain)
 	this_connection->active = 1;
 }
 
+//!
 void destruct() {
 	if(this_connection->active)
 		catch {
@@ -217,12 +218,14 @@ void destruct() {
 		};
 }
 
+//!
 int sender(string address) {
 	address = addr_canon(address);
 	smtp_tell("MAIL FROM: " + address);
 	return ( CODECLASS(200) ? 1 : 0 );
 }
 
+//!
 int recipient(string address) {
 	if(address[0] != '<')
 		address = "<" + address;
@@ -232,6 +235,7 @@ int recipient(string address) {
 	return ( CODECLASS(200) ? 1 : 0 );
 }
 
+//!
 int body(string body) {
 	array b = body / "\n";
 	for(int i=0; i<sizeof(b)-1; i++) {
@@ -248,6 +252,7 @@ int body(string body) {
 	return ( CODECLASS(200) ? 1 : 0 );
 }
 
+//!
 void quit() {
 	if(this_connection->active) {
 		smtp_tell("QUIT");
@@ -256,6 +261,7 @@ void quit() {
 	}
 }
 
+//! Do SMTP Auth
 int auth(string user, string pass) {
 	string method = "";
 	if(!supports->auth->yes)
@@ -301,14 +307,17 @@ int auth(string user, string pass) {
 	return 0;
 }
 
+//!
 array get_errors() {
 	return errors;
 }
 
+//! Get last error from SMTP server
 string last_error() {
 	return ( errors == ({ }) ? "" : errors[sizeof(errors)-1] );
 }
 
+//! Get properties from SMTP server.
 int|mapping properties(void|string prop) {
 	if(!prop) {
 		return this_connection;
@@ -319,6 +328,7 @@ int|mapping properties(void|string prop) {
 	return this_connection[prop];
 }	
 
+//!
 int|array capabilities(void|string cap) {
 	array retval = ({ });
 	// same as above. i feel i'm fucking consistency but no better idea now..

@@ -1,4 +1,8 @@
 
+//! REXEC Client module
+//! @note
+//!  To be documented
+
 int non_blocking;
 mapping callbacks;
 string host;
@@ -12,6 +16,7 @@ function write;
 function read;
 function stderr_read;
 
+//!
 void create( string _luser, void|string _ruser ) {
   luser = _luser;
   if ( _ruser )
@@ -20,6 +25,7 @@ void create( string _luser, void|string _ruser ) {
     ruser = _luser;
 }
 
+//!
 int connect( string _host, int _port, void|string _command, void|mapping _callbacks ) {
   // Set up the global variables;
   if ( _callbacks && ( sizeof( _callbacks ) > 0 ) ) {
@@ -56,16 +62,19 @@ int connect( string _host, int _port, void|string _command, void|mapping _callba
   return 1;
 }
 
+//!
 void __read( mixed id, string data ) {
   if ( callbacks->read )
     callbacks->read( data );
 }
 
+//!
 void __write() {
   if ( callbacks->write )
     callbacks->write();
 }
 
+//!
 void accept_stderr() {
   object _stderr = stderr->accept();
   stderr = _stderr;
@@ -76,6 +85,7 @@ void accept_stderr() {
     stderr_read = stderr->read;
 }
 
+//!
 void close() {
   srv->close();
   if ( stderr )

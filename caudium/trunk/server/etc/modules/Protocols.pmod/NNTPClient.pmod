@@ -16,8 +16,14 @@
  *
  */
 
-// (c) Daniel Podlejski
 // $Id$
+
+//! NNTP client module.
+//! @note
+//!  (c) Daniel Podlejski
+
+//!
+constant cvs_version="$Id$";
 
 #define POSTINGOK "(posting ok)"
 
@@ -31,17 +37,28 @@
 
 #define NNTPPORT 119
 
+//!
 class connection
 {
+  //!
   object connection = 0;
+
+  //!
   int lastreply = 0;
+
+  //!
   int locked = 0;
-  // global error (socket, network, ...)
+
+  //! global error (socket, network, ...)
   mixed err = 0;
-  // error in protocol
+
+  //! error in protocol
   string proto_err = ""; 
+
+  //! If we are allowed to post to this NNTP server.
   int allowed2post = 0;
   
+  //!
   void create(void|string connectionserver, void|int argport)
   {
     int port = NNTPPORT;
@@ -67,11 +84,13 @@ class connection
     }
   }
   
+  //! Close the connection
   int close()
   {
     return connection->close();
   }
 
+  //!
   string _gets()
   {
     string result = connection->gets();
@@ -81,6 +100,7 @@ class connection
     return result;
   }
 
+  //! Send a NNTP command
   string _cmd(string command)
   {
     write("NNTPClient: _cmd: " + command + "\n");
@@ -88,6 +108,7 @@ class connection
     return _gets();
   }
 
+  //!
   int reader()
   {
     string res;
@@ -110,6 +131,7 @@ class connection
     return 0;
   }
 
+  //!
   void quit()
   {
     string res;
@@ -123,6 +145,7 @@ class connection
     connection = 0;
   }
 
+  //! 
   array group(string name)
   {
     string res;
@@ -148,6 +171,7 @@ class connection
     return ({ msgcount, minmsg, maxmsg, name });
   }
 
+  //!
   string article(void|int|string msgspec)
   {
     string res, article = "";
@@ -181,6 +205,7 @@ class connection
     return article;
   }
 
+  //!
   string head(void|int|string msgspec)
   {
     string res, head = "";
@@ -214,6 +239,7 @@ class connection
     return head;
   }
 
+  //!
   string body(void|int|string msgspec)
   {
     string res, body = "";
@@ -248,6 +274,7 @@ class connection
     return body;
   }
 
+  //!
   mapping active(void|string groupname)
   {
     string res;
@@ -289,6 +316,7 @@ class connection
     return result;
   }
 
+  //!
   mapping active_times()
   {
     string res;
@@ -324,6 +352,7 @@ class connection
     return result;
   }
 
+  //!
   mapping newsgroups(void|int|string groupname)
   {
     string res;
@@ -365,6 +394,7 @@ class connection
     return result;
   }
 
+  //!
   mapping newgroups(string date)
   {
     string res;
@@ -399,6 +429,7 @@ class connection
     return result;
   }
 
+  //!
   mapping xhdr(string hdr, string msgspec)
   {
     string res;
@@ -434,6 +465,7 @@ class connection
     return result;
   }
 
+  //!
   mapping xover(string|int msgspec, void|string msgspec2)
   {
     string res;
@@ -473,6 +505,7 @@ class connection
     return result;
   }
 
+  //! Post a message
   int post(string message)
   {
     string res;

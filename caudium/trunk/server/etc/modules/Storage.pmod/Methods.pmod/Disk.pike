@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+//! Storage Module : Disk method.
 
 /*
  * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
@@ -28,7 +33,10 @@
  *
  */
 
+//!
 constant storage_type    = "Disk";
+
+//!
 constant storage_doc     = "Please enter the path on the filesystem that you would like to "
                            "store the data in."
 #ifdef NFS_LOCK
@@ -39,6 +47,8 @@ constant storage_doc     = "Please enter the path on the filesystem that you wou
 			   "a deadlock condition. Be careful.</i>"
 #endif
                            ;
+
+//!
 constant storage_default = "+";
 
 #ifdef THREADS
@@ -73,6 +83,7 @@ static mapping _size;
 array _sending;
 int idx_sync_stop;
 
+//!
 void create(string _path) {
   PRELOCK();
   LOCK();
@@ -94,6 +105,8 @@ void create(string _path) {
 }
 
 #ifdef CACHE_DEBUG
+
+//!
 void debug() {
   if (sizeof(_sending))
     write("Writing files: %O\n", _sending);
@@ -101,6 +114,7 @@ void debug() {
 }
 #endif
 
+//!
 void store(string namespace, string key, string value) {
   if (!namespace || !key)
     return;
@@ -109,11 +123,13 @@ void store(string namespace, string key, string value) {
   Stdio.write_file(objpath, encode(namespace, key, value));
 }
 
+//!
 void unlock(void|object key) {
   if (objectp(key))
     destruct(key);
 }
 
+//!
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   if (!namespace || !key)
@@ -150,6 +166,7 @@ mixed retrieve(string namespace, string key) {
   }
 }
 
+//!
 void unlink(string namespace, void|string key) {
   PRELOCK();
   PREFLOCK();
@@ -178,6 +195,7 @@ void unlink(string namespace, void|string key) {
   }
 }
 
+//!
 void unlink_regexp(string namespace, string regexp) {
   PRELOCK();
   PREFLOCK();
@@ -194,12 +212,14 @@ void unlink_regexp(string namespace, string regexp) {
   }
 }
 
+//!
 static string encode(string namespace, string key, string value) {
   mapping tmp = ([ "namespace" : namespace, "key" : key, "value" : value ]);
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n", tmp);
   return MIME.encode_base64(data, 1);
 }
 
+//!
 static mixed decode(string data) {
   program p;
   object e = ErrorContainer();
@@ -214,12 +234,14 @@ static mixed decode(string data) {
   return p()->data;
 }
 
+//!
 static string get_hash( string data ) {
   string retval;
   retval = Caudium.Crypto.hash_md5(data);
   return sprintf("%@02x",(array(int)) retval);
 }
 
+//!
 int size(string namespace) {
   if (_size[namespace])
     return _size[namespace];
@@ -245,6 +267,7 @@ int size(string namespace) {
   return total;
 }
 
+//!
 array list(string namespace) {
   PREFLOCK();
   if (idx[namespace] && sizeof(idx[namespace]))
@@ -267,6 +290,7 @@ array list(string namespace) {
   return ret;
 }
 
+//!
 void flush() {
   if (sizeof(_sending)) {
     _sending->flush();
@@ -275,6 +299,7 @@ void flush() {
   }
 }
 
+//!
 static void sending(object o) {
   PRELOCK();
   LOCK();
@@ -282,6 +307,7 @@ static void sending(object o) {
   UNLOCK();
 }
 
+//!
 static void unsending(object o) {
   PRELOCK();
   LOCK();
@@ -289,6 +315,7 @@ static void unsending(object o) {
   UNLOCK();
 }
 
+//!
 string idx_path(string namespace, string key, void|string _path) {
   PRELOCK();
   if (!idx[namespace]) {
@@ -311,6 +338,7 @@ string idx_path(string namespace, string key, void|string _path) {
   }
 }
 
+//!
 void idx_sync(void|int stop) {
   PREFLOCK();
   string ipath = Stdio.append_path(path, "storage_index"); 
@@ -327,6 +355,7 @@ void idx_sync(void|int stop) {
 }
 
 
+//!
 mapping idx_get() {
   PREFLOCK();
   string ipath = Stdio.append_path(path, "storage_index");
@@ -352,6 +381,7 @@ mapping idx_get() {
   return p->data;
 }
 
+//!
 void idx_rm(string namespace, void|string key) {
   if (!key) {
     if (idx[namespace])
@@ -363,6 +393,7 @@ void idx_rm(string namespace, void|string key) {
   }
 }
 
+//!
 void stop() {
   idx_sync(1);
   flush();

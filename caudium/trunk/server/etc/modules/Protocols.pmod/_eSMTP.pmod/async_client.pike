@@ -17,15 +17,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
- * The Caudium/CAMAS ESMTP client module
- *
- * This class implements the asynchronous smtp client.
- *
+ * $Id$
  */
 
+//! The Caudium/CAMAS ESMTP client module
+//! This class implements the asynchronous smtp client.
 
+//!
 constant cvs_version = "$Id$";
 
 #define CODECLASS(X)    ( ((smtp_reply->retcode / 100) * 100 == X) ? 1 : 0 )
@@ -68,6 +67,7 @@ private mapping this_connection = ([
 	"size":			0
 ]);						// current connection's properties
 
+//!
 void create(void|string server, void|string|int port, void|string maildomain) {
 	if(server && stringp(server))
 		smtp_server->address = server;
