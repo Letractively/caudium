@@ -1,0 +1,7 @@
+A note for FreeBSD users
+------------------------
+
+Caudium 1.4 is not yet on FreeBSD ports but there is a port for Pike 7.6
+located at /usr/ports/lang/pike76/
+
+
