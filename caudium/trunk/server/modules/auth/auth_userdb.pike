@@ -632,7 +632,7 @@ mapping|int get_user_info(string u)
 
 }
 
-mapping|int get_username(string uid)
+string|int get_username(string uid)
 {
   ERROR("get_username: " + uid);
 
@@ -646,7 +646,7 @@ mapping|int get_username(string uid)
 
 }
 
-mapping|int get_groupname(string gid)
+string|int get_groupname(string gid)
 {
   werror("get_groupname: " + gid);
 
