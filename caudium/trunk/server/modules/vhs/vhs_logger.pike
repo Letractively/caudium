@@ -356,7 +356,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
 		 Caudium.http_encode_string(request_id->useragent),
-		 extract_user(request_id->realauth),
+		 (id->user?id->user->username:"-")),
 		 (string)request_id->cookies->CaudiumUserID,
 		 (string)request_id->misc->host,
 	       }) );
