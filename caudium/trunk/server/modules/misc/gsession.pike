@@ -712,10 +712,25 @@ private int leave_me_alone(string uri)
 
 string rewrite_uri(object id, string from, void|int append)
 {
-    if (!append)
-        return sprintf("%s?%s=%s", from, SVAR, id->misc->session_id);
-    else
-        return sprintf("%s&%s=%s", from, SVAR, id->misc->session_id);
+    int              hashpos;
+    array(string)    parts;
+    
+    hashpos = search(from, "#");
+
+    if (hashpos >= 0)
+        parts = from / "#";
+    
+    if (!append) {
+        if (hashpos >= 0)
+            return sprintf("%s?%s=%s#%s", parts[0], SVAR, id->misc->session_id, parts[1]);
+        else
+            return sprintf("%s?%s=%s", from, SVAR, id->misc->session_id);
+    } else {
+        if (hashpos >= 0)
+            return sprintf("%s&%s=%s#%s", parts[0], SVAR, id->misc->session_id, parts[1]);
+        else
+            return sprintf("%s&%s=%s", from, SVAR, id->misc->session_id);
+    }
 }
 
 mixed container_a(string tag, mapping args, string contents, object id, mapping defines)
