@@ -4,14 +4,13 @@
 <!-- Caudium doc parsing XSLT stylesheet
      Very early version - don't expect any bells and whistles.
 -->
-<xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
+<xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
 <xsl:template match="documentation">
- <html><head><title>Caudium Docs</title></head>
-  <body><h1>Caudium Documentation</h1>
-   <dl><xsl:apply-templates select="module | file"/></dl>
-   <p><font size="-2">XSLT Template version <tt>$Id$</tt></font></p>
-  </body>
- </html>
+ <use file="/layout.tmpl" />
+ <page title="Caudium Docs">
+  <dl><xsl:apply-templates select="module | file"/></dl>
+  <p><font size="-2">XSLT Template version <tt>$Id$</tt></font></p>
+ </page>
 </xsl:template>
 
 
@@ -19,7 +18,7 @@
 
 <xsl:template match="module">
   <dt><h2>Module <xsl:value-of select="@name"/></h2></dt>
-  <dd><xsl:value-of select="description"/></dd>
+  <dd><p><xsl:value-of select="description"/></p></dd>
   <xsl:apply-templates select="version"/>
   <dd><hr noshade="" size="1"/></dd>
   <dd><xsl:apply-templates select="tag"/></dd>
@@ -54,13 +53,14 @@
 
 <xsl:template match="file">
   <dt><h2>File <xsl:value-of select="@name"/></h2></dt>
-  <dd><xsl:value-of select="description"/></dd>
+  <dd><p><xsl:value-of select="description"/></p></dd>
   <xsl:apply-templates select="version"/>
   <dd><hr noshade="" size="1"/></dd>
   <dd><xsl:apply-templates select="method"/></dd>
 </xsl:template>
 
 <xsl:template match="method">
+  <h3><xsl:value-of select="@name"/> </h3>
   <dl><dt><p><b>Function</b></p></dt>
   <dd><p><xsl:value-of select="short"/></p></dd>
   <xsl:apply-templates select="syntax"/>
@@ -105,8 +105,8 @@
 <!-- Shared templates -->
 
 <xsl:template match="version">
-  <dd><dl><dt><h3>Version</h3></dt>
-  <dd><p><xsl:value-of select="."/></p></dd></dl></dd>
+  <dd><dl><dt><p><h4>Version</h4></p></dt>
+  <dd><xsl:value-of select="."/></dd></dl></dd>
 </xsl:template>
 
 
