@@ -718,11 +718,14 @@ class CGIScript
     if(!(pid = Caudium.create_process( ({ command }) + arguments, options ))) {
       error("Failed to create CGI process.\n");
     }
+  // XXX Caudium.create_process returns int (pid number) now
+  /*
     if(!objectp(pid)) {
       error("Failed to create CGI process.\n");
     }
     if(QUERY(kill_call_out))
       call_out( kill_script, QUERY(kill_call_out)*60 );
+  */
     return this_object();
   }
 
