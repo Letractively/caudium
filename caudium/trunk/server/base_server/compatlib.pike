@@ -264,3 +264,11 @@ mapping http_auth_failed(string realm, string|void m, int|void d) {
                                ]),
               ]);
 }
+
+//! Compat call from replace
+//! @deprecated
+string do_replace(string s, mapping (string:string) m) {
+  report_error("Compat do_replace() used in %s, please consider using Pike replace() instead\n",dbt(backtrace()[-2]));
+  return replace(s, m);
+}
+

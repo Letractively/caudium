@@ -280,11 +280,6 @@ string tag_date(string q, mapping m, object id)
   return tagtime(t,m);
 }
 
-inline string do_replace(string s, mapping (string:string) m)
-{
-  return replace(s, indices(m), values(m));
-}
-
 inline string do_safe_replace(string s, mapping (string:string) m,
 			      array(string) encodings)
 {
@@ -1081,7 +1076,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
   {
     m_delete(m, "name");
     m_delete(m, "define");
-    return do_replace(defines[n]||
+    return replace(defines[n]||
 		      (id->misc->debug?"No such define: "+n:""), m);
   }
 
@@ -1199,7 +1194,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
     if (id->misc->include_depth)    
 	id->misc->include_depth--;
 
-    return do_replace(s, m);
+    return replace(s, m);
   }
   return tag_echo(tag, m, id, file, defines);
 }
