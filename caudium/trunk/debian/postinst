@@ -90,6 +90,11 @@ EOF
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
+    db_get caudium${EXTVER}/performance
+    if [ "$RET" = "true" ]; then
+        START_OPTIONS="$START_OPTIONS -DMAX_PERFORMANCE"
+    fi
+
     if [ ! -f /etc/default/caudium${EXTVER} ]; then
 	cat <<EOF > /etc/default/caudium${EXTVER}
 #
