@@ -42,6 +42,7 @@ inherit "caudiumlib";
 //!  images or files from your server without your permission.
 //! inherits: module
 //! inherits: caudiumlib
+//! type: MODULE_FIRST
 //! cvs_version: $Id$
 //! todo: Agent type deny e.g. can deny somewhat GetRight/*, Wget/* apents
 //!  to stop leaching some files.
