@@ -25,6 +25,8 @@ void create(string _permstore, string path) {
 }
 
 void start(string _permstore, string path) {
+
+  if(functionp(path)) path=call_function(path);
   LOCK();
   if (objectp(permstore)) {
     destruct(permstore);
