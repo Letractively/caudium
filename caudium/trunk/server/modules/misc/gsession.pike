@@ -169,7 +169,7 @@ mixed first_try(object id)
     alloc_session(id);
     setup_compat(id);
 
-    return 1;
+    return 0;
 }
 
 mixed find_file ( string path, object id )
