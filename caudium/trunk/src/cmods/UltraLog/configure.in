@@ -25,7 +25,6 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(LDSHARED)
 AC_SUBST(LIBGCC)
 AC_SUBST(SO)
-AC_SUBST(SMARTLINK)
 
 AC_OUTPUT(Makefile.pre ultrasum, [chmod +x ultrasum; make -f Makefile.pre depend])
 

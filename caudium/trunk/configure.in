@@ -88,12 +88,6 @@ fi
 
 caudium_cv_prog_CC="$CC"
 
-if test -f stamp-h; then
-  if test "x`cat stamp-h`" != "x${pike_version}" ; then
-    unset ac_cv_prog_CC
-  else :; fi
-else :; fi
-
 AC_PROG_CC
 AC_AIX
 AC_MINIX
@@ -484,24 +478,24 @@ fi
 
 if test $ac_cv_prog_gcc = yes; then
   AC_MSG_CHECKING(for libgcc file name)
-  AC_CACHE_VAL(pike_cv_libgcc_filename,
+  AC_CACHE_VAL(caudium_cv_libgcc_filename,
   [
-    pike_cv_libgcc_filename="`${CC-cc} -print-libgcc-file-name`"
-    if test -z "$pike_cv_libgcc_filename"; then
-      pike_cv_libgcc_filename=no
+    caudium_cv_libgcc_filename="`${CC-cc} -print-libgcc-file-name`"
+    if test -z "$caudium_cv_libgcc_filename"; then
+      caudium_cv_libgcc_filename=no
     else
-       if test -f "$pike_cv_libgcc_filename"; then
+       if test -f "$caudium_cv_libgcc_filename"; then
          :
        else
-         pike_cv_libgcc_filename=no
+         caudium_cv_libgcc_filename=no
        fi
     fi
   ])
-  AC_MSG_RESULT($pike_cv_libgcc_filename)
-  if test x"$pike_cv_libgcc_filename" = xno; then
+  AC_MSG_RESULT($caudium_cv_libgcc_filename)
+  if test x"$caudium_cv_libgcc_filename" = xno; then
     LIBGCC=""
   else
-    LIBGCC="$pike_cv_libgcc_filename"
+    LIBGCC="$caudium_cv_libgcc_filename"
   fi
 else
   LIBGCC=""
@@ -514,17 +508,18 @@ export LIBGCC
 AC_MSG_CHECKING(SO)
 if test -z "$SO"
 then
-	case "$pike_cv_sys_os" in
+	case "$caudium_cv_sys_os" in
 	hp*|HP*)   SO=sl;;
 	*)	   SO=so;;
 	esac
 fi
 AC_MSG_RESULT($SO)
+
 # LDSHARED is the ld *command* used to create shared library
 # -- "ld" on SunOS 4.x.x, "ld -G" on SunOS 5.x, "ld -shared" on IRIX 5
 AC_MSG_CHECKING(LDSHARED)
 if test -z "$LDSHARED" ; then
-  case "$pike_cv_sys_os" in
+  case "$caudium_cv_sys_os" in
     AIX*)
       if test "$GCC" = yes ; then
         if test "`uname -r`" -ge 2 -a "`uname -v`" -ge 4 ; then
@@ -539,7 +534,7 @@ if test -z "$LDSHARED" ; then
 	    #
 	    # Even AIX 4.2.1 has buggy dlopen -- NEVER attempt
 	    # to dlopen a file that hasn't been linked with -G.
-	    pike_cv_sys_dynamic_loading=no
+	    caudium_cv_sys_dynamic_loading=no
 	    LDSHARED="ld"
 	  fi
         fi
@@ -549,7 +544,7 @@ if test -z "$LDSHARED" ; then
 	# In addition, the dynamic loading test seems to
 	# cause our RS/6000 to hang, which causes the
 	# watchdog-timer to PANIC.
-	pike_cv_sys_dynamic_loading=no
+	caudium_cv_sys_dynamic_loading=no
         LDSHARED="ld"
       fi
     ;;
@@ -631,50 +626,6 @@ fi
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
-
-AC_MSG_CHECKING(LINKFORSHARED)
-
-AC_CACHE_VAL(caudium_cv_sys_linkforshared,[
-# LINKFORSHARED are the flags passed to the $(CC) command that links
-# the pike executable -- this is only needed for a few systems
-if test -z "$LINKFORSHARED"
-then
-  if test "$GCC" = yes ; then
-    case $caudium_cv_sys_os in
-	AIX*)	LINKFORSHARED="-Wl,-bexpall -Wl,-brtl";;
-	hp*|HP*) LINKFORSHARED="-Wl,-E";;
-	Linux*) LINKFORSHARED="-rdynamic";;
-        GNU*) LINKFORSHARED="-rdynamic";;
-	next) LINKFORSHARED="-u libsys_s";;
-	SCO_SV*) LINKFORSHARED="-fpic -Wl,-Bexport";;
-	UnixWare*) LINKFORSHARED="-fpic -Wl,-Bexport";;
-    esac
-  else
-    case $caudium_cv_sys_os in
-	AIX*)	LINKFORSHARED="-Wl,-bexpall -Wl,-brtl";;
-	hp*|HP*) LINKFORSHARED="-Wl,-E";;
-	Linux*) LINKFORSHARED="-rdynamic";;
-        GNU*) LINKFORSHARED="-rdynamic";;
-	next) LINKFORSHARED="-u libsys_s";;
-	SCO_SV*) LINKFORSHARED="-Bdynamic -dy -Wl,-Bexport";;
-	UnixWare*) LINKFORSHARED="-Bdynamic -dy -Wl,-Bexport";;
-    esac
-  fi
-fi
-
-
-   OLD_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS $LINKFORSHARED"
-   AC_TRY_RUN([int main() { exit(0); }],
- caudium_cv_sys_linkforshared="$LINKFORSHARED", caudium_cv_sys_linkforshared='')
-   CFLAGS="$OLD_CFLAGS"
-])
-
-LDFLAGS="$caudium_cv_sys_linkforshared $LDFLAGS"
-
-AC_MSG_RESULT($LINKFORSHARED)
-AC_SUBST(LINKFORSHARED)
-
 # Pass a joined CFLAGS to the other configure-scripts.
 CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 
@@ -687,4 +638,3 @@ export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO SMARTLINK
 AC_SUBST(SMARTLINK)
 AC_CONFIG_SUBDIRS(src)
 AC_OUTPUT(Makefile)
-
