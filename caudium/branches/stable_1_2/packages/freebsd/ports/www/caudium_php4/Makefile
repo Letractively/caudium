@@ -30,10 +30,9 @@ PHP_DISTDIR=	distributions
 USE_SUBMAKE=	yes
 USE_AUTOCONF_VER=213
 
-CONFIGURE_ARGS=	--with-config-file-path=${PREFIX}/etc/php.standalone \
+CONFIGURE_ARGS=	--with-config-file-path=${PREFIX}/etc/php.caudium \
 		--disable-pear \
 		--enable-discard-path \
-		--with-tsrm-pth \
 		--with-caudium=/usr/local/caudium/server \
 		--enable-track-vars \
 		--enable-memory-limit \
@@ -59,37 +58,13 @@ SCRIPTS_ENV=	WRKDIRPREFIX="${WRKDIRPREFIX}" \
 		PHP4_OPTIONS="${PHP4_OPTIONS}" \
 		REALCURDIR="${.CURDIR}"
 
-AP_LIBEXEC=	${PREFIX}/libexec/apache
-
-PLIST_SUB=	AP_LIBEXEC=${AP_LIBEXEC:S/^${PREFIX}\///}
-
 pre-fetch:
 	@${SETENV} ${SCRIPTS_ENV} ${SH} ${SCRIPTDIR}/configure.php
 	@${ECHO_CMD} ""
-.endif
 
 post-install:
-.if !defined(STANDALONE)
-	@${INSTALL_DATA} ${WRKSRC}/php.ini-dist ${PREFIX}/etc
-.else
-	@${MKDIR} ${PREFIX}/etc/php.standalone
-	@${INSTALL_DATA} ${WRKSRC}/php.ini-dist ${PREFIX}/etc/php.standalone
-.endif
-
-.if !defined(STANDALONE)
-	@${ECHO_CMD} "*****************************************************************************"
-	@${ECHO_CMD} "Make sure the mime.types are connected to the php module properly and"
-	@${ECHO_CMD} "index.php is part of your DirectoryIndex."
-	@${ECHO_CMD} ""
-	@${ECHO_CMD} "The following should be in your Apache configuration file:"
-	@${ECHO_CMD} "[...]"
-	@${ECHO_CMD} "DirectoryIndex index.php index.html"
-	@${ECHO_CMD} "[...]"
-	@${ECHO_CMD} "AddType application/x-httpd-php .php"
-	@${ECHO_CMD} "AddType application/x-httpd-php-source .phps"
-	@${ECHO_CMD} "[...]"
-	@${ECHO_CMD} "*****************************************************************************"
-.endif
+	@${MKDIR} ${PREFIX}/etc/php.caudium
+	@${INSTALL_DATA} ${WRKSRC}/php.ini-dist ${PREFIX}/etc/php.caudium
 
 post-clean:
 	@${RM} -f ${WRKDIRPREFIX}${.CURDIR}/Makefile.inc
