@@ -1360,7 +1360,7 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
   if(sizeof(dom) && (dom[-1]=='.'))
     dom = dom[0..strlen(dom)-2];
   if(!b) return "";
-  u=id->conf->userinfo(b, id);
+  u=id->conf->user_info(b, id);
   if(!u) return "";
   
   if(m->realname && !m->email)
