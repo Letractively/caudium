@@ -1397,14 +1397,26 @@ void send_result(mapping|void result)
     roxen_perror(sprintf("error out : %O\n",tmp));
     if(mappingp(tmp)) 
       file = (mapping)tmp;
+    else {  // Fallback error handler.
+      if(misc->error_code)
+        file = http_low_answer(misc->error_code, errors[misc->error]);
+      else if(method != "GET" && method != "HEAD" && method != "POST")
+        file = http_low_answer(501,"Not implemented.");
+      else 
+        file = http_low_answer(404,"Not found.");
+    }
   }
+#if 0
  // Old error handler to be removed. 
   if(!mappingp(file))
   {
     MARK_FD("send_result(): not a mapping -> sending error");
     // XB: This handle the error :) Great
     file = caudium->http_error->process_error (this_object ());
-  } else {
+  } 
+#endif
+   
+   else {
     if((file->file == -1) || file->leave_me) 
     {
       if(do_not_disconnect) {
