@@ -181,7 +181,7 @@ string retrieve_props(string file, mapping xmlbody, array|void fstat)
 	}
     }
     response+="</D:prop>\r\n";
-    response+="<D:status>HTTP/1.1 "+errors[200]+"</D:status>\r\n";
+    response+="<D:status>HTTP/1.1 "+Caudium.Const.errors[200]+"</D:status>\r\n";
     response+="</D:propstat>\r\n";
 
     // props not found...
@@ -568,7 +568,7 @@ mapping|void handle_proppatch()
 	    patch = set_property(prop, props[prop], namespaces);
 	    response += "<D:prop><"+prop+"/></D:prop>\n";
 	    response += "<D:status>HTTP/1.1 "+
-		(patch ? errors[200] : " 403 Forbidden")+ "</D:status>\r\n";
+		(patch ? Caudium.Const.errors[200] : " 403 Forbidden")+ "</D:status>\r\n";
 	    response += "</D:propstat>\n";
 	}
 	DAV_WERR("Properties:\n"+sprintf("%O", props));
