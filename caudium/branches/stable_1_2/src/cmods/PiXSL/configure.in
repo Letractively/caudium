@@ -15,6 +15,10 @@ fi
 dnl FreeBSD of Sablot + Expart uses iconv lib 
 dnl when linking
 AC_CHECK_LIB(iconv, iconv)
+dnl There is also another call in libiconv that can
+dnl be used
+AC_CHECL_LIB(iconv, libiconv)
+
 
 AC_CHECK_HEADERS( sablot.h )
 dnl  if we need this, use em.
