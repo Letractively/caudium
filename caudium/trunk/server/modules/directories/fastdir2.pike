@@ -115,7 +115,7 @@ string head(string path,object id)
     rm=find_readme(path,id);
  
   return ("<html><head><title>Directory listing of "+path+"</title>"
-          "</head><body>"+QUERY(footer) +"<h1>"
+          "</head><body>"+QUERY(header) +"<h1>"
           "Directory listing of "+path+"</h1>\n<p>"+rm
 	  +"<pre>\n<hr noshade>");
 }
