@@ -97,7 +97,7 @@ void store(string namespace, string key, string value) {
     return;
   string objpath = idx_path(namespace, key);
   string data = encode(namespace, key, value);
-  Stdio.write_file(objpath, encode(namespace, key, value));
+  write_file(objpath, encode(namespace, key, value));
 }
 
 //!
@@ -112,7 +112,7 @@ mixed retrieve(string namespace, string key) {
     return 0;
   string objpath = idx_path(namespace, key);
   if (Stdio.exist(objpath)) {
-    string s = Stdio.read_file(objpath);
+    string s = read_file(objpath);
     if (!stringp(s))
       return 0;
     mixed tmp = decode(s);
@@ -213,7 +213,7 @@ int size(string namespace) {
   foreach(keys, string key) {
     string objpath = idx_path(namespace, key);
     string s;
-    if (catch(s = Stdio.read_file(objpath))) {
+    if (catch(s = read_file(objpath))) {
       continue;
     }
     mapping p = decode(s);
@@ -245,10 +245,10 @@ array list(string namespace) {
 #ifdef STORAGE_DEBUG
     write("STORAGE OBJECT PATH: %O\n", objpath);
 #endif
-    string s = Stdio.read_file(objpath);
+    string s = read_file(objpath);
     mapping obj = decode(s);
     if (mappingp(obj)) {
-      string key = decode(Stdio.read_file(objpath))->key;
+      string key = decode(read_file(objpath))->key;
       if (obj->namespace == namespace)
         ret += ({ key });
       idx_path(obj->namespace, key, objpath);
@@ -313,7 +313,7 @@ void idx_sync(void|int stop) {
   string ipath = Stdio.append_path(path, "storage_index"); 
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
   data = MIME.encode_base64(data, 1);
-  catch(Stdio.write_file(ipath, data));
+  catch(write_file(ipath, data));
   if (stop)
     idx_sync_stop = 1;
   if (!idx_sync_stop) {
@@ -344,7 +344,7 @@ void|mapping _idx_get() {
   }
   string s;
 
-  catch(s = Stdio.read_file(ipath));
+  catch(s = read_file(ipath));
 
   if (!stringp(s)) {
 #ifdef STORAGE_DEBUG
@@ -390,4 +390,22 @@ void idx_rm(string namespace, void|string key) {
 void stop() {
   idx_sync(1);
   flush();
+}
+
+int write_file(string filename, string content) {
+  object f = Stdio.File();
+  f->open(filename, "cwt");
+  int i = f->write(content);
+  f->close();
+  destruct(f);
+  return i;
+}
+
+string read_file(string filename) {
+  object f = Stdio.File();
+  f->open(filename, "r");
+  string s = f->read();
+  f->close();
+  destruct(f);
+  return s;
 }
