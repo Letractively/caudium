@@ -41,7 +41,7 @@
  * Portions created by the Initial Developer are Copyright (C) Marek Habersack
  * & The Caudium Group. All Rights Reserved.
  *
- * Contributor(s):
+ * Contributor(s): David Gourdelier <vida@caudium.net>, some debugging
  *
  * Alternatively, the contents of this file may be used under the terms of
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -74,6 +74,9 @@ RCSID("$Id$");
 #include <string.h>
 
 #include "entparse.h"
+
+/* uncomment this to enable debug */
+/* #define ENTDEBUG */
 
 /*
  * A simple entity parser. It parses the entities of the form expressed by
@@ -135,10 +138,10 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   if (!retval)
     return NULL;
 
-/*
+#ifdef ENTDEBUG
   printf(">>%s<<\n", buf);
   printf("parsing %d bytes\n", buflen);
-*/
+#endif
   retval->errcode = ENT_ERR_OK;
   retval->buflen = 0;
   retval->buf = NULL;
@@ -167,14 +170,15 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   cbackres.buflen = 0;
   
   while(tmp && curpos < buflen) {
-/*
+
+#ifdef ENTDEBUG
 printf("considering %d of %d\n", curpos, buflen);
-*/
+#endif
     switch (*tmp) {
         case '&':
-/*
+#ifdef ENTDEBUG
 printf("got an ampersand.\n");
-*/
+#endif
           if (*(tmp+1) == '&') {
             tmp++;
             goto append_data;
@@ -191,9 +195,10 @@ printf("got an ampersand.\n");
           continue;
 
         case ';':
-/*
+
+#ifdef ENTDEBUG
 printf("got a semicolon.\n");
-*/
+#endif
           if (!cback || !in_entity)
           {
             goto append_data;
@@ -208,9 +213,10 @@ printf("got a semicolon.\n");
           continue;
 
         case '.':
-/*
+
+#ifdef ENTDEBUG
 printf("got a dot.\n");
-*/
+#endif
           if (!cback || !in_entity)
             goto append_data;
           if (!entnamelen) {
@@ -224,6 +230,7 @@ printf("got a dot.\n");
             entparts[entpartslen++] = 0;
           } else {
             entparts[entpartslen++] = *++tmp;
+	    curpos++;
             entfullname[entlen++] = *tmp;
           }
           tmp++;
@@ -233,14 +240,15 @@ printf("got a dot.\n");
         default:
           if (!cback || !in_entity)
           {
-/*
-printf("got a character not in entity.\n");
-*/
+
+#ifdef ENTDEBUG
+printf("got a character not in entity: %c\n", *tmp);
+#endif
             goto append_data;
           }          
-/*
-printf("got a character in an entity.\n");
-*/
+#ifdef ENTDEBUG
+printf("got a character in an entity: %c\n", *tmp);
+#endif
           if (entlen >= ENT_MAX_ENTSIZE) {
             retval->errcode = ENT_ERR_ENTNAMELONG;
             tmp = 0;
@@ -277,24 +285,26 @@ printf("got a character in an entity.\n");
         return retval;
       }
     }
-/*
+
+#ifdef ENTDEBUG
 printf("current length: %d\n", curlen);
-*/
+#endif
     /* we have no result from the callback */
     if (!cbackres.buf && !cbackres.buflen)
-{
+    {
       retval->buf[curlen++] = *tmp++;
-/*
+#ifdef ENTDEBUG
 printf("copied 1, current length: %d\n", curlen);
-*/
-}
+#endif
+     }
     /* we do have results from the callback */
     else if (cbackres.buf) {
       memcpy(&retval->buf[curlen], cbackres.buf, cbackres.buflen);
       curlen += cbackres.buflen;
-/*
+
+#ifdef ENTDEBUG
 printf("copied d%d, current length: %d\n", cbackres.buflen, curlen);
-*/
+#endif
       free(cbackres.buf);
       cbackres.buf = NULL;
       cbackres.buflen = 0;
@@ -304,15 +314,18 @@ printf("copied d%d, current length: %d\n", cbackres.buflen, curlen);
       memcpy(&retval->buf[curlen], entfullname, cbackres.buflen);
       curlen += cbackres.buflen;
       retval->buf[curlen++] = ';';
-/*
+
+#ifdef ENTDEBUG
 printf("copied %d (%s), current length: %d\n", cbackres.buflen + 2, entfullname, curlen);
-*/
+#endif
       cbackres.buf = NULL;
       cbackres.buflen = 0;
     }
     
     curpos++; 
-/*    printf("curpos == %d\n", curpos); */
+#ifdef ENTDEBUG
+    printf("curpos == %d\n", curpos); 
+#endif
   }
 
   if (retval->errcode == ENT_ERR_OK && in_entity)
@@ -320,8 +333,9 @@ printf("copied %d (%s), current length: %d\n", cbackres.buflen + 2, entfullname,
 
   
   retval->buflen = curlen;
-/*
+
+#ifdef ENTDEBUG
 printf("- %d ->%s<--\n", retval->buflen, retval->buf);
-*/
+#endif
   return retval;
 }
