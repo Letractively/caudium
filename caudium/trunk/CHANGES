@@ -80,3 +80,5 @@ Changes since last Roxen 1.3
   <insert variable="scope.var" /> and set works with both parsers.
 + Added <inc/> and <dec/> tags to increment/decrement the value of a
   variable.
++ Added <dice/> tag from Roxen 2.1 - return a random number based on the
+  "type" attribute.

@@ -709,8 +709,13 @@ int main(mixed ... args)
   }
 
   replace_master(new_master=(((program)"etc/roxen_master.pike")()));
+#if !constant(has_value)
+  add_constant("has_value", lambda(mixed haystack, mixed needle) {
+			      return search(haystack, needle) != -1;
+			    }
+#endif
   add_constant("fish_version", version());
-   add_constant("open_db", open_db);
+  add_constant("open_db", open_db);
   add_constant("do_destruct", lambda(object o) {
 				if(o&&objectp(o))  destruct(o);
 			      });				

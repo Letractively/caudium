@@ -122,6 +122,21 @@ class ClientScope {
   }
 }
 
+//! entity_scope: random
+//!  Returns a random number from 0 to the "variable" - 1. I.e.
+//!  &amp;random.100; returns a number from 0 to 99.
+//! bugs:
+//!  Does this break the XML-specification?
+
+class RandomScope {
+  inherit "scope";
+  constant name = "random";
+
+  array(string) get(string entity, object id) {
+    NOCACHE();
+    return ({ (string)random((int)entity) });
+  }
+}
 
 //! entity_scope: cookie
 //!  This scope provides access to cookies using the entity syntax. There are
@@ -231,5 +246,6 @@ array(object) query_scopes()
     CookieScope(),
     FormScope(),
     VarScope(),
+    RandomScope(),
   });
 }
