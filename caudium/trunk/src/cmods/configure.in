@@ -1,7 +1,7 @@
 # $Id$
 AC_INIT(configure.in)
 
-AC_SET_MAKE
+CAUDIUM_LOW_MODULE_INIT()
 
 dirs=
 
@@ -20,5 +20,9 @@ done
 
 AC_CONFIG_SUBDIRS($dirs)
 
-AC_OUTPUT(Makefile,[],dirs="$module_names")
+AC_OUTPUT(Makefile module_makefile,[],dirs="$module_names")
+
+
+
+
 

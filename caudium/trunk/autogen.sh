@@ -5,7 +5,7 @@ for a in `find src tools -name "autogen.sh" |sort`; do
   dir=`dirname $a`
   echo "Running autogen in '$dir'"
   cd $dir
-  ./autogen.sh 
+  ./autogen.sh $mydir
   cd $mydir
 done  
 
