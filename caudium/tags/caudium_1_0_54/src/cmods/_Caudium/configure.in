@@ -1,0 +1,11 @@
+AC_INIT(caudium.c)
+
+CAUDIUM_MODULE_INIT()
+
+AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
+
+
+dnl ## Local Variables:
+dnl ## tab-width: 4
+dnl ## End:
+	
