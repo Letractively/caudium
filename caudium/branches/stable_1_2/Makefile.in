@@ -207,6 +207,8 @@ install_alt:
 	  else :; fi; \
 	done
 	@cp -p doc/caudiumctl.1 $(DESTDIR)/$(prefix)/share/man/man1/
+	@cp -p doc/htpasswd-caudium.1 $(DESTDIR)/$(prefix)/share/man/man1/
+	@cp -p doc/pixsl.1 $(DESTDIR)/$(prefix)/share/man/man1/
 	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	@echo "Caudium installed."
