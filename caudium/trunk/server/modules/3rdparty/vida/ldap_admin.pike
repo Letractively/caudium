@@ -333,6 +333,9 @@ void create()
   defvar("addrequireauth", ({ "admin" }), "Add: require authentification",
   	 TYPE_STRING_LIST,
 	 "Contains the user allowed to add other users. If empty everybody can add users");
+  defvar("updaterequireauth", ({ "admin" }), "Update: require authentification",
+  	 TYPE_STRING_LIST,
+	 "Contains the user allowed to update other users. If empty anybody can update users (provided you allow them in features ->  allow the user to update his account");
   defvar("defvaruidnumber", "uidNumber", "LDAP: Attribute - uidnumber attribute",
   	 TYPE_STRING,
 	 "Specify the name of the uidnumber attribute in LDAP.");
@@ -656,15 +659,14 @@ void sendmails(mapping (string:string) defines)
 {
   mapping localtime = localtime(time());
   string localmailadmin = QUERY(mailadmin);
-  string msg;
   string date = localtime["hour"] + ":" + localtime["min"] + ":" + localtime["sec"] + " " + localtime["mday"] + "/" + localtime["mon"] + "/" + (localtime["year"] + 1900);
   // first mail the admin
   array mail_from = ({ "$LOGIN", "$UID", "$GID", "$GECOS", "$DATETIME", "$ADMIN" }); 
   array mail_to = ({ defines["uid"][0], defines["uidNumber"][0], defines["gidNumber"][0], defines["gecos"][0], date, localmailadmin });
-  msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
+  string msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
   simple_mail(localmailadmin, "Nouveau membre", localmailadmin, msg);
   // next mail the user (this will also create his mail account)
-  msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
+  string msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
   simple_mail(defines["uid"][0] + "@" + QUERY(maildomain) , "[ ITEAM ] Welcome on board", localmailadmin, msg);
 }
 
@@ -716,6 +718,18 @@ mapping first_screen(object id)
 void checkresult(object con, mapping from, string uid)
 {
   mapping to = getfullinformation(con, uid);
+  array indic = indices(from);
+  string indice;
+  for(int i = 0; i < sizeof(from); i++)
+  {
+    indice = indic[i];
+    from[indice] = sort(from[indice]);
+  }
+  for(int i = 0; i < sizeof(to); i++)
+  {
+    indice = indic[i];
+    to[indice] = sort(to[indice]);
+  }
   write(sprintf("from=%O\n\n\n, to=%O\n\n\n", from, to));
   if(!equal(from, to))
     throw ( ({ "Due to an unknown error, you were not added to our account database", backtrace() }) );
@@ -887,10 +901,16 @@ void modifyinldap(object con, mapping defines, string basedn)
   nodouble_attr(QUERY(defvarhomedirectory), "homeDirectory", defines);
   nodouble_attr(QUERY(defvaruserpassword), "userPassword", defines);
   if(sizeof(QUERY(defvarmaildrop)) > 0)
+  {
     nodouble_attr(QUERY(defvarmaildrop), "maildrop", defines);
+    defines[QUERY(defvarmaildrop)] = String.trim_all_whites(defines[QUERY(defvarmaildrop)]);
+  }
   if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
-  nodouble_attr(QUERY(defvarmailacceptinggeneralid), "mailacceptinggeneralid", defines); 
-  replace(defines[QUERY(defvarmailacceptinggenralid)], " ", "");
+  {
+    nodouble_attr(QUERY(defvarmailacceptinggeneralid), "mailacceptinggeneralid", defines); 
+    for(int i = 0; i < sizeof(defines[QUERY(defvarmailacceptinggeneralid)]); i++)
+      defines[QUERY(defvarmailacceptinggeneralid)][i] = String.trim_all_whites(defines[QUERY(defvarmailacceptinggeneralid)][i]);
+  }
   for(int i = 0; i < sizeof(defines); i++)
   {
     indice = indic[i];
@@ -990,7 +1010,7 @@ string showmodifyinputs(object id, mapping defines)
   {
     /* can the user change maildrop ? */
     if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1)
-      inputs_to += ({ "<input type=\"text\" value=\"" + defines["maildrop"][0] + "\" name=\"maildrop\">" });
+      inputs_to += ({ "<input type=\"text\" size=\"30\" value=\"" + defines["maildrop"][0] + "\" name=\"maildrop\">" });
     else
       inputs_to += ({ defines["maildrop"][0] });
   }
@@ -998,7 +1018,7 @@ string showmodifyinputs(object id, mapping defines)
     inputs_to += ({ "&nbsp;" });
   if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
   {
-    string input_mailaccept = "<input type=\"text\" name=\"mailacceptinggeneralid\" value=\"";
+    string input_mailaccept = "<input type=\"text\" size=\"60\" name=\"mailacceptinggeneralid\" value=\"";
     string mailaccept = "";
     int n = sizeof(defines["mailacceptinggeneralid"]);
     for(int i = 0; i < n; i++)
@@ -1078,12 +1098,19 @@ mapping modify(object id, string action)
       return http_rxml_answer(showmodifyinputs(id, defines), id);
     }
     if(action == "update")
+    {
+      if(strlen(QUERY(updaterequireauth)[0]) > 0)
+        if(search(QUERY(updaterequireauth)[0], id->auth[1]) == -1)
+	  return http_auth_required("add member user", "Only some users may update");
       return http_rxml_answer(showupdateinputs(id, defines), id);
-
+    }
     if(QUERY(debug))
       write(sprintf("defines1=%O\n", defines));
     if(action == "applyupdate")
     {
+      if(strlen(QUERY(updaterequireauth)[0]) > 0)
+        if(search(QUERY(updaterequireauth)[0], id->auth[1]) == -1)
+	  return http_auth_required("add member user", "Only some users may update");  
       if(QUERY(allowupdate) && gidok(defines))
       {
         //update
