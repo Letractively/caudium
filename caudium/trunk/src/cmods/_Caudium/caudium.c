@@ -732,6 +732,33 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
 
 }
 
+ /*
+ **! method: string parse_entities (string contents, mapping(string:object) scope)
+ **!  Parse XML entities. Entities are in the form expressed by the 
+ **!  &name(.name)*; regexp like &variable; or &form.varname;
+ **!
+ **!  The subpart of an entity is the part of the entity between the first 
+ **!  "." and the last ";". The scope is between the first "&" and the 
+ **!  first ".".
+ **!
+ **! arg: string contents
+ **!  The data to parse
+ **!
+ **! arg: mapping(string:object)
+ **!  A mapping indexed by the entity scope name which maps to an object. 
+ **!  This object must contain a string get(string subpart_entity_value) method.
+ **!
+ **!  The argument given to this method will be the subpart of the entity the
+ **!  parser found within the given entity scope (the index of the mapping). The
+ **!  string returned by this method will replace the entity the mapping is
+ **!  indexed by. If there are no subpart in the contents for the given scope,
+ **!  the string "" will be given to the get() method.
+ **!  
+ **! returns:
+ **!  contents with the entity replaced by the given output from the get()
+ **!  method in the given object from the scope mapping.
+ */
+
 static void f_parse_entities( INT32 args )
 {
   struct mapping *scopemap;
