@@ -172,6 +172,13 @@ mapping http_htmldoc_answer(string contents, string title, void|mapping meta,
    return Caudium.HTTP.htmldoc_answer(contents,title,meta,style,dtype);
 }
 
+//! Compat call of Caudium.HTTP.file_answer
+//! @deprecated
+mapping http_file_answer(object fd, string|void type, void|int len) {
+   WCOMPAT2("Caudium.HTTP.file_answer", "http_file_answer");
+   return Caudium.HTTP.file_answer(fd,type,len);
+}
+
 // Some spider calls are not under spider module so here is some compat
 // things
 
