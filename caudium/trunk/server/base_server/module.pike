@@ -70,6 +70,13 @@ string fix_cvs(string from)
 //!
 //! @param modules
 //!  An array of module names this function should load.
+//!  The module name is typically the filename of the module minus any 
+//!  extension.
+//!
+//! @example
+//!  // we need to require the obox (outline box) module.
+//!  module_dependencies(conf, ({"obox"}));
+//!
 int module_dependencies(object configuration, array (string) modules)
 {
   if(configuration) configuration->add_modules (modules);
@@ -89,6 +96,8 @@ string file_name_and_stuff()
 static private object _my_configuration;
 
 //! Returns the module's configuration object.
+//!
+//! Useful for working outside a request (when you don't have request_id).
 object my_configuration()
 {
   if(_my_configuration)
@@ -110,16 +119,28 @@ nomask void set_configuration(object c)
   _my_configuration = c;
 }
 
-//!
+//! Sets the module creator.
 void set_module_creator(string c)
 {
   module_creator = c;
 }
 
-//!
+//! Returns the module creator.
+string get_module_creator()
+{
+  return module_creator;
+}
+
+//! Sets the module url.
 void set_module_url(string to)
 {
   module_url = to;
+}
+
+//! Returns the module url.
+string get_module_url()
+{
+  return module_url;
 }
 
 //! Removes the specified variable from the variable store.
@@ -154,7 +175,7 @@ void start(void|int num, void|object conf) {}
 //!  The status string displayed in the CIF
 string status() {}
 
-//!
+//! Returns information about the module.
 string info(object conf)
 { 
   return this->register_module()[2];
@@ -180,6 +201,16 @@ static class ConfigurableWrapper
     return(f());
   }
 
+  //!
+  //! @param mode_
+  //!   Specifies the mode that the wrapper should work in.
+  //!   May contain the bitwise OR of VAR_EXPERT and VAR_MORE.
+  //!
+  //! @param f_
+  //!   The function to be called if we are not in mode_.
+  //! 
+  //! @returns
+  //!    1 if we are not in mode, or f_() otherwise.
   //!
   void create(int mode_, function f_)
   {
@@ -227,6 +258,8 @@ static class ConfigurableWrapper
 //!    multiple lines text. Stored as a string.
 //!   @value TYPE_FILE
 //!    path to a file in the filesystem. Stored as a string.
+//!   @value TYPE_FILE_LIST
+//!    list of paths (files/directories) in the filesystem. Stored as an array of string.
 //!   @value TYPE_DIR
 //!    path to a dir in the filesystem. Stored as a string.
 //!   @value TYPE_DIR_LIST
@@ -237,6 +270,9 @@ static class ConfigurableWrapper
 //!    int containing 24bit RGB color value.
 //!   @value TYPE_PASSWORD
 //!    password. Stored via unix crypt().
+//!   @value TYPE_CUSTOM
+//!    custom variable type. if used, the misc field must be an array of 
+//!    function pointers: ({describe,describe_form,set_from_form})
 //!  @endint
 //!
 //! @param doc_str
@@ -430,7 +466,15 @@ void defvar(string|void var, mixed|void value, string|void name,
   variables[var][ VAR_SHORTNAME ]= var;
 }
 
-void set_hidden(string var, mixed not_in_config)
+//!  Hide the variable from the configuration view.
+//! 
+//!  @param var
+//!   the name of the variable to hide
+//!  @param not_in_config
+//!    a boolean, 1 to hide the variable, 0 to show or a 
+//!    function that returns 0 to hide the variable or 1 to show
+//!    the variable.
+void set_hidden(string var, int|function not_in_config)
 {
   if (functionp(not_in_config)) {
     variables[var][ VAR_CONFIGURABLE ] = not_in_config;
@@ -509,7 +553,7 @@ mixed query(string|void var, int|void ok)
   return variables;
 }
 
-//!
+//! 
 void set_module_list(string var, string what, object to)
 {
   int p;
@@ -526,7 +570,8 @@ void set_module_list(string var, string what, object to)
 
 private string _module_identifier;
 
-//!
+//!  returns the module identifier, used to uniquely identify this module
+//!  in the server
 string module_identifier()
 {
   if (!_module_identifier) {
@@ -693,7 +738,9 @@ class IP_with_mask {
   }
 };
 
-//!
+//! returns the module security rules.
+//! @note 
+//!   document the security level format
 array query_seclevels()
 {
   array patterns=({ });
