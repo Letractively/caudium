@@ -3305,8 +3305,8 @@ string api_html_quote(object id, string what)
   return replace(what, ({ "<", ">", "&" }),({"&lt;", "&gt;", "&amp;" }));
 }
 
-constant replace_from = indices( iso88591 )+ ({"&lt;","&gt;", "&amp;","&#022;"});
-constant replace_to   = values( iso88591 )+ ({"<",">", "&","\""});
+constant replace_from = indices( Caudium.Const.iso88591 )+ ({"&lt;","&gt;", "&amp;","&#022;"});
+constant replace_to   = values( Caudium.Const.iso88591 )+ ({"<",">", "&","\""});
 
 string api_html_dequote(object id, string what)
 {

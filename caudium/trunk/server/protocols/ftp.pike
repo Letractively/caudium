@@ -556,9 +556,6 @@ class LS_L
     ({ S_IXOTH|S_ISVTX, S_IXOTH|S_ISVTX, 9, "t" })
   });
 
-  static constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
-  
   static string name_from_uid(int uid)
   {
     string|int user = master_session->conf->auth_module &&
@@ -608,11 +605,11 @@ class LS_L
     if ((st[3] <= now - 15778800) || (st[3] > now)) {
       // Month Day  Year
       ts = sprintf("%s %02d  %04d",
-                   months[lt->mon], lt->mday, 1900+lt->year);
+                   Caudium.Const.months[lt->mon], lt->mday, 1900+lt->year);
     } else {
       // Month Day Hour:minute
       ts = sprintf("%s %02d %02d:%02d",
-                   months[lt->mon], lt->mday, lt->hour, lt->min);
+                   Caudium.Const.months[lt->mon], lt->mday, lt->hour, lt->min);
     }
 
     if (flags & LS_FLAG_G) {
