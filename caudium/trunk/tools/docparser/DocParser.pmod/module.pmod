@@ -61,6 +61,7 @@ class DocObject {
     string   contents;
     string   first_line;
     string   myName;
+    int      lineno;
     
     void wrong_keyword(string kw) 
     {
@@ -124,6 +125,8 @@ class DocObject {
         contents = "";
         first_line = "";
         myName="DocObject";
+        lastkw = "";
+        lineno = curline;
     }
 };
 
@@ -313,12 +316,14 @@ class Method {
                 break;
 
             case "name":
-                field_redefined(lastkw);
+                if (name != "")
+                    field_redefined(lastkw);
                 name = newstuff;
                 break;
 
             case "scope":
-                field_redefined(lastkw);
+                if (scope != "")
+                    field_redefined(lastkw);
                 scope = newstuff;
                 break;
 
@@ -491,7 +496,8 @@ class Class {
 		break;
 		
             case "scope":
-                field_redefined(lastkw);
+                if (scope != "")
+                    field_redefined(lastkw);
                 scope = newstuff;
                 break;
 
@@ -1003,7 +1009,8 @@ mapping(string:object) file_scope = ([
                  return Module(line);
              },
 	     
-    "cvs_version": zero_return,	  
+    "cvs_version": zero_return,
+    "inherits":zero_return,
     "method":lambda(object curob, string line) {
                  return Method(line);
              },
@@ -1021,6 +1028,7 @@ mapping(string:object) module_scope = ([
                return PikeFile(line);
            },
     "cvs_version": zero_return,
+    "inherits":zero_return,
     "type": zero_return,
     "provides": zero_return,
     "variable":lambda(object curob, string line) {
@@ -1090,6 +1098,7 @@ mapping(string:object) class_scope = ([
                return Class(line);
            },
     "scope": zero_return,
+    "inherits": zero_return,
     "method":lambda(object curob, string line) {
                  return Method(line);
              },
@@ -1315,7 +1324,10 @@ class Parse {
     int parse(string path)
     {
         array(int)    stbuf;
-	
+
+        if (path[-1] != '/')
+            path += "/";
+        
         stbuf = file_stat(path);
         if (!stbuf)
             throw(({"File not found: " + path + "\n", backtrace()}));
