@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Added support for <emit>...</> ala Roxen2 to the XML compliant parser.
+   (Bill Welliver)
 - Added authentification layer to XML-RPC server.
    (David Gourdelier)
 - Adding chroot support to CGI (and then FastCgi, Uniscript...).
