@@ -6,7 +6,7 @@
 #
 
 PORTNAME=	pike72cvs
-PORTVERSION=	7.2.308
+PORTVERSION=	7.2.312
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -28,11 +28,6 @@ GNU_CONFIGURE=  yes
 .include "${WRKDIRPREFIX}${.CURDIR}/Makefile.inc"
 .else
 CONFIGURE_ARGS?= \
-	--with-double-precision \
-	--with-long-double-precision \
-	--disable-rpath \
-	--without-rtldebug \
-	--without-cdebug \
 	--without-ttflib \
 	--without-gdbm \
 	--without-mysql \
@@ -52,8 +47,18 @@ CONFIGURE_ARGS?= \
 .endif
 
 CONFIGURE_ARGS+= --without-debug \
+		 --with-double-precision \
+		 --with-long-double-precision \
+		 --disable-rpath \
+		 --without-rtldebug \
+		 --without-cdebug \
+		 --without-copt \
+		 --without-shared-nodes \
+		 --without-security \
 		 --with-oob \
-		 --with-max-fds=10000 \
+		 --with-poll \
+		 --with-max-fd=60000 \
+		 --without-relocatable-dumped-modules \
 		 --without-libpanda \
 		 --without-perl
 
