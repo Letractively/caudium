@@ -767,7 +767,7 @@ mapping first_screen(object id)
 {
   array from = ({ "$MOUNTPOINT" });
   array to = ({ QUERY(location) });
-  return http_rxml_answer(replace(QUERY(ui_firstscreen), from, to), id);
+  return Caudium.HTTP.rxml_answer(replace(QUERY(ui_firstscreen), from, to), id);
 }
 
 // check the more things we can check
@@ -901,7 +901,7 @@ mapping add(object id, int applyadd)
     if(!applyadd)
     {
       // only show form inputs
-      return http_rxml_answer(showaddinputs(id, defines), id);
+      return Caudium.HTTP.rxml_answer(showaddinputs(id, defines), id);
     }
     string homedirectory = QUERY(homedir) + id->variables->login;
     if(QUERY(addlastslash))
@@ -943,9 +943,9 @@ mapping add(object id, int applyadd)
       last_error = sprintf("An error occured\n%s\nBacktrace is\n%s\n", error[0], master()->describe_backtrace(error[1]));
       sendbadmails(defines, last_error);
     }
-    return http_rxml_answer(replace(QUERY(ui_add_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
+    return Caudium.HTTP.rxml_answer(replace(QUERY(ui_add_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
   }
-  return http_rxml_answer(replace(QUERY(ui_add), "$MOUNTPOINT", QUERY(location)), id);
+  return Caudium.HTTP.rxml_answer(replace(QUERY(ui_add), "$MOUNTPOINT", QUERY(location)), id);
 }
 
 // functions used by modify and update
@@ -1183,14 +1183,14 @@ mapping modify(object id, string action)
     if(action == "modify")
     {
       // only show form inputs
-      return http_rxml_answer(showmodifyinputs(id, defines), id);
+      return Caudium.HTTP.rxml_answer(showmodifyinputs(id, defines), id);
     }
     if(action == "update")
     {
       if(strlen(QUERY(updaterequireauth)[0]) > 0)
         if(search(QUERY(updaterequireauth), id->auth[1]) == -1)
 	  return http_auth_required("add member user", "Only some users may update");
-      return http_rxml_answer(showupdateinputs(id, defines), id);
+      return Caudium.HTTP.rxml_answer(showupdateinputs(id, defines), id);
     }
     if(QUERY(debug))
       write(sprintf("defines1=%O\n", defines));
@@ -1217,7 +1217,7 @@ mapping modify(object id, string action)
         //update
         updatevar(con, defines, basedn);
         sendmails(defines);
-        return http_rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
+        return Caudium.HTTP.rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
       }
       else throw ( ({ "You are not allowed to update" }) );
     }
@@ -1258,7 +1258,7 @@ mapping modify(object id, string action)
       else
       {
         modifyinldap(con, defines, basedn);
-        return http_rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
+        return Caudium.HTTP.rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
       }
     }
     else
@@ -1279,7 +1279,7 @@ mapping modify(object id, string action)
  master()->describe_backtrace(error[1]));
       sendbadmails(defines, last_error);
     }
-    return http_rxml_answer(replace(QUERY(ui_modify_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
+    return Caudium.HTTP.rxml_answer(replace(QUERY(ui_modify_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
   }
 }
 

@@ -206,7 +206,7 @@ mixed handle_file_extension(Stdio.File file, string ext, object id)
       switch (QUERY(scriptout))
       {
        case "RXML":
-	return http_rxml_answer(r, id);
+	return Caudium.HTTP.rxml_answer(r, id);
        case "HTML":
 	return http_string_answer(r);
        case "HTTP":
