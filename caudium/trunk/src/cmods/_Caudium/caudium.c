@@ -32,6 +32,7 @@ RCSID("$Id$");
 #endif
 
 #include "caudium.h"
+#include <array.h>
 
 static_strings strs;
 
@@ -728,8 +729,8 @@ static void f_create_process( INT32 args ) {
   pid_t pid=-2;
 
   fds = stds;
-  storage.env = 0;
-  storage.argv = 0;
+  storage.env = NULL;
+  storage.argv = NULL;
   storage.disabled = 0;
   storage.fds = NULL;
 
@@ -748,7 +749,7 @@ static void f_create_process( INT32 args ) {
       if(cmd->size < 1)
         Pike_error("Too few elements in argument array.\n");
 
-      for(e=0;e<cmd->size;e++)
+      for(e=0; e<cmd->size; e++)
         if(ITEM(cmd)[e].type!=T_STRING)
           Pike_error("Argument is not a string.\n");
 
@@ -768,11 +769,12 @@ static void f_create_process( INT32 args ) {
 	    gid_request = 1;
 	    break;
 
-	  dafault:
+	  default:
 	    Pike_error("Invalid argument for gid.");
+	    break;
 	}
      } 
-/*
+
      if ((tmp = simple_mapping_string_lookup(optional, "uid"))) {
         switch(tmp->type)
 	{
@@ -781,11 +783,12 @@ static void f_create_process( INT32 args ) {
 	    uid_request = 1;
 	    break;
 
-	  dafault:
+	  default:
 	    Pike_error("Invalid argument for uid.");
+	    break;
 	}
      } 
-*/
+
      if((tmp = simple_mapping_string_lookup( optional, "cwd" )) &&
 	 tmp->type == T_STRING && !tmp->u.string->size_shift)
        tmp_cwd = tmp->u.string->str;
@@ -815,7 +818,7 @@ static void f_create_process( INT32 args ) {
      }
   }
 
-  storage.argv=(char **)xalloc((1+cmd->size) * sizeof(char *));
+  storage.argv = (char **)xalloc((1 + cmd->size) * sizeof(char *));
   for (e = 0; e < cmd->size; e++) storage.argv[e] = ITEM(cmd)[e].u.string->str;
   storage.argv[e] = 0;
   
@@ -836,15 +839,22 @@ static void f_create_process( INT32 args ) {
     push_int(pid);
     return;
   } else {
-    int fd = 0;
     
-    for (fd = 0; fd++; fd < 3) dup2(fds[fd], fd);
-    
+    dup2(fds[0], 0);
+    dup2(fds[1], 1);
+    dup2(fds[2], 2);
+	  
     do_set_close_on_exec();
 
     set_close_on_exec(0,0);
     set_close_on_exec(1,0);
     set_close_on_exec(2,0);
+
+    seteuid(0);
+    setegid(0);
+
+    if (gid_request) setgid(wanted_gid);
+    if (uid_request) setuid(wanted_uid);
 
     execvp(storage.argv[0],storage.argv);
 
