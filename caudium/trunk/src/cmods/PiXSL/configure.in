@@ -7,9 +7,9 @@ AC_PROG_INSTALL
 
 dnl Solaris have math functions in libm
 dnl so this is needed to linking libsablot
-AC_CHECK_LIB(m, ceil)
-if test "$ac_cv_lib_m_ceil" != "yes"; then 
-  AC_CHECK_LIB(m, floor)
+AC_CHECK_LIB(m, floor)
+if test "$ac_cv_lib_m_floor" != "yes"; then 
+  AC_CHECK_LIB(m, ceil)
 fi
 
 AC_CHECK_HEADERS( sablot.h )
