@@ -33,3 +33,5 @@ Changes in Caudium 1.1 since CVS branching
   uncompressed tar file in the virtual filesystem.
 - Added new http_error handler. The old 404 handler is still there, but
   disabled per default.
+- Correctly find libraries for various versions of Sablotron (0.50 and
+  0.44 tested).
