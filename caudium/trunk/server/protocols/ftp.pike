@@ -561,12 +561,9 @@ class LS_L
   
   static string name_from_uid(int uid)
   {
-    string|array(string) user = master_session->conf->auth_module &&
-      master_session->conf->auth_module->user_from_uid(uid);
+    string|int user = master_session->conf->auth_module &&
+      master_session->conf->auth_module->get_username(uid);
     if (user) {
-      if (arrayp(user)) {
-        return(user[0]);
-      } else {
         return(user);
       }
     }
@@ -2569,7 +2566,7 @@ class FTPSession
     }
 
     if (!master_session->auth ||
-        (master_session->auth[0] != 1)) {
+        !(master_session->user)) {
       if (!Query("guest_ftp")) {
         send(530, ({ sprintf("User %s access denied.", user) }));
         conf->log(([ "error":401 ]), master_session);
@@ -2578,7 +2575,7 @@ class FTPSession
         send(230, ({ sprintf("Guest user %s logged in.", user) }));
         logged_in = -1;
         conf->log(([ "error":200 ]), master_session);
-        DWRITE(sprintf("FTP: Guest-user: %O\n", master_session->auth));
+        DWRITE(sprintf("FTP: Guest-user: %O\n", master_session->user));
       }
       return;
     }
@@ -2586,42 +2583,40 @@ class FTPSession
     // Authentication successful
 
     if (!Query("named_ftp") ||
-        !check_shell(master_session->misc->shell)) {
+        !check_shell(master_session->user->login_shell)) {
       send(530, ({ "You are not allowed to use named-ftp.",
                    "Try using anonymous, or check /etc/shells" }));
       conf->log(([ "error":402 ]), master_session);
       master_session->auth = 0;
+      master_session->user = 0;
       return;
     }
 
-    if (stringp(master_session->misc->home)) {
+    if (stringp(master_session->user->home_directory)) {
       // Check if it is possible to cd to the users home-directory.
-      if ((master_session->misc->home == "") ||
-          (master_session->misc->home[-1] != '/')) {
-        master_session->misc->home += "/";
+      if ((master_session->user->home_directory == "") ||
+          (master_session->user->home_directory[-1] != '/')) {
+        master_session->user->home_directory += "/";
       }
 
       // NOTE: caudium->stat_file() might change master_session->auth.
-      array auth = master_session->auth;
 
       // Throw the user out if it doen't have valid homedir or try to
       // create homedirectory
       if (Query("ftpnohomedeny")||Query("ftphomedircreate"))
       {
-        string homedir = master_session->misc->home;
-        if (file_stat(homedir, 1) == 0)
+        if (file_stat(master_session->user->home_directory, 1) == 0)
         {
           int created = 0;
           if(Query("ftphomedircreate"))
           {
             object privs;
-            array fullauth = conf->auth_module->userinfo(master_session->auth[1]);
 #if constant(geteuid)
             if(getuid() != geteuid()) privs=Privs("Creating homedirectory");
 #endif
-            seteuid((int)fullauth[2]);
-            setegid((int)fullauth[3]);
-            if(Stdio.mkdirhier(homedir))
+            seteuid((int)master_session->user->uid);
+            setegid((int)master_session->user->gid);
+            if(Stdio.mkdirhier(master_session->user->home_directory))
               created = 1;
             if(objectp(privs))
               destruct(privs);
@@ -2631,7 +2626,9 @@ class FTPSession
 #endif
             // Forcing UID/GID to the correct value because setegid() seems to
             // to fail
-            if (created) chown(homedir, (int)fullauth[2], (int)fullauth[3]);
+            if (created) chown(master_session->user->home_directory, 
+              (int)master_session->user->uid, 
+              (int)master_session->user->gid);
             if(objectp(privs))
               destruct(privs);
             privs = 0;
@@ -2651,20 +2648,22 @@ class FTPSession
                     // Seems that numbers are not octal or there's junk instead
                     mkrights = 0755; // Fail back to default values
                   }
-                  if (mkdir(homedir + (foo/":")[0])) {
-                    chmod(homedir + (foo/":")[0], mkrights);
-                    chown(homedir +(foo/":")[0], (int)fullauth[2], (int)fullauth[3]);
+                  if (mkdir(master_session->user->home_directory + (foo/":")[0])) {
+                    chmod(master_session->user->home_directory + (foo/":")[0], mkrights);
+                    chown(master_session->user->home_directory + (foo/":")[0], 
+                      (int)master_session->user->uid, (int)master_session->user->gid);
                   }
                 }
                 else 
-                  if (mkdir(homedir + foo))
-                    chown(homedir + foo, (int)fullauth[2], (int)fullauth[3]);
+                  if (mkdir(master_session->user->home_directory + foo))
+                    chown(master_session->user->home_directory + foo, 
+                      (int)master_session->user->uid, 
+                      (int)master_session->user->gid);
               }
               if (objectp(privs))
                 destruct(privs);
               privs = 0;
             }
-            fullauth = 0;
           }
           if(Query("ftpnohomedeny") && (created == 0))
           {
@@ -2672,20 +2671,22 @@ class FTPSession
                          Query("ftphomedircreate")?"Unable to create homdirectory.":"Homedirectory is not existant." }));
             conf->log(([ "error":402 ]), master_session);
             master_session->auth = 0;
+            master_session->user = 0;
             return;
           }
         }
       }
 
-      master_session->auth = auth;
+      master_session->auth = ({1, master_session->user->username, 0});
 
-      array(int) st = conf->stat_file(master_session->misc->home,
+      array(int) st = conf->stat_file(master_session->user->home_directory,
                                       master_session);
+
+      master_session->auth = ({1, master_session->user->username, 0});
       
-      master_session->auth = auth;
 
       if (st && (st[1] < 0)) {
-        cwd = master_session->misc->home;
+        cwd = master_session->user->home_directory;
       }
     }
     logged_in = 1;
