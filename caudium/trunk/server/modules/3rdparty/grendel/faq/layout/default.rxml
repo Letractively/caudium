@@ -1,0 +1,136 @@
+<!-- $Id$ -->
+<comment> 
+     The following variables are defined at this point and can be used by the designer:
+
+     baseurl - contains this module's base URL
+     editurl - contains the Edit action URL
+     suggesturl - contains the Suggest action URL
+     indexurl - contains the Index URL
+     curpath - contains the currently displayed entry path
+     cursectionnum - current section number
+     curquestionnum - current question number
+     cursectiontitle - current section title
+     faqtitle - the FAQ title
+     faqmode - the current "mode". One of:
+              
+                view - when displaying some faq entries
+                edit - when displaying the edit page
+                suggest - when displaying the suggest page
+</comment>
+
+<comment>
+  faqnavbar options:
+
+    bottom - yes|no. Whether the navbar should be generated both at the top
+             and at the bottom of the page. Defaults to 'yes'
+</comment>
+
+<faqnavbar>
+<comment>
+ faqbutton options:
+
+   fname - the pre-defined button name. One of:
+             edit - the 'edit entry' button (context dependent)
+             suggest - the 'suggest entry' button (context dependent)
+             index - the 'go to index' button
+           This attribute is required
+
+   ftype - the type of the button to generate. One of:
+             gbutton - generate a gbutton image. All arguments except for
+                       fname and ftype are passed to gbutton
+             text - generate a plain HTML anchor
+             url - output just the URL
+           This attribute is required
+
+   flabel - label to be displayed when the type is gbutton or text. This
+            attribute is optional.
+</comment>
+    <faqbutton fname="index" ftype="gbutton" />
+    
+    <if not variable="faqmode is edit">
+      <faqbutton fname="edit" ftype="gbutton" /> 
+    </if>
+
+    <if not variable="faqmode is suggest">
+      <faqbutton fname="suggest" ftype="gbutton" />
+    </if>
+</faqnavbar>
+
+<comment> 
+   This defines the actual FAQ entries area. 
+   The body is parsed only if none of the following prestates are present:
+     
+        edit
+        suggest
+</comment>
+
+<faqpage>
+    <div class="faqtop">Current section: <if not variable="cursectionnum is 0"><insert variable="cursectionnum">. </if><insert variable="cursectiontitle"></div>
+    <div class="faqpath">
+      Path: 
+      <faqpath>
+        <if match="#isfirst# is no">-&gt; </if><if match="#islast# is no"><a href="#URL#">#name#</a></if><else>#title#</else>
+      </faqpath>
+    </div>
+
+    <comment>
+        An output tag that produces the actual content. Accepted options:
+         
+          doindent - yes|no. If 'yes' then each level will be indented a bit
+                     relatively to its parent. Defaults to 'yes'.
+          dopopups - yes|no. If 'yes' then clicking on the FAQ entry will open
+                     a new window in which the contents will be displayed. Otherwise
+                     the entry will be unfolded and output "inline". Defaults to 'yes'.
+          donest   - yes|no. If 'yes' then the FAQ is output in a nested fashion - that is
+                     all the levels are output simultaneously. If 'no' only the current
+                     level is output. Defaults to 'no'.
+    </comment>
+    <faqoutput>
+      <div class="faqentrytitle">
+        <a href="#URI#">#number# #title#</a> <if match="#isqa# is yes">(rating: #rating#; votes: #votes#)</if>
+      </div>
+      <if match="#in_section# is no">
+        <div class="faqentrybody">
+          #text#
+        </div>
+      </if>
+    </faqoutput>
+</faqpage>
+
+<comment> 
+  This block is displayed only if the 'edit' prestate is found.
+</comment>
+
+<comment>
+  Variables available in this scope (in addition to the ones listed at the top of the file):
+  
+    faqeditaction  - contains a form action to be used to post the data into the storage (if you
+                     want the FAQ storage module to handle it).
+    faqannotated   - "yes" if there are annotations for this entry, "no" otherwise.
+    faqeditnumber  - number of the entry being edited.
+    faqedittext    - text of the entry.
+</comment>
+<faqedit>
+  Number<br>
+  <select name="#name_section#">
+    <faqsections quote="@">
+      <if match="@current@ is yes"><option value="@number@" label="@title@" selected>@number@</option></if><else><option value="@number@" label="@title@">@number@</option></else>
+    </faqsections>
+  </select><input name="#name_number#" type="text" size="10" value="#number#"><br>
+  Text<br>
+  <textarea name="#name_text#" cols="40" rows="10">#text#</textarea><br>
+  Users allowed to edit this question, one per line<br>
+  <textarea name="#name_users#" cols="40" rows="10"><faqeditusers quote="@">@name@</faqeditusers></textarea><br>
+  Groups allowed to edit this question, one per line<br>
+  <textarea name="#name_groups#" cols="40" rows="10"><faqeditgroups quote="@">@name@</faqeditgroups></textarea><br>
+  <br>
+  <input type="submit" name="submit" value="Save">
+</faqedit>
+
+<comment>
+  This block is displayed only if the 'suggest' prestate is found.
+</comment>
+
+<faqsuggest>
+    Suggest block here...
+</faqsuggest>
