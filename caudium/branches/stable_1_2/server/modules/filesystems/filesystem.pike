@@ -529,7 +529,7 @@ mixed find_file( string f, object id )
     if(QUERY(keep_old_perms))
       st = file_stat(f);
     rm( f );
-    mkdirhier( f );
+    mkdirhier( path );
     
     object to = open(f, "wct");
     
