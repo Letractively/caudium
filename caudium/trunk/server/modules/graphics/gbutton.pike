@@ -556,7 +556,7 @@ mapping find_internal(string f, object id)
 static array mk_url(object id, mapping args, string contents)
 {
     string fi = (args["frame-image"] || 
-                 id->misc->defines ? id->misc->defines["gbutton-frame-image"]) : 0;
+                 id->misc->defines ? id->misc->defines["gbutton-frame-image"] : 0);
 
     if (fi)
            fi = fix_relative(fi, id);
