@@ -1,0 +1,2 @@
+AC_INIT(caudium-rc_script.in)
+AC_OUTPUT(caudium-rc_script, [chmod +x caudium-rc_script])

@@ -1,0 +1,84 @@
+#!/bin/sh -e
+#
+# $Id$
+#
+. /usr/share/debconf/confmodule
+
+PORTCHECK='object port = Stdio.Port(); if (!port->bind((int)getenv("PORTNO"))) write("no"); else write("yes");'
+PIKE=/usr/bin/pike7-cvs
+
+get_cfg_port() {
+    local yesno;
+    local port;
+    
+    db_title 'Config Interface Port'
+        
+    while test 1; do
+     db_input medium caudium/config_port || true
+     db_go
+     
+     db_get caudium/config_port || true
+     if test -z "$RET"; then
+      db_reset caudium/config_port || true
+      continue
+     fi
+     
+     port="$RET"
+     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
+     if test "$yesno" = "no"; then
+      db_reset caudium/config_port || true
+      db_reset caudium/cfg_port_taken || true
+      db_input medium caudium/cfg_port_taken || true
+      db_go
+      continue
+     else
+      db_subst caudium/last_screen cfgport "$port"
+      break
+     fi
+    done
+}
+
+get_iface() {
+    local port="80";
+    local yesno;
+    
+    db_title 'Port number'
+    db_subst caudium/listen_on portno $port
+
+    while test 1; do
+     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
+     if [ "$yesno" = "yes" ]; then
+        break
+     fi
+     
+     db_input medium caudium/listen_on || true
+     db_go
+     
+     db_get caudium/listen_on
+     port=$RET
+     if test -z "$port"; then
+        port="`expr $port + 1`"	
+     fi
+     db_reset caudium/listen_on
+     db_set caudium/listen_on $port
+    done
+}
+
+db_version 2.0
+db_capb
+
+if test ! -f /etc/caudium/Global_Variables; then
+    get_cfg_port
+    get_iface
+fi
+
+db_title 'Startup options'
+db_input medium caudium/start_options || true
+
+db_title 'Experimental code'
+db_input low caudium/experimental_http || true
+
+db_title 'Caudium configuration'
+db_input medium caudium/last_screen || true
+    
+db_go || true
