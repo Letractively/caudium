@@ -19,36 +19,8 @@ static constant PRANDOM_DEVICE = "/dev/urandom";
  */
 static constant PATH = "/usr/sbin:/usr/etc:/usr/bin/:/sbin/:/etc:/bin";
 
-#ifndef __NT__
-static constant SYSTEM_COMMANDS = ({
-  "last -256", "arp -a",
-  "netstat -anv","netstat -mv","netstat -sv",
-  "uptime","ps -fel","ps aux",
-  "vmstat -s","vmstat -M",
-  "iostat","iostat -cdDItx"
-});
-#endif
-
 static RandomSource global_arcfour;
 static int(0..1) goodseed;
-
-#ifdef __NT__
-static string nt_random_string(int len) {
-  object ctx = Nettle.NT.CryptContext(0, 0, Nettle.NT.PROV_RSA_FULL,
-				      Nettle.NT.CRYPT_VERIFYCONTEXT
-				      /*|Nettle.NT.CRYPT_SILENT*/);
-  if(!ctx)
-    error( "Couldn't create crypto context.\n" );
-
-  string res = ctx->read(len);
-
-  if(!res)
-    error( "Couldn't generate randomness.\n" );
-
-  destruct(ctx);
-  return res;
-}
-#endif
 
 //! Executes several programs (last -256, arp -a, netstat -anv, netstat -mv,
 //! netstat -sv, uptime, ps -fel, ps aux, vmstat -s, vmstat -M, iostat,
@@ -57,9 +29,6 @@ static string nt_random_string(int len) {
 //! data.
 string some_entropy()
 {
-#ifdef __NT__
-  return nt_random_string(8192);
-#else /* !__NT__ */
   mapping env = [mapping(string:string)]getenv();
   env->PATH = PATH;
 
@@ -84,7 +53,6 @@ string some_entropy()
   destruct(child_pipe);
 
   return parent_pipe->read();
-#endif
 }
 
 //! Virtual class for randomness source object.
@@ -96,12 +64,6 @@ class RandomSource {
 
 // Compatibility
 constant pike_random = RandomSource;
-
-#ifdef __NT__
-static class NTSource {
-  string read(int(0..) len) { return nt_random_string(len); }
-}
-#endif
 
 //! A pseudo random generator based on the arcfour crypto.
 class arcfour_random {
@@ -126,10 +88,6 @@ class arcfour_random {
 //! Returns a reasonably random random-source.
 RandomSource reasonably_random()
 {
-#ifdef __NT__
-  return NTSource();
-#endif
-
   if (file_stat(PRANDOM_DEVICE))
   {
     Stdio.File res = Stdio.File();
@@ -150,9 +108,6 @@ RandomSource reasonably_random()
 //! Returns a really random random-source.
 RandomSource really_random(int|void may_block)
 {
-#ifdef __NT__
-  return NTSource();
-#endif
   Stdio.File res = Stdio.File();
   if (may_block && file_stat(RANDOM_DEVICE))
   {
