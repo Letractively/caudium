@@ -181,14 +181,14 @@ int loaded;
 void start(int num, object configuration)
 {
     if (!loaded) {
-        string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+        string cdir = caudium->QUERY(argument_cache_dir) + "/" + QUERY(cachedir) + "/";
         
         loaded = 1;
         if (get_dir(cdir))
             foreach(get_dir(cdir), string file)
                 rm(cdir+file);
         else
-            if (!mkdir(cdir))
+            if (!mkdirhier(cdir))
                 report_warning ("BG: Cache directory "+
                                 cdir+" can not be created.\n");
     }
@@ -196,7 +196,7 @@ void start(int num, object configuration)
 
 void stop()
 {
-    string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+    string cdir = caudium->QUERY(argument_cache_dir) + "/" + QUERY(cachedir) + "/";
     if (get_dir(cdir))
         foreach(get_dir(cdir), string file)
             rm(cdir+file);
@@ -212,8 +212,9 @@ void create()
 	  "Maximal height of the generated image." );
   defvar( "maxstringlength", 60, "Limits:Max string length", TYPE_INT,
 	  "Maximal length of the strings used in the diagram." );
-  defvar( "cachedir", "../bgcache/", "Cache directory", TYPE_DIR|VAR_MORE,
-	  "The directory that will be used to store diagrams." );
+  defvar( "cachedir", "bgcache/", "Cache directory", TYPE_DIR|VAR_MORE,
+	  "The directory that will be used to store diagrams. This is "
+	  "relative to the argument cache directory." );
 }
 
 string itag_xaxis(string tag, mapping m, mapping res)
@@ -557,7 +558,7 @@ string quote(mapping in)
   o->update(data);
   string out=replace(http_encode_string(MIME.encode_base64(o->digest(),1)),
 		     "/", "$");
-  string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+  string cdir = caudium->QUERY(argument_cache_dir) + "/" + QUERY(cachedir) + "/";
   
   if (file_stat(cdir+out)) return out;
   
@@ -910,7 +911,7 @@ mapping unquote( string f )
   //NU: Load the file f
 
   if (catch {
-    return decode_value(Stdio.read_file(caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/" + f));
+    return decode_value(Stdio.read_file(caudium->QUERY(argument_cache_dir) + "/" + QUERY(cachedir) + "/" + f));
   })
     return 0;
   
@@ -925,7 +926,7 @@ mapping find_file(string f, object id)
 
   //NU: If the file <f>.gif exists return it
   string temp;
-  string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+  string cdir = caudium->QUERY(argument_cache_dir) + "/" + QUERY(cachedir) + "/";
   
   if (temp=Stdio.read_file(cdir+f+".gif"))
     return http_string_answer(temp, "image/gif");
