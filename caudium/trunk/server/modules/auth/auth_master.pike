@@ -228,8 +228,6 @@ string|int get_groupname(int gid)
 //! numeric user id
 //! @member string "name"
 //! long user description
-//! @member string "primary_group"
-//! primary group name
 //! @member array(string)|int "groups"
 //! group memberships or 0 if none
 //! @member string "shell"
@@ -309,7 +307,7 @@ array|int list_all_groups()
 //!   @elem int 
 //!     numeric user id
 //!   @elem int 
-//!     string group id (primary)
+//!     numeric group id (primary)
 //!   @elem string 
 //!     real name (gecos)
 //!   @elem string 

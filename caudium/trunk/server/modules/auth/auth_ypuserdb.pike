@@ -32,7 +32,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
-constant module_name = "Authentication Provder: NIS";
+constant module_name = "Authentication Provider: NIS";
 constant module_doc  = "Experimental module for authorization using "
 	      "Network Information Service (NIS).";
 constant module_unique = 1;
@@ -94,12 +94,12 @@ mapping|int get_user_info(string u)
 mapping|int get_group_info(string g)
 {
   if (sizeof(g)) {
-    string s = domain->match("group.byname", u);
+    string s = domain->match("group.byname", g);
     if (s) {
       array gd=s/":";
-      return(["groupname": ud[0], 
-	"gid": ud[2],
-	"users":  ((ud[4] && ud[4]!="")?((ud[4]/",")-({""})):({})),
+      return(["groupname": gd[0], 
+	"gid": gd[2],
+	"users":  ((gd[4] && gd[4]!="")?((gd[4]/",")-({""})):({})),
 	"_source": query("_name")
 	]);
     }
@@ -109,9 +109,6 @@ mapping|int get_group_info(string g)
 
 array get_groups_for_user(string user)
 {
-
-  ERROR("get_groups_for_user(" + user + ")");
-
   if(usergroups[user]) return usergroups[user];
 
   return ({});
@@ -155,14 +152,14 @@ string|int get_groupname(int|string gid)
 
 int authenticate(string user, string password)
 {
-  string s = domain->match("passwd.byname", u);
+  string s = domain->match("passwd.byname", user);
   if (!s) {
     fail++;
     nouser++;
     return 0;
   }
-  arr = s/":";
-  if ((!sizeof(arr[1])) || crypt(p, arr[1])) {
+  array arr = s/":";
+  if ((!sizeof(arr[1])) || crypt(password, arr[1])) {
     succ++;
     emptypasswd += !sizeof(arr[1]);
     return 1;
@@ -173,7 +170,7 @@ int authenticate(string user, string password)
 
 void update_usergroups()
 {
-  usergroups=({}); // clear the map.
+  usergroups=([]); // clear the map.
 
   mapping(string:string) m = domain->all("group.byname");
   foreach(indices(m), string g)
