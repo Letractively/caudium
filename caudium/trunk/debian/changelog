@@ -1,3 +1,17 @@
+caudium (1:1.0.0-7) unstable; urgency=low
+
+  * split the caudium-modules package into three separate packages:
+     - caudium-modules for the essential stuff
+     - caudium-ultralog for UltraLog
+     - caudium-pixsl for XSLT support
+  * changed the default UID:GID to www-data:www-data. Postinst chowns
+    all directories that must be writable.
+  * no more file shuffling wrt the two different http modules - now it's
+    handled using sed.    
+  * prerm backs the configuration up on --purge
+  
+ -- Marek Habersack <grendel@vip.net.pl>  Sun, 24 Sep 2000 22:40:54 +0200
+
 caudium (1.0.0-6) unstable; urgency=low
 
   * Several changes in the mainstream

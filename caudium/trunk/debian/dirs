@@ -4,8 +4,6 @@ usr/bin
 usr/lib/caudium/lib
 usr/share/caudium/local_modules
 usr/share/caudium/local_fonts
-usr/local/share/caudium/modules
-usr/local/share/caudium/fonts
 var/log/caudium
-var/log/caudium/ultralog
 var/run/caudium
+var/state/caudium
