@@ -470,12 +470,28 @@ static int is_modified(string a, int t, void|int len)
   return 1;
 }
 
+//! method: string short_name(string long_name)
+//!  Returns a "short name" of a virtual server. This is simply
+//!  the name in lower case with space replaced with underscore.
+//!  used for storing the configration on disk, log directories etc.
+//! arg: string long_name
+//!  The name of the virtual server.
+//! scope: private
+//! name: short_name - return the short name of a virtual server
 string short_name(string long_name)
 {
   long_name = replace(long_name, " ", "_");
   return lower_case(long_name);
 }
 
+//! method: string strip_config(string from)
+//!  Strips the Caudium config cookie part of a path (not a URL).
+//!  The cookie part is everything within < and > right after the firstr
+//!  slash.
+//! arg: string from
+//!  The path from which the cookie part will be stripped.
+//! scope: private
+//! name: strip_config - strip config cookie part from a path
 string strip_config(string from)
 {
   sscanf(from, "/<%*s>%s", from);
@@ -492,6 +508,22 @@ string strip_prestate(string from)
 #define _extra_heads defines[" _extra_heads"]
 #define _rettext defines[" _rettext"]
 
+//! method: string parse_rxml(string what, object id, object|void file, void|mapping defines)
+//!  Run the RXML parser on a text string. This function is to be used if you
+//!  explicitely want to parse some text. It's commonly used in custom modules
+//!  or pike scripts.
+//! arg: string what
+//!  The text to parse
+//! arg: object id
+//!  The request object.
+//! arg: object|void file
+//!  File object, which is sent as the second custom argument to all callback
+//!  functions.
+//! arg: mapping|void defines
+//!  The mapping with defines, sent as another optional argument to callback
+//!  functions. It defaults to id->misc->defines.
+//! returns: The RXML parsed result.
+//! name: parse_rxml - run the RXML parser on a string
 static string parse_rxml(string what, object id,
 			 void|object file, void|mapping defines)
 {
@@ -625,11 +657,25 @@ constant empty_strings = ({
   "","","","","","","","","","","","",
 });
 
+//! method: int is_safe_string(string in)
+//!  Check if a string contains only safe characters, which are defined as
+//!  a-z, A-Z and 0-9. Mainly used internally by make_tag_attributes.
+//! arg: string in
+//!  The string to check.
+//! returns: 1 if the test contains only the safe characters, 0 otherwise.
+//! name: is_safe_string - check if a string contains unsafe characters
 static int is_safe_string(string in)
 {
   return strlen(in) && !strlen(replace(in, safe_characters, empty_strings));
 }
 
+//! method: string make_tag_attributes(mapping in)
+//!  Convert a mapping with key-value pairs to tag attribute format.
+//! arg: mapping in
+//!  The mapping with the attributes
+//! returns:
+//!  The string of attributes.
+//! name: make_tag_attributes - convert a mapping to tag attributes
 static string make_tag_attributes(mapping in)
 {
   array a=indices(in), b=values(in);
@@ -646,15 +692,36 @@ static string make_tag_attributes(mapping in)
   return a*" ";
 }
 
-static string make_tag(string s,mapping in)
+//! method: string make_tag(string tag, mapping in)
+//!  Build a tag with the specified name and attributes.
+//! string: string tag
+//!  The name of the tag.
+//! arg: mapping in
+//!  The mapping with the attributes
+//! returns:
+//!  A string containing the tag with attributes.
+//! name: make_tag - build a tag 
+
+static string make_tag(string tag,mapping in)
 {
   string q = make_tag_attributes(in);
-  return "<"+s+(strlen(q)?" "+q:"")+">";
+  return "<"+tag+(strlen(q)?" "+q:"")+">";
 }
 
-static string make_container(string s,mapping in, string contents)
+//! method: string make_container(string tag, mapping in, string contents)
+//!  Build a container with the specified name, attributes and content.
+//! string: string tag
+//!  The name of the container.
+//! arg: mapping in
+//!  The mapping with the attributes
+//! arg: string contents
+//!  The contents of the container.
+//! returns:
+//!  A string containing the finished container
+//! name: make_container - build a container
+static string make_container(string tag,mapping in, string contents)
 {
-  return make_tag(s,in)+contents+"</"+s+">";
+  return make_tag(tag,in)+contents+"</"+tag+">";
 }
 
 static string dirname( string file )
