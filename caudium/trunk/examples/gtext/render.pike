@@ -14,7 +14,7 @@ array colors = ({
 
 array (string) list_fonts()
 {
-  return caudium->available_fonts(1);
+  return caudium->available_fonts();
 }
 
 string make_select(array (string) from, string selected)

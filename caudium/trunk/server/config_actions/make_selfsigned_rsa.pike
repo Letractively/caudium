@@ -62,8 +62,8 @@ mixed page_0(object id, object mc)
   
   if (id->variables->_error)
   {
-    msg = "<font color=red>" + id->variables->_error
-      + "</font><p>";
+    msg = "<p>The following error occured : <font color=red>" + id->variables->_error
+      + "</font></p>";
     id->variables->_error = 0;
   }
   
@@ -153,8 +153,8 @@ mixed page_1(mixed id, mixed mc)
   
   if (id->variables->_error)
   {
-    msg = "<font color=red>" + id->variables->_error
-      + "</font><p>";
+    msg = "<p>The following error occured : <font color=red>" + id->variables->_error
+      + "</font></p>";
     id->variables->_error = 0;
   }
   
@@ -226,7 +226,16 @@ mixed page_1(mixed id, mixed mc)
 
 mixed page_2(object id, object mc)
 {
-  return ("<font size=+1> For how long should the certificate "
+  string msg = "";
+  if (id->variables->_error)
+  {
+    msg = "<p>The following error occured : <font color=red>" + id->variables->_error
+    + "</font></p>";
+    id->variables->_error = 0;
+  }
+  
+  return msg + 
+  ("<font size=+1> For how long should the certificate "
 	  "be valid?</font><p>\n"
 
 	  "<b>Certificate lifetime, in days</b><br>\n"
@@ -260,9 +269,16 @@ object trim = Regexp("^[ \t]*([^ \t](.*[^ \t]|))[ \t]*$");
 
 mixed page_3(object id, object mc)
 {
+  string msg = "";
   object file = Stdio.File();
-
   object privs = Privs("Reading private RSA key");
+  
+  if (id->variables->_error)
+  {
+    msg = "<p>The following error occured : <font color=red>" + 
+     id->variables->_error + "</font></p>";
+     id->variables->_error = 0;
+  }
   if (!file->open(id->variables->key_file, "r"))
   {
     privs = 0;
@@ -276,8 +292,8 @@ mixed page_3(object id, object mc)
     return "<font color=red>Could not read private key: "
       + strerror(file->errno()) + "\n</font>";
 
-  object msg = Tools.PEM.pem_msg()->init(s);
-  object part = msg->parts["RSA PRIVATE KEY"];
+  object pem_msg = Tools.PEM.pem_msg()->init(s);
+  object part = pem_msg->parts["RSA PRIVATE KEY"];
   
   if (!part)
     return "<font color=red>Key file not formatted properly.\n</font>";
@@ -333,7 +349,7 @@ mixed page_3(object id, object mc)
   string cert = Tools.X509.make_selfsigned_rsa_certificate
     (rsa, 24 * 3600 * (int) id->variables->ttl, name);
   
-  string res=("<font size=+2>This is your Certificate.</font>"
+  string res= msg + ("<font size=+2>This is your Certificate.</font>"
 	      "<textarea name=certificate cols=80 rows=12>");
 
   res += Tools.PEM.simple_build_pem("CERTIFICATE", cert);
@@ -353,26 +369,8 @@ mixed page_3(object id, object mc)
   return res;
 }
 
-#if 0
-mixed page_4(object id, object mc)
-{
-  string msg = "";
-  
-  if (id->variables->_error)
-  {
-    msg = "<font color=red>" + id->variables->_error
-      + "</font><p>";
-    id->variables->_error = 0;
-  }
-  
-  return msg
-    + ("Do you want to store the certificate in a file? ");
-}
-#endif
-
 mixed verify_3(object id, object mc)
 {
-  // werror("save = %O\n", id->variables->save);
   if (sizeof(id->variables->save && id->variables->cert_file))
   {
     object file = Stdio.File();

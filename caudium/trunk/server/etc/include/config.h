@@ -30,7 +30,7 @@
  *   2  HTTP                          HTTP_DEBUG
  *   8  Hostname                      HOST_NAME_DEBUG
  *   9  Cache                         CACHE_DEBUG
- *  10  Configuration file handling   DEBUG_CONFIG
+ *  10  Configuration file handling   CONFIG_DEBUG
  *  20  Socket opening/closing        SOCKET_DEBUG
  *  21  Module: Filesystem            FILESYSTEM_DEBUG
  *  22  Module: Proxy                 PROXY_DEBUG
