@@ -13,7 +13,7 @@ inherit "connection" : connection;
 #endif /* SSL3_DEBUG */
 object(Stdio.File) socket;
 
-static object context;
+object context;
 
 int _fd;
 
