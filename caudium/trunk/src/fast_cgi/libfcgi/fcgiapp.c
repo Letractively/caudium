@@ -661,7 +661,7 @@ int FCGX_VFPrintF(FCGX_Stream *stream, const char *format, va_list arg)
                             buffCount = strlen(buffPtr);
                             break;
 	                case 'h':
-                            shortArg = va_arg(arg, short);
+                            shortArg = (short)va_arg(arg, int);
 			    sprintf(buffPtr, fmtBuff, shortArg);
                             buffCount = strlen(buffPtr);
                             break;
@@ -685,7 +685,7 @@ int FCGX_VFPrintF(FCGX_Stream *stream, const char *format, va_list arg)
                             buffCount = strlen(buffPtr);
                             break;
                         case 'h':
-                            uShortArg = va_arg(arg, unsigned short);
+                            uShortArg = (unsigned short)va_arg(arg, unsigned int);
 			    sprintf(buffPtr, fmtBuff, uShortArg);
                             buffCount = strlen(buffPtr);
                             break;
