@@ -98,8 +98,6 @@ string text_andify( array(string) info )
 
 mixed wizard_done(object id, object mc)
 {
-  gc();
-
   array(string) info= ({ });
   
   /* Flush the userdb. */ 
@@ -167,7 +165,6 @@ mixed wizard_done(object id, object mc)
   if(info)
     report_notice("Flushed "+ text_andify(info) +".");
 
-  gc();
 }
 
 mixed handle(object id) { return wizard_for(id,0); }

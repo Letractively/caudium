@@ -107,7 +107,6 @@ mixed page_0(object id, object mc)
 		   replace(o->status(), "<table>", "<table cellpadding=4>"));
     foreach(indices(o->modules->proxy->copies), int i){
       object out = o->modules->proxy->copies[i];
-      gc();
       res+=status(out);
     }
   }
