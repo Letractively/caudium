@@ -34,7 +34,7 @@ force:
 	-@$(BIN_TRUE)
 
 autodefvardocs:
-	(cd $(SRCDIR); $(PIKE) tools/defvar2autodoc.pike server/base_server/caudium.pike `find server/modules/ -name "*.pike"` `find server/more_modules/ -name "*.pike"` )
+	(cd $(SRCDIR); $(PIKE) tools/defvar2autodoc.pike `find server/modules/ -name "*.pike"` `find server/more_modules/ -name "*.pike"` )
 
 # These are here for compatibility with the easy-start makefile
 easy: all
