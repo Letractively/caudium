@@ -470,14 +470,16 @@ void do_multi_run(array o, mapping opt)
       opt->setsid=1;
       run_caudium(o, opt);
     }
-
-
 }
 
 void rotate_logs(array o, mapping opt)
 {
   for(int i=8; i>0; i--)
   {
+    if (!Stdio.is_dir(envvars->CAUDIUM_LOGDIR + "/debug/")) {
+      Stdio.mkdirhier(envvars->CAUDIUM_LOGDIR + "/debug/");
+      return;
+    }
     mv(envvars->CAUDIUM_LOGDIR + "/debug/default." + i, envvars->CAUDIUM_LOGDIR + "/debug/default." + (i+1));
   }
 }
