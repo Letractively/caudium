@@ -1,11 +1,11 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
-- Added support in VHS LDAP to use Caudium system log directory instead of
-  userdir one. 
-- Added .htaccess manual link... Usefull since our is NSCA compatible...
-- Added support in VHS Sql to use Caudium system log directory instead of
-  userdir one. 
-- index.php and index.php3 now added in all directories modules.
+- Added support in VHS LDAP to use the Caudium system log directory instead of
+  the userdir one. 
+- Added .htaccess manual link... Useful since ours is NSCA compatible...
+- Added support in VHS Sql to use the Caudium system log directory instead of
+  the userdir one. 
+- index.php and index.php3 now added in all the directory modules.
 - Added support for RFC 3236 (XHTML media type)
 - Fix an error when PUT method is used...
 - Variable HTTPS is set to "on" when SSL is used. (compatibility variable      
