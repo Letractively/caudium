@@ -115,7 +115,7 @@ class http_error_handler {
 		return
 		    "<h1>" +
 		    html_encode_string( the_error->name ) +
-		    "</h1><br>" +
+		    "</h1>" +
 		    "There is currently no documentation on this error.<br>";
 	    }
 	 } else if ( args->message ) {
