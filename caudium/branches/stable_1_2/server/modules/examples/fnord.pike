@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+// TODO autodocs this
 
 // This is a small sample module.  It is intended to show a simple example
 // of a container.
