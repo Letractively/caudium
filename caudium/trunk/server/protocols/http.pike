@@ -1304,7 +1304,11 @@ void send_result(mapping|void result)
 #endif
 	} else {
 	  /* Do not cache! */
-	  heads["Cache-Control"] = "no-cache";
+	  /* 
+	   * Just a proposition. This should make the page effectivey
+           * non-cacheable. /grendel
+	   */
+	  heads["Cache-Control"] = "no-cache, no-store, max-age=1, private";
 	}
       }
       if(stringp(file->data)) 
