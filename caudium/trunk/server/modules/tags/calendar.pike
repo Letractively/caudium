@@ -1496,6 +1496,11 @@ a:hover.cal-todaytext {
 //!  type: TYPE_STRING
 //!  name: JavaScript: Day change function
 //
+//! defvar: js_week
+//! Name of the function that will handle the week click.
+//!  type: TYPE_STRING
+//!  name: JavaScript: Week click function
+//
 //! defvar: wdc_width
 //! Width of a single cell in the calendar grid. In percent.
 //!  type: TYPE_STRING

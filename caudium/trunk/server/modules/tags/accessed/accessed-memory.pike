@@ -375,33 +375,3 @@ mapping query_tag_callers()
 //!  type: TYPE_FLAG
 //!  name: Restrict reset
 //
-//! defvar: backend
-//! Select a accessed database backend
-//!  type: TYPE_MULTIPLE_STRING
-//!  name: Database backend
-//
-//! defvar: close_db
-//! If set, the accessed database will be closed if it is not used for 8 seconds. This saves resourses on servers with many sites.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Close inactive database
-//
-//! defvar: sqldb
-//! What database to use for the database backend.
-//!  type: TYPE_STRING
-//!  name: SQL Database
-//
-//! defvar: table
-//! Which table should be used for the database backend.
-//!  type: TYPE_STRING
-//!  name: SQL Table
-//
-//! defvar: serverinpath
-//! Add the server Id in the SQL table. <b>Note</b>: you will lose Roxen 2.x compatibility if this enabled.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Add server Id in SQL table
-//
-//! defvar: serverid
-//! This will be added in the SQL database as unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> counter data will be reset to 0.
-//!  type: TYPE_STRING|VAR_MORE
-//!  name: Id to add in SQL table
-//
