@@ -39,19 +39,27 @@ case "$1" in
 			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
 
     db_get caudium/config_port
+    CFGPORTNO="$RET"
     if [ -n "$RET" -a "$RET" != "22202" ]; then
         CONFIG_PORT="$RET"
 	sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new && \
 	mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
     fi
-
+    
     db_get caudium/listen_on
     PORTNO="$RET"
 
     if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
+     touch /var/state/caudium/virgin.install
+     sed -e "s;@CFGPORT@;$CFGPORTNO;" /etc/caudium/Global_Variables.sample > \
+         /etc/caudium/servers/Global_Variables.new && mv /etc/caudium/servers/Global_Variables.new \
+	 /etc/caudium/servers/Global_Variables
+
      sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/localhost.sample > \
          /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
   	 /etc/caudium/servers/localhost
+    elif [ -f /var/state/caudium/virgin.install ]; then
+     rm -f /var/state/caudium/virgin.install
     fi
     
     db_get caudium/start_options
@@ -86,18 +94,22 @@ START_OPTIONS="$START_OPTIONS"
 EOF
     fi
 
-    db_get caudium/experimental_http
-    if test "$RET" = "true"; then
-	PROTOCOL=http2
-    else
-	PROTOCOL=http
-    fi
-    
-    if [ -f /etc/caudium/servers/localhost ]; then
-	sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
-         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
-  	 /etc/caudium/servers/localhost
-    fi
+##
+## HTTP2 is the default now
+##
+
+#    db_get caudium/experimental_http
+#    if test "$RET" = "true"; then
+#	PROTOCOL=http2
+#    else
+#	PROTOCOL=http
+#    fi
+#    
+#    if [ -f /etc/caudium/servers/localhost ]; then
+#	sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
+#         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
+# 	 /etc/caudium/servers/localhost
+#    fi
 
     
 # -----------------------
@@ -150,13 +162,14 @@ fi
 
     # Now let's take care of permissions
     # if it is the first time we run Caudium
-    if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
+    if [ -f /var/state/caudium/virgin.install ]; then    
 	DIRS="/var/run/caudium /var/state/caudium /var/cache/caudium /etc/caudium/servers /var/log/caudium"
 	for d in $DIRS; do
 	    if test -d $d; then
 		chown -R www-data.www-data $d
 	    fi
 	done
+	rm -f /var/state/caudium/virgin.install
     fi
     ;;
 

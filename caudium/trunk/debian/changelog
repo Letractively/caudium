@@ -1,3 +1,10 @@
+caudium (2:1.1.1-4) unstable; urgency=low
+
+  * made quite a few changes - http2 is unconditionally used for the default
+    config now. Global_Variables template is used.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 28 May 2001 14:23:28 +0200
+
 caudium (2:1.1.1-3) unstable; urgency=low
 
   * Latest snapshot + sync of debian/ with the 1.0 tree

@@ -63,8 +63,8 @@ fi
 db_title 'Startup options'
 db_input medium caudium/start_options || true
 
-db_title 'Experimental code'
-db_input low caudium/experimental_http || true
+#db_title 'Experimental code'
+#db_input low caudium/experimental_http || true
 
 db_title 'Caudium configuration'
 db_input medium caudium/last_screen || true
