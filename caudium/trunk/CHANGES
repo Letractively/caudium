@@ -1,5 +1,9 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- mod_caucho support for Resin updated to support multiple instances of resin and load 
+  balancing among them. Also added support for RXML parsing of output.
+- Java Servlet module updated to Servlet API 2.2, handles file extensions 
+  and allows output to be RXML parsed.
 - Added in etc/include/performance.h a define that allow administrator
   to force load all configurations and modules at the starting of Caudium.
   Note this is not recommanded if you have thousands of virtuals servers.
