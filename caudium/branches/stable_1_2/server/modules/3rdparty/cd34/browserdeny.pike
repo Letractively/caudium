@@ -132,7 +132,7 @@ string status() {
 //!  name: Nasty Redirect Mode
 //
 //! defvar: nastyurl
-//! This is the URL to direct to if Nasty Redirect Mode is turned on<p>http://www.tenmax.com/ is my personal favorite since they are the largest source of mechanical surfers
+//! This is the URL to direct to if Nasty Redirect Mode is turned onhttp://www.tenmax.com/ is my personal favorite since they are the largest source of mechanical surfers
 //!  type: TYPE_STRING
 //!  name: Nasty Mode URL
 //

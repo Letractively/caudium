@@ -4208,3 +4208,15 @@ string _sprintf( )
 //!  type: TYPE_LOCATION|VAR_MORE
 //!  name: Internal module resource mountpoint
 //
+//! defvar: use_scopes
+//! <p>This compatibility option manages the new feature of the Caudium Webserver known as <em>scopes</em>.</p><p>Under Roxen 1.3, variable names can contain periods (such as "new.form.variable") but with Caudium the scope-parsing code will attempt to make this a variable called "form.variable" in the "new" scope - and since there is no scope called "new", the action will fail - this breaks compatablity with existing RXML. A small example to illustrate the situation:</p><blockquote><pre>&lt;if variable="new.formvar is "&gt;
+//!	&lt;set variable="new.formvar" value="blargh"&gt;
+//!&lt;/if&gt;
+//!&lt;formoutput&gt;
+//!	&lt;form&gt;
+//!		&lt;input name="new.formvar"value="#new.formvar#"&gt;&lt;
+//!	/form&gt;
+//!&lt;/formoutput&gt;</pre></blockquote>
+//!  type: TYPE_STRING_LIST
+//!  name: Scopes compatibility
+//
