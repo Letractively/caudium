@@ -61,6 +61,7 @@ constant module_unique = 1;
 
 int att=0, succ=0, nouser=0, db_accesses=0, last_db_access=0;
 object db=0;
+object caudium_conf=0;	// to access to caudium's conf object
 
 /*
  * Object management and configuration variables definitions
@@ -174,6 +175,13 @@ void create()
 	  "authentication limit.");
 }
 
+
+// Start of the module
+void start(int count, object conf)
+{
+  caudium_conf = conf;
+}
+
 /*
  * DB management functions
  */
@@ -199,9 +207,15 @@ void open_db() {
   db_accesses++; //I count DB accesses here, since this is called before each
   if(objectp(db)) //already open
     return;
-  err=catch{
-    db=Sql.sql(QUERY(sqlserver));
-  };
+  if (caudium_conf->sql_connect) {	// Try to use internal Caudium SQL handler
+    err=catch{
+     db = caudium_conf->sql_connect(QUERY(sqlserver));
+    };
+  } else {
+    err=catch{
+     db = Sql.sql(QUERY(sqlserver));
+    };
+  }
   if (err) {
     perror ("SQLauth: Couldn't open authentication database!\n");
     if (db)
