@@ -20,7 +20,7 @@ constant module_unique = 0;
 
 array status_requests = ({ });
 
-#define VPROXY_DEBUG
+//#define VPROXY_DEBUG
 
 #define WANT_HEADERS /* needs to be defined to get returned error code */
 
