@@ -67,9 +67,16 @@ void create() {
          "What to return when there is no resource or file available "
          "at a certain location. $File will be replaced with the name "
          "of the resource requested, and $Me with the URL of this server ");
+  defvar("401msg","<hl>Authentication Failed.</h1>\n",
+         "Authentication Failed - Error 401 message", TYPE_TEXT_FIELD,
+         "What to return when authentication has failed.");
+  defvar("debug", 1, "Debug", TYPE_FLAG,
+         "Debug the code into Caudium debug log");
 }
 
-mapping|int handle_error(object id)
+// General error code handler.
+// This used in 404 in general
+mapping|int handle_error(object id, void|mapping extra_heads)
 { 
   int error_code;    // The HTTP Error code
   string error_text; // The message to send.
@@ -99,7 +106,17 @@ mapping|int handle_error(object id)
    
   // We seems to have error.
   if(id->misc->error_code)
-    return http_low_answer(error_code, error_text);
+  {
+    if(QUERY(debug))
+      werror("Error code is : "+error_code);
+    if(error_code = 401) 
+      error_text=QUERY(401msg); 
+    if(mappingp(extra_heads))
+      return http_low_answer(error_code, error_text) +
+         ([ "extra_heads": extra_heads ]);
+    else
+      return http_low_answer(error_code, error_text);
+  }
   else if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
     return http_low_answer(501, "Not implemented.");
   else if (err = catch {
