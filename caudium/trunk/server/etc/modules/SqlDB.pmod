@@ -21,7 +21,7 @@
  */
 
 //!  This Pike module provides a couple of classes that makes it possible for
-//!  module programmers to get Sql Databases connection persistant with
+//!  module programmers to get Sql Databases connection persistent with
 //!  programmable values (timeout, database name, etc...).
 
 //!   This is the DB handler itself. 
@@ -37,9 +37,9 @@ class DB {
   static private string sqlurl;			// The SqlURL
   object id;					// The Caudium Id
 
-  //!  Create and opens the database
+  //!  Create and open the database
   //! @param _timeout
-  //!  The timeout used to autoclose the database is not used.
+  //!  The timeout used to auto-close the database is not used.
   //! @param _dburl
   //!  The dbURI used to connect to the db. The string should be on the
   //!  format dbtype://[user[:password]@@]hostname[:port][/database]. Use
@@ -55,9 +55,9 @@ class DB {
     id = _id;		// Can be dangerous if we modify here some id things.
   }
 
-  //!  Autoclose the db if needed
+  //!  Auto-close the db if needed
   //! @returns
-  //!  Nothing directly, used internaly only
+  //!  Nothing directly, used internally only
   void close_db() {
    if((time(1)-last_db_access) > timeout {
      db = 0;
@@ -69,12 +69,12 @@ class DB {
 
   //!  Opens the database.
   //! @returns
-  //!  Nothing directly, used internaly only
+  //!  Nothing directly, used internally only
   private void opendb() {
     mixed err;
     last_db_access = time(1);
     db_access++;
-    if(objectp(db))	// The db is allready opened
+    if(objectp(db))	// The db is already opened
 	return;
     err=catch {
 	db = id->conf->sql_connect(dburl);
