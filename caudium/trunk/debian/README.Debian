@@ -1,6 +1,12 @@
 Caudium Webserver for Debian
 ----------------------------
 
+
+
+ -- Marek Habersack <grendel@vip.net.pl>, Tue, 15 Aug 2000 13:47:27 +0200
+Caudium Webserver for Debian
+----------------------------
+
   This package comes with one virtual host preconfigured, namely localhost.
 The virtual host will listen on localhost:80 - no external interfaces are
 bound by default! To configure additional ports point your favorite web
