@@ -837,6 +837,10 @@ int is_safe_string(string in) {
 //! @returns
 //!  The string of attributes.
 string make_tag_attributes(mapping in){
+  
+  // remove "/" that can remain from the parsing of a <tag /> 
+  m_delete(in, "/");
+  
   array a=indices(in), b=values(in);
 
   for (int i=0; i<sizeof(a); i++)
