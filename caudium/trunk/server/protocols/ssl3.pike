@@ -47,8 +47,8 @@ mapping parse_args(string options)
   foreach(options / "\n", line)
     {
       string key, value;
-      if (sscanf(line, "%*[ \t]%s%*[ \t]%s%*[ \t]", key, value) == 5)
-	res[key] = value-"\r";
+      if (sscanf(line, "%s%*[ \t]%s", key, value) == 3)
+	res[String.trim_whites(key)] = String.trim_all_whites(value);
     }
   return res;
 }
@@ -95,6 +95,8 @@ array|void real_port(array port, object cfg)
 
   string cert, key;
   object ctx = new_context(cfg);
+
+  ctx->certificates=({});
   ctx->port = port[0];
   mapping options = parse_args(port[3]);
 
@@ -107,21 +109,33 @@ array|void real_port(array port, object cfg)
     ({ report_error, throw }) ("ssl3: No 'cert-file' argument!\n");
   }
 
-  object privs = Privs ("Reading cert file");
-  string f = read_file(options["cert-file"]);
+  object privs = Privs ("Reading cert file(s)");
+  object msg, part;
+  // we can read a chain of certificates, separated by commas
+  // with the server cert last in the list.
+  foreach((options["cert-file"]/",")-({}), string c)
+  {
+    c=String.trim_whites(c);
+    if(c!="")
+    {
+      string f = read_file(c);
+      if (!f)
+        ({ report_error, throw }) ("ssl3: Reading cert-file " + c + " failed!\n");
+  
+      msg = Tools.PEM.pem_msg()->init(f);
+
+      part = msg->parts["CERTIFICATE"]
+        ||msg->parts["X509 CERTIFICATE"];
+  
+      if (!part || !(cert = part->decoded_body()))
+        ({ report_error, throw }) ("ssl3: No certificate found.\n");
+      ctx->certificates += ({ cert });
+    }
+  }
+
   string f2 = options["key-file"] && read_file(options["key-file"]);
   destruct (privs);
-  if (!f)
-    ({ report_error, throw }) ("ssl3: Reading cert-file failed!\n");
-  
-  object msg = Tools.PEM.pem_msg()->init(f);
 
-  object part = msg->parts["CERTIFICATE"]
-    ||msg->parts["X509 CERTIFICATE"];
-  
-  if (!part || !(cert = part->decoded_body()))
-    ({ report_error, throw }) ("ssl3: No certificate found.\n");
-  
   if (options["key-file"]) {
     if (!f2)
       ({ report_error, throw }) ("ssl3: Reading key-file failed!\n");
@@ -155,7 +169,9 @@ array|void real_port(array port, object cfg)
 
     // ctx->long_rsa = Crypto.rsa()->generate_key(rsa->rsa_size(), r);
   }
-  ctx->certificates = ({ cert });
+
+  // we need the certificates to be in the opposite order (my cert first) for ssl to work.
+  ctx->certificates=reverse(ctx->certificates);
   ctx->rsa = rsa;
   ctx->random = r;
 }
