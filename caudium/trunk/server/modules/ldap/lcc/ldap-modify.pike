@@ -109,6 +109,59 @@ mapping query_tag_callers()
     return my_tags;
 }
 
+//
+// LDAP access funcs
+//
+private void insert_attr(string atype, string|array(string) value,
+                         string op, mapping(string:array(string)) data)
+{
+    int do_op = 0, opval;
+    
+    data[atype] = ({});
+
+    switch(op) {
+        case "replace":
+            opval = do_op = 2;
+            break;
+            
+        case "modify":
+            opval = 0;
+            do_op = 1;
+            break;
+    }
+
+    if (do_op)
+        data[atype] += ({opval});
+
+    if (stringp(value))
+        data[atype] += ({value});
+    else
+        data[atype] += value;
+}
+
+private void add_attribute(string name, string|array(string) value, mapping(string:array(string)) data)
+{
+    insert_attr(name, value, "add", data);
+}
+
+private void replace_attribute(string name, string|array(string) value, mapping(string:array(string)) data)
+{
+    insert_attr(name, value, "replace", data);
+}
+
+private void add_class(string|array(string) name, mapping(string:array(string)) data)
+{
+    insert_attr("objectClass", name, "add", data);
+}
+
+private void replace_class(string name, mapping(string:array(string)) data)
+{
+    insert_attr("objectClass", name, "replace", data);
+}
+
+//
+// Handlers
+//
 private mixed do_start(object id, mapping data, string f)
 {
     object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
@@ -135,6 +188,86 @@ private mixed do_start(object id, mapping data, string f)
         ]);
 }
 
+//
+// replaces the LDAP attribute value with 'nval' if it differs from the
+// previous contents. This method is used only for single-value
+// attributes. If data differs, it gets added to the 'data' mapping for the
+// LDAP replacement further on.
+//
+private void replace_if_differs(string name, array(string) entry,
+                                string nval, mapping(string:array(string)) data)
+{
+    foreach(entry, string val)
+        if (val == nval)
+            return;
+
+    entry[0] = nval;
+    replace_attribute(name, nval, data);
+}
+
+private mixed do_modify(object id, mapping data, string f)
+{
+    object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
+    if (!sprov)
+        return ([
+            "lcc_error" : ERR_PROVIDER_ABSENT,
+            "lcc_error_extra" : "No 'screens' provider"
+        ]);
+
+    // here we need to modify two storage areas - the ldap_data and the
+    // screens store for the 'modify' screen
+    sprov->store(id, "modify");
+    sprov->store(id, "modified");
+
+    mapping(string:array(string)) ldata = ([]);
+    
+    foreach(indices(id->variables), string idx) {
+        if (sizeof(idx) > 4 && idx[0..3] == "mail") {
+            // a special case - mail addresses
+            continue;
+        }
+        if (data->user->ldap_data && data->user->ldap_data[idx])
+            replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
+    }
+
+    object lccprov = PROVIDER(QUERY(provider_prefix) + "_ldap-center");
+    object ldap = lccprov->get_ldap(id);
+    
+    if (!ldap) {
+        // baaaaaaad
+        return ([
+            "lcc_error" : ERR_LDAP_CONN_MISSING
+        ]);
+    }
+    
+    report_notice("modifying '%s' with data '%O'\n",
+                  data->user->dn, ldata);
+    
+    int res = ldap->modify(data->user->dn, ldata);
+
+    // TODO: handle the res == 50 situation specially here
+    if (res != 0) {
+        string errs = ldap->error_string(res);
+
+        report_notice("Error string: %O\n", errs);
+        
+        return ([
+            "lcc_error" : ERR_LDAP_MODIFY,
+            "lcc_error_extra" : ldap->error_string(res)
+        ]);
+    }
+    
+    string screen = sprov->retrieve(id, "modified");
+
+    if (screen && screen != "")
+        return http_string_answer(screen);
+    else
+        return ([
+            "lcc_error" : ERR_SCREEN_ABSENT,
+            "lcc_error_extra" : "No 'modified' scren found"
+        ]);
+}
+
 mixed handle_request(object id, mapping data, string f)
 {
     function afun = do_start;
@@ -145,6 +278,7 @@ mixed handle_request(object id, mapping data, string f)
                 break;
 
             case "modify":
+                afun = do_modify;
                 break;
         }
     }
@@ -278,14 +412,50 @@ string tag_mmail(string tag,
 
     string ret = "";
     string dopts = "";
+    array(string) domains = (QUERY(mail_domains) / "\n") - ({}) - ({""});
+    array(string) mdomains = ({});
     
     foreach(mails, string mail) {
+        array(string) m = mail / "@";
+        if (sizeof(m) != 2)
+            continue;
+
+        mdomains += ({m[1]});
+    }
+    domains |= mdomains;
+    domains = Array.uniq(domains);
+        
+    foreach(mails, string mail) {
         array(string)   m = mail / "@";
-        array(string) domains = (QUERY(mail_domains) / "\n") - ({}) - ({""});
+        if (sizeof(m) != 2)
+            continue;
         
         ret += sprintf("<input type='text' name='mail%02d' value='%s'> <strong>@</strong> "
-                       "<select name='domain%02'>", max, m[0], max);
+                       "<select name='domain%02d'>\n", max, m[0], max);
+        foreach(domains, string d) {
+            if (d == m[1])
+                ret += sprintf("<option selected='yes' value='%s' %s>%s</option>",
+                               d, oattrs, d);
+            else
+                ret += sprintf("<option value='%s' %s>%s</option>",
+                               d, oattrs, d);
+        }
+        ret += "</select><br />\n";
+        max--;
     }
+
+    while (max > 0) {
+        ret += sprintf("<input type='text' name='mail%02d'> <strong>@</strong> "
+                       "<select name='domain%02u'>\n", max, max);
+        foreach(domains, string d) {
+                ret += sprintf("<option value='%s' %s>%s</option>",
+                               d, oattrs, d);
+        }
+        ret += "</select><br />\n";
+        max--;
+    }
+
+    return ret;
 }
 
 // for debugging and your convenience

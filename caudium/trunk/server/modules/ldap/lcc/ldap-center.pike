@@ -87,6 +87,11 @@ private array(mapping) my_menus = ({
         "name" : "About",
         "url" : "/about",
         "provider" : "_ldap-center"
+    ]),
+    ([
+        "name" : "Main Menu",
+        "url" : "/menu",
+        "provider" : "_ldap-center"
     ])
 });
 
@@ -131,77 +136,6 @@ void create()
            "All the user-defined modules are request handlers - that is, they will be called through "
            "the <code>handle_request</code> function that must be present in the object. "
            "The following module names are reserved:<blockquote>" + make_reserved_ul() + "</blockquote>");
-    
-    //  
-    // Provider Modules
-    //
-    /*
-    defvar("pm_add_name", "add", "Provider modules: 'add' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the <code>add</code> operation.</p>"
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>add [TODO: syntax]</li>"
-           "</ul></p>"
-           "<p>This module is used to add new users to the LDAP directory. Only users that "
-           "have been authenticated as administrators can use this provider.</p>"
-          );
-
-    defvar("pm_modify_name", "modify", "Provider modules: 'modify' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the <code>modify</code> operation.</p>"
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>modify [TODO: syntax]</li>"
-           "</ul></p>"
-           "<p>This module is used to modify the user data, within the allowed limits. </p>"
-          );
-
-    defvar("pm_auth_name", "auth", "Provider modules: 'auth' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the <code>auth</code> operation.</p>"
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>auth [TODO: syntax]</li>"
-           "</ul></p>"
-           "<p>This module is used to authenticate users with LDAP. It is also responsible for "
-           "detecting the user's privileges with relation to the administration tasks."
-          );
-
-    defvar("pm_admin_name", "admin", "Provider modules: 'admin' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the <code>admin</code> operation.</p>"
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>admin [TODO: syntax]</li>"
-           "</ul></p>"
-           "<p>This module is used to perform all the administrative tasks not available for "
-           "normal users - listing, removing, disabling, changing the privileges etc.</p>"
-          );
-
-    defvar("pm_log_name", "log", "Provider modules: 'log' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the <code>log</code> operation.</p>"
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>log [TODO: syntax]</li>"
-           "</ul></p>"
-           "This module handles all the loging tasks - it can log to syslog, to file, send mails "
-           "etc. etc.</p>"
-          );
-
-    defvar("pm_screens_name", "screens", "Provider modules: 'screens' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the all the HTML screens."
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>screen [TODO: syntax]</li>"
-           "</ul></p>"
-           "<p>This module is responsible for retrieving, manipulating (replacing of variables, default "
-           "values etc.) the template HTML files used to present data to the user.</p>"
-          );
-
-    defvar("pm_screens_name", "screens", "Provider modules: 'screens' module name",
-           TYPE_STRING | VAR_MORE,
-           "<p>Name of the provider module that handles the all the HTML screens."
-           "<p>This module must export the following functions:<br><ul>"
-           "<li>screen [TODO: syntax]</li>"
-           "</ul></p>");
-    */
     
     //
     // LDAP
@@ -398,6 +332,8 @@ mixed find_file(string f, object id)
 {
     object  p_err = PROVIDER(providers->error->name);
 
+    id->misc->is_dynamic = 1;
+    
     if (!f || f == "")
         f = "menu";
     
@@ -415,6 +351,13 @@ mixed find_file(string f, object id)
     
     mixed     error = 0;
 
+    if (!SUSER(id)->authenticated && f != "" && !SUSER(id)->authenticating) {
+        report_notice("Redirecting to / - unauthenticated request\n");
+        
+        SUSER(id)->authenticating = 1;
+        return http_redirect("/", id);
+    }
+    
     //
     // Create the LDAP object if it doesn't exist yet for this session but
     // do not bind - it's not our business, the auth module will take care
@@ -516,3 +459,18 @@ mixed find_file(string f, object id)
     return response ? response : http_string_answer("Some screwup - check your provider modules");
 }
 
+//
+// APIs for others
+//
+
+// return the LDAP object for this request/session or 0 if absent
+object get_ldap(object id)
+{
+    if (!id->misc || !id->misc->session_id)
+        return 0;
+    
+    if (conn_cache[id->misc->session_id])
+        return conn_cache[id->misc->session_id];
+
+    return 0;
+}
