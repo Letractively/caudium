@@ -997,31 +997,6 @@ public string status()
   }
 #endif
 
-  if (!zero_type(misc->ftp_users)) {
-    tmp = (((float)misc->ftp_users*(float)600)/
-           (float)((time(1)-caudium->start_time)+1));
-
-    res += sprintf("<tr align=right><td><b>FTP users (total):</b></td>"
-                   "<td>%8d</td><td>%.2f/min</td>"
-                   "<td><b>FTP users (now):</b></td><td>%d</td></tr>\n",
-                   misc->ftp_users, (float)tmp/(float)10, misc->ftp_users_now);
-  }
-  res += "</table><p>\n\n";
-
-  if ((caudium->configuration_interface()->more_mode) &&
-      (extra_statistics->ftp) && (extra_statistics->ftp->commands)) {
-    // FTP statistics.
-    res += "<b>FTP statistics:</b><br>\n"
-      "<ul><table>\n";
-    foreach(sort(indices(extra_statistics->ftp->commands)), string cmd) {
-      res += sprintf("<tr align=right><td><b>%s</b></td>"
-                     "<td align=right>%d</td><td> time%s</td></tr>\n",
-                     upper_case(cmd), extra_statistics->ftp->commands[cmd],
-                     (extra_statistics->ftp->commands[cmd] == 1)?"":"s");
-    }
-    res += "</table></ul>\n";
-  }
-  
   return res;
 }
 
@@ -2555,7 +2530,7 @@ static string make_proto_name(string p)
 {
   // Note these are only the protocols that
   // Caudium can directly use
-  multiset(string) known_protos = (<"http", "ftp", "https", "ssl3">);
+  multiset(string) known_protos = (<"http", "https", "ssl3">);
   multiset(string) telnet_protos = (<"smtp", "pop", "pop2", "pop3", "imap", "tetris">);
     
   if (known_protos[p])
@@ -2657,15 +2632,6 @@ void start(int num, void|object conf_id, array|void args)
                              server_name, port[1]));
       // Note: Change in-place.
       port[1] = "ssl3";
-      // FIXME: Should probably mark node as changed.
-    }
-    if ((< "ftp2" >)[port[1]]) {
-      // Obsolete versions of the FTP protocol.
-      report_warning(sprintf("%s: Obsolete FTP protocol-module \"%s\". "
-                             " Converted to FTP.\n",
-                             server_name, port[1]));
-      // Note: Change in-place.
-      port[1] = "ftp";
       // FIXME: Should probably mark node as changed.
     }
     string key = MKPORTKEY(port);
@@ -3688,9 +3654,6 @@ string desc()
         case "ssl":
           prt = "https://";
           break;
-        case "ftp":
-          prt = "ftp://";
-          break;
       
         default:
           prt = (modprt = make_proto_name(port[1]))+"://";
@@ -4103,85 +4066,6 @@ void create(string config)
   defvar("MyWorldLocation", get_my_url(), 
          "Server URL", TYPE_STRING,
          "This is where your start page is located.");
-
-
-// This should be somewhere else, I think. Same goes for HTTP related ones
-
-  defvar("FTPWelcome",  
-         "              +--------------------------------------------------\n"
-         "              +-- Welcome to the Caudium Webserver FTP server ---\n"
-         "              +--------------------------------------------------\n",
-         "FTP:FTP Welcome message",
-         TYPE_TEXT_FIELD|VAR_MORE,
-         "FTP Welcome answer; transmitted to new FTP connections if the file "
-         "<i>/welcome.msg</i> doesn't exist.\n");
-  
-  defvar("named_ftp", 0, "FTP:Allow named FTP", TYPE_FLAG|VAR_MORE,
-         "Allow ftp to normal user-accounts (requires an authentication "
-         "module, e.g. 'User database and security').\n");
-
-  defvar("passive_ftp", 1, "FTP:Allow passive FTP", TYPE_FLAG|VAR_MORE,
-         "Allow passive transfers on ftp server.");
- 
-  defvar("restricpasv", 1, "FTP:Restrict Passive FTP ports", TYPE_FLAG|VAR_MORE,
-         "Restrict passive FTP port to a specific range. For example when "
-         "using Caudium as a FTP server behind a firewall or in a NATed "
-         "environment.");
-
-  defvar("lowpasvport",65000, "FTP:Passive FTP lowest port",TYPE_INT|VAR_MORE,
-         "The lowest port to use when Restrict Passive FTP ports is set.");
-
-  defvar("hipasvport",65530, "FTP:Passive FTP highest port",TYPE_INT|VAR_MORE,
-         "The highest port to use when Restrict Passive FTP port is set.");
-
-  defvar("maxpasvtry", 3, "FTP:Passive FTP max attempts", TYPE_INT|VAR_MORE,
-         "Number of trys to open a Passive port when Restrict Passive FTP "
-         "is set. Caudium will random the use of the range. If it cannot "
-         "open a port then passive transfert will failled.");
-
-  defvar("pasvnat", 0, "FTP:Passive FTP NAT support", TYPE_FLAG|VAR_MORE,
-         "Enable NAT (Network Address Translation) support for Passive "
-         "transferts. This allow you to specify the real IP address used "
-         "by the NATed ftp server.");
-
-  defvar("pasvipaddr", arrayp(currentipaddress)?currentipaddress[1][0]:"127.0.0.1",
-         "FTP:Passive FTP NATed real address", TYPE_STRING|VAR_MORE,
-         "When Passive FTP NAT support is set, can specify the real IP "
-         "address to send in Passive transfert requests.");
-
-  defvar("anonymous_ftp", 0, "FTP:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
-         "Allows anonymous ftp.\n");
-
-  defvar("guest_ftp", 0, "FTP:Allow FTP guest users", TYPE_FLAG|VAR_MORE,
-         "Allows FTP guest users.\n");
-
-  defvar("ftp_user_session_limit", 0,
-         "FTP:FTP user session limit", TYPE_INT|VAR_MORE,
-         "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
-
-  defvar("shells", "/etc/shells", "FTP:Shell database", TYPE_FILE|VAR_MORE,
-         "File which contains a list of all valid shells\n"
-         "(usually /etc/shells). Used for named ftp.\n"
-         "Specify the empty string to disable shell database lookup.\n");
-
-  defvar("ftpnohomedeny", 0, "FTP: Deny named users with non-existant homedir",
-         TYPE_FLAG|VAR_MORE,"Deny access to ftp named users when homedir "
-         "exist.");
-  // This one works only on Pike 7.0 do I need to make a condition on 1.1 ?
-  // -- Xavier
-  defvar("ftphomedircreate", 0, "FTP: Autocreate homedirs", TYPE_FLAG|VAR_MORE,
-         "Autocreate the homedirectory if it doesn't exist.");
-  
-  defvar("ftphdirautoext", 0, "FTP: Autocreate homedirs extended", TYPE_FLAG|VAR_MORE,
-         "If set to \"Yes\", then this will create also directories into "
-         "homedirectory specified in Autocreate homedirs extras.");
-  defvar("ftphdirxtra","htdocs:0755,cgi-bin:0755,logs:0775", "FTP: Autocreate homedirs extras", TYPE_STRING|VAR_MORE,
-         "Coma-sparated homedirectory to be created also in homedirectory. "
-         "You can add the default permissions for those directories by add "
-         "the unix style octal permissions behind a ':'.<br />"
-         "<i>Example:</i> <tt>htdocs:0755,cgi-bin:0755,logs:0775,tmp:1777</tt>"
-         "<br />Used only if Autocreate homedirs <b>AND</b> Autocreate "
-         "homedir extended are set to \"Yes\"");
 
   defvar("InternalLoc", "/_internal/", 
          "Internal module resource mountpoint", TYPE_LOCATION|VAR_MORE,
