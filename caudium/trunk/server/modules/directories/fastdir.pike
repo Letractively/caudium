@@ -149,9 +149,9 @@ string describe_dir_entry(string path, string filename, array stat)
   }
   
   return sprintf("%s %s %8s %-20s\n", 	
-		 link(image(icon), http_encode_string(path + filename)),
+		 link(image(icon), Protocols.HTTP.http_encode_string(path + filename)),
 		 link(sprintf("%-35s", filename[0..34]), 
-		      http_encode_string(path + filename)),
+		      Protocols.HTTP.http_encode_string(path + filename)),
 		 sizetostring(len), type);
 }
 

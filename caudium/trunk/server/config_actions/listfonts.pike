@@ -75,9 +75,9 @@ string page_1(object id)
     sscanf(f, "%*s:%s", f);
     string fn = Array.map(replace(f,"_"," ")/" ",capitalize)*" ";
     f = sprintf("action=%s&font=%s&italic=0&bold=0&text=%s&render=1",
-		http_encode_string(v->action),
-		http_encode_string(f),
-		http_encode_string(replace(v->text,"&","%26")));
+		Protocols.HTTP.http_encode_string(v->action),
+		Protocols.HTTP.http_encode_string(f),
+		Protocols.HTTP.http_encode_string(replace(v->text,"&","%26")));
     res += fn+": <br><img src=?"+f+"><p>";
   }
   return res;
