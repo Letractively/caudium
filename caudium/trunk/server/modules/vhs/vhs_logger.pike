@@ -183,7 +183,7 @@ string create()
          "%d    Date  (i.e. '10')\n"
          "%h    Hour  (i.e. '02')\n"
          "%H    The hostname of the server machine.\n"
-         "<pre>");
+         "</pre>");
 }
 
 
