@@ -110,8 +110,6 @@ install_only:
 # packages, mainly on Linux systems but possibly useful on other systems as 
 # well
 #
-# sed -e 's/\(globvar("ModuleDirs",\).*/\1({}),/g'
-#
 install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
