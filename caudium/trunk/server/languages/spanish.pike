@@ -62,7 +62,7 @@ string date(int timestamp, mapping|void m)
         if (!dist)
             return "hoy, "+ curtime;
   
-        if (dist == -1])
+        if (dist == -1)
             return "ayer, "+ curtime;
   
         if (dist == 1)
