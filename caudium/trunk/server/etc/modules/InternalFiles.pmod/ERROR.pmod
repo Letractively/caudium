@@ -160,6 +160,7 @@ static mapping default_error = ([
 
 object cache = per_server_cache();
 
+// So what you do is: caudium->IFiles->get( "error://generate?code=404&name=file%20not%20found&message=Gilligan!%20What%20did%20you%20do" )
 mapping(string:string) handle(object id,
 			      string file,
 			      mapping(string:mixed) query,
