@@ -8,8 +8,8 @@ inherit "caudiumlib";
 constant cvs_version = "none for now";
 
 constant module_type = MODULE_LOCATION|MODULE_EXPERIMENTAL;
-constant module_name = "User's self LDAP administration";
-constant module_doc  = "With this module, your user will be able to change some of their information. You will also be able to create a basic account";
+constant module_name = "User LDAP administration";
+constant module_doc  = "With this module, your (or 'you' depending on what you want) user will be able to change some of their information. You will also be able to create a basic account and update their gid to if you have year related gid";
 constant module_unique = 0;
 
 // what to put ?
@@ -50,45 +50,241 @@ constant thread_safe=1;
 
 // defaults for user interface
 #define DEFAULT_FIRSTSCREEN \
-  "<html><body><table><tr><td><a href=\"$MOUNTPOINT/modify\">Update</a></td>" \
-  "<td><a href=\"$MOUNTPOINT/add\">Add</a></td></tr></table></body></html>"
-#define DEFAULT_MODIFY \
-  "<html><body><p>Your account has been successfully updated.</p></body></html>"
-#define DEFAULT_MODIFY_ERROR \
-  "<html><body><p><font color=\"red\"><pre><strong>$LASTERROR</pre></strong></font>"
-#define DEFAULT_MODIFY_INPUTS_TOP \
-  "<html><body><form action=\"$MOUNPOINT/applymodify\" method=\"POST\"><table cellspacing=\"10\">" \
-  "<tr>"
+  "<html>"\
+  "<head><title>LDAP Administration</title>"\
+  "<style=\"text/css\">"\
+  "a:hover{"\
+  "        color:#D6674F;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:link{"\
+  "        color:#404070;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:visited{"\
+  "        color:#404080;"\
+  "        text-decoration:none;"\
+  "}"\
+  "</style>"\
+  "</head>"\
+  "<body bgcolor=\"white\">"\
+  "<table width=\"100%\" cellspacing=\"20\">"\
+  "<tr><th colspan=\"3\">Choose one of the action below</th></tr>"\
+  "<tr><td>"\
+  "<a href=\"$MOUNTPOINT/modify\">Modify</a></td>"\
+  "<td><a href=\"$MOUNTPOINT/add\">Add</a></td>"\
+  "<td><a href=\"$MOUNTPOINT/update\">Update</a></td>"\
+  "</tr></table></body></html>"
 #define DEFAULT_MODIFY_INPUTS \
-  "<td>login : $LOGIN</td>" \
-  "<td><input type=\"submit\">" 
-#define DEFAULT_MODIFY_INPUTS_BOTTOM \
-  "</tr>" \
-  "</table></form></body></html>"
+  "<html>"\
+  "<head>"\
+  "<title>LDAP Administration - Change information</title>"\
+  "<style type=\"text/css\">"\
+  "a:hover{"\
+  "        color:#D6674F;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:link{ "\
+  "        color:#404070;"\
+  "        text-decoration:none;"\
+  "}   "\
+  "a:visited{"\
+  "        color:#404080;"\
+  "        text-decoration:none;"\
+  "}"\
+  "</style>"\
+  "</head>  "\
+  "<body bgcolor=\"white\">"\
+  "<form action=\"$MOUNTPOINT/applymodify\" method=\"POST\">"\
+  "<center>"\
+  "<p>"\
+  "Below you can change some of your information"\
+  "</p>"\
+  "<table cellspacing=\"10\" border=\"10\" cellpadding=\"10\">"\
+  "<tr><td>login</td><td>$LOGIN</td></tr>"\
+  "<tr><td>gecos</td><td>$GECOS</td></tr>"\
+  "<tr><td>password</td><td>$PASSWORD</td></tr>"\
+  "<tr><td>verify password</td><td>$PASSWORD2</td></tr>"\
+  "<tr><td>&nbsp;</td><td>"\
+  "<input type=\"submit\" value=\"modify\">"\
+  "<comment>You can use gbutton if you have loaded the gbutton module"\
+  "<input type=\"image\" src=\"<gbutton-url font='lucida sans unicode'>Modify</gbutton-url>\" value=\"modify\">"\
+  "</comment>"\
+  "</td>"\
+  "</tr>"\
+  "</table>"\
+  "</form>"\
+  "<comment>"\
+  "<p align=\"center\">maildrop is the mail address that will appear when you"\
+  "send.</p>"\
+  "<p align=\"center\">"\
+  "Mailacceptinggeneralid is the mail(s) address(es) that this account will"\
+  "accept. If it contains email addresses to over domains, these will be   "\
+  "automatiquelly redirected (like in the old .forward mecanism). You can put"\
+  "several mails seperated by commas.</p>"\
+  "</comment>"\
+  "</body></html>"
+#define DEFAULT_MODIFY_ERROR \
+  "<html>"\
+  "<head>"\
+  "<title>LDAP Administration - Error</title>"\
+  "</head>"\
+  "<body>"\
+  "<center>"\
+  "<p>"\
+  "<font color=\"red\"><pre><strong>$LASTERROR</pre></strong></font>"\
+  "</p>"\
+  "</center>"\
+  "<center>"\
+  "<a href=\"$MOUNTPOINT\">return to main menu</a>"\
+  "</center>"\
+  "</body>"\
+  "</html>"
+#define DEFAULT_MODIFY \
+  "<html><title>LDAP Administration - modification successful</title>"\
+  "<style type=\"text/css\">"\
+  "a:hover{"\
+  "        color:#D6674F;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:link{"\
+  "        color:#404070;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:visited{"\
+  "        color:#404080;"\
+  "        text-decoration:none;"\
+  "}"\
+  "</style>"\
+  "</head>"\
+  "<body>"\
+  "<center>"\
+  "<p>Your account has been successfully updated.</p></center>"\
+  "<center>"\
+  "<a href=\"$MOUNTPOINT\">Return to main menu</a>"\
+  "</center>"\
+  "</body></html>"
 #define DEFAULT_UPDATE_INPUT \
-  "<input type=\"submit\" value=\"update\">"
+  "<html>"\
+  "<head>"\
+  "<title>LDAP Administration - Update an account</title>"\
+  "<style type=\"text/css\">"\
+  "a:hover{"\
+  "        color:#D6674F;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:link{"\
+  "        color:#404070;"\
+  "        text-decoration:none;"\
+  "}"\
+  "a:visited{"\
+  "        color:#404080;"\
+  "        text-decoration:none;"\
+  "}"\
+  "</style>"\
+  "</head>"\
+  "<body bgcolor=\"white\">"\
+  "<form action=\"$MOUNTPOINT/applyupdate\" method=\"POST\">"\
+  "<center>"\
+  "<p>"\
+  "Here you can change group"\
+  "</p>"\
+  "<table cellspacing=\"10\" border=\"10\" cellpadding=\"10\">"\
+  "<tr><th colspan=\"2\">Datas on this account</th></tr>"\
+  "<tr><td>login</td><td>$LOGIN</td></tr>"\
+  "<tr><td>gecos</td><td>$GECOS</td></tr>"\
+  "<tr><td>uid</td><td>$UIDNUMBER</td></tr>"\
+  "</tr><td>gid</td><td>$GIDNUMBER</td></tr>"\
+  "<tr><td>&nbsp;</td>"\
+  "<td>"\
+  "<form action=\"$MOUNTPOINT/applyupdate\" method=\"POST\">"\
+  "<input type=\"submit\" value=\"update\">"\
+  "<comment>"\
+  "<input type=\"image\" src=\"<gbutton-url font='lucida sans unicode'>Update</gbutton-url>\" value=\"modify\">"\
+  "</comment>"\
+  "</form>"\
+  "</td></tr>"\
+  "</table>"\
+  "</body>"\
+  "</html>"
 #define DEFAULT_ADD_ERROR \
-  "<html><body><p><font color=\"red\"><pre><strong>$LASTERROR</pre></strong></font>"
+   "<html>" \
+   "<head>" \
+   "<title>LDAP Administration - Error</title>" \
+   "</head>" \
+   "<body bgcolor=\"white\">" \
+   "<center>" \
+   "<p>" \
+   "<font color=\"red\"><pre><strong>$LASTERROR</pre></strong></font>" \
+   "</p>" \
+   "</center>" \
+   "<center>" \
+   "<a href=\"$MOUNTPOINT\">return to main menu</a>" \
+   "</center>" \
+   "</body>" \
+   "</html>" 
 #define DEFAULT_ADD \
-  "<html><body><p>Your account has been successfully created.</p></body></html>"
+   "<html><title>LDAP Administration - adding successful</title>"\
+   "<style type=\"text/css\">"\
+   "a:hover{"\
+   "        color:#D6674F;"\
+   "        text-decoration:none;"\
+   "}"\
+   "a:link{"\
+   "        color:#404070;"\
+   "        text-decoration:none;"\
+   "}"\
+   "a:visited{"\
+   "        color:#404080;"\
+   "        text-decoration:none;"\
+   "}"\
+   "</style>"\
+   "</head>"\
+   "<body bgcolor=\"white\">"\
+   "<center>"\
+   "<p>Your account has been successfully created.</p></center>"\
+   "<center>"\
+   "<a href=\"$MOUNTPOINT\">Return to main menu</a>"\
+   "</center>"\
+   "</body></html>"
+
 #define DEFAULT_ADD_INPUTS \
-  "<html><body><form action=\"$MOUNTPOINT/applyadd\" method=\"POST\"><table cellspacing=\"10\"> " \
-  "<tr>" \
-      "<td>Login</td><td><input type=\"text\" name=\"login\"></td>" \
-   "</tr>" \
-    "<tr>" \
-      "<td>Password</td><td><input name=\"password\" type=\"password\"></td>" \
-    "</tr>" \
-    "<tr>" \
-      "<td>Verify password</td><td><input name=\"password2\" type=\"password\"></td>" \
-    "<tr>" \
-      "<td>Firstname lastname</td><td><input type=\"text\" name=\"gecos\"></td>" \
-    "</tr>" \
-    "<tr>" \
-    "<td>&nbsp;</td><td><input type=\"submit\"></td>" \
-  "</tr>" \
-  "</table></form></body></html>"
-    
+   "<html>" \
+   "<head>" \
+   "<title>LDAP Administration - Add a user</title>"\
+   "<style type=\"text/css\">"\
+   "a:hover{"\
+   "     color:#D6674F;"\
+   "     text-decoration:none;"\
+   "}"\
+   "a:link{"\
+   "     color:#404070;"\
+   "     text-decoration:none;"\
+   "}"\
+   "a:visited{"\
+   "     color:#404080;"\
+   "     text-decoration:none;"\
+   "}"\
+   "</style>"\
+   "</head>"\
+   "<body bgcolor=\"white\">"\
+   "<form action=\"$MOUNTPOINT/applyadd\" method=\"POST\">"\
+   "<center>"\
+   "<p>"\
+   "Below you can add a user"\
+   "</p>"\
+   "<table cellspacing=\"10\" border=\"10\" cellpadding=\"10\">"\
+   "<tr><td>Login</td><td><input type=\"text\" name=\"login\"></td></tr>"\
+   "<tr><td>Password</td><td><input name=\"password\" type=\"password\"></td></tr>"\
+   "<tr><td>Verify password</td><td><input name=\"password2\" type=\"password\"></td></tr>"\
+   "<tr><td>Firstname lastname</td><td><input type=\"text\" name=\"gecos\"></td></tr>"\
+   "<tr><td>&nbsp;</td><td><input type=\"submit\"></td>"\
+   "</tr>"\
+   "</table>"\
+   "</form>"\
+   "</body>"\
+   "</html>"
+   
 //functions to hide defvar when not used
 int hide_mail()
 {
@@ -259,44 +455,20 @@ void create()
   defvar("ui_firstscreen", DEFAULT_FIRSTSCREEN,
   	 "User interface: First screen",
 	 TYPE_TEXT,
-	 "$MOUNPOINT will be replaced by the mountpoint of this module");
+	 "$MOUNTPOINT will be replaced by the mountpoint of this module");
   defvar("ui_modify", DEFAULT_MODIFY,
-	 "User interface: Modify - page that will be display after the user has modified his datas",
-	 TYPE_TEXT);
+	 "User interface: Modify/Update - page that will be display after the user has modified his datas",
+	 TYPE_TEXT,
+	 "$MOUNTPOINT will be replace by the path of this module");
   defvar("ui_modify_error", DEFAULT_MODIFY_ERROR,
-	 "User interface: Modify - page that will be displayed when an error occured",
+	 "User interface: Modify/Update - page that will be displayed when an error occured",
 	 TYPE_TEXT,
-	 "$LAST_ERROR will be replace by the backtrace");
-  defvar("ui_modify_inputs_top", DEFAULT_MODIFY_INPUTS_TOP,
-	 "User interface: Modify - form input - Top",
-	 TYPE_TEXT,
-  	 "The following replacements are available:<ul>"
-	 "<li><b>$MOUNTPOINT</b>: path to the mountpoint of this module (for use in form action=)</li>"
-	 "<li><b>$LOGIN</b>: text for the login</li>"
-	 "<li><b>$GECOS</b>: text or input for the gecos</li>"
-	 "<li><b>$PASSWORD</b>: first text or input for the password</li>"
-	 "<li><b>$PASSWORD2</b>: second text or input for the password (verify)</li>"
-	 "<li><b>$MAILDROP</b>: text or input for maildrop</li>"
-	 "<li><b>$MAILACCEPTINGGENERALID</b>: text or input for mailacceptinggeneralid</li></ul><br>"
-	 "inputs will be available only if you list the corresponding attribute in <i>Modify -> allowed attributes</i><br>"
-	 "for maildrop and mailacceptinggeneralid, text or input will appear only if they are in <i>LDAP -> Attribute - name of the attribute</i> ");
+	 "$LAST_ERROR will be replace by the backtrace<br>"
+	 "$MOUNTPOINT will be replace by the path of this module");
   defvar("ui_modify_inputs", DEFAULT_MODIFY_INPUTS,
-	 "User interface: Modify - form input - Middle",
+	 "User interface: Modify - form input",
 	 TYPE_TEXT,
   	 "The following replacements are available:<ul>"
-	 "<li><b>$MOUNTPOINT</b>: path to the mountpoint of this module (for use in form action=)</li>"
-	 "<li><b>$LOGIN</b>: text for the login</li>"
-	 "<li><b>$GECOS</b>: text or input for the gecos</li>"
-	 "<li><b>$PASSWORD</b>: first text or input for the password</li>"
-	 "<li><b>$PASSWORD2</b>: second text or input for the password (verify)</li>"
-	 "<li><b>$MAILDROP</b>: text or input for maildrop</li>"
-	 "<li><b>$MAILACCEPTINGGENERALID</b>: text or input for mailacceptinggeneralid</li></ul><br>"
-	 "inputs will be available only if you list the corresponding attribute in <i>Modify -> allowed attributes</i><br>"
-	 "for maildrop and mailacceptinggeneralid, text or input will appear only if they are in <i>LDAP -> Attribute - name of the attribute</i> ");
-  defvar("ui_modify_inputs_bottom", DEFAULT_MODIFY_INPUTS_BOTTOM,
-	 "User interface: Modify - form input - Bottom",
-	 TYPE_TEXT,
-	 "The following replacements are available:<ul>"
 	 "<li><b>$MOUNTPOINT</b>: path to the mountpoint of this module (for use in form action=)</li>"
 	 "<li><b>$LOGIN</b>: text for the login</li>"
 	 "<li><b>$GECOS</b>: text or input for the gecos</li>"
@@ -307,16 +479,23 @@ void create()
 	 "inputs will be available only if you list the corresponding attribute in <i>Modify -> allowed attributes</i><br>"
 	 "for maildrop and mailacceptinggeneralid, text or input will appear only if they are in <i>LDAP -> Attribute - name of the attribute</i> ");
   defvar("ui_update_input", DEFAULT_UPDATE_INPUT,
-	 "User interface: Update - the submit button",
+	 "User interface: Update - form input",
 	 TYPE_TEXT,
-	 "This is the code for the submit button. It will not appear if the user is not in the group you choose in update -> gid allowed to updates.", 0, hide_update);
+	 "This is the code for the update form. There will be an error message if the user is not in the group you choose in update -> gid allowed to updates.<br>The following replacements are available:<ul>"
+	 "<li><b>$LOGIN</b>: login name</li>"
+	 "<li><b>$MOUNTPOINT</b>: path to the mountpoint of this module (for use in form action=)</li>"
+	 "<li><b>$GECOS</b>: gecos of the account</li>"
+	 "<li><b>$UIDNUMBER</b>: uid</li>"
+	 "<li><b>$GIDNUMBER</b>: gid</li></ul>", 0, hide_update);
   defvar("ui_add_error", DEFAULT_ADD_ERROR,
   	 "User interface: Add - page that will appear if an error occured after the user/admin add a user",
 	 TYPE_TEXT,
-	 "$LAST_ERROR will be replace by the backtrace");
+	 "$LAST_ERROR will be replace by the backtrace<br>"
+	 "$MOUNTPOINT will be replace by the path of this module");
   defvar("ui_add", DEFAULT_ADD,
   	 "User interface: Add - page that will be display after the user has been successfully added into LDAP",
-	 TYPE_TEXT);
+	 TYPE_TEXT,
+	 "$MOUNTPOINT will be replace by the path of this module");
   defvar("ui_add_inputs", DEFAULT_ADD_INPUTS, "User interface: Add - form input",
   	 TYPE_TEXT,
 	 "<ul><li>$MOUNTPOINT: mountpoint of the current module</li></ul>");
@@ -477,11 +656,12 @@ void sendmails(mapping (string:string) defines)
 {
   mapping localtime = localtime(time());
   string localmailadmin = QUERY(mailadmin);
+  string msg;
   string date = localtime["hour"] + ":" + localtime["min"] + ":" + localtime["sec"] + " " + localtime["mday"] + "/" + localtime["mon"] + "/" + (localtime["year"] + 1900);
   // first mail the admin
   array mail_from = ({ "$LOGIN", "$UID", "$GID", "$GECOS", "$DATETIME", "$ADMIN" }); 
   array mail_to = ({ defines["uid"][0], defines["uidNumber"][0], defines["gidNumber"][0], defines["gecos"][0], date, localmailadmin });
-  string msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
+  msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
   simple_mail(localmailadmin, "Nouveau membre", localmailadmin, msg);
   // next mail the user (this will also create his mail account)
   msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
@@ -498,7 +678,7 @@ void sendbadmails(mapping (string:string) defines, string last_error)
   array mail_to = ({ defines["uid"][0], defines["uidNumber"][0], defines["gidNumber"][0], defines["gecos"][0], date, localmailadmin, last_error });
   string msg = replace(QUERY(badmailtouser), mail_from, mail_to);
   simple_mail(defines["uid"][0] + "@" + QUERY(maildomain), "[ ITEAM] Erreur dans votre inscription", localmailadmin, msg);
-  msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
+  string msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
   simple_mail(QUERY(mailadmin), "Problème(s) lors de la création d'un compte", localmailadmin, msg);
 }
 
@@ -508,11 +688,13 @@ int checkdns(string remoteaddr)
   {
     array clientdns = Protocols.DNS.client()->gethostbyaddr(remoteaddr);
     string domain;
-    foreach((QUERY(allowed_domains) - ({ "" })), domain)
+    foreach(((QUERY(allowed_domains) - ({ "" }))), domain)
     {
       if(stringp(clientdns[0]))
       {
-        if(domain == clientdns[2][0])
+        string clientdns1, clientdns2;
+        sscanf(clientdns[0], "%s.%s", clientdns1, clientdns2);
+        if(lower_case(clientdns2) == lower_case(domain))
           return 1;
       }
       else  
@@ -534,6 +716,7 @@ mapping first_screen(object id)
 void checkresult(object con, mapping from, string uid)
 {
   mapping to = getfullinformation(con, uid);
+  write(sprintf("from=%O\n\n\n, to=%O\n\n\n", from, to));
   if(!equal(from, to))
     throw ( ({ "Due to an unknown error, you were not added to our account database", backtrace() }) );
 }
@@ -674,9 +857,9 @@ mapping add(object id, int applyadd)
       last_error = sprintf("An error occured\n%s\nBacktrace is\n%s\n", error[0], master()->describe_backtrace(error[1]));
       sendbadmails(defines, last_error);
     }
-    return http_rxml_answer(replace(QUERY(ui_add_error), "$LASTERROR", last_error) ,id);
+    return http_rxml_answer(replace(QUERY(ui_add_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
   }
-  return http_rxml_answer(QUERY(ui_add), id);
+  return http_rxml_answer(replace(QUERY(ui_add), "$MOUNTPOINT", QUERY(location)), id);
 }
 
 // functions used by modify and update
@@ -706,8 +889,8 @@ void modifyinldap(object con, mapping defines, string basedn)
   if(sizeof(QUERY(defvarmaildrop)) > 0)
     nodouble_attr(QUERY(defvarmaildrop), "maildrop", defines);
   if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
-  nodouble_attr(QUERY(defvarmailacceptinggeneralid), "mailacceptinggeneralid", defines);
-  
+  nodouble_attr(QUERY(defvarmailacceptinggeneralid), "mailacceptinggeneralid", defines); 
+  replace(defines[QUERY(defvarmailacceptinggenralid)], " ", "");
   for(int i = 0; i < sizeof(defines); i++)
   {
     indice = indic[i];
@@ -791,7 +974,7 @@ int gidok(mapping defines)
 string showmodifyinputs(object id, mapping defines)
 {
   string inputs;
-  array inputs_from = ({ "$LOGIN", "$MOUNPOINT", "$GECOS", "$PASSWORD", "$PASSWORD2", "$MAILDROP", "$MAILACCEPTINGGENERALID" });
+  array inputs_from = ({ "$LOGIN", "$MOUNTPOINT", "$GECOS", "$PASSWORD", "$PASSWORD2", "$MAILDROP", "$MAILACCEPTINGGENERALID" });
   array inputs_to = ({ defines["uid"][0], QUERY(location) });
   /* can the user change his gecos ? */
   if(search(QUERY(allowedmodifyattribute), QUERY(defvargecos)) != -1)
@@ -815,7 +998,7 @@ string showmodifyinputs(object id, mapping defines)
     inputs_to += ({ "&nbsp;" });
   if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
   {
-    string input_mailaccept = "<input type=\"text\" value=\"";
+    string input_mailaccept = "<input type=\"text\" name=\"mailacceptinggeneralid\" value=\"";
     string mailaccept = "";
     int n = sizeof(defines["mailacceptinggeneralid"]);
     for(int i = 0; i < n; i++)
@@ -832,15 +1015,24 @@ string showmodifyinputs(object id, mapping defines)
   }
   else
     inputs_to += ({ "&nbsp;" });
-  inputs = replace(QUERY(ui_modify_inputs_top), inputs_from, inputs_to);
-  inputs += replace(QUERY(ui_modify_inputs), inputs_from, inputs_to);
-  if(QUERY(allowupdate) && gidok(defines))
-    inputs += QUERY(ui_update_input);
-  inputs += replace(QUERY(ui_modify_inputs_bottom), inputs_from, inputs_to);
+  inputs = replace(QUERY(ui_modify_inputs), inputs_from, inputs_to);
   return inputs;
 }
 
-mapping modify(object id, int applymodify)
+string showupdateinputs(object id, mapping defines)
+{
+  string inputs;
+  array inputs_from = ({ "$LOGIN", "$MOUNTPOINT", "$GECOS", "$UIDNUMBER", "$GIDNUMBER" });
+  array inputs_to = ({ defines["uid"][0], QUERY(location), defines["gecos"][0], defines["uidNumber"][0], defines["gidNumber"][0] });
+  // sanity check
+  if(QUERY(allowupdate) && gidok(defines))
+    inputs = replace(QUERY(ui_update_input), inputs_from, inputs_to);
+  else
+    throw ( ({ "You are not allowed to update" }) );
+  return inputs;
+}
+
+mapping modify(object id, string action)
 {
   string host = QUERY(hostname);
   string password = QUERY(password);
@@ -880,25 +1072,28 @@ mapping modify(object id, int applymodify)
       defines["maildrop"] = defines[QUERY(defvarmaildrop)];
     if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
       defines["mailacceptinggeneralid"] = defines[QUERY(defvarmailacceptinggeneralid)];
-    if(!applymodify)
+    if(action == "modify")
     {
       // only show form inputs
       return http_rxml_answer(showmodifyinputs(id, defines), id);
     }
+    if(action == "update")
+      return http_rxml_answer(showupdateinputs(id, defines), id);
+
     if(QUERY(debug))
       write(sprintf("defines1=%O\n", defines));
-    if(id->variables->update == "update")
+    if(action == "applyupdate")
     {
       if(QUERY(allowupdate) && gidok(defines))
       {
         //update
         updatevar(con, defines, basedn);
         sendmails(defines);
-        return http_rxml_answer(QUERY(ui_modify), id);
+        return http_rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
       }
       else throw ( ({ "You are not allowed to update" }) );
     }
-    else if (id->variables->modify == "modify")
+    else if (action == "applymodify")
     {
       // modify
       array errors = ({ "" , 0 });
@@ -918,7 +1113,7 @@ mapping modify(object id, int applymodify)
         /* can the user change maildrop ? */
         if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1)
         {
-	  checkmail(errors, id->variable->maildrop);
+	  checkmail(errors, id->variables->maildrop);
 	  defines["maildrop"] = ({ id->variables->maildrop });
 	}
       }
@@ -935,7 +1130,7 @@ mapping modify(object id, int applymodify)
       else
       {
         modifyinldap(con, defines, basedn);
-        return http_rxml_answer(QUERY(ui_modify), id);
+        return http_rxml_answer(replace(QUERY(ui_modify), "$MOUNTPOINT", QUERY(location)), id);
       }
     }
     else
@@ -956,7 +1151,7 @@ mapping modify(object id, int applymodify)
  master()->describe_backtrace(error[1]));
       sendbadmails(defines, last_error);
     }
-    return http_rxml_answer(replace(QUERY(ui_modify_error), "$LASTERROR", last_error) ,id);
+    return http_rxml_answer(replace(QUERY(ui_modify_error), ({ "$LASTERROR", "$MOUNTPOINT" }) , ({ last_error, QUERY(location) }) ) ,id);
   }
 }
 
@@ -971,8 +1166,11 @@ mixed find_file(string path, object id)
   {
     case "/add":result = add(id, 0); break;
     case "/applyadd": result = add(id, 1); break;
-    case "/modify": result = modify(id, 0); break;
-    case "/applymodify": result = modify(id, 1); break;
+    case "/modify": result = modify(id, "modify"); break;
+    case "/applymodify": result = modify(id, "applymodify"); break;
+    // update is just a sub case of modify
+    case "/update": result = modify(id, "update"); break;
+    case "/applyupdate": result = modify(id, "applyupdate"); break;
     default: result = first_screen(id);
   }
   return result;
