@@ -108,7 +108,7 @@ mapping lower_nowM()
 
 void report(string s)
 {
-   verbose("mkwmml:   "+s+"\n");
+   verbose("extract:   "+s+"\n");
 }
 
 #define complain(X) (X)
@@ -355,6 +355,10 @@ string make_nice_reference(string what,string prefix,string stuff)
 
 string fixdesc(string s,string prefix,string where)
 {
+  if(!s) {
+    report("null desc: "+where);
+    return "";
+  }
   s=desc_stripws(s);
   
    string t,u,v,q;
@@ -464,7 +468,7 @@ void document(string enttype,
    else
       names=({name});
 
-   verbose("mkwmml: "+name+" : "+names*","+"\n");
+   verbose("extract: "+name+" : "+names*","+"\n");
 
    f->write("\n"  "<!-- " + huh->_line + " -->\n");
    f->write( "<"+enttype+" name=\""+
@@ -750,7 +754,7 @@ int main(int ac,string *files)
    if (sizeof(files) && files[0]=="--nonverbose") 
       files=files[1..],verbose=lambda(){};
 
-   stderr->write("mkwmml: reading files...\n");
+   stderr->write("extract: reading files...\n");
 
    for (;;)
    {
@@ -760,7 +764,7 @@ int main(int ac,string *files)
       if (!f) 
       {
 	 if (!sizeof(files)) break;
-	 verbose("mkwmml: reading "+files[0]+"...\n");
+	 verbose("extract: reading "+files[0]+"...\n");
 	 f=File();
 	 currentfile=files[0];
 	 files=files[1..];
@@ -776,7 +780,7 @@ int main(int ac,string *files)
 	 t=f->read(8192);
 	 if (!t) 
 	 {
-	    werror("mkwmml: failed to read %O\n",currentfile);
+	    werror("extract: failed to read %O\n",currentfile);
 	    f=0;
 	    continue;
 	 }
@@ -799,7 +803,7 @@ int main(int ac,string *files)
 	    string err;
 	    if ( (err=keywords[kw](arg,currentfile+" line "+line)) )
 	    {
-	       stderr->write("mkwmml: "+
+	       stderr->write("extract: "+
 			     currentfile+" line "+line+": "+err+"\n");
 	       return 1;
 	    }
@@ -813,10 +817,15 @@ int main(int ac,string *files)
 	    if (!descM) descM=methodM;
 	    if (!descM)
 	    {
-	       stderr->write("mkwmml: "+
+	       stderr->write("extract: "+
 			     currentfile+" line "+line+
 			     ": illegal description position\n");
-	       return 1;
+	       stderr->write("extract: "+
+			     currentfile+" line "+line+
+			     ": Missing module or file statement?\n");
+	       f = 0;
+	       moduleM = classM = methodM = argM = nowM = descM = tagM = 0;
+	       continue;
 	    }
 	    if (!descM->desc) descM->desc="";
 	    else descM->desc+="\n";
@@ -828,7 +837,7 @@ int main(int ac,string *files)
 
 //   stderr->write(sprintf("%O",parse));
 
-   stderr->write("mkwmml: making docs...\n\n");
+   stderr->write("extract: making docs...\n\n");
 
    make_doc_files();
 
