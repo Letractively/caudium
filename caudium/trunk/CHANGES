@@ -1,7 +1,13 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Caudium.httpdate_to_time() now use _Caudium.parse_date(). Faster than
+  using Calendar.
+   (Xavier Beaudouin)
+- The function in _Caudium modules handled by datetime.c was not correctly
+  exported into main _Caudium module this is now fixed (excepted for get_date).
+   (Xavier Beaudouin)
 - Navigation bar that behave better when managing lot of elements
-  (Guillaume Fraysse)
+   (Guillaume Fraysse)
 - Added support for <emit>...</> ala Roxen2 to the XML compliant parser.
    (Bill Welliver)
 - Added authentification layer to XML-RPC server.

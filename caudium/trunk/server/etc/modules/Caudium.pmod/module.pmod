@@ -395,6 +395,20 @@ constant cvs_version = "$Id$";
 //!   Non RIS function, handled by _Caudium C module.
 //
 
+//
+//! @decl int|string parse_date(string date)
+//!
+//! Parse the specified date and return its corresponding unix time
+//! value. This function uses the same parser code as the GNU date(1)
+//! utility.
+//!
+//! @param date
+//!  The date to be parses 
+//! 
+//! @returns
+//!  The integer unix time value on success, an error message otherwise
+//
+
 //! @decl string extension(string what)
 //!   Get the extension name from a filename string. Handles also
 //!   known unix backup extensions as well eg '#' and '~' ending files. 
@@ -1032,6 +1046,7 @@ string simplify_path(string file)
 }
 
 //! Converts a string representing a HTTP date into a UNIX time value.
+//! Use @[Caudium.parse_date] instead
 //!
 //! @param date
 //!  The date string to be converted
@@ -1042,21 +1057,16 @@ string simplify_path(string file)
 //! @note
 //!   Non-RIS implementation;
 //! 
-//! @fixme
-//!   Make this in C !!!
+//! @deprecated
 int httpdate_to_time(string date) {
   if (intp(date))
     return -1;
 
-  int   ret;
-  mixed error = catch {
-    ret = Calendar.parse("%e, %a %M %Y %h:%m:%s %z", date)->unix_time();
-  };
+  string|int   ret;
+   ret = _Caudium.parse_date(date);
 
-  if (error) {
-    //report_error("httpdate_to_time error: %O", error);
+  if(stringp(ret))
     return -1;
-  }
   
   return ret;
 }
