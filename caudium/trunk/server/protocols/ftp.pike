@@ -718,7 +718,11 @@ class LSFile
     return(res);
   }
 
+#if constant(ADT.Stack)
+  static object(ADT.Stack) dir_stack = ADT.Stack();
+#else
   static object(Stack.stack) dir_stack = Stack.stack();
+#endif
   static int name_directories;
 
   static string fix_path(string s)
