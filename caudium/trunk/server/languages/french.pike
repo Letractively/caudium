@@ -171,7 +171,7 @@ string day_really_short(int num)
 
 string words(int num)
 {
-  return ({ "année", "mois", "semaine", "jour" });
+  return ({ "année", "mois", "semaine", "jour" })[num];
 }
 
 array aliases()
