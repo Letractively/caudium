@@ -1,3 +1,10 @@
+caudium (2:1.2.0-2) unstable; urgency=medium
+
+  * Package now builds by default with pike7.2
+  * Added caudiumctl - apachectl-alike script for easier migration from apache
+
+ -- Marek Habersack <grendel@debian.org>  Mon,  7 Jan 2002 13:07:18 +0100
+
 caudium (2:1.2.0-1) unstable; urgency=high
 
   * Package name changed
@@ -381,6 +388,3 @@ caudium (1.0.0-1) unstable; urgency=low
 
  -- Marek Habersack <grendel@vip.net.pl>  Fri, 18 Aug 2000 14:24:51 +0200
 
-Local variables:
-debian-changelog-mailing-address: "Marek Habersack <grendel@debian.org>"
-End:
