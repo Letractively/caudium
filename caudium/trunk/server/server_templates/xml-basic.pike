@@ -30,7 +30,6 @@ constant desc = "A virtual server with the most basic modules and XML-Compliant 
 
 constant modules = ({
   "contenttypes#0",
-  "ismap#0",
   "xmlparse#0",
   "directories#0",
   "filesystem#0",

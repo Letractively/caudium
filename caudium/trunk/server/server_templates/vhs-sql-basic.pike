@@ -30,7 +30,6 @@ constant name = "VHS / SQL - Basic server";
 constant desc = "A virtual server with the most basic modules that can be used with the Virtual Hosting System SQL";
 constant modules = ({
   "contenttypes#0",
-  "ismap#0",
   "htmlparse#0",
   "pathinfo#0",
   "rxmltags#0",

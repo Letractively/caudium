@@ -31,7 +31,6 @@ constant desc = "A virtual server with the most popular modules that can be used
 constant modules = ({
   "contenttypes#0",
   "htaccess#0",
-  "ismap#0",
   "htaccess#0",
   "htmlparse#0",
   "pathinfo#0",
