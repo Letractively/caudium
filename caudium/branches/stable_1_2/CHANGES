@@ -3,17 +3,18 @@ Changes in Caudium 1.2.x since Caudium 1.2.2
 - Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
 - business graphics module now creates the cache directory in the correct
   location (under the argument_cache_dir hierarchy)
-- Now font name can be specified in <diagram > tag and use the CIF default
+- Font name can now be specified for the <diagram> tag and can use the CIF default
   font name.
 - The compilation process may skip rpath from the compiler/linker command line
   if either building a Debian package or the NO_RPATH_PLEASE variable is found
   in the environment when running configure (and smartlink thereafter).
 - Scopes compatibility is to On/Conditional. If there is problems about that
-  (cf bugs #514651 & #512647) then change it to Off/Conditional. 
+  (sf bugs #514651 & #512647) then change it to Off/Conditional. 
   Changes is due because there will more issues from users moving from
   Caudium 1.0 to 1.2 than Roxen 1.3 to Caudium 1.3...
 - Fixed bug #515131 : gtext broke on weird URLs
-- Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net
+- Corrected a bug in ftp protocol in pasv mode. Thanks to 
+  Joe Radinger <cheese@nosuchhost.net>
 - Fixed bugs #514651 & #512647 : Scopes compatibility break RXML
 - Fixed bug #514653 : Unitialized variables get backtraces when try to
   expr them (same code : <formoutput><set variable=GT expr="#GT# + #Z#">
