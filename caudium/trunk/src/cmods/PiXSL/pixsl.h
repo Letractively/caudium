@@ -42,6 +42,7 @@ typedef struct
   struct svalue       cb_get;
   struct svalue       cb_put;
   struct svalue       cb_close;
+  struct svalue       cb_extra_args;
 } xslt_storage;
 
 static void f_set_xml_data(INT32 args); 

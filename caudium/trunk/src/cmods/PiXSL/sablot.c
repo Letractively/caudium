@@ -276,6 +276,7 @@ static void init_xslt_storage(struct object *o)
   THIS->cb_put.type = T_INT;
   THIS->cb_get.type = T_INT;
   THIS->cb_freeMemory.type = T_INT;
+  THIS->cb_extra_args.type = T_INT;
 }
 
 static void f_create(INT32 args)
@@ -442,7 +443,8 @@ static int sh_getAll(void *userData, SablotHandle processor,
 
   push_text(scheme);
   push_text(rest);
-  apply_svalue(&(This->cb_getAll), 2);
+  push_svalue(&This->cb_extra_args);
+  apply_svalue(&(This->cb_getAll), 3);
   
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
@@ -493,7 +495,8 @@ static int sh_freeMemory(void *userData, SablotHandle processor, char *buffer)
     return 1;
 
   if (This->cb_freeMemory.type == T_FUNCTION) {
-    apply_svalue(&This->cb_freeMemory, 0);
+    push_svalue(&This->cb_extra_args);
+    apply_svalue(&This->cb_freeMemory, 1);
     if (getRespValues(&retcode, &retval, T_VOID))
       retcode.u.integer = 1;
     pop_stack();
@@ -536,7 +539,8 @@ static int sh_open(void *userData, SablotHandle processor,
   /* call up to pike and expect an integer on return - the handle */
   push_text(scheme);
   push_text(rest);
-  apply_svalue(&This->cb_open, 2);
+  push_svalue(&This->cb_extra_args);
+  apply_svalue(&This->cb_open, 3);
   if (getRespValues(&retcode, &retval, T_INT)) {
     pop_stack();
     return 1;
@@ -583,7 +587,8 @@ static int sh_put(void *userData, SablotHandle processor, int handle,
    */
   push_int(handle);
   push_text(buffer);
-  apply_svalue(&This->cb_put, 2);
+  push_svalue(&This->cb_extra_args);
+  apply_svalue(&This->cb_put, 3);
   if (getRespValues(&retcode, &retval, T_INT)) {
     pop_stack();
     return 1;
@@ -624,7 +629,8 @@ static int sh_get(void *userData, SablotHandle processor, int handle,
 
   /* call up to pike, get the buffer (*byteCount max) on return */
   push_int(*byteCount);
-  apply_svalue(&This->cb_get, 1);
+  push_svalue(&This->cb_extra_args);
+  apply_svalue(&This->cb_get, 2);
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
     return 1;
@@ -665,7 +671,8 @@ static int sh_close(void *userData, SablotHandle processor, int handle)
 
   /* call up to pike and ignore the return value */
   push_int(handle);
-  apply_svalue(&This->cb_close, 1);
+  push_svalue(&This->cb_extra_args);
+  apply_svalue(&This->cb_close, 2);
   if (getRespValues(&retcode, &retval, T_VOID)) {
     pop_stack();
     return 1;
@@ -694,10 +701,11 @@ static void f_set_scheme_callbacks(INT32 args)
 {
   struct mapping   *cbmap;  
   struct svalue    *sv;
-
-  get_all_args("set_scheme_callbacks", args, "%m", &cbmap);
+  
+  get_all_args("set_scheme_callbacks", args, "%m%*", &cbmap, &sv);
   THIS->do_callbacks = 0;
-
+  assign_svalue(&(THIS->cb_extra_args), sv);
+  
   /* get all the callbacks one by one and set them in THIS */
   if ((sv = simple_mapping_string_lookup(cbmap, "getAll"))) {
     assign_svalue(&(THIS->cb_getAll), sv);
@@ -768,7 +776,7 @@ void pike_module_init( void )
   add_function("set_variables", f_set_variables, "function(mapping:void)",
                OPT_SIDE_EFFECT);
   add_function("run", f_run, "function(void:string)", OPT_SIDE_EFFECT);
-  ADD_FUNCTION("set_scheme_callbacks", f_set_scheme_callbacks, tFunc(tMapping, tVoid), 0);
+  ADD_FUNCTION("set_scheme_callbacks", f_set_scheme_callbacks, tFunc(tMapping tOr(tVoid, tMix), tVoid), 0);
   
   xslt_program = end_program();
   add_program_constant("Parser", xslt_program, 0);
