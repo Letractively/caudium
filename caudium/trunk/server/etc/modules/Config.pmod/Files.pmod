@@ -146,10 +146,10 @@ class Dir
   //! mapping has the following format:
   //!
   //!  @mapping
-  //!    @member string name
+  //!    @member string "name"
   //!     The file name
   //!
-  //!    @member int format
+  //!    @member int "format"
   //!     The config file format:
   //!
   //!      @int
