@@ -39,7 +39,7 @@ constant module_doc =
 "and define the following functions:</p>"
 "<ul><li><b>string query_provides()</b>: This function must return the string \"XML-RPC\" to tell this module it is a XML-RPC module."
 "<li><b>mapping(string:function) query_rpc_functions()</b>: Returns a mapping. It maps the function name available from XML-RPC (the index) to the real function in Caudium.</li>"
-"<li><b>mapping(string:function) query_rpc_auth_functions()</b>: Same as above but contains functions which can only be called using system.authentificate, "
+"<li><b>mapping(string:function) query_rpc_auth_functions()</b>: Same as above but contains functions which can only be called using system.authenticate, "
 "that means you need a valid login and password to call them. This method is optional.</li>"
 "<li><b>mapping(string:string) query_rpc_functions_help()</b>: This function is optional and returns a mapping that map the function name available from XML-RPC (the index) to the function help.</li></ul>"
 "<p><i>Note</i>: To return your custom XML-RPC fault code, throw an exception containing an array where the first parameter is an "
@@ -114,7 +114,7 @@ private array(object) get_xmlrpc_providers()
 }
 
 // return all functions which we can call using XML-RPC
-// if we are not authentificated
+// if we are not authenticated
 private mapping(string:function) get_functions()
 {
   mapping functions = ([ ]);
@@ -130,7 +130,7 @@ private mapping(string:function) get_functions()
 }
 
 // return all the functions we can access to if we 
-// are successfully authentificated
+// are successfully authenticated
 private mapping(string:function) get_auth_functions()
 {
   mapping functions = ([ ]);
@@ -158,7 +158,7 @@ private mapping(string:string) get_functions_help()
         functions += provider->query_rpc_functions_help();
     }
   }
-  // add a warning telling this function can only be accessed using system.authentificate
+  // add a warning telling this function can only be accessed using system.authenticate
   mapping auth_functions = get_auth_functions();
   if(sizeof(auth_functions) && sizeof(functions))
   {
@@ -169,7 +169,7 @@ private mapping(string:string) get_functions_help()
         foreach(indices(functions), string function_name)
           if(auth_function == function_name)
   	    functions[function_name] += "\nNote: This function can only be called "
-  	      "using the system.authentificate method";
+  	      "using the system.authenticate method";
     }
   }
   return functions;
@@ -269,7 +269,7 @@ array(string)|void find_dir( string path, object id )
 
 /* PROVIDER PART, used to provide the system.* functions as described in *
    http://xmlrpc.usefulinc.com/doc/reserved.html
-   system.authentificate is not part of it but it seems logical to me to put it
+   system.authenticate is not part of it but it seems logical to me to put it
    there
    / vida
    */
@@ -283,7 +283,7 @@ mapping query_rpc_functions()
   object syst = RPCSystem();
   return ([ "system.listMethods": syst->listMethods,
 	    "system.methodHelp": syst->methodHelp,
-	    "system.authentificate": syst->authentificate
+	    "system.authenticate": syst->authenticate
 	 ]);
 }
 
@@ -291,9 +291,9 @@ mapping query_rpc_functions_help()
 {
   return ([ "system.methodHelp": "Returns help text if defined for the method passed, otherwise returns an empty string",
             "system.listMethods": "This method lists all the methods that the XML-RPC server knows how to dispatch",
-	    "system.authentificate": "This method allow you to call methods that can only be accessed this way."
+	    "system.authenticate": "This method allow you to call methods that can only be accessed this way."
 	        " For this to work you must give it a string login, string password, string function2call and "
-		"an array of arguments. You'll be authentificated using login and password and if it is "
+		"an array of arguments. You'll be authenticated using login and password and if it is "
 		"successfull, function2call will be called with the array of arguments"
 	  ]);
 }
@@ -314,7 +314,7 @@ class RPCSystem {
     return "No help available for this function";
   }
 
-  string authentificate(string login, string password, string function2call, mixed ...args)
+  string authenticate(string login, string password, string function2call, mixed ...args)
   {
     if(!login || !password || !function2call)
       throw(({ 4, ({ "You must call this function with a login, password and function2call strings", backtrace() }) }));
