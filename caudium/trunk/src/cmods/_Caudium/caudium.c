@@ -44,6 +44,8 @@ INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
   mystr = (unsigned char *)alloca((len + 1) * sizeof(char));
 #else
   mystr = (unsigned char *)malloc((len + 1) * sizeof(char));
+  if (!mystr)
+    return (pike_string*)0;
 #endif
   MEMCPY(mystr, str, len);
   end = mystr + len;
@@ -78,6 +80,8 @@ INLINE static struct pike_string *url_decode(unsigned char *str,
   mystr = (unsigned char *)alloca((len + 2) * sizeof(char));
 #else
   mystr = (unsigned char *)malloc((len + 2) * sizeof(char));
+  if (!mystr)
+    return (pike_string*)0;
 #endif
   if(exist) {
     ptr = mystr+1;
@@ -113,7 +117,7 @@ INLINE static struct pike_string *url_decode(unsigned char *str,
     }
   }
 
-  newstr =  make_shared_binary_string(mystr, nlen+exist);
+  newstr = make_shared_binary_string(mystr, nlen+exist);
 #ifndef HAVE_ALLOCA
   free(mystr);
 #endif
@@ -133,13 +137,12 @@ sval.u.string = value;
 mapping_insert(headermap, &skey, &sval);
 #endif
 
-INLINE static unsigned int get_next_header(unsigned char *heads, int len,
+INLINE static int get_next_header(unsigned char *heads, int len,
 					   struct mapping *headermap)
 {
   int data, count, colon, count2=0;
   struct svalue skey, sval;
   
-  /* FIXME: error checking would be nice */
   for(count=0, colon=0; count < len; count++) {
     switch(heads[count]) {
      case ':':
@@ -153,6 +156,8 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
       sval.type = T_STRING;
       
       skey.u.string = lowercase(heads, colon);      
+      if (!skey.u.string)
+        return -1;
       sval.u.string = make_shared_binary_string(heads+data, count2 - data);
       mapping_insert(headermap, &skey, &sval);
       count = count2;
@@ -179,11 +184,18 @@ static void f_parse_headers( INT32 args )
   headermap = allocate_mapping(1);
   ptr = headers->str;
   len = headers->len;
+  /*
+   * FIXME:
+   * What do we do if memory allocation fails halfway through
+   * allocating a new mapping? Should we return that half-finished
+   * mapping or rather return NULL? For now it's the former case.
+   * /Grendel
+   */
   while(len > 0 &&
-	(parsed = get_next_header(ptr, len, headermap))) {
+    (parsed = get_next_header(ptr, len, headermap)) >= 0 ) {
     ptr += parsed;
     len -= parsed;
-  }  
+  }
   pop_n_elems(args);
   push_mapping(headermap);
 }
@@ -230,10 +242,22 @@ static void f_parse_query_string( INT32 args )
       exist = low_mapping_lookup(variables, &skey);
       if(exist == NULL || exist->type != T_STRING) {
 	sval.u.string = url_decode(equal, valulen, 0);
+	if (!sval.u.string) {
+	    /* OOM. Bail out */
+	    pop_n_elems(args);
+	    push_int(-1);
+	    return;
+	}
       } else {
 	/* Add strings separed with '\0'... */
 	struct pike_string *tmp;
 	tmp = url_decode(equal, valulen, 1);
+	if (!tmp) {
+	    /* OOM. Bail out */
+	    pop_n_elems(args);
+	    push_int(-1);
+	    return;
+	}
 	sval.u.string = add_shared_strings(exist->u.string, tmp);
 	free_string(tmp);
       }
