@@ -166,6 +166,9 @@ class Dir
 
     dir = get_dir(my_dir);
     foreach(dir, string file) {
+      if (file[-1] == '~')
+        continue;
+      
       mapping|int f = is_config_file(file);
       if (!f)
         continue;
@@ -298,11 +301,6 @@ class File
       throw(({"Need a non-empty file name.\n", backtrace()}));
         
     my_dir = dir;
-
-    if (!(my_file_format = my_dir->is_config_file(fname)))
-      throw(({sprintf("File '%s%s' is not a valid Caudium config file.\n",
-                      my_dir->get_path(), fname), backtrace()}));
-
     my_name = fname;
         
     regions = 0;
@@ -313,6 +311,10 @@ class File
   // open the associated file
   private void open_file()
   {
+    if (!(my_file_format = my_dir->is_config_file(my_name)))
+      throw(({sprintf("File '%s%s' is not a valid Caudium config file.\n",
+                      my_dir->get_path(), my_name), backtrace()}));
+    
     my_file = my_dir->open_file(my_name);
     if (!my_file)
       throw(({sprintf("Couldn't open/create the config file '%s%s'\n",
@@ -370,11 +372,18 @@ class File
   //!
   int|string parse()
   {
-    if (!my_dir || !mappingp(my_file_format) || !sizeof(my_file_format) || !my_file)
+    if (!my_dir)
       return "Object not initialized properly.";
 
+    if (!my_file) {
+      open_file();
+
+      if (!my_file || !mappingp(my_file_format) || !sizeof(my_file_format))
+        return "C ould not open the config file";
+    }
+    
     regions = 0;
-        
+
     switch(my_file_format->format) {
         case FORMAT_OLD:
           return parse_old();

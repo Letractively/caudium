@@ -40,6 +40,7 @@ mapping (string:array(int))     config_stat_cache = ([]);
 // flatfile storage
 string configuration_dir; // Set in caudium.pike:main()
 private object dir = 0;
+private string global_vars_name = "Global_Variables";
 
 private void open_cfg_dir()
 {
@@ -104,8 +105,16 @@ array(mapping(string:string|int)) list_all_configurations()
 {
   if (!dir)
     open_cfg_dir();
+
+  array(mapping(string:string|int)) cfiles = dir->list_files();
+
+  foreach(cfiles, mapping(string:string|int) cf)
+    if (cf->name == global_vars_name) {
+      cfiles -= ({ cf });
+      break;
+    }
   
-  return dir->list_files();
+  return cfiles;
 }
 
 //! Save the specified configuration on disk.
@@ -195,7 +204,9 @@ array config_is_modified(string cl)
 
 private static void read_it(string cl)
 {
-  if(configs[cl])
+  string ccl = replace(cl, " ", "_");
+    
+  if(configs[ccl])
     return;
 
   if (!dir)
@@ -206,12 +217,12 @@ private static void read_it(string cl)
   object      file;
   
   err = catch {
-    file = Config.Files.File(dir, replace(cl, " ", "_"));
+    file = Config.Files.File(dir, ccl);
   };
   
   if (err) {
     report_error("Failed to open configuration file for %O\n%s\n",
-                 cl, describe_backtrace(err));
+                 ccl, describe_backtrace(err));
     return;
   };
 
@@ -233,7 +244,7 @@ private static void read_it(string cl)
     return;
   }
 
-  configs[cl] = file;
+  configs[ccl] = file;
 }
 
 void remove( string reg , object current_configuration) 
