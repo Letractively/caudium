@@ -19,6 +19,14 @@ static constant PRANDOM_DEVICE = "/dev/urandom";
  */
 static constant PATH = "/usr/sbin:/usr/etc:/usr/bin/:/sbin/:/etc:/bin";
 
+static constant SYSTEM_COMMANDS = ({
+  "last -256", "arp -a",
+  "netstat -anv","netstat -mv","netstat -sv",
+  "uptime","ps -fel","ps aux",
+  "vmstat -s","vmstat -M",
+  "iostat","iostat -cdDItx"
+});
+
 static RandomSource global_arcfour;
 static int(0..1) goodseed;
 
