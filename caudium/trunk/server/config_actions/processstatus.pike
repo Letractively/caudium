@@ -24,6 +24,7 @@
  */
 
 inherit "wizard";
+inherit "compatlib";
 constant name= "Status//Process status";
 
 constant doc = ("Shows various information about the pike process.");
