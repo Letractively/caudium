@@ -1012,8 +1012,9 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 
 mixed container_form(string tag, mapping args, string contents, object id, mapping defines)
 {
-    contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
-                       SVAR, id->misc->session_id) + contents;
+    if (args && !args->norewrite)
+        contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
+                           SVAR, id->misc->session_id) + contents;
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
 }
