@@ -470,7 +470,7 @@ string make_monthdays_grid(object id, mapping my_args, object now,
   int            ndays = month->number_of_days(), grid_rows = 5;
 
   if (id->misc->_calendar->sunday_pos == 1)
-    dow_start = days[0]->week_day() % 7;
+    dow_start = days[0]->week_day() % 8;
   else
     dow_start = days[0]->week_day();
   curday = 0;
