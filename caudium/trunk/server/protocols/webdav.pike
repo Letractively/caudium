@@ -20,6 +20,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+/* BUGS/PROBLEMS
+ * - PUT method does not return correct response (at least on IE)
+ * - IE asks for overwritting existing file even if file is not present
+ * - COPY not implemented in existing filesystems yet
+ */
+
 inherit "http";
 inherit "caudiumlib";
 
@@ -96,6 +103,7 @@ string retrieve_props(string file, mapping xmlbody, array|void fstat)
     array        __props;
     string      property;
 
+    DAV_WERR("retrieve_props("+file+")");
     if ( !arrayp(fstat) )
 	fstat = conf->stat_file(file, this_object());
 
@@ -168,6 +176,7 @@ string retrieve_props(string file, mapping xmlbody, array|void fstat)
 		    response += sz;
 		    response += "</lp0:"+prop+">\r\n";
 		}
+
 	    }
 	}
     }
@@ -226,7 +235,7 @@ retrieve_collection_props(string colpath, mapping xmlbody)
     fstats = ([ ]);
     
     for ( i = 0; i < len; i++) {
-	DAV_WERR("stat_file("+path+"/"+directory[i]+"\n");
+	DAV_WERR("stat_file("+colpath+"/"+directory[i]+"\n");
 	if ( strlen(colpath) > 0 && colpath[-1] != '/' )
 	    path = colpath + "/" + directory[i];
 	else
@@ -266,7 +275,7 @@ mapping convert_to_mapping(object node, void|string pname)
 	tname = tname[t+1..]; // no namespace prefixes
     
     mapping m = ([ ]);
-    if ( pname == "prop" ) {
+    if ( pname == "prop" || tname == "allprop" ) {
 	m[tname] = node->get_text();
     }
     array(object) elements = node->get_children();
@@ -293,7 +302,6 @@ mapping get_xmlbody_props()
 	xmlData = ([ "allprop":"", ]); // empty BODY treated as allprop
     }
     else {
-	DAV_WERR("DATA="+data);
 	mixed err = catch {
 	    node = Parser.XML.Tree.parse_input(data);
 	    xmlData = convert_to_mapping(node);
@@ -301,6 +309,7 @@ mapping get_xmlbody_props()
 	if ( err != 0 )
 	    xmlData = ([ "allprop":"", ]); // buggy http ?
     }
+    DAV_WERR("Props mapping:\n"+sprintf("%O", xmlData));
     return xmlData;
 }
 
@@ -345,12 +354,12 @@ static mapping mHandler = ([
     "PROPFIND": handle_propfind,
     "PROPPATCH": handle_proppatch,
     "OPTIONS": handle_options,
-    "LOCK": handle_lock,
-    "UNLOCK": handle_unlock,
     ]);
 
 /**
- * Handle the normal http commands
+ * Handle the normal http commands, but convert successfull results
+ * 200 response, because some commands are aware of ftp and return
+ * ftp responses.
  *  
  * @author <a href="mailto:astra@upb.de">Thomas Bopp</a>) 
  */
@@ -359,7 +368,9 @@ void|mapping handle_http()
     mixed err;
 
     DAV_WERR("clientprot="+clientprot);
-    
+#ifdef MAGIC_ERROR
+    handle_magic_error();
+#endif
     if ( conf )
     {
 	// handle the request the normal way,
@@ -373,8 +384,10 @@ void|mapping handle_http()
         if ( err != 0 )
 	    internal_error( err );
 	DAV_WERR("Result="+sprintf("%O", file));
-      
-	file = http_low_answer(200, "OK");
+	if ( !file ) 
+	    file = caudium->configuration_parse( this_object() );
+	else if ( mappingp(file) && file->error >= 200 && file->error < 200 )
+	    file = http_low_answer(200, "");
     }
     return file;
 }
@@ -391,28 +404,40 @@ mapping handle_options()
 
 mapping|void handle_move()
 {
+    string destination = request_headers->destination;
+    string overwrite   = request_headers->overwrite;
+
+    if ( !stringp(overwrite) )
+	overwrite = "T";
+    misc->overwrite = overwrite;
+
     // create copy variables before calling filesystem module
-    if ( stringp(request_headers->destination) )
-	misc["new-uri"] = request_headers->destination;
+    if ( stringp(destination) )
+	misc["new-uri"] = destination;
     mapping res = handle_http();
-    if ( mappingp(res) )
+    if ( mappingp(res) && res->error == 200 )
 	return http_low_answer(201, "Created");
-    return 0;
+    return res;
 }
 
 mapping|void handle_mkcol()
 {
     method = "MKDIR";
     mapping result =  handle_http();
-    if ( mappingp(result) )
+    if ( mappingp(result) && (result->error == 200 || !result->error) )
 	return http_low_answer(201, "Created");
-    return 0;
+    return result;
 }
 
 mapping|void handle_copy()
 {
     string destination = request_headers->destination;
+    string overwrite   = request_headers->overwrite;
     string dest_host;
+
+    if ( !stringp(overwrite) )
+	overwrite = "T";
+    misc->overwrite = overwrite;
 
     if ( sscanf(destination, "http://%s/%s", dest_host, destination) == 2 )
     {
@@ -421,7 +446,7 @@ mapping|void handle_copy()
     }
     misc->destination = destination;
     mixed result =  handle_http();
-    if ( mappingp(result) ) {
+    if ( mappingp(result) && result->error == 200 ) {
 	return http_low_answer(201, "Created");
     }
     return result;
@@ -534,7 +559,10 @@ mapping|void handle_proppatch()
     response+="</D:response>\n";
     response+="</D:multistatus>\n";
     DAV_WERR("RESPONSE="+response);
-    return http_low_answer(207, response);
+    result = http_low_answer(207, response);
+    result["type"] = "text/xml; charset=\"utf-8\"";
+    result["rettext"] = "207 Multi-Status";
+    return result;
 }
 
 mapping|void handle_propfind()
@@ -560,77 +588,33 @@ mapping|void handle_propfind()
 	request_headers["depth"] = "infinity";
     
     if ( !arrayp(fstat) ) {
-	result = http_low_answer(404, "");
+#if 0
+	response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
+	response += "<D:response>\r\n";
+	response += "<D:href>"+raw_url+"</D:href>\r\n";	
+	response += "<D:status>HTTP/1.1 404 Not Found</D:status>\r\n";
+	response += "</D:response\r\n";
+	response += "</D:multistatus>\r\n";
+#endif
+	return http_low_answer(404,"");
+    }
+    else if ( fstat[1] < 0 ) {
+	response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
+	if ( request_headers->depth != "0" )
+	    response += retrieve_collection_props(raw_url, xmlData);
+	response += retrieve_props(raw_url, xmlData, fstat);
+	response += "</D:multistatus>\r\n";
     }
     else {
-	if ( fstat[1] < 0 ) {
-	    response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
-	    if ( request_headers->depth != "0" )
-		response += retrieve_collection_props(raw_url, xmlData);
-	    response += retrieve_props(raw_url, xmlData, fstat);
-	    response += "</D:multistatus>\r\n";
-	}
-	else {
-	    response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
-	    response += retrieve_props(raw_url, xmlData);
-	    response += "</D:multistatus>\r\n";
-	}
-	result = http_low_answer(207, response);
-	result["rettext"] = "207 Multi-Status";
+	response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
+	response += retrieve_props(raw_url, xmlData);
+	response += "</D:multistatus>\r\n";
     }
+    result = http_low_answer(207, response);
+    result["rettext"] = "207 Multi-Status";
+    result["type"] = "text/xml; charset=\"utf-8\"";
     return result;
 }
-
-mapping|void handle_lock()
-{
-    mapping result, xmlData;
-    object             node;
-    string         response;
-    
-    // this fakes the LOCK method, 
-    // because this is "only" a DAV class 1 server
-    
-    node = Parser.XML.Tree.parse_input(data);
-    xmlData = convert_to_mapping(node);
-    
-    response ="<?xml version=\"1.0\" ?>\n";
-    response+="<D:prop xmlns:D=\"DAV:\">\n";
-    response+="<D:lockdiscovery>\n";
-    response+="<D:activelock>\n";
-    
-    if (xmlData["lockscope"]) 
-	response+="<D:lockscope><D:exclusive/></D:lockscope>\n";
-    if (xmlData["locktype"])
-    {
-	response+="<D:locktype>";
-	if (xmlData["write"]) response+="<D:write/>";
-	if (xmlData["read"]) response+="<D:read/>";
-	response+="</D:locktype>\n";
-    }
-    response+="<D:depth>Infinity</D:depth>\n";
-    if (xmlData["owner"])
-    {
-	response+="<D:owner>\n";
-	response+="<D:href>";
-	response+="http://"+request_headers["host"]+raw_url;
-	response+="</D:href>\n"; response+="</D:owner>\n";
-    }
-    response+="<D:timeout>Second-604800</D:timeout>\n";
-    if (xmlData["locktoken"])
-	response+="<D:locktoken/>\n";
-    
-    response+="</D:activelock>\n";
-    response+="</D:lockdiscovery>\n";
-    response+="</D:prop>\n";
-    result = http_low_answer(200,response);
-    return result;
-}
-
-mapping|void handle_unlock()
-{
-}
-
-
 
 /**
  * First handle Webdav commands, then call the http handle_request() 
@@ -654,8 +638,9 @@ void handle_request()
 	internal_error(backtrace());
 
     if ( mappingp(result) ) {
-	result["type"] = "text/xml; charset=\"utf-8\"";
-
+	if ( !stringp(result->type) )
+	    result["type"] = "text/xml; charset=\"utf-8\"";
+	
 	if ( stringp(result->data) ) {
 	    object f = Stdio.File("/root/www/dav.log", "wct");
 	    f->write(result->data);
