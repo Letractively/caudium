@@ -21,6 +21,7 @@
  * $Id$
  */
 
+// This test if result is ok or not...
 int result(mixed a, mixed b) {
   if(a == b) {
     write(" ok\n");
@@ -33,11 +34,17 @@ int result(mixed a, mixed b) {
   }
 }
 
-int test_http_date() {
+// Write the test name ;-)
+void prtest(string name) {
+  write(sprintf("  Testing Caudium.%s()...\t",name));
+}
+  
+
+int TEST_http_date() {
   int tmstmp = time();
   string a, b;
 
-  write("  Testing Caudium.http_date()...\t");
+  prtest("http_date");
   
   a = Calendar.ISO_UTC.Second(tmstmp)->format_http();
   b = Caudium.http_date(tmstmp);
@@ -45,12 +52,12 @@ int test_http_date() {
   return result(a,b);
 }
 
-int test_cern_http_date() {
+int TEST_cern_http_date() {
   int tmstmp = time();
   string a, b, c;
   mapping lt = localtime(tmstmp);
   int tzh = lt->timezone/3600 - lt->isdst;
-  write("  Testing Caudium.cern_http_date()...\t");
+  prtest("cern_http_date");
 
   if(tzh > 0)
     c = "-";
@@ -70,10 +77,25 @@ int test_cern_http_date() {
 
 int main() {
   int failtests = 0;
+  int alltests = 0;
   write("Starting testsuite for Caudium module...\n");
   
-  failtests += test_http_date();
-  failtests += test_cern_http_date();
+  foreach(indices(this_object()), string fun) {
+    if(fun[..4]=="TEST_") {
+      mixed err;
+      alltests++;
+      if (err = catch {
+          failtests += this_object()[fun]();
+      }) {
+          write(sprintf("Error in test %s: %s\n",fun, describe_backtrace(err)));
+          return 1;
+         }
+    }
+  }
+  
+  write(sprintf("Tests (Successfull/Total) : %d/%d\n",
+                alltests-failtests, alltests));
+
   if (failtests != 0) return 1;
   else return 0;
 }
