@@ -166,7 +166,7 @@ string parse_limit(string tag, mapping m, string s, mapping id, mapping access)
 	  access[tmp][data] += tmpmap[data];
 	else
 	  access[tmp][data] = tmpmap[data];
-  return s;
+  return "";
 }
 
 /* parse the .htaccess file */
