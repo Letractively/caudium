@@ -64,7 +64,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm \
-		 --without-ssleay
+		 --without-ssleay \
+		 --prefix=${PREFIX}
 #		 --with-rsaref=${PREFIX}
 
 .include <bsd.port.pre.mk>
