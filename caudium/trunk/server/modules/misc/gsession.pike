@@ -115,7 +115,7 @@ void create()
            get_plugin_descriptions(), get_plugin_names());
 
     defvar("expire", 600, "Session: Expiration time", TYPE_INT,
-           "After how many seconds an unactive session is removed", 0, hide_gc);
+           "After how many seconds an inactive session is removed", 0, hide_gc);
 
     defvar("dogc", 1, "Session: Garbage Collection", TYPE_FLAG,
            "If set, then the sessions will expire automatically after the "
