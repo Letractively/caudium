@@ -1100,7 +1100,18 @@ int|mapping check_security(function a, object id, void|int slevel)
               }
             }
             break;
-  
+
+          case MOD_ACCEPT_GROUP:
+            if (id->auth && id->auth[0] && sizeof(id->auth) >= 4 && level[1](id->auth[3])) {
+              return 0;
+            } else {
+              if (id->auth)
+                auth_ok |= 1;
+              else
+                return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
+            }
+            break;
+            
           case MOD_USER_SECLEVEL: // secuname=...
             mapping(string:int)  usrlist = level[1];
 
