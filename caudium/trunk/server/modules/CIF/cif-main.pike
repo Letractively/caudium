@@ -34,6 +34,7 @@ constant module_doc  = "Caudium Configuration InterFace main module. This module
 constant module_unique = 1;
 
 private object our_conf = 0;
+private object cif_config;
 
 void create()
 {
@@ -54,13 +55,15 @@ void create()
 }
 
 private array(string) dependencies = ({
-    "gsession", "gbutton"
+    "gsession", "gbutton", "cif-config"
 });
 
 void start(int num, object conf)
 {
     our_conf = conf;
     module_dependencies(conf, dependencies);
+    
+    cif_config = conf->get_provider("cif-config");
 }
 
 string query_location()
@@ -99,7 +102,7 @@ mixed find_file(string f, object id)
     mapping session = id->misc->gsession->session;
     
     //
-    // check whether we are logged or not
+    // check whether we are logged in or not
     //
     if (!session->loggedin) {
         if (!id->realauth)
@@ -112,7 +115,10 @@ mixed find_file(string f, object id)
             return get_auth_data(id);
     }
     
-    return http_htmldoc_answer("<strong>Not yet</strong>",
+    return http_htmldoc_answer(parse_rxml(sprintf("<strong>Not yet (config dir: %s)</strong><br>"
+                                       "Configurations:<br>"
+                                       "<conflist>#name#: <a href='#url#'>#name#</a><br></conflist>",
+                                       caudium->configuration_dir), id),
                                QUERY(title), 0, notyet_style);
 }
 
