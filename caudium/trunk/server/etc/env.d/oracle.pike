@@ -47,7 +47,7 @@ void run(object env)
   write("\n");
   while(sizeof(oracles)>1) {
     write("Multiple Oracle instances found.  Please select your"
-	  " preffered one:\n");
+	  " preferred one:\n");
     foreach(indices(oracles), int i)
       write(sprintf("%2d) %s (in %s)\n", i+1, @oracles[i]));
     write("Enter preference (or 0 to skip this step) > ");
