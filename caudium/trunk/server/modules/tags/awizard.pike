@@ -26,23 +26,46 @@ string cvs_version = "$Id$";
 //! tag: button
 //!  Create a button that, when pressed, will transfer the user to either
 //!  a wizard page or an URL.
-//! attribute: prev
+//! attribute: [prev]
 //!  Go to the previous page when pressed.
-//! attribute: next
+//! attribute: [next]
 //!  Go to the next page when pressed.
-//! attribute: page = page_name
+//! attribute: [page = page_name]
 //!  Go to the specified page (defined in this awizard) when pressed.
-//! attribute: href = URL
+//! attribute: [href = URL]
 //!  Go to the specified URL when pressed.
-//! attribute: title = title_text
+//! attribute: [title = title_text]
 //!  Set the button title.
-//! attribute: image = image_URL
+//! attribute: [image = URL]
 //!  Set the image for the button. If not present, created button will be of the
 //!  'submit' type.
 //
 //! container: ebutton
-//!  The same as the &lt;button&gt; tag, with the exception that the contents of the
+//!  The same as the &lt;[button]&gt; tag, with the exception that the contents of the
 //!  tag is considered to be an RXML code and executed when the button is pressed.
+//
+//! container: come-from
+//!  Contents of this container is executed whenever the user arrived from the given
+//!  page.
+//! attribute: page = page_name
+//!  Sets the name of the previous page which will trigger execution of the associated
+//!  RXML code in this container.
+//!
+//! tag: goto
+//!  Unconditionally go to the given page defined in this awizard.
+//! attribute: page = page_name
+//!  Set the page where the user should be transferred.
+//! attribute: href = URL
+//!  Set the URL where the user should be transferred.
+//
+//! container: warn
+//!  Display the contents of the container as a warning.
+//
+//! container: notice
+//!  Display the contents of the container as a notice.
+//
+//! container: error
+//!  Display the contents of the container as an error.
 //
 constant module_type = MODULE_PARSER;
 constant module_name = "Advanced Wizards";
