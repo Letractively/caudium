@@ -55,7 +55,6 @@ class Dir
   //! created. Defaults to @tt{0750@}.
   void create(string dir, int|void nfmode, int|void ndirmode)
   {
-werror("Config.Files.Dir(" + dir + ")\n");
     if (!dir || !sizeof(dir))
       throw(({sprintf("Need a directory name\n"), backtrace()}));
 
@@ -214,7 +213,6 @@ werror("Config.Files.Dir(" + dir + ")\n");
   //! before returning them.
   Stdio.File open_file(string fname, string|void mode)
   {
-    werror("Config.Files.Dir.open_file("  + fname + ")\n");
     if (!fname || !sizeof(fname))
       return 0;
 
@@ -309,7 +307,6 @@ class File
   // initialize the object, throws exceptions
   private int init_object(Dir dir, string fname)
   {
-    werror("Config.Files.File.init_object(" + fname + ")\n");
     if (!objectp(dir))
       throw(({"Need a valid directory object.\n", backtrace()}));
 
@@ -318,7 +315,6 @@ class File
         
     my_dir = dir;
     my_name = fname;
-    werror("regions = 0\n");    
     regions = 0;
 
     return 1;
@@ -327,7 +323,6 @@ class File
   // open the associated file
   private void open_file()
   {
-    werror("open_file(" + my_name + ")\n");
     if (!(my_file_format = my_dir->is_config_file(my_name)))
       throw(({sprintf("File '%s%s' is not a valid Caudium config file.\n",
                       my_dir->get_path(), my_name), backtrace()}));
@@ -363,18 +358,15 @@ class File
   private int|string parse_xml(void|string contents)
   {
     object root;
-    werror("getting ready to parse XML...");    
     if (contents)
       root = Parser.XML.Tree.parse_input(contents);
     else
       root = Parser.XML.Tree.parse_input(my_file->read());
-    werror("done.\n");
     if (!root)
       return sprintf("Error parsing the config file '%s%s'\n",
                      my_dir->get_path(), my_file_format->name);
 
     // walk the tree and build the internal configuration storage
-    werror("regions = Config(root, "  + my_name + ")\n"); 
     regions = Config(root, my_name);
 
     return 0;
@@ -390,7 +382,6 @@ class File
   //!
   int|string parse()
   {
-    werror("Config.Files.File.parse(" + my_name + ")\n");
     if (!my_dir)
       return "Object not initialized properly.";
 
@@ -400,7 +391,6 @@ class File
       if (!my_file || !mappingp(my_file_format) || !sizeof(my_file_format))
         return "C ould not open the config file";
     }
-    werror("regions=0\n");
     regions = 0;
 
     switch(my_file_format->format) {
@@ -527,7 +517,6 @@ class File
   int|string save(int|void nobackup)
   {
 
-werror("Config.Files.save(" + my_name + ")\n");
     if (!regions || !sizeof(regions))
       return 0;
         
@@ -538,9 +527,7 @@ werror("Config.Files.save(" + my_name + ")\n");
     
     if (!nobackup && !my_dir->move(my_name, my_name + "~"))
       return "Error creating a backup copy of the file";
-werror("getting ready to call open_file...");
     my_file = my_dir->open_file(my_name, "rwct");
-werror("done\n");
     if (!my_file) {
       // try to clean up...
       my_dir->mv(my_name + "~", my_name);
@@ -569,7 +556,6 @@ werror("done\n");
     my_file->write(xml_epilog);
     my_file->close();
     my_file = 0;
-werror("file saved... restarting object.\n");    
     init_object(my_dir, my_name);
     return parse();
   }
