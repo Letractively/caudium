@@ -109,13 +109,13 @@ string tag_mnogosearch(string tag, mapping m, object id)
       }
       if(sp) {
 	nextprev += ({  sprintf("<a href=\"%s?%s\"><- Previous Page </a>",
-				Protocols.HTTP.http_encode_string(id->not_query),
+				http_encode_string(id->not_query),
 				replace(id->query||"", "sp="+sp,
 					"sp="+(sp-1))) });
       }
       if(res->last_doc() < res->total_found()) {
 	nextprev += ({  sprintf("<a href=\"%s?%s\">Next Page -></a>",
-				Protocols.HTTP.http_encode_string(id->not_query),
+				http_encode_string(id->not_query),
 				replace(id->query||"", "sp="+sp,
 					"sp="+(sp+1))) });
       }

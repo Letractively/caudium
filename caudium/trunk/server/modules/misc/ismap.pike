@@ -615,7 +615,7 @@ mapping|string handle_file_extension(object file, string ext, object id)
     if(sscanf(" "+map_file_name+" ", "%s$%[a-zA-Z_]%s",pre, varname, rest)==3)
     {
       map_file_name = (pre + 
-		       Protocols.HTTP.http_encode_string(id->variables[varname]
+		       http_encode_string(id->variables[varname]
 					  ||id->state[varname]||"")
 		       + rest) - " ";
     }

@@ -598,7 +598,7 @@ string link_to(string file, int line, int eid, int qq)
 {
   if(file[0]!='/') file = combine_path(getcwd(), file);
   return ("<a href=\"/(old_error,find_file)/error?"+
-	  "file="+Protocols.HTTP.http_encode_string(file)+"&"
+	  "file="+http_encode_string(file)+"&"
 	  "off="+qq+"&"
 	  "error="+eid+"&"
 	  "line="+line+"#here\">");

@@ -350,7 +350,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 cern_http_date(time(1)),
 		 unsigned_to_bin(time(1)),
 		 (string)request_id->method,
-		 Protocols.HTTP.http_encode_string(request_id->not_query+
+		 http_encode_string(request_id->not_query+
 				    (request_id->query?"?"+request_id->query:
 				     "")),
 		 (string)request_id->prot,
@@ -359,7 +359,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 (string)(file->len>=0?file->len:"?"),
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
-		 Protocols.HTTP.http_encode_string(request_id->useragent),
+		 http_encode_string(request_id->useragent),
 		 extract_user(request_id->realauth),
 		 (string)request_id->cookies->CaudiumUserID,
 	       }) );
