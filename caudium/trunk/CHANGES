@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- 404 handler is not set per default on Old 404 system. To avoid 1.0 -> 1.2    
+  compatiblity and keep the XML-Compliant parser quiet. 
 - Fixed #530674: passive mode FTP connection problem (with Mozilla  
   and derivative browsers).
 - <if exists="file"> shouldn't use the cache. Thanks ot Hirling Endre.
