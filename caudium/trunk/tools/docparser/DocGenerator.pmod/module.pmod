@@ -246,6 +246,35 @@ class DocGen
     return ret;
   }
 
+  private string f_defvar(DocParser.PikeFile|DocParser.Module f)
+  {
+    string   ret = "";
+    if (!sizeof(f->defvars))
+      return "";
+    ret = "<defvars>\n";
+    foreach(f->defvars, DocParser.Defvar dv)
+    {
+      array parts = dv->first_line / ":" - ({""});
+      if(!sizeof(parts)) continue;
+      if(sizeof(parts) == 1)
+	ret += " <defvar name=\""+dv->first_line+"\"";
+      else {
+	
+	ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
+	  String.trim_whites(parts[1..]*":")+"\"";
+      }
+      if(dv->type && strlen(dv->type))
+	ret += " type=\""+dv->type+"\"";
+      if(strlen(dv->contents))
+      {
+	ret += ">"+dv->contents+"</defvar>\n";
+      } else
+	ret += "/>\n";
+    }
+    ret += "</defvars>\n";
+    return ret;
+  }
+
     /* Method output */
     private mapping(string:string|array(string)) 
     dissect_method(string s)
@@ -529,8 +558,8 @@ class DocGen
 	}
 	
 	if (sizeof(es->entities))
-	    foreach(es->entities, object e)
-		ret += do_f_entity(e);
+	  foreach(es->entities, object e)
+	    ret += do_f_entity(e);
 	ret += "</scope>\n\n";
 	
 	return ret;
@@ -597,7 +626,10 @@ class DocGen
 	/* And containers */
 	if (f->containers)
 	  ofile->write(f_containers(f));
-	  
+
+	if (f->defvars)
+	  ofile->write(f_defvar(f));
+
 	/* Some entities, please */
 	if (f->escopes)
 	  ofile->write(f_entities(f));
