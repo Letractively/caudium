@@ -94,21 +94,19 @@ class DocGen
 	  foreach(f->inherits, string tmp)
 	    ret += "<inherits link=\"" + tmp + "\"/>\n";
 	}
-
-        /* File description */
-        ret += "<description>\n";
-        
-        if (f->contents && f->contents != "")
-            ret += f->contents + "\n";
-        ret += "</description>\n\n";
-
-        /* CVS version */
-        ret += "<version>\n";
-        if (f->cvs_version && f->cvs_version != "")
-            ret += this_object()->special_cvs_version ?
-                this_object()->special_cvs_version(f->cvs_version) : f->cvs_version;
-        ret += "\n</version>\n\n";
 	
+        /* File description */
+        
+        if (f->contents && f->contents != "") 
+	  ret += "<description>\n"+ f->contents + "\n" + "</description>\n\n";
+	  
+	/* CVS version */
+	if (f->cvs_version && f->cvs_version != "") {
+	  ret += "<version>\n" +
+	    (this_object()->special_cvs_version ?
+	     this_object()->special_cvs_version(f->cvs_version) :
+	     f->cvs_version) + "\n</version>\n\n";
+	}
         /* Type if any */
         if (f->type && f->type != "") {
 	  ret += "<type>"+f->type+"</type>\n";
@@ -122,24 +120,20 @@ class DocGen
         return ret;
     }
 
-
-  
     /* GlobVar output */
     private string do_f_globvar(DocParser.GlobVar gv)
     {
         string   ret = "";
 
         if (gv->first_line && gv->first_line != "")
-            ret += "<globvar synopsis=\"" + gv->first_line + "\">\n";
+            ret += "<globvar synopsis=\"" + gv->first_line + "\"";
         else
-            ret += "<globvar synopsis=\"" + ob_unnamed(gv) + "\">\n";
+            ret += "<globvar synopsis=\"" + ob_unnamed(gv) + "\"";
 
-        if (gv->contents && gv->contents != "")
-            ret += gv->contents + "\n";
-        else
-            ret += "No documentation.\n";
-
-        ret += "</globvar>\n\n";
+        if (gv->contents && strlen(gv->contents))
+	  ret += ">\n"+gv->contents + "\n</globvar>\n";
+	else
+	  ret += "/>\n";
         
         return ret;
     }
@@ -185,7 +179,7 @@ class DocGen
 	  ret += " syntax=\""+a->first_line+"\"";
 	if (a->def && strlen(a->def))
 	  ret += " default=\""+a->def+"\"";
-	if (a->contents)
+	if (a->contents && strlen(a->contents))
 	  ret += ">\n\t\t"+a->contents+"\n\t</attribute>\n";
 	else
 	  ret += "/>\n";
@@ -212,7 +206,7 @@ class DocGen
     if (tag->seealso && sizeof(tag->seealso)) {
       ret  += "<links>\n";
       foreach(tag->seealso, string n)
-	if (n != "")
+	if (strlen(n))
 	  ret += "\t<link to=\""+ n + "\"/>\n";
       ret += "</links>\n";
     }
@@ -293,16 +287,15 @@ class DocGen
 	ret += "<method name=\"" + method->name + "\">\n";
 	
 	/* Short description */
-	ret += "<short>\n\t" + m->name + "\n</short>\n\n";
+	if(m->name)
+	  ret += "<short>\n\t" + m->name + "\n</short>\n\n";
 
 	/* Synopsis */
 	ret += "<syntax>\n\t" + pretty_syntax(method) + "\n</syntax>\n\n";
 
         /* Description */
 	if (m->contents && m->contents != "")
-	    ret += "<description>\n" + m->contents + "\n</description>\n\n";
-	else
-	    ret += "<description>\nNo documentation.\n</description>\n\n";
+	  ret += "<description>\n" + m->contents + "\n</description>\n\n";
 
 	/* Arguments */
 	if (m->args && sizeof(m->args)) {
@@ -311,7 +304,7 @@ class DocGen
 	    ret += "\t<argument";
 	    if (a->synopsis)
 	      ret += " syntax=\""+a->synopsis+"\"";
-	    if (a->description) 
+	    if (a->description && strlen(a->description)) 
 	      ret += ">\n\t\t"+ a->description +"\n\t</argument>\n";
 	    else
 	      ret += "/>\n";
@@ -322,10 +315,10 @@ class DocGen
 	
 	/* Returns */
 	if (m->returns)
-	    foreach(m->returns, string r)
-		if (r != "")
-		    ret += "<returns>\n" + r + "\n</returns>\n\n";
-		
+	  foreach(m->returns, string r)
+	    if (r != "")
+	      ret += "<returns>\n" + r + "\n</returns>\n\n";
+	
 	/* Notes */
 	if (m->notes && sizeof(m->notes)) {
 	  ret  += "<notes>\n";
@@ -366,8 +359,7 @@ class DocGen
     /* Class output */
     private string f_classes(DocParser.PikeFile f)
     {
-	string   ret = "";
-	
+	string   ret = "";	
 	return ret;
     }
     

@@ -112,11 +112,8 @@ class DocObject {
         if (kw)
             new_field(newstuff, kw);
         else {
-	  if(!strlen(newstuff))
-	    newstuff = "\n";
-	  else
-	    if(!wspace[newstuff[-1]])
-	      newstuff += " ";
+	  if(strlen(newstuff) && !wspace[newstuff[-1]])
+	     newstuff += " ";
 	  append_field(newstuff);
 	}
     }    
