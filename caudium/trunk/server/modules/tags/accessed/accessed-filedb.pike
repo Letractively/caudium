@@ -70,80 +70,21 @@ void create(object c) {
   defvar("restrict", 1, "Restrict reset", TYPE_FLAG, "Restrict the attribute reset "
 	 "so that the resetted file is in the same directory or below.");
 
-  defvar("backend", "File database", "Database backend", TYPE_MULTIPLE_STRING,
-	 "Select a accessed database backend",
-         ({ "File database", "SQL database", "Memory database" }) );
-
-  //------ File database settings
-
   defvar("Accesslog",GLOBVAR(logdirprefix)+short_name(c?c->name:".")+"/Accessed",
 	 "Access database file", TYPE_FILE|VAR_MORE,
-	 "This file will be used to keep the database of file accesses.",
-	 0, lambda(){ return query("backend")!="File database"; } );
-
-  defvar("close_db", 1, "Close inactive database",
+	 "This file will be used to keep the database of file accesses.");
+  
+defvar("close_db", 1, "Close inactive database",
 	 TYPE_FLAG|VAR_MORE,
 	 "If set, the accessed database will be closed if it is not used for "
-	 "8 seconds. This saves resourses on servers with many sites.",
-	 0, lambda(){ return query("backend")!="File database"; } );
-
-  //------ SQL database settings
-
-  defvar("sqldb", "mysql://localhost", "SQL Database", TYPE_STRING, 
-	 "What database to use for the database backend.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
-
-  defvar("table", "accessed", "SQL Table", TYPE_STRING,
-	 "Which table should be used for the database backend.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
-
-  defvar("serverinpath",1,"Add server Id in SQL table", TYPE_FLAG|VAR_MORE,
-         "Add the server Id in the SQL table. <b>Note</b>: you will lose "
-	 "Roxen 2.x compatibility if this enabled.",
-	 0, lambda(){ return query("backend")!="SQL database"; } );
-  defvar("serverid",c->query("MyWorldLocation"),"Id to add in SQL table",
-         TYPE_STRING|VAR_MORE,"This will be added in the SQL database as "
-	 "unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> "
-	 "counter data will be reset to 0.",
-	 0, lambda() { return !query("serverinpath") ||
-	                      query("backend")!="SQL database"; } );
+	 "8 seconds. This saves resourses on servers with many sites.");
 }
 
 void start(int cnt, object conf) {
   // Depends of rxmltags 
   module_dependencies(conf ,({ "rxmltags" }));
-  //  query_tag_set()->prepare_context=set_entities;
-  switch(query("backend")) {
-  case "SQL database":
-    counter=SQLCounter();
-    break;
-  case "Memory database":
-    counter=MemCounter();
-    break;
-  case "File database":
-  default:
-    counter=FileCounter();
-    break;
-  }
+  counter=FileCounter();
 }
-
-// Kiwi: Can someone do an compatible entity for this module ???
-
-//class Entity_page_accessed {
-//  int rxml_var_eval(RXML.Context c) {
-//    c->id->misc->cacheable=0;
-//    if(!c->id->misc->accessed) {
-//      counter->add(c->id->not_query, 1);
-//      c->id->misc->accessed=1;
-//    }
-//    return counter->query();
-//  }
-//}
-
-//void set_entities(RXML.Context c) {
-//  c->set_var("accessed", Entity_page_accessed(), "page");
-//}
-
 
 // --- File access databases -------------------------
 
@@ -315,110 +256,6 @@ class FileCounter {
     }
   }
 }
-
-class SQLCounter {
-  // SQL backend counter.
-
-  Sql.sql db;
-  string table,servername;
-  int srvname = 0;
-
-  void create() {
-    db=Sql.sql(module::query("sqldb"));
-    table = module::query("table");
-    if (module::query("serverinpath")) {
-      srvname = 1;
-      servername = module::query("serverid");
-    }
-    else {
-      srvname = 0;
-      servername= "";
-    }
-    catch {
-      db->query("CREATE TABLE "+table+" (path VARCHAR(255) PRIMARY KEY,"
-		" hits INT UNSIGNED DEFAULT 0, made INT UNSIGNED)");
-      // Kiwi: need to be fixed (used if file doesn't exist)
-      db->query("INSERT INTO "+table+" (path,made) VALUES ('///',"+time(1)+")" );
-    };
-  }
-
-  int creation_date(void|string file) {
-    if(!file) file="///";
-    array x=db->query("SELECT made FROM "+table+" WHERE path='"+servername+fix_file(file)+"'");
-    return x && sizeof(x) && (int)(x[0]->made);
-  }
-
-  private void create_entry(string file) {
-    if(cache_lookup("access_entry", file)) return;
-    catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+servername+file+"',"+time(1)+")" ));
-    cache_set("access_entry", file, 1);
-  }
-
-  private string fix_file(string file) {
-    if(sizeof(file)>255)
-      file="//"+MIME.encode_base64(Crypto.md5()->update(file)->digest(),1);
-    return db->quote(file);
-  }
-
-  void add(string file, int count) {
-    file=fix_file(file);
-    create_entry(file);
-    db->query("UPDATE "+table+" SET hits=hits+"+(count||1)+" WHERE path='"+servername+file+"'" );
-  }
-
-  int query(string file) {
-    file=fix_file(file);
-    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+servername+file+"'");
-    return x && sizeof(x) && (int)(x[0]->hits);
-  }
-
-  void reset(string file) {
-    file=fix_file(file);
-    create_entry(file);
-    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+servername+file+"'");
-  }
-
-  int size() {
-    array x=db->query("SELECT count(*) from "+table);
-    return (int)(x[0]["count(*)"])-1;
-  }
-}
-
-class MemCounter {
-  //Proof-of-concept nonpersistent counter. 
-
-  mapping(string:int) db_count=([]);
-  mapping(string:int) db_time=([]);
-  int created;
-
-  void create() {
-    created=time(1);
-  }
-
-  int creation_date(void|string file) {
-    if(!file) return created;
-    return db_time[file];
-  }
-
-  void add(string file, void|int count) {
-    if(!db_time[file]) db_time[file]=time(1);
-    db_count[file]+=count||1;
-  }
-
-  int query(string file) {
-    return db_count[file];
-  }
-
-  void reset(string file) {
-    if(!db_time[file]) db_time[file]=time(1);
-    db_count[file]=0;
-  }
-
-  int size() {
-    return sizeof(db_count);
-  }
-}
-
 
 // --- Log callback ------------------------------------
 
