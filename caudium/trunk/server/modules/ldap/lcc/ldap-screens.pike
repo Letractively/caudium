@@ -100,5 +100,52 @@ string retrieve(object id, string name)
     return "";
 }
 
+//
+// This stores all the id->variables in the storage area for the template
+// named 'name'. This data will be used later on in the retrieve
+// function. The replace variables in the template have the following
+// format:
+//
+//  @varname@
+//
+// where 'varname' is taken from id->variables name (other modules can add
+// variables to the storage mapping for the template, of course and then
+// the 'varname' will be set to the mapping index name)
+//
 void store(object id, string name)
-{}
+{
+    if (!SSTORE(id))
+        SSTORE(id) = ([]);
+
+    if (!SSTORE(id)[name])
+        SSTORE(id)[name] = ([]);
+    
+    if (!id->variables || !sizeof(id->variables))
+        return;
+    
+    foreach(indices(id->variables), string idx)
+        SSTORE(id)[name][idx] = id->variables[idx];
+}
+
+//
+// purge the store for the given template
+//
+void purge(object id, string name)
+{
+    if (!SSTORE(id))
+        return;
+
+    if (SSTORE(id)[name])
+        SSTORE(id)[name] = ([]);
+}
+
+//
+// return the store for the given template
+//
+mapping get_store(object id, string name)
+{
+    if (SSTORE(id) && SSTORE(id)[name])
+        return SSTORE(id)[name];
+
+    return 0;
+}
