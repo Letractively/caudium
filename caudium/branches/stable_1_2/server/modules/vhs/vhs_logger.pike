@@ -374,7 +374,7 @@ static void do_log(mapping file, object request_id, function log_function)
   
   if(search(form, "host") != -1)
     caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
-		      request_id->remoteaddr, log_function);
+		      request_id->host||request_id->remoteaddr, log_function);
   else
     log_function(form);
 }
