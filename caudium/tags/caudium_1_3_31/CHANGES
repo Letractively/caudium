@@ -1,0 +1,510 @@
+Changes in Caudium 1.3.23 since Caudium 1.3.21
+----------------------------------------------
+- Fixed rxmltags.pike:tag_use() that prevented using <use file=""> RXML tag at
+  all when using VHS because it completly emptied id->misc.
+   (Bertrand Lupart)
+- Fix HTML 4.01 strict compliance in gsession.
+   (Jeff Utter, David Gourdelier)
+- Added make_html_tag, make_html_container, make_html_tag_attributes that 
+  output HTML compliant strings escaping any unsafe characters (only " 
+  actually).
+   (David Gourdelier)
+- Added make_xml_tag, make_xml_container, make_xml_tag_attributes that
+  output XML compliant strings escaping any unsafe characters.
+   (David Gourdelier)
+- Modifed make_tag, make_container, make_tag_attributes so that you can
+  output either HTML or XML strings with the value of the last argument of 
+  these functions.
+  You can give id->misc->is_xml as the last argument of these functions and
+  it'll automatically output the correct string format according to the
+  headers of your RXML template.
+  Default to HTML output (exactly the same output as Caudium 1.2).
+   (David Gourdelier)
+- Added Caudium.xml_encode_mapping and Caudium.html_encode_mapping that
+  respectivly encode the key/value pairs of a mapping into a XML or HTML safe
+  key/value pairs. This should be much faster than doing the same in Pike.
+   (David Gourdelier)
+- Added an option to _make_tag_attributes so that you can specify the 
+  encoding to use, can be HTML or XML (default to HTML).
+   (David Gourdelier)
+- Fixed a bug that prevent the quoting of " in _make_tag_attributes as well
+  as some missing encoding for XML.
+   (David Gourdelier)
+- The site_id variable has been added in the Caudium request id object for
+  making modules 2nd level virtual hosting (2lvh) safe.
+  Basically, this has to be used instead of id->conf->name has a key for
+  caching data for the module to be 2lvh-safe.
+  By default, it is set to id->conf->name. If 2lvh is wanted, the 2lvh module
+  should override it by its data in precache_rewrite().
+  Code fixed:
+	- accessed-old.pike
+	- caucho.pike
+	- configuration.pike (try_get_file())
+	- htaccess.pike
+	- rimage.pike
+	- rxmltags.pike (<insert>, <use>)
+  Code enhanced:
+	- vhs_system_ldap.pike
+	- vhs_system_sql.pike
+   (Bertrand Lupart)
+- Fixed a bug preventing caching of ActiveDirectory authentication
+  information. Authentication using ActiveDirectory should be much faster.
+   (Bill Welliver)
+- Fixed a bug where PATH_INFO environnement variable wasn't give to scripts 
+  executed throught uniscript modules.
+   (David Gourdelier)
+- Fixed a bug in store() and added debug mode in Gsession.
+   (David Gourdelier)
+- Allow for having tags & containers which are not in a Caudium module but for
+  example in Pike module using the XML parser.
+   (David Gourdelier)
+- Added mimetype for XSL stylesheets.
+   (James Tyson)
+- Removed proxy.pike, use simple_proxy instead.
+   (Xavier Beaudouin)
+- Removed relay.pike, it is too buggy because of spinner's day shuffler()
+  function.
+   (Xavier Beaudouin)
+- Removed ftp / proxy server templates.
+   (Xavier Beaudouin)
+- Fixed a bug that appear between 1.3 and 1.2 preventing the SSL from
+  working with HTTP answers that don't send data like 302.
+   (David Gourdelier)
+- Added a -DHTML_DEBUG to debug every tags/containers/whatever call in the
+  XML compliant RXML parser and doing a gauge() on each of your function to
+  allow easier RXML code optimization. 
+   (David Gourdelier)
+- The functions in _Caudium.so now use the new scratchpad volatile buffer 
+  code instead of alloca.
+   (Marek Habersack)
+- Now Caudium.make_tag_attributes() uses the _Caudium._make_tag_attributes()
+  C routine. Start Caudium with -DUSE_OLD_MAKE_TAG_ATTRIBUTES if you have
+  problems using the new code. This "workaround" will be removed in the 1.4 
+  release.
+   (Xavier Beaudouin)
+- Remove the proxy disk cache since it's not useful, buggy and contains lot of
+  junk.
+   (David Gourdelier)
+- Caudium.httpdate_to_time() now uses _Caudium.parse_date(). Faster than
+  using Calendar.
+   (Xavier Beaudouin)
+- The function in _Caudium modules handled by datetime.c was not correctly
+  exported into main _Caudium module this is now fixed (except for get_date).
+   (Xavier Beaudouin)
+- Navigation bar that behaves better when managing a lot of elements
+   (Guillaume Fraysse)
+- Added support for <emit>...</> a'la Roxen2 to the XML compliant parser.
+   (Bill Welliver)
+- Added authentication layer to the XML-RPC server.
+   (David Gourdelier)
+- Adding chroot support to CGI (and then FastCgi, Uniscript...).
+   (Xavier Beaudouin)
+- Removed usage of alloca in do_encode_stuff(). This gives segfaults
+  on FreeBSD 4.x when called from _Caudium.http_encode_url(). SF Bug #902691.
+   (Xavier Beaudouin) 
+- Added Caudium.Crypto.urandom() function to wrap easily the correct random
+  source according to the Pike version.
+   (Xavier Beaudouin)
+- Fix bug in Cache.FastStorage which caused devide by zero when calculating
+  object hitrates.
+   (James Tyson)
+- Add tests around System.getrusage() so that Caudium can fall back to
+  predef::rusage if necessary.
+   (James Tyson)
+- Backout changes in Storage.Method.Disk because it was completely broken.
+   (James Tyson)
+- Added the XML-RPC server. Contributed by David Gourdelier, Martin Baehr and
+  Karl Pitrich. 
+    (David Gourdelier)
+- In the SSI Compat Tags module don't cache include virtual if the included
+  url is a dynamic one.
+   (Tamas Tevesz [from endre at interware dot hu]).
+- Fixed bug in vhs_logger.pike that stopped it from logging remote hostnames.
+   (James Tyson)
+- Removed unnecessary inline statements from a few functions.
+   (Xavier Beaudouin)
+- Caudium now requires Pike 7.5
+   (Marek Habersack)
+- Profiled and streamlined the Cache's disk storage system.  Now uses an
+  index of cached content to speed up startup times massively.  Also writes
+  to disk in a way that should no longer block the server.
+   (James Tyson)
+- Modified ultraparse.pike to include an explicit list of profiles to show.
+   (James Tyson)
+- Modified vhs_logger.pike to include $agent_unquoted log format.
+   (James Tyson)
+- Added <get_prestate/> to get a list of prestates in a format suitable for
+  your url.
+   (David Gourdelier)
+- protocol/http2.pike is now removed. It breaks to often.
+   (James Tyson)
+
+Changes in Caudium 1.3.21 since Caudium 1.3.19
+----------------------------------------------
+- SuperForm MkII is now on main tree and not in Work In Progress
+   (Martin Baehr)
+- Start script (start-caudium) now has a built in watchdog. See the CIF 
+  Global variables under "Watchdog..." for configuration information. 
+  Watchdog configuration is reloaded every 2 hours.
+   (Bill Welliver)
+- Simple heath check (Ping / pong) on Http protocol is back.
+   (Bill Welliver)
+- Caudium start script is now done in 100% pike
+   (Bill Welliver)
+- Ported Bill's roxenlib patch for iVend (see 
+  http://hww3.riverweb.com/dist/ivend/patches/roxenlib_quote.patch for more
+  informations).
+   (Xavier Beaudouin)
+- Removed ISMAP from server templates and sort server templates by 
+  filename.
+   (Bil Welliver) 
+- more_modules/ files are now in modules/examples/
+   (Xavier Beaudouin)
+- Added the Bitstream Vera Sans font
+   (Marek Habersack)
+- Removed the Microsoft TTF fonts
+   (Marek Habersack)
+- Removed Mirror Server / Mirror Filesystem since it is not used or
+  maintained and it is half working.
+   (Xavier Beaudouin)
+- Removed mnoGo search module from Caudium because now we have Lucene
+  instead.
+   (James Tyson)
+- Removed PHP4 module due to its non-functioning status. Use FastUniscript 
+  instead.
+   (Bill Welliver)
+- Removed FTP and Gopher protocols.
+   (James Tyson)
+- Removed Verdana fonts due to licensing restrictions. You can supply your 
+  own font from a windows system.
+   (Bill Welliver) 
+- SpiderMonkey and libxslt are now in wip/ repository.
+   (Xavier Beaudouin)
+- Pike C module OpenSSL is removed. It will be not used.
+   (Xavier Beaudouin)
+- Pike C module JavaScript is removed. NJS is a dead project.
+   (Xavier Beaudouin)
+- Removed old libfcgi C tools. FastCGI is totaly handled by a Pike code.
+   (Xavier Beaudouin)
+- Removed old deprecated modules from server.
+   (Xavier Beaudouin)
+- Changed requirement of pike version to at least 7.4.25.
+   (Xavier Beaudouin)
+
+Changes in Caudium 1.3.19 since Caudium 1.3.18
+----------------------------------------------
+- Added a basic search engine powered by Jakarta Lucene. See README.Lucene
+  for more informations.
+   (Bill Welliver)
+
+Changes in Caudium 1.3.17 since Caudium 1.3.16
+----------------------------------------------
+- You can add your own Pike modules in ../local/pmods. For distributions,
+  put them in ./local_pmods.
+  (David Gourdelier)
+- Added ability to add a link to a stylesheet in Ultralog module.
+   (James Tyson)
+- Fixed a bug in htaccess module that make it ignoring .htaccess files.
+   (Xavier Beaudouin)
+- Imported Roxen 2.x/3.x robots.txt module
+   (Xavier Beaudouin)
+- Removed ifdef ADT.Table on debuginformation.pike since it exist on pike 7.0+
+   (Xavier Beaudouin)
+- Imported Roxen 1.2/1.3 Robot Trap Module
+   (Xavier Beaudouin)
+- Backported Roxen 3.4 relay2 proxy (not functionnal yet).
+   (Xavier Beaudouin)
+- MIME.Decode in base_server/wizard.pike is now inside a catch() to avoid
+  break in case of partial / malformed base64 data given to the webserver.
+   (Xavier Beaudouin)
+- Added a catch() into MIME.Message used in multipart/form-data handler in
+  http.pike and http2.pike to avoid locks into Caudium when malformed data
+  comes into webserver.
+   (Xavier Beaudouin)
+
+Changes in Caudium 1.3.16 since Caudium 1.3.14
+----------------------------------------------
+- Added cnum and rtext to column types in tablify.  cnum uses , as the 
+  thousands delimiter and rtext right aligns text.
+   (Chris Davies)
+- Avoid using -O2 optimization on FreeBSD Alpha
+   (Xavier Beaudouin)
+- Fix detection of alloca() for _Caudium C module.
+   (Xavier Beaudouin)
+- Uses if exist thread safe calls (the _r() ones) from libc in function 
+  _Caudium.http_date() _Caudium.cern_http_date().
+   (Xavier Beaudouin)
+- AJP | Tomcat connector can now load balance requests across multiple
+  Tomcat instances.
+   (Bill Welliver)
+- Ideas and fixes for Pike script support mark II to help compatibility 
+  applied.
+   (Xavier Beaudouin)
+- Created new version of uniscript that uses FastCGI to communicate with 
+  the script interpreter, hopefully providing better performance.
+   (Bill Welliver)
+- Updated uniscript to inherit CGI rather than copy it. (Bill Welliver)
+- AJP | Tomcat Connector should now talk nicely to Tomcat 3 and 4 engines.
+   (Bill Welliver)
+- Added a check in CGI module (and the all modules that inherits it) that
+  ask for a mountpoint that ends with and '/' at the end to avoid potential
+  security problems (eg list of files directories) (SF bug #713835).
+   (Xavier Beaudouin)
+- Fixes in responses given to FTP client in the ftp protocol. Mostly because
+  Opera don't like it too much. (SF bug #560771)
+   (Xavier Beaudouin)
+- Added SILENT_COMPAT define in performance.h to allow Caudium not complaining
+  in his log about compat calls. Define this can help administrator to gain
+  in term of speed.
+   (Xavier Beaudouin)
+- Fix a bug in autoconf script that stop the correct detection of pike
+  version and include under a FreeBSD port.
+   (Xavier Beaudouin)
+- Fix a bug in ssl3.pike where the redirect from http would always pick the
+  admin port.
+- Caudium.make_tag_attributes() now write args whose name value equals name
+  as foo="foo" instead of just foo.
+  This might be some legacy stuff that isn't XML compliant. 
+  This applies to Caudium.make_tag() and Caudium.make_container().
+- Now pike highlighter supports CSS :)
+- Added sscanf container for RXML.
+- Open Ports Wizard is now fixed and give more accurate informations.
+- Old FCGI-CGI backend is now disabled per default. If you'd like to use the
+  old FastCGI interface, please provide --with-oldfastcgi to ./configure 
+  script.
+- Added AJP | Tomcat Connector module to allow connecting to Jakarta 
+  Tomcat and Jetty servlet engines.
+- <if group="somegroup"> now consults the new naming system for group 
+  membership information, as well as the groupfile option.
+- LDAP and SQL authentication sources have been completely rewritten, 
+  with incompatible settings. Users of these authentication sources will 
+  need to check their settings when these modules are upgraded.
+- Authentication and naming system has been completely rewritten. The 
+  system consists of a Master handler and one or more stackable 
+  authentication source providers. The new system also provides built in 
+  access to groups and group membership information. The new 
+  authentication system  provides new APIs, the existing APIs have been  
+  deprecated. Virtual servers that utilize existing authentication modules 
+  will be upgraded to the new system automatically on the first startup.
+- An automatic upgrade system is in place, for updating settings that may 
+  have incompatably changed between releases. A global variable "Upgrade 
+  Performed?" allows the upgrade procedure to be run manually on the next 
+  restart. Output messages are sent to the debug log and the CIF Event log.
+- Changed Cache API slightly to make programming easier.
+- Added some wrappers to parse_html() and parse_html_lines() that are
+  called Caudium.parse_html() and Caudium.parse_html_lines(). This wrapper
+  is Wide Strings complian (eg >8 bits compatible) and is set per default.
+  If you have bugs with it, please send it to bugs@caudium.info. You can
+  use the old parser from spider module (Pike) by starting Caudium with
+  OLD_SPIDER define set.
+- Headline module has been removed. This was mostly a hack from Headline
+  module from David Hedbor (see roxen community for that) and it is too
+  buggy and not really clean.
+- Caudium.so pike glue in now _Caudium. A Pike module library is here to handle
+  all functions that are coded in C or in Pike or that uses both things.
+- Fix a bug with icons and virtual directories like /mail/ in gbutton module.
+
+Changes in Caudium 1.3 since Caudium 1.2.1
+------------------------------------------
+
+- Fixed a bug in the new compression module : when using things like <insert>
+  in RXML pages the data was compressed twice.
+- <accessed> tag is now handled in a separate module. To have old behavior,
+  use "Accessed Tag Counter: Old version", other supports Memory, SQL, FileDB
+  are also available.
+- mod_caucho support for Resin updated to support multiple instances of resin
+  and load balancing among them. Also added support for RXML parsing of output.
+- Java Servlet module updated to Servlet API 2.2, handles file extensions 
+  and allows output to be RXML parsed.
+- Added in etc/include/performance.h a define that allow administrator
+  to force load all configurations and modules at the starting of Caudium.
+  Note this is not recommanded if you have thousands of virtuals servers.
+  You can use this with ./start script on a runtime : -DLOAD_CONFIGS_STARTUP
+- Apache/NSCA SSI tags are now handled into a separate module called
+  SSI Compat Tags (ssi_compat.pike). Don't forget to add this to your
+  configuration interface if you need this support...
+- Fix pluging path for rimage module.
+- modules/scripting/oldcgi.pike and modules/scripting/fcgi.pike are now 
+  deprecated. For FastCGI support you can use now fastcgi.pike that work
+  much better than the old one.
+- Fix submitted in caudium_general ml about corrupted Accessed db.
+- Fix for sf bug #634688: Backtrace with cache and start as user.
+- Fixed error in setools.pike regarding user agent & regexp
+- We can now accept a certification chain instead of just a single certificate.
+  Should be provided as a series of filenames sparated by commas. The cacert
+  should be first and the server cert should the be last.
+- Old auth modules are now in server/deprecated_modules.
+- IP Less module is now in server/deprecated_modules. Don't forget to add this
+  to you module list if you still need it.
+- Fix an error in disk_cache.pike on hash() call since it has changed a lot
+  since pike 7.0.
+- mod_perl / Perl support for Caudium is known to work now... but only with
+  perl 5.8. This close sf bug #512601.
+- Added a README.Perl
+- Fix for SF Bug #652095 (lowercase boundary in CONTENT_TYPE)
+- Caudium.http_encode_url() used instead of Pike routine.
+  *COMPAT Warning* Direct calls to http_encode_url() work only when
+  API_COMPAT is set.
+- Caudium.http_encode_cookie() used instead of Pike routine.
+  *COMPAT Warning* Direct calls to http_encode_cookie() work only when
+  API_COMPAT is set.
+- Caudium.http_encode_string() used instead of Pike's base_server/http.pike one.
+  *COMPAT Warning* Direct calls to http_encode_string() work only when
+  API_COMPAT is set.
+- Stdio.mkdirhier() used everywhere. 
+  *COMPAT Warning* Direct calls to mkdirhier() work only when API_COMPAT
+  is set.
+- Caudium.http_date() used instead of Pike's base_server/http.pike one.
+  *COMPAT Warning* Direct calls to http_date() work only when API_COMPAT
+  is set.
+- Caudium.cern_http_date() used instead of Pike's base_server/http.pike one.
+  *COMPAT Warning* Direct calls to cern_http_date() work only when API_COMPAT
+  is set.
+- *COMPAT Warning* Dims module is now removed. Use Image.Dims instead.
+- Caudium now _requires_ Pike 7.4.1+
+- Caudium can now be monitored using SNMP
+- Set the "charset" field in the response mapping to specify the
+  charset for the file being served. Otherwise a default charset
+  is used (if enabled in the CIF).
+- Rewrite of auto_gzip.pike. The module can now compress dynamic 
+  content and has a set of new features:
+  . include/exclude rules
+  . statistics
+  . max/min data size
+  . compression level
+  . web server caching (configurable) and vary response
+- Fix for bug #601976
+- Added support for FastCgi inside the webserver, this is an import
+  from Roxen 2 fastcgi.pike.
+- Modifications to setools.pike, added <randomhref> container (3rdparty/cd34)
+- Added Human Verify, a tool to use with form submissions (3rdparty/cd34)
+- Added RXML parse option in Uniscript, thanks to Wim Bonis <bonis at bonis.de>
+- Fixed sumbar in the diagram tag
+- Fixed an obscure bug that locks caudium on FreeBSD when using 
+  the 404 redirector.
+- Removed Argument Cache variables from Global Variables because it is now
+  handled by the new caching engine.
+- Fixed typo in uniscript.pike (SF bug #604758)
+- Added code to set the maximum POST body size on a per virtual server
+  basis. The default value is defined in performance.h and can be modified
+  from the CIF.
+- Fixed bad HTML code in initial sreen setup that prevented some browsers to
+  show the page
+- Fix comma placement in defvar in superform
+- Minor changes to Tablify.pike/Wizard.pike to generate HTML that is
+  able to be validated
+- Fix htaccess module for redirecttemp, redirecttemporary, redirectperm,
+  redirectpermanent, authuserfile, authname, authgroupfile, redirect and
+  errorfile.
+- New module the format nicely the pike source code into HTML.
+- Set "Lazy entity end" default to yes (XML-compliant RXML parser)
+- Added ::login:: regexp (unixlike allowed regex for login / user) to
+  superform
+- Fixed bug in the Explicit Hostname Redirector module if used in a SSL
+  virtual server, and if redirection is needed, the module was doing its
+  rediretion to a non SSL server. (sf bug #602846)
+- Added minor change to mainconfig.pike to allow Caudium version number to
+  appear in the title
+- Updated SQLuserdb to utilize new accept group= code
+- added new module ACL: accept group=
+  This addition augments id->auth with a fourth array member which is the
+  user's group.
+- defined, then promptly obsoleted and introduced a new api for MODULE_TYPES
+  (see server/modules/misc/contenttypes.pike for short docs), modified
+  server/base_server/configuration.pike:type_from_filename() so that it now
+  conforms to this new api.
+- redid the contenttypes parser. split etc/extensions in two separate
+  files (for extensions and encodings), as it is logical.
+- Added the handling of external mime-types definitions to contenttypes.pike
+- Added a nifty new 3rdparty module that implements menus using prestates.
+- Re-enabled permanent storage of the "program" datatype when using pike7.3
+  build >= 51. Pike bug #3096 resolved.
+- Added a quick and dirty mass virtual hosting module to the third-party
+  repository.
+- Fixed modules/tags/developer.pike.
+- Fixed a compilation error in modules/tags/hash.pike. Now we actually do
+  have the SHA1 hashing method, with three aliases even.
+- Fixed bug in http.pike/mainconfig.pike that didn't allow modules with a :
+  in the name to be selected in the Configuration Interface
+- Removed legacy Argument Cache code and folded it into the Cache Manager.
+- Fixed bug in the XML compliant RXML parser that caused to to backtrace on
+  certain tags (like <H1 />).
+- Added support for the default character set for the returned content
+  type. The information is sent in the Content-Type response header and
+  may be overwritten using the <meta> tag in the document.
+- Added support in VHS LDAP to use Caudium system log directory instead of
+  userdir one.
+- Added .htaccess manual link... Useful since most of Apache users think
+  that our .htaccess is compatible..
+- Autoconf 2.53+ is now required to build Caudium from CVS
+- Added string hash module.
+- Added support in VHS Sql to use Caudium system log directory instead of      
+  userdir one.
+- index.php and index.php3 now added in all directories modules.
+- Added support for RFC 3236 (XHTML media type)
+- Fix an error when PUT method is used...
+- Variable HTTPS is set to "on" when SSL is used. (compatibility variable 
+  used for CGIs...)
+- Webdav protocol implementation (RFC 2518) added. Not finished yet
+- Added a -DMAX_BODY_SIZE=<size> option for starting caudium. The default size
+  for the body is 16k otherwise. 
+- Updated the error message that occured when the user want to list the open 
+  ports in the CIF and Caudium does not run as root.
+- svg/svgz file image format handling.
+- Fix a problem when Caudium is not running as root : display a warning if 
+  the user tries to run lsof in open ports action tab.
+- The Generate a self signed certificate and a RSA key-pair was not delivering
+  any warning to the user. Now it displays in red on the HTML output.
+- Added a link to the caudium.info website from the CIF.
+- 404 handler is not set per default on Old 404 system. To avoid 1.0 -> 1.2    
+  compatiblity and keep the XML-Compliant parser quiet. 
+- Fixed #530674: passive mode FTP connection problem (with Mozilla  
+  and derivative browsers).
+- <if exists="file"> shouldn't use the cache. Thanks to Hirling Endre.
+- The start script now changes the cwd to the directory it is started from.
+  Prevents beginners from crying.
+- Fixed bug #547354 - <aconf> URIs don't work
+- Fixed bug #542177 that makes incorrect listings from directories2.pike.
+- Fixed bug #514391 (user listing in userfs), seems that Caudium Cache.
+- Fixed bug #533861 <wizard> was broken. Autodocs now added, new features like
+  formname attribute to wizard conatiner, hidden "verify" container.
+- SSL.pmod used is the one from Pike now. This verification is now done
+  when configure script is ran.
+- Caudium 1.3 now *REQUIRES* pike 7.2+ or more recent (7.2.xxx with xxx > 200).
+- Fixed the Last-Modified code in http.pike and http2.pike. If the request is
+  not marked as dynamic (!id->misc->is_dynamic), then the header will be sent 
+  properly. 
+- It is now possible to unset more than one variable at a time by using globs,
+  both normal variable of the &form; scope and those of the &var; scrope. 
+  Undefine of defines, tags and containers also works with globs. Patch #536492
+  from disumu.
+- Added patch #534125 to ultralog that check the file exist before set 
+  filewatch and a status of the module.
+- Added patch #534118 that fix for TYPE_FILE and TYPE_DIR checks.
+- Half fixed bug #533124. There is no backtrace but I'm not really pleased 
+  by the way how it is fixed...
+- Fixed bug #530674
+- Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
+- business graphics module now creates the cache directory in the correct
+  location (under the argument_cache_dir hierarchy)
+- Now font name can be specified in <diagram > tag and use the CIF default
+  font name.
+- Scopes compatibility is to On/Conditional. If there is problems about that
+  (cf bugs #514651 & #512647) then change it to Off/Conditional. 
+  Changes is due because there will more issues from users moving from
+  Caudium 1.0 to 1.2 than Roxen 1.3 to Caudium 1.3...
+- Fixed bug #515131 : gtext broke on weird URLs
+- Bill Welliver's Mailit! module is now included into Caudium.
+- Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net>
+- New configuration files are created with the 0600 permission bits now.
+- Fixed bug #515405: New error handler doesn't HTML encode (see
+  http://www.cert.org/advisories/CA-2000-02.html), error pages was able to
+  send abitrary code to browser using non existant pages (like for example :
+  http://www.foo.server/<script>alert("CSS");</script>).
+- Fixed bugs #514651 & #512647 : Scopes compatibility break RXML
+- Fixed bug #514653 : Unitialized variables get backtraces when try to
+  expr them (same code : <formoutput><set variable=GT expr="#GT# + #Z#">
+  </formoutput> was give backtrace if either GT or Z was not previously
+  initialized).
+- File index.rxml is now recognized as index file.
+- New cache system added
