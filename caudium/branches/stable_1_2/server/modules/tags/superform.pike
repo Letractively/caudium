@@ -118,8 +118,8 @@ void create() {
 	"::float::\t[0-9]+[.][0-9]+\n"
 	"::email::\t[a-zA-Z0-9]+[-+a-zA-Z0-9._]*@[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
 	"::domain::\t[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
-	"::money::\t[0-9]+[.][0-9][0-9]\n",
-	"::login::\t[-a-zA-Z0-9._]+$\n"
+	"::money::\t[0-9]+[.][0-9][0-9]\n"
+	"::login::\t[-a-zA-Z0-9._]+$\n",
 	"Predefined Regular expressions", TYPE_TEXT_FIELD,
 	"In the match strings each of the fixed strings on the left will "
 	"be replaced with the regular expression on the right before "
