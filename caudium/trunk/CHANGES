@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Half fixed bug #533124. There is no backtrace but I'm not really pleased 
+  by the way how it is fixed...
 - Fixed bug #530674
 - Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
 - business graphics module now creates the cache directory in the correct
