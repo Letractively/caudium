@@ -57,7 +57,7 @@ struct SSL_t { SSL *ssl; };
 static struct program *openssl_SSL_CTX_program;
 static struct program *openssl_SSL_program;
 
-#define sp Pike_sp
+//#define sp Pike_sp
 
 /*****************************************************************************
 **  openssl_SSL_CTX_create()                                                **
@@ -94,9 +94,9 @@ static void openssl_SSL_CTX_new(INT32 args) {
 static void openssl_SSL_CTX_use_PrivateKey_file(INT32 args) {
 	INT32 ret;
 
-	if (sp[-args].type != T_STRING)
+	if (Pike_sp[-args].type != T_STRING)
 		error("SSL_CTX->use_PrivateKey_file():  bad argument type\n");
-	ret = SSL_CTX_use_PrivateKey_file(SSL_CTX_OBJ, sp[-args].u.string->str, SSL_FILETYPE_PEM);
+	ret = SSL_CTX_use_PrivateKey_file(SSL_CTX_OBJ, Pike_sp[-args].u.string->str, SSL_FILETYPE_PEM);
 	pop_n_elems(args);
 	push_int(ret);
 	return;
@@ -105,9 +105,9 @@ static void openssl_SSL_CTX_use_PrivateKey_file(INT32 args) {
 static void openssl_SSL_CTX_use_certificate_file(INT32 args) {
 	INT32 ret;
 
-	if (sp[-args].type != T_STRING)
+	if (Pike_sp[-args].type != T_STRING)
 		error("SSL_CTX->use_certificate_file():  bad argument type\n");
-	ret = SSL_CTX_use_certificate_file(SSL_CTX_OBJ, sp[-args].u.string->str, SSL_FILETYPE_PEM);
+	ret = SSL_CTX_use_certificate_file(SSL_CTX_OBJ, Pike_sp[-args].u.string->str, SSL_FILETYPE_PEM);
 	pop_n_elems(args);
 	push_int(ret);
 	return;
@@ -125,26 +125,26 @@ static void openssl_SSL_CTX_check_private_key(INT32 args) {
 static void openssl_SSL_CTX_load_verify_locations(INT32 args) {
 	INT32 ret;
 
-	if (sp[-args].type != T_STRING)
+	if (Pike_sp[-args].type != T_STRING)
 		error("SSL_CTX->load_verify_locations():  bad argument type\n");
-	ret = SSL_CTX_load_verify_locations(SSL_CTX_OBJ, NULL, sp[-args].u.string->str);
+	ret = SSL_CTX_load_verify_locations(SSL_CTX_OBJ, NULL, Pike_sp[-args].u.string->str);
 	pop_n_elems(args);
 	push_int(ret);
 	return;
 }
 
 static void openssl_SSL_CTX_set_verify(INT32 args) {
-	if (sp[-args].type != T_INT)
+	if (Pike_sp[-args].type != T_INT)
 		error("SSL_CTX->set_verify():  bad argument type\n");
-	SSL_CTX_set_verify(SSL_CTX_OBJ, sp[-args].u.integer, NULL);
+	SSL_CTX_set_verify(SSL_CTX_OBJ, Pike_sp[-args].u.integer, NULL);
 	pop_n_elems(args);
 	return;
 }
 
 static void openssl_SSL_CTX_set_verify_depth(INT32 args) {
-	if (sp[-args].type != T_INT)
+	if (Pike_sp[-args].type != T_INT)
 		error("SSL_CTX->set_verify_depth():  bad argument type\n");
-	SSL_CTX_set_verify_depth(SSL_CTX_OBJ, sp[-args].u.integer);
+	SSL_CTX_set_verify_depth(SSL_CTX_OBJ, Pike_sp[-args].u.integer);
 	pop_n_elems(args);
 	return;
 }
@@ -170,9 +170,9 @@ static void openssl_SSL_create(INT32 args) {
 static void openssl_SSL_new(INT32 args) {
 	INT32 ret;
 
-	if ((sp[-args].type != T_OBJECT) || (sp[-args].u.object->prog != openssl_SSL_CTX_program))
+	if ((Pike_sp[-args].type != T_OBJECT) || (Pike_sp[-args].u.object->prog != openssl_SSL_CTX_program))
 		error("SSL->new():  bad argument type\n");
-	ret = ((SSL_OBJ = SSL_new(((struct SSL_CTX_t *)(sp[-args].u.object->storage))->ctx)) ? 1 : 0);
+	ret = ((SSL_OBJ = SSL_new(((struct SSL_CTX_t *)(Pike_sp[-args].u.object->storage))->ctx)) ? 1 : 0);
 	pop_n_elems(args);
 	push_int(ret);
 	return;
@@ -190,9 +190,9 @@ static void openssl_SSL_clear(INT32 args) {
 static void openssl_SSL_set_fd(INT32 args) {
 	INT32 ret;
 
-	if (sp[-args].type != T_INT)
+	if (Pike_sp[-args].type != T_INT)
 		error("SSL->set_fd():  bad argument type\n");
-	ret = SSL_set_fd(SSL_OBJ, sp[-args].u.integer);
+	ret = SSL_set_fd(SSL_OBJ, Pike_sp[-args].u.integer);
 	pop_n_elems(args);
 	push_int(ret);
 	return;
@@ -236,9 +236,9 @@ static void openssl_SSL_read(INT32 args) {
 	SSL *ssl = SSL_OBJ;
 	struct pike_string *s;
 
-	if (sp[-args].type != T_INT)
+	if (Pike_sp[-args].type != T_INT)
 		error("SSL->read():  bad argument type\n");
-	if ((ret = sp[-args].u.integer) <= 0) {
+	if ((ret = Pike_sp[-args].u.integer) <= 0) {
 		pop_n_elems(args);
 		push_int(ret);
 		return;
@@ -265,10 +265,10 @@ static void openssl_SSL_write(INT32 args) {
 	char *str;
 	int len;
 
-	if (sp[-args].type != T_STRING)
+	if (Pike_sp[-args].type != T_STRING)
 		error("SSL->write():  bad argument type\n");
-	str = sp[-args].u.string->str;
-	len = sp[-args].u.string->len;
+	str = Pike_sp[-args].u.string->str;
+	len = Pike_sp[-args].u.string->len;
 	THREADS_ALLOW();
 	ret = SSL_write(ssl, str, len);
 	THREADS_DISALLOW();
