@@ -45,9 +45,6 @@ Makefile: Makefile.in configure config.status
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-force:
-	@:
-
 configure: configure.in
 	@echo "configure.in changed. Rebuilding."
 	@autoconf
@@ -55,11 +52,13 @@ configure: configure.in
 config.status: configure
 	./config.status --recheck
 
-dependencies: force
+force:
+	@:
+
+depend: force
 	$(CC) -MM $(CFLAGS) *.c > dependencies
 	@echo "You must rerun make now!"
 	@exit 1
-depend: dependencies
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 

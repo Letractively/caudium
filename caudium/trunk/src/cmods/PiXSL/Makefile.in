@@ -56,11 +56,10 @@ configure: configure.in
 config.status: configure
 	./config.status --recheck
 
-dependencies: force
+depend: force
 	$(CC) -MM $(CFLAGS) *.c > dependencies
 	@echo "You must rerun make now!"
 	@exit 1
-depend: dependencies
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
