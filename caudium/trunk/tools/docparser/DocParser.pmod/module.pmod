@@ -391,6 +391,8 @@ class GlobVar {
             switch(kw) {
                 case "globvar":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
                     
                 default:
@@ -441,6 +443,8 @@ class Class {
             switch(kw){
                 case "class":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
 		case "inherits":
@@ -707,6 +711,8 @@ class Variable {
             switch(kw){
                 case "variable":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
                 case "type":
@@ -953,6 +959,8 @@ class Attribute {
             switch(kw){
                 case "attribute":
                     first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
                     break;
 
                 case "default":
