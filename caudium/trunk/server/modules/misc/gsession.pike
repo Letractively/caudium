@@ -77,7 +77,7 @@ string status()
     return ret;
 }
 
-void start()
+void start(int num, object conf)
 {
 #if constant(Crypto.sha)
     object hash = Crypto.sha();
@@ -95,6 +95,8 @@ void start()
 
     cache_expire(CACHE);
 
+    register_plugins(conf);
+    
     //
     // schedule a gc callout
     //
@@ -258,7 +260,7 @@ private array(string) get_plugin_names()
     return ret;
 }
 
-void register_plugins(void|object id)
+void register_plugins(void|object conf)
 {
     //
     // always start from scratch
@@ -271,13 +273,15 @@ void register_plugins(void|object id)
     storage_plugins[memory_storage_registration_record->name] =
         memory_storage_registration_record;
     
-    if (!id)
+    if (!conf)
         return;
     
-    array(object)  sproviders = id->conf->get_providers("gsession_storage_plugin");
+    array(object)  sproviders = conf->get_providers("gsession_storage_plugin");
+    report_notice("gSession: providers = %O\n", sproviders);
+    
     foreach(sproviders, object sp) {
         if (functionp(sp->register_gsession_plugin)) {
-            mapping regrec = sp->register_gsession_plugin(id);
+            mapping regrec = sp->register_gsession_plugin();
 
             //
             // Check whether the returned mapping contains all the required
@@ -319,6 +323,10 @@ void register_plugins(void|object id)
             storage_plugins[regrec->name] = regrec;
         }
     }
+
+    defvar("splugin", "Memory", "Storage: default storage module", TYPE_STRING_LIST,
+           "Which plugin should be used to store the session data. Registered plugins:<br>\n" +
+           get_plugin_descriptions(), get_plugin_names());
 }
 
 //////////////////////////
