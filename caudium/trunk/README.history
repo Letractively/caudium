@@ -4,7 +4,7 @@ Brief history of the Caudium Webserver:
 It all started with a server called Spider. The first version was
 written in C, the second version in LPC4 (The predecessor to
 Pike). Version 3.0 was written in µLPC which later changed name to
-Pike. It was shortly there after renamed to Spinner.
+Pike. It was shortly thereafter renamed to Spinner.
 
 Not that long after that it was renamed again, to Roxen
 (due to trademark issues mainly). Over the years, Roxen 1.0, 1.1, 1.2
@@ -13,7 +13,7 @@ being developed by the company now known as Roxen Internet
 Software. Check out their website at http://www.roxen.com/.
 
 The Caudium webserver is based of the Roxen 1.3 source code from the
-end of July in 20000. Check http://caudium.net/ for more details.
+end of July in 2000. Check http://caudium.net/ for more details.
 
 
 How can you just take the Roxen 1.3 code base?
