@@ -25,7 +25,7 @@ BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
 
-LIB_DEPENDS=	gmp.4:${PORTSDIR}/math/libgmp3 \
+LIB_DEPENDS=	gmp.5:${PORTSDIR}/math/libgmp4 \
 		jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
