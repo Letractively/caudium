@@ -54,22 +54,22 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_FIRST;
 constant module_name = "Redirect v3.1";
-constant module_doc  = "\
-The redirect module. Redirects requests from one filename to \
-another. This can be done using \"internal\" redirects (much \
-like a symbolic link in unix), or with normal HTTP redirects. \
-<p>This third version of the module is backwards compatible with \
-version 2.0 and include the following improvements: <ul> \
- <li>Patterns are matched in the order entered instead of random order.</li> \
- <li>Greater control of the type of matching done using keywords.</li>\
- <li>Added glob match method.</li>\
- <li>Compilation of regular expression is cached, which should greatly \
-     improve matching speed when there are many regexp patterns.</li> \
- <li>Ability to match on host names using the new \"host\" keyword (see \
-     module documentation). </li> \
- <li>Ability to insert the query string of the original request in the \
-     destination. Can be useful in combination with %p or %f.</li> \
-</ul>";
+constant module_doc  = "The redirect module. Redirects requests from one "
+"filename to "
+"another. This can be done using \"internal\" redirects (much "
+"like a symbolic link in unix), or with normal HTTP redirects. "
+"<p>This third version of the module is backwards compatible with "
+"version 2.0 and include the following improvements: <ul>"
+" <li>Patterns are matched in the order entered instead of random order.</li>"
+" <li>Greater control of the type of matching done using keywords.</li>"
+" <li>Added glob match method.</li>"
+" <li>Compilation of regular expression is cached, which should greatly "
+"     improve matching speed when there are many regexp patterns.</li>"
+" <li>Ability to match on host names using the new \"host\" keyword (see "
+"     module documentation). </li>"
+" <li>Ability to insert the query string of the original request in the "
+"     destination. Can be useful in combination with %p or %f.</li>"
+"</ul>";
 
 constant module_unique = 1;
 
@@ -78,91 +78,90 @@ private int redirs = 0;
 void create()
 {
   defvar("fileredirect", "", "Redirect patterns", TYPE_TEXT_FIELD, 
-	 "\
-The redirect patterns are used to rewrite a URL or send a redirect \n\
-to an external URL. The syntax is: \n\
-<blockquote><b>[type] matchstring destination</b></blockquote> \n\
-The field separator can be one or more space or tab characters. Note that \n\
-this disallows the use of these characters in the actual fields. \n\
-Valid match types are: \n\
-<dl> \n\
-<p><dt><b>exact</b></dt><dd>The source resource must match \n\
-<b>matchstring</b> exactly.</dd></p> \n\
- \n\
-<p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob \n\
-pattern.</dd></p> \n\
- \n\
-<p><dt><b>prefix</b></dt><dd>The source resource much begin with \n\
-<b>matchstring</b>. When using prefix matching, everything after the \n\
-prefix is added last to the <b>destination</b> location.</dd></p> \n\
- \n\
-<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular \n\
-expression.</dd></p> \n\
- \n\
-</dl>\
-New in version 3.1 is modifier keywords which can be used to match on other \
-things than the path, like the full URL or specific HTTP headers. The syntax is \
-<b>matchtype[modifier]</b>. These are all available modifiers: \
-<dl> \
-<p><dt><b>host</b></dt>\
-<dd>This includes the server URL in the string that is matched. It \
-uses the <tt>Host</tt> if available or the configured server URL \
-otherwise. Can be used for simple virtual hosting. </dd> \
-<p><dt><b>header=name</b></dt> \
-<dd>Match against the specified HTTP header. This could be for example \
-UserAgent. The name is case-insensitive.</dd> \
-<p><dt><b>var=name</b></dt> \
-<dd>Match against the specified variable. This variable could be sent using \
-either the GET method or the POST method. The name is case-sensitive.</dd> \
-<p><dt><b>cookier=name</b></dt> \
-<dd>Match against the specified cookie. The name is case-sensitive.</dd> \
-</dl>\
- \n\
-<p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the \n\
-pattern type will be deducted automatically as follows: If \n\
-<b>matchstring</b> contains a <b>*</b> character, it will be treated \n\
-as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.</p> \n\
- \n\
-<p>The <b>destination</b> field can contain one or more special \n\
-tokens. They will be replaced after matching is completed as described below.</p> \n\
- \n\
-<p><dl compact=\"compact\"> \n\
-<dt><b>%%</b></dt> \
-<dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd>\
-<dt><b>%f</b></dt> \n\
-<dd>The file name of the matched URL without the path.</dd> \n\
-<dt><b>%p</b></dt> \n\
-<dd>The full virtual path of the matched URL excluding the initial /.</dd> \n\
-<dt><b>%q</b></dt> \n\
-<dd>The query string for the requested file, prepended by a question \
-mark. Empty string when no query is available.</dd> \n\
-<dt><b>%Q</b></dt> \n\
-<dd>The raw query string (without prepended question mark). Empty string when \
-no query string is available. \n\
-<dt><b>%u</b></dt> \n\
-<dd>The manually configured server url. This is useful if you want  \n\
-your redirect to be external instead of an internal rewrite and  \n\
-don't want to hardcode the URL in the patterns.</dd> \n\
-<dt><b>%h</b></dt> \n\
-<dd>The accessed server url, determined by the HTTP host header. If  \n\
-the host header is missing, the configured server url will be  \n\
-used instead. This is useful if you want your external redirect to  \n\
-to the same host as the user accessed (ie if they access the site  \n\
-as http://www/ they won't get a redirect to http://www.domain.com/). \n\
-</dd></dl></p> \n\
- \n\
-<p>When using regular expression, '(' and ')' can be used to separate \n\
-parts of the from-pattern. These parts can then be insterted into the \n\
-<b>destination</b> using $1, $2 etc.</p> \n\
- \n\
-<p>If <b>destination</b> file isn't a fully qualified URL, the \n\
-redirect will always be handled internally. If you want an actual \n\
-redirect, you can either use <b>%u</b> or enter the exact URL.</p> \n\
- \n\
-<p>Some examples on how to use this module. The smaller, non-bold \n\
-text is an example of the effect of all previous non-described lines.</p> \n\
- \n\
-<p><pre>" 
+"The redirect patterns are used to rewrite a URL or send a redirect \n"
+"to an external URL. The syntax is: \n"
+"<blockquote><b>[type] matchstring destination</b></blockquote> \n"
+"The field separator can be one or more space or tab characters. Note that \n"
+"this disallows the use of these characters in the actual fields. \n"
+"Valid match types are: \n"
+"<dl> \n"
+"<p><dt><b>exact</b></dt><dd>The source resource must match \n"
+"<b>matchstring</b> exactly.</dd></p> \n"
+" \n"
+"<p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob \n"
+"pattern.</dd></p> \n"
+" \n"
+"<p><dt><b>prefix</b></dt><dd>The source resource much begin with \n"
+"<b>matchstring</b>. When using prefix matching, everything after the \n"
+"prefix is added last to the <b>destination</b> location.</dd></p> \n"
+" \n"
+"<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular \n"
+"expression.</dd></p> \n"
+" \n"
+"</dl>"
+"New in version 3.1 is modifier keywords which can be used to match on other "
+"things than the path, like the full URL or specific HTTP headers. The syntax is "
+"<b>matchtype[modifier]</b>. These are all available modifiers: "
+"<dl> "
+"<p><dt><b>host</b></dt>"
+"<dd>This includes the server URL in the string that is matched. It "
+"uses the <tt>Host</tt> if available or the configured server URL "
+"otherwise. Can be used for simple virtual hosting. </dd> "
+"<p><dt><b>header=name</b></dt> "
+"<dd>Match against the specified HTTP header. This could be for example "
+"UserAgent. The name is case-insensitive.</dd> "
+"<p><dt><b>var=name</b></dt> "
+"<dd>Match against the specified variable. This variable could be sent using "
+"either the GET method or the POST method. The name is case-sensitive.</dd> "
+"<p><dt><b>cookier=name</b></dt> "
+"<dd>Match against the specified cookie. The name is case-sensitive.</dd> "
+"</dl>"
+" \n"
+"<p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the \n"
+"pattern type will be deducted automatically as follows: If \n"
+"<b>matchstring</b> contains a <b>*</b> character, it will be treated \n"
+"as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.</p> \n"
+" \n"
+"<p>The <b>destination</b> field can contain one or more special \n"
+"tokens. They will be replaced after matching is completed as described below.</p> \n"
+" \n"
+"<p><dl compact=\"compact\"> \n"
+"<dt><b>%%</b></dt> "
+"<dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd>"
+"<dt><b>%f</b></dt> \n"
+"<dd>The file name of the matched URL without the path.</dd> \n"
+"<dt><b>%p</b></dt> \n"
+"<dd>The full virtual path of the matched URL excluding the initial /.</dd> \n"
+"<dt><b>%q</b></dt> \n"
+"<dd>The query string for the requested file, prepended by a question "
+"mark. Empty string when no query is available.</dd> \n"
+"<dt><b>%Q</b></dt> \n"
+"<dd>The raw query string (without prepended question mark). Empty string when "
+"no query string is available. \n"
+"<dt><b>%u</b></dt> \n"
+"<dd>The manually configured server url. This is useful if you want  \n"
+"your redirect to be external instead of an internal rewrite and  \n"
+"don't want to hardcode the URL in the patterns.</dd> \n"
+"<dt><b>%h</b></dt> \n"
+"<dd>The accessed server url, determined by the HTTP host header. If  \n"
+"the host header is missing, the configured server url will be  \n"
+"used instead. This is useful if you want your external redirect to  \n"
+"to the same host as the user accessed (ie if they access the site  \n"
+"as http://www/ they won't get a redirect to http://www.domain.com/). \n"
+"</dd></dl></p> \n"
+" \n"
+"<p>When using regular expression, '(' and ')' can be used to separate \n"
+"parts of the from-pattern. These parts can then be insterted into the \n"
+"<b>destination</b> using $1, $2 etc.</p> \n"
+" \n"
+"<p>If <b>destination</b> file isn't a fully qualified URL, the \n"
+"redirect will always be handled internally. If you want an actual \n"
+"redirect, you can either use <b>%u</b> or enter the exact URL.</p> \n"
+" \n"
+"<p>Some examples on how to use this module. The smaller, non-bold \n"
+"text is an example of the effect of all previous non-described lines.</p> \n"
+" \n"
+"<p><pre>" 
 	 "<b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />"
 	 "    <font size=\"-1\">Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br />"
 
