@@ -145,7 +145,7 @@ class PHPScript
     string result = "", post="";
     string code = errors[code||200];
     int ct_received = 0, sv_received = 0;
-    if(headers)
+    if(headers) {
       foreach(indices(headers), string header)
       {
 	string value = headers[header];
@@ -155,33 +155,36 @@ class PHPScript
 	  continue;
 	}
 	header = String.trim_whites(header);
-	value = String.trim_whites(value);
-	switch(lower_case( header ))
-	{
-	case "status":
-	  code = value;
-	  break;
+	foreach(value / "\0", string realvalue) {
+	  realvalue = String.trim_whites(realvalue);
+	  switch(lower_case( header ))
+	  {
+	  case "status":
+	    code = realvalue;
+	    break;
 
-	case "content-type":
-	  ct_received=1;
-	  result += header+": "+value+"\r\n";
-	  break;
+	  case "content-type":
+	    ct_received=1;
+	    result += header+": "+realvalue+"\r\n";
+	    break;
+	    
+	  case "server":
+	    sv_received=1;
+	    result += header+": "+realvalue+"\r\n";
+	    break;
 
-	case "server":
-	  sv_received=1;
-	  result += header+": "+value+"\r\n";
-	  break;
+	  case "location":
+	    code = "302 Redirection";
+	    result += header+": "+realvalue+"\r\n";
+	    break;
 
-	case "location":
-	  code = "302 Redirection";
-	  result += header+": "+value+"\r\n";
-	  break;
-
-	default:
-	  result += header+": "+value+"\r\n";
-	  break;
+	  default:
+	    result += header+": "+realvalue+"\r\n";
+	    break;
+	  }
 	}
       }
+    }
     if(!sv_received)
       result += "Server: "+caudium.version()+"\r\n";
     if(!ct_received)
