@@ -1,3 +1,10 @@
+caudium (2:1.0.37-4) unstable; urgency=low
+
+  * Reformatted the package descriptions.
+    (closes: #130781, closes: #130976, closes: #130969, closes: #131012)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 28 Jan 2002 15:07:15 +0100
+
 caudium (2:1.0.37-3) unstable; urgency=high
 
   * Fixed the dependency screwup. Not sure how did it happen...
@@ -439,6 +446,4 @@ caudium (1.0.0-1) unstable; urgency=low
 
  -- Marek Habersack <grendel@vip.net.pl>  Fri, 18 Aug 2000 14:24:51 +0200
 
-Local variables:
-mode: debian-changelog
-End:
+
