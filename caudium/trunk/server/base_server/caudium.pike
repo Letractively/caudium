@@ -75,7 +75,7 @@ constant pipe = Pipe.pipe;
 // This is the real Caudium version. It should be changed before each
 // release
 constant __caudium_version__ = "1.0";
-constant __caudium_build__ = "7";
+constant __caudium_build__ = "8";
 
 #ifdef __NT__
 constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+"-NT";
