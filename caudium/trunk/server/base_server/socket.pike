@@ -114,7 +114,7 @@ private void my_pipe_done(object which)
 void async_pipe(object to, object from, function|void callback, 
 		mixed|void id, mixed|void cl, mixed|void file)
 {
-  object pipe=Pipe.pipe();
+  object pipe = caudium->pipe ();
   object cache;
 
 #ifdef SOCKET_DEBUG
@@ -133,7 +133,6 @@ void async_pipe(object to, object from, function|void callback,
       pipe->set_done_callback(my_pipe_done, cache);
       pipe->output(to);
       destruct(from);
-      pipe->start();
       return;
     }
     if(cache = caudium->create_cache_file(cl, file))
