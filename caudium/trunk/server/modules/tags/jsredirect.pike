@@ -27,6 +27,7 @@
 //!  &lt;JSRedirect&gt; takes the jsenabled option <br />
 //!  &lt;Option&gt; takes the url=destination option &lt;/Option&gt;<br />
 //!  &lt;/JSRedirect&gt;
+//! type: MODULE_PARSER
 //! inherits: module
 //! inherits: caudiumlib
 //! cvs_version: $Id$
