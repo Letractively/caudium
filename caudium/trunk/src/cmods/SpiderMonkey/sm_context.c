@@ -281,7 +281,7 @@ static void ctx_evaluate(INT32 args)
 }
 
 /*! @decl void set_id(object id)
- *! Pass the RequestID object to this context. This function should be
+ *! Pass the RequestID object to this context. This function @b{must@} be
  *! called @b{once@} for @b{each@} request in Caudium!
  *!
  *! @param id
@@ -292,6 +292,51 @@ static void ctx_set_id(INT32 args)
   get_all_args("set_id", args, "%o", &THIS->id);
 
   pop_n_elems(args);
+}
+
+static void ctx_compile(INT32 args)
+{
+  JSScript           *compiled;
+  struct pike_string *script;
+  jsval               rval;
+  INT32               version = -1, oldversion = -1;
+
+  if (!THIS->ctx) {
+    pop_n_elems(args);
+    push_int(0);
+    return;
+  }
+    
+  switch(args) {
+      case 2:
+        get_all_args("compile", args, "%S%i", &script, &version);
+        break;
+
+      case 1:
+        get_all_args("compile", args, "%S", &script);
+        break;
+
+      default:
+        Pike_error("Not enough arguments\n");
+  }
+
+  if (version != -1)
+    oldversion = JS_SetVersion(THIS->ctx, version);
+    
+  /* TODO: filename should indicate the actual location of the script */
+  compiled = JS_CompileScript(THIS->ctx, global,
+                               script->str, script->len,
+                              "Caudium/js", &rval);
+
+  if (oldversion != -1)
+    JS_SetVersion(THIS->ctx, oldversion);
+    
+  pop_n_elems(args);
+    
+  if (!compiled) {
+    push_int(-1);
+    return;
+  }
 }
 
 static void ctx_init(struct object *obj)
