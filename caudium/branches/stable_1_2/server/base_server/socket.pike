@@ -100,7 +100,7 @@ void async_connect(string host, int port, function|void callback,
 }
 
 
-private void my_pipe_done(object which)
+public void my_pipe_done(object which)
 {
   if(objectp(which))
   {
