@@ -68,6 +68,11 @@ RCSID("$Id$");
 #undef HAVE_STRPTIME
 #endif
 
+/* Apple OS X strptime() seems also to be not thread-safe */
+#ifdef __APPLE__
+#undef HAVE_STRPTIME
+#endif
+
 static struct pike_string *gd_bad_format;
 
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
