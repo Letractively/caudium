@@ -1397,11 +1397,10 @@ void create()
 }
 
 void update_storage_manager() {
-  destruct(storage_manager);
   if (QUERY(storage_type)=="Disk")
-    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_disk_path));
+    storage_manager->start(QUERY(storage_type), QUERY(storage_disk_path));
   else if (QUERY(storage_type)=="MySQL")
-    storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_mysql_url));
+    storage_manager->start(QUERY(storage_type), QUERY(storage_mysql_url));
 }
 
 // This is the most likely URL for a virtual server. Again, this
