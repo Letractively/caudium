@@ -726,7 +726,7 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
         cur_storage->store(id, args->variable, args->value, id->misc->session_id, region);
         return "";
     } else {
-        return cur_storage->retrieve(id, args->variable, id->misc->session_id, region);
+        return cur_storage->retrieve(id, args->variable, id->misc->session_id, region) || "";
     }
 }
 
