@@ -205,7 +205,7 @@ string get_status(int pid)
   return out;
 }
 
-mixed page_1(object id, object mc)
+mixed page_1(object id, object conf)
 {
   int pid = (int)id->variables->pid || caudium->roxenpid || caudium->startpid;
   string environ =
@@ -221,7 +221,7 @@ mixed page_1(object id, object mc)
 	  environ);
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   object p = Privs("Process status");
   int pid = (int)id->variables->pid || caudium->roxenpid || caudium->startpid;

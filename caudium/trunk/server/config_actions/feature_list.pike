@@ -101,7 +101,7 @@ void find_modules()
   }
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   if (!sizeof(modules)) {
     find_modules();
@@ -128,7 +128,7 @@ mixed page_0(object id, object mc)
   return(res);
 }
 
-mixed page_1(object id, object mc)
+mixed page_1(object id, object conf)
 {
   if (!sizeof(modules)) {
     find_modules();

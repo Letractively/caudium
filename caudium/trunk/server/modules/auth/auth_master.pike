@@ -36,7 +36,6 @@ constant cvs_version = "$Id$";
 
 #include <module.h>
 inherit "module";
-inherit "cachelib";
 inherit "caudiumlib";
 
 #define DEBUG 1
@@ -65,7 +64,6 @@ constant module_doc  = "This module handles the security in roxen, and uses "
 constant module_unique = 1;
 
 int timeout, listtimeout =300; // keep for 5 minutes
-object cache;
 
 void create()
 {
@@ -87,7 +85,6 @@ void start(int level, object conf)
 
   if(conf)
   {
-    cache = caudium->cache_manager->get_cache(this_object());
     int timeout=query("cachetimeout");
     int listtimeout=query("listcachetimeout");
   }
@@ -199,7 +196,7 @@ int get_gid(string groupname)
 //! username or 0 if not found.
 string|int get_username(int uid)
 {
-  int|string data=cache->retrieve("uid-" + uid, low_get_username, ({uid}));
+  int|string data=mc->retrieve("uid-" + uid, low_get_username, ({uid}));
   if(data==-1) return 0;
   else return data;   
 }
@@ -211,7 +208,7 @@ string|int get_username(int uid)
 //! group name or 0 if not found.
 string|int get_groupname(int gid)
 {
-  int|string data=cache->retrieve("gid-" + gid, low_get_groupname, ({gid}));
+  int|string data=mc->retrieve("gid-" + gid, low_get_groupname, ({gid}));
   if(data==-1) return 0;
   else return data;
 }
@@ -286,7 +283,7 @@ mapping|int group_info(string groupname)
 //! array containing known user names, zero if none exist.
 array|int list_all_users()
 {
-  array data=cache->retrieve("userlist", low_list_all_users, ({}));
+  array data=mc->retrieve("userlist", low_list_all_users, ({}));
   return data;
 }
 
@@ -295,7 +292,7 @@ array|int list_all_users()
 //! array containing known group names, zero if none exist.
 array|int list_all_groups()
 {
-  array data=cache->retrieve("grouplist", low_list_all_groups, ({}));
+  array data=mc->retrieve("grouplist", low_list_all_groups, ({}));
   return data;
 }
 
@@ -398,13 +395,13 @@ private int low_authenticate(string user, string password)
 private mapping|int get_user_info(string username)
 {
 
-  mapping|int data=cache->retrieve("user-" + username, low_get_user_info, ({username}));
+  mapping|int data=mc->retrieve("user-" + username, low_get_user_info, ({username}));
   return data;
 }
 
 private mapping|int get_group_info(string groupname)
 {
-  mapping|int data=cache->retrieve("group-" + groupname, low_get_group_info, ({groupname}));
+  mapping|int data=mc->retrieve("group-" + groupname, low_get_group_info, ({groupname}));
   return data;
 }
 
@@ -485,7 +482,7 @@ private int set_user_list(array data)
   ERROR("set_user_list\n");
   if(data)
   {
-    cache->store(cache_pike(data, "userlist", listtimeout));
+    mc->store(cache_pike(data, "userlist", listtimeout));
   }
   else
     ERROR("not storing zero\n");
@@ -497,7 +494,7 @@ private int set_group_list(array data)
   ERROR("set_group_list\n");
   if(data)
   {
-    cache->store(cache_pike(data, "grouplist", listtimeout));
+    mc->store(cache_pike(data, "grouplist", listtimeout));
   }
   else
     ERROR("not storing zero\n");
@@ -508,9 +505,9 @@ private int set_user_info(string username, mapping data)
 {
   if(data)
   {
-    cache->store(cache_pike(data, "user-" + username, timeout));
+    mc->store(cache_pike(data, "user-" + username, timeout));
     if(data->uid!="")
-      cache->store(cache_string(data->username, "uid-" + data->uid, timeout));
+      mc->store(cache_string(data->username, "uid-" + data->uid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -522,7 +519,7 @@ private int set_username(int uid, string data)
   ERROR("set_username" + uid + "\n");
   if(data)
   {
-    cache->store(cache_string(data, "uid-" + uid, timeout));
+    mc->store(cache_string(data, "uid-" + uid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -534,7 +531,7 @@ private int set_groupname(int gid, string data)
   ERROR("set_groupname" + gid + "\n");
   if(data)
   {
-    cache->store(cache_string(data, "gid-" + gid, timeout));
+    mc->store(cache_string(data, "gid-" + gid, timeout));
   }
   else
     ERROR("not storing zero\n");
@@ -546,9 +543,9 @@ private int set_group_info(string groupname, mapping data)
   ERROR("set_group_info" + groupname + "\n");
   if(data)
   {
-    cache->store(cache_pike(data, "group-" + groupname, timeout));
+    mc->store(cache_pike(data, "group-" + groupname, timeout));
     if(data->gid!="")
-      cache->store(cache_string(data->groupname, "gid-" + data->gid, timeout));
+      mc->store(cache_string(data->groupname, "gid-" + data->gid, timeout));
   }
   else
     ERROR("not storing zero\n");

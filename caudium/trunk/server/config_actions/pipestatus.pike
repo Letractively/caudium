@@ -38,7 +38,7 @@ int verify_0()
   return 1;
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   array(int) ru;
   if(caudium->pipe == Caudium.nbio) 

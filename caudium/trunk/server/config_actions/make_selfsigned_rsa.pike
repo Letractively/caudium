@@ -56,7 +56,7 @@ constant action_disabled = 1;
 
 #else /* constant(_Crypto) && constant(Crypto.rsa) */
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string msg = "";
   
@@ -91,7 +91,7 @@ mixed page_0(object id, object mc)
        "</blockquote>");
 }
 
-mixed verify_0(object id, object mc)
+mixed verify_0(object id, object conf)
 {
   int key_size = (int) id->variables->key_size;
   if (key_size < 300)
@@ -147,7 +147,7 @@ mixed verify_0(object id, object mc)
   return 0;
 }
 
-mixed page_1(mixed id, mixed mc)
+mixed page_1(mixed id, mixed conf)
 {
   string msg = ""; 
   
@@ -224,7 +224,7 @@ mixed page_1(mixed id, mixed mc)
      "</blockquote>");
 }
 
-mixed page_2(object id, object mc)
+mixed page_2(object id, object conf)
 {
   string msg = "";
   if (id->variables->_error)
@@ -254,7 +254,7 @@ mixed page_2(object id, object mc)
     );
 }
 
-mixed verify_2(object id, object mc)
+mixed verify_2(object id, object conf)
 {
   if ( ( (int) id->variables->ttl) <= 0)
   {
@@ -267,7 +267,7 @@ mixed verify_2(object id, object mc)
 
 object trim = Regexp("^[ \t]*([^ \t](.*[^ \t]|))[ \t]*$");
 
-mixed page_3(object id, object mc)
+mixed page_3(object id, object conf)
 {
   string msg = "";
   object file = Stdio.File();
@@ -369,7 +369,7 @@ mixed page_3(object id, object mc)
   return res;
 }
 
-mixed verify_3(object id, object mc)
+mixed verify_3(object id, object conf)
 {
   if (sizeof(id->variables->save && id->variables->cert_file))
   {

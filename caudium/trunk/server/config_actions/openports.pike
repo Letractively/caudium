@@ -320,7 +320,7 @@ mixed page_0(object id)
 
 mixed wizard_done(){}
 
-mixed handle(object id, object mc)
+mixed handle(object id, object conf)
 {
   return wizard_for(id,0);
 }

@@ -59,7 +59,7 @@ int verify_0()
   return 1;
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   mapping l = ([]), locks=([]), L=([]);
   foreach(caudium->configurations, object c) {

@@ -266,7 +266,7 @@ int wizard_done(object id)
   return -1;
 }
 
-mixed handle(object id, object mc)
+mixed handle(object id, object conf)
 {
   return wizard_for( id, 0 );
 }

@@ -41,7 +41,7 @@ string describe_global_status()
 
 #define MB (1024*1024)
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string res;
   array(int) ru;

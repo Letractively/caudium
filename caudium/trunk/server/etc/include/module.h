@@ -121,6 +121,6 @@ defvar((X)+"_slant", "plain", (Z)+": slant", TYPE_STRING_LIST, "", ({"italic","p
 #endif
 
 #define CAUDIUM_CACHE 1
-
-
+#define module_cache caudium->cache_manager->get_cache(this_object())
+#define mc caudium->cache_manager->get_cache(this_object())
 

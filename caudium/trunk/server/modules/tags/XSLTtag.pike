@@ -43,7 +43,6 @@ constant thread_safe = 1;
 
 inherit "module";
 inherit "caudiumlib";
-inherit "cachelib";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "XSLT Tag";
@@ -72,7 +71,6 @@ constant module_doc =
 "This module will not function correctly!</font></b>\n"
 #endif
 ;
-object cache;
 
 void create()
 {
@@ -85,10 +83,6 @@ void create()
 	 "omitted. Uses the same file:, virt: and var: syntax as the age.\n");
   defvar("use_xslt", 0, "Use libxslt Library ?", 
 	 TYPE_FLAG,"If set the libxslt library will be used !");
-}
-
-void start() {
-  cache = caudium->cache_manager->get_cache( this_object() );
 }
 
 #define ERROR(x) return "<p><b>XSLT Error: " x "</b><p><false>";
@@ -162,7 +156,7 @@ void cache_retrieve_template( string curl, object id ) {
       xsl = "<b>ERROR:</b> XSL Template Not Found";
     break;
   }
-  cache->store( cache_string( xsl, curl ) );
+  mc->store(cache_string(xsl, curl));
 }
 
 string container_xslt(string tag, mapping args, string xml, object id)
@@ -203,7 +197,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
   switch(type) {
   case "virt":
   case "file":
-    xsl = cache->retrieve(curl, cache_retrieve_template, ({curl, id}));
+    xsl = mc->retrieve(curl, cache_retrieve_template, ({curl, id}));
     break;
   case "var":
     xsl = id->variables[key];

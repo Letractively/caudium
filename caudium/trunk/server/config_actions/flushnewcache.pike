@@ -32,7 +32,7 @@ array oldcaches = ({ "The Module Cache", "The TTF Cache", "The Directory Cache" 
 
 constant doc = ("Selectively flush caches in Caudium's caching engine.");
 
-mixed page_0 ( object id, object mc ) {
+mixed page_0 ( object id, object conf ) {
   string ret = "<cvar type=\"select_multiple\" name=\"flush\">";
   ret += (indices(caudium->cache_manager->caches) + oldcaches) * ",";
   ret += "</cvar>";
@@ -50,7 +50,7 @@ mixed page_0 ( object id, object mc ) {
   return html_border(ret);
 }
 
-mixed wizard_done ( object id, object mc ) {
+mixed wizard_done ( object id, object conf ) {
   if ( ! id->variables->flush ) {
     return "<b>You didn't select any caches, what did you expect?</b>";
   }

@@ -31,7 +31,7 @@ constant doc = ("Force a reload of all configuration information from the "
 
 constant more=1;
 
-mixed handle(object id, object mc)
+mixed handle(object id, object conf)
 {
   caudium->reload_all_configurations();
   return http_redirect(caudium->config_url(id)+"Actions/?"+time());  
