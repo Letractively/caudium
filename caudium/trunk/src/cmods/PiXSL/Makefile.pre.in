@@ -3,6 +3,7 @@ MODNAME=PiXSL
 OBJS= sablot.o
 SOURCES=sablot.c
 MODULE_LIBS=@LIBS@
+EXTRA_CLEAN=sablot_config.h sablo_config.h.in pixsl
 
 @module_makefile@
 extrainstall:

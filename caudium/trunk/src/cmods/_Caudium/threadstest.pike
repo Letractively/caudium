@@ -21,6 +21,8 @@
  * $Id$
  */
 
+inherit Threads;
+
 // This test if result is ok or not...
 int result(mixed a, mixed b) {
   if(a == b) {
