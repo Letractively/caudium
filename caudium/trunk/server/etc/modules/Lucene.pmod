@@ -18,6 +18,19 @@ static object throwable_getmessage = throwable_class->get_method("getMessage", "
 
 import Parser.XML.Tree;
 
+array load_stopwords(array fns)
+{
+  array stopwords=({});
+  foreach(fns, mapping s) 
+  {
+    string f=Stdio.read_file(s->value);
+    if(f)
+      stopwords+=f/"\n";
+  }
+  stopwords=Array.uniq(stopwords);
+  return stopwords;
+}
+
 mapping read_profile(string filename)
 {
   mapping profile=([]);
@@ -240,33 +253,46 @@ int index(string uri, string data, string title, string type, string date)
     {
        string ret="";
        i++;       
-       string tempfile=MIME.encode_base64(Crypto.md5()->update(data + i)->update((string)time())->digest());
+       string t=MIME.encode_base64(Crypto.md5()->update(data + i)->update((string)time())->digest());
 
-       tempfile=(string)hash(tempfile);
-       tempfile=combine_path(tempdir, tempfile);
-       command=replace(command, "%f", tempfile );
-       array args=command/" ";
+       t=(string)hash(t);
+
+       string tempfile=combine_path(tempdir, t);
 
        Stdio.write_file(tempfile, data);
 
-       object o=Stdio.File();
-       object e=Stdio.File();
-       object p=Process.create_process(args, (["stdout": o->pipe(), "stderr": e->pipe()]));
+       if(file_stat(tempfile))
+       {
+       string ncommand=(command/"%f")*(string)tempfile;
+       array args=ncommand/" ";
+         object o=Stdio.File();
+         object e=Stdio.File();
+         object p=Process.create_process(args, (["stdout": o->pipe(), "stderr": e->pipe()]));
 
       
-       mixed r;
-       do
-       {  
-         r=o->read(1024, 1);
-//werror("r: " + r + "\n");
-         if(sizeof(r)>0)
-           ret+=r;
-         else break;
-       } 
-       while(1);
-       werror(e->read(1024,1));
-       rm(tempfile);
+         mixed r;
+         do
+         {  
+           r=o->read(1024, 1);
+           if(sizeof(r)>0)
+             ret+=r;
+           else break;
+          } 
+         while(1);
+         werror(e->read(1024,1));
+         do
+         {
+           p->wait();
+         }
+         while(p && p->status()==0);
 
+       }
+
+       if(file_stat(tempfile))
+       {
+         rm(tempfile);
+       }
+       tempfile="";
        return ret;
     }
   }
@@ -326,9 +352,11 @@ void create(string dbdir, array stopwords)
 void search(string q)
 {
   object r=search_search(se,q);
+  Lucene->check_exception();
   for(int i=0; i< arraylist_size(r); i++)
   {
      object re=arraylist_get(r, i);
+     Lucene->check_exception();
      werror((string)hashmap_get(re,"url")  + "\n");
      werror((string)hashmap_get(re,"title")  + "\n");
      werror((string)hashmap_get(re,"type")  + "\n");

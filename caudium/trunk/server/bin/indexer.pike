@@ -112,8 +112,7 @@ array prepare_cb(Standards.URI uri)
 
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
-  if(verbose)
-    werror((string)uri + "\n");
+  werror((string)uri + "\n");
   if(!allowed_type((headers["content-type"]/";")[0]))
     return ({});
   files++;
@@ -137,16 +136,20 @@ array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
   }
   else
   {
-    parser->feed(data);  
+//    data=map(data, lambda(mixed x){catch { if((int)(x)>254) return; else return x; };});
+//    werror("data: " + data);
+     parser->feed(data);  
     data=parser->read();
+//    werror("data2: " + data);
     stripper->feed(data);
     data=stripper->read();
+//    werror("data3: " + data);
     if(verbose)
-      werror("  Title: " + title + "\n");
-    title="";
+      werror("  ...indexing\n");
     index->index((string)uri, data, title, type, date);    
+    title="";
   }
-  if(verbose) werror(sprintf("  Possible new URLS: %O\n", page_urls));
+  if(verbose && sizeof(page_urls)) werror(sprintf("  Possible new URLS: %O\n", page_urls));
   return page_urls;
 }
 
@@ -155,6 +158,7 @@ array page_urls=({});
 
 mixed set_title(Parser.HTML p, mapping args, string content)
 {
+werror("set title " + content + "\n");
   title=content;
   return "";
 }
@@ -181,6 +185,12 @@ void quit()
 mixed strip_tag(Parser.HTML p, string t)
 {
   return "";
+}
+
+mixed continue_tag(Parser.HTML p, mapping args, string t)
+{
+   werror("continuing on " + t + "\n");
+  return 0;
 }
 
 int main(int argc, array argv)
@@ -220,13 +230,7 @@ int main(int argc, array argv)
   array stopwords=({});
   if(profile->index->stopwordsfile)
   {
-    foreach(profile->index->stopwordsfile, mapping s)
-    {
-      string f=Stdio.read_file(s->value);
-      if(f)
-        stopwords+=f/"\n";  
-    }
-    stopwords=Array.uniq(stopwords);
+    stopwords=Lucene->load_stopwords(profile->index->stopwordsfile);
   }
   werror("Lucene Database location: " + profile->index->location[0]->value + "\n");
   index=Lucene.Indexer(profile->index->location[0]->value + ".work", stopwords);
@@ -320,12 +324,18 @@ void setup_html_converter()
 {
    parser=Parser.HTML();
    stripper=Parser.HTML();
+/*
    parser->case_insensitive_tag(1);
+   stripper->case_insensitive_tag(1);
+   parser->lazy_entity_end(1);
+   parser->ignore_unknown(1);
+   stripper->lazy_entity_end(1);
+*/
    parser->add_container("title", set_title);
+//   parser->add_container("pre", continue_tag);
    parser->add_container("a", add_url);
    parser->add_container("script", strip_tag);
    parser->add_container("style", strip_tag);
-   parser->add_entity("nbsp", "");
    stripper->_set_tag_callback(strip_tag);
 }
 
