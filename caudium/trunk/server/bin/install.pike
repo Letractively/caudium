@@ -610,8 +610,8 @@ void main(int argc, array argv)
 	exit(0);
       }
       write("Environment has changed.  Rerunning install script.\n");
-      Process.system("./start-caudium " + argv[1..] * " " +
-		     " --no-env-setup --once --program bin/install.pike");
+      Process.create_process(({"./start-caudium"}) + (argv[1..]||({}))  +
+		  ({"--no-env-setup", "--once", "--program bin/install.pike"}));
       exit(0);
     } else {
       if(find_arg(argv, 0, "recheck-env")) {
@@ -766,13 +766,19 @@ void main(int argc, array argv)
   setglobvar("ConfigurationStateDir", var_dir);
   setglobvar("ConfigurationUser", user);
   setglobvar("ConfigurationPassword", crypt(pass));
-  
-  Process.popen("./start-caudium "
+
+  write("./start-caudium "
 		+(configuration_dir_changed?
 		  "--config-dir="+configuration_dir
 		  +" ":"")
 		+(logdir_changed?"--log-dir="+log_dir+" ":"")
 		+argv[1..] * " ");
+    
+  Process.create_process(({"./start-caudium"}) + ({
+		(configuration_dir_changed?
+		  "--config-dir="+configuration_dir:"") })
+		+({(logdir_changed?"--log-dir="+log_dir:"")})
+		+ argv[1..]);
   
   if(configuration_dir_changed || logdir_changed)
     write("\nAs you use non-standard directories for the configuration \n"
