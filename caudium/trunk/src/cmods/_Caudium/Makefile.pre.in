@@ -1,7 +1,7 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=Caudium
-OBJS= caudium.o
-SOURCES=caudium.c
+OBJS= caudium.o nb_send.o
+SOURCES=caudium.c nb_send.c
 MODULE_LIBS=@LIBS@
 
 @module_makefile@

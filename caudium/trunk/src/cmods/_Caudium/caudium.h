@@ -6,7 +6,7 @@ void pike_module_init( void );
 void pike_module_exit( void );
 static void free_buf_struct(struct object *);
 static void alloc_buf_struct(struct object *);
-
+void init_nb_send(void);
 #define BUFSIZE 16535
 #define BUF ((buffer *)fp->current_storage)
 #define STRS(x) strs.x.u.string
@@ -32,7 +32,6 @@ typedef struct
   
 } static_strings;
 
-
 typedef struct
 {
   unsigned char *pos;
@@ -41,6 +40,41 @@ typedef struct
   struct mapping *other;
   unsigned char *data;
 } buffer;
+
+/* Input data (object or string) */
+typedef struct _input_struct
+{
+  int len;  /* Length of input, or -1 for 'till end' */
+  int pos;  /* current position */
+  INT16 type; /* type of input  */
+  union {
+    struct object *file;      /* Pike file object */
+    struct pike_string *data; /* Data */
+  } u;
+  int read_off;
+  int fd; /* Numerical FD or -1 if fake object */
+  struct _input_struct *next;
+} input;
+
+/* Output data (fd or fake fd) */
+typedef struct
+{
+  struct object *file;      /* Pike file object */
+  int set_b_off;
+  int set_nb_off;
+  int write_off;
+  int fd; /* Numerical FD or -1 if fake object */
+} output;
+
+typedef struct
+{
+  int written;
+  output *outp;
+  input *inputs;
+  input *last_input;
+  struct array *args;
+  struct svalue cb;
+} nb;
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
