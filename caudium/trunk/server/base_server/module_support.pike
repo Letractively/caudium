@@ -30,7 +30,7 @@
 /* Set later on to something better in roxen.pike::main() */
 //array (object) configurations;
 
-/:!
+//!
 mapping (string:array) variables=([]); 
 
 /* Variable support for the main Roxen "module". Normally this is
