@@ -56,8 +56,9 @@ mapping locks = ([]);
 #define LOCKR(x) LOCK("report_"+x)
 #else
 #undef THREAD_SAFE
-#define LOCK() do {
-#define UNLOCK() } while(0)
+#define LOCKR(X) 
+#define LOCK(X) 
+#define UNLOCK() 
 #endif
 
 constant module_type = MODULE_LOCATION;
