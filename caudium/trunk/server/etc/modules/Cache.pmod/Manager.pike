@@ -329,13 +329,9 @@ object get_cache( void|string|object one ) {
 //! @param namespace
 //! The namespace of the cache we want.
 static object low_get_cache( string namespace ) {
-  PRELOCK();
-  LOCK();
   if ( ! caches[ namespace ] ) {
-    UNLOCK();
     create_cache( namespace );
   }
-  LOCK();
   return caches[ namespace ];
 }
 
