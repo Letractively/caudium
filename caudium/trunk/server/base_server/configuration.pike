@@ -907,7 +907,7 @@ public void log(mapping file, object request_id)
     if(f(request_id,file)) return;
 
   if(log_function == -1 || !request_id ||
-     (QUERY(NoLog) && _match(request_id->remoteaddr, QUERY(NoLog))))
+     (QUERY(NoLog) && Caudium._match(request_id->remoteaddr, QUERY(NoLog))))
     return;
   if(!log_function) {
 #ifdef THREADS

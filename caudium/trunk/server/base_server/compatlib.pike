@@ -193,9 +193,22 @@ string http_caudium_id_cookie() {
    return Caudium.HTTP.id_cookie();
 }
 
-
 // Some spider calls are not under spider module so here is some compat
 // things
+
+//! Compat call of Caudium.add_pre_state
+//! @deprecated
+string add_pre_state(string url, multiset state) {
+   WCOMPAT("Caudium","add_pre_state");
+   return Caudium.add_pre_state(url,state);
+}
+
+//! Compat call of Caudium._match
+//! @deprecated
+int _int(string w, array(string) a) {
+   WCOMPAT("Caudium","_match");
+   return Caudium._match(w,a);
+}
 
 //! Compat call of Caudium.parse_html
 //! @deprecated
