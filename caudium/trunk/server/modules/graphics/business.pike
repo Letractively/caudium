@@ -844,7 +844,7 @@ string tag_diagram(string tag, mapping m, string contents,
     return(sprintf("<pre>Timers: %O\n</pre>", bg_timers) + make_tag("img", m));
 #endif
 
-  foreach(indices(_diagram_args), string idx)
+  foreach(indices(diagram_args), string idx)
     m_delete(m, idx);
 
   return make_tag("img", m);
