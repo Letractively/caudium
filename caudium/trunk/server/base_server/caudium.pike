@@ -3837,6 +3837,10 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_STRING_LIST
 //!  name: Configuration interface: Add module page layout
 //
+//! defvar: cif_theme
+//!  type: TYPE_STRING_LIST
+//!  name: Configuration interface: Theme
+//
 //! defvar: default_font
 //! The default font to use when modules request a font.
 //!  type: TYPE_FONT
