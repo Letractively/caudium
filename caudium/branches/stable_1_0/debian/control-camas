@@ -8,7 +8,7 @@ Build-Depends:  pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhel
 Package: caudium
 Architecture: any
 Pre-Depends: debconf (>= 0.2.26)
-Depends: ${shlibs:Depends}, caudium-modules (= ${Source-Version}), pike7-image (= ${pikever}), pike7-gz (= ${pikever}), pike7-crypto (= ${pikever}) | pike7-lobotomized-crypto (= ${pikever}), logrotate
+Depends: caudium-modules (= ${Source-Version}), pike7-image (>= ${pikever}-1) | pike7-image (<= ${pikever}-99) , pike7-gz (>= ${pikever}-1) | pike7-gz (<= ${pikever}-99), pike7-crypto (>= ${pikever}-1) | pike7-crypto (<= ${pikever}-99) | pike7-lobotomized-crypto (>= ${pikever}-1) | pike7-lobotomized-crypto (<= ${pikever}-99), logrotate
 Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
 Recommends: caudium-pixsl, caudium-ultralog
 Provides: httpd
@@ -24,21 +24,21 @@ Description: An extensible WWW server written in Pike
 
 Package: caudium-modules
 Architecture: any
-Depends: ${shlibs:Depends}, pike7 (= ${pikever}), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, pike7 (>= ${pikever}-1) | pike7 (<= ${pikever}-99), caudium (= ${Source-Version})
 Description: C modules for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains the
  compiled shared modules that are required by Caudium to run.
 
 Package: caudium-pixsl
 Architecture: any
-Depends: ${shlibs:Depends}, pike7 (= ${pikever}), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, pike7 (>= ${pikever}-1) | pike7 (<= ${pikever}-99), caudium (= ${Source-Version})
 Description: Pike XSLT module for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains the compiled
  shared extension module that provides Caudium with XSLT support.
 
 Package: caudium-ultralog
 Architecture: any
-Depends: ${shlibs:Depends}, pike7 (= ${pikever}), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, pike7 (>= ${pikever}-1) | pike7 (<= ${pikever}-99), caudium (= ${Source-Version})
 Description: Log Parser module for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains the compiled
  shared extension module that provides Caudium with a built-in log file parser that
@@ -47,7 +47,7 @@ Description: Log Parser module for Caudium
 
 Package: caudium-camas
 Architecture: any
-Depends: pike7 (= ${pikever}), caudium (= ${Source-Version})
+Depends: pike7 (>= ${pikever}-1) | pike7 (<= ${pikever}-99), caudium (= ${Source-Version})
 Description: A webmail module for Caudium
  CAMAS (CAudium Mail Access System) is an IMAP-based, integrated webmail module
  for Caudium. It is built upon the Roxen IMHO package and thus backward compatible
@@ -57,7 +57,7 @@ Description: A webmail module for Caudium
 
 Package: caudium-dev
 Architecture: any
-Depends: ${shlibs:Depends}, pike7 (= ${pikever})
+Depends: ${shlibs:Depends}, pike7 (>= ${pikever}-1) | pike7 (<= ${pikever}-99)
 Description: Developement files for Caudium
  This package is really a commodity one to facilate building the prospective PHP4
  package for Caudium. It contains only the files needed for the latter to detect 
