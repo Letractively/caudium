@@ -317,3 +317,30 @@ inherit _Caudium;
 //! @seealso
 //!  @[http_decode] @[http_encode] @[http_encode_cookie]
 //!  @[http_encode_string] @[http_encode_url]
+
+//! @decl mapping parse_headers(string headers);
+//!   Format all headers into a mapping
+//! @param headers
+//!   The header string to get parsed.
+//! @returns
+//!   The headers in a mapping
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @example
+//!
+//! Pike v7.4 release 1 running Hilfe v3.5 (Incremental Pike Frontend)
+//! > Caudium.parse_headers("User-Agent: Mozilla");
+//! (1) Result: ([ /* 1 element */
+//!               "user-agent":"Mozilla"
+//!             ])
+//! > Caudium.parse_headers("Host: www.plonk.com:80");
+//! (2) Result: ([ /* 1 element */
+//!               "host":"www.plonk.com:80"
+//!             ])
+//! > Caudium.parse_headers("User-Agent: Mozilla\r\nFoo: pof\r\nhost: ponk\r\n\r\n");
+//! (3) Result: ([ /* 3 elements */
+//!               "foo":"pof",
+//!               "host":"ponk",
+//!               "user-agent":"Mozilla"
+//!             ])
+
