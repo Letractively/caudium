@@ -56,8 +56,8 @@ void create() {
    "The method to be used for storing the session variables."
    " Available are Memory, Database and File storage.  Each"
    " of them have their pros and cons regarding speed and"
-   " persistance. <b>Note:</b> 'file' is not yet implemented.",
-   ({"memory", "sql", "file"}));
+   " persistance.",
+   ({"memory", "sql"}));
   defvar("sql_url", "",
    "Database URL", TYPE_STRING,
    "Which database to use for the session variables, use"
