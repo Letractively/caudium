@@ -8,3 +8,4 @@ ssl
 ulpc
 *.qv
 htpasswd
+install.pike
