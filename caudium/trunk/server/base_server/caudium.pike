@@ -273,7 +273,7 @@ private static void low_shutdown(int exit_type)
       if(startpid != getpid()) {
         kill(startpid, signum("SIGINTR"));
 	kill(getppid(), signum("SIGINTR"));
-	if(ext_type)
+	if(exit_type)
 	{
           kill(startpid, signum("SIGHUP"));
           kill(getppid(), signum("SIGHUP"));
