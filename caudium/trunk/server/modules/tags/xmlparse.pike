@@ -428,9 +428,9 @@ string container_emit(string t, mapping args, string contents, object id,
   if(!args->source) return "emit: no source specified";
   if(!args->scope) return "emit: no scope specified";
 
-  if(emit_callers[lower_case(args->source)])
-    plugin = emit_callers[lower_case(args->source)];
-  else return "emit: no plugin " + args->source;
+  plugin = emit_callers[lower_case(args->source)];
+  if(!plugin || !functionp(plugin))
+    return "emit: no plugin " + args->source;
 
   array dataset;
   mixed e;
@@ -440,7 +440,7 @@ string container_emit(string t, mapping args, string contents, object id,
 
   NOCACHE();
 
-  string retval="";
+  object retval = String.Buffer(sizeof(contents));
 
   //
   // we should do filtering and ordering here (or anything else that 
@@ -468,15 +468,9 @@ string container_emit(string t, mapping args, string contents, object id,
         dataset = dataset[-(args->skiprows)..];
   }
 
-
   foreach(dataset, mapping row)
   {
-/* what are you for??? */
-/*
-    if(!id->misc->scopes)
-      id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
-*/
-    retval+=Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ]));
+    retval->add(Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ])));
   }
 
 
@@ -486,7 +480,7 @@ string container_emit(string t, mapping args, string contents, object id,
     //args->filter
     // args->sort
 
-  return retval;
+  return retval->get();
 }
 
 string tag_list_tags( string t, mapping args, object id, object f )
@@ -715,9 +709,7 @@ class EmitScope(mapping v) {
   inherit "scope";
   string name = "emit";
   
-  string get(string entity, object id) {
-werror("emitscope: getting " + entity + "\n");
-//    NOCACHE();
+  string get(string entity) {
     return v[entity];
   }
 }
