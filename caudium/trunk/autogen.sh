@@ -10,10 +10,4 @@ for a in `find src tools -name "autogen.sh" |sort`; do
   cd $pwdir >/dev/null 2>&1
 done  
 
-# FreeBSD specify hack
-if [ -x /usr/local/bin/autoconf213 ];
-then
-  autoconf213 >/dev/null 2>&1
-else
-  autoconf >/dev/null 2>&1
-fi
+autoconf >/dev/null 2>&1
