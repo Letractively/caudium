@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant module_type = MODULE_PARSER | MODULE_PROVIDER | MODULE_LOCATION | MODULE_EXPERIMENTAL;
-constant module_name = "G's Session Module";
+constant module_name = "GSession Module";
 constant module_doc  = "This is an implementation of an (optionally) cookie-less session tracking module.";
 constant module_unique = 1;
 constant thread_safe = 1;
