@@ -84,20 +84,20 @@ void create(object c)
     agent->set_set_communities(({GLOBVAR(snmp_set_community)}));
 
   agent->set_managers_only(0);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.1", snmp_get_server_version);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.2", snmp_get_server_boottime);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.3", snmp_get_server_bootlen);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.4", snmp_get_server_uptime);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.5", snmp_get_server_total_requests);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.6", snmp_get_server_total_received);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.7", snmp_get_server_total_sent);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.8", snmp_get_server_average_requests);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.9", snmp_get_server_average_received);
-  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.10", snmp_get_server_average_sent);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.1", snmp_get_server_version);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.2", snmp_get_server_boottime);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.3", snmp_get_server_bootlen);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.4", snmp_get_server_uptime);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.5", snmp_get_server_total_requests);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.6", snmp_get_server_total_received);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.7", snmp_get_server_total_sent);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.8", snmp_get_server_average_requests);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.9", snmp_get_server_average_received);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.1.100.10", snmp_get_server_average_sent);
 
-  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.1", snmp_set_server_shutdown);
-  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.2", snmp_set_server_restart);
-  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.3", snmp_set_server_reload_config);
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.1.101.1", snmp_set_server_shutdown);
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.1.101.2", snmp_set_server_restart);
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.1.101.3", snmp_set_server_reload_config);
 
   sent_history=ADT.History(5);
   received_history=ADT.History(5);
@@ -118,7 +118,7 @@ void create(object c)
 void send_trap(string trapname, array trap_recipients, string trap_community, mixed|void args)
 {
   mapping varlist=([]);
-  string oid="1.3.6.1.4.1.14245.102.1";
+  string oid="1.3.6.1.4.1.14245.1.102.1";
   int type=6;
   int spectype;
 
@@ -137,11 +137,11 @@ void send_trap(string trapname, array trap_recipients, string trap_community, mi
       break;
     case "backtrace":
       spectype=5;
-      varlist=(["1.3.6.1.4.1.14245.103.1": ({"str", args[0]})]);
+      varlist=(["1.3.6.1.4.1.14245.1.103.1": ({"str", args[0]})]);
       break;
     default:
       spectype=6;
-      varlist=(["1.3.6.1.4.1.14245.103.2": ({"str", trapname})]);
+      varlist=(["1.3.6.1.4.1.14245.1.103.2": ({"str", trapname})]);
   }
 
   foreach(trap_recipients, string recip)
@@ -151,13 +151,13 @@ void send_trap(string trapname, array trap_recipients, string trap_community, mi
   }
 }
 
-//! Return the server version for SNMP for oid 100.1 (under Caudium OID)
+//! Return the server version for SNMP for oid 1.100.1 (under Caudium OID)
 array snmp_get_server_version(string oid, mapping rv)
 {
   return ({1, "str", caudium->real_version});
 }
 
-//! Return the bootime for SNMP for oid 100.2 (under Caudium OID)
+//! Return the bootime for SNMP for oid 1.100.2 (under Caudium OID)
 array snmp_get_server_boottime(string oid, mapping rv)
 {
   int boottimeticks;
@@ -166,7 +166,7 @@ array snmp_get_server_boottime(string oid, mapping rv)
   return ({1, "str", ctime(boottimeticks)});
 }
 
-//! Return the boot length for SNMP for oid 100.3 (under Caudium OID)
+//! Return the boot length for SNMP for oid 1.100.3 (under Caudium OID)
 array snmp_get_server_bootlen(string oid, mapping rv)
 {
   int bootlenticks;
@@ -175,7 +175,7 @@ array snmp_get_server_bootlen(string oid, mapping rv)
   return ({1, "tick", bootlenticks});
 }
 
-//! Return the uptime for SNMP for oid 100.4 (under Caudium OID)
+//! Return the uptime for SNMP for oid 1.100.4 (under Caudium OID)
 array snmp_get_server_uptime(string oid, mapping rv)
 {
   int uptimeticks;
@@ -184,7 +184,7 @@ array snmp_get_server_uptime(string oid, mapping rv)
   return ({1, "tick", uptimeticks});
 }
 
-//! Return the total number of requests for SNMP for oid 100.5 (under Caudium OID)
+//! Return the total number of requests for SNMP for oid 1.100.5 (under Caudium OID)
 array snmp_get_server_total_requests(string oid, mapping rv)
 {
   int requests;
@@ -194,7 +194,7 @@ array snmp_get_server_total_requests(string oid, mapping rv)
   return ({1, "count64", requests});
 }
 
-//! Return the total bytes of data received for SNMP for oid 100.6 (under Caudium OID)
+//! Return the total bytes of data received for SNMP for oid 1.100.6 (under Caudium OID)
 array snmp_get_server_total_received(string oid, mapping rv)
 {
   int received;
@@ -204,7 +204,7 @@ array snmp_get_server_total_received(string oid, mapping rv)
   return ({1, "count64", received});
 }
 
-//! Return the total bytes of data sent for SNMP for oid 100.7 (under Caudium OID)
+//! Return the total bytes of data sent for SNMP for oid 1.100.7 (under Caudium OID)
 array snmp_get_server_total_sent(string oid, mapping rv)
 {
   int sent;
@@ -214,7 +214,7 @@ array snmp_get_server_total_sent(string oid, mapping rv)
   return ({1, "count64", sent});
 }
 
-//! Return the 5 minute avg of requests for SNMP for oid 100.8 (under Caudium OID)
+//! Return the 5 minute avg of requests for SNMP for oid 1.100.8 (under Caudium OID)
 array snmp_get_server_average_requests(string oid, mapping rv)
 {
   int requests;
@@ -223,7 +223,7 @@ array snmp_get_server_average_requests(string oid, mapping rv)
   return ({1, "count64", requests});
 }
 
-//! Return the 5 minute avg of bytes received for SNMP for oid 100.9 (under Caudium OID)
+//! Return the 5 minute avg of bytes received for SNMP for oid 1.100.9 (under Caudium OID)
 array snmp_get_server_average_received(string oid, mapping rv)
 {
   int received;
@@ -233,7 +233,7 @@ array snmp_get_server_average_received(string oid, mapping rv)
   return ({1, "count64", received});
 }
 
-//! Return the 5 minute avg of bytes sent for SNMP for oid 100.10 (under Caudium OID)
+//! Return the 5 minute avg of bytes sent for SNMP for oid 1.100.10 (under Caudium OID)
 array snmp_get_server_average_sent(string oid, mapping rv)
 {
   int sent;
@@ -243,7 +243,7 @@ array snmp_get_server_average_sent(string oid, mapping rv)
   return ({1, "count64", sent});
 }
 
-//! Reload all configurations for oid 101.3
+//! Reload all configurations for oid 1.101.3
 array snmp_set_server_reload_config(string oid, mixed val, mapping req)
 {
   if(val=="1" || val==1)
@@ -258,7 +258,7 @@ array snmp_set_server_reload_config(string oid, mixed val, mapping req)
   }
 }
 
-//! Restart the server for oid 101.2
+//! Restart the server for oid 1.101.2
 array snmp_set_server_restart(string oid, mixed val, mapping req)
 {
   if(val=="1" || val==1)
@@ -273,7 +273,7 @@ array snmp_set_server_restart(string oid, mixed val, mapping req)
   }
 }
 
-//! Shutdown the server for oid 101.1
+//! Shutdown the server for oid 1.101.1
 array snmp_set_server_shutdown(string oid, mixed val, mapping req)
 {
   if(val=="1" || val==1)
