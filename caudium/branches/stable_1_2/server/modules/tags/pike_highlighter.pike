@@ -54,7 +54,7 @@ mapping query_container_callers() {
 
 //! container: phl
 //!  Highlight the content
-//! arg: light
+//! attribute: light
 //!  Uses light colors
 string cont_phigh(string tag_name, mapping args, string contents, object id, object f, mapping defines, object fd) {
 
