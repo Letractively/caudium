@@ -1,3 +1,14 @@
+caudium (2:1.2.9-2) unstable; urgency=low
+
+  * Latest CVS snapshot:
+    - Added ::login:: regexp (unix-like regex for login / user) to
+      superform
+    - Fixed a bug in the Explicit Hostname Redirector module if used in a SSL
+      virtual server, and if redirection is needed, the module was doing its
+      rediretion to a non SSL server. (sf bug 602846)
+
+ -- Marek Habersack <grendel@debian.org>  Sun,  8 Sep 2002 00:25:41 +0200
+
 caudium (2:1.2.9-1) unstable; urgency=low
 
   * Latest CVS snapshot.
