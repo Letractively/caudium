@@ -905,20 +905,16 @@ mapping new_module(object id, object node)
    we don't want to load such a module and thus remove empty entries from
    the mapping
        /vida */
-  mapping variables = id->variables;
-  foreach(variables; string index; string value)
-    if(!value || !sizeof(value))
-      m_delete(variables, index);
-  if(!sizeof(variables))
+  if(!sizeof(id->variables) || !sizeof(indices(id->variables)[0]))
     return stores(new_module_form(id, node));
-  if(variables->_add_new_modules) {
+  if(id->variables->_add_new_modules) {
     // Compact mode.
-    array toadd = variables->_add_new_modules/"\0" - ({""});
+    array toadd = id->variables->_add_new_modules/"\0" - ({""});
     foreach(toadd[1..], varname)
       new_module_copy(node, varname, id);
     varname = toadd[0];
   } else
-    varname = indices(variables)[0];
+    varname = indices(id->variables)[0];
   return new_module_copy(node, varname, id);
 }
 
