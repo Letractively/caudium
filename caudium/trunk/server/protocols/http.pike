@@ -973,7 +973,7 @@ string generate_bugreport(array from, string u, string rd)
 	  "\nRequested URL: "+u+"\n"
 	  "\nError: "+
 	  describe_backtrace(from)-(getcwd()+"/")+
-	  "\n\nDate: "+Protocols.HTTP.Server.http_date(predef::time())+			     
+	  "\n\nDate: "+Caudium.http_date(predef::time())+     
 	  "\n\nRequest data:\n"+rd));
 }
 
@@ -1460,7 +1460,7 @@ void send_result(mapping|void result)
 #ifdef SUPPORT_HTTP_09
           if(prot != "HTTP/0.9") {
 #endif
-            heads["Last-Modified"] = Protocols.HTTP.Server.http_date(fmtime);
+            heads["Last-Modified"] = Caudium.http_date(fmtime);
             if(since)
             {
               if(is_modified(since, fmtime, fsize))
@@ -1516,7 +1516,7 @@ void send_result(mapping|void result)
 #endif
           "Server":version(),
           "X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"),	
-          "Date":Protocols.HTTP.Server.http_date(time)
+          "Date":Caudium.http_date(time)
         ]);    
       
       if(file->encoding)
@@ -1529,7 +1529,7 @@ void send_result(mapping|void result)
       // the browser's (or Squid) cache because an invalid date
       // in that header should cause immediate expire of the page.
       if(!zero_type(file->expires))
-        heads->Expires = file->expires ? Protocols.HTTP.Server.http_date(file->expires) : "0";
+        heads->Expires = file->expires ? Caudium.http_date(file->expires) : "0";
     
       if(mappingp(file->extra_heads)) {
         heads |= file->extra_heads;

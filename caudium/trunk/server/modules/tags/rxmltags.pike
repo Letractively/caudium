@@ -2702,7 +2702,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
     if (m->years)   t+=((int)(m->years))*(3600*(24*365+6));   /* 365.25d */
   }
 
-  if(t) cookies += "; expires="+Protocols.HTTP.Server.http_date(t+time());
+  if(t) cookies += "; expires="+Caudium.http_date(t+time());
 
   //obs! no check of the parameter's usability
   cookies += "; path=" +(Protocols.HTTP.http_encode_cookie(m->path||"/"));
@@ -2719,7 +2719,7 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
   string cookies;
   if(m->name)
     cookies = m->name+"="+Protocols.HTTP.http_encode_cookie(m->value||"")+
-      "; expires="+Protocols.HTTP.Server.http_date(0)+"; path=/";
+      "; expires="+Caudium.http_date(0)+"; path=/";
   else
     return "<!-- remove_cookie requires a `name' -->";
 
@@ -2968,9 +2968,9 @@ string tag_expire_time(string tag, mapping m, object id, object file,
   } else
     NOCACHE();
 
-  add_header(_extra_heads, "Expires", t ? Protocols.HTTP.Server.http_date(t) : "0");
+  add_header(_extra_heads, "Expires", t ? Caudium.http_date(t) : "0");
   if(m->now)
-    id->since=Protocols.HTTP.Server.http_date(0);
+    id->since=Caudium.http_date(0);
 
   return "";
 }
