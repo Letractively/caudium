@@ -1,5 +1,12 @@
 Changes in Caudium 1.2.xx since 1.2.26
 --------------------------------------
+- MIME.Decode in base_server/wizard.pike is now inside a catch() to avoid
+  break in case of partial / malformed base64 data given to the webserver.
+   (Xavier Beaudouin)
+- Added a catch() into MIME.Message used in multipart/form-data handler in
+  http.pike and http2.pike to avoid locks into Caudium when malformed data
+  comes into webserver.
+   (Xavier Beaudouin)
 - Avoid use -O2 on FreeBSD Alpha
    (Xavier Beaudouin)
 - Created new version of uniscript that uses FastCGI to communicate with
