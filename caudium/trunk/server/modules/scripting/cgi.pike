@@ -842,11 +842,10 @@ mapping handle_file_extension(object o, string e, object id)
     if(QUERY(noexec))
       return 0;
     else
-      return http_low_answer(500, "<title>CGI - File Not Executable</title>"
-			     "<h1>CGI Error - File Not Executable</h1> <b>"
-			     "The script you tried to run is not executable."
-			     "Please contact the server administrator about "
-			     "this problem.</b>");
+    return (http_error_answer (id, 500, "CGI Error - Script Not Executable",
+             "<b>The script you tried to run is not executable. "
+             "Please contact the server administrator about "
+             "this problem.</b>"));
   return http_stream( CGIScript( id )->run()->get_fd() );
 }
 
@@ -870,18 +869,16 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
     if(QUERY(noexec))
       return Stdio.File(real_file(f, id), "r");
     report_notice( "CGI: "+real_file(f,id)+" is not executable\n");
-    return http_low_answer(500, "<title>CGI Error - Script Not Executable</title>"
-			   "<h1>CGI Error - Script Not Executable</h1> <b>"
-			   "The script you tried to run is not executable. "
-			   "Please contact the server administrator about "
-			   "this problem.</b>");
+    return (http_error_answer (id, 500, "CGI Error - Script Not Executable",
+             "<b>The script you tried to run is not executable. "
+             "Please contact the server administrator about "
+             "this problem.</b>"));
   }
 
   if(stat[1] < 0)
     if(!QUERY(ls))
-      return http_low_answer(403, "<title>CGI Directory Listing "
-			     "Disabled</title><h1>Listing of CGI directories "
-			     "is disabled.</h1>");
+       return (http_error_answer (id, 403, "CGI Directory Listing Disabled", 
+                "<h1>Listing of CGI directories is disabled.</h1>"));
     else
       return -1;
   if(!strlen(f) || f[-1] == '/')
