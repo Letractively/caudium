@@ -2532,7 +2532,7 @@ private void define_global_variables(int argc, array (string) argv)
             "In the format mysql://user:password@host/database",
             0, storage_mysql_p());
 
-    globvar("storage_disk_path", lambda() {return QUERY(cachedir);},
+    globvar("storage_disk_path", lambda() {return Stdio.append_path(QUERY(cachedir), "storage");},
             "Storage Manager: Disk storage path", TYPE_STRING,
             "Please enter a filesystem path for Caudium to use to store "
             "data on the disk as the permanent storage backend."
