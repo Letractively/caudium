@@ -122,7 +122,7 @@ Unless you changed its configuration, the server is configured as follows:<p>
 <li> Log files are placed in /var/log/caudium, and will be rotated monthly.
 <li> The default directory index is index.html, meaning that requests for a directory /foo/bar/ will give the contents of
        the file /var/www/foo/bar/index.html if it exists (assuming that /var/www is your DocumentRoot).
-<li> User directories are enabled, and user documents will be looked for in the public_html directory of the users' homes.
+<li> User directories are enabled, and user documents will be looked for in the public_html directory of the user homes.
 </ul>
 <hr width="75%">
 <center>
