@@ -143,7 +143,7 @@ class PHPScript
   {
     DWERROR(sprintf("PHP:PHPWrapper::send_headers(%d,%O)\n", code, headers));
     string result = "", post="";
-    string code = errors[code||200];
+    string retcode = errors[code||200];
     int ct_received = 0, sv_received = 0;
     if(headers) {
       foreach(indices(headers), string header)
@@ -160,7 +160,7 @@ class PHPScript
 	  switch(lower_case( header ))
 	  {
 	  case "status":
-	    code = realvalue;
+	    retcode = realvalue;
 	    break;
 
 	  case "content-type":
@@ -174,7 +174,7 @@ class PHPScript
 	    break;
 
 	  case "location":
-	    code = "302 Redirection";
+	    retcode = "302 Redirection";
 	    result += header+": "+realvalue+"\r\n";
 	    break;
 
@@ -189,7 +189,7 @@ class PHPScript
       result += "Server: "+caudium.version()+"\r\n";
     if(!ct_received)
       result += "Content-Type: text/html\r\n";
-    write("HTTP/1.0 "+code+"\r\n"+result+"\r\n");
+    write("HTTP/1.0 "+retcode+"\r\n"+result+"\r\n");
   }
 
   PHPScript run()
