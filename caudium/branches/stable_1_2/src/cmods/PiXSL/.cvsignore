@@ -1,9 +1,8 @@
 Makefile.pre
-sablot_config.h
-sablot_config.h.in
+ultrasum
 Makefile
 dependencies
 config.status
 config.log
 configure
-pixsl
+autom4te.cache

@@ -6,3 +6,4 @@ configure
 config.h
 htpasswd
 config.h.in
+autom4te.cache
