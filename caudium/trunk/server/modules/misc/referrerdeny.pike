@@ -40,13 +40,15 @@ inherit "caudiumlib";
 //!  A module which allow you to deny accesses to files matching a certain
 //!  regexp bases on their referrer. Usefull to stop people from leeching
 //!  images or files from your server without your permission.
+//! <p>Todo: <ul>
+//!  <li>Agent type deny e.g. can deny somewhat GetRight/*, Wget/* agents
+//!  to stop leaching some files.</li>
+//!  <li>Add some regexp to deny some kind of referrer regexp... =) </li>
+//!  </ul></p>
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PRECACHE | MODULE_FIRST
 //! cvs_version: $Id$
-//! todo: Agent type deny e.g. can deny somewhat GetRight/*, Wget/* apents
-//!  to stop leaching some files.
-//! todo: Add some regexp to deny some kind of referrer regexp... =)
 
 constant module_type   = MODULE_PRECACHE | MODULE_FIRST;
 constant module_name   = "Referrer Deny";

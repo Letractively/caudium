@@ -31,6 +31,11 @@ RCSID("$Id$");
 #ifdef HAVE_MHASH
 #include "mhash_quick.h"
 
+//! file: Mhash/global.c
+//!  Glue for the MHash library, for various hashing routines.
+//!  See http://mhash.sourceforge.net/ for more information about mhash.
+//! cvs_version: $Id$
+//
 //! class: Mhash
 //!  Mhash is an open source library which provides a uniform interface
 //!  to a large number of hash algorithms. These algorithms can be used

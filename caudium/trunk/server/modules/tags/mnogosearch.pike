@@ -64,8 +64,8 @@ constant thread_safe=1;
 //!  default: 20
 //! attribute: tags
 //!  List with tags used to limit the result set to a certain subsection
-//!  as defined in the mnoGoSearch indexer.conf. The format is
-//!  tag:displayname, tag2:displayname2 etc. The tag '*' is used to allow
+//!  as defined in the mnoGoSearch indexer.conf. The format 
+//!  is tag:displayname, tag2:displayname2 etc. The tag '*' is used to allow
 //!  searching of the entire database. 
 //!  default: Search the entire database.
 //! attribute: cache

@@ -24,6 +24,16 @@
 inherit "module";
 inherit "caudiumlib";
 
+//! module: CGI executable support
+//!  This module provides extensions handling by misc script interpreters. 
+//!  Scripts can be run as choosen user, or by owner. Module is based on
+//!  CGI module.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 constant cvs_version = "$Id$";
 
 constant module_type = MODULE_FILE_EXTENSION;

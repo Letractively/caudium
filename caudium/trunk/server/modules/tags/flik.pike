@@ -50,7 +50,7 @@
 //!          <fd>no more
 //!  </fl>
 //
-//! tag: ft
+//! container: ft
 //!  Creates a folder list entry
 //
 //! attribute: [folded]
@@ -61,7 +61,7 @@
 //!  Will make all elements in the list or that element unfolded by
 //!  default.
 //
-//! tag: fd
+//! container: fd
 //!  Follows &lt;ft&gt; and marks the entry "definition".
 //
 //! attribute: [folded]

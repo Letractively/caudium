@@ -24,7 +24,7 @@
 
 //
 //! module: JS Snow
-//!  THis module add a new RXML tag &lt;snow&gt; tag. <br />
+//!  This module add a new RXML tag &lt;snow&gt; tag. <br />
 //!  The Javascript code is inspired from the Javascript code taken from
 //!  <a href="http://www.altan.hr/snow/">http://www.altan.hr/snow</a><br />
 //! inherits: module
@@ -52,11 +52,11 @@ constant thread_safe=1;
 //! tag: snow
 //!  Add snow on the top the layers on Netscape 4+ or MSIE 4+
 //!
-//! attribute: [image="URI"]
+//! attribute: [image=URI]
 //!  Set the image used by the Javascript using a URI to a new location
 //! default: /(internal,image)/snow
 //!
-//! attribute: [num="int"]
+//! attribute: [num=int]
 //!  Set the number of images (and layers) used for this snow
 //! default: 10
 //

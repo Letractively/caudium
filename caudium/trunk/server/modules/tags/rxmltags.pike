@@ -3923,3 +3923,8 @@ int may_disable()  { return 0; }
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Compatibility with old &lt;if&gt;
 //
+//! defvar: max_insert_depth
+//! Max level of recursion when using &lt;insert file="..."&gt;
+//!  type: TYPE_INT
+//!  name: Max file inclusion recursion depth
+//

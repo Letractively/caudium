@@ -31,7 +31,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! cvs_version: $Id$
-//! note: depends of module provider "rxml:tags"
+// note: depends of module provider "rxml:tags"
 #include <module.h>
 
 inherit "module";

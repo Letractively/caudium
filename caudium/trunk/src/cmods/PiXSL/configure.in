@@ -13,31 +13,31 @@ if test "$ac_cv_lib_m_floor" != "yes"; then
 fi
 
 AC_CHECK_HEADERS( sablot.h )
-echo $LIBS
+dnl  if we need this, use em.
 dnl No need to continue unless the header is found...
 if test "$ac_cv_header_sablot_h" = "yes"; then
-  unset ac_cv_lib_sablot_SablotProcess
-  OLDLIBS="$LIBS"
-  LIBS=""
-  AC_CHECK_LIB(sablot, SablotProcess,
-  [
-    AC_DEFINE(HAVE_LIBSABLOT)
-	LIBS="-lsablot $OLDLIBS"
-  ], [
     unset ac_cv_lib_sablot_SablotProcess
+    OLDLIBS="$LIBS"
+    LIBS=""
     AC_CHECK_LIB(sablot, SablotProcess,
     [
-	  AC_DEFINE(HAVE_LIBSABLOT)
-	  LIBS="-lsablot -lexpat $OLDLIBS"
-    ], [
-      unset ac_cv_lib_sablot_SablotProcess
-      AC_CHECK_LIB(sablot, SablotProcess,
-      [
-		AC_DEFINE(HAVE_LIBSABLOT)
-		LIBS="-lsablot -lxmlparse -lxmltok $OLDLIBS"
-      ],[], -lxmlparse -lxmltok $OLDLIBS)
-    ], -lexpat  $OLDLIBS)
-  ], $OLDLIBS)
+      AC_DEFINE(HAVE_LIBSABLOT)
+  	  LIBS="-lsablot $OLDLIBS"
+  	], [
+  	  unset ac_cv_lib_sablot_SablotProcess
+  	  AC_CHECK_LIB(sablot, SablotProcess,
+  	  [
+  		AC_DEFINE(HAVE_LIBSABLOT)
+  		LIBS="-lsablot -lexpat $OLDLIBS"
+  	  ], [
+  		unset ac_cv_lib_sablot_SablotProcess
+  		AC_CHECK_LIB(sablot, SablotProcess,
+  		[
+  		  AC_DEFINE(HAVE_LIBSABLOT)
+  		  LIBS="-lsablot -lxmlparse -lxmltok $OLDLIBS"
+  		],[], -lxmlparse -lxmltok $OLDLIBS)
+  	  ], -lexpat  $OLDLIBS)
+  	], $OLDLIBS)
 fi
 
 if test "$ac_cv_header_sablot_h" != "yes" -o \

@@ -29,7 +29,10 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
-
+//! file: Mhash/mhash.c
+//!  File implementing the Mhash.Hash() class.
+//! cvs_version: $Id$
+//
 //! class: Mhash.Hash
 //!  An instance of a normal Mhash object. This object can be used to
 //!  calculate various hashes supported by the Mhash library.

@@ -25,9 +25,16 @@ inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
 
+//! module: Explicit Hostname Redirector
+//!  The explicit hostname redirector is designed with only one purpose in mind. The module examines the host header of any incoming request and if it doesn't match one of the hostnames configured in the configuration interface then it redirects the connection to an explicit hostname.
+//! type: MODULE_PRECACHE | MODULE_FIRST
+//! inherits: module
+//! inherits: caudiumlib
+//! cvs_version: $Id$
+
 constant thread_safe = 1;
 constant module_name = "Explicit Hostname Redirector";
-constant module_doc = "The explicit hostname redirector is designed with only one purpose in mind. The module examines the host header of any incoming request and if it doesn't match one of the hostnames configured in the configuration interface then it redirects the connection to an explicit hostname";
+constant module_doc = "The explicit hostname redirector is designed with only one purpose in mind. The module examines the host header of any incoming request and if it doesn't match one of the hostnames configured in the configuration interface then it redirects the connection to an explicit hostname.";
 constant module_unique = 1;
 constant module_type = MODULE_PRECACHE | MODULE_FIRST ;
 

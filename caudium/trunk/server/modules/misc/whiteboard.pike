@@ -25,11 +25,11 @@
 //
 //! module: Whiteboard and Todo list
 //!  Make a whiteboard or a todo list for multiuser environment.
+//! <p>Todo: make thread-safe, make the storage into a SQL database.</p>
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOCATION
 //! cvs_version: $Id$
-//! todo: make thread-safe, make the storage into a SQL database
 //
 #include <module.h>
 #include <process.h>

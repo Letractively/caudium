@@ -235,27 +235,27 @@ void create()
 	 "</p><p>"
 	 "Example:<hr noshade=\"yes\" />"
 	 "<pre>"
-	 "# All hosts inside *.rydnet.lysator.liu.se has to be<br>"
-	 "# accessed through lysator.liu.se<br>"
-	 ".*\\.rydnet\\.lysator\\.liu\\.se        130.236.253.11  80<br>"
-	 "# Do not access *.dec.com via a remote proxy<br>"
-	 ".*\\.dec\\.com                         no_proxy        0<br>"
-	 "# But all other .com<br>"
-	 ".*\\.com                         130.236.253.11        0<br>"
+	 "# All hosts inside *.rydnet.lysator.liu.se has to be<br />"
+	 "# accessed through lysator.liu.se<br />"
+	 ".*\\.rydnet\\.lysator\\.liu\\.se        130.236.253.11  80<br />"
+	 "# Do not access *.dec.com via a remote proxy<br />"
+	 ".*\\.dec\\.com                         no_proxy        0<br />"
+	 "# But all other .com<br />"
+	 ".*\\.com                         130.236.253.11        0<br />"
 	 "</pre></p>"
 	 "Please note that this <b>must</b> be "
 	 "regular expressions.");
 
   defvar("Filters", "", "External filter regular expressions", TYPE_TEXT_FIELD|VAR_MORE,
 	 "External filters to run if the regular expression match. "
-	 "<p>Examples (this one works): "
+	 "<p>Examples (this one works): </p>"
 	 "<pre>"
-	 "www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br>"
-	 "www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br>"
-	 "www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br>"
-	 "www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br>"
+	 "www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />"
+	 "www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />"
+	 "www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />"
+	 "www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br />"
 	 "</pre>"
-	 "Please note that this <b>must<b> be "
+	 "<p>Please note that these <b>must</b> be "
 	 "regular expressions.</p>");
 }
 
@@ -639,7 +639,7 @@ string comment() { return QUERY(mountpoint); }
 //!  name: Remote proxy regular expressions
 //
 //! defvar: Filters
-//! External filters to run if the regular expression match. <p>Examples (this one works): <pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br /></pre>Please note that this <b>must<b> be regular expressions.</p>
+//! External filters to run if the regular expression match. <p>Examples (this one works): </p><pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br /></pre><p>Please note that these <b>must</b> be regular expressions.</p>
 //!  type: TYPE_TEXT_FIELD|VAR_MORE
 //!  name: External filter regular expressions
 //
