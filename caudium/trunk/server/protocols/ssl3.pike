@@ -156,7 +156,7 @@ array|void real_port(array port, object cfg)
     ({ report_error, throw }) ("ssl3: Certificate and private key do not match.\n");
 #endif
 
-  function r = Crypto.randomness.reasonably_random()->read;
+  function r = Caudium.Crypto.f_urandom;
 
 #ifdef SSL3_DEBUG
   werror(sprintf("RSA key size: %d bits\n", rsa->rsa_size()));

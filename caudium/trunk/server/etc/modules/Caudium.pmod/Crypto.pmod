@@ -130,11 +130,25 @@ constant cvs_version = "$Id$";
 
 string urandom(int len)
 {
+  f_urandom()(len);
+}
+
+//! @decl function f_urandom()
+//!  Return a random function.
+//!
+//! @returns
+//!  A random function generator
+//!
+//! @note
+//!  This is can be used directly as a replacement of 
+//!  Crypto.randomness.reasonably_random()->read
+function f_urandom()
+{
 #if constant(Crypto.Random.random_string)
-  return Crypto.Random.random_string(len);
+   return Crypto.Random.random_string;
 #else
-  return Crypto.randomness.reasonably_random()->read(len);
-#endif
+   return Crypto.randomness.reasonably_random()->read;
+#endif      
 }
 
 #if constant(Mhash.hash_md5)

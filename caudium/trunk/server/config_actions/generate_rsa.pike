@@ -114,7 +114,7 @@ mixed verify_0(object id, object conf)
   privs = 0;
 
   object rsa = Crypto.rsa();
-  rsa->generate_key(key_size, Crypto.randomness.reasonably_random()->read);
+  rsa->generate_key(key_size, Caudium.Crypto.f_urandom);
 
 #if constant(Tools)
   string key = Tools.PEM.simple_build_pem
