@@ -63,6 +63,11 @@ RCSID("$Id$");
 #include "getdate.h"
 #include "datetime.h"
 
+/* FreeBSD strptime() doesn't seems to be thread-safe */
+#ifdef __FreeBSD__
+#undef HAVE_STRPTIME
+#endif
+
 static struct pike_string *gd_bad_format;
 
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
@@ -247,7 +252,7 @@ static void f_strptime(INT32 args)
 
   push_int(ret);
 }
-#endif
+#endif /* STRPTIME */
 
 /*
 ** method: string strftime(string f, int t)
@@ -426,9 +431,9 @@ static void f_is_modified(INT32 args)
   struct pike_string   *header;
   int                   tmod, use_weird = 0, i;
   time_t                ret;
-#ifdef HAVE_STRPTIME  && !__FreeBSD__
+#ifdef HAVE_STRPTIME
   struct tm             ttm;
-#endif /* HAVE_STRPTIME && !__FreeBSD__ */
+#endif /* HAVE_STRPTIME */
 
   if (args == 3)
     get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
@@ -437,7 +442,7 @@ static void f_is_modified(INT32 args)
   
   pop_n_elems(args);
 
-#ifdef HAVE_STRPTIME && !__FreeBSD__
+#ifdef HAVE_STRPTIME
   i = 0;
   while(is_modified_formats[i].fmt) {
 /*    char      *tmp; */
@@ -463,11 +468,11 @@ static void f_is_modified(INT32 args)
   ret = mktime(&ttm);
   if (ret >= 0)
     push_string(gd_bad_format);  
-#else /* HAVE_STRPTIME && !__FreeBSD__ */
+#else /* HAVE_STRPTIME */
   ret = get_date(header->str, NULL);
   if (ret < 0)
     push_string(gd_bad_format);
-#endif /* HAVE_STRPTIME && !__FreeBSD__ */
+#endif /* HAVE_STRPTIME */
 
   if (tmod > ret)
     push_int(0);
