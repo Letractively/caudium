@@ -93,8 +93,8 @@ void create()
 	 "If the to file isn't an URL, the redirect will always be handled "
 	 "internally, so add %u to generate an actual redirect.</p><p>"
 	 "<b>Note:</b> "
-	 "For speed reasons: If the from pattern does _not_ contain"
-	 "any '*' characters, it will not be treated like an regular"
+	 "For speed reasons: If the from pattern does _not_ contain "
+	 "any '*' characters, it will not be treated like a regular "
 	 "expression, instead it will be treated as a prefix that must "
 	 "match exactly.</p>" ); 
 }
