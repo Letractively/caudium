@@ -52,7 +52,7 @@ string tag_cimg( string t, mapping args, object id )
 {
   mapping a = 
   ([  
-    "src":fix_relative( args->src, id ),
+    "src":Caudium.fix_relative( args->src, id ),
     "quant":args->quant,
     "format":args->format,
     "maxwidth":args->maxwidth,
@@ -81,7 +81,7 @@ string tag_cimg_url( string t, mapping args, object id )
 {
   mapping a = 
   ([  
-    "src":fix_relative( args->src, id ),  "quant":args->quant,
+    "src":Caudium.fix_relative( args->src, id ),  "quant":args->quant,
     "format":args->format, "maxwidth":args->maxwidth,
     "maxheight":args->maxheight, "scale":args->scale,
     "dither":args->dither,

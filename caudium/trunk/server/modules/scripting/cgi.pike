@@ -1114,7 +1114,7 @@ int|string tag_cgi( string tag, mapping args, object id )
   string file = args->script;
   if(!file)
     return "No 'script' argument to the CGI tag";
-  fid->not_query = fix_relative( file, id );
+  fid->not_query = Caudium.fix_relative( file, id );
   foreach(indices(args), string arg )
   {
     if(arg == "script")

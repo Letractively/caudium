@@ -207,7 +207,7 @@ mixed find_file( string f, object id )
   if( intp( retval ) || mappingp( retval ) )
     return retval;
 
-  //if(!(template=id->conf->real_file(vtemplate = fix_relative(template_for(f,id),id),id)))
+  //if(!(template=id->conf->real_file(vtemplate = Caudium.fix_relative(template_for(f,id),id),id)))
   //  return retval;
   
   if( id->variables["content-type"] )

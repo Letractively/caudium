@@ -179,7 +179,7 @@ mixed build_album( object id, mapping args ) {
     }
     newalbum->set_name( name );
     newalbum->set_cols( cols );
-    array tmp = id->conf->find_dir( fix_relative( dir, id ), id );
+    array tmp = id->conf->find_dir( Caudium.fix_relative( dir, id ), id );
     array dirlist = sort( tmp ? tmp : ({}) );
     if ( sizeof( dirlist ) == 0 ) {
 	return "<b>ERROR:</b> Photo directory is empty!\n";
@@ -191,7 +191,7 @@ mixed build_album( object id, mapping args ) {
 	if ( ! (( ext == "jpg" )
 	     || ( ext == "gif" )
 	     || ( ext == "png" )) ) continue;
-	string fullpath = fix_relative( replace( dir + "/" + filename, "//", "/" ), id );
+	string fullpath = Caudium.fix_relative( replace( dir + "/" + filename, "//", "/" ), id );
 	newalbum->set_photo(
                             fullpath,
 			    ( id->conf->try_get_file( fullpath + ".desc", id )?id->conf->try_get_file( fullpath + ".desc", id ):QUERY(void_description))
@@ -261,7 +261,7 @@ class album {
 
     void set_template( object id, void|string filename ) {
 	if ( filename ) {
-	    string tmpl = id->conf->try_get_file( fix_relative( filename, id ), id );
+	    string tmpl = id->conf->try_get_file( Caudium.fix_relative( filename, id ), id );
 	    if ( tmpl == "" ) return;
 	    data += ([ "template" : tmpl ]);
 	}

@@ -424,6 +424,20 @@ static string decode_mode(int m) {
    return Caudium.File.decode_mode(m);
 }
 
+//! Compat call of @[Caudium.fix_relative]
+//! @deprecated
+static string fix_relative(string file, object id) {
+   WCOMPAT("Caudium","fix_relative");
+   return Caudium.fix_relative(file, id);
+}
+
+//! Compat call of @[Caudium.strftime]
+//! @deprecated
+static string strftime(string format, int timestamp) {
+   WCOMPAT("Caudium","strftime");
+   return Caudium.strftime(format,timestamp);
+}
+
 //! Compat call of @[Caudium.Env.build_vars]
 //! @deprecated
 static mapping build_env_vars(string f, object id, string path_info) {
