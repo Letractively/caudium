@@ -573,7 +573,7 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
 // Checks whether we should rewrite the uri or not
 private int leave_me_alone(string uri)
 {
-    if (!uri)
+    if (!uri || !sizeof(uri))
         return 0;
 
     if (uri[0] == '/')
