@@ -769,8 +769,11 @@ class CGIScript
       environment |= build_caudium_env_vars(id);
     if(id->misc->ssi_env)
       environment |= id->misc->ssi_env;
-    if(id->misc->is_redirected)
+    // I assume that all scripts are internal redirected.
+    // Is this good idea ? Without this PHP4 CGI version won't work
+    // if(id->misc->is_redirected)
       environment["REDIRECT_STATUS"] = "1";
+      environment["PATH_TRANSLATED"] = environment["SCRIPT_FILENAME"];
     if(id->rawauth && QUERY(rawauth))
       environment["HTTP_AUTHORIZATION"] = (string)id->rawauth;
     else
