@@ -46,7 +46,8 @@ constant module_doc  = "Caudium Has A Search Engine, based on the"
     "Jakarta Lucene full text engine.";
 constant module_unique = 1;
 
-object index;
+mapping engines=([]);
+mapping profiles=([]);
 object cache;
 
 void start()
@@ -62,6 +63,11 @@ void start()
 }
 
 string status_info="";
+
+string status()
+{
+  return sizeof(engines) + " search profiles loaded";
+}
 
 string query_location()
 {
@@ -79,8 +85,55 @@ void create()
 
 mapping query_tag_callers()
 {
-  return (["chase_form": tag_chaseform, "chase_results": tag_chaseresults]);
+  return (["chase_form": tag_chaseform, "chase_results": tag_chaseresults,
+	"chase_powered" : tag_chasepowered]);
 }
+
+
+mapping pl_sizes = ([]);
+string get_pl_size(string size, string color)
+{
+  if(pl_sizes[size+color])
+      return pl_sizes[size+color];
+
+  mapping file = caudium->IFiles->get("image://lucene-" + size + "-" + color + ".gif");
+
+  if(!file)
+      return "NONEXISTENT COMBINATION";
+
+  return pl_sizes[size+color] = sprintf("width=\"%d\" height=\"%d\"",
+                                        file->width, file->height);
+}
+
+
+string tag_chasepowered(string tagname, mapping m)
+{
+    string size = m->size || "small";
+    string color = m->color || "outline";
+
+    m_delete(m, "color");
+    m_delete(m, "size");
+    int w;
+
+    if(get_pl_size(size,color)  == "NONEXISTENT COMBINATION")
+        color = "outline";
+    sscanf(get_pl_size(size,color), "%*swidth=\"%d", w);
+    if(w != 0)
+        m->width = (string)w;
+    sscanf(get_pl_size(size,color), "%*sheight=\"%d", w);
+    if(w != 0)
+        m->height = (string)w;
+
+    m->src = "/(internal,image)/lucene-"+size+"-"+color;
+
+    if(!m->alt)
+        m->alt="Powered by Jakarta Lucene";
+    if(!m->border)
+        m->border="0";
+
+    m_delete(m, size);
+    return ("<a href=\"http://jakarta.apache.org/lucene/\">"+Caudium.make_tag("img", m)+"</a>");
+}	
 
 mixed tag_chaseform (string tag_name, mapping args,
                     object id, object f,
@@ -90,6 +143,13 @@ mixed tag_chaseform (string tag_name, mapping args,
   
   retval+="<input type=text size=20 name=q value=\"" + 
     (id->variables->q||"") +  "\">\n";
+  if(!args->profile)
+  {
+    retval+="<select name=\"p\">";
+    foreach(indices(profiles), string pn)
+      retval+="<option>" + pn + "\n";
+    retval+="</select>\n";
+  }
   retval+="<input type=submit value=\"Search\">";
   if(!args->nohelp)
     retval+=" <a href=\"" + id->not_query + "?help=1\">QueryHelp</a>";
@@ -111,7 +171,7 @@ mixed tag_chaseresults(string tag_name, mapping args,
 
   result=cache->retrieve(id->variables->p + "|" + id->variables->q);
 
-  if(pragma["no-cache"] || !result)
+  if(id->pragma["no-cache"] || !result)
   {
     result=engines[id->variables->p]->search(id->variables->q);
     ransearch=1;
@@ -130,31 +190,34 @@ mixed tag_chaseresults(string tag_name, mapping args,
   }
 
   if(!result || sizeof(result)==0)
-     return "No results were found for your query <i>" + args->query + "</i>.";
+     return "No results were found for your query <i>" + id->variables->q + "</i>.";
 
-  int pages=result/rpp;
-  if(result%rpp) pages++;
+  int pages=sizeof(result)/rpp;
+  if(sizeof(result)%rpp) pages++;
 
-  int displayfrom=(int)(id->variables->s||1);
+  int displayfrom=(int)(id->variables->s||0);
   int displayto=((displayfrom+rpp)<=sizeof(result)?(displayfrom+rpp):sizeof(result));
 
-  ret+="Found " + sizeof(result) + " matches to your query \"<i>" + args->query + "</i>\":<p>\n"; 
-  ret+="Displaying results " + displayfrom + "-" + displayto + " of " + sizeof(result);
+  ret+="Found " + sizeof(result) + " matches to your query \"<i>" + id->variables->q + "</i>\":<p>\n"; 
+  ret+="Displaying results " + (displayfrom+1) + "-" + displayto + " of " + sizeof(result);
   ret+="<br>\n";
 
-  for(int i=1; i<=pages; i++)
+  array rv=({});
+
+  for(int i=0; i<pages; i++)
   {
     if((i*rpp)==displayfrom)
-      ret+=i + " ";
+      rv+=({(i+1) + " "});
     else
-      ret=ret+"<a href=\"" + id->not_query + "?p=" + id->variables->p + 
-        "&q=" + id->variables->q + "&s=" + (i*rpp) +"\">" + i + "</a> ";
+      rv+=({"<a href=\"" + id->not_query + "?p=" + id->variables->p + 
+        "&q=" + id->variables->q + "&s=" + (i*rpp) +"\">" + (i+1) + "</a>"});
     
   }  
 
+  ret+=(rv*" | ");
   ret+="<p>\n";
   
-  for(int i=displayfrom-1; i<displayto; i++)
+  for(int i=displayfrom; i<(displayto); i++)
   {
     mapping r=result[i];
 
@@ -175,10 +238,12 @@ void start_engines(string dir)
 
   foreach(pfs, string filename)
   {
-    mapping p;
-    catch(p=Lucene.read_profile(Stdio.read_file(filename)));
-    if(p && p->name)
-      profiles[p->name]=p;
+    mapping pr;
+    mixed er=catch(pr=Lucene.read_profile(combine_path(p,filename)));
+    if(er)
+      throw(er);
+    if(pr && pr->name)
+      profiles[pr->name]=pr;
     else report_error("unable to read search profile %s\n", filename);
   }
 

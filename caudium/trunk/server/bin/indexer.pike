@@ -54,11 +54,9 @@ void error_cb(mixed real_uri, int status, mapping headers)
 }
 void done_cb()
 {
-  if(verbose)
-  {
-    werror("Indexer finished at " + ctime(time()) + "\n");
-    werror(" Indexed " + files + " files, " + filesize + " bytes in " + (time()-start) + "  seconds.\n");
-  } 
+  werror("Indexer finished at " + ctime(time()) + "\n");
+  werror(" Indexed " + files + " files, " + filesize + " bytes in " + (time()-start) + "  seconds.\n");
+
   if(verbose)
     werror("Moving old database out of the way.\n");
   destruct(index);
@@ -112,7 +110,8 @@ array prepare_cb(Standards.URI uri)
 
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
-  werror((string)uri + "\n");
+  if(verbose)
+    werror((string)uri + "\n");
   if(!allowed_type((headers["content-type"]/";")[0]))
     return ({});
   files++;
@@ -136,16 +135,21 @@ array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
   }
   else
   {
-//    data=map(data, lambda(mixed x){catch { if((int)(x)>254) return; else return x; };});
+    data=map(data, lambda(mixed x){catch { if((int)(x)>254) return; else return x; };});
+//    data=replace(data, "& ", "");
 //    werror("data: " + data);
+
+    // clear the parsers
+    parser=parser->clone();
+    stripper=stripper->clone();
+
      parser->feed(data);  
     data=parser->read();
 //    werror("data2: " + data);
     stripper->feed(data);
     data=stripper->read();
 //    werror("data3: " + data);
-    if(verbose)
-      werror("  ...indexing\n");
+      werror((string)uri + "  ...indexing\n");
     index->index((string)uri, data, title, type, date);    
     title="";
   }
@@ -158,7 +162,7 @@ array page_urls=({});
 
 mixed set_title(Parser.HTML p, mapping args, string content)
 {
-werror("set title " + content + "\n");
+// werror("set title " + content + "\n");
   title=content;
   return "";
 }
@@ -324,13 +328,13 @@ void setup_html_converter()
 {
    parser=Parser.HTML();
    stripper=Parser.HTML();
-/*
+
    parser->case_insensitive_tag(1);
    stripper->case_insensitive_tag(1);
    parser->lazy_entity_end(1);
    parser->ignore_unknown(1);
    stripper->lazy_entity_end(1);
-*/
+
    parser->add_container("title", set_title);
 //   parser->add_container("pre", continue_tag);
    parser->add_container("a", add_url);
