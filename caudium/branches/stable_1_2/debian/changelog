@@ -2,7 +2,8 @@ caudium (2:1.2.26-1) unstable; urgency=medium
 
   * All the pike files were moved to /usr/share/caudium to comply with
     the policy and to make the upgrade from 1.0 smooth.
-    (closes: Bug#173811)
+    (closes: Bug#173811). Sorry Benoit it took so long, I forgot about
+    the bug :)
   * Fix a bug in autoconf that prevented Caudium to compile if $CPPFLAGS was set
     before configure time.
   * Fix a bug in ssl3.pike where the redirect from http would always pick the
