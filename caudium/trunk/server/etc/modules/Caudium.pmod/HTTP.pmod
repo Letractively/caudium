@@ -25,6 +25,9 @@
 //!
 constant cvs_version = "$Id$";
 
+// this is needed for parse_rxml in http_rxml_answer
+inherit "base_server/caudiumlib14";
+
 //!  Return the specified date (as returned by time()) formated in the 
 //!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
 //! @param t
@@ -227,9 +230,6 @@ mapping pipe_in_progress()
 #endif  
   return ([ "file":-1, "pipe":1, ]);
 }
-
-static string parse_rxml(string what, object id, void|object file,
-                         void|mapping defines);
 
 //!   Convenience function to use in Caudium modules and Pike scripts. When you
 //!   just want to return a string of data, with an optional type, this is the
