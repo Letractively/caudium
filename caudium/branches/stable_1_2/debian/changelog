@@ -1,3 +1,13 @@
+caudium (2:1.2.31-6) unstable; urgency=medium
+
+  * Fixed handling of encrypted passwords by sed (closes: Bug#221481)
+  * postrm correctly removes the /var/www/index.html symlink on purge
+  * Documented the Location option in the LDAPauth module 
+    (closes: Bug#221752)
+  * Caudium now recommends logrotate instead of depending on it
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 20 Nov 2003 18:33:04 +0100
+
 caudium (2:1.2.31-5) unstable; urgency=high
 
   * Recompiled to match the latest Pike 7.2 version
