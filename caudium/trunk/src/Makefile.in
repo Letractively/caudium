@@ -1,0 +1,20 @@
+SRCDIR=@srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+
+@SET_MAKE@
+
+all: cmods
+
+force:
+	@:
+
+cmods: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+
+
+
+install: force
+	( cd cmods && $(MAKE) $(MAKE_FLAGS) install)
+
+
