@@ -625,7 +625,7 @@ private int parse_got()
   }
 #ifndef DISABLE_SUPPORTS    
   if(!useragent) {
-#if EXTRA_ROXEN_COMPAT
+#ifdef EXTRA_ROXEN_COMPAT
     client = ({ "unknown" });
 #endif
     useragent = "unknown";    
@@ -636,7 +636,7 @@ private int parse_got()
   supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
 
-#if EXTRA_ROXEN_COMPAT
+#ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
 #endif
   
@@ -714,7 +714,7 @@ void end(string|void s, int|void keepit)
     o->remoteaddr = remoteaddr;
     o->supports = supports;
     o->host = host;
-#if EXTRA_ROXEN_COMPAT
+#ifdef EXTRA_ROXEN_COMPAT
     o->client = client;
 #endif
     o->useragent = useragent;
