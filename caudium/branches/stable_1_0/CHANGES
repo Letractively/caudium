@@ -1,5 +1,6 @@
 Changes in Caudium 1.0.xx
 -------------------------
+- <if exists="file"> shouldn't use the cache. Thanks ot Hirling Endre.
 - Fixed bug #542177 that makes incorrect listings from directories2.pike.
 - Fixed SF bug #530674
 
