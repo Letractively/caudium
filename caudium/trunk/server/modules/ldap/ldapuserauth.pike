@@ -264,20 +264,20 @@ void create()
 		   );
 
 	// Defaults:
-        defvar ("CI_default_attrname_upw", "userpassword",
+        defvar ("CI_default_attrname_upw", "userPassword",
 		   "Defaults: User password map", TYPE_STRING,
                    "The mapping between passwd:password and LDAP.");
         defvar ("CI_default_uid",default_uid(),"Defaults: User ID", TYPE_INT,
                    "Some modules require an user ID to work correctly. This is the "
                    "user ID which will be returned to such requests if the information "
                    "is not supplied by the directory search.");
-        defvar ("CI_default_attrname_uid", "uidnumber",
+        defvar ("CI_default_attrname_uid", "uidNumber",
 		   "Defaults: User ID map", TYPE_STRING,
                    "The mapping between passwd:uid and LDAP.");
         defvar ("CI_default_gid", getegid(),
 		"Defaults: Group ID", TYPE_INT,
                    "Same as User ID, only it refers rather to the group.");
-        defvar ("CI_default_attrname_gid", "gidnumber",
+        defvar ("CI_default_attrname_gid", "gidNumber",
 		   "Defaults: Group ID map", TYPE_STRING,
                    "The mapping between passwd:gid and LDAP.");
         defvar ("CI_default_gecos", "", "Defaults: Gecos", TYPE_STRING,
@@ -288,12 +288,12 @@ void create()
         defvar ("CI_default_home","/", "Defaults: Home Directory", TYPE_DIR,
                    "It is possible to specify an user's home "
                    "directory. This is used if it's not provided.");
-        defvar ("CI_default_attrname_homedir", "homedirectory",
+        defvar ("CI_default_attrname_homedir", "homeDirectory",
 		   "Defaults: Home Directory map", TYPE_STRING,
                    "The mapping between passwd:homedir and LDAP.");
         defvar ("CI_default_shell","/bin/false", "Defaults: Shell", TYPE_STRING,
                    "The shell name for entries without own defined.");
-        defvar ("CI_default_attrname_shell", "loginshell",
+        defvar ("CI_default_attrname_shell", "loginShell",
 		   "Defaults: Shell map", TYPE_STRING,
                    "The mapping between passwd:shell and LDAP.");
         defvar ("CI_default_addname",0,"Defaults: Username add",TYPE_FLAG,
@@ -470,7 +470,7 @@ array(string) userinfo (string u,mixed p) {
 	tmp=results->fetch();
 	//DEBUGLOG(sprintf("userinfo: got %O",tmp));
 	if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-	      werror("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
+	      werror("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
 	 else
 	     rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
 	/*
