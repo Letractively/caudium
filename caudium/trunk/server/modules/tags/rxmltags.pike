@@ -3898,6 +3898,15 @@ string tag_scopecontrol(string t, mapping args, string c, object id)
     return ret;
 }
 
+string tag_urldecode (string tagname, mapping args, string contents,
+                      object id, object file, mapping defines)
+{
+    if (!contents)
+        return "";
+
+    return http_decode_url(contents);
+}
+
 mapping query_pi_callers() {
   return ([ "?comment": "" ]);
 }
@@ -3914,6 +3923,7 @@ mapping query_container_callers()
 	   "cache":tag_cache,
 	   "for":tag_for,
 	   "trace":tag_trace,
+	   "urldecode":tag_urldecode,
 	   "cset":lambda(string t, mapping m, string c, object id)
 		  { return tag_set("set",m+([ "value":html_decode_string(c) ]),
 			    id); },
