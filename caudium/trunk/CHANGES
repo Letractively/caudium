@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added support for RFC 3236 (XHTML media type)
 - Fix an error when PUT method is used...
 - Variable HTTPS is set to "on" when SSL is used. (compatibility variable 
   used for CGIs...)

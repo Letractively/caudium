@@ -3,6 +3,11 @@
 # doc="The database used to map from extension to mime-type (example: *.gif to image/gif)";
 #
 
+# RFC 3236 support for XHTML media type cf sf bug #573363
+xht	application/xhtml+xml
+xhtml	application/xhtml+xml
+# RFC 3236
+
 aif	audio/x-aiff
 aifc	audio/x-aiff
 aiff	audio/x-aiff
