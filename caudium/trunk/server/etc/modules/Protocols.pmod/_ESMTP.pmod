@@ -33,43 +33,6 @@ constant cvs_version = "$Id$";
 
 class client
 {
-	constant DSN_SUCCESS = 1;
-	constant DSN_DELAY   = 2;
-	constant DSN_FAILURE = 4;
-
-	// wish i knew wtf is this here for...
-	constant reply_codes = ([
-		211:	"System status, or system help reply",
-		214:	"Help message",
-		220:	"<host> Service ready",
-		221:	"<host> Service closing transmission channel",
-		235:	"Authentication succeeded",
-		250:	"Requested mail action okay, completed",
-		251:	"User not local; will forward to <forward-path>",
-		334:	"!!this is a reply for authentication request, stuff told by the server here IS NEEDED!!",
-		354:	"Start mail input; end with <CRLF>.<CRLF>",
-		421:	"<host> Service not available, closing transmission channel "
-			"[This may be a reply to any command if the service knows it "
-			"must shut down]",
-		450:	"Requested mail action not taken: mailbox unavailable "
-			"[E.g., mailbox busy]",
-		451:	"Requested action aborted: local error in processing",
-		452:	"Requested action not taken: insufficient system storage",
-		500:	"Syntax error, command unrecognized "
-			"[This may include errors such as command line too long]",
-		501:	"Syntax error in parameters or arguments",
-		502:	"Command not implemented",
-		503:	"Bad sequence of commands",
-		504:	"Command parameter not implemented",
-		535:	"Authentication failure",
-		550:	"Requested action not taken: mailbox unavailable "
-			"[E.g., mailbox not found, no access]",
-		551:	"User not local; please try <forward-path>",
-		552:	"Requested mail action aborted: exceeded storage allocation",
-		553:	"Requested action not taken: mailbox name not allowed "
-			"[E.g., mailbox syntax incorrect]",
-		554:	"Transaction failed"
-	]);
 
 	private object conn = Stdio.FILE();		// the connection itself
 	private mapping smtp_reply = ([
@@ -79,23 +42,22 @@ class client
 	]);						// holds server responses
 	private mapping supports = ([
 		"esmtp":	0,
-		"dsn":		0,
 		"tls":		0,
 		"auth":	([
 				"yes":		0,
 				"methods":	({ })
 		]),
-		"size":		0
 	]);						// server capability list
 	private mapping this_connection = ([
-		"dsn":		0,
+		"active":	0
+		"esmtp":	0
 		"tls":		0
 	]);						// current connection's properties.
 
 	void create(void|string server, void|string|int port, void|string maildomain)
 	{
 		string fqdn;
-		// reasonably-looking defaults
+
 		if(!server)
 			server = "127.0.0.1";
 		if(!port) {
@@ -140,26 +102,21 @@ class client
 						foreach((s/" ")[1..], string e)
 							supports->auth->methods += ({ e });
 					break;
-#if 0
-					// FIXME: broken. need to study the thing a bit more.
-					case "size":
-						
-						supports->size = (int)(s/" ")[1];
-					break;
-#endif
 					default:
 					break;
 				}
 			}
 		}
 		// now we should be all set up.
+		this_connection->active = 1;
 	}
 
 	void destruct() {
-		catch {
-			smtp_tell("QUIT");
-			conn->close();
-		};
+		if(this_connection->active)
+			catch {
+				smtp_tell("QUIT");
+				conn->close();
+			};
 	}
 
 	private void smtp_tell(string what) {
@@ -187,85 +144,22 @@ class client
 		smtp_reply->retcode = (int)reply[0][0..2];
 	}
 
-	int sender(string|mapping address) {
-		if(stringp(address)) {
-			if(address[0] != '<')
-				address = "<" + address;
-			if(address[strlen(address)-1] != '>')
-				address += ">";
-			smtp_tell("MAIL FROM: " + address);
-			if( !CODECLASS(200) )
-				return 0;
-			return 1;
-		} else {
-			// address = ([ "address": address, "dsn": "full" | "hdrs" ]);
-			if(!stringp(address->dsn))
-				return 0;
-			address->dsn = lower_case(address->dsn);
-
-			if(address->address[0] != '<')
-				address->address = "<" + address->address;
-			if(address->address[strlen(address->address)-1] != '>')
-				address->address += ">";
-
-			if( (address->dsn != "full") && (address->dsn != "hdrs") )
-				return 0;
-
-			smtp_tell("MAIL FROM: " + address->address + " RET=" + upper_case(address->dsn));
-			if( !CODECLASS(200) ) {
-				this_connection->dsn = 1;
-				return 0;
-			} else {
-				return 1;
-			}
-		}
+	int sender(string address) {
+		if(address[0] != '<')
+			address = "<" + address;
+		if(address[strlen(address)-1] != '>')
+			address += ">";
+		smtp_tell("MAIL FROM: " + address);
+		return ( CODECLASS(200) ? 1 : 0 );
 	}
 	
-	int recipient(string|mapping address) {
-		if(stringp(address)) {
-			if(address[0] != '<')
-				address = "<" + address;
-			if(address[strlen(address)-1] != '>')
-				address += ">";
-			smtp_tell("RCPT TO:" + address);
-			if( !CODECLASS(200) ) {
-				return 0;
-			} else {
-				return 1;
-			}
-		} else {
-			// address = ([ "address": address, "dsn": ({ *"success", *"failure", *"delay", *"never" }) ]);
-			// FIXME: removed to see what's  wrong
-#if 0
-			if(!this_connection->dsn)
-				return 0;
-			if(!arrayp(address->dsn))
-				return 0;
-			if(address->address[0] != '<')
-				address->address = "<" + address->address;
-			if(address->address[strlen(address->address)-1] != '>')
-				address->address += ">";
-#endif
-			string dsns = " ";
-			for(int i=0; i<sizeof(address->dsn); i++) {
-				address->dsn[i] = lower_case(address->dsn[i]);
-				// just a quick hack, 'll be cleaned
-				// if (!Regexp("^(success|failure|delay|never)$")->match(address->dsn[i]))
-				//	return 0;
-				dsns += upper_case(address->dsn[i]) + ",";
-			}
-
-			dsns = dsns[..strlen(dsns)-2];
-			dsns += " ORCPT=rfc822;" + address->address;
-
-			smtp_tell("RCPT TO: " + address->address + dsns);
-			if( !CODECLASS(200) ) {
-				return 0;
-			} else {
-				return 1;
-			}
-		}
-		return 0;
+	int recipient(string address) {
+		if(address[0] != '<')
+			address = "<" + address;
+		if(address[strlen(address)-1] != '>')
+			address += ">";
+		smtp_tell("RCPT TO:" + address);
+		return ( CODECLASS(200) ? 1 : 0 );
 	}
 
 	int body(string body) {
@@ -291,13 +185,16 @@ class client
 	}
 
 	int auth(string user, string pass) {
-		int able = 0;
 		string method = "";
 		multiset known_methods = (< >);
 		if(!supports->auth->yes)
 			return 0;
-		// the order of this also indicates the preference when multiple
-		// methods are available
+		/*
+		 * the order of entries in known_methods implies the user's preference
+		 * of which method to use if more than one is available.
+		 * default is CRAM-MD5->PLAIN->LOGIN, which i think is
+		 * adequate for all :)
+		 */
 #if constant(Crypto.md5)
 		known_methods += (< "cram-md5" >);
 #endif
@@ -319,13 +216,8 @@ class client
 #endif
 		switch(method) {
 			case "plain":
-				smtp_tell("AUTH PLAIN " + MIME.encode_base64(sprintf("\0%s\0%s\0",
-					user, pass )));
-				if(!CODECLASS(200)) {
-					return 0;
-				} else {
-					return 1;
-				}
+				smtp_tell("AUTH PLAIN " + MIME.encode_base64(sprintf("\0%s\0%s\0", user, pass )));
+				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 			case "login":
 				smtp_tell("AUTH LOGIN");
@@ -335,11 +227,7 @@ class client
 				if(!CODECLASS(300))
 					return 0;
 				smtp_tell(MIME.encode_base64(pass));
-				if(!CODECLASS(200)) {
-					return 0;
-				} else {
-					return 1;
-				}
+				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 #if constant(Crypto.md5)
 			case "cram-md5":
@@ -358,11 +246,7 @@ class client
 				inner = Crypto.md5()->update(ipad)->update(challenge)->digest();
 				outer = Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
 				smtp_tell(MIME.encode_base64( user + " " + outer ));
-				if(!CODECLASS(200)) {
-					return 0;
-				} else {
-					return 1;
-				}
+				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 #endif
 			default:
@@ -382,6 +266,5 @@ class client
 
 
 }
-
 
 
