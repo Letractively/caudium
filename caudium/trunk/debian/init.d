@@ -47,10 +47,12 @@ case "$1" in
 	echo "$NAME."
 	;;
   stop)
-	echo -n "Stopping $DESC: "
-	for p in `cat $PIDFILE`; do
-    	    kill -TERM $p > /dev/null || true
-	done
+    echo -n "Stopping $DESC: "
+    for p in `cat $PIDFILE`; do
+       if [ -n "`ps -p $p --no-headers`" ]; then
+            kill -TERM $p > /dev/null || true
+       fi
+    done
 	rm -f $PIDFILE
 	echo "$NAME."
 	;;
@@ -58,7 +60,9 @@ case "$1" in
 	if test -f $PIDFILE; then
 	    echo -n "Restarting $DESC: "
 	    for p in `cat $PIDFILE | sed -e 1d`; do
-		kill -HUP $p > /dev/null || true
+            if [ -n "`ps -p $p --no-headers`" ]; then
+                kill -HUP $p > /dev/null || true
+            fi
 	    done
 	    echo "$NAME."
 	else
