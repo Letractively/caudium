@@ -894,9 +894,9 @@ mapping add(object id, int applyadd)
       if(!id->conf->auth_module)
         throw ( ({ "This module require the caudium LDAP authentification module"  }) );
       if( !user_auth(id) )
-        return http_auth_required("add member user", "Wrong login/password ");
+        return Caudium.HTTP.auth_required("add member user", "Wrong login/password ");
       if(search(QUERY(addrequireauth), id->auth[1]) == -1)
-        return http_auth_required("add member user", "Wrong login/password");
+        return Caudium.HTTP.auth_required("add member user", "Wrong login/password");
     }
     if(!applyadd)
     {
@@ -1160,7 +1160,7 @@ mapping modify(object id, string action)
     if(!id->conf->auth_module)
       throw ( ({ "This module require the caudium LDAP authentification module"  }) );
     if( !user_auth(id) )
-      return http_auth_required("member user", "Wrong login/password ");
+      return Caudium.HTTP.auth_required("member user", "Wrong login/password ");
     con = Protocols.LDAP.client(host);
     con->bind(binddn, password, proto);
     con->set_basedn(basedn);
@@ -1189,7 +1189,7 @@ mapping modify(object id, string action)
     {
       if(strlen(QUERY(updaterequireauth)[0]) > 0)
         if(search(QUERY(updaterequireauth), id->auth[1]) == -1)
-	  return http_auth_required("add member user", "Only some users may update");
+	  return Caudium.HTTP.auth_required("add member user", "Only some users may update");
       return Caudium.HTTP.rxml_answer(showupdateinputs(id, defines), id);
     }
     if(QUERY(debug))
@@ -1200,7 +1200,7 @@ mapping modify(object id, string action)
       if(strlen(QUERY(updaterequireauth)[0]) > 0)
       {
         if(search(QUERY(updaterequireauth), id->auth[1]) == -1)
-	  return http_auth_required("update member user", "Only some users may update");  
+	  return Caudium.HTTP.auth_required("update member user", "Only some users may update");  
         if(isloginexist(con, id->variables->uid) == 0)
           throw ( ({ "You '" + id->variables->uid + "' don't exist, go away!" }) );
         defines[QUERY(defvaruid)][0] = id->variables->uid;

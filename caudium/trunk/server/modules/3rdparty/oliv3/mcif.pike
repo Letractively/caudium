@@ -334,7 +334,7 @@ mapping set_conf (object id) {
 
   id->conf->save ();
 
-  return http_redirect (id->referrer);
+  return Caudium.HTTP.redirect (id->referrer);
 }
 
 void test (void | int i) {

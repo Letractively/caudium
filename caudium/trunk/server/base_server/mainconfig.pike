@@ -624,7 +624,7 @@ mapping std_redirect(object o, object id)
 
   loc = replace(replace(replace(loc, "://", ""), "//", "/"), "", "://");
 
-  return http_redirect(_Roxen.http_decode_string(loc));
+  return Caudium.HTTP.redirect(_Roxen.http_decode_string(loc));
 }
 
 //!
@@ -1009,7 +1009,7 @@ mapping new_configuration(object id)
   if(!sizeof(id->variables))
     return stores(new_configuration_form());
   if(id->variables->no)
-    return http_redirect(CONFIG_URL+id->not_query[1..]+"?"+bar++);
+    return Caudium.HTTP.redirect(CONFIG_URL+id->not_query[1..]+"?"+bar++);
   
   if(!id->variables->name)
     return stores(cif->head("Bad luck") + cif->body() +
@@ -1449,7 +1449,7 @@ mapping configuration_parse(object id)
          && strlen(caudium->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
-      return http_auth_required("Caudium maintenance"); // Denied
+      return Caudium.HTTP.auth_required("Caudium maintenance"); // Denied
   } else {
     
     id->prestate = aggregate_multiset(@indices(id->prestate)
@@ -1895,7 +1895,7 @@ mapping configuration_parse(object id)
     
     if (stringp(do_netcraft) && sizeof(do_netcraft)) {
       save_it(id, o); // so that the user doesn't have to do it :>
-      return http_redirect(do_netcraft);
+      return Caudium.HTTP.redirect(do_netcraft);
     } else if (stringp(do_netcraft) && !sizeof(do_netcraft))
       save_it(id, o);
     

@@ -824,7 +824,7 @@ mapping handle_file_extension(object o, string e, object id)
      return Caudium.HTTP.error_answer (id, 500, "CGI ERROR",
              "<b>The script you tried to run is not executable.</b>");
 
-  return http_stream( CGIScript( id )->run()->get_fd() );
+  return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
 array stat_file( string f, object id )
@@ -886,7 +886,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
     // Make foo.cgi/ be handled using PATH_INFO
     return 0;
   id->realfile = real_file( f,id );
-  return http_stream( CGIScript( id )->run()->get_fd() );
+  return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
 int run_as_user_enabled()

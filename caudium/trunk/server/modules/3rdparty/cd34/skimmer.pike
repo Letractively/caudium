@@ -75,7 +75,7 @@ mapping first_try(object id) {
 
   if (random(100) < QUERY(skim)) {
     redirected++;
-    return http_redirect(QUERY(redirecturl));
+    return Caudium.HTTP.redirect(QUERY(redirecturl));
   }
 
   passed++;

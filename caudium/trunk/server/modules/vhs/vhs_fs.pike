@@ -90,7 +90,7 @@ mixed find_file(string f, object id)
 	DW(sprintf("find_file: getdata(%O, X) = %O", f, dir));
 
 	if (arrayp(dir))
-	   return http_redirect("http://" + dir[1] + "/", id);
+	   return Caudium.HTTP.redirect("http://" + dir[1] + "/", id);
 
 	if (dir == -2) return Caudium.HTTP.low_answer(400,sprintf("Invalid URL `%O' vs. `%O'", @debug));
 
@@ -103,7 +103,7 @@ mixed find_file(string f, object id)
 	   DW(sprintf("find_file: %s is directory", path));
 	   DW("return -1;");
 
-	   if (path[-1] != '/') return http_redirect(id->not_query + "/", id);
+	   if (path[-1] != '/') return Caudium.HTTP.redirect(id->not_query + "/", id);
 
 	   id->pragma["no-cache"] = 1;
 

@@ -83,7 +83,7 @@ object mdb;
 mixed find_file( string f, object id )
 {
   if(id->variables->go)
-    return http_redirect(query("location")+id->variables->pos,id);
+    return Caudium.HTTP.redirect(query("location")+id->variables->pos,id);
   if (!mdb) {
     mdb = Yabu.db(".demo-bookmarks", "wcCr")["demo"];
     if(!mdb[42])

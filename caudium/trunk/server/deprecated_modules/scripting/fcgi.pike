@@ -158,7 +158,7 @@ mixed low_find_file(string f, object id, string path)
   if(id->data)
     pipe2->write(id->data);
   
-  return http_stream(pipe2);
+  return Caudium.HTTP.stream(pipe2);
 }
 
 mixed find_file(string f, object id)

@@ -133,9 +133,9 @@ mapping find_file(string f,object id)
 perror("q: "+update+"\n");
 //  catch {
     db->query(update);
-    return http_redirect((string)id->variables->successpage,id);
+    return Caudium.HTTP.redirect((string)id->variables->successpage,id);
 //  };
-  return http_redirect((string)id->variables->errorpage + "?" + 
+  return Caudium.HTTP.redirect((string)id->variables->errorpage + "?" + 
                        (string)id->variables->unique + "=" +
                        (string)id->variables[(string)id->variables->unique],id);
 }

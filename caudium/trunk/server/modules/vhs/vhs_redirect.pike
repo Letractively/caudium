@@ -56,6 +56,6 @@ mixed first_try(object id)
 
   id->misc->vhs->is_redirected = 1;
 
-  return http_redirect("http://" + id->misc->vhs->redirect + "/", id);
+  return Caudium.HTTP.redirect("http://" + id->misc->vhs->redirect + "/", id);
 }
 

@@ -533,7 +533,7 @@ mapping|void handle_proppatch()
     string         response;
     
     if ( !realauth ) {
-	send_result(http_auth_required("webdav"));
+	send_result(Caudium.HTTP.auth_required("webdav"));
 	return;
     }
     DAV_WERR("Proppatch:\n"+sprintf("%s\n%O\n", data, mkmapping(indices(this_object()), values(this_object()))));
@@ -595,7 +595,7 @@ mapping|void handle_propfind()
     string         response;
 
     if ( !realauth ) {
-	send_result(http_auth_required("webdav"));
+	send_result(Caudium.HTTP.auth_required("webdav"));
 	return;
     }
     xmlData = get_xmlbody_props();

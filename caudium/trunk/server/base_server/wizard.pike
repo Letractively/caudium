@@ -591,7 +591,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
 
   if(v->cancel) 
   {
-     return http_redirect(s->cancel_url||cancel||id->not_query, @(id->conf?({id}):({})));
+     return Caudium.HTTP.redirect(s->cancel_url||cancel||id->not_query, @(id->conf?({id}):({})));
   }
 
   foreach(indices(s), string q)
@@ -665,7 +665,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
   }
   if(res != -1)
     return (res
-      || http_redirect(s->cancel_url||cancel||id->not_query, 
+      || Caudium.HTTP.redirect(s->cancel_url||cancel||id->not_query, 
            @(id->conf?({id}):({}))));
   DEBUGMSG ("Wizard: -1 from wizard_done; continuing\n");
       }
@@ -703,7 +703,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
       if (v->_page == "cancel") {
   string to = s->cancel_url||cancel||id->not_query;
   DEBUGMSG ("Wizard: Canceling with redirect to " + to + "\n");
-  return http_redirect(to, @(id->conf?({id}):({})));
+  return Caudium.HTTP.redirect(to, @(id->conf?({id}):({})));
       }
 
       if (!v->_page) v->_page = "done", oldpage = 0;
@@ -742,7 +742,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     return "Internal error in wizard code: No wizard_done function.";
   DEBUGMSG ("Wizard: Running wizard_done\n");
   data = donefn (id, @args);
-  if (!data) return http_redirect(cancel||id->not_query,
+  if (!data) return Caudium.HTTP.redirect(cancel||id->not_query,
           @(id->conf?({id}):({})));
   wiz_name = "done";
   break;
@@ -792,7 +792,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
   mixed res = c(id,@args);
   if(res != -1) 
     return (res
-      || http_redirect(cancel||id->not_query, 
+      || Caudium.HTTP.redirect(cancel||id->not_query, 
            @(id->conf?({id}):({}))));
       }
       if(!pg) return "Internal error in wizard code: Invalid page ("+v->_page+")!";

@@ -69,7 +69,8 @@ mapping parse_directory(object id)
 {
   // Redirect to an url with a '/' at the end, to make relative links
   // work as expected.
-  if(id->not_query[-1] != '/') return http_redirect(id->not_query+"/", id);
+  if(id->not_query[-1] != '/') 
+    return Caudium.HTTP.redirect(id->not_query+"/", id);
 
   string oq = id->not_query;
   string file;

@@ -464,14 +464,14 @@ mixed sessionid_set_prestate(object id, string SessionID) {
   string url=strip_prestate(strip_config(id->raw_url));
   string new_prestate = "SessionID="+SessionID;
   id->prestate += (<new_prestate>);
-  return(http_redirect(url, id));
+  return Caudium.HTTP.redirect(url, id);
 }
 
 mixed sessionid_remove_prestate(object id) {   
   string url=strip_prestate(strip_config(id->raw_url));
   id->prestate = (<>);                                   
   // cd34, 10/30/2001
-  return(http_redirect(id->not_query+(id->query ? "?"+id->query : ""), id));
+  return Caudium.HTTP.redirect(id->not_query+(id->query ? "?"+id->query : ""), id);
 }
 
 void sessionid_set_cookie(object id, string SessionID) {

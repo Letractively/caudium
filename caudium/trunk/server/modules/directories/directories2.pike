@@ -329,7 +329,7 @@ string|mapping parse_directory(object id)
    * It must end with "/" or "/."
    */
   if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
-    return http_redirect(id->not_query+"/", id);
+    return Caudium.HTTP.redirect(id->not_query+"/", id);
   
   /* Handle indexfiles */
   old_file = old_not_query = id->not_query;
@@ -341,15 +341,12 @@ string|mapping parse_directory(object id)
   }
   id->not_query = old_not_query;
 
-  if (!QUERY(dirlisting)) {
+  if (!QUERY(dirlisting)) 
     return 0;
-  }
-  if (f[-1] != '.') {
-#if 0
-    return(http_redirect(f+".",id));
-#endif /* 0 */
+
+  if (f[-1] != '.')
     f += ".";
-  }
+
   return Caudium.HTTP.string_answer(parse_rxml(describe_directory(f, id), id));
 }
 

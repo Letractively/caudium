@@ -1338,13 +1338,13 @@ void handle_request( )
 	if(prestate->find_file)
         {
 	  if(!realauth)
-	    file = http_auth_required("admin");
+	    file = Caudium.HTTP.auth_required("admin");
 	  else
 	  {
 	    array auth = (realauth+":")/":";
 	    if((auth[0] != caudium->query("ConfigurationUser"))
 	       || !crypt(auth[1], caudium->query("ConfigurationPassword")))
-	      file = http_auth_required("admin");
+	      file = Caudium.HTTP.auth_required("admin");
 	    else
 	      file = handle_error_file_request( err[0],  (int)variables->error );
 	  }
