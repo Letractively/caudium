@@ -123,7 +123,7 @@ array(string) container_showdata(string tag, mapping args, string contents, obje
 
         default:
           report_warning(EPREFIX + "unknown action: %s", session->showdata);
-          return ({""}};
+          return ({""}});
     }    
 
     return ({ do_output_tag(args, rep, contents, id) });
