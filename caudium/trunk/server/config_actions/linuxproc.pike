@@ -239,7 +239,7 @@ mixed page_0(object id, object conf)
 	  (caudium->euid_egid_lock ? 
 	   "<p><i>Please note that when using threads on Linux&reg; kernel v2.4 and earlier, each "
 	   "thread is more or less<br> a separate process, with the exception "
-	   "that they share all their memory. With the Linux&reg; kernel version 2.6 and newer "
+	   "that they share all their memory.<br>With the Linux&reg; kernel version 2.6 and newer "
 	   "and the new threads library (NPTL) each thread has the same PID as the parent "
 	   "process but a different LWP ID.</b>" : "")+
 	  "<h3>Misc status for "+pid
