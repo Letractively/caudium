@@ -11,5 +11,6 @@ var/run/caudium
 var/state/caudium
 var/cache/caudium
 var/cache/caudium/args
+var/cache/caudium/cache
 var/www
 var/www/caudiumimages
