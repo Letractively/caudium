@@ -1,3 +1,9 @@
+caudium (1:1.0.35-4) unstable; urgency=low
+
+  * Fixed some errors/warnings reported by lintian
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 19 Apr 2001 17:48:32 +0200
+
 caudium (1:1.0.35-3) unstable; urgency=low
 
   * Corrected the build depends
