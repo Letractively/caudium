@@ -82,7 +82,7 @@ private mapping fault(int fault_code, array backtrace)
 {
   if(QUERY(report_faults))
     report_error(describe_backtrace(backtrace));
-  string xmlResult = Protocols.XMLRPC.encode_response_fault(2, backtrace[0]);
+  string xmlResult = Protocols.XMLRPC.encode_response_fault(fault_code, backtrace[0]);
   return Caudium.HTTP.string_answer(xmlResult, "text/xml"); 
 }
 
@@ -151,11 +151,8 @@ mapping|Stdio.File|void find_file( string path, object id )
 	      };
 	      if (external_error)
 		return fault(2, external_error);
-	      if (callResult != 0)
-	      {
-		xmlResult = Protocols.XMLRPC.encode_response(({ callResult }));
-		return Caudium.HTTP.string_answer(xmlResult, "text/xml");
-	      }
+	      xmlResult = Protocols.XMLRPC.encode_response(({ callResult }));
+	      return Caudium.HTTP.string_answer(xmlResult, "text/xml");
 	    }
        }
   };
