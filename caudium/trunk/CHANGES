@@ -1,5 +1,6 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed bug #11
 - Because of changes in Pike 7.6.24+ that have been not compatible with
   it self, we requires now 7.6.24 now.
    (Xavier Beaudouin)
