@@ -58,6 +58,8 @@ SCRIPTS_ENV=	WRKDIRPREFIX="${WRKDIRPREFIX}" \
 		PHP4_OPTIONS="${PHP4_OPTIONS}" \
 		REALCURDIR="${.CURDIR}"
 
+INSTALL_TARGET=	install-sapi
+
 pre-fetch:
 	@${SETENV} ${SCRIPTS_ENV} ${SH} ${SCRIPTDIR}/configure.php
 	@${ECHO_CMD} ""
