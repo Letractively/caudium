@@ -18,7 +18,6 @@
  *
  */
 
-;/* $Id$ */
 #include "global.h"
 RCSID("$Id$");
 #include "interpret.h"

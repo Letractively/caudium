@@ -16,6 +16,8 @@ tools: force
 
 install: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
+install_bin: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install_bin); done
 install_alt: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install_alt); done
 clean: force

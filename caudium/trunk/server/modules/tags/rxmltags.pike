@@ -1412,10 +1412,10 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 			 [scope, var] = get_scope_var(s, 0);
 			 
 			 if(!id->misc->scopes[scope])
-			   return "<b>&lt;"+tag+"&gt;: Invalid scope "+
+			   return "<b>&lt;insert&gt;: Invalid scope "+
 			     scope+".</b><br>";
 			 if(!(_get = id->misc->scopes[scope]->get))
-			   return "<b>&lt;"+tag+"&gt;: Scope "+scope+
+			   return "<b>&lt;insert&gt;: Scope "+scope+
 			     " can't be read.</b><br>";
 			 val = _get(var, id);
 			 if(arrayp(val))

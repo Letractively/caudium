@@ -52,6 +52,24 @@ clean:
 install: all install_only 
 	-@$(BIN_TRUE)
 
+install_bin:
+	@if [ ! -d "$(prefix)/caudium/" -o \
+              ! -d "$(prefix)/caudium/server/" -o \
+              ! -d "$(prefix)/caudium/server/lib" ]; then \
+         echo "install_bin only works when there is an existing Caudium "; \
+         echo "installation. Please run 'make install' to install.";\
+         exit 1; \
+       fi;
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	-chmod a+rx $(prefix)/caudium/server/lib/@PIKE_VERSION@
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install_bin)
+	-@rm -f $(prefix)/caudium/server/bin/caudium-@PIKE_VERSION@
+	@ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium-@PIKE_VERSION@
+	@echo "";\
+	echo "*** Binaries for Pike @PIKE_VERSION@ installed. To start Caudium with";\
+	echo "*** these binaries, run start with the --pike-version=@PIKE_VERSION@ argument.";\
+	echo
+
 install_only: 
 	@$(SRCDIR)/mkdir -p $(prefix)/caudium/readme/
 	$(SRCDIR)/mkdir -p $(prefix)/bin/
