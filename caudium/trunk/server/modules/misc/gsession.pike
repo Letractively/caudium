@@ -18,11 +18,6 @@
  *
  */
 
-/*
- * User database. Reads the system password database and use it to
- * authenticate users.
- */
-
 constant cvs_version = "$Id$";
 
 #include <module.h>
@@ -157,9 +152,15 @@ string query_provides()
 mapping query_tag_callers() 
 {
     return ([
-        "a" : tag_a,
         "session_variable" : tag_variables,
         "user_variable" : tag_variables
+    ]);
+}
+
+mapping query_container_callers()
+{
+    return ([
+        "a" : container_a,
     ]);
 }
 
@@ -565,7 +566,7 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
 //
 // URI tags overloaders
 //
-mixed tag_a(string tag, mapping args, object id, object file, mapping defines)
+mixed container_a(string tag, mapping args, string contents, object id, mapping defines)
 {
     string   query;
     mapping  hvars = ([]);
@@ -583,5 +584,5 @@ mixed tag_a(string tag, mapping args, object id, object file, mapping defines)
                 args->href = sprintf("%s&%s=%s", args->href, SVAR, id->misc->session_id);
     }
     
-    return ({ make_tag("a", args) });
+    return ({ make_container("a", args, parse_rxml(contents, id)) });
 }
