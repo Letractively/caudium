@@ -308,7 +308,7 @@ string type_text(string type, mapping args, object id)
     return 0;
   else
   {
-    result+="<div class='error'>"+args->error||message("Invalid input")+"<div>";
+    result+="<div class=\"error\">"+(args->error||message("Invalid input"))+"</div>";
     id->misc->sform->errors++;
   }
 
