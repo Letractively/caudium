@@ -3654,6 +3654,8 @@ object(DataCache) datacache;
 
 void create(string config)
 {
+  int|array currentipaddress = gethostbyname(gethostname()); // The ip address
+                                                             // of this machine
   caudium->current_configuration = this;
   name=config;
 
@@ -3842,7 +3844,7 @@ void create(string config)
          "transferts. This allow you to specify the real IP address used "
          "by the NATed ftp server.");
 
-  defvar("pasvipaddr", gethostbyname(gethostname())[1][0],
+  defvar("pasvipaddr", arrayp(currentipaddress)?currentipaddress[1][0]:"127.0.0.1",
          "FTP:Passive FTP NATed real address", TYPE_STRING|VAR_MORE,
          "When Passive FTP NAT support is set, can specify the real IP "
          "address to send in Passive transfert requests.");
