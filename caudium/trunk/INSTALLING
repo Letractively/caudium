@@ -6,9 +6,12 @@ that is missing, but here is a list of packages that you will most likely
 have to install yourself.
 
 Required Packages:
-  Pike 7.4:
-    You will need version 7.4.25 or better. Caudium 1.3 will not be
-    able to run with older pike (eg pike 7.2, 7.1, 7.0 or 0.6).
+  Pike 7.5:
+    You will need version 7.5 or better. Caudium 1.3 will not be
+    able to run with older pike (eg pike 7.2, 7.1, 7.0, 7.4 or 0.6).
+
+  GNU Make: 
+    Users of *BSD and Solaris need to use GNU make in order to build Caudium.
 
 Optional Packages (recommended)
   Sablotron (requires expat)
@@ -28,10 +31,7 @@ Optional Packages (recommended)
     http://www.mysql.com/
 
   PHP
-    If you want to use Caudium's PHP4 support, you'll need to install it.
-    You do not need to install before caudium, but you will need to restart
-    the server if you install later.  You can use PHP3, but only through
-    the CGI interface.
+    See http://caudium.net/server/docs/related/php4.rxml
 
   NJS JavaScript Interpreter - HIGHLY EXPERIMENTAL!!!
     If you want to use server side Javascript support, you'll need to install
