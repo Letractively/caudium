@@ -2418,8 +2418,9 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
   if(t) cookies += "; expires="+http_date(t+time());
 
   //obs! no check of the parameter's usability
-  cookies += "; path=" +(m->path||"/");
-
+  cookies += "; path=" +(http_encode_cookie(m->path||"/"));
+  if(m->domain)
+    cookies += "; domain="+http_encode_cookie(m->domain);
   add_header(_extra_heads, "Set-Cookie", cookies);
 
   return "";
