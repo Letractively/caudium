@@ -562,21 +562,11 @@ static void f_parse_prestates( INT32 args )
   
   get_all_args("Caudium.parse_prestates", args, "%S%M%M",
                &url, &prestate, &internal);
-  if (url->len < 5) { /* must have at least '/(#)/ */
-    pop_n_elems(args);
-    push_string(url);
+  if (url->len < 5 || url->str[1] != '(') { /* must have at least '/(#)/ */
+    pop_n_elems(args-1);  /* Leave URL on the stack == return it */
     return;
   }
-
-  printf("URL: %s\n", url->str);
-  
-  if (url->str[1] != '(') {
-    pop_n_elems(args);
-    push_string(url);
-    printf("can't be a prestate\n");
-    return; /* can't be a prestate */
-  }
-  
+ 
   tmp = &url->str[3];
   while (tmp && *tmp) {
     if (*tmp == '/' && *(tmp - 1) == ')') {
@@ -587,9 +577,7 @@ static void f_parse_prestates( INT32 args )
   }
 
   if (prestate_end < 0) {
-    pop_n_elems(args);
-    push_string(url);
-    printf("not a prestate\n");
+    pop_n_elems(args-1);  /* Leave URL on the stack == return it */
     return; /* not a prestate */
   }
   
@@ -603,7 +591,7 @@ static void f_parse_prestates( INT32 args )
       
       switch(done_first) {
           case 0:
-            if (!memcmp(&url->str[last_start], "internal", len)) {
+            if (!MEMCMP(&url->str[last_start], "internal", len)) {
               done_first = -1;
               ind.u.string = make_shared_string("internal");
             } else {
@@ -631,7 +619,7 @@ static void f_parse_prestates( INT32 args )
   }
 
   pop_n_elems(args);
-  push_string(make_shared_string(url->str + prestate_end + 1));
+  push_string(make_shared_string(url->str + prestate_end));
 }
 
 static void f_get_address( INT32 args ) {

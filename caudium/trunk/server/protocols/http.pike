@@ -375,15 +375,6 @@ private int parse_got()
   
   REQUEST_WERR(sprintf("RAW_URL:%O", raw_url));
 
-  if(!remoteaddr)
-  {
-    if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
-    if(!remoteaddr) {
-      end();
-      return 0;
-    }
-  }
-
   if(sscanf(f,"%s?%s", f, query) == 2)
     Caudium.parse_query_string(query, variables);
   
@@ -409,7 +400,7 @@ private int parse_got()
     f = "/"+f;
   }
 #else
-  f = "/" + Caudium.parse_prestates(f, prestate, internal);
+  f = Caudium.parse_prestates(f, prestate, internal);
   REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
                        prestate, internal));
 #endif
@@ -1649,12 +1640,13 @@ void create(void|object f, void|object c)
     f->set_nonblocking();
     my_fd = f;
     conf = c;
-    MARK_FD("HTTP connection");
     my_fd->set_close_callback(end);
     my_fd->set_read_callback(got_data);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
+    remoteaddr = Caudium.get_address(my_fd->query_address()||"");
+    MARK_FD("HTTP connection");
   }
 }
 
