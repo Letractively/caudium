@@ -349,7 +349,7 @@ mapping handle_file_extension(object f, string e, object id)
         report_error("Error compiling pike script: \n" + e->get());
         return
 	  http_string_answer("<h1>Error compiling pike script</h1><p><pre>"+
-			     html_encode_string(e->get())+"</pre>");
+			     _Roxen.html_encode_string(e->get())+"</pre>");
       }
       throw( err );
     }

@@ -189,9 +189,9 @@ string status()
   //  return "Blaha";
   string res="<table><tr bgcolor=lightblue><td>Original</td><td>Rewritten to</td><td>Matching Rule</td></tr>";
   foreach(sort(indices(rewrite_info)), string s ) {
-    res += "<tr><td>"+html_encode_string(s)+
-      "</td><td>"+html_encode_string(rewrite_info[s][0])+"</td><td>"+
-      html_encode_string(rewrite_info[s][1])+"</td></tr>";
+    res += "<tr><td>"+_Roxen.html_encode_string(s)+
+      "</td><td>"+_Roxen.html_encode_string(rewrite_info[s][0])+"</td><td>"+
+      _Roxen.html_encode_string(rewrite_info[s][1])+"</td></tr>";
   }
   return res+"</table>";
 }

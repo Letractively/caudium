@@ -232,10 +232,10 @@ mapping|int first_try(object id)
 	for(int i = sline; i < eline; i++) {
 	  if(i == line) {
 	    line_emph += "<b>"+(i+1)+": <font size=+3>"+
-	      html_encode_string(lines[i])+"</font></b><br>";
+	      _Roxen.html_encode_string(lines[i])+"</font></b><br>";
 	  } else {
 	    line_emph += "<b>"+(i+1)+"</b>: "+
-	      html_encode_string(lines[i])+"<br>";
+	      _Roxen.html_encode_string(lines[i])+"<br>";
 	  }
 	}
       }

@@ -78,7 +78,7 @@ void trace_leave_ol(string desc)
 #if constant(gethrvtime)
 	     " (CPU = "+sprintf("%.2f)", delay2/1000000.0)+
 #endif /* constant(gethrvtime) */
-	     "<br>"+html_encode_string(desc)+efont)+"<p>";
+	     "<br>"+_Roxen.html_encode_string(desc)+efont)+"<p>";
 
 }
 
@@ -108,7 +108,7 @@ void trace_leave_table(string desc)
 #if constant(gethrtime)
 	     "Time: "+sprintf("%.5f",delay/1000000.0)+
 #endif
-	     "<br>"+html_encode_string(desc)+efont)+"</td></tr>";
+	     "<br>"+_Roxen.html_encode_string(desc)+efont)+"</td></tr>";
 }
 
 void resolv_handle_request(object c, object nid)

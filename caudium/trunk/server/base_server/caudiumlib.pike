@@ -1497,7 +1497,7 @@ string roxen_encode( string val, string encoding )
       case "html":
         // For generic html text and in tag arguments. Does
         // not work in RXML tags (use dtag or stag instead).
-        return html_encode_string (val);
+        return _Roxen.html_encode_string (val);
      
       case "dtag":
         // Quote quotes for a double quoted tag argument. Only
@@ -1735,12 +1735,12 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
         break;
         
       case "comment":
-        new_contents = "<!--\n" + html_encode_string (contents) + "\n-->";
+        new_contents = "<!--\n" + _Roxen.html_encode_string (contents) + "\n-->";
         break;
         
       default:
         new_contents = "\n<br><b>[</b><pre>" +
-          html_encode_string (contents) + "</pre><b>]</b>\n";
+          _Roxen.html_encode_string (contents) + "</pre><b>]</b>\n";
   }
 
   if (args->sort) {
@@ -1939,11 +1939,11 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
         break;
         
       case "comment":
-        new_contents += "<!--\n" + html_encode_string (unparsed_contents) + "\n-->";
+        new_contents += "<!--\n" + _Roxen.html_encode_string (unparsed_contents) + "\n-->";
         break;
         
       default:
-        new_contents = "\n<br><b>[</b><pre>" + html_encode_string (unparsed_contents) +
+        new_contents = "\n<br><b>[</b><pre>" + _Roxen.html_encode_string (unparsed_contents) +
           "</pre><b>]</b>\n";
   }
 

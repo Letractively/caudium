@@ -131,7 +131,7 @@ string tag_config_tab(string t, mapping a, string contents)
     img_attrs->alt = a->alt;
     m_delete(a, "alt");
   } else {
-    img_attrs->alt = "_/" + html_encode_string(contents) + "\\_";
+    img_attrs->alt = "_/" + _Roxen.html_encode_string(contents) + "\\_";
   }
   if (a->border) {
     img_attrs->border = a->border;

@@ -100,7 +100,7 @@ string loc_encode(string val, void|mapping args, void|string def)
   string quote = args->quote || def || "html";
 
   switch (quote) {
-  case "html": return html_encode_string(val); break;
+  case "html": return _Roxen.html_encode_string(val); break;
   case "none": return val; break;
   }
   return val;

@@ -1334,7 +1334,7 @@ string tag_echo(string tag,mapping m,object id,object file,
   if(tag == "!--#echo" && id->misc->ssi_variables &&
      id->misc->ssi_variables[m->var])
     // Variables set with !--#set.
-    return html_encode_string(id->misc->ssi_variables[m->var]);
+    return _Roxen.html_encode_string(id->misc->ssi_variables[m->var]);
 
   mapping myenv =  build_env_vars(0,  id, 0);
   m->var = lower_case(replace(m->var, " ", "_"));
@@ -1379,34 +1379,34 @@ string tag_echo(string tag,mapping m,object id,object file,
     return "HTTP/1.0";
       
    case "request_method":
-    return html_encode_string(id->method);
+    return _Roxen.html_encode_string(id->method);
 
    case "auth_type":
     return "Basic";
       
    case "http_cookie": case "cookie":
     NOCACHE();
-    return ( id->misc->cookies?html_encode_string(id->misc->cookies):"" );
+    return ( id->misc->cookies?_Roxen.html_encode_string(id->misc->cookies):"" );
 
    case "http_accept":
     NOCACHE();
     return (id->misc->accept && sizeof(id->misc->accept)? 
-	    html_encode_string(id->misc->accept*", "): "None");
+	    _Roxen.html_encode_string(id->misc->accept*", "): "None");
       
    case "http_user_agent":
     NOCACHE();
-    return html_encode_string(id->useragent);
+    return _Roxen.html_encode_string(id->useragent);
       
    case "http_referer":
    case "http_referrer":
     NOCACHE();
-    return html_encode_string(id->referrer|| "Unknown");
+    return _Roxen.html_encode_string(id->referrer|| "Unknown");
       
    default:
     m->var = upper_case(m->var);
     if(myenv[m->var]) {
       NOCACHE();
-      return html_encode_string(myenv[m->var]);
+      return _Roxen.html_encode_string(myenv[m->var]);
     }
     if(tag == "insert")
       return "";
@@ -2162,13 +2162,13 @@ string tag_clientname(string tag, mapping m, object id)
 {
   NOCACHE();
   if(m->full) 
-    return html_encode_string(id->useragent);
+    return _Roxen.html_encode_string(id->useragent);
   else if (m->short)
-    return html_encode_string((((id->useragent/" ")[0])/"/")[0]);
+    return _Roxen.html_encode_string((((id->useragent/" ")[0])/"/")[0]);
   else if (m->version)
-    return html_encode_string((((id->useragent/" ")[0])/"/")[1]);
+    return _Roxen.html_encode_string((((id->useragent/" ")[0])/"/")[1]);
   else
-    return html_encode_string((id->useragent/" ")[0]);
+    return _Roxen.html_encode_string((id->useragent/" ")[0]);
 }
 
 string tag_signature(string tag, mapping m, object id, object file,
@@ -2882,7 +2882,7 @@ string tag_referrer(string tag, mapping m, object id, object file,
 		   mapping defines)
 {
   NOCACHE();
-  return html_encode_string(id->referrer || (m->alt ? m->alt : ".."));
+  return _Roxen.html_encode_string(id->referrer || (m->alt ? m->alt : ".."));
 }
 
 string tag_header(string tag, mapping m, object id, object file,
@@ -3001,9 +3001,9 @@ string tag_language(string tag, mapping m, object id)
     return "None";
 
   if(m->full)
-    return html_encode_string(id->misc["accept-language"]*",");
+    return _Roxen.html_encode_string(id->misc["accept-language"]*",");
   else
-    return html_encode_string((id->misc["accept-language"][0]/";")[0]);
+    return _Roxen.html_encode_string((id->misc["accept-language"][0]/";")[0]);
 }
 
 string tag_quote(string tagname, mapping m)
@@ -3783,7 +3783,7 @@ class Tracer
 #if constant(gethrvtime)
 	       " (CPU = "+sprintf("%.2f)", delay2/1000000.0)+
 #endif /* constant(gethrvtime) */
-	       "<br>"+html_encode_string(desc)+efont)+"<p>";
+	       "<br>"+_Roxen.html_encode_string(desc)+efont)+"<p>";
 
   }
 
@@ -3817,7 +3817,7 @@ class SumTracer
 #if constant(gethrvtime)
     int delay2 = +gethrvtime()-et2[t];
 #endif
-    t+=html_encode_string(mess);
+    t+=_Roxen.html_encode_string(mess);
     if( sum[ t ] ) {
       sum[ t ][ 0 ] += delay;
 #if constant(gethrvtime)

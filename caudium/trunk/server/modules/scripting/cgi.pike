@@ -1139,7 +1139,7 @@ int|string tag_cgi( string tag, mapping args, object id )
     return data;
   };
   return ("Failed to run CGI script: <font color=red><pre>"+
-          (html_encode_string(describe_backtrace(e))/"\n")[0]+
+          (_Roxen.html_encode_string(describe_backtrace(e))/"\n")[0]+
           "</pre></font>");
 }
 
