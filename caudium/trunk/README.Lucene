@@ -21,3 +21,11 @@ How to install and use:
 
 
 
+TODO
+
+Indexer needs to be more full featured (allow, deny, non-text formats)
+Indexer needs web interface
+Search module needs paging capabilities
+Search module needs more flexible output
+Search module needs search forms
+Both indexer and searcher need support for custom stopwords.
