@@ -169,6 +169,21 @@ function md5_hexnibble(x)
 	}
 }
 
+function md5_binbyte( what )
+{
+	return String.fromCharCode( what & 0xff );
+}
+
+function md5_bin32( what )
+{
+	return (
+		md5_binbyte( what       ) +
+		md5_binbyte( what >>  8 ) +
+		md5_binbyte( what >> 16 ) +
+		md5_binbyte( what >> 24 )
+	);
+}
+
 function md5_hex32(x)
 {
 	return (md5_hexnibble(x>> 4) + md5_hexnibble(x    )+
@@ -249,14 +264,33 @@ function md5final(md5obj)
 	md5obj.buffer[62] = ((md5obj.len_hi>>>16)&0xff);
 	md5obj.buffer[63] = ((md5obj.len_hi>>>24)&0xff);
 	md5_transform(md5obj);
-	return ( md5_hex32(md5obj.a) + md5_hex32(md5obj.b)+
-		md5_hex32(md5obj.c) + md5_hex32(md5obj.d) );
+	return md5obj;
 }
 
-function md5sum(from)
+function md5( what )
 {
 	var md5obj = md5init();
-	md5add(md5obj, from);
-	return md5final(md5obj);
+	md5add(md5obj, what);
+	md5final( md5obj );
+	return (
+		md5_bin32( md5obj.a ) +
+		md5_bin32( md5obj.b ) +
+		md5_bin32( md5obj.c ) +
+		md5_bin32( md5obj.d )
+	);
 }
+
+function md5_hex( what )
+{
+	var md5obj = md5init();
+	md5add(md5obj, what);
+	md5final( md5obj );
+	return (
+		md5_hex32( md5obj.a ) +
+		md5_hex32( md5obj.b ) +
+		md5_hex32( md5obj.c ) +
+		md5_hex32( md5obj.d )
+	);
+}
+
 
