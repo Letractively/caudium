@@ -23,9 +23,9 @@
  */
 constant cvs_version = "$Id$";
 
-// Someone can tell what this is used for ? - XB
+//! Some code to render HTML
 
-#define __replace(X) (X)
+#define __replace(X) (X) 		// What is this for ? - XB
 
 //! Creates a <input type > html code
 //! @param name
