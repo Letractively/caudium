@@ -169,54 +169,49 @@ void close_dir() {
 }
 
 
-object open_dir(string u, string p) {
+int|object open_dir(string u, string p) {
     mixed err;
-    string binddn, bindpwd;
+    int res;
 
     dir_accesses++; //I count accesses here, since this is called before each
 
-    if(!access_mode_is_guest_or_roaming()) { // access type is "guest"/"roam."
-	binddn = QUERY(CI_dir_username);
-	bindpwd = QUERY(CI_dir_pwd);
-    } else {                      // access type is "user"
-	binddn = replace(QUERY(CI_bind_templ), "%u%", u);
-	if (sizeof(QUERY(CI_basename)))
-	    binddn += ", " + QUERY(CI_basename);
-	bindpwd = p;
+
+    err = catch 
+    {
+	dir = Protocols.LDAP.client(QUERY(CI_dir_server));
+    };
+
+    if (arrayp(err)) 
+    {
+      report_error ("LDAPauth: Couldn't open authentication directory!\n"
+          "[Internal: "+err[0]+"]\n");
+      return 0;
     }
 
-    err = catch {
-	dir = Protocols.LDAP.client(QUERY(CI_dir_server));
-	dir->bind(binddn, bindpwd);
-    };
-    if (arrayp(err)) {
-	report_error ("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
-	if (objectp(dir)) {
-	    report_error("LDAPauth: directory interface replies: "+dir->error_string()+"\n");
-	    catch(dir->unbind());
-	}
-	else
-	    report_error("LDAPauth: unknown reason\n");
-	report_error ("LDAPauth: check the values in the configuration interface, and "
-		"that the user\n\trunning the server has adequate permissions "
-		"to the server\n");
-	close_dir();
-	return;
-    }
-    if(dir->error_code) {
-	report_error ("LDAPauth: authentication error ["+dir->error_string+"]\n");
-	close_dir();
-	return;
-    }
-    switch(QUERY(CI_level)) {
-	case "subtree": dir->set_scope(2); break;
-	case "onelevel": dir->set_scope(1); break;
-	case "base": dir->set_scope(0); break;
-    }
+   // bind if we have a default user specified.
+   if(QUERY(CI_dir_username))
+   {
+     res=dir->bind(QUERY(CI_dir_username), QUERY(CI_dir_pwd));
+     if(!res)
+     {
+       report_error("LDAPauth: bind failed as " + QUERY(CI_dir_username) + "\n");
+       close_dir();
+       return 0;
+     }
+   }   
+    
+   switch(QUERY(CI_level)) 
+   {
+     case "subtree": dir->set_scope(2); break;
+     case "onelevel": dir->set_scope(1); break;
+     case "base": dir->set_scope(0); break;
+   }
+
     dir->set_basedn(QUERY(CI_basename));
+
     DEBUGLOG("directory successfully opened");
-    if(QUERY(CI_close_dir) && (QUERY(CI_access_mode) != "user"))
-	call_out(close_dir,QUERY(CI_timer));
+
+    return dir;
 }
 
 
@@ -231,25 +226,8 @@ string status() {
 	   "Attempted authentications: "+att+"<BR>\n"
 	   "Failed: "+(att-succ+nouser)+" ("+nouser+" because of wrong username)"
 	   "<BR>\n"+
-	   dir_accesses +" accesses to the directory were required.<BR>\n" +
+	   dir_accesses +" accesses to the directory were required.\n"
 
-	     "<p>"+
-	     "<h3>Failure by host</h3>" +
-	     Array.map(indices(failed), lambda(string s) {
-	       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
-	     }) * ""
-	     //+ "<p>The database has "+ sizeof(users)+" entries"
-#ifdef LOG_ALL
-	     + "<p>"+
-	     "<h3>Auth attempt by host</h3>" +
-	     Array.map(indices(accesses), lambda(string s) {
-	       return caudium->quick_ip_to_host(s) + ": "+accesses[s]->cnt+" ["+accesses[s]->name[0]+
-		((sizeof(accesses[s]->name) > 1) ?
-		  (Array.map(accesses[s]->name, lambda(string u) {
-		    return (", "+u); }) * "") : "" ) + "]" +
-		"<br>\n";
-	     }) * ""
-#endif
 	   );
 
 }
