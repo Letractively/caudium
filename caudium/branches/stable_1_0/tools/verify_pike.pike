@@ -172,12 +172,16 @@ int main(int argc, array argv)
 #elif !constant(_Crypto)
   warning("Your Pike is lacking the _Crypto module so you won't be able to use SSL3.");
 #endif
-  
+  if(
 #if !constant(Image.TTF)
-  warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
-	  ".ttf fonts, you need to install the freetype library available from\n"
-	  "http://www.freetype.org/ and recompile Pike.");
+     1
+#else
+     !sizeof(Image.TTF)
 #endif
+     )
+    warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
+	    ".ttf fonts, you need to install the freetype library available from\n"
+	    "http://www.freetype.org/ and recompile Pike.");
 #if !constant(Gdbm.gdbm)
   warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
 	  "for storing log summaries. You can still use UltraLog with the File and\n"

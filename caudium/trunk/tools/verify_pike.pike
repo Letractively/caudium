@@ -173,7 +173,13 @@ int main(int argc, array argv)
   warning("Your Pike is lacking the _Crypto module so you won't be able to use SSL3.");
 #endif
   
+  if(
 #if !constant(Image.TTF)
+     1
+#else
+     !sizeof(Image.TTF)
+#endif
+     )
   warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
 	  ".ttf fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
