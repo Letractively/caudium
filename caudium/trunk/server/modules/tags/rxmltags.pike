@@ -776,54 +776,43 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 
 string tag_set( string tag, mapping m, object id )
 {
-  string scope, variable;
   if(m->help) 
     return ("<b>&lt;unset variable=...&gt;</b>: Unset the variable specified "
 	    "by the 'variable' argument");
+
   if (m->variable)
   {
     int ret;
-    function _set, _get;
-    [scope,variable] = get_scope_var(m->variable, m->scope);      
-    if(!id->misc->scopes[scope])
-      return "<b> &lt;"+tag+"&gt;: Invalid scope "+scope+".</b>";
-    if(!(_set = id->misc->scopes[scope]->set))
-      return "<b> &lt;"+tag+"&gt;: scope "+scope+" is read-only.</b>";
     if (m->value) {
       // Set variable to value.
-      ret = _set(variable, m->value, id);
+      ret = set_scope_var(m->variable, m->scope, m->value, id);
     } else if (m->expr) {
-      ret = _set(variable, sexpr_eval( m->expr ), id);
+      ret = set_scope_var(m->variable, m->scope, sexpr_eval( m->expr ), id);
     } else if (m->from) {
+      mixed val;
       // Set variable to the value of another variable
-      string fscope, fvar, val;
-      [fscope,fvar] = get_scope_var(m->from, 0);
-      if(!id->misc->scopes[fscope])
-	return "<b>&lt;"+tag+"&gt;: Invalid scope "+fscope+".</b>";
-      if(!(_get = id->misc->scopes[fscope]->get))
-	return "<b>&lt;"+tag+"&gt;: Scope "+fscope+" can't be read.</b>";
-      val = _get(fvar, id);
+      val = get_scope_var(m->from, 0, id);
       if(!val && (m->debug || id->misc->debug))
 	return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
-      ret = _set(variable, val, id);
+      ret = set_scope_var(m->variable, m->scope, val, id);
     } else if (m->other) {
       // Set variable to the value of a misc variable
       if (id->misc->variables && id->misc->variables[ m->other ])
-	ret = _set(variable, id->misc->variables[ m->other ], id);
+	ret = set_scope_var(m->variable, m->scope, id->misc->variables[ m->other ], id);
       else if (m->debug || id->misc->debug)
 	return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
     } else if(m->define) {
       // Set variable to the value of a define
-      ret = _set(variables, id->misc->defines[ m->define ], id);
+      ret = set_scope_var(m->variable, 0, id->misc->defines[ m->define ], id);
     } else if (m->eval) {
       // Set variable to the result of some evaluated RXML
-      ret = _set(variable, parse_rxml(m->eval, id), id);
+      ret = set_scope_var(m->variable, m->scope, parse_rxml(m->eval, id), id);
     } else {
       // Unset variable.
-      ret = _set(variable, 0, id);
+      ret = set_scope_var(m->variable, m->scope, 0, id);
     }
     if(!ret)
-      return "<b>Set/unset failed or scope "+scope+" is read-only.</b>";
+      return "<b>Set/unset failed or scope is read-only.</b>";
     return("");
   } else if (id->misc->defines) {
     return("<!-- set (line "+id->misc->line+"): variable not specified -->");
@@ -834,11 +823,11 @@ string tag_set( string tag, mapping m, object id )
 
 //! tag: append
 //!  Append a value to a variable.
-//! bugs:
-//!  Does not yet handle new-style scope/entity arguments.
 //! attribute: variable
 //!  The variable to append to.
-//! attribute: debug
+//! attribute: [scope]
+//!  The scope of the variable.
+//! attribute: [debug]
 //!  Provide debug messages in case the operation fails. <tt>&lt;append&gt;</tt>
 //!  will normally fail silently.
 //! attribute: define
@@ -859,44 +848,44 @@ string tag_set( string tag, mapping m, object id )
 
 string tag_append( string tag, mapping m, object id )
 {
+  string val, to_add;
+  int ret;
   if (m->variable)
   {
     if (m->value)
       // Set variable to value.
-      if (id->variables[ m->variable ])
-	id->variables[ m->variable ] += m->value;
-      else
-	id->variables[ m->variable ] = m->value;
-    else if (m->from)
+      to_add = m->value;
+    else if (m->from) {
       // Set variable to the value of another variable
-      if (id->variables[ m->from ])
-	if (id->variables[ m->variable ])
-	  id->variables[ m->variable ] += id->variables[ m->from ];
-	else
-	  id->variables[ m->variable ] = id->variables[ m->from ];
-      else if (m->debug || id->misc->debug)
+      to_add = get_scope_var(m->from, 0, id);
+      if(!to_add && (m->debug || id->misc->debug))
 	return "<b>Append: from variable doesn't exist</b>";
-      else
-	return "";
-    else if (m->other)
+    } else if (m->other) {
       // Set variable to the value of a misc variable
-      if (id->misc->variables[ m->other ])
-	if (id->variables[ m->variable ])
-	  id->variables[ m->variable ] += id->misc->variables[ m->other ];
-	else
-	  id->variables[ m->variable ] = id->misc->variables[ m->other ];
-      else if (m->debug || id->misc->debug)
+      if (!(to_add =  id->misc->variables[ m->other ]) && 
+	  (m->debug || id->misc->debug))
 	return "<b>Append: other variable doesn't exist</b>";
-      else
-	return "";
-    else if(m->define)
+    } else if(m->define) {
       // Set variable to the value of a define
-      id->variables[ m->variable ] += id->misc->defines[ m->define ]||"";
-    else if (m->debug || id->misc->debug)
+      to_add = id->misc->defines[ m->define ];
+    } else if (m->debug || id->misc->debug) {
       return "<b>Append: nothing to append from</b>";
-    else
+    } else {
       return "";
-    return("");
+    }
+    if(!to_add) /* Nothing to add */
+      return ""; 
+    if(!(val = get_scope_var(m->variable, m->scope, id)))
+      ret = set_scope_var(m->variable, m->scope, to_add, id);
+    else {
+      if(catch(ret = set_scope_var(m->variable, m->scope, val + to_add, id))) {
+	return "<b>Append: Failed to add value to variable. Incompatible types.\n";
+      }
+    }
+    if(!ret && (m->debug || id->misc->debug))
+      return "<b>Append: Failed to set variable "+(m->scope?m->scope+".":"")
+	+m->variable+" - read only scope? </b>";
+    return "";
   }
   else if (m->debug || id->misc->debug)
     return("<b>Append: variable not specified</b>");
@@ -1365,7 +1354,6 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 {
   string n, scope, var;
   mapping fake_id=([]);
-  function _get;
   array encodings=({ "html" });
   mixed val;
   
@@ -1385,17 +1373,11 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 
   if (n=m->variable) 
   {
-    [scope, var] = get_scope_var(n, m->scope);
-    
+    m_delete(m, "variable");  
+    val = get_scope_var(n, m->scope, id);
     m_delete(m, "scope");
-    m_delete(m, "variable");
-    
-    if(!id->misc->scopes[scope])
-      return "<b>&lt;"+tag+"&gt;: Invalid scope "+scope+".</b>";
-    if(!(_get = id->misc->scopes[scope]->get))
-      return "<b>&lt;"+tag+"&gt;: Scope "+scope+" can't be read.</b>";
-    val = _get(var, id);
     if(arrayp(val))
+      /* Safe value, won't be parsed */
       return val;
     return do_safe_replace(val||(id->misc->debug?"No such variable: "+n:""),
 			   m, encodings);
@@ -1407,17 +1389,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
       return Array.map(replace(n, ",", " ")/ " " - ({ "" }), 
 		       lambda(string s, object id) {
 			 mixed val;
-			 string scope, var;
-			 function _get;
-			 [scope, var] = get_scope_var(s, 0);
-			 
-			 if(!id->misc->scopes[scope])
-			   return "<b>&lt;insert&gt;: Invalid scope "+
-			     scope+".</b><br>";
-			 if(!(_get = id->misc->scopes[scope]->get))
-			   return "<b>&lt;insert&gt;: Scope "+scope+
-			     " can't be read.</b><br>";
-			 val = _get(var, id);
+			 val = get_scope_var(s, 0, id);
 			 if(arrayp(val))
 			   val = val[0];
 			 return
@@ -1503,6 +1475,70 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
   }
   return tag_echo(tag, m, id, file, defines);
 }
+
+//! tag: dec
+//!  Decrement the integer value of the specified variable with the
+//!  specified amount.
+//! arg: variable
+//!  The variable to decrement.
+//! arg: [scope]
+//!  The scope of the variable. See [set] for more information.
+//! arg: [val]
+//!  The optional value to decrement the variable with. Defaults to 1.
+//! see_also: inc
+//! example: exml
+//!  {set variable="var.test" value="10 /}
+//!  {dec variable="var.test" value="5" /}
+//!  {insert variable="var.test" /}
+
+string|array(string) tag_dec(string tag, mapping args, object id) {
+  if(!args->variable)
+    return ({ "<b>inc: Missing variable.</b>" });
+  int val = -(int)args->value;
+  if(!val && !args->value) val=-1;
+  return inc(args, val, id);
+}
+
+//! tag: inc
+//!  Increment the integer value of the specified variable with the
+//!  specified amount.
+//! arg: variable
+//!  The variable to increment.
+//! arg: [scope]
+//!  The scope of the variable. See [set] for more information.
+//! arg: [val]
+//!  The optional value to increment the variable with. Defaults to 1.
+//! see_also: dec
+//! example: exml
+//!  {set variable="var.test" value="10 /}
+//!  {inc variable="var.test" value="5" /}
+//!  {insert variable="var.test" /}
+
+string|array(string) tag_inc(string tag, mapping args, object id) {
+  if(!args->variable)
+    return ({ "<b>inc: Missing variable.</b>" });
+  int val = (int)args->value;
+  if(!val && !args->value) val = 1;
+  return inc(args, val, id);
+}
+
+static string|array(string) inc(mapping m, int val, object id)
+{
+  string scope, var;
+  mixed curr;
+  [scope,var] = parse_scope_var(m->variable, m->scope);
+  if(!id->misc->scopes[scope])
+    return ({"\n<b>Scope "+scope+" does not exist.</b>\n"});
+  curr = get_scope_var(var, scope, id);
+  catch {
+    curr = (int)curr;
+  };
+  curr += val;
+  if(!set_scope_var(var, scope, (string)curr, id))
+    return ({"\n<b>Scope "+scope+" read-only.</b>\n"});
+  return "";
+}
+
 
 string tag_compat_exec(string tag,mapping m,object id,object file,
 		       mapping defines)
@@ -2973,6 +3009,8 @@ mapping query_tag_callers()
 	    "ximg":tag_ximage,
 	    "version":tag_version,
 	    "set":tag_set,
+	    "dec":tag_dec,
+	    "inc":tag_inc,
 	    "append":tag_append,
 	    "unset":tag_set,
 	    "undefine":tag_undefine,

@@ -1415,7 +1415,7 @@ string fix_relative(string file, object id)
 }
 
 
-//! method: array(string) get_scope_var(string variable, void|string scope)
+//! method: array(string) parse_scope_var(string variable, void|string scope)
 //!  Return the scope and variable name based on the input data.
 //! arg: string variable
 //!  The variable to parse. Should be either "variable" or "scope.variable".
@@ -1427,9 +1427,9 @@ string fix_relative(string file, object id)
 //!  name. 
 //! returns:
 //!  An array consisting of the scope and the variable.
-//! name: get_scope_var - return the scope and variable name.
+//! name: parse_scope_var - return the scope and variable name.
 
-array(string) get_scope_var(string variable, string|void scope)
+array(string) parse_scope_var(string variable, string|void scope)
 {
   array scvar = allocate(2);
   if(scope) {
@@ -1444,3 +1444,57 @@ array(string) get_scope_var(string variable, string|void scope)
   }
   return scvar;
 }
+
+//! method: array(string) get_scope_var(string variable, string scope, object id)
+//!  Return the value of the specified variable in the specified scope.
+//! arg: string variable
+//!  The variable to fetch from the scope.
+//! arg: string scope
+//!  The scope of the variable. If zero, the scope will be extracted from
+//!  the variable using [parse_scope_var].
+//! arg: object id
+//!  The request id object.
+//! returns:
+//!  The value of the variable or zero if the variable or scope doesn't
+//!  exist.
+//! name: get_scope_var - return the value of a scope variable
+//! see_also: set_scope_var
+//! see_also: parse_scope_var
+
+mixed get_scope_var(string variable, void|string scope, object id)
+{
+  function _get;
+  if(!scope)
+    [scope,variable] = parse_scope_var(variable);
+  if(!id->misc->scopes[scope])  return 0;
+  if(!(_get = id->misc->scopes[scope]->get)) return 0;
+  return _get(variable, id);
+}
+
+//! method: array(string) set_scope_var(string variable, string scope, mixed value, object id)
+//!  Set the specified variable in the specified scope to the value.
+//! arg: string variable
+//!  The variable to fetch from the scope.
+//! arg: string scope
+//!  The scope of the variable. If zero, the scope will be extracted from
+//!  the variable using [parse_scope_var].
+//! arg: mixed value
+//!  The value to set the variable to.
+//! arg: object id
+//!  The request id object.
+//! returns:
+//!  1 if the variable was set correctly, 0 if it failed.
+//! name: set_scope_var - return the value of a scope variable
+//! see_also: get_scope_var
+//! see_also: parse_scope_var
+
+int set_scope_var(string variable, void|string scope, mixed value, object id)
+{
+  function _set;
+  if(!scope)
+    [scope,variable] = parse_scope_var(variable);
+  if(!id->misc->scopes[scope])  return 0;
+  if(!(_set = id->misc->scopes[scope]->set)) return 0;
+  return _set(variable, value, id);
+}
+
