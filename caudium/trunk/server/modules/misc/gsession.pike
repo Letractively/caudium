@@ -1205,14 +1205,17 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
         if (parts[0] == "") {
             parts[0] = id->raw_url;
         }
-        if (search(SVAR, parts[1]) < 0)
+
+        if (!id->variables[SVAR])
             parts = ({parts[0], SVAR, "=" + id->misc->session_id, "#" + parts[1]});
         else
-            parts = ({parts[0], "", "", "#" + parts[1]});
+            parts = ({parts[0], "", "", "#" + parts[1]});        
     } else
         parts = ({from, SVAR, "=" + id->misc->session_id, ""});
     
-    return sprintf("%s%s%s%s%s", parts[0], sepchar, parts[1], parts[2], parts[3]);
+    string t = sprintf("%s%s%s%s%s", parts[0], sepchar, parts[1], parts[2], parts[3]);
+c    
+    return t;
 
 }
 
