@@ -158,6 +158,40 @@ int hide_gc ()
     return (!QUERY(dogc));
 }
 
+//
+// This is the 123sessions compatibility scope, thus the name and behavior
+// are exactly the same.
+//
+class SessionScope {
+    inherit "scope";
+    string name = "session";
+    
+    string|int get(string var, object id)
+    {
+        if (!cur_storage || !id->misc->session_id)
+            return "";
+
+        mixed val = cur_storage->retrieve(id, var, id->misc->session_id, "session");        
+
+        catch {
+            return (string)val;
+        };
+    }
+  
+    int set(string var, mixed val, object id)
+    {
+        if (!cur_storage || !id->misc->session_id)
+            return 0;
+        
+        if(val)
+            cur_storage->store(id, var, val, id->misc->session_id, "session");
+        else 
+            cur_storage->delete_variable(id, var, id->misc->session_id, "session");
+
+        return 0;
+    }
+}
+
 mixed first_try(object id)
 {
     id->misc->session_id = 0;
@@ -183,6 +217,11 @@ mixed find_file ( string path, object id )
                   cvs_version, cur_storage ? cur_storage->name : "unset");
         
     return http_string_answer(ret);
+}
+
+array(object) query_scopes()
+{
+    return ({ SessionScope() });
 }
 
 string query_location()
