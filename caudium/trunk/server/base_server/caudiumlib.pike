@@ -501,7 +501,8 @@ string strip_prestate(string from)
 //! @param defines
 //!  The mapping with defines, sent as another optional argument to callback
 //!  functions. It defaults to id->misc->defines.
-//! @returns The RXML parsed result.
+//! @returns
+//!  The RXML parsed result.
 static string parse_rxml(string what, object id,
 			 void|object file, void|mapping defines)
 {
@@ -1337,7 +1338,7 @@ object get_module (string modname)
 
 //!   Given a copy of a Caudium module object create a uniquely identifying
 //!   for that object. Along the lines of localhost/filesystem#copy
-//! @param object module
+//! @param module
 //!   An object containing an active caudium module (probably this_object()
 //!   from inside a modules namespace).
 //! @returns
@@ -1411,7 +1412,7 @@ string get_modfullname (object module)
 //!      for internal use, i.e. in arguments to other RXML tags
 //!    @item pike
 //!      Pike string quoting (e.g. for use in the &lt;pike&gt; tag)
-//!    @item js or javascript
+//!    @item js|javascript
 //!      Javascript string quoting
 //!    @item mysql
 //!      MySQL quoting
@@ -1419,11 +1420,11 @@ string get_modfullname (object module)
 //!      MySQL quoting followed by dtag quoting
 //!    @item mysql-pike
 //!      MySQL quoting followed by Pike string quoting
-//!    @item sql or oracle
+//!    @item sql|oracle
 //!      SQL/Oracle quoting
 //!    @item sql-dtag/oracle-dtag
 //!      SQL/Oracle quoting followed by dtag quoting
-//!  @endul
+//!  @enddl
 //!
 //! @returns
 //!  The encoded string
@@ -1570,7 +1571,7 @@ private int compare( string a, string b )
 //!           @item comment
 //!            Debugging information is sent to the browser in form of a
 //!            HTML comment.
-//!           @item any other value
+//!           @item any_other_value
 //!            The debugging info is presented as a bold, preformated text
 //!            between the square brackets.
 //!         @enddl
@@ -1605,7 +1606,7 @@ private int compare( string a, string b )
 //!           @item zero
 //!             The value assigned to the variables that are
 //!             uninitialized. See also @[args->zero].
-//!           @item multisep or multi_separator
+//!           @item multisep|multi_separator
 //!             Separator for variables whose content is a list. The
 //!             variable value will be divided on this string.
 //!           @item quote
@@ -1969,7 +1970,7 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
   return _set(variable, value, id);
 }
 
-
+#if constant(Parser.HTML)
 //!  Parse the data for entities.
 //! @param data
 //!  The text to parse.
@@ -1983,7 +1984,6 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
 //!  Optional arguments to pass to the callback function.
 //! @returns
 //!  The parsed result.
-#if constant(Parser.HTML)
 static mixed cb_wrapper(object parser, string entity, object id, function cb,
 			mixed ... args) {
   string scope, name, encoding;
