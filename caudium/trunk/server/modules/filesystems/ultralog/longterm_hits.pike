@@ -77,7 +77,7 @@ mixed *register_module()
   return 
   ({ MODULE_PROVIDER, 
      "UltraLog: Long Term Monthly Hit Statistics ",
-     ("A plugin module for Ultraparse to display montly hit / page load "
+     ("A plugin module for Ultraparse to display monthly hit / page load "
       "statistics for a custom time period."),
        ({  }),
      1 
