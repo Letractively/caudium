@@ -94,23 +94,23 @@
 //
 //! attribute: [seconds]
 //!  Prints how many seconds until the time.
-          
-   since
-          Counts from a time rather than towards it.
-          
-   type=string number ordered
-          How to present the result.
-          
-   weeks
-          Prints the number of weeks until the time.
-          
-   when
-          Prints when the time will occur. All valid <date> tag
-          attributes can be used.
-          
-   years
-          Prints the number of years until the time.
-
+//          
+//! attribute: [since]
+//!  Counts from a time rather than towards it.
+//          
+//! attribute: [type = string|number|ordered]
+//!  How to present the result.
+//
+//! attribute: [weeks]
+//!  Prints the number of weeks until the time.
+//
+//! attribute: [when]
+//!  Prints when the time will occur. All valid <date> tag
+//!  attributes can be used.
+//
+//! attribute: [years]
+//!  Prints the number of years until the time.
+//
 /* Countdown tag. Counts down to the specified data */
 
 constant cvs_version="$Id$";
