@@ -425,6 +425,8 @@ mapping|int get_user_info(string u)
   user->name=result[0]->_fullname;  
   if(result[0]->_home)
     user->home_directory=result[0]->_home;  
+  if(result[0]->_email)
+    user->email=result[0]->_email;  
 
   foreach(indices(result[0]), string f)
     if(f[0..0]=="_" || search(f, ".")!=-1)
@@ -434,7 +436,7 @@ mapping|int get_user_info(string u)
 
   user->groups=(<>);
   
-  user->groups=(multiset)(get_groups_for_user(user->name, s));
+  user->groups=(multiset)(get_groups_for_user(user->username, s));
 
   user->_source=QUERY(_name);
 
