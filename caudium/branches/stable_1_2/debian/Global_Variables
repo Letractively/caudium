@@ -66,12 +66,12 @@
  <var name='audit'>              <int>0</int> </var>
  <var name='ModuleDirs'>         
   <a>
+    <str>/usr/share/pike_packages/apps/modules/</str>
     <str>/usr/lib/caudium/local_modules/</str>
     <str>/usr/lib/caudium/modules/</str>
     <str>/usr/lib/caudium/more_modules/</str>
     <str>/usr/local/share/caudium/modules/</str>
     <str>/usr/share/roxen/modules/</str>
-    <str>/usr/share/pike_packages/apps/modules/</str>
   </a>
  </var>
  <var name='DOC'>                <int>1</int> </var>
