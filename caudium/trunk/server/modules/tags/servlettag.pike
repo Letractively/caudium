@@ -26,7 +26,7 @@ constant thread_safe=1;
 // Does not work yet
 #if 0
 
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "module";
 #include <module.h>;
 

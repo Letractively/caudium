@@ -24,7 +24,7 @@
  * Using it is very simple, just add it to your virtual server of choice.
  */
 
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "module";
 inherit "socket";
 #include <module.h>;

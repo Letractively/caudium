@@ -546,7 +546,7 @@ object really_load_caudium()
 {
   int start_time = gethrtime();
   werror("Loading Caudium ... ");
-  object res = ((program)"roxen")();
+  object res = ((program)"caudium")();
   roxen_perror("done in "+sprintf("%4.3fs\n", (gethrtime()-start_time)/1000000.0));
   return res;
 }

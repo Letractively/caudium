@@ -1178,7 +1178,7 @@ class FTPSession
 
   inherit TelnetSession;
 
-  inherit "roxenlib";
+  inherit "caudiumlib";
 
   static private constant cmd_help = ([
     // FTP commands in reverse RFC order.

@@ -36,7 +36,7 @@ constant thread_safe=1;
 #define SEP "\t"
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 import Array;
 
 #if constant(Image.image)

@@ -23,7 +23,7 @@
  * $Id$
  */
 
-inherit "roxenlib";
+inherit "caudiumlib";
 constant name= "Security//Change password and/or username...";
 
 constant doc = ("Change the configuration interface username and/or password. "

@@ -23,7 +23,7 @@
 /*
 **! file: base_server/http
 **!  This file implements various helper functions related to the HTTP
-**!  protocol. It is inherited by roxenlib, so inheriting roxenlib is 
+**!  protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
 **!  enough to get access to these functions. 
 **!
 **! cvs_version: $Id$

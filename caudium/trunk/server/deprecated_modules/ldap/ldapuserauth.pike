@@ -82,7 +82,7 @@ constant thread_safe=0; // FIXME: ??
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Stdio;
 import Array;

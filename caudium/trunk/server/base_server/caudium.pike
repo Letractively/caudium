@@ -1271,7 +1271,7 @@ void create()
     module_stat_cache = decode_value(Stdio.read_bytes(".module_stat_cache"));
     allmodules = decode_value(Stdio.read_bytes(".allmodules"));
   };
-  //  add_constant("roxen", this_object());
+  add_constant("roxen", this_object()); /* Roxen compat */
   add_constant("caudium", this_object());
   add_constant("load",    load);
   Configuration = (program)"configuration";

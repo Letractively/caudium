@@ -25,7 +25,7 @@ constant cvs_version = "$Id$";
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 import UltraLog;
 constant months = ({ 
   ({ 1, "January" }),

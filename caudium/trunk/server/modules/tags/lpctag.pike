@@ -32,7 +32,7 @@
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "module";
 #include <module.h>;
 
@@ -108,7 +108,7 @@ string reporterr (string header, string dump)
 inline private nomask string functions()
 {
   return 
-    "inherit \"roxenlib\";\n"
+    "inherit \"caudiumlib\";\n"
     "\n"
     "array data = ({});\n\n"
     "int output(mixed ... args) {\n"

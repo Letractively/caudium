@@ -26,7 +26,7 @@ object this = this_object();
 
 #include <module.h>
 inherit "html";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import String;
 import Array;

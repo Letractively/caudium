@@ -23,7 +23,7 @@
  * $Id$
  */
 
-inherit "roxenlib";
+inherit "caudiumlib";
 constant name= "Maintenance//Reload configurations from disk";
 
 constant doc = ("Force a reload of all configuration information from the "

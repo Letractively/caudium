@@ -33,7 +33,7 @@ constant thread_safe=1;
 #include <module.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 mapping hrefs;
 string tagname;

@@ -34,7 +34,7 @@ mapping profile_map = ([]);
 /* A configuration.. */
 
 
-inherit "roxenlib";
+inherit "caudiumlib";
 
 public string real_file(string file, object id);
 

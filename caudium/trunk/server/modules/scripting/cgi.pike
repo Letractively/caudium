@@ -30,7 +30,7 @@
 #include <roxen.h>
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
 
@@ -891,7 +891,7 @@ class CGIScript
     else
       m_delete(environment, "HTTP_AUTHORIZATION");
     if(QUERY(clearpass) && id->auth && id->realauth ) {
-      // Already set in roxenlib.pike
+      // Already set in caudiumlib.pike
       //      environment["REMOTE_USER"] = (id->realauth/":")[0];
       environment["REMOTE_PASSWORD"] = (id->realauth/":")[1];
     } else {

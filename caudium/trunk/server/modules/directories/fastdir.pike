@@ -28,7 +28,7 @@ int thread_safe=1;
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 /************** Generic module stuff ***************/
 

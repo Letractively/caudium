@@ -23,7 +23,7 @@
 // Also inherited by some of the other filesystems.
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "socket";
 
 constant cvs_version= "$Id$";

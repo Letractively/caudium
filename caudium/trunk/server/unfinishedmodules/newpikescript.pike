@@ -40,7 +40,7 @@ mixed *register_module()
 #include <config.h>
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 mixed *register_module()
 {

@@ -21,7 +21,7 @@
 
 #if __VERSION__ > 0.5
 #include <module.h>
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "module";
 
 /*  ------------------------------------------- MODULE GLUE */

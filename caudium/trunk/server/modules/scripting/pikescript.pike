@@ -35,7 +35,7 @@ constant thread_safe=1;
 mapping scripts=([]);
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 #include <module.h>
 #include <config.h>
 

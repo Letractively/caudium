@@ -23,7 +23,7 @@
 string cvs_version = "$Id$";
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "wizard";
 
 import UltraSupport;

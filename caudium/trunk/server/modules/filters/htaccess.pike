@@ -30,7 +30,7 @@ constant thread_safe=1;
 #include <module.h>
 #include <roxen.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #define SERIOUS
 //#define HTACCESS_DEBUG

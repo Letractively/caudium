@@ -22,7 +22,7 @@
 #include <module.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 // import Array;
 

@@ -29,7 +29,7 @@ constant thread_safe=1;
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #ifndef __NT__
 #if constant(Yp.Domain)

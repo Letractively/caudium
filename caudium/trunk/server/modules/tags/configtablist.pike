@@ -34,7 +34,7 @@ constant thread_safe=1;
 #define use_gif_cache      1
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #if use_contents_cache  
 mapping(string:string) contents_cache = ([]);

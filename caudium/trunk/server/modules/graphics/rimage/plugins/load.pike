@@ -19,7 +19,7 @@
  *
  */
 
-inherit "roxenlib";
+inherit "caudiumlib";
 string doc="Load an image. NOTE: If the current layer is the 'image' layer this function can modify _both_ the mask and image layers if the loaded image has a alpha channel. Specify the image with the 'file' argument. The image must recide in roxen's virtual filesystem. An optional 'type' argument can be specified. Supported types are: "+
 String.implode_nicely( ({
 #if constant(Image.GIF.decode)

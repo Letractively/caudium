@@ -32,7 +32,7 @@ constant thread_safe=1;
 #include <roxen.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #if efun(_static_modules)
 /* New pike */
