@@ -722,7 +722,7 @@ mapping handle_file_extension( object file, string e, object id)
   }
   //   report_debug(sprintf("%O", id->misc->defines));
   return (["data":to_parse,
-	   "type":"text/html",
+	   "type":(id->misc->_content_type || "text/html"), 
 	   "stat":_stat,
 	   "is_dynamic": 1,
 	   "error":_error,

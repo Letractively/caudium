@@ -112,6 +112,22 @@ MessageHandler sablot_mh = {
   mh_error
 };
 
+
+static void misc_documentinfo(void* ud, SablotHandle sproc_,
+			      const char *content_type,
+			      const char *charset)
+{
+  xslt_storage *this = (xslt_storage *)ud;
+  if(this->charset)           free(this->charset);
+  if(this->content_type)      free(this->content_type);
+  this->content_type = strdup(content_type);
+  this->charset = strdup(charset);
+}
+
+MiscHandler sablot_misc  = {
+  misc_documentinfo
+};
+
 static void f_run( INT32 args )
 {
   SablotHandle sproc;
@@ -187,7 +203,8 @@ static void f_run( INT32 args )
     }
     vars[tmpint] = NULL;
   }
-  success = SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
+  SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
+  SablotRegHandler(sproc, HLR_MISC, &sablot_misc, (void *)THIS);
   THREADS_ALLOW();
   success |= SablotRunProcessor(sproc, xslsrc, xmlsrc, "arg:/_output",
 				vars, argums);  
@@ -211,6 +228,8 @@ static void free_xslt_storage(struct object *o)
   if(THIS->variables != NULL) free_mapping(THIS->variables);
   if(THIS->xml != NULL)       free_string(THIS->xml);
   if(THIS->xsl != NULL)       free_string(THIS->xsl);
+  if(THIS->charset)           free(THIS->charset);
+  if(THIS->content_type)      free(THIS->content_type);
   MEMSET(THIS, 0, sizeof(xslt_storage));
 }
 
@@ -231,14 +250,32 @@ void f_error(INT32 args)
   else
     push_int(0);
 }
+
+void f_content_type(INT32 args)
+{
+  pop_n_elems(args);
+  if(THIS->content_type != NULL)
+    push_text(THIS->content_type);
+  else
+    push_int(0);
+}
+
+void f_charset(INT32 args)
+{
+  pop_n_elems(args);
+  if(THIS->charset != NULL)
+    push_text(THIS->charset);
+  else
+    push_int(0);
+}
+
 void f_set_xml_data(INT32 args)
 {
   if(args != 1)
     error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
     error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected string.\n");
-  if(THIS->xml != NULL)
-    free_string(THIS->xml);
+  if(THIS->xml != NULL) free_string(THIS->xml);
   THIS->xml = sp[-args].u.string;
   add_ref(THIS->xml);
   THIS->xml_type = SX_DATA;
@@ -326,6 +363,8 @@ void pike_module_init( void )
   set_exit_callback(free_xslt_storage);
   add_function("create", f_create, "function(void:void)", 0);
   add_function("error", f_error, "function(void:mapping)", 0);
+  add_function("content_type", f_content_type, "function(void:string)", 0);
+  add_function("charset", f_charset, "function(void:string)", 0);
   add_function("set_xml_data", f_set_xml_data, "function(string:void)",
 	       OPT_SIDE_EFFECT);
   add_function("set_xml_file", f_set_xml_file, "function(string:void)",
