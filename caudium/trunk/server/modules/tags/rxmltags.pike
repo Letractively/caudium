@@ -3217,7 +3217,7 @@ array(string) tag_formoutput(string tag_name, mapping args, string contents,
   return ({do_output_tag( args, ({ id->variables }), contents, id )});
 }
 
-string tag_gauge(string t, mapping args, string contents, 
+string tag_gauge(string tag, mapping args, string contents, 
 		 object id, object f, mapping defines)
 {
   NOCACHE();
@@ -3574,7 +3574,7 @@ class SumTracer
 #endif
 }
 
-array(string) tag_trace(string t, mapping args, string c , object id)
+array(string) tag_trace(string tag, mapping args, string c , object id)
 {
   NOCACHE();
   object t;

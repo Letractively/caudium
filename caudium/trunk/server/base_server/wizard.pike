@@ -927,7 +927,7 @@ string format_numeric(string s, string|void sep)
   sep = reverse(sep||"&nbsp;");
   array(string) as = s/" ";
   string t = "";
-  string s = reverse(as[0]);
+  s = reverse(as[0]);
   while(sizeof(s)) {
     if(sizeof(s) > 3)
       t += s[0..2]+sep;
