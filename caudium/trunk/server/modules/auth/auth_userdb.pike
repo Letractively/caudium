@@ -44,7 +44,7 @@ inherit "module";
 inherit "caudiumlib";
 
 #ifdef DEBUG
-#define ERROR(X) werror("UserDBAuth: " + X + "\n")
+#define ERROR(X) report_debug("UserDBAuth: " + X + "\n")
 #else
 #define ERROR(X) 
 #endif
@@ -638,11 +638,11 @@ mapping|int get_username(string uid)
 
 mapping|int get_groupname(string gid)
 {
-  werror("get_groupname: " + gid);
+  ERROR("get_groupname: " + gid);
 
   if(!gid)
     return 0;
-  werror("looking for group...\n");
+  ERROR("looking for group...\n");
   if(!gid2group[(int)gid])
       try_find_group((int)gid);
   if(!gid2group[(int)gid]) return 0;

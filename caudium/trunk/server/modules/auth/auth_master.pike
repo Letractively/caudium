@@ -41,7 +41,7 @@ inherit "caudiumlib";
 #define DEBUG 1
 
 #ifdef DEBUG
-#define ERROR(X) werror("AuthMaster: " + X + "\n");
+#define ERROR(X) report_debug("AuthMaster: " + X + "\n");
 #else
 #define ERROR(X)
 #endif
