@@ -66,12 +66,6 @@ static void f_njs_create(INT_TYPE args) {
 
   js_init_default_options (&options);
 
-  /* Set default options below */
-  options.secure_builtin_file = 1;
-  options.secure_builtin_system = 1;
-  /* Defaults to off since we call 'parse' in js-scripts. */
-  options.warn_undef = 0;
-
   switch(args) {
    case 2: /* Got options mapping */    
     MY_MAPPING_LOOP(ARG(1).u.mapping, e, k) {
@@ -165,28 +159,130 @@ static void f_njs_eval(INT_TYPE args) {
   interp = THIS->interp;
   data = ARG(0).u.string->str;
   data_len = ARG(0).u.string->len;
+
   THREADS_ALLOW();
   res = js_eval_data(interp, data, data_len);
   THREADS_DISALLOW();
-  if(!res) {
-    char *err = js_error_message(THIS->interp);
-    if(err != NULL) {
-      ONERROR tmp;
-      char *msg = malloc(strlen(err)+2);
-      strcpy(msg, err);
-      strcat(msg, "\n");
-      SET_ONERROR(tmp, free, msg);
-      Pike_error(msg);
-      UNSET_ONERROR(tmp);
-    } else {
-      Pike_error("unknown error\n");
-    }
-  } else {
-    js_result(THIS->interp, &ret);
-    pop_n_elems(args);
-    push_js_type(ret);
-  }
+
+  NJS_PROCESS_EVAL_RESULT();
 }
+
+/* Evaluate the given file name (null terminates) and return the result */
+static void f_njs_eval_file(INT_TYPE args) {
+  int res;
+  JSType ret;
+  char *file;
+  JSInterpPtr interp;
+  if(args != 1) {
+    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval_file",1);
+  }
+  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+    SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->eval_file", 1,
+			 "string(8-bit)");
+  }
+
+  if((unsigned int)ARG(0).u.string->len != strlen(ARG(0).u.string->str)) {
+    Pike_error("JavaScript.Interpreter()->eval_file: file name cannot "
+	       "contain null characters.\n");
+  }
+  
+  interp = THIS->interp;
+  file = ARG(0).u.string->str;
+
+  THREADS_ALLOW();
+  res = js_eval_file(interp, file);
+  THREADS_DISALLOW();
+
+  NJS_PROCESS_EVAL_RESULT();
+}
+
+/* Execute the given bytecode and return the result */
+static void f_njs_execute(INT_TYPE args) {
+  int res;
+  JSType ret;
+  int bc_len;
+  char *bc;
+  JSInterpPtr interp;
+  if(args != 1) {
+    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval",1);
+  }
+  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+    SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->eval", 1,
+			 "string(8-bit)");
+  }
+
+  interp = THIS->interp;
+  bc = ARG(0).u.string->str;
+  bc_len = ARG(0).u.string->len;
+
+  THREADS_ALLOW();
+  res = js_execute_byte_code(interp, bc, bc_len);
+  THREADS_DISALLOW();
+
+  NJS_PROCESS_EVAL_RESULT();
+}
+
+/* Compile the given data into bytecode and return the result
+ * This can later be used by JavaScript.Interpreter->execute()
+ */
+static void f_njs_compile(INT_TYPE args) {
+  int res;
+  JSType ret;
+  int data_len;
+  unsigned int bc_len;
+  char *data;
+  unsigned char *bc_str;
+  JSInterpPtr interp;
+  if(args != 1) {
+    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
+  }
+  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+    SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->compile", 1,
+			 "string(8-bit)");
+  }
+  interp = THIS->interp;
+  data = ARG(0).u.string->str;
+  data_len = ARG(0).u.string->len;
+
+  THREADS_ALLOW();
+  res = js_compile_data_to_byte_code(interp, data, data_len,
+				     &bc_str, &bc_len);
+  THREADS_DISALLOW();
+
+  NJS_PROCESS_COMPILE_RESULT();
+}
+
+/* Compile the given file into bytecode and return the result
+ * This can later be used by JavaScript.Interpreter->execute()
+ */
+static void f_njs_compile_file(INT_TYPE args) {
+  int res;
+  JSType ret;
+  unsigned int bc_len;
+  char *file;
+  unsigned char *bc_str;
+  JSInterpPtr interp;
+  if(args != 1) {
+    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
+  }
+  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+    SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->compile", 1,
+			 "string(8-bit)");
+  }
+  if((unsigned int)ARG(0).u.string->len != strlen(ARG(0).u.string->str)) {
+    Pike_error("JavaScript.Interpreter()->eval_file: file name cannot "
+	       "contain null characters.\n");
+  }
+  interp = THIS->interp;
+  file = ARG(0).u.string->str;
+
+  THREADS_ALLOW();
+  res = js_compile_to_byte_code(interp, file, &bc_str, &bc_len);
+  THREADS_DISALLOW();
+
+  NJS_PROCESS_COMPILE_RESULT();
+}
+
 
 static void njs_free_scope_data(void *context) {
   free_string(SCOPE->name);
@@ -372,7 +468,7 @@ static void f_njs_add_scope(INT_TYPE args) {
   unsigned char *tmp;
   int i;
   scope_storage *storage;
-  storage = calloc(1, sizeof(scope_storage));
+  storage = malloc(sizeof(scope_storage));
   switch(args) {
    case 3:
     if(ARG(2).type != T_FUNCTION) {
@@ -400,11 +496,11 @@ static void f_njs_add_scope(INT_TYPE args) {
   } else {
     storage->id = NULL;
   }
-  assign_svalue_no_free(& storage->get, & ARG(2));
+  assign_svalue_no_free(& storage->get, & ARG(1));
   if(args < 3) { /* No set function */
     storage->set.type = T_INT;
   } else {
-    assign_svalue_no_free(& storage->set, & ARG(3));
+    assign_svalue_no_free(& storage->set, & ARG(2));
   }
 
   storage->class = js_class_create((void *)storage, njs_free_scope_data, 0, 0);
@@ -419,11 +515,19 @@ static void f_njs_add_scope(INT_TYPE args) {
 void njs_init_interpreter_program(void) {
   start_new_program();
   ADD_STORAGE( njs_storage  );
-  ADD_FUNCTION("create",    f_njs_create,
+  ADD_FUNCTION("create",       f_njs_create,
 	       tFunc(tOr(tObj, tVoid) tOr(tMapping, tVoid),tVoid), 0);
-  ADD_FUNCTION("eval",      f_njs_eval,
+  ADD_FUNCTION("eval",         f_njs_eval,
 	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
-  ADD_FUNCTION("add_scope", f_njs_add_scope,
+  ADD_FUNCTION("eval_file",    f_njs_eval_file,
+	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
+  ADD_FUNCTION("execute",      f_njs_execute,
+	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
+  ADD_FUNCTION("compile",      f_njs_compile,
+	       tFunc(tString,tString), 0);
+  ADD_FUNCTION("compile_file",  f_njs_compile_file,
+	       tFunc(tString,tString), 0);
+  ADD_FUNCTION("add_scope",     f_njs_add_scope,
 	       tFunc(tString
 		     tFunc(tString tString tOr(tObj, tVoid), tMixed)
 		     tOr(tVoid, tFunc(tString tString tMixed tOr(tObj, tVoid),
