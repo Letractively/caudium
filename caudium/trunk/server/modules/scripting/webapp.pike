@@ -32,7 +32,7 @@ static inherit "http";
 
 string status_info="";
 
-constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER | MODULE_EXTENSION;
+constant module_type = MODULE_LOCATION | MODULE_PARSER | MODULE_PROVIDER;
 
 constant module_name = "Java: Java Web Application bridge";
 constant module_doc =  "An interface to Java <a href=\"http://java.sun.com/"
