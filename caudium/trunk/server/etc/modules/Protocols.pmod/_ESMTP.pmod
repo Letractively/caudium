@@ -49,8 +49,8 @@ class client
 		]),
 	]);						// server capability list
 	private mapping this_connection = ([
-		"active":	0
-		"esmtp":	0
+		"active":	0,
+		"esmtp":	0,
 		"tls":		0
 	]);						// current connection's properties.
 
