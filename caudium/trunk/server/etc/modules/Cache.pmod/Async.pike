@@ -51,9 +51,10 @@ class Store {
   object in, out;
   function store;
   string data, name;
+  mapping cache_response;
   int exp;
 
-  void create(function _store, string _name, object _in, object _out, void|int _exp) {
+  void create(function _store, string name, object _in, object _out, void|int _exp) {
     in = _in;
     out = _out;
     store = _store;
