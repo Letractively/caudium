@@ -1,3 +1,9 @@
+caudium (1:1.0.8rc1) unstable; urgency=low
+
+  * First Release Candidate, now official
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 27 Nov 2000 15:52:50 +0100
+
 caudium (1:1.0.5-2) unstable; urgency=low
 
   * Language files for CAMAS work now
