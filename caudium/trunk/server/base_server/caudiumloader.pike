@@ -216,7 +216,7 @@ mapping make_mapping(string *f)
 
 
 // Caudium itself
-object roxen;
+object caudium;
 
 // The function used to report notices/debug/errors etc.
 function nwrite;
@@ -229,10 +229,10 @@ function nwrite;
 
 mixed query(string arg) 
 {
-  if(!roxen)
-    error("No roxen object!\n");
+  if(!caudium)
+    error("No caudium object!\n");
   if(!caudium->variables)
-    error("No roxen variables!\n");
+    error("No caudium variables!\n");
   if(!caudium->variables[arg])
     error("Unknown variable: "+arg+"\n");
   return caudium->variables[arg][VAR_VALUE];
@@ -585,7 +585,7 @@ void load_caudium()
     add_constant("Privs", myprivs(this_object()));
   else  // No need, we are not running as root.
     add_constant("Privs", (Privs=empty_class));
-  roxen = really_load_caudium();
+  caudium = really_load_caudium();
   if(!getuid())
   {
     add_constant("roxen_pid", getpid());
@@ -595,7 +595,7 @@ void load_caudium()
 #else
   /* NT */
   add_constant("Privs", (Privs=empty_class));
-  roxen = really_load_caudium();
+  caudium = really_load_caudium();
 #endif
   perror("Caudium version "+caudium->cvs_version+"\n"
 	 "Caudium release "+caudium->real_version+"\n"
@@ -695,7 +695,6 @@ int main(mixed ... args)
   }
 
   replace_master(new_master=(((program)"etc/roxen_master.pike")()));
-
   add_constant("open_db", open_db);
   add_constant("do_destruct", lambda(object o) {
 				if(o&&objectp(o))  destruct(o);
@@ -707,7 +706,7 @@ int main(mixed ... args)
   add_constant("roxen_perror",perror);
   add_constant("popen",popen);
   add_constant("roxen_popen",popen);
-  add_constant("roxenp", lambda() { return roxen; });
+  add_constant("caudiump", lambda() { return caudium; });
   add_constant("report_notice", report_notice);
   add_constant("report_debug", report_debug);
   add_constant("report_warning", report_warning);
