@@ -147,7 +147,7 @@ install_alt:
 	 fi; \
 	done
 	@echo "Fixing paths..."
-	@MDIR="../../share/caudium"; CACHETOP="/var/cache/caudium"; \
+	@MDIR="$(prefix)/share/caudium"; CACHETOP="/var/cache/caudium"; \
 	 for v in more_modules modules local_modules; do \
 	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
 	 done; \
@@ -157,7 +157,7 @@ install_alt:
 	  MODS="`echo $$MODS | sed -e 's;,$$;;g'`"; \
 	 fi; \
 	 sed -e "s;\(globvar(.*\"ModuleDirs\",\).*;\1({$$MODS}),;g" \
-	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"../../share/caudium/local_fonts\",\"nfonts\"}),;g" \
+	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"$(prefix)/share/caudium/local_fonts\",\"nfonts\"}),;g" \
 	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium/\"\2;g" \
 	     -e "s;\(globvar(.*\"cachedir\",.*\)\"/tmp/caudium_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
 	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium/caudium.pid\"\2;g" \

@@ -27,4 +27,6 @@ bit from its predecessor, Roxen.
    instead of the /usr/share/roxen/modules one. Likewise, name the module
    libcaudium-MODULENAME.
 
+ $Id$
+ 
  -- Marek Habersack <grendel@vip.net.pl>, Tue, 15 Aug 2000 13:47:27 +0200
