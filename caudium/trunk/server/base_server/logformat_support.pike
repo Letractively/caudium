@@ -17,8 +17,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
-// Logging format support functions.
+//! Logging format support functions.
+
+//!
 inline string host_ip_to_int(string s)
 {
   int a, b, c, d;
@@ -26,6 +31,7 @@ inline string host_ip_to_int(string s)
   return sprintf("%c%c%c%c",a, b, c, d);
 }
 
+//!
 inline string extract_user(string from)
 {
   array tmp;

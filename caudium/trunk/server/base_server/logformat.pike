@@ -17,10 +17,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-/* This code takes a log file format string and returns a program ready to
- * compile. It's used to make logging faster
+/*
+ * $Id$
  */
+
+//! This code takes a log file format string and returns a program ready to
+//! compile. It's used to make logging faster
+
 static constant codes =
 ([ "ipnumber"     : "id->remoteaddr",
    "binipnumber"  : "host_ip_to_int(id->remoteaddr)",
@@ -52,6 +55,7 @@ mapping specformat = ([
 
 static constant prg_prefix = "inherit \"caudiumlib\"; inherit \"logformat_support.pike\";";
 
+//!
 string parse_log_format(string log_format) {
   string pre, kw, post;
   string format="";
