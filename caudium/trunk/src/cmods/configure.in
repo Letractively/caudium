@@ -12,7 +12,6 @@ do
       yesno=`eval echo \\$with_$a`
       if test "x${yesno-}" != xno ; then
         dirs="$dirs $a"
-        module_names="$module_names $a"
       fi
     fi
   fi
@@ -20,7 +19,7 @@ done
 
 AC_CONFIG_SUBDIRS($dirs)
 
-AC_OUTPUT(Makefile module_makefile,[],dirs="$module_names")
+AC_OUTPUT(Makefile module_makefile)
 
 
 
