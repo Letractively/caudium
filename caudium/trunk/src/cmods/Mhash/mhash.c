@@ -29,21 +29,21 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
-//! file: Mhash/mhash.c
-//!  File implementing the Mhash.Hash() class.
-//! cvs_version: $Id$
-//
-//! class: Mhash.Hash
-//!  An instance of a normal Mhash object. This object can be used to
-//!  calculate various hashes supported by the Mhash library.
-//! see_also: Mhash.HMAC
-//! method: void create(int|void type)
-//!  Called when instantiating a new object. It takes an optional first
-//!  argument with the type of hash to use.
-//! arg: int|void type
-//!  The hash type to use. Can also be set with set_type();
-//! name: create - Create a new hash instance.
-
+/*
+**! file: Mhash/mhash.c
+**!  File implementing the Mhash.Hash() class.
+**! cvs_version: $Id$
+**! class: Mhash.Hash
+**!  An instance of a normal Mhash object. This object can be used to
+**!  calculate various hashes supported by the Mhash library.
+**! see_also: Mhash.HMAC
+**! method: void create(int|void type)
+**!  Called when instantiating a new object. It takes an optional first
+**!  argument with the type of hash to use.
+**! arg: int|void type
+**!  The hash type to use. Can also be set with set_type();
+**! name: create - Create a new hash instance.
+*/
 void f_hash_create(INT32 args)
 {
   if(THIS->type != -1 || THIS->hash || THIS->res) {
@@ -73,15 +73,17 @@ void f_hash_create(INT32 args)
   pop_n_elems(args);
 }
 
-//! method: Mhash.hash feed(string data)
-//!    alt: Mhash.hash update(string data)
-//!  Update the current hash context with data.
-//!  update() is here for compatibility reasons with Crypto.md5.
-//! arg: string data
-//!  The data to update the context with.
-//! returns:
-//!  The current hash object.
-//! name: feed - Update the current hash context.
+/*
+**! method: Mhash.hash feed(string data)
+**!    alt: Mhash.hash update(string data)
+**!  Update the current hash context with data.
+**!  update() is here for compatibility reasons with Crypto.md5.
+**! arg: string data
+**!  The data to update the context with.
+**! returns:
+**!  The current hash object.
+**! name: feed - Update the current hash context.
+*/
 void f_hash_feed(INT32 args) 
 {
   if(THIS->hash == NULL) {
@@ -120,12 +122,14 @@ static int get_digest(void)
   return mhash_get_block_size(THIS->type);
 }
 
-//! method: string digest()
-//!  Get the result of the hashing operation. 
-//! name: digest, hexdigest - Return the resulting hash
-//! see_also: Mhash.to_hex
-//! returns:
-//!   The resulting digest.
+/*
+**! method: string digest()
+**!  Get the result of the hashing operation. 
+**! name: digest, hexdigest - Return the resulting hash
+**! see_also: Mhash.to_hex
+**! returns:
+**!   The resulting digest.
+*/
 void f_hash_digest(INT32 args)
 {
   int len, i;
@@ -140,12 +144,14 @@ void f_hash_digest(INT32 args)
   push_string(res);
 }
 
-//! method: string query_name()
-//!  Get the name of the selected hash routine. 
-//! name: query_name - Get hash routine name
-//! returns: 
-//!  The name of the selected hash routine, zero if none is selected or
-//!  -1 if the selected hash is invalid.
+/*
+**! method: string query_name()
+**!  Get the name of the selected hash routine. 
+**! name: query_name - Get hash routine name
+**! returns: 
+**!  The name of the selected hash routine, zero if none is selected or
+**!  -1 if the selected hash is invalid.
+*/
 void f_hash_query_name(INT32 args)
 {
   char *name;
@@ -163,10 +169,12 @@ void f_hash_query_name(INT32 args)
   }
 }
 
-//! method: void reset()
-//!  Clean up the current hash context and start from the beginning. Use
-//!  this if you want to hash another string.
-//! name: reset - Reset hash context
+/*
+**! method: void reset()
+**!  Clean up the current hash context and start from the beginning. Use
+**!  this if you want to hash another string.
+**! name: reset - Reset hash context
+*/
 void f_hash_reset(INT32 args)
 {
   free_hash();
@@ -179,11 +187,12 @@ void f_hash_reset(INT32 args)
   }
   pop_n_elems(args);
 }
-
-//! method: void set_type(int type)
-//!  Set or change the type of the has in the current context.
-//!  This function will also reset any hashing in progress.
-//! name: set_type - Change the hash type
+/*
+**! method: void set_type(int type)
+**!  Set or change the type of the has in the current context.
+**!  This function will also reset any hashing in progress.
+**! name: set_type - Change the hash type
+*/
 void f_hash_set_type(INT32 args)
 {
   if(args == 1) {

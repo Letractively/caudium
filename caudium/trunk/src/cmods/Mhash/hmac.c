@@ -29,17 +29,21 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
-//! file: Mhash/hmac.c
-//!  File implementing the Mhash.HMAC class.
-//! cvs_version: $Id$
-//
-//! class: Mhash.HMAC
-//!  The Mhash library supports HMAC generation (a mechanism for message
-//!  authentication using cryptographic hash functions, which is
-//!  described in rfc2104). HMAC can be used to create message
-//!  digests using a secret key, so that these message digests
-//!  cannot be regenerated (or replaced) by someone else.  
-//! see_also: Mhash.Hash
+/*
+**! file: Mhash/hmac.c
+**!  File implementing the Mhash.HMAC class.
+**! cvs_version: $Id$
+*/
+
+/*
+**! class: Mhash.HMAC
+**!  The Mhash library supports HMAC generation (a mechanism for message
+**!  authentication using cryptographic hash functions, which is
+**!  described in rfc2104). HMAC can be used to create message
+**!  digests using a secret key, so that these message digests
+**!  cannot be regenerated (or replaced) by someone else.  
+**! see_also: Mhash.Hash
+*/
 
 
 
@@ -60,12 +64,14 @@ static int init_hmac(void)
   return HMAC_OK;
 }
 
-//! method: void create(int|void type)
-//!  Called when instantiating a new object. It takes an optional first
-//!  argument with the type of hash to use.
-//! arg: int|void type
-//!  The hash type to use. Can also be set with set_type();
-//! name: create - Create a new hash instance.
+/*
+**! method: void create(int|void type)
+**!  Called when instantiating a new object. It takes an optional first
+**!  argument with the type of hash to use.
+**! arg: int|void type
+**!  The hash type to use. Can also be set with set_type();
+**! name: create - Create a new hash instance.
+*/
 
 void f_hmac_create(INT32 args)
 {
@@ -96,11 +102,13 @@ void f_hmac_create(INT32 args)
   pop_n_elems(args);
 }
 
-//! method: void create(string key)
-//!  Set the secret key to use when generating the HMAC.
-//! arg: string key
-//!  The secret key, or password, to use.
-//! name: set_key - Set the HMAC secret key
+/*
+**! method: void create(string key)
+**!  Set the secret key to use when generating the HMAC.
+**! arg: string key
+**!  The secret key, or password, to use.
+**! name: set_key - Set the HMAC secret key
+*/
 void f_hmac_set_key(INT32 args) 
 {
   int ret;
@@ -121,16 +129,18 @@ void f_hmac_set_key(INT32 args)
   }
   pop_n_elems(args);
 }
+/*
+**! method: object feed(string data)
+**!    alt: object update(string data)
+**!  Update the current hash context with data.
+**!  update() is here for compatibility reasons with Crypto.md5.
+**! arg: string data
+**!  The data to update the context with.
+**! returns:
+**!  The current Mhash.HMAC object.
+**! name: feed - Update the current hash context.
+*/
 
-//! method: object feed(string data)
-//!    alt: object update(string data)
-//!  Update the current hash context with data.
-//!  update() is here for compatibility reasons with Crypto.md5.
-//! arg: string data
-//!  The data to update the context with.
-//! returns:
-//!  The current Mhash.HMAC object.
-//! name: feed - Update the current hash context.
 void f_hmac_feed(INT32 args) 
 {
   int ret;
@@ -177,14 +187,16 @@ static int get_digest(void)
   return mhash_get_block_size(THIS->type);
 }
 
-//! method: string digest()
-//! method: string hexdigest()
-//!  Get the result of the hashing operation. digest() returns a binary string.
-//!  You can use Mhash.to_hex to convert it to hexadecimal format.
-//! name: digest, hexdigest - Return the resulting hash
-//! see_also: to_hex
-//! returns:
-//!   The resulting digest.
+/*
+**! method: string digest()
+**! method: string hexdigest()
+**!  Get the result of the hashing operation. digest() returns a binary string.
+**!  You can use Mhash.to_hex to convert it to hexadecimal format.
+**! name: digest, hexdigest - Return the resulting hash
+**! see_also: to_hex
+**! returns:
+**!   The resulting digest.
+*/
 
 void f_hmac_digest(INT32 args)
 {
@@ -200,22 +212,28 @@ void f_hmac_digest(INT32 args)
   push_string(res);
 }
 
-//! method: string query_name()
-//!  Get the name of the selected hash routine. 
-//! name: query_name - Get hash routine name
-//! returns: 
-//!  The name of the selected hash routine, zero if none is selected or
-//!  -1 if the selected hash is invalid.
+/*
+**! method: string query_name()
+**!  Get the name of the selected hash routine. 
+**! name: query_name - Get hash routine name
+**! returns: 
+**!  The name of the selected hash routine, zero if none is selected or
+**!  -1 if the selected hash is invalid.
+*/
+
 /* Same function that's in the mhash object so docs are repeated here but
  * the function is not.
  */
 
-//! method: void reset()
-//!  Clean up the current hash context and start from the beginning. Use
-//!  this if you want to hash another string. 
-//! name: reset - Reset hash context
-//! note:
-//!  This will note reset the chosen password.
+/*
+**! method: void reset()
+**!  Clean up the current hash context and start from the beginning. Use
+**!  this if you want to hash another string. 
+**! name: reset - Reset hash context
+**! note:
+**!  This will note reset the chosen password.
+*/
+
 void f_hmac_reset(INT32 args)
 {
   int ret;
@@ -227,11 +245,13 @@ void f_hmac_reset(INT32 args)
   pop_n_elems(args);
 }
 
+/*
+**! method: void set_type(int type)
+**!  Set or change the type of the has in the current context.
+**!  This function will also reset any hashing in progress.
+**! name: set_type - Change the HMAC hash type
+*/
 
-//! method: void set_type(int type)
-//!  Set or change the type of the has in the current context.
-//!  This function will also reset any hashing in progress.
-//! name: set_type - Change the HMAC hash type
 void f_hmac_set_type(INT32 args)
 {
   int ret;

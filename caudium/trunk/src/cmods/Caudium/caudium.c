@@ -35,13 +35,18 @@ RCSID("$Id$");
 
 static_strings strs;
 
-//! file: Caudium/caudium.c
-//!  Caudium specific classes and functions.
-//! cvs_version: $Id$
+/*
+**! file: Caudium/caudium.c
+**!  Caudium specific classes and functions.
+**! cvs_version: $Id$
+*/
 
-//! class: Caudium.ParseHTTP
-//!  This class is used to parse a HTTP/1.0 or HTTP/1.1 request.
-//!  scope: private
+/*
+**! class: Caudium.ParseHTTP
+**!  This class is used to parse a HTTP/1.0 or HTTP/1.1 request.
+**!  scope: private
+*/
+
 static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
   unsigned char *ptr, *end, *endl2;
   int i, nlen;
@@ -74,14 +79,16 @@ static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
   return NULL; /* no query string */
 }
 
-//! method: int append(string data)
-//!  Append data to the decode buffer.
-//! arg: string data
-//!  The data to feed to the parser.
-//! returns:
-//!  1 if decoding is complete (whole header received), 0 if more data is
-//!  needed, 413 if the headers are too large or 400 if the request is invalid.
-//! name: Caudium.ParseHTTP->append - append data to parse buffer
+/*
+**! method: int append(string data)
+**!  Append data to the decode buffer.
+**! arg: string data
+**!  The data to feed to the parser.
+**! returns:
+**!  1 if decoding is complete (whole header received), 0 if more data is
+**!  needed, 413 if the headers are too large or 400 if the request is invalid.
+**! name: Caudium.ParseHTTP->append - append data to parse buffer
+*/
 
 static void f_buf_append( INT32 args )
 {

@@ -31,25 +31,32 @@ RCSID("$Id$");
 #ifdef HAVE_MHASH
 #include "mhash_quick.h"
 
-//! file: Mhash/global.c
-//!  Glue for the MHash library, for various hashing routines.
-//!  See http://mhash.sourceforge.net/ for more information about mhash.
-//! cvs_version: $Id$
-//
-//! class: Mhash
-//!  Mhash is an open source library which provides a uniform interface
-//!  to a large number of hash algorithms. These algorithms can be used
-//!  to compute checksums,message digests, and other signatures. The HMAC
-//!  support implements the basics for message authentication, following
-//!  RFC 2104. This is the Mhash glue.
+/*
+**! file: Mhash/global.c
+**!  Glue for the MHash library, for various hashing routines.
+**!  See http://mhash.sourceforge.net/ for more information about mhash.
+**! cvs_version: $Id$
+*/
 
-//! method: string query_name(int type)
-//!  Return the name of the hash with the specified type.
-//! arg: int type
-//!  The type of the hash. Normally accessed through Mhash.MD5,
-//!  Mhash.HAVAL128 etc.
-//! returns:
-//!  The name of the hash.
+/*
+**! class: Mhash
+**!  Mhash is an open source library which provides a uniform interface
+**!  to a large number of hash algorithms. These algorithms can be used
+**!  to compute checksums,message digests, and other signatures. The HMAC
+**!  support implements the basics for message authentication, following
+**!  RFC 2104. This is the Mhash glue.
+*/
+
+/*
+**! method: string query_name(int type)
+**!  Return the name of the hash with the specified type.
+**! arg: int type
+**!  The type of the hash. Normally accessed through Mhash.MD5,
+**!  Mhash.HAVAL128 etc.
+**! returns:
+**!  The name of the hash.
+*/
+
 void f_query_name(INT32 args)
 {
   char *name;
@@ -85,13 +92,16 @@ QUICKHASH(tiger, MHASH_TIGER);
 
 
 
-//! method: string to_hex(string bin)
-//!  Convert a hash result to hexadecimal format from binary format.
-//!  This is useful if you want to use safe characters only.
-//! arg: string bin
-//!  The binary string to convert.
-//! returns:
-//!  The hexadecimal representation of bin.
+/*
+**! method: string to_hex(string bin)
+**!  Convert a hash result to hexadecimal format from binary format.
+**!  This is useful if you want to use safe characters only.
+**! arg: string bin
+**!  The binary string to convert.
+**! returns:
+**!  The hexadecimal representation of bin.
+*/
+
 void f_to_hex(INT32 args)
 {
   unsigned char *res, hex[3];
