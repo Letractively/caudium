@@ -131,7 +131,7 @@ static struct pike_string *url_decode(unsigned char *str,
 
 
 #if 0
-// Code to add a string to a string 
+/* Code to add a string to a string */
 value = begin_shared_string(count2 - data + exist->u.string->len+1);
 MEMCPY(value->str, exist->u.string->str, exist->u.string->len+1);
 MEMCPY(value->str + exist->u.string->len + 1,
