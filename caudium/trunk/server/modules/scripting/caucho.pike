@@ -562,13 +562,13 @@ int|mapping last_resort(object id)
 //!  type: TYPE_STRING_LIST
 //!  name: Resin extensions
 //
-//! defvar: host
-//! Host, where srun is running.
-//!  type: TYPE_STRING
-//!  name: srun host
+//! defvar: hosts
+//! Hosts where srun is running, provided in the format: host:port, one per line. Omitting the port will cause the default port of DEFAULT_PORT to be used
+//!  type: TYPE_TEXT_FIELD
+//!  name: srun hosts
 //
-//! defvar: port
-//! Port, where srun listen.
-//!  type: TYPE_INT
-//!  name: srun port
+//! defvar: rxml
+//! If this is set, the output from Resin handled by this module will be RXML parsed. NOTE: No data will be returned to the client until the output is fully parsed.
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Parse RXML in servlet output
 //

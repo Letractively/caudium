@@ -1554,6 +1554,16 @@ mixed tag_frame (string tag, mapping args, object id, object file)
 //!  type: TYPE_INT
 //!  name: Session: Expiration time
 //
+//! defvar: expidletime
+//! After how many seconds an idle session (that is a session on which no store/retrieve operation was made) will be deleted from the storage. This is to minimize the memory usage in case you have a lot of idle/unused sessions.
+//!  type: TYPE_INT
+//!  name: Session: Idle session expiration time
+//
+//! defvar: doexpidle
+//! If set, then idle sessions will be expired automatically after certain timeout.
+//!  type: TYPE_FLAG
+//!  name: Session: Automatic idle session expiry
+//
 //! defvar: dogc
 //! If set, then the sessions will expire automatically after the given period. If unset, session expiration must be done elsewhere.
 //!  type: TYPE_FLAG
