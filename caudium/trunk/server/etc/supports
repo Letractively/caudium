@@ -606,3 +606,9 @@ www.pl.*		robot,spamrobot
 XGET.*			robot,spamrobot
 Zeus.*Webster.*		robot,spamrobot
 MSIECrawler.*		robot,spamrobot
+
+# Greets for vida
+
+#section vida {
+.*              robot, virus, uce, ups, some_things, maybe_have_intelligence, limited_battery
+# }
