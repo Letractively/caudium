@@ -1,53 +1,53 @@
 //! This module impliments the Apache JServ Protocol, version 1.3
 
 //! Web Server to Servlet Container message
-constant int MSG_FORWARD_REQUEST =	2
+constant MSG_FORWARD_REQUEST =	2;
 
 //! Web Server to Servlet Container message
-constant int MSG_SHUTDOWN =		7
+constant MSG_SHUTDOWN =		7;
 
 //! Servlet Container to Web Server message
-constant int MSG_SEND_HEADERS =		4
+constant MSG_SEND_HEADERS =		4;
 
 //! Servlet Container to Web Server message
-constant int MSG_SEND_BODY_CHUNK =	3
+constant MSG_SEND_BODY_CHUNK =	3;
 
 //! Servlet Container to Web Server message
-constant int MSG_GET_BODY_CHUNK	=	6
+constant MSG_GET_BODY_CHUNK	=	6;
 
 //! Servlet Container to Web Server message
-constant int MSG_END_RESPONSE =		5
+constant MSG_END_RESPONSE =		5;
 
 //! Maximum Packet Size, in bytes
-constant int MAX_PACKET_SIZE =	8*1024
+constant MAX_PACKET_SIZE =	8*1024;
 
-constant int METHOD_OPTIONS = 1; 
-constant int METHOD_GET = 2; 
-constant int METHOD_HEAD = 3; 
-constant int METHOD_POST = 4;
-constant int METHOD_PUT = 5; 
-constant int METHOD_DELETE = 6; 
-constant int METHOD_TRACE = 7; 
-constant int METHOD_PROPFIND = 8; 
-constant int METHOD_PROPPATCH = 9; 
-constant int METHOD_MKCOL = 10; 
-constant int METHOD_COPY = 11; 
-constant int METHOD_MOVE = 12;
-constant int METHOD_LOCK = 13; 
-constant int METHOD_UNLOCK = 14; 
-constant int MEHTOD_ACL = 15; 
-constant int METHOD_REPORT = 16; 
-constant int METHOD_VERSION_CONTROL = 17; 
-constant int METOD_CHECKIN = 18;
-constant int METHOD_CHECKOUT = 19; 
-constant int METHOD_UNCHECKOUT = 20; 
-constant int METHOD_SEARCH = 21; 
-constant int METHOD_MKWORKSPACE = 22; 
-constant int METHOD_UPDATE = 23; 
-constant int METHOD_LABEL = 24; 
-constant int METHOD_MERGE = 25;
-constant int METHOD_BASELINE_CONTROL = 26; 
-constant int METHOD_MKACTIVITY = 27;
+constant METHOD_OPTIONS = 1; 
+constant METHOD_GET = 2; 
+constant METHOD_HEAD = 3; 
+constant METHOD_POST = 4;
+constant METHOD_PUT = 5; 
+constant METHOD_DELETE = 6; 
+constant METHOD_TRACE = 7; 
+constant METHOD_PROPFIND = 8; 
+constant METHOD_PROPPATCH = 9; 
+constant METHOD_MKCOL = 10; 
+constant METHOD_COPY = 11; 
+constant METHOD_MOVE = 12;
+constant METHOD_LOCK = 13; 
+constant METHOD_UNLOCK = 14; 
+constant METHOD_ACL = 15; 
+constant METHOD_REPORT = 16; 
+constant METHOD_VERSION_CONTROL = 17; 
+constant METHOD_CHECKIN = 18;
+constant METHOD_CHECKOUT = 19; 
+constant METHOD_UNCHECKOUT = 20; 
+constant METHOD_SEARCH = 21; 
+constant METHOD_MKWORKSPACE = 22; 
+constant METHOD_UPDATE = 23; 
+constant METHOD_LABEL = 24; 
+constant METHOD_MERGE = 25;
+constant METHOD_BASELINE_CONTROL = 26; 
+constant METHOD_MKACTIVITY = 27;
 
 constant header_values=([
     "accept" : 0xa001,
@@ -71,6 +71,16 @@ string generate_server_packet(string data)
   if(strlen(data)>MAX_PACKET_SIZE) error("AJP Packet too large: " + strlen(data) + ".");
   else
     return sprintf("%c%c%2c%s", 0x12, 0x34, strlen(data), data);
+}
+
+string packet_shutdown()
+{
+  return sprintf("%c", MSG_SHUTDOWN);
+}
+
+string packet_body(string d)
+{
+  return push_string(d);
 }
 
 string packet_forward_request(object id)
@@ -97,7 +107,7 @@ string packet_forward_request(object id)
      push_string(id->clientprot),
      push_string(id->raw_query),
      push_string(id->remoteaddr),
-     push_string(quick_ip_to_host(id->remoteaddr)),
+     push_string(caudium->quick_ip_to_host(id->remoteaddr)),
      push_string(server_name),
      server_port,
      is_ssl,
@@ -244,11 +254,12 @@ string push_string(string s)
 //!    the apache source to see the length of the length code.
 array pull_string(string s)
 {
+   string news;
    int len;
    sscanf(s, "%2c%s", len, s);
-   if(!len) return "";
+   if(!len) return ({"", s});
    sscanf(s, "%" + len + "s%*c%s", news, s);   
-   return [news, s];
+   return ({news, s});
 }
 
 string make_request_headers(mapping h)
@@ -286,7 +297,8 @@ mapping decode_container_packet(string packet)
     error("Invalid packet from container.\n");
   }
 
-  sscanf(packet[2..], "%2c%s", len, packet)
+  sscanf(packet[2..], "%2c%s", len, packet);
+
   if(!len)
   {
     error("Invalid packet length from container.\n");
