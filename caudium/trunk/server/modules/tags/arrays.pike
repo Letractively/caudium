@@ -49,7 +49,7 @@ constant module_type = MODULE_PARSER;
 constant module_name = "Array Handling for RXML";
 constant module_doc  = "This module implements a number of tags that enabled you to do "
       "more complex variable handling through RXML. Code for mappings and "
-      "arrays are given.<p>" + docs;
+      "arrays are given.<p>"; // + docs;
 constant module_unique = 1;
 
 array register_module()
