@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2003 The Caudium Group
+ * Copyright © 2000-2002 The Caudium Group
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,6 +74,7 @@ string scut(string tag_name, mapping args, string contents,
  {
   int max=(int) args->max;
   if (max > 1) max = max - 1;
+  contents = html_decode_string(contents);
   if(sizeof(contents) > max)
   {
     if(args->postfix)
@@ -85,7 +86,7 @@ string scut(string tag_name, mapping args, string contents,
     else contents = contents[..max];
   }
  }
- return contents;
+ return html_encode_string(contents);
 }
 
 mapping query_container_callers()
