@@ -59,8 +59,14 @@ constant module_doc =
 "accepted for both the XSL path and the base URI."
 #if !constant(PiXSL.Parser)
 "<p><b><blink>ERROR</blink>: "
-"<font color=red>The PiXSL.so pike-module is missing. This "
-"module will not function correctly!</font></b>\n"
+"<font color=red>The PiXSL.so pike-module is missing.</font>"
+#endif
+#if !constant(libxslt.Parser)
+"<p><b><blink>ERROR</blink>: "
+"<font color=red>The libxslt.so pike-module is missing.</font>"
+#endif
+#if !constant(PiXSL.Parser) && !constant(libxslt.Parser)
+"This module will not function correctly!</font></b>\n"
 #endif
 ;
 void create()
@@ -72,30 +78,81 @@ void create()
   defvar("stylesheet", "", "Default XSLT Stylesheet", TYPE_FILE,
 	 "The default style sheet to use when the stylesheet attribute is "
 	 "omitted. Uses the same file:, virt: and var: syntax as the age.\n");
+  defvar("use_xslt", 0, "Use libxslt Library ?", 
+	 TYPE_FLAG,"If set the libxslt library will be used !");
 }
 
-#if constant(PiXSL.Parser)
 #define ERROR(x) return "<p><b>XSLT Error: " x "</b><p><false>";
+
+class MyFile {
+  string fname;
+  void create(string name) { fname = name; }
+};
+
+object myID;
+
+int match_include(string fname)
+{
+  string inc_name;
+
+  if ( sscanf(fname, "file://%s", inc_name) > 0 ) {
+    string content;
+    
+    mixed err = catch {
+      content = myID->conf->try_get_file(inc_name, myID);
+    };
+    if ( err != 0 )
+      werror("Error on match_include...\n"+sprintf("%O\n",err));
+    
+    return content != 0;
+  }
+  return 0;
+}
+
+object open_include(string fname)
+{
+  sscanf(fname, "file://%s", fname);
+  return MyFile(fname);
+}
+
+string|int read_include(object obj)
+{
+  if (!objectp(obj)) 
+    return 0;
+
+  string content = myID->conf->try_get_file(obj->fname, myID);
+  return content;
+}
+
+void close_include(object id, object obj)
+{
+}
+
+
 
 string container_xslt(string tag, mapping args, string xml, object id)
 {
   string xsl, type, key;
   string|mapping res;
-  object(PiXSL.Parser) parser;
+  object parser;
   string content_type, charset;
   if(!args->stylesheet) args->stylesheet = QUERY(stylesheet);
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
   
+  myID = id;
+
   if(args->baseuri) {
-    sscanf(args->baseuri, "%s:%s", type, key);
-    if(!key || !type)
-      ERROR("Incorrect baseuri specification");
+    if ( sscanf(args->baseuri, "%s:%s", type, key) != 2 ) {
+      key = args->baseuri;
+      type = "file";
+    }
     switch(type) {
-     case "virt":
+     case "virt":  
+	 key = id->realfile(key, id);
      case "file":
-      args->baseuri = key;
-      break;
+	args->baseuri = key;
+	break;
      default:
       ERROR("Invalid baseuri method. Valid methods are file: and virt:");
     }
@@ -106,10 +163,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
     ERROR("Incorrect or missing stylesheet");
   switch(type) {
   case "virt":
-    if(!args->baseuri)
-      xsl = id->conf->try_get_file(key,id);
-    else
-      xsl = id->conf->try_get_file(Stdio.append_path(args->baseuri,key),id);
+    key = id->conf->realfile(key, id);
     break;
   case "file":
     xsl = Stdio.read_file(key);
@@ -123,21 +177,44 @@ string container_xslt(string tag, mapping args, string xml, object id)
   default:
     ERROR("Invalid stylesheet method. Valid methods are file:, virt: and var:");
   }
-  if(!xsl)
-    ERROR("Couldn't read XSLT stylesheet");
+  if(!xsl) 
+    ERROR("Couldn't read XSLT stylesheet:");
+  if ( stringp(args->xmlfile) ) {
+      xml = Stdio.read_file(args->xmlfile); // well well well
+  }
   sscanf(xml, "%*[\n\t\r ]%s", xml);
 
+#if constant(PiXSL.Parser) && constant(libxslt.Parser)
+  if ( QUERY(use_xslt) ) 
+    parser = libxslt.Parser();
+  else
+    parser = PiXSL.Parser();
+#elseif constant(PiXSL.Parser)
   parser = PiXSL.Parser();
+#elseif constant(libxslt.Parser)
+  parser = libxslt.Parser();
+  parser->set_include_callbacks(
+	    match_include, open_include, read_include, close_include);
+  foreach(indices(id->variables), string v) {
+      id->variables[v] = "\""+id->variables[v] + "\"";
+  }
+#endif
   if(args->baseuri) 
     parser->set_base_uri(args->baseuri);
+
   parser->set_xsl_data(xsl);
   parser->set_xml_data(xml);
   parser->set_variables(id->variables);
-  if(catch(res = parser->run())) {
+
+  mixed err;
+  err = catch {
+    res = parser->run();
+  };
+
+  if ( err != 0 ) {
     res = parser->error();
-    if(!res)
-      return  "<b>ERROR:</b> XSLT Parsing failed with unknown error.<false>";
-    else if(mappingp(res)) {
+
+    if(mappingp(res)) {
       int line = (int)res->line, sline, eline;
       string line_emph="";
       array lines;
@@ -164,6 +241,12 @@ string container_xslt(string tag, mapping args, string xml, object id)
 	  }
 	}
       }
+      else if ( !objectp(res) ) 
+      {
+	werror("Error on XSL:\n"+sprintf("%O\n", err)+"\n");
+	return "<b>ERROR:</b><XSLT Parsing failed with unknown error.<false>";
+      }
+       
       return 
 	sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
 		"line %s in %s:<br>\n%s<p>%s<br>\n<false>",
@@ -175,6 +258,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
 		res->msg || "Unknown error", line_emph);
     }
   }
+  werror("Result:\n"+res);
   charset = parser->charset();
   content_type = parser->content_type() || "text/html";
   if(charset)
@@ -196,7 +280,6 @@ mapping query_tag_callers()
   ]);
   
 } 
-#endif
 
 /* START AUTOGENERATED DEFVAR DOCS */
 
@@ -212,3 +295,8 @@ mapping query_tag_callers()
 //!  type: TYPE_FILE
 //!  name: Default XSLT Stylesheet
 //
+
+
+
+
+
