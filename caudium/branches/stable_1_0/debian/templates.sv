@@ -64,15 +64,15 @@ Description: Caudium configuration
  .
  For more information about Caudium see the documents in the
  /usr/share/doc/caudium directory and make sure to visit
- http://caudium.net/ and http://caudium.org/
+ http://caudium.net/, http://caudium.org/ and http://caudium.info/
 Description-sv: Caudium-konfiguration
  När Caudium är installerat och är igång, bör du rikta din formulär-
  anpassade webbläsare till localhost:${cfgport} för vidare konfiguration
  av Caudium via dess webbaserade konfigurationsgränssnitt.
  .
  För mer information om Caudium, se dokumenten i katalogen
- /usr/share/doc/caudium. Besök också gärna http://caudium.net/ och
- http://caudium.org/.
+ /usr/share/doc/caudium. Besök också gärna http://caudium.net/,
+ http://caudium.org/ och http://caudium.info/.
 
 Template: caudium/experimental_http
 Type: boolean
