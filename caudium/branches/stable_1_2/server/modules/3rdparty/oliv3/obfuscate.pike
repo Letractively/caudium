@@ -20,7 +20,9 @@
  */
 
 /*
- * based on http://www.u.arizona.edu/~trw/spam/index.htm
+ * based on:
+ * http://www.bagley.org/~doug/contact.shtml
+ * http://www.u.arizona.edu/~trw/spam/index.htm
  */
  
 //
