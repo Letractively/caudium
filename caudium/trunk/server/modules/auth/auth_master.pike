@@ -25,7 +25,7 @@
 //!  such as passwd or NIS. It also maintains the user database for all other
 //!  modules in Caudium, e.g. the user homepage module.
 //!  Remember: by itself, this module knows nothing about users. You must
-//!  have at least one authentication submodule enabled.
+//!  have at least one authentication provider enabled.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_AUTH
@@ -52,21 +52,23 @@ constant module_doc  = "This module handles the security in roxen, and uses "
         "such as passwd or NIS. It also maintains the user database "
 	" for all other modules in Caudium, e.g. the user homepage module."
 	"<p><b>Remember:</b> by itself, this module knows nothing about "
-	" users. You must have at least one authentication submodule enabled.";
+	" users. You must have at least one authentication provider enabled.";
 
 constant module_unique = 1;
 
-object usercache,groupcache;
+object mapcache,usercache,groupcache;
 
 void create()
 {
-
+  defvar("cachetimeout", 300, "Cache Timeout", TYPE_INT, 
+    "Number of seconds a cached user or group entry should be kept."
+  );
 }
 
 void start(object conf)
 {
-  // first, set up the group and user caches.
-  setup_cache();
+  // first, set up the map, group and user caches.
+  setup_cache(conf);
 }
 
 string status()
@@ -104,6 +106,25 @@ string status()
 //! 1 for successful authentication, 0 for failure
 int authenticate(string user, string password)
 {
+   if(!user && !password) return 0;
+   mixed data=get_user_info(user);
+
+   if(!data) return 0; // user doesn't exist.
+   if(data["__authdata"] && 
+        (data["__authdata"] == 
+	  Crypto.string_to_hex(
+            Crypto.md5()->update(user+"|"+password)->digest())
+        )
+     )
+     return 1;  // password matches previous cached success.
+
+   int auth=low_authenticate(user, password);
+
+   if(!auth) return 0; // authentication failed.
+   data["__authdata"]=Crypto.string_to_hex(
+         Crypto.md5()->update(user+"|"+password)->digest());
+   set_user_info(user, data);
+   return 1; // success!
 }
 
 //! given a username, find a numeric user id.
@@ -113,6 +134,10 @@ int authenticate(string user, string password)
 //! numeric user id or -1 if user is not found.
 int get_uid(string username)
 {
+   if(!username) return 0;
+   mapping data=get_user_info(username);
+   if(!data) return -1; // user doesn't exist.
+   else return data->uid;
 }
 
 //! given a groupname, find a numeric group id.
@@ -219,9 +244,7 @@ array|int list_all_groups()
 //! @endarray
 array(string) userinfo(string u) 
 {
-  if(!users[u])
-    try_find_user(u);
-  return users[u];
+  return ({});
 }
 
 //! find information about a user from numeric userid
@@ -231,9 +254,7 @@ array(string) userinfo(string u)
 //!   a string containing user name
 string user_from_uid(int u)
 {
-  if(!uid2user[u])
-    try_find_user(u);
-  return uid2user[u];
+   return "";
 }
 
 
@@ -256,46 +277,7 @@ string user_from_uid(int u)
 //!   @endarray
 array|int auth(array(string) auth, object id)
 {
-  string u, p;
-  array(string) arr = auth[1]/":";
-
-  if (sizeof(arr) < 2) {
-    return ({ 0, auth[1], -1 });
-  }
-
-  u = arr[0];
-  p = arr[1..]*":";
-
-  if(QUERY(method) == "none")
-  {
-    succ++;
-    return ({ 1, u, 0 });
-  }
-
-  read_data_if_not_current();
-
-  if(!users[u] || !(stringp(users[u][1]) && strlen(users[u][1]) > 6))
-  {
-    nouser++;
-    fail++;
-    failed[id->remoteaddr]++;
-    return ({0, u, p}); 
-  }
-  
-  if(!users[u][1] || !crypt(p, users[u][1]))
-  {
-    fail++;
-    failed[id->remoteaddr]++;
-    caudium->quick_ip_to_host(id->remoteaddr);
-    return ({ 0, u, p }); 
-  }
-  id->misc->uid = users[u][2];
-  id->misc->gid = users[u][3];
-  id->misc->gecos = users[u][4];
-  id->misc->home = users[u][5];
-  id->misc->shell = users[u][6];
-  succ++;
-  return ({ 1, u, 0, getgrgid(id->misc->gid) }); // u is a valid user.
+  return ({});
 }
 
 //
@@ -308,11 +290,37 @@ int succ, fail, nouser;
 
 mapping failed  = ([ ]);
 
-setup_cache(object conf)
+void setup_cache(object conf)
 {
+  mapcache=caudium->cache_manager->get_cache(
+	conf->query("MyWorldLocation")+"-auth_mapcache");
   usercache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-usercache");
+	conf->query("MyWorldLocation")+"-auth_usercache");
   groupcache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-groupcache");
+	conf->query("MyWorldLocation")+"-auth_groupcache");
 }
 
+int low_authenticate(string user, string password)
+{
+  int res=caudium->call_provider("authentication", authenticate, user, password);
+  return res;
+}
+
+mapping get_user_info(string username)
+{
+  mapping data=usercache->retreive(username, low_get_user_info, username);
+  return data;
+}
+
+int low_get_user_info(string username)
+{
+  mapping data=caudium->call_provider("authentication", get_user_info, username);
+  int i=set_user_info(username, data);
+  return i;
+}
+
+int set_user_info(string username, mapping data)
+{
+  usercache->cache_pike(username, data, QUERY("cachetimeout"));
+  return 1;
+}
