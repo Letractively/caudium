@@ -1760,6 +1760,7 @@ void create(void|object f, void|object c)
   if(f)
   {
     ::create(f,c);
+    server_protocol="HTTP";
     f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);

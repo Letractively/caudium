@@ -701,6 +701,7 @@ void create(void|object f, void|object c)
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:create(X, X)\n"));
 #endif /* SSL3_DEBUG */
+
   if(f)
   {
     object ctx;
@@ -722,4 +723,7 @@ void create(void|object f, void|object c)
   } else {
     // Main object. 
   }
+
+  server_protocol="HTTPS";
+
 }
