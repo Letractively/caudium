@@ -48,9 +48,11 @@ inherit "caudiumlib";
 /************** Generic module stuff ***************/
 
 constant module_type = MODULE_DIRECTORIES;
-constant module_name = "Fast directory module";
+constant module_name = "Fast directory module MKII";
 constant module_doc  = "This is a _fast_ directory parsing module. "
-	    "Basically, this one just prints the list of files.";
+	    "Basically, this one just prints the list of files.<br />"
+            "This module has also the capabitity to include custom "
+            "header and footer in the listing".
 constant module_unique = 1;
 
 void create()
@@ -221,7 +223,7 @@ mapping parse_directory(object id)
   if(id->pragma["no-cache"] || !(dir = cache_lookup(key, f))) {
     cache_set(key, f, dir=new_dir(f, id));
   }
-  return http_string_answer(head(f, id) + dir);
+  return http_string_answer(head(f, id) + dir + foot());
 }
 
 
@@ -237,4 +239,14 @@ mapping parse_directory(object id)
 //! If set, include readme files in directory listings
 //!  type: TYPE_FLAG
 //!  name: Include readme files
+//
+//! defvar: header
+//! The HTML text to include before the listing of the directory.
+//!  type: TYPE_STRING
+//!  name: Header
+//
+//! defvar: footer
+//! The HTML text to include at the end of the listing.
+//!  type: TYPE_STRING
+//!  name: Footer
 //
