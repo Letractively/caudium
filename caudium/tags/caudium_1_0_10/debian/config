@@ -1,0 +1,69 @@
+#!/bin/sh -e
+#
+# $Id$
+#
+. /usr/share/debconf/confmodule
+
+get_cfg_port() {
+    local yesno;
+    local port;
+    
+    db_title 'Config Interface Port'
+        
+    while test 1; do
+     db_input medium caudium/config_port || true
+     db_go
+     
+     db_get caudium/config_port || true
+     if test -z "$RET"; then
+      db_reset caudium/config_port || true
+      continue
+     fi
+     
+     db_subst caudium/last_screen cfgport "$port"
+     return
+    done
+}
+
+get_iface() {
+    local port="80";
+    local yesno;
+    
+    db_title 'Port number'
+    db_subst caudium/listen_on portno $port
+
+    while test 1; do
+     db_input medium caudium/listen_on || true
+     db_go
+     
+     db_get caudium/listen_on
+     port=$RET
+     if test -z "$port"; then
+        port="`expr $port + 1`"	
+     else
+        return
+     fi
+     
+     db_reset caudium/listen_on
+     db_set caudium/listen_on $port
+    done
+}
+
+db_version 2.0
+db_capb
+
+if test ! -f /etc/caudium/servers/Global_Variables; then
+    get_cfg_port
+    get_iface
+fi
+
+db_title 'Startup options'
+db_input medium caudium/start_options || true
+
+db_title 'Experimental code'
+db_input low caudium/experimental_http || true
+
+db_title 'Caudium configuration'
+db_input medium caudium/last_screen || true
+    
+db_go || true
