@@ -7,11 +7,7 @@ else
   CFLAGS="$REALCFLAGS"
   export CFLAGS
 fi
-if test x$with_oldfastcgi = xyes; then
-  DIRS="cmods tools fast_cgi"
-else
-  DIRS="cmods tools"
-fi
+DIRS="cmods tools"
 
 # reset it just in case
 CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
