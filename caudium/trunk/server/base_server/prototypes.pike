@@ -185,8 +185,6 @@ string not_query;
 string extra_extension = ""; // special hack for the language module
 string data, leftovers;
 
-//! @deprecated
-//!
 //! The array containing the authentication information. The format in case
 //! the authentication module is present is as follows:
 //!
@@ -205,6 +203,8 @@ string data, leftovers;
 //!   @i{group@} - if this element is present (only in Caudium 1.3+) then it
 //!   contains a comma-separated list of groups the user belongs to.
 //! @endarray
+//!
+//! @deprecated
 array (int|string) auth;
 string rawauth, realauth;
 string since;
