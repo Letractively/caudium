@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2002 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
+ * Copyright © 2002 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,6 +76,7 @@ int authenticate(string user, string password)
 //! @returns
 //! numeric user id or -1 if user is not found.
 int get_uid(string username)
+{}
 
 //! given a groupname, find a numeric group id.
 //! @param groupname
@@ -85,6 +85,7 @@ int get_uid(string username)
 //! numeric group id or -1 if group is not found. (should we just assume
 //! that gid 0 doesn't exist?)
 int get_gid(string groupname)
+{}
 
 //! given a numeric user id, find a user name.
 //! @param uid
@@ -92,6 +93,7 @@ int get_gid(string groupname)
 //! @returns
 //! username or 0 if not found.
 string|int get_username(int uid)
+{}
 
 //! given a numeric group id, find a group name.
 //! @param gid
@@ -99,6 +101,7 @@ string|int get_username(int uid)
 //! @returns
 //! group name or 0 if not found.
 string|int get_groupname(int gid)
+{}
 
 //! find information about a user.
 //! @returns
@@ -116,6 +119,7 @@ string|int get_groupname(int gid)
 //  group memberships or 0 if none
 //! @endmapping
 mapping|int user_info(string username)
+{}
 
 //! find information about a group.
 //! @returns
@@ -133,11 +137,13 @@ mapping|int user_info(string username)
 //!  members of group or 0 if none
 //! @endmapping
 mapping|int group_info(string groupname)
+{}
 
 //! listing of known users
 //! @returns
 //! array containing known user names, zero if none exist.
 array|int list_all_users()
+{}
 
 //! listing of known groups
 //! @returns
@@ -207,7 +213,7 @@ array|int auth(array(string) auth, object id)
   id->misc->home = users[u][5];
   id->misc->shell = users[u][6];
   succ++;
-  return ({ 1, u, 0 }); // u is a valid user.
+  return ({ 1, u, 0, getgrgid(id->misc->gid) }); // u is a valid user.
 }
 
 string status()
