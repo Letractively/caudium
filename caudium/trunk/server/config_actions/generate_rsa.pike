@@ -119,11 +119,11 @@ mixed verify_0(object id, object conf)
 #if constant(Tools)
   string key = Tools.PEM.simple_build_pem
     ("RSA PRIVATE KEY",
-     Standards.PKCS.RSA.rsa_private_key(rsa));
+     Standards.PKCS.RSA.private_key(rsa));
 #else /* !constant(Tools) */
   /* Backward compatibility */
   string key = SSL.pem.build_pem("RSA PRIVATE KEY",
-				 Standards.PKCS.RSA.rsa_private_key(rsa));
+				 Standards.PKCS.RSA.private_key(rsa));
 #endif /* constant(Tools) */
   WERROR(key);
   
