@@ -293,7 +293,10 @@ int object_count() {
 //! @param var
 //! The pike datatype being encoded.
 static string _encode_value( mixed var ) {
-  return MIME.encode_base64( encode_value( var, master()->Codec() ), 1 );
+  if (programp(var) && master()->Encoder)
+    return MIME.encode_base64( encode_value( var, master()->Encoder(var) ), 1 );
+  else
+    return MIME.encode_base64( encode_value( var, master()->Codec() ), 1 );
 }
 
 //! Private method to decode from bytecode.
@@ -302,7 +305,7 @@ static string _encode_value( mixed var ) {
 //! The encoded data.
 mixed _decode_value( string data ) {
   mixed obj;
-  if ( catch( obj =  decode_value( MIME.decode_base64( data ), master()->Codec() ) ) ) {
+  if (catch(obj =  decode_value( MIME.decode_base64( data )))) {
     return 0;
   }
   return obj;
