@@ -164,9 +164,13 @@ int my_hash(mixed o)
 string tag_config_tablist(string t, mapping a, string contents)
 {
 #if use_contents_cache  
+# if constant(Mhash.hash_md5)
+  key = Mhash.hash_md5(contents+my_hash(a));
+# else
   object md5 = Crypto.md5();
   md5->update(contents+my_hash(a));
   string key=md5->digest();
+# endif
   if(contents_cache[key])
     return contents_cache[key];
 #endif

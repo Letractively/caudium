@@ -42,6 +42,8 @@ constant cvs_version = "$Id$";
 constant thread_safe=1;
 
 #include <module.h>
+#include <pcre.h>
+
 inherit "module";
 inherit "caudiumlib";
 

@@ -50,6 +50,7 @@ object argcache;
 #include <config.h>
 #include <module.h>
 #include <variables.h>
+#include <pcre.h>
 
 // Inherits
 inherit "read_config";
@@ -71,6 +72,7 @@ constant pipe = (program)"smartpipe";
 #else
 constant pipe = Pipe.pipe;
 #endif
+
 
 // This is the real Caudium version. It should be changed before each
 // release
@@ -2050,7 +2052,11 @@ class ArgCache
                          name, long_key, long_key[..79], time() ));
       return create_key( long_key );
     } else {
+#if constant(Mhash.hash_md5)
+      string _key=MIME.encode_base64(Mhash.hash_md5(long_key),1);
+#else
       string _key=MIME.encode_base64(Crypto.md5()->update(long_key)->digest(),1);
+#endif
       _key = replace(_key-"=","/","=");
       string short_key = _key[0..1];
 

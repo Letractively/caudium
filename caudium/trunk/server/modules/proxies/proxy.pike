@@ -38,6 +38,7 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
+#include <pcre.h>
 
 inherit "module";
 inherit "socket";

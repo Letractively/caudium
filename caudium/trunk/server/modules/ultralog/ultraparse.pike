@@ -33,6 +33,8 @@
 
 string cvs_version = "$Id$";
 #include <module.h>
+#include <pcre.h>
+
 inherit "module";
 inherit "caudiumlib";
 inherit "wizard";
