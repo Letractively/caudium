@@ -1601,7 +1601,9 @@ class ImageCache
   function draw_function;
   mapping data_cache = ([]); // not normally used.
   mapping meta_cache = ([]);
-
+  // GC stuff
+  int gc_time;
+  int max_gc;
 
   static mapping meta_cache_insert( string i, mapping what )
   {
@@ -2092,9 +2094,10 @@ class ImageCache
     draw_function = to;
   }
 
-  void create( string id, function draw_func, string|void d )
+  void create( string id, function draw_func, string|void d, int|void gctime )
   {
     if(!d) d = caudiump()->QUERY(argument_cache_dir);
+    if(!gctime) gc_time = caudiump()->QUERY(argument_cache_gc);
     if( d[-1] != '/' )
         d+="/";
     d += id+"/";
@@ -2104,6 +2107,40 @@ class ImageCache
     dir = d;
     name = id;
     draw_function = draw_func;
+    max_gc = caudiump()->QUERY(argument_cache_gc_days) * 3600;
+    if (gc_time != 0)
+      call_out(do_gc, gc_time);
+  }
+
+  void destroy ()
+  {
+    if (gc_time != 0)
+      remove_call_out(do_gc);
+  }
+
+  void do_gc()
+  {
+    array gcfiles;
+    remove_call_out(do_gc);
+    gcfiles = get_dir(dir);
+    if (gcfiles && !Stdio.exist(dir+"LCK"))
+    {
+      // Create the lock
+      object o = Stdio.File();
+      o->open(dir + "LCK", "wc");
+      o->close();
+      // Files exist and there is no lock in this directory
+      gcfiles = gcfiles - ({ "LCK" });  // Sanity...
+      foreach(gcfiles, string foo)
+      {
+        array fstatus = file_stat(dir + foo,1);
+	if (fstatus && (fstatus[1] > 0) && ((fstatus[3] + max_gc) < time()) )
+         rm(dir + foo);
+      }
+      // Remove the lock
+      rm(dir+"LCK");
+    }
+    call_out(do_gc, gc_time);
   }
 }
 
@@ -2113,6 +2150,9 @@ class ArgCache
   static string path;
   static int is_db;
   static object db;
+
+  int gc_time;
+  int max_gc;
 
 #define CACHE_VALUE 0
 #define CACHE_SKEY  1
@@ -2157,6 +2197,7 @@ class ArgCache
       if(path[-1] != '/' && path[-1] != '\\')
         path += "/";
       path += replace(name, "/", "_")+"/";
+      perror("argcache : path = "+path+", name = "+name+"\n");
       mkdirhier( path + "/tmp" );
       object test = Stdio.File();
       if (!test->open (path + "/.testfile", "wc"))
@@ -2165,7 +2206,42 @@ class ArgCache
 	test->close();
 	rm (path + "/.testfile");
       }
+      max_gc = caudiump()->QUERY(argument_cache_gc_days) * 3600;
+      gc_time = caudiump()->QUERY(argument_cache_gc);
+      if (gc_time != 0)
+        call_out(do_gc, gc_time);
     }
+  }
+
+  void destroy()
+  {
+    if ((gc_time != 0) && is_db)
+      remove_call_out(do_gc);
+  }
+
+  void do_gc()
+  {
+    array gcfiles;
+    remove_call_out(do_gc);
+    gcfiles = get_dir(path);
+    if (gcfiles && !Stdio.exist(path+"LCK"))
+    {
+      // Create the lock
+      object o = Stdio.File();
+      o->open( path + "LCK", "wc");
+      o->close();
+      // Files exist and there is no lock in this directory
+      gcfiles = gcfiles - ({ "LCK" });  // Sanity...
+      foreach(gcfiles, string foo)
+      {
+        array fstatus = file_stat(path + foo,1);
+	if (fstatus && (fstatus[1] > 0) && ((fstatus[3] + max_gc) < time()) )
+         rm(path + foo);
+      }
+      // Remove the lock
+      rm(path+"LCK");
+    }
+    call_out(do_gc, gc_time);
   }
 
   static string read_args( string id )
@@ -2700,6 +2776,21 @@ private void define_global_variables( int argc, array (string) argv )
           "store the argument caches",
           0,
           lambda(){ return QUERY(argument_cache_in_db); });
+
+  globvar( "argument_cache_gc",600, "Argument Cache:Garbage Collector Timeout",
+          TYPE_INT|VAR_MORE,
+	  "Timeout between garbage collector will be executed in seconds.<br />"
+	  "This avoid the file system that handle disk cache to run out of "
+	  "inode when you have a big cache. If you want to disable this, set "
+	  "the value to <i>0</i>", 0,
+	  lambda(){ return QUERY(argument_cache_in_db); });
+
+  globvar( "argument_cache_gc_days",3,"Argument Cache:Cache Lifetime in days",
+          TYPE_INT|VAR_MORE,
+	  "Maximum Lifetime of cached objects in days. Set this to <i>0</i> "
+	  "if you want to clean all objects in cache each time the Garbage "
+	  "Collector is called.", 0,
+	  lambda(){ return QUERY(argument_cache_in_db)?1:!QUERY(argument_cache_gc); });
 
 
   //
