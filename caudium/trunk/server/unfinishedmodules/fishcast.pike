@@ -95,7 +95,7 @@ string status() {
     mixed sid;
     foreach( indices( streams ), sid ) {
 	ret +=
-	    "<tr><td colspan=2><b>Stream Name: " + (string)streams[ sid ]->get_name() + " (" + (string)streams[ sid ]->currently_playing() + ")</b></td><td><b>Read: " + (string)(int)(streams[ sid ]->sent_bytes() / 1024 ) +  "kbytes</b></td></tr>\n";
+	    "<tr><td colspan=2><b>Stream Name: " + (string)streams[ sid ]->get_name() + " (" + (string)streams[ sid ]->currently_playing( 1 ) + ")</b></td><td><b>Read: " + (string)(int)(streams[ sid ]->sent_bytes() / 1024 ) +  "kbytes</b></td></tr>\n";
 	mixed client;
         array clients = streams[ sid ]->list_clients();
 	foreach( indices( clients ), client ) {
@@ -412,6 +412,15 @@ class stream {
                     continue;
 		}
 		playing = filename;
+		int _bitrate = get_bitrate( f );
+		if ( ( bitrate > 0 ) && ( _bitrate != bitrate ) ) {
+		    // This means that we have been told to
+		    // adhere to a specific bitrate, so skip
+                    // this file.
+		    continue;
+		}
+		block = (int)( _bitrate * 12.8 );
+
 #ifdef DEBUG
 		write( "Stream: " + name + ", playing: " + playing + "\n" );
 #endif
@@ -590,8 +599,17 @@ class stream {
 	return bytes;
     }
 
-    string currently_playing() {
+    string currently_playing( void|int shorten ) {
+	if ( shorten == 1 ) {
+	    array path = playing / "/";
+	    path -= ({ "" });
+	    return replace( path[ sizeof( path ) - 1 ], ".mp3", "" );
+	}
 	return playing;
+    }
+
+    int get_bitrate( object f ) {
+	return bitrate; // heh heh :)
     }
 
 }
