@@ -1,6 +1,9 @@
 Changes in Caudium 1.0.XX
 -------------------------
-- - Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net>
+- The compilation process may skip rpath from the compiler/linker command line
+  if either building a Debian package or the NO_RPATH_PLEASE variable is found
+  in the environment when running configure (and smartlink thereafter).
+- Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net>
 - New configuration files are created with the 0600 permission bits now.
 - Fix for bug #498377: the environment variable didn't show the complete url
   with the query.
