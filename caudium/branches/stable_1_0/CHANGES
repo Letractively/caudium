@@ -1,4 +1,4 @@
-Changes in Caudium 1.0.X (RC3, not released)
+Changes in Caudium 1.0.14 (final)
 --------------------------------------------
 - Removed htmlparse dependency from the Enhanced Directory Listings
   module since we have two parsing modules now.
