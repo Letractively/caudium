@@ -57,8 +57,19 @@
  *
  */
 
+/*
+ * mmmmm, a much better parser idea:
+ * 0. if(sizeof(line/"/")!=2) { invalid line, discard }
+ * 1. foo = (replace(line, ({ "\t" }), ({ " " }))/" ")-({""})
+ * 2. if(search(foo, "/")!=-1) { contenttype = foo[0]; exts = foo[1..] }
+ * 3. else { exts = foo[0..sizeof(foo)-2] ; contenttype = foo[sizeof(foo)-1] }
+ *
+ * should be less error-prone, probably simpler to follow... maybe a bit heaver performance-wise, but
+ * anyone who has a problem with that may come arguing to me :). oh, don't forget the encodings kludge.
+ */
 
-// FIXME: of course module docs don't, as of now, reflect the actual syntax
+
+// FIXME: of course module docs don't, as of now, reflect the actual syntax; but it's getting better.
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;
@@ -95,8 +106,15 @@ void create()
     "#include <etc/content-types>\n\n", "Extensions", 
     TYPE_TEXT_FIELD, 
     "This is file extension "
-    "to content type mapping. The format is as follows:\n"
-    "<pre>FIXME: same as below</pre><br />"
+    "to content type mapping. The format is as follows:<br /><br />\n"
+    "<i>&lt;extension&gt;&lt;one or more tabs&gt;&lt;content-type&gt;</i><br /><br />\n"
+    "<pre>\taif\t\taudio/x-aiff</pre>\n"
+    "<pre>\tppm\t\timage/x-portable-pixmap</pre>\n"
+    "<pre>\txls\t\tapplication/vnd.ms-excel</pre>\n"
+    "<br />"
+    "You can use the <b>#include &lt;<i>filename</i>&gt;</b> directive to include "
+    "files. The <i>filename</i> argument may be an absolute or a relative path (in the latter case, "
+    "it has to be relative to the server's root directory. "
     "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
     "notes/iana/assignments/media-types/media-types\">ftp://ftp"
     ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
@@ -104,8 +122,14 @@ void create()
     TYPE_STRING,
     "This is basically the same as the above, but intended for external (to Caudium) "
     "MIME-type databases, like /etc/mime.types on Debian/GNU Linux systems.<br />"
-    "The format of this file is: FIXME: it's probably not enough if only i know the format ;)");
-    
+    "The format of this file can be the same as for Extensions, or like this:<br /><br />\n"
+    "<i>&lt;content-type&gt;&lt;one or more tabs&gt;&lt;extension&gt;</i><br /><br />\n"
+    "<pre>\taudio/x-aiff\taiff</pre>\n"
+    "<pre>\timage/x-portable-pixmap\t\tppm</pre>\n"
+    "<pre>\tapplication/vnd.ms-excel\txls</pre>\n"
+    "Multiple extensions belonging to the same content type may be denoted as a space separated list:<br />\n"
+    "<pre>\tapplication/vnd.ms-powerpoint\t\tppt pps pot</pre>\n"
+    "<pre>\tapplication/x-httpd-php\t\t\tphtml pht php</pre>\n");
   defvar("default_ct", "application/octet-stream", "Default content type",
     TYPE_STRING, 
     "This is the default content type which is used if a file lacks "
