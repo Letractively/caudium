@@ -1242,11 +1242,9 @@ class Parse {
 	while(rets) {
 	    debug(sprintf("  Spying scope '%s'", rets->scope->ScopeName));
 	    if (rets->scope && rets->scope[kw]) {
-		if (scopes[kw])
-		    rets->child->scope = scopes[kw];
 	        debug(sprintf("   Has the '%s' keyword. Returning scope '%s'",
 		      kw, rets->child->scope->ScopeName));
-		return rets->child;
+		return rets;
 	    } else
 		rets = rets->parent;
 	}
@@ -1264,6 +1262,23 @@ class Parse {
             /* We have something that ends with ':' */
             lastkw = lower_case(spline[0]);
             
+	    if (!cur_scope->scope[lastkw]) {
+                debug(sprintf("Keyword '%s' unknown in scope '%s'\n",
+                              lastkw, cur_scope->scope->ScopeName));
+		mapping ns = find_parent_scope(cur_scope, lastkw);
+		
+		if (!ns) {
+		    wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
+		                 lastkw));
+		    return;
+		}
+		
+		ns->child = 0;
+                cur_scope = ns;
+		
+		debug(sprintf("Keyword switched the scope to '%s'\n", cur_scope->scope->ScopeName));
+            }            	    
+	    
             /* Is it a keyword in the current scope? */
             if (cur_scope->scope[lastkw]) {
                 /* Yes, see whether it's an object or just a field */
@@ -1271,7 +1286,7 @@ class Parse {
 
                 if (functionp(cur_scope->scope[lastkw])) {
                     /* We have an object here */
-                    mapping curob = cur_scope->curob;
+                    object curob = cur_scope->curob;
 
                     debug(sprintf("Keyword creates an object (%s)",
                                   curob ? "child of " + curob->myName : "top-level"));
@@ -1307,22 +1322,7 @@ class Parse {
                     debug(sprintf("Keyword is a field of %s\n", cur_scope->curob->myName));
 		    cur_scope->curob->add(String.trim_whites(spline[1]), lastkw);
                 }   
-            } else {
-                /* No, find out whether it switches scopes */
-                debug(sprintf("Keyword '%s' unknown in scope '%s'\n",
-                              lastkw, cur_scope->scope->ScopeName));
-		mapping ns = find_parent_scope(cur_scope, lastkw);
-		
-		if (!ns) {
-		    wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
-		                 lastkw));
-		    return;
-		}
-		ns->child = 0;
-                cur_scope = ns;
-		
-		debug(sprintf("Keyword switched the scope to '%s'", cur_scope->scope->ScopeName));
-            }            
+            } 
         } else {
             /*
              * It's a normal line - it will be appended to the current
