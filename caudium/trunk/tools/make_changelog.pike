@@ -2,6 +2,9 @@ mapping (string:string) users = ([ ]);
 
 string domain;
 mapping user_list = ([
+  "uid35094": "Retired user",
+  "uid56983": "Retired user",
+  "uid22667": "Retired user",
   "neotron": "David Hedbor <david@caudium.net>",
   "grendel": "Marek Habersack <grendel@caudium.net>",
   "oliv3": " Olivier Girondel <oliv3@caudium.net>",
