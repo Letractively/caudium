@@ -153,7 +153,6 @@ int run_caudium(array(string) args, mapping|void opts)
 
   opts->cwd = getcwd();
   opts->env = getenv() | envvars;
-//  write("args: %O opts: %O", args, opts);
   if(!options->quiet)
   {
     write("Starting the Caudium Webserver.\n"
@@ -363,7 +362,6 @@ int main(int argc, array(string) argv)
 {
   // first, copy argv to a safe place.
   passed_args=copy_value(argv);
-
   // next, change into the directory that start is living in.
   string d=dirname(argv[0]);
   if(d) cd(d);
@@ -391,6 +389,7 @@ int main(int argc, array(string) argv)
   if(code) return 0;
 
   preamble();
+
   if(!options->once)
   {
     object havechild = fork();
@@ -400,7 +399,6 @@ int main(int argc, array(string) argv)
       return 0;
     }
   }
-//  write("options: %O\n", options);
 
   // set up signal handlers
   setup_signals();
@@ -605,8 +603,10 @@ int act_on_args()
           continue;
 	case "watchdog":
 	  options->watchdog=1;
+          continue;
 	case "nowatchdog":
 	  options->watchdog=0;
+          continue;
         case "config-dir":
           envvars->CAUDIUM_CONFIGDIR=m[1];        
           continue;
