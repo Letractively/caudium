@@ -86,6 +86,10 @@
 #define MODULE_LOGGER            (1<<12)
 #define MODULE_FILTER            (1<<13)
 
+// This module type is called before request caching is done.
+// Used for virtual hosting that changes the virtual server (to fix caching)
+// and can also be used to build a custom cache key.
+#define MODULE_PRECACHE		 (1<<14)
 
 // A module which can be called from other modules, protocols, scripts etc.
 #define MODULE_PROVIDER		 (1<<15)

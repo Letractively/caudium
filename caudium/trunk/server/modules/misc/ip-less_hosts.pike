@@ -27,7 +27,7 @@ constant thread_safe=1;
 inherit "module";
 
 //#define IP_LESS_DEBUG
-constant module_type = MODULE_FIRST;
+constant module_type = MODULE_PRECACHE;
 constant module_name = "IP-Less virtual hosting (DEPRECATED)";
 constant module_doc  = "<b><font color=red>THIS MODULE IS DEPRECATED.</font> Please "
 	    "use the Virtaul Host Matcher module instead. It gives you the "
@@ -219,7 +219,7 @@ object find_server_for(object id, string host)
   return id->conf;
 }
 
-mapping first_try(object id)
+void precache_rewrite(object id)
 {
   if(id->misc->host) find_server_for(id,lower_case((id->misc->host/":")[0]));
 }
