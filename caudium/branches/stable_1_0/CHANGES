@@ -1,3 +1,9 @@
+Changes in Caudium 1.0.X (RC3, not released)
+--------------------------------------------
+- Removed htmlparse dependency from the Enhanced Directory Listings
+  module since we have two parsing modules now.
+
+
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
 - Don't add '-lc' on SCO OpenServer and UnixWare when linking
