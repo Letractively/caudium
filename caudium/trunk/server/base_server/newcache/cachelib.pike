@@ -73,6 +73,10 @@ mapping cache_file_object( object file, string name, void|int exp ) {
          ]);
 }
 
+mapping cache_http_answer( mapping http_answer, object id ) {
+	// This needs to work, for a start :)
+}
+
 mapping cache_pike_object( mixed var, string name, void|int exp ) {
 	// Use this to place any kind of pike data structure in cache.
 	// var: The pike datatype being stored in RAM.
@@ -105,7 +109,7 @@ mapping cache_pike_object( mixed var, string name, void|int exp ) {
     retval->size = sizeof( indices( var ) * "" );
   } else if ( mappingp( var ) ) {
     retval->_mapping = 1;
-    retval->size = sizeof( indices( var ) * "" ) + sizeof( values ( var * "" ) );
+    retval->size = sizeof( indices( var ) * "" + values( var ) * "" );
   } else if ( objectp( var ) ) {
     retval->_object = 1;
     retval->size = sizeof( indices( var ) * "" ) + sizeof( values ( var * "" ) );

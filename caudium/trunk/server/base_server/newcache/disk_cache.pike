@@ -34,7 +34,7 @@ int _hits, _misses;
 void create( string _namespace, string _path ) {
   namespace = _namespace;
   path = _path;
-  cache_path = Stdio.append_path( path, namespace );
+  cache_path = Stdio.append_path( path, hash( namespace ) );
   thecache = get_index();
   call_out( expire_cache, EXPIRE_CHECK );
 }
