@@ -480,6 +480,7 @@ static void f_parse_query_string( INT32 args )
 }
 
 /* Initialize and start module */
+static struct program *parsehttp_program;
 void pike_module_init( void )
 {
   STRS(data)     = make_shared_string("data");
@@ -508,12 +509,14 @@ void pike_module_init( void )
 		     "function(string:int)", OPT_SIDE_EFFECT );
   pike_add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
   set_exit_callback(free_buf_struct);
-  end_class( "ParseHTTP", 0 );
+  parsehttp_program = end_program();
+  add_program_constant("ParseHTTP", parsehttp_program);
 }
 
 /* Restore and exit module */
 void pike_module_exit( void )
 {
+  free_program(parsehttp_program);
   free_string(STRS(data));
   free_string(STRS(file));
   free_string(STRS(method));
