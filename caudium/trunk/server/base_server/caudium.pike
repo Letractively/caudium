@@ -1769,6 +1769,7 @@ class ImageCache
 
       switch(format)
       {
+#if constant(Image.GIF.encode)
        case "gif":
          if( alpha && true_alpha )
          {
@@ -1784,6 +1785,7 @@ class ImageCache
          })
            data = Image.GIF.encode( reply );
          break;
+#endif
        case "png":
          if( ct )
            enc_args->palette = ct;
