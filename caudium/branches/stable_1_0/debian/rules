@@ -36,7 +36,10 @@ configure-stamp:
 	# Add here commands to configure the package.
 	
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
-	    patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
+	    if test ! -f stamp-patch; then \
+		patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
+		touch stamp-patch; \
+	    fi; \
     	    ./autogen.sh; \
 	fi
 	./configure --prefix=/usr --with-pike=$(PIKE)
@@ -57,8 +60,9 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	if test "$(CVS_SNAPSHOT)" = "yes"; then \
+	if test -f stamp-patch; then \
 	    patch -R -p1 < debian/patches/caudium-cvs-rpath.diff; \
+	    rm -f stamp-patch; \
 	fi
 	
 	# Add here commands to clean up after the build process.
