@@ -20,6 +20,10 @@ BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
 
+.if (${MACHINE} != "i386")
+BROKEN= This software cannot run on non x86 platform
+.endif
+
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
 IS_INTERACTIVE=	yes
