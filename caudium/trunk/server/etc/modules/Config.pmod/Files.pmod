@@ -288,6 +288,7 @@ class File
     init_object(dir, fname);
   }
 
+  // initialize the object, throws exceptions
   private int init_object(Dir dir, string fname)
   {
     if (!objectp(dir))
@@ -301,11 +302,6 @@ class File
     if (!(my_file_format = my_dir->is_config_file(fname)))
       throw(({sprintf("File '%s%s' is not a valid Caudium config file.\n",
                       my_dir->get_path(), fname), backtrace()}));
-        
-    my_file = my_dir->open_file(fname);
-    if (!my_file)
-      throw(({sprintf("Couldn't open/create the config file '%s%s'\n",
-                      my_dir->get_path(), fname), backtrace()}));
 
     my_name = fname;
         
@@ -313,7 +309,21 @@ class File
 
     return 1;
   }
-    
+
+  // open the associated file
+  private void open_file()
+  {
+    my_file = my_dir->open_file(fname);
+    if (!my_file)
+      throw(({sprintf("Couldn't open/create the config file '%s%s'\n",
+                      my_dir->get_path(), fname), backtrace()}));
+  }
+
+  // parse the old (that is Roxen 1.2+, Caudium up to 1.2) version of the
+  // config file. This is done by reading the whole file, removing the old
+  // header and wrapping the remaining contents in a valid XML
+  // "envelope". Returns 0 on success, a string with the error message
+  // otherwise. 
   private int|string parse_old()
   {
     string c = my_file->read();
@@ -328,6 +338,9 @@ class File
     return parse_xml(xml_prolog + (contents * "\n") + xml_epilog);
   }
 
+  // parse the new (Caudium 1.3+) config file format. It is a valid XML
+  // document. Returns 0 on success, a string with the error message
+  // otherwise. 
   private int|string parse_xml(void|string contents)
   {
     object root;
@@ -375,6 +388,15 @@ class File
     return sprintf("Unknown file format %d\n", my_file_format->format);
   }
 
+  // simple function to render an XML tag/container. The accepted
+  // parameters:
+  //
+  //  tname - tag name
+  //  attrs - mapping with the tag/container attributes
+  //  conents - optional contents. If absent, the function generates an XML
+  //            tag, a container is generated otherwise.
+  //  doindent - if present the resulting tag will be indented and a
+  //             newline will be output after the initial part.
   private string render_xml(string tname, mapping attrs, string|void contents, int|void doindent)
   {
     string att = "";
@@ -396,22 +418,24 @@ class File
     return sprintf("<%s%s>%s%s</%s>", tname, att, doindent ? "\n" : "", contents, tname);
   }
 
+  // scan the caudium configurations looking for a name associated with the
+  // passed module. Returns the module name or an empty string.
   private string name_of_module( object m )
   {
-    string name;
+    string name = "";
     mapping mod;
 
 #ifdef CAUDIUM
-    foreach(values(caudiump()->current_configuration->modules), mod)
-    {
-      if(mod->copies)
-      {
+    foreach(values(caudiump()->current_configuration->modules), mod) {
+      if(mod->copies) {
         int i;
+        
         if(!zero_type(i=search(mod->copies, m)))
           return mod->sname+"#"+i;
-      } else 
+      } else {
         if(mod->enabled==m)
-          return mod->sname+"#0"; 
+          return mod->sname+"#0";
+      }
     }
     
     return name;
@@ -419,7 +443,8 @@ class File
     return "";
 #endif
   }
-  
+
+  // Given a variable check its type and return an XML code for the type.
   private string get_type_desc(mixed val)
   {
     if (intp(val))
@@ -451,6 +476,7 @@ class File
     return 0;
   }
 
+  // translate the variable into its XML representation.
   private string render_variable(mixed var, string name)
   {
     string         vcontents;
@@ -593,19 +619,6 @@ class File
   }
 };
 
-static private mapping(int:string) nodevis = ([
-  Parser.XML.Tree.STOP_WALK:"STOP_WALK",
-  Parser.XML.Tree.XML_ROOT:"XML_ROOT",
-  Parser.XML.Tree.XML_ELEMENT:"XML_ELEMENT",
-  Parser.XML.Tree.XML_TEXT:"XML_TEXT",
-  Parser.XML.Tree.XML_HEADER:"XML_HEADER",
-  Parser.XML.Tree.XML_PI:"XML_PI",
-  Parser.XML.Tree.XML_COMMENT:"XML_COMMENT",
-  Parser.XML.Tree.XML_DOCTYPE:"XML_DOCTYPE",
-  Parser.XML.Tree.XML_ATTR:"XML_ATTR",
-  Parser.XML.Tree.XML_NODE:"XML_NODE"
-]);
-
 //! Class that stores the contents of a parsed configuration file
 class Config
 {
@@ -716,12 +729,20 @@ class Config
     
     return 1;
   }
-  
+
+  // FIXME: implement it
   private int var_valid(mixed value)
   {
     return 1;
   }
-    
+
+  // Parse contents of a config file region. 'element' points to the node
+  // to be parsed, 'attrs' contains the node attributes.
+  //
+  // Region tag format:
+  //
+  //  <region name='name'>...</region>
+  //
   private int handle_region(object element, mapping attrs)
   {
     if (!attrs || !sizeof(attrs)) {
@@ -750,6 +771,15 @@ class Config
     return ret;
   }
 
+  // Parse contents of a variable. 'element' points to the node to be
+  // parsed, 'attrs' contains its attributes.
+  //
+  // Variable tag format:
+  //
+  //  <var name='string'>...</var>
+  //
+  // Each variable can contain only a single value. The value might be of a
+  // compound type (array, mapping, list).
   private int handle_var(object element, mapping attrs)
   {
     if (!creg || !creg["@name@"]) {
@@ -774,6 +804,14 @@ class Config
     return ret;
   }
 
+  // Parse contents of an integer. 'element' points to the node to be
+  // parsed, 'attrs' contains its attributes.
+  //
+  // Integer tag format:
+  //
+  //  <int>X</int>
+  //
+  // where X is a decimal integer value.
   private int handle_int(object element, mapping attrs)
   {
     string txt = String.trim_all_whites(return_text(element));
@@ -788,6 +826,13 @@ class Config
     return 1;
   }
 
+  // Parse contents of a string. 'element' points to the node to be
+  // parsed, 'attrs' contains its attributes.
+  //
+  // String tag format:
+  //
+  //  <str>...</str>
+  //
   private int handle_str(object element, mapping attrs)
   {
     string txt = return_text(element);
@@ -802,6 +847,8 @@ class Config
     return 1;
   }
 
+  // Converts the mappings that contain collected arrays into a set of
+  // nested arrays.
   private array convert_mappings(mapping m)
   {
     array   ret = ({});
@@ -815,7 +862,16 @@ class Config
 
     return ret;
   }
-    
+
+  // Parse contents of an array. 'element' points to the node to be
+  // parsed, 'attrs' contains its attributes.
+  //
+  // Array tag format:
+  //
+  // <a>...</a>
+  //
+  // Array can contain tags of any value type (everything except for a
+  // region and a variable), including an array.
   private int handle_a(object element, mapping attrs)
   {
     mapping        prevarray = carray;
@@ -843,6 +899,14 @@ class Config
     return ret;
   }
 
+  // Parse contents of a float. 'element' points to the node to be
+  // parsed, 'attrs' contains its attributes.
+  //
+  // Float tag format:
+  //
+  //  <flt>X.Y</flt>
+  //
+  // where X.Y is a valid float number.
   private int handle_flt(object element, mapping attrs)
   {
     string txt = String.trim_all_whites(return_text(element));
@@ -857,26 +921,32 @@ class Config
     return 1;
   }
 
+  //FIXME: implement
   private int handle_lst(object element, mapping attrs)
   {
-    return 1; //TODO
+    return 1; 
   }
 
+  //FIXME: implement
   private int handle_mod(object element, mapping attrs)
   {
-    return 1; //TODO
+    return 1;
   }
 
+  //FIXME: implement
   private int handle_map(object element, mapping attrs)
   {
-    return 1; //TODO
+    return 1;
   }
-  
+
+  // Parses the top-level caudium config container.
   private int handle_caudiumcfg(object element, mapping attrs)
   {
     return walk_children(element);
   }
-    
+
+  // decides what to do with the given element - passes the control to the
+  // appropriate handler function for the tag in 'element'.
   private int process_element(object element)
   {
     switch(element->get_tag_name()) {
@@ -914,6 +984,8 @@ class Config
     return 1;
   }
 
+  // Returns the text content (that is, everything except for the XML
+  // constructs) of the specified element.
   private string return_text(object element)
   {
     string          ret = "";
@@ -925,7 +997,8 @@ class Config
         
     return ret;
   }
-    
+
+  // Walks the children, if any, of the given element
   private int walk_children(object root)
   {
     array(object) children  = root->get_children();
@@ -937,7 +1010,8 @@ class Config
 
     return 1;
   }
-    
+
+  // Walks the XML tree starting from the root element
   private int walk_tree(object root)
   {
     int    flag = 1;
