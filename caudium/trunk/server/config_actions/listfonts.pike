@@ -45,9 +45,8 @@ string list_font(string font)
 
 mapping render_font(object font, string text)
 {
-  return http_string_answer(font->write(text)->invert()->
-			    scale(0.5)->togif(255,255,255),
-			    "image/gif");
+  return http_string_answer(Image.GIF.encode(font->write(text)->invert()->
+					     scale(0.5)), "image/gif");
 }
 
 
