@@ -1,3 +1,9 @@
+caudium (1:1.0.11-3) unstable; urgency=low
+
+  * Latest CVS snapshot - a few changes to the source happened
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 11 Jan 2001 12:34:22 +0100
+
 caudium (1:1.0.11-2) unstable; urgency=low
 
   * Fixed a problem with debconf
