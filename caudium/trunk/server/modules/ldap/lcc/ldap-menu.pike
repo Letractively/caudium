@@ -49,12 +49,34 @@ string query_provides()
     return QUERY(provider_prefix) + "_menu";
 }
 
-mapping handle_request(object id, mapping data, string f)
+private mapping find_one_menu(object id, string pidx, string name)
+{
+    if (SMENUAREA(id) && SMENU(id, pidx)) {
+        mapping prov = SMENU(id, pidx);
+        int i = 1;
+
+        while(1) {
+            if (!prov[i])
+                break;
+
+            mapping menu = prov[i++];
+            if (menu->name != name)
+                continue;
+
+            return menu;
+        }
+    }
+
+    return 0;
+}
+
+private string make_all_menus(object id, mapping data, string|void f)
 {
     string ret = "";
 
     if (SMENUAREA(id)) {
         foreach(sort(indices(SMENUAREA(id))), string idx) {
+            
             mapping prov = SMENU(id, idx);
             int i = 1;
 
@@ -75,12 +97,18 @@ mapping handle_request(object id, mapping data, string f)
                     ret += sprintf(" %s | ", menu->name);
             }
         }
+    
     }
 
     if (ret == "")
-        return http_string_answer("<h1>Main Menu Empty!</h1>");
+        return "<h1>Main Menu Empty!</h1>";
 
-    return http_string_answer("|" + ret);
+    return "|" + ret;
+}
+
+mapping handle_request(object id, mapping data, string f)
+{
+    return http_string_answer(make_all_menus(id, data, f));
 }
 
 //
@@ -171,4 +199,94 @@ void unregister_menus(object id, mapping|array(mapping) menu)
     } else {
         do_unregister_menu(id, menu);
     }
+}
+
+//
+// Tags
+//
+
+//
+// Anchor attributes (HTML 4.01)
+//
+private multiset(string) anchor_attr = (<
+    "id", "class", "lang", "title", "style",
+    "shape", "coords", "onfocus", "onblur",
+    "onclick", "ondblclick", "onmousedown", "onmouseup",
+    "onmouseover", "onmousemove", "onmouseout",
+    "onkeypress", "onkeydown", "onkeyup",
+    "target", "tabindex", "accesskey", "name",
+    "hreflang", "type", "rel", "rev", "charset"
+>);
+
+//
+// <lcc_menu>
+//
+// Supported attributes:
+//
+//   - every standard attribute for the <a></a> HTML4 tag (note that 'href'
+//     will be ignored)
+//   - provider  - provider name from which the menu should come (required)
+//   - menu  - menu name that the tag should output (required)
+//   - always - if present, output the menu even if there's no URL for it
+//
+//   Attributes not in the anchor_attr multiset and not ours are left out
+//   of the output.
+//
+string tag_lcc_menu(string tag,
+                    mapping args,
+                    object id,
+                    object file,
+                    mapping defines)
+{
+    string ret = "<a ";
+
+    if (!SMENUAREA(id))
+        return "";
+    
+    if (!args || !sizeof(args) || !args->provider || !args->menu)
+        return "<!-- Missing required parameters ('provider' or 'menu') to the lcc_menu tag -->";
+
+    if (args->provider == "" || args->menu == "")
+        return "<!-- Neither the 'provider' or the 'menu' parameter can be empty in the lcc_menu tag -->";
+
+    if (!SMENU(id, args->provider))
+        return sprintf("<!-- No provider '%s' in the lcc_menu tag -->", args->provider);
+    
+    // first the standard attributes
+    foreach(indices(args), string idx)
+        if (anchor_attr[lower_case(idx)])
+            ret += sprintf("%s='%s' ", idx, args[idx]);
+
+    // now ours
+    mapping menu = find_one_menu(id, args->provider, args->menu);
+    if (!menu || !sizeof(menu))
+        return sprintf("<-- no such menu: %s->%s -->",
+                       args->provider, args->menu);
+
+    if (menu->url)
+        ret += sprintf("href='%s'>%s</a>",
+                       menu->url, (menu->name ? menu->name : "Unnamed Menu"));
+    else if (args->always)
+        ret += sprintf(">%s</a>", menu->name);
+    else
+        return "";
+
+    return ret;
+}
+
+string tag_lcc_menus(string tag,
+                     mapping args,
+                     object id,
+                     object file,
+                     mapping defines)
+{
+    return make_all_menus(id, SUSER(id));
+}
+
+mapping query_tag_callers()
+{
+    return ([
+        "lcc_menu" : tag_lcc_menu,
+        "lcc_menus" : tag_lcc_menus
+    ]);
 }
