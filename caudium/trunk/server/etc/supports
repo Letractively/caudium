@@ -374,12 +374,13 @@ cern.*linemode.*           nothing
 .*	robot
 # }
 
-
-
+# A pretty new robot that looks for images
+# See http://www.picsearch.com/bot.html
+#section psbot {
+.*	robot psbot
+# }
 
 .*robot.*		robot   
-
-
 
 # Somewhat dubious, but one does probably not write a client in perl,
 # unless you have more than 200Mb of memory, so something announcing
