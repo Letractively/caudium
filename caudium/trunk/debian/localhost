@@ -12,9 +12,7 @@
  <var name='Log'>                <int>1</int> </var>
  <var name='LogFile'>            <str>/var/log/caudium/localhost/Log</str> </var>
  <var name='max_open_time'>      <int>300</int> </var>
- <var name='LogFormat'>          <str>404: $host $referer - [$cern_date] "$method $resource $protocol" 404 -
-500: $host $referer ERROR [$cern_date] "$method $resource $protocol" 500 -
-*: $host - - [$cern_date] "$method $resource $protocol" $response $length</str> </var>
+ <var name='LogFormat'>          <str>*: $host - $user [$cern_date] "$method $resource $protocol" $response $length "$referer" "$agent_unquoted"</str> </var>
  <var name='ftp_user_session_limit'><int>0</int> </var>
  <var name='ErrorTheme'>         <str></str> </var>
  <var name='data_cache_file_max_size'><int>50</int> </var>

@@ -805,7 +805,7 @@ string common_prefix(array(string) strs)
 
 
 // Caudium bootstrap code.
-int main(mixed ... args)
+int main(array(string) argv)
 {
   int start_time = gethrtime();
   string path = make_path("base_server", "etc/include", ".");
@@ -862,7 +862,7 @@ int main(mixed ... args)
   load_caudium();
   caudium->cache_manager = cache_manager();
   cache_manager()->caudium = caudium;
-  int retval = caudium->main(@args);
+  int retval = caudium->main(argv);
   perror_status_reported = 0;
   roxen_perror("\n-- Total boot time %4.3f seconds ---------------------------\n\n",
 	       (gethrtime()-start_time)/1000000.0);
