@@ -920,7 +920,7 @@ void load_caudium()
 #if !constant(gethostname)
   add_constant("gethostname", lambda() { return "localhost"; });
 #endif
-  
+
   // Attempt to resolv cross-references...
   if(!getuid())
     add_constant("Privs", myprivs(this_object()));

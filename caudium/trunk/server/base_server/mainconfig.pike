@@ -505,6 +505,27 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
         if(sizeof(foo-({0})) != sizeof(foo))
           return 0;
         return foo;
+
+      case TYPE_FILE_LIST:
+        array bar;
+        bar=Array.map((var-" ")/",", lambda(string var, object node) {
+                                       if (!strlen( var ) || !file_stat(var))
+                                       {
+                                         if(node->error)	
+                                           node->error += ", " +var + " is not a directory or file";
+                                         else
+                                           node->error = var + " is not a directory or file";
+                                         return 0;
+                                       }
+                                       array f=(array)file_stat(var);
+                                       if(f && f[1]==-2 && var[-1] != '/')
+                                         return var + "/";
+                                       return var;
+                                     }, node);
+    
+        if(sizeof(bar-({0})) != sizeof(bar))
+          return 0;
+        return bar;
     
       case TYPE_DIR:
         array st;

@@ -3452,7 +3452,7 @@ int load_module(string module_file)
   } else {
     string dir;
     object e = ErrorContainer();
-    master()->set_inhibit_compile_errors(e);
+//    master()->set_inhibit_compile_errors(e);
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
                                     this_object());
