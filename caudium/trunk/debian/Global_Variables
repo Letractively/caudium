@@ -1,39 +1,10 @@
 6 <- Do not remove this number!   Caudium save file format>
 
 <region name='Variables'>
- <var name='EnableRangeHandling'><int>1</int> </var>
- <var name='docurl2'>            <str>http://www.roxen.com/documentation/context.pike?page=</str> </var>
- <var name='logdirprefix'>       <str>/var/log/caudium/</str> </var>
- <var name='identpikever'>       <int>1</int> </var>
- <var name='numthreads'>         <int>5</int> </var>
- <var name='permanent_uid'>      <int>0</int> </var>
- <var name='LogST'>              <str>Daemon</str> </var>
- <var name='cache_size'>         <int>25</int> </var>
- <var name='NumAccept'>          <int>32</int> </var>
- <var name='cachedir'>           <str>/var/cache/caudium/</str> </var>
- <var name='User'>               <str>33:33</str> </var>
- <var name='ModuleListType'>     <str>Compact</str> </var>
- <var name='LogNA'>              <str>Caudium</str> </var>
- <var name='hash_num_dirs'>      <int>500</int> </var>
- <var name='LogWH'>              <str>Errors</str> </var>
  <var name='Supports'>           <str>#include %3cetc/supports%3e
 </str> </var>
- <var name='cache'>              <int>0</int> </var>
- <var name='AutoUpdate'>         <int>0</int> </var>
- <var name='cache_keep_without_content_length'><int>1</int> </var>
- <var name='identversion'>       <int>1</int> </var>
- <var name='cache_gc_logfile'>   <str></str> </var>
- <var name='cache_max_num_files'><int>0</int> </var>
- <var name='cache_minimum_left'> <int>5</int> </var>
- <var name='suicide_engage'>     <int>0</int> </var>
- <var name='set_cookie'>         <int>0</int> </var>
- <var name='RequestBufSize'>     <int>16385</int> </var>
- <var name='RequestCacheTimeout'><int>30</int> </var>
- <var name='cache_check_last_modified'><int>0</int> </var>
- <var name='RestoreConnLogFull'> <int>0</int> </var>
- <var name='garb_min_garb'>      <int>1</int> </var>
- <var name='InternalImagePath'>  <str>caudium-images/</str> </var>
- <var name='LogA'>               <str>file</str> </var>
+ <var name='hash_num_dirs'>      <int>500</int> </var>
+ <var name='default_font'>       <str>lucida</str> </var>
  <var name='font_dirs'>          
   <a>
     <str>/usr/share/caudium/local_fonts/</str>
@@ -42,22 +13,57 @@
     <str>fonts/ttf/</str>
   </a>
  </var>
- <var name='argument_cache_dir'> <str>/var/cache/caudium/args/</str> </var>
+ <var name='AutoUpdate'>         <int>0</int> </var>
+ <var name='permanent_uid'>      <int>0</int> </var>
+ <var name='suicide_timeout'>    <int>7</int> </var>
+ <var name='abs_timeout'>        <int>5</int> </var>
+ <var name='suicide_engage'>     <int>0</int> </var>
+ <var name='cache_check_last_modified'><int>0</int> </var>
+ <var name='cache_size'>         <int>25</int> </var>
+ <var name='cachedir'>           <str>/var/cache/caudium/</str> </var>
+ <var name='default_font_size'>  <int>32</int> </var>
+ <var name='show_internals'>     <int>0</int> </var>
+ <var name='set_cookie'>         <int>0</int> </var>
+ <var name='ModuleListType'>     <str>Standard</str> </var>
  <var name='ConfigPorts'>        
   <a>
     
   <a>
     <int>@CFGPORT@</int>
-    <str>http2</str>
+    <str>http</str>
     <str>ANY</str>
     <str></str>
   </a>
 
   </a>
  </var>
- <var name='LogSP'>              <int>1</int> </var>
- <var name='LogCO'>              <int>0</int> </var>
+ <var name='abs_engage'>         <int>1</int> </var>
+ <var name='identversion'>       <int>1</int> </var>
+ <var name='NumAccept'>          <int>32</int> </var>
+ <var name='cif_theme'>          <str>caudiumnet</str> </var>
+ <var name='LogST'>              <str>Daemon</str> </var>
+ <var name='LogA'>               <str>file</str> </var>
+ <var name='logdirprefix'>       <str>/var/log/caudium/</str> </var>
+ <var name='InternalHTMLPath'>   <str>etc/internal/html/</str> </var>
+ <var name='bytes_per_second'>   <int>50</int> </var>
+ <var name='InternalImagePath'>  <str>caudium-images/</str> </var>
+ <var name='argument_cache_db_path'><str>mysql://localhost/caudium</str> </var>
+ <var name='ConfigurationUser'>  <str>@CONFIGADMIN@</str> </var>
+ <var name='ConfigurationPassword'><str>@CONFIGPASS@</str> </var>
+ <var name='cache_last_resort'>  <int>0</int> </var>
+ <var name='ConfigurationIPpattern'><str>*</str> </var>
+ <var name='RequestCacheTimeout'><int>30</int> </var>
+ <var name='cache_gc_logfile'>   <str></str> </var>
+ <var name='cache_max_num_files'><int>0</int> </var>
+ <var name='cache_minimum_left'> <int>5</int> </var>
+ <var name='RestoreConnLogFull'> <int>0</int> </var>
+ <var name='docurl2'>            <str>http://www.roxen.com/documentation/context.pike?page=</str> </var>
  <var name='ConfigurationURL'>   <str></str> </var>
+ <var name='pidfile'>            <str>/var/run/caudium/caudium.pid</str> </var>
+ <var name='argument_cache_dir'> <str>/var/cache/caudium/args/</str> </var>
+ <var name='next_supports_update'><int>1011181767</int> </var>
+ <var name='EnableRangeHandling'><int>1</int> </var>
+ <var name='audit'>              <int>0</int> </var>
  <var name='ModuleDirs'>         
   <a>
     <str>/usr/lib/caudium/local_modules/</str>
@@ -67,26 +73,19 @@
     <str>/usr/share/roxen/modules/</str>
   </a>
  </var>
- <var name='argument_cache_db_path'><str>mysql://localhost/caudium</str> </var>
- <var name='InternalHTMLPath'>   <str>etc/internal/html/</str> </var>
- <var name='cif_theme'>          <str>caudiumnet</str> </var>
- <var name='suicide_timeout'>    <int>7</int> </var>
- <var name='audit'>              <int>0</int> </var>
- <var name='default_font_size'>  <int>32</int> </var>
- <var name='default_font'>       <str>lucida</str> </var>
- <var name='argument_cache_in_db'><int>0</int> </var>
- <var name='set_cookie_only_once'><int>1</int> </var>
- <var name='ConfigurationStateDir'><str>/var/state/caudium/</str> </var>
- <var name='show_internals'>     <int>0</int> </var>
- <var name='ConfigurationUser'>  <str></str> </var>
- <var name='ConfigurationPassword'><str></str> </var>
- <var name='abs_timeout'>        <int>5</int> </var>
- <var name='next_supports_update'><int>991052002</int> </var>
- <var name='ConfigurationIPpattern'><str>*</str> </var>
- <var name='bytes_per_second'>   <int>50</int> </var>
- <var name='cache_last_resort'>  <int>0</int> </var>
  <var name='DOC'>                <int>1</int> </var>
- <var name='abs_engage'>         <int>0</int> </var>
- <var name='pidfile'>            <str>/var/run/caudium/caudium.pid</str> </var>
+ <var name='cache'>              <int>0</int> </var>
+ <var name='identpikever'>       <int>1</int> </var>
+ <var name='cache_keep_without_content_length'><int>1</int> </var>
+ <var name='User'>               <str>33:33</str> </var>
+ <var name='LogWH'>              <str>Errors</str> </var>
+ <var name='ConfigurationStateDir'><str>/var/state/caudium/</str> </var>
+ <var name='argument_cache_in_db'><int>0</int> </var>
+ <var name='RequestBufSize'>     <int>16385</int> </var>
+ <var name='garb_min_garb'>      <int>1</int> </var>
+ <var name='set_cookie_only_once'><int>1</int> </var>
+ <var name='LogNA'>              <str>Caudium</str> </var>
+ <var name='LogSP'>              <int>1</int> </var>
+ <var name='LogCO'>              <int>0</int> </var>
 </region>
 

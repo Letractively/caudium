@@ -8,8 +8,13 @@ caudium (2:1.2.0-2) unstable; urgency=medium
     Bertrand Lupart <bertrand.lupart@iteam.org>
   * Added configuration support to the caudiumctl script - sits in /etc/default/caudium
   * Fixed several stupid bugs in the debconf interface
+  * Changed the Global_Variables and localhost templates a bit:
+     - enabled anti-block system
+     - http module is used by default again
+     - default config contains the gbutton module now
+  * the install process asks for the config interface login/password now
 
- -- Marek Habersack <grendel@debian.org>  Tue,  8 Jan 2002 12:37:07 +0100
+ -- Marek Habersack <grendel@debian.org>  Wed,  9 Jan 2002 16:03:01 +0100
 
 caudium (2:1.2.0-1) unstable; urgency=high
 

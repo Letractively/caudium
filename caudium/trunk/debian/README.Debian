@@ -1,6 +1,10 @@
 Caudium Webserver for Debian
 ----------------------------
 
+The default login/password pair for the config interface is admin/password, 
+respectively. Please make sure to change at least the password as soon
+as possible if you haven't done so during the installation process!
+
 A few notes regarding this package are due here since it differs a
 bit from its predecessor, Roxen.
    
