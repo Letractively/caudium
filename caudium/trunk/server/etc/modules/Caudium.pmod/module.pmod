@@ -686,7 +686,7 @@ constant dont_dump_program = 1;
 
 // private form sexpr_eval()
 private array permitted = ({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-                             "-", "*", "+", "/", "%", "&", "|", "(",")" });
+                             "-", "*", "+", "/", "%", "&", "|", "(",")", "." });
 
 //! Do some expression calculation (eg addition etc).
 //! @param what
