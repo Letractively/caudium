@@ -94,7 +94,9 @@ install_only:
 	@if test -f $(prefix)/caudium/server.old/etc/environment ; then \
 	  cp -p $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
 	fi
-	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
+#	OpenBSD rm doesn't like empty args
+#	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
+	@find $(prefix)/caudium/server/ -name CVS -print | xargs rm -rf
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
 	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
 	for d in local local/modules local/nfonts server/lib ; \
