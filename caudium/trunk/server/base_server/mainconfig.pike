@@ -47,7 +47,7 @@ object get_template(string t);
 #define bdB "90"
 
 
-#define BODY "<body bgcolor=white text=black link=darkblue vlink=black alink=red>"
+#define BODY "<body bgcolor=white text=black link=darkblue vlink=black alink=red background=\"/image/cowfish-bg.gif\">"
 
 #define TABLEP(x, y) (id->supports->tables ? x : y)
 #define PUSH(X) do{res+=({(X)});}while(0)
