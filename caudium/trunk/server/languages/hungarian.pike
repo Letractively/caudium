@@ -46,8 +46,6 @@ array(string)    the_words = ({
 
 string ordered(int i)
 {
-    if(!i)
-      return "&eacute;rtelmezhetetlen";
     return i+".";
 }
 

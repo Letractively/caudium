@@ -115,8 +115,6 @@ string number (int num)
 
 string ordered(int i)
 {
-  if (!i)
-    return "errore";
   return i+"º";
   // I know you prefer to use ISO latin-1, but I just can't type it :P
   // Fixed. BTW, what is the problem typing ^Q282 in emacs? /grubba
