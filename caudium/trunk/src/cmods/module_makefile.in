@@ -9,7 +9,7 @@ SO=@SO@
 all: $(MODNAME).$(SO)
 INSTALLDIR=$(prefix)/caudium/server/lib/@PIKE_VERSION@/
 INSTALL=@INSTALL@
-
+CLIBRARY_LINK=@CLIBRARY_LINK@
 all:  Makefile $(MODNAME).$(SO)
 
 .SUFFIXES: .c .o
@@ -30,7 +30,7 @@ install_bin: all
 
 
 $(MODNAME).$(SO):  $(OBJS)
-	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) 
+	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) $(CLIBRARY_LINK) $(LIBGCC) 
 
 Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
 	@echo "configure or Makefile.in changed."

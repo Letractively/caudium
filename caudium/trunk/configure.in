@@ -52,6 +52,12 @@ esac
 # Compiler checks
 #--------------------------
 
+# Strip smartlink from cached CC if it's there.
+if test ! -z "$ac_cv_prog_CC"; then
+ ac_cv_prog_CC="`echo $ac_cv_prog_CC|sed -e 's/.*smartlink //'`"
+ export ac_cv_prog_CC
+fi
+
 if test ! -z "$caudium_cv_prog_CC" -a ! -z "$CC" -a "$CC" != "$caudium_cv_prog_CC"
 then
   AC_MSG_WARN([CC is different than last time Caudium was compiled,
@@ -215,9 +221,6 @@ case "$UNAME" in
     AC_DEFINE(USE_LD_LIBRARY_PATH)
     ;;
 esac
-
-# Strip smartlink from $CC
-CC="`echo $CC|sed -e 's/.*smartlink //'`"
 
 # Fix a smartlink
 SMARTLINK="$BUILDDIR/smartlink"
@@ -743,13 +746,21 @@ fi
 
 if test "$GCC" != "yes"; then
   case $caudium_cv_sys_os in
-    UnixWare*) CCSHARED="-KPIC -dy -Bdynamic"
-    caudium_cv_sys_ccshared="$CCSHARED"
+    UnixWare*)
+	CCSHARED="-KPIC -dy -Bdynamic"
+	caudium_cv_sys_ccshared="$CCSHARED"
     ;;
   esac
 fi
 
 
+CLIBRARY_LINK="-lc"
+# In special cases we don't want -lc...
+case $caudium_cv_sys_os in
+  UnixWare*|SCO_SV*)
+    CLIBRARY_LINK=""      
+  ;;
+esac
 
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
@@ -758,7 +769,7 @@ AC_MSG_RESULT($CCSHARED)
 # Some variables we want to export to the other configure scripts.
 #
 CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
-export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO 
+export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
 
 AC_CONFIG_SUBDIRS(src tools)
 AC_OUTPUT(Makefile)
