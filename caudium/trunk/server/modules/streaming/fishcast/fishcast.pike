@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
-constant version = "1.0rc1";
+constant version = "1.0rc2";
 constant thread_safe = 0; // maybe more like "constant will_kill_your_box_if_sneezed_at = 1;"
 constant module_type = MODULE_LOCATION|MODULE_PARSER|MODULE_EXPERIMENTAL;
 constant module_name = "Fishcast";
@@ -93,9 +93,11 @@ void stop() {
     if ( sizeof( streams ) > 0 ) {
 	foreach( indices( streams ), int id ) {
 	    streams[ id ]->terminate();
+            sleep( 0.15 );
+	    destruct( streams[ id ] );
+            m_delete( streams, id );
 	}
     }
-    streams = ([ ]);
 #ifdef DEBUG
     perror( "done.\n" );
 #endif
@@ -391,6 +393,9 @@ class metadata {
 
 class stream_client {
 
+    //   array buffer = allocate(128);
+    array buffer = ({ });
+    int w_ptr;
     mapping vars =
 	([
 	  "protocol" : 0,
@@ -402,6 +407,8 @@ class stream_client {
     object meta;
     object fd;
     int bytes = 0;
+    object queue;
+    int term;
 
     void create( object _id, object _meta ) {
 	id = _id;
@@ -421,10 +428,35 @@ class stream_client {
             // Default protocol is ICY
             vars->protocol = 1;
 	}
+        queue = Thread.Queue();
+    }
+
+    void client_write_callback() {
+	if( queue->size() > 0 ) {
+	    string tmp = queue->read();
+	    bytes += sizeof( tmp );
+	    fd->write( tmp );
+	} else {
+	    fd->write( "" );
+	}
+    }
+
+    void client_close_callback() {
+	fd->close();
+        term = 1;
+    }
+
+    void client_read_callback() {}
+
+    void set_nonblocking() {
+        client_write_callback();
+	fd->set_nonblocking( client_read_callback, client_write_callback, client_close_callback );
     }
 
     mixed client_write( string buff, void|string title ) {
-        int _bytes;
+	if ( term == 1 ) {
+	    return this_object();
+	}
 	if ( ( meta->titlestreaming ) && ( title ) ) {
 	    if ( meta->protocol == 1 ) {
 		string m = title_encode( title );
@@ -433,7 +465,6 @@ class stream_client {
 		} else {
 		    if ( bytes % meta->default_metaint < meta->default_metaint ) {
 			int tmp = bytes % meta->default_metaint;
-			_bytes = sizeof( buff );
 			if ( tmp == 0 ) {
 			    buff = m + buff;
 			} else {
@@ -443,9 +474,16 @@ class stream_client {
 		}
 	    }
 	}
-	bytes += _bytes||sizeof( buff );
+
+        /*
 	if( fd->write( buff ) == -1 ) {
 	    return this_object();
+	    }
+	    */
+
+	if ( queue->size() <= 128 ) {
+            queue->write( buff );
+	    return 0;
 	}
 	return 0;
     }
@@ -484,7 +522,7 @@ class stream_client {
 		"x-audiocast-streamid:" + meta->id + "\r\n"
 		"x-audiocast-public:" + meta->pub + "\r\n" +
 		(meta->bitrate?"x-audiocast-bitrate:" + (meta->bitrate) + "\r\n":"") +
-		"x-audiocast-description:Served by fishcast version 1.0\r\n";
+		"x-audiocast-description:Served by fishcast version 1.0\r\n\r\n";
 	} else {
             // Default bahavior is icecast compatible mode.
 	    heads =
@@ -497,7 +535,7 @@ class stream_client {
 		"icy-name:" + meta->name + "\r\n"
 		"icy-genre:" + (meta->genre||"Unknown") + "\r\n"
 		"icy-url:" + (meta->url||"http://www.caudium.net/") + "\r\n"
-		"icy-pub:" + meta->pub + "\r\n" +
+		"icy-pub:" + meta->pub + "\r\n\r\n" +
 		(meta->bitrate?"icy-br:" + (string)meta->bitrate + "\r\n":"");
 	}
 	bytes += sizeof( heads );
@@ -512,7 +550,7 @@ class stream_client {
     }
 
     void terminate() {
-//	catch( fd->close() );
+	catch( fd->close() );
     }
 
 }
@@ -736,6 +774,7 @@ class new_stream {
 	} else {
 	    object c = stream_client( id, meta );
 	    c->write_headers();
+            c->set_nonblocking();
 	    clients += ({ c });
 	    write_callbacks += ({ c->client_write });
 	    if ( sending_to_clients == 0 ) {
@@ -748,6 +787,7 @@ class new_stream {
 	    perror( "done.\n" );
 #endif
 	}
+
     }
 
     void unregister_client( object client ) {
