@@ -286,6 +286,10 @@ xyz	chemical/x-pdb
 nspc	application/x-ns-proxy-autoconfig
 pac	application/x-ns-proxy-autoconfig
 
+# Mozilla extended types
+xul	application/vnd.mozilla.xul+xml
+xpi	application/x-xpinstall
+
 # Certificate Authority Certificate (recognized at least by Netscape)
 ca_cert application/x-x509-ca-cert
 
@@ -296,3 +300,5 @@ bz	STRIP	x-bzip
 bz2	STRIP	x-bzip2
 uu	STRIP	uuencode
 b64	STRIP	base64
+
+
