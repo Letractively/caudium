@@ -35,7 +35,6 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-
 constant module_type = MODULE_PARSER;
 constant module_name = "Standard RXML Entities";
 constant module_doc  = "\
@@ -404,6 +403,24 @@ class RandomScope {
   }
 }
 
+//! entity_scope: time
+//!  Returns current time units such as day, hour, minute and second.
+//! bugs:
+//!  This documentation needs work.
+
+class TimeScope {
+  inherit "scope";
+  constant name = "time";
+
+  array(string) get(string entity, object id) {
+    NOCACHE();
+    
+    mapping now=Calendar.ISO.datetime();
+    
+    return ({ (string)now[entity] });
+  }
+}
+
 //! entity_scope: cookie
 //!  This scope provides access to cookies using the entity syntax. There are
 //!  no predefined entities for this scope.
@@ -513,6 +530,7 @@ array(object) query_scopes()
     FormScope(),
     VarScope(),
     RandomScope(),
+    TimeScope(),
     CaudiumScope(),
     CaudiumScope("roxen"),
     PageScope()
