@@ -1,0 +1,32 @@
+#
+# $Id$
+#
+# This file is used with CIDR Filesystem and redirector Caudium Module.
+#
+# Syntax is :
+#
+# CIDR		ACTION		ACTION ARGUMENT
+#
+# With :
+#
+# CIDR : a CIDR network number eg 192.168.10.0/24
+# ACTION : 
+#   DIR      -> a directory related to Search Path wher files exist
+#   REDIRECT -> redirect to the specified URL in ACTION ARGUMENT
+# ACTION ARGUMENT : Arguments given to the specified action.
+#
+# Example:
+#
+# 192.168.0.0/24	DIR	private-old-network/
+# 10.5.0.0/15		REDIRECT	http://www.yahoo.com/
+#
+# ***** NOTICE *******
+# 
+# If you add several network CIDR that can be both eligible for an action
+# you can get random results. A good example for that random thing is 
+# 192.168.0.0/24 and 192.168.0.3/32. The result for 192.168.0.3/32 can 
+# be elected on 2 rules. So you can get random results.
+# You have been warned for that now.
+#
+# ***** END of NOTICE *****
+
