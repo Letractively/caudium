@@ -1,0 +1,13 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=Guile
+OBJS= guile.o thr_queue.o
+SOURCES=guile.c thr_queue.c
+MODULE_LIBS=@GUILE_LDFLAGS@
+MODULE_CFLAGs=@GUILE_CFLAGS@
+@module_makefile@
+
+extrainstall:
+	@true
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+

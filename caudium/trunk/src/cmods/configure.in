@@ -3,6 +3,10 @@ AC_INIT(configure.in)
 
 CAUDIUM_LOW_MODULE_INIT()
 
+# need to specifically enable Guile support 
+if test "$with_Guile" = ""; then
+  with_Guile="no"
+fi
 
 dirs=""
 for a in `(cd $srcdir ; echo *)`
