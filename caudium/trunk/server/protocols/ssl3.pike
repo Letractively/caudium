@@ -156,6 +156,7 @@ array|void real_port(array port, object cfg)
     ({ report_error, throw }) ("ssl3: Certificate and private key do not match.\n");
 #endif
 
+  // FIXME: remove this and replace it directly where it is used.
   function r = Caudium.Crypto.f_urandom();
 
 #ifdef SSL3_DEBUG
@@ -172,6 +173,7 @@ array|void real_port(array port, object cfg)
   // we need the certificates to be in the opposite order (my cert first) for ssl to work.
   ctx->certificates=reverse(ctx->certificates);
   ctx->rsa = rsa;
+  // FIXME: use directly Caudium.Crypto.f_urandom(); instead of r;
   ctx->random = r;
 }
 
@@ -255,7 +257,7 @@ string cache;
 static void write_more()
 {
 #ifdef SSL3_DEBUG
-  roxen_perror(sprintf("SSL3:write_more()\n"));
+  report_debug("SSL3:write_more()\n");
 #endif /* SSL3_DEBUG */
   string s;
   if (!(s = (cache || get_data()))) {
@@ -272,7 +274,7 @@ static void write_more()
     if(pos <= 0) // Ouch.
     {
 #ifdef DEBUG
-      perror("SSL3:: Broken pipe.\n");
+      report_debug("SSL3:: Broken pipe.\n");
 #endif
       die();
       return;
@@ -289,7 +291,7 @@ static void write_more()
 string get_data_file()
 {
 #ifdef SSL3_DEBUG
-  roxen_perror(sprintf("SSL3:get_data_file()\n"));
+  report_debug("SSL3:get_data_file()\n");
 #endif /* SSL3_DEBUG */
   string s;
   if ((s = to_send->head))
