@@ -1268,7 +1268,7 @@ string status_row(object node)
 	   " cellspacing=0>\n"
 	   "<tr><td valign=bottom align=left>"/*"<a href=\"$docurl"+
 	   node->path(1)+"\">"*/
-	   "<img border=0 src=\"/image/roxen-icon-gray.gif\" alt=\"\">"/*"</a>"*/
+	   "<img border=0 src=\"/image/caudium-icon-gray.gif\" alt=\"\">"/*"</a>"*/
 	   "</td>\n<td>&nbsp;</td><td  width=100% height=39>"
 	   "<table cellpadding=0 cellspacing=0 width=100% border=0>\n"
 	   "<tr width=\"100%\">\n"

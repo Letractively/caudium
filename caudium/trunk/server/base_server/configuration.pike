@@ -1091,7 +1091,7 @@ private mapping internal_roxen_image(string from)
   int hue,bright,w;
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
-
+  from = replace(from, "roxen", "caudium");
   if(object f=open("roxen-images/"+from+".gif", "r"))
     return (["file":f,"type":"image/gif"]);
   else
@@ -1265,7 +1265,7 @@ mapping|int low_get_file(object id, int|void no_magic)
 	TRACE_LEAVE("Magic internal gopher image");
 	return internal_gopher_image(loc);
       }
-      if(sscanf(loc, "spinner-%[^/]", loc)  // Configuration interface images.
+      if(sscanf(loc, "caudium-%[^/]", loc)  // Configuration interface images.
 	 ||sscanf(loc, "roxen-%[^/]", loc)) // Try /internal-roxen-power
       {
 	TRACE_LEAVE("Magic internal roxen image");
