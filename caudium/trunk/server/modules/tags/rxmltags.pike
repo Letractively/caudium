@@ -910,7 +910,7 @@ string tag_echo(string tag,mapping m,object id,object file,
    case "date_local":
     NOCACHE();
 #if constant(Caudium.strftime)
-    return strftime(defines->timefmt || "%c", time(1));
+    return Caudium.strftime(defines->timefmt || "%c", time(1));
 #else
     return "Your system is lack of strftime() function";
 #endif /* constant (Caudium.strftime) */
@@ -918,7 +918,7 @@ string tag_echo(string tag,mapping m,object id,object file,
    case "date_gmt":
     NOCACHE();
 #if constant(Caudium.strftime)
-    return strftime(defines->timefmt || "%c", time(1) + localtime(time(1))->timezone);
+    return Caudium.strftime(defines->timefmt || "%c", time(1) + localtime(time(1))->timezone);
 #else
     return "Your system is lack of strftime() function";
 #endif /* constant (Caudium.strftime) */
