@@ -1,8 +1,8 @@
 Changes in Caudium 1.2.32 since 1.2.30
 --------------------------------------
-- Avoid to use too mutch inlining in leaf functions. This keep gcc 3.3.x 
-  happy and avoid some problems that can occur ( see discussion about
-  that : http://lists.freebsd.org/pipermail/freebsd-current/2003-July/007065.html).
+- Avoid to use too much inlining in leaf functions. This keeps gcc 3.3.x 
+  happy and avoids some problems that can occur (see discussion about
+  that: http://lists.freebsd.org/pipermail/freebsd-current/2003-July/007065.html).
    (Xavier Beaudouin)
 - Caudium configure script now checks if pike version is > 7.0.268 and
   < 7.3.0 to avoid "bug" reports from users that want to use Caudium
@@ -65,7 +65,7 @@ Changes in Caudium 1.2.30 since 1.2.26
   security problems (eg list of files directories) (SF bug #713835).
    (Xavier Beaudouin)
 - Fixes in responses given to FTP client in the ftp protocol. Mostly because
-  Opera don't like it too mutch. (SF bug #560771)
+  Opera don't like it too much. (SF bug #560771)
     (Xavier Beaudouin)
 
 Changes in Caudium 1.2.26 since 1.2.24

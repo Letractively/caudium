@@ -1,3 +1,9 @@
+caudium (2:1.2.33-1) unstable; urgency=low
+
+  * The latest upstream version
+
+ -- Marek Habersack <grendel@debian.org>  Mon,  9 Feb 2004 03:53:05 +0100
+
 caudium (2:1.2.31-9) unstable; urgency=high
 
   * The latest upstream. Fixes SSL problems where secure connections would
