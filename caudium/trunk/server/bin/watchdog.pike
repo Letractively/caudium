@@ -90,7 +90,7 @@ class Puppy
   string file;
 
   //Times
-  int intervall, connect_timeout, read_timeout;
+  int interval, connect_timeout, read_timeout;
 
   //Alerts
   int nr_lowalert, nr_highalert;
@@ -195,8 +195,8 @@ class Puppy
 
   void watchdog()
   {
-    werror( "watchdog...("+ intervall +")\n" );
-    call_out(watchdog,intervall);
+    werror( "watchdog...("+ interval +")\n" );
+    call_out(watchdog,interval);
     
     object f=Stdio.File();
     f->open_socket();
@@ -208,7 +208,7 @@ class Puppy
   }
 
   void create(string _name, string _server, int _port, string _file,
-	      int _intervall, int _connect_timeout, int _read_timeout,
+	      int _interval, int _connect_timeout, int _read_timeout,
 	      int _nr_lowalert, function _action_lowalert,
 	      int _nr_highalert, function _action_highalert, mapping _rc)
   {
@@ -217,7 +217,7 @@ class Puppy
     port=_port;
     file=_file;
     
-    intervall=_intervall;
+    interval=_interval;
     connect_timeout=_connect_timeout;
     read_timeout=_read_timeout;
     
@@ -323,7 +323,7 @@ mapping refine_rc( mapping rc )
   }
 
   array saker =
-    ({ "serverport", "intervall", "readtimeout", "connecttimeout" });
+    ({ "serverport", "interval", "readtimeout", "connecttimeout" });
   foreach( saker, string sak )
     rc[sak] = (int)rc[sak];
 
@@ -369,7 +369,7 @@ int main(int argc, array (string) argv)
   }
 
   rc = refine_rc( read_rc() );
-  servers = get_servers(opts->config_dir);
+  servers = get_servers();
 
   write( sprintf("rc: %O\n", rc) );
   write( sprintf("servers: %O\n", servers) );
@@ -387,12 +387,12 @@ int main(int argc, array (string) argv)
     array x=srv/":";
 
     log( "Startup: Initiating mountpoint "+ x[0] + ":" + x[1] +":");
-    Puppy( rc->servername, x[0], x[1], needle,
-	   rc->intervall, rc->connecttimeout, rc->readtimeout,
-	   rc->file[needle]->lowtime,
-	   get_function( rc->file[needle]->lowaction ),
-	   rc->file[needle]->hightime,
-	   get_function( rc->file[needle]->highaction ),
+    Puppy( rc->servername, x[0], x[1], rc->file,
+	   rc->interval, rc->connecttimeout, rc->readtimeout,
+	   rc->file->lowtime,
+	   get_function( rc->file->lowaction ),
+	   rc->file->hightime,
+	   get_function( rc->file->highaction ),
 	   rc );
   }
 
