@@ -32,6 +32,11 @@
      /usr/local/caudium/) followed by make and make install to build
      the binaries and copy them to the correct place.
 
+!!!  By default, the configuration will fail if the Sablotron XSLT
+!!!  library isn't found. If you are not interested in XSLT
+!!!  functionality, just add the flag '--without-PiXSL' to the
+!!!  configure script.
+
      You can later on move the 'caudium' directory that will be
      created when you type 'make install' to anywhere in your
      filesystem. Caudium does not keep any absolute paths.
@@ -58,10 +63,10 @@
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.0.tar.gz
-bash$ cd caudium-1.0
-bash$ mkdir solaris
-bash$ cd solaris
+bash$ tar xzf caudium-1.0.10.tar.gz
+bash$ cd caudium-1.0.10
+bash$ mkdir build
+bash$ cd build
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
@@ -73,6 +78,7 @@ bash$ make
 bash$ make  install
 bash$ cd /usr/www/caudium/server
 bash$ ./install
+
 <answer a few questions>
 
 
