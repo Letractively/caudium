@@ -174,7 +174,8 @@ string create()
 	 "$length        -- The length of the data section of the reply<br />"
        "$bin-length    -- Same, but as an 32 bit iteger in network byteorder<br />"
 	 "$referer       -- the header 'referer' from the request, or '-'.<br />"
-      "$user_agent    -- the header 'User-Agent' from the request, or '-'.<br /><br />"
+      "$user_agent    -- the header 'User-Agent' from the request, or '-'.<br />"
+      "$agent_unquoted  -- the header 'User-Agent' from the request, or '-'.<br /><br />"
 	 "$user          -- the name of the auth user used, if any<br />"
 	 "$user_id       -- A unique user ID, if cookies are supported,<br />"
 	 "                  by the client, otherwise '0'<br />"
@@ -348,7 +349,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 "$ip_number", "$bin-ip_number", "$cern_date",
 		 "$bin-date", "$method", "$resource", "$protocol",
 		 "$response", "$bin-response", "$length", "$bin-length",
-		 "$referer", "$user_agent", "$user", "$user_id", "$virtname",
+		 "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id", "$virtname",
 	       }), ({
 		 (string)request_id->remoteaddr,
 		 host_ip_to_int(request_id->remoteaddr),
@@ -364,7 +365,8 @@ static void do_log(mapping file, object request_id, function log_function)
 		 (string)(file->len>=0?file->len:"?"),
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
-		 http_encode_string(request_id->useragent),
+		 http_encode_string(request_id->useragent||"-"),
+		 request_id->useragent||"-",
 		 extract_user(request_id->realauth),
 		 (string)request_id->cookies->CaudiumUserID,
 		 (string)request_id->misc->host,
