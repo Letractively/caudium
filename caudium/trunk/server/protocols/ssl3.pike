@@ -258,7 +258,7 @@ static void write_more()
   roxen_perror(sprintf("SSL3:write_more()\n"));
 #endif /* SSL3_DEBUG */
   string s;
-  if (!(s = (cache || get_data()))) {
+  if (!(s = (cache || get_data())) || !sizeof(s)) {
 //    perror("SSL3:: Done.\n");
     die();
     return;
