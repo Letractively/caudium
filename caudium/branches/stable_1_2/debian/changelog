@@ -1,3 +1,10 @@
+caudium (2:1.2.31-8) unstable; urgency=low
+
+  * Update to the pt_BR translation, thanks to Andre Luis Lopes 
+    (closes: Bug#227371)
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 13 Jan 2004 17:30:02 +0100
+
 caudium (2:1.2.31-7) unstable; urgency=low
 
   * The latest upstream update.
