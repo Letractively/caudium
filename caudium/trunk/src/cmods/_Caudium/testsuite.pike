@@ -101,7 +101,9 @@ int TEST_http_encode_url() {
                    "%":"%25", "'":"%27", "\"":"%22", "#":"%23",
                    "&":"%26", "?":"%3F", "=":"%3D", "/":"%2F",
                    ":":"%3A", "+":"%2B", "<":"%3C", ">":"%3E",
-                   "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F" ]);
+                   "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F",
+                   "eaud.b@free.fr":"eaud.b%40free.fr"
+  ]);
   prtest("http_encode_url");
   return mapping_test(tst, _Caudium.http_encode_url);
 }
