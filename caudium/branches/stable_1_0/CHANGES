@@ -5,6 +5,8 @@ Changes in Caudium 1.0.X (RC3, not released)
 - Quote the chars < > @ in http_encode_url and http_encode_string.
 - Removed CAMAS since it's not stable. Use the 1.1 version if you want
   to use it (either CVS or a snapshot).
+- Correctly find libraries for various versions of Sablotron (0.50 and
+  0.44 tested). 
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
