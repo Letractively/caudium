@@ -38,6 +38,7 @@ array(array(string | array(string))) arguments = ({
   ({"truss", Getopt.NO_ARG, ({"--truss"})}),
   ({"strace", Getopt.NO_ARG, ({"--strace"})}),
   ({"ltrace", Getopt.NO_ARG, ({"--ltrace"})}),
+  ({"ktrace", Getopt.NO_ARG, ({"--ktrace"})}),
   ({"log-dir", Getopt.HAS_ARG, ({"--log-dir", "--logdir"})}),
   ({"config-dir", Getopt.HAS_ARG, ({"--config-dir", "--configdir"})}),
   ({"pike-version", Getopt.HAS_ARG, ({"--pike-version", "--pikeversion"})}),
@@ -583,6 +584,10 @@ int act_on_args()
           options->precmd=({"ltrace", "-f"});
           options->once=1;
           continue;
+        case "ktrace":
+          options->precmd=({"ktrace", "-d"});
+          options->once=1;
+          continue;
         case "log-dir":
           envvars->CAUDIUM_LOGDIR=m[1];        
           continue;
@@ -720,7 +725,7 @@ will
       .B--without-debugB.:  Disable all debug
 	
       .B--with-fd-debugB.:  Enable FD debug.
-      .B--truss,--strace,--ltraceB.: Run the server under the selected tracer
+      .B--truss,--strace,--ltrace,--ktraceB.: Run the server under the selected tracer
                    		  program. This is extremely noisy, and is not
 				  intented for anything but debugging purposes.
       .B--pid-file=<file>B.:  Store the caudium and startscript pids in this
