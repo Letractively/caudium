@@ -247,6 +247,15 @@ private class SettableWrapper
     return `[]=(what, contents);
   }
 
+  mixed _m_delete(mixed index)
+  {
+    report_notice("_m_delete for %t called, deleting %O\n", this_object(), index);
+    if (stringp(index) && cur_storage) {  
+      return cur_storage->delete_variable(id, index, sid, reg);
+    }
+    return 0;
+  }
+  
   static string _sprintf(int f)
   {
     switch(f) {
@@ -929,11 +938,11 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
   if (_memory_storage["_sessions_"][sid]->fresh) {
     _memory_storage["_sessions_"][sid]->fresh = 0;
     _memory_storage["_sessions_"]->idle_sessions--;
-  }
-  
-  if (_memory_storage[region][sid][key]) {
-    mixed val = _memory_storage[region][sid][key]->data;
-    m_delete(_memory_storage[region][sid], key);
+  }  
+
+  if (_memory_storage[region][sid]->data[key]) {
+    mixed val = _memory_storage[region][sid]->data[key];
+    m_delete(_memory_storage[region][sid]->data, key);
 
     _memory_storage["_sessions_"][sid]->lastchanged = t;
     return val;
