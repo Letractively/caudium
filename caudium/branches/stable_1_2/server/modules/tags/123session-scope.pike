@@ -35,7 +35,6 @@
 //! cvs_version: $Id$
 //! inherits: module
 //! inherits: caudiumlib
-string cvs_version = "$Id$";
 
 #include <module.h>
 #include <config.h>
@@ -49,6 +48,7 @@ constant module_name = "123 Sessions - Scope Extension";
 constant module_doc  =
 "Extends the 123 Session module with Scope functionality.";
 constant module_unique = 1;
+constant cvs_version = "$Id$";
 
 //! entity_scope: session
 //!  Allows for storage and retrieving of 123session variables using

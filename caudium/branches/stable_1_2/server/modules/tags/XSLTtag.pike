@@ -34,7 +34,7 @@
  * Written by David Hedbor <david@hedbor.org>
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 constant thread_safe = 1;
 
 #include <module.h>
