@@ -191,8 +191,8 @@ void create()
 	 method_is_file_or_getpwent);
   
 
-  defvar("Swashii", 1, "Turn %7d%7b%7c into &aring;&auml;&ouml;", TYPE_FLAG|VAR_MORE,
-	 "Will make the module turn %7d%7b%7c into &aring;&auml;&ouml; in the Real Name "+
+  defvar("Swashii", 1, "Turn %7d%7b%7c into едц", TYPE_FLAG|VAR_MORE,
+	 "Will make the module turn %7d%7b%7c into едц in the Real Name "+
 	 "field in the userinfo database. This is useful in a european "+
 	 "country, Sweden.");
 
@@ -507,9 +507,9 @@ int may_disable() { return 0; }
 //!  name: Password command arguments
 //
 //! defvar: Swashii
-//! Will make the module turn %7d%7b%7c into &aring;&auml;&ouml; in the Real Name 
+//! Will make the module turn %7d%7b%7c into едц in the Real Name 
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Turn %7d%7b%7c into &aring;&auml;&ouml;
+//!  name: Turn %7d%7b%7c into едц
 //
 //! defvar: Strip
 //! This will strip everyting after the first ',' character from the GECOS field of the user database.
