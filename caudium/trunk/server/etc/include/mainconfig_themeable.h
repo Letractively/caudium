@@ -24,7 +24,9 @@
 class ThemedConfig {
 
     constant cvs_version = "$Id$";
+    inherit "cachelib";
 
+    object cache = caudium->cache_manager->get_cache();
     object s;
     string datadir, themename;
     void create( void|string schemename, string _datadir ) {
@@ -132,57 +134,91 @@ class ThemedConfig {
     }
 
     object tab_0() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://tab_0", 1 ) ) {
+	  return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @fg_rgb);
+	i = Image.Image( 24, 24, @fg_rgb);
+	cache->store( cache_image( i, "auto_images://tab_0", -1 ) );
         return i;
     }
 
     object tab_1() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://tab_1", 1 ) ) {
+	  return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @fg_rgb);
+	i = Image.Image( 24, 24, @fg_rgb);
 	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	cache->store( cache_image( i, "auto_images://tab_1", -1 ) );
         return i;
     }
 
     object tab_2() {
+        object i;
+	if ( i = cache->retrieve( "auto_images://tab_2", 1 ) ) {
+	  return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @bg_rgb );
+	i = Image.Image( 24, 24, @bg_rgb );
 	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
 	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	cache->store( cache_image( i, "auto_images://tab_2", -1 ) );
         return i;
     }
 
     object tab_3() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://tab_3", 1 ) ) {
+          return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @bg_rgb);
+	i = Image.Image( 24, 24, @bg_rgb);
 	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+	cache->store( cache_image( i, "auto_images://tab_3", -1 ) );
         return i;
     }
 
     object tab_4() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://tab_4", 1 ) ) {
+	  return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @bg_rgb);
+        i = Image.Image( 24, 24, @bg_rgb);
 	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
         i->line( 0, 0, 24, 0, @fg_rgb );
+	cache->store( cache_image( i, "auto_images://tab_4", -1 ) );
         return i;
     }
 
     object tab_5() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://tab_5", 1 ) ) {
+          return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, @bg_rgb);
+	i = Image.Image( 24, 24, @bg_rgb);
 	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
 	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
 	i->line( 0, 0, 24, 0, @fg_rgb );
+	cache->store( cache_image( i, "auto_images://tab_5", -1 ) );
         return i;
     }
 
     object logo() {
+	object i;
+	if ( i = cache->retrieve( "auto_images://cif_logo", 1 ) ) {
+	  return i;
+	}
 	array fg_rgb = s->rgb_colour( "titlefg" );
 	array bg_rgb = s->rgb_colour( "titlebg" );
 	object text = Image.PNM.decode(Stdio.read_file(datadir+"/cif_logo_txt.pnm"));
@@ -225,6 +261,7 @@ class ThemedConfig {
 			  ( ( back->xsize() - text->xsize() ) / 2 ),
 			  ( ( back->ysize() - text->ysize() ) / 2 ) );
 	/* Stdio.write_file("/tmp/image.gif", Image.GIF.encode(back)); */
+	cache->store( cache_image( back, "auto_images://cif_logo", -1 ) );
         return back;
     }
 

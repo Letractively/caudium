@@ -347,6 +347,7 @@ mapping save_it(object id, object o)
 {
     cif = ThemedConfig( caudium->QUERY(cif_theme),
 			caudium->QUERY(InternalImagePath));
+    caudium->cache_manager->get_cache()->flush( "^auto_images\:\/\/" );
     changed_port_servers = (<>);
     root->save();
     caudium->update_supports_from_caudium_net();
