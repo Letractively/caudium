@@ -98,6 +98,9 @@ class http_error_handler {
     {
        string data;
 
+       if (_name == "default_caudium_error_template")
+          return (default_data);
+
        if (!id)
           return (default_data);
 
