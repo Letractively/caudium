@@ -204,6 +204,8 @@ void flush(void|string regexp) {
   restart_cache();
   real_cache->flush(regexp);
   if(!regexp)
+    // We may as well completely remove the cache until it's requested
+    // again - after all, it may never be requested ever again.
     delete_cache(namespace);
 }
 
