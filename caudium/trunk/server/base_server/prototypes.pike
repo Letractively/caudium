@@ -140,6 +140,11 @@ string remoteaddr;
 //! The host name the request is headed for, from HTTP/1.1
 string host;
 
+//! An ID for virtual hosting purpose
+//! Default to id->conf->name, but can be overridden by 2nd level virtual
+//! hosting modules
+string site_id;
+
 #ifdef EXTRA_ROXEN_COMPAT
 array  (string) client = ({"unknown"});
 array  (string) referer;
@@ -308,6 +313,7 @@ string url_base()
 
     c->remoteaddr = remoteaddr;
     c->host = host;
+		c->site_id = site_id;
 
 #ifdef EXTRA_ROXEN_COMPAT
     c->client = client;

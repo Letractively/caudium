@@ -681,6 +681,15 @@ private int parse_got()
       if (QUERY(set_cookie_only_once))
 	cache_set("hosts_for_cookie",remoteaddr,1);
     }
+
+	// site_id is set to conf->name
+	// this should be overriden by 2nd level virtual hosting modules in
+	// precache_rewrite()
+	if(objectp(conf) && conf->name)
+	{
+		site_id = conf->name;
+	}
+	
   return -1;	// Done.
 }
 
@@ -1693,6 +1702,7 @@ void got_data(mixed fdid, string s)
    * and other modules which might not be relevant to http like
    * cache key generator modules for http2...
    */
+
   if(conf)  conf->handle_precache(this_object());
 #ifdef THREADS
   caudium->handle(handle_request);
@@ -1723,6 +1733,7 @@ object clone_me()
 
   c->remoteaddr = remoteaddr;
   c->host = host;
+	c->site_id = site_id;
 
 #ifdef EXTRA_ROXEN_COMPAT
   c->client = client;
