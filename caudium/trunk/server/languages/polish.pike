@@ -20,56 +20,68 @@
  */
 
 string cvs_version = "$Id$";
-string month(int num)
-{
-  return ({ "styczeñ", "luty", "marzec", "kwiecieñ", "maj",
-	    "czerwiec", "lipiec", "sierpieñ", "wrzesieñ", "pa¼dziernik",
-	    "listopad", "grudzieñ" })[ num - 1 ];
-}
+
+import ".";
+inherit english;
+
+array(string)    the_words = ({
+    "rok", "miesi±c", "tydzieñ", "dzieñ"
+});
 
 string ordered(int i)
 {
   switch(i)
   {
    case 0:
-    return ("buggy");
+       return ("buggy");
    default:
-      return (i+".");
+       return (i+".");
   }
 }
 
 string date(int timestamp, mapping|void m)
 {
-  mapping t1=localtime(timestamp);
-  mapping t2=localtime(time(0));
+  object  target = Calendar.Second("unix", timestamp)->set_language("polish");
+  object  now = Now;
 
   if(!m) m=([]);
 
   if(!(m["full"] || m["date"] || m["time"]))
   {
-    if(t1["yday"] == t2["yday"] && t1["year"] == t2["year"])
-      return ("dzisiaj, "+ ctime(timestamp)[11..15]);
-  
-    if(t1["yday"]+1 == t2["yday"] && t1["year"] == t2["year"])
-      return ("wczoraj, "+ ctime(timestamp)[11..15]);
-  
-    if((t1["yday"]-1) == t2["yday"] && t1["year"] == t2["year"])
-      return ("jutro, "+ ctime(timestamp)[11..15]);
-  
-    if(t1["year"] != t2["year"])
-      return (month(t1["mon"]+1) + " " + (t1["year"]+1900));
-    return (ordered(t1["mday"]) + " " + month(t1["mon"]+1));
+      int dist;
+
+        if (target > now)
+            dist = -now->distance(target)->how_many(Calendar.Day);
+        else
+            dist = target->distance(now)->how_many(Calendar.Day);
+      
+        if (!dist)
+            return "dzisiaj, " + target->format_mod();
+
+        if (dist == -1)
+            return "wczoraj, " + target->format_mod();
+
+        if (dist == 1)
+            return "jutro, " + target->format_mod(); 
+
+        if (now->year_no() != target->year_no())
+            return ((string)target->month_no() +  " " + target->year_name());
+
+        return ((string)target->month_no() + " " + ordered(target->month_day()));
   }
+  
   if(m["full"])
-    return (ctime(timestamp)[11..15]+", "+
-	   ordered(t1["mday"]) + " " + 
-           month(t1["mon"]+1) + " " +
-           (t1["year"]+1900));
+    return target->format_mod() + ", " +
+        ordered(target->month_day()) + " " + 
+        month(target->month_no()) + " " +
+        target->year_name();
+  
   if(m["date"])
-    return (ordered(t1["mday"]) + " " + month(t1["mon"]+1) + " " +
-       (t1["year"]+1900));
+    return ordered(target->month_day()) + " " + month(target->month_no()) + " " +
+            target->year_name();
+  
   if(m["time"])
-    return (ctime(timestamp)[11..15]);
+    return target->format_mod();
 }
 
 
@@ -128,26 +140,14 @@ string number(int num)
   }
 }
 
-string day(int num)
-{
-  return ({ "niedziela","poniedzia³ek","wtorek","¶roda",
-	    "czwartek","pi±tek","sobota" })[ num - 1 ];
-}
-
-string day_really_short(int num)
-{
-  return ({ "N", "P", "W", "S", "C", "P", "S" })[ num - 1 ];
-}
-
-string words(int num)
-{
-    return ({ "rok", "miesi±c", "tydzieñ", "dzieñ" })[num];
-}
-
 array aliases()
 {
   return ({ "pl", "PL", "pol", "polski", "polish", "pl_PL" });
 }
 
-
-
+void create()
+{
+    Now = Calendar.now()->set_language("polish");
+    initialize_months(Now);
+    initialize_days(Now);
+}
