@@ -388,7 +388,7 @@ array|int auth (array(string) auth, object id)
 			({"uid","gid","gecos","home","shell"}),
 			dbinfo[2..6]
 			);
-	return ({1,u,0});
+	return ({1,u,0,(string)dbinfo[3]});
 }
 
 /*
