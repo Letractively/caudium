@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
 
 constant cvs_version = "$Id$";
 /* ftp://ftp.ripe.net/iso3166-countrycodes */

@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000 The Caudium Group

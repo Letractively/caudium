@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
 #!NO_MODULE
 /*
  * Caudium - An extensible World Wide Web server
