@@ -45,8 +45,6 @@ void refetch(function|void done, function|void failed)
   if(stime)
     // fetching already in progress
     return; 
-  //set_status("Fetching headlines...");
-  //log_event(site, "Trying to update headlines...");
   stime = time();
   object http =   HTTPFetcher();
   http->timeout = 40;
@@ -59,8 +57,6 @@ void fetch()
   if(stime)
     // fetching already in progress
     return; 
-  //set_status("Fetching headlines...");
-  //log_event(site, "Trying to update headlines...");
   stime = time();
   string data = HTTPFetcher()->fetch(url+path);
   headlines = ({});
@@ -93,8 +89,6 @@ private static void got_reply(object http, void|function done)
   if((http->status / 100 ) == 2 ||
      (site == "Central Europe" && http->status == 302) // Stupid buggy site!
      ) {
-    //log_event(site, "Fetched headlines in %d seconds.", time() - stime);
-    //set_status("Headlines last updated "+ctime(time())[4..18]+"."); 
     parse_reply((http->data()||"") - "\r");
   }
   else {
