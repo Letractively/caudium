@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Fixed bug #533861 <wizard> was broken. Autodocs now added, new features like
+  formname attribute to wizard conatiner, hidden "verify" container.
 - Fixed name space conflict between Pike 7.2's SSL.pmod and Caudium's one.
   SSL.pmod has been renamed CaudiumSSL and it is used only when Pike 7.0
   is used with Caudium. Otherwise, Caudium use Pike 7.2+ builtin SSL.pmod
