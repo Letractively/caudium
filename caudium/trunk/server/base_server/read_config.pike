@@ -260,7 +260,7 @@ void remove( string reg , object current_configuration)
 #endif
   read_it(cl);
 
-  m_delete(configs[cl], reg);
+  configs[cl]->remove_region(reg);
   save_it(cl);
 }
 
