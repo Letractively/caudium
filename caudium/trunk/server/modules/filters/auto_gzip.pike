@@ -19,32 +19,12 @@
  *
  */
 
-//
-//! module: Automatic sending of compressed files
-//!  This module implements a suggestion by Francesco Chemolli:<br/>
-//!  The modified filesystem should do about this:<br/>
-//!  -check if the browser supports on-the-fly decompression<br/>
-//!  -check if a precompressed file already exists.<br/>
-//!  -if so, send a redirection to the precompressed file<p>
-//!  So, no cost for compression, all URLs, content-types and such would
-//!  remain vaild, no compression overhead and should be really simple
-//!  to implement. Also, it would allow a site mantainer to
-//!  choose WHAT to precompress and what not to.</p><p>
-//!  This module acts as a filter, and it _will_ use one extra stat
-//!  per access from browsers that support automatic decompression.</p>
-//! inherits: module
-//! type: MODULE_FIRST
-//! cvs_version: $Id$
-//
-
 inherit "module";
 inherit "caudiumlib";
 inherit "cachelib";
 
 #include <module.h>
 #include <pcre.h>
-
-//#define GZIP_DEBUG 1
 
 constant cvs_version="$Id$";
 constant thread_safe=1;
@@ -68,8 +48,23 @@ constant module_doc  = "This module will allow you to send compressed "
 		"status and debug info screen.";
 constant module_unique = 1;
 
-#if constant(thread_create)
-object global_lock  = Thread.Mutex();
+/* some defines */
+// Mutexes
+#ifdef ENABLE_THREADS
+static Thread.Mutex mutex = Thread.Mutex();
+object __key;
+#define LOCK() __key = mutex->lock(1)
+#define UNLOCK() destruct(__key)
+#else
+#define LOCK() 
+#define UNLOCK()
+#endif
+// Debug
+#define GZIP_DEBUG 1
+#ifdef GZIP_DEBUG
+#define DEBUG(X) write("Auto_gzip: " + X)
+#else
+#define DEBUG(X)
 #endif
 
 // for status screen
@@ -79,7 +74,11 @@ mapping(string:int|float) stats;
 mapping regexps;
 
 // Get ourselves a cache to store stuff in.
-object gzipcache = caudium->cache_manager->get_cache( this_object() );
+object gzipcache = caudium->cache_manager->get_cache("auto_gzip");
+
+// how much minutes to leave objects in the cache
+// taken from the CIF
+int cache_timeout;
 
 string status()
 {
@@ -101,7 +100,7 @@ string status()
   status += "<td>" + stats["notmatchingdata"] + " bytes</td></tr>";
   if(stats["totaldata"] && stats["notmatchingdata"])
   {
-    status += "<tr><td>Bandwith saving:</td>";
+    status += "<tr><td>Bandwith saving (not included overhead):</td>";
     status += "<td>" + (int)((float)(stats["totaldata"] 
     	           - stats["compresseddata"]) / (stats["totaldata"] + 
 		   stats["notmatchingdata"]) * 100) + "%</td></tr>";
@@ -134,21 +133,24 @@ mapping first_try(object id)
         // don't send the compressed version if it is older than 
         // the original one
         if(statfile[3] >= gz_statfile[3])
-#ifdef GZIP_DEBUG
-	  werror(sprintf("auto_gzip: gz file is older than original one '%s', I will not give it\n", id->not_query));
-#else
-	  ;
-#endif
+	  DEBUG(sprintf("gz file is older than original one '%s', I will not give it\n", id->not_query));
         else
         {
-#ifdef GZIP_DEBUG
-	  werror(sprintf("auto_gzip: sending pre compressed version of '%s'\n", id->not_query));
-#endif
+	  DEBUG(sprintf("sending pre compressed version of '%s'\n", id->not_query));
           // Actually, Content-Encoding is added automatically. Just had to fix
           // the extensions file to use gzip instead of x-gzip...
           id->not_query += ".gz";
+	  if(sizeof(QUERY(vary)) > 0)
+	  {
+	    // in a MODULE_FIRST, id->misc->defines may not be set so
+	    // we need to check that
+	    mapping defines = id->misc->defines || ([]);
+	    id->misc->defines = defines;
+	    //FIXME: doesn't work
+   	    defines[" _extra_heads"] += ([ "Vary" : QUERY(vary) * "," ]);
+	  }
         }
-      }
+     }
   }
 }
 
@@ -179,11 +181,11 @@ void create()
   defvar("compressionlevel", 6, "Compression Level", TYPE_INT,
   	 "The compression level for the gzip dynamic compression.",
 	 0, hide_gzipfly);
-  defvar("minfilesize", 500, "Minimum file size", TYPE_INT,
+  defvar("mindatasize", 500, "Minimum data size", TYPE_INT,
   	 "The minimum object size this module will compress.",
 	 0, hide_gzipfly);
-  defvar("maxfilesize", 60000, "Maximum file size", TYPE_INT,
-  	 "The maximum file size this module will compress.<br>"
+  defvar("maxdatasize", 60000, "Maximum data size", TYPE_INT,
+  	 "The maximum object size this module will compress.<br>"
 	 "<i>Note: this module works only in memory</i>.",
 	 0, hide_gzipfly);
   defvar("includemime", ".*", "Include: Compress these MIME types",
@@ -209,11 +211,36 @@ void create()
 	 "(Regular expression separated by line)."
 	 "<br><i>Note: you will have to reload the module once you "
 	 "changed the expression.</i>", 0, hide_gzipfly);
+  defvar("cache", 1, "Use Caudium cache", TYPE_FLAG,
+  	 "Will use the cache to store compressed version of the objects."
+	 " The cache will not cache if id-&gt;pragma-&gt;nocache is set or "
+	 "if the hash for the data we want to compress is different than the "
+	 "hash for this data in the cache.");
+  defvar("cache_timeout", 5, "Cache timeout", TYPE_INT,
+  	 "How much minutes we leave objects in the cache, set -1 to let the "
+	 "cache store objects indefinitely.<br>"
+	 "<i>Note: you will have to reload the module for this to change.</i>"
+	 , 0, hide_cache);
+  defvar("vary", ({ "Accept-Encoding" }), "Vary HTTP headers", 
+  	  TYPE_STRING_LIST, "This will be the value of the vary HTTP headers "
+	  "to send to the client. The proxy servers will decide if they "
+	  "should cache the response based on these headers. Put '*' to "
+	  "disable caching by proxy server (this has nothing to do with the "
+	  "internal cache of this module).<br>"
+	  "See <a href=\"http://www.w3.org/Protocols/rfc2616/rfc2616-"
+	  "sec14.html#sec14.44\">RFC2616</a> and  <a href=\"http://schroepl."
+	  "net/projekte/mod_gzip/cache.htm\">mod_gzip cache handling</a> for "
+	  "more information");
 }
 
 int hide_gzipfly()
 {
   return !QUERY(gzipfly);
+}
+
+int hide_cache()
+{ 
+   return !QUERY(cache);
 }
 
 // helper function for start()
@@ -232,6 +259,7 @@ array(object) compile_regexp(string text)
 
 void start()
 {
+  LOCK();
   stats = ([ 
              "totaldata": 0,
 	     "compresseddata": 0,
@@ -247,6 +275,14 @@ void start()
   regexps->includefileext = compile_regexp(QUERY(includefileext));
   regexps->excludemime    = compile_regexp(QUERY(excludemime));
   regexps->excludefileext = compile_regexp(QUERY(excludefileext));
+  if(QUERY(cache))
+  {
+    if(QUERY(cache_timeout) <= -1)
+      cache_timeout = -1;
+    else
+      cache_timeout = QUERY(cache_timeout) * 60;
+  }
+  UNLOCK();
 }
 
 // taken from Cache code
@@ -263,48 +299,43 @@ string retval;
 }
 	  
 // this time we really have to compress
-// because the cache miss it
-string real_deflate(string _name, string _data)
+// because the cache miss it or is disable
+string real_deflate(string _data, string _name)
 {
   int level = QUERY(compressionlevel);
   level = abs(level);
   if(level > 9)
    level = 9;
-#ifdef GZIP_DEBUG
-  write(sprintf("auto_gzip: Cache miss, compressing '%s'\n", _name));
-#endif
+  DEBUG(sprintf("Cache miss, compressing '%s'\n", _name));
   int cputime = gauge {
     _data = Gz.deflate(level)->deflate(_data);
   };
-#if constant(thread_create)
-  object lock = global_lock->lock();
-#endif
+  LOCK();
   stats["cputime"] += cputime; 
   stats["cache_miss"]++;
-#if constant(thread_create)
-  destruct(lock);
-#endif
-  gzipcache->store(cache_string(_data, _name));
+  UNLOCK();
+  if(QUERY(cache))
+    gzipcache->store(cache_string(_data, _name, cache_timeout));
   return _data;
 }
 
 string deflate(string data, object id)
 {
-#ifdef GZIP_DEBUG
-  write(sprintf("auto_gzip: need compressed version of '%s'\n", id->not_query));
-#endif
-#if constant(thread_create)
-  object lock = global_lock->lock();
-#endif  
+  DEBUG(sprintf("need compressed version of '%s'\n", id->not_query));
+  LOCK();
   stats["requests2compress"]++;
-#if constant(thread_create)
-  destruct(lock); 
-#endif   
-  // we made a hash on the data and decide to cache or not
-  string hash = get_hash(data); 
-  if(id->pragma->nocache)
-    gzipcache->refresh(hash);
-  data = gzipcache->retrieve(hash, real_deflate, ({ hash, data }));  
+  UNLOCK();
+  if(QUERY(cache))
+  {
+    // we made a hash on the data and decide to cache or not
+    string hash = get_hash(data); 
+    //FIXME: do we need to check for id->misc->cacheable here ?
+    if(id->pragma->nocache)
+      gzipcache->refresh(hash);
+    data = gzipcache->retrieve(hash, real_deflate, ({ data, hash }));  
+  }
+  else
+    data = real_deflate(data, "cache disable, no name");
   return data[2..sizeof(data)-5];
 }
 
@@ -332,14 +363,14 @@ string gzip(string data, object id)
 
 // helper function
 // return true is the file size is acceptable and can be compressed
-int checkfilesize(string data)
+int checkdatasize(string data)
 {
-  int res = strlen(data) > QUERY(minfilesize) && strlen(data) < QUERY(maxfilesize);
+  int res = strlen(data) > QUERY(mindatasize) && strlen(data) < QUERY(maxdatasize);
 #ifdef GZIP_DEBUG
   if(res)
-    werror(sprintf("File size allow compression(size=%d)\n", strlen(data)));
+    DEBUG(sprintf("File size allow compression(size=%d)\n", strlen(data)));
   else
-    werror(sprintf("File size doesn't allow compression(size=%d)\n", strlen(data)));
+    DEBUG(sprintf("File size doesn't allow compression(size=%d)\n", strlen(data)));
 #endif
   return res;
 }
@@ -347,9 +378,9 @@ int checkfilesize(string data)
 int is_in_excludelist(string mime, string file)
 {
 #ifdef GZIP_DEBUG
-  string debug = "auto_gzip: is_in_excludelist, ";
+  string debug = "is_in_excludelist, ";
   debug += "mime=" + mime + " file=" + file + "\n";
-  werror(debug);
+  DEBUG(debug);
 #endif
   foreach(regexps["excludemime"], object rex)
   {
@@ -363,7 +394,7 @@ int is_in_excludelist(string mime, string file)
   }
 #ifdef GZIP_DEBUG
   debug = "...doesn't match the exclude list\n";
-  werror(debug);
+  DEBUG(debug);
 #endif
   return 0;
 }
@@ -371,9 +402,9 @@ int is_in_excludelist(string mime, string file)
 int is_in_includelist(string mime, string file)
 {
 #ifdef GZIP_DEBUG
-  string debug = "auto_gzip: is_in_includelist, ";
+  string debug = "is_in_includelist, ";
   debug += "mime=" + mime + " file=" + file + "\n";
-  werror(debug);
+  DEBUG(debug);
 #endif
   foreach(regexps["includemime"], object rex)
   {
@@ -387,34 +418,27 @@ int is_in_includelist(string mime, string file)
   }
 #ifdef GZIP_DEBUG
   debug = "...doesn't match the include list\n";
-  werror(debug);
+  DEBUG(debug);
 #endif
   return 0;
 }
 
 mapping filter(mapping response, object id)
 { 
-  object lock;
   if(!mappingp(response) || !stringp(response->data))
     return 0;
   
-#ifdef GZIP_DEBUG
-  werror(sprintf("auto_gzip: supports->autogunzip=%d, supports->autoinflate=%d\n", id->supports->autogunzip, id->supports->autoinflate));
-#endif
+  DEBUG(sprintf("supports->autogunzip=%d, supports->autoinflate=%d\n", id->supports->autogunzip, id->supports->autoinflate));
   if(  QUERY(gzipfly)
     && (id->supports->autoinflate || id->supports->autogunzip)
     && !response->encoding && response->extra_heads != "Content-Encoding"
-    && checkfilesize(response->data) 
+    && checkdatasize(response->data) 
     && !is_in_excludelist(response->type, id->not_query)
     && is_in_includelist(response->type, id->not_query) )
   {
-#if constant(thread_create)
-      lock = global_lock->lock();
-#endif
+      LOCK();
       stats["totaldata"] += sizeof(response->data);
-#if constant(thread_create)
-      destruct(lock);
-#endif	    
+      UNLOCK();
       if(id->supports->autoinflate)
       {
         response["extra_heads"] += ([ "Content-Encoding" : "deflate" ]);
@@ -422,33 +446,22 @@ mapping filter(mapping response, object id)
       }
       else if(id->supports->autogunzip)
       {
-        // transform deflate data into gzip one
-	// see RFC1952 for the format
         response->data = gzip(response->data, id);
 	response["extra_heads"] += ([ "Content-Encoding" : "gzip" ]);
       }
-#if constant(thread_create)
-      lock = global_lock->lock();
-#endif      
+      if(sizeof(QUERY(vary)) > 0)
+	response["extra_heads"] += ([ "Vary" : QUERY(vary) * "," ]);
+      LOCK();
       stats["compresseddata"] += sizeof(response->data);
-#if constant(thread_create)
-      destruct(lock);
-#endif            
+      UNLOCK();     
       m_delete(response,"file");
-#ifdef GZIP_DEBUG
-      werror(sprintf("auto_gzip: response[\"extra_heads\"]=%O\n", response["extra_heads"]));
-#endif
+      DEBUG(sprintf("response[\"extra_heads\"]=%O\n", response["extra_heads"]));
       return response;
   }
-#if constant(thread_create)
-  lock = global_lock->lock();
-#endif            
+  LOCK();   
   stats["notmatchingdata"] += sizeof(response->data);
-#if constant(thread_create)
-   destruct(lock);
-#endif      
+  UNLOCK();   
   return 0;
 }
 
 #endif
-
