@@ -892,11 +892,13 @@ const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 /*
-** method: string cern_http_date(int t)
+** method: string cern_http_date(int|void t)
 **  Return the specified date (as returned by time()) formated in the
 **  common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
 ** @param t
 **  The time in seconds since the 00:00:00 UTC, January 1, 1970
+**  If this argument is void, then the function returns the current 
+**  date in common log format.
 ** @returns
 **  The date in the common log file format
 **  Example: 02/Aug/2000:22:36:27 -0700
@@ -909,16 +911,27 @@ static void f_cern_http_date(INT32 args)
   struct tm *tm;
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
   struct pike_string *ret;
-
   INT_TYPE timestamp;
-  if(args != 1)
-     wrong_number_of_args_error("Caudium.cern_http_date",args,1);
-  if(Pike_sp[-1].type != T_INT)
-     SIMPLE_BAD_ARG_ERROR("Caudium.cern_http_date",1,"int");
 
-  timestamp = Pike_sp[-1].u.integer;
- 
-  if(timestamp == 0) { 
+  switch(args) {
+   default:
+     Pike_error("Wrong number of arguments Caudium.cern_http_date(). Expected 1 or less arguments.\n");
+     break;
+
+     case 1:
+       if(Pike_sp[-1].type != T_INT) {
+         Pike_error("Bad argument 1 to Caudium.cern_http_date(). Expected int.\n");
+       } else {
+         timestamp = Pike_sp[-1].u.integer;
+       }
+       break;
+
+     case 0:
+       timestamp = NULL;
+       break;
+   }
+  
+  if(args == 0) { 
     if ((now = time(NULL)) == (time_t) -1 ||
         (tm = localtime(&now)) == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
@@ -963,7 +976,8 @@ static void f_cern_http_date(INT32 args)
      return;
   }
   ret = (make_shared_string(date));
-  pop_stack();
+  if(args == 1)
+    pop_stack();
   push_string(ret);
 }
 
@@ -1001,7 +1015,7 @@ void pike_module_init( void )
   add_function_constant( "http_decode", f_http_decode,
                          "function(string:string)", 0);
   add_function_constant( "cern_http_date", f_cern_http_date,
-                         "function(int:string)", 0);
+                         "function(int|void:string)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );
