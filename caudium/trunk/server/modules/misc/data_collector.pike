@@ -315,7 +315,7 @@ private mixed do_final(object id)
     object procobj = PROCOBJ(id);
 
     collect_variables(id, "final");
-    if (procobj && functionp(procobj->finale)) {
+    if (!zero_type(procobj) && objectp(procobj) && functionp(procobj->finale)) {
         mapping variables = ([]);
         mapping tags = ([]);
         mapping containers = ([]);
@@ -345,7 +345,7 @@ private mixed do_process(object id)
     object procobj = PROCOBJ(id);
 
     collect_variables(id, "process");    
-    if (procobj && functionp(procobj->process)) {
+    if (!zero_type(procobj) && objectp(procobj) && functionp(procobj->process)) {
         mapping variables = ([]);
         mapping tags = ([]);
         mapping containers = ([]);
