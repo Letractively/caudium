@@ -135,7 +135,7 @@ string tag_insert_quoted(string tag_name, mapping args, object request_id,
 			 mapping defines)
 {
   if (args->file) {
-    string s = id->conf->try_get_file(args->file, request_id);
+    string s = request_id->conf->try_get_file(args->file, request_id);
 
     if (s) {
       return(quote_plain_text(s));
@@ -173,7 +173,7 @@ string find_readme(string d, object id)
 string describe_directory(string d, object id)
 {
   // Clean the path...
-  d = combine_path(d, ".");
+  d = combine_path(d, "./");
   array(string) path = d/"/" - ({ "" });
   array(string) dir;
   string result = "";
