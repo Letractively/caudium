@@ -334,8 +334,7 @@ static function build_roxen_env_vars = build_caudium_env_vars;
 //! returns:
 //!  The mode described as a string.
 //!  Example result: File, &lt;tt&gt;rwxr-xr--&lt;tt&gt;
-//! name:
-//!  decode_mode - convert mode integer to text
+//! name: decode_mode - convert mode integer to text
 static string decode_mode(int m)
 {
   string s;
