@@ -50,10 +50,12 @@ object this = this_object();
 //!
 //! @returns
 //!  String cleaned
+//!
+//! @note
+//!   Non-RIS code
 string fix_cvs(string from)
 {
-  from = replace(from, ({ "$", "Id: "," Exp $" }), ({"","",""}));
-  sscanf(from, "%*s,v %s", from);
+  sscanf(from, "$Id$", from);
   return from;
 }
 
