@@ -1736,9 +1736,7 @@ string tag_allow(string a, mapping (string:string) m,
       TEST(group_member(id->rawauth, m->group, m->groupfile, id));
     } else { // we can use the nifty new group functionality.
       int|mapping u=id->get_user();
-      if(!u) return "<false>";
-      else if(search(u->groups, m->group)!=-1) return "<true>";
-      else return "<false>";
+      TEST(u && u->groups[m->group]);
     }
   }
 
