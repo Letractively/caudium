@@ -1,0 +1,47 @@
+--- modules/Ssleay/configure.in.orig	Thu Mar 28 23:23:02 2002
++++ modules/Ssleay/configure.in	Thu Mar 28 23:31:41 2002
+@@ -19,7 +19,15 @@
+     if test -d $with_root/usr/local/ssl ; then
+       pike_cv_ssleay_exists="yes"
+     else
+-      pike_cv_ssleay_exists="no"
++      if test -d $with_root/usr/local/openssl ; then
++        pike_cv_ssleay_exists="yes"
++      else
++        if test -d $with_root/usr/include/openssl ; then
++          pike_cv_ssleay_exists="yes"
++        else
++          pike_cv_ssleay_exists="no"
++        fi
++      fi
+     fi
+   ])
+   
+@@ -35,9 +43,27 @@
+       LDFLAGS="-lc ${LDFLAGS}"
+     fi
+ 
++    if test -d $with_root/usr/local/openssl/lib ; then
++      echo Added $with_root/usr/local/openssl/lib to the library search path.
++      LDFLAGS="-L$with_root/usr/local/openssl/lib ${LDFLAGS}"
++      # link with libc first, so we get the right definition
++      # of crypt()
++      LDFLAGS="-lc ${LDFLAGS}"
++    fi
++
+     if test -d $with_root/usr/local/ssl/include ; then
+       echo Added $with_root/usr/local/ssl/include to the include search path.
+       CPPFLAGS="-I$with_root/usr/local/ssl/include ${CPPFLAGS}"
++    fi
++
++    if test -d $with_root/usr/local/openssl/include ; then
++      echo Added $with_root/usr/local/openssl/include to the include search path.
++      CPPFLAGS="-I$with_root/usr/local/openssl/include ${CPPFLAGS}"
++    fi
++
++    if test -d $with_root/usr/include/openssl ; then
++      echo Added $with_root/usr/include/openssl to the include search path.
++      CPPFLAGS="-I$with_root/usr/include/openssl ${CPPFLAGS}"
+     fi
+ 
+     pike_cv_ssleay="yes"
