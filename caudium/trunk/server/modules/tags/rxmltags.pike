@@ -2899,7 +2899,8 @@ string get_pr_size(string size, string color)
 string tag_pr(string tagname, mapping m)
 {
     string size = m->size || "small";
-    string color = m->color || "red";
+    string color = m->color || "red";    
+    
     if(m->list)
     {
         string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
@@ -2929,6 +2930,31 @@ string tag_pr(string tagname, mapping m)
         m->border="0";
     
     return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
+}
+
+string tag_ipv6(string tagname, mapping m, object id)
+{
+    mapping   inetopt = 0;
+    
+    if (objectp(id->my_fd) && functionp(id->my_fd->get_inet_options))
+	inetopt = id->my_fd->get_inet_options();
+
+    report_notice(sprintf("inetopt == %O.\n", inetopt));
+    report_notice(sprintf("my_fd addr == %O.\n", id->my_fd->query_socket_info()));
+    if (inetopt && inetopt->curr_af == 10) { // Stdio.AF_INET6
+       m->src = "/(internal,image)/ipv6.png";
+       if(!m->alt)
+          m->alt="IPv6 Connection!";
+       if(!m->border)
+          m->border="0";
+	  
+       string from = "";
+       if (id->remoteaddr)
+          from = sprintf("<br /><font size='-1'>Coming from <strong>%s</strong></font>",
+	                 id->remoteaddr);
+       return (make_tag("img", m) + from);
+    } else
+       return "&nbsp;";
 }
 
 string tag_number(string t, mapping args)
@@ -3031,6 +3057,7 @@ mapping query_tag_callers()
    return (["accessed":tag_accessed,
 	    "modified":tag_modified,
 	    "pr":tag_pr,
+	    "ipv6":tag_ipv6,
 	    "use":tag_use,
 	    "set-max-cache":lambda(string t, mapping m, object id) { 
 			      id->misc->cacheable = (int)m->time; 
