@@ -23,6 +23,7 @@
 constant cvs_version = "$Id$";
 
 #define EXPIRE_CHECK 300
+inherit "cache_helpers";
 
 mapping thecache;
 string namespace;
@@ -34,7 +35,7 @@ int _hits, _misses;
 void create( string _namespace, string _path ) {
   namespace = _namespace;
   path = _path;
-  cache_path = Stdio.append_path( path, hash( namespace ) );
+  cache_path = Stdio.append_path( path, get_hash( namespace ) );
   thecache = get_index();
   call_out( expire_cache, EXPIRE_CHECK );
 }
@@ -50,7 +51,7 @@ mapping get_index() {
         if (! catch(  metadata = Stdio.File( Stdio.append_path( cache_path, dirname, "meta" ), "r" ) ) ) {
           string m = metadata->read();
           metadata->close();
-          mapping meta = decode_value( m );
+          mapping meta = _decode_value( m );
 #ifdef CACHE_DEBUG
           write( "DISK_CACHE: get_index %O\n", meta );
 #endif
@@ -73,23 +74,11 @@ mapping get_index() {
   }
 }
 
-string hash( string data ) {
-  string retval;
-#if constant(_Lobotomized_Crypto)
-  retval = _Lobotomized_Crypto.md5()->update( data )->digest();
-#elseif constant(Crypto)
-  retval = Crypto.md5()->update( data )->digest();
-#else
-  retval = data;
-#endif
-  return sprintf("%@02x",(array(int)) retval);
-}
-
 void store( mapping meta ) {
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
-  meta->hash = (meta->hash?meta->hash:hash( meta->name ));
+  meta->hash = (meta->hash?meta->hash:get_hash( meta->name ));
   switch( meta->type ) {
   case "stdio":
 	// I would like to use nbio for this. Caudium.nbio maybe??
@@ -107,8 +96,9 @@ void store( mapping meta ) {
     break;
   case "variable":
 	// Write the string to disk.
-    if ( meta->_string ) {
-      string data = meta->object + "";
+    if ( meta->disk_cache ) {
+     // string data = meta->object + "";
+      data = _encode_value( meta->object );
       meta->size = sizeof( data );
       m_delete( meta, "object" );
       if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
@@ -135,7 +125,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 	// Search the metadata for the object, if we have it then
 	// open a file handle to the file and return it.
 	// Else return 0.
-  string hash = hash( name );
+  string hash = get_hash( name );
 	// search for the hash in thecache and return it. This could be tricky.
   if ( thecache[ hash ] ) {
     thecache[ hash ]->hits++;
@@ -146,8 +136,8 @@ void|mixed retrieve( string name, void|int object_only ) {
       mapping meta = thecache[ hash ] + ([ ]);
       if ( meta->type == "stdio" ) {
         meta->object = Stdio.File( object_path, "r" );
-      } else if ( meta->_string ) {
-        meta->object = Stdio.File( object_path, "r" )->read();
+      } else if ( meta->type == "variable" ) {
+        meta->object = _decode_value( Stdio.File( object_path, "r" )->read() );
       }
       if ( object_only ) {
         return meta->object;
@@ -161,7 +151,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 
 void refresh( string name ) {
 	// remove the object from cache.
-  string hash = hash( name );
+  string hash = get_hash( name );
   if (thecache[ hash ]) {
     disk_usage -= thecache[ hash ]->size;
     m_delete( thecache, hash );
@@ -194,7 +184,7 @@ void stop() {
 #endif
     string metapath = Stdio.append_path( cache_path, hash, "meta" );
     object metafile = Stdio.File( metapath, "cw" );
-    metafile->write( encode_value( thecache[ hash ] ) );
+    metafile->write( _encode_value( thecache[ hash ] ) );
     metafile->close();
   }
 #ifdef CACHE_DEBUG
@@ -280,4 +270,16 @@ int misses() {
 
 int object_count() {
   return sizeof( thecache );
+}
+
+string _encode_value( mixed var ) {
+  return MIME.encode_base64( encode_value( var, master()->Codec() ) );
+}
+
+mixed _decode_value( string data ) {
+  mixed obj;
+  if ( catch( obj =  decode_value( MIME.decode_base64( data ), master()->Codec() ) ) ) {
+    return 0;
+  }
+  return obj;
 }

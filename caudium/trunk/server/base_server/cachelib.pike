@@ -94,7 +94,7 @@ mapping cache_pike_object( mixed var, string name, void|int exp ) {
                     "expires" : (exp?exp:time() + DEFAULT_TTL),
                     "type" : "variable",
                     "ram_cache" : 1,
-                    "disk_cache" : 0,
+                    "disk_cache" : 1,
                     "nbio" : 0
                  ]);
   if ( intp( var ) ) {
@@ -102,7 +102,6 @@ mapping cache_pike_object( mixed var, string name, void|int exp ) {
   } else if ( stringp ( var ) ) {
     retval->_string = 1;
     retval->size = sizeof( var );
-    retval->disk_cache = 1;
   } else if ( arrayp( var ) ) {
     retval->_array = 1;
     retval->size = sizeof( var * "" );
@@ -114,6 +113,7 @@ mapping cache_pike_object( mixed var, string name, void|int exp ) {
     retval->size = sizeof( indices( var ) * "" + values( var ) * "" );
   } else if ( objectp( var ) ) {
     retval->_object = 1;
+    retval->disk_cache = 0;
     // retval->size = sizeof( indices( var ) * "" ) + sizeof( values ( var * "" ) );
   } else if ( functionp( var ) ) {
     retval->_function = 1;
