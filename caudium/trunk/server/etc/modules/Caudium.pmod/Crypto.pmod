@@ -103,6 +103,17 @@ constant cvs_version = "$Id$";
 //! @returns
 //!  The ASCII hex representation of the string.
 
+//! @decl string rand_string(int len)
+//!  Random a string (can be used to add it in url to avoid caching problems
+//!  with some browser like MSIE)
+//!
+//! @returns
+//!  A random string
+//!
+//! @param len
+//!  Size of the string. Note that the size is depending of hex encoding
+//!  of the internal Crypto thing.
+
 #if constant(Mhash.hash_md5)
 string md5_hash_type = "Mhash";
 
@@ -188,13 +199,20 @@ string hash_sha(string|array key, void|int hexify)
 #endif
 
 #if constant(Mhash.to_hex)
-string string_to_hex(string data)
-{
+string string_to_hex(string data) {
   return Mhash.to_hex(data);
 }
+
+string rand_string(int len) {
+  return Mhash.to_hex(Crypto.randomness.reasonably_random()->read(5+len));
+}
+
 #else
-string string_to_hex(string data)
-{
+string string_to_hex(string data) (
   return Crypto.string_to_hex(data);
+}
+
+string rand_string(int len) {
+  return Crypto.string_to_hex(Crypto.randomness.reasonably_random()->read(5+len));
 }
 #endif
