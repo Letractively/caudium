@@ -35,7 +35,7 @@
  * requests, but there is no real reason for them to take longer.
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
 #include <pcre.h>

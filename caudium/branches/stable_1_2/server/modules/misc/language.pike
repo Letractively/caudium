@@ -47,8 +47,7 @@
 #include <module.h>
 inherit "modules/directories/directories";
 
-string cvs_version = "$Id$";
-/* Is threadsafe. */
+constant cvs_version = "$Id$";
 
 #if DEBUG_LEVEL > 20
 # ifndef LANGUAGE_DEBUG
@@ -77,6 +76,7 @@ constant module_doc  = "Handles documents in different languages. "
 	      "language. "
 	      "<p>All tags take the argument type={txt,img}. ";
 constant module_unique = 1;
+constant thread_safe   = 1;
 
 void create()
 {

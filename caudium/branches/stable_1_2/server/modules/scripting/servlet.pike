@@ -32,8 +32,8 @@
 
 #include <module.h>
 
-string cvs_version = "$Id$";
-int thread_safe=1;
+constant cvs_version = "$Id$";
+constant thread_safe=1;
 
 inherit "module";
 inherit "caudiumlib";

@@ -31,7 +31,7 @@
 
 /* Ultraparse,pike, the main UltraLog Roxen module */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <pcre.h>
 

@@ -37,7 +37,7 @@
 //! type: MODULE_FIRST | MODULE_LOCATION
 //! cvs_version: $Id$
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #include <module.h>
 
