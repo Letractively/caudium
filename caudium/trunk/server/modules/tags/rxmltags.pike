@@ -862,6 +862,56 @@ string tag_use(string tag, mapping m, object id)
     return "";
 }
 
+
+string call_user_tag(string tag, mapping args, int line, mixed foo, object id)
+{
+  id->misc->line = line;
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
+  array replace_from = ({"#args#"})+
+    Array.map(indices(args)+indices(id->misc->up_args),
+	      lambda(string q){return "&"+q+";";});
+  array replace_to = (({make_tag_attributes( args + id->misc->up_args ) })+
+		      values(args)+values(id->misc->up_args));
+  foreach(indices(args), string a)
+  {
+    id->misc->up_args["::"+a]=args[a];
+    id->misc->up_args[tag+"::"+a]=args[a];
+  }
+  string r = replace(id->misc->tags[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
+}
+
+string call_user_container(string tag, mapping args, string contents, int line,
+			 mixed foo, object id)
+{
+  id->misc->line = line;
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  if(args->preparse
+     && (args->preparse=="preparse" || (int)args->preparse))
+    contents = parse_rxml(contents, id);
+  if(args->trimwhites) {
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+  }
+  TRACE_ENTER("user defined container &lt;"+tag+"&gt", call_user_container);
+  array replace_from = ({"#args#", "<contents>"})+
+    Array.map(indices(args),
+	      lambda(string q){return "&"+q+";";});
+  array replace_to = (({make_tag_attributes( args  ),
+			contents })+
+		      values(args));
+  string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
+}
+
+
 string tag_define(string tag, mapping m, string str, object id, object file,
 		  mapping defines)
 { 
@@ -2445,52 +2495,6 @@ string tag_debug( string tag_name, mapping args, object id )
   return "";
 }
 
-string tag_list_tags( string t, mapping args, object id, object f )
-{
-  int verbose;
-  string res="";
-  if(args->verbose) verbose = 1;
-
-  for(int i = 0; i<sizeof(tag_callers); i++)
-  {
-    res += ("<b><font size=+1>Tags at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(tag_callers[i])), string tag)
-    {
-      res += "  <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#","%23")+"#"+replace(tag+i, "#", ".")+"\">&lt;"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_tag(tag, (["help":"help"]), 
-			  id->misc->line,i,
-			  id, f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
-    }
-  }
-
-  for(int i = 0; i<sizeof(container_callers); i++)
-  {
-    res += ("<p><b><font size=+1>Containers at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(container_callers[i])), string tag)
-    {
-      res += " <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#", "%23")+"#"+replace(tag+i,"#",".")+"\">&lt;"+tag+"&gt;&lt;/"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_container(tag, (["help":"help"]), "",
-				id->misc->line,
-				i, id,f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
-    }
-  }
-  return res;
-}
-
 string tag_line( string t, mapping args, object id)
 {
   return id->misc->line;
@@ -2524,7 +2528,9 @@ string tag_help(string t, mapping args, object id)
     help_for = replace(help_for, ({"/","\\"}), ({"",""}));
 
     if(Stdio.file_size("modules/tags/doc/"+help_for) > 0) {
-      string h = handle_help("modules/tags/doc/"+help_for, help_for, args);
+      string h = id->conf->call_provider("rxml:core", "handle_help",
+					 "modules/tags/doc/"+help_for,
+					 help_for, args);
       return h;
     } else {
       return "<h3>No help available for "+help_for+".</h3>";
@@ -2574,7 +2580,6 @@ mapping query_tag_callers()
 	    "set-max-cache":lambda(string t, mapping m, object id) { 
 			      id->misc->cacheable = (int)m->time; 
 			    },
-	    "list-tags":tag_list_tags,
 	    "number":tag_number,
 	    "imgs":tag_ximage,
 	    "ximg":tag_ximage,
