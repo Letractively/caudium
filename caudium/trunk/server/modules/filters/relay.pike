@@ -19,6 +19,22 @@
  *
  */
 
+//
+//! module: HTTP-Relay
+//!  Relays HTTP requests from this server to another one. <p>
+//!  Like the redirect module, but transparent to the user. This module
+//!  will connect to another server, and get the data from there, and
+//!  then return the new data to the user.  The same results can be
+//!  achieved using the proxy and the redirect module.  With
+//!  caching. This module is therefore quite obsolete, really. But
+//!  since it is so small, I have left it here.</p>
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_LAST | MODULE_FIRST
+//! cvs_version: $Id$
+//
+
 // Like the redirect module, but transparent to the user. This module
 // will connect to another server, and get the data from there, and
 // then return the new data to the user.  The same results can be

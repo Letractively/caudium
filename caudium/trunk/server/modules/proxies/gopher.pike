@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Gopher Gateway
+//!  This is a caching gopher gateway, might be useful for firewall sites, if
+//!  anyone is still using gopher.
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_LOCATION | MODULE_PROXY
+//! cvs_version: $Id$
+//
+
 /* Gopher proxy module. */
 
 constant cvs_version = "$Id$";

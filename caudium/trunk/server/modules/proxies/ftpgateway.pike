@@ -19,6 +19,16 @@
  *
  */
 
+//
+//! module: FTP Gateway
+//!  FTP Gateway, currently not caching.
+//! inherits: module
+//! inherits: socket
+//! inherits: caudiumlib
+//! type: MODULE_PROXY | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /*
  * ftpgateway.pike - This module implements an ftp proxy 
  * 
@@ -62,7 +72,7 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
-inherit "module.pike";
+inherit "module";
 inherit "socket";
 inherit "caudiumlib";
 
@@ -70,7 +80,7 @@ import Stdio;
 
 constant module_type = MODULE_PROXY | MODULE_LOCATION;
 constant module_name = "FTP gateway";
-constant module_doc  = "FTP gateway, not currently caching";
+constant module_doc  = "FTP gateway, currently not caching";
 constant module_unique = 0;
 
 #if DEBUG_LEVEL > 21

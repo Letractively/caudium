@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Configuration interface
+//!  This module can be used to access the configuration interface from 
+//!  a location, like a normal filesystem. It can be used to access the
+//!  configuration interface through a firewall.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 string cvs_version = "$Id$";
 /*
  * Mounts the configuration interface on a location in the virtual

@@ -19,6 +19,14 @@
  *
  */
 
+//
+//! module: Lysator specific parsing
+//!  Lysator specific parsing, used at www.lysator.liu.se
+//! inherits: module
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 string cvs_version = "$Id$";
 /* Lysator specific parsing, used at www.lysator.liu.se */
 

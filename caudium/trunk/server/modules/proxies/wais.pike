@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Wais Gateway
+//!  This is a caching wais gateway, useful for firewall sites.
+//!  It has not been maintained for quite a while, but it works
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_LOCATION | MODULE_PROXY
+//! cvs_version: $Id$
+//
+
 /*
  * A WAIS proxy module, not written by anyone at Idonex, and it would
  * seem that I have forgotten who wrote it.

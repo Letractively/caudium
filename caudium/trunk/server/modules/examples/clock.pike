@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Explicit clock
+//!  One of the first modules written for Spinner, here for nostalgical
+//!  reasons. It could be used as an example of how to write a simple
+//!  location module.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /*
  * This is a Clock Module.
  * One of the first modules written for Spinner, here for nostalgical

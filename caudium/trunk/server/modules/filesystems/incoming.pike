@@ -20,6 +20,14 @@
 
 #include <module.h>
 
+//
+//! module: Incoming filesystem
+//!  This is a virtual filesystem than can be used only for uploads, not
+//!  downloads.
+//! inherits: modules/filesystems/filesystem
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
 
 inherit "modules/filesystems/filesystem";
 

@@ -19,6 +19,19 @@
  *
  */
 
+//
+//! module: Pike script support
+//!  Support for user Pike-scripts, like CGI, but handled internally in the
+//!  server, and thus much faster, but blocking, and less secure.<br/>
+//!  NOTE : This module should not be enabled if you allow anonymous PUT!<br/>
+//!  NOTE : Enabling this module is the same thing as letting your users run
+//!  programs with the same right as the server!
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FILE_EXTENSION
+//! cvs_version: $Id$
+//
+
 /*
  * Support for user Pike-scripts, like CGI, but handled internally in
  * the server, and thus much faster, but blocking, and somewhat less

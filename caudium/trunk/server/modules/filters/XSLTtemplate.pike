@@ -18,6 +18,30 @@
  *
  */
 
+//
+//! module: XSLT Templates
+//!  Allows for automatic execution of XSLT templates for using various 
+//!  templates. You specify a template in your XML file by adding a
+//!  <strong>&lt;!DOCTYPE [basename]&gt;</strong> where <strong>[basename]</strong> is a base file
+//!  file name for the template. The module will then add the extension for the
+//!  requested file. This allows you to fetch the same file with different
+//!  templates by changing the extension.
+//!  <strong>Example:</strong> accessing file.html with &lt;!DOCTYPE template&gt;
+//!  will try to find a template named template_html.xsl and apply it to the
+//!  file file.xml.
+//!  <p>You can also override the template by adding <strong>__xsl=template.xsl</strong> to
+//!  the query string. This can be useful if the file you want to make a
+//!  template for printing w/o using a different extension.</p>
+//!  <p>Another special feature is post-processing RXML-parsing.
+//!  To post-process a document, use <strong>&lt;xsl:output&gt;</strong> with the
+//!  media-type attribute set to <strong>rxml:real/type</strong>, ie <strong>rxml:text/html</strong>
+//!  for an HTML document.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FIRST
+//! cvs_version: $Id$
+//
+
 /*
  * XSLTtemplate.pike - XSLT template module for Caudium. Utilizes the
  * Sablotron XSLT Library available from http://www.gingerall.com/

@@ -19,6 +19,14 @@
  *
  */
 
+//
+//! module: PATH_INFO support
+//!  Support for PATH_INFO style URLs.
+//! inherits: module
+//! type: MODULE_LAST
+//! cvs_version: $Id$
+//
+
 /*
  * $Id$
  *

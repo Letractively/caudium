@@ -19,9 +19,16 @@
  *
  */
 
-// The redirect module. Redirects requests from one filename to
-// another. This can be done using "internal" redirects (much like a
-// symbolik link in unix), or with normal HTTP redirects.
+//
+//! module: Redirect Module v2.0
+//!  The redirect module. Redirects requests from one filename to
+//!  another. This can be done using "internal" redirects (much
+//!  like a symbolik link in unix), or with normal HTTP redirects.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FIRST
+//! cvs_version: $Id$
+//
 
 constant cvs_version = "$Id$";
 constant thread_safe = 1;

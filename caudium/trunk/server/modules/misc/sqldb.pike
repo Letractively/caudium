@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: SQL Databases
+//!  Associates names with SQL Database URLs. That way you don't have
+//!  to reveal location of your SQL servers.
+//! inherits: module
+//! type: 0
+//! cvs_version: $Id$
+//
+
 /*
  * Associates a name with an SQL-database.
  */
@@ -36,7 +45,7 @@ void create()
 {
   defvar("table", "", "Table", TYPE_TEXT_FIELD,
 	 "Associates names with SQL Database URLs.<br>\n"
-	 "Format:<br>\n"
+	 "Format :<br>\n"
 	 "<pre>Name1\tSQLURL1\n"
 	 "Name2\tSQLURL2</pre><br>\n"
 	 "An \"SQL-URL\" is specified on the following format:<br><ul>\n"
@@ -112,7 +121,7 @@ string status()
 
 //! defvar: Table
 //! Associates names with SQL Database URLs.<br />
-//!Format:<br />
+//!Format :<br />
 //!<pre>Name1	SQLURL1
 //!Name2	SQLURL2</pre><br />
 //!An "SQL-URL" is specified on the following format:<br /><ul>

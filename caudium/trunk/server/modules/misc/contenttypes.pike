@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Content types
+//!  This module handles all normal extension to
+//!  content type mapping. Given the file 'foo.html', it will
+//!  normally set the content type to 'text/html'
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_TYPES
+//! cvs_version: $Id$
+//
+
 /*
  * This module handles all normal extension to content type
  * mapping. Given the file 'foo.html', it will per default

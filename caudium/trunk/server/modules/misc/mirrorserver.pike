@@ -19,6 +19,19 @@
  *
  */
 
+//
+//! module: Mirror Server
+//!  This is the server end of the Caudium Mirror system.<br/>
+//!  Add this module to any server you want to mirror <strong>on another
+//!  server</strong>. You can not mirror to the same Caudium server, since that
+//!  would cause a deadlock (the mirror filesystem does a blocking
+//!  request to the mirror server, which cannot serve it, since the
+//!  mirror filesystem is blocking the Caudium server)
+//! inherits: module
+//! type: MODULE_ZERO
+//! cvs_version: $Id$
+//
+
 #include <module.h>
 inherit "module";
 
@@ -30,12 +43,12 @@ constant cvs_version = "$Id$";
 constant module_type = MODULE_ZERO;
 constant module_name = "Mirror Server";
 constant module_doc =
-"This is the server end of the Roxen Mirror system.<br>\n"
+"This is the server end of the Caudium Mirror system.<br>\n"
 "Add this module to any server you want to mirror <b>on another "
-"server</b>. You can not mirror to the same Roxen server, since that "
+"server</b>. You can not mirror to the same Caudium server, since that "
 "would cause a deadlock (the mirror filesystem does a blocking "
 "request to the mirror server, which cannot serve it, since the "
-" mirror filesystem is blocking the Roxen server)\n";
+" mirror filesystem is blocking the Caudium server)\n";
 
 
 class MirrorServer {

@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: HTTP-Proxy
+//!  This is a caching HTTP-proxy with quite a few bells and whistles
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PROXY | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /*
  * HTTP Proxy module. Should be cleaned and optimized. Currently the
  * limit of proxy connections/second is somewhere around 70% of normal

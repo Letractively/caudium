@@ -19,6 +19,16 @@
  *
  */
 
+//
+//! module: Killframe tag
+//!  Adds some java script that will prevent others from putting
+//!  your page in a frame.
+//!  Will also remove occuranses of "indexfiles" from the end of the URL.
+//! inherits: module
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /* 
  * <killframe> tag module.
  *

@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Config tab-list
+//!  Adds some tags for making a config-interface look-alike tab-list.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /*
  * $Id$
  *

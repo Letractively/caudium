@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Graphics text
+//!  Defines the &lt;gtext&gt; tag used to generate gif images with
+//!  text inside.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
 constant cvs_version="$Id$";
 constant thread_safe=1;
 

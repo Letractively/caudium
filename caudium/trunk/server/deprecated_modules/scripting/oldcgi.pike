@@ -21,6 +21,17 @@
  */
 /* This is the old, deprecated CGI module. */
 
+//
+//! module: CGI executable support (DEPRECATED)
+//!  Support for the CGI/1.1 interface, and more. It is too bad
+//!  that the CGI specification is a moving target, it is hard to
+//!  implement a fully compatible copy of it.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_FILE_EXTENSION
+//! cvs_version: $Id$
+//
+
 // Support for the <a
 // href="http://hoohoo.ncsa.uiuc.edu/docs/cgi/interface.html">CGI/1.1
 // interface</a> (and more, the documented interface does _not_ cover
@@ -39,7 +50,7 @@ inherit "caudiumlib";
 // #define CGI_WRAPPER_DEBUG
 
 constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
-constant module_name = "CGI executable support";
+constant module_name = "CGI executable support (DEPRECATED)";
 constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
       "interface.html\">CGI/1.1 interface</a>, and more. It is too bad "
       "that the CGI specification is a moving target, it is hard to "
@@ -304,7 +315,7 @@ void create(object c)
   defvar("allow_symlinks", 1, "Allow symlinks", TYPE_FLAG,
 	 "If set, allows symbolic links to binaries owned by the directory "
 	 "owner. Other symlinks are still disabled.<br>\n"
-	 "NOTE: This option only has effect if scripts are run as owner.",
+	 "NOTE : This option only has effect if scripts are run as owner.",
 	 0, run_as_user_enabled);
 
   defvar("nice", 1, "Nice value", TYPE_INT|VAR_MORE,
@@ -1512,7 +1523,7 @@ mapping handle_file_extension(object o, string e, object id)
 //!
 //! defvar: Allow symlinks
 //! If set, allows symbolic links to binaries owned by the directory owner. Other symlinks are still disabled.<br />
-//!NOTE: This option only has effect if scripts are run as owner.
+//!NOTE : This option only has effect if scripts are run as owner.
 //!  type: TYPE_FLAG
 //!
 //! defvar: Nice value

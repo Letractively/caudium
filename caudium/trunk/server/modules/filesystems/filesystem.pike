@@ -18,6 +18,18 @@
  *
  */
 
+//
+//! module: Filesystem
+//!  This is a virtual filesystem, use it to make files available to
+//!  the users of your WWW-server. If you want to serve any 'normal'
+//!  files from your server, you will have to have atleast one filesystem.
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 // This is a virtual "file-system".
 // It will be located somewhere in the name-space of the server.
 // Also inherited by some of the other filesystems.
@@ -131,12 +143,12 @@ void create()
 	 TYPE_FLAG|VAR_MORE,
 	 "EXPERIMENTAL. Access file as the logged in user.\n"
 	 "This is useful for eg named-ftp.<br>\n"
-	 "NOTE: Not possible when running in a threaded server.");
+	 "NOTE : Not possible when running in a threaded server.");
 
   defvar("no_symlinks", 0, "Forbid access to symlinks", TYPE_FLAG|VAR_MORE,
 	 "EXPERIMENTAL.\n"
 	 "Forbid access to paths containing symbolic links.<br>\n"
-	 "NOTE: This can cause *alot* of lstat system-calls to be performed "
+	 "NOTE : This can cause *alot* of lstat system-calls to be performed "
 	 "and can make the server much slower.");
 }
 
@@ -902,13 +914,13 @@ string query_name()
 //!
 //! defvar: Access file as the logged in user
 //! EXPERIMENTAL. Access file as the logged in user.
-//!This is useful for eg named-ftp.<br />
-//!NOTE: Not possible when running in a threaded server.
+//! This is useful for eg named-ftp.<br />
+//! NOTE : Not possible when running in a threaded server.
 //!  type: TYPE_FLAG|VAR_MORE
 //!
 //! defvar: Forbid access to symlinks
 //! EXPERIMENTAL.
 //!Forbid access to paths containing symbolic links.<br />
-//!NOTE: This can cause *alot* of lstat system-calls to be performed and can make the server much slower.
+//!NOTE : This can cause *alot* of lstat system-calls to be performed and can make the server much slower.
 //!  type: TYPE_FLAG|VAR_MORE
 //!

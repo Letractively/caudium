@@ -27,6 +27,19 @@
  * Per Hedbor, Henrik Grubbström, Pontus Hagland, David Hedbor and others.
  */
 
+//! file: base_server/caudium.pike
+//!  Core routines of Caudium.
+//
+//! inherits: read_config
+//! inherits: module_support
+//! inherits: socket
+//! inherits: disk_cache
+//! inherits: language
+//! inherits: color
+//! inherits: fonts
+//
+//! cvs_version: $Id$
+
 // ABS and suicide systems contributed freely by Francesco Chemolli
 
 constant cvs_version = "$Id$";

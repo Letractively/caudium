@@ -18,6 +18,16 @@
  *
  */
 
+//
+//! module: Secure file system module (Mk II)
+//!  This is a (somewhat) more secure filesystem module. It
+//!  allows an per-regexp level security.
+//!  Mark 2 allows for authentication via a form.
+//! inherits: filesystem
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 // A somewhat more secure version of the normal filesystem. This
 // module user regular expressions to regulate the access of files.
 

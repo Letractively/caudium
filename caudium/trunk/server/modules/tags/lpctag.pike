@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Pike Tag
+//!  Adds support for inline pike in documents.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /*
  * The Pike Tag module.
  * Adds support for inline pike in documents.

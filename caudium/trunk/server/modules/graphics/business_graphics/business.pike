@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Business Graphics
+//!  Draws various diagrams for data presentation purposes.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /* 
  * Draws diagrams pleasing to the eye.
  * 

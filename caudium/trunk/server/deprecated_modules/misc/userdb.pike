@@ -19,6 +19,18 @@
  *
  */
 
+//
+//! module: User database and security
+//!  This module handles the security in roxen, and uses
+//!  the normal system password and user database to validate
+//!  users. It also maintains the user database for all other
+//!  modules in roxen, e.g. the user homepage module.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_AUTH
+//! cvs_version: $Id$
+//
+
 /*
  * User database. Reads the system password database and use it to
  * authentificate users.

@@ -18,6 +18,22 @@
  *
  */
 
+//
+//! module: Mirror filesystem
+//!  This is a mirror filesystem, it mirrors the virtual file-tree
+//!  of another Caudium server. The filesystem connects to a
+//!  Mirror Server using Roxen RPC.The searchpath of the Mirror Filesystem is used as a
+//!  cache. It is not a good idea to use the same cache-directory
+//!  in multiple mirror filesystems, and never store other files in it.
+//!  There is a mirror for www.roxen.com at skuld.idonex.se:2000,
+//!  if you want to test this module. Do not under any
+//!  circumstances let this module connect to a mirror server in the
+//!  same Caudium server. It will not work. At all.
+//! inherits: filesystem
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 constant cvs_version="$Id$";
 constant thread_safe=1;
 

@@ -18,6 +18,16 @@
  *
  */
 
+//
+//! module: XSLT Tag
+//!  Implements a tag that applies the specified (or the default) stylesheet
+//!  to its contents.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /*
  * XSLTtag.pike - XSLT Tag for Caudium. Utilizes the Sablotron XSLT Library
  *                available from http://www.gingerall.com/

@@ -19,6 +19,14 @@
  *
  */
 
+//
+//! module: BOFH  Module
+//!  Returns a random BOFH excuse.
+//! inherits: module
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 string cvs_version = "$Id$";
 /* BOFH module. Returns a random BOFH excuse. */
 

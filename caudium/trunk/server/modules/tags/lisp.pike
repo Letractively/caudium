@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Lisp tag module
+//!  The LISP tag module. Allows you to write inline LISP. Working state
+//!  unknown.
+//! inherits: module
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /* The LISP tag module. Allows you to write inline LISP. Working state
  * unknown.
  */

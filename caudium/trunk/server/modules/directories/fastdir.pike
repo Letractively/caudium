@@ -18,6 +18,18 @@
  *
  */
 
+//
+//! module: Fast directory parsing module
+//!  This module is responsible for pretty-printing the directory contents.
+//!  Unlike the other two directory modules 
+//!  ([modules/directories/directories.pike] and 
+//!   [modules/directories/directories.pike]) this one doesn't use the 
+//!  folding/unfolding feature.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+//
 /*
  * A fast directory module, without support for the fold/unfold stuff
  * in the normal one.

@@ -19,6 +19,16 @@
  *
  */
 
+//
+//! module: YP (NIS) authorization
+//!  Experimental module for authorization using
+//!  Pike's internal YP-database interface.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_AUTH
+//! cvs_version: $Id$
+//
+
 /*
  * YP User database. Reads the system password database and use it to
  * authentificate users.

@@ -18,9 +18,18 @@
  *
  */
 
+//
+//! module: Access CVS from Caudium
+//!  This module allows you to access CVS repositories from within Caudium.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /* cvsfs.pike
  *
- * A location module for accessing files under CVS from Roxen.
+ * A location module for accessing files under CVS from Caudium.
  *
  * Written by Niels Möller 1997
  */

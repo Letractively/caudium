@@ -19,6 +19,18 @@
  *
  */
 
+//
+//! module: Tab lists
+//!  This module makes graphical tablists.<p>
+//!  <strong>NOTE:</strong> This module is not supported and is only here
+//!  for compatibility reasons. Please use "<strong>Config tab-list</strong>"
+//!  instead.</p>
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /* The Tab lists tag module. */
 string cvs_version = "$Id$";
 #include <module.h>
