@@ -1197,6 +1197,11 @@ mapping query_tag_callers()
 //!  type: TYPE_LOCATION
 //!  name: CGI-bin path
 //
+//! defvar: chroot
+//! This is the path that is chrooted to before running a program.
+//!  type: TYPE_STRING|VAR_MORE
+//!  name: Chroot path
+//
 //! defvar: searchpath
 //! This is where the module will find the CGI scripts in the <b>real</b> file system.
 //!  type: TYPE_DIR
@@ -1314,3 +1319,17 @@ mapping query_tag_callers()
 //!  type: TYPE_INT_LIST|VAR_MORE
 //!  name: Limits: Time before killing scripts
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+

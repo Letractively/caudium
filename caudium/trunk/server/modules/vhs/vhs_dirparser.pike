@@ -504,6 +504,11 @@ mapping parse_directory(object id)
 //!  type: TYPE_STRING_LIST
 //!  name: Index files
 //
+//! defvar: dotfiles
+//! If set, show dotfiles (files beginning with '.') in directory listings
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: Show dotfiles
+//
 //! defvar: readme
 //! If set, include readme files in directory listings
 //!  type: TYPE_FLAG|VAR_MORE
@@ -524,3 +529,17 @@ mapping parse_directory(object id)
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Include file size
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+

@@ -1516,8 +1516,32 @@ string status()
 //!  type: TYPE_STRING_LIST
 //!  name: Excluded Profiles
 //
+//! defvar: onlyshow
+//! A list of profiles that you want to be displayed.
+//!  type: TYPE_STRING_LIST
+//!  name: Included Profiles
+//
 //! defvar: hidden
 //! A list with statistic groups to hide unless the prestate showall is present. Hiding can be used to remove unnecessary statistic groups that display info you don't log or aren't interested in.
 //!  type: TYPE_STRING_LIST
 //!  name: Hidden Stats
 //
+//! defvar: cssuri
+//! URL or relative URI to a stylesheet file that you wish to apply to the HTML output from Ultralog.
+//!  type: TYPE_STRING
+//!  name: Stylesheet URL
+//
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
