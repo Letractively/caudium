@@ -20,12 +20,11 @@
  * $Id$
  */
 
+//! @appears RequestID
 //! The RequestID object.
 //! This module implements the base of most protocols and, at the same time, it is
 //! what you access through the common @tt{id@} object in your modules,
 //! tags etc.
-//!
-//! @appears RequestID
 class RequestID
 {
 
