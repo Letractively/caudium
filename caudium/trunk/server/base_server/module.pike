@@ -688,9 +688,9 @@ array query_seclevels()
                   patterns += ({ ({ MOD_ACCEPT_GROUP, lambda() { return 1; } }) });
                 else {
                   if (!groupregex)
-                    groupregex = "(^" + group + "$";
+                    groupregex = "(^" + group + "$)";
                   else
-                    groupregex += "|(^" + group + "$";
+                    groupregex += "|(^" + group + "$)";
                 }
               }
               patterns += ({ ({ MOD_ACCEPT_GROUP, Regexp(value)->match, }) });
