@@ -82,13 +82,18 @@ mozilla/[5-9].*		pnginline, gecko
 
 .*compatible.*opera.3.*	-java, javascript, opera, -pngalpha, cssfaulty
 
-# Opera 5.0 "hided" as MSIE
+# Opera 5.0 masqueraded as MSIE
 .*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
 			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty
-# Opera 5.0 "hided" as Mozilla
+.*compatible.*opera.5.*		opera5
+.*compatible.*opera.6.*		opera6
+
+# Opera 5.0 masquereaded as Mozilla
 mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				opera, cssfaulty
+mozilla/[3-5].*opera.6.*	opera6
+mozilla/[3-5].*opera.5.*	opera5
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
