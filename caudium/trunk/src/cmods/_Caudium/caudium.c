@@ -98,9 +98,15 @@ static void setproctitle_init(int argc, char **argv)
   }
 
   ch = strchr(argv[0], ' ');
-  if (ch)
-    progname = strndup(argv[0], ch - argv[0]);
-  else
+  if (ch) {
+    int len = ch - argv[0];
+    
+    progname = (char*)malloc(len + 1);
+    if (progname) {
+       progname[len] = 0;
+       memcpy(progname, argv[0], len);
+    }
+  } else
     progname = strdup(argv[0]);
 
   if (!progname)
