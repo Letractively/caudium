@@ -140,8 +140,14 @@ AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
   fi
 ])
 
-
-ac_cv_prog_CC="$CC"
+SMARTLINK="$srcdir/tools/smartlink"
+case $CC in
+ *smartlink*) ;;
+ *)
+   CC="$SMARTLINK $CC"
+   ac_cv_prog_CC="$CC"
+ ;;
+esac
 
 # We need some special hacks when running slowaris
 AC_PATH_PROG(uname_prog,uname,no)
@@ -208,7 +214,68 @@ esac
   
 AC_SUBST(CXX)
 AC_SUBST(LD)
- 
+
+### Pike Detection ###
+######################
+
+DEFPIKE="/usr/local/bin/pike"
+
+AC_ARG_WITH(pike, 
+[  --with-pike[=binary]    Use the specified Pike. ],
+[
+    if test ! -z "$withval" -a "$withval" != "yes"; then 
+		if test -f "$withval" -a  ! -x "$withval" ; then
+			echo "$withval is not an executable file"
+ 			exit 1
+		elif test -x "$withval" -a -f "$withval"; then
+			DEFPIKE="$withval"
+		else
+			echo "$withval doesn't exist or isn't an executable file."
+ 			exit 1
+		fi
+	fi
+])
+RESULT=no
+echo "looking for Pike..."
+
+for a in $DEFPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
+		 /usr/gnu/bin/pike /usr/bin/pike; do    
+  if test  "$PIKE" != "" ; then
+    break;
+  fi
+  echo -n "looking in $a..."
+  if test -x ${a}; then
+	PIKE="${a}"
+	echo -n "verifying version..."
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116) exit(1); exit(0);'; then
+		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep lib|grep modules|head -1 | sed -e 's/.*: //'`"
+		PIKE_INCLUDE_DIR="`echo $PIKE_MODULE_DIR | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
+
+		if test -z "$PIKE_INCLUDE_DIR" -o -z "$PIKE_MODULE_DIR"; then
+			echo "can't find mod/inc dirs"
+			PIKE=""
+		else
+		   echo "ok!"
+		fi
+	else
+		echo "too old."
+		PIKE=""
+	fi
+  else
+    echo "no."
+  fi
+done
+
+if test "$PIKE" != ""; then 
+  echo "Pike binary used:      $PIKE
+Pike include dir:      $PIKE_INCLUDE_DIR
+Pike module directory: $PIKE_MODULE_DIR"
+else
+  echo "Failed to find a suitable pike!"
+  exit 1;
+fi
+
+export PIKE PIKE_INCLUDE_DIR PIKE_MODULE_DIR
 
 #############################################################################
 
@@ -278,7 +345,8 @@ OPTIMIZE=""
 
 if test $cflags_is_set = no; then
  if test "x${GCC-}" = xyes ; then
-  WARN="-W -Wall -Wpointer-arith -Wno-unused -Wstrict-prototypes"
+  WARN="-W -Wall -Wpointer-arith -Wno-unused -Wstrict-prototypes \
+	-Wpointer-arith  -Wmissing-declarations -Winline -Wcast-align"
   AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
   AC_SYS_COMPILER_FLAG(-ffast-math,ffast_math,OPTIMIZE)
   AC_SYS_OS_COMPILER_FLAG(AIX,-mprototype,mprototype,WARN)
@@ -402,8 +470,8 @@ else
     [
       OLD_CC="${CC-cc}"
       OLD_CFLAGS="$CFLAGS"
-      if test "$CC" = "$BINDIR/smartlink cc" -a -x /usr/bin/cc ; then
-        CC="$BINDIR/smartlink /usr/bin/cc"
+      if test "$CC" = "$SMARTLINK cc" -a -x /usr/bin/cc ; then
+        CC="$SMARTLINK /usr/bin/cc"
       fi
       CFLAGS="-Ae +Olibcalls $CFLAGS"
       AC_TRY_COMPILE([int foo(int bar);],[],[],[
@@ -413,6 +481,116 @@ else
     ])
   fi
 fi
+
+if test $ac_cv_prog_gcc = yes; then
+  AC_MSG_CHECKING(for libgcc file name)
+  AC_CACHE_VAL(pike_cv_libgcc_filename,
+  [
+    pike_cv_libgcc_filename="`${CC-cc} -print-libgcc-file-name`"
+    if test -z "$pike_cv_libgcc_filename"; then
+      pike_cv_libgcc_filename=no
+    else
+       if test -f "$pike_cv_libgcc_filename"; then
+         :
+       else
+         pike_cv_libgcc_filename=no
+       fi
+    fi
+  ])
+  AC_MSG_RESULT($pike_cv_libgcc_filename)
+  if test x"$pike_cv_libgcc_filename" = xno; then
+    LIBGCC=""
+  else
+    LIBGCC="$pike_cv_libgcc_filename"
+  fi
+else
+  LIBGCC=""
+fi
+
+export LIBGCC
+
+# SO is the extension of shared libraries
+# -- usually so, sl on HP-UX
+AC_MSG_CHECKING(SO)
+if test -z "$SO"
+then
+	case "$pike_cv_sys_os" in
+	hp*|HP*)   SO=sl;;
+	*)	   SO=so;;
+	esac
+fi
+AC_MSG_RESULT($SO)
+# LDSHARED is the ld *command* used to create shared library
+# -- "ld" on SunOS 4.x.x, "ld -G" on SunOS 5.x, "ld -shared" on IRIX 5
+AC_MSG_CHECKING(LDSHARED)
+if test -z "$LDSHARED" ; then
+  case "$pike_cv_sys_os" in
+    AIX*)
+      if test "$GCC" = yes ; then
+        if test "`uname -r`" -ge 2 -a "`uname -v`" -ge 4 ; then
+          LDSHARED="ld -G -bexpall"
+	else if test "`uname -v`" -gt 4 ; then
+	    # Extra forward compatibility...
+	    # AIX 5+
+	    LDSHARED="ld -G -bexpall"
+	  else
+	    # AIX 4.1 and earlier don't have/have unreliable
+	    # handling of dlopen et al.
+	    #
+	    # Even AIX 4.2.1 has buggy dlopen -- NEVER attempt
+	    # to dlopen a file that hasn't been linked with -G.
+	    pike_cv_sys_dynamic_loading=no
+	    LDSHARED="ld"
+	  fi
+        fi
+      else
+        # Dynamic linking turned off for AIX-cc
+	#
+	# In addition, the dynamic loading test seems to
+	# cause our RS/6000 to hang, which causes the
+	# watchdog-timer to PANIC.
+	pike_cv_sys_dynamic_loading=no
+        LDSHARED="ld"
+      fi
+    ;;
+    IRIX*)
+      if test "$GCC" = yes ; then
+        # egcs defaults to building -n32 objects
+        LDSHARED="ld -shared -n32"
+      else
+        LDSHARED="ld -shared"
+      fi
+      # -woff isn't understood by ld on Irix 5.
+      if test "`uname -r`" -ge 6 ; then
+        LDSHARED="$LDSHARED -woff 84,85,134"
+      else :; fi
+    ;;
+    SunOS*) LDSHARED="ld";;
+    Solaris) LDSHARED="/usr/ccs/bin/ld -G";;
+    hp*|HP*) LDSHARED="ld -b";;
+    OSF*) LDSHARED="ld -expect_unresolved '*' -shared -msym -O3";;
+    DYNIX/ptx*) LDSHARED="ld -G";;
+    next*) LDSHARED="$CC $CFLAGS -nostdlib -r";;
+    Linux*) LDSHARED="$CC -shared";;
+    GNU*) LDSHARED="ld -Bshareable";;
+    FreeBSD*) LDSHARED="$CC -Wl,-Bshareable";;
+    NetBSD*) LDSHARED="ld -Bshareable";;
+    OpenBSD*) LDSHARED="ld -Bshareable";;
+    BSD/OS*) LDSHARED="shlicc -r";;
+    SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
+    UNIX_SV*) LDSHARED="ld -G";;
+    UnixWare*)
+      if test "$GCC" = yes ; then
+        LDSHARED="ld -G"
+      else
+        LDSHARED="cc -G -KPIC -Wl,-Bexport"
+      fi
+    ;;
+    Windows_NT*) LDSHARED="$CC -shared";;
+    *) LDSHARED="ld";;
+  esac
+fi
+AC_MSG_RESULT($LDSHARED)
 
 # CCSHARED are the C *flags* used to create objects to go into a shared
 # library -- this is only needed for a few systems
@@ -453,6 +631,7 @@ fi
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
+
 AC_MSG_CHECKING(LINKFORSHARED)
 
 AC_CACHE_VAL(caudium_cv_sys_linkforshared,[
@@ -491,29 +670,20 @@ fi
    CFLAGS="$OLD_CFLAGS"
 ])
 
-LINKFORSHARED="$caudium_cv_sys_linkforshared"
+LDFLAGS="$caudium_cv_sys_linkforshared $LDFLAGS"
 
 AC_MSG_RESULT($LINKFORSHARED)
 AC_SUBST(LINKFORSHARED)
 
-# Used to pass CFLAGS to Pike
-REALCFLAGS="$CFLAGS"
-AC_SUBST(REALCFLAGS)
-
 # Pass a joined CFLAGS to the other configure-scripts.
 CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 
-export CC CFLAGS REALCFLAGS WARN OPTIMIZE
-
-###################################################################
-## Libraries that are used by Pike
-###################################################################
+export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO
 
 #
 # Some variables we want to export to the other configure scripts.
 #
 
-export CPPFLAGS LDFLAGS
 
 AC_CONFIG_SUBDIRS( src)
 AC_OUTPUT(Makefile)

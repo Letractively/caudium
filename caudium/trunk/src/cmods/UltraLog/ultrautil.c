@@ -117,9 +117,6 @@ INLINE unsigned char *ultra_lowercase_host(unsigned char *ref, INT32 *trunc,
 }
 
 
-
-
-
 /* Add 1 to an integer entry in a mapping */
 struct svalue ett;                                           
 struct svalue intie;                                           

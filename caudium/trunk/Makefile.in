@@ -9,11 +9,7 @@ INSTALL=@INSTALL@
 
 CC=@CC@
 CPPFLAGS=@CPPFLAGS@
-CFLAGS=@REALCFLAGS@
-JOINEDCFLAGS=@CFLAGS@
 LDFLAGS=@LDFLAGS@
-
-PIKEVERSION=@PIKEVERSION@
 
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
@@ -44,9 +40,9 @@ depend:
 
 clean:
 
-	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
-	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
-
+#	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+#	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
 install: all install_only install_src
 	-@$(BIN_TRUE)
 

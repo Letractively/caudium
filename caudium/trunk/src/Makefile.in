@@ -12,9 +12,11 @@ force:
 cmods: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 
-
-
 install: force
 	( cd cmods && $(MAKE) $(MAKE_FLAGS) install)
+clean: force
+	( cd cmods && $(MAKE) $(MAKE_FLAGS) clean)
+depend: force
+	( cd cmods && $(MAKE) $(MAKE_FLAGS) depend)
 
 

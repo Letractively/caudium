@@ -1,7 +1,7 @@
 MODNAME=UltraLog
 OBJS= ultrautil.o ultraparse.o
 SOURCES=ultrautil.c ultraparse.c
-CFLAGS=  @CCSHARED@ @CFLAGS@ @OPTIMIZE@ @WARN@ -I@PIKE_INCLUDE_DIR@
+CFLAGS=  @CFLAGS@ -I@PIKE_INCLUDE_DIR@
 CC=@CC@
 LIBGCC=@LIBGCC@
 LDFLAGS=  @LDFLAGS@
