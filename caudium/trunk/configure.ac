@@ -1,9 +1,10 @@
 #
 # $Id$
 #
+AC_PREREQ(2.53)
+AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
 
-AC_INIT(Makefile.in)
-
+AC_REVISION($Revision$)
 
 AC_SET_MAKE
 
@@ -14,9 +15,9 @@ case "$ac_cv_path_install" in
     AC_MSG_CHECKING(if $ac_cv_path_install works)
     AC_CACHE_VAL(caudium_cv_install_works,
 [
-    if $ac_cv_path_install "$srcdir/configure.in" ./conftest >/dev/null 2>&1
+    if $ac_cv_path_install "$srcdir/configure.ac" ./conftest >/dev/null 2>&1
     then
-      if cmp "$srcdir/configure.in" ./conftest >/dev/null 2>&1; then
+      if cmp "$srcdir/configure.ac" ./conftest >/dev/null 2>&1; then
         caudium_cv_install_works=yes;
       else
         caudium_cv_install_works=no;
@@ -292,7 +293,7 @@ AC_SUBST(LD)
 ######################
 
 AC_ARG_WITH(pike, 
-[  --with-pike[=binary]    Use the specified Pike. ],
+AC_HELP_STRING([--with-pike[=binary]],[Use the specified Pike.]),
 [
     if test ! -z "$withval" -a "$withval" != "yes"; then 
 		extpike="`type  $withval |sed "s:$withval is ::" 2>/dev/null`"
@@ -792,7 +793,8 @@ CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK
 
 AC_CONFIG_SUBDIRS(src tools)
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT
 
 
 

@@ -6,6 +6,6 @@ then
   autoconf213 --localdir=$1
   autoheader213
 else
-  autoconf --localdir=$1
+  autoconf --include=$1
   autoheader
 fi

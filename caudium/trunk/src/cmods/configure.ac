@@ -1,5 +1,5 @@
 # $Id$
-AC_INIT(configure.in)
+AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
 
 CAUDIUM_LOW_MODULE_INIT()
 
