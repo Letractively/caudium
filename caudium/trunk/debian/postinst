@@ -46,7 +46,7 @@ case "$1" in
     PORTNO="$RET"
 
     if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
-     sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/servers/localhost > \
+     sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/localhost.sample > \
          /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
   	 /etc/caudium/servers/localhost
     fi

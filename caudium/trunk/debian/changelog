@@ -1,3 +1,11 @@
+caudium (1:1.0.0-12) unstable; urgency=low
+
+  * Caudium uses PNG by default
+  * PHP4 works (provided you have correct Pike + PHP4 version)
+  * latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri,  3 Nov 2000 20:16:50 +0100
+
 caudium (1:1.0.0-11) unstable; urgency=low
 
   * removed /etc/caudium/servers/localhost from config files
