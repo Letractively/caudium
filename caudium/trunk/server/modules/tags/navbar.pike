@@ -39,6 +39,9 @@ constant thread_safe=1;
 #endif
 #endif
 
+constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
+
+
 #define NDEBUG(X) if(QUERY(debug)) { report_debug("NAVBAR_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
 
 inherit "module";
@@ -101,6 +104,8 @@ private void create_session(object id)
   {
     NDEBUG("Creating session");
     NSESSION = allocate(3);
+    // page 0 does not exist, default to page 1
+    NSESSION[2] = 1;
     id->misc->navbar_session_flushed = 1;
   }
 }
@@ -206,6 +211,8 @@ int get_min_element(object id)
     min_elem -= offset;
   // overflow management
   if(min_elem > get_nb_elements(id))
+    min_elem = 0;
+  if(min_elem < 0)
     min_elem = 0;
   NDEBUG("get_min_element: min_elem="+min_elem);
   return min_elem;
@@ -351,24 +358,43 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   return make_container("a", args, contents);
 }
 
+array loop_parser(string originalcontents, array(string) tags_name, array(string) containers_name)
+{
+  string parsed_contents;
+  mapping resargs = ([ ]);
+  mapping rescontents = ([ ]);
+  
+  mapping tags = mkmapping(tags_name, 
+      allocate(sizeof(tags_name), 
+        lambda(string _name, mapping _args)
+        {
+          resargs += ([ _name: _args ]);
+          return rands + _name;
+        }));
+  mapping containers = mkmapping(containers_name,
+      allocate(sizeof(containers_name), 
+        lambda(string _name, mapping _args, string _contents)
+        {
+          resargs += ([ _name: _args ]);
+          rescontents += ([ _name: _contents ]);
+          return rands + _name;
+        }));
+
+  parsed_contents = PARSER(originalcontents, tags, containers);
+  return ({ parsed_contents, resargs, rescontents });
+}
+
 // Code for <navbar></> nested loop containers
 string container_loop_navbar(string tag_name, mapping args, string contents, object id)
 {
   string out = "";                                              // The string to output
   string originalcontents = contents;                           // Backup the original contents for parsing it several times
-  mapping href_args;
-  string href_contents;
-  string rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
-  string parsed_contents = PARSER(originalcontents,
-      ([ ]),
-      ([
-        "href"          : lambda(string name, mapping _href_args, string _href_contents)
-                                { 
-                                  href_args = _href_args;
-                                  href_contents = _href_contents;
-                                  return rands;
-                                }
-       ]));
+  mapping myargs;
+  mapping mycontents;
+  array res_fromparser = loop_parser(contents, ({ }), ({ "href" }));
+  string parsed_contents = res_fromparser[0];
+  myargs = res_fromparser[1];
+  mycontents = res_fromparser[2];
 
   int count = 0;
 
@@ -385,8 +411,8 @@ string container_loop_navbar(string tag_name, mapping args, string contents, obj
             "number" : count,
           ])
         });
-        contents = replace(parsed_contents, rands,
-            container_navbar_href("loop_previous", href_args, href_contents, id, countpageloop));
+        contents = replace(parsed_contents, rands + "href",
+            container_navbar_href("loop_previous", myargs["href"], mycontents["href"], id, countpageloop));
         out += do_output_tag(args, outlet, contents, id);
       }
       break;
@@ -402,8 +428,8 @@ string container_loop_navbar(string tag_name, mapping args, string contents, obj
                        "number" : count,
                            ])
                         });
-        contents = replace(parsed_contents, rands,
-            container_navbar_href("loop_previous", href_args, href_contents, id, countpageloop));
+        contents = replace(parsed_contents, rands + "href",
+            container_navbar_href("loop_previous", myargs["href"], mycontents["href"], id, countpageloop));
         out += do_output_tag(args, outlet, contents, id);
       }
       break;
