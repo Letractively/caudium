@@ -56,6 +56,8 @@ string query_provides()
  * Globals
  */
 
+int att,succ=0;
+
 int default_uid() {
 
 #if constant(geteuid)
@@ -81,52 +83,46 @@ void create()
 		   "Typically, this would be an 'o' or 'ou' entry "
 		   "local to the DSA which contains the user entries.");
 
-        defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Defaults: Search template",
-                   TYPE_STRING, "Template used by LDAP search operation"
-		   " as filter."
+        defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Search: User Search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for users"
 		   "<b>%u%</b> : Will be replaced by entered username." );
 
-        defvar ("CI_useringroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Defaults: Users in groups Search template",
-                   TYPE_STRING, "Template used by LDAP search operation"
-		   " as filter."
+        defvar ("CI_groupsearch_templ","(&(objectclass=group)(cn=%g%))","Search: Group Search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for groups"
+		   "<b>%g%</b> : Will be replaced by entered groupname." );
+
+        defvar ("CI_useringroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Users in groups Search template",
+                   TYPE_STRING, "Search template used as filter "
+                   "when searching for user members of groups."
 		   "<b>%u%</b> : Will be replaced by entered groupname."
 		   "<b>%d%</b> : Will be replaced by group's full dn." );
 
-        defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Defaults: Groups for user Search template",
+        defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Search: Groups for user Search template",
                    TYPE_STRING, "Template used by LDAP search operation"
 		   " as filter."
 		   "<b>%u%</b> : Will be replaced by entered username."
 		   "<b>%d%</b> : Will be replaced by user's full dn." );
 
-        defvar 
-("CI_userlist_search_templ","(objectclass=posixuser)","Defaults: Userlist search query",
+        defvar ("CI_userlist_search_templ","(objectclass=posixuser)","Search: Userlist search query",
                    TYPE_STRING, "Template used by LDAP userlist search operation");
 
-        defvar ("CI_useringroup_attr","memberuid","Attributes: Username in group",
+        defvar ("CI_grouplist_search_templ","(objectclass=posixgroup)","Search: Grouplist search query",
+                   TYPE_STRING, "Template used by LDAP grouplist search operation");
+
+        defvar ("CI_useringroup_attr","memberuid","User Attributes: Username in group entry",
                    TYPE_STRING, 
 		   "Attribute in group object containing a user's name" );
 
-        defvar ("CI_groupname_attr","memberuid","Attributes: Groupname",
+        defvar ("CI_groupname_attr","memberuid","Group Attributes: Groupname",
                    TYPE_STRING, 
 		   "Attribute in group object containing a group's name" );
 
-        defvar ("CI_level","subtree","LDAP query depth",
+        defvar ("CI_level","subtree","LDAP server: LDAP query depth",
                    TYPE_STRING_LIST, "Scope used by LDAP search operation."
                    "",
 		({ "base", "onelevel", "subtree" }) );
-
-        defvar ("CI_required_attr","","LDAP server: Required attribute",
-                   TYPE_STRING|VAR_MORE,
-		   "Which attribute must be present to successfully"
-		   " authenticate user (optional). "
-		   "<br />For example: memberOf",
-		   0);
-
-        defvar ("CI_required_value","","LDAP server: Required value",
-                   TYPE_STRING|VAR_MORE,
-		   "Which value must be in required attribute (optional)" 
-		   "<br />For example: cn=KISS-PEOPLE",
-		   0);
 
         defvar ("CI_dir_username","","LDAP server: Directory search username",
                    TYPE_STRING|VAR_MORE,
@@ -142,51 +138,50 @@ void create()
 		    "connection to directory (optional).",
 		   0);
 
-	// Defaults:
-        defvar ("CI_default_uid",default_uid(),"Defaults: User ID", TYPE_INT,
+        defvar ("CI_default_uid",default_uid(),"User Defaults: User ID", TYPE_INT,
                    "Some modules require an user ID to work correctly. This is the "
                    "user ID which will be returned to such requests if the information "
                    "is not supplied by the directory search.");
 
         defvar ("CI_default_attrname_uid", "uidNumber",
-		   "Attributes: User ID", TYPE_STRING,
+		   "User Attributes: User ID", TYPE_STRING,
                    "The attribute containing the user's numeric ID.");
 
         defvar ("CI_default_gid", getegid(),
-		"Defaults: Group ID", TYPE_INT,
+		"User Defaults: Group ID", TYPE_INT,
                    "Default GID to be supplied when directory entry does not provide one.");
 
         defvar ("CI_default_attrname_gid", "gidNumber",
-		   "Attributes: Group ID", TYPE_STRING,
+		   "User Attributes: Group ID", TYPE_STRING,
                    "The attribute containing the user's primary GID.");
 
-        defvar ("CI_default_gecos", "", "Defaults: Gecos", TYPE_STRING,
-                   "The default Full NAme (Gecos).");
+        defvar ("CI_default_gecos", "", "User Defaults: Gecos", TYPE_STRING,
+                   "The default Full Name (Gecos).");
 
         defvar ("CI_default_attrname_gecos", "gecos",
-		   "Attribute: Full Name", TYPE_STRING,
+		   "User Attributes: Full Name", TYPE_STRING,
                    "The attribute containing the user Full Name.");
 
         defvar ("CI_default_attrname_user", "uid",
-		   "Attribute: User", TYPE_STRING,
+		   "User Attributes: User", TYPE_STRING,
                    "The attribute containing the user name in user object.");
 
-        defvar ("CI_default_home","/", "Defaults: Home Directory", TYPE_DIR,
+        defvar ("CI_default_home","/", "User Defaults: Home Directory", TYPE_DIR,
                    "It is possible to specify an user's home "
                    "directory. This is used if it's not provided.");
 
         defvar ("CI_default_attrname_homedir", "homeDirectory",
-		   "Attributes: Home Directory", TYPE_STRING,
+		   "User Attributes: Home Directory", TYPE_STRING,
                    "The attribute containing the user Home Directory.");
 
-        defvar ("CI_default_shell","/bin/false", "Defaults: Shell", TYPE_STRING,
+        defvar ("CI_default_shell","/bin/false", "User Defaults: Shell", TYPE_STRING,
                    "The shell name for entries without a shell.");
 
         defvar ("CI_default_attrname_shell", "loginShell",
-		   "Attributes: Login Shell", TYPE_STRING,
+		   "User Attributes: Login Shell", TYPE_STRING,
                    "The attribute containing the user Login Shell.");
 
-        defvar ("CI_default_addname",0,"Defaults: Username add",TYPE_FLAG,
+        defvar ("CI_default_addname",0,"User Defaults: Add username to Home",TYPE_FLAG,
                    "Setting this will add username to path to default "
                    "directory, when the home directory is not provided.");
 
@@ -258,7 +253,7 @@ string status() {
 
     return ("<H2>Security info</H2>"
 	   "Attempted authentications: "+att+"<BR>\n"
-	   "Failed: "+(att-succ+nouser)+" ("+nouser+" because of wrong username)"
+	   "Failed: "+(att-succ)
 	   "<BR>\n"+
 	   dir_accesses +" accesses to the directory were required.\n"
 
@@ -295,7 +290,7 @@ mapping|int get_user_info(string user) {
       return 0;
     }
 
-    sr=get_user_object(user);
+    sr=get_user_object(dir, user);
     if(!sr)
     {
       DEBUGLOG("no user object for " + user);
@@ -342,7 +337,7 @@ multiset get_groups_for_user(object dir, string user, string dn)
 
 array(string) userlist() 
 {
-  object d=open_dir();
+  object dir=open_dir();
 
   if(!dir)
     return ({});
@@ -355,7 +350,7 @@ array(string) userlist()
 
   for(int i=0; i<sr->num_entries(); i++)
   {
-    users+=({ sr->fetch()[QUERY(CI_default_attrname_user][0] });
+    users+=({ sr->fetch()[QUERY(CI_default_attrname_user)][0] });
     sr->next();
   }
 
@@ -393,31 +388,6 @@ private int|object get_user_object(object dir, string user)
 
    dirinfo=sr->fetch();  // we will work with the first entry.
 
-   // check for required attribute, if any
-   if(QUERY(CI_required_attr) && QUERY(CI_required_attr)!="")
-   {
-     if(!dirinfo[QUERY(CI_required_attr)])
-     {
-       DEBUGLOG (user + " does not have required attribute.");
-       close_dir(dir);
-       return 0;
-     }
-     int ok=0;
-     array v=dirinfo[QUERY(CI_required_attr)];
-     foreach(v, mixed val)
-       if(val==QUERY(CI_required_value))
-       {
-         ok=1;
-         break; // we have a match
-       }
-     if(!ok) // we didn't find a match.
-     {
-       DEBUGLOG (user + " has required attribute, but not value.");
-       close_dir(dir);
-       return 0;
-     }
-   }
-  
    return sr;
 }
 
@@ -452,12 +422,12 @@ int authenticate (string user, string password)
     if(!res) 
     {
       close_dir(dir);
-      DEBUGLOG (u+" authentication failed");
+      DEBUGLOG (user+" authentication failed");
       return -1;
     }
 
     // successful authentication
-    DEBUGLOG (u+" positively recognized");
+    DEBUGLOG (user +" positively recognized");
     close_dir(dir);
     succ++;
     return 1;
