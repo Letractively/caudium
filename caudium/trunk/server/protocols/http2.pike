@@ -240,14 +240,6 @@ inline void do_post_processing()
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
-#ifdef ENABLE_SUPPORTS    
-  if(useragent == "unknown") {
-    supports = find_supports("", supports); // This makes it somewhat faster.
-  } else 
-    supports = find_supports(lower_case(useragent), supports);
-#else
-  supports = (< "images", "gifinline", "forms", "mailto">);
-#endif
 
 #ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
@@ -427,6 +419,14 @@ inline void do_post_processing()
       break;
     }
   }
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
+#endif
   if(prestate->nocache) {
     // This allows you to "reload" a page with MSIE by setting the
     // (nocache) prestate.
