@@ -3,12 +3,12 @@ Section: web
 Priority: optional
 Maintainer: Marek Habersack <grendel@vip.net.pl>
 Standards-Version: 3.1.1
+Build-Depends: pike7-cvs, debconf-utils
 
 Package: caudium
 Architecture: any
 Pre-Depends: debconf (>= 0.2.17)
-Build-Depends: pike7, debconf-utils
-Depends: ${shlibs:Depends},  caudium-modules (= ${Source-Version}), pike7 (= ${pikever}), logrotate
+Depends: ${shlibs:Depends},  caudium-modules (= ${Source-Version}), pike7-cvs (= ${pikever}), logrotate
 Provides: httpd
 Description: An extensible WWW server written in Pike
  Caudium is a modern, fast and extensible WWW server derived from Roxen. 
@@ -22,7 +22,7 @@ Description: An extensible WWW server written in Pike
 
 Package: caudium-modules
 Architecture: any
-Depends: ${shlibs:Depends}, pike7 (= ${pikever}), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, pike7-cvs (= ${pikever}), caudium (= ${Source-Version})
 Description: C modules for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains the
  compiled shared modules that are required by Caudium to run.

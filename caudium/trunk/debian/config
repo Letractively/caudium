@@ -5,8 +5,8 @@
 . /usr/share/debconf/confmodule
 
 PORTCHECK='object port = Stdio.Port(); if (!port->bind((int)getenv("PORTNO"))) write("no"); else write("yes");'
-PIKE=/usr/bin/pike7
-set -x
+PIKE=/usr/bin/pike7-cvs
+
 get_cfg_port() {
     local yesno;
     local port;
@@ -39,7 +39,7 @@ get_cfg_port() {
 }
 
 get_iface() {
-    local port = "80";
+    local port="80";
     local yesno;
     
     db_title 'Port number'
@@ -67,16 +67,16 @@ get_iface() {
 db_version 2.0
 db_capb
 
-if test -f /etc/caudium/Global_Variables; then
-    exit 0
+if test ! -f /etc/caudium/Global_Variables; then
+    get_cfg_port
+    get_iface
 fi
 
-get_cfg_port
-get_iface
-
 db_title 'Startup options'
-    
 db_input medium caudium/start_options || true
+
+db_title 'Experimental code'
+db_input low caudium/experimental_http || true
 
 db_title 'Caudium configuration'
 db_input medium caudium/last_screen || true
