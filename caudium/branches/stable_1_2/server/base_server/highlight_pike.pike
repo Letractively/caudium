@@ -500,7 +500,7 @@ string do_the_highlighting(string s, mapping m)
 //!   The Pike code to render
 //! @returns
 //!   HTMLized pike code :)
-string highlight(string t, mapping m, string contents)
+string highlight_pike(string t, mapping m, string contents)
 {
   string out = "";
   if(!m->light) 
