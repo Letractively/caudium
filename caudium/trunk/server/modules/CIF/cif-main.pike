@@ -82,6 +82,37 @@ private mapping error_style = ([
 ]);
 
 //
+// The actions we handle
+//
+private mapping cif_actions = ([
+  "root" : do_root,
+  "showconf" : do_showconf
+]);
+
+//
+// Show the main screen of the interface
+//
+private mapping do_root(object id)
+{
+  return http_htmldoc_answer(parse_rxml(sprintf("<strong>Not yet (config dir: %s)</strong><br>"
+                                                "Configurations:<br>"
+                                                "<conflist>#name#: <a href='#url#'>#name#</a><br></conflist>",
+                                                caudium->configuration_dir), id),
+                             QUERY(title), 0, notyet_style);
+}
+
+//
+// Show the given configuration
+//
+private mapping do_showconf(object id)
+{
+  string  title = "Configuration for %s";
+
+  return http_htmldoc_answer("showconf",
+                            sprintf(title, id->variables->name ? id->variables->name : "unnamed"));
+}
+
+//
 // A temporary function to ask the user for their
 // login/password. Eventually this will be handled by the UI module.
 //
@@ -114,12 +145,21 @@ mixed find_file(string f, object id)
         if (!session->loggedin)
             return get_auth_data(id);
     }
-    
-    return http_htmldoc_answer(parse_rxml(sprintf("<strong>Not yet (config dir: %s)</strong><br>"
-                                       "Configurations:<br>"
-                                       "<conflist>#name#: <a href='#url#'>#name#</a><br></conflist>",
-                                       caudium->configuration_dir), id),
-                               QUERY(title), 0, notyet_style);
+
+    if (!f || f == "" || f == "/")
+      f = "root";
+
+    foreach(indices(cif_actions), string index)
+      if (index == f) {
+        if (objectp(cif_actions[f]) && functionp(cif_actions[f]->run))
+          return cif_actions[f]->run(id);
+        else if (functionp(cif_actions[f]))
+          return cif_actions[f](id);
+        else
+          report_warning("Unknown file '%s' in the CIF", f);
+      }
+
+    return http_htmldoc_answer("404", "CIF: No such file");
 }
 
 //
