@@ -17,7 +17,7 @@ public class Search {
        create a new search engine
        @param dir directory the index is stored in
     */
-    public void create(String dir)
+    public Search(String dir)
       throws java.io.IOException
     {
       searcher = new IndexSearcher(dir);

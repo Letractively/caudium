@@ -18,7 +18,7 @@ public class Indexer {
 
     private int bytes;
 
-    public void create(String indexDir, boolean incremental)
+    public Indexer(String indexDir, boolean incremental)
       throws java.io.IOException
     {
 
