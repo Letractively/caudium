@@ -2,7 +2,7 @@ SRCDIR=@srcdir@/$(MODNAME)/
 CFLAGS= @PIKE_INCLUDE_DIRS@ @CPPFLAGS@ @CFLAGS@  -I$(SRCDIR) -I. $(MODULE_CFLAGS)
 CC=@CC@
 LIBGCC=@LIBGCC@
-LDFLAGS= $(MODULE_LIBS) @LDFLAGS@
+LDFLAGS=@LDFLAGS@
 LD= @LDSHARED@
 PIKE=@PIKE@
 SO=@SO@
@@ -30,7 +30,7 @@ install_bin: all
 
 
 $(MODNAME).$(SO):  $(OBJS)
-	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) $(CLIBRARY_LINK) $(LIBGCC) 
+	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(MODULE_LIBS) $(LIBGCC) $(CLIBRARY_LINK) $(LIBGCC) 
 
 Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
 	@echo "configure or Makefile.in changed."
