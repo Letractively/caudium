@@ -62,7 +62,6 @@
 #endif
 
 #include "global.h"
-RCSID("$Id$");
 
 #ifdef fp
 #undef fp
