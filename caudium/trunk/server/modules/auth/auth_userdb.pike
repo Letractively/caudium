@@ -398,14 +398,14 @@ void read_group_data()
         break;
 
       case "getpwent":
-#if constant(System.getgrwnt)
+#if constant(System.getgrent)
         // This could be a _lot_ faster.
         tmp2 = ({ });
 #if constant(System.geteuid)
         if(System.getuid() != System.geteuid()) privs = Privs("Reading group database");
 #endif
         System.setgrent();
-        while(tmp = System.getgrwnt())
+        while(tmp = System.getgrent())
 	{
           tmp2 += ({
             Array.map(tmp, lambda(mixed s) { if(arrayp(s)) return s*","; else return (string)s; }) * ":"
