@@ -1838,8 +1838,14 @@ static void f_program_object_memory_usage(INT32 args)
   struct svalue o_sv;
 
   pop_n_elems(args);
-  /*push_mapping(m = allocate_mapping(num_program)); */
+  /*push_mapping(m = allocate_mapping(num_program));
   push_mapping(m = allocate_mapping(Pike_compiler->new_program->num_program));
+  */
+  /* Grubba told me to make a static value instead of that... because it is
+   * about 64k
+   * See pike ml for that
+   */
+  push_mapping(m = allocate_mapping(100));
 
   o_sv.type = PIKE_T_OBJECT;
   o_sv.subtype = 0;
