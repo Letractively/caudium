@@ -1,4 +1,4 @@
-/*
+/*5 2001/02/20 05:52:12
  * Pike Extension Modules - A collection of modules for the Pike Language
  * Copyright © 2000-2001 The Caudium Group
  * 
@@ -85,5 +85,5 @@
 
 #ifndef ARG
 /* Get argument # _n_ */
-#define ARG(_n_) sp[-(args - _n_)]
+#define ARG(_n_) Pike_sp[-(args - _n_)]
 #endif
