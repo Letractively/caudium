@@ -217,35 +217,14 @@ void create()
         defvar ("CI_default_addname",0,"Defaults: Username add",TYPE_FLAG,
                    "Setting this will add username to path to default directory.");
 
-	// Etc.
-        defvar ("CI_use_cache",1,"Cache entries", TYPE_FLAG,
-                   "This flag defines whether the module will cache the directory "
-                   "entries. Makes accesses faster, but changes in the directory will "
-                   "not show immediately. <B>Recommended</B>.");
-        defvar ("CI_close_dir",1,"Close the directory if not used",
-		   TYPE_FLAG|VAR_MORE,
-                   "Setting this will save one filedescriptor without a small "
-                   "performance loss.",0,
-		   access_mode_is_guest_or_roaming);
-        defvar ("CI_timer",60,"Directory connection close timer",
-		   TYPE_INT|VAR_MORE,
-                   "The time after which the directory is closed",0,
-                   lambda(){return !QUERY(CI_close_dir) || access_mode_is_guest_or_roaming;});
-
 }
 
 
 void close_dir() {
-
-    if (!QUERY(CI_close_dir))
-	return;
-    if( (time(1)-last_dir_access) > QUERY(CI_timer) ) {
-	dir->unbind();
-	dir=0;
-	DEBUGLOG("closing the directory");
-	return;
-    }
-    call_out(close_dir,QUERY(CI_timer));
+  dir->unbind();
+  dir=0;
+  DEBUGLOG("closing the directory");
+  return;
 }
 
 
@@ -253,13 +232,7 @@ object open_dir(string u, string p) {
     mixed err;
     string binddn, bindpwd;
 
-    last_dir_access=time(1);
     dir_accesses++; //I count accesses here, since this is called before each
-    //if(objectp(dir)) //already open
-    if(dir) //already open
-	return;
-    if(dir)
-	return;
 
     if(!access_mode_is_guest_or_roaming()) { // access type is "guest"/"roam."
 	binddn = QUERY(CI_dir_username);
@@ -276,22 +249,22 @@ object open_dir(string u, string p) {
 	dir->bind(binddn, bindpwd);
     };
     if (arrayp(err)) {
-	werror ("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
+	report_error ("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
 	if (objectp(dir)) {
-	    werror("LDAPauth: directory interface replies: "+dir->error_string()+"\n");
+	    report_error("LDAPauth: directory interface replies: "+dir->error_string()+"\n");
 	    catch(dir->unbind());
 	}
 	else
-	    werror("LDAPauth: unknown reason\n");
-	werror ("LDAPauth: check the values in the configuration interface, and "
+	    report_error("LDAPauth: unknown reason\n");
+	report_error ("LDAPauth: check the values in the configuration interface, and "
 		"that the user\n\trunning the server has adequate permissions "
 		"to the server\n");
-	dir=0;
+	close_dir();
 	return;
     }
     if(dir->error_code) {
-	werror ("LDAPauth: authentication error ["+dir->error_string+"]\n");
-	dir=0;
+	report_error ("LDAPauth: authentication error ["+dir->error_string+"]\n");
+	close_dir();
 	return;
     }
     switch(QUERY(CI_level)) {
@@ -363,15 +336,10 @@ array(string) userinfo (string u,mixed p) {
       return 0;
     }
 
-    if (QUERY(CI_use_cache))
-	dirinfo=cache_lookup("ldapauthentries",u);
-	if (dirinfo)
-	    return dirinfo;
-
     open_dir(u, p);
 
     if (!dir) {
-	werror ("LDAPauth: Returning 'user unknown'.\n");
+	report_error ("LDAPauth: Returning 'user unknown'.\n");
 	return 0;
     }
 
@@ -390,13 +358,13 @@ array(string) userinfo (string u,mixed p) {
 	tmp=results->fetch();
 	//DEBUGLOG(sprintf("userinfo: got %O",tmp));
 	if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-	      werror("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
+	      report_warning("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
 	 else
 	     rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
 	/*
 	if(!access_mode_is_guest()) {	// mode is 'guest'
 	    if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-		werror("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
+		report_warning("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
 	    else
 		rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
 	}
@@ -414,7 +382,7 @@ array(string) userinfo (string u,mixed p) {
 	  }
 	  err = catch (dir->bind(binddn, p));
 	  if (arrayp(err)) {
-	    werror ("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
+	    report_error("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
 	    if (objectp(dir)) {
 	      werror("LDAPauth: directory interface replies: "+dir->error_string()+"\n");
 	      catch(dir->unbind());
@@ -459,13 +427,8 @@ array(string) userinfo (string u,mixed p) {
     } else {
 	// Compare method is unimplemented, yet
     }
-    #if 0
-    if (QUERY(CI_use_cache))
-	cache_set("ldapauthentries",u,dirinfo);
-    #endif
     if(!access_mode_is_user()) { // Should be 'closedir' method?
-      dir->unbind();
-      dir=0;
+      close_dir();
     }
     if(!access_mode_is_roaming()) { // We must rebind connection
       dir->bind(QUERY(CI_dir_username), QUERY(CI_dir_pwd));
@@ -612,16 +575,6 @@ array|int auth (array(string) auth, object id)
 
 	}
     } // if access_mode_is_user
-
-    // Its OK so save them
-    if (QUERY(CI_use_cache))
-	cache_set("ldapauthentries",u,dirinfo);
-
-    id->misc->uid = dirinfo[2];
-    id->misc->gid = dirinfo[3];
-    id->misc->gecos = dirinfo[4];
-    id->misc->home = dirinfo[5];
-    id->misc->shell = dirinfo[6];
 
     DEBUGLOG (u+" positively recognized");
     succ++;
