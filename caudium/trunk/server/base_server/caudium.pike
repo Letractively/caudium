@@ -1510,26 +1510,27 @@ void reload_all_configurations()
   caudium->setvars(caudium->retrieve("Variables", 0));
   caudium->initiate_configuration_port( 0 );
 
-  foreach(caudium->list_all_configurations(), string config)
+  foreach(caudium->list_all_configurations(), mapping config)
   {
     array err, st;
     foreach(caudium->configurations, conf)
     {
-      if(lower_case(conf->name) == lower_case(config))
+      if(lower_case(conf->name) == lower_case(config->name))
       {
         break;
       } else
         conf = 0;
     }
-    if(!(st = caudium->config_is_modified(config))) {
-      if(conf) {
-        config_cache[config] = caudium->config_stat_cache[config];
-        new_confs += ({ conf });
-      }
-      continue;
-    }
+    // we should probably get rid of the caching here. /grendel
+//     if(!(st = caudium->config_is_modified(config->name))) {
+//       if(conf) {
+//         config_cache[config] = caudium->config_stat_cache[config];
+//         new_confs += ({ conf });
+//       }
+//       continue;
+//     }
     modified = 1;
-    config_cache[config] = st;
+//    config_cache[config] = st;
     if(conf) {
       // Closing ports...
       map(values(conf->server_ports), conf->do_dest);
@@ -1538,40 +1539,38 @@ void reload_all_configurations()
       conf->modules = ([]);
       conf->create(conf->name);
     } else {
-      if(err = catch
-      {
-        conf = caudium->enable_configuration(config);
-      }) {
-        report_error("Error while enabling configuration "+config+":\n"+
-                     describe_backtrace(err)+"\n");
+      if(err = catch(conf = caudium->enable_configuration(config->name))) {
+        report_error("Error while enabling configuration %s:\n%s\n",
+                     config,describe_backtrace(err));
         continue;
       }
     }
-    if(err = catch
-    {
+
+    err = catch {
       conf->start();
       conf->enable_all_modules();
-    }) {
-      report_error("Error while enabling configuration "+config+":\n"+
-                   describe_backtrace(err)+"\n");
+    };
+    
+    if(err) {
+      report_error("Error while enabling configuration %s:\n%s\n",
+                   config, describe_backtrace(err));
       continue;
     }
+    
     new_confs += ({ conf });
   }
     
   foreach(caudium->configurations - new_confs, conf)
   {
     modified = 1;
-    report_notice("Disabling old configuration "+conf->name+"\n");
-    if (conf->server_ports) {
-      // Roxen 1.2.26 or later
-      Array.map(values(conf->server_ports), conf->do_dest);
-    } else {
-      Array.map(indices(conf->open_ports), conf->do_dest);
-    }
+    report_notice("Disabling old configuration %s\n", conf->name);    
+
+    Array.map(values(conf->server_ports), conf->do_dest);
+
     conf->stop();
     destruct(conf);
   }
+  
   if(modified) {
     caudium->configurations = new_confs;
     caudium->config_stat_cache = config_cache;
@@ -3090,6 +3089,52 @@ void initiate_configuration_port( int|void first )
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
 
+private int|array compile_and_load ( string file ) {
+  array       foo;
+  object      o;
+  program     p;
+  
+  if (catch(p = compile_file(file)) || (!p)) {
+    MD_PERROR((" compilation failed"));
+    throw("Compilation failed.\n");
+  }
+  
+  // Set the module-filename, so that create in the
+  // new object can get it.
+  caudium->last_module_name = file;
+
+  array err = catch(o =  p());
+
+  caudium->last_module_name = 0;
+
+  if (err) {
+    MD_PERROR((" load failed"));
+    throw(err);
+  } else if (!o) {
+    MD_PERROR((" load failed"));
+    throw("Failed to initialize module.\n");
+  } else {
+    MD_PERROR((" load ok - "));
+    if (!o->register_module) {
+      MD_PERROR(("register_module missing"));
+      throw("No registration function in module.\n");
+    }
+  }
+
+  foo = o->register_module();
+  if (!foo) {
+    MD_PERROR(("registration failed.\n"));
+    return 0;
+  } else {
+    MD_PERROR(("registered."));
+  }
+  
+  return ({ foo[1], foo[2]+"<p><i>" +
+            replace(o->file_name_and_stuff(), "0<br>", file+"<br>")
+            +"</i>", foo[0]
+  });
+}
+                                 
 void scan_module_dir(string d)
 {
   if(sscanf(d, "%*s.pmod")!=0) return;
@@ -3147,51 +3192,11 @@ void scan_module_dir(string d)
             case "mod":
             case "so":
               array(string) module_info;
-              if (!(err=catch( module_info = lambda ( string file ) {
-                                               array foo;
-                                               object o;
-                                               program p;
-                                               if (catch(p = compile_file(file)) || (!p)) {
-                                                 MD_PERROR((" compilation failed"));
-                                                 throw("Compilation failed.\n");
-
-                                               }
-                                               // Set the module-filename, so that create in the
-                                               // new object can get it.
-                                               caudium->last_module_name = file;
-
-                                               array err = catch(o =  p());
-
-                                               caudium->last_module_name = 0;
-
-                                               if (err) {
-                                                 MD_PERROR((" load failed"));
-                                                 throw(err);
-                                               } else if (!o) {
-                                                 MD_PERROR((" load failed"));
-                                                 throw("Failed to initialize module.\n");
-                                               } else {
-                                                 MD_PERROR((" load ok - "));
-                                                 if (!o->register_module) {
-                                                   MD_PERROR(("register_module missing"));
-                                                   throw("No registration function in module.\n");
-                                                 }
-                                               }
-
-                                               foo = o->register_module();
-                                               if (!foo) {
-                                                 MD_PERROR(("registration failed.\n"));
-                                                 return 0;
-                                               } else {
-                                                 MD_PERROR(("registered."));
-                                               }
-                                               return({ foo[1], foo[2]+"<p><i>"+
-                                                        replace(o->file_name_and_stuff(), "0<br>", file+"<br>")
-                                                        +"</i>", foo[0] });
-                                             }(path + file)))) {
-                // Load OK
+              
+              if (!(err=catch( module_info =  compile_and_load(path + file) ))) {
+                // Load OK  
                 if (module_info) {
-                  // Module load OK.
+                  // Module load OK.    
                   allmodules[ file-("."+extension(file)) ] = module_info;
                 } else {
                   // Disabled module.
@@ -3529,12 +3534,12 @@ int main(array(string) argv)
   // Open all the ports before changing uid:gid in case permanent_uid is set.
   enabling_configurations = 1;
   configurations = ({});
-  foreach(list_all_configurations(), string config)
+  foreach(list_all_configurations(), mapping config)
   {
     array err;
-    if(err=catch { enable_configuration(config)->start(0,0,argv);  })
-      perror("Error while loading configuration "+config+":\n"+
-             describe_backtrace(err)+"\n");
+    if(err=catch { enable_configuration(config->name)->start(0,0,argv);  })
+      werror("Error while loading configuration '%s':\n%s\n",
+             config->name, describe_backtrace(err));
   };
 
   set_u_and_gid();		// Running with the right uid:gid from this point on.

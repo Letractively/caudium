@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
-
-// import Array;
 
 #include <caudium.h>
 #include <module.h>
@@ -33,12 +32,14 @@ import spider;
 # include "newdecode.pike"
 #endif
 
-// import Array;
-// import Stdio;
+mapping(string:object)        configs = ([]);
 
-mapping (string:mapping) configs = ([ ]);
-mapping (string:array(int)) config_stat_cache = ([]);
-string configuration_dir; // Set by Caudium.
+// does it make sense to cache the config files stat results? /grendel
+mapping (string:array(int))     config_stat_cache = ([]);
+
+// flatfile storage
+string configuration_dir; // Set in caudium.pike:main()
+private object dir = 0;
 
 mapping copy_configuration(string from, string to)
 {
@@ -50,28 +51,23 @@ mapping copy_configuration(string from, string to)
   return configs[to];
 }
 
-array (string) list_all_configurations()
+array(mapping(string:string|int)) list_all_configurations()
 {
-  array (string) fii;
-  fii=get_dir(configuration_dir);
-  if(!fii)
-  {
-    Stdio.mkdirhier(configuration_dir+"test", 0700); // removes the last element..
-    fii=get_dir(configuration_dir);
-    if(!fii)
-    {
+  mixed      error;
+  
+  if (!dir) {
+    error = catch {
+      dir = Config.Files.Dir(configuration_dir);
+    };
+    
+    if (error || !dir) {
       report_fatal("I cannot read from the configurations directory ("+
                    combine_path(getcwd(), configuration_dir)+")\n");
       exit(-1);	// Restart.
     }
-    return ({});
   }
-  return Array.map(Array.filter(fii, lambda(string s){
-                                       if(s=="CVS" || s=="Global_Variables" || s=="Global Variables"
-                                          || s=="global_variables" || s=="global variables" )
-                                         return 0;
-                                       return (s[-1]!='~' && s[0]!='#' && s[0]!='.');
-                                     }), lambda(string s) { return replace(s, "_", " "); });
+  
+  return dir->list_files();
 }
 
 void save_it(string cl)
@@ -148,6 +144,7 @@ void fix_config(mixed c)
     else if (multisetp(l)) perror("Warning; illegal value of config\n");
   }
 }
+
 array config_is_modified(string cl)
 {
   array st = file_stat(configuration_dir + replace(cl, " ", "_"));
@@ -160,38 +157,46 @@ array config_is_modified(string cl)
         if(st[i] != config_stat_cache[cl][i])
           return st;
 }
+
 private static void read_it(string cl)
 {
-  if(configs[cl]) return;
+  if(configs[cl])
+    return;
 
-  object fd;
-
-  mixed err;
-  err = catch {
-    fd = open(configuration_dir + replace(cl, " ", "_"), "r");
-    if(!fd)
-    {
-      fd = open(configuration_dir + cl, "r");
-      if(fd) rm(configuration_dir + cl);
-    }
+  mixed       err;
+  string|int  errmsg;
+  object      file;
   
-    if(!fd) {
-      configs[cl] = ([ ]);
-      m_delete(config_stat_cache, cl);
-    } else {
-      configs[cl] = decode_config_file( fd->read( 0x7fffffff ));
-      config_stat_cache[cl] = (array(int))fd->stat();
-      fd->close("rw");
-      fix_config(configs[cl]);
-      destruct(fd);
-    }
+  err = catch {
+    file = Config.Files.File(dir, cl);
   };
+  
   if (err) {
-    report_error(sprintf("Failed to read configuration file for %O\n"
-                         "%s\n", cl, describe_backtrace(err)));
-  }
-}
+    report_error("Failed to open configuration file for %O\n%s\n",
+                 cl, describe_backtrace(err));
+    return;
+  };
 
+  err = catch {
+    errmsg = file->parse();
+  };
+
+  if (stringp(errmsg)) {
+    report_error("Error reading configuration the file '%s': %s\n",
+                 cl, errmsg);
+    destruct(file);
+    return;
+  }
+
+  if (err) {
+    report_error("Error reading configuration the file '%s':\n%s\n",
+                 cl, describe_backtrace(err));
+    destruct(file);
+    return;
+  }
+
+  configs[cl] = file;
+}
 
 void remove( string reg , object current_configuration) 
 {
@@ -257,18 +262,15 @@ void store( string reg, mapping vars, int q, object current_configuration )
 mapping retrieve(string reg, object current_configuration)
 {
   string cl;
-#ifndef IN_INSTALL
+
   if(!current_configuration)
-#endif
     cl="Global Variables";
-#ifndef IN_INSTALL
   else
     cl=current_configuration->name;
-#endif
   
   read_it(cl);
 
-  return configs[cl][reg] || ([ ]);
+  return configs[cl]->retrieve(reg) || ([ ]);
 }
 /*
  * Local Variables:
