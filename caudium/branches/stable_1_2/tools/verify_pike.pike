@@ -81,7 +81,7 @@ int main(int argc, array argv)
 
   if(ver < 7.0 ||
      (ver == 7.0 && rel < 268))
-    warning("Caudium 1.1 requires Pike 7.0.268 or newer.");
+    warning("Caudium 1.2 requires Pike 7.0.268 or newer.");
 
   if(ver == 7.1) {
     warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
