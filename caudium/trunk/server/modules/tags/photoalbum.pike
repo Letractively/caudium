@@ -35,8 +35,8 @@
  * I didn't like the way that the original one worked so I thought I would
  * re-write it.
  *
- * Original author : James Tyson <james@samizdat.co.nz>
- *
+ * Original author : James Tyson) <james@samizdat.co.nz>
+ * Modify by t0mpr (damn <br> tags)
  */
 
 /* Standard includes */
@@ -62,7 +62,7 @@ mapping albums = ([ ]);
 array register_module() {
     return
 	({ MODULE_PARSER,
-	"Caudium Photo Album Module",
+	"Caudium Photo Album Module t0mprized",
 	"This is a new photo album module for Caudium.<br>\n" +
 	"It automagically generates photo albums based on a directory of\n" +
 	"image files.<br>\n" +
@@ -105,7 +105,7 @@ void create () {
 	"\tfont-size: 10pt;\n" +
 	"\talign: center;\n" +
 	"}\n" +
-	"div.thumbnaildesc {\n" +
+	"font.thumbnaildesc {\n" +
 	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
 	"\tfont-size: 10pt;\n" +
 	"}\n" +
@@ -139,6 +139,7 @@ void create () {
     defvar( "nav_index", "Index", "The text for the &quot;index&quot; nav link", TYPE_STRING|VAR_MORE, "This could also be an &lt;IMG&gt; tag, or whatever" );
     defvar( "void_album_name", "Untitled Photo Album", "The text shown for the photo album name where none is defined", TYPE_STRING|VAR_MORE, "" );
     defvar( "void_description", "No description given", "The text shown in place of a description if none is provided", TYPE_STRING|VAR_MORE, "" );
+    defvar( "void_cols", 4, "Default number of col's", TYPE_INT, "Default number of columns." );
 }
 
 void start (int cnt, object conf) {
@@ -172,10 +173,12 @@ mixed build_album( object id, mapping args ) {
     object newalbum = album( query );
     string name = args->name?args->name:QUERY(void_album_name);
     string dir = args->dir?args->dir:"";
+    int cols = (int)args["cols"] || QUERY(void_cols);
     if ( dir == "" ) {
 	return "<b>ERROR:</b> No photo directory given!\n";
     }
     newalbum->set_name( name );
+    newalbum->set_cols( cols );
     array tmp = id->conf->find_dir( fix_relative( dir, id ), id );
     array dirlist = sort( tmp ? tmp : ({}) );
     if ( sizeof( dirlist ) == 0 ) {
@@ -226,6 +229,11 @@ class album {
         return "/" + ret;
     }
 
+    // t0mpr dodal
+    void set_cols( int cols ) {
+        data += ([ "num_cols" : cols ]);
+    }
+   
     void set_name( string name ) {
 	data += ([ "album_name" : name ]);
     }
@@ -259,6 +267,19 @@ class album {
 	}
     }
 
+    string render_othumb(object id, int i) {
+	return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) +"\">\n" +
+	"<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
+	"src=\"" + get_photo( i )[ 0 ] + "\" " +
+	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +
+	"width=\"" + sprintf( "%d", QUERY(width) ) + "\">" +
+	"</a><br>\n" +
+	"<font class=\"thumbnaildesc\">" +
+	get_photo( i )[ 1 ] +
+        "</font>\n";
+    }
+
+
     string render_index_page( object id ) {
 	string ret = "";
 	if ( QUERY(use_css) ) {
@@ -273,19 +294,19 @@ class album {
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
 		((QUERY(show_numofphotos))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
                 "<div class=\"thumbnail\">\n";
-	    int i;
-	    for( i = 0; i < get_num_photos(); i++ ) {
-                ret +=
-		    "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) + "\">" +
-		    "<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
-		    "src=\"" + get_photo( i )[ 0 ] + "\" " +
-		    "border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +
-		    "width=\"" + sprintf( "%d", QUERY(width) ) + "\">" +
-		    "</a></div><br>\n" +
-		    "<div class=\"thumbnaildesc\">" +
-		    get_photo( i )[ 1 ] +
-                    "</div><br>\n";
+
+	    int i=0,j,k;
+            ret += "<table>";
+	    for ( j=0; j <= (get_num_photos()/data["num_cols"]); j++ ) {
+	        ret += "<tr>";
+	        for (k=0; k<data["num_cols"]; k++) {
+		    if (get_num_photos()==i) break; 
+		    ret += "<td>"+render_othumb(id,i)+"</td>";
+		    i++;
+    		}
+		ret += "</tr>";
 	    }
+	    ret += "</table>" ;
             return parse_rxml( ret, id );
 	}
     }
