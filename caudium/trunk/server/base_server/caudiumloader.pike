@@ -305,8 +305,9 @@ void init_logger()
 }
 
 // Print a debug message
-void report_debug(string message)
+void report_debug(string message, mixed ... args)
 {
+  if(sizeof(args)) message = sprintf(message, args);
   nwrite(message,0,2);
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_DEBUG))
@@ -316,8 +317,9 @@ void report_debug(string message)
 }
 
 // Print a warning
-void report_warning(string message)
+void report_warning(string message, mixed ... args)
 {
+  if(sizeof(args)) message = sprintf(message, args);
   nwrite(message,0,2);
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_WARNING))
@@ -327,8 +329,9 @@ void report_warning(string message)
 }
 
 // Print a notice
-void report_notice(string message)
+void report_notice(string message, mixed ... args)
 {
+  if(sizeof(args)) message = sprintf(message, args);
   nwrite(message,0,1);
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_NOTICE))
@@ -338,8 +341,9 @@ void report_notice(string message)
 }
 
 // Print an error message
-void report_error(string message)
+void report_error(string message, mixed ... args)
 {
+  if(sizeof(args)) message = sprintf(message, args);
   nwrite(message,0,3);
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_ERR))
@@ -349,8 +353,9 @@ void report_error(string message)
 }
 
 // Print a fatal error message
-void report_fatal(string message)
+void report_fatal(string message, mixed ... args)
 {
+  if(sizeof(args)) message = sprintf(message, args);
   nwrite(message,0,3);
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_EMERG))
