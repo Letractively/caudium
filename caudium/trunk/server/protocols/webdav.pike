@@ -646,7 +646,6 @@ void handle_request()
     mapping      xmlData;
     mapping|void  result;
     object          node;
-    mixed            err;
 
 
     DAV_WERR("handle_request(method="+method+")....\n\n");
@@ -655,7 +654,6 @@ void handle_request()
     if ( functionp(func) )
         result = func();
     else
-        DAV_WERR("Hell function is not here !\n");
 	internal_error(backtrace());
 
     if ( mappingp(result) ) {
