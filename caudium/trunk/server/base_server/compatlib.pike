@@ -69,14 +69,14 @@ static string html_decode_string(string m) {
    return Protocols.HTTP.unentity(m);
 }
 
-//! Compat call of Caudium.http_encode_string
+//! Compat call of @[Caudium.http_encode_string]
 //! @deprecated
 static string http_encode_string(string m) {
    WCOMPAT("Caudium","http_encode_string");
    return Caudium.http_encode_string(m);
 }
 
-//! Compat call of Caudium.HTTP.decode_url
+//! Compat call of @[Caudium.HTTP.decode_url]
 //! @deprecated
 static string http_decode_url(string m) {
    WCOMPAT2("Caudium.HTTP.decode_url","http_decode_url");
@@ -84,56 +84,56 @@ static string http_decode_url(string m) {
 }
   
 
-//! Compat call of Caudium.http_encode_cookie
+//! Compat call of @[Caudium.http_encode_cookie]
 //! @deprecated
 static string http_encode_cookie(string m) {
    WCOMPAT("Caudium","http_encode_cookie");
    return Caudium.http_encode_cookie(m);
 }
 
-//! Compat call of Caudium.http_encode_url
+//! Compat call of @[Caudium.http_encode_url]
 //! @deprecated
 static string http_encode_url(string m) {
    WCOMPAT("Caudium","http_encode_url");
    return Caudium.http_encode_url(m);
 }
 
-//! Compat call of Caudium.HTTP.cern_date
+//! Compat call of @[Caudium.HTTP.cern_date]
 //! @deprecated
 static string cern_http_date(int t) {
    WCOMPAT2("Caudium.HTTP.cern_date","cern_http_date");
    return Caudium.HTTP.cern_date(t);
 }
 
-//! Compat call of Caudium.HTTP.date
+//! Compat call of @[Caudium.HTTP.date]
 //! @deprecated
 static string http_date(int t) {
    WCOMPAT2("Caudium.HTTP.date","http_date");
    return Caudium.HTTP.date(t);
 }
 
-//! Compat call of Caudium.HTTP.res_to_string
+//! Compat call of @[Caudium.HTTP.res_to_string]
 //! @deprecated
 static string http_res_to_string(mapping file, object id) {
    WCOMPAT2("Caudium.HTTP.res_to_string", "http_res_to_string");
    return Caudium.HTTP.res_to_string(file, id);
 }
 
-//! Compat call of Caudium.HTTP.low_answer
+//! Compat call of @[Caudium.HTTP.low_answer]
 //! @deprecated
 static mapping http_low_answer(int errno, string data, void|int dohtml) {
    WCOMPAT2("Caudium.HTTP.low_answer", "http_low_answer");
    return Caudium.HTTP.low_answer(errno, data, dohtml);
 } 
 
-//! Compat call of Caudium.HTTP.pipe_in_progress
+//! Compat call of @[Caudium.HTTP.pipe_in_progress]
 //! @deprecated
 static mapping http_pipe_in_progress() {
    WCOMPAT2("Caudium.HTTP.pipe_in_progress", "http_pipe_in_progress");
    return Caudium.HTTP.pipe_in_progress();
 }
 
-//! Compat call of Caudium.HTTP.rxml_answer
+//! Compat call of @[Caudium.HTTP.rxml_answer]
 //! @deprecated
 static mapping http_rxml_answer(string rxml, object id,
                                void|object(Stdio.File) file, string|void type) {
@@ -141,7 +141,7 @@ static mapping http_rxml_answer(string rxml, object id,
    return Caudium.HTTP.rxml_answer(rxml, id, file, type);
 }
 
-//! Compat call of Caudium.HTTP.error_answer
+//! Compat call of @[Caudium.HTTP.error_answer]
 //! @deprecated
 static mapping http_error_answer(object id, void|int error_code,
                                  void|string name, void|string message) {
@@ -149,14 +149,14 @@ static mapping http_error_answer(object id, void|int error_code,
    return Caudium.HTTP.error_answer(id,error_code,name,message);
 }
 
-//! Compat call of Caudium.HTTP.string_anwser
+//! Compat call of @[Caudium.HTTP.string_anwser]
 //! @deprecated
 static mapping http_string_answer(string text, string|void type) {
    WCOMPAT2("Caudium.HTTP.string_answer", "http_string_answer");
    return Caudium.HTTP.string_answer(text,type);
 }
 
-//! Compat call of Caudium.HTTP.make_htmldoc_string
+//! Compat call of @[Caudium.HTTP.make_htmldoc_string]
 //! @deprecated
 static string make_htmldoc_string(string contents, string title, void|mapping meta,
                             void|mapping|string style, string|void dtype) {
@@ -164,7 +164,7 @@ static string make_htmldoc_string(string contents, string title, void|mapping me
    return Caudium.HTTP.make_htmldoc_string(contents,title,meta,style,dtype);
 }
 
-//! Compat call of Caudium.HTTP.htmldoc_answer
+//! Compat call of @[Caudium.HTTP.htmldoc_answer]
 //! @deprecated
 static mapping http_htmldoc_answer(string contents, string title, void|mapping meta,
                             void|mapping|string style, string|void dtype) {
@@ -172,234 +172,231 @@ static mapping http_htmldoc_answer(string contents, string title, void|mapping m
    return Caudium.HTTP.htmldoc_answer(contents,title,meta,style,dtype);
 }
 
-//! Compat call of Caudium.HTTP.file_answer
+//! Compat call of @[Caudium.HTTP.file_answer]
 //! @deprecated
 static mapping http_file_answer(object fd, string|void type, void|int len) {
    WCOMPAT2("Caudium.HTTP.file_answer", "http_file_answer");
    return Caudium.HTTP.file_answer(fd,type,len);
 }
 
-//! Compat call of Caudium.HTTP.config_cookie
+//! Compat call of @[Caudium.HTTP.config_cookie]
 //! @deprecated
 static string http_caudium_config_cookie(string from) {
    WCOMPAT2("Caudium.HTTP.config_cookie", "http_caudium_config_cookie");
    return Caudium.HTTP.config_cookie(from);
 }
 
-//! Compat call of Caudium.HTTP.id_cookie
+//! Compat call of @[Caudium.HTTP.id_cookie]
 //! @deprecated
 static string http_caudium_id_cookie() {
    WCOMPAT2("Caudium.HTTP.id_cookie", "http_caudium_id_cookie");
    return Caudium.HTTP.id_cookie();
 }
 
-//! Compat call of Caudium.HTTP.redirect
+//! Compat call of @[Caudium.HTTP.redirect]
 //! @deprecated
 static mapping http_redirect(string url, object|void id) {
    WCOMPAT2("Caudium.HTTP.redirect", "http_redirect");
    return Caudium.HTTP.redirect(url,id);
 }
 
-//! Compat call of Caudium.HTTP.stream
+//! Compat call of @[Caudium.HTTP.stream]
 //! @deprecated
 mapping http_stream(object from) {
    WCOMPAT2("Caudium.HTTP.stream", "http_stream");
    return Caudium.HTTP.stream(from);
 }
 
-//! Compat call of Caudium.HTTP.auth_required
+//! Compat call of @[Caudium.HTTP.auth_required]
 //! @deprecated
 static mapping http_auth_required(string realm,string|void message,void|int dohtml) {
    WCOMPAT2("Caudium.HTTP.auth_required", "http_auth_required");
    return Caudium.HTTP.auth_required(realm,message,dohtml);
 }
 
-//! Compat call of Caudium.HTTP.proxy_auth_required
+//! Compat call of @[Caudium.HTTP.proxy_auth_required]
 //! @deprecated
 static mapping http_proxy_auth_required(string realm,void|string message) {
    WCOMPAT2("Caudium.HTTP.proxy_auth_required", "http_proxy_auth_required");
    return Caudium.HTTP.auth_required(realm,message);
 }
 
-//! Compat Call of Caudium.HTTP.proxy_auth_needed
+//! Compat Call of @[Caudium.HTTP.proxy_auth_needed]
 //! @deprecated
 static mapping proxy_auth_needed(object id) {
    WCOMPAT2("Caudium.HTTP.proxy_auth_needed", "http_proxy_auth_needed");
    return Caudium.HTTP.proxy_auth_needed(id);
 }
 
-// Some spider calls are not under spider module so here is some compat
-// things
-
-//! Compat call of Caudium.add_pre_state
+//! Compat call of @[Caudium.add_pre_state]
 //! @deprecated
 static string add_pre_state(string url, multiset state) {
    WCOMPAT("Caudium","add_pre_state");
    return Caudium.add_pre_state(url,state);
 }
 
-//! Compat call of Caudium._match
+//! Compat call of @[Caudium._match]
 //! @deprecated
 static int _match(string w, array(string) a) {
    WCOMPAT("Caudium","_match");
    return Caudium._match(w,a);
 }
 
-//! Compat call of Caudium.short_name
+//! Compat call of @[Caudium.short_name]
 //! @deprecated
 static string short_name(string name) {
    WCOMPAT("Caudium","short_name");
    return Caudium.short_name(name);
 }
 
-//! Compat call of Caudium.strip_config
+//! Compat call of @[Caudium.strip_config]
 //! @deprecated
 static string strip_config(string from) {
    WCOMPAT("Caudium","strip_config");
    return Caudium.strip_config(from);
 }
 
-//! Compat call of Caudium.strip_prestate
+//! Compat call of @[Caudium.strip_prestate]
 //! @deprecated
 static string strip_prestate(string from) {
    WCOMPAT("Caudium","strip_prestate");
    return Caudium.strip_prestate(from);
 }
 
-//! Compat call of Caudium.short_date
+//! Compat call of @[Caudium.short_date]
 //! @deprecated
 static string short_date(int t) {
    WCOMPAT("Caudium","short_date");
    return Caudium.short_date(t);
 }
 
-//! Compat call of Caudium.is_modified
+//! Compat call of @[Caudium.is_modified]
 //! @deprecated
 static int is_modified(string a, int t, void|int len) {
    WCOMPAT("Caudium","is_modified");
    return Caudium.is_modified(a,t,len);
 }
 
-//! Compat call of Caudium.html_to_unicade
+//! Compat call of @[Caudium.html_to_unicade]
 //! @deprecated
 static string html_to_unicode(string str) {
    WCOMPAT("Caudium","html_to_unicode");
    return Caudium.html_to_unicode(str);
 }
 
-//! Compat call of Caudium.unicode_to_html
+//! Compat call of @[Caudium.unicode_to_html]
 //! @deprecated
 static string unicode_to_html(string str) {
    WCOMPAT("Caudium","unicode_to_html");
    return Caudium.unicode_to_html(str);
 }
 
-//! Compat call of Caudium.parse_html
+//! Compat call of @[Caudium.parse_html]
 //! @deprecated
 static string parse_html(mixed ... args) {
    WCOMPAT("Caudium","parse_html");
    return Caudium.parse_html(@args);
 }
 
-//! Compat call of Caudium.is_safe_string
+//! Compat call of @[Caudium.is_safe_string]
 //! @deprecated
 static int is_safe_string(string in) {
    WCOMPAT("Caudium","is_safe_string");
    return Caudium.is_safe_string(in);
 }
 
-//! Compat call of Caudium.make_tag_attribute
+//! Compat call of @[Caudium.make_tag_attribute]
 //! @deprecated
 static string make_tag_attributes(mapping in) {
    WCOMPAT("Caudium","make_tag_attributes");
    return Caudium.make_tag_attributes(in);
 }
 
-//! Compat call of Caudium.make_tag
+//! Compat call of @[Caudium.make_tag]
 //! @deprecated
 static string make_tag(string tag, mapping in) {
    WCOMPAT("Caudium","make_tag");
    return Caudium.make_tag(tag,in);
 }
 
-//! Compat call of Caudium.make_container
+//! Compat call of @[Caudium.make_container]
 //! @deprecated
 static string make_container(string tag, mapping in, string contents) {
    WCOMPAT("Caudium","make_container");
    return Caudium.make_container(tag,in,contents);
 }
 
-//! Compat call of Caudium.add_config
+//! Compat call of @[Caudium.add_config]
 //! @deprecated
 static string add_config(string url, array config, multiset prestate) {
    WCOMPAT("Caudium","add_config");
    return Caudium.add_config(url,config,prestate);
 }
 
-//! Compat call of Caudium.msectos
+//! Compat call of @[Caudium.msectos]
 //! @deprecated
 static string msectos(int t) {
    WCOMPAT("Caudium","msectos");
    return Caudium.msectos(t);
 }
 
-//! Compat call of Caudium.backup_extension
+//! Compat call of @[Caudium.backup_extension]
 //! @deprecated
 static int backup_extension(string f) {
    WCOMPAT("Caudium","backup_extension");
    return Caudium.backup_extension(f);
 }
 
-//! Compat call of Caudium.get_size
+//! Compat call of @[Caudium.get_size]
 //! @deprecated
 static int get_size(mixed f) {
    WCOMPAT("Caudium","get_size");
    return Caudium.get_size(f);
 }
 
-//! Compat call of Caudium.ipow
+//! Compat call of @[Caudium.ipow]
 //! @deprecated
 static int ipow(int what, int how) {
    WCOMPAT("Caudium","ipow");
    return Caudium.ipow(what,how);
 }
 
-//! Compat call of simplify_path
+//! Compat call of @[Caudium.simplify_path]
 //! @deprecated
 static string simplify_path(string file) {
    WCOMPAT("Caudium","file");
    return Caudium.simplify_path(file);
 }
 
-//! Compat call of Caudium.httpdate_to_time
+//! Compat call of @[Caudium.httpdate_to_time]
 //! @deprecated
 static int httpdate_to_time(string date) {
    WCOMPAT("Caudium","httpdate_to_time");
    return Caudium.httpdate_to_time(date);
 }
 
-//! Compat call of Caudium.int2roman
+//! Compat call of @[Caudium.int2roman]
 //! @deprecated
 static string int2roman(int m) {
    WCOMPAT("Caudium","int2roman");
    return Caudium.int2roman(m);
 }
 
-//! Compat call of Caudium.number2string
+//! Compat call of @[Caudium.number2string]
 //! @deprecated
 static string number2string(int num, mapping params, mixed named) {
    WCOMPAT("Caudium","number2string");
    return Caudium.number2string(num,params,named);
 }
 
-//! Compat call of Caudium.image_from_type
+//! Compat call of @[Caudium.image_from_type]
 //! @deprecated
 static string image_from_type(string t) {
    WCOMPAT("Caudium","image_from_type");
    return Caudium.image_from_type(t);
 }
 
-//! Compat call of Caudium.parse_html_lines
+//! Compat call of @[Caudium.parse_html_lines]
 //! @deprecated
 static string parse_html_lines(mixed ... args) {
    WCOMPAT("Caudium","parse_html_lines");
@@ -506,38 +503,36 @@ object clone(mixed ... args) {
 
 // Roxenlib / Caudiumlib API compat
 
-// This is inside caudiumlib14
-static mapping build_caudium_env_vars(object id);
 
 //! Backward compatibility with Roxen
 //! @deprecated
 static mixed build_roxen_env_vars(mixed ... args) {
   report_error("Compat build_roxen_env_vars() used in %s, please consider using build_caudium_env_vars() instead\n",dbt(backtrace()[-2]));
-  return build_caudium_env_vars(@args);
+  return Caudium.Env.build_caudium_vars(@args);
 }
 
-//! Compat call for Caudium.extension
+//! Compat call for @[Caudium.extension]
 //! @deprecated
 static string extention(string f) {
   WCOMPAT("Caudium","extension");
   return Caudium.extension(f);
 }
 
-//! Compat call for http_caudium_id_cookie
+//! Compat call for @[Caudium.HTTP.id_cookie]
 //! @deprecated
 static string http_roxen_id_cookie() {
   report_error("Compat http_roxen_id_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
   return Caudium.HTTP.id_cookie();
 }
 
-//! Compat call for Caudium.HTTP.config_cookie
+//! Compat call for @[Caudium.HTTP.config_cookie]
 //! @deprecated
 static string http_roxen_config_cookie(string m) {
    WCOMPAT2("Caudium.HTTP.config_cookie", "http_roxen_config_cookie");
    return Caudium.HTTP.config_cookie(m);
 }
 
-//! Compat call from Caudium.HTTP.auth_required
+//! Compat call from @[Caudium.HTTP.auth_required]
 //! @param realm
 //!   The realm of this authentication. This is show in variour methods by
 //!   authenticating browser.
