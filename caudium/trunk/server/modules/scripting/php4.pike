@@ -78,7 +78,15 @@ class PHPScript
       {
         if( mid )
           buffer = parse_rxml(buffer, mid);
-	write_callback();
+	/* Loop until all data is written */
+	/* If this is not done, not all data is send to the client (only with big pages) */
+	/* One solution is: Use not "Parse RXML" */
+	/* If you have a better solution contact us */
+        close_when_done = 0;
+	do {
+		write_callback();
+	} while(strlen(buffer)>0);
+	destruct();
       }
     } else
       destruct();
@@ -375,6 +383,13 @@ void create(object conf)
 	 "Extra variables to be sent to the script, format:<pre>"
 	 "NAME=value<br>"
 	 "NAME=value"
+	 "</pre>"
+	 "You can also change variables which are in php.ini just prepend PHP_:<BR>"
+	 "You need a patch for php which is available at http://caudium.net/download/source/php-4-caudium-phpini.patch"
+         " (to be used with php 4.2.2 and more recent)"
+	 "<pre>"
+	 "PHP_auto_prepend_file=..../header.php<BR>"
+	 "PHP_allow_url_fopen=0<BR>"
 	 "</pre>Please note that the standard variables will have higher "
 	 "priority.");
 
