@@ -31,5 +31,9 @@ top directory of caudium with / marking the top.
  clean design to allow easy expandability of new checks,
  no need for hidden variables.
 
++ /server/modules/tags/charset.pike   browser charset detection
+ trying to come up with a way to safely detect the charset the browser uses to
+ send forminput.
+
 ---DESCRIPTIONS---[do not change this line]
 $Id$
