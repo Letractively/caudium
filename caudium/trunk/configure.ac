@@ -353,7 +353,7 @@ PIKE_INCLUDE_DIRS=""
 REQ_MIN_PIKE_DECNUM=`expr '(' $REQ_MIN_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MIN_PIKE_MINOR '*' 1000 ')' + $REQ_MIN_PIKE_BUILD`
 REQ_MAX_PIKE_DECNUM=`expr '(' $REQ_MAX_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MAX_PIKE_MINOR '*' 1000 ')' + $REQ_MAX_PIKE_BUILD`
 OLD_DIR=`pwd`
-for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74 /opt/local/bin/pike /opt/local/bin/pike74 /opt/bin/pike /opt/bin/pike74; do
+for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74 /opt/local/bin/pike /opt/local/bin/pike74 /opt/bin/pike /opt/bin/pike74 /usr/bin/pike7.4 /usr/bin/pike7.5; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
     THIS_PIKE_VER=`$PIKE -e 'int maj,min,bld;sscanf(version(),"Pike v%d.%d release %d",maj,min,bld);write(sprintf("%d.%d.%d",maj,min,bld));exit(0);'`
