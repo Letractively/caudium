@@ -396,11 +396,15 @@ string sqltable_tag(string tag_name, mapping args,
       while (row = result->fetch_row()) {
 	if (ascii) {
 	  res += (Array.map(row, lambda(mixed value) {
+               if (!value)
+                  value = nullvalue?nullvalue:"";
 				   return((string)value);
 				 }) * "\t") + "\n";
 	} else {
 	  res += "<tr>";
 	  foreach(row, mixed value) {
+       if (!value)
+          value = "";
 	    value = (string)value;
 	    res += "<td>"+(value==""?nullvalue:value)+"</td>";
 	  }
