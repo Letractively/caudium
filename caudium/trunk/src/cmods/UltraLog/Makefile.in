@@ -13,9 +13,11 @@ all: $(MODNAME).$(SO)
 
 INSTALLDIR=@PIKE_MODULE_DIR@
 
-all: depend  Makefile $(MODNAME).$(SO)
+all:  Makefile $(MODNAME).$(SO)
 
 .SUFFIXES: .c .o
+force:
+	@:
 
 install: all
 	cp -f $(MODNAME).$(SO) $(INSTALLDIR)
@@ -56,7 +58,7 @@ configure: configure.in
 config.status: configure
 	./config.status --recheck
 
-dependencies: 
+dependencies:  force
 	$(CC) -MM $(CFLAGS) *.c > dependencies
 	@echo "You must rerun make now!"
 	@exit 1
