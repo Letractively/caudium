@@ -1,5 +1,9 @@
 Changes in Caudium 1.2.32 since 1.2.30
 --------------------------------------
+- Avoid to use too mutch inlining in leaf functions. This keep gcc 3.3.x 
+  happy and avoid some problems that can occur ( see discussion about
+  that : http://lists.freebsd.org/pipermail/freebsd-current/2003-July/007065.html).
+   (Xavier Beaudouin)
 - Caudium configure script now checks if pike version is > 7.0.268 and
   < 7.3.0 to avoid "bug" reports from users that want to use Caudium
   with pike 7.4

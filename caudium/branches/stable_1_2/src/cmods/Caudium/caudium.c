@@ -47,7 +47,7 @@ static_strings strs;
 **!  scope: private
 */
 
-static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
+static unsigned char *char_decode_url(unsigned char *str, int len) {
   unsigned char *ptr, *end, *endl2;
   int i, nlen;
   ptr = str;
@@ -416,8 +416,8 @@ sval.u.string = value;
 mapping_insert(headermap, &skey, &sval);
 #endif
 
-INLINE static int get_next_header(unsigned char *heads, int len,
-                                  struct mapping *headermap)
+static int get_next_header(unsigned char *heads, int len,
+                           struct mapping *headermap)
 {
   int data, count, colon, count2=0;
   struct svalue skey, sval;
