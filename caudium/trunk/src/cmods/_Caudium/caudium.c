@@ -90,12 +90,15 @@ static_strings strs;
 **!  scope: private
 */
 
+#if 0
 static struct array    *mta_unsafe_chars;
 static struct array    *mta_safe_entities;
+
 static char            *_unsafechars[] = {"<",">","&"};
 static char            *_safeentities[] = {"&lt;", "&gt;", "&amp;"};
 
 #define UNSAFECHARS_SIZE sizeof(_unsafechars)/sizeof(char*)
+#endif
 
 /*
 **! method: string _make_tag_attributes(mapping in)
@@ -170,6 +173,8 @@ static void f_make_tag_attributes(INT32 args)
   retstr = finish_string_builder(&ret);
   pop_n_elems(args);
 
+#if 0
+
   /* let's see whether we have anything to encode */
   do_replace = 0;
   for (i = 0; i < UNSAFECHARS_SIZE; i++) {
@@ -186,6 +191,8 @@ static void f_make_tag_attributes(INT32 args)
     f_replace(3);
   }
   else
+#endif
+
     push_string(retstr);
 }
 
@@ -1789,6 +1796,7 @@ void pike_module_init( void )
   SVAL(mta_slash)->type  = T_STRING;
   SVAL(mta_equals)->type = T_STRING;
 
+#if 0
   for (i = 0; i < UNSAFECHARS_SIZE; i++)
     push_text(_unsafechars[i]);
   mta_unsafe_chars = aggregate_array(UNSAFECHARS_SIZE);
@@ -1796,6 +1804,7 @@ void pike_module_init( void )
   for (i = 0; i < UNSAFECHARS_SIZE; i++)
     push_text(_safeentities[i]);
   mta_safe_entities = aggregate_array(UNSAFECHARS_SIZE);
+#endif
   
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
@@ -1857,9 +1866,11 @@ void pike_module_exit( void )
   free_string(STRS(raw_url));
   free_string(STRS(mta_slash));
   free_string(STRS(mta_equals));
-  
+
+#if 0  
   free_array(mta_unsafe_chars);
   free_array(mta_safe_entities);
+#endif
   
   exit_nbio();
   exit_datetime();
