@@ -210,7 +210,6 @@ object clone(mixed ... args) {
 // This is inside caudiumlib14
 static mapping build_caudium_env_vars(object id);
 static string  http_caudium_id_cookie();
-static string  http_caudium_config_cooke(string from);
 static mapping http_low_answer(int errno, string data, void|int dohtml);
 
 //! Backward compatibility with Roxen
@@ -234,12 +233,17 @@ string http_roxen_id_cookie() {
   return http_caudium_id_cookie();
 }
 
+//FIXME: Bloody hell ? With this bugs ?
+#if 0
+string http_caudium_config_cookie(string from);
+
 //! Compat call for http_caudium_config_cookie
 //! @deprecated
-string http_roxen_config_cookie(string from) {
-  report_error("Compat http_roxen_config_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
-  return http_caudium_id_cookie(string from);
+string http_roxen_config_cookie(string m) {
+  report_error("Compat http_roxen_config_cookie() used in %s, please consider using http_caudium_config_cookie() instead\n",dbt(backtrace()[-2]));
+  return http_caudium_config_cookie(string m);
 }
+#endif
 
 //! Compat call from http_auth_required
 //! @param realm

@@ -1160,7 +1160,7 @@ int|mapping check_security(function a, object id, void|int slevel)
                 auth_ok |= 1; // Auth may be bad.
               } else {
                 // No auth yet, get some.
-                return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
               }
             }
             break;
@@ -1172,7 +1172,7 @@ int|mapping check_security(function a, object id, void|int slevel)
               if (id->auth)
                 auth_ok |= 1;
               else
-                return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
             }
             break;
             
@@ -1197,7 +1197,7 @@ int|mapping check_security(function a, object id, void|int slevel)
                 auth_ok |= 1; // Auth may be bad.
               } else {
                 // No auth yet, get some.
-                return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
               }
             }
             break;
@@ -1219,7 +1219,7 @@ int|mapping check_security(function a, object id, void|int slevel)
     if (auth_ok == 1) {
       // Bad authentication.
       // Query for authentication.
-      return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
+      return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
     } else {
       // No auth required, or authentication OK.
       return(0);
