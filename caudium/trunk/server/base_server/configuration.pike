@@ -3126,16 +3126,20 @@ int load_module(string module_file)
     };
   } else {
     string dir;
-
+    object e = ErrorContainer();
+    master()->set_inhibit_compile_errors(e);
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
-				  this_object());
+				    this_object());
     };
-
+    if(strlen(e->get())) {
+      report_error("Failed to compile module "+module_file+":\n"+e->get());
+      return 0;
+    }
     if (!obj) {
       return(0);
     }
-
+    
     prog = caudium->last_loaded();
   }
 

@@ -70,7 +70,7 @@ int fork_exec_p() { return !QUERY(fork_exec); }
 
 void create()
 {
-  defvar("exts", ({ "lpc", "ulpc", "µlpc","pike" }), "Extensions", TYPE_STRING_LIST,
+  defvar("exts", ({ "pike" }), "Extensions", TYPE_STRING_LIST,
 	 "The extensions to parse");
 
   defvar("fork_exec", 0, "Fork execution: Enabled", TYPE_FLAG,
@@ -149,7 +149,7 @@ void my_error(array err, string|void a, string|void b)
   throw(err);
 }
 
-array|mapping call_script(function fun, object got, object file)
+array|mapping call_script(function fun, object id, object file)
 {
   mixed result, err;
   string s;
@@ -158,10 +158,10 @@ array|mapping call_script(function fun, object got, object file)
     return 0;
   string|array (int) uid, olduid, us;
 
-  if(got->rawauth && QUERY(fork_exec) && (!QUERY(rawauth) || !QUERY(clearpass)))
-    got->rawauth=0;
-  if(got->realauth && QUERY(fork_exec) && !QUERY(clearpass))
-    got->realauth=0;
+  if(id->rawauth && QUERY(fork_exec) && (!QUERY(rawauth) || !QUERY(clearpass)))
+    id->rawauth=0;
+  if(id->realauth && QUERY(fork_exec) && !QUERY(clearpass))
+    id->realauth=0;
 
 #if efun(fork)
   if(QUERY(fork_exec)) {
@@ -179,8 +179,8 @@ array|mapping call_script(function fun, object got, object file)
     /* Exit immediately after this request is done. */
     call_out(lambda(){exit(0);}, 0);
     
-    if(QUERY(user) && got->misc->is_user && 
-       (us = file_stat(got->misc->is_user)))
+    if(QUERY(user) && id->misc->is_user && 
+       (us = file_stat(id->misc->is_user)))
       uid = us[5..6];
     else if (!getuid() || !geteuid()) {
       if (runuser)
@@ -194,13 +194,13 @@ array|mapping call_script(function fun, object got, object file)
       privs = Privs("Starting pike-script", @uid);
     setgid(getegid());
     setuid(geteuid());
-    if (QUERY(scriptdir) && got->realfile)
-      cd(dirname(got->realfile));
+    if (QUERY(scriptdir) && id->realfile)
+      cd(dirname(id->realfile));
 
   } else 
 #endif
   {
-    if(got->misc->is_user && (us = file_stat(got->misc->is_user)))
+    if(id->misc->is_user && (us = file_stat(id->misc->is_user)))
       privs = Privs("Executing pikescript as non-www user", @us[5..6]);
   }
 
@@ -219,7 +219,7 @@ array|mapping call_script(function fun, object got, object file)
   if(catch {
     set_max_eval_time(query("evaltime"));
 #endif
-    err=catch(result=fun(got)); 
+    err=catch(result=fun(id)); 
 // The eval-time might be exceeded in here..
 #if efun(set_max_eval_time)
     remove_max_eval_time(); // Remove the limit.
@@ -233,7 +233,7 @@ array|mapping call_script(function fun, object got, object file)
   if (QUERY(fork_exec)) {
     if (err = catch {
       if (err) {
-	err = catch{my_error(err, got->not_query);};
+	err = catch{my_error(err, id->not_query);};
 	result = describe_backtrace(err);
       } else if (!stringp(result)) {
 	result = sprintf("<h1>Return-type %t not supported for Pike-scripts "
@@ -242,10 +242,10 @@ array|mapping call_script(function fun, object got, object file)
 				 ({ "<", ">", "&" }),
 				 ({ "&lt;", "&gt;", "&amp;" })));
       }
-      result = parse_rxml(result, got, file);
+      result = parse_rxml(result, id, file);
       /* Set the connection to blocking-mode */
-      got->my_fd->set_blocking();
-      got->my_fd->write("HTTP/1.0 200 OK\n"
+      id->my_fd->set_blocking();
+      id->my_fd->write("HTTP/1.0 200 OK\n"
 			"Content-Type: text/html\n"
 			"\n"+result);
     }) {
@@ -259,7 +259,7 @@ array|mapping call_script(function fun, object got, object file)
     return ({ -1, err });
 
   if(stringp(result)) {
-    return http_string_answer(parse_rxml(result, got, file));
+    return http_string_answer(parse_rxml(result, id, file));
   }
 
   if(result == -1) return http_pipe_in_progress();
@@ -279,7 +279,7 @@ array|mapping call_script(function fun, object got, object file)
   return http_string_answer(sprintf("%O", result));
 }
 
-mapping handle_file_extension(object f, string e, object got)
+mapping handle_file_extension(object f, string e, object id)
 {
   int mode = f->stat()[0];
   if(!(mode & (int)query("exec-mask")) ||
@@ -292,27 +292,29 @@ mapping handle_file_extension(object f, string e, object got)
   mixed err;
   program p;
   object o;
-  if(scripts[got->not_query])
+
+  if(scripts[id->not_query])
   {
-    if(got->pragma["no-cache"])
+    if(id->pragma["no-cache"])
     {
+      o = function_object(scripts[id->not_query]);
       // Reload the script from disk, if the script allows it.
-      if(!(function_object(scripts[got->not_query])->no_reload
-	   && function_object(scripts[got->not_query])->no_reload(got)))
+      if(!o->no_reload || (functionp(o->no_reload) && o->no_reload(id)))
       {
-	destruct(function_object(scripts[got->not_query]));
-	scripts[got->not_query] = 0;
+	m_delete( master()->programs, object_program(o));
+	destruct(o);
+	scripts[id->not_query] = 0;
       }
     }
   }
   
   function fun;
-
-  if (!functionp(fun = scripts[got->not_query])) {
-    file=f->read(655565);   // fix this?
+  
+  if (!functionp(fun = scripts[id->not_query])) {
+    file=f->read(0x7ffffff);   // fix this?
 #if constant(cpp)
-    if(got->realfile)
-      file = cpp(file, got->realfile);
+    if(id->realfile)
+      file = cpp(file, id->realfile);
     else
       file = cpp(file);
 #endif
@@ -338,10 +340,7 @@ mapping handle_file_extension(object f, string e, object got)
     master()->set_inhibit_compile_errors(e);
     mixed re = catch
     {
-      if(got->realfile)
-        p=(program)got->realfile;
-      else
-        p=compile_string(cpp(file));
+      p = compile_string(file, id->realfile);
     };    
     master()->set_inhibit_compile_errors(0);
     if(!p)
@@ -372,7 +371,7 @@ mapping handle_file_extension(object f, string e, object got)
     
     if(err) {
       destruct(f);
-      my_error(err, got->not_query+":\n"+(s?s+"\n\n":"\n"), 
+      my_error(err, id->not_query+":\n"+(s?s+"\n\n":"\n"), 
 	       "Error while compiling pike script:<br>\n\n");
     }
     if(!p) {
@@ -380,19 +379,19 @@ mapping handle_file_extension(object f, string e, object got)
       return http_string_answer("<h1>While compiling pike script</h1>\n"+s);
     }
     o=p();
-    if (!functionp(fun = scripts[got->not_query]=o->parse)) {
+    if (!functionp(fun = scripts[id->not_query]=o->parse)) {
       /* Should not happen */
       destruct(f);
       return http_string_answer("<h1>No string parse(object id) function in pike-script</h1>\n");
     }
   }
 
-  got->misc->cacheable=0;
-  err=call_script(fun, got, f);
+  id->misc->cacheable=0;
+  err=call_script(fun, id, f);
   destruct(f);
   if(arrayp(err)) {
     destruct(function_object(fun));
-    scripts[got->not_query] = 0;
+    scripts[id->not_query] = 0;
     my_error(err[1]); // Will interrupt here.
   }
   return err;

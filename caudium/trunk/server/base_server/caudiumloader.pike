@@ -797,7 +797,7 @@ int main(mixed ... args)
     add_program_path(p);
   }
 
-  replace_master(new_master=(((program)"etc/roxen_master.pike")()));
+  replace_master(new_master=(((program)"etc/caudium_master.pike")()));
 #if !constant(has_value)
   add_constant("has_value", lambda(mixed haystack, mixed needle) {
 			      return search(haystack, needle) != -1;

@@ -1169,7 +1169,6 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
   array st;
   object e = ErrorContainer();
   sscanf(s, "/cvs:%s", cvs);
-  master()->set_inhibit_compile_errors(e);
 
 //  perror("Module is "+s+"?");
   if(st=file_stat(s+".pike"))
@@ -1202,9 +1201,6 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
       return __p(conf);
     } else
       perror(s+".so exists, but compilation failed.\n");
-  if(strlen(e->get())) {
-    werror("Failed to compile module "+s+":\n"+e->get());
-  }
   return 0; // FAILED..
 }
 
