@@ -453,9 +453,18 @@ private int parse_got()
 	    object messg = MIME.Message(data, request_headers);
 	    foreach(messg->body_parts||({}), object part) {
 	      if(part->disp_params->filename) {
-		variables[part->disp_params->name]=part->getdata();
-		variables[part->disp_params->name+".filename"]=
-		  part->disp_params->filename;
+			variables[part->disp_params->name]=part->getdata();
+            string fname=part->disp_params->filename;
+            if( part->headers["content-disposition"] ) {
+               array fntmp=part->headers["content-disposition"]/";";
+               if( sizeof(fntmp) >= 3 && search(fntmp[2],"=") != -1 ) {
+                       fname=((fntmp[2]/"=")[1]);
+                       fname=fname[1..(sizeof(fname)-2)];
+               }
+
+           }
+		variables[part->disp_params->name+".filename"]=fname;
+
 		if(!misc->files)
 		  misc->files = ({ part->disp_params->name });
 		else
