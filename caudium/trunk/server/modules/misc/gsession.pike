@@ -48,8 +48,10 @@ private mapping cur_storage = 0;
 
 string status()
 {
-    string ret = "Status? What status?! Buzz off, I want to sleep! And seriously: status quo";
+    string ret = "Status? What status?! Buzz off, I want to sleep! And seriously: status quo... ";
 
+    ret += sprintf("See the admin interface for information.");
+    
     return ret;
 }
 
@@ -72,7 +74,7 @@ void create()
     register_plugins(); // just the memory one, actually...
     cur_storage = storage_plugins->Memory;
     
-    defvar( "mountpoint", "/gsadmin", "Administrative mountpoint", TYPE_STRING,
+    defvar( "mountpoint", "/gsadmin/", "Administrative mountpoint", TYPE_STRING,
             "This is the location where the session admin interface is found." );
 
     defvar("cookieexpire", -1, "Cookies: Cookie Expiration Time", TYPE_INT,
@@ -114,7 +116,6 @@ void create()
            "stored in the client cookie. By default the module accepts all session "
            "IDs when the referring site is this virtual host.<br>"
            "<strong>Note: You must use the full URI of the referrer!</strong>");
-
 }
 
 int hide_gc ()
@@ -130,7 +131,8 @@ mixed first_try(object id)
 
 mixed find_file ( string path, object id )
 {
-    return http_string_answer("Nothing here... yet.");
+    return http_string_answer(sprintf("Current storage: <strong>%s</strong>",
+                                     cur_storage ? cur_storage->name : "unset"));
 }
 
 string query_location()
@@ -149,7 +151,8 @@ mapping query_tag_callers()
         "session_variable" : tag_variables,
         "user_variable" : tag_variables,
         "dump_session" : tag_dump_session,
-        "dump_sessions" : tag_dump_sessions
+        "dump_sessions" : tag_dump_sessions,
+        "delete_session" : tag_end_session
     ]);
 }
 
@@ -418,7 +421,7 @@ private mapping memory_storage_registration_record = ([
     "expire_old" : memory_expire_old,
     "delete_session" : memory_delete_session,
     "get_region" : memory_get_region,
-    "get_all_regions" : memory_get_all_regions
+    "get_all_regions" : memory_get_all_regions,
 ]);
 
 //
@@ -718,7 +721,7 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
     }
 }
 
-string tag_dump_session (string tag_name, mapping args, object id, object file)
+string tag_dump_session (string tag, mapping args, object id, object file)
 {
     setup_compat(id);
     
@@ -726,7 +729,7 @@ string tag_dump_session (string tag_name, mapping args, object id, object file)
         (sprintf ("<pre>id->misc->session_variables : %O\n</pre>", id->misc->session_variables)) : "";
 }
 
-string tag_dump_sessions (string tag_name, mapping args, object id, object file)
+string tag_dump_sessions (string tag, mapping args, object id, object file)
 {
     string   ret;
     mapping  m = cur_storage->get_all_regions(id);
@@ -734,6 +737,15 @@ string tag_dump_sessions (string tag_name, mapping args, object id, object file)
     setup_compat(id);
     
     return m ? sprintf("<pre>_variables : %O\n</pre>", m) : "";
+}
+
+string tag_end_session (string tag, mapping args, object id, object file)
+{
+    setup_compat(id);
+    
+    if (id->misc->session_id && cur_storage)
+        cur_storage->delete_session (id->misc->session_id);
+    return "";
 }
 
 //
