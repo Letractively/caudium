@@ -58,12 +58,63 @@ void create()
 	     );
 }
 
+static private string doc()
+{
+  return "currently two types of templates are supported:<br>\n"
+         "<dl>"
+         "\n<dt><b>file templates</b>"
+         "<dd>the file template is applied to files in the current directory "
+         "\n<dt><b>directory templates</b>"
+         "<dd>these are applied after the file template has been applied, "
+         "first the directory template residing in the same directory with "
+         "the file, then successively each directory template up the path "
+         "until the base directory of the filesystem is reached."
+         "\n<dt>the following types are planned:"
+         "\n<dt><b>recursive or default file templates</b>"
+         "<dd>if there is no file template in the current directory, "
+         "the path is searched upward until a default template is found."
+         "\n<dt><b>recursive or default directory templates</b>"
+         "<dd>like the default file template, if a directory template is "
+         "missing the path will be searched upwards until a default "
+         "directory template is found, and since directory templates are "
+         "applied for each directory in the path, the same will happen here, "
+         "thus eventually the same template may be applied multiple times."
+         "</dl>\n"
+         "in templates you may use the following tags and containers:"
+         "<dl>"
+         "\n<dt><b><tt>&lt;tmplinsertall&gt;</tt></b>"
+         "<dd>will simply insert the whole contents"
+         "\n<dt><b><tt>&lt;tmploutput&gt;&lt;/tmploutput&gt;</tt></b>"
+         "<dd>will allow to insert all kinds of variables:"
+         "  <dl>"
+         "  \n<dt><b>#file#</b>"
+         "  <dd>the name of the directory (or file), the template is being "
+         "  applied to"
+         "  \n<dt><b>#path#</b>"
+         "  <dd>the path to the directory (or file), the template is being "
+         "  applied to"
+         "  \n<dt><b>#base#</b>"
+         "  <dd>the basename (the part of the filename before the first '.'"
+         "  of the directory (or file), the template is being applied to"
+         "  \n<dt><b>#targetfile#</b>"
+         "  <dd>the name of the target file, (the one to which the "
+         "  file template is being applied to)"
+         "  \n<dt><b>#targetpath#</b>"
+         "  <dd>the path to the target file."
+         "  \n<dt><b>#targetdir#</b>"
+         "  <dd>the name of the directory the targetfile resides in."
+         "  \n<dt><b>#target#</b>"
+         "  <dd>if the targetfile is an indexfile this is equal to the "
+	 "  targetdir, otherwise it is equal to the targetfile."
+         "</dl>";
+}
 array register_module()
 {
   return ({
-    MODULE_LOCATION,
+    MODULE_LOCATION|MODULE_PARSER,
     "template filesystem",
-    "Indeed. Template adding filesystem with image viewing extras",
+    "Indeed. Template adding filesystem with image viewing extras "
+    "(per hedbor)<p>\n"+doc(),
   });
 }
 
@@ -144,6 +195,9 @@ mixed find_file( string f, object id )
 {
   string template, vtemplate;
 
+  mapping defines = id->misc->defines || ([]);
+  id->misc->defines = defines;
+
   mixed retval = ::find_file( f, id );
   if( intp( retval ) || mappingp( retval ) )
     return retval;
@@ -175,12 +229,15 @@ mixed find_file( string f, object id )
        string contents;
        string file=retval->read();
 
-       werror("templatefs: %s", apply_all_templates(f, file, id));
+       //werror("templatefs: %s", apply_all_templates(f, file, id));
        contents = apply_all_templates(f, file, id);
+       //werror("templatefs: %s", contents);
        
        //contents = parse_html(contents, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, file);
-       
-       return http_string_answer(parse_rxml(contents, id));
+
+       //contents = parse_rxml(contents, id);
+       //werror("templatefs: %O\n%O\n", id->misc, id->misc->defines);
+       return http_rxml_answer(contents, id);
 
      }
 //       return http_string_answer( parse_rxml("<use file="+template_for(f,id)+">"
@@ -194,16 +251,47 @@ mixed find_file( string f, object id )
 string icontainer_tmploutput(string container, mapping arguments, string contents, object id, string path)
 {
   string file, dirname;
+  string target, targetfile, targetpath, targetdirname;
+  
   array thepath=path/"/";
+  array thetarget=id->not_query/"/";
 
   file = thepath[-1];
   dirname = simplify_path((thepath[..sizeof(thepath)-2])*"/");
 
-  werror("templatefs: tmploutput: %s, %s\n", dirname, file);
-  return replace(contents, ({ "#file#", "#path#", "#base#" }), ({ file, dirname, (file/".")[0] }));
+  array indexfiles = id->conf->dir_module->query("indexfiles");
+
+  targetfile = thetarget[-1];
+  targetdirname = thetarget[sizeof(thetarget)-2];
+
+  if(search(indexfiles, thetarget[-1])==-1)
+    target = targetfile;
+  else
+    target = targetdirname;
+  
+  targetpath = simplify_path((thetarget[..sizeof(thetarget)-2])*"/");
+
+  werror("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
+  return replace(contents, 
+        ({ "#file#", "#path#", "#base#", "#targetfile#", "#targetpath#", "#targetdir#", "#target#" }), 
+	({ file, dirname, (file/".")[0], targetfile, targetpath, targetdirname, target }));
 }
 
 string itag_tmplinsertall(string tag, mapping arguments, object id, string filecontents)
 {
   return filecontents;
+}
+
+string tag_templatefs(string name, 
+                     mapping arguments, 
+	             object id)
+{
+  if(arguments->help)
+    return("<obox><title>the template filesystem</title>"+doc()+"</obox>");
+
+}
+
+mapping query_tag_callers()
+{
+  return ([ "templatefs":tag_templatefs ]);
 }
