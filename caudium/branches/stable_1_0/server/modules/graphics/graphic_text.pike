@@ -739,6 +739,12 @@ mapping find_internal(string f, object rid)
       return image_cache->http_file_answer( id_text[0][1..] +"$"+ second_key, rid );
     }
   }
+  
+  if (f[-1] == "/") {
+    // image names can't end with /
+    f = f[0..(strlen(f)-2];
+  }
+
   return image_cache->http_file_answer( f, rid );
 }
 
