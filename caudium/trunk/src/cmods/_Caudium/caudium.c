@@ -682,20 +682,20 @@ static void f_parse_prestates( INT32 args )
 **  Get the IP Address from Pike query_address string.
 ** arg: string addr
 **  The address + port given from Pike with the following
-**  format "ip.ad.dr.ess port" like this example "127.0.0.1 49505"
+**  format "ip.ad.dr.ess port" like this example "127.0.0.1 49505".
+**  This function is low level and thus _very_ dumb - it will accept
+**  strings _only_ in the format given above.
 ** returns:
 **  The IP Address string.
 */
-static void f_get_address( INT32 args ) {
-  int i;
-  struct pike_string *res, *src;
-  char *orig;
-  if(Pike_sp[-1].type != T_STRING)
-    Pike_error("Invalid argument type, expected 8-bit string.\n");
-  src = Pike_sp[-1].u.string;
-  if(src->len < 7) {
-    res = make_shared_binary_string("unknown", 7);
-  } else {
+static void f_get_address(INT32 args) {
+  int                  i = -1;
+  struct pike_string  *res, *src;
+  char                *orig = NULL;
+
+  get_all_args("_Caudium.get_address", args, "%S", &src);
+  
+  if(src->len >= 7) {
     orig = src->str;
 
     /* We have at most 5 digits for the port (16 bit integer) */
@@ -706,19 +706,26 @@ static void f_get_address( INT32 args ) {
      * This is because we assume there are more 5 digits ports than 4 digit
      * ports etc.
      */
-    if(!(orig[i] & 0xDF)) /* char 6 */
-      res = make_shared_binary_string(orig, i);
-    else if(!(orig[++i] & 0xDF)) /* char 5 */
-      res = make_shared_binary_string(orig, i);
-    else if(!(orig[++i] & 0xDF)) /* char 4 */
-      res = make_shared_binary_string(orig, i);
-    else if(!(orig[++i] & 0xDF)) /* char 3 */
-      res = make_shared_binary_string(orig, i);
-    else if(!(orig[++i] & 0xDF)) /* char 2 */
-      res = make_shared_binary_string(orig, i);
-    else 
-      res = make_shared_binary_string("unknown", 7);
+    if (!(orig[i] & 0xDF)) /* char 6 */
+      goto doit;
+    if (!(orig[++i] & 0xDF)) /* char 5 */
+      goto doit;
+    if (!(orig[++i] & 0xDF)) /* char 4 */
+      goto doit;
+    if (!(orig[++i] & 0xDF)) /* char 3 */
+      goto doit;
+    if (!(orig[++i] & 0xDF)) /* char 2 */
+      goto doit;
+    i = -1;
   }
+
+  /* Don't frown, it's a good use of a label */
+  doit:
+  if (i < 0 || !orig)
+    res = make_shared_binary_string("unknown", 7);
+  else
+    res = make_shared_binary_string(orig, i);
+  
   pop_stack();
   push_string(res);
 }
@@ -1218,7 +1225,7 @@ static void f_cern_http_date(INT32 args)
        break;
 
      case 0:
-       timestamp = NULL;
+       timestamp = 0;
        break;
    }
   
@@ -1394,7 +1401,7 @@ static void f_http_date(INT32 args)
        break;
 
      case 0:
-       timestamp = NULL;
+       timestamp = 0;
        break;
    }
 
