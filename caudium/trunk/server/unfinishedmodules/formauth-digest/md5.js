@@ -27,6 +27,33 @@
  *
  */
 
+/*
+ * API:
+ *
+ * 1) you can calculate md5 hashes in one step:
+ *
+ *	string md5( string what ) - returns the md5 hash of "what"
+ *		(16 bytes, binary)
+ *
+ *	string md5_hex( string what ) - returns the hash of "what"
+ *		(32 bytes, hexadecimal representation)
+ *
+ * 2) if you don't have all the data at hand:
+ *
+ *	1.  md5_ctx md5init( void ) - initializiation of the context object
+ *	2.  void md5add( md5_ctx, what ) - push "what" into the context
+ *	3.  <repeat step 2 as neccessary>
+ *	4.  md5_ctx md5final( md5_ctx ) - calculate the hash, inplace (-ish)
+ *	5a.
+ *	5b. - these two would be to return the binary and the hex32 hash,
+ *		and are yet unwritten. it's no magic, though - see md5() and
+ *		md5_hex() if you happen to need it before i do.
+ *
+ * TODO: write 5a and 5b; clean up the namespace
+ *
+ */
+ 
+ 	
 function md5_ff(a, b, c, d, x, s, ac)
 {
 	a += ((b&c)|((~b)&d)) + x + ac;
@@ -192,15 +219,6 @@ function md5_hex32(x)
 		md5_hexnibble(x>>28) + md5_hexnibble(x>>24) );
 }
 
-/*
-	tobblepeses md5 szamolo:
-		md5init(): md5obj
-		md5add(m:md5obj, from:string)
-		...
-		md5add(m:md5obj, from:string)
-		md5final(m:md5obj): string
-*/
-
 function md5init()
 {
 	var md5obj = {
@@ -292,5 +310,4 @@ function md5_hex( what )
 		md5_hex32( md5obj.d )
 	);
 }
-
 

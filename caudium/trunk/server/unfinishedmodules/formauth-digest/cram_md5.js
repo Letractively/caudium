@@ -65,22 +65,3 @@ function cram_md5_resp(secret, challenge, username)
 	return encode_base64( username + " " + cram_md5(secret, challenge) );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
