@@ -1247,14 +1247,11 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-      if ( misc->error_code ) {
-	  file = conf->http_error->handle_error( misc->error_code, errors[misc->error], this_object() );
-      }
-      else if ( method != "GET" && method != "HEAD" && method != "POST" )
-	  file = conf->http_error->handle_error( 501, "Not implemented.", "Method (" + html_encode_string( method ) + ") not recognised.", this_object() );
-      else if ( err = catch( file = conf->query( "Old404" )?old_404():conf->http_error->handle_error( 404, errors[ 404 ], "Unable to locate the file: " + not_query + ".<br>The page you are looking for may have moved or been removed.", this_object() ) ) ) {
-	  INTERNAL_ERROR( err );
-      }
+     err = catch (
+           file = conf->http_error->process_error (this_object ())
+                 );
+     if (err)
+        INTERNAL_ERROR( err );
   } else {
     if((file->file == -1) || file->leave_me) 
     {
