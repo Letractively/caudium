@@ -2270,6 +2270,7 @@ public int is_file(string what, object id)
 //
 // A quick hack to generate correct protocol references
 //
+
 static string make_proto_name(string p)
 {
     // Note these are only the protocols that
@@ -2286,7 +2287,7 @@ static string make_proto_name(string p)
     foreach(indices(known_protos), string proto) {
 	string ret;
 	
-	ret = String.common_prefix(({proto, p}));
+	ret = common_prefix(({proto, p}));
 	if (ret && ret != "")
 	    return ret;
     }
@@ -2294,7 +2295,7 @@ static string make_proto_name(string p)
     foreach(indices(telnet_protos), string proto) {
 	string ret;
 	
-	ret = String.common_prefix(({proto, p}));
+	ret = common_prefix(({proto, p}));
 	if (ret && ret != "")
 	    return "telnet";
     }
