@@ -62,6 +62,10 @@ void create() {
           TYPE_STRING,
           "URL to redirect to",
           );
+
+  defvar("msie", 1, "Return a 200 to MSIE", TYPE_FLAG,
+         "Returns a 200 response to Microsoft Internet Explorer browser "
+         "instead of 404.");
 }
 
 mapping|int last_resort(object id)
@@ -83,6 +87,13 @@ mapping|int last_resort(object id)
     DEBUGLOG("in cache: "+QUERY(error404document));
     html = dbinfo[1];
   }
+  if(QUERY(msie)) {
+    if(id->supports->msie404)
+      return http_string_answer(parse_rxml(html,id),"text/html");
+    else
+      return http_low_answer(404, parse_rxml(html,id));
+  }
+  // If we do not support MSIE hell, then fail back to old system.
   return http_string_answer(parse_rxml(html,id),"text/html");
 }
 
@@ -92,4 +103,9 @@ mapping|int last_resort(object id)
 //! URL to redirect to
 //!  type: TYPE_STRING
 //!  name: Filename
+//
+//! defvar: msie
+//! Returns a 200 response to Microsoft Internet Explorer browser instead of 404.
+//!  type: TYPE_FLAG
+//!  name: Return a 200 to MSIE
 //
