@@ -1,5 +1,5 @@
-Changes in Caudium 1.0.XX
--------------------------
+Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
+--------------------------------------------------------
 - Fix for bug #450757: When calling parse_rxml() when using the XML compliant
   RXML parser, make sure to propagate and keep custom tags correctly.
 - Removed old network neighbourhood code.
@@ -19,6 +19,13 @@ Changes in Caudium 1.0.XX
 - Small bug fixed in UltraLog - when no extensions is specified,
   supply a default list and avoid a runtime error. Reported bu Michael
   Stenitzer.
+- 123session backported from 1.1 source tree, with updated and modification
+  submitted by Chris Davies
+- LDAP Tag and LDAP Auth now support pike 7.0.xxx Protocols.LDAP and have
+  a configurable version
+- PiXSL now compile on FreeBS
+- Supports updated with Opera 5.0 browser
+- SQLuserdb backported from 1.1 with Chris Davies modifications
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------
