@@ -758,7 +758,7 @@ class CGIScript
     LIMIT( limits, core, coresize, 1, -2 );
     LIMIT( limits, cpu, maxtime, 1, -2 );
     LIMIT( limits, fsize, filesize, 1, -2 );
-    LIMIT( limits, nofiles, open_files, 1, 0 );
+    LIMIT( limits, nofile, open_files, 1, 0 );
     LIMIT( limits, stack, stack, 1024, -2 );
     LIMIT( limits, data, datasize, 1024, -2 );
     LIMIT( limits, map_mem, datasize, 1024, -2 );
