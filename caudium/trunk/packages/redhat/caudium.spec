@@ -6,8 +6,8 @@
 # the debian packaging files written by Marek Habersack <grendel@caudium.org>
 
 %define name	caudium
-%define version	cvs20001003
-%define release	8
+%define version	cvs20001005
+%define release	2
 %define packager Mike A. Harris <mharris@caudium.org>
 
 # This line creates a macro _initdir which is where initscripts will
@@ -98,9 +98,6 @@ make
 ###############  INSTALL SECTION  ######################################
 %install
 make install_alt DESTDIR=$RPM_BUILD_ROOT
-
-# Strip binaries (install_alt target doesn't)
-strip $RPM_BUILD_ROOT/%_bindir/*
 
 # Create documentation directory
 mkdir -p $RPM_BUILD_ROOT/%_docdir/%name-%version
@@ -194,16 +191,19 @@ rm -rf $RPM_BUILD_ROOT/usr/share/caudium/unfinishedmodules
 
 ###############  FILES SECTION (caudium-modules)  ######################
 %files modules
+%defattr(-,root,root)
 %_libdir/caudium/lib/%{PIKEVERSION}/Caudium.so
 
 ###############  FILES SECTION (caudium-pixsl)  ######################
 %files pixsl
+%defattr(-,root,root)
 %_bindir/pixsl
 %_libdir/caudium/bin/pixsl.pike
 %_libdir/caudium/lib/%{PIKEVERSION}/PiXSL.so
 
 ###############  FILES SECTION (caudium-ultralog)  ######################
 %files ultralog
+%defattr(-,root,root)
 %_bindir/ultrasum
 %_libdir/caudium/lib/%{PIKEVERSION}/UltraLog.so
 %_libdir/caudium/etc/modules/UltraSupport.pmod
@@ -225,6 +225,10 @@ if [ $1 -eq 0 ]; then   # We're running "rpm -e"
 fi
 
 %changelog
+* Thu Oct 5 2000 Mike A. Harris <mharris@caudium.org>
+  Binary stripping now done in Makefile, removed from specfile.  Added
+  %defattr to all subpackages.
+
 * Thu Oct 5 2000 Mike A. Harris <mharris@caudium.org>
   Added logrotate config file to installation, and made tweaks to make
   everything work with the new moved dir (packages/redhat).
