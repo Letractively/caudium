@@ -210,6 +210,10 @@ void create()
 	 "If one of these files is present in a directory, it will "
 	 "be returned instead of the directory listing.");
 
+  defvar("dotfiles", 0, "Show dotfiles", TYPE_FLAG|VAR_MORE,
+         "If set, show dotfiles (files beginning with '.') in directory"
+         " listings");
+
   defvar("readme", 1, "Include readme files", TYPE_FLAG|VAR_MORE,
 	 "If set, include readme files in directory listings");
   
@@ -400,6 +404,13 @@ object create_node(string f, object id, int nocache)
   
   if(!strlen(f) || (f[-1] != '/')) f += "/";
   dir = caudium->find_dir(f, id);
+
+  if (!QUERY(dotfiles)) {
+    foreach(dir, string _f) {
+      if (sizeof(_f) && (_f[0] == '.')) 
+        dir -= ({ _f });
+    }
+  }   
   
   if(sizeof(path))
     my_node->data = path[-1];
