@@ -46,7 +46,7 @@ constant module_doc  = "An interface to the Lucene search engine via Bitmechanic
 constant module_unique = 1;
 
 //
-// usage: <lucene_search db="/path/to/lucene/db" query="search query">
+// usage: <lucene_search query="search query">
 //
 
 /* Doesn't work on NT yet */
@@ -54,17 +54,19 @@ constant module_unique = 1;
 
 static constant jvm = Java.machine;
 
-object spindle;
+object index;
+
+void start()
+{
+  if(QUERY(dir))
+    index=Index(QUERY(dir));
+}
+
 
 string status_info="";
 
 void stop()
 {
-}
-
-void start(int x, object conf)
-{
-  spindle=Spindle();
 }
 
 string status()
@@ -81,6 +83,9 @@ string query_name()
 
 void create()
 {
+ defvar( "dir", "../search_data", "Data Directory", TYPE_STRING,
+          "This is the directory where Lucene has stored its data." );
+
 }
 
 mapping query_tag_callers()
@@ -92,33 +97,32 @@ mixed tag_lucene (string tag_name, mapping args,
                     object id, object f,
                     mapping defines, object fd)
 {
-  if(!args->db) return "<!-- no database directory specified -->";
   if(!args->query) return "<!-- no query specified -->";
   
   string ret="";
 
-  array result=spindle->search(args->db, args->query);
+  array result=index->search(args->query);
 
   if(!result || sizeof(result)==0)
      return "no results found for your query <i>" + args->query + "</i>.";
 
   ret+="Found " + sizeof(result) + " matches to your query \"<i>" + args->query + "</i>\":<p>\n"; 
 
-  foreach(result, array r)
-    ret+="<dt><a href=\"" + r[0] + "\">" + r[1] + "</a> ( " + r[2] + " )<br>\n"
-       "<dd><i>" + r[3] + "</i><p>";
+  foreach(result, mapping r)
+    ret+="<dt><a href=\"" +r->url + "\">" + r->title + "</a> ( " + 
+	r->score + ", " + r->type + " )<br>\n"
+       "<dd><i>" + r->desc + "</i> " + r->date + "<p>";
 
   return ret;
   
 }
 
-class Spindle
+class Index
 {
 
 static constant jvm = Java.machine;
 
 #define FINDCLASS(X) (jvm->find_class(X)||(jvm->exception_describe(),jvm->exception_clear(),error("Failed to load class " X ".\n"),0))
-
 static object class_class = FINDCLASS("java/lang/Class");
 static object classloader_class = FINDCLASS("java/lang/ClassLoader");
 
@@ -146,66 +150,43 @@ static object arraylist_size = collection_class->get_method("size", "()I");
 static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object;)Ljava/lang/Object;");
 
 
-static object search_class = FINDCLASS("com/bitmechanic/spindle/Search");
-static object search_init = search_class->get_method("<init>", "()V");
-
-
-object setdir_function=search_class->get_method("setDir", "(Ljava/lang/String;)V");
-object setquery_function=search_class->get_method("setQuery", "(Ljava/lang/String;)V");
-object search_function=search_class->get_static_method("search", "(Ljava/lang/String;Ljava/lang/String;)Ljava/util/ArrayList;");
+static object search_class = FINDCLASS("net/caudium/search/Search");
+static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;)V");
+static object search_search = search_class->get_static_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
 
 object se;
 
-void create()
+void create(string dir)
 {
   se=search_class->alloc();
+  search_init(se, dir);
+  check_exception();
 }
 
-array search(string db, string q)
+array search(string q)
 {
-  object result;
-
-  array sr=({});
-
-  check_exception();
-
-  result=search_function(db, q);  
-  check_exception();
-
-  for(int i=0; i< arraylist_size(result); i++)
-  {
-    object re=arraylist_get(result, i);
-    sr+=({ ({  (string)hashmap_get(re, "url"),
-               (string)hashmap_get(re, "title"),
-               (string)hashmap_get(re, "score"),
-               (string)hashmap_get(re, "desc")
-         }) });
-
+  array res=({});
+  object r=search_search(q);
+  if(arraylist_size(r)>0)
+    for(int i=0; i< arraylist_size(r); i++)
+    {
+       object re=arraylist_get(r, i);
+       res+=({ ([
+         "url": hashmap_get(re,"url"),
+         "title":  hashmap_get(re,"title"),
+         "type": hashmap_get(re,"type"),
+         "date": hashmap_get(re,"date"),
+         "desc": hashmap_get(re,"desc")
+	 ]) });
   }
 
-  return sr;
-
+  return res;
 }
 
-
-#define error(X) throw(({(X), backtrace()}))
-
-static void check_exception()
-{
-  object e = jvm->exception_occurred();
-  if(e) {
-    object sw = stringwriter_class->alloc();
-    stringwriter_init(sw);
-    object pw = printwriter_class->alloc();
-    printwriter_init(pw, sw);
-    throwable_printstacktrace(e, pw);
-    printwriter_flush(pw);
-    jvm->exception_clear();
-    array bt = backtrace();
-    throw(({(string)sw, bt[..sizeof(bt)-2]}));
-  }
+#define error(X) throw(({(X), backtrace()})) 
+static void check_exception() {
+ jvm->exception_describe();
 }
-
 
 }
 
