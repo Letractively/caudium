@@ -127,6 +127,9 @@ install: build
 	cp -dp $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/pike
 	rm -rf debian/tmp/usr/local/
 
+	# lintian doesn't like images in /usr/lib, let's move them to /usr/share
+	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
+
 	#
 	# copy perl
 	#
