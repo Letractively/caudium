@@ -1902,7 +1902,7 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
   return "";
 }
 
-string tag_addprestate(string tag, mapping m, string q, object id)
+string tag_addprestate(string tag, mapping m, object id)
 {
   return "(" + sort(indices(id->prestate)) * "," + ")";
 } 
@@ -2432,6 +2432,7 @@ string tag_pikeversion(string tag, mapping args, object id)
 mapping query_tag_callers()
 {
    return ([ 
+            "add_pre_state":tag_addprestate,
             "modified":tag_modified,
             "pr":tag_pr,
             "ipv6":tag_ipv6,
@@ -3186,7 +3187,6 @@ mapping query_container_callers()
            "allow":tag_if,
            "prestate":tag_prestate,
            "apre":tag_aprestate,
-	   "add_pre_state":tag_addprestate,
            "aconf":tag_aconfig,
            "aconfig":tag_aconfig,
            "deny":tag_deny,
