@@ -5,6 +5,11 @@ Description: On what port should the config interface be?
  Specify the port on which Caudium will provide its configuration
  interface. You can access the interface using any form capable
  web browser (like Mozilla, Lynx, Links or Galeon)
+Description-fr: Sur quel port voulez-vous que l'interface de configuration 
+ soit ? Indiquez le port sur lequel Caudium fournira son interface de
+ configuration. Vous pourrez alors accéder à cette interface en utilisant
+ n'importe quel navigateur web supportant les formulaires (comme Mozilla,
+ Lynx, Links ou Galeon)
 
 Template: caudium/listen_on
 Type: string
@@ -13,6 +18,10 @@ Description: What port should the server listen on?
  Caudium is currently configured to listen on port
  '${portno}' of every interface in your machine. You can, however,
  specify a different port here if there's such need.
+Description-fr: Sur quel port le serveur doit-il écouter ?
+ Caudium utilise actuellement le port '${portno}' sur toutes les
+ interfaces de votre machine. Il semble que ce port soit déjà 
+ pris par une autre application. Merci de spécifier un autre port.
 
 Template: caudium/start_options
 Type: multiselect
@@ -30,6 +39,18 @@ Description: Select options that should be used on startup
  'fd-debug' - debug file descriptor usage
  .
  'keep-alive' - keep connections alive with HTTP/1.1
+Description-fr: Sélectionnez les options à utiliser lors du lancement
+ 'threads' - utilise les threads (si disponible)
+ .
+ 'debug' - informations de deboggage en sortie standard
+ .
+ 'once' - exécute en premier plan
+ .
+ 'profile' - affiche les informations de profilage
+ .
+ 'fd-debug' - deboggue les descripteurs de fichier
+ .
+ 'keep-alive' - garde les connection ouvertes avec le protocole HTTP/1.1;
 
 Template: caudium/cfg_port_taken
 Type: note
@@ -38,6 +59,11 @@ Description: Cannot bind to port.
  is unavailable. Please specify another port number - Caudium
  cannot function properly without binding its configuration 
  interface to a port on your system.
+Description-fr: Impossible d'ouvrir (bind) le port.
+ Le port que vous avez configuré pour l'interface de configuration de 
+ Caudium n'est pas disponible. Merci de préciser un autre numéro de 
+ port - Caudium ne peux fonctionner normalement sans ouvrir un port pour
+ son interface de configuration sur votre système.
 
 Template: caudium/last_screen
 Type: note
@@ -51,6 +77,15 @@ Description: Caudium configuration
  For more information about Caudium see the documents in the
  /usr/share/doc/caudium directory and make sure to visit
  http://caudium.net/ and http://caudium.org/
+Description-fr: Configuration de Caudium
+ Après l'installation de Caudium et son lancement effectué, vous pourrez
+ pointer votre navigateur web supportant les formulaires sur 
+ http://localhost:${cfgport} pour affiner la configuration de Caudium en utilisant
+ son interface de configuration web. Cette étape est VRAIMENT IMPORTANTE
+ sachant que vous allez créer un utilisateur/mot de passe administrateur.
+ Pour plus d'information sur Caudium, veuillez consulter les documents 
+ dans le répertoire /usr/share/doc/caudium et veillez à visitez les sites
+ web http://caudium.net/ et http://caudium.org/
 
 Template: caudium/experimental_http
 Type: boolean
@@ -61,6 +96,13 @@ Description: Use the experimental HTTP protocol module?
  experience problems running it. It is NOT recommended to run this
  code on a production server. If, however, you want to test its 
  functionality, answer YES to this question.
+Description-fr: Utiliser le module expérimental HTTP ?
+ Caudium est pourvu d'un module expérimental HTTP qui est plus 
+ rapide que celui fourni en standard. Ce code est en constants
+ travaux et il est possible que certains problèmes apparaissent
+ lors de son utilisation. Par conséquent, son utilisation N'est PAS
+ recommandée pour un serveur en production. Cependant si vous voulez
+ tester ses fonctionnalités, répondez OUI à cette question.
 
 Template: caudium/config_login
 Type: string
@@ -71,6 +113,13 @@ Description: Configuration interface login.
  config interface first will be able to set the login/password and
  manage your server. This is probably not what you want. Please
  specify the login name below or accept the default value.
+Description-fr: Login pour l'interface de configuration.
+ Il s'agit du login pour l'accès à l'interface de configuration.
+ Si vous ne spécifiez pas de login maintenant, la première
+ personne qui se connectera sur l'interface de configuration pourra
+ configurer le login/mot de passe et configurer le serveur à votre
+ place. Vous ne le souhaitez sûrement pas. Merci de spécifier un
+ login ou d'accepter celui par défaut.
 
 Template: caudium/config_password
 Type: password
@@ -79,4 +128,7 @@ Description: Configuration interface password
  This is the password used to access the configuration interface. The
  default value for it is 'password' - it is HIGHLY RECOMMENDED to
  change the default below!
-
+Description-fr: Mot de passe pour l'interface de configuration.
+ Il s'agit du mot de passe pour accéder à l'interface de configuration.
+ La valeur par défaut est 'password'. Il est EXTREMEMENT RECOMMANDE
+ de changer le mot de passe par défaut!
