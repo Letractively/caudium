@@ -72,11 +72,14 @@ int main(int argc, array(string) argv)
 	    if(split[i][e] == "defvar" ||
 	       split[i][e] == "globvar") {
 	      pos = get_next_string(THIS, 0, res);
+	      res->name = res->res;
 	      while(!arrayp(THIS[pos]) && ((string)(THIS[pos])) != ",")
 		pos++;
 	      pos = get_next_string(THIS, pos+1, res);
-	      if(res->res && strlen(res->res)) {
-		doc += ("//! defvar: "+res->res +"\n");
+	      if(res->name && strlen(res->name) &&
+		 res->res && strlen(res->res)) {
+		res->longname = res->res;
+		doc += ("//! defvar: "+res->name +"\n");
 		pos = get_token(THIS, pos, res);
 		pos = get_next_string(THIS, pos, res);
 		if(res->res) {
@@ -86,7 +89,8 @@ int main(int argc, array(string) argv)
 		  if(strlen(res->res - " "))
 		    doc += ("//! "+ res->res +"\n");
 		}
-		doc += ("//!  type: "+res->token +"\n//!\n");
+		doc += ("//!  type: "+res->token +"\n");
+		doc += ("//!  name: "+res->longname+"\n//\n");
 	      }
 	    }
 	  }
