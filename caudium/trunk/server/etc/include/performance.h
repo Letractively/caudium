@@ -25,7 +25,7 @@
 
 /* Enable the request memory cache. This greatly speeds up requests. It's
  * worth it for most sites. Only used by the experimental http2 protocol.
-  */
+ */
 #define ENABLE_RAM_CACHE
 
 
