@@ -21,16 +21,16 @@
 
 string cvs_version = "$Id$";
 
-private object           now = Calendar.now();
-private array(string)    months;
-private array(string)    months_short;
-private array(string)    days;
-private array(string)    days_short;
-private array(string)    the_words = ({
+object           Now;
+array(string)    months;
+array(string)    months_short;
+array(string)    days;
+array(string)    days_short;
+array(string)    the_words = ({
     "year", "month", "week", "day"
 });
 
-private void initialize_months()
+void initialize_months(object now)
 {
     // workaround for a Pike Calendar module bug
     array(object)   cmonths = now->year()->months();
@@ -43,7 +43,7 @@ private void initialize_months()
     }    
 }
 
-private void initialize_days()
+void initialize_days(object now)
 {
     // workaround for a Pike Calendar module bug
     array(object)   cdays = now->week()->days();
@@ -58,9 +58,6 @@ private void initialize_days()
 
 string month(int num)
 {
-    if (!months)
-        initialize_months();
-
     if (num > 0 && num <= sizeof(months))
         return months[num - 1];
     else
@@ -69,9 +66,6 @@ string month(int num)
 
 string month_short(int num)
 {
-    if (!months_short)
-        initialize_months();
-
     if (num > 0 && num <= sizeof(months_short))
         return months_short[num - 1];
     else
@@ -105,10 +99,8 @@ string ordered(int i)
 
 string date(int timestamp, mapping|void m)
 {
-    mapping t1=localtime(timestamp);
-    mapping t2=localtime(time(0));
-    object  target = Calendar.Day("unix", timestamp);
-    object  now = Calendar.now();
+    object  target = Calendar.Second("unix", timestamp);
+    object  now = Now;
   
     if(!m) m=([]);
 
@@ -137,8 +129,8 @@ string date(int timestamp, mapping|void m)
     }
   
     if(m["full"])
-        return target->formad_mod() + ", " +
-            (string)target->month_no() + " the "
+        return target->format_mod() + ", " +
+            month(target->month_no()) + " the "
             + ordered(target->month_day()) + ", " + target->year_name();
   
     if(m["date"])
@@ -211,9 +203,6 @@ string number(int num)
 
 string day(int num)
 {
-    if (!days)
-        initialize_days();
-
     if (num > 0 && num <= sizeof(days))
         return days[num - 1];
     else
@@ -222,9 +211,6 @@ string day(int num)
 
 string day_short(int num)
 {
-    if (!days_short)
-        initialize_days();
-
     if (num > 0 && num <= sizeof(days_short))
         return days[num - 1];
     else
@@ -233,9 +219,6 @@ string day_short(int num)
 
 string day_really_short(int num)
 {
-    if (!days)
-        initialize_days();
-
     if (num > 0 && num <= sizeof(days))
         return days[num - 1][0..0];
     else
@@ -253,4 +236,12 @@ string words(int num)
 array aliases()
 {
     return ({ "en", "eng", "english" });
+}
+
+void create()
+{
+    Now = Calendar.now()->set_language("english");
+    
+    initialize_months(Now);
+    initialize_days(Now);
 }

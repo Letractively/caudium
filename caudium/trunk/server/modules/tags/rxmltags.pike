@@ -3031,7 +3031,7 @@ string tag_ximage(string tagname, mapping m, object id)
       if(file->open(fname,"r"))
       {
 	array(int) xysize;
-	if(xysize=Image.Dims.dims()->get(file))
+	if(xysize=Image.Dims.get(file))
 	{
 	  m->width=(string)xysize[0];
 	  m->height=(string)xysize[1];
