@@ -1,19 +1,23 @@
 Search Engine powered by Jakarta Lucene
 ---------------------------------------
+akarta Lucene is a high-performance, full-featured text search engine 
+written entirely in Java.  It is a technology suitable for nearly any 
+application that requires full-text search, especially cross-platform.  
 
-You will need a pike that supports Java (see pike --features for that).
+To use the Lucene search tools, you will need a pike that supports Java (see 
+pike --features for that). 
 
-How to install :
+How to install and use:
 
-uses the Spindle search engine by bitmechanics (http://www.bitmechanic.com/projects/spindle/)
+1. Have a pike with java support running Caudium.
+2. Generate an index using server/bin/indexer.pike (currently left as an 
+   exercise for the reader; requires a version of pike > 7.4.25, or a 
+   copy of Web.Crawler from pike CVS) 
+3. Add Lucene module to a virtual server 
+4. Point that module at the lucene data directory
+5. Use this tag to get search results for "my query":
 
-very very basic
-to use, download spindle, and liblist from the above site
-add the jar files (4 of them) to your classpath and start caudium.
-generate the lucene database using the spindle tools.
-
-insert this to get search results for "my query":
-<spindle_search db="/webdev/lucene/db" query="my query">
+  <lucene_search query="my query">
 
 
 
