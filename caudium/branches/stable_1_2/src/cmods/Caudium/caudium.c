@@ -749,7 +749,7 @@ static void f_create_process( INT32 args ) {
   int num_fds = 3;
   int wanted_gid=0, wanted_uid=0;
   int gid_request=0, uid_request=0;
-  char *tmp_cwd;
+  char *tmp_cwd = NULL;
   pid_t pid=-2;
 
   extern char **environ;
