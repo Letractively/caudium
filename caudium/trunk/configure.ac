@@ -301,6 +301,8 @@ AC_SUBST(LD)
 ### Some Args ###
 #################
 AC_ARG_WITH(oldfastcgi,[  --with-oldfastcgi       enable old FastCGI handler],[],[with_oldfastcgi=no])
+AC_ARG_WITH(oldfastcgi,[  --with-openssl          enable the openssl-moduler],[],[with_openssl=yes])
+AC_ARG_WITH(oldfastcgi,[  --with-JavaScript       enable JavaScript support (Experimental)],[],[with_JavaScript=no])
 
 ### Pike Detection ###
 ######################
