@@ -90,6 +90,10 @@ class http_error_handler {
 	error_code = _error_code?_error_code:500;
 	error_name = _error_name?_error_name:"Unknown error";
 	error_message = _error_message?_error_message:"An unknown error has occurred - this should never have happenned.";
+	// This is a crufty hack to protect from the stupid way http.pike:errors([ ]) is built.
+	if ( error_name[ 0..2 ] == sprintf( "%d", error_code ) ) {
+            error_name = error_name[ 3..sizeof( error_name ) ];
+	}
 	string error_page = parse_rxml( parse_html( my_template, ([ "error" : _tag_error ]), ([ ]) ), id );
 	return http_low_answer( error_code, error_page );
     }
