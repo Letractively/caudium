@@ -98,7 +98,7 @@ string translate_ttf_style( string style )
   }
   if(search(lower_case(style), "oblique"))
     return "ni"; // for now.
-  werror("Unknwon ttf style: "+style+"\n");
+  report_notice("Unknwon ttf style: %s\n");
   return "nn";
 }
 
@@ -121,12 +121,12 @@ array available_font_versions(string name, int size)
       {
 	if(!ttf_done[combine_path(dir+"/",fname)]++)
 	{
-	  //   werror("Trying TTF: "+combine_path(dir+"/",fname)+"\n");
+	  //   report_debug("Trying TTF: "+combine_path(dir+"/",fname)+"\n");
 	  object ttf = Image.TTF( combine_path(dir+"/",fname) );
 	  if(ttf)
 	  {
 	    mapping n = ttf->names();
-	    //        werror("okiedokie! "+n->family+"\n");
+	    //        report_debug("okiedokie! "+n->family+"\n");
 	    ttffontschanged++;
 	    string f = lower_case(trimttfname(n->family));
 	    if(!ttf_font_names_cache[f])
