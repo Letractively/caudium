@@ -192,21 +192,19 @@ mixed handle_file_extension(object o, string e, object id)
   return Caudium.HTTP.pipe_in_progress();
 }
 
-#else
+#else /* constant(Servlet.Servlet) */
 
 // Do not dump to a .o file if no Java is available, since it will then
 // not be possible to get it later on without removal of the .o file.
 constant dont_dump_program = 1; 
 
-string status()
-{
-  return 
-#"<font color='red'>Java 2 is not available in this Caudium.<p>
-  To get Java 2:
-  <ol>
-    <li> Download and install Java
-    <li> Restart Caudium
-  </ol></font>";
+string status() {
+ return "<font color='red'>Java 2 is not available in this Caudium.<p>"
+        " To get Java 2: "
+        "<ol> "
+        " <li> Download and install Java "
+        "<li> Restart Caudium"
+        "</ol></font>";
 }
 
 mixed find_file( string f, object id ) {
@@ -218,7 +216,7 @@ int|mapping handle_file_extension(object o, string e, object id) {
 }
 
 
-#endif
+#endif /* constant(Servlet.Servlet) */
 
 string|void check_value( string s, string|array(string) value )
 {
@@ -289,7 +287,7 @@ void create()
          "client until the output is fully parsed.");
 }
 
-#else /* constant(Java)
+#else /* constant(Java) */
 constant module_doc  = "An interface to Java <a href=\"http://java.sun.com/"
                        "products/servlet/index.html""\">Servlets</a>."
                        "<br/><b>Your system is lacking for Java support in "
