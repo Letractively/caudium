@@ -171,7 +171,9 @@ mapping query_tag_callers()
 {
     return ([
         "session_variable" : tag_variables,
-        "user_variable" : tag_variables
+        "user_variable" : tag_variables,
+        "dump_session" : tag_dump_session,
+        "dump_sessions" : tag_dump_sessions
     ]);
 }
 
@@ -315,6 +317,11 @@ void register_plugins(void|object conf)
                 rec_item_missing("get_region", regrec->name);
                 continue;
             }
+
+            if (!functionp(regrec->get_all_regions) || !regrec->get_all_regions) {
+                rec_item_missing("get_all_regions", regrec->name);
+                continue;
+            }
             
             if (storage_plugins[regrec->name])
                 report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -412,6 +419,9 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //     _must_ return valid mappings for the "session" and "user" regions
 //     (compatibility with 123sessions)
 //
+//  function get_all_regions; (mandatory)
+//     returns a mapping of all the regions in use - i.e. full storage.
+//
 // Function synopses:
 //
 //   void setup(object id, string sid);
@@ -421,6 +431,7 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //   void expire_old(int curtime, int expiration_time);
 //   void delete_session(sid);
 //   mapping get_region(object id, string sid, string reg);
+//   mapping get_all_regions(object id);
 //
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
@@ -431,7 +442,8 @@ private mapping memory_storage_registration_record = ([
     "delete_variable" : memory_delete_variable,
     "expire_old" : memory_expire_old,
     "delete_session" : memory_delete_session,
-    "get_region" : memory_get_region
+    "get_region" : memory_get_region,
+    "get_all_regions" : memory_get_all_regions
 ]);
 
 //
@@ -584,6 +596,11 @@ private mapping memory_get_region(object id, string sid, string reg)
     return _memory_storage[region][sid];
 }
 
+private mapping memory_get_all_regions(object id)
+{
+    return _memory_storage;
+}
+
 //
 // Find out whether we have a session id available anywhere and/or create a
 // new session if necessary. Returns a session id string.
@@ -689,7 +706,10 @@ string tag_dump_session (string tag_name, mapping args, object id, object file)
 
 string tag_dump_sessions (string tag_name, mapping args, object id, object file)
 {
-//    return (_variables) ? (sprintf ("<pre>_variables : %O\n</pre>", _variables)) : "";
+    string   ret;
+    mapping  m = cur_storage->get_all_regions(id);
+    
+    return m ? sprintf("<pre>_variables : %O\n</pre>", m) : "";
 }
 
 //
