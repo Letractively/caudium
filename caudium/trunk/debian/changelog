@@ -1,3 +1,9 @@
+caudium-1.1 (2:1.1.3-1) unstable; urgency=low
+
+  * Latest CVS revision of the server
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 16 Jul 2001 23:45:41 +0200
+
 caudium-1.1 (2:1.1.1-11) unstable; urgency=low
 
   * Many changes and improvements as well as bugfixes
