@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2001 The Caudium Group
+ * Copyright © 2000-2002 The Caudium Group
  * Written by David Hedbor <david@caudium.net>
  *	      Rob Lanphier <robla@real.com>
  * 
