@@ -11,7 +11,7 @@ Changes in Caudium 1.5.1 since Caudium 1.4.1
    (Xavier Beaudouin)
 - Fixed loading of Crypto related Configuration Actions in CIF.
    (Xavier Beaudouin)
-- Fixed a segfault in Caudium C module when some HTTP queries doesn't have 
-  all variables (eg ?foo=too&hop=&gazon=zz), SF bug #1028622
+- Fixed a segfault in Caudium C module when broken variable assignments
+  in the query part of the url are parsed (eg ?foo=too&hop=&gazon=zz - hop= 
+  is the invalid syntax), SF bug #1028622
    (Marek Habersack)
-
