@@ -387,7 +387,7 @@ inherit _Caudium;
 //! > internal;
 //! (8) Result: (< >)
 
-//! @decl void parse_headers(string query, mapping results)
+//! @decl void parse_query_string(string query, mapping results)
 //!  Format and unescape all query string and add the result to the
 //!  mapping @[results].
 //! @param query
