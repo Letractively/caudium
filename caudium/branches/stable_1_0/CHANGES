@@ -44,6 +44,7 @@ Changes in Caudium 1.0 Release 1
   remotely closed connections aren't handled correctly. 
 - Removed the bug-causing directory override feature. If you need to list
   directories, don't put an index.html in it.
+- Fixed handling of precache modules in ip-less virtual servers. 
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
