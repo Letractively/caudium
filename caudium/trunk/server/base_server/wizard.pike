@@ -330,7 +330,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       "      name='"+m->name+".bar' width=16 height=128 border=0></td>"
       "  </table>\n"
       "</td>\n"
-      "<td width='8' rowspan='2'><img src='/(internal,image)/unit width='8'></td>\n"
+      "<td width='8' rowspan='2'><img src='/(internal,image)/unit' width='8'></td>\n"
       "<td>\n"
       "  <table bgcolor=black width=64 border=3 "
       "         cellpadding=1 cellspacing=0><tr>\n"
