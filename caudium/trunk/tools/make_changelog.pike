@@ -100,10 +100,7 @@ string trim(string what)
   string res="";
   foreach(what/"\n", string l)
   {
-    l = reverse(l);
-    sscanf(l, "%*[ \t]%s", l);
-    l = reverse(l);
-    res += l+"\n";
+    res += String.trim_whites( l );
   }
   return res[..sizeof(res)-2];
 }
