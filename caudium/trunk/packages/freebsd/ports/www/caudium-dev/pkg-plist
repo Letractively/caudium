@@ -72,8 +72,10 @@ caudium/server/unfinishedmodules/whois++.pike
 caudium/server/unfinishedmodules/hedbor.pike
 caudium/server/unfinishedmodules/deepthought.pike
 caudium/server/server_templates/standard.pike
+caudium/server/server_templates/xml-standard.pike
 caudium/server/server_templates/bare.pike
 caudium/server/server_templates/basic.pike
+caudium/server/server_templates/xml-basic.pike
 caudium/server/server_templates/ftp.pike
 caudium/server/server_templates/proxy.pike
 caudium/server/protocols/gopher.pike
