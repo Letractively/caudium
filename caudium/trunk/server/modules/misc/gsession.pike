@@ -201,9 +201,9 @@ void co_session_gc()
     }
 
 #ifdef THREADS
-    Thread.thread_create(cur_storage->expire, time(), QUERY(expire));
+    Thread.thread_create(cur_storage->expire_old, time(), QUERY(expire));
 #else
-    cur_storage->expire(time());
+    cur_storage->expire_old(time(), QUERY(expire));
 #endif
     
     if (QUERY(dogc))
