@@ -13,6 +13,7 @@ CC=@CC@
 CPPFLAGS=@CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 PIKE=@PIKE@
+PIKE_VERISON=@PIKE_VERSION@
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 #extern tools
@@ -80,9 +81,12 @@ install_only:
 	test -d $(prefix)/caudium/server/include/. || mkdir $(prefix)/caudium/server/include
 	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/logs
 	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/configurations
+	-@$(SRCDIR)/mkdir -p $(prefix)/caudium/server/lib/@PIKE_VERSION@
 	-chmod a+rx $(prefix)
 	-chmod a+rx $(prefix)/caudium
 	-chmod a+rx $(prefix)/caudium/server
+	-chmod a+rx $(prefix)/caudium/server/lib/
+	-chmod a+rx $(prefix)/caudium/server/lib/@PIKE_VERSION@
 	-@for d in fonts nfonts modules etc bin base_server more_modules \
 		   config_actions server_templates \
 	           languages caudium-images protocols unfinishedmodules; do \
@@ -116,9 +120,6 @@ spotless:  clean
 distribute:	spotless
 	@(cd extern; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
 	@(cd tools; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
-
-run_autoconfig:
-	@(cd $(SRCDIR); pike/$(PIKEVERSION)/src/run_autoconfig .)
 
 ./Makefile: $(SRCDIR)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
