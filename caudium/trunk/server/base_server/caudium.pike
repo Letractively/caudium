@@ -148,6 +148,44 @@ private void co_really_low_shutdown()
 }
 #endif
 
+//! start the external watchdog
+void watchdog_on()
+{
+   int pid = getpid();
+   string sock = getenv("CAUDIUM_WATCHDOG_SOCKET");
+  
+   if(strlen(sock))
+   {
+     Stdio.File wds = Stdio.File();
+     if(!wds->connect_unix(sock))
+     {
+       werror("Watchdog not listening. Unable to turn watchdog on.\n");
+       return;
+     }
+     wds->write("WATCHDOG ON %d", pid);
+     wds->close(); 
+   }
+}
+
+//! stop the external watchdog
+void watchdog_off()
+{
+   int pid = getpid();
+   string sock = getenv("CAUDIUM_WATCHDOG_SOCKET");
+  
+   if(strlen(sock))
+   {
+     Stdio.File wds = Stdio.File();
+     if(!wds->connect_unix(sock))
+     {
+       werror("Watchdog not listening. Unable to turn watchdog off.\n");
+       return;
+     }
+     wds->write("WATCHDOG OFF %d", pid);
+     wds->close(); 
+   }
+}
+
 //! @decl void really_low_shutdown(int exit_code)
 //!
 //! Function that actually shuts down Caudium. @[exit_code]is the code
