@@ -96,7 +96,12 @@ mapping first_try(object id)
   path = QUERY(searchpath);
 
   DEBUG("before: path: "+path);
- 
+
+  // TODO: add a safe way to make a difference between a domain name and an IP
+
+  // fix for the module not trying to go to the 127.0.0.1/ directory or
+  // whatever if you want to test the module on the loopback
+  // to be removed once the domain/IP detection is done
   if(!zero_type(id->request_headers->host) &&
      id->request_headers->host!="127.0.0.1")
   {
