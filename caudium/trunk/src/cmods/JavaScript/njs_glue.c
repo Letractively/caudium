@@ -63,6 +63,41 @@ void push_js_type(JSType val) {
   }
 }
 
+/* Convert a pike type to a javascript type if possible. Returns 1 if
+ * it succeeded, 0 otherwise.
+ */
+int pike_type_to_js_type(JSInterpPtr interp,
+			  struct svalue *from, JSType *to) {
+  INT32 i;
+  switch(from->type) {
+   case T_STRING:
+    js_type_make_string(interp, to, from->u.string->str, from->u.string->len);
+    break;
+
+   case T_INT:
+    to->type = JS_TYPE_INTEGER;
+    to->u.i = from->u.integer;
+    break;
+
+   case T_FLOAT:
+    to->type = JS_TYPE_DOUBLE;
+    to->u.d = from->u.float_number;
+    break;
+
+   case T_ARRAY:
+    js_type_make_array(interp, to, from->u.array->size);
+    for(i = 0; i < from->u.array->size; i++) {
+      pike_type_to_js_type(interp, & (ITEM(from->u.array)[i]), 
+			   & (to->u.array->data[i]));
+    }
+    break;
+   default:
+    to->type = JS_TYPE_UNDEFINED;
+    return 0;
+  }
+  return 1;
+}
+
 /* Init the module */
 void pike_module_init(void)
 {  
