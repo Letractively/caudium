@@ -111,10 +111,11 @@ array hsv_to_rgb(array|int hv, int|void sv, int|void vv)
 array(int) parse_color(string from)
 {
   int c;
-  if(!from || !strlen(from)) return ({ 0,0,0 }); // Odd color...
+  if(!from || !strlen(from))
+    return ({ 0,0,0 }); // Odd color...
 
   from = lower_case(from-" ");
-
+  
   if(html_32_colors[from])  from = html_32_colors[from];
   else if(arrayp(colors[from])) return colors[from];
 
@@ -149,7 +150,9 @@ array(int) parse_color(string from)
   }
 
   // No luck. It might be a color on the form rrggbb (that is, no leading '#')
-  if(c=(int)("0x"+from))
+  report_notice(sprintf("Strange situation: %u (from len: %u)\n", (int)("0x"+from), strlen(from)));
+  
+  if(sscanf(from, "%x", c) == 1)
   {
     if(strlen(from)>5)
       return ({ c>>16, (c>>8)&255, c&255 });
