@@ -70,9 +70,10 @@ mozilla/2.*OS/2		javascript, tcl, -pngalpha
 mozilla/2.*Win16	-java, javascript, -pngalpha
 mozilla/2.*Macintosh	-java, -pngalpha
 
-mozilla/[3-9].*		javascript, tablecolor, -pngalpha
+mozilla/[3-4].*		-pngalpha
+mozilla/[3-9].*		javascript, tablecolor
 
-mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer, -pngalpha
+mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
 mozilla/4\.0[4-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/4\.[5-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/5\.0b1		-java, pnginline, tcl
@@ -105,7 +106,7 @@ mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascr
 
 # Safari is Apple browser based on Konqueror3. 
 # See http://www.apple.com/safari/
-mozilla/[5-9].*applewebkit/[45].*safari/[45].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+mozilla/[5-9].*applewebkit/[4-7].*safari/[4-7].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				konqueror3, safari
@@ -119,7 +120,7 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
-.*compatible.*msie		msie, -pngalpha
+.*compatible.*msie		msie, -pngalpha, msie404
 .*compatible.*msie.1		-javascript, -pngalpha
 .*compatible.*msie.[1-2]	-java, ssl_faulty, -pngalpha
 .*compatible.*msie.[1-3]	-netscape_javascript, ssl_faulty, -pngalpha
@@ -310,8 +311,10 @@ cern.*linemode.*           nothing
 # }
 
 #section chimera {
-# Chimera.
-# chimera is a gecko-based browser for MacOS X that now declare itself as Mozilla/5.0 and Gecko/*
+# Browser using athena (see http://www.w3.org/Clients.html)
+# Isn't the gecko-based Cocoa browser for MacOS X - This one declares itself as
+# Mozilla/5.0 (stuff) Gecko/timestamp Chimera/version and thus is handled by the
+# mozilla section
 .*	basic, -mailto
 # }
 
@@ -385,6 +388,10 @@ cern.*linemode.*           nothing
 
 #section wget {
 .*		robot	wget	mirror_script
+# }
+
+#section httrack {
+.*		robot	mirror_script
 # }
 
 #section roxen {
