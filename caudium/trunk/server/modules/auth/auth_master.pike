@@ -392,7 +392,7 @@ mapping failed  = ([ ]);
 private int low_authenticate(string user, string password)
 {
   int res=my_configuration()->call_provider("authentication", "authenticate", user, password);
-  ERROR("low_authenticate: " + res + "\n");
+  //ERROR("low_authenticate: " + res + "\n");
   return res;
 }
 
