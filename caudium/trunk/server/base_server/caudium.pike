@@ -43,6 +43,7 @@ object snmp_agent;
 // Some headerfiles
 #define IN_ROXEN
 #include <caudium.h>
+#include <caudium_version.h>
 #include <config.h>
 #include <module.h>
 #include <variables.h>
@@ -69,18 +70,6 @@ inherit "internals";
 
 //! The datashuffler program
 constant pipe = Caudium.nbio;
-
-//! This is the real Caudium version. It should be changed before each
-//! release
-constant __caudium_version__ = "1.3";
-constant __caudium_build__ = "23";
-constant __caudium_state_ver__ = "DEVEL";
-
-//! any code may _append_ to this string - NEVER replace it!
-string __caudium_extra_ver__ = "";
-
-//! The full Caudium version string
-string real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+" "+__caudium_state_ver__;
 
 #if _DEBUG_HTTP_OBJECTS
 mapping httpobjects = ([]);
