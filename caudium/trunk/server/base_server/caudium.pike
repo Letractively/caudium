@@ -739,7 +739,7 @@ public void initiate_supports()
 
 array _new_supports = ({});
 
-void done_with_roxen_com()
+void done_with_caudium_net()
 {
   string new, old;
   new = _new_supports * "";
@@ -750,7 +750,7 @@ void done_with_roxen_com()
     return;
   
   if(old != new) {
-    perror("Got new supports data from www.roxen.com\n");
+    perror("Got new supports data from caudium.net\n");
     perror("Replacing old file with new data.\n");
     mv("etc/supports", "etc/supports~");
     Stdio.write_file("etc/supports", new);
@@ -769,24 +769,24 @@ void done_with_roxen_com()
 #endif
 }
 
-void got_data_from_roxen_com(object this, string foo)
+void got_data_from_caudium_net(object this, string foo)
 {
   if(!foo)
     return;
   _new_supports += ({ foo });
 }
 
-void connected_to_roxen_com(object port)
+void connected_to_caudium_net(object port)
 {
   if(!port) 
   {
 #ifdef DEBUG
-    perror("Failed to connect to www.roxen.com:80.\n");
+    perror("Failed to connect to caudium.net:80.\n");
 #endif
     return 0;
   }
 #ifdef DEBUG
-  perror("Connected to www.roxen.com.:80\n");
+  perror("Connected to caudium.net:80\n");
 #endif
   _new_supports = ({});
   port->set_id(port);
@@ -796,15 +796,15 @@ void connected_to_roxen_com(object port)
   }
   port->write("GET /supports HTTP/1.0\r\n"
 	      "User-Agent: " + v + "\r\n"
-	      "Host: www.roxen.com:80\r\n"
+	      "Host: caudium.net:80\r\n"
 	      "Pragma: no-cache\r\n"
 	      "\r\n");
-  port->set_nonblocking(got_data_from_roxen_com,
-			got_data_from_roxen_com,
-			done_with_roxen_com);
+  port->set_nonblocking(got_data_from_caudium_net,
+			got_data_from_caudium_net,
+			done_with_caudium_net);
 }
 
-public void update_supports_from_roxen_com()
+public void update_supports_from_caudium_net()
 {
   // FIXME:
   // This code has a race-condition, but it only occurs once a week...
@@ -812,18 +812,18 @@ public void update_supports_from_roxen_com()
   {
     if(QUERY(AutoUpdate))
     {
-      async_connect("www.roxen.com.", 80, connected_to_roxen_com);
+      async_connect("caudium.net", 80, connected_to_caudium_net);
 #ifdef DEBUG
-      perror("Connecting to www.roxen.com.:80\n");
+      perror("Connecting to caudium.net:80\n");
 #endif
     }
-    remove_call_out( update_supports_from_roxen_com );
+    remove_call_out( update_supports_from_caudium_net );
 
   // Check again in one week.
     QUERY(next_supports_update)=3600*24*7 + time();
     store("Variables", variables, 0, 0);
   }
-  call_out(update_supports_from_roxen_com, QUERY(next_supports_update)-time());
+  call_out(update_supports_from_caudium_net, QUERY(next_supports_update)-time());
 }
 
 // Return a list of 'supports' values for the current connection.
@@ -2688,7 +2688,7 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("AutoUpdate", 1, "Update the supports database automatically",
 	  TYPE_FLAG, 
 	  "If set to Yes, the etc/supports file will be updated automatically "
-	  "from www.caudium.com now and then. This is recomended, since "
+	  "from caudium.net now and then. This is recomended, since "
 	  "you will then automatically get supports information for new "
 	  "clients, and new versions of old ones.");
 
@@ -3512,7 +3512,7 @@ int main(int|void argc, array (string)|void argv)
     configuration_interface()->build_root(root);
   }
 
-  call_out(update_supports_from_roxen_com,
+  call_out(update_supports_from_caudium_net,
 	   QUERY(next_supports_update)-time());
 
 #ifdef THREADS

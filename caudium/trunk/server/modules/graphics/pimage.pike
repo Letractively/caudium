@@ -336,7 +336,7 @@ class Constructors
 
   object Text(string font, string text, mixed fg, mixed bg)
   {
-    object m = get_font(font, 32, 0, 0, 0, 0, 0, 0)->write(text);
+    object m = get_font(font, 32, 0, 0, 0, 0, 0)->write(text);
     return myimage(bg(),IMAGE(m->xsize(),m->ysize(),@bg)
 		   ->paste_alpha_color(m,@to_color(fg)));
   }

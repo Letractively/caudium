@@ -707,6 +707,7 @@ int main(mixed ... args)
   add_constant("popen",popen);
   add_constant("roxen_popen",popen);
   add_constant("caudiump", lambda() { return caudium; });
+  add_constant("roxenp", lambda() { return caudium; });
   add_constant("report_notice", report_notice);
   add_constant("report_debug", report_debug);
   add_constant("report_warning", report_warning);

@@ -354,7 +354,7 @@ mapping save_it(object id, object o)
 {
   changed_port_servers = (<>);
   root->save();
-  caudium->update_supports_from_roxen_com();
+  caudium->update_supports_from_caudium_net();
   caudium->initiate_configuration_port( 0 );
   id->referer = ({ CONFIG_URL + o->path(1) });
   if(sizeof(changed_port_servers))
