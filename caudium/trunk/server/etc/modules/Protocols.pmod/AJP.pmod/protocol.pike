@@ -628,7 +628,7 @@ mapping decode_forward(mapping packet)
      {
        packet->data = x[1]||"";
        [value, packet->data] = pull_string(packet->data);
-       packet->attributes[search(attribute_values, code)] = value;
+       packet->attributes[search(attribute_values, x[0])] = value;
      }
     } while (!ended);
 

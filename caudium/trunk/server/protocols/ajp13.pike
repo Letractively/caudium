@@ -344,7 +344,8 @@ int parse_forward()
   body_len=r->request_headers["content-length"];
   method = method_names[r->method];
   prot = clientprot = r->protocol;
-  string f = raw_url = r->req_uri;
+  string f = raw_url = r->req_uri + 
+    (r->attributes->query_string?"?"+r->attributes->query_string:"");
   time = _time(1);
 
   if (clientprot == "HTTP/1.1") {
