@@ -1,8 +1,15 @@
+caudium (1:1.1.1-5) unstable; urgency=low
+
+  * Fixed Build-Depends
+  * Got rid of the ugly pike7-cvs version check hack
+
+ -- Grendel <grendel@vip.net.pl>  Tue,  9 Jan 2001 01:32:25 +0100
+
 caudium (1:1.1.1-4) unstable; urgency=low
 
   * Reorganized file layout a bit
 
- -- Grendel <grendel@grendel>  Mon,  8 Jan 2001 03:31:33 +0100
+ -- Grendel <grendel@vip.net.pl>  Mon,  8 Jan 2001 03:31:33 +0100
 
 caudium (1:1.1.1-3) unstable; urgency=low
 

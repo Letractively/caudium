@@ -25,8 +25,10 @@ UGLY_HACK=$(shell chmod 755 debian/debian_pike_version)
 PIKE=/usr/bin/pike7-cvs
 PIKE_VERSION=$(shell $(PIKE) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
 CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
-PIKE_DEBIAN_VER=$(shell debian/debian_pike_version $(PIKE))
+PIKE7_CHANGELOG=/usr/share/doc/pike7-cvs/changelog.Debian.gz
+PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
+
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike 
 
@@ -61,7 +63,6 @@ clean:
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
 	-rm -f smartlink statuslock
-	-chmod 755 debian/debian_pike_version
 	dh_clean
 
 install: DH_OPTIONS=
