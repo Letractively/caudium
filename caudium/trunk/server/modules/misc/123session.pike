@@ -2,7 +2,7 @@
  * 123 Session Module
  * (c) Kai Voigt, k@123.org
  *
- * _very_ BETA version for Roxen 1.3, Roxen 2.0 and Caudium
+ * BETA version for Roxen 1.3, Roxen 2.0 and Caudium
  *
  * To use an SQL database for storing the session and user variables, specify
  * the database in the config interface and create a table "variables"
@@ -441,7 +441,8 @@ mixed first_try(object id) {
 void filter(mapping m, object id) {
   string SessionID = id->misc->session_id;
   variables_store("session", SessionID, id->misc->session_variables);
-  if (id->misc->session_variables->username) {
-    variables_store("user", id->misc->session_variables->username, id->misc->user_variables);
+  if (id->misc->session_variables && id->misc->session_variables->username) {
+    variables_store("user", id->misc->session_variables->username,
+                    id->misc->user_variables);
   }
 }
