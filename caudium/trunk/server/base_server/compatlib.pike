@@ -636,8 +636,7 @@ static array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
 
 //! Compat code for @[Caudium.HighLight.Pike.highlight]
 //! @deprecated
-static highlight_pike(string t, mapping m, string contents) {
+static string highlight_pike(string t, mapping m, string contents) {
    WCOMPAT2("Caudium.HighLight.Pike.highlight", "highlight_pike");
    return Caudium.HighLight.Pike.highlight(t, m, contents);
-}
 }
