@@ -117,20 +117,42 @@ string container_xslt(string tag, mapping args, string xml, object id)
   if(!res)
     return  "<b>ERROR:</b> XSLT Parsing failed with unknown error.<false>";
   else if(mappingp(res)) {
+    int line = (int)res->line, sline, eline;
+    string line_emph="";
+    array lines;
     if(!res->URI) res->URI = "unknown file";
-    if(search(res->URI, "xsl") != -1)
+    if(search(res->URI, "xsl") != -1) {
       res->URI = "XSLT input <i>"+args->stylesheet+"</i>";
-    if(search(res->URI, "xml") != -1)
+      if(line) lines = xsl / "\n";
+    } else if(search(res->URI, "xml") != -1) {
       res->URI = "XML source data";
+      if(line) lines = xml / "\n";
+    }
+    if(lines) {
+      line--;
+      sline = max(line - 3, 0);
+      eline = min(sizeof(lines), sline + 7);
+      line_emph="<h3>Extract of incorrect line</h3>";
+      for(int i = sline; i < eline; i++) {
+	if(i == line) {
+	  line_emph += "<b>"+(i+1)+": <font size=+3>"+
+	    html_encode_string(lines[i])+"</font></b><br>";
+	} else {
+	  line_emph += "<b>"+(i+1)+"</b>: "+
+	    html_encode_string(lines[i])+"<br>";
+	}
+      }
+    }
+    
     return 
       sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
-	      "line %s in %s:<br>\n%s<br>\n<false>",
+	      "line %s in %s:<br>\n%s<p>%s<br>\n<false>",
 	      res->level||upper_case(res->msgtype||"ERROR"), 
 	      res->module ? res->module + " " : "",
 	      res->code || "???",
 	      res->line || "???",
 	      res->URI || "unknown file",
-	      res->msg || "Unknown error");
+	      res->msg || "Unknown error", line_emph);
   }
   return res+"<true>";
 }
