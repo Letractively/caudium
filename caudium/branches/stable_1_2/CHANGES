@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- The start script now changes the cwd to the directory it is started from. Prevents
+  beginners from crying.
 - Fixed bug #547546 - Backtrace when using http:// URL for SSL. Now Caudium
   redirect to the https:// url like it did before.
 - Fixed bug #547354 - <aconf> URIs don't work
