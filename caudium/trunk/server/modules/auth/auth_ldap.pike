@@ -20,6 +20,14 @@
  * $Id$
  */
 
+#define DEBUG_AUTH
+
+#ifdef DEBUG_AUTH
+# define DEBUGLOG(X) report_debug(X);
+#else
+# define DEBUGLOG(X)
+#endif
+
 constant cvs_version = "$Id$";
 constant thread_safe=0;
 
