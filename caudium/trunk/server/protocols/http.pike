@@ -61,8 +61,6 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-#define DESTRUCT_REQUESTID call_out(lambda(){ destruct(this_object()); }, 300)
-
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
@@ -1007,7 +1005,6 @@ void do_log()
     }
   }
   end(0,1);
-  DESTRUCT_REQUESTID;
   return;
 }
 
@@ -1299,7 +1296,7 @@ void send_result(mapping|void result)
   mapping heads;
   string head_string;
 
-  MARK_FD(sprintf("send_result(%O)",result));
+  MARK_FD(sprintf("send_result(%O,%O)",result, file));
 
   if (result) {
     file = result;
@@ -1324,11 +1321,9 @@ void send_result(mapping|void result)
     {
       if(do_not_disconnect) {
         file = pipe = 0;
-        DESTRUCT_REQUESTID;
         return;
       }
       my_fd = file = 0;
-      DESTRUCT_REQUESTID;
       return;
     }
 
