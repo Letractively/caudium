@@ -134,7 +134,7 @@ void create()
 	 "_enable_ directory listings.\n");
 
   defvar("tilde", 0, "Directory Settings: Show backup files", TYPE_FLAG|VAR_MORE,
-	 "If set, files ending with '~' or '#' or '.bak' will "+
+	 "If set, files ending with '~', '#', '.old' or '.bak' will "+
 	 "be shown in directory listings");
 
 
