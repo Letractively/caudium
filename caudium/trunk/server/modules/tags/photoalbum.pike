@@ -76,6 +76,11 @@ array register_module() {
 	"where a bunch of images are stored. Note that this directory is relative not\n" +
 	"to your virtual filesystem root, but to the directory where the HTML file\n" +
 	"with the &lt;album&gt; tag is.<br />\n" + 
+	"Another important thing is that the directory must be browsable. This can be\n" +
+	"Done either in the config interface by setting the <em>Enable directory listings per default</em>\n" +
+	"option to <strong>yes</strong> in the appropriate file system, or by creating a file\n" +
+	"named <tt>.www_browsable</tt> in your album directory. If none of those options is set\n" +
+	"the module will report that the directory is empty, even though there are images in it<br />\n" +
 	"For every image (say <i>myphoto.jpg</i>) there optionally can be a\n" +
 	"file called <i>myphoto.jpg.desc</i> that contains text to be used\n" +
         "as the description for that photo.<br>\n",
@@ -146,7 +151,7 @@ string status() {
     string ret =
 	"<table border=1>\n" +
 	"<tr><td colspan=2>\n" +
-	"<b>Photo Album Status</b>" +
+	"<strong>Photo Album Status</strong>" +
 	"</td></tr>\n";
     if ( sizeof( albums ) == 0 ) {
 	ret += "<tr><td colspan=2>No photo albums loaded</td></tr>\n";
