@@ -24,7 +24,7 @@ object create(int l, int d, int version,string|void m, mixed|void t)
   message = m;
   trace = t;
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   if(m)
     werror(m);
   if(t)

@@ -53,14 +53,14 @@ string tls_unpad(string data ) {
  * there was an error, otherwise 0. */
 object decrypt_packet(object packet,int version)
 {
-#ifdef SSL3_DEBUG_CRYPT
+#ifdef CaudiumSSL3_DEBUG_CRYPT
   werror(sprintf("CaudiumSSL.state->decrypt_packet: data = %O\n", packet->fragment));
 #endif
   
   if (crypt)
   {
     string msg;
-#ifdef SSL3_DEBUG_CRYPT
+#ifdef CaudiumSSL3_DEBUG_CRYPT
     werror("CaudiumSSL.state: Trying decrypt..\n");
     //    werror("CaudiumSSL.state: The encrypted packet is:"+sprintf("%O\n",packet->fragment));
     werror("strlen of the encrypted packet is:"+strlen(packet->fragment)+"\n");
@@ -81,13 +81,13 @@ object decrypt_packet(object packet,int version)
     packet->fragment = msg;
   }
   
-#ifdef SSL3_DEBUG_CRYPT
+#ifdef CaudiumSSL3_DEBUG_CRYPT
   werror(sprintf("CaudiumSSL.state: Decrypted_packet %O\n", packet->fragment));
 #endif
 
   if (mac)
   {
-#ifdef SSL3_DEBUG_CRYPT
+#ifdef CaudiumSSL3_DEBUG_CRYPT
     werror("CaudiumSSL.state: Trying mac verification...\n");
 #endif
     int length = strlen(packet->fragment) - session->cipher_spec->hash_size;
@@ -96,7 +96,7 @@ object decrypt_packet(object packet,int version)
     
     if (digest != mac->hash(packet, seq_num))
       {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	werror("Failed MAC-verification!!\n");
 #endif
 	return Alert(ALERT_fatal, ALERT_bad_record_mac,version);
@@ -106,7 +106,7 @@ object decrypt_packet(object packet,int version)
 
   if (compress)
   {
-#ifdef SSL3_DEBUG_CRYPT
+#ifdef CaudiumSSL3_DEBUG_CRYPT
     werror("CaudiumSSL.state: Trying decompression...\n");
 #endif
     string msg;

@@ -1,6 +1,6 @@
 /* $Id$
  *
- * Keeps track of global data for an SSL server,
+ * Keeps track of global data for an CaudiumSSL server,
  * such as preferred encryption algorithms and session cache.
  */
 
@@ -29,34 +29,33 @@ array(int) preferred_suites;
 
 void rsa_mode()
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("CaudiumSSL.context: rsa_mode()\n");
 #endif
   preferred_suites = ({
 #ifndef WEAK_CRYPTO_40BIT
-    SSL_rsa_with_idea_cbc_sha,
-    SSL_rsa_with_rc4_128_sha,
-    SSL_rsa_with_rc4_128_md5,
-    SSL_rsa_with_3des_ede_cbc_sha,
-    SSL_rsa_with_des_cbc_sha,
+    CaudiumSSL_rsa_with_rc4_128_sha,
+    CaudiumSSL_rsa_with_rc4_128_md5,
+    CaudiumSSL_rsa_with_3des_ede_cbc_sha,
+    CaudiumSSL_rsa_with_des_cbc_sha,
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
-    SSL_rsa_export_with_rc4_40_md5,
-    SSL_rsa_with_null_sha,
-    SSL_rsa_with_null_md5,
+    CaudiumSSL_rsa_export_with_rc4_40_md5,
+    CaudiumSSL_rsa_with_null_sha,
+    CaudiumSSL_rsa_with_null_md5,
   });
 }
 
 void dhe_dss_mode()
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("CaudiumSSL.context: dhe_dss_mode()\n");
 #endif
   preferred_suites = ({
 #ifndef WEAK_CRYPTO_40BIT
-    SSL_dhe_dss_with_3des_ede_cbc_sha,
-    SSL_dhe_dss_with_des_cbc_sha,
+    CaudiumSSL_dhe_dss_with_3des_ede_cbc_sha,
+    CaudiumSSL_dhe_dss_with_des_cbc_sha,
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
-    SSL_dhe_dss_export_with_des40_cbc_sha,
+    CaudiumSSL_dhe_dss_export_with_des40_cbc_sha,
   });
 }
 
@@ -99,7 +98,7 @@ object lookup_session(string id)
 object new_session()
 {
   object s = Session();
-  s->identity = (use_cache) ? sprintf("%4cPikeSSL3%4c",
+  s->identity = (use_cache) ? sprintf("%4cPikeCaudiumSSL3%4c",
 				      time(), session_number++) : "";
   return s;
 }
@@ -115,7 +114,7 @@ void record_session(object s)
 
 void purge_session(object s)
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("CaudiumSSL.context->purge_session: %O\n", s->identity || ""));
 #endif
   if (s->identity)
@@ -125,7 +124,7 @@ void purge_session(object s)
 
 void create()
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("CaudiumSSL.context->create\n");
 #endif
   active_sessions = Queue();

@@ -4,15 +4,15 @@
 
 
 
-//#define SSL3_PROFILING
+//#define CaudiumSSL3_PROFILING
 
 inherit "cipher";
 
-#ifdef SSL3_DEBUG
-#define SSL3_DEBUG_MSG werror
-#else /*! SSL3_DEBUG */
-#define SSL3_DEBUG_MSG
-#endif /* SSL3_DEBUG */
+#ifdef CaudiumSSL3_DEBUG
+#define CaudiumSSL3_DEBUG_MSG werror
+#else /*! CaudiumSSL3_DEBUG */
+#define CaudiumSSL3_DEBUG_MSG
+#endif /* CaudiumSSL3_DEBUG */
 
 /* For client authentication */
 int auth_level;			// Wether to ask or require a client certificate
@@ -65,7 +65,7 @@ constant Packet = CaudiumSSL.packet;
 constant Alert = CaudiumSSL.alert;
 
 
-#ifdef SSL3_PROFILING
+#ifdef CaudiumSSL3_PROFILING
 
 
 int timestamp;
@@ -84,7 +84,7 @@ string handshake_messages;
 object handshake_packet(int type, string data)
 {
 
-#ifdef SSL3_PROFILING
+#ifdef CaudiumSSL3_PROFILING
   addRecord(type,1);
 #endif
   /* Perhaps one need to split large packages? */
@@ -105,7 +105,7 @@ object server_hello_packet()
   object struct = Struct();
   /* Build server_hello message */
   struct->put_uint(3,1); struct->put_uint(version[1],1); /* version */
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("Writing server hello, with version: 3."+version[1]+"\n");
 #endif
   struct->put_fix_string(server_random);
@@ -114,7 +114,7 @@ object server_hello_packet()
   struct->put_uint(session->compression_algorithm, 1);
 
   string data = struct->pop_data();
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("CaudiumSSL.handshake: Server hello: '%O'\n", data));
 #endif
   return handshake_packet(HANDSHAKE_server_hello, data);
@@ -140,7 +140,7 @@ CaudiumSSL.packet client_hello()
 
   string data = struct->pop_data();
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("CaudiumSSL.handshake: Client hello: '%O'\n", data));
 #endif
 
@@ -166,7 +166,7 @@ object server_key_exchange_packet()
     {
       /* Send a ServerKeyExchange message. */
       
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
       werror("Sending a server key exchange-message, "
 	     "with a %d-bits key.\n", temp_key->rsa_size());
 #endif
@@ -246,10 +246,10 @@ int reply_new_session(array(int) cipher_suites, array(int) compression_methods)
   session = context->new_session();
   multiset(int) common_suites;
 
-  SSL3_DEBUG_MSG("ciphers: me: %O, client: %O\n",
+  CaudiumSSL3_DEBUG_MSG("ciphers: me: %O, client: %O\n",
 		 context->preferred_suites, cipher_suites);
   common_suites = mkmultiset(cipher_suites & context->preferred_suites);
-  SSL3_DEBUG_MSG("intersection: %O\n", common_suites);
+  CaudiumSSL3_DEBUG_MSG("intersection: %O\n", common_suites);
 
   if (sizeof(common_suites))
   {
@@ -281,7 +281,7 @@ int reply_new_session(array(int) cipher_suites, array(int) compression_methods)
     object struct = Struct();
     
     int len = `+( @ Array.map(context->certificates, strlen));
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 //    werror(sprintf("CaudiumSSL.handshake: certificate_message size %d\n", len));
 #endif
     struct->put_uint(len + 3 * sizeof(context->certificates), 3);
@@ -335,7 +335,7 @@ string hash_messages(string sender)
 
 object finished_packet(string sender)
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
            werror("Sending finished_packet, with sender=\""+sender+"\"\n" );
 #endif
 	   return handshake_packet(HANDSHAKE_finished, hash_messages(sender));
@@ -345,7 +345,7 @@ string server_derive_master_secret(string data)
 {
   string premaster_secret;
   
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("server_derive_master_secret: ke_method %d\n",
 		 session->ke_method));
 #endif
@@ -365,7 +365,7 @@ string server_derive_master_secret(string data)
       /* Implicit encoding; Should never happen unless we have
        * requested and received a client certificate of type
        * rsa_fixed_dh or dss_fixed_dh. Not supported. */
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
       werror("CaudiumSSL.handshake: Client uses implicit encoding if its DH-value.\n"
 	     "               Hanging up.\n");
 #endif
@@ -396,7 +396,7 @@ string server_derive_master_secret(string data)
   case KE_rsa:
    {
      /* Decrypt the premaster_secret */
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
      werror(sprintf("encrypted premaster_secret: '%O'\n", data));
 #endif
      if(version[1] == 1) {
@@ -408,7 +408,7 @@ string server_derive_master_secret(string data)
      }
 
      premaster_secret = (temp_key || context->rsa)->decrypt(data);
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
      werror(sprintf("premaster_secret: '%O'\n", premaster_secret));
 #endif
      if (!premaster_secret
@@ -431,7 +431,7 @@ string server_derive_master_secret(string data)
        /* FIXME: When versions beyond 3.0 are supported,
 	* the version number here must be checked more carefully
 	* for a version rollback attack. */
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
        if (premaster_secret[1] > 0)
 	 werror("CaudiumSSL.handshake: Newer version detected in key exchange message.\n");
 #endif
@@ -454,7 +454,7 @@ string server_derive_master_secret(string data)
     res=prf(premaster_secret,"master secret",client_random+server_random,48);
   }
   
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("master: '%O'\n", res));
 #endif
   return res;
@@ -467,7 +467,7 @@ string client_derive_master_secret(string premaster_secret)
   object sha = mac_sha();
   object md5 = mac_md5();
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("Handshake.pike: in client_derive_master_secret is version[1]="+version[1]+"\n");
 #endif
 
@@ -481,13 +481,13 @@ string client_derive_master_secret(string premaster_secret)
     res+=prf(premaster_secret,"master secret",client_random+server_random,48);
   }
   
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("bahmaster: '%O'\n", res));
 #endif
   return res;
 }
 
-#ifdef SSL3_DEBUG_HANDSHAKE_STATE
+#ifdef CaudiumSSL3_DEBUG_HANDSHAKE_STATE
 mapping state_descriptions = lambda()
 {
   array inds = glob("STATE_*", indices(this_object()));
@@ -514,7 +514,7 @@ string describe_type(int i)
 #endif
 
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
  void  printHex(string buf) {
   int i;
   string res="";
@@ -533,10 +533,10 @@ string describe_type(int i)
 int handle_handshake(int type, string data, string raw)
 {
   object input = Struct(data);
-#ifdef SSL3_PROFILING
+#ifdef CaudiumSSL3_PROFILING
   addRecord(type,0);
 #endif
-#ifdef SSL3_DEBUG_HANDSHAKE_STATE
+#ifdef CaudiumSSL3_DEBUG_HANDSHAKE_STATE
   werror("CaudiumSSL.handshake: state %s, type %s\n",
 	 describe_state(handshake_state), describe_type(type));
   werror("strlen(data)="+strlen(data)+"\n");
@@ -580,7 +580,7 @@ int handle_handshake(int type, string data, string raw)
 	  cipher_len = input->get_uint(2);
 	  cipher_suites = input->get_fix_uint_array(2, cipher_len/2);
 	  compression_methods = input->get_var_uint_array(1, 1);
-	  SSL3_DEBUG_MSG("STATE_server_wait_for_hello: recieved hello\n"
+	  CaudiumSSL3_DEBUG_MSG("STATE_server_wait_for_hello: recieved hello\n"
 			 "version = %d.%d\n"
 			 "id=%O\n"
 			 "cipher suites: %O\n"
@@ -597,7 +597,7 @@ int handle_handshake(int type, string data, string raw)
 	  return -1;
 	}
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	if (!input->is_empty())
 	  werror("CaudiumSSL.connection->handle_handshake: "
 		 "extra data in hello message ignored\n");
@@ -612,7 +612,7 @@ int handle_handshake(int type, string data, string raw)
 	session = strlen(id) && context->lookup_session(id);
 	if (session)
 	  {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	    werror(sprintf("CaudiumSSL.handshake: Reusing session %O\n", id));
 #endif
 	    /* Reuse session */
@@ -647,8 +647,8 @@ int handle_handshake(int type, string data, string raw)
       }
      case HANDSHAKE_hello_v2:
       {
-#ifdef SSL3_DEBUG
-	werror("CaudiumSSL.handshake: SSL2 hello message received\n");
+#ifdef CaudiumSSL3_DEBUG
+	werror("CaudiumSSL.handshake: CaudiumSSL2 hello message received\n");
 #endif
 	int ci_len;
 	int id_len;
@@ -662,17 +662,17 @@ int handle_handshake(int type, string data, string raw)
 	} || (ci_len % 3) || !ci_len || (id_len) || (ch_len < 16)
 	|| (version[0] != 3))
 	{
-#ifdef SSL3_DEBUG
-	  werror(sprintf("CaudiumSSL.handshake: Error decoding SSL2 handshake:\n"
+#ifdef CaudiumSSL3_DEBUG
+	  werror(sprintf("CaudiumSSL.handshake: Error decoding CaudiumSSL2 handshake:\n"
 			 "%s\n", describe_backtrace(err)));
-#endif /* SSL3_DEBUG */
+#endif /* CaudiumSSL3_DEBUG */
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
 		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
 	  return -1;
 	}
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	if (version[1] > 1)
 	  werror(sprintf("CaudiumSSL.connection->handle_handshake: "
 			 "Version %d.%d hello detected\n", @context->version));
@@ -745,9 +745,9 @@ int handle_handshake(int type, string data, string raw)
 	   || (my_digest != digest))
        {
 	 if(rsa_message_was_bad)
-	   SSL3_DEBUG_MSG("rsa_message_was_bad\n");
+	   CaudiumSSL3_DEBUG_MSG("rsa_message_was_bad\n");
 	 if(my_digest != digest)
-	   SSL3_DEBUG_MSG("digests differ\n");
+	   CaudiumSSL3_DEBUG_MSG("digests differ\n");
 	 send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
 		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
@@ -781,7 +781,7 @@ int handle_handshake(int type, string data, string raw)
 			backtrace()));
       return -1;
     case HANDSHAKE_client_key_exchange:
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
       werror("client_key_exchange\n");
 #endif
       if (certificate_state == CERT_requested)
@@ -802,7 +802,7 @@ int handle_handshake(int type, string data, string raw)
 	pending_read_state = res[0];
 	pending_write_state = res[1];
 	
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	werror(sprintf("certificate_state: %d\n", certificate_state));
 #endif
       }
@@ -916,7 +916,7 @@ int handle_handshake(int type, string data, string raw)
 
       session->set_cipher_suite(cipher_suite,version[1]);
       session->set_compression_method(compression_method);
-      SSL3_DEBUG_MSG("STATE_client_wait_for_hello: recieved hello\n"
+      CaudiumSSL3_DEBUG_MSG("STATE_client_wait_for_hello: recieved hello\n"
 		     "version = %d.%d\n"
 		     "id=%O\n"
 		     "cipher suite: %O\n"
@@ -941,7 +941,7 @@ int handle_handshake(int type, string data, string raw)
     case HANDSHAKE_certificate:
       {
       // FIXME: If anonymous connection, we don't need a cert.
-      SSL3_DEBUG_MSG("Handshake: Certificate message recieved\n");
+      CaudiumSSL3_DEBUG_MSG("Handshake: Certificate message recieved\n");
       int certs_len = input->get_uint(3);
       array certs = ({ });
       while(!input->is_empty())
@@ -1032,7 +1032,7 @@ int handle_handshake(int type, string data, string raw)
 	object struct = Struct();
     
 	int len = `+( @ Array.map(context->certificates, strlen));
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	//    werror(sprintf("CaudiumSSL.handshake: certificate_message size %d\n", len));
 #endif
 	struct->put_uint(len + 3 * sizeof(context->certificates), 3);
@@ -1065,7 +1065,7 @@ int handle_handshake(int type, string data, string raw)
     {
     if((type) != HANDSHAKE_finished)
     {
-      SSL3_DEBUG_MSG("Expected type HANDSHAKE_finished(%d), got %d\n",
+      CaudiumSSL3_DEBUG_MSG("Expected type HANDSHAKE_finished(%d), got %d\n",
 		     HANDSHAKE_finished, type);
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
 			"CaudiumSSL.session->handle_handshake: unexpected message\n",
@@ -1076,7 +1076,7 @@ int handle_handshake(int type, string data, string raw)
       return 1;			// We're done shaking hands
     }
   }
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 //  werror(sprintf("CaudiumSSL.handshake: messages = '%O'\n", handshake_messages));
 #endif
   return 0;
@@ -1085,7 +1085,7 @@ int handle_handshake(int type, string data, string raw)
 void create(int is_server)
 {
 
-#ifdef SSL3_PROFILING
+#ifdef CaudiumSSL3_PROFILING
   timestamp=time();
   Stdio.stdout.write(sprintf("New...\n"));
 #endif 
