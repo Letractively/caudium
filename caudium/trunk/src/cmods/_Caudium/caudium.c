@@ -72,6 +72,7 @@ char *alloca ();
 
 #include "caudium.h"
 #include "datetime.h"
+#include "scratchpad.h"
 
 typedef int (*safe_func)(char c);
 
@@ -146,9 +147,10 @@ static void f_make_tag_attributes(INT32 args)
     /* alloc enough space for name="value" */
     len = indices->real_item[i].u.string->len +
       values->real_item[i].u.string->len + 5;
- 
-    tmp = (char*)CAUDIUM_ALLOCA(len);
-    CAUDIUM_PTR_VALID(tmp);
+
+/*     tmp = (char*)CAUDIUM_ALLOCA(len); */
+/*     CAUDIUM_PTR_VALID(tmp); */
+    tmp = scratchpad_get(len); /* it always returns a valid pointer
     
     /* ugly code, but fast */
     tmp[len] = 0;
@@ -162,7 +164,7 @@ static void f_make_tag_attributes(INT32 args)
     len += 2;
     
     string_builder_append(&ret, MKPCHARP(tmp, 0), (ptrdiff_t)len);
-    CAUDIUM_UNALLOCA(tmp);
+/*     CAUDIUM_UNALLOCA(tmp); */
   }
 
   retstr = finish_string_builder(&ret);
