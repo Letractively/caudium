@@ -24,6 +24,7 @@ constant cvs_version = "$Id$";
 
 inherit RequestID;
 inherit "http";
+private inherit Protocols.AJP.protocol;
 private inherit "caudiumlib";
 
 // HTTP protocol module.
@@ -84,10 +85,14 @@ int parse_got()
       // we should have the rest of the packet.
       sscanf(to_process, "%" + len_to_get + "s%s", packet, to_process);
       last_get_success=1; 
- 
+      len_to_get=0;
+      got_len=0; 
+
       if(current_state == GETTING_REQUEST_BODY) // we're not expecting a packet type.
       {
          body+=packet;
+         got_len=0;
+         len_to_get=0;
          // have we received all of the body data?
          if(sizeof(body) < body_len) // no?
            return 0;
@@ -211,6 +216,19 @@ void got_data(mixed fdid, string s)
   my_fd->set_close_callback(0); 
   my_fd->set_read_callback(0); 
   processed=1;
+
+  mapping h = ([response_code:200, response_msg:"OK", 
+     headers: (["Content-Length": 5, "Content-Type": "text/plain"])  ]);
+
+  my_fd->write(generate_container_packet(encode_send_headers(h));
+  my_fd->write(generate_container_packet(encode_send_body_chunk("ha ha"));
+  my_fd->write(generate_container_packet(encode_end_response(1));
+
+  packet = "";
+  body_len = 0;
+  processed = 0;
+  ready_for_request();
+
   /* Call the precache modules, which include virtual hosting
    * and other modules which might not be relevant to http like
    * cache key generator modules for http2...
@@ -227,7 +245,10 @@ void got_data(mixed fdid, string s)
 // we need to pull the forward packet apart.
 void parse_forward()
 {
-  
+  mapping r = decode_forward((["data": packet, "type": MSG_FORWARD_REQUEST]));
+
+  werror("request: %O\n", r);
+  body_len=v->request_headers["content-length"];
 }
 
 /* Get a somewhat identical copy of this object, used when doing 
@@ -282,6 +303,14 @@ object clone_me()
   c->rawauth = rawauth;
   c->since = since;
   return c;
+}
+
+void ready_for_request()
+{
+    f->set_nonblocking(got_data, 0, end);
+    // No need to wait more than 30 seconds to get more data.
+    call_out(do_timeout, 30);
+    time = _time(1);
 }
 
 void create(void|object f, void|object c)
