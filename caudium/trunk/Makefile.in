@@ -47,12 +47,9 @@ clean:
 install: all install_only 
 	-@$(BIN_TRUE)
 
-install_src: 
-	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
-
-
-install_only:  install_src
+install_only: 
 	@$(SRCDIR)/mkdir -p $(prefix)/caudium/readme/
+	$(SRCDIR)/mkdir -p $(prefix)/bin/
 	@for f in $(INSTALLFILES); do \
           echo "Copying $$f..."; \
 	  cp $(SRCDIR)/$$f $(prefix)/caudium/readme/; \
@@ -93,6 +90,7 @@ install_only:  install_src
 	  find $(prefix)/caudium/server/$$d -type d -exec chmod a+x '{}' \; ; \
 	  chmod -R a+r $(prefix)/caudium/server/$$d ;\
 	done
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	-@for f in fcgi install.pike pdbi.pike pike caudium; \
 	do \
 	  if test -f $(prefix)/caudium/server/bin/$$f ; then \
