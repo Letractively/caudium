@@ -19,7 +19,7 @@ export DH_COMPAT=1
 export DH_OPTIONS
 
 # we need to know what pike are we using
-PIKE=/usr/bin/pike7
+PIKE=/usr/bin/pike7-cvs
 PIKE_VERSION=$(shell $(PIKE) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
 CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
 PIKE_DEBIAN_VER=$(shell debian/debian_pike_version $(PIKE))
@@ -36,7 +36,6 @@ configure-stamp:
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
 	fi
-	PIKE_C_INCLUDES=/usr/lib/pike/${PIKE_DEBIAN_VER2}/include/ \
 	./configure --prefix=/usr --with-pike=$(PIKE)
 
 	touch configure-stamp
@@ -46,7 +45,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	$(MAKE) DEBIAN_GNU_LINUX="yes"
 
 	touch build-stamp
 
@@ -80,12 +79,19 @@ install: build
 	chmod 755 debian/tmp/usr/bin/ultrasum
 	
 	for s in $(SCRIPTS); do \
-	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium/$$s > \
+	  sed -e 's;^#\!.*;#\!/usr/bin/pike7-cvs;' debian/tmp/usr/lib/caudium/$$s > \
 	      debian/tmp/usr/lib/caudium/$$s.new && \
 	  mv debian/tmp/usr/lib/caudium/$$s.new debian/tmp/usr/lib/caudium/$$s ; \
 	  chmod 755 debian/tmp/usr/lib/caudium/$$s ; \
 	done
 	
+	# perms fixing fest
+	-chmod 644 debian/tmp/usr/lib/caudium/fonts/32/urw_itc_avant_garde-demi-r \
+	           debian/tmp/usr/lib/caudium/etc/roxen_hilfe.pike \
+		   debian/tmp/usr/lib/caudium/base_server/config/font
+		   
+	-rm -f debian/usr/share/doc/caudium/COPYING
+	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
 	dh_movefiles
 
 # Build architecture-independent files here.
@@ -112,7 +118,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installmanpages
 #	dh_installinfo
-	dh_undocumented
+	dh_undocumented htpasswd-caudium.1 ultrasum.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link

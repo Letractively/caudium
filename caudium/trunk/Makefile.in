@@ -131,7 +131,7 @@ install_alt:
 	@cp -r $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium
 	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium/ -name CVS -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
-	          protocols; do \
+	          protocols languages; do \
 	 echo "Copying $$f ..."; \
 	 cp -r $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium; \
 	done

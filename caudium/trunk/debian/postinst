@@ -59,7 +59,14 @@ case "$1" in
     if test -n "$START_OPTIONS"; then
 	echo $START_OPTIONS > /etc/caudium/start_options
     fi
-    
+
+    db_get caudium/experimental_http
+    if test "$RET" = "true"; then
+	mv /usr/lib/caudium/protocols/http2.pike /usr/lib/caudium/protocols/http.new
+	mv /usr/lib/caudium/protocols/http.pike /usr/lib/caudium/protocols/http2.pike
+	mv /usr/lib/caudium/protocols/http.new /usr/lib/caudium/protocols/http.pike
+    fi
+        
     db_stop
     ;;
 

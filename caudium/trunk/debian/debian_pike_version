@@ -5,7 +5,7 @@
 # This is an ugly hack, but we need to know the Debian version of the pike7 package
 #
 
-PIKE7_CHANGELOG=/usr/share/doc/pike7/changelog.Debian.gz
+PIKE7_CHANGELOG=/usr/share/doc/pike7-cvs/changelog.Debian.gz
 PIKE7=${1}
 
 
