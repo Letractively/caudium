@@ -347,7 +347,7 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
     if (dtype && Caudium.Const.doctypes[dtype])
         doctype = Caudium.Const.doctypes[dtype];
     else
-        doctype = doctypes->transitional;
+        doctype = Caudium.Const.doctypes->transitional;
 
     //
     // construct the meta tags
