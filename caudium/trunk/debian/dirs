@@ -10,3 +10,4 @@ var/state/caudium
 var/cache/caudium
 var/cache/caudium/args
 var/www
+var/www/images
