@@ -313,3 +313,6 @@ xpi	application/x-xpinstall
 pgp	application/pgp-encrypted
 pgp	application/pgp-signature
 pgp	application/pgp-keys
+
+# Bittorrent
+torrent	application/x-bittorrent
