@@ -131,7 +131,8 @@ void precache_rewrite(object id)
     protocol = lower_case((id->prot/"/")[0]);
   if(id->ssl_accept_callback)
     protocol+="s";  // http -> https, others most likely won't work that way
-  string port=(id->my_fd->query_address(1)/" ")[1];
+  string port;
+  port= Caudium.get_port(id->my_fd->query_address(1));
 
   if(config_cache[host]) {
     id->conf = config_cache[host];
