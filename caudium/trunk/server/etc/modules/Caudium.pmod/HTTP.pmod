@@ -532,7 +532,7 @@ mapping redirect( string url, object|void id )
 //!   is to be streamed as-is from the specified fd-object (until there is
 //!   nothing more to read). This differs from @[Caudium.HTTP.pipe_in_progress] in that
 //!   this function makes Roxen read the data from the specified object and will
-//!   close the connection when it's done. With @[Caudium.HTTP.in_progress] you are
+//!   close the connection when it's done. With @[Caudium.HTTP.pipe_in_progress] you are
 //!   responsible for writing the content to the client and closing the
 //!   connection. Please note that a @[Caudium.HTTP.stream] reply also inhibits the
 //!   sending of normal HTTP headers.
