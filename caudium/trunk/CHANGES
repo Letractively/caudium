@@ -17,6 +17,8 @@ Changes since last Roxen 1.3
   string directly.
 + Added PiXSL, a glue to Sablotron (XSLT parser) and UltraLog, a log
   parser, to the default distribution.
++ Option to edit the server name removed and added option to hide
+  server version. 
 + Pike not isn't built as part of the server, but instead you specify
   which Pike you want to use (or use the default one).
 + Don't send the Last-Modified header for dynamic (RXML-parsed)
@@ -24,5 +26,4 @@ Changes since last Roxen 1.3
   If-Modified-Since, like MSIE and Galeon.
 + Changed files named roxen to caudium, as well as refences to roxen->
   etc. It should still be compatible however.
-+ Demo ssl-certificate remade.
-
++ Demo ssl-certificate fixed for Caudium.
