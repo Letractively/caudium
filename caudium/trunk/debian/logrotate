@@ -1,4 +1,4 @@
-/var/log/caudium-1.1/*/Log {
+/var/log/caudium/*/Log {
   rotate 12
   monthly
   compress

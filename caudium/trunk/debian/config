@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-EXTVER=-1.1
+EXTVER=
 
 . /usr/share/debconf/confmodule
 
