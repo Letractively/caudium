@@ -838,7 +838,7 @@ void do_log()
     if(pipe) file->len = pipe->bytes_sent();
     if(conf)
     {
-      if(file->len > 0) conf->sent+=file->len;
+      if(file->len > 0) conf->sent += file->len;
       file->len += misc->_log_cheat_addition;
       conf->log(file, this_object());
     }
@@ -1280,7 +1280,7 @@ void send_result(mapping|void result)
     return;
   } else {
 #ifdef ENABLE_RAM_CACHE
-    if( (misc->cacheable > 0) && file->len > 0)
+    if( conf && (misc->cacheable > 0) && file->len > 0)
     {
       if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
       {
