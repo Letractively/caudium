@@ -29,32 +29,6 @@ constant thread_safe=1;
 #include <module.h>
 #define NSESSION id->misc->session_variables->navbar
 
-// compat stuff between Caudium 1.2 and 1.4
-#if constant(Caudium.parse_html)
-#define PARSER Caudium.parse_html
-#else
-#if constant(CAMAS.Parse.parse_html)
-#define PARSER CAMAS.Parse.parse_html
-#else
-#define PARSER parse_html
-#endif
-#endif
-
-#if constant(Caudium.add_pre_state) 
-#define ADD_PRE_STATE Caudium.add_pre_state
-#else
-#define ADD_PRE_STATE add_pre_state
-#endif
-
-#if constant(Caudium.make_container)
-#define MAKE_CONTAINER Caudium.make_container
-#else
-#define MAKE_CONTAINER make_container
-#endif
-
-constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
-
-
 #define NDEBUG(X) if(QUERY(debug)) { report_debug("NAVBAR_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
 
 
@@ -304,6 +278,14 @@ mapping query_container_callers ()
     ]);
 }
 
+mapping query_emit_callers()
+{
+  return ([
+      "navbar_loop_previous": emit_loop_navbar,
+      "navbar_loop_next": emit_loop_navbar,
+  ]);
+}
+
 //! container: navbar
 //!  Zone for the navigation bar
 //! childcontainer : current
@@ -317,17 +299,16 @@ string container_navbar(string tag_name, mapping args, string contents,object id
 
   if(get_nb_elements(id) > get_nb_elements_per_page(id))
   {
-    out += PARSER(contents,
+    out = Caudium.parse_html(contents,
                       ([
                        "current"       : tag_navbar_current,
                        ]),
                       ([
                      "previous_group": container_noloop_navbar,
                      "previous"      : container_noloop_navbar,
-                     "loop_previous" : container_loop_navbar,
-                     "loop_next"     : container_loop_navbar,
                      "next"          : container_noloop_navbar,
                      "next_group"    : container_noloop_navbar,
+                     "href"          : container_navbar_href
                        ]),
                       id);
   }
@@ -357,14 +338,7 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
       //! note: screen: mailindex
       if (get_current_page(id) > NAV_MAX_PAGES)
       {
-        out += PARSER(contents,
-              ([
-              ]),
-              ([
-                "href"          : container_navbar_href,
-              ]),
-              id, 0);
-
+        out = contents;
       }
       break;
 
@@ -375,14 +349,7 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
       //! note: screen: mailindex
       if (get_current_page(id) > 1)
       {
-        out += PARSER(contents,
-              ([
-              ]),
-              ([
-                "href"          : container_navbar_href,
-              ]),
-              id, 0);
-
+        out = contents;
       }
       break;
 
@@ -393,13 +360,7 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
       //! note: screen: mailindex
       if (get_current_page(id) < get_lastpage(id))
       {
-        out += PARSER(contents,
-              ([
-              ]),
-              ([
-                "href"          : container_navbar_href,
-              ]),
-              id, 0);
+        out = contents;
       }
       break;
 
@@ -410,14 +371,7 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
       //! note: screen: mailindex
       if (get_current_page(id) < get_lastpage(id) - NAV_MAX_PAGES)
       {
-        out += PARSER(contents,
-              ([
-              ]),
-              ([
-                "href"          : container_navbar_href,
-              ]),
-              id, 0);
-
+        out = contents;
       }
       break;
   }
@@ -428,145 +382,90 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
 //! container: href
 //!  Links for going to the correct page
 //! parentcontainer : navbar
-string container_navbar_href(string tag_name, mapping args, string contents, object id, int countpageloop)
+string container_navbar_href(string tag_name, mapping args, string contents, object id)
 {
   mapping vars = ([ ]);
  
   switch(args->action)
   {
     case "nextpage":
-      vars += ([
-              	"navbarnextblock":"1",
-              	"navbarelement":(string)(countpageloop)
-      ]);
+      vars->navbarnextblock = "1";
     break;
 
     case "nextgroup":
-      vars += ([
-              	"navbarnextgroup":"1",
-              	"navbarelement":(string)(countpageloop)
-      ]);
+      vars->navbarnextgroup = "1";
     break;
 
     case "previouspage":
     case "prevpage":
-      vars += ([ "navbarprevblock":"1" ]);
+      vars->navbarprevblock = "1";
     break;
 
     case "previousgroup":
-      vars += ([
-              	"navbarprevgroup":"1",
-              	"navbarelement":(string)(countpageloop)
-      ]);
+      vars->navbarprevgroup = "1";
     break;
 
     case "gopage":
-      vars += ([
-              	"navbargotoblock":"1",
-              	"navbarelement":(string)(countpageloop)
-      ]);
+      vars->navbargotoblock ="1";
   }
+  m_delete(args, "action");
 
   string baseuri = args->basehref || id->not_query;
-  args->href = ADD_PRE_STATE(baseuri, id->prestate) + "?" + 
+  args->href = Caudium.add_pre_state(baseuri, id->prestate) + "?" + 
     replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
+  if(args->countpageloop)
+  {
+    args->href += "&amp;navbarelement=" + args->countpageloop;
+    m_delete(args, "countpageloop");
+  }
 
-  return MAKE_CONTAINER("a", args, contents);
-}
-
-array loop_parser(string originalcontents, array(string) tags_name, array(string) containers_name)
-{
-  string parsed_contents;
-  mapping resargs = ([ ]);
-  mapping rescontents = ([ ]);
-  
-  mapping tags = mkmapping(tags_name, 
-      allocate(sizeof(tags_name), 
-        lambda(string _name, mapping _args)
-        {
-          resargs += ([ _name: _args ]);
-          return rands + _name;
-        }));
-  mapping containers = mkmapping(containers_name,
-      allocate(sizeof(containers_name), 
-        lambda(string _name, mapping _args, string _contents)
-        {
-          resargs += ([ _name: _args ]);
-          rescontents += ([ _name: _contents ]);
-          return rands + _name;
-        }));
-
-  parsed_contents = PARSER(originalcontents, tags, containers);
-  return ({ parsed_contents, resargs, rescontents });
+  return Caudium.make_container("a", args, contents);
 }
 
 // Code for <navbar></> nested loop containers
-string container_loop_navbar(string tag_name, mapping args, string contents, object id)
+array(mapping) emit_loop_navbar(mapping args, object id)
 {
-  string out = "";                                              // The string to output
-  string originalcontents = contents;                           // Backup the original contents for parsing it several times
-  mapping myargs;
-  mapping mycontents;
-  array res_fromparser = loop_parser(contents, ({ }), ({ "href" }));
-  string parsed_contents = res_fromparser[0];
-  myargs = res_fromparser[1];
-  mycontents = res_fromparser[2];
-
   int count = 0;
   int offset = 0;
+  int i = 0;
 
-  switch(tag_name)
+  switch(args->source)
   {
-    case "loop_previous":
+    case "navbar_loop_previous":
       //! container: loop_previous
       //!  Zone for each previous page available
       int first_page = get_current_page(id) - NAV_MAX_PAGES;
       offset = abs(1 - first_page);
       if (first_page < 1)
-	{
-	  first_page = 1;
-	}
+	    {
+	      first_page = 1;
+	    }
 
+      array outlet = allocate(get_current_page(id) - first_page);
       for(count=first_page; count<get_current_page(id); count++)
       {
         int countpageloop=count;
-        array outlet = ({
-          ([
-            "number" : count,
-          ])
-        });
-        contents = replace(parsed_contents, rands + "href",
-            container_navbar_href("loop_previous", myargs["href"], mycontents["href"], id, countpageloop));
-        out += do_output_tag(args, outlet, contents, id);
+        outlet[i++] = ([ "number" : (string)count ]);
       }
-      break;
+      return outlet;
 
-    case "loop_next":
+    case "navbar_loop_next":
       //! container: loop_next
       //!  Zone for each next page available
       int last = get_current_page(id) + NAV_MAX_PAGES - offset;
       if (last > get_lastpage(id))
-	{
-	  last = get_lastpage(id);
-	}
+	    {
+	      last = get_lastpage(id);
+	    }
+      outlet = allocate(last - get_current_page(id));
       for(count=get_current_page(id)+1; count<=last; count++)
       {
         int countpageloop=count;
-        array outlet = ({
-                          ([
-                       "number" : count,
-                           ])
-                        });
-        contents = replace(parsed_contents, rands + "href",
-            container_navbar_href("loop_previous", myargs["href"], mycontents["href"], id, countpageloop));
-        out += do_output_tag(args, outlet, contents, id);
+        outlet[i++] =  ([ "number" : (string)count ]);
       }
-      break;
+      return outlet;
   }
-
-  return out;
 }
-
 
 /*
  * If you visit a file that doesn't contain these lines at its end, please
