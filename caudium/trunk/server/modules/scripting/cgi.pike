@@ -569,7 +569,7 @@ class CGIScript
   {
     DWERROR("CGI:CGIScript::check_pid()\n");
 
-    if(!pid || pid->status())
+    if(!pid || (objectp(pid) && pid->status()))
     {
       remove_call_out(kill_script);
       destruct();
