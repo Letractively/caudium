@@ -51,8 +51,8 @@ mixed page_0(object id, object mc) {
     "<td bgcolor=\"#eeeeff\"><b>Hits</b></td>"
     "<td bgcolor=\"#eeeeff\"><b>Misses</b></td>"
     "</tr>\n";
-  foreach(sort(indices((mapping)cache->status())), string namespace) {
-    mapping status = ((mapping)cache->status())[namespace];
+  foreach(sort(indices((mapping)caudium->cache_manager->status())), string namespace) {
+    mapping status = ((mapping)caudium->cache_manager->status())[namespace];
     ret += sprintf(
       "<tr>\n"
       "<td bgcolor=\"#eeeeff\">%s</td>"
@@ -77,6 +77,14 @@ mixed page_0(object id, object mc) {
       status->slow_hits,
       status->slow_misses
     );
+    string desc = caudium->cache_manager->get_cache(namespace)->cache_description();
+    if (desc)
+      ret += sprintf(
+        "<help><tr>\n"
+        "<td bgcolor=\"#eeeeff\" colspan=10><i>%s</i></td>"
+        "</tr></help>\n",
+        roxen_encode(desc, "html")
+      );
   }
   ret += "</table>\n";
   return html_border(ret);

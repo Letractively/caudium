@@ -2557,19 +2557,19 @@ private void define_global_variables(int argc, array (string) argv)
     /// Beginning of *new* cache variables. Watch the old ones dissappear over time...
 
     globvar("cache_max_ram", 128,
-            "Caching Sub-system: Maximum RAM Usage (MB)", TYPE_INT,
+            "Caching engine: Maximum RAM Usage (MB)", TYPE_INT,
             "The maximum amount of RAM that should be consumed by the "
             "caching system in Megabytes.",
             0 );
 
     globvar("cache_max_slow", 1024,
-            "Caching Sub-system: Maximum Slow Storage Usage (MB)", TYPE_INT,
+            "Caching engine: Maximum Slow Storage Usage (MB)", TYPE_INT,
             "The maximum amount of storage space that can be consumed by the "
             "caching systems slow storage method in Megabytes.",
             0 );
 
     globvar("cache_vigilance", 75,
-            "Caching Sub-system: Vigilance (%)", TYPE_INT,
+            "Caching engine: Vigilance (%)", TYPE_INT,
             "The caching system uses an asynchronous method of maintaining "
             "the limits to the caches RAM and slow storage methods as "
             "also configured here. A setting of 100% will mean that the "
@@ -2585,13 +2585,13 @@ private void define_global_variables(int argc, array (string) argv)
             0 );
 
     globvar("cache_default_ttl", 5,
-            "Caching Sub-system: Default time to live (Minutes)", TYPE_INT,
+            "Caching engine: Default time to live (Minutes)", TYPE_INT,
             "This is the default length of time to hold onto objects that have "
             "been placed in the cache without an expiry date.",
             0 );
 
     globvar("cache_default_halflife", 1,
-            "Caching Sub-system: Default cache halflife (Hours)", TYPE_INT,
+            "Caching engine: Default cache halflife (Hours)", TYPE_INT,
             "The caching subsystem is capable of handling many concurrent "
             "caches and dynamically managing their memory and disk usage - "
             "however, every now and then a cache will be created by something "
@@ -2602,7 +2602,7 @@ private void define_global_variables(int argc, array (string) argv)
             0, );
 
     globvar("cache_storage_type", "Disk",
-            "Caching Sub-system: Slow Storage Backend", TYPE_STRING_LIST,
+            "Caching engine: Slow Storage Backend", TYPE_STRING_LIST,
 	    "Select the backend that you want Caudium to use for slow "
 	    "object storage."
 	    "Please note that when changing this value you will need to "
@@ -2611,14 +2611,14 @@ private void define_global_variables(int argc, array (string) argv)
 	    ({ "Disk", "MySQL" }));
 
     globvar("cache_storage_mysql_url", "",
-            "Caching Sub-system: MySQL Database URL", TYPE_STRING,
+            "Caching engine: MySQL Database URL", TYPE_STRING,
 	    "If you have selected MySQL as the backend for slow object "
 	    "storage, then you must specify a SQL URL for Caudium to use "
 	    "to connect to the MySQL server. In the format "
 	    "mysql://user:password@host/database");
 
     globvar("cache_storage_disk_path", Stdio.append_path(QUERY(cachedir), "cache"),
-            "Caching Sub-system: Disk Storage Path", TYPE_STRING,
+            "Caching engine: Disk Storage Path", TYPE_STRING,
 	    "If you have selected Disk as the default storage type "
 	    "please enter a filesystem path for Caudium to use to when "
 	    "storing cached objects."
