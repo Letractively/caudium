@@ -16,7 +16,7 @@ set -e
 #        * <disappearer's-postrm> `disappear' <r>overwrit>r> <new-version>
 # for details, see /usr/share/doc/packaging-manual/
 
-BFILE=/var/backups/caudium.tar.gz
+BFILE=/var/backups/caudium-1.1.tar.gz
 
 case "$1" in
        purge)
@@ -24,18 +24,19 @@ case "$1" in
 	#
 	# Should we ask the user (using Debconf) whether to back the config
 	# up?
-	if test -d /etc/caudium; then
+	if test -d /etc/caudium-1.1; then
 	    if test -f $BFILE; then
 		rm -f $BFILE
 	    fi
-	    (cd /; tar czvf $BFILE etc/caudium || true)
+	    (cd /; tar czvf $BFILE etc/caudium-1.1 || true)
 	fi       
-	rm -f /etc/caudium/start_options /etc/caudium/servers/* || true
+	rm -f /etc/default/caudium-1.1  || true
+	rm -rf /etc/caudium-1.1 || true
 	
 	#
 	# Clean the cache files
 	#
-	rm -rf /var/cache/caudium/* /var/state/caudium/.* || true
+	rm -rf /var/cache/caudium-1.1 /var/state/caudium-1.1 || true
 	;;
 	
        remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
