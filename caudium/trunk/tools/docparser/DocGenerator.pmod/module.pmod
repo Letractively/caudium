@@ -433,7 +433,47 @@ class DocGen
 	
 	return ret;
     }
+
+    private string do_f_entity(DocParser.Entity e)
+    {
+	string ret = "";
+	
+	ret = "<entity name=\"" + e->first_line + "\">\n\t";
+	ret += e->contents + "\n</entity>\n\n";
+	
+	return ret;
+    }
     
+    private string do_f_escope(DocParser.EntityScope es)
+    {
+	string ret = "";
+	
+	ret = "<scope name=\"" + es->first_line + "\">\n";
+	ret += "<description>\n\t" + es->contents + "\n</description>\n\n";
+	
+	if (sizeof(es->entities))
+	    foreach(es->entities, object e)
+		ret += do_f_entity(e);
+	ret += "</scope>\n\n";
+	
+	return ret;
+    }
+    
+    private string f_entities(DocParser.Module m)
+    {
+	string ret = "";
+	
+	if (!sizeof(m->escopes))
+	    return "";
+	    
+	ret = "<entities>\n";
+	foreach(m->escopes, object es)
+	    ret += do_f_escope(es);
+	ret += "</entities>\n\n";
+	
+	return ret;
+    }
+        
     void do_file(string tdir, DocParser.PikeFile f, Stdio.File ofile)
     {
         /* First take care of the file itself */
