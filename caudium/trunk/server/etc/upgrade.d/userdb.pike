@@ -23,7 +23,7 @@ int run()
       foreach(varstoget, string v)
       {
          if(v=="file")
-           vars[v]=reg["userfile"];
+           vars["userfile"]=reg[v];
          else vars[v]=reg[v];
       }
     }
