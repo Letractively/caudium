@@ -153,8 +153,8 @@ string get_ldap_logfile(string vpath, string hostname, mapping res) {
     // We get 2 solutions 
     // 1- don't use LDAP wwwDomain value 
     // 2- use it if exist
-    if(QUERY(logwwwDomain) && res->wwwDomain) 
-      logfile = combine_path(caudium->QUERY(logdirprefix)+"/",res->wwwDomain);
+    if(QUERY(logwwwDomain) && stringp(res->wwwDomain[0])) 
+      logfile = combine_path(caudium->QUERY(logdirprefix)+"/",res->wwwDomain[0]);
     else
       logfile = combine_path(caudium->QUERY(logdirprefix)+"/",hostname);
   }
@@ -200,12 +200,12 @@ string ldap_getvirt(string hostname, object id)
 #ifdef THREADS
   destruct(key);
 #endif
-
-  if (res)
+ 
+  if (res->homeDirectory)
   {
      string vpath;
 
-     vpath = res->homeDirectory[0];
+     vpath = (string)res->homeDirectory[0];
 
      if (vpath[-1] != '/') vpath += "/";
 
@@ -438,7 +438,7 @@ void create()
   defvar("log2vhs", 1, "Logs using VHS parameters", TYPE_FLAG,
          "Disable it to log to system wide configurated directory");
 
-  defvar("logwwDomain", 0, "Logs using wwwDomain parameter", TYPE_FLAG,
+  defvar("logwwwDomain", 0, "Logs using wwwDomain parameter", TYPE_FLAG,
          "When enabled and when \"Logs using VHS parameters\" is disabled, when "
          "filename used is FQDN given by wwwDomain LDAP attribute");
 
