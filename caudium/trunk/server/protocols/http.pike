@@ -20,21 +20,14 @@
  * $Id$
  */
 
-//! The RequestID object.
-//! This module implements the HTTP protocol and, at the same time, it is
-//! what you access through the common @tt{id@} object in your modules,
-//! tags etc.
-
-#define MAGIC_ERROR
-
-#ifdef MAGIC_ERROR
-inherit "highlight_pike";
-#endif
 constant cvs_version = "$Id$";
+
+inherit RequestID;
+private inherit "caudiumlib";
+
 // HTTP protocol module.
 #include <config.h>
-private inherit "caudiumlib";
-// int first;
+
 #if constant(gethrtime)
 # define HRTIME() gethrtime()
 # define HRSEC(X) ((int)((X)*1000000))
@@ -63,140 +56,6 @@ int req_time = HRTIME();
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
-
-
-
-constant decode        = MIME.decode_base64;
-constant find_supports = caudium->find_supports;
-constant version       = caudium->version;
-constant _query        = caudium->query;
-constant thepipe       = caudium->pipe;
-constant _time         = predef::time;
-
-int wanted_data, have_data, unread_data;
-
-
-object conf;
-
-#include <caudium.h>
-#include <module.h>
-
-#undef QUERY
-
-#define QUERY(X)	_query( #X )
-
-int time;
-string raw_url;
-int do_not_disconnect;
-
-//! Variables available during the current request. The variables may come
-//! from various sources - the @tt{query@} part of the URL which was used
-//! to access the server, the &lt;set&gt; tag in the @tt{RXML@} source or
-//! the Pike code in the modules or core server. Each index of the mapping
-//! is a variable name.
-mapping (string:string) variables       = ([ ]);
-
-//! Miscellaneous variables used by both the core server and the modules -
-//! you are free to add your own variables over here as long as you make
-//! sure that they do not conflict with any of the existing ones.
-//!
-//! @note
-//! TODO: add a list of predefined variables stored here.
-mapping (string:mixed)  misc            = ([ ]);
-
-//! The cookies read from the client at the start of the current request.
-mapping (string:string) cookies         = ([ ]);
-
-//! The current request headers as sent by the client.
-mapping (string:string) request_headers = ([ ]);
-
-//! The prestates (comma separated strings enclosed between parentheses)
-//! present in the URL used to access the server for the current request.
-multiset (string) prestate  = (< >);
-multiset (string) internal  = (< >);
-
-//! Config variables (comma separated strings enclosed between the angle
-//! brackets) present in the URL used to access the server for the current
-//! request.
-multiset (string) config    = (< >);
-
-//! Collect of the features supported by the client which initiated the
-//! current request.
-multiset (string) supports  = (< >);
-multiset (string) pragma    = (< >);
-
-//! The address of the remote client.
-string remoteaddr;
-
-//! The host name
-string host;
-
-#ifdef EXTRA_ROXEN_COMPAT
-array  (string) client = ({"unknown"});
-array  (string) referer;
-#endif
-
-//! The referring page for the current request (if the client sent it).
-string referrer;
-
-//! The user agent string describing the client (if the client sent it).
-string useragent = "unknown";
-
-//! This mapping contains the answer returned by the code which handles the
-//! connection.
-//!
-//! @note
-//! TODO: explain what's in the mapping
-mapping file;
-
-//! This is the default content charset sent in the Content-Type: header
-string  content_charset = "iso-8859-1";
-
-object my_fd; /* The client. */
-object pipe;
-
-// string range;
-string prot;
-string clientprot;
-string method;
-
-string realfile, virtfile;
-string rest_query="";
-string raw=""; // Raw request
-string query;
-string not_query;
-string extra_extension = ""; // special hack for the language module
-string data, leftovers;
-
-//! @deprecated
-//!
-//! The array containing the authentication information. The format in case
-//! the authentication module is present is as follows:
-//!
-//! @array
-//!  @elem int 0
-//!   @i{successp@} - @tt{1@} if the authentication succeeded, @tt{0@}
-//!   otherwise.
-//!
-//!  @elem string 1
-//!   @i{username@} - the authenticated user name.
-//!
-//!  @elem string 2
-//!   @i{password@} - the password user authenticated with.
-//!
-//!  @elem string 3
-//!   @i{group@} - if this element is present (only in Caudium 1.3+) then it
-//!   contains a comma-separated list of groups the user belongs to.
-//! @endarray
-array (int|string) auth;
-string rawauth, realauth;
-string since;
-
-//! description of user, if authenticated.
-//! if not authenticated, this element will be 0 (zero).
-int|mapping user=0;
-
-private int cache_control_ok = 0;
 
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
@@ -1927,8 +1786,7 @@ void create(void|object f, void|object c)
 {
   if(f)
   {
-    my_fd = f;
-    conf = c;
+    ::create(f,c);
     f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
