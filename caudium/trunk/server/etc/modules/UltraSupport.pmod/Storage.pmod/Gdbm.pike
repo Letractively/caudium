@@ -29,6 +29,7 @@ mapping get_available_dates()
 {
   object dates = Gdbm.gdbm(path+"available_dates.gdbm", "rwc");
   mixed tmp = dates->fetch("dates");
+  destruct(dates);
   available = ([]);
   if(!tmp)
     return ([ ]);
@@ -91,6 +92,10 @@ void invalidate(mapping dates)
       db->delete(f);
     foreach(glob("wk*", all), string f) 
       db->delete(f);
+  }
+  if(db) {
+    sync();
+    destruct(db);
   }
 }
 
@@ -164,7 +169,7 @@ void sync() {
 
 void destroy() {
   if(db) {
-    sync();
+    db->sync();
     destruct(db);
   }
 }

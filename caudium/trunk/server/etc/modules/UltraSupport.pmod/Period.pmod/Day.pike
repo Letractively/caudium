@@ -82,5 +82,6 @@ void create(int year, int month, int date, object method,
 void destroy()
 {
   if(modified) save(db, data, this_object());
+  db->destroy();
 }
 

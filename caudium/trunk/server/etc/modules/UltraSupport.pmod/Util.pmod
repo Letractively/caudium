@@ -88,12 +88,15 @@ array glob_expand(string glob)
   return  matches;
 }
 
+#if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
+function http_decode_string = _Roxen.http_decode_string;
+#endif
 
 void add_mapping_mapstr(mapping orig, mapping add)
 {
   string ns;
   foreach(indices(add), string ind)
-  {
+  {    
     ns = http_decode_string(ind);
     if(!orig[ns]) orig[ns] = ([]);
     add_mapping_str(orig[ns], add[ind]);
