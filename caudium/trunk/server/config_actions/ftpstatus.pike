@@ -73,7 +73,7 @@ string page_0(object id)
 {
 //  program p = ((program)"protocols/ftp");
 //  object pc = clone(p);
-  object pc = ((program)"protocols/ftp");
+  program pc = ((program)"protocols/ftp");
   multiset(object) ftps = (< >);
   object o = next_object();
   for(;;) {
