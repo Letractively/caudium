@@ -25,8 +25,12 @@ typedef struct
 {
     JSContext       *ctx;
     struct object   *id;
+    unsigned char   *output_buf;
+    unsigned int     output_buf_len;
+    unsigned int     output_buf_last;
 } js_context;
 
 #define THIS ((js_context*)(Pike_interpreter.frame_pointer->current_storage))
 
+#define DEF_OUTPUTBUF_LEN 8192
 #endif

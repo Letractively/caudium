@@ -23,8 +23,12 @@
 #define __SM_GLOBALS_H
 
 extern JSRuntime      *smrt;
-extern JSObject       *glob;
+extern JSObject       *global;
 
 /* in sm_main.c */
 int init_globals(JSContext *ctx);
+
+/* in sm_context.c */
+void init_context(void);
+
 #endif
