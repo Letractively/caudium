@@ -406,6 +406,14 @@ mixed first_try(object id) {
   id->misc->session_variables = variables_retrieve("session", SessionID);
   id->misc->session_id = SessionID;
 
+  if (id->variables->logout && id->misc->session_variables->username) {
+    if (id->variables->logout == id->misc->session_variables->username) {
+      werror("deleting username from session\n");
+      m_delete(id->misc->session_variables, "username");
+      store_everything(([]), id);
+    }
+  }
+
   if (!id->misc->session_variables->username) {
     int userauthrequired=0;
     foreach (query("auth_urls")/"\n", string url) {
@@ -431,6 +439,7 @@ mixed first_try(object id) {
   }
 
   if (id->misc->session_variables->username) {
+    werror("retrieving user variables\n");
     id->misc->user_variables =
       variables_retrieve("user", id->misc->session_variables->username);
   } else {
@@ -438,11 +447,15 @@ mixed first_try(object id) {
   }
 }
 
-void filter(mapping m, object id) {
+void store_everything(object id) {
   string SessionID = id->misc->session_id;
   variables_store("session", SessionID, id->misc->session_variables);
   if (id->misc->session_variables && id->misc->session_variables->username) {
     variables_store("user", id->misc->session_variables->username,
                     id->misc->user_variables);
   }
+}
+
+void filter(mapping m, object id) {
+  store_everything(id);
 }
