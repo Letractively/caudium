@@ -148,7 +148,7 @@ class per_server_cache {
 
     void store( string server_name, object http_error ) {
 	if ( cache[ server_name ] ) {
-	    mdelete( cache, server_name );
+	    m_delete( cache, server_name );
 	}
 	cache += ([ server_name : http_error ]);
     }
