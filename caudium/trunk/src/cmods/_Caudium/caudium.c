@@ -25,7 +25,7 @@
 RCSID("$Id$");
 #include "caudium_util.h"
 #include "caudium_machine.h"
-#include <fd_control.h>
+#include "entparse.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -666,6 +666,82 @@ static int get_next_header(unsigned char *heads, int len,
     }
   }
   return count;
+}
+
+/*
+  entity parser callback
+
+   userdata is a mapping consisting of scopename:scope() entries.
+*/
+void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res, 
+  void *userdata)
+{
+  struct svalue *tmp;
+
+  tmp = simple_mapping_string_lookup((struct mapping *)userdata, entname);
+
+  if(tmp)
+  {
+    int i;
+    if(tmp->type != T_OBJECT)
+      Pike_error("_Caudium.parse_entities(): expected object.\n");
+
+   i=find_identifier("get", tmp->u.object->prog);
+   if(!i)
+      Pike_error("_Caudium.parse_entities(): no get() method present in scope.\n");
+   push_text(params);
+   apply_low(tmp->u.object, i, 1);
+   
+  }
+  else
+  {
+    res->buf = NULL;
+  }
+
+  printf("Got entity: %s\n", entname); 
+}
+
+static void f_parse_entities( INT32 args )
+{
+  struct mapping *scopemap;
+  struct pike_string *input;
+  struct pike_string *result;
+
+  get_all_args("_Caudium.parse_entities", args, "%S%m",
+      &input, &scopemap);
+
+  ENT_RESULT  *eres = ent_parser(input->str, input->len, entity_callback, scopemap);
+  if (!eres) {
+    Pike_error("Out of memory in the entity parser\n");
+  }
+
+ if (eres->errcode != ENT_ERR_OK)
+    switch (eres->errcode) {
+        case ENT_ERR_OOM:
+          Pike_error("_Caudium.parse_entities(): Out of memory.\n");
+          break;
+
+        case ENT_ERR_INVPARM:
+          Pike_error("_Caudium.parse_entities(): Invalid parameter.\n");
+          break;
+
+        case ENT_ERR_BUFTOOLONG:
+          Pike_error("_Caudium.parse_entities(): Buffer too long.\n");
+          break;
+
+        case ENT_ERR_INVALIDNAME:
+          Pike_error("_Caudium.parse_entities(): Invalid entity name.\n");
+          break;
+    }
+
+   /* we've gotten this far, so we were probably successful. */
+
+  result = make_shared_binary_string(eres->buf, eres->buflen);
+
+  free(eres->buf);
+  free(eres);
+
+  push_string(result);
 }
 
 static void f_parse_headers( INT32 args )
@@ -1714,6 +1790,8 @@ void pike_module_init( void )
     push_text(_safeentities[i]);
   mta_safe_entities = aggregate_array(UNSAFECHARS_SIZE);
   
+  add_function_constant( "parse_entities", f_parse_entities,
+                         "function(string,mapping:string)", 0);
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
   add_function_constant( "parse_query_string", f_parse_query_string,
