@@ -93,10 +93,10 @@ void create()
                    "as filter for searching for groups"
 		   "<b>%g%</b> : Will be replaced by entered groupname." );
 
-        defvar ("CI_useringroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Users in groups Search template",
+        defvar ("CI_userforgroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Users in groups Search template",
                    TYPE_STRING, "Search template used as filter "
                    "when searching for user members of groups."
-		   "<b>%u%</b> : Will be replaced by entered groupname."
+		   "<b>%g%</b> : Will be replaced by entered groupname."
 		   "<b>%d%</b> : Will be replaced by group's full dn." );
 
         defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Search: Groups for user Search template",
@@ -111,7 +111,7 @@ void create()
         defvar ("CI_grouplist_search_templ","(objectclass=posixgroup)","Search: Grouplist search query",
                    TYPE_STRING, "Template used by LDAP grouplist search operation");
 
-        defvar ("CI_useringroup_attr","memberuid","User Attributes: Username in group entry",
+        defvar ("CI_userforgroup_attr","memberuid","User Attributes: Username in group entry",
                    TYPE_STRING, 
 		   "Attribute in group object containing a user's name" );
 
@@ -306,10 +306,61 @@ mapping|int get_user_info(string user) {
     dirinfo->shell=get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell));
     dirinfo->home_directory=get_attrval(tmp, QUERY(CI_default_attrname_homedir), QUERY(CI_default_home));
 
+    if(QUERY(CI_attrname_email))
+      dirinfo->email=getattrval(tmp, QUERY(CI_attrname_email), "");
+
     if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
       dirinfo->home_directory+=user;
 
     dirinfo->groups=get_groups_for_user(dir, user, sr->get_dn());
+
+    dirinfo->_source=QUERY(_name);
+
+    return dirinfo;
+}
+
+mapping|int get_group_info(string group) {
+
+    object sr,dir;
+    mixed err;
+    mapping dirinfo=([]);
+
+    mapping(string:array(string)) tmp, attrsav;
+
+    DEBUGLOG ("groupinfo ("+group+")");
+
+    dir=open_dir();
+
+    if (!dir) 
+    {
+      return 0;
+    }
+
+    sr=get_group_object(dir, group);
+    if(!sr)
+    {
+      DEBUGLOG("no group object for " + group);
+      return 0;
+    }
+
+    tmp=sr->fetch();
+
+    dirinfo->groupname=group;
+/*
+    dirinfo->name=get_attrval(tmp, QUERY(CI_default_attrname_gecos), QUERY(CI_default_gecos));
+    dirinfo->uid=get_attrval(tmp, QUERY(CI_default_attrname_uid), QUERY(CI_default_uid));
+    dirinfo->primary_group=get_attrval(tmp, QUERY(CI_default_attrname_gid), QUERY(CI_default_gid));
+    dirinfo->shell=get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell));
+    dirinfo->home_directory=get_attrval(tmp, QUERY(CI_default_attrname_homedir), QUERY(CI_default_home));
+
+    if(QUERY(CI_attrname_email))
+      dirinfo->email=getattrval(tmp, QUERY(CI_attrname_email), "");
+
+    if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
+      dirinfo->home_directory+=user;
+
+*/
+    dirinfo->users=get_users_for_group(dir, group, sr->get_dn());
 
     dirinfo->_source=QUERY(_name);
 
@@ -330,6 +381,24 @@ multiset get_groups_for_user(object dir, string user, string dn)
     {
       v+=(<sr->fetch()[QUERY(CI_groupname_attr)][0]>);
       sr->next();
+    }
+    
+   return v;
+}
+
+multiset get_users_for_group(object dir, string group, string dn)
+{
+    multiset v=(<>);
+
+    string q=QUERY(CI_userforgroup_search_templ);
+    q=replace(q, ({"%g%", "%d%"}), ({group, dn}));
+    object sr=dir->search(q, ({QUERY(CI_userforgroup_attr)}));
+
+    if(sr->num_entries()!=1) return (<>);
+    else
+    {
+       array g=sr->fetch();
+       v=(multiset)(g[QUERY(CI_userforgroup_attr)]);
     }
     
    return v;
@@ -384,6 +453,40 @@ private int|object get_user_object(object dir, string user)
    else if(sr->num_entries()>1)
    {
       report_error("LDAPAuth: we have more than one match for user " + user + "!\n");
+   }
+
+   dirinfo=sr->fetch();  // we will work with the first entry.
+
+   return sr;
+}
+
+private int|object get_group_object(object dir, string group)
+{
+   string groupdn;
+   mixed err;
+   object sr;
+   mapping dirinfo;
+
+   // first, we find the dn for the group we are about to search as.
+   userdn=replace(QUERY(CI_groupsearch_templ), "%g", group);
+
+   err=catch(sr=dir->search(groupdn));    
+
+   if(err) 
+   {
+     report_error("LDAPAuth: Search failed for query " + groupdn + "\n", 
+       dir->error_string());
+   }
+
+   if(sr->num_entries()==0)
+   {
+      report_error("LDAPAuth: group not found: " + group + "\n");
+      close_dir(dir);
+      return 0;
+   }
+   else if(sr->num_entries()>1)
+   {
+      report_error("LDAPAuth: we have more than one match for group " + group + "!\n");
    }
 
    dirinfo=sr->fetch();  // we will work with the first entry.
