@@ -359,17 +359,6 @@ mapping handle_file_extension(object f, string e, object id)
   else
     return http_string_answer(sprintf("%O", ret), "text/plain");
 }
-#if 0
-
-mapping handle_file_extension(object f, string e, object id)
-{
-  int st = gethrtime();
-  mixed eval_ret = low_handle_file_extension(f, e, id);
-  werror("total eval time: %O\n\n", (gethrtime() - st) / 1000000.0);
-  return eval_ret;
-}
-#endif
-
 
 /* pi instruction call method */
 array(string)|string pi_javascript(string tag, string js_source, object id) 
