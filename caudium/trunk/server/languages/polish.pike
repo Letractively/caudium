@@ -65,7 +65,7 @@ string date(int timestamp, mapping|void m)
             return "jutro, " + target->format_mod(); 
 
         if (now->year_no() != target->year_no())
-            return month(target->month_no()) +  " " + target->year_name());
+            return month(target->month_no()) +  " " + target->year_name();
 
     return month(target->month_no()) + " " + ordered(target->month_day());
 }
