@@ -66,7 +66,10 @@ typedef struct
   struct svalue protocol;
   struct svalue query;
   struct svalue raw_url;
-
+  struct svalue mta_slash;
+  struct svalue mta_equals;
+  PCHARP        mta_equals_p;
+  
   struct pike_string *h_clength;
   struct pike_string *h_auth;
   struct pike_string *h_proxyauth;
@@ -76,7 +79,7 @@ typedef struct
   struct pike_string *h_range;
   struct pike_string *h_conn;
   struct pike_string *h_ctype;
-  
+
 } static_strings;
 
 typedef struct
