@@ -47,15 +47,13 @@ constant rnd="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.";
 
 array tlds = ({ });
 
-string random_string()
-{
+string random_string() {
   return
     `+(@map(map(map(allocate(10), lambda(int x){return strlen(rnd);}), random),
 	    lambda(int x){return rnd[x..x];}));
 }
 
-string query_location()
-{
+string query_location() {
   return QUERY(mountpoint);
 }
 

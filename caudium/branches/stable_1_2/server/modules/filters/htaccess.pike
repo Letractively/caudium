@@ -194,7 +194,7 @@ mapping|int parse_htaccess(object f, object id, string rht)
 
   access = ([]); 
 
-  parse_html(htaccess - "\r",
+  htaccess = parse_html(htaccess - "\r",
 			([]), (["limit": parse_limit ]), id, access);
 
   if ((!access["head"]) && access["get"]) {

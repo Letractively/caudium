@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.17 since Caudium 1.3.16
 ----------------------------------------------
+- Fixed a bug in htaccess module that make it ignoring .htaccess files.
+   (Xavier Beaudouin)
 - Imported Roxen 2.x/3.x robots.txt module
    (Xavier Beaudouin)
 - Removed ifdef ADT.Table on debuginformation.pike since it exist on pike 7.0+
