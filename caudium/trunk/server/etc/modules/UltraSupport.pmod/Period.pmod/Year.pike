@@ -80,6 +80,8 @@ array(float)   sess_month_pages= allocate(13);
 array(float)   sess_len = allocate(13);
 int loaded;
 mapping extra;
+
+//!
 void create(int year, object method, string|void table, int|void maxsize,
 	    mapping|void saveinme, mixed ... args) {
   if(saveinme && table) 
@@ -91,7 +93,7 @@ void create(int year, object method, string|void table, int|void maxsize,
   if(!table || (table && search(table, "kb_per"))) {
     Util.load(method, saveinme||this_object(), data, table);
   }
-  //  werror("%s: %O\n", table, avg_bandwidth);
+  //  report_debug("%s: %O\n", table, avg_bandwidth);
   if(loaded || (extra && extra->loaded))
     return;
 
@@ -99,7 +101,7 @@ void create(int year, object method, string|void table, int|void maxsize,
   int count, load, g;
   object d;
   foreach(sort((array(int))(months||({})) - ({0})), int month) {
-    werror("Month %d-%02d\n", year, month);
+    report_debug("Month %d-%02d\n", year, month);
     if(d) destruct(d);
     if(saveinme) saveinme = ([]);
     method->set_period( ({ Util.PERIOD_MONTH, year, month }) );

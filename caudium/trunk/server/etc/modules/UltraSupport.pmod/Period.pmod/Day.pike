@@ -18,8 +18,8 @@
  *
  */
 
-// Code to handle daily stats
-// $Id$
+//! Code to handle daily stats
+//! $Id$
 
 import "..";
 import Util;
@@ -57,6 +57,8 @@ array(float)   sess_len             = allocate(24);
 int loaded;
 mapping extra;
 object db;
+
+//!
 void create(int year, int month, int date, object method,
 	    string|void table, mapping|void savemap,
 	    void|function create_callback, mixed ... args) {
@@ -79,6 +81,7 @@ void create(int year, int month, int date, object method,
   method->destroy();
 }
 
+//!
 void destroy()
 {
   if(modified) save(db, data, this_object());
