@@ -4,25 +4,27 @@
  *
  * _very_ BETA version for Roxen 1.3, Roxen 2.0 and Caudium
  *
- * To use an SQL database for storing the session variables, specify
- * the database in the config interface and create a table "sessions"
+ * To use an SQL database for storing the session and user variables, specify
+ * the database in the config interface and create a table "variables"
  * with the following command within your database (this example is
  * from MySQL, you might need to modify it for other systems)
  *
- * create table sessions (id varchar(255) not null,
- *                        lastusage int,
- *                        svalues mediumtext,
- *                        key(id));
+ * create table variables (id varchar(255) not null,
+ *                         region varchar(255),
+ *                         lastusage int,
+ *                         svalues mediumtext,
+ *                         key(id));
  *
  * In your documents, you can use id->misc->session_variables as a
- * mapping for variables that will be accessible during the entire
+ * mapping for session variables that will be accessible during the entire
  * session.
+ *
+ * User variables are accessible as id->misc->user_variables as well.
  *
  * TODO: This module needs comments, documentation, testing and some
  * mutex stuff.  The file storage is not implemented yet, just the
  * stubs.  DBM storage can be added later.  Error handling is badly
- * needed to catch sql errors and the like.  Session ID encoding in
- * prestates is missing.
+ * needed to catch sql errors and the like.
  *
  */
 
@@ -33,7 +35,7 @@ inherit "roxenlib";
 #include <module.h>
 import Sql;
 
-mapping (string:mixed) session_variables;
+mapping (string:mapping (string:mixed)) _variables;
 object myconf;
 
 int storage_is_not_sql() {
@@ -59,7 +61,7 @@ void create() {
          "after how many seconds an unactive session is removed" );
   defvar("storage", "memory",
          "Storage Method", TYPE_MULTIPLE_STRING,
-         "The method to be used for storing the session variables."
+         "The method to be used for storing the session and user variables."
          " Available are Memory and Database storage.  Each"
          " of them have their pros and cons regarding speed and"
          " persistance.",
@@ -71,7 +73,7 @@ void create() {
          ({"cookie", "prestate"}));
   defvar("sql_url", "",
          "Database URL", TYPE_STRING,
-         "Which database to use for the session variables, use"
+         "Which database to use for the session and user variables, use"
          " a common database URL",
          0, storage_is_not_sql);
 }
@@ -89,8 +91,8 @@ mixed register_module() {
 }
 
 int session_size_memory() {
-  if (session_variables) {
-    return (sizeof(session_variables));
+  if (_variables->session) {
+    return (sizeof(_variables->session));
   } else {
     return(0);
   }
@@ -100,7 +102,7 @@ int session_size_sql() {
   object(sql) con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(query("sql_url"));
-  string query = "select count(*) as size from sessions";
+  string query = "select count(*) as size from variables where region='session'";
   array(mapping(string:mixed)) result = con->query(query);
   return ((int)result[0]->size);
 }
@@ -131,12 +133,12 @@ string status() {
 }
 
 void session_gc_memory() {
-  if (!session_variables) {
+  if (!_variables->session) {
     return;
   }
-  foreach (indices(session_variables), string session_id) {
-    if (time() > (session_variables[session_id]->lastusage+query("expire"))) {
-      m_delete(session_variables, session_id);
+  foreach (indices(_variables->session), string session_id) {
+    if (time() > (_variables->session[session_id]->lastusage+query("expire"))) {
+      m_delete(_variables->session, session_id);
     }
   } 
 }
@@ -146,7 +148,7 @@ void session_gc_sql() {
   function sql_connect = myconf->sql_connect;
   con = sql_connect(query("sql_url"));
   int exptime = time()-query("expire");
-  con->query("delete from sessions where lastusage < '"+exptime+"'");
+  con->query("delete from variables where lastusage < '"+exptime+"' and region='session'");
 }
 
 // TODO
@@ -167,24 +169,24 @@ void session_gc() {
   }
 }
 
-mapping (string:mixed) session_retrieve_memory(string SessionID) {
-  if (!session_variables) {
-    session_variables = ([]);
+mapping (string:mixed) variables_retrieve_memory(string region, string key) {
+  if (!_variables[region]) {
+    _variables[region] = ([]);
   }
-  if (!session_variables[SessionID]) {
-    session_variables[SessionID] = ([]);
+  if (!_variables[region][key]) {
+    _variables[region][key] = ([]);
   }
-  if (!session_variables[SessionID]->values) {
-    session_variables[SessionID]->values = ([]);
+  if (!_variables[region][key]->values) {
+    _variables[region][key]->values = ([]);
   }
-  return (session_variables[SessionID]->values);
+  return (_variables[region][key]->values);
 }
 
-mapping (string:mixed) session_retrieve_sql(string SessionID) {
+mapping (string:mixed) variables_retrieve_sql(string region, string key) {
   object(sql) con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(query("sql_url"));
-   string query = "select svalues from sessions where id='"+SessionID+"'";
+   string query = "select svalues from variables where region='"+region+"' and id='"+key+"'";
   array(mapping(string:mixed)) result = con->query(query);
   if (sizeof(result) != 0) {
     return (string2values(result[0]->svalues));
@@ -194,27 +196,27 @@ mapping (string:mixed) session_retrieve_sql(string SessionID) {
 }
 
 // TODO
-mapping (string:mixed) session_retrieve_file(string SessionID) {
+mapping (string:mixed) variables_retrieve_file(string region, string key) {
   return ([]);
 }
 
-mapping (string:mixed) session_retrieve(string SessionID) {
+mapping (string:mixed) variables_retrieve(string region, string key) {
   switch(query("storage")) {
     case "memory":
-      return (session_retrieve_memory(SessionID));
+      return (variables_retrieve_memory(region, key));
       break;
     case "sql":
-      return (session_retrieve_sql(SessionID));
+      return (variables_retrieve_sql(region, key));
       break;
     case "file":
-      return (session_retrieve_file(SessionID));
+      return (variables_retrieve_file(region, key));
       break;
   }
 }
 
-void session_store_memory(string SessionID, mapping values) {
-  session_variables[SessionID]->lastusage = time();
-  session_variables[SessionID]->values = values;
+void variables_store_memory(string region, string key, mapping values) {
+  _variables[region][key]->lastusage = time();
+  _variables[region][key]->values = values;
 }
 
 string values2string(mixed values) {
@@ -225,28 +227,28 @@ mixed string2values(string encoded_string) {
   return (decode_value(MIME.decode_base64(encoded_string)));
 }
 
-void session_store_sql(string SessionID, mapping values) {
+void variables_store_sql(string region, string key, mapping values) {
   object(sql) con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(query("sql_url"));
-  con->query("delete from sessions where id='"+SessionID+"'");
-  con->query("insert into sessions (id, lastusage, svalues) values ('"+SessionID+"', '"+time()+"', '"+values2string(values)+"')");
+  con->query("delete from variables where region='"+region+"' and id='"+key+"'");
+  con->query("insert into variables(id, region, lastusage, svalues) values ('"+key+"', '"+region+"', '"+time()+"', '"+values2string(values)+"')");
 }
 
 // TODO
-void session_store_file(string SessionID, mapping values) {
+void variables_store_file(string region, string key, mapping values) {
 }
 
-void session_store(string SessionID, mapping values) {
+void variables_store(string region, string key, mapping values) {
   switch(query("storage")) {
     case "memory":
-      session_store_memory(SessionID, values);
+      variables_store_memory(region, key, values);
       break;
     case "sql":
-      session_store_sql(SessionID, values);
+      variables_store_sql(region, key, values);
       break;
     case "file":
-      session_store_file(SessionID, values);
+      variables_store_file(region, key, values);
       break;
   }
 }
@@ -319,12 +321,21 @@ mixed first_try(object id) {
     }
   }
 
-  id->misc->session_variables = session_retrieve(SessionID);
+  id->misc->session_variables = variables_retrieve("session", SessionID);
   id->misc->session_id = SessionID;
+
+  if (id->misc->session_variables->username) {
+    id->misc->user_variables =
+      variables_retrieve("user", id->misc->session_variables->username);
+  } else {
+    id->misc->user_variables = ([]);
+  }
 }
 
 void filter(mapping m, object id) {
   string SessionID = id->misc->session_id;
-  session_store(SessionID, id->misc->session_variables);
+  variables_store("session", SessionID, id->misc->session_variables);
+  if (id->misc->session_variables->username) {
+    variables_store("user", id->misc->session_variables->username, id->misc->user_variables);
+  }
 }
-
