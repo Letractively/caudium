@@ -511,6 +511,7 @@ mixed find_file(string path, object id) {
 
   // check to see if the user is authenticated!
   int|mapping u=id->get_user();
+  report_error("user: %O\n", u);
   if(!u)
     return Caudium.HTTP.auth_required("Whiteboard for "+QUERY(mountpoint));
   string user = u->username;
