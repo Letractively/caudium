@@ -26,14 +26,12 @@ AC_SUBST(SO)
 AC_SUBST(LIBGCC)
 
 AC_DEFINE(POSIX_SOURCE)
-AC_SUBST_FILE(module_makefile)
 ])
 
 
 define([CAUDIUM_MODULE_INIT],
 [
   CAUDIUM_LOW_MODULE_INIT()
-
   AC_MSG_CHECKING([for the Caudium cmod base directory])
 
   module_makefile=../module_makefile
@@ -52,6 +50,7 @@ define([CAUDIUM_MODULE_INIT],
     module_makefile=../$module_makefile
   done
   AC_MSG_RESULT(found)
+  AC_SUBST_FILE(module_makefile)
 ])
 
 ])
