@@ -1,25 +1,5 @@
-/*
- * Caudium - An extensible World Wide Web server
- * Copyright © 2000 The Caudium Group
- * Copyright © 1994-2000 Roxen Internet Software
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- */
-
-/* Standard HTTP Protocol module */
+// This is a roxen module. 
+// Copyright © 1996 - 1998, Idonex AB.
 
 #define MAGIC_ERROR
 
@@ -27,7 +7,7 @@
 inherit "highlight_pike";
 #endif
 constant cvs_version = "$Id$";
-
+// HTTP protocol module.
 #include <config.h>
 private inherit "roxenlib";
 // int first;
@@ -1806,7 +1786,8 @@ object clone_me()
   object c,t;
   c = object_program(t = this_object())(my_fd, conf);
 
-// c->first = first;
+  // c->first = first;
+  c->conf = conf;
   c->time = time;
   c->raw_url = raw_url;
   c->variables = copy_value(variables);
