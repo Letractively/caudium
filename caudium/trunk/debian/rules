@@ -113,6 +113,7 @@ install: build
 	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/",\3;' \
 	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(EXTVER)/"\3;' \
 	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
+	    -e 's#^string __caudium_extra_ver__ = ""#string __caudium_extra_ver__ = "Debian GNU/Linux"#' \
 	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
 	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
