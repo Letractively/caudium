@@ -115,7 +115,6 @@ parse_args() {
      precmd="ltrace -f "
      once=1
   ;;
-  # darwin
   --ktrace)
     precmd="ktrace -d "
     once=1;
