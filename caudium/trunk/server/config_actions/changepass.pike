@@ -28,7 +28,7 @@ constant name= "Security//Change password and/or username...";
 
 constant doc = ("Change the configuration interface username and/or password. "
 		"This is a shortcut to the initial configuration page of "
-		"roxen");
+		"Caudium");
 
 mixed handle(object id, object mc)
 {

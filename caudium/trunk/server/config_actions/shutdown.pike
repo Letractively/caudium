@@ -23,14 +23,14 @@
  */
 
 inherit "wizard";
-constant name= "Shutdown//Shut down Roxen...";
-constant doc = ("Restart or shut down Roxen.");
+constant name= "Shutdown//Shut down Caudium...";
+constant doc = ("Restart or shut down Caudium.");
 
 string page_0(object id)
 {
-  return ("<font size=+1>How do you want to shut down Roxen?</font><p>"
-	  "<var type=radio name=how checked value=reset> Restart Roxen<br>"
-	  "<var type=radio name=how value=shutdown> Shut down Roxen "
+  return ("<font size=+1>How do you want to shut down Caudium?</font><p>"
+	  "<var type=radio name=how checked value=reset> Restart Caudium<br>"
+	  "<var type=radio name=how value=shutdown> Shut down Caudium "
 	  "(no automatic restart)");
 }
 

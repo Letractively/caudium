@@ -28,8 +28,8 @@ constant action_disabled = 1;
 #else /* ENABLE_NEIGHBOURHOOD */
 inherit "wizard";
 
-string name = "Neighbourhood//Roxen Neighbourhood...";
-string doc = "Action for showing the status of other Roxen servers";
+string name = "Neighbourhood//Caudium Neighbourhood...";
+string doc = "Action for showing the status of other Caudium servers";
 
 string sv(mixed in)
 {

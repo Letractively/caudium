@@ -22,7 +22,7 @@
  * $Id$
  */
 constant name= "Maintenance//Upgrade components...";
-constant doc = "Selectively upgrade Roxen components from an upgrade server of your choice.";
+constant doc = "Selectively upgrade Caudium components from an upgrade server of your choice.";
 
 inherit "wizard";
 
@@ -263,7 +263,7 @@ string page_0(object id)
      "<var type=radio name=how default=1 value=0> Only currently "
      "enabled components (from all virtual servers) <br>\n"
      "<help><blockquote>"
-     "Check for upgrades of all modules presently used in your Roxen and all "
+     "Check for upgrades of all modules presently used in your Caudium and all "
      "plugins"
      "</blockquote></help>"
      

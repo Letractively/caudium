@@ -201,14 +201,14 @@ mixed page_1(mixed id, mixed mc)
 	  
      "<b>Organizational unit</b><br>\n"
      "<var name=organizationUnitName type=string "
-     "default=\"Roxen Development\"><br>"
+     "default=\"The Caudium Group\"><br>"
      "<blockquote>"
      "This attribute is optional, and there are no "
      "specific requirements on the value of this attribute."
      "</blockquote>"
 
      "<b>Common Name</b><br>\n"
-     "<var name=commonName type=string default=\"www.idonex.se\"><br>"
+     "<var name=commonName type=string default=\"www.caudium.net\"><br>"
      "This is the DNS name of your server (i.e. the host part of "
      "the URL).\n"
      "<blockquote>"
@@ -217,7 +217,7 @@ mixed page_1(mixed id, mixed mc)
      "if they don't match.<p>"
      "Some Certificate Authorities allow wild cards in the Common "
      "Name. This means that you can have a certificate for "
-     "<tt>*.idonex.se</tt> which will match all servers at Idonex. "
+     "<tt>*.caudium.net</tt> which will match all servers at Idonex. "
      "Thawte allows wild card certificates, while VeriSign does not."
      "</blockquote>");
 }

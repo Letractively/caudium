@@ -1268,7 +1268,7 @@ mapping|int low_get_file(object id, int|void no_magic)
       if(sscanf(loc, "caudium-%[^/]", loc)  // Configuration interface images.
 	 ||sscanf(loc, "roxen-%[^/]", loc)) // Try /internal-roxen-power
       {
-	TRACE_LEAVE("Magic internal roxen image");
+	TRACE_LEAVE("Magic internal Caudium image");
 	return internal_roxen_image(loc);
       }
     }
@@ -2458,7 +2458,7 @@ object enable_module( string modname )
 	       "The priority of the module. 9 is highest and 0 is lowest."
 	       " Modules with the same priority can be assumed to be"
 	       " called in random order"
-	       "<p>You have to restart Roxen to ensure that the new"
+	       "<p>You have to restart Caudium to ensure that the new"
 	       " priority is applied.",
 	       ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
       
@@ -3406,13 +3406,13 @@ void create(string config)
   defvar("Domain", roxen->get_domain(), "Domain", TYPE_STRING,
 	 "Your domainname, should be set automatically, if not, "
 	 "enter the correct domain name here, and send a bug report to "
-	 "<a href=\"mailto:roxen-bugs@idonex.se\">roxen-bugs@idonex.se"
+	 "<a href=\"mailto:caudium-bugs@caudium.net\">caudium-bugs@caudium.net"
 	 "</a>");
   
 
   defvar("Ports", ({ }), 
 	 "Listen ports", TYPE_PORTS,
-         "The ports this virtual instance of Roxen will bind to.\n");
+         "The ports this virtual instance of Caudium will bind to.\n");
 
   defvar("MyWorldLocation", get_my_url(), 
 	 "Server URL", TYPE_STRING,
@@ -3423,7 +3423,7 @@ void create(string config)
 
   defvar("FTPWelcome",  
 	 "              +-------------------------------------------------\n"
-	 "              +-- Welcome to the Roxen Challenger FTP server ---\n"
+	 "              +-- Welcome to the Caudium Webserver FTP server ---\n"
 	 "              +-------------------------------------------------\n",
 	 "Messages: FTP Welcome",
 	 TYPE_TEXT_FIELD|VAR_MORE,
