@@ -814,6 +814,7 @@ int act_on_args()
         case "gdb":
           options->precmd=({"gdb"});
           options->once=1;
+					options->watchdog=0;
           break;
         case "nodebug":
           command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
@@ -892,7 +893,8 @@ information
       .B--onceB.:  Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
        				  Implies --without-watchdog.
-      .B--gdbB.:  Run the server in gdb. Implies .B--onceB..
+      .B--gdbB.:  Run the server in gdb. Implies .B--onceB. and
+			            .B--without-watchdog.B.
       .B--programB.:  Start a different program with the caudium pike. As
 an example,
                                   .B./start --program bin/install.pikeB.  
