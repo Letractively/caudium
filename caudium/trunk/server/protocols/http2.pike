@@ -1256,7 +1256,7 @@ void send_result(mapping|void result)
     } 
 #endif
 #if DIRECT_WRITE
-    if(file->len > 0 && file->len < DIRECT_WRITE) {
+    if(file->len >= 0 && file->len < DIRECT_WRITE) {
       my_fd->write(head_string + (file->file ? file->file->read() :
 				  file->data[..file->len-1]));
       do_log();
