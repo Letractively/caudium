@@ -930,21 +930,6 @@ static string make_container(string tag,mapping in, string contents)
   return make_tag(tag,in)+contents+"</"+tag+">";
 }
 
-static string dirname( string file )
-{
-  if(!file) 
-    return "/";
-  mixed tmp;
-  if(file[-1] == '/')
-    if(strlen(file) > 1)
-      return file[0..strlen(file)-2];
-    else
-      return file;
-  tmp=file/"/";
-  if(sizeof(tmp)==2 && tmp[0]=="")
-    return "/";
-  return tmp[0..sizeof(tmp)-2]*"/";
-}
 
 static string conv_hex( int color )
 {
