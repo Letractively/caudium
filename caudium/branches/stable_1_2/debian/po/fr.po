@@ -15,7 +15,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-05-02 14:24+0200\n"
+"POT-Creation-Date: 2003-05-12 23:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,18 +23,13 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Default
-#: ../templates:3
-msgid "22202"
-msgstr ""
-
 #. Description
-#: ../templates:4
+#: ../templates:19
 msgid "On what port should the config interface be?"
 msgstr "Sur quel port voulez-vous que l'interface de configuration"
 
 #. Description
-#: ../templates:4
+#: ../templates:19
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
@@ -45,118 +40,75 @@ msgstr ""
 "n'importe quel navigateur web supportant les formulaires (comme Mozilla, "
 "Lynx, Links ou Galeon)"
 
-#. Default
-#: ../templates:11
-msgid "80"
-msgstr ""
-
 #. Description
-#: ../templates:12
+#: ../templates:27
 msgid "What port should the server listen on?"
 msgstr "Sur quel port le serveur doit-il écouter ?"
 
 #. Description
-#: ../templates:12
+#: ../templates:27
+#, fuzzy
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
-"interface in your machine. You can, however, specify a different port here "
-"if there's such need."
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
 msgstr ""
 "Caudium utilise actuellement le port '${portno}' sur toutes les interfaces "
 "de votre machine. Il semble que ce port soit déjà pris par une autre "
 "application. Merci de spécifier un autre port."
 
 #. Choices
-#: ../templates:19
+#: ../templates:34
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr ""
 
 #. Description
-#: ../templates:21
+#: ../templates:36
 msgid "Select options that should be used on startup"
 msgstr "Sélectionnez les options à utiliser lors du lancement"
 
 #. Description
-#: ../templates:21
-msgid "'threads' - use threads (if available)"
-msgstr "'threads' - utilise les threads (si disponible)"
-
-#. Description
-#: ../templates:21
-msgid "'debug' - output debugging information while running"
-msgstr "'debug' - informations de deboggage en sortie standard"
-
-#. Description
-#: ../templates:21
-msgid "'once' - run in foreground"
-msgstr "'once' - exécute en premier plan"
-
-#. Description
-#: ../templates:21
-msgid "'profile' - store profiling information"
-msgstr "'profile' - affiche les informations de profilage"
-
-#. Description
-#: ../templates:21
-msgid "'fd-debug' - debug file descriptor usage"
-msgstr "'fd-debug' - deboggue les descripteurs de fichier"
-
-#. Description
-#: ../templates:21
-msgid "'keep-alive' - keep connections alive with HTTP/1.1"
+#: ../templates:36
+msgid ""
+"You can select zero or more options from:\n"
+" 'threads' - use threads (if available)\n"
+" 'debug' - output debugging information while running\n"
+" 'once' - run in foreground\n"
+" 'profile' - store profiling information\n"
+" 'fd-debug' - debug file descriptor usage\n"
+" 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
-"'keep-alive' - garde les connection ouvertes avec le protocole HTTP/1.1;"
 
 #. Description
-#: ../templates:37
+#: ../templates:48
 msgid "Tune Caudium settings for maximum performance?"
 msgstr ""
 
 #. Description
-#: ../templates:37
+#: ../templates:48
 msgid ""
 "If you select this options the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
-"features turned off are:"
+"features turned off are:\n"
+" - extra Roxen compatibility\n"
+" - module level security\n"
+" - the supports database\n"
+" - DNS lookups\n"
+" - URL modules"
 msgstr ""
 
 #. Description
-#: ../templates:37
-msgid "- extra Roxen compatibility"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- module level security"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- the supports database"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- DNS lookups"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- URL modules"
-msgstr ""
-
-#. Description
-#: ../templates:37
+#: ../templates:48
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 
 #. Description
-#: ../templates:56
+#: ../templates:62
 msgid "Cannot bind to port."
 msgstr "Impossible d'ouvrir (bind) le port."
 
 #. Description
-#: ../templates:56
+#: ../templates:62
 msgid ""
 "The port you have specified for Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -169,12 +121,12 @@ msgstr ""
 "configuration sur votre système."
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 msgid "Caudium configuration"
 msgstr "Configuration de Caudium"
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 #, fuzzy
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
@@ -192,7 +144,7 @@ msgstr ""
 "caudium.net/ et http://caudium.org/"
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -200,18 +152,18 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:78
+#: ../templates:84
 msgid "Use the experimental HTTP protocol module?"
 msgstr "Utiliser le module expérimental HTTP ?"
 
 #. Description
-#: ../templates:78
+#: ../templates:84
+#, fuzzy
 msgid ""
 "Caudium comes with an experimental HTTP module that is faster than the "
 "original one. The code is still Work-In-Progress, so you might experience "
 "problems running it. It is NOT recommended to run this code on a production "
-"server. If, however, you want to test its functionality, answer YES to this "
-"question."
+"server. If, however, you want to test its functionality, turn this option on."
 msgstr ""
 "Caudium est pourvu d'un module expérimental HTTP qui est plus rapide que "
 "celui fourni en standard. Ce code est en constants travaux et il est "
@@ -220,18 +172,13 @@ msgstr ""
 "production. Cependant si vous voulez tester ses fonctionnalités, répondez "
 "OUI à cette question."
 
-#. Default
-#: ../templates:87
-msgid "admin"
-msgstr ""
-
 #. Description
-#: ../templates:88
+#: ../templates:94
 msgid "Configuration interface login."
 msgstr "Login pour l'interface de configuration."
 
 #. Description
-#: ../templates:88
+#: ../templates:94
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -245,18 +192,13 @@ msgstr ""
 "configurer le serveur à votre place. Vous ne le souhaitez sûrement pas. "
 "Merci de spécifier un login ou d'accepter celui par défaut."
 
-#. Default
-#: ../templates:97
-msgid "password"
-msgstr ""
-
 #. Description
-#: ../templates:98
+#: ../templates:104
 msgid "Configuration interface password"
 msgstr "Mot de passe pour l'interface de configuration."
 
 #. Description
-#: ../templates:98
+#: ../templates:104
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
@@ -265,3 +207,22 @@ msgstr ""
 "Il s'agit du mot de passe pour accéder à l'interface de configuration. La "
 "valeur par défaut est 'password'. Il est EXTREMEMENT RECOMMANDE de changer "
 "le mot de passe par défaut!"
+
+#~ msgid "'threads' - use threads (if available)"
+#~ msgstr "'threads' - utilise les threads (si disponible)"
+
+#~ msgid "'debug' - output debugging information while running"
+#~ msgstr "'debug' - informations de deboggage en sortie standard"
+
+#~ msgid "'once' - run in foreground"
+#~ msgstr "'once' - exécute en premier plan"
+
+#~ msgid "'profile' - store profiling information"
+#~ msgstr "'profile' - affiche les informations de profilage"
+
+#~ msgid "'fd-debug' - debug file descriptor usage"
+#~ msgstr "'fd-debug' - deboggue les descripteurs de fichier"
+
+#~ msgid "'keep-alive' - keep connections alive with HTTP/1.1"
+#~ msgstr ""
+#~ "'keep-alive' - garde les connection ouvertes avec le protocole HTTP/1.1;"

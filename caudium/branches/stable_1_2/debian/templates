@@ -1,6 +1,21 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2003-05-12 23:49+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
 Template: caudium/config_port
 Type: string
-_Default: 22202
+Default: 22202
 _Description: On what port should the config interface be?
  Specify the port on which Caudium will provide its configuration
  interface. You can access the interface using any form capable web browser
@@ -8,10 +23,10 @@ _Description: On what port should the config interface be?
 
 Template: caudium/listen_on
 Type: string
-_Default: 80
+Default: 80
 _Description: What port should the server listen on?
  Caudium is currently configured to listen on port '${portno}' of every
- interface in your machine. You can, however, specify a different port here
+ interface in your machine. You can however specify a different port here
  if there's such need.
 
 Template: caudium/start_options
@@ -19,17 +34,13 @@ Type: multiselect
 _Choices: threads, debug, once, profile, fd-debug, keep-alive
 Default: threads
 _Description: Select options that should be used on startup
- 'threads' - use threads (if available)
- .
- 'debug' - output debugging information while running
- .
- 'once' - run in foreground
- .
- 'profile' - store profiling information
- .
- 'fd-debug' - debug file descriptor usage
- .
- 'keep-alive' - keep connections alive with HTTP/1.1
+ You can select zero or more options from:
+  'threads' - use threads (if available)
+  'debug' - output debugging information while running
+  'once' - run in foreground
+  'profile' - store profiling information
+  'fd-debug' - debug file descriptor usage
+  'keep-alive' - keep connections alive with HTTP/1.1
 
 Template: caudium/performance
 Type: boolean
@@ -38,16 +49,11 @@ _Description: Tune Caudium settings for maximum performance?
  If you select this options the Caudium default configuration will be
  tweaked by turning off certain features that can severely slow your server
  down. The features turned off are:
- .
- - extra Roxen compatibility
- .
- - module level security
- .
- - the supports database
- .
- - DNS lookups
- .
- - URL modules
+  - extra Roxen compatibility
+  - module level security
+  - the supports database
+  - DNS lookups
+  - URL modules
  .
  If you use any of the above features DO NOT turn this option on!
 
@@ -79,12 +85,12 @@ _Description: Use the experimental HTTP protocol module?
  Caudium comes with an experimental HTTP module that is faster than the
  original one. The code is still Work-In-Progress, so you might experience
  problems running it. It is NOT recommended to run this code on a
- production server. If, however, you want to test its functionality, answer
- YES to this question.
+ production server. If, however, you want to test its functionality, turn
+ this option on.
 
 Template: caudium/config_login
 Type: string
-_Default: admin
+Default: admin
 _Description: Configuration interface login.
  This is the user login name for the configuration interface access. If you
  don't specify anything here, anybody who will access the config interface
@@ -94,7 +100,7 @@ _Description: Configuration interface login.
 
 Template: caudium/config_password
 Type: password
-_Default: password
+Default: password
 _Description: Configuration interface password
  This is the password used to access the configuration interface. The
  default value for it is 'password' - it is HIGHLY RECOMMENDED to change
