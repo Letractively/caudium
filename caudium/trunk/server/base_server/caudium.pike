@@ -271,13 +271,10 @@ private static void low_shutdown(int exit_type)
 
       // Try to kill the start-script.
       if(startpid != getpid()) {
-        kill(startpid, signum("SIGINTR"));
-	kill(getppid(), signum("SIGINTR"));
-	if(exit_type)
-	{
-          kill(startpid, signum("SIGHUP"));
-          kill(getppid(), signum("SIGHUP"));
-	}
+      	if(exit_type)
+	  kill(startpid, signum("SIGINT"));
+	else
+          kill(startpid, signum("SIGTERM"));
       }
     }
   }

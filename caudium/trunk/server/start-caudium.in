@@ -129,7 +129,6 @@ mapping watchdog_params = ([ ]);
 array valid_interpreters=({"@PIKE@", "bin/caudium", "bin/pike"});
 
 // call out for the watchdog
-mixed cs_callout;
 mixed ct_callout;
 
 // object for the watchdog
@@ -442,7 +441,7 @@ void signal_int()
   if(options->once)
   {
     if(proc && proc->status()==0)
-    { 
+    {
       proc->kill(signum("SIGTERM"));
       exit(0);
     }
@@ -513,8 +512,6 @@ void do_multi_run(array o, mapping opt)
     opt->setsid=1;
 
     // remove the watchdog while we're restarting Caudium
-    if(cs_callout)
-      remove_call_out(cs_callout);
     if(ct_callout)
       remove_call_out(ct_callout);
 
@@ -879,9 +876,11 @@ void check_site()
       if(proc && proc->status()==1) 
       {
         flex_write("Killing Caudium...\n");
+	// try to make caudium describing all the threads
+        proc->kill(signum("SIGTRAP"));
         proc->kill(signum("SIGKILL"));
       }
-    } 
+    }
     // let's send the request and wait for a response.
     conn->set_nonblocking();
     conn->set_read_callback(response_received);
@@ -906,7 +905,6 @@ void response_received(mixed id, mixed data)
   {
     // request was successful.
     remove_call_out(ct_callout);
-    remove_call_out(cs_callout);
     conn->close();
     conn=0;
 
@@ -928,6 +926,8 @@ void kill_caudium()
   if(proc)
   {
     flex_write("Killing Caudium...\n");
+    // try to make caudium describing all the threads
+    proc->kill(signum("SIGTRAP"));
     proc->kill(signum("SIGKILL"));
   }
 
@@ -943,7 +943,6 @@ void check_timedout()
   kill_caudium();
 
   // remove any of the check call outs.
-  if(cs_callout) remove_call_out(cs_callout);
   if(ct_callout) remove_call_out(ct_callout);
 
   first_ping=1;
