@@ -626,12 +626,10 @@ void http_fallback(object alert, object|int n, string data)
 		 "data = '%s'", alert->level, alert->description,
 		 (string) n, data));
 #endif
-werror("fallback?\n");
   if ((!my_fd->current_write_state || !my_fd->current_write_state->seq_num)
     || search(lower_case(data), "http")!=-1)
   {
 
-werror("fallback: %d, %s!\n", search(lower_case(data), "http"), data);
     /* Redirect to a https-url */
 //    my_fd->set_close_callback(0);
 //    my_fd->leave_me_alone = 1;
