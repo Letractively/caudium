@@ -256,6 +256,8 @@ static void f_buf_create( INT32 args )
   BUF->pos = BUF->data;
   add_ref(BUF->headers   = sp[-(args - 1)].u.mapping);
   add_ref(BUF->other     = sp[-args].u.mapping);
+  
+  pop_n_elems(args);
 }
 
 static void free_buf_struct(struct object *o)
