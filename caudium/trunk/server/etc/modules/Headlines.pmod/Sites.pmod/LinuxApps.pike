@@ -7,7 +7,7 @@
 
 import Headlines;
 
-#include <include/base.h>
+#include <headlines/base.h>
 
 constant name = "linuxapps";
 constant site = "Linux Applications";
