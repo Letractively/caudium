@@ -1775,23 +1775,24 @@ int range_disabled_p() { return !QUERY(EnableRangeHandling);  }
 int storage_disk_p() { return QUERY(storage_type)!="MySQL"; }
 int storage_mysql_p() { return QUERY(storage_type)!="Disk"; }
 
-
 class ImageCache
 {
+
+  inherit "cachelib";
   string name;
-  string dir;
   function draw_function;
-  mapping data_cache = ([]); // not normally used.
-  mapping meta_cache = ([]);
+  object mycache;
 
   static mapping meta_cache_insert(string i, mapping what)
   {
-    return meta_cache[i] = what;
+    mycache->store(cache_pike(what, sprintf("meta://%s", i), -1));
+    return what;
   }
   
   static string data_cache_insert(string i, string what)
   {
-    return data_cache[i] = what;
+    mycache->store(cache_pike(what, sprintf("data://%s", i), -1));
+    return what;
   }
 
   static mixed frommapp(mapping what)
@@ -2106,86 +2107,29 @@ class ImageCache
     store_data( name, data );
   }
 
-  static void store_meta(string id, mapping meta)
-  {
+
+  static void store_meta(string id, mapping meta) {
     meta_cache_insert(id, meta);
-
-    string data = encode_value(meta);
-    Stdio.File f = Stdio.File(  dir+id+".i", "wct" );
-    if(!f) {
-      report_error( "Failed to open image cache persistant cache file '%s.i': %s\n",
-                    dir+id, strerror(errno()));
-      return;
-    }
-    
-    f->write( data );
   }
 
-  static void store_data( string id, string data )
-  {
-    if (!data)
-      return;
-
-    Stdio.File f = Stdio.File(dir+id+".d", "wct");
-    if(!f) {
-      data_cache_insert(id, data);
-      report_error( "Failed to open image cache persistant cache file '%s.d': %s"+
-                    dir+id, strerror(errno()));
-      return;
-    }
-    
-    f->write( data );
+  static void store_data(string id, string data) {
+    data_cache_insert(id, data);
   }
 
-  static mapping restore_meta(string id)
-  {
-    Stdio.File f;
-    
-    if (meta_cache[ id ])
-      return meta_cache[ id ];
-    
-    f = Stdio.File( );
-    if(!f->open(dir+id+".i", "r" ))
-      return 0;
-
-    string s = f->read();
-    mapping m;
-    
-    if (catch (m = decode_value (s))) {
-      rm (dir + id + ".i");
-      report_error( "Corrupt data in persistent cache file %s.i; removed it.\n",
-                    dir+id );
-      return 0;
-    }
-    
-    return meta_cache_insert( id, m );
+  static mapping restore_meta(string id) {
+    return mycache->retrieve(sprintf("meta://%s", id));
   }
 
-  static mapping restore(string id)
-  {
+  static void|mapping restore(string id) {
     if (!id)
       return 0;
-    
-    string|object(Stdio.File) f;
-    mapping m;
-
-    if (data_cache[id])
-      f = data_cache[id];
-    else 
-      f = Stdio.File( );
-
-    if(!f->open(dir+id+".d", "r" ))
+    mapping m = restore_meta(id);
+    if (!m)
       return 0;
-
-    m = restore_meta(id);
-    
-    if(!m)
+    string f = mycache->retrieve(sprintf("data://%s", id));
+    if (!stringp(f))
       return 0;
-
-    if (stringp(f))
-      return http_string_answer( f, m->type||("image/gif") );
-    
-    return caudiump()->http_file_answer(f, m->type||("image/gif"));
+    return http_string_answer(f, m->type||("image/gif"));
   }
 
   string data(string|mapping args, object id, int|void nodraw)
@@ -2278,17 +2222,12 @@ class ImageCache
     draw_function = to;
   }
 
-  void create(string id, function draw_func, string|void d)
-  {
-    if(!stringp(d))
-      d = Stdio.append_path(caudiump()->QUERY(cachedir), "args", id, "/");
-    
-    Stdio.mkdirhier(d+"foo");
-
-    dir = d;
+  void create(string id, function draw_func, string|void d) {
+    mycache = caudiump()->cache_manager->get_cache(sprintf("ImageCache(%O)", id));
     name = id;
     draw_function = draw_func;
   }
+
 }
 
 array(int) invert_color(array color)
