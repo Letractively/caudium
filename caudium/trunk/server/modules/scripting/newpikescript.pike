@@ -110,7 +110,7 @@ object server_for(int uid, int gid)
   // So. Now we have to start a new server....
   object pid = 
     Process.create_process(({"./start","--once","--program",
-			     "modules/scripting/newpikescript.pike" }),
+			     __FILE__ }),
 			   ([
 			     "uid":uid,
 			     "stdout":Stdio.stdout,
@@ -292,11 +292,11 @@ mapping handle_file_extension(object file, string ext, object id)
   string file_name = id->conf->real_file( id->not_query, id );
 
   if(!server)
-    error("Failed to connect to pike-script server for "+uid+"\n");
+    report_error("Failed to connect to pike-script server for "+uid+"\n");
 
   if(!file_name)
   {
-//     werror("Copying temporary file... ["+id->not_query+"]\n");
+    report_debug("Copying temporary file... ["+id->not_query+"]\n");
     file_name = "/tmp/"+getpid()+"."+uid+".pike";
     rm(file_name);
     Stdio.write_file( file_name, file->read() );
@@ -358,6 +358,9 @@ mapping handle_file_extension(object file, string ext, object id)
 // o Wait for calls from Roxen.
 
 #define eventlog(X) do{ if(_eventlog) _eventlog(X); } while(0)
+#if !constant(report_notice)
+#define report_notice(X) werror(X)
+#endif
 function _eventlog ;
 mapping globals = ([]);
 mapping scripts = ([]);
@@ -366,7 +369,12 @@ int last_call;
 object _get_pikescript(string file, mixed id)
 {
   last_call = time();
-  if(!scripts[file] || id->pragma["no-cache"])
+  object o = scripts[file];
+  if(!o ||
+     (id->pragma["no-cache"] &&
+      !(functionp(o->no_reload) && o->no_reload(id))
+     )
+    )
   {
     eventlog("Compile "+file+" "+
 	     (id->pragma["no-cache"]?"Client reload":"New"));
@@ -452,7 +460,8 @@ void die()
   eventlog("Pike script server PID "+
 	   getpid()+" exiting (no accesses for 30 minutes)");
   rm(basedir+SERVERDIR+getuid());
-  kill(getpid(), 9);
+  //kill(getpid(), 9);
+  exit(0);
 }
 
 string in_file, basedir;
@@ -463,10 +472,12 @@ void perhaps_die()
   {
     eventlog("Old pike script server PID "+
 	   getpid()+" exiting (new available?)");
-    kill(getpid(), 9);
+    //kill(getpid(), 9);
+    exit(0);
   }
   else if(time()-last_call>1800)
     die();
+  call_out(perhaps_die, 300);
 }
 
 int main()
@@ -511,9 +522,11 @@ int main()
   master()->add_program_path("base_server");
   master()->add_module_path("etc/modules");
   db=spider;
-  add_constant("roxenp", lambda(){return globals->roxen;});
-  add_constant("error", lambda(string what){array b = backtrace();
-            throw(({ what, b[..sizeof(b)-2]}));});
+  add_constant("roxenp", lambda(){return globals->caudium;});
+  add_constant("caudiump", lambda(){return globals->caudium;});
+  add_constant("error", lambda(string what, mixed ... args){array b = backtrace();
+            throw(({ sprintf(what, @args), b[..sizeof(b)-2]}));});
+  add_constant("report_debug", werror);
 
   // ok.. Now write the location to the correct file.
   // pwd is the 'server' directory.
