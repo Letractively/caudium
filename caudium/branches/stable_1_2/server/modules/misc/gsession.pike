@@ -931,6 +931,9 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
 //
 private void memory_delete_session(string sid)
 {
+  if (memory_validate_storage("_sessions_", sid, "memory_delete_session") < 0)
+    return 0;
+
   if (_memory_storage["_sessions_"][sid]->fresh)
     _memory_storage["_sessions_"]->idle_sessions--;
   _memory_storage["_sessions_"]->total_sessions--;
