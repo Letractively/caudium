@@ -21,6 +21,7 @@ force:
 	@:
 
 install: all
+	-strip $(MODNAME).$(SO)
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 	$(INSTALL) ultrasum $(prefix)/bin/
 

@@ -20,6 +20,7 @@ force:
 	@:
 
 install: all
+	-strip $(MODNAME).$(SO)
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
 $(MODNAME).$(SO): $(OBJS)  $(MODULE_ARCHIVES)

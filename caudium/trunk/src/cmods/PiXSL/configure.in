@@ -16,6 +16,14 @@ AC_PROG_INSTALL
 
 AC_CHECK_HEADERS( sablot.h )
 AC_CHECK_LIB(xmlparse, XML_Parse)
+dnl The GNOME xmltok/xmlparse library is different but works OK
+dnl on some systems that run sablotron modified to use
+dnl the GNOME lib (like, e.g. Debian GNU/Linux woody)
+if test "$ac_cv_lib_xmlparse_XML_Parse" = no; then
+    AC_CHECK_LIB(xmltok, XmlInitEncoding)
+    AC_CHECK_LIB(xmlparse, XML_ParserCreate)
+fi
+
 AC_CHECK_LIB(sablot, SablotProcess)
 
 AC_SUBST(PIKE_INCLUDE_DIR)
