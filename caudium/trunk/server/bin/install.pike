@@ -29,6 +29,21 @@
 string cvs_version = "$Id$";
 
 import Stdio;
+
+array(int) caudium_fstat(string|object file, int|void nolink) {
+  mixed st;
+  if(objectp(file)) {
+    if(file->stat)
+      st = (array(int))file->stat();
+    else
+      throw("caudium_fstat: Object not a file.\n");
+  }    
+  else
+    st = predef::file_stat(file, nolink);
+  if(st) return (array(int))st;
+  return 0;
+}
+
 #include <caudium.h>
 
 #undef DEBUG
@@ -60,6 +75,88 @@ void report_fatal(string s)
 object caudiump()
 {
   return this_object();
+}
+
+class Readline
+{
+#if constant(Stdio.Readline)
+  inherit Stdio.Readline;
+#endif
+
+  void trap_signal(int n)
+  {
+    werror("Interrupted, exit.\r\n");
+    destruct(this_object());
+    exit(1);
+  }
+
+  void dumb(int on) {
+#if constant(Stdio.Readline)
+    get_input_controller()->dumb = on;
+#else
+    if(on) write(Process.popen("stty -echo"));
+    else write(Process.popen("stty echo"));
+#endif
+  }
+  
+  void destroy()
+  {
+#if constant(Stdio.Readline)
+    get_input_controller()->dumb = 0;
+    ::destroy();
+#endif
+    signal(signum("SIGINT"));
+  }
+
+  private string safe_value(string r)
+  {
+    if(!r)
+    {
+      /* C-d? */
+      werror("\nTerminal closed, exit.\n");
+      destruct(this_object());
+      exit(1);
+    }
+	
+    return r;
+  }
+    
+
+  string edit(string def, string prompt, mixed ... args)
+  {
+    
+#if constant(Stdio.Readline)
+    if(def)
+      prompt += ": ";
+    else prompt += " ";
+    return safe_value(::edit(def||"", prompt, @args));
+#else
+    string res;
+    if(def) prompt = "[1m" + prompt +" ["+def+"]:[0m ";
+    else    prompt = "[1m" +prompt +"[0m ";
+#if constant(readline)
+    res = safe_value(readline(prompt));
+#else
+    write(prompt);
+    res = gets();
+#endif
+    if(!strlen(res) && def) return def;
+    return res;
+#endif
+  }
+  
+  void create(mixed ... args)
+  {
+    signal(signum("SIGINT"), trap_signal);
+#if constant(Stdio.Readline)
+    ::create(@args);
+#endif
+  }
+}
+
+string read_string(Readline rl, string prompt, string|void def)
+{
+  return rl->edit(def, prompt, ({ "bold" })) || "";
 }
 
 object|void open(string filename, string mode, int|void perm)
@@ -132,10 +229,14 @@ int run(string file,string ... foo)
   return 69;
 }
 
-int verify_port(int try)
+int verify_port(string port)
 {
-  int ret;
+  int ret, try;
   object p;
+  if(!strlen(port) || sizeof(port/"" - "1234567890"/"")) {
+     return 0;
+  } else
+    sscanf(port, "%d", try);
   p = Stdio.Port();
   ret = p->bind(try);
   destruct(p);
@@ -158,45 +259,11 @@ int getport()
   }
   write("Failed to find a free port (tried 8192 different)\n"
 	"Pike's socket-implementation might be broken on this architecture.\n"
-	"Please run \"make verify\" in the build-tree to check pike.\n");
+	"Please run \"make verify\" in the Pike build-tree to test Pike.\n");
   destruct(p);
   return(0);
 }
 
-string gets(void|int sp)
-{
-// #if efun(readline)
-//   return readline("");
-// #else
-  string s="", tmp;
-  
-  while((tmp = stdin -> read(1)))
-    switch(tmp)
-    {
-    case "\010":
-      s = s[0..strlen(s) - 2];
-      break;
-
-    case " ":  case "\t":  case "\r":
-      if(!sp)
-	while((stdin -> read(1)) != "\n") 
-	  ;
-      else {
-	s += tmp;
-	break;
-      }
-    case "\n":
-      // Truncate any terminating spaces.
-      while (sizeof(s) && (s[-1] == ' ')) {
-	s = s[..sizeof(s)-2];
-      }
-      return s;
-	
-    default:
-      s += tmp;
-    }
-// #endif
-}
 
 private string get_domain(int|void l)
 {
@@ -465,20 +532,50 @@ void config_env(object(Environment) env)
   }
 }
 
+string gets(void|int sp)
+{
+  string s="", tmp;
+  
+  while((tmp = stdin -> read(1)))
+    switch(tmp)
+    {
+    case "\010":
+      s = s[0..strlen(s) - 2];
+      break;
+
+    case " ":  case "\t":  case "\r":
+      if(!sp)
+	while((stdin -> read(1)) != "\n") 
+	  ;
+      else {
+	s += tmp;
+	break;
+      }
+    case "\n":
+      // Truncate any terminating spaces.
+      while (sizeof(s) && (s[-1] == ' ')) {
+	s = s[..sizeof(s)-2];
+      }
+      return s;
+	
+    default:
+      s += tmp;
+    }
+}
 void main(int argc, string *argv)
 {
-  string host, client, log_dir, domain;
+  string host, client, log_dir, domain, var_dir, user, pass, pass2;
   mixed tmp;
   int port, configuration_dir_changed, logdir_changed;
   string prot_prog = "http";
   string prot_spec = "http://";
   string prot_extras = "";
+  Readline rl = Readline();
 
   add_constant("roxen", this_object());
   add_constant("perror", roxen_perror);
   add_constant("roxen_perror", roxen_perror);
   add_constant("gets", gets);
-
   if(find_arg(argv, "?", "help"))
   {
     perror(sprintf("Syntax: %s [-d DIR|--config-dir=DIR] [-l DIR|--log-dir=DIR] [--no-env-setup]\n"
@@ -493,17 +590,18 @@ void main(int argc, string *argv)
     exit(0);
   }
 
-  configuration_dir = find_arg(argv, "d", ({ "config-dir",
-					       "config",
-					       "configurations",
-					       "configuration-directory" }),
-			       ({ "CAUDIUM_LOGDIR" }),
-			       "../configurations");
+  configuration_dir =
+    find_arg(argv, "d", ({ "config-dir", "config",
+			   "configuration-directory" }),
+	     ({ "CAUDIUM_CONFIGDIR", "CONFIGURATIONS" }),
+	     "../configurations");
   
-  log_dir = find_arg(argv, "l", ({ "log-dir",
-				     "log-directory", }),
-		     ({ "CAUDIUM_CONFIGDIR", "CONFIGURATIONS" }),
+  log_dir = find_arg(argv, "l", ({ "log-dir", "log-directory", }),
+		     ({ "CAUDIUM_LOGDIR" }),
 		     "../logs/");
+  var_dir = find_arg(argv, "l", ({ "var-dir","var-directory", }),
+		     ({ "CAUDIUM_VARDIR" }),
+		     "../var/");
 
   write(Process.popen("clear"));
   host=gethostname();
@@ -540,106 +638,133 @@ void main(int argc, string *argv)
   }
 
   write("[1m              Caudium Installation Script\n"
-	"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m\n"
-	"On all questions, press return to use the default value.\n\n"
-	"Enter the full hostname of your computer (hostname.domain).\n"
-	"[1mFull Hostname [ "+host+" ][0m: ");
-  tmp = gets();
+	"              ^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m\n");
+  do { 
+    write("\n   Enter the full hostname of your computer (hostname.domain).\n\n");
+    tmp = read_string(rl, "Full Hostname", host);
 
-  if(strlen(tmp))
-    host=tmp;
-
-  while(1)
-  {
-    port = getport();
-    write("[1mConfiguration Interface Port Number [ "+port+" ][0m: ");
-    tmp = gets();
     if(strlen(tmp))
-      tmp = (int)tmp;
-    else
-      break;
+      host=tmp;
+
+    write("\n   Enter the port number for the configuration interface.\n\n");
+    while(1)
+    {
+      port = getport();
+      tmp = read_string(rl, "Port Number",
+			(string)port);
+      if(!strlen(tmp))
+	continue;
     
-    if(verify_port((int)tmp)) {
-      port=tmp;
-      break;
+      if(verify_port(tmp)) {
+	port=(int)tmp;
+	break;
+      }
+    
+      if(getuid() != 0 && port < 1000)
+	write("\n   You need to be superuser to open a port under 1000. ");
+      else
+	write("\n   That port number is already used or invalid. ");
+      write("Choose another one.\n\n");
     }
+
+    write("\n   Enter the directory where Caudium will store its configuration files.\n\n");
+    while(1)
+    {
+      tmp = read_string(rl, "Configurations Directory",
+			configuration_dir);
     
-    if(getuid() != 0 && tmp < 1000)
-      write("You need to be superuser to open a port under 1000. ");
-    else
-      write("That port number is already used or invalid. ");
-    write("Choose another one.\n");
-  }
+      if(strlen(tmp))
+	configuration_dir = tmp;
+      if(configuration_dir[-1] != '/')
+	configuration_dir += "/";
+      if(sizeof(list_all_configurations())) 
+	write("\n   Caudium is already installed in that directory! "
+	      "Choose another one.\n\n");
+      else 
+	break;
+    }
+    write("\n   Please select a directory where Caudium can store various"
+	  "\n   configuration interface options.\n\n");
+    tmp = read_string(rl, "State Directory", var_dir);
 
-  while(1)
-  {
-    write("[1mConfigurations Directory [ "+configuration_dir+" ][0m: ");
-    tmp = gets();
+    if(strlen(tmp)) var_dir = tmp;
+    if(var_dir[-1] != '/')
+      var_dir += "/";
+
+    write("\n   Please select the directory where Caudium logs will be "
+	  "stored.\n\n");
+
+    tmp = read_string(rl, "Log Directory", log_dir);
+
     if(strlen(tmp))
-      configuration_dir = tmp;
-    if(configuration_dir[-1] != '/')
-      configuration_dir += "/";
-    if(sizeof(list_all_configurations())) 
-      write("Caudium is already installed in that directory! "
-	    "Choose another one.\n");
-    else 
-      break;
-  }
-  write("[1mLog Directory [ "+log_dir+" ][0m: ");
-  tmp = gets();
-  if(strlen(tmp))
-    log_dir = tmp;
-  if(log_dir[-1] != '/')
-    log_dir += "/";
+      log_dir = tmp;
+    if(log_dir[-1] != '/')
+      log_dir += "/";
       
-  if(log_dir != "../logs/")
-    logdir_changed = 1;
+    if(log_dir != "../logs/")
+      logdir_changed = 1;
 
-  if(configuration_dir != "../configurations" && 
-     configuration_dir != "../configurations/")
-    configuration_dir_changed = 1;
+    if(configuration_dir != "../configurations" && 
+       configuration_dir != "../configurations/")
+      configuration_dir_changed = 1;
+
+      write("\n   Please enter a name for the configuration interface"
+	    "\n   administrator user.\n\n");
+    do
+    {
+      user = read_string(rl, "Administrator User Name", "admin");
+    } while(((search(user, "/") != -1) || (search(user, "\\") != -1)) &&
+	    write("  User name may not contain slashes.\n\n"));
+
+      write("\n   Please select a password with one or more characters. "
+	    "You will\n   be asked to type the password twice for "
+	    "verification.\n\n");
+    do
+    {
+      rl->dumb(1);
+      pass = read_string(rl, "Administrator Password:", 0);
+      if(!strlen(pass)) {
+	write("\n\n   You need to enter a password with one or more characters.\n\n");
+	pass = 0;
+      } else {
+	pass2 = read_string(rl, "(again)", 0);
+	rl->dumb(0);
+	write("\n");
+	if(pass != pass2) {
+	  write("\n   The passwords didn't match. Try again.\n\n");
+	  pass = 0;
+	}
+      }
+    } while(!pass);
+
+    /* SSL Checks */
+    int have_gmp = 0;
+    catch(have_gmp = sizeof(indices(master()->resolv("Gmp"))));
+    int have_crypto = 0;
+    catch(have_crypto = sizeof(indices(master()->resolv("_Crypto"))));
+    write("\n");
+    if (have_gmp && have_crypto) {
+      tmp = read_string(rl, "Use SSL3 (https://) for the configuration interface [Y/n]?", 0) - " ";
+      
+      if (!strlen(tmp) || lower_case(tmp)[0] != 'n') {
+	prot_prog = "ssl3";
+	prot_spec = "https://";
+	prot_extras = "cert-file demo_certificate.pem";
+	
+	write("\n   Using SSL3 with the demo certificate \"demo_certificate.pem\"."
+	      "\n   It is recommended that you change the certificate to one of your own.\n\n");
+      }
+    } else {
+      if (have_crypto) {
+	write("\n   [1mNo Gmp-module  -- using http for the configuration-interface[0m.\n");
+      } else {
+	write("\n   [1mCrypto module module missing -- using the http protocol[0m.\n");
+      }
+    }
+  } while( strlen( tmp = read_string(rl, "Are the settings above correct [Y/n]?", 0) ) && lower_case(tmp)[0]=='n' );
+
 
   mkdirhier("../local/modules/");
-
-  int have_gmp = 0;
-  catch(have_gmp = sizeof(indices(master()->resolv("Gmp"))));
-  int have_crypto = 0;
-  catch(have_crypto = sizeof(indices(master()->resolv("_Crypto"))));
-  int have_ssl3 = 0;
-  have_ssl3 = file_stat("protocols/ssl3.pike") != 0;
-
-  if (have_gmp && have_crypto && have_ssl3) {
-    write("[1mUse SSL3 (https://) for the configuration-interface [Y/n][0m? ");
-    tmp = gets() - " ";
-    if (!strlen(tmp) || lower_case(tmp)[0] != 'n') {
-      prot_prog = "ssl3";
-      prot_spec = "https://";
-      prot_extras = "cert-file demo_certificate.pem";
-
-      write("Using SSL3 with the demo certificate \"demo_certificate.pem\".\n"
-	    "It is recommended that you change the certificate to one of your own.\n");
-    }
-  } else {
-    if (have_crypto && have_ssl3) {
-      write("[1mNo Gmp-module -- using http for the configuration-interface[0m.\n");
-    } else {
-      write("[1mExport version -- using http for the configuration-interface[0m.\n");
-    }
-  }
-
-  if( file_stat("manual") && file_stat("manual")[1] == -2 )
-  {
-    if( file_stat("manual/parsed.tar") ) {
-      write("\nInstalling parsed manual...\n");
-      Process.popen("/bin/sh -c 'cd manual && tar xf parsed.tar"
-		    " && rm parsed.tar'");
-    }
-    if( file_stat("manual/unparsed.tar") ) {
-      write("\nInstalling unparsed manual...\n");
-      Process.popen("/bin/sh -c 'cd manual && tar xf unparsed.tar"
-		    " && rm unparsed.tar'");
-    }
-  }
 
   write(sprintf("\nStarting Caudium on %s%s:%d/ ...\n\n",
 		prot_spec, host, port));
@@ -648,13 +773,16 @@ void main(int argc, string *argv)
   setglobvar("ConfigPorts", ({ ({ port, prot_prog, "ANY", prot_extras }) }));
   setglobvar("ConfigurationURL",  prot_spec+host+":"+port+"/");
   setglobvar("logdirprefix", log_dir);
-
-  write(Process.popen("./start "
-		      +(configuration_dir_changed?
-			"--config-dir="+configuration_dir
-			+" ":"")
-		      +(logdir_changed?"--log-dir="+log_dir+" ":"")
-		      +argv[1..] * " "));
+  setglobvar("ConfigurationStateDir", var_dir);
+  setglobvar("ConfigurationUser", user);
+  setglobvar("ConfigurationPassword", crypt(pass));
+  
+  Process.popen("./start "
+		+(configuration_dir_changed?
+		  "--config-dir="+configuration_dir
+		  +" ":"")
+		+(logdir_changed?"--log-dir="+log_dir+" ":"")
+		+argv[1..] * " ");
   
   if(configuration_dir_changed || logdir_changed)
     write("\nAs you use non-standard directories for the configuration \n"
@@ -663,27 +791,7 @@ void main(int argc, string *argv)
   
   sleep(4);
   
-  write("\nCaudium is configured using a forms capable World Wide Web\n"
-	"browser. Enter the name of the browser to start, including\n"
-	"needed (if any) command line options.\n\n"
-	"If you are going to configure remotely, or already have a browser\n"
-	"running, just press return.\n\n"
-	"[1mWWW Browser: [0m");
-  
-  tmp = gets(1);
-  if(strlen(tmp))
-    client = tmp;
-  if(client)
-  {
-    if (prot_prog == "ssl3") {
-      write("Waiting for SSL3 to initialize...\n");
-      sleep(40);
-    } else {
-      sleep(10);
-    }
-    write("Running "+ client +" "+ prot_spec+host+":"+port+"/\n");
-    run((client/" ")[0], @(client/" ")[1..100000], 
-	prot_spec+host+":"+port+"/");
-  } else
-    write("\nTune your favourite browser to "+prot_spec+host+":"+port+"/\n");
+  write("\nYour Caudium server configuration interface is now configured.\n"
+	"Tune your favourite browser to "+prot_spec+host+":"+port+"/ to \n"
+	"continue setting up your server.\n");
 }
