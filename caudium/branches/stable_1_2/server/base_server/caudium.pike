@@ -78,7 +78,7 @@ constant pipe = Caudium.nbio;
 // release
 constant __caudium_version__ = "1.2";
 constant __caudium_build__ = "5";
-constant __caudium_state_ver__ = "RC1";
+constant __caudium_state_ver__ = "RC3-DEV";
 
 // any code may _append_ to this string - NEVER replace it!
 string __caudium_extra_ver__ = "";
