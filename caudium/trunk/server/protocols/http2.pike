@@ -1232,17 +1232,7 @@ void send_result(mapping|void result)
 #ifdef KEEP_ALIVE
     else request_headers->connection = heads->Connection = "close";
 #endif
-#if constant(_Roxen.make_http_headers)
     head_string += _Roxen.make_http_headers(heads);
-#else
-    foreach(indices(heads), h)
-      if(arrayp(heads[h]))
-	foreach(heads[h], tmp)
-	  head_string +=  h+": "+tmp+"\r\n";
-      else
-	head_string += h+": "+heads[h]+"\r\n";
-    head_string += "\r\n";
-#endif
     if(conf) conf->hsent += strlen(head_string);
   }
   
