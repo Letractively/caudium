@@ -3,7 +3,7 @@
 @TOP@
 
 @BOTTOM@
-
+#undef HAVE_LIBSABLOT
 #if defined(HAVE_SABLOT_H) && defined(HAVE_LIBSABLOT)
 # define HAVE_SABLOT
 #endif
