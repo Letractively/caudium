@@ -3213,10 +3213,15 @@ mapping query_container_callers()
         ]);
 }
 
+
 int api_query_num(object id, string f, int|void i)
 {
   NOCACHE();
+  return 0;
+  // FIXME: Is this really usefull ????
+#if 0
   return query_num(f, i);
+#endif
 }
 
 string api_parse_rxml(object id, string r)
@@ -3357,7 +3362,10 @@ void add_api_function( string name, function f, void|array(string) types)
 
 void define_API_functions()
 {
+// FIXME: ???? What as these for ???
+#if 0
   add_api_function("accessed", api_query_num, ({ "string", 0,"int" }));
+#endif
   add_api_function("parse_rxml", api_parse_rxml, ({ "string" }));
   add_api_function("tag_time", api_tagtime, ({ "int", 0,"string", "string" }));
   add_api_function("fix_relative", api_relative, ({ "string" }));
