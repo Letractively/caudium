@@ -19,7 +19,7 @@ fi
 cd `pwd`; cd `dirname $0`
 
 # Make sure $CLASSPATH contains the servlet stuff
-CLASSPATH=etc/classes:etc/classes/caudium_module.jar:etc/classes/caudium_servlet.jar:etc/classes/servlet.jar:etc/classes/servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
+CLASSPATH=etc/classes/caudium_search.jar:etc/classes/lucene-1.2.jar:etc/classes:etc/classes/caudium_module.jar:etc/classes/caudium_servlet.jar:etc/classes/servlet.jar:etc/classes/servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
 export CLASSPATH
 
 # Try to enable threads on Solaris (2.5+), FreeBSD (4.0+) and Linux (2.2+)
