@@ -1,0 +1,82 @@
+Introduction:
+-------------
+
+This is UltraLog, a fast customizable web log parser. It features
+customizable log formats, good support for multiple logfiles per
+profile and any number of profiles.
+
+
+Requirements:
+-------------
+
+UltraLog requires Pike (http://pike.idonex.se/) for summarization and
+the Roxen webserver (http://www.roxen.com) for display. Pike is an
+interpreted C-like language in the same league as for example
+Python. Roxen is a very nice webserver mainly written in Pike, with
+some support functions written in C. 
+
+
+Installation instructions:
+--------------------------
+
+UltraLog has two parts. One is the summarizer, which is written as a
+Pike C module with a support program written in Pike. The second part, 
+the display module, is written as a Roxen module and thus requires
+Roxen.
+
+You should be able to use either Roxen 1.3 / Pike 0.6 or Roxen 2.0 /
+Pike 7. The below instructions applies to Roxen 1.3.
+
+*****							 	     *****
+*** If you install a version checked out from CVS also read README.cvs ***
+*****								     *****
+
+1) Download the source code, available from http://www.roxen.com/.
+2) Copy the UltraLog directory to the Pike source module
+   directory. This is normally in roxen/pike/0.6/src/modules/.
+   
+   *** Don't just make a soft link from the directory in the checked
+   *** out source, since this might break the building process!   
+
+5) Configure and build Roxen as following these instructions (for
+   Roxen 1.3):
+	mkdir build
+	cd build
+	../configure
+	make
+	make install
+4) Configure and start the Roxen webserver.
+5) Go to the Roxen configuration interface and add the "modules"
+   directory in the ultralog tree to the Global Variable module path
+   (for example /home/neotron/ultralog/modules/).
+7) Make a save directory, for example /var/ultralog/.
+6) Create a new Roxen virtual server and add the UltraLog module and
+   configure the correct save directory (and any other variables you
+   want to change).
+7) Create a configuration file for the summarizer. Here is a very
+   basic example:
+
+	<savedir path="/var/ultralog/">
+	<table maxsize="5000">
+
+	<profile name="webserver">
+		<file path="/usr/local/roxen/logs/webserver/Log">
+		<noref for="webserver.com">
+		<extensions list="html html shtml cgi pike php3">
+ 	</profile>
+
+8) Run the summarizer program. If you are running Roxen 1.3/Pike 0.6
+   which is installed with prefix /usr/local/ you can do this by running:
+    /usr/local/bin/pike-roxen /home/src/ultralog/bin/summarizer.pike cf-file
+
+
+See the files docs/CONFIG.spec and docs/CUSTOM_LOG.spec for
+documentation on the config file format and the custom log file format.
+
+
+
+
+
+
+
+
