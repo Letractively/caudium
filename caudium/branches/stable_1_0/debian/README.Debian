@@ -1,6 +1,14 @@
 Caudium Webserver for Debian
 ----------------------------
 
+**** NOTE ****
+  Previous versions of the package contained a slight security problem.
+  The config files created in /etc/caudium/servers/ were world-readable. 
+  Starting from release 1.0.37-6 problem is fixed upstream - the new files are 
+  created with the 0600 permission bits, but the existing ones, if you are u
+  pgrading, remain with the same permissions - YOU HAVE TO CHANGE THEM BY HAND.
+**** NOTE ****
+
 A few notes regarding this package are due here since it differs a
 bit from its predecessor, Roxen.
  
