@@ -137,6 +137,16 @@ string day(int num)
 	    "Jueves","Viernes","Sabado" })[ num - 1 ];
 }
 
+string day_short(int num)
+{
+  return ({ "D", "L", "M", "M", "J", "V", "S" })[ num - 1 ];
+}
+
+string words(int num)
+{
+  return ({ "año", "mes", "semana", "día" });
+}
+
 array aliases()
 {
   return ({ "es", "esp", "spanish" });
