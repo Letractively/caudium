@@ -82,6 +82,8 @@ int wanted_data, have_data, unread_data;
 
 object conf;
 
+string user;
+
 #include <caudium.h>
 #include <module.h>
 
@@ -223,10 +225,6 @@ array (int|string) auth;
 string rawauth, realauth;
 string since;
 
-//! description of user, if authenticated.
-//! if not authenticated, this element will be 0 (zero).
-private int|mapping user=0;
-
 // FIXME: Why this was private ?
 //private int cache_control_ok = 0;
 int cache_control_ok = 0;
@@ -271,7 +269,7 @@ string scan_for_query( string f )
 //!    been authenticated.
 int|mapping get_user()
 {
-  if(user) return copy_value(user);
+  if(user) return copy_value(conf->auth_module->user_info(user));
   else return 0;
 } 
 

@@ -61,6 +61,8 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
+private final string user;
+
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
@@ -835,13 +837,12 @@ void low_handle_authorization(array y)
        if(res==1) // successful authentication
        {
          auth=({1, a[0], 0});
-         // should we really do this? will caching be fast enough?
-         // Why this fails ? Is this normal ??? - Kiwi
-         //user=conf->auth_module->user_info(a[0]);
+         user=a[0];
         }
         else // failed authentication
         {
           auth=({0, a[0], a[1]});
+          user=0;
         }
       }
     }
