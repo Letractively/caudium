@@ -77,19 +77,22 @@ void|string check_variable(string name, mixed value)
 
   else if(name=="usergrouptable" && value=="")
     return "You must provide a value for this setting.";
+  if(name != "sqlserver" && (!QUERY(sqlserver) || !sizeof(QUERY(sqlserver))))
+  {
+    return "You must configure your database connection first.";
+  }
 
   else if(name=="usertable" || name=="grouptable" || name=="usergrouptable")
   {
-    if(QUERY(sqlserver))
+    object o;
+    if(catch(o=Sql.Sql(QUERY(sqlserver))))
     {
-      object o=Sql.Sql(QUERY(sqlserver));
-      if(catch(o->list_fields(value)))
-      {
-        return "Unable to find table " + value + ".";
-      }
+      return "Unable to connect to SQL server";
     }
-    else return "You must configure your database connection first.";
-
+    else if(catch(o->list_fields(value)))
+    {
+      return "Unable to find table " + value + ".";
+    }
   }
   else if(name=="user_otherf")
   {
@@ -144,7 +147,7 @@ void|string check_variable(string name, mixed value)
 
   else if(name[0..0]!="_" && sizeof(name/"_")>1)
   {
-    if(QUERY(sqlserver))
+    if(QUERY(sqlserver) && sizeof(QUERY(sqlserver)))
     {
     string table;
 
