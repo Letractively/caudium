@@ -660,6 +660,41 @@ static void f_get_address( INT32 args ) {
 }
 
 
+static void f_extension( INT32 args ) {
+  int i, found=0;
+  struct pike_string *src;
+  char *orig, *ptr;
+
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.extension", 1, "string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.extension(): Only 8-bit strings allowed.\n");
+  }
+  orig = src->str;
+  for(i = src->len-1; i >= 0; i--) {
+    if(!(orig[i] & 0xD1)) {
+      found = 1;
+      i++;
+      break;
+    }
+  }
+  pop_n_elems(args);
+  if(found) {
+    int len = src->len - i;    
+    switch(orig[src->len-1]) {
+     case '#': case '~':
+      /* Remove unix backup extension */
+      len--;
+    }
+    push_string(make_shared_binary_string(orig+i, len));
+
+  } else {
+    push_text("");
+  }
+}
+
+
 /* Initialize and start module */
 void pike_module_init( void )
 {
@@ -686,6 +721,8 @@ void pike_module_init( void )
                          "function(string,multiset,multiset:string)",
                          OPT_SIDE_EFFECT);
   add_function_constant( "get_address", f_get_address,
+                         "function(string:string)", 0);
+  add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
 
   start_new_program();

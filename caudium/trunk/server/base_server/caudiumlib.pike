@@ -798,6 +798,10 @@ string msectos(int t)
   return sprintf("%d:%02d h:m", t/3600000, (t%3600000)/60000);
 }
 
+#if constant(Caudium.extension)
+static function extension = Caudium.extension;
+#error
+#else
 static string extension( string f )
 {
   string q;
@@ -817,6 +821,7 @@ static string extension( string f )
   if(q==f) return "";
   return f;
 }
+#endif
 
 static int backup_extension( string f )
 {

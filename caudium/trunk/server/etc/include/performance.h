@@ -8,13 +8,18 @@
 #ifndef _PERFORMANCE_H_
 #define _PERFORMANCE_H_
 
+/* Define this for maximum performance. Handy for benchmarking. */
+
+#define MAX_PERFORMANCE
+
 /* Enable extra Roxen 1.3 compatibility. This is mainly performance issues.
  * See the file README.compatibility for a complete list of changes related
  * to this define.
  */
 
-#define EXTRA_ROXEN_COMPAT
-
+#ifndef MAX_PERFORMANCE
+# define EXTRA_ROXEN_COMPAT
+#endif
 
 /* Enable support for HTTP/0.9. This is an extremely minor optimization. If
  * you need HTTP/0.9, enable this one. Will not work with http2.pike...
@@ -26,15 +31,19 @@
 /* Enable the request memory cache. This greatly speeds up requests. It's
  * worth it for most sites. Only used by the experimental http2 protocol.
  */
-#define ENABLE_RAM_CACHE
 
+#ifndef NO_RAM_CACHE
+# define ENABLE_RAM_CACHE
+#endif
 
 /* Do we want module level deny/allow security (IP-numbers and usernames). 
  * This is a minor optimzation. You can uncomment this for stupid servers
  * where module level security isn't needed.
  */
 
-#define MODULE_LEVEL_SECURITY
+#ifndef MAX_PERFORMANCE
+# define MODULE_LEVEL_SECURITY
+#endif
 
 /* If this is disabled, the server won't parse the supports string. This might
  * make the server somewhat faster. Since supports parsing is cached, the
@@ -42,7 +51,9 @@
  * uncomment this define.
  */
 
-#define ENABLE_SUPPORTS
+#ifndef MAX_PERFORMANCE
+# define ENABLE_SUPPORTS
+#endif
 
 
 /* Define this if you don't want Caudium to use DNS. Note: This is a
@@ -53,7 +64,14 @@
  * NO_REVERSE_LOOKUP below.
  */
 
+
 #undef NO_DNS
+
+#ifdef MAX_PERFORMANCE
+# ifndef NO_DNS
+#  define NO_DNS
+# endif
+#endif
 
 
 /* This option turns of all ip->hostname lookups. However the
@@ -89,7 +107,9 @@
  * Should support for URL modules be included? This includes the
  * htaccess module for example.  
  */
-#define URL_MODULES
+#ifdef MAX_PERFORMANCE
+# define URL_MODULES
+#endif
 
 /* Basically, should it be o.k. to return "string" as a member of
  * the result mapping? This is only for compability.
