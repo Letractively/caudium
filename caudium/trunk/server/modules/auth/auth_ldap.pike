@@ -109,10 +109,6 @@ void create()
 		   0);
 
 	// Defaults:
-        defvar ("CI_default_attrname_upw", "userPassword",
-		   "Attributes: User password", TYPE_STRING,
-                   "The mapping between passwd:password and LDAP.");
-
         defvar ("CI_default_uid",default_uid(),"Defaults: User ID", TYPE_INT,
                    "Some modules require an user ID to work correctly. This is the "
                    "user ID which will be returned to such requests if the information "
@@ -242,125 +238,52 @@ private string get_attrval(mapping attrval, string attrname, string dflt)
     return (zero_type(attrval[attrname]) ? dflt : attrval[attrname][0]);
 }
 
-array(string) userinfo() {
-    array(string) dirinfo;
-    object results;
+mapping|int get_user_info(string user) {
+
+    object sr,dir;
     mixed err;
+    mapping dirinfo=([]);
+
     mapping(string:array(string)) tmp, attrsav;
 
     DEBUGLOG ("userinfo ("+u+")");
-    if (u == "A. Nonymous") {
-      DEBUGLOG ("A. Nonymous pseudo user catched and filtered.");
+
+    dir=open_dir();
+
+    if (!dir) 
+    {
       return 0;
     }
 
-    open_dir();
-
-    if (!dir) {
-	return 0;
-    }
-
-    string rpwd = "";
-
-    err = catch(results=dir->search(replace(QUERY(CI_search_templ), "%u%", u)));
-    if (err || !objectp(results) || !results->num_entries()) {
-      DEBUGLOG ("no entry in directory, returning unknown");
-      if(access_mode_is_guest_or_roaming() && objectp(dir)) {
-        catch(dir->unbind());
-	close_dir(dir);
-      }
+    sr=get_user_object(user);
+    if(!sr)
+    {
+      DEBUGLOG("no user object for " + user);
       return 0;
     }
-    tmp=results->fetch();
 
-    if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-       report_warning("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
-    else
-      rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
+    tmp=sr->fetch();
 
-    if(!access_mode_is_user_or_roaming())	// mode is 'user'
-    // this is use when no password suplied (for example fetching www.website.com/~user) 
-	 rpwd = stringp(p) ? rpwd : "{x-hop}*";
-	if(!access_mode_is_roaming()) {	// mode is 'roaming'
-	  // OK, now we'll try to bind ...
-	  string binddn = get_attrval(tmp, QUERY(CI_owner_attr), "");
-	  DEBUGLOG (sprintf("LDAPauth: indirect DN: [%s]\n", binddn));
-	  if(!sizeof(binddn)) {
-	    DEBUGLOG ("no value for indirect attribute, returning unknown");
-	    return 0;
-	  }
-	  err = catch (dir->bind(binddn, p));
-	  if (arrayp(err)) {
-	    report_error("LDAPauth: Couldn't open authentication directory!\n[Internal: "+err[0]+"]\n");
-	    if (objectp(dir)) {
-	      werror("LDAPauth: directory interface replies: "+dir->error_string()+"\n");
-	      catch(dir->unbind());
-	    } else
-	      werror("LDAPauth: unknown reason\n");
-	    werror ("LDAPauth: check the values in the configuration interface,"
-		    " and that the user\n\trunning the server has adequate"
-		    " permissions to the server\n");
-	    dir=0;
-	    return 0;
-	  }
-	  if(dir->error_code) {
-	    werror ("LDAPauth: authentication error ["+dir->error_string+"]\n");
-	    dir=0;
-	    return 0;
-	  }
-	  dir->set_scope(0);
-	  dir->set_basedn(binddn);
-	  //err = catch(results=dir->search(replace(QUERY(CI_search_templ), "%u%", u)));
-	  err = catch(results=dir->search("objectclass=*")); // FIXME: modify
-							      // to conf. int!
-	  if (err || !objectp(results) || !results->num_entries()) {
-	    DEBUGLOG ("no entry in directory, returning unknown");
-	    if(objectp(dir)) {
-	      catch(dir->unbind());
-	      dir=0;
-	    }
-	    return 0;
-	  }
-	  tmp=results->fetch();
-	}
-	dirinfo= ({
-		u, 			//tmp->uid[0],
-		rpwd,
-		get_attrval(tmp, QUERY(CI_default_attrname_uid), QUERY(CI_default_uid)),
-		get_attrval(tmp, QUERY(CI_default_attrname_gid), QUERY(CI_default_gid)),
-		get_attrval(tmp, QUERY(CI_default_attrname_gecos), QUERY(CI_default_gecos)),
-		QUERY(CI_default_addname) ? QUERY(CI_default_home)+u : get_attrval(tmp, QUERY(CI_default_attrname_homedir), ""),
-		get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell)),
-		sizeof(QUERY(CI_required_attr)) && !access_mode_is_user() && !zero_type(tmp[QUERY(CI_required_attr)]) ? mkmapping(({QUERY(CI_required_attr)}),tmp[QUERY(CI_required_attr)]) : 0
-	});
-    } else {
-	// Compare method is unimplemented, yet
-    }
-    if(!access_mode_is_user()) { // Should be 'closedir' method?
-      close_dir(dir);
-    }
-    if(!access_mode_is_roaming()) { // We must rebind connection
-      dir->bind(QUERY(CI_dir_username), QUERY(CI_dir_pwd));
-    }
+    dirinfo->username=user;
+    dirinfo->name=get_attrval(tmp, QUERY(CI_default_attrname_gecos), QUERY(CI_default_gecos));
+    dirinfo->uid=get_attrval(tmp, QUERY(CI_default_attrname_uid), QUERY(CI_default_uid));
+    dirinfo->primary_group=get_attrval(tmp, QUERY(CI_default_attrname_gid), QUERY(CI_default_gid));
+    dirinfo->shell=get_attrval(tmp, QUERY(CI_default_attrname_shell), QUERY(CI_default_shell));
+    dirinfo->home_directory=get_attrval(tmp, QUERY(CI_default_attrname_homedir), QUERY(CI_default_home));
 
-    if(zero_type(uids[(string)dirinfo[2]]))
-	uids = uids + ([ dirinfo[2] : ({ dirinfo[0] }) ]);
-    else
-	uids[dirinfo[2]] = uids[dirinfo[2]] + ({dirinfo[0]});
-#if 0
-    if(zero_type(gids[(string)dirinfo[3]]))
-	gids = ([ dirinfo[3]:({dirinfo[0]}) ]);
-    else
-	gids[dirinfo[3]] = gids[dirinfo[3]] + ({dirinfo[0]});
-#endif // FIXME: hacked - returns gidname = uidname !!!
+    if(QUERY(CI_default_addname) && dirinfo->home_directory==QUERY(CI_default_home))
+      dirinfo->home_directory+=user;
 
-    //DEBUGLOG(sprintf("Result: %O",dirinfo)-"\n");
+    dirinfo->groups=get_groups_for_user(dir, user);
+
+    dirinfo->_source=QUERY(_name);
+
     return dirinfo;
 }
 
-array(string) userlist() {
+array(string) userlist() 
+{
 
-    //if (QUERY(disable_userlist))
     return ({});
 }
 
@@ -371,14 +294,6 @@ string user_from_uid (int u)
 	return(uids[(string)u][0]);
     return 0;
 }
-
-#if LOG_ALL
-int chk_name(string x, string y) {
-
-    return(x == y);
-}
-#endif
-
 
 private int|object get_user_object(object dir, string user)
 {
