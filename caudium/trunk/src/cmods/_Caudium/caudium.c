@@ -121,14 +121,6 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
       return count+1;
     }
   }
-
-#ifndef HAVE_ALLOCA  
-  if (!lowered)
-    return 0;
-    
-  free(lowered);
-#endif
-
   return 0;
 }
 
