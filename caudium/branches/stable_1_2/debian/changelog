@@ -1,3 +1,18 @@
+caudium (2:1.2.35-1) unstable; urgency=low
+
+  * The latest upstream release. Changes:
+    - Fix error on vhs_dirparser when there are no files in a directory and
+      option "show dot files" is set to no
+    - Fix for the RXML parsers sending the wrong content-type header when 
+      parsing a non-html document.
+    - Fixed htaccess module so that it can run in 2nd level virtual 
+      hosting mode.
+    - Added mimetype for XML stylesheets.
+    - Fixed bug in vhs_logger.pike that stopped it from logging remote 
+      hostnames.
+
+ -- Marek Habersack <grendel@debian.org>  Sun, 14 Nov 2004 04:46:28 +0100
+
 caudium (2:1.2.33-3) unstable; urgency=low
 
   * Updated the build dependency on Pike
