@@ -3640,7 +3640,7 @@ string desc()
     array handlers = ({});
     foreach(caudium->configurations, object c)
       if(c->modules["ip-less_hosts"] || c->modules["hostmatch"])
-        handlers+=({({http_encode_string("/Configurations/"+c->name),
+        handlers+=({({Protocols.HTTP.http_encode_string("/Configurations/"+c->name),
                       strlen(c->query("name"))?c->query("name"):c->name})});
 
     
