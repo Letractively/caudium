@@ -1,0 +1,52 @@
+#!/usr/local/bin/bash
+#
+# $Id$
+#
+# Env Variables
+#
+
+LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:/usr/local/X11/lib:/opt/mysql/lib/mysql:/opt/freeware/lib:/usr/dt/lib:/usr/openwin/lib:/opt/wapgw/lib:
+PATH=/opt/proftpd/bin:/usr/local/bin:/bin:/usr/ccs/bin:/etc:/usr/etc:/usr/local/X11/bin:/opt/mysql/bin:/opt/freeware/bin:/usr/ucb:/usr/openwin/bin:/usr/local/etc:/usr/sbin:/usr/dt/bin:/sbin:/opt/ipf/bin:/opt/wapgw/bin:
+MANPATH=/usr/local/man:/opt/freeware/man:/usr/man:/usr/local/X11/man:/opt/ipf/man
+export LD_LIBRARY_PATH PATH MANPATH
+PAGER=less
+EDITOR=vi
+CC=gcc
+CXX=gcc
+CFLAGS="-msupersparc -O6"
+CXXFLAGS="-msupersparc -O6"
+export PAGER EDITOR CC CFLAGS CXX CXXFLAGS
+PS1='\u@\h:\w\$ '
+export PS1
+
+# Make the Daily Package of Caudium webserver
+#
+DATE=`date '+%Y%m%d'`
+CVSDIR=/opt/BUILD/cvs
+CHROOTDIR=/tmp/caudium-1.0
+BUILDIR=${CHROOTDIR}/tmp
+SETUPCHROOT=/usr/local/sbin/setup_chroot
+DIRTMP=/tmp/$0.$$
+#
+# Creation dirs..
+#
+mkdirhier ${BUILDIR}
+#
+# Mise a jour du CVS
+#
+cd ${CVSDIR}/caudium
+cvs -z3 update -Pd > /dev/null
+#
+# Copie des fichiers dans un rep temporaire
+#
+cd ${CVSDIR}
+#
+mkdir $DIRTMP
+tar cflp - caudium | (cd $DIRTMP && tar xvflp -)
+cd $DIRTMP
+cd caudium
+./autogen.sh
+cd ..
+tar czflp /opt/webservers/oav/htdocs/caudium/caudium-1.00.$DATE.tar.gz caudium
+cd /tmp
+rm -rf $DIRTMP
