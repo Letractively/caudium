@@ -63,6 +63,8 @@ mixed cast(string to) {
 //!
 //! Changes the behavior on a failure to lock, 0 causes lock() to throw an error
 //! when it's unable to acquire a lock, 1 states for it to sleep until it can.
+//! Or 2 and it will wait for six seconds and then throw an exception if it
+//! can't acquire a lock.
 object lock(string path, string mode, int behavior) {
   string ro = sprintf("%s.lock,r",path);
   string wo = sprintf("%s.lock,w",path);
@@ -98,6 +100,18 @@ object lock(string path, string mode, int behavior) {
         while(Stdio.is_file(test))
 	  sleep(SLEEP);
         break;
+      case 2:
+        int cnt;
+	while(Stdio.is_file(test)) {
+	  cnt++;
+	  if (cnt >= 30)
+	    throw(({
+	      sprintf("Unable to acquire %s lock in file %s\n", want, path),
+	      backtrace()
+	    }));
+	  sleep(SLEEP);
+	}
+	break;
       }
   }
   string dir = dirname(path);
