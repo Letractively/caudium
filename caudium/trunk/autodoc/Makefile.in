@@ -24,7 +24,7 @@ undo_hacks:
 
 make_crefhtml: makecrefdirs makecrefxml
 	rm -rf generated/caudiumref || /bin/true
-	mkdir generated/caudiumref
+	mkdir -p generated/caudiumref
 	cp -p structure/caudiumref.css generated/caudiumref/style.css
 	cp -pr structure/images/ generated/caudiumref/
 	$(PIKE) bin/tree-split-autodoc.pike build/cref.xml structure/caudiumref.html generated/caudiumref/
