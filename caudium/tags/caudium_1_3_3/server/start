@@ -1,0 +1,448 @@
+#!/bin/sh
+#
+# $Id$
+
+# Can be set with '--config-dir=DIR'
+DIR=../configurations/
+LOGDIR=../logs/
+FILES="default"
+program=base_server/caudiumloader.pike
+program_echo="Starting the Caudium World Wide Web server."
+
+# Set up environment
+if test -f etc/environment; then
+  . etc/environment
+fi
+
+# Make sure $CLASSPATH contains the servlet stuff
+CLASSPATH=etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
+export CLASSPATH
+
+# Enable threads (if available) on Solaris.
+# Most other OS's have thread bugs that cause them or Caudium to crash.
+if uname | grep 'SunOS' >/dev/null 2>&1; then
+  if uname -r | grep '5\.[5-9]' >/dev/null 2>&1; then
+    if [ x"$1" != "x--help" ] ; then
+      echo 'Solaris 2.5 or later detected. Enabling threads (if available).'
+    fi
+    DEFINES="$DEFINES -DENABLE_THREADS"
+  fi
+fi
+
+# Caudium will create files as the initial user,
+# which it expects to be able to read as the run-time user.
+umask 022
+
+if [ "x$PIKE_NO_DEFAULT_PATHS" = "x" ]; then
+  # Pike default Master-program
+  if [ "x$PIKE_MASTER" = "x" ]; then
+    if [ -d share/pike ]; then
+      # This is used with localinstall
+      DEFINES="$DEFINES -Ishare/pike/include"
+      PIKE_MODULE_PATH="$PIKE_MODULE_PATH:share/pike/modules"
+    fi
+    if [ -f lib/master.pike ]; then
+      DEFINES="$DEFINES -mlib/master.pike -Ilib/include"
+      PIKE_MODULE_PATH="$PIKE_MODULE_PATH:lib/modules"
+    elif [ -f lib/pike/master.pike ]; then
+      DEFINES="$DEFINES -mlib/pike/master.pike -Ilib/pike/include"
+      PIKE_MODULE_PATH="$PIKE_MODULE_PATH:lib/pike/modules"
+    fi
+    export PIKE_MODULE_PATH
+  else
+    # This is useful when using several different Pikes.
+    # Specify include and module paths with
+    # PIKE_INCLUDE_PATH and PIKE_MODULE_PATH
+    # they are handled automatically by the master,
+    # so no need to do it here.
+    DEFINES="$DEFINES -m$PIKE_MASTER"
+  fi
+fi
+
+# Extra module-path
+if [ -d etc/modules ]; then
+  DEFINES="$DEFINES -Metc/modules"
+fi
+
+# Extra include-path
+if [ -d etc/include ]; then
+  DEFINES="$DEFINES -Ietc/include"
+fi
+
+# Extra include-path (2)
+if [ -d base_server ]; then
+  DEFINES="$DEFINES -Ibase_server"
+fi
+
+# Extra program-path
+DEFINES="$DEFINES -P`pwd`"
+
+# Extra kludge for HPUX
+# HPUX doesn't like group 60001(nobody)
+if uname | grep 'HP-UX' >/dev/null 2>&1; then
+  echo 'WARNING: Applying kludge for HPUX. (see base_server/privs.pike)'
+  DEFINES="$DEFINES -DHPUX_KLUDGE"
+fi
+
+gdb=no
+
+####### END PREAMBLE
+
+## Parse all arguments.
+## GNU-style, long options only, except for -D, simply passed on.
+parse_args() {
+ while [ ! c"$1" = "c" ] ; do
+  case $1 in
+  -D*)
+   DEFINES="$DEFINES $1"
+  ;;
+  -l*)
+   ARGS="$ARGS $1"
+# Used by the 'install' script
+    ;;
+  --quiet)
+     quiet="yes"
+  ;;
+  --truss)
+     precmd="truss "
+     once=1
+  ;;
+  --strace)
+     precmd="strace -f "
+     once=1
+  ;;
+  --ltrace)
+     precmd="ltrace -f "
+     once=1
+  ;;
+  --log-dir=*)
+   LOGDIR=`echo $1 | sed -e 's/--log-dir=//'`
+  ;;
+  --config-dir=*)
+   DIR=`echo $1 | sed -e 's/--config-dir=//'`
+   FILES=`echo $1 | sed -e's/--config-dir=//' -e's/\.//g' -e's./..g' -e 's.-..g'`
+#override setting of FILES through --program:
+   config_dir=1
+   CAUDIUM_CONFIGDIR="$DIR"
+   export CAUDIUM_CONFIGDIR
+  ;;
+  --pike-version=*)
+   pikever=`echo $1 | sed -e 's/--pike-version=//'`
+  ;;
+  --pid-file=*)
+   CAUDIUM_PID_FILE=`echo $1 | sed -e 's/--pid-file=//'`
+   export CAUDIUM_PID_FILE
+  ;;
+  '--debug'|'--with-debug'|'--enable-debug')
+    debug=1
+  ;;
+  '--without-debug')
+    debug=-1
+  ;;
+  '--fd-debug'|'--with-fd-debug'|'--enable-fd-debug')
+    DEFINES="-DFD_DEBUG $DEFINES"
+  ;;
+  '--threads'|'--with-threads'|'--enable-threads')
+    DEFINES="-DENABLE_THREADS $DEFINES"
+  ;;
+  '--no-threads'|'--without-threads'|'--disable-threads')
+    DEFINES="`echo $DEFINES | sed -e 's/-DENABLE_THREADS//'`"
+  ;;
+  '--with-profile'|'--profile')
+    DEFINES="-DPROFILE $DEFINES"
+  ;;
+  '--with-file-profile'|'--file-profile')
+    DEFINES="-DPROFILE -DFILE_PROFILE $DEFINES"
+  ;;
+  '--keep-alive'|'--with-keep-alive'|'--enable-keep-alive')
+    DEFINES="-DKEEP_ALIVE $DEFINES"
+  ;;
+  '--once')
+    once=1
+  ;;
+  '--gdb')
+    gdb=gdb
+    once=1
+  ;;
+  '--program')
+    program="$2"
+    program_echo="Starting $program."
+# don't set FILES if the --config-dir arg is present:
+    if [ "x$config_dir" = "x" ]; then
+    FILES=`basename $program .pike`
+    fi
+    once=1
+    nocaudium=1
+    shift
+  ;;
+  -r*|-d*|-t*|-l*|-w*)
+    # Argument passed along to Pike.
+    ARGS="$ARGS $1"
+  ;;
+  -D*|-M*|-I*|-P*)
+    # Argument passed along to Pike.
+    DEFINES="$DEFINES $1"
+  ;;
+  '--version')
+    VERSION=`sed <base_server/caudium.pike -e'/__caudium_version__/s/[^0-9.]*//gp' -ed|head -1`
+    BUILD=`sed <base_server/caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`
+    echo Caudium $VERSION.$BUILD
+    exit 0
+  ;;
+  '--help'|'-?')
+  sed -e "s/\\.B/`tput bold 2>/dev/null`/g" -e "s/B\\./`tput rmso 2>/dev/null`/g" << EOF
+.BThis command will start the Caudium serverB..
+
+The environment variable .BCAUDIUM_ARGSB. can be used to specify
+the default arguments.
+
+   .BArguments:B.
+
+      .B--versionB.:                  Output version information.
+
+      .B--help -?B.:                  This information
+
+      .B--pike-version=VERB.:         Use an alternate pike version. For this to 
+				  work correctly, you need a bin/caudium-VER
+				  and the Caudium pike modules in lib/VER/.
+
+      .B--log-dir=DIRB.:              Set the log directory. Defaults to .B../logsB..
+
+      .B--config-dir=DIRB.:           Use an alternate configuration directory
+				  Defaults to .B../configurationB..
+
+      .B--with-threadsB.:             If threads are available, use them.
+
+      .B--without-threadsB.:          Even if threads are enabled by default, 
+                                  disable them.
+
+      .B--with-profileB.:             Store runtime profiling information on
+				  a directory basis. This information is
+ 				  not saved on permanent storage, it is only
+				  available until the next server restart
+				  This will enable a new 'action' in the
+				  configuration interface
+
+      .B--with-file-profileB.:        Like .B--with-profileB., but save information 
+                                  for each and every file.
+
+      .B--with-keep-aliveB.:          Enable keep alive in the HTTP 
+			          protocol module. This will soon be 
+                                  the default. Some clients might have 
+				  problems with keepalive.
+				  
+      .B--onceB.:                     Run the server only once, in the foreground.
+			   	  This is very useful when debugging.
+
+      .B--gdbB.:                      Run the server in gdb. Implies .B--onceB..
+
+      .B--programB.:                  Start a different program with the caudium
+				  pike. As an example, 
+                                  .B./start --program bin/install.pikeB. will 
+				  start the installation program normally 
+                                  started with .B./installB.
+
+      .B--quietB.:                    Run without normal debug output from the
+                                  start script. Useful mainly when starting
+				  other programs with --program.
+
+      .B--with-debugB.:               Enable debug
+
+      .B--without-debugB.:            Disable all debug
+	
+      .B--with-fd-debugB.:            Enable FD debug.
+
+      .B--truss,--strace,--ltraceB.: Run the server under the selected tracer
+                   		  program. This is extremely noisy, and is not
+				  intented for anything but debugging purposes.
+
+      .B--pid-file=<file>B.:          Store the caudium and startscript pids in this
+				  file. Defaults to .B/tmp/caudium_\$UIDB.
+         
+  .BArguments passed to pike:B.
+
+       .B-DDEFINEB.:                  Define the symbol .BDEFINEB..
+
+       .B-d<level>B.:                 Set the runtime pike debug to level.
+				  This only works if pike is compiled 
+				  with debug.
+
+       .B-s<size>B.:                  Set the stack size.
+
+       .B-M <path>B.:                 Add the path to the pike module path.
+
+       .B-I <path>B.:                 Add the path to the pike include path.
+
+       .B-dtB.:                       Turn of tail recursion optimization.
+
+       .B-tB.:                        Turn on pike level tracing.
+
+       .B-t<level>B.:                 Turn on more pike tracing. This only 
+				  works if pike is compiled with debug.
+
+
+  .BEnvironment variables:B.
+
+     .BCAUDIUM_CONFIGDIRB.:             Same as .B--config-dir=... B.
+     .BCAUDIUM_PID_FILEB.:              Same as .B--pid-file=... B.
+     .BCAUDIUM_LANGB.:                  The default language for all language
+				    related tags. Defaults to 'en' for english.
+
+EOF
+    tput 'rmso' 2>/dev/null
+    exit 0
+   ;;
+  *)
+    pass="$pass $1"
+   ;;
+  esac
+  shift
+ done
+}
+
+# Parse arguments..
+parse_args "$@"
+
+# Find ourselves a Pike
+
+pike=pike
+if [ "$pikever" != "" ]; then 
+  if [ -x bin/caudium-$pikever ] ; then  pike=bin/caudium-$pikever; 
+  elif [ -x bin/pike-$pikever ] ; then pike=bin/pike-$pikever;
+  else
+    echo "Cannot find a pike with version $pikever"
+    exit 1
+  fi
+else
+  if [ -x bin/caudium ] ; then  pike=bin/caudium; 
+  elif [ -x bin/pike ] ; then pike=bin/pike; fi
+fi
+
+
+PIKE_VERSION=`$pike -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+CAUDIUM_CWD=`$pike -e "write(dirname(\"$0\"));"`
+
+if [ -n "$CAUDIUM_CWD" ]; then
+  cd $CAUDIUM_CWD
+fi
+
+if [ -f "lib/$PIKE_VERSION/Caudium.so" ]; then
+  DEFINES="-Mlib/$PIKE_VERSION/ $DEFINES"
+else
+  echo "Cannot find Caudium Pike modules for Pike version $PIKE_VERSION."
+  exit 1
+fi
+
+####### END PREAMBLE
+
+if [ ! "X$CAUDIUM_ARGS" = "X" ]; then
+  if [ "$quiet" != "yes" ]; then 
+    echo $$: Using $CAUDIUM_ARGS from CAUDIUM_ARGS.
+  fi
+  parse_args $CAUDIUM_ARGS
+fi
+
+if [ ! "X$pass" = "X" ] ; then set -- $pass ;fi
+
+if [ "$quiet" != "yes" ]; then 
+  echo $$: "$program_echo"
+fi
+./mkdir -p $LOGDIR/debug/
+
+# uncomment for release version
+DEBUG="-DMODULE_DEBUG -w"
+
+if [ ! -z "$debug" ] ; then
+  DEBUG="$DEBUG -DDEBUG "
+fi
+
+if [ "x$debug" = "x-1" ] ; then
+  DEBUG="";
+else :; fi
+
+#
+# Some useful functions
+#
+
+rotate () {
+  b=5;
+  for a in 4 3 2 1 ; do mv -f $1.$a $1.$b 2> /dev/null;  b=$a; done
+}
+
+start_caudium() {
+  if [ "$nocaudium" = "" -a "x$DIR" != "x../configurations/" ] ; then
+    args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program --config-dir=$DIR $pass"
+  else
+    args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $ARGS $program $pass"
+  fi
+  if [ "x$gdb" = "xno" ]; then
+    if [ "$quiet" != "yes" ]; then 
+      echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
+      echo Executing $precmd$pike $args $@
+    fi
+    $precmd $pike $args $@
+  else
+    if [ "$quiet" != "yes" ]; then 
+      echo Executing gdb $pike $args $@
+    fi
+    echo >.gdbinit handle SIGPIPE nostop noprint pass
+    echo >>.gdbinit handle SIGUSR1 nostop noprint pass
+    echo >>.gdbinit handle SIGUSR2 nostop noprint pass
+    echo >>.gdbinit run $args $@
+    gdb $pike
+    rm .gdbinit
+  fi
+}
+
+#
+# Now do the stuff
+#
+
+if [ -z "$once" ] ; then
+  cat << oo
+Using configuration from $DIR, storing the debug log in $LOGDIR/debug/$FILES.1
+You can use the configuration interface in the server to get debug info.
+oo
+
+  # Try to get rid of some fd's.
+  # Some /bin/sh's have problems detaching otherwise.
+
+  exec >/dev/null
+  exec 2>/dev/null
+  exec </dev/null
+
+  (while : ; do
+    echo $$: "Server restart at `date`"
+    echo $$: "Debug log in $LOGDIR/debug/$FILES.1"
+    rotate $LOGDIR/debug/$FILES
+
+    start_caudium 2>>$LOGDIR/debug/$FILES.1 1>&2
+
+    exitcode="$?"
+
+    if [ "$exitcode" -eq "0" ] ; then
+      # Clean shutdown.
+      echo $$: "Caudium shutdown."
+      exit 0
+    fi
+    if [ "$exitcode" -lt "0" ] ; then
+      # Signal death.
+      echo $$: "Caudium died of signal $exitcode. Restarting..."
+    else
+      # Restart. Sleep a second before restarting.
+      echo $$: Caudium died. Restarting in 1 second...
+      sleep 1
+    fi
+  done
+    
+  echo $$: Not Reached "famous last words"
+
+  ) < /dev/null > $LOGDIR/debug/start_$FILES.output 2>&1 &
+
+else
+  if [ "$quiet" != "yes" ]; then 
+    echo $$: "Server restart at `date`"
+  fi
+  start_caudium
+fi
+    
