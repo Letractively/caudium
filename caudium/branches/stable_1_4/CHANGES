@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.1 since Caudium 1.3.31
 ---------------------------------------------
+- Fixed a prehistoric bug where Caudium couldn't write to log file because 
+  it was creating a directory instead of a file. 
+   (David Gourdelier)
 - Released Caudium 1.4 in stable_1_4 branch
    (Xavier Beaudouin)
 
