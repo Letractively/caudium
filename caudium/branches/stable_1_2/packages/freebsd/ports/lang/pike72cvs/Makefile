@@ -29,8 +29,7 @@ LIB_DEPENDS=	gmp.5:${PORTSDIR}/math/libgmp4 \
 		jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
-		mird.1:${PORTSDIR}/databases/mird \
-		pdf.4:${PORTSDIR}/print/pdflib
+		mird.1:${PORTSDIR}/databases/mird
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
@@ -64,8 +63,7 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm=${PREFIX} \
-		 --with-ssleay \
-		 --with-libpdf
+		 --with-ssleay
 
 .include <bsd.port.pre.mk>
 
@@ -99,6 +97,10 @@ WITH_SANE=	yes
 
 .if exists(${LOCALBASE}/lib/libgtkgl.so.5)
 WITH_MESA=	yes
+.endif
+
+.if exists(${LOCALBASE}/lib/libpdf.so.4)
+WITH_PDF=	yes
 .endif
 
 .if defined(WITH_MOST)
@@ -166,6 +168,13 @@ CONFIGURE_ARGS+= --with-sane
 CONFIGURE_ARGS+= --without-sane
 .endif
 
+.if defined(WITH_PDF)
+LIB_DEPENDS+=	pdf.4:${PORTSDIR}/print/pdflib
+CONFIGURE_ARGS+= --with-libpdf
+.else
+CONFIGURE_ARGS+= --without-libpdf
+.endif
+
 .if defined(HAVE_MESA) || defined(WITH_MESA)
 USE_MESA=	yes
 LIB_DEPENDS+=	gtkgl.5:${PORTSDIR}/x11-toolkits/gtkglarea
@@ -219,6 +228,9 @@ pre-everything::
 .endif
 .if !defined(WITH_SANE) || !defined(HAVE_MESA)
 	@${ECHO_MSG} "You can enable MesaGL support by defining WITH_MESA."
+.endif
+.if !defined(WITH_PDF)
+	@${ECHO_MSG} "You can enable PDF support by defining WITH_PDF."
 .endif
 .if !defined(WITH_MOST)
 	@${ECHO_MSG} "You can enable most of the features here except Sane,"
