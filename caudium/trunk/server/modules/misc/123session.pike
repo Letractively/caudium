@@ -65,9 +65,32 @@ int dont_use_formauth() {
 
 void start(int num, object conf) {
   if (conf) { myconf = conf; }
+  if (query ("storage") == "memory") {
+    foreach (call_out_info (), array a)
+      if ((sizeof (a) > 5) && (a[3] == "123_Survivor") && ((sizeof (a) < 7) || (a[6] == my_configuration ()))) {
+        remove_call_out (a[5]);
+	_variables = a[4]->_variables;
+        break;
+      }
+  }
 }
 
-void create() {
+void stop () {
+  if (query ("storage") == "memory") {
+    array a = ({ 0 });
+    // Roxen tries to kill us. Escape...
+    a[0] = call_out (lambda (mixed ... foo) { write ("Could not restore sessions\n"); }, 30, "123_Survivor",
+	             new (object_program (this_object ()), _variables, variables), a, my_configuration ());
+  }
+}
+
+void create (mixed ... foo) {
+  if (sizeof (foo) == 2){
+    _variables = foo[0];
+    variables = foo[1];
+    return;
+  }
+
   defvar("exclude_urls", "", "Exclude URLs", TYPE_TEXT_FIELD,
          "URLs that shouldn't be branded with a Session Identifier."
          " Examples:<pre>"
@@ -76,10 +99,12 @@ void create() {
          "</pre>");
   defvar("secret", "ChAnGeThIs", "Secret Word", TYPE_STRING,
          "a secret word that is needed to create secure IDs." );
+  defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
+         "Garbage collection will be done by this module." );
   defvar("garbage", 100, "Garbage Collection Frequency", TYPE_INT,
-         "after how many connects expiration of old session should happen" );
+         "after how many connects expiration of old session should happen", 0, hide_gc);
   defvar("expire", 600, "Expiration Time", TYPE_INT,
-         "after how many seconds an unactive session is removed" );
+         "after how many seconds an unactive session is removed", 0, hide_gc);
   defvar("storage", "memory",
          "Storage Method", TYPE_MULTIPLE_STRING,
          "The method to be used for storing the session and user variables."
@@ -121,7 +146,11 @@ void create() {
          "Should contain an form with input fields named <i>httpuser</i> "
          "and <i>httppass</i>.",
          0, dont_use_formauth);
+  defvar("secure", 0, "Secure Cookies", TYPE_FLAG,
+	 "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
 }
+
+int hide_gc () { return (!query ("dogc")); }
 
 mixed register_module() {
   return ({ MODULE_FIRST | MODULE_FILTER | MODULE_PARSER | MODULE_PROVIDER,
@@ -182,7 +211,7 @@ string status() {
       break;
   }
 
-  result += sprintf("%d session(s) active.<br>\n", size);
+  result += sprintf("%d session%s active.<br>\n", size, (size != 1) ? "s" : "");
   return (result);
 }
 
@@ -358,6 +387,8 @@ mixed sessionid_remove_prestate(object id) {
 
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
+  if (query ("secure"))
+    Cookie += "; Secure";
   id->cookies->SessionID = SessionID;
   id->misc->moreheads = ([ "Set-Cookie": Cookie,
                            "Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
@@ -371,7 +402,7 @@ string sessionid_get(object id) {
   int foundcookie=0;
   int foundprestate=0;
 
-  if (id->cookies->SessionID) {
+  if (id->cookies->SessionID && sizeof (id->cookies->SessionID)) {
     SessionID = id->cookies->SessionID;
     foundcookie=1;
   }
@@ -399,7 +430,7 @@ mixed first_try(object id) {
     }
   }
 
-  if (random(query("garbage")) == 0) {
+  if (query ("dogc") && (random (query ("garbage")) == 0)) {
     session_gc();
   }
 
@@ -419,14 +450,16 @@ mixed first_try(object id) {
   id->misc->session_variables = variables_retrieve("session", SessionID);
   id->misc->session_id = SessionID;
 
-  if (id->variables->logout && id->misc->session_variables->username) {
-    if (id->variables->logout == id->misc->session_variables->username) {
-      m_delete(id->misc->session_variables, "username");
-      store_everything(id);
-    }
-  }
+  if (id->variables->logout) {
+    if (id->misc->session_variables->username)
+      if (id->variables->logout == id->misc->session_variables->username)
+        store_user (id);
 
-  if (!id->misc->session_variables->username) {
+    delete_session (id, SessionID, 1);
+    return (0);
+   }
+
+  if (!id->misc->session_variables->username && (query ("use_formauth"))) {
     int userauthrequired=0;
     foreach (query("auth_urls")/"\n", string url) {
       if ((strlen(url) > 0) &&
@@ -458,12 +491,19 @@ mixed first_try(object id) {
   }
 }
 
+void store_user (object id) {
+  if (id->misc->session_id) {
+    if (id->misc->session_variables && id->misc->session_variables->username)
+      if (id->misc->user_variables && sizeof (id->misc->user_variables))
+        variables_store("user", id->misc->session_variables->username, id->misc->user_variables);
+  }
+}
+
 void store_everything(object id) {
-  string SessionID = id->misc->session_id;
-  variables_store("session", SessionID, id->misc->session_variables);
-  if (id->misc->session_variables && id->misc->session_variables->username) {
-    variables_store("user", id->misc->session_variables->username,
-                    id->misc->user_variables);
+  if (id->misc->session_id) {
+    string SessionID = id->misc->session_id;
+    variables_store("session", SessionID, id->misc->session_variables);
+    store_user (id);
   }
 }
 
@@ -472,8 +512,12 @@ void filter(mapping m, object id) {
 }
 
 mapping query_tag_callers() {
-  return (["session_variable":tag_variables,
-           "user_variable": tag_variables]);
+  return (["session_variable": tag_variables,
+	   "user_variable": tag_variables,
+	   "end_session" : tag_end_session,
+	   "dump_session" : tag_dump_session,
+	   "dump_sessions" : tag_dump_sessions,
+	   "dump_user" : tag_dump_user]);
 }
 
 string tag_variables(string tag_name, mapping arguments, object id, object file, mapping defines) {
@@ -495,6 +539,87 @@ string tag_variables(string tag_name, mapping arguments, object id, object file,
       return (string)(region[arguments->variable]);
     }
   }
+}
+
+void kill_session (string session_id) {
+  variables_delete ("session", session_id);
+}
+
+void delete_session (object id, string session_id, void|int logout) {
+  write ("123>> killing session " + session_id + "...\n");
+  if (id->misc->session_variables) {
+    if (id->misc->session_variables->username)
+      m_delete (id->misc, "user_variables");
+    
+    kill_session (session_id);
+    m_delete (id->misc, "session_variables");
+  }
+  m_delete (id->misc, "session_id");
+  
+  if (logout) {
+    if (id->cookies->SessionID && sizeof (id->cookies->SessionID)) {
+      string Cookie = "SessionID=; path=/";
+      if (query ("secure"))
+	Cookie += "; Secure";
+      id->misc->moreheads = ([ "Set-Cookie": Cookie,
+			       "Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
+			       "Pragma": "no-cache",
+			       "Last-Modified": http_date(time(1)),
+			       "Cache-Control": "no-cache, must-revalidate" ]);
+      m_delete (id->cookies, "SessionID");
+    }
+    
+    if (id->prestate && sizeof (id->prestate)) {
+      string prestate = "SessionID=" + session_id;
+      id->prestate -= (< prestate >);
+    }
+  }
+}
+
+void variables_delete_memory (string region, string key) {
+  m_delete (_variables[region], key);
+}
+
+void variables_delete(string region, string key) {
+  switch(query("storage")) {
+    case "memory":
+      variables_delete_memory(region, key);
+      break;
+/*
+    case "sql":
+      variables_delete_sql(region, key);
+      break;
+    case "file":
+      variables_delete_file(region, key);
+      break; 
+*/
+  }
+}
+
+string tag_end_session (string tag_name, mapping args, object id, mapping defines) {
+  if (id->misc->session_id)
+    delete_session (id, id->misc->session_id, 1);
+  return "";
+}
+
+string tag_dump_session (string tag_name, mapping args, object id, object file)
+{
+  return (id->misc->session_variables) ? (sprintf ("<pre>id->misc->session_variables : %O\n</pre>", id->misc->session_variables)) : "";
+}
+
+string tag_dump_sessions (string tag_name, mapping args, object id, object file)
+{
+  return (_variables) ? (sprintf ("<pre>_variables : %O\n</pre>", _variables)) : "";
+}
+
+string tag_dump_user (string tag_name, mapping args, object id, object file)
+{
+  return (id->misc->session_variables && id->misc->session_variables->username && id->misc->user_variables) ?
+    (sprintf ("<pre>id->misc->user_variables (%s) : %O\n</pre>", id->misc->session_variables->username, id->misc->user_variables)) : "";
+}
+
+mapping sessions () {
+  return _variables->session;
 }
 
 /* START AUTOGENERATED DEFVAR DOCS */
@@ -553,3 +678,4 @@ string tag_variables(string tag_name, mapping arguments, object id, object file,
 //!  type: TYPE_TEXT_FIELD
 //!  name: Form authentication page.
 //
+
