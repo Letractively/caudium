@@ -27,6 +27,28 @@
 //! type: MODULE_PARSER | MODULE_LOCATION
 //! cvs_version: $Id$
 //
+//! container: config_tablist
+//!  Generates a list of tabs, like the one in the configuration interface.
+//!  
+//!  Theis container tag does not take any arguments, but it
+//!  must always contain one or more &lt;tab&gt; container tags.
+//
+//! tag: tab
+//!  Generates a single config tab.
+//
+//! attribute: [alt]
+//!  Alternative text for the image. The default is to use ascii-art
+//!  to make it look like a tablist.
+//
+//! attribute: [bgcolor]
+//!  Set the background color. Default is white.
+//          
+//! attribute: [border]
+//!  Set the width of the border of the image. Default is zero.
+//          
+//! attribute: [selected]
+//!  Make this tab the selected tab.
+//
 
 /*
  * $Id$
