@@ -175,10 +175,12 @@ array list(string namespace) {
   foreach(get_dir(path), string fname) {
     string objpath = Stdio.append_path(path, fname);
     FLOCK(objpath, "r", 1);
-    if (decode(Stdio.read_file(objpath))->namespace == namespace) {
-      string key = decode(Stdio.read_file(objpath))->key;
-      ret += ({ key });
-    }
+    mapping obj = decode(Stdio.read_file(objpath));
+    if (mappingp(obj))
+      if (obj->namespace == namespace) {
+        string key = decode(Stdio.read_file(objpath))->key;
+        ret += ({ key });
+      }
     FUNLOCK();
   }
 }
