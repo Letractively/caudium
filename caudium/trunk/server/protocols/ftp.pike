@@ -2460,6 +2460,41 @@ class FTPSession
 	master_session->misc->home += "/";
       }
 
+      // Throw the user out if it doen't have valid homedir or try to
+      // create homedirectory
+      if (Query("ftpnohomedeny")||Query("ftphomedircreate"))
+      {
+       if (file_stat(master_session->misc->home, 1) == 0)
+       {
+        int created = 0;
+        if(Query("ftphomedircreate"))
+        {
+          object privs;
+	  array fullauth = conf->auth_module->userinfo(master_session->auth[1]);
+          fullauth[1]="CONSORED";	// in case of backtrace
+#if constant(geteuid)
+          if(getuid() != geteuid()) privs=Privs("Creating homedirectory");
+#endif
+          seteuid((int)fullauth[2]);
+          setegid((int)fullauth[3]);
+          if(mkdirhier(master_session->misc->home, 0755))
+            created = 1;
+          if (objectp(privs))
+             destruct(privs);
+          privs = 0;
+          fullauth = 0;
+        }
+        if(Query("ftpnohomedeny") && (created == 0))
+        {
+          send(530, ({ "You are not allowed to use named-ftp.",
+                       Query("ftphomedircreate")?"Unable to create homdirectory.":"Homedirectory is not existant." }));
+          conf->log(([ "error":402 ]), master_session);
+          master_session->auth = 0;
+          return;
+        }
+       }
+      }
+
       // NOTE: caudium->stat_file() might change master_session->auth.
       array auth = master_session->auth;
 
