@@ -1705,14 +1705,9 @@ string tag_allow(string a, mapping (string:string) m,
 	TEST(match_user(id->rawauth, "", Caudium.fix_relative(m->file,id),
 			!!m->wwwfile, id));
        }
-       // or are we using the system databases?
-       else if(id->user)
-         return "<true>" + s;
-       // or are we not authenticated by anyone?
-       else return "<false>";
-     }
-     else
-	TEST(id->user);
+       else
+ 	TEST(id->user);
+    }
     else
       if(m->file && id->auth) {
 	// FIXME: wwwfile attribute doesn't work.
