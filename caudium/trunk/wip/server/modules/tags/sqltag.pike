@@ -208,6 +208,8 @@ string sqlupdate_tag(string tag_name, mapping args,
   array data;
   if(args->scope=="form")
     data=({ request_id->variables });
+  if(args->scope=="sform")
+    data=({ request_id->misc->sform->output });
 
   // update the row where unique is uniquevalue
   // this probably only makes sense if there is only one row to be updated
