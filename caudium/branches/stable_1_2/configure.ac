@@ -357,11 +357,6 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     PIKE_INCDIR="`dirname $PIKE`/../"
     for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/include/`basename $PIKE` $PIKE_INCDIR/include/pike/${THIS_PIKE_VER} \
                   $PIKE_INCDIR/include/pike$THIS_PIKE_VER $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} $PIKE_INCDIR/include/pike; do
-#      cd $INCDIR &> /dev/null
-#      if test $? -ne 0; then
-#        continue
-#      fi
-#      INCLUDE_DIR=`pwd`
       if test ! -f $INCDIR/version.h; then
         continue
       else
