@@ -53,7 +53,7 @@
 
 .*               basic, tables, jpeginline, font, imagealign,\
 			cookies, push, pull, backgrounds, ssl,\
-			java, frames, backgrounds, \
+			java, frames,\
 			netscape_javascript, pngalpha
 
 mozilla/0\..*	-tables, -backgrounds, -ssl, -frames, -java, -javascript, -netscape_javascript, -pngalpha
