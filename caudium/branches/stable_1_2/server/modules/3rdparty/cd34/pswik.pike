@@ -211,8 +211,21 @@ mapping find_file(string f,object id)
             db->quote((string)id->variables->filepath)+"','"+
             db->quote((string)id->variables->content)+"')");
   
-  if(QUERY(mail))
-    simple_mail((string)id->variables->content, id); 
+  if(QUERY(mail)) {
+    mixed err = catch {
+      simple_mail((string)id->variables->content, id); 
+    };
+    if (err) {
+      // Send it again    
+      perror("Cannot send mail, trying again\n");
+      err = catch {
+        simple_mail((string)id->variables->content, id); 
+      };
+      if (err) {
+        perror("Mail not send\n");
+      }
+    }
+      
   return http_redirect((string)id->variables->filepath,id);
 }
 
