@@ -6,6 +6,13 @@ AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
+#
+# Some prerequisites of ours
+#
+REQ_PIKE_MAJOR=7
+REQ_PIKE_MINOR=3
+REQ_PIKE_BUILD=0
+
 AC_SET_MAKE
 
 AC_PROG_INSTALL
@@ -318,77 +325,61 @@ pathpike="`type  pike 2> /dev/null |sed 's/pike is//' 2>/dev/null`"
 if test "$prefix" != "NONE"; then
   PREFIXPIKE="$prefix/bin/pike"
 fi
-for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
-  /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike ; do
-  if test  "x$PIKE" != "x" ; then
-    break;
+FOUND_PIKE=0
+PIKE_INCLUDE_DIRS=""
+for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike ; do
+  if test -x $PIKE; then
+    echo -n "  ...${PIKE}"
+    THIS_PIKE_VER=`$PIKE -e 'int maj,min,bld;sscanf(version(),"Pike v%d.%d release %d",maj,min,bld);write(sprintf("%d.%d.%d",maj,min,bld));exit(0);'`
+    if test -z "$THIS_PIKE_VER"; then
+      continue
+    fi
+    echo -n " ${THIS_PIKE_VER}"
+    THIS_PIKE_MAJOR=`echo $THIS_PIKE_VER | cut -d '.' -f 1`
+    THIS_PIKE_MINOR=`echo $THIS_PIKE_VER | cut -d '.' -f 2`
+    THIS_PIKE_BUILD=`echo $THIS_PIKE_VER | cut -d '.' -f 3`
+
+    if test $THIS_PIKE_MAJOR -lt $REQ_PIKE_MAJOR -o $THIS_PIKE_MINOR -lt $REQ_PIKE_MINOR -o $THIS_PIKE_BUILD -lt $REQ_PIKE_BUILD; then
+      echo " => too old"
+      continue
+    fi
+    echo -n " => good version"
+
+    PIKE_INCDIR=`dirname $PIKE`
+    for INCDIR in $PIKE_INCDIR/../pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/../include/`basename $PIKE`; do
+      OLD_DIR=`pwd`
+      cd $INCDIR &> /dev/null
+      if test $? -ne 0; then
+        continue
+      fi
+      INCLUDE_DIR=`pwd`
+      if test -f version.h; then
+        C_PIKE_MAJOR=`cat version.h | grep PIKE_MAJOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+        C_PIKE_MINOR=`cat version.h | grep PIKE_MINOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+        C_PIKE_BUILD=`cat version.h | grep PIKE_BUILD_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+
+        if test $C_PIKE_MAJOR -ne $THIS_PIKE_MAJOR -o $C_PIKE_MINOR -ne $THIS_PIKE_MINOR -o $C_PIKE_BUILD -ne $THIS_PIKE_BUILD; then
+          echo
+          break
+        fi
+        echo ", $INCLUDE_DIR"
+        FOUND_PIKE=1
+        PIKE_VERSION=$THIS_PIKE_VER
+        PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
+        cd $OLD_DIR
+        break
+      else
+        echo
+      fi
+    done
   fi
-  AC_MSG_CHECKING(${a})
-  if test -x ${a}; then
-    PIKE="${a}"
-    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.3000) exit(1); exit(0);'; then
-		PIKE_INCLUDE_DIRS="`$PIKE -e 'foreach(master()->pike_module_path, string path) write("-I%s ", path); exit(0);'`"
-
-		if test -z "$PIKE_INCLUDE_DIRS"; then
-			AC_MSG_RESULT(no dirs found)
-			PIKE=""
-		else
-		   AC_MSG_RESULT(ok)
-	           PIKE=`echo $PIKE | $PIKE -e 'int tries=100;
-		   string orig,pike=Stdio.File("stdin")->read()-"\n";
-		   orig=pike;
-		   if(search(orig, "/"))
-		     orig = combine_path(getcwd(), orig);
-		   while(!catch(pike=readlink(pike)) && tries--)
-		     ;
-		   write(combine_path(dirname(orig), pike)); '`
-		   if test "$prefix" != "NONE"; then
-		       PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
-		   else
-		       PIKE_C_INCLUDE=/usr/include/`basename ${PIKE}`
-		   fi
-		   AC_MSG_CHECKING(for C includes in ${PIKE_C_INCLUDE})
-		   if test -f $PIKE_C_INCLUDE/version.h; then
-		      PIKE_TEST_VER=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
-		      ###### VERSION MATCH CHECK #######
-		      PMAJOR="^#define PIKE_MAJOR_VERSION"
-		      PMINOR="^#define PIKE_MINOR_VERSION"
-		      PBUILD="^#define PIKE_BUILD_VERSION"
-
-		      PIKE_CMAJOR_VERSION=0
-		      PIKE_CMINOR_VERSION=0
-		      PIKE_CBUILD_VERSION=0
-
-		      PIKE_CMAJOR_VERSION=`grep "$PMAJOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
-    		      if test -z "$PIKE_CMAJOR_VERSION"; then
-			if test -n "`grep f_version $PIKE_C_INCLUDE/version.h`"; then
-			   PIKE_CMAJOR_VERSION=6
-			fi
-		      else
-		        PIKE_CMINOR_VERSION=`grep "$PMINOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
-      			PIKE_CBUILD_VERSION=`grep "$PBUILD" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
-                      fi
-		      
-		      if test "$PIKE_TEST_VER" = "${PIKE_CMAJOR_VERSION}.${PIKE_CMINOR_VERSION}.${PIKE_CBUILD_VERSION}"; then
-		         PIKE_INCLUDE_DIRS=" $PIKE_INCLUDE_DIRS -I$PIKE_C_INCLUDE"
-		         AC_MSG_RESULT(found)
-		      else
-		         AC_MSG_RESULT(version mismatch)
-		      fi
-		   else
-			AC_MSG_RESULT(not found)
-		   fi
-		fi
-	else
-		AC_MSG_RESULT(too old)
-		PIKE=""
-	fi
-  else
-    AC_MSG_RESULT(no)
+  if test x"$FOUND_PIKE" = "x1"; then
+    break
   fi
 done
-if test "$PIKE" != ""; then 
-  PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+
+if test x"$FOUND_PIKE" = "x1"; then 
+  AC_MSG_RESULT([found Pike $PIKE_VERSION with C headers in $PIKE_INCLUDE_DIRS])
 else
   cat << EOF
 *****************************************************************************
