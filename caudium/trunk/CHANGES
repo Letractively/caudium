@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Added Caudium.Crypto.urandom() function to wrap easyly the good random
+  source according of pike version.
+   (Xavier Beaudouin)
 - Fix bug in Cache.FastStorage which caused devide by zero when calculating
   object hitrates.
    (James Tyson)
