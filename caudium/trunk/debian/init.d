@@ -34,6 +34,13 @@ fi
 
 case "$1" in
   start)
+	if [ -f $PIDFILE ]
+	then
+		echo "PID file exists, Caudium already running ?"
+		/etc/init.d/caudium stop
+		rm -f $PIDFILE
+		sleep 5
+	fi
 	echo -n "Starting $DESC: "
 	cd $DAEMON_DIR
 	$DAEMON $DEFSTART_OPTIONS $START_OPTIONS > /dev/null
