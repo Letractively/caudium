@@ -688,7 +688,7 @@ static void f_extension( INT32 args ) {
   }
   orig = src->str;
   for(i = src->len-1; i >= 0; i--) {
-    if(!(orig[i] & 0xD1)) {
+    if(orig[i] == 0x2E) {
       found = 1;
       i++;
       break;
