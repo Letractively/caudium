@@ -86,7 +86,7 @@ class CGIScript
 
     // Send input to script..
     if(tosend)
-      sendfile(tosend, stdin, lambda(int i,mixed q){ stdin=0; });
+      sendfile(tosend, stdin, lambda(object pipe){ stdin=0; pipe=0;});
     else
     {
       stdin->close();
