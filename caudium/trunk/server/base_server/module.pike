@@ -614,6 +614,29 @@ array query_seclevels()
 	  }
 	}
 	break;
+      
+      case "secuname":
+        value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+	array(string) users = (value/"," - ({""}));
+	mapping(string:int) userlevels = ([]);	
+	array(string) tmp;
+	int           i;
+	
+	report_notice("SecUname found (" + sizeof(users) + " users)\n");
+	for(i = 0; i < sizeof(users); i++) {
+	    tmp = users[i] / ":";
+	    if (lower_case(tmp[0]) == "any") {
+	    	patterns += ({ ({ MOD_USER_SECLEVEL, (["any":tmp[1]]), }) });
+		break;
+	    } else {
+		userlevels += ([tmp[0]:tmp[1]]);
+	    }	    
+	}
+	patterns += ({ ({ MOD_USER_SECLEVEL, userlevels, }) });
+        break;
+	
+      case "secgname":
+        break;
 
       default:
 	report_error(sprintf("Unknown Security:Patterns directive: "

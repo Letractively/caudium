@@ -958,8 +958,9 @@ int|mapping check_security(function a, object id, void|int slevel)
       function_object(a)->query("_sec_group")
     });
 
-  if(slevel && (seclevels[1] > slevel)) // "Trustlevel" to low.
-    return 1;
+  if (sizeof(seclevels[0]) && seclevels[0][0] != MOD_USER_SECLEVEL)
+    if(slevel && (seclevels[1] > slevel)) // "Trustlevel" to low.
+	return 1;
   
   if(!sizeof(seclevels[0]))
     return 0; // Ok if there are no patterns.
@@ -967,6 +968,7 @@ int|mapping check_security(function a, object id, void|int slevel)
   mixed err;
   err = catch {
     foreach(seclevels[0], level) {
+      
       switch(level[0]) {
       case MOD_ALLOW: // allow ip=...
 	if(level[1](id->remoteaddr)) {
@@ -1016,6 +1018,32 @@ int|mapping check_security(function a, object id, void|int slevel)
 	if(id->auth && id->auth[0] && level[1](id->auth[1])) {
 	  // Match. It's ok.
 	  return(0);
+	} else {
+	  if (id->auth) {
+	    auth_ok |= 1;	// Auth may be bad.
+	  } else {
+	    // No auth yet, get some.
+	    return(http_auth_failed(seclevels[2]));
+	  }
+	}
+	break;
+	
+      case MOD_USER_SECLEVEL: // secuname=...
+        mapping(string:int)  usrlist = level[1];
+
+        if(id->auth && id->auth[0]) {
+	    int  mylevel = -1000;
+	    
+	    if (usrlist["any"]) {
+		report_notice("Any match on User Seclevel\n");
+		mylevel = usrlist["any"];
+		report_notice("Security level will be set to " + mylevel + "\n");
+	    } else if (usrlist[id->auth[1]]) {
+		report_notice("User match on User Seclevel (" + id->auth[1] + ")\n");
+		mylevel = usrlist[id->auth[1]];
+	    }
+	    if (mylevel != -1000)
+		misc_cache[a][1] = mylevel;
 	} else {
 	  if (id->auth) {
 	    auth_ok |= 1;	// Auth may be bad.
@@ -2599,6 +2627,8 @@ object enable_module( string modname )
 		   "deny ip=<i>IP</i>/<i>bits</i><br>"
 		   "deny ip=<i>IP</i>:<i>mask</i><br>"
 		   "deny ip=<i>pattern</i><br>"
+		   "secuname=<i>username:level</i>,...<br>"
+		   "secgname=<i>groupname:level</i>,...<br>"
 		   "<hr noshade>"
 		   "In patterns: * matches one or more characters, "
 		   "and ? matches one character.<p>"
@@ -2632,6 +2662,8 @@ object enable_module( string modname )
 		   "deny ip=<i>IP</i>/<i>bits</i><br>"
 		   "deny ip=<i>IP</i>:<i>mask</i><br>"
 		   "deny ip=<i>pattern</i><br>"
+		   "secuname=<i>username:level</i>,...<br>"
+		   "secgname=<i>groupname:level</i>,...<br>"
 		   "<hr noshade>"
 		   "In patterns: * matches one or more characters, "
 		   "and ? matches one character.<p>"
