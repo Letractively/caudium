@@ -47,7 +47,7 @@ RCSID("$Id$");
 #endif
 
 #include "caudium.h"
-#include "datettime.h"
+#include "datetime.h"
 
 static_strings strs;
 
