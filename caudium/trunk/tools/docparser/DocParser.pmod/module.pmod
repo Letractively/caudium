@@ -1827,8 +1827,7 @@ class Parse {
             mixed st = file_stat(top + s);
             array(int) stbuf;
             if(st)
-                stbuf = (array(int))st;
-	      
+                stbuf = (array(int))st;	      
 
             if (glob("CVS", s))
                 continue;
@@ -1844,6 +1843,18 @@ class Parse {
 
         if (!f_quiet)
             write(top + "   \n");
+        
+	/*
+	 * See whether we are to enforce some order on the files
+	 */
+	string order = read_file(top + "/.docs");
+	if (order && sizeof(order)) {
+	    /* First process the files given in the .docs file */
+	    foreach(files & (order / "\n"), string f) {
+                files -= ({f});
+                parse_file(top + f);
+            }
+	}
         
         foreach(files, string s)
             parse_file(top + s);

@@ -27,6 +27,7 @@
  * Generates documentation files out of the passed collection of
  * PikeFile and Module objects defined in the DocParser module
  */
+#pike 7.0
 
 import DocParser;
 import Stdio;
@@ -660,6 +661,14 @@ class DocGen
         return ret;
     }
     
+    private int compare_class(object one, object two)
+    {
+	if (!one->first_line || !two->first_line)
+	    return 0;
+	    
+	return (one->first_line > two->first_line);
+    }
+    
     private string f_classes(DocParser.PikeFile f)
     {
         string   ret = "";
@@ -667,7 +676,10 @@ class DocGen
         if (!sizeof(f->classes))
             return "";
         ret = "<classes>\n";
-        foreach(f->classes, object c)
+	
+	array(object) sorted = Array.sort_array(f->classes, compare_class);
+	
+        foreach(sorted, object c)
             ret += do_f_class(c);
         ret += "</classes>\n";
 	
@@ -969,15 +981,50 @@ class TreeMirror
     private string header = #string "header-tree.xml";
     private string footer = #string "footer-tree.xml";
     
+    private int single_file = 0;
+    
+    /*
+     * This function determines whether the original directory
+     * of the source files contains the .docs file. If so, it
+     * returns the same name for every file in that directory.
+     * Otherwise return fname.
+     */
+    private string get_fname(string fname)
+    {
+        string srcdir =  "../" + rel_path + (dirname(fname) / "/")[1..] * "/";
+        
+        if (!single_file && file_stat(srcdir + "/.docs")) {
+            array(string) tmp = get_dir(dirname(fname));
+            array(string) files = ({});
+            
+            files += glob("*.pike", tmp);
+            files += glob("*.c", tmp);
+            files += glob("*.h", tmp);
+            
+            single_file = sizeof(files);
+            
+            return dirname(fname) + "/docs.xml";
+        } else if (file_stat(srcdir + "/.docs"))
+            return dirname(fname) + "/docs.xml";
+        else
+            single_file = 0;
+        
+        return fname;
+    }
+    
     object(Stdio.File) create_file(string tdir, string fpath)
     {
         object(Stdio.File) f;
         fname = replace(tdir + (fpath - rel_path), ({".pike",".c",".h"}), ({".pike.xml", ".c.xml", ".h.xml"}));
-	
+         
         if (!Stdio.mkdirhier(dirname(fname)))
             throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));
         
-        f = Stdio.File(fname, "cwt");
+        string oflags = "cwt";
+        if (single_file)
+            oflags = "wa";
+        
+        f = Stdio.File(get_fname(fname), oflags);
         if (f)
             f->write(replace(header, tvars, map_variables()));
 
@@ -986,13 +1033,15 @@ class TreeMirror
 
     void close_file(Stdio.File f)
     {
-        f->write(footer);
+        if (!single_file)
+            f->write(footer);
         f->close();
     }
     
     void create(array(object) f, array(object) m, string rpath)
     {
         ::create(f, m, rpath);
+        single_file = 0;
     }
 }
 
