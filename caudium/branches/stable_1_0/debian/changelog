@@ -1,12 +1,13 @@
-caudium (1:1.0.35-6) unstable; urgency=low
+caudium (2:1.0.35-2) unstable; urgency=low
 
-  * Fixed a typo in caudium-modules.dirs
+  * Fixed the patch process on clean/configure time (Closes: #95493)
 
- -- Marek Habersack <grendel@debian.org>  Fri, 27 Apr 2001 15:39:55 +0200
+ -- Marek Habersack <grendel@debian.org>  Sun, 29 Apr 2001 02:35:31 +0200
 
-caudium (1:1.0.35-5) unstable; urgency=low
+caudium (2:1.0.35-1) unstable; urgency=low
 
   * Not much. Email address change.
+  * Changed the epoch to 2 since I need a full upload to Debian
 
  -- Marek Habersack <grendel@debian.org>  Tue, 24 Apr 2001 12:10:00 +0200
 
