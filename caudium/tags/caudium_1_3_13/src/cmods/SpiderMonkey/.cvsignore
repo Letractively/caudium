@@ -1,0 +1,8 @@
+Makefile
+Makefile.pre
+dependencies
+config.status
+config.log
+configure
+sm_config.h*
+autom4te.cache
