@@ -1,0 +1,28 @@
+Caudium Webserver for Debian
+----------------------------
+
+The default login/password pair for the config interface is admin/password, 
+respectively. Please make sure to change at least the password as soon
+as possible if you haven't done so during the installation process!
+
+A few notes regarding this package are due here since it differs a
+bit from its predecessor, Roxen.
+   
+ - libroxen
+   All the modules with names starting with libroxen- install themselves
+   in the /usr/share/roxen/modules directory. This path is searched
+   by Caudium, but the modules found there are loaded _last_ - so they
+   might be overriden by a module with the same name installed in directories
+   that precede the above dir in the Caudium module load pathlist.
+   One example of such situation is the libroxen-123session by Kai Voigt. This
+   module is part of the Caudium distribution, while it is not part of the
+   Roxen 1.3 one - the module from the Caudium package will be used (which
+   actually is a Good Thing(tm) - the Caudium module is newer :) )
+   If you are a developer and create a Caudium-specific 3rd party module
+   you should install it in the /usr/share/caudium/local_modules directory
+   instead of the /usr/share/roxen/modules one. Likewise, name the module
+   libcaudium-MODULENAME.
+
+ $Id$
+ 
+ -- Marek Habersack <grendel@debian.org>, Tue, 15 Aug 2000 13:47:27 +0200
