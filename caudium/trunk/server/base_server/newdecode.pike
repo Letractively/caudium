@@ -291,7 +291,7 @@ private mapping compat_parse(string s)
 
 mapping decode_config_file(string s)
 {
-//  werror(sprintf("Decoding \n%s\n",s));
+//  report_debug("Decoding \n%s\n",s);
   mapping res = ([ ]);
   if(!s || !sizeof(s)) return res; // Empty file..
   switch(s[0])
@@ -315,7 +315,7 @@ mapping decode_config_file(string s)
 //    trace(1);
     Caudium.parse_html(s, ([]), ([ "region":new_decode_config_region ]), res);
 //    trace(0);
-//    werror(sprintf("Decoded value is: %O\n", res));
+//    report_debug("Decoded value is: %O\n", res);
     return res;
    }
 }
