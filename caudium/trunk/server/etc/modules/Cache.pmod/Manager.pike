@@ -49,12 +49,6 @@ object slow;
 void create() {
   caches = ([ ]);
   client_caches = ([ ]);
-#ifdef ENABLE_THREADS
-  write("The Caudium Caching sub-system hasn't been well tested when operating\n");
-  write("in threaded mode, be warned that there may be deadlocks.\n");
-  write("Starting anyway, as you request.\n");
-#endif
-
 }
 
 //! Trigger delayed start for the cache, this stops us from having to load
