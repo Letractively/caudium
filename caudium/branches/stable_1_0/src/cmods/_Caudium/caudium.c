@@ -112,8 +112,7 @@ static void f_buf_append( INT32 args )
     return;
   }
 
-  skey.type = T_STRING;
-  sval.type = T_STRING;
+  skey.type = sval.type = T_STRING;
 
   sval.u.string = make_shared_binary_string( (char *)pp, BUF->pos - pp);
   mapping_insert(BUF->other, SVAL(data), &sval); /* data */
@@ -236,11 +235,23 @@ static void f_buf_create( INT32 args )
   pop_n_elems(args);
 }
 
-void free_buf_struct(struct object *o)
+static void free_buf_struct(struct object *o)
 {
-  free_mapping(BUF->headers);
-  free_mapping(BUF->other);
+  if(BUF->headers != NULL) {
+    free_mapping(BUF->headers);
+    BUF->headers = NULL;
+  }
+  if(BUF->other != NULL) {
+    free_mapping(BUF->other);
+    BUF->other = NULL;
+  }
 }
+
+static void alloc_buf_struct(struct object *o)
+{
+  BUF->headers = BUF->other = NULL;
+}
+
 
 /*
 ** end class
@@ -528,6 +539,7 @@ void pike_module_init( void )
 		"function(string:int)", OPT_SIDE_EFFECT );
   add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
   set_exit_callback(free_buf_struct);
+  set_init_callback(alloc_buf_struct);
   parsehttp_program = end_program();
   add_program_constant("ParseHTTP", parsehttp_program, 0);
 }
