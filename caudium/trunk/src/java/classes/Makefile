@@ -14,7 +14,6 @@ MODULEDIR = ../../modules
 JARS = caudium_module.jar caudium_servlet.jar caudium_search.jar
 
 all : ${JARS}
-	rm -rf net
 	cp *.jar ../../../server/etc/classes
 
 caudium_servlet.jar : servlet_classes
@@ -39,6 +38,7 @@ module_classes : $(SRCDIR)/net/caudium/caudium/*.java
 	CLASSPATH=$(CLASSPATH) $(JAVAC) $(JAVAFLAGS) $^ -d .
 
 clean:
+	rm -rf net
 	rm -f ${JARS}
 
 #compile_modules: caudium_module.jar 
