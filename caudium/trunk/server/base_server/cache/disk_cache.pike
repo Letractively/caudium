@@ -51,11 +51,14 @@ mapping get_index() {
         if (! catch(  metadata = Stdio.File( Stdio.append_path( cache_path, dirname, "meta" ), "r" ) ) ) {
           string m = metadata->read();
           metadata->close();
-          mapping meta = _decode_value( m );
+          catch( mapping meta = _decode_value( m ) );
 #ifdef CACHE_DEBUG
           write( "DISK_CACHE: get_index %O\n", meta );
 #endif
-          if (! meta ) continue;
+          if (! meta ) {
+	    Stdio.recursive_rm( Stdio.append_path( cache_path, dirname ) );
+	    continue;
+	  }
           thecache += ([ dirname : meta ]);
           disk_usage += meta->size;
           rm( Stdio.append_path( cache_path, dirname, "meta" ) );
@@ -150,9 +153,13 @@ void|mixed retrieve( string name, void|int object_only ) {
         meta->object = Stdio.File( object_path, "r" );
       } else if ( meta->type == "variable" ) {
         meta->object = _decode_value( Stdio.File( object_path, "r" )->read() );
+	}
       } else if ( meta->type == "image" ) {
         meta->object = Image.PNM.decode( Stdio.File( object_path, "r" )->read() );
       }
+      if ( ! meta->object ) {
+        refresh( name );
+	return 0;
       if ( object_only ) {
         return meta->object;
       }
