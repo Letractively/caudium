@@ -1,12 +1,9 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
 
-<<<<<<< CHANGES
 - Modifications to setools.pike, added <randomhref> container (3rdparty/cd34)
 - Added Human Verify, a tool to use with form submissions (3rdparty/cd34)
-=======
 - Added RXML parse option in Uniscript, thanks to Wim Bonis <bonis at bonis.de>
->>>>>>> 1.179
 - Fixed sumbar in the diagram tag
 - Fixed an obscure bug that locks caudium on FreeBSD when using 
   the 404 redirector.
