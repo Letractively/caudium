@@ -18,8 +18,6 @@
  *
  */
 
-// username,passwd,uid,gid,homedir,shell
-
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 
@@ -56,16 +54,26 @@ array tables=({});
  * Registration and initialization
  */
 
+//
+// check variables.
+//
 void|string check_variable(string name, mixed value)
 {
   if(name=="sqlserver" && value=="")
-    return "you must provide a SQL URL for this setting.";
-  if(name=="sqlserver" && catch(Sql.sql(value)))
-    return "unable to connect to SQL server " + value + ".";
+    return "You must provide a SQL URL for this setting.";
+  else if(name=="sqlserver" && catch(Sql.sql(value)))
+    return "Unable to connect to SQL server " + value + ".";
 
-  if(name=="usertable" && value=="")
-    return "you must provide a value for this setting.";
-  if(name=="usertable" || name=="grouptable" || name=="usergrouptable")
+  else if(name=="usertable" && value=="")
+    return "You must provide a value for this setting.";
+
+  else if(name=="grouptable" && value=="")
+    return "You must provide a value for this setting.";
+
+  else if(name=="usergrouptable" && value=="")
+    return "You must provide a value for this setting.";
+
+  else if(name=="usertable" || name=="grouptable" || name=="usergrouptable")
   {
     if(QUERY(sqlserver))
     {
@@ -78,7 +86,96 @@ void|string check_variable(string name, mixed value)
     else return "You must configure your database connection first.";
 
   }
+  else if(name=="user_otherf")
+  {
+     array f=((value-"")/",");
+     object o=Sql.sql(QUERY(sqlserver));
+     foreach(f, string field)
+     {
+       array x;
+       if(catch(x=o->list_fields(QUERY(usertable), field)))
+       {
+         return "Unable to find table " + QUERY(usertable) + ".";
+       }
+       else
+       {
+         int found=0;
+         foreach(x, mapping fx)
+         {
+           if(lower_case(fx->name) == lower_case(field))
+             found=1;
+         }
+         if(!found)
+           return "Unable to find field " + field + " in table " + 
+             QUERY(usertable) + ".";
+       }
+    }
+  }
+  else if(name=="group_otherf")
+  {
+     array f=((value-"")/",");
+     object o=Sql.sql(QUERY(sqlserver));
+     foreach(f, string field)
+     {
+       array x;
+       if(catch(x=o->list_fields(QUERY(grouptable), field)))
+       {
+         return "Unable to find table " + QUERY(grouptable) + ".";
+       }
+       else
+       {
+         int found=0;
+         foreach(x, mapping fx)
+         {
+           if(lower_case(fx->name) == lower_case(field))
+             found=1;
+         }
+         if(!found)
+           return "Unable to find field " + field + " in table " + 
+             QUERY(grouptable) + ".";
+       }
+    }
+  }
 
+  else if(sizeof(name/"_")>1)
+  {
+    if(QUERY(sqlserver))
+    {
+    string table;
+
+      if((name/"_")[0]=="user")
+        table=QUERY(usertable);
+      if((name/"_")[0]=="group")
+        table=QUERY(grouptable);
+      if((name/"_")[0]=="usergroup")
+        table=QUERY(usergrouptable);
+    
+      object o=Sql.sql(QUERY(sqlserver));
+      array x;
+
+      if(catch(x=o->list_fields(table, value)))
+      {
+        return "Unable to find table " + value + ".";
+      }
+      else
+      {
+        int found=0;
+        foreach(x, mapping f)
+        {
+          if(lower_case(f->name) == lower_case(value))
+          {
+            found=1;
+            break;
+          }
+        }
+        if(!found)
+          return "Field " + value + " doesn't exist in table " + table + ".";
+        else return;
+      }
+    }
+    else return "You must configure your database connection first.";
+    
+  }
 }
 
 void start(int i)
@@ -112,7 +209,7 @@ void setup_queries()
     if(QUERY(user_homedirectoryf)!="NONE")    
       usertablefields+=({QUERY(user_homedirectoryf)});
 
-    if(QUERY(user_otherf)!="")
+    if(QUERY(user_otherf) && sizeof(QUERY(user_otherf))>0)
       usertablefields+=({(QUERY(user_otherf)/",")});
 
 
@@ -121,8 +218,30 @@ void setup_queries()
     query_getuserbyuserid="SELECT " + usertablefields*", " + " FROM " + 
        user_table + " WHERE " + QUERY(user_uidf) + "=";
 
-//    werror("byname: " + query_getuserbyname + "\n\n");
-//    werror("byid: " + query_getuserbyuserid + "\n\n");
+    werror("byname: " + query_getuserbyname + "\n\n");
+    werror("byid: " + query_getuserbyuserid + "\n\n");
+  }      
+
+  if(group_table)
+  {
+    array grouptablefields=({});
+
+    grouptablefields+=({QUERY(group_groupnamef)});
+    grouptablefields+=({QUERY(group_groupidf)});
+    grouptablefields+=({QUERY(group_fullnamef)});
+
+    if(QUERY(group_otherf) && sizeof(QUERY(group_otherf))>0)
+      grouptablefields+=({(QUERY(group_otherf)/",")});
+
+
+    query_getgroupbyname="SELECT " + grouptablefields*", " + " FROM " + 
+       group_table + " WHERE " + QUERY(group_groupnamef) + "=";
+
+    query_getgroupbygroupid="SELECT " + grouptablefields*", " + " FROM " + 
+       group_table + " WHERE " + QUERY(group_groupidf) + "=";
+
+    werror("byname: " + query_getgroupbyname + "\n\n");
+    werror("byid: " + query_getgroupbygroupid + "\n\n");
   }      
 
 }
@@ -134,81 +253,71 @@ void stop()
 void create()
 {
 
-defvar("sqlserver", 0,
+defvar("sqlserver", "",
          "SQL Data Source URL",
          TYPE_STRING,
          "The SQL URL of the database containing the authentication tables.");
-defvar("usertable", 0,
+defvar("usertable", "users",
 	"User Table",
 	TYPE_STRING,
 	"The name of the table containing user data.");
-defvar("grouptable", 0,
+defvar("grouptable", "groups",
 	"Group Table",
 	TYPE_STRING,
 	"The name of the table containing group data.");
-defvar("usergrouptable", 0,
+defvar("usergrouptable", "users_groups",
 	"User to Group Table",
 	TYPE_STRING,
 	"The name of the table containing the user to group mapping.");
 defvar("passwordformat", "Crypt",
 	"Password Format",
-	TYPE_MULTIPLE_STRING,
+	TYPE_STRING,
 	"Password storage format. Choose the method used to store user passwords.",
 	({"Crypt", "MD5", "SHA1", "Plaintext"}));
-defvar("user_usernamef", 0,
-	"Fields: User/Username",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the user name.",
-	list_user_fields());
-defvar("user_uidf", 0,
-	"Fields: User/User ID",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the numeric user id.",
-	list_user_fields());
-defvar("user_homedirectoryf", 0,
-	"Fields: User/Home Directory",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the user's home directory (optional).",
-	({"NONE"}) + list_user_fields());
-defvar("user_fullnamef", 0,
-	"Fields: User/Full Name",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the user's full name.",
-	list_user_fields());
-defvar("user_emailf", 0,
-	"Fields: User/Email Address",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the user's email address (optional).",
-	({"NONE"}) + list_user_fields());
-defvar("user_otherf", 0,
-	"Fields: User/Additional fields",
-	TYPE_MULTIPLE_STRING,
+defvar("user_usernamef", "",
+	"Fields: User- Username",
+	TYPE_STRING,
+	"The name of the field containing the user name.");
+defvar("user_uidf", "",
+	"Fields: User- User ID",
+	TYPE_STRING,
+	"The name of the field containing the numeric user id.");
+defvar("user_homedirectoryf", "",
+	"Fields: User- Home Directory",
+	TYPE_STRING,
+	"The name of the field containing the user's home directory (optional).");
+defvar("user_fullnamef", "",
+	"Fields: User- Full Name",
+	TYPE_STRING,
+	"The name of the field containing the user's full name.");
+defvar("user_emailf", "",
+	"Fields: User- Email Address",
+	TYPE_STRING,
+	"The name of the field containing the user's email address (optional).");
+defvar("user_otherf", "",
+	"Fields: User- Additional fields",
+	TYPE_STRING,
 	"Additional fields to include in the user record (optional).");
-defvar("user_passwordf", 0,
-	"Fields: User/Password",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the user's password.",
-	list_user_fields());
-defvar("group_groupnamef", 0,
-	"Fields: Group/Groupname",
-	TYPE_MULTIPLE_STRING,
-	"The name of the field containing the group name.",
-	list_group_fields());
-}
-
-array list_user_fields()
-{
-  return ({""});
-}
-
-array list_group_fields()
-{
-  return ({""});
-}
-
-array list_usergroup_fields()
-{
-  return ({""});
+defvar("user_passwordf", "",
+	"Fields: User- Password",
+	TYPE_STRING,
+	"The name of the field containing the user's password.");
+defvar("group_groupnamef", "",
+	"Fields: Group- Groupname",
+	TYPE_STRING,
+	"The name of the field containing the group name.");
+defvar("group_fullnamef", "",
+	"Fields: Group- Full Name",
+	TYPE_STRING,
+	"The name of the field containing the full name of the group.");
+defvar("group_groupidf", "",
+	"Fields: Group- Group ID",
+	TYPE_STRING,
+	"The name of the field containing the group ID number.");
+defvar("group_otherf", "",
+	"Fields: Group- Additional fields",
+	TYPE_STRING,
+	"Additional fields to include in the group record (optional).");
 }
 
 string query_provides()
