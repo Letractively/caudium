@@ -90,7 +90,7 @@ static struct array    *html_mta_safe_entities;
 static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\000"};
 static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
 static char            *html_unsafechars[] = { "\"" };
-static char            *html_safeentities[] = { "&#34;" };
+static char            *html_safeentities[] = { "&quot;" };
 
 #define XML_UNSAFECHARS_SIZE sizeof(xml_unsafechars)/sizeof(char*)
 #define HTML_UNSAFECHARS_SIZE sizeof(html_unsafechars)/sizeof(char*)
