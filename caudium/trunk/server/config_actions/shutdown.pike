@@ -28,10 +28,11 @@ constant doc = ("Restart or shut down Caudium.");
 
 string page_0(object id)
 {
-  return ("<font size=+1>How do you want to shut down Caudium?</font><p>"
-	  "<var type=radio name=how checked value=reset> Restart Caudium<br>"
-	  "<var type=radio name=how value=shutdown> Shut down Caudium "
-	  "(no automatic restart)");
+  return (
+		"<font size='+1'>How do you want to shut down Caudium?</font><p>"
+	  "<var id='restart' type='radio' name='how' checked='checked' value='reset'> <label for='restart'>Restart Caudium</label><br>"
+	  "<var id='shutdown' type='radio' name='how' value='shutdown'> <label for='shutdown'>Shut down Caudium "
+	  "(no automatic restart)</label>");
 }
 
 mapping wizard_done(object id)
