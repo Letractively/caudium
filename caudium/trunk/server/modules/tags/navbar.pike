@@ -30,10 +30,10 @@ constant thread_safe=1;
 #define NSESSION id->misc->session_variables->navbar
 
 // compat stuff between Caudium 1.2 and 1.4
-#ifdef Caudium.parse_html
+#if constant(Caudium.parse_html)
 #define PARSER Caudium.parse_html
 #else
-#ifdef CAMAS.Parse.parse_html
+#if constant(CAMAS.Parse.parse_html)
 #define PARSER CAMAS.Parse.parse_html
 #else
 #define PARSER parse_html
@@ -44,6 +44,12 @@ constant thread_safe=1;
 #define ADD_PRE_STATE Caudium.add_pre_state
 #else
 #define ADD_PRE_STATE add_pre_state
+#endif
+
+#if constant(Caudium.make_container)
+#define MAKE_CONTAINER Caudium.make_container
+#else
+#define MAKE_CONTAINER make_container
 #endif
 
 constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
@@ -367,7 +373,7 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   args->href = ADD_PRE_STATE(baseuri, id->prestate) + "?" + 
     replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
 
-  return make_container("a", args, contents);
+  return MAKE_CONTAINER("a", args, contents);
 }
 
 array loop_parser(string originalcontents, array(string) tags_name, array(string) containers_name)
