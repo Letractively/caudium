@@ -1,0 +1,53 @@
+--
+-- MIB for Caudium Webserver 1.3
+--
+-- This is the MIB for the SNMP agent included with Caudium Webserver 1.3
+--
+
+CAUDIUMWS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+      MODULE-IDENTITY,  Counter32, Gauge32, OBJECT-TYPE
+                 FROM SNMPv2-SMI 
+      DisplayString,    TimeStamp
+                 FROM SNMPv2-TC
+      MODULE-COMPLIANCE, OBJECT-GROUP
+                 FROM SNMPv2-CONF
+      enterprises
+                 FROM ObjectIds
+      TRAP-TYPE 
+		 FROM RFC-1215;
+     
+      caudium OBJECT IDENTIFIER ::= { enterprises 14245 }
+
+    caudiumws MODULE-IDENTITY
+       LAST-UPDATED "0301070000Z"
+       ORGANIZATION "Caudium Group"
+       CONTACT-INFO
+              "        Bill Welliver, SNMP maintainer
+		Caudium Group
+
+               E-mail: general@caudium.info"
+            DESCRIPTION
+               " This is the MIB for the SNMP agent included with Caudium Webserver 1.3"
+            ::= { caudium 1 }
+
+    
+--
+--
+--  Get objects
+--
+--
+
+--
+--
+--  Set objects
+--
+--
+
+--
+--  Traps 
+--
+--
+				
+   END
