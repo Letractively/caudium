@@ -14,10 +14,10 @@ weirdness. If so, don't hesitate to contact me <bertrand AT caudium DOT net>.
 
 By default, Caudium is configured:
   - to run threaded
-  - to log in @prefix@/var/log/caudium1.3
-  - to read configuration from @prefix@/etc/caudium1.3
+  - to log in @prefix@/var/log/caudium1.4
+  - to read configuration from @prefix@/etc/caudium1.4
 
-These startup options can be changed in @prefix@/etc/defaults/caudium1.3
+These startup options can be changed in @prefix@/etc/defaults/caudium1.4
 
 
 
@@ -30,7 +30,7 @@ These startup options can be changed in @prefix@/etc/defaults/caudium1.3
 By default, Caudium is started at boot using Fink's daemonic system. If you
 don't want Caudium to start at boot, use the command:
 
-sudo daemonic disable caudium1.3
+sudo daemonic disable caudium1.4
 
 Read the daemonic man page for more information.
 
@@ -39,17 +39,17 @@ Read the daemonic man page for more information.
 
 If you want to manually start Caudium, use:
 
-sudo @prefix@/bin/caudiumctl1.3 start
+sudo @prefix@/bin/caudiumctl1.4 start
 
 If you want to restart or stop Caudium, you can use:
 
-sudo @prefix@/bin/caudiumctl1.3 stop
-sudo @prefix@/bin/caudiumctl1.3 restart
+sudo @prefix@/bin/caudiumctl1.4 stop
+sudo @prefix@/bin/caudiumctl1.4 restart
 
 The web-based interface can be used in order to restart and stop Caudium, too.
 
-Don't launch yourself the start-caudium script from @prefix@/lib/caudium1.3/
-otherwise, the config from @prefix@/etc/caudium1.3 wouldn't be read and it
+Don't launch yourself the start-caudium script from @prefix@/lib/caudium1.4/
+otherwise, the config from @prefix@/etc/caudium1.4 wouldn't be read and it
 could end up with unexpected results.
 
 

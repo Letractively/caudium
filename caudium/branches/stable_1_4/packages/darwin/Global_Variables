@@ -4,8 +4,8 @@
 	<var name='numthreads'><int>5</int></var>
 	<var name='User'><str><![CDATA[70:70]]></str></var>
 	<var name='watchdog_timeout'><int>15</int></var>
-	<var name='storage_disk_path'><str><![CDATA[@prefix@/var/cache/caudium1.3/storage]]></str></var>
-	<var name='ConfigurationStateDir'><str><![CDATA[@prefix@/var/state/caudium1.3/]]></str></var>
+	<var name='storage_disk_path'><str><![CDATA[@prefix@/var/cache/caudium1.4/storage]]></str></var>
+	<var name='ConfigurationStateDir'><str><![CDATA[@prefix@/var/state/caudium1.4/]]></str></var>
 	<var name='show_internals'><int>0</int></var>
 	<var name='ConfigurationUser'><str><![CDATA[]]></str></var>
 	<var name='set_cookie'><int>0</int></var>
@@ -20,7 +20,7 @@
 	<var name='Supports'><str><![CDATA[#include %3cetc/supports%3e
 ]]></str></var>
 	<var name='LogWH'><str><![CDATA[Errors]]></str></var>
-	<var name='logdirprefix'><str><![CDATA[@prefix@/var/log/caudium1.3/]]></str></var>
+	<var name='logdirprefix'><str><![CDATA[@prefix@/var/log/caudium1.4/]]></str></var>
 	<var name='watchdog_timer'><int>60</int></var>
 	<var name='LogNA'><str><![CDATA[Caudium]]></str></var>
 	<var name='RestoreConnLogFull'><int>0</int></var>
@@ -28,7 +28,7 @@
 	<var name='cache_default_halflife'><int>6</int></var>
 	<var name='snmp_address'><str><![CDATA[]]></str></var>
 	<var name='snmp_port'><int>161</int></var>
-	<var name='pidfile'><str><![CDATA[@prefix@/var/run/caudium1.3/caudium.pid]]></str></var>
+	<var name='pidfile'><str><![CDATA[@prefix@/var/run/caudium1.4/caudium.pid]]></str></var>
 	<var name='snmp_trap_recipients'><str><![CDATA[]]></str></var>
 	<var name='set_cookie_only_once'><int>1</int></var>
 	<var name='cache_max_ram'><int>128</int></var>
@@ -42,7 +42,7 @@
 	<var name='watchdog_checkall'><int>1</int></var>
 	<var name='cache_vigilance'><int>75</int></var>
 	<var name='LogSP'><int>1</int></var>
-	<var name='ModuleDirs'><a><str><![CDATA[modules/, local_modules/]]></str></a></var>
+	<var name='ModuleDirs'><a><str><![CDATA[modules/]]></str><str><![CDATA[local_modules/]]></str></a></var>
 	<var name='suicide_engage'><int>0</int></var>
 	<var name='suicide_timeout'><int>7</int></var>
 	<var name='cache_default_ttl'><int>5</int></var>
@@ -64,10 +64,10 @@
 	<var name='cif_theme'><str><![CDATA[caudiumnet]]></str></var>
 	<var name='ConfigurationURL'><str><![CDATA[]]></str></var>
 	<var name='storage_mysql_url'><str><![CDATA[]]></str></var>
-	<var name='cachedir'><str><![CDATA[@prefix@/var/cache/caudium1.3/]]></str></var>
+	<var name='cachedir'><str><![CDATA[@prefix@/var/cache/caudium1.4/]]></str></var>
 	<var name='snmp_set_community'><str><![CDATA[]]></str></var>
 	<var name='NumAccept'><int>64</int></var>
-	<var name='cache_storage_disk_path'><str><![CDATA[@prefix@/var/cache/caudium1.3/cache]]></str></var>
+	<var name='cache_storage_disk_path'><str><![CDATA[@prefix@/var/cache/caudium1.4/cache]]></str></var>
 	<var name='ConfigurationIPpattern'><str><![CDATA[*]]></str></var>
 	<var name='AutoUpdate'><int>0</int></var>
 </region>
