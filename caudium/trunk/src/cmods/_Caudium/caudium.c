@@ -97,7 +97,7 @@ static char            *_safeentities[] = {"&lt;", "&gt;", "&amp;"};
 #define UNSAFECHARS_SIZE sizeof(_unsafechars)/sizeof(char*)
 
 /*
-**! method: string make_tag_attributes(mapping in)
+**! method: string _make_tag_attributes(mapping in)
 **!  Convert a mapping with key-value pairs to tag attribute format escaping
 **!  any unsafe characters.
 **! arg: mapping in

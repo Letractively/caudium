@@ -30,6 +30,27 @@ constant cvs_version = "$Id$";
 
 // Some documentation for some call handled by _Caudium module.
 
+//! @decl string _make_tag_attributes(mapping in)
+//!  Convert a mapping with key-value pairs to tag attribute 
+//!  format escaping any unsafe charaters
+//! @pararm in
+//!  The mapping with the attributes
+//! @returns
+//!  The string of attributes
+//! @example
+//! Pike v7.5 release 17 running Hilfe v3.5 (Incremental Pike Frontend)
+//! > mapping foo;                 
+//! > foo = ([ "toto":"arf ?", "target":"mailindex" ]);
+//! (1) Result: ([ /* 2 elements */
+//!               "target": "mailindex",
+//!               "toto": "arf ?"
+//!             ])
+//! > Caudium._make_tag_attributes(foo);
+//! (3) Result: "target=\"mailindex\" toto=\"arf ?\" "
+//! @note
+//!  Non RIS code, implemented in the _Caudium C module
+
+
 //! @decl string cern_http_date(int|void t)
 //!  Return the specified date (as returned by time()) formated in the 
 //!  commong log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
