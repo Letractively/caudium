@@ -132,4 +132,12 @@
 # define ENABLE_NEW404
 #endif
 
+/*
+ * Load all configurations (virtual servers and their modules) at
+ * Caudium startup.
+ * This is not enabled for performance reasons (eg Caudium with lots of
+ * virtuals servers that are mostly unused.).
+ */
+#undef LOAD_CONFIGS_STARTUP
+
 #endif

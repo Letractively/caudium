@@ -3417,11 +3417,9 @@ int main(int|void argc, array (string)|void argv)
 
 
 
-#if 0
+#ifdef LOAD_CONFIGS_STARTUP
   foreach(configurations, object config)
-  {
     config->enable_all_modules(); 
-  };
 #endif
   enabling_configurations = 0;
 
