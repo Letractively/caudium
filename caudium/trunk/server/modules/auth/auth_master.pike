@@ -39,6 +39,12 @@ inherit "module";
 inherit "cachelib";
 inherit "caudiumlib";
 
+//
+//
+//  beginning of module support functions
+//
+//
+
 constant module_type = MODULE_AUTH;
 constant module_name = "Master authentication and security";
 constant module_doc  = "This module handles the security in roxen, and uses "
@@ -52,6 +58,36 @@ constant module_unique = 1;
 
 object usercache,groupcache;
 
+void create()
+{
+
+}
+
+void start(object conf)
+{
+  // first, set up the group and user caches.
+  setup_cache();
+}
+
+string status()
+{
+  return 
+    ("<h1>Security info</h1>"+
+     "<b>Successful auths:</b> "+(string)succ+"<br>\n" + 
+     "<b>Failed auths:</b> "+(string)fail
+     +", "+(string)nouser+" had the wrong username<br>\n"
+     + "<h3>Failure by host</h3>" +
+     Array.map(indices(failed), lambda(string s) {
+       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
+     }) * "" 
+);
+}
+
+//
+//
+// end of module support functions
+//
+//
 
 //
 // 
@@ -76,7 +112,8 @@ int authenticate(string user, string password)
 //! @returns
 //! numeric user id or -1 if user is not found.
 int get_uid(string username)
-{}
+{
+}
 
 //! given a groupname, find a numeric group id.
 //! @param groupname
@@ -85,7 +122,8 @@ int get_uid(string username)
 //! numeric group id or -1 if group is not found. (should we just assume
 //! that gid 0 doesn't exist?)
 int get_gid(string groupname)
-{}
+{
+}
 
 //! given a numeric user id, find a user name.
 //! @param uid
@@ -93,7 +131,8 @@ int get_gid(string groupname)
 //! @returns
 //! username or 0 if not found.
 string|int get_username(int uid)
-{}
+{
+}
 
 //! given a numeric group id, find a group name.
 //! @param gid
@@ -101,9 +140,12 @@ string|int get_username(int uid)
 //! @returns
 //! group name or 0 if not found.
 string|int get_groupname(int gid)
-{}
+{
+}
 
 //! find information about a user.
+//! @param user
+//! user name
 //! @returns
 //! a mapping containing user information, which may vary depending
 //! on the user database source. At a minimum, the result will contain
@@ -119,7 +161,8 @@ string|int get_groupname(int gid)
 //  group memberships or 0 if none
 //! @endmapping
 mapping|int user_info(string username)
-{}
+{
+}
 
 //! find information about a group.
 //! @returns
@@ -137,18 +180,22 @@ mapping|int user_info(string username)
 //!  members of group or 0 if none
 //! @endmapping
 mapping|int group_info(string groupname)
-{}
+{
+}
 
 //! listing of known users
 //! @returns
 //! array containing known user names, zero if none exist.
 array|int list_all_users()
-{}
+{
+}
 
 //! listing of known groups
 //! @returns
 //! array containing known group names, zero if none exist.
 array|int list_all_groups()
+{
+}
 
 //! return an array of information for a user
 //! @param u
@@ -175,6 +222,18 @@ array(string) userinfo(string u)
   if(!users[u])
     try_find_user(u);
   return users[u];
+}
+
+//! find information about a user from numeric userid
+//! @param u
+//!   numeric user id
+//! @returns 
+//!   a string containing user name
+string user_from_uid(int u)
+{
+  if(!uid2user[u])
+    try_find_user(u);
+  return uid2user[u];
 }
 
 
@@ -239,34 +298,15 @@ array|int auth(array(string) auth, object id)
   return ({ 1, u, 0, getgrgid(id->misc->gid) }); // u is a valid user.
 }
 
-void create()
-{
-
-}
-
-void start(object conf)
-{
-  // first, set up the group and user caches.
-  setup_cache();
-}
+//
+//
+// end of public "user" functions
+//
+//
 
 int succ, fail, nouser;
 
 mapping failed  = ([ ]);
-
-string status()
-{
-  return 
-    ("<h1>Security info</h1>"+
-     "<b>Successful auths:</b> "+(string)succ+"<br>\n" + 
-     "<b>Failed auths:</b> "+(string)fail
-     +", "+(string)nouser+" had the wrong username<br>\n"
-     + "<h3>Failure by host</h3>" +
-     Array.map(indices(failed), lambda(string s) {
-       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
-     }) * "" 
-);
-}
 
 setup_cache(object conf)
 {
