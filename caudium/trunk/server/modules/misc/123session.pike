@@ -22,8 +22,7 @@
  * User variables are accessible as id->misc->user_variables as well.
  *
  * TODO: This module needs comments, documentation, testing and some
- * mutex stuff.  The file storage is not implemented yet, just the
- * stubs.  DBM storage can be added later.  Error handling is badly
+ * mutex stuff.  DBM storage can be added later.  Error handling is badly
  * needed to catch sql errors and the like.
  *
  */
@@ -41,6 +40,10 @@ int foundcookieandprestate = 0;
 
 int storage_is_not_sql() {
  return (query("storage") != "sql");
+}
+
+int storage_is_not_file() {
+ return (query("storage") != "file");
 }
 
 void start(int num, object conf) {
@@ -63,15 +66,19 @@ void create() {
   defvar("storage", "memory",
          "Storage Method", TYPE_MULTIPLE_STRING,
          "The method to be used for storing the session and user variables."
-         " Available are Memory and Database storage.  Each"
+         " Available are Memory, Database and File storage.  Each"
          " of them have their pros and cons regarding speed and"
          " persistance.",
-         ({"memory", "sql"}));
+         ({"memory", "sql", "file"}));
   defvar("sql_url", "",
          "Database URL", TYPE_STRING,
          "Which database to use for the session and user variables, use"
          " a common database URL",
          0, storage_is_not_sql);
+  defvar("filepath", "",
+         "File Method Path", TYPE_DIR,
+         "The storage directory for File Method",
+         0, storage_is_not_file);
 }
 
 mixed register_module() {
@@ -107,9 +114,14 @@ int session_size_sql() {
   return ((int)result[0]->size);
 }
 
-// TODO
 int session_size_file() {
- return (0);
+  int result=0;
+  foreach(get_dir(query("filepath")), string filename) {
+    if (filename[sizeof(filename)-8..] == ".session") {
+      result++;
+    }
+  }
+  return (result);
 }
 
 string status() {
@@ -151,8 +163,19 @@ void session_gc_sql() {
   con->query("delete from variables where lastusage < '"+exptime+"' and region='session'");
 }
 
-// TODO
 void session_gc_file() {
+  string filepath=query("filepath");
+  string sfile;
+  int exptime = time()-query("expire");
+ 
+  foreach (get_dir(filepath), string filename) {
+    if (filename[sizeof(filename)-8..] == ".session") {
+      sfile=combine_path(filepath,filename);
+      if (file_stat(sfile)[2] < exptime) {
+        rm(sfile);
+      }
+    }
+  }
 }
 
 void session_gc() {
@@ -195,8 +218,11 @@ mapping (string:mixed) variables_retrieve_sql(string region, string key) {
   }
 }
 
-// TODO
 mapping (string:mixed) variables_retrieve_file(string region, string key) {
+  string sfile=combine_path(query("filepath"),key+"."+region);
+  if (file_stat(sfile)) {
+    return (string2values(Stdio.read_bytes(sfile)));
+  }
   return ([]);
 }
 
@@ -235,8 +261,16 @@ void variables_store_sql(string region, string key, mapping values) {
   con->query("insert into variables(id, region, lastusage, svalues) values ('"+key+"', '"+region+"', '"+time()+"', '"+values2string(values)+"')");
 }
 
-// TODO
 void variables_store_file(string region, string key, mapping values) {
+  string sfile=combine_path(query("filepath"),key+"."+region);
+  if (file_stat(sfile)) {
+    rm(sfile);
+  }
+  object sf=Stdio.File();
+  sf->open(sfile,"wct");
+  sf->write(values2string(values));
+  sf->close();
+  destruct(sf);
 }
 
 void variables_store(string region, string key, mapping values) {
