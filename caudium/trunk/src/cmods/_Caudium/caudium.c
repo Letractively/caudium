@@ -16,8 +16,7 @@ RCSID("$Id$");
 #include <alloca.h>
 #endif
 
-static void f_parse_headers( INT32 args );
-static void f_parse_query_string( INT32 args );
+#include "caudium.h"
 
 /* Initialize and start module */
 void pike_module_init( void )
@@ -35,7 +34,10 @@ void pike_module_exit( void )
 }
 
 /* helper functions */
-INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
+#ifndef HAVE_ALLOCA
+INLINE
+#endif
+static struct pike_string *lowercase(unsigned char *str, INT32 len)
 {
   unsigned char *p, *end;
   unsigned char *mystr;
@@ -68,7 +70,10 @@ INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
    Simple decodes %XX and + in the string. If exist is true, add a null char
    first in the string. 
  */
-INLINE static struct pike_string *url_decode(unsigned char *str,
+#ifndef HAVE_ALLOCA
+INLINE
+#endif
+static struct pike_string *url_decode(unsigned char *str,
 						      int len, int exist)
 {
   int nlen = 0, i;

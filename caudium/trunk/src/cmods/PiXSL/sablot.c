@@ -15,8 +15,6 @@ RCSID("$Id$");
 #ifdef HAVE_SABLOT
 #include <sablot.h>
 
-static void f_parse( INT32 args );
-static void f_parse_files( INT32 args );
 static SablotHandle sproc;
 #endif
 

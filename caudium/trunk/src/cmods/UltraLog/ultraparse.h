@@ -166,6 +166,28 @@ void summarize_hosts(struct mapping *hosts, struct mapping *domains,
 void summarize_directories(struct mapping *dirs, struct mapping *files);
 void summarize_refsites(struct mapping *refsites, struct mapping *referrers,
 			struct mapping *new_referrers);
+INLINE struct pike_string *http_decode_string(unsigned char *foo, int len);
+INLINE int ultra_lowercase(unsigned char *str, INT32 len);
+INLINE unsigned char *ultra_lowercase_host(unsigned char *ref, INT32 *trunc,
+					   int *changed);
+INLINE void mapaddintnum( struct mapping * mappingen, struct svalue *key, struct svalue *count);
+INLINE void mapaddsval( struct mapping * mappingen, struct svalue *key);
+INLINE void mapaddfloatnum( struct mapping * mappingen, struct svalue *key, struct svalue *count);
+INLINE void mapaddstrnum(struct mapping * mappingen, struct pike_string *key,
+			 struct svalue *count);
+INLINE void mapaddstrmap(struct mapping * mappingen, struct pike_string *key,
+			 struct mapping *map);
+INLINE void map2addint( struct mapping * mappingen, int subkey, struct pike_string *key);
+INLINE int multiset_string_lookup(struct multiset *multi, char *str);
+INLINE int ispage(struct pike_string *url, struct multiset *pagexts);
+void pike_module_init( void );
+void pike_module_exit( void );
+INT32 parse_log_format(struct pike_string *log_format, INT32 *state_list,
+		       INT32 *field_endings, INT32 *save_field_num);
+INLINE void map2addstrnum( struct mapping * mappingen,
+			   struct pike_string *key,
+			   struct pike_string *key2,
+			   struct svalue *value);
 #define GETMAP(X,Y)  \
     intie.u.integer = code; \
     sval = my_low_mapping_lookup(Y,&intie); if(!sval) { \
