@@ -1239,12 +1239,16 @@ class Parse {
     {
 	mapping rets = cs->parent;
 	    
-	while(rets)
-	    if (rets->scope && rets->scope[kw])
+	while(rets) {
+	    debug(sprintf("  Spying scope '%s'", rets->scope->ScopeName));
+	    if (rets->scope && rets->scope[kw]) {
+	        debug(sprintf("   Has the '%s' keyword. Returning scope '%s'",
+		      kw, rets->child->scope->ScopeName));
 		return rets->child;
-	    else
+	    } else
 		rets = rets->parent;
-		
+	}
+	
 	return rets;
     }
     
