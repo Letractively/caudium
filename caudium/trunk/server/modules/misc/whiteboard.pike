@@ -510,9 +510,10 @@ string addcomment(string project, string user, string comment) {
 mixed find_file(string path, object id) {
 
   // check to see if the user is authenticated!
-  if(!id->user)
+  int|mapping u=id->get_user();
+  if(!u)
     return Caudium.HTTP.auth_required("Whiteboard for "+QUERY(mountpoint));
-  string user = id->user->username;
+  string user = u->username;
 
   array a=QUERY(allowedusers)-({""});
   if(sizeof(a)>0)

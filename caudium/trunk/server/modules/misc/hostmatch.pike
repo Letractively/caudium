@@ -133,7 +133,7 @@ void precache_rewrite(object id)
     }
     config_cache[host] = id->conf;
   }
-  if (id->conf != old_conf && id->user) {
+  if (id->conf != old_conf && id->get_user()) {
     /* Need to re-authenticate with the new server */    
     array(string) y = id->rawauth / " ";
     

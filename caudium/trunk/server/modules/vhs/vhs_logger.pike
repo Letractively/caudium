@@ -333,7 +333,9 @@ static void do_log(mapping file, object request_id, function log_function)
      form = log_format["*"];
   
   if(!form) return;
-  
+
+  int|mapping user=request_id->get_user();
+
   form=replace(form, 
 	       ({ 
 		 "$ip_number", "$bin-ip_number", "$cern_date",
@@ -356,7 +358,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"),
 		 Caudium.http_encode_string(request_id->useragent),
-		 (request_id->user?request_id->user->username:"-"),
+		 (user?user->username:"-"),
 		 (string)request_id->cookies->CaudiumUserID,
 		 (string)request_id->misc->host,
 	       }) );

@@ -114,8 +114,9 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
       sscanf(tmp, "%s/", tmp);
       string user;
       user="Unknown";
-      if(id->user)
-	user=id->user->username;
+      int|mapping u=id->get_user();
+      if(u)
+	user=u->username;
       string addr=id->remoteaddr || "Internal";
       NOCACHE();
       return popen(_Roxen.http_decode_string(m->cmd),
