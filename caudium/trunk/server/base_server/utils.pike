@@ -26,3 +26,7 @@ void unload_program(string p)
   m_delete(master()->programs,search(master()->programs,(program)p));
 }
 
+inline string do_replace(string s, mapping (string:string) m)
+{
+  return replace(s, indices(m), values(m));
+}
