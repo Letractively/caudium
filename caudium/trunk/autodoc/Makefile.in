@@ -30,18 +30,18 @@ make_crefhtml: makecrefdirs makecrefxml
 	$(PIKE) bin/tree-split-autodoc.pike build/cref.xml structure/caudiumref.html generated/caudiumref/
 
 makecrefxml: makeautodoc structure/caudiumref.xml
-	$(PIKE) bin/assembler.pike structure/caudiumref.xml build/autodoc.xml > build/cref.xml
+	$(PIKE) -x assemble_autodoc structure/caudiumref.xml build/autodoc.xml > build/cref.xml
 
 makeautodoc: makeserver makeetc
-	$(PIKE) bin/join.pike --post-process build/autodoc.xml build/server.xml build/etc.xml
+	$(PIKE) -x join_autodoc --post-process build/autodoc.xml build/server.xml build/etc.xml
 
 makeserver:
-	$(PIKE) bin/cextract.pike ../server/base_server/ build/server/ build/images/
-	$(PIKE) bin/join.pike build/server.xml build/server/
+	$(PIKE) -x extract_autodoc ../server/base_server/ src_images/ build/server/ build/images/
+	$(PIKE) -x join_autodoc build/server.xml build/server/
 
 makeetc:
-	$(PIKE) bin/cextract.pike ../server/etc/ build/etc/ build/images/
-	$(PIKE) bin/join.pike build/etc.xml build/etc/
+	$(PIKE) -x extract_autodoc ../server/etc/ src_images/ build/etc/ build/images/
+	$(PIKE) -x join_autodoc build/etc.xml build/etc/
 
 makecrefdirs:
 	@install -d -m 755 build/server/
