@@ -20,13 +20,8 @@ Read INSTALLING for installation instructions.
 The directories
 ---------------
 
-extern/   	A few programs used by Caudium or it's scripts.
-		 o fast_cgi         -- The CGI/Fast CGI gateway, rewritten
-		   	               somewhat for Caudium.
-
 tools/ 		Misc tools.
 		 o addfp98.pike     -- maintainance tool for Frontpage.
-                 o htpasswd         -- makes password files for .htaccess
 		 o backlog-bumper   -- for Solaris 2.4 and up.
 		 o xdumpfont        -- dumps an X font to a Caudium font.
 		 o make_changelog   -- makes a ChaneLog from CVS-entries.
@@ -35,8 +30,8 @@ tools/ 		Misc tools.
 		 o compress.pike    -- Gz compresses files.
 		 o uncompress.pike  -- Gz decompresses files.
 
-src/		Various programs and modules used by Caudium that needs
-		compilation.
+src/		Various programs and modules used by Caudium that requires
+		compilation (ie programs written in C).
 
 server/         The pike objects, all modules and other misc source that is
 		the core of the Caudium software.
