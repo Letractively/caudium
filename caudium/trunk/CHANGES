@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Re-enabled permanent storage of the "program" datatype when using pike7.3
+  build >= 51. Pike bug #3096 resolved.
 - Added a quick and dirty mass virtual hosting module to the third-party
   repository.
 - Fixed modules/tags/developer.pike.
