@@ -172,6 +172,7 @@ class PikeFile {
     array(Class)    classes;
     array(string)   inherits;
     array(Defvar)   defvars;
+    int             is_empty;
     
     private void new_field(object|string newstuff, string kw)
     {
@@ -179,6 +180,7 @@ class PikeFile {
             switch (kw) {
                 case "file":
                     first_line = newstuff;
+		    is_empty = 0;
                     break;
 
                 case "cvs_version":
@@ -287,6 +289,7 @@ class PikeFile {
         classes = ({});
         inherits = ({});
         defvars = ({});
+	is_empty = 1;
     }
 };
 
@@ -631,6 +634,7 @@ class Module {
     array(string)      inherits;
     array(EntityScope) escopes;
     array(Defvar)      defvars;
+    int                is_empty;
     
     void new_field(object|string newstuff, string kw)
     {
@@ -638,6 +642,7 @@ class Module {
             switch(kw) {
                 case "module":
                     first_line = newstuff;
+		    is_empty = 0;
                     break;
     
                 case "inherits":
@@ -790,6 +795,7 @@ class Module {
         inherits = ({});
         escopes = ({});
         defvars = ({});
+	is_empty = 1;
     }
 };
 
@@ -1617,6 +1623,7 @@ class Parse {
     private int            madded;
     
     array(PikeFile)        files;
+    mapping(string:int)    dircounts;
     array(Module)          modules;
     int                    fcount;
     int                    mcount;
@@ -1657,7 +1664,7 @@ class Parse {
         return rets;
     }
     
-    private void parse_line(string line)
+    private int parse_line(string line)
     {
         array(string) spline;
 
@@ -1675,7 +1682,7 @@ class Parse {
                 if (!ns) {
                     wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
                                   lastkw));
-                    return;
+                    return 0;
                 }
 		
                 ns->child = 0;
@@ -1736,7 +1743,7 @@ class Parse {
              */
             if (!cur_scope->curob) {
                 wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
-                return;
+                return 0;
             }
             if (cur_scope->curob->lastkw == lastkw)
                 // cur_scope->curob->add(String.trim_whites(line));
@@ -1748,9 +1755,12 @@ class Parse {
 
         if (!cur_scope->curob) {
             wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
-            return;
+            return 0;
         }
         
+	if (cur_scope->curob->is_empty)
+	    return 0;
+	
         switch(cur_scope->curob->myName) {
             case "PikeFile":
                 if (!files) {
@@ -1774,6 +1784,8 @@ class Parse {
                 }
                 break;
         }
+	
+	return 1;
     }
     
     private void parse_file(string path)
@@ -1783,6 +1795,8 @@ class Parse {
 
         if (!f->open(path, "r"))
             throw(({"Cannot open file " + path + "\n", backtrace()}));
+
+
 
         realfile = path;
         curpath = f_quiet ? path : (path / "/")[-1];
@@ -1803,6 +1817,8 @@ class Parse {
         cur_scope->child = 0;
         cur_scope->curob = 0;
 	
+	int stored = 0;
+	
         foreach(curfile, string line) {
             int       i = -1;
 	    
@@ -1814,8 +1830,17 @@ class Parse {
             if (i < 0)
                 continue;
             where = IN_DOC;
-            parse_line(line[i+3..]);
+            stored = parse_line(line[i+3..]);
         }
+	
+	if (stored) {
+	    string fullpath = combine_path(getcwd(), dirname(path));
+
+	    if (!dircounts[fullpath])
+		dircounts += ([fullpath:1]);
+	    else
+		dircounts[fullpath]++;
+	}
     }
     
     private void parse_tree(string top)
@@ -1850,10 +1875,24 @@ class Parse {
 	string order = read_file(top + "/.docs");
 	if (order && sizeof(order)) {
 	    /* First process the files given in the .docs file */
+#if 0
 	    foreach(files & (order / "\n"), string f) {
                 files -= ({f});
                 parse_file(top + f);
-            }
+	    }
+#else
+	    /* 
+	     * We have to do it this ugly way, since the above code
+	     * reverse sorts the product array and that's not what
+	     * we want here.
+	     */
+	    foreach(order / "\n", string f)
+		foreach(files, string f2)
+		    if (f == f2) {
+			files -= ({f});
+			parse_file(top + f);
+		    }
+#endif
 	}
         
         foreach(files, string s)
@@ -1892,7 +1931,8 @@ class Parse {
                 }
         
         f = 0;
-        fcount = mcount = 0;	
+        fcount = mcount = 0;
+	dircounts = ([]);
     }
 }
 

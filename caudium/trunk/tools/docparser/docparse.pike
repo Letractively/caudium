@@ -119,13 +119,14 @@ int main(int argc, array(string) argv)
     object g;
     
     o->parse(argv[1]);
+    
     switch (gen_type) {
         case 0:
-            g = DocGenerator.TreeMirror(o->files, o->modules, argv[1]);
+            g = DocGenerator.TreeMirror(o->files, o->modules, o->dircounts, argv[1]);
             break;
 
         case 1:
-            g = DocGenerator.Monolith(o->files, o->modules, argv[1]);
+            g = DocGenerator.Monolith(o->files, o->modules, o->dircounts, argv[1]);
             break;
     }
     
