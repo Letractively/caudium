@@ -1,3 +1,19 @@
+caudium (2:1.2.7-3) unstable; urgency=low
+
+  * Latest snapshot. Changes:
+
+    - Added support in VHS Sql to use Caudium system log directory instead
+      of userdir one.
+    - index.php and index.php3 now added in all directories modules.
+    - Added support for RFC 3236 (XHTML media type)
+    - Fix an error when PUT method is used...
+    - Variable HTTPS is set to "on" when SSL is used. (compatibility 
+      variable used for CGIs...)
+
+  * The default page images moved to /var/www/caudiumimages
+
+ -- Marek Habersack <grendel@debian.org>  Sat, 29 Jun 2002 18:27:14 +0200
+
 caudium (2:1.2.7-2) unstable; urgency=low
 
   * latest snapshot
