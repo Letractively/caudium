@@ -1,7 +1,7 @@
 FastCGI Developer's Kit README
 ------------------------------
 
-    Version 1.5, 12 June 1996
+    Version 2.0b2, 04 April 1997
     $Id$
     Copyright (c) 1996 Open Market, Inc.
     See the file "LICENSE.TERMS" for information on usage and redistribution
@@ -20,6 +20,96 @@ File" command because they aren't being accessed through a Web server.
 For further instructions see the FastCGI Developer's Kit
 document, accessible via the index page.
 
+
+TODO:
+----
+The following is a small list of what should be available in the final
+release of the FDK.
+  1. Fix all compilation problems on all Unixes and NT.
+  2. Provide perl.c for perl5.003 (replace run() with runops())
+  3. Provide latest Tcl patches (NT requires Tcl7.5+)
+  4. Provide FCGI_VERSION directive for automatic version recognition.
+-- if available
+  5. Provide new Java interface to conform to JDK1.1.1 (due to final
+     System.in)
+  6. Provide samples of Perl on NT.
+
+
+Changes with devkit 2.1.1
+-------------------------
+
+ *) Fixed an unintentional sign extension during promotion  in Java's
+    FCGIInputStream.read(). Takayuki Tachikawa <tachi@po.ntts.co.jp>
+
+ *) Cleaned up warnings in examples (mostly main() complaints).
+
+ *) Removed examples/tiny-cgi.c (it wasn't a FastCGI application?!).
+
+ *) Remove some debugging code and clean up some gcc warnings in cgi-fcgi.c.
+
+ *) Add multithread support to the fcgiapp lib and an example multithreaded
+    application, threaded.c.  Based on work by Dennis Payne
+    <dpayne@softscape.com> and Gene Sokolov <hook@aktrad.ru>.
+
+ *) Remove the printf() and #include of stdio.h from examples/echo2.c.
+
+ *) Remove the static initialization of _fcgi_sF[] because on glibc 2.x based
+    systems stdin/stdout/stderr are no longer static.
+
+ *) Flush FastCGI buffers at application exit.  <eichin@fastengines.com>
+
+ << INSERT OTHER STUFF HERE >>
+
+
+What's New: Version 2.0b2, 04 April 1997
+--------------------------------------
+
+Some additional bug fixes, mostly on NT port.  The following list
+of the bugs that have been and fixed:
+  1. Updated build_no_shell.bat to create a FcgiBin directory under the
+     top level of the FastCGI kit and copy all executables and the
+     FastCGI dll there.  This makes it easier to use.
+  2. Corrected the Unix version of OS_SpawnChild so that it didn't close
+     the listenFd when forking off child processes.  This code would
+     affect the cgi-fcgi application on Unix.  The problem is that it
+     could only start one fastcgi process.  Any other processes would not
+     get the listen file descriptor and they would die.
+  3. Corrected cgi-fcgi.c so that it properly handled large posts.  The
+     bug was introduced with the asynchronous I/O model implemented for
+     the Windows NT port.  The problem was not clearing a bit indicating
+     that a read had completed.  This caused the application to stall.
+  4. Corrected OS_DoIo, the function used for scheduling I/O for cgi-fcgi.
+     It had a bug where it wasn't creating a copy of the file descriptors
+     used for I/O.  This would cause the master list of FDs to watch to be
+     reset and thus would hang the application because we would no longer
+     watch for I/O on those file descriptors. (This problem was specific to
+     Unix and only happened with the cgi-fcgi application.)
+  5. Cleaned up several compilation warnings present on OSF.
+
+
+What's New: Version 2.0b1, 24 March 1997
+--------------------------------------
+
+This "beta" release adds the functionality of "cgi-fcgi" to the
+Windows NT platform and allows for creation of FastCGI applications
+running in Win32 environment.  There is almost no new documentation
+provided, but will become part of this kit in the official release.
+  1. Added FastCGI libraries running on Windows NT 3.51+
+  2. Rename errno to FCGI_errno in the FCGX_Stream, which was causing
+     problems on some Linux platforms and NT.
+  3. Fixed a parenthesis problem in FCGI_gets
+
+
+What's New: Version 1.5.1, 12 December 1996
+--------------------------------------
+
+This release introduces mostly bug fixes, without any additional
+functionality to the kit.
+  1. Conditional compilation for the hp-ux compiler.
+  2. Loop around the accept() call to eliminate "OS Error: Interrupted
+     System Call" message from appearing in the error logs.
+  3. Casting of the FCGI_Header to (char *), which eliminates the
+     assertion failure "bufPtr->size>0".
 
 
 What's New: Version 1.5, 12 June 1996
@@ -150,7 +240,7 @@ First public release; new license terms on all files.
 Changed cgi-fcgi.c to use SO_REUSEADDR when creating the listening socket;
 this avoids the need to wait through the TIME_WAIT state on all the TCP
 connections made by the previous instance of an external application
-you are restarting. 
+you are restarting.
 
 
 
