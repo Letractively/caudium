@@ -263,6 +263,9 @@ class DocGen
 	ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
 	  String.trim_whites(parts[1..]*":")+"\"";
       }
+      if (dv->name)
+        ret += " short=\"" + dv->name + "\"";
+	
       if(dv->type && strlen(dv->type))
 	ret += " type=\""+dv->type+"\"";
       if(strlen(dv->contents))
