@@ -563,7 +563,7 @@ void report_fatal(string message, mixed ... args)
 #endif
 }
 
-//! @apperas popen
+//! @appears popen
 //! Starts the specified process and returns a string with the result.
 //! Mostly a compatibility function, uses Process.create_process in new
 //! programs
