@@ -84,6 +84,7 @@ mapping (string:string) cookies         = ([ ]);
 mapping (string:string) request_headers = ([ ]);
 
 multiset (string) prestate  = (< >);
+multiset (string) internal  = (< >);
 multiset (string) config    = (< >);
 multiset (string) supports  = (< >);
 multiset (string) pragma    = (< >);
@@ -400,12 +401,18 @@ private int parse_got()
   }
 
   REQUEST_WERR(sprintf("After cookie scan:%O", f));
-  
+
+#if 0  
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
     prestate = aggregate_multiset(@(a/","-({""})));
     f = "/"+f;
   }
+#else
+  f = "/" + Caudium.parse_prestates(f, prestate, internal);
+  REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
+                       prestate, internal));
+#endif
 
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
