@@ -881,6 +881,7 @@ class myprivs
 //! @appears cd
 //! Overloads the Pike cd function.
 //! Don't allow cd() unless we are in a forked child.
+
 class restricted_cd
 {
   int locked_pid = getpid();
