@@ -167,6 +167,25 @@ string query;
 string not_query;
 string extra_extension = ""; // special hack for the language module
 string data, leftovers;
+
+//! The array containing the authentication information. The format in case
+//! the authentication module is present is as follows:
+//!
+//! @array
+//!  @elem int 0
+//!   @i{successp@} - @tt{1@} if the authentication succeeded, @tt{0@}
+//!   otherwise.
+//!
+//!  @elem string 1
+//!   @i{username@} - the authenticated user name.
+//!
+//!  @elem string 2
+//!   @i{password@} - the password user authenticated with.
+//!
+//!  @elem string 3
+//!   @i{group@} - if this element is present (only in Caudium 1.3+) then it
+//!   contains a comma-separated list of groups the user belongs to.
+//! @endarray
 array (int|string) auth;
 string rawauth, realauth;
 string since;
