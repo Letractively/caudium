@@ -89,8 +89,8 @@ Stdio.File stdout;
 mapping(string:string|array) envvars = ([
   "CAUDIUM_CONFIGDIR" : getenv("CAUDIUM_CONFIGDIR") || "../configurations",
   "CAUDIUM_LOGDIR" : getenv("CAUDIUM_LOGDIR") || "../logs",
-  "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getuid()),
-  "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket_" + getuid()),
+  "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + uniq_watchdog_id()),
+  "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket_" + uniq_watchdog_id()),
   "CLASSPATH" : (getenv("CLASSPATH")?getenv("CLASSPATH") +":":"") + 
   (getenv("JAVA_HOME")?getenv("JAVA_HOME") +"/lib/tools.jar:":"") + 
   ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
@@ -145,6 +145,12 @@ mixed cs_callout;
 object conn;
 
 int first_ping=1;
+
+// return a uniq identifier for each running watchdog
+string uniq_watchdog_id()
+{
+	return getuid()+"_"+getpid();
+}
 
 // run Caudium and return its exit status.
 int run_caudium(array(string) args, mapping|void opts)
