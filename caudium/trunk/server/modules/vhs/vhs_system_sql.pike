@@ -449,8 +449,10 @@ void precache_rewrite(object id)
   id->misc->vhs = vhs;
 }
 
-void start()
+void start(int count, object conf)
 {
+	module_dependencies(conf, ({ "vhs_fs" }));
+
   virtcache[QUERY(defvirtual)] = ConfigCache("nobody",
   QUERY(defvirtual), QUERY(searchpath), 0, 0, "/tmp", 65500, 65500,
   9999999999);
