@@ -74,7 +74,7 @@ EOF
          /etc/caudium${EXTVER}/servers/localhost.new && mv /etc/caudium${EXTVER}/servers/localhost.new \
          /etc/caudium${EXTVER}/servers/localhost
     elif [ -f /var/state/caudium${EXTVER}/virgin.install ]; then
-     rm -f /var/state/caudium${EXTVER}/virgin.install
+     rm /var/state/caudium${EXTVER}/virgin.install
     fi
     
     db_get caudium${EXTVER}/start_options
@@ -170,6 +170,11 @@ fi
 	dpkg-statoverride --remove $d > /dev/null 2>&1 || true
 	dpkg-statoverride --update --add www-data www-data 0751 $d
     done
+
+    if [ -d /usr/lib/caudium/caudium-images -a ! -L /usr/lib/caudium/caudium-images ]; then
+	rm -r /usr/lib/caudium/caudium-images
+    fi
+    ln -sf ../../share/caudium/caudium-images /usr/lib/caudium/caudium-images
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

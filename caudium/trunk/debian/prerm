@@ -21,10 +21,10 @@ case "$1" in
     remove|upgrade|deconfigure)
 #       install-info --quiet --remove /usr/info/caudium.info.gz
 	if [ -f /usr/lib/caudium/.more_mode ]; then
-	    rm -f /usr/lib/caudium/.more_mode
+	    rm /usr/lib/caudium/.more_mode
 	fi
 	if [ -d /usr/lib/caudium/caudium-images/auto ]; then
-	    rm -rf /usr/lib/caudium/caudium-images/auto
+	    rm -r /usr/lib/caudium/caudium-images/auto
 	fi
 	update-alternatives --remove htpasswd /usr/bin/htpasswd-caudium
 
