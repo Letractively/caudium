@@ -210,7 +210,7 @@ static void init_hash_storage(struct object *o)
   THIS->type = -1;
 }
 
-struct program *mhash_init_mhash_program(void) {
+void mhash_init_mhash_program(void) {
   start_new_program();
   ADD_STORAGE( mhash_storage  );
   ADD_FUNCTION("create", f_hash_create,   tFunc(tOr(tInt,tVoid),tVoid), 0);
