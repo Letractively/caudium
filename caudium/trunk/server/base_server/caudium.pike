@@ -467,7 +467,10 @@ private static void accept_callback( object port )
       pn[1]->enable_all_modules();
     }
     
+    // You won't fucking believe this, but I am about to clone
+    // the RequestID object.
     pn[-1](file,pn[1]);
+    // Did you catch that?
 #ifdef SOCKET_DEBUG
     report_debug("SOCKETS:   Ok. Connect on %O:%O from %O\n", 
                  pn[2], pn[0], file->query_address());
@@ -608,8 +611,8 @@ void accept_thread(object port,array pn)
   object o;
   
   while (!die_die_die) {
-    o = port->accept();
     err = catch {
+    o = port->accept();
       if(o)
         port_program(o,foo);
     };
