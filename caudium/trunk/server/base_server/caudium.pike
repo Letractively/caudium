@@ -3735,12 +3735,12 @@ string check_variable(string name, mixed value)
 //
 //! defvar: identversion
 //! The default behavior is to display the Caudium version number in the Server field in HTTP responses. You can disable it here for security reasons, since it might be easier to crack a server if the exact version is known.
-//!  type: TYPE_INT
+//!  type: TYPE_FLAG
 //!  name: Version numbers: Show Caudium Version Number 
 //
 //! defvar: identpikever
 //! The default behavior is to display the Pike version number in the X-Got-Fish header in HTTP HEAD response. You can disable it here for security reasons, since it might be easier to exploit any possible bugs in the specific Pike version used on your server.
-//!  type: TYPE_INT
+//!  type: TYPE_FLAG
 //!  name: Version numbers: Show Pike Version Number 
 //
 //! defvar: DOC
