@@ -40,6 +40,7 @@ inherit "module";
 inherit "caudiumlib";
 
 #ifdef DEBUG
+#define ERROR(X) werror("ADAuth: " + X + "\n");
 #else
 #define ERROR(X) 
 #endif
@@ -178,9 +179,18 @@ array getUserInfo(string username)
   loadUserInfo(username);
   if(user_cache[username])
   {
-    return({username, 0, 0, user_cache[username]->primaryGroupID[0], 
-	user_cache[username]->cn[0], 
-	user_cache[username]->homeDirectory[0], 0});
+
+    string common_name, primary_group, home_directory="";
+    if(user_cache[username]->primaryGroupID)
+      primary_group=user_cache[username]->primaryGroupID[0];
+    if(user_cache[username]->cn)
+      common_name=user_cache[username]->cn[0];
+    if(user_cache[username]->homeDirectory)
+      home_directory=user_cache[username]->homeDirectory[0];
+
+    return({username, 0, 0, primary_group, 
+	common_name, 
+	home_directory, 0});
   }
   return ({});
 }
