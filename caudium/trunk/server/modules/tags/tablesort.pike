@@ -29,6 +29,7 @@ constant thread_safe=1;
 #include <module.h>
 #define TSESSION id->misc->session_variables->tabsort
 
+// compat calls between Caudium 1.2 and 1.4
 #ifdef Caudium.parse_html
 #define PARSER Caudium.parse_html
 #else
@@ -37,6 +38,12 @@ constant thread_safe=1;
 #else
 #define PARSER parse_html
 #endif
+#endif
+
+#if constant(Caudium.add_pre_state) 
+#define ADD_PRE_STATE Caudium.add_pre_state
+#else
+#define ADD_PRE_STATE add_pre_state
 #endif
 
 #define TDEBUG(X) if(QUERY(debug)) { report_debug("TABLESORT_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
@@ -260,18 +267,18 @@ string container_tabsort_sort_href(string tag_name, mapping args, string content
     ]);
  
   string baseuri = args->basehref || id->not_query;
-  args->href = add_pre_state(baseuri, id->prestate)
+  args->href = ADD_PRE_STATE(baseuri, id->prestate)
     + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
-  out = PARSER(contents,
+  out = CAMAS.Parse.parse_html(contents,
                    ([
                        "img_arrow"        : tag_tabsort_sort_href_img,
                     ]),
                    ([
                     ]),
                    id, column, arrowup, arrowdown, arrownone);
-  out = make_container("a", args, out);
+  out = CAMAS.Tools.make_container("a", args, out);
 
   return out;
 }
