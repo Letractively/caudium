@@ -3235,7 +3235,7 @@ private string find_arg(array argv, array|string shortform,
   string value;
   int i;
 
-  for(i=1; i<sizeof(argv); i++)
+  for(i=1; i < (argv ? sizeof(argv) : 0); i++)
   {
     if(argv[i] && strlen(argv[i]) > 1)
     {
