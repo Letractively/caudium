@@ -84,13 +84,13 @@ htm	text/html
 html	text/html
 java	text/plain
 rtx	text/richtext
-rxml	text/roxencode
+rxml	text/html
 sgm     text/x-sgml
 sgml    text/x-sgml
 shtml	text/html
-spider  text/spidercode 
-spml	text/spinnercode
-spml    text/spidercode 
+spider  text/html 
+spml	text/html
+spml    text/html 
 tsv     text/tab-separated-values
 txt	text/plain
 
