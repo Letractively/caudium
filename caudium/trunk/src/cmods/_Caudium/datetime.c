@@ -498,8 +498,6 @@ void init_datetime(void)
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[6], "Memory allocation failed (not enough memory available).");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[7], "There is no line in the file that matches the input.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
-  MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
-  
   ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
 #endif
   
@@ -510,6 +508,7 @@ void init_datetime(void)
 #ifdef HAVE_STRFTIME
   add_function_constant("strftime", f_strftime, "function(string,int:string)",0);
 #endif
+   MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
   
   add_function_constant("parse_date", f_parse_date, "function(string:int)", 0);
   add_function_constant("is_modified", f_is_modified, "function(string,int,int|void:int)", 0);
