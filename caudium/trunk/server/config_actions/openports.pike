@@ -306,7 +306,7 @@ mixed page_0(object id)
       url2 = (port[1][0]=='s'?"https":port[1]) + "://" + su + ":"+port[0]+"/";
 
       tbl += ({({port[0],port[1],"<a href=\""+
-	         (port[2]?"/Configurations/"+Protocols.HTTP.http_encode_string(port[2]->name)
+	         (port[2]?"/Configurations/"+http_encode_string(port[2]->name)
 	           +"?"+time():"/Globals/?"+time())+"\">"+
 		   (port[2]?port[2]->name:"Configuration interface")+"</a>",
 	         "<a href=\""+url+"\">"+ url2+"</a>" })});

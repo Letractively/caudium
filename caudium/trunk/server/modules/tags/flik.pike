@@ -135,8 +135,8 @@ string encode_url(object id,
     +"&flc"+flno+"="+dest;
   foreach(indices(id->variables), string var)
     if(var != "fl" && var[..2] != "flc" && stringp(id->variables[var]))
-      url += sprintf("&%s=%s", Protocols.HTTP.http_encode_string(var),
-		     Protocols.HTTP.http_encode_string(id->variables[var]));
+      url += sprintf("&%s=%s", http_encode_string(var),
+		     http_encode_string(id->variables[var]));
   return url+"#fl_"+flno;
 }
 

@@ -266,7 +266,7 @@ string status()
     } else 
       match = host_accuracy_cache[s];
     res+="<tr><td>"+s+"</td><td><a href=/Configurations/"+
-      Protocols.HTTP.http_encode_string(config_cache[s]->name)+">"+
+      http_encode_string(config_cache[s]->name)+">"+
       (config_cache[s]->name)+"</a></td><td>"+match+"</td></tr>";
   }
   return res+"</table>";

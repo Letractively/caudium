@@ -142,7 +142,7 @@ mapping fontlist(string bg, string fg, int scale)
       out += "<A HREF='" + query("mountpoint");
       out += "0/" + bg + "/" ;
       out += fg +"/0/1/" + (string)scale + "/0/";
-      out += Protocols.HTTP.http_encode_string(fnts[i]) + "/1234567890.gif'>";
+      out += http_encode_string(fnts[i]) + "/1234567890.gif'>";
       out += fnts[i] + "</A><BR>\n";
     }
     out += "</DL>";
@@ -180,7 +180,7 @@ mapping ppmlist(string font, string user, string dir)
 	out += "<DT><FONT SIZE=+1><B> ["+ initial +"]</B></FONT>\n<DD>";
       }
       out +=
-	"<A HREF='" +query("mountpoint")+ user + "/n/n/0/0/5/0/"+ Protocols.HTTP.http_encode_string(fnts[i]) +
+	"<A HREF='" +query("mountpoint")+ user + "/n/n/0/0/5/0/"+ http_encode_string(fnts[i]) +
 	"/1234567890.gif'>" + fnts[i] + "</A> \n";
       totfonts++;
     }
