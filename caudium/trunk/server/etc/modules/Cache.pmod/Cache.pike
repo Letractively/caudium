@@ -44,7 +44,7 @@ int max_object_disk;
 int default_ttl;
 int last_access;
 string _cache_desc;
-mapping behavior = ([ ]);
+mapping behavior_m = ([ ]);
 
 //! Initiate a new cache, this means creating a Cache.FastStorage object to
 //! store objects in RAM, and a Cache.SlowStorage.* object to store objects
@@ -163,7 +163,7 @@ void store(mapping cache_response) {
                  namespace, cache_response->name, _obj));
 #endif
   LOCK();
-  cache_response + behavior;
+  cache_response + behavior_m;
   last_access = time();
   if (cache_response->size > max_object_ram) {
     //if (cache_response->disk_cache) {
@@ -356,13 +356,13 @@ void|string cache_description(void|string desc) {
 void behavior(void|int(0..2) _behavior) {
   switch(_behavior) {
   case 0:
-    behavior = ([ ]);
+    behavior_m = ([ ]);
     break;
   case 1:
-    behavior = ([ "disk_cache" : 0 ]);
+    behavior_m = ([ "disk_cache" : 0 ]);
     break;
   case 2:
-    behavior = ([ "ram_cache" : 0 ]);
+    behavior_m = ([ "ram_cache" : 0 ]);
     break;
   }
 }
