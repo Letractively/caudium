@@ -972,8 +972,11 @@ string rewrite_uri(object id, string from, void|int append)
     
     hashpos = search(from, "#");
 
-    if (hashpos >= 0)
+    if (hashpos >= 0) {
         parts = from / "#";
+        if (parts[0] == "")
+            parts[0] = id->raw_url;
+    }
     
     if (!append) {
         if (hashpos >= 0)
