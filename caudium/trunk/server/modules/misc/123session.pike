@@ -148,6 +148,9 @@ void create (mixed ... foo) {
          0, dont_use_formauth);
   defvar("secure", 0, "Secure Cookies", TYPE_FLAG,
 	 "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
+  defvar("debug", 0, "Debug", TYPE_FLAG,
+	 "When on, debug messages will be logged in Caudium's debug logfile. "
+	 "This information is very useful to the developers when fixing bugs.");
 }
 
 int hide_gc () { return (!query ("dogc")); }
@@ -546,7 +549,8 @@ void kill_session (string session_id) {
 }
 
 void delete_session (object id, string session_id, void|int logout) {
-  write ("123>> killing session " + session_id + "...\n");
+  if (QUERY (debug))
+    write ("123>> killing session " + session_id + "...\n");
   if (id->misc->session_variables) {
     if (id->misc->session_variables->username)
       m_delete (id->misc, "user_variables");
