@@ -301,7 +301,7 @@ constant module_unique = 1;
 #define CompressedInt3Byte	2097152 	/* 2 ^ 21 */
 
 
-#include <proxyauth.pike>
+//#include <proxyauth.pike>
 
 
 
@@ -2390,7 +2390,7 @@ mapping find_file(string fi, object id)
   perror("WAIS: host = "+h+"\nfile = "+f+"\nport = "+p+"\n");  
 #endif
   
-  if(tmp = proxy_auth_needed(id))
+  if(tmp = Caudium.proxy_auth_needed(id))
     return tmp;
 
   if(id->pragma["no-cache"] || id->method != "GET") {

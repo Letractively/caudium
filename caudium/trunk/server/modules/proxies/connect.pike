@@ -44,7 +44,7 @@ inherit "module";
 inherit "caudiumlib";
 inherit "socket";
 
-#include <proxyauth.pike>
+//#include <proxyauth.pike>
 
 #define CONN_REFUSED QUERY(ConRefused)
 
@@ -216,7 +216,7 @@ mapping first_try(object fid)
   if(fid->method != "CONNECT")
     return 0;
   mapping tmp;
-  if(tmp = proxy_auth_needed(fid))
+  if(tmp = Caudium.proxy_auth_needed(fid))
     return tmp;
   return relay(fid);
 }

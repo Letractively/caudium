@@ -122,7 +122,7 @@ Content-type: text/html\r\n\
 #define AUTH_REQUIRED "HTTP/1.0 401 Auth Required\r\nWWW-Authenticate: Basic realm=\"ftp server password needed\""
 
 
-#include <proxyauth.pike>
+//#include <proxyauth.pike>
 
 class Request {
   inherit "socket";
@@ -1454,7 +1454,7 @@ mixed|mapping find_file( string f, object id )
   //   port=21; // Default FTP port. Really! :-)
   // }
 
-  if(tmp = proxy_auth_needed(id))
+  if(tmp = Caudium.proxy_auth_needed(id))
     return tmp;
 
   // sscanf(host, "%s@%s", user, host);
