@@ -568,6 +568,29 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
 //
 // URI tags overloaders
 //
+
+//
+// Checks whether we should rewrite the uri or not
+private int leave_me_alone(string uri)
+{
+    if (!uri)
+        return 0;
+
+    if (uri[0] == '/')
+        return 0;
+
+    if (search(uri, "://") < 0)
+        return 0; // assuming it's a relative URI
+    
+    if (sizeof(uri) >= 7 && uri[0..6] == "http://")
+        return 0;
+
+    if (sizeof(uri) >= 8 && uri[0..7] == "https://")
+        return 0;
+
+    return 1;
+}
+
 mixed container_a(string tag, mapping args, string contents, object id, mapping defines)
 {
     string   query;
@@ -575,7 +598,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 
     alloc_session(id);
     
-    if (args && args->href) {
+    if (args && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
             Caudium.parse_query_string(query, hvars);
 
@@ -597,7 +620,7 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     
     alloc_session(id);
     
-    if (args && args->action) {
+    if (args && args->action && !leave_me_alone(args->action)) {
         if (!args->method || (args->method && lower_case(args->method) != "post")) {
             if (sscanf(args->action, "%*s?%s", query) == 2)
                 Caudium.parse_query_string(query, hvars);
