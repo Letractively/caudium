@@ -369,7 +369,7 @@ multiset get_groups_for_user(string dn)
   ERROR("get_groups_for_user(" + dn + ")");
 
   int res;
-  array groups=(<>);
+  multiset groups=(<>);
 
   object ldap=getLDAPConnection();
   if(!ldap)
