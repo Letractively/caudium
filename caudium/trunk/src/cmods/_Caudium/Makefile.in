@@ -57,8 +57,6 @@ force:
 
 depend: force
 	$(CC) -MM $(CFLAGS) *.c > dependencies
-	@echo "You must rerun make now!"
-	@exit 1
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
