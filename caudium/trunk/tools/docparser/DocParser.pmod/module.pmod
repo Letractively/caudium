@@ -1226,6 +1226,25 @@ class Parse {
         return 0;
     }
 
+    /*
+     * This function goes up the chain of scopes starting
+     * from 'cs' until it finds scope that contains 'kw'
+     * or hits the top scope. Returns the matching scope
+     * or 0 if none matched.
+     */
+    private mapping find_parent_scope(mapping cs, string kw)
+    {
+	mapping rets = cs->parent;
+	    
+	while(rets)
+	    if (rets->scope && rets->scope[kw])
+		return rets->child;
+	    else
+		rets = rets->parent;
+		
+	return rets;
+    }
+    
     private void parse_line(string line)
     {
         array(string) spline;
@@ -1282,6 +1301,17 @@ class Parse {
                 /* No, find out whether it switches scopes */
                 debug(sprintf("Keyword '%s' unknown in scope '%s'\n",
                               lastkw, cur_scope->scope->ScopeName));
+		mapping ns = find_parent_scope(cur_scope, lastkw);
+		
+		if (!ns) {
+		    wrerr(sprintf("Keyword '%s' is unknown/illegal in current context.", 
+		                 lastkw));
+		    return;
+		}
+		ns->child = 0;
+                cur_scope = ns;
+		
+		debug(sprintf("Keyword switched the scope to '%s'", cur_scope->scope->ScopeName));
             }
             
         } else {
