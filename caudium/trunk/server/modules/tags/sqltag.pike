@@ -456,7 +456,6 @@ string dumpid_tag(string tag_name, mapping args,
 array emit_sql(mapping args, object request_id)
 {
   request_id->misc->cacheable=0;
-
   if (args->query) {
 
     if (args->parse) {
@@ -503,7 +502,6 @@ array emit_sql(mapping args, object request_id)
     if(con && con->query)
      result = con->query(args->query);
     else result = 0;
-
     return result;
  }
 }

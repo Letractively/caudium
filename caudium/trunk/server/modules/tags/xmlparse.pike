@@ -434,9 +434,12 @@ string container_emit(string t, mapping args, string contents, object id,
 
   array dataset;
   mixed e;
-  e=catch( plugin(args, id));
+  e=catch(dataset = plugin(args, id));
 
   if(e) throw(e);
+
+  NOCACHE();
+
   string retval="";
 
   //
@@ -453,13 +456,9 @@ string container_emit(string t, mapping args, string contents, object id,
 
   foreach(dataset, mapping row)
   {
-    object newid = id; //= id->clone_me();
-    if(!newid->misc->scopes)
-      newid->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
-
-    newid->misc->scopes[args->scope] = EmitScope(row);
-
-    retval+=parse_rxml(contents, newid);
+    if(!id->misc->scopes)
+      id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
+    retval+=Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ]));
   }
 
     // args->maxrows
@@ -701,7 +700,7 @@ class EmitScope(mapping v) {
   
   string get(string entity, object id) {
 werror("emitscope: getting " + entity + "\n");
-    NOCACHE();
+//    NOCACHE();
     return v[entity];
   }
 }
