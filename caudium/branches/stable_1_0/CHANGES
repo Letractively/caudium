@@ -38,6 +38,8 @@ Changes in Caudium 1.0 Release 1
   of a page if a request was made to an RXML file while Caudium was
   loading.
 - Fixed error message when a modules was not found (accidently broken).
+- Fixed <use> cache lookup (use the full path as the key, not the unresolved
+  path).
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------

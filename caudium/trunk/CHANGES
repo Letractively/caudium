@@ -67,3 +67,5 @@ Changes in Caudium 1.1 since CVS branching
   and much less buggy than Pipe.pipe. Also uses a moving window when
   mmapping large files, thus overcoming the major problem with
   Pipe.pipe for high traffic, large file sites.
+- Fixed <use> cache lookup (use the full path as the key, not the unresolved
+  path).
