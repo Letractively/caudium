@@ -26,7 +26,7 @@
  */
 class http_error_handler {
 
-    constant cvs_version = "$Id$"
+    constant cvs_version = "$Id$";
 
     inherit "caudiumlib";
 
@@ -150,7 +150,7 @@ class http_error_handler {
 	if ( error_name[ 0..2 ] == sprintf( "%d", error_code ) ) {
 	    error_name = error_name[ 3..sizeof( error_name ) ];
 	}
-	string error_page = parse_rxml( parse_html( my_template, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ), id );
+	string error_page = parse_rxml( parse_html( my_template, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]), id );
 	return http_low_answer( error_code, error_page );
     }
 
