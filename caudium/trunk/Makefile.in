@@ -305,8 +305,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
 	echo "Building Distribution..."; \
-	tar cf - $$version | gzip -9 >$$version-$$type.tar.gz; \
-	(cd $$version; make censor_crypto || exit 1); \
+	tar cf - $$version | gzip -9 >$$version.tar.gz
 
 dist: copy_dist tar_dist
 	@echo Distribution build complete.
