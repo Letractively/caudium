@@ -50,7 +50,7 @@ int run()
     caudium->save_it(config->name);
 
     report_notice("User database module upgraded to use the new Authentication Provider system. "
-      "Your settings have been retained, "though you will need to add your group file "
+      "Your settings have been retained, though you will need to add your group file "
       "settings if using password database request method 'file'.\n");
 
   }
