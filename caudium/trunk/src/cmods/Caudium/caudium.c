@@ -18,20 +18,219 @@ RCSID("$Id$");
 
 #include "caudium.h"
 
-/* Initialize and start module */
-void pike_module_init( void )
-{
-  add_function_constant( "parse_headers", f_parse_headers,
-			 "function(string:mapping)", 0);
-  add_function_constant( "parse_query_string", f_parse_query_string,
-			 "function(string,mapping:void)",
-			 OPT_SIDE_EFFECT);
+static_strings strs;
+
+/* file: caudium.c
+ */
+
+
+/*
+**! class: ParseHTTP
+*/
+
+static INLINE char *char_decode_url(unsigned char *str, int len) {
+  unsigned char *ptr, *end, *endl2;
+  int i, nlen;
+  ptr = str;
+  end = ptr + len;
+  endl2 = end-2; /* to see if there's enough left to make a "hex" char */
+  for (nlen = 0, i = 0; ptr < end; i++) {
+    switch(*ptr) {
+     case '%':
+      if (ptr < endl2)
+	str[i] = (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
+	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
+      else
+	str[i] = '\0';
+      ptr+=3;
+      nlen++;
+      break;
+     case '?':
+      /* Don't decode more, reached query string*/
+      str[i] = '\0';
+      return (ptr+1);
+      break;
+     default:
+      str[i] = *(ptr++);
+      nlen++;
+    }
+  }
+  str[nlen] = '\0'; /* We will use make_shared_string since a file can't
+		       contain \0 anyway. */
+  return NULL; /* no query string */
 }
 
-/* Restore and exit module */
-void pike_module_exit( void )
+static void f_buf_append( INT32 args )
 {
+  struct pike_string *str;
+  struct svalue skey, sval; /* header, value */
+  int slash_n = 0, cnt, num;
+  char *pp,*ep;
+  struct svalue *tmp;
+  int os=0, i, j=0, l, qmark = -1;
+  unsigned char *in, *query;
+
+  if( sp[-1].type != T_STRING )
+    error("Wrong type of argument to append()\n");
+  str = sp[-1].u.string;
+  
+  if( str->len >= BUF->free ) {
+    pop_n_elems(args);
+    push_int(413); /* Request Entity Too Large */
+    return;
+  }
+
+  MEMCPY( BUF->pos, str->str, str->len );
+
+  for( ep = (BUF->pos + str->len), pp = MAX(BUF->data, BUF->pos-3); 
+       pp < ep && slash_n < 2; pp++ )
+    if( *pp == '\n' )       slash_n++;
+    else if( *pp != '\r' )  slash_n=0;
+  
+  BUF->free -= str->len;
+  BUF->pos += str->len;
+  BUF->pos[0] = 0;
+  pop_n_elems( args );
+  if( slash_n != 2 )
+  {
+    /* need more data */
+    push_int( 0 );
+    return;
+  }
+
+  skey.type = T_STRING;
+  sval.type = T_STRING;
+
+  sval.u.string = make_shared_binary_string( pp, BUF->pos - pp );
+  mapping_insert(BUF->other, SVAL(data), &sval); /* data */
+  free_string(sval.u.string);
+  
+  in = BUF->data;
+  l = pp - BUF->data;
+
+  /* find method */
+  for( i = 0; i < l; i++ ) {
+    if( in[i] == ' ' ) 
+      break;
+    else if(in[i] == '\n') {
+      push_int( 400 ); /* Bad Request */
+      return;
+    }
+  }
+  sval.u.string = make_shared_binary_string(in, i);
+  mapping_insert(BUF->other, SVAL(method), &sval);
+  free_string(sval.u.string);
+
+  i++; in += i; l -= i;
+
+  /* find file */
+  for( i = 0; i < l; i++ ) {
+    if(in[i] == ' ') {
+      break;
+    } else  if(in[i] == '\n') {
+      push_int( 400 ); /* Bad Request */
+      return;
+    }
+  }
+  sval.u.string = make_shared_binary_string(in, i);
+  mapping_insert(BUF->other, SVAL(raw_url), &sval);
+  free_string(sval.u.string);
+
+  /* Decode file part and return pointer to query, if any */
+  query = char_decode_url(in, i);
+
+  /* Decoded, query-less file up to the first \0 */
+  sval.u.string = make_shared_string(in); 
+  mapping_insert(BUF->other, SVAL(file), &sval);
+  free_string(sval.u.string);
+  
+  if(query != NULL)  {
+    /* Store the query string */
+    sval.u.string = make_shared_binary_string(query, i - (query-in)); /* Also up to first null */
+    mapping_insert(BUF->other, SVAL(query), &sval);
+    free_string(sval.u.string);
+  }
+  
+  i++; in += i; l -= i;
+
+  /* find protocol */
+  for( i = 0; i < l; i++ ) {
+    if( in[i] == '\n' ) break;
+  }
+  if( in[i-1] != '\r' ) 
+    i++;
+   
+  sval.u.string = make_shared_binary_string(in, i-1);
+  mapping_insert(BUF->other, SVAL(protocol), &sval);
+  free_string(sval.u.string);
+
+  in += i; l -= i;
+  if( *in == '\n' ) (in++),(l--);
+
+  for(i = 0; i < l; i++)
+  {
+    if(in[i] >= 'A' && in[i] <= 'Z') in[i] |= 32; /* Lowercasing the header */
+    else if( in[i] == ':' )
+    {
+      /* in[os..i-1] == the header */
+      
+      skey.u.string = make_shared_binary_string((char*)in+os, i - os);
+      os = i+1;
+      while(in[os]==' ') os++; /* Remove initial spaces */
+      for(j=os;j<l;j++)  if( in[j] == '\n' || in[j]=='\r')  break; 
+
+      if((tmp = low_mapping_lookup(BUF->headers, &skey)) &&
+	 tmp->type == T_STRING)
+      {
+	int len = j - os + 1;
+	int len2 = len +tmp->u.string->len;
+	sval.u.string = begin_shared_string(len2);
+	MEMCPY(sval.u.string->str,
+	       tmp->u.string->str, tmp->u.string->len);
+	sval.u.string->str[tmp->u.string->len] = ',';
+	MEMCPY(sval.u.string->str + tmp->u.string->len + 1,
+	       (char*)in + os, len);
+	sval.u.string = end_shared_string(sval.u.string);
+      } else {
+	sval.u.string = make_shared_binary_string((char*)in + os, j - os);
+      }
+      
+      mapping_insert(BUF->headers, &skey, &sval);
+      if( in[j+1] == '\n' ) j++;
+      os = j+1;
+      i = j;
+      free_string(sval.u.string);
+      free_string(skey.u.string);
+    }
+  }
+  push_int(1);
 }
+
+
+static void f_buf_create( INT32 args )
+{
+  if(args != 2)
+    error("Wrong number of arguments to create. Expected 2.\n");
+  if(sp[-1].type != T_MAPPING)
+    error("Wrong argument 1 to create. Expected mapping.\n");
+  if(sp[-2].type != T_MAPPING)
+    error("Wrong argument 2 to create. Expected mapping.\n");
+  add_ref(BUF->headers   = sp[-1].u.mapping);
+  add_ref(BUF->other     = sp[-2].u.mapping);
+  BUF->pos = BUF->data;
+  BUF->free = BUFSIZE;
+}
+
+void free_buf_struct(struct object *o)
+{
+  free_mapping(BUF->headers);
+  free_mapping(BUF->other);
+}
+
+/*
+** end class
+*/
+
 
 /* helper functions */
 #ifndef HAVE_ALLOCA
@@ -55,7 +254,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
   for(p = mystr; p < end; p++)
   {
     if(*p >= 'A' && *p <= 'Z') {
-      *p = *p | 32; /* OR is faster than addition and we just need
+      *p |= 32; /* OR is faster than addition and we just need
                      * to set one bit :-). */
     }
   }
@@ -73,8 +272,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
 #ifndef HAVE_ALLOCA
 INLINE
 #endif
-static struct pike_string *url_decode(unsigned char *str,
-						      int len, int exist)
+static struct pike_string *url_decode(unsigned char *str, int len, int exist)
 {
   int nlen = 0, i;
   unsigned char *mystr; /* Work string */ 
@@ -177,7 +375,6 @@ INLINE static int get_next_header(unsigned char *heads, int len,
   return count;
 }
 
-/** Functions implementing Pike functions **/
 
 static void f_parse_headers( INT32 args )
 {
@@ -281,3 +478,47 @@ static void f_parse_query_string( INT32 args )
   }
   pop_n_elems(args);
 }
+
+/* Initialize and start module */
+void pike_module_init( void )
+{
+  STRS(data)     = make_shared_string("data");
+  STRS(file)     = make_shared_string("file");
+  STRS(method)   = make_shared_string("method");
+  STRS(protocol) = make_shared_string("protocol");
+  STRS(query)    = make_shared_string("query");
+  STRS(raw_url)  = make_shared_string("raw_url");
+
+  SVAL(data)->type     = T_STRING;
+  SVAL(file)->type     = T_STRING;
+  SVAL(method)->type   = T_STRING;
+  SVAL(protocol)->type = T_STRING;
+  SVAL(query)->type    = T_STRING;
+  SVAL(raw_url)->type  = T_STRING;
+  
+  add_function_constant( "parse_headers", f_parse_headers,
+			 "function(string:mapping)", 0);
+  add_function_constant( "parse_query_string", f_parse_query_string,
+			 "function(string,mapping:void)",
+			 OPT_SIDE_EFFECT);
+
+  start_new_program();
+  ADD_STORAGE( buffer  );
+  pike_add_function( "append", f_buf_append,
+		     "function(string:int)", OPT_SIDE_EFFECT );
+  pike_add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
+  set_exit_callback(free_buf_struct);
+  end_class( "ParseHTTP", 0 );
+}
+
+/* Restore and exit module */
+void pike_module_exit( void )
+{
+  free_string(STRS(data));
+  free_string(STRS(file));
+  free_string(STRS(method));
+  free_string(STRS(protocol));
+  free_string(STRS(query));
+  free_string(STRS(raw_url));
+}
+

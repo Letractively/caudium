@@ -31,6 +31,12 @@ mapping profile_map = ([]);
 #define CATCH(X)	do { mixed err; if(err = catch{X;}) report_error(describe_backtrace(err)); } while(0)
 
 
+#ifdef REQUEST_DEBUG
+# define REQUEST_WERR(X) werror("CONFIG: "+X+"\n")
+#else
+# define REQUEST_WERR(X)
+#endif
+
 /* A configuration.. */
 
 
@@ -1112,8 +1118,6 @@ private mapping internal_caudium_image(string from)
 
 mapping (mixed:function|int) locks = ([]);
 
-public mapping|int get_file(object id, int|void no_magic);
-
 #ifdef THREADS
 // import Thread;
 
@@ -1554,7 +1558,37 @@ mapping|int low_get_file(object id, int|void no_magic)
   return fid;
 }
 
-mixed get_file(object id, int|void no_magic)
+
+mixed handle_request( object id  )
+{
+  function funp;
+  mixed file;
+  REQUEST_WERR("handle_request()");
+  foreach(first_module_cache||first_modules(id), funp)
+  {
+    if(file = funp( id ))
+      break;
+    if(id->conf != this_object()) {
+      REQUEST_WERR("handle_request(): Redirected (2)");
+      return id->conf->handle_request(id);
+    }
+  }
+  if(!mappingp(file) && !mappingp(file = get_file(id)))
+  {
+    mixed ret;
+    foreach(last_module_cache||last_modules(id), funp)
+      if(ret = funp(id)) break;
+    if (ret == 1) {
+      REQUEST_WERR("handle_request(): Recurse");
+      return handle_request(id);
+    }
+    file = ret;
+  }
+  REQUEST_WERR("handle_request(): Done");
+  return file;
+}
+
+mixed get_file(object id, int|void no_magic)  
 {
   mixed res, res2;
   function tmp;
@@ -2168,6 +2202,13 @@ void start(int num, void|object conf_id, array|void args)
   int err=0;
   object lf;
   mapping new=([]), o2;
+  if(!datacache)
+    datacache = DataCache(query( "data_cache_size" ) * 1024,
+			  query( "data_cache_file_max_size" ) * 1024);
+  else
+    datacache->init_from_variables(query( "data_cache_size" ) * 1024,
+				   query( "data_cache_file_max_size" ) * 1024);
+
 
 #if 0
   // Doesn't seem to be set correctly.
@@ -3302,12 +3343,88 @@ void enable_all_modules()
 #endif
 }
 
+// Cacher for super request speed.
+class DataCache
+{
+  mapping(string:array(string|mapping(string:mixed))) cache = ([]);
+
+  int current_size;
+  int max_size;
+  int max_file_size;
+
+  int hits, misses;
+
+  static void clear_some_cache()
+  {
+    array q = indices( cache );
+    for( int i = 0; i<sizeof( cache)/10; i++ )
+    {
+      string ent = q[random(sizeof(q))];
+      current_size -= strlen( cache[ent][0] );
+      m_delete( cache, q[random(sizeof(q))] );
+    }
+  }
+
+  void expire_entry( string url )
+  {
+    if( cache[ url ] )
+    {
+      current_size -= strlen(cache[url][0]);
+      m_delete( cache, url );
+    }
+  }
+
+  void set( string url, string data, mapping meta, int expire )
+  {
+//     if( strlen( data ) > max_file_size ) // checked in conf
+//       return 0;
+    call_out( expire_entry, expire, url );
+    while( (strlen( data ) + current_size) > max_size )
+      clear_some_cache();
+    current_size += strlen( data );
+    cache[url] = ({ data, meta });
+  }
+  
+  array(string|mapping(string:mixed)) get( string url )
+  {
+    mixed res;
+    if( res = cache[ url ] )  
+      hits++;
+    else
+      misses++;
+    return res;
+  }
+
+  void init_from_variables(int _size, int _fsize)
+  {
+    max_size = _size;
+    max_file_size = _fsize;
+    while( current_size > max_size )
+      clear_some_cache();
+  }
+
+  static void create(int _size, int _fsize )
+  {
+    init_from_variables(_size,_fsize);
+  }
+};
+
+object(DataCache) datacache;
+
 void create(string config)
 {
   caudium->current_configuration = this;
   name=config;
 
   perror("Creating virtual server '"+config+"'\n");
+  // for now only theese two. In the future there might be more variables.
+  defvar( "data_cache_size", 2048, "Data Cache:Cache size",
+	  TYPE_INT,"The size of the data cache used to speed up requests "
+	  "for commonly requested files, in KBytes");
+
+  defvar( "data_cache_file_max_size", 50, "Data Cache:Max file size",
+          TYPE_INT, "The maximum size of a file that is to be "
+	  "considered for the cache");
 
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "
@@ -3465,6 +3582,7 @@ void create(string config)
 	 "not likely to use for regular resources.");
 
   setvars(retrieve("spider#0", this));
+
 }
 
 
