@@ -1395,7 +1395,7 @@ class FTPSession
     } else {
       string s = to_send->get();
 
-//      DWRITE(sprintf("FTP: write_cb(): Sending \"%s\"\n", s));
+      //      DWRITE(sprintf("FTP: write_cb(): Sending \"%s\"\n", s));
 
       if ((to_send->is_empty()) && (!end_marker)) {
 	::set_write_callback(0);
@@ -1593,7 +1593,7 @@ class FTPSession
     {
       privs = 0;
       DWRITE(sprintf("FTP: socket(%d) failed. Trying with any port.\n",
-			   local_port-1));
+		     local_port-1));
       if (!f->open_socket(0,local_addr)) {
 	DWRITE("FTP: socket() failed. Out of sockets?\n");
 	fun(0, @args);
@@ -1717,7 +1717,7 @@ class FTPSession
       send(530, ({ sprintf("'%s': %s: Method not allowed.",
 			   cmd, f) }));
       break;
-     case 413: // request entity too large
+    case 413: // request entity too large
       send(552, ({ sprintf("'%s': %s: Entity too large, storage limit exceeded.",
 			   cmd, f) }));
       break;
@@ -2112,8 +2112,8 @@ class FTPSession
                 if ((< '*', '?' >)[part[0]]) {
                   // Glob-expanding does not expand to files starting with '.'
                   dir = Array.filter(dir, lambda(string f) {
-                    return (sizeof(f) && (f[0] != '.'));
-                  });
+					    return (sizeof(f) && (f[0] != '.'));
+					  });
                 }
                 foreach(sort(dir), string f) {
                   array(string) arr = my_combine_path_array(path, f);
@@ -2558,73 +2558,73 @@ class FTPSession
       // create homedirectory
       if (Query("ftpnohomedeny")||Query("ftphomedircreate"))
       {
-       string homedir = master_session->misc->home;
-       if (file_stat(homedir, 1) == 0)
-       {
-        int created = 0;
-        if(Query("ftphomedircreate"))
-        {
-          object privs;
-	  array fullauth = conf->auth_module->userinfo(master_session->auth[1]);
+	string homedir = master_session->misc->home;
+	if (file_stat(homedir, 1) == 0)
+	{
+	  int created = 0;
+	  if(Query("ftphomedircreate"))
+	  {
+	    object privs;
+	    array fullauth = conf->auth_module->userinfo(master_session->auth[1]);
 #if constant(geteuid)
-          if(getuid() != geteuid()) privs=Privs("Creating homedirectory");
+	    if(getuid() != geteuid()) privs=Privs("Creating homedirectory");
 #endif
-          seteuid((int)fullauth[2]);
-          setegid((int)fullauth[3]);
-          if(mkdirhier(homedir))
-            created = 1;
-          if(objectp(privs))
-            destruct(privs);
-          privs = 0;
+	    seteuid((int)fullauth[2]);
+	    setegid((int)fullauth[3]);
+	    if(mkdirhier(homedir))
+	      created = 1;
+	    if(objectp(privs))
+	      destruct(privs);
+	    privs = 0;
 #if constant(geteuid)
-          if(getuid() != geteuid()) privs=Privs("Setting homedir uid/gid");
+	    if(getuid() != geteuid()) privs=Privs("Setting homedir uid/gid");
 #endif
-          // Forcing UID/GID to the correct value because setegid() seems to
-          // to fail
-          if (created) chown(homedir, (int)fullauth[2], (int)fullauth[3]);
-	  if(objectp(privs))
-            destruct(privs);
-          privs = 0;
-          if(Query("ftphdirautoext") && sizeof(Query("ftphdirxtra")) && created)
-          {
+	    // Forcing UID/GID to the correct value because setegid() seems to
+	    // to fail
+	    if (created) chown(homedir, (int)fullauth[2], (int)fullauth[3]);
+	    if(objectp(privs))
+	      destruct(privs);
+	    privs = 0;
+	    if(Query("ftphdirautoext") && sizeof(Query("ftphdirxtra")) && created)
+	    {
 #if constant(geteuid)
-            if(getuid() != geteuid()) privs=Privs("Creating user extra directories in homedir.");
+	      if(getuid() != geteuid()) privs=Privs("Creating user extra directories in homedir.");
 #endif
-            foreach(Query("ftphdirxtra")/",",string foo) {
-             if (sizeof(foo / ":")==2) {
-               // the rights are given as arguments
-               int mkrights;
-               mixed err = catch { 
-                 sscanf((foo/":")[1],"%o",mkrights);
-               };
-               if (err) {
-                 // Seems that numbers are not octal or there's junk instead
-                 mkrights = 0755; // Fail back to default values
-               }
-               if (mkdir(homedir + (foo/":")[0])) {
-                 chmod(homedir + (foo/":")[0], mkrights);
-                 chown(homedir +(foo/":")[0], (int)fullauth[2], (int)fullauth[3]);
-                 }
-             }
-             else 
-               if (mkdir(homedir + foo))
-                 chown(homedir + foo, (int)fullauth[2], (int)fullauth[3]);
-            }
-            if (objectp(privs))
-               destruct(privs);
-            privs = 0;
-          }
-          fullauth = 0;
-        }
-        if(Query("ftpnohomedeny") && (created == 0))
-        {
-          send(530, ({ "You are not allowed to use named-ftp.",
-                       Query("ftphomedircreate")?"Unable to create homdirectory.":"Homedirectory is not existant." }));
-          conf->log(([ "error":402 ]), master_session);
-          master_session->auth = 0;
-          return;
-        }
-       }
+	      foreach(Query("ftphdirxtra")/",",string foo) {
+		if (sizeof(foo / ":")==2) {
+		  // the rights are given as arguments
+		  int mkrights;
+		  mixed err = catch { 
+		    sscanf((foo/":")[1],"%o",mkrights);
+		  };
+		  if (err) {
+		    // Seems that numbers are not octal or there's junk instead
+		    mkrights = 0755; // Fail back to default values
+		  }
+		  if (mkdir(homedir + (foo/":")[0])) {
+		    chmod(homedir + (foo/":")[0], mkrights);
+		    chown(homedir +(foo/":")[0], (int)fullauth[2], (int)fullauth[3]);
+		  }
+		}
+		else 
+		  if (mkdir(homedir + foo))
+		    chown(homedir + foo, (int)fullauth[2], (int)fullauth[3]);
+	      }
+	      if (objectp(privs))
+		destruct(privs);
+	      privs = 0;
+	    }
+	    fullauth = 0;
+	  }
+	  if(Query("ftpnohomedeny") && (created == 0))
+	  {
+	    send(530, ({ "You are not allowed to use named-ftp.",
+			 Query("ftphomedircreate")?"Unable to create homdirectory.":"Homedirectory is not existant." }));
+	    conf->log(([ "error":402 ]), master_session);
+	    master_session->auth = 0;
+	    return;
+	  }
+	}
       }
 
       master_session->auth = auth;
@@ -2817,56 +2817,59 @@ class FTPSession
 
   void ftp_PASV(string args)
   {
-   // Required by RFC 1123 4.1.2.6
-   if (epsv_only) {
-     send(530, ({ "'PASV': Method not allowed in EPSV ALL mode." }));
-     return;
-   }
+    // Required by RFC 1123 4.1.2.6
+    if (epsv_only) {
+      send(530, ({ "'PASV': Method not allowed in EPSV ALL mode." }));
+      return;
+    }
 
-   if(Query("passive_ftp")) {
-    if(pasv_port)
-      destruct(pasv_port);
-    if(Query("restricpasv")) {
-      int port_to_bind, attempt;
-      int found_pasv_port = 0;
+    if(Query("passive_ftp")) {
+      if(pasv_port)
+	destruct(pasv_port);
+      if(Query("restricpasv")) {
+	int port_to_bind, attempt;
+	int found_pasv_port = 0;
 
-      for (attempt = Query("maxpasvtry"); attempt > 0 && (!found_pasv_port); attempt--) {
-       object o_pasv = Stdio.Port();
-       port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
+	for (attempt = Query("maxpasvtry"); attempt > 0 && (!found_pasv_port); attempt--) {
+	  object o_pasv = Stdio.Port();
+	  port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
 #ifdef FTP2_DEBUG
-       perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
+	  perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
 #endif
-       if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
-         pasv_port = o_pasv;
-         found_pasv_port = 1;
-       } else destruct(o_pasv);
+	  if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
+	    pasv_port = o_pasv;
+	    found_pasv_port = 1;
+	  } else destruct(o_pasv);
+	}
       }
-      if (!found_pasv_port) send(504, ({ "Passive FTP port failled." }));
-    }
-    else {
-    pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
-    }
-    int port=(int)((pasv_port->query_address()/" ")[1]);
-    if(Query("pasvnat")) {
-    send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
-			 replace(Query("pasvipaddr"), ".", ","),
-			 (port>>8), (port&0xff)) }));
-    }
-    else {
-    send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
-			 replace(local_addr, ".", ","),
-			 (port>>8), (port&0xff)) }));
+      else {
+	pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
+      }
+      if (!pasv_port) {
+	send(504, ({ "Passive FTP port failled." }));
+	return;
+      }
+      int port=(int)((pasv_port->query_address()/" ")[1]);
+      if(Query("pasvnat")) {
+	send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
+			     replace(Query("pasvipaddr"), ".", ","),
+			     (port>>8), (port&0xff)) }));
+      }
+      else {
+	send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
+			     replace(local_addr, ".", ","),
+			     (port>>8), (port&0xff)) }));
 
+      }
     }
-   }
-   else send(504, ({ "Passive FTP is not enabled on this server." }));
+    else send(504, ({ "Passive FTP is not enabled on this server." }));
   }
 
   void ftp_EPSV(string args)
   {
     // Specified by RFC 2428:
     // Extensions for IPv6 and NATs.
-     if(!Query("passive_ftp")) {
+    if(!Query("passive_ftp")) {
       send(504, ({ "Passive FTP is not enabled on this server." }));
       return;
     }
@@ -2888,20 +2891,20 @@ class FTPSession
       int found_pasv_port = 0;
 
       for (attempt = Query("maxpasvtry"); attempt > 0 && (!found_pasv_port); attempt--) {
-       object o_pasv = Stdio.Port();
-       port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
+	object o_pasv = Stdio.Port();
+	port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
 #ifdef FTP2_DEBUG
-       perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
+	perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
 #endif
-       if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
-         pasv_port = o_pasv;
-         found_pasv_port = 1;
-       } else destruct(o_pasv);
+	if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
+	  pasv_port = o_pasv;
+	  found_pasv_port = 1;
+	} else destruct(o_pasv);
       }
       if (!found_pasv_port) send(504, ({ "Passive FTP port failled." }));
     }
     else {
-    pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
+      pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
     }
     int port=(int)((pasv_port->query_address()/" ")[1]);
 
@@ -3661,7 +3664,7 @@ class FTPSession
 
     send(220, s/"\n", 1);
   }
-};
+  };
 
 void create(object f, object c)
 {
