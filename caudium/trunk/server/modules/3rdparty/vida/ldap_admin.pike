@@ -667,7 +667,7 @@ else
   }
 }
 
-void sendmails(mapping (string:string) defines)
+void sendmails(mapping (string:array(string)) defines)
 {
   mapping localtime = localtime(time());
   string localmailadmin = QUERY(mailadmin);
@@ -775,13 +775,31 @@ int user_auth(object id)
 
 mapping getfullinformation(object con, string uid)
 {
-  object res;
+  object  res;
   mapping defines;
-  res = con->search("(" + QUERY(defvaruid) + "=" + uid + ")");
-  if(!objectp(res) || !res->num_entries())
-    throw ( ({ "Unable to search in LDAP or problems in uid", backtrace() }) );
+  string  filter = "(" + QUERY(defvaruid) + "=" + uid + ")";
+
+  if (!con)
+      return ([]);
+  
+  res = con->search(filter);
+  if(!objectp(res))
+      throw ( ({ sprintf("Unable to search in LDAP: %s", con->error_string()),
+                 backtrace() }) );
+  
+  if (!res->num_entries()) {
+      if (con->error_number() != 0x00)
+          throw ( ({ sprintf("LDAP Search for '%s' failed: %s",
+                             filter, con->error_string()), backtrace() }) );
+      else
+          throw ( ({ sprintf("User '%s' not found in LDAP", uid),
+                     backtrace() }));
+  }
+  
   defines = res->fetch();
-  return m_delete(defines, "dn");
+  m_delete(defines, "dn");
+  
+  return defines;
 }
 
 // End generic functions
@@ -1098,7 +1116,7 @@ mapping modify(object id, string action)
   string binddn = QUERY(binddn);
   string gidnumber = (string) QUERY(gidnumber);
   int proto = QUERY(ldapver);
-  mapping defines;
+  mapping(string:array(string)) defines;
   object con = 0;
   string last_error;
   mixed error = 1;
@@ -1118,8 +1136,8 @@ mapping modify(object id, string action)
     // first a sanity check :)
     if(isloginexist(con, id->auth[1]) == 0)
       throw ( ({ "You '" + id->auth[1] + "' don't exist, go away!" }) );
-    defines[QUERY(defvaruid)] = id->auth[1];
-    defines = getfullinformation(con, defines[QUERY(defvaruid)]);
+    defines[QUERY(defvaruid)] = ({ id->auth[1] });
+    defines = getfullinformation(con, defines[QUERY(defvaruid)][0]);
     defines["uid"] = defines[QUERY(defvaruid)];
     defines["gecos"] = defines[QUERY(defvargecos)];
     defines["uidNumber"] = defines[QUERY(defvaruidnumber)];
@@ -1154,7 +1172,7 @@ mapping modify(object id, string action)
         if(isloginexist(con, id->variables->uid) == 0)
           throw ( ({ "You '" + id->variables->uid + "' don't exist, go away!" }) );
         defines[QUERY(defvaruid)] = id->variables->uid;
-        defines = getfullinformation(con, defines[QUERY(defvaruid)]);
+        defines = getfullinformation(con, defines[QUERY(defvaruid)][0]);
         defines["uid"] = defines[QUERY(defvaruid)];
         defines["uidNumber"] = defines[QUERY(defvaruidnumber)];
         defines["gidNumber"] = defines[QUERY(defvargidnumber)];
