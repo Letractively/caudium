@@ -1,3 +1,10 @@
+caudium (2:1.0.35-15) unstable; urgency=low
+
+  * Minor bugfixes
+  * Recompiled against the latest Debian packages (closes: #117467)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 29 Oct 2001 14:30:20 +0100
+
 caudium (2:1.0.35-14) unstable; urgency=low
 
   * Latest upstream update, some bugfixes
