@@ -97,6 +97,7 @@ class CookieScope {
   constant name = "cookie";
 
   array(string)|string get(string entity, object id) {
+    NOCACHE();
     return id->cookies[entity]; 
   }
 }
@@ -113,6 +114,7 @@ class FormScope {
     return 1;
   }
   array(string)|string get(string entity, object id) {
+    NOCACHE();
     return id->variables[entity]; 
   }
 }
