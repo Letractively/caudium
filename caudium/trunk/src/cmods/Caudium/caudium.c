@@ -51,7 +51,8 @@ INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
   for(p = mystr; p < end; p++)
   {
     if(*p >= 'A' && *p <= 'Z') {
-      *p = *p+32;
+      *p = *p | 32; /* OR is faster than addition and we just need
+                     * to set one bit :-). */
     }
   }
   pstr = make_shared_binary_string(mystr, len);
