@@ -296,9 +296,9 @@ class album {
                 "<div class=\"thumbnail\">\n";
 
 	    int i=0,j,k;
-            ret += "<table>";
+            ret += "<table cellspacing=15>";
 	    for ( j=0; j <= (get_num_photos()/data["num_cols"]); j++ ) {
-	        ret += "<tr>";
+	        ret += "<tr align=center valign=top>";
 	        for (k=0; k<data["num_cols"]; k++) {
 		    if (get_num_photos()==i) break; 
 		    ret += "<td>"+render_othumb(id,i)+"</td>";
