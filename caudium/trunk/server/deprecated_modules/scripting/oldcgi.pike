@@ -112,7 +112,7 @@ mapping my_build_env_vars(string f, object id, string|void path_info)
   mapping new = build_env_vars(f, id, path_info);
 
   if(QUERY(Enhancements))
-    new |= build_roxen_env_vars(id);
+    new |= build_caudium_env_vars(id);
 
 #if 0
   // Not needed here...

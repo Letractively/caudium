@@ -303,7 +303,7 @@ AC_ARG_WITH(pike,
 RESULT=no
 AC_MSG_CHECKING(for a working Pike)
 AC_MSG_RESULT( )
-pathpike="`type  pike |sed 's/pike is//' 2>/dev/null`"
+pathpike="`type  pike 2> /dev/null |sed 's/pike is//' 2>/dev/null`"
 if test "$prefix" != "NONE"; then
   PREFIXPIKE="$prefix/bin/pike"
 fi

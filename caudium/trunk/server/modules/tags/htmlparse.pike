@@ -1538,7 +1538,7 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
       NOCACHE();
       return popen(m->cmd,
 		   getenv()
-		   | build_roxen_env_vars(id)
+		   | build_caudium_env_vars(id)
 		   | build_env_vars(id->not_query, id, 0),
 		   QUERY(execuid) || -2, QUERY(execgid) || -2);
     } else {
