@@ -21,21 +21,50 @@
  * $Id$
  */
 
-int db_accesses=0, last_db_access=0,db_err=0;
+#ifndef SQLUTILS_H
+#define SQLUTILS_H
+
+#if defined(DEBUG)
+# define SQLUDW(x) werror("sqlutils.h: " + x + "\n")
+#else
+# define SQLUDW(x)
+#endif
+
+// The version of this file
+constant sqlutils_cvs_version="$Id$";
+
+// The DB object used in Caudium
+object db = 0;
+
+// Variables used for stats and access.
+private int db_accesses=0,last_db_access=0,db_err=0;
+
+// Variables used for setup the part.
+private int closedb = 1;	// Do we close the DB ? Default to yes
+private int timer = 600;	// How log we keep the DB opened ? default 10min
+private string sqlserver;	// The SQLURL used.
+
+//! method: iny sqliniy(p
+//!  Initialyse the DB. Must be setup BEFORE using other calls...
+int sqlinit(int _closedb, int _timer, string _sqlserver) {
+  closedb = _closedb;
+  timer = _timer;
+  sqlserver = _sqlserver;
+}
 
 //! method: void close_db()
 //!  Auto-close the db is there is not access
 //! returns:
 //!  Nothing directly. But close the db when it is not used
 void close_db() {
-  if (!QUERY(closedb))
+  if (closedb)
     return;
-  if ((time(1)-last_db_access) > QUERY(timer)) {
+  if ((time(1)-last_db_access) > timer) {
     db = 0;
-    DW("Closing the database.");
+    SQLUDW("Closing the database : "+sqlserver);
     return;
   }
-  call_out(close_db,QUERY(timer));
+  call_out(close_db,timer);
 }
 
 //! method: open_db(object id)
@@ -48,31 +77,33 @@ void open_db(object id) {
   db_accesses++;
   if(objectp(db))
     return;
+  SQLUDW("Connect to "+sqlserver+" DB");
   if(id->conf->sqlconnect) {
-    DW("Using internal caudium SQL system.");
+    SQLUDW("Using internal caudium SQL system.");
     err=catch {
       db = id->conf->sqlconnect(QUERY(sqlserver));
     };
   } else {
-    DW("Using non thread-safe Pike SQL system... May have some clues !");
+    SQLUDW("Using non thread-safe Pike SQL system... May have some clues !");
     err=catch {
       db = Sql.sql(QUERY(sqlserver));
     };
   }
   if(err) {
-    werror("[VHS_system] Couldn't open SQL database!\n");
+    SQLUDW("Couldn't open SQL database!");
     if(db)
-      werror("[VHS_system] database interface replies : "+db->error()+"\n");
+      SQLUDW(" database interface replies : "+db->error());
     else
-      werror("[VHS_system] unknown reason\n");
-    werror("[VHS_system] Check the values in the configuration interface, and "
+      SQLUDW(" unknown reason");
+    SQLUDW("Check the values in the configuration interface, and "
            "that the user running the server has adequate persmissions to the "
-           "server.\n");
+           "server.");
     db=0;
     return;
   }
-  DW("Database successfully opened\n");
+  SQLUDW("Database successfully opened\n");
   if(QUERY(closedb))
-    call_out(close_db,QUERY(timer));
+    call_out(close_db,timer);
 }
 
+#endif  /* SQLUTILS_H */
