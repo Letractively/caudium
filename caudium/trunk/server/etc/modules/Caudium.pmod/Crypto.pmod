@@ -208,7 +208,7 @@ string rand_string(int len) {
 }
 
 #else
-string string_to_hex(string data) (
+string string_to_hex(string data) {
   return Crypto.string_to_hex(data);
 }
 
