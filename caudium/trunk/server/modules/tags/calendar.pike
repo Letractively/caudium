@@ -535,8 +535,7 @@ static array(mapping) parse_ranges(string c)
 }
 
 // inner tags
-static string startdate_tag(string tag, mapping args, string cont,
-                            object id, object f, mapping defines)
+static string startdate_tag(string tag, mapping args, object id)
 {
   int    when, wday, wmonth, wyear;
   mixed  error;
@@ -613,10 +612,123 @@ static string startdate_tag(string tag, mapping args, string cont,
   return "<!-- start date set -->";
 }
 
-static string hotdate_tag(string tag, mapping args, string cont,
-                          object id, object f, mapping defines)
+static private mapping how_dir = ([
+  "before" : "prev",
+  "after" : "next"
+]);
+
+static array(mapping) make_ba_range(object date, string when, string how)
 {
-  return "";
+  string           fun;
+  
+  if (!date || !when || !sizeof(when))
+    return ({});
+
+  fun = how_dir[how];
+  if (fun || !sizeof(fun))
+    return ({});
+
+  object           then;
+  mapping          range = ([]);
+
+  range[how] = 1;
+  
+  switch(lower_case(when)) {
+      case "today":
+        then = date->day()[fun]();
+        break;
+
+      case "yesterday":
+        then = date->day()->prev()->day()[fun]();
+        break;
+
+      case "tomorrow":
+        then = date->day()->next()->day()[fun]();
+        break;
+
+      default:
+        return ({});
+  }
+
+  range->days = ({([
+    "rstart" : (string)then->month_day(),
+    "rend" : "-1"
+  ])});
+  
+  range->months = ({([
+    "rstart" : (string)then->month_no(),
+    "rend" : "-1"
+  ])});
+  
+  range->years = ({([
+    "rstart" : (string)then->month_year(),
+    "rend" : "-1"
+  ])});
+
+  return ({range});
+}
+
+static string hotdate_tag(string tag, mapping args, object id)
+{
+  multiset   relative = (<"tomorrow", "today", "yesterday", "specified">);
+
+  if (!args || !sizeof(args))
+    return "";
+
+  array(mapping)   days;
+  array(mapping)   months;
+  array(mapping)   years;
+  string           before, after;
+
+  if (!id->misc->_calendar->hotdates)
+    id->misc->_calendar->hotdates = ({});
+  
+  if (args->after && relative[lower_case(args->after)])
+    after = lower_case(args->after);
+  
+  else if (args->before && relative[lower_case(args->before)])
+    before = lower_case(args->before);
+
+  if ((!before && !after) || after == "specified" || before == "specified") {
+    if (args->day)
+      days = parse_ranges(args->day);
+    if (args->month)
+      months = parse_ranges(args->month);
+    if (args->year)
+      years = parse_ranges(args->year);
+
+    // construct a combined range
+    mapping   range = ([
+      "days" : days,
+      "months" : months,
+      "years" : years
+    ]);
+
+    if (after)
+      range->after = 1;
+    if (before)
+      range->before = 1;
+
+    id->misc->_calendar->hotdates += ({range});
+  } else if (before || after) {
+    mapping  range;
+    mixed    error;
+    object   now, then;
+
+    error = catch {
+      now = Calendar.now();
+    };
+
+    if (!error) {
+      if (after)
+        id->misc->_calendar->hotdates += ({make_ba_range(now, after, "after")});
+        
+      if (before)
+        id->misc->_calendar->hotdates += ({make_ba_range(now, before, "before")});
+    }
+  }
+  
+  return "<!-- hotdate processed -->";
 }
 
 #if constant(spider.parse_html)
@@ -636,11 +748,16 @@ string calendar_tag(string tag, mapping args, string cont,
     id->misc->_calendar = ([]);
 
   error = catch {
-    tmp = parse_html(cont, ([]), ([
+    tmp = parse_html(cont, ([
+      "hotdate" : hotdate_tag,
       "startdate" : startdate_tag,
-      "hotdate" : hotdate_tag
-    ]), id);
+    ]), ([]), id);
   };  
+
+  if (id->misc->_calendar->hotdates)
+    id->misc->_calendar->hotdates -= ({({})});
+  
+  report_notice("calendar: %O\nerror: %O\n", id->misc->_calendar, error);
   
   if (!args)
     my_args = ([]);
