@@ -133,6 +133,10 @@ void create()
          "operation was made) will be deleted from the storage. This is to minimize the memory "
          "usage in case you have a lot of idle/unused sessions.");
 
+  defvar("doexpidle", 1, "Session: Automatic idle session expiry", TYPE_FLAG,
+         "If set, then idle sessions will be expired automatically after certain timeout.", 0,
+         hide_expidle);
+  
   defvar("dogc", 1, "Session: Garbage Collection", TYPE_FLAG,
          "If set, then the sessions will expire automatically after the "
          "given period. If unset, session expiration must be done elsewhere.");
@@ -186,6 +190,11 @@ void create()
 int hide_gc ()
 {
   return (!QUERY(dogc));
+}
+
+int hide_expidle ()
+{
+  return (!QUERY(doexpidle));
 }
 
 //
@@ -861,7 +870,7 @@ private void memory_expire_old(int curtime)
             continue;
           }
           
-          if (_memory_storage["_sessions_"][sid]->fresh &&
+          if (_memory_storage["_sessions_"][sid]->fresh && QUERY(doexpidle) &&
               curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expidletime)) {
             memory_delete_session(sid);
           }
@@ -950,7 +959,7 @@ int store(object id, string|mapping(string:mapping(string:mixed)) key, void|mixe
 
   if (mappingp(key)) {
     foreach(indices(key), string s) {
-      cur_storage->store(id, key[s]->key, key[s]->data, reg);
+      cur_storage->store(id, key[s]->key, key[s]->data, id->misc->session_id, reg);
     }
   } else
     cur_storage->store(id, key, data, reg);
@@ -984,7 +993,7 @@ mixed|mapping(string:mixed) retrieve(object id, string|array(string) key, void|s
     foreach(key, string k)
       ret += ([ "key" : k, "data" : cur_storage->retrieve(id, k, reg) ]);
   } else
-    ret = cur_storage->retrieve(id, key, reg);
+    ret = cur_storage->retrieve(id, key, id->misc->session_id, reg);
 
   return ret;
 }
@@ -1013,7 +1022,7 @@ mixed|mapping(string:mixed) delete_variable(object id, string|array(string) key,
     foreach(key, string k)
       ret += ([ "key" : k, "data" : cur_storage->delete_variable(id, k, reg) ]);
   } else
-    ret = cur_storage->delete_variable(id, key, reg);
+    ret = cur_storage->delete_variable(id, key, id->misc->session_id, reg);
     
   return ret;
 }
