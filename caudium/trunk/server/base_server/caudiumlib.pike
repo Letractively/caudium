@@ -2218,9 +2218,9 @@ array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
  */
 
 /*
- * vim: softtabstop=2 tabstop=2 expandtab
- *
  * Local Variables:
  * c-basic-offset: 2
  * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt cindent shiftwidth=2
  */
