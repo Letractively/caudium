@@ -1,3 +1,10 @@
+caudium (2:1.3.19-2) experimental; urgency=low
+
+  * Changes to make Caudium build under pbuilder. The pike interpreter
+    is needed to detect the pike version.
+
+ -- Marek Habersack <grendel@debian.org>  Mon,  3 Nov 2003 00:14:42 +0100
+
 caudium (2:1.3.19-1) experimental; urgency=low
 
   * Latest CVS snapshot
