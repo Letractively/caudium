@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed rxmltags.pike:tag_use() that prevented using <use file=""> RXML tag at
+  all when using VHS because it completly emptied id->misc.
+	 (Bertrand Lupart)
 - Fix HTML 4.01 strict compliance in gsession.
    (Jeff Utter, David Gourdelier)
 - Added make_html_tag, make_html_container, make_html_tag_attributes that 
@@ -27,9 +30,22 @@ Changes in Caudium 1.3.23 since Caudium 1.3.21
 - Fixed a bug that prevent the quoting of " in _make_tag_attributes as well
   as some missing encoding for XML.
    (David Gourdelier)
-- Fixed try_get_file so that it can run in 2nd level virtual hosting mode.
-   (Bertrand Lupart)
-- Fixed htaccess module so that it can run in 2nd level virtual hosting mode.
+- The site_id variable has been added in the Caudium request id object for
+  making modules 2nd level virtual hosting (2lvh) safe.
+  Basically, this has to be used instead of id->conf->name has a key for
+  caching data for the module to be 2lvh-safe.
+  By default, it is set to id->conf->name. If 2lvh is wanted, the 2lvh module
+  should override it by its data in precache_rewrite().
+  Code fixed:
+	- accessed-old.pike
+	- caucho.pike
+	- configuration.pike (try_get_file())
+	- htaccess.pike
+	- rimage.pike
+	- rxmltags.pike (<insert>, <use>)
+  Code enhanced:
+	- vhs_system_ldap.pike
+	- vhs_system_sql.pike
    (Bertrand Lupart)
 - Fixed a bug preventing caching of ActiveDirectory authentication
   information. Authentication using ActiveDirectory should be much faster.
