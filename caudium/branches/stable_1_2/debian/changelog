@@ -3,11 +3,6 @@ caudium (2:1.2.27-2) unstable; urgency=low
   * Added the Brazilian Portuguese translation of the debconf templates
     provided by Andre Luis Lopes. Thank you. (closes: Bug#197541)
   * Updated and fixed the setools.pike module
-
- -- Marek Habersack <grendel@debian.org>  Mon, 16 Jun 2003 00:01:05 +0200
-
-caudium (2:1.2.27-1) unstable; urgency=low
-
   * Latest upstream version
   * Updated the French templates translation thanks to 
     Philippe Batailler and the debian-l10n-french subscribers
