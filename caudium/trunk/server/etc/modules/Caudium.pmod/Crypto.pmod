@@ -130,7 +130,7 @@ constant cvs_version = "$Id$";
 
 string urandom(int len)
 {
-  f_urandom()(len);
+  return f_urandom()(len);
 }
 
 //! @decl function f_urandom()
