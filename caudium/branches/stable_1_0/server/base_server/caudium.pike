@@ -3055,7 +3055,8 @@ void scan_module_dir(string d)
 	case "pike":
 	case "lpc":
 	  if(catch{
-	    if((open(path+file,"r")->read(4))=="#!NO") {
+            string shebang = open(path+file,"r")->read(6);
+	    if(mod=="//#!NO" || mod[..4]== "#!NO") {
 	      MD_PERROR(("Not a module\n"));
 	      file=0;
 	    }

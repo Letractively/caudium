@@ -1,5 +1,7 @@
 Changes in Caudium 1.0.XX
 -------------------------
+- Added support for //!NOMODULE in modules. This close bug #473716
+- oldcgi is not not shown in the module list.
 
 Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
 --------------------------------------------------------
