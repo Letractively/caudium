@@ -118,7 +118,7 @@ string hash_md5(string|array(string) key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Mhash.to_hex(ret) : ret);
+  return (hexify ? to_hex(ret) : ret);
 }
 #else
 string md5_hash_type = "Pike.Crypto";
@@ -138,7 +138,7 @@ string hash_md5(string|array key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Crypto.string_to_hex(ret) : ret);
+  return (hexify ? to_hex(ret) : ret);
 }
 #endif
 
@@ -160,7 +160,7 @@ string hash_sha(string|array key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Mhash.to_hex(ret) : ret);
+  return (hexify ? to_hex(ret) : ret);
 }
 #else
 string sha1_hash_type = "Pike.Crypto";
@@ -180,7 +180,7 @@ string hash_sha(string|array key, void|int hexify)
   if (error)
     return "";
   
-  return (hexify ? Crypto.string_to_hex(ret) : ret);
+  return (hexify ? to_hex(ret) : ret);
 }
 #endif
 
