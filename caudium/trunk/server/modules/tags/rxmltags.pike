@@ -26,12 +26,9 @@
 //!  To allow for alternative "main parsers", all tags were separated
 //!  from the main parser. This module is added automatically
 //!  when the chosen RXML parser is loaded.
-//! type: MODULE_PARSER | MODULE_PROVIDER | MODULE_FILE_EXTENSION
+//! type: MODULE_PARSER | MODULE_PROVIDER
 //! provides: rxml:tags
 //! cvs_version: $Id$";
-
-constant cvs_version = "$Id$";
-constant thread_safe=1;
 
 #include <config.h>
 #include <module.h>
@@ -41,11 +38,13 @@ inherit "caudiumlib";
 
 constant language = caudium->language;
 
-constant module_type   = MODULE_PARSER | MODULE_PROVIDER | MODULE_FILE_EXTENSION;
+constant module_type   = MODULE_PARSER | MODULE_PROVIDER;
 constant module_name   = "Core RXML Tags";
 constant module_doc    = "This module contains all the core RXML tags "
                          "that were previously in the Main RXML Parser.";
 constant module_unique = 1;
+constant thread_safe   = 1;
+constant cvs_version   = "$Id$";
 
 #define CALL_USER_TAG id->conf->parse_module->call_user_tag
 #define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
