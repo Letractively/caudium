@@ -74,5 +74,5 @@ void PIKE_CONCAT(f_hexhash_,NAME)(INT32 args) { \
   free(res); \
 }
 #define ADDQHASH(HASH) \
-add_function("hash_"#HASH, PIKE_CONCAT(f_hash_, HASH), "function(string:string)", 0); \
-add_function("hexhash_"#HASH, PIKE_CONCAT(f_hexhash_, HASH), "function(string:string)", 0)
+ADD_FUNCTION("hash_"#HASH, PIKE_CONCAT(f_hash_, HASH), tFunc(tStr,tStr), 0); \
+ADD_FUNCTION("hexhash_"#HASH, PIKE_CONCAT(f_hexhash_, HASH), tFunc(tStr,tStr), 0)
