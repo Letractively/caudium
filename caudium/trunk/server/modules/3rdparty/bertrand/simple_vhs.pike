@@ -31,7 +31,7 @@
 
 inherit "modules/filesystems/filesystem.pike" : filesystem;
 
-#define DEBUG(X) write("VHS-FS: "+X+"\n")
+#define DEBUG(X) if(QUERY(debug)) write("VHS-FS: "+X+"\n")
 
 constant module_type = MODULE_FIRST|MODULE_LOCATION;
 constant module_name = "VHS - Virtual Hosting System (Filesystem)";
@@ -54,9 +54,16 @@ constant fs_struct_help =
   "</ul>";
 
 constant strip_www_help =
-  "The heading www. can be stripped, this way, only the domain is stored in"
+  "The heading \"www.\" can be stripped, this way, only the domain is stored in"
   "the filesystem<br>"
   "DNS must then contain an entry for domain.tld and www.domain.tld";
+
+//! method: string query_provides()
+//!  What this module provides
+string query_provides()
+{
+  return "vhs_fs"; 
+}
 
 //! method: void start()
 //!  When the module is started, start filesystem
@@ -71,6 +78,12 @@ void start()
 void create()
 {
   filesystem::create();
+
+  defvar("debug",
+         0,
+	 "Debug",
+	 TYPE_FLAG,
+	 "If set to yes, some debug information will be put in the debug logs");
 
   defvar("fs_struct",
          "simple",
