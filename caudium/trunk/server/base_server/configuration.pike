@@ -3698,29 +3698,29 @@ void create(string config)
 	 "              +-------------------------------------------------\n"
 	 "              +-- Welcome to the Caudium Webserver FTP server ---\n"
 	 "              +-------------------------------------------------\n",
-	 "Ftp:FTP Welcome message",
+	 "FTP:FTP Welcome message",
 	 TYPE_TEXT_FIELD|VAR_MORE,
 	 "FTP Welcome answer; transmitted to new FTP connections if the file "
 	 "<i>/welcome.msg</i> doesn't exist.\n");
   
-  defvar("named_ftp", 0, "Ftp:Allow named FTP", TYPE_FLAG|VAR_MORE,
+  defvar("named_ftp", 0, "FTP:Allow named FTP", TYPE_FLAG|VAR_MORE,
 	 "Allow ftp to normal user-accounts (requires an authentication "
 	 "module, e.g. 'User database and security').\n");
 
-  defvar("passive_ftp", 1, "Ftp:Allow passive FTP", TYPE_FLAG|VAR_MORE,
+  defvar("passive_ftp", 1, "FTP:Allow passive FTP", TYPE_FLAG|VAR_MORE,
          "Allow passive transfers on ftp server.");
 
-  defvar("anonymous_ftp", 0, "Ftp:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
+  defvar("anonymous_ftp", 0, "FTP:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
 	 "Allows anonymous ftp.\n");
 
-  defvar("guest_ftp", 0, "Ftp:Allow FTP guest users", TYPE_FLAG|VAR_MORE,
+  defvar("guest_ftp", 0, "FTP:Allow FTP guest users", TYPE_FLAG|VAR_MORE,
 	 "Allows FTP guest users.\n");
 
   defvar("ftp_user_session_limit", 0,
-	 "Ftp:FTP user session limit", TYPE_INT|VAR_MORE,
+	 "FTP:FTP user session limit", TYPE_INT|VAR_MORE,
 	 "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
 
-  defvar("shells", "/etc/shells", "Shell database", TYPE_FILE|VAR_MORE,
+  defvar("FTP:shells", "/etc/shells", "Shell database", TYPE_FILE|VAR_MORE,
 	 "File which contains a list of all valid shells\n"
 	 "(usually /etc/shells). Used for named ftp.\n"
 	 "Specify the empty string to disable shell database lookup.\n");
