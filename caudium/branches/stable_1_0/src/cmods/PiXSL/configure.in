@@ -7,22 +7,38 @@ AC_PROG_INSTALL
 
 dnl Solaris have math functions in libm
 dnl so this is needed to linking libsablot
-AC_CHECK_LIB(m, ceil)
 AC_CHECK_LIB(m, floor)
-
-AC_CHECK_HEADERS( sablot.h )
-dnl The standard Sablot/Expat need the libxmlok library
-AC_CHECK_LIB(xmltok, XmlInitEncoding)
-AC_CHECK_LIB(xmlparse, XML_Parse)
-dnl The GNOME xmltok/xmlparse library is different but works OK
-dnl on some systems that run sablotron modified to use
-dnl the GNOME lib (like, e.g. Debian GNU/Linux woody)
-if test "$ac_cv_lib_xmlparse_XML_Parse" = no; then
-    AC_CHECK_LIB(xmltok, XmlInitEncoding)
-    AC_CHECK_LIB(xmlparse, XML_ParserCreate)
+if test "$ac_cv_lib_m_floor" != "yes"; then 
+  AC_CHECK_LIB(m, ceil)
 fi
 
-AC_CHECK_LIB(sablot, SablotProcess)
+AC_CHECK_HEADERS( sablot.h )
+echo $LIBS
+dnl No need to continue unless the header is found...
+if test "$ac_cv_header_sablot_h" = "yes"; then
+  unset ac_cv_lib_sablot_SablotProcess
+  OLDLIBS="$LIBS"
+  LIBS=""
+  AC_CHECK_LIB(sablot, SablotProcess,
+  [
+    AC_DEFINE(HAVE_LIBSABLOT)
+	LIBS="-lsablot $OLDLIBS"
+  ], [
+    unset ac_cv_lib_sablot_SablotProcess
+    AC_CHECK_LIB(sablot, SablotProcess,
+    [
+	  AC_DEFINE(HAVE_LIBSABLOT)
+	  LIBS="-lsablot -lexpat $OLDLIBS"
+    ], [
+      unset ac_cv_lib_sablot_SablotProcess
+      AC_CHECK_LIB(sablot, SablotProcess,
+      [
+		AC_DEFINE(HAVE_LIBSABLOT)
+		LIBS="-lsablot -lxmlparse -lxmltok $OLDLIBS"
+      ],[], -lxmlparse -lxmltok $OLDLIBS)
+    ], -lexpat  $OLDLIBS)
+  ], $OLDLIBS)
+fi
 
 if test "$ac_cv_header_sablot_h" != "yes" -o \
 	    "$ac_cv_lib_sablot_SablotProcess" != "yes"; then
