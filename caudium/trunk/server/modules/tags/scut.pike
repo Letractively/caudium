@@ -31,7 +31,7 @@
 //!  <p><b>Example :</b><br /><tt>
 //!  &lt;scut max=10 postfix="..."&gt;
 //!  0123456789012345&lt;/scut&gt;</tt><br />
-//!  Will returns :<br /><tt>
+//!  Will return :<br /><tt>
 //!  0123456...</tt></p>
 //! type: MODULE_PARSER
 //! inherits: module
@@ -54,7 +54,7 @@ constant module_doc   = "Module that cut strings to a limited value.<br />"
 			"<p><b>Example :</b><br /><tt>"
 			"&lt;scut max=10 postfix=\"...\"&gt;"
 			"0123456789012345&lt;/scut&gt;</tt><br />"
-			"Will returns :<br /><tt>"
+			"Will return :<br /><tt>"
 			"0123456...</tt></p>";
 constant cvs_version  = "$Id$";
 constant thread_safe  = 1;
