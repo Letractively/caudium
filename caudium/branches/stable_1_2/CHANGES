@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.3x since 1.2.32
 --------------------------------------
+- On SSI Compat option in Core RXML Tags module, don't cache include virtual
+  when the included url is a dynamic one.
+   (Tamas Tevesz / Xavier Beaudouin / endre at interware dot hu)
 - Fixed bug in vhs_logger.pike that stopped it from logging remote hostnames.
    (James Tyson)
 
