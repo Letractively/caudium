@@ -25,12 +25,29 @@
  * the pike version the user wants to run with Caudium. It's run automatically
  * at the end of the configure script.
  *
+ * Things to know:
+ *
+ *  - this script has to run with any pike (back to 0.6, i can try 0.5
+ *    if anyone can give me one...)
+ *  - a specific Caudium version number can be passed as an argument; then it
+ *    will do the checks appropriate for that version only. if no version
+ *    number is supplied, it will do all the checks (as it was doing before
+ *    this change).
+ *    NOTE: the version number format has to be "%d.%d"!
+ *
  */
 
+void pp(string f, mixed ... a)
+{
+  write(sprintf(f, @a));
+  return;
+}
 
 float ver; // version
 int rel; // release
 int warnings; // Number of warnings
+int major, minor; // Caudium version number
+
 string warning(string msg, mixed ... args)
 {
   if(!warnings)
@@ -38,19 +55,20 @@ string warning(string msg, mixed ... args)
   write("\n");
   msg += "\n";
   if(sizeof(args))
-    write(sprintf(msg, @args));
+    pp(msg, @args);
   else
     write(msg);
   warnings++;
 }
+
 void endreport()
 {
-  switch(warnings) {
-   case 0: write(" none found.\n"); break;
-   case 1: write("\n*** Found one potential problem.\n"); break;
-   default: write("\n*** Found "+warnings+" potential problems.\n"); break;
-  }
+  if(!warnings)
+    write(" none found.\n");
+  else
+    pp("\n*** Found %d potential problem%s.\n", warnings, (warnings>1 ? "s" : "") );
 }
+
 array(string) has_features(array features)
 {
   array a = ({});
@@ -74,9 +92,20 @@ array(string) has_features(array features)
 
 int main(int argc, array argv)
 {
+  if(argc > 1)
+  // there is a caudium version specified
+  {
+    if( sscanf(argv[1], "%s.%s", major, minor) != 2 )
+    // but it seems to be badly formatted...
+    {
+      Stdio.stderr.write("wrong Caudium version number given (wrong format)\n");
+      exit(1);
+    }
+  }
+
   array missing, existing;
   sscanf(version(), "Pike v%f release %d", ver, rel);
-  write("Checking for potential compatibility reasons with your Pike...");
+  write("Checking for potential compatibility problems with your Pike installation...");
   master()->set_inhibit_compile_errors("");
 
   if(ver < 7.2 ||
@@ -141,11 +170,11 @@ int main(int argc, array argv)
   if(sizeof(missing)) {
     warning("Pike is missing support for the image format%s %s.\n"
 	    "This might limit the functionality of the dynamic image generation in Caudium.",
-	    sizeof(missing) == 1 ? "" : "s", 
+	    (sizeof(missing) == 1 ? "" : "s"), 
 	    String.implode_nicely(missing));
   }
 
-  missing = ({ "Msql","Mysql", "Odbc", "Oracle","Postgres", "sybase" });
+  missing = ({ "Msql", "Mysql", "Odbc", "Oracle", "Postgres", "sybase" });
 
   existing = has_features(missing);
   missing -= existing;
@@ -154,11 +183,10 @@ int main(int argc, array argv)
     warning("Pike is missing support for the following database backend%s:\n"
 	    "\t%s\nSupported backend%s:\n"
 	    "\t%s",
-	    sizeof(missing) == 1 ? "" : "s", 
+	    (sizeof(missing) == 1 ? "" : "s"), 
 	    String.implode_nicely(missing),
-	    sizeof(existing) == 1 ? "" : "s", 
-	    sizeof(existing) ? String.implode_nicely(existing):
-	    "none");
+	    (sizeof(existing) == 1 ? "" : "s"), 
+	    ( sizeof(existing) ? String.implode_nicely(existing) : "none" ));
   }
   
 #if !constant(Gmp.mpz)
@@ -179,22 +207,18 @@ int main(int argc, array argv)
           "SSL module.");
 #endif 
 
-  if(
 #if !constant(Image.TTF)
-     1
-#else
-     !sizeof(Image.TTF)
-#endif
-     )
-  warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
-	  ".ttf fonts, you need to install the freetype library available from\n"
+  warning("Your Pike is lacking truetype font support. If you want to use <gtext> with\n"
+	  "truetype fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
+#endif
 
 #if !constant(Gdbm.gdbm)
   warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
 	  "for storing log summaries. You can still use UltraLog with the File and\n"
 	  " Filetree backends however.");
 #endif
+
   endreport();
 }
 
