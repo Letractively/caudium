@@ -98,7 +98,7 @@ void create() {
 	 "that lack a host header!</b> If a request is done to an ip-address "
 	 "and the Host header is sent, matching will be done as usual. "
 	 "Also note that all matching is done on the lower case host header "
-	 "without the :port part.");
+	 "without the :port part. ");
 }
 
 array regexp_pairs;
