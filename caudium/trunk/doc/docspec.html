@@ -58,12 +58,25 @@ The general format of the inline Caudium documentation is as follows:
 </pre>
 </blockquote>
 
+<p>or</p>
+
+<blockquote>
+<pre>
+//|
+//| field_name: field contents
+//|  field_contents
+//|  .
+//|  field_contents
+</pre>
+</blockquote>
+
 <p>
-The documentation extraction program parses only C comments formatted as shown above. If the
-continuation lines of a comment have no the &lt;asterisk&gt;&lt;asterisk&gt;&lt;pipe&gt; form 
-they are not treated as extractable documentation block. The <tt>**|</tt> block is ignored and
-the following character is treated as the first column of the actual documentation page. Think
-of <tt>**|</tt> as about gutter or margin :).
+The documentation extraction program parses C and C++ comments formatted as shown above. If the
+continuation lines of a comment have no the &lt;asterisk&gt;&lt;asterisk&gt;&lt;pipe&gt; or
+&lt;slash&gt;&lt;slash&gt;&lt;pipe&gt; form then they are not treated as extractable documentation
+block. The <tt>**|</tt> or <tt>//|</tt> block is ignored and the following character is treated as
+the first column of the actual documentation page. Think of <tt>**|</tt> or <tt>//|</tt> as your
+gutter or margin :).
 </p>
 <p>
 <code>field_name</code> must be separated from the comment chars (<tt>**|</tt>) with at least one
@@ -119,8 +132,8 @@ of symbols:
 <ul>
  <li><strong>C</strong> - the field is a container</li>
  <li><strong>CT</strong> - the field is a top-level container</li>
- <li><strong>T</strong> - the field is a attribute one</li>
- <li><strong>TR</strong> - the field is a required attribute one</li>
+ <li><strong>T</strong> - the field is an attributeone</li>
+ <li><strong>TR</strong> - the field is a required attribute</li>
 </ul>
 </p>
 
