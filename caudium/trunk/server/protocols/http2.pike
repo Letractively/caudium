@@ -33,6 +33,7 @@ inherit "highlight_pike";
 constant cvs_version = "$Id$";
 // HTTP protocol module.
 #include <config.h>
+#include <variables.h>
 private inherit "caudiumlib";
 private inherit "cachelib";
 // int first;
@@ -775,8 +776,6 @@ void internal_error(array err)
     }
 }
 
-
-#include <variables.h> // For errors mapping
 
 void do_log()
 {
