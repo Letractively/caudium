@@ -2685,7 +2685,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
   int    t;     //time
 
   if(m->name)
-    cookies = m->name+"="+http_encode_cookie(m->value||"");
+    cookies = m->name+"="+Protocols.HTTP.http_encode_cookie(m->value||"");
   else
     return "<!-- set_cookie requires a `name' -->";
 
@@ -2705,9 +2705,9 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
   if(t) cookies += "; expires="+http_date(t+time());
 
   //obs! no check of the parameter's usability
-  cookies += "; path=" +(http_encode_cookie(m->path||"/"));
+  cookies += "; path=" +(Protocols.HTTP.http_encode_cookie(m->path||"/"));
   if(m->domain)
-    cookies += "; domain="+http_encode_cookie(m->domain);
+    cookies += "; domain="+Protocols.HTTP.http_encode_cookie(m->domain);
   add_header(_extra_heads, "Set-Cookie", cookies);
 
   return "";
@@ -2718,7 +2718,7 @@ string tag_remove_cookie(string tag, mapping m, object id, object file,
 {
   string cookies;
   if(m->name)
-    cookies = m->name+"="+http_encode_cookie(m->value||"")+
+    cookies = m->name+"="+Protocols.HTTP.http_encode_cookie(m->value||"")+
       "; expires="+http_date(0)+"; path=/";
   else
     return "<!-- remove_cookie requires a `name' -->";
