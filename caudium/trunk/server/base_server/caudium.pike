@@ -151,12 +151,14 @@ void stop_all_modules()
     conf->stop();
 }
 
+#if constant(_pipe_debug)
 private void co_really_low_shutdown()
 {
   call_out(really_low_shutdown, 20);
   if(!_pipe_debug()[0])
     exit(0);
 }
+#endif
 
 //! @decl void really_low_shutdown(int exit_code)
 //!
@@ -3411,7 +3413,10 @@ static private int _recurse;
 private void __close_connections(function me)
 { 
   call_out(me, 5);
+
+#if constant(_pipe_debug)
   if (!_pipe_debug()[0]) {
+#endif
     report_notice("Exiting Caudium (all connections closed).\n");
     stop_all_modules();
 #ifdef THREADS
@@ -3421,7 +3426,9 @@ private void __close_connections(function me)
     add_constant("caudium", 0);	// Paranoia...
     exit(-1);	// Restart.
     report_error("Odd. I am not dead yet.\n");
+#if constant(_pipe_debug)
   }
+#endif
 };
 
 private void __close_caudium()

@@ -10,6 +10,12 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "roxenlib";
 
+#if constant(Protocols.SMTP.Client)
+#define SMTP_CLIENT Protocols.SMTP.Client
+#else
+#define SMTP_CLIENT Protocols.SMTP.client
+#endif
+
 string mimewarning="This message is in MIME format.  The first part should be readable text,"
  "\n"
  "while the remaining parts are likely unreadable without MIME-aware tools.\n";
@@ -236,8 +242,9 @@ request_id->misc->mailitattachments;
 	      toa = request_id->misc->mailithdrs->to;
 	   else 
 	      toa = ({ request_id->misc->mailithdrs->to || query("defaultrecipient") });
-	   
-Protocols.SMTP.client(query("mailserver"),query("mailport"))->send_message(request_id->misc->mailithdrs->from
+
+
+        SMTP_CLIENT(query("mailserver"),query("mailport"))->send_message(request_id->misc->mailithdrs->from
 || query("defaultsender"), toa, (string)mpmsg);
         }
         else

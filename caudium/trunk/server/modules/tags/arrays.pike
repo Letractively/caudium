@@ -158,7 +158,7 @@ string array_output(string tag, mapping args, string contents, object id)
   int firstindex = 0;
   int lastindex = 0;
   array arraylist = ({});
-  int g1 = gauge { 
+  float g1 = gauge { 
     if(args->arrays) {
       arraylist = (args->arrays - " ") / ",";
     }
@@ -232,7 +232,7 @@ string array_output(string tag, mapping args, string contents, object id)
     }
   };
   mixed res;
-  int g2 = gauge {
+  float g2 = gauge {
     res = do_output_tag( args, replaceme, contents, id );
   };
   return res;
