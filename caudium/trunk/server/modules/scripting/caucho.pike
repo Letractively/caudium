@@ -33,7 +33,7 @@
 constant cvs_version = "$Id$";
 constant thread_safe = 0;
 
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 
 #define DEFAULT_PORT	6802
