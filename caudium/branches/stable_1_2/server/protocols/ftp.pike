@@ -109,7 +109,7 @@
 // line
 //#define	DISABLE_MLST_MLSD
 
-#define FTP2_DEBUG
+//#define FTP2_DEBUG
 
 #define FTP2_XTRA_HELP ({ "Report any bugs to our bug database system : http://sourceforge.net/bugs/?group_id=8825." })
 
