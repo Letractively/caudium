@@ -148,7 +148,7 @@ mixed find_file( string path, object id ) {
 #ifdef DEBUG
 		write( "Sending headers: " );
 #endif
-		id->my_fd->write( "ICY 200 OK\nContent-type: audio/mpeg\n\n" );
+                streams[ sid ]->send_headers( id->my_fd );
 #ifdef DEBUG
 		write( "done.\n" );
 		write( "Registering client to stream: " );
@@ -205,7 +205,7 @@ mixed find_file( string path, object id ) {
 			       "sid" : sid
 			     ]);
 			object s = stream( vars );
-			id->my_fd->write( "ICY 200 OK\n\n" );
+                        s->send_headers( id->my_fd );
                         thread_create( s->live_source, id->my_fd );
 			streams += ([ sid : s ]);
                         return http_pipe_in_progress();
@@ -348,7 +348,8 @@ class stream {
     wait, maxclients,
     promos_enable, promos_freq,
     promos_shuffle, maxsession,
-    thyme, _length, _read;
+    thyme, _length,
+    _read, _titlestreaming;
     string name, base, playing, search_promo;
 
     void create( mapping vars ) {
@@ -361,6 +362,7 @@ class stream {
 	maxclients = vars->maxclients;
         maxsession = vars->maxsession;
 	pause = vars->pause;
+        _titlestreaming = vars->titlestreaming;
 	if ( vars->promos_enable ) {
 	    promos_enable = 1;
 	    promos_shuffle = vars->promos_shuffle;
@@ -434,8 +436,8 @@ class stream {
 		    continue;
 		}
 		block = (int)( _bitrate * 12.8 );
-
 		playing = filename;
+                song_change();
 		_length = f->stat()[ 1 ];
                 _read = 0;
 #ifdef DEBUG
@@ -633,6 +635,27 @@ class stream {
 
     float percent_played() {
         return ( (float)_read / (float)_length ) * 100;
+    }
+
+    void send_headers( object fd ) {
+	fd->write(
+		  "ICY 200 OK\n"
+		  "Content-Type: audio/mpeg\n"
+		  "Server: " + caudium.version() + "\n"
+		  "icy-name: " + get_name() + "\n" +
+		  (bitrate?"icy-br: " + (string)bitrate + "\n":"") +
+                  "\n"
+		 );
+    }
+
+    void song_change() {
+	// You will probably notice that this doesn't work.
+        // Thanks a whole bunch google.
+	if ( _titlestreaming == 1 ) {
+	    array tmp = (currently_playing( 1 ) / ".");
+	    string track_name = tmp[ 0..sizeof( tmp ) - 2 ] * ".";
+	    send( "\n\nicy-name: " + track_name + "\n\n" );
+	}
     }
 
 }
