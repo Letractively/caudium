@@ -194,45 +194,39 @@ static class ConfigurableWrapper
 //! @param value
 //!  Variable's default value.
 //! @param name
-//!  Name the variable will be given in the configuration interface.<br />
+//!  Name the variable will be given in the configuration interface.
 //!  A colon (":") in the name can be used to build submenus.
 //! @param type
-//!  Variable's type. The data input by the user will be checked.<br />
+//!  Variable's type. The data input by the user will be checked.
 //!  Available types are:
-//!  <ul>
-//!   <li><b>TYPE_FLAG</b>: yes/no choice. Stored as an int.</li>
-//!   <li><b>TYPE_INT</b>: integer number.</li>
-//!   <li><b>TYPE_INT_LIST</b>: list of int. Stored as an array of int.</li>
-//!   <li><b>TYPE_MULTIPLE_INT</b>: int chosen from a list.</li>
-//!   <li><b>TYPE_FLOAT</b>: floating point number.</li>
-//!   <li><b>TYPE_STRING</b>: string.</li>
-//!   <li><b>TYPE_STRING_LIST</b>: list of strings.
-//!       Stored as an array os string.</li>
-//!   <li><b>TYPE_MULTIPLE_STRING</b>: string chosen from a list.</li>
-//!   <li><b>TYPE_TEXT</b>: text. Stored as a string.</li>
-//!   <li><b>TYPE_TEXT_FIELD</b>: multiple lines text. Stored as a string.</li>
-//!   <li><b>TYPE_FILE</b>: path to a file in the filesystem.
-//!       Stored as a string.</li>
-//!   <li><b>TYPE_DIR</b>: path to a dir in the filesystem.
-//!       Stored as a string.</li>
-//!   <li><b>TYPE_DIR_LIST</b>: list of directories.
-//!       Stored as an array of string.</li>
-//!   <li><b>TYPE_LOCATION</b>: mountpoint in virtual filesystem.
-//!       Stored as a string.</li>
-//!   <li><b>TYPE_COLOR</b>: int containing 24bit RGB color value.</li>
-//!   <li><b>TYPE_PASSWORD: password. Stored via unix crypt().</li>
+//!   TYPE_FLAG: yes/no choice. Stored as an int.
+//!   TYPE_INT: integer number.
+//!   TYPE_INT_LIST: list of int. Stored as an array of int.
+//!   TYPE_MULTIPLE_INT: int chosen from a list.
+//!   TYPE_FLOAT: floating point number.
+//!   TYPE_STRING: string.
+//!   TYPE_STRING_LIST: list of strings. Stored as an array os string.
+//!   TYPE_MULTIPLE_STRING: string chosen from a list.
+//!   TYPE_TEXT: text. Stored as a string.
+//!   TYPE_TEXT_FIELD: multiple lines text. Stored as a string.
+//!   TYPE_FILE: path to a file in the filesystem. Stored as a string.
+//!   TYPE_DIR: path to a dir in the filesystem. Stored as a string.
+//!   TYPE_DIR_LIST: list of directories. Stored as an array of string.
+//!   TYPE_LOCATION: mountpoint in virtual filesystem. Stored as a string.
+//!   TYPE_COLOR: int containing 24bit RGB color value.
+//!   TYPE_PASSWORD: password. Stored via unix crypt().
 //! @param doc_str
-//!  Documentation for the variable.<br />
+//!  Documentation for the variable.
 //!  If a newline (\n) is present in the first line, the user will have a
 //!  "more documentation" button for accessing following lines.
 //! @param misc
-//!  Only used for TYPE_MULTIPLE_* types.<br />
+//!  Only used for TYPE_MULTIPLE_* types.
 //!  This field contains array(int|string) for possible values. Ignore or set
 //!  to 0 for other types.
 //! @param not_in_config
-//!  Integer value or function.<br />
+//!  Integer value or function.
 //!  If integer or return of the function is 0, then the variable will be
-//!  shown. It will be hidden otherwise.<br />
+//!  shown. It will be hidden otherwise.
 //!  Usefull for hidding a variable depending of the value of another variable.
 void defvar(string|void var, mixed|void value, string|void name,
             int|void type, string|void doc_str, mixed|void misc,
