@@ -53,22 +53,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//!   Return a response mapping with the specified file descriptior using the
-//!   specified content type and length.
-//! @param fd
-//!   The file descriptor object. This can be a an ordinary file, a socket etc.
-//! @param type
-//!   The optional content type to override the default text/html.
-//! @param len
-//!   The number of bytes of data to read from the object. The default is to
-//!   read until EOF
-//! @returns
-//!   The HTTP response mapping.
-mapping http_file_answer(object fd, string|void type, void|int len)
-{
-  return ([ "file":fd, "type":(type||"text/html"), "len":len ]);
-}
-
 //!   Make a configuration cookie. This is is not a function meant to
 //!   be used by the average user.
 //! @param from

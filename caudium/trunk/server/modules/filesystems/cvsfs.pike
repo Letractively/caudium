@@ -385,7 +385,7 @@ object|mapping|int find_file(string name, object id)
       }
       if (f)
 	accesses++;
-      return is_text ? http_file_answer(f, "text/plain") : f;
+      return is_text ? Caudium.HTTP.file_answer(f, "text/plain") : f;
     }
     else {
       array arr = file_stat(fname + "/.");

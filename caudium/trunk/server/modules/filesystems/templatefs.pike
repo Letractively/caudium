@@ -211,7 +211,7 @@ mixed find_file( string f, object id )
   //  return retval;
   
   if( id->variables["content-type"] )
-    return http_file_answer( retval, id->variables["content-type"] );
+    return Caudium.HTTP.file_answer( retval, id->variables["content-type"] );
 
   
   if( id->variables->show_img )
@@ -249,7 +249,7 @@ mixed find_file( string f, object id )
        //object fd=Stdio.File();
        //object pipe = fd->pipe();
        //fd->write(contents);
-       //return http_file_answer( pipe, type );
+       //return Caudium.HTTP.file_answer( pipe, type );
      }
 //       return Caudium.HTTP.string_answer( parse_rxml("<use file="+template_for(f,id)+">"
 //                                             "<tmpl-head title=\""+f+"\">"+
