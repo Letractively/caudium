@@ -53,9 +53,6 @@ function remove = caudium->remove;
 function do_dest = caudium->do_dest;
 function create_listen_socket = caudium->create_listen_socket;
 
-//! emit plugins for this configuration
-mapping emit_plugins = ([]);
-
 //! the parser module for this configuration
 object   parse_module;
 
