@@ -563,8 +563,8 @@ string quote(mapping in)
        sprintf("%d%08x%x", ++datacounter, random(99999999), time(1)) ] = in;
   */
   //NU: Create key
-  object o=Crypto.sha();
   string data=encode_value(in);
+  object o=Crypto.sha();
   o->update(data);
   string out=replace(http_encode_string(MIME.encode_base64(o->digest(),1)),
 		     "/", "$");

@@ -32,8 +32,13 @@ class mac_sha
   constant pad_2 = ("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
 		    "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
 
+#if constant(Mhash.version)
+  constant algorithm = Mhash.Hash;
+  array extra_args = ({ Mhash.SHA1 });
+#else
   constant algorithm = Crypto.sha;
-
+  array extra_args = ({});
+#endif
   string secret;
 
   string hash_raw(string data)
@@ -42,7 +47,7 @@ class mac_sha
     werror(sprintf("SSL.cipher: hash_raw(%O)\n", data));
 #endif
     
-    object h = algorithm();
+    object h = algorithm(@extra_args);
     string res = h->update(data)->digest();
 #ifdef SSL3_DEBUG_CRYPT
     werror(sprintf("SSL.cipher: hash_raw->%O\n",res));
@@ -83,8 +88,15 @@ class mac_md5 {
   constant pad_1 =  "666666666666666666666666666666666666666666666666";
   constant pad_2 = ("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
 		    "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
-  
+#if constant(Mhash.version)
+  /* Mhash md5 hashing is somewhat faster and can do 16/32 bit strings.
+   * check for Mhash.version for compatibility reasons.
+   */
+  constant algorithm = Mhash.Hash;
+  array extra_args = ({ Mhash.MD5 });
+#else
   constant algorithm = Crypto.md5;
+#endif
 }
 
 #if 0
@@ -136,9 +148,12 @@ object rsa_sign(object context, string cookie, object struct)
   /* Exactly how is the signature process defined? */
   
   string params = cookie + struct->contents();
-  string digest = Crypto.md5()->update(params)->digest()
-    + Crypto.sha()->update(params)->digest();    
-      
+#if constant(Mhash.hash_md5)
+  string digest = Mhash.hash_md5(params) + Mhash.hash_sha1(params);
+#else
+  string digest = (Crypto.md5()->update(params)->digest() +
+		   Crypto.sha()->update(params)->digest());
+#endif
   object s = context->rsa->raw_sign(digest);
 #ifdef SSL3_DEBUG_CRYPT
   werror(sprintf("  Digest: '%O'\n"

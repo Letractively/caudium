@@ -421,7 +421,7 @@ mixed find_file(string path, object id) {
   int ts=time();
   int prj;
 
-  string path=simplify_path(path);
+  path = simplify_path(path);
   // Remove leading "/" from path, if it exists
   if(path[0..0]=="/")
     path=path[1..sizeof(path)-1];

@@ -69,7 +69,12 @@ void status(int lines, void|int pos, void|int long)
 	  persec * 60, mbs *= 60);
 }
 
+#if constant(PCRE.Regexp)
+function _ispage = PCRE.Regexp("(\\.(html|htm|rxml|txt)$)|/$", "S")->match;
+#else
 function _ispage = Regexp("(\\.(html|htm|rxml|txt)$)|/$")->match;
+#endif
+
 
 #define ISPAGE(x) (x[0] == '/' && (x[-1] == '/' ||_ispage(x)))
 

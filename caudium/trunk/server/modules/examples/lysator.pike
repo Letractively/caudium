@@ -32,6 +32,7 @@ string cvs_version = "$Id$";
 
 #include <config.h>
 #include <module.h>
+#include <pcre.h>
 import Stdio;
 
 inherit "module";

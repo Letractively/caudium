@@ -23,6 +23,8 @@
  * $Id$
  */
 
+#include <pcre.h>
+
 inherit "wizard";
 
 import Standards.PKCS;

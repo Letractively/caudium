@@ -101,6 +101,7 @@ void create()
 #define ERROR(x) return http_string_answer("<html><head><title>XSLT Template error</title></head><body><p><b>XSLT Template error: "+ x +"</b><p></body></html>")
 object regexp;
 string xsldir;
+
 void start() {
 #if constant(PCRE.Regexp)
   regexp = PCRE.Regexp("(.*)\\.(.*)$", "S");
