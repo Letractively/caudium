@@ -40,7 +40,7 @@ inherit "module";
 inherit "caudiumlib";
 
 #ifdef DEBUG
-#define ERROR(X) werror("ADAuth: " + X + "\n");
+#define ERROR(X) report_debug("ADAuth: " + X + "\n");
 #else
 #define ERROR(X) 
 #endif
@@ -563,7 +563,7 @@ mapping|void loadUserInfo(string username)
     }
     return;
   }
-  werror("returning data.\n");
+  ERROR("returning data.\n");
 
   return r->fetch();
 }
@@ -630,7 +630,7 @@ string|int loadUserName(string uid)
     }
     return 0;
   }
-  werror("returning data.\n");
+  ERROR("returning data.\n");
 
   return r->fetch()->sAMAccountName[0];
 }
@@ -697,7 +697,7 @@ string|int loadGroupName(string gid)
     }
     return 0;
   }
-  werror("returning data.\n");
+  ERROR("returning data.\n");
 
   return r->fetch()->sAMAccountName[0];
 }
@@ -764,7 +764,7 @@ mapping|void loadGroupInfo(string groupname)
     }
     return 0;
   }
-  werror("returning data.\n");
+  ERROR("returning data.\n");
 
   return r->fetch();
 }

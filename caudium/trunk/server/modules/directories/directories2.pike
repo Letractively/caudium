@@ -180,7 +180,7 @@ string describe_directory(string d, object id)
   string result = "";
   int toplevel;
 
-  // werror(sprintf("describe_directory(%s)\n", d));
+  // report_debug("describe_directory(%s)\n", d);
   
   dir = id->conf->find_dir(d, id);
 
@@ -223,7 +223,7 @@ string describe_directory(string d, object id)
     string icon;
     int len = stats?stats[1]:0;
 
-    // werror(sprintf("stat_file(\"%s\")=>%O\n", d+file, stats));
+    // report_debug("stat_file(\"%s\")=>%O\n", d+file, stats);
 
     switch(-len) {
     case 3:
@@ -310,7 +310,7 @@ string describe_directory(string d, object id)
     result +="</pre></body></html>\n";
   }
 
-  // werror(sprintf("describe_directory()=>\"%s\"\n", result));
+  // report_debug("describe_directory()=>\"%s\"\n", result);
 
   return(result);
 }
@@ -322,7 +322,7 @@ string|mapping parse_directory(object id)
   string old_not_query;
   mapping got;
 
-  // werror(sprintf("parse_directory(%s)\n", id->raw_url));
+  // report_debug("parse_directory(%s)\n", id->raw_url);
 
   /* First fix the URL
    *

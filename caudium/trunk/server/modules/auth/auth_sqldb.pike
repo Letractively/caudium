@@ -227,8 +227,8 @@ void setup_queries()
     query_getuserbyuserid="SELECT " + usertablefields*", " + " FROM " + 
        user_table + " WHERE " + QUERY(user_uidf) + "=%s";
 #ifdef AUTH_DEBUG
-    werror("AUTH_SQL: byname: " + query_getuserbyname + "\n\n");
-    werror("AUTH_SQL: byid: " + query_getuserbyuserid + "\n\n");
+    report_debug("AUTH_SQL: byname: " + query_getuserbyname + "\n\n");
+    report_debug("AUTH_SQL: byid: " + query_getuserbyuserid + "\n\n");
 #endif
   }      
 
@@ -252,8 +252,8 @@ void setup_queries()
     query_getgroupbygroupid="SELECT " + grouptablefields*", " + " FROM " + 
        group_table + " WHERE " + QUERY(group_groupidf) + "=%s";
 #ifdef AUTH_DEBUG
-    werror("AUTH_SQL: byname: " + query_getgroupbyname + "\n\n");
-    werror("AUTH_SQL: byid: " + query_getgroupbygroupid + "\n\n");
+    report_debug("AUTH_SQL: byname: " + query_getgroupbyname + "\n\n");
+    report_debug("AUTH_SQL: byid: " + query_getgroupbygroupid + "\n\n");
 #endif
   }      
 
@@ -271,8 +271,8 @@ void setup_queries()
        usergroup_table + " WHERE " + QUERY(usergroup_userf) + "=%s";
 
 #ifdef AUTH_DEBUG
-    werror("AUTH_SQL: bygroup: " + query_getusersforgroup + "\n\n");
-    werror("AUTH_SQL: byuser: " + query_getgroupsforuser + "\n\n");
+    report_debug("AUTH_SQL: bygroup: " + query_getusersforgroup + "\n\n");
+    report_debug("AUTH_SQL: byuser: " + query_getgroupsforuser + "\n\n");
 #endif
   }      
 
@@ -441,7 +441,7 @@ mapping|int get_user_info(string u)
   user->_source=QUERY(_name);
 
 #ifdef AUTH_DEBUG
-werror(sprintf("AUTH_SQL: user res: %O\n", user));
+  report_debug("AUTH_SQL: user res: %O\n", user);
 #endif
   return user;
 }
