@@ -1014,8 +1014,14 @@ string make_xml_tag(string tag,mapping in) {
 //! @note
 //!  The attributes are XML encoded and the tag is closed
 string make_xml_pi(string tag, mapping in) {
+  string v = "";
+  if (in->version) {
+    // version must come before encoding in the xml pi.
+    v = make_xml_tag_attributes(([ "version" : in->version ]));
+    m_delete(in, "version");
+  }
   string q = make_xml_tag_attributes(in);
-  return "<?"+tag+(strlen(q)?" "+q:"")+"?>";
+  return "<?"+tag+(strlen(v)?" "+v:"")+(strlen(q)?" "+q:"")+"?>";
 }
 
 //! A mix of make_html_tag and make_xml_tag
