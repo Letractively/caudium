@@ -120,7 +120,7 @@ The contents of this container tag won't be RXML parsed.
 
 <td bgcolor=#ffffff colspan=2>
 
-
+<a href="#until">until</a>
 
 
 
@@ -180,6 +180,18 @@ The contents of this container tag won't be RXML parsed.
 
 <dl>
 
+<p><dt><tt><b><a name="until">until</a></b></tt>=<i>number</i>
+<dd>Don't parse the contents until this level. Without this argument
+parsing will only be stopped once. Since RXML-parsing generally is
+recursive this might be desirable. If <tt>until</tt> is less than or
+equal to 1, the contents will not be RXML parsed at all.
+
+<p>The caveat of using this feature is that certain tags parse
+their contents and return them in a <i>don't parse again</i>
+fashion. This can cause the &lt;noparse&gt; tag to unexpectedly not parse
+the contents. Use with care - make sure your page works as
+expected. If not, try experimenting with the level.
+
 </dl>
 
 
@@ -204,12 +216,18 @@ The contents of this container tag won't be RXML parsed.
   </td>
   <td bgcolor=white>
 <pre><define name=foo>
-<use package=gtext_headers>
+<define container=h1><b><i><font size=5><contents></font>
+</i></b><p></define>
 
 <h1>Hello</h1>
-<noparse>
-  <h1>World</h1>
-</noparse>
+<noparse><h1>World</h1></noparse>
+
+<define name=test preparse><noparse><h1>Hello</h1></noparse></define>
+<insert name=test>
+
+<define name=test2 preparse><noparse until=1><h1>World</h1></noparse></define>
+<insert name=test2>
+
 </define>
 <insert name=foo "<"=&lt; ">"=&gt; ></pre>
    <br clear=all>
@@ -233,14 +251,7 @@ The contents of this container tag won't be RXML parsed.
   <font color=#ffffff><b>result</b></font>
 </td>
 <td valign=top bgcolor=#ffffff>
-
-
-<use package=gtext_headers>
-
-<h1>Hello</h1>
-<noparse>
-  <h1>World</h1>
-</noparse>
+<insert name=foo>
 
 
    <br clear=all>
