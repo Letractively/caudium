@@ -170,12 +170,14 @@ class Master {
       if(!strlen(savedir) || savedir[-1] != '/')
 	savedir += '/';
       
+      master()->set_inhibit_compile_errors("");
       if(!strlen(method) ||
 	 search(indices(Storage),method) == -1 ||
 	 catch(Storage[method])) {
 	werror("'%s' is not a valid method!\n", method);
 	exit(1);
       }
+      master()->set_inhibit_compile_errors(0);
       break;
 
      case "table":
@@ -224,12 +226,18 @@ class Master {
 		    "extensions": parse_profile,
 		 ]), ([]), tmp);
       if(!m->method) m->method = method;
-      else if(!strlen(m->method=String.capitalize(lower_case(m->method))) ||
-	      search(indices(Storage),m->method) == -1 ||
-	      catch(Storage[m->method])) {
-	werror("Profile %s: '%s' is not a valid method!\n", m->name,
-	       m->method);
-	break;
+      else {
+	master()->set_inhibit_compile_errors("");
+	if(!strlen(m->method = String.capitalize(lower_case(m->method))) ||
+	   search(indices(Storage),m->method) == -1 ||
+	   catch(Storage[m->method])) {
+	  werror("Profile %s: '%s' is not a valid method!\n", m->name,
+		 m->method);
+	  master()->set_inhibit_compile_errors(0);
+	  break;
+	} else {
+	  master()->set_inhibit_compile_errors(0);
+	}
       }
       profiles += ({  ({ m->name +"/", m->name, tmp, m->method||method }) });
     }
