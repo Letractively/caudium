@@ -333,6 +333,6 @@ tar_dist:
 	echo "done."; \
 	rm $$version.tar
 
-dist: copy_dist tar_dist
+dist: copy_dist tar_dist only_bump_version
 	@echo Distribution build complete.
 
