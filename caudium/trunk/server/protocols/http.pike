@@ -133,7 +133,9 @@ string scan_for_query( string f )
   if(sscanf(f,"%s?%s", f, query) == 2)
   {
     string v, a, b;
-
+#if constant(Caudium.parse_query_string)
+    Caudium.parse_query_string(query, variables);
+#else
     foreach(query / "&", v)
       if(sscanf(v, "%s=%s", a, b) == 2)
       {
@@ -149,6 +151,7 @@ string scan_for_query( string f )
 	else
 	  rest_query = http_decode_string( v );
     rest_query=replace(rest_query, "+", "\000"); /* IDIOTIC STUPID STANDARD */
+#endif
   }
   return f;
 }
