@@ -1382,7 +1382,7 @@ string tag_echo(string tag,mapping m,object id,object file,
     return _Roxen.html_encode_string(id->method);
 
    case "auth_type":
-    return (id->rawauth?(id->rawauth/" ")[0]):"";
+    return (id->rawauth?(id->rawauth/" ")[0]:"");
       
    case "http_cookie": case "cookie":
     NOCACHE();
@@ -2253,8 +2253,7 @@ int match_user(string raw, string user, string f, int wwwfile, object id)
   if(!s)
     return 0;
 
-  array u=(raw/" ")[1];
-  u=MIME.decode_base64(u)/":";
+  array u=MIME.decode_base64((raw/" ")[1] )/":";
 
   if(user!="" && u[0]!=user) return 0;
   pass=simple_parse_users_file(s, u[0]);
@@ -2282,7 +2281,7 @@ multiset simple_parse_group_file(string file, string g)
  return res;
 }
 
-int group_member(array rawauth, string group, string groupfile, object id)
+int group_member(string rawauth, string group, string groupfile, object id)
 {
   if(!rawauth)
     return 0; // No auth sent
@@ -2307,7 +2306,6 @@ int group_member(array rawauth, string group, string groupfile, object id)
   }
 
   s = replace(s, ({ " ", "\t", "\r" }), ({ "", "", "" }));
-
   multiset(string) members = simple_parse_group_file(s, group);
   string u=(rawauth/" ")[1];
   u=(MIME.decode_base64(u)/":")[0];

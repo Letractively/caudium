@@ -975,7 +975,7 @@ void low_handle_authorization(array y)
     }
     else // we don't have an authentication handler, so just give 'em the raw data.
       auth = y;
-  return
+  return;
 }
 
 string format_backtrace(array bt, int eid)
