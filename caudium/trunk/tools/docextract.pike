@@ -464,7 +464,7 @@ void document(string enttype,
 {
    string *names;
    if (huh->names)
-      names=map(indices(huh->names),addprefix,name);
+     names=indices(huh->names); //map(indices(huh->names),addprefix,name);
    else
       names=({name});
 

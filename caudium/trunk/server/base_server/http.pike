@@ -21,7 +21,7 @@
 
 
 /*
-**! file: base_server/http
+**! file: base_server/http.pike
 **!  This file implements various helper functions related to the HTTP
 **!  protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
 **!  enough to get access to these functions. 
