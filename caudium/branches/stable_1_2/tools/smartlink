@@ -148,14 +148,16 @@ if test x$# != x0 ; then
      LDOPTS="$LDOPTS -R$RPATH"
    ;;
    Linux\ 2.*)
-     if test x$LINKING != xno -a "x$RPATH" != x ; then
-      for a in $RLIST; do 
-       if test $LINKER_IS_LD = yes; then
-         LDOPTS="$LDOPTS -rpath $a"
-       else
-         LDOPTS="$LDOPTS -Wl,-rpath,$a"
-       fi
-      done 
+     if test -z "$DEB_BUILD_ARCH"; then
+      if test x$LINKING != xno -a "x$RPATH" != x ; then
+       for a in $RLIST; do 
+        if test $LINKER_IS_LD = yes; then
+          LDOPTS="$LDOPTS -rpath $a"
+        else
+          LDOPTS="$LDOPTS -Wl,-rpath,$a"
+        fi
+       done 
+      fi
      fi
    ;;
    UnixWare\ 7.*)
