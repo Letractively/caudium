@@ -7,7 +7,7 @@
 
 PORTNAME=	pike72cvs
 PORTVERSION=	7.2.380
-PORTREVISION=	1
+PORTREVISION=	2
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -63,7 +63,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm \
-		 --without-ssleay
+		 --without-ssleay \
+		 --prefix=${PREFIX}
 #		 --with-gdbm=${PREFIX} \
 #		 --without-relocatable-dumped-modules \
 
