@@ -72,7 +72,7 @@ constant module_unique= 1;
 
 void create() {
 
- defvar("hosts", "", "referer hosts", TYPE_TEXT_FIELD,
+ defvar("hosts", "", "Referer hosts", TYPE_TEXT_FIELD,
 	"allow referer hostlist<br>"
 	"Syntax:<pre>"
 	"	myfirstdomain.com:allow\n"
@@ -83,7 +83,7 @@ void create() {
 	"	bad.links.com:deny:/block.html");
 
 
-defvar("extentions", "", "extention rules ", TYPE_TEXT_FIELD,
+defvar("extentions", "", "Extention rules ", TYPE_TEXT_FIELD,
 	"extentions rules (<i>NOTE:</i> the hostlist overrides extentions) <br />"
 	"Syntax:<pre>"
 	"	jpg:/error.jpg\n"
