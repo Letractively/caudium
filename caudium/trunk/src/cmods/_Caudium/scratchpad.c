@@ -50,7 +50,7 @@ static SCRATCHPAD *scratchpad_allocate(size_t max_size,
                                        size_t growth_factor)
 {
   SCRATCHPAD *spad = (SCRATCHPAD*)malloc(sizeof(*spad));
-  
+
   if (!spad)
     Pike_error("Error allocating the scratchpad\n");
   
@@ -83,7 +83,9 @@ static void scratchpad_key_alloc()
 
 void scratchpad_init(size_t max_size, size_t init_size, size_t growth_factor)
 {
-  SCRATCHPAD    *spad = scratchpad_allocate(max_size, init_size, growth_factor);
+  SCRATCHPAD    *spad = scratchpad_allocate(max_size, 
+                                            init_size < SPAD_INIT_SIZE ? SPAD_INIT_SIZE : init_size, 
+					    growth_factor);
   
   pthread_once(&scratch_key_once, scratchpad_key_alloc);  
   pthread_setspecific(__scratch_key, spad);
@@ -98,7 +100,9 @@ static scratchpad_at_exit(void)
 
 void scratchpad_init(size_t max_size, size_t init_size, size_t grow_factor)
 {
-  __scratch_pad = scratchpad_allocate(max_size, init_size, grow_factor);
+  __scratch_pad = scratchpad_allocate(max_size, 
+                                      init_size < SPAD_INIT_SIZE ? SPAD_INIT_SIZE : init_size, 
+				      grow_factor);
   atexit(scratchpad_at_exit);
   __scratchpad_initialized = 1;
 }
@@ -112,5 +116,4 @@ void scratchpad_done(SCRATCHPAD *spad)
     spad->buf_size = 0;
     spad->buf_max = 0;
   }
-  
 }
