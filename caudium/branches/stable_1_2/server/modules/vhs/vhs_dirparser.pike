@@ -17,6 +17,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
 /*
  *
@@ -27,8 +30,18 @@
  *
  */
 
+//! module: VHS - Directory parsing module"
+//!  This is the default directory parsing module.
+//!  This one pretty prints a list of files, with
+//!  macintosh like fold and unfold buttons next to each
+//!  directory.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+
 string cvs_version = "$Id$";
-int thread_safe = 1;   /* Probably. Check _root */
+constant thread_safe = 1;   /* Probably. Check _root */
 
 #include <module.h>
 inherit "module";
