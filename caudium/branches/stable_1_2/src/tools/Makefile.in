@@ -1,7 +1,6 @@
 # $Id$
 
 VPATH=@srcdir@:@srcdir@/../
-prefix=@prefix@
 SRCDIR=@srcdir@
 INSTALL=@INSTALL@
 CC=@CC@
