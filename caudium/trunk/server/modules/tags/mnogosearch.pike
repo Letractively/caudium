@@ -133,7 +133,7 @@ string tag_mnogosearch(string tag, mapping m, object id)
 		       _Roxen.html_encode_string(row->title),
 		       _Roxen.html_encode_string(row->text),
 		       row->url, row->url,
-		       sizetostring(row->size));
+		       Caudium.sizetostring(row->size));
       }
 
       if(sizeof(nextprev)) {

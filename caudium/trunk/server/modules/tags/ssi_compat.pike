@@ -277,7 +277,7 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
 	if(defines->sizefmt=="bytes")
 	  return (string)s[1];
 	else
-	  return sizetostring(s[1]);
+	  return Caudium.sizetostring(s[1]);
       } else {
 	return strftime(defines->timefmt || "%c", s[3]);
       }

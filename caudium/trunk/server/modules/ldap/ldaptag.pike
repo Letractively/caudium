@@ -746,7 +746,7 @@ string ldapelse_tag(string tag_name, mapping args, string contents,
 		   object request_id, mapping defines)
 {
   string contents2 = replace(contents, "#ldaperror#", "I don't know ;-(");
-  return(make_container("else", args, contents2));
+  return Caudium.make_container("else", args, contents2);
 }
 
 string dumpid_tag(string tag_name, mapping args,

@@ -133,7 +133,7 @@ string my_make_attributes (mapping m, int highlight) {
   }
   return ret;
 
-  string q = make_tag_attributes (m);
+  string q = Caudium.make_tag_attributes (m);
 
   return (strlen(q) ? " " + q : "");
 }

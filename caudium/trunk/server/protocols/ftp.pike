@@ -1539,7 +1539,7 @@ class FTPSession
     } else if (s[0] == '~') {
       return(combine_path("/", s));
     } else if (s[0] == '/') {
-      return(simplify_path(s));
+      return Caudium.simplify_path(s);
     } else {
       return(combine_path(cwd, s));
     }

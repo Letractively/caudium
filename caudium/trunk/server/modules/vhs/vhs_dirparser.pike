@@ -325,7 +325,7 @@ array|string describe_dir_node_mac(object node, object id)
       tmp = id->conf->type_from_filename(filename, 1);
       if(!tmp) tmp=({ "Unknown", 0 });
       type = tmp[0];
-      icon = image_from_type(type);
+      icon = Caudium.image_from_type(type);
       if(tmp[1])  type += " " + tmp[1];
     }
   } else {

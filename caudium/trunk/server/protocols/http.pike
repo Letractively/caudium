@@ -405,9 +405,9 @@ private int parse_got()
 
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
-  not_query = simplify_path(f);
+  not_query = Caudium.simplify_path(f);
 
-  REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
+  REQUEST_WERR(sprintf("After Caudium.simplify_path == not_query:%O", not_query));
 
   if(sizeof(s)) {
 #if constant(Caudium.parse_headers)

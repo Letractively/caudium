@@ -439,9 +439,9 @@ string tag_accessed(string tag,mapping m,object id,object file,
 
   if(prec=(int)m->precision || (int)m->prec)
   {
-    n=ipow(10, prec);
+    n=Caudium.ipow(10, prec);
     while(counts>n) { counts=(counts+5)/10; q++; }
-    counts*=ipow(10, q);
+    counts*=Caudium.ipow(10, q);
   }
 
   switch(m->type)
@@ -449,7 +449,7 @@ string tag_accessed(string tag,mapping m,object id,object file,
    case "mcdonalds":
     q=0;
     while(counts>10) { counts/=10; q++; }
-    res="More than "+caudium->language("eng", "number")(counts*ipow(10, q))
+    res="More than "+caudium->language("eng", "number")(counts*Caudium.ipow(10, q))
         + " served.";
     break;
     
@@ -459,11 +459,11 @@ string tag_accessed(string tag,mapping m,object id,object file,
 
    case "ordered":
     m->type="string";
-    res=number2string(counts,m,language(m->lang, "ordered"));
+    res=Caudium.number2string(counts,m,language(m->lang, "ordered"));
     break;
 
    default:
-    res=number2string(counts,m,language(m->lang, "number"));
+    res=Caudium.number2string(counts,m,language(m->lang, "number"));
   }
   return res+(m->addreal?real:"");
 }                  

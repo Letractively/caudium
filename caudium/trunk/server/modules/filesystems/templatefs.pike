@@ -268,7 +268,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   array thetarget=id->not_query/"/";
 
   file = thepath[-1];
-  dirname = simplify_path((thepath[..sizeof(thepath)-2])*"/");
+  dirname = Caudium.simplify_path((thepath[..sizeof(thepath)-2])*"/");
 
   array indexfiles = id->conf->dir_module->query("indexfiles");
 
@@ -280,7 +280,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   else
     target = targetdirname;
   
-  targetpath = simplify_path((thetarget[..sizeof(thetarget)-2])*"/");
+  targetpath = Caudium.simplify_path((thetarget[..sizeof(thetarget)-2])*"/");
 
   werror("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
   return replace(contents, 

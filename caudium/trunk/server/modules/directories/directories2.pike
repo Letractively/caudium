@@ -129,7 +129,7 @@ string tag_arel(string tag_name, mapping args, string contents,
     args->href = request_id->misc->rel_base+args->href;
   }
 
-  return(make_tag("a", args)+contents+"</a>");
+  return Caudium.make_container("a",args,contents);
 }
 
 string tag_insert_quoted(string tag_name, mapping args, object request_id,
@@ -240,7 +240,7 @@ string describe_directory(string d, object id)
       if (tmp) {
 	type = tmp[0];
       }
-      icon = image_from_type(type);
+      icon = Caudium.image_from_type(type);
       if (tmp && tmp[1]) {
 	type += " " + tmp[1];
       }
@@ -249,7 +249,7 @@ string describe_directory(string d, object id)
     }
     result += sprintf("<ft><img border=0 src=\"%s\" alt=\"\"> "
 		      "<arel href=\"%s\">%-40s</arel> %8s %-20s\n",
-		      icon, file, file, sizetostring(len), type);
+		      icon, file, file, Caudium.sizetostring(len), type);
     
     array(string) split_type = type/"/";
     string extras = "";

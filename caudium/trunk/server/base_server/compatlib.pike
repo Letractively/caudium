@@ -287,12 +287,109 @@ static string unicode_to_html(string str) {
    return Caudium.unicode_to_html(str);
 }
 
-
 //! Compat call of Caudium.parse_html
 //! @deprecated
 static string parse_html(mixed ... args) {
    WCOMPAT("Caudium","parse_html");
    return Caudium.parse_html(@args);
+}
+
+//! Compat call of Caudium.is_safe_string
+//! @deprecated
+static int is_safe_string(string in) {
+   WCOMPAT("Caudium","is_safe_string");
+   return Caudium.is_safe_string(in);
+}
+
+//! Compat call of Caudium.make_tag_attribute
+//! @deprecated
+static string make_tag_attributes(mapping in) {
+   WCOMPAT("Caudium","make_tag_attributes");
+   return Caudium.make_tag_attributes(in);
+}
+
+//! Compat call of Caudium.make_tag
+//! @deprecated
+static string make_tag(string tag, mapping in) {
+   WCOMPAT("Caudium","make_tag");
+   return Caudium.make_tag(tag,in);
+}
+
+//! Compat call of Caudium.make_container
+//! @deprecated
+static string make_container(string tag, mapping in, string contents) {
+   WCOMPAT("Caudium","make_container");
+   return Caudium.make_container(tag,in,contents);
+}
+
+//! Compat call of Caudium.add_config
+//! @deprecated
+static string add_config(string url, array config, multiset prestate) {
+   WCOMPAT("Caudium","add_config");
+   return Caudium.add_config(url,config,prestate);
+}
+
+//! Compat call of Caudium.msectos
+//! @deprecated
+static string msectos(int t) {
+   WCOMPAT("Caudium","msectos");
+   return Caudium.msectos(t);
+}
+
+//! Compat call of Caudium.backup_extension
+//! @deprecated
+static int backup_extension(string f) {
+   WCOMPAT("Caudium","backup_extension");
+   return Caudium.backup_extension(f);
+}
+
+//! Compat call of Caudium.get_size
+//! @deprecated
+static int get_size(mixed f) {
+   WCOMPAT("Caudium","get_size");
+   return Caudium.get_size(f);
+}
+
+//! Compat call of Caudium.ipow
+//! @deprecated
+static int ipow(int what, int how) {
+   WCOMPAT("Caudium","ipow");
+   return Caudium.ipow(what,how);
+}
+
+//! Compat call of simplify_path
+//! @deprecated
+static string simplify_path(string file) {
+   WCOMPAT("Caudium","file");
+   return Caudium.simplify_path(file);
+}
+
+//! Compat call of Caudium.httpdate_to_time
+//! @deprecated
+static int httpdate_to_time(string date) {
+   WCOMPAT("Caudium","httpdate_to_time");
+   return Caudium.httpdate_to_time(date);
+}
+
+//! Compat call of Caudium.int2roman
+//! @deprecated
+static string int2roman(int m) {
+   WCOMPAT("Caudium","int2roman");
+   return Caudium.int2roman(m);
+}
+
+//! Compat call of Caudium.number2string
+//! @deprecated
+static string number2string(int num, mapping params, mixed named) {
+   WCOMPAT("Caudium","number2string");
+   return Caudium.number2string(num,params,named);
+}
+
+//! Compat call of Caudium.image_from_type
+//! @deprecated
+static string image_from_type(string t) {
+   WCOMPAT("Caudium","image_from_type");
+   return Caudium.image_from_type(t);
 }
 
 //! Compat call of Caudium.parse_html_lines

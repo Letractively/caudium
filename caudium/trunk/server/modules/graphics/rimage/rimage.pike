@@ -325,7 +325,7 @@ string tag_rimage_id( string t, mapping m, string contents, object id )
 string tag_rimage(string t, mapping m, string contents, object id)
 {
   m->src = tag_rimage_id( t, m, contents, id );
-  return make_tag( "img", m );
+  return Caudium.make_tag( "img", m );
 }
 
 mapping query_container_callers()

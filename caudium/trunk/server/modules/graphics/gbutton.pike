@@ -64,7 +64,7 @@ void start()
 string status() {
   array s=button_cache->status();
   return sprintf("<b>Images in cache:</b> %d images<br />\n<b>Cache size:</b> %s",
-		 s[0]/2, sizetostring(s[1]));
+		 s[0]/2, Caudium.sizetostring(s[1]));
 }
 #endif
 
@@ -1004,7 +1004,7 @@ string tag_gbutton(string tag, mapping args, string contents,
         img_attrs->height = size->ysize;
     }
 
-    result = make_tag("img", img_attrs);
+    result = Caudium.make_tag("img", img_attrs);
 
     if (args->href && !new_args->dim)
     {
@@ -1016,7 +1016,7 @@ string tag_gbutton(string tag, mapping args, string contents,
                           "onkeydown" / "/", lower_case(arg)))
                 a_attrs[arg] = args[arg];
 
-        result = make_container("a", a_attrs, result);
+        result = Caudium.make_container("a", a_attrs, result);
     }
     if (tag == "gbutton-url") return img_attrs->src;
     return result;

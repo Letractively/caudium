@@ -945,17 +945,17 @@ public string status()
   tmp = (sent/(float)(time(1)-caudium->start_time+1));
   res += sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%s"
                  "</td><td>%.2f Kbit/sec</td>",
-                 sizetostring(sent),tmp/128.0);
+                 Caudium.sizetostring(sent),tmp/128.0);
   
   res += sprintf("<td><b>Sent headers:</b></td><td>%s</td></tr>\n",
-                 sizetostring(hsent));
+                 Caudium.sizetostring(hsent));
   
   tmp=(requests*600.0)/((time(1)-caudium->start_time)+1);
 
   res += sprintf("<tr align=right><td><b>Number of requests:</b></td>"
                  "<td>%8d</td><td>%.2f/min</td>"
                  "<td><b>Received data:</b></td><td>%s</td></tr>\n",
-                 requests, tmp/10.0, sizetostring(received));
+                 requests, tmp/10.0, Caudium.sizetostring(received));
 #else
   if(!sent||!received||!hsent)
     return "Fatal error in status(): Bignum object gone.\n";
@@ -991,7 +991,7 @@ public string status()
                    "<td>%s</td><td>%.1f%% free</td>"
                    "<td><b>Cache Entries:</b></td>"
                    "<td>%d</td></tr>",
-                   sizetostring(datacache->current_size),
+                   Caudium.sizetostring(datacache->current_size),
                    ((datacache->max_size - datacache->current_size)/
                     (float)datacache->max_size)*100, sizeof(datacache->cache));
   }

@@ -337,11 +337,11 @@ string tag_accessed(string tag, mapping m, object id)
 
   case "ordered":
     m->type="string";
-    res=number2string(counts, m, language(m->lang, "ordered"));
+    res=Caudium.number2string(counts, m, language(m->lang, "ordered"));
     break;
 
   default:
-    res=number2string(counts, m, language(m->lang, "number"));
+    res=Caudium.number2string(counts, m, language(m->lang, "number"));
   }
 
   if(m->minlength) {

@@ -102,32 +102,32 @@ string tagtime(int t,mapping m)
     switch (m->part)
     {
      case "year":
-      return number2string((int)(localtime(t)->year+1900),m,
+      return Caudium.number2string((int)(localtime(t)->year+1900),m,
 			   language(m->lang, sp||"number"));
      case "month":
-      return number2string((int)(localtime(t)->mon+1),m,
+      return Caudium.number2string((int)(localtime(t)->mon+1),m,
 			   language(m->lang, sp||"month"));
      case "day":
      case "wday":
-      return number2string((int)(localtime(t)->wday+1),m,
+      return Caudium.number2string((int)(localtime(t)->wday+1),m,
 			   language(m->lang, sp||"day"));
      case "date":
      case "mday":
-      return number2string((int)(localtime(t)->mday),m,
+      return Caudium.number2string((int)(localtime(t)->mday),m,
 			   language(m->lang, sp||"number"));
      case "hour":
-      return number2string((int)(localtime(t)->hour),m,
+      return Caudium.number2string((int)(localtime(t)->hour),m,
 			   language(m->lang, sp||"number"));
      case "min":
      case "minute":
-      return number2string((int)(localtime(t)->min),m,
+      return Caudium.number2string((int)(localtime(t)->min),m,
 			   language(m->lang, sp||"number"));
      case "sec":
      case "second":
-      return number2string((int)(localtime(t)->sec),m,
+      return Caudium.number2string((int)(localtime(t)->sec),m,
 			   language(m->lang, sp||"number"));
      case "yday":
-      return number2string((int)(localtime(t)->yday),m,
+      return Caudium.number2string((int)(localtime(t)->yday),m,
 			   language(m->lang, sp||"number"));
      default: return "";
     }
@@ -1753,7 +1753,7 @@ string tag_aprestate(string tag, mapping m, string q, object id)
   else 
   {
     if ((sizeof(foo = href / ":") > 1) && (sizeof(foo[0] / "/") == 1))
-      return make_container("a",m,q);
+      return Caudium.make_container("a",m,q);
     href=fix_relative(href, id);
     m_delete(m, "href");
   }
@@ -1774,7 +1774,7 @@ string tag_aprestate(string tag, mapping m, string q, object id)
     }
   }
   m->href = Caudium.add_pre_state(href, prestate);
-  return make_container("a",m,q);
+  return Caudium.make_container("a",m,q);
 }
 
 string tag_aconfig(string tag, mapping m, string q, object id)
@@ -1812,8 +1812,8 @@ string tag_aconfig(string tag, mapping m, string q, object id)
       }
     }
   }
-  m->href = add_config(href, indices(cookies), id->prestate);
-  return make_container("a", m, q);
+  m->href = Caudium.add_config(href, indices(cookies), id->prestate);
+  return Caudium.make_container("a", m, q);
 }
 
 string add_header(mapping to, string name, string value)
@@ -2194,7 +2194,7 @@ string tag_ximage(string tagname, mapping m, object id)
       m->err="Virtual path failed";
     }
   }
-  return make_tag("img", m);
+  return Caudium.make_tag("img", m);
 }
 
 mapping pr_sizes = ([]);
@@ -2246,7 +2246,7 @@ string tag_pr(string tagname, mapping m)
         m->border="0";
     
     m_delete(m, size);
-    return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
+    return ("<a href=\"http://caudium.net/\">"+Caudium.make_tag("img", m)+"</a>");
 }
 
 string tag_ipv6(string tagname, mapping m, object id)
@@ -2269,7 +2269,7 @@ string tag_ipv6(string tagname, mapping m, object id)
        if (id->remoteaddr)
           from = sprintf("<br /><font size='-1'>Coming from <strong>%s</strong></font>",
 	                 id->remoteaddr);
-       return (make_tag("img", m) + from);
+       return (Caudium.make_tag("img", m) + from);
     } else
        return "&nbsp;";
 }
@@ -2646,7 +2646,7 @@ string tag_gauge(string tag, mapping args, string contents,
 string tag_preparse( string tag_name, mapping args, string contents,
 		     object id )
 {
-  return make_container( args->tag, args - ([ "tag" : 1 ]),
+  return Caudium.make_container( args->tag, args - ([ "tag" : 1 ]),
 			 parse_rxml( contents, id ) );
 }
 
@@ -2690,7 +2690,7 @@ private mixed tag_input( string tag_name, mapping args, string name,
 	  return 0;
   else
     return 0;
-  return ({ make_tag( tag_name, args ) });
+  return ({ Caudium.make_tag( tag_name, args ) });
 }
 
 private string remove_leading_trailing_ws( string str )
@@ -2720,7 +2720,7 @@ private mixed tag_option( string tag_name, mapping args, string contents,
 	args->selected = "selected";
     else
       return 0;
-  return ({make_container( tag_name, args, contents )});
+  return ({Caudium.make_container( tag_name, args, contents )});
 }
 
 // Internal method for the default tag
@@ -2739,7 +2739,7 @@ private mixed tag_select( string tag_name, mapping args, string contents,
   contents = tmp * "<option";
   mapping m = ([ "option" : tag_option ]);
   contents = Caudium.parse_html( contents, ([ ]), m, value );
-  return ({ make_container( tag_name, args, contents ) });
+  return ({ Caudium.make_container( tag_name, args, contents ) });
 }
 
 // The default tag is used to give default values to forms elements,

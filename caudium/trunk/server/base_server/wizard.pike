@@ -137,7 +137,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     m_delete(m,"default");
     m->value = loc_encode(current||m->value||"", m, "none");
     if(!m->size)m->size="60,1";
-    return make_tag("input", m);
+    return Caudium.make_tag("input", m);
 
    case "list": // String....
     string n = m->name;
@@ -153,16 +153,16 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       m->name="_delete_"+n+":"+v;
       m->value = " Remove ";
       m->type = "submit";
-      res+=make_tag("input",m)+"</td></tr>";
+      res+=Caudium.make_tag("input",m)+"</td></tr>";
     }
     m->name = "_new_"+n;
     m->type = "text";
     m->value = "";
-    res+= "<tr><td>"+make_tag("input", m)+"</td><td><font size=-2>";
+    res+= "<tr><td>"+Caudium.make_tag("input", m)+"</td><td><font size=-2>";
     m->name="_Add";
     m->value = " Add ";
     m->type = "submit";
-    res+=make_tag("input",m)+"</font></td></tr>";
+    res+=Caudium.make_tag("input",m)+"</font></td></tr>";
     res+="</table>";
     return res;
 
@@ -172,13 +172,13 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     m_delete(m, "value");
     if(!m->rows)m->rows="6";
     if(!m->cols)m->cols="40";
-    return make_container("textarea", m, loc_encode(current||"", m, "html"));
+    return Caudium.make_container("textarea", m, loc_encode(current||"", m, "html"));
 
    case "radio":
     m_delete(m,"default");
     if((!id->variables[m->name] && current) || (current==m->value))
       m->checked="checked";
-    return make_tag("input",m);
+    return Caudium.make_tag("input",m);
 
     // this should work, more or less. Now the case of two or more
     // checkboxes sharing the same name with different values _is_
@@ -196,24 +196,24 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     if (current && current != "0" &&
   (current == "1"||mkmultiset(current/"\0")[m->value]))
       m->checked="checked";
-    res=make_tag("input",m);
+    res=Caudium.make_tag("input",m);
     m->type="hidden";
     m->value="0";
-    return res+make_tag("input", m);
+    return res+Caudium.make_tag("input", m);
 
    case "int":
     m->type = "number";
     m_delete(m,"default");
     m->value = (string)((int)current);
     if(!m->size)m->size="8,1";
-    return make_tag("input", m);
+    return Caudium.make_tag("input", m);
 
    case "float":
     m->type = "number";
     m_delete(m,"default");
     m->value = (string)((float)current);
     if(!m->size)m->size="14,1";
-    return make_tag("input", m);
+    return Caudium.make_tag("input", m);
 
    case "color":
      int h, s, v;
@@ -353,11 +353,11 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
          "<gtext nfont='"+current+"'>Example Text</gtext><br>"
          :""));
      m_delete(m, "noexample");
-     return make_tag("var", m)+res;
+     return Caudium.make_tag("var", m)+res;
 
    case "toggle":
     m_delete(m,"default");
-    return make_container("select", m,
+    return Caudium.make_container("select", m,
         "<option"+((int)current?" selected":"")+" value=1>Yes"
         "<option"+(!(int)current?" selected":"")+" value=0>No");
 
@@ -374,7 +374,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       ({"\\,", "\\:"}), 
       ({"__CoMma__", "__CoLon__"}));
 
-     return make_container("select", m2, Array.map(m->choices/",",
+     return Caudium.make_container("select", m2, Array.map(m->choices/",",
                lambda(string s, string c, mapping m) {
         string t;
         if(sscanf(s, "%s:%s", s, t) != 2)
@@ -402,7 +402,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
            ({"\\,", "\\:"}), 
            ({"__CoMma__", "__CoLon__"}));
 
-    return make_container("select", m2, Array.map(m->choices/",",
+    return Caudium.make_container("select", m2, Array.map(m->choices/",",
          lambda(string s, array c, mapping m) {
       string t;
       if(sscanf(s, "%s:%s", s, t) != 2)

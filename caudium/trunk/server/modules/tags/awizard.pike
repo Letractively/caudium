@@ -230,7 +230,7 @@ class Page
             args->value  = m->title||(string)m->page;
         }
 
-        return make_tag("input", args);
+        return Caudium.make_tag("input", args);
     }
 
     string container_dbutton(string t, mapping m, string c, int l, object id, object awiz)
@@ -264,7 +264,7 @@ class Page
             args->value  = m->title||m->page;
         }
         args->name += "/eval/"+MIME.encode_base64( c, 1 );
-        return make_tag("input", args);
+        return Caudium.make_tag("input", args);
     }
 
     string container_warn(string t, mapping m, string c, int l, object id, object awiz )
@@ -323,7 +323,7 @@ class Page
     {
         m->id=(string)++button_id;
         button_code[(int)m->id] = c;
-        return make_tag("button", m);
+        return Caudium.make_tag("button", m);
     }
 
     string internal_tag_come_from(string t, mapping args, string c)
@@ -341,7 +341,7 @@ class Page
     {
         array replace_from = ({"#args#"})+
             Array.map(indices(args)+indices(up_args),lambda(string q){return "&"+q+";";});
-        array replace_to = (({make_tag_attributes( args + up_args ) })+
+        array replace_to = (({Caudium.make_tag_attributes( args + up_args ) })+
                             values(args)+values(up_args));
         foreach(indices(args), string a)
         {

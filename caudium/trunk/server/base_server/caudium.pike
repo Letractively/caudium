@@ -3161,7 +3161,7 @@ void scan_module_dir(string d)
     object e = ErrorContainer();
     
     master()->set_inhibit_compile_errors(e);
-    if (file[0]!='.' && !backup_extension(file) && (file[-1]!='z')) {
+    if (file[0]!='.' && !Caudium.backup_extension(file) && (file[-1]!='z')) {
       array stat = file_stat(path+file);
       
       if (!stat || (stat[ST_SIZE] < 0)) {

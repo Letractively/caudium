@@ -144,7 +144,7 @@ string describe_dir_entry(string path, string filename, array stat)
     if(!tmp)
       tmp=({ "Unknown", 0 });
     type = tmp[0];
-    icon = image_from_type(type);
+    icon = Caudium.image_from_type(type);
     if(tmp[1])  type += " " + tmp[1];
   }
   
@@ -152,7 +152,7 @@ string describe_dir_entry(string path, string filename, array stat)
 		 link(image(icon), Caudium.http_encode_string(path + filename)),
 		 link(sprintf("%-35s", filename[0..34]), 
 		      Caudium.http_encode_string(path + filename)),
-		 sizetostring(len), type);
+		 Caudium.sizetostring(len), type);
 }
 
 static private string key;
