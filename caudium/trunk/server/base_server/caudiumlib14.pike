@@ -2110,7 +2110,6 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
   return _set(variable, value, id);
 }
 
-#if constant(Parser.HTML)
 //!  Parse the data for entities.
 //! @param data
 //!  The text to parse.
@@ -2178,11 +2177,6 @@ string parse_scopes(string data, function cb, object id, mixed ... extra) {
   mp->_set_entity_callback(cb_wrapper);
   return mp->finish(data)->read();
 }
-#else
-string parse_scopes(string data, function cb, object id, mixed ... extra) {
-  error("Parser.HTML is required.\n");
-}
-#endif
 
 // color.pike compatibility functions.
 #if !constant(parse_color) && constant(Image.Color)
