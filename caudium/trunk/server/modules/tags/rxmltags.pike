@@ -89,7 +89,11 @@ string tagtime(int t,mapping m)
   mixed eris;
   string res;
   if (m->strftime || m->strfmt)
-    return strftime( m->strftime || m->strfmt, t );
+#if constant(Caudium.strftime)
+    return Caudium.strftime( m->strftime || m->strfmt, t );
+#else
+    return "Your system lacks of strftime() function";
+#endif /* constant(Caudium.strftime) */
   if (m->part)
   {
     string sp;
@@ -905,11 +909,19 @@ string tag_echo(string tag,mapping m,object id,object file,
     
    case "date_local":
     NOCACHE();
+#if constant(Caudium.strftime)
     return strftime(defines->timefmt || "%c", time(1));
+#else
+    return "Your system is lack of strftime() function";
+#endif /* constant (Caudium.strftime) */
 
    case "date_gmt":
     NOCACHE();
+#if constant(Caudium.strftime)
     return strftime(defines->timefmt || "%c", time(1) + localtime(time(1))->timezone);
+#else
+    return "Your system is lack of strftime() function";
+#endif /* constant (Caudium.strftime) */
       
    case "query_string_unescaped":
     return id->query || "";
