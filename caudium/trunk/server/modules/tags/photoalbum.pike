@@ -274,7 +274,7 @@ class album {
 	/*	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +*/
 	"maxwidth=\"" + QUERY(width) + "\" "+
 	"maxheight=\"" + QUERY(width) + "\" "+ 
-	"format=\"jpeg\">" +
+	"format=\"jpeg\" />" +
 
 	"</a><br>\n" +
 	"<font class=\"thumbnaildesc\">" +
@@ -295,7 +295,7 @@ class album {
 	} else {
 	    ret +=
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
-		((QUERY(show_numofphotos))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
+		((QUERY(show_numofphotos))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br />\n"):"") +
                 "<div class=\"thumbnail\">\n";
 
 	    int i=0,j,k;
@@ -343,13 +343,13 @@ class album {
             return "not implemented yet";
 	} else {
 	    ret +=
-		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
-                "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br>\n" +
+		"<div class=\"albumname\">" + get_name() + "</div><br />\n" +
+                "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br />\n" +
 		"<div class=\"photo\">" +
 		"<img border=\"" + sprintf( "%d", QUERY(photo_border) ) + "\" " +
 		"alt=\"" + id->conf->html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
 		"src=\"" + get_photo( page_num )[ 0 ] + "\">" +
-		"</div><br>\n" +
+		"</div><br />\n" +
                 "<div class=\"nav\">" +
 		a_next( id->not_query, page_num, QUERY(nav_next) ) + " " +
 		"<a href=\"" + id->not_query + "\">" + QUERY(nav_index) + "</a> " +
