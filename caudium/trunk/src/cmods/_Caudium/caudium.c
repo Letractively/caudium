@@ -150,7 +150,7 @@ static void f_make_tag_attributes(INT32 args)
 
 /*     tmp = (char*)CAUDIUM_ALLOCA(len); */
 /*     CAUDIUM_PTR_VALID(tmp); */
-    tmp = scratchpad_get(len); /* it always returns a valid pointer
+   tmp = scratchpad_get(len);/* it always returns a valid pointer */
     
     /* ugly code, but fast */
     tmp[len] = 0;
@@ -672,10 +672,12 @@ static int get_next_header(unsigned char *heads, int len,
    userdata is a mapping consisting of scopename:scope() entries.
 */
 void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res, 
-  void *userdata)
+  void *userdata, void *extra_args)
 {
   struct svalue *tmp;
   char * tmp2;
+  int nb_of_args = 0;
+  struct array *arr_extra_args;
 
   tmp = simple_mapping_string_lookup((struct mapping *)userdata, entname);
 
@@ -691,7 +693,14 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
 
    /* push the entity and call the get function from the scope object. */
    push_text(params);
-   apply_low(tmp->u.object, i, 1);
+   if(extra_args)
+   {
+     arr_extra_args = (struct array *) extra_args; 
+     nb_of_args = arr_extra_args->size;
+     add_ref(arr_extra_args);
+     push_array_items(arr_extra_args);
+   }
+   apply_low(tmp->u.object, i, 1 + nb_of_args);
    if(Pike_sp[-1].type==T_STRING)
    {
       tmp2 = malloc(Pike_sp[-1].u.string->len);
@@ -699,7 +708,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
       if(tmp2 == NULL)
       {
          pop_stack();
-         Pike_error("_Caudium.parse_entities(): unable to allocate space for returned entity.\n");
+         Pike_error("_Caudium.parse_entities(): unable to allocate space for returned entity '%s'.\n", params);
         
       }
 
@@ -721,7 +730,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
    else
    {
      pop_stack();
-     Pike_error("_Caudium.parse_entities(): get() method returned non-string result\n");
+     Pike_error("_Caudium.parse_entities(): get() method returned non-string result for entity '%s'\n", params);
    }
   }
   else
@@ -733,7 +742,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
 }
 
  /*
- **! method: string parse_entities (string contents, mapping(string:object) scope)
+ **! method: string parse_entities (string contents, mapping(string:object) scope, void|mixed ...extra_args)
  **!  Parse XML entities. Entities are in the form expressed by the 
  **!  &name(.name)*; regexp like &variable; or &form.varname;
  **!
@@ -764,13 +773,20 @@ static void f_parse_entities( INT32 args )
   struct mapping *scopemap;
   struct pike_string *input;
   struct pike_string *result;
+  struct array *extra_args = NULL;
 
   ENT_RESULT *eres;
-
-  get_all_args("_Caudium.parse_entities", args, "%S%m",
-      &input, &scopemap);
-
-  eres = ent_parser(input->str, input->len, entity_callback, scopemap);
+  if (args<2)
+    SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.parse_entities", 2);
+  if(Pike_sp[-args].type != PIKE_T_STRING || Pike_sp[1-args].type != PIKE_T_MAPPING)
+    Pike_error("Wrong argument to _Caudium.parse_entities\n");
+  input = Pike_sp[-args].u.string;
+  scopemap = Pike_sp[1-args].u.mapping;
+  if(args > 2)
+  {
+    extra_args = aggregate_array(args-2);
+  }
+  eres = ent_parser(input->str, input->len, entity_callback, scopemap, extra_args);
 
   if (!eres) {
     Pike_error("Out of memory in the entity parser\n");
@@ -797,7 +813,7 @@ static void f_parse_entities( INT32 args )
 
    /* we've gotten this far, so we were probably successful. */
 
-  pop_n_elems(args);
+  pop_stack();
 /*
   printf("~ %d ~>%s<~~\n", eres->buflen, eres->buf);
 */
@@ -1783,8 +1799,6 @@ void pike_module_init( void )
     push_text(_safeentities[i]);
   mta_safe_entities = aggregate_array(UNSAFECHARS_SIZE);
   
-  add_function_constant( "parse_entities", f_parse_entities,
-                         "function(string,mapping:string)", 0);
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
   add_function_constant( "parse_query_string", f_parse_query_string,
@@ -1817,13 +1831,12 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "http_decode_url", f_http_decode_url,
                          "function(string:string)", 0);
-
-  /* temporary, don't use */
+  add_function_constant( "parse_entities", f_parse_entities,
+                         "function(string,mapping,mixed...:string)", 0);
   add_function_constant( "_make_tag_attributes", f_make_tag_attributes,
-                         "function(mapping:string)", 0);
-  
+                               "function(mapping:string)", 0);
   init_datetime();
-  
+
   start_new_program();
   ADD_STORAGE( buffer );
   add_function( "append", f_buf_append,
