@@ -2920,37 +2920,6 @@ private void define_global_variables( int argc, array (string) argv )
 
   globvar("next_supports_update", time()+3600, "", TYPE_INT,"",0,1);
   
-#ifdef ENABLE_NEIGHBOURHOOD
-  globvar("neighborhood", 0,
-	  "Neighborhood: Register with other Caudium servers on the local network"
-	  ,TYPE_FLAG|VAR_MORE,
-	  "If this option is set, Caudium will automatically broadcast it's "
-	  "existence to other Caudium servers on the local network.");
-
-  globvar("neigh_tcp_ips",  ({}), "Neighborhood: TCP hosts",
-  TYPE_STRING_LIST|VAR_MORE,
-  "This is the list of direct host &lt;--> host links to establish. "
-  "The local host is always present (if the neighbourhood functionality "
-  "is at all enabled).");
-
-
-  globvar("neigh_ips",  ({lambda(){
-			    catch {
-			      mixed foo = gethostbyname(gethostname());
-			      string n = reverse(foo[1][0]);
-			      sscanf(n,"%*d.%s", n);
-			      n=reverse(n)+".";
-			      // Currently only defaults to C-nets..
-			      return n+"255";
-			    };
-			    return "0.0.0.0";
-			  }()}), "Neighborhood: Broadcast addresses", TYPE_STRING_LIST|VAR_MORE,
-			  "");
-
-  globvar("neigh_com", "", "Neighborhood: Server informational comment",
-	  TYPE_TEXT|VAR_MORE, "A short string describing this server.");
-#endif /* ENABLE_NEIGHBOURHOOD */  
-
   globvar("abs_engage", 0, "Anti-Block-System: Enable", TYPE_FLAG|VAR_MORE,
 	  "If set, it will enable the anti-block-system. "
 	  "This will restart the server after a configurable number of minutes if it "
@@ -3615,11 +3584,6 @@ void exit_it()
   exit(-1);	// Restart.
 }
 
-#ifdef ENABLE_NEIGHBOURHOOD
-object neighborhood;
-#endif /* ENABLE_NEIGHBOURHOOD */
-
-
 // Dump all threads to the debug log.
 void describe_all_threads()
 {
@@ -3685,10 +3649,6 @@ int main(int|void argc, array (string)|void argv)
     "image": QUERY(InternalImagePath)
   ]));
   
-#ifdef ENABLE_NEIGHBOURHOOD
-  neighborhood = (object)"neighborhood";
-#endif /* ENABLE_NEIGHBOURHOOD */
-
 #if constant(syslog)
   init_logger();
 #endif
