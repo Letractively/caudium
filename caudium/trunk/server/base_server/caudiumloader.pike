@@ -872,12 +872,8 @@ int main(int argc, array(string) argv)
   add_constant("init_logger", init_logger);
   add_constant("open", open);
   add_constant("mkdirhier", Stdio.mkdirhier);
-#if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
   add_constant("http_decode_string", _Roxen.http_decode_string);
-#endif
-#if !constant(html_encode_string) && constant(_Roxen.html_encode_string)
   add_constant("html_encode_string", _Roxen.html_encode_string);
-#endif
 
   add_constant("mark_fd", mark_fd);
 
