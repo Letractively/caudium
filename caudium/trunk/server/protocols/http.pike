@@ -622,7 +622,7 @@ private int parse_got()
     }
 #endif
   }
-#ifdef ENABLE_SUPPORTS    
+#ifndef DISABLE_SUPPORTS    
   if(useragent == "unknown") {
     supports = find_supports("", supports); // This makes it somewhat faster.
   } else 
