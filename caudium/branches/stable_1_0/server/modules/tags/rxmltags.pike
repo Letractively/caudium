@@ -700,7 +700,7 @@ inline string do_safe_replace(string s, mapping (string:string) m,
 }
 
 array permitted = ({ "1", "2", "3", "4", "5", "6", "7", "8", "9",
-		     "0", "-", "*", "+","/", "%", "&", "|", "(", ")" });
+		     "0", "-", "*", "+","/", "%", "&", "|", "(", ")", "." });
 string sexpr_eval(string what)
 {
   array q = what/"";
