@@ -1,0 +1,61 @@
+#
+# makefile for generating documentation from the Caudium sources
+#
+# $Id$
+#
+
+PIKE=@PIKE_BIN@
+HACKS=base_server/caudium.pike
+
+all: crefhtml
+
+crefhtml: do_hacks make_crefhtml undo_hacks
+
+do_hacks:
+	@for h in $(HACKS); do \
+		cp -p ../server/$$h ../server/$$h.orig ; \
+		sed -e 's#@PIKEPARSER_HACK_START@\*/# #g' -e 's#/\*@PIKEPARSER_HACK_END@# #g' < ../server/$$h.orig > ../server/$$h ; \
+	done
+
+undo_hacks:
+	@for h in $(HACKS); do \
+		mv ../server/$$h.orig ../server/$$h ; \
+	done
+
+make_crefhtml: makecrefdirs makecrefxml
+	rm -rf generated/caudiumref || /bin/true
+	mkdir generated/caudiumref
+	cp -p structure/caudiumref.css generated/caudiumref/style.css
+	cp -pr structure/images/ generated/caudiumref/
+	$(PIKE) bin/tree-split-autodoc.pike build/cref.xml structure/caudiumref.html generated/caudiumref/
+
+makecrefxml: makeautodoc structure/caudiumref.xml
+	$(PIKE) bin/assembler.pike structure/caudiumref.xml build/autodoc.xml > build/cref.xml
+
+makeautodoc: makeserver makeetc
+	$(PIKE) bin/join.pike --post-process build/autodoc.xml build/server.xml build/etc.xml
+
+makeserver:
+	$(PIKE) bin/cextract.pike ../server/base_server/ build/server/ build/images/
+	$(PIKE) bin/join.pike build/server.xml build/server/
+
+makeetc:
+	$(PIKE) bin/cextract.pike ../server/etc/ build/etc/ build/images/
+	$(PIKE) bin/join.pike build/etc.xml build/etc/
+
+makecrefdirs:
+	@install -d -m 755 build/server/
+	@install -d -m 755 build/etc/
+
+spotless:
+	@for f in `cat .cvsignore`; do \
+		rm -rf $$f; \
+	done
+	@for f in `cat bin/.deleteus`; do \
+		rm -f bin/$$f; \
+	done
+	@rm -f bin/.deleteus
+	@rm -rf build/server/
+	@rm -rf build/etc/
+	@rm -rf build/*.xml
+	@rm -rf generated/caudiumref
