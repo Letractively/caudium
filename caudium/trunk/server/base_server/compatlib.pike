@@ -403,6 +403,13 @@ static string parse_html_lines(mixed ... args) {
    return Caudium.parse_html_lines(@args);
 }
 
+//! Compat call of @[Caudium.File.decode_mode]
+//! @deprecated
+static string decode_mode(int m) {
+   WCOMPAT("Caudium.File","decode_mode");
+   return Caudium.File.decode_mode(m);
+}
+
 //! Compat call of @[Caudium.Env.build_vars]
 //! @deprecated
 static mapping build_env_vars(string f, object id, string path_info) {

@@ -24,7 +24,6 @@
 // Some 25% of the original RIS code remains in this file. The code lives
 // in the following functions:
 //
-//  decode_mode
 //  parse_rxml
 //  do_output_tag (GROSS!!)
 //  get_module
@@ -42,96 +41,8 @@
 #endif
 
 #include <config.h>
-#include <stat.h>
-#include <variables.h>
 
 #define ipaddr(x,y) (((x)/" ")[y])
-
-//!  Return a textual description of the file mode.
-//! @param m
-//!  The file mode to decode.
-//! @returns
-//!  The mode described as a string.
-//!  Example result: File, &lt;tt&gt;rwxr-xr--&lt;tt&gt;
-static string decode_mode(int m)
-{
-  string s;
-  s="";
-  
-  if (S_ISLNK(m))
-    s += "Symbolic link";
-  else if(S_ISREG(m))
-    s += "File";
-  else if(S_ISDIR(m))
-    s += "Dir";
-  else if(S_ISSOCK(m))
-    s += "Socket";
-  else if(S_ISCHR(m))
-    s += "Special";
-  else if(S_ISBLK(m))
-    s += "Device";
-  else if(S_ISFIFO(m))
-    s += "FIFO";
-  else if((m&0xf000)==0xd000)
-    s+="Door";
-  else
-    s+= "Unknown";
-  
-  s+=", ";
-  
-  if (S_ISREG(m) || S_ISDIR(m)) {
-    s+="<tt>";
-    if (m&S_IRUSR)
-      s+="r";
-    else
-      s+="-";
-    
-    if (m&S_IWUSR)
-      s+="w";
-    else
-      s+="-";
-    
-    if (m&S_IXUSR)
-      s+="x";
-    else
-      s+="-";
-    
-    if (m&S_IRGRP)
-      s+="r";
-    else
-      s+="-";
-    
-    if (m&S_IWGRP)
-      s+="w";
-    else
-      s+="-";
-    
-    if (m&S_IXGRP)
-      s+="x";
-    else
-      s+="-";
-    
-    if (m&S_IROTH)
-      s+="r";
-    else
-      s+="-";
-    
-    if (m&S_IWOTH)
-      s+="w";
-    else
-      s+="-";
-    
-    if (m&S_IXOTH)
-      s+="x";
-    else
-      s+="-";
-    
-    s+="</tt>";
-  } else {
-    s+="--";
-  }
-  return s;
-}
 
 #define _error defines[" _error"]
 #define _extra_heads defines[" _extra_heads"]
@@ -181,12 +92,16 @@ static string parse_rxml(string what, object id,
   return what;
 }
 
+//! Figures out the filename of the file which defines the program
+//! for this object. Deprecated, use Pike __FILE__ instead if possibile
+//! @deprecated
 string program_filename()
 {
-  return caudium->filename(this_object()) ||
+  return caudiump()->filename(this_object()) ||
     search(master()->programs, object_program(this_object()));
 }
 
+//! Returns the directory part of @[program_filename].
 string program_directory()
 {
   array(string) p = program_filename()/"/";
@@ -219,7 +134,7 @@ object get_module (string modname)
       !sizeof (cname) || !sizeof(mname)) return 0;
   sscanf (mname, "%s#%d", mname, mid);
 
-  foreach (caudium->configurations, object conf) {
+  foreach (caudiump()->configurations, object conf) {
     mapping moddata;
     if (conf->name == cname && (moddata = conf->modules[mname])) {
       if (mid >= 0) {
@@ -249,7 +164,7 @@ string get_modname (object module)
   if (!module)
     return 0;
 
-  foreach (caudium->configurations, object conf) {
+  foreach (caudiump()->configurations, object conf) {
     string mname = conf->otomod[module];
     if (mname) {
       mapping moddata = conf->modules[mname];
