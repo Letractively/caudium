@@ -1013,6 +1013,18 @@ static string extension( string f )
 }
 #endif
 
+//! method: static int backup_extension(string f)
+//!  Check wether the filename f as a backup extension or not.
+//!  Backup extension files are files which finish by:
+//!    - #
+//!    - ~
+//!    - .old
+//!    - .bak
+//! arg: string f
+//!  The filename to check
+//! returns:
+//!  1 if the file as a backup extension or if the filename's empty
+//!  0 if the file don't have a backup extension
 static int backup_extension( string f )
 {
   if(!strlen(f)) 
