@@ -305,16 +305,17 @@ static string make_weekdays_row(object id, mapping my_args, object now, object t
     return make_container("tr", wd_row, rcontents);
 }
 
-string make_monthdays_grid(object id, mapping my_args, object now, object target)
+string make_monthdays_grid(object id, mapping my_args, object now, object target, multiset active_days)
 {
-    mapping md_row = ([]);
-    mapping md_cell = ([]);
-    mapping md_todaycell = ([]);
-    mapping md_text = ([]);
-    mapping md_todaytext = ([]);
-    mapping md_error = ([]);
-    string  rcontents, ccontents, ret;
-    
+    mapping   md_row = ([]);
+    mapping   md_cell = ([]);
+    mapping   md_todaycell = ([]);
+    mapping   md_text = ([]);
+    mapping   md_todaytext = ([]);
+    mapping   md_error = ([]);
+    string    rcontents, ccontents, ret;
+    multiset  adays = active_days || (<>);    
+
     if (!my_args->nocss) {
         md_row->class = my_args->md_rowclass || QUERY(md_rowclass);
         md_cell->class = my_args->md_cellclass || QUERY(md_cellclass);
@@ -388,18 +389,21 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
                 ccontents = "&nbsp;";
             else {
                 int  thisday = days[curday++]->month_day();
-                
-                if (curday + 1 == today) {
-                    md_todaytext->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
-                    md_todaytext->onMouseOver = "window.status = ''; return true;";
-                    ccontents = make_container("a", md_todaytext, (string)thisday);
-                } else {
-                    md_text->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
-                    md_text->onMouseOver = "window.status = ''; return true;";
-                    ccontents = make_container("a", md_text, (string)thisday);
-                }
-            }
 
+                if (adays[thisday]) {
+                    if (curday + 1 == today) {
+                        md_todaytext->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
+                        md_todaytext->onMouseOver = "window.status = ''; return true;";
+                        ccontents = make_container("a", md_todaytext, (string)thisday);
+                    } else {
+                        md_text->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
+                        md_text->onMouseOver = "window.status = ''; return true;";
+                        ccontents = make_container("a", md_text, (string)thisday);
+                    }
+                } else
+                    ccontents = (string)thisday;
+            }
+            
             if (curday == today)
                 rcontents += make_container("td", md_todaycell, ccontents);
             else
@@ -427,12 +431,38 @@ static void check_array(mapping var, string name)
     var[name] = varray[-1];
 }
 
+static multiset mark_active_days(string c)
+{
+    if (!c || !sizeof(c))
+        return (<>);
+    
+    string    tmp = replace(c, ({" ", "\t", "\n", "\r"}), ({"", "", "", ""}));
+
+    if (!sizeof(tmp))
+        return (<>);
+
+    multiset ret = (<>);
+    
+    foreach((tmp / ","), string part) {
+        int pval;
+
+        if (sscanf(part, "%d", pval))
+            if (pval > 0 && pval <= 31)
+                ret += (<pval>);
+    }
+
+    return ret;
+}
+
 string calendar_tag(string tag, mapping args, string cont,
                     object id, object f, mapping defines)
 {
     mapping    my_args;
     mapping    main_table = ([]);
     string     contents = "";
+    multiset   active_days;
+
+    active_days = mark_active_days(parse_rxml(cont, id));
     
     if (!args)
         my_args = ([]);
@@ -488,11 +518,40 @@ string calendar_tag(string tag, mapping args, string cont,
     
     contents += make_monthyear_selector(id, my_args, now, target);
     contents += make_weekdays_row(id, my_args, now, target);
-    contents += make_monthdays_grid(id, my_args, now, target);
+    contents += make_monthdays_grid(id, my_args, now, target, active_days);
     if (my_args->do_week)
         contents += make_week(id, my_args, now, target);
     
     return make_container("table", main_table, contents);
+}
+
+string calendar_action_tag(string tag, mapping args, string cont,
+                           object id, object f, mapping defines)
+{
+    mapping     myargs = args || ([]);
+    int         doit = 0;
+    array(int)  wanted = allocate(3), has = allocate(3);
+
+    if (!id->variables->year && !id->variables->month)
+        // not a submission from the calendar form
+        return "";
+    
+    if (!myargs->default) {
+        wanted[0] = (int)(myargs->day || 0);
+        wanted[1] = (int)(myargs->month || 0);
+        wanted[2] = (int)(myargs->year || 0);
+    
+        has[0] = (int)(id->variables->calday || 0);
+        has[1] = (int)(id->variables->calmonth || 0);
+        has[2] = (int)(id->variables->calyear || 0);
+    }
+
+    if (!myargs->default && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
+        return "";
+
+    string ret = parse_rxml(cont, id);
+
+    return ret;
 }
 
 string calendar_js_tag(string tag, mapping args,
@@ -510,7 +569,9 @@ string calendar_css_tag(string tag, mapping args,
 mapping query_container_callers()
 {
   return ([
-      "calendar":calendar_tag
+      "calendar" : calendar_tag,
+      "calendar-action" : calendar_action_tag,
+      "calendar_action" : calendar_action_tag
   ]);
 }
 
