@@ -1,3 +1,9 @@
+caudium (1:1.0.27-1) unstable; urgency=low
+
+  * Latest upstream sources
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 26 Feb 2001 15:46:56 +0100
+
 caudium (1:1.0.25-1) unstable; urgency=low
 
   * Now that pike7 in Debian is at the latest version, we can depend on it
