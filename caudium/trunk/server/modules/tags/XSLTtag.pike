@@ -78,7 +78,7 @@ void create()
 string container_xslt(string tag, mapping args, string xml, object id)
 {
   string xsl, type, key, res;
-  if(!args->stylesheet) args->baseuri = QUERY(stylesheet);
+  if(!args->stylesheet) args->stylesheet = QUERY(stylesheet);
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
   
