@@ -1,9 +1,12 @@
 Roxen Compatibility Notes
 =========================
 
-Caudium 1.0 is mostly compatible with Roxen 1.3. However there are
-some subtle changes, mainly for performance reasons. You can modify
-the different behavior by editing the file 'server/etc/include/performace.h'. 
+Caudium 1.1 is mostly compatible with Roxen 1.3, except that it
+requires Pike 7.0 or 7.1. Pike 0.6 support will be dropped.
+
+There are however some subtle changes, mainly for performance
+reasons. You can modify the different behavior by editing the file
+'server/etc/include/performace.h'.
 
 
 Summary of Incompatible Changes

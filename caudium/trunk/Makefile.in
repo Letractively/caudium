@@ -286,7 +286,7 @@ pre_dist: bump_version
 same_pre_dist: same_version
 
 faked_pre_dist:
-	echo "Caudium 1.0-test" > $(SRCDIR)/VERSION
+	echo "Caudium 1.1-test" > $(SRCDIR)/VERSION
 
 date_pre_dist:  date_version
 
