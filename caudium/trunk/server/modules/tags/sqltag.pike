@@ -280,7 +280,7 @@ string sqlquery_tag(string tag_name, mapping args,
     if(args["mysql-insert-id"])
       if(con->master_sql)
 	request_id->variables[args["mysql-insert-id"]] =
-	  con->master_sql->insert_id();
+	  (string)con->master_sql->insert_id();
       else
 	return "<!-- No insert_id present. --><false>";
     return("<true>");
