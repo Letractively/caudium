@@ -1,4 +1,4 @@
-caudium (2:1.2.16-1) unstable; urgency=low
+caudium (2:1.2.17-1) unstable; urgency=low
 
   * Latest upstream release:
     - Fix autoconf detection of Pike's version.
