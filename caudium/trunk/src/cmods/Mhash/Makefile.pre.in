@@ -1,0 +1,13 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=Mhash
+OBJS= mhash.o
+SOURCES=mhash.c
+MODULE_LIBS=@LIBS@
+
+@module_makefile@
+
+extrainstall:
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
+
