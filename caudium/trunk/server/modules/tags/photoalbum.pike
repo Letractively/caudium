@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: Caudium Photo Album Module
+//!  This is a new photo album module for Caudium.
+//!  It automagically generates photo albums based on a directory of
+//!  image files.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /*
  * This is the _NEW_ photo album module for pike.
  * I didn't like the way that the original one worked so I thought I would
