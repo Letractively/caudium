@@ -27,9 +27,9 @@ int result(mixed a, mixed b) {
     write("+");
     return 0;
   } else {
-    write("-");
-//    write(sprintf("     a = %O \n",a));
-//    write(sprintf("     b = %O \n",b));
+    write("-\n");
+    write(sprintf("     a = %O \n",a));
+    write(sprintf("     b = %O \n",b));
     return 1;
   }
 }
