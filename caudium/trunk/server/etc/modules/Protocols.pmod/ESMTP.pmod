@@ -18,6 +18,7 @@
  * $Id$
  */
 
+//! Pike Protocols.STMP clone that supports DSN.
 //! $Id$
 
 
@@ -92,6 +93,7 @@ class client
   //! @decl void create()
   //! @decl void create(Stdio.File server)
   //! @decl void create(string server, void|int port)
+  //! @decl void create(string server, void|int port, void|string maildomain)
   //! Creates an SMTP mail client and connects it to the
   //! the @[server] provided. The server parameter may
   //! either be a string witht the hostnam of the mail server,
@@ -100,7 +102,8 @@ class client
   //! may be provided. If no port parameter is provided, port
   //! 25 is assumed. If no parameters at all is provided
   //! the client will look up the mail host by searching
-  //! for the DNS MX record.
+  //! for the DNS MX record. @[maildomain] can be used to provide 
+  //! the maildomain to be presented to HELO SMTP command.
   //!
   //! @throws
   //!   Throws an exception if the client fails to connect to
@@ -144,7 +147,7 @@ class client
   //! produced by @[MIME.Message]. The optional @[dns_option]
   //! can be used to add specifics DSN / ESMTP options to the server
   //! while sending message to ESMTP server. DSN options are
-  //! @[DSN_SUCCESS], @[DSN_DELAY] and [DSN_FAILURE]
+  //! @[DSN_SUCCESS], @[DSN_DELAY] and @[DSN_FAILURE]
   //!
   //! @seealso
   //!   @[simple_mail]
