@@ -2856,7 +2856,7 @@ string get_pr_size(string size, string color)
   if(pr_sizes[size+color])
       return pr_sizes[size+color];
 
-  mapping file = caudium->IFiles->get("image://power-" + size + "-" + color + ".png");
+  mapping file = caudium->IFiles->get("image://power-" + size + "-" + color + ".gif");
   
   if(!file)
       return "NONEXISTENT COMBINATION";
