@@ -142,7 +142,7 @@ void create()
   mixed e;
   if((e = catch(dns = Protocols.DNS.async_client()))) {
     if(arrayp(e) && sizeof(e) && stringp(e[0]))
-      werror(e[0]);
+      report_error(e[0]);
     lookup_funs = ([IP_TO_HOST:dummy_ip_to_host,HOST_TO_IP:dummy_host_to_ip]);
   } else
     lookup_funs = ([IP_TO_HOST:dns->ip_to_host,HOST_TO_IP:dns->host_to_ip]);
