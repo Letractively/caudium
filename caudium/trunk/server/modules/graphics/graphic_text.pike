@@ -833,6 +833,8 @@ string tag_gtext_url(string t, mapping arg, string ctn,
     arg->alpha = fix_relative(arg->alpha,id);
   if(!arg->format)
     arg->format = "gif";
+  if( arg->content && lower_case(arg->content) == "html" ) 
+  	ctn = html_to_unicode(ctn);
 
   arg->text = ctn;
 
@@ -885,6 +887,10 @@ string tag_graphicstext(string t, mapping arg, string contents,
 {
   if((contents-" ")=="") 
     return "";
+
+  if( arg->content && lower_case(arg->content) == "html" ) 
+  	contents = html_to_unicode(contents);
+
 //Allow <accessed> and others inside <gtext>.
   if(arg->nowhitespace)
   {

@@ -972,6 +972,10 @@ static array mk_url(object id, mapping args, string contents)
 //!    see also pike's Locale.Charset module for supported encodings
 //! default: not-set
 //
+//! attribute: [content={plain|html}]
+//!  contents style, if it's html then entity coded chars converted to unicode
+//! default: plain
+//
 
 string tag_gbutton(string tag, mapping args, string contents,
                    object id, object|void foo, mapping|void defines)
@@ -979,6 +983,10 @@ string tag_gbutton(string tag, mapping args, string contents,
     string result = "";
     string img_align = args["img-align"];
     m_delete(args, "img-align");
+
+	if( args->content && lower_case(args->content) == "html" ) {
+		contents = html_to_unicode(contents);
+	}
 
     [string img_src, mapping new_args] = mk_url(id, args, contents);
 
