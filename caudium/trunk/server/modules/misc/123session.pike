@@ -400,11 +400,8 @@ void sessionid_set_cookie(object id, string SessionID) {
   id->cookies->SessionID = SessionID;
   id->misc->is_dynamic = 1;
   id->misc->moreheads = ([ "Set-Cookie": Cookie,
-                           //"Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
-			   "Expires": "0",
-                           "Pragma": "no-cache",
-                           "Last-Modified": http_date(time(1)),
-                           "Cache-Control": "no-cache, must-revalidate" ]);
+                           "Last-Modified": http_date(time(1))
+			 ]);
 }
 
 string sessionid_get(object id) {
