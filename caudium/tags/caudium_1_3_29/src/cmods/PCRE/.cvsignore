@@ -1,0 +1,8 @@
+autom4te.cache
+config.log
+config.status
+configure
+Makefile
+pcre_config.h
+pcre_config.h.in
+Makefile.pre

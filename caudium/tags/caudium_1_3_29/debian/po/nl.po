@@ -1,0 +1,293 @@
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+#    Developers do not need to manually edit POT or PO files.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: caudium\n"
+"POT-Creation-Date: 2003-11-20 20:24+0100\n"
+"PO-Revision-Date: 2004-02-10 20:55+0100\n"
+"Last-Translator: Bart Cornelis <cobaco@linux.be>\n"
+"Language-Team: debian-l10n-dutch <debian-l10n-dutch@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid "On what port should the config interface be?"
+msgstr "Op welke poort moet de beheersinterface luisteren?"
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid ""
+"Specify the port on which Caudium will provide its configuration interface. "
+"You can access the interface using any form capable web browser (like "
+"Mozilla, Lynx, Links or Galeon)"
+msgstr ""
+"Hier geeft u aan op welke poort de Caudium-beheersinterface zal luisteren. U "
+"kunt deze interface dan benaderen via elke webbrowser met ondersteuning voor "
+"'forms' (e.g. Mozilla, Lynx, Links, Galeaon, ...)"
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid "What port should the server listen on?"
+msgstr "Op welke poort moet de server luisteren?"
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid ""
+"Caudium is currently configured to listen on port '${portno}' of every "
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
+msgstr ""
+"Caudium is momenteel ingesteld om te luisteren op de '${portno}'-poort van "
+"alle netwerkapparaten op deze machine. U kunt een andere poort opgeven "
+"indien u dit wenst."
+
+#. Type: multiselect
+#. Choices
+#: ../templates:19
+msgid "threads, debug, once, profile, fd-debug, keep-alive"
+msgstr "draden, debug, eenmaal, profiel, fd-debug, hou-levend"
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid "Select options that should be used on startup"
+msgstr "Welke opties wilt u activeren bij het opstarten?"
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid ""
+"You can select zero or more options from:\n"
+" 'threads' - use threads (if available)\n"
+" 'debug' - output debugging information while running\n"
+" 'once' - run in foreground\n"
+" 'profile' - store profiling information\n"
+" 'fd-debug' - debug file descriptor usage\n"
+" 'keep-alive' - keep connections alive with HTTP/1.1"
+msgstr ""
+"U kunt nul of meer van volgende opties kiezen:\n"
+" 'draden' - gebruik procesdraden (indien beschikbaar)\n"
+" 'debug' - voer debug-informatie uit tijdens het draaien\n"
+" 'eenmaal' - draai in de voorgrond\n"
+" 'profiel' - sla de profielinformatie op\n"
+" 'fd-debug' - debug gebruikt bestands-omschrijver\n"
+" 'hou-levend' - hou de verbindingen levend via HTTP/1.1"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "Tune Caudium settings for maximum performance?"
+msgstr "Caudium-instellingen bijstellen voor maximale performantie?"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid ""
+"If you select this options the Caudium default configuration will be tweaked "
+"by turning off certain features that can severely slow your server down. The "
+"features turned off are:\n"
+" - extra Roxen compatibility\n"
+" - module level security\n"
+" - the supports database\n"
+" - DNS lookups\n"
+" - URL modules"
+msgstr ""
+"Wanneer u deze optie activeert worden bepaalde mogelijkheden van de "
+"standaard Caudium-configuratie uitgeschakelt daar deze uw server mogelijk "
+"vertragen. De uitgeschakelde mogelijkheden zijn:\n"
+"- extra Roxen-compabiliteit\n"
+"- beveiliging op module-niveau\n"
+"- de ondersteuningsdatabase\n"
+"- DNS-opzoekingen\n"
+"- URL-modules"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "If you use any of the above features DO NOT turn this option on!"
+msgstr "Als u een van bovenstaande opties gebruikt zet deze optie dan NIET AF!"
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid "Cannot bind to port."
+msgstr "Kan niet aan poort binden."
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid ""
+"The port you have specified for Caudium configuration interface is "
+"unavailable. Please specify another port number - Caudium cannot function "
+"properly without binding its configuration interface to a port on your "
+"system."
+msgstr ""
+"De door u voor de Caudium-beheersinterface opgeven poort is niet "
+"beschikbaar. U dient een ander poortnummer op te geven (Caudium kan niet "
+"juist werken wanneer de beheersinterface geen poort toegewezen heeft)."
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid "Caudium configuration"
+msgstr "Caudiumconfiguratie"
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"After your Caudium is installed and running, you should point your forms-"
+"capable browser to http://localhost:${cfgport} to further configure Caudium "
+"using its web-based configuration interface. THIS IS VERY IMPORTANT since "
+"that step involves creation of administrative login/password."
+msgstr ""
+"Het is aan te raden om nadat Caudium geïnstalleerd en opgestart is uw "
+"browser (met ondersteuning voor formulieren) naar http://localhost:"
+"${cfgport} te verwijzen. Daar kunt u Caudium verder instellen via de "
+"webgebaseerde beheersinterface. DIT IS BELANGRIJK aangezien deze stap het "
+"aanmaken van beheerdersaccount en wachtwoord omvat."
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"For more information about Caudium see the documents in the /usr/share/doc/"
+"caudium directory and make sure to visit http://caudium.net/ and http://"
+"caudium.org/"
+msgstr ""
+"Verdere informatie over Caudium vindt u in de documenten in de map /usr/"
+"share/doc/caudium, op http://caudium.net/ en op http://caudium.org/"
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid "Use the experimental HTTP protocol module?"
+msgstr "Wilt u de experimentele HTTP-protocol-module gebruiken?"
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid ""
+"Caudium comes with an experimental HTTP module that is faster than the "
+"original one. The code is still Work-In-Progress, so you might experience "
+"problems running it. It is NOT recommended to run this code on a production "
+"server. If, however, you want to test its functionality, turn this option on."
+msgstr ""
+"Caudium beschikt over een experimentele HTTP-module die sneller is dan de "
+"originele module. Aan deze code wordt nog steeds gewerkt, dus gebruik "
+"hiervan kan problemen opleveren. Gebruik van deze code op een "
+"produktieserver is NIET aangeraden. Wanneer u de functionaliteit wilt testen "
+"kunt u deze optie natuurlijk activeren."
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid "Configuration interface login."
+msgstr "Gebruikersnaam beheersinterface"
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid ""
+"This is the user login name for the configuration interface access. If you "
+"don't specify anything here, anybody who will access the config interface "
+"first will be able to set the login/password and manage your server. This is "
+"probably not what you want. Please specify the login name below or accept "
+"the default value."
+msgstr ""
+"Dit is de gebruikersnaam waarmee u zich bij de beheersinterface kunt "
+"aanmelden. Als u dit leeg laat kan de eerste persoon die toegang vraagt tot "
+"de beheersinterface de gebruikersnaam/wachtwoord combinatie die uw server "
+"beheert instellen. Dit is denkelijk niet gewenst. U dient hier of de "
+"gebruikersnaam op te geven, of de standaardwaarde te aanvaarden."
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid "Configuration interface password"
+msgstr "Wachtwoord beheersinterface"
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid ""
+"This is the password used to access the configuration interface. The default "
+"value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
+"below!"
+msgstr ""
+"Dit is het wachtwoord dat gebruikt wordt om toegang te verkrijgen tot de "
+"beheersinterface. De standaardwaarde is 'password' - het is TEN HOOGSTE "
+"AANGERADEN om dit wachtwoord zo snel mogelijk te veranderen."
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid "Confirm the configuration interface password"
+msgstr "Bevestiging beheerderswachtwoord"
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr ""
+"U dient het beheerderswachtwoord ter bevestiging nogmaals in te voeren."
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid "Configuration interface password mismatch"
+msgstr "Beheerderswachtwoord komt niet overeen met de bevestiging"
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+"De door u ingevoerde wachtwoorden komen niet overeen. U kunt opniew proberen "
+"(hou er rekening mee dat wachtwoorden hoofdlettergevoelig zijn)."
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "Configuration interface password reset"
+msgstr "Herinstellen beheerderswachtwoord"
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+"Het wachtwoord is veranderd naar 'password'. Een leeg beheerderswachtwoord "
+"is niet mogelijk. Het is aan te raden om het standaardwachtwoord onmiddelijk "
+"na de installatie te veranderen. U doet dit door u aan te melden op de "
+"beheersinterface, deze is bereikbaar via de volgende URL: "
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "http://localhost:${cfgport}"
+msgstr "http://localhost:${cfgport}"
