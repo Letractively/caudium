@@ -233,3 +233,89 @@ inherit _Caudium;
 //!   Non RIS function, handled by _Caudium C module.
 //! @seealso
 //!   @[get_address]
+
+//! @decl string http_decode(string what)
+//!  Decode the given string from "safe" string according to
+//!  RFC 2396 to plain characters. Eg from strings that
+//!  are encoded with "%XX".
+//! @param what
+//!  The string to decode
+//! @returns
+//!  String decoded.
+//! @note
+//!  Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_encode] @[http_encode_cookie] @[http_encode_string]
+//!  @[http_encode_url] @[http_decode_url]
+//! @fixme
+//!  Function is still buggy and still not optimized.
+
+//! @decl string http_encode(string what)
+//!   Encode the given string into "safe" string according to RFC 2396 eg.
+//!   all non ascii characters (A-Z,a-Z and 0-9 are not encoded) are encoded
+//!   to "%XX" format.
+//! @param what
+//!   The string to encode
+//! @returns
+//!   The string encoded.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_decode] @[http_encode_cookie] @[http_encode_string]
+//!  @[http_encode_url] @[http_decode_url]
+
+//! @decl string http_encode_cookie(string what)
+//!   Encode the specified string in as to the HTTP Cookie standard.
+//!   The following caracters will be replaced by "%XX" standard : = , ; % :
+//! @param what
+//!   The string to encode.
+//! @returns
+//!   The HTTP cookie encoded string.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_decode] @[http_encode] @[http_encode_string]
+//!  @[http_encode_url] @[http_decode_url]
+
+//! @decl string http_encode_string(string what)
+//!   HTTP encode the specified string and return it. This means replacing
+//!   the following characters to the "%XX" formal : null (char 0), space,
+//!   tab, carriage return, newline, percent and signe and double quotes.
+//! @param what
+//!   The string to encode.
+//! @returns
+//!   The HTTP encoded string.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_decode] @[http_encode] @[http_encode_cookie]
+//!  @[http_encode_url] @[http_decode_url]
+
+//! @decl string http_encode_url(string what)
+//!   URL encode the specified string and return it. This means replacing
+//!   the following characters to the "%XX" format: null (char 0), space,
+//!   tab, carriage return, newline, and % ' ' # & ? = / : +
+//! @param what
+//!   The string to encode.
+//! @returns
+//!   The URL encoded string.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_decode] @[http_encode] @[http_encode_cookie]
+//!  @[http_encode_string] @[http_decode_url]
+
+//! @decl string http_decode_url(string what)
+//!   URL decode the specifed string and return it. This means replacing
+//!   all "%XX" string format into their corresponding ASCII code. This 
+//!   function is allmost the same as @[http_decode] with the addition to
+//!   decoding "+" into space.
+//! @param what
+//!   The string to decode
+//! @returns
+//!   The URL decoded string.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @seealso
+//!  @[http_decode] @[http_encode] @[http_encode_cookie]
+//!  @[http_encode_string] @[http_encode_url]
