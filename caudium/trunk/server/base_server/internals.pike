@@ -16,17 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
  * $Id$
  */
 #undef DEBUG_INTERNALS
 
+
+//! This is the main "broker" module for all kinds of internal
+//! files/requests. All it does is parsing the request string in the
+//! special format (see below) and return the result mapping from the
+//! handler method. 
+//! @fixme
+//!   Finish to update the decription
+
 /*
- * This is the main "broker" module for all kinds of internal
- * files/requests. All it does is parsing the request string in the
- * special format (see below) and return the result mapping from the
- * handler method. The request URI is as follows:
- *
+ * The request URI is as follows
  *   method://path/file
  *
  * The interpretation of the //path/file part depends on the
@@ -78,6 +83,7 @@ static multiset(string) known_methods = (<
     "HTML", "IMAGE"
     >);
 
+//!
 class InternalResolver 
 {
     
@@ -86,13 +92,11 @@ class InternalResolver
 //
     private static mapping(string:string) paths;
 
-//
-// Process the passed URI, call the associated handler and return
-// whatever it produced. Returns an empty mapping (NOT 0!!)
-// if no handler present, otherwise
-// any error throws an exception. The 'vars' mapping is used by some
-// modules. If it is present but not needed, the method ignores it.
-//
+    //! Process the passed URI, call the associated handler and return
+    //! whatever it produced. Returns an empty mapping (NOT 0!!)
+    //! if no handler present, otherwise
+    //! any error throws an exception. The 'vars' mapping is used by some
+    //! modules. If it is present but not needed, the method ignores it.
     mapping(string:mixed)
         get(string URI, mapping(string:string)|void vars, object|void id)
     {
@@ -143,6 +147,7 @@ class InternalResolver
         return ret;
     }
 
+    //!
     void create(mapping(string:string) p)
     {
         if (!p)
