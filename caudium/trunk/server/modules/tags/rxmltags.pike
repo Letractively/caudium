@@ -274,6 +274,10 @@ void create()
 	 "If set the &lt;if&gt;-tag will work in compatibility mode.\n"
 	 "This affects the behaviour when used together with the &lt;else&gt;-"
 	 "tag.\n");
+	 
+  defvar("max_insert_depth", 100, "Max file inclusion recursion depth",
+         TYPE_INT,
+	 "Max level of recursion when using &lt;insert file=\"...\"&gt;");
 }
 
 static string olf; // Used to avoid reparsing of the accessed index file...
@@ -1396,10 +1400,16 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
   {
     string s;
     string f;
+    int    max_depth = QUERY(max_insert_depth);
     
-    // forbid such code - can lead to infinite recursion
-    if (((m->file / "/")[-1] == ".") || ((m->file / "/")[-1] == ".."))
-	return id->misc->debug?"Cannot include a directory!":"";
+    // try fighting with recursion
+    if (!id->misc->include_depth)
+	id->misc->include_depth = 1;
+    else
+	id->misc->include_depth++;
+
+    if (id->misc->include_depth > max_depth)
+	return id->misc->debug ? "Recursion too deep!" : "";
 
     f = fix_relative(m->file, id);
     id = id->clone_me();
@@ -1418,7 +1428,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 
     if(!s) {
       if ((sizeof(f)>2) && (f[sizeof(f)-2..] == "--")) {
-	// Might be a compat insert. <!--#inclide file=foo.html-->
+	// Might be a compat insert. <!--#include file=foo.html-->
 	s = id->conf->try_get_file(f[..sizeof(f)-3], id);
       }
       if (!s) {
@@ -1444,6 +1454,9 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
     }
 
     m_delete(m, "file");
+
+    if (id->misc->include_depth)    
+	id->misc->include_depth--;
 
     return do_replace(s, m);
   }
