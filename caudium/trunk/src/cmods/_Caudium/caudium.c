@@ -791,7 +791,7 @@ static void f_http_encode(INT32 args)
 	out = ret->str;
 	
 	for(o=out, i=in; *i; i++) {
-		if (!is_save(*i)) {
+		if (!is_safe(*i)) {
 			*o++ = '%';
 			*o++ = hex_chars[*i >> 4];
 			*o++ = hex_chars[*i & 15];
