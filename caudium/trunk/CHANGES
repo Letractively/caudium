@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- The id->variables isn't set as before regarding variables with emtpy values,
+  this broke the screen for adding a new virtual server.
+   (Bertrand Lupart)
 - Watchdog PID check can now be disabled with --without-watchdog-pidcheck
   It is disabled by default on Linuxes < 2.6, since their threads
   implementations assigned different PIDs for each thread.
