@@ -24,7 +24,6 @@
  */
 
 inherit "wizard";
-inherit "compatlib";
 constant name= "Status//Process status";
 
 constant doc = ("Shows various information about the pike process.");
@@ -45,36 +44,59 @@ string describe_global_status()
 mixed page_0(object id, object conf)
 {
   string res;
-  array(int) ru;
+  mapping ru;
   int tmp, use_ru;
   array err;
-  if(err = catch(ru=rusage()))
+  string out = "";
+  if(err = catch(ru=System.getrusage()))
     return sprintf("<h1>Failed to get rusage information: </h1><pre>%s</pre>",
 		   describe_backtrace(err));
 
-  if(ru[0])
-    tmp=ru[0]/(time(1) - caudium->start_time+1);
+  if(ru->utime)
+    tmp=ru->utime/(time(1) - caudium->start_time+1);
 
-  return (/* "<font size=\"+1\"><a href=\""+ caudium->config_url(id)+
-	     "Actions/?action=processstatus.pike&foo="+ time(1)+
-	     "\">Process status</a></font>"+ */
-	  "<pre>"+
-	  describe_global_status()+
-	  "CPU-Time used             : "+Caudium.msectos(ru[0]+ru[1])+
-	  " ("+tmp/10+"."+tmp%10+"%)\n"
-	  +(ru[-2]?(sprintf("Resident set size (RSS)   : %.3f Mb\n",
-			    (float)ru[-2]/(float)MB)):"")
-	  +(ru[-1]?(sprintf("Stack size                : %.3f Mb\n",
-			    (float)ru[-1]/(float)MB)):"")
-	  +(ru[6]?"Page faults (non I/O)     : " + ru[6] + "\n":"")
-	  +(ru[7]?"Page faults (I/O)         : " + ru[7] + "\n":"")
-	  +(ru[8]?"Full swaps (should be 0)  : " + ru[8] + "\n":"")
-	  +(ru[9]?"Block input operations    : " + ru[9] + "\n":"")
-	  +(ru[10]?"Block output operations   : " + ru[10] + "\n":"")
-	  +(ru[11]?"Messages sent             : " + ru[11] + "\n":"")
-	  +(ru[12]?"Messages received         : " + ru[12] + "\n":"")
-	  +(ru[13]?"Number of signals received: " + ru[13] + "\n":"")
-	  +"</pre>");
+  out += "<font size=\"+1\"><a href=\""+ caudium->config_url(id)+
+         "Actions/?action=processstatus.pike&foo="+ time(1)+
+         "\">Process status</a></font>"+ 
+         "<pre>"+
+	 describe_global_status()+
+	 "CPU-Time used             : "+Caudium.msectos(ru[0]+ru[1])+
+	 " ("+tmp/10+"."+tmp%10+"%)\n";
+  if(ru->brksize)
+	 out += sprintf("Resident set size (RSS)   : %.3f Mb\n",
+			    (float)ru->brksize/(float)MB);
+  if(ru->stksize)
+	 out += sprintf("Stack size                : %.3f Mb\n",
+			    (float)ru->stksize/(float)MB);
+  if(ru->minflt)
+	 out += "Page faults (non I/O)     : " + ru->minflt + "\n";
+  if(ru->majflt)
+	 out += "Page faults (I/O)         : " + ru->majflt+ "\n";
+  if(ru->nswap)
+	 out += "Full swaps (should be 0)  : " + ru->nswap + "\n";
+  if(ru->inblock)
+	 out += "Block input operations    : " + ru->inblock + "\n";
+  if(ru->oublock)
+	 out += "Block output operations   : " + ru->oublock + "\n";
+  if(ru->msgsnd)
+	 out += "IPC Messages sent         : " + ru->msgsnd + "\n";
+  if(ru->msgrcv)
+	 out += "IPC Messages received     : " + ru->msgrcv + "\n";
+  if(ru->nsignals)
+	 out += "Number of signals received: " + ru->nsignals + "\n";
+  if(ru->sysc)
+         out += "Number of system calls    : " + ru->sysc + "\n";
+  if(ru->ioch)
+         out += "Nb. of characters rd and w: " + ru->ioch + "\n";
+  if(ru->nsignals)
+         out += "Number of signals received: " + ru->nsignals + "\n";
+  if(ru->nvcsw)
+         out += "Number of voluntary CS    : " + ru->nvcsw + "\n";
+  if(ru->nivcsw)
+         out += "Nb of peemptions          : " + ru->nivcsw + "\n";
+
+  out += "</pre>";
+  return out;
 }
 
 int verify_0()
