@@ -65,7 +65,7 @@ extern int fd_from_object(struct object *o);
 
 /*#define NB_DEBUG*/
 #ifdef NB_DEBUG
-# define DERR(X) do { fprintf(stderr, "** Caudium.nbio: "); X; } while(0)
+# define DERR(X) do { fprintf(stderr, "** Caudium.nbio:%d: ", __LINE__); X; } while(0)
 #else
 # define DERR(X) 
 #endif
@@ -183,9 +183,20 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
     inp->fd     = fd_from_object(inval.u.object);
     inp->len    = len;
     if(inp->fd == -1) {
+      /* Fake file object */
       inp->u.file = inval.u.object;
-      inp->type   = NBIO_BLOCK_OBJ; /* Not an actual FD, use blocking IO */
-
+      inp->set_nb_off = find_identifier("set_nonblocking",inp->u.file->prog);
+      inp->set_b_off  = find_identifier("set_blocking", inp->u.file->prog);
+	
+      if(inp->set_nb_off < 0 || inp->set_b_off < 0)
+      {
+	inp->type   = NBIO_BLOCK_OBJ; /* No set_nonblocking/set_blocking funcs */
+	inp->set_nb_off = inp->set_b_off = 0;
+	DERR(fprintf(stderr, "New fake blocking input\n"));
+      } else {
+	inp->type   = NBIO_OBJ; /* Fake nonblocking object */
+	DERR(fprintf(stderr, "New fake non-blocking input\n"));
+      }
       DERR(fprintf(stderr, "input object not a real FD\n"));
       if ((inp->read_off = find_identifier("read", inp->u.file->prog)) < 0) {
 	free(inp);
@@ -234,7 +245,6 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
 	 * here, to support pipes and such (which are actual fds, but can
 	 * block). Typical example is CGI.
 	 */
-	int snbo;
 	inp->u.file = inval.u.object;
 	inp->set_nb_off = find_identifier("set_nonblocking",inp->u.file->prog);
 	inp->set_b_off  = find_identifier("set_blocking", inp->u.file->prog);
@@ -353,6 +363,20 @@ static void f_input(INT32 args) {
   pop_n_elems(args-1);
 }
 
+static INLINE void set_outp_write_cb(output *outp) {
+  /* Need to set_nonblocking again to trigger the write cb again.
+   * FIXME: only call when there is more to write...
+   */
+  if(outp != NULL) {
+    DERR(fprintf(stderr, "Setting output write callback.\n"));
+    push_int(0);
+    push_callback(output_write_cb_off);
+    push_int(0);
+    apply_low(outp->file, outp->set_nb_off, 3);
+    pop_stack();
+  }
+}  
+
 /* Set the output file (file object) */
 static void f_output(INT32 args) {
   if(args) {
@@ -362,6 +386,7 @@ static void f_output(INT32 args) {
       output *outp;
       if(THIS->outp != NULL) {
 	free_output(THIS->outp);
+	THIS->outp = NULL;
       }
       outp = malloc(sizeof(output));
       outp->file = ARG(1).u.object;
@@ -380,6 +405,7 @@ static void f_output(INT32 args) {
 		   ((outp->set_b_off < 0)?"; no set_blocking":""));
       }
 
+      DERR(fprintf(stderr, "New output (fd = %d)\n", outp->fd));
       outp->mode = ACTIVE;
       add_ref(outp->file);
       THIS->outp = outp;
@@ -387,11 +413,7 @@ static void f_output(INT32 args) {
       /* Set up the read callback. We don't need a close callback since
        * it never will be called w/o a read_callback (which we don't want one).
        */
-      push_int(0);
-      push_callback(output_write_cb_off);
-      push_int(0);
-      apply_low(outp->file, outp->set_nb_off, 3);
-      pop_stack();
+      set_outp_write_cb(outp);
     }
   } else {
     SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->output", 1);
@@ -434,6 +456,7 @@ static void finished(void)
 
   if(THIS->cb.type != T_INT)
   {
+    DERR(fprintf(stderr, "Calling done callback\n"));
     push_svalue(&(THIS->args));
     apply_svalue(&(THIS->cb),1);
     pop_stack();
@@ -535,10 +558,12 @@ static INLINE int do_write(char *buf, int buf_len) {
   fd = THIS->outp->fd;
  write_retry:
   if(fd != -1) {
+    DERR(fprintf(stderr, "do_write() to real fd\n"));
     THREADS_ALLOW();
     written = fd_write(fd, buf, buf_len);
     THREADS_DISALLOW();  
   } else {
+    DERR(fprintf(stderr, "do_write() to fake fd\n"));
     push_string(make_shared_binary_string(buf, buf_len));
     apply_low(THIS->outp->file, THIS->outp->write_off, 1);
     if(Pike_sp[-1].type != T_INT) {
@@ -567,17 +592,6 @@ static INLINE int do_write(char *buf, int buf_len) {
     DERR(fprintf(stderr, "Wrote %d bytes of %d\n", written, buf_len));
     THIS->written += written;
   }
-
-  if(fd != -1) {
-    /* Need to set_nonblocking again to trigger the write cb again.
-     * FIXME: only call when there is more to write...
-     */
-    push_int(0);
-    push_callback(output_write_cb_off);
-    push_int(0);
-    apply_low(THIS->outp->file, THIS->outp->set_nb_off, 3);
-    pop_stack();
-  }
   return written;
 }
 
@@ -597,10 +611,11 @@ static void f__output_write_cb(INT32 args)
     DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
     written = do_write(THIS->buf + THIS->buf_pos, THIS->buf_len);
     switch(written) {
-    case -1: /* We're done here. The write failed. Goodbye. */
+    case -1: /* We're done here. The write is the weakest link. Goodbye. */
     case 0:  /* Done, but because the write would block or
 	      * nothing was written. I.e try again later.
 	      */
+      set_outp_write_cb(THIS->outp);
       return; 
 
     default:
@@ -609,6 +624,7 @@ static void f__output_write_cb(INT32 args)
       THIS->buf_pos += written;
       if(THIS->buf_len) {
 	/* We couldn't write everything. Return to try later. */
+	set_outp_write_cb(THIS->outp);
 	return;
       }
       
@@ -628,10 +644,7 @@ static void f__output_write_cb(INT32 args)
 		  * just return. once data is available, write_cb will
 		  * be called. 
 		  */
-    if(written <= 0) {
-      /* We didn't write anything previously */
-      THIS->outp->mode = IDLE;
-    }
+    THIS->outp->mode = IDLE;
     DERR(fprintf(stderr, "Waiting for NB input data.\n"));
     if(inp->mode == SLEEPING) {
       /* Set read callback here since object is idle */
@@ -653,6 +666,7 @@ static void f__output_write_cb(INT32 args)
       inp->pos += written;
       if(inp->pos == inp->len)
 	free_input(inp);
+      set_outp_write_cb(THIS->outp);
     }
     break;
 
@@ -695,32 +709,35 @@ static void f__output_write_cb(INT32 args)
       inp->pos += written;
       if(inp->pos == inp->len)
 	free_input(inp);
+      set_outp_write_cb(THIS->outp);
     }
 #endif
     break;
     
-  case NBIO_BLOCK_OBJ: {
-    int read;
-    read = read_data(); /* At this point we have no data, so read some */
-    switch(read) {
-    case  -1:
-      /* We are done. No more inputs */
-      finished();
-      return;
-    case -2: /* Invalid input for read_data == redo this function */
-    case -3: /* We read from a fake object and got a string == redo */
-      f__output_write_cb(0);
-      return;
+  case NBIO_BLOCK_OBJ:
+    {
+      int read;
+      read = read_data(); /* At this point we have no data, so read some */
+      switch(read) {
+      case  -1:
+	/* We are done. No more inputs */
+	finished();
+	return;
+      case -2: /* Invalid input for read_data == redo this function */
+      case -3: /* We read from a fake object and got a string == redo */
+	f__output_write_cb(0);
+	return;
+      }
+      len = THIS->buf_len;
+      buf = THIS->buf;
+      DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
+      written = do_write(buf, len);
+      if(written > 0) {
+	THIS->buf_len -= written;
+	THIS->buf_pos += written;
+	set_outp_write_cb(THIS->outp);
+      }
     }
-    len = THIS->buf_len;
-    buf = THIS->buf;
-    DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
-    written = do_write(buf, len);
-    if(written > 0) {
-      THIS->buf_len -= written;
-      THIS->buf_pos += written;
-    }
-  }
   }   
   if(written < 0) {
     return;
@@ -782,10 +799,13 @@ static void f__input_read_cb(INT32 args)
     inp->mode = SLEEPING;
   }
   pop_n_elems(args);
+  
   if(THIS->outp->mode == IDLE) {
     DERR(fprintf(stderr, "Waking up output.\n"));
     THIS->outp->mode = ACTIVE;
     f__output_write_cb(0);
+  } else {
+    DERR(fprintf(stderr, "Output is awake.\n"));
   }
 }
  
