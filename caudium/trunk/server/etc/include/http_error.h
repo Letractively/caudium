@@ -50,19 +50,18 @@ class http_error_handler {
 
     inherit "caudiumlib";
 
+    string default_data = #string "ERROR.html";
+
     private mapping default_template =
 	//	caudium->IFiles->get( "error://template" ) +
 	([ "name" : "default_caudium_error_template",
-	   "data" : #string "ERROR.html",
 	   "type" : "text/html" ]);
 
     private mapping template = default_template;
 
-
     private mapping extra_help =
 	([
 	  401 : "You have tried to access a page that is protected by a username & password protection scheme such as htaccess or similar.<br>If you feel that you have recieved this page in error then contact the site administrator for more information.",
-	  402 : "You have tried to access a page that is protected by a pay-per-view style protection scheme.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	  402 : "You have tried to access a page that is protected by a pay-per-view style protection scheme.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	  403 : "You have tried to access a page that is protected by a username & password protection scheme such as htaccess or similar.<br>If you feel that you have recieved this page in error then contact the site administrator for more information.",
 	  404 : "You have tried to access an object that Caudium cannot locate on the virtual filesystem(s).<br>If you feel that this is an error, please contact the site administrator, or the author of the referring page.",
@@ -72,6 +71,66 @@ class http_error_handler {
 	  500 : "Something has gone horribly wrong inside the web server (Caudium).<br>This is probably caused by an error in a CGI or other server side script, but can also mean that something is broke.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	 ]);
 
+    private mixed my_get_file (string _file, object id) {
+       array f = id->conf->open_file ( _file, "Rr", id);
+
+       if (f[0])
+       {
+          string data = f[0]->read ();
+          f[0]->close ();
+          destruct (f[0]);
+
+          return (data);
+       }
+
+       return (0);
+    }
+
+    private string get_template_data (string _name, object id)
+    {
+       string data;
+
+       if (!id->pragma["no-cache"])
+       {
+          data = cache_lookup ("error:" + id->conf->name, _name);
+
+          if (data)
+             return (data);
+       }
+
+       data = my_get_file (_name, id);
+
+       if (!data)
+          data = default_data;
+
+       cache_set ("error:" + id->conf->name, _name, data);
+
+       return (data);
+    }
+
+    public mapping process_error (object id)
+    {
+       if (!id->misc->error_code)
+       {
+          if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
+          {
+             id->misc->error_code = 501;
+             id->misc->error_text = "Method (" + html_encode_string (id->method) + ") not recognised.";
+          }
+          else
+          {
+             id->misc->error_code = 404;
+             if (!id->misc->error_text)
+                id->misc->error_text = "Unable to locate the file: " + id->not_query + ".<br>\n" +
+                        "The page you are looking for may have moved or been removed.";
+          }
+       }
+       if (!id->misc->error_text)
+          id->misc->error_text = id->errors[id->misc->error_code];
+
+       return (handle_error (id->misc->error_code, id->errors[id->misc->error_code], id->misc->error_text, id));
+    }
+
     public void set_template( string _template_name, object id ) {
 	if ( _template_name == "" ) {
 	    // If the template name isnt set in the config interface then
@@ -80,23 +139,25 @@ class http_error_handler {
 		template = default_template;
 	    }
 	} else {
+	   /* this is a redundant check
 	    if ( template->name != _template_name ) {
+	       */
 		// If it's been changed then change the error template, else
                 // do nothing.
-                string data = id->conf->try_get_file( _template_name, id, 0, 1 );
+                string data = my_get_file (_template_name, id);
 		if ( data == 0 ) {
 		    template = default_template;
 		} else {
 		    template = ([
-				 "data" : id->conf->try_get_file( _template_name, id, 0, 1 ),
 				 "type" : id->conf->type_from_filename( _template_name ),
 				 "name" : _template_name
 				]);
 		}
+		/*
 	    }
+	    */
 	}
     }
-
 
      private string _tag_error( string tag, mapping args, mapping the_error ) {
 	 if ( args->code ) {
@@ -142,16 +203,32 @@ class http_error_handler {
 	}
      }
 
+    /* why isn't error_message a string? -- it would fix the problems with
+     * putting id in the 3nd argument */
     public mapping handle_error( int error_code, string error_name, mixed error_message, object id ) {
         mapping local_template;
+
+	if (!stringp (error_message) && stringp (error_message->method)) /* trying to fix the problem */
+	   throw ( ({ "the 3rd argument should be an error_message, not id!\n", backtrace () }) );
+
 	if ( id == 0 ) {
 	    // We don't have a request id object - this is *REALLY* bad!
 	    // Someone forgot to buy David a beer, coz this can only happen
             // in the *core*core* server.
 	    local_template = default_template;
 	} else {
+	    /* check if they want old-style 404 */
+	    if (id->conf->query("Old404") && error_code == 404)
+	    {
+               return http_low_answer (error_code,
+                                       replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
+                                       ({ "$File", "$Me" }),
+                                       ({ html_encode_string (id->not_query), 
+                                       id->conf->query ("MyWorldLocation") })));
+	    }
+
             string ErrorTheme = id->conf->query( "ErrorTheme" );
-	    if ( ErrorTheme != template->name ) {
+	    if (ErrorTheme != template->name) {
 		set_template( ErrorTheme, id );
 	    }
 	    local_template = template;
@@ -160,16 +237,17 @@ class http_error_handler {
 	error_name = error_name?error_name:"Unknown error";
 	error_message = error_message?error_message:"An unknown error has occurred - this should never have happenned.";
 	error_name = ((int)error_name[0..2] == error_code)?error_name[3..]:error_name;
-	string error_page = parse_html( local_template->data, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]) );
+	string error_page = parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
 	error_page = (id?parse_rxml(error_page,id):error_page);
-	//return http_low_answer( error_code, (id?parse_rxml(error_page,id):error_page) );
+
 #ifdef DEBUG
-	report_error( "Serving Error " + sprintf( "%d", error_code ) + ", " + sprintf( "%s", error_name ) + " to client for " + sprintf( "%s://%s%s", lower_case( ( id->clientprot / "/" )[ 0 ] ), id->request_headers[ "host" ], id->raw_url ) + ".\n" );
+        report_error ("Serving Error " + sprintf ("%d", error_code) + ", " + sprintf ("%s", error_name) + " to client for " + id->conf->query ("MyWorldLocation"), id->raw_url + ".\n" );
 #else
 	if ( error_code > 499 ) {
-	    report_error( "Serving Error " + sprintf( "%d", error_code ) + ", " + sprintf( "%s", error_name ) + " to client for " + sprintf( "%s://%s%s", lower_case( ( id->clientprot / "/" )[ 0 ] ), id->request_headers[ "host" ], id->raw_url ) + ".\n" );
-	}
+	    report_error ("Serving Error " + sprintf ("%d", error_code) + ", " + sprintf ("%s", error_name) + " to client for " + id->conf->query ("MyWorldLocation") + id->raw_url + ".\n" );
 #endif /* DEBUG */
+	}
+
 	return
 	    ([
 	      "error" : error_code,

@@ -352,15 +352,13 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-    if(misc->error_code)
-      file = http_low_answer(misc->error_code, errors[misc->error]);
-    else
-      file=http_low_answer(404,
-			   replace(parse_rxml(conf->query("ZNoSuchFile"),
-					      this_object()),
-				   ({"$File", "$Me"}), 
-				   ({not_query,
-				       conf->query("MyWorldLocation")})));
+     err = catch (
+           file = conf->http_error->process_error (this_object ())
+                 );
+/* why don't we have INTERNAL_ERROR? *
+     if (err)
+        INTERNAL_ERROR( err );
+*/
   } else {
     if((file->file == -1) || file->leave_me) 
     {
