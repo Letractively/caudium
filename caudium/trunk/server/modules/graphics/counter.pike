@@ -499,17 +499,17 @@ mapping query_tag_callers()
 //!  name: Mount point
 //
 //! defvar: ppmpath
-//! Were are located PPM/Image.GIF digits (Ex: 'digits/')
+//! Were are located PPM/GIF digits (Ex: 'digits/')
 //!  type: TYPE_DIR
-//!  name: PPM Image.GIF Digits Path
+//!  name: PPM GIF Digits Path
 //
 //! defvar: userpath
-//! Where are users PPM/Image.GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME
+//! Where are users PPM/GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME
 //!  type: TYPE_STRING
-//!  name: PPM Image.GIF path under Users HOME
+//!  name: PPM GIF path under Users HOME
 //
 //! defvar: ppm
-//! Default PPM/Image.GIF-Digits style for counters (Ex: 'a')
+//! Default PPM/GIF-Digits style for counters (Ex: 'a')
 //!  type: TYPE_STRING
-//!  name: Default PPM Image.GIF-Digit style
+//!  name: Default PPM GIF-Digit style
 //

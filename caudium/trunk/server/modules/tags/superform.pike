@@ -31,7 +31,7 @@
 //! inherits: caudiumlib
 //! type: MODULE_PARSER|MODULE_FIRST
 //! cvs_version: $Id$
-//! todo: finish doc/examples
+// todo: finish doc/examples
 //
 constant cvs_version="$Id$";
 constant thread_safe=1;

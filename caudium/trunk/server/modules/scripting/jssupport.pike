@@ -58,11 +58,11 @@
 //!  you get somewhat worse performance using inlined code. One thing to remember
 //!  in inlined code is to 'return null' from any segment that shouldn't cause
 //!  any output but that normally would. I.e write
-//!  <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David'; return null; ?>
-//!  <br />instead of
-//!  <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David' ?>
-//!  </p>
-//!  //! inherits: module
+//!  </p><p><dl><dd>&lt;?js vars.name = 'David'; return null; ?></dd>
+//!  <dt><br />instead of</dt>
+//!  <dd><br />&lt;?js vars.name = 'David' ?></dd>
+//!  </dl></p>
+//! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION | MODULE_PARSER
 //! cvs_version: $Id$
@@ -118,9 +118,10 @@ isn't. This means that you can't store data between runs and also that
 you get somewhat worse performance using inlined code. One thing to remember
 in inlined code is to 'return null' from any segment that shouldn't cause
 any output but that normally would. I.e write
-<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David'; return null; ?>
-<br />instead of
-<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David' ?>
+</p><p><dl><dd>&lt;?js vars.name = 'David'; return null; ?></dd>
+<dt><br />instead of</dt>
+<dd><br />&lt;?js vars.name = 'David' ?></dd>
+</dl>
 </p>
 ";
 

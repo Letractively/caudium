@@ -13,6 +13,17 @@
  <br><xsl:apply-templates/></br>
 </xsl:template>
 
+<xsl:template match="deftable">
+ <xsl:if test="count(row) > 0">
+  <dd><p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Item/%%/Description
+   <xsl:for-each select="row">/@@/
+     <xsl:value-of select="@name"/>/%%/
+     <xsl:apply-templates/>
+   </xsl:for-each>
+  </tablify></p></dd>
+</xsl:if>
+</xsl:template>
+
 <xsl:template match="table">
  <xsl:copy-of select="."/>
 </xsl:template>
@@ -37,6 +48,10 @@
  <dl><xsl:apply-templates/></dl>
 </xsl:template>
 
+<xsl:template match="u">
+ <u><xsl:apply-templates/></u>
+</xsl:template>
+
 <xsl:template match="ul">
  <ul><xsl:apply-templates/></ul>
 </xsl:template>
@@ -51,6 +66,7 @@
 <xsl:template match="em | i">
  <i><xsl:apply-templates/></i>
 </xsl:template>
+
 <xsl:template match="tt">
  <tt><xsl:apply-templates/></tt>
 </xsl:template>

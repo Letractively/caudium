@@ -731,7 +731,7 @@ class DocGen
             ret += "\t<methods>\n";
             foreach(c->methods, object m)
                 ret += do_f_method(m);
-            ret += "\t<methods>\n";
+            ret += "\t</methods>\n";
         }
 	
         /* Globvars */
@@ -1142,7 +1142,7 @@ class TreeMirror
     object(Stdio.File) create_file(string tdir, string fpath)
     {
         object(Stdio.File) f;
-        fname = replace(tdir + (fpath - rel_path), ({".pike",".c",".h"}), ({".pike.xml", ".c.xml", ".h.xml"}));
+        fname = replace(tdir + (fpath - rel_path), ({".pike",".c",".h",".pmod"}), ({".pike.xml", ".c.xml", ".h.xml",".pmod.xml"}));
          
         if (!Stdio.mkdirhier(dirname(fname)))
             throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));

@@ -54,8 +54,6 @@
 //!  split into clickable links. Put it at the top of all your pages to aid
 //!  navigation. (Using &lt;insert&gt; or tagbuilder module makes this
 //!  easy!)<br />
-//!  Syntax: &lt;path [separator="string"] [rootname="string"] [skip=n]
-//!  [capitalize] [gtext[="gtext options"]] [magic]&gt;</I><P>",
 
 //! inherits: module
 //! inherits: caudiumlib
@@ -76,9 +74,9 @@ constant module_doc   = "Config interface style URL location thing!<P>"
                         "Put it at the top of all your pages to aid "
 			"navigation. (Using &lt;insert&gt; or the tagbuilder "
 			"module makes this easy!)"
-	                "<P>Syntax: <I>&lt;path [separator=\"string\"] "
+	                "<P>Syntax: <i>&lt;path [separator=\"string\"] "
 	                "[rootname=\"string\"] [skip=n] [capitalize] "
-                        "[gtext[=\"gtext options\"]] [magic]&gt;</I><P>";
+                        "[gtext[=\"gtext options\"]] [magic]&gt;</i><P>";
 constant module_unique= 1;
 constant thread_safe=1;
 
@@ -95,26 +93,26 @@ void create()
 
   defvar( "timeout", "3600", "Cache Timeout", TYPE_STRING, 
 	  "Number of seconds for .pathname cache timeout.\n"
-           "<P>The file .pathname in a directory can contain a string \n"
+           "<p>The file .pathname in a directory can contain a string \n"
            "to be used in place of the directory name.\n"
-           "<BR><I>(You will have to wait [timeout] seconds for\n"
-           "changes to take effect.)</I>\n"
+           "<br /><i>(You will have to wait [timeout] seconds for\n"
+           "changes to take effect.)</i></p>\n"
 	);
 
   defvar( "separator", " -> ", "Default separator", TYPE_STRING, 
-          "Can be overridden by separator=\"string\" argument.<P>\n"
-           "Example:<br>\n"
-	   "<pre>&lt;html&gt;\n"
-	   "[&lt;path separator=\"][\"&gt;]\n"
-	   "&lt;/html&gt;</pre>\n"
-	   "Might give:<P>\n"
-           "[<u><font color=\"blue\">home</u></font>] "
-           "[<u><font color=\"blue\">dir1</u></font>] "
-           "[<u><font color=\"blue\">dir2</u></font>]\n"
+          "<p>Can be overridden by separator=\"string\" argument.</p>\n"
+	  "<p>Example:<br />\n"
+	  "<pre>&lt;html&gt;\n"
+	  "[&lt;path separator=\"][\"&gt;]\n"
+	  "&lt;/html&gt;</pre>\n"
+	  "Might give:</p><p>\n"
+	  "[<u><font color=\"blue\">home</font></u>] "
+	  "[<u><font color=\"blue\">dir1</font></u>] "
+	  "[<u><font color=\"blue\">dir2</font></u>]\</p>"
       );
 
   defvar( "rootname", "home", "Default root name", TYPE_STRING, 
-	  "Default name of root level link, instead of \"/\"<BR>\n"
+	  "Default name of root level link, instead of \"/\"<br />\n"
            "Can be overridden by rootname=\"string\" argument.\n"
       );
 
@@ -134,18 +132,18 @@ string status()
 //! tag: path
 //!  Add a config interface like URL location thing. Note that the name
 //!  can be changed using the configuration interface
-//! arg: separator
+//! attribute: [separator=string]
 //!  The separator between two directories e.g. "->" per default.
-//! arg: rootname
+//! attribute: [rootname=string]
 //!  Name of the / directory e.g. "home" per default.
-//! arg: skip
+//! attribute: [skip=n]
 //!  Number of directory to skip from the current directory.
-//! arg: capitalize
+//! attribute: [capitalize=capitalize]
 //!  If exist then the directories are capitalized
-//! arg: gtext
+//! attribute: [gtext=gtext options[
 //!  "Gtextify" the texts... Also used to add some gtext options
 //!  to the gtext calls.
-//! arg: magic
+//! attribute: [magic=magic]
 //!  If gtext is set, this add the "magic" option to gtext.
 string tag_path( string tag, mapping args, object id, object file, mapping defines )
 {
@@ -249,28 +247,27 @@ mapping query_tag_callers()
 //
 //! defvar: timeout
 //! Number of seconds for .pathname cache timeout.
-//!<P>The file .pathname in a directory can contain a string 
+//!<p>The file .pathname in a directory can contain a string 
 //!to be used in place of the directory name.
-//!<BR><I>(You will have to wait [timeout] seconds for
-//!changes to take effect.)</I>
+//!<br /><i>(You will have to wait [timeout] seconds for
+//!changes to take effect.)</i></p>
 //!
 //!  type: TYPE_STRING
 //!  name: Cache Timeout
 //
 //! defvar: separator
-//! Can be overridden by separator="string" argument.<P>
-//!Example:<br />
+//! <p>Can be overridden by separator="string" argument.</p>
+//!<p>Example:<br />
 //!<pre>&lt;html&gt;
 //![&lt;path separator="]["&gt;]
 //!&lt;/html&gt;</pre>
-//!Might give:<P>
-//![<u><font color="blue">home</u></font>] [<u><font color="blue">dir1</u></font>] [<u><font color="blue">dir2</u></font>]
-//!
+//!Might give:</p><p>
+//![<u><font color="blue">home</font></u>] [<u><font color="blue">dir1</font></u>] [<u><font color="blue">dir2</font></u>]</p>
 //!  type: TYPE_STRING
 //!  name: Default separator
 //
 //! defvar: rootname
-//! Default name of root level link, instead of "/"<BR>
+//! Default name of root level link, instead of "/"<br />
 //!Can be overridden by rootname="string" argument.
 //!
 //!  type: TYPE_STRING

@@ -79,11 +79,11 @@ void create()
 
 //! container: hloutput
 //!  Dump the headlines a la "formoutput"
-//! arg: quote
+//! attribute: quote
 //!  Changes the quote from default '#' to another type
-//! arg: site
+//! attribute: site
 //!  Dumps the headline from site definied
-//! arg: parse
+//! attribute: parse
 //!  RXML parse the site option before executing the module
 string headlineoutput(string tag_name, mapping args, string contents,
                       object id, object f, mapping defines, object fd)

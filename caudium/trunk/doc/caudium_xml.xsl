@@ -20,10 +20,12 @@
 <xsl:template match="module">
   <dt><h2><xsl:value-of select="@name"/></h2></dt>
   <xsl:apply-templates select="description"/>
-  <p><dd><xsl:apply-templates select="inherits"><xsl:sort select="@link"/></xsl:apply-templates></dd></p>
+  <p><dd><xsl:apply-templates select="inherits">
+    <xsl:sort select="@link"/>
+  </xsl:apply-templates></dd></p>
   <xsl:apply-templates select="type"/>
   <xsl:apply-templates select="version"/>
-  <xsl:apply-templates select="defvars"><xsl:sort/></xsl:apply-templates>
+  <xsl:apply-templates select="defvars"><xsl:sort select='@name'/></xsl:apply-templates>
   <xsl:apply-templates select="tags | containers | entities"/>
 </xsl:template>
 
@@ -123,6 +125,7 @@
   <dd><p><xsl:value-of select="description"/></p></dd>
   <xsl:apply-templates select="inherits"/>
   <xsl:apply-templates select="version"/>
+  <xsl:apply-templates select="classes"/>
   <xsl:apply-templates select="defvars" mode="globvar"/>
   <xsl:apply-templates select="methods"/>
 </xsl:template>
@@ -135,6 +138,13 @@
  </xsl:if>
 </xsl:template>
 
+<xsl:template match="classes">
+ <xsl:if test="count(class) > 0">
+  <p><dl><xsl:apply-templates select="class"/></dl>
+  </p>
+ </xsl:if>
+</xsl:template>
+
 <xsl:template match="methods">
  <xsl:if test="count(method) > 0">
   <p><dl><dt><h3>Methods:</h3></dt>
@@ -143,11 +153,19 @@
  </xsl:if>
 </xsl:template>
 
+<xsl:template match="class">
+  <a name="{@name}"><h3>Class <xsl:value-of select="@name"/></h3></a>
+  <xsl:apply-templates select="description" mode="class">
+    <xsl:with-param name="scope"><xsl:value-of select="scope"/></xsl:with-param>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="methods"/>
+</xsl:template>
+
 <xsl:template match="method">
-  <a name="{@name}"><h3><xsl:value-of select="@name"/></h3></a>
+  <a name="{@name}"><h4><xsl:apply-templates select="syntax"/></h4></a>
   <dl><dt><p><b>Function</b></p></dt>
   <dd><p><xsl:value-of select="short"/></p></dd>
-  <xsl:apply-templates select="syntax"/>
+
   <xsl:apply-templates select="description" mode="method">
     <xsl:with-param name="scope"><xsl:value-of select="scope"/></xsl:with-param>
   </xsl:apply-templates>
@@ -172,8 +190,7 @@
 </xsl:template>
 
 <xsl:template match="syntax">
-  <dt><p><b>Syntax</b></p></dt>
-  <dd><p><xsl:value-of select="."/></p></dd>
+  <xsl:value-of select="."/>
 </xsl:template>
 
 <xsl:template match="description" mode="method">
@@ -183,6 +200,13 @@
   <xsl:if test="$scope = 'private'"><p><b>This is an internal function for use in the
   Caudium core only.</b></p></xsl:if>
   </dd>
+</xsl:template>
+
+<xsl:template match="description" mode="class">
+  <xsl:param name="scope"/>
+  <p><xsl:value-of select="."/></p>
+  <xsl:if test="$scope = 'private'"><p><b>This is an internal function for use in the
+  Caudium core only.</b></p></xsl:if>
 </xsl:template>
 
 

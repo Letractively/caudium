@@ -29,6 +29,10 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
+//! file: Mhash/hmac.c
+//!  File implementing the Mhash.HMAC class.
+//! cvs_version: $Id$
+//
 //! class: Mhash.HMAC
 //!  The Mhash library supports HMAC generation (a mechanism for message
 //!  authentication using cryptographic hash functions, which is

@@ -37,6 +37,17 @@ constant module_doc   = "This module can act as an ON/OFF switch for a virtual "
 			"or for user-definied docs.";
 constant module_unique= 1;
 
+//! module: Switch
+//!  This module can act as an ON/OFF switch for a virtual
+//!  server, and thus the name.<br /> It can return an 
+//!  user-defined answer for every query the server 
+//!  receives, except queries from user-defined hosts 
+//!  or for user-definied docs.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FIRST
+//! cvs_version: $Id$
+
 
 //#define SWITCH_DEBUG
 #ifdef SWITCH_DEBUG
@@ -76,25 +87,25 @@ void create()
           "Should every server query get the default answer?");
 
   defvar ("return_code",502,"Configuration: HTTP return code",TYPE_MULTIPLE_INT,
-          "What to return if <TT>server's switch</TT> is set (see Roxen's "
-          "documentation for the values' meanings)<BR>"
-          "The most useful are 200(OK), 30*(Moved), 403(Forbidden), "
-          "404(No such resource), 500(Server error), 502(Service temporarily "
-          "unavailable)",
+          "What to return if <tt>server's switch</tt> is set (see the HTTP "
+          "specification for the values' meanings)<br />"
+          "The most useful are 200 (OK), 30X (Moved), 403 (Forbidden), "
+          "404 (No such resource), 500 (Server error), 502 "
+	  "(Service temporarily unavailable).",
           ({ 200, 202, 300, 301, 302, 400, 401, 403, 404, 410, 500, 502 }) );
 
   defvar ("return_message",
           "<title>Sorry, service is temporarily unavailible</title>\n"
-	  "<body bgcolor=white>\n"
-          "\n<h2 align=center><configimage src=cowfish-caudium "
-          "alt=\"Service unavailible\">\n"
-          "<p><hr noshade>"
+	  "<body bgcolor=\"white\">\n"
+          "\n<h2 align=\"center\"><configimage src=\"cowfish-caudium\" "
+          "alt=\"Service unavailable\">\n"
+          "<p><hr noshade \>"
           "\n<i>Sorry</i></h2>\n"
-          "<br clear>\n<font size=+2>This server is temporarily "
+          "<br clear />\n<font size="+2">This server is temporarily "
           "disabled for maintenance."
-          "Please try again later.<p>\n</font>\n"
-          "<hr noshade>"
-          "<version>\n","Configuration: Returned message",
+          "Please try again later.\n</font></p>\n"
+          "<hr noshade=\"noshade\" />"
+          "<version />\n","Configuration: Returned message",
           TYPE_TEXT_FIELD,
           "The explanatory message which should be sent along with the request."
           );
@@ -120,7 +131,7 @@ void create()
 //!  name: Activate switch
 //
 //! defvar: return_code
-//! What to return if <TT>server's switch</TT> is set (see Roxen's documentation for the values' meanings)<BR>The most useful are 200(OK), 30*(Moved), 403(Forbidden), 404(No such resource), 500(Server error), 502(Service temporarily unavailable)
+//! What to return if <tt>server's switch</tt> is set (see the HTTP specification for the values' meanings)<br />The most useful are 200 (OK), 30X (Moved), 403 (Forbidden), 404 (No such resource), 500 (Server error), 502 (Service temporarily unavailable).
 //!  type: TYPE_MULTIPLE_INT
 //!  name: Configuration: HTTP return code
 //

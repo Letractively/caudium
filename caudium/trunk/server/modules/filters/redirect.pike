@@ -71,85 +71,85 @@ void create()
 {
   defvar("fileredirect", "", "Redirect patterns", TYPE_TEXT_FIELD, 
 	 "\
-The redirect patterns are used to rewrite a URL or send a redirect \
-to an external URL. The syntax is: \
-<blockquote><b>[type] matchstring destination</b></blockquote> \
-The field separator can be one or more space or tab characters. Note that \
-this disallows the use of these characters in the actual fields. \
-Valid match types are: \
-<p><dl> \
-<dt><b>exact</b></dt><dd>The source resource must match \
-<b>matchstring</b> exactly.</dd> \
- \
-<p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob \
-pattern.</dd> \
- \
-<p><dt><b>prefix</b></dt><dd>The source resource much begin with \
-<b>matchstring</b>. When using prefix matching, everything after the \
-prefix is added last to the <b>destination</b> location.</dd></p> \
- \
-<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular \
-expression.</dd></p> \
- \
-</dl></p> \
- \
-For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the \
-pattern type will be deducted automatically as follows: If \
-<b>matchstring</b> contains a <b>*</b> character, it will be treated \
-as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>. \
- \
-<p>The <b>destination</b> field can contain one or more special \
-tokens. They will be replaced after matching is completed as described below. \
- \
-<p><dl compact=\"compact\"> \
-<dt><b>%f</b></dt> \
-<dd>The file name of the matched URL without the path.</dd> \
-<dt><b>%p</b></dt> \
-<dd>The full virtual path of the matched URL excluding the initial /.</dd> \
-<dt><b>%u</b></dt> \
-<dd>The manually configured server url. This is useful if you want  \
-your redirect to be external instead of an internal rewrite and  \
-don't want to hardcode the URL in the patterns.</dd> \
-<dt><b>%h</b></dt> \
-<dd>The accessed server url, determined by the HTTP host header. If  \
-the host header is missing, the configured server url will be  \
-used instead. This is useful if you want your external redirect to  \
-to the same host as the user accessed (ie if they access the site  \
-as http://www/ they won't get a redirect to http://www.domain.com/). \
-</dd></dl></p> \
- \
-<p>When using regular expression, '(' and ')' can be used to separate \
-parts of the from-pattern. These parts can then be insterted into the \
-<b>destination</b> using $1, $2 etc.</p> \
- \
-<p>If <b>destination</b> file isn't a fully qualified URL, the \
-redirect will always be handled internally. If you want an actual \
-redirect, you can either use <b>%u</b> or enter the exact URL.</p> \
- \
-<p>Some examples on how to use this module. The smaller, non-bold \
-text is an example of the effect of all previous non-described lines.</p> \
- \
+The redirect patterns are used to rewrite a URL or send a redirect \n\
+to an external URL. The syntax is: \n\
+<blockquote><b>[type] matchstring destination</b></blockquote> \n\
+The field separator can be one or more space or tab characters. Note that \n\
+this disallows the use of these characters in the actual fields. \n\
+Valid match types are: \n\
+<dl> \n\
+<p><dt><b>exact</b></dt><dd>The source resource must match \n\
+<b>matchstring</b> exactly.</dd></p> \n\
+ \n\
+<p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob \n\
+pattern.</dd></p> \n\
+ \n\
+<p><dt><b>prefix</b></dt><dd>The source resource much begin with \n\
+<b>matchstring</b>. When using prefix matching, everything after the \n\
+prefix is added last to the <b>destination</b> location.</dd></p> \n\
+ \n\
+<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular \n\
+expression.</dd></p> \n\
+ \n\
+</dl>\
+ \n\
+<p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the \n\
+pattern type will be deducted automatically as follows: If \n\
+<b>matchstring</b> contains a <b>*</b> character, it will be treated \n\
+as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.</p> \n\
+ \n\
+<p>The <b>destination</b> field can contain one or more special \n\
+tokens. They will be replaced after matching is completed as described below.</p> \n\
+ \n\
+<p><dl compact=\"compact\"> \n\
+<dt><b>%f</b></dt> \n\
+<dd>The file name of the matched URL without the path.</dd> \n\
+<dt><b>%p</b></dt> \n\
+<dd>The full virtual path of the matched URL excluding the initial /.</dd> \n\
+<dt><b>%u</b></dt> \n\
+<dd>The manually configured server url. This is useful if you want  \n\
+your redirect to be external instead of an internal rewrite and  \n\
+don't want to hardcode the URL in the patterns.</dd> \n\
+<dt><b>%h</b></dt> \n\
+<dd>The accessed server url, determined by the HTTP host header. If  \n\
+the host header is missing, the configured server url will be  \n\
+used instead. This is useful if you want your external redirect to  \n\
+to the same host as the user accessed (ie if they access the site  \n\
+as http://www/ they won't get a redirect to http://www.domain.com/). \n\
+</dd></dl></p> \n\
+ \n\
+<p>When using regular expression, '(' and ')' can be used to separate \n\
+parts of the from-pattern. These parts can then be insterted into the \n\
+<b>destination</b> using $1, $2 etc.</p> \n\
+ \n\
+<p>If <b>destination</b> file isn't a fully qualified URL, the \n\
+redirect will always be handled internally. If you want an actual \n\
+redirect, you can either use <b>%u</b> or enter the exact URL.</p> \n\
+ \n\
+<p>Some examples on how to use this module. The smaller, non-bold \n\
+text is an example of the effect of all previous non-described lines.</p> \n\
+ \n\
 <p><pre>" 
 	 "<b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />"
-	 "    <font size=-1>Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br />"
+	 "    <font size=\"-1\">Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br />"
 
 	 "<b>exact	/index.html	/index.cgi</b><br />"
-	 "    <font size=-1>Ex: rewrites only /index.html to /index.cgi</font><br />"
+	 "    <font size=\"-1\">Ex: rewrites only /index.html to /index.cgi</font><br />"
 	 
 	 "<b>glob	*		http://otherhost.com/%p</b><br />"
 	 "<b>regexp	^/		http://otherhost.com/%p</b><br />"
 	 "<b>regexp	^/(.*)		http://otherhost.com/$1</b><br />"
 	 "<b>prefix	/		http://otherhost.com/</b><br />"
-	 "    <font size=-1>Ex: redirects all files to http://otherhost.com/</font><br />"
+	 "    <font size=\"-1\">Ex: redirects all files to http://otherhost.com/</font><br />"
 
 	 "<b>regexp	^/old[^/]*/	/newdir/%f</b><br />"
-	 "    <font size=-1>Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br />"
+	 "    <font size=\"-1\">Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br />"
 
 	 "<b>prefix	/oldfiles/	%h/</b><br />"
-	 "    <font size=-1>Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br />"
+	 "    <font size=\"-1\">Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br />"
 
 	 "<b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />"
-	 "    <font size=-1>Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br />"
+	 "    <font size=\"-1\">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br />"
 
 	 "</pre></p>"
 	 );
@@ -363,7 +363,64 @@ mixed first_try(object id)
 /* START AUTOGENERATED DEFVAR DOCS */
 
 //! defvar: fileredirect
-//! The redirect patterns are used to rewrite a URL or send a redirect to an external URL. The syntax is: <blockquote><b>[type] matchstring destination</b></blockquote> The field separator can be one or more space or tab characters. Note that this disallows the use of these characters in the actual fields. Valid match types are: <p><dl> <dt><b>exact</b></dt><dd>The source resource must match <b>matchstring</b> exactly.</dd>  <p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob pattern.</dd>  <p><dt><b>prefix</b></dt><dd>The source resource much begin with <b>matchstring</b>. When using prefix matching, everything after the prefix is added last to the <b>destination</b> location.</dd></p>  <p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular expression.</dd></p>  </dl></p>  For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the pattern type will be deducted automatically as follows: If <b>matchstring</b> contains a <b>*</b> character, it will be treated as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.  <p>The <b>destination</b> field can contain one or more special tokens. They will be replaced after matching is completed as described below.  <p><dl compact="compact"> <dt><b>%f</b></dt> <dd>The file name of the matched URL without the path.</dd> <dt><b>%p</b></dt> <dd>The full virtual path of the matched URL excluding the initial /.</dd> <dt><b>%u</b></dt> <dd>The manually configured server url. This is useful if you want  your redirect to be external instead of an internal rewrite and  don't want to hardcode the URL in the patterns.</dd> <dt><b>%h</b></dt> <dd>The accessed server url, determined by the HTTP host header. If  the host header is missing, the configured server url will be  used instead. This is useful if you want your external redirect to  to the same host as the user accessed (ie if they access the site  as http://www/ they won't get a redirect to http://www.domain.com/). </dd></dl></p>  <p>When using regular expression, '(' and ')' can be used to separate parts of the from-pattern. These parts can then be insterted into the <b>destination</b> using $1, $2 etc.</p>  <p>If <b>destination</b> file isn't a fully qualified URL, the redirect will always be handled internally. If you want an actual redirect, you can either use <b>%u</b> or enter the exact URL.</p>  <p>Some examples on how to use this module. The smaller, non-bold text is an example of the effect of all previous non-described lines.</p>  <p><pre><b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />    <font size=-1>Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br /><b>exact	/index.html	/index.cgi</b><br />    <font size=-1>Ex: rewrites only /index.html to /index.cgi</font><br /><b>glob	*		http://otherhost.com/%p</b><br /><b>regexp	^/		http://otherhost.com/%p</b><br /><b>regexp	^/(.*)		http://otherhost.com/$1</b><br /><b>prefix	/		http://otherhost.com/</b><br />    <font size=-1>Ex: redirects all files to http://otherhost.com/</font><br /><b>regexp	^/old[^/]*/	/newdir/%f</b><br />    <font size=-1>Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br /><b>prefix	/oldfiles/	%h/</b><br />    <font size=-1>Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br /><b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />    <font size=-1>Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br /></pre></p>
+//! The redirect patterns are used to rewrite a URL or send a redirect 
+//!to an external URL. The syntax is: 
+//!<blockquote><b>[type] matchstring destination</b></blockquote> 
+//!The field separator can be one or more space or tab characters. Note that 
+//!this disallows the use of these characters in the actual fields. 
+//!Valid match types are: 
+//!<dl> 
+//!<p><dt><b>exact</b></dt><dd>The source resource must match 
+//!<b>matchstring</b> exactly.</dd></p> 
+//! 
+//!<p><dt><b>glob</b></dt><dd>The <b>matchstring</b> is a glob 
+//!pattern.</dd></p> 
+//! 
+//!<p><dt><b>prefix</b></dt><dd>The source resource much begin with 
+//!<b>matchstring</b>. When using prefix matching, everything after the 
+//!prefix is added last to the <b>destination</b> location.</dd></p> 
+//! 
+//!<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular 
+//!expression.</dd></p> 
+//! 
+//!</dl> 
+//!<p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the 
+//!pattern type will be deducted automatically as follows: If 
+//!<b>matchstring</b> contains a <b>*</b> character, it will be treated 
+//!as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.</p> 
+//! 
+//!<p>The <b>destination</b> field can contain one or more special 
+//!tokens. They will be replaced after matching is completed as described below.</p> 
+//! 
+//!<p><dl compact="compact"> 
+//!<dt><b>%f</b></dt> 
+//!<dd>The file name of the matched URL without the path.</dd> 
+//!<dt><b>%p</b></dt> 
+//!<dd>The full virtual path of the matched URL excluding the initial /.</dd> 
+//!<dt><b>%u</b></dt> 
+//!<dd>The manually configured server url. This is useful if you want  
+//!your redirect to be external instead of an internal rewrite and  
+//!don't want to hardcode the URL in the patterns.</dd> 
+//!<dt><b>%h</b></dt> 
+//!<dd>The accessed server url, determined by the HTTP host header. If  
+//!the host header is missing, the configured server url will be  
+//!used instead. This is useful if you want your external redirect to  
+//!to the same host as the user accessed (ie if they access the site  
+//!as http://www/ they won't get a redirect to http://www.domain.com/). 
+//!</dd></dl></p> 
+//! 
+//!<p>When using regular expression, '(' and ')' can be used to separate 
+//!parts of the from-pattern. These parts can then be insterted into the 
+//!<b>destination</b> using $1, $2 etc.</p> 
+//! 
+//!<p>If <b>destination</b> file isn't a fully qualified URL, the 
+//!redirect will always be handled internally. If you want an actual 
+//!redirect, you can either use <b>%u</b> or enter the exact URL.</p> 
+//! 
+//!<p>Some examples on how to use this module. The smaller, non-bold 
+//!text is an example of the effect of all previous non-described lines.</p> 
+//! 
+//!<p><pre><b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />    <font size="-1">Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br /><b>exact	/index.html	/index.cgi</b><br />    <font size="-1">Ex: rewrites only /index.html to /index.cgi</font><br /><b>glob	*		http://otherhost.com/%p</b><br /><b>regexp	^/		http://otherhost.com/%p</b><br /><b>regexp	^/(.*)		http://otherhost.com/$1</b><br /><b>prefix	/		http://otherhost.com/</b><br />    <font size="-1">Ex: redirects all files to http://otherhost.com/</font><br /><b>regexp	^/old[^/]*/	/newdir/%f</b><br />    <font size="-1">Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br /><b>prefix	/oldfiles/	%h/</b><br />    <font size="-1">Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br /><b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />    <font size="-1">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br /></pre></p>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Redirect patterns
 //

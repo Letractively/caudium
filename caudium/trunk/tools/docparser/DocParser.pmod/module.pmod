@@ -1862,7 +1862,7 @@ class Parse {
     private void parse_tree(string top)
     {
         array(string)   dirs = ({}), files = ({});
-        object(Regexp)  fpatt = Regexp(".*\.(pike$|c$|h$)");
+        object(Regexp)  fpatt = Regexp(".*\.(pike$|c$|h$|pmod$)");
         
         foreach(get_dir(top), string s) {
             mixed st = file_stat(top + s);

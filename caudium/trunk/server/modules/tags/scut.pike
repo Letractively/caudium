@@ -61,9 +61,9 @@ constant thread_safe  = 1;
 
 //! container: scut
 //!  Cut a string to a max value
-//! arg: max
+//! attribute: max
 //!  Cut the sting up to this max value.
-//! arg: postfix
+//! attribute: postfix
 //!  Add this string argument after the cut less the size of this arg
 string scut(string tag_name, mapping args, string contents,
             object id, object f, mapping defines, object fd)
