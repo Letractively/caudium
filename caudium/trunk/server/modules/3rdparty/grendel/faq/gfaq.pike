@@ -157,7 +157,7 @@ void create()
 
 void start(int cnt, object conf)
 {
-  module_dependencies(conf, ({"gsession", "gbutton", "gtext"}));
+  module_dependencies(conf, ({"gsession", "gbutton", "graphic_text"}));
 
   if (QUERY(css_uri) != "")
     css_uri = QUERY(css_uri);
