@@ -26,7 +26,7 @@
  *
  */
 
-// Sets up the roxen environment. Including custom functions like spawne().
+// Sets up the caudium environment. Including custom functions like spawne().
 
 //
 // NOTE:
@@ -112,7 +112,7 @@ mixed mark_fd(mixed ... args) { }
 #endif
 
 /*
- * Some efuns used by Roxen
+ * Some efuns used by Caudium
  */
 
 // Used to print error/debug messages
@@ -121,7 +121,7 @@ void roxen_perror(string format,mixed ... args)
   int t = time();
 
   if (perror_status_reported < t) {
-    stderr->write("[1mRoxen is alive!\n"
+    stderr->write("[1mCaudium is alive!\n"
 		  "   Time: "+ctime(t)+
 		  "   pid: "+pid+"   ppid: "+getppid()+
 #if efun(geteuid)
@@ -215,7 +215,7 @@ mapping make_mapping(string *f)
 }
 
 
-// Roxen itself
+// Caudium itself
 object roxen;
 
 // The function used to report notices/debug/errors etc.
@@ -223,7 +223,7 @@ function nwrite;
 
 
 /*
- * Code to get global configuration variable values from Roxen.
+ * Code to get global configuration variable values from Caudium.
  */
 #define VAR_VALUE 0
 
@@ -541,13 +541,13 @@ int gethrtime()
 }
 #endif
 
-// Load Roxen for real
-object really_load_roxen()
+// Load Caudium for real
+object really_load_caudium()
 {
   int start_time = gethrtime();
-  werror("Loading roxen ... ");
+  werror("Loading Caudium ... ");
   object res = ((program)"roxen")();
-  roxen_perror("Loaded roxen in "+sprintf("%4.3fs\n", (gethrtime()-start_time)/1000000.0));
+  roxen_perror("done in "+sprintf("%4.3fs\n", (gethrtime()-start_time)/1000000.0));
   return res;
 }
 
@@ -561,8 +561,8 @@ void trace_destruct(mixed x)
 }
 #endif /* TRACE_DESTRUCT */
 
-// Set up efuns and load Roxen.
-void load_roxen()
+// Set up efuns and load Caudium.
+void load_caudium()
 {
   add_constant("cd", restricted_cd());
 #ifdef TRACE_DESTRUCT
@@ -585,7 +585,7 @@ void load_roxen()
     add_constant("Privs", myprivs(this_object()));
   else  // No need, we are not running as root.
     add_constant("Privs", (Privs=empty_class));
-  roxen = really_load_roxen();
+  roxen = really_load_caudium();
   if(!getuid())
   {
     add_constant("roxen_pid", getpid());
@@ -595,10 +595,10 @@ void load_roxen()
 #else
   /* NT */
   add_constant("Privs", (Privs=empty_class));
-  roxen = really_load_roxen();
+  roxen = really_load_caudium();
 #endif
-  perror("Roxen version "+roxen->cvs_version+"\n"
-	 "Roxen release "+roxen->real_version+"\n"
+  perror("Caudium version "+roxen->cvs_version+"\n"
+	 "Caudium release "+roxen->real_version+"\n"
 #ifdef __NT__
 	 "Running on NT\n"
 #endif
@@ -680,14 +680,14 @@ string make_path(string ... from)
   }, getcwd())*":";
 }
 
-// Roxen bootstrap code.
+// Caudium bootstrap code.
 int main(mixed ... args)
 {
   int start_time = gethrtime();
   string path = make_path("base_server", "etc/include", ".");
   roxen_perror(version()+"\n");
-  roxen_perror("Roxen loader version "+cvs_version+"\n");
-  roxen_perror("Roxen started on "+ctime(time()));	// ctime has an lf.
+  roxen_perror("Caudium loader version "+cvs_version+"\n");
+  roxen_perror("Caudium started on "+ctime(time()));	// ctime has an lf.
   master()->putenv("PIKE_INCLUDE_PATH", path);
   foreach(path/":", string p) {
     add_include_path(p);
@@ -721,7 +721,7 @@ int main(mixed ... args)
 #endif
 
   initiate_cache();
-  load_roxen();
+  load_caudium();
   int retval = roxen->main(@args);
   perror_status_reported = 0;
   roxen_perror("\n-- Total boot time %4.3f seconds ---------------------------\n\n",

@@ -29,7 +29,7 @@
  * cvs_version variable here.
  *
  * WARNING:
- * If the environment variable 'ROXEN_LANG' is set, it is used as the default 
+ * If the environment variable 'CAUDIUM_LANG' is set, it is used as the default 
  * language.
  */
 
@@ -90,7 +90,7 @@ private string nil()
 }
 
 
-string default_language = getenv("ROXEN_LANG")||"en";
+string default_language = getenv("CAUDIUM_LANG")||"en";
 
 /* Return a pointer to an language-specific conversion function. */
 public function language(string what, string func)

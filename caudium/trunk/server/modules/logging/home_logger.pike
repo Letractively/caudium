@@ -354,7 +354,7 @@ static void do_log(mapping file, object request_id, function log_function)
 		   (sizeof(request_id->referer)?request_id->referer[0]:"-"),
 		   http_encode_string(sizeof(request_id->client)?request_id->client*" ":"-"),
 		   extract_user(request_id->realauth),
-		   (string)request_id->cookies->RoxenUserID,
+		   (string)request_id->cookies->CaudiumUserID,
 		 }));
   
   if(search(form, "host") != -1)

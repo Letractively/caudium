@@ -18,7 +18,7 @@ CLASSPATH=etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar${CLASSP
 export CLASSPATH
 
 # Enable threads (if available) on Solaris.
-# Most other OS's have thread bugs that cause them or Roxen to crash.
+# Most other OS's have thread bugs that cause them or Caudium to crash.
 if uname | grep 'SunOS' >/dev/null 2>&1; then
   if uname -r | grep '5\.[5-9]' >/dev/null 2>&1; then
     if [ x"$1" != "x--help" ] ; then
@@ -28,7 +28,7 @@ if uname | grep 'SunOS' >/dev/null 2>&1; then
   fi
 fi
 
-# Roxen will create files as the initial user,
+# Caudium will create files as the initial user,
 # which it expects to be able to read as the run-time user.
 umask 022
 
@@ -85,7 +85,7 @@ fi
 
 pike=pike
 if [ -x bin/pike ] ; then pike=bin/pike; fi
-if [ -x bin/roxen ] ; then  pike=bin/roxen; fi
+if [ -x bin/caudium ] ; then  pike=bin/caudium; fi
 if [ "x$PIKE" = "x" ]; then :; else
   if [ -x "$PIKE" ]; then pike="$PIKE"; fi
 fi
@@ -123,8 +123,8 @@ parse_args() {
    FILES=`echo $1 | sed -e's/--config-dir=//' -e's/\.//g' -e's./..g' -e 's.-..g'`
   ;;
   --pid-file=*)
-   ROXEN_PID_FILE=`echo $1 | sed -e 's/--pid-file=//'`
-   export ROXEN_PID_FILE
+   CAUDIUM_PID_FILE=`echo $1 | sed -e 's/--pid-file=//'`
+   export CAUDIUM_PID_FILE
   ;;
   '--debug'|'--with-debug'|'--enable-debug')
     debug=1
@@ -162,16 +162,16 @@ parse_args() {
     shift
   ;;
   '--version')
-    VERSION=`sed <base_server/roxen.pike -e'/__roxen_version__/s/[^0-9.]*//gp' -ed|head -1`
-    BUILD=`sed <base_server/roxen.pike -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`
-    echo Roxen Challenger $VERSION.$BUILD
+    VERSION=`sed <base_server/roxen.pike -e'/__caudium_version__/s/[^0-9.]*//gp' -ed|head -1`
+    BUILD=`sed <base_server/roxen.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`
+    echo Caudium $VERSION.$BUILD
     exit 0
   ;;
   '--help'|'-?')
   sed -e "s/\\.B/`tput 'bold' 2>/dev/null`/g" -e "s/B\\./`tput 'rmso' 2>/dev/null`/g" << EOF
-.BThis command will start the Roxen serverB..
+.BThis command will start the Caudium serverB..
 
-The environment variable .BROXEN_ARGSB. can be used to specify
+The environment variable .BCAUDIUM_ARGSB. can be used to specify
 the default arguments.
 
    .BArguments:B.
@@ -210,7 +210,7 @@ the default arguments.
 
       .B--gdbB.:                      Run the server in gdb. Implies .B--onceB..
 
-      .B--programB.:                  Start a different program with the roxen
+      .B--programB.:                  Start a different program with the caudium
 				  pike. As an example, 
                                   .B./start --program bin/install.pikeB. will 
 				  start the installation program normally 
@@ -227,8 +227,8 @@ the default arguments.
 				  extremely noisy, and is not intented for 
 				  anything but debug.
 
-      .B--pid-file=<file>B.:          Store the roxen and startscript pids in this
-				  file. Defaults to .B/tmp/roxen_\$UIDB.
+      .B--pid-file=<file>B.:          Store the caudium and startscript pids in this
+				  file. Defaults to .B/tmp/caudium_\$UIDB.
          
   .BArguments passed to pike:B.
 
@@ -254,9 +254,9 @@ the default arguments.
 
   .BEnvironment variables:B.
 
-     .BROXEN_CONFIGDIRB.:             Same as .B--config-dir=... B.
-     .BROXEN_PID_FILEB.:              Same as .B--pid-file=... B.
-     .BROXEN_LANGB.:                  The default language for all language
+     .BCAUDIUM_CONFIGDIRB.:             Same as .B--config-dir=... B.
+     .BCAUDIUM_PID_FILEB.:              Same as .B--pid-file=... B.
+     .BCAUDIUM_LANGB.:                  The default language for all language
 				  related tags. Defaults to 'en' for english.
 
 EOF
@@ -275,15 +275,15 @@ EOF
 
 parse_args $@
 
-if [ ! "X$ROXEN_ARGS" = "X" ]; then
-  echo $$: Using $ROXEN_ARGS from ROXEN_ARGS.
-  parse_args $ROXEN_ARGS
+if [ ! "X$CAUDIUM_ARGS" = "X" ]; then
+  echo $$: Using $CAUDIUM_ARGS from CAUDIUM_ARGS.
+  parse_args $CAUDIUM_ARGS
 fi
 
 if [ ! "X$pass" = "X" ] ; then set -- $pass ;fi
 
 
-echo $$: Starting the Roxen Challenger World Wide Web server.
+echo $$: Starting the Caudium Challenger World Wide Web server.
 
 ./mkdir -p $LOGDIR/debug/
 
@@ -306,8 +306,8 @@ rotate () {
   for a in 4 3 2 1 ; do mv -f $1.$a $1.$b 2> /dev/null;  b=$a; done
 }
 
-start_roxen() {
-  args="-DROXEN $DEBUG $DEFINES $pass $program --config-dir=$DIR $pass2"
+start_caudium() {
+  args="-DCAUDIUM $DEBUG $DEFINES $pass $program --config-dir=$DIR $pass2"
   if [ "x$gdb" = "xno" ]; then
     echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
     echo Executing $pike $args $@
@@ -345,21 +345,21 @@ oo
     echo $$: "Debug log in $LOGDIR/debug/$FILES.1"
     rotate $LOGDIR/debug/$FILES
 
-    start_roxen 2>>$LOGDIR/debug/$FILES.1 1>&2
+    start_caudium 2>>$LOGDIR/debug/$FILES.1 1>&2
 
     exitcode="$?"
 
     if [ "$exitcode" -eq "0" ] ; then
       # Clean shutdown.
-      echo $$: "Roxen shutdown."
+      echo $$: "Caudium shutdown."
       exit 0
     fi
     if [ "$exitcode" -lt "0" ] ; then
       # Signal death.
-      echo $$: "Roxen died of signal $exitcode. Restarting..."
+      echo $$: "Caudium died of signal $exitcode. Restarting..."
     else
       # Restart. Sleep a second before restarting.
-      echo $$: Roxen died. Restarting in 1 second...
+      echo $$: Caudium died. Restarting in 1 second...
       sleep 1
     fi
   done
@@ -370,6 +370,6 @@ oo
 
 else
   echo $$: "Server restart at `date`"
-  start_roxen
+  start_caudium
 fi
     

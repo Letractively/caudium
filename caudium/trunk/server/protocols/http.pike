@@ -186,7 +186,7 @@ private int really_set_config(array mod_config)
 
     my_fd->write(prot + " 302 Config in cookie!\r\n"
 		 "Set-Cookie: "
-		  + http_roxen_config_cookie(indices(config) * ",") + "\r\n"
+		  + http_caudium_config_cookie(indices(config) * ",") + "\r\n"
 		 "Location: " + url + "\r\n"
 		 "Content-Type: text/html\r\n"
 		 "Content-Length: 0\r\n\r\n");
@@ -541,7 +541,7 @@ private int parse_got(string s)
 	    value=http_decode_string(value);
 	    name=http_decode_string(name);
 	    cookies[ name ]=value;
-	    if(name == "RoxenConfig" && strlen(value))
+	    if(name == "CaudiumConfig" && strlen(value))
 	    {
 	      array tmpconfig = value/"," + ({ });
 	      string m;
@@ -772,7 +772,7 @@ private int parse_got(string s)
 		value=http_decode_string(value);
 		name=http_decode_string(name);
 		cookies[ name ]=value;
-		if(name == "RoxenConfig" && strlen(value))
+		if(name == "CaudiumConfig" && strlen(value))
 		{
 		  array tmpconfig = value/"," + ({ });
 		  string m;
@@ -846,12 +846,12 @@ private int parse_got(string s)
   else
     if(conf
        && QUERY(set_cookie)
-       && !cookies->RoxenUserID && strlen(not_query)
+       && !cookies->CaudiumUserID && strlen(not_query)
        && not_query[0]=='/' && method!="PUT")
     {
       if (!(QUERY(set_cookie_only_once) &&
 	    cache_lookup("hosts_for_cookie",remoteaddr))) {
-	misc->moreheads = ([ "Set-Cookie":http_roxen_id_cookie(), ]);
+	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
       }
       if (QUERY(set_cookie_only_once))
 	cache_set("hosts_for_cookie",remoteaddr,1);
