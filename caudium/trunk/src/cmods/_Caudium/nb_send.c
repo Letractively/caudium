@@ -127,6 +127,10 @@ static INLINE void free_input(input *inp) {
       munmap(inp->u.mmap_storage->data, inp->u.mmap_storage->m_len);
       mmapped -= inp->u.mmap_storage->m_len;
     }
+    push_int(0);    push_int(0);    push_int(0);
+    apply_low(inp->u.mmap_storage->file, inp->set_nb_off, 3);
+    apply_low(inp->u.mmap_storage->file, inp->set_b_off, 0);
+    pop_n_elems(2);
     free_object(inp->u.mmap_storage->file);
     free(inp->u.mmap_storage);
     break;
@@ -134,9 +138,8 @@ static INLINE void free_input(input *inp) {
   case NBIO_OBJ:
     push_int(0);    push_int(0);    push_int(0);
     apply_low(inp->u.file, inp->set_nb_off, 3);
-    pop_stack();
     apply_low(inp->u.file, inp->set_b_off, 0);
-    pop_stack();
+    pop_n_elems(2);
     /* FALL THROUGH */
     
   case NBIO_BLOCK_OBJ:
@@ -174,7 +177,8 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
 
   inp->pos  = 0;
   inp->mode = SLEEPING;
-  
+  inp->set_nb_off = -1;
+  inp->set_b_off  = -1;
   DERR(fprintf(stderr, "Allocated new input at 0x%x\n", (unsigned int)inp));
 
   if(inval.type == T_STRING) {
@@ -212,6 +216,8 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
       nobjects++;
     } else {
       inp->type   = NBIO_OBJ;
+      inp->set_nb_off = find_identifier("set_nonblocking", inval.u.object->prog);
+      inp->set_b_off  = find_identifier("set_blocking", inval.u.object->prog);
 #ifdef USE_MMAP
       if (fstat(inp->fd, &s) == 0 && S_ISREG(s.st_mode)) 
       {
@@ -250,8 +256,6 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
 	 * block). Typical example is CGI.
 	 */
 	inp->u.file = inval.u.object;
-	inp->set_nb_off = find_identifier("set_nonblocking",inp->u.file->prog);
-	inp->set_b_off  = find_identifier("set_blocking", inp->u.file->prog);
 	
 	if(inp->set_nb_off < 0 || inp->set_b_off < 0)
 	{
@@ -263,6 +267,13 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
 	DERR(fprintf(stderr, "new input FD == %d\n", inp->fd));
       }
     }
+  }
+  if(inp->set_nb_off != -1 && inp->set_b_off != -1) {
+    DERR(fprintf(stderr, "Resetting input object callbacks.\n"));
+    push_int(0); push_int(0); push_int(0);
+    apply_low(inval.u.object, inp->set_nb_off, 3);
+    apply_low(inval.u.object, inp->set_b_off, 0);
+    pop_n_elems(2);
   }
 
   ninputs++;
@@ -316,9 +327,8 @@ static INLINE  void free_output(output *outp) {
   noutputs--;
   push_int(0);    push_int(0);    push_int(0);
   apply_low(outp->file, outp->set_nb_off, 3);
-  pop_stack();
   apply_low(outp->file, outp->set_b_off, 0);
-  pop_stack();
+  pop_n_elems(2);
   free_object(outp->file);
   free(outp);
 }
