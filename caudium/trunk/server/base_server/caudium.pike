@@ -45,6 +45,8 @@ object backend_thread;
 object argcache;
 object cache_manager;
 
+#define FLUSH_MODULES cache_manager->get_cache()->flush("^modules\:\/\/")
+
 // Some headerfiles
 #define IN_ROXEN
 #include <caudium.h>
