@@ -1,7 +1,7 @@
 Changes in Caudium 1.0.xx
 -------------------------
+- Fixed bug #542177 that makes incorrect listings from directories2.pike.
 - Fixed SF bug #530674
-
 
 Changes in Caudium 1.0.40 (stable release 3, 2002-02-27)
 --------------------------------------------------------
