@@ -5,7 +5,7 @@ inherit "caudiumlib";
 
 // import Array;
 
-constant cvs_version = "none for now";
+constant cvs_version = "$Id$";
 
 constant module_type = MODULE_LOCATION|MODULE_EXPERIMENTAL;
 constant module_name = "User LDAP administration";
@@ -335,7 +335,7 @@ void create()
 	 "Contains the user allowed to add other users. If empty everybody can add users");
   defvar("updaterequireauth", ({ "admin" }), "Update: require authentification",
   	 TYPE_STRING_LIST,
-	 "Contains the user allowed to update other users. If empty anybody can update users (provided you allow them in features ->  allow the user to update his account");
+	 "Contains the user allowed to update other users. If empty anybody can update users (provided you allow them in features ->  allow the user to update his account). gid of the user listed in this field don't need to be in Update -> gid numbers allow to update. ");
   defvar("defvaruidnumber", "uidNumber", "LDAP: Attribute - uidnumber attribute",
   	 TYPE_STRING,
 	 "Specify the name of the uidnumber attribute in LDAP.");
@@ -505,19 +505,31 @@ void create()
   defvar("regexp_uid", "[0-9a-zA-Z]", "Regexp: Uid",
   	 TYPE_STRING,
 	 "If uid don't match this, it will be reject. Leave empty to disable the check (not recommanded)");
+  defvar("error_regexp_uid", "Invalid login", "Regexp: Uid - error string",
+  	 TYPE_STRING,
+	 "The string to display when the uid don't match the regexp");
   defvar("regexp_gecos", "[0-9 a-zA-Z\\-]", "Regexp: Gecos",
   	 TYPE_STRING,
 	 "If gecos don't match this, it will be reject. Leave empty to disable the check (not recommanded)");
+  defvar("error_regexp_gecos", "Invalid user name", "Regexp: Gecos - error string",
+  	 TYPE_STRING,
+	  "The string to display when the gecos don't match the regexp");
   defvar("regexp_passwd", "[0-9]|[^a-zA-Z]", "Regexp: Password",
   	 TYPE_STRING,
 	 "If user password don't match this, it will be reject. Leave empty to disable the check (not recommanded)");
+  defvar("error_regexp_passwd", "Password should be at least 6 characters\nIt should both numeric and alphebitacal characters\n", "Regexp: Password - error string",
+  	 TYPE_STRING,
+	 "The string to display when the password don't match the regexp"); 
   defvar("regexp_mail", "[a-zA-Z.\-0-9]+@[a-zA-Z.\-0-9]+", "Regexp: Mail",
   	 TYPE_STRING,
 	 "If a mail address don't match this, it will be reject. Leave empty to disable the check (not recommanded)");
+  defvar("error_regexp_mail", "Invalid email address", "Regexp: Mail - error string",
+  	 TYPE_STRING,
+	 "The string to display when the mail don't match the regexp");
   defvar("debug", 0, "Enable debugging",
   	 TYPE_FLAG,
 	 "If set to yes, mails and LDAP attribute will be write to caudium log file.\nTake care as userPassword will be also write to caudium log file.\n");
-  defvar("allowed_domains", ({ "" }), "DNS...: Allowed domains", TYPE_STRING_LIST,
+  defvar("allowed_domains", ({ "" }), "DNS: Allowed domains", TYPE_STRING_LIST,
   "The domains allowed to access the module. Leave empty to disable this feature.");
 }
 
@@ -527,7 +539,7 @@ array(string) checkuid(array(string) errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_uid)) > 0 ? !Regexp(QUERY(regexp_uid))->match(argv): 0))
   {
-    errors[0] += "Wrong uid, try again\n";
+    errors[0] += QUERY(error_regexp_uid);
     errors[1] = 1;
   }
   return errors;
@@ -537,7 +549,7 @@ array(string) checkgecos(array(string) errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_gecos)) > 0 ? !Regexp(QUERY(regexp_gecos))->match(argv): 0))
   {
-    errors[0] += "Wrong username\n";
+    errors[0] += QUERY(error_regexp_gecos);
     errors[1] = 1;
   }
   return errors;
@@ -559,7 +571,7 @@ array(string) checkpasswd(array(string) errors, string argv, string argv2)
     }
     if(strlen(argv) <= 6 || (sizeof(QUERY(regexp_passwd)) > 0 ? !Regexp(QUERY(regexp_passwd))->match(argv): 0))
     {
-      errors[0] += "Password should be at least 6 characters\nIt should both numeric and alphebitacal characters\n";
+      errors[0] += QUERY(error_regexp_passwd);
       errors[1] = 1;
     }
   }
@@ -570,7 +582,7 @@ array(string) checkmail(array(string) errors, string argv)
 {
   if(strlen(argv) == 0 || (sizeof(QUERY(regexp_mail)) > 0 ? !Regexp(QUERY(regexp_mail))->match(argv): 0))
   {
-    errors[0] += "Wrong mail address";
+    errors[0] += QUERY(error_regexp_mail);
     errors[1] = 1;
   }
 }
@@ -670,16 +682,35 @@ void sendmails(mapping (string:string) defines)
   simple_mail(defines["uid"][0] + "@" + QUERY(maildomain) , "[ ITEAM ] Welcome on board", localmailadmin, msg);
 }
 
-void sendbadmails(mapping (string:string) defines, string last_error)
+void sendbadmails(mapping defines, string last_error)
 {
   mapping localtime = localtime(time());
   string localmailadmin = QUERY(mailadmin);
   string date = localtime["hour"] + ":" + localtime["min"] + ":" + localtime["sec"] + " " + localtime["mday"] + "/" + localtime["mon"] + "/" + (localtime["year"] + 1900);
   // first mail the admin
   array mail_from = ({ "$LOGIN", "$UID", "$GID", "$GECOS", "$DATETIME", "$ADMIN", "$LAST_ERROR" }); 
-  array mail_to = ({ defines["uid"][0], defines["uidNumber"][0], defines["gidNumber"][0], defines["gecos"][0], date, localmailadmin, last_error });
+  array mail_to;
+  // Avoid errors over error
+  if(mappingp(defines) && arrayp(defines["uid"]) && stringp(defines["uid"][0]))
+    mail_to = ({ defines["uid"][0] });
+  else 
+    mail_to = ({ "don't know" });
+  if(mappingp(defines) && arrayp(defines["uidNumber"]) && stringp(defines["uidNumber"][0]))
+    mail_to += ({ defines["uidNumber"][0] });
+  else
+    mail_to += ({ "don't know" }); 
+  if(mappingp(defines) && arrayp(defines["gidNumber"]) && stringp(defines["gidNumber"][0]))
+    mail_to += ({ defines["gidNumber"][0] });
+  else
+    mail_to += ({ "don't know" }); 
+  if(mappingp(defines) && arrayp(defines["gecos"]) && stringp(defines["gecos"][0]))
+    mail_to += ({ defines["gecos"][0] });
+  else
+    mail_to += ({ "don't know" }); 
+  mail_to += ({ date, localmailadmin, last_error });
   string msg = replace(QUERY(badmailtouser), mail_from, mail_to);
-  simple_mail(defines["uid"][0] + "@" + QUERY(maildomain), "[ ITEAM] Erreur dans votre inscription", localmailadmin, msg);
+  if(mappingp(defines) && arrayp(defines["uid"]) && stringp(defines["uid"][0]))
+    simple_mail(defines["uid"][0] + "@" + QUERY(maildomain), "[ ITEAM] Erreur dans votre inscription", localmailadmin, msg);
   string msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
   simple_mail(QUERY(mailadmin), "Problème(s) lors de la création d'un compte", localmailadmin, msg);
 }
@@ -730,9 +761,8 @@ void checkresult(object con, mapping from, string uid)
     indice = indic[i];
     to[indice] = sort(to[indice]);
   }
-  write(sprintf("from=%O\n\n\n, to=%O\n\n\n", from, to));
   if(!equal(from, to))
-    throw ( ({ "Due to an unknown error, you were not added to our account database", backtrace() }) );
+    throw ( ({ "Due to an unknown error, you were not added to our account database. Check /var/log/auth.log(error code in decimal value) and $OPENLDAP_SRC_DIR/include/ldap.h(meaning of the error and error code in hexa) [ provided you use openldap and configured /etc/syslog.conf ] for more information", backtrace() }) );
 }
 
 int user_auth(object id)
@@ -994,6 +1024,7 @@ int gidok(mapping defines)
 string showmodifyinputs(object id, mapping defines)
 {
   string inputs;
+  
   array inputs_from = ({ "$LOGIN", "$MOUNTPOINT", "$GECOS", "$PASSWORD", "$PASSWORD2", "$MAILDROP", "$MAILACCEPTINGGENERALID" });
   array inputs_to = ({ defines["uid"][0], QUERY(location) });
   /* can the user change his gecos ? */
@@ -1044,6 +1075,13 @@ string showupdateinputs(object id, mapping defines)
   string inputs;
   array inputs_from = ({ "$LOGIN", "$MOUNTPOINT", "$GECOS", "$UIDNUMBER", "$GIDNUMBER" });
   array inputs_to = ({ defines["uid"][0], QUERY(location), defines["gecos"][0], defines["uidNumber"][0], defines["gidNumber"][0] });
+  if(strlen(QUERY(updaterequireauth)[0]) > 0)
+  {
+    //TODO: use a select box to list logins in currentgidnumber
+    inputs_to = ({ "<input type=\"text\" value=\"fill in user login\" name=\"uid\"", QUERY(location), "will find it", "will find it", "will find it" });
+    inputs = replace(QUERY(ui_update_input), inputs_from, inputs_to);
+    return inputs;
+  }
   // sanity check
   if(QUERY(allowupdate) && gidok(defines))
     inputs = replace(QUERY(ui_update_input), inputs_from, inputs_to);
@@ -1079,7 +1117,7 @@ mapping modify(object id, string action)
     con->set_scope(2);
     // first a sanity check :)
     if(isloginexist(con, id->auth[1]) == 0)
-      throw ( ({ "You don't exist, go away!" }) );
+      throw ( ({ "You '" + id->auth[1] + "' don't exist, go away!" }) );
     defines[QUERY(defvaruid)] = id->auth[1];
     defines = getfullinformation(con, defines[QUERY(defvaruid)]);
     defines["uid"] = defines[QUERY(defvaruid)];
@@ -1100,7 +1138,7 @@ mapping modify(object id, string action)
     if(action == "update")
     {
       if(strlen(QUERY(updaterequireauth)[0]) > 0)
-        if(search(QUERY(updaterequireauth)[0], id->auth[1]) == -1)
+        if(search(QUERY(updaterequireauth), id->auth[1]) == -1)
 	  return http_auth_required("add member user", "Only some users may update");
       return http_rxml_answer(showupdateinputs(id, defines), id);
     }
@@ -1108,9 +1146,20 @@ mapping modify(object id, string action)
       write(sprintf("defines1=%O\n", defines));
     if(action == "applyupdate")
     {
+      /* the admin is updating another account */
       if(strlen(QUERY(updaterequireauth)[0]) > 0)
-        if(search(QUERY(updaterequireauth)[0], id->auth[1]) == -1)
-	  return http_auth_required("add member user", "Only some users may update");  
+      {
+        if(search(QUERY(updaterequireauth), id->auth[1]) == -1)
+	  return http_auth_required("update member user", "Only some users may update");  
+        if(isloginexist(con, id->variables->uid) == 0)
+          throw ( ({ "You '" + id->variables->uid + "' don't exist, go away!" }) );
+        defines[QUERY(defvaruid)] = id->variables->uid;
+        defines = getfullinformation(con, defines[QUERY(defvaruid)]);
+        defines["uid"] = defines[QUERY(defvaruid)];
+        defines["uidNumber"] = defines[QUERY(defvaruidnumber)];
+        defines["gidNumber"] = defines[QUERY(defvargidnumber)];
+        defines["homeDirectory"] = defines[QUERY(defvarhomedirectory)];
+      }
       if(QUERY(allowupdate) && gidok(defines))
       {
         //update
