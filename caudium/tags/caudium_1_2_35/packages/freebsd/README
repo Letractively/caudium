@@ -1,0 +1,9 @@
+This directory is meant to keep all the packaging systems stuff for FreeBSD.
+
+Pike 7.2 is available on FreeBSD ports in ports/lang/pike72,
+Pexts    is available on FreeBSD ports in ports/lang/pexts,
+
+If you haven't these directories in your FreeBSD distributions, please check
+your FreeBSD handbook on how to get latest FreeBSD port distribution.
+
+Feedback ? mail to  kiwi@caudium.net

@@ -1,0 +1,34 @@
+SRCDIR=@srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+
+@SET_MAKE@
+
+all: @DIRS@
+
+force:
+	@:
+
+cmods: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+tools: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+fast_cgi: force
+	( cd $@ && $(MAKE) $(MAKE_FLAGS))
+
+install: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
+install_bin: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install_bin); done
+install_alt: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install_alt); done
+clean: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) clean); done
+spotless: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) spotless); done
+	rm -f Makefile config.log config.status
+depend: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) depend); done
+
+
+

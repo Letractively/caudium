@@ -1,0 +1,33 @@
+$Id$
+
+The default config is as MacOS X friendly as possible. If you made some
+improvements, please contact me (bertrand AT caudium DOT net) for these being
+included in the package.
+
+If you're interested in doing some Caudium programming, here are the path for
+putting your own code:
+
+
+Caudium modules (.pike):
+	- /@PREFIX@/local/caudium1.2/modules/
+	- /usr/local/caudium1.2/modules/
+This can be changed in the configuration interface in
+Global Variables -> Module directories.
+Just flush the module cache (Actions -> Cache -> Flush cache...) for handling
+changes.
+
+
+Includes (.h):
+	- /@PREFIX@/local/etc/include/
+	- /usr/local/caudium1.2/etc/include/
+This can be changed in /@PREFIX@/lib/caudium1.2/start script. You have to
+restart Caudium if you change or add a file, but you have to shutdown and start
+Caudium if you add a place where to look for includes.
+
+
+Pike modules (.pmod):
+	- /@PREFIX@/local/etc/include/modules/
+	- /usr/local/etc/include/modules/
+This can be changed in /@PREFIX@/lib/caudium1.2/start script. You have to
+restart Caudium if you change or add a file, but you have to shutdown and start
+Caudium if you add a place where to look for Pike modules.
