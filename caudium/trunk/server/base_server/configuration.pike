@@ -3126,21 +3126,13 @@ int load_module(string module_file)
     };
   } else {
     string dir;
-    object e = ErrorContainer();
-    master()->set_inhibit_compile_errors(e);
 
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
 				  this_object());
     };
 
-    string errors = e->get();
-
-    _master->set_inhibit_compile_errors(0);
-
-    if (sizeof(errors)) {
-      report_error(sprintf("Error while compiling module (\"%s\"):\n%s\n",
-			   module_file, errors));
+    if (!obj) {
       return(0);
     }
 
