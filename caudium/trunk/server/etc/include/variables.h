@@ -2,5 +2,5 @@
 // $Id$
 // Fallback-resources, don't change here.
 
-constant errors=Caudium.Const.errors;
+private static constant errors=Caudium.Const.errors;
 
