@@ -7,7 +7,7 @@
  */
 
 #define RCDIR ""
-#define RCFILE "dog.rc"
+#define RCFILE "etc/dog.rc"
 #define LOGFILE "doglog"
 #define STD_REBOOT 240
 #define STD_MAIN "/"
@@ -115,7 +115,7 @@ class Puppy
     remove_call_out( failed );
     f->set_nonblocking( 0, 0, 0 );
     f->close();
-    if( down >= nr_lowalert )
+    if( (int)down >= (int)nr_lowalert )
     {
       int t=time();
       action_lowalert( "Reastablished contact with "+ name
@@ -132,7 +132,7 @@ class Puppy
     
     if (!down++)
       since=time();
-    else if (down==nr_lowalert)
+    else if ((int)down==(int)nr_lowalert)
     {
       int t=time();
       action_lowalert(
@@ -144,7 +144,7 @@ class Puppy
 	    (((t-since)/60)%60)+"m"+
 	    ((t-since)%60)+"s.\n", rc);
     }
-    else if(down==nr_highalert)
+    else if((int)down==(int)nr_highalert)
     {
       int t=time();
       action_highalert(
@@ -158,7 +158,7 @@ class Puppy
     }
 
     /*
-    else if ( !((down-nr_lowalert)%5) && down<nr_highalert )
+    else if ( !(((int)down-(int)nr_lowalert)%5) && (int)down<(int)nr_highalert )
     {
       int t=time();
       action_lowalert(
@@ -169,7 +169,7 @@ class Puppy
 	    ((t-since)/3600)+"h"+
 	    (((t-since)/60)%60)+"m.\n", rc);
     }
-    else if( down > nr_highalert )
+    else if( (int)down > (int)nr_highalert )
     {
       int t=time();
       action_lowalert(
@@ -190,13 +190,13 @@ class Puppy
     f->write("GET / HTTP/1.0\r\n\r\n");
    
     remove_call_out(failed);
-    call_out(failed,read_timeout,f);
+    call_out(failed,(int)read_timeout,f);
   }
 
   void watchdog()
   {
     werror( "watchdog...("+ interval +")\n" );
-    call_out(watchdog,interval);
+    call_out(watchdog, (int)interval);
     
     object f=Stdio.File();
     f->open_socket();
@@ -204,7 +204,7 @@ class Puppy
     f->set_nonblocking( 0, connected, failed );
     reason="failed to connect or timed out ("+connect_timeout+"s) ";
     f->connect(ip,port); // test server
-    call_out(failed,connect_timeout,f);
+    call_out(failed,(int)connect_timeout,f);
   }
 
   void create(string _name, string _server, int _port, string _file,
@@ -268,6 +268,7 @@ void action_dummy( string message, mapping rc, void|int standdown )
 // Give the right action-function from the resource
 function get_function( string actions )
 {
+  werror(actions + "\n");
   switch( actions )
   {
    case "r":
@@ -298,9 +299,18 @@ array get_servers()
   }
   foreach(config_dir->list_files(), mapping cf)
   {
-    mapping cfg=Config.Files.File(config_dir, 
-      cf->name)->retrieve_region("spider");
-    werror(sprintf("%O", cfg));
+    werror("looking at the configuration file " + cf->name + "\n");
+    object cfr=Config.Files.File(config_dir, cf->name);
+    cfr->parse();
+    mapping cfg=cfr->retrieve_region("spider#0");
+    if(cfg)
+    {
+      int port;
+      string host;
+
+      sscanf(cfg->MyWorldLocation, "%*s//%s:%d", host, port);
+      srvs+=({ ({host, port}) });
+    }
   }
 
   return srvs;
@@ -309,29 +319,6 @@ array get_servers()
 //Preparse the resources
 mapping refine_rc( mapping rc )
 {
-  mapping files = ([]);
-
-  werror( sprintf("foo: %O\n", rc->file));
-  foreach( rc->file / "\0", string bar )
-  {
-    array gaz = bar/":";
-    werror( sprintf("refine: %O\n", gaz) );
-    files[ gaz[0] ] = ([ "lowtime":(int)gaz[1],
-			 "lowaction":gaz[2],
-			 "hightime":(int)gaz[3],
-			 "highaction":gaz[4] ]);
-  }
-
-  array saker =
-    ({ "serverport", "interval", "readtimeout", "connecttimeout" });
-  foreach( saker, string sak )
-    rc[sak] = (int)rc[sak];
-
-  rc->file = files;
-
-  if (rc->lsof)
-    rc->lsofwargs = sprintf("%s -i -P -n -b -F cLpPnf", rc->lsof);
-
   return rc;
 }
 
@@ -343,18 +330,18 @@ int main(int argc, array (string) argv)
 
   array o=Getopt.find_all_options(
     argv, ({ ({"pid_file", Getopt.HAS_ARG, ({"--pid_file"}), 0, 0}),
-      ({"config_dir", Getopt.HAS_ARG, ({"--config_dir"}) }) }), 0, 0
+      ({"config_dir", Getopt.HAS_ARG, ({"--config_dir"}) }),
+      ({"log_dir", Getopt.HAS_ARG, ({"--log_dir"}) }) }), 0, 0
     );
   foreach(o, array xo)
     opts[xo[0]]=xo[1];
 
-  if(!(opts && opts->pid_file && opts->config_dir))
+  if(!(opts && opts->pid_file && opts->config_dir && opts->log_dir ))
   {
-    werror("no pid file / config dir specified.\n");
+    werror("no pid file / config dir / log dir specified.\n");
     exit(1);
   }
-  else 
-    werror(sprintf("%O\n", opts));
+
     pid=Stdio.read_file(opts->pid_file);
 
   if(!(pid && sscanf(pid, "%d", int tmp)))
@@ -374,25 +361,20 @@ int main(int argc, array (string) argv)
   write( sprintf("rc: %O\n", rc) );
   write( sprintf("servers: %O\n", servers) );
 
-  // Debugdots
-  //  call_out( dot, 1 );
 
-  // Unnessesay complication for this log
-  //  nlog = LogView.Bucket.log( LOGFILE, ({ "event" }), "Watchdog");
-  nlog = Stdio.File( LOGFILE, "wc" );
+  nlog = Stdio.File( opts->log_dir + "/" + LOGFILE, "wc" );
 
   // Make a puppy go play with each of the mountpoints.
-  foreach(servers, string srv )
+  foreach(servers, array srv )
   {
-    array x=srv/":";
 
-    log( "Startup: Initiating mountpoint "+ x[0] + ":" + x[1] +":");
-    Puppy( rc->servername, x[0], x[1], rc->file,
+    log( "Startup: Initiating mountpoint "+ srv[0] + ":" + srv[1] +":");
+    Puppy( rc->servername, srv[0], srv[1], rc->file,
 	   rc->interval, rc->connecttimeout, rc->readtimeout,
-	   rc->file->lowtime,
-	   get_function( rc->file->lowaction ),
-	   rc->file->hightime,
-	   get_function( rc->file->highaction ),
+	   rc->lowtime,
+	   get_function( rc->lowaction ),
+	   rc->hightime,
+	   get_function( rc->highaction ),
 	   rc );
   }
 
