@@ -84,7 +84,6 @@ pike/7.2.308/lib/modules/ADT.pmod/Queue.pike
 pike/7.2.308/lib/modules/ADT.pmod/struct.pike
 pike/7.2.308/lib/modules/ADT.pmod/Stack.pike
 pike/7.2.308/lib/modules/ADT.pmod/Table.pmod
-pike/7.2.308/lib/modules/ADT.pmod/Table.pmod.o
 pike/7.2.308/lib/modules/error.pmod
 pike/7.2.308/lib/modules/_Image_XCF.pmod
 pike/7.2.308/lib/modules/_Image_XPM.pmod
@@ -134,7 +133,6 @@ pike/7.2.308/lib/modules/Calendar.pmod/tzdata/southamerica
 pike/7.2.308/lib/modules/Calendar.pmod/tzdata/systemv
 pike/7.2.308/lib/modules/Calendar.pmod/tzdata/yearistype.sh
 pike/7.2.308/lib/modules/Calendar.pmod/tzdata/zone.tab
-pike/7.2.308/lib/modules/Calendar.pmod/Discordian.pmod.o
 pike/7.2.308/lib/modules/Calendar.pmod/Julian.pmod
 pike/7.2.308/lib/modules/Calendar.pmod/Language.pmod
 pike/7.2.308/lib/modules/Calendar.pmod/Roman.pmod
@@ -221,7 +219,6 @@ pike/7.2.308/lib/modules/Protocols.pmod/IRC.pmod/Error.pmod
 pike/7.2.308/lib/modules/Protocols.pmod/IRC.pmod/Raw.pike
 pike/7.2.308/lib/modules/Protocols.pmod/IRC.pmod/Requests.pmod
 pike/7.2.308/lib/modules/Protocols.pmod/IRC.pmod/module.pmod
-pike/7.2.308/lib/modules/Protocols.pmod/IRC.pmod/Raw.pike.o
 pike/7.2.308/lib/modules/Protocols.pmod/LDAP.pmod/ldap_privates.pmod
 pike/7.2.308/lib/modules/Protocols.pmod/LDAP.pmod/client.pike
 pike/7.2.308/lib/modules/Protocols.pmod/LDAP.pmod/ldap_errors.h
@@ -449,7 +446,7 @@ pike/7.2.308/man/man1/pike.1
 @unexec rm -rf %D/pike/7.2.308/lib/7.0/modules
 @dirrm pike/7.2.308/lib/7.0
 @dirrm pike/7.2.308/lib/tools
-@dirrm pike/7.2.308/include/pike
+@unexec rm -rf %D/pike/7.2.308/include/pike
 @dirrm pike/7.2.308/include
 @dirrm pike/7.2.308/man/man1
 @dirrm pike/7.2.308/man
