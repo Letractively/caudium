@@ -30,13 +30,21 @@ case "$1" in
 	    fi
 	    (cd /; tar czvf $BFILE etc/caudium || true)
 	fi       
-	rm -f /etc/default/caudium  || true
-	rm -rf /etc/caudium || true
+
+	if [ -L /var/www/index.html ]; then
+	  IFILE="`readlink /var/www/index.html`"
+	  if [ "$IFILE" = "../../usr/share/doc/caudium/www/index.html" ]; then
+	    rm -f /var/www/index.html
+	  fi
+	fi
+
+	rm -f /etc/default/caudium
+	rm -rf /etc/caudium
 	
 	#
 	# Clean the cache files
 	#
-	rm -rf /var/cache/caudium /var/state/caudium || true
+	rm -rf /var/cache/caudium /var/state/caudium
 	;;
 	
        remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
