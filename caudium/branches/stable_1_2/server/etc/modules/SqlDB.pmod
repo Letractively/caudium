@@ -20,6 +20,13 @@
  * $Id$
  */
 
+#define SQLDB_DEBUG 1
+#ifdef SQLDB_DEBUG
+# define WERR(X) perror("SqlDB : "+X+"\n");
+#else
+# define WERR(X)
+#endif
+
 //!  This Pike module provides a couple of classes that makes it possible for
 //!  module programmers to get Sql Databases connection persistent with
 //!  programmable values (timeout, database name, etc...).
@@ -53,6 +60,7 @@ class DB {
     timeout = _timeout;
     dburl = _dburl;
     id = _id;		// Can be dangerous if we modify here some id things.
+    WERR("create("+(string)_timeout+","+_dburl+",id)");
   }
 
   //!  Auto-close the db if needed
@@ -62,6 +70,7 @@ class DB {
    if((time(1)-last_db_access) > timeout) {
      db = 0;
      db_close++;
+     WERR("DB has been closed ("+(string)db_close+" times)");
      return;
    }
    call_out(close_db,timeout);
@@ -74,8 +83,10 @@ class DB {
     mixed err;
     last_db_access = time(1);
     db_access++;
+    WERR("Opening DB ("+(string)db_accesses+" times)");
     if(objectp(db))	// The db is already opened
 	return;
+    WERR("Opening DB (needs to be opened)");
     err=catch {
 	db = id->conf->sql_connect(dburl);
     };
@@ -102,9 +113,12 @@ class DB {
   //
   // Yeah I don't use what I've defined before... But it is directly
   // sent to the SQL handler so I must define it here :P      
+  WERR(sprintf("query() called. args :%O",args));
     opendb();
-    if (!db)
+    if (!db) {
+      perror("Cannot reopen the DB ("+dburl+")\n");
       return 0;
+    }
     return db->query(@args);
   }
 
