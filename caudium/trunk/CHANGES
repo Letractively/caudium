@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- <if> no longer evaluates true if using the "element is value" syntax and the
+  element is not present.
+   (Bill Welliver)
+- Fixed a backtrace during load of the WebApp module.
+   (Bill Welliver)
 - Watchdog debug can be enabled using --watchdog-debug
    (Bertrand Lupart)
 - If set using HTTP GET, the watchdog can now be set up either to check every
