@@ -45,6 +45,13 @@ constant cvs_version = "$Id$";
         report_error("Compat "+X+"() used in %s:%d, please consider using " \
                      ""+Y+"() instead\n",sourcefile,sourceline);
 
+//! Compat call of Stdio.mkdirhier
+//! @deprecated
+int mkdirhier(string pathname, void|int mode) {
+   WCOMPAT("Stdio","mkdirhier");
+   return Stdio.mkdirhier(pathname, mode);
+}
+
 //! Compat call of _Roxen.http_decode_string
 //! @deprecated
 string http_decode_string(string m) {
