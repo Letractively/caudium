@@ -2394,7 +2394,7 @@ private void define_global_variables(int argc, array (string) argv)
           "Fonts: Font directories", TYPE_DIR_LIST,
           "This is where the fonts are located.");
 
-  globvar("logdirprefix", "../logs/", "Log directory prefix",
+  globvar("logdirprefix", "../logs/", "Logging: Log directory prefix",
           TYPE_DIR|VAR_MORE,
           "This is the default file path that will be prepended to the log "
           " file path in all the default modules and the virtual server.");  
@@ -2649,14 +2649,14 @@ private void define_global_variables(int argc, array (string) argv)
             "Directory where the configuration interface keeps its state - module "
             "cache, interface settings etc.");
 
-    globvar("User", "", "Change uid and gid to", TYPE_STRING,
+    globvar("User", "", "Change uid and gid: Change uid and gid to", TYPE_STRING,
             "When caudium is run as root, to be able to open port 80 "
             "for listening, change to this user-id and group-id when the port "
             " has been opened. If you specify a symbolic username, the "
             "default group of that user will be used. "
             "The syntax is user[:group].");
 
-    globvar("permanent_uid", 0, "Change uid and gid permanently", 
+    globvar("permanent_uid", 0, "Change uid and gid: Change uid and gid permanently", 
             TYPE_FLAG,
             "If this variable is set, caudium will set it's uid and gid "
             "permanently. This disables the 'exec script as user' fetures "
@@ -2671,7 +2671,7 @@ private void define_global_variables(int argc, array (string) argv)
             " The directories are searched in order for modules.");
   
     globvar("Supports", "#include <etc/supports>\n", 
-            "Client supports regexps", TYPE_TEXT_FIELD|VAR_MORE,
+            "Supports: Client supports regexps", TYPE_TEXT_FIELD|VAR_MORE,
             "What do the different clients support?\n<br>"
             "The default information is normally fetched from the file "+
             getcwd()+"etc/supports, and the format is:<pre>"
@@ -2689,7 +2689,7 @@ private void define_global_variables(int argc, array (string) argv)
             "logged in the Event log.");
   
 #if constant(syslog)
-    globvar("LogA", "file", "Logging method", TYPE_STRING_LIST|VAR_MORE, 
+    globvar("LogA", "file", "Logging: method", TYPE_STRING_LIST|VAR_MORE, 
             "What method to use for logging, default is file, but "
             "syslog is also available. When using file, the output is really"
             " sent to stdout and stderr, but this is handled by the "
@@ -2737,7 +2737,7 @@ private void define_global_variables(int argc, array (string) argv)
             "your machine, or if you have a lot of slow NFS accesses.</i></p>");
 #endif
   
-    globvar("AutoUpdate", 1, "Update the supports database automatically",
+    globvar("AutoUpdate", 1, "Supports: Update the supports database automatically",
             TYPE_FLAG, 
             "If set to Yes, the etc/supports file will be updated automatically "
             "from caudium.net now and then. This is recomended, since "
@@ -2782,31 +2782,6 @@ private void define_global_variables(int argc, array (string) argv)
             ({1,2,3,4,5,6,7,14,30}),
             lambda(){return !QUERY(suicide_engage);}
            );
-
-    globvar("argument_cache_in_db", 0, 
-            "Argument Cache: Store the argument cache in a mysql database",
-            TYPE_FLAG|VAR_MORE,
-            "If set, store the argument cache in a mysql "
-            "database. This is very useful for load balancing using multiple "
-            "caudium servers, since the mysql database will handle "
-            " synchronization"); 
-
-    globvar( "argument_cache_db_path", "mysql://localhost/caudium", 
-             "Argument Cache: Database URL to use",
-             TYPE_STRING|VAR_MORE,
-             "The database to use to store the argument cache",
-             0,
-             lambda(){ return !QUERY(argument_cache_in_db); });
-
-    globvar( "argument_cache_dir", "../argument_cache", 
-             "Argument Cache: Cache directory",
-             TYPE_DIR|VAR_MORE,
-             "The cache directory to use to store the argument cache."
-             " Please note that load balancing is not available for most modules "
-             " (such as gtext, diagram etc) unless you use a mysql database to "
-             "store the argument caches",
-             0,
-             lambda(){ return QUERY(argument_cache_in_db); });
 
     //
     // Internal files stuff
@@ -3500,14 +3475,6 @@ int main(int argc, array(string) argv)
 
   roxen_perror("Initiating argument cache ... ");
 
-  int id;
-  string cp = QUERY(argument_cache_dir), na = "args";
-  if (QUERY(argument_cache_in_db)) {
-    id = 1;
-    cp = QUERY(argument_cache_db_path);
-    na = "argumentcache";
-  }
-  
   mixed e;
   e = catch(argcache = cache_manager->get_argcache());
   if (e) {
