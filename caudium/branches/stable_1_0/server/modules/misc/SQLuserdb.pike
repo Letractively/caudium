@@ -61,6 +61,7 @@ constant module_unique = 1;
 
 int att=0, succ=0, nouser=0, db_accesses=0, last_db_access=0;
 object db=0;
+object caudium_conf=0;	// to access to caudium's conf object
 
 /*
  * Object management and configuration variables definitions
@@ -174,6 +175,13 @@ void create()
 	  "authentication limit.");
 }
 
+
+// Start of the module
+void start(int count, object conf)
+{
+  caudium_conf = conf;
+}
+
 /*
  * DB management functions
  */
@@ -199,9 +207,15 @@ void open_db() {
   db_accesses++; //I count DB accesses here, since this is called before each
   if(objectp(db)) //already open
     return;
-  err=catch{
-    db=Sql.sql(QUERY(sqlserver));
-  };
+  if (caudium_conf->sql_connect) {	// Try to use internal Caudium SQL handler
+    err=catch{
+     db = caudium_conf->sql_connect(QUERY(sqlserver));
+    };
+  } else {
+    err=catch{
+     db = Sql.sql(QUERY(sqlserver));
+    };
+  }
   if (err) {
     perror ("SQLauth: Couldn't open authentication database!\n");
     if (db)
@@ -222,8 +236,8 @@ void open_db() {
 /*
  * Module Callbacks
  */
-string *userinfo (string u) {
-  string *dbinfo;
+array(string) userinfo (string u) {
+  array(string) dbinfo;
   array sql_results;
   mixed err,tmp;
   DEBUGLOG ("userinfo ("+u+")");
@@ -240,7 +254,9 @@ string *userinfo (string u) {
     return 0;
   }
   sql_results=db->query("select username,passwd,uid,gid,homedir,shell "
-			"from "+QUERY(table)+" where username='"+u+"'");
+			"from "+QUERY(table)+
+			" where username='"+
+			db->quote(u)+"'");
   if (!sql_results||!sizeof(sql_results)) {
     DEBUGLOG ("no entry in database, returning unknown")
       return 0;
@@ -297,9 +313,10 @@ string user_from_uid (int u)
   return data[0]->username;
 }
 
-array|int auth (string *auth, object id)
+array|int auth (array(string) auth, object id)
 {
-  string u,p,*dbinfo,*ip401;
+  string u,p;
+  array(string) dbinfo, ip401;
   mixed err;
 
   att++;
@@ -318,34 +335,34 @@ array|int auth (string *auth, object id)
     }
   }
 
-  sscanf (auth[1],"%s:%s",u,p);
+	sscanf (auth[1],"%s:%s",u,p);
 
-  if (!p||!strlen(p)) {
-    DEBUGLOG ("no password supplied by the user");
-    return ({0, auth[1], -1});
-  }
+	if (!p||!strlen(p)) {
+		DEBUGLOG ("no password supplied by the user");
+		return ({0, auth[1], -1});
+	}
 
-  if (QUERY(usecache))
-    dbinfo=cache_lookup("sqlauthentries",u);
+	if (QUERY(usecache))
+		dbinfo=cache_lookup("sqlauthentries",u);
 
-  if (!dbinfo) {
-    open_db();
+	if (!dbinfo) {
+		open_db();
 
-    if(!db) {
-      DEBUGLOG ("Error in opening the database");
-      return ({0, auth[1], -1});
-    }
-    dbinfo=userinfo(u); //cache is already set by userinfo
-  }
+		if(!db) {
+			DEBUGLOG ("Error in opening the database");
+			return ({0, auth[1], -1});
+		}
+		dbinfo=userinfo(u); //cache is already set by userinfo
+	}
 
-  // I suppose that the user's password is at least 1 character long
-  if (!dbinfo) {
-    DEBUGLOG ("no such user");
-    nouser++;
-    block401(id);
-    return ({0,u,p});
-  }
-  
+	// I suppose that the user's password is at least 1 character long
+	if (!dbinfo) {
+		DEBUGLOG ("no such user");
+		nouser++;
+      		block401(id);
+		return ({0,u,p});
+	}
+
   if  ( dbinfo && ( time() > (dbinfo[7]+QUERY(cachetimer)*60) ) ) {
     DEBUGLOG("cache expired");
     dbinfo=userinfo(u);
@@ -365,13 +382,13 @@ array|int auth (string *auth, object id)
     }
   }
 
-  DEBUGLOG (u+" positively recognized");
-  succ++;
-  id->misc+=mkmapping(
-		      ({"uid","gid","gecos","home","shell"}),
-		      dbinfo[2..6]
-		      );
-  return ({1,u,0});
+	DEBUGLOG (u+" positively recognized");
+	succ++;
+	id->misc+=mkmapping(
+			({"uid","gid","gecos","home","shell"}),
+			dbinfo[2..6]
+			);
+	return ({1,u,0});
 }
 
 /*
