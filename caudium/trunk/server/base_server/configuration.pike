@@ -316,7 +316,7 @@ private mapping (string:string) log_format = ([]);
 // format_log which takes the file and id object as arguments and returns
 // a formatted string. the hashost variable is 1 if there is a $host that
 // needs to be resolved.
-private mapping (string:object) log_format_objs = ([]);
+mapping (string:object) log_format_objs = ([]);
 
 
 // A list of priority objects (used like a 'struct' in C, really)
