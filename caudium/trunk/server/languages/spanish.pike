@@ -27,12 +27,12 @@ string cvs_version = "$Id$";
  */
 /* Trans by: jordi@lleida.net */
 
-string month(int num)
-{
-  return ({ "Enero", "Febrero", "Marzo", "Abril", "Mayo",
-	    "Junio", "Julio", "Agosto", "Septiembre", "Octubre",
-	    "Noviembre", "Diciembre" })[ num - 1 ];
-}
+import ".";
+inherit english;
+
+array(string)    the_words = ({
+    "año", "mes", "semana", "día"
+});
 
 string ordered(int i)
 {
@@ -41,37 +41,47 @@ string ordered(int i)
 
 string date(int timestamp, mapping|void m)
 {
-  mapping t1=localtime(timestamp);
-  mapping t2=localtime(time(0));
+    object  target = Calendar.Second("unix", timestamp)->set_language("spanish");
+    object  now = Now;
+    string  curtime = target->format_mod();
+    string  curday = ordered(target->month_day());
+    string  curmonth = month(target->month_no());
+    string  curyear = target->year_name();
+    
+    if(!m) m=([]);
 
-  if(!m) m=([]);
+    if(!(m["full"] || m["date"] || m["time"]))
+    {
+        int      dist;
 
-  if(!(m["full"] || m["date"] || m["time"]))
-  {
-    if(t1["yday"] == t2["yday"] && t1["year"] == t2["year"])
-      return "hoy, "+ ctime(timestamp)[11..15];
+        if (target > now)
+            dist = -now->distance(target)->how_many(Calendar.Day);
+        else
+            dist = target->distance(now)->how_many(Calendar.Day);
+      
+        if (!dist)
+            return "hoy, "+ curtime;
   
-    if(t1["yday"]+1 == t2["yday"] && t1["year"] == t2["year"])
-      return "ayer, "+ ctime(timestamp)[11..15];
+        if (dist == -1])
+            return "ayer, "+ curtime;
   
-    if(t1["yday"]-1 == t2["yday"] && t1["year"] == t2["year"])
-      return "mañana, "+ ctime(timestamp)[11..15];
+        if (dist == 1)
+            return "mañana, "+ curtime;
   
-    if(t1["year"] != t2["year"])
-      return (month(t1["mon"]+1) + " " + (t1["year"]+1900));
-    return (month(t1["mon"]+1) + " " + ordered(t1["mday"]));
-  }
-  if(m["full"])
-    return ctime(timestamp)[11..15]+", "
-	+ t1["mday"] + " de "  + month(t1["mon"]+1)
-      	+ " de " +(t1["year"]+1900);
+        if(now->year_no() != target->year_no())
+            return curmonth + " " + curyear;
+        
+        return curmonth + " " + curday;
+    }
 
-  if(m["date"])
-    return t1["mday"] + " de "  + month(t1["mon"]+1)
-      	+ " de " +(t1["year"]+1900);
+    if(m["full"])
+        return curtime + ", " + curday + " de "  + curmonth + " de " + curyear;
 
-  if(m["time"])
-    return ctime(timestamp)[11..15];
+    if(m["date"])
+        return curday + " de "  + curmonth + " de " + curyear;
+
+    if(m["time"])
+        return curtime;
 }
 
 
@@ -131,26 +141,14 @@ string number(int num)
   }
 }
 
-string day(int num)
-{
-  return ({ "Domingo","Lunes","Martes","Miercoles",
-	    "Jueves","Viernes","Sabado" })[ num - 1 ];
-}
-
-string day_really_short(int num)
-{
-  return ({ "D", "L", "M", "M", "J", "V", "S" })[ num - 1 ];
-}
-
-string words(int num)
-{
-  return ({ "año", "mes", "semana", "día" })[num];
-}
-
 array aliases()
 {
   return ({ "es", "esp", "spanish" });
 }
 
-
-
+void create()
+{
+    Now = Calendar.now()->set_language("polish");
+    initialize_months(Now);
+    initialize_days(Now);
+}
