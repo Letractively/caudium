@@ -233,26 +233,20 @@ static void f_run(INT32 args)
   
   SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
   SablotRegHandler(sproc, HLR_MISC, &sablot_misc, (void *)THIS);
-  THREADS_ALLOW();
+  if (THIS->do_callbacks)
+    SablotRegHandler(sproc, HLR_SCHEME, &THIS->sab_scheme_handler, (void*)THIS);
 
-  if (THIS->do_callbacks &&
-      SablotRegHandler(sproc, HLR_SCHEME, &THIS->sab_scheme_handler, THIS))
-    Pike_error("Failed to register the scheme handler\n");
-  
   success |= SablotRunProcessorGen(situation, sproc, xslsrc, xmlsrc, "arg:/_output");
   success |= SablotGetResultArg(sproc, "arg:/_output", &parsed);
-  THREADS_DISALLOW();
 
-  if (parsed != NULL) {
-    pop_n_elems(args);
-    push_text(parsed);    
-  } else {
-    SablotDestroyProcessor(sproc);
-    SablotDestroySituation(situation);
-    Pike_error("Parsing failed.\n");
-  }
   SablotDestroyProcessor(sproc);
   SablotDestroySituation(situation);
+  
+  if (parsed != NULL) {
+    pop_n_elems(args);
+    push_text(parsed);
+  } else
+    Pike_error("Parsing failed.\n");
 }
 
 static void free_xslt_storage(struct object *o)
@@ -275,6 +269,13 @@ static void free_xslt_storage(struct object *o)
 static void init_xslt_storage(struct object *o)
 {
   MEMSET(THIS, 0, sizeof(xslt_storage));
+  THIS->cb_getAll.type = T_INT;
+  THIS->cb_get.type = T_INT;
+  THIS->cb_close.type = T_INT;
+  THIS->cb_open.type = T_INT;
+  THIS->cb_put.type = T_INT;
+  THIS->cb_get.type = T_INT;
+  THIS->cb_freeMemory.type = T_INT;
 }
 
 static void f_create(INT32 args)
@@ -392,7 +393,7 @@ static void f_set_variables(INT32 args)
  *  arr[0] - (int) the error code (0 - success, 1 - failure in general)
  *  arr[1] - (mixed) a callback-specific value
  */
-INLINE static int getRespValues(struct svalue *retcode, struct svalue *retval, INT32 type2)
+INLINE static int getRespValues(struct svalue *retcode, struct svalue *retval, INT16 type2)
 {
   struct array  *a;
 
@@ -404,11 +405,11 @@ INLINE static int getRespValues(struct svalue *retcode, struct svalue *retval, I
   
   if (retcode->type != T_INT)
     return 1;
-
+  
+  array_index(retval, a, 1);
   if (type2 != T_VOID && retval->type != type2)
     return 1;
   
-  array_index(retval, a, 1);
   return 0;
 }
 
@@ -432,14 +433,17 @@ static int sh_getAll(void *userData, SablotHandle processor,
 {
   xslt_storage       *This = (xslt_storage*)userData;
   struct svalue       retcode, retval;
-  
-  if (!buffer || !byteCount || !This || !This->scheme_cb.getAll)
+
+  if (!buffer || !byteCount || !This || This->cb_getAll.type != T_FUNCTION)
     return 1;
 
+  *byteCount = 0;
+  *buffer = NULL;
+  
   push_text(scheme);
   push_text(rest);
-  apply_svalue(This->scheme_cb.getAll, 2);
-  
+  apply_svalue(&(This->cb_getAll), 2);
+
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
     return 1;
@@ -450,18 +454,22 @@ static int sh_getAll(void *userData, SablotHandle processor,
     return retcode.u.integer;
   }
   
-  if (This->scheme_cb.getAllBuffer) {
-    sub_ref(This->scheme_cb.getAllBuffer);
-    free_string(This->scheme_cb.getAllBuffer);
+  if (This->getAllBuffer) {
+    free(This->getAllBuffer);
+    This->getAllBuffer = NULL;
   }
-  
-  copy_shared_string(This->scheme_cb.getAllBuffer, retval.u.string);
+
+  *buffer = (char*)calloc(retval.u.string->len + 1, sizeof(char));
+  if (!*buffer) {
+    pop_stack();
+    return 1;
+  }
+
+  *byteCount = retval.u.string->len;
+  MEMCPY(*buffer, retval.u.string->str, retval.u.string->len);
+  This->getAllBuffer = *buffer;
   pop_stack();
-  add_ref(This->scheme_cb.getAllBuffer);
-  
-  *buffer = This->scheme_cb.getAllBuffer->str;
-  *byteCount = This->scheme_cb.getAllBuffer->len;
-  
+
   return retcode.u.integer;
 }
 
@@ -481,28 +489,24 @@ static int sh_freeMemory(void *userData, SablotHandle processor, char *buffer)
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
   
-  if (!This || !This->scheme_cb.freeMemory)
+  if (!This)
     return 1;
 
-  /* Call up to pike and then dereference the string */
-  push_string(This->scheme_cb.getAllBuffer);
-  apply_svalue(This->scheme_cb.freeMemory, 1);
-  if (getRespValues(&retcode, &retval, T_VOID)) {
-    pop_stack();
-    return 1;
-  }
-
-  if (retcode.u.integer) {
-    pop_stack();
-    return retcode.u.integer;
+  if (This->cb_freeMemory.type == T_FUNCTION) {
+    apply_svalue(&This->cb_freeMemory, 0);
+    if (getRespValues(&retcode, &retval, T_VOID))
+      retcode.u.integer = 1;
   }
   
-  if (This->scheme_cb.getAllBuffer) {
-    sub_ref(This->scheme_cb.getAllBuffer);
-    This->scheme_cb.getAllBuffer = NULL;
+  if (This->getAllBuffer) {
+    free(This->getAllBuffer);
+    This->getAllBuffer = NULL;
   }
 
   pop_stack();
+  if (retcode.u.integer)
+    return retcode.u.integer;
+
   return 0;
 }
 
@@ -526,13 +530,13 @@ static int sh_open(void *userData, SablotHandle processor,
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
   
-  if (!scheme || !rest || !handle || !This || !This->scheme_cb.open)
+  if (!scheme || !rest || !handle || !This || This->cb_open.type != T_FUNCTION)
     return 1;
 
   /* call up to pike and expect an integer on return - the handle */
   push_text(scheme);
   push_text(rest);
-  apply_svalue(This->scheme_cb.open, 2);
+  apply_svalue(&This->cb_open, 2);
   if (getRespValues(&retcode, &retval, T_INT)) {
     pop_stack();
     return 1;
@@ -570,7 +574,7 @@ static int sh_put(void *userData, SablotHandle processor, int handle,
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
   
-  if (!buffer || !byteCount || !This || !This->scheme_cb.put)
+  if (!buffer || !byteCount || !This || This->cb_put.type != T_FUNCTION)
     return 1;
 
   /* 
@@ -579,7 +583,7 @@ static int sh_put(void *userData, SablotHandle processor, int handle,
    */
   push_int(handle);
   push_text(buffer);
-  apply_svalue(This->scheme_cb.put, 2);
+  apply_svalue(&This->cb_put, 2);
   if (getRespValues(&retcode, &retval, T_INT)) {
     pop_stack();
     return 1;
@@ -615,12 +619,12 @@ static int sh_get(void *userData, SablotHandle processor, int handle,
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
   
-  if (!buffer || !byteCount || !This || !This->scheme_cb.get)
+  if (!buffer || !byteCount || !This || This->cb_get.type != T_FUNCTION)
     return 1;
 
   /* call up to pike, get the buffer (*byteCount max) on return */
   push_int(*byteCount);
-  apply_svalue(This->scheme_cb.get, 1);
+  apply_svalue(&This->cb_get, 1);
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
     return 1;
@@ -656,12 +660,12 @@ static int sh_close(void *userData, SablotHandle processor, int handle)
   xslt_storage  *This = (xslt_storage*)userData;
   struct svalue  retcode, retval;
   
-  if (!This || !This->scheme_cb.close)
+  if (!This || This->cb_close.type != T_FUNCTION)
     return 1;
 
   /* call up to pike and ignore the return value */
   push_int(handle);
-  apply_svalue(This->scheme_cb.close, 1);
+  apply_svalue(&This->cb_close, 1);
   if (getRespValues(&retcode, &retval, T_VOID)) {
     pop_stack();
     return 1;
@@ -673,54 +677,6 @@ static int sh_close(void *userData, SablotHandle processor, int handle)
   }
   
   return 0;
-}
-
-INLINE static void install_callbacks(struct mapping *cbmap)
-{
-  struct svalue    *sv;
-  
-  THIS->do_callbacks = 0;
-
-  /* get all the callbacks one by one and set them in THIS */
-  if ((sv = simple_mapping_string_lookup(cbmap, "getAll"))) {
-    THIS->scheme_cb.getAll = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  if ((sv = simple_mapping_string_lookup(cbmap, "freeMemory"))) {
-    THIS->scheme_cb.freeMemory = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  if ((sv = simple_mapping_string_lookup(cbmap, "get"))) {
-    THIS->scheme_cb.get = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  if ((sv = simple_mapping_string_lookup(cbmap, "open"))) {
-    THIS->scheme_cb.open = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  if ((sv = simple_mapping_string_lookup(cbmap, "put"))) {
-    THIS->scheme_cb.put = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  if ((sv = simple_mapping_string_lookup(cbmap, "close"))) {
-    THIS->scheme_cb.close = sv;
-    THIS->do_callbacks = 1;
-  }
-
-  /* if any callback was present, try to install the handler */
-  if (THIS->do_callbacks) {
-    THIS->sab_scheme_handler.getAll = sh_getAll;    
-    THIS->sab_scheme_handler.freeMemory = sh_freeMemory;
-    THIS->sab_scheme_handler.open = sh_open;
-    THIS->sab_scheme_handler.get = sh_get;
-    THIS->sab_scheme_handler.put = sh_put;
-    THIS->sab_scheme_handler.close = sh_close;
-  }
 }
 
 /* Expects a mapping as the parameter:
@@ -737,9 +693,53 @@ INLINE static void install_callbacks(struct mapping *cbmap)
 static void f_set_scheme_callbacks(INT32 args)
 {
   struct mapping   *cbmap;  
-  
+  struct svalue    *sv;
+
   get_all_args("set_scheme_callbacks", args, "%m", &cbmap);
-  install_callbacks(cbmap);
+  THIS->do_callbacks = 0;
+
+  /* get all the callbacks one by one and set them in THIS */
+  if ((sv = simple_mapping_string_lookup(cbmap, "getAll"))) {
+    assign_svalue(&(THIS->cb_getAll), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "freeMemory"))) {
+    assign_svalue(&(THIS->cb_freeMemory), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "get"))) {
+    assign_svalue(&(THIS->cb_get), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "open"))) {
+    assign_svalue(&(THIS->cb_open), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "put"))) {
+    assign_svalue(&(THIS->cb_put), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "close"))) {
+    assign_svalue(&(THIS->cb_close), sv);
+    THIS->do_callbacks = 1;
+  }
+
+  /* if any callback was present, try to install the handlers */
+  if (THIS->do_callbacks) {
+    THIS->sab_scheme_handler.getAll = sh_getAll;    
+    THIS->sab_scheme_handler.freeMemory = sh_freeMemory;
+    THIS->sab_scheme_handler.open = sh_open;
+    THIS->sab_scheme_handler.get = sh_get;
+    THIS->sab_scheme_handler.put = sh_put;
+    THIS->sab_scheme_handler.close = sh_close;
+  }
+
+  pop_n_elems(args);
 }
 #endif  
 
