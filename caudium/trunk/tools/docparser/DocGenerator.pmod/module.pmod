@@ -138,11 +138,26 @@ class IndexGen
 	       string path, 
 	       string|void title)
     {
-	f->write("is_cont == " + is_cont + "\n");
+#if 0
+	/* This doesn't work!!! WHY?! */
 	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s %s>\n",
-	         type, name, path, 
-		 (title ? "title=\"" + title + "\"" : ""),
-		 (is_cont ? "/" : "")));
+	                 type, 
+		         name, 
+		         path, 
+		         (title ? "title=\"" + title + "\"" : ""),
+		         (is_cont ? "/" : ""))
+	        );
+#else
+	string slash = is_cont ? "/" : "";
+	
+	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s %s>\n",
+	                 type, 
+		         name, 
+		         path, 
+		         (title ? "title=\"" + title + "\"" : ""),
+		         slash)
+	        );
+#endif
     }
 
     /*
