@@ -1371,9 +1371,11 @@ mapping|int low_get_file(object id, int|void no_magic)
 #endif
   TRACE_ENTER("Request for "+id->not_query, 0);
 
+#if 0
+  // Huh? -david
   if (id->prestate)
-  	report_notice(sprintf("low_get_file: id->prestate == %O\n", id->prestate));
-	
+    report_notice(sprintf("low_get_file: id->prestate == %O\n", id->prestate));
+#endif
   string file=id->not_query;
   string loc, type;
   function funp;
