@@ -62,12 +62,12 @@ RCSID("$Id$");
 /* FreeBSD strptime() doesn't seems to be thread-safe */
 #ifdef __FreeBSD__
 #undef HAVE_STRPTIME
-#endif
+#endif /* __FreeBSD__ */
 
 /* Apple OS X strptime() seems also to be not thread-safe */
 #ifdef __APPLE__
 #undef HAVE_STRPTIME
-#endif
+#endif /* __APPLE */
 
 static struct pike_string *gd_bad_format;
 
@@ -285,7 +285,7 @@ static void f_strftime(INT32 args) {
   pop_n_elems(args);
   push_string(ret);
 }
-#endif
+#endif /* HAVE_STRFTIME */
 
 
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
@@ -488,6 +488,7 @@ static void f_is_modified(INT32 args)
 void init_datetime(void)
 {
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
+  /* FIXME: how to make this working ????? */
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[0], "Unknown getdate error code.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[1], "The DATEMSK environment variable is null or undefined.");
   MAKE_CONSTANT_SHARED_STRING(getdate_errors[2], "The template file cannot be opened for reading.");
@@ -503,15 +504,15 @@ void init_datetime(void)
 #endif
   
 #ifdef HAVE_STRPTIME
-  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tString tMapping, tInt), 0);
+  add_function_constant("strptime", f_strptime, "function(string,string,mapping:int)", tInt), 0);
 #endif
 
 #ifdef HAVE_STRFTIME
-  ADD_FUNCTION("strftime", f_strftime, tFunc(tString tInt, tString), 0);
+  add_function_constant("strftime", f_strftime, "function(string,int:string)",0);
 #endif
   
-  ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
-  ADD_FUNCTION("is_modified", f_is_modified, tFunc(tString tInt tOr(tInt, tVoid), tInt), 0);
+  add_function_constant("parse_date", f_parse_date, "function(string:int)", 0);
+  add_function_constant("is_modified", f_is_modified, "function(string,int,int|void:int)", 0);
 }
 
 void exit_datetime(void)
