@@ -188,7 +188,7 @@ void start(int num, object configuration)
             foreach(get_dir(cdir), string file)
                 rm(cdir+file);
         else
-            if (!Stdio.mkdirhier(cdir))
+            if (!mkdirhier(cdir))
                 report_warning ("BG: Cache directory "+
                                 cdir+" can not be created.\n");
     }
@@ -581,7 +581,7 @@ constant _diagram_args =
    "orientation", "xstart", "xstop", "ystart", "ystop", "data", "colors",
    "xnames", "xvalues", "ynames", "yvalues", "axcolor", "gridcolor",
    "gridwidth", "vertgrid", "labels", "labelsize", "legendfontsize",
-   "legendfont",
+   "legendfont", "tonedbox", "tunedbox",
    "legend_texts", "labelcolor", "axwidth", "linewidth", "center",
    "rotate", "image", "bw", "eng", "neng", "xmin", "ymin", "turn", "notrans",
    "colortable_cache"});
