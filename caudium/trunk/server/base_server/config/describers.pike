@@ -18,8 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
 
-/* $Id$ */
+//! Describer for Caudium CIF
+//! @todo
+//!   Docs ?
 
 #include <module.h>
 int zonk=time();
@@ -31,11 +36,14 @@ inherit "low_describers";
 import Array;
 import String;
 #define ABS(X) ((X)<0?-(X):(X))
+
+//!
 string describe_configuration_global_variables(object node)
 {
   return link("<font size=\"+1\"><b>Server variables</b></font>");
 }
 
+//!
 string describe_holder(object node)
 {
   object o, foo;
@@ -63,12 +71,15 @@ string describe_holder(object node)
     return link(node->data + "...");
 }
 
+//!
 string describe_builtin_variables(object node)
 {
   return link("<b>Builtin variables (security, comments etc.)</b>");
 }
 
 int __lt;
+
+//!
 string describe_time(int t)
 {
   int full;
@@ -84,6 +95,7 @@ string describe_time(int t)
     return sprintf("%02d:%02d",localtime(t)->hour,localtime(t)->min);
 }
 
+//!
 string describe_interval(int i)
 {
   switch(i)
@@ -97,6 +109,7 @@ string describe_interval(int i)
   }
 }
 
+//!
 string describe_times(array (int) times)
 {
   __lt=0;
@@ -122,6 +135,7 @@ string describe_times(array (int) times)
 			map(times[sizeof(times)-3..], describe_time));
 }
 
+//!
 string fix_err(string s)
 {
   while(s[-1]=='\n' || s[-1]==' ' || s[-1]=='\t') s=s[..strlen(s)-2];
@@ -130,6 +144,8 @@ string fix_err(string s)
 }
 
 int last_time;
+
+//!
 string describe_error(string err, array (int) times)
 {
   int code, nt;
@@ -145,6 +161,8 @@ string describe_error(string err, array (int) times)
 }
 
 mapping actions = ([]);
+
+//!
 object get_action(string act,string dir)
 {
   if(!actions[act]) {
@@ -156,6 +174,7 @@ object get_action(string act,string dir)
   return actions[act];
 }
 
+//!
 mapping get_actions(string base,string dir)
 {
   mapping acts = ([  ]);
@@ -187,6 +206,7 @@ mapping get_actions(string base,string dir)
   return acts;
 }
 
+//!
 string act_describe_submenues(array menues, string base, string sel)
 {
   if(sizeof(menues)==1) return "";
@@ -202,6 +222,8 @@ string act_describe_submenues(array menues, string base, string sel)
 }
 
 string focused_action_menu="Maintenance";
+
+//!
 mixed describe_actions(object node, object id)
 {
   if(id->pragma["no-cache"] && !id->variables->render) {
@@ -234,6 +256,8 @@ mixed describe_actions(object node, object id)
 }
 
 int reverse_report = 1;
+
+//!
 string describe_errors(object node)
 {
   array report = indices(node->data), r2;
@@ -248,6 +272,7 @@ string describe_errors(object node)
   return "</dl>"+(sizeof(report)?(report*""):"Empty")+"<dl>";
 }
 
+//!
 string module_var_name(object n)
 {
   string na = n->data[VAR_NAME];
@@ -257,6 +282,7 @@ string module_var_name(object n)
   return na;
 }
 
+//!
 array|string describe_module_variable(object node)
 {
   string res, err;
@@ -288,6 +314,7 @@ array|string describe_module_variable(object node)
 
 }
 
+//!
 string describe_module_copy_status(object node)
 {
   string q;
@@ -309,11 +336,13 @@ string describe_module_copy_status(object node)
   return link("<b>Status and debug info</b><br>");
 }
 
+//!
 string describe_module_copy_variables(object node)
 {
   return link("Variables");
 }  
 
+//!
 string describe_module_subnode(object node)
 {
   if(node->folded) return link(node->data[VAR_NAME]);
@@ -324,6 +353,7 @@ string describe_module_subnode(object node)
 #define DOTDOT(node) ("<a href=/(moredocs)"+node->path(1)+"><img border=0 src=/auto/button/lm/rm/More%20Documentation></a>")
 #define NODOTDOT(node) ("<a href=/(lessdocs)"+node->path(1)+"><img border=0 src=/auto/button/lm/rm/Less%20Documentation></a>")
 
+//!
 string shorten(string in, object node)
 {
   if(sizeof(in/"<hr>")<3 && sizeof(in/"<p>")<2) return in;
@@ -338,6 +368,7 @@ string shorten(string in, object node)
     "<p>"+DOTDOT(node)+"</td></tr></table>";
 }
 
+//!
 string describe_module_copy(object node)
 {
   string name, com;
@@ -372,6 +403,7 @@ string describe_module_copy(object node)
 	  +"<dd>");
 }
 
+//!
 string describe_module(object node)
 {
   string name, com;
@@ -398,21 +430,25 @@ string describe_module(object node)
 
 }
 
+//!
 string describe_global_variables( object node )
 {
   return "</dl>";
 }
 
+//!
 string describe_root(object root)
 {
   return "How did you find this node?";
 }
 
+//!
 string describe_configurations(object node)
 {
   return "</dl>";
 }
 
+//!
 string describe_configuration(object node)
 {
   if(!node->data)  
@@ -425,6 +461,8 @@ string describe_configuration(object node)
 }
 
 mapping docs = ([]);
+
+//!
 mixed describe_docs(object node, object id)
 {
   if ((!sizeof(docs)) || (id->pragma["no-cache"]) ||
