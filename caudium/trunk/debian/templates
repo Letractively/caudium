@@ -90,3 +90,27 @@ _Description: Configuration interface password
  This is the password used to access the configuration interface. The
  default value for it is 'password' - it is HIGHLY RECOMMENDED to change
  the default below!
+
+Template: caudium/config_password_confirm
+Type: password
+Default: password
+_Description: Confirm the configuration interface password
+ Please type in the configuration interface password again for
+ confirmation.
+
+Template: caudium/config_password_mismatch
+Type: note
+_Description: Configuration interface password mismatch
+ The passwords you have typed don't match. Please type again and keep in
+ mind that the passwords are case-sensitive.
+
+Template: caudium/config_password_reset
+Type: note
+_Description: Configuration interface password reset
+ The password has been reset to 'password'. You cannot have an empty 
+ password for the configuration interface. Please change the default
+ password as soon as Caudium has finished installing. You can do it
+ by logging in to the configuration interface accessible under
+ the URL given below:
+ .
+ http://localhost:${cfgport}
