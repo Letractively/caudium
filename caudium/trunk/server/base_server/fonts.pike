@@ -133,7 +133,7 @@ array available_font_versions(string name, int size)
   }
   if(ttffontschanged)
     catch{
-      Stdio.File(".ttffontcache",
+      Stdio.File(caudium->QUERY(ConfigurationStateDir) + ".ttffontcache",
 		 "wct")->write(encode_value(ttf_font_names_cache));
     };
   if(ttffound)
@@ -410,7 +410,7 @@ void create()
 #if constant(Image.TTF)
   catch {
     ttf_font_names_cache =
-      decode_value(Stdio.read_bytes(".ttffontcache"));
+      decode_value(Stdio.read_bytes(caudium->QUERY(ConfigurationStateDir) + ".ttffontcache"));
   };
 #endif
 }
