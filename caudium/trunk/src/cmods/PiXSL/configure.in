@@ -13,7 +13,7 @@ if test "$ac_cv_lib_m_floor" != "yes"; then
 fi
 
 AC_CHECK_HEADERS( sablot.h )
-
+echo $LIBS
 dnl No need to continue unless the header is found...
 if test "$ac_cv_header_sablot_h" = "yes"; then
   unset ac_cv_lib_sablot_SablotProcess
