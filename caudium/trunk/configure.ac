@@ -9,11 +9,14 @@ AC_REVISION($Revision$)
 #
 # Some prerequisites of ours
 #
-REQ_PIKE_MAJOR=7
-REQ_PIKE_MINOR=4
-REQ_PIKE_BUILD=1
-REQ_PIKE_VER="$REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD"
-REQ_PIKE_VERNUM="$REQ_PIKE_MAJOR$REQ_PIKE_MINOR$REQ_PIKE_BUILD"
+# The oldest version of Pike we run
+REQ_MIN_PIKE_MAJOR=7
+REQ_MIN_PIKE_MINOR=4
+REQ_MIN_PIKE_BUILD=1
+# But on the other end we can't run Pike above or equal this one
+REQ_MAX_PIKE_MAJOR=7
+REQ_MAX_PIKE_MINOR=7
+REQ_MAX_PIKE_BUILD=0
 
 AC_SET_MAKE
 
@@ -327,7 +330,7 @@ AC_HELP_STRING([--with-pike[=binary]],[Use the specified Pike.]),
 	fi
 ])
 RESULT=no
-AC_MSG_CHECKING([for a working Pike (>= $REQ_PIKE_VER)])
+AC_MSG_CHECKING([for a working Pike (>= $REQ_MIN_PIKE_MAJOR.$REQ_MIN_PIKE_MINOR.$REQ_MIN_PIKE_BUILD <= $REQ_MAX_PIKE_MAJOR.$REQ_MAX_PIKE_MINOR.$REQ_MAX_PIKE_BUILD)])
 AC_MSG_RESULT( )
 pathpike="`type  pike 2> /dev/null |sed 's/pike is//' 2>/dev/null`"
 if test "$prefix" != "NONE"; then
@@ -335,6 +338,9 @@ if test "$prefix" != "NONE"; then
 fi
 FOUND_PIKE=0
 PIKE_INCLUDE_DIRS=""
+REQ_MIN_PIKE_DECNUM=`expr '(' $REQ_MIN_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MIN_PIKE_MINOR '*' 1000 ')' + $REQ_MIN_PIKE_BUILD`
+REQ_MAX_PIKE_DECNUM=`expr '(' $REQ_MAX_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MAX_PIKE_MINOR '*' 1000 ')' + $REQ_MAX_PIKE_BUILD`
+OLD_DIR=`pwd`
 for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74 /opt/local/bin/pike /opt/local/bin/pike74 /opt/bin/pike /opt/bin/pike74; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
@@ -349,43 +355,55 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_VERNUM=$THIS_PIKE_MAJOR$THIS_PIKE_MINOR$THIS_PIKE_BUILD
     THIS_PIKE_DECNUM=`expr '(' $THIS_PIKE_MAJOR '*' 10000 ')' + '(' $THIS_PIKE_MINOR '*' 1000 ')' + $THIS_PIKE_BUILD`
 
-    REQ_PIKE_DECNUM=`expr '(' $REQ_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_PIKE_MINOR '*' 1000 ')' + $REQ_PIKE_BUILD`
-    
-    if test $THIS_PIKE_DECNUM -lt $REQ_PIKE_DECNUM; then
+    if test $THIS_PIKE_DECNUM -lt $REQ_MIN_PIKE_DECNUM; then
        echo " => too old"
        continue
     fi
+    if test $THIS_PIKE_DECNUM -ge $REQ_MAX_PIKE_DECNUM; then
+      echo " => too new"
+      continue
+    fi
 
-    echo -n " => good version"
+    echo " => good version"
 
-    PIKE_INCDIR="`dirname $PIKE`/../"
-    for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/include/`basename $PIKE` $PIKE_INCDIR/include/pike/${THIS_PIKE_VER} \
-                  $PIKE_INCDIR/include/pike$THIS_PIKE_VER $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} $PIKE_INCDIR/include/pike; do
-      OLD_DIR=`pwd`
-      if test ! -f $INCDIR/version.h; then
-        continue
-      else
-        cd $INCDIR
-        INCLUDE_DIR=$INCDIR
-      fi
-      if test -f version.h; then
-        C_PIKE_MAJOR=`cat version.h | grep PIKE_MAJOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
-        C_PIKE_MINOR=`cat version.h | grep PIKE_MINOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
-        C_PIKE_BUILD=`cat version.h | grep PIKE_BUILD_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+    PIKE_DIRNAME="`dirname $PIKE`"
+    for PIKE_INCDIR in $PIKE_DIRNAME/.. \
+                       $PIKE_DIRNAME/../..\
+                       $PIKE_DIRNAME/../../..\
+                       $PIKE_DIRNAME/../../../.. ; do
+      for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike \
+                  $PIKE_INCDIR/include/`basename $PIKE` \
+                  $PIKE_INCDIR/include/pike/${THIS_PIKE_VER} \
+                  $PIKE_INCDIR/include/pike${THIS_PIKE_VER} \
+                  $PIKE_INCDIR/include/pike$THIS_PIKE_VER \
+                  $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR}\
+                  $PIKE_INCDIR/include/pike/${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
+                  $PIKE_INCDIR/include/pike ; do
 
-        if test $C_PIKE_MAJOR -ne $THIS_PIKE_MAJOR -o $C_PIKE_MINOR -ne $THIS_PIKE_MINOR -o $C_PIKE_BUILD -ne $THIS_PIKE_BUILD; then
-          echo
-          break
-        fi
-        echo ", $INCLUDE_DIR"
-        FOUND_PIKE=1
-        PIKE_VERSION=$THIS_PIKE_VER
-        PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
-        cd $OLD_DIR
-        break
-      else
-        echo
-      fi
+	if test ! -f $INCDIR/version.h; then
+          continue
+        else
+          cd $INCDIR
+          INCLUDE_DIR=`pwd`
+	fi
+	if test -f version.h; then
+	  C_PIKE_MAJOR=`cat version.h | grep PIKE_MAJOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+	  C_PIKE_MINOR=`cat version.h | grep PIKE_MINOR_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+	  C_PIKE_BUILD=`cat version.h | grep PIKE_BUILD_VERSION | tr -s ' ' | cut -d ' ' -f 3`
+
+	  if test $C_PIKE_MAJOR -ne $THIS_PIKE_MAJOR -o $C_PIKE_MINOR -ne $THIS_PIKE_MINOR -o $C_PIKE_BUILD -ne $THIS_PIKE_BUILD; then
+	    echo -n
+	    break
+	  fi
+	  echo ", $INCLUDE_DIR"
+	  FOUND_PIKE=1
+	  PIKE_VERSION=$THIS_PIKE_VER
+	  PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
+	  break
+	else
+	  echo -n
+	fi
+      done
     done
   fi
   if test x"$FOUND_PIKE" = "x1"; then
@@ -393,19 +411,21 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
   fi
 done
 
+cd $OLD_DIR
 if test x"$FOUND_PIKE" = "x1"; then 
   AC_MSG_RESULT([found Pike $PIKE_VERSION ($PIKE) with C headers in $PIKE_INCLUDE_DIRS])
 else
   cat << EOF
 *****************************************************************************
-*** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0,
-*** 7.2 or 7.3 is no longer supported. You can download and install one of
-*** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
+*** I couldn't find a suitable Pike for Caudium. 
 ***
-***     http://caudium.net/download/source/caudiumbuild.rxml 
+*** PLEASE NOTE: THIS VERSION OF Caudium DOES NOT WORK WITH 
+*** PIKE OLDER THAN $REQ_MIN_PIKE_MAJOR.$REQ_MIN_PIKE_MINOR.$REQ_MIN_PIKE_BUILD!
+*** 
+*** You can download and install one of our Pike $REQ_MIN_PIKE_MAJOR.$REQ_MIN_PIKE_MINOR or 
+*** newer snapshots available from our website at:
 ***
-*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD!
+*** http://caudium.net/download/source/caudiumbuild.rxml
 ***
 *** If you have this or newer version of Pike installed in a different 
 *** location or under a different name, please use the --with-pike argument
