@@ -40,6 +40,8 @@ constant thread_safe=1;
 #endif
 #endif
 
+#define NDEBUG(X) if(QUERY(debug)) { report_debug("NAVBAR_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
+
 inherit "module";
 inherit "caudiumlib";
 
@@ -56,9 +58,9 @@ constant module_doc  = "Adds the &lt;navbar&gt; &lt;/navbar&gt; container."
         "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;set_nb_elements_per_page(object id, int x)</pre></li></ul>"
         "Then you can call these functions:<br/><br/>"
         "<ul><li>Get the minimum element number to display in this page"
-        "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;get_min_element()</pre></li>"
+        "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;get_min_element(object id)</pre></li>"
         "<li>Get the maximum element number to display in this page"
-        "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;get_max_element()</pre></li></ul>"
+        "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;get_max_element(object id)</pre></li></ul>"
         "In your RXML page, use the following code to display a navigation bar:<pre>"
         "&lt;navbar&gt;<br/>"
         "&nbsp;&lt;!-- the first page of the navigation bar --&gt;<br/>"
@@ -80,6 +82,9 @@ void create()
 {
   defvar("session_module", "123session", "The session module to use",
         TYPE_STRING_LIST, "The session module to use", ({ "123session", "gsession" }));
+#ifdef NDEBUG
+  defvar("debug", 0, "Debug", TYPE_FLAG, "Enable debug");
+#endif
 }
 
 string query_provides()
@@ -91,8 +96,13 @@ string query_provides()
 
 private void create_session(object id)
 {
-  if(!NSESSION)
+  // don't create the session more than one time for each HTTP request
+  if(!id->misc->navbar_session_flushed)
+  {
+    NDEBUG("Creating session");
     NSESSION = allocate(3);
+    id->misc->navbar_session_flushed = 1;
+  }
 }
 
 private void wrong_usage(object id)
@@ -106,6 +116,7 @@ private void fetch_args(object id)
   // fetch arguments from links only one time for each HTTP request
   if(!id->misc->navbar_args_fetched)
   {
+    NDEBUG("Fetching args");
     if(id->variables->navbarnextblock)
       set_current_page(id, get_current_page(id) + 1);
     if(id->variables->navbarprevblock)
@@ -124,23 +135,28 @@ int get_current_page(object id)
     NSESSION[2] =
      ceil((float) NSESSION[0] / NSESSION[1]);
     NSESSION[2] = (int) NSESSION[2];
+    NDEBUG("get_current_page: page="+NSESSION[2]);
   }
   return NSESSION[2];
 }
 
 private int get_nb_elements(object id)
 {
+  NDEBUG("get_nb_elements: nb="+NSESSION[0]);
   return NSESSION[0];
 }
 
 private int get_nb_elements_per_page(object id)
 {
+  NDEBUG("get_nb_elements_per_page: nb="+NSESSION[1]);
   return NSESSION[1];
 }
 
 private int get_lastpage(object id)
 {
-  return (int)ceil((float)get_nb_elements(id)/(float)get_nb_elements_per_page(id));
+  int lastpage = (int)ceil((float)get_nb_elements(id)/(float)get_nb_elements_per_page(id));
+  NDEBUG("get_lastpage: page="+lastpage);
+  return lastpage;
 }
 
 void start(int num, object conf)
@@ -153,20 +169,29 @@ void start(int num, object conf)
 
 void set_nb_elements(object id, int nb)
 {
-  create_session(id);
-  NSESSION[0] = nb;
+  if(!NSESSION || nb != NSESSION[0])
+  {
+    create_session(id);
+    NSESSION[0] = nb;
+    NDEBUG("set_nb_elements: nb="+nb);
+  }
 }
 
 void set_nb_elements_per_page(object id, int nb)
 {
-  create_session(id);
-  NSESSION[1] = nb;
+  if(!NSESSION || nb != NSESSION[1])
+  {
+    create_session(id);
+    NSESSION[1] = nb;
+    NDEBUG("set_nb_elements_per_page: nb="+nb);
+  }
 }
 
 void set_current_page(object id, int page)
 {
   wrong_usage(id);
   NSESSION[2] = page;
+  NDEBUG("set_current_page: page="+page);
 }
 
 int get_min_element(object id)
@@ -181,6 +206,7 @@ int get_min_element(object id)
     min_elem -= offset;
   if(min_elem > get_nb_elements(id))
     min_elem = get_nb_elements(id) - 1;
+  NDEBUG("get_min_element: min_elem="+min_elem);
   return min_elem;
 }
 
@@ -191,6 +217,7 @@ int get_max_element(object id)
   int max_elem = get_min_element(id) + get_nb_elements_per_page(id) - 1;
   if(max_elem >= get_nb_elements(id))
     max_elem = get_nb_elements(id) - 1;
+  NDEBUG("get_max_element: max_elem="+max_elem);
   return max_elem;
 }
 
@@ -310,7 +337,7 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
       ]);
   }
 
-  args->href = id->not_query + "?" + Protocols.HTTP.http_encode_query(vars); 
+  args->href = add_pre_state(id->not_query, id->prestate) + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
   return make_container("a", args, contents);
@@ -350,12 +377,8 @@ string container_loop_navbar(string tag_name, mapping args, string contents, obj
             "number" : count,
           ])
         });
-       
         contents = replace(parsed_contents, rands,
             container_navbar_href("loop_previous", href_args, href_contents, id, countpageloop));
-
-          
-
         out += do_output_tag(args, outlet, contents, id);
       }
       break;
