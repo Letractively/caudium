@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
-constant version = "1.0rc2";
+constant version = "1.0rc3";
 constant thread_safe = 0; // maybe more like "constant will_kill_your_box_if_sneezed_at = 1;"
 constant module_type = MODULE_LOCATION|MODULE_PARSER|MODULE_EXPERIMENTAL;
 constant module_name = "Fishcast";
@@ -38,14 +38,10 @@ constant module_doc =
     "going to crash your box, kill your goldfish, drink all your beer "
     "and sleep with your wife.<br>\n"
     "In short, your mileage may vary.\n";
-
 #else
 constant module_doc = "<font color=red><b>Your pike doesn't seem to have support for threads. That screws any chance of you running fishcast on this server!</font></b>";
 #endif
 constant module_unique = 1;
-
-#define DEFAULT_METADATA_INTERVAL 4096
-#define DEFAULT_UDP_PORT 8000
 
 mapping streams = ([ ]);
 mapping vars;
@@ -81,7 +77,7 @@ void start( int cnt, object conf ) {
 #ifdef DEBUG
 	perror( "Calling stop()...\n" );
 #endif
-	stop();
+	catch( stop() );
     }
     streams = ([ ]);
 }
@@ -92,9 +88,9 @@ void stop() {
 #endif
     if ( sizeof( streams ) > 0 ) {
 	foreach( indices( streams ), int id ) {
-	    streams[ id ]->terminate();
+	    catch( streams[ id ]->terminate() );
             sleep( 0.15 );
-	    destruct( streams[ id ] );
+	    catch( destruct( streams[ id ] ) );
             m_delete( streams, id );
 	}
     }
@@ -104,9 +100,8 @@ void stop() {
 }
 
 string status() {
-    // I will deffinately do something here!
     if ( sizeof( streams ) == 0 ) {
-        return "<b>No current streams</b>";
+	return "<b>No current streams</b>";
     }
     string ret =
 	"<table border=1>\n";
@@ -114,7 +109,7 @@ string status() {
     foreach( indices( streams ), sid ) {
 	ret +=
 	    "<tr><td colspan=2><b>Stream Name: " + (string)streams[ sid ]->meta->name + " (" + (string)streams[ sid ]->meta->current_track->title + ")</b></td><td><b>Read: " + (string)(int)(streams[ sid ]->meta->bytes / 1024 ) +  "kbytes (" + sprintf( "%:2f", (float)streams[ sid ]->meta->percent_played() ) + "%)</b></td></tr>\n";
-        array clients = streams[ sid ]->list_clients();
+	array clients = streams[ sid ]->list_clients();
 	foreach( clients , object client ) {
 	    ret +=
 		"<tr><td>Client: " + (string)client->remoteaddr() + "</td>"
@@ -131,6 +126,7 @@ string query_location() {
 }
 
 mixed find_file( string path, object id ) {
+    // I'll rewrite this with a switch. You just watch me :)
     if ( path == "/" ) {
 	return -1;
     } else if ( path == "" ) {
@@ -393,9 +389,10 @@ class metadata {
 
 class stream_client {
 
-    //   array buffer = allocate(128);
-    array buffer = ({ });
-    int w_ptr;
+    inherit Thread.Mutex : r_mutex;
+    inherit Thread.Mutex : w_mutex;
+    object r_lock;
+    object w_lock;
     mapping vars =
 	([
 	  "protocol" : 0,
@@ -409,14 +406,12 @@ class stream_client {
     int bytes = 0;
     object queue;
     int term;
+    int skip_count;
 
     void create( object _id, object _meta ) {
 	id = _id;
 	meta = _meta;
 	fd = id->my_fd;
-	// testing...
-//        catch( fd->set_buffer( 0, "w" ) );
-        // /testing
         vars->remoteaddr = id->remoteaddr;
 	vars->start_time = time();
 	vars->unique_id = time() * random( time() );
@@ -432,23 +427,14 @@ class stream_client {
     }
 
     void client_write_callback() {
-        /*
-	if( queue->size() > 0 ) {
-	    string tmp = queue->read();
-	    bytes += sizeof( tmp );
-	    fd->write( tmp );
-	} else {
-            sleep( 0.1 );
-	    fd->write( "" );
-	}
-	*/
-
-	while ( queue->size() == 0 ) {
-	    sleep( 0.1 );
-	}
+	r_lock = r_mutex::lock();
 	string tmp = queue->read();
-	bytes += sizeof ( tmp );
-        fd->write( tmp );
+	bytes += sizeof( tmp );
+	fd->write( tmp );
+	if ( queue->size() == 0 ) {
+	    fd->set_blocking();
+	}
+        if ( objectp( w_lock ) ) destruct( w_lock );
     }
 
     void client_close_callback() {
@@ -459,7 +445,6 @@ class stream_client {
     void client_read_callback() {}
 
     void set_nonblocking() {
-//        client_write_callback();
 	fd->set_nonblocking( client_read_callback, client_write_callback, client_close_callback );
     }
 
@@ -486,12 +471,24 @@ class stream_client {
 	}
 
 	if ( queue->size() <= 128 ) {
-            queue->write( buff );
+	    w_lock=w_mutex::lock();
+	    queue->write( buff );
+	    set_nonblocking();
+            if ( objectp( r_lock ) ) destruct( r_lock );
 	    return 0;
 	}
 #ifdef DEBUG
 	perror( sprintf( "Client: %s buffer skipped (queue full)\n", remoteaddr() ) );
 #endif
+	w_lock=w_mutex::lock();
+	set_nonblocking();
+	if ( objectp( r_lock ) ) destruct( r_lock );
+	skip_count++;
+	if ( skip_count > 100 ) {
+	    // If the queue has been full for more than 10 seconds then
+            // feel free to disconnect them, because they must have timedout.
+	    return this_object();
+	}
 	return 0;
     }
 
