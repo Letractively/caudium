@@ -3173,12 +3173,12 @@ void scan_module_dir(string d)
   array q  = (get_dir( d )||({})) - ({".","..","CVS","RCS" });
 
   if (!sizeof(q)) {
-    MD_PERROR(("No modules in here. Continuing elsewhere\n"));
+    MD_PERROR(("No modules in here (no files). Continuing elsewhere\n"));
     return;
   }
   
   if (search(q, ".no_modules")!=-1) {
-    MD_PERROR(("No modules in here. Continuing elsewhere\n"));
+    MD_PERROR(("No modules in here (.no_modules). Continuing elsewhere\n"));
     return;
   }
   
