@@ -27,7 +27,13 @@
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
-
+//! tag: pike
+//!  Runs the content as Pike code. This tag is not always available, since
+//!  it can be a security hazard.
+//
+//! attribute: help
+//!  Show help for the tag
+//
 /*
  * The Pike Tag module.
  * Adds support for inline pike in documents.
