@@ -62,49 +62,58 @@ array register_module() {
 }
 
 void create () {
-    string css_album_name =
-	"font-weight: bold;\n" +
-	"font-family: Arial, Helvetica, sans-serif;\n" +
-	"font-size: 12pt;\n" +
-	"align: center;\n";
-    string css_numofphotos =
-	"font-family: Arial, Helvetica, sans-serif;\n" +
-	"font-size: 10pt;\n" +
-	"align: center;\n";
-    string css_thumbnail_desc =
-	"font-family: Arial, Helvetica, sans-serif;\n" +
-	"font-size: 10pt;\n";
-    string css_photo =
-	"align: center;\n";
-    string css_thumbnail = "";
-    string css_photo_desc =
-	"font-family: Arial, Helvetica, sans-serif;\n" +
-	"font-size: 10pt;\n" +
-	"align: center;\n";
-    string css_nav =
-	"font-family: Arial, Helvetica, sans-serif;\n" +
-	"font-size: 10pt;\n" +
-	"align: center;\n";
+    string css_classes =
+	"/* These are the default CSS classes, you can delete them\n" +
+	" * and your page will be rendered with your default document\n" +
+	" * properties.\n" +
+	" * You can also check out the template option for more advanced\n" +
+	" * Layout control.\n" +
+	" */\n" +
+	"div.albumname {\n" +
+	"\tfont-weight: bold;\n" +
+	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
+	"\tfont-size: 12pt;\n" +
+	"\talign: center;\n" +
+	"}\n" +
+	"div.numofphotos {\n" +
+	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
+	"\tfont-size: 10pt;\n" +
+	"\talign: center;\n" +
+	"}\n" +
+	"div.thumbnaildesc {\n" +
+	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
+	"\tfont-size: 10pt;\n" +
+	"}\n" +
+	"div.photo {\n" +
+	"\talign: center;\n" +
+	"}\n" +
+	"div.thumbnail {\n" +
+	"}\n" +
+	"div.photodesc {\n" +
+	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
+	"\tfont-size: 10pt;\n" +
+	"\talign: center;\n" +
+	"}\n" +
+	"div.nav {\n" +
+	"\tfont-family: Arial, Helvetica, sans-serif;\n" +
+	"\tfont-size: 10pt;\n" +
+	"\talign: center;\n" +
+	"}\n";
     string css_help =
 	"CSS stands for Cascading Style Sheets.<br>\n" +
 	"The CSS properties you add here will be applied to the text and images as they are displayed in the page.<br>\n" +
 	"For more information about CSS see the CSS section on <a href=\"http://www.jalfrezi.com/\">The Sizzling HTML Jalfrezi</a> or <a href=\"http://www.webmonkey.com/\">Web Monkey</a><br>\n";
     defvar( "width", 120, "Default tumbnail width", TYPE_INT, "This the default width (in pixels) of the thumbnailed image" );
-    defvar( "thumbnail_border", 1, "Default border width for thumbnail", TYPE_INT, "This is the default border size around each thumbnail" );
-    defvar( "photo_border", 1, "Default border width for phot", TYPE_INT, "This is the default border size around the photo" );
+    defvar( "thumbnail_border", 1, "Default border width for thumbnail", TYPE_INT|VAR_MORE, "This is the default border size around each thumbnail" );
+    defvar( "photo_border", 1, "Default border width for phot", TYPE_INT|VAR_MORE, "This is the default border size around the photo" );
     defvar( "show_numofphotos", 1, "Show the number of photos in the Album in the index display?", TYPE_FLAG, "" );
-    defvar( "css_album_name", css_album_name, "CSS Properties for Photo Album name", TYPE_TEXT, css_help );
-    defvar( "css_numofphotos", css_numofphotos, "CSS Properties for &quot;Total photos&quot; on the index display", TYPE_TEXT, "<b>You only need to enter this value if you said yes to the &quot;Total photos&quot; display question</b><br>\n" + css_help );
-    defvar( "css_thumbnail", css_thumbnail, "CSS Properties for the thumbnail image", TYPE_TEXT, css_help );
-    defvar( "css_thumbnail_desc", css_thumbnail_desc, "CSS Properties for the description next to each photo in the index display", TYPE_TEXT, css_help );
-    defvar( "css_photo", css_photo, "CSS Properties for the photo on the photo display", TYPE_TEXT, css_help );
-    defvar( "css_photo_desc", css_photo_desc, "CSS Properties for the photo description in the photo display", TYPE_TEXT, css_help );
-    defvar( "css_nav", css_nav, "CSS Properties for the navigation links in the photo display", TYPE_TEXT, css_help );
-    defvar( "nav_next", "Next ", "The text for the &quot;next&quot; nav link", TYPE_STRING, "This could also be an &lt;IMG&gt; tag or whatever" );
-    defvar( "nav_prev", " Previous", "The text for the &quot;previous&quot; nav link", TYPE_STRING, "This could also be an &lt;IMB&gt; tag or whatever" );
-    defvar( "nav_index", " Index ", "The text for the &quot;index&quot; nav link", TYPE_STRING, "This could also be an &lt;IMG&gt; tag, or whatever" );
-    defvar( "void_album_name", "Untitled Photo Album", "The text shown for the photo album name where none is defined", TYPE_STRING, "" );
-    defvar( "void_description", "No description given", "The text shown in place of a description if none is provided", TYPE_STRING, "" );
+    defvar( "css_classes", css_classes, "CSS Classes", TYPE_TEXT|VAR_MORE, css_help );
+    defvar( "use_css", 1, "Use the defined CSS Classes", TYPE_FLAG, "You can turn off the usage of Photo Album's default CSS Classes" );
+    defvar( "nav_next", "Next", "The text for the &quot;next&quot; nav link", TYPE_STRING|VAR_MORE, "This could also be an &lt;IMG&gt; tag or whatever" );
+    defvar( "nav_prev", "Previous", "The text for the &quot;previous&quot; nav link", TYPE_STRING|VAR_MORE, "This could also be an &lt;IMB&gt; tag or whatever" );
+    defvar( "nav_index", "Index", "The text for the &quot;index&quot; nav link", TYPE_STRING|VAR_MORE, "This could also be an &lt;IMG&gt; tag, or whatever" );
+    defvar( "void_album_name", "Untitled Photo Album", "The text shown for the photo album name where none is defined", TYPE_STRING|VAR_MORE, "" );
+    defvar( "void_description", "No description given", "The text shown in place of a description if none is provided", TYPE_STRING|VAR_MORE, "" );
 }
 
 void start (int cnt, object conf) {
@@ -134,140 +143,57 @@ mapping query_tag_callers() {
     return ([ "album" : t_album ]);
 }
 
+mixed build_album( object id, mapping args ) {
+    object newalbum = album();
+    string name = args->name?args->name:query( "void_album_name" );
+    string dir = args->dir?args->dir:"";
+    if ( dir == "" ) {
+	return "<b>ERROR:</b> No photo directory given!\n";
+    }
+    newalbum->set_name( name );
+    array dirlist = sort( id->conf->find_dir( fix_relative( dir, id ), id ) );
+    if ( sizeof( dirlist ) == 0 ) {
+	return "<b>ERROR:</b> Photo directory is empty!\n";
+    }
+    string filename;
+    foreach( dirlist, filename ) {
+	array f = filename / ".";
+	string ext = lower_case( f[ sizeof( f ) - 1 ] );
+	if ( ! (( ext == "jpg" )
+	     || ( ext == "gif" )
+	     || ( ext == "png" )) ) continue;
+	string fullpath = fix_relative( replace( dir + "/" + filename, "//", "/" ), id );
+	newalbum->set_photo(
+                            fullpath,
+			    ( id->conf->try_get_file( fullpath + ".desc", id )?id->conf->try_get_file( fullpath + ".desc", id ):query( "void_description" ) )
+			   );
+    }
+    newalbum->set_template( args->template?args->template:0 );
+    return newalbum;
+}
+
 string t_album ( string tag, mapping args, object id ) {
     if ( ( ! albums[ id->not_query ] ) || ( id->pragma[ "no-cache" ] ) ) {
-	object newalbum = album();
-	string name = args->name?args->name:query( "void_album_name" );
-	string dir = args->dir?args->dir:"";
-	if ( dir == "" ) {
-	    return "<b>ERROR: No photo directory given</b>";
-	}
-	newalbum->set_name( name );
-	array dirlist = sort( id->conf->find_dir( fix_relative( dir, id ), id ) );
-	if ( sizeof( dirlist ) == 0 ) {
-	    return "<b>ERROR: Photo directory appears to be empty</b>";
-	}
-	string filename;
-	foreach( dirlist, filename ) {
-	    if ( filename[ (sizeof( filename ) - 5)..sizeof( filename ) ] == ".desc" ) {
-		continue;
-	    }
-	    string desc = id->conf->try_get_file( fix_relative( replace( dir + "/" + filename + ".desc", "//", "/" ) , id ), id );
-	    if ( desc == 0 ) desc = query( "void_description" );
-	    newalbum->set_photo( fix_relative( replace( dir + "/" + filename, "//", "/" ), id ), desc );
-	}
-	albums += ([ id->not_query : newalbum ]);
+	mixed x = build_album( id, args );
+        if ( stringp( x ) ) return sprintf( "%s", x );
+        object o = x;
+	albums += ([ id->not_query : o ]);
     }
-    string pstate;
-    int found = 0;
-    foreach ( indices( id->prestate ), pstate ) {
-        if ( pstate[ 0..4 ] == "page_" ) found++;
-    }
-    if ( found > 0 ) {
-        return make_photo_page( id, albums[ id->not_query ] );
-    } else {
-	return make_index_page( id, albums[ id->not_query ] );
-    }
-}
-
-string display_css() {
-    return
-	"<style type=\"text/css\">\n" +
-	"<!--\n" +
-	"div.albumname{\n" +
-	query( "css_album_name" ) +
-	"}\n" +
-	"div.numofphotos{\n" +
-        query( "css_numofphotos" ) +
-	"}\n" +
-	"div.thumbnaildesc{\n" +
-	query( "css_thumbnail_desc" ) +
-	"}\n" +
-	"div.thumbnail{\n" +
-	query( "css_thumbnail" ) +
-	"}\n" +
-	"div.photo{\n" +
-	query( "css_photo" ) +
-	"}\n" +
-	"div.photodesc{\n" +
-	query( "css_photo_desc" ) +
-	"}\n" +
-	"div.nav{\n" +
-	query( "css_nav" ) +
-	"}\n" +
-	"-->\n" +
-        "</style>\n";
-}
-
-string make_photo_page( object id, object album ) {
-    string pstate, tmp;
-    foreach( indices( id->prestate ), tmp ) {
-	if ( tmp[ 0..4 ] == "page_" ) pstate = tmp;
-    }
-    int num;
-    sscanf( pstate, "page_%d", num );
-    num--;
-    string next, previous, index;
-    index = "<a href=\"" + id->not_query + "\">" + query( "nav_index" ) + "</a>";
-    if ( num == 0 ) {
-	next =
-	    "<a href=\"/(page_2)" + id->not_query + "\">" +
-	    query( "nav_next" ) +
-	    "</a>";
-	previous = query( "nav_prev" );
-    } else if ( num == ( album->get_num_photos() - 1 ) ) {
-	next = query( "nav_next" );;
-	previous =
-	    "<a href=\"/(page_" + sprintf( "%d", num ) + ")" + id->not_query + "\">" +
-	    query( "nav_prev" ) +
-	    "</a>";
-    } else {
-	next =
-	    "<a href=\"/(page_" + sprintf( "%d", num + 2 ) + ")" + id->not_query + "\">" +
-	    query( "nav_next" ) +
-	    "</a>";
-	previous =
-	    "<a href=\"/(page_" + sprintf( "%d", num ) + ")" + id->not_query + "\">" +
-	    query( "nav_prev" ) +
-	    "</a>";
-    }
-    array tmp = album->get_photo( num );
-    return
-	display_css() +
-	"<div class=\"photo\">" +
-	"<img border=\"" + sprintf( "%d", query( "photo_border" ) ) +
-	"\" alt=\"" + html_encode_string( tmp[ 1 ] ) +
-	"\" src=\"" + tmp[ 0 ] +
-	"\">" +
-	"</div>" +
-	"<br><div class=\"photodesc\">" + tmp[ 1 ] + "</div>" +
-	"<br><div class=\"nav\">" + next + " " + index + " " + previous + "</div>\n";
-}
-
-string make_index_page( object id, object album ) {
-    string ret =
-        display_css() +
-	"<div class=\"albumname\">" + album->get_name() + "</div><br>\n";
-    if ( query( "show_numofphotos" ) == 1 ) {
-        ret +=
-	    "<div class=\"numofphotos\">Total photos: " + sprintf( "%d", album->get_num_photos() + 1 ) + "</div><br>\n";
-    }
-    int num;
-    for( num = 0; num < album->get_num_photos(); num++ ) {
-	array tmp = album->get_photo( num );
-	ret +=
-	    "<div class=\"thumbnail\">\n" +
-	    "<a href=\"/(page_" + sprintf( "%d", num + 1 ) + ")" + id->not_query + "\">" +
-	    "<thumbnail alt=\"" + html_encode_string( tmp[ 1 ] ) + "\" src=\"" + tmp[ 0 ] + "\" border=\"" + sprintf( "%d", query( "thumbnail_border" ) ) + "\" width=\"" + sprintf( "%d", query( "width" ) ) + "\">" +
-	    "</a>\n" +
-	    "</div>\n" +
-	    "<div class=\"thumbnaildesc\">" + tmp[ 1 ] + "</div><br>\n";
-    }
-    return parse_rxml( ret, id );
+    return albums[ id->not_query ]->render_page( id );
 }
 
 class album {
     mapping data = ([ ]);
+
+    private string prestate( array pstates, string url ) {
+	array urlparts = url / "/";
+	urlparts = urlparts - ({ "" });
+	urlparts = urlparts[ 0 ][ 0 ] == "("?urlparts - ({ urlparts[ 0 ] }):urlparts;
+	string prestate = "(" + ( pstates * "," ) + ")";
+	urlparts = ({ prestate }) + urlparts;
+	string ret = urlparts * "/";
+        return "/" + ret;
+    }
 
     void set_name( string name ) {
 	data += ([ "album_name" : name ]);
@@ -287,11 +213,108 @@ class album {
     }
 
     int get_num_photos() {
-        return sizeof( data[ "photos" ] );
+	return data[ "photos" ]?sizeof( data[ "photos" ] ):0;
     }
 
     string get_name() {
 	return data[ "album_name" ]?data[ "album_name" ]:"No Album Name Specified";
+    }
+
+    void set_template( object id, void|string filename ) {
+	if ( filename ) {
+	    string tmpl = id->conf->try_get_file( fix_relative( filename ) );
+	    if ( tmpl == "" ) return;
+	    data += ([ "template" : tmpl ]);
+	}
+    }
+
+    string render_index_page( object id ) {
+	string ret = "";
+	if ( id->conf->modules->photoalbum->enabled->query( "use_css" ) ) {
+	    ret += "<style type=\"text/css\">\n<!--\n" + id->conf->modules->photoalbum->enabled->query( "css_classes" ) + "\n-->\n</style>\n";
+	} else {
+	    ret += "";
+	}
+	if ( data[ "template" ] ) {
+            return "not implemented yet";
+	} else {
+	    ret +=
+		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
+		((id->conf->modules->photoalbum->enabled->query( "show_numofphotos" ))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
+                "<div class=\"thumbnail\">\n";
+	    int i;
+	    for( i = 0; i < get_num_photos(); i++ ) {
+                ret +=
+		    "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) + "\">" +
+		    "<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
+		    "src=\"" + get_photo( i )[ 0 ] + "\" " +
+		    "border=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "thumbnail_border" ) ) + "\" " +
+		    "width=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "width" ) ) + "\">" +
+		    "</a><br>\n" +
+		    "<div class=\"thumbnaildesc\">" +
+		    get_photo( i )[ 1 ] +
+                    "</div><br>\n";
+	    }
+            return parse_rxml( ret, id );
+	}
+    }
+
+    private string a_next( string url, int page_num, string contents ) {
+	if ( page_num == 0 ) {
+	    return "<a href=\"" + prestate( ({ "page_2" }), url ) + "\">" + contents + "</a>";
+	} else if ( page_num == ( get_num_photos() - 1 ) ) {
+            return contents;
+	} else {
+	    return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", page_num + 2 ) }), url ) + "\">" + contents + "</a>";
+	}
+    }
+
+    private string a_prev( string url, int page_num, string contents ) {
+	if ( page_num == 0 ) {
+	    return contents;
+	} else {
+	    return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", page_num ) }), url ) + "\">" + contents + "</a>";
+	}
+    }
+
+    string render_photo_page( object id, int page_num ) {
+	string ret;
+	if ( id->conf->modules->photoalbum->enabled->query( "use_css" ) ) {
+	    ret = "<style type\"text/css\">\n<!--\n" + id->conf->modules->photoalbum->enabled->query( "css_classes" ) + "\n-->\n</style>\n";
+	} else {
+	    ret = "";
+	}
+	if ( data[ "template" ] ) {
+            return "not implemented yet";
+	} else {
+	    ret +=
+		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
+                "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br>\n" +
+		"<div class=\"photo\">" +
+		"<img border=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "photo_border" ) ) + "\" " +
+		"alt=\"" + id->conf->html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
+		"src=\"" + get_photo( page_num )[ 0 ] + "\">" +
+		"</div><br>\n" +
+                "<div class=\"nav\">" +
+		a_next( id->not_query, page_num, id->conf->modules->photoalbum->enabled->query( "nav_next" ) ) + " " +
+		"<a href=\"" + id->not_query + "\">" + id->conf->modules->photoalbum->enabled->query( "nav_index" ) + "</a> " +
+		a_prev( id->not_query, page_num, id->conf->modules->photoalbum->enabled->query( "nav_prev" ) ) +
+                "</div>";
+	}
+        return ret;
+    }
+
+    string render_page( object id ) {
+	int page_num;
+	string tmp;
+	foreach( indices( id->prestate ), tmp ) {
+	    if ( tmp[ 0..4 ] == "page_" ) sscanf( tmp, "page_%d", page_num );
+	}
+	if ( page_num > 0 ) {
+	    return render_photo_page( id, page_num - 1 );
+	} else {
+	    return render_index_page( id );
+	}
     }
 
 }
