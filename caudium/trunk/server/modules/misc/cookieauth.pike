@@ -79,7 +79,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version="$Id$";
-constant module_type= MODULE_FIST | MODULE_FILTER;
+constant module_type= MODULE_FIRST | MODULE_FILTER;
 constant module_name= "Cookie Authentication Module";
 constant module_doc = "Allow site designer to use forms and cookie to "
                       "authenticate users, instead of htauth.\n Once "

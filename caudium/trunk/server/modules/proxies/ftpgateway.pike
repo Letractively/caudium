@@ -1157,7 +1157,7 @@ class Request {
 
 
 multiset requests=(<>);
-object logfile;
+object lfile;
 
 function nf=lambda(){};
 
@@ -1177,8 +1177,8 @@ void start()
   if(strlen(pos)>2 && (pos[-1] == pos[-2]) && pos[-1] == '/')
     set("mountpoint", pos[0..strlen(pos)-2]); // Evil me..
 
-  if(logfile) 
-    destruct(logfile);
+  if(lfile) 
+    destruct(lfile);
 
   if(!strlen(QUERY(logfile)))
     return;
@@ -1189,18 +1189,18 @@ void start()
 
   if(QUERY(logfile) == "stdout")
   {
-    logfile=stdout;
+    lfile=stdout;
   } else if(QUERY(logfile) == "stderr") {
-    logfile=stderr;
+    lfile=stderr;
   } else {
-    logfile=open(QUERY(logfile), "wac");
+    lfile=open(QUERY(logfile), "wac");
   }
 }
 
 void do_write(string host, string oh, string id, string more)
 {
   if(!host)     host=oh;
-  logfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] ftp://" +
+  lfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] ftp://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 
@@ -1208,7 +1208,7 @@ void log(string file, string more)
 {
   string user, host, rest;
 
-  if(!logfile) return;
+  if(!lfile) return;
   sscanf(file, "%s@%s:%s", user, host, rest);
   caudium->ip_to_host(host, do_write, host, rest, more);
 }
@@ -1454,7 +1454,7 @@ mixed|mapping find_file( string f, object id )
   //   port=21; // Default FTP port. Really! :-)
   // }
 
-  if(tmp = Caudium.proxy_auth_needed(id))
+  if(tmp = Caudium.HTTP.proxy_auth_needed(id))
     return tmp;
 
   // sscanf(host, "%s@%s", user, host);
