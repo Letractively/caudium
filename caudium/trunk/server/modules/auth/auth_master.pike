@@ -39,6 +39,8 @@ inherit "module";
 inherit "cachelib";
 inherit "caudiumlib";
 
+#define DEBUG 1
+
 #ifdef DEBUG
 #define ERROR(X) werror("AuthMaster: " + X + "\n");
 #else
@@ -89,7 +91,6 @@ void start(int level, object conf)
 
 string status()
 {
-
   string h="";
 
   foreach(my_configuration()->get_providers("authentication"),object o)
@@ -131,7 +132,6 @@ int authenticate(string user, string password)
 {
    if(!user && !password) { fail++; nouser++; return 0; }
    mixed data=get_user_info(user);
-
    if(!data)
    {
      ERROR("user " + user + " doesn't exist.\n");
@@ -150,7 +150,6 @@ int authenticate(string user, string password)
        return 1;  // password matches previous cached success.
      }
    int auth=low_authenticate(user, password);
-
    if(!auth) {fail++; return 0; } // authentication failed, user doesn't exist.
    if(auth==-1) {fail++; return 0; } // authentication failed, exists.
    data["__authdata"]=Crypto.string_to_hex(
@@ -198,8 +197,7 @@ string|int get_username(int uid)
 {
   int|string data=cache->retrieve("uid-" + uid, low_get_username, ({uid}));
   if(data==-1) return 0;
-  else return data;
-   
+  else return data;   
 }
 
 //! given a numeric group id, find a group name.
@@ -243,8 +241,14 @@ mapping|int user_info(string username)
    else 
    {
       mapping|int i=get_user_info(username);
-      if(i) m_delete(i, "__authdata");
-      return i;
+      if(!i) 
+        return i;
+      else 
+      {
+         mapping c=copy_value(i);
+         m_delete(c, "__authdata");
+         return c;
+      }
    }
 }
 
@@ -280,7 +284,6 @@ array|int list_all_users()
 {
   array data=cache->retrieve("userlist", low_list_all_users, ({}));
   return data;
-
 }
 
 //! listing of known groups
@@ -398,6 +401,7 @@ private int low_authenticate(string user, string password)
 
 private mapping|int get_user_info(string username)
 {
+
   mapping|int data=cache->retrieve("user-" + username, low_get_user_info, ({username}));
   return data;
 }
@@ -506,7 +510,6 @@ private int set_group_list(array data)
 
 private int set_user_info(string username, mapping data)
 {
-  ERROR("set_user_info" + username + "\n");
   if(data)
   {
     cache->store(cache_pike(data, "user-" + username, timeout));
