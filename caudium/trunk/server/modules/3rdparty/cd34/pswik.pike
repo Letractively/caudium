@@ -127,8 +127,12 @@ void simple_mail(string msg, object id)
 					  "X-Referrer": 
 					  (string) id->referrer])));
 #else
-  QUERY(maildomain))->send_message(QUERY(mailfrom), ({ QUERY(mailto) })
-  Protocols.SMTP.client(QUERY(mailserver), 25)->send_message(QUERY(mailfrom), ({ QUERY(mailto) }),
+#if constant(Protocols.SMTP.Client)
+#define SMTP_CLIENT Protocols.SMTP.Client
+#else
+#define SMTP_CLIENT Protocols.SMTP.client
+#endif
+  SMTP_CLIENT(QUERY(mailserver), 25)->send_message(QUERY(mailfrom), ({ QUERY(mailto) }),
                 (string)MIME.Message(tmp, (["MIME-Version":"1.0",
                                             "Subject":QUERY(subject),
                                             "From":QUERY(from),

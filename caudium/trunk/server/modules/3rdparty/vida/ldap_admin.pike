@@ -679,8 +679,13 @@ if(QUERY(mail))
                                           "content-transfer-encoding":
                                           "8bit"])));
 #else
-//Protocols.SMTP.client(QUERY(mailserver), 25, QUERY(maildomain))->send_message(from, ({ to })
-  Protocols.SMTP.client(QUERY(mailserver), 25)->send_message(from, ({ to }),
+#if constant(Protocols.SMTP.Client)
+#define SMTP_CLIENT Protocols.SMTP.Client
+#else
+#define SMTP_CLIENT Protocols.SMTP.client
+#endif
+
+  SMTP_CLIENT(QUERY(mailserver), 25)->send_message(from, ({ to }),
                 (string)MIME.Message(msg, (["mime-version":"1.0",
 		                            "subject":subject,
 					    "from":from,
