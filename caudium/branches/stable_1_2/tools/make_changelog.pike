@@ -2,6 +2,9 @@ mapping (string:string) users = ([ ]);
 
 string domain;
 mapping user_list = ([
+  "uid35094": "Retired user",
+  "uid56983": "Retired user",
+  "uid22667": "Retired user",
   "neotron": "David Hedbor <david@caudium.net>",
   "grendel": "Marek Habersack <grendel@caudium.net>",
   "oliv3": " Olivier Girondel <oliv3@caudium.net>",
@@ -23,6 +26,7 @@ mapping user_list = ([
   "hww3": "Bill Welliver <hww3@caudium.net>",
   "kazmer": "Tamas Tevesz <ice@caudium.net>",
   "tombolala": "Thomas Bopp <tombolala@caudium.net>",
+  "cd34": "Chris Davies <cd34@caudium.net>",
 ]);
 void find_user(string u)
 {
