@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
 
 /* $Id$
  */

@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
 
 object open(string f, string m)
 {

@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!bin/pike
  * By using it you implicitly state that you are aware of the risks, and
  * that take upon yourself all the responsabilities for any damage,
  * direct or indirect including loss of profict from the use of this software.
