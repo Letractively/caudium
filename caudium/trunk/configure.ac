@@ -353,10 +353,6 @@ esac
 AC_SUBST(CXX)
 AC_SUBST(LD)
 
-### Some Args ###
-#################
-AM_WITH_DMALLOC
-
 ### Let's set the default,            ###
 ### which we can change if we'd like. ###
 #########################################
