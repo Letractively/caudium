@@ -339,18 +339,6 @@ int main(int argc, char **argv)
     }
   }
 
-  {
-    FILE *f = fopen("/tmp/smartlink.log", "a+");
-    int  i = 0;
-    
-    if (f) {
-	fprintf(f, "%s ", argv[1]);
-	for(i = 0; i < new_argc; i++)
-	    fprintf(f, "%s ", new_argv[i]);
-	fprintf(f, "\n");
-	fclose(f);
-    }
-  }
   execv(argv[1], new_argv);
   fprintf(stderr, "%s: exec of %s failed!\n", argv[0], argv[1]);
   exit(1);
