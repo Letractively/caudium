@@ -1,6 +1,6 @@
---- modules/_Image_FreeType/freetype.c.orig	Thu Jan  3 02:18:46 2002
-+++ modules/_Image_FreeType/freetype.c	Thu Mar 28 23:48:14 2002
-@@ -3,7 +3,11 @@
+--- modules/_Image_FreeType/freetype.c.orig	Fri May  3 21:20:32 2002
++++ modules/_Image_FreeType/freetype.c	Fri May  3 21:20:46 2002
+@@ -3,7 +3,7 @@
  RCSID("$Id$");
  
  #ifdef HAVE_LIBFT2
