@@ -328,6 +328,12 @@ private static void accept_callback( object port )
     mark_fd( file->query_fd(), "Connection from "+
 	     replace(file->query_address(), " ", ":"));
 #endif
+    if(pn[1] && !pn[1]->inited) {
+      array err;
+      if(err = catch { pn[1]->enable_all_modules();  })
+	werror("Error while loading modules in configuration "+
+	       pn[1]->name+":\n"+ describe_backtrace(err)+"\n");
+    }
     pn[-1](file,pn[1]);
 #ifdef SOCKET_DEBUG
     perror(sprintf("SOCKETS:   Ok. Connect on %O:%O from %O\n", 
@@ -1164,10 +1170,7 @@ array(object) get_configuration_ports()
 string docurl;
 
 // I will remove this in a future version of caudium.
-private program __p;
 mapping my_loaded = ([]);
-program last_loaded() { return __p; }
-
 string last_module_name;
 
 string filename(object|program o)
@@ -1176,49 +1179,41 @@ string filename(object|program o)
   return my_loaded[(program)o]||last_module_name;
 }
 
-program my_compile_file(string file)
-{
-  return compile_file( file );
-}
-
 // ([ filename:stat_array ])
 mapping(string:array) module_stat_cache = ([]);
+
 object load(string s, object conf)   // Should perhaps be renamed to 'reload'. 
 {
   string cvs;
   array st;
   object e = ErrorContainer();
-  sscanf(s, "/cvs:%s", cvs);
-
-//  perror("Module is "+s+"?");
-  if(st=file_stat(s+".pike"))
+  program prog;
+  if(st = file_stat(s+".pike"))
   {
-//    perror("Yes, compile "+s+"?");
-    if((cvs?(__p=master()->cvs_load_file( cvs+".pike" ))
-	:(__p=my_compile_file(s+".pike"))))
+    if(prog = compile_file(s+".pike"))
     {
-//      perror("Yes.");
-      my_loaded[__p]=s+".pike";
+      my_loaded[prog] = s+".pike";
       module_stat_cache[s-dirname(s)]=st;
-      return __p(conf);
+      return prog(conf);
     } else
       perror(s+".pike exists, but compilation failed.\n");
   }
+#ifdef EXTRA_ROXEN_COMPAT
   if(st = file_stat(s+".lpc"))
-    if(cvs?(__p = master()->cvs_load_file( cvs+".lpc" )):
-       (__p = my_compile_file(s+".lpc")))
+    if(prog = compile_file(s+".lpc"))
     {
-      my_loaded[__p] = s+".lpc";
+      my_loaded[prog] = s+".lpc";
       module_stat_cache[s-dirname(s)]=st;
-      return __p(conf);
+      return prog(conf);
     } else
       perror(s+".lpc exists, but compilation failed.\n");
-  if(st = file_stat(s+".module"))
-    if(__p = load_module(s+".so"))
+#endif
+  if(st = file_stat(s+".so"))
+    if(prog = load_module(s+".so"))
     {
-      my_loaded[__p] = s+".so";
+      my_loaded[prog] = s+".so";
       module_stat_cache[s-dirname(s)] = st;
-      return __p(conf);
+      return prog(conf);
     } else
       perror(s+".so exists, but compilation failed.\n");
   return 0; // FAILED..
@@ -1229,33 +1224,33 @@ array(string) expand_dir(string d)
   string nd;
   array(string) dirs=({d});
 
-//perror("Expand dir "+d+"\n");
+  //  werror("Expand dir "+d+"\n");
   catch {
     foreach((get_dir(d) || ({})) - ({"CVS"}) , nd) 
-      if(file_stat(d+nd)[1]==-2)
-	dirs+=expand_dir(d+nd+"/");
+      if(Stdio.is_dir(d+nd))
+	dirs += expand_dir(d+nd+"/");
   }; // This catch is needed....
   return dirs;
 }
 
-array(string) last_dirs=0,last_dirs_expand;
+array(string) last_dirs=0, last_dirs_expand;
 
 
 object load_from_dirs(array dirs, string f, object conf)
 {
   string dir;
   object o;
-
-  if (dirs!=last_dirs)
+  if (!equal(dirs,last_dirs))
   {
-    last_dirs_expand=({});
+    last_dirs_expand = ({});
     foreach(dirs, dir)
-      last_dirs_expand+=expand_dir(dir);
+      last_dirs_expand += expand_dir(dir);
+    last_dirs = dirs;
   }
 
-  foreach (last_dirs_expand,dir)
+  foreach (last_dirs_expand, dir)
     if ( (o = load(dir+f, conf)) ) return o;
-
+  
   return 0;
 }
 static int abs_started;
@@ -1293,8 +1288,6 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
-	
-
 }
 
 void create()
@@ -1505,12 +1498,7 @@ void reload_all_configurations()
     config_cache[config] = st;
     if(conf) {
       // Closing ports...
-      if (conf->server_ports) {
-	// Roxen 1.2.26 or later
-	Array.map(values(conf->server_ports), conf->do_dest);
-      } else {
-	Array.map(indices(conf->open_ports), conf->do_dest);
-      }
+      map(values(conf->server_ports), conf->do_dest);
       conf->stop();
       conf->invalidate_cache();
       conf->modules = ([]);
@@ -3284,7 +3272,7 @@ void scan_module_dir(string d)
 	    array foo;
 	    object o;
 	    program p;
-	    if (catch(p = my_compile_file(file)) || (!p)) {
+	    if (catch(p = compile_file(file)) || (!p)) {
 	      MD_PERROR((" compilation failed"));
 	      throw("Compilation failed.\n");
 
@@ -3333,15 +3321,6 @@ void scan_module_dir(string d)
 	  } else {
 	    // Load failed.
 	    module_stat_cache[path+file]=0;
-#if 0
-	    _master->errors += "\n";
-	    if (arrayp(err)) {
-	      _master->errors += path + file + ": " +
-		describe_backtrace(err) + "\n";
-	    } else {
-	      _master->errors += path + file + ": " + err;
-	    }
-#endif
 	  }
 	}
 	MD_PERROR(("\n"));
@@ -3701,6 +3680,7 @@ int main(int|void argc, array (string)|void argv)
 
 
 
+#if 0
   foreach(configurations, object config)
   {
     array err;
@@ -3708,6 +3688,7 @@ int main(int|void argc, array (string)|void argv)
       perror("Error while loading modules in configuration "+config->name+":\n"+
 	     describe_backtrace(err)+"\n");
   };
+#endif
   enabling_configurations = 0;
 
 // Rebuild the configuration interface tree if the interface was
