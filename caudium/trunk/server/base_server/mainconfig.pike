@@ -205,6 +205,7 @@ void create()
 
 object find_node(string l)
 { 
+  l = http_decode_url(l);
   array tmp = l/"/"-({""});
   object o;
   if(!sizeof(tmp)) return root;
