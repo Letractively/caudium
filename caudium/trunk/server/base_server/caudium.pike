@@ -2508,7 +2508,7 @@ private void define_global_variables(int argc, array (string) argv)
           " be removed first.",
           0, cache_disabled_p);
 
-  globvar("cachedir", "/tmp/caudium_cache/",
+  globvar("cachedir", "../caudium_cache/",
           "Proxy disk cache: Base Cache Dir",
           TYPE_DIR,
           "This is the base directory where cached files will reside. "
