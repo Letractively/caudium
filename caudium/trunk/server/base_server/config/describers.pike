@@ -138,7 +138,7 @@ string describe_error(string err, array (int) times)
   if(sizeof(times)==1 && times[0]/60==last_time) nt=1;
   last_time=times[0]/60;
   sscanf(err, "%d,%s", code, err);
-  return ("<table><tr><td valign=top><img src=/image/err_"+code+".gif \n"
+  return ("<table><tr><td valign=top><img src=/image/err_"+code+".png \n"
 	  "alt="+codetext[code-1]+">"
 	  "</td><td>"+(nt?"":describe_times(times)+"<br>")+
 	  replace(fix_err(err),"\n","<br>\n")+"</table>");

@@ -830,7 +830,7 @@ string format_backtrace(array bt, int eid)
 		"<p>\n\n"
 		"<font size=+2 color=darkred>"
 		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.gif>"
+		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
 		+bt[0]+"</font><br>\n"
 		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
