@@ -14,7 +14,7 @@ htpasswd: $(SRCDIR)/htpasswd.c
 	-$(CC) $(CFLAGS) -o htpasswd $(SRCDIR)/htpasswd.c $(LDFLAGS)
 
 install: htpasswd
-	$(INSTALL) htpasswd $(prefix)/bin/
+	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
 
 clean:
 	rm -f htpasswd

@@ -6,7 +6,7 @@ SOURCES=ultrautil.c ultraparse.c
 @module_makefile@
 
 extrainstall:
-	$(INSTALL) ultrasum @prefix@/bin/
+	$(INSTALL) ultrasum $(DESTDIR)/@prefix@/bin/
 
 
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.

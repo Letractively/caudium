@@ -2,6 +2,7 @@
 SRCDIR=@srcdir@
 VPATH=@srcdir@
 prefix=@prefix@
+DESTDIR=
 
 @SET_MAKE@
 
@@ -102,6 +103,88 @@ install_only:
 	    chmod a+rx $(prefix)/caudium/server/bin/$$f; \
 	  else :; fi; \
 	done
+	@echo "Caudium installed."
+
+#
+# This target exists specifically for those people who make various distribution 
+# packages, mainly on Linux systems but possibly useful on other systems as 
+# well
+#
+# sed -e 's/\(globvar("ModuleDirs",\).*/\1({}),/g'
+#
+install_alt:
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium/local_modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium/local_fonts
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/log/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/run/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/usr/local/share/caudium/modules
+	@for f in $(INSTALLFILES); do \
+	 echo "Copying $$f ..."; \
+	 cp $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium/; \
+	done
+	@echo "Copying examples ..."
+	@cp -r $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium/ -name CVS -print`	
+	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
+	          protocols; do \
+	 echo "Copying $$f ..."; \
+	 cp -r $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	done
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium -name CVS -print`
+	@echo "Copying modules..."
+	@for f in modules more_modules unfinishedmodules; do \
+	 cp -r $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/share/caudium; \
+	done
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium -name CVS -print`
+	@for f in $(SRCDIR)/server/*; do \
+	 if test -f $$f; then \
+	  cp $$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	 fi; \
+	done
+	@echo "Fixing paths..."
+	@MDIR="../../share/caudium"; CACHETOP="/var/cache/caudium"; \
+	 for v in more_modules modules local_modules; do \
+	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
+	 done; \
+	 if test "$(prefix)" != "/usr/local"; then \
+	  MODS="$$MODS\\\"/usr/local/share/caudium/modules/\\\""; \
+	 else \
+	  MODS="`echo $$MODS | sed -e 's;,$$;;g'`"; \
+	 fi; \
+	 sed -e "s;\(globvar(.*\"ModuleDirs\",\).*;\1({$$MODS}),;g" \
+	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"../../share/caudium/local_fonts\",\"nfonts\"}),;g" \
+	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium/\"\2;g" \
+	     -e "s;\(globvar(.*\"cachedir\",.*\)\"/tmp/caudium_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
+	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium/caudium.pid\"\2;g" \
+	     -e "s;\(globvar(.*\"argument_cache_dir\",.*\)\"../argument_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
+	  $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike > \
+	  $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike.new; \
+	 mv $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike.new \
+	    $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike
+	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium/;g" \
+	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium/;g" \
+	     $(DESTDIR)/$(prefix)/lib/caudium/start > \
+	     $(DESTDIR)/$(prefix)/lib/caudium/start.new; \
+	mv $(DESTDIR)/$(prefix)/lib/caudium/start.new $(DESTDIR)/$(prefix)/lib/caudium/start
+	@(cd src;$(MAKE) "prefix=$(prefix)" "DESTDIR=$(DESTDIR)" \ "CC=$(CC)" \
+	                 "LDFLAGS=$(LDFLAGS)" \
+	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@/" install)
+	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium/bin/caudium
+	-@for f in fcgi install.pike pdbi.pike pike caudium; \
+	do \
+	  if test -f $(DESTDIR)/$(prefix)/lib/caudium/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/lib/caudium/bin/$$f... ; \
+	    chmod 755 $(DESTDIR)/$(prefix)/lib/caudium/bin/$$f; \
+	  else :; fi; \
+	done
+	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium/start
 	@echo "Caudium installed."
 
 spotless:  clean
