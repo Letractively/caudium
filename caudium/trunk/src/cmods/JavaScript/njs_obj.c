@@ -432,13 +432,13 @@ static NJSGenericResult
     THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->parent->id,
 				      property, strlen(property), SCOPE->get,
 				      value));
-    return NJS_HANDLED;
+    return NJS_GR_HANDLED;
   } else {
     int set_ok;
     if(SCOPE->set.type == T_INT) {
       /* Immutable scope, i.e read-only */
       strcpy(error_return, "Scope is read-only.");
-      return NJS_FAILED;
+      return NJS_GR_FAILED;
     }
     
     if(value->type == NJS_VALUE_BUILTIN) {
@@ -446,7 +446,7 @@ static NJSGenericResult
        * would result in a zero being set.
        */
       strcpy(error_return, "Invalid argument 2, class/object not allowed.");
-      return NJS_FAILED;
+      return NJS_GR_FAILED;
     }
 
     THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->parent->id,
@@ -455,15 +455,15 @@ static NJSGenericResult
     if(set_ok) {
       value->type = NJS_VALUE_BOOLEAN;
       value->u.i = 1;
-      return NJS_OK;
+      return NJS_GR_HANDLED;
     } else {
       njs_snprintf(error_return, 1024,
 		  "Failed to set variable '%s' in scope '%s'.",
 		  SCOPE->name->str, property);
-      return NJS_FAILED;
+      return NJS_GR_FAILED;
     }
 
-    return NJS_FAILED;
+    return NJS_GR_FAILED;
   }
 }
 
