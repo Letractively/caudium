@@ -307,7 +307,7 @@ rotate () {
 }
 
 start_caudium() {
-  args="-DCAUDIUM $DEBUG $DEFINES $pass $program --config-dir=$DIR $pass2"
+  args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $pass $program --config-dir=$DIR $pass2"
   if [ "x$gdb" = "xno" ]; then
     echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
     echo Executing $pike $args $@
