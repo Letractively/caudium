@@ -36,6 +36,10 @@ umask 022
 #
 # configdir=dirname
 
+# If you want to start with another log directory:
+#
+# logdir=dirname
+
 # Here you can add extra flags to the start script, like enabling or
 # disabling threads.
 # 
@@ -46,6 +50,7 @@ umask 022
 
 test -n "$pidfile" && flags="$flags --pid-file=$pidfile"
 test -n "$configdir" && flags="$flags --config-dir=$configdir"
+test -n "$logdir" && flags="$flags --log-dir=$logdir"
 
 case $1 in
 	'start')
