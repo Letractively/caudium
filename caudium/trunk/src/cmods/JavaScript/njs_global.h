@@ -53,4 +53,7 @@ int pike_type_to_js_type(JSInterpPtr,struct svalue *, JSType *);
 /* njs_obj.c */
 void njs_init_interpreter_program(void);
 
+/* from libnjs */
+int js_snprintf (char *str, unsigned long len, const char *fmt, ...);
+
 #endif

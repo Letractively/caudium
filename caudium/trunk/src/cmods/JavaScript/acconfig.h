@@ -27,7 +27,7 @@
 
 #undef HAVE_NJS
 #ifdef HAVE_NJS
-#include <njs/njs.h>
+#include "njs/njs.h"
 #include "njs_global.h"
 #endif
 #endif
