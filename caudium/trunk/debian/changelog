@@ -1,6 +1,7 @@
 caudium (1:1.1.1-11) unstable; urgency=low
 
   * Email address change.
+  * PHP4 fixes
 
  -- Marek Habersack <grendel@debian.org>  Tue, 24 Apr 2001 12:14:34 +0200
 
@@ -229,4 +230,5 @@ caudium (1.0.0-1) unstable; urgency=low
 
 Local variables:
 mode: debian-changelog
+add-log-mailing-address "Marek Habersack <grendel@debian.org>
 End:
