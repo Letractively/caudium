@@ -228,12 +228,13 @@ static void setproctitle_init(int argc, char **argv)
 static void setproctitle(char *fmt, ...)
 {
   va_list     ap;
-  char       *buf = CAUDIUM_ALLOCA(_maxargvlen);
-
-  CAUDIUM_PTR_VALID(buf);
+  /* char       *buf = CAUDIUM_ALLOCA(_maxargvlen); */
+  char       *buf = scratchpad_get(_maxargvlen);/* it always returns a valid pointer */
+  
+  /* CAUDIUM_PTR_VALID(buf); */
   
   if (!argv0 || !_maxargvlen || !fmt || !strlen(fmt)) {
-    CAUDIUM_UNALLOCA(buf);
+    /* CAUDIUM_UNALLOCA(buf); */
     return;
   }
 
@@ -255,7 +256,7 @@ static void setproctitle(char *fmt, ...)
   memset(argv0, 0, _maxargvlen);
   strncpy(argv0, buf, _maxargvlen - 1);
 
-  CAUDIUM_UNALLOCA(buf);
+  /* CAUDIUM_UNALLOCA(buf); */
 }
 #endif
 
@@ -525,8 +526,9 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
   unsigned char *mystr;
   struct pike_string *pstr;
 
-  mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 1) * sizeof(char));
-
+  /* mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 1) * sizeof(char)); */
+  mystr = (unsigned char *)scratchpad_get((len + 1) * sizeof(char));/* it always returns a valid pointer */
+  
   if (mystr == NULL)
     return (struct pike_string *)NULL;
   MEMCPY(mystr, str, len);
@@ -540,7 +542,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
     }
   }
   pstr = make_shared_binary_string((char *)mystr, len);
-  CAUDIUM_UNALLOCA(mystr);
+  /* CAUDIUM_UNALLOCA(mystr); */
   
   return pstr;
 }
@@ -564,7 +566,8 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 
-  mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 2) * sizeof(char));
+  /*mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 2) * sizeof(char)); */
+  mystr = (unsigned char *)scratchpad_get((len + 2) * sizeof(char));/* it always returns a valid pointer */
   
   if (mystr == NULL)
     return (struct pike_string *)NULL;
@@ -612,7 +615,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   }
 
   newstr = make_shared_binary_string((char *)mystr, nlen+exist);
-  CAUDIUM_UNALLOCA(mystr);
+  /* CAUDIUM_UNALLOCA(mystr); */
   
   return newstr;
 }
@@ -1102,8 +1105,9 @@ static void f_get_port(INT32 args) {
     if (!orig)
       Pike_error("Out of stack space");
 #else /* HAVE_STRNDUPA */
-    orig = CAUDIUM_ALLOCA(src->len + 1);
-    CAUDIUM_PTR_VALID(orig);
+    /* orig = CAUDIUM_ALLOCA(src->len + 1); */
+    orig = scratchpad_get(src->len + 1);/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(orig); */
     
     MEMCPY(orig, src->str, src->len);
     orig[src->len] = 0;
@@ -1125,7 +1129,7 @@ static void f_get_port(INT32 args) {
       push_text("0");
     }
 
-    CAUDIUM_UNALLOCA(orig);
+    /* CAUDIUM_UNALLOCA(orig); */
   }
 }
 
@@ -1150,8 +1154,9 @@ static void f_extension( INT32 args ) {
   if (!orig)
     Pike_error("Out of stack space");
 #else /* HAVE_STRNDUPA */
-  orig = CAUDIUM_ALLOCA(src->len + 1);
-  CAUDIUM_PTR_VALID(orig);
+  /* orig = CAUDIUM_ALLOCA(src->len + 1); */
+  orig = scratchpad_get(src->len + 1);/* it always returns a valid pointer */
+  /* CAUDIUM_PTR_VALID(orig); */
   
   MEMCPY(orig, src->str, src->len);
   orig[src->len] = 0;
@@ -1179,7 +1184,7 @@ static void f_extension( INT32 args ) {
     push_text("");
   }
 
-  CAUDIUM_UNALLOCA(orig);
+  /* CAUDIUM_UNALLOCA(orig); */
 }
 
 /*
@@ -1521,8 +1526,9 @@ static void f_cern_http_date(INT32 args)
    }
   
 #ifdef HAVE_LOCALTIME_R
-   tm = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-   CAUDIUM_PTR_VALID(tm);
+   /* tm = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+   tm = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+   /* CAUDIUM_PTR_VALID(tm); */
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) {
@@ -1540,7 +1546,7 @@ static void f_cern_http_date(INT32 args)
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-      CAUDIUM_UNALLOCA(tm);
+      /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
         return;
     }
@@ -1553,7 +1559,7 @@ static void f_cern_http_date(INT32 args)
 #endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
-       CAUDIUM_UNALLOCA(tm);
+       /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
          return;
      }
@@ -1569,8 +1575,9 @@ static void f_cern_http_date(INT32 args)
     int days, hours, minutes;
 
 #ifdef HAVE_GMTIME_R
-    gmt = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-    CAUDIUM_PTR_VALID(gmt);
+    /* gmt = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+    gmt = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(gmt); */
     
     THREADS_ALLOW();
     gmt = gmtime_r(&now, gmt);
@@ -1580,8 +1587,9 @@ static void f_cern_http_date(INT32 args)
 #endif /* HAVE_GMTIME_R */
 
 #ifdef HAVE_LOCALTIME_R
-    t = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-    CAUDIUM_PTR_VALID(t);
+    /* t = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+    t = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(t); */
     
     THREADS_ALLOW();
     t = localtime_r(&now, t);
@@ -1595,10 +1603,10 @@ static void f_cern_http_date(INT32 args)
     minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
 #ifdef HAVE_LOCALTIME_R
-    CAUDIUM_UNALLOCA(t);
+    /* CAUDIUM_UNALLOCA(t); */
 #endif /* HAVE_LOCALTIME_R */
 #ifdef HAVE_GMTIME_R
-    CAUDIUM_UNALLOCA(gmt);
+    /* CAUDIUM_UNALLOCA(gmt); */
 #endif /* HAVE_GMTIME_R */
   }
 #endif
@@ -1613,12 +1621,12 @@ static void f_cern_http_date(INT32 args)
               tm->tm_hour, tm->tm_min, tm->tm_sec, sign, diff / 60L,
               diff % 60L) == sizeof date) {
 #ifdef HAVE_LOCALTIME_R
-    CAUDIUM_UNALLOCA(tm);
+    /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
      return;
   }
 #ifdef HAVE_LOCALTIME_R
-  CAUDIUM_UNALLOCA(tm);
+  /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
@@ -1664,8 +1672,9 @@ static void f_http_date(INT32 args)
    }
 
 #ifdef HAVE_LOCALTIME_R
-    tm = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-    CAUDIUM_PTR_VALID(tm);
+    /* tm = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+    tm = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(tm); */
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) { 
@@ -1712,8 +1721,9 @@ static void f_http_date(INT32 args)
     int days, hours, minutes;
 
 #ifdef HAVE_GMTIME_R
-    gmt = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-    CAUDIUM_PTR_VALID(gmt);
+    /* gmt = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+    gmt = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(gmt); */
     
     THREADS_ALLOW();
     gmt = gmtime_r(&now, gmt);
@@ -1723,8 +1733,9 @@ static void f_http_date(INT32 args)
 #endif /* HAVE_GMTIME_R */
 
 #ifdef HAVE_LOCALTIME_R
-    t = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm));
-    CAUDIUM_PTR_VALID(t);
+    /* t = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
+    t = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
+    /* CAUDIUM_PTR_VALID(t); */
     
     THREADS_ALLOW();
     t = localtime_r(&now, t);
@@ -1738,10 +1749,10 @@ static void f_http_date(INT32 args)
     minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
 #ifdef HAVE_LOCALTIME_R
-    CAUDIUM_UNALLOCA(t);
+    /* CAUDIUM_UNALLOCA(t); */
 #endif /* HAVE_LOCALTIME_R */
 #ifdef HAVE_GMTIME_R
-    CAUDIUM_UNALLOCA(gmt);
+    /* CAUDIUM_UNALLOCA(gmt); */
 #endif /* HAVE_GMTIME_R */
 
   }
@@ -1758,12 +1769,12 @@ static void f_http_date(INT32 args)
               hour, (tm->tm_min) - (int)(diff % 60L), 
               tm->tm_sec ) == sizeof date) {
 #ifdef HAVE_LOCALTIME_R
-     CAUDIUM_UNALLOCA(tm);
+     /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
      return;
   }
 #ifdef HAVE_LOCALTIME_R
-  CAUDIUM_UNALLOCA(tm);
+  /* CAUDIUM_UNALLOCA(tm); */
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
