@@ -69,7 +69,7 @@ string status()
 {
   return("<h1>Security info</h1>\n"
 	 "<b>YP-server:</b> " + domain->server("passwd.byname") + "<br>\n"
-	 "<b>YP-domain:</b> " + default_yp_domain() + "<br>\n"
+	 "<b>YP-domain:</b> " + Yp.default_domain() + "<br>\n"
 	 "<p>\n"
 	 "<b>Successful auths:</b> " + (string)succ +
 	 ", " + (string)emptypasswd + " had empty password fields.<br>\n"

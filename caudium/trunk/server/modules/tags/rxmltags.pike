@@ -2702,7 +2702,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
     if (m->years)   t+=((int)(m->years))*(3600*(24*365+6));   /* 365.25d */
   }
 
-  if(t) cookies += "; expires="+Procotols.HTTP.Server.http_date(t+time());
+  if(t) cookies += "; expires="+Protocols.HTTP.Server.http_date(t+time());
 
   //obs! no check of the parameter's usability
   cookies += "; path=" +(Protocols.HTTP.http_encode_cookie(m->path||"/"));

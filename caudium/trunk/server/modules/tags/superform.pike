@@ -341,7 +341,7 @@ string tag_sform(string tag_name, mapping args, string contents,
   string multi_separator = args->multi_separator || "\000";
   int rand=random(100000);
 
-  contents=spider.spider.parse_html(contents, ([ "input" : tag_input ]),(["rxml":tag_rxml]),request_id);
+  contents=spider.parse_html(contents, ([ "input" : tag_input ]),(["rxml":tag_rxml]),request_id);
   
   // a really messy bit of code to get the current URL
   string here=request_id->not_query;
