@@ -19,24 +19,24 @@
  */
 
 // Logging format support functions.
-nomask private inline string host_ip_to_int(string s)
+inline string host_ip_to_int(string s)
 {
   int a, b, c, d;
   sscanf(s, "%d.%d.%d.%d", a, b, c, d);
   return sprintf("%c%c%c%c",a, b, c, d);
 }
 
-nomask private inline string unsigned_to_bin(int a)
+inline string unsigned_to_bin(int a)
 {
   return sprintf("%4c", a);
 }
 
-nomask private inline string unsigned_short_to_bin(int a)
+inline string unsigned_short_to_bin(int a)
 {
   return sprintf("%2c", a);
 }
 
-nomask private inline string extract_user(string from)
+inline string extract_user(string from)
 {
   array tmp;
   if (!from || sizeof(tmp = from/":")<2)
