@@ -53,7 +53,7 @@ void create()
 	 " interface. This might be useful for some.");
 }
 
-mixed *register_module()
+array(mixed) register_module()
 {
   return ({ 
     MODULE_LOCATION,
