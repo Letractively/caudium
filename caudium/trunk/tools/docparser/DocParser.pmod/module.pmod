@@ -1476,7 +1476,7 @@ class Parse {
     private void parse_line(string line)
     {
         array(string) spline;
-        
+
         spline = kwreg->split(String.trim_whites(line));
 
         if (spline) {
@@ -1628,7 +1628,7 @@ class Parse {
             if (i < 0)
                 continue;
             where = IN_DOC;
-            parse_line(line[3..]);
+            parse_line(line[i+3..]);
         }
     }
     
