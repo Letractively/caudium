@@ -663,7 +663,7 @@ class FCGI
       werror(" Connecting...\n" );
 #endif
       //fd->connect( "localhost",(int)(socket->query_address()/" ")[1]);
-      fd->connect( "localhost",(int)Caudium.get_port(socket->query_address());
+      fd->connect( "localhost",(int)Caudium.get_port(socket->query_address()));
     }
 
     FCGIChannel new_channel( )
