@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- not using strftime on solaris as it does not support the POSIX %z flag
+  which rendered Caudium.cern_http_date() unusable.
+   (Marek Habersack)
 - The id->variables wasn't set as before regarding empty values, this broke
   some applications and most notably lead to internal server error when
   reseting a variable in the configuration interface.
