@@ -105,8 +105,7 @@ void add_var_scopes(object id, JavaScript.Interpreter js)
 		values(id->conf->parse_module->scopes)->clone());
   }
   foreach(indices(id->misc->scopes), string name) {
-    js->add_scope(name == "var" ? "vars" : name, id, 
-		  get_scope_var, set_scope_var);
+    js->add_scope(name == "var" ? "vars" : name, get_scope_var, set_scope_var);
   }
 }
 mapping handle_file_extension(object f, string e, object id)
@@ -116,7 +115,7 @@ mapping handle_file_extension(object f, string e, object id)
   mixed err;
   string js_source = f->read();
   NOCACHE();
-  js = JavaScript.Interpreter();
+  js = JavaScript.Interpreter(id);
   add_var_scopes(id, js);
   err = catch {
     eval_ret = js->eval(js_source);

@@ -56,9 +56,13 @@
 /* This allows calling of pike functions from functions called by callbacks
  * in code running in threaded mode.
  */
-#define THREAD_SAFE_RUN(COMMAND, what)  do {\
+/* This allows execution of c-code that requires the Pike interpreter to 
+ * be locked from the Sablotron callback functions.
+ */
+#if defined(PIKE_THREADS) && defined(_REENTRANT)
+#define THREAD_SAFE_RUN(COMMAND)  do {\
   struct thread_state *state;\
-  if((state = thread_state_for_id(th_self()))!=NULL) {\
+ if((state = thread_state_for_id(th_self()))!=NULL) {\
     if(!state->swapped) {\
       COMMAND;\
     } else {\
@@ -70,3 +74,12 @@
     }\
   }\
 } while(0)
+#else
+#define THREAD_SAFE_RUN(COMMAND) COMMAND
+#endif
+
+/* Pike 7.x and newer */
+#define MY_MAPPING_LOOP(md, COUNT, KEY) \
+  for(COUNT=0;COUNT < md->data->hashsize; COUNT++ ) \
+	for(KEY=md->data->hash[COUNT];KEY;KEY=KEY->next)
+

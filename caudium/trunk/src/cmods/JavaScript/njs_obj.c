@@ -32,6 +32,7 @@ RCSID("$Id$");
 /* Storage init and freeing routines */
 static void init_njs_storage(struct object *obj) {
   THIS->interp = NULL;
+  THIS->id = NULL;
 }
 
 static inline void free_njs_storage(struct object *obj) {
@@ -39,8 +40,16 @@ static inline void free_njs_storage(struct object *obj) {
     js_destroy_interp(THIS->interp);
     THIS->interp = NULL;
   }
+  if(THIS->id != NULL) {
+    free_object(THIS->id);
+    THIS->id = NULL;
+  }
 }
-
+/* Used to scan the options mapping for create, if present */
+#define OPT_IS(X)                                                        \
+generic_compare_strings(X, strlen(X), 0,                                 \
+                       sind->u.string->str, sind->u.string->len,         \
+                       sind->u.string->size_shift)
 
 /* Class constructor. If called in an existing object, the old
  * session is destroyed. Takes the following optional arguments:
@@ -49,30 +58,88 @@ static inline void free_njs_storage(struct object *obj) {
  */
 static void f_njs_create(INT_TYPE args) {
   JSInterpOptions options;
+  struct svalue *sind, *sval;
+  struct keypair *k;
+  INT32 e;
+
   free_njs_storage(fp->current_object);
 
-  if(args >= 1) {
-    if(ARG(0).type != T_OBJECT) {
-      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->create", 1,
-			   "RequestID");
-    } else {
-      add_ref((THIS->request_id = ARG(0).u.object));
-    }
-  }  
   js_init_default_options (&options);
-  /* Disallow access to dangerous operations
-   * FIXME: make these options you can send to the create function.
-   */
+
+  /* Set default options below */
   options.secure_builtin_file = 1;
   options.secure_builtin_system = 1;
-
-  /* Various interesting flags... */
+  /* Defaults to off since we call 'parse' in js-scripts. */
   options.warn_undef = 0;
 
-  options.optimize_peephole = 1;
-  options.optimize_jumps_to_jumps = 1;
-  options.optimize_bc_size = 1;
-  options.optimize_heavy = 1;
+  switch(args) {
+   case 2: /* Got options mapping */    
+    MY_MAPPING_LOOP(ARG(1).u.mapping, e, k) {
+      sind = &k->ind;
+      sval = &k->val;
+      if(OPT_IS("stack_size")) {
+	if(sval->type == T_INT)
+	  options.stack_size = sval->u.integer;
+      } else if(OPT_IS("verbose")) {
+	if(sval->type == T_INT)
+	  options.verbose = sval->u.integer;
+      } else if(OPT_IS("no_compiler")) {
+	options.no_compiler = !IS_ZERO(sval);
+      } else if(OPT_IS("only_define_ecma")) {
+	options.only_define_ecma = !IS_ZERO(sval);
+      } else if(OPT_IS("stacktrace_on_error")) {
+	options.stacktrace_on_error = !IS_ZERO(sval);
+      } else if(OPT_IS("secure_builtin_file")) {
+	options.secure_builtin_file = !IS_ZERO(sval);
+      } else if(OPT_IS("secure_builtin_system")) {
+	options.secure_builtin_system = !IS_ZERO(sval);
+      } else if(OPT_IS("annotate_assembler")) {
+	options.annotate_assembler = !IS_ZERO(sval);
+      } else if(OPT_IS("debug_info")) {
+	options.debug_info = !IS_ZERO(sval);
+      } else if(OPT_IS("executable_bc_files")) {
+	options.executable_bc_files = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_unused_argument")) {
+	options.warn_unused_argument = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_unused_variable")) {
+	options.warn_unused_variable = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_undef")) {
+	options.warn_undef = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_shadow")) {
+	options.warn_shadow = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_with_clobber")) {
+	options.warn_with_clobber = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_missing_semicolon")) {
+	options.warn_missing_semicolon = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_strict_ecma")) {
+	options.warn_strict_ecma = !IS_ZERO(sval);
+      } else if(OPT_IS("warn_deprecated")) {
+	options.warn_deprecated = !IS_ZERO(sval);
+      } else if(OPT_IS("optimize_peephole")) {
+	options.optimize_peephole = !IS_ZERO(sval);
+      } else if(OPT_IS("optimize_jumps_to_jumps")) {
+	options.optimize_jumps_to_jumps = !IS_ZERO(sval);
+      } else if(OPT_IS("optimize_bc_size")) {
+	options.optimize_bc_size = !IS_ZERO(sval);
+      } else if(OPT_IS("optimize_heavy")) {
+	options.optimize_heavy = !IS_ZERO(sval);
+      } else if(OPT_IS("fd_count")) {
+	if(sval->type == T_INT)
+	  options.fd_count = sval->u.integer;
+      } 
+    }
+        
+    /* FALL THROUGH */
+   case 1: /* Got the request object */
+    if(ARG(0).type != T_OBJECT) {
+      if(!IS_ZERO((&ARG(0)))) {
+	SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->create", 1,
+			     "RequestID");
+      }
+    } else {
+      add_ref((THIS->id = ARG(0).u.object));
+    }
+  }  
 
   THIS->interp = js_create_interp(&options);
   if(THIS->interp == NULL) {
@@ -125,7 +192,9 @@ static void njs_free_scope_data(void *context) {
   free_string(SCOPE->name);
   free_svalue(& SCOPE->get);
   free_svalue(& SCOPE->set);
-  free_object(SCOPE->id);
+  if(SCOPE->id != NULL) {
+    free_object(SCOPE->id);
+  }
   free(context);
 }
 
@@ -135,8 +204,13 @@ static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
 			      JSType *ret) {
   push_string(make_shared_binary_string(var, varlen));
   ref_push_string(scope);
-  ref_push_object(id);
-  apply_svalue(&get, 3);
+  if(id != NULL) {
+    ref_push_object(id);
+    apply_svalue(&get, 3);
+  } else {
+    apply_svalue(&get, 2);
+  }
+
   if(sp[-1].type == T_ARRAY && sp[-1].u.array->size == 1) {
     // Currently the nice special case of "don't parse me pls"
     pike_type_to_js_type(interp, &(ITEM(sp[-1].u.array)[0]), ret);
@@ -154,8 +228,12 @@ static void low_njs_scope_set(JSInterpPtr interp, struct pike_string *scope,
   push_string(make_shared_binary_string(var, varlen));
   ref_push_string(scope);
   push_js_type(set_to);
-  ref_push_object(id);
-  apply_svalue(&set, 4);
+  if(id != NULL) {
+    ref_push_object(id);
+    apply_svalue(&set, 4);
+  } else {
+    apply_svalue(&set, 3);
+  }
   
   if(sp[-1].type == T_INT && sp[-1].u.integer == 0) {
     *success = 0;
@@ -184,7 +262,7 @@ static JSMethodResult njs_scope_get(JSClassPtr cls, void *instance_context,
   THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id,
 				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->get,
-				    result_return), "get scope variable");
+				    result_return));
   return JS_OK;
 }
 
@@ -223,7 +301,7 @@ static JSMethodResult njs_scope_set(JSClassPtr cls, void *instance_context,
   THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id,
 				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->set,
-				    argv[1], &set_ok), "set scope variable");
+				    argv[1], &set_ok));
   if(set_ok) {
     return_type->type = JS_TYPE_BOOLEAN;
     return_type->u.i = 1;
@@ -245,7 +323,7 @@ static JSGenericResult
     /* Fetch a value */
     THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id, property,
 				      strlen(property), SCOPE->get,
-				      value), "get scope property");
+				      value));
     return JS_HANDLED;
   } else {
     int set_ok;
@@ -265,7 +343,7 @@ static JSGenericResult
 
     THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id, property,
 				      strlen(property), SCOPE->set,
-				      *value, &set_ok), "set scope property");
+				      *value, &set_ok));
     if(set_ok) {
       value->type = JS_TYPE_BOOLEAN;
       value->u.i = 1;
@@ -296,32 +374,32 @@ static void f_njs_add_scope(INT_TYPE args) {
   scope_storage *storage;
   storage = calloc(1, sizeof(scope_storage));
   switch(args) {
-   case 4:
-    if(ARG(3).type != T_FUNCTION) {
-      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 4,
+   case 3:
+    if(ARG(2).type != T_FUNCTION) {
+      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 3,
 			   "function(string,string,mixed:int)");
     }
     
    default:
-    if(ARG(2).type != T_FUNCTION) {
-      SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 3,
-			   "function(string,string:mixed)");
-    }
-    if(ARG(1).type != T_OBJECT) {
+    if(ARG(1).type != T_FUNCTION) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 2,
-			   "object");
+			   "function(string,string:mixed)");
     }
     if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 1,
 			   "string(8-bit)");
     }
     break;
-   case 0: case 1: case 2:
-    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->add_scope",3);
+   case 0: case 1: 
+    SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->add_scope", 2);
     break;
   }
   add_ref(storage->name = ARG(0).u.string);
-  add_ref(storage->id = ARG(1).u.object);
+  if(THIS->id != NULL) {
+    add_ref(storage->id = THIS->id);
+  } else {
+    storage->id = NULL;
+  }
   assign_svalue_no_free(& storage->get, & ARG(2));
   if(args < 3) { /* No set function */
     storage->set.type = T_INT;
@@ -341,12 +419,12 @@ static void f_njs_add_scope(INT_TYPE args) {
 void njs_init_interpreter_program(void) {
   start_new_program();
   ADD_STORAGE( njs_storage  );
-  ADD_FUNCTION("create",    f_njs_create,    tFunc(tOr(tObj, tVoid),tVoid), 0);
+  ADD_FUNCTION("create",    f_njs_create,
+	       tFunc(tOr(tObj, tVoid) tOr(tMapping, tVoid),tVoid), 0);
   ADD_FUNCTION("eval",      f_njs_eval,
 	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
   ADD_FUNCTION("add_scope", f_njs_add_scope,
 	       tFunc(tString
-		     tObj
 		     tFunc(tString tString tOr(tObj, tVoid), tMixed)
 		     tOr(tVoid, tFunc(tString tString tMixed tOr(tObj, tVoid),
 				      tInt)),
