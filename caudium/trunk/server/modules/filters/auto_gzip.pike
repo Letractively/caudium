@@ -299,7 +299,7 @@ string real_deflate(string _data, string _name)
   if(level > 9)
    level = 9;
   DEBUG(sprintf("Cache miss, compressing '%s'\n", _name));
-  int cputime = gauge {
+  float cputime = gauge {
     _data = Gz.deflate(level)->deflate(_data);
   };
   LOCK();
