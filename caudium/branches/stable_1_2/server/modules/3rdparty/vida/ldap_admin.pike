@@ -21,6 +21,7 @@
 /*
  * $Id$
  */
+
 #include <module.h>
 
 //! module: User LDAP administration
@@ -37,45 +38,42 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
+
 constant module_type = MODULE_LOCATION|MODULE_EXPERIMENTAL;
 constant module_name = "User LDAP administration";
 constant module_doc  = "With this module, your (or 'you' depending on what you want) user will be able to change some of their information. You will also be able to create a basic account and update their gid to if you have year related gid";
 constant module_unique = 0;
 
-// what to put ?
 constant thread_safe=1;
 
 // some defaults for mails
 #define DEFAULT_BADMAILTOUSER \
- "\n  [ Ceci est un message automatique de réponse  ] \n" \
- "  [ à votre adhésion à l'Internet Team  ]\n" \
- "\nUn problème est apparu lors de la création de votre compte\n" \
- "sur l'Internet Team. Un email a été envoyé à $ADMIN\n" \
- "Nous nous efforcerons de régler ce problème dans les plus\n" \
- "bref délais\n" \
- "\n -- L'équipe d'Internet Team\n"
+ "\n  [ This is an automatic reply message  ] \n" \
+ "  [ to your attempt to create an account  ]\n" \
+ "\nA problem has occured while creating your account.\n" \
+ "An email has been send to $ADMIN\n" \
+ "We will try our best to solve this problem as soon as possible\n" \
+ "\n -- The computing team\n"
 #define DEFAULT_BADMAILTOADMIN \
   "\nError:\n[\n$LAST_ERROR\n]\n" \
   "\nlogin= $LOGIN\n" \
   "uid= $UID\n" \
   "gid= $GID\n" \
-  "prénom nom= $GECOS\n" \
+  "surname name= $GECOS\n" \
   "date= $DATETIME\n"
 #define DEFAULT_GOODMAILTOUSER \
-  "\n  [ Ceci est un message automatique de réponse  ] \n" \
-  "  [ à votre adhésion à l'Internet Team  ]\n" \
-  "\nBienvenue sur l'Internet Team $LOGIN\n" \
-  "Votre compte à été créé avec succès !\n" \
-  "Pour toutes questions vous pouvez vous adressez à $ADMIN \n" \
-  "Pour en savoir plus vous pouvez consulter le site http://www.iteam.org\n" \
-  "Pour obtenir une aide immédiate vous pouvez aller sur IRC\n" \
-  "irc.openprojects.net #iteam\n" \
-  "\n -- L'équipe d'Internet Team\n"
+  "\n  [ This is an automatic reply message  ] \n" \
+  "  [ to your attempt to create an account  ]\n" \
+  "\nWelcome on board $LOGIN\n" \
+  "Your account has been successfully created !\n" \
+  "You can contact $ADMIN for any questions\n" \
+  "For more information visit your website at http://www.iteam.org\n" \
+  "\n -- The computing team\n"
 #define DEFAULT_GOODMAILTOADMIN \
   "\nlogin= $LOGIN\n" \
   "uid= $UID\n" \
   "gid= $GID\n" \
-  "prénom nom= $GECOS\n" \
+  "surname name= $GECOS\n" \
   "date= $DATETIME\n"
 
 // defaults for user interface
@@ -149,8 +147,8 @@ constant thread_safe=1;
   "send.</p>"\
   "<p align=\"center\">"\
   "Mailacceptinggeneralid is the mail(s) address(es) that this account will"\
-  "accept. If it contains email addresses to over domains, these will be   "\
-  "automatiquelly redirected (like in the old .forward mecanism). You can put"\
+  "accept. If it contains email addresses to other domains, these will be   "\
+  "automatically redirected (like in the old .forward mecanism). You can put "\
   "several mails seperated by commas.</p>"\
   "</comment>"\
   "</body></html>"
@@ -332,7 +330,7 @@ int hide_update()
 
 void create()
 {
-  defvar("location", "/iteam", "Mount Point", TYPE_LOCATION,
+  defvar("location", "/ldapadmin", "Mount Point", TYPE_LOCATION,
   "The mountpoint of this module");
   defvar("hostname", "ldap://localhost", "LDAP: LDAP server location", 
 	 TYPE_STRING, "Specifies the default LDAP directory server hostname."
@@ -671,11 +669,8 @@ if(QUERY(mail))
 {
   if(QUERY(debug))
     write(sprintf("mail=%s\n", msg));
-}
-else
-{
-#if constant(Protocols.ESMP)
-  Protocols.ESMP.client(QUERY(mailserver), 25, QUERY(maildomain))->send_message(from, ({ to }),
+#if constant(Protocols.ESMTP)
+  Protocols.ESMTP.client(QUERY(mailserver), 25, QUERY(maildomain))->send_message(from, ({ to }),
               (string)MIME.Message(msg, (["mime-version":"1.0",
                                           "subject":subject,
                                           "from":from,
@@ -706,7 +701,7 @@ void sendmails(mapping (string:array(string)) defines)
   array mail_from = ({ "$LOGIN", "$UID", "$GID", "$GECOS", "$DATETIME", "$ADMIN" }); 
   array mail_to = ({ defines["uid"][0], defines["uidNumber"][0], defines["gidNumber"][0], defines["gecos"][0], date, localmailadmin });
   string msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
-  simple_mail(localmailadmin, "Nouveau membre", localmailadmin, msg);
+  simple_mail(localmailadmin, "New user", localmailadmin, msg);
   // next mail the user (this will also create his mail account)
   msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
   simple_mail(defines["uid"][0] + "@" + QUERY(maildomain) , "[ ITEAM ] Welcome on board", localmailadmin, msg);
@@ -742,7 +737,7 @@ void sendbadmails(mapping defines, string last_error)
   if(mappingp(defines) && arrayp(defines["uid"]) && stringp(defines["uid"][0]))
     simple_mail(defines["uid"][0] + "@" + QUERY(maildomain), "[ ITEAM] Erreur dans votre inscription", localmailadmin, msg);
   msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
-  simple_mail(QUERY(mailadmin), "Problème(s) lors de la création d'un compte", localmailadmin, msg);
+  simple_mail(QUERY(mailadmin), "Problem while creating an account", localmailadmin, msg);
 }
 
 int checkdns(string remoteaddr)
@@ -841,7 +836,6 @@ void insertinldap(object con, mapping(string:array(string)) defines, string base
   if((int) defines["uidNumber"][0] < 1)
     throw( ({ "Invalid uidnumber(" + defines["uidnumber"][0] + ")", backtrace() }) );
   defines["passwd"] = ({ "{crypt}" + crypt(defines["passwd"][0]) });
-  // paye = ({ "0" })
   attrval = ([ QUERY(defvaruidnumber): defines["uidNumber"] , QUERY(defvargidnumber): defines["gidNumber"] , QUERY(defvaruid): defines["uid"] , QUERY(defvargecos): defines["gecos"], QUERY(defvaruserpassword): ({ "" + defines["passwd"][0] + "" }), QUERY(defvarhomedirectory): defines["homedirectory"], QUERY(defvarobjectclass): QUERY(defaultobjectclass) ]);
  if(sizeof(QUERY(defvarcn)) > 0)
    attrval += ([ QUERY(defvarcn): defines["gecos"] ]);
@@ -1042,7 +1036,6 @@ void updatevar(object con, mapping defines, string basedn)
   array uidnumber = defines["uidNumber"];
   array uid = defines["uid"];
   array homedirectory = defines["homeDirectory"];
-  //defines["paye"] = ({ "0" });
   modifyinldap(con, defines, basedn);
   // sanity checks
   dirstat = file_stat(homedirectory[0]);
