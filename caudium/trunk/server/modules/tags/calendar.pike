@@ -18,10 +18,7 @@
  *
  * $Id$
  *
- * TODO: documentation
- * TODO: remove all debugging code
- * TODO: clean the code up
- *
+ * TODO: JS and CSS docs (yuck!)
  */
 constant cvs_version="$Id$";
 constant thread_safe=1;
@@ -32,9 +29,98 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Calendar tag";
-constant module_doc  = "Creates a simple calendar control for your page.";
+constant module_doc  = #"<div style=\"margin: 15pt\">The calendar tag produces a calendar \"control\" with the year, month, day and week navigation. The tag allows the site designer to define the ranges of years in which the control should operate. Calendar works both for the imperial calendar (week starting Sunday) and for the European on (week starting MOnday). The designer can specify <em>hot dates</em> - that is days/weeks which can be clicked by the user. Every hot date can have an associated <em>action handler</em> defined in a separate tag. Each action handler can handle a range and/or a selection of dates. In addition, you can define your own CSS stylesheet or use the default one, use the default JavaScript handlers of the form from which the calendar is constructed or define your own routines.
+The module defines the following tags:</div><p></p>
+<style type=\"text/css\">
+table.tags { border-width: thin; border-color: #000000; border-style: solid; font-size: small; width: 90%;}
+td.first { border-style: solid dotted none none; border-width: thin; border-color: #000000; padding-left: 15pt; font-family: monospace; }
+td.normal { border-style: solid dotted none none; border-width: thin; border-color: #000000; padding-left: 3pt; }
+td.last { border-style: solid none none none; border-width: thin; border-color: #000000; padding-left: 3pt; }
+td.tag { background: #ececec; font-weight: bold; }
+td.note { background: #cecece; font-weight: bold; font-family: monospace; text-align: center;}
+</style>
+<div style=\"padding-top: 10pt; padding-bottom: 10pt; margin: 15pt;\">
+<ul>
+<li><strong>&lt;calendar&gt;</strong> - the main container in which you can define the hot dates.</li>
+<li><strong>&lt;hotdate&gt;</strong> - tag to define a hot (clickable) date. Works only within the &lt;calendar&gt; container.</li>
+<li><strong>&lt;startdate&gt;</strong> - the date to which the calendar should be set when first accessed. Works only within the &lt;calendar&gt; container.</li>
+<li><strong>&lt;calendar_action&gt;</strong> or <strong>&lt;calendar-action&gt;</strong> - defines handler code for one or more of the defined hot dates.</li>
+<li><strong>&lt;calendar_js&gt;</strong> or <strong>&lt;calendar-js&gt;</strong> - outputs the default JavaScript code for the calendar form. Should be put in the &lt;head&gt; container.</li>
+<li><strong>&lt;calendar_css&gt;</strong> or <strong>&lt;calendar-css&gt;</strong> - outputs the default CSS code for the calendar form. Should be put in the &lt;head&gt; container.</li>
+</ul>
+</div>
+<div style=\"margin: 15pt\">
+<strong>Ranges</strong>. All of the tags and containers can take ranges of numbers as their arguments to specify desired span of days/dates to handle. Ranges follow a very simple syntax - they are a list of comma separated numbers or ranges of numbers separated with a dash. For example <tt>1,2,3,4-10</tt> defines a range consisting of the numbers 1 2 3 and from 4 through 10.
+</div>
+<div style=\"margin: 15pt\">
+Syntax of all the tags follows.
+<table class=\"tags\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+<tr><td colspan=\"3\" class=\"tag\">calendar</td></tr>
+<tr><th>Attribute</th><th>Description</th><th>Default value</th></tr>
+<tr><td class=\"first\">do_week</td><td class=\"normal\">If set, then the calendar will contain the week column.</td><td class=\"last\">not set</td></tr>
+<tr><td class=\"first\">ds_formname</td><td class=\"normal\">The date selector form name</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">ds_monthclass</td><td class=\"normal\">CSS class name for the month selector</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">ds_yearclass</td><td class=\"normal\">CSS class name for the year selector</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">lang</td><td class=\"normal\">Set the language to be used for the month and weekday names. If this attribute is not set, the value is read from the request variable with the same name.</td><td class=\"last\">not set</td></tr>
+<tr><td class=\"first\">md_cellclass</td><td class=\"normal\">CSS class name of a single cell in the monthdays grid.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_errorclass</td><td class=\"normal\">CSS class name of the row for error messages.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_rowclass</td><td class=\"normal\">CSS class name of a single row in the monthdays grid.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_textcellclass</td><td class=\"normal\">CSS class name of the textual contents of a single cell.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_todaytextcellclass</td><td class=\"normal\">CSS class name of the textual contents of the cell representing the current day.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_todaycellclass</td><td class=\"normal\">CSS class name of the cell representing the current day.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">md_weekclass</td><td class=\"normal\">CSS class name of a single week column cell.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">mt_width</td><td class=\"normal\">The bounding (main) table width.</td><td class=\"last\">200</td></tr>
+<tr><td class=\"first\">mt_cellspacing</td><td class=\"normal\">The bounding table cell spacing.</td><td class=\"last\">1</td></tr>
+<tr><td class=\"first\">mt_cellpadding</td><td class=\"normal\">The bounding table cell padding.</td><td class=\"last\">1</td></tr>
+<tr><td class=\"first\">mt_bgcolor</td><td class=\"normal\">The bounding table background color.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">mt_class</td><td class=\"normal\">The bounding table CSS class name.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">nocss</td><td class=\"normal\">Whether to skip generating CSS attributes.</td><td class=\"last\">not set</td></tr>
+<tr><td class=\"first\">wd_cellclass</td><td class=\"normal\">The weekdays cell CSS class name.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">wdc_width</td><td class=\"normal\">The weekdays cell width.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">wdr_bgcolor</td><td class=\"normal\">The weekdays row background color.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">wd_rowclass</td><td class=\"normal\">The weekdays row CSS class name.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">wd_sundayclass</td><td class=\"normal\">The Sunday cell CSS class name.</td><td class=\"last\">in CIF</td></tr>
+<tr><td class=\"first\">weekstart</td><td class=\"normal\"><tt>s</tt> for Sunday, anything else for Monday.</td><td class=\"last\">Monday</td></tr>
+<tr><td class=\"first\">years</td><td class=\"normal\">A range of years this calendar will use.</td><td class=\"last\">current year</td></tr>
+
+<tr><td colspan=\"3\" class=\"tag\">hotdate</td></tr>
+<tr><th>Attribute</th><th>Description</th><th>Default value</th></tr>
+<tr><td class=\"first\">after</td><td class=\"normal\">Specifies that days after the specified point in time should be marked active. Acceptable values are <tt>tomorrow</tt>, <tt>today</tt>, <tt>yesterday</tt> or <tt>specified</tt>. The latter value means that you have to pass additional attributes to set the starting point.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">before</td><td class=\"normal\">Same as for the <tt>after</tt> attribute, but all days earlier than the specified point of time are marked.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">day</td><td class=\"normal\">When <tt>before</tt> or <tt>after</tt> have been used with the <em>specified</em> value, sets the day for the starting date. If <tt>before</tt> and <tt>after</tt> are absent, sets the specific day as the active one.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">month</td><td class=\"normal\">Same as <tt>day</tt>. Sets the month of the start date.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">year</td><td class=\"normal\">Same as <tt>day</tt>. Sets the year of the start date.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">week</td><td class=\"normal\"> Sets the active week. Ignored for <tt>before</tt> and <tt>after</tt></td><td class=\"last\"></td></tr>
+
+<tr><td colspan=\"3\" class=\"tag\">startdate</td></tr>
+<tr><th>Attribute</th><th>Description</th><th>Default value</th></tr>
+<tr><td class=\"first\">today</td><td class=\"normal\">If present, then the calendar start date will be today (server time). This is also the default if no attributes are passed to this tag. Takes no value.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">tomorrow</td><td class=\"normal\">The calendar will start set to the tomorrow's date (server time). Takes no value.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">yesterday</td><td class=\"normal\">The calendar will start set to the yesterday's date (server time). Takes no value.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">day</td><td class=\"normal\">Calendar will start set to this day.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">month</td><td class=\"normal\">Calendar will start set to this month.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">year</td><td class=\"normal\">Calendar will start set to this year.</td><td class=\"last\">none</td></tr>
+
+<tr><td colspan=\"3\" class=\"tag\">calendar_action or calendar-action</td></tr>
+<tr><th>Attribute</th><th>Description</th><th>Default value</th></tr>
+<tr><td class=\"first\">default</td><td class=\"normal\">Marks this handler as the default one. Such handler is always executed, no matter whether there are any other handlers for some hot date. If the tag is passed no attributes, this is the default behavior.</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">day</td><td class=\"normal\">Handler will react to this day (or days if a range is used).</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">month</td><td class=\"normal\">Handler will react to this month (or months if a range is used).</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">year</td><td class=\"normal\">Handler will react to this year (or years if a range is used).</td><td class=\"last\">none</td></tr>
+<tr><td class=\"first\">week</td><td class=\"normal\">Handler will react to this week (or weeks if a range is used).</td><td class=\"last\">none</td></tr>
+<tr><td class=\"note\" colspan=\"3\">If at least two attributes of <tt>day</tt>, <tt>month</tt> and <tt>year</tt> are specified together then the handler will respond only to selection that fits all the criteria. Week ranges are always handled independently to the other values.</td></tr>
+
+<tr><td colspan=\"3\" class=\"tag\">calendar_js or calendar-js</td></tr>
+<tr><td class=\"note\" colspan=\"3\">This tag takes no attributes.</td></tr>
+
+<tr><td colspan=\"3\" class=\"tag\">calendar_css or calendar-css</td></tr>
+<tr><td class=\"note\" colspan=\"3\">This tag takes no attributes.</td></tr>
+</table>
+</div>
+";
 constant module_unique = 1;
 
+// fallback for the month names
 private array(string) en_months = ({
   "January", "February", "March", "April", "May",
   "June", "July", "August", "September", "October",
@@ -42,7 +128,6 @@ private array(string) en_months = ({
 });
 
 private string en_days = "MTWTFSS";
-
 
 void create()
 {
@@ -463,11 +548,8 @@ static void check_array(mapping var, string name)
   var[name] = varray[-1];
 }
 
-//TODO: too many options here, rel is not needed anymore
 static int value_in_range(int val, array(mapping) range, int rel, void|int min, void|int max)
 {
-  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
-
   if (!range || !sizeof(range))
     return 0;
 
@@ -516,8 +598,6 @@ static int value_in_range(int val, array(mapping) range, int rel, void|int min, 
       break;
   }
 
-//  report_notice("(rel == %d; val == %d) checks_counter: %d\n", rel, val, checks_counter);
-  
   if (checks_counter >= 0)
     return 1;
   
@@ -532,9 +612,6 @@ static multiset check_in_range(object date, mapping range, int maxdays)
   
   if (!range || !date)
     return 0;
-
-//  report_notice("check_in_range: %O\n", date);
-  
 
   day = date->month_day();
   month = date->month_no();
@@ -582,10 +659,6 @@ static multiset check_in_range(object date, mapping range, int maxdays)
           w = mp->rstart;
     }
 
-//    report_notice("option 1: y == %d, m == %d, d == %d, w == %d\n", y, m, d, w);
-//    report_notice("option 1: year == %d, month == %d, day == %d, week ==
-//    %d\n", year, month, day, week);
-    
     // accept only dates where ymd, md or ym are set, other dates are ignored
     if ((y && m && d) || (m && d) || (y && m)) {
       if (year > y || (year == y && month > m))
@@ -634,8 +707,6 @@ static multiset check_in_range(object date, mapping range, int maxdays)
           w = mp->rstart;
     }
 
-//     report_notice("option 2: y == %d, m == %d, d == %d, w == %d\n", y, m, d, w);
-//     report_notice("option 2: year == %d, month == %d, day == %d, week == %d\n", year, month, day, week);
     if (((y != 100000) && (m != 13) && (d != 32)) || ((m != 13) && (d != 32)) || ((y != 100000) && (m != 13))) {
       if ((y != 100000 && year < y) || (year == y && (m != 13 && month < m)))
         return ret;
@@ -673,8 +744,6 @@ static multiset check_in_range(object date, mapping range, int maxdays)
     }
   }
   
-//  report_notice("match_ret: %O\n", ret);
-  
   return ret;
 }
 
@@ -689,7 +758,6 @@ static multiset mark_active_weeks(object target, object id)
   multiset      ret = (<>);
   array(object) weeks = target->month()->weeks();
 
-  report_notice("weeks: %O\n", weeks);
   foreach(id->misc->_calendar->hotdates, mapping range) {
     if (range->weeks && sizeof(range->weeks))
       foreach(weeks, object week)
@@ -715,8 +783,6 @@ static multiset mark_active_days(object target, object id)
 
   multiset day_matches = 0;
 
-//  report_notice("working through the hot dates (target: %O)\n", target);
-  
   foreach(id->misc->_calendar->hotdates, mapping range) {
     if (range->before) {
       day_matches = check_in_range(target, range, maxdays);
@@ -877,8 +943,6 @@ static array(mapping) make_ba_range(object date, string when, string how)
 {
   string           fun;
 
-//  report_notice("make_ba_range(%O,%O,%O)\n", date, when, how);
-  
   if (!date || !when || !sizeof(when))
     return ({});
 
@@ -923,8 +987,6 @@ static array(mapping) make_ba_range(object date, string when, string how)
     "rend" : -1
   ])});
 
-//  report_notice("make_ba_range returning: %O\n", ({range}));
-  
   return ({range});
 }
 
@@ -987,14 +1049,11 @@ static string hotdate_tag(string tag, mapping args, object id)
     };
 
     if (!error) {
-      report_notice("hotdates before parsing: %O\n", id->misc->_calendar->hotdates);
       if (after)
         id->misc->_calendar->hotdates += make_ba_range(now, after, "after");
         
       if (before)
         id->misc->_calendar->hotdates += make_ba_range(now, before, "before");
-
-      report_notice("hotdates after parsing: %O\n", id->misc->_calendar->hotdates);
     }
   }
   
@@ -1027,8 +1086,6 @@ string calendar_tag(string tag, mapping args, string cont,
   
   if (id->misc->_calendar->hotdates)
     id->misc->_calendar->hotdates -= ({({})});
-  
-//  report_notice("calendar: %O\nerror: %O\n", id->misc->_calendar, error);
   
   if (!args)
     my_args = ([]);
@@ -1089,13 +1146,8 @@ string calendar_tag(string tag, mapping args, string cont,
                                               id->variables->calmonth,
                                               id->variables->calday));
 
-//  report_notice("marking active days for: %O\n", target);
-  
   active_days = mark_active_days(target, id);
-//  report_notice("active_days: %O\n", active_days);
-
   active_weeks = mark_active_weeks(target, id);
-//  report_notice("active_weeks: %O\n", active_weeks);
   
   contents += make_monthyear_selector(id, my_args, now, target);
   contents += make_weekdays_row(id, my_args, now, target);
