@@ -94,7 +94,6 @@ void save_global_variables(object o)
   caudium->initiate_configuration_port();
   init_logger();
   caudium->initiate_supports();
-  caudium->reinit_garber();
   if(o->changed) o->change(-o->changed);
 }
 
