@@ -610,7 +610,7 @@ void main(int argc, array argv)
 	exit(0);
       }
       write("Environment has changed.  Rerunning install script.\n");
-      Process.system("./start " + argv[1..] * " " +
+      Process.system("./start-caudium " + argv[1..] * " " +
 		     " --no-env-setup --once --program bin/install.pike");
       exit(0);
     } else {
@@ -767,7 +767,7 @@ void main(int argc, array argv)
   setglobvar("ConfigurationUser", user);
   setglobvar("ConfigurationPassword", crypt(pass));
   
-  Process.popen("./start "
+  Process.popen("./start-caudium "
 		+(configuration_dir_changed?
 		  "--config-dir="+configuration_dir
 		  +" ":"")
