@@ -70,6 +70,9 @@ void create(string _path) {
 void store(string namespace, string key, string value) {
   PRELOCK();
   LOCK();
+  if (!namespace || !key)
+    return;
+
   string _hash = get_hash(sprintf("%s|%s", namespace, key));
   DB()->store(_hash, value);
 }
@@ -77,6 +80,9 @@ void store(string namespace, string key, string value) {
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   LOCK();
+  if (!namespace || !key)
+    return;
+
   string _hash = get_hash(sprintf("%s|%s", namespace, key));
   DB()->fetch(_hash);
 }
@@ -84,6 +90,10 @@ mixed retrieve(string namespace, string key) {
 void unlink(string namespace, void|string key) {
   PRELOCK();
   LOCK();
+  
+  if (!namespace)
+    return;
+
   if (stringp(key)) {
     string _hash = get_hash(sprintf("%s|%s", namespace, key));
     DB()->delete(_hash);
@@ -116,6 +126,9 @@ void unlink_regexp(string namespace, string regexp) {
 }
 
 static string encode(string namespace, string key, string value) {
+  if (!namespace || !key || !value)
+    return "";
+
   string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : \"%s\", \"key\" : \"%s\", \"value\" : \"%s\" ]);", namespace, replace(key, "\"", "\\\""), replace(value, "\"", "\\\""));
   return MIME.encode_base64(data, 1);
 }
