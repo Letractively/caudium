@@ -206,7 +206,7 @@ mapping find_file(string f, object id)
   if(s=gif_cache[f])
   {
 //    werror("Configtablist: "+f+" found in cache.\n");
-    return http_string_answer(s,"image/gif");
+    return Caudium.HTTP.string_answer(s,"image/gif");
   }
 #endif  
 
@@ -242,7 +242,7 @@ mapping find_file(string f, object id)
     if(!gif_cache[f])
       gif_cache[f]=s;
 #endif  
-    return http_string_answer(s,"image/gif");
+    return Caudium.HTTP.string_answer(s,"image/gif");
   }
   return 0;
 }

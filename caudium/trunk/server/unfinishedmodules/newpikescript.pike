@@ -257,7 +257,7 @@ class Call
     else if(!result)
       id->send_result(0);
     else if(stringp(result))
-      id->send_result( http_string_answer(parse_rxml(result,id),"text/html") );
+      id->send_result( Caudium.HTTP.string_answer(parse_rxml(result,id),"text/html") );
     else
       id->send_result( result );
 
@@ -322,7 +322,7 @@ mapping handle_file_extension(object file, string ext, object id)
       throw(err);
     }
     if(stringp(res))
-      return http_string_answer(parse_rxml(res, id));
+      return Caudium.HTTP.string_answer(parse_rxml(res, id));
     return res;
   } else {
     object call = Call( id );

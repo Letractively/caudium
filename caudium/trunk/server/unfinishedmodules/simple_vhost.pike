@@ -263,7 +263,7 @@ mixed find_file( string f, object id )
       chmod(f, dirperm & ~(id->misc->umask || default_umask));
       TRACE_LEAVE("MKDIR: Success");
       TRACE_LEAVE("Success");
-      return http_string_answer("Ok");
+      return Caudium.HTTP.string_answer("Ok");
     } else {
       TRACE_LEAVE("MKDIR: Failed");
       TRACE_LEAVE("Failure");
@@ -331,7 +331,7 @@ mixed find_file( string f, object id )
     if(!putting[id->my_fd]) {
       TRACE_LEAVE("PUT: Just a string");
       TRACE_LEAVE("Put: Success");
-      return http_string_answer("Ok");
+      return Caudium.HTTP.string_answer("Ok");
     }
 
     if(id->clientprot == "HTTP/1.1") {
@@ -402,7 +402,7 @@ mixed find_file( string f, object id )
     if(!putting[id->my_fd]) {
       TRACE_LEAVE("PUT: Just a string");
       TRACE_LEAVE("Put: Success");
-      return http_string_answer("Ok");
+      return Caudium.HTTP.string_answer("Ok");
     }
 
     if(id->clientprot == "HTTP/1.1") {
@@ -464,7 +464,7 @@ mixed find_file( string f, object id )
     }
     TRACE_LEAVE("CHMOD: Success");
     TRACE_LEAVE("Success");
-    return http_string_answer("Ok");
+    return Caudium.HTTP.string_answer("Ok");
     
    case "MV":
     // This little kluge is used by ftp2 to move files. 
@@ -540,7 +540,7 @@ mixed find_file( string f, object id )
     }
     TRACE_LEAVE("MV: Success");
     TRACE_LEAVE("Success");
-    return http_string_answer("Ok");
+    return Caudium.HTTP.string_answer("Ok");
 
    case "MOVE":
     // This little kluge is used by NETSCAPE 4.5
@@ -633,7 +633,7 @@ mixed find_file( string f, object id )
     }
     TRACE_LEAVE("MOVE: Success");
     TRACE_LEAVE("Success");
-    return http_string_answer("Ok");
+    return Caudium.HTTP.string_answer("Ok");
 
    case "COPY":
     if(!QUERY(copy) )

@@ -259,7 +259,7 @@ array|mapping call_script(function fun, object id, object file)
     return ({ -1, err });
 
   if(stringp(result)) {
-    return http_string_answer(parse_rxml(result, id, file));
+    return Caudium.HTTP.string_answer(parse_rxml(result, id, file));
   }
 
   if(result == -1) return Caudium.HTTP.pipe_in_progress();
@@ -276,7 +276,7 @@ array|mapping call_script(function fun, object id, object file)
 
   if(!result) return 0;
 
-  return http_string_answer(sprintf("%O", result));
+  return Caudium.HTTP.string_answer(sprintf("%O", result));
 }
 
 mapping handle_file_extension(object f, string e, object id)
@@ -348,7 +348,7 @@ mapping handle_file_extension(object f, string e, object id)
       {
         report_error("Error compiling pike script: \n" + e->get());
         return
-	  http_string_answer("<h1>Error compiling pike script</h1><p><pre>"+
+	  Caudium.HTTP.string_answer("<h1>Error compiling pike script</h1><p><pre>"+
 			     _Roxen.html_encode_string(e->get())+"</pre>");
       }
       throw( err );
@@ -371,13 +371,13 @@ mapping handle_file_extension(object f, string e, object id)
     }
     if(!p) {
       destruct(f);
-      return http_string_answer("<h1>While compiling pike script</h1>\n"+s);
+      return Caudium.HTTP.string_answer("<h1>While compiling pike script</h1>\n"+s);
     }
     o=p();
     if (!functionp(fun = scripts[id->not_query]=o->parse)) {
       /* Should not happen */
       destruct(f);
-      return http_string_answer("<h1>No string parse(object id) function in pike-script</h1>\n");
+      return Caudium.HTTP.string_answer("<h1>No string parse(object id) function in pike-script</h1>\n");
     }
   }
 

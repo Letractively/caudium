@@ -240,7 +240,7 @@ mapping find_file(string filename, object request_id)
 {
   string s;
   if(s = cache_lookup("tabs", filename))
-    return http_string_answer(s, "image/gif");
+    return Caudium.HTTP.string_answer(s, "image/gif");
 
   mapping arguments = make_arguments(filename);
   int n = (int) arguments->n;
@@ -261,7 +261,7 @@ mapping find_file(string filename, object request_id)
 
   s = tab(name, selected, n, last, font, bg, tc, fc)->scale(scale)->togif(@bg);
   cache_set("tabs", filename, s);
-  return http_string_answer(s, "image/gif");
+  return Caudium.HTTP.string_answer(s, "image/gif");
 }
 
 string tag_tablist(string tag_name, mapping arguments, object request_id)

@@ -907,9 +907,8 @@ int|object PPM(string fname, object id)
     return 1;
 }
 
-mapping http_img_answer( string msg )
-{
-  return http_string_answer( msg );
+mapping http_img_answer( string msg ) {
+  return Caudium.HTTP.string_answer( msg );
 }
 
 mapping unquote( string f )
@@ -935,7 +934,7 @@ mapping find_file(string f, object id)
   string cdir = _cdir();
   
   if (temp=Stdio.read_file(cdir+f+".gif"))
-    return http_string_answer(temp, "image/gif");
+    return Caudium.HTTP.string_answer(temp, "image/gif");
 
 
   if (f[sizeof(f)-4..] == ".gif")
@@ -952,7 +951,7 @@ mapping find_file(string f, object id)
     return http_img_answer( "Please reload this page." );
 
   if(id->prestate->debug)
-    return http_string_answer( sprintf("<pre>%O\n", res) );
+    return Caudium.HTTP.string_answer( sprintf("<pre>%O\n", res) );
   
   mapping(string:mixed) diagram_data;
 
@@ -1060,13 +1059,13 @@ mapping find_file(string f, object id)
   {
     string foo=Image.GIF.encode(img, ct, @back);
     Stdio.write_file(cdir+f+".gif", foo);
-    return http_string_answer(foo, "image/gif");
+    return Caudium.HTTP.string_answer(foo, "image/gif");
   }
   else
   {
     string foo=Image.GIF.encode(img, ct);
     Stdio.write_file(cdir+f+".gif", foo);
-    return http_string_answer(foo, "image/gif");
+    return Caudium.HTTP.string_answer(foo, "image/gif");
   }
 }
 

@@ -259,7 +259,7 @@ private mixed do_logout(object id, mapping data, string f)
     kill_session(id);
     
     if (logoutscr && logoutscr != "")
-        return http_string_answer(logoutscr);
+        return Caudium.HTTP.string_answer(logoutscr);
     else
         return ([
             "lcc_error" : ERR_SCREEN_ABSENT,
@@ -275,7 +275,7 @@ mixed handle_request(object id, mapping data, string f)
 
         case "about":
         default:
-            return http_string_answer("The <code>About</code> data will come here...");
+            return Caudium.HTTP.string_answer("The <code>About</code> data will come here...");
     }
 }
 
@@ -337,7 +337,7 @@ mixed find_file(string f, object id)
         f = "menu";
     
     if (!p_err)
-        return http_string_answer("Major screwup - provider module missing<br />");
+        return Caudium.HTTP.string_answer("Major screwup - provider module missing<br />");
     
     if (!SVARS(id))
         return p_err->error(id, ERR_NO_SESSION_VARS);
@@ -461,7 +461,7 @@ mixed find_file(string f, object id)
     if (response->lcc_error)
         return p_err->error(id, response->lcc_error, response->lcc_error_extra);
 
-    return response ? response : http_string_answer("Some screwup - check your provider modules");
+    return response ? response : Caudium.HTTP.string_answer("Some screwup - check your provider modules");
 }
 
 //

@@ -771,7 +771,7 @@ mixed new_module_copy(object node, string name, object id)
   if(module) if(module->copies) while(module->copies[i])  i++;
   orig = node->config()->enable_module(name+"#"+i);
 
-  if(!orig) return http_string_answer("This module could not be enabled.\n");
+  if(!orig) return Caudium.HTTP.string_answer("This module could not be enabled.\n");
     
   module = node->config()->modules[name];
   node = node->descend(module->name);
@@ -1332,11 +1332,11 @@ mapping auto_image(string in, object id)
 #endif
 
 #if constant(Image.GIF.encode)
-  return http_string_answer(e,"image/gif");
+  return Caudium.HTTP.string_answer(e,"image/gif");
 #endif
 
 #if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
-  return http_string_answer(e,"image/png");
+  return Caudium.HTTP.string_answer(e,"image/png");
 #endif
 
   return 0;
@@ -1479,7 +1479,7 @@ mapping configuration_parse(object id)
 
     // We also need to determine wether this is the full or the
     // lobotomized international version.
-    return http_string_answer(cif->head("Caudium " +
+    return Caudium.HTTP.string_answer(cif->head("Caudium " +
                                         caudium->__caudium_version__ + "." +
                                         caudium->__caudium_build__)+
                               cif->body() +
@@ -1569,7 +1569,7 @@ mapping configuration_parse(object id)
           if(!o->config()->load_module(modname))
           {
             mapping rep;
-            rep = http_string_answer("The reload of this module failed.\n"
+            rep = Caudium.HTTP.string_answer("The reload of this module failed.\n"
                                      "This is (probably) the reason:\n<pre>"
                                      + caudium->last_error + "</pre>" );
             return rep;
@@ -1577,7 +1577,7 @@ mapping configuration_parse(object id)
           program newprg = cache_lookup ("modules", modname);
           if(!o->config()->disable_module(name)) {
             mapping rep;
-            rep = http_string_answer("Failed to disable this module.\n"
+            rep = Caudium.HTTP.string_answer("Failed to disable this module.\n"
                                      "This is (probably) the reason:\n<pre>"
                                      + caudium->last_error + "</pre>" );
             return rep;
@@ -1585,7 +1585,7 @@ mapping configuration_parse(object id)
           cache_set ("modules", modname, newprg, 21600); // Do not compile again in enable_module.
           if(!(mod=o->config()->enable_module(name))) {
             mapping rep;
-            rep = http_string_answer("Failed to enable this module.\n"
+            rep = Caudium.HTTP.string_answer("Failed to enable this module.\n"
                                      "This is (probably) the reason:\n<pre>"
                                      + caudium->last_error + "</pre>" );
             // Recover..

@@ -146,9 +146,9 @@ mapping handle_request(object id, mapping data, string f)
     string menuscreen = sprov ? sprov->retrieve(id, menuname, data->lang) : "";
 
     if (!menuscreen || menuscreen == "")
-        return http_string_answer(make_all_menus(id, data, f));
+        return Caudium.HTTP.string_answer(make_all_menus(id, data, f));
 
-    return http_string_answer(menuscreen);
+    return Caudium.HTTP.string_answer(menuscreen);
 }
 
 //

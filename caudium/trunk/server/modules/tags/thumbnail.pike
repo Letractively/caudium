@@ -159,10 +159,10 @@ mapping find_file(string f, object id)
   }
 
   if(trans)
-    return http_string_answer(Image.GIF.encode_trans(result, ct, @mkcolor(bg)), 
+    return Caudium.HTTP.string_answer(Image.GIF.encode_trans(result, ct, @mkcolor(bg)), 
 			      "image/gif");
   else
-    return http_string_answer(Image.GIF.encode(result, ct), "image/gif");
+    return Caudium.HTTP.string_answer(Image.GIF.encode(result, ct), "image/gif");
 }
 
 // MODULE_TAG functions

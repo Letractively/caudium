@@ -198,7 +198,7 @@ private mixed do_start(object id, mapping data, string f)
     string screen = sprov->retrieve(id, "modify");
 
     if (screen && screen != "")
-        return http_string_answer(screen);
+        return Caudium.HTTP.string_answer(screen);
     else
         return ([
             "lcc_error" : ERR_SCREEN_ABSENT,
@@ -348,7 +348,7 @@ private mixed do_modify(object id, mapping data, string f)
                              data->user->mountpoint + "/modify");
     
     if (screen && screen != "")
-        return http_string_answer(screen);
+        return Caudium.HTTP.string_answer(screen);
     else
         return ([
             "lcc_error" : ERR_SCREEN_ABSENT,
@@ -358,7 +358,7 @@ private mixed do_modify(object id, mapping data, string f)
 
 private mixed do_suggestpass(object id, mapping data, string f)
 {
-    return http_string_answer("this window will suggest the password");
+    return Caudium.HTTP.string_answer("this window will suggest the password");
 }
 
 mixed handle_request(object id, mapping data, string f)

@@ -34,7 +34,7 @@ mixed js_error(string pcamp,string error)
     out+="</body>\n";
     out+="</html>\n";
  
-    return http_string_answer(out,"text/html");
+    return Caudium.HTTP.string_answer(out,"text/html");
 }
 
 

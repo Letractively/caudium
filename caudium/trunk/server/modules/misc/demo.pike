@@ -118,7 +118,7 @@ No more bottles of beer on the wall";
   }
   if (!stringp( data ))
     data = "";
-  return http_string_answer( parse_rxml( sprintf( FOO, (int)f,
+  return Caudium.HTTP.string_answer( parse_rxml( sprintf( FOO, (int)f,
 						  data,
 						  replace(data, ({ "<", ">", "&" }),
 							  ({"&lt;","&gt;","&amp;"})),

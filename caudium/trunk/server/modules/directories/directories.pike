@@ -500,7 +500,7 @@ mapping parse_directory(object id)
   if(id->prestate->diract) return 0; // This should not happend
   
   f=node->folded;node->folded=0;gid=id;
-  tmp=http_string_answer(head(node,id)+node->describe(id,1)+foot(node,id));
+  tmp=Caudium.HTTP.string_answer(head(node,id)+node->describe(id,1)+foot(node,id));
   gid=0;if(node)node->folded = f;
   
   return tmp;

@@ -182,7 +182,7 @@ mixed handle_file_extension(Stdio.File file, string ext, object id)
 
     NOCACHE();
 
-    if (!h) return http_string_answer("<h1>Script support failed.</h1>");
+    if (!h) return Caudium.HTTP.string_answer("<h1>Script support failed.</h1>");
 
     mixed bt = catch (result = h->run(id->realfile, id));
 
@@ -193,10 +193,10 @@ mixed handle_file_extension(Stdio.File file, string ext, object id)
       ++script_errors;
       report_error("Perl script `" + id->realfile + "' failed.\n");
       if (QUERY(showbacktrace))
-        return http_string_answer("<h1>Script Error!</h1>\n<pre>" +
+        return Caudium.HTTP.string_answer("<h1>Script Error!</h1>\n<pre>" +
 				  describe_backtrace(bt) + "\n</pre>");
       else
-        return http_string_answer("<h1>Script Error!</h1>");
+        return Caudium.HTTP.string_answer("<h1>Script Error!</h1>");
     }
     else if (sizeof(result) > 1) {
       string r = result[1];
@@ -208,22 +208,22 @@ mixed handle_file_extension(Stdio.File file, string ext, object id)
        case "RXML":
 	return Caudium.HTTP.rxml_answer(r, id);
        case "HTML":
-	return http_string_answer(r);
+	return Caudium.HTTP.string_answer(r);
        case "HTTP":
 	id->my_fd->write("HTTP/1.0 200 OK\r\n");
 	id->my_fd->write(r);
 	id->my_fd->close();
 	return Caudium.HTTP.pipe_in_progress();
        default:
-	return http_string_answer("SCRIPT ERROR: "
+	return Caudium.HTTP.string_answer("SCRIPT ERROR: "
 				  "bad output mode configured.\n");
       }
     } else {
-      return http_string_answer(sprintf("RESULT: %O", result));
+      return Caudium.HTTP.string_answer(sprintf("RESULT: %O", result));
     }
   }
 
-  return http_string_answer("FOO!");
+  return Caudium.HTTP.string_answer("FOO!");
 
   return 0;
 }

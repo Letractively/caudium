@@ -873,11 +873,11 @@ mapping htaccess_no_file(object id)
 	(file = Stdio.read_bytes(access->nofile)))
     {
       file = parse_rxml(file, id);
-      return http_string_answer( file );
+      return Caudium.HTTP.string_answer( file );
     }
     if (st && (st[1] == -4)) {
-      report_error(sprintf("HTACCESS: Nofile \"%s\" is a device!\n"
-			   "query: \"%s\"\n", file, id->query + ""));
+      report_error("HTACCESS: Nofile \"%s\" is a device!\n"
+		   "query: \"%s\"\n", file, id->query + "");
     }
   }
   return 0;

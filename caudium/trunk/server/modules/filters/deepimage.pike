@@ -130,7 +130,7 @@ int|mapping parse_blockfile(string blockfile) {
 
 mapping get_blockimage(string blockfile, mapping block) {
   object img = cache->retrieve(sprintf("image:%O", blockfile), _get_blockimage, blockfile, ({ block }));
-  return http_string_answer(Image.PNG.encode(img), "image/png");
+  return Caudium.HTTP.string_answer(Image.PNG.encode(img), "image/png");
 }
 
 object _get_blockimage(string blockfile, mapping block) {

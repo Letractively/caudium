@@ -169,7 +169,7 @@ mapping string_reply(string body, object id)
 		 "%s</body></html>",
 		 id->variables->title || "", id->variables->title || "",
 		 parse_rxml(body, id));
-  return http_string_answer(body);
+  return Caudium.HTTP.string_answer(body);
 }
 
 int|mapping find_file(string f, object id)
@@ -198,7 +198,7 @@ int|mapping find_file(string f, object id)
   if(stringp(res))
     return string_reply(res, id);
   else if(arrayp(res))
-    return http_string_answer(res[0], "text/x-log-table");
+    return Caudium.HTTP.string_answer(res[0], "text/x-log-table");
   return res;
 }
 
@@ -1427,7 +1427,7 @@ array|mapping|string view_log(string f, object id) {
       sorts = Array.map(sorts, lambda(array a) {
 				 return ((array(string))a)*"\t";
 			       });
-      return http_string_answer(sorts * "\n", "text/plain");
+      return Caudium.HTTP.string_answer(sorts * "\n", "text/plain");
 
     }
   } else
