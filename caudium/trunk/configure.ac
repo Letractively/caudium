@@ -341,9 +341,9 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_MINOR=`echo $THIS_PIKE_VER | cut -d '.' -f 2`
     THIS_PIKE_BUILD=`echo $THIS_PIKE_VER | cut -d '.' -f 3`
     THIS_PIKE_VERNUM=$THIS_PIKE_MAJOR$THIS_PIKE_MINOR$THIS_PIKE_BUILD
-    THIS_PIKE_DECNUM=$(($THIS_PIKE_MAJOR*10000+$THIS_PIKE_MINOR*1000+$THIS_PIKE_BUILD))
+    THIS_PIKE_DECNUM=`expr '(' $THIS_PIKE_MAJOR '*' 10000 ')' + '(' $THIS_PIKE_MINOR '*' 1000 ')' + $THIS_PIKE_BUILD`
 
-    REQ_PIKE_DECNUM=$(($REQ_PIKE_MAJOR*10000+$REQ_PIKE_MINOR*1000+$REQ_PIKE_BUILD))
+    REQ_PIKE_DECNUM=`expr '(' $REQ_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_PIKE_MINOR '*' 1000 ')' + $REQ_PIKE_BUILD`
     
     if test $THIS_PIKE_DECNUM -lt $REQ_PIKE_DECNUM; then
        echo " => too old"
@@ -399,6 +399,12 @@ else
 ***     http://caudium.net/download/snapshot.html
 ***
 *** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD!
+***
+*** If you have this or newer version of Pike installed in a different 
+*** location or under a different name, please use the --with-pike argument
+*** to the configure script to specify the location of the Pike binary you
+*** want to use with Caudium
+***
 *****************************************************************************
 EOF
   exit 1;
