@@ -163,7 +163,7 @@ INT32 parse_log_format(struct pike_string *log_format, INT32 *state_list,
       case 'f': /*	Requested file */
 	state_list[state_pos] = ST_TEXT_FIELD;
 	save_field_num[state_pos] = URL;
-	//	state_list[state_pos] = ST_URL;
+	/*	state_list[state_pos] = ST_URL; */
 	break;
       case 'u': /*	Auth User (or maybe a unique user cookie) */
 	state_list[state_pos] = ST_TEXT_FIELD;
@@ -232,7 +232,7 @@ INT32 parse_log_format(struct pike_string *log_format, INT32 *state_list,
     bufpointer++;
   }
   SKIPP_STATE(CLS_CRLF);
-  // field_endings[fieldnum++] = CLS_CRLF;  
+  /* field_endings[fieldnum++] = CLS_CRLF;  */
 #if 0
   for(i = 0; i < state_pos; i ++)
   {
@@ -278,7 +278,7 @@ static void f_ultraparse( INT32 args )
   unsigned INT32 sessions_per_hour[24];
   double kb_per_hour[24];
   unsigned INT32 session_length[24];
-  //  struct mapping *unique_per_hour  = allocate_mapping(1);
+  /*  struct mapping *unique_per_hour  = allocate_mapping(1);*/
   struct mapping *hits_per_error  = allocate_mapping(10);
   struct mapping *error_urls      = allocate_mapping(10);
   struct mapping *error_refs      = allocate_mapping(10);
@@ -298,7 +298,7 @@ static void f_ultraparse( INT32 args )
   struct mapping *domains    	  = allocate_mapping(1);
   struct mapping *topdomains   	  = allocate_mapping(1);
   struct mapping *tmpdest = NULL;
-  //  struct mapping *hits30x     = allocate_mapping(2);
+  /*  struct mapping *hits30x     = allocate_mapping(2);*/
   
   if(args>6 && sp[-1].type == T_INT) {
     offs0 = sp[-1].u.integer;
@@ -367,7 +367,7 @@ static void f_ultraparse( INT32 args )
   MEMSET(sessions_per_hour, 0, sizeof(sessions_per_hour));
   MEMSET(kb_per_hour, 0, sizeof(kb_per_hour));
 
-  //url_sval.u.type = TYPE_STRING;
+  /*url_sval.u.type = TYPE_STRING;*/
   BUFSET(0);
   field_position = bufpos;
   buf_points[0] = buf_points[1] = buf_points[2] = buf_points[3] = 
@@ -375,11 +375,11 @@ static void f_ultraparse( INT32 args )
     buf_points[8] = buf_points[9] = buf_points[10] = buf_points[11] = 
     buf_points[12] = buf_points[13] = buf_points[14] = buf_points[15] = 0;
   while(1) {
-    //    THREADS_ALLOW();
+    /*    THREADS_ALLOW();*/
     do {
       len = fd_read(f, read_buf, READ_BLOCK_SIZE);
     } while(len < 0 && errno == EINTR);
-    //    THREADS_DISALLOW();
+    /*    THREADS_DISALLOW();*/
     if(len <= 0)  break; /* nothing more to read or error. */
     offs0 += len;
     char_pointer = read_buf+len - 1;
@@ -409,14 +409,14 @@ static void f_ultraparse( INT32 args )
       if(cls == field_endings[state_pos]) {
 	/* Field is done. Nullify. */
       process_field:
-	//	printf("Processing field %d of %d\n", state_pos, num_states);
+	/*	printf("Processing field %d of %d\n", state_pos, num_states);*/
 	switch(save_field_num[state_pos]) {
 	 case DATE:
 	 case HOUR:
 	 case MINUTE:
 	 case UP_SEC:
 	 case CODE:
-	   //	  BUFSET(0);
+	   /*	  BUFSET(0);*/
 	  tmpinteger = 0;
 	  for(v = field_position; v < bufpos; v++) {
 	    if(char_class[buf[v]] == CLS_DIGIT)
@@ -467,18 +467,18 @@ static void f_ultraparse( INT32 args )
 		goto skip;
 	      }		
 	    }
-	    //	    printf("Digit: %d\n", tmpinteger);
+	    /*	    printf("Digit: %d\n", tmpinteger);*/
 	    break;
 	   default:
 	    goto skip;
 	  }
 	  BUFPOINT = tmpinteger;
-	  //	  bufpos++;
+	  /*	  bufpos++;*/
 	  break;	  
 	 case MONTH:
 	  /* Month */
-	  //	  BUFSET(0);
-	  //	  field_buf = buf + field_positions[state_pos];
+	  /*	  BUFSET(0);*/
+	  /*	  field_buf = buf + field_positions[state_pos];*/
 	  switch(bufpos - field_position)
 	  {
 	   case 2:
@@ -514,12 +514,12 @@ static void f_ultraparse( INT32 args )
 	   default:
 	    goto skip;
 	  }
-	  //printf("Month: %0d\n", mm);
+	  /*printf("Month: %0d\n", mm);*/
 
 	  if(tmpinteger < 1 || tmpinteger > 12)
 	    goto skip; /* Broken Month */
 	  BUFPOINT = tmpinteger;
-	  //	  bufpos++;
+	  /*	  bufpos++;*/
 	  break;
 	  
 	 case ADDR:
@@ -532,8 +532,8 @@ static void f_ultraparse( INT32 args )
 	 case PROTO:
 	  BUFSET(0);
 	  SETPOINT();
-	  //	  printf("Field %d, pos %d, %s\n", save_field_num[state_pos],BUFPOINT,
-	  //		 buf + BUFPOINT);	 
+	  /*	  printf("Field %d, pos %d, %s\n", save_field_num[state_pos],BUFPOINT,*/
+	  /*		 buf + BUFPOINT);	 */
 	  break;
 	  
 	}	  
@@ -545,19 +545,19 @@ static void f_ultraparse( INT32 args )
 	BUFSET(c);
 	continue;
       } else {
-	//	printf("Processing last field (%d).\n", state_pos);
+	/*	printf("Processing last field (%d).\n", state_pos);*/
 	goto process_field; /* End of line - process what we got */
       }
-      //	printf("%d %d\n", state_pos, num_states);
-      //      buf_points[8] = buf_points[9] = buf_points[10] = buf_points[11] = buf;
-      //      buf_points[12] = buf_points[13] = buf_points[14] = buf_points[15] = buf;
+      /*	printf("%d %d\n", state_pos, num_states);*/
+      /*      buf_points[8] = buf_points[9] = buf_points[10] = buf_points[11] = buf;*/
+      /*      buf_points[12] = buf_points[13] = buf_points[14] = buf_points[15] = buf;*/
 #if 0
       if(!((lines+broken_lines)%100000)) {
 	push_int(lines+broken_lines);
 	push_int((int)((float)offs0/1024.0/1024.0));
 	apply_svalue(statfun, 2);
 	pop_stack();
-	//printf("%5dk lines, %5d MB\n", lines/1000, (int)((float)offs0/1024.0/1024.0));
+	/*printf("%5dk lines, %5d MB\n", lines/1000, (int)((float)offs0/1024.0/1024.0));*/
       }
 #endif
       if(state_pos < num_states)
@@ -585,7 +585,7 @@ static void f_ultraparse( INT32 args )
 	goto ok;
       }
 #if 1
-      if(!last_date) { // First loop w/o a value.
+      if(!last_date) { /* First loop w/o a value.*/
 	last_date = this_date;
 	last_hour = h;
       } else {
@@ -594,12 +594,12 @@ static void f_ultraparse( INT32 args )
 	{
 	  pages_per_hour[last_hour] +=
 	    hourly_page_hits(hits20x, pages, hits, pagexts->u.multiset, 200);
-	  //	    pages_per_hour[last_hour] +=
-	  //	      hourly_page_hits(hits304, pages, hits, pagexts->u.multiset, 300);
+	  /*	    pages_per_hour[last_hour] +=*/
+	  /*	      hourly_page_hits(hits304, pages, hits, pagexts->u.multiset, 300);*/
 	  
-	  //	    printf("%5d %5d for %d %02d:00\n",
-	  //		   pages_per_hour[last_hour], hits_per_hour[last_hour],
-	  //last_date, last_hour);
+	  /*	    printf("%5d %5d for %d %02d:00\n",*/
+	  /*		   pages_per_hour[last_hour], hits_per_hour[last_hour],*/
+	  /*last_date, last_hour);*/
 	  if(m_sizeof(session_start)) {
 	    summarize_sessions(last_hour, sessions_per_hour,
 			       session_length, session_start, session_end);
@@ -614,13 +614,13 @@ static void f_ultraparse( INT32 args )
 	  sites = allocate_mapping(100);
 	  last_hour = h;
 	  free_mapping(hits20x); /* Reset this one */
-	  //	    free_mapping(hits304); /* Reset this one */
-	  //	    hits304   = allocate_mapping(2);
+	  /*	    free_mapping(hits304);  Reset this one */
+	  /*	    hits304   = allocate_mapping(2);*/
 	  hits20x   = allocate_mapping(2);
 	}
 #if 1
 	if(last_date != this_date) {
-	  //	  printf("%d   %d\n", last_date, this_date);
+	  /*	  printf("%d   %d\n", last_date, this_date);*/
 	  tmpdest = allocate_mapping(1);
 	  summarize_refsites(refsites, referrers, tmpdest);
 	  free_mapping(referrers);
@@ -676,7 +676,7 @@ static void f_ultraparse( INT32 args )
 	  }
 	  f_aggregate(24);
 	  for(i = 0; i < 24; i++) {
-	    // KB per hour.
+	    /* KB per hour.*/
 	    push_float(kb_per_hour[i]);
 	    kb_per_hour[i] = 0.0;
 	  }
@@ -763,14 +763,14 @@ static void f_ultraparse( INT32 args )
 	map2addint(error_urls, v, url_str);
 	break;
       }
-      //rfc_str = http_decode_string(buf + buf_points[RFC]);
-      //hst_str = make_shared_binary_string(buf, strlen(buf));
+      /*rfc_str = http_decode_string(buf + buf_points[RFC]);*/
+      /*hst_str = make_shared_binary_string(buf, strlen(buf));*/
 #endif	
       free_string(url_str);
       mapaddint(hits_per_error, v);
       kb_per_hour[h] += (float)bytes / 1024.0;
       hits_per_hour[h]++;
-      //#endif
+      /*#endif*/
       if(strlen(buf + buf_points[AGENT])>1) {
 	/* Got User Agent */
 	tmpagent = make_shared_string(buf + buf_points[AGENT]);
@@ -822,10 +822,10 @@ static void f_ultraparse( INT32 args )
      * want to free it.
      */
     fd_close(f);
-  //  push_int(offs0);  
-  //  printf("Done: %d %d %d ", yy, mm, dd);
+  /*  push_int(offs0);  */
+  /*  printf("Done: %d %d %d ", yy, mm, dd);*/
   if(yy && mm && dd) { 
-    //    printf("\nLast Summary for %d-%02d-%02d %02d:%02d\n", yy, mm, dd, h, m);
+    /*    printf("\nLast Summary for %d-%02d-%02d %02d:%02d\n", yy, mm, dd, h, m);*/
     pages_per_hour[last_hour] += 
       hourly_page_hits(hits20x, pages, hits, pagexts->u.multiset, 200);
     if(m_sizeof(session_start)) {
@@ -921,7 +921,7 @@ static void f_ultraparse( INT32 args )
   free_mapping(hits20x); 
   free_mapping(session_start); 
   free_mapping(session_end); 
-  //  free_mapping(hits30x); 
+  /*  free_mapping(hits30x); */
   printf("\nTotal lines: %d, broken lines: %d, mapping lookups: %d\n\n", lines,
 	 broken_lines, lmu);
   fflush(stdout);

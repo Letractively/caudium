@@ -32,7 +32,7 @@ void foo() {
 INT32 lmu=0;
 #define LML(x,y)  low_mapping_lookup(x,y); lmu++;
 
-// Decode %XX encoded strings.
+/* Decode %XX encoded strings.*/
 INLINE struct pike_string *http_decode_string(unsigned char *foo, int len)
 {
    int proc, nlen=0;
@@ -110,9 +110,9 @@ INLINE unsigned char *ultra_lowercase_host(unsigned char *ref, INT32 *trunc,
     if(trunc) { *trunc = len; }
   }
   *changed = ultra_lowercase(work, sub_len);
-  //  if(*changed)
-  //fprintf(stderr, "%s ->\n\t%s (%d,%d,%d)\n",
-  // ref, work, *changed, sub_len, len);
+  /*  if(*changed)*/
+  /*fprintf(stderr, "%s ->\n\t%s (%d,%d,%d)\n",*/
+  /* ref, work, *changed, sub_len, len);*/
   return work;
 }
 
@@ -244,11 +244,11 @@ INLINE void mapaddstrint( struct mapping * mappingen,
     mappie.u.mapping = map;
     mapping_insert( mappingen, &skey, &mappie);
     mapaddint(map, subkey);
-    //    mapaddint(map, 0);
+    /*    mapaddint(map, 0);*/
     free_mapping(map);
   } else {
     mapaddint(s->u.mapping, subkey);
-    //    mapaddint(s->u.mapping, 0);
+    /*    mapaddint(s->u.mapping, 0);*/
   }
 }  
 
@@ -358,16 +358,16 @@ INT32 hourly_page_hits(struct mapping *urls,
 
     if(ispage(decoded, pagexts)) {
       numpages += sval->u.integer;
-      //      printf("\tPAGE: %5d\t%s\n", sval->u.integer, decoded->str);
+      /*      printf("\tPAGE: %5d\t%s\n", sval->u.integer, decoded->str);*/
       mapaddstrnum(pages, decoded, sval);	
     } else {
-      //      printf("\tHIT:  %5d\t%s\n", sval->u.integer, decoded->str);
+      /*      printf("\tHIT:  %5d\t%s\n", sval->u.integer, decoded->str);*/
       mapaddstrnum(hits, decoded, sval);
     }
     free_string(decoded);
   }
   free(decode_buf);
-  //  printf("%-5d %-5d\t", pagecount, hitcount);
+  /*  printf("%-5d %-5d\t", pagecount, hitcount);*/
   return numpages;
 }
 
@@ -587,22 +587,22 @@ INLINE void clean_refto(struct mapping *refto, struct mapping *refdest, struct m
 	if(lowered) {
 	  plowered = make_shared_binary_string(lowered, len);
 	  map2addstrnum(refdest, decoded, plowered, sval2);
-	  //	  printf("%s -> %s : %d\n",  plowered->str, decoded->str,
-	  //		 sval2->u.integer);
+	  /*	  printf("%s -> %s : %d\n",  plowered->str, decoded->str,*/
+	  /*		 sval2->u.integer);*/
 	  free_string(plowered);
 	  free(lowered);
 	} else {
 	  map2addstrnum(refdest, decoded, sind2->u.string, sval2);
-	  //	  printf("%s -> %s : %d\n",  sind2->u.string->str, decoded->str,
-	  //		 sval2->u.integer);
+	  /*	  printf("%s -> %s : %d\n",  sind2->u.string->str, decoded->str,*/
+	  /*		 sval2->u.integer);*/
 	}
-	//      mapaddstrmap(refdest, decoded, sval->u.mapping);
+	/*      mapaddstrmap(refdest, decoded, sval->u.mapping);*/
       }
     }
     free_string(decoded);
   }
   free(decode_buf);
-  //  printf("%-5d %-5d\t", pagecount, hitcount);
+  /*  printf("%-5d %-5d\t", pagecount, hitcount);*/
 }
 
 
@@ -680,7 +680,7 @@ INLINE void summarize_sessions(INT32 hour,
   struct array *ind;
   struct keypair *k;
   INT32 e, len;
-  //  printf("\nSummarizining (%2d)...\n", hour);
+  /*  printf("\nSummarizining (%2d)...\n", hour);*/
   ULTRA_MAPPING_LOOP(session_start, e, k)
   {
     sind = &k->ind;
@@ -688,12 +688,12 @@ INLINE void summarize_sessions(INT32 hour,
     time_per_session[hour] +=
       (low_mapping_lookup(session_end, sind)->u.integer -
        k->val.u.integer);
-    //    if(!session || session->type != T_OBJECT)
-    //      continue; /* Should never happen but just to be safe... */
-    //    len = G_ENDTIME - G_STARTTIME;
-    //    time_per_session[hour] += (float)len / 60.0;
+    /*    if(!session || session->type != T_OBJECT)*/
+    /*      continue; /* Should never happen but just to be safe... */
+    /*    len = G_ENDTIME - G_STARTTIME;*/
+    /*    time_per_session[hour] += (float)len / 60.0;*/
   }
-  //  printf("\nok: %ld\n", time_per_session[hour]);
+  /*  printf("\nok: %ld\n", time_per_session[hour]);*/
 }
 
 struct mapping *compress_mapping(struct mapping *map, INT32 maxsize) {
@@ -763,8 +763,8 @@ INLINE void process_session(unsigned char *host, INT32 t, INT32 hour,
   end = LML( session_end, &key );                 
   mapaddsval(sites, &key);
   if(end) {
-    //    if(session->type != T_OBJECT)
-    //      return;
+    /*    if(session->type != T_OBJECT)*/
+    /*      return;*/
     if((end->u.integer + SESSION_IDLE) < t)
     {
       start = LML( session_start, &key ); 
@@ -774,11 +774,11 @@ INLINE void process_session(unsigned char *host, INT32 t, INT32 hour,
     }
     end->u.integer = t;
   } else  {
-    //    get_two_new_ints(t);
+    /*    get_two_new_ints(t);*/
     intie.u.integer = t;                                                
     mapping_insert(session_start, &key, &intie);
     mapping_insert(session_end, &key, &intie);
-    //    free_svalue(session);
+    /*    free_svalue(session);*/
   }
   free_string(key.u.string);
 }
