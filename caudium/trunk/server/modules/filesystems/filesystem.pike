@@ -311,11 +311,10 @@ void done_with_put( array(object) id )
 {
 //  perror("Done with put.\n");
   id[0]->close();
-  id[1]->write("HTTP/1.0 200 Transfer Complete.\r\nContent-Length: 0\r\n\r\n");
-  id[1]->close();
-  m_delete(putting, id[1]);
+  id[1]->send_result(http_low_answer(201,""));
+  m_delete(putting, id[1]->my_fd);
   destruct(id[0]);
-  destruct(id[1]);
+  destruct(id[1]->my_fd);
 }
 
 void got_put_data( array (object) id, string data )
@@ -323,7 +322,7 @@ void got_put_data( array (object) id, string data )
 // perror(strlen(data)+" .. ");
   id[0]->write( data );
   putting[id[1]] -= strlen(data);
-  if(putting[id[1]] <= 0)
+  if(putting[id[1]->my_fd] <= 0)
     done_with_put( id );
 }
 
@@ -634,7 +633,7 @@ mixed find_file( string f, object id )
     if(id->clientprot == "HTTP/1.1") {
       id->my_fd->write("HTTP/1.1 100 Continue\r\n");
     }
-    id->my_fd->set_id( ({ to, id->my_fd }) );
+    id->my_fd->set_id( ({ to, id }) );
     id->my_fd->set_nonblocking(got_put_data, 0, done_with_put);
     TRACE_LEAVE("APPE: Pipe in progress");
     TRACE_LEAVE("APPE: Success so far");
@@ -777,7 +776,7 @@ mixed find_file( string f, object id )
       TRACE_LEAVE("MOVE disallowed");
       return 0;
     }    
-    if(size != -1)
+    if(size == -1)
     {
       id->misc->error_code = 404;
       TRACE_LEAVE("MOVE failed (no such file)");
