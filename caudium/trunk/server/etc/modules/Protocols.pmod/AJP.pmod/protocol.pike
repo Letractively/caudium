@@ -47,6 +47,16 @@ constant MSG_END_RESPONSE =		5;
 //! Maximum Packet Size, in bytes
 constant MAX_PACKET_SIZE =	8*1024;
 
+mapping method_names = ([   
+  METHOD_OPTIONS : "OPTIONS",
+  METHOD_GET : "GET",
+  METHOD_HEAD : "HEAD",
+  METHOD_POST : "POST",
+  METHOD_PUT : "PUT",
+  METHOD_DELETE : "DELETE",
+  METHOD_TRACE : "TRACE"
+]);
+
 constant METHOD_OPTIONS = 1; 
 constant METHOD_GET = 2; 
 constant METHOD_HEAD = 3; 
@@ -365,6 +375,8 @@ int method_from_string(string method)
 //!    the apache source to see the length of the length code.
 string push_string(string s)
 {
+  if(!s) return "";
+
    string news=sprintf( "%2c%s%c", strlen(s), s, 0x00);
    
    return news;
@@ -389,6 +401,7 @@ string make_request_headers(mapping h)
 
   foreach(indices(h), string header)
   {
+werror("encoding " + header + "\n");
     if(header_values[header])
       header_string+=header_values[header] + push_string(h[header]);
     else
@@ -432,7 +445,7 @@ string make_attributes(mapping a)
 string encode_send_body_chunk(string data)
 {
   string r = "";
-
+werror("sending body chunk: " + sizeof(data) + "\n");
   r+=sprintf("%c%2c%s", MSG_SEND_BODY_CHUNK, sizeof(data), data);
 
   return r;
@@ -575,6 +588,7 @@ mapping decode_forward(mapping packet)
     sscanf(packet->data[0..0], "%c", n);
     if(n==0xa0)
     {
+//      werror("header code is " + sprintf("%h", n) + "\n");
       sscanf(packet->data[0..1], "%2c", n);
       h=forward_header_values[n];
       packet->data=packet->data[2..];
@@ -589,6 +603,7 @@ mapping decode_forward(mapping packet)
     {
       [h, packet->data]=pull_string(packet->data);
       [v, packet->data]=pull_string(packet->data);
+      werror("pulled a header " + h + " with value " + v + "\n");
     }
     packet->request_headers[h]=v;
   }
@@ -603,7 +618,7 @@ werror("%O\n", packet);
      int code;
      string value;
      array x = 
-      array_sscanf(packet->data, "%2c%s");
+      array_sscanf(packet->data, "%c%s");
      if(x[0]==0xff) ended=1;
      else
      {
