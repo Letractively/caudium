@@ -3219,11 +3219,26 @@ string tag_fsize(string tag, mapping args, object id)
     return (string)strlen(s);
 }
 
+//! tag: remoteip
+//!  returns the IP number of the client accessing the page.
 string tag_remoteip(string tag, mapping args, object id)
 {
     return id->remoteaddr;
 }
 
+//! tag: pike_version
+//!  returns the pike version used by the server. If no parameters are given
+//!  returns the full Pike version string (as returned by version()).
+//
+//! attribute: [major]
+//!  Returns the major Pike version number.
+//
+//! attribute: [minor]
+//!  Returns the minor Pike version number.
+//          
+//! attribute: [release]
+//!  Returns teh release Pike version number.
+//          
 string tag_pikeversion(string tag, mapping args, object id)
 {
     string  pver = version();
@@ -3944,6 +3959,8 @@ string tag_scopecontrol(string t, mapping args, string c, object id)
     return ret;
 }
 
+//! container: urldecode
+//!  Decode the URL-encoded contents of the container
 string tag_urldecode (string tagname, mapping args, string contents,
                       object id, object file, mapping defines)
 {
