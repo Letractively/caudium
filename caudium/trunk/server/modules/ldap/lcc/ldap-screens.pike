@@ -246,7 +246,7 @@ string retrieve(object id, string name, string|void lang)
             fdata = replace(fdata, fromto[0], fromto[1]);
     }
 
-    return fdata;
+    return parse_rxml(fdata, id);
 }
 
 //
