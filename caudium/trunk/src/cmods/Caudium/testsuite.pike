@@ -21,9 +21,15 @@
  * $Id$
  */
 
+// Global variables
+int tests = 0;		// Individual test counter.
+int testsok = 0;	// Individual test counter for successfull tests.
+
 // This test if result is ok or not...
 int result(mixed a, mixed b) {
+  tests++;
   if(a == b) {
+    testsok++;
     write("+");
     return 0;
   } else {
@@ -179,8 +185,9 @@ int main() {
     }
   }
   
-  write(sprintf("Tests (Successfull/Total) : %d/%d\n",
+  write(sprintf("Functions tested (Successfull/Total) :\t%d/%d\n",
                 alltests-failtests, alltests));
+  write(sprintf("Tests (individuals tests) :\t\t%d/%d\n",testsok,tests));
 
   if (failtests != 0) return 1;
   else return 0;
