@@ -714,7 +714,6 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
    }
    else if(Pike_sp[-1].type == T_INT && Pike_sp[-1].u.integer == 0)
    {
-    printf("got zero from entity get\n");
     res->buf = NULL;
     res->buflen = 0;
     pop_stack();
@@ -727,7 +726,6 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
   }
   else
   {
-    printf("scope %s not found.\n", entname);
     res->buf = NULL;
     res->buflen = 0;
   }
@@ -800,9 +798,13 @@ static void f_parse_entities( INT32 args )
    /* we've gotten this far, so we were probably successful. */
 
   pop_n_elems(args);
-
+/*
+  printf("~ %d ~>%s<~~\n", eres->buflen, eres->buf);
+*/
   result = make_shared_binary_string(eres->buf, eres->buflen);
-
+/*
+  printf("~ .%d. ~>%s<~~\n", result->len, result->str);
+*/
   free(eres->buf);
   free(eres);
 

@@ -133,7 +133,10 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   retval = (ENT_RESULT*)malloc(sizeof(*retval));
   if (!retval)
     return NULL;
-
+/*
+  printf(">>%s<<\n", buf);
+  printf("parsing %d bytes\n", buflen);
+*/
   retval->errcode = ENT_ERR_OK;
   retval->buflen = 0;
   retval->buf = NULL;
@@ -162,8 +165,14 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   cbackres.buflen = 0;
   
   while(tmp && curpos <= buflen) {
+/*
+printf("considering %d of %d\n", curpos, buflen);
+*/
     switch (*tmp) {
         case '&':
+/*
+printf("got an ampersand.\n");
+*/
           if (*(tmp+1) == '&') {
             tmp++;
             goto append_data;
@@ -174,12 +183,15 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
           memset(entname, 0, sizeof(entname));
           memset(entparts, 0, sizeof(entparts));
           memset(entfullname, 0, sizeof(entfullname));
-          entnamelen = entpartslen = 0;
+          entlen = entnamelen = entpartslen = 0;
           in_entity = 1;
           tmp++; curpos++;
           continue;
 
         case ';':
+/*
+printf("got a semicolon.\n");
+*/
           if (!cback || !in_entity)
           {
             goto append_data;
@@ -189,13 +201,15 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
           cback(entname, entparts, &cbackres, userdata);
           if (!cbackres.buf)
             cbackres.buflen = entlen;
-          else
-            curpos++;
+          curpos++;
           goto append_data;
           
           continue;
 
         case '.':
+/*
+printf("got a dot.\n");
+*/
           if (!cback || !in_entity)
             goto append_data;
           if (!entnamelen) {
@@ -218,9 +232,15 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
         default:
           if (!cback || !in_entity)
           {
+/*
+printf("got a character not in entity.\n");
+*/
             goto append_data;
           }          
 
+/*
+printf("got a character in an entity.\n");
+*/
           if (entlen >= ENT_MAX_ENTSIZE) {
             retval->errcode = ENT_ERR_ENTNAMELONG;
             tmp = 0;
@@ -241,7 +261,7 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
     /* the 3 is to account for one char in "normal" case and 2 chars when
      * we are to append the entity name verbatim. That way it's faster.
      */
-    tmplen = curlen + cbackres.buflen + 3;
+    tmplen = curlen + cbackres.buflen + 2;
     
     if (curlen + tmplen >= retval->buflen) {
       retval->buflen += tmplen << 1;
@@ -257,24 +277,36 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
         return retval;
       }
     }
-
+/*
+printf("current length: %d\n", curlen);
+*/
     /* we have no result from the callback */
     if (!cbackres.buf && !cbackres.buflen)
 {
       retval->buf[curlen++] = *tmp++;
+/*
+printf("copied 1, current length: %d\n", curlen);
+*/
 }
     /* we do have results from the callback */
     else if (cbackres.buf) {
       memcpy(&retval->buf[curlen], cbackres.buf, cbackres.buflen);
       curlen += cbackres.buflen;
+/*
+printf("copied d%d, current length: %d\n", cbackres.buflen, curlen);
+*/
       free(cbackres.buf);
       cbackres.buf = NULL;
       cbackres.buflen = 0;
     } else {
       retval->buf[curlen++] = '&';
+
       memcpy(&retval->buf[curlen], entfullname, cbackres.buflen);
       curlen += cbackres.buflen;
       retval->buf[curlen++] = ';';
+/*
+printf("copied %d (%s), current length: %d\n", cbackres.buflen + 2, entfullname, curlen);
+*/
       cbackres.buf = NULL;
       cbackres.buflen = 0;
     }
@@ -287,5 +319,8 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
 
   
   retval->buflen = curlen;
+/*
+printf("- %d ->%s<--\n", retval->buflen, retval->buf);
+*/
   return retval;
 }
