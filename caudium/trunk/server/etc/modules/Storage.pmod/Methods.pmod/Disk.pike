@@ -184,10 +184,12 @@ static mixed decode(string data) {
 }
 
 //!
-static string get_hash( string data ) {
-  string retval;
-  retval = Caudium.Crypto.hash_md5(data);
-  return sprintf("%@02x",(array(int)) retval);
+static string get_hash(string data) {
+  return Caudium.Crypto.hash_md5(data, 1);
+}
+
+static string hash_path(string namespace, string key) {
+  return Caudium.Crypto.hash_md5(namespace, 1) + "_" + Caudium.Crypto.hash_md5(key, 1);
 }
 
 //!
@@ -261,9 +263,14 @@ string idx_path(string namespace, string key, void|string _path) {
     return _path;
   }
   else {
-    _path = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
-    idx[namespace] += ([ key : _path ]);
-    return _path;
+    if (idx[namespace][key]) {
+      return idx[namespace][key];
+    }
+    else {
+      _path = Stdio.append_path(path, hash_path(namespace, key));
+      idx[namespace] += ([ key : _path ]);
+      return _path;
+    }
   }
 }
 
@@ -283,6 +290,14 @@ void idx_sync(void|int stop) {
 
 //!
 mapping idx_get() {
+#ifdef STORAGE_DEBUG
+  float t = gauge{ _idx_get(); };
+  write("STORAGE: index load took %f second\n", t);
+}
+
+//!
+mapping _idx_get() {
+#endif
   string ipath = Stdio.append_path(path, "storage_index");
   if (!Stdio.exist(ipath))
     return 0;
@@ -300,7 +315,7 @@ mapping idx_get() {
   if (!mappingp(p))
     return 0;
 
-#ifdef CACHE_DEBUG
+#ifdef STORAGE_DEBUG
   write("loading index file %O: %O\n", ipath, p->data);
 #endif
   return p->data;
