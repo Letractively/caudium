@@ -307,7 +307,7 @@ string do_replace(string s, mapping (string:string) m) {
 //! @deprecated
 mixed parse_color(mixed x) {
   report_error("Compat parse_color() used in %s, please consider using Pike Image.Color( X )->rgb() instead\n",dbt(backtrace()[-2]));
-  return Image.Color(X)->rgb();
+  return Image.Color(x)->rgb();
 }
 
 //! Compatibility from Image.Color( X, X, X)->name()
@@ -330,7 +330,7 @@ array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
   report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
   if(arrayp(ri))
     return Image.Color.rgb(@ri)->hsv();
-  return Image.Color.rgv(ri,gi,bi)->hsv();
+  return Image.Color.rgb(ri,gi,bi)->hsv();
 }
   
 //! Compat for Image.Color.hsv( )->rgb();

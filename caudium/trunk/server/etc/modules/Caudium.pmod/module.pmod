@@ -463,3 +463,26 @@ string parse_html_lines(string data, mapping tags, mapping containers,
   return spider.parse_html_lines(data, tags, containers, @args);
 #endif /* OLD_SPIDER */
 }
+
+//! Unload a programm from Caudium master
+//! @param p
+//!   The name of program to unload
+//! @note
+//!   Convenience function to ease reloadling of inherited modules
+//!   during development for example. Non-RIS call.
+void unload_program(string p) {
+  m_delete(master()->programs,search(master()->programs,(program)p));
+}
+
+/*
+ * If you visit a file that doesn't containt these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
