@@ -22,7 +22,6 @@ NO_WRKSUBDIR=	yes
 
 do-install:
 	@${FIND} ${WRKSRC} -name '*.[tT][tT][fF]' | ${XARGS} -n1 ${SH} \
-	-c '${INSTALL_DATA} $$0 ${PREFIX}/caudium/server/fonts/ttf; \
-	${CHOWN} www:www ${PREFIX}/caudium/server/fonts/ttf/$$0'
+	-c '${INSTALL_DATA} -g www -o www $$0 ${PREFIX}/caudium/server/fonts/ttf '
 
 .include <bsd.port.post.mk>
