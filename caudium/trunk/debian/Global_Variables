@@ -78,8 +78,8 @@
  <var name='set_cookie_only_once'><int>1</int> </var>
  <var name='ConfigurationStateDir'><str>/var/state/caudium/</str> </var>
  <var name='show_internals'>     <int>0</int> </var>
- <var name='ConfigurationUser'>  <str>admin</str> </var>
- <var name='ConfigurationPassword'><str>9SL1/X0qmo4VE</str> </var>
+ <var name='ConfigurationUser'>  <str></str> </var>
+ <var name='ConfigurationPassword'><str></str> </var>
  <var name='abs_timeout'>        <int>5</int> </var>
  <var name='next_supports_update'><int>991052002</int> </var>
  <var name='ConfigurationIPpattern'><str>*</str> </var>
