@@ -318,29 +318,29 @@ static string make_ds_form(object id, mapping my_args, object now, object target
     "type" : "hidden",
   ]);
     
-  fcontents = make_container("select", ds_month, mcontents) + make_container("select", ds_year, ycontents);
+  fcontents = Caudium.make_container("select", ds_month, mcontents) + Caudium.make_container("select", ds_year, ycontents);
     
   input->name = "calyear";
   input->value = id->variables->calyear;
-  fcontents += make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input);
 
   input->name = "calmonth";
   input->value = id->variables->calmonth;
-  fcontents += make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input);
 
   input->name = "calday";
   input->value = id->variables->calday;
-  fcontents += make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input);
 
   input->name = "calweek";
   input->value = id->variables->calweek || "0";
-  fcontents += make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input);
   
-  fcontents += make_tag("input", ds_changetype);
+  fcontents += Caudium.make_tag("input", ds_changetype);
     
-  tcontents += make_container("form", ds_form, fcontents) + "</td></tr>";
+  tcontents += Caudium.make_container("form", ds_form, fcontents) + "</td></tr>";
     
-  return make_container("table", ds_table, tcontents);
+  return Caudium.make_container("table", ds_table, tcontents);
 }
 
 static string make_monthyear_selector(object id, mapping my_args, object now, object target)
@@ -355,8 +355,8 @@ static string make_monthyear_selector(object id, mapping my_args, object now, ob
     
   ds_row->bgcolor = my_args->ds_bgcolor || QUERY(ds_bgcolor);
   contents = make_ds_form(id, my_args, now, target);
-  return make_container("tr", ds_row,
-                        make_container("td", ds_cell, contents));
+  return Caudium.make_container("tr", ds_row,
+                        Caudium.make_container("td", ds_cell, contents));
 }
 
 static string make_weekdays_row(object id, mapping my_args, object now, object target)
@@ -391,18 +391,18 @@ static string make_weekdays_row(object id, mapping my_args, object now, object t
     
   for(; dnum <= 7; dnum++) {
     if (my_args->nocss || dnum != id->misc->_calendar->sunday_pos)
-      rcontents += make_container("td", wd_cell, days[(dnum - 1)..(dnum - 1)]);
+      rcontents += Caudium.make_container("td", wd_cell, days[(dnum - 1)..(dnum - 1)]);
     else {
       string oldc = wd_cell->class;
       int    spos = id->misc->_calendar->sunday_pos - 1;
             
       wd_cell->class = my_args->wd_sundayclass || QUERY(wd_sundayclass);
-      rcontents += make_container("td", wd_cell, days[spos..spos]);
+      rcontents += Caudium.make_container("td", wd_cell, days[spos..spos]);
       wd_cell->class = oldc;
     }
   }
 
-  return make_container("tr", wd_row, rcontents);
+  return Caudium.make_container("tr", wd_row, rcontents);
 }
 
 string make_monthdays_grid(object id, mapping my_args, object now,
@@ -448,20 +448,20 @@ string make_monthdays_grid(object id, mapping my_args, object now,
 
   if (id->misc->_calendar && id->misc->_calendar->year_invalid) {
     md_error->colspan = id->misc->_calendar->cols;
-    rcontents = make_container("td", md_error,
+    rcontents = Caudium.make_container("td", md_error,
                                sprintf("Year out of range: %s", id->variables->calyear));
-    return make_container("tr", md_row, rcontents);
+    return Caudium.make_container("tr", md_row, rcontents);
   }
         
     
   if (!target) {
     md_error->colspan = id->misc->_calendar->cols;
-    rcontents = make_container("td", md_error,
+    rcontents = Caudium.make_container("td", md_error,
                                sprintf("Invalid date %s-%s-%s",
                                        id->variables->calyear,
                                        id->variables->calmonth,
                                        id->variables->calday));
-    return make_container("tr", md_row, rcontents);
+    return Caudium.make_container("tr", md_row, rcontents);
   }
     
   month = target->month();
@@ -491,7 +491,7 @@ string make_monthdays_grid(object id, mapping my_args, object now,
         int extra_cells = (grid_rows * 7) - ndays - dow_start + 1;
 
         while(extra_cells--)
-          rcontents += make_container("td", md_cell, "&nbsp;");
+          rcontents += Caudium.make_container("td", md_cell, "&nbsp;");
         break;
       }
             
@@ -504,20 +504,20 @@ string make_monthdays_grid(object id, mapping my_args, object now,
           if (curday + 1 == today) {
             md_todaytext->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
             md_todaytext->onMouseOver = "window.status = ''; return true;";
-            ccontents = make_container("a", md_todaytext, (string)thisday);
+            ccontents = Caudium.make_container("a", md_todaytext, (string)thisday);
           } else {
             md_text->onClick = sprintf("%s(%2d); return false;", QUERY(js_day), thisday);
             md_text->onMouseOver = "window.status = ''; return true;";
-            ccontents = make_container("a", md_text, (string)thisday);
+            ccontents = Caudium.make_container("a", md_text, (string)thisday);
           }
         } else
           ccontents = (string)thisday;
       }
             
       if (curday == today)
-        rcontents += make_container("td", md_todaycell, ccontents);
+        rcontents += Caudium.make_container("td", md_todaycell, ccontents);
       else
-        rcontents += make_container("td", md_cell, ccontents);
+        rcontents += Caudium.make_container("td", md_cell, ccontents);
     }
 
     int deckludge = month->month_no() == 12;
@@ -529,16 +529,16 @@ string make_monthdays_grid(object id, mapping my_args, object now,
         weekno = 53; // that's what ISO say we should do
       
       if (!aweeks[weekno])
-        rcontents += make_container("td", md_weekcell, sprintf("%02d", weekno));
+        rcontents += Caudium.make_container("td", md_weekcell, sprintf("%02d", weekno));
       else {
         md_text->onClick = sprintf("%s(%2d); return false;", QUERY(js_week), weekno);
         md_text->onMouseOver = "window.status = ''; return true;";
-        ccontents = make_container("a", md_text, (string)weekno);
-        rcontents += make_container("td", md_weekcell, ccontents);
+        ccontents = Caudium.make_container("a", md_text, (string)weekno);
+        rcontents += Caudium.make_container("td", md_weekcell, ccontents);
       }
     }
     
-    ret += make_container("tr", md_row, rcontents);
+    ret += Caudium.make_container("tr", md_row, rcontents);
     rcontents = "";
   }
     
@@ -1169,7 +1169,7 @@ string calendar_tag(string tag, mapping args, string cont,
   contents += make_weekdays_row(id, my_args, now, target);
   contents += make_monthdays_grid(id, my_args, now, target, active_days, active_weeks);
     
-  return tmp +make_container("table", main_table, contents);
+  return tmp +Caudium.make_container("table", main_table, contents);
 }
 
 static multiset  changetypes = (<"day", "week">);

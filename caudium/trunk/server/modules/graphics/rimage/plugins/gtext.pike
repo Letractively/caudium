@@ -32,7 +32,7 @@ mixed render( mapping args, mapping this, string channel, object id, object m)
   
   m_delete(args, "xpos");
   m_delete(args, "ypos");
-  string prefix = parse_rxml( make_tag("gtext-id", args), id );
+  string prefix = parse_rxml( Caudium.make_tag("gtext-id", args), id );
   
   mapping a = ([ "file":prefix+"$"+txt, 
 		 "xpos":xp,

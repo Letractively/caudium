@@ -231,7 +231,7 @@ string page_0(object id)
     }
 
     nid->misc->trace_enter(sprintf("Simplifying path %O\n", f), 0);
-    nid->not_query = simplify_path(f);
+    nid->not_query = Caudium.simplify_path(f);
     nid->misc->trace_leave(sprintf("Got path %O\n", f));
     nid->conf = c;
     nid->method = "GET";

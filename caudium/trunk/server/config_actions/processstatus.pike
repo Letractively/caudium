@@ -36,7 +36,7 @@ constant cancel_label = " Done ";
 string describe_global_status()
 {
   return "Server uptime             : "+
-    caudium->msectos((time(1) - caudium->start_time)*1000) +"\n";
+    Caudium.msectos((time(1) - caudium->start_time)*1000) +"\n";
 }
 
 #define MB (1024*1024)

@@ -348,7 +348,7 @@ string call_user_tag(object parser, mapping args,
   array replace_from = ({"#args#"})+
     Array.map(indices(args) + indices(id->misc->up_args),
 	      lambda(string q) { return "&"+q+";"; });
-  array replace_to = (({ make_tag_attributes( args + id->misc->up_args ) })+
+  array replace_to = (({ Caudium.make_tag_attributes( args + id->misc->up_args ) })+
 		      values(args)+values(id->misc->up_args));
   foreach(indices(args), string a)
   {
@@ -385,7 +385,7 @@ call_user_container(object parser, mapping args, string contents,
   array replace_from = ({"#args#", "<contents>"})+
     Array.map(indices(args),
 	      lambda(string q){return "&"+q+";";});
-  array replace_to = (({make_tag_attributes( args  ),
+  array replace_to = (({Caudium.make_tag_attributes( args  ),
 			contents })+
 		      values(args));
   string r = replace((id->misc->containers[ tag ]?id->misc->containers[ tag ]:""), replace_from, replace_to);

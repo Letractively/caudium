@@ -839,13 +839,13 @@ string tag_diagram(string tag, mapping m, string contents,
 
 #ifdef BG_DEBUG
   if(id->prestate->debug)
-    return(sprintf("<pre>Timers: %O\n</pre>", bg_timers) + make_tag("img", m));
+    return(sprintf("<pre>Timers: %O\n</pre>", bg_timers) + Caudium.make_tag("img", m));
 #endif
 
   if(m->tonedbox)
     m_delete(m, "tonedbox");
 
-  return make_tag("img", m);
+  return Caudium.make_tag("img", m);
 }
 
 mapping query_container_callers()

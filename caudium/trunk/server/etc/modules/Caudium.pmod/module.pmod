@@ -766,9 +766,6 @@ string unicode_to_html(string str) {
                               Caudium.Const.replace_entities);
 }
 
-// FIXME: Do compat calls and finish to remove all that from caudiumlib14.pike
-
-
 // Used for is_safe_string()
 private constant safe_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"/"";
 private constant empty_strings = ({
@@ -783,7 +780,7 @@ private constant empty_strings = ({
 //!  The string to check.
 //! @returns
 //!  1 if the test contains only the safe characters, 0 otherwise.
-static int is_safe_string(string in) {
+int is_safe_string(string in) {
   return strlen(in) && !strlen(replace(in, safe_characters, empty_strings));
 }
 
@@ -792,7 +789,7 @@ static int is_safe_string(string in) {
 //!  The mapping with the attributes
 //! @returns
 //!  The string of attributes.
-static string make_tag_attributes(mapping in){
+string make_tag_attributes(mapping in){
   array a=indices(in), b=values(in);
 
   for (int i=0; i<sizeof(a); i++)
@@ -815,7 +812,7 @@ static string make_tag_attributes(mapping in){
 //!  The mapping with the attributes
 //! @returns
 //!  A string containing the tag with attributes.
-static string make_tag(string tag,mapping in) {
+string make_tag(string tag,mapping in) {
   string q = make_tag_attributes(in);
   return "<"+tag+(strlen(q)?" "+q:"")+">";
 }
@@ -829,7 +826,7 @@ static string make_tag(string tag,mapping in) {
 //!  The contents of the container.
 //! @returns
 //!  A string containing the finished container
-static string make_container(string tag,mapping in, string contents) {
+string make_container(string tag,mapping in, string contents) {
   return make_tag(tag,in)+contents+"</"+tag+">";
 }
 
@@ -840,7 +837,7 @@ static string make_container(string tag,mapping in, string contents) {
 //!  The Configuration parts to add
 //! @param prestate
 //!  Prestates to add
-static string add_config( string url, array config, multiset prestate) {
+string add_config( string url, array config, multiset prestate) {
   if (!sizeof(config)) 
     return url;
   
@@ -857,6 +854,9 @@ static string add_config( string url, array config, multiset prestate) {
 //!
 //! @returns
 //!  A string representation of the passed value converted to seconds.
+//!
+//! @fixme
+//!   Gross and RIS code.
 string msectos(int t) {
   if(t<1000) { /* One sec. */
     return sprintf("0.%02d sec", t/10);
@@ -875,8 +875,8 @@ string msectos(int t) {
 //!   RIS code ?
 //!
 //! @fixme
-//!   Is this usefull ???
-static int backup_extension( string f ) {
+//!   Optimize that since it is used in filesystem.pike (in C?).
+int backup_extension( string f ) {
   if (!strlen(f)) 
     return 1;
   
@@ -919,7 +919,9 @@ int get_size(mixed x) {
 }
 
 //!
-static int ipow(int what, int how) {
+//! @fixme
+//!   Used only in oldaccessed thing. Gross and somewhat RIS code...
+int ipow(int what, int how) {
   int r=what;
   if (!how)
     return 1;
@@ -941,7 +943,7 @@ static int ipow(int what, int how) {
 //!
 //! @note
 //!   Non-RIS code
-static string simplify_path(string file)
+string simplify_path(string file)
 {
   string   ret;
   mixed    error = catch {
@@ -960,14 +962,14 @@ static string simplify_path(string file)
 //!  The date string to be converted
 //!
 //! @returns
-//!  The UNIX time value for the date.
+//!  The UNIX time value for the date or -1 if there is an error.
 //!
 //! @note
 //!   Non-RIS implementation;
 //! 
 //! @fixme
 //!   Make this in C !!!
-static int httpdate_to_time(string date) {
+int httpdate_to_time(string date) {
   if (intp(date))
     return -1;
 
@@ -994,7 +996,7 @@ static int httpdate_to_time(string date) {
 //!
 //! @note
 //!  Non-RIS implementation
-static string int2roman(int m) {
+string int2roman(int m) {
   if (m>10000||m<0)
     return "que";
 
@@ -1055,7 +1057,7 @@ static string int2roman(int m) {
 //!
 //! @note
 //!  Non-RIS implementation
-static string number2string(int num ,mapping params, mixed names) {
+string number2string(int num ,mapping params, mixed names) {
   string ret;
   
   switch (params->type) {
@@ -1106,7 +1108,7 @@ private static mapping(string:string) ift = ([
 //!   non-RIS code
 //! @fixme
 //!   Undocumented.
-static string image_from_type(string t) {
+string image_from_type(string t) {
   if (t) {
     sscanf(t, "%s/%*s", t);
 
@@ -1117,22 +1119,16 @@ static string image_from_type(string t) {
   return ift->unknown;
 }
 
-private static array(string) size_prefix = ({ "bytes", "kB", "MB", "GB", "TB", "HB" });
-
-//! Convert a size number to a humanreadable size (eg bytes, kB, etc...)
-static string sizetostring(int size) {
-  float s = (float)size;
-  if (size < 0.0)
+//! Returns the size as a memory size string with suffix,
+//! e.g. 43210 is converted into "42.2 kb". To be correct
+//! to the latest standards it should really read "42.2 KiB",
+//! but we have chosen to keep the old notation for a while.
+//! The function knowns about the quantifiers kilo, mega, giga,
+//! tera, peta, exa, zetta and yotta.
+string sizetostring(int size) {
+  if (size < 0)
     return "--------";
-  
-  size=0;
-
-  while( s > 1024.0 ) {
-    s /= 1024.0;
-    size++;
-  }
-  
-  return sprintf("%.1f %s", s, size_prefix[size]);
+  return String.int2size(size);  
 }
 
 

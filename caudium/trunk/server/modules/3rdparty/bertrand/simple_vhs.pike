@@ -156,7 +156,7 @@ mapping first_try(object id)
     }
   
     // clean up the path a bit
-    path=simplify_path(path);
+    path=Caudium.simplify_path(path);
 
   }
 

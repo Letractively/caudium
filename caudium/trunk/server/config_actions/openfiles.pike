@@ -49,7 +49,7 @@ inline static private array checkfd_fix_line(string l)
   if (sizeof(s) > 1) {
     s[0]=decode_mode((int)("0"+s[0]));
     if((int)s[1])
-      s[1]=sizetostring((int)s[1]);
+      s[1]=Caudium.sizetostring((int)s[1]);
     else
       s[1]="-";
     // mode size inode ? ?

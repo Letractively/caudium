@@ -212,7 +212,7 @@ array(string) container_randomhref(string tag, mapping m, string contents, objec
   contents = parse_rxml(contents, id);
   args["href"] = (string)id->misc->href[random(sizeof(id->misc->href))];
   return ({
-    make_container("a", args, contents)
+    Caudium.make_container("a", args, contents)
   });
 }
 

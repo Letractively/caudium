@@ -246,7 +246,7 @@ string real_file( mixed f, mixed id )
 int dir_filter_function(string f)
 {
   if(f[0]=='.' && !QUERY(.files))           return 0;
-  if(!QUERY(tilde) && backup_extension(f))  return 0;
+  if(!QUERY(tilde) && Caudium.backup_extension(f))  return 0;
   return 1;
 }
 

@@ -149,7 +149,7 @@ string call_user_tag(string tag, mapping args, int line, object id)
   array replace_from = ({"#args#"})+
     Array.map(indices(args)+indices(id->misc->up_args),
               lambda(string q){return "&"+q+";";});
-  array replace_to = (({make_tag_attributes( args + id->misc->up_args ) })+
+  array replace_to = (({Caudium.make_tag_attributes( args + id->misc->up_args ) })+
                       values(args)+values(id->misc->up_args));
   foreach(indices(args), string a)
   {
@@ -181,7 +181,7 @@ string call_user_container(string tag, mapping args, string contents, int line,
   array replace_from = ({"#args#", "<contents>"})+
     Array.map(indices(args),
               lambda(string q){return "&"+q+";";});
-  array replace_to = (({make_tag_attributes( args  ),
+  array replace_to = (({Caudium.make_tag_attributes( args  ),
                         contents })+
                       values(args));
   string r = replace(id->misc->containers[ tag ], replace_from, replace_to);

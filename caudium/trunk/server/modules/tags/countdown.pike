@@ -261,9 +261,8 @@ int find_a_day(string which)
 }
 
 
-string show_number(int n,mapping m)
-{
-  return number2string(n,m,language(m->lang,m->ordered?"ordered":"number"));
+string show_number(int n,mapping m) {
+  return Caudium.number2string(n,m,language(m->lang,m->ordered?"ordered":"number"));
 }
 
 void apply_event(mapping ct, function|mapping evnt, mapping m)
@@ -505,7 +504,7 @@ string tag_countdown(string t, mapping m, object id)
   if(m->when)
   {
     m->unix_time = (string)when;
-    return make_tag("date", m);
+    return Caudium.make_tag("date", m);
   }
 
   int delay = when-time(1);

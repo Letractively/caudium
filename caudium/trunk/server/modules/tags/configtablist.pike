@@ -139,8 +139,8 @@ string tag_config_tab(string t, mapping a, string contents)
   } else {
     img_attrs->border="0";
   }
-  return make_container("a", a, make_container("b", ([]),
-					       make_tag("img", img_attrs)));
+  return Caudium.make_container("a", a, Caudium.make_container("b", ([]),
+					       Caudium.make_tag("img", img_attrs)));
 }
 
 int my_hash(mixed o)

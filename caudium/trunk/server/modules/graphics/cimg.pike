@@ -74,7 +74,7 @@ string tag_cimg( string t, mapping args, object id )
     args->width = (string)size->xsize;
     args->height = (string)size->ysize;
   }
-  return make_tag( "img", args );
+  return Caudium.make_tag( "img", args );
 }
 
 string tag_cimg_url( string t, mapping args, object id )

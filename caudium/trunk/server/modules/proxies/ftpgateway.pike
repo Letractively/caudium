@@ -246,7 +246,7 @@ class Request {
 	if (tmp[1]) type+=" ("+tmp[1]+")";
       }
       else type="unknown";
-      if (master->query("icons")=="Yes") icon=image_from_type(type);
+      if (master->query("icons")=="Yes") icon=Caudium.image_from_type(type);
     }
     else if (!icon && master->query("icons")=="Yes")
     {
@@ -257,7 +257,7 @@ class Request {
       {
 	type2=tmp[0]; 
 	if (tmp[1]) type2+=" ("+tmp[1]+")";
-	icon=image_from_type(type2);
+	icon=Caudium.image_from_type(type2);
       }
       else icon="internal-gopher-menu";
     }

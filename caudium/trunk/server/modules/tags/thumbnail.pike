@@ -219,7 +219,7 @@ string tag_thumbnail(string tag, mapping args, object id, object file, mapping d
     else
        imgtag->alt = filename;
     
-    url = make_tag("img", imgtag);
+    url = Caudium.make_tag("img", imgtag);
   }
 
   usecount++;

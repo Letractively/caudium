@@ -430,7 +430,7 @@ class request
 
       float bps = bytesent / timesince;
 
-      VDEBUG ("sent %s in %.2f seconds - %s/s", sizetostring (bytesent), timesince, sizetostring ((int)bps));
+      VDEBUG ("sent %s in %.2f seconds - %s/s", Caudium.sizetostring (bytesent), timesince, Caudium.sizetostring ((int)bps));
 
       VDEBUG ("done with connection (%O)", this_object ());
 
@@ -455,7 +455,7 @@ class request
 
       float bps = bytes / timesince;
 
-      ret = sprintf ("%s -&gt; %s sent %s at %s/s", host_header, id->remoteaddr, sizetostring (bytes), sizetostring ((int) bps));
+      ret = sprintf ("%s -&gt; %s sent %s at %s/s", host_header, id->remoteaddr, Caudium.sizetostring (bytes), Caudium.sizetostring ((int) bps));
 
       return (ret);
    }

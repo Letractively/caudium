@@ -507,7 +507,7 @@ array(string) cont_faqnavbar(string tag, mapping args, string contents,
   ]);
 
   ret = parse_rxml(contents, id);
-  ret = make_container("div", div, ret);
+  ret = Caudium.make_container("div", div, ret);
   
   if (!args || (args && (!args->bottom || lower_case(args->bottom) == "yes")))
     id->misc->faq_module_navbar_contents = ret;
@@ -543,7 +543,7 @@ array(string) cont_faqpage(string tag, mapping args, string contents,
   ret = parse_rxml(contents, id);
   id->misc->faq_inpage = 0;
   
-  ret = make_container("div", div, ret);
+  ret = Caudium.make_container("div", div, ret);
 
   return ({ ret });
 }
@@ -799,8 +799,8 @@ array(string) cont_faqedit(string tag, mapping args, string contents,
     hidden->name = "entry_path";
     hidden->value = entries[0]->path;
     
-    ret = make_container("form", form,
-                         make_tag("input", hidden) + ret);
+    ret = Caudium.make_container("form", form,
+                         Caudium.make_tag("input", hidden) + ret);
   }
   
   id->misc->faq_entries = 0;
@@ -813,7 +813,7 @@ array(string) cont_faqedit(string tag, mapping args, string contents,
   id->variables->faqedittext = 0;
   id->variables->faqeditnumber = 0;
   
-  ret = make_container("div", div, ret);
+  ret = Caudium.make_container("div", div, ret);
 
   return ({ ret });
 }
@@ -831,7 +831,7 @@ array(string) cont_faqsuggest(string tag, mapping args, string contents,
   ]);
 
   ret = parse_rxml(contents, id);
-  ret = make_container("div", div, ret);
+  ret = Caudium.make_container("div", div, ret);
 
   return ({ ret });
 }
@@ -902,7 +902,7 @@ string tag_faqbutton(string tag, mapping m, object id)
 
   btn->class = "faqbutton";
 
-  ret = parse_rxml(make_container(tagname, btn, tagtext), id);
+  ret = parse_rxml(Caudium.make_container(tagname, btn, tagtext), id);
   
   return ret;
 }
