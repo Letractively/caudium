@@ -1,0 +1,22 @@
+A note for FreeBSD users
+------------------------
+
+A port has been sent to maintainers of FreeBSD about pike 7.2 and 
+seems to be pendings for months. Maybe because the maintainer of
+/usr/ports/lang/pike is not reachable or so.
+
+To avoid problems when compiling pike 7.2 and caudium, The Caudium
+Group has made some up to date ports for you.
+
+They are located at ftp://ftp.oav.net/pkg_freebsd/ports.tar.gz.
+
+It is updated in a average of once a week. But it needs a up to
+date ports tree before trying to compile anything. Please check
+the FreeBSD handbook on how to update ports using cvsup.
+
+Then after that, you'll can untar the file in /usr and go to
+/usr/ports/www/caudium (for current stable branch) or 
+/usr/ports/www/caudium-dev (for current developpment branch).
+
+Have fun !
+
