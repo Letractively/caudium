@@ -788,7 +788,7 @@ array get_servers() {
 //
 void get_watchdog_params()
 {
-  flex_write("Loading watchdog parameters\n");    
+  flex_write("Loading watchdog parameters from " + envvars->CAUDIUM_CONFIGDIR + "\n");    
 
   object config_dir=Config.Files.Dir(envvars->CAUDIUM_CONFIGDIR);
   if(!config_dir)
