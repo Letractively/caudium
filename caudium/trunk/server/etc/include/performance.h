@@ -107,7 +107,7 @@
  * Should support for URL modules be included? This includes the
  * htaccess module for example.  
  */
-#ifdef MAX_PERFORMANCE
+#ifndef MAX_PERFORMANCE
 # define URL_MODULES
 #endif
 
