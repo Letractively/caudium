@@ -40,7 +40,7 @@ constant module_unique = 1;
 constant thread_safe=1;
 constant module_type = MODULE_PARSER|MODULE_FIRST;
 constant module_name = "Human Verification";
-constant module_doc  = #"This module allows you to insert a hidden field in a form, displays a &lt;gtext> tag and performs input validation to make a reasonable assumption that the form was filled in by a human.
+constant module_doc  = #"This module allows you to insert a hidden field in a form, displays a &lt;gtext&gt; tag and performs input validation to make a reasonable assumption that the form was filled in by a human.
 <p>
 This module inspired by Altavista and many other sites that are using 
 methods similar to this to prevent automated submissions.
@@ -59,7 +59,7 @@ Did this Verify? #verified#<br>
 &lt;/formoutput><br>
 &lt;/body>
 <p>
-The &lt;humanid> tag passes any parameters to the &lt;gtext> tag that is called
+The &lt;humanid&gt; tag passes any parameters to the &lt;gtext&gt; tag that is called
 from this module.
 <p>
 The form value 'verified' returns either YES or NO if the verification was
