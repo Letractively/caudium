@@ -424,45 +424,30 @@ class stream_client {
     }
 
     mixed client_write( string buff, void|string title ) {
+        int _bytes;
 	if ( ( meta->titlestreaming ) && ( title ) ) {
-	    if ( protocol() == "ICY" ) {
-		int i = bytes % meta->default_metaint;
-		if ( i >= sizeof( buff ) ) {
-		    bytes += sizeof( buff );
-		    if ( fd->write( buff ) == -1 ) {
-			return this_object();
-		    }
+	    if ( meta->protocol == 1 ) {
+		string m = title_encode( title );
+		if ( sizeof( m ) > meta->default_metaint ) {
+		    perror( "WARNING: Avoided writing metadata to client because it is too long!\n" );
 		} else {
-		    if ( i == 0 ) {
-			if ( write_title( title ) == -1 ) {
-			    return this_object();
+		    if ( bytes % meta->default_metaint < meta->default_metaint ) {
+			int tmp = bytes % meta->default_metaint;
+			_bytes = sizeof( buff );
+			if ( tmp == 0 ) {
+			    buff = m + buff;
+			} else {
+			    buff = buff[ 0.. tmp ] + m + buff[ tmp .. sizeof( buff ) ];
 			}
 		    }
-		    if ( fd->write( buff[ 0..i ] ) == -1 ) {
-			return this_object();
-		    }
-		    if ( write_title( title ) == -1 ) {
-			return this_object();
-		    }
-		    if ( fd->write( buff[ i..sizeof( buff ) ] ) == -1 ) {
-                        return this_object();
-		    }
-		    bytes += sizeof( buff );
-                    return 0;
 		}
-	    } else if ( ( protocol() == "Audiocast" ) && ( title ) ){
-		if( fd->write( buff ) == -1 ) {
-		    return this_object();
-		}
-                return 0;
 	    }
-	} else {
-	    bytes += sizeof( buff );
-	    if( fd->write( buff ) == -1 ) {
-		return this_object();
-	    }
-            return 0;
 	}
+	bytes += _bytes||sizeof( buff );
+	if( fd->write( buff ) == -1 ) {
+	    return this_object();
+	}
+	return 0;
     }
 
     string remoteaddr() {
@@ -515,23 +500,15 @@ class stream_client {
 		"icy-pub:" + meta->pub + "\r\n" +
 		(meta->bitrate?"icy-br:" + (string)meta->bitrate + "\r\n":"");
 	}
-        bytes += sizeof( heads );
+	bytes += sizeof( heads );
 	fd->write( heads );
     }
 
-    int write_title( string title ) {
-	if ( meta->titlestreaming ) {
-	    if ( protocol() == "ICY" ) {
-		string m = sprintf( " StreamTitle='%s';StreamUrl='%s';", title, meta->url );
-		while( strlen( m ) & 15 ) m += "\0";
-		m[ 0 ]=strlen( m )/16;
-                bytes += sizeof( m );
-		return fd->write( m );
-	    } else if ( protocol() == "Audiocast" ) {
-		// Do audiocast stuff
-                return -1;
-	    }
-	}
+    string title_encode( string title ) {
+	string m = sprintf( " StreamTitle='%s';StreamUrl='%s';", title, meta->url );
+	while( strlen( m ) & 15 ) m += "\0";
+	m[ 0 ]=strlen( m )/16;
+	return m;
     }
 
     void terminate() {
@@ -696,7 +673,7 @@ class new_stream {
 	    // longer than 1/10th of a second to send data to the clients
 	    // then we are too busy, and should reduce samples to 9/second
 	    // and increase the sample size. Or else maybe disconenct a client :)
-	    sleep( ( 0.1 - ( (float)time( delay_loop ) - elapsed ) ) );
+	    sleep( abs( 0.1 - ( (float)time( delay_loop ) - elapsed ) ) );
 	}
         return 0;
     }
