@@ -79,9 +79,9 @@ int main(int argc, array argv)
   write("Checking for potential compatibility reasons with your Pike...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver < 7.0 ||
-     (ver == 7.0 && rel < 268))
-    warning("Caudium 1.1 requires Pike 7.0.268 or newer.");
+  if(ver < 7.2 ||
+     (ver == 7.2 && rel < 200))
+    warning("Caudium 1.3 requires Pike 7.2.200 or newer.");
 
   if(ver == 7.1) {
     warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
@@ -172,7 +172,13 @@ int main(int argc, array argv)
 #elif !constant(_Crypto)
   warning("Your Pike is lacking the _Crypto module so you won't be able to use SSL3.");
 #endif
-  
+
+#if !defined(SSL)
+  warning("Your Pike is lacking of SSL module. So you won't be able to use\n"
+          "SSL3 with Caudium. We recommand you to use a Pike toolkit with\n"
+          "SSL module.");
+#endif 
+
   if(
 #if !constant(Image.TTF)
      1

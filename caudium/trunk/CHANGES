@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- SSL.pmod used is the one from Pike now. This verification is now done
+  when configure script is ran.
+- Caudium 1.3 now *REQUIRE* pike 7.2+ or more recent (7.2.xxx with xxx > 200).
 - It is now possible to unset more than one variable at a time by using globs,
   both normal variable of the &form; scope and those of the &var; scrope. 
   Undefine of defines, tags and containers also works with globs. Patch #536492
