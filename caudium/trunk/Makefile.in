@@ -256,8 +256,8 @@ only_bump_version:  force
 	  fi; \
 	  version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
-	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
-	  cat ../../VERSION; \
+	  echo "Caudium $$version.$$newbuild" >../../../VERSION; \
+	  cat ../../../VERSION; \
 	)
 
 bump_version: force only_bump_version
@@ -272,13 +272,13 @@ same_version: force
 	@cd $(SRCDIR)/server/etc/modules; \
 	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "Caudium $$version.$$build" >../../VERSION;
+	 echo "Caudium $$version.$$build" >../../../VERSION;
 
 date_version: force
 	@cd $(SRCDIR)/server/etc/modules; \
 	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../VERSION;
+	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../../VERSION;
 
 
 $(SRCDIR)/ChangeLog.gz:
@@ -354,7 +354,7 @@ solaris_pkg: all
 	@cd $(SRCDIR)/server/etc/modules; \
 	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "$$version.$$build" >../../VERSION;
+	 echo "$$version.$$build" >../../../VERSION;
 	@tools/build_solaris_pkg.ksh `cat VERSION` $(PIKE)
 	@rm VERSION
 
