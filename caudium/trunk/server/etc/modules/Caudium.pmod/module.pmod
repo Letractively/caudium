@@ -543,6 +543,34 @@ string strip_prestate(string from) {
   return from;
 }
 
+//! Return a short date string from a time @{int@}
+//! @param timestamp
+//!   The Unix time value to convert
+//! @returns
+//!   String representation of the params.
+//! @note
+//!   Non-RIS code 
+//! @example
+//! Pike v7.4 release 10 running Hilfe v3.5 (Incremental Pike Frontend)
+//! > Caudium.short_date(time());                                      
+//! (1) Result: "Mar  1 00:41"     
+string short_date(int timestamp) {
+#if constant(_Caudium.strftime)
+  return _Caudium.strftime("%b %e %H:%M",timestamp);
+#else /* constant(_Caudium.strftime) */
+  // Fail-back function if strftime() doesn't exist.
+  // I really think that we should ask for strftime()
+
+  int      date = time(1);
+  string   ctimed = ctime(date)[20..23];
+  string   ctimet = ctime(timestamp);
+
+  if ( ctimed < ctimet[20..23])
+    return ctimet[4..9] +" "+ ctimet[20..23];
+
+  return ctimet[4..9] +" "+ ctimet[11..15];
+}
+
 /*
  * If you visit a file that doesn't containt these lines at its end, please
  * cut and paste everything from here to that file.

@@ -259,6 +259,12 @@ string strip_prestate(string from) {
    return Caudium.strip_prestate(from);
 }
 
+//! Compat call of Caudium.short_date
+//! @deprecated
+string short_date(int t) {
+   WCOMPAT("Caudium","short_date");
+   return Caudium.short_date(t);
+}
 
 //! Compat call of Caudium.parse_html
 //! @deprecated
