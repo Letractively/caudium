@@ -1,27 +1,28 @@
 <?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
-<!-- Caudium doc parsing XSLT stylesheet
-     Very early version - don't expect any bells and whistles.
+<!-- Caudium index XSLT stylesheet
 -->
-<xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
-<xsl:template match="documentation">
- <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
- <page title="Caudium Docs">
-  <dl><xsl:apply-templates select="module | file"/></dl>
+<xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
+<xsl:template match="index">
+ <xsl:text disable-output-escaping="yes">&lt;use file="/caudium/layout.tmpl"></xsl:text>
+ <page title="Caudium Documentation Index">
+  <dl><xsl:apply-templates select='entry[@type="module" or @type="file"]' mode="top"/></dl>
   <p><font size="-2">XSLT Template version <tt>$Id$</tt></font></p>
  </page>
 </xsl:template>
 
 
-<!-- Layout for modules -->
+<!-- Index for modules and files -->
 
-<xsl:template match="module">
-  <dt><h2>Module <xsl:value-of select="@name"/></h2></dt>
-  <dd><p><xsl:value-of select="description"/></p></dd>
-  <xsl:apply-templates select="version"/>
-  <dd><hr noshade="" size="1"/></dd>
-  <dd><xsl:apply-templates select="tag"/></dd>
+<xsl:template match="entry" mode="top">
+  <dt><b><a href="{@path}">
+	<xsl:choose>
+         <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+         <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+        </xsl:choose>
+      </a></b></dt>
+  <dd></dd>
 </xsl:template>
 
 <xsl:template match="tag">

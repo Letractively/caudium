@@ -5,6 +5,7 @@
 <!-- PiGTK docs XSLT layout file.
 -->
 <xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
+
 <xsl:template match="class">
   <html>
    <head><title>PiGTK Documentation: <xsl:value-of select="@name"/></title></head>
