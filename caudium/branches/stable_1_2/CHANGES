@@ -6,7 +6,7 @@ Changes in Caudium 1.2.32 since 1.2.30
 
 Changes in Caudium 1.2.30 since 1.2.26
 --------------------------------------
-- Modified ultraparse.pile to include an explicit list of profiles to show.
+- Modified ultraparse.pike to include an explicit list of profiles to show.
    (James Tyson)
 - Modified vhs_logger.pike to include $agent_unquoted log format.
    (James Tyson)
