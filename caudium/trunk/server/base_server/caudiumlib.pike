@@ -2222,5 +2222,5 @@ array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
  * c-basic-offset: 2
  * End:
  *
- * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt cindent shiftwidth=2
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
  */
