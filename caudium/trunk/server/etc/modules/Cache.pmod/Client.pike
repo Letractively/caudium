@@ -21,11 +21,19 @@
 
 constant cvs_version = "$Id$";
 
+#ifdef THREADS
+  static Thread.Mutex mutex = Thread.Mutex();
+# define LOCK() object __key = mutex->lock()
+#else
+# define LOCK() 
+#endif
+
 object real_cache;
 function get_cache;
 string namespace;
 
 private void restart_cache() {
+  LOCK();
   if ( ! real_cache ) {
     real_cache = get_cache( namespace, 1 );
   }
