@@ -1,9 +1,9 @@
 LogDir	../logs
 Interval	15
-ReadTimeout	9
+ReadTimeout	3
 ConnectTimeout	5
 AdminEmail	root@localhost
-lowtime	7
-hightime 8
+lowtime	3
+hightime	8
 lowaction	l
 highaction	r

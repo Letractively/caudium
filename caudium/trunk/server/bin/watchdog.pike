@@ -1,4 +1,3 @@
-#!/usr/local/bin/pike06-zino
 /* Caudium Watchdog       Copyright Idonex AB     1998
  *                                  Caudium Group 2003
  * Written by Peter Bortas <peter@idonex.se> in Mars -98
@@ -136,25 +135,25 @@ class Puppy
     {
       int t=time();
       action_lowalert(
-	    "WARNING! SERVER DOWN!\n\n"+name+" ("+ip+"), mountpoint \""+
+	    "WARNING! SERVER DOWN!\n\n"+ip+":" + port + ", mountpoint \""+
 	    file +"\" down, symptom:\n"+
 	    reason+"\n\n"
 	    "The server has been down for "+
 	    ((t-since)/3600)+"h"+
 	    (((t-since)/60)%60)+"m"+
-	    ((t-since)%60)+"s.\n", rc);
+	    ((t-since)%60)+"s.\n", rc, ip, port);
     }
     else if((int)down==(int)nr_highalert)
     {
       int t=time();
       action_highalert(
-	    "PANIC! SERVER DOWN!\n\n"+name+" ("+ip+"), mountpoint \""+
+	    "PANIC! SERVER DOWN!\n\n"+ip+":" + port + ", mountpoint \""+
 	    file +"\" down, symptom:\n"+
 	    reason +"\n\n"
 	    "The server has been down for "+
 	    ((t-since)/3600)+"h"+
 	    (((t-since)/60)%60)+"m"+
-	    ((t-since)%60)+"s.\n", rc);
+	    ((t-since)%60)+"s.\n", rc, ip, port);
     }
 
     /*
@@ -162,7 +161,7 @@ class Puppy
     {
       int t=time();
       action_lowalert(
-	    "WARNING! SERVER DOWN!\n\n"+name+" ("+ip+"), mountpoint \""+
+	    "WARNING! SERVER DOWN!\n\n"+ip+":" + port + ", mountpoint \""+
 	    file +"\" down, symptom:\n"+
 	    reason +"\n\n"
 	    "The server has been down for "+
@@ -173,7 +172,7 @@ class Puppy
     {
       int t=time();
       action_lowalert(
-	    "PANIC! SERVER DOWN!\n\n"+name+" ("+ip+"), mountpoint \""+
+	    "PANIC! SERVER DOWN!\n\n"+ip+":" + port + ", mountpoint \""+
 	    file +"\" down, symptom:\n"+
 	    reason +"\n\n"
 	    "The server has been down for "+
@@ -240,11 +239,12 @@ void dot()
 }
 
 // Restart the server.
-void action_restart( string message, mapping rc, void|int standdown )
+void action_restart( string message, mapping rc, string ip, int 
+port, void|int standdown )
 {
   log( message );
 
-  werror( sprintf("server: %s, port: %d", rc->server, rc->serverport) );
+  werror( sprintf("server: %s, port: %d", ip, port) );
   if( pid && (int)pid > 1)
   {
     log( "Sending signal SIGHUP to server ("+pid+")" );
@@ -260,7 +260,8 @@ void action_restart( string message, mapping rc, void|int standdown )
 }
 
 // Dummy action-function  *FIXME*
-void action_dummy( string message, mapping rc, void|int standdown )
+void action_dummy( string message, mapping rc, string ip, int port, 
+  void|int standdown )
 {
   log( message );
 }
