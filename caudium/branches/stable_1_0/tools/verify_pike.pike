@@ -86,38 +86,29 @@ int main(int argc, array argv)
 	    "Pike 0.6 support will be dropped.");
 
 
-  /* Pike 7.11 might have several problems... */
-  if(ver == 7.1) {
-    warning("We strongly recommend the use of Pike 7.0 for Caudium. Pike 7.1 is less\n"
-	    "tested and still a development version.");
-
-    if(rel == 11)
-      /* Pike 7.11 might have several problems... */
-      warning("You are using Pike 7.1.11. The errors reported below might or might not be a\n"
-	      "problem. The problems were fixed in Pike 7.1.11, but if you have an older\n"
-	      "version of if, the problems might very well still be there. We recommend an\n"
-	      "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
-  if(rel > 11 && rel < 28)
-    /* Serious string bug in these versions */
-    warning("In Pike 7.1 build 13 to build 27 there is a serious bug string bug which\n"
-	    "breaks Caudium query string parsing. If you want to use Pike 7.1, you have\n"
-	    "to upgrade it to a later version.");
+  /* Pike 7.1, 7.2 and 7.3 doesn't work with Caudium 1.0 */
+  if(ver >= 7.1) {
+    warning("*** CAUDIUM 1.0 DOES NOT WORK WITH PIKE 7.1, 7.2 OR 7.3!\n"
+	    "*** You need to install and use a late Pike 7.0 if you want\n"
+	    "*** to use Pike 7 with this version of Caudium. You can \n"
+	    "*** download a snapshot release of Pike from our site at \n"
+	    "*** http://caudium.net/download/snapshot.html\n");
+    exit(1);
   }
   
   /* PHP 4 check */
   if(ver < 7.0
      || (ver == 7.0 && rel < 268)
      || (ver == 7.1 && rel < 12))
-    warning("Pike 7.0 w/ build >= 268 or 7.1 build >= 12 is required for embedded PHP4\n"
-	    "scripting support. Please note that you also need to get a late version\n"
-	    "of PHP4 to enable it.");
+    warning("Pike 7.0 w/ build >= 268 is required for embedded PHP4 scripting support. \n"
+	    "'Please note that you also need to get a late version of PHP4 to enable it.");
 
   /* Pipe.pipe leak */
   if((ver == 7.0 && rel < 146)
      || (ver == 7.1 && rel < 12))
-    warning("In Pike 7.0 builds <= 145 and in Pike 7.1 builds <= 11, there is a severe\n"
-	    "leak in Pipe.pipe, which is used for sending data in Caudium. You will need\n"
-	    "a newer version of Pike to fix this problem.");
+    warning("In Pike 7.0 builds <= 145 there is a severe leak in Pipe.pipe, which is used\n"
+	    "for sending data in Caudium. You will need a newer version of Pike to\n"
+	    "fix this problem.");
 
 #if constant(Parser.HTML) 
   /* Parser.HTML recursion stuff */
