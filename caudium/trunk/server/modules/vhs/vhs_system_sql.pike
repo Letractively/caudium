@@ -41,7 +41,7 @@ constant module_unique = 1;
 //#define VHS_DEBUG
 
 #if defined(DEBUG) || defined(VHS_DEBUG)
-# define DW(x) werror("[VHS_system] " + x + "\n")
+# define DW(x) report_debug("[VHS_system] " + x + "\n")
 #else
 # define DW(x)
 #endif
@@ -127,14 +127,14 @@ void open_db(object id) {
     };
   }
   if(err) {
-    werror("[VHS_system] Couldn't open SQL database!\n");
+    report_notice("[VHS_system] Couldn't open SQL database!\n");
     if(db)
-      werror("[VHS_system] database interface replies : "+db->error()+"\n");
+      report_notice("[VHS_system] database interface replies : "+db->error()+"\n");
     else
-      werror("[VHS_system] unknown reason\n");
-    werror("[VHS_system] Check the values in the configuration interface, and "
-           "that the user running the server has adequate persmissions to the "
-           "server.\n");
+      report_debug("[VHS_system] unknown reason\n");
+    report_debug("[VHS_system] Check the values in the configuration interface, and "
+                 "that the user running the server has adequate persmissions to the "
+                 "server.\n");
     db=0;
     return;
   }

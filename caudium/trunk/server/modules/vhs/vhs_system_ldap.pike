@@ -52,7 +52,7 @@ constant module_unique = 1;
 // #define VHS_DEBUG
 
 #if defined(DEBUG) || defined(VHS_DEBUG)
-# define DW(x) werror("[VHS_system] " + x + "\n")
+# define DW(x) report_debug("[VHS_system] " + x + "\n")
 #else
 # define DW(x)
 #endif

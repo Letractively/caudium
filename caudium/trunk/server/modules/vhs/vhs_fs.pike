@@ -37,7 +37,7 @@ constant thread_safe = 1;
 // #define VHFS_DEBUG 1
 
 #ifdef VHFS_DEBUG
-#define DW(x) werror("[VHS_fs] " + x + "\n")
+#define DW(x) report_debug("[VHS_fs] " + x + "\n")
 #else
 #define DW(x)
 #endif
