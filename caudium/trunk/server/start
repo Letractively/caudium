@@ -35,6 +35,9 @@ elif [ "$OSTYPE" = "FreeBSD" -a "$OSMAJOR" -ge 4 ]; then
 elif [ "$OSTYPE" = "Linux" -a "$OSMAJOR" -ge 2 -a "$OSMINOR" -ge 2 ]; then
   echo "Linux 2.2 or later detected, enabling threads if available."
   DEFINES="$DEFINES -DENABLE_THREADS"
+elfi [ "$OSTYPE" = "Darwin" ]; then
+  echo "Darwin or Mac OS X detected, enabling threads if available."
+  DEFINES="$DEFINES -DENABLE_THREADS"
 fi
 
 # Caudium will create files as the initial user,
