@@ -23,9 +23,9 @@
 
 //! This is the real Caudium version. It should be changed before each
 //! release
-constant __caudium_version__ = "1.4";
+constant __caudium_version__ = "1.5";
 constant __caudium_build__ = "0";
-constant __caudium_state_ver__ = "RC1";
+constant __caudium_state_ver__ = "DEVEL";
 
 //! any code may _append_ to this string - NEVER replace it!
 string __caudium_extra_ver__ = "";
