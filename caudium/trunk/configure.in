@@ -184,6 +184,9 @@ case "$UNAME" in
   OSF1\ V4.*)
     AC_DEFINE(USE_RPATH)
     ;;
+  HPUX\ 11.*)
+    AC_DEFINE(USE_PLUS_b)
+    ;;
   IRIX\ 6.*)
     AC_DEFINE(USE_RPATH)
     ;;
