@@ -9,6 +9,7 @@ private static constant errors=
   202:"202 Accepted",
   203:"203 Provisional Information",
   204:"204 No Content",
+  206:"206 Partial Content", // Byte ranges
   
   300:"300 Moved",
   301:"301 Permanent Relocation",
@@ -26,6 +27,7 @@ private static constant errors=
   408:"408 Request timeout",
   409:"409 Conflict",
   410:"410 This document is no more. It has gone to meet it's creator. It is gone. It will not be coming back. Give up. I promise. There is no such file or directory.",
+  416:"416 Requested range not statisfiable",
   
   500:"500 Internal Server Error.",
   501:"501 Not Implemented",
