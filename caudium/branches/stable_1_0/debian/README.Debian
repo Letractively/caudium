@@ -11,6 +11,9 @@ bit from its predecessor, Roxen.
    /usr/lib/pike7/PIKE_VER/modules directory.
    I'm sorry, but until the php4 packages in Debian contain Caudium
    support there's no other way to do it...
+   NOTE!! PHP4 doesn't work at all with Pike/Caudium on systems with
+          glibc 2.2.x (such as Debian woody, sid). You can use PHP4 only
+	  as CGI on such systems.
    
  - libroxen
    All the modules with names starting with libroxen- install themselves
@@ -29,4 +32,4 @@ bit from its predecessor, Roxen.
 
  $Id$
  
- -- Marek Habersack <grendel@vip.net.pl>, Tue, 15 Aug 2000 13:47:27 +0200
+ -- Marek Habersack <grendel@debian.org>, Tue, 15 Aug 2000 13:47:27 +0200

@@ -1,13 +1,13 @@
 Source: caudium
 Section: web
 Priority: optional
-Maintainer: Marek Habersack <grendel@vip.net.pl>
+Maintainer: Marek Habersack <grendel@debian.org>
 Standards-Version: 3.1.1
-Build-Depends:  pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf
+Build-Depends:  pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf (>= 0.2.26)
 
 Package: caudium
 Architecture: any
-Pre-Depends: debconf (>= 0.2.17), pike7 (= ${pikever})
+Pre-Depends: debconf (>= 0.2.26)
 Depends: ${shlibs:Depends}, caudium-modules (= ${Source-Version}), pike7-image (= ${pikever}), pike7-gz (= ${pikever}), pike7-crypto (= ${pikever}) | pike7-lobotomized-crypto (= ${pikever}), logrotate
 Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
 Recommends: caudium-pixsl, caudium-ultralog
