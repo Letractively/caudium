@@ -252,7 +252,7 @@ private mapping(string:string) doctypes = ([
 private string docstart = "%s\n<html><head><title>%s</title>%s%s</head><body>%s</body></html>";
 
 private string make_htmldoc_string(string contents, string title,void|mapping meta,
-                                   void|mapping style, string|void dtype)
+                                   void|mapping|string style, string|void dtype)
 {
     string doctype, smetas = "", sstyle = "";
     
@@ -283,13 +283,19 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
     // Construct the style definition
     //
     if (style && sizeof(style)) {
+      if (mappingp(style)) {
         array(string) styles = ({});
-        
+	
         foreach(indices(style), string idx)
-            styles += ({ idx + "{" + style[idx] + "}\n" });
+          styles += ({ idx + "{" + style[idx] + "}\n" });
 
         sstyle = sprintf("<style type='text/css'>%s</style>",
                          styles * " ");
+      } else if (stringp(style)) {
+        sstyle = sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\">",
+                         style);
+      } else
+        style = "";
     }
 
     return sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
@@ -323,7 +329,9 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
 //!   the style container put in the document head section. Every index in
 //!   the mapping is considered to be the classifier and its value the
 //!   style assigned to the given classifier. The style is put between
-//!   curly braces.
+//!   curly braces. If this parameter is a string, then instead of
+//!   generating the inline style, this function will create a link to the
+//!   URI specified in this parameter.
 //!
 //! @param dtype
 //!   Specifies the name of the document type definition. The following
@@ -332,7 +340,7 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
 //! @returns
 //!   The HTTP response mapping.
 mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
-                            void|mapping style, string|void dtype)
+                            void|mapping|string style, string|void dtype)
 {
     return http_string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
 }
