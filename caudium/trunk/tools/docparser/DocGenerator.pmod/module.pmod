@@ -131,10 +131,10 @@ class IndexGen
      *
      *  <entry type="file|module|symbol" name="name" file="path" />
      */
-    void entry(string type, string name, string path, object(Stdio.File) f)
+    void entry(object(Stdio.File) f ,string type, string name, string path, string|void title)
     {
-	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" />\n",
-	         type, name, path));
+	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s />\n",
+	         type, name, path, title ? "title=\"" + title + "\"" : ""));
     }
     
     /*
@@ -144,28 +144,29 @@ class IndexGen
     {
 	if (!ffile)
 	    open_files();
-	entry("file", name, path, ffile);
+	entry(ffile, "file", name, path);
     }
     
-    void module(string path, string name)
+    void module(string path, string name, string title)
     {
 	if (!mfile)
 	    open_files();
-	entry("module", name, path, mfile);
+	
+	entry(mfile, "module", name, path, title);
     }
     
     void file_symbol(string symbol, string path, string name)
     {
 	if (!ffile)
 	    open_files();
-	entry(symbol, name, path, ffile);
+	entry(ffile, symbol, name, path);
     }
     
     void module_symbol(string symbol, string path, string name)
     {
 	if (!mfile)
 	    open_files();
-	entry(symbol, name, path, mfile);
+	entry(mfile, symbol, name, path);
     }
 
     void create(string tdir)
@@ -808,7 +809,7 @@ class DocGen
                 break;
 
             case "Module":
-		index->module(fname, basename(fname));
+		index->module(fname, basename(fname), f->first_line);
                 do_module(tdir, f, ofile);
                 break;
         }
