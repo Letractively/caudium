@@ -1,5 +1,7 @@
 Changes in Caudium 1.0.xx since Caudium 1.0.52
 ----------------------------------------------
+- index.php and index.php3 now added in all directories modules.
+- Added support for RFC 3236 (XHTML media type)
 - Variable HTTPS is set to "on" when SSL is used. (compatibility variable      
   used for CGIs...) 
 
