@@ -34,7 +34,7 @@ mixed js_error(string pcamp,string error)
     out+="</body>\n";
     out+="</html>\n";
  
-    return Caudium.HTTP.string_answer(out,"text/html");
+    return http_string_answer(out,"text/html");
 }
 
 
@@ -194,7 +194,7 @@ mapping find_file( string f, object id ){
     in->write((string)mail);
     in->close();
 
-     return Caudium.HTTP.redirect( id->variables[query("VretURL")],id );
+     return http_redirect( id->variables[query("VretURL")],id );
 }
 
 string simpletag_mailform( string tag, mapping m,string cont, object got)
