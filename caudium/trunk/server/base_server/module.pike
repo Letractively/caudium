@@ -58,10 +58,10 @@ object this = this_object();
 //!   Non-RIS code
 string fix_cvs(string from)
 {
-  string cvs_author;
+  string cvs_info = "";
 
-  sscanf(from, "$Id$", cvs_author);
-  return cvs_author;
+  sscanf(from[1..], "Id: %*s,v %s Exp $", cvs_info);
+  return cvs_info;
 }
 
 //! Makes sure that all the modules required by the caller module are
