@@ -46,43 +46,83 @@ constant module_unique = 1;
 
 class ClientScope {
   inherit "scope";
-  void create() {
-    name = "client";
-  }
+  constant name = "client";
+
   array(string)|string get(string entity, object id) {
     mixed tmp;
+    mixed ret = -1;
     switch(entity) {
     case "authenticated":
       NOCACHE();
-      return (id->auth && id->auth[0] && id->auth[1]);
+      ret = (id->auth && id->auth[0] && id->auth[1]);
+      break;
     case "fullname":
       NOCACHE();
-      return id->useragent;
+      ret = id->useragent;
+      break;
     case "host":
       NOCACHE();
-      return caudium->quick_ip_to_host(id->remoteaddr);
+      ret = caudium->quick_ip_to_host(id->remoteaddr);
+      break;
     case "ip":
       NOCACHE();
-      return id->remoteaddr;
+      ret = id->remoteaddr;
+      break;
     case "name":
       NOCACHE();
-      if(id->useragent) return (id->useragent / " " - ({""}))[0];
-      return 0;
+      if(id->useragent) ret = (id->useragent / " " - ({""}))[0];
+      break;
     case "password":
       NOCACHE();
-      return id->rawauth && (sizeof(tmp = id->rawauth/":") > 1) && tmp[1];
+      ret = id->rawauth && (sizeof(tmp = id->rawauth/":") > 1) && tmp[1];
+      break;
     case "referrer":
       NOCACHE();
-      return id->referrer;
+      ret = id->referrer;
+      break;
     case "user":
-      return (id->rawauth  && (id->rawauth/":")[0]);
+      NOCACHE();
+      ret = (id->rawauth  && (id->rawauth/":")[0]);
+      break;
     }
-    return "<b>Invalid entity &amp;client."+entity+";.</b>";
+    if(ret == -1)
+      return "<b>Invalid entity &amp;client."+entity+";.</b>";
+    if(ret) return ({ ret });
+    return 0;
+  }
+}
+
+class CookieScope {
+  inherit "scope";
+  constant name = "cookie";
+
+  array(string)|string get(string entity, object id) {
+    return id->cookies[entity]; 
   }
 }
 
 
+class FormScope {
+  inherit "scope";
+  void create(string _name) {
+    name = _name;
+  }
+  int set(string entity, mixed value, object id) {
+    if(catch(id->variables[entity] = (string)value))
+      return 0;
+    return 1;
+  }
+  array(string)|string get(string entity, object id) {
+    return id->variables[entity]; 
+  }
+}
+
 array(object) query_scopes()
 {
-  return ({ ClientScope() });
+  return ({
+    ClientScope(),
+    CookieScope(),
+    FormScope("form"),
+    FormScope("var"),
+  });
 }

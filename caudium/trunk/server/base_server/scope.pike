@@ -30,9 +30,11 @@
 //!  The name of the entity.
 //! arg: mixed value
 //!  The value to set to the entity.
+//! arg: mixed ... args
+//!  Various extra arguments passed by the parser.
 //! returns:
 //!  0 for failure (ie read-only scope) and 1 for success.
-int set(string name, mixed value) {
+int set(string name, mixed value, mixed ... args) {
   return 0;
 }
 
