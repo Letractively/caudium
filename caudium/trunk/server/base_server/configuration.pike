@@ -213,6 +213,7 @@ class Priority
   array (object) last_modules = ({ });
   array (object) first_modules = ({ });
   array (object) precache_modules = ({ });
+  array (object) error_module = ({ }); 
   
   mapping (string:array(object)) extension_modules = ([ ]);
   mapping (string:array(object)) file_extension_modules = ([ ]);
@@ -221,14 +222,15 @@ class Priority
 
   void stop()
   {
-    foreach(url_modules, object m)         CATCH(m->stop && m->stop());
-    foreach(logger_modules, object m)      CATCH(m->stop && m->stop());
-    foreach(filter_modules, object m)      CATCH(m->stop && m->stop());
-    foreach(location_modules, object m)    CATCH(m->stop && m->stop());
-    foreach(last_modules, object m)        CATCH(m->stop && m->stop());
-    foreach(first_modules, object m)       CATCH(m->stop && m->stop());
-    foreach(precache_modules, object m)      CATCH(m->stop && m->stop());
+    foreach(url_modules, object m)               CATCH(m->stop && m->stop());
+    foreach(logger_modules, object m)            CATCH(m->stop && m->stop());
+    foreach(filter_modules, object m)            CATCH(m->stop && m->stop());
+    foreach(location_modules, object m)          CATCH(m->stop && m->stop());
+    foreach(last_modules, object m)              CATCH(m->stop && m->stop());
+    foreach(first_modules, object m)             CATCH(m->stop && m->stop());
+    foreach(precache_modules, object m)          CATCH(m->stop && m->stop());
     foreach(indices(provider_modules), object m) CATCH(m->stop && m->stop());
+    foreach(error_modules, object m)             CATCH(m->stop && m->stop());
   }
 }
 
@@ -381,7 +383,7 @@ public mapping (object:string) otomod = ([]);
 // Caches to speed up the handling of the module search.
 // They are all sorted in priority order, and created by the functions
 // below.
-private array (function) url_module_cache, last_module_cache;
+private array (function) url_module_cache, last_module_cache, error_module_cache;
 private array (function) logger_module_cache, first_module_cache;
 private array (function) filter_module_cache, precache_module_cache;
 private array (array (string|function)) location_module_cache;
@@ -600,6 +602,29 @@ array (function) last_modules(object id)
     }
   }
   return last_module_cache;
+}
+
+//! Used for error modules
+//!
+//! @note
+//!   Non RIS calls
+array (function) error_modules(object id)
+{
+  if(!error_module_cache)
+  {  
+    int i;
+    error_module_cache=({ });
+    for(i=9; i>=0; i--)
+    {
+      object p;
+      array(object) d;
+      if(d=pri[i]->error_modules)
+        foreach(d, p)
+          if(p->last_resort)
+            error_module_cache += ({ p->last_resort });
+    }  
+  } 
+  return error_module_cache;
 }
 
 //!
@@ -1200,6 +1225,7 @@ void invalidate_cache()
   extension_module_cache      = ([]);
   file_extension_module_cache = ([]);
   provider_module_cache = ([]);
+  error_module_cache = 0;
 #ifdef MODULE_LEVEL_SECURITY
   if(misc_cache)
     misc_cache = ([ ]);
@@ -2851,7 +2877,7 @@ object enable_module( string modname )
                       MODULE_FILE_EXTENSION | MODULE_LOGGER |
                       MODULE_URL | MODULE_LAST | MODULE_PROVIDER |
                       MODULE_FILTER | MODULE_PARSER | MODULE_FIRST |
-                      MODULE_PRECACHE))
+                      MODULE_PRECACHE | MODULE_ERROR))
   {
     me->defvar("_priority", 5, "Priority", TYPE_INT_LIST,
                "The priority of the module. 9 is highest and 0 is lowest."
@@ -3128,6 +3154,9 @@ object enable_module( string modname )
 
   if(module->type & MODULE_PRECACHE) 
     pri[pr]->precache_modules += ({ me });
+  
+  if(module->type & MODULE_ERROR)
+    pri[pr]->error_modules += ({ me });
   
   hooks_for(module->sname+"#"+id, me);
       
