@@ -54,7 +54,7 @@ inherit "socket";
 inherit "caudiumlib";
 
 #include <proxyauth.pike>
-#include <roxen.h>
+#include <caudium.h>
 
 program filep = Stdio.File;
 

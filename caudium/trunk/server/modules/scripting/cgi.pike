@@ -27,7 +27,7 @@
 # define UNIX 0
 #endif
 
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 inherit "module";
 inherit "caudiumlib";

@@ -20,7 +20,7 @@
  */
 
 // string cvs_version = "$Id$";
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 
 /* Set later on to something better in roxen.pike::main() */

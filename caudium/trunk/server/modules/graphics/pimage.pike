@@ -418,7 +418,7 @@ object compile(string c, object id)
   add_constant("__PRIVATE_TO_PIMAGE_Constructors", Constructors);
   string pre =
     "#include <config.h>\n"
-    "#include <roxen.h>\n"
+    "#include <caudium.h>\n"
     "inherit __PRIVATE_TO_PIMAGE_Constructors;\n"
     "void create(object i){ id=i; }\n"
     "\n";

@@ -36,7 +36,7 @@ object argcache;
 
 // Some headerfiles
 #define IN_ROXEN
-#include <roxen.h>
+#include <caudium.h>
 #include <config.h>
 #include <module.h>
 #include <variables.h>

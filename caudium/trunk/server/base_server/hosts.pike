@@ -20,7 +20,7 @@
  */
 
 // "$Id$";
-#include <roxen.h>
+#include <caudium.h>
 
 public mapping (string:array(mixed)) do_when_found=([]);
 object dns;

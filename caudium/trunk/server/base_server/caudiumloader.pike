@@ -41,7 +41,7 @@ constant cvs_version="$Id$";
 // Macro to throw errors
 #define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
 
-#include <roxen.h>
+#include <caudium.h>
 
 // The privs.pike program
 program Privs;

@@ -30,7 +30,7 @@ inherit "caudiumlib";
 mapping to_send;
 
 #include <stdio.h>
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 
 // #define SSL3_DEBUG

@@ -20,7 +20,7 @@
  */
 
 #include <module.h>
-#include <roxen.h>
+#include <caudium.h>
 // string cvs_version = "$Id$";
 
 int saved_uid;
