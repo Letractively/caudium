@@ -48,7 +48,7 @@ constant module_unique= 1;
 //! cvs_version: $Id$
 
 
-#define SWITCH_DEBUG
+//#define SWITCH_DEBUG
 #ifdef SWITCH_DEBUG
 #define LOG(X) perror("Switchmodule: "+X+"\n");
 #else
@@ -98,7 +98,7 @@ mapping first_try (object id)
      return http_low_answer(QUERY(return_code), parse_rxml(html,id));
   } 
   // if we do not support MSIE brain damage, then fail to normal way
-  return http_low_answer(QUERY(return_code), parser_rxml(html,id));
+  return http_low_answer(QUERY(return_code), parse_rxml(html,id));
 }
 
 void create()
@@ -120,7 +120,7 @@ void create()
 	  "even if the switch is turned on." );
 	  
   defvar ("docs_to_pass", ({"/_internal*","/internal*"}),
-          "Configuration: virtual files to allow anyways (globs)",
+          "Configuration: Virtual files to allow anyways (globs)",
           TYPE_STRING_LIST,
           "The (virtual) documents which match any of these will be allowed "
 	  "access even if the switch is turned on." );
@@ -128,7 +128,7 @@ void create()
   defvar ("errordoc","NONE/", "Configuration: Filename", TYPE_STRING,
           "The filename to use.");
 
-  defvar ("msie", 1, "Return a 200 to MSIE", TYPE_FLAG,
+  defvar ("msie", 1, "Configuration: Return a 200 to MSIE", TYPE_FLAG,
           "Returns a 200 response to Microsoft Internet Explorer browser "
           "instead of the defined return code.");
 }
@@ -155,7 +155,7 @@ void create()
 //! defvar: docs_to_pass
 //! The (virtual) documents which match any of these will be allowed access even if the switch is turned on.
 //!  type: TYPE_STRING_LIST
-//!  name: Configuration: virtual files to allow anyways (globs)
+//!  name: Configuration: Virtual files to allow anyways (globs)
 //
 //! defvar: errordoc
 //! The filename to use.
@@ -165,7 +165,7 @@ void create()
 //! defvar: msie
 //! Returns a 200 response to Microsoft Internet Explorer browser instead of the defined return code.
 //!  type: TYPE_FLAG
-//!  name: Return a 200 to MSIE
+//!  name: Configuration: Return a 200 to MSIE
 //
 
 /*
