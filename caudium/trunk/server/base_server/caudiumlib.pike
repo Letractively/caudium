@@ -683,11 +683,11 @@ constant international
 	"&odbacute;": "\x0151",
 	"&Odbacute;": "\x0150",
 	"&udbacute;": "\x0171",
-	"&udbacute;": "\x0170",
+	"&Udbacute;": "\x0170",
 	"&odblac;": "\x0151",
 	"&Odblac;": "\x0150",
 	"&udblac;": "\x0171",
-	"&udblac;": "\x0170",
+	"&Udblac;": "\x0170",
 
 ]);
 
