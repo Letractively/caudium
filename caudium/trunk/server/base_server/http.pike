@@ -436,7 +436,6 @@ string http_date(int t)
 {
     return Calendar.ISO_UTC.Second(t)->format_http();
 }
-#endif
 
 //!   HTTP encode the specified string and return it. This means replacing
 //!   the following characters to the %XX format: null (char 0), space, tab,
@@ -454,7 +453,6 @@ string http_encode_string(string f)
 	       "%3c", "%3e", "%40" }));
 }
 
-#if 0
 //!   HTTP decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
@@ -608,10 +606,10 @@ mapping http_redirect( string url, object|void id )
     }
   }
 #ifdef HTTP_DEBUG
-  perror("HTTP: Redirect -> "+http_encode_string(url)+"\n");
+  perror("HTTP: Redirect -> "+Caudium.http_encode_string(url)+"\n");
 #endif  
   return http_low_answer( 302, "") 
-    + ([ "extra_heads":([ "Location":http_encode_string( url ) ]) ]);
+    + ([ "extra_heads":([ "Location":Caudium.http_encode_string( url ) ]) ]);
 }
 
 //!   Returns a response mapping that tells Caudium that this request
