@@ -141,7 +141,7 @@ void precache_rewrite(object id)
     id->auth = 0;
     
     if (sizeof(y) >= 2) {
-      low_handle_authorization(y);
+      id->low_handle_authorization(y);
     }
   }
 
