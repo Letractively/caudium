@@ -668,6 +668,10 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 
+  /* test if len is >0 */
+  if (len < 0)
+    return (struct pike_string *)NULL;
+
   if (!str)
     return (struct pike_string *)NULL;
   
