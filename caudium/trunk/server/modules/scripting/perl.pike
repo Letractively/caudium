@@ -258,9 +258,20 @@ mixed tag_perl(string tag, mapping attr, string contents, object id)
   }
 }
 
+/* Processing instruction call method */
+string pi_perl(string tag, mixed ... args)
+{
+  return tag_pike(tag, ([]), @args);
+}
+
 mapping query_container_callers()
 {
   return ([ "perl": tag_perl ]);
+}
+
+mapping query_pi_callers()
+{
+  return ([ "?perl": pi_perl ]);
 }
 
 array(string) query_file_extensions()

@@ -52,7 +52,7 @@ it never requires it. For example you can still use unquoted arguments. ";
 constant module_unique = 1;
 
 mapping (string:object) scopes;
-mapping (string:mixed) tag_callers, container_callers;
+mapping (string:mixed) tag_callers, container_callers, pi_callers;
 int bytes;
 array (object) parse_modules = ({ });
 object(Parser.HTML) parse_object;
@@ -214,9 +214,9 @@ void parse_args(mapping args, object id, mixed ... extra) {
   }
   m_delete(id->misc, "_default_encoding");
 }
-string call_tag(object parser, mapping args,
-		object id, object file, mapping defines,
-		object client)
+
+mixed call_tag(object parser, mapping args, object id, object file,
+	       mapping defines, object client)
 {
   string tag = parser->tag_name();
   string|function rf;
@@ -249,8 +249,33 @@ string call_tag(object parser, mapping args,
   return result;
 }
 
-array(string)|string 
-call_container(object parser, mapping args, string contents,
+mixed call_pi_tag(object parser, string contents, object id, object file,
+	       mapping defines, object client)
+{
+  string tag = parser->tag_name();
+  string|function rf;
+  if(QUERY(case_insensitive_tag))
+    tag = lower_case(tag);
+  rf = pi_callers[tag];
+  id->misc->line = (string)parser->at_line();
+
+  if(stringp(rf)) return rf;
+
+  TRACE_ENTER("processing instruction &lt;?" + tag + " ?&gt;", rf);
+#ifdef MODULE_LEVEL_SECURITY
+  if(id->conf->check_security(rf, id, id->misc->seclevel))
+  {
+    TRACE_LEAVE("Access denied");
+    return 0;
+  }
+#endif
+
+  mixed result = rf(tag, contents, id, file, defines, client);
+  TRACE_LEAVE("");
+  return result;
+}
+
+mixed call_container(object parser, mapping args, string contents,
 	       object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
@@ -483,6 +508,7 @@ void build_callers()
    tag_callers = ([]);
    container_callers = ([]);
    scopes = ([]);
+   pi_callers = ([]);
 //   misc_cache = ([]);
 
    parse_modules -= ({0});
@@ -499,7 +525,6 @@ void build_callers()
 	 tag_callers += foo;
        }
      }
-     
      if(o->query_container_callers)
      {
        foo=o->query_container_callers();
@@ -509,6 +534,16 @@ void build_callers()
 	 container_callers += foo;
        }
      }
+     /* Processing Instructions <?name contents ?> */
+     if(o->query_pi_callers)
+     {
+       foo=o->query_pi_callers();
+       if(mappingp(foo)) {
+	 if(QUERY(case_insensitive_tag))
+	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
+	 pi_callers += foo;
+       }
+     }   
      if(o->query_scopes) {
        foo = o->query_scopes();
        if(arrayp(foo)) {
@@ -533,6 +568,9 @@ void build_callers()
    parse_object->add_containers(mkmapping(indices(container_callers),
 					  allocate(sizeof(container_callers),
 						   call_container)));
+   Array.map(indices(pi_callers), parse_object->add_quote_tag,
+	     call_pi_tag, "?");
+   
    parse_object->case_insensitive_tag(QUERY(case_insensitive_tag));
    parse_object->ignore_unknown(0);
    parse_object->xml_tag_syntax(QUERY(xml_conformance));
