@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 /*
  * $Id$
@@ -53,7 +52,7 @@ mapping specformat = ([
   "requesttime": "%d"
 ]);
 
-static constant prg_prefix = "inherit \"caudiumlib\"; inherit \"logformat_support.pike\";";
+static constant prg_prefix = "inherit \"caudiumlib14\"; inherit \"logformat_support.pike\";";
 
 //!
 string parse_log_format(string log_format) {
