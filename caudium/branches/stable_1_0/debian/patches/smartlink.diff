@@ -42,22 +42,6 @@ diff -U3 -r caudium-1.0.37.orig/tools/smartlink caudium-1.0.37/tools/smartlink
 diff -U3 -r caudium-1.0.37.orig/tools/smartlink.c caudium-1.0.37/tools/smartlink.c
 --- caudium-1.0.37.orig/tools/smartlink.c	Tue Feb 20 12:18:06 2001
 +++ caudium-1.0.37/tools/smartlink.c	Tue Nov 20 17:12:58 2001
-@@ -1,5 +1,5 @@
- /*
-- * $Id$
-+ * $Id$
-  *
-  * smartlink - A smarter linker.
-  * Based on the /bin/sh script smartlink 1.23.
-@@ -87,7 +87,7 @@
- 
-   if (!strcmp(argv[1], "-v")) {
-     fprintf(stdout,
--	    "$Id$\n"
-+	    "$Id$\n"
- 	    "Usage:\n"
- 	    "\t%s binary [args]\n",
- 	    argv[0]);
 @@ -180,10 +180,10 @@
  	if (!argv[i][2]) {
  	  i++;

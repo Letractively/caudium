@@ -36,7 +36,6 @@ configure-stamp:
 	# Add here commands to configure the package.
 	
 	if test ! -f stamp-patch; then \
-	    patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
 	    patch -p1 < debian/patches/smartlink.diff; \
 	    patch -p1 < debian/patches/configure.in.diff; \
 	    touch stamp-patch; \
