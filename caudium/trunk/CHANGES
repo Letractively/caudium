@@ -20,6 +20,8 @@ Changes in Caudium 1.0.X (CVS)
 - FTP renaming should now work with the restricted filesystem with
   home dir remapping enabled [bug #124035].
 - Some minor cosmetic changes with ports in the configuration interface.
+- Use Mhash.Hash and PCRE.Regexp from Pexts (when available) in most
+  situations where Crypto.md5/sha and Regexps are used.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
