@@ -197,49 +197,51 @@ void main(int argc, array argv)
     werror("Syntax: %s <configfile>\n", argv[0]);
     exit(1);
   }
-  object profs = Profile.Master(argv[1]);
-  maxsize = profs->maxsize;
-  foreach(profs->profiles, object profile) {
-    write("Processing %s\n", profile->name);
-    savedir = profile->savedir;
-    method = profile->method;
-    year = ([]); // mapping with time periods that needs to be cleared.
-    foreach(profile->files, object f) {
-      object fd;
-      int oldpos, pos = profile->pos[f->fname];
-      if(pos < 0) {
-	if(f->reload)
-	  pos = 0;
+  foreach(argv[1..], string configfile) {
+    object profs = Profile.Master(configfile);
+    maxsize = profs->maxsize;
+    foreach(profs->profiles, object profile) {
+      write("Processing %s\n", profile->name);
+      savedir = profile->savedir;
+      method = profile->method;
+      year = ([]); // mapping with time periods that needs to be cleared.
+      foreach(profile->files, object f) {
+	object fd;
+	int oldpos, pos = profile->pos[f->fname];
+	if(pos < 0) {
+	  if(f->reload)
+	    pos = 0;
+	  else
+	    continue;
+	}
+	if(!(fd = f->get_fd())) continue;
+	saved_lines = 0;
+	if(f->size > 0)
+	  length = f->size;
+	start = oldt = TIME();
+	write("    %s (%d)\n", f->fname, pos);
+	if(pos > 0)
+	{
+	  if(f->ispipe) {
+	    if(!f->seek(pos)) oldpos = pos;
+	    pos = 0;
+	  } else if(pos > length)
+	    pos = 0; /* file shorter than last saved position */
+	}
+	length /= 1024.0 * 1024.0; // filesize => MB
+	pos = UltraLog.ultraparse(f->format, status, daily, fd,
+				  profile->extensions, profile->noref, pos);
+	
+	if(f->restore == 1)
+	  profile->pos[f->fname] = pos+oldpos;
 	else
-	  continue;
+	  profile->pos[f->fname] = -1; // Ignore file in the future.
+	//      status(saved_lines,0,1);
+	profile->save(); 
+	destruct(fd);
       }
-      if(!(fd = f->get_fd())) continue;
-      saved_lines = 0;
-      if(f->size > 0)
-	length = f->size;
-      start = oldt = TIME();
-      write("    %s (%d)\n", f->fname, pos);
-      if(pos > 0)
-      {
-	if(f->ispipe) {
-	  if(!f->seek(pos)) oldpos = pos;
-	  pos = 0;
-	} else if(pos > length)
-	  pos = 0; /* file shorter than last saved position */
-      }
-      length /= 1024.0 * 1024.0; // filesize => MB
-      pos = UltraLog.ultraparse(f->format, status, daily, fd,
-				profile->extensions, profile->noref, pos);
-      
-      if(f->restore == 1)
-	profile->pos[f->fname] = pos+oldpos;
-      else
-	profile->pos[f->fname] = -1; // Ignore file in the future.
-      //      status(saved_lines,0,1);
-      profile->save(); 
-      destruct(fd);
+      profile->method->invalidate(year);
     }
-    profile->method->invalidate(year);
   }
   //werror("Parsed %d kbytes\n", pos/1024);
   exit(0);
