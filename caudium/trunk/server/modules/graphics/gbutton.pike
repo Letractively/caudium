@@ -581,19 +581,19 @@ static array mk_url(object id, mapping args, string contents)
      */
     mapping new_args = ([
         "pagebg": parse_color(args->pagebgcolor ||
-                              id->misc->defines->bgcolor ||
+                              (id->misc->defines ? id->misc->defines->bgcolor : 0) ||
                               args->bgcolor ||
                               "#eeeeee"),
         "bg": parse_color(args->bgcolor ||
-                          id->misc->defines->bgcolor ||
+                          (id->misc->defines ? id->misc->defines->bgcolor : 0) ||
                           "#eeeeee"),
         "txt": parse_color(args->textcolor ||
-                           id->misc->defines->fgcolor ||
+                           (id->misc->defines ? id->misc->defines->fgcolor : 0) ||
                            "#000000"),
         "al": args->align || "left",
         "ica": lower_case(args->align_icon || "left"),
         "icva": lower_case(args->valign_icon || "middle"),
-        "font": (args->font || id->misc->defines->font || caudium->query("default_font")),
+        "font": (args->font || (id->misc->defines ? id->misc->defines->font : 0) || caudium->query("default_font")),
         "format": args->format || "gif",
     ]);
 
