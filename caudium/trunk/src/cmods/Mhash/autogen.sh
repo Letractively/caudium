@@ -1,4 +1,4 @@
 #!/bin/sh
 
 autoheader
-autoconf -B $1
+autoconf --include=$1
