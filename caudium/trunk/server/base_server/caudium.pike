@@ -37,6 +37,7 @@ object storage_manager;
 object snmp_agent;
 
 #define FLUSH_MODULES cache_manager->get_cache()->flush("^modules\:\/\/")
+#define ISIP(H,CODE) do {mixed entry;if(sizeof(entry = H / "." ) == 4){int isip = 1;foreach(entry, string s)if((string)((int)s) != s)isip = 0;if(isip) {CODE;};}}while(0)
 
 // Some headerfiles
 #define IN_ROXEN
@@ -340,6 +341,8 @@ mapping shutdown()
 // non-RIS
 static void create_snmp_agent()
 {
+  if(snmp_agent)
+    snmp_agent=0;
   if (GLOBVAR(snmp_enable)) {
     report_notice("Starting SNMP agent.\n");
     snmp_agent=((program)"snmp_agent")(caudium);
@@ -350,7 +353,7 @@ static void create_snmp_agent()
 static void send_trap(string trapname)
 {
   // is snmp enabled and do we have trap recipients?
-  if (GLOBVAR(snmp_enable) && GLOBVAR(snmp_trap_recipients))
+  if (GLOBVAR(snmp_enable) && GLOBVAR(snmp_trap_recipients)!="")
   {
     if(snmp_agent)
     {
@@ -2343,6 +2346,9 @@ private void define_global_variables(int argc, array (string) argv)
         "started as super user to start the listener on a port less than "
         "1024. Also, you may only have one listener on a given port.");
 
+  globvar("snmp_address", "", "SNMP Agent: Listen Address", TYPE_STRING,
+	"The IP address to start the SNMP listener on.");
+
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
           "If set to Yes, the server will enable the global JavaScript support. "
           "To take full advantage of it you will still have to add the "
@@ -3447,7 +3453,6 @@ int main(int argc, array(string) argv)
   add_constant("write", perror);
 
   report_notice("Starting Caudium\n");
-  send_trap("server_startup");
 
 #ifdef FD_DEBUG  
   mark_fd(0, "Stdin");
@@ -3550,6 +3555,7 @@ int main(int argc, array(string) argv)
 
   // start the snmp agent, if enabled.
   create_snmp_agent();
+  send_trap("server_startup");
 
   // Signals which cause a restart (exitcode != 0)
   foreach(({ "SIGINT" }), string sig) {
@@ -3605,6 +3611,22 @@ string check_variable(string name, mixed value)
            !(sscanf(value,"%*s://%*s/")==2))
           return "The URL should follow this format: protocol://computer[:port]/";
         break;
+
+      case "snmp_enable":
+      case "snmp_get_community":
+      case "snmp_set_community":
+      case "snmp_trap_community":
+      case "snmp_trap_recipients":
+      case "snmp_port":
+         call_out(create_snmp_agent, 5);
+         break;
+      case "snmp_address":
+         int ok;
+         ISIP(value, ok=1);
+         if(!ok)
+            return "You must provide a valid IP address.";
+         call_out(create_snmp_agent, 5);
+         break;
 
       case "abs_engage":
         if (value)

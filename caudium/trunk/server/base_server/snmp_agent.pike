@@ -53,10 +53,20 @@ object caudium;
 //!    The Caudium Configuration Object.
 void create(object c)
 {
-  caudium=c;
+  mixed err;
 
-  report_error("snmp agent starting on port " + (int)(GLOBVAR(snmp_port)) + "\n");
-  mixed err=catch(agent=Protocols.SNMP.agent((int)(GLOBVAR(snmp_port))));
+  caudium=c;
+  if(!GLOBVAR(snmp_address))
+  {
+    report_error("snmp agent starting on port " + (int)(GLOBVAR(snmp_port)) + "\n");
+    err=catch(agent=Protocols.SNMP.agent((int)(GLOBVAR(snmp_port))));
+  }
+  else // we have specified an address to bind to
+  {
+    report_error("snmp agent starting on " + GLOBVAR(snmp_address) + 
+      " port " + (int)(GLOBVAR(snmp_port)) + "\n");
+    err=catch(agent=Protocols.SNMP.agent((int)(GLOBVAR(snmp_port)), GLOBVAR(snmp_address)));
+  }
   if(err)
   {
     report_error("Unable to start SNMP agent: " + err[0] + "\n");
@@ -136,8 +146,8 @@ void send_trap(string trapname, array trap_recipients, string trap_community, mi
 
   foreach(trap_recipients, string recip)
   {
-    a->trap(varlist, oid, type, spectype, 
-       (time()-caudium->start_time)*100), 0, recip);
+    agent->trap(varlist, oid, type, spectype, 
+       ((time()-caudium->start_time)*100), 0, recip);
   }
 }
 
