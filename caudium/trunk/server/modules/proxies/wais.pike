@@ -29,6 +29,12 @@ string cvs_version = "$Id$";
 
 #include <config.h>
 
+constant module_type = MODULE_LOCATION | MODULE_PROXY;
+constant module_name = "Wais Gateway";
+constant module_doc  = "This is a caching wais gateway, useful for firewall sites."
+      " It has not been maintained for quite a while, but it works";
+constant module_unique = 1;
+
 #define DEF_CONNECTION_REFUSED "HTTP/1.0 500 Connection refused by remote host\r\nContent-type: text/html\r\n\r\n<title>Roxen error: Connection refused</title>\n<h1>Proxy request failed</h1><hr><font size=+2><i>Connection refused by remote host</i></font><hr><font size=-2><a href=http://www.roxen.com/>Roxen</a></font>"
 #define CONNECTION_REFUSED   QUERY(ConnRefuse)
 

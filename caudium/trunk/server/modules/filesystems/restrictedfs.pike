@@ -38,6 +38,13 @@ constant cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Restricted filesystem";
+constant module_doc  = "This is a restricted filesystem, use it to make users home "
+	      "directories available to them if they login.<br>\n"
+	      "Usable for eg ftp-servers.";
+constant module_unique = 0;
+
 // import Array;
 
 mixed *register_module()

@@ -65,6 +65,11 @@ string cvs_version = "$Id$";
 
 import Stdio;
 
+constant module_type = MODULE_PROXY | MODULE_LOCATION;
+constant module_name = "FTP gateway";
+constant module_doc  = "FTP gateway, not currently caching";
+constant module_unique = 0;
+
 #if DEBUG_LEVEL > 21
 # ifndef PROXY_DEBUG
 #  define PROXY_DEBUG

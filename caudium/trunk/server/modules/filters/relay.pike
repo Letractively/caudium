@@ -35,6 +35,17 @@ inherit "module";
 inherit "caudiumlib";
 inherit "socket";
 
+constant module_type = MODULE_LAST | MODULE_FIRST;
+constant module_name = "HTTP-Relay";
+constant module_doc  = "Relays HTTP requests from this server to another one. <p>"
+      "Like the redirect module, but transparent to the user. This module "
+      "will connect to another server, and get the data from there, and "
+      "then return the new data to the user.  The same results can be "
+      "achieved using the proxy and the redirect module.  With "
+      "caching. This module is therefore quite obsolete, really.  But "
+      "since it is so small, I have left it here. ";
+constant module_unique = 0;
+
 #define CONN_REFUSED "\
 HTTP/1.0 503 Service Unavailable\r\n\
 Content-type: text/html\r\n\

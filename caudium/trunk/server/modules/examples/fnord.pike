@@ -77,6 +77,13 @@ inherit "module";
 // Michael A. Patton <map@bbn.com>
 
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Fnord!";
+constant module_doc  = "Adds an extra container tag, 'fnord' that's supposed to make "
+	     "things invisible unless the \"fnord\" prestate is present."
+	      "<p>This module is here as an example of how to write a "
+	      "very simple RXML-parsing module.";
+constant module_unique = 1;
 
 array register_module();
 

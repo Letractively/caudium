@@ -30,6 +30,13 @@ constant thread_safe = 1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_FIRST;
+constant module_name = "Redirect Module v2.0";
+constant module_doc  = "The redirect module. Redirects requests from one filename to "
+	      "another. This can be done using \"internal\" redirects (much"
+	      " like a symbolik link in unix), or with normal HTTP redirects.";
+constant module_unique = 1;
+
 private int redirs = 0;
 
 void create()

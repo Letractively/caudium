@@ -24,6 +24,10 @@
 inherit "caudiumlib";
 inherit "module";
 
+constant module_type = MODULE_LOCATION | MODULE_PARSER;
+constant module_name = "Roxen image manipulation tag";
+constant module_doc  = "Layer base image manipulation tag with plugins";
+
 /*  ------------------------------------------- MODULE GLUE */
 void create(object c)
 {

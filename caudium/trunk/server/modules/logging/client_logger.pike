@@ -29,6 +29,14 @@ constant thread_safe=1;
 #include <module.h>
 inherit "module";
 
+constant module_type = MODULE_LOGGER;
+constant module_name = "Client logger";
+constant module_doc  = "This is a client logger. It simply logs the 'user-agent'"
+	      " field in a log somewhere, the format should be compatible "
+	      "with other client loggers out there, making it somewhat useful"
+	      ". It is also possible to add the clientname to the normal log,"
+	      " this saves a file descriptor, but breaks some log analyzers. ";
+constant module_unique = 0;
 
 array register_module()
 {

@@ -25,6 +25,23 @@ inherit "module";
 constant cvs_version="$Id$";
 constant thread_safe=1;
 
+constant module_type = MODULE_FIRST;
+constant module_name = "Automatic sending of compressed files";
+constant module_doc  = "This module implements a suggestion by Francesco Chemolli:<br>\n"
+      "The modified filesystem should do\n"
+      "about this:<br>\n"
+      "-check if the browser supports on-the-fly decompression<br>\n"
+      "-check if a precompressed file already exists.<BR>\n"
+      "-if so, send a redirection to the precompressed file<p>\n"
+      "\n"
+      "So, no cost for compression, all URLs, content-types and such would "
+      "remain vaild, no compression overhead and should be really simple "
+      "to implement. Also, it would allow a site mantainer to "
+      "choose WHAT to precompress and what not to.<p>"
+      "This module acts as a filter, and it _will_ use one extra stat "
+      "per access from browsers that support automatic decompression.";
+constant module_unique = 1;
+
 mixed *register_module()
 {
   return ({ 

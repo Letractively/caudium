@@ -35,6 +35,20 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Indirect href";
+constant module_doc  = "Indirect href. Adds a new container <tt>&lt;ai&gt;</tt>"
+	    ", with a single argument, "
+	    "name=string. It then uses the name to index a database of "
+	    "URLs, and inserts a &lt;a href=...&gt; tag instead. This can "
+	    "be very useful, since you can move all links to a document at "
+	    "once. It also allows the special case 'name=random'. If this "
+	    "is used, a random link will be selected from the database. "
+	    "Example:<pre>"
+	    "   roxen=http://www.roxen.com/\n"
+	    "   idonex=http://www.idonex.se/</pre>";
+constant module_unique = 0;
+
 mapping hrefs;
 string tagname;
 

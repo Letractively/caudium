@@ -46,6 +46,15 @@ inherit "caudiumlib";
 
 constant language = caudium->language;
 
+constant module_type = MODULE_FILE_EXTENSION | MODULE_PARSER | MODULE_MAIN_PARSER;
+constant module_name = "Main RXML parser";
+constant module_doc  = "This module makes it possible for other modules to add "
+	     "new tags to the RXML parsing, in addition to the "
+	     "default ones.  The default error message (no such resource) "
+	     "use this parser, so if you do not want it, you will also "
+	     "have to change the error message.";
+constant module_unique = 1;
+
 int cnum=0;
 mapping fton=([]);
 array (mapping) tag_callers, container_callers;

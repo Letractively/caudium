@@ -39,6 +39,16 @@ inherit "caudiumlib";
 #include <module.h>
 #include <config.h>
 
+constant module_type = MODULE_FILE_EXTENSION;
+constant module_name = "Pike script support";
+constant module_doc  = "Support for user Pike-scripts, like CGI, but handled internally in the"
+    " server, and thus much faster, but blocking, and less secure.\n"
+    "<br><img src=/image/err_2.gif align=left alt=\"\">"
+    "NOTE: This module should not be enabled if you allow anonymous PUT!<br>\n"
+    "NOTE: Enabling this module is the same thing as letting your users run"
+    " programs with the same right as the server!";
+constant module_unique = 0;
+
 #if constant(_static_modules) && efun(thread_create)
 constant Mutex=__builtin.mutex;
 #endif /* _static_modules */

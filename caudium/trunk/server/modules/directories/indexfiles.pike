@@ -31,6 +31,15 @@ inherit "module";
 inherit "caudiumlib";
 
 //************** Generic module stuff ***************
+constant module_type = MODULE_DIRECTORIES;
+constant module_name = "Index files only";
+constant module_doc  = "Index files only module, a directory module that will not try "
+	      "to generate any directory listings, instead only using the  "
+	      "specified index files.<p>"
+	      "You can use this directory module if you do not want "
+	      "any automatic directory listings at all, but still want \n"
+	      "to use index.html with friends";
+constant module_unique = 1;
 
 array register_module()
 {

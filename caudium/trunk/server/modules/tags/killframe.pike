@@ -40,6 +40,18 @@ constant thread_safe=1;
 #include <module.h>
 inherit "module";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Killframe tag";
+constant module_doc  = "Makes pages frameproof."
+     "<br>This module defines a tag,"
+     "<pre>"
+     "&lt;killframe&gt;: Adds some java script that will prevent others\n"
+     "             from putting your page in a frame.\n\n"
+     "             Will also strip any occurrences of 'indexfiles'\n"
+     "             from the end of the URL."
+     "</pre>";
+constant module_unique = 1;
+
 void create()
 {
   defvar( "killindex", 1, "Kill trailing 'indexfiles'?", TYPE_FLAG|VAR_MORE,

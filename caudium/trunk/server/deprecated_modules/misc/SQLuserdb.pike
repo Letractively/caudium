@@ -38,6 +38,14 @@ string cvs_version="$Id$";
 inherit "caudiumlib";
 inherit "module";
 
+constant module_type = MODULE_AUTH;
+constant module_name = "SQL user database";
+constant module_doc  = "This module implements user authentication via a SQL server.<p>\n "
+	"For setup instruction, see the comments at the beginning of the module "
+	"code.<P>"
+	"&copy; 1997 Francesco Chemolli, distributed freely under GPL license.";
+constant module_unique = 1;
+
 #ifdef SQLAUTHDEBUG
 #define DEBUGLOG(X) perror("SQLuserdb: "+X+"\n");
 #else

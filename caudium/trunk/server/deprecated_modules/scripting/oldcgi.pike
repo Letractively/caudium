@@ -38,6 +38,15 @@ inherit "caudiumlib";
 //#define CGI_DEBUG
 // #define CGI_WRAPPER_DEBUG
 
+constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
+constant module_name = "CGI executable support";
+constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
+      "interface.html\">CGI/1.1 interface</a>, and more. It is too bad "
+      "that the CGI specification is a moving target, it is hard to "
+      "implement a fully compatible copy of it.";
+constant module_unique = 0
+constant module_obsolete = 1;
+
 import Simulate;
 
 static mapping env=([]);

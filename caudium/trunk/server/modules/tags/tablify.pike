@@ -31,6 +31,12 @@ constant thread_safe=1;
 inherit "module";
 inherit "wizard";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Tablify";
+constant module_doc  = "This tag generates tables.<p>"
+    "<tt>&lt;tablify help&gt;&lt;/tablify&gt;</tt> gives help.\n\n<p>"+doc();
+constant module_unique = 1;
+
 static private int loaded;
 
 static private constant old_doc =

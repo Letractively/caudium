@@ -33,6 +33,12 @@ inherit "caudiumlib";
 
 // import Stdio;
 
+constant module_type = MODULE_FILE_EXTENSION;
+constant module_name = "ISMAP image-maps";
+constant module_doc  = "Internal support for server side image-maps, including a quite "
+	      "odd color-per-url imagemap method";
+constant module_unique = 1;
+
 void create()
 {
   defvar("extension", "map", "Mapfile extension", TYPE_STRING,

@@ -43,6 +43,11 @@ import Array;
 #include <array.h>
 #endif
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "CVS File system";
+constant module_doc  = "Accessing files under CVS control.";
+constant module_unique = 0;
+
 // #define CVSFS_DEBUG
 
 string cvs_module_path = 0; /* Path in CVS repository */

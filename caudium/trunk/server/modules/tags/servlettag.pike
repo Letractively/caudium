@@ -30,6 +30,20 @@ inherit "caudiumlib";
 inherit "module";
 #include <module.h>;
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Java Servlet tag";
+constant module_doc  = "This module adds a new tag, &lt;servlet&gt;&lt;/pike&gt;. It makes"
+	    " it possible to use Java Servlets directly in RXML."
+	    "NOTE: This module should not be enabled if you allow anonymous"
+	    " PUT!<br>\n"
+	    "NOTE: Enabling this module is the same thing as letting your"
+	    " users run programs with the same right as the server!"
+	    "<p>Example:<p><pre>"
+	    " &lt;servlet code=MyLittleServlet initparam_foo=bar&gt;\n "
+	    "   <param name=\"foo\" value=\"bar\">"
+	    " &lt;/servlet&gt;\n</pre>";
+constant module_unique = 1;
+
 array register_module()
 {
   return ({ MODULE_PARSER,

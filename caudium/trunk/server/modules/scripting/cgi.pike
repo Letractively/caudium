@@ -34,6 +34,12 @@ inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
 
+constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER;
+constant module_name = "CGI executable support";
+constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
+    "interface.html\">CGI/1.1 interface</a>, and more.";
+constant module_unique = 0;
+
 class Shuffle
 {
   string buffer;

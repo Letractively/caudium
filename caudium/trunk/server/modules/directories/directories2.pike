@@ -41,6 +41,17 @@ inherit "caudiumlib";
 
 import Array;
 
+constant module_type = MODULE_DIRECTORIES | MODULE_PARSER;
+constant module_name = "Enhanced directory listings";
+constant module_doc  = "This module is an experimental directory parsing module. "
+	      "It pretty prints a list of files much like the ordinary "
+	      "directory parsing module. "
+	      "The difference is that this one uses the flik-module "
+	      "for the fold/unfolding, and uses relative URL's with "
+	      "the help of some new tags: "
+	      "&lt;REL&gt;, &lt;AREL&gt; and &lt;INSERT-QUOTED&gt;.";
+constant module_unique = 1;
+
 void start( int num, object conf )
 {
   module_dependencies (conf, ({ "flik", "htmlparse" }));

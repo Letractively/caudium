@@ -31,6 +31,13 @@ constant thread_safe=1;
 #include <module.h>
 inherit "module";
 
+constant module_type = MODULE_TYPES;
+constant module_name = "Content types";
+constant module_doc  = "This module handles all normal extension to "+
+	     "content type mapping. Given the file 'foo.html', it will "+
+	     "normally set the content type to 'text/html'.";
+constant module_unique = 1;
+
 mapping (string:string) extensions=([]), encodings=([]);
 mapping  (string:int) accessed=([]);
 

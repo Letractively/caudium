@@ -26,6 +26,11 @@ constant cvs_version="$Id$";
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_PARSER; 
+constant module_name = "Countdown";
+constant module_doc  = "This module adds a new tag, when enabled, see "
+	    "&lt;countdown help&gt; for usage information.";
+constant module_unique = 1;
 class Date 
 {
   int unix_time;

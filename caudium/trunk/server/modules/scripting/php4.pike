@@ -36,6 +36,14 @@ inherit "caudiumlib";
 constant cvs_version="$Id$";
 constant thread_safe=1;
 
+constant module_type = MODULE_FILE_EXTENSION;
+constant module_name = "PHP Script Support";
+constant module_doc  = "This module allows Caudium users to run PHP scripts, "
+    "optionally with RXML post-parsing. See <a href=\"http://"
+    "www.php.net/\">www.php.net</a> for further information about "
+    "PHP.";
+constant module_unique = 0;
+
 array register_module()
 {
   return 

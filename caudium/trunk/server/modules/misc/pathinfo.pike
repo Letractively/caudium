@@ -36,6 +36,11 @@ constant thread_safe = 1;
 
 // #define PATHINFO_DEBUG
 
+constant module_type = MODULE_LAST;
+constant module_name = "PATH_INFO support";
+constant module_doc  = "Support for PATH_INFO style URLs.";
+constant module_unique = 1;
+
 array register_module()
 {
   return ({ MODULE_LAST, "PATH_INFO support",

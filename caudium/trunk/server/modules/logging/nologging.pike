@@ -30,6 +30,12 @@ constant thread_safe=1;
 #include <module.h>
 inherit "module";
 
+constant module_type = MODULE_LOGGER;
+constant module_name = "Logging disabler";
+constant module_doc  = "This module can be used to turn off logging for some files. "
+	      "It is based on Regular expressions";
+constant module_unique = 0;
+
 array register_module()
 {
   return ({ MODULE_LOGGER,

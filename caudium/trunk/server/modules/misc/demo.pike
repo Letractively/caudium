@@ -28,6 +28,11 @@ inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Demo module";
+constant module_doc  = "This module makes it possible to develop, RXML code interactively.";
+constant module_unique = 0;
+
 void create()
 {
   defvar("location", "/demo/", "Mount point", TYPE_LOCATION, 

@@ -30,6 +30,12 @@ inherit "module";
 inherit "caudiumlib";
 static inherit "http";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Java Servlet bridge";
+constant module_doc  = "An interface to Java <a href=\"http://jserv.javasoft.com/"
+    "products/java-server/servlets/index.html\">Servlets</a>.";
+constant module_unique = 0;
+
 /* Doesn't work on NT yet */
 #ifndef __NT__
 #if constant(Java)
