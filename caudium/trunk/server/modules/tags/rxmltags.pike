@@ -1129,7 +1129,10 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 
     f = Caudium.fix_relative(m->file, id);
     id = id->clone_me();
-    if(m->nocache) id->pragma["no-cache"] = 1;
+    if(m->nocache) {
+      id->pragma["no-cache"] = 1;
+      NOCACHE();
+    }
 
     if(sscanf(m->file, "%*s?%s", s) == 2) {
       mapping oldvars = id->variables;
