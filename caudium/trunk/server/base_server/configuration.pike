@@ -973,14 +973,17 @@ int|mapping check_security(function a, object id, void|int slevel)
   //     0  Unknown state -- No such restriction encountered yet.
   //     1  May be bad -- Restriction encountered, and test failed.
   //    ~0  OK -- Test passed.
-
-  if(!(seclevels = misc_cache[ a ]))
+  
+  if(!(seclevels = misc_cache[ a ])) {
+    int seclvl;
+    mixed secgroup;
+    catch { seclvl = function_object(a)->query("_seclvl"); };
+    catch { secgroup = function_object(a)->query("_sec_group"); };
     misc_cache[ a ] = seclevels = ({
       function_object(a)->query_seclevels(),
-      function_object(a)->query("_seclvl"),
-      function_object(a)->query("_sec_group")
+      seclvl, secgroup
     });
-
+  }
   if (sizeof(seclevels[0]) && seclevels[0][0] != MOD_USER_SECLEVEL)
     if(slevel && (seclevels[1] > slevel)) // "Trustlevel" to low.
 	return 1;
