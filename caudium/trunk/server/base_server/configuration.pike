@@ -2287,7 +2287,7 @@ static string make_proto_name(string p)
 {
     // Note these are only the protocols that
     // Caudium can directly use
-    multiset(string) known_protos = (<"http", "ftp", "tetris", "https", "smtp", "pop3", "pop2">);
+    multiset(string) known_protos = (<"http", "ftp", "tetris", "https">);
 	  
     if (known_protos[p])
 	return p;
@@ -3356,8 +3356,9 @@ string desc()
   
   foreach(QUERY(Ports), port)
   {
-    string prt;
+    string prt, prtfile;
     
+    prtfile = port[1] + "://";
     switch(port[1][0..2])
     {
     case "ssl":
@@ -3370,20 +3371,24 @@ string desc()
     default:
       prt = make_proto_name(port[1])+"://";
     }
-    if(port[2] && port[2]!="ANY")
+    
+    if(port[2] && port[2]!="ANY") {
       prt += port[2];
-    else
+      prtfile += port[2];
+    } else {
 #if efun(gethostname)
       prt += (gethostname()/".")[0] + "." + QUERY(Domain);
+      prtfile = prt;
+    }
 #else
     ;
 #endif
     prt += ":"+port[0]+"/";
     if(port_open( port ))
-      res += "<font color=darkblue><b>Open:</b></font> <a target=server_view href=\""+prt+"\">"+prt+"</a> \n<br>";
+      res += "<font color=darkblue><b>Open:</b></font> <a target=server_view href=\""+prt+"\">"+prtfile+"</a> \n<br>";
     else
       res += "<font color=red><b>Not open:</b> <a target=server_view href=\""+
-	prt+"\">"+prt+"</a></font> <br>\n";
+	prt+"\">"+prtfile+"</a></font> <br>\n";
   }
   return (res+"<font color=darkgreen>Server URL:</font> <a target=server_view "
 	  "href=\""+query("MyWorldLocation")+"\">"+query("MyWorldLocation")+"</a><p>");
@@ -3394,7 +3399,7 @@ string desc()
 
 mapping(string:string) sql_urls = ([]);
 
-mapping(string|object:object) sql_cache = ([]);
+mapping sql_cache = ([]);
 
 object sql_cache_get(string what)
 {
@@ -3402,23 +3407,13 @@ object sql_cache_get(string what)
 #if !constant(this_thread)
   return Sql.sql( what );
 #else
-  string key;
-#if defined(__MAJOR__) && __MAJOR__ >= 7 
-  // Reports has come in that this_thread() might return different
-  // objects even if the thread is the same. We avoid this problem by using
-  // the textual representation which includes the thread id. Only works
-  // in Pike 7.0 where _sprintf is supported.
-  key = sprintf("%O\n", this_thread());
-#else
-  key = this_thread();
-#endif
-  if(sql_cache[what] && sql_cache[what][key])
-    return sql_cache[what][key];
+  if(sql_cache[what] && sql_cache[what][this_thread()])
+    return sql_cache[what][this_thread()];
   if(!sql_cache[what])
-    sql_cache[what] =  ([ key:Sql.sql( what ) ]);
+    sql_cache[what] =  ([ this_thread():Sql.sql( what ) ]);
   else
-    sql_cache[what][ key ] = Sql.sql( what );
-  return sql_cache[what][ key ];
+    sql_cache[what][ this_thread() ] = Sql.sql( what );
+  return sql_cache[what][ this_thread() ];
 #endif   /* !this_thread */
 #else /* !THREADS */
   if(!sql_cache[what])
