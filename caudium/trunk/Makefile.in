@@ -231,34 +231,6 @@ bump_version: bump_version.stamp
 	  echo Deleting old $(SRCDIR)/server/base_server/caudium.pike.new...; \
 	  rm $(SRCDIR)/server/base_server/caudium.pike.new || exit 1; \
 	else : ; fi
-# Do not update the source.
-#	@(cd $(SRCDIR); \
-#	  echo Updating sources...; \
-#	  if cvs -q update -d|egrep '^[CM?]'; then exit 1; else : ; fi; \
-#	)
-# Do not update the Pike build for every Caudium build. Irritates people.
-#	@for d in $(SRCDIR)/pike/0.5 $(SRCDIR)/pike/0.6; do \
-#	  if test -f $$d/src/version.c; then \
-#	    (cd $$d/; \
-#	      echo Bumping Pike version in directory $$d...; \
-#	      build=`sed <src/version.c -e'/push_text/s/.* \([0-9]*\).*/\1/p' -ed|head -1`; \
-#	      newbuild=`echo $$build 1+p|dc`; \
-#	      sed <src/version.c -e"/push_text/s/ $$build/ $$newbuild/" >src/version.c.new; \
-#	      checkbuild=`sed <src/version.c.new -e'/push_text/s/.* \([0-9]*\).*/\1/p' -ed|head -1`; \
-#	      if test "x$$newbuild" = "x$$checkbuild"; then \
-#		mv -f src/version.c.new src/version.c || exit 1; \
-#		echo "Successfull bump to build $$newbuild."; \
-#	      else \
-#		echo "Version bump failed: $$newbuild != $$checkbuild."; \
-#		exit 1; \
-#	      fi; \
-#	      cvs ci -m "Pike release bumped to $$newbuild by bump_version." src/version.c || exit 1; \
-#	      echo "Tagging Pike in $$d..."; \
-#	      cvs tag `sed <src/version.c -e '/push_text/s/.*"\(.*\)".*/\1/p' -ed|tr 'A-Z. ' 'a-z__'|head -1`||exit 1; \
-#	      echo Done with $$d.); \
-#	  else :; fi; \
-#	done
-#end pike version bump
 	@(cd $(SRCDIR)/server/base_server; \
 	  echo Bumping Caudium version...; \
 	  build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
@@ -303,28 +275,19 @@ force_update: force
 	@echo Prepared for version update.
 
 pre_dist: bump_version
-	-@$(MAKE) depend
-	-@$(MAKE) new_peep_engine
-	-@$(MAKE) run_autoconfig
 #	@(cd pike; $(MAKE) pre_dist)
 
 same_pre_dist: same_version
-	-@$(MAKE) depend
-	-@$(MAKE) new_peep_engine
-	-@$(MAKE) run_autoconfig
 
 faked_pre_dist:
-	echo "Caudium 1.3.test_build" > $(SRCDIR)/VERSION
-	-@$(MAKE) depend
-	-@$(MAKE) new_peep_engine
-	-@$(MAKE) run_autoconfig
+	echo "Caudium 1.0-test" > $(SRCDIR)/VERSION
 
 copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	@if test -f $(SRCDIR)/VERSION; then :; else \
 	  echo 'You need to make pre_dist first!'; \
 	  exit 1; \
 	fi
-	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z_'`; \
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
 	if ls -d $$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
@@ -338,102 +301,12 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	  `find $$version/. -type f -name '#*#' -print`; do \
 	  echo $$f; rm $$f || exit 1; \
 	done; \
-	for d in \
-	  $$version/pike/0.6/about_pike $$version/pike/0.6/doc; do \
-	  if test -d $$d/. ; then \
-	    echo Removing $$d...; rm -rf $$d || exit 1; \
-	  else :; fi; \
-	done; \
-	echo "Zapping absolute paths in language.c..."; \
-	for f in $$version/pike/*/src/language.c; do \
-	  if test -f "$$f"; then \
-	    echo "Fixing $$f.."; \
-	    sed <"$$f" >"$$f.fix" -e '/^#line/s!/.*/\(language\.yacc\)!\1!' && \
-	      mv "$$f.fix" "$$f"; \
-	  else :; fi; \
-	done;
 
 tar_dist:
-	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z_'`; \
-	echo "Altering some CVS files to point to developer.caudium.com..."; \
-	for f in `find $$version/ -type d -name CVS -print`; do \
-	  if egrep '^//*cvs//*caudium_src' "$$f/Repository" 2>&1 >/dev/null; \
-	  then \
-	    echo "Altering $$f..."; \
-	    sed -e 's/^\/\/*cvs\/\/*caudium_src/\/cvs\/caudium/' <"$$f/Repository" \
-	      >"$$f/Repository.new" && \
-	      mv "$$f/Repository.new" "$$f/Repository"; \
-	    echo "anonymous@developer.caudium.com:/cvs" >"$$f/Root"; \
-	  else :; fi; \
-	done; \
-	echo Determining if this is a 0.5, 0.6 or dual distribution...; \
-	if test -d $$version/pike/0.5/. ; then \
-	  if test -d $$version/pike/0.6/. ; then \
-	    type="dual"; \
-	  else \
-	    type="0.5"; \
-	  fi ; \
-	else \
-	  if test -d $$version/pike/0.6/. ; then \
-	    type="0.6"; \
-	  else \
-	    type="no_pike"; \
-	  fi ; \
-	fi; \
-	if test -d platform/. ; then \
-	  type=$$type-pf; \
-	else :; fi; \
-	echo Type $$type.; \
-	echo "Storing away manuals..."; \
-	mv $$version/server/manual/*parsed*.tar . || exit 1; \
-	echo "Restoring Pro manual..."; \
-	cp unparsed_pro.tar $$version/server/manual/unparsed.tar || exit 1; \
-	cp parsed_pro.tar $$version/server/manual/parsed.tar || exit 1; \
-	echo "Building full Pro distribution..."; \
-	tar cf - $$version | gzip -9 >$$version-$$type-pro.tar.gz; \
-	if (cd $$version; make keep_dbapi || exit 1); then \
-	  mv $$version/dbapi.tar . || exit 1; \
-	else :; fi; \
-	if (cd $$version; make keep_pro || exit 1); then \
-	  mv $$version/pro.tar . || exit 1; \
-	else :; fi; \
-	(cd $$version; make censor_dbapi || exit 1); \
-	(cd $$version; make censor_pro || exit 1); \
-	echo "Removing Pro manual and restoring Challenger manual..."; \
-	rm $$version/server/manual/*parsed*.tar || exit 1; \
-	cp unparsed_challenger.tar $$version/server/manual/unparsed.tar \
-	 || exit 1; \
-	cp parsed_challenger.tar $$version/server/manual/parsed.tar \
-	 || exit 1; \
-	echo "Building full Challenger distribution..."; \
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
+	echo "Building Distribution..."; \
 	tar cf - $$version | gzip -9 >$$version-$$type.tar.gz; \
 	(cd $$version; make censor_crypto || exit 1); \
-	echo "Building lobotomized Challenger distribution..."; \
-	tar cf - $$version | gzip -9 >$$version-$$type-int.tar.gz; \
-	echo "Restoring DBAPI..."; \
-	(cd $$version; tar xf ../dbapi.tar || exit 1); \
-	echo "Restoring Challenger Pro parts..."; \
-	(cd $$version; tar xf ../pro.tar || exit 1); \
-	echo "Removing Challenger manual and restoring Pro manual..."; \
-	rm $$version/server/manual/*parsed*.tar || exit 1; \
-	cp unparsed_pro.tar $$version/server/manual/unparsed.tar || exit 1; \
-	cp parsed_pro.tar $$version/server/manual/parsed.tar || exit 1; \
-	echo "Building lobotomized Pro distribution..."; \
-	tar cf - $$version | gzip -9 >$$version-$$type-pro-int.tar.gz; \
-	(mkdir 40bit-nda; cd 40bit-nda; gzip -cd < ../$$version-$$type-pro.tar.gz | tar xf -; cd $$version; make censor_strong_crypto || exit 1); \
-	echo "Building 40bit Pro distribution..."; \
-	(cd 40bit-nda; tar cf - $$version | gzip -9 >../$$version-$$type-pro-40bit.tar.gz || exit 1); \
-	rm -rf 40bit-nda; \
-	(mkdir 40bit; cd 40bit; gzip -cd < ../$$version-$$type.tar.gz | tar xf -; cd $$version; make censor_strong_crypto || exit 1; make censor_pro || exit 1); \
-	echo "Removing Pro manual and restoring Challenger manual..."; \
-	rm $$version/server/manual/*parsed*.tar || exit 1; \
-	cp unparsed_challenger.tar $$version/server/manual/unparsed.tar \
-	 || exit 1; \
-	cp parsed_challenger.tar $$version/server/manual/parsed.tar \
-	 || exit 1; \
-	echo "Building 40bit ordinary distribution..."; \
-	(cd 40bit; tar cf - $$version | gzip -9 >../$$version-$$type-40bit.tar.gz || exit 1); \
-	rm -rf 40bit;
 
 dist: copy_dist tar_dist
 	@echo Distribution build complete.
