@@ -45,29 +45,35 @@ void start(int num, object conf) {
 }
 
 void create() {
+  defvar("exclude_urls", "", "Exclude URLs", TYPE_TEXT_FIELD,
+         "URLs that shouldn't be branded with a Session Identifier."
+         " Examples:<pre>"
+         "/images/\n"
+         "/download/files/\n"
+         "</pre>");
   defvar("secret", "ChAnGeThIs", "Secret Word", TYPE_STRING,
-   "a secret word that is needed to create secure IDs." );
+         "a secret word that is needed to create secure IDs." );
   defvar("garbage", 10, "Garbage Collection Frequency", TYPE_INT,
-   "after how many connects expiration of old session should happen" );
+         "after how many connects expiration of old session should happen" );
   defvar("expire", 60, "Expiration Time", TYPE_INT,
-   "after how many seconds an unactive session is removed" );
+         "after how many seconds an unactive session is removed" );
   defvar("storage", "memory",
-   "Storage Method", TYPE_MULTIPLE_STRING,
-   "The method to be used for storing the session variables."
-   " Available are Memory and Database storage.  Each"
-   " of them have their pros and cons regarding speed and"
-   " persistance.",
-   ({"memory", "sql"}));
+         "Storage Method", TYPE_MULTIPLE_STRING,
+         "The method to be used for storing the session variables."
+         " Available are Memory and Database storage.  Each"
+         " of them have their pros and cons regarding speed and"
+         " persistance.",
+         ({"memory", "sql"}));
   defvar("identify", "cookie",
-   "Identifying Method", TYPE_MULTIPLE_STRING,
-   "The method to be used for branding a webbrowser with a"
-   " unique Session Identifier. Available are Cookies and Prestates.",
-   ({"cookie", "prestate"}));
+         "Identifying Method", TYPE_MULTIPLE_STRING,
+         "The method to be used for branding a webbrowser with a"
+         " unique Session Identifier. Available are Cookies and Prestates.",
+         ({"cookie", "prestate"}));
   defvar("sql_url", "",
-   "Database URL", TYPE_STRING,
-   "Which database to use for the session variables, use"
-   " a common database URL",
-   0, storage_is_not_sql);
+         "Database URL", TYPE_STRING,
+         "Which database to use for the session variables, use"
+         " a common database URL",
+         0, storage_is_not_sql);
 }
 
 mixed register_module() {
@@ -235,7 +241,6 @@ void session_store(string SessionID, mapping values) {
   switch(query("storage")) {
     case "memory":
       session_store_memory(SessionID, values);
-      session_store_sql(SessionID, values);
       break;
     case "sql":
       session_store_sql(SessionID, values);
@@ -288,6 +293,14 @@ string sessionid_get(object id) {
 }
 
 mixed first_try(object id) {
+  
+  foreach (query("exclude_urls")/"\n", string exclude) {
+    if ((strlen(exclude) > 0) &&
+        (exclude == id->not_query[..strlen(exclude)-1])) {
+      return (0);
+    }
+  }
+
   if (random(query("garbage")) == 0) {
     session_gc();
   }
