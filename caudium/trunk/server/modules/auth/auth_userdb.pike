@@ -183,7 +183,7 @@ void try_find_group(string|int g)
   }
 }
 
-#if constant(getpwent)
+#if constant(System.getpwent)
 private static array foo_users;
 private static int foo_upos;
 private static array foo_groups;
@@ -252,7 +252,7 @@ void read_user_data()
         break;
 
       case "getpwent":
-#if constant(getpwent)
+#if constant(System.getpwent)
         // This could be a _lot_ faster.
         tmp2 = ({ });
 #if constant(geteuid)
@@ -353,7 +353,7 @@ void read_user_data()
       if(sizeof(entry=data/":") > 6)
         uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
 
-#if constant(getpwent)
+#if constant(System.getpwent)
   if(QUERY(method) == "getpwent" && (original_data))
   {
       slow_user_update();
@@ -467,7 +467,7 @@ void read_group_data()
 	  groups[entry[0]] = entry;
 	  gid2group[(int)entry[2]]=entry;
       }
-#if constant(getpwent)
+#if constant(System.getpwent)
   if(QUERY(method) == "getpwent" && (original_data))
   {
     slow_group_update();
@@ -500,7 +500,7 @@ void create()
          "This file will be used if method is set to shadow.", 0, 
          method_is_not_shadow);
 
-#if constant(getpwent)
+#if constant(System.getpwent)
   defvar("method", "file", "Password database request method",
          TYPE_STRING_LIST, 
          "What method to use to maintain the passwd database. "
