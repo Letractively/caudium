@@ -541,13 +541,20 @@ object configuration_interface()
   {
     perror("Loading configuration interface.\n");
     loading_config_interface = 1;
+    object e = ErrorContainer();
+    master()->set_inhibit_compile_errors(e);
     array err = catch {
       configuration_interface_obj=((program)"mainconfig")();
       root = configuration_interface_obj->root;
       build_root = configuration_interface_obj->build_root;
     };
     loading_config_interface = 0;
-    if(!configuration_interface_obj) {
+    master()->clear_compilation_failures();
+    if(strlen(e->get())) {
+      report_error("Compilation errors while loading configuration "
+		   "interface:\n"+ e->get()+"\n");
+    }
+    else if(!configuration_interface_obj) {
       report_error(sprintf("Failed to load the configuration interface!\n%s\n",
 			   describe_backtrace(err)));
     }
@@ -590,7 +597,7 @@ mixed configuration_parse(mixed ... args)
   object key;
   catch(key = configuration_lock->lock());
 #endif
-  if(args)
+  if(args) 
     return configuration_interface()->configuration_parse(@args);
 }
 
@@ -2395,6 +2402,7 @@ object load_image(string f,object id)
 private void define_global_variables( int argc, array (string) argv )
 {
   int p;
+  
   globvar("set_cookie", 0, "Set unique user id cookies", TYPE_FLAG,
 	  "If set to Yes, all users of your server whose clients support "
 	  "cookies will get a unique 'user-id-cookie', this can then be "
@@ -2443,6 +2451,17 @@ private void define_global_variables( int argc, array (string) argv )
   /*	  TYPE_FLAG|VAR_EXPERT,*/
   /*	  "Should the background be set by the configuration interface?");*/
 
+    globvar("ModuleListType", "Standard",
+	    "Configuration interface: Add module page layout",
+	    TYPE_STRING_LIST,
+	    "This variable decides how the <tt>Add Module</tt> page should "
+	    "look like. The standard mode is very verbose with graphical "
+	    "headers and documentation for each module. There is also a "
+	    "compact mode which allows for addition of one or more modules "
+	    "simultaneously. This mode has no module documentation and is "
+	    "therefore ment for more advanced users.",
+	    ({ "Standard", "Compact" }));
+    
 //   globvar("_v", CONFIGURATION_FILE_LEVEL, 0, TYPE_INT, 0, 0, 1);
   globvar("default_font_size", 32, 0, TYPE_INT, 0, 0, 1);
 
