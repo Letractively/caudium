@@ -159,8 +159,21 @@ void refresh( string name ) {
   }
 }
 
-void flush() {
-	// flush the cache.
+void flush( void|string regexp ) {
+  if ( regexp ) {
+    // Just flush some of the cache.
+    object r = Regexp( regexp );
+    foreach( indices( thecache ), string key ) {
+      if ( r->match( key ) ) {
+#ifdef CACHE_DEBUG
+        write( "DISK_CACHE: Flushing matching key: " + key + "\n" );
+#endif
+        refresh( key );
+      }
+    }
+    return;
+  }
+  // flush the cache.
   thecache= ([ ]);
   disk_usage = 0;
   Stdio.recursive_rm( cache_path );

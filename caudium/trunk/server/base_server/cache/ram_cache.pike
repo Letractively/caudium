@@ -132,8 +132,24 @@ void refresh( string name ) {
   }
 }
 
-void flush() {
-	// flush the entire ram cache.
+void flush( void|string regexp ) {
+  if ( regexp ) {
+    // Just flush some of the cache.
+    object r = Regexp( regexp );
+    foreach( indices( thecache ), string key ) {
+      if ( r->match( key ) ) {
+#ifdef CACHE_DEBUG
+        write( "RAM_CACHE: Flushing matching key: " + key + "\n" );
+#endif
+        refresh( key );
+      }
+    }
+    return;
+  }
+  // flush the entire ram cache
+#ifdef CACHE_DEBUG
+  write( "RAM_CACHE: Flushing entire cache.\n" );
+#endif
   ram_usage = 0;
   thecache = ([ ]);
 }

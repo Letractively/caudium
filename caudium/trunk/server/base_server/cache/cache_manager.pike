@@ -109,6 +109,9 @@ string status() {
       slow_hitrate = (int)(status->slow_hits / status->slow_misses * 100);
     }
     ret += "<tr><td colspan=4><h1>" + my->namespace + "</h1></td></tr>\n";
+    if ( my->cache_description() ) {
+      ret += "<tr><td colspan=3>" + my->cache_description() + "</td></tr>\n";
+    }
     ret += "<tr><td colspan=4><hr noshade></td></tr>\n";
     ret += "<tr><td colspan=2>Total Hits</td><td colspan=2>" + (string)status->total_hits + "</td></tr>\n";
     ret += "<tr><td colspan=2>Total Misses</td><td colspan=2>" + (string)status->total_misses + "</td></tr>\n";

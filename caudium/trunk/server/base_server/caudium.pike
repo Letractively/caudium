@@ -2392,11 +2392,11 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("default_font", "lucida", "Fonts: Default font", TYPE_FONT,
 	  "The default font to use when modules request a font.");
 
-  globvar("font_dirs",({"/usr/share/caudium/local_fonts/", "../local/nfonts/","nfonts/","local_fonts/", "fonts/ttf/"}),
+  globvar("font_dirs",({"/usr/share/caudium/local_fonts","nfonts","local_fonts/",}),
 	  "Fonts: Font directories", TYPE_DIR_LIST,
 	  "This is where the fonts are located.");
 
-  globvar("logdirprefix", "../logs/", "Log directory prefix",
+  globvar("logdirprefix", "/var/log/caudium/", "Log directory prefix",
 	  TYPE_DIR|VAR_MORE,
 	  "This is the default file path that will be prepended to the log "
 	  " file path in all the default modules and the virtual server.");
@@ -2442,7 +2442,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  " be removed first.",
 	  0, cache_disabled_p);
 
-  globvar("cachedir", "/tmp/caudium_cache/",
+  globvar("cachedir", "/var/cache/caudium/",
 	  "Proxy disk cache: Base Cache Dir",
 	  TYPE_DIR,
 	  "This is the base directory where cached files will reside. "
@@ -2609,12 +2609,12 @@ private void define_global_variables( int argc, array (string) argv )
 	  "this pattern will be able to use the configuration "
 	  "interface.");
 
-  globvar("ConfigurationStateDir","./", "Configuration interface: Status Directory",
+  globvar("ConfigurationStateDir","/var/state/caudium/", "Configuration interface: Status Directory",
           TYPE_DIR|VAR_MORE,
 	  "Directory where the configuration interface keeps its state - module "
 	  "cache, interface settings etc.");
 
-  globvar("User", "", "Change uid and gid to", TYPE_STRING,
+  globvar("User", "33:33", "Change uid and gid to", TYPE_STRING,
 	  "When caudium is run as root, to be able to open port 80 "
 	  "for listening, change to this user-id and group-id when the port "
 	  " has been opened. If you specify a symbolic username, the "
@@ -2628,7 +2628,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "for CGI, and also access files as user in the filesystems, but "
 	  "it gives better security.");
 
-  globvar("ModuleDirs",({"../local/modules/", "modules/"}),
+  globvar("ModuleDirs",({"/usr/lib/caudium/local_modules/","/usr/lib/caudium/modules/","/usr/lib/caudium/more_modules/","/usr/local/share/caudium/modules/","/usr/share/roxen/modules/"}),
 	  "Module directories", TYPE_DIR_LIST,
 	  "This is a list of directories where Caudium should look for "
 	  "modules. Can be relative paths, from the "
