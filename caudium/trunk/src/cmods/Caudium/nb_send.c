@@ -280,8 +280,9 @@ static void read_data(void)
 	to_read = buf_size;
       DERR(fprintf(stderr, "read %d from file (%d free)\n", to_read, buf_size));
       if(inp->fd != -1) {
+	char *ptr = THIS->buf+THIS->buf_len;
 	THREADS_ALLOW();
-	to_read = fd_read(inp->fd, THIS->buf+THIS->buf_len, to_read);
+	to_read = fd_read(inp->fd, ptr, to_read);
 	THREADS_DISALLOW();
       } else {
 	push_int(to_read);
