@@ -692,6 +692,27 @@ string query_location()
 //!  By default, provide nothing.
 string query_provides() { return 0; } 
 
+//! Template Emit Plugin template. Should be inherited by your functional Emit plugin.
+class EmitPlugin
+{
+
+  string name = "default";
+
+  void create()
+  {
+    object conf;
+    foreach(caudium->configurations, conf)
+      if(conf->otomod[this])
+        conf->emit_plugins[name] = this;
+  }
+
+  array(mapping) get_dataset(mapping args, RequestID id)
+  {
+    return ({});
+  }
+
+}
+
 /*
  * Parse and return a parsed version of the security levels for this module
  *
@@ -1003,3 +1024,4 @@ object get_font_from_var(string base)
   }
   return get_font(query(base+"_font"), 32, weight, slant, "left", 0, 0);
 }
+
