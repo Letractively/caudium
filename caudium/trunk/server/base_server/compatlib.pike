@@ -43,42 +43,42 @@ static private string dbt(array t) {
 
 //! Compat call of Stdio.mkdirhier
 //! @deprecated
-int mkdirhier(string pathname, void|int mode) {
+static int mkdirhier(string pathname, void|int mode) {
    WCOMPAT("Stdio","mkdirhier");
    return Stdio.mkdirhier(pathname, mode);
 }
 
 //! Compat call of _Roxen.http_decode_string
 //! @deprecated
-string http_decode_string(string m) {
+static string http_decode_string(string m) {
    WCOMPAT("_Roxen","http_decode_string");
    return _Roxen.http_decode_string(m);
 }
 
 //! Compat call of _Roxen.html_encode_string
 //! @deprecated
-string html_encode_string(string m) {
+static string html_encode_string(string m) {
    WCOMPAT("_Roxen","html_encode_string");
    return _Roxen.html_encode_string(m);
 }
 
 //! Compat call of Protocols.HTTP.unentity
 //! @deprecated
-string html_decode_string(string m) {
+static string html_decode_string(string m) {
    WCOMPAT2("Protocols.HTTP.unentity","html_decode_string");
    return Protocols.HTTP.unentity(m);
 }
 
 //! Compat call of Caudium.http_encode_string
 //! @deprecated
-string http_encode_string(string m) {
+static string http_encode_string(string m) {
    WCOMPAT("Caudium","http_encode_string");
    return Caudium.http_encode_string(m);
 }
 
 //! Compat call of Caudium.HTTP.decode_url
 //! @deprecated
-string http_decode_url(string m) {
+static string http_decode_url(string m) {
    WCOMPAT2("Caudium.HTTP.decode_url","http_decode_url");
    return Caudium.HTTP.decode_url(m);
 }
@@ -86,79 +86,79 @@ string http_decode_url(string m) {
 
 //! Compat call of Caudium.http_encode_cookie
 //! @deprecated
-string http_encode_cookie(string m) {
+static string http_encode_cookie(string m) {
    WCOMPAT("Caudium","http_encode_cookie");
    return Caudium.http_encode_cookie(m);
 }
 
 //! Compat call of Caudium.http_encode_url
 //! @deprecated
-string http_encode_url(string m) {
+static string http_encode_url(string m) {
    WCOMPAT("Caudium","http_encode_url");
    return Caudium.http_encode_url(m);
 }
 
 //! Compat call of Caudium.HTTP.cern_date
 //! @deprecated
-string cern_http_date(int t) {
+static string cern_http_date(int t) {
    WCOMPAT2("Caudium.HTTP.cern_date","cern_http_date");
    return Caudium.HTTP.cern_date(t);
 }
 
 //! Compat call of Caudium.HTTP.date
 //! @deprecated
-string http_date(int t) {
+static string http_date(int t) {
    WCOMPAT2("Caudium.HTTP.date","http_date");
    return Caudium.HTTP.date(t);
 }
 
 //! Compat call of Caudium.HTTP.res_to_string
 //! @deprecated
-string http_res_to_string(mapping file, object id) {
+static string http_res_to_string(mapping file, object id) {
    WCOMPAT2("Caudium.HTTP.res_to_string", "http_res_to_string");
    return Caudium.HTTP.res_to_string(file, id);
 }
 
 //! Compat call of Caudium.HTTP.low_answer
 //! @deprecated
-mapping http_low_answer(int errno, string data, void|int dohtml) {
+static mapping http_low_answer(int errno, string data, void|int dohtml) {
    WCOMPAT2("Caudium.HTTP.low_answer", "http_low_answer");
    return Caudium.HTTP.low_answer(errno, data, dohtml);
 } 
 
 //! Compat call of Caudium.HTTP.pipe_in_progress
 //! @deprecated
-mapping http_pipe_in_progress() {
+static mapping http_pipe_in_progress() {
    WCOMPAT2("Caudium.HTTP.pipe_in_progress", "http_pipe_in_progress");
    return Caudium.HTTP.pipe_in_progress();
 }
 
 //! Compat call of Caudium.HTTP.rxml_answer
 //! @deprecated
-mapping http_rxml_answer(string rxml, object id, void|object(Stdio.File) file,
-                         string|void type) {
+static mapping http_rxml_answer(string rxml, object id,
+                               void|object(Stdio.File) file, string|void type) {
    WCOMPAT2("Caudium.HTTP.rxml_answer", "http_rxml_answer");
    return Caudium.HTTP.rxml_answer(rxml, id, file, type);
 }
 
 //! Compat call of Caudium.HTTP.error_answer
 //! @deprecated
-mapping http_error_answer(object id, void|int error_code, void|string name,
-                          void|string message) {
+static mapping http_error_answer(object id, void|int error_code,
+                                 void|string name, void|string message) {
    WCOMPAT2("Caudium.HTTP.error_answer", "http_error_answer");
    return Caudium.HTTP.error_answer(id,error_code,name,message);
 }
 
 //! Compat call of Caudium.HTTP.string_anwser
 //! @deprecated
-mapping http_string_answer(string text, string|void type) {
+static mapping http_string_answer(string text, string|void type) {
    WCOMPAT2("Caudium.HTTP.string_answer", "http_string_answer");
    return Caudium.HTTP.string_answer(text,type);
 }
 
 //! Compat call of Caudium.HTTP.make_htmldoc_string
 //! @deprecated
-string make_htmldoc_string(string contents, string title, void|mapping meta,
+static string make_htmldoc_string(string contents, string title, void|mapping meta,
                             void|mapping|string style, string|void dtype) {
    WCOMPAT("Caudium.HTTP", "make_htmldoc_string");
    return Caudium.HTTP.make_htmldoc_string(contents,title,meta,style,dtype);
@@ -166,7 +166,7 @@ string make_htmldoc_string(string contents, string title, void|mapping meta,
 
 //! Compat call of Caudium.HTTP.htmldoc_answer
 //! @deprecated
-mapping http_htmldoc_answer(string contents, string title, void|mapping meta,
+static mapping http_htmldoc_answer(string contents, string title, void|mapping meta,
                             void|mapping|string style, string|void dtype) {
    WCOMPAT2("Caudium.HTTP.htmldoc_answer", "http_htmldoc_answer");
    return Caudium.HTTP.htmldoc_answer(contents,title,meta,style,dtype);
@@ -174,28 +174,28 @@ mapping http_htmldoc_answer(string contents, string title, void|mapping meta,
 
 //! Compat call of Caudium.HTTP.file_answer
 //! @deprecated
-mapping http_file_answer(object fd, string|void type, void|int len) {
+static mapping http_file_answer(object fd, string|void type, void|int len) {
    WCOMPAT2("Caudium.HTTP.file_answer", "http_file_answer");
    return Caudium.HTTP.file_answer(fd,type,len);
 }
 
 //! Compat call of Caudium.HTTP.config_cookie
 //! @deprecated
-string http_caudium_config_cookie(string from) {
+static string http_caudium_config_cookie(string from) {
    WCOMPAT2("Caudium.HTTP.config_cookie", "http_caudium_config_cookie");
    return Caudium.HTTP.config_cookie(from);
 }
 
 //! Compat call of Caudium.HTTP.id_cookie
 //! @deprecated
-string http_caudium_id_cookie() {
+static string http_caudium_id_cookie() {
    WCOMPAT2("Caudium.HTTP.id_cookie", "http_caudium_id_cookie");
    return Caudium.HTTP.id_cookie();
 }
 
 //! Compat call of Caudium.HTTP.redirect
 //! @deprecated
-mapping http_redirect(string url, object|void id) {
+static mapping http_redirect(string url, object|void id) {
    WCOMPAT2("Caudium.HTTP.redirect", "http_redirect");
    return Caudium.HTTP.redirect(url,id);
 }
@@ -209,14 +209,14 @@ mapping http_stream(object from) {
 
 //! Compat call of Caudium.HTTP.auth_required
 //! @deprecated
-mapping http_auth_required(string realm,string|void message,void|int dohtml) {
+static mapping http_auth_required(string realm,string|void message,void|int dohtml) {
    WCOMPAT2("Caudium.HTTP.auth_required", "http_auth_required");
    return Caudium.HTTP.auth_required(realm,message,dohtml);
 }
 
 //! Compat call of Caudium.HTTP.proxy_auth_required
 //! @deprecated
-mapping http_proxy_auth_required(string realm,void|string message) {
+static mapping http_proxy_auth_required(string realm,void|string message) {
    WCOMPAT2("Caudium.HTTP.proxy_auth_required", "http_proxy_auth_required");
    return Caudium.HTTP.auth_required(realm,message);
 }
@@ -226,63 +226,63 @@ mapping http_proxy_auth_required(string realm,void|string message) {
 
 //! Compat call of Caudium.add_pre_state
 //! @deprecated
-string add_pre_state(string url, multiset state) {
+static string add_pre_state(string url, multiset state) {
    WCOMPAT("Caudium","add_pre_state");
    return Caudium.add_pre_state(url,state);
 }
 
 //! Compat call of Caudium._match
 //! @deprecated
-int _match(string w, array(string) a) {
+static int _match(string w, array(string) a) {
    WCOMPAT("Caudium","_match");
    return Caudium._match(w,a);
 }
 
 //! Compat call of Caudium.short_name
 //! @deprecated
-string short_name(string name) {
+static string short_name(string name) {
    WCOMPAT("Caudium","short_name");
    return Caudium.short_name(name);
 }
 
 //! Compat call of Caudium.strip_config
 //! @deprecated
-string strip_config(string from) {
+static string strip_config(string from) {
    WCOMPAT("Caudium","strip_config");
    return Caudium.strip_config(from);
 }
 
 //! Compat call of Caudium.strip_prestate
 //! @deprecated
-string strip_prestate(string from) {
+static string strip_prestate(string from) {
    WCOMPAT("Caudium","strip_prestate");
    return Caudium.strip_prestate(from);
 }
 
 //! Compat call of Caudium.short_date
 //! @deprecated
-string short_date(int t) {
+static string short_date(int t) {
    WCOMPAT("Caudium","short_date");
    return Caudium.short_date(t);
 }
 
 //! Compat call of Caudium.is_modified
 //! @deprecated
-int is_modified(string a, int t, void|int len) {
+static int is_modified(string a, int t, void|int len) {
    WCOMPAT("Caudium","is_modified");
    return Caudium.is_modified(a,t,len);
 }
 
 //! Compat call of Caudium.html_to_unicade
 //i @deprecated
-string html_to_unicode(string str) {
+static string html_to_unicode(string str) {
    WCOMPAT("Caudium","html_to_unicode");
    return Caudium.html_to_unicode(str);
 }
 
 //! Compat call of Caudium.unicode_to_html
 //! @deprecated
-string unicode_to_html(string str) {
+static string unicode_to_html(string str) {
    WCOMPAT("Caudium","unicode_to_html");
    return Caudium.unicode_to_html(str);
 }
@@ -290,21 +290,21 @@ string unicode_to_html(string str) {
 
 //! Compat call of Caudium.parse_html
 //! @deprecated
-string parse_html(mixed ... args) {
+static string parse_html(mixed ... args) {
    WCOMPAT("Caudium","parse_html");
    return Caudium.parse_html(@args);
 }
 
 //! Compat call of Caudium.parse_html_lines
 //! @deprecated
-string parse_html_lines(mixed ... args) {
+static string parse_html_lines(mixed ... args) {
    WCOMPAT("Caudium","parse_html_lines");
    return Caudium.parse_html_lines(@args);
 }
 
 //! Compat call of spider.parse_accessed_database
 //! @deprecated
-mixed parse_accessed_database(mixed ... args) {
+static mixed parse_accessed_database(mixed ... args) {
    WCOMPAT("spider","parse_accessed_database");
    return spider.parse_accessed_database(@args);
 }
@@ -318,7 +318,7 @@ mixed parse_accessed_database(mixed ... args) {
 //! @returns
 //!  The size of the image as a string in a format suitable for use
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
-string gif_size(object gif)
+static string gif_size(object gif)
 {
   report_error("Compat gif_size() used in %s, please consider using Image.Dims functions instead\n",dbt(backtrace()[-2]));
 
@@ -393,28 +393,28 @@ static mapping build_caudium_env_vars(object id);
 
 //! Backward compatibility with Roxen
 //! @deprecated
-mixed build_roxen_env_vars(mixed ... args) {
+static mixed build_roxen_env_vars(mixed ... args) {
   report_error("Compat build_roxen_env_vars() used in %s, please consider using build_caudium_env_vars() instead\n",dbt(backtrace()[-2]));
   return build_caudium_env_vars(@args);
 }
 
 //! Compat call for Caudium.extension
 //! @deprecated
-string extention(string f) {
+static string extention(string f) {
   WCOMPAT("Caudium","extension");
   return Caudium.extension(f);
 }
 
 //! Compat call for http_caudium_id_cookie
 //! @deprecated
-string http_roxen_id_cookie() {
+static string http_roxen_id_cookie() {
   report_error("Compat http_roxen_id_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
   return Caudium.HTTP.id_cookie();
 }
 
 //! Compat call for Caudium.HTTP.config_cookie
 //! @deprecated
-string http_roxen_config_cookie(string m) {
+static string http_roxen_config_cookie(string m) {
    WCOMPAT2("Caudium.HTTP.config_cookie", "http_roxen_config_cookie");
    return Caudium.HTTP.config_cookie(m);
 }
@@ -428,7 +428,7 @@ string http_roxen_config_cookie(string m) {
 //! @param d
 //!   Unused.
 //! @deprecated
-mapping http_auth_failed(string realm, string|void m, int|void d) {
+static mapping http_auth_failed(string realm, string|void m, int|void d) {
   report_error("Compat http_auth_failed() used in %s, please consider using Caudium.HTTP.auth_required() instead\n",dbt(backtrace()[-2]));
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth failed (%s)\n",realm);
@@ -441,7 +441,7 @@ mapping http_auth_failed(string realm, string|void m, int|void d) {
 
 //! Compat call from replace
 //! @deprecated
-string do_replace(string s, mapping (string:string) m) {
+static string do_replace(string s, mapping (string:string) m) {
   report_error("Compat do_replace() used in %s, please consider using Pike replace() instead\n",dbt(backtrace()[-2]));
   return replace(s, m);
 }
@@ -449,28 +449,28 @@ string do_replace(string s, mapping (string:string) m) {
 
 //! Compatibility for Image.Color(X)->rgb()
 //! @deprecated
-mixed parse_color(mixed x) {
+static mixed parse_color(mixed x) {
   report_error("Compat parse_color() used in %s, please consider using Pike Image.Color( X )->rgb() instead\n",dbt(backtrace()[-2]));
   return Image.Color(x)->rgb();
 }
 
 //! Compatibility from Image.Color( X, X, X)->name()
 //! @deprecated
-mixed color_name(mixed ... args) {
+static mixed color_name(mixed ... args) {
   report_error("Compat color_name() used in %s, please consider using Pike Image.Color( @X )->name() instead\n",dbt(backtrace()[-2]));
   return Image.Color(@args)->name();
 }
 
 //! Compatibility for indices(Image.Color)
 //! @deprecated
-array list_colors() {
+static array list_colors() {
   report_error("Compat list_colors() used in %s, please consider using Pike indices(Image.Color) instead\n",dbt(backtrace()[-2]));
   return indices(Image.Color);
 }
 
 //! Compat for Image.Color.rgb( )->hsv();
 //! @deprecated
-array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
+static array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
   report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
   if(arrayp(ri))
     return Image.Color.rgb(@ri)->hsv();
@@ -479,7 +479,7 @@ array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
   
 //! Compat for Image.Color.hsv( )->rgb();
 //! @deprecated
-array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
+static array hsv_to_rgb(array|int hv, int|void sv, int|void vv) {
   report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
   if(arrayp(hv))
     return Image.Color.hsv(@hv)->rgv();
