@@ -71,11 +71,10 @@ mozilla/4\.[5-9].*	pnginline
 mozilla/5\.0b1		-java, pnginline, tcl
 mozilla/[5-9].*		pnginline
 
-# Opera
+# Opera 3
 
 .*compatible.*opera.3.*		-java, javascript
-.*compatible.Opera/5.*		-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies, \
-                                 ssl, backgrounds, jpeginline, font, basic, imagealign
+
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push
@@ -93,6 +92,10 @@ mozilla/[5-9].*		pnginline
 .*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
 
+#section Opera {
+.*/5.*		-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies, \
+                 ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline
+#}
 
 #section netsurfer {
 # Netsurfer is a popular commercial Web browser for NEXTSTEP. for more
