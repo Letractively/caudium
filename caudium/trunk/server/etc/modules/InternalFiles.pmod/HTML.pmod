@@ -28,20 +28,19 @@ mapping(string:string) handle(object id,
                               mapping(string:string) vars,
                               string basedir) 
 {
-  werror("%O\n", query);
     if (!basedir)
-        throw(({"Must have a base directory!", backtrace()}));
+        throw(({"Must have a base directory!\n", backtrace()}));
 
-    if (!query)
-        throw(({"Query absent!", backtrace()}));
+    if (!file)
+        throw(({"Missing file!\n", backtrace()}));
     
     if (basedir[-1] != '/')
         basedir += "/";
 
-    while(sizeof(query) && query[0] == '/')
-        query = query[1..];
+    while(sizeof(file) && file[0] == '/')
+        file = file[1..];
 
-    //    string fpath = basedir + query;
+    string fpath = basedir + file;
 
     if (!file_stat(fpath)) {
         empty_file->file = replace_vars(empty_file->file,
