@@ -13,10 +13,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: caudium_1.2.25-4\n"
+"Project-Id-Version: caudium_1.2.31-6\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2003-11-20 20:24+0100\n"
-"PO-Revision-Date: 2003-06-15 17:28-0300\n"
+"PO-Revision-Date: 2004-01-12 19:36-0300\n"
 "Last-Translator: André Luís Lopes <andrelop@debian.org>\n"
 "Language-Team: Debian-BR Project <debian-l10n-portuguese@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -244,9 +244,8 @@ msgstr ""
 #. Type: password
 #. Description
 #: ../templates:97
-#, fuzzy
 msgid "Confirm the configuration interface password"
-msgstr "Senha para a interface de configuração"
+msgstr "Confirme a senha da interface de configuração"
 
 #. Type: password
 #. Description
@@ -254,13 +253,14 @@ msgstr "Senha para a interface de configuração"
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr ""
+"Por favor, informe a senha para acessar a interface de configuração "
+"novamente para confirmação."
 
 #. Type: note
 #. Description
 #: ../templates:103
-#, fuzzy
 msgid "Configuration interface password mismatch"
-msgstr "Senha para a interface de configuração"
+msgstr "Senha para interface de configuração não confere"
 
 #. Type: note
 #. Description
@@ -269,13 +269,14 @@ msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
 msgstr ""
+"As senhas que você informou não são iguais. Por favor, informe-as "
+"novamente e tenha em menter que as senhas são sensíveis à caixa."
 
 #. Type: note
 #. Description
 #: ../templates:109
-#, fuzzy
 msgid "Configuration interface password reset"
-msgstr "Senha para a interface de configuração"
+msgstr "Senha para interface de configuração redefinida"
 
 #. Type: note
 #. Description
@@ -286,9 +287,14 @@ msgid ""
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
 msgstr ""
+"A senha foi redefinida para 'password'. Você não pode ter uma senha "
+"em branco para a interface de configuração. Por favor, mude a senha "
+"padrão assim que a instalação do Caudium for finalizada. Você pode "
+"fazê-lo se autenticando na interface de configuração acessível através "
+"da URL dada abaixo :"
 
 #. Type: note
 #. Description
 #: ../templates:109
 msgid "http://localhost:${cfgport}"
-msgstr ""
+msgstr "http://localhost:${cfgport}"
