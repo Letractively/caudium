@@ -54,7 +54,7 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_AUTH;
 constant module_name = "Master authentication and security";
-constant module_doc  = "This module handles the security in roxen, and uses "
+constant module_doc  = "This module handles the security in Caudium, and uses "
 	"sub-modules to communicate with authenticators and user databases "
         "such as passwd or NIS. It also maintains the user database "
 	" for all other modules in Caudium, e.g. the user homepage module."
