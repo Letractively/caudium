@@ -674,7 +674,7 @@ if test -z "$LDSHARED" ; then
 fi
 
 # Strip smartlink from $CC
-LDSHARED="smartlink `echo $LDSHARED|sed -e 's/.*smartlink //'`"
+LDSHARED="$SMARTLINK `echo $LDSHARED|sed -e 's/.*smartlink //'`"
 
 AC_MSG_RESULT($LDSHARED)
 
