@@ -1,0 +1,9 @@
+Makefile
+dependencies
+config.status
+config.log
+configure
+config.h
+htpasswd
+config.h.in
+autom4te.cache
