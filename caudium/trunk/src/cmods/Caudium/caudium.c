@@ -1013,4 +1013,6 @@ void pike_module_exit( void )
  * Local Variables:
  * c-basic-offset: 2
  * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2 
  */
