@@ -20,6 +20,10 @@ install: all extrainstall
 #	-strip $(MODNAME).$(SO)
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
+install_alt: all extrainstall
+	-strip --strip-unneeded $(MODNAME).$(SO)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
+	
 $(MODNAME).$(SO):  $(OBJS)
 	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) 
 

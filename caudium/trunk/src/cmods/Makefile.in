@@ -47,6 +47,11 @@ install:
 	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a install ) ; \
 	done
 
+install_alt:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a install_alt ) ; \
+	done
+
 clean:
 	for a in $(MODULES) ; do \
 	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a clean ) ; \
