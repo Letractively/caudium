@@ -92,7 +92,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
     if(!key || !type)
       ERROR("Incorrect baseuri specification");
     switch(type) {
-     case "virt":  key = id->realfile(key, id);
+     case "virt":
      case "file":
       args->baseuri = key;
       break;
@@ -106,7 +106,11 @@ string container_xslt(string tag, mapping args, string xml, object id)
     ERROR("Incorrect or missing stylesheet");
   switch(type) {
   case "virt":
-    key = id->conf->realfile(key, id);
+    if(!args->baseuri)
+      xsl = id->conf->try_get_file(key,id);
+    else
+      xsl = id->conf->try_get_file( Stdio.append_path( args->baseuri, key ) );
+    break;
   case "file":
     xsl = Stdio.read_file(key);
     if(!args->baseuri) 
