@@ -48,9 +48,9 @@ inherit "caudiumlib";
 constant module_type = MODULE_AUTH;
 constant module_name = "User database and security";
 constant module_doc  = "This module handles the security in roxen, and uses "
-	"the normal system password and user database to validate "
-	"users. It also maintains the user database for all other "
-	"modules in roxen, e.g. the user homepage module.";
+"the normal system password and user database to validate "
+"users. It also maintains the user database for all other "
+"modules in roxen, e.g. the user homepage module.";
 constant module_unique = 1;
 
 // Fairly weak check of password for portability.
@@ -80,30 +80,30 @@ void try_find_user(string|int u)
   switch(QUERY(method))
   {
 #if constant(getpwuid) && constant(getpwnam)
-  case "getpwent":
-    if(intp(u)) uid = getpwuid(u);
-    else        uid = getpwnam(u);
-    break;
-    if(uid)
-    {
-      if(users[uid[0]])
-      {
-	uid2user[uid[2]][5] = uid[5];
-	users[uid[0]][5] = uid[5];
-      } else {
-	uid2user[uid[2]] = uid;
-	users[uid[0]] = uid;
-      }
-    }
+      case "getpwent":
+        if(intp(u)) uid = getpwuid(u);
+        else        uid = getpwnam(u);
+        break;
+        if(uid)
+        {
+          if(users[uid[0]])
+          {
+            uid2user[uid[2]][5] = uid[5];
+            users[uid[0]][5] = uid[5];
+          } else {
+            uid2user[uid[2]] = uid;
+            users[uid[0]] = uid;
+          }
+        }
 #endif
 
-  case "file":
-    if(!equal(file_stat(QUERY(file)), fstat))
-      read_data();
-    break;
+      case "file":
+        if(!equal(file_stat(QUERY(file)), fstat))
+          read_data();
+        break;
 
-  case "ypmatch":
-  case "niscat":
+      case "ypmatch":
+      case "niscat":
   }
 }
 
@@ -146,66 +146,66 @@ int method_is_file_or_getpwent()
 void create()
 {
   defvar("file", "/etc/passwd", "Password database file",
-	 TYPE_FILE,
-	 "This file will be used if method is set to file.", 0, 
-	 method_is_not_file);
+         TYPE_FILE,
+         "This file will be used if method is set to file.", 0, 
+         method_is_not_file);
 
   defvar("shadowfile", "/etc/shadow", "Password database shadow file",
-	 TYPE_FILE,
-	 "This file will be used if method is set to shadow.", 0, 
-	 method_is_not_shadow);
+         TYPE_FILE,
+         "This file will be used if method is set to shadow.", 0, 
+         method_is_not_shadow);
 
 #if constant(getpwent)
   defvar("method", "file", "Password database request method",
-	 TYPE_STRING_LIST, 
-	 "What method to use to maintain the passwd database. "
-	 "'getpwent' is by far the slowest of the methods, but it "
-	 "should work on all systems. It will also enable an automatic "
-	 "passwd information updating process. Every 10 seconds the "
-	 "information about one user from the password database will be "
-	 "updated. There will also be call performed if a user is not in the "
-	 "in-memory copy of the passwd database."
-	 " The other methods are "
-	 "ypcat, on Solaris 2.x systems niscat, file, shadow and none"
-	 ". If none is selected, all auth requests will succeed, "
-	 "regardless of user name and password.",
+         TYPE_STRING_LIST, 
+         "What method to use to maintain the passwd database. "
+         "'getpwent' is by far the slowest of the methods, but it "
+         "should work on all systems. It will also enable an automatic "
+         "passwd information updating process. Every 10 seconds the "
+         "information about one user from the password database will be "
+         "updated. There will also be call performed if a user is not in the "
+         "in-memory copy of the passwd database."
+         " The other methods are "
+         "ypcat, on Solaris 2.x systems niscat, file, shadow and none"
+         ". If none is selected, all auth requests will succeed, "
+         "regardless of user name and password.",
 
-	 ({ "ypcat", "file", "shadow", "niscat", "getpwent", "none" }));
+         ({ "ypcat", "file", "shadow", "niscat", "getpwent", "none" }));
 #else
   defvar("method", "file", "Password database request method",
-	 TYPE_STRING_LIST, 
-	 "What method to use to maintain the passwd database. The methods are "+
-	 "ypcat, on Solaris 2.x systems niscat, file, shadow and none"+
-	 ". If none is selected, all auth requests will succeed, "+
-	 "regardless of user name and password.",
-	 ({ "ypcat", "file", "shadow", "niscat", "none" }));
+         TYPE_STRING_LIST, 
+         "What method to use to maintain the passwd database. The methods are "+
+         "ypcat, on Solaris 2.x systems niscat, file, shadow and none"+
+         ". If none is selected, all auth requests will succeed, "+
+         "regardless of user name and password.",
+         ({ "ypcat", "file", "shadow", "niscat", "none" }));
 #endif
 
   defvar("args", "", "Password command arguments",
-	 TYPE_STRING|VAR_MORE,
-	 "Extra arguments to pass to either ypcat or niscat."
-	 "For ypcat the full command line will be 'ypcat [args] passwd'."
-	 " for niscat 'niscat [args] passwd.org_dir'"
-	 "If you do not want the passwd part, you can end your args with '#'",
-	 0,
-	 method_is_file_or_getpwent);
+         TYPE_STRING|VAR_MORE,
+         "Extra arguments to pass to either ypcat or niscat."
+         "For ypcat the full command line will be 'ypcat [args] passwd'."
+         " for niscat 'niscat [args] passwd.org_dir'"
+         "If you do not want the passwd part, you can end your args with '#'",
+         0,
+         method_is_file_or_getpwent);
   
 
   defvar("Swashii", 1, "Turn }{| into едц", TYPE_FLAG|VAR_MORE,
-	 "Will make the module turn }{| into едц in the Real Name "+
-	 "field in the userinfo database. This is useful in a european "+
-	 "country, Sweden.");
+         "Will make the module turn }{| into едц in the Real Name "+
+         "field in the userinfo database. This is useful in a european "+
+         "country, Sweden.");
 
   defvar("Strip", 1, "Strip finger information from fullname",
-	 TYPE_FLAG|VAR_MORE,
-	 "This will strip everyting after the first ',' character from "
-	 "the GECOS field of the user database.");
+         TYPE_FLAG|VAR_MORE,
+         "This will strip everyting after the first ',' character from "
+         "the GECOS field of the user database.");
 
   defvar("update", 60,
-	 "Interval between automatic updates of the user database",
-	 TYPE_INT|VAR_MORE,
-	 "This specifies the interval in minutes between automatic updates "
-	 "of the user database.");
+         "Interval between automatic updates of the user database",
+         TYPE_INT|VAR_MORE,
+         "This specifies the interval in minutes between automatic updates "
+         "of the user database.");
 }
 
 private static int last_password_read = 0;
@@ -240,103 +240,103 @@ void read_data()
   array(string)  entry, tmp, tmp2;
   int foo, i;
   int original_data = 1; // Did we inherit this user list from another
-                        //  user-database module?
+  //  user-database module?
   int saved_uid;
   
   users=([]);
   uid2user=([]);
   switch(query("method"))
   {
-  case "ypcat":
-    object privs;
+      case "ypcat":
+        object privs;
 #if constant(geteuid)
 //  if(getuid() != geteuid()) privs = Privs("Reading password database");
 #endif
-    data=Process.popen("ypcat "+query("args")+" passwd");
-    if (objectp(privs)) {
-      destruct(privs);
-    }
-    privs = 0;
-    if (!data) report_io_error ("Error reading passwd database with ypcat");
-    break;
+        data=Process.popen("ypcat "+query("args")+" passwd");
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading passwd database with ypcat");
+        break;
 
-  case "getpwent":
+      case "getpwent":
 #if constant(getpwent)
-    // This could be a _lot_ faster.
-    tmp2 = ({ });
+        // This could be a _lot_ faster.
+        tmp2 = ({ });
 #if constant(geteuid)
-    if(getuid() != geteuid()) privs = Privs("Reading password database");
+        if(getuid() != geteuid()) privs = Privs("Reading password database");
 #endif
-    setpwent();
-    while(tmp = getpwent())
-      tmp2 += ({
-	Array.map(tmp, lambda(mixed s) { return (string)s; }) * ":"
-      }); 
-    endpwent();
-    if (objectp(privs)) {
-      destruct(privs);
-    }
-    privs = 0;
-    data = tmp2 * "\n";
-    break;
+        setpwent();
+        while(tmp = getpwent())
+          tmp2 += ({
+            Array.map(tmp, lambda(mixed s) { return (string)s; }) * ":"
+          }); 
+        endpwent();
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        data = tmp2 * "\n";
+        break;
 #endif
 
-  case "file":
+      case "file":
 //     if(getuid() != geteuid()) privs = Privs("Reading password database");
-    fstat = file_stat(query("file"));
-    data = Stdio.read_bytes(query("file"));
-    if (objectp(privs)) {
-      destruct(privs);
-    }
-    privs = 0;
-    if (!data) report_io_error ("Error reading passwd database from " + query ("file"));
-    last_password_read = time();
-    break;
+        fstat = file_stat(query("file"));
+        data = Stdio.read_bytes(query("file"));
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading passwd database from " + query ("file"));
+        last_password_read = time();
+        break;
     
-  case "shadow":
-    string shadow;
-    array pw, a, b;
-    mapping sh = ([]);
+      case "shadow":
+        string shadow;
+        array pw, a, b;
+        mapping sh = ([]);
 #if constant(geteuid)
-    if(getuid() != geteuid()) privs=Privs("Reading password database");
+        if(getuid() != geteuid()) privs=Privs("Reading password database");
 #endif
-    fstat = file_stat(query("file"));
-    data=    Stdio.read_bytes(query("file"));
-    if (data) shadow = Stdio.read_bytes(query("shadowfile"));
-    if (objectp(privs)) {
-      destruct(privs);
-    }
-    privs = 0;
-    if (!data)
-      report_io_error ("Error reading passwd database from " + query ("file"));
-    else if (!shadow)
-      report_io_error ("Error reading shadow database from " + query ("shadowfile"));
-    else {
-      foreach(shadow / "\n", shadow) {
-	if(sizeof(a = shadow / ":") > 2)
-	  sh[a[0]] = a[1];
-      }
-      pw = data / "\n";
-      for(i = 0; i < sizeof(pw); i++) {
-	if(sizeof(a = pw[i] / ":") && sh[a[0]])
-	  pw[i] = `+(a[0..0],({sh[a[0]]}),a[2..])*":";
-      }
-      data = pw*"\n";
-    }
-    last_password_read = time();
-    break;
+        fstat = file_stat(query("file"));
+        data=    Stdio.read_bytes(query("file"));
+        if (data) shadow = Stdio.read_bytes(query("shadowfile"));
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data)
+          report_io_error ("Error reading passwd database from " + query ("file"));
+        else if (!shadow)
+          report_io_error ("Error reading shadow database from " + query ("shadowfile"));
+        else {
+          foreach(shadow / "\n", shadow) {
+            if(sizeof(a = shadow / ":") > 2)
+              sh[a[0]] = a[1];
+          }
+          pw = data / "\n";
+          for(i = 0; i < sizeof(pw); i++) {
+            if(sizeof(a = pw[i] / ":") && sh[a[0]])
+              pw[i] = `+(a[0..0],({sh[a[0]]}),a[2..])*":";
+          }
+          data = pw*"\n";
+        }
+        last_password_read = time();
+        break;
 
-  case "niscat":
+      case "niscat":
 #if constant(geteuid)
-    if(getuid() != geteuid()) privs=Privs("Reading password database");
+        if(getuid() != geteuid()) privs=Privs("Reading password database");
 #endif
-    data=Process.popen("niscat "+query("args")+" passwd.org_dir");
-    if (objectp(privs)) {
-      destruct(privs);
-    }
-    privs = 0;
-    if (!data) report_io_error ("Error reading passwd database with niscat");
-    break;
+        data=Process.popen("niscat "+query("args")+" passwd.org_dir");
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading passwd database with niscat");
+        break;
   }
 
   if(!data)
@@ -344,8 +344,8 @@ void read_data()
   
   if(query("Swashii"))
     data=replace(data, 
-		 ({"}","{","|","\\","]","["}),
-		 ({"е","д","ц", "Ц","Е","Д"}));
+                 ({"}","{","|","\\","]","["}),
+                 ({"е","д","ц", "Ц","Е","Д"}));
 
 /* Two loops for speed.. */
   if(QUERY(Strip))
@@ -353,16 +353,16 @@ void read_data()
     {
       if(sizeof(entry=data/":") > 6)
       {
-	if (sizeof(entry[4])) {
-	  entry[4]=(entry[4]/",")[0];
-	}
-	uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
+        if (sizeof(entry[4])) {
+          entry[4]=(entry[4]/",")[0];
+        }
+        uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
       }
     }
   else
     foreach(data/"\n", data)
       if(sizeof(entry=data/":") > 6)
-	uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
+        uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
 #if constant(getpwent)
   if(QUERY(method) == "getpwent" && (original_data))
     slow_update();
@@ -453,7 +453,7 @@ array|int auth(array(string) auth, object id)
   id->misc->home = users[u][5];
   id->misc->shell = users[u][6];
   succ++;
-  return ({ 1, u, 0 }); // u is a valid user.
+  return ({ 1, u, 0, getgrgid(id->misc->gid) }); // u is a valid user.
 }
 
 string status()
@@ -472,9 +472,9 @@ string status()
 //     + "<P>The netgroup database has "+sizeof(group)+" entries"
      + "<h3>Failure by host</h3>" +
      Array.map(indices(failed), lambda(string s) {
-       return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
-     }) * "" 
-);
+                                  return caudium->quick_ip_to_host(s) + ": "+failed[s]+"<br>\n";
+                                }) * "" 
+    );
 }
 
 int may_disable() { return 0; }
