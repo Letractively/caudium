@@ -1037,7 +1037,7 @@ class Attribute {
 class Entity {
     inherit DocObject;
     
-    array(string) example;
+    array(string) examples;
     array(string) seealso;
     array(string) notes;
     array(string) bugs;
@@ -1061,7 +1061,7 @@ class Entity {
                     break;
 
                 case "example":
-                    example += ({newstuff});
+                    examples += ({newstuff});
                     break;
 
                 case "bugs":
@@ -1094,7 +1094,7 @@ class Entity {
                 break;
 
             case "example":
-                example[-1] += newstuff;
+                examples[-1] += newstuff;
                 break;
 
             case "bugs":
@@ -1114,7 +1114,7 @@ class Entity {
         myName = "EntityScope";
 
         first_line = line;
-	example = ({});
+	examples = ({});
 	seealso = ({});
 	notes = ({});
 	bugs = ({});
@@ -1125,7 +1125,7 @@ class EntityScope {
     inherit DocObject;
     
     array(Entity)  entities;
-    array(string)  example;
+    array(string)  examples;
     array(string)  seealso;
     array(string)  notes;
     array(string)  bugs;
@@ -1149,7 +1149,7 @@ class EntityScope {
                     break;
 
                 case "example":
-                    example += ({newstuff});
+                    examples += ({newstuff});
                     break;
 
                 case "bugs":
@@ -1166,8 +1166,6 @@ class EntityScope {
 		    entities += ({newstuff});
 		    break;
 		    
-
-		
 		default:
 		    wrong_keyword(kw);
 		    break;
@@ -1194,7 +1192,7 @@ class EntityScope {
                 break;
 
             case "example":
-                example[-1] += newstuff;
+                examples[-1] += newstuff;
                 break;
 
             case "bugs":
@@ -1215,7 +1213,7 @@ class EntityScope {
 
         first_line = line;
         entities = ({});
-	example = ({});
+	examples = ({});
 	seealso = ({});
 	notes = ({});
 	bugs = ({});

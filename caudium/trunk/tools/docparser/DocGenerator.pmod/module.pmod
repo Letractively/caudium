@@ -443,6 +443,43 @@ class DocGen
 	string ret = "";
 	
 	ret = "<entity name=\"" + e->first_line + "\">\n\t";
+	
+	/* See Also */
+	if (e->seealso && sizeof(e->seealso)) {
+    	    ret  += "<links>\n";
+    	    foreach(e->seealso, string n)
+	    if (strlen(n))
+		ret += "\t<link to=\""+ n + "\"/>\n";
+    	    ret += "</links>\n";
+	}
+	
+	/* Examples */
+	if (e->examples && sizeof(e->examples)) {
+	    ret += "\t<examples>\n";
+	    foreach(e->examples, string e)
+		if (e != "")
+		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    ret += "\t</examples>\n";
+	}
+	
+	/* Bugs/fixme */
+	if (e->bugs && sizeof(e->bugs)) {
+	    ret += "\t<bugs>\n";
+	    foreach(e->bugs, string b)
+		if (b != "")
+		    ret += "\t\t<bug>\n\t\t\t" + b + "\n\t\t</bug>\n";
+	    ret += "\t</bugs>\n";
+	}
+	
+	/* Notes */
+	if (e->notes && sizeof(e->notes)) {
+    	    ret  += "<notes>\n";
+    	    foreach(e->notes, string n)
+		if (n != "")
+	    ret += "\t<note>\n" + n + "\n\t</note>\n";
+    	    ret += "</notes>\n";
+	}
+	
 	ret += e->contents + "\n</entity>\n\n";
 	
 	return ret;
@@ -454,6 +491,42 @@ class DocGen
 	
 	ret = "<scope name=\"" + es->first_line + "\">\n";
 	ret += "<description>\n\t" + es->contents + "\n</description>\n\n";
+	
+	/* See Also */
+	if (es->seealso && sizeof(es->seealso)) {
+    	    ret  += "<links>\n";
+    	    foreach(es->seealso, string n)
+	    if (strlen(n))
+		ret += "\t<link to=\""+ n + "\"/>\n";
+    	    ret += "</links>\n";
+	}
+	
+	/* Examples */
+	if (es->examples && sizeof(es->examples)) {
+	    ret += "\t<examples>\n";
+	    foreach(es->examples, string e)
+		if (e != "")
+		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    ret += "\t</examples>\n";
+	}
+	
+	/* Bugs/fixme */
+	if (es->bugs && sizeof(es->bugs)) {
+	    ret += "\t<bugs>\n";
+	    foreach(es->bugs, string b)
+		if (b != "")
+		    ret += "\t\t<bug>\n\t\t\t" + b + "\n\t\t</bug>\n";
+	    ret += "\t</bugs>\n";
+	}
+	
+	/* Notes */
+	if (es->notes && sizeof(es->notes)) {
+    	    ret  += "<notes>\n";
+    	    foreach(es->notes, string n)
+		if (n != "")
+	    ret += "\t<note>\n" + n + "\n\t</note>\n";
+    	    ret += "</notes>\n";
+	}
 	
 	if (sizeof(es->entities))
 	    foreach(es->entities, object e)
@@ -524,6 +597,11 @@ class DocGen
 	/* And containers */
 	if (f->containers)
 	  ofile->write(f_containers(f));
+	  
+	/* Some entities, please */
+	if (f->escopes)
+	  ofile->write(f_entities(f));
+	 
 	ofile->write("</module>");
     }
     
