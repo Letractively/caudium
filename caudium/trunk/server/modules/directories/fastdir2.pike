@@ -52,7 +52,7 @@ constant module_name = "Fast directory module MKII";
 constant module_doc  = "This is a _fast_ directory parsing module. "
 	    "Basically, this one just prints the list of files.<br />"
             "This module has also the capabitity to include custom "
-            "header and footer in the listing".
+            "header and footer in the listing.";
 constant module_unique = 1;
 
 void create()
