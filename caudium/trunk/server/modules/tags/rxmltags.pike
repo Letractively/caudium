@@ -66,13 +66,6 @@ private int ac_is_not_set()
   return !QUERY(ac);
 }
 
-#if 0
-private int ssi_is_not_set()
-{
-  return !QUERY(ssi);
-}
-#endif
-
 void create()
 {
   defvar("Accesslog", 
@@ -92,37 +85,6 @@ void create()
   defvar("ac", 1, "Access log", TYPE_FLAG,
 	 "If unset, the &lt;accessed&gt; tag will not work, and no access log "
 	 "will be needed. This will save one file descriptors.");
-#if 0
-  defvar("ssi", 1, "SSI support: NSCA and Apache SSI support", 
-	 TYPE_FLAG,
-	 "If set, Roxen will parse NCSA / Apache server side includes.");
-
-  defvar("exec", 0, "SSI support: execute command", 
-	 TYPE_FLAG,
-	 "If set and if server side include support is enabled, Roxen "
-	 "will accept NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt;. "
-	 "Note that this will allow your users to execute arbitrary "
-	 "commands.",
-	 ssi_is_not_set);
-
-#if constant(getpwnam)
-  array nobody = getpwnam("nobody") || ({ "nobody", "x", 65534, 65534 });
-#else /* !constant(getpwnam) */
-  array nobody = ({ "nobody", "x", 65534, 65534 });
-#endif /* constant(getpwnam) */
-
-  defvar("execuid", nobody[2] || 65534, "SSI support: execute command uid",
-	 TYPE_INT,
-	 "UID to run NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt; "
-	 "commands with.",
-	 ssi_is_not_set);
-
-  defvar("execgid", nobody[3] || 65534, "SSI support: execute command gid",
-	 TYPE_INT,
-	 "GID to run NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt; "
-	 "commands with.",
-	 ssi_is_not_set);
-#endif
 
   defvar("close_db", 1, "Close the database if it is not used",
 	 TYPE_FLAG|VAR_MORE,
@@ -1532,204 +1494,6 @@ static string|array(string) inc(mapping m, int val, object id)
     return ({"\n<b>Scope "+scope+" read-only.</b>\n"});
   return "";
 }
-
-#if 0
-string tag_compat_exec(string tag,mapping m,object id,object file,
-		       mapping defines)
-{
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
-  if(m->help) 
-    return ("See the Apache documentation. This tag is more or less equivalent"
-	    " to &lt;insert file=...&gt;, but you can run any command. Please "
-	    "note that this can present a severe security hole.");
-
-  if(m->cgi)
-  {
-    if(!m->cache)
-      m->nocache = "yes";
-    m->file = _Roxen.http_decode_string(m->cgi);
-    m_delete(m, "cgi");
-    return tag_insert(tag, m, id, file, defines);
-  }
-
-  if(m->cmd)
-  {
-    if(QUERY(exec))
-    {
-      string tmp;
-      tmp=id->conf->query("MyWorldLocation");
-      sscanf(tmp, "%*s//%s", tmp);
-      sscanf(tmp, "%s:", tmp);
-      sscanf(tmp, "%s/", tmp);
-      string user;
-      user="Unknown";
-      if(id->user)
-	user=id->user->username;
-      string addr=id->remoteaddr || "Internal";
-      NOCACHE();
-      return popen(m->cmd,
-		   getenv()
-		   | build_caudium_env_vars(id)
-		   | build_env_vars(id->not_query, id, 0),
-		   QUERY(execuid) || -2, QUERY(execgid) || -2);
-    } else {
-      return "<b>Execute command support disabled."
-	"<!-- Check \"Main RXML Parser\"/\"SSI support\". --></b>";
-    }
-  }
-  return "<!-- exec what? -->";
-}
-
-string tag_compat_config(string tag,mapping m,object id,object file,
-			 mapping defines)
-{
-  if(m->help || m["help--"]) 
-    return ("The SSI #config tag is used to set configuration parameters "
-       "for other SSI tags. The tag takes one or more of the following "
-       "attributes: <tt>sizefmt</tt>=<i>size_format</i>, "
-       "<tt>timefmt</tt>=<i>time_format</i>, <tt>errmsg</tt>=<i>error</i>. "
-       "The size format is either 'bytes' (plain byte count) or 'abbrev' "
-       "(use size suffixes), the time format is a <tt>strftime</tt> format "
-       "string, and the error message is the message to return if a parse "
-       "error is encountered.");
-
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
-  if (m->sizefmt) {
-    if ((< "abbrev", "bytes" >)[lower_case(m->sizefmt||"")]) {
-      defines->sizefmt = lower_case(m->sizefmt);
-    } else {
-      return(sprintf("Unknown SSI sizefmt:%O", m->sizefmt));
-    }
-  }
-  if (m->errmsg) {
-    // FIXME: Not used yet.
-    defines->errmsg = m->errmsg;
-  }
-  if (m->timefmt) {
-    // FIXME: Not used yet.
-    defines->timefmt = m->timefmt;
-  }
-  return "";
-}
-
-string tag_compat_include(string tag,mapping m,object id,object file,
-			  mapping defines)
-{
-  if(m->help || m["help--"]) 
-    return ("The SSI #include tag is more or less equivalent to the RXML "
-            "&lt;INSERT&gt; tag. ");
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
-  if(m->virtual)
-  {
-    m->file = m->virtual;
-    return tag_insert("insert", m, id, file, defines);
-  }
-
-  if(m->file)
-  {
-    mixed tmp;
-    string fname1 = m->file;
-    string fname2;
-    if(m->file[0] != '/')
-    {
-      if(id->not_query[-1] == '/')
-	m->file = id->not_query + m->file;
-      else
-	m->file = ((tmp = id->not_query / "/")[0..sizeof(tmp)-2] +
-		   ({ m->file }))*"/";
-      fname1 = id->conf->real_file(m->file, id);
-      if ((sizeof(m->file) > 2) && (m->file[sizeof(m->file)-2..] == "--")) {
-	fname2 = id->conf->real_file(m->file[..sizeof(m->file)-3], id);
-      }
-    } else if ((sizeof(fname1) > 2) && (fname1[sizeof(fname1)-2..] == "--")) {
-      fname2 = fname1[..sizeof(fname1)-3];
-    }
-    return((fname1 && Stdio.read_bytes(fname1)) ||
-	   (fname2 && Stdio.read_bytes(fname2)) ||
-	   ("<!-- No such file: " +
-	    (fname1 || fname2 || m->file) +
-	    "! -->"));
-  }
-  return "<!-- What? -->";
-}
-
-string tag_compat_echo(string tag,mapping m,object id,object file,
-			  mapping defines)
-{
-  if(!QUERY(ssi))
-    return "SSI support disabled. Use &lt;echo var=name&gt; instead.";
-  return tag_echo(tag, m, id, file, defines);
-}
-
-string tag_compat_set(string tag,mapping m,object id,object file,
-			  mapping defines)
-{
-  if(!QUERY(ssi))
-    return "SSI support disabled. Use &lt;set variable=name value=value&gt; instead.";
-  if(m->var && m->value)
-  {
-    if(!id->misc->ssi_variables)
-      id->misc->ssi_variables = ([]);
-    id->misc->ssi_variables[m->var] = m->value;
-  }
-  return "";
-}
-
-string tag_compat_fsize(string tag,mapping m,object id,object file,
-			mapping defines)
-{
-  if(m->help || m["help--"])
-  { if (tag == "!--#fsize")
-      return ("Returns the size of the file specified (as virtual=... or file=...)");
-    else
-      return ("Returns the last modification date of the file specified (as virtual=... or file=...)");
-  }
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
-  if(m->virtual && sizeof(m->virtual))
-  {
-    m->virtual = _Roxen.http_decode_string(m->virtual);
-    if (m->virtual[0] != '/') {
-      // Fix relative path.
-      m->virtual = combine_path(id->not_query, "../" + m->virtual);
-    }
-    m->file = id->conf->real_file(m->virtual, id);
-    m_delete(m, "virtual");
-  } else if (m->file && sizeof(m->file) && (m->file[0] != '/')) {
-    // Fix relative path
-    m->file = combine_path(id->conf->real_file(id->not_query, id) || "/", "../" + m->file);
-  }
-  if(m->file)
-  {
-    array s;
-    s = file_stat(m->file);
-    CACHE(5);
-    if(s)
-    {
-      if(tag == "!--#fsize")
-      {
-	if(defines->sizefmt=="bytes")
-	  return (string)s[1];
-	else
-	  return sizetostring(s[1]);
-      } else {
-	return strftime(defines->timefmt || "%c", s[3]);
-      }
-    }
-    return "Error: Cannot stat file";
-  }
-  return "<!-- No file? -->";
-}
-
-#endif
-
 
 //! tag: accessed
 //!  <tt>&lt;accessed&gt;</tt> generates an access counter that shows how many
@@ -3175,15 +2939,6 @@ mapping query_tag_callers()
 	    "true":tag_true,	// Used internally
 	    "false":tag_false,	// by <if> and <else>
 	    "echo":tag_echo,           /* These commands are */
-#if 0
-	    "!--#echo":tag_compat_echo,           /* These commands are */
-	    "!--#exec":tag_compat_exec,           /* NCSA/Apache Server */
-	    "!--#flastmod":tag_compat_fsize,      /* Side includes.     */
-	    "!--#set":tag_compat_set, 
-	    "!--#fsize":tag_compat_fsize, 
-	    "!--#include":tag_compat_include, 
-	    "!--#config":tag_compat_config,
-#endif
 	    "debug" : tag_debug,
 	    "help": tag_help
    ]);
