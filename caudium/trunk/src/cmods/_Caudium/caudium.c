@@ -816,6 +816,8 @@ static void f_http_decode(INT32 args)
 	char *i, *o, *out, *in; 
 	struct pike_string *ret;
 	int in_len, check;
+
+        check = 0;  /* Just in case */
 	
 	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
 		Pike_error("Invalid argument to Caudium.http_eecode(STRING);\n");
@@ -852,7 +854,7 @@ static void f_http_decode(INT32 args)
 			
 			if(x != 2) { // error 
 				free(out);
-				return NULL;
+				return ;
 			}
 
 			*o++ = c;
