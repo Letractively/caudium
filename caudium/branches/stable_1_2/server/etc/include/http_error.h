@@ -162,8 +162,12 @@ class http_error_handler {
            error_name = _error_name;
         else if (id->misc->error_name)
            error_name = id->misc->error_name;
-        else
+        else {
+           mixed err = catch {
            error_name = id->errors[error_code];
+	   };
+	   if (err) error_name = "Unknown error... ???!";
+	}
 
         if (_error_message)
            error_message = _error_message;
