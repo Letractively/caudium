@@ -1,3 +1,9 @@
+caudium (2:1.4.3-1+rc1) experimental; urgency=low
+
+  * The latest upstream snapshot (RC1)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 20 Sep 2004 15:17:19 +0200
+
 caudium (2:1.4.1-1+rc1) experimental; urgency=low
 
   * The first Release Candidate for caudium 1.4
