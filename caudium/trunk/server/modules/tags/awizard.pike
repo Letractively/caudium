@@ -125,6 +125,7 @@ constant module_unique = 1;
 //   <notice>string</notice>
 //   <error>string</error> (can be used to prevent the user from leaving this page)
 //  </page>
+//  </awizard>
 
 class Page
 {
@@ -148,7 +149,7 @@ string container_awizard_pike(string t, mapping m, string c, int l, object id,
 {
 
   if( !query("allow_awizard_pike") ) {
-	report_warning("Awizard: &lt;awizard-pike&gt; called, '<b>%s</b>' on virtual server: <b>%s:%s</b> while awizard-pike is disabled for this virtualserver\n",
+	report_warning("Awizard: &lt;awizard-pike&gt; called, '<b>%s</b>' on virtual server: <b>%s:%s</b> while awizard-pike is disabled for this virtualserver",
 		id->not_query, 
 		id->conf->this->name, id->conf->this->variables->name[0] );
 	return "<!-- awizard-pike is disabled -->";
@@ -269,12 +270,9 @@ string container_warn(string t, mapping m, string c, int l, object id, object aw
 {
   id->variables->warn_message=c;
 
-  if( m->quiet )  
-  	return "";
-  if( m->silent) 
-  	return "<!-- error: '"+c+"' -->";
-  if( m->solid ) 
-  	return c;
+  if( m->quiet ) return "";
+  if( m->silent) return "<!-- error: '"+c+"' -->";
+  if( m->solid ) return c;
 
   return html_warning( c, id );
 }
@@ -283,12 +281,9 @@ string container_notice(string t, mapping m, string c, int q, object id, object 
 {
   id->variables->notice_message=c;
 
-  if( m->quiet )  
-  	return "";
-  if( m->silent) 
-  	return "<!-- notice: '"+c+"' -->";
-  if( m->solid ) 
-  	return c;
+  if( m->quiet ) return "";
+  if( m->silent) return "<!-- notice: '"+c+"' -->";
+  if( m->solid ) return c;
 
   return html_notice( c, id );
 }
@@ -297,12 +292,9 @@ string container_error(string t, mapping m, string c, int q, object id, object a
 {
   id->variables->error_message = c;
 
-  if( m->quiet )  
-  	return "";
-  if( m->silent) 
-  	return "<!-- error: '"+c+"' -->";
-  if( m->solid ) 
-  	return c;
+  if( m->quiet ) return "";
+  if( m->silent) return "<!-- error: '"+c+"' -->";
+  if( m->solid ) return c;
 
   return html_error( c,id );
 }
@@ -341,7 +333,6 @@ string container_error(string t, mapping m, string c, int q, object id, object a
       come_from[args->name] += c;
     return "";
   }
-
 
   mapping up_args = ([]);
 
@@ -392,14 +383,64 @@ string container_error(string t, mapping m, string c, int q, object id, object a
 
     
     // WARNING: Needs new htmlparse.pike (at least version 1.103)
-    foreach(indices(my_tags), string s)
-      id->misc->_tags[ s ] = my_tags[ s ];
-    foreach(indices(my_containers), string s)
-      id->misc->_containers[ s ] = my_containers[ s ];
+    foreach(indices(my_tags), string s) {
+	id->misc->_tags[ s ] = call_tag_wrapper;
+    }
+    foreach(indices(my_containers), string s) {
+      	id->misc->_containers[ s ] = call_container_wrapper;
+    }
 
     return parse_rxml(parse_html(what,(["var":wizard_tag_var,]),
 				 (["cvar":wizard_tag_var]),id),id);
   }  
+
+  /* We need this dirty hack, 
+   * id->misc->_tags, id->misc->_containers called differently if we
+   * use Main RXML parser (compatibility) or if the XML compliant */
+  mixed call_tag_wrapper( mixed ... args ) {
+	object parser, id, awiz;
+	string tag;
+	mapping m, d;
+	int l;
+
+	// XML compliat parser
+	if( objectp( args[0] )) {
+		parser=args[0]; m=args[1]; id=args[2]; awiz=args[3];
+		d=args[4]; tag = parser->tag_name();
+		id->misc->line = (string)parser->at_line();
+		l=(int) id->misc->line;
+	} else {
+		tag=args[0]; m=args[1]; l=args[2]; id=args[3]; awiz=args[4];
+	}
+
+	if( my_tags[ tag ] )
+		return my_tags[ tag ]( tag, m, l, id, awiz );
+
+	return "";
+  }
+
+  mixed call_container_wrapper( mixed ... args ) {
+	object parser, id,awiz;
+	string tag,c;
+	mapping m,d;
+	int l;
+
+	// XML compliat parser
+	if( objectp( args[0] )) {
+		parser=args[0]; m=args[1]; c=args[2]; id=args[3]; awiz=args[4];
+		d=args[5]; tag = parser->tag_name();
+		id->misc->line = (string)parser->at_line();
+		l=(int) id->misc->line;
+	} else {
+		tag=args[0]; m=args[1]; c=args[2]; l=args[3];
+		id=args[4]; awiz=args[5];
+	}
+
+	if( my_containers[ tag ] )
+		return my_containers[ tag ]( tag, m, c, l, id, awiz );
+
+	return "";  
+  }
 
   mapping|int can_leave(object id, string eeval)
   {
@@ -419,7 +460,6 @@ string container_error(string t, mapping m, string c, int q, object id, object a
     return contents;
   }
 }
-
 
 class Store
 {
@@ -484,12 +524,8 @@ class Store
       footer=header="";
 
       parse_html_lines( parse_html_lines(contents, 
-			 ([
- 			    "awizard_include":internal_tag_include,
-			  ]),
-			  ([
-			     "comment":lambda(){ return ""; },
-			   ]),id), 
+			 ([ "awizard_include":internal_tag_include ]),
+			  ([ "comment":lambda(){ return ""; } ]),id), 
 		  ([]),
 		  ([ "page":internal_tag_page,
 		     "header":internal_tag_header,
@@ -510,7 +546,6 @@ class Store
     update(contents,id);
     parent = p;
   }
-
 
 
   mapping|string handle( object id )
@@ -571,7 +606,6 @@ class Store
       }
     }
 
-
     id->misc->next_possible = ((int)v->_page_num) < (sizeof(pages)-1);
     id->misc->prev_possible = ((int)v->_page_num) > 0;
     
@@ -625,10 +659,9 @@ void create()
 	 "run programs with the same right as the server!</font>" );
 }
 
-
 mapping stores = ([]);
 
-constant help = "Da help";
+constant help = "Advanced Wizards";
 
 mixed tag_store(string tagname, mapping arguments, string contents, object id)
 {
@@ -654,7 +687,6 @@ mixed tag_store(string tagname, mapping arguments, string contents, object id)
   }
   return ({res});
 }
-
 
 mapping query_container_callers()
 {
