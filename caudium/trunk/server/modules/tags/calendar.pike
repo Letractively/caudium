@@ -436,7 +436,7 @@ static void check_array(mapping var, string name)
     var[name] = varray[-1];
 }
 
-static multiset mark_active_days(string c)
+static multiset mark_active_days(string c, object target)
 {
     if (!c || !sizeof(c))
         return (<>);
@@ -447,13 +447,35 @@ static multiset mark_active_days(string c)
         return (<>);
 
     multiset ret = (<>);
+    int      y, m;
+
+    y = target->year_no();
+    m = target->month_no();
     
     foreach((tmp / ","), string part) {
-        int pval;
+        int dval,mval,yval, pval;
 
-        if (sscanf(part, "%d", pval))
-            if (pval > 0 && pval <= 31)
-                ret += (<pval>);
+        switch (sscanf(part, "%d.%d.%d", dval, mval, yval)) {
+            case 3:
+                if (mval == m && yval == y)
+                    pval = dval;
+                break;
+
+            case 2:
+                if (mval == m)
+                    pval = dval;
+                break;
+
+            case 1:
+                pval = dval;
+                break;
+
+            default:
+                pval = -1;
+        }
+
+        if (pval > 0 && pval <= 31)
+            ret += (<pval>);
     }
 
     return ret;
@@ -467,7 +489,6 @@ string calendar_tag(string tag, mapping args, string cont,
     string     contents = "";
     multiset   active_days;
 
-    active_days = mark_active_days(parse_rxml(cont, id));
     
     if (!args)
         my_args = ([]);
@@ -520,7 +541,9 @@ string calendar_tag(string tag, mapping args, string cont,
                                                 id->variables->calyear,
                                                 id->variables->calmonth,
                                                 id->variables->calday));
-    
+
+    active_days = mark_active_days(parse_rxml(cont, id), target);
+
     contents += make_monthyear_selector(id, my_args, now, target);
     contents += make_weekdays_row(id, my_args, now, target);
     contents += make_monthdays_grid(id, my_args, now, target, active_days);
@@ -678,22 +701,22 @@ td.cal-weekdata {
 }
 
 a.cal-text {
-      color: navy;
+      color: #0453ab;
       text-decoration: none;
 }
 
 a:hover.cal-text {
-      color: slateblue;
+      color: #0453ab;
       text-decoration: none;
 }
 
 a.cal-todaytext {
-      color: navy;
+      color: #0453ab;
       text-decoration: none;
 }
 
 a:hover.cal-todaytext {
-      color: slateblue;
+      color: #0453ab;
       text-decoration: none;
 }
 </style>";
