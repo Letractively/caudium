@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef ALLOCA_KLUNDGE_H
-#define ALLOCA_KLUNDGE_H
+#ifndef ALLOCA_KLUDGE_H
+#define ALLOCA_KLUDGE_H
 
 #ifdef __FreeBSD__
 # if __FreeBSD_version < 50200
@@ -58,5 +58,5 @@
 # endif
 #endif
 
-#endif /* ALLOCA_KLUNDGE_H */
+#endif /* ALLOCA_KLUDGE_H */
 
