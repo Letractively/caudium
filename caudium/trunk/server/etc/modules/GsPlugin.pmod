@@ -34,33 +34,29 @@
 inherit "caudiumlib";
 
 //
-// This module is meant to be inherited by the storage plugins for the
-// gsession module. It actually implements the basic, memory, plugin albeit
-// without few functions required for making your plugin unique. Your
-// module may re-implement all/any of the methods or call up to the ones
-// defined below using the ::plugin_*(...) syntax.
-// The module implementing the storage plugin must be marked as a provider
-// module (MODULE_PROVIDER). In the simplest form you only need to
-// implement the following methods to have a working storage plugin:
-//
-//   plugin_name
-//   plugin_expire_old
-//
-// Without these methods, the plugin will not be registered.
-//
+//! This module is meant to be inherited by the storage plugins for the
+//! gsession module. It actually implements the basic, memory, plugin albeit
+//! without few functions required for making your plugin unique. Your
+//! module may re-implement all/any of the methods or call up to the ones
+//! defined below using the ::plugin_*(...) syntax.
+//! The module implementing the storage plugin must be marked as a provider
+//! module (MODULE_PROVIDER). In the simplest form you only need to
+//! implement the following methods to have a working storage plugin:
+//! @pre{
+//!   plugin_name
+//!   plugin_expire_old
+//! @}
+//! Without these methods, the plugin will not be registered.
 
 //
-// Your plugin must return a string here. Otherwise the plugin won't be
-// registered by the core module.
-//
+//! Your plugin must return a string here. Otherwise the plugin won't be
+//! registered by the core module.
 private string plugin_name()
 {
     return 0;
 }
 
-//
-// Your plugin may return a string here.
-//
+//! Your plugin may return a string here.
 private string plugin_description()
 {
     return 0;
@@ -71,123 +67,155 @@ private string plugin_description()
 //
 
 //
-// This is the plugin, in-memory, storage medium. As opposite to other
-// storage mechanism, this one is built in albeit using the same interface
-// as the other mechanisms. All storage plugins must provide interface to
-// in-memory storage structured in the way described below. This is
-// required as the external code which uses the gsession module using the
-// provider API as well as the core module itself, don't know the actual
-// storage medium/structures provided by the plugin. It is extremely
-// important that the structure and meaning of fields described below is
-// maintained accross all the storage plugins.
-//
-// The structure is as follows (fields in single quotes denote literal names):
-//
-//  storage_mapping
-//      '_sessions_':sessions_mapping
-//         session1_id:session1_options
-//           'nocookies':1 if no cookies should be set, 0 if cookies are ok
-//           'lastused':time_when_last_used
-//           'lastchanged':time_of_last_store_or_delete
-//           'lastretrieved':time_of_last_retrieve
-//           'cookieattempted':1 if a cookie set was attempted
-//           'ctime':creation_time
-//         session2_id:session2_options
-//           'nocookies':1 if no cookies should be set, 0 if cookies are ok
-//           'lastused':time_when_last_used
-//           'cookieattempted':1 if a cookie set was attempted
-//      region1_name:region1_mapping
-//         session1_id:session1_storage
-//           'data':session1_data
-//             key1_name:key1_value
-//             key2_name:key2_value
-//             ...
-//         session2_id:session2_storage
-//           'data':session2_data
-//             key1_name:key1_value
-//             key2_name:key2_value
-//             ...
-//      region2_name:region2_mapping
-//         session1_id:session1_storage
-//           'data':session1_data
-//             key1_name:key1_value
-//             key2_name:key2_value
-//             ...
-//         session2_id:session2_storage
-//           'data':session2_data
-//             key1_name:key1_value
-//             key2_name:key2_value
-//             ...
-//
-// Two predefined regions MUST exist, for compatibility with 123sessions:
-// "session" and "user" they are available through the
-// id->misc->session_variables and id->misc->user_variables,
-// respectively. All regions are available through the
-// id->misc->gsession->region_name mapping. This is true for all the
-// storage mechanisms.
-//
-private mapping(string:mapping(string:mapping(string:mixed))) _plugin_storage = ([]);
+//! This is the plugin, in-memory, storage medium. As opposite to other
+//! storage mechanism, this one is built in albeit using the same interface
+//! as the other mechanisms. All storage plugins must provide interface to
+//! in-memory storage structured in the way described below. This is
+//! required as the external code which uses the gsession module using the
+//! provider API as well as the core module itself, don't know the actual
+//! storage medium/structures provided by the plugin. It is extremely
+//! important that the structure and meaning of fields described below is
+//! maintained accross all the storage plugins.
+//!
+//! The structure is as follows:
+//!
+//! @mapping
+//!    @member mapping "_sessions_"
+//!     @tt{_sessions_@} is a literal name. The format:
+//!
+//!     @mapping
+//!      @member int "nocookies"
+//!       1 if no cookies should be set, 0 if cookies are ok
+//!      @member int "lastused"
+//!       time when last used
+//!      @member int "lastchanged"
+//!       time of last store or delete
+//!      @member int "lastretrieved"
+//!       time of last retrieve
+//!      @member int "cookieattempted"
+//!       1 if a cookie set was attempted
+//!      @member int "ctime"
+//!       creation time
+//!     @endmapping
+//!    @member mapping "region1_name"
+//!     @tt{region1_name@} is a region variable name. The format:
+//!
+//!     @mapping
+//!      @member mapping "session1_id"
+//!       @tt{session1_id@} is a variable session ID value. The format:
+//!
+//!       @mapping
+//!        @member mapping "data"
+//!         @mapping
+//!          @member mixed "key1_name"
+//!          @member mixed "key2_name"
+//!         @endmapping
+//!       @endmapping
+//!     @endmapping
+//! @endmapping
+//!
+//! Two predefined regions MUST exist, for compatibility with 123sessions:
+//! "session" and "user" they are available through the
+//! id->misc->session_variables and id->misc->user_variables,
+//! respectively. All regions are available through the
+//! id->misc->gsession->region_name mapping. This is true for all the
+//! storage mechanisms.
+//!
+static mapping(string:mapping(string:mapping(string:mixed))) _plugin_storage = ([]);
 
 //
-// Registration record for the "plugin". Such record is used for all the
-// storage plugins, including this one for consistency. All plugins are
-// required to provide just one function - register_gsession_plugin - that
-// returns a mapping whose contents is described below:
-//
-//  string name; (mandatory)
-//     plugin name (displayed in the CIF and the admin interface)
-//
-//  string description; (optional)
-//     plugin description
-//
-//  function setup; (mandatory)
-//  synopsis: void setup(object id, string|void sid);
-//     function to setup the plugin. Called once for every
-//     request. If sid is absent, the function is required just to make
-//     sure the storage exists and exit. If sid is present, a new area for
-//     the given session must be created in every region.
-//
-//  function store; (mandatory)
-//  synopsis: void store(object id, string key, mixed data, string sid, void|string reg);
-//     function to store a variable into a region. Synopsis below.
-//
-//  function retrieve; (mandatory)
-//  synopsis: mixed retrieve(object id, string key, string sid, void|string reg);
-//     function to retrieve a variable from a region. Synopsis below.
-//
-//  function delete_variable; (mandatory)
-//  synopsis: mixed delete_variable(object id, string key, string sid, void|string reg);
-//     function to delete a variable from a region. Synopsis below.
-//
-//  function expire_old; (mandatory)
-//  synopsis: void expire_old(int curtime, int expiration_time);
-//     called from a callout to expire aged sessions. Ran in a separate
-//     thread, if available.
-//
-//  function delete_session; (mandatory)
-//  synopsis: void delete_session(string sid);
-//     delete a session from all the regions of the storage.
-//
-//  function get_region; (mandatory)
-//  synopsis: mapping get_region(object id, string sid, string reg);
-//     return a storage mapping of the specified region. This function
-//     _must_ return valid mappings for the "session" and "user" regions
-//     (compatibility with 123sessions)
-//
-//  function get_all_regions; (mandatory)
-//  synopsis: mapping get_all_regions(object id);
-//     returns a mapping of all the regions in use - i.e. full storage.
-//
-//  function session_exists; (mandatory)
-//  synopsis: int session_exists(object id, string sid);
-//     checks whether the given session exists in the storage
-//
-//  function get_sessions_area; (mandatory)
-//  synopsis: mapping get_sessions_area(object id);
-//     returns the special '_sessions_' area in the storage. That area
-//     stores all the options global to any session ID.
-//
-private mapping plugin_storage_registration_record = ([
+//! Registration record for the "plugin". Such record is used for all the
+//! storage plugins, including this one for consistency. All plugins are
+//! required to provide just one function - register_gsession_plugin - that
+//! returns a mapping whose contents is described below:
+//!
+//! @mapping
+//!  @member string "name"
+//!   @b{mandatory@}
+//!
+//!   plugin name (displayed in the CIF and the admin interface)
+//!
+//! @member string "description"
+//!  @b{optional@} plugin description
+//!
+//! @member function "setup"
+//!  @b{mandatory@}
+//!
+//!  @tt{void setup(object id, string|void sid);@}
+//!
+//!  function to setup the plugin. Called once for every
+//!  request. If sid is absent, the function is required just to make
+//!  sure the storage exists and exit. If sid is present, a new area for
+//!  the given session must be created in every region.
+//!
+//! @member function "store"
+//!  @b{mandatory@}
+//!
+//!  @tt{void store(object id, string key, mixed data, string sid, void|string reg);@}
+//!
+//!  function to store a variable into a region.
+//!
+//! @member function "retrieve"
+//!  @b{mandatory@}
+//!
+//!  @tt{mixed retrieve(object id, string key, string sid, void|string reg);@}
+//! 
+//!  function to retrieve a variable from a region.
+//!
+//! @member function "delete_variable"
+//!  @b{mandatory@}
+//!
+//!  @tt{mixed delete_variable(object id, string key, string sid, void|string reg);@}
+//!
+//!  function to delete a variable from a region. Synopsis below.
+//!
+//! @member function "expire_old"
+//!  @b{mandatory@}
+//!
+//!  @tt{void expire_old(int curtime, int expiration_time);@}
+//!
+//!  called from a callout to expire aged sessions. Ran in a separate
+//!  thread, if available.
+//!
+//! @member function "delete_session"
+//!  @b{mandatory@}
+//!
+//!  @tt{void delete_session(string sid);@}
+//!
+//!  delete a session from all the regions of the storage.
+//!
+//! @member function "get_region"
+//!  @b{mandatory@}
+//!
+//!  @tt{mapping get_region(object id, string sid, string reg);@}
+//!
+//!  return a storage mapping of the specified region. This function
+//!  @b{must@} return valid mappings for the "session" and "user" regions
+//!  (compatibility with 123sessions)
+//!
+//! @member function "get_all_regions"
+//!  @b{mandatory@}
+//!
+//!  @tt{mapping get_all_regions(object id);@}
+//!
+//!  returns a mapping of all the regions in use - i.e. full storage.
+//!
+//! @member function "session_exists"
+//!  @b{mandatory@}
+//!
+//!  @tt{int session_exists(object id, string sid);@}
+//!
+//!  checks whether the given session exists in the storage
+//!
+//! @member function "get_sessions_area"
+//!  @b{mandatory@}
+//!
+//!  @tt{mapping get_sessions_area(object id);@}
+//!
+//!  returns the special '_sessions_' area in the storage. That area
+//!  stores all the options global to any session ID.
+//! @endmapping
+static mapping plugin_storage_registration_record = ([
     "name" : plugin_name(),
     "description" : plugin_description(),
     "setup" : plugin_setup,
@@ -203,17 +231,29 @@ private mapping plugin_storage_registration_record = ([
 ]);
 
 //
-// Validate region+session storage. Report an error if anything's wrong.
-//
-// This routine should check whether the given region exists and contains
-// the specified session entry. 'fn' can be used for error reporting. The
-// function is optional but it is recommended to call it in the prolog of
-// all the routines manipulating the storage in any way.
-//
-// Returns:
-//    0    - everything's fine
-//   -1    - failure
-//
+//! Validate region+session storage. Report an error if anything's wrong.
+//!
+//! This routine should check whether the given region exists and contains
+//! the specified session entry. @tt{fn@} can be used for error reporting. The
+//! function is optional but it is recommended to call it in the prolog of
+//! all the routines manipulating the storage in any way.
+//!
+//! @param reg
+//!  The region name
+//!
+//! @param sid
+//!  The session ID
+//!
+//! @param fn
+//!  Error callback
+//!
+//! @returns
+//!  @int
+//!   @value 0
+//!    everything's fine
+//!   @value -1
+//!    failure
+//!  @endint
 private int plugin_validate_storage(string reg, string sid, string|void fn) 
 {
     if (!_plugin_storage[reg]) {
@@ -232,30 +272,29 @@ private int plugin_validate_storage(string reg, string sid, string|void fn)
 }
 
 //
-// Set up storage of the session. If storage for given session ID already
-// exists, simply point the id->misc variables to it. The plugin is
-// responsible for setting up the two legacy regions - "session" and
-// "user". They _must_ exist in every storage!
-// If 'sid' is NULL, the routine must only initialize its storage mapping.
-// The plugin must also create and populate the id->misc->gsession mapping
-// that contains a copy of all the regions for the current session. To
-// summarize:
-//
-//  On exit from this routine the following mappings must exist in the
-//  request id object:
-//
-//   id->misc->session_variables   = points to the 'data' member of the
-//                                   storage mapping for the "session"
-//                                   region of the given session id.
-//
-//   id->misc->user_variables      = points to the 'data' member of the
-//                                   storage mapping for the "user"
-//                                   region of the given session id.
-//
-//   id->misc->gsession            = mapping that contains all 'data'
-//                                   members of the regions found in the
-//                                   current session.
-//
+//! Set up storage of the session. If storage for given session ID already
+//! exists, simply point the id->misc variables to it. The plugin is
+//! responsible for setting up the two legacy regions - "session" and
+//! "user". They _must_ exist in every storage!
+//! If 'sid' is NULL, the routine must only initialize its storage mapping.
+//! The plugin must also create and populate the id->misc->gsession mapping
+//! that contains a copy of all the regions for the current session. To
+//! summarize:
+//!
+//!  On exit from this routine the following mappings must exist in the
+//!  request id object:
+//!
+//!   id->misc->session_variables   = points to the 'data' member of the
+//!                                   storage mapping for the "session"
+//!                                   region of the given session id.
+//!
+//!   id->misc->user_variables      = points to the 'data' member of the
+//!                                   storage mapping for the "user"
+//!                                   region of the given session id.
+//!
+//!   id->misc->gsession            = mapping that contains all 'data'
+//!                                   members of the regions found in the
+//!                                   current session.
 private void plugin_setup(object id, string|void sid) 
 {
     if (!_plugin_storage || !sizeof(_plugin_storage)) {
@@ -299,8 +338,7 @@ private void plugin_setup(object id, string|void sid)
 }
 
 //
-// Store a variable in the indicated region for the passed session ID.
-//
+//! Store a variable in the indicated region for the passed session ID.
 private void plugin_store(object id, string key, mixed data, string sid, void|string reg)
 {
     string    region = reg || "session";
@@ -319,8 +357,7 @@ private void plugin_store(object id, string key, mixed data, string sid, void|st
 }
 
 //
-// Retrieve a variable from the indicated region
-//
+//! Retrieve a variable from the indicated region
 private mixed plugin_retrieve(object id, string key, string sid, void|string reg)
 {
     string    region = reg || "session";
@@ -340,9 +377,8 @@ private mixed plugin_retrieve(object id, string key, string sid, void|string reg
 }
 
 //
-// Remove a variable from the indicated region and return its value to the
-// caller.
-//
+//! Remove a variable from the indicated region and return its value to the
+//! caller.
 private mixed plugin_delete_variable(object id, string key, string sid, void|string reg)
 {
     string    region = reg || "session";
@@ -365,8 +401,7 @@ private mixed plugin_delete_variable(object id, string key, string sid, void|str
 }
 
 //
-// Delete the given session from all regions of the storage
-//
+//! Delete the given session from all regions of the storage
 private void plugin_delete_session(string sid)
 {
     foreach(indices(_plugin_storage), string region)
@@ -374,9 +409,9 @@ private void plugin_delete_session(string sid)
 }
 
 //
-// This function must be implemented in your plugin - it is supposed to
-// both expire the sessions in your storage as well as in the
-// _plugin_storage.
+//! This function must be implemented in your plugin - it is supposed to
+//! both expire the sessions in your storage as well as in the
+//! _plugin_storage.
 private void plugin_expire_old(int curtime)
 {}
 
