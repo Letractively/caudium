@@ -1,3 +1,9 @@
+caudium (2:1.0.35-10) unstable; urgency=low
+
+  * Relaxed the dependency on pike
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 25 Jun 2001 17:26:52 +0200
+
 caudium (2:1.0.35-9) unstable; urgency=low
 
   * Corrected the description of the caudium-dev package 

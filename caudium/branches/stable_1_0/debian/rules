@@ -179,7 +179,7 @@ binary-arch: build install
 #	dh_makeshlibs
 #	dh_perl
 	dh_shlibdeps
-	dh_gencontrol -u"-Vpikever=$(PIKE_DEBIAN_VER)"
+	dh_gencontrol -u"-Vpikever=$(PIKE_VERSION)"
 	dh_md5sums
 	dh_builddeb
 
