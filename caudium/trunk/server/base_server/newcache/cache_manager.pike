@@ -19,7 +19,6 @@
  *
  */
 
-
   constant cvs_version = "$id: cache_manager.pike,v 1.0 2001/12/26 18:21:00 james_tyson Exp $";
 
   // This object is part of caudium, which handles how much maximum ram and
@@ -51,9 +50,8 @@
   int max_disk_size;
   int vigilance;
   mapping caches;
-  string path = "/home/eugene/test-caches/";
 
-  void create( int _max_ram_size, int _max_disk_size, int _vigilance ) {
+  void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path ) {
 	// store the max_ram_size and max_disk_size as properties of
 	// cache_manager. Also, create the mapping used to store the caches.
 	// set a callout to to watch_size() for calling in the not too
@@ -68,9 +66,11 @@
 	// ourselves a shitload of cpu trash during the first page request.
 	// vigilance is how vigilant the server is at keeping to the RAM and
 	// disk limits that are set (percentage).
+        // _path: the path on the filesystem to store caches objects.
     max_ram_size = _max_ram_size;
     max_disk_size = _max_disk_size;
     vigilance = _vigilance;
+    path = _path;
     caches = ([ ]);
     create_cache( "DEFAULT" );
     call_out( watch_size, sleepfor() );
