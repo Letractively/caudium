@@ -25,6 +25,7 @@ How to install and use:
 TODO
 
 Indexer needs web interface
+Parser.HTML doesn't seem to like some of the output from pdftotext, so we filter.
 Search module needs paging capabilities
 Search module needs more flexible output
 Search module needs search forms
