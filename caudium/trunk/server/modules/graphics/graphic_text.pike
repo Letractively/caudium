@@ -25,6 +25,7 @@
 //!  text inside.
 //! inherits: module
 //! inherits: caudiumlib
+//! inherits: images.pike
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
@@ -36,6 +37,7 @@ constant thread_safe=1;
 #include <stat.h>
 inherit "module";
 inherit "caudiumlib";
+inherit "images";
 
 #ifndef VAR_MORE
 #define VAR_MORE	0
@@ -272,15 +274,15 @@ object make_text_image(mapping args, object font, string text,object id)
   }
 
   
-  array (int) bgcolor = parse_color(args->bg);
-  array (int) fgcolor = parse_color(args->fg);
+  array (int) bgcolor = Colors.parse_color(args->bg);
+  array (int) fgcolor = Colors.parse_color(args->fg);
 
   object background,foreground;
 
 
   if(args->texture)
   {
-    object t = caudium.load_image(args->texture,id);
+    object t = load_image(args->texture,id);
     if( t )
     {
       foreground = t;
@@ -316,19 +318,19 @@ object make_text_image(mapping args, object font, string text,object id)
   }
   int background_is_color;
   if(args->background &&
-     ((background = caudium.load_image(args->background, id)) ||
+     ((background = load_image(args->background, id)) ||
       (sizeof(args->background)>1 &&
-       (background=Image.image(xsize,ysize, @(parse_color(args->background[1..]))))
+       (background=Image.image(xsize,ysize, @(Colors.parse_color(args->background[1..]))))
        && (background_is_color=1))))
   {
     object alpha;
-    if(args->alpha && (alpha = caudium.load_image(args->alpha,id)) && background_is_color)
+    if(args->alpha && (alpha = load_image(args->alpha,id)) && background_is_color)
     {
       xsize=MAX(xsize,alpha->xsize());
       ysize=MAX(ysize,alpha->ysize());
       if((float)args->scale)
 	alpha=alpha->scale(1/(float)args->scale);
-      background=Image.image(xsize,ysize, @(parse_color(args->background[1..])));
+      background=Image.image(xsize,ysize, @(Colors.parse_color(args->background[1..])));
     }
       
     if((float)args->scale >= 0.1 && !alpha)
@@ -383,7 +385,7 @@ object make_text_image(mapping args, object font, string text,object id)
   if(args->border)
   {
     int b = (int)args->border;
-    background->setcolor(@parse_color((args->border/",")[-1]));
+    background->setcolor(@Colors.parse_color((args->border/",")[-1]));
 
     for(--b;b>=0;b--)
     {
@@ -431,7 +433,7 @@ object make_text_image(mapping args, object font, string text,object id)
     {
       array q= s/",";
       if(sizeof(q)<2) arg += ({ ((float)s)||0.2, ({ 255,255,255 }) });
-      arg+=({ ((float)q[0])||0.2, parse_color(q[1]) });
+      arg+=({ ((float)q[0])||0.2, Colors.parse_color(q[1]) });
     }
     background=background->turbulence(arg);
   }
@@ -448,7 +450,7 @@ object make_text_image(mapping args, object font, string text,object id)
     sscanf(args->textbox, "%*[^,],%s", bg);
     sscanf(bg,"%s,%d", bg,border);
     background->paste_alpha(Image.image(txsize+border*2,tysize+border*2,
-				  @parse_color(bg)),
+				  @Colors.parse_color(bg)),
 			    255-(alpha*255/100),xoffset-border,yoffset-border);
   }
 
@@ -460,7 +462,7 @@ object make_text_image(mapping args, object font, string text,object id)
     } else {
       int sdist = (int)(a[0]);
       int bl=(int)(a[1]);
-      array(int)clr=parse_color(a[-1]);
+      array(int)clr=Colors.parse_color(a[-1]);
       int j;
       object ta = text_alpha->copy();
       for (j=0;j<bl;j++)
@@ -479,7 +481,7 @@ object make_text_image(mapping args, object font, string text,object id)
     int sdist = ((int)(args->shadow/",")[-1])+2;
     object ta = text_alpha->copy();
     ta = ta->color(256-sd,256-sd,256-sd);
-    array sc = parse_color(args->scolor||"black");
+    array sc = Colors.parse_color(args->scolor||"black");
     background->paste_alpha_color(ta,sc[0],sc[1],sc[2],
 				  xoffset+sdist,yoffset+sdist);
   }
@@ -493,7 +495,7 @@ object make_text_image(mapping args, object font, string text,object id)
     xs = text_alpha->xsize()+sdist*2+4;
     ys = text_alpha->ysize()+sdist*2+4;
     object ta = Image.image(xs+sdist*2,ys+sdist*2);
-    array sc = parse_color(args->scolor||"black");
+    array sc = Colors.parse_color(args->scolor||"black");
 
     ta->paste_alpha_color(text_alpha,255,255,255,sdist,sdist);
     ta = blur(ta, MIN((sdist/2),1))->color(256,256,256);
@@ -505,7 +507,7 @@ object make_text_image(mapping args, object font, string text,object id)
   if(args->glow)
   {
     int amnt = (int)(args->glow/",")[-1]+2;
-    array (int) blurc = parse_color((args->glow/",")[0]);
+    array (int) blurc = Colors.parse_color((args->glow/",")[0]);
     background->paste_alpha_color(blur(text_alpha, amnt),@blurc,
 				  xoffset-amnt, yoffset-amnt);
   }
@@ -524,16 +526,16 @@ object make_text_image(mapping args, object font, string text,object id)
     string c1="black",c2="black",c3="black",c4="black";
     sscanf(args->textscale, "%s,%s,%s,%s", c1, c2, c3, c4);
     foreground->tuned_box(0,0, txsize,tysize,
-			  ({parse_color(c1),parse_color(c2),parse_color(c3),
-			      parse_color(c4)}));
+			  ({Colors.parse_color(c1),Colors.parse_color(c2),Colors.parse_color(c3),
+			      Colors.parse_color(c4)}));
   }
   if(args->outline)
-    outline(background, text_alpha, parse_color((args->outline/",")[0]),
+    outline(background, text_alpha, Colors.parse_color((args->outline/",")[0]),
 	    ((int)(args->outline/",")[-1])+1, xoffset, yoffset);
 
   if(args->textbelow)
   {
-    array color = parse_color(args->textbelow);
+    array color = Colors.parse_color(args->textbelow);
 //     foreground = foreground->autocrop();
 //     text_alpha = text_alpha->autocrop();
     
@@ -562,7 +564,7 @@ object make_text_image(mapping args, object font, string text,object id)
   {
     string c;
     if(sscanf(args->rotate, "%*d,%s", c)==2)
-       background->setcolor(@parse_color(c));
+       background->setcolor(@Colors.parse_color(c));
     else
        background->setcolor(@bgcolor);
     background = background->rotate((float)args->rotate);
@@ -667,7 +669,7 @@ mixed draw_callback(mapping args, string text, object id)
   {
     if(!args->notrans)
     {
-      array (int) bgcolor = parse_color(args->bg);
+      array (int) bgcolor = Colors.parse_color(args->bg);
       object alpha;
       alpha = img->distancesq( @bgcolor );
       alpha->gamma( 8 );
@@ -683,7 +685,7 @@ mixed draw_callback(mapping args, string text, object id)
     sscanf(args->fadein,"%d,%d,%d,%d", amount, steps, delay, initialdelay);
     if(initialdelay)
     {
-      object foo=Image.image(img->xsize(),img->ysize(),@parse_color(args->bg));
+      object foo=Image.image(img->xsize(),img->ysize(),@Colors.parse_color(args->bg));
       res += foo->gif_add(0,0,initialdelay);
     }
     for(int i = 0; i<(steps-1); i++)
@@ -707,7 +709,7 @@ mixed draw_callback(mapping args, string text, object id)
     {
       int xp = i*ox/steps;
       res += img->copy(xp, 0, xp+len, img->ysize(),
-                       @parse_color(args->bg))->gif_add(0,0,delay);
+                       @Colors.parse_color(args->bg))->gif_add(0,0,delay);
     }
     res += img->gif_end();
     data = ({ res, ({ len, img->ysize() }) });
@@ -1104,7 +1106,7 @@ string|array (string) tag_body(string t, mapping args, object id, object file,
      ||args->background||args->vlink)
     cols=1;
 
-#define FIX(Y,Z,X) do{if(!args->Y || args->Y==""){if(cols){defines->X=Z;args->Y=Z;changed=1;}}else{defines->X=args->Y;if(QUERY(colormode)&&args->Y[0]!='#'){args->Y=ns_color(parse_color(args->Y));changed=1;}}}while(0)
+#define FIX(Y,Z,X) do{if(!args->Y || args->Y==""){if(cols){defines->X=Z;args->Y=Z;changed=1;}}else{defines->X=args->Y;if(QUERY(colormode)&&args->Y[0]!='#'){args->Y=ns_color(Colors.parse_color(args->Y));changed=1;}}}while(0)
 
   FIX(bgcolor,"#c0c0c0",bg);
   FIX(text,   "#000000",fg);
@@ -1127,7 +1129,7 @@ string|array(string) tag_fix_color(string tagname, mapping args, object id,
   else
     id->misc->colors += ({ ({ defines->fg, defines->bg, tagname }) });
 #undef FIX
-#define FIX(X,Y) if(args->X && args->X!=""){defines->Y=args->X;if(QUERY(colormode) && args->X[0]!='#'){args->X=ns_color(parse_color(args->X));changed = 1;}}
+#define FIX(X,Y) if(args->X && args->X!=""){defines->Y=args->X;if(QUERY(colormode) && args->X[0]!='#'){args->X=ns_color(Colors.parse_color(args->X));changed = 1;}}
 
   FIX(bgcolor,bg);
   FIX(text,fg);

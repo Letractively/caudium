@@ -225,7 +225,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
        sscanf(id->variables[m->name+".hsv"], "%d,%d,%d", h, s, v);
      else
      {
-       array tmp = rgb_to_hsv(@parse_color(current||"black"));
+       array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
      } 
      if(id->variables[m->name+".foo.x"]) {
@@ -236,7 +236,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      else if(id->variables[m->name+".entered"] &&
 	     strlen(current=id->variables[m->name+".entered"]))
      {
-       array tmp = rgb_to_hsv(@parse_color(current||"black"));
+       array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
      }
 
@@ -246,7 +246,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      m_delete(id->variables, m->name+".bar.y");
      id->variables[m->name+".hsv"] = h+","+s+","+v;
 
-     array a=hsv_to_rgb(h,s,v);
+     array a=Colors.hsv_to_rgb(h,s,v);
      string bgcol=sprintf("#%02x%02x%02x",a[0],a[1],a[2]); 
      id->variables[m->name] = bgcol;
      return 
@@ -282,14 +282,14 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       "<hr size=2 align=left noshade width=70>\n"+
       "<font size=-1><input type=string name="+
       m->name+".entered size=8 value='"+
-      color_name(a)+"'> <input type=submit value=Ok></font></td></table>\n");
+      Image.Color(@a)->name()+"'> <input type=submit value=Ok></font></td></table>\n");
 
   case "color-small":
      if(id->variables[m->name+".hsv"]) 
        sscanf(id->variables[m->name+".hsv"], "%d,%d,%d", h, s, v);
      else
      {
-       array tmp = rgb_to_hsv(@parse_color(current||"black"));
+       array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
      } 
      if(id->variables[m->name+".foo.x"]) {
@@ -300,7 +300,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      else if(id->variables[m->name+".entered"] &&
 	     strlen(current=id->variables[m->name+".entered"]))
      {
-       array tmp = rgb_to_hsv(@parse_color(current||"black"));
+       array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
      }
 
@@ -310,7 +310,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      m_delete(id->variables, m->name+".bar.y");
      id->variables[m->name+".hsv"] = h+","+s+","+v;
 
-     a=hsv_to_rgb(h,s,v);
+     a=Colors.hsv_to_rgb(h,s,v);
      bgcol=sprintf("#%02x%02x%02x",a[0],a[1],a[2]); 
      id->variables[m->name] = bgcol;
      return 
@@ -342,7 +342,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       "<tr><td width=110>\n"
       "<font size=-1><input type=string name="+
       m->name+".entered size=8 value='"+
-      color_name(a)+"'> <input type=submit value=Ok></font>"
+      Image.Color(@a)->name()+"'> <input type=submit value=Ok></font>"
       "</td></tr>\n"
       "</table>\n");
 

@@ -26,7 +26,7 @@
 */
    
 
-mapping _decode( string data, mixed|void tocolor )
+private mapping _decode( string data, mixed|void tocolor )
 {
   Image.image i, a;
   string format;
@@ -114,7 +114,7 @@ mapping _decode( string data, mixed|void tocolor )
   ]);
 }
 
-array(Image.Layer) decode_layers( string data, mixed|void tocolor )
+private array(Image.Layer) decode_layers( string data, mixed|void tocolor )
 {
   array i;
   function f;

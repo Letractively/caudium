@@ -23,7 +23,7 @@ constant doc = "Generic matrix filter. Specify a 'matrix' argument with a matrix
 
 void render( mapping args, mapping this, string channel, object id, object m )
 {
-  array color = Colors.parse_color( args->color||"black" );
+  array color = Colors.Colors.parse_color( args->color||"black" );
   if(!this[channel]) return;
   array matrix = (args->matrix||"0 1 0\n1 2 1\n0 1 0")/"\n";
   matrix = Array.map(matrix, lambda(string s){

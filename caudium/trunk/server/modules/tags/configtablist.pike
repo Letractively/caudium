@@ -214,7 +214,7 @@ mapping find_file(string f, object id)
   }
 #endif  
 
-  array pagecolor; //=({ 122, 122, 122 }); //parse_color("lightblue");
+  array pagecolor; //=({ 122, 122, 122 }); //Colors.parse_color("lightblue");
   array(string) arr = f/"/";
   if (sizeof(arr) > 1) {
     object interface = load_interface();
@@ -224,7 +224,7 @@ mapping find_file(string f, object id)
       arr[-1] = arr[-1][..sizeof(arr[-1])-5];
     }
 
-    pagecolor=parse_color(replace(arr[1],"|","#",));
+    pagecolor=Colors.parse_color(replace(arr[1],"|","#",));
     
     switch (arr[0]) {
     case "s":	/* Selected */

@@ -149,32 +149,15 @@ array summarize_map(mapping m, int|void r) {
   array res = ({});
   array count=({});
   mapping  foo = ([]);
-  write("mkmap...");
   int i;
   foreach(indices(m), mixed code) {
     foreach(indices(m[code]), string u) {
-      //      if(r)
-      //	res[i] = 
-      //		foo[({ code, u, m[code][u] })] = m[code][u];
-      if(r){
-	werror("reverse\n");
-	res += ({ ({ code, u, m[code][u] }) });
-      }
-      else {
-	werror("normal\n");
-	res += ({ ({ u, code, m[code][u] }) });
-      }
-      //      else
-      //      	res[({ ud, code, m[code][u] })] = m[code][u];
-      //	i++;
+      if(r) res += ({ ({ code, u, m[code][u] }) });
+      else  res += ({ ({ u, code, m[code][u] }) });
     }
   }
-  write("sort("+sizeof(res)+","+i+")...");
-  //  res = indices(foo);
   if(!sizeof(res)) return res;
   sort(column(res, 2), res);
-  //sort(values(foo), res);
-  write("done\n");
   return res;
 }
 
@@ -294,7 +277,11 @@ string list_months(string base_url, object cal, int year,
 		   mapping dates, int|void sel)
 {
   string period = "month";
-  array m = Array.map(cal->months(), lambda(string m) { return m[..2]; });
+  array m = cal->months();
+#if constant(Calendar.Islamic)
+  m = m->month_name();
+#endif
+  m = Array.map(m, lambda(string m) { return m[..2]; });
   string out = "";
   for(int i = 0; i < 3; i ++) {
     out += "<td rowspan=6>";
@@ -321,7 +308,7 @@ string list_week_date(string base_url, object cal, int year,
     object d;
     string format="";
     ok = 0;
-    foreach(Array.map(w->days(), w->day), d)
+    foreach(weekday_objs(w), d)
     {
       int mm=d->month()->m, dd = d->month_day();
       if(dates[d->y] && dates[d->y][mm] && dates[d->y][mm][dd])
@@ -337,7 +324,7 @@ string list_week_date(string base_url, object cal, int year,
     else
       res += "<td><font color=#8585858>"+w->w+"</font></td>";
     
-    foreach(Array.map(w->days(), w->day), d) {
+    foreach(weekday_objs(w), d) {
       int mm=d->month()->m, dd = d->month_day();
       if(dates[d->y] && dates[d->y][mm] && dates[d->y][mm][dd]) {
 	if(selday && selday == d)
@@ -355,7 +342,13 @@ string list_week_date(string base_url, object cal, int year,
     }
     res+="  </tr><tr valign=center align=center>\n";
     w++;
-  }   while (w->day(0)->month()==cal);
+  }   while (
+#if constant(Calendar.Islamic)
+	     w->day(1)->month() == cal
+#else
+	     w->day(0)->month() == cal
+#endif
+	     );
   return res+"</tr>";
 }
 
@@ -385,12 +378,13 @@ string get_calendar(string profile, string base_url, array selected) {
     break;
     
    case "month":
-    cal = Calendar.ISO.Month(@selected[1..2]);
-    out += cal->name()+", "+selected[1]+"</title>"
-      "<table cellspacing=1 cellpadding=1 width=100%><tr align=left><th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
+     cal = Calendar.ISO.Month(@selected[1..]);
+     werror("%O\n", );
+    out += monthname(cal)+", "+ selected[1]+"</title>\n"
+      "<table cellspacing=1 cellpadding=1 width=100%><tr align=left>"
+      "<th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
     object w = cal->day(1)->week();
-    foreach (Array.map(w->days(), w->day)->week_day_name(),
-	     string n)
+    foreach (weekday_objs(w)->week_day_name(),  string n)
       out += sprintf("   <th>%s</th>\n", n[..1]);
 
     out += "  </tr>\n<tr valign=top align=center><td rowspan=6>"+
@@ -402,11 +396,10 @@ string get_calendar(string profile, string base_url, array selected) {
     break;
    case "day":
     cal = Calendar.ISO.Month(@selected[1..2]);
-    out += cal->name()+" "+selected[3]+", "+selected[1]+"</title>"
+    out += monthname(cal)+" "+selected[3]+", "+selected[1]+"</title>"
       "<table cellspacing=1 cellpadding=1 width=100%><tr align=left><th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
     w = cal->day(1)->week();
-   foreach (Array.map(w->days(), w->day)->week_day_name(),
-	    string n)
+   foreach (weekday_objs(w)->week_day_name(), string n)
      out += sprintf("   <th>%s</th>\n", n[..1]);
    
    out += "  </tr>\n<tr valign=top align=center><td rowspan=6>"+
@@ -421,8 +414,7 @@ string get_calendar(string profile, string base_url, array selected) {
     out += "Week "+selected[2]+", "+selected[1]+"</title>"
       "<table cellspacing=1 cellpadding=1 width=100%><tr align=left><th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
     w = cal->day(1)->week();
-   foreach (Array.map(w->days(), w->day)->week_day_name(),
-	    string n)
+   foreach (weekday_objs(w)->week_day_name(), string n)
      out += sprintf("   <th>%s</th>\n", n[..1]);
    
    out += "  </tr>\n<tr valign=top align=center><td rowspan=6>"+

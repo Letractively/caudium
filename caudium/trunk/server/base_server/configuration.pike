@@ -1195,8 +1195,8 @@ string draw_saturation_bar(int hue,int brightness, int where)
   for(int i=0;i<128;i++)
   {
     int j = i*2;
-    bar->line(0,j,29,j,@hsv_to_rgb(hue,255-j,brightness));
-    bar->line(0,j+1,29,j+1,@hsv_to_rgb(hue,255-j,brightness));
+    bar->line(0,j,29,j,@Colors.hsv_to_rgb(hue,255-j,brightness));
+    bar->line(0,j+1,29,j+1,@Colors.hsv_to_rgb(hue,255-j,brightness));
   }
 
   where = 255-where;

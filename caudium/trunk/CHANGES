@@ -98,3 +98,8 @@ Changes in Caudium 1.1 since CVS branching
 - Fixed broken caching of directory expansion. Could significantly speed
   up startup time if the list of module directories is large and/or
   if module directories contains lots of files and sub-directories. 
+- Use Colors and Graphics.Graph modules to remove duplicated code.
+- Fixed more compatibility problems with newer (7.2 and 7.3) Pike.
+- Removed various old compat code (for Pike < 7.0). Still more to go however.
+
+

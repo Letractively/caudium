@@ -25,7 +25,7 @@ constant doc = "points='x0,y0, x1,y1, ...' color='color'. Draws in the mask chan
 void render(mapping args, mapping this, string channel, object id, object m)
 {
   if(!this[channel]) return;
-  array c = Colors.parse_color(args->color||
+  array c = Colors.Colors.parse_color(args->color||
 			       (channel=="mask"?"white":"black" ));
   array points = (array(float))(args->points/",");
 

@@ -24,6 +24,6 @@ constant doc="Colorize an image. The red, green and blue values of the pixels ar
 void render( mapping args, mapping this, string channel, object id, object m )
 {
   if(!this[channel]) return;
-  this[channel]=this[channel]->color(@parse_color(args->color||"red"));
+  this[channel]=this[channel]->color(@Colors.parse_color(args->color||"red"));
 }
 

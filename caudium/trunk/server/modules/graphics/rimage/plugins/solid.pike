@@ -30,7 +30,7 @@ void render( mapping args, mapping this, string channel, object id, object m )
   int ys = (int)(args->height || this->height);
   int xp = (int)args->xpos;
   int yp = (int)args->ypos;
-  array (int) color = Colors.parse_color( args->color || "black" );
+  array (int) color = Colors.Colors.parse_color( args->color || "black" );
 
   if(!args->replace && this[channel])
   {

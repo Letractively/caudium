@@ -89,8 +89,14 @@ void create(int year, int week, object method, string|void table,
   werror("Week %d %d (%s)\n", year, week, table||"none");
   for(int i = 1; i < 8; i ++) {
     int day = wobj->day(i)->month_day();
-    int month = wobj->day(i)->month()->number();
+    int month;
+#if constant(Calendar.Islamic)
+    month = wobj->month_no();
+    year = wobj->year_no();
+#else
+    month = wobj->day(i)->month()->number();
     year = wobj->day(i)->year()->number();
+#endif
     if(d) destruct(d);
       
     werror("   Date %d-%02d-%02d\n", year, month, day);
