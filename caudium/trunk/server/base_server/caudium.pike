@@ -2387,6 +2387,15 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("snmp_address", "", "SNMP Agent: Listen Address", TYPE_STRING,
 	"The IP address to start the SNMP listener on.");
 
+  globvar("watchdog_timer", 60, "Watchdog: Check Interval", TYPE_INT,
+	"The number of seconds between attempts by the watchdog to verify the server is up.");
+
+  globvar("watchdog_timeout", 15, "Watchdog: Check Timeout", TYPE_INT,
+	"The number of seconds Caudium has to pat the watchdog before it tries to restart Caudium.");
+
+  globvar("watchdog_timeout", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
+	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?");
+
 #if constant(SpiderMonkey.Context);
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
           "If set to Yes, the server will enable the global JavaScript support. "
