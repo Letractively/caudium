@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright C 2000-2002 The Caudium Group
+ * Copyright C 2000-2003 The Caudium Group
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
