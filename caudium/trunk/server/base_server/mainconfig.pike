@@ -790,7 +790,7 @@ string new_module_form(object id, object node)
  	if(b->sname != q)
  	  doubles += 
  	    ("<p><dt><b>"+a[q][0]+"</b><dd>" +
- 	     "<i>A module of the same type is already enabled ("+b->name+")"
+ 	     "<i>A module of the same type is already enabled ("+b->name+"). "
  	     "<a href=\"/(delete)"+ node->descend(b->name, 1)->path(1) +
 	     "?" + (bar++) +"\">Disable that module</a> if you want this one "
 	     "instead.</i>\n");
