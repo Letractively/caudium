@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Removed legacy Argument Cache code and folded it into the Cache Manager.
 - Fixed bug in the XML compliant RXML parser that caused to to backtrace on
   certain tags (like <H1 />).
 - Added support for the default character set for the returned content

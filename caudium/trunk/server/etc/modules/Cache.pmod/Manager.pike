@@ -299,3 +299,7 @@ void stop( void|string namespace ) {
     }
   }
 }
+
+object get_argcache() {
+  return Cache.Argument( this_object() );
+}
