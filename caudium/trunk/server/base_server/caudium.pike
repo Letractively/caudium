@@ -1643,14 +1643,15 @@ class ImageCache
 
   static mixed frommapp( mapping what )
   {
-    if( what[""] ) return what[""];
+    if( !zero_type(what[""]) )
+        return what[""];
     return what;
   }
 
   static void draw( string name, object id )
   {
     mixed args = Array.map( Array.map( name/"$", argcache->lookup,
-				       id->useragent), frommapp);
+                                       id->useragent), frommapp);
     mapping meta;
     string data;
     mixed reply = draw_function( @copy_value(args), id );
@@ -1658,57 +1659,110 @@ class ImageCache
     if( arrayp( args ) )
       args = args[0];
 
+    if (arrayp(reply)) // Returned layers
+        reply = Image.lay(reply);
 
+    if (objectp(reply) && reply->image)
+    {
+        reply = ([
+            "img": reply->image(),
+            "alpha": reply->alpha()
+        ]);
+    }
+    
     if( objectp( reply ) || (mappingp(reply) && reply->img) )
     {
       int quant = (int)args->quant;
       string format = lower_case(args->format || "gif");
       string dither = args->dither;
-      object ct;
+      Image.Colortable ct;
+      Image.Color.Color bgcolor;
       object alpha;
       int true_alpha; 
 
       if( args->fs  || dither == "fs" )
-	dither = "floyd_steinberg";
+          dither = "floyd_steinberg";
 
       if(  dither == "random" )
-	dither = "random_dither";
+          dither = "random_dither";
 
       if( format == "jpg" ) 
-        format = "jpeg";
+          format = "jpeg";
 
+      if (dither)
+          dither = replace(dither, "-", "_");
+      
       if(mappingp(reply))
       {
         alpha = reply->alpha;
         reply = reply->img;
       }
-      
-      if( args->gamma )
-        reply = reply->gamma( (float)args->gamma );
 
       if( args["true-alpha"] )
         true_alpha = 1;
 
+      if ( args["background"] || args["background-color"])
+          bgcolor = Image.Color((args["background"] || args["background-color"]));
+      
       if( args["opaque-value"] )
       {
-        true_alpha = 1;
-        int ov = (int)(((float)args["opaque-value"])*2.55);
-        if( ov < 0 )
-          ov = 0;
-        else if( ov > 255 )
-          ov = 255;
-        if( alpha )
-        {
-          object i = Image.image( reply->xsize(), reply->ysize(), ov,ov,ov );
-          i->paste_alpha( alpha, ov );
-          alpha = i;
-        }
-        else
-        {
-          alpha = Image.image( reply->xsize(), reply->ysize(), ov,ov,ov );
-        }
+          if (!bgcolor)
+              true_alpha = 1;
+          
+          int ov = (int)(((float)args["opaque-value"])*2.55);
+          if( ov < 0 )
+              ov = 0;
+          else if( ov > 255 )
+              ov = 255;
+          if( alpha )
+              alpha *= ov;
+          else
+              alpha = Image.image( reply->xsize(), reply->ysize(), ov,ov,ov );
       }
 
+      if( args->gamma )
+          reply = reply->gamma( (float)args->gamma );
+
+      if( bgcolor && alpha && !true_alpha )
+      {
+          reply = Image.Image( reply->xsize(),
+                               reply->ysize(), bgcolor )
+              ->paste_mask( reply, alpha );
+          alpha = alpha->threshold( 4 );
+      }
+
+      int x0, y0, x1, y1;
+      if( args["x-offset"] || args["xoffset"] )
+          x0 = (int)(args["x-offset"]||args["xoffset"]);
+      if( args["y-offset"] || args["yoffset"] )
+          y0 = (int)(args["y-offset"]||args["yoffset"]);
+      if( args["width"] || args["x-size"] )
+          x1 = (int)(args["x-size"]||args["widt h"]);
+      if( args["height"] || args["y-size"] )
+          y1 = (int)(args["y-size"]||args["height"]);
+
+      if( args->crop )
+      {
+          if( sscanf( args->crop, "%d,%d-%d,%d", x0, y0, x1, y1 ) )
+          {
+              x1 -= x0;
+              y1 -= y0;
+          } else {
+              [ x0, y0, x1, y1 ] = reply->find_autocrop();
+              x1 -= x0;
+              y1 -= y0;
+          }
+      }
+
+      if( x0 || x1 || y0 || y1 )
+      {
+          if( !x1 ) x1 = reply->xsize()-x0;
+          if( !y1 ) y1 = reply->ysize()-y0;
+          reply = reply->copy( x0,y0,x0+x1-1,y0+y1-1 );
+          if( alpha )
+              alpha = alpha->copy( x0,y0,x0+x1-1,y0+y1-1 );
+      }
+      
       if( args->scale )
       {
         int x, y;
@@ -1726,75 +1780,165 @@ class ImageCache
         }
       }
 
-      if( args->maxwidth || args->maxheight )
+      if( args->maxwidth || args->maxheight ||
+          args["max-width"] || args["max-height"])
       {
-        int x = (int)args->maxwidth, y = (int)args->maxheight;
-        if( x && reply->xsize() > x )
-        {
-          reply = reply->scale( x, 0 );
-          if( alpha )
-            alpha = alpha->scale( x, 0 );
-        }
-        if( y && reply->ysize() > y )
-        {
-          reply = reply->scale( 0, y );
-          if( alpha )
-            alpha = alpha->scale( 0, y );
-        }
+          int x = (int)args->maxwidth || (int)args["max-width"];
+          int y = (int)args->maxheight || (int)args["max-height"];
+          
+          if( x && reply->xsize() > x )
+          {
+              reply = reply->scale( x, 0 );
+              if( alpha )
+                  alpha = alpha->scale( x, 0 );
+          }
+          
+          if( y && reply->ysize() > y )
+          {
+              reply = reply->scale( 0, y );
+              if( alpha )
+                  alpha = alpha->scale( 0, y );
+          }
       }
 
+      if( args["rotate-cw"] || args["rotate-ccw"])
+      {
+          float degree = (float)(args["rotate-cw"] || args["rotate-ccw"]);
+          switch( args["rotate-unit"] && args["rotate-unit"][0..0] )
+          {
+              case "r":
+                  degree = (degree / (2*3.1415)) * 360;
+                  break;
+                  
+              case "d":
+                  break;
+                  
+              case "n":
+                  degree = (degree / 400) * 360;
+                  break;
+                  
+              case "p":
+                  degree = (degree / 1.0) * 360;
+                  break;
+          }
+          if( args["rotate-cw"] )
+              degree = -degree;
+          if(!alpha)
+              alpha = reply->copy()->clear(255,255,255);
+          reply = reply->rotate_expand( degree );
+          alpha = alpha->rotate( degree, 0,0,0 );
+      }
+
+      if( args["mirror-x"] )
+      {
+          if( alpha )
+              alpha = alpha->mirrorx();
+          reply = reply->mirrorx();
+      }
+
+      if( args["mirror-y"] )
+      {
+          if( alpha )
+              alpha = alpha->mirrory();
+          reply = reply->mirrory();
+      }
+
+      if( bgcolor && alpha && !true_alpha )
+      {
+          reply = Image.Image( reply->xsize(),
+                               reply->ysize(), bgcolor )
+              ->paste_mask( reply, alpha );
+      }
+
+      if( args["cs-rgb-hsv"] )
+          reply = reply->rgb_to_hsv();
+      if( args["cs-grey"] )
+          reply = reply->grey();
+      if( args["cs-invert"] )
+          reply = reply->invert();
+      if( args["cs-hsv-rgb"] )
+          reply = reply->hsv_to_rgb();
+
+      if( !true_alpha && alpha )
+        alpha = alpha->threshold( 4 );
+      
       if( quant || (format=="gif") )
       {
-        int ncols = quant||id->misc->defquant||16;
-        if( ncols > 250 )
-          ncols = 250;
-        ct = Image.colortable( reply, ncols );
-        if( dither )
-          if( ct[ dither ] )
-            ct[ dither ]();
-          else
-            ct->ordered();
-      }
+        int ncols = quant;
+        
+        if (format == "gif") {
+            ncols = ncols || id->misc->defquant || 32;
+            if (ncols > 254)
+                ncols = 254;
+        }
 
-      if(!Image[upper_case( format )] 
-         || !Image[upper_case( format )]->encode )
-        error("Image format "+format+" unknown\n");
+        ct = Image.Colortable( reply, ncols );
+        if( dither ) {
+            if (dither == "random")
+                dither = "random_grey";
+            if( ct[ dither ] )
+                ct[ dither ]();
+            else
+                ct->ordered();
+        } 
+      }
 
       mapping enc_args = ([]);
       if( ct )
         enc_args->colortable = ct;
+
       if( alpha )
         enc_args->alpha = alpha;
 
       foreach( glob( "*-*", indices(args)), string n )
-        if(sscanf(n, "%*[^-]-%s", string opt ) == 2)
-          enc_args[opt] = (int)args[n];
+          if(sscanf(n, "%*[^-]-%s", string opt ) == 2)
+              if (opt != "alpha")
+                  enc_args[opt] = (int)args[n];
 
       switch(format)
       {
+          case "gif":          
 #if constant(Image.GIF.encode)
-       case "gif":
-         if( alpha && true_alpha )
-         {
-           object ct=Image.colortable( ({ ({ 0,0,0 }), ({ 255,255,255 }) }) );
-           ct->floyd_steinberg();
-           alpha = ct->map( alpha );
-         }
-         if( catch {
-           if( alpha )
-             data = Image.GIF.encode_trans( reply, ct, alpha );
-           else
-             data = Image.GIF.encode( reply, ct );
-         })
-           data = Image.GIF.encode( reply );
-         break;
+              if( alpha && true_alpha )
+              {
+                  Image.Colortable bw = Image.Colortable( ({ ({ 0,0,0 }),
+                                                             ({ 255,255,255 }) }) );
+                  bw->floyd_steinberg();
+                  alpha = ct->map( alpha );
+              }
+              if( catch {
+                  if( alpha )
+                      data = Image.GIF.encode_trans( reply, ct, alpha );
+                  else
+                      data = Image.GIF.encode( reply, ct );
+              })
+                  data = Image.GIF.encode( reply );
+              break;
 #endif
+              format = "png";
+       
        case "png":
-         if( ct )
-           enc_args->palette = ct;
-         m_delete( enc_args, "colortable" );
+           if( ct )
+               enc_args->palette = ct;	   
+           m_delete( enc_args, "colortable" );
+           if ((!args["png-use-alpha"] || args["true-alpha"]))
+               m_delete(enc_args, "alpha");
+           else if (enc_args->alpha)
+               // PNG encoder doesn't handle alpha and palette simultaneously
+               // w hich is rather sad, since that's the only thing 100% supported
+               // by all common browsers. And this is the reason why
+               // Netscape < 6 and MSIE < 5.5 don't render PNG
+               // transparency correctly. Perhaps it's time to
+               // consider using libpng?
+               m_delete(enc_args, "palette");
+           else
+               m_delete(enc_args, "alpha");
+
        default:
-        data = Image[upper_case( format )]->encode( reply, enc_args );
+           if(!Image[upper_case( format )] 
+              || !Image[upper_case( format )]->encode )
+               error("Image format "+format+" unknown\n");
+           data = Image[upper_case( format )]->encode( reply, enc_args );
       }
 
       meta = ([ 
@@ -1811,9 +1955,10 @@ class ImageCache
         error("Invalid reply mapping.\n"
               "Should be ([ \"meta\": ([metadata]), \"data\":\"data\" ])\n");
     }
-    store_meta( name, meta );
+    store_meta( name, meta );    
     store_data( name, data );
   }
+
 
 
   static void store_meta( string id, mapping meta )
@@ -1833,6 +1978,9 @@ class ImageCache
 
   static void store_data( string id, string data )
   {
+    if (!data)
+        return;
+
     Stdio.File f = Stdio.File(  dir+id+".d", "wct" );
     if(!f) 
     {
@@ -1853,13 +2001,23 @@ class ImageCache
     f = Stdio.File( );
     if( !f->open(dir+id+".i", "r" ) )
       return 0;
-    return meta_cache_insert( id, decode_value( f->read() ) );
+
+    string s = f->read();
+    mapping m;
+    if (catch (m = decode_value (s))) {
+        rm (dir + id + ".i");
+        report_error( "Corrupt data in persistent cache file "+
+                      dir+id+".i; removed it.\n" );
+        return 0;
+    }
+    return meta_cache_insert( id, m );
   }
 
   static mapping restore( string id )
   {
     string|object(Stdio.File) f;
     mapping m;
+
     if( data_cache[ id ] )
       f = data_cache[ id ];
     else 
@@ -1871,13 +2029,12 @@ class ImageCache
     m = restore_meta( id );
     
     if(!m)
-      return 0;
+        return 0;
 
     if( stringp( f ) )
-      return http_string_answer( f, m->type||("image/gif") );
+        return http_string_answer( f, m->type||("image/gif") );
     return caudiump()->http_file_answer( f, m->type||("image/gif") );
   }
-
 
   string data( string|mapping args, object id, int|void nodraw )
   {
@@ -1933,12 +2090,26 @@ class ImageCache
   string store( array|string|mapping data, object id )
   {
     string ci;
-    if( mappingp( data ) )
-      ci = argcache->store( data );
-    else if( arrayp( data ) )
-      ci = Array.map( Array.map( data, tomapp ), argcache->store )*"$";
-    else
-      ci = data;
+    if( mappingp( data ) ) {
+        if (!data->format) {
+#if constant(Image.PNG.encode)
+            data->format = "png";
+#else   
+            data->format = "gif";
+#endif
+        }
+        ci = argcache->store( data );
+    }else if( arrayp( data ) ) {
+        if (!data[0]->format) {
+#if constant(Image.PNG.encode)
+            data[0]->format = "png";
+#else
+            data[0]->format = "gif";
+#endif
+        }
+        ci = Array.map( Array.map( data, tomapp ), argcache->store )*"$";
+    } else
+        ci = data;
     return ci;
   }
 
@@ -1951,7 +2122,7 @@ class ImageCache
   {
     if(!d) d = caudiump()->QUERY(argument_cache_dir);
     if( d[-1] != '/' )
-      d+="/";
+        d+="/";
     d += id+"/";
 
     mkdirhier( d+"foo");
@@ -1961,7 +2132,6 @@ class ImageCache
     draw_function = draw_func;
   }
 }
-
 
 class ArgCache
 {
