@@ -79,10 +79,12 @@ EOF
     
     db_get caudium${EXTVER}/start_options
     START_OPTIONS=
-
+    NOTHREADS=y
+    
     for o in `echo $RET | sed -e 's/,//g'`; do
 	case $o in
-	    threads) START_OPTIONS="$START_OPTIONS --with-threads" ;;
+	    threads) START_OPTIONS="$START_OPTIONS --with-threads" 
+	             NOTHREADS=n ;;
 	    debug) START_OPTIONS="$START_OPTIONS --with-debug" ;;
 	    once) START_OPTIONS="$START_OPTIONS --once" ;;
 	    profile) START_OPTIONS="$START_OPTIONS --with-profile" ;;
@@ -90,6 +92,10 @@ EOF
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
+    if [ "x$NOTHREADS" = "xy" ]; then
+       START_OPTIONS="$START_OPTIONS --without-threads"
+    fi
+    
     db_get caudium${EXTVER}/performance
     if [ "$RET" = "true" ]; then
         START_OPTIONS="$START_OPTIONS -DMAX_PERFORMANCE"
