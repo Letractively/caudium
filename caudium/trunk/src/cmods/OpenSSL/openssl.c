@@ -27,8 +27,8 @@
 struct SSL_CTX_t { SSL_CTX *ctx; };
 struct SSL_t { SSL *ssl; };
 
-#define SSL_CTX_OBJ	(((struct SSL_CTX_t *)(fp->current_storage))->ctx)
-#define SSL_OBJ		(((struct SSL_t *)(fp->current_storage))->ssl)
+#define SSL_CTX_OBJ	(((struct SSL_CTX_t *)(Pike_fp->current_storage))->ctx)
+#define SSL_OBJ		(((struct SSL_t *)(Pike_fp->current_storage))->ssl)
 
 static struct program *openssl_SSL_CTX_program;
 static struct program *openssl_SSL_program;
