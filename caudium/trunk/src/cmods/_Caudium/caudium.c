@@ -1211,14 +1211,17 @@ static void f_cern_http_date(INT32 args)
        break;
    }
   
+#ifdef HAVE_LOCALTIME_R
+#ifdef HAVE_ALLOCA
+   tm = (struct tm *)alloca(sizeof(struct tm));
+#else /* HAVE_ALLOCA */
+   tm = (struct tm *)malloc(sizeof(struct tm));
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
+
   if(args == 0) { 
 
 #ifdef HAVE_LOCALTIME_R
-#ifdef HAVE_ALLOCA
-    tm = (struct tm *)alloca(sizeof(struct tm));
-#else /* HAVE_ALLOCA */
-    tm = (struct tm *)malloc(sizeof(struct tm));
-#endif /* HAVE_ALLOCA */
     tm = localtime_r(&now, tm);
 #else /* HAVE_LOCALTIME_R */
     tm = localtime(&now);
@@ -1227,11 +1230,20 @@ static void f_cern_http_date(INT32 args)
     if ((now = time(NULL)) == (time_t) -1 ||
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+         free(tm);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
         return;
     }
    } else {
      now = (time_t)timestamp;
+#ifdef HAVE_LOCALTIME_R
+     if ((tm = localtime_r(&now, tm)) == NULL ||
+#else /* HAVE_LOCALTIME_R */
      if ((tm = localtime(&now)) == NULL ||
+#endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
 #ifdef HAVE_LOCALTIME_R
 #ifndef HAVE_ALLOCA
@@ -1343,17 +1355,46 @@ static void f_http_date(INT32 args)
        timestamp = NULL;
        break;
    }
-  
+
+#ifdef HAVE_LOCALTIME_R
+#ifdef HAVE_ALLOCA
+    tm = (struct tm *)alloca(sizeof(struct tm));
+#else /* HAVE_ALLOCA */
+    tm = (struct tm *)malloc(sizeof(struct tm));
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
+
   if(args == 0) { 
+
+#ifdef HAVE_LOCALTIME_R
+    tm = localtime_r(&now, tm);
+#else /* HAVE_LOCALTIME_R */
+    tm = localtime(&now);
+#endif /* HAVE_LOCALTIME_R */
+
     if ((now = time(NULL)) == (time_t) -1 ||
-        (tm = localtime(&now)) == NULL ||
+        tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+         free(tm);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
         return;
     }
    } else {
      now = (time_t)timestamp;
+#ifdef HAVE_LOCALTIME_R
+     if ((tm = localtime_r(&now,tm)) == NULL ||
+#else /* HAVE_LOCALTIME_R */
      if ((tm = localtime(&now)) == NULL ||
+#endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+         free(tm);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
          return;
      }
    }
@@ -1367,13 +1408,29 @@ static void f_http_date(INT32 args)
     struct tm *t;
     int days, hours, minutes;
 
+    /* FIXME: use if possible gmtime_r if exist !!! */
     gmt = *gmtime(&now);
+#ifdef HAVE_LOCALTIME_R
+#ifdef HAVE_ALLOCA
+    t = (struct tm *)alloca(sizeof(struct tm));
+#else /* HAVE_ALLOCA */
+    t = (struct tm *)malloc(sizeof(struct tm));
+#endif /* HAVE_ALLOCA */
+    t = localtime_r(&now, t);
+#else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
+#endif /* HAVE_LOCALTIME_R */
     days = t->tm_yday - gmt.tm_yday;
     hours = ((days < -1 ? 24 : 1 < days ? -24 : days * 24)
              + t->tm_hour - gmt.tm_hour);
     minutes = hours * 60 + t->tm_min - gmt.tm_min;
     diff = -minutes;
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+    free(t);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
+
   }
 #endif
   if (diff <= 0L) {
@@ -1387,8 +1444,18 @@ static void f_http_date(INT32 args)
               days[tm->tm_wday], tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
               hour, (tm->tm_min) - (int)(diff % 60L), 
               tm->tm_sec ) == sizeof date) {
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+     free(tm);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
      return;
   }
+#ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
+  free(tm);
+#endif /* HAVE_ALLOCA */
+#endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
     pop_stack();
