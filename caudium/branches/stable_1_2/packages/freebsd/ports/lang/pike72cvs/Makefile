@@ -6,7 +6,7 @@
 #
 
 PORTNAME=	pike72cvs
-PORTVERSION=	7.2.354
+PORTVERSION=	7.2.356
 PORTREVISION=	1
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -63,7 +63,7 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm=${PREFIX} \
-		 --with-ssleay
+		 --without-ssleay
 
 .include <bsd.port.pre.mk>
 
@@ -75,7 +75,7 @@ WITH_TTF=	yes
 WITH_FREETYPE=	yes
 .endif
 
-.if exists(${LOCALBASE}/lib/libmysqlclient.so.10)
+.if exists(${LOCALBASE}/lib/mysql/libmysqlclient.so.10)
 WITH_MYSQL=	yes
 .endif
 
