@@ -173,7 +173,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
   if(inval.type == T_STRING) {
     inp->type   = NBIO_STR;
     add_ref(inp->u.data = inval.u.string);
-    inp->len    = len || (inval.u.string->len << inval.u.string->size_shift);
+    inp->len = len ? len : inval.u.string->len << inval.u.string->size_shift;
     nstrings++;
     DERR(fprintf(stderr, "string input added: %ld bytes\n", (long)inp->len));
   } else if(inval.type == T_OBJECT) {
