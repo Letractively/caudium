@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2002 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -177,7 +176,7 @@ mapping|int get_user_info(string username)
 
 }
 
-mapping|int get_username(string uid)
+string|int get_username(string uid)
 {
   ERROR("get_username: " + uid);
 
@@ -192,7 +191,7 @@ mapping|int get_username(string uid)
 
 }
 
-mapping|int get_groupname(string gid)
+string|int get_groupname(string gid)
 {
   ERROR("get_groupname: " + gid);
 
