@@ -52,6 +52,8 @@ private static int perror_status_reported=0;
 int pid = getpid();
 Stdio.File stderr = Stdio.File("stderr");
 
+object _cache_manager;
+
 mapping(int:string) pwn=([]);
 string pw_name(int uid)
 {
@@ -511,13 +513,19 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
   return -1;
 }
 
-
 // Add a few cache control related efuns
+object cache_manager() {
+  if (! objectp( _cache_manager ) ) {
+    _cache_manager = ((program)"base_server/cache/cache_manager.pike")(); 
+  }
+  return _cache_manager;
+}
+ 
 static private void initiate_cache()
 {
-  object cache;
-  cache=((program)"base_server/cache/compatibility_cache.pike")();
-  add_constant("cache_start", cache->start);
+  object cache=((program)"base_server/cache/compatibility_cache.pike")( cache_manager() );
+  add_constant("get_cache_manager", cache_manager );
+  add_constant("get_cache", cache_manager()->get_cache );
   add_constant("cache_set", cache->cache_set);
   add_constant("cache_lookup", cache->cache_lookup);
   add_constant("cache_remove", cache->cache_remove);
