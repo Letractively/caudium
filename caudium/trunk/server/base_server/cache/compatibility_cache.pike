@@ -51,7 +51,7 @@ void cache_expire(string in)
 
 mixed cache_lookup( string in, string what ) {
   start_cache();
-  return my_cache->retrieve( sprintf( "%s://%s", in, what ), 1 )||0;
+  return my_cache->retrieve( sprintf( "%s://%s", in, what ) )||0;
 }
 
 string status() {

@@ -119,15 +119,6 @@ void store( mapping cache_response ) {
                  namespace, cache_response->name, _obj));
 #endif
   last_access = time();
-  if ( cache_response->expires ) {
-    if ( cache_response->expires < time() ) {
-      cache_response->expires = time() + cache_response->expires;
-    }
-  } else {
-    if ( ! cache_response->expires == -1 ) {
-      cache_response->expires = time() + default_ttl;
-    }
-  }
   if ( cache_response->size > max_object_ram ) {
     //if ( cache_response->disk_cache ) {
       if ( cache_response->size > max_object_disk ) {
@@ -140,7 +131,7 @@ void store( mapping cache_response ) {
   ram_cache->store( cache_response );
 }
 
-void|mapping retrieve( string name, void|int objectonly ) {
+void|mapping retrieve( string name, void|function get_callback, array cb_args ) {
 	// Search the caches for the object.
 	// if there is a matching object in the ram_cache then return
 	// it to the caller, else check the disk_cache.
@@ -148,16 +139,14 @@ void|mapping retrieve( string name, void|int objectonly ) {
 #ifdef CACHE_DEBUG
   roxen_perror( sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name ) );
 #endif
+  
   last_access = time();
   mixed _object = ram_cache->retrieve( name );
   if ( mappingp( _object ) ) {
 #ifdef CACHE_DEBUG
   roxen_perror( "Hit\n" );
 #endif
-    if ( objectonly ) {
-      return _object->object;
-    }
-    return _object;
+    return _object->object;
   }
   _object = disk_cache->retrieve( name );
   if ( mappingp( _object ) ) {
@@ -168,13 +157,19 @@ void|mapping retrieve( string name, void|int objectonly ) {
       ram_cache->store( _object );
       disk_cache->refresh( name );
     }
-    if ( objectonly ) {
-      return _object->object;
-    }
-    return _object;
+    return _object->object;
   }
 #ifdef CACHE_DEBUG
-  roxen_perror( "Miss\n" );
+  roxen_perror( "Miss" );
+#endif
+  if ( functionp( get_callback ) ) {
+#ifdef CACHE_DEBUG
+    roxen_perror( " - calling callback." );
+#endif
+    return get_callback( @cb_args );
+  }
+#ifdef CACHE_DEBUG
+  roxen_perror( "\n" );
 #endif
 }
 

@@ -291,6 +291,9 @@ void expire_cache( void|int nocallout ) {
     }
     if ( thecache[ hash ]->expires <= time() ) {
       ram_usage -= thecache[ hash ]->size;
+#ifdef CACHE_DEBUG
+      write( "Object Expired: %s, expiry: %d, removing from RAM.\n", thecache[ hash ]->name, thecache[ hash ]->expires );
+#endif
       m_delete( thecache, hash );
     }
   }
