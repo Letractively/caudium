@@ -37,7 +37,6 @@ configure-stamp:
 # Add here commands to configure the package.
 
 	if test ! -f stamp-patch; then \
-	    patch -p1 < debian/patches/smartlink.diff; \
 	    patch -p1 < debian/patches/configure.in.diff; \
 	    touch stamp-patch; \
 	fi;
@@ -62,7 +61,6 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	if test -f stamp-patch; then \
-	    patch -R -p1 < debian/patches/smartlink.diff; \
 	    patch -R -p1 < debian/patches/configure.in.diff; \
 	    rm -f stamp-patch; \
 	fi
