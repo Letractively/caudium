@@ -20,14 +20,14 @@
  */
 
 /*
- * Roxen master, replacing the default Pike master.
+ * Caudium master, replacing the default Pike master.
  */
 
 string cvs_version = "$Id$";
 
 /*
- * name = "Roxen Master";
- * doc = "Roxen's customized master.";
+ * name = "Caudium Master";
+ * doc = "Caudium's customized master object.";
  */
 
 mapping names=([]);
@@ -220,23 +220,17 @@ void clear_compilation_failures()
     if (!programs[fname]) m_delete (programs, fname);
 }
 
+#if !defined(__MAJOR__) || __MAJOR__ < 7
 /*
  * This function is called whenever a compiling error occurs,
- * Nothing strange about it.
- * Note that previous_object cannot be trusted in this function, because
- * the compiler calls this function.
+ * It is only required for Pike 0.6 since Pike 7.0 and higher
+ * performs the correct task by default.
  */
 
 void compile_error(string file,int line,string err)
 {
   mixed inhibit;
-#if constant(thread_local)
-  if(objectp(inhibit_compile_errors) &&
-     equal(sort(indices(inhibit_compile_errors)), ({ "get", "set"})))
-    inhibit = inhibit_compile_errors->get();
-  else
-#endif  
-    inhibit = inhibit_compile_errors;
+  inhibit = inhibit_compile_errors;
   if(objectp(inhibit)) {
     if(functionp(inhibit->compile_error)) {
       inhibit->compile_error(file, line, err);
@@ -246,3 +240,4 @@ void compile_error(string file,int line,string err)
   else
     ::compile_error(file,line,err);
 }
+#endif
