@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ(2.53)
-AC_INIT(Caudium, 1.3.19, bugs@caudium.net)
+AC_INIT(Caudium, 1.3.21, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
@@ -12,7 +12,7 @@ AC_REVISION($Revision$)
 # The oldest version of Pike we run
 REQ_MIN_PIKE_MAJOR=7
 REQ_MIN_PIKE_MINOR=4
-REQ_MIN_PIKE_BUILD=1
+REQ_MIN_PIKE_BUILD=25
 # But on the other end we can't run Pike above or equal this one
 REQ_MAX_PIKE_MAJOR=7
 REQ_MAX_PIKE_MINOR=7
