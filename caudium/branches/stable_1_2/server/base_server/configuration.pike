@@ -2902,7 +2902,7 @@ object enable_module( string modname )
 	     "might have (why the module are here, etc.)");
 
   me->defvar("_name", "", " Module name", TYPE_STRING|VAR_MORE,
-	     "An optional name. Set to something to remaind you what "
+	     "An optional name. Set to something to remind you what "
 	     "the module really does.");
   
   me->setvars(retrieve(modname + "#" + id, this));
@@ -4005,7 +4005,7 @@ string _sprintf( )
 //!  name:  Comment
 //
 //! defvar: _name
-//! An optional name. Set to something to remaind you what the module really does.
+//! An optional name. Set to something to remind you what the module really does.
 //!  type: TYPE_STRING|VAR_MORE
 //!  name:  Module name
 //
