@@ -870,7 +870,7 @@ string new_module_form(object id, object node)
       cif->status_row(node)+
       //	  display_tabular_header(node)+
       "<table><tr><td>&nbsp;<td><h2>Select a module to add "
-      "from the list below. You click on it's header to add it.</h2>";
+      "from the list below. Click on it's header to add it.</h2>";
   
      
     foreach(mods, q)
