@@ -402,7 +402,7 @@ void defvar(string|void var, mixed|void value, string|void name,
 }
 
 
-//! Convenience function, define an invissible variable, this variable
+//! Convenience function, define an invisible variable, this variable
 //! will be saved, but it won't be visible in the configuration interface.
 //!
 //! @param name
