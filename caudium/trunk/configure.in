@@ -17,24 +17,24 @@ AC_PROG_INSTALL
 case "$ac_cv_path_install" in
   *installbsd*)
     AC_MSG_CHECKING(if $ac_cv_path_install works)
-    AC_CACHE_VAL(roxen_cv_install_works,
+    AC_CACHE_VAL(caudium_cv_install_works,
 [
     if $ac_cv_path_install "$srcdir/configure.in" ./conftest >/dev/null 2>&1
     then
       if cmp "$srcdir/configure.in" ./conftest >/dev/null 2>&1; then
-        roxen_cv_install_works=yes;
+        caudium_cv_install_works=yes;
       else
-        roxen_cv_install_works=no;
+        caudium_cv_install_works=no;
       fi
     else
-      roxen_cv_install_works=no;
+      caudium_cv_install_works=no;
     fi
     if test -f ./conftest; then
       rm -f ./conftest
     fi
 ])
-    AC_MSG_RESULT($roxen_cv_install_works)
-    if test "$roxen_cv_install_works" = "no"; then
+    AC_MSG_RESULT($caudium_cv_install_works)
+    if test "$caudium_cv_install_works" = "no"; then
       echo "Warning: Falling back to $ac_install_sh"
       INSTALL="$ac_install_sh"
     fi
@@ -57,9 +57,9 @@ esac
 # Compiler checks
 #--------------------------
 
-if test ! -z "$roxen_cv_prog_CC" -a ! -z "$CC" -a "$CC" != "$roxen_cv_prog_CC"
+if test ! -z "$caudium_cv_prog_CC" -a ! -z "$CC" -a "$CC" != "$caudium_cv_prog_CC"
 then
-  AC_MSG_WARN([CC is different than last time Roxen was compiled,
+  AC_MSG_WARN([CC is different than last time Caudium was compiled,
 It is probably best to delete ./config.cache before proceeding])
 fi
 
@@ -86,7 +86,7 @@ else
   ldflags_is_set=yes
 fi
 
-roxen_cv_prog_CC="$CC"
+caudium_cv_prog_CC="$CC"
 
 if test -f stamp-h; then
   if test "x`cat stamp-h`" != "x${pike_version}" ; then
@@ -110,15 +110,15 @@ AC_DEFUN(AC_SYS_COMPILER_FLAG,
 [
   AC_MSG_CHECKING($1)
   OLD_CFLAGS="[$]CFLAGS"
-  AC_CACHE_VAL(roxen_cv_option_$2,
+  AC_CACHE_VAL(caudium_cv_option_$2,
   [
     CFLAGS="[$]OLD_CFLAGS $1"
-    AC_TRY_RUN([int main(){exit(0);}],roxen_cv_option_$2=yes,roxen_cv_option_$2=no)
+    AC_TRY_RUN([int main(){exit(0);}],caudium_cv_option_$2=yes,caudium_cv_option_$2=no)
   ])
   
   CFLAGS="[$]OLD_CFLAGS"
   
-  if test x"[$]roxen_cv_option_$2" = "xyes" ; then
+  if test x"[$]caudium_cv_option_$2" = "xyes" ; then
     $3="[$]$3 $1"
     AC_MSG_RESULT(yes)
   else
@@ -135,7 +135,7 @@ AC_DEFUN(AC_SYS_CPU_COMPILER_FLAG,
 
 AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
 [
-  if test "x$roxen_cv_sys_os" = "x$1" ; then
+  if test "x$caudium_cv_sys_os" = "x$1" ; then
     AC_SYS_COMPILER_FLAG($2,$3,$4)
   fi
 ])
@@ -146,25 +146,25 @@ ac_cv_prog_CC="$CC"
 # We need some special hacks when running slowaris
 AC_PATH_PROG(uname_prog,uname,no)
 AC_MSG_CHECKING(operating system)
-AC_CACHE_VAL(roxen_cv_sys_os,
+AC_CACHE_VAL(caudium_cv_sys_os,
 [
 if test "$uname_prog" != "no"; then
-  roxen_cv_sys_os="`uname`"
+  caudium_cv_sys_os="`uname`"
 
-  case "$roxen_cv_sys_os" in
+  case "$caudium_cv_sys_os" in
     SunOS)
       case "`uname -r`" in
-        5.*) roxen_cv_sys_os="Solaris";
+        5.*) caudium_cv_sys_os="Solaris";
       esac
     ;;
   esac
 else
-  roxen_cv_sys_os="Not Solaris"
+  caudium_cv_sys_os="Not Solaris"
 fi
 ])
-AC_MSG_RESULT($roxen_cv_sys_os)
+AC_MSG_RESULT($caudium_cv_sys_os)
 
-case "$roxen_cv_sys_os" in
+case "$caudium_cv_sys_os" in
   SCO*)
     case "$CFLAGS" in
       *-belf*) 
@@ -218,8 +218,8 @@ for ac_site_file in $CONFIG_SITE; do
   if test -r "$ac_site_file"; then
     AC_MSG_WARN([You are using a site file to initialize configure, please
 note that this can lead to problems if anything in
-$ac_site_file is not correct. If Roxen does not compile, or
-does not run, please try this to compile Roxen again:
+$ac_site_file is not correct. If Caudium does not compile, or
+does not run, please try this to compile Caudium again:
 rm ./config.cache ; CONFIG_SITE=x ./configure ; make])
   fi
 done
@@ -329,7 +329,7 @@ if test $cflags_is_set = no; then
   # sopt disabled since it takes too much time on interpret.c (>45min on an O²)
   # AC_SYS_OS_COMPILER_FLAG(IRIX,-sopt,sopt)
   AC_SYS_OS_COMPILER_FLAG(IRIX,-n32,n32,CFLAGS)
-  if test x$roxen_cv_option_n32 = xyes ; then
+  if test x$caudium_cv_option_n32 = xyes ; then
     echo Adding -n32 to LDFLAGS.
     LDFLAGS="$LDFLAGS -n32"
   fi
@@ -368,14 +368,14 @@ esac
      *-fast*) ;;
      *)
        if test "$GCC" != "yes"; then
-         case "$roxen_cv_sys_os" in
+         case "$caudium_cv_sys_os" in
            UnixWare*)
              OPTIMIZE=""
 	   ;;
          esac
        else
          AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
-         if test "x$roxen_cv_option_O2" != "xyes"; then
+         if test "x$caudium_cv_option_O2" != "xyes"; then
            AC_SYS_COMPILER_FLAG(-O,O,OPTIMIZE)
          fi
        fi
@@ -397,7 +397,7 @@ else
 #
 # Special hack for HP-UX stupid cc
 #
-  if test "$roxen_cv_sys_os" = "HP-UX"; then
+  if test "$caudium_cv_sys_os" = "HP-UX"; then
     AC_TRY_COMPILE([int foo(int bar);],[],[],
     [
       OLD_CC="${CC-cc}"
@@ -417,15 +417,15 @@ fi
 # CCSHARED are the C *flags* used to create objects to go into a shared
 # library -- this is only needed for a few systems
 AC_MSG_CHECKING(CCSHARED)
-AC_CACHE_VAL(roxen_cv_sys_ccshared,[
+AC_CACHE_VAL(caudium_cv_sys_ccshared,[
 if test -z "$CCSHARED" ; then
   if test "$GCC" = yes ; then
-    case $roxen_cv_sys_os in
+    case $caudium_cv_sys_os in
       BSD/OS*) CCSHARED="";;
       *) CCSHARED="-fpic";;
     esac
   else
-    case $roxen_cv_sys_os in
+    case $caudium_cv_sys_os in
 	hp*|HP*) CCSHARED="+z"; ;;
 	FreeBSD*) CCSHARED="-fpic";;
 	SCO_SV*) CCSHARED="-KPIC -dy -Bdynamic";;
@@ -438,30 +438,30 @@ fi
   OLD_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS $CCSHARED"
   AC_TRY_COMPILE([], [int main() { exit(0); }],
-    roxen_cv_sys_ccshared="$CCSHARED", roxen_cv_sys_ccshared='')
+    caudium_cv_sys_ccshared="$CCSHARED", caudium_cv_sys_ccshared='')
   CFLAGS="$OLD_CFLAGS"
 ])
 
 if test "$GCC" != "yes"; then
-  case $roxen_cv_sys_os in
+  case $caudium_cv_sys_os in
     UnixWare*) CCSHARED="-KPIC -dy -Bdynamic"
-    roxen_cv_sys_ccshared="$CCSHARED"
+    caudium_cv_sys_ccshared="$CCSHARED"
     ;;
   esac
 fi
 
-CCSHARED="$roxen_cv_sys_ccshared"
+CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
 AC_MSG_CHECKING(LINKFORSHARED)
 
-AC_CACHE_VAL(roxen_cv_sys_linkforshared,[
+AC_CACHE_VAL(caudium_cv_sys_linkforshared,[
 # LINKFORSHARED are the flags passed to the $(CC) command that links
 # the pike executable -- this is only needed for a few systems
 if test -z "$LINKFORSHARED"
 then
   if test "$GCC" = yes ; then
-    case $roxen_cv_sys_os in
+    case $caudium_cv_sys_os in
 	AIX*)	LINKFORSHARED="-Wl,-bexpall -Wl,-brtl";;
 	hp*|HP*) LINKFORSHARED="-Wl,-E";;
 	Linux*) LINKFORSHARED="-rdynamic";;
@@ -471,7 +471,7 @@ then
 	UnixWare*) LINKFORSHARED="-fpic -Wl,-Bexport";;
     esac
   else
-    case $roxen_cv_sys_os in
+    case $caudium_cv_sys_os in
 	AIX*)	LINKFORSHARED="-Wl,-bexpall -Wl,-brtl";;
 	hp*|HP*) LINKFORSHARED="-Wl,-E";;
 	Linux*) LINKFORSHARED="-rdynamic";;
@@ -487,11 +487,11 @@ fi
    OLD_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS $LINKFORSHARED"
    AC_TRY_RUN([int main() { exit(0); }],
- roxen_cv_sys_linkforshared="$LINKFORSHARED", roxen_cv_sys_linkforshared='')
+ caudium_cv_sys_linkforshared="$LINKFORSHARED", caudium_cv_sys_linkforshared='')
    CFLAGS="$OLD_CFLAGS"
 ])
 
-LINKFORSHARED="$roxen_cv_sys_linkforshared"
+LINKFORSHARED="$caudium_cv_sys_linkforshared"
 
 AC_MSG_RESULT($LINKFORSHARED)
 AC_SUBST(LINKFORSHARED)
