@@ -25,7 +25,7 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
-//! module: Accessed counter - SQL
+//! module: Accessed Counter Tag - SQL
 //!  This module provides access counters, through the &lt;accessed&gt; tag.
 //! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
 //! inherits: module
@@ -40,7 +40,7 @@ inherit "caudiumlib";
 constant cvs_version   = "$Id$";
 constant thread_safe    = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
-constant module_name   = "Accessed counter - SQL";
+constant module_name   = "Accessed Counter Tag - SQL";
 // Kiwi: we do not support yet entities so =)
 //constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
