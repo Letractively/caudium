@@ -62,6 +62,8 @@ void create()
 	 "</pre>"
 	 "</p><p><b>Special Substitutions (in the 'to' field):</b><dl compact"
 	 "=\"compact\">"
+	 "<dt>%%</dt>"
+	 "<dd>Insert a literal % info the URL. Needed if you want to use URL encoding.</dd>\n"
 	 "<dt>%f</dt>"
 	 "<dd>The file name of the matched URL without the path.</dd>\n"
 	 "<dt>%p</dt>"
@@ -195,9 +197,9 @@ mixed first_try(object id)
 	    array bar = Array.map(foo, lambda(string s, mapping f) {
 	      return "$"+(f->num++);
 	    }, ([ "num":1 ]));
-	    foo +=({( ({""}) + (id->not_query/"/"-({""})) )[-1],
-		    id->not_query[1..] });
-	    bar +=({ "%f", "%p" });
+	    foo +=({ "%", ( ({""}) + (id->not_query/"/"-({""})) )[-1],
+		     id->not_query[1..] });
+	    bar +=({ "%%", "%f", "%p" });
 	    foo = Array.map(foo, lambda(mixed s) { return (string)s; });
 	    bar = Array.map(bar, lambda(mixed s) { return (string)s; });
 	    to = replace(redirect_patterns[f], bar, foo);
