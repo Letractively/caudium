@@ -393,19 +393,16 @@ else
   cat << EOF
 *********************************************************************
 *** I couldn't find a suitable Pike for Caudium. Caudium 1.2
-*** requires Pike 7.0.268 or newer. Running Caudium with Pike 0.6
-*** is no longer supported. You can download and install one of
-*** our Pike 7.0 snapshots available from our website at:
+*** requires Pike 7.0.268+ or Pike 7.2.120+.
+*** Check out our Pike/Caudium compatibility matrix at
+***     http://www.caudium.info/download/source/index.rxml
 ***
-***     http://caudium.net/download/snapshot.html
+*** You can download and install one of our Pike snapshots available
+*** from our website at:
 ***
-*** IMPORTANT: Do not try using Pike 7.0.78 from the Pike website 
-*** since that version is to old to work with Caudium 1.2!
+***     http://www.caudium.info/download/source/index.rxml 
 ***
-*** Although Caudium 1.2 should function with Pike 7.3/7.4, we don't
-*** recommend this, since Pike 7.3/7.4 is still in development which has
-*** had several obscure bugs on and off during the Caudium
-*** development. 
+*** Caudium 1.2 won't run with Pike 7.3.49+ and Pike 7.4.
 ***
 *** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6!
 *********************************************************************
