@@ -1,3 +1,11 @@
+caudium (2:1.0.35-16) unstable; urgency=low
+
+  * Package now provides a virtual package called httpd-cgi - following
+    Uwe Hermann's proposition
+  * Several bugfixes+new features upstream
+  
+ -- Marek Habersack <grendel@debian.org>  Mon,  5 Nov 2001 10:14:54 +0100
+
 caudium (2:1.0.35-15) unstable; urgency=low
 
   * Minor bugfixes

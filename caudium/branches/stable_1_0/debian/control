@@ -11,7 +11,7 @@ Pre-Depends: debconf (>= 0.2.26)
 Depends: caudium-modules (= ${Source-Version}), pike7-image (>= ${pikever}-1) | pike7-image (<= ${pikever}-99) , pike7-gz (>= ${pikever}-1) | pike7-gz (<= ${pikever}-99), pike7-crypto (>= ${pikever}-1) | pike7-crypto (<= ${pikever}-99) | pike7-lobotomized-crypto (>= ${pikever}-1) | pike7-lobotomized-crypto (<= ${pikever}-99), logrotate
 Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
 Recommends: caudium-pixsl, caudium-ultralog
-Provides: httpd
+Provides: httpd, httpd-cgi
 Description: An extensible WWW server written in Pike
  Caudium is a modern, fast and extensible WWW server derived from Roxen. 
  Caudium is by default compatible with Roxen 1.3 although some incompatible 
