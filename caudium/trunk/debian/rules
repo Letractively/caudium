@@ -100,11 +100,7 @@ install: build
 	  chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
 	done
 
-	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
-	    debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new && \
-	mv debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new \
-	   debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
-	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	
 
 	# perms fixing fest
 	-chmod 644 debian/tmp/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
@@ -137,6 +133,11 @@ install: build
 	# copy perl
 	#
 	cp -pad $(CURDIR)/server/perl/ $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/
+	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
+	    debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new && \
+	mv debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new \
+	   debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 
 	#
 	# the -p debhelper param seems to be not working... 
