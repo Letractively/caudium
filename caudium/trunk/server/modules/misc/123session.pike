@@ -471,6 +471,10 @@ mixed sessionid_remove_prestate(object id) {
 
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
+// cd34, 11/25/2001, set cookie with .domain.com if it is not an IP address
+// to guarantee that www.domain.com and domain.com have the same session id
+  if (!(Regexp("^[0-9.]+$")->match((string)id->misc->host)))
+    Cookie += ";domain=."+(((string)id->misc->host / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
 // cd34, 10/4/2001, set cookie expiration based on info in the config interface
   if (query ("cookieexpire") > 0)
     Cookie += "; Expires=" + http_date(time()+query("cookieexpire")) +";";
