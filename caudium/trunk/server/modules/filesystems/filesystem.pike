@@ -532,7 +532,7 @@ mixed find_file( string f, object id )
     if(QUERY(keep_old_perms))
       st = file_stat(f);
     rm( f );
-    Stdio.mkdirhier( path );
+    Stdio.mkdirhier( dirname(f) );
     
     object to = open(f, "wct");
     
@@ -864,22 +864,24 @@ mixed find_file( string f, object id )
    case "COPY":
     if(!QUERY(copy) )
 	return http_error_answer(id, 405, "Copy disallowed");
-    size = FILE_SIZE(id->destination);
-    if ( size != -1 && id->overwrite != "T" )
+    id->misc->destination = path + id->misc->destination;
+    size = FILE_SIZE(id->misc->destination);
+    if ( size != -1 && id->misc->overwrite != "T" )
 	return http_error_answer(id, 403, "Forbidden");
     if(QUERY(check_auth) && (!id->auth || !id->auth[0]))
 	return http_auth_required("copy", "Permission to 'COPY' files denied");
     if(QUERY(no_symlinks) && 
-       (contains_symlinks(path, f) || contains_symlinks(path,id->destination)))
+       (contains_symlinks(path, f) || 
+	contains_symlinks(path,id->misc->destination)))
 	return http_error_answer(id, 403, "Forbidden");
-    if ( !stringp(id->destination) ) 
+    if ( !stringp(id->misc->destination) ) 
 	return http_error_answer(id, 403, "No destination");
 	
     accesses++;
-    report_notice("COPYING the file "+f+" to " + id->destination + "\n");
+    report_notice("COPYING the file "+f+" to " + id->misc->destination + "\n");
     if ( ((int)id->misc->uid) && ((int)id->misc->gid) ) 
 	privs = Privs("Copying file", (int)id->misc->uid,(int) id->misc->gid);
-    if ( f == id->destination || !Stdio.cp(f, id->destination) ) {
+    if ( f == id->misc->destination || !Stdio.cp(f, id->misc->destination) ) {
 	privs = 0;
 	return http_error_answer(id, 403, "Forbidden");
     }
