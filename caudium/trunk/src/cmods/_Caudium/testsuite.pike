@@ -111,6 +111,8 @@ int TEST_http_decode_url() {
   int i;
   for(i = 0; i <= 255; i++)
     tst += ([ sprintf("%%%02x",i): String.int2char(i) ]);
+  for(i = '0'; i <= 'z'; i++)
+    tst += ([ String.int2char(i): String.int2char(i) ]);
   prtest("http_decode_url");
   return mapping_test(tst, _Caudium.http_decode_url);
 }
