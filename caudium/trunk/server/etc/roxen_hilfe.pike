@@ -18,12 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
  * $Id$
- *
- * Incremental Pike evaluator, modified to work within Roxen
  */
+
+//! Incremental Pike evaluator, modified to work within Roxen
+//! @fixme
+//!  Is this working ????
 
 #include <simulate.h>
 #include <stdio.h>
@@ -52,12 +53,13 @@ string *function_names=({});
 mapping query_variables() { return variables; }
 /* do nothing */
 
+//!
 void my_write(mixed x)
 {
   write(sprintf("%O",x));
 }
 
-
+//!
 object eval(string f)
 {
   string prog,file;
@@ -93,6 +95,7 @@ object eval(string f)
   return o;
 }
 
+//!
 mixed do_evaluate(string a, int show_result)
 {
   mixed foo, c;
@@ -117,14 +120,17 @@ mixed do_evaluate(string a, int show_result)
   }
 }
 
+//!
 string input="";
 
+//!
 string skipwhite(string f)
 {
   while(sscanf(f,"%*[ \r\n\t]%s",f) && sscanf(f,"/*%*s*/%s",f));
   return f;
 }
 
+//!
 int find_next_comma(string s)
 {
   int e, p, q;
@@ -176,6 +182,7 @@ int find_next_comma(string s)
   return 0;
 }
 
+//!
 string *get_name(string f)
 {
   int e,d;
@@ -199,6 +206,7 @@ int do_parse();
 mixed parse_function(string s);
 mixed parse_statement(string s);
 
+//!
 int set_buffer(string s,int parsing)
 {
   input=s;
@@ -212,8 +220,10 @@ int set_buffer(string s,int parsing)
   if(!parsing) return do_parse()==1;
 }
 
+//!
 int clean_buffer() { return set_buffer("",0);  }
 
+//!
 int add_buffer(string s)
 {
   input+=s;
@@ -223,6 +233,7 @@ int add_buffer(string s)
   return 0;
 }
 
+//!
 void cut_buffer(int where)
 {
   int old,new;
@@ -237,6 +248,7 @@ void cut_buffer(int where)
 #endif
 }
 
+//!
 void print_version()
 {
   write(version()+
@@ -244,6 +256,7 @@ void print_version()
 }
 
 
+//!
 int do_parse()
 {
   string tmp;
@@ -391,7 +404,7 @@ int do_parse()
   return -1;
 }
 
-
+//!
 mixed parse_function(string fun)
 {
   string name,a,b;
@@ -449,6 +462,7 @@ mixed parse_function(string fun)
   }
 }
 
+//!
 mixed parse_statement(string ex)
 {
   string a,b,name;
@@ -529,6 +543,7 @@ mixed parse_statement(string ex)
   }
 }
 
+//!
 int stdin(string s)
 {
   string *tmp,a,b,c,f,name;
@@ -553,13 +568,14 @@ int stdin(string s)
 //  if(!strlen(input))  write("> ");
 }
 
+//!
 void signal_trap(int s)
 {
-
   clean_buffer();
   throw("**Break\n");
 }
 
+//!
 void main(object _p, object id)
 {
   p=_p;
