@@ -78,7 +78,9 @@ string cont_hash(string tag_name, mapping args, string contents,
         case "md5":
           return Crypto.string_to_hex(Crypto.md5()->update(contents)->digest());
           break;
-        case "md5":
+        case "sha":
+	case "sha1":
+	case "sha-1":
           return Crypto.string_to_hex(Crypto.sha()->update(contents)->digest());
           break;
         default:
