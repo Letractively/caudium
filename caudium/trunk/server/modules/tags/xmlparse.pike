@@ -288,6 +288,9 @@ string do_parse(string to_parse, object id, object file, mapping defines,
 		object my_fd)
 {
   object my_parser = (id->misc->_xml_parser || parse_object)->clone();
+  if(!id->misc->scopes)
+    id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
+  
   id->misc->_xml_parser = my_parser;
   if(!id->misc->_tags)
     id->misc->_tags = ([]);
@@ -368,7 +371,6 @@ mapping handle_file_extension( object file, string e, object id)
     if(_stat[1] > (QUERY(max_parse)*1024))
       return 0; // To large for me..
   }
-  id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
   if(QUERY(parse_exec) &&   !(_stat[0] & 07111)) return 0;
   if(QUERY(no_parse_exec) && (_stat[0] & 07111)) return 0;
   
