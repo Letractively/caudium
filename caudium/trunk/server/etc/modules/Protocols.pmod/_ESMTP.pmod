@@ -31,28 +31,132 @@ constant cvs_version = "$Id$";
 
 #define CODECLASS(X)	( ((smtp_reply->retcode / 100) * 100 == X) ? 1 : 0 )
 
+/*
+ * stuff used by both subclasses
+ */
+
+object conn = Stdio.FILE();				// the connection itself
+mapping smtp_reply = ([
+	"lines":	0,
+	"retcode":	0,
+	"line":		({ })
+]);							// holds server responses
+mapping supports = ([
+	"esmtp":	0,
+	"tls":		0,
+	"dsn":		0,
+	"size":		0,
+	"auth":	([
+			"yes": 0,
+			"methods": ({ })
+	]),
+]);							// server capability list
+mapping this_connection = ([
+	"active":	0,
+	"esmtp":	0,
+	"tls":		0
+]);							// current connection's properties
+#if constant(Crypto.md5)
+multiset known_auth_methods = (<
+	"cram-md5",
+	"plain",
+	"login"
+>);
+#else
+multiset known_auth_methods = (<
+	"plain",
+	"login"
+>);
+#endif							// auth methods known to the module.
+							// the order also implies the preference list
+							// the module will use when multiple methods
+							// are supported by the server.
+mapping class_caps = ([
+	"client": (<
+		"esmtp",
+		"tls",
+		"auth"
+	>),
+	"async_client":	(<
+		"esmtp",
+		"tls",
+		"auth",
+		"size",
+		"dsn"
+	>)
+]);							// capability list of the subclasses.
+							// not all of them are implemented actually, though...
+
+string addr_canon(string what) {
+	if(what[0] != '<')
+		what = "<" + what;
+	if(what[strlen(what)-1] != '>')
+		what += ">";
+	return what;
+}
+
+string auth_plain(string user, string pass) {
+	return MIME.encode_base64(sprintf("\0%s\0%s\0", user, pass ));
+}
+
+array auth_login(string user, string pass) {
+	return  ({
+		MIME.encode_base64(user),
+		MIME.encode_base64(pass)
+	});
+}
+
+#if constant(Crypto.md5)
+string auth_cram_md5(string user, string pass, string challenge) {
+	string opad, inner, outer;
+	int i;
+	for(i=strlen(pass); i<64; i++)
+		pass += "\0";
+	opad = pass;
+	for(i=0; i<64; i++) {
+		pass[i] ^= 0x36;
+		opad[i] ^= 0x5c;
+	}
+	inner = Crypto.md5()->update(pass)->update(challenge)->digest();
+	outer = Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
+	return MIME.encode_base64( user + " " + outer );
+}
+#endif
+
+void smtp_tell(string what) {
+	conn->write(what + "\n");
+	smtp_read();
+}
+void smtp_read() {
+	array reply = ({ });
+	string tmp0, tmp1 = "";
+	// multiline reply parser
+	do {
+		tmp0 = conn->gets();
+		tmp1 += tmp0;
+	} while (tmp0[3] == '-');
+	// i want to keep each lines of the reply
+	reply = tmp1 / "\r";
+	// but not the last ""
+	reply = reply[0..sizeof(reply)-2];
+	smtp_reply->lines = 0; smtp_reply->line = ({ });
+	foreach(reply, string s) {
+		smtp_reply->line += ({ s });
+	}
+	smtp_reply->lines = sizeof(reply);
+	smtp_reply->retcode = (int)reply[0][0..2];
+}
+
+void quit() {
+	if(this_connection->active) {
+		smtp_tell("QUIT");
+		conn->close();
+		destruct(this_object());
+	}
+}
+
 class client
 {
-
-	private object conn = Stdio.FILE();		// the connection itself
-	private mapping smtp_reply = ([
-		"lines": 0,
-		"retcode": 0,
-		"line": ({ })
-	]);						// holds server responses
-	private mapping supports = ([
-		"esmtp":	0,
-		"tls":		0,
-		"auth":	([
-				"yes":		0,
-				"methods":	({ })
-		]),
-	]);						// server capability list
-	private mapping this_connection = ([
-		"active":	0,
-		"esmtp":	0,
-		"tls":		0
-	]);						// current connection's properties.
 
 	void create(void|string server, void|string|int port, void|string maildomain)
 	{
@@ -119,36 +223,8 @@ class client
 			};
 	}
 
-	private void smtp_tell(string what) {
-		conn->write(what + "\n");
-		smtp_read();
-	}
-
-	private void smtp_read() {
-		array reply = ({ });
-		string tmp0, tmp1 = "";
-		// multiline reply parser
-		do {
-			tmp0 = conn->gets();
-			tmp1 += tmp0;
-		} while (tmp0[3] == '-');
-		// i want to keep each lines of the reply
-		reply = tmp1 / "\r";
-		// but not the last ""
-		reply = reply[0..sizeof(reply)-2];
-		smtp_reply->lines = 0; smtp_reply->line = ({ });
-		foreach(reply, string s) {
-			smtp_reply->line += ({ s });
-		}
-		smtp_reply->lines = sizeof(reply);
-		smtp_reply->retcode = (int)reply[0][0..2];
-	}
-
 	int sender(string address) {
-		if(address[0] != '<')
-			address = "<" + address;
-		if(address[strlen(address)-1] != '>')
-			address += ">";
+		address = addr_canon(address);
 		smtp_tell("MAIL FROM: " + address);
 		return ( CODECLASS(200) ? 1 : 0 );
 	}
@@ -168,7 +244,7 @@ class client
 			if( strlen(b[i]) == 1 && b[i][0] == '.')
 				b[i] = "." + b[i];
 		}
-		// TODO: add a received header here.
+		// TODO: add a received header here. really ?
 		smtp_tell("DATA");
 		if( !CODECLASS(300) )
 			return 0;
@@ -181,52 +257,34 @@ class client
 	void quit() {
 		smtp_tell("QUIT");
 		conn->close();
-//		destruct( this_object() );
 	}
 
 	int auth(string user, string pass) {
 		string method = "";
-		multiset known_methods = (< >);
 		if(!supports->auth->yes)
 			return 0;
-		/*
-		 * the order of entries in known_methods implies the user's preference
-		 * of which method to use if more than one is available.
-		 * default is CRAM-MD5->PLAIN->LOGIN, which i think is
-		 * adequate for all :)
-		 */
-#if constant(Crypto.md5)
-		known_methods += (< "cram-md5" >);
-#endif
-		known_methods += (< "plain", "login" >);
 		foreach(supports->auth->methods, string s) {
-			if(known_methods[s])
+			if(known_auth_methods[s])
 				method = s;
 			break;
 		}
-		if(method == "")
-			return 0;
-		return do_auth(user, pass, method);
-	}
-
-	private int do_auth(string user, string pass, string method) {
-#if constant(Crypto.md5)
-		string ipad, opad, inner, outer, challenge;
-		int i;
-#endif
 		switch(method) {
+			case "":
+				return 0;
+			break;
 			case "plain":
-				smtp_tell("AUTH PLAIN " + MIME.encode_base64(sprintf("\0%s\0%s\0", user, pass )));
+				smtp_tell("AUTH PLAIN " + auth_plain(user, pass) );
 				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 			case "login":
+				array auth_login_data = auth_login(user, pass);
 				smtp_tell("AUTH LOGIN");
 				if(!CODECLASS(300))
 					return 0;
-				smtp_tell(MIME.encode_base64(user));
+				smtp_tell( auth_login_data[0] );
 				if(!CODECLASS(300))
 					return 0;
-				smtp_tell(MIME.encode_base64(pass));
+				smtp_tell( auth_login_data[1] );
 				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 #if constant(Crypto.md5)
@@ -234,18 +292,7 @@ class client
 				smtp_tell("AUTH CRAM-MD5");
 				if(!CODECLASS(300))
 					return 0;
-				challenge = MIME.decode_base64(smtp_reply->line[0][4..]);
-				ipad = pass;
-				for(i=strlen(ipad); i<64; i++)
-					ipad += "\0";
-				opad = ipad;
-				for(i=0; i<64; i++) {
-					ipad[i] ^= 0x36;
-					opad[i] ^= 0x5c;
-				}
-				inner = Crypto.md5()->update(ipad)->update(challenge)->digest();
-				outer = Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
-				smtp_tell(MIME.encode_base64( user + " " + outer ));
+				smtp_tell(auth_cram_md5(user, pass, MIME.decode_base64(smtp_reply->line[0][4..])));
 				return ( CODECLASS(200) ? 1 : 0 );
 			break;
 #endif
@@ -256,14 +303,10 @@ class client
 		// just to make sure...
 		return 0;
 	}
+}
 
-	private string prettyprint(array what) {
-		string retval = "";
-		foreach(what, string s)
-			retval += s + "\n";
-		return retval;
-	}
 
+class async_client {
 
 }
 
