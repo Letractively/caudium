@@ -148,9 +148,11 @@ mixed set(string var, mixed val)
   error("No current configuration\n");					\
 }
 
+/*@PIKEPARSER_HACK_START@*/
 SIMULATE(unload_module);
 SIMULATE(disable_module);
 SIMULATE(enable_module);
 SIMULATE(load_module);
 SIMULATE(find_module);
 SIMULATE(register_module_load_hook);
+/*@PIKEPARSER_HACK_END@*/
