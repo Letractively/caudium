@@ -196,7 +196,7 @@ void start()
   foreach(lines, string l)
   {
     array pair = replace(l, "\t", " ") / " " - ({""});
-    object(Regexp) reg;
+    object reg;
     if(sizeof(pair) != 2)
     {
       DWERR(sprintf("Invalid line: %s", l));
