@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.3x since 1.2.32
 --------------------------------------
+- Fix for the RXML parsers sending the wrong content-type header when parsing
+  a non-html document.
+   (James Tyson)
 - On vhs_system_ldap support of logging file using wwwDomain posixAcccount
   parameter.
    (Xavier Beaudouin)
