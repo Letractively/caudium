@@ -1,5 +1,5 @@
-Changes in Caudium 1.0.X (CVS)
------------------------------------------------
+Changes in Caudium 1.0.10 (RC2, release 2000-12-14)
+---------------------------------------------------
 - Don't add '-lc' on SCO OpenServer and UnixWare when linking
   dynamic libraries (it's not needed and apparently potentially
   breaks things). Reported by Boyd Gerber.
