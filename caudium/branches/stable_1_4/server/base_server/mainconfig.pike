@@ -900,6 +900,14 @@ string new_module_form(object id, object node)
 mapping new_module(object id, object node)
 {
   string varname;
+  /* since Caudium 1.4, id->variables also contains empty variables
+     in HTTP request but since we are called with ?190099293 for example
+     we don't want to load such a module and thus remove empty entries from
+     the mapping
+         /vida */
+  foreach(id->variables; string index; string value)
+    if(!value || !sizeof(value))
+      m_delete(id->variables, index);
   if(!sizeof(id->variables))
     return stores(new_module_form(id, node));
   if(id->variables->_add_new_modules) {
