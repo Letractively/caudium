@@ -29,7 +29,9 @@ void exit_nbio(void);
  */
 #define READ_BUFFER_SIZE 65536
 
-#define BUFSIZE 16535
+#define BUFSIZE        16535
+#define BUFSIZE_MIN    100
+#define BUFSIZE_MAX    (1024*1024)
 #define BUF ((buffer *)Pike_fp->current_storage)
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
@@ -84,11 +86,11 @@ typedef struct
 
 typedef struct
 {
-  unsigned char *pos;
-  int free;
+  unsigned char  *pos;
+  unsigned        free;
   struct mapping *headers;
   struct mapping *other;
-  unsigned char *data;
+  unsigned char  *data;
 } buffer;
 
 #ifdef INT64

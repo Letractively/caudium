@@ -64,6 +64,8 @@ char *alloca ();
 #include "caudium.h"
 #include "datetime.h"
 
+typedef int (*safe_func)(char c);
+
 static_strings strs;
 
 /*
@@ -261,23 +263,23 @@ static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
   endl2 = end-2; /* to see if there's enough left to make a "hex" char */
   for (nlen = 0, i = 0; ptr < end; i++) {
     switch(*ptr) {
-     case '%':
-      if (ptr < endl2)
-	str[i] = (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
-	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
-      else
-	str[i] = '\0';
-      ptr+=3;
-      nlen++;
-      break;
-     case '?':
-      /* Don't decode more, reached query string*/
-      str[i] = '\0';
-      return (ptr+1);
-      break;
-     default:
-      str[i] = *(ptr++);
-      nlen++;
+        case '%':
+          if (ptr < endl2)
+            str[i] = (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
+              ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
+          else
+            str[i] = '\0';
+          ptr+=3;
+          nlen++;
+          break;
+        case '?':
+          /* Don't decode more, reached query string*/
+          str[i] = '\0';
+          return (ptr+1);
+          break;
+        default:
+          str[i] = *(ptr++);
+          nlen++;
     }
   }
   str[nlen] = '\0'; /* We will use make_shared_string since a file can't
@@ -295,21 +297,17 @@ static INLINE unsigned char *char_decode_url(unsigned char *str, int len) {
 **!  needed, 413 if the headers are too large or 400 if the request is invalid.
 **! name: Caudium.ParseHTTP->append - append data to parse buffer
 */
-
 static void f_buf_append( INT32 args )
 {
   struct pike_string *str;
   struct svalue skey, sval; /* header, value */
-  int slash_n = 0, cnt, num;
+  int slash_n = 0;
   unsigned char *pp,*ep;
   struct svalue *tmp;
-  int os=0, i, j=0, l, qmark = -1;
+  int os=0, i, j=0, l;
   unsigned char *in, *query;
-  
-  if( Pike_sp[-1].type != T_STRING )
-    Pike_error("Wrong type of argument to append()\n");
-  
-  str = Pike_sp[-1].u.string;
+
+  get_all_args("_Caudium.ParseHTTP->append", args, "%S", &str);
   
   if( str->len >= BUF->free ) {
     pop_n_elems(args);
@@ -321,8 +319,10 @@ static void f_buf_append( INT32 args )
 
   for( ep = (BUF->pos + str->len), pp = MAX(BUF->data, BUF->pos-3); 
        pp < ep && slash_n < 2; pp++ )
-    if( *pp == '\n' )       slash_n++;
-    else if( *pp != '\r' )  slash_n=0;
+    if( *pp == '\n' )
+      slash_n++;
+    else if( *pp != '\r' )
+      slash_n=0;
   
   BUF->free -= str->len;
   BUF->pos += str->len;
@@ -456,32 +456,29 @@ static void f_buf_create( INT32 args )
     break;
 	  
    case 3:
-    if(Pike_sp[-1].type != T_INT) {
-      Pike_error("Wrong argument 3 to create. Expected int.\n");
-    } else if(Pike_sp[-1].u.integer < 100) {
-      Pike_error("Specified buffer too small.\n");
-    } else {
-      BUF->free = Pike_sp[-1].u.integer;
-    }
-    /* fall through */
-	  
+     get_all_args("_Caudium.ParseHTTP.create", args, "%m%m%d",
+                  &BUF->other, &BUF->headers, &BUF->free);
+     
+     if(BUF->free < BUFSIZE_MIN || BUF->free > BUFSIZE_MAX)
+       Pike_error("Specified buffer size not within the <%d,%d>.\n",
+                  BUFSIZE_MIN, BUFSIZE_MAX);
+     break;
+     
    case 2:
-    if(Pike_sp[-(args - 1)].type != T_MAPPING)
-      Pike_error("Wrong argument 2 to create. Expected mapping.\n");	
-    if(Pike_sp[-args].type != T_MAPPING)
-      Pike_error("Wrong argument 1 to create. Expected mapping.\n");
-    break;
+     get_all_args("_Caudium.ParseHTTP.create", args, "%m%m",
+                  &BUF->other, &BUF->headers);
+     break;
   }
 
   if(BUF->free) {
     BUF->data = (char*)malloc(BUF->free * sizeof(char));
     if(!BUF->data)
-      Pike_error("Cannot allocate the request buffer. Out of memory?\n");
+      Pike_error("Cannot allocate the request buffer. Out of memory.\n");
   }
   
   BUF->pos = BUF->data;
-  add_ref(BUF->headers   = Pike_sp[-(args - 1)].u.mapping);
-  add_ref(BUF->other     = Pike_sp[-args].u.mapping);
+  add_ref(BUF->headers);
+  add_ref(BUF->other);
   pop_n_elems(args);
 }
 
@@ -562,7 +559,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
 {
   int nlen = 0, i;
   unsigned char *mystr; /* Work string */ 
-  unsigned char *ptr, *end, *prc; /* beginning and end pointers */
+  unsigned char *ptr, *end; /* beginning and end pointers */
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 #ifdef HAVE_ALLOCA
@@ -585,33 +582,33 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
 
   for (i = exist; ptr < end; i++) {
     switch(*ptr) {
-     case '%':
-      if (ptr < endl2)
-	mystr[i] =
-	  (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
-	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
-      else
-        if(simple >= 1) { 
-          mystr[i] = (*ptr++);
+        case '%':
+          if (ptr < endl2)
+            mystr[i] =
+              (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
+              ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
+          else
+            if(simple >= 1) { 
+              mystr[i] = (*ptr++);
+              nlen++;
+              break;
+            } else 
+              mystr[i] = '\0';
+          ptr+=3;
           nlen++;
           break;
-        } else 
-	   mystr[i] = '\0';
-      ptr+=3;
-      nlen++;
-      break;
-     case '+':
-      if(simple == 1) {
-        mystr[i] = *(ptr++);
-      } else { 
-        ptr++;
-        mystr[i] = ' ';
-      }
-      nlen++;
-      break;
-     default:
-      mystr[i] = *(ptr++);
-      nlen++;
+        case '+':
+          if(simple == 1) {
+            mystr[i] = *(ptr++);
+          } else { 
+            ptr++;
+            mystr[i] = ' ';
+          }
+          nlen++;
+          break;
+        default:
+          mystr[i] = *(ptr++);
+          nlen++;
     }
   }
 
@@ -646,26 +643,26 @@ INLINE static int get_next_header(unsigned char *heads, int len,
   
   for(count=0, colon=0; count < len; count++) {
     switch(heads[count]) {
-     case ':':
-      colon = count;
-      data = colon + 1;
-      for(count2 = data; count2 < len; count2++)
-	/* find end of header data */
-	if(heads[count2] == '\r') break;
-      while(heads[data] == ' ') data++;
+        case ':':
+          colon = count;
+          data = colon + 1;
+          for(count2 = data; count2 < len; count2++)
+            /* find end of header data */
+            if(heads[count2] == '\r') break;
+          while(heads[data] == ' ') data++;
       
-      skey.u.string = lowercase(heads, colon);      
-      if (skey.u.string == NULL) return -1;
-      sval.u.string = make_shared_binary_string((char *)(heads+data),
-						count2 - data);
-      mapping_insert(headermap, &skey, &sval);
-      count = count2;
-      free_string(skey.u.string);
-      free_string(sval.u.string);
-      break;
-     case '\n':
-      /*printf("Returning %d read\n", count);*/
-      return count+1;
+          skey.u.string = lowercase(heads, colon);      
+          if (skey.u.string == NULL) return -1;
+          sval.u.string = make_shared_binary_string((char *)(heads+data),
+                                                    count2 - data);
+          mapping_insert(headermap, &skey, &sval);
+          count = count2;
+          free_string(skey.u.string);
+          free_string(sval.u.string);
+          break;
+        case '\n':
+          /*printf("Returning %d read\n", count);*/
+          return count+1;
     }
   }
   return count;
@@ -677,6 +674,7 @@ static void f_parse_headers( INT32 args )
   struct pike_string *headers;
   unsigned char *ptr;
   int len = 0, parsed = 0;
+  
   get_all_args("_Caudium.parse_headers", args, "%S", &headers);
   headermap = allocate_mapping(1);
   ptr = (unsigned char *)headers->str;
@@ -713,6 +711,7 @@ static void f_parse_query_string( INT32 args )
   unsigned char *equal; /* Pointer to the equal sign */
   unsigned char *end;   /* Pointer to the ending null char */
   int namelen, valulen; /* Length of the current name and value */
+  
   get_all_args("_Caudium.parse_query_string", args, "%S%m", &query, &variables);
   skey.type = sval.type = T_STRING;
   /* end of query string */
@@ -722,52 +721,56 @@ static void f_parse_query_string( INT32 args )
   for(; ptr <= end; ptr++) {
     switch(*ptr)
     {
-     case '=':
-      /* Allow an unencoded '=' in the value. It's invalid but... */
-      if(equal == NULL)
-	equal=ptr;
-      break;
-     case '\0':
-      if(ptr != end)
-	continue;
-     case ';': /* It's recommended to support ';'
-		  instead of '&' in query strings... */
-     case '&':
-      if(equal == NULL) { /* value less variable, we can ignore this */
-	name = ptr+1;
-	break;
-      }
-      namelen = equal - name;
-      valulen = ptr - ++equal;
-      skey.u.string = url_decode(name, namelen, 0, 0);
-      if (skey.u.string == NULL) { /* OOM. Bail out */
-	Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
-      }
-      exist = low_mapping_lookup(variables, &skey);
-      if(exist == NULL || exist->type != T_STRING) {
-	sval.u.string = url_decode(equal, valulen, 0, 0);
-	if (sval.u.string == NULL) { /* OOM. Bail out */
-	  Pike_error("_Caudium.parse_query_string(): "
-		     "Out of memory in url_decode().\n");
-	}
-      } else {
-	/* Add strings separed with '\0'... */
-	struct pike_string *tmp;
-	tmp = url_decode(equal, valulen, 1, 0);
-	if (tmp == NULL) {
-	  Pike_error("_Caudium.parse_query_string(): "
-		     "Out of memory in url_decode().\n");
-	}
-	sval.u.string = add_shared_strings(exist->u.string, tmp);
-	free_string(tmp);
-      }
-      mapping_insert(variables, &skey, &sval);
-      free_string(skey.u.string);
-      free_string(sval.u.string);
+        case '=':
+          /* Allow an unencoded '=' in the value. It's invalid but... */
+          if(equal == NULL)
+            equal=ptr;
+          break;
+        case '\0':
+          if(ptr != end)
+            continue;
+        case ';': /* It's recommended to support ';'
+                     instead of '&' in query strings... */
+        case '&':
+          if(equal == NULL) { /* value less variable, we can ignore this */
+            name = ptr+1;     /* Can we really? What if an app relies
+                               * upon the presence of a variable but
+                               * doesn't give a damn about its
+                               * value?
+                               * /grendel
+                               */
+            break;
+          }
+          namelen = equal - name;
+          valulen = ptr - ++equal;
+          skey.u.string = url_decode(name, namelen, 0, 0);
+          if (skey.u.string == NULL) { /* OOM. Bail out */
+            Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
+          }
+          exist = low_mapping_lookup(variables, &skey);
+          if(exist == NULL || exist->type != T_STRING) {
+            sval.u.string = url_decode(equal, valulen, 0, 0);
+            if (sval.u.string == NULL) { /* OOM. Bail out */
+              Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
+            }
+          } else {
+            /* Add strings separed with '\0'... */
+            struct pike_string *tmp;
+            tmp = url_decode(equal, valulen, 1, 0);
+            if (tmp == NULL) {
+              Pike_error("_Caudium.parse_query_string(): "
+                         "Out of memory in url_decode().\n");
+            }
+            sval.u.string = add_shared_strings(exist->u.string, tmp);
+            free_string(tmp);
+          }
+          mapping_insert(variables, &skey, &sval);
+          free_string(skey.u.string);
+          free_string(sval.u.string);
 
-      /* Reset pointers */
-      equal = NULL;
-      name = ptr+1;
+          /* Reset pointers */
+          equal = NULL;
+          name = ptr+1;
     }
   }
   pop_n_elems(args);
@@ -822,29 +825,29 @@ static void f_parse_prestates( INT32 args )
       ind.type = T_STRING;
       
       switch(done_first) {
-       case 0:
-	if (!MEMCMP(&url->str[last_start], "internal", len)) {
-	  done_first = -1;
-	  ind.u.string = make_shared_string("internal");
-	} else {
-	  done_first = 1;
-	  ind.u.string = make_shared_binary_string(&url->str[last_start], len);
-	}
+          case 0:
+            if (!MEMCMP(&url->str[last_start], "internal", len)) {
+              done_first = -1;
+              ind.u.string = make_shared_string("internal");
+            } else {
+              done_first = 1;
+              ind.u.string = make_shared_binary_string(&url->str[last_start], len);
+            }
             
-	multiset_insert(prestate, &ind);
-	break;
+            multiset_insert(prestate, &ind);
+            break;
             
-       case -1:
-	/* internal */
-	ind.u.string = make_shared_binary_string(&url->str[last_start], len);
-	multiset_insert(internal, &ind);
-	break;
+          case -1:
+            /* internal */
+            ind.u.string = make_shared_binary_string(&url->str[last_start], len);
+            multiset_insert(internal, &ind);
+            break;
             
-       default:
-	/* prestate */
-	ind.u.string = make_shared_binary_string(&url->str[last_start], len);
-	multiset_insert(prestate, &ind);
-	break;
+          default:
+            /* prestate */
+            ind.u.string = make_shared_binary_string(&url->str[last_start], len);
+            multiset_insert(prestate, &ind);
+            break;
       }
       free_svalue(&ind);
       last_start = i + 1;
@@ -865,6 +868,8 @@ static void f_parse_prestates( INT32 args )
 **  strings _only_ in the format given above.
 ** returns:
 **  The IP Address string.
+** fixme:
+**  This function works only with IPv4
 */
 static void f_get_address(INT32 args) {
   int                  i = -1;
@@ -904,7 +909,7 @@ static void f_get_address(INT32 args) {
   else
     res = make_shared_binary_string(orig, i);
   
-  pop_stack();
+  pop_n_elems(args);
   push_string(res);
 }
 
@@ -920,19 +925,30 @@ static void f_get_address(INT32 args) {
 static void f_get_port(INT32 args) {
   int i, found=0;
   struct pike_string *src;
-  char *orig, *ptr;
+  char *orig = NULL;
+
+  get_all_args("_Caudium.get_port", args, "%S", &src);
   
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.get_port",1,"string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.get_port(): only 8-bit strings allowed.\n");
-  }
   if(src->len < 7) {
     pop_n_elems(args);
     push_text("0"); 
   } else {
-    orig = src->str;
+#ifdef HAVE_STRNDUPA
+    orig = strndupa(src->str, src->len);
+    if (!orig)
+      Pike_error("Out of stack space");
+#else
+#ifdef HAVE_ALLOCA
+    orig = alloca(src->len + 1);
+#else
+    orig = malloc(src->len + 1);
+#endif
+    if (!orig)
+      Pike_error("Out of memory.");
+    MEMCPY(orig, src->str, src->len);
+    orig[src->len] = 0;
+#endif
+    
     for(i = src->len-1; i >=0; i--) {
       if(orig[i] == 0x20) { /* " " */
         found = 1;
@@ -942,13 +958,18 @@ static void f_get_port(INT32 args) {
     }
     
     if (found) {
-      int len = src->len -i ;
+      int len = src->len - i;
       pop_n_elems(args);
       push_string(make_shared_binary_string(orig+i, len));
     } else {
       pop_n_elems(args);
       push_text("0");
     }
+
+#if !defined(HAVE_STRNDUPA) && !defined(HAVE_ALLOCA)
+    if (orig)
+      free(orig);
+#endif
   }
 }
 
@@ -964,15 +985,26 @@ static void f_get_port(INT32 args) {
 static void f_extension( INT32 args ) {
   int i, found=0;
   struct pike_string *src;
-  char *orig, *ptr;
+  char *orig;
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.extension", 1, "string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.extension(): Only 8-bit strings allowed.\n");
-  }
-  orig = src->str;
+  get_all_args("_Caudium.extension", args, "%S", &src);  
+
+#ifdef HAVE_STRNDUPA
+  orig = strndupa(src->str, src->len);
+  if (!orig)
+    Pike_error("Out of stack space");
+#else
+#ifdef HAVE_ALLOCA
+  orig = alloca(src->len + 1);
+#else
+  orig = malloc(src->len + 1);
+#endif
+  if (!orig)
+    Pike_error("Out of memory.");
+  MEMCPY(orig, src->str, src->len);
+  orig[src->len] = 0;
+#endif
+  
   for(i = src->len-1; i >= 0; i--) {
     if(orig[i] == 0x2E) {
       found = 1;
@@ -984,17 +1016,21 @@ static void f_extension( INT32 args ) {
   if(found) {
     int len = src->len - i;    
     switch(orig[src->len-1]) {
-     case '#': case '~':
-      /* Remove unix backup extension */
-      len--;
+        case '#': case '~':
+          /* Remove unix backup extension */
+          len--;
     }
     pop_n_elems(args);
     push_string(make_shared_binary_string(orig+i, len));
-
   } else {
     pop_n_elems(args);
     push_text("");
   }
+
+#if !defined(HAVE_STRNDUPA) && !defined(HAVE_ALLOCA)
+  if (orig)
+    free(orig);
+#endif
 }
 
 /*
@@ -1005,17 +1041,13 @@ static void f_http_decode_url(INT32 args) {
   struct pike_string *tmp;
   struct pike_string *src;
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_decode_url",1,"string");
-  src =  Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_decode_url(): Only 8-bits strings allowed.\n");
-  }
+  get_all_args("_Caudium.http_decode_url", args, "%S", &src);
+  
   tmp = url_decode(src->str, src->len, 0, 2);
   if(tmp==NULL) {
-    Pike_error("_Caudium.http_decode_url(): Out of memory in url_decode().\n");
+    Pike_error("Out of memory.\n");
   }
-  pop_stack();
+  pop_n_elems(args);
   push_string(tmp);
 }
 
@@ -1027,6 +1059,55 @@ static void f_http_decode_url(INT32 args) {
 
 /* The following will convert char to hex */
 static char *hex_chars = "0123456789ABCDEF";
+
+/* routine used by all the *_encode_* functions below */
+INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun)
+{
+  int                 unsafe = 0;
+  int                 out_len, in_len;
+  unsigned char      *i, *out, *o;
+    
+  in_len = in->len - 1;
+
+  if (!fun)
+    Pike_error("BUG in Caudium.\n");
+  
+  /* check for unsafe characters */
+  for(i=in->str; *i; i++)
+    if (!fun(*i))
+      unsafe++;
+
+  if (!unsafe)
+    return NULL;
+
+  out_len = in_len + (unsafe << 1) + 1;
+
+#ifdef HAVE_ALLOCA
+  out = alloca(out_len);
+#else
+  out = malloc(out_len);
+#endif
+  if (!out)
+    Pike_error("Out of memory.");
+
+  for(o=out, i=in->str; *i; i++) {
+    if (!fun(*i)) {
+      *o++ = '%';
+      *o++ = hex_chars[*i >> 4];
+      *o++ = hex_chars[*i & 15];
+    } else
+      *o++ = *i;
+  }
+
+  *o++ = 0;
+  
+#if !defined(HAVE_ALLOCA)
+  if (out)
+    free(out);
+#endif
+  
+  return make_shared_string(out);
+}
 
 /* check if character given is safe */
 /* maybe we'll probably need more safe char's here ? */
@@ -1050,48 +1131,21 @@ static INLINE int is_safe (char c)
 */
 static void f_http_encode(INT32 args) 
 {
-  char *o, *out, *in;
-  unsigned char *i;
-  int unsafe = 0;
-  int out_len, in_len;
-  struct pike_string *ret;
   struct pike_string *src;
+  struct pike_string *ret;
+  
+  get_all_args("_Caudium.http_encode", args, "%S", &src);
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode", 1, "string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_encode(): Only 8-bit strings allowed.\n");
-  }
-
-  in = src->str;
-  in_len = src->len-1;
-	
-  /* count unsafe characters */
-  for(i=in; *i; i++) if(!is_safe((int )*i)) unsafe++;
-
+  ret = do_encode_stuff(src, is_safe);
+  
   /* no need to convert	*/
-  if(unsafe == 0) {
+  if(!ret) {
     pop_n_elems(args-1);
     return;
-  }
-	
-  out_len = in_len + (unsafe * 2) + 1;
-  ret = begin_shared_string(out_len);
-  out = ret->str;
+  }	
 
-  for(o=out, i=in; *i; i++) {
-    if (!is_safe(*i)) {
-      *o++ = '%';
-      *o++ = hex_chars[*i >> 4];
-      *o++ = hex_chars[*i & 15];
-    } else *o++ = *i;
-  }
-
-  /* grendel: i think this _is_ needed?! - pit */
-  /* *o++ = 0; */
   pop_n_elems(args);
-  push_string(end_shared_string(ret));
+  push_string(ret);
 }
 
 /*
@@ -1106,18 +1160,14 @@ static void f_http_decode(INT32 args)
 {
   struct pike_string *tmp;
   struct pike_string *src;
- 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_decode",1,"string");
-  src =  Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_decode(): Only 8-bits strings allowed.\n");
-  }
+
+  get_all_args("_Caudium.http_decode", args, "%S", &src);
+  
   tmp = url_decode(src->str, src->len, 0, 1);
   if(tmp==NULL) {
     Pike_error("_Caudium.http_decode(): Out of memory in url_decode().\n");
   }
-  pop_stack();
+  pop_n_elems(args);
   push_string(tmp);
 }
 
@@ -1158,48 +1208,21 @@ static INLINE int is_http_safe (char c)
 */
 static void f_http_encode_string(INT32 args)
 {
-  char *o, *out, *in;
-  unsigned char *i;
-  int unsafe = 0;
-  int out_len, in_len;
-  struct pike_string *ret;
   struct pike_string *src;
+  struct pike_string *ret;
+  
+  get_all_args("_Caudium.http_encode_string", args, "%S", &src);
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_string", 1, "string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_encode_string(): Only 8-bit strings allowed.\n");
-  }
-
-  in = src->str;
-  in_len = src->len-1;
-	
-  /* count unsafe characters */
-  for(i=in; *i; i++) if(!is_http_safe((int )*i)) unsafe++;
+  ret = do_encode_stuff(src, is_http_safe);
 
   /* no need to convert	*/
-  if(unsafe == 0) {
+  if(!ret) {
     pop_n_elems(args-1);
     return;
   }
-	
-  out_len = in_len + (unsafe * 2) + 1;
-  ret = begin_shared_string(out_len);
-  out = ret->str;
-
-  for(o=out, i=in; *i; i++) {
-    if (!is_http_safe(*i)) {
-      *o++ = '%';
-      *o++ = hex_chars[*i >> 4];
-      *o++ = hex_chars[*i & 15];
-    } else *o++ = *i;
-  }
-
-  /* grendel: i think this _is_ needed?! - pit */
-  /* *o++ = 0; */
+  
   pop_n_elems(args);
-  push_string(end_shared_string(ret));
+  push_string(ret);
 }
 
 /* Check if the char given is safe or not */
@@ -1230,48 +1253,21 @@ static INLINE int is_cookie_safe (char c)
 */
 static void f_http_encode_cookie(INT32 args)
 {
-  char *o, *out, *in;
-  unsigned char *i;
-  int unsafe = 0;
-  int out_len, in_len;
   struct pike_string *ret;
   struct pike_string *src;
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_cookie", 1, "string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_encode_cookie(): Only 8-bit strings allowed.\n");
-  }
+  get_all_args("_Caudium.http_encode_cookie", args, "%S", &src);
 
-  in = src->str;
-  in_len = src->len-1;
-	
-  /* count unsafe characters */
-  for(i=in; *i; i++) if(!is_cookie_safe((int )*i)) unsafe++;
-
+  ret = do_encode_stuff(src, is_cookie_safe);
+  
   /* no need to convert	*/
-  if(unsafe == 0) {
+  if(!ret) {
     pop_n_elems(args-1);
     return;
   }
-	
-  out_len = in_len + (unsafe * 2) + 1;
-  ret = begin_shared_string(out_len);
-  out = ret->str;
 
-  for(o=out, i=in; *i; i++) {
-    if (!is_cookie_safe(*i)) {
-      *o++ = '%';
-      *o++ = hex_chars[*i >> 4];
-      *o++ = hex_chars[*i & 15];
-    } else *o++ = *i;
-  }
-
-  /* grendel: i think this _is_ needed?! - pit */
-  /* *o++ = 0; */
   pop_n_elems(args);
-  push_string(end_shared_string(ret));
+  push_string(ret);
 }
 
 /* Check if the char given is safe or not */
@@ -1316,48 +1312,21 @@ static INLINE int is_url_safe (char c)
 */
 static void f_http_encode_url(INT32 args)
 {
-  char *o, *out, *in;
-  unsigned char *i;
-  int unsafe = 0;
-  int out_len, in_len;
   struct pike_string *ret;
   struct pike_string *src;
 
-  if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_url", 1, "string");
-  src = Pike_sp[-1].u.string;
-  if(src->size_shift) {
-    Pike_error("_Caudium.http_encode_url(): Only 8-bit strings allowed.\n");
-  }
+  get_all_args("_Caudium.http_encode_url", args, "%S", &src);
 
-  in = src->str;
-  in_len = src->len-1;
-	
-  /* count unsafe characters */
-  for(i=in; *i; i++) if(!is_url_safe((int )*i)) unsafe++;
+  ret = do_encode_stuff(src, is_url_safe);
 
   /* no need to convert	*/
-  if(unsafe == 0) {
+  if(!ret) {
     pop_n_elems(args-1);
     return;
-  }
-	
-  out_len = in_len + (unsafe * 2) + 1;
-  ret = begin_shared_string(out_len);
-  out = ret->str;
+  }	
 
-  for(o=out, i=in; *i; i++) {
-    if (!is_url_safe(*i)) {
-      *o++ = '%';
-      *o++ = hex_chars[*i >> 4];
-      *o++ = hex_chars[*i & 15];
-    } else *o++ = *i;
-  }
-
-  /* grendel: i think this _is_ needed?! - pit */
-  /* *o++ = 0; */
   pop_n_elems(args);
-  push_string(end_shared_string(ret));
+  push_string(ret);
 }
 
 /* Used for cern_http_date and for http_date */
@@ -1391,15 +1360,11 @@ static void f_cern_http_date(INT32 args)
 
   switch(args) {
    default:
-     Pike_error("Wrong number of arguments _Caudium.cern_http_date(). Expected 1 or less arguments.\n");
+     Pike_error("Wrong number of arguments _Caudium.cern_http_date(). Expected at most 1 argument.\n");
      break;
 
      case 1:
-       if(Pike_sp[-1].type != T_INT) {
-         Pike_error("Bad argument 1 to _Caudium.cern_http_date(). Expected int.\n");
-       } else {
-         timestamp = Pike_sp[-1].u.integer;
-       }
+       get_all_args("_Caudium.cern_http_date", args, "%d", &timestamp);
        break;
 
      case 0:
@@ -1419,8 +1384,7 @@ static void f_cern_http_date(INT32 args)
    }
 #endif /* HAVE_LOCALTIME_R */
 
-  if(args == 0) { 
-
+  if(args == 0) {
     now = time(NULL);
 #ifdef HAVE_LOCALTIME_R
     THREADS_ALLOW();
@@ -1567,15 +1531,11 @@ static void f_http_date(INT32 args)
 
   switch(args) {
    default:
-     Pike_error("Wrong number of arguments _Caudium.http_date(). Expected 1 or less arguments.\n");
+     Pike_error("Wrong number of arguments _Caudium.http_date(). Expected at most 1 argument..\n");
      break;
 
      case 1:
-       if(Pike_sp[-1].type != T_INT) {
-         Pike_error("Bad argument 1 to _Caudium.http_date(). Expected int.\n");
-       } else {
-         timestamp = Pike_sp[-1].u.integer;
-       }
+       get_all_args("_Caudium.http_date", args, "%d", &timestamp);
        break;
 
      case 0:
