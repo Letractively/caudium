@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fix error on vhs_dirparser when there is no files on directory and that
+  option "show dot files" is set to no
+   (Xavier Beaudouin)
 - The watchdog now really take care of the port configuration for each virtual
   server instead of guessing it from the server URI. As a consequence, the
   watchdog can now check multiple HTTP ports for a virtual server.
