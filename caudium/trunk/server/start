@@ -320,6 +320,8 @@ pike=pike
 if [ "$pikever" != "" ]; then 
   if [ -x bin/caudium-$pikever ] ; then  pike=bin/caudium-$pikever; 
   elif [ -x bin/pike-$pikever ] ; then pike=bin/pike-$pikever;
+  elif [ -x bin/caudium ]; then pike=bin/caudium;
+  elif [ -x bin/pike ]; then pike=bin/caudium;
   else
     echo "Cannot find a pike with version $pikever"
     exit 1
