@@ -715,6 +715,9 @@ static void f__output_write_cb(INT32 args)
 #endif
       if(inp->u.mmap_storage->data == MAP_FAILED) {
 	struct object *tmp;
+	/* FIXME: Better error handling here before falling over to
+	 * normal file objects?
+	 */
 	DERR(perror("additional mmap failed"));
 	/* converting to NBIO_OBJ */
 	THIS->outp->mode = IDLE;
@@ -742,7 +745,7 @@ static void f__output_write_cb(INT32 args)
 	  apply_low(inp->u.file, inp->set_nb_off, 3);
 	  inp->mode = READING;
 	}
-	/* FIXME: Better error handling here? */
+	nobjects++;
 	break;
       } else {
 	inp->u.mmap_storage->m_start = inp->pos;
