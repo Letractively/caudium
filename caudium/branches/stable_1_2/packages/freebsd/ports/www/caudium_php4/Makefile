@@ -33,13 +33,17 @@ USE_AUTOCONF_VER=213
 CONFIGURE_ARGS=	--with-config-file-path=${PREFIX}/etc/php.standalone \
 		--disable-pear \
 		--enable-discard-path \
+		--with-tsrm-pth \
+		--with-caudium=/usr/local/caudium/server \
+		--enable-track-vars \
+		--enable-memory-limit \
+		--enable-force-cgi-redirect \
+		--with-pcre \
+		--enable-session \
+		--enable-xml \
+		--enable-discard-path \
+		--enable-posix \
 		--with-readline=/usr
-
-MAKE_ENV=	STANDALONE="${STANDALONE}"
-.else
-.if defined(WITH_APACHE2)
-CONFIGURE_ARGS=	--with-apxs2=${PREFIX}/sbin/apxs \
-		--with-tsrm-pth
 
 CONFIGURE_ARGS+=--enable-versioning \
 		--with-regex=system \
