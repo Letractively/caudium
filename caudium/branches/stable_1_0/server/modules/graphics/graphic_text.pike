@@ -740,9 +740,9 @@ mapping find_internal(string f, object rid)
     }
   }
   
-  if (f[-1] == "/") {
+  if (f[-1] == '/') {
     // image names can't end with /
-    f = f[0..(strlen(f)-2];
+    f = f[0..(strlen(f)-2)];
   }
 
   return image_cache->http_file_answer( f, rid );
