@@ -1479,11 +1479,11 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 //! tag: dec
 //!  Decrement the integer value of the specified variable with the
 //!  specified amount.
-//! arg: variable
+//! attribute: variable
 //!  The variable to decrement.
-//! arg: [scope]
+//! attribute: [scope]
 //!  The scope of the variable. See [set] for more information.
-//! arg: [val]
+//! attribute: [val]
 //!  The optional value to decrement the variable with. Defaults to 1.
 //! see_also: inc
 //! example: exml
@@ -1502,11 +1502,11 @@ string|array(string) tag_dec(string tag, mapping args, object id) {
 //! tag: inc
 //!  Increment the integer value of the specified variable with the
 //!  specified amount.
-//! arg: variable
+//! attribute: variable
 //!  The variable to increment.
-//! arg: [scope]
+//! attribute: [scope]
 //!  The scope of the variable. See [set] for more information.
-//! arg: [val]
+//! attribute: [val]
 //!  The optional value to increment the variable with. Defaults to 1.
 //! see_also: dec
 //! example: exml
@@ -3011,6 +3011,7 @@ mapping query_tag_callers()
 	    "set":tag_set,
 	    "dec":tag_dec,
 	    "inc":tag_inc,
+	    "dice":tag_dice,
 	    "append":tag_append,
 	    "unset":tag_set,
 	    "undefine":tag_undefine,
@@ -3155,6 +3156,48 @@ string tag_random(string tag, mapping m, string s)
     return (q=s/"\n")[random(sizeof(q))];
   else
     return (q=s/q)[random(sizeof(q))];
+}
+
+//! tag: dice
+//!  Simulates a D&amp;D style dice algorithm. Useful for generating
+//!  random numbers.
+//! attribute: value
+//!  Describes the dices. A six sided dice is called 'D6' or '1D6', while
+//!  two eight sided dices is called '2D8' or 'D8+D8'. Constants may also
+//!  be used, so that a random number between 10 and 20 could be written
+//!  as 'D9+10' (excluding 10 and 20, including 10 and 20 would be 'D11+9').
+//!  The character 'T' may be used instead of 'D'. The default value is D6.
+//! attribute: variable
+//!  Store the result in this variable.
+//! attribute: [scope]
+//!  The scope of the variable.
+
+array(string) tag_dice(string tag, mapping args,object id)
+{
+  int value;
+  NOCACHE();
+  if(!args->type) args->type="D6";
+  else            args->type = replace( args->type, "T", "D" );
+  args->type=replace(args->type, "-", "+-");
+  foreach(args->type/"+", string dice) {
+    if(has_value(dice, "D")) {
+      if(dice[0]=='D')
+	value += random((int)dice[1..])+1;
+      else {
+	array(int) x=(array(int))(dice/"D");
+	if(sizeof(x)!=2)
+	  return ({ "\n<b>dice: Malformed dice type '"+dice+"'.</b>\n" });
+	value+=x[0]*(random(x[1])+1);
+      }
+    }
+    else
+      value += (int)dice;
+  }
+  
+  if(args->variable)
+    set_scope_var(args->variable, args->scope, value, id);
+  else
+    return ({ (string)value });
 }
 
 string tag_right(string t, mapping m, string s, object id)
@@ -3360,9 +3403,12 @@ string tag_sort(string t, mapping m, string c, object id)
   return pre + sort(lines)*m->separator + post;
 }
 
-string tag_strlen(string t, mapping m, string c, object id)
+//! container: strlen
+//!  Returns the length of the contents. 
+
+array(string) tag_strlen(string t, mapping m, string c, object id)
 {
-  return (string)strlen(c);
+  return ({ (string)strlen(c) });
 }
 
 string tag_case(string t, mapping m, string c, object id)
