@@ -245,7 +245,7 @@ only_bump_version: force
 	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
 	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
 	  cat ../../VERSION; \
-n	)
+	)
 
 bump_version: force only_bump_version
 	@(cd $(SRCDIR); \
