@@ -458,7 +458,7 @@ private int parse_got(string s)
        case "user-agent":
 	if(!client)
 	{
-	  sscanf(request_headers[linename], "%s via", contents);
+	  sscanf(contents = request_headers[linename], "%s via", contents);
 	  client = (contents||request_headers[linename])/" " - ({ "" });
 	}
 	break;
@@ -826,7 +826,6 @@ private int parse_got(string s)
 #else
   supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
-
   if(!referer) referer = ({ });
   if(misc->proxyauth) {
     // The Proxy-authorization header should be removed... So there.

@@ -17,8 +17,8 @@ PIKEVERSION=@PIKEVERSION@
 
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
-
-all:	src extern tools
+#extern tools
+all:	src 
 	-@$(BIN_TRUE)
 
 extern: force

@@ -23,6 +23,9 @@
 // -----------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.3  2000/08/02 06:03:10  neotron
+// PiXSL now links with libs correctly, fixed bug in htmlparse.pike and fixed a 0.7 but in counter.pike.
+//
 // Revision 1.2  2000/07/28 16:40:14  neotron
 // Pike 7 fixes
 //
@@ -242,7 +245,7 @@ mapping fontlist(string bg, string fg, int scale)
     "<H2>Available Graphic Counter Fonts</H2><HR>"+
     cvs_version + "<BR>" + copyright + "<HR>";
 		 
-  catch( fnts=sort(roxen->available_fonts(1)) );
+  catch( fnts = sort( roxen->available_fonts() ));
   if( fnts ) {
     out += "<B>Available Fonts:</B><MENU>";
     for( i=0; i<sizeof(fnts); i++ ) {
