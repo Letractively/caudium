@@ -1265,7 +1265,7 @@ void create()
 	 short_name(caudium->current_configuration?caudium->current_configuration->name:".")+"/ftp_proxy_log",
 	 "Logfile", TYPE_FILE,  "Empty the field for no log at all");
   
-  defvar("mountpoint", "ftp:/", "Location", TYPE_LOCATION|VAR_MORE,
+  defvar("mountpoint", "/ftp:/", "Location", TYPE_LOCATION|VAR_MORE,
 	 "By default, this is ftp:/. If you set anything else, all "
 	 "normal WWW-clients will fail. But, other might be useful"
 	 ", like /ftp/. if you set this location, a link formed like "
