@@ -480,7 +480,6 @@ string http_encode_cookie(string f)
   return replace(f, ({ "=", ",", ";", "%", ":" }),
 		 ({ "%3d", "%2c", "%3b", "%25", "%3A" }));
 }
-#endif
 
 //!   URL encode the specified string and return it. This means replacing
 //!   the following characters to the %XX format: null (char 0), space, tab,
@@ -499,6 +498,7 @@ string http_encode_url (string f)
 	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40"
 	     }));
 }
+#endif
 
 //!   URL decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
@@ -529,7 +529,7 @@ string http_decode_url (string f)
 //!   The cookie value.
 string http_caudium_config_cookie(string from)
 {
-  return "CaudiumConfig="+Protocols.HTTP.http_encode_cookie(from)
+  return "CaudiumConfig="+Caudium.http_encode_cookie(from)
     +"; expires=" + Caudium.http_date (3600*24*365*2 + time (1)) + "; path=/";
 }
 

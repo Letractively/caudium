@@ -70,7 +70,7 @@ array(string) container_conflist(string tag, mapping args, string contents, obje
 
         nmap->url = sprintf("%s(showconf)/?name=%s",
                             id->conf->query("MyWorldLocation"),
-                            http_encode_url(cfg->name));
+                            Caudium.http_encode_url(cfg->name));
         nmap->name = cfg->name;
         rep += ({nmap});
     }

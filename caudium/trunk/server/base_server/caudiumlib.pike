@@ -1493,11 +1493,11 @@ string roxen_encode( string val, string encoding )
      
       case "cookie":
         // HTTP cookie encoding.
-        return Protocols.HTTP.http_encode_cookie (val);
+        return Caudium.http_encode_cookie (val);
      
       case "url":
         // HTTP encoding, including special characters in URL:s.
-        return http_encode_url (val);
+        return Caudium.http_encode_url (val);
        
       case "html":
         // For generic html text and in tag arguments. Does
