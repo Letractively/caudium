@@ -2138,7 +2138,7 @@ string tag_modified(string tag, mapping m, object id, object file,
 
 string tag_version(string tag, mapping m) 
 {
-    string ver = caudium->version;
+    string ver = caudium->version();
     int    minor, major, release;
     
     if (!m || !sizeof(m))
