@@ -579,6 +579,9 @@ private int leave_me_alone(string uri)
     if (uri[0] == '/')
         return 0;
 
+    if (sizeof(uri) >= 7 && uri[0..6] == "mailto:")
+        return 1;
+    
     if (search(uri, "://") < 0)
         return 0; // assuming it's a relative URI
     
@@ -587,7 +590,7 @@ private int leave_me_alone(string uri)
 
     if (sizeof(uri) >= 8 && uri[0..7] == "https://")
         return 0;
-
+    
     return 1;
 }
 
