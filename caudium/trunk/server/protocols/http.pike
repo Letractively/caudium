@@ -71,7 +71,7 @@ constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
-private static int wanted_data, have_data, ignore_data, max_body_length;
+int wanted_data, have_data, unread_data, max_body_length;
 
 
 object conf;
@@ -544,8 +544,8 @@ private int parse_got()
 	     return 0;
 	 }
 	 if ( wanted_data < l ) {
-	   ignore_data = l - have_data;
-	   REQUEST_WERR("HTTP: parsing, ignoring next " + ignore_data +
+	   unread_data = l - have_data;
+	   REQUEST_WERR("HTTP: parsing, ignoring next " + unread_data +
 			" bytes of request body.");
 	 }
 	 leftovers = data[l..];
@@ -796,6 +796,7 @@ void end(string|void s, int|void keepit)
     object o = object_program(this_object())(my_fd, conf);
     o->remoteaddr = remoteaddr;
     o->supports = supports;
+    o->unread_data = unread_data;
 #ifdef EXTRA_ROXEN_COMPAT
     o->client = client;
 #endif
@@ -1664,15 +1665,14 @@ void got_data(mixed fdid, string s)
   // if data is ingored dont store it in raw - its body data from
   // the last request...
   int read_data = strlen(s);
-
-  if ( ignore_data > 0 ) {
-    REQUEST_WERR("Ignoring " + ignore_data + " bytes...");
-    if ( ignore_data > read_data ) {
-      s = s[ignore_data+1..];
-      ignore_data = 0;
+  if ( unread_data > 0 ) {
+    REQUEST_WERR("Ignoring " + unread_data + " bytes...");
+    if ( read_data > unread_data ) {
+      s = s[unread_data..];
+      unread_data = 0;
     }
     else {
-      ignore_data -= read_data; 
+      unread_data -= read_data; 
       return;
     }
   }
@@ -1794,7 +1794,7 @@ void create(void|object f, void|object c)
     remoteaddr = Caudium.get_address(my_fd->query_address()||"");
     MARK_FD("HTTP connection");
   }
-  ignore_data = 0;
+  unread_data = 0;
   max_body_length = DEFAULT_MAX_BODY_LENGTH;
 }
 
