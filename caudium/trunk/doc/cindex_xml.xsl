@@ -43,6 +43,16 @@
        <xsl:comment>XSLT Template version $Id$</xsl:comment>
       </page>
     </xsl:when>
+    <xsl:when test="$display = 'methods'">
+      <page title="Caudium Method Index">
+       <h3>Caudium Method Index</h3>
+         <p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Tag / Container/%%/In Module
+         <xsl:apply-templates select='/descendant::entry[@type="method"]' mode="top">
+           <xsl:sort select="@name"/></xsl:apply-templates>
+         </tablify></p>
+       <xsl:comment>XSLT Template version $Id$</xsl:comment>
+      </page>
+    </xsl:when>
   </xsl:choose>
 </xsl:template>
 
@@ -100,31 +110,16 @@
   </xsl:choose> 
 </xsl:template>
 
-<xsl:template match="entry" mode="tag">
-  <xsl:choose>
-   <xsl:when test="@type='module'">
-    <xsl:if test='count(entry[@type="tag" or @type="container"]) > 0'>
-    <dt><b><a href="{@path}">
-     <xsl:choose>
-     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
-     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-     </xsl:choose>
-    </a></b></dt>
-    <dd><xsl:apply-templates select='entry[@type="tag" or @type="container"]' mode='tag'><xsl:sort select="@name"/></xsl:apply-templates></dd>
-
-   </xsl:if>
-   </xsl:when>
-   <xsl:when test="@type='tag'">
-    <a href="{@path}#{@name}">
+<xsl:template match="entry" mode="method">
+   <xsl:when test="@type='method'">
+    /@@/<a href="{@path}#{@name}">
      &lt;<xsl:value-of select="@name"/> /&gt;
-    </a><br />
+    </a>/%%/<a href="{../@path}">
+     <xsl:choose>
+     <xsl:when test="../@title"><xsl:value-of select="../@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="../@name"/></xsl:otherwise>
+     </xsl:choose></a>
    </xsl:when>
-   <xsl:when test="@type='container'">
-    <a href="{@path}#{@name}">
-     &lt;<xsl:value-of select="@name"/>&gt;&lt;/<xsl:value-of select="@name"/>&gt;
-    </a><br />
-   </xsl:when>
-  </xsl:choose> 
 </xsl:template>
 
 </xsl:stylesheet>
