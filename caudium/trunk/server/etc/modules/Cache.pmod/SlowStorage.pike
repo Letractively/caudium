@@ -73,6 +73,8 @@ void create( string _namespace, object _storage ) {
 //! @param meta
 //! The cache mapping from cachelib
 void store( mapping meta ) {
+  if (!meta)
+    return; // yep, that can happen...
   PRELOCK();
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
@@ -145,7 +147,7 @@ void|mixed retrieve(string name, void|int object_only) {
   LOCK();
   string data = storage->retrieve(Stdio.append_path("/", hash, "/object"));
   mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
-  if (mappingp(meta)) {
+  if (meta && mappingp(meta)) {
     meta->hits++;
     meta->last_retrieval = time();
     _hits++;
@@ -257,7 +259,8 @@ void free( int n ) {
     string hash = tmp[0];
     mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
     _hash += ({ hash });
-    _hitrate += ({ (float)meta->hits / (float)( time() - meta->create_time ) });
+    if (meta)
+      _hitrate += ({ (float)meta->hits / (float)( time() - meta->create_time ) });
   }
   sort( _hitrate, _hash );
   foreach( _hash, string hash ) {
@@ -265,8 +268,10 @@ void free( int n ) {
       break;
     }
     mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
-    freed += meta->size;
-    disk_usage -= meta->size;
+    if (meta) {
+      freed += meta->size;
+      disk_usage -= meta->size;
+    }
     storage->unlink(Stdio.append_path("/", hash, "/object"));
     storage->unlink(Stdio.append_path("/", hash, "/meta"));
   }
@@ -287,6 +292,9 @@ void expire_cache( void|int nocallout ) {
       continue;
     string hash = (fname / "/")[1];
     mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
+    if (!meta) // retrieve can return 0
+      return;
+    
     if ( meta->expires == -1 ) {
       continue;
     }
