@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/sh
 #
 # $Id$
 #
@@ -13,8 +13,10 @@ PAGER=less
 EDITOR=vi
 CC=gcc
 CXX=gcc
-CFLAGS="-msupersparc -O6"
-CXXFLAGS="-msupersparc -O6"
+#
+# We don't want to force ia32 to compile for sparc :-)
+#CFLAGS="-msupersparc -O6"
+#CXXFLAGS="-msupersparc -O6"
 export PAGER EDITOR CC CFLAGS CXX CXXFLAGS
 PS1='\u@\h:\w\$ '
 export PS1
