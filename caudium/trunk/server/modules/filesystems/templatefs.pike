@@ -1,8 +1,8 @@
-// This is a roxen module. (c) Martin Baehr 1999-2002
+// This is a roxen module. (c) Martin Baehr 1999-2003
 
 // templatefs.pike 
 // template adding filesystem
-// based on code from per hedbor
+// based on an idea from per hedbor
 
 //  This code is (c) 1999 Martin Baehr, and can be used, modified and
 //  redistributed freely under the terms of the GNU General Public License,
@@ -23,9 +23,7 @@
 #include <module.h>
 #include <stdio.h>
 inherit "caudiumlib";
-inherit "modules/filesystems/filesystem";
-//inherit "utils";
-//inherit "relinsert.pike";
+inherit "module";
 
 constant cvs_version="$Id$";
 
@@ -38,6 +36,9 @@ void create()
   Caudium.unload_program("modules/filesystems/filesystem");
 
   ::create();
+  defvar("mountpoint", "/", "Mount point", TYPE_LOCATION, 
+         "This is where the module will be inserted in the "+
+         "namespace of your server.");
 
   defvar("dirtmpl", "template.dir", "directory template",
              TYPE_STRING, 
@@ -64,11 +65,13 @@ static private string doc()
          "<dl>"
          "\n<dt><b>file templates</b>"
          "<dd>the file template is applied to files in the current directory "
+         "\n(if the value starts with a / it is taken as an absolute path within the virtual filesystem)"
          "\n<dt><b>directory templates</b>"
          "<dd>these are applied after the file template has been applied, "
          "first the directory template residing in the same directory with "
          "the file, then successively each directory template up the path "
          "until the base directory of the filesystem is reached."
+         "\n<dt>(each template type may be disabled by leaving the field empty)"
          "\n<dt>the following types are planned:"
          "\n<dt><b>recursive or default file templates</b>"
          "<dd>if there is no file template in the current directory, "
@@ -135,9 +138,8 @@ string apply_template(string newfile, string f, string template, object id)
   string file;
 
   werror("templatefs: loop: %s ...", template);
-  if(id->conf->real_file(template, id))
+  if(file=id->conf->try_get_file(template, id))
   {
-    file = read_file( id->conf->real_file(template, id));
     werror(" found\n");
     file = Caudium.parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
     
@@ -152,6 +154,7 @@ string apply_template(string newfile, string f, string template, object id)
 
 string apply_all_templates( string f, string file, object id )
 {
+  string template="";
   array cd = ("/"+f) / "/";
   
   werror("templatefs: %s, %O\n", f, cd);
@@ -161,8 +164,15 @@ string apply_all_templates( string f, string file, object id )
 
   // first apply the file template
 
-  string template=query_location()+cd[..i-1]*"/" + "/" + query("filetmpl");
-  file = apply_template(file, "/"+f, template, id);
+  if(query("filetmpl")[0]=='/')
+    template=query("filetmpl");
+  else
+    template=query_location()+cd[..i-1]*"/" + "/" + query("filetmpl");
+  if(!(<"", "NONE">)[query("filetmpl")])
+    file = apply_template(file, "/"+f, template, id);
+
+  if((<"", "NONE">)[query("dirtmpl")])
+    return file;
 
   // and then step down the directory path and i
   // apply the directory template found in each dir.
@@ -198,66 +208,45 @@ string template_for( string f, object id )
 
 mixed find_file( string f, object id )
 {
+
+  werror("templatefs:find_file%d: %s%s\n", id->misc->templatefs_internal_get, f, (id->query?"?"+id->query:""));
+
+  if(id->misc->templatefs_internal_get)
+    return 0;
+
   string template, vtemplate;
 
   mapping defines = id->misc->defines || ([]);
   id->misc->defines = defines;
 
-  mixed retval = ::find_file( f, id );
-  if( intp( retval ) || mappingp( retval ) )
-    return retval;
-
-  //if(!(template=id->conf->real_file(vtemplate = Caudium.fix_relative(template_for(f,id),id),id)))
-  //  return retval;
-  
-  if( id->variables["content-type"] )
-    return Caudium.HTTP.file_answer( retval, id->variables["content-type"] );
-
-  
-  if( id->variables->show_img )
+  mapping file;
+  catch
   {
-    id->variables->image = id->not_query;
-    m_delete( id->variables, "show_img" );
-    return Caudium.HTTP.string_answer( parse_rxml( ::find_file( "/showimg", id )->read(), id ) );
-  } 
-  else 
-  {
-    if( notemplate( f, id ) )
-      return retval;
+    file = get_file( f, id);
+  };
+
+  if(!file)
+    return 0;
+
+  werror("templatefs:found: %s:%d\n", file->type, sizeof(file->data||""));
+
+//    if( notemplate( f, id ) )
+//      return retval;
+
     // add template to all rxml/html pages...
-    string type = id->conf->type_from_filename( id->not_query );
-    switch( type )
+    switch( (file->type/";")[0] )
     {
      case "text/html":
      case "text/rxml":
      {
        string contents;
-       string file=retval->read();
-
-       //werror("templatefs: %s", apply_all_templates(f, file, id));
-       contents = apply_all_templates(f, file, id);
-       //werror("templatefs: %s", contents);
-       
-       //contents = parse_html(contents, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, file);
-
-       //contents = parse_rxml(contents, id);
-       //werror("templatefs: %O\n%O\n", id->misc, id->misc->defines);
-       return Caudium.HTTP.rxml_answer(contents, id);
-
-       //ok, here we basicly take over the function of the parser module,
-       //not good, better use this:
-       //object fd=Stdio.File();
-       //object pipe = fd->pipe();
-       //fd->write(contents);
-       //return Caudium.HTTP.file_answer( pipe, type );
-     }
-//       return Caudium.HTTP.string_answer( parse_rxml("<use file="+template_for(f,id)+">"
-//                                             "<tmpl-head title=\""+f+"\">"+
-//                                             retval->read()+"<tmpl-foot>", id) );
+       contents = apply_all_templates(f, file->data, id);
+       //werror("new contents: %s\n", contents);
+       return http_string_answer(contents);
+     }  
+     default: return 0;
     }
-  }
-  return retval;
-} 
+}
 
 string icontainer_tmploutput(string container, mapping arguments, string contents, object id, string path)
 {
@@ -310,9 +299,107 @@ string tag_templatefs(string name,
 
 }
 
+string query_location()
+{
+  return QUERY(mountpoint);
+}
+
 mapping query_tag_callers()
 {
   return ([ "templatefs":tag_templatefs ]);
+}
+
+mapping get_file(string s, object id, int|void nocache)
+{
+  string res="";
+  mapping m;
+  mapping result = ([ ]);
+
+  id->misc->templatefs_internal_get=1;
+  m = id->conf->get_file(id);
+
+  werror("templatefs:get_file: %O\n", m);
+
+  if(!m || !(< 0, 200, 201, 202, 203 >)[m->error]) 
+    return 0;
+
+  if(m->data) 
+    res = m->data;
+  m->data = 0;
+
+  if(m->file)
+  {
+    res += m->file->read();
+    destruct(m->file);
+    m->file = 0;
+  }
+
+  if(m->raw)
+  {
+    res -= "\r";
+    if(!sscanf(res, "%*s\n\n%s", res))
+      sscanf(res, "%*s\n%s", res);
+  }
+
+  result->type = m->type||"application/octet-stream";
+  result->data = res;
+
+  return result;
+}
+
+mapping try_get_file(string s, object id, int|void nocache)
+{
+  string res="";
+  object fake_id;
+  mapping m;
+  mapping result = ([ ]);
+
+
+  // id->misc->common makes it possible to pass information to
+  // the originating request.
+  if ( !id->misc )
+    id->misc = ([]);
+  if ( !id->misc->common )
+    id->misc->common = ([]);
+
+  fake_id = id->clone_me();
+  fake_id->misc->common = id->misc->common;
+  fake_id->query=id->query;
+  fake_id->raw_url=id->raw_url;
+  fake_id->not_query=id->not_query;
+  fake_id->misc->templatefs_internal_get=1;
+
+  m = id->conf->get_file(fake_id);
+
+  werror("templatefs:try_get_file: %O\n", m);
+
+  fake_id->end();
+
+  if(!m || !(< 0, 200, 201, 202, 203 >)[m->error]) 
+    return 0;
+
+  if(m->data) 
+    res = m->data;
+  m->data = 0;
+
+  if(m->file)
+  {
+    res += m->file->read();
+    destruct(m->file);
+    m->file = 0;
+  }
+
+  if(m->raw)
+  {
+    res -= "\r";
+    if(!sscanf(res, "%*s\n\n%s", res))
+      sscanf(res, "%*s\n%s", res);
+  }
+
+  result->type = m->type||"application/octet-stream";
+  result->data = res;
+
+  return result;
 }
 
 /* START AUTOGENERATED DEFVAR DOCS */
