@@ -411,7 +411,7 @@ void read_group_data()
             Array.map(tmp, lambda(mixed s) { if(arrayp(s)) return s*","; else return (string)s; }) * ":"
           }); 
 	}
-        endgrent();
+        System.endgrent();
         if (objectp(privs)) {
           destruct(privs);
         }
