@@ -96,16 +96,18 @@ void write_to_client_and_cache(object client, string data, string key)
   if(key)
     cache = caudium->create_cache_file("gopher", key);
 
-  pip=Pipe.pipe();
-  if(cache)
+    if(cache)
   {
+    pip = Pipe.pipe();
     pip->set_done_callback(my_pipe_done, ({ cache, client }));
     pip->output(cache->file);
+  } else {
+    pip = Caudium.nbio();
   }
   if(client->my_fd)
   {
-    pip->output(client->my_fd);
     pip->write(data);
+    pip->output(client->my_fd);
   }
 }
 

@@ -597,7 +597,7 @@ class Request {
       return;
     }
 
-    pipe=Pipe.pipe();
+    pipe = Caudium.nbio();
     pipe->write("HTTP/1.0 200 Yeah, it's a FTP directory\r\n"
 		"Content-type: text/html\r\n"
 		"Content-length: "+strlen(res)+"\r\n");
@@ -655,7 +655,7 @@ class Request {
 
     type=caudium->type_from_filename(file);
 
-    pipe=Pipe.pipe();
+    pipe = Caudium.nbio();
     pipe->write("HTTP/1.0 200 FTP transfer initiated\r\n");
 
     tmp=caudium->type_from_filename(file,1);

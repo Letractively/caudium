@@ -141,7 +141,7 @@ void fixa_data(object pipe,string s)
 void server_closed(array v)
 {
    object pipe;
-   pipe=Pipe.pipe();
+   pipe = Caudium.nbio();
    fixa_data(pipe,v[4]);
    pipe->output(v[1]);
    v[2]->disconnect();
