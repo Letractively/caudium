@@ -1,5 +1,7 @@
 Changes in Caudium 1.0.XX
 -------------------------
+- Fix for bug #498377: the environment variable didn't show the complete url
+  with the query.
 - Added support for //!NOMODULE in modules. This close bug #473716
 - oldcgi is not not shown in the module list.
 - ldapuserauth.pike: fixed a security problem when using user access mode :

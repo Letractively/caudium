@@ -1,5 +1,7 @@
 Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
+- Fix for bug #498377: the environment variable didn't show the complete url
+  with the query.
 - Corrected backtrace when invoquing internal images that don't exist on
   caudium-images/ directory.
 - Restart and shutdown pages now follow the CIF theme.
