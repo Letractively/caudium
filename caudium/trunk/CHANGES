@@ -2,3 +2,18 @@ Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
 - Added embedded Perl script / perl tag support from Roxen, originally
   ported to Caudium by Jan Legenhausen.
+- Made the ftp protocol use supplied error code if it's present after a
+  command fails. This leads to more helpful error messages than
+  "file not found'.
+- filesystem.pike improvements:
+  - Organized options in sub-levels for easier overview.
+  - Added default settings for umask as well as new file and directory
+    modes.
+  - Added an option to keep the permissions on files replacing by an
+    upload.
+  - Made the access method configuration finer grained. Now you can
+    disable individual features like chmod and mkdir.
+    COMPATIBILITY ALERT: Before the PUT method permission was used for
+    the new features. This is no longer true and therefor server which
+    allows PUT needs to enable the CHMOD, MKDIR and MV after
+    upgrading!
