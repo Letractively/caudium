@@ -67,8 +67,6 @@ void f_hash_create(INT32 args)
   case 1:
     if(sp[-args].type != T_INT) {
       error("Invalid argument 1. Expected integer.\n");
-    } else if(sp[-args].u.integer > (INT32)mhash_count()) {
-      error("Argument 1 out of range.\n");
     }
     THIS->type = sp[-args].u.integer;
     THIS->hash = mhash_init(THIS->type);
@@ -185,9 +183,7 @@ void f_hash_set_type(INT32 args)
   if(args == 1) {
     if(sp[-args].type != T_INT) {
       error("Invalid argument 1. Expected integer.\n");
-    } else if(sp[-args].u.integer > (INT32)mhash_count()) {
-      error("Argument 1 out of range.\n");
-    }
+    } 
     THIS->type = sp[-args].u.integer;
   } else {
     error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
@@ -242,20 +238,14 @@ void pike_module_init(void)
 {
   start_new_program();
   ADD_STORAGE( mhash_storage  );
-  add_function( "create", f_hash_create,
-		"function(int|void:void)", 0 ); 
-  add_function("feed", f_hash_feed,
-	       "function(string:void)", 0 ); 
-  add_function("digest", f_hash_digest,
-	       "function(void:string)", 0 ); 
-  add_function("hexdigest", f_hash_hexdigest,
-	       "function(void:string)", 0 ); 
-  add_function("name", f_hash_name,
-	       "function(void:string)", 0 ); 
-  add_function("reset", f_hash_reset,
-	       "function(void:void)", 0 ); 
-  add_function("set_type", f_hash_set_type,
-	       "function(void:void)", 0 ); 
+  add_function("create", f_hash_create, "function(int|void:void)", 0 ); 
+  add_function("update", f_hash_feed,   "function(string:void)", 0 ); 
+  add_function("feed", f_hash_feed,     "function(string:void)", 0 ); 
+  add_function("digest", f_hash_digest, "function(void:string)", 0 ); 
+  add_function("hexdigest", f_hash_hexdigest, "function(void:string)", 0 ); 
+  add_function("name", f_hash_name,     "function(void:string)", 0 ); 
+  add_function("reset", f_hash_reset,   "function(void:void)", 0 ); 
+  add_function("set_type", f_hash_set_type, "function(void:void)", 0 ); 
   set_init_callback(init_hash_storage);
   set_exit_callback(free_hash_storage);
   hash_program = end_program();
