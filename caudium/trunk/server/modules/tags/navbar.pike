@@ -16,14 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id$
+ * $Id: navbar.pike,v 1.21.2.2 2004/03/22 13:20:31 vida Exp
  */
 
 /*
  * Authors : David Gourdelier <vida@caudium.net>
  */
  
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: navbar.pike,v 1.21.2.2 2004/03/22 13:20:31 vida Exp";
 constant thread_safe=1;
 
 #include <module.h>
@@ -61,7 +61,7 @@ constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U43
 #define	NAV_NB_ELEM	0				// The number of total elements
 #define	NAV_NB_ELEM_PAGE 1	// The number of element to display in a page
 #define	NAV_CURRENT_PAGE 2	// The current page number
-
+#define NAV_MAX_PAGES 10
 inherit "module";
 inherit "caudiumlib";
 
@@ -83,6 +83,8 @@ constant module_doc  = "Adds the &lt;navbar&gt; &lt;/navbar&gt; container."
         "<pre>id-&gt;conf-&gt;get_provider(&quot;navbar&quot;)-&gt;get_max_element(object id)</pre></li></ul>"
         "In your RXML page, use the following code to display a navigation bar:<pre>"
         "&lt;navbar&gt;<br/>"
+        "&nbsp;&lt;!-- A link to go to the current page - 10, allows navigation when you have lots of pages --&gt;<br/>"
+        "&nbsp;&lt;previous_group&gt; &lt;href action=\"previousgroup\"&gt; &amp;lt &lt;/href&gt; &lt;/previous_group&gt;<br/>"
         "&nbsp;&lt;!-- A link to go to the previous page --&gt;<br/>"
         "&nbsp;&lt;previous&gt; &lt;href action=\"prevpage\"&gt; &amp;lt &lt;/href&gt; &lt;/previous&gt;<br/>"
         "&nbsp;&lt;!-- the previous pages (numbered) --&gt;<br/>"
@@ -94,6 +96,8 @@ constant module_doc  = "Adds the &lt;navbar&gt; &lt;/navbar&gt; container."
         "&nbsp;&lt;loop_next&gt;&lt;href action=\"gopage\"&gt; #number# &lt;/href&gt; &lt;/loop_next&gt;<br/>"
         "&nbsp;&lt;!-- A link to go to the next page --&gt;<br/>"
         "&nbsp;&lt;next&gt;  &lt;href action=\"nextpage\"&gt; &amp;gt &lt;/href&gt;  &lt;/next&gt;<br/>"
+        "&nbsp;&lt;!-- A link to go to the current page + 10, allows navigation when you have lots of pages --&gt;<br/>"
+        "&nbsp;&lt;next_group&gt; &lt;href action=\"nextgroup\"&gt; &amp;lt &lt;/href&gt; &lt;/next_group&gt;<br/>"
         "&lt;/navbar&gt;<br/>"
         "</pre>";
 
@@ -145,6 +149,18 @@ private void fetch_args(object id)
       set_current_page(id, get_current_page(id) + 1);
     if(id->variables->navbarprevblock)
       set_current_page(id, get_current_page(id) - 1);
+    if(id->variables->navbarnextgroup)
+      {
+	int page_id = get_current_page (id) + NAV_MAX_PAGES;
+	if (page_id>get_lastpage (id)) page_id =get_lastpage (id);
+	set_current_page(id, page_id);
+      }
+    if(id->variables->navbarprevgroup)
+      {
+	int page_id = get_current_page(id) - NAV_MAX_PAGES;
+	if (page_id<1) page_id =1;
+	set_current_page(id, page_id);
+      }
     if(id->variables->navbargotoblock)
       set_current_page(id, (int)id->variables->navbarelement);
     id->misc->navbar_args_fetched = 1;
@@ -306,10 +322,12 @@ string container_navbar(string tag_name, mapping args, string contents,object id
                        "current"       : tag_navbar_current,
                        ]),
                       ([
+                     "previous_group": container_noloop_navbar,
                      "previous"      : container_noloop_navbar,
                      "loop_previous" : container_loop_navbar,
                      "loop_next"     : container_loop_navbar,
-                     "next"          : container_noloop_navbar
+                     "next"          : container_noloop_navbar,
+                     "next_group"    : container_noloop_navbar,
                        ]),
                       id);
   }
@@ -332,6 +350,24 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
 
   switch(tag_name)
   {
+    case "previous_group":
+      //! container: previous_group
+      //!  Zone for the previous_group screen
+      //! parentcontainer : navbar
+      //! note: screen: mailindex
+      if (get_current_page(id) > NAV_MAX_PAGES)
+      {
+        out += PARSER(contents,
+              ([
+              ]),
+              ([
+                "href"          : container_navbar_href,
+              ]),
+              id, 0);
+
+      }
+      break;
+
     case "previous":
       //! container: previous
       //!  Zone for the previous screen
@@ -366,6 +402,24 @@ string container_noloop_navbar(string tag_name, mapping args, string contents, o
               id, 0);
       }
       break;
+
+    case "next_group":
+      //! container: next_group
+      //!  Zone for the next_group screen
+      //! parentcontainer : navbar
+      //! note: screen: mailindex
+      if (get_current_page(id) < get_lastpage(id) - NAV_MAX_PAGES)
+      {
+        out += PARSER(contents,
+              ([
+              ]),
+              ([
+                "href"          : container_navbar_href,
+              ]),
+              id, 0);
+
+      }
+      break;
   }
 
   return out;
@@ -381,12 +435,29 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   switch(args->action)
   {
     case "nextpage":
-      vars += ([ "navbarnextblock":"1" ]);
+      vars += ([
+              	"navbarnextblock":"1",
+              	"navbarelement":(string)(countpageloop)
+      ]);
+    break;
+
+    case "nextgroup":
+      vars += ([
+              	"navbarnextgroup":"1",
+              	"navbarelement":(string)(countpageloop)
+      ]);
     break;
 
     case "previouspage":
     case "prevpage":
       vars += ([ "navbarprevblock":"1" ]);
+    break;
+
+    case "previousgroup":
+      vars += ([
+              	"navbarprevgroup":"1",
+              	"navbarelement":(string)(countpageloop)
+      ]);
     break;
 
     case "gopage":
@@ -442,13 +513,21 @@ string container_loop_navbar(string tag_name, mapping args, string contents, obj
   mycontents = res_fromparser[2];
 
   int count = 0;
+  int offset = 0;
 
   switch(tag_name)
   {
     case "loop_previous":
       //! container: loop_previous
       //!  Zone for each previous page available
-      for(count=1; count<get_current_page(id); count++)
+      int first_page = get_current_page(id) - NAV_MAX_PAGES;
+      offset = abs(1 - first_page);
+      if (first_page < 1)
+	{
+	  first_page = 1;
+	}
+
+      for(count=first_page; count<get_current_page(id); count++)
       {
         int countpageloop=count;
         array outlet = ({
@@ -465,7 +544,12 @@ string container_loop_navbar(string tag_name, mapping args, string contents, obj
     case "loop_next":
       //! container: loop_next
       //!  Zone for each next page available
-      for(count=get_current_page(id)+1; count<=get_lastpage(id); count++)
+      int last = get_current_page(id) + NAV_MAX_PAGES - offset;
+      if (last > get_lastpage(id))
+	{
+	  last = get_lastpage(id);
+	}
+      for(count=get_current_page(id)+1; count<=last; count++)
       {
         int countpageloop=count;
         array outlet = ({
