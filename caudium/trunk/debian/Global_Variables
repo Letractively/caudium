@@ -27,7 +27,7 @@
  </var>
  <var name='ModuleListType'>     <str>Compact</str> </var>
  <var name='next_supports_update'><int>1027445813</int> </var>
- <var name='default_font'>       <str>lucida</str> </var>
+ <var name='default_font'>       <str>bitstream vera sans</str> </var>
  <var name='cache_last_resort'>  <int>0</int> </var>
  <var name='ConfigurationUser'>  <str>@CONFIGADMIN@</str> </var>
  <var name='logdirprefix'>       <str>/var/log/caudium/</str> </var>
