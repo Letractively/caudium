@@ -986,12 +986,12 @@ static void f_cern_http_date(INT32 args)
 /*
 ** method: string http_date(int|void t)
 **  Return the specified date (as returned by time()) formatted in the
-**  HTTP-protocol standart date format, which is "Dayn DD MMM YYYY HH:MM:SS GMT".
+**  HTTP-protocol standart date format, which is "Day, DD MMM YYYY HH:MM:SS GMT".
 **  Used in for example the Last-Modified header.
 ** @param t
 **  The time in seconds since the 00:00:00 UTC, January 1, 1970
 **  If this argument is void, then the function returns the current 
-**  date in common log format.
+**  date in HTTP-protocol date format.
 ** @returns
 **  The date in the HTTP standard date format.
 **  Example: Wed, 11 Dec 2002 17:13:15 GMT
