@@ -75,7 +75,7 @@ void start(int num, object conf) {
 }
 
 void stop () {
-  if (QUEYR(storage) == "memory") {
+  if (QUERY(storage) == "memory") {
     array a = ({ 0 });
     // Roxen tries to kill us. Escape...
     a[0] = call_out (lambda (mixed ... foo) { write ("Could not restore sessions\n"); }, 30, "123_Survivor",
