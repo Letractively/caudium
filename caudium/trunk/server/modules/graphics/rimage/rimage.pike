@@ -212,7 +212,7 @@ mapping cached_image(int hmm, object id)
   }
 }
 
-mapping cache_image(int hmm, mapping val)
+mapping _cache_image(int hmm, mapping val)
 {
   rm( query("cache-dir")+hmm );
   Stdio.write_file( query("cache-dir")+hmm, encode_value( val ) );
@@ -243,7 +243,7 @@ mapping find_file(string f, object id)
     mapping r = render_image( image_ids[ img_id ], id );
     if(id->misc->cacheable == 4711)
     {
-      cache_image( img_id, r );
+      _cache_image( img_id, r );
       id->misc->cacheable = oimc;
     }
     return r;
