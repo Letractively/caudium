@@ -255,8 +255,8 @@ string url_base()
     c->not_query = not_query;
     c->data = data;
     c->extra_extension = extra_extension;
+    c->auth = auth;
 
-v    c->auth = auth;
     c->user = user;
     c->realauth = realauth;
     c->rawauth = rawauth;
