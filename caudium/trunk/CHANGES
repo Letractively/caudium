@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Fix a bug in autoconf script that stop the correct detection of pike
+  version and include under a FreeBSD port.
 - Fix a bug in ssl3.pike where the redirect from http would always pick the
   admin port.
 - Caudium.make_tag_attributes() now write args whose name value equals name
