@@ -489,15 +489,159 @@ static multiset mark_active_days(string c, object target)
   return ret;
 }
 
+static array(mapping) parse_ranges(string c)
+{
+  if (!c || !sizeof(c))
+    return ({});
+  
+  string    tmp = replace(c, ({" ", "\t", "\n", "\r"}), ({"", "", "", ""}));
+
+  if (!sizeof(tmp))
+    return ({});
+  
+  array(mapping)    ret = ({});  
+  int               rstart, rend;
+  
+  foreach((tmp / ",") - ({}) - ({""}), string part) {
+    rstart = -1;
+    rend = -1;
+    
+    if (has_value(part, "-")) {
+      // we have a range, parse it
+      switch(sscanf(part, "%d-%d", rstart, rend)) {
+          case 0:
+            rstart = rend = 0;
+            break;
+            
+          case 1:
+            if (rstart < 0)
+              rstart *= -1;
+            rend = -1;
+            break;
+      }
+    } else {
+      if (sscanf(part, "%d%*s", rstart) < 1)
+        rstart = 0;
+      rend = -1;
+    }
+
+    ret += ({([
+      "rstart" : rstart,
+      "rend" : rend
+    ])});
+  };
+
+  return ret;
+}
+
+// inner tags
+static string startdate_tag(string tag, mapping args, string cont,
+                            object id, object f, mapping defines)
+{
+  int    when, wday, wmonth, wyear;
+  mixed  error;
+  object now, then;
+
+  error = catch {
+    now = Calendar.now();
+  };
+
+  if (error)
+    wday = wmonth = wyear = -1;
+  else {
+    wday = now->month_day();
+    wmonth = now->month_no();
+    wyear = now->year_no();
+  }
+  
+  if (!args || !sizeof(args) || args->today)
+    when = 0;
+  else if (args->yesterday)
+    when = -1;
+  else if (args->tomorrow)
+    when = 1;
+  else {
+    array(mapping)   range;
+    
+    if (args->day) {
+      range = parse_ranges(args->day);
+      if (range && sizeof(range)) 
+        wday = range[0]->rstart;
+    }
+
+    if (args->month) {
+      range = parse_ranges(args->month);
+      if (range && sizeof(range)) 
+        wmonth = range[0]->rstart;
+    }
+
+    if (args->year) {
+      range = parse_ranges(args->year);
+      if (range && sizeof(range)) 
+        wyear = range[0]->rstart;
+    }
+
+    when = 2;
+  }
+
+  switch (when) {
+      case -1:
+        if (wday > 0 && now) {
+          then = now->day()->prev();
+          wday = then->month_day();
+          wmonth = then->month_no();
+          wyear = then->year_no();
+        }
+        break;
+
+      case 1:
+        if (wday > 0 && now) {
+          then = now->day()->next();
+          wday = then->month_day();
+          wmonth = then->month_no();
+          wyear = then->year_no();
+        }
+        break;
+  }
+
+  error = catch {
+    id->misc->_calendar->start_day = (string)wday;
+    id->misc->_calendar->start_month = (string)wmonth;
+    id->misc->_calendar->start_year = (string)wyear;
+  };
+
+  return "<!-- start date set -->";
+}
+
+static string hotdate_tag(string tag, mapping args, string cont,
+                          object id, object f, mapping defines)
+{
+  return "";
+}
+
+#if constant(spider.parse_html)
+function parse_html = spider.parse_html;
+#endif
+
 string calendar_tag(string tag, mapping args, string cont,
                     object id, object f, mapping defines)
 {
   mapping    my_args;
   mapping    main_table = ([]);
-  string     contents = "";
+  string     contents = "", tmp;
   multiset   active_days;
+  mixed      error;
+  
+  if (!id->misc->_calendar)
+    id->misc->_calendar = ([]);
 
-    
+  error = catch {
+    tmp = parse_html(cont, ([]), ([
+      "startdate" : startdate_tag,
+      "hotdate" : hotdate_tag
+    ]), id);
+  };  
+  
   if (!args)
     my_args = ([]);
   else
@@ -511,8 +655,6 @@ string calendar_tag(string tag, mapping args, string cont,
     main_table->class = my_args->mt_class || QUERY(mt_class);
     
   main_table->border = "0";
-  if (!id->misc->_calendar)
-    id->misc->_calendar = ([]);
     
   object now;
   object target;
@@ -525,19 +667,28 @@ string calendar_tag(string tag, mapping args, string cont,
     now = Calendar.now();
   }
 
-  if (!id->variables->calyear)
-    id->variables->calyear = (string)now->year_no();
-  else
+  if (!id->variables->calyear) {
+    if (!id->misc->_calendar->start_year || (int)id->misc->_calendar->start_year <= 0)
+      id->variables->calyear = (string)now->year_no();
+    else
+      id->variables->calyear = id->misc->_calendar->start_year;
+  } else
     check_array(id->variables, "calyear");
     
-  if (!id->variables->calmonth)
-    id->variables->calmonth = (string)now->month_no();
-  else
+  if (!id->variables->calmonth) {
+    if (!id->misc->_calendar->start_month || (int)id->misc->_calendar->start_month <= 0)
+      id->variables->calmonth = (string)now->month_no();
+    else
+      id->variables->calmonth = id->misc->_calendar->start_month;
+  } else
     check_array(id->variables, "calmonth");
     
-  if (!id->variables->calday)
-    id->variables->calday = (string)now->month_day();
-  else
+  if (!id->variables->calday) {
+    if (!id->misc->_calendar->start_day || (int)id->misc->_calendar->start_day <= 0)
+      id->variables->calday = (string)now->month_day();
+    else
+      id->variables->calday = id->misc->_calendar->start_day;
+  } else
     check_array(id->variables, "calday");
     
   if (my_args->do_week)
@@ -550,13 +701,13 @@ string calendar_tag(string tag, mapping args, string cont,
                                               id->variables->calmonth,
                                               id->variables->calday));
 
-  active_days = mark_active_days(parse_rxml(cont, id), target);
+//  active_days = mark_active_days(parse_rxml(cont, id), target);
 
   contents += make_monthyear_selector(id, my_args, now, target);
   contents += make_weekdays_row(id, my_args, now, target);
   contents += make_monthdays_grid(id, my_args, now, target, active_days);
     
-  return make_container("table", main_table, contents);
+  return tmp +make_container("table", main_table, contents);
 }
 
 string calendar_action_tag(string tag, mapping args, string cont,
@@ -565,7 +716,8 @@ string calendar_action_tag(string tag, mapping args, string cont,
   mapping     myargs = args || ([]);
   int         doit = 0;
   array(int)  wanted = allocate(3), has = allocate(3);
-
+  string      wantedweek = 0;
+  
   if (!id->variables->year || !id->variables->month || !id->variables->changetype)
     // not a submission from the calendar form
     return "";
@@ -573,7 +725,7 @@ string calendar_action_tag(string tag, mapping args, string cont,
   if (!myargs->default && id->variables->changetype != "day")
     return "";
     
-  if (!myargs->default) {
+  if (!myargs->default && !id->variables->calweek) {
     wanted[0] = (int)(myargs->day || 0);
     wanted[1] = (int)(myargs->month || 0);
     wanted[2] = (int)(myargs->year || 0);
@@ -581,9 +733,12 @@ string calendar_action_tag(string tag, mapping args, string cont,
     has[0] = (int)(id->variables->calday || 0);
     has[1] = (int)(id->variables->calmonth || 0);
     has[2] = (int)(id->variables->calyear || 0);
-  }
-    
-  if (!myargs->default && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
+  } else if (!myargs->default)
+    wantedweek = id->variables->calweek;
+
+  if (!myargs->default && myargs->wantedweek && myargs->wantedweek != wantedweek)
+    return "";
+  else if (!myargs->default && !wantedweek && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
     return "";
 
   string ret = parse_rxml(cont, id);
