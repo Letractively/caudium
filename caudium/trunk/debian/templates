@@ -8,13 +8,12 @@ Description: On what port should the config interface be?
 
 Template: caudium/listen_on
 Type: string
-Description: What interface should the server listen on?
- Type the interface address (either FQDN or IP) the server
- will listen on in addition to localhost:80. Leave it empty
- if you want me to use the default hostname (${hostname}).
- You can, optionally, specify a port number of the interface
- by putting it after interface address separated with a
- colon. The port number defaults to 80.
+Default: 80
+Description: What port should the server listen on?
+ Caudium is currently configured to listen on port
+ '${portno}' of every interface in your machine. It seems,
+ however, that this port is already taken by some other
+ application. Please specify a different port.
 
 Template: caudium/start_options
 Type: multiselect
@@ -26,15 +25,6 @@ Description: Select options that should be used on startup
  'profile' - store profiling information; 
  'fd-debug' - debug file descriptor usage
 
-Template: caudium/reconfig_localhost
-Type: boolean
-Default: false
-Description: Do you want to reconfigure Caudium?
- It seems that you already have a working installation of
- Caudium on your system. Choose OK if you want to overwrite
- the configuration with a completely new one. Note that all
- your localhost settings will be lost if you choose OK!
-
 Template: caudium/cfg_port_taken
 Type: note
 Description: Cannot bind to port.
@@ -42,12 +32,6 @@ Description: Cannot bind to port.
  is unavailable. Please specify another port number - Caudium
  cannot function properly without binding its configuration 
  interface to a port on your system.
-
-Template: caudium/if_port_taken
-Type: note
-Description: Cannot bind to port.
- The port number '${portno}' for WWW requests is unavailable.
- Please specify, after the colon, a different port number.
 
 Template: caudium/last_screen
 Type: text

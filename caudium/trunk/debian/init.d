@@ -36,13 +36,13 @@ case "$1" in
   start)
 	echo -n "Starting $DESC: "
 	cd $DAEMON_DIR
-	$DAEMON $START_OPTIONS
+	$DAEMON $START_OPTIONS > /dev/null
 	echo "$NAME."
 	;;
   stop)
 	echo -n "Stopping $DESC: "
 	for p in `cat $PIDFILE`; do
-    	    kill -TERM $p
+    	    kill -TERM $p || true
 	done
 	rm -f $PIDFILE
 	echo "$NAME."
@@ -51,7 +51,7 @@ case "$1" in
 	if test -f $PIDFILE; then
 	    echo -n "Restarting $DESC: "
 	    for p in `cat $PIDFILE | sed -e 1d`; do
-		kill -HUP $p
+		kill -HUP $p || true
 	    done
 	    echo "$NAME."
 	else
