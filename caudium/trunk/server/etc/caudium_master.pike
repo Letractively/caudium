@@ -18,17 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
- * Caudium master, replacing the default Pike master.
+ * $Id$
  */
+
+//! Caudium master, replacing the default Pike master.
+//! $Id$
 
 string cvs_version = "$Id$";
-
-/*
- * name = "Caudium Master";
- * doc = "Caudium's customized master object.";
- */
 
 mapping names=([]);
 int unique_id=time();
@@ -38,15 +35,17 @@ object mm = (object)"/master";
 inherit "/master": old_master;
 
 
-
+//!
 string program_name(program p)
 {
 //werror(sprintf("Program name %O = %O\n", p, search(programs,p)));
   return search(programs, p);
 }
 
+//!
 mapping saved_names = ([]);
  
+//!
 void name_program(program foo, string name)
 {
   programs[name] = foo;
@@ -57,6 +56,8 @@ void name_program(program foo, string name)
 private static int mid = 0;
 
 mapping _vars = ([]);
+
+//!
 array persistent_variables(program p, object o)
 {
   if(_vars[p]) return _vars[p];
@@ -72,6 +73,7 @@ array persistent_variables(program p, object o)
   return _vars[p]=res;
 }
 
+//!
 array|string low_nameof(object|program|function fo)
 {
   //fo might be of several types, so DON'T return if one search failes.
@@ -103,17 +105,20 @@ array|string low_nameof(object|program|function fo)
 #endif
 }
 
+//!
 array|string nameof(mixed foo)
 {
   // werror(sprintf("Nameof %O...\m", foo));
   return saved_names[foo] ||  (saved_names[foo] = low_nameof( foo ));
 }
 
+//!
 program programof(string foo)
 {
   return saved_names[foo] || programs[foo] || (program) foo ;
 }
 
+//!
 object objectof(array foo)
 {
   object o;
@@ -145,6 +150,7 @@ object objectof(array foo)
   return 0;
 }
 
+//!
 function functionof(array f)
 {
   object o;
@@ -166,6 +172,7 @@ function functionof(array f)
   return o[f[-1]];
 }
 
+//!
 void create()
 {
   object o = this_object();
@@ -199,6 +206,7 @@ void create()
   add_constant("nameof", nameof);
 }
 
+//!
 void clear_compilation_failures()
 {
   foreach (indices (programs), string fname)
