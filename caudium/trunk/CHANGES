@@ -94,3 +94,7 @@ Changes in Caudium 1.1 since CVS branching
   + Compilation of regular expression is cached, which should greatly
     improve matching speed when there are many regexp patterns.
 - Fixed a couple of problem related to ssl3.
+- Added delayed loading of modules in virtual servers. 
+- Fixed broken caching of directory expansion. Could significantly speed
+  up startup time if the list of module directories is large and/or
+  if module directories contains lots of files and sub-directories. 

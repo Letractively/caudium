@@ -266,7 +266,10 @@ void build_configurations(object node)
     {
       if(objectp(configurations[i]))
       {
-	o=node->descend(configurations[i]->name);
+	if(!configurations[i]->inited) {
+	  configurations[i]->enable_all_modules();
+	}
+	o = node->descend(configurations[i]->name);
 	o->data = configurations[i];
 	o->describer = describe_configuration;
 	o->type = NODE_CONFIGURATION;

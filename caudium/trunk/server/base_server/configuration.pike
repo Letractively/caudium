@@ -2638,11 +2638,17 @@ void hooks_for( string modname, object mod )
 }
 
 
-int unload_module( string modname );
-int load_module( string modname );
+#ifdef THREADS
+Thread.Mutex enable_modules_mutex = Thread.Mutex();
+#define MODULE_LOCK() \
+  Thread.MutexKey enable_modules_lock = enable_modules_mutex->lock (2)
+#else
+#define MODULE_LOCK()
+#endif
 
 object enable_module( string modname )
 {
+  MODULE_LOCK();
   string id;
   mapping module;
   mapping enabled_modules;
@@ -3543,6 +3549,7 @@ private string get_my_url()
 
 void enable_all_modules()
 {
+  MODULE_LOCK();
 #if constant(gethrtime)
   int start_time = gethrtime();
 #endif
