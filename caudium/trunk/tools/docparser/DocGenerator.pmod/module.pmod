@@ -3,7 +3,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2001 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +31,8 @@
 import DocParser;
 import Stdio;
 
+private int f_quiet;
+
 /*
  * Subdirectories created by the output classes in the target
  * directory.
@@ -53,159 +54,234 @@ private static mapping(string:string|function) template_vars =
 ]);
 
 /*
- * This object generates all the index files.
+ * A hierarchical index storage class.
  */
-class IndexGen
+class Entry
 {
-    string             module_idx = "modules_index.xml";
-    string             file_idx = "files_index.xml";
-    string             target_dir;
-    object(Stdio.File) mfile, ffile;
+    private constant        STATE_OPEN = 0;
+    private constant        STATE_CLOSED = 1;
+    
+    private string          myName;
+    private string          myTitle;
+    private string          myPath;
+    private string          myType;
+    
+    private int             myState;
+    
+    private array(Entry)    children;
+
+    int                     myMode;
     
     /*
-     * Set the file index to be a file relative to the
-     * document top directory.
+     * Private methods
      */
-    void set_file_idx(string relpath)
-    {	
-        file_idx = target_dir + relpath;
-    }
-    
-    /*
-     * Set the module index to be a file relative to the
-     * document top directory.
-     */
-    void set_module_idx(string relpath)
+    private void
+    out_start(Stdio.File outfile, int recurse)
     {
-        module_idx = target_dir + relpath;
-    }
-    
-    void open_files()
-    {
-        ffile = Stdio.File(target_dir + file_idx, "wct");
-        if (module_idx == file_idx)
-            mfile = ffile;
+        outfile->write(sprintf("%s<entry type=\"%s\" name=\"%s\" path=\"%s\" ",
+                               String.strmult(" ", recurse),
+                               myType,
+                               myName,
+                               myPath));
+        if (myTitle)
+            outfile->write(sprintf("title=\"%s\" ", myTitle));
+
+        if (children && sizeof(children))
+            outfile->write(">\n");
         else
-            mfile = Stdio.File(target_dir + module_idx, "wct");
-	    
-        if (!mfile || !ffile) {
-            string   err = "Unable to open index output file";
-	    
-            if (!mfile && !ffile) {
-                if (mfile != ffile) {
-                    err += "s: ";
-                    err += file_idx + " and " + module_idx;
-                } else {
-                    err += ": " + file_idx;
-                }
-            } else if (!mfile) {
-                err += ": " + module_idx;
-            } else if (!ffile) {
-                err += ": " + file_idx;
-            }
-	    
-            throw(({err + "\n", backtrace()}));
+            outfile->write("/>\n");
+    }
+
+    private void
+    out_end(Stdio.File outfile, int recurse)
+    {
+        if (!children || !sizeof(children))
+            return;
+
+        outfile->write(sprintf("%s</entry>\n",
+                               String.strmult(" ", recurse)));
+    }
+    
+    /*
+     * Public methods
+     */
+
+    /*
+     * Follow down the children chain (if any) and close the last
+     * child in it. The one before last becomes the globally current
+     *  index object.
+     */
+    Entry close()
+    {        
+        /* If no children, then we're the ones being closed */
+        if (!children || !sizeof(children)) {
+            myState = STATE_CLOSED;
+            return 0;
         }
-	
-        ffile->write("<index>\n");
-        if (mfile != ffile)
-            mfile->write("<index>\n");
-    }
-
-    void close_files()
-    {
-        if (mfile)
-            mfile->write("</index>\n");
-	    
-        if (ffile && ffile != mfile)
-            ffile->write("</index>\n");
-	
-        if (ffile != mfile) {
-            ffile->close();
-            mfile->close();
-        } else
-            ffile->close();
-    }
-    
-    /*
-     * Output a generic entry:
-     *
-     *  <entry type="file|module|symbol" name="name" file="path" />
-     */
-    void entry(object(Stdio.File) f, 
-               int is_cont,
-               string type, 
-               string name, 
-               string path, 
-               string|void title)
-    {
-#if 0
-        /* This doesn't work!!! WHY?! */
-        f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s %s>\n",
-                         type, 
-                         name, 
-                         path, 
-                         (title ? "title=\"" + title + "\"" : ""),
-                         (is_cont ? "/" : ""))
-                 );
-#else
-        string slash = is_cont ? "/" : "";
-	
-        f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s %s>\n",
-                         type, 
-                         name, 
-                         path, 
-                         (title ? "title=\"" + title + "\"" : ""),
-                         slash)
-                 );
-#endif
-    }
-
-    /*
-     * Output an entry for a file
-     */
-    void file(string path, string name)
-    {
-        if (!ffile)
-            open_files();
-        entry(ffile, 1, "file", name, path);
-    }
-    
-    void module(string path, string name, string title)
-    {
-        if (!mfile)
-            open_files();
-        entry(mfile, 1, "module", name, path, title);
-    }
-    
-    void file_symbol(string symbol, int container, string path, string name, string|void title)
-    {
-        if (!ffile)
-            open_files();
-        entry(ffile, container, symbol, name, path, title);
-    }
-
-    void file_close()
-    {
-        ffile->write("</entry>");
-    }
         
-    void module_symbol(string symbol, int container, string path, string name, string|void title)
-    {
-        if (!mfile)
-            open_files();
-        entry(mfile, container, symbol, name, path, title);
+        /* Always the last child is the current one */
+        if (children[-1]->isClosed()) {
+            myState = STATE_CLOSED;
+            return 0;
+        }
+        
+        Entry ret = children[-1]->close();
+
+        /*
+         * If the child returned zero then it means we are to become
+         * the current container in the entire index. Return
+         * ourselves.
+         */
+        if (!ret) {
+            return this_object();
+        }
+        
+        return ret; /* This is the current global object */
     }
 
-    void module_close()
+    /*
+     * Add a child to this entry and make it the globally current
+     * object in the index. Until that child is closed no more
+     * children can be added to this object.
+     */
+    Entry add(Entry newentry)
     {
-        mfile->write("\t</entry>\n\n");
+        if (!newentry)
+            return this_object();
+        
+        children += ({newentry});
+
+        return newentry;
+    }
+
+    /*
+     * Output this entry and all of its children, if any
+     */
+    void output(Stdio.File outfile, int recurse)
+    {
+        out_start(outfile, recurse);
+
+        if (children && sizeof(children))
+            foreach(children, Entry child)
+                child->output(outfile, recurse + 1);
+        
+        out_end(outfile, recurse);
+    }
+
+    int isClosed()
+    {
+        return (myState == STATE_CLOSED);
     }
     
-    void create(string tdir)
+    void create(string path, string type, string name, string title, int mode)
     {
-        target_dir = tdir;
-        mfile = ffile = 0;
+        myPath = path;
+        myType = type;
+        myName = name;
+        myTitle = title;
+        myMode = mode;
+        
+        myState = STATE_OPEN;
+        
+        children = ({});
+    }
+};
+
+class Index
+{
+    constant MODE_FILE = 1;
+    constant MODE_MODULE = 2;
+    
+    private array(Entry)     entries;
+    private int              curmode;
+    private Entry            cur;
+    private string           cur_path;
+    
+    void mode(int m, string path)
+    {
+        switch(m) {
+            case MODE_FILE:
+            case MODE_MODULE:
+                curmode = m;
+                break;
+		
+            default:
+                throw(({"Incorrect mode in Index\n", backtrace()}));
+        }	
+
+        cur_path = path;
+    }
+    
+    void add(string type, 
+             string name, 
+             string|void title)
+    {
+        Entry newentry = Entry(cur_path, type, name, title, curmode);
+        
+        if (cur) {
+            cur = cur->add(newentry);
+            return;
+        }
+
+        entries += ({newentry});
+        cur = newentry;
+    }
+    
+    void close_entry()
+    {
+        if (!entries || !sizeof(entries))
+            return;
+
+        cur = entries[-1]->close();
+    }
+
+    void generate(string topdir, int single_file)
+    {
+        Stdio.File outfile;
+
+        if (single_file)
+            outfile = Stdio.File(topdir + "/index.xml", "wct");
+        else
+            outfile = Stdio.File(topdir + "/files_index.xml", "wct");
+
+        if (!outfile)
+            throw(({"Cannot create output index file!\n", backtrace()}));
+
+        if (!entries || !sizeof(entries))
+            return;
+
+        /*
+         * Files always go first, modules after them
+         */
+        foreach(entries, Entry entry) {
+            if (entry->myMode == MODE_FILE) {
+                entry->output(outfile, 0);
+                outfile->write("\n");
+            }
+        }
+
+        if (!single_file) {
+            outfile->close();
+            outfile = Stdio.File(topdir + "/modules_index.xml", "wct");
+            if (!outfile)
+                throw(({"Cannot create output index file!\n", backtrace()}));
+        }
+
+        foreach(entries, Entry entry) {
+            if (entry->myMode == MODE_MODULE) {
+                entry->output(outfile, 0);
+                outfile->write("\n");
+            }
+        }
+
+        outfile->close();
+    }
+    
+    void create()
+    {
+        curmode = 0;
+        entries = ({});
+        cur = 0;
     }
 };
 
@@ -216,7 +292,7 @@ class DocGen
     mapping(string:int)           dirs;
     string                        rel_path;
     array(string)                 tvars;
-    object(IndexGen)              index;
+    object(Index)                 index;
     function                      sym_fn; /* current symbol index function */
     function                      close_fn; /* current index close entry fn */
     string                        fname; /* current file path */
@@ -297,7 +373,8 @@ class DocGen
     {
         string   ret = "";
 
-        sym_fn("globvar", 0, fname, gv->first_line);
+        index->add("globvar", gv->first_line);
+        
         if (gv->first_line && gv->first_line != "")
             ret += "<globvar synopsis=\"" + gv->first_line + "\"";
         else
@@ -307,6 +384,8 @@ class DocGen
             ret += ">\n"+gv->contents + "\n</globvar>\n";
         else
             ret += "/>\n";
+
+        index->close_entry();
         
         return ret;
     }
@@ -330,8 +409,8 @@ class DocGen
                             int|void is_container)
     {
         string   ret = "";
-    
-        sym_fn("tag", 0, fname, tag->first_line);
+        index->add("tag", tag->first_line);
+
         if (tag->first_line && tag->first_line != "") {
             if(is_container)
                 ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;"
@@ -349,6 +428,8 @@ class DocGen
             ret += "<attributes>\n";
             foreach(tag->attrs, DocParser.Attribute a) {
                 ret += "\t<attribute";
+                index->add("attribute", a->first_line);
+                
                 if (a->first_line)
                     ret += " syntax=\""+a->first_line+"\"";
                 if (a->def && strlen(a->def))
@@ -357,6 +438,8 @@ class DocGen
                     ret += ">\n\t\t"+a->contents+"\n\t</attribute>\n";
                 else
                     ret += "/>\n";
+                
+                index->close_entry();
             }
             ret += "</attributes>\n\n";
         }
@@ -396,6 +479,8 @@ class DocGen
         }
 
         ret += "</tag>\n\n";
+
+        index->close_entry();
         
         return ret;
     }
@@ -437,14 +522,17 @@ class DocGen
             array parts = dv->first_line / ":" - ({""});
             if(!sizeof(parts)) 
                 continue;
+            
             if(sizeof(parts) == 1) {
                 ret += " <defvar name=\""+dv->first_line+"\"";
-                sym_fn("defvar", 0, fname, dv->first_line, dv->name);
+                index->add("defvar", dv->first_line, dv->name);
             } else {
                 ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
                     String.trim_whites(parts[1..]*":")+"\"";
-                sym_fn("defvar", 0, fname,  String.trim_whites(parts[1..]*":"));
+                index->add("defvar", String.trim_whites(parts[1..]*":"));
             }
+            index->close_entry();
+            
             if (dv->name)
                 ret += " short=\"" + dv->name + "\"";
 	
@@ -503,8 +591,8 @@ class DocGen
 	
         method = dissect_method(m->first_line);
 
-        sym_fn("method", 0, fname, method->name);
-		
+        index->add("method", method->name);
+        
         /* Method start */
         ret += "<method name=\"" + method->name + "\">\n";
 	
@@ -521,46 +609,46 @@ class DocGen
                 ret += "<syntax>\n\t" + pretty_syntax(dissect_method(an->first_line)) + "\n</syntax>\n\n";
         
         /* Description(s) */
-	/* First determine whether we have one description and many forms */
-	int  manydesc = 0;
-	if (m->altnames && sizeof(m->altnames))
-	    foreach(m->altnames, mapping an)
-		if (an->contents && an->contents != "")
-		    manydesc++;
+        /* First determine whether we have one description and many forms */
+        int  manydesc = 0;
+        if (m->altnames && sizeof(m->altnames))
+            foreach(m->altnames, mapping an)
+                if (an->contents && an->contents != "")
+                    manydesc++;
 		    
-	if (m->contents && m->contents != "")
-	    manydesc++;
+        if (m->contents && m->contents != "")
+            manydesc++;
 	    
-	if (manydesc) {
-	    if (manydesc == 1) {
-		if (m->contents && m->contents != "") {
-		    ret += sprintf("<description>\n%s\n</description>\n\n",
-                        	    m->contents);
-		} else {
-		    foreach(m->altnames, mapping an)
-			if (an->contents && an->contents != "")
-			    ret += sprintf("<description>\n%s\n</description>\n\n",
-                        	    an->contents);
-		}
-	    } else {
-    		if (m->contents && m->contents != "")
-        	    ret += sprintf("<description%s>\n%s\n</description>\n\n",
+        if (manydesc) {
+            if (manydesc == 1) {
+                if (m->contents && m->contents != "") {
+                    ret += sprintf("<description>\n%s\n</description>\n\n",
+                                   m->contents);
+                } else {
+                    foreach(m->altnames, mapping an)
+                        if (an->contents && an->contents != "")
+                            ret += sprintf("<description>\n%s\n</description>\n\n",
+                                           an->contents);
+                }
+            } else {
+                if (m->contents && m->contents != "")
+                    ret += sprintf("<description%s>\n%s\n</description>\n\n",
                                    (m->altnames && sizeof(m->altnames)) ? " form=\"1\"" : "",
-                        	    m->contents);
+                                   m->contents);
         
-    		/* Descriptions of alternative forms */
-    		if (m->altnames && sizeof(m->altnames)) {
-        	    int cnt = 1;
+                /* Descriptions of alternative forms */
+                if (m->altnames && sizeof(m->altnames)) {
+                    int cnt = 1;
             
-        	    foreach(m->altnames, mapping an)
-            		if (an->contents && an->contents != "") {
-                	    cnt++;
-                	    ret += sprintf("<description form=\"%d\">\n%s\n</description>",
+                    foreach(m->altnames, mapping an)
+                        if (an->contents && an->contents != "") {
+                            cnt++;
+                            ret += sprintf("<description form=\"%d\">\n%s\n</description>",
                                            cnt, an->contents);
-            		}
+                        }
     		    }
     	    }
-	}
+        }
         /* Arguments */
         if (m->args && sizeof(m->args)) {
             ret += "<arguments>\n";
@@ -603,7 +691,9 @@ class DocGen
 	
         /* El Final Grande */
         ret += "</method>\n\n";
-		
+
+        index->close_entry();
+        
         return ret;
     }
     
@@ -623,10 +713,10 @@ class DocGen
     /* Class output */
     private string do_f_class(DocParser.Class c)
     {
-        string   ret = "";
-	
-        sym_fn("class", 0, fname, c->first_line);
-	
+        string   ret = "";	
+
+        index->add("class", c->first_line);
+        
         /* Header */
         ret = "<class name=\"" + c->first_line + "\">\n";
 	
@@ -681,16 +771,18 @@ class DocGen
         }
 	
         ret += "</class>\n\n";
-	
+
+        index->close_entry();
+        
         return ret;
     }
     
     private int compare_class(object one, object two)
     {
-	if (!one->first_line || !two->first_line)
-	    return 0;
+        if (!one->first_line || !two->first_line)
+            return 0;
 	    
-	return (one->first_line > two->first_line);
+        return (one->first_line > two->first_line);
     }
     
     private string f_classes(DocParser.PikeFile f)
@@ -701,7 +793,7 @@ class DocGen
             return "";
         ret = "<classes>\n";
 	
-	array(object) sorted = Array.sort_array(f->classes, compare_class);
+        array(object) sorted = Array.sort_array(f->classes, compare_class);
 	
         foreach(sorted, object c)
             ret += do_f_class(c);
@@ -712,10 +804,10 @@ class DocGen
 
     private string do_f_entity(DocParser.Entity e)
     {
-        string ret = "";
-	
-        sym_fn("entity", 0, fname, e->first_line);
-	
+        string ret = "";	
+
+        index->add("entity", e->first_line);
+        
         ret = "<entity name=\"" + e->first_line + "\">\n\t";
 	
         /* See Also */
@@ -756,7 +848,9 @@ class DocGen
         }
 	
         ret += e->contents + "\n</entity>\n\n";
-	
+
+        index->close_entry();
+        
         return ret;
     }
     
@@ -764,8 +858,8 @@ class DocGen
     {
         string ret = "";
 	
-        sym_fn("scope", 0, fname, es->first_line);
-	
+        index->add("scope", es->first_line);
+        
         ret = "<scope name=\"" + es->first_line + "\">\n";
         ret += "<description>\n\t" + es->contents + "\n</description>\n\n";
 	
@@ -810,7 +904,9 @@ class DocGen
             foreach(es->entities, object e)
                 ret += do_f_entity(e);
         ret += "</scope>\n\n";
-	
+
+        index->close_entry();
+        
         return ret;
     }
     
@@ -831,9 +927,8 @@ class DocGen
         
     void do_file(string tdir, DocParser.PikeFile f, Stdio.File ofile)
     {
-        sym_fn = index->file_symbol;
-        close_fn = index->file_close;
-	
+        index->add("file", f->first_line);
+        
         /* First take care of the file itself */
         if (f->first_line)
             ofile->write(f_file(f, "file"));
@@ -854,13 +949,13 @@ class DocGen
             ofile->write(f_defvar(f));
 
         ofile->write("</file>");
+        index->close_entry();
     }
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
     {
-        sym_fn = index->module_symbol;
-        close_fn = index->module_close;
-	
+        index->add("module", f->first_line);
+        
         /* First take care of the file itself */
         if (f->first_line)
             ofile->write(f_file(f, "module"));
@@ -885,6 +980,7 @@ class DocGen
         if (f->containers)
             ofile->write(f_containers(f));
 
+        /* Defvar */
         if (f->defvars)
             ofile->write(f_defvar(f));
 
@@ -893,6 +989,7 @@ class DocGen
             ofile->write(f_entities(f));
 	 
         ofile->write("</module>\n\n");
+        index->close_entry();
     }
     
     void output_file(string tdir, DocParser.PikeFile|DocParser.Module f)
@@ -903,15 +1000,13 @@ class DocGen
         
         switch(f->myName) {
             case "PikeFile":
-                index->file(fname, f->first_line);
-                do_file(tdir, f, ofile);		
-                index->file_close();
+                index->mode(Index.MODE_FILE, fname);
+                do_file(tdir, f, ofile);
                 break;
 
             case "Module":
-                index->module(fname, basename(fname), f->first_line);
+                index->mode(Index.MODE_MODULE, fname);
                 do_module(tdir, f, ofile);
-                index->module_close();
                 break;
         }
 
@@ -920,6 +1015,8 @@ class DocGen
     
     void generate(string tdir)
     {
+        DocParser.trace("Generating documentation...");
+        
         string  cwd = getcwd();
         tdir = combine_path(cwd, tdir);
         /* First see whether the target directory exists and, if it
@@ -934,9 +1031,10 @@ class DocGen
         }
         
         cd(tdir);
-        index = IndexGen("./");
-        index->open_files();
+        index = Index();
+
         if (files) {
+            DocParser.trace("  ==> Files");
             foreach(files, DocParser.PikeFile f) {
                 output_file(subdirs[0] + "/", f);
                 end_output();
@@ -944,13 +1042,17 @@ class DocGen
         }
 
         if (modules) {
+            DocParser.trace("  ==> Modules");
             foreach(modules, DocParser.Module m) {
                 output_file(subdirs[1] + "/", m);
                 end_output();
             }
         }
-        index->close_files();
-	
+        
+        DocParser.trace("  ==> Index");
+        index->generate(".", 1);
+
+        DocParser.trace("Done generating");
         cd(cwd);
     }
 
@@ -982,13 +1084,14 @@ class DocGen
         return ret;
     }
     
-    void create(array(object) f, array(object) m, mapping(string:int) dircounts, string rpath)
+    void create(array(object) f, array(object) m, mapping(string:int) dircounts, string rpath, int q)
     {
         files = f;
         modules = m;
         rel_path = rpath;
         dirs = dircounts;
-	
+        f_quiet = q;
+        
         /*
          * Create a table holding all the template variables we
          * define. The set of variables won't change, so we can safely
@@ -1022,16 +1125,16 @@ class TreeMirror
         if (!single_file && file_stat(srcdir + "/.docs")) {
             srcdir = combine_path(getcwd(), srcdir);
 
-	    single_file = dirs[srcdir];
-	    write_header = 1;
+            single_file = dirs[srcdir];
+            write_header = 1;
             return dirname(fname) + "/docs.xml";
         } else if (single_file && file_stat(srcdir + "/.docs")) {
-	    write_header = 0;
+            write_header = 0;
             return dirname(fname) + "/docs.xml";
-	} else {
+        } else {
             single_file = 0;
-	    write_header = 1;
-	}
+            write_header = 1;
+        }
         
         return fname;
     }
@@ -1057,17 +1160,17 @@ class TreeMirror
 
     void close_file(Stdio.File f)
     {
-	if (single_file)
-	    single_file--;
+        if (single_file)
+            single_file--;
 
         if (!single_file)
             f->write(footer);
         f->close();
     }
     
-    void create(array(object) f, array(object) m, mapping d, string rpath)
+    void create(array(object) f, array(object) m, mapping d, string rpath, int q)
     {
-        ::create(f, m, d, rpath);
+        ::create(f, m, d, rpath, q);
         single_file = 0;
     }
 }
@@ -1114,9 +1217,9 @@ class Monolith
         fout = 0;
     }
     
-    void create(array(object) f, array(object) m, mapping d, string rpath)
+    void create(array(object) f, array(object) m, mapping d, string rpath, int q)
     {
-        ::create(f, m, d, rpath);
+        ::create(f, m, d, rpath, q);
         fout = 0;
     }
 }

@@ -1204,26 +1204,29 @@ private mapping internal_caudium_image(string from)
   object img;
   int hue,bright,w;
   string ext;
-  
+
+#if 0
   sscanf(from, "%s.%s", from, ext);
 //  sscanf(from, "%s.gif", from);
 //  sscanf(from, "%s.jpg", from);
 //  sscanf(from, "%s.xcf", from);
   if (!ext)
       ext = "any";
-
+  
   // Disallow "internal-caudium-..", it won't really do much harm, but a list of
   // all files in '..' might be retrieved (that is, the actual directory
   // file was sent to the browser)
   // /internal-caudium-../.. was never possible, since that would be remapped to
   // /..
   from -= ".";
-
+#endif
+  
   // New idea: Automatically generated colorbar. Used by wizard code...
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
 
+#if 0
   // If the requested image had .xcf extension then we should treat
   // it especially. It differs from the other types in that it's a
   // layered image, and not a flat bitmap. Since some code asks
@@ -1240,25 +1243,29 @@ private mapping internal_caudium_image(string from)
   ]);
   
   switch(ext) {
-    case "any":
-    case "png":
-    case "jpg":
-    case "gif":
-    case "jpeg":
-        foreach(indices(img_types) - ({"xcf"}), string e)
-	    if(img = open("caudium-images/"+from+"."+e, "r")) 
-		return (["file": img, "type":img_types[e]]);
-	break;
-	
-    case "xcf":
-	if(img = open("caudium-images/"+from+"."+ext, "r")) 
-		return (["file": img, "type":img_types[ext]]);
-	break;
-    }
-    	
-	mapping err = caudium->IFiles->get("html://no_internal_image.html");
-	
-    return http_string_answer(err->file);
+      case "any":
+      case "png":
+      case "jpg":
+      case "gif":
+      case "jpeg":
+          foreach(indices(img_types) - ({"xcf"}), string e)
+              if(img = open("caudium-images/"+from+"."+e, "r")) 
+                  return (["  file": img, "type":img_types[e]]);
+          break;
+          
+      case "xcf":
+          if(img = open("caudium-images/"+from+"."+ext, "r")) 
+              return (["file": img, "type":img_types[ext]]);
+          break;
+  }
+#endif
+  mapping ret = caudium->IFiles->get("image://" + from);
+  if (!ret) {
+      mapping err = caudium->IFiles->get("html://no_internal_image.html");
+      return http_string_answer(err->file);
+  }
+
+  return ret;
 }
 
 // The function that actually tries to find the data requested.  All
@@ -1415,6 +1422,11 @@ mapping|int low_get_file(object id, int|void no_magic)
 
   if(!no_magic)
   {
+    if (id->prestate->internal) {
+      if (id->internal->image)
+        return internal_caudium_image(file);
+    }
+      
 #ifndef NO_INTERNAL_HACK 
     // No, this is not beautiful... :) 
 
@@ -1422,15 +1434,15 @@ mapping|int low_get_file(object id, int|void no_magic)
        sscanf(file, "%*s/internal-%s-%s", type, loc) == 3)
     {
       switch(type) {
-       case "gopher":
-	TRACE_LEAVE("Magic internal gopher image");
-	return internal_gopher_image(loc);
+          case "gopher":
+            TRACE_LEAVE("Magic internal gopher image");
+            return internal_gopher_image(loc);
 
-       case "caudium":
-       case "roxen":
-       case "spinner":
-	TRACE_LEAVE("Magic internal Caudium image");
-	return internal_caudium_image(loc);
+          case "caudium":
+          case "roxen":
+          case "spinner":
+            TRACE_LEAVE("Magic  internal Caudium image");
+            return internal_caudium_image(loc);
       }
     }
 #endif
@@ -1443,9 +1455,9 @@ mapping|int low_get_file(object id, int|void no_magic)
       UNLOCK();
       if(mappingp(tmp)) 
       {
-	TRACE_LEAVE("");
-	TRACE_LEAVE("Returning data");
-	return tmp;
+        TRACE_LEAVE("");
+        TRACE_LEAVE("Returning data");
+        return tmp;
       }
       TRACE_LEAVE("");
     }
@@ -1456,14 +1468,14 @@ mapping|int low_get_file(object id, int|void no_magic)
       string name, rest;
       function find_internal;
       if(2==sscanf(file[strlen(QUERY(InternalLoc))..], "%s/%s", name, rest) &&
-	 (module = find_module(replace(name, "!", "#"))) &&
-	 (find_internal = module->find_internal))
+         (module = find_module(replace(name, "!", "#"))) &&
+         (find_internal = module->find_internal))
       {
-	LOCK(find_internal);
-	fid=find_internal( rest, id );
-	UNLOCK();
-	if(mappingp(fid))
-	  return fid;
+        LOCK(find_internal);
+        fid=find_internal( rest, id );
+        UNLOCK();
+        if(mappingp(fid))
+          return fid;
       }
     }
   }
@@ -3666,9 +3678,9 @@ void create(string config)
 	 "This allows you to override the new style error responses and use " +
          "the old fasioned 404 handling." );
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
-	 "<body background=/internal-caudium-cowfish-bg bgcolor='#ffffff'\n"
+	 "<body background='/(internal,image)/cowfish-bg' bgcolor='#ffffff'\n"
 	 "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
-	 "<h2 align=center><configimage src=cowfish-caudium \n"
+	 "<h2 align=center><configimage src='cowfish-caudium' \n"
 	 "alt=\"File not found\"><p><hr noshade>\n"
 	 "\n<i>Sorry</i></h2>\n"
 	 "<br clear>\n<font size=\"+2\">The resource requested "
@@ -3834,3 +3846,9 @@ string _sprintf( )
 {
   return "Configuration("+name+")";
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */

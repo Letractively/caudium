@@ -682,9 +682,9 @@ static array mk_url(object id, mapping args, string contents)
 //!  Specifies the XCF image to be used as a frame for the button. The image is
 //!  required to have at least the following layers: background, mask and frame.
 //!  Caudium ships with two images of that kind - the default gbutton canvas
-//!  (use path: internal-caudium-gbutton.xcf) or the tab image canvas
-//!  (use path: internal-caudium-tabframe.xcf).
-//! default: interna-caudium-gbutton.xcf
+//!  (use path: /(internal,image)/gbutton.xcf) or the tab image canvas
+//!  (use path: /(internal,image)/tabframe.xcf).
+//! default: /(internal,image)/gbutton.xcf
 //
 //! attribute: [alt="string"]
 //!  Alternative button text.

@@ -54,7 +54,7 @@ constant thread_safe=1;
 //!
 //! attribute: [image="URI"]
 //!  Set the image used by the Javascript using a URI to a new location
-//! default: /internal-caudium-snow
+//! default: /(internal,image)/snow
 //!
 //! attribute: [num="int"]
 //!  Set the number of images (and layers) used for this snow
@@ -80,7 +80,7 @@ string snow(string tag_name, mapping arg, object id, object file, mapping define
   if (arg->image)
     retval+="var snowsrc=\""+arg->image+"\";\n";
   else
-    retval+="var snowsrc=\"/internal-caudium-snow\";\n";
+    retval+="var snowsrc=\"/(internal,image)/snow\";\n";
     //retval+="var snowsrc=\"http://www.ariom.se/snow.gif\";\n";
   // Configure below to change number of snow to render
   if (arg->num)

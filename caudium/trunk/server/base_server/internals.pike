@@ -98,8 +98,8 @@ class InternalResolver
     {
         string method, file;
 
-        if (sscanf(URI, "%s:/%s", method, file) != 2)
-            throw(({"Wrong internal URI format\n", backtrace()}));
+        if (sscanf(URI, "%s://%s", method, file) != 2)
+            throw(({"Incorrect internal URI format\n", backtrace()}));
         
         method = upper_case(method);
 
@@ -115,7 +115,10 @@ class InternalResolver
         mapping qvars;
         mapping ret;
         string  query;
-	
+
+        if (file[0] != '/')
+            file = "/" + file;
+        
         if (sscanf("%s?%s", file, query) == 2)
 	    Caudium.parse_query_string(query, qvars);
 	
@@ -137,10 +140,6 @@ class InternalResolver
 	        break;
         }
         
-#ifdef DEBUG_INTERNALS
-        report_notice(sprintf("Returning: %O\n", ret));
-#endif
-    
         return ret;
     }
 
@@ -154,6 +153,9 @@ class InternalResolver
         paths = p;
 
         foreach(indices(paths), string idx) {
+            if (paths[idx][-1] != '/')
+                paths[idx] += "/";
+            
             paths[upper_case(idx)] = paths[idx];
             m_delete(paths, idx);
         }
