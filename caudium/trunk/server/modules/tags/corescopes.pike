@@ -136,7 +136,7 @@ class PageScope {
      case "filesize":
       //! entity: filesize
       //!  Returns the size in bytes of this file or -4 if the size is unknown.
-      res = id->misc->defines[" _stat"] ? id->misc->defines[" _stat"][1] : -4;
+      ret = id->misc->defines[" _stat"] ? id->misc->defines[" _stat"][1] : -4;
       break;
      case "true":
      case "last-true":
