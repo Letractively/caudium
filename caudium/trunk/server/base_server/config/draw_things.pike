@@ -153,27 +153,35 @@ Image.image draw_module_header(string name, int type, object font)
 object unselected_tab_image = load_image("../tab_unselected.ppm");
 object selected_tab_image = load_image("../tab_selected.ppm");
 
-Image.image draw_config_button(string name, object font, int lm, int rm)
+Image.image draw_config_button(string name, object font, int lm, int rm,
+			       void|array bg, void|array fg, void|array page)
 {
-  if(!strlen(name)) return Image.image(1,15, dR,dG,dB);
-
-  object txt = font->write(name)->scale(0.48);
+  Image.Color bgc, fgc, pagec;
+  if(bg) bgc = Image.Color(@bg);
+  else bgc = Image.Color(dR, dG, dB);
+  if(fg) fgc = Image.Color(@fg);
+  else fgc = Image.Color(bR, bG, bB);
+  if(page) pagec = Image.Color(@page);
+  else pagec = Image.Color(bR, bG, bB);
+  
+  if(!strlen(name)) return Image.Image(1,15, pagec);
+   object txt = font->write(name)->scale(0.48);
   int w = txt->xsize();
-  object ruta = Image.image(w + (rm?40:20), 20, bR,bG,bB);
+  object ruta = Image.image(w + (rm?40:20), 20, bgc);
 
   if (lm) {
     // Left-most
-    ruta->setcolor(dR, dG, dB)->polygone(({ 0,0, 15,0, 5,20, 0,20 }));
+    ruta->setcolor(@pagec->rgb())->polygone(({ 0,0, 15,0, 5,20, 0,20 }));
   } else {
     // Add separator.
-    ruta->setcolor(bhR, bhG, bhB)->polygone(({ 5,20, 15,0, 16,0, 6,20 }));
+    ruta->setcolor(@pagec->rgb())->polygone(({ 5,20, 15,0, 16,0, 6,20 }));
   }
   if (rm) {
     // Right-most
-    ruta->setcolor(dR, dG, dB)->polygone(({ 36+w,0, 41+w,0, 40+w,20, 26+w,20 }));
+    ruta->setcolor(@pagec->rgb())->polygone(({ 36+w,0, 41+w,0, 40+w,20, 26+w,20 }));
   }
 
-  ruta->paste_alpha_color(txt, btR,btG,btB, 18, 0);
+  ruta->paste_alpha_color(txt, fgc, 18, 0);
 
   return ruta->scale(0,15);
 }
@@ -212,29 +220,38 @@ Image.image draw_selected_button(string name, object font,
 }
 
 
-object pil(int c)
+object pil(int c, object s)
 {
-  object f=Image.image(50,50,dR,dG,dB);
-  f->setcolor(c?200:bR,c?0:bG,c?0:bB);
+  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  object fgc = s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB });
+  object f=Image.image(50,50,@bgc);
+  if(c) 
+    f->setcolor(200,0,0);
+  else
+    f->setcolor(@fgc);
   for(int i=1; i<25; i++)
     f->line(25-i,i,25+i,i);
   return f;
 }
 
-object draw_unfold(int c)
+object draw_unfold(int c, void|object s)
 {
-  return pil(c)->setcolor(dR,dG,dB)->rotate(-90)->scale(15,0);
+  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  return pil(c, s)->setcolor(@bgc)->rotate(-90)->scale(15,0);
 }
 
-object draw_fold(int c)
+object draw_fold(int c, void|object s)
 {
-  return pil(c)->setcolor(dR,dG,dB)->rotate(-180)->scale(15,0);
+  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  return pil(c, s)->setcolor(@bgc)->rotate(-180)->scale(15,0);
 }
 
-object draw_back(int c)
+object draw_back(int c, void|object s)
 {
-  object f=Image.image(50,50,dR,dG,dB);
-  f->setcolor(0,0,100);
+  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  object fgc = s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB });
+  object f=Image.image(50,50,@bgc);
+  f->setcolor(@fgc);
   for(int i=1; i<25; i++)
     f->line(25-i,i,25+i,i);
   return f->setcolor(255,255,255)->rotate(45)->autocrop()->scale(15,0);

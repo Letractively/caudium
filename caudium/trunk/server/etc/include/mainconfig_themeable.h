@@ -26,11 +26,14 @@ class ThemedConfig {
     constant cvs_version = "$Id$";
 
     object s;
-
-    void create( void|string schemename ) {
-        s = scheme( schemename );
+    string datadir, themename;
+    void create( void|string schemename, string _datadir ) {
+      s = scheme( themename = schemename );
+      datadir = _datadir;
     }
 
+    string path() { return datadir || "caudium-images/"; };
+    string theme() { return themename; }
     string body () {
 	return
 	    "<body bgcolor='" + s->html_colour( "bgcolor" ) + "' "
@@ -131,110 +134,97 @@ class ThemedConfig {
     object tab_0() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ] );
+	object i = Image.Image( 24, 24, @fg_rgb);
         return i;
     }
 
     object tab_1() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ] );
-	i = circlefill( i, 0, 24, 23, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ], 255 );
+	object i = Image.Image( 24, 24, @fg_rgb);
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
         return i;
     }
 
     object tab_2() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ] );
-	i = circlefill( i, 0, 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ], 255 );
-	i = circlefill( i, 0, 24, 23, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ], 255 );
+	object i = Image.Image( 24, 24, @bg_rgb );
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
         return i;
     }
 
     object tab_3() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ] );
-	i = circlefill( i, 0, 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ], 255 );
+	object i = Image.Image( 24, 24, @bg_rgb);
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
         return i;
     }
 
     object tab_4() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ] );
-	i = circlefill( i, 0, 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ], 255 );
-        i->line( 0, 0, 24, 0, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ] );
+	object i = Image.Image( 24, 24, @bg_rgb);
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+        i->line( 0, 0, 24, 0, @fg_rgb );
         return i;
     }
 
     object tab_5() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
-	object i = Image.Image( 24, 24, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ] );
-	i = circlefill( i, 0, 24, 24, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ], 255 );
-	i = circlefill( i, 0, 24, 23, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ], 255 );
-	i->line( 0, 0, 24, 0, fg_rgb[ 0 ], fg_rgb[ 1 ], fg_rgb[ 2 ] );
+	object i = Image.Image( 24, 24, @bg_rgb);
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	i->line( 0, 0, 24, 0, @fg_rgb );
         return i;
     }
 
     object logo() {
 	array fg_rgb = s->rgb_colour( "titlefg" );
 	array bg_rgb = s->rgb_colour( "titlebg" );
-	object f = Image.TTF( "fonts/ttf/fontrstc.ttf" )();
-	if ( ! f ) {
-	    throw( ({ "Unable to load font: fontrstc.ttf", backtrace() }) );
+	object text = Image.PNM.decode(Stdio.read_file(datadir+"/cif_logo_txt.pnm"));
+	if ( ! text ) {
+	    throw( ({ "Failed to load logo image.", backtrace() }) );
 	}
-	f->set_height( 66 );
-	object text = f->write( "Caudium" );
-        text = text->autocrop();
 	int xsize = text->xsize();
 	int ysize = text->ysize();
         int _ysize = ysize + 2;
 	object back = Image.Image(
 				  ( xsize + (2 * ysize) + 2 ),
 				  _ysize,
-				  bg_rgb[ 0 ],
-				  bg_rgb[ 1 ],
-				  bg_rgb[ 2 ] );
+				  @bg_rgb);
 	back = circlefill( back,
 			   _ysize,
 			   _ysize,
 			   _ysize,
-			   fg_rgb[ 0 ],
-			   fg_rgb[ 1 ],
-			   fg_rgb[ 2 ],
+			   @fg_rgb,
 			   255 );
 	back = circlefill( back,
 			   ( xsize + ysize ),
 			   0,
 			   _ysize,
-			   fg_rgb[ 0 ],
-			   fg_rgb[ 1 ],
-			   fg_rgb[ 2 ],
+			   @fg_rgb,
 			   255 );
 	// This is a hack to fix the bug in circlefill();
 	back->line( back->xsize() - _ysize,
 		    0,
 		    back->xsize(),
 		    0,
-		    fg_rgb[ 0 ],
-		    fg_rgb[ 1 ],
-		    fg_rgb[ 2 ]
-		  );
+		    @fg_rgb);
 	back->box( _ysize,
                    0,
                    back->xsize() - _ysize,
 		   _ysize,
-		   fg_rgb[ 0 ],
-		   fg_rgb[ 1 ],
-                   fg_rgb[ 2 ] );
-	object fore = Image.Image( xsize, ysize, bg_rgb[ 0 ], bg_rgb[ 1 ], bg_rgb[ 2 ] );
+		   @fg_rgb );
+	object fore = Image.Image( xsize, ysize, @bg_rgb);
 	back->paste_mask( fore,
 			  text,
 			  ( ( back->xsize() - text->xsize() ) / 2 ),
 			  ( ( back->ysize() - text->ysize() ) / 2 ) );
+	Stdio.write_file("/tmp/image.gif", Image.GIF.encode(back));
         return back;
     }
 
