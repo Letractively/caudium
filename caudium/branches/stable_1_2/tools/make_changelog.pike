@@ -1,6 +1,8 @@
 mapping (string:string) users = ([ ]);
 
+int rxml;
 string domain;
+int flag = 0;
 mapping user_list = ([
   "uid35094": "Retired user",
   "uid56983": "Retired user",
@@ -63,15 +65,31 @@ string mymktime(string from)
   m->min = t[4];
   m->sec = t[5];
 //werror("%O\n", m);
-  return (ctime(mktime(m))-"\n"+" ");
+//  if(rxml) return "<date unix_time="+mktime(m)+">";
+ // return (ctime(mktime(m))-"\n"+" ");
+  return mydate(m);
 }
 
+string mydate(mapping t) {
+ string out = "";
+
+ if(flag != 0) out += "</li>";
+ else flag = 1;
+ if(rxml) out += "<li>";
+ out += ctime(mktime(t)) - "\n"+" ";
+ 
+ if(rxml) out += "<br \/>";
+
+ return out;
+}
 array ofiles = ({});
 void output_changelog_entry_header(array from)
 {
   string u = from[1];
   if(!users[u]) find_user(u);
-  write("\n"+mymktime(from[0])+" "+users[u]+"\n");
+  if (rxml)
+    write("\n"+mymktime(from[0])+" "+replace(users[u],({ "@","<",">","." }), ({" AT ", "&lt;", "&gt;", " -DOT- "}))+"<br\/>\n");
+  else write("\n"+mymktime(from[0])+" "+users[u]+"\n");
   ofiles = ({});
 }
 
@@ -125,7 +143,8 @@ void output_entry(array files, string message)
   message = reverse(message);
   if(equal(sort(files),sort(ofiles)))
   {
-    write(trim(sprintf("              %-=65s\n", message)));
+    if(rxml) write("<blockquote>"+qte(message)+"</blockquote>\n\n");
+    else write(trim(sprintf("              %-=65s\n", message)));
   }
   else
   {
@@ -138,11 +157,17 @@ void output_entry(array files, string message)
 	fh += f+", ";
       fh = fh[..sizeof(fh)-3]+":";
     }
+    if(rxml) {
+	write("<b><font color=darkblue>"+qte(fh)+"</font></b>"
+              "<blockquote>"+qte(message)+"</blockquote>\n\n");
+    } else {
+
     if(strlen(message+fh)<70)
       write("\t* "+fh+" "+message+"\n");
     else
 	write(trim(replace(sprintf("\t* %-=69s\n", fh),"\n   ","\n\t  ")+
 		   sprintf("            %-=65s\n", message)));
+    }
     ofiles = files;
   }
 }
@@ -168,13 +193,16 @@ void main(int argc, array (string) argv)
   string data = Process.popen("cvs -q -z3 log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
-  if(argc>1)
+  rxml = argv[-1]=="--rxml";
+  if(argc>1 && argv[1] != "--rxml")
     domain = argv[1];
   else
   {
     domain = "caudium.net";
   }
   werror("Parsing data ... ");
+  if(rxml)
+    write("<body bgcolor=white text=black link=darkred><ul>");
   foreach(data/"=============================================================================\n", string file)
   {
     array foo = file/"----------------------------\nrevision ";
