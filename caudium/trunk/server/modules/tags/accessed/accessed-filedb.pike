@@ -1,5 +1,26 @@
-// This is a roxen module. Copyright © 1996 - 2000, Roxen IS.
-//
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+/*
+ * $Id$
+ */
 
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
@@ -44,7 +65,7 @@ void create(object c) {
 
   //------ File database settings
 
-  defvar("Accesslog","$LOGDIR/"+short_name(c?c->name:".")+"/Accessed",
+  defvar("Accesslog",GLOBVAR(logdirprefix)+short_name(c?c->name:".")+"/Accessed",
 	 "Access database file", TYPE_FILE|VAR_MORE,
 	 "This file will be used to keep the database of file accesses.",
 	 0, lambda(){ return query("backend")!="File database"; } );
