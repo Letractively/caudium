@@ -83,7 +83,8 @@ void create()
            "will be performed using both the <code>uid</code> and the <code>mail</code> "
            "attributes. In this case the rules described in the previous section apply.</li>"
            "<li><strong><code>other</strong></code>. This allows the administrator to "
-           "specify the filter to be used to search the directory.</li>"
+           "specify the filter to be used to search the directory. The <em>LDAP search filter</em>"
+           " option description contains more information on this type of authentication.</li>"
            "</ul></blockquote>",
            ({ "any", "uid", "email", "both", "other"}));
 
@@ -92,10 +93,16 @@ void create()
            "selected as the value of the <em>DN type</em> option. The string here must be a "
            "valid LDAP filter string and you can use the following macros in it:<br /><blockquote><ul>"
            "<li><code>%m</code> - mail address as typed by the user in the login screen. If the user "
-           "typed only the user name part, default domain will be appended (if enabled).</li>"
+           "typed only the user name part, default domain will be appended (if enabled). "
+           "Note that in case the default domain is used and the default domains list contains "
+           "more than one entry, the first entry will be used as a value of this macro.</li>"
            "<li><code>%u</code> - user name as typed by the user.</li>"
            "<li><code>%d</code> - domain name from the user's mail address (or from the default "
-           "domain, if enabled)</li>"
+           "domain, if enabled). "
+           "Note that in case the default domain is used and the default domains list contains "
+           "more than one entry, the first entry will be used as a value of this macro.</li>"
+           "<li><code>%b</code> - base DN as specified in the LDAP options.</li>"
+           "<li><code>%p</code> - DN prefix as specified in the LDAP options.</li>"
            "<ul></blockquote>", 0, useother_not_set);
     
     defvar("user_uidfallback", 0, "User auth: Fallback to UID", TYPE_FLAG,
@@ -113,11 +120,20 @@ void create()
            "with those domains in the order given below. If there's just one line in this "
            "box, it will be used silently when/if needed.",
            0, usedefdomain_not_set);
+
+    // Access control settings
     
     // LDAP
     defvar("ldap_basedn", "", "LDAP: base DN", TYPE_STRING,
            "Base DN (Distinguished Name) to be used in all the operations throughout "
            "the session in which this module was used to authenticate the users. ");
+
+    defvar("ldap_dnprefix", "ou=People", "LDAP: DN prefix", TYPE_STRING,
+           "String to be prepended to the base dn for every user DN generated in this module.");
+
+    defvar("ldap_mailattr", "mail", "LDAP: mail attribute", TYPE_STRING,
+           "Attribute to be used when matching user mail on searches. "
+           "<font color='red'><strong>*** MUST NOT BE EMPTY ***</strong></font>");
 
     defvar("ldap_god_dn", "", "LDAP: admin bind dn", TYPE_STRING,
            "The omnipotent DN that can do anything to the directory - used to retrieve "
@@ -141,11 +157,193 @@ string query_provides()
 }
 
 //
+// Auth functions used by make_dn
+//
+private array(string) dn_any(object id, string username, string|void domain)
+{
+    array(string) ret = ({});
+    string        pfx = QUERY(ldap_dnprefix);
+    
+    if (domain)
+        ret += ({
+            sprintf("%s=%s@%s,%s%s", QUERY(ldap_mailattr),
+                    username, domain, (pfx ? pfx + "," : ""),
+                    QUERY(ldap_basedn))
+        });
+
+    if (!domain || (domain && QUERY(user_uidfallback)))
+        ret += ({
+            sprintf("uid=%s,%s%s", username, (pfx ? pfx + "," : ""),
+                    QUERY(ldap_basedn))
+        });
+
+    return ret;
+}
+
+private array(string) dn_uid(object id, string username, string|void domain)
+{
+    array(string) ret = ({});
+    string        pfx = QUERY(ldap_dnprefix);
+
+    ret += ({
+        sprintf("uid=%s,%s%s", username, (pfx ? pfx + "," : ""),
+                    QUERY(ldap_basedn))
+    });
+
+    return ret;
+}
+
+private array(string) dn_email(object id, string username, string|void domain)
+{
+    array(string)  ret = ({});
+    string         pfx = QUERY(ldap_dnprefix);
+    array(string)  dom = 0;
+    
+    if (!domain && QUERY(user_usedefdomain)) {
+        // let's see what to do with the domain...
+        array(string) dom = (QUERY(user_defdomains) / "\n") - ({}) - ({""});
+
+        if (!sizeof(dom))
+            dom = 0;
+    } else if (domain)
+        dom = ({domain});
+
+    if (!dom)
+        return ret;
+
+    foreach(dom, string d)
+        ret += ({
+            sprintf("%s=%s@%s,%s%s", QUERY(ldap_mailattr),
+                    username, d, (pfx ? pfx + "," : ""),
+                    QUERY(ldap_basedn))
+        });
+
+    return ret;
+}
+
+private array(string) dn_both(object id, string username, string|void domain)
+{
+    array(string)  ret = ({});
+    string         pfx = QUERY(ldap_dnprefix);
+    array(string)  dom = 0;
+    
+    if (!domain && QUERY(user_usedefdomain)) {
+        // let's see what to do with the domain...
+        dom = (QUERY(user_defdomains) / "\n") - ({}) - ({""});
+
+        if (!sizeof(dom))
+            dom = 0;
+    } else if (domain)
+        dom = ({domain});
+
+    if (!dom)
+        return ret;
+
+    foreach(dom, string d)
+        ret += ({
+            sprintf("uid=%s,%s=%s@%s,%s%s", username, QUERY(ldap_mailattr),
+                    username, d, (pfx ? pfx + "," : ""),
+                    QUERY(ldap_basedn))
+        });
+
+    return ret;
+}
+
+private array(string) dn_other(object id, string username, string|void domain)
+{
+    array(string)  ret;
+    string         pfx = QUERY(ldap_dnprefix);
+    array(string)  to = ({"", "", "", "", ""});
+
+    to[0] = username; // %u
+    if (domain)
+        to[1] = domain; // %d
+    else if (QUERY(user_usedefdomain)) {
+        array(string) dom = (QUERY(user_defdomains) / "\n") - ({}) - ({""});
+
+        if (sizeof(dom))
+            to[1] = dom[0];
+    }
+
+    if (domain)
+        to[2] = username + "@" + domain; // %m
+    else if (QUERY(user_usedefdomain)) {
+        array(string) dom = (QUERY(user_defdomains) / "\n") - ({}) - ({""});
+
+        if (sizeof(dom))
+            to[2] = username + "@" + dom[0];
+    }
+
+    if (pfx)
+        to[3] = pfx; // %p
+
+    if (QUERY(ldap_basedn))
+        to[4] = QUERY(ldap_basedn); // %b
+    
+    ret += ({
+        replace(QUERY(user_filter), ({"%u", "%d", "%m", "%b"}), to)
+    });
+
+    return ret;
+}
+
+//
 // Making the DN depends upon the settings in the CIF, see create() above
 // for description of the modes we support
 //
-private string make_dn(object id, string login)
-{}
+private array(string) make_dn(object id, string login)
+{
+    string username, domain;
+    
+    // First let's try to find out what the user typed in
+    int tmp = search(login, "@");
+    
+    if (tmp > -1) {
+        // an email
+        array(string) l = login / "@";
+        
+        username = l[0];
+        domain = l[1];
+    } else {
+        // username only, most probably
+        username = login;
+        domain = 0; // defaults to be put here later on
+    }
+
+    //
+    // Now that we know what we have, let's see what we are supposed to do
+    // with it. This depends on the mode.
+    //
+    array(string) ret = 0;
+    
+    switch(QUERY(user_dntype)) {
+        case "any":
+            ret = dn_any(id, username, domain);
+            break;
+
+        case "uid":
+            ret = dn_uid(id, username, domain);
+            break;
+
+        case "email":
+            ret = dn_email(id, username, domain);
+            break;
+
+        case "both":
+            ret = dn_both(id, username, domain);
+            break;
+
+        case "other":
+            ret = dn_other(id, username, domain);
+            break;
+
+        default:
+            report_warning("Unknown DN type '%s' in ldap-auth\n", QUERY(user_dntype));
+            return 0;
+    }
+
+    return ret;
+}
 
 mapping auth(object id, mapping user, object ldap)
 {
