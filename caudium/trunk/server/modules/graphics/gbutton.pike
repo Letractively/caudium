@@ -993,8 +993,8 @@ string tag_gbutton(string tag, mapping args, string contents,
     mapping img_attrs = ([ "src" : img_src,
                            "alt" : args->alt || contents,
                            "border" : args->border || "",
-                           "hspace" : args->hspace || "",
-                           "vspace" : args->vspace || "" ]);
+                           "hspace" : args->hspace || "0",
+                           "vspace" : args->vspace || "0" ]);
 
     if (img_align)
         img_attrs->align = img_align;
