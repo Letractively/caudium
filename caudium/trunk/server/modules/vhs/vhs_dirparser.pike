@@ -45,7 +45,7 @@ constant module_unique = 1;
 // #define VHDIRDEBUG
 
 #ifdef VHDIRDEBUG
-#define DW(x) werror("[VHS_dirparser] " + x + "\n")
+#define DW(x) report_debug("[VHS_dirparser] " + x + "\n")
 #else
 #define DW(x)
 #endif

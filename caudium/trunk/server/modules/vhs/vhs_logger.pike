@@ -27,12 +27,12 @@ constant thread_safe = 1;
 // #define VHLOG_DEBUG 1
 
 #ifdef VHLOG_DEBUG
-#define DW(x) werror("[VHS_logger] " + x + "\n")
+#define DW(x) report_debug("[VHS_logger] " + x + "\n")
 #else
 #define DW(x)
 #endif
 
-#define EW(x) werror("[VHS_logger]:(ERROR) " + x + "\n")
+#define EW(x) report_error("[VHS_logger]:(ERROR) " + x + "\n")
 
 #include <module.h>
 #include <config.h>
