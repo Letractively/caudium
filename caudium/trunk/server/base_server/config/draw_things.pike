@@ -36,7 +36,7 @@ Image.image load_image(string f)
   string data;
   object img = Image.image();
 
-//  werror("Loading "+f+"\n");
+//  report_debug("Loading "+f+"\n");
 
   if(!file->open("caudium-images/modules/"+f,"r"))
   {
@@ -49,7 +49,7 @@ Image.image load_image(string f)
 
   if(img=Image.PNM.decode(data))
     return img;
-//  werror("Failed to parse image file.\n");
+//  report_debug("Failed to parse image file.\n");
   return 0;
 }
 
