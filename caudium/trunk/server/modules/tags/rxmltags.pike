@@ -2874,7 +2874,7 @@ string tag_pr(string tagname, mapping m)
         string res = "<table><tr><td><b>size</b></td><td><b>color</b></td></tr>";
         foreach(sort(get_dir("caudium-images")), string f)
             if(sscanf(f, "power-%s", f))
-                res += "<tr><td>"+replace(f-".png","-","</td><td>")+"</tr>";
+                res += "<tr><td>"+replace(f-".gif","-","</td><td>")+"</tr>";
         return res + "</table>";
     }
     m_delete(m, "color");
