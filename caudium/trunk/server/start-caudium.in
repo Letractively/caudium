@@ -58,6 +58,7 @@ array(array(string | array(string))) arguments = ({
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"backgrounded", Getopt.NO_ARG, ({"--backgrounded"})}),
+  ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
 });
 
@@ -485,8 +486,6 @@ void do_one_run(array o, mapping opt)
       rm(".gdbinit");
     exit(0);
   }
-
-
 }
 
 void do_multi_run(array o, mapping opt)
@@ -534,7 +533,7 @@ array generate_command_options()
     if(options->precmd)
       o+=options->precmd;
     o+=({options->pike});
-  } 
+  }
 
   if(command_line->DEFINES)
     foreach(command_line->DEFINES, string d)
@@ -638,6 +637,9 @@ int act_on_args()
           command_line->COTHER+=({"--version"});
           options->once=1;
           continue;
+	case "piketrace":
+	  command_line->OTHER+=({"-t"+m[1] });
+	  continue;
         case "pike":
           options->pike=m[1];
           continue;
