@@ -51,8 +51,30 @@ void endreport()
    default: write("\n*** Found "+warnings+" potential problems.\n"); break;
   }
 }
+array(string) has_features(array features)
+{
+  array a = ({});
+  
+  foreach(features, string modname)
+  {
+    catch
+    {
+      if(([ "Java":2 ])[modname] <
+	 sizeof(indices(master()->resolv(modname) || ({}))))
+      {
+	if(modname[0] == '_')
+	  modname = replace(modname[1..], "_", ".");
+	a += ({ modname });
+      }
+    };
+  }
+
+  return a;
+}
+
 int main(int argc, array argv)
 {
+  array missing, existing;
   sscanf(version(), "Pike v%f release %d", ver, rel);
   write("Checking for potential compatibility reasons with your Pike...");
   master()->set_inhibit_compile_errors("");
@@ -98,7 +120,7 @@ int main(int argc, array argv)
 	    "or Pike 7.1 to build >= 12 to fix this problem.");
 #endif
 
-  array missing = ({});
+  missing = ({});
 #if !constant(Image.GIF.decode)
   missing += ({ "GIF"});
 #endif
@@ -115,6 +137,22 @@ int main(int argc, array argv)
 	    String.implode_nicely(missing));
   }
 
+  missing = ({ "Msql","Mysql", "Odbc", "Oracle","Postgres", "sybase" });
+
+  existing = has_features(missing);
+  missing -= existing;
+
+  if(sizeof(missing)) {
+    warning("Pike is missing support for the following database backend%s:\n"
+	    "\t%s\nSupported backend%s:\n"
+	    "\t%s",
+	    sizeof(missing) == 1 ? "" : "s", 
+	    String.implode_nicely(missing),
+	    sizeof(existing) == 1 ? "" : "s", 
+	    sizeof(existing) ? String.implode_nicely(existing):
+	    "none");
+  }
+  
 #if !constant(Gmp.mpz)
   warning("Your Pike is lacking Gmp support. This will, among other things, disable the\n"
 	  "SSL3 support. You can fetch the  GMP library from any GNU mirror.");
@@ -131,6 +169,10 @@ int main(int argc, array argv)
   warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
 	  ".ttf fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
+#endif
+#if !constant(Gdbm.gdbm)
+  warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
+	  "for storing log summaries.");
 #endif
   endreport();
 }
