@@ -72,6 +72,10 @@ void create()
   defvar("cachetimeout", 300, "Cache Timeout", TYPE_INT, 
     "Number of seconds a cached user or group entry should be kept."
   );
+  defvar("allowemptypass", 0, "Allow Empty Passwords?", TYPE_FLAG, 
+    "Should empty passwords be allowed? If set to no, attempts to "
+    "authenticate with an empty password will be denied."
+  );
   defvar("listcachetimeout", 3600, "List Cache Timeout", TYPE_INT, 
     "Number of seconds a full user or group list should be kept."
   );
@@ -131,6 +135,10 @@ string status()
 int authenticate(string user, string password)
 {
    if(!user && !password) { fail++; nouser++; return 0; }
+
+   // do we disallow empty passwords?
+   if(QUERY(allowemptypass) && !strlen(password)) return 0;
+
    mixed data=get_user_info(user);
    if(!data)
    {
