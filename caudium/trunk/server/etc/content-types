@@ -289,3 +289,5 @@ pac	application/x-ns-proxy-autoconfig
 # Certificate Authority Certificate (recognized at least by Netscape)
 ca_cert	application/x-x509-ca-cert
 
+# Mozilla XUL applications
+xul	application/vnd.mozilla.xul+xml
