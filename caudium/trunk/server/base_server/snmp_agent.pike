@@ -43,7 +43,7 @@ void create(object c)
   }
   agent->set_get_communities(({GLOBVAR(snmp_get_community)}));
   agent->set_managers_only(0);
-  agent->set_get_oid_callback("1.3.6.1.4.1.13047.100.1", snmp_get_server_version);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.1", snmp_get_server_version);
 }
 
 array snmp_get_server_version(string oid, mapping rv)
