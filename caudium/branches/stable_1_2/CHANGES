@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Added patch #534125 to ultralog that check the file exist before set 
+  filewatch and a status of the module.
 - Added patch #534118 that fix for TYPE_FILE and TYPE_DIR checks.
 - Half fixed bug #533124. Needs more investigation.
 - Fixed bug id #530674
