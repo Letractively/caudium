@@ -2193,20 +2193,6 @@ void unload_program(string p)
 {
   m_delete(master()->programs,search(master()->programs,(program)p));
 }
-
-//! Replace strings
-//! @param s
-//!   String to replace
-//! @param m
-//!   Mapping with strings to changes... eg : ([ "from":"to" ])
-//! @returns
-//!   The string with replaced strings.
-//! @note
-//!   Non RIS Call.
-string do_replace(string s, mapping (string:string) m)
-{
-  return replace(s, indices(m), values(m));
-}
 /*
  * If you visit a file that doesn't contain these lines at its end, please
  * cut and paste everything from here to that file.
