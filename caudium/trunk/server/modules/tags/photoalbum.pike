@@ -36,7 +36,7 @@
  * re-write it.
  *
  * Original author : James Tyson) <james@samizdat.co.nz>
- * Modify by t0mpr (damn <br> tags)
+ * Modified by Tomasz Proc <tp@d-net.pl> (damn <br> tags)
  */
 
 /* Standard includes */
@@ -62,7 +62,7 @@ mapping albums = ([ ]);
 array register_module() {
     return
 	({ MODULE_PARSER,
-	"Caudium Photo Album Module t0mprized",
+	"Caudium Photo Album Module",
 	"This is a new photo album module for Caudium.<br>\n" +
 	"It automagically generates photo albums based on a directory of\n" +
 	"image files.<br>\n" +
