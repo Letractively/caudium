@@ -3,7 +3,7 @@ MODNAME=OpenSSL
 OBJS= openssl.o
 SOURCES=openssl.c
 MODULE_LIBS=@LIBS@
-EXTRA_CLEAN=OpenSSL.so
+EXTRA_CLEAN=config.h config.h.in OpenSSL.so
 
 @module_makefile@
 
