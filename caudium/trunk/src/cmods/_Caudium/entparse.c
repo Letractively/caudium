@@ -134,6 +134,7 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   retval = (ENT_RESULT*)malloc(sizeof(*retval));
   if (!retval)
     return NULL;
+
 /*
   printf(">>%s<<\n", buf);
   printf("parsing %d bytes\n", buflen);
@@ -165,7 +166,7 @@ ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
   cbackres.buf = NULL;
   cbackres.buflen = 0;
   
-  while(tmp && curpos <= buflen) {
+  while(tmp && curpos < buflen) {
 /*
 printf("considering %d of %d\n", curpos, buflen);
 */
@@ -202,7 +203,6 @@ printf("got a semicolon.\n");
           cback(entname, entparts, &cbackres, userdata, extra_args);
           if (!cbackres.buf)
             cbackres.buflen = entlen;
-          curpos++;
           goto append_data;
           
           continue;
@@ -238,7 +238,6 @@ printf("got a character not in entity.\n");
 */
             goto append_data;
           }          
-
 /*
 printf("got a character in an entity.\n");
 */
@@ -313,6 +312,7 @@ printf("copied %d (%s), current length: %d\n", cbackres.buflen + 2, entfullname,
     }
     
     curpos++; 
+/*    printf("curpos == %d\n", curpos); */
   }
 
   if (retval->errcode == ENT_ERR_OK && in_entity)
