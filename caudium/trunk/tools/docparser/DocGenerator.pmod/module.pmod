@@ -163,7 +163,7 @@ class DocGen
 			  int|void is_container)
   {
     string   ret = "";
-
+    
     if (tag->first_line && tag->first_line != "") {
       if(is_container)
 	ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;"
@@ -185,12 +185,10 @@ class DocGen
 	  ret += " syntax=\""+a->first_line+"\"";
 	if (a->def && strlen(a->def))
 	  ret += " default=\""+a->def+"\"";
-	ret += ">\n\t\t";
 	if (a->contents)
-	  ret += a->contents;
+	  ret += ">\n\t\t"+a->contents+"\n\t</attribute>\n";
 	else
-	  ret += "NO DESCRIPTION";
-	ret += "\n\t</attribute>\n\n";
+	  ret += "/>\n";
       }
       ret += "</attributes>\n\n";
     }
@@ -532,7 +530,7 @@ class TreeMirror
         if (!Stdio.mkdirhier(dirname(fname)))
             throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));
         
-        f = Stdio.File(fname, "cw");
+        f = Stdio.File(fname, "cwt");
         if (f)
             f->write(replace(header, tvars, map_variables()));
 
