@@ -86,14 +86,14 @@ mozilla/[5-9].*		pnginline, gecko
 # Opera 5.0 masqueraded as MSIE
 .*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
 			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty, \
-			nobgrepeat
+			nocssbackrepeat
 .*compatible.*opera.5.*	opera5
 .*compatible.*opera.6.*	opera6
 
 # Opera 5.0 masquereaded as Mozilla
 mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				opera, cssfaulty, nobgrepeat
+				opera, cssfaulty, nocssbackrepeat
 mozilla/[3-5].*opera.5.*	opera5
 mozilla/[3-5].*opera.6.*	opera6
 
