@@ -37,3 +37,6 @@ Changes in Caudium 1.1 since CVS branching
   0.44 tested).
 - Fixed some bugs in the Caudium c-module.
 - Fixed newer 7.1 compaztibility problems (bye bye Simulate).
+- Applied Chris Davies custom changes to the SQL User Database. These add a
+  configurable timeout for cached user entries and an option to block sites
+  with too many failed authentication attempts.
