@@ -171,7 +171,7 @@ mapping cache_image_object( object img, string name, void|int exp ) {
   return ([
             "object" : img,
 	    "name" : name,
-	    "size" : sizeof( Image.PNM.encode( img ) ),
+	    "size" : sizeof( (string)img ),
 	    "expires" : (exp?exp:time() + DEFAULT_TTL),
 	    "type" : "image",
 	    "ram_cache" : 1,
