@@ -170,7 +170,7 @@ private mixed f;
 /* Processing here not needed for cached connections. It mainly
  * includes various URL processing and variable scanning.
  */
-inline private void do_post_processing_nocache()
+inline void do_post_processing()
 {
   multiset (string) sup;
   array mod_config;
@@ -1374,7 +1374,7 @@ void got_data(mixed fdid, string s)
 #endif
   }
   TIMER("post_cache_check_processed");
-  do_post_processing_nocache();
+  do_post_processing();
   TIMER("post_processed");
   TIMER("pre_handle");
 #ifdef THREADS
