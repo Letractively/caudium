@@ -33,10 +33,6 @@ inherit "caudiumlib";
 #include <caudium.h>
 #include <module.h>
 
-static array(string) week = ({ "Mon", "Tue", "Wed","Thu","Fri","Sat", "Sun"});
-static array(string) month = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-				"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
-
 #ifdef WEBDAV_DEBUG
 #define DAV_WERR(s) roxen_perror((s)+"\n")
 #else
@@ -56,9 +52,9 @@ string get_time(int t)
     mapping lt = localtime(t);
     lt->year += 1900;
     lt->mon++;
-    return week[lt->wday-1]+", "+
+    return Caudium.Const.days[lt->wday]+", "+
 	(lt->mday < 10 ? "0"+lt->mday :lt->mday)
-	+" "+month[lt->mon-1]+" "+
+	+" "+Caudium.Const.months[lt->mon-1]+" "+
 	lt->year+" "+
 	(lt->hour < 10 ? "0"+lt->hour:lt->hour) + ":"+
 	(lt->min  < 10 ? "0"+lt->min: lt->min ) + ":"+
