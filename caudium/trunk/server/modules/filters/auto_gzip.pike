@@ -60,7 +60,7 @@ object __key;
 #define UNLOCK()
 #endif
 // Debug
-#define GZIP_DEBUG 1
+//#define GZIP_DEBUG 1
 #ifdef GZIP_DEBUG
 #define DEBUG(X) write("Auto_gzip: " + X)
 #else
