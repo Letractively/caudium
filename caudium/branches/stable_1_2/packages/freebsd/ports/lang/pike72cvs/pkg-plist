@@ -56,12 +56,8 @@ pike/7.2.352/lib/modules/call_out.pmod
 pike/7.2.352/lib/modules/files.pmod
 pike/7.2.352/lib/modules/spider.so
 pike/7.2.352/lib/modules/sprintf.pmod
-pike/7.2.352/lib/modules/GL.so
 pike/7.2.352/lib/modules/sybase.so
 pike/7.2.352/lib/modules/system.pmod
-pike/7.2.352/lib/modules/GLUT.so
-pike/7.2.352/lib/modules/GTK.pmod
-pike/7.2.352/lib/modules/___GTK.so
 pike/7.2.352/lib/modules/Unicode.so
 pike/7.2.352/lib/modules/Colors.pmod
 pike/7.2.352/lib/modules/Array.pmod
