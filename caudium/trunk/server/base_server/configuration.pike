@@ -3549,7 +3549,7 @@ int load_module(string module_file)
   perror(" Done.\n");
 #endif
 #endif
-  cache_set("modules", module_file, modules[module_file]["program"], 21600); // Chanhed to store cached module for 6 hours.
+  cache_set("modules", module_file, modules[module_file]["program"], -1); // Chanhed to store cached module for ever.
   return 1;
 }
 
