@@ -1624,7 +1624,7 @@ static void f_cern_http_date(INT32 args)
   struct tm *tm;
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
   struct pike_string *ret;
-  INT_TYPE timestamp;
+  INT_TYPE timestamp = 0;
 #if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
    long diff;
    int sign;
@@ -1635,7 +1635,7 @@ static void f_cern_http_date(INT32 args)
      break;
 
      case 1:
-       get_all_args("_Caudium.cern_http_date", args, "%d", &timestamp);
+       get_all_args("_Caudium.cern_http_date", args, "%i", &timestamp);
        break;
 
      case 0:
@@ -1763,7 +1763,7 @@ static void f_http_date(INT32 args)
   struct tm *tm;
   char date[sizeof "Wed, 11 Dec 2002 17:13:15 GMT"];
   struct pike_string *ret;
-  INT_TYPE timestamp;
+  INT_TYPE timestamp = 0;
   int hour;
 
   switch(args) {
@@ -1772,7 +1772,7 @@ static void f_http_date(INT32 args)
      break;
 
      case 1:
-       get_all_args("_Caudium.http_date", args, "%d", &timestamp);
+       get_all_args("_Caudium.http_date", args, "%i", &timestamp);
        break;
 
      case 0:
