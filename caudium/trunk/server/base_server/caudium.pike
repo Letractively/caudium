@@ -1376,30 +1376,35 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
   string   cvs;
   array    st;
   program  prog;
-  if(st = file_stat(s+".pike")) {
-    if(prog = compile_file(s+".pike")) {
-      my_loaded[prog] = s+".pike";
-      module_stat_cache[s-dirname(s)]=st;
-      return prog(conf);
-    } else
-      report_error("%s.pike exists, but compilation failed.\n", s);
+  object e = ErrorContainer();
+  master()->set_inhibit_compile_errors(e);
+  catch {
+    if(st = file_stat(s+".pike"))
+      if(prog = compile_file(s+".pike")) {
+	my_loaded[prog] = s+".pike";
+	module_stat_cache[s-dirname(s)]=st;
+	return prog(conf);
+    }
+  #ifdef EXTRA_ROXEN_COMPAT
+    if (st = file_stat(s+".lpc"))
+      if (prog = compile_file(s+".lpc")) {
+	my_loaded[prog] = s+".lpc";
+	module_stat_cache[s-dirname(s)]=st;
+	return prog(conf);
+      }
+  #endif
+    if (st = file_stat(s+".so"))
+      if (prog = load_module(s+".so")) {
+	my_loaded[prog] = s+".so";
+	module_stat_cache[s-dirname(s)] = st;
+	return prog(conf);
+      }
+    };
+  master()->clear_compilation_failures();
+  if(strlen(e->get())) {
+    report_error("Compilation errors while loading module file "
+                 + s + ":\n"+ e->get()+"\n");
   }
-#ifdef EXTRA_ROXEN_COMPAT
-  if (st = file_stat(s+".lpc"))
-    if (prog = compile_file(s+".lpc")) {
-      my_loaded[prog] = s+".lpc";
-      module_stat_cache[s-dirname(s)]=st;
-      return prog(conf);
-    } else
-      report_error("%s.lpc exists, but compilation failed.\n", s);
-#endif
-  if (st = file_stat(s+".so"))
-    if (prog = load_module(s+".so")) {
-      my_loaded[prog] = s+".so";
-      module_stat_cache[s-dirname(s)] = st;
-      return prog(conf);
-    } else
-      report_error("%s.so exists, but compilation failed.\n", s);
   return 0; // FAILED..
 }
 
