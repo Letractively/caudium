@@ -204,6 +204,7 @@ mapping reason = ([
 	-2: "this wiki is not intended for you to test.",
 	-3: "your text must contain at least characters.",
 	-4: "you have to wait 30 seconds between each comment.",
+	 -5: "this url should be used directly, please use the tag to get this module working",
 	1: "...is valid, please retry again"
 ]);
 
@@ -213,7 +214,9 @@ int is_valid(object id)
 {
   string content = id->variables->content;
   object db;
-
+  
+  if(!content)
+    return -5;
   // too small content
   if(sizeof(content) < 10)
     return -1;
