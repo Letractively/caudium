@@ -72,7 +72,7 @@ void endreport()
 array(string) has_features(array features)
 {
   array a = ({});
-  
+
   foreach(features, string modname)
   {
     catch
@@ -167,8 +167,8 @@ int main(int argc, array argv)
 #if !defined(__MAJOR__) || __MAJOR__ < 7
   warning("Caudium doesn't support SSL3 with Pike 0.6. Upgrade to Pike 7.0 if\n"
 	  "you need https support.");
-#elif !constant(___Nettle)
-  warning("Your Pike is lacking the _Nettle module so you won't be able to use SSL3.");
+#elif !constant(Nettle)
+  warning("Your Pike is lacking the Nettle module so you won't be able to use SSL3.");
 #endif
 
 #if !constant(SSL)
