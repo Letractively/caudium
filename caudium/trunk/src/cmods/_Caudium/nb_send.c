@@ -112,7 +112,7 @@ static void alloc_nb_struct(struct object *obj) {
 }
 
 /* Free an input */
-static INLINE void free_input(input *inp) {
+static void free_input(input *inp) {
   ninputs--;
   switch(inp->type) {
   case NBIO_STR:
@@ -165,7 +165,7 @@ static INLINE void free_input(input *inp) {
 }
 
 /* Allocate new input object and add it to our list */
-static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
+static void new_input(struct svalue inval, NBIO_INT_T len, int first) {
   struct stat s;
   input *inp;
 
@@ -323,7 +323,7 @@ static INLINE void free_data_buf(void) {
 }
 
 /* free output object */
-static INLINE  void free_output(output *outp) {
+static void free_output(output *outp) {
   noutputs--;
   push_int(0);    push_int(0);    push_int(0);
   apply_low(outp->file, outp->set_nb_off, 3);
@@ -378,7 +378,7 @@ static void f_input(INT32 args) {
   pop_n_elems(args-1);
 }
 
-static INLINE void set_outp_write_cb(output *outp) {
+static void set_outp_write_cb(output *outp) {
   /* Need to set_nonblocking again to trigger the write cb again.
    * FIXME: only call when there is more to write...
    */
@@ -480,7 +480,7 @@ static void finished(void)
 
 /* This function reads some data from the current input (file object)
  */
-static INLINE int read_data(void)
+static int read_data(void)
 {
   int buf_size = READ_BUFFER_SIZE;
   NBIO_INT_T to_read  = 0;
@@ -572,7 +572,7 @@ static INLINE int read_data(void)
   return to_read;
 }
 
-static INLINE int do_write(char *buf, int buf_len) {
+static int do_write(char *buf, int buf_len) {
   int fd, written = 0;
   fd = THIS->outp->fd;
  write_retry:
