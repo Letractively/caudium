@@ -3,6 +3,11 @@ AC_INIT(ultraparse.c)
 
 CAUDIUM_MODULE_INIT()
 
+# reset it just in case
+CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
+AC_SUBST(CAUDIUM_CPPFLAGS)
+export CAUDIUM_CPPFLAGS
+
 AC_OUTPUT(Makefile.pre ultrasum, [chmod +x ultrasum; make -f Makefile.pre depend])
 
 
