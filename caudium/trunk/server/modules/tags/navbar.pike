@@ -29,6 +29,7 @@ constant thread_safe=1;
 #include <module.h>
 #define NSESSION id->misc->session_variables->navbar
 
+// compat stuff between Caudium 1.2 and 1.4
 #ifdef Caudium.parse_html
 #define PARSER Caudium.parse_html
 #else
@@ -39,13 +40,21 @@ constant thread_safe=1;
 #endif
 #endif
 
+#if constant(Caudium.add_pre_state) 
+#define ADD_PRE_STATE Caudium.add_pre_state
+#else
+#define ADD_PRE_STATE add_pre_state
+#endif
+
 constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
+
 
 #define NDEBUG(X) if(QUERY(debug)) { report_debug("NAVBAR_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
 
-#define NAV_NB_ELEM 0       // The number of total elements
-#define NAV_NB_ELEM_PAGE 1  // The number of element to display in a page
-#define NAV_CURRENT_PAGE 2  // The current page number
+
+#define	NAV_NB_ELEM	0				// The number of total elements
+#define	NAV_NB_ELEM_PAGE 1	// The number of element to display in a page
+#define	NAV_CURRENT_PAGE 2	// The current page number
 
 inherit "module";
 inherit "caudiumlib";
@@ -355,7 +364,7 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   }
 
   string baseuri = args->basehref || id->not_query;
-  args->href = add_pre_state(baseuri, id->prestate) + "?" + 
+  args->href = ADD_PRE_STATE(baseuri, id->prestate) + "?" + 
     replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
 
   return make_container("a", args, contents);
