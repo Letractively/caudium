@@ -1,5 +1,9 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Added a check in CGI module (and the all modules that inherits it) that
+  ask for a mountpoint that ends with and '/' at the end to avoid potential
+  security problems (eg list of files directories) (SF bug #713835).
+   (Xavier Beaudouin)
 - Fixes in responses given to FTP client in the ftp protocol. Mostly because
   Opera don't like it too mutch. (SF bug #560771)
    (Xavier Beaudouin)
