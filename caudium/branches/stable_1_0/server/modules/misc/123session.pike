@@ -136,7 +136,7 @@ void create (mixed ... foo) {
 // cd34, 10/4/2001, Allow cookies to be set with expire times
   defvar("cookieexpire", -1, "Cookie Expiration Time", TYPE_INT,
          "if 0, do not set a cookie expiration, if &gt;0, set cookie expiration "
-         "for that many seconds.  If &lg;0, set cookie with date 10 years in the future" );
+         "for that many seconds.  If &lt;0, set cookie with date 10 years in the future" );
   defvar("expire", 600, "Expiration Time", TYPE_INT,
          "after how many seconds an unactive session is removed", 0, hide_gc);
   defvar("storage", "memory",
@@ -780,7 +780,7 @@ void set_from_form_remove (string val, int type, object o) {
 //!  name: Garbage Collection Frequency
 //
 //! defvar: cookieexpire
-//! if 0, do not set a cookie expiration, if &gt;0, set cookie expiration for that many seconds.  If &lg;0, set cookie with date 10 years in the future
+//! if 0, do not set a cookie expiration, if &gt;0, set cookie expiration for that many seconds.  If &lt;0, set cookie with date 10 years in the future
 //!  type: TYPE_INT
 //!  name: Cookie Expiration Time
 //
