@@ -71,6 +71,10 @@ void store( mapping meta ) {
     ram_usage += (meta->size?meta->size:0);
     thecache += ([ meta->hash : meta ]);
     break;
+  case "image":
+    ram_usage += (meta->size?meta->size:0);
+    thecache += ([ meta->hash : meta ]);
+    break;
   default:
 #ifdef CACHE_DEBUG
     write( "RAM_CACHE( " + namespace + " ): Unknown object type: " + meta->type + ", discarding.\n" );
