@@ -949,7 +949,7 @@ void create(object conf)
 	 " service one or more extensions, from anywhere in the "
 	 "namespace.");
 
-  defvar("chroot","", "Chrrot path", TYPE_STRING|VAR_MORE,
+  defvar("chroot","", "Chroot path", TYPE_STRING|VAR_MORE,
          "This is the path that is chrooted to before running a program.");
 
   defvar("searchpath", "NONE/", "Search path", TYPE_DIR,
