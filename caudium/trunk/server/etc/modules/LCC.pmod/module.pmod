@@ -18,6 +18,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+//! LDAP Control Center Module
+
+//!
 constant cvs_version = "$Id$";
 
 private void insert_attr(string atype, string|array(string) value,
@@ -52,31 +55,37 @@ private void insert_attr(string atype, string|array(string) value,
         data[atype] += value;
 }
 
+//!
 void add_attribute(string name, string|array(string) value, mapping(string:array(string)) data)
 {
     insert_attr(name, value, "add", data);
 }
 
+//!
 void replace_attribute(string name, string|array(string) value, mapping(string:array(string)) data)
 {
     insert_attr(name, value, "replace", data);
 }
 
+//!
 void add_class(string|array(string) name, mapping(string:array(string)) data)
 {
     insert_attr("objectClass", name, "add", data);
 }
 
+//!
 void replace_class(string name, mapping(string:array(string)) data)
 {
     insert_attr("objectClass", name, "replace", data);
 }
 
+//!
 void delete_attribute(string name, mapping(string:array(string)) data)
 {
     insert_attr(name, 0,  "delete", data);
 }
 
+//!
 void delete_class(string name, mapping(string:array(string)) data)
 {
     insert_attr(name, 0,  "delete", data);
