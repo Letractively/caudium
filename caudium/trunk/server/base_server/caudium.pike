@@ -34,6 +34,7 @@ object backend_thread;
 object argcache;
 object cache_manager;
 object storage_manager;
+object snmp_agent;
 
 #define FLUSH_MODULES cache_manager->get_cache()->flush("^modules\:\/\/")
 
@@ -332,6 +333,15 @@ mapping shutdown()
   return IFiles->get(sprintf("html://shutdown-%s.html",QUERY(cif_theme)), ([
     "docurl":caudium->docurl,
     "PWD":getcwd()]));
+}
+
+// non-RIS
+static void create_snmp_agent()
+{
+  if (GLOBVAR(snmp_enable)) {
+    report_notice("Starting SNMP agent.\n");
+    snmp_agent=((program)"snmp_agent")(caudium);
+  }
 }
 
 // non-RIS
@@ -2291,6 +2301,17 @@ array(int) invert_color(array color)
 private void define_global_variables(int argc, array (string) argv)
 {
   int p;
+  globvar("snmp_enable", 0, "SNMP Agent: Enable SNMP Agent", TYPE_FLAG,
+	"If set to Yes, the server will enable access to server status "
+        "via SNMP.");
+
+  globvar("snmp_get_community", "public", "SNMP Agent: Get Community", TYPE_STRING,
+        "The community to enable get access.");
+
+  globvar("snmp_port", 161, "SNMP Agent: Listen Port", TYPE_INT,
+        "The port to start the SNMP listener on. Caudium must be "
+        "started as super user to start the listener on a port less than "
+        "1024. Also, you may only have one listener on a given port.");
 
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
           "If set to Yes, the server will enable the global JavaScript support. "
@@ -3495,6 +3516,9 @@ int main(int argc, array(string) argv)
 
 #endif /* THREADS */
   create_js_context();
+
+  // start the snmp agent, if enabled.
+  create_snmp_agent();
 
   // Signals which cause a restart (exitcode != 0)
   foreach(({ "SIGINT" }), string sig) {
