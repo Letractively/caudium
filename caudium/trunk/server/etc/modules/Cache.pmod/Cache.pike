@@ -25,7 +25,7 @@
 //! This is really the brains of the cache. If that's the case why is it
 //! so messy? Dont ask me.
 
-#ifdef THREADS
+#ifdef ENABLE_THREADS
 static Thread.Mutex mutex = Thread.Mutex();
 #define LOCK() object __key = mutex->lock()
 #define UNLOCK() destruct(__key)

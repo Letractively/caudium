@@ -22,14 +22,15 @@
 //! This module implements multi-namespaced caching of data from within
 //! Caudium.
 
-#ifdef THREADS
+#ifdef ENABLE_THREADS
   static Thread.Mutex mutex = Thread.Mutex();
-  write("The Caudium Caching sub-system hasn't been well tested when operating\n");
-  write("in threaded mode, be warned that there may be deadlocks.\n");
-  write("Starting anyway, as you request.\n");
-# define LOCK() object __key = mutex->lock()
+#define PRELOCK() object __key;
+#define LOCK() __key = mutex->lock()
+#define UNLOCK() destruct(__key)
 #else
-# define LOCK() 
+#define PRELOCK()
+#define LOCK() 
+#define UNLOCK()
 #endif
 
 constant cvs_version = "$id: cache_manager.pike,v 1.0 2001/12/26 18:21:00 james_tyson Exp $";
@@ -52,22 +53,30 @@ object caudium;
 
 //! Create the datastructures for the cache(s).
 void create() {
+  PRELOCK();
   LOCK();
   caches = ([ ]);
   client_caches = ([ ]);
+#ifdef ENABLE_THREADS
+  write("The Caudium Caching sub-system hasn't been well tested when operating\n");
+  write("in threaded mode, be warned that there may be deadlocks.\n");
+  write("Starting anyway, as you request.\n");
+#endif
+
 }
 
 //! Trigger delayed start for the cache, this stops us from having to load
 //! up indexes for potentially large caches unless they are actually needed
 //! see also: delayed module loading.
 static void really_start() {
+  PRELOCK();
   LOCK();
   if ( _really_started ) return;
 #ifdef CACHE_DEBUG
   write( "CACHE: Delayed cache start triggered. Loading caching subsystem: " );
 #endif
+  UNLOCK();
   caudium->cache_start();
-  _really_started = 1;
 #ifdef CACHE_DEBUG
   write( "done.\n" );
 #endif
@@ -78,6 +87,7 @@ static void really_start() {
 //!
 //! @todo please help me make this not suck. it's way off at the moment.
 string status() {
+  PRELOCK();
   LOCK();
   if ( ! _really_started ) {
     return "<b>Caching Sub-System Is Currently Innactive.</b>";
@@ -116,6 +126,7 @@ string status() {
 
 //! internal method used to create a cache instance.
 static void create_cache( string namespace ) {
+  PRELOCK();
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
@@ -161,7 +172,9 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
 	// Call set_max_ram_size() and set_max_disk_size() on every cache.
+  PRELOCK();
   LOCK();
+  _really_started = 1;
 #ifdef CACHE_DEBUG
   write( sprintf( "CACHE_MANAGER: start( %d, %d, %d, \"%s\", %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _path, _default_ttl, _default_halflife ) );
 #endif
@@ -183,6 +196,7 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 //! with the largest size and force objects to expire until the total size of
 //! all caches is back within operational tolerances.
 static void watch_size() {
+  PRELOCK();
   LOCK();
   if ( ! _really_started ) {
     call_out( watch_size, sleepfor() );
@@ -265,6 +279,7 @@ static void watch_size() {
 //! Check to see whether any caches halflifes have expired - i.e. they havent
 //! been used for any operations within a certain period of time.
 static void watch_halflife() {
+  PRELOCK();
   LOCK();
   if ( ! _really_started ) {
     call_out( watch_halflife, 3600 );
@@ -296,6 +311,7 @@ static void watch_halflife() {
 //! cache from the module itself.
 object get_cache( void|string|object one ) {
   really_start();
+  PRELOCK();
   LOCK();
   string namespace;
   if ( stringp( one ) )
@@ -322,7 +338,10 @@ object get_cache( void|string|object one ) {
     return client_caches[ namespace ];
   }
   else {
-    client_caches += ([ namespace : Cache.Client( low_get_cache( namespace ), low_get_cache, namespace ) ]);
+    UNLOCK();
+    object _cache = low_get_cache(namespace);
+    LOCK();
+    client_caches += ([ namespace : Cache.Client( _cache, low_get_cache, namespace ) ]);
     return client_caches[ namespace ];
   }
 }
@@ -332,10 +351,13 @@ object get_cache( void|string|object one ) {
 //! @param namespace
 //! The namespace of the cache we want.
 static object low_get_cache( string namespace ) {
-  really_start();
+  PRELOCK();
   LOCK();
-  if ( ! caches[ namespace ] )
+  if ( ! caches[ namespace ] ) {
+    UNLOCK();
     create_cache( namespace );
+  }
+  LOCK();
   return caches[ namespace ];
 }
 
@@ -351,6 +373,7 @@ void destroy() {
 //! if this parameter exist then try and find a cache by the corresponding name
 //! and shut it down. If it's void then shut them all down.
 void stop( void|string namespace ) {
+  PRELOCK();
   LOCK();
   if ( ! _really_started ) return;
   if ( namespace ) {

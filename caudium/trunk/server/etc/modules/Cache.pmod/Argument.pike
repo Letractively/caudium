@@ -19,6 +19,8 @@
  *
  */
 
+#define START() if(!objectp(cache))cache=cache_manager->get_cache()
+
 constant cvs_version = "$Id$";
 
 inherit "base_server/cachelib";
@@ -33,10 +35,10 @@ object cache;
 
 void create( object _cache_manager) {
   cache_manager = _cache_manager;
-  cache = cache_manager->get_cache();
 }
 
 string store(mapping args) {
+  START();
   array b = values(args), a = sort(indices(args),b);
   string data = MIME.encode_base64(encode_value(({a,b})),1);
   string id = get_hash(data);
@@ -45,6 +47,7 @@ string store(mapping args) {
 }
 
 void|mapping lookup(string id, void|string client) {
+  START();
   //what happens if it's not there? Argh!
   return cache->retrieve(id);
 }
