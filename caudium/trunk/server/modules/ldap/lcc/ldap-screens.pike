@@ -305,5 +305,11 @@ mapping get_store(object id, string name)
     if (SSTORE(id) && SSTORE(id)[name])
         return SSTORE(id)[name];
 
-    return 0;
+    if (!SSTORE(id))
+        SSTORE(id) = ([]);
+
+    if (!SSTORE(id)[name])
+        SSTORE(id)[name] = ([]);
+    
+    return SSTORE(id)[name];
 }
