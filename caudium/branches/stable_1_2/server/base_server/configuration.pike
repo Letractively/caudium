@@ -25,7 +25,7 @@
 //! inherits: logformat
 //! cvs_version: $Id$
 
-string cvs_ve rsion = "$Id$";
+string cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
 #ifdef PROFILE
