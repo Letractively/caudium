@@ -1,4 +1,4 @@
-caudium (1:1.0.8rc1-7) unstable; urgency=low
+caudium (1:1.0.9rc1-1) unstable; urgency=low
 
   * Got rid of the Pike-based port tests from preconfig phase. It
     would fail if there were no Pike installed on the system.
