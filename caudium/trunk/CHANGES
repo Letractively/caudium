@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix for the RXML parsers sending the wrong content-type header when parsing
+  a non-html document.
+   (James Tyson)
 - Pikegraphy now likes filenames with spaces.
    (Bill Welliver)
 - Watchdog should now work with servers that change uid.
