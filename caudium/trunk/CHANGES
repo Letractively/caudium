@@ -82,3 +82,6 @@ Changes since last Roxen 1.3
   variable.
 + Added <dice/> tag from Roxen 2.1 - return a random number based on the
   "type" attribute.
++ Moved to an inline documentation format. See doc/docspec.html for the
+  specification. This will hopefully lead to more up-do-date docs and
+  better documented code.
