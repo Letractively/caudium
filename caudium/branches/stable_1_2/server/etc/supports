@@ -106,7 +106,7 @@ mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascr
 
 # Safari is Apple browser based on Konqueror3. 
 # See http://www.apple.com/safari/
-mozilla/[5-9].*applewebkit/[4-8].*safari/[4-8].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+mozilla/[5-9].*applewebkit/[4-9].*safari/[4-9].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				konqueror3, safari
@@ -117,7 +117,7 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				omniweb
-				
+
 # SecuritySpace WebSurvey crawler masqueraded as mozilla
 # http://www.securityspace.com/s_survey/data/index.html
 .*securityspace.* robot securityspace
