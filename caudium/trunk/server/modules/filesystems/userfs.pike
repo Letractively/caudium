@@ -50,6 +50,22 @@ constant module_unique = 0;
 // import Array;
 // import Stdio;
 
+/*
+ * Function dhash :
+ *
+ * string dhash(string what, int depth)
+ *
+ * what  is the string hash
+ * depth is the depth of the hash
+ *
+ * ex : dhash("bidule", 3) will give "b/i/d/bidule"
+ *
+ */
+string dhash(string what, int depth)
+{
+  return ((what/1)[0..depth-1] * "/") + "/" + what;
+}
+
 int uid_was_zero()
 {
   return !(getuid() == 0); // Somewhat misnamed function.. :-)
@@ -65,6 +81,26 @@ int hide_pdir()
   return !QUERY(homedir);
 }
 
+int hide_directory_hash()
+{
+  return !QUERY(directory_hash);
+}
+
+int hide_www_virtual_hosting()
+{
+  return !QUERY(virtual_hosting);
+}
+
+int hide_www_prefix()
+{
+  return !QUERY(www_virtual_hosting);
+}
+
+int hide_banish_list()
+{
+  return !QUERY(blist);
+}
+
 void create()
 {
   filesystem::create();
@@ -73,6 +109,15 @@ void create()
 	 "This is where the module will find the files in the real "+
 	 "file system",
 	 0, hide_searchpath);
+
+  defvar("directory_hash", 0, "Hashing: Hash userdirectory", TYPE_FLAG,
+         "If set the module will hash the path to the real user directory "+
+	 "e.g. if you the user is <em>\"foouser\"</em> the module will try "+
+	 "access to <em>\"f/o/o/foouser\"</em> instead", 0, hide_searchpath);
+	  
+  defvar("dhash_depth",3,"Hashing: Hash depth", TYPE_INT,
+         "The length of the hash depth, e.g. the number of directory to use "+
+	 "for the hashing...", 0, hide_directory_hash);
 
   set("mountpoint", "/~");
   
@@ -87,8 +132,11 @@ void create()
   defvar("banish_list", ({ "root", "daemon", "bin", "sys", "admin", 
 			   "lp", "smtp", "uucp", "nuucp", "listen", 
 			   "nobody", "noaccess", "ftp", "news", 
-			   "postmaster" }), "Banish list",
-	 TYPE_STRING_LIST, "None of these users are valid.");
+			   "postmaster" }), "Banish list: Banish list",
+	 TYPE_STRING_LIST, "None of these users are valid.", 0, hide_banish_list);
+
+  defvar("blist",1,"Banish list: Enable banish list", TYPE_FLAG,
+         "If set the banish list will be activated.");
   
   defvar("own", 0, "Only owned files", TYPE_FLAG, 
 	 "If set, users can only send files they own through the user "
@@ -96,7 +144,7 @@ void create()
 	 "together with a project, but it will enhance security, since it "
 	 "will not be possible to link to some file the user does not own.");
 
-  defvar("virtual_hosting", 0, "Virtual User Hosting", TYPE_FLAG, 
+  defvar("virtual_hosting", 0, "Virtual User Hosting: Virtual User Support", TYPE_FLAG, 
 	 "If set, virtual user hosting is enabled. This means that "
 	 "the module will look at the \"host\" header to determine "
 	 "which users directory to access. If this is set, you access "
@@ -108,6 +156,18 @@ void create()
 	 "mountpoint to \"/\". "
 	 "To set this up you need to add CNAME entries for all your "
 	 "users pointing to the IP(s) of this virtual server.");
+
+  defvar("www_virtual_hosting", 0, "Virtual User Hosting: Stupid user workaround", TYPE_FLAG,
+         "If set, a work around/hack about virtual hosting is enabled. "
+         "This mean that not only the host module <b>will</b> look at "
+         "the \"host\" header to determine which users directory to access, "
+         "but also correct some stupid users attempt of adding \"www\" to "
+         "the name of the site, eg. :<br>"
+         "the site <tt><b>http://user.domain.com/&lt;mountpoint&gt;</b></tt> "
+         "can be <b>also</b> accessed by <tt><b>http://<u>www</b>.user.domain.com/&lt;mountpoint&gt;</b></tt>.", 0, hide_www_virtual_hosting);
+
+  defvar("www_prefix", "www", "Virtual User Hosting: Prefix to use for the user workaround", TYPE_STRING,
+         "This is the prefix to add for the virtual user hosting", 0, hide_www_prefix);
 
   defvar("useuserid", 1, "Run user scripts as the owner of the script",
 	 TYPE_FLAG|VAR_MORE,
@@ -174,6 +234,17 @@ static array(string) find_user(string f, object id)
       } else {
 	u = host;
       }
+      // case of www.<myloginname>
+      if(QUERY(www_virtual_hosting)) {
+        if ( u == QUERY(www_prefix))
+        {
+          string host = (id->misc->host / ":")[0];
+	  if(search(host,".") != -1) {
+	    //sscanf(host, "%*s.%s.%*s",u);
+	    sscanf(host, QUERY(www_prefix)+".%s.%*s",u);
+	  } else u = host;
+        }
+      }
     }
   } else {
     if((<"", "/", ".">)[f])
@@ -227,6 +298,7 @@ mixed find_file(string f, object got)
     {
       us = got->conf->userinfo( u, got );
       // No user, or access denied.
+      if(QUERY(blist))
       if(!us || BAD_PASSWORD(us) || banish_list[u])
       {
 	if (!banish_reported[u]) {
@@ -246,9 +318,16 @@ mixed find_file(string f, object got)
       if (QUERY(homedir))
 	dir =  us[ 5 ] + "/" + QUERY(pdir) + "/";
       else
-	dir = QUERY(searchpath) + "/" + u + "/";
+       if (QUERY(directory_hash))
+          dir = combine_path(QUERY(searchpath)+"/",dhash(u, QUERY(dhash_depth))) + "/";
+       else
+	  dir = QUERY(searchpath) + "/" + u + "/";
 
       dir = replace(dir, "//", "/");
+
+#ifdef USERFS_DEBUG
+      roxen_perror(sprintf("USERFS: find_file(%O, X) => dir:%O\n", f, dir));
+#endif
 
       // If public dir does not exist, or is not a directory 
       st = filesystem::stat_file(dir, got);
@@ -308,7 +387,13 @@ string real_file( mixed f, mixed id )
       else
 	f = us[ 5 ] + QUERY(pdir) + f;
     } else
-      f = QUERY(searchpath) + u + "/" + f;
+       if (QUERY(directory_hash))
+          f = combine_path(QUERY(searchpath)+"/",dhash(u, QUERY(dhash_depth))) + "/" + f;
+       else
+          f = QUERY(searchpath) + u + "/" + f;
+#ifdef USERFS_DEBUG
+      roxen_perror(sprintf("USERFS: real_file(%O, X)\n", f));
+#endif
     
     // Use the inherited stat_file
     fs = filesystem::stat_file( f,id );
@@ -350,8 +435,10 @@ mapping|array find_dir(string f, object got)
       array(string) us;
       us = got->conf->userinfo( u, got );
       if(!us) return 0;
+      if(QUERY(blist))
       if((!us) || BAD_PASSWORD(us))   		      return 0;
       // FIXME: Use the banish multiset.
+      if(QUERY(blist))
       if(search(QUERY(banish_list), u) != -1)         return 0;
       if(us[5][-1] != '/')
 	f = us[ 5 ] + "/" + QUERY(pdir) + f;
@@ -359,7 +446,14 @@ mapping|array find_dir(string f, object got)
 	f = us[ 5 ] + QUERY(pdir) + f;
     }
     else
-      f = QUERY(searchpath) + u + "/" + f;
+       if (QUERY(directory_hash))
+          f = combine_path(QUERY(searchpath)+"/",dhash(u, QUERY(dhash_depth))) + "/" + f;
+       else
+          f = QUERY(searchpath) + u + "/" + f;
+#ifdef USERFS_DEBUG
+          roxen_perror(sprintf("USERFS: find_dir(%O, X)\n", f));
+#endif
+	  
     array dir = filesystem::find_dir(f, got);
     if(QUERY(virtual_hosting) && arrayp(dir))
       return ([ "files": dir ]);
@@ -390,15 +484,23 @@ mixed stat_file( mixed f, mixed id )
     if(query("homedir"))
     {
       if(!us) return 0;
+      if(QUERY(blist))
       if((!us) || BAD_PASSWORD(us))		      return 0;
       // FIXME: Use the banish multiset.
+      if(QUERY(blist))
       if(search(QUERY(banish_list), u) != -1)         return 0;
       if(us[5][-1] != '/')
 	f = us[ 5 ] + "/" + QUERY(pdir) + f;
       else
 	f = us[ 5 ] + QUERY(pdir) + f;
     } else
-      f = QUERY(searchpath) + u + "/" + f;
+       if (QUERY(directory_hash))
+          f = combine_path(QUERY(searchpath)+"/",dhash(u, QUERY(dhash_depth))) + "/" + f;
+       else
+          f = QUERY(searchpath) + u + "/" + f;
+#ifdef USERFS_DEBUG
+        roxen_perror(sprintf("USERFS: stat_file(%O, X)\n", f));
+#endif
     st = filesystem::stat_file( f,id );
     if(!st) return 0;
     if(QUERY(own) && (int)us[2] != st[-2]) return 0;
