@@ -1778,7 +1778,7 @@ mapping|int low_get_file(object id, int|void no_magic)
   
   // Map the file extensions, but only if there is a file...
   if(objectp(fid)&&
-     (tmp=file_extension_modules(loc=extension(id->not_query), id)))
+     (tmp=file_extension_modules(loc=Caudium.extension(id->not_query), id)))
     foreach(tmp, funp)
     {
       TRACE_ENTER("Extension module", funp);

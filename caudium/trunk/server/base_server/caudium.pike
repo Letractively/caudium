@@ -3174,7 +3174,7 @@ void scan_module_dir(string d)
         }
         module_stat_cache[path+file]=stat;
 	
-        switch(extension(file)) {
+        switch(Caudium.extension(file)) {
             case "pike":
             case "lpc":
               if(catch{
@@ -3198,7 +3198,7 @@ void scan_module_dir(string d)
                 // Load OK  
                 if (module_info) {
                   // Module load OK.    
-                  allmodules[ file-("."+extension(file)) ] = module_info;
+                  allmodules[ file-("."+Caudium.extension(file)) ] = module_info;
                 } else {
                   // Disabled module.
                   report_notice("Module %O is disabled.\n", path+file);
