@@ -1,0 +1,195 @@
+#! /bin/sh
+# postinst script for caudium
+# 
+# $Id$
+#
+# see: dh_installdeb(1)
+
+set -e
+
+. /usr/share/debconf/confmodule
+db_version 2.0
+db_capb
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see /usr/share/doc/packaging-manual/
+#
+# quoting from the policy:
+#     Any necessary prompting should almost always be confined to the
+#     post-installation script, and should be protected with a conditional
+#     so that unnecessary prompting doesn't happen if a package's
+#     installation fails and the `postinst' is called with `abort-upgrade',
+#     `abort-remove' or `abort-deconfigure'.
+CAUDIUM_PIKE=/usr/lib/caudium/base_server/caudium.pike
+
+case "$1" in
+    configure)
+
+    update-alternatives --install /usr/bin/htpasswd  htpasswd \
+				  /usr/bin/htpasswd-caudium 10 \
+			--slave /usr/share/man/man1/htpasswd.1.gz \
+			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
+
+    db_get caudium/config_port
+    if [ -n "$RET" -a "$RET" != "22202" ]; then
+        CONFIG_PORT="$RET"
+	sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new && \
+	mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
+    fi
+
+    db_get caudium/listen_on
+    PORTNO="$RET"
+
+    if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
+     sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/localhost.sample > \
+         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
+  	 /etc/caudium/servers/localhost
+    fi
+    
+    db_get caudium/start_options
+    START_OPTIONS=
+
+    for o in `echo $RET | sed -e 's/,//g'`; do
+	case $o in
+	    threads) START_OPTIONS="$START_OPTIONS --with-threads" ;;
+	    debug) START_OPTIONS="$START_OPTIONS --with-debug" ;;
+	    once) START_OPTIONS="$START_OPTIONS --once" ;;
+	    profile) START_OPTIONS="$START_OPTIONS --with-profile" ;;
+	    fd-debug) START_OPTIONS="$START_OPTIONS --with-fd-debug" ;;
+	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
+	esac
+    done
+    if [ ! -f /etc/default/caudium ]; then
+	cat <<EOF > /etc/default/caudium
+#
+# This variable will be joined with the default
+# Caudium startup options in the init script
+#
+# This file has been generated automatically the first
+# time Caudium was installed on this machine. You can
+# modify the START_OPTIONS variable below at your will
+# as this file won't ever be modified by the Caudium
+# package.
+#
+# For available options type
+# /usr/lib/caudium/start --help
+#
+START_OPTIONS="$START_OPTIONS"
+EOF
+    fi
+
+    db_get caudium/experimental_http
+    if test "$RET" = "true"; then
+	PROTOCOL=http2
+    else
+	PROTOCOL=http
+    fi
+    
+    if [ -f /etc/caudium/servers/localhost ]; then
+	sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
+         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
+  	 /etc/caudium/servers/localhost
+    fi
+
+    
+# -----------------------
+if [ ! -f /var/www/index.html ]; then
+    cat<<EOT > /var/www/index.html
+<html>
+<head><title>Welcome to Your New Home Page!</title></head>
+
+<body>
+<h1>Welcome to Your New Home Page!</h1>
+
+<!-- Most of the text is stolen from the Apache package (and then from the Roxen package :) -->
+
+  <p>This is the default web page installed by the Debian package of the Caudium Webserver.
+  It is the responsibility of the administrator of the machine to replace it with
+  a local page.
+
+  <p><strong>If you encounter this page when you were expecting some other content, you
+  should report it to the administrator of the machine.</strong> Please note that
+  this machine is not affiliated with Debian. Debian is software installed on the
+  machine. Do not report problems with this site to Debian.
+
+  <p>Debian is a free operating system for your computer.
+  See our <a href="http://www.debian.org/"> web page</a> for more information.
+  Information about the Caudium Webserver can be found on
+  <a href="http://caudium.net/">their home page</a>.
+<!--  For information and downloading The Debian package of Roxen please take a look at the
+  <a href="http://www.debian.org/Packages/stable/web/roxen.html">Roxen package page</a>. -->
+
+Unless you changed its configuration, the server is configured as follows:<p>
+
+<ul>
+<li> Configuration files can be found in /etc/caudium and /etc/caudium/servers .
+<li> The DocumentRoot, which is the directory under which all your HTML files should exist, is set to /var/www.
+<li> CGI scripts are looked for in /usr/lib/cgi-bin, which is where Debian packages will place their scripts.
+<li> Log files are placed in /var/log/caudium, and will be rotated monthly.
+<li> The default directory index is index.html, meaning that requests for a directory /foo/bar/ will give the contents of
+       the file /var/www/foo/bar/index.html if it exists (assuming that /var/www is your DocumentRoot).
+<li> User directories are enabled, and user documents will be looked for in the public_html directory of the user homes.
+</ul>
+<hr width="75%">
+<center>
+<pr size="medium" color="blue">
+</center>
+</body>
+</html>
+EOT
+fi
+    db_stop
+
+    #
+    # Some modules inherit other with relative paths
+    #
+    cd /usr/lib/caudium/
+    for d in ../../share/caudium/*; do
+	ln -sf ${d} /usr/lib/caudium/
+    done
+
+    DIRS="/var/run/caudium /var/state/caudium /var/cache/caudium /etc/caudium/servers /var/log/caudium"
+    if [ ! -x /usr/sbin/dpkg-statoverride ]; then
+	# Now let's take care of permissions
+	# if it is the first time we run Caudium
+	if [ ! -f /etc/caudium/servers/Global_Variables ]; then    	    
+	    for d in $DIRS; do
+		if test -d $d; then
+		    chown -R www-data.www-data $d
+		fi
+	    done
+	fi
+    else
+	for d in $DIRS; do
+	    dpkg-statoverride --remove $d > /dev/null 2>&1 || true
+	    dpkg-statoverride --update --add www-data www-data 0751 $d
+	done
+    fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    db_stop
+    
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0
+
+
