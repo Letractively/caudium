@@ -1551,7 +1551,7 @@ mixed get_scope_var(string variable, void|string scope, object id)
 //!  The request id object.
 //! returns:
 //!  1 if the variable was set correctly, 0 if it failed.
-//! name: set_scope_var - return the value of a scope variable
+//! name: set_scope_var - set the value of a scope variable
 //! see_also: get_scope_var
 //! see_also: parse_scope_var
 
