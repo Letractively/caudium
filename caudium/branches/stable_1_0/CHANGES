@@ -1,6 +1,9 @@
 Changes in Caudium 1.0.XX
 -------------------------
 - Removed old network neighbourhood code.
+- Fixed bug in connection timeout code. When running in non-threaded
+  mode, long connections (ie large downloads) would be timed out
+  incorrectly.
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------
