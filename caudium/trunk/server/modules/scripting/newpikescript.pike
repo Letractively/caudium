@@ -24,6 +24,10 @@
 constant cvs_version="$Id$";
 constant thread_safe=1;
 
+#if !constant(report_notice)
+#define report_notice werror
+#endif
+
 #if !constant(Remote)
 #if constant(roxen)
 // This is a Roxen without Remote, but I don't want to throw an error.
