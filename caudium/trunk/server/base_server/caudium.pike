@@ -4095,3 +4095,13 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_DIR|VAR_MORE
 //!  name: Argument Cache: Cache directory
 //
+//! defvar: InternalHTMLPath
+//! Directory where the internal HTML files are located.
+//!  type: TYPE_DIR|VAR_MORE
+//!  name: Internal files: HTML files path
+//
+//! defvar: InternalImagePath
+//! Directory where the internal images are located.
+//!  type: TYPE_DIR|VAR_MORE
+//!  name: Internal files: Image files path
+//
