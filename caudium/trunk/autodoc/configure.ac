@@ -1,0 +1,11 @@
+#
+# $Id$
+#
+AC_INIT(Makefile.in)
+
+AC_SET_MAKE
+
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+
