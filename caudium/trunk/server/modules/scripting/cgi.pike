@@ -880,7 +880,8 @@ class CGIScript
     environment =(QUERY(env)?getenv():([]));
     environment |= global_env;
     environment |= build_env_vars( id->realfile, id, id->misc->path_info );
-    environment |= build_roxen_env_vars(id);
+    if(QUERY(Enhancements))
+      environment |= build_roxen_env_vars(id);
     if(id->misc->ssi_env)
       environment |= id->misc->ssi_env;
     if(id->misc->is_redirected)
@@ -1047,7 +1048,18 @@ void create(object conf)
 	 "NAME=value\n"
 	 "NAME=value\n"
 	 "</pre>Please note that normal CGI variables will override these.");
-
+  defvar("Enhancements", 1, "Caudium CGI Variables", TYPE_FLAG|VAR_MORE,
+	 "Add the extra Caudium environment variables which are: <dl>\n"
+	 "<dt><b>COOKIE_[name]</b><dd>The cookie named [name]."
+	 "<dt><b>VAR_[name]</b><dd>The form variable named [name]."
+	 "<dt><b>PRESTATE_[name]</b><dd>The prestate [name]."
+	 "<dt><b>SUPPORTS_[name]</b><dd>The all applicable 'supports' vars."
+	 "<dt><b>COOKIES, VARIABLES, PRESTATES, SUPPORTS</b>"
+	 "<dd>Space-separated lists of all COOKIE_, VAR_, PRESTATE_ and "
+	 "SUPPORTS_ variables set.</dl>"
+	 "<p>Sometimes this breaks scripts and you might want to disable "
+	 "this option.");
+	 
   defvar("location", "/cgi-bin/", "CGI-bin path", TYPE_LOCATION, 
 	 "This is where the module will be inserted in the "
 	 "namespace of your server. The module will, per default, also"
