@@ -44,54 +44,64 @@ inherit "module";
 
 constant module_type = MODULE_TYPES;
 constant module_name = "Content types";
-constant module_doc  = "This module handles all normal extension to "+
-	     "content type mapping. Given the file 'foo.html', it will "+
-	     "normally set the content type to 'text/html'.";
+constant module_doc  = "This module handles all normal extension to "
+       "content type mapping. Given the file 'foo.html', it will "
+       "normally set the content type to 'text/html'.";
 constant module_unique = 1;
 
-mapping (string:string) extensions=([]), encodings=([]);
-mapping  (string:int) accessed=([]);
+mapping (string:string) extensions = ([ ]);
+mapping (string:string) encodings = ([ ]);
+mapping (string:int) accessed = ([ ]);
 
 void create()
 {
   defvar("exts", "\n"
-	 "# This will include the defaults from a file.\n"
-	 "# Feel free to add to this, but do it after the #include line if\n"
-	 "# you want to override any defaults\n"
-	 "\n"
-	 "#include <etc/extensions>\n\n", "Extensions", 
-	 TYPE_TEXT_FIELD, 
-	 "This is file extension "
-	 "to content type mapping. The format is as follows:\n"
-	 "<pre>extension type encoding<br />gif image/gif<br />"
-	 "gz STRIP application/gnuzip</pre>"
-	 "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
-	 "notes/iana/assignments/media-types/media-types\">ftp://ftp"
-	 ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
+    "# This will include the default extensions from a file.\n"
+    "# Feel free to add to this, but do it after the #include line if\n"
+    "# you want to override any defaults\n"
+    "\n"
+    "#include <etc/content-encodings>\n\n", "Extensions", 
+    TYPE_TEXT_FIELD, 
+    "This is file extension "
+    "to content type mapping. The format is as follows:\n"
+    "<pre>extension type encoding<br />gif image/gif<br />"
+    "gz STRIP application/gnuzip</pre>"
+    "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
+    "notes/iana/assignments/media-types/media-types\">ftp://ftp"
+    ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
   defvar("extsfile", "/etc/mime.types", "System-wide extension file",
-         TYPE_STRING,
-	 "This file holds extra extension-to-contenttype mapping, "
-	 "in the following format:<br />"
-	 "<pre>content-type&lt;one or more tabs&gt;extension(s) (separated by spaces if more than one)</pre><br />"
-	 "If the specified file does not exist, the module silently discards this setting (so you are "
-	 "safe to leave it as it is, if you are not sure). Empty lines and lines beginning with a '#' are also "
-	 "discarded.");
-	 // the parser is actually a bit more relaxed that that...
-  defvar("default", "application/octet-stream", "Default content type",
-	 TYPE_STRING, 
-	 "This is the default content type which is used if a file lacks "
-	 "extension or if the extension is unknown.\n");
+    TYPE_STRING,
+    "This file holds extra extension-to-contenttype mapping, "
+    "in the following format:<br />"
+    "<pre>content-type&lt;one or more tabs&gt;extension(s) (separated by spaces if more than one)</pre><br />"
+    "If the specified file does not exist, the module silently discards this setting (so you are "
+    "safe to leave it as it is, if you are not sure). Empty lines and lines beginning with a '#' are also "
+    "discarded.<br />Anything listed both in this file and the extensions file shipped with Caudium, this"
+    "file will take precedence.");
+  defvar("default_ct", "application/octet-stream", "Default content type",
+    TYPE_STRING, 
+    "This is the default content type which is used if a file lacks "
+    "extension or if the extension is unknown.\n");
+  defvar("encs", "\n"
+    "# This will include the default enodings from a file.\n"
+    "# Feel free to add to this, but do it after the #include line if\n"
+    "# you want to override any defaults\n"
+    "\n"
+    "#include <etc/content-encodings>\n\n", "Encodings",
+    TYPE_TEXT_FIELD,
+    "This is file extensions to content encodings mapping.\n");
 }
 
 string status()
 {
   string a,b;
   int even = 0;
+
   // accessed list follows
-  b="<h2>Accesses per extension</h2>\n\n";
+  b = "<h2>Accesses per extension</h2>\n\n";
   b += "<table cellpadding=\"4\" cellspacing=\"5\">";
-  foreach(indices(accessed), a)
-    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + accessed[ a ] + "</td><td>" + a + "</td></tr>\n";
+  foreach(sort(indices(accessed)), a)
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + accessed[ a ] + "</td></tr>\n";
   b += "</table>\n";
 
   // extension list follows
@@ -100,17 +110,18 @@ string status()
   a = "";
   even = 0;
   foreach(sort(indices(extensions)), a)
-    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + extensions[ a ] + "</td><td>" + a + "</td></tr>\n";
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + extensions[ a ] + "</td></tr>\n";
   b += "</table>\n";
 
-  // encoding list follows
+  // encodings list follows
   b += "<h2>Encodings list</h2>\n\n";
   b += "<table cellpadding=\"4\" cellspacing=\"5\">";
   a = "";
   even = 0;
   foreach(sort(indices(encodings)), a)
-    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + encodings[ a ] + "</td><td>" + a + "</td></tr>\n";
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + encodings[ a ] + "</td></tr>\n";
   b += "</table>\n";
+
   return b;
 }
 
@@ -119,55 +130,91 @@ string comment()
   return sizeof(extensions) + " extensions, " + sizeof(accessed)+" used.";
 }
 
-void parse_ext_string(string exts)
+void parse_ext_string(string exts, mapping m)
 {
-  string line;
-  array(string) f;
 
-  foreach((exts-"\r")/"\n", line)
-  {
-    if(!strlen(line))  continue;
-    if(line[0]=='#')
-    {
-      string file;
-      if(sscanf(line, "#include <%s>", file))
-      {
-	string s;
-	if(s=Stdio.read_bytes(file)) parse_ext_string(s);
-      }
-    } else {
-      f = (replace(line, "\t", " ")/" "-({""}));
-      if(sizeof(f) >= 2)
-      {
-	if(sizeof(f) > 2) encodings[lower_case(f[0])] = lower_case(f[2]);
-	extensions[lower_case(f[0])] = lower_case(f[1]);
+  /*
+   * ok, so the "fuck it all and fucking no regrets" extensions parser:
+   * format is as:
+   * extension[" "extension...][\t]+content-type
+   * or:
+   * content-type[\t]+extension[" "extension...]
+   * or:
+   * #include <file>
+   *
+   * the actual case is determined by search for a forward-slash in the
+   * first token.
+   *
+   * also usable for encodings parsing, as the encodings' format is a subset of the
+   * extensions'.
+   * leading and trailing whitespaces are removed before any parsing is done!
+   *
+   * for now, compatibility is kept with the etc/extensions file (ie. STRIP and encodings),
+   * but i'm not planning to keep it around for long.
+   *
+   */
+
+  string line, tmp, lhs, rhs;
+  array tmpa;
+ 
+  if( !exts )
+    return;
+
+  foreach( (exts - "\r")/"\n", line) {
+    line = String.trim_whites(lower_case( line ));
+
+    // throw away empty lines
+    if( !strlen(line) )
+      continue;
+
+    if( line[0] == '#' ) {
+      // if the line incidates an #inclusion
+      if( sscanf(line, "#include <%s>", string file) ) {
+        // then parse it
+        if( string s = Stdio.read_bytes(file) )
+          parse_ext_string( s, m );
+      } else {
+      // or throw it away if it's just a comment
+        continue;
       }
     }
+
+    
+    if(search(line, "\tstrip\t") != -1) {
+      // FIXME: this i WANT to get rid of. right now it's here for backwards compat,
+      // but i WILL throw that support away.
+      perror("contenttypes.pike: STRIP found in a database, engaging horrible kludge\n");
+      tmpa = ((line - "strip")/"\t") - ({""});
+      encodings[ tmpa[ 0 ] ] = tmpa[ 1 ];
+      continue;
+    }
+    
+    tmpa = (line / "\t") - ({""});
+    if(sizeof(tmpa) != 2)
+      continue;
+    lhs = tmpa[ 0 ];
+    rhs = tmpa[ 1 ];
+
+    if( search(lhs, "/") != -1) {
+      // lhs has "/", so format is "mime-type extension(s)"
+      foreach( (rhs/" ")-({""}), tmp)
+        m[ tmp ] = lhs;
+    } else {
+      // lhs has no "/", so format is "extension(s) mime-type"
+      foreach( (lhs/" ")-({""}), tmp)
+        m[ tmp ] = rhs;
+    }
+
   }
+
 }
 
 void start()
 {
-  string line, ct, extra_exts;
-  array ext, atmp;
-  extra_exts = "";
-  parse_ext_string(QUERY(exts));
-  if(file_stat(QUERY(extsfile))) {
-    foreach( (Stdio.read_bytes(QUERY(extsfile))-"\r")/"\n", line) {
-      ext = ({ });
-      // don't try to parse empty lines
-      if( strlen(line) && line[0] == '#' )
-        continue;
-      sscanf(line, "%s%*[ \t]%{%s%*[ ]%}", ct, atmp);
-      foreach(atmp, array foo)
-        ext += foo;
-      // lines w/o at least one extension, we don't need 'em
-      if(!sizeof(ext)) continue;
-      foreach(ext, string s)
-        extra_exts += sprintf("%s\t%s\n", s, ct);
-    }
-    parse_ext_string( extra_exts );
-  }
+  parse_ext_string(QUERY(exts), extensions);
+  if( string s = Stdio.read_bytes(QUERY(extsfile)) )
+    parse_ext_string(s, extensions);
+  parse_ext_string(QUERY(encs), encodings);
 }
 
 array type_from_extension(string ext)
@@ -175,7 +222,7 @@ array type_from_extension(string ext)
   ext = lower_case(ext);
   if(ext == "default") {
     accessed[ ext ] ++;
-    return ({ QUERY(default), 0 });
+    return ({ QUERY(default_ct), 0 });
   } else if(extensions[ ext ]) {
     accessed[ ext ]++;
     return ({ extensions[ ext ], encodings[ ext ] });
@@ -187,18 +234,15 @@ int may_disable()
   return 0; 
 }
 
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
 
-/* START AUTOGENERATED DEFVAR DOCS */
-
-//! defvar: exts
-//! This is file extension to content type mapping. The format is as follows:
-//!<pre>extension type encoding<br />gif image/gif<br />gz STRIP application/gnuzip</pre>For a list of types, see <a href="ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types">ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types</a>
-//!  type: TYPE_TEXT_FIELD
-//!  name: Extensions
-//
-//! defvar: default
-//! This is the default content type which is used if a file lacks extension or if the extension is unknown.
-//!
-//!  type: TYPE_STRING
-//!  name: Default content type
-//
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
