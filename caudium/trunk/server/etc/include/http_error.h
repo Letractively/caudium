@@ -163,6 +163,13 @@ class http_error_handler {
 	string error_page = parse_html( local_template->data, ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]) );
 	error_page = (id?parse_rxml(error_page,id):error_page);
 	//return http_low_answer( error_code, (id?parse_rxml(error_page,id):error_page) );
+#ifdef DEBUG
+	report_error( "Serving Error " + sprintf( "%d", error_code ) + ", " + sprintf( "%s", error_name ) + " to client for " + sprintf( "%s://%s%s", lower_case( ( id->clientprot / "/" )[ 0 ] ), id->request_headers[ "host" ], id->raw_url ) + ".\n" );
+#else
+	if ( error_code > 499 ) {
+	    report_error( "Serving Error " + sprintf( "%d", error_code ) + ", " + sprintf( "%s", error_name ) + " to client for " + sprintf( "%s://%s%s", lower_case( ( id->clientprot / "/" )[ 0 ] ), id->request_headers[ "host" ], id->raw_url ) + ".\n" );
+	}
+#endif /* DEBUG */
 	return
 	    ([
 	      "error" : error_code,
