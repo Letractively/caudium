@@ -108,7 +108,7 @@ static private string doc()
 string demo_widget(string widget,string descr) {
   string p;
   p="<tr align=left><th>"+replace(widget,({"<",">"}),({"{","}"}))+"</th><td>";
-  p+=parse_html(widget, ([ "input" : tag_input ]),([]));
+  p+=spider.parse_html(widget, ([ "input" : tag_input ]),([]));
   p+="</td><td>"+descr+"</td></tr>";
   // strip out new lines cos they break things??
   return replace(p,({"\n"}),({""}));
@@ -341,7 +341,7 @@ string tag_sform(string tag_name, mapping args, string contents,
   string multi_separator = args->multi_separator || "\000";
   int rand=random(100000);
 
-  contents=parse_html(contents, ([ "input" : tag_input ]),(["rxml":tag_rxml]),request_id);
+  contents=spider.spider.parse_html(contents, ([ "input" : tag_input ]),(["rxml":tag_rxml]),request_id);
   
   // a really messy bit of code to get the current URL
   string here=request_id->not_query;

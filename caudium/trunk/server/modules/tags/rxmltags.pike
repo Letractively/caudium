@@ -3607,7 +3607,7 @@ private mixed tag_select( string tag_name, mapping args, string contents,
       tmp[c] += "</option>";
   contents = tmp * "<option";
   mapping m = ([ "option" : tag_option ]);
-  contents = parse_html( contents, ([ ]), m, value );
+  contents = spider.parse_html( contents, ([ ]), m, value );
   return ({ make_container( tag_name, args, contents ) });
 }
 
@@ -3620,12 +3620,12 @@ string tag_default( string tag_name, mapping args, string contents,
 
   contents = parse_rxml( contents, id );
   if (args->value)
-    return parse_html( contents, ([ "input" : tag_input ]),
+    return spider.parse_html( contents, ([ "input" : tag_input ]),
 		       ([ "select" : tag_select ]),
 		       args->name, mkmultiset( args->value
 					       / multi_separator ) );
   else if (args->variable && id->variables[ args->variable ])
-    return parse_html( contents, ([ "input" : tag_input ]),
+    return spider.parse_html( contents, ([ "input" : tag_input ]),
 		       ([ "select" : tag_select ]),
 		       args->name,
 		       mkmultiset( id->variables[ args->variable ]
@@ -3717,7 +3717,7 @@ string tag_recursive_output (string tagname, mapping args, string contents,
   id->misc->recout_outside = outside;
 
   string res = parse_rxml (
-    parse_html (
+    spider.parse_html (
       contents,
       (["recurse": lambda (string t, mapping a, string c) {return ({c});}]), ([]),
       "<" + tagname + ">" + replace (contents, inside, outside) + "</" + tagname + ">"),

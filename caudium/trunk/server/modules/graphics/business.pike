@@ -709,7 +709,7 @@ string tag_diagram(string tag, mapping m, string contents,
       res->dimensionsdepth = 20;
   }
 
-  parse_html(contents,
+  spider.parse_html(contents,
 	     ([ "xaxis":itag_xaxis,
 	        "yaxis":itag_yaxis ]),
 	     ([ "data":itag_data,

@@ -18,7 +18,7 @@ static private string parse_channel(string tag, mapping args, string|int content
     
     switch (tag) {
 	case "channel":
-	    parse_html(contents, ([]), ([ "link" : parse_channel, "description" : parse_channel,
+	    spider.parse_html(contents, ([]), ([ "link" : parse_channel, "description" : parse_channel,
 	                                  "pubDate" : parse_channel, "item" : ignore_it  ]), hl);
 	    break;
 	    
@@ -39,7 +39,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
   {    
   case "item":
     hl = ([]);
-    parse_html(contents, ([ ]), ([ "title": parse_it, "link": parse_it, "description" : parse_it  ]),
+    spider.parse_html(contents, ([ ]), ([ "title": parse_it, "link": parse_it, "description" : parse_it  ]),
 	       hl, chhl);
     if (chhl)
 	hl += chhl;
@@ -59,8 +59,8 @@ private static void rdf_parse_reply(string data)
 {
   mapping chhl = ([]);
   
-  parse_html(data + " ", ([]), (["channel" : parse_channel ]), chhl );
-  parse_html(data + " ", ([]), (["item" : parse_it ]), 0, chhl );
+  spider.parse_html(data + " ", ([]), (["channel" : parse_channel ]), chhl );
+  spider.parse_html(data + " ", ([]), (["item" : parse_it ]), 0, chhl );
 }
 
   

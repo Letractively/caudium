@@ -222,8 +222,8 @@ string do_background(string t, mapping m)
 string fix_absolute(string from)
 {
   string data;
-  if ((data = parse_html(from, ([ "base":do_href ]), ([]))) == from) {
-    return parse_html(from, ([ "a":do_href, "img":do_src, "form":do_action, 
+  if ((data = spider.parse_html(from, ([ "base":do_href ]), ([]))) == from) {
+    return spider.parse_html(from, ([ "a":do_href, "img":do_src, "form":do_action, 
 			       "input":do_src, "body":do_background  ]), ([]));
   } else {
     return data;

@@ -305,7 +305,7 @@ class http_error_handler {
     if ((int)error_name[0..2] == error_code)
       error_name = error_name[3..];
 
-    string error_page = parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
+    string error_page = spider.parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
 
     if (id)
       error_page = parse_rxml (error_page, id);
