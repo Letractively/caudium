@@ -1,0 +1,7 @@
+AC_REVISION("$Id$")
+AC_INIT(Makefile.in)
+AC_PROG_CC
+AC_SET_MAKE
+AC_CONFIG_SUBDIRS(fast_cgi)
+AC_OUTPUT(Makefile,echo FOO >stamp-h )
+
