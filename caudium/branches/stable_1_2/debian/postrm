@@ -1,6 +1,8 @@
 #! /bin/sh
 # postrm script for caudium
 #
+# $Id$
+#
 # see: dh_installdeb(1)
 
 set -e

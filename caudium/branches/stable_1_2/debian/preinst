@@ -1,7 +1,10 @@
 #! /bin/sh
 # preinst script for Caudium
 #
+# $Id$
+#
 # see: dh_installdeb(1)
+#
 EXTVER=
 
 set -e
