@@ -84,9 +84,11 @@ EOF
 	PROTOCOL=http
     fi
     
-    sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
+    if [ -f /etc/caudium/servers/localhost ]; then
+	sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
          /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
   	 /etc/caudium/servers/localhost
+    fi
 
     
 # -----------------------
