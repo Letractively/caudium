@@ -1,0 +1,64 @@
+# $Id$
+
+SRCDIR=@srcdir@
+CPP=@CPP@
+
+MODULES=@subdirs@
+
+all: modules
+
+force:
+	@:
+
+$(MODULES): force
+	  @echo Making $@; \
+	  ( cd $@ && \
+	    (  rm remake >/dev/null 2>&1 || : ) && \
+	    ( $(MAKE) $(MAKE_FLAGS) MODNAME=$@ || \
+	      ( test -f remake && $(MAKE) $(MAKE_FLAGS) MODNAME=$@ ) ) \
+	  ) || exit $$?;
+
+modules: $(MODULES)
+
+spotless: force
+	for a in $(MODULES); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) spotless); done
+	rm -f Makefile config.log config.status module_makefile
+
+Makefile: $(SRCDIR)/Makefile.in $(SRCDIR)/configure
+	@echo "configure or Makefile.in changed."
+	@if test -f config.status; then \
+           echo -n "Rebuilding Makefile myself using: ";\
+	   echo "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   eval "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   echo "$@";\
+           echo "You must rerun make now"; exit 1;\
+	else\
+	   echo "You must rerun configure now."; \
+	   exit 1; \
+	fi
+
+depend:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a depend ) ; \
+	done
+
+install:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a install ) ; \
+	done
+install_bin:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a install_bin ) ; \
+	done
+
+install_alt:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a install_alt ) ; \
+	done
+
+clean:
+	for a in $(MODULES) ; do \
+	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a clean ) ; \
+	done
+
+
