@@ -47,7 +47,9 @@ array(array(string | array(string))) arguments = ({
   ({"pid-file", Getopt.HAS_ARG, ({"--pid-file", "--pidfile"})}),
   ({"debug", Getopt.NO_ARG, ({"--debug", "--with-debug", "--enable-debug"})}),
   ({"watchdog", Getopt.NO_ARG, ({"--with-watchdog", "--watchdog", "--enable-watchdog"})}),
+  ({"watchdog-pidcheck", Getopt.NO_ARG, ({"--with-watchdog-pidcheck", "--watchdog-pidcheck", "--enable-watchdog-pidcheck"})}),
   ({"nowatchdog", Getopt.NO_ARG, ({"--without-watchdog", "--nowatchdog", "--disable-watchdog"})}),
+  ({"nowatchdog-pidcheck", Getopt.NO_ARG, ({"--without-watchdog-pidcheck", "--nowatchdog-pidcheck", "--disable-watchdog-pidcheck"})}),
   ({"nodebug", Getopt.NO_ARG, ({"--without-debug", "--nodebug", "--disable-debug"})}),
   ({"fddebug", Getopt.NO_ARG, ({"--fd-debug", "--with-fd-debug", "--enable-fd-debug"})}),
   ({"threads", Getopt.NO_ARG, ({"--threads", "--with-threads", "--enable-threads"})}),
@@ -66,12 +68,13 @@ array(array(string | array(string))) arguments = ({
 
 // loader options (with defaults)
 mapping(string:mixed) options = ([
-  "gdb" : "gdb",
-  "pike" : 0,
-  "pikever" : 0,
-  "threads" : 1,
-  "watchdog": 1,
-  "program" : "base_server/caudiumloader.pike", 
+  "gdb"              : "gdb",
+  "pike"             : 0,
+  "pikever"          : 0,
+  "threads"          : 1,
+  "watchdog"         : 1,
+	"watchdog_pidcheck": 1,
+  "program"          : "base_server/caudiumloader.pike", 
 ]);
 
 // stderr and stdout
@@ -200,6 +203,7 @@ void preamble()
 {
   mapping(string:string)  osdata = System.uname();
   int                     go_threads = 0;
+	int                     watchdog_pidcheck = 1;
   string                  os_label = "";
   array(string)           os_rel;
   Stdio.Stat              fstat;
@@ -287,6 +291,29 @@ void preamble()
       write("%s detected, enabling threads (if available in Pike)\n",
             os_label);
     command_line->DEFINES += ({"ENABLE_THREADS"});
+  }
+
+	os_label = "";
+
+  switch(osdata->sysname) {
+		case "Linux":
+			if ((int)os_rel[0] >= 2 && (int)os_rel[1] < 6) {
+				os_label = "Linux pre-2.6";
+				watchdog_pidcheck = 0;
+			}
+			break;
+	}
+
+  if (!watchdog_pidcheck || !options->watchdog_pidcheck) {
+    if(!options->quiet)
+		{
+			if(os_label)
+			{
+				write("%s detected, ", os_label);
+			}
+			write("disabling Watchdog PID check\n");
+		}
+		options->watchdog_pidcheck = 0;
   }
 
   command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN"});
@@ -611,12 +638,17 @@ int act_on_args()
         case "log-dir":
           envvars->CAUDIUM_LOGDIR=m[1];        
           break;
-	case "watchdog":
-	  options->watchdog=1;
+				case "watchdog":
+	  			options->watchdog=1;
+				case "watchdog-pidcheck":
+					options->watchdog_pidcheck = 1;
           break;
-	case "nowatchdog":
-	  options->watchdog=0;
+				case "nowatchdog":
+	  			options->watchdog=0;
           break;
+				case "nowatchdog_pidcheck":
+					options->watchdog_pidcheck = 0;
+					break;
         case "config-dir":
           envvars->CAUDIUM_CONFIGDIR=m[1];        
           break;
@@ -745,7 +777,9 @@ will
 				  other programs with --program.
 
       .B--with-watchdogB.:  Enable watchdog (default)
+      .B--with-watchdog-pidcheckB.:  Enable watchdog PID check (default)
       .B--without-watchdogB.:  Disable watchdog
+      .B--without-watchdog-pidcheckB.:  Disable watchdog PID check
 
       .B--with-debugB.:  Enable debug
       .B--without-debugB.:  Disable all debug
@@ -884,6 +918,17 @@ void watchdog_accept()
     ds->close();
     return;
   }
+
+	if(options->watchdog_pidcheck == 1 && pid != proc->pid())
+	{
+		flex_write("Got invalid PID for caudium on the watchdog control socket.\n");
+		flex_write("  PID received in command: "+pid+"\n");
+		flex_write("   PID of process started: "+proc->pid()+"\n");
+		flex_write("Maybe you should try --without-watchdog-pidcheck\n");
+
+		ds->close();
+		return;
+	}
 
   if(pid != proc->pid())
   {
