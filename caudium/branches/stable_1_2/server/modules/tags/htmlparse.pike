@@ -273,16 +273,9 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   }
   id->misc->parse_level ++;
 
-// Camas uses Parser.HTML which is 8 bits safe
-#if constant (CAMAS.Parse)
-  to_parse =
-    CAMAS.Parse.parse_html_lines(to_parse, id->misc->_tags, 
-    	id->misc->_containers, id, file, defines, my_fd);
-#else
   toparse =
     parse_html_lines(to_parse, id->misc->_tags, id->misc->_containers,
 		    id, file, defines, my_fd);
-#endif
   id->misc->parse_level --;
   return to_parse;
 }
