@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+
+- Fixed a bug in the new compression module : when using things like <insert>
+  in RXML pages the data was compressed twice.
 - <accessed> tag is now handled in a separate module. To have old behavior,
   use "Accessed Tag Counter: Old version", other supports Memory, SQL, FileDB
   are also available.
