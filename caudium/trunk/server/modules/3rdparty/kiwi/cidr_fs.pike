@@ -76,6 +76,63 @@ constant module_version = "$Id$";
 constant module_unique  = 1;
 constant thread_safe    = 0;
 
+// Global variables for autoloading file.
+object  filewatch;    // Filewatcher object
+mapping cidrlist;     // CIDR list with actions in an array    
+
+class CIDRFile {
+  
+ private string datafile;    // file to be used
+
+#define LINE_COMMENT  0x00
+#define LINE_DIRECTIVE 0x01
+
+ private int qualify_line(string line)
+ {
+   if (!line || line == "")
+     return LINE_COMMENT;
+   if (sizeof(line) >=1 && line [0..0] == "#")
+     return LINE_COMMENT;
+   if (sizeof(line) >=1 && line [0..0] == " ")
+     return LINE_COMMENT;
+   if (sizeof(line/"\t") == 3)
+     return LINE_DIRECTIVE;
+   return -1;
+  }
+
+  void create(string path)
+  {
+    datafile = Stdio.read_bytes(path);
+    if (datafile == 0) throw("Unable to read "+path+"file !");
+  }
+
+  mapping doindex()
+  {
+    mapping out = ([ ]);
+    foreach((datafile-"\r")/"\n",string foo)
+    {
+      if(qualify_line(foo) == LINE_DIRECTIVE)
+      {
+         array l= foo / "\t";
+         out += ([ l[0] : l[1] ]);
+      }
+    return out;
+  }
+}
+
+#if 0
+//! method: int load_cidrfile(string file)
+//!  Load the specified file into cidrlist
+int load_cidrfile(string file) {
+  if (file == NONE) {
+    cidrlist = ([ ]);
+    return 0;
+  }
+
+}
+
+#endif
+
 //! method: void start()
 //!  When the module is started, start filesystem
 void start(int count, object conf)
@@ -91,13 +148,12 @@ void create()
   filesystem::create();
 
 #ifdef CIDR_DEBUG
-  defvar(
-    "debug",
-    0,
-    "Debug",
-    TYPE_FLAG,
-    "If set to yes, some debug information will be put in the debug logs.");
+  defvar("debug", 0, "Debug", TYPE_FLAG,
+         "If set to yes, some debug information will be put in the debug logs.");
 #endif
+
+  defvar("cidrfile", "NONE", "CIDR Definition file", TYPE_FILE,
+         "The file that contains definition of CIDR and Actions to be done.");
 
 }
 
