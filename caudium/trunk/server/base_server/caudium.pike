@@ -3496,9 +3496,9 @@ int main(int|void argc, array (string)|void argv)
   return -1;
 }
 
-string diagnose_error(array from)
+void|string diagnose_error(array from)
 {
-
+  return sizeof(from) &&stringp(from[0])? from[0] : 0;
 }
 
 // Called from the configuration interface.

@@ -767,7 +767,7 @@ string get_id(string from)
   catch {
     object f = open(from,"r");
     string id;
-    id = f->read(200);
+    id = f->read(5000);
     if(sscanf(id, "%*s$"+"Id: %*s,v %s ", id) == 3)
       return last_id=" (version "+id+")";
   };
@@ -782,25 +782,14 @@ void add_id(array to)
       q[0]+=get_id(q[0]);
 }
 
-string link_to(string what, int eid, int qq)
+string link_to(string file, int line, int eid, int qq)
 {
-  int line;
-  string file, fun;
-  sscanf(what, "%s(%*s in line %d in %s", fun, line, file);
-  if(file && fun && line)
-  {
-    sscanf(file, "%s (", file);
-    if(file[0]!='/') file = combine_path(getcwd(), file);
-//     werror("link to the function "+fun+" in the file "+
-// 	   file+" line "+line+"\n");
-    return ("<a href=\"/(old_error,find_file)/error?"+
-	    "file="+http_encode_string(file)+"&"
-	    "fun="+http_encode_string(fun)+"&"
-	    "off="+qq+"&"
-	    "error="+eid+"&"
-	    "line="+line+"#here\">");
-  }
-  return "<a>";
+  if(file[0]!='/') file = combine_path(getcwd(), file);
+  return ("<a href=\"/(old_error,find_file)/error?"+
+	  "file="+http_encode_string(file)+"&"
+	  "off="+qq+"&"
+	  "error="+eid+"&"
+	  "line="+line+"#here\">");
 }
 
 
@@ -814,29 +803,43 @@ string format_backtrace(array bt, int eid)
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
   string res = (
-		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
-		+(reason?reason+"<p>":"")
-		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
+		"An error occured while calling <b>"+bt[1]+"</b>\n"
+		+(reason?reason:"")
+		+"<h3>Complete Backtrace:</h3>\n\n<ol>");
 
   int q = sizeof(bt)-1;
+  array ares = ({});
   foreach(bt[1..], string line)
   {
-    string fun, args, where, fo;
-    if((sscanf(html_encode_string(line), "%s(%s) in %s",
-	       fun, args, where) == 3) &&
-       (sscanf(where, "%*s in %s", fo) && fo)) {
-      line += get_id( fo );
-      res += ("<li value="+(q--)+"> "+
-	      (replace(line, fo, link_to(line,eid,sizeof(bt)-q-1)+fo+"</a>")
-	       -(getcwd()+"/"))+"<p>\n");
+    string ff, rest;
+    int ln;
+    if(line[0..3] == "    ") {
+      if(sizeof(ares)) {
+	line = String.trim_whites(line);
+	if(strlen(line) > 20) {
+	  ares[-1] += "<br>&nbsp;&nbsp;&nbsp;&nbsp;"+html_encode_string(line);
+	} else {	 
+	  ares[-1] += html_encode_string(line);
+	}
+      } else {
+	ares += ({ html_encode_string(line) });
+      }
+    } else if(sscanf(line, "%s:%d%s", ff, ln, rest) == 3) {
+      line =  html_encode_string(rest[1..]);
+      if(strlen(line)) {
+	line = "<br>&nbsp;&nbsp;&nbsp;&nbsp;"+ line;
+      }
+      rest = get_id( ff );
+      ares += ({ (link_to(ff, ln,eid,sizeof(bt)-q-1)+ff+"</a> on line "+ln
+		  +rest+":"+line)  -(getcwd()+"/") });
     } else {
-      res += "<li value="+(q--)+"> <b><font color=darkgreen>"+
-	line+"</font></b><p>\n";
+      ares += ({ html_encode_string(line) });
     }
   }
-  res += ("</ul><p><b><a href=\"/(old_error,plain)/error?error="+eid+"\">"
-	  "Generate text-only version of this error message, for bug reports"+
-	  "</a></b>");
+  res += "<li>"+(ares * "</li><li><p>") +"</li>"+
+    ("</ul><p><b><a href=\"/(old_error,plain)/error?error="+eid+"\">"
+     "Generate text-only version of this error message, for bug reports"+
+     "</a></b>");
   return res+"</body>";
 }
 
@@ -1012,30 +1015,27 @@ static void timer(int start, int|void last_sent, int|void called_out)
   call_out(timer, 60, start, last_sent, called_out);
 }
 
-string handle_error_file_request(array err, int eid)
+mapping handle_error_file_request(array err, int eid)
 {
 //   return "file request for "+variables->file+"; line="+variables->line;
   string data = Stdio.read_bytes(variables->file);
   array(string) bt = (describe_backtrace(err)/"\n") - ({""});
-  string down;
 
-  if((int)variables->off-1 >= 1)
-    down = link_to( bt[(int)variables->off-1],eid, (int)variables->off-1);
-  else
-    down = "<a>";
   if(data)
   {
-    int off = 49;
+    int off = 29;
     array (string) lines = data/"\n";
-    int start = (int)variables->line-50;
+    int start = (int)variables->line-30;
     if(start < 0)
     {
       off += start;
       start = 0;
     }
-    int end = (int)variables->line+50;
+    int end = (int)variables->line+30;
     lines=highlight_pike("foo", ([ "nopre":1 ]), lines[start..end]*"\n")/"\n";
-
+    for(int st = start+1, i = 0; i < sizeof(lines); st++, i++) {
+      lines[i] = sprintf("%4d:\t%s", st, lines[i]);
+    }
 //     foreach(bt, string b)
 //     {
 //       int line;
@@ -1048,12 +1048,18 @@ string handle_error_file_request(array err, int eid)
 //     }
 
     if(sizeof(lines)>off)
-      lines[off]=("<font size=+2><b>"+down+lines[off]+"</a></b></font></a>");
+      lines[off]=("<font size=+1><b>"+lines[off]+"</b></font>");
     lines[max(off-20,0)] = "<a name=here>"+lines[max(off-20,0)]+"</a>";
     data = lines*"\n";
   }
   
-  return format_backtrace(bt,eid)+"<hr noshade><pre>"+data+"</pre>";
+  if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error",  format_backtrace(bt,eid)+(data ? "<hr noshade><pre>"+data+"</pre>" : ""), this_object() ) ) ) {
+    report_error("*** http_error object missing during internal_error() ***\n");
+    file =
+      http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+		       "internal error in the internal error routine.</h1>" );
+  }
+  return file;
 }
 
 
@@ -1512,11 +1518,7 @@ void handle_request( )
 	       || !crypt(auth[1], caudium->query("ConfigurationPassword")))
 	      file = http_auth_required("admin");
 	    else
-	      file = ([
-		"type":"text/html",
-		"data":handle_error_file_request( err[0], 
-						  (int)variables->error ),
-	      ]);
+	      file = handle_error_file_request( err[0],  (int)variables->error );
 	  }
 	}
       }
