@@ -36,10 +36,13 @@ Optional Packages (recommended)
     the server if you install later.  You can use PHP3, but only through
     the CGI interface.
 
-  NJS JavaScript Interpreter
+  NJS JavaScript Interpreter - HIGHLY EXPERIMENTAL!!!
     If you want to use server side Javascript support, you'll need to install
     it. You need to install NJS library before compiling Caudium. See 
-    http://www.bbassett.net/njs/ for more informations.
+    http://www.bbassett.net/njs/ for more informations. You also need to
+    enable the support explicitly by modifying the src/cmods/configure.in
+    file. Also, note that you need the latest CVS version of NJS for this
+    module to work.
 
 ----------------------------------------------------------------------------
 
