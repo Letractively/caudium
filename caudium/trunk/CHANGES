@@ -1,5 +1,12 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Fixed a bug that appear between 1.3 and 1.2 preventing the SSL from
+  working with HTTP answers that don't send data like 302.
+   (David Gourdelier)
+- Added a -DHTML_DEBUG to debug every tags/containers/whatever call in the
+  XML compliant RXML parser and doing a gauge() on each of your function to
+  allow easier RXML code optimization. 
+   (David Gourdelier)
 - The functions in _Caudium.so now use the new scratchpad volatile buffer 
   code instead of alloca.
    (Marek Habersack)
