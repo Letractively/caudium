@@ -29,3 +29,5 @@ Changes in Caudium 1.1 since CVS branching
   syntax <?tagname contents ?>. Current existing processing instructions are
   <?pike ?> (Pike tag module), <?comment ?> (rxmltags), <?perl ?>
   (perl module).
+- Wrote a tar filesystem module. This module allows you to mount an
+  uncompressed tar file in the virtual filesystem.
