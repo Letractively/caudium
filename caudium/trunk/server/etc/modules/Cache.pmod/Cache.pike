@@ -174,6 +174,8 @@ void store(mapping cache_response) {
                  namespace, cache_response->name, _obj));
 #endif
   LOCK();
+  if (!cache_response->expires)
+    cache_response->expires = time() + default_ttl;
   cache_response + behavior_m;
   last_access = time();
   if (cache_response->size > max_object_ram) {

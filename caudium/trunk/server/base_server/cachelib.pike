@@ -33,19 +33,16 @@ constant cvs_version = "$Id$";
 
 //function get_cache = caudium->cache_manager->get_cache;
 
-#define DEFAULT_TTL 600
-// Stupid arbitary number. 10 minutes.
-
 private mapping go( string type, mixed obj, string name, void|int exp ) {
   mapping meta = ([ ]);
   meta->name = name;
-  meta->object = obj;
+  //meta->object = obj;
   switch (exp) {
   case -1:
     meta->expires = -1;
     break;
   case 0:
-    meta->expires = time() + DEFAULT_TTL;
+    meta->expires = 0;
     break;
   default:
     if ( ( exp < time() ) && ( exp > 0 ) ) {
@@ -60,6 +57,7 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
 #endif
   switch (type) {
   case "file":
+    meta->object = obj;
     meta->size = obj->stat()[ 1 ];
     meta->type = "stdio";
     meta->ram_cache = 1;
@@ -71,33 +69,44 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
     meta->type = "variable";
     meta->ram_cache = 1;
     meta->disk_cache = 1;
-    switch (sprintf( "%t", meta->object)) {
+    switch (sprintf( "%t", obj)) {
+    case "float":
+      meta->object = obj;
+      meta->_float = 1;
     case "int":
+      meta->object = obj;
       meta->_int = 1;
       break;
     case "array":
+      meta->object = copy_value(obj);
       meta->_array = 1;
       break;
     case "multiset":
+      meta->object = copy_value(obj);
       meta->_multiset = 1;
       break;
     case "mapping":
+      meta->object = copy_value(obj);
       meta->_mapping = 1;
       break;
     case "object":
+      meta->object = obj;
       meta->_object = 1;
       meta->disk_cache = 0;
       break;
     case "function":
+      meta->object = copy_value(obj);
       meta->_function = 1;
       meta->disk_cache = 0;
       break;
     case "program":
+      meta->object = copy_value(obj);
       meta->_program = 1;
       break;
     }
     break;
   case "program":
+    meta->object = copy_value(obj);
     meta->size = 0;
     meta->type = "variable";
     meta->ram_cache = 1;
@@ -105,6 +114,7 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
     meta->_program = 1;
     break;
   case "string":
+    meta->object = obj;
     meta->size = sizeof( obj );
     meta->type = "variable";
     meta->ram_cache = 1;
@@ -112,6 +122,7 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
     meta->_string = 1;
     break;
   case "image":
+    meta->object = obj;
     meta->size = sizeof( (string)obj );
     meta->type = "image";
     meta->ram_cache = 1;
