@@ -1,0 +1,76 @@
+SRCDIR=@srcdir@/$(MODNAME)/
+CFLAGS= @PIKE_INCLUDE_DIRS@ @CPPFLAGS@ @CFLAGS@  -I$(SRCDIR) -I. $(MODULE_CFLAGS)
+CC=@CC@
+LIBGCC=@LIBGCC@
+LDFLAGS=@LDFLAGS@
+LD= @LDSHARED@
+PIKE=@PIKE@
+SO=@SO@
+all: $(MODNAME).$(SO)
+INSTALLDIR=$(prefix)/caudium/server/lib/@PIKE_VERSION@/
+INSTALL=@INSTALL@
+CLIBRARY_LINK=@CLIBRARY_LINK@
+all:  Makefile $(MODNAME).$(SO)
+
+.SUFFIXES: .c .o
+
+install: all extrainstall
+# Stripping probably does work but for debugging reasons and just to
+# make sure, we don't do it. Yet.
+#	-strip $(MODNAME).$(SO)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
+
+install_alt: all extrainstall
+	-strip --strip-unneeded $(MODNAME).$(SO)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
+
+install_bin: all
+	-strip --strip-unneeded $(MODNAME).$(SO)
+	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
+
+
+$(MODNAME).$(SO):  $(OBJS)
+	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(MODULE_LIBS) $(LIBGCC) $(CLIBRARY_LINK) $(LIBGCC) 
+
+Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
+	@echo "configure or Makefile.in changed."
+	@if test -f config.status; then \
+           echo -n "Rebuilding Makefile myself using: ";\
+	   echo "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   eval "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   echo "$@";\
+           echo "You must rerun make now"; exit 1;\
+	else\
+	   echo "You must rerun configure now."; \
+	   exit 1; \
+	fi
+
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+$(SRCDIR)/configure: $(SRCDIR)/configure.in
+	@echo "configure.in changed. Rebuilding."
+	@(cd  $(SRCDIR); autogen.sh)
+
+config.status:  $(SRCDIR)/configure
+	./config.status --recheck
+
+force:
+	@:
+
+depend: force
+	@echo "Calculating dependencies..."
+	@cat  Makefile.pre > Makefile
+	@$(CC) -MM $(CFLAGS) $(SRCDIR)/*.c >> Makefile 2>/dev/null
+
+clean:
+	rm -f *.o *~ $(MODNAME).$(SO) 
+
+distclean: clean
+	rm -f config.* $(SRCDIR)/Makefile Makefile.pre
+
+spotless: distclean
+	rm -f $(SRCDIR)/configure  $(SRCDIR)/sablot_config.h.in
+

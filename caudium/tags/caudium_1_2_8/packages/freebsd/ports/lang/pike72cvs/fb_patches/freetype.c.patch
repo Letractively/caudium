@@ -1,0 +1,14 @@
+--- modules/_Image_FreeType/freetype.c.orig	Thu Jan  3 02:18:46 2002
++++ modules/_Image_FreeType/freetype.c	Thu Mar 28 23:48:14 2002
+@@ -3,7 +3,11 @@
+ RCSID("$Id$");
+ 
+ #ifdef HAVE_LIBFT2
++#ifdef HAVE_FREETYPE2_FREETYPE_FREETYPE_H
++#include <freetype2/freetype/freetype.h>
++#else
+ #include <freetype/freetype.h>
++#endif
+ #include "pike_macros.h"
+ #include "object.h"
+ #include "constants.h"
