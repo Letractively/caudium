@@ -126,13 +126,18 @@ void create() {
   defvar("sqltime", 1, "Use SQL time", TYPE_FLAG,
          "Use SQL internal SQL Time (eg SQL instruction NOW()) instead of "
 	 "internal caudium computed time");
+  defvar("addhost", 1, "Add hostname to request", TYPE_FLAG,
+         "Add the hostname / Ip of web server to the request logged into the "
+	 "database.");
+  defvar("useraw", 1, "Use Raw query", TYPE_FLAG,
+         "Logs all the request with the query part (eg the thing after the ? part) "
+	 "instead of not query part...");
 }
 
-
 void start() {
-  num=query("dbcount");
-  db=db_handler( query("dburl") );   
-  logtable=query("logtable");
+  num=QUERY(dbcount);
+  db=db_handler( QUERY(dburl) );   
+  logtable=QUERY(logtable);
 }
 
 
@@ -142,7 +147,7 @@ void stop() {
 
 
 void log(object id, mapping file)  {
-  string log_query, username;
+  string log_query, username, url_query;
   array auth;
   object sql_conn=db->handle();
   
@@ -219,14 +224,18 @@ void log(object id, mapping file)  {
 		      (int)loctime["sec"], (int)loctime["timezone"]/3600 );
 
   if (QUERY(sqltime)) myLogTime="NOW()"; 
-  
-//  log_query=sprintf("INSERT INTO %s VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s')",
-//  log_query=sprintf("INSERT INTO %s VALUES('%s', NOW(), '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s')",
-  log_query=sprintf("INSERT INTO %s VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s')",
+  else myLogTime = sprintf("'%s'",myLogTime);
+
+  url_query = "";
+  if (QUERY(addhost)) url_query += (string)host;
+  if (QUERY(useraw)) url_query += id->raw_url;
+  else url_query += id->not_query;
+
+  log_query=sprintf("INSERT INTO %s VALUES('%s', %s, '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s')",
 		    logtable,
 		    (string)caudium->quick_ip_to_host(id->remoteaddr),
 		    (string)myLogTime, 
-		    (string)host+id->not_query,
+		    (string)url_query,
 		    (arrayp(id->referer))?(array)id->referer*" ":(string)id->referer,
 		    (string)id->from,
 		    (string)(arrayp(id->client))?id->client*" ":(string)id->client,
