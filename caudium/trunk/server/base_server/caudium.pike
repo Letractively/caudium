@@ -2331,7 +2331,7 @@ class ImageCache
   }
 
   void create(string id, function draw_func, string|void d) {
-    mycache = caudiump()->cache_manager->get_cache(sprintf("ImageCache(%O)", id));
+    mycache = caudiump()->cache_manager->get_cache(sprintf("Image Cache for %s", id));
     name = id;
     draw_function = draw_func;
   }
