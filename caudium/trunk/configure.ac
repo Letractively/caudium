@@ -326,11 +326,10 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
   AC_MSG_CHECKING(${a})
   if test -x ${a}; then
     PIKE="${a}"
-    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.2200) exit(1); exit(0);'; then
-		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep '^Module' | sed -e 's/.*: //'`"
-		PIKE_INCLUDE_DIRS="-I`echo "$PIKE_MODULE_DIR" | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
+    if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 7.3000) exit(1); exit(0);'; then
+		PIKE_INCLUDE_DIRS="`$PIKE -e 'foreach(master()->pike_module_path, string path) write("-I%s ", path); exit(0);'`"
 
-		if test -z "$PIKE_INCLUDE_DIRS" -o -z "$PIKE_MODULE_DIR"; then
+		if test -z "$PIKE_INCLUDE_DIRS"; then
 			AC_MSG_RESULT(no dirs found)
 			PIKE=""
 		else
@@ -367,7 +366,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 			fi
 		      else
 		        PIKE_CMINOR_VERSION=`grep "$PMINOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
-			PIKE_CBUILD_VERSION=`grep "$PBUILD" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+      			PIKE_CBUILD_VERSION=`grep "$PBUILD" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
                       fi
 		      
 		      if test "$PIKE_TEST_VER" = "${PIKE_CMAJOR_VERSION}.${PIKE_CMINOR_VERSION}.${PIKE_CBUILD_VERSION}"; then
@@ -392,16 +391,16 @@ if test "$PIKE" != ""; then
   PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 else
   cat << EOF
-****************************************************************************
+*****************************************************************************
 *** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike 7.2.200 or newer. Running Caudium with Pike 0.6 or 7.0
+*** requires Pike 7.2.200 or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
 *** is no longer supported. You can download and install one of
-*** our Pike 7.2 snapshots available from our website at:
+*** our Pike 7.3 snapshots available from our website at:
 ***
 ***     http://caudium.net/download/snapshot.html
 ***
-*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE 0.6 or 7.0!
-****************************************************************************
+*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < 7.3!
+*****************************************************************************
 EOF
   exit 1;
 fi
