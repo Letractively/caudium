@@ -1397,7 +1397,7 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
 static INLINE int is_safe (char c) 
 {
-   if((c >= '0' && c <= 'g' ) ||
+   if((c >= '0' && c <= '9' ) ||
       (c >= 'A' && c <= 'Z' ) ||
       (c >= 'a' && c <= 'z' )
      ) return 1;
@@ -1556,38 +1556,40 @@ static void f_http_encode_cookie(INT32 args)
 /* Check if the char given is safe or not */
 static INLINE int is_url_safe (char c)
 {
+
+   if((c >= '0' && c <= '9' ) ||
+      (c >= 'A' && c <= 'Z' ) ||
+      (c >= 'a' && c <= 'z' )
+     ) return 1;
+
+
    switch(c)
    {
-     case 0:
-     case ' ':
-     case '\t':
-     case '\n':
-     case '\r':
-     case '%':
-     case '\'':
-     case '\"':
-     case '#':
      case '&':
      case '?':
      case '=':
      case '/':
      case ':':
+     case ';':
+     case '$':
+     case ',':
+     case '.':
      case '+':
-     case '<':
-     case '>':
      case '@':
+          return 1; break;
+     case 0:
           return 0; break;
      default:
-          return 1; break;
+          return 0; break;
    }
-   return 1;  /* Never used, but added to keep some compilers happy */
+   return 0;  /* Never used, but added to keep some compilers happy */
 }
 
 /*
 ** method: string http_encode_url(string m)
-**   URL encode the specified string and return it. This means replacing
-**   the following characters to the %XX format: null (char 0), space, tab,
-**   carriage return, newline, and % ' " # & ? = / : +
+**   URL encode the specified string and return it. This means changing
+**   characters not in the following list to the %XX format: 
+**   A-Za-z0-9 ; / ? : @ & = + $ , .
 ** arg: string m
 **   The string to encode.
 ** returns:
