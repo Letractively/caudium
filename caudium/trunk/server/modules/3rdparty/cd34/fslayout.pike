@@ -27,7 +27,7 @@ inherit "module";
 inherit "caudiumlib";
 #include <stdio.h>
 #include <array.h>
-#include <simulate.h>
+//#include <simulate.h>
 
 //! module: Freesite Layout
 //!  A MODULE_FILTER to add a header and footer to pages that are being 
@@ -66,7 +66,8 @@ mapping filter( mapping result, object id, mapping defines)
   if(!result || result->type != "text/html" || (sizeof(id->not_query/"/")<3) ) {
     return result;
   }
-  string *dbinfo,header,footer;
+  array(string) dbinfo;
+  string        header,footer;
 
   dbinfo = cache_lookup("TemplateCache"+id->misc->host,"header");
   if (!(dbinfo)) {
