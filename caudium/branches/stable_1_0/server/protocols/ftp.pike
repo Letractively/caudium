@@ -104,7 +104,7 @@
 
 //#define FTP2_DEBUG
 
-#define FTP2_XTRA_HELP ({ "Report any bugs to roxen-bugs@roxen.com." })
+#define FTP2_XTRA_HELP ({ "Report any bugs to our bug database system : http://sourceforge.net/bugs/?group_id=8825." })
 
 #define FTP2_TIMEOUT	(5*60)
 
@@ -1663,7 +1663,7 @@ class FTPSession
       if (!file) {
 	file = ([ "error":404 ]);
       }
-      send(550, ({ sprintf("'%s': %s: No such file or directory.",
+      send(550, ({ sprintf("'%s': %s: No such file or directory, or access denied",
 			   cmd, f) }));
       break;
     }
@@ -2821,10 +2821,20 @@ class FTPSession
       session->file->full_path = args;
       send_MLSD_response(session->conf->find_dir_stat(args, session), session);
     } else {
+      session->file = ([ ]);
       if (st) {
 	session->file->error = 405;
+	session->file->data = sprintf("%s: Method not allowed.", args);
       }
-      send_error("MLSD", args, session->file, session);
+      else
+      {
+        session->file->error = 550;
+        session->file->data = sprintf("%s: No such file or directory, or access denied.", args);
+      }
+      session->file->mode = "I";
+      session->file->full_path = args;
+      connect_and_send(session->file, session);
+      //send_error("MLSD", args, session->file, session);
     }
   }
 
