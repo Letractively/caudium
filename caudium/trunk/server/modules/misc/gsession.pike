@@ -316,6 +316,11 @@ void register_plugins(void|object conf)
                 rec_item_missing("expire_old", regrec->name);
                 continue;
             }
+
+            if (!functionp(regrec->get_region) || !regrec->get_region) {
+                rec_item_missing("get_region", regrec->name);
+                continue;
+            }
             
             if (storage_plugins[regrec->name])
                 report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -400,6 +405,11 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //  function delete_session; (mandatory)
 //     delete a session from all the regions of the storage.
 //
+//  function get_region; (mandatory)
+//     return a storage mapping of the specified region. This function
+//     _must_ return valid mappings for the "session" and "user" regions
+//     (compatibility with 123sessions)
+//
 // Function synopses:
 //
 //   void setup(object id, string sid);
@@ -408,6 +418,7 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //   mixed delete_variable(object id, string key, string sid, void|string reg);
 //   void expire_old(int curtime, int expiration_time);
 //   void delete_session(sid);
+//   mapping get_region(object id, string sid, string reg);
 //
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
@@ -417,7 +428,8 @@ private mapping memory_storage_registration_record = ([
     "retrieve" : memory_retrieve,
     "delete_variable" : memory_delete_variable,
     "expire_old" : memory_expire_old,
-    "delete_session" : memory_delete_session
+    "delete_session" : memory_delete_session,
+    "get_storage" : memory_get_storage
 ]);
 
 //
@@ -442,7 +454,9 @@ private int memory_validate_storage(string reg, string sid)
 
 //
 // Set up storage of the session. If storage for given session ID already
-// exists, simply point the id->misc variables to it.
+// exists, simply point the id->misc variables to it. The plugin is
+// responsible for setting up the two legacy regions - "session" and
+// "user". They _must_ exist in every storage!
 //
 private void memory_setup(object id, string sid) 
 {
@@ -471,13 +485,6 @@ private void memory_setup(object id, string sid)
         if (!id->misc->gsession[region])
             id->misc->gsession[region] = _memory_storage[region][sid];
     }
-
-    //
-    // Compat variables
-    //
-    id->misc->session_id = sid;
-    id->misc->session_variables = _memory_storage->session[sid];
-    id->misc->user_variables = _memory_storage->user[sid];
 }
 
 //
@@ -564,6 +571,16 @@ private void memory_expire_old(int curtime)
 #endif
 }
 
+private mapping memory_get_region(object id, string sid, string reg)
+{
+    string    region = reg || "session";
+    
+    if (memory_validate_storage(region, sid) < 0)
+        return 0;
+
+    return _memory_storage[region][sid];
+}
+
 //
 // Find out whether we have a session id available anywhere and/or create a
 // new session if necessary. Returns a session id string.
@@ -599,6 +616,8 @@ private string alloc_session(object id)
     if (id->misc->session_id) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
+        id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session");
+        id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user");
         return id->misc->session_id;
     }
     
@@ -619,6 +638,8 @@ private string alloc_session(object id)
 
     id->misc->_gsession_is_here = 1;
     id->misc->session_id = ret;
+    id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session");
+    id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user");
     gsession_set_cookie(id, ret);
     
     return ret;
