@@ -17,7 +17,7 @@
 
 # The syntax is quite straightforward:
 # regular_expression  value,value,value...
-# \ can be used to escape newlines.
+# \ can be used to escape newlines. Regexps are case insensitive.
 # If a line starts with '#', it is skipped, unless it is
 #
 # '#include <file>'
@@ -40,12 +40,12 @@
 
 
 #section opera {
-opera/[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+.*opera/[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
 		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera, cssfaulty,\
 		nocssbackrepeat
-opera/5.*	opera5
-opera/6.*	opera6
-#}
+.*opera/5.*	opera5
+.*opera/6.*	opera6
+# }
 
 ## Netscape is named "mozilla/major.minor system ..."
 
@@ -80,20 +80,22 @@ mozilla/[5-9].*		pnginline, gecko
 
 # Opera 3
 
-.*compatible.*opera.3.*	-java, javascript, opera, -pngalpha, cssfaulty
+.*compatible.*opera.3.*	-java, javascript, opera, -pngalpha, cssfaulty, nobgrepeat
+.*compatible.*opera.3.*	opera3
 
 # Opera 5.0 masqueraded as MSIE
 .*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty
-.*compatible.*opera.5.*		opera5
-.*compatible.*opera.6.*		opera6
+			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty, \
+			nobgrepeat
+.*compatible.*opera.5.*	opera5
+.*compatible.*opera.6.*	opera6
 
 # Opera 5.0 masquereaded as Mozilla
 mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				opera, cssfaulty
-mozilla/[3-5].*opera.6.*	opera6
+				opera, cssfaulty, nobgrepeat
 mozilla/[3-5].*opera.5.*	opera5
+mozilla/[3-5].*opera.6.*	opera6
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
@@ -395,7 +397,7 @@ default      images, gifinline, forms, mailto
 # and gatherer. Looking for new mails to get and add to spam lists
 # See http://www.neilgunton.com/spambot_trap/ for more informations
 
-[A-Z]+$			robot, spamrobot
+[A-Z]+$			robot,spamrobot
 Browse.*		robot,spamrobot
 .Eval.*			robot,spamrobot
 .Surf.*			robot,spamrobot
