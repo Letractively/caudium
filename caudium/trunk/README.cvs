@@ -1,0 +1,23 @@
+Compiling Caudium from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+It's easy to compile Caudium from CVS. Just run ./autogen.sh before
+following the standard installation instructions. Please note that
+this step requires a new automake.
+
+To get Caudium from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-
+
+cvs -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium login
+[Hit [Return] as the password (ie empty password)]
+
+cvs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
+
+You can later update your Caudium source from CVS by typing:
+
+cvs -z3 update -Pd
+
+with the current directory being the "caudium" directory you got from
+the initial checkout.
+
+
