@@ -18,27 +18,36 @@
  *
  */
 
-/* Module derivated from a quick hack of the filesystem module made for me
- * by p|kachu (kazmer, tamasz, or whatever he'd like us to call him atm :) )
+/* Module derivated from a quick hack of the filesystem module made by
+ * Tamas TEVESZ. 
  * This code is now more than a quick hack and handle dynamic contents as well
  * as virtual requests.
  * 
  * Authors:
- *  Bertrand LUPART <bertrand@caudium.net>
+ *  Bertrand LUPART <bertrand AT caudium DOT net>
+ *  Nicolas GOSSET <ngosset AT linkeo DOT com>
  */
 
 #include<module.h>
 
 inherit "modules/filesystems/filesystem.pike" : filesystem;
 
-#define WERR(X) if(QUERY(debug)) write("VHS-FS: "+X+"\n")
+//#define VHS_DEBUG
 
-constant module_type = MODULE_FIRST|MODULE_LOCATION;
-constant module_name = "VHS - Virtual Hosting System (Filesystem)";
-constant module_doc = "Basic Virtual Hosting module based on a directory structure.\n<br>"
-  "Just put your sites in directories matching the scheme setup below:<br>"
-  +fs_struct_help+"<br><br>"
-  "All the sites will then have the same modules loaded.<br><br>";
+#ifdef VHS_DEBUG
+# define DEBUG(X) if(QUERY(debug)) write("VHS-FS: "+X+"\n")
+#else
+# define DEBUG(X)
+#endif
+
+constant module_type = MODULE_FIRST|MODULE_LOCATION|MODULE_PROVIDER;
+constant module_name = "Simple Virtual Hosting System: Filesystem";
+constant module_doc = "<p>Basic Virtual Hosting module based on a directory structure.\n</p>"
+  "<p>Just put your sites in directories matching the scheme setup below:</p>"
+  +fs_struct_help+
+  "<p>All the sites will then have the same set of modules loaded.</p>"
+  "<p>All the sites handled should point to this Caudium virtual server. If you have "
+  "multiple Caudium virtual servers, take care of the Virtual host matcher configuration.</p>";
 
 constant module_version = "$Id$";
 
@@ -58,16 +67,25 @@ constant strip_www_help =
   "the filesystem<br>"
   "DNS must then contain an entry for domain.tld and www.domain.tld";
 
+constant fs_access_help =
+	"<p>The request matching this regexp won't go through the virtual hosting system, thus "
+	"the hostname won't be checked against the filesystem and it will be done as a "
+	"normal filesystem request.</p>"
+	"<p>This way, you can access the sites with both methods, eg for a filesystem structure "
+	"set to \"simple\":"
+	"<ul><li>http://domain.that.matches.this.regexp/domain.tld</li>"
+	"<li>http://domain.tld/</li></ul></p>";
+
 //! method: string query_provides()
-//!  What this module provides
+//!  What this module provides for other modules to access its methods
 string query_provides()
 {
-  return "vhs_fs"; 
+  return "simple_vhs_fs"; 
 }
 
 //! method: void start()
 //!  When the module is started, start filesystem
-void start()
+void start(int count, object conf)
 {
   filesystem::start();
 }
@@ -79,24 +97,37 @@ void create()
 {
   filesystem::create();
 
-  defvar("debug",
-         0,
-	 "Debug",
-	 TYPE_FLAG,
-	 "If set to yes, some debug information will be put in the debug logs");
+#ifdef VHS_DEBUG
+  defvar(
+		"debug",
+		0,
+		"Debug",
+		TYPE_FLAG,
+		"If set to yes, some debug information will be put in the debug logs.");
+#endif
 
-  defvar("fs_struct",
-         "simple",
-         "Virtual hosting settings: Filesystem structure",
-         TYPE_MULTIPLE_STRING,
-         fs_struct_help,
-         ({ "simple","dot reverse","progressive" }));
+  defvar(
+		"fs_struct",
+		"simple",
+		"Virtual hosting settings: Filesystem structure",
+		TYPE_MULTIPLE_STRING,
+		fs_struct_help,
+		({ "simple","dot reverse","progressive" }));
 	 
-  defvar("strip_www",
-         1,
-         "Virtual hosting settings: Strip www.",
-         TYPE_FLAG,
-         strip_www_help);
+  defvar(
+		"strip_www",
+		1,
+		"Virtual hosting settings: Strip www.",
+		TYPE_FLAG,
+		strip_www_help);
+
+	defvar(
+		"fs_access",
+		"^.*domain\.tld$",
+		"Exception",
+		TYPE_STRING,
+		fs_access_help);
+
 }
 
 //! mapping first_try(object id)
@@ -108,15 +139,14 @@ mapping first_try(object id)
   // path is a filesystem global variable which contain the path to data
   path = QUERY(searchpath);
 
-  WERR("before: path: "+path);
-
   // TODO: add a safe way to make a difference between a domain name and an IP
 
   // fix for the module not trying to go to the 127.0.0.1/ directory or
   // whatever if you want to test the module on the loopback
   // to be removed once the domain/IP detection is done
-  if(!zero_type(id->request_headers->host) &&
-     id->request_headers->host!="127.0.0.1")
+  if( !zero_type(id->request_headers->host) &&
+     	id->request_headers->host != "127.0.0.1" &&
+			!Regexp(QUERY(fs_access))->match(id->request_headers->host))
   {
     string domain = "";		// Store the modified domain
  
@@ -124,15 +154,15 @@ mapping first_try(object id)
     if(QUERY(strip_www))
     {
       if(id->request_headers->host[0..3]=="www.")
-        domain=id->request_headers->host[4..];
+        domain = id->request_headers->host[4..];
       else
-        domain=id->request_headers->host;
+        domain = id->request_headers->host;
     }
     else
-      domain=id->request_header->host;
+      domain = id->request_header->host;
 
     // domain is added a trailing / because it's now a directory
-    domain=domain+"/";
+    domain = domain+"/";
  
     // Modify the path given the filesystem structure
     switch(QUERY(fs_struct))
@@ -152,16 +182,15 @@ mapping first_try(object id)
         break;
 
       default:
-        WERR(QUERY(fs_struct)+" is not a known filesystem structure");
+        DEBUG(QUERY(fs_struct)+" is not a known filesystem structure");
     }
   
+    // TODO: play with the add_constant to be 1.2/1.3 safe
     // clean up the path a bit
-    path=Caudium.simplify_path(path);
+    path = simplify_path(path);
 
   }
 
-  WERR("after: path: "+path);
-    
   return 0; 
 }
 
@@ -180,3 +209,16 @@ mapping first_try(object id)
 //!  type: TYPE_FLAG
 //!  name: Virtual hosting settings: Strip www.
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
