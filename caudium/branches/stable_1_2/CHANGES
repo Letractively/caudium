@@ -6,6 +6,10 @@ Changes in Caudium 1.2.x since Caudium 1.2.2
   </formoutput> was give backtrace if either GT or Z was not previously
   initialized).
 - File index.rxml is now recognized as index file.
+- Fixed bug #515405: New error handler doesn't HTML encode (see 
+  http://www.cert.org/advisories/CA-2000-02.html), error pages was able to
+  send abitrary code to browser using non existant pages (like for example :
+  http://www.foo.server/<script>alert("CSS");</script>).
 
 Changes in Caudium 1.2 since Caudium 1.0
 ----------------------------------------
