@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id
+# $Id$
 #
 # This is an ugly hack, but we need to know the Debian version of the pike7 package
 #
