@@ -48,33 +48,6 @@ string query_provides()
 
 object dir=0;
 
-int access_mode_is_user() {
-
-  return !(QUERY(CI_access_mode) == "user");
-}
-
-int access_mode_is_guest() {
-
-  return !(QUERY(CI_access_mode) == "guest");
-}
-
-int access_mode_is_roaming() {
-
-  return !(QUERY(CI_access_mode) == "roaming");
-}
-
-int access_mode_is_user_or_roaming() {
-
-  return access_mode_is_user() & access_mode_is_roaming();
-}
-
-
-int access_mode_is_guest_or_roaming() {
-
-  return access_mode_is_guest() & access_mode_is_roaming();
-}
-
-
 int default_uid() {
 
 #if constant(geteuid)
@@ -90,132 +63,100 @@ int default_uid() {
 
 void create()
 {
-        defvar ("CI_access_mode","user","Access mode",
-                   TYPE_STRING_LIST, "There are three access modes:"
-		   "<p><b>user</b><br />"
-                   "The user is authenticated against his own entry"
-		   " in directory."
-		   "Optionally you can specify attribute/value"
-		   " pair must contained in.</p>"
-		   "<p><b>guest</b><br />"
-		   "The mode assume public access to the directory entries "
-		   "and is ment for for testing purposes. It's not recommended"
-		   " for real use.</p>"
-		   "<p><b>roaming</b><br />"
-		   "Mode designed to works with Netscape roaming LDAP"
-		   " DIT tree.</p>",
-		({ "user", "guest", "roaming" }) );
-        defvar ("CI_access_type","search","Access type",
-                   TYPE_STRING_LIST, "Type of LDAP operation used "
-		   "for authorization  checking."
-		   "Only 'search' type implemented, yet ;-)",
-		({ "search" }) );
-		//({ "search", "compare" }) );
+	// LDAP server:
+        defvar ("CI_dir_server","localhost","LDAP server: Location",
+                   TYPE_STRING, "This is LDAP URL for the LDAP server with "
+                   "the authentication information. Example: ldap(s)://myldaphost");
+
+        defvar ("CI_basename","","LDAP server: Search Base name",
+                   TYPE_STRING, "The distinguished name to use as a base for queries."
+		   "Typically, this would be an 'o' or 'ou' entry "
+		   "local to the DSA which contains the user entries.");
+
         defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Defaults: Search template",
                    TYPE_STRING, "Template used by LDAP search operation"
 		   " as filter."
 		   "<b>%u%</b> : Will be replaced by entered username." );
+
         defvar ("CI_level","subtree","LDAP query depth",
                    TYPE_STRING_LIST, "Scope used by LDAP search operation."
                    "",
 		({ "base", "onelevel", "subtree" }) );
 
-	// LDAP server:
-        defvar ("CI_dir_server","localhost","LDAP server: Location",
-                   TYPE_STRING, "This is the host running the LDAP server with "
-                   "the authentication information.");
-        defvar ("CI_basename","","LDAP server: Base name",
-                   TYPE_STRING, "The distinguished name to use as a base for queries."
-		   "Typically, this would be an 'o' or 'ou' entry "
-		   "local to the DSA which contains the user entries.");
-
-
-	// "user" access type
         defvar ("CI_required_attr","","LDAP server: Required attribute",
                    TYPE_STRING|VAR_MORE,
 		   "Which attribute must be present to successfully"
-		   " authenticate user (can be empty). "
+		   " authenticate user (optional). "
 		   "<br />For example: memberOf",
-		   0,
-		   access_mode_is_user_or_roaming
-		   );
+		   0);
+
         defvar ("CI_required_value","","LDAP server: Required value",
                    TYPE_STRING|VAR_MORE,
-		   "Which value must be in required attribute (can be empty)" 
+		   "Which value must be in required attribute (optional)" 
 		   "<br />For example: cn=KISS-PEOPLE",
-		   0,
-		   access_mode_is_user_or_roaming
-		   );
-        defvar ("CI_bind_templ","uid=%u%","LDAP server: Bind template",
-                   TYPE_STRING|VAR_MORE,
-		   "If <b>Base name</b> is not null will be added as suffix"
-		   "<br />For example: Base name is 'c=CZ' and user is 'hop',"
-		   " then bind DN will be 'uid=hop, c=CZ'.",
-		   0,
-		   access_mode_is_user
-		   );
+		   0);
 
-	// "guest" access type
         defvar ("CI_dir_username","","LDAP server: Directory search username",
                    TYPE_STRING|VAR_MORE,
-		   "This username will be used to authenticate "
-                   "when connecting to the LDAP server. Refer to your LDAP "
-                   "server documentation, this could be irrelevant.",
-		   0,
-		   access_mode_is_guest_or_roaming
-		   );
+		   "This Distinguished Name (DN) will be used to authenticate "
+                   "when connecting to the LDAP server to perform "
+                   "non-authentication related searches. Refer to your LDAP "
+                   "server documentation, this could be irrelevant. (optional)",
+		   0);
+
         defvar ("CI_dir_pwd","", "LDAP server: Directory user's password",
 		    TYPE_STRING|VAR_MORE,
 		    "This is the password used to authenticate "
-		    "connection to directory.",
-		   0,
-		   access_mode_is_guest_or_roaming
-		    );
-
-	// "roaming" access type
-        defvar ("CI_owner_attr","owner","LDAP server: Indirect DN attributename",
-                   TYPE_STRING|VAR_MORE,
-		   "Attribute name which contains DN for indirect authorization"
-                   ". Value is used as DN for binding to the directory.",
-		   0,
-		   access_mode_is_roaming
-		   );
+		    "connection to directory (optional).",
+		   0);
 
 	// Defaults:
         defvar ("CI_default_attrname_upw", "userPassword",
-		   "Defaults: User password map", TYPE_STRING,
+		   "Attributes: User password", TYPE_STRING,
                    "The mapping between passwd:password and LDAP.");
+
         defvar ("CI_default_uid",default_uid(),"Defaults: User ID", TYPE_INT,
                    "Some modules require an user ID to work correctly. This is the "
                    "user ID which will be returned to such requests if the information "
                    "is not supplied by the directory search.");
+
         defvar ("CI_default_attrname_uid", "uidNumber",
-		   "Defaults: User ID map", TYPE_STRING,
-                   "The mapping between passwd:uid and LDAP.");
+		   "Attributes: User ID", TYPE_STRING,
+                   "The attribute containing the user's numeric ID.");
+
         defvar ("CI_default_gid", getegid(),
 		"Defaults: Group ID", TYPE_INT,
-                   "Same as User ID, only it refers rather to the group.");
+                   "Default GID to be supplied when directory entry does not provide one.");
+
         defvar ("CI_default_attrname_gid", "gidNumber",
-		   "Defaults: Group ID map", TYPE_STRING,
-                   "The mapping between passwd:gid and LDAP.");
+		   "Attributes: Group ID", TYPE_STRING,
+                   "The attribute containing the user's primary GID.");
+
         defvar ("CI_default_gecos", "", "Defaults: Gecos", TYPE_STRING,
-                   "The default Gecos.");
+                   "The default Full NAme (Gecos).");
+
         defvar ("CI_default_attrname_gecos", "gecos",
-		   "Defaults: Gecos map", TYPE_STRING,
-                   "The mapping between passwd:gecos and LDAP.");
+		   "Attribute: Full Name", TYPE_STRING,
+                   "The attribute containing the user Full Name.");
+
         defvar ("CI_default_home","/", "Defaults: Home Directory", TYPE_DIR,
                    "It is possible to specify an user's home "
                    "directory. This is used if it's not provided.");
+
         defvar ("CI_default_attrname_homedir", "homeDirectory",
-		   "Defaults: Home Directory map", TYPE_STRING,
-                   "The mapping between passwd:homedir and LDAP.");
+		   "Attributes: Home Directory", TYPE_STRING,
+                   "The attribute containing the user Home Directory.");
+
         defvar ("CI_default_shell","/bin/false", "Defaults: Shell", TYPE_STRING,
-                   "The shell name for entries without own defined.");
+                   "The shell name for entries without a shell.");
+
         defvar ("CI_default_attrname_shell", "loginShell",
-		   "Defaults: Shell map", TYPE_STRING,
-                   "The mapping between passwd:shell and LDAP.");
+		   "Attributes: Login Shell", TYPE_STRING,
+                   "The attribute containing the user Login Shell.");
+
         defvar ("CI_default_addname",0,"Defaults: Username add",TYPE_FLAG,
-                   "Setting this will add username to path to default directory.");
+                   "Setting this will add username to path to default "
+                   "directory, when the home directory is not provided.");
 
 }
 
@@ -470,39 +411,19 @@ int chk_name(string x, string y) {
 }
 #endif
 
-array|int auth (array(string) auth, object id)
+array|int authenticate (string user, string password)
 {
-    string u,p,pw;
     array(string) dirinfo;
     mixed attr,value;
     mixed err;
 
     att++;
-    sscanf (auth[1],"%s:%s",u,p);
 
-#if LOG_ALL
-    if(!zero_type(accesses[id->remoteaddr]) && !zero_type(accesses[id->remoteaddr]["cnt"])) {
-      accesses[id->remoteaddr]->cnt++;
-      if(Array.search_array(accesses[id->remoteaddr]->name, chk_name, u) < 0)
-	accesses[id->remoteaddr]->name = accesses[id->remoteaddr]->name + ({ u });
-    } else
-      accesses[id->remoteaddr] = (["cnt" : 1, "name":({ u })]);
-#endif
-    if (!p||!strlen(p)) {
-	DEBUGLOG ("no password supplied by the user");
-	failed[id->remoteaddr]++;
-	caudium->quick_ip_to_host(id->remoteaddr);
-	return ({0, auth[1], -1});
-    }
-
-    dirinfo=userinfo(u,p);
+    dirinfo=userinfo(username, password);
     if (!dirinfo||!sizeof(dirinfo)) {
-	//DEBUGLOG ("password check ("+dirinfo[1]+","+p+") failed");
 	DEBUGLOG ("password check failed");
 	DEBUGLOG ("no such user");
 	nouser++;
-	failed[id->remoteaddr]++;
-	caudium->quick_ip_to_host(id->remoteaddr);
 	return ({0,u,p});
     }
     pw = dirinfo[1];
@@ -531,10 +452,7 @@ array|int auth (array(string) auth, object id)
 		    break;
 	    } // switch
 	if (!pok) {
-	    //DEBUGLOG ("password check (" + pw + ", " + p + ") failed");
 	    DEBUGLOG ("password check failed");
-	    //fail++;
-	    failed[id->remoteaddr]++;
 	    caudium->quick_ip_to_host(id->remoteaddr);
 	    return ({0,u,p});
 	}
@@ -561,15 +479,11 @@ array|int auth (array(string) auth, object id)
 			// werror("User "+u+" has value "+value+"\n");
 		    } else {
 			werror("LDAPuserauth: User "+u+" has not value "+value+"\n");
-			failed[id->remoteaddr]++;
-			caudium->quick_ip_to_host(id->remoteaddr);
 			return ({0,u,p});
 		    }
 		}
 	    } else {
 		werror("LDAPuserauth: User "+u+" has no attr "+attr+"\n");
-		failed[id->remoteaddr]++;
-		caudium->quick_ip_to_host(id->remoteaddr);
 		return ({0,u,p});
 	    }
 
@@ -578,5 +492,5 @@ array|int auth (array(string) auth, object id)
 
     DEBUGLOG (u+" positively recognized");
     succ++;
-    return ({1,u,0});
+    return 1;
 }
