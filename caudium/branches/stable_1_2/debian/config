@@ -80,7 +80,10 @@ get_cfg_login() {
 
 get_cfg_pass() {
     local pass="${1:-password}"
-
+    local pass2="${1:-password}"
+    local pass_reset="no"
+    local port="22202"
+    
     db_title 'Config interface password'
     db_subst caudium${EXTVER}/config_password cifpass $pass
 
@@ -92,11 +95,38 @@ get_cfg_pass() {
         pass="$RET"
         if test -z "$pass"; then
             pass="password"
-        else
-            return 0
+	    pass_reset="yes"
         fi
-
+	
+        db_input high caudium${EXTVER}/config_password_confirm || true
+	db_go
+	
+	db_get caudium${EXTVER}/config_password_confirm
+	pass2="$RET"
+	if test -z "$pass2"; then
+	    pass2="password"
+	    pass_reset="yes"
+	fi
+	
+	if test "$pass" != "$pass2"; then
+	  db_input high caudium${EXTVER}/config_password_mismatch || true
+	  db_go
+	  continue
+	fi
+	
+	if test "$pass_reset" = "yes" -o "$pass" = "password" ; then
+	  db_get caudium${EXTVER}/config_port || true
+          port=$RET
+	  db_subst caudium${EXTVER}/config_password_reset cfgport "$port"
+	  db_input high caudium${EXTVER}/config_password_reset || true
+	  db_go
+	  return 0
+	else
+	  return 0
+	fi
+	
         db_reset caudium${EXTVER}/config_password
+	db_reset caudium${EXTVER}/config_password_confirm
         db_set caudium${EXTVER}/config_password $pass || true
     done
 }
