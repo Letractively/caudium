@@ -80,7 +80,7 @@
  <var name='garb_min_garb'>      <int>1</int> </var>
  <var name='LogCO'>              <int>0</int> </var>
  <var name='InternalImagePath'>  <str>caudium-images/</str> </var>
- <var name='cache_fs_path'>      <str>/var/caudium/cache/cache</str> </var>
+ <var name='cache_fs_path'>      <str>/var/cache/caudium/cache</str> </var>
  <var name='bytes_per_second'>   <int>50</int> </var>
  <var name='suicide_engage'>     <int>0</int> </var>
  <var name='cif_theme'>          <str>caudiumnet</str> </var>
