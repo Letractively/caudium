@@ -18,6 +18,16 @@
  *
  */
 
+/*
+ * The Gsession module and the accompanying code is Copyright © 2002 Davies, Inc.
+ * This code is released under the GPL license and is part of the Caudium
+ * WebServer.
+ *
+ * Authors:
+ *   Marek Habersack <grendel@caudium.net> (core module)
+ *   Chris Davies <mcd@daviesinc.com> (SQL plugins)
+ *
+ */
 constant cvs_version = "$Id$";
 
 #include <module.h>
@@ -213,7 +223,7 @@ mixed first_try(object id)
     return 0;
 }
 
-mixed find_file ( string path, object id )
+mixed find_file( string path, object id )
 {
     string ret;
 
