@@ -17,7 +17,7 @@ MAINTAINER=	kiwi@oav.net
 
 BUILD_DEPENDS=	pike:${PORTSDIR}/lang/pike72cvs/
 LIB_DEPENDS=	mhash.2:${PORTSDIR}/security/mhash/ \
-		mcrypt.6:${PORTSDIR}/security/libmcrypt/
+		mcrypt.7:${PORTSDIR}/security/libmcrypt/
 
 WRKSRC=		${WRKDIR}/pexts
 
