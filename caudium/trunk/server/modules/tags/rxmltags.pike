@@ -2890,9 +2890,9 @@ string tag_pikeversion(string tag, mapping args, object id)
 mapping query_tag_callers()
 {
    return (["accessed":tag_accessed,
-	    "modified":tag_modified,
-	    "pr":tag_pr,
-	    "ipv6":tag_ipv6,
+            "modified":tag_modified,
+            "pr":tag_pr,
+            "ipv6":tag_ipv6,
             "remoteip":tag_remoteip,
             "pike_version":tag_pikeversion,
             "pike-version":tag_pikeversion,
@@ -2943,6 +2943,7 @@ mapping query_tag_callers()
 	    "help": tag_help
    ]);
 }
+
 
 string tag_source(string tag, mapping m, string s, object id,object file)
 {
@@ -3596,63 +3597,64 @@ mapping query_pi_callers() {
 
 mapping query_container_callers()
 {
-  return (["comment":lambda(){ return ""; },
-	   "crypt":lambda(string t, mapping m, string c){
-		     if(m->compare)
-		       return (string)crypt(c,m->compare);
-		     else
-		       return crypt(c);
-		   },
-	   "cache":tag_cache,
-	   "for":tag_for,
-	   "trace":tag_trace,
-	   "urldecode":tag_urldecode,
-	   "cset":lambda(string t, mapping m, string c, object id)
-		  { return tag_set("set",m+([ "value":Protocols.HTTP.unentity(c) ]),
-			    id); },
-	   "source":tag_source,
-	   "case":tag_case,
-	   "noparse":tag_noparse,
-	   "catch":lambda(string t, mapping m, string c, object id) {
-		     string r;
-		     array e = catch(r=parse_rxml(c, id));
-		     if(e) return e[0];
-		     return r;
-		   },
-	   "throw":lambda(string t, mapping m, string c) {
-		     if(c[-1] != '\n') c+="\n";
-		     throw( ({ c, backtrace() }) );
-		   },
-	   "nooutput":tag_nooutput,
-	   "sort":tag_sort,
-	   "doc":tag_source2,
-	   "autoformat":tag_autoformat,
-	   "random":tag_random,
-	   "define":tag_define,
-	   "scope":tag_scope,
-	   "right":tag_right,
-	   "client":tag_client,
-	   "if":tag_if,
-	   "elif":tag_elseif,
-	   "elseif":tag_elseif,
-	   "else":tag_else,
-	   "then":tag_then,
-	   "gauge":tag_gauge,
-	   "strlen":tag_strlen,
-	   "allow":tag_if,
-	   "prestate":tag_prestate,
-	   "apre":tag_aprestate,
-	   "aconf":tag_aconfig,
-	   "aconfig":tag_aconfig,
-	   "deny":tag_deny,
-	   "smallcaps":tag_smallcaps,
-	   "formoutput":tag_formoutput,
-	   "preparse" : tag_preparse,
-	   "trimlines" : tag_trimlines,
-	   "default" : tag_default,
-	   "recursive-output": tag_recursive_output,
-       "scopecontrol": tag_scopecontrol,
-	   ]);
+  return ([
+           "comment":lambda(){ return ""; },
+           "crypt":lambda(string t, mapping m, string c){
+        	     if(m->compare)
+        	       return (string)crypt(c,m->compare);
+        	     else
+        	       return crypt(c);
+        	   },
+           "cache":tag_cache,
+           "for":tag_for,
+           "trace":tag_trace,
+           "urldecode":tag_urldecode,
+           "cset":lambda(string t, mapping m, string c, object id)
+        	  { return tag_set("set",m+([ "value":Protocols.HTTP.unentity(c) ]),
+        		    id); },
+           "source":tag_source,
+           "case":tag_case,
+           "noparse":tag_noparse,
+           "catch":lambda(string t, mapping m, string c, object id) {
+        	     string r;
+        	     array e = catch(r=parse_rxml(c, id));
+        	     if(e) return e[0];
+        	     return r;
+        	   },
+           "throw":lambda(string t, mapping m, string c) {
+	             if(c[-1] != '\n') c+="\n";
+	             throw( ({ c, backtrace() }) );
+        	   },
+           "nooutput":tag_nooutput,
+           "sort":tag_sort,
+           "doc":tag_source2,
+           "autoformat":tag_autoformat,
+           "random":tag_random,
+           "define":tag_define,
+           "scope":tag_scope,
+           "right":tag_right,
+           "client":tag_client,
+           "if":tag_if,
+           "elif":tag_elseif,
+           "elseif":tag_elseif,
+           "else":tag_else,
+           "then":tag_then,
+           "gauge":tag_gauge,
+           "strlen":tag_strlen,
+           "allow":tag_if,
+           "prestate":tag_prestate,
+           "apre":tag_aprestate,
+           "aconf":tag_aconfig,
+           "aconfig":tag_aconfig,
+           "deny":tag_deny,
+           "smallcaps":tag_smallcaps,
+           "formoutput":tag_formoutput,
+           "preparse" : tag_preparse,
+           "trimlines" : tag_trimlines,
+           "default" : tag_default,
+           "recursive-output": tag_recursive_output,
+           "scopecontrol": tag_scopecontrol,
+        ]);
 }
 
 int api_query_num(object id, string f, int|void i)
