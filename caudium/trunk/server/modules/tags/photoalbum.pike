@@ -32,7 +32,11 @@
 
 #include <module.h>
 inherit "module";
+#ifdef CAUDIUM
 inherit "caudiumlib";
+#else
+inherit "roxenlib";
+#endif
 
 /* Custom includes */
 
@@ -144,7 +148,7 @@ mapping query_tag_callers() {
 }
 
 mixed build_album( object id, mapping args ) {
-    object newalbum = album();
+    object newalbum = album( query );
     string name = args->name?args->name:query( "void_album_name" );
     string dir = args->dir?args->dir:"";
     if ( dir == "" ) {
@@ -184,6 +188,11 @@ string t_album ( string tag, mapping args, object id ) {
 
 class album {
     mapping data = ([ ]);
+    function query;
+
+    void create( function q ) {
+	query = q;
+    }
 
     private string prestate( array pstates, string url ) {
 	array urlparts = url / "/";
@@ -222,7 +231,7 @@ class album {
 
     void set_template( object id, void|string filename ) {
 	if ( filename ) {
-	    string tmpl = id->conf->try_get_file( fix_relative( filename ) );
+	    string tmpl = id->conf->try_get_file( fix_relative( filename, id ), id );
 	    if ( tmpl == "" ) return;
 	    data += ([ "template" : tmpl ]);
 	}
@@ -230,8 +239,8 @@ class album {
 
     string render_index_page( object id ) {
 	string ret = "";
-	if ( id->conf->modules->photoalbum->enabled->query( "use_css" ) ) {
-	    ret += "<style type=\"text/css\">\n<!--\n" + id->conf->modules->photoalbum->enabled->query( "css_classes" ) + "\n-->\n</style>\n";
+	if ( query( "use_css" ) ) {
+	    ret += "<style type=\"text/css\">\n<!--\n" + query( "css_classes" ) + "\n-->\n</style>\n";
 	} else {
 	    ret += "";
 	}
@@ -240,7 +249,7 @@ class album {
 	} else {
 	    ret +=
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
-		((id->conf->modules->photoalbum->enabled->query( "show_numofphotos" ))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
+		((query( "show_numofphotos" ))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
                 "<div class=\"thumbnail\">\n";
 	    int i;
 	    for( i = 0; i < get_num_photos(); i++ ) {
@@ -248,8 +257,8 @@ class album {
 		    "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) + "\">" +
 		    "<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
 		    "src=\"" + get_photo( i )[ 0 ] + "\" " +
-		    "border=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "thumbnail_border" ) ) + "\" " +
-		    "width=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "width" ) ) + "\">" +
+		    "border=\"" + sprintf( "%d", query( "thumbnail_border" ) ) + "\" " +
+		    "width=\"" + sprintf( "%d", query( "width" ) ) + "\">" +
 		    "</a><br>\n" +
 		    "<div class=\"thumbnaildesc\">" +
 		    get_photo( i )[ 1 ] +
@@ -279,8 +288,8 @@ class album {
 
     string render_photo_page( object id, int page_num ) {
 	string ret;
-	if ( id->conf->modules->photoalbum->enabled->query( "use_css" ) ) {
-	    ret = "<style type\"text/css\">\n<!--\n" + id->conf->modules->photoalbum->enabled->query( "css_classes" ) + "\n-->\n</style>\n";
+	if ( query( "use_css" ) ) {
+	    ret = "<style type\"text/css\">\n<!--\n" + query( "css_classes" ) + "\n-->\n</style>\n";
 	} else {
 	    ret = "";
 	}
@@ -291,14 +300,14 @@ class album {
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
                 "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br>\n" +
 		"<div class=\"photo\">" +
-		"<img border=\"" + sprintf( "%d", id->conf->modules->photoalbum->enabled->query( "photo_border" ) ) + "\" " +
+		"<img border=\"" + sprintf( "%d", query( "photo_border" ) ) + "\" " +
 		"alt=\"" + id->conf->html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
 		"src=\"" + get_photo( page_num )[ 0 ] + "\">" +
 		"</div><br>\n" +
                 "<div class=\"nav\">" +
-		a_next( id->not_query, page_num, id->conf->modules->photoalbum->enabled->query( "nav_next" ) ) + " " +
-		"<a href=\"" + id->not_query + "\">" + id->conf->modules->photoalbum->enabled->query( "nav_index" ) + "</a> " +
-		a_prev( id->not_query, page_num, id->conf->modules->photoalbum->enabled->query( "nav_prev" ) ) +
+		a_next( id->not_query, page_num, query( "nav_next" ) ) + " " +
+		"<a href=\"" + id->not_query + "\">" + query( "nav_index" ) + "</a> " +
+		a_prev( id->not_query, page_num, query( "nav_prev" ) ) +
                 "</div>";
 	}
         return ret;
