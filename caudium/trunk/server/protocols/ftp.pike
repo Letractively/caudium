@@ -1585,7 +1585,7 @@ class FTPSession
     object(Stdio.File) f = Stdio.File();
 
     object privs;
-    if(local_port-1 < 1024)
+    if(local_port-1 < 1024 && getuid())
       privs = Privs("FTP: Opening the data connection on " + local_addr +
 		    ":" + (local_port-1) + ".");
 
