@@ -233,11 +233,31 @@ array(Image.Layer) draw_button(mapping args, string text, object id)
         int th = text_height;
         do
         {
-            button_font = resolve_font( args->font+" "+th );
+
+			if( args->afont ) {
+				button_font = resolve_font( args->afont+" "+th );
+			} else {
+				if(!args->nfont) args->nfont = args->font;
+				int bold, italic;
+				if(args->bold) bold=1;
+				if(args->light) bold=-1;
+				if(args->black) bold=2;
+				if(args->italic) italic=1;
+				button_font = get_font(args->nfont||"default",
+						(int)args->font_size||32,bold,italic,
+						lower_case(args->talign||"left"),
+						(float)(int)args->xpad, (float)(int)args->ypad);
+							
+			}
 	    if (!button_font)
 		error("Failed to load font for gbutton");
-            text_img = button_font->write(text);
-            os = text_img->ysize();
+            
+	    text_img = button_font->write(@( args->encoding 
+	    		? (Locale.Charset.decoder(args->encoding)->
+			  feed(text)->drain())/"\n" 
+			: text/"\n" ));
+            
+	    os = text_img->ysize();
             if( !dir )
                 if( os < text_height )
                     dir = 1;
@@ -645,6 +665,9 @@ static array mk_url(object id, mapping args, string contents)
 
     if (args->condensed || (lower_case(args->textstyle || "") == "condensed"))
         new_args->condensed = "yes";
+
+    if (args->encoding) 
+    	new_args->encoding=args["encoding"];
     
     new_args->quant = args->quant || 128;
     
@@ -938,6 +961,12 @@ static array mk_url(object id, mapping args, string contents)
 //!  Resolution, in pixels per inch.
 //! default: 0.75
 //
+//! attribute: [encoding=charset]
+//!  text encoding, like iso-8859-1, iso-8859-2, UTF-8, etc...
+//!    see also pike's Locale.Charset module for supported encodings
+//! default: not-set
+//
+
 string tag_gbutton(string tag, mapping args, string contents,
                    object id, object foo, mapping defines)
 {
