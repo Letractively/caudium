@@ -237,9 +237,6 @@ mapping http_error_answer(object id, void|int error_code, void|string error_name
      return (mapping)tmperr;
    else
      return http_low_answer(error_code,error_message);
-   
-  // return (caudium->http_error->process_error (id, error_code, error_name, error_message));
-   
 }
  
 //!   Return a response mapping with the text and the specified content type.
@@ -394,111 +391,10 @@ mapping http_file_answer(object fd, string|void type, void|int len)
   return ([ "file":fd, "type":(type||"text/html"), "len":len ]);
 }
 
+// FIXME: do we have to keep that ? - Xavier
 constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
 constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
-
-#if 0
-//!   Return the specified date (as returned by time()) formatted in the
-//!   common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ". 
-//! @param t
-//!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
-//! @returns
-//!   The date in the common log file format.
-//!   Example : 02/Aug/2000:22:36:27 -0700
-string cern_http_date(int t)
-{
-  string c;
-  mapping lt = localtime(t);
-  int tzh = lt->timezone/3600 - lt->isdst;
-
-  if(tzh > 0)
-    c="-";
-  else {
-    tzh = -tzh;
-    c="+";
-  }
-
-  return(sprintf("%02d/%s/%04d:%02d:%02d:%02d %s%02d00",
-		 lt->mday, months[lt->mon], 1900+lt->year,
-		 lt->hour, lt->min, lt->sec, c, tzh));
-}
-
-//!   Return the specified date (as returned by time()) formatted in the
-//!   HTTP-protocol standard date format. Used in for example the Last-Modified
-//!   header.
-//! @param t
-//!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
-//! @returns
-//!   The date in the HTTP standard date format.
-//!   Example : Thu, 03 Aug 2000 05:40:39 GMT
-string http_date(int t)
-{
-    return Calendar.ISO_UTC.Second(t)->format_http();
-}
-
-//!   HTTP encode the specified string and return it. This means replacing
-//!   the following characters to the %XX format: null (char 0), space, tab,
-//!   carriage return, newline, percent and single and double quotes.
-//! @param s
-//!   The string to encode.
-//! @returns
-//!   The HTTP encoded string.
-string http_encode_string(string f)
-{
-  return
-    replace(f,
-	    ({ "\000", " ", "\t", "\n", "\r", "%", "'", "\"", "<", ">", "@" }),
-	    ({ "%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22",
-	       "%3c", "%3e", "%40" }));
-}
-
-//!   HTTP decode the specified string and return it. This means replacing
-//!   the following characters from the %XX format: null (char 0), space, tab,
-//!   carriage return, newline, percent and single and double quotes.
-//! @param s
-//!   The string to decode.
-//! @returns
-//!   The HTTP decoded string.
-string http_decode_string(string f)
-{
-  return
-    replace(f,
-	    ({ "%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22",
-	      "%3c", "%3e", "%40" }),
-            ({ "\000", " ", "\t", "\n", "\r", "%", "'", "\"", "<", ">", "@" }));
-}
-
-//!   Encode the specified string in as to the HTTP cookie standard.
-//!   The following characters will be replaced: = , ; % :
-//! @param s
-//!   The string to encode.
-//! @returns
-//!   The HTTP cookie encoded string.
-string http_encode_cookie(string f)
-{
-  return replace(f, ({ "=", ",", ";", "%", ":" }),
-		 ({ "%3d", "%2c", "%3b", "%25", "%3A" }));
-}
-
-//!   URL encode the specified string and return it. This means replacing
-//!   the following characters to the %XX format: null (char 0), space, tab,
-//!   carriage return, newline, and % ' " # &amp; ? = / : +
-//! @param s
-//!   The string to encode.
-//! @returns
-//!   The URL encoded string.
-string http_encode_url (string f)
-{
-  return
-    replace (f,
-	     ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
-	       "&", "?", "=", "/", ":", "+", "<", ">", "@" }),
-	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
-	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40"
-	     }));
-}
-#endif
 
 //!   URL decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
@@ -691,3 +587,4 @@ mapping http_proxy_auth_required(string realm, void|string message)
   return http_low_answer(407, message)
     + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
+
