@@ -55,7 +55,7 @@ array register_module()
 #if !constant(PiXSL.parse)
     "<p><b><blink>ERROR</blink>: "
     "<font color=red>The PiXSL.so pike-module is missing. This "
-    "module will not function correctly!</font>\n"
+    "module will not function correctly!</font></b>\n"
 #endif
 
     , 0, 1

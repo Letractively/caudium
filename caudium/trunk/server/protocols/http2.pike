@@ -291,40 +291,44 @@ private int do_post_processing()
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
-  if(misc->len && method == "POST" && request_headers["content-type"]) {
-    // handle post data
-    int l = misc->len;
-    leftovers = data[l+2..];
-    data = data[..l+1];
-    switch((lower_case(request_headers["content-type"])/";")[0]-" ")
-    {
-     default: // Normal form data.
-      string v;
-      if(l < 200000)
-	Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
-					   ({"", ""})), variables);
-      break;
+  if(misc->len && method == "POST") {
+    id->misc->cacheable = 0; /* No good caching posts */
+    
+    if(request_headers["content-type"]) {
+      // handle post data
+      int l = misc->len;
+      leftovers = data[l+2..];
+      data = data[..l+1];
+      switch((lower_case(request_headers["content-type"])/";")[0]-" ")
+      {
+       default: // Normal form data.
+	string v;
+	if(l < 200000)
+	  Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
+					     ({"", ""})), variables);
+	break;
 
-     case "multipart/form-data":
-      //		perror("Multipart/form-data post detected\n");
-      object messg = MIME.Message(data, request_headers);
-      foreach(messg->body_parts, object part) {
-	if(part->disp_params->filename) {
-	  variables[part->disp_params->name]=part->getdata();
-	  variables[part->disp_params->name+".filename"]=
-	    part->disp_params->filename;
-	  if(!misc->files)
-	    misc->files = ({ part->disp_params->name });
-	  else
-	    misc->files += ({ part->disp_params->name });
-	} else {
-	  if(variables[part->disp_params->name])
-	    variables[part->disp_params->name] += "\0" + part->getdata();
-	  else
-	    variables[part->disp_params->name] = part->getdata();
+       case "multipart/form-data":
+	//		perror("Multipart/form-data post detected\n");
+	object messg = MIME.Message(data, request_headers);
+	foreach(messg->body_parts, object part) {
+	  if(part->disp_params->filename) {
+	    variables[part->disp_params->name]=part->getdata();
+	    variables[part->disp_params->name+".filename"]=
+	      part->disp_params->filename;
+	    if(!misc->files)
+	      misc->files = ({ part->disp_params->name });
+	    else
+	      misc->files += ({ part->disp_params->name });
+	  } else {
+	    if(variables[part->disp_params->name])
+	      variables[part->disp_params->name] += "\0" + part->getdata();
+	    else
+	      variables[part->disp_params->name] = part->getdata();
+	  }
 	}
+	break;
       }
-      break;
     }
   }
 #ifdef KEEP_ALIVE
