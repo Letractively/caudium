@@ -2566,7 +2566,7 @@ static string make_proto_name(string p)
   foreach(indices(known_protos), string proto) {
     string ret;
   
-    ret = common_prefix(({proto, p}));
+    ret = String.common_prefix(({proto, p}));
     if (ret && ret != "")
       return ret;
   }
@@ -2574,7 +2574,7 @@ static string make_proto_name(string p)
   foreach(indices(telnet_protos), string proto) {
     string ret;
   
-    ret = common_prefix(({proto, p}));
+    ret = String.common_prefix(({proto, p}));
     if (ret && ret != "")
       return "telnet";
   }
