@@ -13,10 +13,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: caudium 2:1.3.15-5\n"
+"Project-Id-Version: caudium 2:1.2.31-6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-12-02 03:09+0100\n"
-"PO-Revision-Date: 2003-05-15 09:47+0200\n"
+"POT-Creation-Date: 2003-11-20 20:24+0100\n"
+"PO-Revision-Date: 2004-01-10 10:32+0100\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -84,19 +84,18 @@ msgid ""
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
 "Vous pouvez choisir zéro, une ou plusieurs options :\n"
-" - threads - utiliser les « threads » (si disponible) ; \n"
-" - debug - afficher des informations de débogage pendant le "
-"fonctionnement ;\n"
+" - threads - utiliser les « threads » (si disponible) ;\n"
+" - debug - afficher des informations de débogage ;\n"
 " - once - exécution au premier plan ;\n"
 " - profile - garder les informations de profilage ;\n"
-" - fd-debug - renseigne sur l'utilisation des descripteurs de fichier ;\n"
-" - keep-alive - garde les connection ouvertes avec le protocole HTTP/1.1."
+" - fd-debug - renseigner sur l'utilisation des descripteurs de fichier ;\n"
+" - keep-alive - garder les connection ouvertes avec le protocole HTTP/1.1."
 
 #. Type: boolean
 #. Description
 #: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
-msgstr "Rechercher la performance maximum ?"
+msgstr "Faut-il rechercher la performance maximum ?"
 
 #. Type: boolean
 #. Description
@@ -182,7 +181,7 @@ msgstr ""
 #. Description
 #: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
-msgstr "Utiliser le module expérimental HTTP ?"
+msgstr "Faut-il utiliser le module expérimental HTTP ?"
 
 #. Type: boolean
 #. Description
@@ -204,7 +203,7 @@ msgstr ""
 #. Description
 #: ../templates:79
 msgid "Configuration interface login."
-msgstr "Nom d'utilisateur pour l'interface de configuration."
+msgstr "Nom d'utilisateur pour l'interface de configuration :"
 
 #. Type: string
 #. Description
@@ -220,14 +219,14 @@ msgstr ""
 "configuration. Si vous ne spécifiez pas de nom maintenant, la première "
 "personne qui se connectera sur l'interface de configuration pourra "
 "configurer le nom et le mot de passe et gérer le serveur à votre place. Vous "
-"ne le souhaitez sûrement pas. Merci de spécifier un nom ou d'accepter celui "
+"ne le souhaitez sûrement pas. Veuillez spécifier un nom ou accepter celui "
 "donné par défaut."
 
 #. Type: password
 #. Description
 #: ../templates:89
 msgid "Configuration interface password"
-msgstr "Mot de passe pour l'interface de configuration."
+msgstr "Mot de passe pour l'interface de configuration :"
 
 #. Type: password
 #. Description
@@ -244,23 +243,22 @@ msgstr ""
 #. Type: password
 #. Description
 #: ../templates:97
-#, fuzzy
 msgid "Confirm the configuration interface password"
-msgstr "Mot de passe pour l'interface de configuration."
+msgstr "Confirmation du mot de passe pour l'interface de configuration :"
 
 #. Type: password
 #. Description
 #: ../templates:97
 msgid ""
 "Please type in the configuration interface password again for confirmation."
-msgstr ""
+msgstr "Veuillez indiquer à nouveau le mot de passe pour confirmation."
 
 #. Type: note
 #. Description
 #: ../templates:103
-#, fuzzy
 msgid "Configuration interface password mismatch"
-msgstr "Mot de passe pour l'interface de configuration."
+msgstr ""
+"Les mots de passe pour l'interface de configuration ne correspondent pas."
 
 #. Type: note
 #. Description
@@ -269,13 +267,14 @@ msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
 msgstr ""
+"Les mots de passe que vous avez donnés ne correspondent pas. Veuillez "
+"réessayer en vous souvenant que la casse des mots est importante."
 
 #. Type: note
 #. Description
 #: ../templates:109
-#, fuzzy
 msgid "Configuration interface password reset"
-msgstr "Mot de passe pour l'interface de configuration."
+msgstr "Nouvelle définition du mot de passe pour l'interface de configuration."
 
 #. Type: note
 #. Description
@@ -286,9 +285,13 @@ msgid ""
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
 msgstr ""
+"Le mot de passe a été redéfini à 'password'. Pour l'interface de "
+"configuration, ce mot doit être défini. Veuillez modifier le mot de passe "
+"par défaut dès que Caudium sera installé en accédant à l'interface de "
+"configuration à l'URL suivante : "
 
 #. Type: note
 #. Description
 #: ../templates:109
 msgid "http://localhost:${cfgport}"
-msgstr ""
+msgstr "http://localhost:${cfgport}"
