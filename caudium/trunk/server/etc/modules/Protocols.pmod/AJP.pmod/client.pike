@@ -1,5 +1,5 @@
 string hostname;
-string port;
+int port;
 int max_conns;
 
 array conns=({});
@@ -7,13 +7,13 @@ array conns=({});
 void create(string _host, int _port, int maxconn)
 {
   if(!strlen(_host)) error("No host specified.");
-  if(!port) error("No port number specified.");
+  if(!_port) error("No port number specified.");
   hostname=_host;
   port=_port;
   max_conns=maxconn;
 }
 
-mapping handle_request(id)
+mapping handle_request(object id)
 {
   object c=get_connection();
   mapping response=([]);
@@ -44,7 +44,7 @@ void replace_connection(object conn)
 
 class connection
 {
-  inherit protocol;
+  inherit .protocol;
   object c;
   int inuse=0;
 
@@ -59,6 +59,32 @@ class connection
   {
     inuse=1;
     mapping r=([]);
+
+    // send request
+    c->write(generate_server_packet(packet_forward_request(id)));
+
+    // do we have a request body to send?
+    if(id->request_headers["content-length"] && 
+       (int)(id->request_headers["content-length"]) > 0)
+    {
+      string data=id->data;
+      // loop through, sending at most the maximum packet length
+      foreach(id->data/(float)(MAX_PACKET_SIZE-6), string d)
+      {
+        c->write(generate_server_packet(packet_body(d)));   
+      }
+    }
+
+    int keep_listening=0;
+
+    do
+    {
+      string c=c->read(MAX_PACKET_SIZE, 1);
+      r=decode_container_packet(c);
+    }
+    while(keep_listening==1);
+
+    r=Caudium.HTTP.string_answer(sprintf("%O", r));
     
     inuse=0;
     return r;
