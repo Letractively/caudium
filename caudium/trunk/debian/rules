@@ -100,7 +100,11 @@ install: build
 	  chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
 	done
 
-	
+	# fix caudiumctl paths
+	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
+	    < $(CURDIR)/debian/tmp/usr/bin/caudiumctl \
+	    > $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new && \
+	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl
 
 	# perms fixing fest
 	-chmod 644 debian/tmp/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
@@ -131,6 +135,9 @@ install: build
 
 	# lintian doesn't like images in /usr/lib, let's move them to /usr/share
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
+
+	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/share/pike_packages/apps/modules/
+	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/local/share/caudium/modules/
 
 	#
 	# copy perl
