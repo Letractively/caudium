@@ -23,7 +23,10 @@ Changes in Caudium 1.0.X (CVS)
 - Use Mhash.Hash and PCRE.Regexp from Pexts (when available) in most
   situations where Crypto.md5/sha and Regexps are used.
 - Fixed a 0.6 compatibility bug and noted that SSL will not work with
-  Pike 0.6. This will not be fixed. If you need SSL, use Pike 7.0.
+  Pike 0.6. This will not be fixed. If you need SSL, use Pike 7.0.  -
+- Changed all '#if efun' to '#if constant'. This is a cosmetical
+  change. However '#if efun' is deprecated.
+- Fixed various (new) 7.1 compatibility issues. 
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
