@@ -334,7 +334,7 @@ fi
 
 PIKE_VERSION=`$pike -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 
-if [ -f "lib/$PIKE_VERSION/Caudium.so" ]; then
+if [ -f "lib/$PIKE_VERSION/_Caudium.so" ]; then
   DEFINES="-Mlib/$PIKE_VERSION/ $DEFINES"
 else
   echo "Cannot find Caudium Pike modules for Pike version $PIKE_VERSION."
