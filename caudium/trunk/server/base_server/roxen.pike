@@ -54,13 +54,13 @@ void _exit(int n)
 
 // This is the real Roxen version. It should be changed before each
 // release
-constant __roxen_version__ = "1.3";
-constant __roxen_build__ = "126";
+constant __roxen_version__ = "1.0";
+constant __roxen_build__ = "0";
 
 #ifdef __NT__
-constant real_version = "Roxen Challenger/"+__roxen_version__+"."+__roxen_build__+" NT";
+constant real_version = "Caudium/"+__roxen_version__+"."+__roxen_build__+"-NT";
 #else
-constant real_version = "Roxen Challenger/"+__roxen_version__+"."+__roxen_build__;
+constant real_version = "Caudium/"+__roxen_version__+"."+__roxen_build__;
 #endif
 
 #if _DEBUG_HTTP_OBJECTS
