@@ -122,6 +122,168 @@ class ClientScope {
   }
 }
 
+//! entity_scope: roxen
+//!  This scope is here for Roxen 2.x compatibility reasons and is identical
+//!  to the &amp;caudium; scope.
+//! entity_scope: caudium
+//!  This scope contains information related to the current virtual
+//!  server. Some entities, like &amp;caudium.uptime; relates to the server
+//!  as whole, but others like &amp;caudium.requests; are specific to the
+//!  current virtual server.
+class CaudiumScope {
+  inherit "scope";  
+  
+  string name;
+  int ssl_strength=0;
+
+  string create(string|void _name) {
+    name = _name || "caudium"; // Allow for &roxen; compat.
+    ssl_strength=40;
+#if constant(SSL.constants.CIPHER_des)
+    if(SSL.constants.CIPHER_algorithms[SSL.constants.CIPHER_des])
+      ssl_strength=128;
+    if(SSL.constants.CIPHER_algorithms[SSL.constants.CIPHER_3des])
+      ssl_strength=168;
+#endif /* !constant(SSL.constants.CIPHER_des) */
+  }
+  array(string)|string get(string entity, object id) {
+    mixed tmp;
+    mixed ret = -1;
+    switch(entity) {
+     case "uptime":
+      //! entity: uptime
+      //!  The uptime of the server, in seconds.
+      CACHE(1);
+      ret = (time(1)-caudium.start_time);
+      break;
+     case "uptime-days":
+      //! entity: uptime-days
+      //!  The uptime of the server in days.
+      CACHE(3600*2);
+      ret = (time(1)-caudium.start_time)/3600/24;
+      break;
+     case "uptime-hours":
+      //! entity: uptime-hours
+      //!  The uptime of the server in hours.
+      CACHE(1800);
+      ret = (time(1)-caudium.start_time)/3600;
+      break;
+     case "uptime-minutes":
+      //! entity: uptime-minutes
+      //!  The uptime of the server in minutes.
+      CACHE(60);
+      ret = (time(1)-caudium.start_time)/60;
+      break;
+     case "requests-per-minute":
+     case "hits-per-minute":
+      //! entity: hits-per-minute
+      //!  Same as &amp;caudium.requests-per-minute;. Roxen 2.x compatibility.
+      //! entity: requests-per-minute
+      //!  The average number of requests the server has received per minute since
+      //!  the last restart.
+      CACHE(2);
+      ret = id->conf->requests / ((time(1)-caudium.start_time)/60 + 1);
+      break;
+     case "hits":
+     case "requests":
+      //! entity: hits-per-minute
+      //!  Same as &amp;caudium.requests;. Roxen 2.x compatibility.
+      //! entity: requests
+      //!  The number of requests the server has received since boot.
+      NOCACHE();
+      ret = id->conf->requests;
+      break;
+     case "sent-mb":
+      //! entity: sent-mb
+      //!  The total amount of data that has been sent, in Mebibytes.
+      CACHE(10);
+      ret = sprintf("%1.2f",id->conf->sent->mb());
+      break;
+#if constant(Gmp.mpz);
+     case "sent":
+      //! entity: sent-mb
+      //!  The total amount of data that has been sent, in bytes.
+      //!  note: Only available if Pike is compiled with the Gmp module.      
+      NOCACHE();
+      ret =  (int)id->conf->sent;
+      break;
+     case "sent-per-minute":
+      //! entity: sent-per-minute
+      //!  The average  amount of data that has been sent per minute, in bytes.
+      //!  note: Only available if Pike is compiled with the Gmp module.      
+      CACHE(2);
+      ret = (int)id->conf->sent / ((time(1)-caudium.start_time)/60 || 1);
+      break;
+     case "sent-kbit-per-second":
+      //! entity: sent-kbit-per-minute
+      //!  The average  amount of data that has been sent per minute, in
+      //!  kibibits,
+      //!  note: Only available if Pike is compiled with the Gmp module.      
+      CACHE(2);
+      ret =  sprintf("%1.2f",(((int)(id->conf->sent)*8)/1024.0/
+			      (time(1)-caudium.start_time || 1)));
+      break;
+#else
+     case "sent":
+     case "sent-per-minute":
+     case "sent-kbit-per-second":
+      ret = "Sorry, you need a Pike with Gmp-support to get this.";
+      break;
+#endif      
+     case "ssl-strength":
+      //! entity: ssl-strength
+      //!  Number of bits encryption strength the SSL is capable of.
+      ret = ssl_strength;
+      break;
+     case "pike-version":
+      //! entity: pike-version
+      //!  The version of Pike the webserver is running with.
+      ret = fish_version;
+      break;
+     case "version":
+      //! entity: version
+      //!  The version of the Caudium webserver.
+      ret = caudium.version();
+      break;
+     case "base-version":
+      //! entity: base-version
+      //!  The base version of the Caudium webserver excluding the build.
+      ret = __caudium_version__;
+      break;
+     case "build":
+      //! entity: build
+      //!  The build version of the Caudium webserver.
+      ret = __caudium_build__;
+      break;
+     case "time":
+      //! entity: time
+      //!  The current time  since the Epoch (00:00:00 UTC, January 1, 1970),
+      //!  measured in seconds.
+      CACHE(1);
+      ret = time(1);
+      break;
+     case "server":
+      //! entity: time
+      //!  The user-configured URL for the current server.
+      ret = id->conf->query("MyWorldLocation");
+      break;
+     case "domain":
+      tmp = id->conf->query("MyWorldLocation");
+      sscanf(tmp, "%*s//%s", tmp);
+      sscanf(tmp, "%s:", tmp);
+      sscanf(tmp, "%s/", tmp);
+      ret = tmp;
+      break;
+    }
+    
+    if(stringp(ret)) return ({ ret });
+    if(ret == -1) 
+      return ({ "<b>Invalid entity &amp;"+name+"."+entity+";.</b>" });
+    else if(intp(ret) || floatp(ret))
+      return ({ (string)ret });
+  }
+}
+
 //! entity_scope: random
 //!  Returns a random number from 0 to the "variable" - 1. I.e.
 //!  &amp;random.100; returns a number from 0 to 99.
@@ -247,5 +409,8 @@ array(object) query_scopes()
     FormScope(),
     VarScope(),
     RandomScope(),
+    CaudiumScope(),
+    CaudiumScope("roxen"),
   });
 }
+  

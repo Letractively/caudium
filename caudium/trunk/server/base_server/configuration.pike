@@ -243,6 +243,17 @@ class Bignum {
     gmp = gmp-i;
     return this_object();
   }
+
+  mixed cast(string what) {
+    switch(what) {
+     case "int":
+      return (int)gmp;
+     case "float":
+      return (float)gmp;
+     case "string":
+      return (string)gmp;
+    }
+  }
 #else
   int msb;
   int lsb=-0x7ffffffe;

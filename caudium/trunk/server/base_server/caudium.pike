@@ -1278,6 +1278,7 @@ void post_create () {
 void create()
 {
   ::create();
+  
   catch
   {
     module_stat_cache = decode_value(Stdio.read_bytes(QUERY(ConfigurationStateDir) + ".module_stat_cache"));
@@ -1286,6 +1287,9 @@ void create()
   add_constant("roxen", this_object()); /* Roxen compat */
   add_constant("caudium", this_object());
   add_constant("load",    load);
+  add_constant("__caudium_version__", __caudium_version__);
+  add_constant("__caudium_build__", __caudium_build__);
+  
   Configuration = (program)"configuration";
   call_out(post_create,1); //we just want to delay some things a little
 }
