@@ -27,13 +27,19 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
+constant module_type = MODULE_PROVIDER | MODULE_PARSER | MODULE_EXPERIMENTAL;
 constant module_name = "LDAP: Auth module for the Command Center";
 constant module_doc  = "Module that manages LDAP authentication for the LCC. "
                        "In addition to authentication, this module sets up the connection for "
                        "the current LDAP session.<br />";
 
 constant module_unique = 0;
+
+private mapping tags = ([
+    "_input_login" : tag_input_login,
+    "_input_password" : tag_input_password,
+    "_select_domain" : tag_select_domain
+]);
 
 int usedefdomain_not_set()
 {
@@ -151,9 +157,34 @@ void create()
             "", ({ "base", "onelevel", "subtree" }));
 }
 
+void start(int cnt, object conf)
+{
+    foreach(indices(tags), string idx) {
+        tags[QUERY(provider_prefix) + idx] = tags[idx];
+        m_delete(tags, idx);
+    }
+}
+
+string status() 
+{
+    string ret = "This module provides the following tags:<br /><blockquote><ul>";
+
+    foreach(indices(tags), string idx)
+        ret += sprintf("<li><strong>%s</strong></li>", idx);
+
+    ret += "</ul></blockquote>";
+
+    return ret;
+}
+
 string query_provides()
 {
     return QUERY(provider_prefix) + "_auth";
+}
+
+mapping query_tag_callers()
+{
+    return tags;
 }
 
 //
@@ -307,7 +338,13 @@ private array(string) make_dn(object id, string login)
     } else {
         // username only, most probably
         username = login;
-        domain = 0; // defaults to be put here later on
+
+        // see whether we have some domain selected by the user in the form
+        string sd = QUERY(provider_prefix) + "_domain";
+        if (id->variables && id->variables[sd])
+            domain = id->variables[sd];
+        else
+            domain = 0;
     }
 
     //
@@ -349,6 +386,10 @@ mapping auth(object id, mapping user, object ldap)
 {
     mixed    error;
     int      result = 0;
+    string   lcc_login, lcc_password;
+
+    lcc_login = QUERY(provider_prefix) + "_login";
+    lcc_password = QUERY(provider_prefix) + "_password";
     
     if (user->name == "" && (!id->variables || !id->variables->lcc_login)) {
         object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
@@ -366,10 +407,10 @@ mapping auth(object id, mapping user, object ldap)
                 "lcc_error" : ERR_SCREEN_ABSENT,
                 "lcc_error_extra" : "No 'auth' scren found"
             ]);
-    } else if (id->variables && id->variables->lcc_login) {
-        user->name = id->variables->lcc_login;
+    } else if (id->variables && id->variables[lcc_login]) {
+        user->name = id->variables[lcc_login];
         user->dn = make_dn(id, user->name);
-        user->password = id->variables->lcc_password;
+        user->password = id->variables[lcc_password];
     }
     
     switch(QUERY(ldap_scope)) {
@@ -387,12 +428,17 @@ mapping auth(object id, mapping user, object ldap)
     }
     ldap->set_basedn(QUERY(ldap_basedn));
 
-    report_notice("Trying to bind with %s:%s on ldap %O\n", user->name, user->password, ldap);
+    foreach(user->dn, string dn) {
+        report_notice("Trying to bind with %s:%s on ldap %O\n", dn, user->password, ldap);
     
-    error = catch {
-        result = ldap->bind(user->name, user->password, QUERY(ldap_protocol));
-    };
-
+        error = catch {
+            result = ldap->bind(user->dn, user->password, QUERY(ldap_protocol));
+        };
+        
+        if (!result)
+            break; // success
+    }
+    
     if (error) {
         mapping ret = ([]);
         if (arrayp(error)) {
@@ -420,3 +466,102 @@ mapping auth(object id, mapping user, object ldap)
     return 0; // 0 == everything's fine
 }
 
+// tags
+
+//
+// INPUT attributes (HTML 4.01)
+//
+private multiset(string) input_attrs = (<
+    "value", "size", "maxlength", "onfocus", "onblur",
+    "onclick", "ondblclick", "onmousedown", "onmouseup",
+    "onmouseover", "onmousemove", "onmouseout",
+    "onkeypress", "onkeydown", "onkeyup", "id", "class",
+    "lang", "title", "style", "alt", "align", "accept",
+    "readonly", "disabled", "tabindex", "accesskey", "dir"
+>);
+
+private string make_input_tag(string tag, mapping args, object id)
+{
+    string ret = "<input type='text' name='" + QUERY(provider_prefix) + tag + "' ";
+    
+    // first the standard attributes
+    foreach(indices(args), string idx)
+        if (input_attrs[lower_case(idx)])
+            ret += sprintf("%s='%s' ", idx, args[idx]);
+
+    ret += ">";
+
+    return ret;
+}
+
+//
+// Creates a 'text' type input control with the name set to the one
+// expected by this instance of the module. All the other standard HTML 4.x
+// attributes are preserved by this tag.
+//
+string tag_input_login(string tag,
+                       mapping args,
+                       object id)
+{
+    return make_input_tag("_login", args, id);
+}
+
+//
+// Creates a 'password' type input control with the name set to the one
+// expected by this instance of the module. All the other standard HTML 4.x
+// attributes are preserved by this tag.
+//
+string tag_input_password(string tag,
+                          mapping args,
+                          object id)
+{
+    return make_input_tag("_password", args, id);
+}
+
+//
+// Creates a select control with a list of default domains for the user to
+// choose from. If the user_defdomains is empty or contains just one
+// element, no output is made. The tag enforces the single selection
+// control (the 'multiple' attribute is ignored)
+//
+private multiset(string) select_attrs = (<
+    "size", "id", "class", "lang", "dir", "title",
+    "style", "disabled", "tabindex", "onfocus", "onblur",
+    "onclick", "ondblclick", "onmousedown", "onmouseup",
+    "onmouseover", "onmousemove", "onmouseout",
+    "onkeypress", "onkeydown", "onkeyup"
+>);
+
+string tag_select_domain(string tag,
+                         mapping args,
+                         object id)
+{
+    array(string) dom = (QUERY(user_defdomains) / "\n") - ({}) - ({""});
+    
+    if (!sizeof(dom))
+        return "";
+
+    string ret = "<select name='" + QUERY(provider_prefix) + "_domain' ";
+        
+    // first the standard attributes
+    foreach(indices(args), string idx)
+        if (select_attrs[lower_case(idx)])
+            ret += sprintf("%s='%s' ", idx, args[idx]);
+    ret += ">\n";
+    
+    // output the options (domains)
+    int dosel = 1;
+    foreach(dom, string d)
+        if (dosel) {
+            dosel = 0;
+            ret += sprintf("<option selected='1' label='%s' value='%s'>%s</option>\n",
+                           d, d, d);
+        } else {
+            ret += sprintf("<option label='%s' value='%s'>%s</option>\n",
+                           d, d, d);
+        }
+    
+    ret += "</select>";
+
+    return ret;
+}
