@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
+
+//! The RequestID object.
+//! This module implements the HTTP protocol and, at the same time, it is
+//! what you access through the common @tt{id@} object in your modules,
+//! tags etc.
 
 #define MAGIC_ERROR
 
@@ -77,28 +83,65 @@ object conf;
 int time;
 string raw_url;
 int do_not_disconnect;
+
+//! Variables available during the current request. The variables may come
+//! from various sources - the @tt{query@} part of the URL which was used
+//! to access the server, the &lt;set&gt; tag in the @tt{RXML@} source or
+//! the Pike code in the modules or core server. Each index of the mapping
+//! is a variable name.
 mapping (string:string) variables       = ([ ]);
+
+//! Miscellaneous variables used by both the core server and the modules -
+//! you are free to add your own variables over here as long as you make
+//! sure that they do not conflict with any of the existing ones.
+//!
+//! @note
+//! TODO: add a list of predefined variables stored here.
 mapping (string:mixed)  misc            = ([ ]);
+
+//! The cookies read from the client at the start of the current request.
 mapping (string:string) cookies         = ([ ]);
+
+//! The current request headers as sent by the client.
 mapping (string:string) request_headers = ([ ]);
 
+//! The prestates (comma separated strings enclosed between parentheses)
+//! present in the URL used to access the server for the current request.
 multiset (string) prestate  = (< >);
 multiset (string) internal  = (< >);
+
+//! Config variables (comma separated strings enclosed between the angle
+//! brackets) present in the URL used to access the server for the current
+//! request.
 multiset (string) config    = (< >);
+
+//! Collect of the features supported by the client which initiated the
+//! current request.
 multiset (string) supports  = (< >);
 multiset (string) pragma    = (< >);
 
-string remoteaddr, host;
+//! The address of the remote client.
+string remoteaddr;
+
+//! The host name
+string host;
 
 #ifdef EXTRA_ROXEN_COMPAT
 array  (string) client = ({"unknown"});
 array  (string) referer;
 #endif
 
+//! The referring page for the current request (if the client sent it).
 string referrer;
+
+//! The user agent string describing the client (if the client sent it).
 string useragent = "unknown";
 
-
+//! This mapping contains the answer returned by the code which handles the
+//! connection.
+//!
+//! @note
+//! TODO: explain what's in the mapping
 mapping file;
 
 object my_fd; /* The client. */
@@ -151,6 +194,11 @@ void send(string|object what, int|void len)
   else               pipe->input(what,len);
 }
 
+//! Parse the passed string and look for the query part of the URL (the
+//! part that follows a question mark)
+//!
+//! @param f
+//!  The string to parse
 string scan_for_query( string f )
 {
   if(sscanf(f,"%s?%s", f, query) == 2)
@@ -1245,7 +1293,10 @@ array parse_range_header(int len)
   return ranges;
 }
 
-// Send the result.
+//! Send the result.
+//!
+//! @param result
+//!  The result mapping
 void send_result(mapping|void result)
 {
   array err;
@@ -1519,7 +1570,7 @@ void send_result(mapping|void result)
 }
 
 
-// Execute the request
+//! Handle the request
 void handle_request( )
 {
   mixed err;
