@@ -1,6 +1,16 @@
 Caudium Webserver for Debian
 ----------------------------
 
+*** NOTE ***
+
+THIS IS A DEVELOPER'S RELEASE OF THE DEVELOPEMENT CAUDIUM CVS TREE.
+DO NOT RELY UPON THIS PACKAGE FOR PRODUCTION USE - YOUR SERVER
+CONFIG FILES ETC. MIGHT BE DESTROYED WITH EVERY NEW RELEASE OF THIS
+PACKAGE.
+
+*** NOTE ***
+
+
 The default login/password pair for the config interface is admin/password, 
 respectively. Please make sure to change at least the password as soon
 as possible if you haven't done so during the installation process!
