@@ -405,6 +405,10 @@ private int parse_got(string s)
 	    string v;
 	    if(l < 200000)
 	    {
+#if constant(Caudium.parse_query_string)
+	      Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
+						 ({"", ""})), variables);
+#else
 	      foreach(replace(data,
 			      ({ "\n", "\r", "+" }),
 			      ({ "", "", " "}))/"&", v)
@@ -419,6 +423,7 @@ private int parse_got(string s)
 		    variables[ a ] = b;
 		}
 	    }
+#endif
 	    break;
 
 	   case "multipart/form-data":

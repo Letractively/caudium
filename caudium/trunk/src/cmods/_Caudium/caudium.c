@@ -24,7 +24,7 @@ void pike_module_init( void )
   add_function_constant( "parse_headers", f_parse_headers,
 			 "function(string:mapping)", 0);
   add_function_constant( "parse_query_string", f_parse_query_string,
-			 "function(string,mapping:string)",
+			 "function(string,mapping:void)",
 			 OPT_SIDE_EFFECT);
 }
 
@@ -280,5 +280,4 @@ static void f_parse_query_string( INT32 args )
     }
   }
   pop_n_elems(args);
-  push_int(0);
 }
