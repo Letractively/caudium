@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Added SILENT_COMPAT define in performance.h to allow Caudium not complaining
+  in his log about compat calls. Define this can help administrator to gain
+  in term of speed.
 - Fix a bug in autoconf script that stop the correct detection of pike
   version and include under a FreeBSD port.
 - Fix a bug in ssl3.pike where the redirect from http would always pick the
