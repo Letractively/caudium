@@ -26,11 +26,7 @@ RCSID("$Id$");
 #include "caudium_util.h"
 #include "caudium_machine.h"
 #include <fd_control.h>
-#ifdef HAVE_STDIO_H
 #include <stdio.h>
-#else
-#error "Your system doesn't seem to have the stdio.h header."
-#endif
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>

@@ -64,9 +64,16 @@ public class Search {
             map.put("score", new Float(h.score(i)));
             list.add(map);
         }
-        searcher.close();
 
         return list;
+    }
+
+    /**
+     *  close the search index
+     */
+    public void close() throws Exception
+    {
+        searcher.close();
     }
 
 }

@@ -36,7 +36,6 @@
 #include "object.h"
 #include "pike_macros.h"
 #include "pike_types.h"
-#include "program.h"
 #include "stralloc.h"
 #include "svalue.h"
 #include "threads.h"
