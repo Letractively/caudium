@@ -128,12 +128,16 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 #section portalmm {
 
 # portalmm is iMode terminal (Wap terminal but really faster than others..
-# For now I don't have any clue of what does support that. I someone have any idea 
-# on where I can get that. Write to us
-portalmm/1..*	basic,tables,font,cookies,imode
+portalmm/1..*	basic,tables,font,cookies,imode,gif,wbmp,wap,wml,marquee
 
 # Toshiba TS21i terminal
-portalmm/1.0.*21i	ts21i
+portalmm/1.0.*ts21i	ts21i,midi
+
+# Nec N21i terminal
+portalmm/1.0.*n21i	n21i
+
+# Nec N22i terminal
+portalmm/1.0.*n22i	n22i,jpeginline
 
 # }
 
