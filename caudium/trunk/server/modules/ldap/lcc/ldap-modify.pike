@@ -304,7 +304,7 @@ private mixed do_modify(object id, mapping data, string f)
                 replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
             else {
                 add_attribute(idx, id->variables[idx], ldata);
-                data->user->ldap_data[idx] = id->variables[idx];
+                data->user->ldap_data[idx] = ({ id->variables[idx] });
             }
         }
     }
