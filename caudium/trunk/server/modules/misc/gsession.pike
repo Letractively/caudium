@@ -273,7 +273,6 @@ void register_plugins(void|object conf)
         return;
     
     array(object)  sproviders = conf->get_providers("gsession_storage_plugin");
-    report_notice("gSession: providers = %O\n", sproviders);
     
     foreach(sproviders, object sp) {
         if (functionp(sp->register_gsession_plugin)) {
@@ -530,11 +529,11 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
     if (memory_validate_storage(region, sid) < 0)
         return 0;
 
-    if (!_memory_storage[region][sid][key])
+    if (!_memory_storage[region][sid]->data[key])
         return 0;
 
-
     _memory_storage[region][sid]->lastused = time();
+    
     return _memory_storage[region][sid]->data[key];
 }
 
