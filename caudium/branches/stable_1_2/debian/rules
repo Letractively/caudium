@@ -36,6 +36,8 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
 
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
 
+REMOVEFONTS=lucida_unicode.ttf lucida_unicode.txt verdana.ttf verdana.txt
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -147,6 +149,13 @@ install: build
 	chmod 755 debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 
 	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
+
+	# Remove non-dfsg fonts
+	for f in $(REMOVEFONTS); do \
+	 if -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; then \
+	   rm -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; \
+	 fi \
+	done
 
 	#
 	# the -p debhelper param seems to be not working... 

@@ -169,6 +169,13 @@ EOF
     if [ ! -d /usr/local/share/caudium/modules/ ]; then
 	install -d -m 755 -o root -g root /usr/local/share/caudium/modules/
     fi
+    
+    # Link in the bitstream fonts
+    if [ -d /usr/share/fonts/truetype/ttf-bitstream-vera ]; then
+      for f /usr/share/fonts/truetype/ttf-bitstream-vera/*.ttf; do
+        ln -sf $f /usr/lib/caudium/fonts/ttf/${f##*/}
+      done
+    fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
