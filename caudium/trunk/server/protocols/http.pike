@@ -915,7 +915,7 @@ void internal_error(array err)
     if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
         report_error("*** http_error object missing during internal_error() ***\n");
 	file =
-	    http_low_answer( 500, "<h1>Error: The server failed to fulfil your query due to an " +
+	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
             "internal error in the internal error routine.</h1>" );
     }
 }
