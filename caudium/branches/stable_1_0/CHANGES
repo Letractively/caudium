@@ -29,6 +29,7 @@ Changes in Caudium 1.0.X (RC3, not released)
 - Print a nice error message when a suitable Pike isn't found during
   configuration.
 - Fixed a bug in the UltraLog module when threads are unavailable.
+- Corrected QUERY calls in the sql filesystem module.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
