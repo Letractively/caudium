@@ -29,6 +29,9 @@ private inherit "caudiumlib";
 #include <config.h>
 #include <module.h>
 
+#undef QUERY
+#define QUERY(X)  _query( #X )
+
 #if constant(gethrtime)
 # define HRTIME() gethrtime()
 # define HRSEC(X) ((int)((X)*1000000))
@@ -1659,6 +1662,8 @@ void handle_request( )
 int processed;
 void got_data(mixed fdid, string s)
 {
+
+werror(sprintf("conf: %O\n", indices(conf)));
   int tmp;
   MARK_FD("HTTP got data");
   remove_call_out(do_timeout);
