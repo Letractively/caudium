@@ -226,7 +226,7 @@ void create(object c)
 	    "custom log file",
 	    "browser" }));
   defvar("cgilog", GLOBVAR(logdirprefix)+
-	 short_name(c? c->name:".")+"/cgi.log", 
+	 Caudium.short_name(c? c->name:".")+"/cgi.log", 
 	 "Log file", TYPE_STRING,
 	 "Where to log errors from CGI scripts. You can also choose to send "
 	 "the errors to the browser or to the main Caudium log file. "

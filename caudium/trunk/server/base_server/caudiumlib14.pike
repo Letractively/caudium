@@ -428,6 +428,15 @@ static int is_modified(string a, int t, void|int len)
   mapping t1;
   int day, year, month, hour, minute, second, length;
   string m, extra;
+
+  // Some debug used to analyze what in given to this
+  // function and how to make it better
+  // Add define NO_TEST if you need to disable this
+  // /Kiwi
+#ifndef NO_TEST
+  report_debug("is_modified called : (%O,%O,%O)\n",a,t,len);
+#endif /* NO_TEST */
+
   if (!a)
     return 1;
   t1=gmtime(t);
@@ -474,39 +483,6 @@ static int is_modified(string a, int t, void|int len)
             if (second < (t1["sec"]))
               return 0;
   return 1;
-}
-
-//!  Returns a "short name" of a virtual server. This is simply
-//!  the name in lower case with space replaced with underscore.
-//!  used for storing the configration on disk, log directories etc.
-//! @param long_name
-//!  The name of the virtual server.
-string short_name(string long_name)
-{
-  long_name = replace(long_name, " ", "_");
-  return lower_case(long_name);
-}
-
-//!  Strips the Caudium config cookie part of a path (not the URL).
-//!  The cookie part is everything within &lt; and > right after the first
-//!  slash.
-//! @param from
-//!  The path from which the cookie part will be stripped.
-string strip_config(string from)
-{
-  sscanf(from, "/<%*s>%s", from);
-  return from;
-}
-
-//!  Strips the Caudium prestate part of a path (not the URL).
-//!  The prestate part is everything within ( and ) right after the first
-//!  slash.
-//! @param from
-//!  The path from which the prestate part will be stripped.
-string strip_prestate(string from)
-{
-  sscanf(from, "/(%*s)%s", from);
-  return from;
 }
 
 #define _error defines[" _error"]

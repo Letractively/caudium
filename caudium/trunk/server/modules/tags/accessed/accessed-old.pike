@@ -54,8 +54,8 @@ void create()
 {
   defvar("Accesslog", 
 	 GLOBVAR(logdirprefix)+
-	 short_name(caudium->current_configuration?
-		    caudium->current_configuration->name:".")+"/Accessed", 
+	 Caudium.short_name(caudium->current_configuration?
+		            caudium->current_configuration->name:".")+"/Accessed", 
 	 "Access log file", TYPE_FILE|VAR_MORE,
 	 "In this file all accesses to files using the &lt;accessed&gt;"
 	 " tag will be logged.");

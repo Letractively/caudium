@@ -967,7 +967,7 @@ void create(object conf)
             "main log file" }));
 
   defvar("cgilog", GLOBVAR(logdirprefix)+
-	 short_name(conf? conf->name:".")+"/cgi.log", 
+	 Caudium.short_name(conf? conf->name:".")+"/cgi.log", 
 	 "Log file", TYPE_STRING,
 	 "Where to log errors from CGI scripts. You can also choose to send "
 	 "the errors to the browser or to the main Caudium log file. "
