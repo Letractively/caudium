@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Fix detection of alloca() for _Caudium C module.
+- Uses if exist thread safe calls (the _r() ones) from libc in function 
+  _Caudium.http_date() _Caudium.cern_http_date().
 - AJP | Tomcat connector can now load balance requests across multiple
   Tomcat instances.
    (Bill Welliver)

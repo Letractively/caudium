@@ -66,7 +66,7 @@ extern int fd_from_object(struct object *o);
 /*#define NB_DEBUG*/
 /*#define TEST_MMAP_FAILOVER NBIO_BLOCK_OBJ*/
 #ifdef NB_DEBUG
-# define DERR(X) do { fprintf(stderr, "** Caudium.nbio(%p):%d: ", THISOBJ, __LINE__); X; } while(0)
+# define DERR(X) do { fprintf(stderr, "** _Caudium.nbio(%p):%d: ", THISOBJ, __LINE__); X; } while(0)
 #else
 # define DERR(X) 
 #endif
@@ -208,7 +208,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len, int first) {
       DERR(fprintf(stderr, "input object not a real FD\n"));
       if ((inp->read_off = find_identifier("read", inp->u.file->prog)) < 0) {
 	free(inp);
-	Pike_error("Caudium.nbio()->input: Illegal file object, "
+	Pike_error("_Caudium.nbio()->input: Illegal file object, "
 		   "missing read()\n");
 	return;
       }
@@ -357,14 +357,14 @@ static void f_input(INT32 args) {
   switch(args) {
   case 2:
     if(ARG(2).type != T_INT) {
-      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 2, "integer");
+      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->input", 2, "integer");
     } else {
       len = ARG(2).u.integer;
     }
     /* FALL THROUGH */
   case 1:
     if(ARG(1).type != T_OBJECT) {
-      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 1, "object");
+      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->input", 1, "object");
     } else {
       /* Allocate a new input object and add it to our linked list */
       new_input(ARG(1), len, 0);
@@ -372,7 +372,7 @@ static void f_input(INT32 args) {
     break;
     
   case 0:
-    SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->input", 1);
+    SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.nbio()->input", 1);
     break;
   }
   pop_n_elems(args-1);
@@ -396,7 +396,7 @@ static INLINE void set_outp_write_cb(output *outp) {
 static void f_output(INT32 args) {
   if(args) {
     if(ARG(1).type != T_OBJECT) {
-      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->output", 1, "object");
+      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->output", 1, "object");
     } else {
       output *outp;
       if(THIS->outp != NULL) {
@@ -414,7 +414,7 @@ static void f_output(INT32 args) {
       if (outp->write_off < 0 || outp->set_nb_off < 0 || outp->set_b_off < 0) 
       {
 	free(outp);
-	Pike_error("Caudium.nbio()->output: illegal file object%s%s%s\n",
+	Pike_error("_Caudium.nbio()->output: illegal file object%s%s%s\n",
 		   ((outp->write_off < 0)?"; no write":""),
 		   ((outp->set_nb_off < 0)?"; no set_nonblocking":""),
 		   ((outp->set_b_off < 0)?"; no set_blocking":""));
@@ -431,7 +431,7 @@ static void f_output(INT32 args) {
       set_outp_write_cb(outp);
     }
   } else {
-    SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->output", 1);
+    SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.nbio()->output", 1);
   }
   pop_n_elems(args-1);
 }
@@ -440,14 +440,14 @@ static void f_output(INT32 args) {
 static void f_write(INT32 args) {
   if(args) {
     if(ARG(1).type != T_STRING) {
-      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->write", 1, "string");
+      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->write", 1, "string");
     } else {
       int len = ARG(1).u.string->len << ARG(1).u.string->size_shift;
       if(len > 0)
 	new_input(ARG(1), len, 0);
     }
   } else {
-    SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->write", 1);
+    SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.nbio()->write", 1);
   }
   pop_n_elems(args-1);
 }
@@ -830,7 +830,7 @@ static void f__input_read_cb(INT32 args)
   if(args != 2)
     Pike_error("Invalid number of arguments to read callback.");
   if(ARG(2).type != T_STRING) {
-    SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->_input_read_cb", 2, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->_input_read_cb", 2, "string");
   }
   str = ARG(2).u.string;
   len = str->len << str->size_shift;
@@ -878,7 +878,7 @@ static void f_set_done_callback(INT32 args)
 
   case 1:
     if (Pike_sp[-args].type != T_FUNCTION)
-      SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->set_done_callback", 1, "function");
+      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->set_done_callback", 1, "function");
     assign_svalue(&(THIS->cb), &Pike_sp[-args]);
     break;
   case 0:
@@ -890,7 +890,7 @@ static void f_set_done_callback(INT32 args)
     return;
     
   default:
-    Pike_error("Caudium.nbio()->set_done_callback: Too many arguments.\n");
+    Pike_error("_Caudium.nbio()->set_done_callback: Too many arguments.\n");
     break;
   }
   pop_n_elems(args - 1); 

@@ -5,8 +5,8 @@ in C modules, especialy _Caudium module.
 
  Summary :
 
-  localtime() -> localtime_r() : WIP
-  gmtime()    -> gmtime_r()    : WIP
+  localtime() -> localtime_r() : WIP (needs to be finished on getdate.y)
+  gmtime()    -> gmtime_r()    : WIP (needs to be finished on getdate.y)
 
 
 --- TODO (more long term projects..)
