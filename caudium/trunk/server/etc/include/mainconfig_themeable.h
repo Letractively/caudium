@@ -224,7 +224,7 @@ class ThemedConfig {
 			  text,
 			  ( ( back->xsize() - text->xsize() ) / 2 ),
 			  ( ( back->ysize() - text->ysize() ) / 2 ) );
-	Stdio.write_file("/tmp/image.gif", Image.GIF.encode(back));
+	/* Stdio.write_file("/tmp/image.gif", Image.GIF.encode(back)); */
         return back;
     }
 

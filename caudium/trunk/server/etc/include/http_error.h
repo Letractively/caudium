@@ -52,19 +52,20 @@ class http_error_handler {
 
 
 #ifdef DEBUG
-  int debug = 1;
+  private int debug = 1;
 #else
-  int debug = 0;
+  private int debug = 0;
 #endif
 
-  string default_data = #string "ERROR.html";
+  private int inhibit_report = 0;
+
+  private string default_data = #string "ERROR.html";
+  private mapping last_resort_error;
 
   private mapping default_template =
   //	caudium->IFiles->get( "error://template" ) +
     ([ "name" : "default_caudium_error_template",
        "type" : "text/html" ]);
-
-  private mapping template = default_template;
 
   private mapping extra_help =
     ([
@@ -185,35 +186,40 @@ class http_error_handler {
 
      if (err)
      {
-        report_error ("Internal server error:\n" + describe_backtrace(err) + "\n");
+        report_error ("Internal server error in error routine:\n" + describe_backtrace(err) + "\n");
 
+        /*
         data =  http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
                         "internal error in the error routine.</h1>" );
+                        */
+        if (id)
+        {
+           catch (last_resort_error->data = parse_rxml (last_resort_error->data, id));
+           
+           data = last_resort_error;
+        }
+        else 
+           data = last_resort_error;
      }
 
      return (data);
   }
 
-  public void set_template( string _template_name, object id ) {
-    if (_template_name == "") {
-      // If the template name isnt set in the config interface then
-      // make reset it to the default.
-      if (template->name != "default_caudium_error_template") {
-	template = default_template;
-      }
-    } else {
-      // If it's been changed then change the error template, else
-      // do nothing.
-      string data = my_get_file (_template_name, id);
-      if (!data) {
-	template = default_template;
-      } else {
-	template = ([
-	  "type" : (id->conf ? id->conf->type_from_filename (_template_name) : "text/html"),
-	  "name" : _template_name
-	]);
-      }
-    }
+  private mapping get_template (string _template_name, object id) 
+  {
+     if (_template_name == "") 
+     {
+        // If the template name isnt set in the config interface then
+        // make reset it to the default.
+        return (default_template);
+     } 
+     else 
+     {
+        // If it's been changed then change the error template, else
+        // do nothing.
+        return (([ "type" : (id->conf ? id->conf->type_from_filename (_template_name) : "text/html"),
+                   "name" : _template_name ]));
+     }
   }
 
   private string _tag_error( string tag, mapping args, mapping the_error ) {
@@ -260,32 +266,29 @@ class http_error_handler {
     }
   }
 
-  public mapping handle_error( int error_code, string error_name, string error_message, object id ) {
+  public mapping handle_error (int error_code, string error_name, string error_message, object id) {
     mapping local_template;
 
-    if (!id) {
-      // We don't have a request id object - this is *REALLY* bad!
-      // Someone forgot to buy David a beer, coz this can only happen
-      // in the *core*core* server.
-      local_template = default_template;
-    } else {
-      /* check if they want old-style 404 */
-      if (id->conf && id->conf->query("Old404") && error_code == 404)
-      {
-	return http_low_answer (error_code,
-				replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
-					 ({ "$File", "$Me" }),
-					 ({ html_encode_string (id->not_query), 
-					    id->conf->query ("MyWorldLocation") })));
-      }
+    if (!id || !id->conf) 
+    {
+       // We don't have a request id object - this is *REALLY* bad!
+       // Someone forgot to buy David a beer, coz this can only happen
+       // in the *core*core* server.
+       local_template = default_template;
+    } 
+    else 
+    {
+       /* check if they want old-style 404 */
+       if (id->conf->query("Old404") && error_code == 404)
+       {
+          return http_low_answer (error_code,
+                          replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
+                                  ({ "$File", "$Me" }),
+                                  ({ html_encode_string (id->not_query), 
+                                   id->conf->query ("MyWorldLocation") })));
+       }
 
-      if(id->conf) {
-	string ErrorTheme = id->conf->query ("ErrorTheme");
-	if (ErrorTheme != template->name) {
-	  set_template( ErrorTheme, id );
-	}
-      }
-      local_template = template;
+       local_template = get_template (id->conf->query ("ErrorTheme"), id);
     }
 
     if (!error_code)
@@ -316,17 +319,25 @@ class http_error_handler {
 
          report_error (sprintf ("Serving Error %d, %s to client for %s.\n", error_code, error_name, url));
       }
-      else
-	report_error (sprintf ("Serving error %d, %s to client for a 'core' error:\n%s\n", describe_backtrace (backtrace ())));
+      else if (!inhibit_report)
+	report_error (sprintf ("Serving error %d for a 'core' error:\n%s\n", error_code, describe_backtrace (backtrace ())));
     }
 
     return
       ([
 	"error" : error_code,
 	"data" : error_page,
-	"len" : strlen( error_page ),
+	"len" : strlen (error_page),
 	"type" : local_template->type
       ]);
   }
-}
 
+  void init ()
+  {
+     inhibit_report = 1;
+     last_resort_error = handle_error (500, "Internal Server Error.", 
+                     "<b>Error: The server failed to fulfill your query due to an "
+                     "internal error in the error routine.</b>", 0);
+     inhibit_report = 0;
+  }
+}

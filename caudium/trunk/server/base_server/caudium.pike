@@ -3361,6 +3361,8 @@ int main(int|void argc, array (string)|void argv)
   init_logger();
 #endif
 
+  http_error->init ();
+
   init_garber();
   initiate_supports();
 
