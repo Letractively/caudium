@@ -371,7 +371,118 @@ cern.*linemode.*           nothing
 
 .*libwww-perl.*		robot
 
+# GNU Wget
+wget.*			robot
+
+# BSD's fetch
+fetch.*			robot
 
 # The default. If nothing else matches this is used to determine the
 # supports values.
+
 default      images, gifinline, forms, mailto
+
+
+# Some email gatherers most of them are used as email tracker
+# and gatherer. Looking for new mails to get and add to spam lists
+# See http://www.neilgunton.com/spambot_trap/ for more informations
+
+[A-Z]+$			robot, spamrobot
+Browse.*		robot,spamrobot
+.Eval.*			robot,spamrobot
+.Surf.*			robot,spamrobot
+.*Harvest.*		robot,spamrobot
+.*HTTrack.*		robot,spamrobot
+.*LWP.*			robot,spamrobot
+.*prospector.*		robot,spamrobot
+ASSORT.*		robot,spamrobot
+attache.*		robot,spamrobot
+ATHENS.*		robot,spamrobot
+autohttp.*		robot,spamrobot
+Digger.*		robot,spamrobot
+bew.*			robot,spamrobot
+Bullseye.*		robot,spamrobot
+CherryPicker.*		robot,spamrobot
+Crescent.*		robot,spamrobot
+curl.*			robot,spamrobot
+devsoft's.*		robot,spamrobot
+Deweb.*			robot,spamrobot
+Digimarc.*		robot,spamrobot
+digout4uagent.*		robot,spamrobot
+DIIbot.*		robot,spamrobot
+disco.*			robot,spamrobot
+ecollector.*		robot,spamrobot
+EmailCollector.*	robot,spamrobot
+EmailSiphon.*		robot,spamrobot
+EmailWolf.*		robot,spamrobot
+EO.*			robot,spamrobot
+Browse.*		robot,spamrobot
+ExtractorPro.*		robot,spamrobot
+fastlwspider.*		robot,spamrobot
+FEZhead.*		robot,spamrobot
+Getleft.*		robot,spamrobot
+GetURL.*		robot,spamrobot
+GetWebPage.*		robot,spamrobot
+go-ahead-got-it.*	robot,spamrobot
+ia_archiver.*		robot,spamrobot
+IBM_Planetwide.*	robot,spamrobot
+IncyWincy.*		robot,spamrobot
+KWebGet.*		robot,spamrobot
+leech.*			robot,spamrobot
+MCspider.*		robot,spamrobot
+Microsoft.URL.*		robot,spamrobot
+Monster.*		robot,spamrobot
+Mozilla.*NEWT.*		robot,spamrobot
+Mozilla/3.0.+Indy.*	robot,spamrobot
+Library.*		robot,spamrobot
+Mozilla/3.Mozilla/2..*	robot,spamrobot
+Mozilla/4.0$		robot,spamrobot
+Mirror.*		robot,spamrobot
+Net.Vampire.*		robot,spamrobot
+netattache.*		robot,spamrobot
+NetCarta.*		robot,spamrobot
+nicerspro.*		robot,spamrobot
+OpaL.*			robot,spamrobot
+Openfind.*		robot,spamrobot
+OpenTextSiteCrawler.*	robot,spamrobot
+PackRat.*		robot,spamrobot
+pavuk.*			robot,spamrobot
+Plucker.*		robot,spamrobot
+PushSite.*		robot,spamrobot
+reget.*			robot,spamrobot
+RepoMonkey.*		robot,spamrobot
+Rover.*			robot,spamrobot
+Rsync.*			robot,spamrobot
+ScoutAbout.*		robot,spamrobot
+searchterms.it.*	robot,spamrobot
+Shai.*			robot,spamrobot
+sitecheck.*		robot,spamrobot
+Spegla.*		robot,spamrobot
+SpiderBot.*		robot,spamrobot
+SuperBot.*		robot,spamrobot
+SurfWalker.*		robot,spamrobot
+tarspider.*		robot,spamrobot
+teleport.*		robot,spamrobot
+pro/1..*		robot,spamrobot
+Telesoft.*		robot,spamrobot
+Templeton.*		robot,spamrobot
+UtilMind.*		robot,spamrobot
+w3mir.*			robot,spamrobot
+web.by.mail.*		robot,spamrobot
+WebBandit.*		robot,spamrobot
+WebCopier.*		robot,spamrobot
+WebCopy.*		robot,spamrobot
+WebEMailExtrac.*	robot,spamrobot
+WebMiner.*		robot,spamrobot
+WebReaper.*		robot,spamrobot
+WebSnake.*		robot,spamrobot
+WebStripper.*		robot,spamrobot
+webvac.*		robot,spamrobot
+webwalk.*		robot,spamrobot
+WebZIP.*		robot,spamrobot
+WhosTalking.*		robot,spamrobot
+WUMPUS.*		robot,spamrobot
+www.pl.*		robot,spamrobot
+XGET.*			robot,spamrobot
+Zeus.*Webster.*		robot,spamrobot
+MSIECrawler.*		robot,spamrobot
