@@ -12,7 +12,7 @@ MASTER_SITES=	ftp://ftp.oav.net/caudium/snapshot/1.2/	\
 		ftp://ftp.caudium.net/caudium/snapshots/caudium/1.2/ \
 		ftp://ftp.oav.net/caudium/pkg/FreeBSD/distfiles/ \
 		http://grendel.firewall.com/caudium-pkg/
-DISTNAME=	Caudium-${PORTVERSION}-20020122-cvs
+DISTNAME=	Caudium-${PORTVERSION}-20020123-cvs
 
 MAINTAINER=	kiwi@oav.net
 
