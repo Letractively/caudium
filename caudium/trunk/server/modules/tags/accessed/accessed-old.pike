@@ -32,7 +32,7 @@ constant thread_safe=1;
 
 #include <module.h>
 inherit "module";
-inherit "caudiumlib";
+inherit "caudiumlib14";
 
 constant language = caudium->language;
 
@@ -49,15 +49,6 @@ object database, names_file;
 
 // Core RXML tags module from what we get some functions.
 #define RXMLTAGS id->conf->get_provider("rxml:tags");
-
-// If the string 'w' match any of the patterns in 'a', return 1, else 0.
-int _match(string w, array (string) a)
-{
-  string q;
-  foreach(a, q)
-    if(stringp(w) && stringp(q) && glob(q, w))
-      return 1;
-}
 
 void create()
 {
