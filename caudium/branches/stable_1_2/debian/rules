@@ -34,6 +34,8 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike bin/pixsl.pike \
         etc/modules/CaudiumSSL.pmod/client.pike
 
+PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -65,6 +67,7 @@ clean:
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
 	-rm -f smartlink statuslock
+	for p in $(PACKAGES); do rm -f $(CURDIR)/debian/$$p.links; done
 	dh_clean
 
 install: DH_OPTIONS=
@@ -155,6 +158,20 @@ install: build
 
 	dh_movefiles --sourcedir=debian/caudium
 
+	# move all the arch independent files to /usr/share and symlink them from their original location
+	# in /usr/lib/caudium/
+	
+	for p in $(PACKAGES); do \
+	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
+	     -name "*.pike" -type f -print \
+	     -o -name "*.pmod" -type f -print \
+	     -o -name "*.html" -type f -print \
+	     -o -name "*.h" -type f -print | \
+	     $(CURDIR)/debian/reflect.sh usr/share/caudium/ \
+	                                 $(CURDIR)/debian/$$p.links \
+	                                 usr/lib/caudium/ \
+					 $(CURDIR)/debian/$$p/) ; \
+	done
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.

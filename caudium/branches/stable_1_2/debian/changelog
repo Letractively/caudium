@@ -1,3 +1,18 @@
+caudium (2:1.2.26-1) unstable; urgency=medium
+
+  * All the pike files were moved to /usr/share/caudium to comply with
+    the policy and to make the upgrade from 1.0 smooth.
+    (closes: Bug#173811)
+  * Fix a bug in autoconf that prevented Caudium to compile if $CPPFLAGS was set
+    before configure time.
+  * Fix a bug in ssl3.pike where the redirect from http would always pick the
+    admin port.
+  * Backported Highlight pike system from 1.3 that supports CSS now
+  * Backported Open Files wizard from 1.3 tree to show more accurate information.
+  * Fix a bug with icons and virtual directories like /mail/ in gbutton module.
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 21 May 2003 22:53:27 +0200
+
 caudium (2:1.2.25-4) unstable; urgency=low
 
   * Applied the patch from Denis Barbier correcting errors and rearranging
@@ -8,7 +23,7 @@ caudium (2:1.2.25-4) unstable; urgency=low
 
 caudium (2:1.2.25-3) unstable; urgency=medium
 
-  * make_tag_attributes() now don't output any "/" that could be in the argument.
+  * make_tag_attributes() does't output any "/" that could be in the argument.
     That affects both make_tag() and make_container()
   * Force a rebuild on several architectures which had incorrect pike7.2 
     version (closes: Bug#191613)
