@@ -610,5 +610,5 @@ MSIECrawler.*		robot,spamrobot
 # Greets for vida
 
 #section vida {
-.*              robot, virus, uce, ups, some_things, maybe_have_intelligence, limited_battery
+.*              robot, virus, uce, ups, some_things, may_have_intelligence, limited_battery
 # }
