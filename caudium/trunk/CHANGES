@@ -1,3 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
 
+- Fixed a segfault in Caudium C module when some HTTP queries doesn't have 
+  all variables (eg ?foo=too&hop=&gazon=zz), SF bug #1028622
+   (Marek Habersack)
+
