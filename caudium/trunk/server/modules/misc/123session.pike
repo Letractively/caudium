@@ -398,11 +398,11 @@ void sessionid_set_cookie(object id, string SessionID) {
   if (query ("secure"))
     Cookie += "; Secure";
   id->cookies->SessionID = SessionID;
+  id->misc->is_dynamic = 1;
   id->misc->moreheads = ([ "Set-Cookie": Cookie,
                            //"Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
 			   "Expires": "0",
                            "Pragma": "no-cache",
-			   "is_dynamic": 1,
                            "Last-Modified": http_date(time(1)),
                            "Cache-Control": "no-cache, must-revalidate" ]);
 }
@@ -572,11 +572,11 @@ void delete_session (object id, string session_id, void|int logout) {
       string Cookie = "SessionID=; path=/";
       if (query ("secure"))
 	Cookie += "; Secure";
+      id->misc->is_dynamic = 1;
       id->misc->moreheads = ([ "Set-Cookie": Cookie,
 			       //"Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
 			       "Expires": "0",
 			       "Pragma": "no-cache",
-			       "is_dynamic": 1,
 			       "Last-Modified": http_date(time(1)),
 			       "Cache-Control": "no-cache, must-revalidate" ]);
       m_delete (id->cookies, "SessionID");
