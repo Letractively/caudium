@@ -1,3 +1,9 @@
+caudium (1.0.0-6) unstable; urgency=low
+
+  * Several changes in the mainstream
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 22 Sep 2000 21:26:50 +0200
+
 caudium (1.0.0-5) unstable; urgency=low
 
   * Changes in modules upstream, some bug fixes
