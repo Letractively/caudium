@@ -504,8 +504,10 @@ static private void initiate_cache()
 
 //!
 class _error_handler {
+
   //!
   void compile_error(string a,int b,string c);
+
   //!
   void compile_warning(string a,int b,string c);
 }
