@@ -210,6 +210,13 @@ void create()
 	 "If one of these files is present in a directory, it will "
 	 "be returned instead of the directory listing.");
 
+  defvar("indexredirectfiles", ({ }), "Index files with redirect", TYPE_STRING_LIST,
+         "If one of these files is present in a directory, it will be redirected into "
+         "this file instead of the directory listing. This can be usefull when you "
+         "have a L7 load balancer and you would like to handle special index files "
+         "with a third party webserver for example. Leave this empty if you don't "
+         "want to use this feature.");
+
   defvar("dotfiles", 0, "Show dotfiles", TYPE_FLAG|VAR_MORE,
          "If set, show dotfiles (files beginning with '.') in directory"
          " listings");
@@ -486,13 +493,31 @@ mapping parse_directory(object id)
   old_file = id->not_query;
   if (old_file[-1] == '.') old_file = old_file[..strlen(old_file)-2];
 
-  foreach (query("indexfiles") - ({""}), file) // Make recursion impossible
+  foreach (QUERY(indexfiles) - ({""}), file) // Make recursion impossible
   {
     DW(sprintf("old_file = %s, file = %s", old_file, file));
 
     id->not_query = old_file + file;
 
     if (got = id->conf->low_get_file(id)) return got;
+  }
+
+  if(sizeof(QUERY(indexredirectfiles)))
+  {
+    foreach(QUERY(indexredirectfiles) - ({""}), file)
+    {
+      DW(sprintf("(redirect) old_file =  %s, file = %s", old_file, file));
+
+      id->not_query = old_file + file;
+    
+      if (got = id->conf->low_get_file(id))
+      {
+        if(id->query && sizeof(id->query))
+          return http_redirect(id->not_query + "?"+ id->query, id);
+        else
+          return http_redirect(id->not_query, id);
+      }
+    }
   }
 
   id->not_query = old_file;

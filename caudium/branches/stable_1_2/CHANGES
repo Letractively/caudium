@@ -1,3 +1,10 @@
+Changes in Caudium 1.2.xx since 1.2.34
+--------------------------------------
+- Add Index redirect files option that allow people that use L7 load balancers
+  to redirect to files that have been specified instead of listing the
+  directory.
+   (Xavier Beaudouin)
+
 Changes in Caudium 1.2.34 since 1.2.32
 --------------------------------------
 - Fix error on vhs_dirparser when there is no files on directory and that
