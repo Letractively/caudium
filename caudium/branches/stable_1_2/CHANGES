@@ -1,6 +1,6 @@
 Changes in Caudium 1.2.xx since 1.2.22
 --------------------------------------
-- Fix pluging path for rimage module.
+- Fix plugins path for rimage module.
 - Fix submitted in caudium_general ml about corrupted Accessed db.
 - Fix an error in disk_cache.pike on hash() call since it has changed a lot
   since pike 7.0. NOTE: if you upgrade from a caudium using pike 0.6 to 
