@@ -144,7 +144,7 @@ void|mixed retrieve(string name, void|int object_only) {
   PRELOCK();
   LOCK();
   string data = storage->retrieve(Stdio.append_path("/", hash, "/object"));
-  mapping meta = storage->retrieve(Stdio.append_path("/", hash, "/meta"));
+  mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
   if (mappingp(meta)) {
     meta->hits++;
     meta->last_retrieval = time();
@@ -155,13 +155,18 @@ void|mixed retrieve(string name, void|int object_only) {
     }
     else if (meta->type == "variable") {
       meta->object = _decode_value(data);
-      if (meta->_program)
-       if (catch((program)meta->object)) {
+      if (meta->_program) {
+       mixed err = catch((program)meta->object);
+       if (err) {
         // This is a test just incase the object has been encoded with a broken codec (eg pike 7.3)
+#ifdef CACHE_DEBUG
+	 write("Unable to decode program %O!, object = %O, reason = %O", name, meta->object, err);
+#endif
 	 UNLOCK();
          refresh(hash);
          return 0;
         }
+      }
       else if (meta->type == "image")
         meta->object = Image.PNM.decode(data);
       if ( ! meta->object ) {
@@ -174,6 +179,10 @@ void|mixed retrieve(string name, void|int object_only) {
       return meta;
     }
   }
+#ifdef CACHE_DEBUF
+  else
+    write("Corrupt metadata for %O\n", name);
+#endif
   _misses++;
   return 0;
 }
