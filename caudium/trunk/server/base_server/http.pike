@@ -160,6 +160,10 @@ mapping http_pipe_in_progress()
   return ([ "file":-1, "pipe":1, ]);
 }
 
+// Needed to load caudium ??
+static string parse_rxml(string what, object id, void|object file,
+                         void|mapping defines);
+
 //!   Convenience function to use in Caudium modules and Pike scripts. When you
 //!   just want to return a string of data, with an optional type, this is the
 //!   easiest way to do it if you don't want to worry about the internal
@@ -660,7 +664,7 @@ mapping http_auth_required(string realm, string|void message, void|int dohtml)
 
 #ifdef API_COMPAT
 /* Not documented since it's an out-of-date API function */
-mapping http_auth_failed(string realm)
+mapping http_auth_failed(string realm, string|void m, void|int d)
 {
 #ifdef HTTP_DEBUG
   perror("HTTP: Auth failed ("+realm+")\n");
