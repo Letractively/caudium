@@ -270,9 +270,9 @@ void f_pcre_split(INT32 args)
    case PCRE_ERROR_UNKNOWN_NODE: Pike_error("Unknown node encountered. PCRE bug or memory error.\n");
    case PCRE_ERROR_NOMEMORY:  Pike_error("Out of memory during execution.\n");
    default:
-    pop_n_elems(args);
     switch(ret) {
      case 1: /* No submatches, be Pike Regexp compatible */
+      pop_n_elems(args);
       push_int(0);
       arr = aggregate_array(1);
       break;
@@ -283,6 +283,7 @@ void f_pcre_split(INT32 args)
 					      (int)(ovector[i+1] - ovector[i])));
       }
       arr = aggregate_array(ret-1);
+      pop_n_elems(args);
     }
     push_array(arr);
     break;
