@@ -34,7 +34,7 @@ EXTVER=
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike bin/pixsl.pike 
 
-PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog caudium-spidermonkey
+PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
 
 configure: configure-stamp
 configure-stamp:
@@ -160,8 +160,8 @@ install: build
 	dh_movefiles  --sourcedir=debian/caudium
 
 	# move all the arch independent files to /usr/share and symlink them from their original location
-	# in /usr/lib/caudium/
-	
+	# in /usr/lib/caudium/u	
+
 	for p in $(PACKAGES); do \
 	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
 	     -name "*.pike" -type f -print \
