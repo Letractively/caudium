@@ -2345,6 +2345,12 @@ array(int) invert_color(array color)
 private void define_global_variables(int argc, array (string) argv)
 {
   int p;
+
+  globvar("upgrade_performed", 0, "Upgrade Performed?", TYPE_FLAG|VAR_MORE,
+	"If set to No, the server will attempt to perform any upgrade steps on the next startup."
+        "Normally, the upgrade procedure is run on the first startup, though you might need to set this "
+        "if you migrate configurations from an older server, or upgrade the server software in the future.");
+
   globvar("snmp_enable", 0, "SNMP Agent: Enable SNMP Agent", TYPE_FLAG,
 	"If set to Yes, the server will enable access to server status "
         "via SNMP.");
@@ -3516,6 +3522,7 @@ int main(int argc, array(string) argv)
   init_garber();
   initiate_supports();
 
+
   initiate_configuration_port( 1 );
 
   // Open all the ports before changing uid:gid in case permanent_uid is set.
@@ -3543,6 +3550,11 @@ int main(int argc, array(string) argv)
                  (describe_backtrace( e )/"\n")[0]+"\n");
   }
   report_notice("\n");
+
+  // see if we need to do an upgrade, and run it if necessary. 
+  // it's easier to work with the configuration settings using the config
+  // object rather than fiddling directly with the configuration files.
+  check_perform_upgrade();
 
 #ifdef LOAD_CONFIGS_STARTUP
   foreach(configurations, object config)
@@ -3600,6 +3612,34 @@ int main(int argc, array(string) argv)
 #endif
   start_time=time();		// Used by the "uptime" info later on.
   return -1;
+}
+
+// check to see if we've upgraded yet. if not, run the upgrade.
+void check_perform_upgrade()
+{
+  mixed e=catch(GLOBVAR(upgrade_performed));
+  if(e || !GLOBVAR(upgrade_performed))
+    do_perform_upgrade();
+}
+
+// run the upgrade procedure, running code from files in etc/upgrade.d
+void do_perform_upgrade()
+{
+   report_notice("Performing upgrade...\n");
+   array uc=get_dir("etc/upgrade.d");
+   if(uc) uc=glob("*.pike", uc);
+   if(!uc || sizeof(uc)==0) report_error("no upgrade code found in etc/upgrade.d!\n");
+   else foreach(caudium->configurations, object config)
+   {
+     report_notice("Upgrading virtual server configuration " + config->name + "...\n");
+     foreach(uc, string codefile)
+     {
+       object upgrade_object=((program)("etc/upgrade.d/" + codefile))(config);
+       if(!upgrade_object->run())
+         report_error("Upgrade " + codefile + "  failed for configuration " + config->name + "\n");
+     }
+   }
+   set("upgrade_performed", 1);
 }
 
 void|string diagnose_error(array from)
