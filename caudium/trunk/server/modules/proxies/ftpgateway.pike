@@ -1200,7 +1200,7 @@ void start()
 void do_write(string host, string oh, string id, string more)
 {
   if(!host)     host=oh;
-  lfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] ftp://" +
+  lfile->write("[" + Caudium.HTTP.cern_date(time(1)) + "] ftp://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 

@@ -82,8 +82,6 @@ function nf=lambda(){};
 
 void init_proxies();
 
-function (string:int) no_cache_for;
-
 void start()
 {
   string pos;
@@ -92,13 +90,6 @@ void start()
   if(strlen(pos)>2 && (pos[-1] == pos[-2]) && pos[-1] == '/')
     set("mountpoint", pos[0..strlen(pos)-2]); // Evil me..
 
-  if(strlen(QUERY(NoCacheFor)))
-    if(catch(no_cache_for = Regexp("("+(QUERY(NoCacheFor)-"\r"-"\n\n")/"\n"*")|("
-				   +")")->match))
-      report_error("Parse error in 'No cache' regular expression.\n");
-
-  if(!no_cache_for) no_cache_for = lambda(string i){return 0;};
-  
   if(lfile) 
     destruct(lfile);
 
@@ -126,7 +117,7 @@ void do_write(string host, string oh, string id, string more)
 		       host, oh, id, more));
 #endif /* PROXY_DEBUG */
   if(!host)     host=oh;
-  lfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] http://" +
+  lfile->write("[" + Caudium.HTTP.cern_date(time(1)) + "] http://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 
@@ -218,15 +209,6 @@ void create()
 	 " accesses to local WWW-servers through a firewall.<p>"
 	 "Please consider security, though.</p>");
 
-  defvar("NoCacheFor", "", "No cache for", TYPE_TEXT_FIELD|VAR_MORE,
-	 "This is a list of regular expressions. URLs that match "
-	 "any entry in this list will not be cached at all.");
-
-  defvar("cache_cookies", 0, "Cache pages with cookies", TYPE_FLAG|VAR_MORE,
-	 "If this option is set, documents with cookies will be cached. "
-	 "As such pages might be dynamically made depending on the values of "
-	 "the cookies, you might want to leave this option off.");
-  
   defvar("Proxies", "", "Remote proxy regular expressions", TYPE_TEXT_FIELD|VAR_MORE,
 	 "Here you can add redirects to remote proxy servers. If a file is "
 	 "requested from a host matching a pattern, the proxy will query the "
@@ -310,7 +292,7 @@ string process_request(object id, int is_remote)
 class Connection {
   import Array;
 
-  object cache, pipe, proxy, from;
+  object pipe, proxy, from;
   array ids;
   string name;
   array my_clients = ({ });
@@ -318,16 +300,6 @@ class Connection {
   void log(string what) 
   {
     proxy->log(name, what);
-  }
-  
-  int cache_wanted(object id)
-  {
-    if(!id || (((id->method == "POST") || (id->query && strlen(id->query)))
-	       || id->auth
-	       || (!proxy->query("cache_cookies") && sizeof(id->cookies))
-	       || proxy->no_cache_for(id->not_query)))
-      return 0;
-    return 1;
   }
   
   string hostname(string s)
@@ -338,24 +310,13 @@ class Connection {
   int new;
   array stat;
   
-  void my_pipe_done(object cache)
+  void my_pipe_done()
   {
     object id;
     array b;
     int received, i;
     
-    if(cache)
-    {
-      if(catch {
-	b = cache->file->stat();
-	received = 1;
-      }) {
-	cache->file = 0;
-      }
-      if(cache->done_callback) {
-	cache->done_callback(cache);
-      }
-    } else if(from) {
+    if(from) {
       if (catch(b=from->stat()) && stat) {
 	// Used cached stat info.
 	b = stat;
@@ -384,11 +345,10 @@ class Connection {
     destruct();
   }
 
-  void assign(object s, string f, object i, int no_cache, object prox)
+  void assign(object s, string f, object i, object prox)
   {
-    new = !no_cache;
 
-    if(no_cache && !i) 
+    if(!i) 
     { 
       destruct(); 
       return; 
@@ -402,24 +362,6 @@ class Connection {
     my_clients = ({ i->remoteaddr });
     ids = ({ i });
 
-    /* The convenience function (shuffle) is used to do the actual
-     * transport. The callback has to be used to log the size of
-     * new incoming connections.
-     */
-    if(!no_cache && (!i || cache_wanted(i)))
-    {
-      if(cache = caudium->create_cache_file("http", f))
-      {
-	cache->done_callback = caudium->http_check_cache_file;
-	/* For fresh incoming cachefiles we have two pipe outputs
-	 * where the order in which they are given to the fallback
-	 * pipe->output in the global shuffle function is relevant.
-	 */
-	caudium->shuffle(s, cache->file, i->my_fd,
-		       lambda(){my_pipe_done(cache);});
-	return;
-      }
-    }
     /* If the fallback is used in the global shuffle function with cached
      * files the actual file is closed when my_pipe_done is reached.
      * With the following stat workaround the size can be logged.
@@ -427,7 +369,7 @@ class Connection {
     if(!new){
       stat = s->stat();
     }
-    caudium->shuffle(s, i->my_fd, 0, lambda(){my_pipe_done(0);});
+    caudium->shuffle(s, i->my_fd, 0, lambda(){my_pipe_done();});
   }
     
   int send_to(object o, object b)
@@ -513,7 +455,7 @@ void connected_to_server(object o, string file, object id, int is_remote,
       destruct(q);
       o=f;
     }
-    new_request->assign(o, file, id, 0, this_object());
+    new_request->assign(o, file, id, this_object());
 
 // What is the last test for???? /Per
   } else if(!objectp(o) || !o->stat() || (o->stat()[1] == -4)) { 
@@ -529,7 +471,7 @@ void connected_to_server(object o, string file, object id, int is_remote,
 	return;
       }
     }
-    new_request->assign(o, file, id, 1, this_object());
+    new_request->assign(o, file, id, this_object());
   }
   if(objectp(new_request)) 
     requests[new_request] = file;
@@ -606,13 +548,6 @@ mapping find_file( string f, object id )
 		    filter);
     else
       async_connect(host, port, connected_to_server,  key, id, 0, filter);
-  } else {
-    if(more = is_remote_proxy(host))
-      async_cache_connect(more[0], more[1], "http", key, connected_to_server,
-			  key, id, 1, filter);
-    else
-      async_cache_connect(host, port, "http", key, connected_to_server,
-			  key, id, 0, filter);
   }
   return Caudium.HTTP.pipe_in_progress();
 }
@@ -630,16 +565,6 @@ string comment() { return QUERY(mountpoint); }
 //! By default, this is http:/. If you set anything else, all normal WWW-clients will fail. But, other might be useful, like /http/. if you set this location, a link formed like  this: &lt;a href="/http/"&lt;my.www.server&gt;/a&gt; will enable accesses to local WWW-servers through a firewall.<p>Please consider security, though.</p>
 //!  type: TYPE_LOCATION|VAR_MORE
 //!  name: Location
-//
-//! defvar: NoCacheFor
-//! This is a list of regular expressions. URLs that match any entry in this list will not be cached at all.
-//!  type: TYPE_TEXT_FIELD|VAR_MORE
-//!  name: No cache for
-//
-//! defvar: cache_cookies
-//! If this option is set, documents with cookies will be cached. As such pages might be dynamically made depending on the values of the cookies, you might want to leave this option off.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Cache pages with cookies
 //
 //! defvar: Proxies
 //! Here you can add redirects to remote proxy servers. If a file is requested from a host matching a pattern, the proxy will query the proxy server at the host and port specified.<p> Hopefully, that proxy will then connect to the remote computer. </p><p>Example:<hr noshade="yes" /><pre># All hosts inside *.rydnet.lysator.liu.se has to be<br /># accessed through lysator.liu.se<br />.*\.rydnet\.lysator\.liu\.se        130.236.253.11  80<br /># Do not access *.dec.com via a remote proxy<br />.*\.dec\.com                         no_proxy        0<br /># But all other .com<br />.*\.com                         130.236.253.11        0<br /></pre></p>Please note that this <b>must</b> be regular expressions.
