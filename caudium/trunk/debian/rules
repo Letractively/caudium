@@ -116,8 +116,8 @@ install: build
 	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
 	rm -rf debian/tmp/usr/local/
 	
-	chmod 644 debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_graph.pike \
-	          debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_bars.pike
+	chmod 644 debian/tmp/usr/lib/caudium/modules/graphics/business_graphics/create_graph.pike \
+	          debian/tmp/usr/lib/caudium/modules/graphics/business_graphics/create_bars.pike
 
 	#
 	# the -p debhelper param seems to be not working... 
