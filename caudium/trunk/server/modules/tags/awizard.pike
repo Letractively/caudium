@@ -711,3 +711,8 @@ mapping query_container_callers()
 //!  type: TYPE_FILE
 //!  name: Procedure library
 //
+//! defvar: allow_awizard_pike
+//! If set, you can use, and additonal tag for scripting in AWizards: <b>&lt;awizard-pike&gt</b>...pike code...<b>&lt;/awizard-pike&gt;</b>in your pages, or procedures.<br />this is doing somewhat same like pike tag support.<br /><font color=red>NOTE: Enabling awizard-pike is the same thing as letting your usersrun programs with the same right as the server!</font>
+//!  type: TYPE_FLAG
+//!  name: Awizard-Pike tag
+//
