@@ -73,7 +73,7 @@ mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
 mozilla/4\.0[4-9].*	pnginline
 mozilla/4\.[5-9].*	pnginline
 mozilla/5\.0b1		-java, pnginline, tcl
-mozilla/[5-9].*		pnginline
+mozilla/[5-9].*		pnginline, gecko
 
 # Opera 3
 
