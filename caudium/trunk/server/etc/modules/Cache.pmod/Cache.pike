@@ -67,7 +67,7 @@ mapping behavior_m = ([ ]);
 //! This is the time in seconds to keep an object before expiring, unless
 //! otherwise specified.
 //!
-//! @todo
+//! @note
 //! SlowStorage is a bit of a hack - at this stage disk storage is the only
 //! supported backend, and this is hacked in as a constant. This needs to be
 //! changed to support a pluggable method.
