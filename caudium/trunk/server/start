@@ -95,21 +95,21 @@ parse_args() {
   -D*)
    DEFINES="$DEFINES $1"
   ;;
+  -l*)
+   ARGS="$ARGS $1"
 # Used by the 'install' script
+    ;;
   --truss)
-     precmd="truss $pike"
+     precmd="truss "
+     once=1
   ;;
   --strace)
-     precmd="strace -f $pike"
+     precmd="strace -f "
+     once=1
   ;;
-  --no-env-setup)
-   pass2="$pass2 $1"
-  ;;
-  --recheck-env)
-   pass2="$pass2 $1"
-  ;;
-  --variable=*)
-   pass2="$pass2 `echo $1 | sed -e 's/--variable=//'`"
+  --ltrace)
+     precmd="ltrace -f "
+     once=1
   ;;
   --log-dir=*)
    LOGDIR=`echo $1 | sed -e 's/--log-dir=//'`
@@ -150,7 +150,7 @@ parse_args() {
     DEFINES="-DKEEP_ALIVE $DEFINES"
   ;;
   '--once')
-    once=1http://www.gnome.org/screenshots/gwp.jpg
+    once=1
   ;;
   '--gdb')
     gdb=gdb
@@ -158,7 +158,16 @@ parse_args() {
   ;;
   '--program')
     program="$2"
+    once=1
     shift
+  ;;
+  -r*|-d*|-t*|-l*|-w*)
+    # Argument passed along to Pike.
+    ARGS="$ARGS $1"
+  ;;
+  -D*|-M*|-I*|-P*)
+    # Argument passed along to Pike.
+    DEFINES="$DEFINES $1"
   ;;
   '--version')
     VERSION=`sed <base_server/roxen.pike -e'/__caudium_version__/s/[^0-9.]*//gp' -ed|head -1`
@@ -167,7 +176,7 @@ parse_args() {
     exit 0
   ;;
   '--help'|'-?')
-  sed -e "s/\\.B/`tput 'bold' 2>/dev/null`/g" -e "s/B\\./`tput 'rmso' 2>/dev/null`/g" << EOF
+  sed -e "s/\\.B/`tput bold 2>/dev/null`/g" -e "s/B\\./`tput rmso 2>/dev/null`/g" << EOF
 .BThis command will start the Caudium serverB..
 
 The environment variable .BCAUDIUM_ARGSB. can be used to specify
@@ -225,10 +234,9 @@ the default arguments.
 	
       .B--with-fd-debugB.:            Enable FD debug.
 
-      .B--trussB.:                    (Solaris only). Run the server under
-				  truss, shows .BallB. system calls. This is 
-				  extremely noisy, and is not intented for 
-				  anything but debug.
+      .B--truss,--strace,--ltraceB.: Run the server under the selected tracer
+                   		  program. This is extremely noisy, and is not
+				  intented for anything but debugging purposes.
 
       .B--pid-file=<file>B.:          Store the caudium and startscript pids in this
 				  file. Defaults to .B/tmp/caudium_\$UIDB.
@@ -336,11 +344,15 @@ rotate () {
 }
 
 start_caudium() {
-  args="-DCAUDIUM -DROXEN $DEBUG $DEFINES $pass $program --config-dir=$DIR $pass2"
+  if [ "x$DIR" != "x../configurations/" ] ; then
+    args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program --config-dir=$DIR $pass"
+  else
+    args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program $pass"
+  fi
   if [ "x$gdb" = "xno" ]; then
     echo "PIKE_MODULE_PATH=$PIKE_MODULE_PATH"
-    echo Executing $pike $args $@
-    $pike $args $@
+    echo Executing $precmd$pike $args $@
+    $precmd $pike $args $@
   else
     echo Executing gdb $pike $args $@
     echo >.gdbinit handle SIGPIPE nostop noprint pass
