@@ -42,16 +42,19 @@ object caudium;
 void create(object c)
 {
   caudium=c;
-  report_error("snmp agent starting on port " + GLOBVAR(snmp_port) + "\n");
 
+  report_error("snmp agent starting on port " + (int)(GLOBVAR(snmp_port)) + "\n");
   mixed err=catch(agent=Protocols.SNMP.agent((int)(GLOBVAR(snmp_port))));
-
   if(err)
   {
     report_error("Unable to start SNMP agent: " + err[0] + "\n");
     agent=0;
     return;
   }
+#ifdef THREADS
+  report_error("setting agent to run threaded.\n");
+  agent->set_threaded();
+#endif
   agent->set_get_communities(({GLOBVAR(snmp_get_community)}));
   agent->set_managers_only(0);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.1", snmp_get_server_version);
