@@ -61,14 +61,14 @@ constant module_doc =
 "accepted for both the XSL path and the base URI."
 #if !constant(PiXSL.Parser)
 "<p><b><blink>ERROR</blink>: "
-"<font color=red>The PiXSL.so pike-module is missing.</font>"
+"<font color=red>The PiXSL.so pike-module is missing.</font></b>"
 #endif
 #if !constant(libxslt.Parser)
 "<p><b><blink>ERROR</blink>: "
-"<font color=red>The libxslt.so pike-module is missing.</font>"
+"<font color=red>The libxslt.so pike-module is missing.</font></b>"
 #endif
 #if !constant(PiXSL.Parser) && !constant(libxslt.Parser)
-"This module will not function correctly!</font></b>\n"
+"<b>This module will not function correctly!</font></b>\n"
 #endif
 ;
 
