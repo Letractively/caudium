@@ -62,3 +62,38 @@ string cern_date(int|void t) {
 string date(void|int t) {
   return Caudium.http_date(t);
 }
+
+//! Encodes a query to a string. This protects odd characters
+//! like '&' and '#' and control characters, and pack the result
+//! together in a HTTP query string.
+//!
+//! Example:
+//! @pre{
+//! > Caudium.HTTP.encode_query( (["user":"foo","passwd":"encrypted"]) );
+//! (1) Result: "user=foo&passwd=encrypted"
+//! > Caudium.HTTP.encode_query( (["foo":"&&amp;","'=\"":"\0\0\0"]) );
+//! (2) Result: "foo=%26%26amp%3B&%27%3D%22=%00%00%00"
+//! @}
+//!
+//! @param variables
+//!   mapping of string variables to encode to
+//!
+//! @returns
+//!   query string encoded according to RFC 2396
+//!  
+string encode_query(mapping(string:int|string) variables)
+{
+  return Array.map((array)variables,
+           lambda(array(string|int|array(string)) v)
+           {
+             if (intp(v[1]))
+               return Caudium.http_encode(v[0]);
+             if (arrayp(v[1]))
+               return map(v[1], lambda (string val) {
+                          return 
+                            Caudium.http_encode(v[0])+"="+
+                            Caudium.http_encode(val);
+                        })*"&";
+             return Caudium.http_encode(v[0])+"="+Caudium.http_encode(v[1]);
+           })*"&"; 
+}
