@@ -1,5 +1,13 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- The watchdog now really take care of the port configuration for each virtual
+  server instead of guessing it from the server URI. As a consequence, the
+  watchdog can now check multiple HTTP ports for a virtual server.
+  Checks are made on the protocol used as well as on the binded interface
+  before adding a new virtual server/port to the watch list.
+  This fixes a bug where the watchdog would restart Caudium ever and ever on a
+  fresh install until some virtual server binds to the port 80.
+   (Bertrand LUPART)
 - Fixed a watchdog backtrace on fresh install when there are no virtual server
   set up in the CIF, yet.
    (Bertrand LUPART)
