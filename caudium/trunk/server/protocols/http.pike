@@ -1410,7 +1410,7 @@ void send_result(mapping|void result)
 	  
 	  // The below is only for HTTP 1.0 - should we test whether the
 	  // current request proto is 1.0 and set the header only then? /grendel
-	  heads["Pragma"] = "no-cache";
+	  heads["pragma"] = "no-cache";
     }
     
 #ifdef SUPPORT_HTTP_09
