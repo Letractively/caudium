@@ -67,7 +67,7 @@ Stdio.File open_log_file( string logfile )
     object lf=Stdio.File( logfile, "wac");
     if(!lf) 
     {
-      Stdio.mkdirhier(logfile);
+      mkdirhier(logfile);
       if(!(lf=Stdio.File( logfile, "wac")))
       {
         report_error("Failed to open logfile. ("+logfile+"): "
@@ -80,6 +80,12 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
+string trim( string what )
+{
+  sscanf(what, "%*[ \t]%s", what); what = reverse(what);
+  sscanf(what, "%*[ \t]%s", what); what = reverse(what);
+  return what;
+}
 #ifdef CGI_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !CGI_DEBUG */
@@ -370,6 +376,40 @@ class Wrapper
   }
 }
 
+/* RXML wrapper.
+**
+** Simply waits until the MODPHP-script is done, then
+** parses the result and sends it to the client.
+** Please note that the headers are also parsed.
+*/
+class RXMLWrapper
+{
+  inherit Wrapper;
+  constant name="RXMLWrapper";
+
+  string data="";
+
+  void done()
+  {
+    DWERROR("UNISCRIPT:RXMLWrapper::done()\n");
+
+    if(strlen(data))
+    {
+      output( parse_rxml( data, mid ) );
+      data="";
+    }
+    ::done();
+  }
+
+  void process( string what )
+  {
+    DWERROR(sprintf("RXMLWrapper::process(%O)\n", what));
+
+    data += what;
+  }
+}
+
+
 /* CGI wrapper.
 **
 ** Simply waits until the headers has been received, then 
@@ -413,8 +453,8 @@ class CGIWrapper
         post += h+"\n";
         continue;
       }
-      header = String.trim_whites(header);
-      value = String.trim_whites(value);
+      header = trim(header);
+      value = trim(value);
       switch(lower_case( header ))
       {
        case "status":
@@ -548,6 +588,8 @@ class CGIScript
       Stdio.File fd = stdout;
       if( (command/"/")[-1][0..2] != "nph" )
         fd = CGIWrapper( fd,mid,kill_script )->get_fd();
+      if( QUERY(rxml) )
+        fd = RXMLWrapper( fd,mid,kill_script )->get_fd();
       stdout = 0;
       call_out( check_pid, 0.1 );
       return fd;
@@ -832,6 +874,11 @@ void create(object conf)
 	 "env<br>"
 	 "</pre>");
 
+  defvar("rxml", 0, "Parse RXML in uni-scripts", TYPE_FLAG,
+         "If this is set, the output from uni-scripts handled by this "
+         "module will be RXML parsed. NOTE: No data will be returned to the "
+         "client until the uni-script is fully parsed.",0,getuid);
+
   defvar("extra_env", "", "Extra environment variables", TYPE_TEXT_FIELD|VAR_MORE,
 	 "Extra variables to be sent to the script, format:<pre>"
 	 "NAME=value\n"
@@ -1052,7 +1099,7 @@ void create(object conf)
 //! defvar: runowner
 //! If enabled, scripts are run as owner.
 //!  type: TYPE_FLAG
-//!  name: Run scripts as
+//!  name: Run scripts as owner
 //
 //! defvar: user
 //! If set, scripts in the home-dirs of users will be run as the user. This overrides the Run scripts as variable.
