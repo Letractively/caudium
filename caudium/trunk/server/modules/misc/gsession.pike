@@ -86,6 +86,9 @@ void start(int num, object conf)
   //
   if (QUERY(dogc))
     call_out(co_session_gc, QUERY(expire) / 2);
+
+  if (QUERY(doexpidle))
+    call_out(co_idle_gc, QUERY(expidletime) / 2);
 }
 
 void stop()
@@ -425,13 +428,31 @@ private void co_session_gc()
   }
 
 #ifdef THREADS
-  Thread.thread_create(cur_storage->expire_old, time(), QUERY(expire));
+  Thread.thread_create(cur_storage->expire_old, time());
 #else
-  cur_storage->expire_old(time(), QUERY(expire));
+  cur_storage->expire_old(time());
 #endif
     
   if (QUERY(dogc))
     call_out(co_session_gc, QUERY(expire) / 2);
+}
+
+private void co_idle_gc()
+{
+  if (!cur_storage) {
+    if (QUERY(doexpidle))
+      call_out(co_idle_gc, QUERY(expidletime) / 2);
+    return;
+  }
+
+#ifdef THREADS
+  Thread.thread_create(cur_storage->expire_idle, time());
+#else
+  cur_storage->expire_idle(time());
+#endif
+    
+  if (QUERY(dogc))
+    call_out(co_idle_gc, QUERY(expidletime) / 2);
 }
 
 private string gsession_build_cookie(object id, string sid, void|int remove)
@@ -583,6 +604,16 @@ void register_plugins(void|object conf)
         rec_item_missing("is_touched", regrec->name);
         continue;
       }
+
+      if (!functionp(regrec->expire_idle) || !regrec->expire_idle) {
+        rec_item_missing("expire_idle", regrec->name);
+        continue;
+      }
+
+      if (!functionp(regrec->get_counters) || !regrec->get_counters) {
+        rec_item_missing("get_counters", regrec->name);
+        continue;
+      }
       
       if (storage_plugins[regrec->name])
         report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -688,8 +719,13 @@ private mapping(string:mapping(string:mapping(string:mixed))|object) _memory_sto
 //     stored/retrieved), 0 otherwise.
 //
 //  function expire_old; (mandatory)
-//  synopsis: void expire_old(int curtime, int expiration_time);
+//  synopsis: void expire_old(int curtim);
 //     called from a callout to expire aged sessions. Ran in a separate
+//     thread, if available.
+//
+//  function expire_idle; (mandatory)
+//  synopsis: void expire_idle(int curtime);
+//     called from a callout to expire idle sessions. Ran in a separate
 //     thread, if available.
 //
 //  function delete_session; (mandatory)
@@ -729,6 +765,7 @@ private mapping memory_storage_registration_record = ([
   "retrieve" : memory_retrieve,
   "delete_variable" : memory_delete_variable,
   "expire_old" : memory_expire_old,
+  "expire_idle" : memory_expire_idle,
   "delete_session" : memory_delete_session,
   "get_region" : memory_get_region,
   "get_all_regions" : memory_get_all_regions,
@@ -918,6 +955,28 @@ private void memory_delete_session(string sid)
     m_delete(_memory_storage[region], sid);
 }
 
+private void memory_expire_idle(int curtime)
+{
+#ifdef THREADS
+  gc_key = gc_lock->lock();
+#endif
+
+  foreach(indices(_memory_storage), string region)
+    if (mappingp(_memory_storage[region])) {
+      foreach(indices(_memory_storage[region]), string sid) {
+        if (_memory_storage["_sessions_"][sid] && mappingp(_memory_storage["_sessions_"][sid])) {
+          if (_memory_storage["_sessions_"][sid]->fresh && QUERY(doexpidle) &&
+              curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expidletime)) {
+            memory_delete_session(sid);
+          }
+        }
+      }
+    }
+#ifdef THREADS
+  destruct(gc_key);
+#endif
+}
+
 private void memory_expire_old(int curtime)
 {
 #ifdef THREADS
@@ -931,11 +990,6 @@ private void memory_expire_old(int curtime)
           if (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire)) {
             memory_delete_session(sid);
             continue;
-          }
-          
-          if (_memory_storage["_sessions_"][sid]->fresh && QUERY(doexpidle) &&
-              curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expidletime)) {
-            memory_delete_session(sid);
           }
         }
       }
