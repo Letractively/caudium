@@ -1,0 +1,9 @@
+A note for FreeBSD users
+------------------------
+
+Port for Caudium 1.2 is now (06/18/2003) on current FreeBSD cvsup. Just go to
+/usr/ports/www/caudium12/ and type make, the port will install Pike 7.2, some
+pexts and caudium.
+
+Have fun !
+
