@@ -1014,6 +1014,7 @@ public string status()
   return res;
 }
 
+//! @deprecated
 public array(string) userinfo(string u, object|void id)
 {
   if(auth_module) return auth_module->userinfo(u);
@@ -1021,6 +1022,7 @@ public array(string) userinfo(string u, object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
+//! @deprecated
 public array(string) userlist(object|void id)
 {
   if(auth_module) return auth_module->userlist();
@@ -1028,6 +1030,7 @@ public array(string) userlist(object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
+//! @deprecated
 public array(string) user_from_uid(int u, object|void id)
 {
   if(auth_module)
@@ -3156,7 +3159,7 @@ object enable_module( string modname )
   if(module->type & MODULE_AUTH)
   {
     auth_module = me;
-    auth_fun = me->auth;
+    auth_fun = me->authenticate;
   }
 
   if(module->type & MODULE_DIRECTORIES)
