@@ -393,9 +393,11 @@ object create_node(string f, object id, int nocache)
   dir = caudium->find_dir(f, id);
 
   if (!QUERY(dotfiles)) {
-    foreach(dir, string _f) {
-      if (sizeof(_f) && (_f[0] == '.')) 
-        dir -= ({ _f });
+    if(arrayp(dir)) {
+      foreach(dir, string _f) {
+        if (sizeof(_f) && (_f[0] == '.')) 
+          dir -= ({ _f });
+      }
     }
   }   
   
