@@ -772,48 +772,48 @@ static int is_safe (char c)
 */
 static void f_http_encode(INT32 args) 
 {
-	char *o, *out, *in;
-	unsigned char *i;
-	int unsafe = 0;
-	int out_len, in_len;
-	struct pike_string *ret;
-        struct pike_string *src;
+  char *o, *out, *in;
+  unsigned char *i;
+  int unsafe = 0;
+  int out_len, in_len;
+  struct pike_string *ret;
+  struct pike_string *src;
 
-        if(Pike_sp[-1].type != T_STRING)
-          SIMPLE_BAD_ARG_ERROR("Caudium.http_encode", 1, "string");
-        src = Pike_sp[-1].u.string;
-        if(src->size_shift) {
-          Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
-        }
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode", 1, "string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+  }
 
-        in = src->str;
-        in_len = src->len-1;
+  in = src->str;
+  in_len = src->len-1;
 	
-	// count unsave characters
-	for(i=in; *i; i++) if(!is_safe((int )*i)) unsafe++;
+  /* count unsafe characters */
+  for(i=in; *i; i++) if(!is_safe((int )*i)) unsafe++;
 
-	// no need to convert	
-	if(unsafe == 0) {
-		pop_n_elems(args-1);
-		return;
-	}
+  /* no need to convert	*/
+  if(unsafe == 0) {
+    pop_n_elems(args-1);
+    return;
+  }
 	
-	out_len = in_len + (unsafe * 2) + 1;
-	ret = begin_shared_string(out_len);
-	out = ret->str;
-	
-	for(o=out, i=in; *i; i++) {
-		if (!is_safe(*i)) {
-			*o++ = '%';
-			*o++ = hex_chars[*i >> 4];
-			*o++ = hex_chars[*i & 15];
-		} else *o++ = *i;
-	}
-	
-	/* grendel: i think this _is_ needed?! - pit */
-	/* *o++ = 0; */
-	pop_n_elems(args);
-	push_string(end_shared_string(ret));
+  out_len = in_len + (unsafe * 2) + 1;
+  ret = begin_shared_string(out_len);
+  out = ret->str;
+
+  for(o=out, i=in; *i; i++) {
+    if (!is_safe(*i)) {
+      *o++ = '%';
+      *o++ = hex_chars[*i >> 4];
+      *o++ = hex_chars[*i & 15];
+    } else *o++ = *i;
+  }
+
+  /* grendel: i think this _is_ needed?! - pit */
+  /* *o++ = 0; */
+  pop_n_elems(args);
+  push_string(end_shared_string(ret));
 }
 
 /*
@@ -826,64 +826,64 @@ static void f_http_encode(INT32 args)
 */
 static void f_http_decode(INT32 args) 
 {
-	char *o, *out, *in;
-	unsigned char *i;
-	struct pike_string *ret;
-	int in_len, check;
-        struct pike_string *src;
+  char *o, *out, *in;
+  unsigned char *i;
+  struct pike_string *ret;
+  int in_len, check;
+  struct pike_string *src;
 
-        check = 0;  /* Just in case */
+  check = 0;  /* Per default there is no encoded characters to decode */
 
-        if(Pike_sp[-1].type != T_STRING)
-          SIMPLE_BAD_ARG_ERROR("Caudium.http_encode",1,"string");
-        src = Pike_sp[-1].u.string;
-        if(src->size_shift) {
-          Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
-        }
-        in = src->str;
-        in_len = src->len-1;
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode",1,"string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+  }
+  in = src->str;
+  in_len = src->len-1;
 
-	// count encoded characters
-	for(i=in; *i; i++) if(*i == '%') check++;
+  /* count encoded characters */
+  for(i=in; *i; i++) if(*i == '%') check++;
 
-	// no need to convert	
-	if(check == 0) {
-		pop_n_elems(args-1);
-		return;
-	}
+  /* no need to convert */
+  if(check == 0) {
+    pop_n_elems(args-1);
+    return;
+  }
+
+  ret = begin_shared_string(strlen(in)+1);
+  out = ret->str;
+  o = out;
+  i = in;
+
+  while(*i) {
+    if(*i == '%') {
+      char c = 0;
+      int x;
+      for(x = 0; x < 2; x++) {
+        int h;
+        i++;
+        if(*i == '\0') break;
+        if((h = BIN(*i)) == -1) break;
+        c = (c << 4) + h;
+      }
 	
-	ret = begin_shared_string(strlen(in)+1);
-	out = ret->str;
-	o = out;
-	i = in;
+      if(x != 2) { // error 
+        free(out);
+        return ;
+      }
 
-	while(*i) {
-		if(*i == '%') {
-			char c = 0;
-			int x;
-			for(x = 0; x < 2; x++) {
-				int h;
-				i++;
-				if(*i == '\0') break;
-				if((h = BIN(*i)) == -1) break;
-				c = (c << 4) + h;
-			}
-			
-			if(x != 2) { // error 
-				free(out);
-				return ;
-			}
+      *o++ = c;
+    }
+    else *o++ = *i;
+	
+    i++;
+  }
 
-			*o++ = c;
-		}
-		else *o++ = *i;
-		
-		i++;
-	}
-
-	*o = '\0';
-	pop_n_elems(args);
-	push_string(end_shared_string(ret));
+  *o = '\0';
+  pop_n_elems(args);
+  push_string(end_shared_string(ret));
 }
 
 #ifdef EXPERIMENTAL
