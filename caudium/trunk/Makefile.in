@@ -249,7 +249,7 @@ only_bump_version:  force
 	    exit 1; \
 	  fi; \
 	  version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
+	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
 	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
 	  cat ../../VERSION; \
 	)
@@ -257,7 +257,7 @@ only_bump_version:  force
 bump_version: force only_bump_version
 	@(cd $(SRCDIR); \
 	  echo Tagging...; \
-	  cvs tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
+	  cvs -z3 tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
 	)
 	@touch bump_version
 

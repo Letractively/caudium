@@ -159,7 +159,7 @@ void main(int argc, array (string) argv)
   thread_create(twiddle);
 #endif
   werror("Running CVS log ");
-  string data = Process.popen("cvs log");
+  string data = Process.popen("cvs -z3 log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
   if(argc>1)
