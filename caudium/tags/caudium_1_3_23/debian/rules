@@ -1,0 +1,219 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper. 
+# GNU copyright 1997 by Joey Hess.
+#
+# This version is for a hypothetical package that builds an
+# architecture-dependant package, as well as an architecture-independent
+# package.
+#
+# This is the Caudium Webserver rules file
+# $Id$
+#
+# Uncomment this to turn on verbose mode. 
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# we need to know what pike are we using
+
+ifdef USE_PIKE
+PIKE=pike$(USE_PIKE)
+else
+PIKE=pike7.4
+endif
+PIKEBIN=/usr/bin/$(PIKE)
+
+PIKE_VERSION=$(shell $(PIKEBIN) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
+CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
+PIKE7_CHANGELOG=/usr/share/doc/$(PIKE)/changelog.Debian.gz
+PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
+PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
+EXTVER=
+
+SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
+        bin/ultrasum.pike bin/install.pike bin/pixsl.pike 
+
+PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+
+	if test "$(CVS_SNAPSHOT)" = "yes"; then \
+	    ./autogen.sh; \
+	fi
+	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-serverdir=/usr/lib/caudium
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	$(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) spotless
+	-rm -f `find -name ".cvsignore" -type f -print`
+	-rm -rf `find -name "CVS" -type d -print`
+	-rm -f smartlink statuslock
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/caudium.
+	$(MAKE) install_alt prefix=/usr DESTDIR=$(CURDIR)/debian/caudium EXTRAVER=$(EXTVER)
+	-rm -f $(CURDIR)/debian/caudium/usr/share/doc/caudium$(EXTVER)/COPYING
+	cp debian/localhost $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/localhost.sample
+	cp debian/Global_Variables $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/Global_Variables.sample
+
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
+	 debian/caudium/usr/bin/ultrasum > debian/caudium/usr/bin/ultrasum.new && \
+	mv debian/caudium/usr/bin/ultrasum.new debian/caudium/usr/bin/ultrasum ; \
+	chmod 755 debian/caudium/usr/bin/ultrasum
+
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
+	 debian/caudium/usr/bin/pixsl > debian/caudium/usr/bin/pixsl.new && \
+	mv debian/caudium/usr/bin/pixsl.new debian/caudium/usr/bin/pixsl ; \
+	chmod 755 debian/caudium/usr/bin/pixsl debian/caudium/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
+
+	for s in $(SCRIPTS); do \
+	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/caudium/usr/lib/caudium$(EXTVER)/$$s > \
+	      debian/caudium/usr/lib/caudium$(EXTVER)/$$s.new && \
+	  mv debian/caudium/usr/lib/caudium$(EXTVER)/$$s.new debian/caudium/usr/lib/caudium$(EXTVER)/$$s ; \
+	  chmod 755 debian/caudium/usr/lib/caudium$(EXTVER)/$$s ; \
+	done
+
+	# fix caudiumctl paths
+	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
+	    < $(CURDIR)/debian/caudium/usr/bin/caudiumctl \
+	    > $(CURDIR)/debian/caudium/usr/bin/caudiumctl.new && \
+	    mv $(CURDIR)/debian/caudium/usr/bin/caudiumctl.new $(CURDIR)/debian/caudium/usr/bin/caudiumctl && \
+	    chmod 755 $(CURDIR)/debian/caudium/usr/bin/caudiumctl
+
+	# perms fixing fest
+	-chmod 644 debian/caudium/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
+	           debian/caudium/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
+		   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/config/font
+
+	mv debian/caudium/usr/bin/htpasswd debian/caudium/usr/bin/htpasswd-caudium
+
+	# add libroxen modules path
+	# change the state directory
+	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
+	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/",\3;' \
+	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(EXTVER)/"\3;' \
+	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
+	    -e 's#^string __caudium_extra_ver__ = ""#string __caudium_extra_ver__ = "Debian GNU/Linux"#' \
+	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
+	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
+	   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
+
+	for p in $(CURDIR)/debian/www/*.png.uu; do \
+	    uudecode -o $(CURDIR)/debian/caudium/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
+	done
+	# fix what lintian whines about
+	ln -sf ../../../bin/$(PIKE) $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/caudium
+	cp -dp $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/caudium $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/pike
+	rm -rf debian/caudium/usr/local/
+
+	# lintian doesn't like images in /usr/lib, let's move them to /usr/share
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/caudium-images debian/caudium/usr/share/caudium$(EXTVER)/
+
+	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
+	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/local/share/caudium/modules/
+
+	#
+	# copy perl
+	#
+	cp -pad $(CURDIR)/server/perl/ $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/
+	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
+	    debian/caudium/usr/lib/caudium$(EXTVER)/perlhelper.new && \
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/perlhelper.new \
+	   debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	chmod 755 debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+
+	#
+	# the -p debhelper param seems to be not working... 
+	# so let's do it by hand
+	#
+	install -m 755 -d debian/caudium-ultralog/usr/share/man/man1/
+	cp src/cmods/UltraLog/docs/ultrasum.1 \
+	   debian/caudium-ultralog/usr/share/man/man1/
+
+	dh_movefiles  --sourcedir=debian/caudium
+
+	# move all the arch independent files to /usr/share and symlink them from their original location
+	# in /usr/lib/caudium/u	
+
+	for p in $(PACKAGES); do \
+	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
+	     -name "*.pike" -type f -print \
+	     -o -name "*.pmod" -type f -print \
+	     -o -name "*.html" -type f -print \
+	     -o -name "*.h" -type f -print | \
+	     $(CURDIR)/debian/reflect.sh usr/share/caudium/ \
+	                                 $(CURDIR)/debian/$$p.links \
+	                                 usr/lib/caudium/ \
+					 $(CURDIR)/debian/$$p/) ; \
+	done
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+#binary-indep: DH_OPTIONS=-i
+binary-indep: build install
+
+# Build architecture-dependent files here.
+# Pass -a to all debhelper commands in this target to reduce clutter.
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	# Need this version of debhelper for DH_OPTIONS to work.
+#	dh_testversion 1.1.17
+	dh_testdir
+	dh_testroot
+	dh_installdebconf
+	dh_installdocs
+#	dh_installexamples
+#	dh_installmenu
+#	dh_installemacsen
+#	dh_installpam
+	dh_installlogrotate
+	dh_installinit
+	dh_installman
+#	dh_installcron
+#	dh_installmanpages -A caudium doc/caudiumctl.1
+#	dh_installinfo
+	dh_undocumented htpasswd-caudium.1 pixsl.1
+	dh_installchangelogs CHANGES
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	# You may want to make some executables suid here.
+#	dh_suidregister
+	dh_installdeb
+#	dh_makeshlibs
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol -- -Vpike:ver=$(PIKE_VERSION) -Vpike:name=$(PIKE)
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
