@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added .htaccess manual link... Usefull since most of apache people
+  thinks that our .htaccess is compatible..
 - Autoconf 2.53+ is now required to build Caudium from CVS
 - Added string hash module.
 - Added support in VHS Sql to use Caudium system log directory instead of      
