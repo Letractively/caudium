@@ -23,7 +23,7 @@
 //!  This Pike module provides a couple of classes that makes it possible for
 //!  module programmers to watch a file and get a callback every time the file
 //!  has changed (size, modification date, ownership and permission).
-//!  @code {
+//!  @example 
 //!    // The following code will reload automagicly the file
 //!    // /etc/passwd into string passwd every 60s if it has been modified.
 //!    string passwd = "";
@@ -41,7 +41,6 @@
 //!    void start() {
 //!      filewatch = FileWatch.Callout("/etc/passwd", 60, passwd_load);
 //!    }
-//!  @}
 
 //!  This is the base class of the two watcher classes. You should never use
 //!  this class directly since it actually doesn't do anything.
