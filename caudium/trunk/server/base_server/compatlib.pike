@@ -447,7 +447,7 @@ array list_colors() {
 }
 
 //! Compat for Image.Color.rgb( )->hsv();
-//! @deprecaded
+//! @deprecated
 array rgb_to_hsv(array|int ri, int|void gi, int|void bi) {
   report_error("Compat rgb_to_hsv() used in %s, please consider using Pike Image.Color.rgb( x,x,x )->hsv(); instead\n",dbt(backtrace()[-2]));
   if(arrayp(ri))

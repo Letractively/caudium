@@ -543,7 +543,7 @@ string strip_prestate(string from) {
   return from;
 }
 
-//! Return a short date string from a time @{int@}
+//! Return a short date string from a time int.
 //! @param timestamp
 //!   The Unix time value to convert
 //! @returns
