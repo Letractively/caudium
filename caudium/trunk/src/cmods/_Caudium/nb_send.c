@@ -27,12 +27,44 @@ RCSID("$Id$");
 #include "caudium_util.h"
 #include "caudium.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#ifdef HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#else
+#ifdef HAVE_LINUX_MMAN_H
+#include <linux/mman.h>
+#else
+#ifdef HAVE_MMAP
+/* sys/mman.h is _probably_ there anyway. */
+#include <sys/mman.h>
+#endif
+#endif
+#endif
+
+#ifndef S_ISREG
+#ifdef S_IFREG
+#define S_ISREG(mode)   (((mode) & (S_IFMT)) == (S_IFREG))
+#else
+#define S_ISREG(mode)   (((mode) & (_S_IFMT)) == (_S_IFREG))
+#endif
+#endif
+#ifdef USE_MMAP
+#ifndef MAP_FILE
+# define MAP_FILE 0
+#endif
+#ifndef MAP_FAILED
+# define MAP_FAILED -1
+#endif
+#endif
 #define THIS ((nbio_storage *)(Pike_fp->current_storage))
 #define THISOBJ (Pike_fp->current_object)
 
 extern int fd_from_object(struct object *o);
 
-/*#define NB_DEBUG*/
+/*#define NB_DEBUG */
 #ifdef NB_DEBUG
 # define DERR(X) do { fprintf(stderr, "** Caudium.nbio: "); X; } while(0)
 #else
@@ -58,6 +90,7 @@ static void alloc_nb_struct(struct object *obj) {
   THIS->last_input = NULL;
   THIS->outp       = NULL;
   THIS->args       = NULL;
+  THIS->buf        = NULL;
   THIS->cb.type    = T_INT;
   THIS->buf_len    = 0;
   THIS->written    = 0;
@@ -66,10 +99,22 @@ static void alloc_nb_struct(struct object *obj) {
 /* Free an input */
 static void free_input(input *inp) {
   DERR(fprintf(stderr, "Freeing input 0x%x\n", (unsigned int)inp));
-  if(inp->type == T_STRING) {
+  switch(inp->type) {
+   case NBIO_STR: 
     free_string(inp->u.data);
-  } else if(inp->type == T_OBJECT) {
+    break;
+#ifdef USE_MMAP
+   case NBIO_MMAP:
+    if(inp->u.mmap->data != MAP_FAILED) {
+      munmap(inp->u.mmap->data, inp->u.mmap->m_len);
+    }
+    free_object(inp->u.mmap->file);
+    free(inp->u.mmap);
+    break;
+#endif
+   case NBIO_OBJ:
     free_object(inp->u.file);
+    break;
   }
   if(THIS->last_input == inp)
     THIS->last_input = NULL;
@@ -78,25 +123,31 @@ static void free_input(input *inp) {
 }
 
 /* Allocate new input object and add it to our list */
-static INLINE void new_input(struct svalue inval, int len) {
+static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
+  struct stat s;
   input *inp;
+
   inp = malloc(sizeof(input));
   if(inp == NULL) {
     Pike_error("Out of memory!\n");
     return;
   }
+
+  inp->next = NULL;
+  inp->pos  = 0;
+
   DERR(fprintf(stderr, "Allocated new input at 0x%x\n", (unsigned int)inp));
   if(inval.type == T_STRING) {
-    inp->type   = T_STRING;
+    inp->type   = NBIO_STR;
     add_ref(inp->u.data = inval.u.string);
     inp->len    = inval.u.string->len << inval.u.string->size_shift;
-    DERR(fprintf(stderr, "string input added: %d bytes\n", inp->len));
+    DERR(fprintf(stderr, "string input added: %ld bytes\n", (long)inp->len));
   } else if(inval.type == T_OBJECT) {
-    inp->type   = T_OBJECT;
-    inp->u.file = inval.u.object;
-    inp->fd     = fd_from_object(inp->u.file);
+    inp->fd     = fd_from_object(inval.u.object);
     inp->len    = len;
+    inp->type   = NBIO_OBJ;
     if(inp->fd == -1) {
+      inp->u.file = inval.u.object;
       DERR(fprintf(stderr, "input object not a real FD\n"));
       if (find_identifier("read", inp->u.file->prog) < 0) {
 	free(inp);
@@ -104,13 +155,48 @@ static INLINE void new_input(struct svalue inval, int len) {
 		   "missing read()\n");
 	return;
       }
+      add_ref(inp->u.file);
     } else {
-      DERR(fprintf(stderr, "in FD == %d\n", inp->fd));
+#ifdef USE_MMAP
+      if (fstat(inp->fd, &s) == 0 && S_ISREG(s.st_mode)) 
+      {
+	char *mtmp;
+	unsigned NBIO_INT_T filep = lseek(inp->fd, 0L, SEEK_CUR);
+	int alloc_len = MIN(s.st_size - filep, MAX_MMAP_SIZE);
+	mtmp = (char *)mmap(0, alloc_len, PROT_READ, MAP_FILE | MAP_SHARED,
+			    inp->fd, filep);
+	if(mtmp != MAP_FAILED)
+	{
+	  if( (inp->u.mmap = malloc(sizeof(mmap_data))) == NULL) {
+	    Pike_error("Failed to allocate mmap structure. Out of memory?\n");
+	  }
+	  inp->type   = NBIO_MMAP;
+	  inp->len    = s.st_size;
+	  inp->pos    = filep;
+
+	  inp->u.mmap->data    = mtmp;
+	  inp->u.mmap->m_start = filep;
+	  inp->u.mmap->m_len   = alloc_len;
+	  inp->u.mmap->m_end   = filep + alloc_len;
+	  add_ref(inp->u.mmap->file = inval.u.object);
+	  
+	  DERR(fprintf(stderr, "new mmap input (fd %d)\n", inp->fd));
+#ifdef NB_DEBUG
+	} else {
+	  DERR(perror("mmap failed"));
+#endif
+	}
+      }
+#endif
+      if(inp->type == NBIO_OBJ) {
+	/* mmap failed or not a regular file */
+	inp->u.file = inval.u.object;
+	add_ref(inp->u.file);
+	DERR(fprintf(stderr, "new input FD == %d\n", inp->fd));
+      }
     }
-    add_ref(inp->u.file);
   }
-  inp->next = NULL;
-  inp->pos  = 0;
+
   if (THIS->last_input)
     THIS->last_input->next = inp;
   else
@@ -139,13 +225,17 @@ static void free_nb_struct(struct object *obj) {
     free_output(THIS->outp);
     THIS->outp = NULL;
   }
+  if(THIS->buf != NULL) {
+    free(THIS->buf);
+    THIS->buf = NULL;
+  }
   free_svalue(&THIS->cb);
   THIS->cb.type = T_INT; 
 }
 
 /* Set the input file (file object, (max) bytes to read ) */
 static void f_input(INT32 args) {
-  int len = -1;
+  NBIO_INT_T len = -1;
   switch(args) {
    case 2:
     if(ARG(1).type != T_INT) {
@@ -268,22 +358,30 @@ static void finished(void)
 static void read_data(void)
 {
   int buf_size = READ_BUFFER_SIZE;
-  int to_read  = 0;
+  NBIO_INT_T to_read  = 0;
   char *rd;
   input *inp;
-  DERR(fprintf(stderr, "read_data (%d free)\n", buf_size));
+
+  if(!THIS->buf) {
+    /* Allocate the temporary read buffer */
+    THIS->buf = malloc(READ_BUFFER_SIZE);
+    if(THIS->buf == NULL) {
+      Pike_error("Failed to allocate read buffer.\n");
+    }
+  }
   while((inp = THIS->inputs) && buf_size) {
-    if(inp->type == T_OBJECT) {
+    if(inp->type == NBIO_OBJ) {
       if(inp->len != -1) 
 	to_read = MIN(buf_size, inp->len - inp->pos);
       else
 	to_read = buf_size;
-      DERR(fprintf(stderr, "read %d from file (%d free)\n", to_read, buf_size));
       if(inp->fd != -1) {
 	char *ptr = THIS->buf+THIS->buf_len;
 	THREADS_ALLOW();
 	to_read = fd_read(inp->fd, ptr, to_read);
 	THREADS_DISALLOW();
+	DERR(fprintf(stderr, "read %ld from file (%d free)\n",
+		     (long)to_read, buf_size));
       } else {
 	push_int(to_read);
 	push_int(1);
@@ -291,6 +389,8 @@ static void read_data(void)
 	if(sp[-1].type == T_INT) to_read = sp[-1].u.integer;
 	else to_read = 0;
 	pop_stack();
+	DERR(fprintf(stderr, "read %ld from fake file (%d free)\n",
+		     (long)to_read, buf_size));
       }
       switch(to_read) {
        case 0: /* EOF */
@@ -326,16 +426,59 @@ static void read_data(void)
 /* Our write callback */
 static void f__output_write_cb(INT32 args)
 {
-  int written=0, len, fd;
-  char *buf;
+  NBIO_INT_T written=0, len;
+  int fd;
+  char *buf = NULL;
   input *inp;
-  buf = THIS->buf;
   fd  = THIS->outp->fd;
-  DERR(fprintf(stderr, "write_cb\n"));
-  if(!THIS->buf_len && (inp = THIS->inputs) && inp->type == T_STRING) {
-    DERR(fprintf(stderr, "Sending string data\n"));
+  if(!THIS->buf_len && (inp = THIS->inputs) &&
+     (inp->type == NBIO_STR
+#ifdef USE_MMAP
+     || inp->type == NBIO_MMAP
+#endif
+      )) {
+    void *data;
+#ifdef USE_MMAP
+    if(inp->type == NBIO_STR) {
+#endif
+      data = inp->u.data->str + inp->pos;
+      len = inp->len - inp->pos;
+      DERR(fprintf(stderr, "Sending string data (%ld bytes left)\n", (long)len));
+#ifdef USE_MMAP
+    } else {
+
+      len = inp->u.mmap->m_end - inp->pos;
+      if(!len) {
+	/* need to mmap more data. No need to check if there's more to allocate
+	 * since the object would have been freed in that case
+	 */
+	DERR(fprintf(stderr, "mmapping more data from fd %d\n", inp->fd));
+	len = MIN(inp->len - inp->pos, MAX_MMAP_SIZE);
+	munmap(inp->u.mmap->data, inp->u.mmap->m_len);
+	DERR(fprintf(stderr, "trying to mmap %ld bytes starting at pos %ld\n",
+		     (long)len, (long)inp->pos));
+	inp->u.mmap->data =
+	  (char *)mmap(0, len, PROT_READ,
+		       MAP_FILE | MAP_SHARED, inp->fd,
+		       inp->pos);
+	if(inp->u.mmap->data == MAP_FAILED) {
+	  DERR(perror("additional mmap failed"));
+	  free_input(inp);
+	  /* FIXME: Better error handling here? */
+	  f__output_write_cb(args);
+	  return;
+	} else {
+	  inp->u.mmap->m_start = inp->pos;
+	  inp->u.mmap->m_len   = len;
+	  inp->u.mmap->m_end   = len + inp->pos;
+	}
+      }
+      data = inp->u.mmap->data + (inp->pos - inp->u.mmap->m_start);
+      DERR(fprintf(stderr, "Sending mmapped file (%ld to write, %ld total left)\n", (long)len, (long)(inp->len - inp->pos)));
+    }
+#endif
     THREADS_ALLOW();
-    written = fd_write(fd, inp->u.data->str +inp->pos, inp->len - inp->pos);
+    written = fd_write(fd, data, len);
     THREADS_DISALLOW();
     if(written != -1) {
       inp->pos += written;
@@ -346,8 +489,9 @@ static void f__output_write_cb(INT32 args)
     if(!THIS->buf_len) {
       read_data();
     }
-    DERR(fprintf(stderr, "write_cb (%d to write)\n", THIS->buf_len));
     len = THIS->buf_len;
+    buf = THIS->buf;
+    DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
     THREADS_ALLOW();
     written = fd_write(fd, buf, len);
     THREADS_DISALLOW();
@@ -367,15 +511,15 @@ static void f__output_write_cb(INT32 args)
       break;
     }
   } else {
-    DERR(fprintf(stderr, "wrote %d bytes\n", written));
+    DERR(fprintf(stderr, "Wrote %ld bytes (%d in buf)\n",
+		 (long)written, THIS->buf_len));
     THIS->written += written;
     if(THIS->buf_len) {
       THIS->buf_len -= written;
       if(THIS->buf_len)
-	MEMCPY(buf, buf+written, THIS->buf_len);
+	MEMCPY(THIS->buf, THIS->buf + written, THIS->buf_len);
     }
   }
-  DERR(fprintf(stderr, "Wrote %d bytes (%d in buf)\n", written, THIS->buf_len));
   pop_n_elems(args-1);
   
   if(!THIS->buf_len && THIS->inputs == NULL) {
