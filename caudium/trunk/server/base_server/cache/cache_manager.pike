@@ -80,22 +80,38 @@ void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path
   vigilance = _vigilance;
   path = _path;
   caches = ([ ]);
-  create_cache( "DEFAULT" );
   call_out( watch_size, sleepfor() );
-#ifdef CACHE_DEBUG
-  roxen_perror( "Caudium Caching Sub-system enabled.\n" );
-  call_out( status_dump, 60 );
-#endif
 }
 
-#ifdef CACHE_DEBUG
-string status_dump() {
-  foreach( indices( caches ), string cache ) {
-    roxen_perror( sprintf( "Cache Namespace: %s\nCache Information:\n%O\n\n", cache, caches[ cache ]->status() ) );
+string status() {
+  array retval = ({ });
+  foreach( sort( indices( caches ) ), string cache ) {
+    string ret = "";
+    object my = caches[ cache ];
+    mapping status = my->status();
+    int fast_hitrate = 100;
+    int slow_hitrate = 100;
+    if ( status->fast_misses ) {
+      fast_hitrate = (int)(status->fast_hits / status->fast_misses * 100);
+    }
+    if ( status->slow_misses ) {
+      slow_hitrate = (int)(status->slow_hits / status->slow_misses * 100);
+    }
+    ret += "<tr><td colspan=4><h1>" + my->namespace + "</h1></td></tr>\n";
+    ret += "<tr><td colspan=4><hr noshade></td></tr>\n";
+    ret += "<tr><td colspan=2>Total Hits</td><td colspan=2>" + (string)status->total_hits + "</td></tr>\n";
+    ret += "<tr><td colspan=2>Total Misses</td><td colspan=2>" + (string)status->total_misses + "</td></tr>\n";
+    ret += "<tr><td colspan=2>Total Object Count</td><td colspan=2>" + (string)status->total_object_count + "</td></tr>\n";
+    ret += "<tr><td colspan=4><hr noshade></td></tr>\n";
+    ret += "<tr><td colspan=2><b>Fast Cache</b></td><td colspan=2><b>Slow Cache</b></td></tr>\n";
+    ret += "<tr><td>Hits</td><td>" + (string)status->fast_hits + "</td><td>Hits</td><td>" + (string)status->slow_hits + "</td></tr>\n";
+    ret += "<tr><td>Misses</td><td>" + (string)status->fast_misses + "</td><td>Misses</td><td>" + (string)status->slow_misses + "</td></tr>\n";
+    ret += "<tr><td>Objects</td><td>" + (string)status->fast_object_count + "</td><td>Objects</td><td>" + (string)status->slow_object_count + "</td></tr>";
+    ret += "<tr><td>Hitrate</td><td>" + (string)fast_hitrate + "%</td><td>Hitrate</td><td>" + (string)slow_hitrate + "%</td></tr>\n";
+    retval += ({ ret });
   }
-  call_out( status_dump, 60 );
+  return "<table border=0>\n" + (retval * "<tr><td colspan=4><br></td></tr>\n") + "</table>\n";
 }
-#endif
 
 private void create_cache( string namespace ) {
   int max_object_ram = (int)(max_ram_size * 0.25);
