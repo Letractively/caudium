@@ -552,7 +552,7 @@ mapping|int process(object id, mapping data, mapping vars, mapping tags, mapping
 //!  name: Mount point
 //
 //! defvar: data_plugin
-//! Name of the provider module that exports APIs called by this module to process the collected data. The provider will be checked for the presence of all the required APIs and should they be missing, an error will be sent to the log. The plugin name can be set by the form itself, by using the <em>dprovider</em> parameter.
+//! Name of the provider module that exports APIs called by this module to process the collected data. The provider will be checked for the presence of all the required APIs and should they be missing, an error will be sent to the log. The plugin name can be set by the form itself, by using the <em>dprovider</em> parameter.set this to <em>dc_none</em> if you don't want to use such a moduleat all. This will use a build in data processor which simply addssubmitted variables to the Session environment
 //!  type: TYPE_STRING
 //!  name: Data Processing Provider
 //
@@ -566,3 +566,17 @@ mapping|int process(object id, mapping data, mapping vars, mapping tags, mapping
 //!  type: TYPE_FLAG
 //!  name: Debugging mode
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
