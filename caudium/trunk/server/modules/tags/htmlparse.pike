@@ -224,6 +224,9 @@ array(string)|string call_container(string tag, mapping args, string contents,
 				    int line, object id, object file,
 				    mapping defines, object client)
 {
+  if (args && args->noparse)
+     return ({""});
+
   string|function rf;
   id->misc->line = (string)line;
   id->misc->is_dynamic = 1;
