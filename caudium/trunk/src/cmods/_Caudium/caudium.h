@@ -85,11 +85,13 @@ typedef struct
 /* Input data (object or string) */
 typedef struct _input_struct
 {
-  NBIO_INT_T len;  /* Length of input, or -1 for 'till end' for files */
-  NBIO_INT_T pos;  /* current position */
-  enum { NBIO_STR, NBIO_OBJ
+  NBIO_INT_T len;        /* Length of input, or -1 for 'till end' for files */
+  NBIO_INT_T pos;        /* current position    */
+  enum { NBIO_STR,       /* string buffer       */
+	 NBIO_OBJ,       /* non-blocking object */
+	 NBIO_BLOCK_OBJ /* blocking object     */
 #ifdef USE_MMAP
-	 , NBIO_MMAP
+	 , NBIO_MMAP     /* mmapped file        */ 
 #endif
   } type;
   union {
@@ -100,7 +102,10 @@ typedef struct _input_struct
 #endif
   } u;
   int read_off;
+  int set_b_off;
+  int set_nb_off;
   int fd; /* Numerical FD or -1 if fake object */
+  enum { SLEEPING, READING } mode;
   struct _input_struct *next;
 } input;
 
@@ -112,22 +117,24 @@ typedef struct
   int set_nb_off;
   int write_off;
   int fd; /* Numerical FD or -1 if fake object */
+  enum { IDLE, ACTIVE } mode;
 } output;
 
 typedef struct
 {
   NBIO_INT_T written;
-  int buf_len;
-  int buf_pos;
-  char *buf;
-  output *outp;
-  input *inputs;
-  input *last_input;
-  struct pike_string *objread;
-  struct svalue args;
-  struct svalue cb;
-
-} nbio_storage;
+  unsigned int finished : 1; 
+  int buf_size; 	/* allocated size of buf */
+  int buf_len;  	/* Length of data to read */
+  int buf_pos;  	/* Current position in buffer */
+  char *buf;    	/* The buffer pointer */
+  output *outp; 	/* The output */
+  input *inputs; 	/* The first input in the linked list */
+  input *last_input;    /* Pointer to the last input */
+  struct svalue args;   /* Optional arguments to callback function */
+  struct svalue cb;     /* Callback function */
+  
+} nbio_storage;         /* nbio object storage */
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
