@@ -359,7 +359,9 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
 /* Decode QUERY encoded strings.
    Simple decodes %XX and + in the string. If exist is true, add a null char
    first in the string. 
-   If simple exist (eg = 1) then decode only %XX inside the string.
+   If simple = 1 then decode only %XX inside the string. If simple > 1, then
+   the "+" will be decodes as " " and "%" will still be decoded as "%".
+   If simple = 0, then "%" -> "\0" and "+" -> " ".
  */
 #ifndef HAVE_ALLOCA
 INLINE
@@ -398,7 +400,7 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
 	  (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
 	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
       else
-        if(simple == 1) { 
+        if(simple >= 1) { 
           mystr[i] = (*ptr++);
           nlen++;
           break;
@@ -808,14 +810,13 @@ static void f_http_decode_url(INT32 args) {
   if(src->size_shift) {
     Pike_error("_Caudium.http_decode_url(): Only 8-bits strings allowed.\n");
   }
-  tmp = url_decode(src->str, src->len, 0, 1);
+  tmp = url_decode(src->str, src->len, 0, 2);
   if(tmp==NULL) {
     Pike_error("_Caudium.http_decode_url(): Out of memory in url_decode().\n");
   }
   pop_stack();
   push_string(tmp);
 }
-
 
 /* Some basic http function to speedup caudium (and gets more free from Pike 
    changing things... */
@@ -900,69 +901,23 @@ static void f_http_encode(INT32 args)
 ** returns:
 **  Decoded string
 */
-/*
- * FIXME: this don't works well yet
- */
 static void f_http_decode(INT32 args) 
 {
-  unsigned char *o, *out, *in;
-  unsigned char *i;
-  struct pike_string *ret;
-  int in_len, check;
+  struct pike_string *tmp;
   struct pike_string *src;
-
-  check = 0;  /* Per default there is no encoded characters to decode */
-
+ 
   if(Pike_sp[-1].type != T_STRING)
     SIMPLE_BAD_ARG_ERROR("_Caudium.http_decode",1,"string");
-  src = Pike_sp[-1].u.string;
+  src =  Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("_Caudium.http_decode(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_decode(): Only 8-bits strings allowed.\n");
   }
-  in = src->str;
-  in_len = src->len-1;
-
-  /* count encoded characters */
-  for(i=in; *i; i++) if(*i == '%') check++;
-
-  /* no need to convert */
-  if(check == 0) {
-    pop_n_elems(args-1);
-    return;
+  tmp = url_decode(src->str, src->len, 0, 1);
+  if(tmp==NULL) {
+    Pike_error("_Caudium.http_decode(): Out of memory in url_decode().\n");
   }
-
-  ret = begin_shared_string(strlen(in)+1);
-  out = ret->str;
-  o = out;
-  i = in;
-
-  while(*i) {
-    if(*i == '%') {
-      char c = 0;
-      int x;
-      for(x = 0; x < 2; x++) {
-        int h;
-        i++;
-        if(*i == '\0') break;
-        if((h = BIN(*i)) == -1) break;
-        c = (c << 4) + h;
-      }
-	
-      if(x != 2) { // error 
-        free(out);
-        return ;
-      }
-
-      *o++ = c;
-    }
-    else *o++ = *i;
-	
-    i++;
-  }
-
-  /* *o = '\0'; */
-  pop_n_elems(args);
-  push_string(end_shared_string(ret));
+  pop_stack();
+  push_string(tmp);
 }
 
 /* Roxen 1.3 compat call */
