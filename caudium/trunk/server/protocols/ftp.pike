@@ -210,8 +210,8 @@ class RequestID
     if (m_rid) {
       foreach(indices(m_rid), string var) {
         if (!(< "create", "__INIT", "clone_me", "end",
-                "clientprot", "prot" >)[var]) {
-          o[var] = m_rid[var];
+                "clientprot", "prot", "send_result" >)[var]) {
+	    o[var] = m_rid[var];
         }
       }
     }
@@ -223,11 +223,10 @@ class RequestID
   }
   void send_result(mapping|void result)
   {
-    if (mappingp(result) && my_fd && my_fd->done) {
-      my_fd->done(result);
+    if (mappingp(result) && my_fd && my_fd->finished) {
+      my_fd->finished(result);
       return;
     }
-
     error("Async sending with send_result() not supported yet.\n");
   }
 };
@@ -477,7 +476,7 @@ class PutFileWrapper
         response = msg;
       }
       gotdata = gotdata[n+1..];
-    }
+    } 
     return strlen(data);
   }
 
@@ -485,7 +484,22 @@ class PutFileWrapper
   {
     return from_fd->query_address(loc);
   }
-  
+
+  void finished(mapping result)
+  {
+    if (result->error < 300) {
+      response_code = 226;
+    } else {
+      response_code = 550;
+    }
+
+    // error messages could be shared by ftp and http ?
+    response = ((result->rettext || "OK")/" ")[1..] * " ";
+    gotdata = result->data || "";
+
+    close();
+  }  
+
   void create(object fd_, object session_, object ftpsession_)
   {
     from_fd = fd_;
