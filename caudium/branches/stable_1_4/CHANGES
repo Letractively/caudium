@@ -1,5 +1,12 @@
 Changes in Caudium 1.4.3 since Caudium 1.4.2
 --------------------------------------------
+- Pikegraphy now likes filenames with spaces.
+   (Bill Welliver)
+- Watchdog should now work with servers that change uid.
+   (Bill Welliver)
+- Stopping/restarting of server should work properly now, especially for 
+ servers that change uid.
+   (Bill Welliver)
 - Fix a backtrace in Config-Action openports when there is no lsof located 
   on the hosted machine.
    (Xavier Beaudouin)
