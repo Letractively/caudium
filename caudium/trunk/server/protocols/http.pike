@@ -190,6 +190,10 @@ array (int|string) auth;
 string rawauth, realauth;
 string since;
 
+//! description of user, if authenticated.
+//! if not authenticated, this element will be 0 (zero).
+int|mapping user=0;
+
 private int cache_control_ok = 0;
 
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
@@ -589,11 +593,32 @@ private int parse_got()
 	rawauth = request_headers[linename];
 	y = rawauth / " ";
 	if(sizeof(y) < 2) break;
+
+        // y[0] == auth type, typically "Basic"
+        // y[1] == username:password
 	y[1]     = decode(y[1]);
 	realauth = y[1];
 	if(conf && conf->auth_module)
-	  y = conf->auth_module->auth( y, this_object() );
-	auth = y;
+        {
+          if(y[0]=="Basic") // we can handle basic authentication right now.
+          {
+            int res;
+            array a=y[1]/":";
+            res = conf->auth_module->authenticate(a[0], a[1]);
+            if(res==1) // successful authentication
+            {
+               auth=({1, a[0], 0});
+               // should we really do this? will caching be fast enough?
+               user=conf->auth_module->user_info(a[0]);
+            }
+            else // failed authentication
+            {
+               auth=({0, a[0], a[1]});
+            }
+          }
+        }
+        else // we don't have an authentication handler, so just give 'em the raw data.
+          auth = y;
 	break;
 	  
        case "proxy-authorization":
@@ -601,9 +626,26 @@ private int parse_got()
 	if(sizeof(y) < 2)
 	  break;
 	y[1] = decode(y[1]);
+
 	if(conf && conf->auth_module)
-	  y = conf->auth_module->auth( y, this_object() );
-	misc->proxyauth=y;
+        {
+          if(y[0]=="Basic") // we can handle basic authentication right now.
+          {
+            int res;
+            array a=y[1]/":";
+            res = conf->auth_module->authenticate(a[0], a[1]);
+            if(res==1) // successful authentication
+            {
+               misc->proxyauth=({1, a[0], 0});
+            }
+            else // failed authentication
+            {
+               misc->proxyauth=({0, a[0], a[1]});
+            }
+          }
+        }
+        else // we don't have an authentication handler, so provide the raw data.
+          misc->proxyauth=y;
 	break;
 	  
        case "pragma":

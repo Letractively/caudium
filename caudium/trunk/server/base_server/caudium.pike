@@ -1185,8 +1185,10 @@ string full_status()
 
 #ifndef NO_COMPAT
 
+//! @deprecated
 public array(string) userlist(void|object id)
 {
+  report_warning("caudium->userlist() is deprecated and may not exist in future releases of this software.\n");
   object conf;
 
   if(id) {
@@ -1200,8 +1202,10 @@ public array(string) userlist(void|object id)
   return 0;
 }
 
+//! @deprecated
 public array(string) user_from_uid(int u, void|object id)
 {
+  report_warning("caudium->userlist() is deprecated and may not exist in future releases of this software.\n");
   object conf;
   if(id) {
     conf = current_configuration = id->conf;
@@ -1222,7 +1226,16 @@ public string last_modified_by(object file, object id)
   if(objectp(file)) s = (array(int))file->stat();
   if(!s || sizeof(s)<5) return "A. Nonymous";
   uid=s[5];
-  u=user_from_uid(uid, id);
+
+  object conf;
+  if(id) {
+    conf = current_configuration = id->conf;
+  } else {
+    // Hopefully this case never occurs.
+    conf = current_configuration;
+  }
+  if(conf && conf->auth_module)
+    u=conf->auth_module->user_from_uid(uid, id);
   if(u) return u[0];
   return "A. Nonymous";
 }
