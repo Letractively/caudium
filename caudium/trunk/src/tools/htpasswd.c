@@ -16,7 +16,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif /* HAVE_UNISTD_H */
-
+#ifdef HAVE_SIGNAL_H
+#include <signal.h>
+#endif
 #include "htpasswd.h"
 
 #define LF 10

@@ -150,7 +150,7 @@ INT32 parse_log_format(struct pike_string *log_format, INT32 *state_list,
 	break;
       case 's': /*	Second */
 	state_list[state_pos] = ST_SEC;
-	save_field_num[state_pos] = SEC;
+	save_field_num[state_pos] = UP_SEC;
 	break;
       case 'z': /*	Time zone, [-/+]HHMM, for example -0700 */
 	state_list[state_pos] = ST_TZ;
@@ -331,11 +331,9 @@ static void f_ultraparse( INT32 args )
     my_fd = 0;
   } else if(file->type == T_STRING &&
 	    file->u.string->size_shift == 0) {
-    THREADS_ALLOW();
     do {
       f=fd_open(STR0(file->u.string), fd_RDONLY, 0);
     } while(f < 0 && errno == EINTR);
-    THREADS_DISALLOW();
     
     if(errno < 0)
       error("UltraLog.ultraparse(): Failed to open file for reading (errno=%d).\n",
@@ -416,7 +414,7 @@ static void f_ultraparse( INT32 args )
 	 case DATE:
 	 case HOUR:
 	 case MINUTE:
-	 case SEC:
+	 case UP_SEC:
 	 case CODE:
 	   //	  BUFSET(0);
 	  tmpinteger = 0;
@@ -577,7 +575,7 @@ static void f_ultraparse( INT32 args )
 #define dd 	buf_points[DATE] 
 #define h  	buf_points[HOUR] 
 #define m  	buf_points[MINUTE] 
-#define s  	buf_points[SEC] 
+#define s  	buf_points[UP_SEC] 
 #define v  	buf_points[CODE] 
 #define bytes	buf_points[BYTES] 
 
