@@ -1,5 +1,6 @@
 Changes in Caudium 1.0.xx since Caudium 1.0.52
 ----------------------------------------------
+- Fix sf bug #652095 (lowercase boundary in CONTENT_TYPE)
 - Fix htaccess module for redirecttemp, redirecttemporary, redirectperm,
   redirectpermanent, authuserfile, authname, authgroupfile, redirect and
   errorfile.
