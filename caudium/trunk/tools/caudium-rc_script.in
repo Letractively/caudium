@@ -64,9 +64,9 @@ case $1 in
 	      exit 1
 	    fi
 	  fi
-	  if [ -x "$caudiumhome/start" ]; then
+	  if [ -x "$caudiumhome/start-caudium" ]; then
  	    cd $caudiumhome
-	    ./start $flags 2>/dev/null
+	    ./start-caudium $flags 2>/dev/null
             echo "Done."
           else
             echo "I cannot find the Caudium dir '('$caudiumhome')'"
@@ -102,9 +102,9 @@ case $1 in
 	  fi
 	  echo "Caudium doesn't seem to be running."
 	  echo Starting a new Caudium in $caudiumhome...
-	  if [ -x "$caudiumhome/start" ]; then
+	  if [ -x "$caudiumhome/start-caudium" ]; then
  	    cd $caudiumhome
-	    ./start $flags 2>/dev/null
+	    ./start-caudium $flags 2>/dev/null
           else
             echo "I cannot find the Caudium dir '('$caudiumhome')'"
 	  fi

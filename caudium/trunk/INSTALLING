@@ -99,7 +99,7 @@ Installing Caudium 1.3 from source:
      troubleshooting section on the Caudium WWW-pages. 
 
  10. In order to start your server in the future (from startup scripts, etc)
-     cd to <dir>/server and run ./start.
+     cd to <dir>/server and run ./start-caudium.
 
  Once you have installed the server, consider joining the Caudium
  mailing list by subscribing on the following URL :

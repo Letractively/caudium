@@ -112,7 +112,7 @@ object server_for(int uid, int gid)
   rm(SERVERDIR+uid);
   // So. Now we have to start a new server....
   object pid = 
-    Process.create_process(({"./start","--once","--program",
+    Process.create_process(({"./start-caudium","--once","--program",
 			     __FILE__ }),
 			   ([
 			     "uid":uid,

@@ -16,7 +16,7 @@ How to install and use:
 4. Create a profile, as demonstrated below, and save it to the profiles 
     directory.
 5. Generate an index using the following command:
-   ./start --quiet --program ./bin/indexer.pike -v --profile=/path/to/profile
+   ./start-caudium --quiet --program ./bin/indexer.pike -v --profile=/path/to/profile
    (currently requires a version of pike > 7.4.25, or a copy of 
      Web.Crawler from pike CVS) 
 6. Add Chase module to a virtual server 
