@@ -1,0 +1,58 @@
+INTRODUCTION:
+-------------
+
+PiXSL is a Pike glue for Sablotron, an XSLT parser. In the package is
+the Pike module source (the glue), a command line Pike program, pixsl,
+and modules for Roxen. See below for links to these products.
+
+
+INSTALL:
+--------
+
+Installation should be pretty straight forward. In the examples below,
+<prefix> is the Roxen prefix directory, which per default is /usr/local/
+
+To install for use with a Roxen 1.3, follow these steps:
+	cd Sablotron
+	./configure --with-pike=<prefix>/bin/pike-roxen
+	make
+	make install
+	cp ../modules/*.pike <prefix>/roxen/local/modules/
+
+To install for use with a Roxen 2.x, follow these steps:
+	cd Sablotron
+	./configure --with-pike=<prefix>/roxen/server/bin/pike
+	make
+	make install
+	cp ../modules/*.pike <prefix>/roxen/local/modules/
+
+To install for stand-alone pike usage:
+	./configure
+	make
+	make install
+
+If your stand-alone pike is not in your path, or you want to use a
+different pike, use the --with-pike argument as in the Roxen
+examples. 
+
+
+LICENSE:
+--------
+
+This package is released under GPL. See the file LICENSE for details.
+
+
+AUTHOR:
+-------
+
+This package is written by David Hedbor <david@hedbor.org>.
+
+
+LINKS:
+------
+ Pike:          http://pike.roxen.com/
+ Roxen:         http://www.roxen.com/
+ Sablotron:     http://www.gingerall.com/
+ David Hedbor:  http://david.hedbor.org/
+
+
