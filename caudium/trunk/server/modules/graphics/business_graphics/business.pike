@@ -369,7 +369,7 @@ string itag_values(string tag, mapping m, string contents,
   return "";
 }
 
-string itag_data(mapping tag, mapping m, string contents,
+string itag_data(string tag, mapping m, string contents,
 		 mapping res, object id)
 {
 #ifdef BG_DEBUG
@@ -501,7 +501,7 @@ string itag_data(mapping tag, mapping m, string contents,
   return 0;
 }
 
-string itag_colors(mapping tag, mapping m, string contents,
+string itag_colors(string tag, mapping m, string contents,
 		   mapping res, object id)
 {
   if(!m->noparse)
@@ -514,7 +514,7 @@ string itag_colors(mapping tag, mapping m, string contents,
   return "";
 }
 
-string itag_legendtext(mapping tag, mapping m, string contents,
+string itag_legendtext(string tag, mapping m, string contents,
 		       mapping res, object id)
 {
   int maxlen = query("maxstringlength")-1;
