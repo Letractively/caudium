@@ -144,7 +144,7 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
 }
 
 function cache_file = cache_file_object;
-function cache_http = cache_http_answer;
+// function cache_http = cache_http_answer;
 function cache_pike = cache_pike_object;
 function cache_program = cache_program_object;
 function cache_string = cache_string_object;
@@ -154,8 +154,11 @@ mapping cache_file_object( object file, string name, void|int exp ) {
   return go( "file", file, name, exp );
 }
 
-mapping cache_http_answer( mapping http_answer, object id ) {
-}
+/* cache_http_answer is not implemented, and maybe not even needed
+ *
+ * mapping cache_http_answer( mapping http_answer, object id ) {
+ * }
+ */
 
 mapping cache_pike_object( mixed var, string name, void|int exp ) {
   return go( "pike", var, name, exp );
