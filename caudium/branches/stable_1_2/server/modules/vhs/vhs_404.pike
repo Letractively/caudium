@@ -30,7 +30,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 # define DEBUGLOG(X) werror("VHS_404: "+X+"\n")
