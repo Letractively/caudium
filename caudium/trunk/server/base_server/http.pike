@@ -295,7 +295,7 @@ private string make_htmldoc_string(string contents, string title,void|mapping me
         sstyle = sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\">",
                          style);
       } else
-        style = "";
+        sstyle = "";
     }
 
     return sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
