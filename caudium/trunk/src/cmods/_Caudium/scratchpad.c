@@ -69,6 +69,9 @@ static SCRATCHPAD *scratchpad_allocate(size_t max_size,
 static void scratchpad_destroy(void *_spad)
 {
   scratchpad_done((SCRATCHPAD*)_spad);
+  if (_spad)
+    free(_spad);
+  
   pthread_setspecific(__scratch_key, NULL);
 }
 
@@ -101,9 +104,9 @@ void scratchpad_init(size_t max_size, size_t init_size, size_t grow_factor)
 void scratchpad_done(SCRATCHPAD *spad)
 {
   if (spad && spad->buf) {
-    free(spad->buf);
     spad->buf = NULL;
     spad->buf_size = 0;
     spad->buf_max = 0;
   }
+  
 }
