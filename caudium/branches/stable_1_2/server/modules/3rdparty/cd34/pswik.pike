@@ -76,10 +76,10 @@ void create()
           "sql-servers your pike has support for, but the following "
           "might exist: msql, mysql, odbc, oracle, postgres.\n",
           );
-  defvar("mail", 0, "Send mail",
+  defvar("mail", 0, "Mail: Send mail",
 	 TYPE_FLAG,
 	 "Allow sending a mail when a wiki is send");
-  defvar("maildomain","localdomain", "Mail: Domain",
+  defvar("maildomain","caudium.net", "Mail: Domain",
          TYPE_STRING,
          "The domain that will be used for sending mail\n",
          0, hide_mail);
@@ -94,23 +94,28 @@ void create()
          TYPE_STRING,
          "For now this field is mandatory.\n",
          0, hide_mail);
+  defvar("subject", "New wiki online", "Mail: Subject of the message",
+         TYPE_STRING,
+         "Subject of the message sent by the module.\n",
+         0, hide_mail);
+  
 }
 
 void simple_mail(string msg, object id)
 {
-  string to = QUERY(mailto);
-  string subject = "New wiki online";
-  string from = QUERY(mailfrom);
-  msg += "\nThis message was sent by the wiki module,\n";
-  msg += "check headers of this mail for more informations.";
+  string tmp;
+  tmp = "The following message has just been added to the\n";
+  tmp += " "+(string)id->referrer+"\n\n"+msg;
+  tmp += "\n\n--\nThis message was sent by the wiki module,\n";
+  tmp += "check headers of this mail for more informations.";
 
 #if constant(Protocols.ESMTP)
   Protocols.ESMTP.client(QUERY(mailserver), 25,
-  QUERY(maildomain))->send_message(from, ({ to }),
-              (string)MIME.Message(msg, (["MIME-Version":"1.0",
-                                          "Subject":subject,
-                                          "From":from,
-                                          "To":to,
+  QUERY(maildomain))->send_message(QUERY(mailfrom), ({ QUERY(mailto) }),
+              (string)MIME.Message(tmp, (["MIME-Version":"1.0",
+                                          "Subject":QUERY(subject),
+                                          "From":QUERY(mailfrom),
+                                          "To":QUERY(mailto),
                                           "Content-Type":
 					  "text/plain; charset=\"iso-8859-1\"",
                                           "Content-Transfer-Encoding":
@@ -122,12 +127,12 @@ void simple_mail(string msg, object id)
 					  "X-Referrer": 
 					  (string) id->referrer])));
 #else
-  QUERY(maildomain))->send_message(from, ({ to })
-  Protocols.SMTP.client(QUERY(mailserver), 25)->send_message(from, ({ to }),
-                (string)MIME.Message(msg, (["MIME-Version":"1.0",
-                                            "Subject":subject,
-                                            "From":from,
-                                            "To":to,
+  QUERY(maildomain))->send_message(QUERY(mailfrom), ({ QUERY(mailto) })
+  Protocols.SMTP.client(QUERY(mailserver), 25)->send_message(QUERY(mailfrom), ({ QUERY(mailto) }),
+                (string)MIME.Message(tmp, (["MIME-Version":"1.0",
+                                            "Subject":QUERY(subject),
+                                            "From":QUERY(from),
+                                            "To":QUERY(to),
                                             "Content-Type":
 					    "text/plain; charset=\"iso-8859-1\"",
                                             "Content-Transfer-Encoding":
@@ -222,10 +227,10 @@ mapping find_file(string f,object id)
         simple_mail((string)id->variables->content, id); 
       };
       if (err) {
-        perror("Mail not sent\n");
+        perror("Mail not send\n");
       }
     }
-      
+  }      
   return http_redirect((string)id->variables->filepath,id);
 }
 
