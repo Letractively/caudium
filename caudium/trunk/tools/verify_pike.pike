@@ -120,6 +120,13 @@ int main(int argc, array argv)
 	  "SSL3 support. You can fetch the  GMP library from any GNU mirror.");
 #endif
 
+#if !defined(__MAJOR__) || __MAJOR__ < 7
+  warning("Caudium doesn't support SSL3 with Pike 0.6. Upgrade to Pike 7.0 if\n"
+	  "you need https support.");
+#elif !constant(_Crypto)
+  warning("Your Pike is lacking the _Crypto module so you won't be able to use SSL3.");
+#endif
+  
 #if !constant(Image.TTF)
   warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
 	  ".ttf fonts, you need to install the freetype library available from\n"

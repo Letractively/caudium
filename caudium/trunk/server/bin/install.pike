@@ -735,6 +735,9 @@ void main(int argc, string *argv)
       }
     } while(!pass);
 
+#if !defined(__MAJOR__) || __MAJOR__ < 7
+    write("\nSSL3 with Pike 0.6 not supported -- using the http protocol.\n\n");
+#else
     /* SSL Checks */
     int have_gmp = 0;
     catch(have_gmp = sizeof(indices(master()->resolv("Gmp"))));
@@ -759,6 +762,7 @@ void main(int argc, string *argv)
 	write("\n   [1mCrypto module module missing -- using the http protocol[0m.\n");
       }
     }
+#endif
   } while( strlen( tmp = read_string(rl, "Are the settings above correct [Y/n]?", 0) ) && lower_case(tmp)[0]=='n' );
 
 
