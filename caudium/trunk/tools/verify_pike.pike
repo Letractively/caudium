@@ -95,7 +95,7 @@ int main(int argc, array argv)
   if(argc > 1)
   // there is a caudium version specified
   {
-    if( sscanf(argv[1], "%s.%s", major, minor) != 2 )
+    if( sscanf(argv[1], "%d.%d", major, minor) != 2 )
     // but it seems to be badly formatted...
     {
       Stdio.stderr.write("wrong Caudium version number given (wrong format)\n");
