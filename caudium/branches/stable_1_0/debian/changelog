@@ -1,3 +1,10 @@
+caudium (1:1.0.34-1) unstable; urgency=low
+
+  * First official Caudium release
+  * CAMAS removed for this version
+  
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 23 Mar 2001 15:23:55 +0100
+
 caudium (1:1.0.33-1) unstable; urgency=low
 
   * Latest upstream release
