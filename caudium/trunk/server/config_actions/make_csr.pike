@@ -294,7 +294,7 @@ mixed page_4(object id, object mc)
 			     csr_attrs);
 
 #if 0
-  werror("csr: %s\n", Crypto.string_to_hex(csr->get_der()));
+  werror("csr: %s\n", Caudium.Crypto.to_hex(csr->get_der()));
 #endif
 
   string res = "The certificate request:<br>\n";
