@@ -21,9 +21,11 @@
  */
 
 //! The RequestID object.
-//! This module implements the HTTP protocol and, at the same time, it is
+//! This module implements the base of most protocols and, at the same time, it is
 //! what you access through the common @tt{id@} object in your modules,
 //! tags etc.
+//!
+//! @appears RequestID
 class RequestID
 {
 
@@ -67,10 +69,15 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
+//! decode base64 string
 constant decode        = MIME.decode_base64;
+
+//! current time, see @[predef::time]
 constant _time         = predef::time;
 
 constant find_supports = caudium->find_supports;
+
+//! the caudium version
 constant version       = caudium->version;
 constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
@@ -87,7 +94,10 @@ object conf;
 #define QUERY(X)	_query( #X )
 
 int time;
+
+//! the raw url, as provided as part of the browser request string.
 string raw_url;
+
 int do_not_disconnect;
 
 //! Variables available during the current request. The variables may come
@@ -129,7 +139,7 @@ multiset (string) pragma    = (< >);
 //! The address of the remote client.
 string remoteaddr;
 
-//! The host name
+//! The host name the request is headed for, from HTTP/1.1
 string host;
 
 #ifdef EXTRA_ROXEN_COMPAT
@@ -158,8 +168,16 @@ object my_fd; /* The client. */
 object pipe;
 
 // string range;
+
+//! the protocol string being used, such as HTTP/1.0, etc.
 string prot;
+
+//! the protocol being spoken during this request, such as http, https, ftp.
+string server_protocol="";
+
 string clientprot;
+
+//! the client request method, such as HEAD, GET, etc.
 string method;
 
 //! The realfile path on the disk.
