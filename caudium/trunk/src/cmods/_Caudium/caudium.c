@@ -96,10 +96,12 @@ static void f_buf_append( INT32 args )
 
   MEMCPY( BUF->pos, str->str, str->len );
 
+  fprintf(stderr, "Append: before loop\n");
   for( ep = (BUF->pos + str->len), pp = MAX(BUF->data, BUF->pos-3); 
        pp < ep && slash_n < 2; pp++ )
     if( *pp == '\n' )       slash_n++;
     else if( *pp != '\r' )  slash_n=0;
+  fprintf(stderr, "Append: after loop\n");
   
   BUF->free -= str->len;
   BUF->pos += str->len;
@@ -223,22 +225,59 @@ static void f_buf_append( INT32 args )
 
 static void f_buf_create( INT32 args )
 {
-  if(args != 2)
-    Pike_error("Wrong number of arguments to create. Expected 2.\n");
-  if(sp[-1].type != T_MAPPING)
-    Pike_error("Wrong argument 1 to create. Expected mapping.\n");
-  if(sp[-2].type != T_MAPPING)
-    Pike_error("Wrong argument 2 to create. Expected mapping.\n");
-  add_ref(BUF->headers   = sp[-1].u.mapping);
-  add_ref(BUF->other     = sp[-2].u.mapping);
-  BUF->pos = BUF->data;
   BUF->free = BUFSIZE;
+
+  switch(args) {
+    default:
+      Pike_error("Wrong number of arguments to create. Expected 2 or 3.\n");
+	  break;
+	  
+    case 3:
+	  if(sp[-1].type != T_INT) {
+        Pike_error("Wrong argument 3 to create. Expected int.\n");
+      } else {
+        BUF->free = sp[-1].u.integer;
+      }
+	  /* fall through */
+	  
+	case 2:
+      if(sp[-(args - 1)].type != T_MAPPING)
+        Pike_error("Wrong argument 1 to create. Expected mapping.\n");	
+      if(sp[-args].type != T_MAPPING)
+        Pike_error("Wrong argument 2 to create. Expected mapping.\n");
+      break;
+  }
+
+  if(BUF->free != BUFSIZE && BUF->free) {
+  	BUF->data = (char*)realloc(BUF->data, BUF->free * sizeof(char));
+    if(!BUF->data)
+      Pike_error("Cannot reallocate the request buffer.\n");
+  }
+  
+  BUF->pos = BUF->data;
+  add_ref(BUF->headers   = sp[-(args - 1)].u.mapping);
+  add_ref(BUF->other     = sp[-args].u.mapping);
 }
 
-void free_buf_struct(struct object *o)
+static void free_buf_struct(struct object *o)
 {
   free_mapping(BUF->headers);
   free_mapping(BUF->other);
+  if(BUF->data) {
+  	free(BUF->data);
+	BUF->data = NULL; /* just in case */
+  }
+}
+
+static void alloc_buf_struct(struct object *o)
+{
+  /* This is just the initial buffer of default
+   * size. If the size passed to create differs
+   * then the buffer will be reallocated.
+   */
+  BUF->data = (char*)malloc(BUFSIZE * sizeof(char));
+  if(!BUF->data)
+  	Pike_error("Cannot allocate the request buffer in class init.\n");
 }
 
 /*
@@ -522,10 +561,11 @@ void pike_module_init( void )
 			 OPT_SIDE_EFFECT);
 
   start_new_program();
-  ADD_STORAGE( buffer  );
+  ADD_STORAGE( buffer );
   add_function( "append", f_buf_append,
 		"function(string:int)", OPT_SIDE_EFFECT );
-  add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
+  add_function( "create", f_buf_create, "function(mapping,mapping,int|void:void)", 0 );
+  set_init_callback(alloc_buf_struct);
   set_exit_callback(free_buf_struct);
   parsehttp_program = end_program();
   add_program_constant("ParseHTTP", parsehttp_program, 0);

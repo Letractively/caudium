@@ -1419,7 +1419,7 @@ void got_data(mixed fdid, string s)
   }
   TIMER("parsed");
 #ifdef ENABLE_RAM_CACHE
-  misc->cacheable = 30; // FIXME: Make configurable.
+  misc->cacheable = QUERY(RequestCacheTimeout);
 #endif
   if(do_post_processing()) {
     return 0;
@@ -1539,7 +1539,7 @@ void create(void|object f, void|object c)
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
-    htp = Caudium.ParseHTTP(misc, request_headers);
+    htp = Caudium.ParseHTTP(misc, request_headers, QUERY(RequestBufSize));
   }
 }
 

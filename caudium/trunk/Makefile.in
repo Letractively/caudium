@@ -75,7 +75,7 @@ install_only:
 	$(SRCDIR)/mkdir -p $(prefix)/bin/
 	@for f in $(INSTALLFILES); do \
           echo "Copying $$f..."; \
-	  cp $(SRCDIR)/$$f $(prefix)/caudium/readme/; \
+	  cp -p $(SRCDIR)/$$f $(prefix)/caudium/readme/; \
 	done
 	@if test -d $(prefix)/caudium/server.old/.; then \
 	  if test -d $(prefix)/caudium/server.older/.; then \
@@ -89,9 +89,9 @@ install_only:
 	@if test -d $(prefix)/caudium/server/.; then \
 	  mv -f $(prefix)/caudium/server $(prefix)/caudium/server.old ; \
 	fi
-	cp -r $(SRCDIR)/server $(prefix)/caudium/
+	cp -pr $(SRCDIR)/server $(prefix)/caudium/
 	@if test -f $(prefix)/caudium/server.old/etc/environment ; then \
-	  cp $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
+	  cp -p $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
 	fi
 	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
@@ -136,8 +136,7 @@ install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium/local_modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/local_modules
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium/local_fonts
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium
@@ -146,29 +145,27 @@ install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/usr/local/share/caudium/modules
 	@for f in $(INSTALLFILES); do \
 	 echo "Copying $$f ..."; \
-	 cp $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium/; \
+	 cp -p $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium/; \
 	done
 	@echo "Copying examples ..."
-	@cp -r $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium
+	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium
 	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium/ -name CVS -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
-	          protocols languages server_templates; do \
+	          protocols languages server_templates modules more_modules \
+			  unfinishedmodules; do \
 	 echo "Copying $$f ..."; \
-	 cp -r $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium; \
 	done
 	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium -name CVS -print`
 	@echo "Copying modules..."
-	@for f in modules more_modules unfinishedmodules; do \
-	 cp -r $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/share/caudium; \
-	done
 	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium -name CVS -print`
 	@for f in $(SRCDIR)/server/*; do \
 	 if test -f $$f; then \
-	  cp $$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium; \
 	 fi; \
 	done
 	@echo "Fixing paths..."
-	@MDIR="$(prefix)/share/caudium"; CACHETOP="/var/cache/caudium"; \
+	@MDIR="$(prefix)/lib/caudium"; CACHETOP="/var/cache/caudium"; \
 	 for v in more_modules modules local_modules; do \
 	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
 	 done; \

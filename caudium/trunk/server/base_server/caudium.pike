@@ -3018,6 +3018,10 @@ private void define_global_variables( int argc, array (string) argv )
           0,
           lambda(){ return QUERY(argument_cache_in_db); });
 
+
+  //
+  // Internal files stuff
+  //
   globvar("InternalHTMLPath","etc/internal/html/", "Internal files: HTML files path",
           TYPE_DIR|VAR_MORE,
 	  	  "Directory where the internal HTML files are located.");
@@ -3025,7 +3029,20 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("InternalImagePath","etc/internal/images/", "Internal files: Image files path",
           TYPE_DIR|VAR_MORE,
 	  	  "Directory where the internal images are located.");
-		  
+
+  //
+  // Request size limits stuff
+  //
+  globvar("RequestBufSize", 16385, "Request Tuning: Buffer size",
+          TYPE_INT|VAR_MORE,
+          "Maximum size for a single request. This includes both headers and the URI itself.");
+
+#ifdef ENABLE_RAM_CACHE
+  globvar("RequestCacheTimeout", 30, "Request Tuning: Cache expiration value",
+          TYPE_INT|VAR_MORE,
+          "Time after which a single cached request is removed from the data cache");
+#endif		  
+
   setvars(retrieve("Variables", 0));
 
   for(p = 1; p < argc; p++)
