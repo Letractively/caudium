@@ -1,0 +1,74 @@
+MODNAME=UltraLog
+OBJS= ultrautil.o ultraparse.o
+SOURCES=ultrautil.c ultraparse.c
+CFLAGS=  @CCSHARED@ @CFLAGS@ @OPTIMIZE@ @WARN@ -I@PIKE_INCLUDE_DIR@
+CC=@CC@
+LIBGCC=@LIBGCC@
+LDFLAGS=  @LDFLAGS@
+LD= @LDSHARED@
+PIKE=@PIKE@
+SO=@SO@
+prefix=@prefix@
+all: $(MODNAME).$(SO)
+
+INSTALLDIR=@PIKE_MODULE_DIR@
+
+all: depend  Makefile $(MODNAME).$(SO)
+
+.SUFFIXES: .c .o
+
+install: all
+	cp -f $(MODNAME).$(SO) $(INSTALLDIR)
+	cp -f ultrasum $(prefix)/bin/
+
+$(MODNAME).$(SO):  $(OBJS)
+	@echo "linking $(MODNAME)" ;\
+	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
+	  :\
+	else \
+	  echo "Linking failed:" >&2; \
+	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
+	fi
+
+Makefile: Makefile.in configure config.status
+	@echo "configure or Makefile.in changed."
+	@if test -f config.status; then \
+           echo -n "Rebuilding Makefile myself using: ";\
+	   echo "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   eval "`head config.status|grep 'configure '|tr '#' ' '` "; \
+	   echo "$@";\
+           echo "You must rerun make now"; exit 1;\
+	else\
+	   echo "You must rerun configure now."; \
+	   exit 1; \
+	fi
+
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+
+configure: configure.in
+	@echo "configure.in changed. Rebuilding."
+	@autoconf
+
+config.status: configure
+	./config.status --recheck
+
+dependencies: 
+	$(CC) -MM $(CFLAGS) *.c > dependencies
+	@echo "You must rerun make now!"
+	@exit 1
+depend: dependencies
+
+clean:
+	rm -f *.o *~ $(MODNAME).$(SO) 
+
+distclean: clean
+	rm -f config.* Makefile dependencies
+
+spotless: distclean
+	rm -f configure 
+
+include dependencies
