@@ -21,6 +21,10 @@
  * $Id$
  */ 
 
+#ifndef report_error
+# define report_error werror
+#endif
+
 //! $Id$
 
 #if constant (Gdbm.gdbm)

@@ -23,6 +23,10 @@
 import "..";
 import UltraLog;
 
+#ifndef report_debug
+# define report_debug werror
+#endif
+
 int modified;
 
 array data = ({

@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fix bug #0000009 that prevents ultralog to run in command line
+  because of report_debug don't exist on command line.
+   (Xavier Beaudouin)
 - Because of changes in Pike 7.6.24+ that have been not compatible with
   it self, we requires now 7.6.24 now.
    (Xavier Beaudouin)
