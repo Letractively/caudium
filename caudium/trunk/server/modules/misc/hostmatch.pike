@@ -109,6 +109,13 @@ void precache_rewrite(object id)
   string host = id->host || "COWFISHSTEW";
   sscanf(host, "%s:", host);
 
+  string protocol;
+  if(id->prot)
+    protocol = lower_case((id->prot/"/")[0]);
+  if(id->ssl_accept_callback)
+    protocol+="s";  // http -> https, others most likely won't work that way
+  string port=(id->my_fd->query_address(1)/" ")[1];
+
   if(config_cache[host]) {
     id->conf = config_cache[host];
   } else {
@@ -119,18 +126,26 @@ void precache_rewrite(object id)
 	break;
       }
     }
-    foreach(caudium->configurations, object s) {
-      string h = lower_case(s->query("MyWorldLocation"));
-      if(!sscanf(h, "http://%s/", h)) {
-	// Not a http url -> no virtual hosting possible
-	continue;
-      }
-      sscanf(h, "%s:", h);
-      if(h == host) {
-	id->conf = s;
-	break;
+
+    foreach(caudium->configurations, object s)
+    {
+      array h = array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s/");
+      if(sizeof(h)!=2)
+        h=array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s:%s/");
+      else
+        h += ({ (["http":"80","https":"443"])[h[0]] });
+
+      werror("hostmatch: %s://%s:%s/\n", h[0], h[1], h[2]||"");
+      if(host == h[1] &&
+         ((protocol == h[0] && port == h[2]) ||
+          (protocol == "https" && h[0]=="http" && h[2]=="80"))
+          // serve https requests by http servers also (should be optional)
+           ) {
+        id->conf = s;
+        break;
       }
     }
+
     config_cache[host] = id->conf;
   }
   if (id->conf != old_conf && id->get_user()) {
