@@ -68,10 +68,6 @@ void create() {
   defvar("mountpoint", "/ultra/", "Mount Point", TYPE_LOCATION, 
 	 "This is where the module will be inserted in the "+
 	 "namespace of your server.");
-#if 0
-  defvar("dbdir", "NONE", "Database Directory", TYPE_DIR,
-	 "The location of the output from the external summarizer.");
-#endif
   defvar("profile", "NONE", "Profile File Name", TYPE_FILE,
 	 "The name of the profile configuration file to be used.");
   defvar("maxsize", 10000, "Max Table Size", TYPE_INT,
@@ -1427,25 +1423,6 @@ array|mapping|string view_log(string f, object id) {
 
       break;
 
-#if 0
-    case "3D_pie_chart":
-      tmp = "3D=25";
-      v->type = "piechart";
-    case "pie_chart":
-      res += sprintf("<diagram %s notrans bgcolor=#ffffff vertgrid horgrid width=450 "
-		     "height=350 textcolor=black  "
-		     "gridcolor=#319cce linewidth=0 labelcolor=black type=%s %s>"
-
-		     //		     "<xaxis quantity='%s'><yaxis quantity='%s'>"
-		     "<legend>%s</legend>"
-		     "<data form=row>%s</data></diagram>", total,
-		     v->type - "_", tmp,
-		     //		     sorts[0][0], sorts[0][1],
-		     column(sorts[1..], 0) *"\t",
-		     column(sorts[1..], 1) *"\t");
-      
-      break;
-#endif      
     case "table":
       //      werror("%O\n", sorts);
       res += (entr||"")+"<p>"+html_table(sorts[0], sorts[1..]) + (entr||"");
@@ -1488,11 +1465,6 @@ void start(int n, object conf)
 //! This is where the module will be inserted in the 
 //!  type: TYPE_LOCATION
 //!  name: Mount Point
-//
-//! defvar: dbdir
-//! The location of the output from the external summarizer.
-//!  type: TYPE_DIR
-//!  name: Database Directory
 //
 //! defvar: profile
 //! The name of the profile configuration file to be used.
