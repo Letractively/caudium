@@ -94,6 +94,12 @@ install: build
 	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
 	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
 
+	# fix caudiumctl paths
+	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
+	    < $(CURDIR)/debian/tmp/usr/bin/caudiumctl \
+	    > $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new && \
+	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl
+
 	for s in $(SCRIPTS); do \
 	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/tmp/usr/lib/caudium$(EXTVER)/$$s > \
 	      debian/tmp/usr/lib/caudium$(EXTVER)/$$s.new && \
@@ -139,6 +145,9 @@ install: build
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new \
 	   debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+
+	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/share/pike_packages/apps/modules/
+	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/local/share/caudium/modules/
 
 	#
 	# the -p debhelper param seems to be not working... 

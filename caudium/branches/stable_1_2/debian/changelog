@@ -1,3 +1,12 @@
+caudium (2:1.2.23-3) unstable; urgency=low
+
+  * Reordered the module paths in the default Global_Variables
+  * The Add Module screen in the CIF uses the compact layout now
+  * The caudiumctl script has a correct caudium home directory now
+  * Thanks to Peter Lundqvist for reporting all of the above problems.
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 27 Feb 2003 19:37:50 +0100
+
 caudium (2:1.2.23-2) unstable; urgency=low
 
   * Added the gsession module.
