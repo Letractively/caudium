@@ -140,9 +140,10 @@ string apply_template(string newfile, string f, string template, object id)
   {
     file = read_file( id->conf->real_file(template, id));
     werror(" found\n");
-    file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
+    file = spider.parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
     
-    newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall, "tmplinsertblock":itag_tmplinsertblock]), ([]), id, newfile);
+    newfile = spider.parse_html(file, ([ "tmplinsertall":itag_tmplinsertall, 
+        "tmplinsertblock":itag_tmplinsertblock]), ([]), id, newfile);
   }
   else
     werror(" not found\n");
@@ -290,7 +291,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
 
 string itag_tmplinsertblock(string tag, mapping arguments, object id, string filecontents)
 {
-  return parse_html(filecontents, ([]), ([ arguments->container:
+  return spider.parse_html(filecontents, ([]), ([ arguments->container:
        lambda(string tag, mapping arguments, string contents)
        { return contents; }
        ]));
