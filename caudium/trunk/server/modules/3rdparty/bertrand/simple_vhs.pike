@@ -31,7 +31,7 @@
 
 inherit "modules/filesystems/filesystem.pike" : filesystem;
 
-#define DEBUG(X) if(QUERY(debug)) write("VHS-FS: "+X+"\n")
+#define WERR(X) if(QUERY(debug)) write("VHS-FS: "+X+"\n")
 
 constant module_type = MODULE_FIRST|MODULE_LOCATION;
 constant module_name = "VHS - Virtual Hosting System (Filesystem)";
@@ -108,7 +108,7 @@ mapping first_try(object id)
   // path is a filesystem global variable which contain the path to data
   path = QUERY(searchpath);
 
-  DEBUG("before: path: "+path);
+  WERR("before: path: "+path);
 
   // TODO: add a safe way to make a difference between a domain name and an IP
 
@@ -152,7 +152,7 @@ mapping first_try(object id)
         break;
 
       default:
-        DEBUG(QUERY(fs_struct)+" is not a known filesystem structure");
+        WERR(QUERY(fs_struct)+" is not a known filesystem structure");
     }
   
     // clean up the path a bit
@@ -160,7 +160,7 @@ mapping first_try(object id)
 
   }
 
-  DEBUG("after: path: "+path);
+  WERR("after: path: "+path);
     
   return 0; 
 }
