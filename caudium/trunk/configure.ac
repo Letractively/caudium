@@ -2,7 +2,7 @@
 # $Id$
 #
 AC_PREREQ(2.53)
-AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
+AC_INIT(Caudium, 1.2.15, bugs@caudium.net)
 
 AC_REVISION($Revision$)
 
@@ -13,6 +13,7 @@ REQ_PIKE_MAJOR=7
 REQ_PIKE_MINOR=3
 REQ_PIKE_BUILD=56
 REQ_PIKE_VER="$REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD"
+REQ_PIKE_VERNUM="$REQ_PIKE_MAJOR$REQ_PIKE_MINOR$REQ_PIKE_BUILD"
 
 AC_SET_MAKE
 
@@ -320,7 +321,7 @@ AC_HELP_STRING([--with-pike[=binary]],[Use the specified Pike.]),
 	fi
 ])
 RESULT=no
-AC_MSG_CHECKING(for a working Pike)
+AC_MSG_CHECKING([for a working Pike (>= $REQ_PIKE_VER)])
 AC_MSG_RESULT( )
 pathpike="`type  pike 2> /dev/null |sed 's/pike is//' 2>/dev/null`"
 if test "$prefix" != "NONE"; then
@@ -339,29 +340,18 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_MAJOR=`echo $THIS_PIKE_VER | cut -d '.' -f 1`
     THIS_PIKE_MINOR=`echo $THIS_PIKE_VER | cut -d '.' -f 2`
     THIS_PIKE_BUILD=`echo $THIS_PIKE_VER | cut -d '.' -f 3`
+    THIS_PIKE_VERNUM=$THIS_PIKE_MAJOR$THIS_PIKE_MINOR$THIS_PIKE_BUILD
     
-    TOOLD=""
-    if test $THIS_PIKE_MAJOR -lt $REQ_PIKE_MAJOR; then 
-      TOOLD=" major < $REQ_PIKE_MAJOR"
-    fi
-    
-    if test -n "$TOOLD" -a $THIS_PIKE_MINOR -lt $REQ_PIKE_MINOR; then
-      TOOLD="${TOOLD} minor < $REQ_PIKE_MINOR"
-    fi
-    
-    if test -n "$TOOLD" -a $THIS_PIKE_BUILD -lt $REQ_PIKE_BUILD; then
-       TOOLD="${TOOLD} build < $REQ_PIKE_BUILD"
-    fi
-    
-    if test -n "$TOOLD"; then
-       echo " => too old (tests failed:$TOOLD)"
+    if test $THIS_PIKE_VERNUM -lt $REQ_PIKE_VERNUM; then
+       echo " => too old"
        continue
     fi
-    
+
     echo -n " => good version"
 
-    PIKE_INCDIR=`dirname $PIKE`
-    for INCDIR in $PIKE_INCDIR/../pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/../include/`basename $PIKE`; do
+    PIKE_INCDIR="`dirname $PIKE`/.."
+    for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike $PIKE_INCDIR/include/`basename $PIKE` \
+                  $PIKE_INCDIR/include/pike$THIS_PIKE_VER $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} $PIKE_INCDIR/include/pike; do
       OLD_DIR=`pwd`
       cd $INCDIR &> /dev/null
       if test $? -ne 0; then
@@ -398,8 +388,8 @@ if test x"$FOUND_PIKE" = "x1"; then
 else
   cat << EOF
 *****************************************************************************
-*** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.2
+*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6
 *** is no longer supported. You can download and install one of
 *** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
