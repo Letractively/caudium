@@ -191,7 +191,7 @@ class DocGen
     {
 	string ret = "";
 	
-	ret += "<strong>" + m->name + "</strong> ( ";
+	ret += m->type + " <strong>" + m->name + "</strong> ( ";
 	if (m->args)
 		ret += m->args * ", ";
 	ret += " )";
