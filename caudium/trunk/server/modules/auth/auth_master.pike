@@ -39,6 +39,12 @@ inherit "module";
 inherit "cachelib";
 inherit "caudiumlib";
 
+#ifdef DEBUG
+#define ERROR(X) werror("AuthMaster: " + X + "\n");
+#else
+#define ERROR(X)
+#endif
+
 //
 //
 //  beginning of module support functions
@@ -56,7 +62,7 @@ constant module_doc  = "This module handles the security in roxen, and uses "
 
 constant module_unique = 1;
 
-object mapcache,usercache,groupcache;
+object cache;
 
 void create()
 {
@@ -65,16 +71,25 @@ void create()
   );
 }
 
-void start(object conf)
+void start(int level, object conf)
 {
   // first, set up the map, group and user caches.
-  setup_cache(conf);
+
+  if(conf)
+    setup_cache(conf);
 }
 
 string status()
 {
+
+  string h="";
+
+  foreach(my_configuration()->get_providers("authentication"),object o)
+    h+=sprintf("%s (%s)", o->module_name, o->query("_name"));
+
   return 
     ("<h1>Security info</h1>"+
+     "<b>Registered Auth Handlers:</b> " + h + "<br>\n"
      "<b>Successful auths:</b> "+(string)succ+"<br>\n" + 
      "<b>Failed auths:</b> "+(string)fail
      +", "+(string)nouser+" had the wrong username<br>\n"
@@ -106,24 +121,33 @@ string status()
 //! 1 for successful authentication, 0 for failure
 int authenticate(string user, string password)
 {
-   if(!user && !password) return 0;
+   if(!user && !password) { fail++; nouser++; return 0; }
    mixed data=get_user_info(user);
 
-   if(!data) return 0; // user doesn't exist.
+   if(!data)
+   {
+     ERROR("user " + user + " doesn't exist.\n");
+     fail++;
+     nouser++;
+     return 0; // user doesn't exist.
+   }
    if(data["__authdata"] && 
         (data["__authdata"] == 
 	  Crypto.string_to_hex(
             Crypto.md5()->update(user+"|"+password)->digest())
         )
      )
-     return 1;  // password matches previous cached success.
-
+     {
+       succ++;
+       return 1;  // password matches previous cached success.
+     }
    int auth=low_authenticate(user, password);
 
-   if(!auth) return 0; // authentication failed.
+   if(!auth) {fail++; return 0; } // authentication failed.
    data["__authdata"]=Crypto.string_to_hex(
          Crypto.md5()->update(user+"|"+password)->digest());
    set_user_info(user, data);
+   succ++;
    return 1; // success!
 }
 
@@ -134,9 +158,10 @@ int authenticate(string user, string password)
 //! numeric user id or -1 if user is not found.
 int get_uid(string username)
 {
-   if(!username) return 0;
+   if(!username) return -1;
    mapping data=get_user_info(username);
    if(!data) return -1; // user doesn't exist.
+   else if(data->uid=="") return -1;
    else return data->uid;
 }
 
@@ -148,6 +173,11 @@ int get_uid(string username)
 //! that gid 0 doesn't exist?)
 int get_gid(string groupname)
 {
+   if(!groupname) return -1;
+   mapping data=get_group_info(groupname);
+   if(!data) return -1; // group doesn't exist.
+   else if(data->gid=="") return -1;
+   else return data->gid;
 }
 
 //! given a numeric user id, find a user name.
@@ -157,6 +187,9 @@ int get_gid(string groupname)
 //! username or 0 if not found.
 string|int get_username(int uid)
 {
+  int data=cache->retrieve("uid-" + uid, low_get_username, ({uid}));
+  return data;
+   
 }
 
 //! given a numeric group id, find a group name.
@@ -166,6 +199,8 @@ string|int get_username(int uid)
 //! group name or 0 if not found.
 string|int get_groupname(int gid)
 {
+  int data=cache->retrieve("gid-" + gid, low_get_groupname, ({gid}));
+  return data;
 }
 
 //! find information about a user.
@@ -180,13 +215,26 @@ string|int get_groupname(int gid)
 //! user name
 //! @member int "uid"
 //! numeric user id
-//! @member string "description"
+//! @member string "name"
 //! long user description
 //! @member array(string)|int "groups"
-//  group memberships or 0 if none
+//! group memberships or 0 if none
+//! @member string "shell"
+//! login shell (optional)
+//! @member string "home_directory"
+//! home directory (optional)
+//! @member string "email"
+//! email address (optional)
 //! @endmapping
 mapping|int user_info(string username)
 {
+   if(!username) return 0;
+   else 
+   {
+      mapping|int i=get_user_info(username);
+      if(i) m_delete(i, "__authdata");
+      return i;
+   }
 }
 
 //! find information about a group.
@@ -199,13 +247,19 @@ mapping|int user_info(string username)
 //! group name
 //! @member int "gid"
 //! numeric group id
-//! @member string "description"
+//! @member string "name"
 //! long group description, if any
 //! @member array(string)|int "users"
 //!  members of group or 0 if none
 //! @endmapping
 mapping|int group_info(string groupname)
 {
+   if(!groupname) return 0;
+   else 
+   {
+      mapping|int i=get_group_info(groupname);
+      return i;
+   }
 }
 
 //! listing of known users
@@ -230,7 +284,7 @@ array|int list_all_groups()
 //!   @elem string 0
 //!     user name
 //!   @elem string 1
-//!     password
+//!     password (will always be empty)
 //!   @elem int 2
 //!     numeric user id
 //!   @elem int 3
@@ -244,7 +298,14 @@ array|int list_all_groups()
 //! @endarray
 array(string) userinfo(string u) 
 {
-  return ({});
+  if(!u || u=="") return 0;
+
+  mapping data=get_user_info(u);
+  if(!data) return 0;
+
+  return ({ data->username, "", data->uid||"", 
+		data->primary_gid||"", data->name||"", 
+		data->home_directory||"", data->shell||""});
 }
 
 //! find information about a user from numeric userid
@@ -254,7 +315,7 @@ array(string) userinfo(string u)
 //!   a string containing user name
 string user_from_uid(int u)
 {
-   return "";
+   return get_username(u);
 }
 
 
@@ -277,7 +338,13 @@ string user_from_uid(int u)
 //!   @endarray
 array|int auth(array(string) auth, object id)
 {
-  return ({});
+  if(!auth || sizeof(auth) !=2) error("incorrect arguments to auth().");
+  array a=auth[1]/":";
+  if(sizeof(a)!=2) error("incorrectly formatted user/password string.");
+  int res=authenticate(a[0], a[1]);
+  if(res)
+    return ({1, a[0], 0});
+  else return ({0, a[0], a[1]});
 }
 
 //
@@ -290,37 +357,128 @@ int succ, fail, nouser;
 
 mapping failed  = ([ ]);
 
-void setup_cache(object conf)
+private void setup_cache(object conf)
 {
-  mapcache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-auth_mapcache");
-  usercache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-auth_usercache");
-  groupcache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-auth_groupcache");
+  if(!conf) return;
+
+  cache=caudium->cache_manager->get_cache(
+	conf->query("MyWorldLocation")+"-auth_cache");
 }
 
-int low_authenticate(string user, string password)
+private int low_authenticate(string user, string password)
 {
-  int res=caudium->call_provider("authentication", authenticate, user, password);
+  int res=my_configuration()->call_provider("authentication", "authenticate", user, password);
+  ERROR("low_authenticate: " + res + "\n");
   return res;
 }
 
-mapping get_user_info(string username)
+private mapping|int get_user_info(string username)
 {
-  mapping data=usercache->retreive(username, low_get_user_info, username);
+  mapping|int data=cache->retrieve("user-" + username, low_get_user_info, ({username}));
   return data;
 }
 
-int low_get_user_info(string username)
+private mapping|int get_group_info(string groupname)
 {
-  mapping data=caudium->call_provider("authentication", get_user_info, username);
-  int i=set_user_info(username, data);
-  return i;
+  mapping|int data=cache->retrieve("group-" + groupname, low_get_group_info, ({groupname}));
+  return data;
 }
 
-int set_user_info(string username, mapping data)
+private mapping|int low_get_user_info(string username)
 {
-  usercache->cache_pike(username, data, QUERY("cachetimeout"));
+  mapping data=my_configuration()->call_provider("authentication", "get_user_info", username);
+  if(!data) return 0; // we won't set data for a non existant user.
+  if(!(data->username && data->uid && 
+    data->name && data->primary_group && data->groups))
+  {
+     ERROR("incomplete data for user " + username);
+     return 0;
+  }
+  int i=set_user_info(username, data);
+  return data;
+}
+
+private string|int low_get_username(int uid)
+{
+  string data=my_configuration()->call_provider("authentication", "get_username", uid);
+  if(!data) return -1; // we won't set data for a non existant user.
+
+  int i=set_username(uid, data);
+  return data;
+}
+
+private string|int low_get_groupname(int gid)
+{
+  string data=my_configuration()->call_provider("authentication", "get_groupname", gid);
+  if(!data) return -1; // we won't set data for a non existant user.
+
+  int i=set_groupname(gid, data);
+  return data;
+}
+
+private mapping|int low_get_group_info(string groupname)
+{
+  mapping data=my_configuration()->call_provider("authentication", "get_group_info", groupname);
+  if(!data) return 0; // we won't set data for a non existant group.
+  if(!(data->groupname && data->gid && 
+    data->name && data->users))
+  {
+     ERROR("incomplete data for group " + groupname);
+     return 0;
+  }
+  int i=set_group_info(groupname, data);
+  return data;
+}
+
+private int set_user_info(string username, mapping data)
+{
+  ERROR("set_user_info" + username + "\n");
+  if(data)
+  {
+    cache->store(cache_pike(data, "user-" + username));
+    if(data->uid!="")
+      cache->store(cache_string(data->username, "uid-" + data->uid));
+  }
+  else
+    ERROR("not storing zero\n");
   return 1;
 }
+
+private int set_username(int uid, string data)
+{
+  ERROR("set_username" + uid + "\n");
+  if(data)
+  {
+    cache->store(cache_string(data, "uid-" + uid));
+  }
+  else
+    ERROR("not storing zero\n");
+  return 1;
+}
+
+private int set_groupname(int gid, string data)
+{
+  ERROR("set_groupname" + gid + "\n");
+  if(data)
+  {
+    cache->store(cache_string(data, "gid-" + gid));
+  }
+  else
+    ERROR("not storing zero\n");
+  return 1;
+}
+
+private int set_group_info(string groupname, mapping data)
+{
+  ERROR("set_group_info" + groupname + "\n");
+  if(data)
+  {
+    cache->store(cache_pike(data, "group-" + groupname));
+    if(data->gid!="")
+      cache->store(cache_string(data->groupname, "gid-" + data->gid));
+  }
+  else
+    ERROR("not storing zero\n");
+  return 1;
+}
+
