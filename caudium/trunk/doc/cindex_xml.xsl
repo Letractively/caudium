@@ -12,7 +12,7 @@
   <xsl:text disable-output-escaping="yes">&lt;use file="/caudium.tmpl"></xsl:text>
   <xsl:choose>
     <xsl:when test="$display = 'modules'">
-      <page title="Caudium Module Index">
+      <page title="Caudium Module Index" parent="/server/docs/autodocs.rxml">
        <h3>List of all Caudium Modules</h3>
        <dl><xsl:apply-templates select='entry[@type="module"]' mode="top">
            <xsl:sort select="@name"/></xsl:apply-templates></dl>

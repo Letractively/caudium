@@ -8,7 +8,7 @@
 <xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
 <xsl:template match="documentation">
  <xsl:text disable-output-escaping="yes">&lt;use file="/caudium.tmpl"></xsl:text>
-<page title="Caudium Documentation">
+<page title="Caudium Documentation" parent="/server/docs/autodocs.rxml">
   <dl><xsl:apply-templates select="module | file"/></dl>
   <xsl:comment>XSLT Template version $Id$</xsl:comment>
   <br />
