@@ -602,6 +602,7 @@ class fallback_redirect_request {
     f->set_nonblocking(read_callback, 0, die);
     f->set_id(f);
     read_callback(f, s);
+    write_callback(f);
   }
 }
 
@@ -619,7 +620,7 @@ void http_fallback(object alert, object|int n, string data)
 		 "data = '%s'", alert->level, alert->description,
 		 (string) n, data));
 #endif
-  if ( (my_fd->current_write_state->seq_num == 0)
+  if ( (!my_fd->current_srite_state->seq_num || my_fd->current_write_state->seq_num == 0)
        && search(lower_case(data), "http"))
   {
     /* Redirect to a https-url */
@@ -629,7 +630,8 @@ void http_fallback(object alert, object|int n, string data)
 			      my_fd->config && 
 			      my_fd->config->query("MyWorldLocation"),
 			      ctx->port);
-    destruct(my_fd);
+      my_fd = 0;
+//    destruct(my_fd);
     destruct(this_object());
 //    my_fd = 0; /* Forget ssl-object */
   }
