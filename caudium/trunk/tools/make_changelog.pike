@@ -165,14 +165,14 @@ void main(int argc, array (string) argv)
   thread_create(twiddle);
 #endif
   werror("Running CVS log ");
-  string data = Process.popen("cvs -z3 log");
+  string data = Process.popen("cvs -q -z3 log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
   if(argc>1)
     domain = argv[1];
   else
   {
-    domain = "users.sourceforge.net";
+    domain = "caudium.net";
   }
   werror("Parsing data ... ");
   foreach(data/"=============================================================================\n", string file)
