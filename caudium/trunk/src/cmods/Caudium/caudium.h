@@ -63,9 +63,11 @@ typedef struct
 } buffer;
 
 #ifdef INT64
-#define NBIO_INT_T INT64
+# define push_nbio_int(X) push_int64(X)
+# define NBIO_INT_T INT64
 #else
-#define NBIO_INT_T INT32
+# define push_nbio_int(X) push_int(X)
+# define NBIO_INT_T INT32
 #endif
 
 #ifdef USE_MMAP

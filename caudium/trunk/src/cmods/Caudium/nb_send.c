@@ -74,6 +74,15 @@ extern int fd_from_object(struct object *o);
 static int output_write_cb_off;
 static struct program *nbio_program;
 
+/* Statistics for flashy output */
+static int noutputs;  /* number of outputs */
+static int ninputs;   /* number of inputs */
+static int nstrings;  /* number of string inputs */
+static int nobjects;  /* number of in/out objects  */
+static NBIO_INT_T mmapped;  /* size of mmapped data */
+static int nbuffers;  /* number of allocated buffers */
+static int sbuffers;  /* size of allocated buffers */			
+
 /* Push a callback to this object given the internal function number.
  */
 static void push_callback(int no)
@@ -99,14 +108,17 @@ static void alloc_nb_struct(struct object *obj) {
 /* Free an input */
 static void free_input(input *inp) {
   DERR(fprintf(stderr, "Freeing input 0x%x\n", (unsigned int)inp));
+  ninputs--;
   switch(inp->type) {
    case NBIO_STR: 
     free_string(inp->u.data);
+    nstrings--;
     break;
 #ifdef USE_MMAP
    case NBIO_MMAP:
     if(inp->u.mmap->data != MAP_FAILED) {
       munmap(inp->u.mmap->data, inp->u.mmap->m_len);
+      mmapped -= inp->u.mmap->m_len;
     }
     free_object(inp->u.mmap->file);
     free(inp->u.mmap);
@@ -114,6 +126,7 @@ static void free_input(input *inp) {
 #endif
    case NBIO_OBJ:
     free_object(inp->u.file);
+    nobjects--;
     break;
   }
   if(THIS->last_input == inp)
@@ -135,12 +148,14 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 
   inp->next = NULL;
   inp->pos  = 0;
-
+  
   DERR(fprintf(stderr, "Allocated new input at 0x%x\n", (unsigned int)inp));
+
   if(inval.type == T_STRING) {
     inp->type   = NBIO_STR;
     add_ref(inp->u.data = inval.u.string);
     inp->len    = inval.u.string->len << inval.u.string->size_shift;
+    nstrings++;
     DERR(fprintf(stderr, "string input added: %ld bytes\n", (long)inp->len));
   } else if(inval.type == T_OBJECT) {
     inp->fd     = fd_from_object(inval.u.object);
@@ -181,6 +196,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 	  add_ref(inp->u.mmap->file = inval.u.object);
 	  
 	  DERR(fprintf(stderr, "new mmap input (fd %d)\n", inp->fd));
+	  mmapped += alloc_len;
 #ifdef NB_DEBUG
 	} else {
 	  DERR(perror("mmap failed"));
@@ -192,10 +208,13 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 	/* mmap failed or not a regular file */
 	inp->u.file = inval.u.object;
 	add_ref(inp->u.file);
+	nobjects++;
 	DERR(fprintf(stderr, "new input FD == %d\n", inp->fd));
       }
     }
   }
+
+  ninputs++;
 
   if (THIS->last_input)
     THIS->last_input->next = inp;
@@ -207,6 +226,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 
 /* free output object */
 static void free_output(output *outp) {
+  noutputs--;
   free_object(outp->file);
   free(outp);
 }
@@ -226,6 +246,8 @@ static void free_nb_struct(struct object *obj) {
     THIS->outp = NULL;
   }
   if(THIS->buf != NULL) {
+    nbuffers--;
+    sbuffers -= READ_BUFFER_SIZE;
     free(THIS->buf);
     THIS->buf = NULL;
   }
@@ -275,6 +297,7 @@ static void f_output(INT32 args) {
       outp->fd = fd_from_object(outp->file);
 
       if(outp->fd == -1) {
+	free(outp);
 	Pike_error("Only real files are accepted as outputs.\n");
       }
 	
@@ -284,6 +307,7 @@ static void f_output(INT32 args) {
 
       if (outp->write_off < 0 || outp->set_nb_off < 0 || outp->set_b_off < 0) 
       {
+	free(outp);
 	Pike_error("Caudium.nbio()->output: illegal file object%s%s%s\n",
 		   ((outp->write_off < 0)?"; no write":""),
 		   ((outp->set_nb_off < 0)?"; no set_nonblocking":""),
@@ -293,7 +317,7 @@ static void f_output(INT32 args) {
       
       add_ref(outp->file);
       THIS->outp = outp;
-
+      noutputs++;
       /* Set up the read callback. We don't need a close callback since
        * it never will be called w/o a read_callback (which we don't want one).
        */
@@ -365,6 +389,8 @@ static void read_data(void)
   if(!THIS->buf) {
     /* Allocate the temporary read buffer */
     THIS->buf = malloc(READ_BUFFER_SIZE);
+    nbuffers ++;
+    sbuffers += READ_BUFFER_SIZE;
     if(THIS->buf == NULL) {
       Pike_error("Failed to allocate read buffer.\n");
     }
@@ -455,6 +481,7 @@ static void f__output_write_cb(INT32 args)
 	DERR(fprintf(stderr, "mmapping more data from fd %d\n", inp->fd));
 	len = MIN(inp->len - inp->pos, MAX_MMAP_SIZE);
 	munmap(inp->u.mmap->data, inp->u.mmap->m_len);
+	mmapped -= inp->u.mmap->m_len;
 	DERR(fprintf(stderr, "trying to mmap %ld bytes starting at pos %ld\n",
 		     (long)len, (long)inp->pos));
 	inp->u.mmap->data =
@@ -471,6 +498,7 @@ static void f__output_write_cb(INT32 args)
 	  inp->u.mmap->m_start = inp->pos;
 	  inp->u.mmap->m_len   = len;
 	  inp->u.mmap->m_end   = len + inp->pos;
+	  mmapped += len;
 	}
       }
       data = inp->u.mmap->data + (inp->pos - inp->u.mmap->m_start);
@@ -555,13 +583,22 @@ static void f_set_done_callback(INT32 args)
 static void f_bytes_sent(INT32 args)
 {
   pop_n_elems(args);
-#ifdef INT64
-  push_int64(THIS->written);
-#else
-  push_int(THIS->written);
-#endif
+  push_nbio_int(THIS->written);
 }
 
+
+static void f_nbio_status(INT32 args)
+{
+  pop_n_elems(args);
+  push_int(noutputs);
+  push_int(ninputs);
+  push_int(nstrings);
+  push_int(nobjects);
+  push_nbio_int(mmapped);
+  push_int(nbuffers);
+  push_int(sbuffers);
+  f_aggregate(7);
+}
 
 /* Initialized the sender */
 void init_nbio(void) {
@@ -569,6 +606,7 @@ void init_nbio(void) {
   ADD_STORAGE( nbio_storage );
   set_init_callback(alloc_nb_struct);
   set_exit_callback(free_nb_struct);
+  ADD_FUNCTION("nbio_status", f_nbio_status, tFunc(tVoid, tArray), 0);
   ADD_FUNCTION("input",  f_input, tFunc(tObj tOr(tInt, tVoid), tVoid), 0);
   ADD_FUNCTION("write",  f_write, tFunc(tStr, tVoid), 0);
   ADD_FUNCTION("output", f_output, tFunc(tObj, tVoid), 0);
