@@ -242,7 +242,7 @@ mixed find_file( string f, object id )
 
        //contents = parse_rxml(contents, id);
        //werror("templatefs: %O\n%O\n", id->misc, id->misc->defines);
-       return http_rxml_answer(contents, id);
+       return Caudium.HTTP.rxml_answer(contents, id);
 
        //ok, here we basicly take over the function of the parser module,
        //not good, better use this:

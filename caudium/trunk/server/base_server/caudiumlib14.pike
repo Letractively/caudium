@@ -38,10 +38,9 @@
 //! Caudiumlib is a collection of utility functions used by modules and
 //! the Caudium core. 
 
-//inherit "http";
-
 // constant _cvs_version = "$Id$";
 // This code has to work both in the roxen object, and in modules
+
 #if !constant(caudium)
 #define caudium caudiump()
 #endif
@@ -53,39 +52,6 @@
 #define ipaddr(x,y) (((x)/" ")[y])
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
-
-//!   Convenience function to use in Caudium modules and Pike scripts. When you
-//!   just want to return a string of data, with an optional type, this is the
-//!   easiest way to do it if you don't want to worry about the internal
-//!   Caudium structures. This function creates a response mapping containing
-//!   the RXML parsed data you send to it.
-//!
-//! @param rxml
-//!   The text to RXML parse and return.
-//!
-//! @param id
-//!   The request id object.
-//!
-//! @param file
-//!   An optional file descriptor to return // FIXME //
-//!
-//! @param type
-//!   Optional file type, like text/html or application/octet-stream
-//!
-//! @returns
-//!   The http response mapping with the parsed data.
-mapping http_rxml_answer( string rxml, object id, 
-                          void|object(Stdio.File) file, string|void type )
-{
-  rxml = parse_rxml(rxml, id, file);
-  return (["data":rxml,
-	   "type":(type||"text/html"),
-	   "stat":id->misc->defines[" _stat"],
-	   "error":id->misc->defines[" _error"],
-	   "rettext":id->misc->defines[" _rettext"],
-	   "extra_heads":id->misc->defines[" _extra_heads"],
-	   ]);
-}
 
 //!   Return an error mapping with the current error theme with the specified
 //!   error code, name, and message.

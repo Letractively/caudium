@@ -133,6 +133,13 @@ mapping http_pipe_in_progress() {
    return Caudium.HTTP.pipe_in_progress();
 }
 
+//! Compat call of Caudium.HTTP.rxml_answer
+//! @deprecated
+mapping http_rxml_answer(string rxml, object id, void|object(Stdio.File) file,
+                         string|void type) {
+   WCOMPAT2("Caudium.HTTP.rxml_answer", "http_rxml_answer");
+   return Caudium.HTTP.rxml_answer(rxml, id, file, type);
+}
 
 // Some spider calls are not under spider module so here is some compat
 // things

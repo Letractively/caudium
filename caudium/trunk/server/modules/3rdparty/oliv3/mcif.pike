@@ -299,7 +299,7 @@ mapping mcif (object id) {
   id->misc->cacheable = 0;
   //id->misc->is_dynamic = 1;
   
-  return http_rxml_answer (res, id);
+  return Caudium.HTTP.rxml_answer (res, id);
 }
 
 mapping set_conf (object id) {
