@@ -7,7 +7,7 @@ void pike_module_exit( void );
 void free_buf_struct(struct object *);
 
 #define BUFSIZE 16535
-#define BUF ((buffer *)fp->current_object->storage)
+#define BUF ((buffer *)fp->current_storage)
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
 typedef struct

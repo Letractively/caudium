@@ -44,7 +44,7 @@
 #endif
 
 
-#define THIS ((xslt_storage *)fp->current_object->storage)
+#define THIS ((xslt_storage *)fp->current_storage)
 
 typedef struct
 {
