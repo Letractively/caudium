@@ -1,0 +1,194 @@
+MailIt! version 1.10
+
+MailIt! is a free module for the Roxen Web Server. It allows easy formatting
+and mailing of HTML Form data without the need to program custom CGI
+scripts.
+
+Please remember that this is a work in progress. Your comments and
+suggestions are appreciated. You can send your comments to me, the
+developer at hww3@riverweb.com.
+
+If you find this module useful, I'd greatly appreciate a postcard from you
+letting me know you're out there. My Address is included in the
+distribution.
+
+What's New
+----------
+
+Version 1.10:
+	Added <mailattach> tag to allow MailIt! to send mail messages
+	with attachments.
+
+Version 1.9:
+
+	Made a check for functions not present on Roxen NT. This should
+	(finally) enable compatibility with Roxen NT.
+
+Version 1.8:
+	
+	Added support for direct SMTP mailing. This should also enable
+	compatibility with Roxen NT.
+
+Version 1.7: 
+
+	Added RXML related security patch.
+
+Version 1.0:
+
+	This module has been written to create MIME Compliant messages. 
+
+	Added <mailmessage></mailmessage> container.
+
+	Added <mailheader> tag.
+
+Version 0.93:
+
+	Version 0.93 will only work with Roxen 1.2 or higher.
+
+	Added 2 options to mfield tag: empty and add. (Thanks to Alan Wood!)
+
+Version 0.91:
+
+	Fixed bug that ignored parsing mfield tags if the data was empty
+  	or didn't exist.
+
+	Added support for username changing based upon template uid.
+
+	Added debugging code.
+
+	Added replyto support.
+
+
+[Requirements]
+
+   * Roxen 1.3 or higher or Caudium 1.0 or higher.
+   * sendmail or compatible mailer (qmail is rumoured to work).
+
+[Getting MailIt!]
+
+   * Download the latest version of MailIt! with Documentation (v1.10) from
+	http://www.riverweb.com/modules/mailit/dist/
+
+[Installing MailIt!]
+
+Using MailIt! is simple! Just download the archive, then unpack it by using
+the following command:
+
+        tar -zxvf mailit-1.10.tar.gz
+
+You should get a directory called mailit-1.10. Inside that directory is a
+file called mailit.pike. Copy that file to your Caudium/Roxen modules
+directory, under server/local/modules. Then you can use the Configuration
+Interface to add the MailIt! module.
+
+There are a few options you can change, but in most cases it won't be
+nessecary. If your sendmail binary is in a location other than /usr/lib,
+you'll need to make the appropriate adjustments.
+
+You may also choose to use Roxen's built-in SMTP capability to directly
+spool messages to a central mail hub. If you choose to use this method,
+you must have a mail host that allows relay. Simply configure MailIt! to
+use this mail hub in the Roxen Configuration Interface.
+
+Included is support for MailIt! to set the sender of messages based on the
+owner of the template file. This is available only if Caudium/Roxen is
+running as a sendmail trusted user. Check your sendmail man page for more
+info.
+
+You can also turn on debug messages, which can provide helpful information
+for me if I'm looking for a bug.
+
+That's all there is to it! You can now start using the features of the
+MailIt! module.
+
+[Using MailIt!]
+
+There are 3 components of a working MailIt! application:
+
+   * The MailIt! Module (you've already installed it)
+   * An HTML Form Page
+   * A MailIt! Template Page
+
+[The HTML Form Page]
+You can use any text or HTML editor you'd like to create the form page. This
+just contains the fields that you'd like to have mailed when a user presses
+the submit button. The key is to set the form action to be the URL of an
+HTML page that uses the features of MailIt!. When designing your form,
+simply keep in mind the names of the various elements that you add to the
+form. You'll need to supply these in the Template page later.
+
+[The MailIt! Template]
+The MailIt! Template is simply an HTML file that includes MailIt! tags. The
+four tags that are provided by MailIt! are:
+
+     <mailit></mailit>, <mailheader>,
+	<mailattach> and<mailmessage></mailmessage>
+
+The first tag tells MailIt! that you are going to send an email message. 
+Anything enclosed by these tags will not get returned to the browser.
+Everything outside the mailit tags will be returned to the browser as a
+response to the form submission.
+
+The second tag tells MailIt! to add a header to the outgoing message.
+
+The mailheader tag takes the following attributes:
+
+  subject=value		Adds a subject line. Use this by itself.
+
+  to=value		Adds a To: line in the message header. Also use
+			this by itself.
+
+  from=value		Adds a From: line in the message header. Also use
+			this by itself. This option is a requirement when
+			using SMTP based mailing.
+  
+  name=headername	Adds a header called headername. Can be used to
+			create carbon copies and blind carbon copies.
+
+  value=headervalue	Use with name to specify the header value.
+
+The <mailattach> tag allows you to attach files to an outgoing mail
+message. This tag takes the following attributes:
+  
+   file=path/to/file	Attach the named file to the outgoing mail message.
+
+Note that the mailattach tag is a potential security hole, as it allows
+any file that is readable by the webserver to be sent as an attachment.
+This feature can be disabled in the configuration interface, and should be
+as long as the server runs as a user with any priveledge.
+
+The fourth container tag is used to define the message body.
+
+The mailmessage container takes the following argument:
+
+  encoding=endodingtype	Send the message using MIME encoding. The
+			following types are supported:
+
+			8bit, 7bit, base64, binary, quoted-printable, and
+			x-uue.
+The default encoding is 7bit, if another encoding is not specified.
+
+The fourth tag tells MailIt! to print the value of a form element that you
+specify. You can include these tags inside the mailit container to send the
+information from the form in the email message.
+
+IMPORTANT NOTE: Use of the mfield tag has security implications and is
+deprecated. Please use the formoutput container.
+
+You can put any RXML tags within the body of your message. The formatting
+between the mailit tags is preserved when it is sent as a message.
+
+[Acknowledgments]
+
+Thanks to Xavier Beaudouin <xbeaudouin@isdnet.net> for adding SMTP
+mailing support.
+
+Thanks to Aleph One <aleph1@underground.org> for an RXML related security
+patch.
+
+Thanks to Alan Wood <alan.wood@abfl.co.uk> for is numerous ideas, the
+lastest of which appear in this version of the module.
+
+Bill Welliver <hww3@riverweb.com>
+2/29/02
+
