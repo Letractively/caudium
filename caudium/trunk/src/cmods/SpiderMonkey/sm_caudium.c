@@ -35,6 +35,8 @@ JS_FUNCDEF(caudium_version);
 JS_FUNCDEF(caudium_pikever);
 JS_FUNCDEF(caudium_log_message);
 
+static struct svalue   caudium_prog;
+
 /*
  * The Caudium JS object.
  * Contains functions that provide information about the whole server and
@@ -57,8 +59,50 @@ static JSClass caudium_class = {
 
 JS_FUNCDEF(caudium_version)
 {
+  struct svalue    sv, res;
+  JSString        *str;
+  void            *verbytes;
+  
   if (!THIS->id)
     return JS_FALSE;
+
+  if (caudium_prog.type == PIKE_T_UNKNOWN) {
+    /* find the caudium program */
+    push_text("caudium");
+    push_int(0);
+    SAFE_APPLY_MASTER("resolv", 2);
+    if (Pike_sp[-1].type == T_OBJECT) {
+      push_text("caudium");
+      f_index(2);
+      caudium_prog.u.program = program_from_svalue(&Pike_sp[-1]);
+      caudium_prog.type = T_PROGRAM;
+    }
+    pop_n_elems(1);
+  }
+
+  if (caudium_prog.type == PIKE_T_UNKNOWN)
+    return JS_FALSE;
+
+  sv.type = T_PROGRAM;
+  sv.u.program = THIS->id->prog;
+  
+  if (!is_equal(&caudium_prog, &sv))
+    return JS_FALSE;
+
+  sv.type = T_STRING;
+  sv.u.string = make_shared_string("real_version");
+
+  object_index_no_free2(&res, THIS->id, &sv);
+  if (!res.type == T_STRING)
+    return JS_FALSE;
+
+  verbytes = JS_malloc(ctx, res.u.string->len);
+  if (!verbytes)
+    return JS_FALSE;
+
+  memcpy(verbytes, res.u.string->str, res.u.string->len);
+  str = JS_NewString(ctx, verbytes, res.u.string->len);
+  *rval = STRING_TO_JSVAL(str);
   
   return JS_TRUE;
 }
@@ -70,11 +114,11 @@ JS_FUNCDEF(caudium_pikever)
   
   f_version(0);
   
-  verbytes = JS_malloc(ctx, Pike_sp[-1].u.string->len + 1);
+  verbytes = JS_malloc(ctx, Pike_sp[-1].u.string->len);
   if (!verbytes)
     return JS_FALSE;
 
-  memcpy(verbytes, Pike_sp[-1].u.string->str, Pike_sp[-1].u.string->len + 1);
+  memcpy(verbytes, Pike_sp[-1].u.string->str, Pike_sp[-1].u.string->len);
   str = JS_NewString(ctx, verbytes, Pike_sp[-1].u.string->len);
   
   *rval = STRING_TO_JSVAL(str);
@@ -105,6 +149,8 @@ JSObject *init_caudium(JSContext *ctx)
 {
   JSObject   *c;
 
+  caudium_prog.type = PIKE_T_UNKNOWN;
+  
   c = JS_DefineObject(ctx, global, "Caudium", &caudium_class, NULL, 0);
 
   if (!c)

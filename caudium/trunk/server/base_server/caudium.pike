@@ -142,6 +142,13 @@ private static void really_low_shutdown(int exit_code)
   stop_handler_threads();
 #endif /* THREADS */
 
+  object smc = Thread.Local()->get();
+
+  if (smc && objectp(smc)) {
+    smc = 0;
+    Thread.Local()->set(0);
+  }
+  
   // Don't use fork() with threaded servers.
 #if constant(fork) && !constant(thread_create)
 
@@ -372,31 +379,58 @@ static object (Thread.Queue) handle_queue = Thread.Queue();
 // Number of handler threads that are alive.
 static int thread_reap_cnt;
 
+static void create_js_context()
+{
+#if constant(SpiderMonkey.Context)
+  if (GLOBVAR(js_enable)) {
+    object  smc = SpiderMonkey.Context(GLOBVAR(js_version), GLOBVAR(js_stacksize));
+    if (!smc) {
+      Thread.Local()->set(0);
+      return;
+    }
+    
+    Thread.Local()->set(smc);
+  } else
+    Thread.Local()->set(0);
+#else
+  Thread.Local()->set(0);
+#endif
+}
+
 void handler_thread(int id)
 {
   array (mixed) h, q;
+
+  create_js_context();  
   while(1)
   {
     if(q=catch {
       do {
-	if((h=handle_queue->read()) && h[0]) {
-	  h[0](@h[1]);
-	  h=0;
-	} else if(!h) {
-	  // Caudium is shutting down.
-	  werror("Handle thread ["+id+"] stopped\n");
-	  thread_reap_cnt--;
-	  return;
-	}
+        if((h=handle_queue->read()) && h[0]) {
+          h[0](@h[1]);
+          h=0;
+        } else if(!h) {
+          object smc = Thread.Local()->get();
+
+          if (smc && objectp(smc)) {
+            Thread.Local()->set(0);
+            smc = 0;
+          }
+          
+          // Caudium is shutting down.
+          werror("Handle thread ["+id+"] stopped\n");
+          thread_reap_cnt--;
+          return;
+        }
       } while(1);
     }) {
       report_error("Uncaught error in handler thread: " +
-		   describe_backtrace(q) +
-		   "Client will not get any response from Caudium.\n");
+                   describe_backtrace(q) +
+                   "Client will not get any response from Caudium.\n");
       if (q = catch {h = 0;}) {
-	report_error("Uncaught error in handler thread: " +
-		     describe_backtrace(q) +
-		     "Client will not get any response from Caudium.\n");
+        report_error("Uncaught error in handler thread: " +
+                     describe_backtrace(q) +
+                     "Client will not get any response from Caudium.\n");
       }
     }
   }
@@ -2332,6 +2366,22 @@ private void define_global_variables( int argc, array (string) argv )
 {
   int p;
 
+  globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
+          "If set to Yes, the server will enable the global JavaScript support. "
+          "To take full advantage of it you will still have to add the "
+          "<em>JavaScript (SpiderMonkey) Support</em> module to your virtual "
+          "host.");
+
+  globvar("js_version", "1.5", "JavaScript Support: JavaScript Version", TYPE_STRING_LIST,
+          "Select the default JavaScript version to be supported by the JS runtime.",
+          ({"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}));
+
+  globvar("js_stacksize", 8192, "JavaScript Support: Context stack size", TYPE_INT,
+          "The JavaScript engine allocates one context per each backend thread in "
+          "Caudium. A context is where any script parsed in the given thread is "
+          "evaluated and executed. The stack size given here is what will be available "
+          "for each JavaScript script executed in Caudium.");
+  
   globvar("set_cookie", 0, "Set unique user id cookies", TYPE_FLAG,
 	  "If set to Yes, all users of your server whose clients support "
 	  "cookies will get a unique 'user-id-cookie', this can then be "
@@ -3514,6 +3564,7 @@ int main(int|void argc, array (string)|void argv)
   start_handler_threads();
   catch( this_thread()->set_name("Backend") );
   backend_thread = this_thread();
+  create_js_context();
 #if constant(thread_set_concurrency)
   thread_set_concurrency(QUERY(numthreads)+1);
 #endif
@@ -3591,3 +3642,8 @@ string check_variable(string name, mixed value)
 }
 
 
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
