@@ -33,7 +33,7 @@
 
 /*
  * User database. Reads the system password database and use it to
- * authentificate users.
+ * authenticate users.
  */
 
 constant cvs_version = "$Id$";
