@@ -1062,6 +1062,8 @@ string showmodifyinputs(object id, mapping defines)
   /* do we know maildrop ? */
   if(sizeof(QUERY(defvarmaildrop)) > 0)
   {
+    if(!arrayp(defines["maildrop"]))
+      defines["maildrop"] = "";
     /* can the user change maildrop ? */
     if(search(QUERY(allowedmodifyattribute), QUERY(defvarmaildrop)) != -1)
       inputs_to += ({ "<input type=\"text\" size=\"30\" value=\"" + defines["maildrop"][0] + "\" name=\"maildrop\">" });
@@ -1072,6 +1074,8 @@ string showmodifyinputs(object id, mapping defines)
     inputs_to += ({ "&nbsp;" });
   if(sizeof(QUERY(defvarmailacceptinggeneralid)) > 0)
   {
+    if(!arrayp(defines["mailacceptinggeneralid"]))
+      defines["mailacceptinggeneralid"] = "";
     string input_mailaccept = "<input type=\"text\" size=\"60\" name=\"mailacceptinggeneralid\" value=\"";
     string mailaccept = "";
     int n = sizeof(defines["mailacceptinggeneralid"]);
