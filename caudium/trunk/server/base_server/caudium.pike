@@ -3520,8 +3520,8 @@ int main(int argc, array(string) argv)
     array err;
     
     if (err=catch { enable_configuration(config->name)->start(0,0,argv);  })
-      werror("Error while loading configuration '%s':\n%s\n",
-             config->name, describe_backtrace(err));
+      report_error("Error while loading configuration '%s':\n%s\n",
+                   config->name, describe_backtrace(err));
   };
 
   set_u_and_gid();		// Running with the right uid:gid from this point on.
@@ -3539,7 +3539,7 @@ int main(int argc, array(string) argv)
   }
   report_notice("\n");
 
-#if 0
+#ifdef LOAD_CONFIGS_STARTUP
   foreach(configurations, object config)
     config->enable_all_modules(); 
 #endif

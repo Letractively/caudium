@@ -1,5 +1,9 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added in etc/include/performance.h a define that allow administrator
+  to force load all configurations and modules at the starting of Caudium.
+  Note this is not recommanded if you have thousands of virtuals servers.
+  You can use this with ./start script on a runtime : -DLOAD_CONFIGS_STARTUP
 - Apache/NSCA SSI tags are now handled into a separate module called
   SSI Compat Tags (ssi_compat.pike). Don't forget to add this to your
   configuration interface if you need this support...
