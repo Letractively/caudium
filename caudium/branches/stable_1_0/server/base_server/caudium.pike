@@ -3822,25 +3822,6 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_FLAG
 //!  name: Update the supports database automatically
 //
-//! defvar: neighborhood
-//! If this option is set, Caudium will automatically broadcast it's existence to other Caudium servers on the local network.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Neighborhood: Register with other Caudium servers on the local network
-//
-//! defvar: neigh_tcp_ips
-//! This is the list of direct host &lt;--> host links to establish. The local host is always present (if the neighbourhood functionality is at all enabled).
-//!  type: TYPE_STRING_LIST|VAR_MORE
-//!  name: Neighborhood: TCP hosts
-//
-//! defvar: neigh_ips
-//!  type: TYPE_STRING_LIST|VAR_MORE
-//!  name: Neighborhood: Broadcast addresses
-//
-//! defvar: neigh_com
-//! A short string describing this server.
-//!  type: TYPE_TEXT|VAR_MORE
-//!  name: Neighborhood: Server informational comment
-//
 //! defvar: abs_engage
 //! If set, it will enable the anti-block-system. This will restart the server after a configurable number of minutes if it locks up. If you are running in a single threaded environment heavy calculations will also halt the server. In multi-threaded mode bugs as eternal loops will not cause the server to reboot, since only one thread is blocked. In general there is no harm in having this option enabled. 
 //!  type: TYPE_FLAG|VAR_MORE
