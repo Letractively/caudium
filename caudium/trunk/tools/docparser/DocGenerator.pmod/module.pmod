@@ -163,13 +163,13 @@ class DocGen
 			  int|void is_container)
   {
     string   ret = "";
-    
+
     if (tag->first_line && tag->first_line != "") {
       if(is_container)
-	ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;"
+	ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;"
 	  "&lt;/" + tag->first_line + "&gt;\">\n";
       else
-	ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;\">\n";
+	ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;\">\n";
     } else
       ret += "<tag synopsis=\"" + ob_unnamed(tag) + "\">\n";
     
@@ -209,7 +209,16 @@ class DocGen
 	  ret += "\t<note>\n" + n + "\n\t</note>\n";
       ret += "</notes>\n";
     }
-    
+
+    /* See Also */
+    if (tag->seealso && sizeof(tag->seealso)) {
+      ret  += "<see>\n";
+      foreach(tag->seealso, string n)
+	if (n != "")
+	  ret += "\t<link>\n" + n + "\n\t</link>\n";
+      ret += "</see>\n";
+    }
+
     ret += "</tag>\n\n";
         
     return ret;
