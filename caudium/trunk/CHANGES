@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Fully implement Cache disk indexing.  This _really_ speeds up load times.
+  but please remove your cache directory.
+   (James Tyson)
 - Add support for creating Storage.pmod tables on Postgres too.
    (Jeff Utter, James Tyson)
 - Remove all thread locking from Cache.pmod/* and Storage.pmod/* since pike's

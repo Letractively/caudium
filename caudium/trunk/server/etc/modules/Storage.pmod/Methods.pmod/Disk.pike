@@ -216,21 +216,37 @@ int size(string namespace) {
 
 //!
 array list(string namespace) {
-  if (idx[namespace] && sizeof(idx[namespace]))
+  if (idx[namespace] && mappingp(idx[namespace])) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: listing using index.\n");
+#endif
     return indices(idx[namespace]);
+  }
+#ifdef STORAGE_DEBUG
+  write("STORAGE: list(%O) called without index - generating.\n", namespace);
+#endif
   array ret = ({});
   array dir = get_dir(path)||({});
+  dir -= ({ "storage_index" });
   foreach(dir, string fname) {
     string objpath = Stdio.append_path(path, fname);
+#ifdef STORAGE_DEBUG
+    write("STORAGE OBJECT PATH: %O\n", objpath);
+#endif
     string s = Stdio.read_file(objpath);
     mapping obj = decode(s);
-    if (mappingp(obj))
-      if (obj->namespace == namespace) {
-        string key = decode(Stdio.read_file(objpath))->key;
+    if (mappingp(obj)) {
+      string key = decode(Stdio.read_file(objpath))->key;
+      if (obj->namespace == namespace)
         ret += ({ key });
-	idx_path(namespace, key, objpath);
-      }
+      idx_path(obj->namespace, key, objpath);
+    }
   }
+  if (!sizeof(ret))
+    idx[namespace]=([]);
+#ifdef STORAGE_DEBUG
+  write("STORAGE: index = %O\n", idx);
+#endif
   return ret;
 }
 
@@ -255,11 +271,14 @@ static void unsending(object o) {
 
 //!
 string idx_path(string namespace, string key, void|string _path) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE INDEX: path %O %O %O\n", namespace, key, _path);
+#endif
   if (!idx[namespace]) {
     idx[namespace] = ([]);
   }
   if (stringp(_path)) {
-    idx[namespace] += ([ key : _path ]);
+    idx[namespace][key] = _path;
     return _path;
   }
   else {
@@ -268,7 +287,7 @@ string idx_path(string namespace, string key, void|string _path) {
     }
     else {
       _path = Stdio.append_path(path, hash_path(namespace, key));
-      idx[namespace] += ([ key : _path ]);
+      idx[namespace][key] = _path;
       return _path;
     }
   }
@@ -276,6 +295,9 @@ string idx_path(string namespace, string key, void|string _path) {
 
 //!
 void idx_sync(void|int stop) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Syncing index to disk.\n");
+#endif
   string ipath = Stdio.append_path(path, "storage_index"); 
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
   data = MIME.encode_base64(data, 1);
@@ -289,40 +311,59 @@ void idx_sync(void|int stop) {
 
 
 //!
-mapping idx_get() {
+void|mapping idx_get() {
 #ifdef STORAGE_DEBUG
-  float t = gauge{ _idx_get(); };
+  mapping i;
+  float t = gauge{ i = _idx_get(); };
   write("STORAGE: index load took %f second\n", t);
+  write("STORAGE: result = %O\n", i);
+  return i;
 }
 
 //!
-mapping _idx_get() {
+void|mapping _idx_get() {
 #endif
   string ipath = Stdio.append_path(path, "storage_index");
-  if (!Stdio.exist(ipath))
+  if (!Stdio.exist(ipath)) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: Unable to load index - file %O doesn't exist\n", ipath);
+#endif
     return 0;
+  }
   string s;
 
   catch(s = Stdio.read_file(ipath));
 
-  if (!stringp(s))
+  if (!stringp(s)) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: Unable to load index - no contents");
+#endif
     return 0;
+  }
 
-  mapping p;
-  catch(p = decode(s));
+  mixed p;
+  if (mixed err = catch(p = decode(s))) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: Unable to load index - exception during decode.\n");
+    throw(err);
+#endif
     return 0;
+  }
 
   if (!mappingp(p))
     return 0;
 
 #ifdef STORAGE_DEBUG
-  write("loading index file %O: %O\n", ipath, p->data);
+  write("loading index file %O: %O\n", ipath, p);
 #endif
-  return p->data;
+  return p;
 }
 
 //!
 void idx_rm(string namespace, void|string key) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE INDEX: rm %O %O\n", namespace, key);
+#endif
   if (!key) {
     if (idx[namespace])
       m_delete(idx, namespace);
