@@ -728,7 +728,7 @@ int init_log_file(int|void force_open)
       do {
 	object lf=open( logfile, "wac");
 	if(!lf) {
-	  mkdirhier(logfile);
+	  Stdio.mkdirhier(logfile);
 	  if(!(lf=open( logfile, "wac"))) {
 	    report_error("Failed to open logfile. ("+logfile+")\n" +
 			 "No logging will take place!\n");

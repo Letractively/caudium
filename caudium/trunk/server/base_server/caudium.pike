@@ -2119,7 +2119,7 @@ class ImageCache
         d+="/";
     d += id+"/";
 
-    mkdirhier( d+"foo");
+    Stdio.mkdirhier( d+"foo");
 
     dir = d;
     name = id;
@@ -2178,7 +2178,7 @@ class ArgCache
       if(path[-1] != '/' && path[-1] != '\\')
         path += "/";
       path += replace(name, "/", "_")+"/";
-      mkdirhier( path + "/tmp" );
+      Stdio.mkdirhier( path + "/tmp" );
       object test = Stdio.File();
       if (!test->open (path + "/.testfile", "wc"))
 	error ("Can't create files in the argument cache directory " + path + "\n");
@@ -3562,7 +3562,7 @@ string check_variable(string name, mixed value)
       node = (configuration_interface()->root->descend("Globals", 1)->
 	      descend("Proxy disk cache: Base Cache Dir", 1));
       if(node && !node->changed) node->change(1);
-      mkdirhier(value+"caudium_cache/foo");
+      Stdio.mkdirhier(value+"caudium_cache/foo");
       call_out(set, 0, "cachedir", value+"caudium_cache/");
     }
     break;

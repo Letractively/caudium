@@ -638,8 +638,8 @@ class db
     if(search(mode,"s")+1) sov=1;
     if(search(mode,"c")+1) if(!file_stat(d))
     {
-      mkdirhier(d+"/foo");
-      mkdirhier(d+"/Buckets/foo");
+      Stdio.mkdirhier(d+"/foo");
+      Stdio.mkdirhier(d+"/Buckets/foo");
     }
     dir = replace(d+"/","//","/");
     logfile = 0;

@@ -529,7 +529,7 @@ mixed find_file( string f, object id )
     if(QUERY(keep_old_perms))
       st = file_stat(f);
     rm( f );
-    mkdirhier( f );
+    Stdio.mkdirhier( f );
     
     object to = open(f, "wct");
     
@@ -602,7 +602,7 @@ mixed find_file( string f, object id )
 
     TRACE_ENTER("APPE: Accepted", 0);
 
-    mkdirhier( f );
+    Stdio.mkdirhier( f );
 
     to = open(f, "arw");
     

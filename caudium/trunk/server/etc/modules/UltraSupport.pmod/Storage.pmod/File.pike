@@ -77,7 +77,7 @@ void create(string _path)
 {
   path = _path; 
   if(!strlen(path) || path[-1] != '/')  path+= "/";
-  Util.mkdirhier(path);
+  Stdio.mkdirhier(path);
   get_available_dates();
 }
 
@@ -179,7 +179,7 @@ void save(string table, mixed data)
 
 void sync() {
   if(savetmp) {
-    Util.mkdirhier(savedir);
+    Stdio.mkdirhier(savedir);
     rm(savedir+key);
     Stdio.write_file(savedir+key, Util.compress(encode_value(savetmp)));
     savetmp = 0;

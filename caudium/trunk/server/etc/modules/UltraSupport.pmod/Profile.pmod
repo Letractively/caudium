@@ -114,7 +114,7 @@ class profile {
     
   }
   void save() {
-    Util.mkdirhier(savedir);
+    Stdio.mkdirhier(savedir);
     mv(savedir +"saved_pos", savedir +"saved_pos.old");
     Stdio.write_file(savedir +"saved_pos", encode_value(pos));
     method->sync();

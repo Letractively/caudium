@@ -44,7 +44,7 @@ void create(string _path)
 {
   path = _path;
   if(!strlen(path) || path[-1] != '/')  path+= "/";
-  Util.mkdirhier(path);
+  Stdio.mkdirhier(path);
   get_available_dates();
 }
 

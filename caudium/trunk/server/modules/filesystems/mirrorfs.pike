@@ -183,7 +183,7 @@ void get_remote_dir(string dir)
   array d ;
   if(rpc() && (d=rpc()->get_dir(dir)))
   {
-    mkdirhier(l+".dirents");
+    Stdio.mkdirhier(l+".dirents");
     rm(l+".dirents");
     Stdio.write_file(l+".dirents", encode_value(({ path, d })));
   }
@@ -200,7 +200,7 @@ void get_remote_file(string f)
     string s = rpc()->get_file(f);
     if(s)
     {
-      mkdirhier(l); rm(l);
+      Stdio.mkdirhier(l); rm(l);
       Stdio.write_file(l, s);
     }
   };
@@ -291,7 +291,7 @@ object(RemoteFile) open_remote_file(string f)
   object o = rpc()->open_file( f );
   if(o)
   {
-    mkdirhier(l); rm(l);
+    Stdio.mkdirhier(l); rm(l);
     object out = open(l, "wct");
     return RemoteFile( o, out );
   }

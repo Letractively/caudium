@@ -883,7 +883,7 @@ int main(mixed ... args)
   add_constant("report_fatal", report_fatal);
   add_constant("init_logger", init_logger);
   add_constant("open", open);
-  add_constant("mkdirhier", mkdirhier);
+  add_constant("mkdirhier", Stdio.mkdirhier);
 #if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
   add_constant("http_decode_string", _Roxen.http_decode_string);
 #endif
