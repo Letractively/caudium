@@ -41,7 +41,7 @@
 //! @seealso
 //!   @[Caudium.cern_http_date]
 string cern_date(int|void t) {
-   return Caudium.cern_http_date(t);
+  return Caudium.cern_http_date(t);
 }
 
 //!  Return the specified date (as returned by time()) formated in the

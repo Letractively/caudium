@@ -343,7 +343,7 @@ static void do_log(mapping file, object request_id, function log_function)
 	       }), ({
 		 (string)request_id->remoteaddr,
 		 host_ip_to_int(request_id->remoteaddr),
-		 Caudium.HTTP.cern_date(),
+		 Caudium.HTTP.cern_date(request_id->time),
 		 unsigned_to_bin(time(1)),
 		 (string)request_id->method,
 		 Caudium.http_encode_string(request_id->not_query+
