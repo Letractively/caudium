@@ -55,7 +55,7 @@ while [ "$1" ]; do
 			FreeType=1
 			;;
 		\"FreeType2\")
-			echo "LIB_DEPENDS+=	freetype.7:\${PORTSDIR}/print/freetype2" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+			echo "LIB_DEPENDS+=	freetype.8:\${PORTSDIR}/print/freetype2" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			echo "CONFIGURE_ARGS+=	--with-freetype" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			FreeType2=1
 			;;
@@ -118,7 +118,7 @@ while [ "$1" ]; do
 			mird=1
 			;;
 		\"PDF\")
-			echo "LIB_DEPENDS+=		pdf.3:\${PORTSDIR}/print/pdflib3" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
+			echo "LIB_DEPENDS+=		pdf.4:\${PORTSDIR}/print/pdflib" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			echo "CONFIGURE_ARGS+= --with-libpdf" >> ${WRKDIRPREFIX}${CURDIR}/Makefile.inc
 			pdf=1
 			;;
