@@ -455,6 +455,7 @@ static INLINE int read_data(void)
     return -2; /* invalid input for read_data */
   if(inp->fd != -1) {
     char * ptr;
+    DERR(fprintf(stderr, "Reading from real fd.\n"));
 	
     if(inp->len != -1) 
       to_read = MIN(buf_size, inp->len - inp->pos);
@@ -470,9 +471,11 @@ static INLINE int read_data(void)
     THREADS_DISALLOW();
     DERR(fprintf(stderr, "read %ld from file\n", (long)to_read));
   } else {
+    DERR(fprintf(stderr, "Reading from fake fd.\n"));
     if(inp->len != -1 && inp->pos >= inp->len) {
       /* We are done reading from this one */
       free_input(inp);
+      DERR(fprintf(stderr, "Data done from fake fd.\n"));
       goto redo; /* goto == ugly, but we want to read the next input
 		  * if any
 		  */
@@ -483,13 +486,18 @@ static INLINE int read_data(void)
     push_int(1);
     apply_low(inp->u.file, inp->read_off, 2);
     if(Pike_sp[-1].type == T_STRING) {
-      new_input(Pike_sp[-1], 0, 1);
-      to_read = THIS->inputs->len;
-      DERR(fprintf(stderr, "read %ld bytes from fake file\n",
-		   (long)to_read));
-      pop_stack();
-      inp->pos += to_read;
-      return -3; /* Got a string buffer appended to the input list */
+      if(Pike_sp[-1].u.string->len == 0) {
+	DERR(fprintf(stderr, "Read zero bytes from fake fd (EOF).\n"));
+	to_read = 0;
+      } else {
+	new_input(Pike_sp[-1], 0, 1);
+	to_read = THIS->inputs->len;
+	inp->pos += to_read;
+ 	DERR(fprintf(stderr, "read %ld bytes from fake file\n",
+		     (long)to_read));
+	pop_stack();
+	return -3; /* Got a string buffer appended to the input list */
+      }
     } else if(Pike_sp[-1].type == T_INT && Pike_sp[-1].u.integer == 0) {
       to_read = 0;
     } else {
@@ -500,6 +508,7 @@ static INLINE int read_data(void)
   switch(to_read) {
    case 0: /* EOF */
     free_input(inp);
+    DERR(fprintf(stderr, "read zero blocking bytes == EOF\n"));
     break;
 
    case -1:
@@ -685,7 +694,6 @@ static void f__output_write_cb(INT32 args)
     
    case NBIO_BLOCK_OBJ: {
      int read;
-     DERR(fprintf(stderr, "blocking object data\n"));
      read = read_data(); /* At this point we have no data, so read some */
      switch(read) {
       case  -1:
