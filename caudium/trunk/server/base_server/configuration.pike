@@ -213,7 +213,7 @@ class Priority
   array (object) last_modules = ({ });
   array (object) first_modules = ({ });
   array (object) precache_modules = ({ });
-  array (object) error_module = ({ }); 
+  array (object) error_modules = ({ }); 
   
   mapping (string:array(object)) extension_modules = ([ ]);
   mapping (string:array(object)) file_extension_modules = ([ ]);
@@ -3335,6 +3335,10 @@ int disable_module( string modname )
   if( module->type & MODULE_LOGGER )
     for(pr=0; pr<10; pr++)
       pri[pr]->logger_modules -= ({ me });
+
+  if( module->type & MODULE_ERROR )
+    for(pr=0; pr<10; pr++)
+      pri[pr]->error_modules -= ({ me });
 
   enabled_modules=retrieve("EnabledModules", this);
 

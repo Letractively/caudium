@@ -875,6 +875,9 @@ int main(int argc, array(string) argv)
 #if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
   add_constant("http_decode_string", _Roxen.http_decode_string);
 #endif
+#if !constant(html_encode_string) && constant(_Roxen.html_encode_string)
+  add_constant("html_encode_string", _Roxen.html_encode_string);
+#endif
 
   add_constant("mark_fd", mark_fd);
 
