@@ -38,6 +38,7 @@ configure-stamp:
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    if test ! -f stamp-patch; then \
 		patch -p1 < debian/patches/caudium-cvs-rpath.diff; \
+		patch -p1 < debian/patches/smartlink.diff; \
 		touch stamp-patch; \
 	    fi; \
     	    ./autogen.sh; \
