@@ -31,8 +31,5 @@ constant h2c =
 
 string trim(string s)
 {
-  sscanf(s, "%*[\t ]%s", s);
-  s = reverse(s);
-  sscanf(s, "%*[\t ]%s", s);
-  return replace(reverse(s), indices(h2c), values(h2c));
+  return replace(String.trim_whites(s), indices(h2c), values(h2c));
 }

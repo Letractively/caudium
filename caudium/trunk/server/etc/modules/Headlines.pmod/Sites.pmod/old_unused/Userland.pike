@@ -19,14 +19,6 @@ constant sub = "Computing/General";
 
 array headlines;
 
-static private string trim(string s)
-{
-  sscanf(s, "%*[\t ]%s", s);
-  s = reverse(s);
-  sscanf(s, "%*[\t ]%s", s);
-  return reverse(s);
-}
-
 static private string parse_it(string tag, mapping args, string|int contents,
 			       mapping hl)
 {
@@ -51,7 +43,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
     tag = "title";
     
   default:
-    hl[tag] = trim(contents);
+    hl[tag] = String.trim_whites( contents );
     break;
   }
   return "";
