@@ -37,6 +37,7 @@ import Sql;
 
 mapping (string:mapping (string:mixed)) _variables;
 object myconf;
+int foundcookieandprestate = 0;
 
 int storage_is_not_sql() {
  return (query("storage") != "sql");
@@ -66,11 +67,6 @@ void create() {
          " of them have their pros and cons regarding speed and"
          " persistance.",
          ({"memory", "sql"}));
-  defvar("identify", "cookie",
-         "Identifying Method", TYPE_MULTIPLE_STRING,
-         "The method to be used for branding a webbrowser with a"
-         " unique Session Identifier. Available are Cookies and Prestates.",
-         ({"cookie", "prestate"}));
   defvar("sql_url", "",
          "Database URL", TYPE_STRING,
          "Which database to use for the session and user variables, use"
@@ -88,6 +84,10 @@ mixed register_module() {
     "<br>"
     "Read the module code for instructions.",
     ({}), 1, });
+}
+
+string query_provides() {
+  return("123sessions");
 }
 
 int session_size_memory() {
@@ -268,6 +268,13 @@ mixed sessionid_set_prestate(object id, string SessionID) {
   return(http_redirect(url, id));
 }
 
+// Code by Allen
+mixed sessionid_remove_prestate(object id) {   
+  string url=strip_prestate(strip_config(id->raw_url));
+  id->prestate = (<>);                                   
+  return(http_redirect(id->not_query));             
+}
+
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
   id->cookies->SessionID = SessionID;
@@ -280,15 +287,23 @@ void sessionid_set_cookie(object id, string SessionID) {
 
 string sessionid_get(object id) {
   string SessionID;
+  int foundcookie=0;
+  int foundprestate=0;
 
   if (id->cookies->SessionID) {
     SessionID = id->cookies->SessionID;
+    foundcookie=1;
   }
   
   foreach (indices(id->prestate), string prestate) {
     if (prestate[..8] == "SessionID" ) {
       SessionID = prestate[10..];
+      foundprestate=1;
     }
+  }
+
+  if ((foundcookie == 1) && (foundprestate == 1)) {
+    foundcookieandprestate = 1;
   }
 
   return(SessionID);
@@ -311,14 +326,13 @@ mixed first_try(object id) {
 
   if (!SessionID) {
     SessionID = sessionid_create();
-    switch(query("identify")) {
-      case "cookie":
-        sessionid_set_cookie(id, SessionID);
-        break;
-      case "prestate":
-        return (sessionid_set_prestate(id, SessionID));
-        break;
-    }
+    sessionid_set_cookie(id, SessionID);
+    return (sessionid_set_prestate(id, SessionID));
+  }
+
+  if (foundcookieandprestate == 1) {
+    foundcookieandprestate = 0;
+    return (sessionid_remove_prestate(id));
   }
 
   id->misc->session_variables = variables_retrieve("session", SessionID);
