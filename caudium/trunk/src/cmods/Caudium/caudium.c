@@ -720,52 +720,14 @@ static void internal_add_limit( struct perishables *storage,
 {
   struct rlimit ol;
   struct plimit *l = NULL;
-#ifndef RLIM_SAVED_MAX
-  getrlimit( limit_resource, &ol );
-#else
-  ol.rlim_max = RLIM_SAVED_MAX;
-  ol.rlim_cur = RLIM_SAVED_CUR;
-#endif
 
   if(limit_value->type == T_INT)
   {
     l = malloc(sizeof( struct plimit ));
-    l->rlp.rlim_max = ol.rlim_max;
+    l->rlp.rlim_max = limit_value->u.integer;
     l->rlp.rlim_cur = limit_value->u.integer;
-  } else if(limit_value->type == T_MAPPING) {
-    struct svalue *tmp3;
-    l = malloc(sizeof( struct plimit ));
-    if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "soft"))) {
-      if(tmp3->type == T_INT)
-        l->rlp.rlim_cur=
-          tmp3->u.integer >= 0 ? (unsigned INT32)tmp3->u.integer : ol.rlim_cur;
-      else
-        l->rlp.rlim_cur = RLIM_INFINITY;
-    } else
-      l->rlp.rlim_cur = ol.rlim_cur;
-    if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "hard"))) {
-      if(tmp3->type == T_INT)
-        l->rlp.rlim_max =
-          tmp3->u.integer >= 0 ? (unsigned INT32)tmp3->u.integer:ol.rlim_max;
-      else
-        l->rlp.rlim_max = RLIM_INFINITY;
-    } else
-      l->rlp.rlim_max = ol.rlim_max;
-  } else if(limit_value->type == T_ARRAY && limit_value->u.array->size == 2) {
-    l = malloc(sizeof( struct plimit ));
-    if(limit_value->u.array->item[0].type == T_INT)
-      l->rlp.rlim_max = limit_value->u.array->item[0].u.integer;
-    else
-      l->rlp.rlim_max = ol.rlim_max;
-    if(limit_value->u.array->item[1].type == T_INT)
-      l->rlp.rlim_cur = limit_value->u.array->item[1].u.integer;
-    else
-      l->rlp.rlim_max = ol.rlim_cur;
-  } else if(limit_value->type == T_STRING) {
-    l = malloc(sizeof(struct plimit));
-    l->rlp.rlim_max = RLIM_INFINITY;
-    l->rlp.rlim_cur = RLIM_INFINITY;
   }
+ 
   if(l)
   {
     l->resource = limit_resource;
