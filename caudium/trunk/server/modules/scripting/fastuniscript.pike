@@ -19,15 +19,13 @@
  *
  */
 
-#define CGI_DEBUG 1
-
 #include <module.h>
 inherit "modules/scripting/fastcgi.pike": fastcgi;
 
-//! module: Universal script parser
+//! module: Universal script parser (FastCGI)
 //!  This module provides extensions handling by misc script interpreters. 
 //!  Scripts can be run as choosen user, or by owner. Module is based on
-//!  CGI module.
+//!  the FastCGI module.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
