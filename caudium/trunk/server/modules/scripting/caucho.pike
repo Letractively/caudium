@@ -220,7 +220,7 @@ class CseStream
        srun->write_string(CSE_URI, id->not_query + ";" +id->misc->jspquery);
     else srun->write_string(CSE_URI, id->not_query);
     if (id->query) srun->write_string(CSE_QUERY_STRING, id->query);
-    srun->write_string(CSE_SERVER_NAME, (string)id->conf->name);
+    srun->write_string(CSE_SERVER_NAME, (string)id->site_id);
     srun->write_string(CSE_SERVER_PORT, (string)id->conf->port || "unk");
     srun->write_string(CSE_REMOTE_ADDR, (string)id->remoteaddr || "unk");
     srun->write_string(CSE_REMOTE_PORT, (string)id->clientprot || "unk");
