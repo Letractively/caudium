@@ -315,7 +315,7 @@ tar_dist:
 	tar cf $$version.tar $$version; \
 	echo -n "tar.gz..."; \
 	gzip -9 < $$version.tar >$$version.tar.gz; \
-	echo -b "tar.bz2..."; \
+	echo -n "tar.bz2..."; \
 	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
 	echo "done."; \
 	rm $$version.tar
