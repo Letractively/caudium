@@ -1,5 +1,9 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- id->rest_query now set. SF Bug # 927519
+   (Marek Habersack)
+- HTTP/1.1 absolute URIs are correctly ignored now. SF Bug # 613187
+   (Marek Habersack)
 - Changed rxmltags.pike to automatically parse !DOCTYPE and ?xml and set
   id->misc->is_xml.  Changed several tag modules to use xml compliant
   Caudium.make_tag where appropriate.  SF Bug # 1015082.
