@@ -407,11 +407,11 @@ static int _match(string w, array (string) a)
 }
 
 //!  This function performs a check to see if the specified time
-//!  is newer or older than the Is-Modified-Since header sent in the request.
+//!  is newer or older than the If-Modified-Since header sent in the request.
 //!  It also checks whether the size of the file has changed since the
 //!  browser first requested it.
 //! @param a
-//!  The value of the Is-Modified-Since header .
+//!  The value of the If-Modified-Since header .
 //! @param t
 //!  The modification time of the file.
 //! @param len
@@ -422,7 +422,7 @@ static int _match(string w, array (string) a)
 //!  It's somewhat confusing that it returns 1 for "not modified" and
 //!  0 for modified. Should be the other way around.
 //! @bugs
-//!  There has previously been bugs with this function. Is it fixed?
+//!  There have previously been bugs with this function. Is it fixed?
 static int is_modified(string a, int t, void|int len)
 {
   mapping t1;
@@ -439,12 +439,17 @@ static int is_modified(string a, int t, void|int len)
     return 1;
   t1=gmtime(t);
   // Expects 't' as returned from time(), not UTC.
-  sscanf(lower_case(a), "%*s, %s; %s", a, extra);
-  if (extra && sscanf(extra, "length=%d", length) && len && length != len)
-    return 0;
+  if (len) {
+    sscanf(lower_case(a), "%*s, %s; %s", a, extra);
+    if (extra && sscanf(extra, "length=%d", length) && length != len)
+      return 0;
+  }
 
   // Replace all this bloody things with:
   // Calendar.dwim_time(a)->set_timezone("localtime")->unix_time();
+  //
+  // Nope. We'll have a date parser soon. In C. Fast.
+  // /grendel
 
   if (search(a, "-") != -1) {
     sscanf(a, "%d-%s-%d %d:%d:%d", day, m, year, hour, minute, second);
