@@ -1,7 +1,7 @@
 Changes in Caudium 1.2.3x since 1.2.32
 --------------------------------------
-- Floats can now be used in sexpr_eval()
-   (Bertrand Lupart / Jan-Felix Wittman)
+- Floats are now handled by sexpr_eval()
+   (Bertrand Lupart, Jan-Felix Wittman)
 - Fixed a bug in store() in Gsesion module (wrong arguments given to the
   storage specific store function)
    (David Gourdelier)
