@@ -51,8 +51,8 @@ constant module_unique = 1;
 void create() {
 
   defvar("virtonly", 1, "Support only virtual acccess", TYPE_FLAG,
-         "If set, Caudium will accept only \"virtual\" method to #include, "
-         "#flastmod and to #fsize SSI extensions. Warning allow this can "
+         "If set, Caudium will accept only \"virtual\" method to #include "
+         "SSI extensions. Warning allow this can "
          "have some big security problems for public websites.");
 
   defvar("exec", 0, "SSI execute command", 
@@ -265,11 +265,11 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
     }
     m->file = id->conf->real_file(m->virtual, id);
     m_delete(m, "virtual");
-  } else if (m->file && sizeof(m->file) && (m->file[0] != '/') && !QUERY(virtonly)) {
+  } else if (m->file && sizeof(m->file) && (m->file[0] != '/')) {
     // Fix relative path
     m->file = combine_path(id->conf->real_file(id->not_query, id) || "/", "../" + m->file);
   }
-  if(m->file && !QUERY(virtonly)) {
+  if(m->file) {
     array s;
     s = file_stat(m->file);
     CACHE(5);
