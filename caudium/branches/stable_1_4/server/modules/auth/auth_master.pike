@@ -38,7 +38,7 @@ constant cvs_version = "$Id$";
 inherit "module";
 inherit "caudiumlib";
 
-#define DEBUG 1
+//#define DEBUG 1
 
 #ifdef DEBUG
 #define ERROR(X) report_debug("AuthMaster: " + X + "\n");
