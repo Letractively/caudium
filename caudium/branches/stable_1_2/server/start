@@ -115,6 +115,13 @@ parse_args() {
      precmd="ltrace -f "
      once=1
   ;;
+  # darwin
+  --ktrace)
+    precmd="ktrace -d "
+    once=1;
+    echo "Tracing in the file ktrace.out"
+    echo "The trace file is not human readable; use kdump(1) to decode it."
+  ;;
   --log-dir=*)
    LOGDIR=`echo $1 | sed -e 's/--log-dir=//'`
   ;;
@@ -252,7 +259,7 @@ the default arguments.
 	
       .B--with-fd-debugB.:            Enable FD debug.
 
-      .B--truss,--strace,--ltraceB.: Run the server under the selected tracer
+      .B--truss,--strace,--ltrace,--ktraceB.: Run the server under the selected tracer
                    		  program. This is extremely noisy, and is not
 				  intented for anything but debugging purposes.
 
