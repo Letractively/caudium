@@ -116,6 +116,16 @@ void create()
 
 // SEARCH TEMPLATE DEFINITIONS
 
+        defvar ("CI_uidsearch_templ","(&(objectclass=person)(uidnumber=%U%))","Search: User ID search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for users by their numeric userid"
+		   "<b>%U%</b> : Will be replaced by entered numeric userid." );
+
+        defvar ("CI_gidsearch_templ","(&(objectclass=posixgroup)(gidnumber=%G%))","Search: Group ID search template",
+                   TYPE_STRING, "Template used by LDAP search operation "
+                   "as filter for searching for groups by their numeric groupid"
+		   "<b>%G%</b> : Will be replaced by entered numeric groupid." );
+
         defvar ("CI_search_templ","(&(objectclass=person)(uid=%u%))","Search: User Search template",
                    TYPE_STRING, "Template used by LDAP search operation "
                    "as filter for searching for users"
@@ -356,6 +366,18 @@ mapping|int get_user_info(string user) {
     dirinfo->_source=QUERY(_name);
 
     return dirinfo;
+}
+
+string|int get_username(string uid)
+{
+  DEBUGLOG ("get_username ("+uid+")\n");
+  return 0;
+}
+
+string|int get_groupname(string gid)
+{
+  DEBUGLOG ("get_groupname ("+gid+")\n");
+  return 0;
 }
 
 mapping|int get_group_info(string group) {
