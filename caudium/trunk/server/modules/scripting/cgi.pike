@@ -556,7 +556,7 @@ class CGIScript
   int blocking;
 
   string priority;   // generic priority
-  object pid;       // the process id of the CGI script
+  object|int pid;       // the process id of the CGI script
   string tosend;   // data from the client to the script.
   Stdio.File ffd; // pipe from the client to the script
   object mid;
@@ -716,6 +716,9 @@ class CGIScript
       options->rlimit = limits;
 
     if(!(pid = Caudium.create_process( ({ command }) + arguments, options ))) {
+      error("Failed to create CGI process.\n");
+    }
+    if(!objectp(pid)) {
       error("Failed to create CGI process.\n");
     }
     if(QUERY(kill_call_out))
