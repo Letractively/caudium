@@ -322,7 +322,7 @@ mixed find_file(string f, object id)
                           id->variables->cursectionnum == "0" ? "" : id->variables->cursectionnum + ". ",
                           id->variables->cursectiontitle);
   
-  return http_htmldoc_answer(lparsed, stitle, meta, css_uri);
+  return Caudium.HTTP.htmldoc_answer(lparsed, stitle, meta, css_uri);
 }
 
 // This is our default CSS

@@ -53,114 +53,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//!   Make a nice HTML doc
-//! @param contents
-//!   Contents of document
-//! @param title
-//!   The title of document
-//! @param meta
-//!   Optional mapping with meta names to add into document
-//! @param style
-//!   Optional style of document. (to be documented)
-//! @param dtype
-//!   Optional dtype (to be documented)
-//! @returns
-//!   A well nice HTML docuement
-//! @note
-//!   Non RIS Code
-string make_htmldoc_string(string contents, string title,void|mapping meta,
-                           void|mapping|string style, string|void dtype)
-{
-    string doctype, smetas = "", sstyle = "";
-    
-    if (dtype && Caudium.Const.doctypes[dtype])
-        doctype = Caudium.Const.doctypes[dtype];
-    else
-        doctype = Caudium.Const.doctypes->transitional;
-
-    //
-    // construct the meta tags
-    //
-    if (meta && sizeof(meta)) {
-        foreach(indices(meta), string idx) {
-            array(string) attrs = ({});
-            mapping m = meta[idx];
-
-            if (m->name && m->http_equiv)
-                m_delete(m, "name");
-            
-            foreach(indices(m), string i)
-                attrs += ({ i + "=\"" + m[i] + "\""});
-
-            smetas += sprintf("<meta %s>", attrs * " ");
-        }
-    }
-
-    //
-    // Construct the style definition
-    //
-    if (style && sizeof(style)) {
-      if (mappingp(style)) {
-        array(string) styles = ({});
-	
-        foreach(indices(style), string idx)
-          styles += ({ idx + "{" + style[idx] + "}\n" });
-
-        sstyle = sprintf("<style type=\"text/css\">%s</style>",
-                         styles * " ");
-      } else if (stringp(style)) {
-        sstyle = sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\">",
-                         style);
-      } else
-        sstyle = "";
-    }
-
-    return sprintf(Caudium.Const.docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
-}
-
-//!   Return a response mapping with the 'contents' wrapped up to form a
-//!   valid HTML document. The document is always of the 'text/html' type
-//!   and you can modify its look (using CSS) and add any meta tags you
-//!   find necessary. It is also specify one of the predefined document
-//!   types. The generated document is always identified as one following
-//!   the HTML 4.01 standard.
-//!
-//! @param contents
-//!   The document body.
-//!
-//! @param title
-//!   The document tile.
-//!
-//! @param meta
-//!   A mapping of meta entries. Each index in the mapping is also a
-//!   mapping and describes a single &lt;meta&gt; tag. The indices in the
-//!   inner mapping are the attribute names and their value constitutes the
-//!   attribute value. If both 'name' and 'http_equiv' indices exist in the
-//!   inner mapping, 'http_equiv' is used (to generate the http-equiv) meta
-//!   attribute. It is your responsibility to specify attributes that are
-//!   valid for the meta tag.
-//!
-//! @param style
-//!   Modifies the document style. Contents of this mapping is coverted to
-//!   the style container put in the document head section. Every index in
-//!   the mapping is considered to be the classifier and its value the
-//!   style assigned to the given classifier. The style is put between
-//!   curly braces. If this parameter is a string, then instead of
-//!   generating the inline style, this function will create a link to the
-//!   URI specified in this parameter.
-//!
-//! @param dtype
-//!   Specifies the name of the document type definition. The following
-//!   names are known: 'transitional' (the default), 'strict', 'frameset'.
-//!
-//! @returns
-//!   The HTTP response mapping.
-mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
-                            void|mapping|string style, string|void dtype)
-{
-    return Caudium.HTTP.string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
-}
-
 //!   Return a response mapping with the specified file descriptior using the
 //!   specified content type and length.
 //! @param fd
@@ -299,7 +191,7 @@ mapping http_auth_required(string realm, string|void message, void|int dohtml)
     message = "<h1>Authentication failed.\n</h1>";
 
   if (dohtml)
-      message = make_htmldoc_string(message, "Caudium: Authentication failed");
+      message = Caudium.HTTP.make_htmldoc_string(message, "Caudium: Authentication failed");
   
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth required (%s)\n",realm);
