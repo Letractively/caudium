@@ -148,9 +148,6 @@ if test x$# != x0 ; then
      LDOPTS="$LDOPTS -R$RPATH"
    ;;
    Linux\ 2.*)
-     if test -n "$DEBIAN_GNU_LINUX"; then
-        RPATH=
-     fi
      if test x$LINKING != xno -a "x$RPATH" != x ; then
       for a in $RLIST; do 
        if test $LINKER_IS_LD = yes; then
