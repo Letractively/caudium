@@ -113,6 +113,9 @@ mapping portno = ([]);
 function build_root;
 object root;
 
+// The SMJS context for this thread
+Thread.Local js_context = Thread.Local();
+
 #ifdef THREADS
 // This mutex is used by privs.pike and set_u_and_gid().
 object euid_egid_lock = Thread.Mutex();
@@ -122,6 +125,17 @@ void stop_handler_threads(); // forward declaration
 
 int privs_level;
 int die_die_die;
+
+mapping(string:int) javascript_versions = ([
+#if constant(SpiderMonkey.Context)
+  "1.0" : SpiderMonkey.JSVERSION_1_0,
+  "1.1" : SpiderMonkey.JSVERSION_1_1,
+  "1.2" : SpiderMonkey.JSVERSION_1_2,
+  "1.3" : SpiderMonkey.JSVERSION_1_3,
+  "1.4" : SpiderMonkey.JSVERSION_1_4,
+  "1.5" : SpiderMonkey.JSVERSION_1_5
+#endif
+]);
 
 void stop_all_modules()
 {
@@ -142,11 +156,11 @@ private static void really_low_shutdown(int exit_code)
   stop_handler_threads();
 #endif /* THREADS */
 
-  object smc = Thread.Local()->get();
+  object smc = js_context->get();
 
   if (smc && objectp(smc)) {
     smc = 0;
-    Thread.Local()->set(0);
+    js_context->set(0);
   }
   
   // Don't use fork() with threaded servers.
@@ -277,7 +291,32 @@ mapping shutdown()
   return IFiles->get(sprintf("html://shutdown-%s.html",QUERY(cif_theme)), ([
                      "docurl":caudium->docurl,
 					 "PWD":getcwd()]));
-} 
+}
+
+static void create_js_context()
+{
+#if constant(SpiderMonkey.Context)
+  if (GLOBVAR(js_enable)) {
+    object  smc = SpiderMonkey.Context(javascript_versions[GLOBVAR(js_version)],
+                                       GLOBVAR(js_stacksize));
+    if (!smc) {
+      report_notice("JS: setting local to 0\n");
+      js_context->set(0);
+      return;
+    }
+
+    report_notice("JS: setting local to object\n");
+    js_context->set(smc);
+  } else {
+    report_notice("JavaScript support is disabled\n");
+    js_context->set(0);
+  }
+#else
+  report_notice("No SpiderMonkey found\n");
+  js_context->set(0);
+#endif
+}
+
 static int shutting_down;
 // This is called for each incoming connection.
 private static void accept_callback( object port )
@@ -379,24 +418,6 @@ static object (Thread.Queue) handle_queue = Thread.Queue();
 // Number of handler threads that are alive.
 static int thread_reap_cnt;
 
-static void create_js_context()
-{
-#if constant(SpiderMonkey.Context)
-  if (GLOBVAR(js_enable)) {
-    object  smc = SpiderMonkey.Context(GLOBVAR(js_version), GLOBVAR(js_stacksize));
-    if (!smc) {
-      Thread.Local()->set(0);
-      return;
-    }
-    
-    Thread.Local()->set(smc);
-  } else
-    Thread.Local()->set(0);
-#else
-  Thread.Local()->set(0);
-#endif
-}
-
 void handler_thread(int id)
 {
   array (mixed) h, q;
@@ -410,15 +431,15 @@ void handler_thread(int id)
           h[0](@h[1]);
           h=0;
         } else if(!h) {
-          object smc = Thread.Local()->get();
+          object smc = js_context->get();
 
           if (smc && objectp(smc)) {
-            Thread.Local()->set(0);
+            js_context->set(0);
             smc = 0;
           }
           
           // Caudium is shutting down.
-          werror("Handle thread ["+id+"] stopped\n");
+          werror("Handler thread ["+id+"] stopped\n");
           thread_reap_cnt--;
           return;
         }
@@ -2374,7 +2395,7 @@ private void define_global_variables( int argc, array (string) argv )
 
   globvar("js_version", "1.5", "JavaScript Support: JavaScript Version", TYPE_STRING_LIST,
           "Select the default JavaScript version to be supported by the JS runtime.",
-          ({"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}));
+          sort(indices(javascript_versions)));
 
   globvar("js_stacksize", 8192, "JavaScript Support: Context stack size", TYPE_INT,
           "The JavaScript engine allocates one context per each backend thread in "
@@ -3568,12 +3589,12 @@ int main(array(string) argv)
   start_handler_threads();
   catch( this_thread()->set_name("Backend") );
   backend_thread = this_thread();
-  create_js_context();
 #if constant(thread_set_concurrency)
   thread_set_concurrency(QUERY(numthreads)+1);
 #endif
 
 #endif /* THREADS */
+  create_js_context();
 
   // Signals which cause a restart (exitcode != 0)
   foreach( ({ "SIGINT" }), string sig) {
