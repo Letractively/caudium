@@ -1842,8 +1842,6 @@ class FTPSession
       break;
     case "E":
       // EBCDIC handling here.
-      //roxen_perror("FTP: EBCDIC not yet supported.\n");
-      //send(504, ({ "EBCDIC not supported." }));
       if (file->data) {
 	object conv = Locale.Charset.encoder("EBCDIC-US", "");
 	file->data = conv->feed(file->data)->drain();
@@ -2551,24 +2549,27 @@ class FTPSession
 	master_session->misc->home += "/";
       }
 
+      // NOTE: caudium->stat_file() might change master_session->auth.
+      array auth = master_session->auth;
+
       // Throw the user out if it doen't have valid homedir or try to
       // create homedirectory
       if (Query("ftpnohomedeny")||Query("ftphomedircreate"))
       {
-       if (file_stat(master_session->misc->home, 1) == 0)
+       string homedir = master_session->misc->home;
+       if (file_stat(homedir, 1) == 0)
        {
         int created = 0;
         if(Query("ftphomedircreate"))
         {
           object privs;
 	  array fullauth = conf->auth_module->userinfo(master_session->auth[1]);
-          fullauth[1]="CONSORED";	// in case of backtrace
 #if constant(geteuid)
           if(getuid() != geteuid()) privs=Privs("Creating homedirectory");
 #endif
           seteuid((int)fullauth[2]);
           setegid((int)fullauth[3]);
-          if(mkdirhier(master_session->misc->home, 0755))
+          if(mkdirhier(homedir))
             created = 1;
           if(objectp(privs))
             destruct(privs);
@@ -2578,7 +2579,7 @@ class FTPSession
 #endif
           // Forcing UID/GID to the correct value because setegid() seems to
           // to fail
-          if (created) chown(master_session->misc->home, (int)fullauth[2], (int)fullauth[3]);
+          if (created) chown(homedir, (int)fullauth[2], (int)fullauth[3]);
 	  if(objectp(privs))
             destruct(privs);
           privs = 0;
@@ -2587,9 +2588,26 @@ class FTPSession
 #if constant(geteuid)
             if(getuid() != geteuid()) privs=Privs("Creating user extra directories in homedir.");
 #endif
-            foreach(Query("ftphdirxtra")/",",string foo)
-             if (mkdir(master_session->misc->home + foo , 0755))
-               chown(master_session->misc->home+foo, (int)fullauth[2], (int)fullauth[3]);
+            foreach(Query("ftphdirxtra")/",",string foo) {
+             if (sizeof(foo / ":")==2) {
+               // the rights are given as arguments
+               int mkrights;
+               mixed err = catch { 
+                 sscanf((foo/":")[1],"%o",mkrights);
+               };
+               if (err) {
+                 // Seems that numbers are not octal or there's junk instead
+                 mkrights = 0755; // Fail back to default values
+               }
+               if (mkdir(homedir + (foo/":")[0])) {
+                 chmod(homedir + (foo/":")[0], mkrights);
+                 chown(homedir +(foo/":")[0], (int)fullauth[2], (int)fullauth[3]);
+                 }
+             }
+             else 
+               if (mkdir(homedir + foo))
+                 chown(homedir + foo, (int)fullauth[2], (int)fullauth[3]);
+            }
             if (objectp(privs))
                destruct(privs);
             privs = 0;
@@ -2607,8 +2625,7 @@ class FTPSession
        }
       }
 
-      // NOTE: caudium->stat_file() might change master_session->auth.
-      array auth = master_session->auth;
+      master_session->auth = auth;
 
       array(int) st = conf->stat_file(master_session->misc->home,
 				      master_session);
@@ -2908,8 +2925,6 @@ class FTPSession
       mode = "A";
       break;
     case "E":
-//      send(504, ({ "'TYPE': EBCDIC mode not supported." }));
-//      return;
       mode = "E";
       break;
     default:
@@ -2960,7 +2975,6 @@ class FTPSession
     }
   }
 
-#if 1
   void ftp_APPE(string args)
   {
     if (!expect_argument("APPE", args)) {
@@ -2971,8 +2985,6 @@ class FTPSession
 
     connect_and_receive(args,"APPE");
   }
-#endif
-
 
   void ftp_STOR(string args)
   {
@@ -2982,7 +2994,6 @@ class FTPSession
 
     args = fix_path(args);
 
-#if 1
     if(restart_point)
     {
       
@@ -3003,7 +3014,6 @@ class FTPSession
       restart_point=0;
       send(550, ({"Resume failed."}) );
     }
-#endif
 
     connect_and_receive(args);
   }

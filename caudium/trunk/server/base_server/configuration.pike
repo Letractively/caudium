@@ -3888,10 +3888,13 @@ void create(string config)
   defvar("ftphdirautoext", 0, "FTP: Autocreate homedirs extended", TYPE_FLAG|VAR_MORE,
          "If set to \"Yes\", then this will create also directories into "
          "homedirectory specified in Autocreate homedirs extras.");
-  defvar("ftphdirxtra","htdocs,cgi-bin,logs", "FTP: Autocreate homedirs extras", TYPE_STRING|VAR_MORE,
+  defvar("ftphdirxtra","htdocs:0755,cgi-bin:0755,logs:0775", "FTP: Autocreate homedirs extras", TYPE_STRING|VAR_MORE,
          "Coma-sparated homedirectory to be created also in homedirectory. "
-         "Used only if Autocreate homedirs <b>AND</b> Autocreate homedirs "
-         "extended are set to \"Yes\"");
+         "You can add the default permissions for those directories by add "
+         "the unix style octal permissions behind a ':'.<br />"
+         "<i>Example:</i> <tt>htdocs:0755,cgi-bin:0755,logs:0775,tmp:1777</tt>"
+         "<br />Used only if Autocreate homedirs <b>AND</b> Autocreate "
+         "homedir extended are set to \"Yes\"");
 
   defvar("InternalLoc", "/_internal/", 
 	 "Internal module resource mountpoint", TYPE_LOCATION|VAR_MORE,
@@ -4117,7 +4120,7 @@ string _sprintf( )
 //!  name: FTP: Autocreate homedirs extended
 //
 //! defvar: ftphdirxtra
-//! Coma-sparated homedirectory to be created also in homedirectory. Used only if Autocreate homedirs <b>AND</b> Autocreate homedirs extended are set to "Yes"
+//! Coma-sparated homedirectory to be created also in homedirectory. You can add the default permissions for those directories by add the unix style octal permissions behind a ':'.<br /><i>Example:</i> <tt>htdocs:0755,cgi-bin:0755,logs:0775,tmp:1777</tt><br />Used only if Autocreate homedirs <b>AND</b> Autocreate homedir extended are set to "Yes"
 //!  type: TYPE_STRING|VAR_MORE
 //!  name: FTP: Autocreate homedirs extras
 //
