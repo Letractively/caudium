@@ -121,7 +121,7 @@ install: build
 
 	# linitian doesn't like images in /usr/lib, let's move them to /usr/share
 	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
-	ln -s debian/tmp/usr/share/caudium$(EXTVER)/caudium-images debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images
+	ln -s /usr/share/caudium$(EXTVER)/caudium-images debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images
 
 	for p in $(CURDIR)/debian/www/*.png.uu; do \
 	    uudecode -o $(CURDIR)/debian/tmp/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
