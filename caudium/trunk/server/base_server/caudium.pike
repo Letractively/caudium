@@ -2459,7 +2459,7 @@ private void define_global_variables(int argc, array (string) argv)
           "therefore meant for more advanced users.",
           ({ "Standard", "Compact" }));
 
-  globvar("cif_theme", "caudiumnet", "Configuration interface: Theme", TYPE_STRING_LIST,
+  globvar("cif_theme", "caudium.net", "Configuration interface: Theme", TYPE_STRING_LIST,
           scheme()->theme_list(), scheme()->theme_select() );
 
 //   globvar("_v", CONFIGURATION_FILE_LEVEL, 0, TYPE_INT, 0, 0, 1);
