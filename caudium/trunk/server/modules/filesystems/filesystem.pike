@@ -56,7 +56,7 @@ constant module_doc  = "This is a virtual filesystem, use it to make files avail
 "Caudium however, since you can have any number of file systems mounted in "
 "different locations. ";
 constant module_unique = 0;
-#define FILESYSTEM_DEBUG
+
 #if DEBUG_LEVEL > 20
 # ifndef FILESYSTEM_DEBUG
 #  define FILESYSTEM_DEBUG

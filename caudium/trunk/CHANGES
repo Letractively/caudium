@@ -21,3 +21,5 @@ Changes in Caudium 1.1 since CVS branching
     the new features. This is no longer true and therefor server which
     allows PUT needs to enable the CHMOD, MKDIR and MV after
     upgrading!
+- Removed htmlparse dependency from the Enhanced Directory Listings
+  module since we have two parsing modules now.

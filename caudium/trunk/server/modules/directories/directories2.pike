@@ -66,7 +66,7 @@ constant module_unique = 1;
 
 void start( int num, object conf )
 {
-  module_dependencies (conf, ({ "flik", "htmlparse" }));
+  module_dependencies (conf, ({ "flik" }));
 }
 
 int dirlisting_not_set()
