@@ -8,7 +8,8 @@ class File {
   int size = 0x7fffffff;
   object fd;
   string fname, filter;
-  string format = "%H %R %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b";
+  format="%H %j %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b \"%R\" \"%U\"";
+  // string format = "%H %R %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b";
   //  string format = "%H %R %j [%D/%M/%Y:%h:%m:%s %z] \"%j %f %j\" %c %b";
   void create(string f, int _restore, int|void _reload,
 	      string|void _format, string|void _filter)

@@ -3846,9 +3846,7 @@ void create(string config)
          "interface. If this is left empty, the actual name of the "
          "virtual server will be used");
   defvar("LogFormat", 
-         "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
-         "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
-         "*: $host $referer $user_agent [$cern_date] \"$method $resource $protocol\" $response $length\n"
+         "*: $host - $user [$cern_date] \"$method $resource $protocol\" $response $length \"$referer\" \"$agent_unquoted\""
          ,
          "Logging: Format", 
          TYPE_TEXT_FIELD,  
