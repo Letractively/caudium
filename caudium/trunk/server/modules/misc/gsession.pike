@@ -765,7 +765,8 @@ private void memory_expire_old(int curtime)
 
     foreach(indices(_memory_storage), string region) {
         foreach(indices(_memory_storage[region]), string sid) {
-            if (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire)) {
+            if (_memory_storage["_sessions_"][sid] &&
+                (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire))) {
                 memory_delete_session(sid);
             }
         }
