@@ -254,7 +254,9 @@ array(string) userinfo (string u) {
     return 0;
   }
   sql_results=db->query("select username,passwd,uid,gid,homedir,shell "
-			"from "+QUERY(table)+" where username='"+u+"'");
+			"from "+QUERY(table)+
+			" where username='"+
+			db->quote(u)+"'");
   if (!sql_results||!sizeof(sql_results)) {
     DEBUGLOG ("no entry in database, returning unknown")
       return 0;
