@@ -106,6 +106,15 @@ int TEST_http_encode_url() {
   return mapping_test(tst, _Caudium.http_encode_url);
 }
 
+int TEST_http_decode_url() {
+  mapping tst = ([ ]);
+  int i;
+  for(i = 0; i <= 255; i++)
+    tst += ([ sprintf("%%%02x",i): String.int2char(i) ]);
+  prtest("http_decode_url");
+  return mapping_test(tst, _Caudium.http_decode_url);
+}
+
 int TEST_get_address() {
   mapping tst = ([ "127.0.0.1 12313":"127.0.0.1",
                    "192.168.255.1 0":"192.168.255.1",
