@@ -42,7 +42,8 @@ constant modules = ({
   "vhs_redirect#0",
   "vhs_fs#0",
   "vhs_system_sql#0",
-  "vhs_cgi#0"
+  "vhs_cgi#0",
+  "roxen_error_handler#0"
 });
 
 void enable(object config)

@@ -40,7 +40,8 @@ constant modules = ({
   "filesystem#0",
   "graphic_text#0",
   "rxmltags#0",
-  "corescopes#0"
+  "corescopes#0",
+  "roxen_error_handler#0"
 });
 
 void enable(object config)
