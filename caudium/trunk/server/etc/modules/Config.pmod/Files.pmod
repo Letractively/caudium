@@ -100,10 +100,23 @@ class Dir
     if (!file || !sizeof(file) || file[0] == '.')
       return 0;
             
-    array(int) fs = (array(int))file_stat(my_dir + file);
-	
-    if (fs && sizeof(fs) && fs[1] <= 0)
-      return 0;
+    mixed fs = file_stat(my_dir + file);      
+    if (!fs)  
+    {
+      // file doesn't exist. we should be able to create it.
+      return ([
+        "name" : file,
+        "format" : FORMAT_XML 
+        ]);	
+    }
+    if (fs && sizeof((array)fs) && ((array)fs)[1] <= 0) 
+    {
+      // file is empty. we should be able to fill it.
+      return ([
+        "name" : file,
+        "format" : FORMAT_XML 
+        ]);	
+    }
 
     string  fc = Stdio.read_file(my_dir + file, 0, 2);
     if (!fc || !sizeof(fc))
