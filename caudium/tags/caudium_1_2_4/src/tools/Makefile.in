@@ -1,0 +1,41 @@
+# $Id$
+
+VPATH=@srcdir@:@srcdir@/../
+prefix=@prefix@
+SRCDIR=@srcdir@
+INSTALL=@INSTALL@
+CC=@CC@
+CFLAGS=@CFLAGS@ @CPPFLAGS@ -I@srcdir@/ -I.
+LDFLAGS=@LDFLAGS@ @LIBS@
+
+all: htpasswd 
+
+htpasswd: $(SRCDIR)/htpasswd.c
+	-$(CC) $(CFLAGS) -o htpasswd $(SRCDIR)/htpasswd.c $(LDFLAGS)
+
+install: htpasswd
+	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
+
+install_alt: htpasswd
+	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
+	-strip --strip-unneeded $(DESTDIR)/$(prefix)/bin/htpasswd
+
+install_bin:
+	@true
+
+clean:
+	rm -f htpasswd
+
+
+depend:
+
+spotless: clean
+	rm -f config.* 
+
+distribute: spotless
+	rm -f Makefile
+
+Makefile: $(SRCDIR)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
+	@echo "Run make again"
+	@exit 1
