@@ -72,7 +72,6 @@ int req_time = HRTIME();
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
-constant handle        = caudium->handle;
 constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
@@ -1395,7 +1394,7 @@ void got_data(mixed fdid, string s)
   do_post_processing();
   TIMER("post_processed");
 #ifdef THREADS
-  handle(handle_request);
+  caudium->handle(handle_request);
 #else
   handle_request();
 #endif
