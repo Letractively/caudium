@@ -292,6 +292,10 @@ AC_ARG_WITH(pike,
 [  --with-pike[=binary]    Use the specified Pike. ],
 [
     if test ! -z "$withval" -a "$withval" != "yes"; then 
+		extpike="`type  $withval |sed "s:$withval is ::" 2>/dev/null`"
+                if test "$extpike" != ""; then
+                   withval="$extpike";
+                fi
 		if test -f "$withval" -a  ! -x "$withval" ; then
 			echo "$withval is not an executable file"
  			exit 1
