@@ -553,6 +553,7 @@ void threaded_handle(function f, mixed ... args)
   handle_queue->write(({f, args }));
 }
 
+//! Number of threads
 int number_of_threads;
 
 //! Start the handler threads.
@@ -591,6 +592,7 @@ void stop_handler_threads()
   }
 }
 
+//! Mapping where accept threads are.
 mapping accept_threads = ([]);
 
 //! A thread which accepts all the incoming connections and hands the
@@ -703,8 +705,7 @@ int loading_config_interface;
 int enabling_configurations;
 
 //! The CIF loader.
-object configuration_interface()
-{
+object configuration_interface() {
   if(enabling_configurations)
     return 0;
   if(loading_config_interface) {
@@ -738,8 +739,7 @@ object configuration_interface()
 }
 
 //! Unload the configuration interface
-void unload_configuration_interface()
-{
+void unload_configuration_interface() {
   report_notice("Unloading the configuration interface\n");
 
   configuration_interface_obj = 0;
@@ -751,10 +751,9 @@ void unload_configuration_interface()
 }
 
 
-// Create a new configuration from scratch.
-// 'type' is as in the form. 'none' for a empty configuration.
-int add_new_configuration(string name, string type)
-{
+//! Create a new configuration from scratch.
+//! 'type' is as in the form. 'none' for a empty configuration.
+int add_new_configuration(string name, string type) {
   return configuration_interface()->low_enable_configuration(name, type);
 }
 
@@ -779,9 +778,8 @@ mapping(string:array(int)) error_log=([]);
 
 string last_error="";
 
-// Write a string to the configuration interface error log and to stderr.
-void nwrite(string s, int|void perr, int|void type)
-{
+//! Write a string to the configuration interface error log and to stderr.
+void nwrite(string s, int|void perr, int|void type) {
   last_error = s;
   if (!error_log[type+","+s]) {
     error_log[type+","+s] = ({ time() });
@@ -791,17 +789,20 @@ void nwrite(string s, int|void perr, int|void type)
   if(type>=1) roxen_perror(s);
 }
 
-// When was Caudium started?
+//! When was Caudium started?
 int boot_time;
+
+//! When was Caudium started
 int start_time;
 
-string version()
-{
+//! Caudium version string.
+string version() {
   return QUERY(identversion) ? real_version : "Caudium";
 }
 
-// The db for the nice '<if supports=..>' tag.
+//! The db for the nice '<if supports=..>' tag.
 mapping (string:array (array (object|multiset))) supports;
+
 private multiset default_supports = (< >);
 
 private static inline array positive_supports(array from)
@@ -994,6 +995,9 @@ void update_supports_from_caudium_net()
 {
   // FIXME:
   // This code has a race-condition, but it only occurs once a week...
+  
+
+  // FIXME: Can we use Protocols.HTTP.client() instead ????
   if(QUERY(next_supports_update) <= time()) {
     if(QUERY(AutoUpdate)) {
       async_connect("caudium.net", 80, connected_to_caudium_net);
