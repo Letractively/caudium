@@ -1,4 +1,4 @@
-			SSL3 with Roxen Challenger
+			SSL3 with Caudium
 		     ++++++++++++++++++++++++++++++++
 
 This is a short, step by step guide for setting up a SSL-server:
@@ -8,7 +8,7 @@ o Check that your Pike contains Gmp. If you run
   from the server-directory, you should see Gmp among the listed features.
 
 o Get (or make) a certificate. A test-certificate is distributed with
-  roxen in server/demo_certificate.pem.
+  Caudium in server/demo_certificate.pem.
  
 o Configure a new port on the server you want to enable SSL on:
  
