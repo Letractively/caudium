@@ -336,14 +336,14 @@ private mixed do_final(object id)
 
     collect_variables(id, "final");
     if (!zero_type(procobj) && objectp(procobj) && functionp(procobj->finale)) {
-        mapping variables = ([]);
+        mapping vars = ([]);
         mapping tags = ([]);
         mapping containers = ([]);
         mapping|int res;
         
-        res = procobj->finale(id, DATA(id), variables, tags, containers);
+        res = procobj->finale(id, DATA(id), vars, tags, containers);
         if (!res) {
-            construct_defines("final", id, variables, tags, containers);
+            construct_defines("final", id, vars, tags, containers);
         } else if (res < 0) {
             return get_redirect(id);
         } else if (mappingp(res)) {
