@@ -108,18 +108,13 @@ spotless:  clean
 #	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 #	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
-	rm -f server/bin/selfdir server/bin/caudium_hostname server/bin/proxygarb 
+	rm -f tools/caudium-rc_script
 	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
         -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
 	config.cache -o -name config.status -o -name config.log -o -name \
-	"*.a" ')'  -print -exec /bin/rm '{}'  ';'
+	"*.a" -o -name configure ')'  -print -exec /bin/rm '{}'  ';'
 	rm -rf server/logs
 	rm -rf logs
-
-
-distribute:	spotless
-	@(cd extern; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
-	@(cd tools; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
 
 ./Makefile: $(SRCDIR)/Makefile.in config.status
 	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
