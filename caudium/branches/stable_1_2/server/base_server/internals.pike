@@ -19,7 +19,7 @@
  *
  * $Id$
  */
-#define DEBUG_INTERNALS 1
+#undef DEBUG_INTERNALS
 
 /*
  * This is the main "broker" module for all kinds of internal
