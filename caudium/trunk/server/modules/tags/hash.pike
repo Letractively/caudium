@@ -73,7 +73,7 @@ string cont_hash(string tag_name, mapping args, string contents,
    switch(args->type)
      {
 	case "md2":
-          return Crypto.string_to_hex(Crypto.md2()->update(contents)->digest());
+          return Caudium.Crypto.string_to_hex(Crypto.md2()->update(contents)->digest());
           break;
         case "md5":
           return Caudium.Crypto.hash_md5(contents, 1);
