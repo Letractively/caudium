@@ -20,7 +20,7 @@
  */
 
 //
-//! module: Caudium Photo Album Module
+//! module: Photo Album
 //!  This is a new photo album module for Caudium.
 //!  It automagically generates photo albums based on a directory of
 //!  image files.
@@ -62,7 +62,7 @@ mapping albums = ([ ]);
 array register_module() {
     return
 	({ MODULE_PARSER,
-	"Caudium Photo Album Module",
+	"Photo Album",
 	"This is a new photo album module for Caudium.<br>\n" +
 	"It automagically generates photo albums based on a directory of\n" +
 	"image files.<br>\n" +
@@ -272,9 +272,9 @@ class album {
 	"<cimg alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
 	"src=\"" + get_photo( i )[ 0 ] + "\" " +
 	/*	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +*/
-	"maxwidth=\"" + QUERY(width) +
-	" format=jpeg"+
-	"\">" +
+	"maxwidth=\"" + QUERY(width) + "\" "+
+	"maxheight=\"" + QUERY(width) + "\" "+ 
+	"format=\"jpeg\">" +
 
 	"</a><br>\n" +
 	"<font class=\"thumbnaildesc\">" +
