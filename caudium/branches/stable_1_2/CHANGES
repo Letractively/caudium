@@ -1,3 +1,9 @@
+Changes in Caudium 1.2.22 since 1.2.20
+--------------------------------------
+- Fix a typo in http2.pike
+- Re-added perl support (sf bug #512601). Note that perl support works only
+  with Perl 5.8 (probably with 5.6 but this is not tested).
+
 Changes in Caudium 1.2.20 since 1.2.18
 --------------------------------------
 - Fix sf bug #652095 (lowercase boundary in CONTENT_TYPE)
