@@ -80,12 +80,8 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
-string trim( string what )
-{
-  sscanf(what, "%*[ \t]%s", what); what = reverse(what);
-  sscanf(what, "%*[ \t]%s", what); what = reverse(what);
-  return what;
-}
+function trim = String.trim_whites;
+
 #ifdef CGI_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !CGI_DEBUG */
@@ -419,8 +415,8 @@ class CGIWrapper
         post += h+"\n";
         continue;
       }
-      header = trim(header);
-      value = trim(value);
+      header = String.trim_whites(header);
+      value = String.trim_whites(value);
       switch(lower_case( header ))
       {
        case "status":
