@@ -4,7 +4,7 @@ AC_CONFIG_HEADER(caudium_machine.h)
 CAUDIUM_MODULE_INIT()
 
 AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h time.h sys/time.h)
-AC_HAVE_FUNCS(mmap munmap free)
+AC_HAVE_FUNCS(mmap munmap free strftime)
 
 dnl Test for snprintf..
 AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
