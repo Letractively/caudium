@@ -215,7 +215,7 @@ class DocGen
       ret  += "<links>\n";
       foreach(tag->seealso, string n)
 	if (n != "")
-	  ret += "\t<link>" + n + "</link>\n";
+	  ret += "\t<link to=\""+ n + "\"/>\n";
       ret += "</links>\n";
     }
 
@@ -343,7 +343,7 @@ class DocGen
 	  ret  += "<links>\n";
 	  foreach(m->seealso, string n)
 	    if (n != "")
-	      ret += "\t<link>" + n + "</link>\n";
+	      ret += "\t<link to=\""+ n + "\"/>\n";
 	  ret += "</links>\n";
 	}
 	
