@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: .htaccess support
+//!  Almost complete support for NCSA/Apache .htaccess files.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_SECURITY | MODULE_URL
+//! cvs_version: $Id$
+//
+
 // .htaccess compability by David Hedbor, neotron@idonex.se 
 //   Changed into module by Per Hedbor, per@idonex.se
 

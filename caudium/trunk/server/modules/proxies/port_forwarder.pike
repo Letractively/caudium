@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: TCP Port Forwarder
+//!  This is a TCP port forwarding module for the Roxen webserver.
+//!  Using it is very simple, just add it to your virtual server of choice.
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_ZERO
+//! cvs_version: $Id$
+//
+
 /*
  * This is a TCP port forwarding module for the Roxen webserver.
  * Using it is very simple, just add it to your virtual server of choice.

@@ -18,6 +18,16 @@
  *
  */
 
+//
+//! module: Restricted file system
+//!  This is a restricted filesystem, use it to make users home
+//!  directories available to them if they login.
+//!  Usable for eg ftp-servers.
+//! inherits: filesystem
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /*
  * $Id$
  *

@@ -19,8 +19,19 @@
  *
  */
 
+//
+//! module: User logger
+//!  This module logs the accesses of each user in their home dirs if
+//!  they create a file named 'AccessLog' in that directory, and allow
+//!  write access for roxen.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOGGER
+//! cvs_version: $Id$
+//
+
 /*
- * This module log the accesses of each user in their home dirs, if
+ * This module logs the accesses of each user in their home dirs if
  * they create a file named 'AccessLog' in that directory, and allow
  * write access for roxen.
  */
@@ -36,7 +47,7 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_LOGGER;
 constant module_name = "User logger";
-constant module_doc  = "This module log the accesses of each user in their home dirs, "
+constant module_doc  = "This module logs the accesses of each user in their home dirs "
 	     "if they create a file named 'AccessLog' (or whatever is configurated in the configuration interface) in that directory, and "
 	     "allow write access for roxen.";
 constant module_unique = 1;

@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: LDAP module
+//!  This module gives you access to the LDAP distributed database.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /*
  * $Id$
  *

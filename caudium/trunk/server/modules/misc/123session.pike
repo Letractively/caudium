@@ -27,6 +27,19 @@
  *
  */
 
+//
+//! module: 123 sessions
+//!  This Module will provide each session with a distinct set
+//!  of session variables.
+//!  <p>Warning: This module has not been tested a lot.
+//!  </p><br/>
+//!  Read the module code for instructions.
+//! inherits: module
+//! inherits: roxenlib
+//! type: MODULE_FIRST | MODULE_FILTER | MODULE_PARSER | MODULE_PROVIDER
+//! cvs_version: $Id$
+//
+
 string cvs_version = "$Id$";
 
 inherit "module";

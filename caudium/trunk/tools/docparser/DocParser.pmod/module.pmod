@@ -155,7 +155,8 @@ class PikeFile {
     array(GlobVar)  globvars;
     array(Class)    classes;
     array(string)   inherits;
-
+    array(Defvar)   defvars;
+    
     private void new_field(object|string newstuff, string kw)
     {
         if (stringp(newstuff)) {
@@ -198,6 +199,15 @@ class PikeFile {
                     
                     globvars += ({newstuff});
                     break;
+
+		case "defvar":
+		    if (newstuff->myName != "DefvarScope") {
+			wrong_otype(kw, newstuff->myName);
+			return;
+		    }
+		    
+		    defvars += ({newstuff});
+		    break;
 
                 case "class":
                     if (newstuff->myName != "Class") {
@@ -260,6 +270,7 @@ class PikeFile {
         globvars = ({});
         classes = ({});
 	inherits = ({});
+	defvars = ({});
     }
 };
 
@@ -661,6 +672,7 @@ class Module {
 		    
 		    defvars += ({newstuff});
 		    break;
+		    
 		case "entity_scope":
 		    if (newstuff->myName != "EntityScope") {
 			wrong_otype(kw, newstuff->myName);
@@ -813,7 +825,8 @@ class Tag {
     array(string)    returns;
     array(string)    seealso;
     array(string)    notes;
-
+    array(string)    bugs;
+    
     void new_field(string|object newstuff, string kw)
     {
         if (stringp(newstuff)){
@@ -836,6 +849,14 @@ class Tag {
                     notes += ({newstuff});
                     break;
                     
+		case "example":
+                    example += ({newstuff});
+                    break;
+		    
+		case "bugs":
+                    bugs += ({newstuff});
+                    break;
+
                 default:
                     wrong_keyword(kw);
                     break;
@@ -872,9 +893,17 @@ class Tag {
                 break;
 
             case "note":
-                notes[-1] = newstuff;
+                notes[-1] += newstuff;
                 break;
                     
+	    case "example":
+		example[-1] += newstuff;
+		break;
+		
+	    case "bugs":
+		bugs[-1] += newstuff;
+		break;
+
             default:
                 wrong_keyword(lastkw);
                 break;
@@ -893,6 +922,7 @@ class Tag {
         returns = ({});
         seealso = ({});
         notes = ({});
+	bugs = ({});
     }
 };
 
@@ -904,7 +934,8 @@ class Container {
     array(string)    returns;
     array(string)    seealso;
     array(string)    notes;
-
+    array(string)    bugs;
+    
     void new_field(string|object newstuff, string kw)
     {
         if (stringp(newstuff)){
@@ -927,6 +958,14 @@ class Container {
                     notes += ({newstuff});
                     break;
                     
+                case "example":
+                    example += ({newstuff});
+                    break;
+		    
+                case "bugs":
+                    bugs += ({newstuff});
+                    break;
+
                 default:
                     wrong_keyword(kw);
                     break;
@@ -966,6 +1005,14 @@ class Container {
                 notes[-1] += newstuff;
                 break;
                     
+            case "example":
+                example[-1] += newstuff;
+                break;
+		
+            case "bugs":
+                bugs[-1] += newstuff;
+                break;
+
             default:
                 wrong_keyword(lastkw);
                 break;
@@ -984,6 +1031,7 @@ class Container {
         returns = ({});
         seealso = ({});
         notes = ({});
+	bugs = ({});
     }
 };
 
@@ -1304,6 +1352,9 @@ mapping(string:object|string) file_scope = ([
 	     
     "cvs_version":"",
     "inherits":"",
+    "defvar":lambda(object curob, string line) {
+                   return Defvar(line, curob);
+               },
     "method":lambda(object curob, string line) {
                  return Method(line, curob);
              },
@@ -1358,6 +1409,7 @@ mapping(string:object|string) tag_scope = ([
     "returns":"",
     "see_also":"",
     "note":"",
+    "bugs":"",
     "ScopeName":"tag"
 ]);
 
@@ -1372,6 +1424,7 @@ mapping(string:object|string) container_scope = ([
     "returns":"",
     "see_also":"",
     "note":"",
+    "bugs":"",
     "ScopeName":"container"
 ]);
 

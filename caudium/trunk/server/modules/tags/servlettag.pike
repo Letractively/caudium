@@ -19,6 +19,16 @@
  *
  */
 
+//
+//! module: Java Servlet tag
+//!  This module adds a new tag, &lt;servlet&gt;&lt;/pike&gt;. It makes
+//!  it possible to use Java Servlets directly in RXML.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 constant cvs_version = "$Id $";
 constant thread_safe=1;
 

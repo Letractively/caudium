@@ -18,6 +18,18 @@
  *
  */
 
+//
+//! module: Directory parsing module MKII
+//!  This module is responsible for pretty-printing the directory contents
+//!  with neat, macintosh-like, fold/unfold buttons next to each directory.
+//!  Unlike the [modules/directories/directories.pike], this module uses the flik
+//!  module to do the folding/unfolding.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+//
+
 /* 
  * $Id$
  *

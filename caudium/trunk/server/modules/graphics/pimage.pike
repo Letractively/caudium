@@ -19,6 +19,25 @@
  *
  */
 
+//
+//! module: Pike Image Module
+//!  This module adds two new tags, &lt;gclock&gt; and "
+//!  &lt;pimage&gt;&lt;pimage&gt;. GClock draws clocks, and "
+//!  pimage draws an image from pike-code. <p> "
+//!  There are several predefined images-constructors to use "
+//!  in pimage: </p><p>
+//!  Clock( delay, time_offset, background_image ); Animated clock-gif.<br/>
+//!  Progress( callback_function ); Animated progress bar.<br/>
+//!  PPM( \"file_name\" ); Loads a PPM file.<br/>
+//!  PImage(xs,ys, bg_color ); Simple (cleared) image<br/>
+//!  Text( \"font\", \"string\", fg_color, bg_color ); <br/>
+//!  "Draws some text..</p>
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 string cvs_version="$Id$";
 
 #include <module.h>

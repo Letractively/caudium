@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Demo module
+//!  This module makes it possible to develop, RXML code interactively.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 #include <module.h>
 
 inherit "module";

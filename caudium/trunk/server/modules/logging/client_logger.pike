@@ -19,6 +19,18 @@
  *
  */
 
+//
+//! module: Client logger
+//!  This is a client logger. It simply logs the 'user-agent'
+//!  field in a log somewhere, the format should be compatible
+//!  with other client loggers out there, making it somewhat useful.
+//!  It is also possible to add the clientname to the normal log,
+//!  this saves a file descriptor, but breaks some log analyzers.
+//! inherits: module
+//! type: MODULE_LOGGER
+//! cvs_version: $Id$
+//
+
 /*
  * Logs the User-agent fields in a separate log.
  */

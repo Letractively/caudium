@@ -18,6 +18,17 @@
  *
  */
 
+//
+//! module: Index files only module.
+//!  This module parses the directory for configurable index files and
+//!  displays the first one it finds. It doesn't generate directory
+//!  listings.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+//
+
 /*
  * Index files only module, a directory module that will not try to
  * generate any directory listings, instead only using index files.

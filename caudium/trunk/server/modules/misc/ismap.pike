@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: ISMAP image-maps
+//!  Internal support for server side image-maps, including a quite
+//!  odd color-per-url imagemap method
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FILE_EXTENSION
+//! cvs_version: $Id$
+//
 
 /*
  * ISMAP image map support. Quite over-complex, really.  An example is

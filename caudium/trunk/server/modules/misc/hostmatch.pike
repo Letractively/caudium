@@ -18,16 +18,26 @@
  *
  */
 
-/*
- * hostmatch.pike - host header regexp -> host header/virt site remap
- *
- * This module is used for virtual hosting. It's like the IP Less
- * virtual hosting module but better. Instead of relying on flaky
- * fuzzy matching, this module uses regexps to rewrite the host header
- * and then does an exact match on the result. No rules or no matched
- * rules uses exact matching on the host header.
- */
- 
+//
+//! module: Virtual Host Matcher
+//!  hostmatch.pike - host header regexp -> host header/virt site remap
+//!  This module is used for virtual hosting. It's like the IP Less
+//!  virtual hosting module but better. Instead of relying on flaky
+//!  fuzzy matching, this module uses regexps to rewrite the host header
+//!  and then does an exact match on the result. No rules or no matched
+//!  rules uses exact matching on the host header.
+//!  <p><strong>Please note that  ip less hosting
+//!  doesn't work well together with proxies. The reason is that the
+//!  host header sent isn't the one of the proxy server, but the
+//!  one of the requested host. We strongly  recommend having the
+//!  proxies in their own virtual server with a dedicated
+//!  IP and / or port.</strong></p>
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PRECACHE
+//! cvs_version: $Id$
+//
+
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 

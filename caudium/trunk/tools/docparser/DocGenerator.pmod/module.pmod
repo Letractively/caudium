@@ -598,6 +598,9 @@ class DocGen
 	if (f->classes)
 	    ofile->write(f_classes(f));
 
+	if (f->defvars)
+	  ofile->write(f_defvar(f));
+
 	ofile->write("</file>");
     }
 

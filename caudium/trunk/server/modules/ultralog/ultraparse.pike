@@ -18,6 +18,17 @@
  *
  */
 
+//
+//! module: UltraLog: Main Module
+//!  The UltraLog Displayer module. Used in combination with
+//!  an external summarizing program.
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: wizard
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 /* Ultraparse,pike, the main UltraLog Roxen module */
 
 string cvs_version = "$Id$";
@@ -51,7 +62,7 @@ constant module_type = MODULE_LOCATION;
 constant module_name = "UltraLog: Main Module";
 constant module_doc =
 "The UltraLog Displayer module. Used in combination with "
-"en external summarizing program.";
+"an external summarizing program.";
 
 void create() { 
   defvar("mountpoint", "/ultra/", "Mount Point", TYPE_LOCATION, 

@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: CGI executable support
+//!  This module adds support for the CGI 1.1 interface.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /* Da CGI module */
 
 #if !defined(__NT__) && !defined(__AmigaOS__)
@@ -1040,7 +1049,7 @@ void create(object conf)
 
   defvar("rxml", 0, "Parse RXML in CGI-scripts", TYPE_FLAG|VAR_MORE,
 	 "If this is set, the output from CGI-scripts handled by this "
-         "module will be RXMl parsed. NOTE: No data will be returned to the "
+         "module will be RXMl parsed. NOTE : No data will be returned to the "
          "client until the CGI-script is fully parsed.");
 
   defvar("extra_env", "", "Extra environment variables", TYPE_TEXT_FIELD|VAR_MORE,
@@ -1180,7 +1189,7 @@ void create(object conf)
   defvar("allow_symlinks", 1, "Allow symlinks", TYPE_FLAG,
 	 "If set, allows symbolic links to binaries owned by the directory "
 	 "owner. Other symlinks are still disabled.<br>\n"
-	 "NOTE: This option only has effect if scripts are run as owner.",
+	 "NOTE : This option only has effect if scripts are run as owner.",
 	 0, run_as_user_enabled);
 
   defvar("nice", 0, "Limits: Nice value", TYPE_INT|VAR_MORE,
@@ -1292,7 +1301,7 @@ mapping query_tag_callers()
 //!  type: TYPE_FLAG|VAR_MORE
 //!
 //! defvar: Parse RXML in CGI-scripts
-//! If this is set, the output from CGI-scripts handled by this module will be RXMl parsed. NOTE: No data will be returned to the client until the CGI-script is fully parsed.
+//! If this is set, the output from CGI-scripts handled by this module will be RXMl parsed. NOTE : No data will be returned to the client until the CGI-script is fully parsed.
 //!  type: TYPE_FLAG|VAR_MORE
 //!
 //! defvar: Extra environment variables
@@ -1369,7 +1378,7 @@ mapping query_tag_callers()
 //!
 //! defvar: Allow symlinks
 //! If set, allows symbolic links to binaries owned by the directory owner. Other symlinks are still disabled.<br />
-//!NOTE: This option only has effect if scripts are run as owner.
+//!NOTE : This option only has effect if scripts are run as owner.
 //!  type: TYPE_FLAG
 //!
 //! defvar: Limits: Nice value

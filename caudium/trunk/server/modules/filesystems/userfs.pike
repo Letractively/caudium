@@ -19,6 +19,18 @@
  *
  */
 
+//
+//! module: User filesystem
+//!  User filesystem. Uses the userdatabase (and thus the system passwd
+//!  database) to find the home-dir of users, and then looks in a
+//!  specified directory in that directory for the files requested.
+//!  Usually mounted under /~, but / or /users/ would work equally well.
+//!  is quite useful for IPPs, enabling them to have URLs like http://www.hostname.of.provider/customer/.
+//! inherits: filesystem
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
 // User filesystem. Uses the userdatabase (and thus the system passwd
 // database) to find the home-dir of users, and then looks in a
 // specified directory in that directory for the files requested.

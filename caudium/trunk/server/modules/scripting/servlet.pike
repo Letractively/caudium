@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Java Servlet bridge
+//!  An interface to Java&tm; Servlets
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: http
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//
 /* Implements java servlets */
 
 #include <module.h>

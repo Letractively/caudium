@@ -19,6 +19,31 @@
  *
  */
 
+//
+//! module: Language module
+//!  Handles documents in different languages.
+//!  <p>Is also a directory module that generates no directory
+//!  listings. It must be a directory module to work, though it
+//!  could of course be fixed to make directory listings.
+//!  The module works by using appropriate magic to find out what
+//!  language the user wants and then finding a file in that
+//!  language. What language a file is in is specified with an
+//!  extra extension. index.html.sv would be a file in swedish
+//!  while index.html.en would be one in english.</p>
+//!  <p>The module also defines three new tags.
+//!  <br/><strong>&lt;language&gt;</strong> that tells which language the
+//!  current page is in.
+//!  <br/><strong>&lt;available_languages&gt;</strong> gives a list of other
+//!  languages the current page is in, with links to them.
+//!  <br/><strong>&lt;unavailable_language&gt;</strong> shows the language
+//!  the user wanted, if the page was not available in that "
+//!  language. "
+//!  <p>All tags take the argument type={txt,img}.</p>
+//! inherits: modules/directories/directories
+//! type: MODULE_DIRECTORIES | MODULE_URL | MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 #include <module.h>
 inherit "modules/directories/directories";
 

@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Folder list tag
+//!  Adds the tags to make creating folding lists an easy task.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+
 /*
  * $Id$
  *

@@ -22,6 +22,16 @@
  * A quite complex directory module. Generates macintosh like listings.
  */
 
+//
+//! module: Directory parsing module
+//!  This module is responsible for pretty-printing the directory contents
+//!  with neat, macintosh-like, fold/unfold buttons next to each directory.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+//
+
 string cvs_version = "$Id$";
 int thread_safe=1;   /* Probably. Check _root */
 

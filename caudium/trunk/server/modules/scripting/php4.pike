@@ -19,6 +19,17 @@
  *
  */
 
+//
+//! module: PHP Script Support
+//!  This module allows Caudium users to run PHP scripts,
+//!  optionally with RXML post-parsing. Note that this requires
+//!  that PHP4 is compiled with Caudium/Roxen support.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FILE_EXTENSION
+//! cvs_version: $Id$
+//
+
 #include <module.h>
 #include <variables.h>
 inherit "module";

@@ -19,6 +19,19 @@
  *
  */
 
+//
+//! module: Main RXML parser
+//!  This module makes it possible for other modules to add
+//!  new tags to the RXML parsing, in addition to the
+//!  default ones.  The default error message (no such resource)
+//!  use this parser, so if you do not want it, you will also
+//!  have to change the error message.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER
+//! cvs_version: $Id$
+//
+
 /*
  * The old-style RXML parser. If this module is not added to a configuration,
  * no RXML parsing will be done at all.

@@ -19,6 +19,21 @@
  *
  */
 
+//
+//! module: LDAP directory authorization
+//!  LDAP User authentification. Reads the directory and use it to
+//!  authentificate users.
+//!  Basic authentication names and passwords are mapped onto attributes
+//!  in entries in preselected portions of an LDAP DSA.
+//!  Uses 'uid' and 'userPassword' from entries with 'objectclass=person'.
+//!  OR
+//!  Tries to authenticate against ldap-server
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_AUTH | MODULE_EXPERIMENTAL
+//! cvs_version: $Id$
+//
+
 /* This module is Copyright © Honza Petrous 1998-2000 */
 
 /* LDAP User authentification. Reads the directory and use it to

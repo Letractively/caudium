@@ -19,6 +19,15 @@
  *
  */
 
+//
+//! module: Logging disabler
+//!  This module can be used to turn off logging for some files.
+//!  It is based on Regular expressions
+//! inherits: module
+//! type: MODULE_LOGGER
+//! cvs_version: $Id$
+//
+
 /*
  * This module can be used to turn off logging for some files.
  */

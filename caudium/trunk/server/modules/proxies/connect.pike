@@ -19,8 +19,19 @@
  *
  */
 
+//
+//! module: SSL Proxy
+//!  Implements the CONNECT method
+//!  Useful for tunneling of SSL connections (Secure proxy in Netscape).
+//! inherits: module
+//! inherits: caudiumlib
+//! inherits: socket
+//! type: MODULE_FIRST | MODULE_PROXY
+//! cvs_version: $Id$
+//
+
 /*
- * An implementation of the CONNECT methos, used for SSL tunneling in
+ * An implementation of the CONNECT methods, used for SSL tunneling in
  * Netscape (the "Secure proxy" field)
  */
 

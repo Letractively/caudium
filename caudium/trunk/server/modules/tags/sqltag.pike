@@ -19,6 +19,16 @@
  *
  */
 
+//
+//! module: SQL-module
+//!  This module gives the three tags &lt;SQLQUERY&gt;,
+//!  &lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PARSER | MODULE_PROVIDER
+//! cvs_version: $Id$
+//
+
 /* 
  * $Id$
  *

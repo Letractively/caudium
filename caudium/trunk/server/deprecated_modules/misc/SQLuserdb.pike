@@ -19,6 +19,18 @@
  *
  */
 
+//
+//! module: SQL user database
+//!  This module handles a SQL-based User Database. 
+//!  It uses the generic-SQL pike module, so it should run on any server
+//!  pike supports. This includes at least MiniSQL, MySql and Postgres (more
+//!  could be supported in the future)
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_AUTH
+//! cvs_version: $Id$
+//
+
 /*
  * This module handles a SQL-based User Database. 
  * It uses the generic-SQL pike module, so it should run on any server
