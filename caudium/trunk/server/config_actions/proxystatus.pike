@@ -38,11 +38,11 @@ constant more=0;
 constant ok_label = " Refresh ";
 constant cancel_label = " Done ";
 
-string status(object mc)
+string status(object conf)
 {
   array rows = ({});
   array times = ({});
-  foreach(indices(mc->requests), object foo){
+  foreach(indices(conf->requests), object foo){
     string res = "";
     if(!objectp(foo))
       continue;
@@ -83,7 +83,7 @@ string status(object mc)
     rows += ({ res/"\t" });
     }
   } 
-  if(sizeof(mc->requests)&&sizeof(rows)){
+  if(sizeof(conf->requests)&&sizeof(rows)){
     times = sort(times, rows);
     return html_table( ({ "since", "cache", "bytes", "state",
       "browser connection", "server connection" }), rows);
@@ -91,7 +91,7 @@ string status(object mc)
     return "<b>No current proxy connections.</b>";
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string res="";
   foreach(Array.sort_array(caudium->configurations,

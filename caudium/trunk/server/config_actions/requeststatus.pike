@@ -32,7 +32,7 @@ constant more=0;
 constant ok_label = " Refresh ";
 constant cancel_label = " Done ";
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   return sprintf("<h2>Server Overview</h2>"
 		 "This is the summary status of all virtual servers. "

@@ -37,7 +37,7 @@ constant programs = ({
   "describers",
 });
 
-mixed handle(object id, object mc)
+mixed handle(object id, object conf)
 {
   if (caudium->unload_configuration_interface) {
     /* Fool the type-checker of in old Roxen's */

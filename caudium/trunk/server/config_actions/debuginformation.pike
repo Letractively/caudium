@@ -105,7 +105,7 @@ string mktable(array titles, array data)
 }
 #endif
 
-mixed page_1(object id, object mc)
+mixed page_1(object id, object conf)
 {
   string res = ("<font size=+1>Profiling information</font><br>"
 		"All times are in seconds, and real-time. Times incude"
@@ -130,7 +130,7 @@ int wizard_done()
   return -1;
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
 
   if(!last_usage) last_usage = caudium->query_var("__memory_usage");

@@ -34,7 +34,6 @@
 
 inherit "module";
 inherit "caudiumlib";
-inherit "cachelib";
 
 constant cvs_version = "$Id$";
 constant thread_safe = 1;
@@ -89,7 +88,6 @@ constant thread_safe = 1;
 #define CSE_CLOSE           'X'
 
 array resin_hosts=({});
-object session_cache;
 
 constant module_type	= MODULE_FILE_EXTENSION | MODULE_LAST;
 constant module_unique	= 0;
@@ -401,7 +399,7 @@ string caucho_request(object id)
 
   if(jsid)  // we have an existing session, which resin do we connect to?
   {
-     r=session_cache->retrieve(jsid);
+     r=mc->retrieve(jsid);
   }
 
  if(!jsid || !r) // we don't know the current session's destination, so pick one.
@@ -453,7 +451,7 @@ string caucho_request(object id)
 
   // if we have a session, let us remember the host we conneted to.
   if(jsid)
-   session_cache->store(cache_pike(({ shost, sport }), jsid, 3600));
+   mc->store(cache_pike(({ shost, sport }), jsid, 3600));
 
   // set sessionid
   if (jsid) id->misc->srun->session = id->misc->srun->decode_session(jsid);
@@ -490,9 +488,6 @@ void start(int n, object conf)
         else
           resin_hosts+=({ ({hp[0], DEFAULT_PORT}) });
      }
-
-     // create the cache for session to srun hosts mapping.
-     session_cache=caudium->cache_manager->get_cache(this_object());
   }
 
 }

@@ -223,6 +223,7 @@ private static void really_low_shutdown(int exit_code)
   exit(exit_code);		// Now we die...
 
 #endif /* constant(fork) && !constant(thread_create) */
+  write("Goodbye!\n");
 }
 
 // Shutdown Caudium. This function can also be used to restart the server.

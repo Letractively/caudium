@@ -137,7 +137,7 @@ int verify_0()
   return 1;
 }
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string map = proc("map -x",(int)id->variables->pid);
   if(sscanf(map, "%*sShared%*s") != 2)

@@ -54,7 +54,7 @@ constant action_disabled = 1;
 
 #else /* constant(_Crypto) && constant(Crypto.rsa) */
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string msg;
   
@@ -76,7 +76,7 @@ mixed page_0(object id, object mc)
        "</blockquote></help>");
 }
 
-mixed verify_0(object id, object mc)
+mixed verify_0(object id, object conf)
 {
   if (!file_stat(id->variables->key_file))
   {
@@ -86,7 +86,7 @@ mixed verify_0(object id, object mc)
   return 0;
 }
 
-mixed page_1(mixed id, mixed mc)
+mixed page_1(mixed id, mixed conf)
 {
   return ("<font size=+1>Your Distinguished Name?</font><p>"
 	  "<help><blockquote>"
@@ -155,7 +155,7 @@ mixed page_1(mixed id, mixed mc)
 	  "</blockquote></help>");
 }
 
-mixed page_2(object id, object mc)
+mixed page_2(object id, object conf)
 {
   return ("<font size=+1>Certificate Attributes?</font><p>"
 	  "<help><blockquote>"
@@ -173,7 +173,7 @@ mixed page_2(object id, object mc)
 	  "</blockquote></help>\n");
 }
 
-mixed page_3(object id, object mc)
+mixed page_3(object id, object conf)
 {
   return ("<font size=+1>CSR Attributes?</font><p>"
 	  "At last, you can add attributes to the Certificate Signing "
@@ -190,7 +190,7 @@ mixed page_3(object id, object mc)
 
 object trim = Regexp("^[ \t]*([^ \t](.*[^ \t]|))[ \t]*$");
 
-mixed page_4(object id, object mc)
+mixed page_4(object id, object conf)
 {
   object file = Stdio.File();
 
@@ -311,7 +311,7 @@ mixed page_4(object id, object mc)
 #endif /* constant(Tools) */
 }
 
-mixed wizard_done(object id, object mc)
+mixed wizard_done(object id, object conf)
 {
   return 0;
 }

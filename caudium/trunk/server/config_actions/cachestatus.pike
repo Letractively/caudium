@@ -33,7 +33,7 @@ constant more=1;
 constant ok_label = " Refresh ";
 constant cancel_label = " Done ";
 
-mixed page_0(object id, object mc) {
+mixed page_0(object id, object conf) {
   string ret = 
     "<table border=0><tr>\n"
     "<td bgcolor=\"#eeeeff\" colspan=4><h3>Overall</h3></td>"

@@ -49,7 +49,7 @@ constant action_disabled = 1;
 
 #else /* constant(_Crypto) && constant(Crypto.rsa) */
 
-mixed page_0(object id, object mc)
+mixed page_0(object id, object conf)
 {
   string msg;
   
@@ -83,7 +83,7 @@ mixed page_0(object id, object mc)
        "</blockquote></help>");
 }
 
-mixed verify_0(object id, object mc)
+mixed verify_0(object id, object conf)
 {
   int key_size = (int) id->variables->key_size;
   if (key_size < 300)
@@ -139,7 +139,7 @@ mixed verify_0(object id, object mc)
   return 0;
 }
 
-mixed wizard_done(object id, object mc)
+mixed wizard_done(object id, object conf)
 {
   return 0;
 }
