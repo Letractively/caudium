@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Add tests around System.getrusage() so that Caudium can fall back to
+  predef::rusage if necessary.
+   (James Tyson)
 - Backout changes in Storage.Method.Disk because it was completely broken.
    (James Tyson)
 - Added a XML-RPC server. Contributed by David Gourdelier, Martin Baehr and

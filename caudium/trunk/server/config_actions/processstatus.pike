@@ -48,9 +48,14 @@ mixed page_0(object id, object conf)
   int tmp, use_ru;
   array err;
   string out = "";
+#if constant(System.getrusage)
   if(err = catch(ru=System.getrusage()))
+#else
+  if(err = catch(ru=mkmapping(({"utime","stime","maxrss","ixrss","idrss","isrss","minflt","majflt","nswap","inblock","oublock","msgsnd","msgrcv","nsignals","nvcsw","nivcsw","sysc","ioch","rtime","ttime","tftime","dftime","kftime","ltime","slptime","wtime","stoptime","brksize","stksize"}),predef::rusage())))
+#endif
     return sprintf("<h1>Failed to get rusage information: </h1><pre>%s</pre>",
-		   describe_backtrace(err));
+                   describe_backtrace(err));
+
 
   if(ru->utime)
     tmp=ru->utime/(time(1) - caudium->start_time+1);
