@@ -36,6 +36,9 @@ constant thread_safe = 1;
 #ifdef THREADS
 private object counter_lock = Thread.Mutex();
 private mixed  counter_key;
+
+private object gc_lock = Thread.Mutex();
+private mixed  gc_key;
 #endif
 
 private Regexp dcookie_rx = Regexp("^[0-9.]+$");
@@ -91,6 +94,12 @@ void start()
     session_counter = cache_lookup(CACHE, "session_counter");
 
     cache_expire(CACHE);
+
+    //
+    // schedule a gc callout
+    //
+    if (QUERY(dogc))
+        call_out(co_session_gc, QUERY(expire) / 2);
 }
 
 void stop()
@@ -133,6 +142,18 @@ void create()
     defvar("splugin", "Memory", "Storage: default storage module", TYPE_STRING_LIST,
            "Which plugin should be used to store the session data. Registered plugins:<br>\n" +
            get_plugin_descriptions(), get_plugin_names());
+
+    defvar("expire", 600, "Session expiration Time", TYPE_INT,
+           "After how many seconds an unactive session is removed", 0, hide_gc);
+
+    defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
+           "If set, then the sessions will expire automatically after the "
+           "given period. If unset, session expiration must be done elsewhere.");
+}
+
+int hide_gc ()
+{
+    return (!QUERY(dogc));
 }
 
 mixed find_file ( string path, object id )
@@ -169,6 +190,24 @@ mapping query_container_callers()
 //
 // Session handling functions
 //
+private void co_session_gc() 
+{
+    if (!cur_storage) {
+        if (QUERY(dogc))
+            call_out(co_session_gc, QUERY(expire) / 2);
+        return;
+    }
+
+#ifdef THREADS
+    Thread.thread_create(cur_storage->expire, time());
+#else
+    cur_storage->expire(time());
+#endif
+    
+    if (QUERY(dogc))
+        call_out(co_session_gc, QUERY(expire) / 2);
+}
+
 private void gsession_set_cookie(object id, string sid) {
     string Cookie = SVAR + "=" + sid + "; path=/";
 
@@ -231,7 +270,7 @@ void register_plugins(void|object id)
     //
     storage_plugins[memory_storage_registration_record->name] =
         memory_storage_registration_record;
-
+    
     if (!id)
         return;
     
@@ -266,6 +305,11 @@ void register_plugins(void|object id)
 
             if (!functionp(regrec->delete_variable) || !regrec->delete_variable) {
                 rec_item_missing("delete_variable", regrec->name);
+                continue;
+            }
+
+            if (!functionp(regrec->expire_old) || !regrec->expire_old) {
+                rec_item_missing("expire_old", regrec->name);
                 continue;
             }
             
@@ -322,24 +366,31 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 // required to provide just one function - register_gsession_plugin - that
 // returns a mapping whose contents is described below:
 //
-//  string name
+//  string name; (mandatory)
 //     plugin name (displayed in the CIF and the admin interface)
 //
-//  string description
+//  string description; (optional)
 //     plugin description
 //
-//  function setup
+//  function setup; (mandatory)
 //     function to setup the plugin. Called once for every
 //     request. Synopsis below.
 //
-//  function store
+//  function store; (mandatory)
 //     function to store a variable into a region. Synopsis below.
 //
-//  function retrieve
+//  function retrieve; (mandatory)
 //     function to retrieve a variable from a region. Synopsis below.
 //
-//  function delete_variable
+//  function delete_variable; (mandatory)
 //     function to delete a variable from a region. Synopsis below.
+//
+//  function expire_old; (mandatory)
+//     called from a callout to expire aged sessions. Ran in a separate
+//     thread, if available.
+//
+//  function delet_session; (mandatory)
+//     delete a session from all the regions of the storage.
 //
 // Function synopses:
 //
@@ -347,6 +398,8 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //   void store(object id, string key, mixed data, string sid, void|string reg);
 //   mixed retrieve(object id, string key, string sid, void|string reg);
 //   mixed delete_variable(object id, string key, string sid, void|string reg);
+//   void expire_old(int curtime);
+//   void delete_session(sid);
 //
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
@@ -354,7 +407,9 @@ private mapping memory_storage_registration_record = ([
     "setup" : memory_setup,
     "store" : memory_store,
     "retrieve" : memory_retrieve,
-    "delete_variable" : memory_delete_variable
+    "delete_variable" : memory_delete_variable,
+    "expire_old" : memory_expire_old,
+    "delete_session" : memory_delete_session
 ]);
 
 //
@@ -474,6 +529,33 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
     }
 
     return 0;
+}
+
+//
+// Delete the given session from all regions of the storage
+//
+private void memory_delete_session(string sid)
+{
+    foreach(indices(_memory_storage), string region)
+        m_delete(_memory_storage[region], sid);
+}
+
+private void memory_expire_old(int curtime)
+{
+#ifdef THREADS
+    gc_key = gc_lock->lock();
+#endif
+
+    foreach(indices(_memory_storage), string region) {
+        foreach(indices(_memory_storage[region]), string sid) {
+            if (curtime - _memory_storage[region][sid]->lastused > QUERY(expire)) {
+                memory_delete_session(sid);
+            }
+        }
+    }
+#ifdef THREADS
+    destruct(gc_key);
+#endif
 }
 
 //
