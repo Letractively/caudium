@@ -1165,6 +1165,8 @@ private int leave_me_alone(string uri)
     if (uri[0] == '/')
         return 0;
 
+    uri = lower_case(uri);
+    
     if (sizeof(uri) >= 7 && uri[0..6] == "mailto:")
         return 1;
 
