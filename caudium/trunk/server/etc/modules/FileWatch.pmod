@@ -23,6 +23,25 @@
 //!  This Pike module provides a couple of classes that makes it possible for
 //!  module programmers to watch a file and get a callback every time the file
 //!  has changed (size, modification date, ownership and permission).
+//!  @code {
+//!    // The following code will reload automagicly the file
+//!    // /etc/passwd into string passwd every 60s if it has been modified.
+//!    string passwd = "";
+//!    object filewatch;
+//!    
+//!    // Password loader
+//!    int passwd_load(string passwdfile) {
+//!      mixed err = catch { 
+//!        passwd = Sdtio.read_bytes(passwdfile);
+//!      };
+//!      if (err) return -1;		// Cannot load. Then stop FileWatch
+//!      return 0;
+//!    }
+//!    // This function is started once (like for example in a Caudium module)
+//!    void start() {
+//!      filewatch = FileWatch.Callout("/etc/passwd", 60, passwd_load);
+//!    }
+//!  @}
 
 //!  This is the base class of the two watcher classes. You should never use
 //!  this class directly since it actually doesn't do anything.
