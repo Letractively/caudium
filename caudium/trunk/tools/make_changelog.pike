@@ -152,7 +152,7 @@ void main(int argc, array (string) argv)
   else
   {
     users->law = "Mirar <mirar@idonex.se>";
-    domain = "idonex.se";
+    domain = "users.sourceforge.net";
   }
   werror("Parsing data ... ");
   if(rxml)
