@@ -193,7 +193,6 @@ install_alt:
 	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium$(EXTRAVER)/\"\2;g" \
 	     -e "s;\(globvar(.*\"cachedir\",.*\)\"/tmp/caudium_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
 	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium$(EXTRAVER)/caudium.pid\"\2;g" \
-	     -e "s;\(globvar(.*\"argument_cache_dir\",.*\)\"../argument_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
 	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike > \
 	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new; \
 	 mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new \
