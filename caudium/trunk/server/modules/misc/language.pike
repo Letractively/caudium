@@ -258,7 +258,7 @@ mixed remap_url( object id, string url )
       redirect_url[1..];
     
     id->misc->in_language=0;
-    return http_redirect( redirect_url );
+    return Caudium.HTTP.redirect( redirect_url );
   }		    
   found_languages_orig = find_files( url, id );
   found_languages = copy_value( found_languages_orig );

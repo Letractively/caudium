@@ -448,8 +448,8 @@ mapping standard_redirect(object o, object id)
     if(o->up)
       loc = o->up->path(1) + ".?" + (nocache++) + "#" + o->path(1);
     else
-      return http_redirect("/.", id);
-  return http_redirect(loc,id);
+      return Caudium.HTTP.redirect("/.", id);
+  return Caudium.HTTP.redirect(loc,id);
 }
 
 mapping parse_directory(object id)
@@ -465,7 +465,7 @@ mapping parse_directory(object id)
   if(!id->prestate->diract) 
   { 
     if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
-      return http_redirect(id->not_query+"/", id);
+      return Caudium.HTTP.redirect(id->not_query+"/", id);
       
     old_file = id->not_query;
     if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];

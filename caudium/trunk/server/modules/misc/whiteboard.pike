@@ -511,13 +511,13 @@ mixed find_file(string path, object id) {
 
   // check to see if the user is authenticated!
   if(!id->user)
-    return http_auth_required("Whiteboard for "+QUERY(mountpoint));
+    return Caudium.HTTP.auth_required("Whiteboard for "+QUERY(mountpoint));
   string user = id->user->username;
 
   array a=QUERY(allowedusers)-({""});
   if(sizeof(a)>0)
     if(search(a,user)<0)
-      return http_auth_required("Whiteboard for "+QUERY(mountpoint));
+      return Caudium.HTTP.auth_required("Whiteboard for "+QUERY(mountpoint));
 
   string result="";
   string file="";
@@ -555,7 +555,7 @@ mixed find_file(string path, object id) {
             id->variables->new="new";
             result=saveinput(id->variables->project, user, id);
             if(result=="")
-              return http_redirect(QUERY(mountpoint)+"/"+project,id);
+              return Caudium.HTTP.redirect(QUERY(mountpoint)+"/"+project,id);
             break;
           }
         if(findproject(file)>=0)
@@ -574,7 +574,7 @@ mixed find_file(string path, object id) {
           if(sizeof(p->users-({""}))!=0) {
             a=p->users-({""})+({p->creator});
             if(search(a,user)<0)
-              return http_auth_required("Whiteboard for "+QUERY(mountpoint));
+              return Caudium.HTTP.auth_required("Whiteboard for "+QUERY(mountpoint));
           }
         }
 
@@ -589,14 +589,14 @@ mixed find_file(string path, object id) {
             if(id->variables->comment) {
               result=addcomment(project, user, id->variables->comment);
               if(result=="")
-                return http_redirect(QUERY(mountpoint)+"/"+project,id);
+                return Caudium.HTTP.redirect(QUERY(mountpoint)+"/"+project,id);
             }
             else result=makeindex(project, user);
             break;
           case "save.html":        //generic save routine. Save whatever user sent
             result=saveinput(project, user, id);
             if(result=="")
-              return http_redirect(QUERY(mountpoint)+"/"+project,id);
+              return Caudium.HTTP.redirect(QUERY(mountpoint)+"/"+project,id);
             break;
           break;
           default:                          //check to see if it's second level.

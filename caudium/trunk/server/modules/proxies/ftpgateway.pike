@@ -1406,7 +1406,7 @@ mixed|mapping find_file( string f, object id )
   while(f[0]=='/') f=f[1..];
 
   if(search(f, "/") == -1)
-    return http_redirect(f+"/");
+    return Caudium.HTTP.redirect(f+"/");
       
   if(sscanf(f, "%[^/]/%s", host, file) < 2)
   {

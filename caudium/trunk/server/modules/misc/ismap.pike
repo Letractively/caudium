@@ -623,8 +623,8 @@ mapping|string handle_file_extension(object file, string ext, object id)
 	(map_file_name[3]==':' || map_file_name[4]==':' || 
 	 map_file_name[5]==':' || map_file_name[6]==':') ||
 	map_file_name[0]=='/'))
-      return http_redirect(map_file_name, id);
-    return http_redirect(dirname(id->not_query)+"/"+ map_file_name, id);
+      return Caudium.HTTP.redirect(map_file_name, id);
+    return Caudium.HTTP.redirect(dirname(id->not_query)+"/"+ map_file_name, id);
   }
   return thevoid();
 }

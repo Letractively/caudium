@@ -847,7 +847,7 @@ mapping handle_file_extension(object o, string e, object id)
              "<b>The script you tried to run is not executable. "
              "Please contact the server administrator about "
              "this problem.</b>");
-  return http_stream( CGIScript( id )->run()->get_fd() );
+  return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
 array(string) find_dir( string f, object id )
@@ -886,7 +886,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
     // Make foo.cgi/ be handled using PATH_INFO
     return 0;
   id->realfile = real_file( f,id );
-  return http_stream( CGIScript( id )->run()->get_fd() );
+  return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
 

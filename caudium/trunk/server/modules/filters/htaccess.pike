@@ -535,12 +535,12 @@ mapping|string|int htaccess(mapping access, object id)
 
     if(sscanf(access->redirect, "%s %s", from, to) < 2) {
       TRACE_LEAVE("redirect (access->redirect)");
-      return http_redirect(access->redirect,id);
+      return Caudium.HTTP.redirect(access->redirect,id);
     }
 
     if(search(NOT_QUERY, from) + 1) {
       TRACE_LEAVE("redirect");
-      return http_redirect(to,id);
+      return Caudium.HTTP.redirect(to,id);
     }
   }
   aname      = access->authname || "authorization";

@@ -194,7 +194,7 @@ mapping find_file( string f, object id ){
     in->write((string)mail);
     in->close();
 
-     return http_redirect( id->variables[query("VretURL")],id );
+     return Caudium.HTTP.redirect( id->variables[query("VretURL")],id );
 }
 
 string simpletag_mailform( string tag, mapping m,string cont, object got)

@@ -354,7 +354,7 @@ mixed find_file(string f, object id)
         report_notice("Redirecting to /mountpoint - unauthenticated request\n");
 
         SUSER(id)->authenticating = 1;
-        return http_redirect(id->conf->QUERY(MyWorldLocation) + QUERY(mountpoint) + "/", id);
+        return Caudium.HTTP.redirect(id->conf->QUERY(MyWorldLocation) + QUERY(mountpoint) + "/", id);
     }
     
     //

@@ -70,7 +70,7 @@ void precache_rewrite(object id) {
       p = ":443";
       prot = "https://";
     }
-    id->misc->redir = http_redirect( sprintf( "%s%s%s%s", prot,
+    id->misc->redir = Caudium.HTTP.redirect( sprintf( "%s%s%s%s", prot,
                                              query( "redirectto" ),
                                              p,
                                              id->raw_url ));

@@ -565,7 +565,7 @@ int|mapping|Stdio.File find_file(string f, object id)
       if(stringp(db_query_results))
       {
         // Yes !!! This is string so we can redirect to !
-	return http_redirect(db_query_results, id);
+	return Caudium.HTTP.redirect(db_query_results, id);
       }
     }
   }
@@ -599,7 +599,7 @@ int|mapping|Stdio.File find_file(string f, object id)
     if((f == "") && (strlen(of) && of[-1] != '/'))
     {
       redirects++;
-      return http_redirect(id->not_query+"/",id);
+      return Caudium.HTTP.redirect(id->not_query+"/",id);
     }
 
     string dir;

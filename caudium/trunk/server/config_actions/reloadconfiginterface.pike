@@ -64,5 +64,5 @@ mixed handle(object id, object conf)
 
   report_notice("Configuration interface reloaded from disk.\n");
   
-  return http_redirect(caudium->config_url(id)+"Actions/?"+time(1));
+  return Caudium.HTTP.redirect(caudium->config_url(id)+"Actions/?"+time(1));
 }

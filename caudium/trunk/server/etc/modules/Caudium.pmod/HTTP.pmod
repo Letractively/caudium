@@ -533,7 +533,7 @@ mapping redirect( string url, object|void id )
 //!   this function makes Roxen read the data from the specified object and will
 //!   close the connection when it's done. With @[Caudium.HTTP.in_progress] you are
 //!   responsible for writing the content to the client and closing the
-//!   connection. Please note that a http_stream reply also inhibits the
+//!   connection. Please note that a @[Caudium.HTTP.stream] reply also inhibits the
 //!   sending of normal HTTP headers.
 //! @param from
 //!   The object Roxen should read data from. This can be any object that

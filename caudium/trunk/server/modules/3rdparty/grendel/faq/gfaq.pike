@@ -466,7 +466,7 @@ private static mixed save_edit_data(object id)
     return ({ puterr });
   }
   
-//  return http_redirect(sprintf("%s/%s", QUERY(mountpoint), id->variables->entry_path));
+//  return Caudium.HTTP.redirect(sprintf("%s/%s", QUERY(mountpoint), id->variables->entry_path));
 
   return Caudium.HTTP.string_answer(ret);
 }

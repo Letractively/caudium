@@ -460,7 +460,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MKDIR: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
 				"<h1>Permission to 'MKDIR' denied</h1>");
     }
     mkdirs++;
@@ -508,7 +508,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("PUT: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
 				"<h1>Permission to 'PUT' files denied</h1>");
     }
     puts++;
@@ -580,7 +580,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("APPE: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
 				"<h1>Permission to 'APPE' files denied</h1>");
     }
     appes++;
@@ -653,7 +653,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("CHMOD: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
 				"<h1>Permission to 'CHMOD' files denied</h1>");
     }
     
@@ -717,7 +717,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MV: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
 				"<h1>Permission to 'MV' files denied</h1>");
     }
     string movefrom;
@@ -786,7 +786,7 @@ mixed find_file( string f, object id )
 
     if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MOVE: Permission denied");
-      return http_auth_required("foo",
+      return Caudium.HTTP.auth_required("foo",
                                 "<h1>Permission to 'MOVE' files denied</h1>");
     }
 
@@ -869,7 +869,7 @@ mixed find_file( string f, object id )
     if ( size != -1 && id->misc->overwrite != "T" )
 	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     if(QUERY(check_auth) && (!id->user))
-	return http_auth_required("copy", "Permission to 'COPY' files denied");
+	return Caudium.HTTP.auth_required("copy", "Permission to 'COPY' files denied");
     if(QUERY(no_symlinks) && 
        (contains_symlinks(path, f) || 
 	contains_symlinks(path,id->misc->destination)))

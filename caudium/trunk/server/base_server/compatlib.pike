@@ -193,6 +193,34 @@ string http_caudium_id_cookie() {
    return Caudium.HTTP.id_cookie();
 }
 
+//! Compat call of Caudium.HTTP.redirect
+//! @deprecated
+mapping http_redirect(string url, object|void id) {
+   WCOMPAT2("Caudium.HTTP.redirect", "http_redirect");
+   return Caudium.HTTP.redirect(url,id);
+}
+
+//! Compat call of Caudium.HTTP.stream
+//! @deprecated
+mapping http_stream(object from) {
+   WCOMPAT2("Caudium.HTTP.stream", "http_stream");
+   return Caudium.HTTP.redirect(from);
+}
+
+//! Compat call of Caudium.HTTP.auth_required
+//! @deprecated
+mapping http_auth_required(string realm,string|void message,void|int dohtml) {
+   WCOMPAT2("Caudium.HTTP.auth_required", "http_auth_required");
+   return Caudium.HTTP.auth_required(realm,message,dohtml);
+}
+
+//! Compat call of Caudium.HTTP.proxy_auth_required
+//! @deprecated
+mapping http_proxy_auth_required(string realm,void|string message) {
+   WCOMPAT2("Caudium.HTTP.proxy_auth_required", "http_proxy_auth_required");
+   return Caudium.HTTP.auth_required(realm,message);
+}
+
 // Some spider calls are not under spider module so here is some compat
 // things
 
@@ -343,7 +371,7 @@ string http_roxen_config_cookie(string m) {
    return Caudium.HTTP.config_cookie(m);
 }
 
-//! Compat call from http_auth_required
+//! Compat call from Caudium.HTTP.auth_required
 //! @param realm
 //!   The realm of this authentication. This is show in variour methods by
 //!   authenticating browser.
@@ -353,7 +381,7 @@ string http_roxen_config_cookie(string m) {
 //!   Unused.
 //! @deprecated
 mapping http_auth_failed(string realm, string|void m, int|void d) {
-  report_error("Compat http_auth_failed() used in %s, please consider using http_auth_required() instead\n",dbt(backtrace()[-2]));
+  report_error("Compat http_auth_failed() used in %s, please consider using Caudium.HTTP.auth_required() instead\n",dbt(backtrace()[-2]));
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth failed (%s)\n",realm);
 #endif

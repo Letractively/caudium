@@ -602,7 +602,7 @@ class Store
             else if(sscanf(goto, "goto_page_%s/%d", goto, id->misc->button_id))
                 new_page = pages_by_name[ goto ] && pages_by_name[ goto ]->num+1;
             else if(sscanf(goto, "goto_href_%s/%d", goto, id->misc->button_id))
-                return http_redirect( goto, id );
+                return Caudium.HTTP.redirect( goto, id );
       
             if( last_page && last_page->can_leave( id, extra_eval ))
             {
@@ -636,7 +636,7 @@ class Store
                 v["goto_page_"+error->page+"/0"]=1;
                 return handle( id );
             } else if(error->href) {
-                return http_redirect(error->href, id);
+                return Caudium.HTTP.redirect(error->href, id);
             } else if(!error->page)
                 return error;
         }

@@ -184,7 +184,7 @@ mapping find_file( string f, object id )
   {
     string nl;
     if(sscanf(ret->extra_heads->Location, caudium->config_url(id)+"%s", nl))
-      return http_redirect(query("mountpoint") + nl);
+      return Caudium.HTTP.redirect(query("mountpoint") + nl);
   }
   if(ret->type == "text/html" && ret->data && strlen(ret->data))
     ret->data = fix_absolute(ret->data);

@@ -194,7 +194,7 @@ int|mapping find_file(string f, object id)
       "<h3><a href=\"reports/\">Custom Reports</a></h3>";
     id->variables->title = "Select Statistics Type";
   } else
-    return http_redirect(QUERY(mountpoint)+"stats/", id);
+    return Caudium.HTTP.redirect(QUERY(mountpoint)+"stats/", id);
   if(stringp(res))
     return string_reply(res, id);
   else if(arrayp(res))
@@ -744,7 +744,7 @@ array|mapping|string view_log(string f, object id) {
       base += path*"/" +"/";
       if(v->match) query += ({ "match="+v->match });
       if(v->matchtype) query += ({ "matchtype="+v->matchtype });
-      return http_redirect(base + (sizeof(query) ?
+      return Caudium.HTTP.redirect(base + (sizeof(query) ?
 				   ("?"+query * "&"):""), id);
       
     default:
@@ -825,7 +825,7 @@ array|mapping|string view_log(string f, object id) {
     "<form action="+refocus+" method=post>"
     "<h4><select name=view>";
   if(!strlen(action))
-    return http_redirect(refocus+"?view=pages_per_day");
+    return Caudium.HTTP.redirect(refocus+"?view=pages_per_day");
   multiset allowed_views = (<>);
   
   foreach(view_names - (id->prestate->showall? ({}) : QUERY(hidden)),

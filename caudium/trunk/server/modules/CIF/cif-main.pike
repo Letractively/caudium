@@ -123,7 +123,7 @@ private mapping do_showconf(object id, string path)
 //
 private mixed get_auth_data(object id)
 {
-   return http_auth_required(QUERY(realm), QUERY(authfailedmsg), 1);
+   return Caudium.HTTP.auth_required(QUERY(realm), QUERY(authfailedmsg), 1);
 }
 
 mixed find_file(string f, object id)

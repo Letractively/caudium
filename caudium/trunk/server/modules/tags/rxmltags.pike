@@ -2075,7 +2075,7 @@ string tag_redirect(string tag, mapping m, object id, object file,
 	case '-': prestate[s[1..]] = 0; break;
       }
   id->prestate = prestate;
-  mapping r = http_redirect(m->to, id);
+  mapping r = Caudium.HTTP.redirect(m->to, id);
   id->prestate = orig_prestate;
 
   if (r->error) {
@@ -2093,7 +2093,7 @@ string tag_redirect(string tag, mapping m, object id, object file,
 string tag_auth_required (string tagname, mapping args, object id,
 			  object file, mapping defines)
 {
-  mapping hdrs = http_auth_required (args->realm, args->message);
+  mapping hdrs = Caudium.HTTP.auth_required (args->realm, args->message);
   if (hdrs->error) _error = hdrs->error;
   if (hdrs->extra_heads) _extra_heads += hdrs->extra_heads;
   if (hdrs->text) _rettext = hdrs->text;

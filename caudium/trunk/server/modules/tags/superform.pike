@@ -401,7 +401,7 @@ mapping failed(object rid) {
       q+="&"+v+"="+Caudium.http_encode_string(rid->variables[v]);
     }
     to+="?"+q;
-    // return a redirect.  We can't use http_redirect because that does
+    // return a redirect.  We can't use Caudium.HTTP.redirect because that does
     // a Caudium.http_encode_string on the whole url including any query
     return Caudium.HTTP.low_answer( 302, "")
       + ([ "extra_heads":([ "Location":to ]) ]); 

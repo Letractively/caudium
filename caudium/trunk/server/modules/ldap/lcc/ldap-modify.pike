@@ -344,7 +344,7 @@ private mixed do_modify(object id, mapping data, string f)
     
          screen = sprov->retrieve(id, "modified");
     } else
-        return http_redirect(data->user->my_world +
+        return Caudium.HTTP.redirect(data->user->my_world +
                              data->user->mountpoint + "/modify");
     
     if (screen && screen != "")

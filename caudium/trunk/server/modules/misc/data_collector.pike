@@ -236,7 +236,7 @@ private mixed get_redirect(object id)
         m_delete(DATA(id)->std_params, "error_url");
     }
     
-    return url ? http_redirect(url, id) :
+    return url ? Caudium.HTTP.redirect(url, id) :
         Caudium.HTTP.string_answer(sprintf(default_return,
                                    QUERY(dc_name),
                                    DATA(id)));
@@ -252,7 +252,7 @@ private mixed get_error_redirect(object id)
         m_delete(DATA(id)->std_params, "error_url");
     }
     
-    return error_url ? http_redirect(error_url, id) :
+    return error_url ? Caudium.HTTP.redirect(error_url, id) :
         Caudium.HTTP.string_answer(sprintf(default_error_return,
                                    QUERY(dc_name),
                                    DATA(id)));
@@ -294,7 +294,7 @@ private void construct_defines(string which, object id,
 private mixed provider_error(object id, mapping res)
 {
     if (res->url)
-        return http_redirect(res->url, id);
+        return Caudium.HTTP.redirect(res->url, id);
     else if (res->text) {
         string ret = sprintf("<html><head>"
                              "<meta http-equiv=\"content-type\" content=\"text/html; charset=%s\">"

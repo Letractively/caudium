@@ -1133,7 +1133,7 @@ int|mapping check_security(function a, object id, void|int slevel)
               // IP is OK as of yet.
               if(id->misc->proxyauth && id->misc->proxyauth[0] && 
                  level[1](id->misc->proxyauth[1])) return 0;
-              return http_proxy_auth_required(seclevels[2]);
+              return Caudium.HTTP.proxy_auth_required(seclevels[2]);
             } else {
               // Bad IP.
               return(1);
@@ -1160,7 +1160,7 @@ int|mapping check_security(function a, object id, void|int slevel)
                 auth_ok |= 1; // Auth may be bad.
               } else {
                 // No auth yet, get some.
-                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return Caudium.HTTP.auth_required(seclevels[2],QUERY(ZAuthenticationFailed));
               }
             }
             break;
@@ -1172,7 +1172,7 @@ int|mapping check_security(function a, object id, void|int slevel)
               if (id->auth)
                 auth_ok |= 1;
               else
-                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return Caudium.HTTP.auth_required(seclevels[2],QUERY(ZAuthenticationFailed));
             }
             break;
             
@@ -1197,7 +1197,7 @@ int|mapping check_security(function a, object id, void|int slevel)
                 auth_ok |= 1; // Auth may be bad.
               } else {
                 // No auth yet, get some.
-                return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
+                return Caudium.HTTP.auth_required(seclevels[2],QUERY(ZAuthenticationFailed));
               }
             }
             break;
@@ -1219,7 +1219,7 @@ int|mapping check_security(function a, object id, void|int slevel)
     if (auth_ok == 1) {
       // Bad authentication.
       // Query for authentication.
-      return(http_auth_required(seclevels[2],QUERY(ZAuthenticationFailed)));
+      return  Caudium.HTTP.auth_required(seclevels[2],QUERY(ZAuthenticationFailed));
     } else {
       // No auth required, or authentication OK.
       return(0);
@@ -1745,7 +1745,7 @@ mapping|int low_get_file(object id, int|void no_magic)
       {
         TRACE_ENTER("Automatic redirect to location module", tmp[1]);
         TRACE_LEAVE("Returning data");
-        return http_redirect(id->not_query + "/", id);
+        return Caudium.HTTP.redirect(id->not_query + "/", id);
       }
     }
   }

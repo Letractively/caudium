@@ -442,9 +442,9 @@ mapping standard_redirect(object o, object id)
      loc = ( ( ( ( (id->referrer/"#")[0] ) / "?" )[0] ) + "#" + o->path(1) );
   else
      if (o->up) loc = o->up->path(1) + ".?" + (nocache++) + "#" + o->path(1);
-     else return http_redirect("/.", id);
+     else return Caudium.HTTP.redirect("/.", id);
 
-  return http_redirect(loc, id);
+  return Caudium.HTTP.redirect(loc, id);
 }
 
 mapping parse_directory(object id)
