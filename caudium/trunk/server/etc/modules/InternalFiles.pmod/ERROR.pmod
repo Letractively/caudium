@@ -19,6 +19,9 @@
  *
  */
 
+//! InternalFiles error module handler
+
+//!
 class http_error_handler {
 
     inherit "caudiumlib";
@@ -43,6 +46,7 @@ class http_error_handler {
 	  500 : "Something has gone horribly wrong inside the web server (Caudium).<br>This is probably caused by an error in a CGI or other server side script, but can also mean that something is broke.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	 ]);
 
+    //!
     public void set_template( string _template_name, object id ) {
 	if ( _template_name == "" ) {
 	    // If the template name isnt set in the config interface then
@@ -108,6 +112,7 @@ class http_error_handler {
 	}
      }
 
+    //! 
     public mapping handle_error( int error_code, string error_name, mixed error_message, object id ) {
         mapping local_template;
 	if ( id == 0 ) {
@@ -140,12 +145,14 @@ class http_error_handler {
 
 }
 
+//! This is a quick hack to make it easy to cache error templates for
+//! multiple virtual server.
 class per_server_cache {
-    // This is a quick hack to make it easy to cache error templates for
-    // multiple virtual servers.
 
+    //!
     mapping cache = ([ ]);
 
+    //!
     void store( string server_name, object http_error ) {
 	if ( cache[ server_name ] ) {
 	    m_delete( cache, server_name );
@@ -153,25 +160,29 @@ class per_server_cache {
 	cache += ([ server_name : http_error ]);
     }
 
+    //!
     mixed retrieve( string server_name ) {
 	return cache[ server_name ] | 0;
     }
 
 }
 
-
+//!
 constant cvs_version = "$Id ERROR.pmod,v 1.3 2001/01/03 06:25:25 james_tyson Exp $";
 
-// I'm assuming this to be true for now - anyone want to make a nice 50Mb
-// flash file for 404? Then we can be just like MacOS :)
+//! I'm assuming this to be true for now - anyone want to make a nice 50Mb
+//! flash file for 404? Then we can be just like MacOS :)
 static constant mime_type = "text/html";
 
+//!
 static mapping default_error = ([
 				 "data" : #string "ERROR.html",
 				 "type" : mime_type ]);
 
+//!
 object cache = per_server_cache();
 
+//!
 mapping(string:string) handle(object id,
 			      string file,
 		              mapping(string:mixed) query,
