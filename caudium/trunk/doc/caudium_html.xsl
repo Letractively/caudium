@@ -5,7 +5,6 @@
      Very early version - don't expect any bells and whistles.
 -->
 <xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
-<xsl:variable name="myversion"></xsl:variable>
 <xsl:template match="documentation">
  <html><head><title>Caudium Docs</title></head>
   <body><h1>Caudium Documentation</h1>
