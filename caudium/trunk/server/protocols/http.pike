@@ -718,7 +718,7 @@ void end(string|void s, int|void keepit)
     object fd = my_fd;
     my_fd=0;
     if(s) leftovers += s;
-    while(sscanf(leftovers, "\r\n%s", lefovers))
+    while(sscanf(leftovers, "\r\n%s", leftovers))
       ; // Remove beginning newlines..
     o->chain(fd,conf,leftovers);
     disconnect();
