@@ -19,7 +19,7 @@
  */
 
  /* $Id$ */
-import "../";
+//import "../";
 
 constant multiload = 1;
 
@@ -95,16 +95,16 @@ void set_period(array period)
   savedir = path+period[1]+"/";  
   switch(period[0])
   {
-   case Util.PERIOD_DAY:
+   case UltraSupport.Util.PERIOD_DAY:
     key = sprintf("%02d%02d.sav",@period[2..]);
     break;
-   case Util.PERIOD_WEEK:
+   case UltraSupport.Util.PERIOD_WEEK:
     key = sprintf("week%02d.sav", period[2]);
     break;
-   case Util.PERIOD_MONTH:
+   case UltraSupport.Util.PERIOD_MONTH:
     key = sprintf("month%02d.sav", period[2]);
     break;
-   case Util.PERIOD_YEAR:
+   case UltraSupport.Util.PERIOD_YEAR:
     key = "year.sav";
     break;
   }
@@ -132,7 +132,7 @@ mapping load_list(void|array list)
   if(!load_cache) {
     tmp = Stdio.read_file(savedir+key);
     if(!tmp) return 0;
-    catch { tmp = Util.uncompress(tmp); };
+    catch { tmp = UltraSupport.Util.uncompress(tmp); };
     mixed err = catch { tmp = decode_value(tmp); };
     if(err) {
       werror("Error decoding data for %s\n%s\n",
@@ -162,7 +162,7 @@ mapping savetmp;
 void save(string table, mixed data)
 {
   get_available_dates();
-  if(tdate && tdate[0] == Util.PERIOD_DAY) {
+  if(tdate && tdate[0] == UltraSupport.Util.PERIOD_DAY) {
     if(!available[ tdate[1] ])
       available[ tdate[1] ] = ([]);
     if(!available[ tdate[1] ][ tdate[2] ])
@@ -181,7 +181,7 @@ void sync() {
   if(savetmp) {
     Stdio.mkdirhier(savedir);
     rm(savedir+key);
-    Stdio.write_file(savedir+key, Util.compress(encode_value(savetmp)));
+    Stdio.write_file(savedir+key, UltraSupport.Util.compress(encode_value(savetmp)));
     savetmp = 0;
   }
 }

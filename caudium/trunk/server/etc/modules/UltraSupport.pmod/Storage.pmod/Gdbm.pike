@@ -19,7 +19,7 @@
  */
 
 // $Id$
-import "../";
+//import "../";
 object db;
 string key;
 string path;
@@ -58,16 +58,16 @@ void set_period(array period)
   tdate = period;
   switch(period[0])
   {
-   case Util.PERIOD_DAY:
+   case UltraSupport.Util.PERIOD_DAY:
     key = sprintf("%02d%02d_", @period[2..]);
     break;
-   case Util.PERIOD_WEEK:
+   case UltraSupport.Util.PERIOD_WEEK:
     key = sprintf("wk%02d_", period[2]);
     break;
-   case Util.PERIOD_MONTH:
+   case UltraSupport.Util.PERIOD_MONTH:
     key = sprintf("mo%02d_", period[2]);
     break;
-   case Util.PERIOD_YEAR:
+   case UltraSupport.Util.PERIOD_YEAR:
     key = "yr_";
     break;
   }
@@ -123,7 +123,7 @@ mixed load(string table)
   mixed tmp;
   tmp = db->fetch(key+table);
   if(!tmp) return 0;
-  catch { tmp = Util.uncompress(tmp); };
+  catch { tmp = UltraSupport.Util.uncompress(tmp); };
   mixed err = catch { tmp = decode_value(tmp); };
   if(err) {
     werror("Error decoding data for %s (%s)\n%s\n",
@@ -145,7 +145,7 @@ mapping load_list(array list)
 void save(string table, mixed data)
 {
   get_available_dates();
-  if(tdate && tdate[0] == Util.PERIOD_DAY) {
+  if(tdate && tdate[0] == UltraSupport.Util.PERIOD_DAY) {
     if(!available[ tdate[1] ])
       available[ tdate[1] ] = ([]);
     if(!available[ tdate[1] ][ tdate[2] ])
@@ -159,7 +159,7 @@ void save(string table, mixed data)
     }
   }
   if(!db) db = Gdbm.gdbm(path+tdate[1]+"_stats.gdbm", "rwcf");
-  if(db)  db->store(key+table, Util.compress(encode_value(data)));
+  if(db)  db->store(key+table, UltraSupport.Util.compress(encode_value(data)));
   else    werror("Failed to open database and save...\n");
 }
 
