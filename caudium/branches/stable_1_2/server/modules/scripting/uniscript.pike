@@ -1042,6 +1042,11 @@ void create(object conf)
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Pass environment variables
 //
+//! defvar: rxml
+//! If this is set, the output from uni-scripts handled by this module will be RXML parsed. NOTE: No data will be returned to the client until the uni-script is fully parsed.
+//!  type: TYPE_FLAG
+//!  name: Parse RXML in uni-scripts
+//
 //! defvar: extra_env
 //! Extra variables to be sent to the script, format:<pre>NAME=value
 //!NAME=value
@@ -1162,3 +1167,17 @@ void create(object conf)
 //!  type: TYPE_INT_LIST|VAR_MORE
 //!  name: Limits: Time before killing scripts
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
