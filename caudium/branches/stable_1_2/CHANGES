@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Fixed bug #542177 that makes incorrect listings from directories2.pike.
 - Fixed bug #514391 (user listing in userfs), seems that Caudium Cache.
 - Fixed bug #533861 <wizard> was broken. Autodocs now added, new features like
   formname attribute to wizard conatiner, hidden "verify" container.
