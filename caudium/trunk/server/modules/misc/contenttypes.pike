@@ -298,7 +298,7 @@ array type_from_filename(string filename) {
     case 2:
       // one extension: it's either a content-type, or an encoding (calculated in this order)
       // i'm not quite sure whether it's likely to happen or not.
-      if( knows_exts[ tmp[1] ] ) {
+      if( known_exts[ tmp[1] ] ) {
         retval[ 0 ] = extensions[tmp[1]];
         accessed["extensions"][ tmp[1] ]++;
       } else if(known_encs[ tmp[1] ] ) {
