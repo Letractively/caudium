@@ -91,7 +91,7 @@ void start (int cnt, object conf) {
     //      a new TTL for the cache.
     //      I can't think of any other reason, but I really don't want to
     //      serve up the wrong data - I know how that pisses off users.
-    fscache = sqlfs_cache( query( "ttl" ), query( "flatulant_cache" ) );
+    fscache = sqlfs_cache( QUERY( "ttl" ), QUERY( "flatulant_cache" ) );
 }
 
 string status() {
@@ -102,7 +102,7 @@ string status() {
 }
 
 string query_location () {
-    return query( "fsmp" );
+    return QUERY( "fsmp" );
 }
 
 mixed find_file ( string path, object id ) {
@@ -120,8 +120,8 @@ mixed find_file ( string path, object id ) {
     if ( id->pragma[ "no-cache" ] ) {
 	fscache->flush( path );
     }
-    object db = id->conf->sql_connect( query( "sqldb" ) );
-    object readobj = sqlfs_read( db, fscache, path, query( "store_atime" ) );
+    object db = id->conf->sql_connect( QUERY( "sqldb" ) );
+    object readobj = sqlfs_read( db, fscache, path, QUERY( "store_atime" ) );
     if ( readobj->get_content_ID() == 0 ) {
 	return 0;
     } else if ( readobj->get_content_ID() == -1 ) {
@@ -143,8 +143,8 @@ void|array find_dir ( string path, object id ) {
     if ( id->pragma[ "no-cache" ] ) {
 	fscache->flush( path );
     }
-    object db = id->conf->sql_connect( query( "sqldb" ) );
-    object readobj = sqlfs_read( db, fscache, path, query( "store_atime" ) );
+    object db = id->conf->sql_connect( QUERY( "sqldb" ) );
+    object readobj = sqlfs_read( db, fscache, path, QUERY( "store_atime" ) );
     return readobj->find_dir();
 }
 
@@ -156,8 +156,8 @@ void|array stat_file( string path, object id ) {
     if ( id->pragma[ "no-cache" ] ) {
 	fscache->flush( path );
     }
-    object db = id->conf->sql_connect( query( "sqldb" ) );
-    object readobj = sqlfs_read( db, fscache, path, query( "store_atime" ) );
+    object db = id->conf->sql_connect( QUERY( "sqldb" ) );
+    object readobj = sqlfs_read( db, fscache, path, QUERY( "store_atime" ) );
     return readobj->stat_file();
 }
 
