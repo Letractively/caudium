@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+#define EXPERIMENTAL 1
 
 #include "global.h"
 RCSID("$Id$");
@@ -750,6 +755,118 @@ int is_safe (char c)
    return 0;
 }
 
+/*
+** method: string http_encode(string m)
+**   Encode with HTTP specification the given string
+** arg: string m
+**   The string to encode.
+** returns:
+**   The encoded string
+*/
+static void f_http_encode(INT32 args) 
+{
+	char *o, *out;
+	char *i, *in;
+	int unsafe = 0;
+	int out_len, in_len;
+	struct pike_string *ret;
+	
+	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
+		Pike_error("Invalid argument to Caudium.http_eecode(STRING);\n");
+
+	in = Pike_sp[-args].u.string->str;
+	in_len = Pike_sp[-args].u.string->len;
+	
+	// count unsave characters
+	for(i=in; *i; i++) if(!is_safe((int )*i)) unsafe++;
+
+	// no need to convert	
+	if(unsafe == 0) {
+		pop_n_elems(args-1);
+		return;
+	}
+	
+	out_len = in_len + (unsafe * 2) + 1;
+	ret = begin_shared_string(out_len);
+	out = ret->str;
+	
+	for(o=out, i=in; *i; i++) {
+		if (!is_save(*i)) {
+			*o++ = '%';
+			*o++ = hex_chars[*i >> 4];
+			*o++ = hex_chars[*i & 15];
+		} else *o++ = *i;
+	}
+	
+	*o++ = 0;
+	pop_n_elems(args);
+	push_string(end_shared_string(ret));
+}
+
+/*
+** method: string http_decode(string m)
+**  Decode the string according to to the HTTP specifications
+** arg: string m
+**  The string to decode
+** returns:
+**  Decoded string
+*/
+static void f_http_decode(INT32 args) 
+{
+	char *i, *o, *out, *in; 
+	struct pike_string *ret;
+	int in_len, check;
+	
+	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
+		Pike_error("Invalid argument to Caudium.http_eecode(STRING);\n");
+
+	in = Pike_sp[-args].u.string->str;
+	in_len = Pike_sp[-args].u.string->len;
+
+	// count encoded characters
+	for(i=in; *i; i++) if(*i == '%') check++;
+
+	// no need to convert	
+	if(check == 0) {
+		pop_n_elems(args-1);
+		return;
+	}
+
+	
+	ret = begin_shared_string(strlen(in)+1);
+	out = ret->str;
+	o = out;
+	i = in;
+
+	while(*i) {
+		if(*i == '%') {
+			char c = 0;
+			int x;
+			for(x = 0; x < 2; x++) {
+				int h;
+				i++;
+				if(*i == '\0') break;
+				if((h = hex_to_char(*i)) == -1) break;
+				c = c << 4 + h;
+			}
+			
+			if(x != 2) { // error 
+				free(out);
+				return NULL;
+			}
+
+			*o++ = c;
+		}
+		else *o++ = *i;
+		
+		i++;
+	}
+
+	*o = '\0';
+	pop_n_elems(args);
+	push_string(end_shared_string(ret));
+}
+
 #endif
 
 /* Initialize and start module */
@@ -781,6 +898,12 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
+#ifdef EXPERIMENTAL
+  add_function_constant( "http_encode", f_http_encode,
+                         "function(string:string)", 0);
+  add_function_constant( "http_decode", f_http_decode,
+                         "function(string:string)", 0);
+#endif 
 
   start_new_program();
   ADD_STORAGE( buffer );
