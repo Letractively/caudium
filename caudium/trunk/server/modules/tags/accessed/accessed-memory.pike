@@ -39,7 +39,7 @@ inherit "caudiumlib";
 constant cvs_version   = "$Id$";
 constant thread_safe    = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
-constant module_name   = "Accessed Counter Tag - Memory";
+constant module_name   = "Accessed Counter Tag: Memory";
 // Kiwi: we do not support yet entities so =)
 //constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
