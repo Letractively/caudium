@@ -118,10 +118,12 @@ typedef struct
 {
   NBIO_INT_T written;
   int buf_len;
+  int buf_pos;
   char *buf;
   output *outp;
   input *inputs;
   input *last_input;
+  struct pike_string *objread;
   struct svalue args;
   struct svalue cb;
 
