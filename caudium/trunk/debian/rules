@@ -156,10 +156,11 @@ binary-arch: build install
 #	dh_installpam
 	dh_installlogrotate
 	dh_installinit
+	dh_installman
 #	dh_installcron
-#	dh_installmanpages
+#	dh_installmanpages -A caudium doc/caudiumctl.1
 #	dh_installinfo
-	dh_undocumented htpasswd-caudium.1 pixsl.1 caudiumctl.1
+	dh_undocumented htpasswd-caudium.1 pixsl.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link
