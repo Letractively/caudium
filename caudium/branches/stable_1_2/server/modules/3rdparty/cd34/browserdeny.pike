@@ -77,7 +77,7 @@ void create() {
   defvar("nastymode", 0, "Nasty Redirect Mode", TYPE_FLAG,
          "If set to yes, this will redirect traffic to the Nasty Mode URL rather than give the error 403");
   defvar("nastyurl", "", "Nasty Mode URL", TYPE_STRING,
-         "This is the URL to direct to if Nasty Redirect Mode is turned on<p>"
+         "This is the URL to direct to if Nasty Redirect Mode is turned on"
          "http://www.tenmax.com/ is my personal favorite since they are the largest source of mechanical "
          "surfers");
   defvar("errmessage", "Need Human Browser", "Error 403 string to hand back", TYPE_STRING,

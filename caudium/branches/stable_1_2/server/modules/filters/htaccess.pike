@@ -22,7 +22,7 @@
 //
 //! module: .htaccess support
 //!  Almost complete support for NCSA/Apache .htaccess files.
-//!  See <a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.
+//!  See <a href="http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html">http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.
 //!  Manual is also <a href="http://manuals.oav.net/creator/security/index.html">available</a>.
 //! inherits: module
 //! inherits: caudiumlib
