@@ -49,7 +49,7 @@ static MH_ERROR mh_log(void *ud, SablotHandle sproc,
   return code;
 }
 
-INLINE static MH_ERROR low_mh_error(void *ud, SablotHandle sproc,
+static MH_ERROR low_mh_error(void *ud, SablotHandle sproc,
 			 MH_ERROR code, MH_LEVEL level, char **fields)
 {
   struct mapping *map = *(struct mapping **)ud;
