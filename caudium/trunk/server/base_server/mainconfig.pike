@@ -901,23 +901,24 @@ mapping new_module(object id, object node)
 {
   string varname;
   /* since Caudium 1.4, id->variables also contains empty variables
-     in HTTP request but since we are called with ?190099293 for example
-     we don't want to load such a module and thus remove empty entries from
-     the mapping
-         /vida */
-  foreach(id->variables; string index; string value)
+   in HTTP request but since we are called with ?190099293 for example
+   we don't want to load such a module and thus remove empty entries from
+   the mapping
+       /vida */
+  mapping variables = id->variables;
+  foreach(variables; string index; string value)
     if(!value || !sizeof(value))
-      m_delete(id->variables, index);
-  if(!sizeof(id->variables))
+      m_delete(variables, index);
+  if(!sizeof(variables))
     return stores(new_module_form(id, node));
-  if(id->variables->_add_new_modules) {
+  if(variables->_add_new_modules) {
     // Compact mode.
-    array toadd = id->variables->_add_new_modules/"\0" - ({""});
+    array toadd = variables->_add_new_modules/"\0" - ({""});
     foreach(toadd[1..], varname)
       new_module_copy(node, varname, id);
     varname = toadd[0];
-  } else 
-    varname = indices(id->variables)[0];
+  } else
+    varname = indices(variables)[0];
   return new_module_copy(node, varname, id);
 }
 
