@@ -16,6 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
 
 #define SX_FILE 0
@@ -25,13 +26,28 @@
 
 typedef struct
 {
+  struct svalue      *getAll;
+  struct pike_string *getAllBuffer;
+  struct svalue      *freeMemory;
+  struct svalue      *open;
+  struct svalue      *get;
+  struct svalue      *put;
+  struct svalue      *close;
+} SCHEME_CALLBACKS;
+
+typedef struct
+{
   struct pike_string *xml;
   struct pike_string *xsl;
   struct pike_string *base_uri;
-  int xml_type, xsl_type;
-  struct mapping *variables;  
-  struct mapping *err;
-  char *content_type, *charset;
+  int                 xml_type, xsl_type;
+  struct mapping     *variables;  
+  struct mapping     *err;
+  char               *content_type, *charset;
+  SchemeHandler       sab_scheme_handler;
+  SCHEME_CALLBACKS    scheme_cb;
+  int                 do_callbacks;
+  void               *sproc;
 } xslt_storage;
 
 static void f_set_xml_data(INT32 args); 
@@ -40,9 +56,12 @@ static void f_set_xsl_data(INT32 args);
 static void f_set_xsl_file(INT32 args); 
 static void f_set_variables(INT32 args); 
 static void f_set_base_uri(INT32 args); 
-static void f_parse( INT32 args );
-static void f_create( INT32 args );
-static void f_error( INT32 args );
-static void f_parse_files( INT32 args );
-static void f_content_type( INT32 args );
-static void f_charset( INT32 args );
+static void f_parse(INT32 args);
+static void f_create(INT32 args);
+static void f_error(INT32 args);
+static void f_parse_files(INT32 args);
+static void f_content_type(INT32 args);
+static void f_charset(INT32 args);
+static void f_set_scheme_callbacks(INT32 args);
+
+static void install_callbacks(struct mapping *map);

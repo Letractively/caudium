@@ -27,14 +27,13 @@ RCSID("$Id$");
 #include <fcntl.h>
 
 #include "sablot_config.h"
-#include "pixsl.h"
 #ifdef HAVE_SABLOT
 #include <sablot.h>
+#include <shandler.h>
 struct program *xslt_program=NULL;
-#endif
 
 /** Functions implementing Pike functions **/
-#ifdef HAVE_SABLOT
+#include "pixsl.h"
 
 /* Sablot Message Handlers */
 static MH_ERROR mh_makecode(void *ud, SablotHandle sproc,
@@ -235,6 +234,11 @@ static void f_run(INT32 args)
   SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
   SablotRegHandler(sproc, HLR_MISC, &sablot_misc, (void *)THIS);
   THREADS_ALLOW();
+
+  if (THIS->do_callbacks &&
+      SablotRegHandler(THIS->sproc, HLR_SCHEME, &THIS->sab_scheme_handler, THIS))
+    Pike_error("Failed to register the scheme handler\n");
+  
   success |= SablotRunProcessorGen(situation, sproc, xslsrc, xmlsrc, "arg:/_output");
   success |= SablotGetResultArg(sproc, "arg:/_output", &parsed);
   THREADS_DISALLOW();
@@ -272,12 +276,13 @@ static void init_xslt_storage(struct object *o)
 {
   MEMSET(THIS, 0, sizeof(xslt_storage));
 }
-void f_create(INT32 args)
+
+static void f_create(INT32 args)
 {
   pop_n_elems(args);
 }
 
-void f_error(INT32 args)
+static void f_error(INT32 args)
 {
   pop_n_elems(args);
   if (THIS->err != NULL)
@@ -286,7 +291,7 @@ void f_error(INT32 args)
     push_int(0);
 }
 
-void f_content_type(INT32 args)
+static void f_content_type(INT32 args)
 {
   pop_n_elems(args);
   if (THIS->content_type != NULL)
@@ -295,7 +300,7 @@ void f_content_type(INT32 args)
     push_int(0);
 }
 
-void f_charset(INT32 args)
+static void f_charset(INT32 args)
 {
   pop_n_elems(args);
   if (THIS->charset != NULL)
@@ -304,7 +309,7 @@ void f_charset(INT32 args)
     push_int(0);
 }
 
-void f_set_xml_data(INT32 args)
+static void f_set_xml_data(INT32 args)
 {
   struct pike_string *str;
   
@@ -317,7 +322,7 @@ void f_set_xml_data(INT32 args)
   pop_n_elems(args);
 }
 
-void f_set_xml_file(INT32 args)
+static void f_set_xml_file(INT32 args)
 {
   struct pike_string *str;
 
@@ -330,7 +335,7 @@ void f_set_xml_file(INT32 args)
   pop_n_elems(args);
 }
 
-void f_set_xsl_data(INT32 args)
+static void f_set_xsl_data(INT32 args)
 {
   struct pike_string  *str;
 
@@ -343,7 +348,7 @@ void f_set_xsl_data(INT32 args)
   pop_n_elems(args);
 }
 
-void f_set_base_uri(INT32 args)
+static void f_set_base_uri(INT32 args)
 {
   struct pike_string  *str;
 
@@ -355,7 +360,7 @@ void f_set_base_uri(INT32 args)
   pop_n_elems(args);
 }
 
-void f_set_xsl_file(INT32 args)
+static void f_set_xsl_file(INT32 args)
 {
   struct pike_string  *str;
 
@@ -368,7 +373,7 @@ void f_set_xsl_file(INT32 args)
   pop_n_elems(args);
 }
 
-void f_set_variables(INT32 args)
+static void f_set_variables(INT32 args)
 {
   struct mapping  *map;
 
@@ -380,6 +385,368 @@ void f_set_variables(INT32 args)
   pop_n_elems(args);
 }
 
+/* callback wrappers
+ *
+ * All of them return an array with the following contents:
+ *
+ *  arr[0] - (int) the error code (0 - success, 1 - failure in general)
+ *  arr[1] - (mixed) a callback-specific value
+ */
+INLINE static int getRespValues(struct svalue *retcode, struct svalue *retval, INT32 type2)
+{
+  struct array  *a;
+
+  if (Pike_sp[-1].type != T_ARRAY)
+    return 1;
+  
+  a = Pike_sp[-1].u.array;
+  array_index(retcode, a, 0);
+  
+  if (retcode->type != T_INT)
+    return 1;
+
+  if (type2 != T_VOID && retval->type != type2)
+    return 1;
+  
+  array_index(retval, a, 1);
+  return 0;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) getAll(string scheme, string rest);
+ *
+ * open the URI and return the whole string
+ *
+ *  scheme = URI scheme (e.g. "http")
+ *  rest = the rest of the URI (without colon)
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array contains the result of the get.
+ */
+static int sh_getAll(void *userData, SablotHandle processor,
+                     const char *scheme, const char *rest,
+                     char **buffer, int *byteCount)
+{
+  xslt_storage       *This = (xslt_storage*)userData;
+  struct svalue       retcode, retval;
+  
+  if (!buffer || !byteCount || !This || !This->scheme_cb.getAll)
+    return 1;
+
+  push_text(scheme);
+  push_text(rest);
+  apply_svalue(This->scheme_cb.getAll, 2);
+  
+  if (getRespValues(&retcode, &retval, T_STRING)) {
+    pop_stack();
+    return 1;
+  }
+
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+  
+  if (This->scheme_cb.getAllBuffer) {
+    sub_ref(This->scheme_cb.getAllBuffer);
+    free_string(This->scheme_cb.getAllBuffer);
+  }
+  
+  copy_shared_string(This->scheme_cb.getAllBuffer, retval.u.string);
+  pop_stack();
+  add_ref(This->scheme_cb.getAllBuffer);
+  
+  *buffer = This->scheme_cb.getAllBuffer->str;
+  *byteCount = This->scheme_cb.getAllBuffer->len;
+  
+  return retcode.u.integer;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) freeMemory(string buffer);
+ *
+ * release the resources allocated in the getAll call
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array is ignored
+ */
+static int sh_freeMemory(void *userData, SablotHandle processor, char *buffer)
+{
+  xslt_storage  *This = (xslt_storage*)userData;
+  struct svalue  retcode, retval;
+  
+  if (!This || !This->scheme_cb.freeMemory)
+    return 1;
+
+  /* Call up to pike and then dereference the string */
+  push_string(This->scheme_cb.getAllBuffer);
+  apply_svalue(This->scheme_cb.freeMemory, 1);
+  if (getRespValues(&retcode, &retval, T_VOID)) {
+    pop_stack();
+    return 1;
+  }
+
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+  
+  if (This->scheme_cb.getAllBuffer) {
+    sub_ref(This->scheme_cb.getAllBuffer);
+    This->scheme_cb.getAllBuffer = NULL;
+  }
+
+  pop_stack();
+  return 0;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) open(string scheme, string rest);
+ *
+ * open the URI and assign a handle to this instance
+ *
+ *  scheme = URI scheme (e.g. "http")
+ *  rest = the rest of the URI (without colon)
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array contains the integer handle.
+ */
+static int sh_open(void *userData, SablotHandle processor,
+                   const char *scheme, const char *rest, int *handle)
+{
+  xslt_storage  *This = (xslt_storage*)userData;
+  struct svalue  retcode, retval;
+  
+  if (!scheme || !rest || !handle || !This || !This->scheme_cb.open)
+    return 1;
+
+  /* call up to pike and expect an integer on return - the handle */
+  push_text(scheme);
+  push_text(rest);
+  apply_svalue(This->scheme_cb.open, 2);
+  if (getRespValues(&retcode, &retval, T_INT)) {
+    pop_stack();
+    return 1;
+  }
+  
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+
+  *handle = retval.u.integer;
+  pop_stack();
+  
+  return 0;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) put(int handle, string buffer);
+ *
+ * put the buffer contents into the scheme
+ *
+ *  handle = the handle previously assigned to the buffer in the open call
+ *  buffer = the data to put into the scheme
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array contains the number of actual bytes
+ * written to the scheme
+ */
+static int sh_put(void *userData, SablotHandle processor, int handle,
+                  const char *buffer, int *byteCount)
+{
+  xslt_storage  *This = (xslt_storage*)userData;
+  struct svalue  retcode, retval;
+  
+  if (!buffer || !byteCount || !This || !This->scheme_cb.put)
+    return 1;
+
+  /* 
+   * call up to pike and expect an integer on return - the actual number of
+   * bytes written to the scheme
+   */
+  push_int(handle);
+  push_text(buffer);
+  apply_svalue(This->scheme_cb.put, 2);
+  if (getRespValues(&retcode, &retval, T_INT)) {
+    pop_stack();
+    return 1;
+  }
+
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+
+  *byteCount = retval.u.integer;
+  pop_stack();
+  
+  return 0;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) get(int maxSize)
+ *
+ * retrieve data from the scheme and put it in the document
+ *
+ *  maxSize = the maximum number of bytes to return
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array contains the result of the get.
+ */
+static int sh_get(void *userData, SablotHandle processor, int handle,
+                  char *buffer, int *byteCount)
+{
+  xslt_storage  *This = (xslt_storage*)userData;
+  struct svalue  retcode, retval;
+  
+  if (!buffer || !byteCount || !This || !This->scheme_cb.get)
+    return 1;
+
+  /* call up to pike, get the buffer (*byteCount max) on return */
+  push_int(*byteCount);
+  apply_svalue(This->scheme_cb.get, 1);
+  if (getRespValues(&retcode, &retval, T_STRING)) {
+    pop_stack();
+    return 1;
+  }
+
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+
+  *byteCount = retval.u.string->len < *byteCount ? retval.u.string->len : *byteCount;
+  MEMCPY(buffer, retval.u.string->str, *byteCount);
+  pop_stack();
+
+  return 0;
+}
+
+/*
+ * Pike synopsis (actual name doesn't matter):
+ *
+ * array(int|string) close(string scheme, string rest);
+ *
+ * close the specified instance
+ *
+ *  handle = the handle allocated in the open call
+ *
+ * index 0 of the returned contains the error result (0 - success, 1 -
+ * failure) 
+ * index 1 of the returned array is ignored
+ */
+static int sh_close(void *userData, SablotHandle processor, int handle)
+{
+  xslt_storage  *This = (xslt_storage*)userData;
+  struct svalue  retcode, retval;
+  
+  if (!This || !This->scheme_cb.close)
+    return 1;
+
+  /* call up to pike and ignore the return value */
+  push_int(handle);
+  apply_svalue(This->scheme_cb.close, 1);
+  if (getRespValues(&retcode, &retval, T_VOID)) {
+    pop_stack();
+    return 1;
+  }
+
+  if (retcode.u.integer) {
+    pop_stack();
+    return retcode.u.integer;
+  }
+  
+  return 0;
+}
+
+INLINE static void install_callbacks(struct mapping *cbmap)
+{
+  struct svalue    *sv;
+  
+  THIS->do_callbacks = 0;
+
+  /* get all the callbacks one by one and set them in THIS */
+  if ((sv = simple_mapping_string_lookup(cbmap, "getAll"))) {
+    THIS->scheme_cb.getAll = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "freeMemory"))) {
+    THIS->scheme_cb.freeMemory = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "get"))) {
+    THIS->scheme_cb.get = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "open"))) {
+    THIS->scheme_cb.open = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "put"))) {
+    THIS->scheme_cb.put = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  if ((sv = simple_mapping_string_lookup(cbmap, "close"))) {
+    THIS->scheme_cb.close = sv;
+    THIS->do_callbacks = 1;
+  }
+
+  /* if any callback was present, try to install the handler */
+  if (THIS->do_callbacks) {
+    if (THIS->scheme_cb.getAll)
+      THIS->sab_scheme_handler.getAll = sh_getAll;
+    if (THIS->scheme_cb.freeMemory)
+      THIS->sab_scheme_handler.freeMemory = sh_freeMemory;
+    if (THIS->scheme_cb.open)
+      THIS->sab_scheme_handler.open = sh_open;
+    if (THIS->scheme_cb.get)
+      THIS->sab_scheme_handler.get = sh_get;
+    if (THIS->scheme_cb.put)
+      THIS->sab_scheme_handler.put = sh_put;
+    if (THIS->scheme_cb.close)
+      THIS->sab_scheme_handler.close = sh_close;
+  }
+}
+
+/* Expects a mapping as the parameter:
+ *
+ *  getAll
+ *  freeMemory
+ *  get
+ *  open
+ *  put
+ *  close
+ *
+ * For synopsis of the functions see above.
+ */
+static void f_set_scheme_callbacks(INT32 args)
+{
+  struct mapping   *cbmap;  
+  
+  get_all_args("set_scheme_callbacks", args, "%m", &cbmap);
+  install_callbacks(cbmap);
+}
 #endif  
 
 /* Initialize and start module */
@@ -406,7 +773,9 @@ void pike_module_init( void )
                OPT_SIDE_EFFECT);
   add_function("set_variables", f_set_variables, "function(mapping:void)",
                OPT_SIDE_EFFECT);
-  add_function( "run", f_run, "function(void:string)", 0);
+  ADD_FUNCTION("run", f_run, tFunc(tVoid, tString), 0);
+  ADD_FUNCTION("set_scheme_callbacks", f_set_scheme_callbacks, tFunc(tMapping, tVoid), 0);
+  
   xslt_program = end_program();
   add_program_constant("Parser", xslt_program, 0);
 #endif
