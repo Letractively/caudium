@@ -293,7 +293,7 @@ string _tags_stream( string tag, mapping args, string contents, object id ) {
 	    meta->name = (args->name||"Unknown Stream");
 	    meta->genre = args->genre;
 	    meta->url = args->url;
-	    meta->bitrate = args->bitrate;
+	    meta->bitrate = (int)args->bitrate;
 	    meta->description = args->description;
 	    meta->titlestreaming = QUERY(titlestreaming);
 	    meta->live_source = 0;
@@ -318,15 +318,16 @@ string _tags_stream( string tag, mapping args, string contents, object id ) {
 	if ( ! vars->sid ) {
 	    return "<b>ERROR</b>: Failed to create new stream!";
 	}
-	if ( args->playlist ) {
+	if ( args->action == "stream_id" ) {
+	    return (string)vars->sid;
+	} else {
+            // action=playlist??
 	    return
 		sprintf(
 			"<a href='%s'>%s</a>",
 			fix_relative( sprintf( "/" + QUERY(location) + "/playlists/%d.pls", vars->sid ), id ),
 			"Listen to " + streams[ vars->sid ]->meta->name
 		       );
-	} else if ( args->stream_id ) {
-	    return (string)vars->sid;
 	}
     } else {
 	return "Whatcyou talkin' 'bout Willis?";
@@ -354,7 +355,7 @@ class metadata {
     string url;
     int streamid;
     int pub = 1;
-    int bitrate;
+    int bitrate = 0;
     string description;
     int shuffle;
     int loop;
@@ -572,7 +573,6 @@ class new_stream {
 	meta->running = 1;
         meta->bytes = 0;
 	int _loop = 1;
-	int block = (int)( meta->bitrate * scale );
 	delay_loop = time();
         array promos;
 	if ( meta->promos_enable ) {
@@ -627,7 +627,7 @@ class new_stream {
 #endif
 		    continue;
 		}
-		block = (int)( _bitrate * 12.8 );
+		int block = (int)( _bitrate * 12.8 );
 		playing = filename;
                 meta->current_track->title = currently_playing( 1 );
 //                song_change();
@@ -680,9 +680,8 @@ class new_stream {
             meta->current_track->file_read += block;
 	    // If there are no clients listening then you might as well
 	    // wait until there are some.
-		    // Does half a second between checks seem reasonable?
 	    while( ( sizeof( clients ) == 0 ) && ( meta->pause == 1 ) ) {
-		sleep( 0.5 );
+		sleep( 0.1 );
 	    }
 	    if ( term == 1 ) {
 #ifdef DEBUG
@@ -690,12 +689,9 @@ class new_stream {
 #endif
 		return -1;
 	    }
-	    //send( buff );
-	    // I am not sure about this thread - should probably
-	    // use thread_farm, however it seems to work, and has
-	    // greatly improved performance, ie 25 client and only
-	    // using 10% CPU on my PII 400!
-	    fifo->write( ({ buff, title }) );
+	    if ( sizeof( clients ) > 0 ) {
+		fifo->write( ({ buff, title }) );
+	    }
 	    // this really needs to be changed so that if it takes
 	    // longer than 1/10th of a second to send data to the clients
 	    // then we are too busy, and should reduce samples to 9/second
@@ -708,10 +704,17 @@ class new_stream {
     void send_to_clients() {
         sending_to_clients = 1;
 	while( term == 0 ) {
+	    // This is a really big issue!!
+	    // If it takes too long to send data to one of the clients
+	    // then this Thread.Fifo.read blocks the start() thread
+	    // from sending data to clients - this is how it works,
+	    // but I need a better way to get data to clients.
+	    // Also, do you think that making the Fifo buffer is the
+            // solution, or just an ugly hack?
 	    array buff = fifo->read();
 	    if ( sizeof( clients ) > 0 ) {
 		foreach( write_callbacks, function write ) {
-		    mixed c = write( buff[ 0 ], buff[ 1 ] );
+		    catch( mixed c = write( buff[ 0 ], buff[ 1 ] ) );
 		    if ( ! intp( c ) ) {
 			unregister_client( c );
 		    }
@@ -728,7 +731,7 @@ class new_stream {
 	if ( ( sizeof( clients )  > 0 ) && ( meta->max_session > 0 ) ) {
             int thyme = time();
 	    foreach( clients, object client ) {
-		if ( client->start_time() + meta->max_session > thyme ) {
+		if ( client->start_time() + meta->max_session >= thyme ) {
 		    unregister_client( client );
 		}
 	    }
@@ -774,6 +777,7 @@ class new_stream {
 	write_callbacks -= ({ client->client_write });
 	client->terminate();
 	clients -= ({ client });
+        destruct( client );
     }
 
     array list_files() {
