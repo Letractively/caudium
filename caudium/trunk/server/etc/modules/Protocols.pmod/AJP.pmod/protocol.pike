@@ -26,6 +26,12 @@ constant MSG_FORWARD_REQUEST =	2;
 //! Web Server to Servlet Container message
 constant MSG_SHUTDOWN =		7;
 
+//! Web Server to Servlet Container message
+constant MSG_PING =		8;
+
+//! Web Server to Servlet Container message
+constant MSG_CPING =		10;
+
 //! Servlet Container to Web Server message
 constant MSG_SEND_HEADERS =		4;
 
@@ -437,6 +443,89 @@ mapping decode_send_headers(mapping packet)
   }
 
   return packet;
+}
+
+mapping decode_request_headers(mapping packet)
+{
+//  report_debug("decode_send_headers\n");
+  if(packet->type == MSG_PING)
+    error("Attempt to decode ping packet.\n");
+  if(packet->type == MSG_CPING)
+    error("Attempt to decode cping packet.\n");
+  if(packet->type == MSG_SHUTDOWN)
+    error("Attempt to decode cping packet.\n");
+
+  sscanf(packet->data, "%2c%s", packet->response_code, packet->data);
+  [packet->response_msg, packet->data]=pull_string(packet->data);
+  // workaround some screwy stuff that tomcat 3 seems to do.
+  int h=search(packet->response_msg, "\000");
+  if(h!=-1)
+    packet->response_msg=packet->response_msg[0..(h-1)];
+
+  sscanf(packet->data, "%2c%s", packet->num_headers, packet->data);
+
+  packet->response_headers=([]);
+
+//  report_debug("decoding " + packet->num_headers + " headers.\n");
+
+  for(int i=0; i<packet->num_headers; i++)
+  {
+    string h,v;
+    // do we have a hard coded value?
+    int n;
+    sscanf(packet->data[0..0], "%c", n);
+    if(n==0xa0)
+    {
+      sscanf(packet->data[0..1], "%2c", n);
+      h=send_header_values[n];
+      packet->data=packet->data[2..];
+      [v, packet->data]=pull_string(packet->data);
+     
+      // workaround some screwy stuff that tomcat 3 seems to do.
+      int hl=search(v, "\000");
+      if(hl!=-1)
+       v=v[0..(hl-1)];
+    }
+    else
+    {
+      [h, packet->data]=pull_string(packet->data);
+      [v, packet->data]=pull_string(packet->data);
+    }
+    packet->response_headers[h]=v;
+  }
+
+  return packet;
+}
+
+mapping decode_client_packet(string packet)
+{
+  mapping result=([]);
+  int len=0;
+
+  if(packet[0..1]!=0x1234)
+  {
+    error("Invalid packet from server.\n");
+  }
+
+  sscanf(packet[2..], "%2c%s", len, packet);
+
+  if(!len)
+  {
+    error("Invalid packet length from server.\n");
+  }
+
+  sscanf(packet, "%" + len + "s", packet);
+
+  if(strlen(packet) !=len)
+  {
+    error("Payload length not correct. Expected " + len + " got " + 
+      strlen(packet) + ".");
+  }
+
+  sscanf(packet, "%c%s", result->type, result->data);
+  
+  return result;
+  
 }
 
 mapping decode_container_packet(string packet)
