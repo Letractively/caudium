@@ -367,7 +367,7 @@ int authenticate (string user, string password)
 
     att++;
     
-    dir=open_dir()
+    dir=open_dir();
     if(!dir) return 0;
 
     sr=get_user_object(dir, user);
