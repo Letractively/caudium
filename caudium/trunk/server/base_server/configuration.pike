@@ -53,14 +53,25 @@ function remove = caudium->remove;
 function do_dest = caudium->do_dest;
 function create_listen_socket = caudium->create_listen_socket;
 
+//! the parser module for this configuration
 object   parse_module;
+
+//! the content-types module for this configuration
 object   types_module;
+
+//! the master authentication module for this configuration 
 object   auth_module;
+
+//! the directory listing module for this configuration
 object   dir_module;
 
+//! the content-type function from the types_module
 function types_fun;
+
+//! the authentication function from the authentication module
 function auth_fun;
 
+//! the name for the configuration
 string name;
 
 /* Since the main module (Roxen, formerly Spinner, alias spider), does
@@ -2833,7 +2844,7 @@ void hooks_for( string modname, object mod )
   }
 }
 
-//!
+//! enable a module in this configuration
 object enable_module( string modname )
 {
   string id;
@@ -3391,7 +3402,11 @@ int disable_module( string modname )
   return 1;
 }
 
-//!
+//! find a module
+//! @param name
+//!   the name of the module to find, where name is the base filename (foo if the file is called foo.pike).
+//! @returns
+//!  the module, or the first of multiple modules, or zero if the module does not exist.
 object|string find_module(string name)
 {
   int id;
@@ -3585,7 +3600,9 @@ int unload_module(string module_file)
   return 1;
 }
 
-//!
+//! add a set of modules to this configuration.
+//! @param mods
+//!   an array of module names to add, where the module name is the base name of the module file, minus any file extensions.
 int add_modules (array(string) mods)
 {
   foreach (mods, string mod)
