@@ -125,22 +125,6 @@ void create()
 
 }
 
-//array register_module()
-//{
-//  return( ({ MODULE_PARSER, 
-//	     "Path tag",
-//	     "Config interface style URL location thing!<P>"
-//           "Adds a new tag &lt;path&gt; which displays the path "
-//              "part of the current URL, split into clickable links. "
-//              "Put it at the top of all your pages to aid navigation. "
-//              "(Using &lt;insert&gt; or the tagbuilder module makes this easy!)"
-//	      "<P>Syntax: <I>&lt;path [separator=\"string\"] "
-//	      "[rootname=\"string\"] [skip=n] [capitalize] "
-//              "[gtext[=\"gtext options\"]] [magic]&gt;</I><P>",
-//	     0,
-//             1 }) );
-//}
-
 string status()
 {
    return "Called " + usecount + " times since " + starttime;
