@@ -37,8 +37,7 @@ inherit "caudiumlib";
 //!  This script and many more are available free online at<br />
 //!  The JavaScript Source!! http://javascript.internet.com<p />
 //!  Javascript Caudium Wrapper written by Chris Davies<br />
-//!  Web Site : <a href="http://daviesinc.com/javamenu/">
-//!  http://daviesinc.com/javamenu/</a><p />
+//!  Web Site : <a href="http://daviesinc.com/javamenu/">http://daviesinc.com/javamenu/</a><p />
 //!  This is what a demo page would look like :<p/>
 //!  <tt>&lt;HEAD&gt;<br />
 //!  &lt;menu defback="#3333ff" defover = "#000000" textcolor="yellow"&gt;<br />
