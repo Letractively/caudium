@@ -3354,7 +3354,7 @@ string desc()
       break;
       
     default:
-      prt = port[1]+"://";
+      prt = make_proto_name(port[1])+"://";
     }
     if(port[2] && port[2]!="ANY")
       prt += port[2];
