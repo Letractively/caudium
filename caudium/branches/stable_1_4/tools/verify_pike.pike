@@ -88,7 +88,7 @@ int main(int argc, array argv)
 
   if(ver < 7.6 ||
      (ver == 7.6 && rel < 1))
-    warning("Caudium 1.5 requires Pike 7.6.1 or newer, current version is\n%s",
+    warning("Caudium 1.4 requires Pike 7.6.1 or newer, current version is\n%s",
       version());
 
   if(ver == 7.7) {
