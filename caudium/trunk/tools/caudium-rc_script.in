@@ -16,7 +16,7 @@ fi
 
 # The server directory where the 'start' script is located.
 #
-caudiumhome=${caudiumhome:-@prefix@/caudium/server/}
+caudiumhome=${caudiumhome:-@CAUDIUM_SERVERDIR@}
 
 # Set this to something unique to be able to stop, reload and restart
 # with this init script. It will override the setting in the config
