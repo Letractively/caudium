@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
+ * $Id$
  */
 
 /* Next generation Pike Script module */
@@ -37,7 +39,7 @@ mixed *register_module()
 }
 #endif // constant(roxen)
 #else /* constant(Remote) */
-#define SERVERDIR ".pike-script-servers/"
+#define SERVERDIR "../var/.pike-script-servers/"
 
 #if constant(roxen)
 // Ok. This is a roxen module, then...
@@ -46,14 +48,12 @@ mixed *register_module()
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_FILE_EXTENSION;
-constant module_name = "Pike script support mark II";
-constant module_doc   =
-"This is an enhanced version of the normal 'pike scripts' module. "
-"Major features:<ul>\n"
-"<li> A separate process for each user."
-"<li> The processes are quite persistent"
-"</ul>";
+constant module_type  = MODULE_FILE_EXTENSION;
+constant module_name  = "Pike script support mark II";
+constant module_doc   = "This an enhanced version of the normal 'pike scripts' "
+                        "module. Major features:<ul><li> A separate process "
+                        "for each user.</li><li>The processes are quite "
+                        "persistent</li></ul>";
 constant module_unique = 0;
 
 void create()
