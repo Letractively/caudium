@@ -1,5 +1,6 @@
-caudium (2:1.2.9-2) unstable; urgency=low
+caudium (2:1.2.9-1) unstable; urgency=low
 
+  * Latest CVS snapshot.
   * Made the dependencies more sensible (no point in depending on standard,
     essential or required packages, no need to depend on both caudium
     and pike since the latter pulls pike in anyway)
@@ -7,12 +8,6 @@ caudium (2:1.2.9-2) unstable; urgency=low
     certain tags (like <H1 />).
   * closes: Bug#155584 (cannot reproduce)
   * closes: Bug#155929 (not a Caudium bug)
-
- -- Marek Habersack <grendel@debian.org>  Sun, 11 Aug 2002 14:57:26 +0200
-
-caudium (2:1.2.9-1) unstable; urgency=low
-
-  * Latest CVS snapshot.
 
  -- Marek Habersack <grendel@debian.org>  Tue,  9 Jul 2002 23:11:58 +0200
 
