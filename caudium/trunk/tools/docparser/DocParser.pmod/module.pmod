@@ -1242,6 +1242,8 @@ class Parse {
 	while(rets) {
 	    debug(sprintf("  Spying scope '%s'", rets->scope->ScopeName));
 	    if (rets->scope && rets->scope[kw]) {
+		if (scopes[kw])
+		    rets->child->scope = scopes[kw];
 	        debug(sprintf("   Has the '%s' keyword. Returning scope '%s'",
 		      kw, rets->child->scope->ScopeName));
 		return rets->child;
