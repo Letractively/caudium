@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Added mimetype for XSL stylesheets.
+   (James Tyson)
 - Removed proxy.pike, use simple_proxy instead.
    (Xavier Beaudouin)
 - Removed relay.pike, it is too buggy because of spinner's day shuffler()
@@ -35,7 +37,7 @@ Changes in Caudium 1.3.23 since Caudium 1.3.21
    (Guillaume Fraysse)
 - Added support for <emit>...</> a'la Roxen2 to the XML compliant parser.
    (Bill Welliver)
-- Added authentification layer to the XML-RPC server.
+- Added authentication layer to the XML-RPC server.
    (David Gourdelier)
 - Adding chroot support to CGI (and then FastCgi, Uniscript...).
    (Xavier Beaudouin)
