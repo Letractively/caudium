@@ -99,7 +99,7 @@ mapping|int get_group_info(string g)
       array gd=s/":";
       return(["groupname": gd[0], 
 	"gid": gd[2],
-	"users":  ((gd[4] && gd[4]!="")?((gd[4]/",")-({""})):({})),
+	"users":  (multiset)((gd[4] && gd[4]!="")?((gd[4]/",")-({""})):({})),
 	"_source": query("_name")
 	]);
     }
@@ -107,11 +107,11 @@ mapping|int get_group_info(string g)
   return(0);
 }
 
-array get_groups_for_user(string user)
+multiset get_groups_for_user(string user)
 {
-  if(usergroups[user]) return usergroups[user];
+  if(usergroups[user]) return (multiset)(usergroups[user]);
 
-  return ({});
+  return (<>);
 }
 
 array(string) list_all_users()

@@ -153,7 +153,7 @@ mapping|int get_user_info(string username)
 
     string uid="-1";
     string email, common_name, primary_group, home_directory="";
-    array|int groups=({});
+    multiset groups=(<>);
 
     if(data->primaryGroupID)
       primary_group=data->primaryGroupID[0];
@@ -168,7 +168,7 @@ mapping|int get_user_info(string username)
 
     // get the groups a user is in.
     groups=get_groups_for_user(data->dn[0]);
-    if(!groups) groups=({});
+    if(!groups) groups=(<>);
 
     return(["username": username, "primary_group": primary_group, 
 	"name": common_name, "uid": uid, "email": email,
@@ -219,7 +219,7 @@ mapping|int get_group_info(string groupname)
 
     string gid="-1";
     string common_name, primary_group="";
-    array|int users=({});
+    multiset|int users=(<>);
 
     if(data->objectSid)
       gid=data->objectSid[0];
@@ -228,7 +228,7 @@ mapping|int get_group_info(string groupname)
 
     // get the users in a group.
     users=get_users_for_group(data->dn[0]);
-    if(!users) users=({});
+    if(!users) users=(<>);
 
     return(["groupname": groupname, 
 	"name": common_name, "gid": gid,
@@ -241,7 +241,7 @@ array list_all_groups()
   ERROR("list_all_groups()");
 
   int res;
-  array groups=({});
+  multiset groups=(<>);
 
   object ldap=getLDAPConnection();
   if(!ldap)
@@ -293,7 +293,7 @@ array list_all_groups()
 
   for(int i=0; i<r->num_entries(); i++)
   {
-    groups+=({r->fetch()->sAMAccountName[0]});  
+    groups+=(<r->fetch()->sAMAccountName[0]>);  
     r->next();
   }
   return groups;
@@ -363,13 +363,13 @@ array list_all_users()
 
 }
 
-array get_groups_for_user(string dn)
+multiset get_groups_for_user(string dn)
 {
 
   ERROR("get_groups_for_user(" + dn + ")");
 
   int res;
-  array groups=({});
+  array groups=(<>);
 
   object ldap=getLDAPConnection();
   if(!ldap)
@@ -421,19 +421,19 @@ array get_groups_for_user(string dn)
 
   for(int i=0; i<r->num_entries(); i++)
   {
-    groups+=({r->fetch()->sAMAccountName[0]});  
+    groups+=(<r->fetch()->sAMAccountName[0]>);  
     r->next();
   }
   return groups;
 }
 
-array get_users_for_group(string dn)
+multiset get_users_for_group(string dn)
 {
 
   ERROR("get_users_for_group(" + dn + ")");
 
   int res;
-  array users=({});
+  multiset users=(<>);
 
   object ldap=getLDAPConnection();
   if(!ldap)
@@ -495,7 +495,7 @@ array get_users_for_group(string dn)
       ERROR("failed to perform search for member " + memberdn + ".");
       continue;
     } 
-    users+=({u->fetch()->sAMAccountName[0]});  
+    users+=(<u->fetch()->sAMAccountName[0]>);  
  
   }
   return users;

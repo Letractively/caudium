@@ -617,7 +617,7 @@ mapping|int get_user_info(string u)
 
   return(["username": users[u][0], "primary_group": get_groupname(users[u][3]), 
 	"name": users[u][4], "uid": users[u][2],
-	"home_directory" : users[u][5], "groups": groups,
+	"home_directory" : users[u][5], "groups": (multiset)groups,
 	"_source": query("_name")]);
 
 }
@@ -664,7 +664,7 @@ mapping|int get_group_info(string groupname)
 
   else return(["groupname": groups[groupname][0], 
 	"name": groups[groupname][0], "gid": groups[groupname][2],
-	"users": groups[groupname][3], "_source": query("_name") ]);
+	"users": (multiset)(groups[groupname][3]), "_source": query("_name") ]);
 
 }
 
