@@ -1369,13 +1369,12 @@ string tag_echo(string tag,mapping m,object id,object file,
       
    case "http_user_agent":
     NOCACHE();
-    return id->client && sizeof(id->client)? 
-      html_encode_string(id->client*" ") : "Unknown";
+    return html_encode_string(id->useragent);
       
    case "http_referer":
+   case "http_referrer":
     NOCACHE();
-    return id->referer && sizeof(id->referer) ? 
-      html_encode_string(id->referer*", "): "Unknown";
+    return html_encode_string(id->referrer|| "Unknown");
       
    default:
     m->var = upper_case(m->var);
@@ -1889,14 +1888,10 @@ string tag_version(string rag, mapping m)
 string tag_clientname(string tag, mapping m, object id)
 {
   NOCACHE();
-  if (sizeof(id->client)) {
-    if(m->full) 
-      return html_encode_string(id->client * " ");
-    else 
-      return html_encode_string(id->client[0]);
-  } else {
-    return "";
-  } 
+  if(m->full) 
+    return html_encode_string(id->useragent);
+  else 
+    return html_encode_string((id->useragent/" ")[0]);
 }
 
 string tag_signature(string tag, mapping m, object id, object file,
@@ -2128,7 +2123,7 @@ string tag_allow(string a, mapping (string:string) m,
     if (!m->referrer) {
       m->referrer = m->referer;		// Backward compat
     }
-    if(id && arrayp(id->referer) && sizeof(id->referer))
+    if(id && id->referrer)
     {
       if(m->referrer-"r" == "efee")
       {
@@ -2139,7 +2134,7 @@ string tag_allow(string a, mapping (string:string) m,
 	    return s + "<true>";
 	} else
 	  ok=1;
-      } else if (_match(id->referer*"", m->referrer/",")) {
+      } else if (_match(id->referrer, m->referrer/",")) {
 	if(m->or) {
 	  if (QUERY(compat_if))
 	    return "<true>" + s;
@@ -2557,7 +2552,7 @@ string tag_client(string tag,mapping m, string s,object id,object file)
     isok=!!id->supports[m->support];
 
   if (!(isok && m->or) && m->name)
-    isok=_match(id->client*" ",
+    isok=_match(id->useragent,
 		Array.map(m->name/",", lambda(string s){return s+"*";}));
   return (isok^invert)?s:""; 
 }
@@ -2570,17 +2565,11 @@ string tag_return(string tag, mapping m, object id, object file,
   return "";
 }
 
-string tag_referer(string tag, mapping m, object id, object file,
+string tag_referrer(string tag, mapping m, object id, object file,
 		   mapping defines)
 {
   NOCACHE();
-
-  if(m->help) 
-    return ("Compatibility alias for referrer");
-  if(id->referer)
-    return sizeof(id->referer)?html_encode_string(id->referer*"")
-      :m->alt?m->alt:"..";
-  return m->alt?m->alt:"..";
+  return html_encode_string(id->referrer || (m->alt ? m->alt : ".."));
 }
 
 string tag_header(string tag, mapping m, object id, object file,
@@ -2940,9 +2929,8 @@ mapping query_tag_callers()
 	    "configurl":tag_configurl,
 	    "configimage":tag_configimage,
 	    "date":tag_date,
-	    "referer":tag_referer,
-	    "referrer":tag_referer,
-	    "refferrer":tag_referer,
+	    "referer":tag_referrer,
+	    "referrer":tag_referrer,
 	    "accept-language":tag_language,
 	    "insert":tag_insert,
 	    "return":tag_return,
@@ -3398,7 +3386,7 @@ class Tracer
     while(level>0) trace_leave_ol("");
     return resolv+"</ol>";
   }
-
+  
 }
 
 class SumTracer
@@ -3653,10 +3641,10 @@ int api_set_return_code(object id, int c, string p)
   return ([])[0];
 }
 
-string api_get_referer(object id)
+string api_get_referrer(object id)
 {
   NOCACHE();
-  if(id->referer && sizeof(id->referer)) return id->referer*"";
+  if(id->referrer) return id->referrer;
   return ([])[0];
 }
 
@@ -3715,8 +3703,10 @@ void define_API_functions()
   add_api_function("set_supports", api_set_supports, ({"string"}));
 
   add_api_function("set_return_code", api_set_return_code, ({ "int", 0, "string" }));
-  add_api_function("query_referer", api_get_referer, ({ "int", 0, "string" }));
-
+  add_api_function("query_referer",  api_get_referrer,
+		   ({ "int", 0, "string" }));
+  add_api_function("query_referrer", api_get_referrer,
+		   ({ "int", 0, "string" }));
   add_api_function("roxen_version", tag_version, ({}));
   add_api_function("config_url", tag_configurl, ({}));
 }

@@ -40,6 +40,7 @@ private inherit "caudiumlib";
 #endif
 
 #ifdef PROFILE
+#define REQUEST_DEBUG
 int req_time = HRTIME();
 #endif
 
@@ -92,8 +93,14 @@ multiset (string) pragma    = (< >);
 
 string remoteaddr, host;
 
+#ifdef EXTRA_ROXEN_COMPAT
 array  (string) client;
 array  (string) referer;
+#endif
+
+string referrer;
+string useragent;
+
 
 mapping file;
 
@@ -107,7 +114,7 @@ string method;
 
 string realfile, virtfile;
 string rest_query="";
-string raw; // Raw request
+string raw=""; // Raw request
 string query;
 string not_query;
 string extra_extension = ""; // special hack for the language module
@@ -153,26 +160,11 @@ string scan_for_query( string f )
 #if constant(Caudium.parse_query_string)
     Caudium.parse_query_string(query, variables);
 #else
-    foreach(query / "&", v)
-      if(sscanf(v, "%s=%s", a, b) == 2)
-      {
-	a = http_decode_string(replace(a, "+", " "));
-	b = http_decode_string(replace(b, "+", " "));
-	if(variables[ a ])
-	  variables[ a ] +=  "\0" + b;
-	else
-	  variables[ a ] = b;
-      } else
-	if(strlen( rest_query ))
-	  rest_query += "&" + http_decode_string( v );
-	else
-	  rest_query = http_decode_string( v );
-    rest_query=replace(rest_query, "+", "\000"); /* IDIOTIC STUPID STANDARD */
+#error The Caudium.so module is missing!
 #endif
   }
   return f;
 }
-
 
 private int really_set_config(array mod_config)
 {
@@ -240,7 +232,7 @@ private int really_set_config(array mod_config)
 		 "Content-Type: text/html\r\n"
 		 "Content-Length: 0\r\n\r\n");
   }
-  return -2;
+  return 2;
 }
 
 private static mixed f, line;
@@ -331,7 +323,7 @@ private int parse_got()
       // >= HTTP/1.0
 
       prot = clientprot;
-      // method = upper_case(p1);
+      //      method = upper_case(p1);
       if(!(< "HTTP/1.0", "HTTP/1.1" >)[prot]) {
 	// We're nice here and assume HTTP even if the protocol
 	// is something very weird.
@@ -352,23 +344,19 @@ private int parse_got()
       break;
 
     case 2:
-      // HTTP/0.9
+#ifdef SUPPORT_HTTP_09
+     // HTTP/0.9
       clientprot = prot = "HTTP/0.9";
-      if(method != "PING")
-	method = "GET"; // 0.9 only supports get.
+      method = "GET"; // 0.9 only supports get.
       s = data = ""; // no headers or extra data...
       break;
-
-    case 1:
-      // PING...
-      if(method == "PING")
-	break;
-      // only PING is valid here.
-      return 1;
-
+#endif     
     default:
-      // Too many or too few entries ->  Hum.
-      return 1;
+      // Invalid request
+     method = "UNKNOWN";
+     clientprot = prot = "HTTP/1.0";
+     REQUEST_WERR("HTTP: Unknown / unsupported protocol.");
+     return 1;
     }
   } else {
     // HTTP/1.0 or later
@@ -391,22 +379,22 @@ private int parse_got()
 
   if(!remoteaddr)
   {
-    if(my_fd) catch(remoteaddr = ((my_fd->query_address()||"")/" ")[0]);
+    if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
     if(!remoteaddr) {
       end();
       return 0;
     }
   }
 
-  f = scan_for_query( f );
-
+  if(sscanf(f,"%s?%s", f, query) == 2)
+    Caudium.parse_query_string(query, variables);
+  
   REQUEST_WERR(sprintf("After query scan:%O", f));
 
   f = http_decode_string( f );
 
-  if( search( f, "\0" ) != -1 )
-    sscanf( f, "%s\0", f );
-
+  /* Fix %00 (NULL) bug */
+  sscanf( f, "%s\0", f );
   if (sscanf(f, "/<%s>/%s", a, f)==2)
   {
     config_in_url = 1;
@@ -423,17 +411,14 @@ private int parse_got()
   }
 
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
-  
+
   not_query = simplify_path(f);
 
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
 
-  request_headers = ([]);	// FIXME: KEEP-ALIVE?
-
   if(sizeof(s)) {
 #if constant(Caudium.parse_headers)
     request_headers = Caudium.parse_headers(s);
-
     foreach(indices(request_headers), string linename) {
       switch(linename) {
        case "content-length":
@@ -451,31 +436,13 @@ private int parse_got()
 
 	  leftovers = data[l+1..];
 	  data = data[..l];
-	  switch(lower_case((((misc["content-type"]||"")+";")/";")[0]-" "))
+	  switch(lower_case((((request_headers["content-type"]||"")+";")/";")[0]-" "))
 	  {
 	   default: // Normal form data.
 	    string v;
 	    if(l < 200000)
-	    {
-#if constant(Caudium.parse_query_string)
 	      Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
 						 ({"", ""})), variables);
-#else
-	      foreach(replace(data,
-			      ({ "\n", "\r", "+" }),
-			      ({ "", "", " "}))/"&", v)
-		if(sscanf(v, "%s=%s", a, b) == 2)
-		{
-		  a = http_decode_string( a );
-		  b = http_decode_string( b );
-		     
-		  if(variables[ a ])
-		    variables[ a ] +=  "\0" + b;
-		  else
-		    variables[ a ] = b;
-		}
-#endif
-	    }
 	    break;
 
 	   case "multipart/form-data":
@@ -531,29 +498,25 @@ private int parse_got()
 	break;
 
        case "user-agent":
+	sscanf(useragent = request_headers[linename], "%s via", useragent);
+#ifdef EXTRA_ROXEN_COMPAT
 	if(!client)
-	{
-	  sscanf(contents = request_headers[linename], "%s via", contents);
-	  client = (contents||request_headers[linename])/" " - ({ "" });
-	}
-	break;
-
-	/* Some of M$'s non-standard user-agent info */
-       case "ua-pixels":	/* Screen resolution */
-       case "ua-color":	/* Color scheme */
-       case "ua-os":	/* OS-name */
-       case "ua-cpu":	/* CPU-type */
-	misc[linename - "ua-"] = request_headers[linename];
+	  client = (useragent/" ") - ({ "" });
+#endif
 	break;
 
        case "referer":
+#ifdef EXTRA_ROXEN_COMPAT
 	referer = request_headers[linename]/" ";
+#endif
+	referrer = request_headers[linename];
 	break;
 	    
        case "extension":
 #ifdef DEBUG
 	perror("Client extension: "+request_headers[linename]+"\n");
 #endif
+	break;
        case "request-range":
 	if(GLOBVAR(EnableRangeHandling)) {
 	  contents = lower_case(request_headers[linename]-" ");
@@ -576,10 +539,14 @@ private int parse_got()
 	break;
 
        case "connection":
-	contents = lower_case(request_headers[linename]);
-	    
+	request_headers[linename] = lower_case(request_headers[linename]);
+#ifndef EXTRA_ROXEN_COMPAT
+	break;
+#endif
        case "content-type":
+#ifdef EXTRA_ROXEN_COMPAT
 	misc[linename] = lower_case(request_headers[linename]);
+#endif
 	break;
 
        case "accept-encoding":
@@ -637,6 +604,8 @@ private int parse_got()
 	break;
 
        case "host":
+	host = lower_case(request_headers[linename]);
+#ifdef EXTRA_ROXEN_COMPAT
        case "proxy-connection":
        case "security-scheme":
        case "via":
@@ -644,268 +613,36 @@ private int parse_got()
        case "negotiate":
        case "forwarded":
 	misc[linename] = request_headers[linename];
+#endif
 	break;	    
 
-       case "proxy-by":
-       case "proxy-maintainer":
-       case "proxy-software":
-       case "mime-version":
-	break;
-	    
        case "if-modified-since":
 	since = request_headers[linename];
 	break;
       }
     }
-#else
-    foreach(s/"\r\n" - ({ "" }), line)
-    {
-      linename=contents=0;
-      sscanf(line, "%s:%s", linename, contents);
-      if(linename && contents)
-      {
-	linename=lower_case(linename);
-	sscanf(contents, "%*[\t ]%s", contents);
-
-	request_headers[linename] = contents;
-	
-	if(strlen(contents))
-	{
-	  switch (linename) {
-	  case "content-length":
-	    misc->len = (int)(contents-" ");
-	    if(!misc->len) continue;
-	    if(method == "POST")
-	    {
-	      if(!data) data="";
-	      int l = misc->len-1; /* Length - 1 */
-	      wanted_data=l;
-	      have_data=strlen(data);
-
-	      if(strlen(data) <= l) // \r are included. 
-		return 0;
-
-	      leftovers = data[l+1..];
-	      data = data[..l];
-	      switch(lower_case((((misc["content-type"]||"")+";")/";")[0]-" "))
-	      {
-	      default: // Normal form data.
-		string v;
-		if(l < 200000)
-		{
-		  foreach(replace(data,
-				  ({ "\n", "\r", "+" }),
-				  ({ "", "", " "}))/"&", v)
-		    if(sscanf(v, "%s=%s", a, b) == 2)
-		    {
-		      a = http_decode_string( a );
-		      b = http_decode_string( b );
-		     
-		      if(variables[ a ])
-			variables[ a ] +=  "\0" + b;
-		      else
-			variables[ a ] = b;
-		    }
-		}
-		break;
-
-	      case "multipart/form-data":
-//		perror("Multipart/form-data post detected\n");
-		object messg = MIME.Message(data, misc);
-		foreach(messg->body_parts, object part) {
-		  if(part->disp_params->filename) {
-		    variables[part->disp_params->name]=part->getdata();
-		    variables[part->disp_params->name+".filename"]=
-		      part->disp_params->filename;
-		    if(!misc->files)
-		      misc->files = ({ part->disp_params->name });
-		    else
-		      misc->files += ({ part->disp_params->name });
-		  } else {
-		    if(variables[part->disp_params->name])
-		      variables[part->disp_params->name] += "\0" + part->getdata();
-		    else
-		      variables[part->disp_params->name] = part->getdata();
-		  }
-		}
-		break;
-	      }
-	    }
-	    break;
-	  
-	  case "authorization":
-	    array(string) y;
-	    rawauth = contents;
-	    y = contents / " ";
-	    if(sizeof(y) < 2)
-	      break;
-	    y[1] = decode(y[1]);
-	    realauth=y[1];
-	    if(conf && conf->auth_module)
-	      y = conf->auth_module->auth( y, this_object() );
-	    auth = y;
-	    break;
-	  
-	  case "proxy-authorization":
-	    array(string) y;
-	    y = contents / " ";
-	    if(sizeof(y) < 2)
-	      break;
-	    y[1] = decode(y[1]);
-	    if(conf && conf->auth_module)
-	      y = conf->auth_module->auth( y, this_object() );
-	    misc->proxyauth=y;
-	    break;
-	  
-	  case "pragma":
-	    pragma|=aggregate_multiset(@replace(contents, " ", "")/ ",");
-	    break;
-
-	  case "user-agent":
-	    if(!client)
-	    {
-	      sscanf(contents, "%s via", contents);
-	      client = contents/" " - ({ "" });
-	    }
-	    break;
-
-	    /* Some of M$'s non-standard user-agent info */
-	   case "ua-pixels":	/* Screen resolution */
-	   case "ua-color":	/* Color scheme */
-	   case "ua-os":	/* OS-name */
-	   case "ua-cpu":	/* CPU-type */
-	    misc[linename - "ua-"] = contents ;
-	   break;
-
-	  case "referer":
-	    referer = contents/" ";
-	    break;
-	    
-	   case "extension":
-#ifdef DEBUG
-	    perror("Client extension: "+contents+"\n");
-#endif
-	  case "request-range":
-	    if(GLOBVAR(EnableRangeHandling)) {
-	      contents = lower_case(contents-" ");
-	      if(!search(contents, "bytes")) 
-		// Only care about "byte" ranges.
-		misc->range = contents[6..];
-	    }
-	    break;
-	    
-	  case "range":
-	    if(GLOBVAR(EnableRangeHandling)) {
-	      contents = lower_case(contents-" ");
-	      if(!misc->range && !search(contents, "bytes"))
-		// Only care about "byte" ranges. Also the Request-Range header
-		// has precedence since Stupid Netscape (TM) sends both but can't
-		// handle multipart/byteranges but only multipart/x-byteranges.
-		// Duh!!!
-		misc->range = contents[6..];
-	    }
-	    break;
-
-	   case "connection":
-	    contents = lower_case(contents);
-	    
-	   case "content-type":
-	    misc[linename] = lower_case(contents);
-	    break;
-
-	  case "accept-encoding":
-	    foreach((contents-" ")/",", string e) {
-	      if (lower_case(e) == "gzip") {
-		supports["autogunzip"] = 1;
-	      }
-	    }
-	  case "accept":
-	  case "accept-charset":
-	  case "accept-language":
-	  case "session-id":
-	  case "message-id":
-	  case "from":
-	    if(misc[linename])
-	      misc[linename] += (contents-" ") / ",";
-	    else
-	      misc[linename] = (contents-" ") / ",";
-	    break;
-
-	  case "cookie": /* This header is quite heavily parsed */
-	    string c;
-	    misc->cookies = contents;
-	    if (!sizeof(contents)) {
-	      // Needed for the new Pike 0.6
-	      break;
-	    }
-	    foreach(((contents/";") - ({""})), c)
-	    {
-	      string name, value;
-	      while(sizeof(c) && c[0]==' ') c=c[1..];
-	      if(sscanf(c, "%s=%s", name, value) == 2)
-	      {
-		value=http_decode_string(value);
-		name=http_decode_string(name);
-		cookies[ name ]=value;
-		if(name == "CaudiumConfig" && strlen(value))
-		{
-		  array tmpconfig = value/"," + ({ });
-		  string m;
-
-		  if(mod_config && sizeof(mod_config))
-		    foreach(mod_config, m)
-		      if(!strlen(m))
-		      { continue; } /* Bug in parser force { and } */
-		      else if(m[0]=='-')
-			tmpconfig -= ({ m[1..] });
-		      else
-			tmpconfig |= ({ m });
-		  mod_config = 0;
-		  config = aggregate_multiset(@tmpconfig);
-		}
-	      }
-	    }
-	    break;
-
-	  case "host":
-	  case "proxy-connection":
-	  case "security-scheme":
-	  case "via":
-	  case "cache-control":
-	  case "negotiate":
-	  case "forwarded":
-	    misc[linename]=contents;
-	    break;	    
-
-	  case "proxy-by":
-	  case "proxy-maintainer":
-	  case "proxy-software":
-	  case "mime-version":
-	    break;
-	    
-	   case "if-modified-since":
-	    since=contents;
-	    break;
-	  }
-	}
-      }
-    } 
 #endif
   }
 #ifndef DISABLE_SUPPORTS    
-  if(!client) {
+  if(!useragent) {
+#if EXTRA_ROXEN_COMPAT
     client = ({ "unknown" });
+#endif
+    useragent = "unknown";    
     supports = find_supports("", supports); // This makes it somewhat faster.
   } else 
-    supports = find_supports(lower_case(client*" "), supports);
+    supports = find_supports(lower_case(useragent), supports);
 #else
   supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
+
+#if EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
+#endif
+  
   if(misc->proxyauth) {
     // The Proxy-authorization header should be removed... So there.
-    mixed tmp1,tmp2;
-    
+    mixed tmp1,tmp2;    
     foreach(tmp2 = (raw / "\n"), tmp1) {
       if(!search(lower_case(tmp1), "proxy-authorization:"))
 	tmp2 -= ({tmp1});
@@ -931,7 +668,7 @@ private int parse_got()
       if (QUERY(set_cookie_only_once))
 	cache_set("hosts_for_cookie",remoteaddr,1);
     }
-  return 1;	// Done.
+  return -1;	// Done.
 }
 
 void disconnect()
@@ -968,8 +705,8 @@ void end(string|void s, int|void keepit)
 #ifdef KEEP_ALIVE
   if(keepit &&
      (!(file->raw || file->len <= 0))
-     && (misc->connection == "keep-alive" ||
-	 (prot == "HTTP/1.1" && misc->connection != "close"))
+     && (request_headers->connection == "keep-alive" ||
+	 (prot == "HTTP/1.1" && request_headers->connection != "close"))
      && my_fd)
   {
     // Now.. Transfer control to a new http-object. Reset all variables etc..
@@ -977,7 +714,10 @@ void end(string|void s, int|void keepit)
     o->remoteaddr = remoteaddr;
     o->supports = supports;
     o->host = host;
+#if EXTRA_ROXEN_COMPAT
     o->client = client;
+#endif
+    o->useragent = useragent;
     MARK_FD("HTTP kept alive");
     object fd = my_fd;
     my_fd=0;
@@ -1506,12 +1246,10 @@ void send_result(mapping|void result)
     if((file->file == -1) || file->leave_me) 
     {
       if(do_not_disconnect) {
-	file = 0;
-	pipe = 0;
+	file = pipe = 0;
 	return;
       }
-      my_fd = 0;
-      file = 0;
+      my_fd = file = 0;
       return;
     }
 
@@ -1524,16 +1262,20 @@ void send_result(mapping|void result)
     heads = ([]);
     if(!file->len)
     {
+      array fstat;
       if(objectp(file->file))
 	if(!file->stat && !(file->stat=misc->stat))
 	  file->stat = (int *)file->file->stat();
-      array fstat;
       if(arrayp(fstat = file->stat))
       {
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(!file->is_dynamic && prot != "HTTP/0.9")
+	if(!file->is_dynamic
+#ifdef SUPPORT_HTTP_09
+	   && prot != "HTTP/0.9"
+#endif
+	   )
 	{
 	  heads["Last-Modified"] = http_date(fstat[3]);
 	  if(since)
@@ -1552,18 +1294,22 @@ void send_result(mapping|void result)
 	file->len += strlen(file->data);
     }
 
-    if(prot != "HTTP/0.9") {
+#ifdef SUPPORT_HTTP_09
+    if(prot != "HTTP/0.9")
+    {
+#endif
       string h;
       heads +=
       (["MIME-Version":(file["mime-version"] || "1.0"),
 	"Content-type":file["type"],
 	"Accept-Ranges": "bytes",
 #ifdef KEEP_ALIVE
-	"Connection": (misc->connection == "close" ? "close": "Keep-Alive"),
+	"Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
 #else
 	"Connection"	: "close",
 #endif
 	"Server":version(),
+	"X-Got-Fish": fish_version,
 	"Date":http_date(time) ]);    
 
       if(file->encoding)
@@ -1644,7 +1390,9 @@ void send_result(mapping|void result)
       head_string = (myheads+({"",""}))*"\r\n";
     
       if(conf) conf->hsent+=strlen(head_string||"");
+#ifdef SUPPORT_HTTP_09
     }
+#endif
   }
 #ifdef REQUEST_DEBUG
   roxen_perror(sprintf("Sending result for prot:%O, method:%O file:%O\n",
@@ -1800,11 +1548,10 @@ void got_data(mixed fdid, string s)
   raw += s;
   if(wanted_data && strlen(raw) < wanted_data)
     return;
-
   if(strlen(raw))
     tmp = parse_got();
 
-  switch(-tmp)
+  switch(tmp)
   { 
    case 0:
     // More on the way.
@@ -1818,7 +1565,7 @@ void got_data(mixed fdid, string s)
     end();
     return;
   }
-    
+   
   if(conf)
   {
     conf->received += strlen(s);
@@ -1829,7 +1576,7 @@ void got_data(mixed fdid, string s)
   my_fd->set_read_callback(0); 
   processed=1;
 #ifdef THREADS
-  caudium->handle(this_object()->handle_request);
+  handle(handle_request);
 #else
   handle_request();
 #endif
@@ -1858,8 +1605,13 @@ object clone_me()
   c->remoteaddr = remoteaddr;
   c->host = host;
 
+#ifdef EXTRA_ROXEN_COMPAT
   c->client = client;
   c->referer = referer;
+#endif
+  c->useragent = useragent;
+  c->referrer = referrer;
+
   c->pragma = pragma;
 
   c->cookies = cookies;
@@ -1939,8 +1691,3 @@ void chain(object f, object c, string le)
     }
   }
 }
-
-// void chain(object fd, object conf, string leftovers)
-// {
-//   call_out(real_chain,0,fd,conf,leftovers);
-// }

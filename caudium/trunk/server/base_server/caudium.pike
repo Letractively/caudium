@@ -841,7 +841,7 @@ public multiset find_supports(string from, void|multiset existing_sup)
   
   if(!strlen(from) || from == "unknown")
     return default_supports|existing_sup;
-  if(!(sup = cache_lookup("supports", from))) {
+ if(!(sup = cache_lookup("supports", from))) {
     sup = (<>);
     foreach(indices(supports), v)
     {
@@ -1627,7 +1627,8 @@ class ImageCache
 
   static void draw( string name, object id )
   {
-    mixed args = Array.map( Array.map( name/"$", argcache->lookup, id->client ), frommapp);
+    mixed args = Array.map( Array.map( name/"$", argcache->lookup,
+				       id->useragent), frommapp);
     mapping meta;
     string data;
     mixed reply = draw_function( @copy_value(args), id );
@@ -2094,7 +2095,7 @@ class ArgCache
     return id;
   }
 
-  mapping lookup( string id, array|void client )
+  mapping lookup( string id, void|string client)
   {
     LOCK();
     if(cache[id])
@@ -2102,7 +2103,7 @@ class ArgCache
 
     string q = read_args( id );
 
-    if(!q) error("Key does not exist! (Thinks "+ client*" " +")\n");
+    if(!q) error("Key does not exist! (Thinks "+ (client||"") +")\n");
     mixed data = decode_value(MIME.decode_base64( q ));
     data = mkmapping( data[0],data[1] );
 

@@ -114,7 +114,7 @@ string tag_killframe( string tag, mapping m, object id )
 
   //top.location = self.location breaks some versions of IE.
   //Mozilla 3 on Solaris cows with top.frames.length
-  if( id->client && id->client[0][..8] == "Mozilla/3" )
+  if( id->useragent && id->useragent[..8] == "Mozilla/3" )
     javascript = ( "   if(top.location != \""+ my_url  +"\")\n"
 		   "     top.location = \""+ my_url  +"\";\n" );
   else

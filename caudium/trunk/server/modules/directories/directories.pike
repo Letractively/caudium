@@ -443,8 +443,8 @@ mapping standard_redirect(object o, object id)
   
   if(!o) o=root(id,0);
   
-  if(sizeof(id->referer))
-    loc=((((((id->referer*" ")/"#")[0])/"?")[0])+"#"+o->path(1));
+  if(id->referrer)
+    loc=(((((id->referrer/"#")[0])/"?")[0])+"#"+o->path(1));
   else
     if(o->up)
       loc = o->up->path(1) + ".?" + (nocache++) + "#" + o->path(1);

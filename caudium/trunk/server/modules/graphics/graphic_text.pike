@@ -1097,7 +1097,7 @@ string|array (string) tag_body(string t, mapping args, object id, object file,
 
 #define FIX(Y,Z,X) do{if(!args->Y || args->Y==""){if(cols){defines->X=Z;args->Y=Z;changed=1;}}else{defines->X=args->Y;if(QUERY(colormode)&&args->Y[0]!='#'){args->Y=ns_color(parse_color(args->Y));changed=1;}}}while(0)
 
-  if(!search((id->client||({}))*"","Mosaic"))
+  if(!search(id->useragent,"Mosaic"))
   {
     FIX(bgcolor,"#bfbfbf",bg);
     FIX(text,   "#000000",fg);

@@ -65,5 +65,6 @@ void start()
 
 void log(object id, mapping file) 
 {
-  logf && logf(id->client*" " + "\n");
+  if(id->useragent)
+    logf && logf(id->useragent+"\n");
 }
