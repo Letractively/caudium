@@ -53,6 +53,8 @@ constant module_doc  = "Module serving the purpose of collecting, preliminary "
                        "    <li><strong>error_code</strong> - the error code</li>"
                        "    <li><strong>error_text</strong> - the error message</li>"
                        "  </ul>"
+                       "<li><strong>dprovider</strong> - the data provider module to be used "
+                       "instead of the default one as configured in the Configuration Interface."
                        "</ul>"
                        "All the other parameters are passed to the provider module verbatim.<br>"
                        "The provider modules are expected to export the following two functions:<br><blockquote>"
@@ -89,7 +91,7 @@ private constant default_error_return =
 "</body></html>";
 
 #define SESSOBJ(__id) __id->conf->get_provider("123sessions")
-#define PROCOBJ(__id) __id->conf->get_provider(QUERY(data_plugin))
+#define PROCOBJ(__id) __id->conf->get_provider(get_data_plugin(__id))
 #define SVARS(__id) __id->misc->session_variables
 #define DATA(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]
 #define DATAPART(__id, __part) __id->misc->session_variables->dcdata[QUERY(dc_name)]->parts[__part]
@@ -138,7 +140,8 @@ void create()
          "Name of the provider module that exports APIs called by this "
          "module to process the collected data. The provider will be "
          "checked for the presence of all the required APIs and should they "
-         "be missing, an error will be sent to the log.");
+         "be missing, an error will be sent to the log. The plugin name can be "
+         "set by the form itself, by using the <em>dprovider</em> parameter.");
   defvar("dc_name", "dcoll", "Data collector name", TYPE_STRING,
          "This is the name used in the data part of the mapping built by this "
          "module to designate storage for this particular copy of the module. "
@@ -305,6 +308,14 @@ private mixed provider_error(object id, mapping res)
     }
 
     return get_error_redirect(id);
+}
+
+private string get_data_plugin(object id)
+{
+    if (id->variables && id->variables->dprovider)
+        return id->variables->dprovider;
+    else
+        return QUERY(data_plugin);
 }
 
 //
