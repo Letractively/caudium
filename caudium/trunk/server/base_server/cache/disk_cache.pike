@@ -55,6 +55,7 @@ mapping get_index() {
 #ifdef CACHE_DEBUG
           write( "DISK_CACHE: get_index %O\n", meta );
 #endif
+          if (! meta ) continue;
           thecache += ([ dirname : meta ]);
           disk_usage += meta->size;
           rm( Stdio.append_path( cache_path, dirname, "meta" ) );
