@@ -63,7 +63,8 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
   int data, count, colon, count2=0;
   struct svalue skey, sval;
   unsigned char *lowered;
-  /*printf("parse [%s]\n", heads);*/
+
+  /* FIXME: error checking would be nice */
   for(count=0, colon=0; count < len; count++) {
     switch(heads[count]) {
      case ':':
