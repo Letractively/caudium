@@ -678,7 +678,7 @@ void sendmails(mapping (string:string) defines)
   string msg = replace(QUERY(goodmailtoadmin), mail_from, mail_to);
   simple_mail(localmailadmin, "Nouveau membre", localmailadmin, msg);
   // next mail the user (this will also create his mail account)
-  string msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
+  msg = replace(QUERY(goodmailtouser), mail_from, mail_to);
   simple_mail(defines["uid"][0] + "@" + QUERY(maildomain) , "[ ITEAM ] Welcome on board", localmailadmin, msg);
 }
 
@@ -711,7 +711,7 @@ void sendbadmails(mapping defines, string last_error)
   string msg = replace(QUERY(badmailtouser), mail_from, mail_to);
   if(mappingp(defines) && arrayp(defines["uid"]) && stringp(defines["uid"][0]))
     simple_mail(defines["uid"][0] + "@" + QUERY(maildomain), "[ ITEAM] Erreur dans votre inscription", localmailadmin, msg);
-  string msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
+  msg = replace(QUERY(badmailtoadmin), mail_from, mail_to);
   simple_mail(QUERY(mailadmin), "Problème(s) lors de la création d'un compte", localmailadmin, msg);
 }
 
