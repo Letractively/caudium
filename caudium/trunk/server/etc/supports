@@ -40,8 +40,8 @@
 
 
 #section opera {
-/5.*            -java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-                 ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline
+opera/5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera
 #}
 
 ## Netscape is named "mozilla/major.minor system ..."
@@ -77,8 +77,16 @@ mozilla/[5-9].*		pnginline
 
 # Opera 3
 
-.*compatible.*opera.3.*		-java, javascript
+.*compatible.*opera.3.*	-java, javascript, opera
 
+# Opera 5.0 "hided" as MSIE
+.*compatible.*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera
+# Opera 5.0 "hided" as Mozilla
+mozilla/[3-5].*opera.5.*	
+mozilla/[3-5].*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
+				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
+				opera
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push
