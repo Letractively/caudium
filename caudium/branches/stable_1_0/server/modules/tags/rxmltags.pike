@@ -2169,7 +2169,7 @@ string tag_allow(string a, mapping (string:string) m,
   
   if(m->exists) {
     CACHE(10);
-    TEST(id->conf->try_get_file(fix_relative(m->exists,id),id,1));
+    TEST(id->conf->try_get_file(fix_relative(m->exists,id),id,1,1));
   }
 
   if(m->filename)
