@@ -531,10 +531,26 @@ mapping query_tag_callers() {
 //!  name: Default number of pics
 //
 //! defvar: root_dir
-//!  type: TYPE_STRING
+//! Location of the images in the real filesystem.
+//!  type: TYPE_DIR
 //!  name: root_dir
 //
 //! defvar: root_images
+//! Location in the Virtual Filesystem of the pictures (root_dir) to bedisplayed.
 //!  type: TYPE_STRING
 //!  name: root_images
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
