@@ -44,3 +44,13 @@ Description: Log Parser module for Caudium
  shared extension module that provides Caudium with a built-in log file parser that
  is capable of generating extensive statistics on the fly for virtual servers configured
  in your Caudium WebServer.
+
+Package: caudium-camas
+Architecture: any
+Depends: pike7 (= ${pikever}), caudium (= ${Source-Version})
+Description: A webmail module for Caudium
+ CAMAS (CAudium Mail Access System) is an IMAP-based, integrated webmail module
+ for Caudium. It is built upon the Roxen IMHO package and thus backward compatible
+ with it (as far as the config files are concerned). It contains many improvements,
+ bug fixes, new features - better national language support, better layout manager,
+ more configuration options, multi-domain mail support and more.
