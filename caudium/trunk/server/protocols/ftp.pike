@@ -1539,6 +1539,8 @@ class FTPSession
   {
     touch_me();
 
+    DWRITE(sprintf("pasv_accept_callback: %O\n", id));
+    
     if(pasv_port) {
       object fd = pasv_port->accept();
       if(fd) {
@@ -1548,10 +1550,15 @@ class FTPSession
         // RFC 1123 4.1.2.12
 
         array(string) remote = (fd->query_address()||"? ?")/" ";
+        DWRITE(sprintf("pasv_port(%s) <-> clientfd(%s)\n",
+                       pasv_port->query_address(),
+                       fd->query_address()));
+        
 #ifdef FD_DEBUG
         mark_fd(fd->query_fd(),
                 "ftp communication: -> "+remote[0]+":"+remote[1]);
 #endif
+        pasv_port->set_id(fd);
         if(pasv_callback) {
           pasv_callback(fd, @pasv_args);
           pasv_callback = 0;
@@ -1568,8 +1575,18 @@ class FTPSession
     touch_me();
 
     if (sizeof(pasv_accepted)) {
-      fun(pasv_accepted[0], @args);
-      pasv_accepted = pasv_accepted[1..];
+      object pasv_fd = pasv_port->query_id();
+      DWRITE(sprintf("ftp_async_accept for pasv_fd(%s)\n",
+                     pasv_fd->query_address()));
+      
+      foreach(pasv_accepted, object f) {
+        if (equal(f, pasv_fd)) {
+          DWRITE(sprintf("match: %s\n", f->query_address()));
+          fun(f, @args);
+          pasv_accepted -= ({ f });
+          break;
+        }
+      }
     } else {
       pasv_callback = fun;
       pasv_args = args;
@@ -1880,6 +1897,7 @@ class FTPSession
       pipe->input(file->file);
     }
     curr_pipe = pipe;
+    DWRITE(sprintf("Sending to port %s\n", fd->query_address()));
     pipe->output(fd);
   }
 
@@ -1950,7 +1968,8 @@ class FTPSession
     DWRITE(sprintf("FTP: connect_and_send(%O)\n", file));
 
     if (pasv_port) {
-      ftp_async_accept(connected_to_send, file, session);
+        DWRITE(sprintf("Sending in passive mode (port: %s)\n", pasv_port->query_address()));
+        ftp_async_accept(connected_to_send, file, session);
     } else {
       ftp_async_connect(connected_to_send, file, session);
     }
@@ -2832,8 +2851,9 @@ class FTPSession
 
     if(Query("passive_ftp")) {
       if(pasv_port) {
-        destruct(pasv_port);
-        pasv_port = 0;
+          DWRITE("FTP: passive port exists. Destructing.\n");
+          destruct(pasv_port);
+          pasv_port = 0;
       }
       if(Query("restricpasv")) {
         int port_to_bind, attempt;
