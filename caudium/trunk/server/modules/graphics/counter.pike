@@ -23,8 +23,8 @@
 // -----------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000/07/28 16:31:09  neotron
-// Initial revision
+// Revision 1.2  2000/07/28 16:40:14  neotron
+// Pike 7 fixes
 //
 // Revision 1.23  1999/01/07 08:09:47  neotron
 // Removed duplicate return.

@@ -35,7 +35,8 @@ inherit "module_support";
 inherit "socket";
 inherit "disk_cache";
 inherit "language";
-
+inherit "color";
+inherit "fonts";
 // The datashuffler program
 #if constant(spider.shuffle) && (defined(THREADS) || defined(__NT__))
 constant pipe = (program)"smartpipe";
@@ -1156,20 +1157,20 @@ object load(string s, object conf)   // Should perhaps be renamed to 'reload'.
     } else
       perror(s+".pike exists, but compilation failed.\n");
   }
-  if(st=file_stat(s+".lpc"))
-    if(cvs?(__p=master()->cvs_load_file( cvs+".lpc" )):
-       (__p=my_compile_file(s+".lpc")))
+  if(st = file_stat(s+".lpc"))
+    if(cvs?(__p = master()->cvs_load_file( cvs+".lpc" )):
+       (__p = my_compile_file(s+".lpc")))
     {
-      my_loaded[__p]=s+".lpc";
+      my_loaded[__p] = s+".lpc";
       module_stat_cache[s-dirname(s)]=st;
       return __p(conf);
     } else
       perror(s+".lpc exists, but compilation failed.\n");
-  if(st=file_stat(s+".module"))
-    if(__p=load_module(s+".so"))
+  if(st = file_stat(s+".module"))
+    if(__p = load_module(s+".so"))
     {
-      my_loaded[__p]=s+".so";
-      module_stat_cache[s-dirname(s)]=st;
+      my_loaded[__p] = s+".so";
+      module_stat_cache[s-dirname(s)] = st;
       return __p(conf);
     } else
       perror(s+".so exists, but compilation failed.\n");
@@ -1206,7 +1207,7 @@ object load_from_dirs(array dirs, string f, object conf)
   }
 
   foreach (last_dirs_expand,dir)
-     if ( (o=load(dir+f, conf)) ) return o;
+    if ( (o = load(dir+f, conf)) ) return o;
 
   return 0;
 }
@@ -1258,8 +1259,6 @@ void create()
   add_constant("roxen", this_object());
   add_constant("spinner", this_object());
   add_constant("load",    load);
-  (object)"color.pike";
-  (object)"fonts.pike";
   Configuration = (program)"configuration";
   call_out(post_create,1); //we just want to delay some things a little
 }
@@ -2009,8 +2008,9 @@ class ArgCache
   {
     if( is_db )
     {
-      mapping data = db->query(sprintf("select id,contents from %s where lkey='%s'",
-                                       name,long_key[..79]));
+      array(mapping) data =
+	db->query(sprintf("select id,contents from %s where lkey='%s'",
+			  name,long_key[..79]));
       foreach( data, mapping m )
         if( m->contents == long_key )
           return m->id;

@@ -25,7 +25,8 @@ class MirrorServer {
     
     void create(string fn)
     {
-      q = open(fn,"r");
+      q = Stdio.File();
+      q->open(fn, "r");
     }
   };
 

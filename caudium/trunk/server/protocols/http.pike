@@ -439,21 +439,21 @@ private int parse_got(string s)
 	    break;
 	  
 	  case "authorization":
-	    string *y;
+	    array(string) y;
 	    rawauth = contents;
-	    y = contents /= " ";
+	    y = contents / " ";
 	    if(sizeof(y) < 2)
 	      break;
 	    y[1] = decode(y[1]);
 	    realauth=y[1];
 	    if(conf && conf->auth_module)
 	      y = conf->auth_module->auth( y, this_object() );
-	    auth=y;
+	    auth = y;
 	    break;
 	  
 	  case "proxy-authorization":
-	    string *y;
-	    y = contents /= " ";
+	    array(string) y;
+	    y = contents / " ";
 	    if(sizeof(y) < 2)
 	      break;
 	    y[1] = decode(y[1]);
@@ -1410,14 +1410,14 @@ void send_result(mapping|void result)
 // Execute the request
 void handle_request( )
 {
-  mixed *err;
+  mixed err;
   function funp;
   object thiso=this_object();
 
 #ifdef MAGIC_ERROR
   if(prestate->old_error)
   {
-    array err = get_error(variables->error);
+    err = get_error(variables->error);
     if(err)
     {
       if(prestate->plain)
@@ -1472,7 +1472,7 @@ void handle_request( )
 	return;
       }
     }    
-    if(!file) err=catch(file = conf->get_file(thiso));
+    if(!file) err = catch(file = conf->get_file(thiso));
 
     if(err) internal_error(err);
 
@@ -1488,7 +1488,7 @@ void handle_request( )
     }
   } else if(!file &&
 	    (err=catch(file = roxen->configuration_parse( thiso )))) {
-    if(err==-1) return;
+    if(err == -1) return;
     internal_error(err);
   }
 
@@ -1565,10 +1565,9 @@ void got_data(mixed fooid, string s)
 object clone_me()
 {
   object c,t;
-  c=object_program(t=this_object())();
+  c = object_program(t = this_object())(my_fd, conf);
 
 // c->first = first;
-  c->conf = conf;
   c->time = time;
   c->raw_url = raw_url;
   c->variables = copy_value(variables);

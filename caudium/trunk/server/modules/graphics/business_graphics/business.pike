@@ -18,7 +18,10 @@ constant thread_safe=1;
 inherit "module";
 inherit "roxenlib";
 import Array;
-import Image;
+
+#if constant(Image.image)
+#define OLDSTYLE
+#endif
 
 function create_pie, create_bars, create_graph;
 
@@ -853,25 +856,29 @@ int|object PPM(string fname, object id)
   if(q)
   { 
     object img_decode;
-#if constant(Image.JPEG.decode)
-    if (q[0..2]=="GIF")
-      if (catch{img_decode=Image.GIF.decode(q);})
-	return 1;
-      else
-	return img_decode;
-    else if (search(q[0..13],"JFIF")!=-1)
-      if (catch{img_decode=Image.JPEG.decode(q);})
-	return 1;
-      else
-	return img_decode;
-    else 
+#if constant(Image.ANY.decode)
+    if (!catch{img_decode = Image.ANY.decode(q);})
+      return img_decode;
+    else
 #endif
-      if (q[0..0]=="P")
-	if (catch{img_decode=Image.PNM.decode(q);})
-	  return 1;
-	else
-	  return img_decode;
-
+    if (q[0..2] == "GIF")
+      if (catch{img_decode = Image.GIF.decode(q);})
+	return 1;
+      else
+	return img_decode;
+#if constant(Image.JPEG.decode)
+    else if (search(q[0..13],"JFIF")!=-1)
+      if (catch{img_decode = Image.JPEG.decode(q);})
+	return 1;
+      else
+	return img_decode;
+#endif
+    else  if (q[0..0]=="P")
+      if (catch{img_decode = Image.PNM.decode(q);})
+	return 1;
+      else
+	return img_decode;
+    
 #if constant(Image.JPEG.decode)
     perror("Diagram: Unknown image type for '"+fname+"', "
 	   "only GIF, jpeg and pnm is supported.\n");
@@ -959,14 +966,23 @@ mapping find_file(string f, object id)
     }
   } else if(res->tonedbox) {
     m_delete( res, "bgcolor" );
-    res->image = image(res->xsize, res->ysize)->
+#ifdef OLDSTYLE
+    res->image = Image.image(res->xsize, res->ysize)->
       tuned_box(0, 0, res->xsize, res->ysize, res->tonedbox);
+#else
+    res->image = Image.Image(res->xsize, res->ysize)->
+      tuned_box(0, 0, res->xsize, res->ysize, res->tonedbox);
+#endif    
   }
   else if (res->colorbg)
   {
     back=0; //res->bgcolor;
     m_delete( res, "bgcolor" );
-    res->image = image(res->xsize, res->ysize, @res->colorbg);
+#ifdef OLDSTYLE
+    res->image = Image.image(res->xsize, res->ysize, @res->colorbg);
+#else
+    res->image = Image.Image(res->xsize, res->ysize, @res->colorbg);
+#endif
   } 
   /*else if (res->notrans)
     {
@@ -976,9 +992,11 @@ mapping find_file(string f, object id)
   */
   
   diagram_data = res;
-
+#if constant(Image.image)
   object(Image.image) img;
-
+#else
+  Image.Image img;
+#endif
   if(res->image)
     diagram_data["image"] = res->image; //FIXME: Why is this here?
 

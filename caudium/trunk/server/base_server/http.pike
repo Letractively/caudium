@@ -14,6 +14,25 @@ string http_date(int t);
 
 #include <variables.h>
 
+/*
+**! module base_server/http
+**!
+**!	This file implements various helper functions related to the HTTP
+**!	protocol.
+*/
+
+/*
+**! method string http_res_to_string( mapping file, object id )
+**!	Convert the file result sent in the first argument to a HTTP
+**!	response header (what you would get for a HEAD request on the
+**!	resource.
+**! arg mapping file
+**!	The file mapping (this is what you http_string_answer etc generates).
+**! arg object id
+**!	The request object.
+**! returns The HTTP header string.
+*/
+
 string http_res_to_string( mapping file, object id )
 {
   mapping heads=
@@ -78,12 +97,17 @@ string http_res_to_string( mapping file, object id )
   return head_string;
 }
 
-
-/* Return a filled out struct with the error and data specified.  The
- * error is infact the status response, so '200' is HTTP Document
- * follows, and 500 Internal Server error, etc.
- */
-
+/*
+**! method mapping http_low_answer( int errno, string data )
+**!   Return a response mapping with the error and data specified. The
+**!   error is infact the status response, so '200' is HTTP Document
+**!   follows, and 500 Internal Server error, etc.
+**! arg int errno
+**!  The HTTP error code to use in the reply.
+**! arg object id
+**!  The data.
+**! returns The HTTP respone mapping.
+*/
 mapping http_low_answer( int errno, string data )
 {
   if(!data) data="";
@@ -99,6 +123,14 @@ mapping http_low_answer( int errno, string data )
       ]);
 }
 
+/*
+**! method mapping http_pipe_in_progress( )
+**!   Returns a response mapping that tells Roxen that this request
+**!   is in progress and that sending of data, closing the connection
+**!   and such will be handled by the module. If this is used and you 
+**!   fail to close connections correctly, FD leaking will be the result. 
+**! returns The HTTP respone mapping.
+*/
 mapping http_pipe_in_progress()
 {
 #ifdef HTTP_DEBUG
@@ -107,15 +139,27 @@ mapping http_pipe_in_progress()
   return ([ "file":-1, "pipe":1, ]);
 }
 
+/*
+**! method string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
+**!   Convenience function to use in Roxen modules and Pike scripts. When you
+**!   just want to return a string of data, with an optional type, this is the
+**!   easiest way to do it if you don't want to worry about the internal
+**!   Roxen structures. This function creates a response mapping containing the
+**!   RXML parsed data you send to it.
+**! arg string rxml
+**!   The text to RXML parse and return.
+**! arg object id
+**!   The request id object.
+**! arg void|object(Stdio.File) file
+**!   An optional file descriptor to return // FIXME //
+**! arg void|string type
+**!   Optional file type, like text/html or application/octet-stream
+**! returns The http response mapping with the parsed data.
+*/
 static string parse_rxml(string what, object id,
 			 void|object file, 
 			 void|mapping defines);
 
-/* Convenience functions to use in Roxen modules. When you just want
- * to return a string of data, with an optional type, this is the
- * easiest way to do it if you don't want to worry about the internal
- * roxen structures.  
- */
 mapping http_rxml_answer( string rxml, object id, 
                           void|object(Stdio.File) file, string|void type )
 {
@@ -231,7 +275,7 @@ static string add_pre_state( string url, multiset state )
     error("URL needed for add_pre_state()\n");
   if(!state || !sizeof(state))
     return url;
-  if(strlen(url)>5 && (url[1] == "(" || url[1] == "<"))
+  if(strlen(url)>5 && (url[1] == '(' || url[1] == '<'))
     return url;
   return "/(" + sort(indices(state)) * "," + ")" + url ;
 }

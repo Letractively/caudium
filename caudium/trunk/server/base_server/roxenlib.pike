@@ -601,7 +601,7 @@ static string add_config( string url, array config, multiset prestate )
 {
   if(!sizeof(config)) 
     return url;
-  if(strlen(url)>5 && (url[1] == "(" || url[1] == "<"))
+  if(strlen(url)>5 && (url[1] == '(' || url[1] == '<'))
     return url;
   return "/<" + config * "," + ">" + add_pre_state(url, prestate);
 }

@@ -1785,7 +1785,7 @@ public array open_file(string fname, string mode, object id)
   object oc = id->conf;
   string oq = id->not_query;
   function funp;
-  mapping file;
+  mixed file;
 
   id->not_query = fname;
   foreach(oc->first_modules(), funp)
@@ -1977,7 +1977,7 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
 
 // Access a virtual file?
 
-public array access(string file, object id)
+public array|string access(string file, object id)
 {
   string loc;
   array s, tmp;
@@ -1989,7 +1989,7 @@ public array access(string file, object id)
   {
     loc = tmp[0];
     if((file+"/")==loc)
-      return file+="/";
+      return file += "/";
     if(!search(file, loc)) 
     {
 #ifdef MODULE_LEVEL_SECURITY
@@ -2954,7 +2954,7 @@ int load_module(string module_file)
   } else {
     string dir;
 
-   _master->set_inhibit_compile_errors("");
+    //_master->set_inhibit_compile_errors("");
 
     err = catch {
       obj = roxen->load_from_dirs(roxen->QUERY(ModuleDirs), module_file,
