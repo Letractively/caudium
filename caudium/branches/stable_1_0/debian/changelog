@@ -1,6 +1,6 @@
 caudium (2:1.0.40-2) unstable; urgency=low
 
-  * Split the debconf template files into a separate file per language.
+  * Split the debconf template files into one file per language.
   * Added the French translation by Philippe Batailler <pbatailler@teaser.fr>
     (closes: #138523) - thank you
   * Added the Polish translation.
