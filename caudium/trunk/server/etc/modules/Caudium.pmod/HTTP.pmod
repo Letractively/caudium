@@ -112,7 +112,7 @@ string encode_query(mapping(string:int|string) variables)
 //! @returns
 //!   The HTTP header string.
 //!
-string http_res_to_string( mapping file, object id )
+string res_to_string( mapping file, object id )
 {
   mapping heads=
     ([
@@ -191,7 +191,7 @@ string http_res_to_string( mapping file, object id )
 //!
 //! @returns
 //!   The HTTP response mapping.
-mapping http_low_answer( int errno, string data, void|int dohtml )
+mapping low_answer( int errno, string data, void|int dohtml )
 {
   if(!data) data="";
 #ifdef HTTP_DEBUG
@@ -217,13 +217,16 @@ mapping http_low_answer( int errno, string data, void|int dohtml )
 //!   fail to close connections correctly, FD leaking will be the result. 
 //! @returns
 //!   The HTTP response mapping.
-mapping http_pipe_in_progress()
+mapping pipe_in_progress()
 {
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Pipe in progress\n");
 #endif  
   return ([ "file":-1, "pipe":1, ]);
 }
+
+static string parse_rxml(string what, object id, void|object file,
+                         void|mapping defines);
 
 //!   Convenience function to use in Caudium modules and Pike scripts. When you
 //!   just want to return a string of data, with an optional type, this is the
@@ -245,7 +248,7 @@ mapping http_pipe_in_progress()
 //!
 //! @returns
 //!   The http response mapping with the parsed data.
-mapping http_rxml_answer( string rxml, object id, 
+mapping rxml_answer( string rxml, object id, 
                           void|object(Stdio.File) file, string|void type )
 {
   rxml = parse_rxml(rxml, id, file);
@@ -275,7 +278,7 @@ mapping http_rxml_answer( string rxml, object id,
 //!
 //! @returns
 //!   The HTTP response mapping.
-mapping http_error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
+mapping error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
 {
    mixed tmperr;
 
@@ -297,7 +300,7 @@ mapping http_error_answer(object id, void|int error_code, void|string error_name
    if(mappingp(tmperr))
      return (mapping)tmperr;
    else
-     return http_low_answer(error_code,error_message);
+     return low_answer(error_code,error_message);
 }
  
 //!   Return a response mapping with the text and the specified content type.
@@ -311,7 +314,7 @@ mapping http_error_answer(object id, void|int error_code, void|string error_name
 //!
 //! @returns
 //!   The HTTP response mapping.
-mapping http_string_answer(string text, string|void type)
+mapping string_answer(string text, string|void type)
 {
 #ifdef HTTP_DEBUG
   report_debug("HTTP: String answer (%s)\n",(type||"text/html");
@@ -429,10 +432,10 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
 //!
 //! @returns
 //!   The HTTP response mapping.
-mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
+mapping htmldoc_answer(string contents, string title,void|mapping meta,
                             void|mapping|string style, string|void dtype)
 {
-    return http_string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
+    return string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
 }
 
 //!   Return a response mapping with the specified file descriptior using the
@@ -446,15 +449,10 @@ mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
 //!   read until EOF
 //! @returns
 //!   The HTTP response mapping.
-mapping http_file_answer(object fd, string|void type, void|int len)
+mapping file_answer(object fd, string|void type, void|int len)
 {
   return ([ "file":fd, "type":(type||"text/html"), "len":len ]);
 }
-
-// FIXME: do we have to keep that ? - Xavier
-constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
-constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
 //!   URL decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
@@ -463,18 +461,9 @@ constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 //!   The string to decode.
 //! @returns
 //!   The URL decoded string.
-string http_decode_url (string f)
+string decode_url (string f)
 {
-  return
-    replace (f,
-	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
-	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40",
-               "%0A", "%0D", "%3F", "%3D", "%2F", "%3A", "%2B", "%3C", "%3E"
-	     }),
-	     ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
-	       "&", "?", "=", "/", ":", "+", "<", ">", "@",
-               "\n",  "\r",  "?",   "=",   "/",   ":",   "+",   "<",   ">"
-             }));
+  return Caudium.http_decode_url(f);
 }
 
 //!   Make a configuration cookie. This is is not a function meant to
@@ -483,7 +472,7 @@ string http_decode_url (string f)
 //!   The cookie value to encode and put in the cookie.
 //! @returns
 //!   The cookie value.
-string http_caudium_config_cookie(string from)
+string caudium_config_cookie(string from)
 {
   return "CaudiumConfig="+Caudium.http_encode_cookie(from)
     +"; expires=" + Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/";
@@ -493,7 +482,7 @@ string http_caudium_config_cookie(string from)
 //!   to set a cookie for all visitors
 //! @returns
 //!   The cookie value.
-string http_caudium_id_cookie()
+string caudium_id_cookie()
 {
   return sprintf("CaudiumUserID=0x%x; expires=" +
 		 Caudium.HTTP.date (3600*24*365*2 + time (1)) + "; path=/",
@@ -531,7 +520,7 @@ static string add_pre_state( string url, multiset state )
 //!   The request id object.
 //! @returns
 //!   The HTTP response mapping for the redirect
-mapping http_redirect( string url, object|void id )
+mapping redirect( string url, object|void id )
 {
   if(url[0] == '/')
   {
@@ -559,7 +548,7 @@ mapping http_redirect( string url, object|void id )
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Redirect -> %s\n",Caudium.http_encode_string(url));
 #endif  
-  return http_low_answer( 302, "") 
+  return Caudium.HTTP.low_answer( 302, "") 
     + ([ "extra_heads":([ "Location":Caudium.http_encode_string( url ) ]) ]);
 }
 
@@ -576,7 +565,7 @@ mapping http_redirect( string url, object|void id )
 //!   implements the correct functions - read() is _probably_ enough.
 //! @returns
 //!   The HTTP response mapping.
-mapping http_stream(object from)
+mapping stream(object from)
 {
   return ([ "raw":1, "file":from, "len":-1, ]);
 }
@@ -593,7 +582,7 @@ mapping http_stream(object from)
 //!   An option to make it HTML formated.
 //! @returns
 //!   The HTTP response mapping.
-mapping http_auth_required(string realm, string|void message, void|int dohtml)
+mapping auth_required(string realm, string|void message, void|int dohtml)
 {
   if(!message)
     message = "<h1>Authentication failed.\n</h1>";
@@ -604,7 +593,7 @@ mapping http_auth_required(string realm, string|void message, void|int dohtml)
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth required (%s)\n",realm);
 #endif  
-  return http_low_answer(401, message)
+  return Caudium.HTTP.low_answer(401, message)
     + ([ "extra_heads":([ "WWW-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
@@ -619,14 +608,14 @@ mapping http_auth_required(string realm, string|void message, void|int dohtml)
 //!   An option message which defaults to a simple "Authentication failed.".
 //! @returns
 //!   The HTTP response mapping.
-mapping http_proxy_auth_required(string realm, void|string message)
+mapping Caudium.HTTP.proxy_auth_required(string realm, void|string message)
 {
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Proxy auth required (%s)\n",realm);
 #endif  
   if(!message)
     message = "<h1>Proxy authentication failed.\n</h1>";
-  return http_low_answer(407, message)
+  return Caudium.HTTP.low_answer(407, message)
     + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 

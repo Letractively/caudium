@@ -414,27 +414,6 @@ constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
 constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
-//!   URL decode the specified string and return it. This means replacing
-//!   the following characters from the %XX format: null (char 0), space, tab,
-//!   carriage return, newline, and % ' " # &amp; ? = / : +
-//! @param s
-//!   The string to decode.
-//! @returns
-//!   The URL decoded string.
-string http_decode_url (string f)
-{
-  return
-    replace (f,
-	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
-	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40",
-               "%0A", "%0D", "%3F", "%3D", "%2F", "%3A", "%2B", "%3C", "%3E"
-	     }),
-	     ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
-	       "&", "?", "=", "/", ":", "+", "<", ">", "@",
-               "\n",  "\r",  "?",   "=",   "/",   ":",   "+",   "<",   ">"
-             }));
-}
-
 //!   Make a configuration cookie. This is is not a function meant to
 //!   be used by the average user.
 //! @param from
