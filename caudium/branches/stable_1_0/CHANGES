@@ -13,6 +13,11 @@ Changes in Caudium 1.0.X (RC3, not released)
   with too many failed authentication attempts.
 - Fixed some bugs in the XSLT Template module, added more configurable
   options. Also fixed the setting of the base uri.
+- MSIE doesn't send the Pragma: no-cache header when you reload a
+  page. This makes it really hard to reload certain things in Caudium,
+  since that header is used to determine if the cache should or
+  shouldn't be used. To solve this problem you can now use the
+  prestate (nocache) to emulate this behavior. 
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------

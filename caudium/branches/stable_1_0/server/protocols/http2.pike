@@ -486,7 +486,13 @@ private int do_post_processing()
       break;
     }
   }
-
+  if(prestate->nocache) {
+    // This allows you to "reload" a page with MSIE by setting the
+    // (nocache) prestate.
+    pragma["no-cache"] = 1;
+    misc->cacheable = 0;
+  }
+  
 #ifdef ENABLE_SUPPORTS    
   if(useragent == "unknown") {
     supports = find_supports("", supports); // This makes it somewhat faster.
