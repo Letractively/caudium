@@ -224,6 +224,29 @@ spotless:  clean
 	@exit 1
 
 only_bump_version: force
+	@if test -f $(SRCDIR)/server/base_server/caudium.pike.new; then \
+	  echo Deleting old $(SRCDIR)/server/base_server/caudium.pike.new...; \
+	  rm $(SRCDIR)/server/base_server/caudium.pike.new || exit 1; \
+	else : ; fi
+	@(cd $(SRCDIR)/server/base_server; \
+	  echo Bumping Caudium version...; \
+	  build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  newbuild=`echo $$build 1+p|dc`; \
+	  sed <caudium.pike -e"/__caudium_build__/s/$$build/$$newbuild/" >caudium.pike.new; \
+	  checkbuild=`sed <caudium.pike.new -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  if test "x$$newbuild" = "x$$checkbuild"; then \
+	    mv -f caudium.pike.new caudium.pike || exit 1; \
+	    echo "Successfull bump to build $$newbuild."; \
+	  else \
+	    echo "Version bump failed: $$newbuild != $$checkbuild."; \
+	    exit 1; \
+	  fi; \
+	  version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium.pike || exit 1; \
+	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
+	  cat ../../VERSION; \
+n	)
+
 bump_version: force only_bump_version
 	@(cd $(SRCDIR); \
 	  echo Tagging...; \
