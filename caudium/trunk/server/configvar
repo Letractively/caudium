@@ -65,21 +65,6 @@ object|void open(string filename, string mode)
   destruct(o);
 }
 
-void mkdirhier(string from)
-{
-  string a, b;
-  array f;
-
-  f=(from/"/");
-  b="";
-
-  foreach(f[0..sizeof(f)-2], a)
-  {
-    mkdir(b+a);
-    b+=a+"/";
-  }
-}
-
 class fake_config_object
 {
   string name;

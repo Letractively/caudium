@@ -172,30 +172,6 @@ object|void open(string filename, string mode, int|void perm)
   destruct(o);
 }
 
-void mkdirhier(string from, int|void mode)
-{
-  string a, b;
-  array f;
-
-  f=(from/"/");
-  b="";
-
-  foreach(f[0..sizeof(f)-2], a)
-  {
-    if (query_num_arg() > 1) {
-      mkdir(b+a, mode);
-#if constant(chmod)
-      array(int) stat = file_stat (b + a, 1);
-      if (stat && stat[0] & ~mode)
-	// Race here. Not much we can do about it at this point. :\
-	catch (chmod (b+a, stat[0] & mode));
-#endif
-    }
-    else mkdir(b+a);
-    b+=a+"/";
-  }
-}
-
 mapping(string:mixed) variables = ([ "audit":0 ]);
 
 // We never need to change privileges...
