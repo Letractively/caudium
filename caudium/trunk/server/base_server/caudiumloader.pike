@@ -279,6 +279,7 @@ array(int) caudium_fstat(string|Stdio.File file, int|void nolink) {
   return 0;
 }
 
+//! @appear roxen_perror
 //! Used to print error/debug messages
 void roxen_perror(string format,mixed ... args)
 {
@@ -347,6 +348,7 @@ mapping(string:string) make_mapping(array(string) f)
 }
 
 
+//! @appear caudiump
 //! Caudium itself
 object caudium;
 
@@ -911,6 +913,18 @@ int gethrtime()
   return (time()*1000000);
 }
 #endif
+
+
+// Some function that can used by Caudium
+
+//! @decl void werror(string format, mixed ... args)
+//!  Write into stderr. This function will write on the webserver
+//!  debug log. Please use @[report_debug], @[report_warning],
+//!  @[report_error] and @[report_fatal] calls instead.
+//! @appears werror
+//! @seealso
+//!  @[report_debug] @[report_warning]
+//!  @[report_error] @[report_fatal]
 
 //! Load Caudium for real
 object really_load_caudium()
