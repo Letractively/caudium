@@ -6,12 +6,13 @@
 #
 
 PORTNAME=	caudium
-PORTVERSION=	1.2.5
+PORTVERSION=	1.2.6
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
 		ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
-		http://grendel.firewall.com/caudium-pkg/
+		http://grendel.firewall.com/caudium-pkg/ \
+		ftp://ftp.oav.net/caudium/source/old
 DISTNAME=	caudium-${PORTVERSION}
 
 MAINTAINER=	kiwi@oav.net
@@ -20,7 +21,7 @@ BUILD_DEPENDS=	pike:${PORTSDIR}/lang/pike72cvs/
 LIB_DEPENDS=	sablot.67:${PORTSDIR}/textproc/sablotron/
 DEPENDS=	${PORTSDIR}/lang/pexts/
 
-WRKSRC=		${WRKDIR}/${DISTNAME}-20020506-cvs
+WRKSRC=		${WRKDIR}/${DISTNAME}
 
 GNU_CONFIGURE=  yes
 CONFIGURE_ARGS+= --without-debug --with-PiXSL
