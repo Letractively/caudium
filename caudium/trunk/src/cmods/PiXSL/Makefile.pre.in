@@ -1,3 +1,4 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=PiXSL
 OBJS= sablot.o
 SOURCES=sablot.c

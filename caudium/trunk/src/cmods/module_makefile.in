@@ -1,4 +1,5 @@
-CFLAGS=  @CPPFLAGS@ @CFLAGS@ -I@PIKE_INCLUDE_DIR@
+SRCDIR=@srcdir@/$(MODNAME)/
+CFLAGS=  @CPPFLAGS@ @CFLAGS@ -I@PIKE_INCLUDE_DIR@ -I$(SRCDIR) -I.
 CC=@CC@
 LIBGCC=@LIBGCC@
 LDFLAGS= @LIBS@  @LDFLAGS@
@@ -28,7 +29,7 @@ $(MODNAME).$(SO):  $(OBJS)
 	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
 	fi
 
-Makefile.pre: Makefile.pre.in configure config.status
+Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
 	@echo "configure or Makefile.in changed."
 	@if test -f config.status; then \
            echo -n "Rebuilding Makefile myself using: ";\
@@ -46,11 +47,11 @@ Makefile.pre: Makefile.pre.in configure config.status
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-configure: configure.in
+$(SRCDIR)/configure: $(SRCDIR)/configure.in
 	@echo "configure.in changed. Rebuilding."
-	@autoconf
+	@(cd  $(SRCDIR); autogen.sh)
 
-config.status: configure
+config.status:  $(SRCDIR)/configure
 	./config.status --recheck
 
 force:
@@ -58,15 +59,15 @@ force:
 
 depend: force
 	@echo "Calculating dependencies..."
-	@cat Makefile.pre > Makefile
-	@$(CC) -MM $(CFLAGS) $(SOURCES) >> Makefile
+	@cat  Makefile.pre > Makefile
+	@$(CC) -MM $(CFLAGS) $(SRCDIR)/*.c >> Makefile
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
 
 distclean: clean
-	rm -f config.* Makefile dependencies Makefile.pre
+	rm -f config.* $(SRCDIR)/Makefile Makefile.pre
 
 spotless: distclean
-	rm -f configure  sablot_config.h.in
+	rm -f $(SRCDIR)/configure  $(SRCDIR)/sablot_config.h.in
 

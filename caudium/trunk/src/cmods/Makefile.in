@@ -1,6 +1,6 @@
 # $Id$
 
-SRCDIR=@SRCDIR@
+SRCDIR=@srcdir@
 CPP=@CPP@
 
 MODULES=@subdirs@
@@ -24,7 +24,7 @@ spotless: force
 	for a in $(MODULES); do ( cd $$a && $(MAKE) $(MAKE_FLAGS) spotless); done
 	rm -f Makefile config.log config.status module_makefile
 
-Makefile: Makefile.in configure config.status
+Makefile: $(SRCDIR)/Makefile.in $(SRCDIR)/configure
 	@echo "configure or Makefile.in changed."
 	@if test -f config.status; then \
            echo -n "Rebuilding Makefile myself using: ";\
@@ -51,6 +51,5 @@ clean:
 	for a in $(MODULES) ; do \
 	  ( cd $$a && ${MAKE} $(MAKE_FLAGS) MODNAME=$$a clean ) ; \
 	done
-	-rm -f linker_options modlist.h modlist_headers.h
 
 
