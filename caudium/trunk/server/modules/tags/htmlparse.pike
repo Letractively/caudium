@@ -2758,13 +2758,13 @@ string tag_pr(string tagname, mapping m)
   }
   m_delete(m, "color");
   m_delete(m, "size");
-  m->src = "/internal-caudium-power-"+size+"-"+color;
   int w;
   if(get_pr_size(size,color)  == "NONEXISTANT COMBINATION") color = "red";
   sscanf(get_pr_size(size,color), "%*swidth=%d", w);
   m->width = (string)w;
   sscanf(get_pr_size(size,color), "%*sheight=%d", w);
   m->height = (string)w;
+  m->src = "/internal-caudium-power-"+size+"-"+color;
   if(!m->alt) m->alt="Powered by Caudium";
   if(!m->border) m->border="0";
   return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
