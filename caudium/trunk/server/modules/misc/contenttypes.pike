@@ -96,24 +96,21 @@ void create()
     TYPE_TEXT_FIELD, 
     "This is file extension "
     "to content type mapping. The format is as follows:\n"
-    "<pre>extension type encoding<br />gif image/gif<br />"
-    "gz STRIP application/gnuzip</pre>"
+    "<pre>FIXME: same as below</pre><br />"
     "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
     "notes/iana/assignments/media-types/media-types\">ftp://ftp"
     ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
   defvar("extsfile", "/etc/mime.types", "System-wide extension file",
     TYPE_STRING,
-    "This file holds extra extension-to-contenttype mapping, "
-    "in the following format:<br />"
-    "<pre>content-type&lt;one or more tabs&gt;extension(s) (separated by spaces if more than one)</pre><br />"
-    "If the specified file does not exist, the module silently discards this setting (so you are "
-    "safe to leave it as it is, if you are not sure). Empty lines and lines beginning with a '#' are also "
-    "discarded.<br />Anything listed both in this file and the extensions file shipped with Caudium, this"
-    "file will take precedence.");
+    "This is basically the same as the above, but intended for external (to Caudium) "
+    "MIME-type databases, like /etc/mime.types on Debian/GNU Linux systems.<br />"
+    "The format of this file is: FIXME: it's probably not enough if only i know the format ;)");
+    
   defvar("default_ct", "application/octet-stream", "Default content type",
     TYPE_STRING, 
     "This is the default content type which is used if a file lacks "
-    "extension or if the extension is unknown.\n");
+    "extension or if the extension is unknown to the module.<br />"
+    "<font color=\"#FF0000\"><b>It is strongly recommended that you do leave this \"application/octet-stream\" at all times.<b></font><br />\n");
   defvar("encs", "\n"
     "# This will include the default enodings from a file.\n"
     "# Feel free to add to this, but do it after the #include line if\n"
@@ -121,7 +118,8 @@ void create()
     "\n"
     "#include <etc/content-encodings>\n\n", "Encodings",
     TYPE_TEXT_FIELD,
-    "This is file extensions to content encodings mapping.\n");
+    "This is file extensions to content encodings mapping. These rules tell "
+    "Caudium how to set the Content-encoding header for different types of files.\n");
 }
 
 string status()
@@ -185,7 +183,7 @@ void parse_ext_string(string exts, mapping m)
    * or:
    * #include <file>
    *
-   * the actual case is determined by search for a forward-slash in the
+   * the actual case is determined by searching for a forward-slash in the
    * first token.
    *
    * also usable for encodings parsing, as the encodings' format is a subset of the
