@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fixed a compilation error in modules/tags/hash.pike. Now we actually do
+  have the SHA1 hashing method, with three aliases even.
 - Fixed bug in http.pike/mainconfig.pike that didn't allow modules with a :
   in the name to be selected in the Configuration Interface
 - Removed legacy Argument Cache code and folded it into the Cache Manager.
