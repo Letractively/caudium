@@ -3,15 +3,14 @@
                 version="1.0">
 <!-- Caudium doc parsing XSLT stylesheet
      Very early version - don't expect any bells and whistles.
-     $Id$
 -->
 <xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
-<xsl:variable name="myversion">$Id$</xsl:variable>
+<xsl:variable name="myversion"></xsl:variable>
 <xsl:template match="documentation">
  <html><head><title>Caudium Docs</title></head>
   <body><h1>Caudium Documentation</h1>
    <dl><xsl:apply-templates select="module | file"/></dl>
-   <p><font size="-1">XSLT Template version <xsl:value-of select="$myversion"/></font></p>
+   <p><font size="-2">XSLT Template version <tt>$Id$</tt></font></p>
   </body>
  </html>
 </xsl:template>
