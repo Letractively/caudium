@@ -1192,30 +1192,30 @@ private int leave_me_alone(string uri)
     return 1;
 }
 
-string rewrite_uri(object id, string from, void|int append)
+string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
 {
-    int              hashpos;
+    int              hashpos, have_svar = 0;
     array(string)    parts;
+    string           sepchar = append ? "&" : "?";
     
     hashpos = search(from, "#");
 
     if (hashpos >= 0) {
         parts = from / "#";
-        if (parts[0] == "")
+        if (parts[0] == "") {
+            if (search(SVAR, parts[1]) >= 0)
+                have_svar = 1;
             parts[0] = id->raw_url;
-    }
+        }
+        if (!have_svar)
+            parts = ({parts[0], SVAR, id->misc->session_id, "#" + parts[1]});
+        else
+            parts = ({parts[0], "", "", "#" + parts[1]});
+    } else
+        parts = ({from, SVAR, id->misc->session_id, ""});
     
-    if (!append) {
-        if (hashpos >= 0)
-            return sprintf("%s?%s=%s#%s", parts[0], SVAR, id->misc->session_id, parts[1]);
-        else
-            return sprintf("%s?%s=%s", from, SVAR, id->misc->session_id);
-    } else {
-        if (hashpos >= 0)
-            return sprintf("%s&%s=%s#%s", parts[0], SVAR, id->misc->session_id, parts[1]);
-        else
-            return sprintf("%s&%s=%s", from, SVAR, id->misc->session_id);
-    }
+    return sprintf("%s%s%s%s%s", parts[0], sepchar, parts[1], parts[2], parts[3]);
+
 }
 
 mixed container_a(string tag, mapping args, string contents, object id, mapping defines)
@@ -1232,9 +1232,9 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
         
         if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
             if (!sizeof(hvars))
-                args->href = rewrite_uri(id,  args->href, have_query);
+                args->href = rewrite_uri(id,  args->href, have_query, hvars);
             else
-                args->href = rewrite_uri(id,  args->href, have_query);
+                args->href = rewrite_uri(id,  args->href, have_query, hvars);
     }
 
     m_delete(args, "norewrite");
@@ -1244,7 +1244,9 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 
 mixed container_form(string tag, mapping args, string contents, object id, mapping defines)
 {
-    if (args && !args->norewrite && id->misc->session_id)
+    int restrict = ((args ? args->norewrite : 0) + id->misc->_gsession_cookie);
+    
+    if (!restrict && id->misc->session_id)
         contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
                            SVAR, id->misc->session_id) + contents;
 
