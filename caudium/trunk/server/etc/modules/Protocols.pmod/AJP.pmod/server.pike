@@ -51,6 +51,7 @@ class connection
   {
     inuse=1;
     mapping r=([]);
+    string data;
 
     // send request
     r=decode_client_packet(read_packet());
@@ -63,11 +64,13 @@ class connection
     if(v->request_headers["content-length"] && 
        (int)(v->request_headers["content-length"]) > 0)
     {
-      string data=read_client_body(c)
+      data=read_client_body(c)
       if(!data) return 0;
     }
 
     report_debug("received the AJP 1.3 request\n");
+
+    werror("ajp container request: %O,\n data: %O\n", v, data);
 
     return 1;
   }

@@ -63,6 +63,8 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
+object my_fd;
+
 private final string user;
 string raw="";
 string to_process="";
@@ -70,8 +72,9 @@ string to_process="";
 private int got_len=0;
 private int len_to_get=0;
 private int body_len=0;
-private last_get_success=0;
+private int last_get_success=0;
 private string packet="";
+string body="";
 
 #define GETTING_REQUEST_BODY 1
 
@@ -114,7 +117,7 @@ int parse_got()
   // we need at least 4 bytes to read a packet.
   else if(sizeof(to_process)>=4 )
   {
-    int code, int len;
+    int code, len;
     int n = sscanf(to_process, "%2c%2c%s", code, len, to_process);
     if(n!=3) 
     {
@@ -168,7 +171,7 @@ void got_data(mixed fdid, string s)
 
   do
   {
-    last_get_sucess=0;
+    last_get_success=0;
     tmp = parse_got();
 
     switch(tmp)
@@ -205,7 +208,7 @@ void got_data(mixed fdid, string s)
     if(ready_to_process)
       break;
 
-  } while(last_get_sucess);
+  } while(last_get_success);
 
   if(conf)
   {
@@ -217,12 +220,12 @@ void got_data(mixed fdid, string s)
   my_fd->set_read_callback(0); 
   processed=1;
 
-  mapping h = ([response_code:200, response_msg:"OK", 
-     headers: (["Content-Length": 5, "Content-Type": "text/plain"])  ]);
+  mapping h = (["response_code":200, "response_msg":"OK", 
+     "headers": (["Content-Length": 5, "Content-Type": "text/plain"])  ]);
 
-  my_fd->write(generate_container_packet(encode_send_headers(h));
-  my_fd->write(generate_container_packet(encode_send_body_chunk("ha ha"));
-  my_fd->write(generate_container_packet(encode_end_response(1));
+  my_fd->write(generate_container_packet(encode_send_headers(h)));
+  my_fd->write(generate_container_packet(encode_send_body_chunk("ha ha")));
+  my_fd->write(generate_container_packet(encode_end_response(1)));
 
   packet = "";
   body_len = 0;
@@ -248,7 +251,7 @@ void parse_forward()
   mapping r = decode_forward((["data": packet, "type": MSG_FORWARD_REQUEST]));
 
   werror("request: %O\n", r);
-  body_len=v->request_headers["content-length"];
+  body_len=r->request_headers["content-length"];
 }
 
 /* Get a somewhat identical copy of this object, used when doing 
@@ -307,7 +310,7 @@ object clone_me()
 
 void ready_for_request()
 {
-    f->set_nonblocking(got_data, 0, end);
+    my_fd->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
@@ -324,6 +327,7 @@ void create(void|object f, void|object c)
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
+    my_fd = f;
     MARK_FD("AJP connection");
   }
   unread_data = 0;
