@@ -89,24 +89,24 @@ string status()
 void create()
 {
   defvar("toparse", ({ "rxml", "html", "htm" }), "Extensions to parse", 
-	 TYPE_STRING_LIST, "Parse all files ending with these extensions. "
-	 "Note: This module must be reloaded for a change here to take "
-	 "effect.");
+         TYPE_STRING_LIST, "Parse all files ending with these extensions. "
+         "Note: This module must be reloaded for a change here to take "
+         "effect.");
 
   defvar("parse_exec", 0, "Require exec bit on files for parsing",
-	 TYPE_FLAG|VAR_MORE,
-	 "If set, files has to have the execute bit (any of them) set "
-	 "in order for them to be parsed by this module. The exec bit "
-	 "is the one that is set by 'chmod +x filename'");
+         TYPE_FLAG|VAR_MORE,
+         "If set, files has to have the execute bit (any of them) set "
+         "in order for them to be parsed by this module. The exec bit "
+         "is the one that is set by 'chmod +x filename'");
 	 
   defvar("no_parse_exec", 0, "Don't Parse files with exec bit",
-	 TYPE_FLAG|VAR_MORE,
-	 "If set, no files with the exec bit set will be parsed. This is the "
-	 "reverse of the 'Require exec bit on files for parsing' flag. "
-	 "It is not very useful to set both variables.");
+         TYPE_FLAG|VAR_MORE,
+         "If set, no files with the exec bit set will be parsed. This is the "
+         "reverse of the 'Require exec bit on files for parsing' flag. "
+         "It is not very useful to set both variables.");
 	 
   defvar("max_parse", 200, "Maximum file size", TYPE_INT|VAR_MORE,
-	 "Maximum file size to parse, in Kilo Bytes.");
+         "Maximum file size to parse, in Kilo Bytes.");
 }
 
 void start(int cnt, object conf)
@@ -127,14 +127,14 @@ array(string) query_file_extensions()
 string parse_doc(string doc, string tag)
 {
   return replace(doc, ({"{","}","<tag>","<roxen-languages>"}),
-		 ({"&lt;", "&gt;", tag, 
-	String.implode_nicely(sort(indices(caudium->languages)), "and")}));
+                 ({"&lt;", "&gt;", tag, 
+                   String.implode_nicely(sort(indices(caudium->languages)), "and")}));
 }
 
 string handle_help(string file, string tag, mapping args)
 {
   return parse_doc(replace(Stdio.read_bytes(file),
-			   "<date-attributes>",date_doc),tag);
+                           "<date-attributes>",date_doc),tag);
 }
 
 
@@ -148,9 +148,9 @@ string call_user_tag(string tag, mapping args, int line, object id)
   TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
   array replace_from = ({"#args#"})+
     Array.map(indices(args)+indices(id->misc->up_args),
-	      lambda(string q){return "&"+q+";";});
+              lambda(string q){return "&"+q+";";});
   array replace_to = (({make_tag_attributes( args + id->misc->up_args ) })+
-		      values(args)+values(id->misc->up_args));
+                      values(args)+values(id->misc->up_args));
   foreach(indices(args), string a)
   {
     id->misc->up_args["::"+a]=args[a];
@@ -162,7 +162,7 @@ string call_user_tag(string tag, mapping args, int line, object id)
 }
 
 string call_user_container(string tag, mapping args, string contents, int line,
-			   object id)
+                           object id)
 {
   id->misc->line = line;
   id->misc->is_dynamic = 1;
@@ -180,30 +180,33 @@ string call_user_container(string tag, mapping args, string contents, int line,
   TRACE_ENTER("user defined container &lt;"+tag+"&gt", call_user_container);
   array replace_from = ({"#args#", "<contents>"})+
     Array.map(indices(args),
-	      lambda(string q){return "&"+q+";";});
+              lambda(string q){return "&"+q+";";});
   array replace_to = (({make_tag_attributes( args  ),
-			contents })+
-		      values(args));
+                        contents })+
+                      values(args));
   string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
   TRACE_LEAVE("");
   return r;
 }
 
 string call_tag(string tag, mapping args, int line, 
-		object id, object file, mapping defines,
-		object client)
+                object id, object file, mapping defines,
+                object client)
 {
-  id->misc->is_dynamic = 1;
   string|function rf = real_tag_callers[tag];
+
+  id->misc->is_dynamic = 1;
   id->misc->line = (string)line;
-  if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
-  {
+  
+  if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0) {
     TRACE_ENTER("tag &lt;"+tag+" help&gt", rf);
     string h = handle_help("modules/tags/doc/"+tag, tag, args);
     TRACE_LEAVE("");
     return h;
   }
-  if(stringp(rf)) return rf;
+
+  if(stringp(rf))
+    return rf;
 
   TRACE_ENTER("tag &lt;" + tag + "&gt;", rf);
 #ifdef MODULE_LEVEL_SECURITY
@@ -221,8 +224,8 @@ string call_tag(string tag, mapping args, int line,
 string query_provides() { return "rxml:core"; }
 
 array(string)|string call_container(string tag, mapping args, string contents,
-				    int line, object id, object file,
-				    mapping defines, object client)
+                                    int line, object id, object file,
+                                    mapping defines, object client)
 {
   string|function rf;
   id->misc->line = (string)line;
@@ -259,7 +262,7 @@ array(string)|string call_container(string tag, mapping args, string contents,
 }
 
 string do_parse(string to_parse, object id, object file, mapping defines,
-		object my_fd)
+                object my_fd)
 {
   if(!id->misc->scopes)
     id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
@@ -275,7 +278,7 @@ string do_parse(string to_parse, object id, object file, mapping defines,
 
   to_parse =
     parse_html_lines(to_parse, id->misc->_tags, id->misc->_containers,
-		     id, file, defines, my_fd);
+                     id, file, defines, my_fd);
   id->misc->parse_level --;
   return to_parse;
 }
@@ -295,8 +298,8 @@ string tag_list_tags( string t, mapping args, object id, object f )
       res += "<blockquote><table><tr><td>";
       array|string tr;
       catch(tr = call_tag(tag, (["help":"help"]), 
-			  id->misc->line,
-			  id, f, id->misc->defines, id->my_fd ));
+                          id->misc->line,
+                          id, f, id->misc->defines, id->my_fd ));
       if(tr && stringp(tr)) 
         res += tr;
       else 
@@ -314,8 +317,8 @@ string tag_list_tags( string t, mapping args, object id, object f )
       res += "<blockquote><table><tr><td>";
       string tr;
       catch(tr=call_container(tag, (["help":"help"]), "",
-			      id->misc->line,
-			      id,f, id->misc->defines, id->my_fd ));
+                              id->misc->line,
+                              id,f, id->misc->defines, id->my_fd ));
       if(tr) res += tr; else res += "no help";
       res += "</td></tr></table></blockquote>";
     }
@@ -366,60 +369,60 @@ mapping handle_file_extension( object file, string e, object id)
   }
   //   report_debug(sprintf("%O", id->misc->defines));
   return (["data":to_parse,
-	   "type":(id->misc->_content_type || "text/html"), 
-	   "stat":_stat,
-	   "is_dynamic": (id->misc->is_dynamic ? 1 : 0),
-	   "error":_error,
-	   "rettext":_rettext,
-	   "extra_heads":_extra_heads,
+           "type":(id->misc->_content_type || "text/html"), 
+           "stat":_stat,
+           "is_dynamic": (id->misc->is_dynamic ? 1 : 0),
+           "error":_error,
+           "rettext":_rettext,
+           "extra_heads":_extra_heads,
 //	   "expires": time(1) - 100,
-	   ]);
+  ]);
 }
 void build_callers()
 {
-   object o;
-   remove_call_out(build_callers);
-   tag_callers=([]);
-   container_callers=([]);
-   real_tag_callers=([]);
-   real_container_callers=([]);
-   scopes = ([]);
+  object o;
+  remove_call_out(build_callers);
+  tag_callers=([]);
+  container_callers=([]);
+  real_tag_callers=([]);
+  real_container_callers=([]);
+  scopes = ([]);
 
-   parse_modules -= ({ 0 });
+  parse_modules -= ({ 0 });
 
-   foreach (parse_modules,o)
-   {
-     array|mapping foo;
-     if(o->query_tag_callers)
-     {
-       foo=o->query_tag_callers();
-       if(mappingp(foo)) {
-	 real_tag_callers += foo;
-       }
-     }
+  foreach (parse_modules,o)
+  {
+    array|mapping foo;
+    if(o->query_tag_callers)
+    {
+      foo=o->query_tag_callers();
+      if(mappingp(foo)) {
+        real_tag_callers += foo;
+      }
+    }
      
-     if(o->query_container_callers)
-     {
-       foo=o->query_container_callers();
-       if(mappingp(foo)) {
-	 real_container_callers += foo;
-       }
-     }
-     if(o->query_scopes) {
-       foo = o->query_scopes();
-       if(arrayp(foo)) {
-	 foreach(foo, mixed value) {
-	   if(objectp(value) && functionp(value->query_name))
-	     scopes[value->query_name()] = value;
-	 }
-       }
-     }
-   }
-   tag_callers = mkmapping(indices(real_tag_callers),
-			   allocate(sizeof(real_tag_callers), call_tag));
-   container_callers = mkmapping(indices(real_container_callers),
-				 allocate(sizeof(real_container_callers),
-					  call_container));
+    if(o->query_container_callers)
+    {
+      foo=o->query_container_callers();
+      if(mappingp(foo)) {
+        real_container_callers += foo;
+      }
+    }
+    if(o->query_scopes) {
+      foo = o->query_scopes();
+      if(arrayp(foo)) {
+        foreach(foo, mixed value) {
+          if(objectp(value) && functionp(value->query_name))
+            scopes[value->query_name()] = value;
+        }
+      }
+    }
+  }
+  tag_callers = mkmapping(indices(real_tag_callers),
+                          allocate(sizeof(real_tag_callers), call_tag));
+  container_callers = mkmapping(indices(real_container_callers),
+                                allocate(sizeof(real_container_callers),
+                                         call_container));
 }
 
 void add_parse_module(object o)
