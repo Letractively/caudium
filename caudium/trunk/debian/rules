@@ -44,7 +44,7 @@ configure-stamp:
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
 	fi
-	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-smlib=smjs
+	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-serverdir=/usr/lib/caudium
 
 	touch configure-stamp
 
