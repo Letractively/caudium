@@ -49,3 +49,5 @@ Changes since last Roxen 1.3
 + Re-added (it disappeared in Roxen 1.3) an option to disable the extra
   Caudium environment variables in CGI-scripts since they sometimes cause
   unwanted problems.
++ Replace '-=$ ' with '_' in the Caudium specific environment variables to
+  avoid potential problems.
