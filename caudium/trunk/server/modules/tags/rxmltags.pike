@@ -2430,18 +2430,9 @@ string tag_pikeversion(string tag, mapping args, object id)
     return version();
 }
 
-void tag_doctype(string tag, mapping args, object id) {
-  if (args["XHTML"])
-    id->misc->is_xml = 1;
-}
-
-
-
 mapping query_tag_callers()
 {
    return ([ 
-	    "!DOCTYPE":tag_doctype,
-	    "?xml":pi_xml,
             "get_prestate":tag_getprestate,
             "modified":tag_modified,
             "pr":tag_pr,
@@ -3144,15 +3135,9 @@ string tag_urldecode (string tagname, mapping args, string contents,
     return Caudium.HTTP.decode_url(contents);
 }
 
-void pi_xml(string tag, mapping args, object id) {
-  if (args->version && (float)args->version >= 1.0)
-    id->misc->is_xml = 1;
-}
-
 mapping query_pi_callers() {
   return ([ 
-	  "?comment": "",
-	  "?xml": pi_xml
+	  "?comment": ""
 	 ]);
 }
 
