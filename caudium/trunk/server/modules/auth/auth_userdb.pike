@@ -19,6 +19,12 @@
  *
  */
 
+/*
+ *
+ *  FIXME: usergroup mapping may be incorrect if a user is removed from a group
+ *
+ /
+
 //
 //! module: Auth Handler: User database and security
 //!  This module handles the security in roxen, and uses
@@ -31,10 +37,6 @@
 //! cvs_version: $Id$
 //
 
-/*
- * User database. Reads the system password database and use it to
- * authenticate users. Interfaces with auth_master to provide stackable authentication.
-*/
 constant cvs_version = "$Id$";
 constant thread_safe=0;
 
@@ -47,11 +49,11 @@ inherit "caudiumlib";
 #else
 #define ERROR(X) 
 #endif
-
+    
 constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "Authentication Provider: User Database";
 constant module_doc  = "Authenticate users against common user databases "
-	"such as /etc/passwd using common system functions.";
+        "such as /etc/passwd using common system functions.";
 
 // we can have more than one per virtual server.
 constant module_unique = 0;
@@ -61,9 +63,13 @@ constant module_unique = 0;
   (!!(cryptwd) && sizeof (cryptwd) >= 10 && \
    search ((cryptwd), "*") < 0 && search ((cryptwd), "!") < 0)
 
+mapping groups, gid2group;
 mapping users, uid2user;
+mapping usergroups;
 array fstat;
-void read_data();
+
+private static int last_password_read = 0;
+private static int last_group_read = 0;
 
 void report_io_error (string f, mixed... args)
 {
@@ -76,8 +82,44 @@ void report_io_error (string f, mixed... args)
   report_error (f);
 }
 
+void read_group_data_if_not_current()
+{
+  if (query("method") == "file" || query("method") == "shadow")
+  {
+    string filename=query("groupfile");
+    array|int status=file_stat(filename);
+    int mtime;
 
-void try_find_user(string|int u) 
+    if (arrayp(status))
+      mtime = status[3];
+    else
+      return;
+
+    if (mtime > last_group_read)
+      read_group_data();
+  }
+}
+
+void read_user_data_if_not_current()
+{
+  if (query("method") == "file" || query("method") == "shadow")
+  {
+    string filename=query("userfile");
+    array|int status=file_stat(filename);
+    int mtime;
+
+    if (arrayp(status))
+      mtime = status[3];
+    else
+      return;
+
+    if (mtime > last_password_read)
+      read_user_data();
+  }
+}
+
+
+void try_find_user(string|int u)
 {
   array uid;
   switch(QUERY(method))
@@ -99,10 +141,9 @@ void try_find_user(string|int u)
           }
         }
 #endif
-
       case "file":
-        if(!equal(file_stat(QUERY(file)), fstat))
-          read_data();
+        if(!equal(file_stat(QUERY(userfile)), fstat))
+          read_user_data();
         break;
 
       case "ypmatch":
@@ -110,52 +151,85 @@ void try_find_user(string|int u)
   }
 }
 
-
-void read_data_if_not_current()
+void try_find_group(string|int g)
 {
-  if (query("method") == "file" || query("method") == "shadow")
+  array gid;
+  switch(QUERY(method))
   {
-    string filename=query("file");
-    array|int status=file_stat(filename);
-    int mtime;
-    
-    if (arrayp(status))
-      mtime = status[3];
-    else
-      return;
-    
-    if (mtime > last_password_read)
-      read_data();
+#if constant(getgrgid) && constant(getgrnam)
+      case "getpwent":
+        if(intp(g)) gid = getgrgid(g);
+        else        gid = getgrnam(g);
+        break;
+        if(gid)
+        {
+          if(groups[gid[0]])
+          {
+	      gid2group[gid[2]][5] = gid[5];
+	      groups[gid[0]][5] = gid[5];
+          } else {
+	      gid2group[gid[2]] = gid;
+	      groups[gid[0]] = gid;
+          }
+        }
+#endif
+
+      case "file":
+        if(!equal(file_stat(QUERY(groupfile)), fstat))
+          read_group_data();
+        break;
+
+      case "ypmatch":
+      case "niscat":
   }
 }
 
-private static int last_password_read = 0;
-
 #if constant(getpwent)
 private static array foo_users;
-private static int foo_pos;
+private static int foo_upos;
+private static array foo_groups;
+private static int foo_gpos;
 
-void slow_update()
+void slow_user_update()
 {
   if(!foo_users || sizeof(foo_users) != sizeof(users))
   {
     foo_users = indices(users);
-    foo_pos = 0;
+    foo_upos = 0;
   }
 
   if(!sizeof(foo_users))
     return;
   
-  if(foo_pos >= sizeof(foo_users))
-    foo_pos = 0;
-  try_find_user(foo_users[foo_pos++]);
+  if(foo_upos >= sizeof(foo_users))
+    foo_upos = 0;
+  try_find_user(foo_users[foo_upos++]);
 
-  remove_call_out(slow_update);
-  call_out(slow_update, 30);
+  remove_call_out(slow_user_update);
+  call_out(slow_user_update, 30);
+}
+
+void slow_group_update()
+{
+  if(!foo_groups || sizeof(foo_groups) != sizeof(groups))
+  {
+    foo_groups = indices(groups);
+    foo_gpos = 0;
+  }
+
+  if(!sizeof(foo_groups))
+    return;
+  
+  if(foo_gpos >= sizeof(foo_groups))
+    foo_gpos = 0;
+  try_find_group(foo_groups[foo_gpos++]);
+
+  remove_call_out(slow_group_update);
+  call_out(slow_group_update, 30);
 }
 #endif
 
-void read_data()
+void read_user_data()
 {
   string data,u;
   array(string)  entry, tmp, tmp2;
@@ -204,13 +278,13 @@ void read_data()
 
       case "file":
 //     if(getuid() != geteuid()) privs = Privs("Reading password database");
-        fstat = file_stat(query("file"));
-        data = Stdio.read_bytes(query("file"));
+        fstat = file_stat(query("userfile"));
+        data = Stdio.read_bytes(query("userfile"));
         if (objectp(privs)) {
           destruct(privs);
         }
         privs = 0;
-        if (!data) report_io_error ("Error reading passwd database from " + query ("file"));
+        if (!data) report_io_error ("Error reading passwd database from " + query ("userfile"));
         last_password_read = time();
         break;
     
@@ -221,15 +295,15 @@ void read_data()
 #if constant(geteuid)
         if(getuid() != geteuid()) privs=Privs("Reading password database");
 #endif
-        fstat = file_stat(query("file"));
-        data=    Stdio.read_bytes(query("file"));
+        fstat = file_stat(query("userfile"));
+        data=    Stdio.read_bytes(query("userfile"));
         if (data) shadow = Stdio.read_bytes(query("shadowfile"));
         if (objectp(privs)) {
           destruct(privs);
         }
         privs = 0;
         if (!data)
-          report_io_error ("Error reading passwd database from " + query ("file"));
+          report_io_error ("Error reading passwd database from " + query ("userfile"));
         else if (!shadow)
           report_io_error ("Error reading shadow database from " + query ("shadowfile"));
         else {
@@ -286,21 +360,146 @@ void read_data()
         uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
 #if constant(getpwent)
   if(QUERY(method) == "getpwent" && (original_data))
-    slow_update();
+  {
+      slow_user_update();
+  }
 #endif
 
   // We do need to continue calling out.. Duh.
   int delta = QUERY(update);
   if (delta > 0) {
     last_password_read=time(1);
-    remove_call_out(read_data);
-    call_out(read_data, delta*60);
+    remove_call_out(read_user_data);
+    call_out(read_user_data, delta*60);
+
+  }
+}
+
+void read_group_data()
+{
+
+    werror("read_Group_data\n");
+  string data,g;
+  array entry, tmp, tmp2;
+  int foo, i;
+  int original_data = 1; // Did we inherit this group list from another
+  //  user-database module?
+  int saved_gid;
+
+  usergroups=([]);  
+  groups=([]);
+  gid2group=([]);
+  switch(query("method"))
+  {
+      case "ypcat":
+        object privs;
+#if constant(geteuid)
+//  if(getuid() != geteuid()) privs = Privs("Reading password database");
+#endif
+        data=Process.popen("ypcat "+query("args")+" group");
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading group database with ypcat");
+        break;
+
+      case "getpwent":
+#if constant(getgrent)
+        // This could be a _lot_ faster.
+        tmp2 = ({ });
+#if constant(geteuid)
+        if(getuid() != geteuid()) privs = Privs("Reading group database");
+#endif
+        setgrent();
+        while(tmp = getgrent())
+	{
+          tmp2 += ({
+            Array.map(tmp, lambda(mixed s) { if(arrayp(s)) return s*","; else return (string)s; }) * ":"
+          }); 
+	}
+        endgrent();
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        data = tmp2 * "\n";
+        break;
+#endif
+
+      case "file":
+      case "shadow":
+//     if(getuid() != geteuid()) privs = Privs("Reading password database");
+        fstat = file_stat(query("groupfile"));
+        data = Stdio.read_bytes(query("groupfile"));
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading group database from " + query ("groupfile"));
+        last_group_read = time();
+        break;
+    
+        case "niscat":
+#if constant(geteuid)
+        if(getuid() != geteuid()) privs=Privs("Reading group database");
+#endif
+        data=Process.popen("niscat "+query("args")+" group.org_dir");
+        if (objectp(privs)) {
+          destruct(privs);
+        }
+        privs = 0;
+        if (!data) report_io_error ("Error reading group database with niscat");
+        break;
+  }
+
+  if(!data)
+    data = "";
+  
+  if(query("Swashii"))
+    data=replace(data, 
+                 ({"}","{","|","\\","]","["}),
+                 ({"å","ä","ö", "Ö","Å","Ä"}));
+
+/* Two loops for speed.. */
+  foreach(data/"\n", data)
+      if(sizeof(entry=data/":")== 4)
+      {
+	  if(entry[3])
+	      entry[3]=entry[3]/","-({""});
+	  foreach(entry[3], string g)
+	      if(usergroups[g])
+		  usergroups[g]+=({entry[0]});
+	      else
+		  usergroups[g]=({entry[0]});
+	  groups[entry[0]] = entry;
+	  gid2group[(int)entry[2]]=entry;
+//	    werror("got a group: " + sprintf("%O\n", entry));
+      }
+#if constant(getpwent)
+  if(QUERY(method) == "getpwent" && (original_data))
+  {
+    slow_group_update();
+  }
+#endif
+
+  // We do need to continue calling out.. Duh.
+  int delta = QUERY(update);
+  if (delta > 0) {
+    last_group_read=time(1);
+    remove_call_out(read_group_data);
+    call_out(read_group_data, delta*60);
   }
 }
 
 void create()
 {
-  defvar("file", "/etc/passwd", "Password database file",
+  defvar("userfile", "/etc/passwd", "Password database file",
+         TYPE_FILE,
+         "This file will be used if method is set to file.", 0, 
+         method_is_not_file);
+
+  defvar("groupfile", "/etc/group", "Group database file",
          TYPE_FILE,
          "This file will be used if method is set to file.", 0, 
          method_is_not_file);
@@ -384,13 +583,20 @@ void start(int i)
 {
   ERROR("start");
   if(i<2)
-    read_data();
+  {
+    read_user_data();
+    read_group_data();
+  }
   /* Automatic update */
   int delta = QUERY(update);
   if (delta > 0) {
+    last_group_read=time(1);
+    remove_call_out(read_group_data);
+    call_out(read_group_data, delta*60);
+
     last_password_read=time(1);
-    remove_call_out(read_data);
-    call_out(read_data, delta*60);
+    remove_call_out(read_user_data);
+    call_out(read_user_data, delta*60);
   }
 
 }
@@ -417,7 +623,9 @@ mapping|int get_user_info(string u)
 
   array groups=({});
 
-  return(["username": users[u][0], "primary_group": users[u][3], 
+  groups=get_groups_for_user(u);
+
+  return(["username": users[u][0], "primary_group": get_groupname(users[u][3]), 
 	"name": users[u][4], "uid": users[u][2],
 	"home_directory" : users[u][5], "groups": groups,
 	"_source": query("_name")]);
@@ -430,19 +638,25 @@ mapping|int get_username(string uid)
 
   if(!uid)
     return 0;
-  if(!uid2user[uid])
-    try_find_user(uid);
-  return uid2user[uid][0];
+  if(!uid2user[(int)uid])
+    try_find_user((int)uid);
+  if(!uid2user[(int)uid]) return 0;
+  else return uid2user[(int)uid][0];
 
 
 }
 
 mapping|int get_groupname(string gid)
 {
-  ERROR("get_groupname: " + gid);
+  werror("get_groupname: " + gid);
 
   if(!gid)
     return 0;
+  werror("looking for group...\n");
+  if(!gid2group[(int)gid])
+      try_find_group((int)gid);
+  if(!gid2group[(int)gid]) return 0;
+  else return gid2group[(int)gid][0];
 
 }
 
@@ -454,10 +668,13 @@ mapping|int get_group_info(string groupname)
 
   if(!groupname)
     return 0;
+  if(!groups[groupname])
+      try_find_group(groupname);
+  if(!groups[groupname]) return 0;
 
-    return(["groupname": groupname, 
-	"name": common_name, "gid": gid,
-	"users": users, "_source": query("_name") ]);
+  else return(["groupname": groups[groupname][0], 
+	"name": groups[groupname][0], "gid": groups[groupname][2],
+	"users": groups[groupname][3], "_source": query("_name") ]);
 
 }
 
@@ -465,9 +682,8 @@ array list_all_groups()
 {
   ERROR("list_all_groups()");
 
-  array groups=({});
 
-  return groups;
+  return indices(groups);
 
 }
 array list_all_users()
@@ -483,19 +699,9 @@ array get_groups_for_user(string dn)
 
   ERROR("get_groups_for_user(" + dn + ")");
 
-  array groups=({});
+  if(usergroups[dn]) return usergroups[dn];
 
-  return groups;
-}
-
-array get_users_for_group(string dn)
-{
-
-  ERROR("get_users_for_group(" + dn + ")");
-
-  array users=({});
-
-  return users;
+  return ({});
 }
 
 //
@@ -511,7 +717,7 @@ int authenticate(string u, string p)
     return 1;
   }
 
-  read_data_if_not_current();
+  read_user_data_if_not_current();
 
   if(!users[u] || !(stringp(users[u][1]) && strlen(users[u][1]) > 6))
   {
