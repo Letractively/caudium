@@ -251,7 +251,7 @@ class http_error_handler {
       }
 
       if(id->conf) {
-	string ErrorTheme = id->conf->query( "ErrorTheme" );
+	string ErrorTheme = id->conf->query ("ErrorTheme");
 	if (ErrorTheme != template->name) {
 	  set_template( ErrorTheme, id );
 	}
@@ -278,7 +278,15 @@ class http_error_handler {
 
     if (error_code > 499 || debug) {
       if (id)
-	report_error (sprintf ("Serving Error %d, %s to client for %s%s.\n", error_code, error_name, id->conf ? id->conf->query ("MyWorldLocation") : "", id->raw_url[1..]));
+      {
+         string url = id->conf->query ("MyWorldLocation");
+         if (id->raw_url[0] == '/')
+            url += id->raw_url[1..];
+         else
+            url += id->raw_url;
+
+         report_error (sprintf ("Serving Error %d, %s to client for %s.\n", error_code, error_name, url));
+      }
       else
 	report_error (sprintf ("Serving error %d, %s to client for a 'core' error:\n%s\n", describe_backtrace (backtrace ())));
     }
@@ -291,6 +299,5 @@ class http_error_handler {
 	"type" : local_template->type
       ]);
   }
-
 }
 
