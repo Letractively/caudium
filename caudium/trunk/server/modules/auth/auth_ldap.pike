@@ -46,8 +46,6 @@ string query_provides()
  * Globals
  */
 
-object dir=0;
-
 int default_uid() {
 
 #if constant(geteuid)
@@ -161,7 +159,7 @@ void create()
 }
 
 
-void close_dir() {
+void close_dir(object dir) {
   dir->unbind();
   dir=0;
   DEBUGLOG("closing the directory");
@@ -169,9 +167,10 @@ void close_dir() {
 }
 
 
-int|object open_dir(string u, string p) {
+int|object open_dir() {
     mixed err;
     int res;
+    object dir;
 
     dir_accesses++; //I count accesses here, since this is called before each
 
@@ -189,13 +188,13 @@ int|object open_dir(string u, string p) {
     }
 
    // bind if we have a default user specified.
-   if(QUERY(CI_dir_username))
+   if(QUERY(CI_dir_username) && QUERY(CI_dir_username)!="")
    {
      res=dir->bind(QUERY(CI_dir_username), QUERY(CI_dir_pwd));
      if(!res)
      {
        report_error("LDAPauth: bind failed as " + QUERY(CI_dir_username) + "\n");
-       close_dir();
+       close_dir(dir);
        return 0;
      }
    }   
@@ -237,59 +236,50 @@ string status() {
  * Auth functions
  */
 
-string get_attrval(mapping attrval, string attrname, string dflt) {
+private string get_attrval(mapping attrval, string attrname, string dflt) 
+{
 
     return (zero_type(attrval[attrname]) ? dflt : attrval[attrname][0]);
 }
 
-array(string) userinfo (string u,mixed p) {
+array(string) userinfo() {
     array(string) dirinfo;
     object results;
     mixed err;
     mapping(string:array(string)) tmp, attrsav;
 
     DEBUGLOG ("userinfo ("+u+")");
-    //DEBUGLOG (sprintf("DEB:%O\n",p));
     if (u == "A. Nonymous") {
       DEBUGLOG ("A. Nonymous pseudo user catched and filtered.");
       return 0;
     }
 
-    open_dir(u, p);
+    open_dir();
 
     if (!dir) {
-	report_error ("LDAPauth: Returning 'user unknown'.\n");
 	return 0;
     }
 
-    if(QUERY(CI_access_type) == "search") {
-	string rpwd = "";
+    string rpwd = "";
 
-	err = catch(results=dir->search(replace(QUERY(CI_search_templ), "%u%", u)));
-	if (err || !objectp(results) || !results->num_entries()) {
-	    DEBUGLOG ("no entry in directory, returning unknown");
-	    if(access_mode_is_guest_or_roaming() && objectp(dir)) {
-		catch(dir->unbind());
-		dir=0;
-	    }
-	    return 0;
-	}
-	tmp=results->fetch();
-	//DEBUGLOG(sprintf("userinfo: got %O",tmp));
-	if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-	      report_warning("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
-	 else
-	     rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
-	/*
-	if(!access_mode_is_guest()) {	// mode is 'guest'
-	    if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
-		report_warning("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
-	    else
-		rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
-	}
-	*/
-	if(!access_mode_is_user_or_roaming())	// mode is 'user'
-	// this is use when no password suplied (for example fetching www.website.com/~user) 
+    err = catch(results=dir->search(replace(QUERY(CI_search_templ), "%u%", u)));
+    if (err || !objectp(results) || !results->num_entries()) {
+      DEBUGLOG ("no entry in directory, returning unknown");
+      if(access_mode_is_guest_or_roaming() && objectp(dir)) {
+        catch(dir->unbind());
+	close_dir(dir);
+      }
+      return 0;
+    }
+    tmp=results->fetch();
+
+    if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
+       report_warning("LDAPuserauth: WARNING: entry doesn't have the '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
+    else
+      rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
+
+    if(!access_mode_is_user_or_roaming())	// mode is 'user'
+    // this is use when no password suplied (for example fetching www.website.com/~user) 
 	 rpwd = stringp(p) ? rpwd : "{x-hop}*";
 	if(!access_mode_is_roaming()) {	// mode is 'roaming'
 	  // OK, now we'll try to bind ...
@@ -347,7 +337,7 @@ array(string) userinfo (string u,mixed p) {
 	// Compare method is unimplemented, yet
     }
     if(!access_mode_is_user()) { // Should be 'closedir' method?
-      close_dir();
+      close_dir(dir);
     }
     if(!access_mode_is_roaming()) { // We must rebind connection
       dir->bind(QUERY(CI_dir_username), QUERY(CI_dir_pwd));
@@ -389,86 +379,104 @@ int chk_name(string x, string y) {
 }
 #endif
 
-array|int authenticate (string user, string password)
+
+private int|object get_user_object(object dir, string user)
 {
-    array(string) dirinfo;
-    mixed attr,value;
+   string userdn;
+   mixed err;
+   object sr;
+   mapping dirinfo;
+
+   // first, we find the dn for the user we are about to authenticate as.
+   userdn=replace(QUERY(CI_search_templ), "%u", user);
+
+   err=catch(sr=dir->search(userdn));    
+
+   if(err) 
+   {
+     report_error("LDAPAuth: Search failed for query " + userdn + "\n", 
+       dir->error_string());
+   }
+
+   if(sr->num_entries()==0)
+   {
+      report_error("LDAPAuth: user not found: " + user + "\n");
+      close_dir(dir);
+      return 0;
+   }
+   else if(sr->num_entries()>1)
+   {
+      report_error("LDAPAuth: we have more than one match for user " + user + "!\n");
+   }
+
+   dirinfo=sr->fetch();  // we will work with the first entry.
+
+   // check for required attribute, if any
+   if(QUERY(CI_required_attr) && QUERY(CI_required_attr)!="")
+   {
+     if(!dirinfo[QUERY(CI_required_attr)])
+     {
+       DEBUGLOG (user + " does not have required attribute.");
+       close_dir(dir);
+       return 0;
+     }
+     int ok=0;
+     array v=dirinfo[QUERY(CI_required_attr)];
+     foreach(v, mixed val)
+       if(val==QUERY(CI_required_value))
+       {
+         ok=1;
+         break; // we have a match
+       }
+     if(!ok) // we didn't find a match.
+     {
+       DEBUGLOG (user + " has required attribute, but not value.");
+       close_dir(dir);
+       return 0;
+     }
+   }
+  
+   return sr;
+}
+
+int authenticate (string user, string password)
+{
     mixed err;
+    object dir;
+    string userdn;
+    mapping dirinfo;
+    int res;
+    object sr;
 
     att++;
+    
+    dir=open_dir()
+    if(!dir) return 0;
 
-    dirinfo=userinfo(username, password);
-    if (!dirinfo||!sizeof(dirinfo)) {
-	DEBUGLOG ("password check failed");
-	DEBUGLOG ("no such user");
-	nouser++;
-	return ({0,u,p});
-    }
-    pw = dirinfo[1];
-    if(pw == "{x-hop}*")  // !!!! HACK
-	pw = p;
-    if(p != pw) {
-	// Digests {CRYPT}, {SHA1} and {MD5}
-	int pok = 0;
-	if (sizeof(pw) > 6)
-	    switch (upper_case(pw[..4])) {
-		case "{SHA}" :
-		    pok = (pw[5..] == MIME.encode_base64(Crypto.sha()->update(p)->digest()));
-		    DEBUGLOG ("Trying SHA digest ...");
-		    break;
-
-		case "{MD5}" :
-		    pok = (pw[5..] == MIME.encode_base64(Crypto.md5()->update(p)->digest()));
-		    DEBUGLOG ("Trying MD5 digest ...");
-		    break;
-
-		case "{CRYP" :
-		    if (sizeof(pw) > 7 && upper_case(pw[5..6]) == "T}") {
-			pok = crypt(p,pw[7..]);
-			DEBUGLOG ("Trying CRYPT digest ...");
-		    }
-		    break;
-	    } // switch
-	if (!pok) {
-	    DEBUGLOG ("password check failed");
-	    caudium->quick_ip_to_host(id->remoteaddr);
-	    return ({0,u,p});
-	}
+    sr=get_user_object(dir, user);
+    if(!sr)
+    {
+      // user does not exist.
+      return 0;
     }
 
-    if(!access_mode_is_user()) {
-	// Check for the Atributes
-	if(sizeof(QUERY(CI_required_attr))) {
-	    attr=QUERY(CI_required_attr);
-	    if (mappingp(dirinfo[7]) && dirinfo[7][attr]) {
-		mixed d;
-		d=dirinfo[7][attr];
-		// werror("User "+u+" has attr "+attr+"\n");
-		if(sizeof(QUERY(CI_required_value))) {
-		    mixed temp;
-		    int found=0;
-		    value=QUERY(CI_required_value);
-		    foreach(d, mixed temp) {
-			// werror("Looking at "+temp+"\n");
-			if (search(temp,value)!=-1)
-			    found=1;
-		    }
-		    if (found) {
-			// werror("User "+u+" has value "+value+"\n");
-		    } else {
-			werror("LDAPuserauth: User "+u+" has not value "+value+"\n");
-			return ({0,u,p});
-		    }
-		}
-	    } else {
-		werror("LDAPuserauth: User "+u+" has no attr "+attr+"\n");
-		return ({0,u,p});
-	    }
+    userdn=sr->get_dn();
 
-	}
-    } // if access_mode_is_user
+    // in case we are bound already.
+    dir->unbind();
 
+    res=dir->bind(userdn, password);
+
+    if(!res) 
+    {
+      close_dir(dir);
+      DEBUGLOG (u+" authentication failed");
+      return -1;
+    }
+
+    // successful authentication
     DEBUGLOG (u+" positively recognized");
+    close_dir(dir);
     succ++;
     return 1;
 }
