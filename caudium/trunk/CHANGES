@@ -1,6 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
-
+- business graphics module now creates the cache directory in the correct
+  location (under the argument_cache_dir hierarchy)
 - Now font name can be specified in <diagram > tag and use the CIF default
   font name.
 - Scopes compatibility is to On/Conditional. If there is problems about that
