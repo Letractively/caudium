@@ -335,7 +335,7 @@ mixed first_try(object id)
   
   to = replace(to, ({"%u", "%h", "%f", "%p" }),
 	       ({ url, hurl,
-		  (id->not_query / "/" - ({""}) )[-1],
+		  ( ({""}) + (id->not_query / "/" - ({""})) )[-1],
 		  id->not_query[1..] })
 	       );
   if(to == url + id->not_query ||
