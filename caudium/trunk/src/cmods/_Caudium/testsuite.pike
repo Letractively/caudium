@@ -37,7 +37,7 @@ int result(mixed a, mixed b) {
 // This retrun a ok or fail if test has fails
 int returnok(int z) {
   if(z) {
-    write(" fail\b");
+    write("   fail\n");
     return 1;
   } else {
     write(" ok\n");
@@ -49,10 +49,16 @@ int returnok(int z) {
 void prtest(string name) {
   write(sprintf("  Testing Caudium.%s()...\t",name));
 }
+
+int mapping_test(mapping tst, function totest) {
+  int out = 0;
+  foreach(indices(tst), string foo) {
+    out += result(tst[foo],totest(foo)); 
+  }
+  return returnok(out);
+}
   
 int TEST_extension() {
-  int out = 0;
-  string a;
   mapping tst = ([ "caudium.c":"c",
                    "index.rxml":"rxml",
                    "foo.c~":"c",
@@ -60,13 +66,19 @@ int TEST_extension() {
                    "zorgl.php":"php",
                    "again.pof.rxml":"rxml" ]);
   prtest("extension");
-
-  foreach(indices(tst), string foo) {
-    out += result(tst[foo],Caudium.extension(foo)); 
-  }
-
-  return returnok(out);
+  return mapping_test(tst, Caudium.extension);
 }  
+
+int TEST_http_encode_cookie() {
+  mapping tst = ([ "=":"%3D", 
+                   ",":"%2C",
+                   ";":"%3B",
+                   "%":"%25",
+                   ":":"%3A",
+                   "CaudiumCookie=Zorglub; expires= baf":"CaudiumCookie%3DZorglub%3B expires%3D baf" ]);
+  prtest("http_encode_cookie");
+  return mapping_test(tst, Caudium.http_encode_cookie);
+}
 
 int TEST_http_date() {
   int tmstmp = time();
