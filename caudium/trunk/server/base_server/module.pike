@@ -94,18 +94,24 @@ string file_name_and_stuff()
 }
 
 static private object _my_configuration;
+static private object _my_module = this;
 
 //! Returns the module's configuration object.
 //!
 //! Useful for working outside a request (when you don't have request_id).
 object my_configuration()
 {
+  werror("looking for my configuration.\n");
+  werror(sprintf("%O\n", _my_module));
   if(_my_configuration)
     return _my_configuration;
   object conf;
   foreach(caudium->configurations, conf)
-    if(conf->otomod[this])
+    if(conf->otomod[_my_module])
+    {
+      werror("found configuration.\n");
       return conf;
+    }
   return 0;
 }
 
@@ -692,26 +698,11 @@ string query_location()
 //!  By default, provide nothing.
 string query_provides() { return 0; } 
 
-//! Template Emit Plugin template. Should be inherited by your functional Emit plugin.
-class EmitPlugin
-{
+//! Set the callbacks that provide emit services.
+//! @note
+//!  By default, provide nothing.
+mapping query_emit_callers() { return 0; } 
 
-  string name = "default";
-
-  void create()
-  {
-    object conf;
-    foreach(caudium->configurations, conf)
-      if(conf->otomod[this])
-        conf->emit_plugins[name] = this;
-  }
-
-  array(mapping) get_dataset(mapping args, RequestID id)
-  {
-    return ({});
-  }
-
-}
 
 /*
  * Parse and return a parsed version of the security levels for this module
