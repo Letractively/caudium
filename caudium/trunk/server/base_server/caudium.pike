@@ -1196,7 +1196,7 @@ public array(string) userlist(void|object id)
     conf = current_configuration;
   }
   if(conf && conf->auth_module)
-    return conf->auth_module->userlist();
+    return conf->auth_module->list_all_users();
   return 0;
 }
 
