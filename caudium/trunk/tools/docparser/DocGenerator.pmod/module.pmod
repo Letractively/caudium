@@ -108,7 +108,17 @@ class DocGen
             ret += this_object()->special_cvs_version ?
                 this_object()->special_cvs_version(f->cvs_version) : f->cvs_version;
         ret += "\n</version>\n\n";
-
+	
+        /* Type if any */
+        if (f->type && f->type != "") {
+	  ret += "<type>"+f->type+"</type>\n";
+	}
+	
+        /* Provides if any */
+        if (f->provides && f->provides != "") {
+	  ret += "<provides>"+f->provides+"</provides>\n";
+	}
+	
         return ret;
     }
 
@@ -147,6 +157,70 @@ class DocGen
 
         return ret;
     }
+
+  /* GlobVar output */
+  private string do_f_tag(DocParser.Tag tag)
+  {
+    string   ret = "";
+    
+    if (tag->first_line && tag->first_line != "")
+      ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;\">\n";
+    else
+      ret += "<tag synopsis=\"" + ob_unnamed(tag) + "\">\n";
+    
+    if (tag->contents && tag->contents != "")
+      ret += "<description>\n"+tag->contents + "\n</description>\n";
+
+    /* Attributes */
+    if (tag->attrs && sizeof(tag->attrs)) {
+      ret += "<attributes>\n";
+      foreach(tag->attrs, DocParser.Attribute a) {
+	ret += "\t<attribute";
+	if (a->first_line)
+	  ret += " syntax=\""+a->first_line+"\"";
+	if (a->def && strlen(a->def))
+	  ret += " default=\""+a->def+"\"";
+	ret += ">\n\t\t";
+	if (a->description)
+	  ret += a->description;
+	else
+	  ret += "NO DESCRIPTION";
+	ret += "\n\t</attribute>\n\n";
+      }
+      ret += "</attributes>\n\n";
+    }
+	
+    /* Returns */
+    if (tag->returns)
+      foreach(tag->returns, string r)
+	if (r != "")
+	  ret += "<returns>\n" + r + "\n</returns>\n\n";
+    
+    /* Notes */
+    if (tag->notes && sizeof(tag->notes)) {
+      ret  += "<notes>\n";
+      foreach(tag->notes, string n)
+	if (n != "")
+	  ret += "\t<note>\n" + n + "\n\t</note>\n";
+      ret += "</notes>\n";
+    }
+    
+    ret += "</tag>\n\n";
+        
+    return ret;
+  }
+  private string f_tags(DocParser.PikeFile f)
+  {
+    string   ret = "";
+    if (!sizeof(f->tags))
+      return "";
+    ret = "<tags>\n";
+    foreach(f->tags, object tag)
+      ret += do_f_tag(tag);
+    ret += "</tags>\n";
+
+    return ret;
+  }
 
     /* Method output */
     private mapping(string:string|array(string)) 
@@ -213,7 +287,7 @@ class DocGen
 	    ret += "\t<argument";
 	    if (a->synopsis)
 	      ret += " syntax=\""+a->synopsis+"\"";
-	    ret += "\n\t\t";
+	    ret += ">\n\t\t";
 	    if (a->description)
 	      ret += a->description;
 	    else
@@ -303,9 +377,10 @@ class DocGen
 	/* And Classes */
 	if (f->classes)
 	    ofile->write(f_classes(f));
+
 	/* And Tags */
 	if (f->tags)
-	    ofile->write(f_tags(f));
+	  ofile->write(f_tags(f));
 
 	ofile->write("</module>");
     }
