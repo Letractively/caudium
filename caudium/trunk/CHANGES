@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Old FCGI-CGI backend is now disabled per default. If you'd like to use the
+  old FastCGI interface, please provide --with-oldfastcgi to ./configure 
+  script.
 - Added AJP | Tomcat Connector module to allow connecting to Jakarta 
   Tomcat and Jetty servlet engines.
 - <if group="somegroup"> now consults the new naming system for group 

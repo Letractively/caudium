@@ -7,7 +7,16 @@ else
   CFLAGS="$REALCFLAGS"
   export CFLAGS
 fi
-DIRS="cmods tools fast_cgi"
+if test "x$with_oldfastcgi" = "x"; then
+  with_oldfastcgi = "no"
+fi
+
+if test "x$with_oldfastcgi" = "xno"; then
+  DIRS="cmods tools"
+else
+  DIRS="cmods tools fast_cgi"
+fi
+
 AC_SUBST(DIRS)
 
 AC_SET_MAKE
