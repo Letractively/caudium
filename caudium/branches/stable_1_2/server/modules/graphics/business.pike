@@ -180,23 +180,26 @@ int loaded;
 
 void start(int num, object configuration)
 {
-  if (!loaded) {
-    loaded = 1;
-    if (get_dir(query("cachedir")))
-      foreach(get_dir(query("cachedir")), string file)
-	rm(query("cachedir")+file);
-    else
-      if (!mkdir(query("cachedir")))
-	report_warning ("BG: Cache directory "+
-			query("cachedir")+" can not be created.\n");
-  }
+    if (!loaded) {
+        string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+        
+        loaded = 1;
+        if (get_dir(cdir))
+            foreach(get_dir(cdir), string file)
+                rm(cdir+file);
+        else
+            if (!mkdir(cdir))
+                report_warning ("BG: Cache directory "+
+                                cdir+" can not be created.\n");
+    }
 }
 
 void stop()
 {
-  if (get_dir(query("cachedir")))
-    foreach(get_dir(query("cachedir")), string file)
-      rm(query("cachedir")+file);
+    string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+    if (get_dir(cdir))
+        foreach(get_dir(cdir), string file)
+            rm(cdir+file);
 }
 
 void create()
@@ -218,7 +221,7 @@ string itag_xaxis(string tag, mapping m, mapping res)
 #ifdef BG_DEBUG
   bg_timers->xaxis = gauge {
 #endif
-  int l=query("maxstringlength")-1;
+  int l=QUERY(maxstringlength)-1;
 
   res->xaxisfont = m->font || m->nfont || res->xaxisfont;
 
@@ -243,7 +246,7 @@ string itag_yaxis(string tag, mapping m, mapping res)
 #ifdef BG_DEBUG
   bg_timers->yaxis = gauge {
 #endif
-  int l=query("maxstringlength")-1;
+  int l=QUERY(maxstringlength)-1;
 
   res->yaxisfont = m->font || m->nfont || res->yaxisfont;
 
@@ -270,7 +273,7 @@ string itag_names(string tag, mapping m, string contents,
 #ifdef BG_DEBUG
   bg_timers->names += gauge {
 #endif
-  int l=query("maxstringlength")-1;
+  int l=QUERY(maxstringlength)-1;
 
   if(!m->noparse)
     contents = parse_rxml( contents, id );
@@ -503,7 +506,7 @@ string itag_colors(string tag, mapping m, string contents,
 string itag_legendtext(string tag, mapping m, string contents,
 		       mapping res, object id)
 {
-  int maxlen = query("maxstringlength")-1;
+  int maxlen = QUERY(maxstringlength)-1;
 
   string voidsep;
   VOIDCODE;
@@ -554,11 +557,13 @@ string quote(mapping in)
   o->update(data);
   string out=replace(http_encode_string(MIME.encode_base64(o->digest(),1)),
 		     "/", "$");
-  if (file_stat(query("cachedir")+out)) return out;
+  string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+  
+  if (file_stat(cdir+out)) return out;
   
   //NU: Create the file <Key>
 
-  Stdio.write_file(query("cachedir")+out, data);
+  Stdio.write_file(cdir+out, data);
   
   return out;
 }
@@ -585,7 +590,7 @@ constant shuffle_args = mkmapping( _shuffle_args, _shuffle_args );
 string tag_diagram(string tag, mapping m, string contents,
 		   object id, object f, mapping defines)
 {
-  int l=query("maxstringlength")-1;
+  int l=QUERY(maxstringlength)-1;
   contents=replace(contents, "\r\n", "\n");
   contents=replace(contents, "\r", "\n");
 
@@ -734,16 +739,16 @@ string tag_diagram(string tag, mapping m, string contents,
   if(m->grey) res->bw = 1;
 
   if(m->width) {
-    if((int)m->width > query("maxwidth"))
-      m->width  = (string)query("maxwidth");
+    if((int)m->width > QUERY(maxwidth))
+      m->width  = (string)QUERY(maxwidth);
     if((int)m->width < 100)
       m->width  = "100";
   } else if(!res->background)
     m->width = "350";
 
   if(m->height) {  
-    if((int)m->height > query("maxheight"))
-      m->height = (string)query("maxheight");
+    if((int)m->height > QUERY(maxheight))
+      m->height = (string)QUERY(maxheight);
     if((int)m->height < 100)
       m->height = "100";
   } else if(!res->background)
@@ -812,7 +817,7 @@ string tag_diagram(string tag, mapping m, string contents,
 
   res -= shuffle_args;
 
-  m->src = query("location") + quote(res) + ".gif";
+  m->src = QUERY(location) + quote(res) + ".gif";
   if ((res->name)&&(!m->alt))
     m->alt=res->name;
 
@@ -905,7 +910,7 @@ mapping unquote( string f )
   //NU: Load the file f
 
   if (catch {
-    return decode_value(Stdio.read_file(query("cachedir")+f));
+    return decode_value(Stdio.read_file(caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/" + f));
   })
     return 0;
   
@@ -920,7 +925,9 @@ mapping find_file(string f, object id)
 
   //NU: If the file <f>.gif exists return it
   string temp;
-  if (temp=Stdio.read_file(query("cachedir")+f+".gif"))
+  string cdir = caudium->QUERY(cachedir) + "/" + QUERY(cachedir) + "/";
+  
+  if (temp=Stdio.read_file(cdir+f+".gif"))
     return http_string_answer(temp, "image/gif");
 
 
@@ -1045,13 +1052,13 @@ mapping find_file(string f, object id)
   if(back)
   {
     string foo=Image.GIF.encode(img, ct, @back);
-    Stdio.write_file(query("cachedir")+f+".gif", foo);
+    Stdio.write_file(cdir+f+".gif", foo);
     return http_string_answer(foo, "image/gif");
   }
   else
   {
     string foo=Image.GIF.encode(img, ct);
-    Stdio.write_file(query("cachedir")+f+".gif", foo);
+    Stdio.write_file(cdir+f+".gif", foo);
     return http_string_answer(foo, "image/gif");
   }
 }
