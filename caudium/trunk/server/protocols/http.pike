@@ -349,6 +349,13 @@ private int parse_got()
       break;
 
     case 2:
+    case 1:
+      if(method=="PING")
+      {
+        clientprot = prot = "HTTP/0.9";
+        my_fd->write("PONG\r\n");
+        return 2;
+      }
 #ifdef SUPPORT_HTTP_09
      // HTTP/0.9
       clientprot = prot = "HTTP/0.9";
