@@ -164,7 +164,7 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
     if(inp->fd == -1) {
       inp->u.file = inval.u.object;
       DERR(fprintf(stderr, "input object not a real FD\n"));
-      if ((outp->read_off = find_identifier("read", inp->u.file->prog)) < 0) {
+      if ((inp->read_off = find_identifier("read", inp->u.file->prog)) < 0) {
 	free(inp);
 	Pike_error("Caudium.nbio()->input: Illegal file object, "
 		   "missing read()\n");
