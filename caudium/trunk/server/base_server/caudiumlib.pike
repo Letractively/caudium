@@ -1954,6 +1954,14 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
   return new_contents;
 }
 
+//! method: string fix_relative(string file, object id)
+//!  Transforms relative paths to absolute ones in the virtual filesystem
+//! arg: string file
+//!  The relative path to transform
+//! arg: object id
+//!  The caudium id object
+//! returns:
+//!  A string containing the absolute path in he virtual filesystem
 string fix_relative(string file, object id)
 {
   if(file != "" && file[0] == '/') 
