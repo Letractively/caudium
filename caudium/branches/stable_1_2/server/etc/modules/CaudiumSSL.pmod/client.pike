@@ -23,9 +23,9 @@ int main(int argc, array(string) argv)
 
   // Allow only strong crypto
   context->preferred_suites = ({
-    CaudiumSSL_rsa_with_rc4_128_sha,
-    CaudiumSSL_rsa_with_rc4_128_md5,
-    CaudiumSSL_rsa_with_3des_ede_cbc_sha,
+    SSL_rsa_with_rc4_128_sha,
+    SSL_rsa_with_rc4_128_md5,
+    SSL_rsa_with_3des_ede_cbc_sha,
   });
 
   context->random = Crypto.randomness.reasonably_random()->read;

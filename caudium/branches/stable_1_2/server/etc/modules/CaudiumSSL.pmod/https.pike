@@ -56,7 +56,7 @@ class conn {
   
   void read_callback(mixed id, string data)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror("Received: '" + data + "'\n");
 #endif
     sslfile->set_write_callback(write_callback);
@@ -112,14 +112,14 @@ void my_accept_callback(object f)
 
 int main()
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("Cert: '%s'\n", Crypto.string_to_hex(my_certificate)));
   werror(sprintf("Key:  '%s'\n", Crypto.string_to_hex(my_key)));
 //  werror(sprintf("Decoded cert: %O\n", CaudiumSSL.asn1.ber_decode(my_certificate)->get_asn1()));
 #endif
 #if 0
   array key = CaudiumSSL.asn1.ber_decode(my_key)->get_asn1()[1];
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("Decoded key: %O\n", key));
 #endif
   object n = key[1][1];
@@ -152,7 +152,7 @@ int main()
 
 void create()
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("https->create\n");
 #endif
   sslport::create();

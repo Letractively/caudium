@@ -6,11 +6,11 @@
 inherit "connection" : connection;
 
 
-#ifdef CaudiumSSL3_DEBUG
-#define CaudiumSSL3_DEBUG_MSG werror
-#else /*! CaudiumSSL3_DEBUG */
-#define CaudiumSSL3_DEBUG_MSG
-#endif /* CaudiumSSL3_DEBUG */
+#ifdef SSL3_DEBUG
+#define SSL3_DEBUG_MSG werror
+#else /*! SSL3_DEBUG */
+#define SSL3_DEBUG_MSG
+#endif /* SSL3_DEBUG */
 object(Stdio.File) socket;
 
 static object context;
@@ -37,14 +37,14 @@ private void ssl_write_callback(mixed id);
 
 void die(int status)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.sslfile->die: is_closed = %d\n", is_closed));
 #endif
   if (status < 0)
   {
     /* Other end closed without sending a close_notify alert */
     context->purge_session(this_object());
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror("CaudiumSSL.sslfile: Killed\n");
 #endif
   }
@@ -70,12 +70,12 @@ void die(int status)
 private int queue_write()
 {
   int|string data = to_write();
-#ifdef CaudiumSSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG_TRANSPORT
   werror(sprintf("CaudiumSSL.sslfile->queue_write: '%O'\n", data));
 #endif
   if (stringp(data))
     write_buffer += data;
-#ifdef CaudiumSSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG_TRANSPORT
   werror(sprintf("CaudiumSSL.sslfile->queue_write: buffer = '%O'\n", write_buffer));
 #endif
 
@@ -86,7 +86,7 @@ private int queue_write()
       return(0);
     }
   }
-#ifdef CaudiumSSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG_TRANSPORT
   werror("CaudiumSSL.sslfile->queue_write: end\n");
 #endif
   return stringp(data) ? 0 : data;
@@ -94,7 +94,7 @@ private int queue_write()
 
 void close()
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslfile->close\n");
 #endif
 
@@ -136,7 +136,7 @@ void close()
 
 string|int read(string|int ...args) {
 
-  #ifdef CaudiumSSL3_DEBUG
+  #ifdef SSL3_DEBUG
   werror(sprintf("sslfile.read called!, with args: %O \n",args));
   #endif
   
@@ -221,7 +221,7 @@ string|int read(string|int ...args) {
 
 int write(string|array(string) s)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslfile->write\n");
 #endif
 
@@ -304,13 +304,13 @@ private void write_blocking() {
 
 private void ssl_read_callback(mixed id, string s)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.sslfile->ssl_read_callback, connected=%d, handshake_finished=%d\n", connected, handshake_finished));
 #endif
   string|int data = got_data(s);
   if (stringp(data))
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror(sprintf("CaudiumSSL.sslfile->ssl_read_callback: application_data: '%O'\n", data));
 #endif
     if (!connected && handshake_finished)
@@ -355,7 +355,7 @@ private void ssl_read_callback(mixed id, string s)
 
 private void ssl_write_callback(mixed id)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.sslfile->ssl_write_callback: handshake_finished = %d\n"
 		 "blocking = %d, write_callback = %O\n",
 		 handshake_finished, blocking, write_callback));
@@ -377,14 +377,14 @@ private void ssl_write_callback(mixed id)
     }
   }
   int res = queue_write();
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.sslport->ssl_write_callback: res = '%O'\n", res));
 #endif
   
   if ( !res && !strlen(write_buffer)
        && connected && !blocking && write_callback)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror("CaudiumSSL.sslport->ssl_write_callback: Calling write_callback\n");
 #endif
     write_callback(id);
@@ -410,7 +410,7 @@ private void ssl_write_callback(mixed id)
 
 private void ssl_close_callback(mixed id)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslport: ssl_close_callback\n");
 #endif
   if (close_callback && socket) {
@@ -425,7 +425,7 @@ private void ssl_close_callback(mixed id)
 
 void set_accept_callback(function(mixed:void) a)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslport: set_accept_callback\n");
 #endif
   accept_callback = a;
@@ -435,7 +435,7 @@ function query_accept_callback() { return accept_callback; }
 
 void set_read_callback(function(mixed,string:void) r)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslport: set_read_callback\n");
 #endif
   read_callback = r;
@@ -448,7 +448,7 @@ function query_read_callback() { return read_callback; }
 
 void set_write_callback(function(mixed:void) w)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslfile->set_write_callback\n");
 #endif
   write_callback = w;
@@ -460,7 +460,7 @@ function query_write_callback() { return write_callback; }
 
 void set_close_callback(function(mixed:void) c)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslport: set_close_callback\n");
 #endif
   close_callback = c;
@@ -470,7 +470,7 @@ function query_close_callback() { return close_callback; }
 
 void set_nonblocking(function ...args)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.sslfile->set_nonblocking(%O)\n", args));
 #endif
 
@@ -501,7 +501,7 @@ void set_nonblocking(function ...args)
 
 void set_blocking()
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslfile->set_blocking\n");
 #endif
   if (sizeof (write_buffer) && !blocking && socket)
@@ -522,7 +522,7 @@ string query_address(int|void arg)
 
 void create(object f, object c, int|void is_client, int|void is_blocking)
 {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror("CaudiumSSL.sslfile->create\n");
 #endif
   _fd=f->_fd;

@@ -52,7 +52,7 @@ static object recv_packet(string data)
 {
   mixed res;
 
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 //  werror(sprintf("CaudiumSSL.connection->recv_packet(%O)\n", data));
 #endif
   if (left_over || !packet)
@@ -67,14 +67,14 @@ static object recv_packet(string data)
   { /* Finished a packet */
     left_over = res;
     if (current_read_state) {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
       werror("Decrypting packet.. version[1]="+version[1]+"\n");
-#endif /* CaudiumSSL3_DEBUG */
+#endif /* SSL3_DEBUG */
       return current_read_state->decrypt_packet(packet,version[1]);
     } else {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
       werror(sprintf("CaudiumSSL.connection->recv_packet(): current_read_state is zero!\n"));
-#endif /* CaudiumSSL3_DEBUG */
+#endif /* SSL3_DEBUG */
       return 0;
     }
   }
@@ -89,7 +89,7 @@ void send_packet(object packet, int|void priority)
 {
 
 
-  #ifdef CaudiumSSL3_FRAGDEBUG
+  #ifdef SSL3_FRAGDEBUG
   werror(" CaudiumSSL.connection->send_packet: strlen(packet)="+strlen(packet)+"\n");
   #endif
   if (!priority)
@@ -97,7 +97,7 @@ void send_packet(object packet, int|void priority)
 		  PACKET_change_cipher_spec : PRI_urgent,
 	          PACKET_handshake : PRI_urgent,
 		  PACKET_application_data : PRI_application ])[packet->content_type];
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 #if 0
   if (packet->content_type == 22)
     werror(sprintf("CaudiumSSL.connection->send_packet() called from:\n"
@@ -136,7 +136,7 @@ string|int to_write()
   if (!packet)
     return "";
 
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
   werror(sprintf("CaudiumSSL.connection: writing packet of type %d, %O\n",
 		 packet->content_type, packet->fragment[..6]));
 #endif
@@ -173,14 +173,14 @@ int handle_alert(string s)
   }
   if (level == ALERT_fatal)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror(sprintf("CaudiumSSL.connection: Fatal alert %d\n", description));
 #endif
     return -1;
   }
   if (description == ALERT_close_notify)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror(sprintf("CaudiumSSL.connection: Close notify  alert %d\n", description));
 #endif
     return 0;
@@ -188,7 +188,7 @@ int handle_alert(string s)
   }
   if (description == ALERT_no_certificate)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror(sprintf("CaudiumSSL.connection: No certificate  alert %d\n", description));
 #endif
 
@@ -212,7 +212,7 @@ int handle_change_cipher(int c)
 {
   if (!expect_change_cipher || (c != 1))
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror("CaudiumSSL.connection: handle_change_cipher: Unexcepted message!");
 #endif
     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1]));
@@ -248,7 +248,7 @@ string|int got_data(string|int s)
 
     if (packet->is_alert)
     { /* Reply alert */
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
       werror("CaudiumSSL.connection: Bad received packet\n");
 #endif
       send_packet(packet);
@@ -259,7 +259,7 @@ string|int got_data(string|int s)
     }
     else
     {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
       werror(sprintf("CaudiumSSL.connection: received packet of type %d\n",
 		     packet->content_type));
 #endif
@@ -287,7 +287,7 @@ string|int got_data(string|int s)
 	 for (i = 0; (i < strlen(packet->fragment)); i++)
 	 {
 	   err = handle_change_cipher(packet->fragment[i]);
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 	   werror(sprintf("tried change_cipher: %d\n", err));
 #endif
 	   if (err)
