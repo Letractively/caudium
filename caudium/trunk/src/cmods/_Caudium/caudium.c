@@ -1234,9 +1234,10 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   out_len = in_len + (unsafe << 1) + 1;
 
-  out = CAUDIUM_ALLOCA(out_len);
-  CAUDIUM_PTR_VALID(out);
-
+  /* out = CAUDIUM_ALLOCA(out_len);
+     CAUDIUM_PTR_VALID(out); */
+  out = scratchpad_get(out_len);/* it always returns a valid pointer */
+  
   for(o=out, i=in->str; *i; i++) {
     if (!fun(*i)) {
       *o++ = '%';
@@ -1248,7 +1249,7 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   *o++ = 0;
 
-  CAUDIUM_UNALLOCA(out);
+  /* CAUDIUM_UNALLOCA(out); */
   
   return make_shared_string(out);
 }
