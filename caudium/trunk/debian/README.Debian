@@ -7,8 +7,8 @@ bit from its predecessor, Roxen.
  - PHP4 support.
    To make it a reality you will need to get the php4 sources and
    compile php4 with the --with-roxen=/usr/lib/caudium and then
-   manually install the resulting .so file into the _pike7-cvs_
-   /usr/lib/pike7-cvs/PIKE_VER/modules directory.
+   manually install the resulting .so file into the _pike7_
+   /usr/lib/pike7/PIKE_VER/modules directory.
    I'm sorry, but until the php4 packages in Debian contain Caudium
    support there's no other way to do it...
    Note that for correct PHP4 support you need the latest PHP4 sources
