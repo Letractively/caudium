@@ -7,7 +7,7 @@
 
 %define name	caudium
 %define version	cvs20001003
-%define release	2
+%define release	4
 %define packager Mike A. Harris <mharris@meteng.on.ca>
 
 # This line creates a macro _initdir which is where initscripts will
@@ -16,10 +16,7 @@
 %define _initdir %([ -d /etc/init.d -a ! -L /etc/init.d ] && echo /etc/init.d || echo /etc/rc.d/init.d)
 
 # Detect the pike version that is installed
-#%%define PIKEVERSION %(rpm -q pike | sed -e 's/^pike-\(.*\)-.*//' )
-
-# Manual Pike version override
-%define PIKEVERSION 7.0.71
+%define PIKEVERSION %(rpm -q pike --qf '%{VERSION}\\n')
 
 Summary: An extensible high performance web server written in Pike
 Name: %{name}
@@ -33,6 +30,7 @@ Source: %{name}-%{version}.tgz
 
 BuildRoot: /tmp/%{name}-build
 Packager: %packager
+Vendor: The Caudium Group
 URL: http://www.caudium.org
 
 BuildPrereq: pike
@@ -83,7 +81,6 @@ log file parser that is capable of generating extensive statistics on the
 fly for virtual servers configured in your Caudium WebServer.
 
 %prep
-#echo "PIKEVERSION=%{PIKEVERSION}" |mail -s "PIKEVERSION=%{PIKEVERSION}" mharris
 
 %setup
  
@@ -95,13 +92,6 @@ fly for virtual servers configured in your Caudium WebServer.
 %build
 # Clean out the build dir to prevent common errors
 [ $RPM_BUILD_ROOT != "/" ] && rm -rf $RPM_BUILD_ROOT
-
-# The CVS file tar package leaves .cvsingore files around
-find . -name '.cvsignore' -type f -exec rm -- '{}' \;
-find . -name 'CVS' -type f -exec rm -- '{}' \;
-
-# Patch caudium manually to fix the pike shebang bug
-#patch -p1 < redhat/patch-pikepath.diff
 
 ./autogen.sh
 ./configure --prefix=/usr --with-pike=$(which pike)
@@ -130,8 +120,19 @@ cp redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
 
 # Create various dirs required for proper operation
 mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
+mkdir -p $RPM_BUILD_ROOT/var/log/caudium/ultralog
 
-rm -rf /usr/share/caudium/unfinishedmodules
+# Snag the ultralog documentation
+mkdir -p $RPM_BUILD_ROOT/%_docdir/%name-%version/ultralog
+cp src/cmods/UltraLog/README $RPM_BUILD_ROOT/%_docdir/%name-%version/ultralog
+cp src/cmods/UltraLog/docs/CONFIG.spec $RPM_BUILD_ROOT/%_docdir/%name-%version/ultralog
+cp src/cmods/UltraLog/docs/CUSTOM_LOG.spec $RPM_BUILD_ROOT/%_docdir/%name-%version/ultralog
+
+# Remove unwanted files from the packaging.
+find $RPM_BUILD_ROOT -name '.cvsignore' -type f -exec rm -- '{}' \;
+find $RPM_BUILD_ROOT -name 'CVS' -type f -exec rm -- '{}' \;
+rm -rf $RPM_BUILD_ROOT/usr/share/caudium/unfinishedmodules
+
 
 ###############  CLEAN SECTION  ########################################
 %clean
@@ -146,7 +147,6 @@ rm -rf /usr/share/caudium/unfinishedmodules
 %_libdir/caudium/bin/install.pike
 %_libdir/caudium/bin/pdbi.pike
 %_libdir/caudium/bin/sqladduser.pike
-%_libdir/caudium/bin/ultrasum.pike
 %_libdir/caudium/bin/caudium
 %_libdir/caudium/base_server
 %_libdir/caudium/caudium-images
@@ -164,7 +164,6 @@ rm -rf /usr/share/caudium/unfinishedmodules
 %_libdir/caudium/start
 %_libdir/caudium/testca.pem
 %_datadir/caudium
-#%%dir /usr/doc/%{name}-%{version}
 %dir /usr/local/share/caudium/modules
 %dir /var/cache/caudium
 %dir /var/log/caudium
@@ -182,17 +181,26 @@ rm -rf /usr/share/caudium/unfinishedmodules
 
 ###############  FILES SECTION (caudium-pixsl)  ######################
 %files pixsl
-/usr/bin/pixsl
+%_bindir/pixsl
 %_libdir/caudium/bin/pixsl.pike
 %_libdir/caudium/lib/%{PIKEVERSION}/PiXSL.so
 
 ###############  FILES SECTION (caudium-ultralog)  ######################
 %files ultralog
-/usr/bin/ultrasum
+%_bindir/ultrasum
 %_libdir/caudium/lib/%{PIKEVERSION}/UltraLog.so
-
+%_libdir/caudium/etc/modules/UltraSupport.pmod
+%_libdir/caudium/bin/ultrasum.pike
+%_datadir/caudium/modules/ultralog
+%doc %_docdir/%{name}-%{version}/ultralog
+%dir /var/log/caudium/ultralog
 
 %changelog
+* Tue Oct 3 2000 Mike A. Harris <mharris@meteng.on.ca>
+  Modified the build to be pike version independant (hopefully).
+  Got pike version detection with RPM working correctly.
+  Big cleanup of spec file debugging cruft that is no longer needed.
+
 * Tue Oct 3 2000 Mike A. Harris <mharris@meteng.on.ca>
   Corrected documentation packaging, stripped out unfinished modules
   from being packaged in final install rpms.
