@@ -19,7 +19,7 @@
  *
  */
 
-
+//
 //! module: XML-Compliant RXML Parser
 //!  This is a new XML-compliant RXML parser. It requires Pike 7.0 or
 //!  newer, since it depends on Parser.HTML which doesn't exist in Pike
@@ -28,6 +28,7 @@
 //!  handles XML-syntax, it never requires it. For example you can still
 //!  use unquoted arguments.
 //! cvs_version: $Id$
+//
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;
@@ -43,11 +44,13 @@ constant language = caudium->language;
 
 constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "XML-Compliant RXML Parser";
-constant module_doc  = "This is a new XML-compliant RXML parser. It requires \
-Pike 7.0 or newer, since it depends on Parser.HTML which doesn't exist in \
-Pike 0.6. Depending on the module is configured, it is more or less strict, \
-in the XML-sense. Please note that although this parser handles XML-syntax, \
-it never requires it. For example you can still use unquoted arguments. ";
+constant module_doc  = "This is a new XML-compliant RXML parser. It requires " 
+                       "Pike 7.0 or newer, since it depends on Parser.HTML  "
+                       "which doesn't exist in Pike 0.6. Depending on the "
+                       "module is configured, it is more or less strict, " 
+                       "in the XML-sense. Please note that although this "
+                       "parser handles XML-syntax,it never requires it. "  
+                       "For example you can still use unquoted arguments. ";
 
 constant module_unique = 1;
 

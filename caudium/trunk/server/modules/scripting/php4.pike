@@ -48,13 +48,10 @@ constant thread_safe=1;
 
 constant module_type = MODULE_FILE_EXTENSION;
 constant module_name = "PHP Script Support";
-constant module_doc  = "This module allows Caudium users to run PHP scripts, \
-optionally with RXML post-parsing. See <a href=\"http://\
-www.php.net/\">www.php.net</a> for further information about \
-PHP. <font color=\"red\">\
-<p>A name conflict exists between Pike and PHP. This problem is fixed in \
-the Pike CVS as of November 6th, 2000, 13:30 PST. Please make sure that your \
-Pike is newer than this. </p></font>";
+constant module_doc  = "This module allows Caudium users to run PHP scripts, "
+                       "optionally with RXML post-parsing. See <a href=\"http://"
+                       "www.php.net/\">www.php.net</a> for further information about "
+                       "PHP.";
 constant module_unique = 0;
 
 #if constant(PHP4.Interpreter)
