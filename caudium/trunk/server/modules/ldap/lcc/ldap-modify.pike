@@ -47,6 +47,11 @@ private array(mapping) my_menus = ({
     ])
 });
 
+private mapping my_tags = ([
+    "_minput" : tag_minput,
+    "_mhidden" : tag_mhidden
+]);
+
 void create()
 {
     defvar("provider_prefix", "lcc", "Provider module name prefix", TYPE_STRING,
@@ -73,6 +78,11 @@ void start(int cnt, object conf)
 {
     foreach(my_menus, mapping mnu)
         mnu->provider = QUERY(provider_prefix) + mnu->provider;
+
+    foreach(indices(my_tags), string idx) {
+        my_tags[QUERY(provider_prefix) + idx] = my_tags[idx];
+        m_delete(my_tags, idx);
+    }
 }
 
 array(mapping) query_menus(object id)
@@ -87,7 +97,107 @@ string query_provides()
     return QUERY(provider_prefix) + "_modify";
 }
 
+mapping query_tag_callers()
+{
+    return my_tags;
+}
+
+private mixed do_start(object id, mapping data, string f)
+{
+    object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
+    if (!sprov)
+        return ([
+            "lcc_error" : ERR_PROVIDER_ABSENT,
+            "lcc_error_extra" : "No 'screens' provider"
+        ]);
+    
+    mapping store = sprov->get_store(id, "modify");
+
+    foreach(indices(data->user->ldap_data), string idx)
+        if (!store[idx])
+            store[idx] = data->user->ldap_data[idx][0];
+
+    string screen = sprov->retrieve(id, "modify");
+
+    if (screen && screen != "")
+        return http_string_answer(screen);
+    else
+        return ([
+            "lcc_error" : ERR_SCREEN_ABSENT,
+            "lcc_error_extra" : "No 'modify' scren found"
+        ]);
+}
+
 mixed handle_request(object id, mapping data, string f)
 {
-    return http_string_answer("<strong>To Be Done</strong>");
+    function afun = do_start;
+    
+    if (id->variables && id->variables->todo) {
+        switch(id->variables->todo) {
+            case "chpass":
+                break;
+
+            case "modify":
+                break;
+        }
+    }
+
+    if (!afun)
+        return http_string_answer("<strong>BOOM!!! No handler found!</strong>");
+
+    return afun(id, data, f);
+}
+
+// tags
+
+private multiset(string) input_attrs = (<
+    "value", "size", "maxlength", "onfocus", "onblur",
+    "onclick", "ondblclick", "onmousedown", "onmouseup",
+    "onmouseover", "onmousemove", "onmouseout",
+    "onkeypress", "onkeydown", "onkeyup", "id", "class",
+    "lang", "title", "style", "alt", "align", "accept",
+    "readonly", "disabled", "tabindex", "accesskey", "dir"
+>);
+
+string tag_minput(string tag,
+                  mapping args,
+                  object id)
+{
+    if (!args || !args->field)
+        return "<!-- invalid minput tag syntax - missing the 'field' attribute -->";
+    
+    string ret = "<input ";
+    
+    // first the standard attributes
+    foreach(indices(args), string idx)
+        if (input_attrs[lower_case(idx)])
+            ret += sprintf("%s='%s' ", idx, args[idx]);
+
+    // one extra here
+    if (args->type)
+        ret += "type='" + args->type + "' ";
+
+    ret += "name='" + args->field + "'>";
+
+    return ret;
+}
+
+string tag_mhidden(string tag,
+                   mapping args,
+                   object id)
+{
+    if (!args || !args->field)
+        return "<!-- invalid minput tag syntax - missing the 'field' attribute -->";
+    
+    string ret = "<input ";
+    
+    // first the standard attributes
+    foreach(indices(args), string idx)
+        if (input_attrs[lower_case(idx)])
+            ret += sprintf("%s='%s' ", idx, args[idx]);
+
+    // one extra here
+    ret += "type='hidden' name='" + args->field + "'>";
+
+    return ret;
 }
