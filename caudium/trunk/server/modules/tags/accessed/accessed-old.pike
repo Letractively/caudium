@@ -21,7 +21,7 @@
  * $Id$
  */
 
-//! module: Accessed Counter Tag - Old Version
+//! module: Accessed Counter Tag: Old Version
 //!  This module will provide an &lt;accessed&gt; tag based
 //!  on Core RXML Parser as it was done before.
 //! type: MODULE_PARSER
@@ -37,7 +37,7 @@ inherit "caudiumlib";
 constant language = caudium->language;
 
 constant module_type = MODULE_PARSER;
-constant module_name = "Accessed Counter Tag - Old Version";
+constant module_name = "Accessed Counter Tag: Old Version";
 constant module_doc  = "This module will provide an &lt;accessed&gt; tag "
                        "based on Core RXML Parser as it was done before.";
 constant module_unique = 1;
