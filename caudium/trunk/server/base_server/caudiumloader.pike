@@ -147,12 +147,12 @@ void roxen_perror(string format,mixed ... args)
 
   if (perror_status_reported < t) {
     stderr->write("[1mCaudium is alive!\n"
-		  "   Time: "+ctime(t)+
-		  "   pid: "+pid+"   ppid: "+getppid()+
+                  "   Time: "+ctime(t)+
+                  "   pid: "+pid+"   ppid: "+getppid()+
 #if constant(geteuid)
-		  (geteuid()!=getuid()?"   euid: "+pw_name(geteuid()):"")+
+                  (geteuid()!=getuid()?"   euid: "+pw_name(geteuid()):"")+
 #endif
-		  "   uid: "+pw_name(getuid())+"[0m\n");
+                  "   uid: "+pw_name(getuid())+"[0m\n");
     perror_status_reported = t + 60;	// 60s delay.
   }
 
@@ -241,36 +241,36 @@ void init_logger()
 
   switch(query("LogST"))
   {
-   case "Daemon":    res = LOG_DAEMON;    break;
-   case "Local 0":   res = LOG_LOCAL;     break; 
-   case "Local 1":   res = LOG_LOCAL1;    break;
-   case "Local 2":   res = LOG_LOCAL2;    break;
-   case "Local 3":   res = LOG_LOCAL3;    break;
-   case "Local 4":   res = LOG_LOCAL4;    break;
-   case "Local 5":   res = LOG_LOCAL5;    break;
-   case "Local 6":   res = LOG_LOCAL6;    break;
-   case "Local 7":   res = LOG_LOCAL7;    break;
-   case "User":      res = LOG_USER;      break;
+      case "Daemon":    res = LOG_DAEMON;    break;
+      case "Local 0":   res = LOG_LOCAL;     break; 
+      case "Local 1":   res = LOG_LOCAL1;    break;
+      case "Local 2":   res = LOG_LOCAL2;    break;
+      case "Local 3":   res = LOG_LOCAL3;    break;
+      case "Local 4":   res = LOG_LOCAL4;    break;
+      case "Local 5":   res = LOG_LOCAL5;    break;
+      case "Local 6":   res = LOG_LOCAL6;    break;
+      case "Local 7":   res = LOG_LOCAL7;    break;
+      case "User":      res = LOG_USER;      break;
   }
   
   loggingfield=0;
   switch(query("LogWH"))
   { /* Fallthrouh intentional */
-   case "All":
-    loggingfield = loggingfield | LOG_INFO | LOG_NOTICE;
-   case "Debug":
-    loggingfield = loggingfield | LOG_DEBUG;
-   case "Warnings":
-    loggingfield = loggingfield | LOG_WARNING;
-   case "Errors":
-    loggingfield = loggingfield | LOG_ERR;
-   case "Fatal":
-    loggingfield = loggingfield | LOG_EMERG;
+      case "All":
+        loggingfield = loggingfield | LOG_INFO | LOG_NOTICE;
+      case "Debug":
+        loggingfield = loggingfield | LOG_DEBUG;
+      case "Warnings":
+        loggingfield = loggingfield | LOG_WARNING;
+      case "Errors":
+        loggingfield = loggingfield | LOG_ERR;
+      case "Fatal":
+        loggingfield = loggingfield | LOG_EMERG;
   }
 
   closelog();
   openlog(query("LogNA"), (query("LogSP")*LOG_PID)|(query("LogCO")*LOG_CONS),
-	  res); 
+          res); 
 #endif
 }
 
@@ -356,11 +356,11 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
 
   if (!getuid()) {
     switch(query_num_arg()) {
-    case 4:
-      opts->gid = gid;
-    case 3:
-      opts->uid = uid;
-      break;
+        case 4:
+          opts->gid = gid;
+        case 3:
+          opts->uid = uid;
+          break;
     }
   }
 #if constant(Process.Process)
@@ -391,9 +391,9 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
 }
 
 int low_spawne(string s, array args,
-	       mapping(string:string)|array(string) env,
-	       Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
-	       void|string wd)
+               mapping(string:string)|array(string) env,
+               Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
+               void|string wd)
 {
   object p;
   int pid;
@@ -417,7 +417,7 @@ int low_spawne(string s, array args,
 
 // Create a process
 int spawne(string s, array(string) args, mapping|array env, object stdin, 
-	   object stdout, object stderr, void|string wd, void|array (int) uid)
+           object stdout, object stderr, void|string wd, void|array (int) uid)
 {
   int pid;
   array(int) olduid = allocate(2);
@@ -452,13 +452,13 @@ int spawne(string s, array(string) args, mapping|array env, object stdin,
 
 // Start a new Pike process with the same configuration as the current one
 int spawn_pike(array(string) args, void|string wd, object|void stdin,
-		  object|void stdout, object|void stderr)
+               object|void stdout, object|void stderr)
 {
   string cwd = getcwd();
   string pikebin = combine_path(cwd, [string]new_master->_pike_file_name ||
-				"bin/pike");
+                                "bin/pike");
   string mast = combine_path(cwd, [string]new_master->_master_file_name ||
-			     "../pike/src/lib/master.pike");
+                             "../pike/src/lib/master.pike");
   array preargs = ({ });
 
   if (caudium_fstat(mast))
@@ -666,7 +666,7 @@ object really_load_caudium()
 void trace_destruct(mixed x)
 {
   roxen_perror(sprintf("DESTRUCT(%O)\n%s\n",
-		       x, describe_backtrace(backtrace())));
+                       x, describe_backtrace(backtrace())));
   destruct(x);
 }
 #endif /* TRACE_DESTRUCT */
@@ -704,7 +704,7 @@ void load_caudium()
   }
 
   perror("Caudium version "+caudium->cvs_version+"\n"
-	 "Caudium release "+caudium->real_version+"\n");
+         "Caudium release "+caudium->real_version+"\n");
   nwrite = caudium->nwrite;
 }
 
@@ -723,7 +723,7 @@ class mf
       string file;
       int line;
       sscanf(((describe_backtrace(backtrace())/"\n")[2]-(getcwd()+"/")),
-	     "%*s line %d in %s", line, file);
+             "%*s line %d in %s", line, file);
       mark_fd(query_fd(), file+":"+line+" open(\""+ what+"\", "+mode+")");
     }
     return res;
@@ -759,8 +759,8 @@ object|void open(string filename, string mode, int|void perm)
       gc();
       // Retry...
       if(!(o->open(filename, mode, perm||0666))) {
-	destruct(o);
-	return;
+        destruct(o);
+        return;
       }
     } else {
       destruct(o);
@@ -777,9 +777,9 @@ object|void open(string filename, string mode, int|void perm)
 string make_path(string ... from)
 {
   return Array.map(from, lambda(string a, string b) {
-    return (a[0]=='/')?combine_path("/",a):combine_path(b,a);
-    //return combine_path(b,a);
-  }, getcwd())*":";
+                           return (a[0]=='/')?combine_path("/",a):combine_path(b,a);
+                           //return combine_path(b,a);
+                         }, getcwd())*":";
 }
 
 #if !constant(String.common_prefix)
@@ -795,8 +795,8 @@ string common_prefix(array(string) strs)
   {
     for(n = 0; n < sizeof(strs0); n++)
       for(i = 1; i < sizeof(strs); i++)
-	if(strs[i][n] != strs0[n])
-	  return strs0[0..n-1];
+        if(strs[i][n] != strs0[n])
+          return strs0[0..n-1];
   };
 
   return strs0[0..n-1];
@@ -821,8 +821,8 @@ int main(array(string) argv)
   replace_master(new_master=(((program)"etc/caudium_master.pike")()));
 #if !constant(has_value)
   add_constant("has_value", lambda(mixed haystack, mixed needle) {
-			      return search(haystack, needle) != -1;
-			    });
+                              return search(haystack, needle) != -1;
+                            });
 #endif
 #if !constant(String.common_prefix)
   add_constant("common_prefix", common_prefix);
@@ -832,8 +832,8 @@ int main(array(string) argv)
   add_constant("fish_version", version());
   add_constant("open_db", open_db);
   add_constant("do_destruct", lambda(object o) {
-				if(o&&objectp(o))  destruct(o);
-			      });				
+                                if(o&&objectp(o))  destruct(o);
+                              });				
   //  add_constant("error", lambda(string s){error(s);});
   add_constant("spawne",spawne);
   add_constant("caudium_fstat", caudium_fstat);
@@ -865,6 +865,12 @@ int main(array(string) argv)
   int retval = caudium->main(argv);
   perror_status_reported = 0;
   roxen_perror("\n-- Total boot time %4.3f seconds ---------------------------\n\n",
-	       (gethrtime()-start_time)/1000000.0);
+               (gethrtime()-start_time)/1000000.0);
   return(retval);
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
