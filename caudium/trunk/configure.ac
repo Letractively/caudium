@@ -444,7 +444,8 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
                   $PIKE_INCDIR/include/pike$THIS_PIKE_VER \
                   $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR}\
                   $PIKE_INCDIR/include/pike/${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
-                  $PIKE_INCDIR/include/pike ; do
+                  $PIKE_INCDIR/include/pike \
+									$PIKE_INCDIR/src ; do
 
 	if test ! -f $INCDIR/version.h; then
           continue
