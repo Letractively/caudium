@@ -100,10 +100,10 @@ class Dir
         if (!file || !sizeof(file) || file[0] == '.')
             return 0;
             
-	array(int) fs = (array(int))file_stat(file);
+        array(int) fs = (array(int))file_stat(file);
 	
-	if (fs && sizeof(fs) && fs[1] <= 0)
-	    return 0;
+        if (fs && sizeof(fs) && fs[1] <= 0)
+            return 0;
 
         string  fc = Stdio.read_file(my_dir + file, 0, 2);
         if (!fc || !sizeof(fc))
@@ -218,6 +218,25 @@ class Dir
         return ret;
     }
 
+    //! Move (rename) the file.
+    //!
+    //! @note
+    //!  The files _must_ be on the same filesystem due to the limitation
+    //!  in the Pike implementation of the mv() function!
+    //!
+    //! @param from
+    //!  The source file
+    //!
+    //! @param to
+    //!  Target file.
+    //!
+    //! @returns
+    //!  0 (zero) on failure, 1 otherwise.
+    int move(string from, string to)
+    {
+        return mv(from, to);
+    }
+    
     //! Return the path this object is managing.
     string get_path()
     {
@@ -243,6 +262,7 @@ class File
     private Stdio.File my_file;
     private mapping    my_file_format;
     private string     my_name;
+    private string     indent;
     
     //! The storage area. Contains all the regions read from the config
     //! file and, within the regions, the variables defined for them.
@@ -261,6 +281,11 @@ class File
     //! @seealso
     //! @[Dir.list_files()], @[Dir.is_config_file()]
     void create(Dir dir, string fname)
+    {
+        init_object(dir, fname);
+    }
+
+    private int init_object(Dir dir, string fname)
     {
         if (!objectp(dir))
             throw(({"Need a valid directory object.\n", backtrace()}));
@@ -282,8 +307,10 @@ class File
         my_name = fname;
         
         regions = 0;
-    }
 
+        return 1;
+    }
+    
     private int|string parse_old()
     {
         string c = my_file->read();
@@ -344,6 +371,102 @@ class File
         return sprintf("Unknown file format %d\n", my_file_format->format);
     }
 
+    private string render_xml(string tname, mapping attrs, string|void contents, int|void doindent)
+    {
+        string att = "";
+        string fmt;
+        
+        if (!contents)
+            contents = "";
+        
+        if (attrs && sizeof(attrs))
+            foreach(sort(indices(attrs)), string idx)
+                att += sprintf("%s%s='%s'", (att != "" ? " " : ""), idx, attrs[idx]);
+
+        if (att != "")
+            att = " " + att;
+        
+        if (!contents)
+            return sprintf("<%s%s/>",  tname, att);
+
+        return sprintf("<%s%s>%s%s</%s>", tname, att, doindent ? "\n" : "", contents, tname);
+    }
+
+    private string get_type_desc(mixed val)
+    {
+        if (intp(val))
+            return render_xml("int", 0, (string)val);
+        else if (stringp(val))
+            return render_xml("str", 0, val);
+        else if (arrayp(val)) {
+            string  contents = "";
+
+            foreach(val, mixed v) {
+                contents += get_type_desc(v);
+            }
+            
+            return render_xml("a", 0, contents);
+        }
+        
+        return 0;
+    }
+
+    private string render_variable(mapping var)
+    {
+        string         vcontents;
+
+        vcontents = get_type_desc((arrayp(var->value) ? var->value[0] : var->value));
+        if (!vcontents)
+            return "";
+
+        return "\t" + render_xml("var", ([ "name" : var->name ]), vcontents) + "\n";
+    }
+    
+    int|string save(int|void nobackup)
+    {
+        if (!regions || !sizeof(regions))
+            return "Nothing to save";
+        
+        if (my_file && objectp(my_file) && functionp(my_file->close))
+            my_file->close();
+
+        if (!my_dir->move(my_name, my_name + "~"))
+            return "Error creating a backup copy of the file";
+
+        my_file = my_dir->open_file(my_name);
+
+        if (!my_file) {
+            // try to clean up...
+            my_dir->mv(my_name + "~", my_name);
+            return "Error writing the file";
+        }
+
+        my_file->write(xml_prolog);
+
+        indent = "";
+        
+        foreach(indices(regions->regions), string reg) {
+            string   rcont = "";
+
+            indent += "  ";
+
+            foreach(indices(regions->regions[reg]), string var) {
+                if (var == "@name@")
+                    continue;
+                
+                rcont += render_variable(regions->regions[reg][var]);
+            }
+            
+            my_file->write(render_xml("region", ([ "name" : reg ]), rcont, 1) + "\n\n");
+        }
+
+        my_file->write(xml_epilog);
+        my_file->close();
+
+        init_object(my_dir, my_name);
+        return parse();
+    }
+    
     //! Retrieves the given variable from the given region in this
     //! configuration.
     //!
@@ -438,7 +561,7 @@ class Config
         
         if (!walk_tree(root))
             throw(({sprintf("Error while traversing the config tree for '%s'\n", cfgname),
-                   backtrace()}));
+                    backtrace()}));
     }
 
     //! Retrieves the given variable from the given region in this
