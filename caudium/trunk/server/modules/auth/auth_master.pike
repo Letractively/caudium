@@ -186,6 +186,15 @@ array(string) userinfo(string u)
 //!     @elem 1 string
 //!        string containing user name and password, separated by a colon (:). 
 //!   @endarray
+//! @returns
+//!   @array
+//!     @elem 0 int
+//!      1 on success, 0 on failure
+//!     @elem 1 string
+//!      user name
+//!     @elem 2 int|string
+//!      0 for successful authentication, otherwise the invalid password.
+//!   @endarray
 array|int auth(array(string) auth, object id)
 {
   string u, p;
