@@ -136,7 +136,7 @@ string since;
 
 void end(string|void a,int|void b);
 
-private void setup_pipe() /*FOLD00*/
+private void setup_pipe()
 {
   if(!my_fd) 
   {
@@ -146,7 +146,7 @@ private void setup_pipe() /*FOLD00*/
   if(!pipe) pipe=thepipe();
 }
 
-void send(string|object what, int|void len) /*FOLD00*/
+void send(string|object what, int|void len)
 {
 #ifdef REQUEST_DEBUG
   roxen_perror(sprintf("send(%O, %O)\n", what, len));
@@ -160,18 +160,18 @@ void send(string|object what, int|void len) /*FOLD00*/
 }
 
 /* Not used internally, but used by external files */
-string scan_for_query( string f ) /*FOLD00*/
+string scan_for_query( string f )
 {
   if(sscanf(f,"%s?%s", f, query) == 2)
     Caudium.parse_query_string(query, variables);
   return f;
 }
- /*FOLD00*/
+
 private mixed f;
 /* Processing here not needed for cached connections. It mainly
  * includes various URL processing and variable scanning.
  */
-inline void do_post_processing() /*FOLD00*/
+inline void do_post_processing()
 {
   multiset (string) sup;
   array mod_config;
@@ -446,14 +446,14 @@ inline void do_post_processing() /*FOLD00*/
   processed = 1;
 }
 
-inline void disconnect() /*FOLD00*/
+inline void disconnect()
 {
   file = 0;
   if(do_not_disconnect) return;
   destruct();
 }
 
-void end(string|void s, int|void keepit) /*FOLD00*/
+void end(string|void s, int|void keepit)
 {
   pipe = 0;
   
@@ -519,7 +519,7 @@ void end(string|void s, int|void keepit) /*FOLD00*/
   disconnect();  
 }
 
-static void do_timeout() /*FOLD00*/
+static void do_timeout()
 {
   // werror("do_timeout() called, time="+time+"; time()="+_time()+"\n");
   int elapsed = _time()-time;
@@ -539,7 +539,7 @@ static void do_timeout() /*FOLD00*/
 }
 
 static string last_id, last_from;
-string get_id(string from) /*FOLD00*/
+string get_id(string from)
 {
   if(last_from == from) return last_id;
   last_from=from;
@@ -554,14 +554,14 @@ string get_id(string from) /*FOLD00*/
   return "";
 }
 
-void add_id(array to) /*FOLD00*/
+void add_id(array to)
 {
   foreach(to[1], array q)
     if(stringp(q[0]))
       q[0]+=get_id(q[0]);
 }
 
-string link_to(string what, int eid, int qq) /*FOLD00*/
+string link_to(string what, int eid, int qq)
 {
   int line;
   string file, fun;
@@ -583,8 +583,7 @@ string link_to(string what, int eid, int qq) /*FOLD00*/
 }
 
 
-string format_backtrace(array bt, int eid) /*FOLD00*/
-{
+string format_backtrace(array bt, int eid) {
   // first entry is always the error, 
   // second is the actual function, 
   // rest is backtrace.
@@ -592,26 +591,8 @@ string format_backtrace(array bt, int eid) /*FOLD00*/
   string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
-  string res = ("<title>Internal Server Error</title>"
-		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
-		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
-		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/(internal,image)/":"/img/")+
-		"caudium-icon-gray.png\" alt=\"\"></td>"
-		"<td>&nbsp;</td><td width=100% height=39>"
-		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
-		"<td width=\"100%\" align=right valigh=center height=28>"
-		"<b><font size=+1>Failed to complete your request</font>"
-		"</b></td></tr><tr width=\"100%\"><td bgcolor=\"#003366\" "
-		"align=right height=12 width=\"100%\"><font color=white "
-		"size=-2>Internal Server Error&nbsp;&nbsp;</font></td>"
-		"</tr></table></td></tr></table>"
-		"<p>\n\n"
-		"<font size=+2 color=darkred>"
-		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/(internal,image)/":"/img/") +"manual-warning.png>"
-		+bt[0]+"</font><br>\n"
-		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
+  string res = (
+		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
 		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
 
@@ -637,7 +618,7 @@ string format_backtrace(array bt, int eid) /*FOLD00*/
   return res+"</body>";
 }
 
-string generate_bugreport(array from, string u, string rd) /*FOLD00*/
+string generate_bugreport(array from, string u, string rd)
 {
   add_id(from);
   return ("<pre>"+html_encode_string("Caudium version: "+version()+
@@ -650,15 +631,14 @@ string generate_bugreport(array from, string u, string rd) /*FOLD00*/
 	  "\n\nRequest data:\n"+rd));
 }
 
-string censor(string what) /*FOLD00*/
-{
+string censor(string what) {
   string a, b, c;
   if(sscanf(what, "%shorization:%s\n%s", a, b, c)==3)
     return a+" ################ (censored)\n"+c;
   return what;
 }
 
-int store_error(array err) /*FOLD00*/
+int store_error(array err)
 {
   mapping e = caudium->query_var("errors");
   if(!e) caudium->set_var("errors", ([]));
@@ -670,7 +650,7 @@ int store_error(array err) /*FOLD00*/
   return id;
 }
 
-array get_error(string eid) /*FOLD00*/
+array get_error(string eid)
 {
   mapping e = caudium->query_var("errors");
   if(e) return e[(int)eid];
@@ -686,7 +666,7 @@ array get_error(string eid) /*FOLD00*/
     report_error("Internal server error: " + describe_backtrace(err) +		\
 		 "internal_error() also failed: " + describe_backtrace(__eRr))
 
-void internal_error(array err) /*FOLD00*/
+void internal_error(array err)
 {
     string error_message;
     array err2;
@@ -756,7 +736,7 @@ constant errors =
   ]);
 
 
-void do_log() /*FOLD00*/
+void do_log()
 {
   MARK_FD("HTTP logging"); // fd can be closed here
   TIMER("data sent");
@@ -775,7 +755,7 @@ void do_log() /*FOLD00*/
 }
 
 #ifdef FD_DEBUG
-void timer(int start) /*FOLD00*/
+void timer(int start)
 {
   if(pipe) {
     // FIXME: Disconnect if no data has been sent for a long while
@@ -794,7 +774,7 @@ void timer(int start) /*FOLD00*/
 }
 #endif
 
-string handle_error_file_request(array err, int eid) /*FOLD00*/
+string handle_error_file_request(array err, int eid)
 {
 //   return "file request for "+variables->file+"; line="+variables->line;
   string data = Stdio.read_bytes(variables->file);
@@ -956,7 +936,7 @@ class MultiRangeWrapper
 
 
 // Parse the range header itno multiple ranges.
-array parse_range_header(int len) /*FOLD00*/
+array parse_range_header(int len)
 {
   array ranges = ({});
   foreach(misc->range / ",", string range)
@@ -996,7 +976,7 @@ array parse_range_header(int len) /*FOLD00*/
   return ranges;
 }
 
-void start_sender()  /*FOLD00*/
+void start_sender()
 {  
   if (pipe) {
     MARK_FD("HTTP really handled, piping "+not_query);
@@ -1011,7 +991,7 @@ void start_sender()  /*FOLD00*/
   }
 }
 
-private mapping old_404() { /*FOLD00*/
+private mapping old_404() {
     return http_low_answer( 404,
 			    replace( parse_rxml( conf->query("ZNoSuchFile"), this_object() ),
 				     ({ "$File", "$Me" }),
@@ -1021,7 +1001,7 @@ private mapping old_404() { /*FOLD00*/
 
 
 // Send the result.
-void send_result(mapping|void result) /*FOLD00*/
+void send_result(mapping|void result)
 {
   array err;
   int tmp;
@@ -1247,7 +1227,7 @@ void send_result(mapping|void result) /*FOLD00*/
 
 
 // Execute the request
-void handle_request( ) /*FOLD00*/
+void handle_request( )
 {
   mixed err;
   function funp;
@@ -1305,13 +1285,13 @@ void handle_request( ) /*FOLD00*/
   }  
   send_result();
 }
- /*FOLD00*/
+
 /* We got some data on a socket.
  * ================================================= 
  */
 int processed;
 object htp;
-void got_data(mixed fdid, string s) /*FOLD00*/
+void got_data(mixed fdid, string s)
 {
   int tmp;
   ITIMER();
@@ -1418,7 +1398,7 @@ void got_data(mixed fdid, string s) /*FOLD00*/
 /* Get a somewhat identical copy of this object, used when doing 
  * 'simulated' requests. */
 
-object clone_me() /*FOLD00*/
+object clone_me()
 {
   object c,t;
   c = object_program(t = this_object())(0, 0);
@@ -1468,7 +1448,7 @@ object clone_me() /*FOLD00*/
   return c;
 }
 
-void clean() /*FOLD00*/
+void clean()
 {
   if(!(my_fd && objectp(my_fd)))
     end();
@@ -1476,7 +1456,7 @@ void clean() /*FOLD00*/
     end();
 }
 
-void create(void|object f, void|object c) /*FOLD00*/
+void create(void|object f, void|object c)
 {
   if(f)
   {
@@ -1491,7 +1471,7 @@ void create(void|object f, void|object c) /*FOLD00*/
   }  
 }
 
-void chain(object f, object c, string le) /*FOLD00*/
+void chain(object f, object c, string le)
 {
   my_fd = f;
   conf = c;
