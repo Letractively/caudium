@@ -3108,7 +3108,7 @@ string tag_urldecode (string tagname, mapping args, string contents,
     if (!contents)
         return "";
 
-    return http_decode_url(contents);
+    return Caudium.HTTP.decode_url(contents);
 }
 
 mapping query_pi_callers() {
