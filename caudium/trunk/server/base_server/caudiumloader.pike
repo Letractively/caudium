@@ -516,7 +516,7 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 // Add a few cache control related efuns
 object cache_manager() {
   if (! objectp( _cache_manager ) ) {
-    _cache_manager = ((program)"base_server/cache/cache_manager.pike")(); 
+    _cache_manager = ((program)"base_server/cache/cache_manager.pike")( this_object() ); 
   }
   return _cache_manager;
 }
