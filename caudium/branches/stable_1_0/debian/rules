@@ -116,6 +116,17 @@ install: build
 	ln -sf ../../../bin/pike7 `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
 	rm -rf debian/tmp/usr/local/
 	
+	chmod 644 debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_graph.pike \
+	          debian/tmp/usr/share/caudium/modules/graphics/business_graphics/create_bars.pike
+
+	#
+	# the -p debhelper param seems to be not working... 
+	# so let's do it by hand
+	#
+	install -m 755 -d debian/caudium-ultralog/usr/share/man/man1/
+	cp src/cmods/UltraLog/docs/ultrasum.1 \
+	   debian/caudium-ultralog/usr/share/man/man1/
+	   
 	dh_movefiles
 
 # Build architecture-independent files here.
@@ -140,10 +151,9 @@ binary-arch: build install
 	dh_installlogrotate
 	dh_installinit
 #	dh_installcron
-#	dh_installmanpages
 #	dh_installinfo
-	dh_undocumented htpasswd-caudium.1 pixsl.1
-	dh_undocumented -pcaudium-ultralog ultrasum.1
+	dh_undocumented -pcaudium htpasswd-caudium.1 
+	dh_undocumented -pcaudium-pixsl pixsl.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link
