@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.3 since Caudium 1.4.2
 --------------------------------------------
+- Error code was wrongly set to 401 for every errors.
+   (David Gourdelier)
 - Pikegraphy now likes filenames with spaces.
    (Bill Welliver)
 - Watchdog should now work with servers that change uid.
