@@ -452,6 +452,63 @@ string dumpid_tag(string tag_name, mapping args,
 #endif /* 0 */
 
 
+
+array emit_sql(mapping args, object request_id)
+{
+  request_id->misc->cacheable=0;
+
+  if (args->query) {
+
+    if (args->parse) {
+      args->query = parse_rxml(args->query, request_id, 0, 0);
+    }
+
+    string host = query("hostname");
+    string database, user, password;
+    object con;
+    array(mapping(string:mixed)) result;
+
+    function sql_connect = request_id->conf->sql_connect;
+    mixed e;
+
+    if (args->host) {
+      host = args->host;
+      user = "";
+      password = "";
+    }
+    if (args->database) {
+      database = args->database;
+      user = "";
+      password = "";
+      sql_connect = 0;
+    }
+    if (args->user) {
+      user = args->user;
+      sql_connect = 0;
+    }
+    if (args->password) {
+      password = args->password;
+      sql_connect = 0;
+    }
+    
+    if (sql_connect) {
+      e = catch(con = sql_connect(host));
+    } 
+    else {
+      host = (lower_case(host) == "localhost")?"":host;
+      e = catch(con = Sql.Sql(host, database, user, password));
+    }
+    if (e) error(e);
+
+    if(con && con->query)
+     result = con->query(args->query);
+    else result = 0;
+
+    return result;
+ }
+}
+
+
 /*
  * Hook in the tags
  */
@@ -469,6 +526,11 @@ mapping query_tag_callers()
 mapping query_container_callers()
 {
   return( ([ "sqloutput":sqloutput_tag, "sqlelse":sqlelse_tag ]) );
+}
+
+mapping query_emit_callers()
+{
+  return ([ "sql": emit_sql]);
 }
 
 /*
@@ -512,6 +574,7 @@ void create()
   defvar("log_error", 0, "Enable the log_error attribute",
 	 TYPE_FLAG|VAR_MORE, "Enables the attribute \"log_error\" "
 	 "which causes errors to be logged to the event-log.\n");
+
 }
 
 /*
@@ -565,3 +628,4 @@ string status()
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Enable the log_error attribute
 //
+
