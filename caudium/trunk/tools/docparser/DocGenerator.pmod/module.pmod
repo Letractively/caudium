@@ -80,41 +80,23 @@ class DocGen
     }
     
     /* File header output */
-    private string f_file(DocParser.PikeFile f)
+    private string f_file(DocParser.PikeFile f, string what)
     {
         string ret = "";
 
         /* File header */
         if (f->first_line)
-            ret = "<file name=\"" + f->first_line + "\">\n";
+	  ret = "<"+what+" name=\"" + f->first_line + "\">\n";
         else
-            ret = "<file name=\"unnamed_file\">\n";
+	  ret = "<"+what+" name=\"unnamed_file\">\n";
+
+        if (f->inherits) {
+	  foreach(f->inherits, string tmp)
+	    ret += "<inherits link=\"" + tmp + "\"/>\n";
+	}
 
         /* File description */
         ret += "<description>\n";
-        if (f->inherits) {
-            string    tmp;
-
-            /* Inherited stuff */
-            switch(sizeof(f->inherits)) {
-                case 0:
-                    break;
-
-                case 1:
-                    tmp = f->inherits[0];
-                    ret += "inherits <link to=\"" + tmp + "\">" +
-                        tmp + "</link><br><br>\n";
-                    break;
-
-                default:
-                    ret += "<strong>inherits:</strong>\n<ul>\n";
-                    foreach(f->inherits, tmp)
-                        ret += "\t<li><link to=\"" + tmp + "\">" +
-                            tmp + "</link><li>\n";
-                    ret += "</ul><br><br>\n";
-                    break;
-            }
-        }
         
         if (f->contents && f->contents != "")
             ret += f->contents + "\n";
@@ -130,6 +112,8 @@ class DocGen
         return ret;
     }
 
+
+  
     /* GlobVar output */
     private string do_f_globvar(DocParser.GlobVar gv)
     {
@@ -246,24 +230,12 @@ class DocGen
 		    ret += "<returns>\n" + r + "\n</returns>\n\n";
 		
 	/* Notes */
-	if (m->notes) {
-	    switch(sizeof(m->notes)) {
-		case 0:
-		    break;
-		    
-		case 1:
-		    if (m->notes[0] != "")
-			ret += "<note>\n" + m->notes[0] + "\n</note>\n\n";
-		    break;
-		    
-		default:
-		    ret += "<ul>\n";
-		    foreach(m->notes, string n)
-			if (n != "")
-			    ret += "<li><note>\n" + n + "</note></li>\n";
-		    ret += "</ul>\n\n";
-		    break;
-	    }
+	if (m->notes && sizeof(m->notes)) {
+	  ret  += "<notes>\n";
+	  foreach(m->notes, string n)
+	    if (n != "")
+	      ret += "\t<note>\n" + n + "\n\t</note>\n";
+	  ret += "</notes>\n";
 	}
 	
 	/* El Final Grande */
@@ -297,7 +269,7 @@ class DocGen
     {
         /* First take care of the file itself */
         if (f->first_line)
-            ofile->write(f_file(f));
+	  ofile->write(f_file(f, "file"));
 
         /* Now the globvars */
         if (f->globvars)
@@ -316,6 +288,26 @@ class DocGen
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
     {
+        /* First take care of the file itself */
+        if (f->first_line)
+            ofile->write(f_file(f, "module"));
+
+        /* Now the globvars */
+        if (f->globvars)
+            ofile->write(f_globvars(f));
+
+        /* Next the methods */
+        if (f->methods)
+            ofile->write(f_methods(f));
+	    
+	/* And Classes */
+	if (f->classes)
+	    ofile->write(f_classes(f));
+	/* And Tags */
+	if (f->tags)
+	    ofile->write(f_tags(f));
+
+	ofile->write("</module>");
     }
     
     void output_file(string tdir, DocParser.PikeFile|DocParser.Module f)
