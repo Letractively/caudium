@@ -34,6 +34,8 @@ EXTVER=
 SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
         bin/ultrasum.pike bin/install.pike bin/pixsl.pike 
 
+PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog caudium-spidermonkey
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -74,42 +76,42 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp.
-	$(MAKE) install_alt prefix=/usr DESTDIR=$(CURDIR)/debian/tmp EXTRAVER=$(EXTVER)
-	-rm -f $(CURDIR)/debian/tmp/usr/share/doc/caudium$(EXTVER)/COPYING
-	cp debian/localhost $(CURDIR)/debian/tmp/etc/caudium$(EXTVER)/localhost.sample
-	cp debian/Global_Variables $(CURDIR)/debian/tmp/etc/caudium$(EXTVER)/Global_Variables.sample
+	# Add here commands to install the package into debian/caudium.
+	$(MAKE) install_alt prefix=/usr DESTDIR=$(CURDIR)/debian/caudium EXTRAVER=$(EXTVER)
+	-rm -f $(CURDIR)/debian/caudium/usr/share/doc/caudium$(EXTVER)/COPYING
+	cp debian/localhost $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/localhost.sample
+	cp debian/Global_Variables $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/Global_Variables.sample
 
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
-	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
-	mv debian/tmp/usr/bin/ultrasum.new debian/tmp/usr/bin/ultrasum ; \
-	chmod 755 debian/tmp/usr/bin/ultrasum
+	 debian/caudium/usr/bin/ultrasum > debian/caudium/usr/bin/ultrasum.new && \
+	mv debian/caudium/usr/bin/ultrasum.new debian/caudium/usr/bin/ultrasum ; \
+	chmod 755 debian/caudium/usr/bin/ultrasum
 
 	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(EXTVER);g'< \
-	 debian/tmp/usr/bin/pixsl > debian/tmp/usr/bin/pixsl.new && \
-	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
-	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
+	 debian/caudium/usr/bin/pixsl > debian/caudium/usr/bin/pixsl.new && \
+	mv debian/caudium/usr/bin/pixsl.new debian/caudium/usr/bin/pixsl ; \
+	chmod 755 debian/caudium/usr/bin/pixsl debian/caudium/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
 
 	for s in $(SCRIPTS); do \
-	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/tmp/usr/lib/caudium$(EXTVER)/$$s > \
-	      debian/tmp/usr/lib/caudium$(EXTVER)/$$s.new && \
-	  mv debian/tmp/usr/lib/caudium$(EXTVER)/$$s.new debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
-	  chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/$$s ; \
+	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/caudium/usr/lib/caudium$(EXTVER)/$$s > \
+	      debian/caudium/usr/lib/caudium$(EXTVER)/$$s.new && \
+	  mv debian/caudium/usr/lib/caudium$(EXTVER)/$$s.new debian/caudium/usr/lib/caudium$(EXTVER)/$$s ; \
+	  chmod 755 debian/caudium/usr/lib/caudium$(EXTVER)/$$s ; \
 	done
 
 	# fix caudiumctl paths
 	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
-	    < $(CURDIR)/debian/tmp/usr/bin/caudiumctl \
-	    > $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new && \
-	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl && \
-	    chmod 755 $(CURDIR)/debian/tmp/usr/bin/caudiumctl
+	    < $(CURDIR)/debian/caudium/usr/bin/caudiumctl \
+	    > $(CURDIR)/debian/caudium/usr/bin/caudiumctl.new && \
+	    mv $(CURDIR)/debian/caudium/usr/bin/caudiumctl.new $(CURDIR)/debian/caudium/usr/bin/caudiumctl && \
+	    chmod 755 $(CURDIR)/debian/caudium/usr/bin/caudiumctl
 
 	# perms fixing fest
-	-chmod 644 debian/tmp/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
-	           debian/tmp/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
-		   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/config/font
+	-chmod 644 debian/caudium/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
+	           debian/caudium/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
+		   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/config/font
 
-	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
+	mv debian/caudium/usr/bin/htpasswd debian/caudium/usr/bin/htpasswd-caudium
 
 	# add libroxen modules path
 	# change the state directory
@@ -118,34 +120,34 @@ install: build
 	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(EXTVER)/"\3;' \
 	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
 	    -e 's#^string __caudium_extra_ver__ = ""#string __caudium_extra_ver__ = "Debian GNU/Linux"#' \
-	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
-	       debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
-	mv debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
-	   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
+	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike > \
+	       debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new && \
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike.new \
+	   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
 
 	for p in $(CURDIR)/debian/www/*.png.uu; do \
 	    uudecode -o $(CURDIR)/debian/caudium/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
 	done
 	# fix what lintian whines about
-	ln -sf ../../../bin/$(PIKE) $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium
-	cp -dp $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/pike
-	rm -rf debian/tmp/usr/local/
+	ln -sf ../../../bin/$(PIKE) $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/caudium
+	cp -dp $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/caudium $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/bin/pike
+	rm -rf debian/caudium/usr/local/
 
 	# lintian doesn't like images in /usr/lib, let's move them to /usr/share
-	mv debian/tmp/usr/lib/caudium$(EXTVER)/caudium-images debian/tmp/usr/share/caudium$(EXTVER)/
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/caudium-images debian/caudium/usr/share/caudium$(EXTVER)/
 
-	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/share/pike_packages/apps/modules/
-	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/local/share/caudium/modules/
+	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
+	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/local/share/caudium/modules/
 
 	#
 	# copy perl
 	#
-	cp -pad $(CURDIR)/server/perl/ $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/
-	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
-	    debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new && \
-	mv debian/tmp/usr/lib/caudium$(EXTVER)/perlhelper.new \
-	   debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
-	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	cp -pad $(CURDIR)/server/perl/ $(CURDIR)/debian/caudium/usr/lib/caudium$(EXTVER)/
+	sed -e 's;^#\!.*;#\!/usr/bin/perl;' debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper > \
+	    debian/caudium/usr/lib/caudium$(EXTVER)/perlhelper.new && \
+	mv debian/caudium/usr/lib/caudium$(EXTVER)/perlhelper.new \
+	   debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
+	chmod 755 debian/caudium/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 
 	#
 	# the -p debhelper param seems to be not working... 
@@ -155,8 +157,22 @@ install: build
 	cp src/cmods/UltraLog/docs/ultrasum.1 \
 	   debian/caudium-ultralog/usr/share/man/man1/
 
-	dh_movefiles
+	dh_movefiles  --sourcedir=debian/caudium
 
+	# move all the arch independent files to /usr/share and symlink them from their original location
+	# in /usr/lib/caudium/
+	
+	for p in $(PACKAGES); do \
+	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
+	     -name "*.pike" -type f -print \
+	     -o -name "*.pmod" -type f -print \
+	     -o -name "*.html" -type f -print \
+	     -o -name "*.h" -type f -print | \
+	     $(CURDIR)/debian/reflect.sh usr/share/caudium/ \
+	                                 $(CURDIR)/debian/$$p.links \
+	                                 usr/lib/caudium/ \
+					 $(CURDIR)/debian/$$p/) ; \
+	done
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
