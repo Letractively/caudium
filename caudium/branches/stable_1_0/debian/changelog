@@ -1,3 +1,9 @@
+caudium (2:1.0.37-5) unstable; urgency=low
+
+  * Really fixed the dependency bug (closes: #130235)
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 30 Jan 2002 13:22:05 +0100
+
 caudium (2:1.0.37-4) unstable; urgency=low
 
   * Reformatted the package descriptions.
