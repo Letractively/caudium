@@ -1,7 +1,7 @@
 Changes in Caudium 1.2 since Caudium 1.0
 ----------------------------------------
-- Added MODULE_EXPERIMENTAL to XML-Compliant RXML parser according to
-  bug #411984.
+- Added MODULE_EXPERIMENTAL to XML-Compliant RXML parser since it has sometimes
+  some unespected way of working...
 - Fix for bug #411982: the <set variable...> tag was reporting debug 
   status to the client even though the debug flag wasn't up.
 - Corrected incorrect status computation of servers usage. Was counting only
