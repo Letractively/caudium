@@ -885,13 +885,13 @@ static string make_tag_attributes(mapping in)
   for(int i=0; i<sizeof(a); i++)
     if(lower_case(b[i]) != a[i])
       if(is_safe_string(b[i]))
-	a[i]+="="+b[i];
+        a[i]+="=\"" +b[i] + "\"";
       else
-	// Bug inserted again. Grmbl.
-	a[i]+="=\""+replace(b[i], ({ "\"", "<", ">" //, "&"
-	}) ,
-			    ({ "&quot;", "&lt;", "&gt;" //, "&amp;"
-			    }))+"\"";
+        // Bug inserted again. Grmbl.
+        a[i]+="=\""+replace(b[i], ({ "\"", "<", ">" //, "&"
+        }) ,
+                            ({ "&quot;", "&lt;", "&gt;" //, "&amp;"
+                            }))+"\"";
   return a*" ";
 }
 
