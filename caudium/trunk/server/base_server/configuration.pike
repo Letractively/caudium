@@ -3647,6 +3647,7 @@ class DataCache
 
 object(DataCache) datacache;
 #endif
+
 void create(string config)
 {
   caudium->current_configuration = this;

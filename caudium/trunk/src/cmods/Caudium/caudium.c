@@ -661,7 +661,6 @@ static void f_get_address( INT32 args ) {
 
 
 /* Initialize and start module */
-static struct program *parsehttp_program;
 void pike_module_init( void )
 {
   STRS(data)     = make_shared_string("data");
@@ -696,14 +695,12 @@ void pike_module_init( void )
   add_function( "create", f_buf_create, "function(mapping,mapping,int|void:void)", 0 );
   set_init_callback(alloc_buf_struct);
   set_exit_callback(free_buf_struct);
-  parsehttp_program = end_program();
-  add_program_constant("ParseHTTP", parsehttp_program, 0);
+  end_class("ParseHTTP", 0);
 }
 
 /* Restore and exit module */
 void pike_module_exit( void )
 {
-  free_program(parsehttp_program);
   free_string(STRS(data));
   free_string(STRS(file));
   free_string(STRS(method));
