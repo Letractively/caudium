@@ -344,7 +344,7 @@ string http_encode_cookie(string f)
 **! method: string http_encode_url(string s)
 **!   URL encode the specified string and return it. This means replacing
 **!   the following characters to the %XX format: null (char 0), space, tab,
-**!   carriage return, newline, and % ' " # & ? = / : +
+**!   carriage return, newline, and % ' " # &amp; ? = / : +
 **! arg: string s
 **!   The string to encode.
 **! name: http_encode_url - URL encode a string

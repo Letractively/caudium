@@ -36,7 +36,7 @@
 
 inherit "module";
 
-constant module_type = 0;
+constant module_type = MODULE_ZERO;
 constant module_name = "SQL Databases";
 constant module_doc  = "Associates names with SQL Database URLs.";
 constant module_unique = 1;
