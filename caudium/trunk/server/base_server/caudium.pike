@@ -330,9 +330,7 @@ private static void accept_callback( object port )
 #endif
     if(pn[1] && !pn[1]->inited) {
       array err;
-      if(err = catch { pn[1]->enable_all_modules();  })
-	werror("Error while loading modules in configuration "+
-	       pn[1]->name+":\n"+ describe_backtrace(err)+"\n");
+      pn[1]->enable_all_modules();
     }
     pn[-1](file,pn[1]);
 #ifdef SOCKET_DEBUG
@@ -3683,10 +3681,7 @@ int main(int|void argc, array (string)|void argv)
 #if 0
   foreach(configurations, object config)
   {
-    array err;
-    if(err=catch { config->enable_all_modules();  })
-      perror("Error while loading modules in configuration "+config->name+":\n"+
-	     describe_backtrace(err)+"\n");
+    config->enable_all_modules(); 
   };
 #endif
   enabling_configurations = 0;
