@@ -44,6 +44,8 @@ constant cvs_version = "$Id$";
 object backend_thread;
 object argcache;
 
+// New cache stuff
+object CacheManager;
 
 // Some headerfiles
 #define IN_ROXEN
@@ -1245,6 +1247,8 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
+  program cache_manager = (program)"newcache/cache_manager";
+  CacheManager = cache_manager( QUERY(cache_max_ram) * 1024, QUERY(cache_max_slow) * 1024, QUERY(cache_vigilance), QUERY(cache_fs_path) );
 }
 
 void create()
@@ -1263,7 +1267,7 @@ void create()
   add_constant("__caudium_build__", __caudium_build__);
   
   Configuration = (program)"configuration";
-  
+
   call_out(post_create,1); //we just want to delay some things a little
 }
 
@@ -2482,13 +2486,13 @@ private void define_global_variables( int argc, array (string) argv )
           "Caching Sub-system: Maximum RAM Usage (MB)", TYPE_INT,
           "The maximum amount of RAM that should be consumed by the "
           "caching system in Megabytes.",
-          0, cache_disabled_p );
+          0 );
 
   globvar("cache_max_slow", 1024,
           "Caching Sub-system: Maximum Slow Storage Usage (MB)", TYPE_INT,
           "The maximum amount of storage space that can be consumed by the "
           "caching systems slow storage method in Megabytes.",
-          0, cache_disabled_p );
+          0 );
 
   globvar("cache_vigilance", 75,
           "Caching Sub-system: Vigilance (%)", TYPE_INT,
@@ -2504,20 +2508,20 @@ private void define_global_variables( int argc, array (string) argv )
           "the caches it will have to shuffle more data. 75% is the reccomended "
           "value, and should probably not be fiddled with unless you are sure "
           "of what you're doing.",
-          0, cache_disabled_p );
+          0 );
 
   globvar("cache_fs_path", "/var/cache/caudium/cache",
           "Caching Sub-system: Slow Storage Path", TYPE_DIR,
           "Path on the filesystem for storage of cached data if, indeed the "
           "disk storage method is being used.",
-          0, cache_disabled_p );
+          0 );
 
   /* NOT IMPLEMENTED YET
   globvar("cache_slow_store", "Disk Cache",
           "Caching Sub-system: Slow Storage Method", TYPE_STRING_LIST,
           "There are several methods of slow storage available, including "
           "disk storage and SQL storage. Please select the method.",
-          caudium->cache->slow_store_methods(), cache_disabled_p );
+          caudium->cache->slow_store_methods() );
   */
   // End of *new* cache variabled.
   

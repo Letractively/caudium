@@ -83,7 +83,7 @@ void store( mapping meta ) {
     thecache += ([ meta->hash : meta ]);
     break;
   default:
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE( " + namespace + " ): Unknown object type: " + meta->type + ", discarding.\n" );
 #endif
     break;
@@ -160,18 +160,18 @@ void stop() {
 	// how do we make destroy() wait until all that's done to make sure
 	// the data is written before the object is destroyed?
   if ( objectp( disk_cache ) ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE: Destroy() called, writing contents of cache to disk..\n" );
 #endif
     foreach( indices( thecache ), string hash ) {
       if ( thecache[ hash ]->disk_cache ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
         write( "RAM_CACHE: Storing object " + thecache[ hash ]->name + " on disk\n" );
 #endif
         disk_cache->store( get_stdio( hash ) );
       }
     }
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE: All done.\n" );
 #endif
   }
@@ -179,7 +179,7 @@ void stop() {
 }
 
 void free( int n ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE: Cache asked to reduce RAM usage by " + n + " bytes\n" );
 #endif
 	// sort the objects in the cache into a list of the least retrieved
@@ -196,14 +196,14 @@ void free( int n ) {
 	// about caching.
 
 	// First: remove expired objects so that we don't double handle.
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE: Calling expire_cache()....\n" );
 #endif
   int _usage = ram_usage;
   expire_cache( 1 );
 	// Second: check to see if the cache is now n bytes smaller.
   if ( _usage - ram_usage > n ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE: Expiring the cache freed enough memory to satisfy\n" );
 #endif
 	// our work here is done.
@@ -212,7 +212,7 @@ void free( int n ) {
   int freed;
   array _hash = ({ });
   array _hitrate = ({ });
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE: Calculating hitrates for objects\n" );
 #endif
   foreach( indices( thecache ), string hash ) {
@@ -223,16 +223,16 @@ void free( int n ) {
 	// Okay, that nastylooking thing was creating arrays of hitrate and the
 	// mapping index for thecache so that we can sort them into a list
 	// of objects with the lowest hitrate.
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE: Freeing objects in order of lowest hitrate.\n" );
 #endif
   foreach( _hash, string hash ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE: Freeing object " + thecache[ hash ]->name + "\n" );
 #endif
 	// Step through the list, in order of lowest hitrate to highest.
     if ( freed >= n ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
       write( "RAM_CACHE: RAM free is finished\n" );
 #endif
  	// If we have freed enough memory then yay!
@@ -242,7 +242,7 @@ void free( int n ) {
 	// Before removing the object, check to see if you can stick it
 	// on the disk.
     if ( ( objectp( disk_cache ) ) && ( thecache[ hash ]->disk_cache ) ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
       write( "RAM_CACHE: Storing object in disk_cache\n" );
 #endif
       mixed obj;
@@ -251,7 +251,7 @@ void free( int n ) {
       } else if ( thecache[ hash ]->_string ) {
         obj = thecache[ hash ];
       }
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
       write( sprintf( "%O\n", obj ) );
 #endif
       if ( ! zero_type( obj ) ) {
@@ -260,7 +260,7 @@ void free( int n ) {
     }
     freed += thecache[ hash ]->size;
     ram_usage -= thecache[ hash ]->size;
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "RAM_CACHE: Removing object from RAM\n" );
 #endif
     m_delete( thecache, hash );
@@ -268,7 +268,7 @@ void free( int n ) {
 }
 
 void expire_cache( void|int nocallout ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE::expire_cache() called.\n" );
 #endif
 	// Remove expired objects.
