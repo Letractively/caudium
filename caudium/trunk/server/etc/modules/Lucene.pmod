@@ -288,7 +288,7 @@ int index(string uri, string data, string title, string type, string date)
     {
        string ret="";
        i++;       
-       string t=MIME.encode_base64(Crypto.md5()->update(data + i)->update((string)time())->digest());
+       string t=MIME.encode_base64(Crypto.MD5()->update(data + i)->update((string)time())->digest());
 
        t=(string)hash(t);
 

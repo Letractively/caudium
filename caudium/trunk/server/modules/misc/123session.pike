@@ -451,7 +451,7 @@ void variables_store(string region, string key, mapping values) {
 }
 
 string sessionid_create() {
-  object md5 = Crypto.md5();
+  object md5 = Crypto.MD5();
   // Kiwi: Add a Crypto.randomness.reasonably_random()->read(size) in this
   //       function may add some more random session id ?
   md5->update(QUERY(secret));
