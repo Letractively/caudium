@@ -352,7 +352,7 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-    file = conf->http_error->process_error (this_object ());
+    file = caudium->http_error->process_error (this_object ());
   } else {
     if((file->file == -1) || file->leave_me) 
     {

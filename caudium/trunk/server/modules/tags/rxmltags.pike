@@ -2706,7 +2706,7 @@ string tag_error( string tag, mapping m, object id, object file,
     } else {
 	_error = (int)m->code;
 	_rettext = (int)m->name;
-        mapping error_page = id->conf->http_error->handle_error( (int)m->code, m->name, m->message, id );
+        mapping error_page = caudium->http_error->handle_error( (int)m->code, m->name, m->message, id );
 	return error_page->data;
     }
 }

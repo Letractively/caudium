@@ -135,7 +135,7 @@ inherit Thread.Mutex;
 object thfarm; 
 #endif
 #define SEND(X) do { id->do_not_disconnect = 0; id->send_result(X); return; } while(0)
-#define JSERR(CODE, SHORT, LONG)  SEND(http_string_answer(id->conf->http_error->handle_error(CODE, SHORT, LONG, id)));
+#define JSERR(CODE, SHORT, LONG)  SEND(http_string_answer(caudium->http_error->handle_error(CODE, SHORT, LONG, id)));
 #define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {

@@ -924,7 +924,7 @@ void internal_error(array err)
     }
     report_error("Internal server error: " +
 		 describe_backtrace(err) + "\n");
-    if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
+    if ( catch( file = caudium->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
         report_error("*** http_error object missing during internal_error() ***\n");
 	file =
 	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
@@ -1058,8 +1058,7 @@ mapping handle_error_file_request(array err, int eid)
     lines[max(off-20,0)] = "<a name=here>"+lines[max(off-20,0)]+"</a>";
     data = lines*"\n";
   }
-  
-  if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error",  format_backtrace(bt,eid)+(data ? "<hr noshade><pre>"+data+"</pre>" : ""), this_object() ) ) ) {
+  if ( catch( file = caudium->http_error->handle_error( 500, "Internal Server Error",  format_backtrace(bt,eid)+(data ? "<hr noshade><pre>"+data+"</pre>" : ""), this_object() ) ) ) {
     report_error("*** http_error object missing during internal_error() ***\n");
     file =
       http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
@@ -1259,7 +1258,7 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-     file = conf->http_error->process_error (this_object ());
+     file = caudium->http_error->process_error (this_object ());
   } else {
      if((file->file == -1) || file->leave_me) 
      {

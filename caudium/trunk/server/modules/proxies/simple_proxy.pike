@@ -216,7 +216,7 @@ class request
       id->misc->error_code = errno;
       id->misc->error_message = error_message;
 
-      mapping error = id->conf->http_error->process_error (id);
+      mapping error = caudium->http_error->process_error (id);
 
       id->conf->log (([ "error":errno ]), id);
 
