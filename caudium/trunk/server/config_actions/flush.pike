@@ -42,11 +42,13 @@ mixed page_0(object id, object mc)
 	  "Force a flush of the user and password cache in all "
 	  "virtual servers."
 	  "</blockquote></help>"
+/*
 	  "<var default=1 name=memory_cache type=checkbox> The memory cache<br>\n"
 	  "<help><blockquote>"
 	  "Force a flush of the memory cache (the one described "
 	  "under the Actions -> Cache -> Cache status)."
 	  "</blockquote></help>"
+*/
 	  "<var default=1 name=dir_cache type=checkbox> Directory caches<br>\n"
 	  "<help><blockquote>"
 	  "Force a flush of all directory module caches."
