@@ -217,3 +217,5 @@ void behavior(void|int(0..2) _behavior) {
   restart_cache();
   real_cache->behavior(_behavior);
 }
+// Language hack
+function behaviour = behavior;
