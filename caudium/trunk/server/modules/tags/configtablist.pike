@@ -117,9 +117,10 @@ string tag_config_tab(string t, mapping a, string contents)
   if (a->selected) {
     dir = "s/";
   }
-  if(a->bgcolor)
+  if(a->bgcolor) {
     dir+=replace(a->bgcolor,"#","|");
-  else
+    m_delete(a, "bgcolor");
+  } else
     dir+="white";
   dir+="/";
   m_delete(a, "selected");
