@@ -847,10 +847,10 @@ public void log(mapping file, object request_id)
 public string status()
 {
   float tmp;
-  string res = "";
+  string res = "<table>";
 #ifdef __AUTO_BIGNUM__
   tmp = (sent/(float)(time(1)-caudium->start_time+1));
-  res += sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%s"
+  res += sprintf("<tr align=right><td><b>Sent data:</b></td><td>%s"
                  "</td><td>%.2f Kbit/sec</td>",
                  Caudium.sizetostring(sent),tmp/128.0);
   
@@ -868,7 +868,7 @@ public string status()
     return "Fatal error in status(): Bignum object gone.\n";
 
   tmp = (sent->mb()/(float)(time(1)-caudium->start_time+1));
-  res += sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%.2fMB"
+  res += sprintf("<tr align=right><td><b>Sent data:</b></td><td>%.2fMB"
                  "</td><td>%.2f Kbit/sec</td>",
                  sent->mb(),tmp * 8192.0);
   
@@ -904,7 +904,7 @@ public string status()
   }
 #endif
 
-  return res;
+  return res + "</table>";
 }
 
 //! @deprecated
