@@ -357,13 +357,18 @@ AC_SUBST(LD)
 #################
 AM_WITH_DMALLOC
 
+### Let's set the default,            ###
+### which we can change if we'd like. ###
+#########################################
+CAUDIUM_SERVERDIR="$prefix/caudium/server/"
+
 AC_ARG_WITH(serverdir,
 AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directory after installation]),
 [
   if test ! -z "$withval"; then
     CAUDIUM_SERVERDIR="$withval/"
   else
-    CAUDIUM_SERVERDIR="@prefix@/caudium/server/"
+    CAUDIUM_SERVERDIR="$prefix/caudium/server/"
   fi
 ])
 
