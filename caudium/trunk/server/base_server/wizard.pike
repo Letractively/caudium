@@ -953,23 +953,23 @@ string html_table(array(string) subtitles, array(array(string)) table,
 
   if(!opt) opt = ([]);
   int m = (int)(opt->modulo?opt->modulo:1);
-  r += ("<table bgcolor="+(opt->bgcolor||"black")+" border=0 "
-  "cellspacing=0 cellpadding=1>\n"
+  r += ("<table bgcolor=\""+(opt->bgcolor||"black")+"\" border=\"0\" "
+  "cellspacing=\"0\" cellpadding=\"1\">\n"
   "<tr><td>\n");
-  r += "<table border=0 cellspacing=0 cellpadding=4>\n";
-  r += "<tr bgcolor="+(opt->titlebgcolor||"#113377")+">\n";
+  r += "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\">\n";
+  r += "<tr bgcolor=\""+(opt->titlebgcolor||"#113377")+"\">\n";
   int cols;
   foreach(subtitles, mixed s)
   {
     if(stringp(s))
     {
-      r+=("<th nowrap align=left><font color="+
-    (opt->titlecolor||"#ffffff")+">"+s+" &nbsp; </font></th>");
+      r+=("<th nowrap align=\"left\"><font color=\""+
+    (opt->titlecolor||"#ffffff")+"\">"+s+" &nbsp; </font></th>");
       cols++;
     } else {
-      r+=("</tr><tr bgcolor="+(opt->titlebgcolor||"#113377")+">"
-    "<th nowrap align=left colspan="+cols+">"
-    "<font color="+(opt->titlecolor||"#ffffff")+">"+s[0]+
+      r+=("</tr><tr bgcolor=\""+(opt->titlebgcolor||"#113377")+"\">"
+    "<th nowrap align=\"left\" colspan=\""+cols+"\">"
+    "<font color=\""+(opt->titlecolor||"#ffffff")+"\">"+s[0]+
     " &nbsp; </font></th>");
     }
   }      
@@ -977,12 +977,12 @@ string html_table(array(string) subtitles, array(array(string)) table,
   
   for(int i = 0; i < sizeof(table); i++) {
     string tr;
-    r += tr = "<tr bgcolor="+((i/m)%2?opt->fgcolor1||"#ddeeff":
-            opt->fgcolor0||"#ffffff")+">";
+    r += tr = "<tr bgcolor=\""+((i/m)%2?opt->fgcolor1||"#ddeeff":
+            opt->fgcolor0||"#ffffff")+"\">";
     for(int j = 0; j < sizeof(table[i]); j++) {
       mixed s = table[i][j];
       if(arrayp(s))
-  r += "</tr>"+tr+"<td colspan="+cols+">"+s[0]+" &nbsp;</td>";
+  r += "</tr>"+tr+"<td colspan=\""+cols+"\">"+s[0]+" &nbsp;</td>";
       else {
   string type = "text";
   if(arrayp(opt->fields) && j < sizeof(opt->fields))
@@ -990,7 +990,7 @@ string html_table(array(string) subtitles, array(array(string)) table,
   switch(type) {
   case "num":
     array a = s/".";
-    r += "<td nowrap align=right>";
+    r += "<td nowrap align=\"right\">";
     if(sizeof(a) > 1) {
       r += (format_numeric(a[0])+"."+
       reverse(format_numeric(reverse(a[1]), ";psbn&")));
