@@ -34,7 +34,7 @@
 #include <variables.h>
 inherit "module";
 inherit "caudiumlib";
-
+//#define PHP_DEBUG
 #ifdef PHP_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !PHP_DEBUG */
@@ -68,9 +68,10 @@ class PHPScript
   mapping (string:string) environment;
   int written, close_when_done;
   object mid;
-
-  void done()
+  void done(int sent)
   {
+    DWERROR("PHP:Wrapper::done()\n");
+    if(intp(sent)) written += sent;
     if(strlen(buffer))
     {
       close_when_done = 1;
@@ -85,10 +86,12 @@ class PHPScript
   }
 
   void destroy()
-  {
-    if( mid )
+  { 
+   if( mid )
     {
       mid->file = ([ "len": written, "raw":1 ]);
+      mid->pipe = 0;
+      mid->do_not_disconnect = 0;
       mid->do_log();
     }
   }
@@ -102,14 +105,14 @@ class PHPScript
     array err = catch { nelems = mid->my_fd->write(buffer); };
     DWERROR(sprintf("PHP:Wrapper::write_callback(): write(%O) => %d\n",
 		    buffer, nelems));
+    if(err) werror(describe_backtrace(err));
     if( err || nelems < 0 )
     // if nelems == 0, network buffer is full. We still want to continue.
     {
       buffer="";
       close_when_done = -1;
     }
-    else
-    {
+    else if(nelems>0) {
       written += nelems;
       buffer = buffer[nelems..];
       DWERROR(sprintf("Done: %d %d...\n", strlen(buffer), close_when_done));
@@ -178,7 +181,7 @@ class PHPScript
 	}
       }
     if(!sv_received)
-      result += "Server: "+roxen.version()+"/PHP4\r\n";
+      result += "Server: "+caudium.version()+"\r\n";
     if(!ct_received)
       result += "Content-Type: text/html\r\n";
     write("HTTP/1.0 "+code+"\r\n"+result+"\r\n");
@@ -198,6 +201,7 @@ class PHPScript
     }
 
     mid->my_fd->set_close_callback(done);
+    //    werror("%O\n", options);
     interpreter->run(command, options, this_object(), done);
     return this_object();
   }
@@ -258,7 +262,12 @@ mapping(string:string) global_env = ([]);
 void start(int n, object conf)
 {
   DWERROR("PHP:start()\n");
-
+#ifndef THREADS
+  // Ugly? Yes, definitely. Required? Yes. If there is only one thread
+  // the interpreter lock will never be released (naturally) and thus the
+  // th_farm threads can never lock it which is required.
+  thread_create(lambda() { catch { while(this_object()) sleep(5); }; });
+#endif
   module_dependencies(conf, ({ "pathinfo" }));
   if(conf)
   {
@@ -282,11 +291,23 @@ void start(int n, object conf)
 int|mapping handle_file_extension(object o, string e, object id)
 {
   DWERROR("PHP:handle_file_extension()\n");
-  roxen->handle(PHPScript(id)->run);
+  id->do_not_disconnect = 1;
+  // call_out required or the script might actually finish too early
+  // causing ugly, but harmless, backtraces.
+  call_out(PHPScript(id)->run, 0);
+  //  PHPScript(id)->run();
   DWERROR("PHP:handle_file_extension done\n");
   return http_pipe_in_progress();
 }
 #else
+
+array register_module() {
+  return ({  module_type, 
+	     module_name,
+	     module_doc + status(),
+	     0, 0
+  });
+}
 
 // Do not dump to a .o file if no PHP4 is available, since it will then
 // not be possible to get it later on without removal of the .o file.
@@ -295,13 +316,13 @@ constant dont_dump_program = 1;
 string status()
 {
   return
-    "<font color=\"red\">The PHP4 interpreter isn't available."
+    "<p><font color=\"red\">The PHP4 interpreter isn't available."
     "To get PHP4 installed:"
     "<ol>"
-    "<li> Check php4 out from CVS or download the release from"
-    "<a href=\"http://us.php.net/downloads.php\">http://us.php.net/downloads.php</a>.<br />"
+    "<li> Check php4 out from CVS or download the release from "
+    "<a href=\"http://us.php.net/downloads.php\">http://us.php.net/downloads.php</a>. Please note that you need version 4.0.4-dev (as of 2000-11-02) or newer. "
     "See <a target=\"new\" href=\"http://www.php.net/version4/cvs.php\">the PHP4 CVS instructions</a></li>"
-    "<li> Configure php4 with --with-roxen="+(getcwd()-"server")+"</li>"
+    "<li> Configure php4 with --with-caudium="+getcwd()+"</li>"
     "<li> Make and install php4</li>"
     "<li> Restart Caudium</li>"
     "</ol></font>";
