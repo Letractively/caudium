@@ -1,13 +1,34 @@
+/*
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+// $Id$
+
 string hostname;
 int port;
 int max_conns;
 
 array conns=({});
 
+//! Create a new AJP1.3 client. 
 void create(string _host, int _port, int maxconn)
 {
 #ifdef AJP_DEBUG
-  werror("Protocols.AJP.Client()\n");
+  report_debug("Protocols.AJP.Client()\n");
 #endif
   if(!strlen(_host)) error("No host specified.");
   if(!_port) error("No port number specified.");
@@ -19,7 +40,7 @@ void create(string _host, int _port, int maxconn)
 void destruct()
 {
 #ifdef AJP_DEBUG
-  werror("Protocols.AJP.Client.destruct()\n");
+  report_debug("Protocols.AJP.Client.destruct()\n");
 #endif
   foreach(conns, object c)
   {
@@ -28,6 +49,8 @@ void destruct()
     c->destruct();
   }
 }
+
+//! handle a request
 mapping handle_request(object id)
 {
   object c=get_connection();
@@ -54,7 +77,7 @@ object get_connection()
 void replace_connection(object conn)
 {
 #ifdef AJP_DEBUG
-  werror("sizeof conns: " + sizeof(conns) + "\n");
+  report_debug("sizeof conns: " + sizeof(conns) + "\n");
 #endif
   if(sizeof(conns)<max_conns)
   {
@@ -64,6 +87,7 @@ void replace_connection(object conn)
   }
 }
 
+//! an ajp connection. created by @[AJP.Client].
 class connection
 {
   inherit .protocol;
@@ -72,10 +96,11 @@ class connection
   int destruct_on_close=0;
   function destroy_function;
 
+//!
   void create(string host, int port)
   {
 #ifdef AJP_DEBUG
-     werror("Protocols.AJP.Client.connection()\n");
+     report_debug("Protocols.AJP.Client.connection()\n");
 #endif
      c=Stdio.File();    
      if(!c->connect(host, port))
@@ -92,6 +117,7 @@ class connection
  }
 
 
+//!
   mapping handle(object id)
   {
     inuse=1;
@@ -141,7 +167,7 @@ class connection
         if(r1->reuse!=1)
         {
 #ifdef AJP_DEBUG
-          werror("we will destruct this connection when done.\n");
+          report_debug("we will destruct this connection when done.\n");
 #endif
           destruct_on_close=1;
         }
