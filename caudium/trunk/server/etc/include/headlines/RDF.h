@@ -13,7 +13,7 @@ static private string parse_it(string tag, mapping args, string|int contents,
   {
   case "item":
     hl = ([]);
-    parse_html(contents, ([ ]), ([ "title": parse_it, "link": parse_it ]),
+    parse_html(contents, ([ ]), ([ "title": parse_it, "link": parse_it, "description" : parse_it  ]),
 	       hl);
     headlines += ({ hl });
     break;
