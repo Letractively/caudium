@@ -966,6 +966,7 @@ void start_watchdog()
   // first, create the socket.
   watchdog_socket = Stdio.Port();
   flex_write("creating watchdog communication socket at " + envvars->CAUDIUM_WATCHDOG_SOCKET + "\n");
+  rm(envvars->CAUDIUM_WATCHDOG_SOCKET);
   if(!watchdog_socket || !watchdog_socket->bind_unix(envvars->CAUDIUM_WATCHDOG_SOCKET, watchdog_accept))
   {
     flex_write("unable to create watchdog communication socket. not starting watchdog.\n");
