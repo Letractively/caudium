@@ -147,7 +147,7 @@ function f_urandom()
 #if constant(Crypto.Random.random_string)
    return Crypto.Random.random_string;
 #else
-   return Crypto.randomness.reasonably_random()->read;
+   return random_string;
 #endif      
 }
 
