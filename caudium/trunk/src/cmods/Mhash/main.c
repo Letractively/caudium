@@ -18,19 +18,45 @@
  *
  */
 
-#ifndef MHASH_CONFIG_H
-#define MHASH_CONFIG_H
+/* Glue for the MHash library, for various hashing routines. See
+ * http://mhash.sourceforge.net/ for more information about mhash.
+ */
 
-@TOP@
+#include "global.h"
+RCSID("$Id$");
 
-@BOTTOM@
+#include "stralloc.h"
+#include "pike_macros.h"
+#include "module_support.h"
+#include "program.h"
+#include "error.h"
+#include "threads.h"
+#include "mhash_config.h"
 
-#if defined(HAVE_MHASH_H) && defined(HAVE_LIBMHASH)
-#define HAVE_MHASH
-#include <mhash.h>
-#include "mhash_defs.h"
-#endif
+#ifdef HAVE_MHASH
+static struct program *hash_program;
 
-void pike_module_init(void);
-void pike_module_exit(void);
-#endif
+/* Init the module */
+void pike_module_init(void)
+{  
+  hash_program = mhash_init_mhash_program();
+  mhash_init_globals();
+}
+
+
+/* Restore and exit module */
+void pike_module_exit( void )
+{
+  free_program(hash_program);
+}
+
+#else /* HAVE_MHASH */
+void pike_module_exit( void ) { }
+void pike_module_init( void ) { }
+#endif /* HAVE_MHASH */
+
+/*
+ * Local variables:
+ * c-basic-offset: 2
+ * End:
+ */
