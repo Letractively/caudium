@@ -1,3 +1,10 @@
+caudium (2:1.2.23-2) unstable; urgency=low
+
+  * Added the gsession module.
+  * Recompiled for new pike 7.2
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 24 Feb 2003 03:51:05 +0100
+
 caudium (2:1.2.23-1) unstable; urgency=low
 
   * Latest upstream version.
