@@ -108,7 +108,7 @@ mapping(string:string|array) envvars = ([
 ]);
 
 // locations that we should search for modules in, if present
-array lib_locations=({"lib/modules", 
+array lib_locations=({"lib/modules", "lib",
                       "lib/pike/modules", "etc/modules", "lib/" + pikever,
                       "share/pike/modules"});
       

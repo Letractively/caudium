@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fix error in start-caudium which doesn't look in lib/ for c-modules, which
+  seems to be where they're put on OSX.
+   (James Tyson)
 - Fix error on vhs_dirparser when there is no files on directory and that
   option "show dot files" is set to no
    (Xavier Beaudouin)
