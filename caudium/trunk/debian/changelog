@@ -1,3 +1,11 @@
+caudium (1:1.0.0-11) unstable; urgency=low
+
+  * removed /etc/caudium/servers/localhost from config files
+  * added pike7-cvs-gmp to dependencies
+  * latest CVS snapshot with improved DocParser/DocGenerator
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue, 24 Oct 2000 14:48:16 +0200
+
 caudium (1:1.0.0-10) unstable; urgency=low
 
   * latest CVS snapshot
