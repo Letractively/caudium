@@ -26,7 +26,7 @@ string cvs_version = "$Id$";
 mapping profile_map = ([]);
 #endif
 
-#define CATCH(X)	do { mixed err; if(err = catch{X;}) report_error(describe_backtrace(err)); } while(0)
+#define CATCH(X)  do { mixed err; if(err = catch{X;}) report_error(describe_backtrace(err)); } while(0)
 
 
 #ifdef REQUEST_DEBUG
@@ -129,11 +129,11 @@ static class ConfigurableWrapper
   int check()
   {
     if ((mode & VAR_EXPERT) &&
-	(!caudium->configuration_interface()->expert_mode)) {
+  (!caudium->configuration_interface()->expert_mode)) {
       return 1;
     }
     if ((mode & VAR_MORE) &&
-	(!caudium->configuration_interface()->more_mode)) {
+  (!caudium->configuration_interface()->more_mode)) {
       return 1;
     }
     return(f());
@@ -149,14 +149,14 @@ int defvar(string var, mixed value, string name, int type,
            string|void doc_str, mixed|void misc,
            int|function|void not_in_config)
 {
-  variables[var]                = allocate( VAR_SIZE );
-  variables[var][ VAR_VALUE ]        = value;
-  variables[var][ VAR_TYPE ]         = type & VAR_TYPE_MASK;
-  variables[var][ VAR_DOC_STR ]      = doc_str;
-  variables[var][ VAR_NAME ]         = name;
-  variables[var][ VAR_MISC ]         = misc;
+  variables[var]                      = allocate( VAR_SIZE );
+  variables[var][ VAR_VALUE ]         = value;
+  variables[var][ VAR_TYPE ]          = type & VAR_TYPE_MASK;
+  variables[var][ VAR_DOC_STR ]       = doc_str;
+  variables[var][ VAR_NAME ]          = name;
+  variables[var][ VAR_MISC ]          = misc;
   
-  type &= ~VAR_TYPE_MASK;		// Probably not needed, but...
+  type &= ~VAR_TYPE_MASK;   // Probably not needed, but...
   type &= (VAR_EXPERT | VAR_MORE);
   if (functionp(not_in_config)) {
     if (type) {
@@ -211,13 +211,13 @@ class Priority
 
   void stop()
   {
-    foreach(url_modules, object m)      	 CATCH(m->stop && m->stop());
-    foreach(logger_modules, object m)   	 CATCH(m->stop && m->stop());
-    foreach(filter_modules, object m)  		 CATCH(m->stop && m->stop());
-    foreach(location_modules, object m)		 CATCH(m->stop && m->stop());
-    foreach(last_modules, object m)    		 CATCH(m->stop && m->stop());
-    foreach(first_modules, object m)    	 CATCH(m->stop && m->stop());
-    foreach(precache_modules, object m)    	 CATCH(m->stop && m->stop());
+    foreach(url_modules, object m)         CATCH(m->stop && m->stop());
+    foreach(logger_modules, object m)      CATCH(m->stop && m->stop());
+    foreach(filter_modules, object m)      CATCH(m->stop && m->stop());
+    foreach(location_modules, object m)    CATCH(m->stop && m->stop());
+    foreach(last_modules, object m)        CATCH(m->stop && m->stop());
+    foreach(first_modules, object m)       CATCH(m->stop && m->stop());
+    foreach(precache_modules, object m)      CATCH(m->stop && m->stop());
     foreach(indices(provider_modules), object m) CATCH(m->stop && m->stop());
   }
 }
@@ -314,7 +314,7 @@ class Bignum {
 int requests;
 // Protocol specific statistics.
 mapping(string:mixed) extra_statistics = ([]);
-mapping(string:mixed) misc = ([]);	// Even more statistics.
+mapping(string:mixed) misc = ([]);  // Even more statistics.
 
 #ifdef __AUTO_BIGNUM__
 int sent, hsent, received;
@@ -385,37 +385,28 @@ void stop()
   for(int i=0; i<10; i++) CATCH(pri[i] && pri[i]->stop && pri[i]->stop());
 }
 
-public array|string type_from_filename( string file, int|void to )
-{
-  mixed tmp;
+public array|string type_from_filename( string file, int|void to ) {
+  // returns the content-type for the given filename. if "to" is set,
+  // then returns the content-encoding as well.
+
+  // ok, so this fun changes according to the new MODULE_TYPE API.
+  // basically, from now on this is just a dummy function. the old one tried to play voodoo magic
+  // with data it didn't really have, so...
+
   object current_configuration;
-  string ext=extension(file);
-    
-  if(!types_fun)
-    return to?({ "application/octet-stream", 0 }):"application/octet-stream";
+
+  // the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
+  array retval = ({ "application/octet-stream", 0 })'
+
+  if( !types_fun )
+    return to ? retval : retval[ 0 ];
 
 //   while(file[-1] == '/') 
 //     file = file[0..strlen(file)-2]; // Security patch? 
-  
-  if(tmp = types_fun(ext))
-  {
-    mixed tmp2,nx;
-    if(tmp[0] == "strip")
-    {
-      tmp2=file/".";
-      if(sizeof(tmp2) > 2)
-	nx=tmp2[-2];
-      if(nx && (tmp2=types_fun(nx)))
-	tmp[0] = tmp2[0];
-      else if(tmp2=types_fun("default"))
-	tmp[0] = tmp2[0];
-      else
-	tmp[0]="application/octet-stream";
-    }
-  } else if(!(tmp = types_fun("default"))) {
-    tmp = ({ "application/octet-stream", 0 });
-  }
-  return to?tmp:tmp[0];
+
+  array retval = types_fun( file );
+  // hmm, all else is being taken care of inside types_fun...
+  return to ? retval : retval[ 0 ];
 }
 
 // Return an array with all provider modules that provides "provides".
@@ -431,8 +422,8 @@ array (object) get_providers(string provides)
     for(i = 9; i >= 0; i--)
     {
       foreach(indices(pri[i]->provider_modules), object d) 
-	if(pri[i]->provider_modules[ d ][ provides ]) 
-	  provider_module_cache[provides] += ({ d });
+  if(pri[i]->provider_modules[ d ][ provides ]) 
+    provider_module_cache[provides] += ({ d });
     }
   }
   return provider_module_cache[provides];
@@ -480,13 +471,13 @@ mixed call_provider(string provides, string fun, mixed ... args)
     if(objectp(mod) && functionp(f = mod[fun])) {
       mixed error;
       if (arrayp(error = catch {
-	mixed ret;
-	if (ret = f(@args)) {
-	  return(ret);
-	}
+  mixed ret;
+  if (ret = f(@args)) {
+    return(ret);
+  }
       })) {
-	error[0] = "Error in call_provider(): "+error[0];
-	throw(error);
+  error[0] = "Error in call_provider(): "+error[0];
+  throw(error);
       }
     }
   }
@@ -503,8 +494,8 @@ array (function) extension_modules(string ext, object id)
       object p;
       array(object) d;
       if(d = pri[i]->extension_modules[ext])
-	foreach(d, p)
-	  extension_module_cache[ext] += ({ p->handle_extension });
+  foreach(d, p)
+    extension_module_cache[ext] += ({ p->handle_extension });
     }
   }
   return extension_module_cache[ext];
@@ -522,8 +513,8 @@ array (function) file_extension_modules(string ext, object id)
       object p;
       array(object) d;
       if(d = pri[i]->file_extension_modules[ext])
-	foreach(d, p)
-	  file_extension_module_cache[ext] += ({ p->handle_file_extension });
+  foreach(d, p)
+    file_extension_module_cache[ext] += ({ p->handle_file_extension });
     }
   }
   return file_extension_module_cache[ext];
@@ -540,8 +531,8 @@ array (function) url_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->url_modules)
-	foreach(d, p)
-	  url_module_cache += ({ p->remap_url });
+  foreach(d, p)
+    url_module_cache += ({ p->remap_url });
     }
   }
   return url_module_cache;
@@ -564,9 +555,9 @@ array (function) logger_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->logger_modules)
-	foreach(d, p)
-	  if(p->log)
-	    logger_module_cache += ({ p->log });
+  foreach(d, p)
+    if(p->log)
+      logger_module_cache += ({ p->log });
     }
   }
   return logger_module_cache;
@@ -583,9 +574,9 @@ array (function) last_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->last_modules)
-	foreach(d, p)
-	  if(p->last_resort)
-	    last_module_cache += ({ p->last_resort });
+  foreach(d, p)
+    if(p->last_resort)
+      last_module_cache += ({ p->last_resort });
     }
   }
   return last_module_cache;
@@ -603,11 +594,11 @@ array (function) first_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->first_modules) {
-	foreach(d, p) {
-	  if(p->first_try) {
-	    first_module_cache += ({ p->first_try });
-	  }
-	}
+  foreach(d, p) {
+    if(p->first_try) {
+      first_module_cache += ({ p->first_try });
+    }
+  }
       }
     }
   }
@@ -626,11 +617,11 @@ array (function) precache_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->precache_modules) {
-	foreach(d, p) {
-	  if(p->precache_rewrite) {
-	    precache_module_cache += ({ p->precache_rewrite });
-	  }
-	}
+  foreach(d, p) {
+    if(p->precache_rewrite) {
+      precache_module_cache += ({ p->precache_rewrite });
+    }
+  }
       }
     }
   }
@@ -649,23 +640,23 @@ array location_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->location_modules) {
-	array level_find_files = ({});
-	array level_locations = ({});
-	foreach(d, p) {
-	  string location;
-	  // FIXME: Should there be a catch() here?
-	  if(p->find_file && (location = p->query_location())) {
-	    level_find_files += ({ p->find_file });
-	    level_locations += ({ location });
-	  }
-	}
-	sort(level_locations, level_find_files);
-	int j;
-	for (j = sizeof(level_locations); j--;) {
-	  // Order after longest path first.
-	  new_location_module_cache += ({ ({ level_locations[j],
-					     level_find_files[j] }) });
-	}
+  array level_find_files = ({});
+  array level_locations = ({});
+  foreach(d, p) {
+    string location;
+    // FIXME: Should there be a catch() here?
+    if(p->find_file && (location = p->query_location())) {
+      level_find_files += ({ p->find_file });
+      level_locations += ({ location });
+    }
+  }
+  sort(level_locations, level_find_files);
+  int j;
+  for (j = sizeof(level_locations); j--;) {
+    // Order after longest path first.
+    new_location_module_cache += ({ ({ level_locations[j],
+               level_find_files[j] }) });
+  }
       }
     }
     location_module_cache = new_location_module_cache;
@@ -684,9 +675,9 @@ array filter_modules(object id)
       object p;
       array(object) d;
       if(d=pri[i]->filter_modules)
-	foreach(d, p)
-	  if(p->filter)
-	    filter_module_cache+=({ p->filter });
+  foreach(d, p)
+    if(p->filter)
+      filter_module_cache+=({ p->filter });
     }
   }
   return filter_module_cache;
@@ -715,30 +706,30 @@ int init_log_file(int|void force_open)
   {
     mapping m = localtime(t);
     string logfile = QUERY(LogFile);
-    m->year += 1900;	/* Adjust for years being counted since 1900 */
-    m->mon++;		/* Adjust for months being counted 0-11 */
+    m->year += 1900;  /* Adjust for years being counted since 1900 */
+    m->mon++;   /* Adjust for months being counted 0-11 */
     if(m->mon < 10) m->mon = "0"+m->mon;
     if(m->mday < 10) m->mday = "0"+m->mday;
     if(m->hour < 10) m->hour = "0"+m->hour;
     logfile = replace(logfile,({"%d","%m","%y","%h","%H"}),
-		      ({ (string)m->mday, (string)(m->mon),
-			 (string)(m->year),(string)m->hour,cache_hostname}));
+          ({ (string)m->mday, (string)(m->mon),
+       (string)(m->year),(string)m->hour,cache_hostname}));
     if(strlen(logfile))
     {
       do {
-	object lf=open( logfile, "wac");
-	if(!lf) {
-	  Stdio.mkdirhier(logfile);
-	  if(!(lf=open( logfile, "wac"))) {
-	    report_error("Failed to open logfile. ("+logfile+")\n" +
-			 "No logging will take place!\n");
-	    log_function=-1;
-	    return 0;
-	  }
-	}
-	log_function=lf->write;	
-	// Function pointer, speeds everything up (a little..).
-	lf=0;
+  object lf=open( logfile, "wac");
+  if(!lf) {
+    Stdio.mkdirhier(logfile);
+    if(!(lf=open( logfile, "wac"))) {
+      report_error("Failed to open logfile. ("+logfile+")\n" +
+       "No logging will take place!\n");
+      log_function=-1;
+      return 0;
+    }
+  }
+  log_function=lf->write; 
+  // Function pointer, speeds everything up (a little..).
+  lf=0;
       } while(0);
     } else {
       log_function=-1;
@@ -766,7 +757,7 @@ private inline string fix_logging(string s)
 
   // FIXME: This looks like a bug.
   // Is it supposed to strip all initial whitespace, or do what it does?
-  //	/grubba 1997-10-03
+  //  /grubba 1997-10-03
   while(s[0] == ' ') s = s[1..];
   while(s[0] == '\t') s = s[1..];
   while(sscanf(s, "%s$char(%d)%s", pre, c, post)==3)
@@ -796,7 +787,7 @@ private void parse_log_formats()
     object formatter;
     if(catch(formatter = compile(format)()) || !formatter) {
       report_error(sprintf("Failed to compile log format // %s //.",
-		   format));
+       format));
     }
     log_format_objs[code] = formatter;
   }
@@ -812,7 +803,7 @@ private void write_to_log( string host, string rest, string oh, function fun )
   if(!stringp(host))
     host = "error:no_host";
   else
-    host = (host/" ")[0];	// In case it's an IP we don't want the port.
+    host = (host/" ")[0]; // In case it's an IP we don't want the port.
   if(fun) fun(replace(rest, "$host", host));
 }
 
@@ -874,12 +865,12 @@ public void log(mapping file, object request_id)
   if(functionp(log_function)) {
     if(!(fobj = log_format_objs[(string)file->error]))
       if(!(fobj = log_format_objs["*"]))
-	return; // no logging for this one.
+  return; // no logging for this one.
     last_log_time = time(1);
     if(fobj->hashost)
       caudium->ip_to_host(request_id->remoteaddr, write_to_log,
-			  fobj->format_log(file, request_id),
-			  request_id->remoteaddr, log_function);
+        fobj->format_log(file, request_id),
+        request_id->remoteaddr, log_function);
     else
       log_function(fobj->format_log(file, request_id));
   }
@@ -893,67 +884,67 @@ public string status()
 #ifdef __AUTO_BIGNUM__
   tmp = (sent/(float)(time(1)-caudium->start_time+1));
   res += sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%s"
-		 "</td><td>%.2f Kbit/sec</td>",
-		 sizetostring(sent),tmp/128.0);
+     "</td><td>%.2f Kbit/sec</td>",
+     sizetostring(sent),tmp/128.0);
   
   res += sprintf("<td><b>Sent headers:</b></td><td>%s</td></tr>\n",
-		 sizetostring(hsent));
+     sizetostring(hsent));
   
   tmp=(requests*600.0)/((time(1)-caudium->start_time)+1);
 
   res += sprintf("<tr align=right><td><b>Number of requests:</b></td>"
-		 "<td>%8d</td><td>%.2f/min</td>"
-		 "<td><b>Received data:</b></td><td>%s</td></tr>\n",
-		 requests, tmp/10.0, sizetostring(received));
+     "<td>%8d</td><td>%.2f/min</td>"
+     "<td><b>Received data:</b></td><td>%s</td></tr>\n",
+     requests, tmp/10.0, sizetostring(received));
 #else
   if(!sent||!received||!hsent)
     return "Fatal error in status(): Bignum object gone.\n";
 
   tmp = (sent->mb()/(float)(time(1)-caudium->start_time+1));
   res += sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%.2fMB"
-		"</td><td>%.2f Kbit/sec</td>",
-		sent->mb(),tmp * 8192.0);
+    "</td><td>%.2f Kbit/sec</td>",
+    sent->mb(),tmp * 8192.0);
   
   res += sprintf("<td><b>Sent headers:</b></td><td>%.2fMB</td></tr>\n",
-		 hsent->mb());
+     hsent->mb());
   
   tmp=(((float)requests*(float)600)/
        (float)((time(1)-caudium->start_time)+1));
 
   res += sprintf("<tr align=right><td><b>Number of requests:</b></td>"
-		 "<td>%8d</td><td>%.2f/min</td>"
-		 "<td><b>Received data:</b></td><td>%.2fMB</td></tr>\n",
-		 requests, (float)tmp/(float)10, received->mb());
+     "<td>%8d</td><td>%.2f/min</td>"
+     "<td><b>Received data:</b></td><td>%.2fMB</td></tr>\n",
+     requests, (float)tmp/(float)10, received->mb());
 #endif
 #ifdef ENABLE_RAM_CACHE
   if(datacache && (datacache->hits || datacache->misses)) {
     res += sprintf("<tr align=right><td><b>Cache Requests:</b></td>"
-		   "<td>%d hits</td><td>%d misses</td></td>"
-		   "<td><b>Cache Hitrate:</b></td>"
-		   "<td>%.1f%%</td></tr>",
-		   datacache->hits, datacache->misses,
-		   datacache->misses ?
-		   (datacache->hits / (float)(datacache->hits +
-					      datacache->misses))*100 :  100);
+       "<td>%d hits</td><td>%d misses</td></td>"
+       "<td><b>Cache Hitrate:</b></td>"
+       "<td>%.1f%%</td></tr>",
+       datacache->hits, datacache->misses,
+       datacache->misses ?
+       (datacache->hits / (float)(datacache->hits +
+                datacache->misses))*100 :  100);
     
     res += sprintf("<tr align=right><td><b>Cache Utilization:</b></td>"
-		   "<td>%s</td><td>%.1f%% free</td>"
-		   "<td><b>Cache Entries:</b></td>"
-		   "<td>%d</td></tr>",
-		   sizetostring(datacache->current_size),
-		   ((datacache->max_size - datacache->current_size)/
-		    (float)datacache->max_size)*100, sizeof(datacache->cache));
+       "<td>%s</td><td>%.1f%% free</td>"
+       "<td><b>Cache Entries:</b></td>"
+       "<td>%d</td></tr>",
+       sizetostring(datacache->current_size),
+       ((datacache->max_size - datacache->current_size)/
+        (float)datacache->max_size)*100, sizeof(datacache->cache));
   }
 #endif
 
   if (!zero_type(misc->ftp_users)) {
     tmp = (((float)misc->ftp_users*(float)600)/
-	   (float)((time(1)-caudium->start_time)+1));
+     (float)((time(1)-caudium->start_time)+1));
 
     res += sprintf("<tr align=right><td><b>FTP users (total):</b></td>"
-		   "<td>%8d</td><td>%.2f/min</td>"
-		   "<td><b>FTP users (now):</b></td><td>%d</td></tr>\n",
-		   misc->ftp_users, (float)tmp/(float)10, misc->ftp_users_now);
+       "<td>%8d</td><td>%.2f/min</td>"
+       "<td><b>FTP users (now):</b></td><td>%d</td></tr>\n",
+       misc->ftp_users, (float)tmp/(float)10, misc->ftp_users_now);
   }
   res += "</table><p>\n\n";
 
@@ -964,9 +955,9 @@ public string status()
       "<ul><table>\n";
     foreach(sort(indices(extra_statistics->ftp->commands)), string cmd) {
       res += sprintf("<tr align=right><td><b>%s</b></td>"
-		     "<td align=right>%d</td><td> time%s</td></tr>\n",
-		     upper_case(cmd), extra_statistics->ftp->commands[cmd],
-		     (extra_statistics->ftp->commands[cmd] == 1)?"":"s");
+         "<td align=right>%d</td><td> time%s</td></tr>\n",
+         upper_case(cmd), extra_statistics->ftp->commands[cmd],
+         (extra_statistics->ftp->commands[cmd] == 1)?"":"s");
     }
     res += "</table></ul>\n";
   }
@@ -978,14 +969,14 @@ public array(string) userinfo(string u, object|void id)
 {
   if(auth_module) return auth_module->userinfo(u);
   else report_warning(sprintf("userinfo(): No authorization module\n"
-			      "%s\n", describe_backtrace(backtrace())));
+            "%s\n", describe_backtrace(backtrace())));
 }
 
 public array(string) userlist(object|void id)
 {
   if(auth_module) return auth_module->userlist();
   else report_warning(sprintf("userlist(): No authorization module\n"
-			      "%s\n", describe_backtrace(backtrace())));
+            "%s\n", describe_backtrace(backtrace())));
 }
 
 public array(string) user_from_uid(int u, object|void id)
@@ -993,7 +984,7 @@ public array(string) user_from_uid(int u, object|void id)
   if(auth_module)
     return auth_module->user_from_uid(u);
   else report_warning(sprintf("user_from_uid(): No authorization module\n"
-			      "%s\n", describe_backtrace(backtrace())));
+            "%s\n", describe_backtrace(backtrace())));
 }
 
 
@@ -1009,7 +1000,7 @@ private mapping internal_gopher_image(string from)
   // all files in '..' might be retrieved (that is, the actual directory
   // file was sent to the browser)
   return (["file":open("caudium-images/dir/"+from+".gif","r"),
-	  "type":"image/gif"]);
+    "type":"image/gif"]);
 }
 
 private static int nest = 0;
@@ -1021,8 +1012,8 @@ int|mapping check_security(function a, object id, void|int slevel)
 {
   array level;
   array seclevels;
-  int ip_ok = 0;	// Unknown
-  int auth_ok = 0;	// Unknown
+  int ip_ok = 0;  // Unknown
+  int auth_ok = 0;  // Unknown
   // NOTE:
   //   ip_ok and auth_ok are three-state variables.
   //   Valid contents for them are:
@@ -1042,7 +1033,7 @@ int|mapping check_security(function a, object id, void|int slevel)
   }
   if (sizeof(seclevels[0]) && seclevels[0][0] != MOD_USER_SECLEVEL)
     if(slevel && (seclevels[1] > slevel)) // "Trustlevel" to low.
-	return 1;
+  return 1;
   
   if(!sizeof(seclevels[0]))
     return 0; // Ok if there are no patterns.
@@ -1053,95 +1044,95 @@ int|mapping check_security(function a, object id, void|int slevel)
       
       switch(level[0]) {
       case MOD_ALLOW: // allow ip=...
-	if(level[1](id->remoteaddr)) {
-	  ip_ok = ~0;	// Match. It's ok.
-	} else {
-	  ip_ok |= 1;	// IP may be bad.
-	}
-	break;
-	
+  if(level[1](id->remoteaddr)) {
+    ip_ok = ~0; // Match. It's ok.
+  } else {
+    ip_ok |= 1; // IP may be bad.
+  }
+  break;
+  
       case MOD_DENY: // deny ip=...
-	if(level[1](id->remoteaddr))
-	  return http_low_answer(403, "<h2>Access forbidden</h2>");
-	break;
+  if(level[1](id->remoteaddr))
+    return http_low_answer(403, "<h2>Access forbidden</h2>");
+  break;
 
       case MOD_USER: // allow user=...
-	if(id->auth && id->auth[0] && level[1](id->auth[1])) {
-	  auth_ok = ~0;	// Match. It's ok.
-	} else {
-	  auth_ok |= 1;	// Auth may be bad.
-	}
-	break;
-	
+  if(id->auth && id->auth[0] && level[1](id->auth[1])) {
+    auth_ok = ~0; // Match. It's ok.
+  } else {
+    auth_ok |= 1; // Auth may be bad.
+  }
+  break;
+  
       case MOD_PROXY_USER: // allow user=...
-	if (ip_ok != 1) {
-	  // IP is OK as of yet.
-	  if(id->misc->proxyauth && id->misc->proxyauth[0] && 
-	     level[1](id->misc->proxyauth[1])) return 0;
-	  return http_proxy_auth_required(seclevels[2]);
-	} else {
-	  // Bad IP.
-	  return(1);
-	}
+  if (ip_ok != 1) {
+    // IP is OK as of yet.
+    if(id->misc->proxyauth && id->misc->proxyauth[0] && 
+       level[1](id->misc->proxyauth[1])) return 0;
+    return http_proxy_auth_required(seclevels[2]);
+  } else {
+    // Bad IP.
+    return(1);
+  }
         break;
 
       case MOD_ACCEPT: // accept ip=...
-	// Short-circuit version on allow.
-	if(level[1](id->remoteaddr)) {
-	  // Match. It's ok.
-	  return(0);
-	} else {
-	  ip_ok |= 1;	// IP may be bad.
-	}
-	break;
+  // Short-circuit version on allow.
+  if(level[1](id->remoteaddr)) {
+    // Match. It's ok.
+    return(0);
+  } else {
+    ip_ok |= 1; // IP may be bad.
+  }
+  break;
 
       case MOD_ACCEPT_USER: // accept user=...
-	// Short-circuit version on allow.
-	if(id->auth && id->auth[0] && level[1](id->auth[1])) {
-	  // Match. It's ok.
-	  return(0);
-	} else {
-	  if (id->auth) {
-	    auth_ok |= 1;	// Auth may be bad.
-	  } else {
-	    // No auth yet, get some.
+  // Short-circuit version on allow.
+  if(id->auth && id->auth[0] && level[1](id->auth[1])) {
+    // Match. It's ok.
+    return(0);
+  } else {
+    if (id->auth) {
+      auth_ok |= 1; // Auth may be bad.
+    } else {
+      // No auth yet, get some.
             return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
-	  }
-	}
-	break;
-	
+    }
+  }
+  break;
+  
       case MOD_USER_SECLEVEL: // secuname=...
         mapping(string:int)  usrlist = level[1];
 
         if(id->auth && id->auth[0]) {
-	    int  mylevel = -1000;
-	    
-	    if (usrlist["any"]) {
-		report_notice("Any match on User Seclevel\n");
-		mylevel = usrlist["any"];
-		report_notice("Security level will be set to " + mylevel + "\n");
-	    } else if (usrlist[id->auth[1]]) {
-		report_notice("User match on User Seclevel (" + id->auth[1] + ")\n");
-		mylevel = usrlist[id->auth[1]];
-	    }
-	    if (mylevel != -1000)
-		misc_cache[a][1] = mylevel;
-	} else {
-	  if (id->auth) {
-	    auth_ok |= 1;	// Auth may be bad.
-	  } else {
-	    // No auth yet, get some.
+      int  mylevel = -1000;
+      
+      if (usrlist["any"]) {
+    report_notice("Any match on User Seclevel\n");
+    mylevel = usrlist["any"];
+    report_notice("Security level will be set to " + mylevel + "\n");
+      } else if (usrlist[id->auth[1]]) {
+    report_notice("User match on User Seclevel (" + id->auth[1] + ")\n");
+    mylevel = usrlist[id->auth[1]];
+      }
+      if (mylevel != -1000)
+    misc_cache[a][1] = mylevel;
+  } else {
+    if (id->auth) {
+      auth_ok |= 1; // Auth may be bad.
+    } else {
+      // No auth yet, get some.
             return(http_auth_failed(seclevels[2],QUERY(ZAuthenticationFailed)));
-	  }
-	}
-	break;
+    }
+  }
+  break;
       }
     }
   };
 
   if (err) {
     report_error(sprintf("Error during module security check:\n"
-			 "%s\n", describe_backtrace(err)));
+       "%s\n", describe_backtrace(err)));
     return(1);
   }
 
@@ -1187,12 +1178,12 @@ void clear_memory_caches()
   foreach(indices(otomod), object m) {
     if (m && m->clear_memory_caches) {
       mixed err = catch {
-	m->clear_memory_caches();
+  m->clear_memory_caches();
       };
       if (err) {
-	report_error(sprintf("clear_memory_caches() failed for module %O:\n"
-			     "%s\n",
-			     otomod[m], describe_backtrace(err)));
+  report_error(sprintf("clear_memory_caches() failed for module %O:\n"
+           "%s\n",
+           otomod[m], describe_backtrace(err)));
       }
     }
   }
@@ -1312,9 +1303,9 @@ object _lock(object|function f)
     {
       // Allow recursive locks.
       catch{
-	//perror("lock %O\n", f);
-	locked[f]++;
-	key = l();
+  //perror("lock %O\n", f);
+  locked[f]++;
+  key = l();
       };
     } else
       thread_safe[f]++;
@@ -1327,7 +1318,7 @@ object _lock(object|function f)
       // Needed to avoid race-condition.
       l = Thread.Mutex()->lock;
       if (!locks[f]) {
-	locks[f]=l;
+  locks[f]=l;
       }
     }
     //perror("lock %O\n", f);
@@ -1354,58 +1345,58 @@ string examine_return_mapping(mapping m)
 
    if (m->extra_heads)
       m->extra_heads=mkmapping(Array.map(indices(m->extra_heads),
-					 lower_case),
-			       values(m->extra_heads));
+           lower_case),
+             values(m->extra_heads));
    else
       m->extra_heads=([]);
 
    switch (m->error||200)
    {
       case 302: // redirect
-	 if (m->extra_heads && 
-	     (m->extra_heads->location))
-	    res 
-	       = "Returned <i><b>redirect</b></i>;<br>&nbsp;&nbsp;&nbsp;to "
-	       "<a href="+(m->extra_heads->location)+">"
-	       "<font color=darkgreen><tt>"+
-	       (m->extra_heads->location)+
-	       "</tt></font></a><br>";
-	 else
-	    res = "Returned redirect, but no location header\n";
-	 break;
+   if (m->extra_heads && 
+       (m->extra_heads->location))
+      res 
+         = "Returned <i><b>redirect</b></i>;<br>&nbsp;&nbsp;&nbsp;to "
+         "<a href="+(m->extra_heads->location)+">"
+         "<font color=darkgreen><tt>"+
+         (m->extra_heads->location)+
+         "</tt></font></a><br>";
+   else
+      res = "Returned redirect, but no location header\n";
+   break;
 
       case 401:
-	 if (m->extra_heads["www-authenticate"])
-	    res
-	       = "Returned <i><b>authentication failed</b></i>;"
-	       "<br>&nbsp;&nbsp;&nbsp;<tt>"+
-	       m->extra_heads["www-authenticate"]+"</tt><br>";
-	 else
-	    res 
-	       = "Returned <i><b>authentication failed</b></i>.<br>";
-	 break;
+   if (m->extra_heads["www-authenticate"])
+      res
+         = "Returned <i><b>authentication failed</b></i>;"
+         "<br>&nbsp;&nbsp;&nbsp;<tt>"+
+         m->extra_heads["www-authenticate"]+"</tt><br>";
+   else
+      res 
+         = "Returned <i><b>authentication failed</b></i>.<br>";
+   break;
 
       case 200:
-	 res
-	    = "Returned <i><b>ok</b></i><br>\n";
-	 break;
-	 
+   res
+      = "Returned <i><b>ok</b></i><br>\n";
+   break;
+   
       default:
-	 res
-	    = "Returned <b><tt>"+m->error+"</tt></b>.<br>\n";
+   res
+      = "Returned <b><tt>"+m->error+"</tt></b>.<br>\n";
    }
 
    if (!zero_type(m->len))
       if (m->len<0)
-	 res+="No data ";
+   res+="No data ";
       else
-	 res+=m->len+" bytes ";
+   res+=m->len+" bytes ";
    else if (stringp(m->data))
       res+=strlen(m->data)+" bytes";
    else if (objectp(m->file))
       if (catch {
-	array a=(array(int))m->file->stat();
-	 res+=(a[1]-m->file->tell())+" bytes ";
+  array a=(array(int))m->file->stat();
+   res+=(a[1]-m->file->tell())+" bytes ";
       }) res+="? bytes";
 
    if (m->data) res+=" (static)";
@@ -1464,7 +1455,7 @@ mapping|int low_get_file(object id, int|void no_magic)
 
       default:
           id->misc->_use_scopes = 0;
-	  id->misc->_scope_status = 0;
+    id->misc->_scope_status = 0;
           break;
   }
     
@@ -1555,14 +1546,14 @@ mapping|int low_get_file(object id, int|void no_magic)
 
       nest ++;
       err = catch {
-	if( nest < 20 )
-	  tmp = (id->conf || this_object())->low_get_file( tmp, no_magic );
-	else
-	{
-	  TRACE_LEAVE("Too deep recursion");
-	  error("Too deep recursion in roxen::get_file() while mapping "
-		+file+".\n");
-	}
+  if( nest < 20 )
+    tmp = (id->conf || this_object())->low_get_file( tmp, no_magic );
+  else
+  {
+    TRACE_LEAVE("Too deep recursion");
+    error("Too deep recursion in roxen::get_file() while mapping "
+    +file+".\n");
+  }
       };
       nest = 0;
       if(err) throw(err);
@@ -1584,27 +1575,27 @@ mapping|int low_get_file(object id, int|void no_magic)
       UNLOCK();
       if(tmp)
       {
-	if(!objectp(tmp)) 
-	{
-	  TRACE_LEAVE("Returing data");
-	  return tmp;
-	}
-	fid = tmp;
+  if(!objectp(tmp)) 
+  {
+    TRACE_LEAVE("Returing data");
+    return tmp;
+  }
+  fid = tmp;
 #ifdef MODULE_LEVEL_SECURITY
-	slevel = function_object(funp)->query("_seclvl");
+  slevel = function_object(funp)->query("_seclvl");
 #endif
-	TRACE_LEAVE("Retured open filedescriptor."
+  TRACE_LEAVE("Retured open filedescriptor."
 #ifdef MODULE_LEVEL_SECURITY
-		    +(slevel != id->misc->seclevel?
-		    ". The security level is now "+slevel:"")
+        +(slevel != id->misc->seclevel?
+        ". The security level is now "+slevel:"")
 #endif
-		    );
+        );
 #ifdef MODULE_LEVEL_SECURITY
-	id->misc->seclevel = slevel;
+  id->misc->seclevel = slevel;
 #endif
-	break;
+  break;
       } else
-	TRACE_LEAVE("");
+  TRACE_LEAVE("");
     }
   }
 #endif 
@@ -1617,14 +1608,14 @@ mapping|int low_get_file(object id, int|void no_magic)
       TRACE_ENTER("Location Module ["+loc+"] ", tmp[1]);
 #ifdef MODULE_LEVEL_SECURITY
       if(tmp2 = check_security(tmp[1], id, slevel))
-	if(intp(tmp2))
-	{
-	  TRACE_LEAVE("Permission to access module denied");
-	  continue;
-	} else {
-	  TRACE_LEAVE("Request denied.");
-	  return tmp2;
-	}
+  if(intp(tmp2))
+  {
+    TRACE_LEAVE("Permission to access module denied");
+    continue;
+  } else {
+    TRACE_LEAVE("Request denied.");
+    return tmp2;
+  }
 #endif
       TRACE_ENTER("Calling find_file()...", 0);
       LOCK(tmp[1]);
@@ -1633,50 +1624,50 @@ mapping|int low_get_file(object id, int|void no_magic)
       TRACE_LEAVE(sprintf("find_file has returned %O", fid));
       if(fid)
       {
-	id->virtfile = loc;
+  id->virtfile = loc;
 
-	if(mappingp(fid))
-	{
-	  TRACE_LEAVE("");
-	  TRACE_LEAVE(examine_return_mapping(fid));
-	  return fid;
-	}
-	else
-	{
+  if(mappingp(fid))
+  {
+    TRACE_LEAVE("");
+    TRACE_LEAVE(examine_return_mapping(fid));
+    return fid;
+  }
+  else
+  {
 #ifdef MODULE_LEVEL_SECURITY
-	  int oslevel = slevel;
-	  slevel = misc_cache[ tmp[1] ][1];
-	  // misc_cache from
-	  // check_security
-	  id->misc->seclevel = slevel;
+    int oslevel = slevel;
+    slevel = misc_cache[ tmp[1] ][1];
+    // misc_cache from
+    // check_security
+    id->misc->seclevel = slevel;
 #endif
-	  if(objectp(fid))
-	    TRACE_LEAVE("Returned open file"
+    if(objectp(fid))
+      TRACE_LEAVE("Returned open file"
 #ifdef MODULE_LEVEL_SECURITY
-			+(slevel != oslevel?
-			  ". The security level is now "+slevel:"")
+      +(slevel != oslevel?
+        ". The security level is now "+slevel:"")
 #endif
-			
-			+".");
-	  else
-	    TRACE_LEAVE("Returned directory indicator"
+      
+      +".");
+    else
+      TRACE_LEAVE("Returned directory indicator"
 #ifdef MODULE_LEVEL_SECURITY
-			+(oslevel != slevel?
-			  ". The security level is now "+slevel:"")
+      +(oslevel != slevel?
+        ". The security level is now "+slevel:"")
 #endif
-			);
-	  break;
-	}
+      );
+    break;
+  }
       } else
-	TRACE_LEAVE("");
+  TRACE_LEAVE("");
     } else if(strlen(loc)-1==strlen(file)) {
       // This one is here to allow accesses to /local, even if 
       // the mountpoint is /local/. It will slow things down, but...
       if(file+"/" == loc) 
       {
-	TRACE_ENTER("Automatic redirect to location module", tmp[1]);
-	TRACE_LEAVE("Returning data");
-	return http_redirect(id->not_query + "/", id);
+  TRACE_ENTER("Automatic redirect to location module", tmp[1]);
+  TRACE_LEAVE("Returning data");
+  return http_redirect(id->not_query + "/", id);
       }
     }
   }
@@ -1715,36 +1706,36 @@ mapping|int low_get_file(object id, int|void no_magic)
       TRACE_ENTER("Extension module", funp);
 #ifdef MODULE_LEVEL_SECURITY
       if(tmp=check_security(funp, id, slevel))
-	if(intp(tmp))
-	{
-	  TRACE_LEAVE("Permission to access module denied");
-	  continue;
-	}
-	else
-	{
-	  TRACE_LEAVE("");
-	  TRACE_LEAVE("Permission denied");
-	  return tmp;
-	}
+  if(intp(tmp))
+  {
+    TRACE_LEAVE("Permission to access module denied");
+    continue;
+  }
+  else
+  {
+    TRACE_LEAVE("");
+    TRACE_LEAVE("Permission denied");
+    return tmp;
+  }
 #endif
       LOCK(funp);
       tmp=funp(fid, loc, id);
       UNLOCK();
       if(tmp)
       {
-	if(!objectp(tmp))
-	{
-	  TRACE_LEAVE("");
-	  TRACE_LEAVE("Returning data");
-	  return tmp;
-	}
-	if(fid)
+  if(!objectp(tmp))
+  {
+    TRACE_LEAVE("");
+    TRACE_LEAVE("Returning data");
+    return tmp;
+  }
+  if(fid)
           destruct(fid);
-	TRACE_LEAVE("Returned new open file");
-	fid = tmp;
-	break;
+  TRACE_LEAVE("Returned new open file");
+  fid = tmp;
+  break;
       } else
-	TRACE_LEAVE("");
+  TRACE_LEAVE("");
     }
   
   if(objectp(fid))
@@ -1830,7 +1821,7 @@ mixed get_file(object id, int|void no_magic)
     if(res2=tmp(res,id))
     {
       if(res && res->file && (res2->file != res->file))
-	destruct(res->file);
+  destruct(res->file);
       TRACE_LEAVE("Rewrote result");
       res=res2;
     } else
@@ -1879,16 +1870,16 @@ public array find_dir(string file, object id)
       TRACE_LEAVE("Recursing");
       file = id->not_query;
       err = catch {
-	if( nest < 20 )
-	  tmp = (id->conf || this_object())->find_dir( file, id );
-	else
-	  error("Too deep recursion in roxen::find_dir() while mapping "
-		+file+".\n");
+  if( nest < 20 )
+    tmp = (id->conf || this_object())->find_dir( file, id );
+  else
+    error("Too deep recursion in roxen::find_dir() while mapping "
+    +file+".\n");
       };
       nest = 0;
       TRACE_LEAVE("");
       if(err)
-	throw(err);
+  throw(err);
       return tmp;
     }
     id->not_query=of;
@@ -1903,30 +1894,30 @@ public array find_dir(string file, object id)
       TRACE_ENTER("Location module", tmp[1]);
 #ifdef MODULE_LEVEL_SECURITY
       if(check_security(tmp[1], id)) {
-	TRACE_LEAVE("Permission denied");
-	continue;
+  TRACE_LEAVE("Permission denied");
+  continue;
       }
 #endif
       if(d=function_object(tmp[1])->find_dir(file[strlen(loc)..], id))
       {
-	if(mappingp(d))
-	{
-	  if(d->files) { 
-	    dir |= d->files;
-	    TRACE_LEAVE("Got exclusive directory.");
-	    TRACE_LEAVE("Returning list of "+sizeof(dir)+" files");
-	    return dir;
-	  } else
-	    TRACE_LEAVE("");
-	} else {
-	  TRACE_LEAVE("Got files");
-	  dir |= d;
-	}
+  if(mappingp(d))
+  {
+    if(d->files) { 
+      dir |= d->files;
+      TRACE_LEAVE("Got exclusive directory.");
+      TRACE_LEAVE("Returning list of "+sizeof(dir)+" files");
+      return dir;
+    } else
+      TRACE_LEAVE("");
+  } else {
+    TRACE_LEAVE("Got files");
+    dir |= d;
+  }
       } else
-	TRACE_LEAVE("");
+  TRACE_LEAVE("");
     } else if((search(loc, file)==0) && (loc[strlen(file)-1]=='/') &&
-	      (loc[0]==loc[-1]) && (loc[-1]=='/') &&
-	      (function_object(tmp[1])->stat_file(".", id))) {
+        (loc[0]==loc[-1]) && (loc[-1]=='/') &&
+        (function_object(tmp[1])->stat_file(".", id))) {
       /* loc == file + "/" + subpath + "/"
        * and stat_file(".") returns non-zero.
        */
@@ -1984,15 +1975,15 @@ public array stat_file(string file, object id)
       nest ++;
       TRACE_LEAVE("Recursing");
       err = catch {
-	if( nest < 20 )
-	  tmp = (id->conf || this_object())->stat_file( file, id );
-	else
-	  error("Too deep recursion in roxen::stat_file() while mapping "
-		+file+".\n");
+  if( nest < 20 )
+    tmp = (id->conf || this_object())->stat_file( file, id );
+  else
+    error("Too deep recursion in roxen::stat_file() while mapping "
+    +file+".\n");
       };
       nest = 0;
       if(err)
-	throw(err);
+  throw(err);
       TRACE_LEAVE("");
       TRACE_LEAVE("Returning data");
       return tmp;
@@ -2018,16 +2009,16 @@ public array stat_file(string file, object id)
       TRACE_ENTER("Location module", tmp[1]);
 #ifdef MODULE_LEVEL_SECURITY
       if(check_security(tmp[1], id)) {
-	TRACE_LEAVE("");
-	TRACE_LEAVE("Permission denied");
-	continue;
+  TRACE_LEAVE("");
+  TRACE_LEAVE("Permission denied");
+  continue;
       }
 #endif
       if(s=function_object(tmp[1])->stat_file(file[strlen(loc)..], id))
       {
-	TRACE_LEAVE("");
-	TRACE_LEAVE("Stat ok");
-	return s;
+  TRACE_LEAVE("");
+  TRACE_LEAVE("Stat ok");
+  return s;
       }
       TRACE_LEAVE("");
     }
@@ -2108,21 +2099,21 @@ public array open_file(string fname, string mode, object id)
     {
       file = oc->get_file( id );
       if(!file) {
-	foreach(oc->last_modules(), funp) if(file = funp( id ))
-	  break;
-	if (file == 1) {
-	  // Recurse.
-	  return open_file(id->not_query, mode, id);
-	}
+  foreach(oc->last_modules(), funp) if(file = funp( id ))
+    break;
+  if (file == 1) {
+    // Recurse.
+    return open_file(id->not_query, mode, id);
+  }
       }
     }
 
     if(!mappingp(file))
     {
       if(!id->misc->error_request) {
-	file = caudium->http_error->process_error (id);
-	id->not_query = oq;
-	return ({ 0, file });
+  file = caudium->http_error->process_error (id);
+  id->not_query = oq;
+  return ({ 0, file });
       }
       return ({ 0, 0 });
     }
@@ -2174,7 +2165,7 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
       id->not_query=of;
 #ifdef MODULE_DEBUG
       roxen_perror(sprintf("conf->find_dir_stat(\"%s\"): url_module returned mapping:%O\n", 
-			   file, tmp));
+         file, tmp));
 #endif /* MODULE_DEBUG */
       TRACE_LEAVE("URL Module returned mapping");
       TRACE_LEAVE("Empty directory");
@@ -2187,24 +2178,24 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
       
       file = id->not_query;
       err = catch {
-	if( nest < 20 )
-	  tmp = (id->conf || this_object())->find_dir_stat( file, id );
-	else {
-	  TRACE_LEAVE("Too deep recursion");
-	  error("Too deep recursion in roxen::find_dir_stat() while mapping "
-		+file+".\n");
-	}
+  if( nest < 20 )
+    tmp = (id->conf || this_object())->find_dir_stat( file, id );
+  else {
+    TRACE_LEAVE("Too deep recursion");
+    error("Too deep recursion in roxen::find_dir_stat() while mapping "
+    +file+".\n");
+  }
       };
       nest = 0;
       if(err)
-	throw(err);
+  throw(err);
 #ifdef MODULE_DEBUG
       roxen_perror(sprintf("conf->find_dir_stat(\"%s\"): url_module returned object:\n", 
-			   file));
+         file));
 #endif /* MODULE_DEBUG */
       TRACE_LEAVE("URL Module returned object");
       TRACE_LEAVE("Returning it");
-      return tmp;	// FIXME: Return 0 instead?
+      return tmp; // FIXME: Return 0 instead?
     }
     id->not_query=of;
     TRACE_LEAVE("");
@@ -2226,24 +2217,24 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
       object c = function_object(tmp[1]);
       string f = file[strlen(loc)..];
       if (c->find_dir_stat) {
-	TRACE_ENTER("Has find_dir_stat()", 0);
-	if (d = c->find_dir_stat(f, id)) {
-	  TRACE_ENTER("find_dir_stat() returned mapping", 0);
-	  dir = d | dir;
-	  TRACE_LEAVE("");
-	}
-	TRACE_LEAVE("");
+  TRACE_ENTER("Has find_dir_stat()", 0);
+  if (d = c->find_dir_stat(f, id)) {
+    TRACE_ENTER("find_dir_stat() returned mapping", 0);
+    dir = d | dir;
+    TRACE_LEAVE("");
+  }
+  TRACE_LEAVE("");
       } else if(d = c->find_dir(f, id)) {
-	TRACE_ENTER("find_dir() returned array", 0);
-	dir = mkmapping(d, Array.map(d, lambda(string f, string base,
-					 object c, object id) {
-				    return(c->stat_file(base + f, id));
-				  }, f, c, id)) | dir;
-	TRACE_LEAVE("");
+  TRACE_ENTER("find_dir() returned array", 0);
+  dir = mkmapping(d, Array.map(d, lambda(string f, string base,
+           object c, object id) {
+            return(c->stat_file(base + f, id));
+          }, f, c, id)) | dir;
+  TRACE_LEAVE("");
       }
     } else if(search(loc, file)==0 && loc[strlen(file)-1]=='/' &&
-	      (loc[0]==loc[-1]) && loc[-1]=='/' &&
-	      (function_object(tmp[1])->stat_file(".", id))) {
+        (loc[0]==loc[-1]) && loc[-1]=='/' &&
+        (function_object(tmp[1])->stat_file(".", id))) {
       /* loc == file + "/" + subpath + "/"
        * and stat_file(".") returns non-zero.
        */
@@ -2251,7 +2242,7 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
       loc=loc[strlen(file)..];
       sscanf(loc, "%s/", loc);
       if (!dir[loc]) {
-	dir[loc] = ({ 0775, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+  dir[loc] = ({ 0775, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
       }
       TRACE_LEAVE("");
     }
@@ -2283,7 +2274,7 @@ public array|string access(string file, object id)
       if(check_security(tmp[1], id)) continue;
 #endif
       if(s=function_object(tmp[1])->access(file[strlen(loc)..], id))
-	return s;
+  return s;
     }
   }
 }
@@ -2317,9 +2308,9 @@ public string real_file(string file, object id)
       if(check_security(tmp[1], id)) continue;
 #endif
       // FIXME: NOTE: Limits filename length to 1000000 bytes.
-      //	/grubba 1997-10-03
+      //  /grubba 1997-10-03
       if(s=function_object(tmp[1])->real_file(file[strlen(loc)..1000000], id))
-	return s;
+  return s;
     }
   }
 }
@@ -2385,7 +2376,7 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
   if(status) return 1;
 
 #ifdef COMPAT
-  if(m["string"])  res = m["string"];	// Compability..
+  if(m["string"])  res = m["string"]; // Compability..
   else
 #endif
   if(m->data) res = m->data;
@@ -2433,25 +2424,25 @@ static string make_proto_name(string p)
     multiset(string) telnet_protos = (<"smtp", "pop", "pop2", "pop3", "imap", "tetris">);
     
     if (known_protos[p])
-	return p;
-	
+  return p;
+  
     if (telnet_protos[p])
-	return "telnet";
+  return "telnet";
 
     foreach(indices(known_protos), string proto) {
-	string ret;
-	
-	ret = common_prefix(({proto, p}));
-	if (ret && ret != "")
-	    return ret;
+  string ret;
+  
+  ret = common_prefix(({proto, p}));
+  if (ret && ret != "")
+      return ret;
     }
     
     foreach(indices(telnet_protos), string proto) {
-	string ret;
-	
-	ret = common_prefix(({proto, p}));
-	if (ret && ret != "")
-	    return "telnet";
+  string ret;
+  
+  ret = common_prefix(({proto, p}));
+  if (ret && ret != "")
+      return "telnet";
     }
     
     return "about";
@@ -2461,11 +2452,11 @@ string MKPORTKEY(array(string) p)
 {
   if (sizeof(p[3])) {
     return(sprintf("%s://%s:%s/(%s)",
-		   make_proto_name(p[1]), p[2], (string)p[0],
-		   replace(p[3], ({"\n", "\r"}), ({ " ", " " }))));
+       make_proto_name(p[1]), p[2], (string)p[0],
+       replace(p[3], ({"\n", "\r"}), ({ " ", " " }))));
   } else {
     return(sprintf("%s://%s:%s/",
-		   make_proto_name(p[1]), p[2], (string)p[0]));
+       make_proto_name(p[1]), p[2], (string)p[0]));
   }
 }
 
@@ -2484,17 +2475,17 @@ void start(int num, void|object conf_id, array|void args)
 #ifdef ENABLE_RAM_CACHE
   if(!datacache)
     datacache = DataCache(query( "data_cache_size" ) * 1024,
-			  query( "data_cache_file_max_size" ) * 1024,
-			  query( "data_cache_gc_cleanup") / 100.0);
+        query( "data_cache_file_max_size" ) * 1024,
+        query( "data_cache_gc_cleanup") / 100.0);
   else
     datacache->init_from_variables(query( "data_cache_size" ) * 1024,
-				   query( "data_cache_file_max_size" ) * 1024,
-				   query( "data_cache_gc_cleanup") / 100.0);
+           query( "data_cache_file_max_size" ) * 1024,
+           query( "data_cache_gc_cleanup") / 100.0);
 #endif
 
 #if 0
   // Doesn't seem to be set correctly.
-  //	/grubba 1998-05-18
+  //  /grubba 1998-05-18
   if (!ports_changed) {
     return;
   }
@@ -2511,20 +2502,20 @@ void start(int num, void|object conf_id, array|void args)
     {
       string name, c, v;
       if(sscanf(variable, "%s:%s=%s", name, c, v) == 3)
-	if(server_name == replace(name,"_"," "))
-	  if(variables[c])
-	    variables[c][VAR_VALUE]=compile_string(
-					"mixed f(){ return"+v+";}")()->f();
-	  else
-	    perror("Unknown variable: "+c+"\n");
+  if(server_name == replace(name,"_"," "))
+    if(variables[c])
+      variables[c][VAR_VALUE]=compile_string(
+          "mixed f(){ return"+v+";}")()->f();
+    else
+      perror("Unknown variable: "+c+"\n");
     }
 
   foreach(query("Ports"), port) {
     if ((< "ssl", "ssleay" >)[port[1]]) {
       // Obsolete versions of the SSL protocol.
       report_warning(sprintf("%s: Obsolete SSL protocol-module \"%s\".\n"
-			     "Converted to SSL3.\n",
-			     server_name, port[1]));
+           "Converted to SSL3.\n",
+           server_name, port[1]));
       // Note: Change in-place.
       port[1] = "ssl3";
       // FIXME: Should probably mark node as changed.
@@ -2532,8 +2523,8 @@ void start(int num, void|object conf_id, array|void args)
     if ((< "ftp2" >)[port[1]]) {
       // Obsolete versions of the FTP protocol.
       report_warning(sprintf("%s: Obsolete FTP protocol-module \"%s\". "
-			     " Converted to FTP.\n",
-			     server_name, port[1]));
+           " Converted to FTP.\n",
+           server_name, port[1]));
       // Note: Change in-place.
       port[1] = "ftp";
       // FIXME: Should probably mark node as changed.
@@ -2560,7 +2551,7 @@ void start(int num, void|object conf_id, array|void args)
       }) {
         report_warning(sprintf("%s: Error disabling port: %s:\n"
                                "%s\n",
-			       server_name, key, describe_backtrace(err)));
+             server_name, key, describe_backtrace(err)));
       }
       o = 0;    // Be sure that there are no references left...
     }
@@ -2574,12 +2565,12 @@ void start(int num, void|object conf_id, array|void args)
       array old = port;
       mixed erro;
       erro = catch {
-	program requestprogram = (program)(getcwd()+"/protocols/"+port[1]);
+  program requestprogram = (program)(getcwd()+"/protocols/"+port[1]);
         function rp;
         array tmp;
         if(!requestprogram) {
           report_error(sprintf("%s: No request program for %s\n",
-			       server_name, port[1]));
+             server_name, port[1]));
           continue;
         }
         if(rp = requestprogram()->real_port)
@@ -2590,18 +2581,18 @@ void start(int num, void|object conf_id, array|void args)
         if(port[0] < 1024)
           privs = Privs("Opening listen port below 1024");
 
-	object o;
+  object o;
         if(o=create_listen_socket(port[0], this_object(), port[2],
-				  requestprogram, port)) {
+          requestprogram, port)) {
           report_notice(sprintf("%s: Opening port: %s\n", server_name, key));
           server_ports[key] = o;
         } else {
           report_error(sprintf("%s: The port %s could not be opened\n",
-			       server_name, key));
+             server_name, key));
         }
-	if (privs) {
-	  destruct(privs);	// Paranoia.
-	}
+  if (privs) {
+    destruct(privs);  // Paranoia.
+  }
       };
       if (erro) {
         report_error(sprintf("%s: Failed to open port %s:\n"
@@ -2612,13 +2603,13 @@ void start(int num, void|object conf_id, array|void args)
   }
   if (sizeof(query("Ports")) && !sizeof(server_ports)) {
     report_error("No ports available for "+name+"\n"
-		 "Tried:\n"
-		 "Port  Protocol   IP-Number \n"
-		 "---------------------------\n"
-		 + Array.map(query("Ports"),
-			     lambda(array p) {
-			       return sprintf("%5d %-10s %-20s\n", @p);
-			     })*"");
+     "Tried:\n"
+     "Port  Protocol   IP-Number \n"
+     "---------------------------\n"
+     + Array.map(query("Ports"),
+           lambda(array p) {
+             return sprintf("%5d %-10s %-20s\n", @p);
+           })*"");
   }
   parse_log_formats();
   // We are not automatically opening the logfile until it's needed
@@ -2655,8 +2646,8 @@ void save(int|void all)
       int i;
       foreach(indices(mod->copies), i)
       {
-	store(mod->sname+"#"+i, mod->copies[i]->query(), 0, this);
-	mod->copies[i]->start(2, this);
+  store(mod->sname+"#"+i, mod->copies[i]->query(), 0, this);
+  mod->copies[i]->start(2, this);
       }
     }
   }
@@ -2685,13 +2676,13 @@ int save_one( object o )
       int i;
       foreach(indices(mod->copies), i)
       {
-	if(mod->copies[i] == o)
-	{
-	  store(mod->sname+"#"+i, o->query(), 0, this);
-	  o->start(2, this);
-	  invalidate_cache();
-	  return 1;
-	}
+  if(mod->copies[i] == o)
+  {
+    store(mod->sname+"#"+i, o->query(), 0, this);
+    o->start(2, this);
+    invalidate_cache();
+    return 1;
+  }
       }
     }
   }
@@ -2750,10 +2741,10 @@ object enable_module( string modname )
   {
     if (err = catch(me = module["program"](this_object()))) {
       report_error("Couldn't clone module \"" + module->name + "\"\n" +
-		   describe_backtrace(err));
+       describe_backtrace(err));
       if (module->copies[id]) {
 #ifdef MODULE_DEBUG
-	perror("Keeping old copy\n");
+  perror("Keeping old copy\n");
 #endif
       }
       return(module->copies[id]);
@@ -2763,10 +2754,10 @@ object enable_module( string modname )
       perror("Disabling old copy ... ");
 #endif
       if (err = catch{
-	module->copies[id]->stop();
+  module->copies[id]->stop();
       }) {
-	report_error("Error during disabling of module \"" + module->name +
-		     "\"\n" + describe_backtrace(err));
+  report_error("Error during disabling of module \"" + module->name +
+         "\"\n" + describe_backtrace(err));
       }
       destruct(module->copies[id]);
     }
@@ -2775,9 +2766,9 @@ object enable_module( string modname )
       me = module->master;
     } else {
       if (err = catch(me = module["program"](this_object()))) {
-	report_error("Couldn't clone module \"" + module->name + "\"\n" +
-		     describe_backtrace(err));
-	return(0);
+  report_error("Couldn't clone module \"" + module->name + "\"\n" +
+         describe_backtrace(err));
+  return(0);
       }
     }
   }
@@ -2787,122 +2778,122 @@ object enable_module( string modname )
   //    perror("Initializing ");
 #endif
   if (module->type & (MODULE_LOCATION | MODULE_EXTENSION |
-		      MODULE_FILE_EXTENSION | MODULE_LOGGER |
-		      MODULE_URL | MODULE_LAST | MODULE_PROVIDER |
-		      MODULE_FILTER | MODULE_PARSER | MODULE_FIRST |
-		      MODULE_PRECACHE))
+          MODULE_FILE_EXTENSION | MODULE_LOGGER |
+          MODULE_URL | MODULE_LAST | MODULE_PROVIDER |
+          MODULE_FILTER | MODULE_PARSER | MODULE_FIRST |
+          MODULE_PRECACHE))
   {
     me->defvar("_priority", 5, "Priority", TYPE_INT_LIST,
-	       "The priority of the module. 9 is highest and 0 is lowest."
-	       " Modules with the same priority can be assumed to be"
-	       " called in random order"
-	       "<p>You have to restart Caudium to ensure that the new"
-	       " priority is applied.",
-	       ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+         "The priority of the module. 9 is highest and 0 is lowest."
+         " Modules with the same priority can be assumed to be"
+         " called in random order"
+         "<p>You have to restart Caudium to ensure that the new"
+         " priority is applied.",
+         ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
       
     if(!(module->type & (MODULE_LOGGER | MODULE_PROVIDER | MODULE_PRECACHE)))
     {
       if(!(module->type & MODULE_PROXY))
       {
-	me->defvar("_sec_group", "user", "Security: Realm", TYPE_STRING,
-		   "The realm to use when requesting password from the "
-		   "client. Usually used as an informative message to the "
-		   "user.");
-	me->defvar("_seclvl",  0, "Security: Security level", TYPE_INT, 
-		   "The modules security level is used to determine if a "
-		   " request should be handled by the module."
-		   "\n<p><h2>Security level vs Trust level</h2>"
-		   " Each module has a configurable <i>security level</i>."
-		   " Each request has an assigned trust level. Higher"
-		   " <i>trust levels</i> grants access to modules with higher"
-		   " <i>security levels</i>."
-		   "\n<p><h2>Definitions</h2><ul>"
-		   " <li>A requests initial Trust level is infinitely high."
-		   " <li> A request will only be handled by a module if its"
-		   "     <i>trust level</i> is higher or equal to the"
-		   "     <i>security level</i> of the module."
-		   " <li> Each time the request is handled by a module the"
-		   "     <i>trust level</i> of the module will be set to the"
-		   "      lower of its <i>trust level</i> and the modules"
-		   "     <i>security level</i>."
-		   " </ul>"
-		   "\n<p><h2>Example</h2>"
-		   " Modules:<ul>"
-		   " <li>  User filesystem, <i>security level</i> 1"
-		   " <li>  Filesystem module, <i>security level</i> 3"
-		   " <li>  CGI module, <i>security level</i> 2"
-		   " </ul>"
-		   "\n<p>A request handled by \"User filesystem\" is assigned"
-		   " a <i>trust level</i> of one after the <i>security"
-		   " level</i> of that module. That request can then not be"
-		   " handled by the \"CGI module\" since that module has a"
-		   " higher <i>security level</i> than the requests trust"
-		   " level."
-		   "\n<p>On the other hand, a request handled by the the"
-		   " \"Filsystem module\" could later be handled by the"
-		   " \"CGI module\".");
+  me->defvar("_sec_group", "user", "Security: Realm", TYPE_STRING,
+       "The realm to use when requesting password from the "
+       "client. Usually used as an informative message to the "
+       "user.");
+  me->defvar("_seclvl",  0, "Security: Security level", TYPE_INT, 
+       "The modules security level is used to determine if a "
+       " request should be handled by the module."
+       "\n<p><h2>Security level vs Trust level</h2>"
+       " Each module has a configurable <i>security level</i>."
+       " Each request has an assigned trust level. Higher"
+       " <i>trust levels</i> grants access to modules with higher"
+       " <i>security levels</i>."
+       "\n<p><h2>Definitions</h2><ul>"
+       " <li>A requests initial Trust level is infinitely high."
+       " <li> A request will only be handled by a module if its"
+       "     <i>trust level</i> is higher or equal to the"
+       "     <i>security level</i> of the module."
+       " <li> Each time the request is handled by a module the"
+       "     <i>trust level</i> of the module will be set to the"
+       "      lower of its <i>trust level</i> and the modules"
+       "     <i>security level</i>."
+       " </ul>"
+       "\n<p><h2>Example</h2>"
+       " Modules:<ul>"
+       " <li>  User filesystem, <i>security level</i> 1"
+       " <li>  Filesystem module, <i>security level</i> 3"
+       " <li>  CGI module, <i>security level</i> 2"
+       " </ul>"
+       "\n<p>A request handled by \"User filesystem\" is assigned"
+       " a <i>trust level</i> of one after the <i>security"
+       " level</i> of that module. That request can then not be"
+       " handled by the \"CGI module\" since that module has a"
+       " higher <i>security level</i> than the requests trust"
+       " level."
+       "\n<p>On the other hand, a request handled by the the"
+       " \"Filsystem module\" could later be handled by the"
+       " \"CGI module\".");
 
-	me->defvar("_seclevels", "", "Security: Patterns", TYPE_TEXT_FIELD,
-		   "This is the 'security level=value' list.<br>"
-		   "Each security level can be any or more from this list:"
-		   "<hr noshade>"
-		   "accept ip=<i>IP</i>/<i>bits</i><br>"
-		   "accept ip=<i>IP</i>:<i>mask</i><br>"
-		   "accept ip=<i>pattern</i><br>"
-		   "accept user=<i>username</i>,...<br>"
-		   "allow ip=<i>IP</i>/<i>bits</i><br>"
-		   "allow ip=<i>IP</i>:<i>mask</i><br>"
-		   "allow ip=<i>pattern</i><br>"
-		   "allow user=<i>username</i>,...<br>"
-		   "deny ip=<i>IP</i>/<i>bits</i><br>"
-		   "deny ip=<i>IP</i>:<i>mask</i><br>"
-		   "deny ip=<i>pattern</i><br>"
-		   "secuname=<i>username:level</i>,...<br>"
-		   "secgname=<i>groupname:level</i>,...<br>"
-		   "<hr noshade>"
-		   "In patterns: * matches one or more characters, "
-		   "and ? matches one character.<p>"
-		   "In username: 'any' stands for any valid account "
-		   "(from .htaccess or an authentication module.) "
-		   "<p>allow and deny are short-circuit rules."
-		   "<p>The default (used when _no_ "
-		   "entries are present) is 'allow ip=*', allowing"
-		   " everyone to access the module");
-	  
+  me->defvar("_seclevels", "", "Security: Patterns", TYPE_TEXT_FIELD,
+       "This is the 'security level=value' list.<br>"
+       "Each security level can be any or more from this list:"
+       "<hr noshade>"
+       "accept ip=<i>IP</i>/<i>bits</i><br>"
+       "accept ip=<i>IP</i>:<i>mask</i><br>"
+       "accept ip=<i>pattern</i><br>"
+       "accept user=<i>username</i>,...<br>"
+       "allow ip=<i>IP</i>/<i>bits</i><br>"
+       "allow ip=<i>IP</i>:<i>mask</i><br>"
+       "allow ip=<i>pattern</i><br>"
+       "allow user=<i>username</i>,...<br>"
+       "deny ip=<i>IP</i>/<i>bits</i><br>"
+       "deny ip=<i>IP</i>:<i>mask</i><br>"
+       "deny ip=<i>pattern</i><br>"
+       "secuname=<i>username:level</i>,...<br>"
+       "secgname=<i>groupname:level</i>,...<br>"
+       "<hr noshade>"
+       "In patterns: * matches one or more characters, "
+       "and ? matches one character.<p>"
+       "In username: 'any' stands for any valid account "
+       "(from .htaccess or an authentication module.) "
+       "<p>allow and deny are short-circuit rules."
+       "<p>The default (used when _no_ "
+       "entries are present) is 'allow ip=*', allowing"
+       " everyone to access the module");
+    
       } else {
-	me->definvisvar("_seclvl", -10, TYPE_INT); /* A very low one */
-	  
-	me->defvar("_sec_group", "user", "Proxy Security: Realm", TYPE_STRING,
-		   "The realm to use when requesting password from the "
-		   "client. Usually used as an informative message to the "
-		   "user.");
-	me->defvar("_seclevels", "", "Proxy security: Patterns",
-		   TYPE_TEXT_FIELD,
-		   "This is the 'security level=value' list.<br>"
-		   "Each security level can be any or more from this list:"
-		   "<hr noshade>"
-		   "accept ip=<i>IP</i>/<i>bits</i><br>"
-		   "accept ip=<i>IP</i>:<i>mask</i><br>"
-		   "accept ip=<i>pattern</i><br>"
-		   "accept user=<i>username</i>,...<br>"
-		   "allow ip=<i>IP</i>/<i>bits</i><br>"
-		   "allow ip=<i>IP</i>:<i>mask</i><br>"
-		   "allow ip=<i>pattern</i><br>"
-		   "allow user=<i>username</i>,...<br>"
-		   "deny ip=<i>IP</i>/<i>bits</i><br>"
-		   "deny ip=<i>IP</i>:<i>mask</i><br>"
-		   "deny ip=<i>pattern</i><br>"
-		   "secuname=<i>username:level</i>,...<br>"
-		   "secgname=<i>groupname:level</i>,...<br>"
-		   "<hr noshade>"
-		   "In patterns: * matches one or more characters, "
-		   "and ? matches one character.<p>"
-		   "In username: 'any' stands for any valid account "
-		   "(from .htaccess or an authentication module.) "
-		   "<p>allow and deny are short-circuit rules."
-		   "<p>The default (used when _no_ "
-		   "entries are present) is 'deny ip=*', allowing"
-		   " everyone to access the module");
+  me->definvisvar("_seclvl", -10, TYPE_INT); /* A very low one */
+    
+  me->defvar("_sec_group", "user", "Proxy Security: Realm", TYPE_STRING,
+       "The realm to use when requesting password from the "
+       "client. Usually used as an informative message to the "
+       "user.");
+  me->defvar("_seclevels", "", "Proxy security: Patterns",
+       TYPE_TEXT_FIELD,
+       "This is the 'security level=value' list.<br>"
+       "Each security level can be any or more from this list:"
+       "<hr noshade>"
+       "accept ip=<i>IP</i>/<i>bits</i><br>"
+       "accept ip=<i>IP</i>:<i>mask</i><br>"
+       "accept ip=<i>pattern</i><br>"
+       "accept user=<i>username</i>,...<br>"
+       "allow ip=<i>IP</i>/<i>bits</i><br>"
+       "allow ip=<i>IP</i>:<i>mask</i><br>"
+       "allow ip=<i>pattern</i><br>"
+       "allow user=<i>username</i>,...<br>"
+       "deny ip=<i>IP</i>/<i>bits</i><br>"
+       "deny ip=<i>IP</i>:<i>mask</i><br>"
+       "deny ip=<i>pattern</i><br>"
+       "secuname=<i>username:level</i>,...<br>"
+       "secgname=<i>groupname:level</i>,...<br>"
+       "<hr noshade>"
+       "In patterns: * matches one or more characters, "
+       "and ? matches one character.<p>"
+       "In username: 'any' stands for any valid account "
+       "(from .htaccess or an authentication module.) "
+       "<p>allow and deny are short-circuit rules."
+       "<p>The default (used when _no_ "
+       "entries are present) is 'deny ip=*', allowing"
+       " everyone to access the module");
       }
     }
   } else {
@@ -2910,13 +2901,13 @@ object enable_module( string modname )
   }
   
   me->defvar("_comment", "", " Comment", TYPE_TEXT_FIELD|VAR_MORE,
-	     "An optional comment. This has no effect on the module, it "
-	     "is only a text field for comments that the administrator "
-	     "might have (why the module are here, etc.)");
+       "An optional comment. This has no effect on the module, it "
+       "is only a text field for comments that the administrator "
+       "might have (why the module are here, etc.)");
 
   me->defvar("_name", "", " Module name", TYPE_STRING|VAR_MORE,
-	     "An optional name. Set to something to remaind you what "
-	     "the module really does.");
+       "An optional name. Set to something to remaind you what "
+       "the module really does.");
   
   me->setvars(retrieve(modname + "#" + id, this));
 
@@ -2931,7 +2922,7 @@ object enable_module( string modname )
     me->start(0, this);
   })) {
     report_error("Error while initiating module copy of " +
-		 module->name + "\n" + describe_backtrace(err));
+     module->name + "\n" + describe_backtrace(err));
 
     /* Clean up some broken references to this module. */
     m_delete(otomod, me);
@@ -2948,7 +2939,7 @@ object enable_module( string modname )
     
   if (err = catch(pr = me->query("_priority"))) {
     report_error("Error while initiating module copy of " +
-		 module->name + "\n" + describe_backtrace(err));
+     module->name + "\n" + describe_backtrace(err));
     pr = 3;
   }
 
@@ -2958,45 +2949,45 @@ object enable_module( string modname )
     if (err = catch {
       array arr = me->query_extensions();
       if (arrayp(arr)) {
-	string foo;
-	foreach( arr, foo )
-	  if(pri[pr]->extension_modules[ foo ])
-	    pri[pr]->extension_modules[foo] += ({ me });
-	  else
-	    pri[pr]->extension_modules[foo] = ({ me });
+  string foo;
+  foreach( arr, foo )
+    if(pri[pr]->extension_modules[ foo ])
+      pri[pr]->extension_modules[foo] += ({ me });
+    else
+      pri[pr]->extension_modules[foo] = ({ me });
       }
     }) {
       report_error("Error while initiating module copy of " +
-		   module->name + "\n" + describe_backtrace(err));
+       module->name + "\n" + describe_backtrace(err));
     }
-  }	  
+  }   
 
   if(module->type & MODULE_FILE_EXTENSION) {
     if (err = catch {
       array arr = me->query_file_extensions();
       if (arrayp(arr)) {
-	string foo;
-	foreach( me->query_file_extensions(), foo )
-	  if(pri[pr]->file_extension_modules[foo] ) 
-	    pri[pr]->file_extension_modules[foo]+=({me});
-	  else
-	    pri[pr]->file_extension_modules[foo]=({me});
+  string foo;
+  foreach( me->query_file_extensions(), foo )
+    if(pri[pr]->file_extension_modules[foo] ) 
+      pri[pr]->file_extension_modules[foo]+=({me});
+    else
+      pri[pr]->file_extension_modules[foo]=({me});
       }
     }) {
       report_error("Error while initiating module copy of " +
-		   module->name + "\n" + describe_backtrace(err));
+       module->name + "\n" + describe_backtrace(err));
     }
   }
 
   if(module->type & MODULE_PROVIDER) {
     if (err = catch {
       mixed provs = me->query_provides();
-      if(stringp(provs))	provs = (< provs >);
-      else if(arrayp(provs))	provs = mkmultiset(provs);
-      if (multisetp(provs))	pri[pr]->provider_modules [ me ] = provs;
+      if(stringp(provs))  provs = (< provs >);
+      else if(arrayp(provs))  provs = mkmultiset(provs);
+      if (multisetp(provs)) pri[pr]->provider_modules [ me ] = provs;
     }) {
       report_error("Error while initiating module copy of " +
-		   module->name + "\n" + describe_backtrace(err));
+       module->name + "\n" + describe_backtrace(err));
     }
   }
     
@@ -3011,17 +3002,17 @@ object enable_module( string modname )
     parse_module = me;
     if (_toparse_modules) {
       Array.map(_toparse_modules,
-		lambda(object o, object me, mapping module)
-		{
-		  array err;
-		  if (err = catch {
-		    me->add_parse_module(o);
-		  }) {
-		    report_error("Error while initiating module copy of " +
-				 module->name + "\n" +
-				 describe_backtrace(err));
-		  }
-		}, me, module);
+    lambda(object o, object me, mapping module)
+    {
+      array err;
+      if (err = catch {
+        me->add_parse_module(o);
+      }) {
+        report_error("Error while initiating module copy of " +
+         module->name + "\n" +
+         describe_backtrace(err));
+      }
+    }, me, module);
     }
   }
 
@@ -3029,10 +3020,10 @@ object enable_module( string modname )
   {
     if(parse_module) {
       if (err = catch {
-	parse_module->add_parse_module( me );
+  parse_module->add_parse_module( me );
       }) {
-	report_error("Error while initiating module copy of " +
-		     module->name + "\n" + describe_backtrace(err));
+  report_error("Error while initiating module copy of " +
+         module->name + "\n" + describe_backtrace(err));
       }
     }
     _toparse_modules += ({ me });
@@ -3141,7 +3132,7 @@ int disable_module( string modname )
   if(!module) 
   {
     report_error("Failed to disable module\n"
-		 "No module by that name: \""+modname+"\".\n");
+     "No module by that name: \""+modname+"\".\n");
     return 0;
   }
 
@@ -3176,7 +3167,7 @@ int disable_module( string modname )
     string foo;
     for(pr=0; pr<10; pr++)
       foreach( indices (pri[pr]->extension_modules), foo )
-	pri[pr]->extension_modules[ foo ]-= ({ me });
+  pri[pr]->extension_modules[ foo ]-= ({ me });
   }
 
   if(module["type"] & MODULE_FILE_EXTENSION)
@@ -3184,7 +3175,7 @@ int disable_module( string modname )
     string foo;
     for(pr=0; pr<10; pr++)
       foreach( indices (pri[pr]->file_extension_modules), foo )
-	pri[pr]->file_extension_modules[foo]-=({me});
+  pri[pr]->file_extension_modules[foo]-=({me});
   }
 
   if(module->type & MODULE_PROVIDER) {
@@ -3268,7 +3259,7 @@ object|string find_module(string name)
       return modules[name]->copies[id];
     else 
       if(modules[name]->enabled)
-	return modules[name]->enabled;
+  return modules[name]->enabled;
   }
   return 0;
 }
@@ -3320,7 +3311,7 @@ int load_module(string module_file)
     master()->set_inhibit_compile_errors(e);
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
-				    this_object());
+            this_object());
       prog = object_program(obj);
     };
     if(strlen(e->get())) {
@@ -3332,7 +3323,7 @@ int load_module(string module_file)
 
   if (err) {
     report_error("Error while enabling module (" + module_file + "):\n" +
-		 describe_backtrace(err) + "\n");
+     describe_backtrace(err) + "\n");
     return(0);
   } else if(!obj)
   {
@@ -3345,8 +3336,8 @@ int load_module(string module_file)
     perror("FAILED\n" + describe_backtrace( err ));
 #endif
     report_error("Module loaded, but register_module() failed (" 
-		 + module_file + ").\n"  +
-		 describe_backtrace( err ));
+     + module_file + ").\n"  +
+     describe_backtrace( err ));
     return 0;
   }
 
@@ -3365,17 +3356,17 @@ int load_module(string module_file)
   case 4:
     if (module_data[3] && !arrayp( module_data[3] ))
       err = "The fourth element of the array register_module returned "
-	"(extra_buttons) wasn't an array.\n" + err;
+  "(extra_buttons) wasn't an array.\n" + err;
   case 3:
     if (!stringp( module_data[2] ))
       err = "The third element of the array register_module returned "
-	"(documentation) wasn't a string.\n" + err;
+  "(documentation) wasn't a string.\n" + err;
     if (!stringp( module_data[1] ))
       err = "The second element of the array register_module returned "
-	"(name) wasn't a string.\n" + err;
+  "(name) wasn't a string.\n" + err;
     if (!intp( module_data[0] ))
       err = "The first element of the array register_module returned "
-	"(type) wasn't an integer.\n" + err;
+  "(type) wasn't an integer.\n" + err;
     break;
 
   default:
@@ -3409,13 +3400,13 @@ int load_module(string module_file)
 
   mapping tmpp = modules[ module_file ];
 
-  tmpp->type	= module_data[0];
-  tmpp->name	= module_data[1];
-  tmpp->doc	= module_data[2];
-  tmpp->extra	= module_data[3];
+  tmpp->type  = module_data[0];
+  tmpp->name  = module_data[1];
+  tmpp->doc = module_data[2];
+  tmpp->extra = module_data[3];
   tmpp->master  = obj;
   tmpp->copies  = (foo ? 0 : (tmpp->copies || ([])));
-  tmpp->sname	= module_file;
+  tmpp->sname = module_file;
   tmpp["program"] = prog;
       
 #ifdef MODULE_DEBUG
@@ -3643,7 +3634,7 @@ void enable_all_modules()
   inited = 1;
   if(err = catch { low_enable_all_modules();  })
     werror("Error while loading modules in configuration "+
-	   name+":\n"+ describe_backtrace(err)+"\n");
+     name+":\n"+ describe_backtrace(err)+"\n");
   
 }
 void low_enable_all_modules() {
@@ -3674,12 +3665,12 @@ void low_enable_all_modules() {
 #ifdef MODULE_DEBUG
                     +describe_backtrace(err)+"\n"
 #endif
-	);
+  );
   if(parse_module) parse_module->build_callers();
   caudium->current_configuration = 0;
 #if constant(gethrtime)
   perror("\nAll modules for %s enabled in %4.3f seconds\n\n", query_name(),
-	 (gethrtime()-start_time)/1000000.0);
+   (gethrtime()-start_time)/1000000.0);
 #endif
 }
 
@@ -3849,7 +3840,7 @@ void create(string config)
          "*: $host $referer $user_agent [$cern_date] \"$method $resource $protocol\" $response $length\n"
          ,
          "Logging: Format", 
-         TYPE_TEXT_FIELD,	 
+         TYPE_TEXT_FIELD,  
          "What format to use for logging. The syntax is:\n"
          "<pre>"
          "response-code or *: Log format for that response acode\n\n"
@@ -4010,7 +4001,7 @@ void create(string config)
          "This setting configures an internally handled location that can "
          "be used for such purposes.  Simply select a location that you are "
          "not likely to use for regular resources.");
-	 
+   
   defvar("use_scopes", "On/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
          "<p>This compatibility option manages the new feature of the Caudium Webserver "
          "known as <em>scopes</em>.</p>"
@@ -4048,5 +4039,6 @@ string _sprintf( )
  * Local Variables:
  * c-basic-offset: 2
  * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
  */
-
