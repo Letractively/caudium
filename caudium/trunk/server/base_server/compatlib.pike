@@ -221,5 +221,5 @@ mixed build_roxen_env_vars(mixed ... args) {
 //! @deprecated
 string extention(string f) {
   WCOMPAT("Caudium","extension");
-  return Caudium.extentions(f);
+  return Caudium.extension(f);
 }
