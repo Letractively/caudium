@@ -2596,7 +2596,26 @@ class FTPSession
    if(Query("passive_ftp")) {
     if(pasv_port)
       destruct(pasv_port);
+    if(Query("restricpasv")) {
+      int port_to_bind, attempt;
+      int found_pasv_port = 0;
+
+      for (attempt = Query("maxpasvtry"); attempt > 0 && (!found_pasv_port); attempt--) {
+       object o_pasv = Stdio.Port();
+       port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
+#ifdef FTP2_DEBUG
+       perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
+#endif
+       if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
+         pasv_port = o_pasv;
+         found_pasv_port = 1;
+       } else destruct(o_pasv);
+      }
+      if (!found_pasv_port) send(504, ({ "Passive FTP port failled." }));
+    }
+    else {
     pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
+    }
     int port=(int)((pasv_port->query_address()/" ")[1]);
     send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
 			 replace(local_addr, ".", ","),

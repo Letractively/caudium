@@ -3815,6 +3815,22 @@ void create(string config)
 
   defvar("passive_ftp", 1, "FTP:Allow passive FTP", TYPE_FLAG|VAR_MORE,
          "Allow passive transfers on ftp server.");
+ 
+  defvar("restricpasv", 1, "FTP:Restrict Passive FTP ports", TYPE_FLAG|VAR_MORE,
+         "Restrict passive FTP port to a specific range. For example when "
+	 "using Caudium as a FTP server behind a firewall or in a NATed "
+	 "environment.");
+
+  defvar("lowpasvport",65000, "FTP:Passive FTP lowest port",TYPE_INT|VAR_MORE,
+         "The lowest port to use when Restrict Passive FTP ports is set.");
+
+  defvar("hipasvport",65530, "FTP:Passive FTP highest port",TYPE_INT|VAR_MORE,
+         "The highest port to use when Restrict Passive FTP port is set.");
+
+  defvar("maxpasvtry", 3, "FTP:Passive FTP max attempts", TYPE_INT|VAR_MORE,
+         "Number of trys to open a Passive port when Restrict Passive FTP "
+	 "is set. Caudium will random the use of the range. If it cannot "
+	 "open a port then passive transfert will failled.");
 
   defvar("anonymous_ftp", 0, "FTP:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
 	 "Allows anonymous ftp.\n");
