@@ -90,12 +90,15 @@ void stop() {
 
 string status() {
     // I will deffinately do something here!
+    if ( sizeof( streams ) == 0 ) {
+        return "<b>No current streams</b>";
+    }
     string ret =
 	"<table border=1>\n";
     mixed sid;
     foreach( indices( streams ), sid ) {
 	ret +=
-	    "<tr><td colspan=2><b>Stream Name: " + (string)streams[ sid ]->get_name() + " (" + (string)streams[ sid ]->currently_playing( 1 ) + ")</b></td><td><b>Read: " + (string)(int)(streams[ sid ]->sent_bytes() / 1024 ) +  "kbytes</b></td></tr>\n";
+	    "<tr><td colspan=2><b>Stream Name: " + (string)streams[ sid ]->get_name() + " (" + (string)streams[ sid ]->currently_playing( 1 ) + ")</b></td><td><b>Read: " + (string)(int)(streams[ sid ]->sent_bytes() / 1024 ) +  "kbytes (" + sprintf( "%:2f", streams[ sid ]->percent_played() ) + "%)</b></td></tr>\n";
 	mixed client;
         array clients = streams[ sid ]->list_clients();
 	foreach( indices( clients ), client ) {
@@ -276,9 +279,11 @@ string _tag_stream( string tag, mapping args, string contents, object id ) {
     }
     string name = (args->name?args->name:"Untitled Stream");
     int bitrate = args->bitrate?(int)args->bitrate:0;
+    /*
     if ( bitrate == 0 ) {
 	return "ERROR: I need a bitrate until someone want's to help me and show me how to <a href='http://www.dv.co.yu/mpgscript/mpeghdr.htm'>parse the bitrate out of the mp3</a>\n";
-    }
+	}
+    */
     int shuffle = (args->shuffle?1:0);
     int loop = (args->loop?1:0);
     // basic parser, needs to be more intelligent
@@ -343,7 +348,7 @@ class stream {
     wait, maxclients,
     promos_enable, promos_freq,
     promos_shuffle, maxsession,
-    thyme;
+    thyme, _length, _read;
     string name, base, playing, search_promo;
 
     void create( mapping vars ) {
@@ -411,16 +416,28 @@ class stream {
 #endif
                     continue;
 		}
-		playing = filename;
 		int _bitrate = get_bitrate( f );
+		write( "Bitrate: "  + (string)_bitrate + "\n" );
+		if ( _bitrate == -1 ) {
+#ifdef DEBUG
+		    write( "No SYNC in MPEG file!\n" );
+#endif
+                    continue;
+		}
 		if ( ( bitrate > 0 ) && ( _bitrate != bitrate ) ) {
 		    // This means that we have been told to
 		    // adhere to a specific bitrate, so skip
-                    // this file.
+		    // this file.
+#ifdef DEBUG
+		    write( "Skipping file, wrong bitrate!\n" );
+#endif
 		    continue;
 		}
 		block = (int)( _bitrate * 12.8 );
 
+		playing = filename;
+		_length = f->stat()[ 1 ];
+                _read = 0;
 #ifdef DEBUG
 		write( "Stream: " + name + ", playing: " + playing + "\n" );
 #endif
@@ -465,6 +482,7 @@ class stream {
 		break;
 	    }
 	    bytes += block;
+            _read += block;
 	    // If there are no clients listening then you might as well
 	    // wait until there are some.
 		    // Does half a second between checks seem reasonable?
@@ -609,7 +627,126 @@ class stream {
     }
 
     int get_bitrate( object f ) {
-	return bitrate; // heh heh :)
+	object mh = mpeg( f );
+        return mh->bitrate_of();
+    }
+
+    float percent_played() {
+        return ( (float)_read / (float)_length ) * 100;
+    }
+
+}
+
+class mpeg {
+    /*
+     * This class ported C->pike from mpeg.[c,h] from the icecast clients
+     * package.
+     * In turn ported from C++ in mp3info by slicer@bimbo.hive.no
+     */
+
+
+    mapping mh = ([
+		   "lay" : 0,
+		   "version" : 0,
+		   "error_protection" : 0,
+		   "bitrate_index" : 0,
+		   "sampling_frequency" : 0,
+		   "padding" : 0,
+		   "extension" : 0,
+		   "mode" : 0,
+		   "mode_ext" : 0,
+		   "copyright" : 0,
+		   "original" : 0,
+		   "emphasis" : 0,
+		   "stereo" : 0,
+		   "framesize" : 0,
+		   "frametime" : 0
+		  ]);
+
+    array bitrate =
+	({
+		({
+			({ 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448 }),
+			({ 0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384 }),
+			({ 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 })
+		}),
+		({
+			({ 0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256 }),
+			({ 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 }),
+			({ 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 })
+		}),
+		({
+			({ 0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256 }),
+			({ 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 }),
+			({ 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 })
+		})
+	});
+    array s_freq =
+	({
+		({ 44100, 48000, 32000, 0 }),
+		({ 22050, 24000, 16000, 0 }),
+		({ 11025, 8000, 8000, 0 })
+	});
+    array mode_names = ({ "stereo", "j-stereo", "dual-ch", "single-ch", "multi-ch" });
+    array layer_names = ({ "I", "II", "III" });
+    array version_names = ({ "MPEG-1", "MPEG-2 LSF", "MPEG-2.5" });
+    array version_nums = ({ "1", "2", "2.5" });
+    int error;
+
+    void create( object f ) {
+	f->seek( 0 );
+	string buff = f->read( 1024 );
+	int readsize = sizeof( buff );
+	readsize -= 4;
+	if ( readsize <= 0 ) {
+	    error = 1;
+	    return;
+	}
+	string buffer;
+        int temp;
+        int count = 0;
+	while( ( temp != 0xFFE ) && ( count <= readsize ) ) {
+	    buffer = buff[ count..sizeof( buff ) ];
+	    temp = ((buffer[ 0 ] << 4) & 0xFF0) | ((buffer[ 1 ] >> 4) & 0xE);
+	    count++;
+	}
+	if ( temp != 0xFFE ) {
+	    error = 1;
+            return;
+	} else {
+	    switch((buffer[1] >> 3 & 0x3)) {
+	    case 3:
+		mh->version = 0;
+                break;
+	    case 2:
+		mh->version = 1;
+		break;
+	    case 0:
+		mh->version = 2;
+		break;
+	    default:
+		error = 1;
+                return;
+		break;
+	    }
+	    mh->lay = 4 - ((buffer[1] >> 1) & 0x3);
+	    mh->error_protection = !(buffer[1] & 0x1);
+	    mh->bitrate_index = (buffer[2] >> 4) & 0x0F;
+	    mh->sampling_frequency = (buffer[2] >> 2) & 0x3;
+	    mh->padding = (buffer[2] >> 1) & 0x01;
+	    mh->extension = buffer[2] & 0x01;
+	    mh->mode = (buffer[3] >> 6) & 0x3;
+	    mh->mode_ext = (buffer[3] >> 4) & 0x03;
+	    mh->copyright = (buffer[3] >> 3) & 0x01;
+	    mh->original = (buffer[3] >> 2) & 0x1;
+	    mh->emphasis = (buffer[3]) & 0x3;
+	    mh->stereo = (mh->mode == 3)?1:2;
+	}
+        f->seek( 0 );
+    }
+
+    int bitrate_of() {
+	return (error?-1:bitrate[ mh->version ][ mh->lay - 1 ][ mh->bitrate_index ]);
     }
 
 }
