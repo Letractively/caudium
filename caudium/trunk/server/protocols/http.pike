@@ -358,11 +358,228 @@ private int parse_got(string s)
   request_headers = ([]);	// FIXME: KEEP-ALIVE?
 
   if(sizeof(s)) {
-//    sscanf(s, "%s\r\n\r\n%s", s, data);
+#if constant(Caudium.parse_headers)
+    request_headers = Caudium.parse_headers(s);
 
-//     s = replace(s, "\n\t", ", ") - "\r"; 
-//     Handle rfc822 continuation lines and strip \r
-  
+    foreach(indices(request_headers), string linename) {
+      switch(linename) {
+       case "content-length":
+	misc->len = (int)(request_headers[linename]-" ");
+	if(!misc->len) continue;
+	if(method == "POST")
+	{
+	  if(!data) data="";
+	  int l = misc->len-1; /* Length - 1 */
+	  wanted_data=l;
+	  have_data=strlen(data);
+
+	  if(strlen(data) <= l) // \r are included. 
+	    return 0;
+
+	  leftovers = data[l+1..];
+	  data = data[..l];
+	  switch(lower_case((((misc["content-type"]||"")+";")/";")[0]-" "))
+	  {
+	   default: // Normal form data.
+	    string v;
+	    if(l < 200000)
+	    {
+	      foreach(replace(data,
+			      ({ "\n", "\r", "+" }),
+			      ({ "", "", " "}))/"&", v)
+		if(sscanf(v, "%s=%s", a, b) == 2)
+		{
+		  a = http_decode_string( a );
+		  b = http_decode_string( b );
+		     
+		  if(variables[ a ])
+		    variables[ a ] +=  "\0" + b;
+		  else
+		    variables[ a ] = b;
+		}
+	    }
+	    break;
+
+	   case "multipart/form-data":
+	    //		perror("Multipart/form-data post detected\n");
+	    object messg = MIME.Message(data, misc);
+	    foreach(messg->body_parts, object part) {
+	      if(part->disp_params->filename) {
+		variables[part->disp_params->name]=part->getdata();
+		variables[part->disp_params->name+".filename"]=
+		  part->disp_params->filename;
+		if(!misc->files)
+		  misc->files = ({ part->disp_params->name });
+		else
+		  misc->files += ({ part->disp_params->name });
+	      } else {
+		if(variables[part->disp_params->name])
+		  variables[part->disp_params->name] += "\0" + part->getdata();
+		else
+		  variables[part->disp_params->name] = part->getdata();
+	      }
+	    }
+	    break;
+	  }
+	}
+	break;
+	  
+       case "authorization":
+	array(string) y;
+	rawauth = request_headers[linename];
+	y = rawauth / " ";
+	if(sizeof(y) < 2) break;
+	y[1]     = decode(y[1]);
+	realauth = y[1];
+	if(conf && conf->auth_module)
+	  y = conf->auth_module->auth( y, this_object() );
+	auth = y;
+	break;
+	  
+       case "proxy-authorization":
+	array(string) y;
+	y = request_headers[linename] / " ";
+	if(sizeof(y) < 2)
+	  break;
+	y[1] = decode(y[1]);
+	if(conf && conf->auth_module)
+	  y = conf->auth_module->auth( y, this_object() );
+	misc->proxyauth=y;
+	break;
+	  
+       case "pragma":
+	pragma |= aggregate_multiset(@replace(request_headers[linename],
+					      " ", "")/ ",");
+	break;
+
+       case "user-agent":
+	if(!client)
+	{
+	  sscanf(request_headers[linename], "%s via", contents);
+	  client = (contents||request_headers[linename])/" " - ({ "" });
+	}
+	break;
+
+	/* Some of M$'s non-standard user-agent info */
+       case "ua-pixels":	/* Screen resolution */
+       case "ua-color":	/* Color scheme */
+       case "ua-os":	/* OS-name */
+       case "ua-cpu":	/* CPU-type */
+	misc[linename - "ua-"] = request_headers[linename];
+	break;
+
+       case "referer":
+	referer = request_headers[linename]/" ";
+	break;
+	    
+       case "extension":
+#ifdef DEBUG
+	perror("Client extension: "+request_headers[linename]+"\n");
+#endif
+       case "request-range":
+	if(GLOBVAR(EnableRangeHandling)) {
+	  contents = lower_case(request_headers[linename]-" ");
+	  if(!search(contents, "bytes")) 
+	    // Only care about "byte" ranges.
+	    misc->range = contents[6..];
+	}
+	break;
+	    
+       case "range":
+	if(GLOBVAR(EnableRangeHandling)) {
+	  contents = lower_case(request_headers[linename]-" ");
+	  if(!misc->range && !search(contents, "bytes"))
+	    // Only care about "byte" ranges. Also the Request-Range header
+	    // has precedence since Stupid Netscape (TM) sends both but can't
+	    // handle multipart/byteranges but only multipart/x-byteranges.
+	    // Duh!!!
+	    misc->range = contents[6..];
+	}
+	break;
+
+       case "connection":
+	contents = lower_case(request_headers[linename]);
+	    
+       case "content-type":
+	misc[linename] = lower_case(request_headers[linename]);
+	break;
+
+       case "accept-encoding":
+	foreach((request_headers[linename]-" ")/",", string e) {
+	  if (lower_case(e) == "gzip") {
+	    supports["autogunzip"] = 1;
+	  }
+	}
+       case "accept":
+       case "accept-charset":
+       case "accept-language":
+       case "session-id":
+       case "message-id":
+       case "from":
+	if(misc[linename])
+	  misc[linename] += (request_headers[linename]-" ") / ",";
+	else
+	  misc[linename] = (request_headers[linename]-" ") / ",";
+	break;
+
+       case "cookie": /* This header is quite heavily parsed */
+	string c;
+	contents = misc->cookies = request_headers[linename];
+	if (!sizeof(contents)) {
+	  // Needed for the new Pike 0.6
+	  break;
+	}
+	foreach(((contents/";") - ({""})), c)
+	{
+	  string name, value;
+	  while(sizeof(c) && c[0]==' ') c=c[1..];
+	  if(sscanf(c, "%s=%s", name, value) == 2)
+	  {
+	    value=http_decode_string(value);
+	    name=http_decode_string(name);
+	    cookies[ name ]=value;
+	    if(name == "RoxenConfig" && strlen(value))
+	    {
+	      array tmpconfig = value/"," + ({ });
+	      string m;
+
+	      if(mod_config && sizeof(mod_config))
+		foreach(mod_config, m)
+		  if(!strlen(m))
+		  { continue; } /* Bug in parser force { and } */
+		  else if(m[0]=='-')
+		    tmpconfig -= ({ m[1..] });
+		  else
+		    tmpconfig |= ({ m });
+	      mod_config = 0;
+	      config = aggregate_multiset(@tmpconfig);
+	    }
+	  }
+	}
+	break;
+
+       case "host":
+       case "proxy-connection":
+       case "security-scheme":
+       case "via":
+       case "cache-control":
+       case "negotiate":
+       case "forwarded":
+	misc[linename] = request_headers[linename];
+	break;	    
+
+       case "proxy-by":
+       case "proxy-maintainer":
+       case "proxy-software":
+       case "mime-version":
+	break;
+	    
+       case "if-modified-since":
+	since = request_headers[linename];
+	break;
+      }
+    }
+#else
     foreach(s/"\r\n" - ({ "" }), line)
     {
       linename=contents=0;
@@ -595,8 +812,8 @@ private int parse_got(string s)
 	}
       }
     } 
+#endif
   }
-
 #ifndef DISABLE_SUPPORTS    
   if(!client) {
     client = ({ "unknown" });

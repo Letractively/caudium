@@ -1,10 +1,12 @@
 #!/bin/sh
 
 mydir=`pwd`
-for a in . $(find src -name "configure.in" |sort); do
+for a in $(find src -name "autogen.sh" |sort); do
   dir=`dirname $a`
-  echo "Running autoconf in '$dir'"
+  echo "Running autogen in '$dir'"
   cd $dir
-  (autoheader; autoconf) >/dev/null 2>&1
+  ./autogen.sh 
   cd $mydir
 done  
+
+autoconf >/dev/null 2>&1
