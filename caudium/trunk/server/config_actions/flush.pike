@@ -22,6 +22,7 @@
 /*
  * $Id$
  */
+#include <module.h>
 
 inherit "wizard";
 constant name= "Cache//Flush caches...";
@@ -53,6 +54,10 @@ mixed page_0(object id, object mc)
 	  "<var default=0 name=gtext_cache type=checkbox> Graphical text caches<br>\n"
 	  "<help><blockquote>"
 	  "Force a flush of the graphical text cache."
+	  "</blockquote></help>"
+	  "<var default=0 name=ttf_cache type=checkbox> TTF caches<br>\n"
+	  "<help><blockquote>"
+	  "Force a flush of the TTF font cache."
 	  "</blockquote></help>");
 }
 
@@ -66,6 +71,7 @@ mixed page_1(object id, object mc)
   if(CHECKED(dir_cache))    ret += "The directory cache<br>";
   if(CHECKED(module_cache)) ret += "The module cache<br>";
   if(CHECKED(gtext_cache)) ret += "The graphical text cache<br>";
+  if(CHECKED(ttf_cache)) ret += "The TTF font cache<br>";
   if(!strlen(ret))
     ret = "No items selected!";
 
@@ -151,6 +157,13 @@ mixed wizard_done(object id, object mc)
     caudium->module_stat_cache=([]);
   }
 
+  if(CHECKED(ttf_cache))
+  {
+    info += ({ "the TTF cache" });
+    
+    rm(GLOBVAR(ConfigurationStateDir) + ".ttffontcache");
+  }
+  
   if(info)
     report_notice("Flushed "+ text_andify(info) +".");
 
