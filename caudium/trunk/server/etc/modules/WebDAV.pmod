@@ -1,4 +1,72 @@
+/* -*-Pike-*-
+ *
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2004 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * $Id$
+ */
+
+/*
+ * File licensing and authorship information block.
+ *
+ * Version: MPL 1.1/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Initial Developer of the Original Code is
+ *
+ * Thomas Bopp
+ *
+ * Portions created by the Initial Developer are Copyright (C)
+ * Thomas Bopp & The Caudium Group. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version
+ * of this file under the terms of the MPL, indicate your decision by
+ * deleting the provisions above and replace them with the notice
+ * and other provisions required by the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL or the LGPL.
+ *
+ * Significant Contributors to this file are:
+ *
+ */
+
+//! This is WebDav module for Caudium. Used to help WebDav support 
+//! on Caudium.
+//!
+//! @note
+//!  You can start Caudium with -DWEBDAV_DEBUG to help debugging Caudium
+
 inherit "compatlib";
+
 #define WEBDAV_DEBUG
 
 #ifdef WEBDAV_DEBUG
@@ -12,34 +80,51 @@ inherit "compatlib";
 #define TYPE_FSIZE (1<<18)
 #define TYPE_EXEC  (1<<19)
 
+//!
 class Property {
+  
+  //!
   void create(string p) {
     prop = p;
     ns = 0;
   }
+  
+  //!
   void set_namespace(NameSpace n) {
     ns = n;
   }
+
+  //!
   string describe_namespace() {
     if ( !objectp(ns) )
       return "";
     return ns->get_name();
   }
+ 
+  //!
   void set_value(string v) { 
     value = v;
   }
+
+  //!
   string get_value() {
     return value;
   }
+
+  //!
   string get_name() {
     return prop;
   }
+
+  //!
   string get_ns_name() {
     string xmlns = describe_namespace();
     if ( strlen(xmlns) > 0 )
       return xmlns + ":" + prop;
     return prop;
   }
+
+  //!
   string _sprintf() {
     return "Property("+prop+","+describe_namespace()+")";
   }
@@ -48,26 +133,40 @@ class Property {
   static NameSpace ns;
 }
 
+
+//!
 class NameSpace {
   static array(Property) props;
   static string       name, id;
 
-  string get_name() { return name; }
+  //!
+  string get_name() { 
+    return name;
+  }
+
+  //!
   void create(string n) { 
     name = n;
     props = ({ });
   }
+
+  //!
   void set_id(string i) {
     id = i;
   }
+
+  //!
   string get_id() { 
     return id;
   }
 
+  //!
   void add_prop(Property p) {
     props += ({ p });
     p->set_namespace(this_object());
   }
+
+  //!
   Property get_prop(string name) {
     
     foreach(props, Property p) {
@@ -78,13 +177,16 @@ class NameSpace {
   }
 }
 
-static mapping mNameSpaces; // available namespaces
+//! Available namespaces
+static mapping mNameSpaces;
 
+//!
 void create()
 {
   mNameSpaces = ([ "" : NameSpace(""), ]);
 }
 
+//!
 NameSpace add_namespace(string name, void|string id)
 {
   if ( stringp(id) && (!stringp(name) || name == "") ) 
@@ -98,12 +200,14 @@ NameSpace add_namespace(string name, void|string id)
   return n;
 }
 
+//!
 NameSpace get_namespace(string name, void|string id)
 {
   NameSpace n = mNameSpaces[name];
   return n;
 }
 
+//!
 Property find_prop(string ns, string pn) 
 {
   NameSpace n = get_namespace(ns);
@@ -118,13 +222,20 @@ Property find_prop(string ns, string pn)
   return 0;
 }
   
-    
 
+//!
 class WebdavHandler {
-// the stat file function should additionally send mime type
+
+    //! the stat file function should additionally send mime type
     function stat_file; 
+
+    //!
     function get_directory;
+
+    //!
     function set_property;
+
+    //!
     function get_property;
 }
 
@@ -136,22 +247,24 @@ static mapping properties = ([
 
 static array _props = ({"getcontenttype","resourcetype", "getcontentlength", "href"})+indices(properties);
 			    
+//!
 array(string) get_dav_properties(array fstat)
 {
     return _props;
 }
 
 
-
-/**
- * Retrieve the properties of some file by calling the
- * config objects stat_file function.
- *  
- * @param string file - the file to retrieve props
- * @param mapping xmlbody - the xmlbody of the request
- * @param array|void fstat - file stat information if previously available
- * @return xml code of properties
- */
+//! Retrieve the properties of some file by calling the
+//! config objects stat_file function.
+//!  
+//! @param file 
+//!  The file to retrieve props
+//! @param xmlbody
+//!  The xmlbody of the request
+//! @param fstat
+//!  File stat information if previously available
+//! @returns
+//!  XML code of properties
 string retrieve_props(string file, mapping xmlbody, array fstat, 
 		      WebdavHandler h, mixed context) 
 {
@@ -281,18 +394,17 @@ string retrieve_props(string file, mapping xmlbody, array fstat,
     return response;
 }
 
-/**
- * Retrieve the properties of a colletion - that is if depth
- * header is given the properties of the collection and the properties
- * of the objects within the collection are returned.
- *  
- * @param string path - the path of the collection
- * @param mapping xmlbody - the xml request body
- * @return the xml code of the properties
- * @author <a href="mailto:astra@upb.de">Thomas Bopp</a>) 
- */
-string
-retrieve_collection_props(string colpath, mapping xmlbody, WebdavHandler h, mixed context)
+//! Retrieve the properties of a colletion - that is if depth
+//! header is given the properties of the collection and the properties
+//! of the objects within the collection are returned.
+//!  
+//! @param path 
+//!  The path of the collection
+//! @param xmlbody
+//!  The xml request body
+//! @returns
+//!  The xml code of the properties
+string retrieve_collection_props(string colpath, mapping xmlbody, WebdavHandler h, mixed context)
 {
     string response = "";
     int                i;
@@ -333,13 +445,14 @@ retrieve_collection_props(string colpath, mapping xmlbody, WebdavHandler h, mixe
     return response;
 }
 
-/**
- * Converts the XML structure into a mapping for prop requests
- *  
- * @param object node - current XML Node
- * @param void|string pname - the name of the previous (father) node
- * @return mapping
- */
+//! Converts the XML structure into a mapping for prop requests
+//!  
+//! @param node
+//!  Current XML Node
+//! @param pname 
+//!  The name of the previous (father) node
+//! @returns
+//!  A mapping
 mapping convert_to_mapping(object node, void|string pname)
 {
     string tname = node->get_tag_name();
@@ -392,12 +505,12 @@ mapping convert_to_mapping(object node, void|string pname)
     return m;
 }      
 
-
-/**
- * Parse body data and return a mapping.
- *  
- * @param string data - the data of the XML body.
- */
+//! Parse body data and return a mapping.
+//!   
+//! @param data
+//!  The data of the XML body.
+//! @returns
+//!  A mapping
 mapping get_xmlbody_props(string data)
 {
   mapping xmlData= ([ ]);
@@ -415,6 +528,7 @@ mapping get_xmlbody_props(string data)
     return xmlData;
 }
 
+//!
 array(object) get_xpath(object node, array(string) expr)
 {
     array result = ({ });
@@ -437,6 +551,7 @@ array(object) get_xpath(object node, array(string) expr)
     return result;
 }
 
+//!
 mapping|string resolve_destination(string destination, string host)
 {
     string dest_host;
@@ -450,13 +565,8 @@ mapping|string resolve_destination(string destination, string host)
     return destination;
 }
 
-/**
- *
- *  
- * @param 
- * @return 
- * @see 
- */
+
+//!
 mapping get_properties(object n)
 {
     mapping result = ([ ]);
@@ -489,6 +599,7 @@ mapping get_properties(object n)
     return result;
 }
 
+//!
 mapping|void proppatch(string url, mapping request_headers, string data, WebdavHandler h, mixed context)
 {
     mapping result, xmlData;
@@ -559,6 +670,7 @@ mapping|void proppatch(string url, mapping request_headers, string data, WebdavH
     return result;
 }
 
+//!
 mapping|void propfind(string raw_url,mapping request_headers,string data,WebdavHandler h, mixed context)
 {
     mapping result, xmlData;
@@ -617,23 +729,10 @@ mapping|void propfind(string raw_url,mapping request_headers,string data,WebdavH
     return result;
 }
 
+//!
 mapping low_answer(int code, string str)
 {
     return ([ "error": code, "data": str, "extra_heads": ([ "DAV": "1", ]), ]);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

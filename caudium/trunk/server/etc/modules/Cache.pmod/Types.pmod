@@ -25,7 +25,7 @@
 //! cachelib and then get hold of your cache object from caudium, this is
 //! discussed in the notes for cache_manager.pike.
 //! These are used kindof like you use the return functions in caudiumlib
-//! (eg Caudium.HTTP.string_answer()) - whenever you ask the cache to store an
+//! (eg @[Caudium.HTTP.string_answer]) - whenever you ask the cache to store an
 //!  object you must do it through these functions to ensure that the
 //!  required metadata is present for the cache to use.
 
