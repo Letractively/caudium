@@ -26,6 +26,9 @@ private array(string)    months;
 private array(string)    months_short;
 private array(string)    days;
 private array(string)    days_short;
+private array(string)    the_words = ({
+    "year", "month", "week", "day"
+});
 
 private void initialize_months()
 {
@@ -241,7 +244,10 @@ string day_really_short(int num)
 
 string words(int num)
 {
-    return ({ "year", "month", "week", "day" })[num];
+    if (num >= 0 && num < sizeof(the_words))
+        return the_words[num];
+    else
+        return "?";
 }
 
 array aliases()
