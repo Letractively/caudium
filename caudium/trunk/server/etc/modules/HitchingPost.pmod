@@ -132,16 +132,14 @@ object lock(string path, string mode, int behavior) {
     }
   string id = get_hash(path);
   locks += ([ id : 1 ]);
-  object __lock = _lock(id, unlock, sprintf("%s,%s",path, mode));
   locks[ id ] = ([
     "path" : path,
     "type" : want,
     "since" : time(),
     "lock_file" : acquire,
-    "mode" : mode,
-    "_lock" : __lock
+    "mode" : mode
   ]);
-  return locks[id]->_lock;
+  return _lock(id, unlock, sprintf("%s,%s",path, mode));
 }
 
 static void unlock(mixed id) {
@@ -162,7 +160,7 @@ static string get_hash( string data ) {
 }
 
 
-class _lock {
+static class _lock {
 
 //! This class is the object containing the hitchingpost lock.
 
