@@ -159,6 +159,11 @@ static string get_hash( string data ) {
   return sprintf("%@02x",(array(int)) retval);
 }
 
+void destruct() {
+  foreach(indices(locks),mixed id) {
+    unlock(id);
+  }
+}
 
 static class _lock {
 
