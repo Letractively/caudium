@@ -127,6 +127,8 @@ constant module_doc  = "This module gives the tag &lt;LDAP&gt; and containers"
 	     "<td>The password to access the directory.</td></tr>\n"
 	     "<tr><td valign=top><b>basedn</b></td>"
 	     "<td>The base DN to access the directory.</td></tr>\n"
+	     "<tr><td valign=top><b>protocol</b></td>"
+	     "<td>The LDAP protocol version to use : 2 or 3</td>"
 	     "</table></ul><p>\n"
 	     "The following attributes are used by &lt;ldap&gt; tag:<ul>\n"
 	     "<table border=0>\n"
@@ -262,15 +264,19 @@ string ldap_tag(string tag_name, mapping args,
       args->attr = parse_rxml(args->attr, request_id, f, defines);
     }
 
-    string host = query("hostname");
-    string basedn = query("basedn");
-    string user = query("user");
-    string password = query("password");
+    string host = QUERY(hostname);
+    string basedn = QUERY(basedn);
+    string user = QUERY(user);
+    string password = QUERY(password);
+    int proto = QUERY(ldapver);
     int scopenum, rv, attrop;
     object con = 0, en = 0;
     mixed error;
     function dir_connect = request_id->conf->dir_connect;
     mapping(string:array(string)) attrval = ([]);
+
+    if (args->protocol)
+    	proto = (int) args->protocol;	// overide the default version
 
     if (args->host) {
       host = args->host;
@@ -298,7 +304,7 @@ string ldap_tag(string tag_name, mapping args,
       //host = (lower_case(host) == "localhost")?"":host;
       error = catch(con = Protocols.LDAP.client(host));
       if(!error)
-        error = catch(con->bind(user,password));
+        error = catch(con->bind(user,password,proto));
     }
     if (error || !objectp(con)) {
       ldap_last_error = "Couldn't connect to LDAP server." + "";
@@ -485,11 +491,12 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
       args->filter = parse_rxml(args->filter, request_id, f, defines);
     }
 
-    string host = query("hostname");
-    string basedn = query("basedn");
-    string user = query("user");
-    string password = query("password");
-    string cset = query("charset");
+    string host = QUERY(hostname);
+    string basedn = QUERY(basedn);
+    string user = QUERY(user);
+    string password = QUERY(password);
+    string cset = QUERY(charset);
+    int proto = QUERY(ldapver);
     object con = 0, en;
     array(mapping(string:mixed)) result;
     function dir_connect = request_id->conf->dir_connect;
@@ -498,6 +505,8 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
     string quote = "#";  // DEFAULT
     mapping m = (["attr":"","index":0,"step":1,"max":0,"body":""]);
 
+    if (args->protocol)
+      proto = (int) args->protocol;
     if (args->quote && sizeof(quote))
       quote = args->quote;  // do_output_tag doing this itself?
     if (args->host) {
@@ -528,7 +537,7 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
       host = (lower_case(host) == "localhost")?"":host;
       error = catch(con = Protocols.LDAP.client(host));
       if(!error)
-        error = catch(con->bind(user,password));
+        error = catch(con->bind(user,password,proto));
     }
     if (error || !objectp(con)) {
       contents = "<h1>Couldn't connect to LDAP-server</h1><br>\n" +
@@ -652,7 +661,7 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
 	for (i=0; i < sizeof(content_array); i++) {
 	  int ord = 0;
 	  if (i & 1) {
-	    atype = lower_case((content_array[i] / ":")[0]);
+	    atype = (content_array[i] / ":")[0];
 	    //DEBUGLOG(sprintf("DEB2: atype: %s",atype));
 	    if (sizeof(content_array[i] / ":") == 2)
 	      ord = ((int)(content_array[i] / ":")[1]) - 1;
@@ -767,21 +776,24 @@ mapping query_container_callers()
 
 void create()
 {
-  defvar("hostname", "localhost", "Defaults:  LDAP server location", 
-	 TYPE_STRING, "Specifies the default LDAP directory server hostname.\n");
+  defvar("hostname", "ldap://localhost", "Defaults: LDAP server location", 
+	 TYPE_STRING, "Specifies the default LDAP directory server hostname."
+	              "Format is ldap url style eg ldap://hostname[:port]/.\n");
+  defvar("ldapver", 2, "Defaults: LDAP server version", TYPE_INT_LIST,
+         "The LDAP protocol version to use with this server.", ({ 2, 3 }));
   defvar("basedn", "", "Defaults: LDAP search base DN",
 	 TYPE_STRING,
 	 "Specifies the distinguished name to use as a base for queries.\n");
-  defvar("user", "", "Defaults:  username",
+  defvar("user", "", "Defaults: username",
 	 TYPE_STRING,
 	 "Specifies the default username to use for access.\n"
 	 "<p><b>DEPRECATED!</b></p>");
-  defvar("password", "", "Defaults:  password",
+  defvar("password", "", "Defaults: password",
 	 TYPE_STRING,
 	 "Specifies the default password to use for access.\n"
 	 "<p><b>DEPRECATED!</b></p>");
 
-  defvar("charset", "", "Defaults:  charset",
+  defvar("charset", "", "Defaults: charset",
 	 TYPE_STRING,
 	 "Specifies the default charset to use for encoding values.\n"
 	 "<p>Usable only for decoding UTF8-coded strings to national "
@@ -824,10 +836,15 @@ string status()
 /* START AUTOGENERATED DEFVAR DOCS */
 
 //! defvar: hostname
-//! Specifies the default LDAP directory server hostname.
+//! Specifies the default LDAP directory server hostname.Format is ldap url style eg ldap://hostname[:port]/.
 //!
 //!  type: TYPE_STRING
-//!  name: Defaults:  LDAP server location
+//!  name: Defaults: LDAP server location
+//
+//! defvar: ldapver
+//! The LDAP protocol version to use with this server.
+//!  type: TYPE_INT_LIST
+//!  name: Defaults: LDAP server version
 //
 //! defvar: basedn
 //! Specifies the distinguished name to use as a base for queries.
@@ -839,17 +856,17 @@ string status()
 //! Specifies the default username to use for access.
 //!<p><b>DEPRECATED!</b></p>
 //!  type: TYPE_STRING
-//!  name: Defaults:  username
+//!  name: Defaults: username
 //
 //! defvar: password
 //! Specifies the default password to use for access.
 //!<p><b>DEPRECATED!</b></p>
 //!  type: TYPE_STRING
-//!  name: Defaults:  password
+//!  name: Defaults: password
 //
 //! defvar: charset
 //! Specifies the default charset to use for encoding values.
 //!<p>Usable only for decoding UTF8-coded strings to national character set (like iso-8859-1, iso-8859-2, ...)</p><p><b>Be warned!</b> LDAP servers works with national characters in protocol v2 mode (only one implemented in Pike/Roxen) very specificly (Netscape Directory server uses UTF8, but M$ Exchange doesn't).</p><p>Empty value forbidden decoding.</p>
 //!  type: TYPE_STRING
-//!  name: Defaults:  charset
+//!  name: Defaults: charset
 //
