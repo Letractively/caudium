@@ -183,6 +183,8 @@ string tag_compat_include(string tag,mapping m,object id,object file,
 
   if(m->virtual) {
     m->file = m->virtual;
+    if(search(m->virtual, "?") != -1)
+    	m->nocache="nocache";
     object rxmltags_module = RXMLTAGS;
     if(objectp(rxmltags_module)) 
       return rxmltags_module->tag_insert("insert", m, id, file, defines);
