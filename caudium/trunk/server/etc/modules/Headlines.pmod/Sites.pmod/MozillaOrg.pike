@@ -6,12 +6,9 @@
  */
 
 import spider;
-//import "..";
 import Headlines;
 
-//#include "../base.pike"
 #include <headlines/base.h>
-//#include "../RDF.pike"
 #include <headlines/RDF.h>
 
 constant name = "mozillaorg";
