@@ -1,5 +1,7 @@
 Changes in Caudium 1.2 since Caudium 1.0
 ----------------------------------------
+- Fix for bug #411982: the <set variable...> tag was reporting debug 
+  status to the client even though the debug flag wasn't up.
 - Corrected incorrect status computation of servers usage. Was counting only
   one virtual server.
 - "caudiumctl" script added. Very useful for people who know apache well.
