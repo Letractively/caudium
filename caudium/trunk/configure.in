@@ -236,7 +236,7 @@ else
  fi
 fi
 CC="$SMARTLINK $CC"
-
+ac_cv_prog_CC="$CC"
 case "$caudium_cv_sys_os" in
   SCO*)
     case "$CFLAGS" in
