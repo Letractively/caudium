@@ -12,6 +12,13 @@
  *	 make the storage into a SQL database
  *
  */
+//! module: Web-baseed whitboard
+//!  Makes a whiteboard
+//! inherits: caudiumlib
+//! inherits: module
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+
 constant cvs_version = "$Id$";
 #include <module.h>
 #include <process.h>
