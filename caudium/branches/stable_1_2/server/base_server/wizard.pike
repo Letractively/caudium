@@ -1,4 +1,3 @@
-
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2002 The Caudium Group
@@ -20,73 +19,71 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
  * $Id$
- *  name="Wizard generator";
- *  doc="This file generates all the nice wizards";
- * 
  */
 
-/* wizard_automaton operation (old behavior if it isn't defined):
-
-   mapping(string:array) wizard_automaton = ([
-     "foo": ({dispatch, prev_page, next_page, page_name}),
-     ...
-   ]);
-
-   dispatch:	A string redirects the wizard to that page. 0 or the
-		name of this page continues with it.
-   prev_page:	A string is the page for the previous button. 0 if none.
-   next_page:	A string is the page for the next button. 0 makes an
-		ok button instead. -1 gives neither button.
-   page_name:	Optional page name. Defaults to "".
-
-   Any of these may be a function that returns the value:
-
-   lambda (object id, string page, mixed ... args);
-
-   id:		Request id.
-   page:	The entry in wizard_automaton.
-   args:	The extra args to wizard_menu() or wizard_for().
-
-   Other callbacks:
-
-   o  string|mapping page_foo (object id, mixed ... args);
-
-      The function that produces page "foo". May return 0 to cause a
-      redirect to the next page (or the previous one if the user
-      pressed previous to enter it). Goes to the done page if there
-      isn't any such page.
-
-   o  int verify_foo (object id, mixed ... args);
-
-      A verify function that's run when the user presses next or ok in
-      page "foo". Returns 0 if it's ok to leave the page, anything
-      else re-runs the page function to redisplay the page.
-
-   o  string|mapping wizard_done (object id, mixed ... args);
-
-      The function for the done page, from which it's not possible to
-      return to the other wizard pages. May return 0 to skip the page.
-      (Differences from old behavior: -1 is not a meaningful return
-      value and a string is run through parse_wizard_page().)
-
-   The dispatch function is always run before any other function for a
-   page. That makes it suitable to contain all page init stuff and
-   also state sanity checks, since it can bail to other pages on
-   errors etc. The intention is also that it should be shared between
-   several pages that has init code in common.
-
-   Special pages:
-
-   "start":	Start page.
-   "done":	Finish page. The page function is wizard_done(). Only
-		dispatch is used in the wizard_automaton entry.
-   "cancel":	Cancels the wizard. Has no wizard_automaton entry.
-
-   Bugs: There's no good way to share variables between the functions.
-   Can we say id->misc? :P */
+//! Wizard generator for Caudium.
+//! $Id$
+//! @example
+//!   mapping(string:array) wizard_automaton = ([
+//!     "foo": ({dispatch, prev_page, next_page, page_name}),
+//!     ...
+//!   ]);
+//!
+//!   dispatch:  A string redirects the wizard to that page. 0 or the
+//!    name of this page continues with it.
+//!   prev_page: A string is the page for the previous button. 0 if none.
+//!   next_page: A string is the page for the next button. 0 makes an
+//!    ok button instead. -1 gives neither button.
+//!   page_name: Optional page name. Defaults to "".
+//!
+//!   Any of these may be a function that returns the value:
+//!
+//!   lambda (object id, string page, mixed ... args);
+//!
+//!   id:    Request id.
+//!   page:  The entry in wizard_automaton.
+//!   args:  The extra args to wizard_menu() or wizard_for().
+//!
+//!   Other callbacks:
+//!
+//!   o  string|mapping page_foo (object id, mixed ... args);
+//!
+//!      The function that produces page "foo". May return 0 to cause a
+//!      redirect to the next page (or the previous one if the user
+//!      pressed previous to enter it). Goes to the done page if there
+//!      isn't any such page.
+//!
+//!   o  int verify_foo (object id, mixed ... args);
+//!
+//!      A verify function that's run when the user presses next or ok in
+//!      page "foo". Returns 0 if it's ok to leave the page, anything
+//!      else re-runs the page function to redisplay the page.
+//!
+//!   o  string|mapping wizard_done (object id, mixed ... args);
+//!
+//!      The function for the done page, from which it's not possible to
+//!      return to the other wizard pages. May return 0 to skip the page.
+//!      (Differences from old behavior: -1 is not a meaningful return
+//!      value and a string is run through parse_wizard_page().)
+//!
+//!   The dispatch function is always run before any other function for a
+//!   page. That makes it suitable to contain all page init stuff and
+//!   also state sanity checks, since it can bail to other pages on
+//!   errors etc. The intention is also that it should be shared between
+//!   several pages that has init code in common.
+//!
+//!   Special pages:
+//!
+//!   "start": Start page.
+//!   "done":  Finish page. The page function is wizard_done(). Only
+//!    dispatch is used in the wizard_automaton entry.
+//!   "cancel":  Cancels the wizard. Has no wizard_automaton entry.
+//!
+//! @bugs
+//!   There's no good way to share variables between the functions.
+//!   Can we say id->misc? 
 
 inherit "caudiumlib";
 
@@ -97,7 +94,7 @@ inherit "caudiumlib";
 #define DEBUGMSG(msg) do {} while (0)
 #endif
 
-
+//!
 string loc_encode(string val, void|mapping args, void|string def)
 {
   string quote = args->quote || def || "html";
@@ -109,7 +106,7 @@ string loc_encode(string val, void|mapping args, void|string def)
   return val;
 }
 
-
+//!
 string wizard_tag_var(string n, mapping m, mixed a, mixed b)
 {
   object id;
@@ -120,9 +117,9 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     if(m->type == "select" || m->type == "select_multiple")
       if (m->parse)
         m->options = (replace(parse_rxml( a, id ), ",", "__CoMma__") / "\n" -
-		      ({ "" })) * ",";
+          ({ "" })) * ",";
       else
-	m->options = (a / "\n") * ",";
+  m->options = (a / "\n") * ",";
     else if (m->parse)
       m["default"] = parse_rxml( a, id );
     else
@@ -198,7 +195,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     m_delete(m,"default");
     if (!m->value) m->value="on";
     if (current && current != "0" &&
-	(current == "1"||mkmultiset(current/"\0")[m->value]))
+  (current == "1"||mkmultiset(current/"\0")[m->value]))
       m->checked="checked";
     res=make_tag("input",m);
     m->type="hidden";
@@ -234,7 +231,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      } else if(id->variables[m->name+".bar.y"])
        s=255-(int)id->variables[m->name+".bar.y"];
      else if(id->variables[m->name+".entered"] &&
-	     strlen(current=id->variables[m->name+".entered"]))
+       strlen(current=id->variables[m->name+".entered"]))
      {
        array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
@@ -298,7 +295,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      } else if(id->variables[m->name+".bar.y"])
        s = 255-((int)id->variables[m->name+".bar.y"])*2;
      else if(id->variables[m->name+".entered"] &&
-	     strlen(current=id->variables[m->name+".entered"]))
+       strlen(current=id->variables[m->name+".entered"]))
      {
        array tmp = Colors.rgb_to_hsv(@Colors.parse_color(current||"black"));
        h = tmp[0]; s = tmp[1];  v = tmp[2];
@@ -353,17 +350,17 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      m->choices = available_fonts()*",";
      if(id->conf && id->conf->modules["graphic_text"] && !m->noexample)
        res = ("<input type=submit value='Example'><br>"+
-	      ((current&&strlen(current))?
-	       "<gtext nfont='"+current+"'>Example Text</gtext><br>"
-	       :""));
+        ((current&&strlen(current))?
+         "<gtext nfont='"+current+"'>Example Text</gtext><br>"
+         :""));
      m_delete(m, "noexample");
      return make_tag("var", m)+res;
 
    case "toggle":
     m_delete(m,"default");
     return make_container("select", m,
-			  "<option"+((int)current?" selected":"")+" value=1>Yes"
-			  "<option"+(!(int)current?" selected":"")+" value=0>No");
+        "<option"+((int)current?" selected":"")+" value=1>Yes"
+        "<option"+(!(int)current?" selected":"")+" value=0>No");
 
    case "select":
      if(!m->choices && m->options)
@@ -375,18 +372,18 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      m_delete(m2, "options");
      //escape the characters we need for internal purposes..
      m->choices=replace(m->choices,
-			({"\\,", "\\:"}), 
-			({"__CoMma__", "__CoLon__"}));
+      ({"\\,", "\\:"}), 
+      ({"__CoMma__", "__CoLon__"}));
 
      return make_container("select", m2, Array.map(m->choices/",",
-						   lambda(string s, string c, mapping m) {
+               lambda(string s, string c, mapping m) {
         string t;
         if(sscanf(s, "%s:%s", s, t) != 2)
-	  t = s;
-	s=replace(s,({"__CoMma__", 
-		      "__CoLon__"}),({",",":"})); //can't be done before.
-	t=replace(t,({"__CoMma__", 
-		      "__CoLon__"}),({",",":"}));
+    t = s;
+  s=replace(s,({"__CoMma__", 
+          "__CoLon__"}),({",",":"})); //can't be done before.
+  t=replace(t,({"__CoMma__", 
+          "__CoLon__"}),({",",":"}));
 
         return "<option value='"+s+"' "+(s==c?" selected":"")+">"+loc_encode(t, m, "html")+"\n";
      },current,m)*"");
@@ -403,24 +400,25 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     m2->multiple="1";
     //escape the characters we need for internal purposes..
     m->choices=replace(m->choices,
-		       ({"\\,", "\\:"}), 
-		       ({"__CoMma__", "__CoLon__"}));
+           ({"\\,", "\\:"}), 
+           ({"__CoMma__", "__CoLon__"}));
 
     return make_container("select", m2, Array.map(m->choices/",",
-				 lambda(string s, array c, mapping m) {
+         lambda(string s, array c, mapping m) {
       string t;
       if(sscanf(s, "%s:%s", s, t) != 2)
         t = s;
       s=replace(s,({"__CoMma__", 
-		    "__CoLon__"}),({",",":"})); //can't be done before.
+        "__CoLon__"}),({",",":"})); //can't be done before.
       t=replace(t,({"__CoMma__", 
-		    "__CoLon__"}),({",",":"}));
+        "__CoLon__"}),({",",":"}));
 
       return "<option value='"+s+"' "+(search(c,s)!=-1?"selected":"")+">"+loc_encode(t, m, "html")+"\n";
     },(current||"")/"\0",m)*"");
   }
 }
 
+//!
 mapping decompress_state(string from)
 {
   if(!from) return ([]);
@@ -434,7 +432,7 @@ mapping decompress_state(string from)
   return ([]);
 }
   
-
+//!
 string compress_state(mapping state)
 {
   state = copy_value(state);
@@ -457,14 +455,16 @@ string compress_state(mapping state)
   return MIME.encode_base64( from );
 }
 
+//!
 string parse_wizard_help(string t, mapping m, string contents, object id,
-			 mapping v)
+       mapping v)
 {
   v->help=1;
   if(!id->variables->help) return "";
   return contents;
 }
 
+//!
 string make_title()
 {
   string s = (this_object()->wizard_name||this_object()->name||"No name") -
@@ -474,6 +474,7 @@ string make_title()
   return s;
 }
 
+//!
 int num_pages(string wiz_name)
 {
   int max_page;
@@ -494,6 +495,7 @@ int num_pages(string wiz_name)
 #define PREVIOUS Q((this_object()->previous_label?this_object()->previous_label:"<- Previous"))
 #define COMPLETED Q((this_object()->completed_label?this_object()->completed_label:"Completed"))
 
+//!
 string parse_wizard_page(string form, object id, string wiz_name, void|string page_name)
 {
   mapping(string:array) automaton = this_object()->wizard_automaton;
@@ -504,10 +506,10 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
   mapping foo = ([]);
   // Cannot easily be inlined below, believe me... Side-effects.
   form = parse_html(form,(id->misc->extra_wizard_tags || ([])) +
-		    ([ "var":wizard_tag_var, ]),
-		    (id->misc->extra_wizard_container || ([])) +
-		    ([ "cvar":wizard_tag_var, 
-		       "help":parse_wizard_help]), id, foo );
+        ([ "var":wizard_tag_var, ]),
+        (id->misc->extra_wizard_container || ([])) +
+        ([ "cvar":wizard_tag_var, 
+           "help":parse_wizard_help]), id, foo );
 
   // We commonly feed the action variable both from the URL with
   // "...?action=foo.pike" and with an <input> tag from the previous
@@ -520,64 +522,65 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
   if(id->misc->wizardformname) formname=id->misc->wizardformname;
   res = ("<!--Wizard-->\n"
          "<form method=get name=\"" + formname + "\">\n" +
-	 (stringp (id->variables->action) ?
-	  " <input type=hidden name=action value=\""+id->variables->action+"\">\n" :
-	  "") +
-	 " <input type=hidden name=_page value=\""+page+"\">\n"
-	 " <input type=hidden name=_state value=\""+compress_state(id->variables)+"\">\n"
-	 "<table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=80%>\n"
-	 "  <tr><td><table bgcolor=#eeeeee cellpadding=0 "
-	 "         cellspacing=0 border=0 width=100%>\n"
-	 "    <tr><td valign=top><table width=100% cellspacing=0 cellpadding=5>\n<tr><td valign=top>\n"
-	 "<font size=+2>"+make_title()+"</font>"
-	 " </td>\n<td align=right>"+
-	 (wiz_name=="done"
-	  ?COMPLETED
-	  :page_name || (max_page?PAGE+(pageno+1)+"/"+(max_page+1):""))+
-	 "</td>\n"
-	  " \n<td align=right>"+
-	 (foo->help && !id->variables->help?
-	  "<font size=-1><input type=image name=help src="+
-	  (id->conf?"/(internal,image)/help":"/image/help.gif")+
-	  " border=0 value=\"Help\"></font>":"")
-	 +"</td>\n"
-	 " </tr><tr><td colspan=3><table cellpadding=0 cellspacing=0 border=0 width=100%><tr  bgcolor=#000000><td><img src="+
-	 (id->conf?"/(internal,image)/unit":"/image/unit.gif")+
-	 " width=1 height=1 alt=\"\"></td></tr></table></td></tr>\n"
-	 "  </table><table cellpadding=6><tr><td>\n"
-	 "<!-- The output from the page function -->\n"
-	 +form+
-	 "\n<!-- End of the output from the page function -->\n"
-	 "\n</td></tr></table>\n"
-	 "      <table width=100%><tr><td width=33%>"+
-	 (((automaton ? stringp (id->variables->_prev) : pageno>0) &&
-	   wiz_name!="done")?
-	  "        <input type=submit name=prev_page value=\""+PREVIOUS+"\">":"")+
-	 "</td><td width=33% align=center >"+
-	 (wiz_name!="done"
-	  ?(((automaton ? !id->variables->_next : pageno==max_page)
-	     ?"        <input type=submit name=ok value=\" "+OK+" \">"
-	     :"")+
-	    "         <input type=submit name=cancel value=\" "+CANCEL+" \">")
-	  :"         <input type=submit name=cancel value=\" "+OK+" \">")+
-	  "</td>"
-	 "</td><td width=33% align=right >"+
-	 (((automaton ? stringp (id->variables->_next) : pageno!=max_page) &&
-	   wiz_name!="done")?
-	  "        <input type=submit name=next_page value=\""+NEXT+"\">":"")+
-	 "</td></tr></table>"
-	 "    </td><tr>\n"
-	 "  </table>\n"
-	 "  </td></tr>\n"
+   (stringp (id->variables->action) ?
+    " <input type=hidden name=action value=\""+id->variables->action+"\">\n" :
+    "") +
+   " <input type=hidden name=_page value=\""+page+"\">\n"
+   " <input type=hidden name=_state value=\""+compress_state(id->variables)+"\">\n"
+   "<table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=80%>\n"
+   "  <tr><td><table bgcolor=#eeeeee cellpadding=0 "
+   "         cellspacing=0 border=0 width=100%>\n"
+   "    <tr><td valign=top><table width=100% cellspacing=0 cellpadding=5>\n<tr><td valign=top>\n"
+   "<font size=+2>"+make_title()+"</font>"
+   " </td>\n<td align=right>"+
+   (wiz_name=="done"
+    ?COMPLETED
+    :page_name || (max_page?PAGE+(pageno+1)+"/"+(max_page+1):""))+
+   "</td>\n"
+    " \n<td align=right>"+
+   (foo->help && !id->variables->help?
+    "<font size=-1><input type=image name=help src="+
+    (id->conf?"/(internal,image)/help":"/image/help.gif")+
+    " border=0 value=\"Help\"></font>":"")
+   +"</td>\n"
+   " </tr><tr><td colspan=3><table cellpadding=0 cellspacing=0 border=0 width=100%><tr  bgcolor=#000000><td><img src="+
+   (id->conf?"/(internal,image)/unit":"/image/unit.gif")+
+   " width=1 height=1 alt=\"\"></td></tr></table></td></tr>\n"
+   "  </table><table cellpadding=6><tr><td>\n"
+   "<!-- The output from the page function -->\n"
+   +form+
+   "\n<!-- End of the output from the page function -->\n"
+   "\n</td></tr></table>\n"
+   "      <table width=100%><tr><td width=33%>"+
+   (((automaton ? stringp (id->variables->_prev) : pageno>0) &&
+     wiz_name!="done")?
+    "        <input type=submit name=prev_page value=\""+PREVIOUS+"\">":"")+
+   "</td><td width=33% align=center >"+
+   (wiz_name!="done"
+    ?(((automaton ? !id->variables->_next : pageno==max_page)
+       ?"        <input type=submit name=ok value=\" "+OK+" \">"
+       :"")+
+      "         <input type=submit name=cancel value=\" "+CANCEL+" \">")
+    :"         <input type=submit name=cancel value=\" "+OK+" \">")+
+    "</td>"
+   "</td><td width=33% align=right >"+
+   (((automaton ? stringp (id->variables->_next) : pageno!=max_page) &&
+     wiz_name!="done")?
+    "        <input type=submit name=next_page value=\""+NEXT+"\">":"")+
+   "</td></tr></table>"
+   "    </td><tr>\n"
+   "  </table>\n"
+   "  </td></tr>\n"
          "</table>\n"
          " </form>\n"
-	  );
+    );
   return res;
 }
 
 
 #define PAGE(X)  ((string)(((int)v->_page)+(X)))
 
+//!
 mapping|string wizard_for(object id,string cancel,mixed ... args)
 {
   string data;
@@ -604,21 +607,21 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     if (v->_page) {
       array page_state = automaton[v->_page];
       if (!page_state) return "Internal error in wizard code: "
-			 "No entry " + v->_page + " in automaton.";
+       "No entry " + v->_page + " in automaton.";
       function|string redirect = page_state[0];
       if (functionp (redirect)) {
-	dispatcher = redirect;
-	DEBUGMSG (sprintf ("Wizard: Running dispatch function %O for page %s\n",
-			   redirect, v->_page));
-	redirect = redirect (id, v->_page, @args);
+  dispatcher = redirect;
+  DEBUGMSG (sprintf ("Wizard: Running dispatch function %O for page %s\n",
+         redirect, v->_page));
+  redirect = redirect (id, v->_page, @args);
       }
       if (stringp (redirect) && redirect != v->_page) {
-	DEBUGMSG ("Wizard: Internal redirect to page " + redirect + "\n");
-	// Redirect takes precedence over the user choice.
-	m_delete (v, "next_page");
-	m_delete (v, "prev_page");
-	m_delete (v, "ok");
-	v->_page = redirect;
+  DEBUGMSG ("Wizard: Internal redirect to page " + redirect + "\n");
+  // Redirect takes precedence over the user choice.
+  m_delete (v, "next_page");
+  m_delete (v, "prev_page");
+  m_delete (v, "ok");
+  v->_page = redirect;
       }
     }
   }
@@ -630,7 +633,7 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     if (functionp (c)) {
       fail = c (id, @args);
       DEBUGMSG (sprintf ("Wizard: Verify function %O %s\n", c,
-			 fail ? "failed" : "succeeded"));
+       fail ? "failed" : "succeeded"));
     }
     if (!fail) {
       v->_page = automaton ? v->_next : PAGE(1);
@@ -650,22 +653,22 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     if (functionp (c)) {
       fail = c (id, @args);
       DEBUGMSG (sprintf ("Wizard: Verify function %O %s\n", c,
-			 fail ? "failed" : "succeeded"));
+       fail ? "failed" : "succeeded"));
     }
     if(!fail)
       if (automaton) v->_page = 0; // Handle done state in the automaton code below.
       else
       {
-	mixed res;
-	if(c=this_object()->wizard_done) {
-	  DEBUGMSG ("Wizard: \"Ok\" pressed; running wizard_done\n");
-	  res = c(id,@args);
-	}
-	if(res != -1)
-	  return (res
-		  || http_redirect(s->cancel_url||cancel||id->not_query, 
-				   @(id->conf?({id}):({}))));
-	DEBUGMSG ("Wizard: -1 from wizard_done; continuing\n");
+  mixed res;
+  if(c=this_object()->wizard_done) {
+    DEBUGMSG ("Wizard: \"Ok\" pressed; running wizard_done\n");
+    res = c(id,@args);
+  }
+  if(res != -1)
+    return (res
+      || http_redirect(s->cancel_url||cancel||id->not_query, 
+           @(id->conf?({id}):({}))));
+  DEBUGMSG ("Wizard: -1 from wizard_done; continuing\n");
       }
   }
   else if(v["help.x"])
@@ -681,10 +684,10 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     {
       if((v->_Add) && strlen(v[on]-"\r"))
       {
-	if(v[n]) v[n]+="\0"+v[on];
-	else v[n]=v[on];
-	m_delete(v, on);
-	m_delete(v, "_Add");
+  if(v[n]) v[n]+="\0"+v[on];
+  else v[n]=v[on];
+  m_delete(v, on);
+  m_delete(v, "_Add");
       }
     } else if(sscanf(n, "_delete_%s:%s", n,q)==2) {
       if(v[n]) v[n]=replace(replace(v[n]/"\0",q,"")*"\0","\0\0","\0");
@@ -696,87 +699,87 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
     int i = 0;
     while (1) {
       if (++i == 4711) return "Internal error in wizard code: "
-			 "Probably infinite redirect loop in automaton.";
+       "Probably infinite redirect loop in automaton.";
 
       if (v->_page == "cancel") {
-	string to = s->cancel_url||cancel||id->not_query;
-	DEBUGMSG ("Wizard: Canceling with redirect to " + to + "\n");
-	return http_redirect(to, @(id->conf?({id}):({})));
+  string to = s->cancel_url||cancel||id->not_query;
+  DEBUGMSG ("Wizard: Canceling with redirect to " + to + "\n");
+  return http_redirect(to, @(id->conf?({id}):({})));
       }
 
       if (!v->_page) v->_page = "done", oldpage = 0;
       function|string redirect = 0;
       array page_state = automaton[v->_page];
       if (!page_state && v->_page != "done")
-	return "Internal error in wizard code: No entry " + v->_page + " in automaton.";
+  return "Internal error in wizard code: No entry " + v->_page + " in automaton.";
 
       if (page_state && v->_page != oldpage) {
-	redirect = page_state[0];
-	if (functionp (redirect)) {
-	  if (dispatcher == redirect)
-	    // The previous page state had the same dispatcher as this
-	    // one; it's unnecessary to re-run it since it shouldn't
-	    // change its mind. This is also important since most of
-	    // the heavy work is often done there.
-	    dispatcher = redirect = 0;
-	  else {
-	    dispatcher = redirect;
-	    DEBUGMSG (sprintf ("Wizard: Running dispatch function %O for page %s\n",
-			       dispatcher, v->_page));
-	    redirect = dispatcher (id, v->_page, @args);
-	  }
-	}
-	else dispatcher = 0;
+  redirect = page_state[0];
+  if (functionp (redirect)) {
+    if (dispatcher == redirect)
+      // The previous page state had the same dispatcher as this
+      // one; it's unnecessary to re-run it since it shouldn't
+      // change its mind. This is also important since most of
+      // the heavy work is often done there.
+      dispatcher = redirect = 0;
+    else {
+      dispatcher = redirect;
+      DEBUGMSG (sprintf ("Wizard: Running dispatch function %O for page %s\n",
+             dispatcher, v->_page));
+      redirect = dispatcher (id, v->_page, @args);
+    }
+  }
+  else dispatcher = 0;
       }
       oldpage = 0;
 
       if (redirect && redirect != v->_page) {
-	DEBUGMSG ("Wizard: Internal redirect to page " + redirect + "\n");
-	v->_page = redirect;
+  DEBUGMSG ("Wizard: Internal redirect to page " + redirect + "\n");
+  v->_page = redirect;
       }
       else if (v->_page == "done") {
-	function donefn = this_object()->wizard_done;
-	if (!functionp (donefn))
-	  return "Internal error in wizard code: No wizard_done function.";
-	DEBUGMSG ("Wizard: Running wizard_done\n");
-	data = donefn (id, @args);
-	if (!data) return http_redirect(cancel||id->not_query,
-					@(id->conf?({id}):({})));
-	wiz_name = "done";
-	break;
+  function donefn = this_object()->wizard_done;
+  if (!functionp (donefn))
+    return "Internal error in wizard code: No wizard_done function.";
+  DEBUGMSG ("Wizard: Running wizard_done\n");
+  data = donefn (id, @args);
+  if (!data) return http_redirect(cancel||id->not_query,
+          @(id->conf?({id}):({})));
+  wiz_name = "done";
+  break;
       }
       else {
-	function pagefn = this_object()[wiz_name + v->_page];
-	if (!functionp (pagefn)) return "Internal error in wizard code: "
-				   "No page function for " + v->_page + ".";
-	DEBUGMSG (sprintf ("Wizard: Running page function %O\n", pagefn));
-	data = pagefn (id, @args);
-	if (data) {
-	  id->variables->_prev = functionp (page_state[1]) ?
-	    page_state[1] (id, v->_page, @args) : page_state[1];
-	  id->variables->_next = functionp (page_state[2]) ?
-	    page_state[2] (id, v->_page, @args) : page_state[2];
+  function pagefn = this_object()[wiz_name + v->_page];
+  if (!functionp (pagefn)) return "Internal error in wizard code: "
+           "No page function for " + v->_page + ".";
+  DEBUGMSG (sprintf ("Wizard: Running page function %O\n", pagefn));
+  data = pagefn (id, @args);
+  if (data) {
+    id->variables->_prev = functionp (page_state[1]) ?
+      page_state[1] (id, v->_page, @args) : page_state[1];
+    id->variables->_next = functionp (page_state[2]) ?
+      page_state[2] (id, v->_page, @args) : page_state[2];
 
-	  // So that dispatch functions may be used for prev/next too.
-	  if ((<"cancel", "done">)[id->variables->_prev]) id->variables->_prev = 0;
-	  if ((<"cancel", "done">)[id->variables->_next]) id->variables->_next = 0;
+    // So that dispatch functions may be used for prev/next too.
+    if ((<"cancel", "done">)[id->variables->_prev]) id->variables->_prev = 0;
+    if ((<"cancel", "done">)[id->variables->_next]) id->variables->_next = 0;
 
-	  page_name = sizeof (page_state) < 4 ? "" : functionp (page_state[3]) ?
-	    page_state[3] (id, v->_page, @args) : page_state[3];
-	  DEBUGMSG ("Wizard: prev_page " + id->variables->_prev + ", next_page " +
-		    id->variables->_next + ", page_name \"" + page_name + "\"\n");
-	  break;
-	}
-	else {
-	  int dir = offset > 0 ? 2 : 1;
-	  v->_page =
-	    functionp (page_state[dir]) ?
-	    page_state[dir] (id, v->_page, @args) : page_state[dir];
-	  DEBUGMSG ("Wizard: No data from page function; going to " +
-		    (stringp (v->_page) ? (offset > 0 ? "next" : "previous") +
-		     " page " + v->_page : "done page") + "\n");
-	  if (!stringp (v->_page)) v->_page = 0;
-	}
+    page_name = sizeof (page_state) < 4 ? "" : functionp (page_state[3]) ?
+      page_state[3] (id, v->_page, @args) : page_state[3];
+    DEBUGMSG ("Wizard: prev_page " + id->variables->_prev + ", next_page " +
+        id->variables->_next + ", page_name \"" + page_name + "\"\n");
+    break;
+  }
+  else {
+    int dir = offset > 0 ? 2 : 1;
+    v->_page =
+      functionp (page_state[dir]) ?
+      page_state[dir] (id, v->_page, @args) : page_state[dir];
+    DEBUGMSG ("Wizard: No data from page function; going to " +
+        (stringp (v->_page) ? (offset > 0 ? "next" : "previous") +
+         " page " + v->_page : "done page") + "\n");
+    if (!stringp (v->_page)) v->_page = 0;
+  }
       }
     }
   }
@@ -786,18 +789,18 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
       function pg=this_object()[wiz_name+((int)v->_page)];
       function c = !pg && this_object()["wizard_done"];
       if(functionp(c)) {
-	DEBUGMSG ("Wizard: Running wizard_done\n");
-	mixed res = c(id,@args);
-	if(res != -1) 
-	  return (res
-		  || http_redirect(cancel||id->not_query, 
-				   @(id->conf?({id}):({}))));
+  DEBUGMSG ("Wizard: Running wizard_done\n");
+  mixed res = c(id,@args);
+  if(res != -1) 
+    return (res
+      || http_redirect(cancel||id->not_query, 
+           @(id->conf?({id}):({}))));
       }
       if(!pg) return "Internal error in wizard code: Invalid page ("+v->_page+")!";
       DEBUGMSG (sprintf ("Wizard: Running page function %O\n", pg));
       if(data = pg(id,@args)) break;
       DEBUGMSG ("Wizard: No data from page function; going to " +
-		(offset > 0 ? "next" : "previous") + " page\n");
+    (offset > 0 ? "next" : "previous") + " page\n");
     }
 
   // If it's a mapping we can presume it is an http response, and return
@@ -810,6 +813,8 @@ mapping|string wizard_for(object id,string cancel,mixed ... args)
 
 mapping wizards = ([]);
 string err;
+
+//!
 object get_wizard(string act, string dir, mixed ... args)
 {
   act-="/";
@@ -818,6 +823,8 @@ object get_wizard(string act, string dir, mixed ... args)
 }
 
 int zonk=time();
+
+//!
 mapping get_actions(object id, string base,string dir, array args)
 {
   mapping acts = ([  ]);
@@ -832,20 +839,20 @@ mapping get_actions(object id, string base,string dir, array args)
     {
       if(!(<'#', '_'>)[act[0]] && act[-1]=='e')
       {
-	string sm,rn = (get_wizard(act,dir,@args)->name||act), name;
-	if(sscanf(rn, "%*s:%s", name) != 2) name = rn;
-	sscanf(name, "%s//%s", sm, name);
-	if(!acts[sm]) acts[sm] = ({ ([]) });
+  string sm,rn = (get_wizard(act,dir,@args)->name||act), name;
+  if(sscanf(rn, "%*s:%s", name) != 2) name = rn;
+  sscanf(name, "%s//%s", sm, name);
+  if(!acts[sm]) acts[sm] = ({ ([]) });
 
-	if(id->misc->raw_wizard_actions)
- 	  acts[sm][0][name]=
- 	    ({ name, base, (["action":act,"unique":(string)(zonk++) ]),
- 		  (get_wizard(act,dir,@args)->doc||"") });
- 	else
-	  acts[sm]+=
-	    ({"<!-- "+rn+" --><dt><font size=\"+2\">"
-	      "<a href=\""+base+"?action="+act+"&unique="+(zonk++)+"\">"+
-	      name+"</a></font><dd>"+(get_wizard(act,dir,@args)->doc||"")});
+  if(id->misc->raw_wizard_actions)
+    acts[sm][0][name]=
+      ({ name, base, (["action":act,"unique":(string)(zonk++) ]),
+      (get_wizard(act,dir,@args)->doc||"") });
+  else
+    acts[sm]+=
+      ({"<!-- "+rn+" --><dt><font size=\"+2\">"
+        "<a href=\""+base+"?action="+act+"&unique="+(zonk++)+"\">"+
+        name+"</a></font><dd>"+(get_wizard(act,dir,@args)->doc||"")});
       }
     };
     if(strlen(e->get()))
@@ -859,6 +866,7 @@ mapping get_actions(object id, string base,string dir, array args)
   return acts;
 }
 
+//!
 string act_describe_submenues(array menues, string base,string sel)
 {
   if(sizeof(menues)==1) return "";
@@ -872,6 +880,8 @@ string act_describe_submenues(array menues, string base,string sel)
 }
 
 string focused_wizard_menu;
+
+//!
 mixed wizard_menu(object id, string dir, string base, mixed ... args)
 {
   mapping acts;
@@ -888,16 +898,16 @@ mixed wizard_menu(object id, string dir, string base, mixed ... args)
     wizbug = catch {
       mapping acts = get_actions(id, base, dir, args);
       if(id->misc->raw_wizard_actions)
-	return acts[id->variables->sm];
+  return acts[id->variables->sm];
       string res;
       res= ("<table cellpadding=3><tr><td valign=top bgcolor=#eeeeee>"+
-	    act_describe_submenues(indices(acts),base,id->variables->sm)+
-	    "</td>\n\n<td valign=top>"+
-	    (sizeof(acts)>1 && acts[id->variables->sm]?"<font size=+3>"+
-	     (id->variables->sm||"Misc")+"</font><dl>":"<dl>")+
-	    (sort(acts[id->variables->sm]||({}))*"\n")+
-	    "</dl></td></tr></table>"+
-	    (err && strlen(err)?"<pre>"+err+"</pre>":""));
+      act_describe_submenues(indices(acts),base,id->variables->sm)+
+      "</td>\n\n<td valign=top>"+
+      (sizeof(acts)>1 && acts[id->variables->sm]?"<font size=+3>"+
+       (id->variables->sm||"Misc")+"</font><dl>":"<dl>")+
+      (sort(acts[id->variables->sm]||({}))*"\n")+
+      "</dl></td></tr></table>"+
+      (err && strlen(err)?"<pre>"+err+"</pre>":""));
       err="";
       return res;
     };
@@ -924,6 +934,7 @@ mixed wizard_menu(object id, string dir, string base, mixed ... args)
 
 /*** Additional Action Functions ***/
 
+//!
 string format_numeric(string s, string|void sep)
 {
   sep = reverse(sep||"&nbsp;");
@@ -940,8 +951,9 @@ string format_numeric(string s, string|void sep)
   return (({reverse(t)})+as[1..])*" "; 
 }
 
+//!
 string html_table(array(string) subtitles, array(array(string)) table,
-		  mapping|void opt)
+      mapping|void opt)
 {
   /* Options:
    *   bgcolor, titlebgcolor, titlecolor, fgcolor0, fgcolor1, modulo
@@ -953,55 +965,55 @@ string html_table(array(string) subtitles, array(array(string)) table,
 
   if(!opt) opt = ([]);
   int m = (int)(opt->modulo?opt->modulo:1);
-  r += ("<table bgcolor="+(opt->bgcolor||"black")+" border=0 "
-	"cellspacing=0 cellpadding=1>\n"
-	"<tr><td>\n");
-  r += "<table border=0 cellspacing=0 cellpadding=4>\n";
-  r += "<tr bgcolor="+(opt->titlebgcolor||"#113377")+">\n";
+  r += ("<table bgcolor=\""+(opt->bgcolor||"black")+"\" border=\"0\" "
+  "cellspacing=\"0\" cellpadding=\"1\">\n"
+  "<tr><td>\n");
+  r += "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\">\n";
+  r += "<tr bgcolor=\""+(opt->titlebgcolor||"#113377")+"\">\n";
   int cols;
   foreach(subtitles, mixed s)
   {
     if(stringp(s))
     {
-      r+=("<th nowrap align=left><font color="+
-	  (opt->titlecolor||"#ffffff")+">"+s+" &nbsp; </font></th>");
+      r+=("<th nowrap align=\"left\"><font color=\""+
+    (opt->titlecolor||"#ffffff")+"\">"+s+" &nbsp; </font></th>");
       cols++;
     } else {
-      r+=("</tr><tr bgcolor="+(opt->titlebgcolor||"#113377")+">"
-	  "<th nowrap align=left colspan="+cols+">"
-	  "<font color="+(opt->titlecolor||"#ffffff")+">"+s[0]+
-	  " &nbsp; </font></th>");
+      r+=("</tr><tr bgcolor=\""+(opt->titlebgcolor||"#113377")+"\">"
+    "<th nowrap align=\"left\" colspan=\""+cols+"\">"
+    "<font color=\""+(opt->titlecolor||"#ffffff")+"\">"+s[0]+
+    " &nbsp; </font></th>");
     }
   }      
   r += "</tr>";
   
   for(int i = 0; i < sizeof(table); i++) {
     string tr;
-    r += tr = "<tr bgcolor="+((i/m)%2?opt->fgcolor1||"#ddeeff":
-			      opt->fgcolor0||"#ffffff")+">";
+    r += tr = "<tr bgcolor=\""+((i/m)%2?opt->fgcolor1||"#ddeeff":
+            opt->fgcolor0||"#ffffff")+"\">";
     for(int j = 0; j < sizeof(table[i]); j++) {
       mixed s = table[i][j];
       if(arrayp(s))
-	r += "</tr>"+tr+"<td colspan="+cols+">"+s[0]+" &nbsp;</td>";
+  r += "</tr>"+tr+"<td colspan=\""+cols+"\">"+s[0]+" &nbsp;</td>";
       else {
-	string type = "text";
-	if(arrayp(opt->fields) && j < sizeof(opt->fields))
-	  type = opt->fields[j];
-	switch(type) {
-	case "num":
-	  array a = s/".";
-	  r += "<td nowrap align=right>";
-	  if(sizeof(a) > 1) {
-	    r += (format_numeric(a[0])+"."+
-		  reverse(format_numeric(reverse(a[1]), ";psbn&")));
-	  } else
-	    r += format_numeric(s, "&nbsp;");
-	  break;
-	case "text":
-	default:
-	  r += "<td nowrap>"+s;
-	}
-	r += "&nbsp;&nbsp;</td>";
+  string type = "text";
+  if(arrayp(opt->fields) && j < sizeof(opt->fields))
+    type = opt->fields[j];
+  switch(type) {
+  case "num":
+    array a = s/".";
+    r += "<td nowrap align=\"right\">";
+    if(sizeof(a) > 1) {
+      r += (format_numeric(a[0])+"."+
+      reverse(format_numeric(reverse(a[1]), ";psbn&")));
+    } else
+      r += format_numeric(s, "&nbsp;");
+    break;
+  case "text":
+  default:
+    r += "<td nowrap>"+s;
+  }
+  r += "&nbsp;&nbsp;</td>";
       }
     }
     r += "</tr>\n";
@@ -1011,7 +1023,7 @@ string html_table(array(string) subtitles, array(array(string)) table,
   return r;
 }
 
-
+//!
 string html_notice(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Notice: src=\""+
@@ -1019,6 +1031,7 @@ string html_notice(string notice, object id)
         +"err_1.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_warning(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Warning: src=\""+
@@ -1026,6 +1039,7 @@ string html_warning(string notice, object id)
         +"err_2.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_error(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Error: src=\""+
@@ -1033,17 +1047,19 @@ string html_error(string notice, object id)
         +"err_3.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
+//!
 string html_border(string what, int|void width, int|void ww,
-		   string|void bgcolor, string|void bdcolor)
+       string|void bgcolor, string|void bdcolor)
 {
   return ("<table border=0 cellpadding="+(width+1)+" cellspacing=0 "
-	  "bgcolor="+(bdcolor||"black")+
-	  "><tr><td><table border=0 cellpadding="+(ww)+
-	  " cellspacing=0 bgcolor="+(bgcolor||"white")+
-	  "><tr><td>"+what+"</tr></td></table>"
+    "bgcolor="+(bdcolor||"black")+
+    "><tr><td><table border=0 cellpadding="+(ww)+
+    " cellspacing=0 bgcolor="+(bgcolor||"white")+
+    "><tr><td>"+what+"</tr></td></table>"
           "</td></tr></table>");
 }
 
+//!
 void filter_checkbox_variables(mapping v)
 {
   foreach(indices(v), string s) {
@@ -1053,3 +1069,16 @@ void filter_checkbox_variables(mapping v)
       v[s]-="\00";
   }
 }
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
