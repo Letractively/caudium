@@ -1,3 +1,9 @@
+caudium (2:1.3.13-6) unstable; urgency=low
+
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@debian.org>  Thu,  9 Jan 2003 02:58:01 +0100
+
 caudium (2:1.3.13-5) unstable; urgency=low
 
   * Latest CVS snapshot
