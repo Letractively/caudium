@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.x since Caudium 1.2.2
 --------------------------------------------
+- The compilation process may skip rpath from the compiler/linker command line
+  if either building a Debian package or the NO_RPATH_PLEASE variable is found
+  in the environment when running configure (and smartlink thereafter).
 - Scopes compatibility is to On/Conditional. If there is problems about that
   (cf bugs #514651 & #512647) then change it to Off/Conditional. 
   Changes is due because there will more issues from users moving from
