@@ -29,7 +29,7 @@ umask 022
 # disabling threads.
 # 
 # flags="--without-threads"
-flags="--with-threads --with-keep-alive --log-dir=/var/httpd/logs"
+flags="--with-threads --log-dir=/var/httpd/logs"
 
 ### Check if variable directory exist
 if [ ! -d /var/httpd ]
