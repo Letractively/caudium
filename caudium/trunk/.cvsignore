@@ -16,3 +16,5 @@ VERSION
 commercial_modules
 make_vpath
 smartlink
+.DS_Store
+bump_version
