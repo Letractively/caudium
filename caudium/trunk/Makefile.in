@@ -256,10 +256,15 @@ bump_version: bump_version.stamp
 	@touch bump_version
 
 same_version:
-	@cd $(SRCDIR)/server/base_server; \
+ $(SRCDIR)/server/base_server; \
 	 build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "Caudium $$version.$$build" >../../VERSION;
+date_version:
+	@cd $(SRCDIR)/server/base_server; \
+	 build=`sed <caudium.pike -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <caudium.pike -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	 echo "Caudium $$version.$$build-`date '+%Y%m%d'`" >../../VERSION;
 
 
 $(SRCDIR)/ChangeLog.gz:
@@ -281,6 +286,8 @@ same_pre_dist: same_version
 
 faked_pre_dist:
 	echo "Caudium 1.0-test" > $(SRCDIR)/VERSION
+
+date_pre_dist:  date_version
 
 copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	@if test -f $(SRCDIR)/VERSION; then :; else \
