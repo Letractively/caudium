@@ -2889,7 +2889,7 @@ string tag_pikeversion(string tag, mapping args, object id)
 
 mapping query_tag_callers()
 {
-   return (["accessed":tag_accessed,
+   return ([ //"accessed":tag_accessed,
             "modified":tag_modified,
             "pr":tag_pr,
             "ipv6":tag_ipv6,
