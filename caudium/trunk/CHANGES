@@ -6,6 +6,10 @@ Changes in Caudium 1.1 since CVS branching
   command fails. This leads to more helpful error messages than
   "file not found'.
 - filesystem.pike improvements:
+  - Removed the stat cache completely. It's not any major benefit
+    unless you have a dog slow system / disk with lots of requests and
+    even then it has questionable benefits. The gain of using it is
+    also very small.
   - Organized options in sub-levels for easier overview.
   - Added default settings for umask as well as new file and directory
     modes.
