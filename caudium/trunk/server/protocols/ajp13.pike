@@ -69,6 +69,7 @@ string to_process="";
 private int got_len=0;
 private int len_to_get=0;
 private int body_len=0;
+private last_get_success=0;
 private string packet="";
 
 #define GETTING_REQUEST_BODY 1
@@ -80,26 +81,28 @@ int parse_got()
     // we know how much data we're waiting for.
     if(sizeof(to_process) >= len_to_get)
     {
+      // we should have the rest of the packet.
       sscanf(to_process, "%" + len_to_get + "s%s", packet, to_process);
-  
-       if(current_state == GETTING_REQUEST_BODY) // we're not expecting a packet type.
-       {
-          body+=packet;
-          // have we received all of the body data?
-          if(sizeof(body) < body_len) // no?
-            return 0;
-          else
-            // we have finished receiving the request...
-            return -1;
-       }
+      last_get_success=1; 
+ 
+      if(current_state == GETTING_REQUEST_BODY) // we're not expecting a packet type.
+      {
+         body+=packet;
+         // have we received all of the body data?
+         if(sizeof(body) < body_len) // no?
+           return 0;
+         else
+           // we have finished receiving the request...
+           return -1;
+      }
 
-       // otherwise, we need to get the packet type.
-       else
-       {
-          int packet_type;
-          sscanf(packet, "%c%s", packet_type, packet);
-          return packet_type;
-       }
+      // otherwise, we need to get the packet type.
+      else
+      {
+         int packet_type;
+         sscanf(packet, "%c%s", packet_type, packet);
+         return packet_type;
+      }
     }
     else return 0;
   }
@@ -160,6 +163,7 @@ void got_data(mixed fdid, string s)
 
   do
   {
+    last_get_sucess=0;
     tmp = parse_got();
 
     switch(tmp)
@@ -196,7 +200,7 @@ void got_data(mixed fdid, string s)
     if(ready_to_process)
       break;
 
-  } while(keep_trying);
+  } while(last_get_sucess);
 
   if(conf)
   {
@@ -218,6 +222,12 @@ void got_data(mixed fdid, string s)
 #else
   handle_request();
 #endif
+}
+
+// we need to pull the forward packet apart.
+void parse_forward()
+{
+  
 }
 
 /* Get a somewhat identical copy of this object, used when doing 
