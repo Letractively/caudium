@@ -207,6 +207,11 @@ class DocGen
         return "<!-- " + cmt + " -->\n";
     }
 
+    private string example_subst(string exm)
+    {
+	return replace(exm, ({"\{","{","\}","}"}),({"{","&lt;","}","&gt;"}));
+    }
+    
     private string ob_unnamed(DocParser.DocObject o) 
     {
         return "unnamed at " + o->rfile + "(" + o->lineno + ")";
@@ -347,11 +352,12 @@ class DocGen
     }
 
    /* Examples */
-   if (tag->example && sizeof(tag->example)) {
+   if (tag->examples && sizeof(tag->examples)) {
 	ret += "<examples>\n";
-	foreach(tag->example, string line)
-    	    ret += "\t<example>\n\t\t" + line + "\n\t</example>\n\n";
-	
+	foreach(tag->examples, mapping ex)
+	    if (ex->text != "")
+		ret += sprintf("\t<example type=\"%s\">%s\n\t</example>\n\n",
+	                       ex->first_line, example_subst(ex->text));
 	ret += "</examples>\n\n";
    }
 
@@ -582,9 +588,10 @@ class DocGen
 	/* Examples */
 	if (c->examples && sizeof(c->examples)) {
 	    ret += "\t<examples>\n";
-	    foreach(c->examples, string e)
-		if (e != "")
-		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    foreach(c->examples, mapping ex)
+		if (ex->text != "")
+		    ret += sprintf("\t<example type=\"%s\">%s\n\t</example>\n\n",
+	                           ex->first_line, example_subst(ex->text));
 	    ret += "\t</examples>\n";
 	}
 	
@@ -636,9 +643,10 @@ class DocGen
 	/* Examples */
 	if (e->examples && sizeof(e->examples)) {
 	    ret += "\t<examples>\n";
-	    foreach(e->examples, string e)
-		if (e != "")
-		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    foreach(e->examples, mapping ex)
+		if (ex->text != "")
+		    ret += sprintf("\t<example type=\"%s\">%s\n\t</example>\n\n",
+	                           ex->first_line, example_subst(ex->text));
 	    ret += "\t</examples>\n";
 	}
 	
@@ -686,9 +694,10 @@ class DocGen
 	/* Examples */
 	if (es->examples && sizeof(es->examples)) {
 	    ret += "\t<examples>\n";
-	    foreach(es->examples, string e)
-		if (e != "")
-		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    foreach(es->examples, mapping ex)
+		if (ex->text != "")
+		    ret += sprintf("\t<example type=\"%s\">%s\n\t</example>\n\n",
+	                           ex->first_line, example_subst(ex->text));
 	    ret += "\t</examples>\n";
 	}
 	

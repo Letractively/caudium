@@ -32,12 +32,14 @@ import Stdio;
 #undef DEBUG_PARSER
 
 multiset wspace = (<' ', '\t', '\n'>);
+multiset example_types = (<"rxml","pike">);
 
 private constant kwtype_err = "Wrong keyword type for '%s' in class '%s'";
 private constant kwname_err = "Unknown keyword '%s' for class '%s'";
 private constant obtype_err = "Wrong object type '%s' for keyword '%s' in class '%s'";
 private constant field_redef = "Field '%s' redefined in class '%s'";
 private constant fappend_err = "Appending line to one-line field '%s' in class '%s'. Overriding value.";
+private constant extype_err = "Unknown example type '%s' for class '%s'";
 
 private int      curline;
 private string   curpath;
@@ -100,6 +102,11 @@ class DocObject {
         wrerr(sprintf(obtype_err, ob, kw, myName));
     }
 
+    void wrong_etype(string extp)
+    {
+	wrerr(sprintf(extype_err, extp, myName));
+    }
+    
     void field_redefined(string field)
     {
         wrerr(sprintf(field_redef, field, myName));
@@ -286,14 +293,14 @@ class PikeFile {
 class Method {
     inherit DocObject;
     
-    string                   name;
-    string                   scope;
-    array(mapping(string:string))   args;
-    array(string)            returns;
-    array(string)            seealso;
-    array(string)            notes;
-    array(string)            example;
-    array(string)            bugs;
+    string                        name;
+    string                        scope;
+    array(mapping(string:string)) args;
+    array(string)                 returns;
+    array(string)                 seealso;
+    array(string)                 notes;
+    array(mapping(string:string)) examples;
+    array(string)                 bugs;
 
     private void new_field(object|string newstuff, string kw)
     {
@@ -333,7 +340,13 @@ class Method {
                     break;
 
                 case "example":
-                    example += ({xml_encode_string(newstuff)});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 
                 case "bugs":
@@ -389,7 +402,8 @@ class Method {
                 break;
 
             case "example":
-                example[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+            	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -414,7 +428,7 @@ class Method {
         args = ({});
         returns = ({});
         seealso = ({});
-        example = ({});
+        examples = ({});
         bugs = ({});
         notes = ({});
     }
@@ -467,13 +481,13 @@ class GlobVar {
 class Class {
     inherit DocObject;
     
-    string          scope;
-    array(Method)   methods;
-    array(GlobVar)  vars;
-    array(string)   seealso;
-    array(string)   examples;
-    array(string)   bugs;
-    array(string)   inherits;
+    string                        scope;
+    array(Method)                 methods;
+    array(GlobVar)                vars;
+    array(string)                 seealso;
+    array(mapping(string:string)) examples;
+    array(string)                 bugs;
+    array(string)                 inherits;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -498,7 +512,13 @@ class Class {
                     break;
 
                 case "example":
-                    examples += ({xml_encode_string(newstuff) + "\n"});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 
                 case "bugs":
@@ -555,7 +575,8 @@ class Class {
                 break;
 
             case "example":
-                examples[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+            	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -829,12 +850,12 @@ class Variable {
 class Tag {
     inherit DocObject;
     
-    array(string)    example;
-    array(Attribute) attrs;
-    array(string)    returns;
-    array(string)    seealso;
-    array(string)    notes;
-    array(string)    bugs;
+    array(mapping(string:string)) examples;
+    array(Attribute)              attrs;
+    array(string)                 returns;
+    array(string)                 seealso;
+    array(string)                 notes;
+    array(string)                 bugs;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -859,7 +880,13 @@ class Tag {
                     break;
                     
 		case "example":
-                    example += ({xml_encode_string(newstuff) + "\n"});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 		    
 		case "bugs":
@@ -906,7 +933,8 @@ class Tag {
                 break;
                     
 	    case "example":
-		example[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+		    examples[-1]->text += xml_encode_string(newstuff) + "\n";
 		break;
 		
 	    case "bugs":
@@ -926,7 +954,7 @@ class Tag {
         myName = "Tag";
 
         first_line = line;
-        example = ({});
+        examples = ({});
         attrs = ({});
         returns = ({});
         seealso = ({});
@@ -938,12 +966,12 @@ class Tag {
 class Container {
     inherit DocObject;
     
-    array(string)    example;
-    array(Attribute) attrs;
-    array(string)    returns;
-    array(string)    seealso;
-    array(string)    notes;
-    array(string)    bugs;
+    array(mapping(string:string)) examples;
+    array(Attribute)              attrs;
+    array(string)                 returns;
+    array(string)                 seealso;
+    array(string)                 notes;
+    array(string)                 bugs;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -968,7 +996,13 @@ class Container {
                     break;
                     
                 case "example":
-                    example += ({xml_encode_string(newstuff) + "\n"});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 		    
                 case "bugs":
@@ -1015,7 +1049,8 @@ class Container {
                 break;
                     
             case "example":
-                example[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+            	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 		
             case "bugs":
@@ -1035,7 +1070,7 @@ class Container {
         myName = "Container";
 
         first_line = line;
-        example = ({});
+        examples = ({});
         attrs = ({});
         returns = ({});
         seealso = ({});
@@ -1170,10 +1205,10 @@ class Defvar {
 class Entity {
     inherit DocObject;
     
-    array(string) examples;
-    array(string) seealso;
-    array(string) notes;
-    array(string) bugs;
+    array(mapping(string:string)) examples;
+    array(string)                 seealso;
+    array(string)                 notes;
+    array(string)                 bugs;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -1194,7 +1229,13 @@ class Entity {
                     break;
 
                 case "example":
-                    examples += ({xml_encode_string(newstuff) + "\n"});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 
                 case "bugs":
@@ -1227,7 +1268,8 @@ class Entity {
                 break;
 
             case "example":
-                examples[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+            	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -1257,11 +1299,11 @@ class Entity {
 class EntityScope {
     inherit DocObject;
     
-    array(Entity)  entities;
-    array(string)  examples;
-    array(string)  seealso;
-    array(string)  notes;
-    array(string)  bugs;
+    array(Entity)                 entities;
+    array(mapping(string:string)) examples;
+    array(string)                 seealso;
+    array(string)                 notes;
+    array(string)                 bugs;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -1282,7 +1324,13 @@ class EntityScope {
                     break;
 
                 case "example":
-                    examples += ({xml_encode_string(newstuff) + "\n"});
+		    if (!example_types[newstuff]) {
+			wrong_etype(newstuff);
+			break;
+		    }
+                    examples += ({([])});
+		    examples[-1]->first_line = xml_encode_string(newstuff);
+		    examples[-1]->text = "";
                     break;
 
                 case "bugs":
@@ -1325,7 +1373,8 @@ class EntityScope {
                 break;
 
             case "example":
-                examples[-1] += xml_encode_string(newstuff) + "\n";
+		if (sizeof(examples))
+            	    examples[-1]->text += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":

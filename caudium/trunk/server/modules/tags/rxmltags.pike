@@ -1454,7 +1454,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
 //! attribute: [val]
 //!  The optional value to decrement the variable with. Defaults to 1.
 //! see_also: inc
-//! example: exml
+//! example: rxml
 //!  {set variable="var.test" value="10 /}
 //!  {dec variable="var.test" value="5" /}
 //!  {insert variable="var.test" /}
@@ -1477,7 +1477,7 @@ string|array(string) tag_dec(string tag, mapping args, object id) {
 //! attribute: [val]
 //!  The optional value to increment the variable with. Defaults to 1.
 //! see_also: dec
-//! example: exml
+//! example: rxml
 //!  {set variable="var.test" value="10 /}
 //!  {inc variable="var.test" value="5" /}
 //!  {insert variable="var.test" /}
