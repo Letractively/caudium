@@ -38,7 +38,7 @@ inherit "caudiumlib";
 string date_doc=Stdio.read_bytes("modules/tags/doc/date_doc");
 constant language = caudium->language;
 
-constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER;
+constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "Main RXML parser";
 constant module_doc  =
 "This module makes it possible for other modules to add "
@@ -151,6 +151,8 @@ string call_tag(string tag, mapping args, int line, int i,
   TRACE_LEAVE("");
   return result;
 }
+
+string query_provides() { return "rxml:core"; }
 
 array(string)|string 
 call_container(string tag, mapping args, string contents, int line,

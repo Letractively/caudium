@@ -19,12 +19,14 @@
  *
  */
 
-/*
- * The core RXML tags, separated from the main parser to enable a second,
- * xml parser to be written. This module should be added automatically
- * by the choosen main parser.
- *
- */
+//! module: Core RXML Tags
+//!  The core RXML tags which were previously a part of the Main RXML Parser.
+//!  To allow for alternative "main parsers", all tags were separated
+//!  from the main parser. This module is added automatically
+//!  when the chosen RXML parser is loaded.
+//! type: MODULE_PARSER | MODULE_PROVIDER | MODULE_FILE_EXTENSION
+//! provides: rxml:tags
+//! cvs_version: $Id$";
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;
@@ -460,7 +462,7 @@ array(string) query_file_extensions()
 
 string query_provides() 
 { 
-  return "rxml:core";
+  return "rxml:tags";
 }
 
 #define _stat defines[" _stat"]
@@ -595,6 +597,63 @@ string tagtime(int t,mapping m)
   return s;
 }
 
+//! tag: date
+//!  This tag prints the date and time.
+//! attribute: brief
+//!  Generates as brief a date as possible.
+//! attribute: capitalize
+//!  Capitalizes the first letter of the result.
+//! attribute: date
+//!  Shows the date only.
+//! attribute: day
+//!  Adds this number of days to the current date.
+//! attribute: hour
+//!  Adds this number of hours to the current date.
+//! attribute: lang
+//!  Used together with <tt>type=string</tt> and the <tt>part</tt>
+//!  attribute to get written dates in the specified language. Available
+//!  languages are ca, es_CA (Catala), hr (Croatian), cs (Czech), nl
+//!  (Dutch), en (English), fi (Finnish), fr (French), de (German), hu
+//!  (Hungarian), it (Italian), jp (Japanese), mi (Maori), no (Norwegian),
+//!  pt (Portuguese), ru (Russian), sr (Serbian), si (Slovenian), es
+//!  (Spanish) and sv (Swedish).
+//! attribute: lower
+//!  Prints the results in lower case.
+//! attribute: minute
+//!  Adds this number of minutes to the current date.
+//! attribute: part
+//!  Print the chosen part of the date:
+//! <dl>
+//! <dt>year</dt> <dd>The year.</dd>
+//! <dt>month</dt> <dd>The month.</dd>
+//! <dt>day</dt> <dd>The weekday, starting with Sunday.</dd>
+//! <dt>date</dt> <dd>The number of days since the first this month.</dd>
+//! <dt>hour</dt> <dd>The number of hours since midnight.</dd>
+//! <dt>minute</dt> <dd>The number of minutes since the last full hour.</dd>
+//! <dt>second</dt> <dd>The number of seconds since the last full minute.</dd>
+//! <dt>yday</dt> <dd>The day since the first of January.</dd>
+//! <p>The return value of these parts are modified by both
+//! <tt>type</tt> and <tt>lang</tt>.</p>
+//! attribute: second
+//!  Adds this number of seconds to the current date.
+//! attribute: time
+//!  Prints the time only.
+//! attribute: type=number|string|roman|iso|discordian|stardate
+//!  Specifies what type of date you want. Discordian and stardate only
+//!  make a difference when <i>not</i> using <tt>part</tt>. Note that
+//!  <tt>type=stardate</tt> has a separate companion attribute,
+//!  <tt>prec</tt>, which sets the precision.
+//! attribute: unix_time
+//!  specified Unix time_t time as the starting time, instead of the
+//!  current time. This is mostly useful when the <tt>&lt;date&gt;</tt> tag is
+//!  used from a Pike-script or Roxen module.
+//! attribute: upper
+//!  Prints the result in upper case.
+//! attribute: strftime
+//!  Format the date according to the strftime format string.
+//! example: rxml
+//!  {date part="day" type="string" lang="de"}
+
 string tag_date(string q, mapping m, object id)
 {
   int t=(int)m->unix_time || time(1);
@@ -644,6 +703,24 @@ string sexpr_eval(string what)
   return (string)compile_string( what )()->foo();
 }
 
+//! container: scope
+//!  Creates a new scope for RXML variables. Variables can be changed within
+//!  the <tt>&lt;scope&gt;</tt> tag without having any effect outside it.
+//! attribute: extend
+//!  Copy all variables from the outer scope.
+//! bugs:
+//!  This only applies to variables in the &amp;form; scope.
+//! example: rxml
+//!  {set variable="foo" value="World"}
+//!  {scope}
+//!   {h1}Hello {insert variable="foo"}{/h1}
+//!   {set variable="foo" value="Duck"}
+//!  {/scope}
+//! 
+//!  {scope extend}
+//!  {h1}Hello {insert variable=foo}{/h1}
+//!  {/scope}
+
 array(string) tag_scope(string tag, mapping m, string contents, object id)
 {
   mapping old_variables = id->variables;
@@ -657,6 +734,45 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
   id->variables = old_variables;
   return ({ contents });
 }
+
+//! tag: set
+//!  This tag sets a variable to a new value.
+//!  If none of the source attributes are specified, the variable is unset.
+//!  If debug is currently on, more specific debug information is provided
+//!  if the operation failed.
+//! attribute: variable
+//!  The variable to set. It can be either a simple variable, i.e "variable", or a
+//!  variable on in scope form, ie "var.name". If the scope is left out, the &ampform;
+//!  scope is used. 
+//! attribute: scope
+//!  Use this as the &amp;scope;. When used, the value of the variable attribute will be
+//!  used as a simple name within this scope.
+//! attribute: debug
+//!  Provide debug messages in case the operation fails. <tt>&lt;set&gt;</tt>
+//!  will normally fail silently.
+//! attribute: define
+//!  Set the variable to the contents of this define.
+//! attribute: expr
+//!  Set the variable to the result of a simple mathematical expression.
+//!  Operators that can be used are +, -, *, /, % and |. Only numerical
+//!  values can be used in the expression.
+//! attribute: eval
+//!  Set the variable to the result of this RXML expression.
+//! attribute: from
+//!  Set the variable to the value of the named variable (in simple of scope form).
+//! attribute: other
+//!  Set the variable to the value of this <i>other</i> variable. This is
+//!  mostly useful from within <i>output</i> tags like <tt>&lt;sqloutput&gt;</tt>
+//!  where all columns from the SQL result will be available as
+//!  <i>other</i> variables.
+//! attribute: value
+//!  Set the variable to this value.
+//! example: rxml
+//!  {set variable="foo" value="Hello World"}
+//!  {insert variable="foo"}
+//! example: rxml
+//!  {set variable="var.date" eval="{date}"}
+//!  {insert variable="var.date"}
 
 string tag_set( string tag, mapping m, object id )
 {
@@ -716,6 +832,31 @@ string tag_set( string tag, mapping m, object id )
   }
 }
 
+//! tag: append
+//!  Append a value to a variable.
+//! bugs:
+//!  Does not yet handle new-style scope/entity arguments.
+//! attribute: variable
+//!  The variable to append to.
+//! attribute: debug
+//!  Provide debug messages in case the operation fails. <tt>&lt;append&gt;</tt>
+//!  will normally fail silently.
+//! attribute: define
+//!  Append the contents of this define.
+//! attribute: from
+//!  Append the value of the named variable.
+//! attribute: other
+//!  Append the value of this <i>other</i> variable. This is mostly useful
+//!  from within <i>output</i> tags like <tt>&lt;sqloutput&gt;</tt> where all
+//!  columns from the sql result will be available as <i>other</i>
+//!  variables.
+//! attribute: value
+//!  Append the variable to this value.
+//! example: rxml
+//!  {set variable=foo value="Hello"}
+//!  {append variable="foo" value=" World"}
+//!  {insert variable="foo"}
+
 string tag_append( string tag, mapping m, object id )
 {
   if (m->variable)
@@ -763,9 +904,27 @@ string tag_append( string tag, mapping m, object id )
     return "";
 }
 
-/* Like insert, but you can only have define tags in the file.
- * It is significantly faster.
- */ 
+//! tag: use
+//!  Reads tags, container tags and defines from a file or package. The
+//!  <tt>&lt;use&gt;</tt> tag is much faster than the
+//!  <tt>&lt;include&gt;</tt>, since the parsed definitions is cached.
+//! bugs:
+//!  Fix support for new-style scope/variables.
+//! attribute: file
+//!  Reads all tags and container tags and defines from the file.
+//!  <p>This file will be fetched just as if someone had tried to fetch it
+//!  with an HTTP request. This makes it possible to use Pike script
+//!  results and other dynamic documents. Note, however, that the results of the
+//!  parsing are heavily cached for performance reasons. If you do not want
+//!  this cache, use <doc>{insert file="..." nocache="" /}</doc> instead.</p>
+//! attribute: package
+//!  Reads all tags, container tags and defines from the given
+//!  package. Packages are files located in
+//!  <i>local/rxml_packages/</i>. 
+//!  <p>By default, the package <i>gtext_headers</i> is available, that
+//!  replaces normal headers with graphical headers. It redefines the h1,
+//!  h2, h3, h4, h5 and h6 container tags.</p>
+
 string tag_use(string tag, mapping m, object id)
 {
   mapping res = ([]);
@@ -924,6 +1083,48 @@ string call_user_container(string tag, mapping args, string contents, int line,
 }
 
 
+//! container: define
+//!  Defines new tags, container tags or defines. You can use a few
+//!  special tokens in the definition of tags and container tags:
+//!  <dl>
+//!   <p><dt><tt><b>#args#</b></tt></dt><dd>All arguments sent to the tag. Useful when
+//!   defining a new tag that is more or less only an alias for an old one.</dt></p>
+//!   <p><dt><tt><b>&amp;attribute;</b></tt></dt><dd>Inserts the value of that attribute.</dd></p>
+//!  </dl>
+//!  In a custom container, <contents> will be replaced with the contents
+//!  of the container.
+//! bugs:
+//!  Defined tags and containers DO NOT work with the XML compliant main
+//!  parser. This is obviously an issue that needs to be fixed.
+//! attribute: container
+//!  Define a new RXML container tag, or override a previous definition.
+//! attribute: name
+//!  Sets the specified define. Can be inserted later by the
+//!  <tt>&lt;insert&gt;</tt> tag.
+//! attribute: tag
+//!  Defines a new RXML tag, or overrides a previous definition.
+//! attribute: default_XXX
+//!  Set a default value for an attribute, that will be used when the
+//!  attribute is not specified when the defined tag or container is used.
+//! example: rxml
+//!  {define container="h1"}
+//!   {gtext fg="blue" #args#}{contents}{/gtext}
+//!  {/define}
+//!  {h1}Hello{/h1}
+//! example: rxml
+//!  {define container="h"1}
+//!   {gtext fg="blue" #args#}{contents}{/gtext}
+//!  {/define}
+//!  {h1}Hello{/h1}
+//! example: rxml
+//!  {define tag="test" default_foo="foo"
+//! 	      default_bar="bar"}
+//!   The test tag: Testing testing.
+//!   Foo is &foo;, bar is &bar;
+//!  {/define}
+//!  {test foo="Hello" bar="World"}
+//!  {br}{test foo="Hello"}
+
 string tag_define(string tag, mapping m, string str, object id, object file,
 		  mapping defines)
 { 
@@ -972,6 +1173,15 @@ string tag_define(string tag, mapping m, string str, object id, object file,
   return ""; 
 }
 
+//! tag: undefine
+//!  Undefines a previously defined tag, container tag or define.
+//! attribute: name
+//!  Undefine this define.
+//! attribute: tag
+//!  Undefine this tag.
+//! attribute: container
+//!  Undefine this container tag.
+
 string tag_undefine(string tag, mapping m, object id, object file,
 		    mapping defines)
 { 
@@ -993,9 +1203,6 @@ string tag_undefine(string tag, mapping m, object id, object file,
 	 "&lt;undefine help&gt; for instructions. -->";
   return ""; 
 }
-
-string tag_modified(string tag, mapping m, object id, object file,
-		    mapping defines);
 
 
 
@@ -1097,6 +1304,62 @@ string tag_echo(string tag,mapping m,object id,object file,
     return "<i>Unknown variable</i>: '"+m->var+"'";
   }
 }
+
+//! tag: insert
+//!  Inserts values from files, cookies, defines or variables. If used to
+//!  insert cookies or variables <tt>&lt;insert&gt;</tt> will quote before
+//!  inserting, to make it impossible to insert dangerous RXML tags.
+//! attribute: cookie
+//!  Inserts the value of the cookie.
+//! attribute: cookies
+//!  Inserts the value of all cookies. With the optional argument full, the
+//!  insertion will be more verbose.
+//! attribute: encode
+//!  Determines what quoting method should be when inserting cookies or
+//!  variables. Default is <i>html</i>, which means that &lt;, &gt; and
+//!  &amp; will be quoted, to make sure you can't insert RXML tags. If you
+//!  choose <i>none</i> nothing will be quoted. It will be possible to
+//!  insert dangerous RXML tags so you must be of what your variables
+//!  contain.
+//! attribute: define
+//!  Inserts this define, which must have been defined by the
+//!  <tt>&lt;define&gt;</tt> tag before it is used. The define can be done in
+//!  another file, if you have inserted the file. 
+//! attribute: file
+//!  Inserts the file. This file will then be fetched just as if someone
+//!  had tried to fetch it through an HTTP request. This makes it possible to
+//!  include things like the result of Pike scripts. It also has the side-effect
+//!  that files that normally would be parsed (.rxml files for example)
+//!  will be parsed before being inserted into the current file. 
+//! 
+//!  <p>If path does not begin with <i>/</i>, it is assumed to be a URL
+//!  relative to the directory containing the page with the
+//!  <tt>&lt;insert&gt;</tt> tag. Note that included files will be parsed if they
+//!  are named with an extension the main RXML parser handles. This might
+//!  cause unexpected behavior. For example, it will not be possible to
+//!  share any macros defined by the <tt>&lt;define&gt;</tt> tags. </p>
+//! 
+//!  <p>If you want to have a file with often used macros you should name
+//!  it with an extension that won't be parsed. For example, <i>.txt</i>.</p>
+//! attribute: fromword=toword
+//!  Replaces fromword with toword in the macro or file, before insering
+//!  it. Note that only lower case character sequences can be replaced.
+//! attribute: nocache
+//!  Don't cache results when inserting files, but always fetch the file. 
+//! attribute: variable
+//!  Insert the named variable. It can be written on the simple form,
+//!  "variable" or with the scope (which defaults to "form"),
+//!  scope.variable.
+//! attribute: scope
+//!  Use this scope. The variable attribute will be considered to be a
+//!  simple name when this attribute is present. I.e. &lt;insert
+//!  variable="client.name" scope="var" />&gt; will insert the variable
+//!  <tt>client.name</tt> from the scope <tt>var</tt>
+//! example: rxml
+//!  {define name="foo"}This is a foo{/define}
+//!  {insert define="foo" /}
+//!  {br /}{insert name="foo" foo="cat" /}
+//!  {br /}{insert name="foo" a="some" foo="cats" is="are" /}
 
 array(string)|string tag_insert(string tag,mapping m,object id,object file,mapping defines)
 {
@@ -1435,6 +1698,88 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
   return "<!-- No file? -->";
 }
 
+
+//! tag: accessed
+//!  <tt>&lt;accessed&gt;</tt> generates an access counter that shows how many
+//!  times the page has been accessed. In combination with the
+//!  <tt>&lt;gtext&gt;</tt>tag you can generate one of those popular graphical
+//!  counters.
+//!  <p>A file, <i>Accesslog</i>, in the logs directory is used to
+//!  store the number of accesses to each page. Thus it will use more
+//!  resources than most other tags and can therefore be deactivated.
+//!  By default the access count is only kept for files that actually
+//!  contain an <tt>&lt;accessed&gt;</tt> tag, but you can optionally
+//!  force access counting on file extension basis.</p>
+//! 
+//! attribute: add
+//!  Increments the number of accesses with this number instead of one,
+//!  each time the page is accessed.
+//! attribute: addreal
+//!  Prints the real number of accesses as an HTML comment. Useful if you
+//!  use the <tt>cheat</tt> attribute and still want to keep track of the
+//!  real number of accesses.
+//! attribute: capitalize
+//!  Capitalizes the first letter of the result.
+//! attribute: cheat
+//!  Adds this number of accesses to the actual number of accesses before
+//!  printing the result. If your page has been accessed 72 times and you
+//!  add <doc>{accessed cheat="100"}</doc> the result will be 172.
+//! attribute: factor
+//!  Multiplies the actual number of accesses by the factor.
+//! attribute: file
+//!  Shows the number of times the page <i>filename</i> has been
+//!  accessed instead of how many times the current page has been accessed.
+//!  If the filename does not begin with "/", it is assumed to be a URL
+//!  relative to the directory containing the page with the
+//!  <tt>&lt;accessed /&gt;</tt> tag. Note, that you have to type in the full name
+//!  of the file. If there is a file named tmp/index.html, you cannot
+//!  shorten the name to tmp/, even if you've set Caudium up to use
+//!  index.html as a default page. The <i>filename</i> refers to the
+//!  <b>virtual</b> filesystem.
+//! 
+//!  <p>One limitation is that you cannot reference a file that does not
+//!  have its own <doc>{accessed}</doc> tag. You can use <doc>{accessed
+//!  silent="silent" /}</doc> on a page if you want it to be possible to count accesses
+//!  to it, but don't want an access counter to show on the page itself.</p>
+//! attribute: lang
+//!  Will print the result as words in the chosen language if used together
+//!  with <tt>type=string</tt>. Available languages are ca, es_CA
+//!  (Catala), hr (Croatian), cs (Czech), nl (Dutch), en (English), fi
+//!  (Finnish), fr (French), de (German), hu (Hungarian), it (Italian), jp
+//!  (Japanese), mi (Maori), no (Norwegian), pt (Portuguese), ru (Russian),
+//!  sr (Serbian), si (Slovenian), es (Spanish) and sv (Swedish).
+//! attribute: lower
+//!  Prints the result in lowercase.
+//! attribute: per
+//!  Shows the number of accesses per unit of time (one of minute, hour, 
+//!  day, week and month).
+//! attribute: prec
+//!  Rounds the number of accesses to this number of significant digits. If
+//!  <tt>prec="2"</tt> show 12000 instead of 12148.
+//! attribute: reset
+//!  Resets the counter. This should probably only be done under very
+//!  special conditions, maybe within an <doc>{if}{/if}</doc> statement.
+//!  <p>This can be used together with the file argument, but it is limited
+//!  to files in the current- and sub-directories.</p>
+//! attribute: silent
+//!  Print nothing. The access count will be updated but not printed. This
+//!  option is useful because the access count is normally only kept for
+//!  pages with actual <tt>&lt;access&gt;</tt> on them. <doc>{accessed
+//!  file="filename" /}</doc> can then be used to get the access count for the
+//!  page with the silent counter.
+//! attribute: upper
+//!  Print the result in uppercase.
+//! attribute: since
+//!  Inserts the date that the access count started. The language will
+//!  depend on the <tt>lang</tt> tag, default is English. All normal [date]
+//!  related attributes can be used. See the <tt>&lt;date&gt;</tt> tag.
+//! attribute: type
+//!  Specifies how the count are to be presented. Some of these are only
+//!  useful together with the <tt>since</tt> attribute.
+//! example: rxml
+//!  This page has been accessed
+//!  {accessed type="string" cheat="90" addreal /}
+//!  times since {accessed since="since" /}.
 
 string tag_accessed(string tag,mapping m,object id,object file,
 		    mapping defines)
