@@ -486,7 +486,10 @@ void register_plugins(void|object conf)
 //         session1_id:session1_options
 //           'nocookies':1 if no cookies should be set, 0 if cookies are ok
 //           'lastused':time_when_last_used
+//           'lastchanged':time_of_last_store_or_delete
+//           'lastretrieved':time_of_last_retrieve
 //           'cookieattempted':1 if a cookie set was attempted
+//           'ctime':creation_time
 //         session2_id:session2_options
 //           'nocookies':1 if no cookies should be set, 0 if cookies are ok
 //           'lastused':time_when_last_used
@@ -671,14 +674,18 @@ private void memory_setup(object id, string|void sid)
 private void memory_store(object id, string key, mixed data, string sid, void|string reg)
 {
     string    region = reg || "session";
+    int       t = time();    
 
+    _memory_storage["_sessions_"][sid]->lastused = t;
+    
     if (memory_validate_storage(region, sid, "memory_storage") < 0)
         return;
 
     _memory_storage[region][sid]->data += ([
         key : data
     ]);
-    _memory_storage->_sessions_[sid]->lastused = time();
+
+    _memory_storage["_sessions_"][sid]->lastchanged = t;
 }
 
 //
@@ -687,14 +694,19 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
 private mixed memory_retrieve(object id, string key, string sid, void|string reg)
 {
     string    region = reg || "session";
+    int       t = time();
 
+    _memory_storage["_sessions_"][sid]->lastused = t;
+    
     if (memory_validate_storage(region, sid, "memory_retrieve") < 0)
         return 0;
 
+    _memory_storage["_sessions_"][sid]->lastused = time();
+    
     if (!_memory_storage[region][sid]->data[key])
         return 0;
 
-    _memory_storage["_sessions_"][sid]->lastused = time();
+    _memory_storage["_sessions_"][sid]->lastretrieved = t;
     
     return _memory_storage[region][sid]->data[key];
 }
@@ -706,14 +718,18 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
 private mixed memory_delete_variable(object id, string key, string sid, void|string reg)
 {
     string    region = reg || "session";
+    int       t = time();    
 
+    _memory_storage["_sessions_"][sid]->lastused = t;
+    
     if (memory_validate_storage(region, sid, "memory_delete_variable") < 0)
         return 0;
 
     if (_memory_storage[region][sid][key]) {
         mixed val = _memory_storage[region][sid][key]->data;
         m_delete(_memory_storage[region][sid], key);
-        
+
+        _memory_storage["_sessions_"][sid]->lastchanged = t;
         return val;
     }
 
@@ -750,6 +766,8 @@ private void memory_expire_old(int curtime)
 private mapping memory_get_region(object id, string sid, string reg)
 {
     string    region = reg || "session";
+
+    _memory_storage["_sessions_"][sid]->lastused = time();
     
     if (memory_validate_storage(region, sid, "memory_get_region") < 0)
         return 0;
@@ -873,6 +891,9 @@ private string alloc_session(object id)
 
     sa = cur_storage->get_sessions_area(id)[id->misc->session_id];
 
+    sa->lastused = time();
+    sa->ctime = time();
+    
     if (!sa->nocookies && !sa->cookieattempted) {
         gsession_set_cookie(id, ret);
         sa->cookieattempted = 1;
