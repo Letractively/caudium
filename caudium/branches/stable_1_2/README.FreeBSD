@@ -15,7 +15,8 @@ date ports tree before trying to compile anything. Please check
 the FreeBSD handbook on how to update ports using cvsup.
 
 Then after that, you'll can untar the file in /usr and go to
-/usr/ports/www/caudium (for current stable branch) or 
+/usr/ports/www/caudium10 (for stable 1.0.x branch) or 
+/usr/ports/www/caudium12 (for stable 1.2.x branch) or 
 /usr/ports/www/caudium-dev (for current developpment branch).
 
 Have fun !
