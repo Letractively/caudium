@@ -1,3 +1,11 @@
+caudium (2:1.2.16-1) unstable; urgency=low
+
+  * Latest upstream release:
+    - Fix autoconf detection of Pike's version.
+    - Fix autoconf woes with moving from 2.1x version to new 2.53.
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 22 Oct 2002 17:55:11 +0200
+
 caudium (2:1.2.14-1) unstable; urgency=low
 
   * Latest upstream release:
