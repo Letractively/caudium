@@ -51,7 +51,9 @@ typedef struct
 #define MY_MAPPING_LOOP(md, COUNT, KEY) \
   for(COUNT=0;COUNT < md->hashsize; COUNT++ ) \
 	for(KEY=md->hash[COUNT];KEY;KEY=KEY->next)
+#define ADD_STORAGE(x) add_storage(sizeof(x))
 #endif
+
 
 
 #ifndef MIN
