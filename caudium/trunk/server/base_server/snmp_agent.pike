@@ -96,6 +96,51 @@ void create(object c)
   call_out(update_counters, 0);
 }
 
+//! Send a pre-defined Caudium SNMP trap
+//! @param trapname
+//!   the name of the trap to send
+//! @param trap_recipients
+//!   the names of recipients of trap
+//! @param trap_community
+//!   the community to attach to traps
+//! @param args
+//!   optional additional arguments
+void send_trap(string trapname, array trap_recipients, string trap_community, mixed|void args)
+{
+  mapping varlist=([]);
+  string oid="1.3.6.1.4.1.14245.102.1";
+  int type=6;
+  int spectype;
+
+  switch(trapname){
+    case "abs_engaged":
+      spectype=1;
+      break;
+    case "server_restart":
+      spectype=2;
+      break;
+    case "server_shutdown":
+      spectype=3;
+      break;
+    case "server_startup":
+      spectype=4;
+      break;
+    case "backtrace":
+      spectype=5;
+      varlist=(["1.3.6.1.4.1.14245.103.1": ({"str", args[0]})]);
+      break;
+    default:
+      spectype=6;
+      varlist=(["1.3.6.1.4.1.14245.103.2": ({"str", trapname})]);
+  }
+
+  foreach(trap_recipients, string recip)
+  {
+    a->trap(varlist, oid, type, spectype, 
+       (time()-caudium->start_time)*100), 0, recip);
+  }
+}
+
 //! Return the server version for SNMP for oid 100.1 (under Caudium OID)
 array snmp_get_server_version(string oid, mapping rv)
 {

@@ -255,8 +255,10 @@ private static void low_shutdown(int exit_type)
     int pid;
     if (exit_type) {
       roxen_perror("Restarting Caudium.\n");
+      send_trap("server_restart");
     } else {
       roxen_perror("Shutting Caudium down.\n");
+      send_trap("server_shutdown");
 
       // This has to be refined in some way. It is not all that nice to do
       // it like this (write a file in /tmp, and then exit.)  The major part
@@ -341,6 +343,25 @@ static void create_snmp_agent()
   if (GLOBVAR(snmp_enable)) {
     report_notice("Starting SNMP agent.\n");
     snmp_agent=((program)"snmp_agent")(caudium);
+  }
+}
+
+// non-RIS
+static void send_trap(string trapname)
+{
+  // is snmp enabled and do we have trap recipients?
+  if (GLOBVAR(snmp_enable) && GLOBVAR(snmp_trap_recipients))
+  {
+    if(snmp_agent)
+    {
+
+      array recip=({});
+      recip=GLOBVAR(snmp_trap_recipients)/",";
+
+      recip=map(recip, lambda(string s){ return String.trim_all_whites(s);});
+      snmp_agent->send_trap(trapname, recip, 
+	GLOBVAR(snmp_trap_community));
+    }
   }
 }
 
@@ -1380,7 +1401,7 @@ object load_from_dirs(array dirs, string f, object conf)
 private void handle_sigalrm(int sig)
 {
   werror("**** %s: ABS engaged!\nTrying to dump backlog: \n", ctime(time()) - "\n");
-  
+  send_trap("abs_engage");  
   catch {
     // Catch for paranoia reasons.
     describe_all_threads();
@@ -2309,7 +2330,13 @@ private void define_global_variables(int argc, array (string) argv)
         "The community to enable get access.");
 
   globvar("snmp_set_community", "", "SNMP Agent: Set Community", TYPE_STRING,
-        "The community to enable set access.(Leave empty to disable set access.)");
+        "The community to enable set access. (Leave empty to disable set access.)");
+
+  globvar("snmp_trap_community", "trap", "SNMP Agent: Trap Community", TYPE_STRING,
+        "The community to use when sending traps");
+
+  globvar("snmp_trap_recipients", "", "SNMP Agent: Trap Recipients", TYPE_STRING,
+        "A comma separated list of hosts to send traps to. (Leave empty to disable sending traps.)");
 
   globvar("snmp_port", 161, "SNMP Agent: Listen Port", TYPE_INT,
         "The port to start the SNMP listener on. Caudium must be "
@@ -3420,7 +3447,8 @@ int main(int argc, array(string) argv)
   add_constant("write", perror);
 
   report_notice("Starting Caudium\n");
-  
+  send_trap("server_startup");
+
 #ifdef FD_DEBUG  
   mark_fd(0, "Stdin");
   mark_fd(1, "Stdout");
