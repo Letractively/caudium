@@ -230,7 +230,7 @@ private static void really_low_shutdown(int exit_code)
 //!
 //!   @value -1
 //!     Restart the process.
-//!  @endit
+//!  @endint
 private static void low_shutdown(int exit_type)
 {
   // Change to root user if possible ( to kill the start script... )
@@ -355,6 +355,7 @@ static void create_js_context()
 }
 
 static int shutting_down;
+
 //! This is called for each incoming connection.
 //!
 //! @param port
@@ -1189,7 +1190,7 @@ public string|array type_from_filename( string|void file, int|void to )
 }
 
 #ifndef NO_COMPAT
-  
+
 #define COMPAT_ALIAS(X) mixed X(string file, object id){return id->conf->X(file,id);}
 
 /*@PIKEPARSER_HACK_START@*/
