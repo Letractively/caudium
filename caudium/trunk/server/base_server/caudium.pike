@@ -950,22 +950,18 @@ public string full_status()
   
   foreach(configurations, object conf)
   {
-    if(!conf->sent
-       ||!conf->received
-       ||!conf->hsent)
-      continue;
-#ifdef __AUTO_BIGNUM__
-    foo[0] += (conf->sent / 1048576.0)/(float)(time(1)-start_time+1);
-    foo[1] += conf->sent / 1048576.0;
-    foo[2] += conf->hsent / 1048576.0;
-    foo[3] += conf->received / 1048576.0;
-    foo[4] += conf->requests;
-#else    
-    foo[0] += conf->sent->mb()/(float)(time(1)-start_time+1);
-    foo[1] += conf->sent->mb();
-    foo[2] += conf->hsent->mb();
-    foo[3] += conf->received->mb();
-    foo[4] += conf->requests;
+#ifdef __AUTO_BIGNUM__ 
+    foo[0] += ((conf->sent?conf->sent:0) / 1048576.0)/(float)(time(1)-start_time+1);
+    foo[1] += (conf->sent?conf->sent:0) / 1048576.0;
+    foo[2] += (conf->hsent?conf->hsent:0) / 1048576.0;
+    foo[3] += (conf->received?conf->received:0) / 1048576.0;
+    foo[4] += (conf->requests?conf->requests:0);
+#else
+    foo[0] += (conf->sent?conf->sent->mb():0)/(float)(time(1)-start_time+1);
+    foo[1] += conf->sent?conf->sent->mb():0;
+    foo[2] += conf->hsent?conf->hsent->mb():0;
+    foo[3] += conf->received?conf->received->mb():0;
+    foo[4] += conf->requests?conf->requests:0;
 #endif
   }
 
