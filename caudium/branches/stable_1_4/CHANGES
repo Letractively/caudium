@@ -1,6 +1,13 @@
 Changes in Caudium 1.4.3 since Caudium 1.4.2
 --------------------------------------------
-- not using strftime on solaris as it does not support the POSIX %z flag
+- Watchdog PID check can now be disabled with --without-watchdog-pidcheck
+  It is disabled by default on Linuxes < 2.6, since their threads
+	implementations assigned different PIDs for each thread.
+	 (Bertrand Lupart)
+- Fixed backtrace when using <accessed since> or <accessed help> when accessed
+  was handled by accessed-sql or accessed-memory.
+	 (Bertrand Lupart)
+- Not using strftime on solaris as it does not support the POSIX %z flag
   which rendered Caudium.cern_http_date() unusable.
    (Marek Habersack)
 - The id->variables wasn't set as before regarding empty values, this broke
