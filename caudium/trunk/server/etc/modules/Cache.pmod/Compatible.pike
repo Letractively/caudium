@@ -89,7 +89,7 @@ mixed cache_lookup( string in, string what ) {
 
 //! Status information
 //!
-//! @todo
+//! @note
 //! make this return something relevant.
 string status() {
   /*
