@@ -55,6 +55,9 @@ string describe_type(int type, mixed flag)
    case TYPE_FILE:
     return "(File name)";
 
+   case TYPE_EXISTING_FILE:
+    return "(Name of a file which must exist already)";
+
    case TYPE_DIR:
     return "(Directory name of existing directory)";
 
@@ -176,6 +179,7 @@ string describe_variable_as_text(array var, int|void verbose)
    case TYPE_STRING:
    case TYPE_LOCATION:
    case TYPE_FILE:
+   case TYPE_EXISTING_FILE:
    case TYPE_DIR:
     string s;
     if(!var[VAR_VALUE])
@@ -516,6 +520,10 @@ string describe_variable_low(array var, mixed path, int really_short,
     break;
     
    case TYPE_FILE:
+    res=input(path, var[VAR_VALUE], 30)+"<input type=submit value=Ok>";
+    break;
+
+   case TYPE_EXISTING_FILE:
     res=input(path, var[VAR_VALUE], 30)+"<input type=submit value=Ok>";
     break;
     
