@@ -86,9 +86,9 @@ class DocGen
 
         /* File header */
         if (f->first_line)
-            ret = "<file name=\"" + f->first_line + "\" />\n";
+            ret = "<file name=\"" + f->first_line + "\">\n";
         else
-            ret = "<file name=\"unnamed_file\" />\n";
+            ret = "<file name=\"unnamed_file\">\n";
 
         /* File description */
         ret += "<description>\n";
@@ -156,9 +156,10 @@ class DocGen
 
         if (!sizeof(f->globvars))
             return "";
-
+	ret = "<globvars>\n";
         foreach(f->globvars, object gv)
             ret += do_f_globvar(gv);
+	ret += "</globvars>\n";
 
         return ret;
     }
@@ -281,10 +282,10 @@ class DocGen
 
         if (!sizeof(f->methods))
             return "";
-
+	ret = "<methods>\n";
         foreach(f->methods, object m)
             ret += do_f_method(m);
-
+	ret += "</methods>\n";
         return ret;
     }
     
@@ -313,6 +314,8 @@ class DocGen
 	/* And Classes */
 	if (f->classes)
 	    ofile->write(f_classes(f));
+
+	ofile->write("</file>");
     }
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
@@ -341,19 +344,19 @@ class DocGen
     void generate(string tdir)
     {
         string  cwd = getcwd();
-        
+        tdir = combine_path(cwd, tdir);
         /* First see whether the target directory exists and, if it
          * doesn't, try to create it.
          */
         foreach(subdirs, string d) {
-            string   dir = tdir + "/" + d + "/";
+	  string   dir = combine_path(tdir, d);
             
-            if (!cd(dir))
-                if (!Stdio.mkdirhier(dir, 0755))
-                    throw(({"Cannot create directory hierarchy " +dir + "\n", backtrace()}));
+	  if (!cd(dir))
+	    if (!Stdio.mkdirhier(dir, 0755))
+	      throw(({"Cannot create directory hierarchy " +dir + "\n", backtrace()}));
         }
         
-        cd(tdir + "/");
+        cd(tdir);
         if (files) {
             foreach(files, DocParser.PikeFile f) {
                 output_file(subdirs[0] + "/", f);
