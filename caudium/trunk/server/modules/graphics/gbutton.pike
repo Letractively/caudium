@@ -581,16 +581,16 @@ static array mk_url(object id, mapping args, string contents)
      * /grendel
      */
     mapping new_args = ([
-        "pagebg": Colors.parse_color(args->pagebgcolor ||
+        "pagebg": Image.Color(args->pagebgcolor ||
                               (id->misc->defines ? id->misc->defines->bgcolor : 0) ||
                               args->bgcolor ||
-                              "#eeeeee"),
-        "bg": Colors.parse_color(args->bgcolor ||
+                              "#eeeeee")->hex(),
+        "bg": Image.Color(args->bgcolor ||
                           (id->misc->defines ? id->misc->defines->bgcolor : 0) ||
-                          "#eeeeee"),
-        "txt": Colors.parse_color(args->textcolor ||
+                          "#eeeeee")->hex(),
+        "txt": Image.Color(args->textcolor ||
                            (id->misc->defines ? id->misc->defines->fgcolor : 0) ||
-                           "#000000"),
+                           "#000000")->hex(),
         "al": args->align || "left",
         "ica": lower_case(args->align_icon || "left"),
         "icva": lower_case(args->valign_icon || "middle"),
