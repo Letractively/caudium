@@ -23,4 +23,5 @@ Changes in Caudium 1.1 since CVS branching
     upgrading!
 - Removed htmlparse dependency from the Enhanced Directory Listings
   module since we have two parsing modules now.
+- Quote the chars < > @ in http_encode_url and http_encode_string.
 - added the excellent gbutton.pike module from Roxen 2.x
