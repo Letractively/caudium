@@ -77,7 +77,7 @@ string page_0(object id)
   object o = next_object();
   for(;;) {
     if(o && object_program(o) == object_program(pc) && o->cmd_fd) {
-      report_notice(sprintf("%O\n", indices(o)));
+      report_notice(sprintf("(type: %s) %O\n", typeof(o), indices(o)));
       ftps += (<o>);
     }
     if(catch(o = next_object(o)))
