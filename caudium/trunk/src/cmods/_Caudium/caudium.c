@@ -1248,9 +1248,9 @@ static void f_cern_http_date(INT32 args)
   }
 #endif
   if (diff > 0L) {
-    sign = '+';
-  } else {
     sign = '-';
+  } else {
+    sign = '+';
     diff = -diff;
   }
   if(snprintf(date, sizeof date, "%02d/%s/%d:%02d:%02d:%02d %c%02ld%02ld",
