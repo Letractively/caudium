@@ -209,6 +209,8 @@ object clone(mixed ... args) {
 
 // This is inside caudiumlib14
 static mapping build_caudium_env_vars(object id);
+static string  http_caudium_id_cookie();
+static string  http_caudium_config_cooke(string from);
 
 //! Backward compatibility with Roxen
 //! @deprecated
@@ -222,4 +224,38 @@ mixed build_roxen_env_vars(mixed ... args) {
 string extention(string f) {
   WCOMPAT("Caudium","extension");
   return Caudium.extension(f);
+}
+
+//! Compat call for http_caudium_id_cookie
+//! @deprecated
+string http_roxen_id_cookie() {
+  report_error("Compat http_roxen_id_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
+  return http_caudium_id_cookie();
+}
+
+//! Compat call for http_caudium_config_cookie
+//! @deprecated
+string http_roxen_config_cookie(string from) {
+  report_error("Compat http_roxen_config_cookie() used in %s, please consider using http_caudium_id_cookie() instead\n",dbt(backtrace()[-2]));
+  return http_caudium_id_cookie(string from);
+}
+
+//! Compat call from http_auth_required
+//! @param realm
+//!   The realm of this authentication. This is show in variour methods by
+//!   authenticating browser.
+//! @param m
+//!   Unused.
+//! @param d
+//!   Unused.
+//! @deprecated
+mapping http_auth_failed(string realm, string|void m, int|void d) {
+  report_error("Compat http_auth_failed() used in %s, please consider using http_auth_required() instead\n",dbt(backtrace()[-2]));
+#ifdef HTTP_DEBUG
+  report_debug("HTTP: Auth failed (%s)\n",realm);
+#endif
+  return http_low_answer(401, "<h1>Authentication failed.</h1>") 
+         + ([ "extra_heads": ([ "WWW-Authenticate":"basic realm=\""+realm+"\"",
+                               ]),
+              ]);
 }
