@@ -3,16 +3,17 @@ Changes in Caudium 1.0.XX
 - Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
 - business graphics module now creates the cache directory in the correct
   location (under the argument_cache_dir hierarchy)
-- Now font name can be specified in <diagram > tag and use the CIF default
+- Font name can now be specified for the <diagram> tag and can use the CIF default
   font name.
 - The compilation process may skip rpath from the compiler/linker command line
   if either building a Debian package or the NO_RPATH_PLEASE variable is found
   in the environment when running configure (and smartlink thereafter).
-- Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net>
+- Corrected a bug in ftp protocol in pasv mode. Thanks to 
+  Joe Radinger <cheese@nosuchhost.net>
 - New configuration files are created with the 0600 permission bits now.
 - Fix for bug #498377: the environment variable didn't show the complete url
   with the query.
-- Added support for //!NOMODULE in modules. This close bug #473716
+- Added support for //!NOMODULE in modules. This closes bug #473716
 - oldcgi is not not shown in the module list.
 - ldapuserauth.pike: fixed a security problem when using user access mode :
   it was possible to login as any user by typing any password when user 
