@@ -2562,13 +2562,13 @@ private void define_global_variables( int argc, array (string) argv )
 	  "$uid with the uid of the user running the process.");
 
   globvar("identversion", 1, "Version numbers: Show Caudium Version Number ",
-	  TYPE_INT, "The default behavior is to display the Caudium "
+	  TYPE_FLAG, "The default behavior is to display the Caudium "
 	  "version number in the Server field in HTTP responses. You can "
 	  "disable it here for security reasons, since it might be easier "
 	  "to crack a server if the exact version is known.");
 
   globvar("identpikever", 1, "Version numbers: Show Pike Version Number ",
-          TYPE_INT, "The default behavior is to display the Pike "
+          TYPE_FLAG, "The default behavior is to display the Pike "
 	  "version number in the X-Got-Fish header in HTTP HEAD response. "
 	  "You can disable it here for security reasons, since it might be "
 	  "easier to exploit any possible bugs in the specific Pike version "
