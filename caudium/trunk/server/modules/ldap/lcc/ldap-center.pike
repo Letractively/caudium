@@ -247,10 +247,6 @@ private mapping init_user(object id)
 //
 private mixed do_logout(object id, mapping data, string f)
 {
-    if (!id->misc->session_id | !data->user || !data->user->authenticated)
-        return http_redirect(id->conf->QUERY(MyWorldLocation) +
-                             QUERY(mountpoint) + "/auth");
-
     object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
     if (!sprov)
         return ([
@@ -258,24 +254,9 @@ private mixed do_logout(object id, mapping data, string f)
             "lcc_error_extra" : "No 'screens' provider"
         ]);
     
-    data->user->name = "";
-    data->user->password = "";
-    m_delete(data->user, "authenticated");
-    m_delete(data->user, "ldap_data");
-    
     string logoutscr = sprov->retrieve(id, "logout");
 
-    object session = PROVIDER("123sessions");
-    if (session) {
-        report_notice("Killing the session...\n");
-
-        session->delete_session(id, id->misc->session_id, 1);
-        m_delete(id->misc, "session_variables");
-        m_delete(id->misc, "session_id");
-        m_delete(id->misc, "user_variables");
-    }
-    
-    kill_ldap(id);
+    kill_session(id);
     
     if (logoutscr && logoutscr != "")
         return http_string_answer(logoutscr);
@@ -296,6 +277,24 @@ mixed handle_request(object id, mapping data, string f)
         default:
             return http_string_answer("The <code>About</code> data will come here...");
     }
+}
+
+private void kill_session(object id)
+{    
+    if (SVARS(id) && SDATA(id))
+        SDATA(id) = 0;
+    
+    object session = PROVIDER("123sessions");
+    if (session) {
+        report_notice("Killing the session...\n");
+
+        session->delete_session(id, id->misc->session_id, 1);
+        m_delete(id->misc, "session_variables");
+        m_delete(id->misc, "session_id");
+        m_delete(id->misc, "user_variables");
+    }
+    
+    kill_ldap(id);
 }
 
 private void kill_ldap(object id)
@@ -352,10 +351,10 @@ mixed find_file(string f, object id)
     mixed     error = 0;
 
     if (!SUSER(id)->authenticated && f != "" && !SUSER(id)->authenticating) {
-        report_notice("Redirecting to / - unauthenticated request\n");
-        
+        report_notice("Redirecting to /mountpoint - unauthenticated request\n");
+
         SUSER(id)->authenticating = 1;
-        return http_redirect("/", id);
+        return http_redirect(id->conf->QUERY(MyWorldLocation) + QUERY(mountpoint) + "/", id);
     }
     
     //
@@ -367,8 +366,6 @@ mixed find_file(string f, object id)
         error = catch {
             conn_cache[id->misc->session_id] = Protocols.LDAP.client(QUERY(ldap_server));
         };
-        report_notice("Created an LDAP connection for session '%s'. Error: <pre>%O</pre>",
-                      id->misc->session_id, error);
         
         if (error) {
             if (arrayp(error))
@@ -382,16 +379,21 @@ mixed find_file(string f, object id)
     
     if ((!SDATA(id) || !SUSER(id) || !SUSER(id)->authenticated)) {
         object auth_prov = PROVIDER(providers->auth->name);
-        if (!auth_prov)
+        if (!auth_prov) {
+            kill_session(id);
             return p_err->error(id, ERR_PROVIDER_ABSENT, providers->auth->name);
-
+        }
+        
         response = auth_prov->auth(id, SUSER(id), conn_cache[id->misc->session_id]);
-        if (response)
-            if (response->lcc_error)
+        if (response) {
+            if (response->lcc_error) {
+                kill_session(id);
                 return p_err->error(id, response->lcc_error, response->lcc_error_extra);
-            else
+            } else {
                 return response;
-
+            }
+        }
+        
         SUSER(id)->authenticated = 1;
     }
 
@@ -455,7 +457,10 @@ mixed find_file(string f, object id)
 
     if (response && response->close_ldap)
         kill_ldap(id);
-    
+
+    if (response->lcc_error)
+        return p_err->error(id, response->lcc_error, response->lcc_error_extra);
+
     return response ? response : http_string_answer("Some screwup - check your provider modules");
 }
 
