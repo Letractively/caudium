@@ -75,7 +75,7 @@ int notemplate( string fn, object id )
                                  "/.notmpl", id ));
 }
 
-string apply_template(string newfile, string template, object id)
+string apply_template(string newfile, string f, string template, object id)
 {
   string file;
 
@@ -84,7 +84,7 @@ string apply_template(string newfile, string template, object id)
   {
     file = read_file( id->conf->real_file(template, id));
     werror(" found\n");
-    file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, template);
+    file = parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
     
     newfile = parse_html(file, ([ "tmplinsertall":itag_tmplinsertall ]), ([]), id, newfile);
   }
@@ -106,7 +106,7 @@ string apply_all_templates( string f, string file, object id )
   // first apply the file template
 
   string template=query_location()+cd[..i-1]*"/" + "/" + query("filetmpl");
-  file = apply_template(file, template, id);
+  file = apply_template(file, "/"+f, template, id);
 
   // and then step down the directory path and i
   // apply the directory template found in each dir.
@@ -116,7 +116,7 @@ string apply_all_templates( string f, string file, object id )
            query_location()+cd[..i]*"/" + "/" + query("dirtmpl"));
 
     template=query_location()+cd[..i]*"/" + "/" + query("dirtmpl");
-    file = apply_template(file, template, id);
+    file = apply_template(file, query_location()+cd[..i+1]*"/", template, id);
   }  
   return file;
 }
