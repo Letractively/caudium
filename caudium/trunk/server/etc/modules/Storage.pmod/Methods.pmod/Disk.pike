@@ -96,3 +96,7 @@ static string get_hash( string data ) {
 #endif
   return sprintf("%@02x",(array(int)) retval);
 }
+
+string name() {
+  return "Disk";
+}

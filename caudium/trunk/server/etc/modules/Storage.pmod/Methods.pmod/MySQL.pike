@@ -78,3 +78,7 @@ static object init_tables() {
   else
     db->query("delete from storage where pike_version != %s", version);
 }
+
+string name() {
+  return "MySQL";
+}

@@ -86,3 +86,7 @@ void stop() {
     foreach(indices(storage[namespace]), string key)
       sync(namespace, key);
 }
+
+string storage_backend() {
+  return permstore->name();
+}
