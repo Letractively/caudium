@@ -3,39 +3,62 @@ Compiling Caudium from CVS:
 
 It's easy to compile Caudium from CVS. Just run ./autogen.sh before
 following the standard installation instructions. Please note that
-this step requires a new automake.
+this step requires a new version of the autoconf package.
 
-To get Caudium from CVS:
--=-=-=-=-=-=-=-=-=-=-=-=-
+To get Caudium 1.0 from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+To checkout Caudium from CVS you need to fetch the branch
+stable_1_0. The trunk of the CVS tree is our development tree,
+Caudium 1.1.
 
 cvs -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium login
 [Hit [Return] as the password (ie empty password)]
 
-cvs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
+vs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -r stable_1_0 -P caudium
 
 You can later update your Caudium source from CVS by typing:
 
 cvs -z3 update -Pd
 
 with the current directory being the "caudium" directory you got from
-the initial checkout.
+the initial checkout. Note that the '-r stable_1_0' isn't required in
+this case since the CVS tree is already tagged for that branch.
 
-to build Caudium from CVS:
+For more detailed information on CVS access, including read/write
+developer access, visit the web page at
+
+	http://caudium.net/download/cvsinfo.html
+
+To build Caudium from CVS:
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-You also need a recent pike 0.6, 7.0 or 7.1. We recommend using
-7.0. Check out pike.roxen.com, or better, get one from cvs. See
+You also need a recent pike 0.6 or 7.0 for Caudium 1.0. We recommend
+using 7.0. You can either check out your own version from CVS, as
+described on this page:
 
-http://community.roxen.com/developers/cvs/anoncvs.html
+	http://community.roxen.com/developers/cvs/anoncvs.html
 
-For more information on obtaining Pike 7.0 from anonymous cvs.
+Unless you plan to / want to update your Pike often, we recommend that
+you use our pre-built Pike snapshots. The major reason for using a
+snapshot as opposed to a CVS version is that the CVS versions require
+Pike to build Pike (what came first, Pike or Pike?)
 
-Once you've installed Pike following the instructions you can continue
-installing Caudium. Don't forget to run autogen.sh first as listed above. A
+	http://caudium.net/download/snapshot.html
+
+Once you've installed Pike you can continue installing Caudium. A
 typical install would then look like (assuming Pike is installed in
 /opt/pike):
 
-# ./configure --prefix=/opt/www --with-pike=/opt/pike/7.0.81/bin/pike
+# ./autogen.sh
+Running autogen in 'src'
+Running autogen in 'src/cmods'
+Running autogen in 'src/cmods/Caudium'
+Running autogen in 'src/cmods/PiXSL'
+Running autogen in 'src/cmods/UltraLog'
+Running autogen in 'src/tools'
+Running autogen in 'tools'
+# ./configure --prefix=/opt/www --with-pike=/opt/bin/pike
 [configure checks]
 # make
 [compilation]
