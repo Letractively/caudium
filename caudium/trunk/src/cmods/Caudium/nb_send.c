@@ -323,18 +323,18 @@ static void f_input(INT32 args) {
   NBIO_INT_T len = -1;
   switch(args) {
    case 2:
-    if(ARG(1).type != T_INT) {
+    if(ARG(2).type != T_INT) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 2, "integer");
     } else {
-      len = ARG(1).u.integer;
+      len = ARG(2).u.integer;
     }
     /* FALL THROUGH */
    case 1:
-    if(ARG(0).type != T_OBJECT) {
+    if(ARG(1).type != T_OBJECT) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->input", 1, "object");
     } else {
       /* Allocate a new input object and add it to our linked list */
-      new_input(ARG(0), len, 0);
+      new_input(ARG(1), len, 0);
     }
     break;
     
@@ -348,7 +348,7 @@ static void f_input(INT32 args) {
 /* Set the output file (file object) */
 static void f_output(INT32 args) {
   if(args) {
-    if(ARG(0).type != T_OBJECT) {
+    if(ARG(1).type != T_OBJECT) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->output", 1, "object");
     } else {
       output *outp;
@@ -356,7 +356,7 @@ static void f_output(INT32 args) {
 	free_output(THIS->outp);
       }
       outp = malloc(sizeof(output));
-      outp->file = ARG(0).u.object;
+      outp->file = ARG(1).u.object;
       outp->fd = fd_from_object(outp->file);
 
       if(outp->fd == -1) {
@@ -399,12 +399,12 @@ static void f_output(INT32 args) {
 /* Set the output data (string) */
 static void f_write(INT32 args) {
   if(args) {
-    if(ARG(0).type != T_STRING) {
+    if(ARG(1).type != T_STRING) {
       SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->write", 1, "string");
     } else {
-      int len = ARG(0).u.string->len << ARG(0).u.string->size_shift;
+      int len = ARG(1).u.string->len << ARG(1).u.string->size_shift;
       if(len > 0)
-	new_input(ARG(0), len, 0);
+	new_input(ARG(1), len, 0);
     }
   } else {
     SIMPLE_TOO_FEW_ARGS_ERROR("Caudium.nbio()->write", 1);
@@ -748,10 +748,10 @@ static void f__input_read_cb(INT32 args)
   }    
   if(args != 2)
     Pike_error("Invalid number of arguments to read callback.");
-  if(ARG(1).type != T_STRING) {
+  if(ARG(2).type != T_STRING) {
     SIMPLE_BAD_ARG_ERROR("Caudium.nbio()->_input_read_cb", 2, "string");
   }
-  str = ARG(1).u.string;
+  str = ARG(2).u.string;
   len = str->len << str->size_shift;
   inp->pos += len;
   if(inp->len != -1 && inp->pos >= inp->len) {
@@ -789,7 +789,7 @@ static void f_set_done_callback(INT32 args)
 {
   switch(args) {
    case 2:
-    assign_svalue(&(THIS->args), &ARG(1)); 
+    assign_svalue(&(THIS->args), &ARG(2)); 
 
    case 1:
     if (Pike_sp[-args].type != T_FUNCTION)
