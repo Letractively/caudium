@@ -445,6 +445,7 @@ string http_date(int t)
     return Calendar.ISO_UTC.Second(t)->format_http();
 }
 
+#if 0
 //!   HTTP encode the specified string and return it. This means replacing
 //!   the following characters to the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
@@ -461,7 +462,6 @@ string http_encode_string(string f)
 	       "%3c", "%3e", "%40" }));
 }
 
-#if 0
 //!   HTTP decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
