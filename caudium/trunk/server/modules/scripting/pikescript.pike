@@ -144,7 +144,7 @@ mapping locks = ([]);
 void my_error(array err, string|void a, string|void b)
 {
   err[0] = ("<font size=+1>"+(b||"Error while executing code in pike script")
-	    + "</font><br><p>" +(err[0]||"") + (a||"")
+	    + "</font><br><p>\n" +(err[0]||"") + (a||"")
 	    + "The pike Script will be reloaded automatically.\n");
   throw(err);
 }
