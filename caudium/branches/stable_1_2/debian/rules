@@ -95,10 +95,11 @@ install: build
 	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(EXTVER)/bin/pixsl.pike
 
 	# fix caudiumctl paths
-	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
+	sed -e 's#caudiumhome=.*#caudiumhome=/usr/lib/caudium#g' \
 	    < $(CURDIR)/debian/tmp/usr/bin/caudiumctl \
 	    > $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new && \
-	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl
+	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl && \
+	    chmod 755 $(CURDIR)/debian/tmp/usr/bin/caudiumctl
 
 	for s in $(SCRIPTS); do \
 	  sed -e 's;^#\!.*;#\!/usr/bin/${PIKE};' debian/tmp/usr/lib/caudium$(EXTVER)/$$s > \
