@@ -1338,7 +1338,7 @@ string status_row(object node)
     string node_path = describe_node_path( node );
     return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>" +
 	     "<tr>" +
-	     "<td align=bottom align=left><a href='http://www.caudium.net/'><img border=0 src='/image/caudium-icon-gray.png' alt='Caudium'></a></td>" +
+	     "<td align=bottom align=left><a href='http://www.caudium.net/' target='_blank'><img border=0 src='/image/caudium-icon-gray.png' alt='Caudium'></a></td>" +
 	     "<td width='100%' align=right height=33 valign=bottom>" +
 	     "<font size='-1'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>" +
 	     "</tr>" +
