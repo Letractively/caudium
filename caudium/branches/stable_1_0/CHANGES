@@ -1,3 +1,7 @@
+Changes in Caudium 1.0.xx since Caudium 1.0.56
+----------------------------------------------
+- Fixed bug #11
+
 Changes in Caudium 1.0.56 since Caudium 1.0.54
 ----------------------------------------------
 - Floats are now handled by sexpr_eval()
