@@ -2,7 +2,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-mapping sql_update(object db, array(mapping) data, string unique, string tablename, object id, void|string uniquevalue, void|string passthrough)
+mapping sql_update(object db, array(mapping) data, string unique, string tablename, object id, void|string passthrough)
 {
 
   werror("sql_update!!\n");
@@ -24,10 +24,10 @@ mapping sql_update(object db, array(mapping) data, string unique, string tablena
   {
     werror("%O\n", row);
     string update = "";
-    foreach (fields,string field) 
+    foreach (sort(fields), string field) 
     {
       if (field[0..(sizeof(tablename))] != (tablename+"."))
-        if (row[field])
+        if (has_index(row, field))
           update += "," + field + " = '" + 
                     db->quote((string)row[field]) + "'";
     }
@@ -43,12 +43,12 @@ mapping sql_update(object db, array(mapping) data, string unique, string tablena
     // as data driven as possible
     update = "update " + tablename + " set " + update +
              passthrough + " where " + unique + "='" + 
-             (uniquevalue||(string)row[unique]) + "'";
+             db->quote((string)row[unique]) + "'";
 
     // Mysql returns 0 rows updated if there is no change, so the only thing
     // we can really do here is check to make sure there is no error when 
     // the SQL statement is executed.
-    perror("q: "+update+"\n");
+    perror("q: %O\n%s\n", row, update);
     //  catch {
       db->query(update);
   }

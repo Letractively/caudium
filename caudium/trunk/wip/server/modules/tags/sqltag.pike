@@ -209,7 +209,12 @@ string sqlupdate_tag(string tag_name, mapping args,
   if(args->scope=="form")
     data=({ request_id->variables });
 
-  if (err = catch(res = sql_update(con, data, args->unique, args->tablename, request_id, args->uniquevalue, args->passthrough)))
+  // update the row where unique is uniquevalue
+  // this probably only makes sense if there is only one row to be updated
+  if(args->uniquevalue && sizeof(data)==1)
+    data[0][args->unique]=args->uniquevalue;
+
+  if (err = catch(res = sql_update(con, data, args->unique, args->tablename, request_id, args->passthrough)))
   {
         report_error(sprintf("SQLTAG: Update failed:\n"
                              "%s\n", describe_backtrace(err)));
