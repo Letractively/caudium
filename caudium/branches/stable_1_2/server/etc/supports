@@ -120,7 +120,7 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 				
 # SecuritySpace WebSurvey crawler masqueraded as mozilla
 # http://www.securityspace.com/s_survey/data/index.html
-.*compatible.*SecuritySpace	robot securityspace
+.*securityspace.* robot securityspace
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
