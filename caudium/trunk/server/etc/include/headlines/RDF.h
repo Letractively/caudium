@@ -23,7 +23,7 @@ static private string parse_channel(string tag, mapping args, string|int content
 	    break;
 	    
 	default:
-	    hl["ch_" + tag] = trim(contents);
+	    hl["ch_" + tag] = Headlines.Tools.trim(contents);
 	    break;
     }
     
