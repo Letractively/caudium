@@ -27,6 +27,10 @@
 //!   between Roxen 1.3 and Caudium. This allows also some modules
 //!   designed for Caudium to run without modifications.
 
+constant cvs_version = "$Id$";
+
+//! Compat call of Caudium.http_encode_string
+//! @deprecated
 string http_encode_string(string m) {
    string sourcefile;
    int    sourceline;

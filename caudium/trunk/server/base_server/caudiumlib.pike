@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 /*
  * $Id$
@@ -40,6 +39,10 @@
 //! the Caudium core. 
 
 inherit "http";
+
+// Compatiblity thing
+// This should be moved somewhere else... Like renaming caudiumlib to caudiumlib2
+inherit "compatlib";
 
 // constant _cvs_version = "$Id$";
 // This code has to work both in the roxen object, and in modules
