@@ -555,7 +555,11 @@ static void f_set_done_callback(INT32 args)
 static void f_bytes_sent(INT32 args)
 {
   pop_n_elems(args);
+#ifdef INT64
+  push_int64(THIS->written);
+#else
   push_int(THIS->written);
+#endif
 }
 
 

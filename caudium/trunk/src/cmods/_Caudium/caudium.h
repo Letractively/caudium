@@ -16,7 +16,15 @@ static void alloc_buf_struct(struct object *);
 void init_nbio(void);
 void exit_nbio(void);
 
+/* The size of the mmap window used for large files. For busy sites,
+ * you might  have to lower this value if you run out of process address
+ * space. It should be a multiple of PAGESIZE (4096 bytes?)
+ */
 #define MAX_MMAP_SIZE    2097152 /* mmap at most 2 MB at once */
+
+/* Size of the buffer used when reading data from files (when mmap
+ * can't be used
+ */
 #define READ_BUFFER_SIZE 65536
 
 #define BUFSIZE 16535
@@ -106,7 +114,7 @@ typedef struct
 
 typedef struct
 {
-  int written;
+  NBIO_INT_T written;
   int buf_len;
   char *buf;
   output *outp;
