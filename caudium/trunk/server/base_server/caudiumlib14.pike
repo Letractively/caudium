@@ -947,7 +947,7 @@ static string parse_rxml(string what, object id,
   return what;
 }
 
-private constant iso88591 = ([
+constant iso88591 = ([
   "&nbsp;":   " ",
   "&iexcl;":  "¡",
   "&cent;":   "¢",
@@ -1046,7 +1046,7 @@ private constant iso88591 = ([
   "&yuml;":   "ÿ",
 ]);
 
-private constant international = ([
+constant international = ([
   "&OElig;":  "\x0152",
   "&oelig;":  "\x0153",
   "&Scaron;": "\x0160",
@@ -1085,7 +1085,7 @@ private constant international = ([
   "&Udblac;": "\x0170",
 ]);
 
-private constant symbols = ([
+constant symbols = ([
   "&fnof;":     "\x0192",
   "&thetasym;": "\x03D1",
   "&upsih;":    "\x03D2",
@@ -1163,7 +1163,7 @@ private constant symbols = ([
   "&diams;":    "\x2666",
 ]);
 
-private constant greek = ([
+constant greek = ([
   "&Alpha;":   "\x391",
   "&Beta;":    "\x392",
   "&Gamma;":   "\x393",
