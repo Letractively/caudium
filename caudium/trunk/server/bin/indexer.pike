@@ -1,3 +1,5 @@
+#!/usr/local/bin/pike
+
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2002 The Caudium Group
@@ -34,7 +36,7 @@ object crawler;
 
 void display_help()
 {
-   werror("usage: \n");
+   werror("usage: indexer.pike [-v] --profile=/path/to/profile\n");
    exit(0);
 }
 
@@ -76,18 +78,21 @@ object current_uri;
 
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
-  werror("got page " + (string)uri + "\n");
+  if(verbose)
+    werror("got page " + (string)uri + "\n");
   page_urls=({});
   current_uri=uri;
   parser->feed(data);  
   data=parser->read();
   stripper->feed(data);
   data=stripper->read();
-  werror("title: " + title + "\n");
+  if(verbose)
+    werror("title: " + title + "\n");
   title="";
   string type=(headers["content-type"]/";")[0]||"text/html";
   string date=headers["last-modified"]||"";
-werror(type  + "\n");
+  if(verbose)
+    werror(type  + "\n");
   if(type=="text/html" || type=="text/plain")
     index->index((string)uri, data, title, type, date);
   return page_urls;
@@ -215,10 +220,9 @@ static object arraylist_size = collection_class->get_method("size", "()I");
 static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object;)Ljava/lang/Object;");
 
 
-static object search_class = FINDCLASS("net/caudium/search/Search");
 static object index_class = FINDCLASS("net/caudium/search/Indexer");
 static object summary_class = FINDCLASS("net/caudium/search/URLSummary");
-static object search_init = search_class->get_method("<init>", "()V");
+
 static object index_init = index_class->get_method("<init>", "(Ljava/lang/String;Z)V");
 static object summary_init = summary_class->get_method("<init>", "()V");
 static object index_close = index_class->get_method("close", "()V");
@@ -242,7 +246,8 @@ void create(string datadir)
 
 void destroy()
 {
-  werror("closing db\n");
+  if(verbose)
+    werror("closing db\n");
   index_close(ie);
 }
  

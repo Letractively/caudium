@@ -39,7 +39,7 @@ mapping profile=([]);
 
 void display_help()
 {
-   werror("usage: \n");
+   werror("usage: searcher.pike [-v] --profile=/path/to/profile \"search query\"\n");
    exit(0);
 }
 
@@ -91,9 +91,8 @@ int main(int argc, array argv)
 
 
   read_profile(profile_path);
-
   index=Index(profile->dbdir);
-  index->search(argv[1]);
+  index->search(argv[-1]);
 }
 
 
@@ -132,7 +131,7 @@ static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object
 
 static object search_class = FINDCLASS("net/caudium/search/Search");
 static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;)V");
-static object search_search = search_class->get_static_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
+static object search_search = search_class->get_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
 
 object se;
 
@@ -145,7 +144,7 @@ void create(string dbdir)
 
 void search(string q)
 {
-  object r=search_search(q);
+  object r=search_search(se,q);
   for(int i=0; i< arraylist_size(r); i++)
   {
      object re=arraylist_get(r, i);
