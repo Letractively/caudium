@@ -175,7 +175,7 @@ void create()
 	 TYPE_FLAG|VAR_MORE,
 	 "Accesses to a file will be made  as the logged in user.\n"
 	 "This is useful for named ftp, or if you want higher security.<br>\n"
-	 "NOTE: When running a threaded server requests that don't do any "
+	 "NOTE : When running a threaded server requests that don't do any "
 	 "modification will be done as the server uid/gid.");
 
   defvar("no_symlinks", 0, "Permissions: Forbid access to symlinks", TYPE_FLAG|VAR_MORE,
@@ -1007,7 +1007,7 @@ string query_name()
 //! defvar: access_as_user
 //! Accesses to a file will be made  as the logged in user.
 //!This is useful for named ftp, or if you want higher security.<br />
-//!NOTE: When running a threaded server requests that don't do any modification will be done as the server uid/gid.
+//!NOTE : When running a threaded server requests that don't do any modification will be done as the server uid/gid.
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Permissions: Access file as the logged in user
 //
