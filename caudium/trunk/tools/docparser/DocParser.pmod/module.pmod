@@ -29,7 +29,7 @@
  */
 import Stdio;
 
-#define DEBUG_PARSER
+#undef DEBUG_PARSER
 
 multiset wspace = (<' ', '\t', '\n'>);
 

@@ -215,6 +215,7 @@ class DocGen
         
     return ret;
   }
+  
   private string f_tags(DocParser.PikeFile f)
   {
     string   ret = "";
@@ -227,6 +228,7 @@ class DocGen
 
     return ret;
   }
+  
   private string f_containers(DocParser.PikeFile f)
   {
     string   ret = "";
@@ -357,9 +359,75 @@ class DocGen
     }
     
     /* Class output */
+    private string do_f_class(DocParser.Class c)
+    {
+	string   ret = "";
+	
+	/* Header */
+	ret = "<class name=\"" + c->first_line + "\">\n";
+	
+	/* Scope */
+	ret += "\t<scope>" + c->scope + "</scope>\n";
+	
+	/* Methods */
+	if (c->methods && sizeof(c->methods)) {
+	    ret += "\t<methods>\n";
+	    foreach(c->methods, object m)
+		ret += do_f_method(m);
+	    ret += "\t<methods>\n";
+	}
+	
+	/* Globvars */
+	if (c->globvars && sizeof(c->globvars)) {
+	    ret += "\t<globvars>\n";
+	    foreach(c->globvars, object gv)
+		ret += do_f_globvar(gv);
+	    ret += "\t</globvars>\n";
+	}
+	
+	/* See Also */
+	if (c->seealso && sizeof(c->seealso)) {
+	    ret  += "\t<links>\n";
+	    foreach(c->seealso, string n)
+		if (n != "")
+	    	    ret += "\t\t<link to=\""+ n + "\"/>\n";
+	    ret += "\t</links>\n";
+	}
+	
+	/* Examples */
+	if (c->examples && sizeof(c->examples)) {
+	    ret += "\t<examples>\n";
+	    foreach(c->examples, string e)
+		if (e != "")
+		    ret += "\t\t<example>\n\t\t\t" + e + "\n\t\t</example>\n";
+	    ret += "\t</examples>\n";
+	}
+	
+	/* Bugs/fixme */
+	if (c->bugs && sizeof(c->bugs)) {
+	    ret += "\t<bugs>\n";
+	    foreach(c->bugs, string b)
+		if (b != "")
+		    ret += "\t\t<bug>\n\t\t\t" + b + "\n\t\t</bug>\n";
+	    ret += "\t</bugs>\n";
+	}
+	
+	ret += "</class>\n";
+	
+	return ret;
+    }
+    
     private string f_classes(DocParser.PikeFile f)
     {
-	string   ret = "";	
+	string   ret = "";
+	
+	if (!sizeof(f->classes))
+	    return "";
+	ret = "<classes>\n";
+	foreach(f->classes, object c)
+	    ret += do_f_class(c);
+	ret += "</classes>\n";
+	
 	return ret;
     }
     
