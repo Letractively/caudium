@@ -77,7 +77,10 @@ constant module_unique = 1;
 mapping (string:string) extensions = ([ ]);
 mapping (string:string) encodings = ([ ]);
 // stuff to get the accessed statistics
-mapping (string:int) accessed = ([ ]);
+mapping accessed = ([
+  "extensions": ([ ]),
+  "encodings": ([ ])
+]);
 
 // helpers for type_from_filename()
 multiset known_exts, known_encs;
@@ -126,11 +129,22 @@ string status()
   string a, b;
   int even = 0;
 
-  // accessed list follows
-  b = "<h2>Accesses per extension</h2>\n\n";
+  // accessed extensions list follows
+  b = "<h2>Accesses per extensions</h2>\n\n";
+  b += "<font color = \"#ff0000\">Note: if you are using the \"old\" module api, statistics are not collected.</font><br />\n";
   b += "<table cellpadding=\"4\" cellspacing=\"5\">";
-  foreach(sort(indices(accessed)), a)
-    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + accessed[ a ] + "</td></tr>\n";
+  foreach(sort(indices(accessed["extensions"])), a)
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + accessed["extensions"][ a ] + "</td></tr>\n";
+  b += "</table>\n";
+
+  // accessed encodings list follows
+  b += "<h2>Accesses per encodings</h2>\n\n";
+  b += "<font color = \"#ff0000\">Note: if you are using the \"old\" module api, statistics are not collected.</font><br />\n";
+  b += "<table cellpadding=\"4\" cellspacing=\"5\">";
+  a = "";
+  even = 0;
+  foreach(sort(indices(accessed["encodings"])), a)
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + a + "</td><td>" + accessed["encodings"][ a ] + "</td></tr>\n";
   b += "</table>\n";
 
   // extension list follows
@@ -259,10 +273,8 @@ array type_from_extension(string ext)
 {
   ext = lower_case(ext);
   if(ext == "default") {
-    accessed[ ext ] ++;
     return ({ QUERY(default_ct), 0 });
   } else if(extensions[ ext ]) {
-    accessed[ ext ]++;
     return ({ extensions[ ext ], encodings[ ext ] });
   }
 }
@@ -271,6 +283,7 @@ array type_from_extension(string ext)
  * our shiny new one.
  */
 array type_from_filename(string filename) {
+  // FIXME: mmmm, the case where extension doesn't, but encoding does present ? is it likely ?
   filename = lower_case(filename);
   // set the most sensible default available at this time
   array retval = ({ QUERY(default_ct), 0 });
@@ -287,6 +300,7 @@ array type_from_filename(string filename) {
       // one extension: there will be no encoding, only content-type
       if( extensions[tmp[1]] )
         retval[ 0 ] = extensions[tmp[1]];
+        accessed["extensions"][ tmp[1] ]++;
       break;
     default:
       // two or more extensions. things get two-fold here: either
@@ -300,10 +314,13 @@ array type_from_filename(string filename) {
         // here, both encodings and extensions exist, so act accordingly:
         retval[ 0 ] = extensions[_ext];
         retval[ 1 ] = encodings[_enc];
+        accessed["extensions"][ _ext ]++;
+        accessed["encodings"][ _enc] ++;
       } else if( known_exts[_enc] ) {
       // we're left with the confidence that the last token was not an encoding, so it might be a content-type...
       // no, extensions[_enc] is not a typo. it's just a somewhat badly choosen name.
         retval[ 0 ] = extensions[_enc];
+        accessed["extensions"][ _enc ]++;
       };
       // left in the dark. they were neither encodings, nor extensions.
       break;
