@@ -58,6 +58,16 @@ private void open_cfg_dir()
   }
 }
 
+//! Copy one configuration to another.
+//!
+//! @param from
+//!  The source configuration
+//!
+//! @param to
+//!  The target configuration
+//!
+//! @returns
+//!  The modified target configuration.
 mapping copy_configuration(string from, string to)
 {
 #if 0 //FIXME!!
@@ -71,6 +81,25 @@ mapping copy_configuration(string from, string to)
 #endif
 }
 
+//! Visit the configuration directory and return a list of all the config
+//! files found there. Only the files that match the Caudium config file
+//! formats are returned.
+//!
+//! @returns
+//! An array of mappings describing the files. Mapping format:
+//!
+//!  @mapping
+//!    @member string "name"
+//!     The file name.
+//!
+//!    @member int "format"
+//!      @int
+//!       @value 0
+//!        Old format (as used by Roxen 1.2+ and Caudium 1.0-1.2)
+//!       @value 1
+//!        New (XML) format (as used by Caudium 1.3+)
+//!      @endint
+//!  @endmapping
 array(mapping(string:string|int)) list_all_configurations()
 {
   if (!dir)
@@ -79,6 +108,10 @@ array(mapping(string:string|int)) list_all_configurations()
   return dir->list_files();
 }
 
+//! Save the specified configuration on disk.
+//!
+//! @param cl
+//!  Name of the configuration to save.
 void save_it(string cl)
 {
   if (!configs[cl]) {

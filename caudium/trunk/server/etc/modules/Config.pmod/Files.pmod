@@ -154,7 +154,7 @@ class Dir
   //!
   //!      @int
   //!       @value 0
-  //!        Old format (as used by Roxen 1.3+ and Caudium 1.0-1.2)
+  //!        Old format (as used by Roxen 1.2+ and Caudium 1.0-1.2)
   //!       @value 1
   //!        New (XML) format (as used by Caudium 1.3+)
   //!      @endint
