@@ -21,8 +21,8 @@
  * $Id$
  */
 
-//! Wrapper to Parse.HTML to emulate spider.parse_html and spider.parse_html_lines
-//! to be wide string compliant.
+// Wrapper to Parse.HTML to emulate spider.parse_html and spider.parse_html_lines
+// to be wide string compliant.
 
 //!
 constant cvs_version = "$Id$";
