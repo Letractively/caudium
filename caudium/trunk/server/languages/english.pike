@@ -105,7 +105,7 @@ string date(int timestamp, mapping|void m)
     mapping t1=localtime(timestamp);
     mapping t2=localtime(time(0));
     object  target = Calendar.Day("unix", timestamp);
-    object  now = Calendary.now();
+    object  now = Calendar.now();
   
     if(!m) m=([]);
 
@@ -234,14 +234,14 @@ string day_really_short(int num)
         initialize_days();
 
     if (num > 0 && num <= sizeof(days))
-        return days[num - 1][0];
+        return days[num - 1][0..0];
     else
         return "?";
 }
 
 string words(int num)
 {
-    return ({ "year", "month", "week", "day" });
+    return ({ "year", "month", "week", "day" })[num];
 }
 
 array aliases()
