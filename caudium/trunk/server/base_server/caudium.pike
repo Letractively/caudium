@@ -1072,41 +1072,10 @@ private object find_configuration_for(object bar)
 }
 
 // FIXME  
-public array|string type_from_filename( string|void file, int|void to )
+public string|array type_from_filename( string|void file, int|void to )
 {
-  mixed tmp;
-  object current_configuration;
-  string ext=extension(file);
-    
-  if(!current_configuration || !current_configuration->types_fun)
-    return to?({ "application/octet-stream", 0 }):"application/octet-stream";
-
-  while(file[-1] == '/') 
-    file = file[0..strlen(file)-2]; // Security patch? 
-  
-  if(tmp = current_configuration->types_fun(ext))
-  {
-    mixed tmp2,nx;
-    if(tmp[0] == "strip")
-    {
-      tmp2=file/".";
-      if(sizeof(tmp2) > 2)
-	nx=tmp2[-2];
-      if(nx && (tmp2=current_configuration->types_fun(nx)))
-	tmp[0] = tmp2[0];
-      else
-	if(tmp2=current_configuration->types_fun("default"))
-	  tmp[0] = tmp2[0];
-	else
-	  tmp[0]="application/octet-stream";
-    }
-    return to?tmp:tmp[0];
-  } else {
-    if(!(tmp=current_configuration->types_fun("default")))
-      tmp=({ "application/octet-stream", 0 });
-    return to?tmp:tmp[0]; // Per..
-  }
-  return 0;
+  throw(({ "Please use id->conf->type_from_filename instead.", backtrace() }));
+  return "Blah.";
 }
 
 #ifndef NO_COMPAT

@@ -374,7 +374,7 @@ void stop()
   for(int i=0; i<10; i++) CATCH(pri[i] && pri[i]->stop && pri[i]->stop());
 }
 
-public string type_from_filename( string file, int|void to )
+public array|string type_from_filename( string file, int|void to )
 {
   mixed tmp;
   object current_configuration;

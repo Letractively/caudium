@@ -324,7 +324,7 @@ array|string describe_dir_node_mac(object node, object id)
       
      default:
       mixed tmp;
-      tmp = caudium->type_from_filename(filename, 1);
+      tmp = id->conf->type_from_filename(filename, 1);
       if(!tmp) tmp=({ "Unknown", 0 });
       type = tmp[0];
       icon = image_from_type(type);

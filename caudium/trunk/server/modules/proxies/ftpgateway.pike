@@ -239,7 +239,7 @@ class Request {
     if (!type)
     {
       array tmp;
-      tmp=caudium->type_from_filename(filename,1);
+      tmp = my_configuration()->type_from_filename(filename,1);
       if (tmp&&tmp[0]) 
       {
 	type=tmp[0]; 
@@ -252,7 +252,7 @@ class Request {
     {
       array tmp;
       string type2;
-      tmp=caudium->type_from_filename(typename,1);
+      tmp=my_configuration()->type_from_filename(typename,1);
       if (tmp&&tmp[0]) 
       {
 	type2=tmp[0]; 
@@ -652,13 +652,13 @@ class Request {
       datacon->set_nonblocking(buffer_read,0,buffer_completed);
       return;
     }
-
-    type=caudium->type_from_filename(file);
+    
+    type=my_configuration()->type_from_filename(file);
 
     pipe = Caudium.nbio();
     pipe->write("HTTP/1.0 200 FTP transfer initiated\r\n");
 
-    tmp=caudium->type_from_filename(file,1);
+    tmp=my_configuration()->type_from_filename(file,1);
     if (arrayp(tmp)&&tmp[0]) 
     {
       pipe->write("Content-type: "+tmp[0]+"\r\n");
