@@ -1322,7 +1322,7 @@ mapping auto_image(string in, object id)
 #endif
 
 #if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
-  e=Image.GIG.encode(i);
+  e=Image.GIF.encode(i);
 #endif
  cache->store(cache_string(e, img_key, -1));
 
