@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- IP Less module is now in server/deprecated_modules. Don't forget to add this
+  to you module list if you still need it.
 - Fix an error in disk_cache.pike on hash() call since it has changed a lot
   since pike 7.0.
 - mod_perl / Perl support for Caudium is known to work now... but only with
