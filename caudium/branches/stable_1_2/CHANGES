@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
+- Added .htaccess manual link... Usefull since our is NSCA compatible...
 - Added support in VHS Sql to use Caudium system log directory instead of
   userdir one. 
 - index.php and index.php3 now added in all directories modules.
