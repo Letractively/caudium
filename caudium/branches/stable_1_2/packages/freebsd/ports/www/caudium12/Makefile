@@ -7,6 +7,7 @@
 
 PORTNAME=	caudium
 PORTVERSION=	1.2.6
+PORTREVISION=	1
 CATEGORIES=	www
 MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
 		ftp://ftp.caudium.net/caudium/source/ \
@@ -24,7 +25,7 @@ DEPENDS=	${PORTSDIR}/lang/pexts/
 WRKSRC=		${WRKDIR}/${DISTNAME}
 
 GNU_CONFIGURE=  yes
-CONFIGURE_ARGS+= --without-debug --with-PiXSL
+CONFIGURE_ARGS+= --without-debug --with-PiXSL --prefix=${PREFIX}
 
 USE_GMAKE=	yes
 
