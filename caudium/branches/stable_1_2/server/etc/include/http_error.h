@@ -43,7 +43,6 @@
 //!  messages look constant and nice in a per-server basis.
 //!  A possible fixme is the need to clear the template file out of the
 //!  on a change. I will look at this in the near future.
-//! name: http_error_handler - new and pretty HTTP error handler.
 class http_error_handler {
 
   inherit "caudiumlib";
