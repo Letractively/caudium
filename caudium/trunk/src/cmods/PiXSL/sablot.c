@@ -33,48 +33,11 @@ RCSID("$Id$");
 #include <fcntl.h>
 
 #include "sablot_config.h"
-
+#include "pixsl.h"
 #ifdef HAVE_SABLOT
 #include <sablot.h>
+struct program *xslt_program=NULL;
 #endif
-/* This allows execution of c-code that requires the Pike interpreter to 
- * be locked from the Sablotron callback functions.
- */
-#if defined(PIKE_THREADS) && defined(_REENTRANT)
-#define THREAD_SAFE_RUN(COMMAND)  do {\
-  struct thread_state *state;\
- if((state = thread_state_for_id(th_self()))!=NULL) {\
-    if(!state->swapped) {\
-      COMMAND;\
-    } else {\
-      mt_lock(&interpreter_lock);\
-      SWAP_IN_THREAD(state);\
-      COMMAND;\
-      SWAP_OUT_THREAD(state);\
-      mt_unlock(&interpreter_lock);\
-    }\
-  }\
-} while(0)
-#else
-#define THREAD_SAFE_RUN(COMMAND) COMMAND
-#endif
-
-/* Initialize and start module */
-void pike_module_init( void )
-{
-#ifdef HAVE_SABLOT
-  add_function_constant( "parse", f_parse,
-			 "function(string,string,void|string:string|mapping)",
-			 0);
-  add_function_constant( "parse_files", f_parse_files,
-			 "function(string,string:string|mapping)", 0);
-#endif
-}
-
-/* Restore and exit module */
-void pike_module_exit( void )
-{
-}
 
 /** Functions implementing Pike functions **/
 #ifdef HAVE_SABLOT
@@ -149,103 +112,245 @@ MessageHandler sablot_mh = {
   mh_error
 };
 
-
-static int really_do_parse(SablotHandle sproc, char *xsl, char *xml,
-			   char **argums, char **res,
-			   struct mapping **err)
-{
-  int ret;
-  ret = SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)err);
-  ret |= SablotRunProcessor(sproc, xsl, xml, "arg:/_output",
-			   NULL, argums);  
-  ret |= SablotGetResultArg(sproc, "arg:/_output", res);
-  return ret;
-}
-
-static void f_parse( INT32 args )
+static void f_run( INT32 args )
 {
   SablotHandle sproc;
+  struct keypair *k;
   struct pike_string *xml, *xsl;
   struct svalue base;
   char *parsed = NULL;
   struct mapping *err = NULL;
-  int success;
+  int success, count;
+  unsigned char *xmlsrc, *xslsrc;
+  char **vars = NULL;
   char *argums[] =
   {
+    "/_output", NULL, 
     "/_xsl", NULL,
     "/_xml", NULL, 
-    "/_output", NULL, 
     NULL
   };
-  SablotCreateProcessor(&sproc);
-  if(args == 3) {
-    /* Use a base URI */ 
-    base = sp[-1]; 
-    if(base.type == T_STRING) {
-      if(STRSTR(base.u.string->str, "file:/") == NULL) {
-	/* prepend with file: or file:/ since that's the only currently
-	 * supported method. We can use sprintf safely, since we have allocated
-	 * a string of enough length.
-	 */
-	char *tmp = malloc(base.u.string->len + 7);
-	if(tmp == NULL)
-	  error("Sablotron.parse(): Failed to allocate string. Out of memory?\n");
-	if(base.u.string->len > 1 && *base.u.string->str == '/')
-	  sprintf(tmp, "file:%s", base.u.string->str);
-	else
-	  sprintf(tmp, "file:/%s", base.u.string->str);
-	SablotSetBase(sproc, tmp);
-	free(tmp);
-      } else
-	SablotSetBase(sproc, base.u.string->str);
-    } else if(base.type != T_VOID) {
-      error("Sablotron.parse(): Invalid argument 3, expected string.\n");
-    }
+
+  if(THIS->xml == NULL || THIS->xsl == NULL) {
+    error("XML or XSL input not set correctly.\n");
   }
-  get_all_args("Sablotron.parse", args, "%S%S", &xsl, &xml);
-  argums[1] = xsl->str;
-  argums[3] = xml->str;
+
+  SablotCreateProcessor(&sproc);
+  
+  if(THIS->base_uri != NULL)
+  {
+    /* Process the base URI */
+    if(STRSTR(THIS->base_uri->str, "file:/") == NULL) {
+      /* prepend with file: or file:/ since that's the only currently
+       * supported method. We can use sprintf safely, since we have allocated
+       * a string of enough length.
+       */
+      char *tmp = malloc(THIS->base_uri->len + 7);
+      if(tmp == NULL)
+	error("Sablotron.parse(): Failed to allocate string. Out of memory?\n");
+      if(THIS->base_uri->len > 1 && *THIS->base_uri->str == '/')
+	sprintf(tmp, "file:%s", THIS->base_uri->str);
+      else
+	sprintf(tmp, "file:/%s", THIS->base_uri->str);
+      SablotSetBase(sproc, tmp);
+      free(tmp);
+    } else
+      SablotSetBase(sproc, THIS->base_uri->str);
+  }
+
+  argums[3] = THIS->xsl->str;
+  argums[5] = THIS->xml->str;
+
+  if(THIS->xsl_type == SX_DATA) { 
+    xslsrc = "arg:/_xsl";
+  } else {
+    xslsrc = THIS->xsl->str;    
+  }
+  
+  if(THIS->xml_type == SX_DATA) { 
+    xmlsrc = "arg:/_xml";
+  } else {
+    xmlsrc = THIS->xml->str;    
+  }
+  if(THIS->variables != NULL) {
+    struct svalue sind, sval;
+    int tmpint=0;
+    vars = malloc( sizeof(char *) * ( 1 + ((m_sizeof(THIS->variables)) * 2 )));
+    MY_MAPPING_LOOP(THIS->variables, count, k)  {
+      sind = k->ind;
+      sval = k->val;
+      if(!(sind.type == T_STRING && sval.type == T_STRING)) {
+	continue;
+      }
+      vars[tmpint++] = sind.u.string->str;
+      vars[tmpint++] = sval.u.string->str;
+    }
+    vars[tmpint] = NULL;
+  }
+  success = SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
   THREADS_ALLOW();
-  success = really_do_parse(sproc, "arg:/_xsl", "arg:/_xml", argums, &parsed,
-			    &err);
+  success |= SablotRunProcessor(sproc, xslsrc, xmlsrc, "arg:/_output",
+				vars, argums);  
+  success |= SablotGetResultArg(sproc, "arg:/_output", &parsed);
+  if(vars != NULL)
+    free(vars);
   THREADS_DISALLOW();
-  pop_n_elems(args);
-  if(err != NULL) {
-    push_mapping(err);
-  } else if(parsed != NULL) {
+
+  if(parsed != NULL) {
+    pop_n_elems(args);
     push_text(parsed);    
   } else {
-    push_int(0);
+    error("Parsing failed.\n");
   }
   SablotDestroyProcessor(sproc);
 }
 
-static void f_parse_files( INT32 args )
+static void free_xslt_storage(struct object *o)
 {
-  SablotHandle sproc;
-  struct pike_string *xml, *xsl;
-  char *parsed = NULL;
-  struct mapping *err = NULL;
-  int success;
-  char *argums[] =
-  {
-    "/_output", NULL, 
-    NULL
-  };
-  get_all_args("Sablotron.parse_lines", args, "%S%S", &xsl, &xml);
-  /*   SablotRegHandler(p, HLR_MESSAGE,  */
-  THREADS_ALLOW();
-  SablotCreateProcessor(&sproc);
-  success = really_do_parse(sproc, xsl->str, xml->str, argums, &parsed,
-			    &err);
-  THREADS_DISALLOW();
-  pop_n_elems(args);
-  if(err != NULL) {
-    push_mapping(err);
-  } else if(parsed != NULL) {
-    push_text(parsed);
-  } else
-    push_int(0);
-  SablotDestroyProcessor(sproc);
+  if(THIS->base_uri != NULL)  free_string(THIS->base_uri);
+  if(THIS->variables != NULL) free_mapping(THIS->variables);
+  if(THIS->xml != NULL)       free_string(THIS->xml);
+  if(THIS->xsl != NULL)       free_string(THIS->xsl);
+  MEMSET(THIS, 0, sizeof(xslt_storage));
 }
+
+static void init_xslt_storage(struct object *o)
+{
+  MEMSET(THIS, 0, sizeof(xslt_storage));
+}
+void f_create(INT32 args)
+{
+  pop_n_elems(args);
+}
+
+void f_error(INT32 args)
+{
+  pop_n_elems(args);
+  if(THIS->err != NULL)
+    ref_push_mapping(THIS->err);
+  else
+    push_int(0);
+}
+void f_set_xml_data(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
+  if(sp[-args].type != T_STRING)
+    error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected string.\n");
+  if(THIS->xml != NULL)
+    free_string(THIS->xml);
+  THIS->xml = sp[-args].u.string;
+  add_ref(THIS->xml);
+  THIS->xml_type = SX_DATA;
+  pop_n_elems(args);
+}
+
+void f_set_xml_file(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_xml_file: Expected one argument.\n");
+  if(sp[-args].type != T_STRING)
+    error("XSLT.Parser()->set_xml_file: Invalid argument 1, expected string.\n");
+  if(THIS->xml != NULL)
+    free_string(THIS->xml);
+  THIS->xml = sp[-args].u.string;
+  add_ref(THIS->xml);
+  THIS->xml_type = SX_FILE;
+  pop_n_elems(args);
+}
+
+void f_set_xsl_data(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_xsl_data: Expected one argument.\n");
+  if(sp[-args].type != T_STRING)
+    error("XSLT.Parser()->set_xsl_data: Invalid argument 1, expected string.\n");
+  if(THIS->xsl != NULL)
+    free_string(THIS->xsl);
+  THIS->xsl = sp[-args].u.string;
+  add_ref(THIS->xsl);
+  THIS->xsl_type = SX_DATA;
+  pop_n_elems(args);
+}
+
+void f_set_base_uri(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_base_uri: Expected one argument.\n");
+  if(sp[-args].type != T_STRING)
+    error("XSLT.Parser()->set_base_uri: Invalid argument 1, expected string.\n");
+  if(THIS->base_uri != NULL)
+    free_string(THIS->base_uri);
+  THIS->base_uri = sp[-args].u.string;
+  add_ref(THIS->base_uri);
+  pop_n_elems(args);
+}
+
+void f_set_xsl_file(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_xsl_file: Expected one argument.\n");
+  if(sp[-args].type != T_STRING)
+    error("XSLT.Parser()->set_xsl_file: Invalid argument 1, expected string.\n");
+  if(THIS->xsl != NULL)
+    free_string(THIS->xsl);
+  THIS->xsl = sp[-args].u.string;
+  add_ref(THIS->xsl);
+  THIS->xsl_type = SX_FILE;
+  pop_n_elems(args);
+}
+
+void f_set_variables(INT32 args)
+{
+  if(args != 1)
+    error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
+  if(sp[-args].type != T_MAPPING)
+    error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected mapping.\n");
+  if(THIS->variables != NULL)
+    free_mapping(THIS->variables);
+  THIS->variables = sp[-args].u.mapping;
+  add_ref(THIS->variables);
+  pop_n_elems(args);
+}
+
+
 #endif  
+
+/* Initialize and start module */
+void pike_module_init( void )
+{
+#ifdef HAVE_SABLOT
+  start_new_program();
+  ADD_STORAGE(xslt_storage);
+  set_init_callback(init_xslt_storage);
+  set_exit_callback(free_xslt_storage);
+  add_function("create", f_create, "function(void:void)", 0);
+  add_function("error", f_error, "function(void:mapping)", 0);
+  add_function("set_xml_data", f_set_xml_data, "function(string:void)",
+	       OPT_SIDE_EFFECT);
+  add_function("set_xml_file", f_set_xml_file, "function(string:void)",
+	       OPT_SIDE_EFFECT);
+  add_function("set_xsl_data", f_set_xsl_data, "function(string:void)",
+	       OPT_SIDE_EFFECT);
+  add_function("set_xsl_file", f_set_xsl_file, "function(string:void)",
+	       OPT_SIDE_EFFECT);
+  add_function("set_base_uri", f_set_base_uri, "function(string:void)",
+	       OPT_SIDE_EFFECT);
+  add_function("set_variables", f_set_variables, "function(mapping:void)",
+	       OPT_SIDE_EFFECT);
+  add_function( "run", f_run, "function(void:string)", 0);
+  xslt_program = end_program();
+  add_program_constant("Parser", xslt_program, 0);
+#endif
+}
+
+/* Restore and exit module */
+void pike_module_exit( void )
+{
+#ifdef HAVE_SABLOT
+  if(xslt_program)
+    free_program(xslt_program);
+#endif
+}
+
+ 

@@ -1,9 +1,10 @@
 #!/usr/bin/env pike
 
 int main(int argc, array argv) {
-#if constant(PiXSL.parse)
+#if constant(PiXSL.Parser)
   string xsl, xml, ofile;
-  mapping|string res;
+  object parser;
+  string res;
   if(sizeof(argv) > 2) {
     if(argv[1] == "--pwd") {
       cd(argv[2]);
@@ -27,20 +28,26 @@ int main(int argc, array argv) {
     exit(1);
   }
   if(!xml) xml = "file://stdin";
-  res = PiXSL.parse_files(xsl, xml);
-  if(mappingp(res)) {
-    werror("%s: XSLT Parsing failed with %serror code %s on\n"
-	   "line %s in %s:\n%s\n",
-	   res->level||upper_case(res->msgtype||"ERROR"), 
-	   res->module ? res->module + " " : "",
-	   res->code || "???",
-	   res->line || "???",
-	   res->URI || "unknown file",
-	   res->msg || "Unknown error");
-    exit(1);
-  } else if(!res) {
-    werror("Unknown error occured.\n");
-    exit(1);
+  parser = PiXSL.Parser();
+  parser->set_xml_data(xml);
+  parser->set_xsl_data(xsl);
+  
+  if(catch(res = parser.run())) {
+    res = parser->error();
+    if(mappingp(res)) {
+      werror("%s: XSLT Parsing failed with %serror code %s on\n"
+	     "line %s in %s:\n%s\n",
+	     res->level||upper_case(res->msgtype||"ERROR"), 
+	     res->module ? res->module + " " : "",
+	     res->code || "???",
+	     res->line || "???",
+	     res->URI || "unknown file",
+	     res->msg || "Unknown error");
+      exit(1);
+    } else if(!res) {
+      werror("Unknown error occured.\n");
+      exit(1);
+    }
   }
   if(ofile) {
     rm(ofile);
