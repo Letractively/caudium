@@ -31,6 +31,7 @@
 #define ERR_INVALID_USER        0x0008
 #define ERR_LDAP_CONN_MISSING   0x0009
 #define ERR_LDAP_MODIFY         0x000A
+#define ERR_PASS_MISMATCH       0x000B
 
 //
 // Session storage shortcuts

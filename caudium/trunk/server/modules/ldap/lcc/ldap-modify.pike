@@ -265,6 +265,19 @@ private mixed do_modify(object id, mapping data, string f)
                                                  maddr, max - (int)(idx[4..]));
             continue;
         }
+
+        if (idx == "userPassword") {
+            if (id->variables->userPassword == "")
+                continue;
+
+            if (id->variables->userPassword != id->variables->userPasswordAgain)
+                return ([
+                    "lcc_error" : ERR_PASS_MISMATCH
+                ]);
+
+            //TODO: encryption stuff goes here
+        }
+        
         if (data->user->ldap_data && data->user->ldap_data[idx])
             replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
     }
@@ -281,26 +294,31 @@ private mixed do_modify(object id, mapping data, string f)
             "lcc_error" : ERR_LDAP_CONN_MISSING
         ]);
     }
-    
-    report_notice("modifying '%s' with data '%O'\n",
-                  data->user->dn, ldata);
-    
-    int res = ldap->modify(data->user->dn, ldata);
 
-    // TODO: handle the res == 50 situation specially here
-    if (res != 0) {
-        string errs = ldap->error_string(res);
+    string screen;
+    
+    if (sizeof(ldata)) {
+        report_notice("modifying '%s' with data '%O'\n",
+                      data->user->dn, ldata);
+    
+        int res = ldap->modify(data->user->dn, ldata);
 
-        report_notice("Error string: %O\n", errs);
+        // TODO: handle the res == 50 situation specially here
+        if (res != 0) {
+            string errs = ldap->error_string(res);
+
+            report_notice("Error string: %O\n", errs);
         
-        return ([
-            "lcc_error" : ERR_LDAP_MODIFY,
-            "lcc_error_extra" : ldap->error_string(res)
-        ]);
-    }
+            return ([
+                "lcc_error" : ERR_LDAP_MODIFY,
+                "lcc_error_extra" : ldap->error_string(res)
+            ]);
+        }
     
-    string screen = sprov->retrieve(id, "modified");
-
+         screen = sprov->retrieve(id, "modified");
+    } else
+        screen = sprov->retrieve(id, "modify");
+    
     if (screen && screen != "")
         return http_string_answer(screen);
     else
@@ -308,6 +326,11 @@ private mixed do_modify(object id, mapping data, string f)
             "lcc_error" : ERR_SCREEN_ABSENT,
             "lcc_error_extra" : "No 'modified' scren found"
         ]);
+}
+
+private mixed do_suggestpass(object id, mapping data, string f)
+{
+    return http_string_answer("this window will suggest the password");
 }
 
 mixed handle_request(object id, mapping data, string f)
@@ -319,6 +342,9 @@ mixed handle_request(object id, mapping data, string f)
 
             case "modify":
                 return do_modify(id, data, f);
+
+            case "suggestpass":
+                return do_suggestpass(id, data, f);
                 
             default:
                 return do_start(id, data, f);
