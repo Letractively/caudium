@@ -1,0 +1,13 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=Caudium
+OBJS= caudium.o
+SOURCES=caudium.c
+MODULE_LIBS=@LIBS@
+
+@module_makefile@
+
+extrainstall:
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
+
