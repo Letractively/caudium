@@ -48,22 +48,14 @@ constant module_doc    = "This module provide SSI compatibility tags from"
                          " Apache (tags starting with &lt;!--#).";
 constant module_unique = 1;
 
-private int ssi_is_not_set() {
-   return !QUERY(ssi);
-}
-
 void create() {
-  defvar("ssi", 1, "SSI support: NSCA and Apache SSI support", 
-	 TYPE_FLAG,
-	 "If set, Roxen will parse NCSA / Apache server side includes.");
 
-  defvar("exec", 0, "SSI support: execute command", 
+  defvar("exec", 0, "SSI execute command", 
 	 TYPE_FLAG,
 	 "If set and if server side include support is enabled, Roxen "
 	 "will accept NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt;. "
 	 "Note that this will allow your users to execute arbitrary "
-	 "commands.",
-	 ssi_is_not_set);
+	 "commands.");
 
 #if constant(getpwnam)
   array nobody = getpwnam("nobody") || ({ "nobody", "x", 65534, 65534 });
@@ -71,17 +63,15 @@ void create() {
   array nobody = ({ "nobody", "x", 65534, 65534 });
 #endif /* constant(getpwnam) */
 
-  defvar("execuid", nobody[2] || 65534, "SSI support: execute command uid",
+  defvar("execuid", nobody[2] || 65534, "SSI execute command uid",
 	 TYPE_INT,
 	 "UID to run NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt; "
-	 "commands with.",
-	 ssi_is_not_set);
+	 "commands with." );
 
-  defvar("execgid", nobody[3] || 65534, "SSI support: execute command gid",
+  defvar("execgid", nobody[3] || 65534, "SSI execute command gid",
 	 TYPE_INT,
 	 "GID to run NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt; "
-	 "commands with.",
-	 ssi_is_not_set);
+	 "commands with.");
 }
 
 
@@ -95,9 +85,6 @@ void create() {
 //!  Give some help
 string tag_compat_exec(string tag,mapping m,object id,object file,
 		       mapping defines) {
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
   if(m->help) 
     return ("See the Apache documentation. This tag is more or less equivalent"
 	    " to &lt;insert file=...&gt;, but you can run any command. Please "
@@ -148,9 +135,6 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
 string tag_compat_config(string tag,mapping m,object id,object file,
 			 mapping defines)
 {
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
   if(m->help || m["help--"]) 
     return ("The SSI #config tag is used to set configuration parameters "
        "for other SSI tags. The tag takes one or more of the following "
@@ -189,9 +173,6 @@ string tag_compat_config(string tag,mapping m,object id,object file,
 //!  Insert a real file on real FS...
 string tag_compat_include(string tag,mapping m,object id,object file,
 			  mapping defines) {
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
   if(m->help || m["help--"]) 
     return ("The SSI #include tag is more or less equivalent to the RXML "
             "&lt;INSERT&gt; tag. ");
@@ -235,9 +216,6 @@ string tag_compat_include(string tag,mapping m,object id,object file,
 //!   Compat &lt;!--#echo tag
 string tag_compat_echo(string tag,mapping m,object id,object file,
 			  mapping defines) {
-  if(!QUERY(ssi))
-    return "SSI support disabled. Use &lt;echo var=name&gt; instead.";
-
   object rxmltags_module = RXMLTAGS;
   if(objectp(rxmltags_module))
     return rxmltags_module->tag_echo(tag, m, id, file, defines);
@@ -253,9 +231,6 @@ string tag_compat_echo(string tag,mapping m,object id,object file,
 //!   The value to set into the variable
 string tag_compat_set(string tag,mapping m,object id,object file,
 			  mapping defines) {
-  if(!QUERY(ssi))
-    return "SSI support disabled. Use &lt;set variable=name value=value&gt; instead.";
-
   if(m->var && m->value) {
     if(!id->misc->ssi_variables)
       id->misc->ssi_variables = ([]);
@@ -272,16 +247,12 @@ string tag_compat_set(string tag,mapping m,object id,object file,
 //!   Compat &lt;!--#flastmod tag
 string tag_compat_fsize(string tag,mapping m,object id,object file,
 			mapping defines) {
-  if(!QUERY(ssi))
-    return "SSI support disabled";
-
   if(m->help || m["help--"]) 
     if (tag == "!--#fsize")
       return ("Returns the size of the file specified (as virtual=... or file=...)");
     else
       return ("Returns the last modification date of the file specified (as virtual=... or file=...)");
   
-
   if(m->virtual && sizeof(m->virtual)) {
     m->virtual = _Roxen.http_decode_string(m->virtual);
     if (m->virtual[0] != '/') {
