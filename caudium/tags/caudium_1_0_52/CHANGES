@@ -1,0 +1,260 @@
+Changes in Caudium 1.0.52 (stable release 4, 2002-05-16)
+--------------------------------------------------------
+- Fixed #530674: passive mode FTP connection problem (with Mozilla
+  and derivative browsers).
+
+Changes in Caudium 1.0.50 (stable release 4, 2002-05-15)
+--------------------------------------------------------
+- <if exists="file"> shouldn't use the cache. Thanks to Endre Hirling.
+- Fixed bug #542177 that makes incorrect listings from directories2.pike.
+- Fixed SF bug #530674
+
+Changes in Caudium 1.0.40 (stable release 3, 2002-02-27)
+--------------------------------------------------------
+- Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
+- business graphics module now creates the cache directory in the correct
+  location (under the argument_cache_dir hierarchy)
+- Font name can now be specified for the <diagram> tag and can use the CIF default
+  font name.
+- The compilation process may skip rpath from the compiler/linker command line
+  if either building a Debian package or the NO_RPATH_PLEASE variable is found
+  in the environment when running configure (and smartlink thereafter).
+- Corrected a bug in ftp protocol in pasv mode. Thanks to 
+  Joe Radinger <cheese@nosuchhost.net>
+- New configuration files are created with the 0600 permission bits now.
+- Fix for bug #498377: the environment variable didn't show the complete url
+  with the query.
+- Added support for //!NOMODULE in modules. This closes bug #473716
+- oldcgi is not not shown in the module list.
+- ldapuserauth.pike: fixed a security problem when using user access mode :
+  it was possible to login as any user by typing any password when user 
+  passwd was not in cache (eg where you were the first to login after a
+  restart/start of caudium).
+- ldapuserauth.pike: crypt problem fixed.
+- little fixes with installation on OpenBSD
+
+Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
+--------------------------------------------------------
+- Fix for bug #450757: When calling parse_rxml() when using the XML compliant
+  RXML parser, make sure to propagate and keep custom tags correctly.
+- Removed old network neighbourhood code.
+- Fixed bug in connection timeout code. When running in non-threaded
+  mode, long connections (ie large downloads) would be timed out
+  incorrectly.
+- Fixed a couple of problem related to ssl3.
+- Fixed <if variable> to work with scopes.
+- Throw a bad request answer if the file contains unencoded spaces
+  (http2 protocol).
+- Fixed bugs #432433 and #449140 (redirect module fixed)
+- Fix to allow / in the name of modules and variables (bug #423435).
+- Always simplify path in low_get_file. This is added to prevent the
+  possibility of a bugs allowing access to files outside of the
+  configured web page directories. Please note that there are no known
+  such bugs in Caudium.
+- Small bug fixed in UltraLog - when no extensions is specified,
+  supply a default list and avoid a runtime error. Reported bu Michael
+  Stenitzer.
+- 123session backported from 1.1 source tree, with updated and modification
+  submitted by Chris Davies
+- LDAP Tag and LDAP Auth now support pike 7.x Protocols.LDAP and have
+  a configurable version
+- PiXSL now compiles on FreeBSD
+- Supports updated with Opera 5.0 browser
+- SQLuserdb backported from 1.1 with Chris Davies modifications
+
+Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
+--------------------------------------------------------
+- Removed htmlparse dependency from the Enhanced Directory Listings
+  module since we have two parsing modules now.
+- Quote the chars < > @ in http_encode_url and http_encode_string.
+- *** Removed CAMAS since it's not stable. Use the 1.1 version if you want
+  *** to use it (either CVS or a snapshot).
+- Correctly find libraries for various versions of Sablotron (0.50 and
+  0.44 tested). 
+- Fixed a bug in Caudium.ParseHTTP->create (http2.pike fix).
+- Applied Chris Davies custom changes to the SQL User Database. These add a
+  configurable timeout for cached user entries and an option to block sites
+  with too many failed authentication attempts.
+- Fixed some bugs in the XSLT Template module, added more configurable
+  options. Also fixed the setting of the base uri.
+- MSIE doesn't send the Pragma: no-cache header when you reload a
+  page. This makes it really hard to reload certain things in Caudium,
+  since that header is used to determine if the cache should or
+  shouldn't be used. To solve this problem you can now use the
+  prestate (nocache) to emulate this behavior. 
+- Added new special token to the access log file name format. %H will
+  be replaced with the hostname Caudium is running on. Useful if you
+  use the same configuration file for multiple machines.
+- New feature: access log files are now not opened until they are
+  used. Also there is a configurable maximum idle time after which the
+  log will be closed (can be disabled). Also made the "reopen timeout"
+  somewhat random to avoid the "all log files reopen at the same time"
+  misfeature.
+- Print a nice error message when a suitable Pike isn't found during
+  configuration.
+- Fixed a bug in the UltraLog module when threads are unavailable.
+- Corrected QUERY calls in the sql filesystem module.
+- Backported improved data cache and http2 protocol from Caudium 1.1.
+- Fixed various minor bugs and typos.
+- Pike 7.1, 7.2 and 7.3 are not supported with Caudium 1.0. The verify
+  script now says this.
+- Fixed security bug which allowed people to ge the RXML source code
+  of a page if a request was made to an RXML file while Caudium was
+  loading.
+- Fixed error message when a modules was not found (accidently broken).
+- Fixed <use> cache lookup (use the full path as the key, not the unresolved
+  path).
+- Added timeout for sending connections to work around problem in Pike where
+  remotely closed connections aren't handled correctly. 
+- Removed the bug-causing directory override feature. If you need to list
+  directories, don't put an index.html in it.
+- Fixed handling of precache modules in ip-less virtual servers. 
+
+Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
+----------------------------------------------------
+- Don't add '-lc' on SCO OpenServer and UnixWare when linking
+  dynamic libraries (it's not needed and apparently potentially
+  breaks things). Reported by Boyd Gerber.
+- Remove smartlink from the cached CC value in the beginning of the configure
+  script to account for times when the smartlink binary has been removed but
+  config.cache is kept.
+- Install script is now somewhat nicer. First of all it uses readline when
+  available. Secondly it also asks for administrator name and password.
+  Finally, it works with Pike 7.1 again.
+- Various bugfixes to CAMAS, including support for Pike 7.1
+- Removed NT compatibility hacks since we have no plans of ever
+  supporting NT.
+- Removed C++ comments from FastIMHO (fix compile error).
+- Fixed the server template creator.
+- Added a script that tries to find, and warn about, potential
+  problem with the configured Pike. It is run at the end of the
+  configure script.
+- Fixed PHP4 scripting support when using the SSL3 protocol.
+- FTP renaming should now work with the restricted filesystem with
+  home dir remapping enabled [bug #124035].
+- Some minor cosmetic changes with ports in the configuration interface.
+- Use Mhash.Hash and PCRE.Regexp from Pexts (when available) in most
+  situations where Crypto.md5/sha and Regexps are used.
+- Fixed a 0.6 compatibility bug and noted that SSL will not work with
+  Pike 0.6. This will not be fixed. If you need SSL, use Pike 7.0.  -
+- Changed all '#if efun' to '#if constant'. This is a cosmetical
+  change. However '#if efun' is deprecated.
+- Fixed various (new) 7.1 compatibility issues. 
+- Added the compact 'Add module' page originally added in Roxen 1.4.
+- Fixed compile error reporting when loading the configuration interface.
+- CAMAS support folders caching now.
+- Made the ftp protocol use supplied error code if it's present after a
+  command fails. This leads to more helpful error messages than
+  "file not found'.
+- CVS branched. The main trunk is now Caudium 1.1. To check work with the
+  1.0 stable version, do a 'cvs update -r stable_1_0' in your checked
+  out source tree.
+
+Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
+---------------------------------------------------
+- Caudium is a Roxen 1.3 fork. We have different goals and
+  ideas on what the server need to become successful. We have opted to
+  start on version 1.0 to point out that this is a different
+  server. Check out our website at http://caudium.net/ for further
+  information.
+- We use SourceForge. This means public CVS, bug tracking, task lists
+  and more. The URL is http://sourceforge.net/projects/caudium/ 
+- Now works with Pike 7.0 and 7.1. To do this a number of minor fixes
+  has been made. Functionality with 7.1 is not guaranteed since it's type
+  control system is still improving. We recommend running Caudium with
+  the latest 7.0 from CVS.
+- Wrote query-string and HTTP header parsers in C. Seems to give a
+  nice performance boast.
+- Fixed small bug in htmlparse.pike when using tags that return a
+  string directly.
+- Added PiXSL, a glue to the XSLT parser Sablotron and UltraLog, a log
+  parser, to the default distribution.
+- Option to edit the server name removed and added option to hide
+  server version.  Also added a header with the Pike version used to
+  run Caudium. It can also be disabled (the version).
+- Pike not isn't built as part of the server, but instead you specify
+  which Pike you want to use (or use the default one).
+- Don't send the Last-Modified header for dynamic (RXML-parsed)
+  pages. Fixes caching problems with clients that correctly handles
+  If-Modified-Since, like MSIE and Galeon.
+- Changed files named roxen* to caudium*, as well as references to roxen->
+  etc. Caudium should still be completely Roxen 1.3 compatible.
+- Demo SSL-certificate fixed for Caudium.
+- Various changes that might affect compatibility. Caudium should be
+  100% compatible with Roxen 1.3 per default however. See
+  README.compatibility for more details on this.
+- protocols/http.pike use the parse_got David originally wrote for
+  Roxen 2.1.  It sort-of-fixes the worst Roxen DOS (send an eternally
+  long header and see Roxen use 100% CPU in no time). If you use http2.pike
+  there is also a maximum request length which completely fixes the problem.
+- new protocols/http2.pike: This is considered experimental but will
+  eventually replace protocols/http.pike. Major differences from
+  protocols/http.pike are: most request/header parsing done in C (even
+  more so than http.pike), uses ram cache code from Roxen 2.1 +
+  various rewrites for speed. This one, with the ram cache, is much
+  faster than the other http protocol.
+- new options to modules/filesystems/userfs.pike : banish list can
+  be disabled if needed, the virtual user system has now the option
+  to add a kind of "workaround" to add some prefix to user name on the
+  URL, and when the option "Look at the user dir" is set to No, the 
+  home filesystem can be hashed. Very good for home pages hosting.
+- Fixed the bug that sometimes added \r\n to the POST data (often
+  reported when Roxen was used with PHP, but it was in fact not related).
+- Added support for and use the Roxen 2.x module registration syntax:
+  module_type, module_name, module_doc and module_unique.
+- Re-added (it disappeared in Roxen 1.3) an option to disable the extra
+  Caudium environment variables in CGI-scripts since they sometimes cause
+  unwanted problems.
+- Replace the characters '-=$ ' with '_' in the Caudium specific
+  environment variables to avoid potential problems when running CGI
+  scripts.
+- Added strftime argument to date-related tags (<modified>, <date>
+  etc). Allows you to do custom formatting. See 'man strftime' on normal
+  UNIX box for details on strftime.
+- Added new option to <noparse>, 'until'. See <help for=noparse> for
+  more information.
+- Fixed a bug in the help tag.
+- Cast the MySQL insert id result to a string in the <sqlquery>
+  tag. Earlier it was inserted into id->variables as an integer, which
+  caused various problems.
+- New ip-less hosting module, Virtual Host Matcher, which does regular
+  expression based matching. Default is to do exact-only matching. You
+  can then write a regexp that "rewrites" a host header for this exact
+  matching. Also allows for default matching by using .* as the regular
+  expression match.
+- New module type, MODULE_PRECACHE. Needed to combine virtual hosting
+  and the http2 memory cache. Can also potentially be used to use custom keys
+  for caching.
+- Added define to disable the ip->host lookup in the config
+  interface. See README.performance for details and the reasoning behind this.
+- Split htmlparse.pike into two files. htmlparse.pike for the parser part and
+  rxmltags.pike which contains all the tags.
+- New "main" parser using the semi-XML-compliant Parser.HTML from Pike
+  7.x.  This same HTML/XML parser is used by Roxen 2.x core as
+  well. However we use it in a much more basic way, with less glue
+  around it. I.e. Caudium's XML parser is not at all similar to that
+  of Roxen 2.x in the Pike source level - we just use the same
+  parser written in C.
+- Added scope based variables using the 2.x syntax. Access though the
+  entity syntax - &scope.var; - requires the new parser.
+  <insert variable="scope.var" /> and similar syntaxes work with both parsers.
+- Added <inc/> and <dec/> tags to increment/decrement the value of a
+  variable.
+- Added <dice/> tag from Roxen 2.1 - return a random number based on the
+  "type" attribute.
+- Moved to an inline documentation format. See doc/docspec.html for the
+  specification. This will hopefully lead to more up-do-date docs and
+  better documented code.
+- Embedded PHP4 should be working pretty well now. Requires the very
+  latest PHP4 source (from CVS, but when 4.0.4 is released, that'll
+  work) and the latest Pike 7.0 or 7.1 source.
+- Caudium now comes with CAMAS, which is a continuation / fork of
+  IMHO.  The main reason being that newer IMHO most likely will only
+  work with Roxen 2.x (even version 0.98 did not work with Roxen 1.3
+  or Caudium), but there are other reasons too.
+- External FastCGI program/library updated (might now work better than
+  before).
+- Tags are no longer priority based. Ie the priority of a tag module doesn't
+  affect the order of tag parsing. This shouldn't break anything since I don't
+  know of anyone using this feature. The reason for the change was to simplify
+  the parse modules. Also the XML parser never supported this feature.
