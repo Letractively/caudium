@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fix bug #0000011
+   (Xavier Beaudouin)
 - Fix bug #0000009 that prevents ultralog to run in command line
   because of report_debug don't exist on command line.
    (Xavier Beaudouin)
