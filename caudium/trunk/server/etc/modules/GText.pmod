@@ -119,7 +119,7 @@ object load_image(string f,string bd, object|void id)
 #endif
     ;
 #if constant(roxen)  
-  if(!(data=roxen->try_get_file(fix_relative(f, bd),id)))
+  if(!(data=caudium->try_get_file(fix_relative(f, bd),id)))
 #endif
     if(!(file=open(fix_relative(f,bd),"r")) || (!(data=file->read())))
       return 0;

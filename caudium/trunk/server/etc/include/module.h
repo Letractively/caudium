@@ -61,9 +61,9 @@
 
 // Like query, but for global variables.
 #if constant(cpp)
-#define GLOBVAR(x) roxen->variables[ #x ][VAR_VALUE]
+#define GLOBVAR(x) caudium->variables[ #x ][VAR_VALUE]
 #else /* !constant(cpp) */
-#define GLOBVAR(x) roxen->variables["x"][VAR_VALUE]
+#define GLOBVAR(x) caudium->variables["x"][VAR_VALUE]
 #endif /* constant(cpp) */
 
 #define MODULE_EXTENSION         (1<<0)
