@@ -1038,7 +1038,13 @@ private void restore_current_user_id_number()
   
   current_user_id_number = (int)current_user_id_file->read(100);
   current_user_id_file_last_mod = current_user_id_file->stat()[2];
-  perror("Restoring unique user ID information. (%s)\n", current_user_id_number);
+
+  // FIXME: This should be cleaned !!!
+  if(stringp(current_user_id_number))
+   perror("Restoring unique user ID information. (%s)\n", current_user_id_number);
+  else
+   perror("Restoring unique user ID information. (%O) [Not a string ?]\n",
+          current_user_id_number); 
 #ifdef FD_DEBUG
   mark_fd(current_user_id_file->query_fd(), "Unique user ID logfile.\n");
 #endif
