@@ -396,7 +396,7 @@ else
 *** is no longer supported. You can download and install one of
 *** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
-***     http://caudium.net/download/snapshot.html
+***     http://caudium.net/download/source/caudiumbuild.rxml 
 ***
 *** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD!
 ***
