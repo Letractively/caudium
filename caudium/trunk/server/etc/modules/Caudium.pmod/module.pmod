@@ -926,8 +926,14 @@ int is_safe_string(string in) {
 //!  The mapping with the attributes
 //! @returns
 //!  The string of attributes.
+//! @note
+//!  You can define -DUSE_OLD_MAKE_TAG_ATTRIBUTES if you have some 
+//!  unstability with Caudium. But this hint will be removed on Caudium
+//!  1.4 release.
 string make_tag_attributes(mapping in){
-  
+#ifndef USE_OLD_MAKE_TAG_ATTRIBUTES
+  return _Caudium._make_tag_attributes(in);
+#else /* USE_OLD_MAKE_TAG_ATTRIBUTES */  
   // remove "/" that can remain from the parsing of a <tag /> 
   m_delete(in, "/");
   
@@ -943,6 +949,7 @@ string make_tag_attributes(mapping in){
                           ({ "&quot;", "&lt;", "&gt;" //, "&amp;"
                           }))+"\"";
   return a*" ";
+#endif /* USE_OLD_MAKE_TAG_ATTRIBUTES */  
 }
 
 //!  Build a tag with the specified name and attributes.
