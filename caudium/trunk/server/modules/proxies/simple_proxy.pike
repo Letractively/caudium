@@ -384,13 +384,13 @@ class request
       if (objectp (rpipe) && functionp (rpipe->bytes_sent))
          bytes  += rpipe->bytes_sent ();
 
-      int timesince = time (1) - start_time;
-      if (timesince < 1)
-         timesince = 1;
+      float timesince = time (start_time);
+      if (timesince <= 0.0)
+         timesince = 1.0;
 
-      int bps = bytes / timesince;
+      float bps = bytes / timesince;
 
-      ret = sprintf ("%s -&gt; %s sent %s at %s/s", host_header, id->remoteaddr, sizetostring (bytes), sizetostring (bps));
+      ret = sprintf ("%s -&gt; %s sent %s at %s/s", host_header, id->remoteaddr, sizetostring (bytes), sizetostring ((int) bps));
 
       return (ret);
    }
