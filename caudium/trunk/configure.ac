@@ -12,6 +12,7 @@ AC_REVISION($Revision$)
 REQ_PIKE_MAJOR=7
 REQ_PIKE_MINOR=3
 REQ_PIKE_BUILD=0
+REQ_PIKE_VER="$REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD"
 
 AC_SET_MAKE
 
@@ -379,12 +380,12 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
 done
 
 if test x"$FOUND_PIKE" = "x1"; then 
-  AC_MSG_RESULT([found Pike $PIKE_VERSION with C headers in $PIKE_INCLUDE_DIRS])
+  AC_MSG_RESULT([found Pike $PIKE_VERSION ($PIKE) with C headers in $PIKE_INCLUDE_DIRS])
 else
   cat << EOF
 *****************************************************************************
 *** I couldn't find a suitable Pike for Caudium. Caudium 1.3
-*** requires Pike 7.2.200 or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
+*** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
 *** is no longer supported. You can download and install one of
 *** our Pike 7.3 snapshots available from our website at:
 ***
