@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
+- Added support in VHS LDAP to use Caudium system log directory instead of
+  userdir one. 
 - Added .htaccess manual link... Usefull since our is NSCA compatible...
 - Added support in VHS Sql to use Caudium system log directory instead of
   userdir one. 

@@ -383,7 +383,7 @@ void create()
          "Directory, directory where are logfiles.");
 
   defvar("log2vhs", 1, "Logs using VHS parameters", TYPE_FLAG,
-	 "Disable to log to system wide configurate directory");
+	 "Disable it to log to system wide configurated directory");
 
   defvar("ttl_positive", 1800, "TTL:Positive TTL", TYPE_INT,
          "Time to cache positive config hits.");
@@ -554,14 +554,19 @@ string status()
 //!  name: WWW root directory
 //
 //! defvar: cgidir
-//! Directory, where are logfiles
+//! Directory, mounted as cgi-bin
 //!  type: TYPE_STRING
 //!  name: CGI directory
 //
 //! defvar: logdir
-//! Directory, mounted as cgi-bin
+//! Directory, directory where are logfiles.
 //!  type: TYPE_STRING
 //!  name: Logs directory
+//
+//! defvar: log2vhs
+//! Disable it to log to system wide configurated directory
+//!  type: TYPE_FLAG
+//!  name: Logs using VHS parameters
 //
 //! defvar: ttl_positive
 //! Time to cache positive config hits.
