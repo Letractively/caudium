@@ -19,6 +19,16 @@
  *
  */
 
+/*
+ * The Cache module and the accompanying code is Copyright © 2002 James Tyson.
+ * This code is released under the GPL license and is part of the Caudium
+ * WebServer.
+ *
+ * Authors:
+ *   James Tyson	<jnt@caudium.net>
+ *
+ */
+
 //! This module implements backwards compatibility for old chunks of the server
 //! that still use cache_set() and cache_get()
 
