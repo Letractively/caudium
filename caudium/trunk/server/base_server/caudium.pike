@@ -1755,7 +1755,7 @@ void reload_all_configurations()
 //    config_cache[config] = st;
     if(conf) {
       // Closing ports...
-      map(values(conf->server_ports), conf->do_dest);
+      Array.map(values(conf->server_ports), conf->do_dest);
       conf->stop();
       conf->invalidate_cache();
       conf->modules = ([]);
