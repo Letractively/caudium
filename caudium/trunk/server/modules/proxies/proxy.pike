@@ -296,8 +296,11 @@ string process_request(object id, int is_remote)
   if((delimiter = search(new_raw, "\n")) >= 0)
     new_raw = new_raw[delimiter+1..];
 
-  url=id->raw_url[strlen(QUERY(mountpoint))..];
-  sscanf(url, "%*[/]%s", url);	// Strip initial '/''s.
+  url = id->raw_url[strlen (QUERY (mountpoint))..];
+
+  while (url[0] == '/')
+     url = url[1..];
+
   if(!sscanf(url, "%*s/%s", url)) url="";
 
   return sprintf("%s /%s HTTP/1.0\r\n%s", id->method || "GET", 
@@ -557,10 +560,14 @@ mapping find_file( string f, object id )
   int port;
   mixed tmp;
 
+  f = id->raw_url[strlen (QUERY (mountpoint))..];
+
+  while (f[0] == '/')
+     f = f[1..];
+
 #ifdef PROXY_DEBUG
   perror("PROXY: Request for "+f+"\n");
 #endif
-  f=id->raw_url[strlen(QUERY(mountpoint))+1 .. ];
 
   if(sscanf(f, "%[^:/]:%d/%s", host, port, file) < 2)
   {
