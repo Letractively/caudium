@@ -8,6 +8,9 @@ MODULE_LIBS=@LIBS@
 
 extrainstall:
 
+verify: all
+	@echo Verifying for $(MODNAME)...
+
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
 
