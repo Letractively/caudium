@@ -203,9 +203,6 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   return to_parse;
 }
 
-
-}
-
 string tag_list_tags( string t, mapping args, object id, object f )
 {
   int verbose;
