@@ -101,7 +101,7 @@ void create()
           "alt=\"Service unavailable\">\n"
           "<p><hr noshade \>"
           "\n<i>Sorry</i></h2>\n"
-          "<br clear />\n<font size="+2">This server is temporarily "
+          "<br clear />\n<font size=\"+2\">This server is temporarily "
           "disabled for maintenance."
           "Please try again later.\n</font></p>\n"
           "<hr noshade=\"noshade\" />"
