@@ -70,6 +70,8 @@ int _initialized_ok;
 
 int lame_users = 0;
 
+string ldapquery;
+
 class ConfigCache
 {
   string hostname;
@@ -149,7 +151,9 @@ string ldap_getvirt(string hostname, object id)
 
   mixed err = catch
   {
-        result = ldap->search(sprintf("(wwwDomain=%s)", hostname));
+	string tmpquery = sprintf(ldapquery, hostname);
+        result = ldap->search(tmpquery);
+        DW(sprintf("ldap->search(\"%s\")", tmpquery));
   }
   ;
 
@@ -164,7 +168,6 @@ string ldap_getvirt(string hostname, object id)
   res = result->fetch();
   ldap_last_query = time();
 
-  DW(sprintf("ldap->search(\"(wwwDomain=%s)\")", hostname));
   DW(sprintf("result->fetch() = %O", res));
 
 #ifdef THREADS
@@ -203,7 +206,7 @@ string ldap_getvirt(string hostname, object id)
 
       mixed err = catch
       {
-            result = ldap->search(sprintf("(wwwDomain=%s)", tmphost));
+            result = ldap->search(sprintf(ldapquery, tmphost));
       }
       ;
     
@@ -375,6 +378,9 @@ void create()
   defvar("bind_pw", "secret", "LDAP: Bind password", TYPE_STRING,
          "Password used to bind");
 
+  defvar("host_query", "(wwwDomain=%s)", "LDAP: Query", TYPE_STRING,
+         "LDAP query used to get virtual data");
+
   defvar("proto_ver", 2, "LDAP: Protocol version", TYPE_INT,
          "Which LDAP protocol version use to bind");
 
@@ -463,6 +469,8 @@ void precache_rewrite(object id)
 void start()
 {
   if (QUERY(lamers_mode)) lame_users = 1;
+
+  ldapquery = QUERY(host_query);
 
   mixed err = catch {
    ldap_reconnect();
