@@ -8,7 +8,8 @@
 <xsl:template match="class">
   <html>
    <head><title>PiGTK Documentation: <xsl:value-of select="@name"/></title></head>
-   <body>
+	<body alink="#002040" bgcolor="#ffffff" link="#0768b2" text="#343434"
+	      vlink="#0768b2">
     <dl>
      <dt><h1><xsl:value-of select="@name"/></h1></dt>
      <xsl:apply-templates select="doc"/>
@@ -128,7 +129,7 @@
  <dt>
   <b>
    <xsl:value-of disable-output-escaping="yes" select="@returns"/>
-   <xsl:value-of select="@name"/> ( <xsl:for-each
+   <xsl:text> </xsl:text><xsl:value-of select="@name"/> ( <xsl:for-each
      select="arg"><xsl:value-of select="@type"/><xsl:text> </xsl:text>
      <xsl:value-of select="@name"/><xsl:if test="position() != last()">, </xsl:if></xsl:for-each> )</b></dt>
      <xsl:text>&#xa;</xsl:text>

@@ -55,11 +55,11 @@ These functions were written by Henrik "Hedda" Wallin (hedda@idonex.se)
 Create_bars can draw normal bars, sumbars and normalized sumbars.
 */ 
 
-#define GETFONT(WHATFONT) object notext=resolve_font(diagram_data->WHATFONT||diagram_data->font);
+#define GETFONT(WHATFONT) notext=resolve_font(diagram_data->WHATFONT||diagram_data->font);
 
 mapping(string:mixed) create_bars(mapping(string:mixed) diagram_data)
 {
-
+  object notext;
 #ifdef BG_DEBUG
   mapping bg_timers = ([]);
 #endif

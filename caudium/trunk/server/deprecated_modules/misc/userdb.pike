@@ -282,7 +282,7 @@ void read_data()
     
   case "shadow":
     string shadow;
-    array pw, sh, a, b;
+    array pw, a, b;
     mapping sh = ([]);
 #if efun(geteuid)
     if(getuid() != geteuid()) privs=Privs("Reading password database");

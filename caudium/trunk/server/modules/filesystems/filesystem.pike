@@ -317,9 +317,10 @@ mixed find_file( string f, object id )
   TRACE_ENTER("find_file(\""+f+"\")", 0);
 
   object o;
-  int size;
+  int size, code;
   string tmp;
   string oldf = f;
+  object privs;
 
 #ifdef FILESYSTEM_DEBUG
   roxen_perror("FILESYSTEM: Request for \""+f+"\"\n");
@@ -392,7 +393,6 @@ mixed find_file( string f, object id )
 	return 0;
       }
 #ifndef THREADS
-      object privs;
       if (((int)id->misc->uid) && ((int)id->misc->gid) &&
 	  (QUERY(access_as_user))) {
 	// NB: Root-access is prevented.
@@ -446,7 +446,6 @@ mixed find_file( string f, object id )
 				"<h1>Permission to 'MKDIR' denied</h1>");
     }
     mkdirs++;
-    object privs;
 
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
@@ -498,7 +497,6 @@ mixed find_file( string f, object id )
     }
     puts++;
     
-    object privs;
 
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
@@ -576,8 +574,6 @@ mixed find_file( string f, object id )
 				"<h1>Permission to 'CHMOD' files denied</h1>");
     }
     
-    object privs;
-    
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
@@ -654,8 +650,6 @@ mixed find_file( string f, object id )
     }
     moves++;
     
-    object privs;
-    
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
@@ -687,7 +681,7 @@ mixed find_file( string f, object id )
     report_notice("Moving file "+movefrom+" to "+ f+"\n");
 #endif /* DEBUG */
 
-    int code = mv(movefrom, f);
+    code = mv(movefrom, f);
     privs = 0;
 
     if(!code)
@@ -756,8 +750,6 @@ mixed find_file( string f, object id )
       return 0;
     }
 
-    object privs;
-
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid)) {
       // NB: Root-access is prevented.
@@ -791,8 +783,7 @@ mixed find_file( string f, object id )
     report_notice("Moving file " + f + " to " + moveto + "\n");
 #endif /* DEBUG */
 
-    int code = mv(f, moveto);
-    privs = 0;
+    code = mv(f, moveto);
 
     if(!code)
     {

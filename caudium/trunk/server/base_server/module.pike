@@ -491,10 +491,11 @@ array query_seclevels()
     string type, value;
     if(sscanf(sl, "%s=%s", type, value)==2)
     {
+      array(string|int) arr;
+      int i;
       switch(lower_case(type))
       {
       case "allowip":
-	array(string|int) arr;
 	if (sizeof(arr = (value/"/")) == 2) {
 	  // IP/bits
 	  arr[1] = (int)arr[1];
@@ -512,7 +513,6 @@ array query_seclevels()
 
       case "acceptip":
 	// Short-circuit version of allow ip.
-	array(string|int) arr;
 	if (sizeof(arr = (value/"/")) == 2) {
 	  // IP/bits
 	  arr[1] = (int)arr[1];
@@ -529,7 +529,6 @@ array query_seclevels()
 	break;
 
       case "denyip":
-	array(string|int) arr;
 	if (sizeof(arr = (value/"/")) == 2) {
 	  // IP/bits
 	  arr[1] = (int)arr[1];
@@ -548,7 +547,6 @@ array query_seclevels()
       case "allowuser":
 	value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
 	array(string) users = (value/"," - ({""}));
-	int i;
 	
 	for(i=0; i < sizeof(users); i++) {
 	  if (lower_case(users[i]) == "any") {
@@ -583,8 +581,7 @@ array query_seclevels()
 	// Short-circuit version of allow user.
 	// NOTE: MOD_PROXY_USER is already short-circuit.
 	value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	array(string) users = (value/"," - ({""}));
-	int i;
+	users = (value/"," - ({""}));
 	
 	for(i=0; i < sizeof(users); i++) {
 	  if (lower_case(users[i]) == "any") {
@@ -617,20 +614,20 @@ array query_seclevels()
       
       case "secuname":
         value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
-	array(string) users = (value/"," - ({""}));
+	users = (value/"," - ({""}));
 	mapping(string:int) userlevels = ([]);	
 	array(string) tmp;
 	int           i;
 	
 	report_notice("SecUname found (" + sizeof(users) + " users)\n");
 	for(i = 0; i < sizeof(users); i++) {
-	    tmp = users[i] / ":";
-	    if (lower_case(tmp[0]) == "any") {
-	    	patterns += ({ ({ MOD_USER_SECLEVEL, (["any":tmp[1]]), }) });
-		break;
-	    } else {
-		userlevels += ([tmp[0]:tmp[1]]);
-	    }	    
+	  tmp = users[i] / ":";
+	  if (lower_case(tmp[0]) == "any") {
+	    patterns += ({ ({ MOD_USER_SECLEVEL, (["any":tmp[1]]), }) });
+	    break;
+	  } else {
+	    userlevels += ([tmp[0]:tmp[1]]);
+	  }	    
 	}
 	patterns += ({ ({ MOD_USER_SECLEVEL, userlevels, }) });
         break;

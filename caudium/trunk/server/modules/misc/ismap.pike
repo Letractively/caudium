@@ -66,7 +66,7 @@ mapping find_colors(array lines, int color)
   string s, url;
   int col1, col2;
   int sr, sg, sb, er, eg, eb, r, g, b;
-  string b,c;
+  string btmp, ctmp;
   mapping res=([ "ranges":({}), ]);
 
   for(i=0; i<sizeof(lines); i++)
@@ -76,10 +76,10 @@ mapping find_colors(array lines, int color)
     {
       
       sscanf(lines[i], "%*s:%s", s);
-      if(sscanf(s, "%s-%s:%s", b, c, url)==3)
+      if(sscanf(s, "%s-%s:%s", btmp, ctmp, url)==3)
       {
-	col1=parse_color(b, color);
-	col2=parse_color(c, color);
+	col1=parse_color(btmp, color);
+	col2=parse_color(ctmp, color);
 
 	if(color)
 	{
@@ -121,8 +121,8 @@ mapping find_colors(array lines, int color)
 	  eb=sw;
 	}
 	res["ranges"] += ({ ({ ({ sr, sg, sb }), ({ er, eg, eb }), url }) });
-      } else if(sscanf(s, "%s:%s", b, url)) {
-	res[parse_color(b, color)]=url;
+      } else if(sscanf(s, "%s:%s", btmp, url)) {
+	res[parse_color(btmp, color)]=url;
       }
     }
   }

@@ -394,7 +394,7 @@ string get_calendar(string profile, string base_url, array selected) {
     cal = Calendar.ISO.Month(@selected[1..2]);
     out += cal->name()+" "+selected[3]+", "+selected[1]+"</title>"
       "<table cellspacing=1 cellpadding=1 width=100%><tr align=left><th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
-    object w = cal->day(1)->week();
+    w = cal->day(1)->week();
    foreach (Array.map(w->days(), w->day)->week_day_name(),
 	    string n)
      out += sprintf("   <th>%s</th>\n", n[..1]);
@@ -410,7 +410,7 @@ string get_calendar(string profile, string base_url, array selected) {
     cal = Calendar.ISO.Week(@selected[1..2])->day(1)->month();
     out += "Week "+selected[2]+", "+selected[1]+"</title>"
       "<table cellspacing=1 cellpadding=1 width=100%><tr align=left><th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
-    object w = cal->day(1)->week();
+    w = cal->day(1)->week();
    foreach (Array.map(w->days(), w->day)->week_day_name(),
 	    string n)
      out += sprintf("   <th>%s</th>\n", n[..1]);

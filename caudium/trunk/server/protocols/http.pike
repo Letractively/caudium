@@ -420,6 +420,7 @@ private int parse_got()
 #if constant(Caudium.parse_headers)
     request_headers = Caudium.parse_headers(s);
     foreach(indices(request_headers), string linename) {
+      array(string) y;
       switch(linename) {
        case "content-length":
 	misc->len = (int)(request_headers[linename]-" ");
@@ -472,7 +473,6 @@ private int parse_got()
 	break;
 	  
        case "authorization":
-	array(string) y;
 	rawauth = request_headers[linename];
 	y = rawauth / " ";
 	if(sizeof(y) < 2) break;
@@ -484,7 +484,6 @@ private int parse_got()
 	break;
 	  
        case "proxy-authorization":
-	array(string) y;
 	y = request_headers[linename] / " ";
 	if(sizeof(y) < 2)
 	  break;

@@ -413,6 +413,7 @@ object find_module(string name, object in)
 
 mixed decode_form_result(string var, int type, object node, mapping allvars)
 {
+  mixed tmp;
   switch(type)
   {
    case TYPE_CUSTOM:
@@ -517,8 +518,6 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
     return lower_case((var/"\000")[0]) == "yes";
     
    case TYPE_INT:
-    int tmp;
-    
     if (!sscanf( var, "%d", tmp ))
     {
       node->error= var + " is not an integer";
@@ -527,8 +526,6 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
     return tmp;
     
    case TYPE_FLOAT:
-    float tmp;
-    
     if (!sscanf( var, "%f", tmp ))
     {
       node->error= var + " is not a arbitary precision floating point number";
@@ -1299,7 +1296,7 @@ void check_login(object id)
 mapping configuration_parse(object id)
 {
   array (string) res=({});
-  string tmp;
+  mixed tmp;
   // Is it an image?
   if(sscanf(id->not_query, "/image/%s", tmp))
     return file_image(tmp) || (["data":"No such image"]);
@@ -1362,6 +1359,7 @@ mapping configuration_parse(object id)
   
   if(sizeof(id->prestate))
   {
+    object mod;
     switch(indices(id->prestate)[0])
     {
       // It is possible to mark variables as 'VAR_EXPERT', this
@@ -1416,7 +1414,6 @@ mapping configuration_parse(object id)
       // caches and stuff have to be invalidated..
     case "refresh":
     case "reload":
-      object mod;
       string name, modname;
       mapping cmod;
       
@@ -1450,7 +1447,6 @@ mapping configuration_parse(object id)
       }
       program newprg = cache_lookup ("modules", modname);
       // _master->set_inhibit_compile_errors(0);
-      object mod;
       if(!o->config()->disable_module(name)) {
 	mapping rep;
 	rep = http_string_answer("Failed to disable this module.\n"
@@ -1739,7 +1735,6 @@ mapping configuration_parse(object id)
 
       // Set a variable to a new (or back to an old..) value.
      case "set":
-      mixed tmp;
       o->error = 0;
       if(sizeof(id->variables))
 	tmp=decode_form_result(values(id->variables)[0],
@@ -1779,7 +1774,7 @@ mapping configuration_parse(object id)
 	 "<img src=/auto/back alt=\"[Up]\" align=left hspace=0 border=0></a>\n");
 
   if(i=o->folded) o->folded=0;
-  mixed tmp = o->describe(1,id);
+  tmp = o->describe(1,id);
   if(mappingp(tmp)) return tmp;
   if(!id->supports->font)
     tmp = parse_html(tmp, ([]),(["font":remove_font, ]));
