@@ -654,10 +654,48 @@ class TreeMirror
 class Monolith
 {
     inherit DocGen;
+    private string header = #string "header-monolith.xml";
+    private string footer = #string "footer-monolith.xml";
+    private Stdio.File fout;
+    
+    object(Stdio.File) create_file(string tdir, string fpath)
+    {
+        if (fout) {
+            fout->write(sprintf("\n\n<!-- %s -->\n", fpath));
+            return fout;
+        }
+        
+        string fname = tdir + "/docs.xml";
 
+        if (!Stdio.mkdirhier(dirname(fname)))
+            throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));
+
+        fout = Stdio.File(fname, "cwt");
+        if (fout)
+            fout->write(replace(header, tvars, map_variables()));
+
+        fout->write(sprintf("\n\n<!-- %s -->\n", fpath));
+        
+        return fout;
+    }
+
+    void close_file(Stdio.File f)
+    {
+        f->write("\n<!-- file end -->\n");
+    }
+
+    void end_output()
+    {
+        if (fout) {
+            fout->write(footer);
+            fout->close();
+        }
+        fout = 0;
+    }
+    
     void create(array(object) f, array(object) m, string rpath)
     {
         ::create(f, m, rpath);
+        fout = 0;
     }
 }
-
