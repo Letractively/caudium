@@ -676,7 +676,27 @@ array query_seclevels()
               }
             }
             break;
-      
+
+          case "acceptgroup":
+            value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
+            string groups = (value/"," - ({""}));
+            string groupregex = 0;
+            
+            if (groups && sizeof(groups)) {
+              foreach(groups, string group) {
+                if (lower_case(group) == "any")
+                  patterns += ({ ({ MOD_ACCEPT_GROUP, lambda() { return 1; } }) });
+                else {
+                  if (!groupregex)
+                    groupregex = "(^" + group + "$";
+                  else
+                    groupregex += "|(^" + group + "$";
+                }
+              }
+              patterns += ({ ({ MOD_ACCEPT_GROUP, Regexp(value)->match, }) });
+            }
+            break;
+            
           case "secuname":
             value = replace(value, ({ "?", ".", "*" }), ({ ".", "\\.", ".*" }));
             users = (value/"," - ({""}));

@@ -104,6 +104,7 @@
 #define MOD_ACCEPT_USER	6
 #define MOD_ACCEPT_PROXY_USER	7
 #define MOD_USER_SECLEVEL 8
+#define MOD_ACCEPT_GROUP 9
 
 #define DEFFONT(X,Y,Z,Q) \
 defvar((X)+"_font", (Y), (Z)+": font", TYPE_FONT, (Q));\
