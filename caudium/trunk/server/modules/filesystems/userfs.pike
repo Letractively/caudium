@@ -889,7 +889,7 @@ string query_name()
 //!  name: Virtual User Hosting: Workaround prefix
 //
 //! defvar: sqlserver
-//! This is the host running SQL server with the webhosting database where is stored all the webhosting informations.<br />Specify an "SQL-URL". (see roxen manual or documentation about SQL module)
+//! This is the host running SQL server with the webhosting database where is stored all the webhosting informations.<br />Specify an "SQL-URL". (see caudium manual or documentation about SQL module)
 //!  type: TYPE_STRING
 //!  name: Web Hosting: SQL Server
 //
@@ -899,7 +899,7 @@ string query_name()
 //!  name: Web Hosting: Close the database if not used
 //
 //! defvar: usecache
-//! Setting this will cache entries in the roxen cache subsystem. <br />This can lower the load on the SQL Database on heavy loaded sites.
+//! Setting this will cache entries in the caudium cache subsystem. <br />This can lower the load on the SQL Database on heavy loaded sites.
 //!  type: TYPE_FLAG
 //!  name: Web Hosting: Cache DB entries
 //
