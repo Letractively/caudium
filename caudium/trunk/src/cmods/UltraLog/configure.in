@@ -17,7 +17,7 @@ AC_SUBST(LDSHARED)
 AC_SUBST(LIBGCC)
 AC_SUBST(SO)
 
-AC_OUTPUT(Makefile ultrasum, [chmod +x ultrasum])
+AC_OUTPUT(Makefile dependencies ultrasum, [chmod +x ultrasum; make depend])
 
 
 dnl ## Local Variables:
