@@ -18,6 +18,9 @@ install: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) install); done
 clean: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) clean); done
+spotless: force
+	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) spotless); done
+	rm -f Makefile config.log config.status
 depend: force
 	for a in @DIRS@; do ( cd $$a && $(MAKE) $(MAKE_FLAGS) depend); done
 
