@@ -6,13 +6,13 @@
 #
 
 PORTNAME=	caudium
-PORTVERSION=	1.2.1	
+PORTVERSION=	1.2.2
 CATEGORIES=	www
-MASTER_SITES=	ftp://ftp.oav.net/caudium/snapshot/1.2/	\
-		ftp://ftp.caudium.net/caudium/snapshots/caudium/1.2/ \
+MASTER_SITES=	ftp://ftp.oav.net/caudium/source/	\
+		ftp://ftp.caudium.net/caudium/source/ \
 		ftp://ftp.oav.net/caudium/pkg/FreeBSD/distfiles/ \
 		http://grendel.firewall.com/caudium-pkg/
-DISTNAME=	Caudium-${PORTVERSION}-20020128-cvs
+DISTNAME=	caudium-${PORTVERSION}
 
 MAINTAINER=	kiwi@oav.net
 
