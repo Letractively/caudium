@@ -231,6 +231,39 @@ int|mapping user=0;
 //private int cache_control_ok = 0;
 int cache_control_ok = 0;
 
+mapping(string:string|array) real_variables=([]);
+
+// Scan uri for query variables
+string scan_for_query( string f )
+{
+  if(sscanf(f,"%s?%s", f, query) == 2)
+  {
+    string v, a, b;
+
+    foreach(query / "&", v)
+      if(sscanf(v, "%s=%s", a, b) == 2)
+      {
+        a = Caudium.http_decode(replace(a, "+", " "));
+        b = Caudium.http_decode(replace(b, "+", " "));
+        real_variables[ a ] += ({ b });
+      } else
+        if(strlen( rest_query ))
+          rest_query += "&" + Caudium.http_decode( v );
+        else
+          rest_query = Caudium.http_decode( v );
+    rest_query=replace(rest_query, "+", "\000");
+  }
+  return f;
+}
+
+  void adjust_for_config_path( string p )
+  {
+    if( not_query )  not_query = not_query[ strlen(p).. ];
+    raw_url = raw_url[ strlen(p).. ];
+    misc->site_prefix_path = p;
+  }
+
+
 //! Get the base portion of a URL
 //! Returned string will end in "/" or will be "" if no base could
 //!   be determined.
