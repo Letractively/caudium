@@ -163,8 +163,8 @@ fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
-    db_stop
-    
+	db_stop
+	exit 0
     ;;
 
     *)
