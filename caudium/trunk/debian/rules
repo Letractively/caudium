@@ -128,9 +128,6 @@ install: build
 	cp src/cmods/UltraLog/docs/ultrasum.1 \
 	   debian/caudium-ultralog/usr/share/man/man1/
 
-	# ugly hack - remove manual from caudium deb
-	rm debian/tmp/usr/share/man/man1/ultrasum.1.gz
-	
 	dh_movefiles
 	
 	# clean up CAMAS debris here
@@ -162,7 +159,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installmanpages
 #	dh_installinfo
-	dh_undocumented htpasswd-caudium.1 ultrasum.1 pixsl.1
+	dh_undocumented htpasswd-caudium.1 pixsl.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link
