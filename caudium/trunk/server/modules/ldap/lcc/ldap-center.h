@@ -27,3 +27,12 @@
 #define ERR_LDAP_CONNECT        0x0004
 #define ERR_NO_USERNAME         0x0005
 #define ERR_LDAP_BIND           0x0006
+
+
+//
+// Session storage shortcuts
+//
+#define SVARS(_id_) _id_->misc->session_variables
+#define SDATA(_id_) SVARS(_id_)->ldap_center_data
+#define SUSER(_id_) SDATA(_id_)->user
+#define SSTORE(_id_) SVARS(_id_)->session_store
