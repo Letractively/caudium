@@ -2076,17 +2076,10 @@ public array open_file(string fname, string mode, object id)
 
     if(!mappingp(file))
     {
-      if(id->misc->error_code)
-	file = http_low_answer(id->misc->error_code,"Failed" );
-      else if(id->method!="GET"&&id->method != "HEAD"&&id->method!="POST")
-	file = http_low_answer(501, "Not implemented.");
-      else
-	file=http_low_answer(404,replace(parse_rxml(query("ZNoSuchFile"),id),
-					 ({"$File", "$Me"}), 
-					 ({fname,query("MyWorldLocation")})));
+       file = http_error->process_error (id);
 
-      id->not_query = oq;
-      return ({ 0, file });
+       id->not_query = oq;
+       return ({ 0, file });
     }
 
     if(file->data) 

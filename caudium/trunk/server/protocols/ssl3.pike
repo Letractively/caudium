@@ -352,13 +352,7 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-     err = catch (
-           file = conf->http_error->process_error (this_object ())
-                 );
-/* why don't we have INTERNAL_ERROR? *
-     if (err)
-        INTERNAL_ERROR( err );
-*/
+    file = conf->http_error->process_error (this_object ());
   } else {
     if((file->file == -1) || file->leave_me) 
     {

@@ -1247,26 +1247,22 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-     err = catch (
-           file = conf->http_error->process_error (this_object ())
-                 );
-     if (err)
-        INTERNAL_ERROR( err );
+     file = conf->http_error->process_error (this_object ());
   } else {
-    if((file->file == -1) || file->leave_me) 
-    {
-      if(do_not_disconnect) {
-	file = pipe = 0;
-	return;
-      }
-      my_fd = file = 0;
-      return;
-    }
+     if((file->file == -1) || file->leave_me) 
+     {
+        if(do_not_disconnect) {
+           file = pipe = 0;
+           return;
+        }
+        my_fd = file = 0;
+        return;
+     }
 
-    if(file->type == "raw")  file->raw = 1;
-    else if(!file->type)     file->type="text/plain";
+     if(file->type == "raw")  file->raw = 1;
+     else if(!file->type)     file->type="text/plain";
   }
-  
+
   if(!file->raw)
   {
     heads = ([]);
