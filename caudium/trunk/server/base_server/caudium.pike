@@ -395,7 +395,7 @@ static void create_js_context()
     js_context->set(0);
   }
 #else
-  report_notice("No SpiderMonkey found\n");
+//  report_notice("No SpiderMonkey found\n");
   js_context->set(0);
 #endif
 }
@@ -2387,6 +2387,7 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("snmp_address", "", "SNMP Agent: Listen Address", TYPE_STRING,
 	"The IP address to start the SNMP listener on.");
 
+#if constant(SpiderMonkey.Context);
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
           "If set to Yes, the server will enable the global JavaScript support. "
           "To take full advantage of it you will still have to add the "
@@ -2402,6 +2403,7 @@ private void define_global_variables(int argc, array (string) argv)
           "Caudium. A context is where any script parsed in the given thread is "
           "evaluated and executed. The stack size given here is what will be available "
           "for each JavaScript script executed in Caudium.");
+#endif
   
   globvar("set_cookie", 0, "Set unique user id cookies", TYPE_FLAG,
           "If set to Yes, all users of your server whose clients support "
