@@ -18,7 +18,7 @@
 
 // $Id$
 
-//! Glue for the Jakarta Lucene search engine
+// Glue for the Jakarta Lucene search engine
 
 #define FINDCLASS(X) (jvm->find_class(X)||(jvm->exception_describe(),jvm->exception_clear(),error("Failed to load class " X ".\n"),0))
 
@@ -40,7 +40,7 @@ static object throwable_getmessage = throwable_class->get_method("getMessage", "
 
 import Parser.XML.Tree;
 
-//! produce an array of stopwords from an array of stopwords filenames
+// produce an array of stopwords from an array of stopwords filenames
 array load_stopwords(array fns)
 {
   array stopwords=({});
@@ -55,7 +55,7 @@ array load_stopwords(array fns)
   return stopwords;
 }
 
-//! read an index profile from filename
+// read an index profile from filename
 mapping read_profile(string filename)
 {
   mapping profile=([]);
@@ -186,7 +186,7 @@ static object summary_date=summary_class->get_field("date", "Ljava/lang/String;"
 
 object ie;
 
-//! create a new indexer
+// create a new indexer
 void create(string datadir, array stopwords)
 {
   object sw=array_newinstance(string_class, sizeof(stopwords));
@@ -203,13 +203,13 @@ void destroy()
   index_close(ie);
 }
  
-//! close the index
+// close the index
 void close()
 {
   index_close(ie);
 }
 
-//! add a document to the index
+// add a document to the index
 int index(string uri, string data, string title, string type, string date)
 {
   data=replace(data, ({"\r", "\n"}), ({" ", " "}));
@@ -239,18 +239,17 @@ int index(string uri, string data, string title, string type, string date)
   return 1;
 }
 
-//! used for internal pike converters
+// used for internal pike converters
   class PikeFilter(function convert)
   {
 
   }
 
-//! a filter for programs that act as filters (read on stdin and write the 
-//! converted data on stdout.
+// a filter for programs that act as filters (read on stdin and write the 
+// converted data on stdout.
   class Filter(string command)
   {
 
-//!
     string convert(string data)
     {
        string ret="";
@@ -279,13 +278,12 @@ int index(string uri, string data, string title, string type, string date)
     }
   }
 
-//! this is a filter for programs that do not act as filters (they read a 
-//!   file and write converted output on stdout.
+// this is a filter for programs that do not act as filters (they read a 
+//   file and write converted output on stdout.
   class Converter(string command, string tempdir)
   {
     int i=0;
 
-//!
     string convert(string data)
     {
        string ret="";
@@ -335,7 +333,7 @@ int index(string uri, string data, string title, string type, string date)
   }
 }
 
-//! impliments a Lucene searcher
+// impliments a Lucene searcher
 class Index
 {
 
@@ -378,7 +376,7 @@ private object se;
 private object sw;
 private string dbdir;
 
-//! create a new Lucene searcher
+// create a new Lucene searcher
 void create(string _dbdir, array stopwords)
 {
   dbdir=_dbdir;
@@ -390,7 +388,7 @@ void create(string _dbdir, array stopwords)
   se=search_class->alloc();
 }
 
-//! return an array of search results from the Lucene text query string q
+// return an array of search results from the Lucene text query string q
 array(mapping) search(string q)
 {
   search_init(se, dbdir, sw);
