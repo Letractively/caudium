@@ -1,0 +1,7 @@
+Makefile
+Makefile.pre
+dependencies
+config.status
+config.log
+configure
+njs_config.h*

@@ -1,0 +1,213 @@
+6 <- Do not remove this number!   Caudium save file format>
+
+<region name='cgi#0'>
+ <var name='datasize'>           <int>-2</int> </var>
+ <var name='kill_call_out'>      <int>5</int> </var>
+ <var name='_seclvl'>            <int>0</int> </var>
+ <var name='_sec_group'>         <str>user</str> </var>
+ <var name='user'>               <int>1</int> </var>
+ <var name='nice'>               <int>0</int> </var>
+ <var name='_comment'>           <str></str> </var>
+ <var name='maxtime'>            <int>60</int> </var>
+ <var name='env'>                <int>0</int> </var>
+ <var name='_priority'>          <int>5</int> </var>
+ <var name='ls'>                 <int>0</int> </var>
+ <var name='noexec'>             <int>1</int> </var>
+ <var name='extra_env'>          <str></str> </var>
+ <var name='stderr'>             <str>main log file</str> </var>
+ <var name='stack'>              <int>-2</int> </var>
+ <var name='priority'>           <str>normal</str> </var>
+ <var name='filesize'>           <int>-2</int> </var>
+ <var name='ex'>                 <int>1</int> </var>
+ <var name='cgi_tag'>            <int>1</int> </var>
+ <var name='ext'>                
+  <a>
+    <str>cgi</str>
+  </a>
+ </var>
+ <var name='coresize'>           <int>0</int> </var>
+ <var name='allow_symlinks'>     <int>1</int> </var>
+ <var name='_name'>              <str></str> </var>
+ <var name='rawauth'>            <int>0</int> </var>
+ <var name='_seclevels'>         <str></str> </var>
+ <var name='setgroups'>          <int>1</int> </var>
+ <var name='runuser'>            <str></str> </var>
+ <var name='location'>           <str>/cgi-bin/</str> </var>
+ <var name='cgilog'>             <str>../logs/localhost/cgi.log</str> </var>
+ <var name='clearpass'>          <int>0</int> </var>
+ <var name='open_files'>         <int>64</int> </var>
+ <var name='searchpath'>         <str>/usr/lib/cgi-bin/</str> </var>
+ <var name='warn_root_cgi'>      <int>1</int> </var>
+ <var name='rxml'>               <int>1</int> </var>
+</region>
+
+<region name='spider#0'>
+ <var name='InternalLoc'>        <str>/_internal/</str> </var>
+ <var name='anonymous_ftp'>      <int>0</int> </var>
+ <var name='Ports'>              
+  <a>
+    
+  <a>
+    <int>@PORTNUM@</int>
+    <str>http2</str>
+    <str>ANY</str>
+    <str></str>
+  </a>
+
+  </a>
+ </var>
+ <var name='ftp_user_session_limit'><int>0</int> </var>
+ <var name='NoLog'>              
+  <a>
+    
+  </a>
+ </var>
+ <var name='Log'>                <int>1</int> </var>
+ <var name='data_cache_file_max_size'><int>50</int> </var>
+ <var name='data_cache_size'>    <int>2048</int> </var>
+ <var name='comment'>            <str></str> </var>
+ <var name='MyWorldLocation'>    <str>http://localhost/</str> </var>
+ <var name='FTPWelcome'>         <str>              +-------------------------------------------------
+              +-- Welcome to the Caudium Webserver FTP server ---
+              +-------------------------------------------------
+</str> </var>
+ <var name='guest_ftp'>          <int>0</int> </var>
+ <var name='ZNoSuchFile'>        <str>%3ctitle%3eSorry. I cannot find this resource%3c/title%3e
+%3cbody bgcolor='#ffffff' text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'%3e
+%3ch2 align=center%3e%3cconfigimage src=caudium.gif alt="File not found"%3e
+%3cp%3e%3chr noshade%3e
+%3ci%3eSorry%3c/i%3e%3c/h2%3e
+%3cbr clear%3e
+%3cfont size="+2"%3eThe resource requested %3ci%3e$File%3c/i%3e
+cannot be found.%3cp%3e
+
+If you feel that this is a configuration error, please contact the administrators or the author of the
+%3cif referrer%3e%3ca href="%3creferrer%3e"%3ereferring%3c/a%3e%3c/if%3e
+%3celse%3ereferring%3c/else%3e
+page.%3cp%3e
+%3c/font%3e
+%3chr noshade%3e%3cversion%3e, at %3ca href="$Me"%3e$Me%3c/a%3e.
+%3c/body%3e
+</str> </var>
+ <var name='Domain'>             <str></str> </var>
+ <var name='shells'>             <str>/etc/shells</str> </var>
+ <var name='LogFile'>            <str>/var/log/caudium-1.1/localhost/Log</str> </var>
+ <var name='named_ftp'>          <int>0</int> </var>
+ <var name='name'>               <str></str> </var>
+ <var name='LogFormat'>          <str>404: $host $referer - [$cern_date] "$method $resource $protocol" 404 -
+500: $host $referer ERROR [$cern_date] "$method $resource $protocol" 500 -
+*: $host - - [$cern_date] "$method $resource $protocol" $response $length</str> </var>
+</region>
+
+<region name='htaccess#0'>
+ <var name='_seclevels'>         <str></str> </var>
+ <var name='denyhtlist'>         
+  <a>
+    <str>.htaccess</str>
+    <str>.htpasswd</str>
+    <str>.htgroup</str>
+  </a>
+ </var>
+ <var name='_comment'>           <str></str> </var>
+ <var name='file'>               <str>.htaccess</str> </var>
+ <var name='_priority'>          <int>5</int> </var>
+ <var name='_sec_group'>         <str>user</str> </var>
+ <var name='_seclvl'>            <int>0</int> </var>
+ <var name='cache_all'>          <int>0</int> </var>
+ <var name='_name'>              <str></str> </var>
+</region>
+
+<region name='xmlparse#0'>
+ <var name='parse_arg_entities'> <int>1</int> </var>
+ <var name='recurse_levels'>     <int>50</int> </var>
+ <var name='toparse'>            
+  <a>
+    <str>rxml</str>
+    <str>html</str>
+    <str>htm</str>
+  </a>
+ </var>
+ <var name='parse_exec'>         <int>0</int> </var>
+ <var name='_priority'>          <int>5</int> </var>
+ <var name='_name'>              <str></str> </var>
+ <var name='max_parse'>          <int>200</int> </var>
+ <var name='case_insensitive_tag'><int>1</int> </var>
+ <var name='lazy_argument_end'>  <int>0</int> </var>
+ <var name='lazy_entity_end'>    <int>0</int> </var>
+ <var name='match_tag'>          <int>1</int> </var>
+ <var name='unknown_ent'>        <int>1</int> </var>
+ <var name='xml_conformance'>    <int>2</int> </var>
+ <var name='_comment'>           <str></str> </var>
+ <var name='no_parse_exec'>      <int>0</int> </var>
+</region>
+
+<region name='filesystem#1'>
+ <var name='fileperm'>           <str>0666</str> </var>
+ <var name='put'>                <int>0</int> </var>
+ <var name='access_as_user'>     <int>0</int> </var>
+ <var name='searchpath'>         <str>/usr/share/doc/</str> </var>
+ <var name='dirperm'>            <str>0777</str> </var>
+ <var name='_priority'>          <int>5</int> </var>
+ <var name='mountpoint'>         <str>/doc</str> </var>
+ <var name='_name'>              <str>Debian Documentation Tree</str> </var>
+ <var name='tilde'>              <int>0</int> </var>
+ <var name='.files'>             <int>0</int> </var>
+ <var name='_seclevels'>         <str>accept ip=127.0.0.1/32
+</str> </var>
+ <var name='delete'>             <int>0</int> </var>
+ <var name='keep_old_perms'>     <int>1</int> </var>
+ <var name='dir'>                <int>1</int> </var>
+ <var name='check_auth'>         <int>1</int> </var>
+ <var name='_comment'>           <str></str> </var>
+ <var name='method_mkdir'>       <int>0</int> </var>
+ <var name='no_symlinks'>        <int>0</int> </var>
+ <var name='_seclvl'>            <int>0</int> </var>
+ <var name='_sec_group'>         <str>user</str> </var>
+ <var name='method_mv'>          <int>0</int> </var>
+ <var name='method_chmod'>       <int>0</int> </var>
+ <var name='umask'>              <str>022</str> </var>
+</region>
+
+<region name='filesystem#0'>
+ <var name='put'>                <int>0</int> </var>
+ <var name='fileperm'>           <str>0666</str> </var>
+ <var name='searchpath'>         <str>/var/www/</str> </var>
+ <var name='access_as_user'>     <int>0</int> </var>
+ <var name='_priority'>          <int>5</int> </var>
+ <var name='dirperm'>            <str>0777</str> </var>
+ <var name='_seclevels'>         <str></str> </var>
+ <var name='.files'>             <int>0</int> </var>
+ <var name='tilde'>              <int>0</int> </var>
+ <var name='_name'>              <str>Debian Document Tree</str> </var>
+ <var name='mountpoint'>         <str>/</str> </var>
+ <var name='dir'>                <int>1</int> </var>
+ <var name='keep_old_perms'>     <int>1</int> </var>
+ <var name='delete'>             <int>0</int> </var>
+ <var name='method_mkdir'>       <int>0</int> </var>
+ <var name='_comment'>           <str></str> </var>
+ <var name='check_auth'>         <int>1</int> </var>
+ <var name='method_chmod'>       <int>0</int> </var>
+ <var name='method_mv'>          <int>0</int> </var>
+ <var name='_sec_group'>         <str>user</str> </var>
+ <var name='_seclvl'>            <int>0</int> </var>
+ <var name='no_symlinks'>        <int>0</int> </var>
+ <var name='umask'>              <str>022</str> </var>
+</region>
+
+<region name='EnabledModules'>
+ <var name='cgi#0'>              <int>1</int> </var>
+ <var name='directories#0'>      <int>1</int> </var>
+ <var name='userfs#0'>           <int>1</int> </var>
+ <var name='graphic_text#0'>     <int>1</int> </var>
+ <var name='contenttypes#0'>     <int>1</int> </var>
+ <var name='htaccess#0'>         <int>1</int> </var>
+ <var name='rxmltags#0'>         <int>1</int> </var>
+ <var name='corescopes#0'>       <int>1</int> </var>
+ <var name='ismap#0'>            <int>1</int> </var>
+ <var name='xmlparse#0'>         <int>1</int> </var>
+ <var name='filesystem#0'>       <int>1</int> </var>
+ <var name='filesystem#1'>       <int>1</int> </var>
+ <var name='pathinfo#0'>         <int>1</int> </var>
+ <var name='userdb#0'>           <int>1</int> </var>
+</region>
+
