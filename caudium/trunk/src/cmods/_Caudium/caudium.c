@@ -452,12 +452,15 @@ static void f_parse_query_string( INT32 args )
     switch(*ptr)
     {
      case '=':
-      equal=ptr;
+      /* Allow an unencoded '=' in the value. It's invalid but... */
+      if(equal == NULL)
+	equal=ptr;
       break;
      case '\0':
       if(ptr != end)
 	continue;
-     case ';': /* It's recommended to support ; instead of & in query strings */
+     case ';': /* It's recommended to support ';'
+		  instead of '&' in query strings... */
      case '&':
       if(equal == NULL) { /* value less variable, we can ignore this */
 	name = ptr+1;
