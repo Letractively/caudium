@@ -211,6 +211,7 @@ object clone(mixed ... args) {
 static mapping build_caudium_env_vars(object id);
 static string  http_caudium_id_cookie();
 static string  http_caudium_config_cooke(string from);
+static mapping http_low_answer(int errno, string data, void|int dohtml);
 
 //! Backward compatibility with Roxen
 //! @deprecated
