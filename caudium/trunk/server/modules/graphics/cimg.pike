@@ -69,8 +69,8 @@ string tag_cimg( string t, mapping args, object id )
   if( mapping size = the_cache->metadata( a, id, 1 ) ) 
   {
     // image in cache (1 above prevents generation on-the-fly)
-    args->width = size->xsize;
-    args->height = size->ysize;
+    args->width = (string)size->xsize;
+    args->height = (string)size->ysize;
   }
   return make_tag( "img", args );
 }
