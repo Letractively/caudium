@@ -706,11 +706,13 @@ static void f_parse_entities( INT32 args )
   struct mapping *scopemap;
   struct pike_string *input;
   struct pike_string *result;
+  ENT_RESULT *eres;
 
   get_all_args("_Caudium.parse_entities", args, "%S%m",
       &input, &scopemap);
 
-  ENT_RESULT  *eres = ent_parser(input->str, input->len, entity_callback, scopemap);
+  eres = ent_parser(input->str, input->len, entity_callback, scopemap);
+
   if (!eres) {
     Pike_error("Out of memory in the entity parser\n");
   }
