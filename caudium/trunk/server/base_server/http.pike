@@ -20,10 +20,14 @@
  */
 
 
-/* $Id$
- * http.pike: HTTP convenience functions.
- * inherited by roxenlib, and thus by all files inheriting roxenlib.
- */
+/*
+**! file: base_server/http
+**!  This file implements various helper functions related to the HTTP
+**!  protocol. It is inherited by roxenlib, so inheriting roxenlib is 
+**!  enough to get access to these functions. 
+**!
+**! cvs_version: $Id$
+*/
 
 #include <config.h>
 
@@ -36,22 +40,17 @@ string http_date(int t);
 #include <variables.h>
 
 /*
-**! module base_server/http
-**!
-**!	This file implements various helper functions related to the HTTP
-**!	protocol.
-*/
-
-/*
-**! method string http_res_to_string( mapping file, object id )
-**!	Convert the file result sent in the first argument to a HTTP
-**!	response header (what you would get for a HEAD request on the
-**!	resource.
-**! arg mapping file
-**!	The file mapping (this is what you http_string_answer etc generates).
-**! arg object id
-**!	The request object.
-**! returns The HTTP header string.
+**! name: http_res_to_string - convert file result to HTTP header
+**! method: string http_res_to_string( mapping file, object id )
+**!   Convert the file result sent in the first argument to a HTTP
+**!   response header (what you would get for a HEAD request on the
+**!   resource.
+**! arg: mapping file
+**!   The file mapping (this is what you http_string_answer etc generates).
+**! arg: object id
+**!   The request object.
+**! returns:
+**!   The HTTP header string.
 */
 
 string http_res_to_string( mapping file, object id )
@@ -119,15 +118,18 @@ string http_res_to_string( mapping file, object id )
 }
 
 /*
-**! method mapping http_low_answer( int errno, string data )
+**! name: http_low_answer - return a response mapping with the specified info
+**! method: mapping http_low_answer( int errno, string data )
 **!   Return a response mapping with the error and data specified. The
 **!   error is infact the status response, so '200' is HTTP Document
-**!   follows, and 500 Internal Server error, etc.
-**! arg int errno
-**!  The HTTP error code to use in the reply.
-**! arg object id
-**!  The data.
-**! returns The HTTP respone mapping.
+**!   follows, and 500 Internal Server error, etc. The content type will
+**!   always be text/plain
+**! arg: int errno
+**!   The HTTP error code to use in the reply.
+**! arg: string data
+**!   The data to return.
+**! returns:
+**!   The HTTP respone mapping.
 */
 mapping http_low_answer( int errno, string data )
 {
@@ -145,12 +147,14 @@ mapping http_low_answer( int errno, string data )
 }
 
 /*
-**! method mapping http_pipe_in_progress( )
+**! name: http_pipe_in_progress - return a response mapping 
+**! method: mapping http_pipe_in_progress( )
 **!   Returns a response mapping that tells Roxen that this request
 **!   is in progress and that sending of data, closing the connection
 **!   and such will be handled by the module. If this is used and you 
 **!   fail to close connections correctly, FD leaking will be the result. 
-**! returns The HTTP respone mapping.
+**! returns:
+**!   The HTTP respone mapping.
 */
 mapping http_pipe_in_progress()
 {
@@ -160,27 +164,29 @@ mapping http_pipe_in_progress()
   return ([ "file":-1, "pipe":1, ]);
 }
 
+static string parse_rxml(string what, object id,
+			 void|object file, 
+			 void|mapping defines);
+
 /*
-**! method string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
+**! name: http_rxml_answer - parse and return the specified data
+**! method: string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
 **!   Convenience function to use in Roxen modules and Pike scripts. When you
 **!   just want to return a string of data, with an optional type, this is the
 **!   easiest way to do it if you don't want to worry about the internal
 **!   Roxen structures. This function creates a response mapping containing the
 **!   RXML parsed data you send to it.
-**! arg string rxml
+**! arg: string rxml
 **!   The text to RXML parse and return.
-**! arg object id
+**! arg: object id
 **!   The request id object.
-**! arg void|object(Stdio.File) file
+**! arg: void|object(Stdio.File) file
 **!   An optional file descriptor to return // FIXME //
-**! arg void|string type
+**! arg: void|string type
 **!   Optional file type, like text/html or application/octet-stream
-**! returns The http response mapping with the parsed data.
+**! returns:
+**!   The http response mapping with the parsed data.
 */
-static string parse_rxml(string what, object id,
-			 void|object file, 
-			 void|mapping defines);
-
 mapping http_rxml_answer( string rxml, object id, 
                           void|object(Stdio.File) file, string|void type )
 {
@@ -194,6 +200,19 @@ mapping http_rxml_answer( string rxml, object id,
 	   ]);
 }
 
+
+/*
+**! name: http_string_answer - return a response mapping as specified
+**! method: mapping http_string_answer( string text, string|void type )
+**!   Return a response mapping with the text and the specified content type.
+**!   If the content type argument is left out, text/html will be used.
+**! arg: string text
+**!   The data string.
+**! arg: string|void
+**!   The optional content type to override the default text/html.
+**! returns:
+**!   The HTTP respone mapping.
+*/
 mapping http_string_answer(string text, string|void type)
 {
 #ifdef HTTP_DEBUG
@@ -202,16 +221,41 @@ mapping http_string_answer(string text, string|void type)
   return ([ "data":text, "type":(type||"text/html") ]);
 }
 
-mapping http_file_answer(object text, string|void type, void|int len)
+/*
+**! name: http_file_answer - return a response mapping as specified
+**! method: mapping http_file_answer( object fd, string|void type, int|void len)
+**!   Return a response mapping with the specified file descriptior using the
+**!   specified content type and length.
+**! arg: object fd
+**!   The file descriptor object. This can be a an ordinary file, a socket etc.
+**! arg: string|void type
+**!   The optional content type to override the default text/html.
+**! arg: int|void len
+**!   The number of bytes of data to read from the object. The default is to
+**!   read until EOF
+**! returns:
+**!   The HTTP respone mapping.
+*/
+mapping http_file_answer(object fd, string|void type, void|int len)
 {
-  return ([ "file":text, "type":(type||"text/html"), "len":len ]);
+  return ([ "file":fd, "type":(type||"text/html"), "len":len ]);
 }
 
 constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
 constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
-/* Return a date, used in the common log format */
+/*
+**! name: cern_http_date - return a date in the common log file format
+**! method: string cern_http_date(int t)
+**!   Return the specified date (as returned by time()) formatted in the
+**!   common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ". 
+**! arg: int t
+**!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
+**! returns:
+**!   The date in the common log file format.
+**!   Example: 02/Aug/2000:22:36:27 -0700
+*/
 string cern_http_date(int t)
 {
   string c;
@@ -241,6 +285,19 @@ string cern_http_date(int t)
  * This is used for logging as well as the Last-Modified and Time
  * heads in the reply.  */
 
+
+/*
+**! name: cern_http_date - return a date in the HTTP standard format
+**! method: string http_date(int t)
+**!   Return the specified date (as returned by time()) formatted in the
+**!   HTTP-protocol standard date format. Used in for example the Last-Modified
+**!   header.
+**! arg: int t
+**!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
+**! returns:
+**!   The date in the HTTP standard date format.
+**!   Example: Thu, 03 Aug 2000 05:40:39 GMT
+*/
 string http_date(int t)
 {
 #if constant(gmtime)
@@ -257,18 +314,50 @@ string http_date(int t)
 }
 
 
+/*
+**! name: http_encode_string - HTTP encode a string
+**! method: string http_encode_string(string s)
+**!   HTTP encode the specified string and return it. This means replacing
+**!   the following characters to the %XX format: null (char 0), space, tab,
+**!   carriage return, newline, percent and single and double quotes.
+**! arg: string s
+**!   The string to encode.
+**! returns:
+**!   The HTTP encoded string.
+*/
 string http_encode_string(string f)
 {
   return replace(f, ({ "\000", " ", "\t", "\n", "\r", "%", "'", "\"" }),
 		 ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22"}));
 }
 
+/*
+**! name: http_encode_cookie - HTTP cookie encode a string
+**! method: string http_encode_cookie(string s)
+**!   Encode the specified string in as to the HTTP cookie standard.
+**!   The following characters will be replaced: = , ; % :
+**! arg: string s
+**!   The string to encode.
+**! returns:
+**!   The HTTP cookie encoded string.
+*/
 string http_encode_cookie(string f)
 {
   return replace(f, ({ "=", ",", ";", "%", ":" }),
 		 ({ "%3d", "%2c", "%3b", "%25", "%3A" }));
 }
 
+/*
+**! name: http_encode_url - URL encode a string
+**! method: string http_encode_url(string s)
+**!   URL encode the specified string and return it. This means replacing
+**!   the following characters to the %XX format: null (char 0), space, tab,
+**!   carriage return, newline, and % ' " # & ? = / : +
+**! arg: string s
+**!   The string to encode.
+**! returns:
+**!   The URL encoded string.
+*/
 string http_encode_url (string f)
 {
   return replace (f, ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
