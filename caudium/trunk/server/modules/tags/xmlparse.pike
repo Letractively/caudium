@@ -40,7 +40,7 @@ inherit "module";
 inherit "caudiumlib";
 
 #ifdef HTML_DEBUG
-#define CDEBUG(X) write(__FILE__ + "@:" + X + "\n");
+#define CDEBUG(X) report_debug(__FILE__ + "@:" + X + "\n");
 #else
 #define CDEBUG(X)
 #endif
