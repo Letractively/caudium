@@ -51,7 +51,7 @@ mapping get_index() {
           string m = metadata->read();
           metadata->close();
           mapping meta = decode_value( m );
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
           write( "DISK_CACHE: get_index %O\n", meta );
 #endif
           thecache += ([ dirname : meta ]);
@@ -124,7 +124,7 @@ write( data  + "\n");
     }
     break;
   default:
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "DISK_CACHE( " + namespace + " ): Unknown object type: " + meta->type + ", discarding.\n" );
 #endif
     break;
@@ -184,12 +184,12 @@ int usage() {
 void stop() {
 	// Write all the metadata to disk so that we can have some content
 	// when it's time to come back.
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "DISK_CACHE: Destroy() called, writing metadata to disk..\n" );
   write( sprintf( "%O\n", thecache ) );
 #endif
   foreach( indices( thecache ), string hash ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
     write( "DISK_CACHE: Writing metadata about " + thecache[ hash ]->name + " to " + Stdio.append_path( cache_path,hash,"meta" ) + "\n" );
 #endif
     string metapath = Stdio.append_path( cache_path, hash, "meta" );
@@ -197,7 +197,7 @@ void stop() {
     metafile->write( encode_value( thecache[ hash ] ) );
     metafile->close();
   }
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "DISK_CACHE: All done.\n" );
 #endif
 }
@@ -251,7 +251,7 @@ void free( int n ) {
 }
 
 void expire_cache( void|int nocallout ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "DISK_CACHE::expire_cache() called.\n" );
 #endif
     // Remove expired objects.

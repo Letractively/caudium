@@ -19,6 +19,8 @@
  *
  */
 
+#define CACHE_DEBUG
+
 /*
  * cache_manager.pike
  *
@@ -82,6 +84,9 @@ void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path
   caches = ([ ]);
   create_cache( "DEFAULT" );
   call_out( watch_size, sleepfor() );
+#ifdef CACHE_DEBUG
+  roxen_perror( "Caudium Caching Sub-system enabled.\n" );
+#endif
 }
 
 private void create_cache( string namespace ) {
@@ -106,12 +111,17 @@ void set_params( int _max_ram_size, int _max_disk_size, int _vigilance ) {
   max_ram_size = _max_ram_size;
   max_disk_size = _max_disk_size;
   vigilance = _vigilance;
+/*
   foreach( indices( caches ), string namespace ) {
     caches[ namespace ]->set_sizes( max_ram_size, max_disk_size );
   }
+*/
 }
 
 void watch_size() {
+#ifdef CACHE_DEBUG
+  roxen_perror( "Running watch_size() callout.\n" );
+#endif
 	// sum the total amount of RAM being used by all caches (ram_total), if
 	// that is exceeding the maximum amount of ram that we are allowed
 	// to use (max_ram_size) then devide the total cache usage by the
@@ -136,7 +146,7 @@ void watch_size() {
     ram_total += size;
   }
   if ( ram_total > max_ram_size ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "CACHE_MANAGER: Caches exceed maximum allowed memory!\n" );
 #endif
 	// Go into cleanup mode - we have some caches that are using too much ram.

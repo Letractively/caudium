@@ -146,7 +146,7 @@ void refresh( string name ) {
 }
 
 void free_ram( int nbytes ) {
-#ifdef DEBUG
+#ifdef CACHE_DEBUG
   write( "RAM_CACHE( " + namespace + " ): Freeing " + nbytes + " RAM\n" );
 #endif
   ram_cache->free( nbytes );
