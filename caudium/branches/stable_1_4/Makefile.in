@@ -201,7 +201,7 @@ install_alt:
 	                 "LDFLAGS=$(LDFLAGS)" "EXTRAVER=$(EXTRAVER)"\
 	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@/" install_alt)
 	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/caudium$(EXTRAVER)
-	-@for f in fcgi install.pike pdbi.pike pike caudium$(EXTRAVER); \
+	-@for f in install install.pike pdbi.pike pike caudium$(EXTRAVER); \
 	do \
 	  if test -f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f ; then \
 	    echo Modifying permissions for file $(prefix)/lib/caudium$(EXTRAVER)/bin/$$f... ; \
@@ -220,7 +220,7 @@ spotless:  clean
 	@(cd tools/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	rm -f $srcdir/tools/caudium-rc_script smartlink
-	rm -f $srcdir/server/start-caudium $srcdir/server/bin/install.pike
+	rm -f $srcdir/server/start-caudium $srcdir/server/bin/install
 	-rm -rf $(shell find -name "autom4te.cache" -type d -print)
 	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
         -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
