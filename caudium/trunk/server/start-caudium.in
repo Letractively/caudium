@@ -966,11 +966,21 @@ void start_watchdog()
   }
 }
 
+int in_check=0;
+
 void check_site()
 {
 
-  if(watchdog_params->site)
+  if(in_check)
+    flex_write("watchdog is already in a check... skipping.\n");
+
+  if(watchdog_params->site && !in_check)
   {
+    flex_write(sprintf("watchdog is checking %s, %s\n", 
+watchdog_params->site[0], 
+      (string)watchdog_params->site[1]));
+
+    in_check=1;
     // we have a site to check.    
     conn=Stdio.File();
    
@@ -984,6 +994,7 @@ void check_site()
     {
       flex_write("Unable to connect to " + watchdog_params->site[0] + ":" 
         + watchdog_params->site[1] + "\n");       
+      in_check=0;
       // if we're running, we need to be kicked, otherwise it will get
       // restarted at the next check of the starter. 
       if(proc && proc->status()==1) 
@@ -1010,10 +1021,13 @@ void response_received(mixed id, mixed data)
   // we are now not at the first request.
   first_ping=0;
 
+  in_check=0;
+
   // did we get the expected response?
   if(data=="PONG\r\n")
   {
     // request was successful.
+    flex_write("Check was successfull.\n");
     remove_call_out(cs_callout);
     conn->close();
     conn=0;
@@ -1051,6 +1065,9 @@ void check_timedout()
   conn=0;
 
   flex_write("Check timed out.\n");
+
+  in_check=0;
+
   kill_caudium();
 
   // remove any of the check call outs.

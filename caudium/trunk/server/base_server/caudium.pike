@@ -156,6 +156,7 @@ private void co_really_low_shutdown()
 //! start the external watchdog
 void watchdog_on()
 {
+   if(watchdog_enabled) return;
    int pid = getpid();
    string sock = getenv("CAUDIUM_WATCHDOG_SOCKET");
   
@@ -176,6 +177,7 @@ void watchdog_on()
 //! stop the external watchdog
 void watchdog_off()
 {
+   if(!watchdog_enabled) return;
    int pid = getpid();
    string sock = getenv("CAUDIUM_WATCHDOG_SOCKET");
   
@@ -291,6 +293,7 @@ private static void low_shutdown(int exit_type)
   {
     // Only _really_ do something in the main process.
     int pid;
+
     if (exit_type) {
       report_notice("Restarting Caudium.\n");
       send_trap("server_restart");
@@ -314,6 +317,7 @@ private static void low_shutdown(int exit_type)
       else f->write(""+getpid());
 #endif /* USE_SHUTDOWN_FILE */
 
+
       // Try to kill the start-script.
       if(startpid != getpid()) {
       	if(exit_type)
@@ -336,6 +340,10 @@ private static void low_shutdown(int exit_type)
 //!  A HTML file that's shown to the administrator.
 mapping restart() 
 { 
+
+  // shut the watchdog off
+  watchdog_off();
+
   low_shutdown(-1);
   
   return IFiles->get(sprintf("html://restart-%s.html",QUERY(cif_theme)), ([
@@ -368,6 +376,10 @@ void cache_shutdown_failed() {
 //!  A HTML file that's shown to the administrator.
 mapping shutdown() 
 {
+
+  // shut the watchdog off
+  watchdog_off();
+
   low_shutdown(0);
   
   return IFiles->get(sprintf("html://shutdown-%s.html",QUERY(cif_theme)), ([
@@ -501,7 +513,9 @@ private static void accept_callback( Stdio.Port port )
       array err;
       pn[1]->enable_all_modules();
       if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+      {
         watchdog_on();
+      }
     }
     
     // You won't fucking believe this, but I am about to clone
@@ -776,6 +790,11 @@ object configuration_interface() {
                            describe_backtrace(err)));
     }
     e->print_warnings("Compilation warnings while loading configuration interface:");
+
+    if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+    {
+      watchdog_on();
+    }
   }
   return configuration_interface_obj;
 }
@@ -812,6 +831,7 @@ mixed configuration_parse(mixed ... args)
   object key;
   catch(key = configuration_lock->lock());
 #endif
+
   if(args) 
     return configuration_interface()->configuration_parse(@args);
 }
@@ -1768,6 +1788,11 @@ void reload_all_configurations()
   caudium->setvars(caudium->retrieve("Variables", 0));
   caudium->initiate_configuration_port( 0 );
 
+  if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+  {
+    watchdog_off();
+  }
+
   foreach(caudium->list_all_configurations(), mapping config) {
     array err, st;
     foreach(caudium->configurations, conf) {
@@ -1807,6 +1832,10 @@ void reload_all_configurations()
     err = catch {
       conf->start();
       conf->enable_all_modules();
+      if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+      {
+        watchdog_on();
+      }
     };
     
     if (err) {
@@ -2436,7 +2465,7 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("watchdog_checkall", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
 	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?");
 
-  globvar("watchdog_enable", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
+  globvar("watchdog_enable", 1, "Watchdog: Enable Watchdog", TYPE_FLAG,
 	"Should the Caudium Watchdog be enabled?");
 
 #if constant(SpiderMonkey.Context);
@@ -3534,6 +3563,10 @@ int main(int argc, array(string) argv)
 #ifdef LOAD_CONFIGS_STARTUP
   foreach(configurations, object config)
     config->enable_all_modules(); 
+
+  if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+    watchdog_on();
+
 #endif
   enabling_configurations = 0;
 
