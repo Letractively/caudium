@@ -20,14 +20,8 @@
 
 #include "global.h"
 RCSID("$Id$");
-#include "interpret.h"
-#include "stralloc.h"
-#include "mapping.h"
-#include "pike_macros.h"
-#include "module_support.h"
-#include "error.h"
+#include "caudium_util.h"
 
-#include "threads.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -91,7 +85,7 @@ static void f_buf_append( INT32 args )
   unsigned char *in, *query;
 
   if( sp[-1].type != T_STRING )
-    error("Wrong type of argument to append()\n");
+    Pike_error("Wrong type of argument to append()\n");
   str = sp[-1].u.string;
   
   if( str->len >= BUF->free ) {
@@ -230,11 +224,11 @@ static void f_buf_append( INT32 args )
 static void f_buf_create( INT32 args )
 {
   if(args != 2)
-    error("Wrong number of arguments to create. Expected 2.\n");
+    Pike_error("Wrong number of arguments to create. Expected 2.\n");
   if(sp[-1].type != T_MAPPING)
-    error("Wrong argument 1 to create. Expected mapping.\n");
+    Pike_error("Wrong argument 1 to create. Expected mapping.\n");
   if(sp[-2].type != T_MAPPING)
-    error("Wrong argument 2 to create. Expected mapping.\n");
+    Pike_error("Wrong argument 2 to create. Expected mapping.\n");
   add_ref(BUF->headers   = sp[-1].u.mapping);
   add_ref(BUF->other     = sp[-2].u.mapping);
   BUF->pos = BUF->data;
@@ -421,7 +415,7 @@ static void f_parse_headers( INT32 args )
     len -= parsed;
   }
   if(parsed == -1) {
-    error("Caudium.parse_headers(): Out of memory while parsing.\n");
+    Pike_error("Caudium.parse_headers(): Out of memory while parsing.\n");
   }
   pop_n_elems(args);
   push_mapping(headermap);
@@ -469,13 +463,13 @@ static void f_parse_query_string( INT32 args )
       valulen = ptr - ++equal;
       skey.u.string = url_decode(name, namelen, 0);
       if (skey.u.string == NULL) { /* OOM. Bail out */
-	error("Caudium.parse_query_string(): Out of memory in url_decode().\n");
+	Pike_error("Caudium.parse_query_string(): Out of memory in url_decode().\n");
       }
       exist = low_mapping_lookup(variables, &skey);
       if(exist == NULL || exist->type != T_STRING) {
 	sval.u.string = url_decode(equal, valulen, 0);
 	if (sval.u.string == NULL) { /* OOM. Bail out */
-	  error("Caudium.parse_query_string(): "
+	  Pike_error("Caudium.parse_query_string(): "
 		"Out of memory in url_decode().\n");
 	}
       } else {
@@ -483,7 +477,7 @@ static void f_parse_query_string( INT32 args )
 	struct pike_string *tmp;
 	tmp = url_decode(equal, valulen, 1);
 	if (tmp == NULL) {
-	  error("Caudium.parse_query_string(): "
+	  Pike_error("Caudium.parse_query_string(): "
 		"Out of memory in url_decode().\n");
 	}
 	sval.u.string = add_shared_strings(exist->u.string, tmp);

@@ -21,13 +21,7 @@
 /* $Id$ */
 #include "global.h"
 RCSID("$Id$");
-#include "interpret.h"
-#include "stralloc.h"
-#include "pike_macros.h"
-#include "module_support.h"
-#include "error.h"
-#include "mapping.h"
-#include "threads.h"
+#include "caudium_util.h"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -148,7 +142,7 @@ static void f_run( INT32 args )
   };
 
   if(THIS->xml == NULL || THIS->xsl == NULL) {
-    error("XML or XSL input not set correctly.\n");
+    Pike_error("XML or XSL input not set correctly.\n");
   }
 
   SablotCreateProcessor(&sproc);
@@ -163,7 +157,7 @@ static void f_run( INT32 args )
        */
       char *tmp = malloc(THIS->base_uri->len + 7);
       if(tmp == NULL)
-	error("Sablotron.parse(): Failed to allocate string. Out of memory?\n");
+	Pike_error("Sablotron.parse(): Failed to allocate string. Out of memory?\n");
       if(THIS->base_uri->len > 1 && *THIS->base_uri->str == '/')
 	sprintf(tmp, "file:%s", THIS->base_uri->str);
       else
@@ -217,7 +211,7 @@ static void f_run( INT32 args )
     pop_n_elems(args);
     push_text(parsed);    
   } else {
-    error("Parsing failed.\n");
+    Pike_error("Parsing failed.\n");
   }
   SablotDestroyProcessor(sproc);
 }
@@ -272,9 +266,9 @@ void f_charset(INT32 args)
 void f_set_xml_data(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
-    error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected string.\n");
+    Pike_error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected string.\n");
   if(THIS->xml != NULL) free_string(THIS->xml);
   THIS->xml = sp[-args].u.string;
   add_ref(THIS->xml);
@@ -285,9 +279,9 @@ void f_set_xml_data(INT32 args)
 void f_set_xml_file(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_xml_file: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_xml_file: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
-    error("XSLT.Parser()->set_xml_file: Invalid argument 1, expected string.\n");
+    Pike_error("XSLT.Parser()->set_xml_file: Invalid argument 1, expected string.\n");
   if(THIS->xml != NULL)
     free_string(THIS->xml);
   THIS->xml = sp[-args].u.string;
@@ -299,9 +293,9 @@ void f_set_xml_file(INT32 args)
 void f_set_xsl_data(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_xsl_data: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_xsl_data: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
-    error("XSLT.Parser()->set_xsl_data: Invalid argument 1, expected string.\n");
+    Pike_error("XSLT.Parser()->set_xsl_data: Invalid argument 1, expected string.\n");
   if(THIS->xsl != NULL)
     free_string(THIS->xsl);
   THIS->xsl = sp[-args].u.string;
@@ -313,9 +307,9 @@ void f_set_xsl_data(INT32 args)
 void f_set_base_uri(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_base_uri: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_base_uri: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
-    error("XSLT.Parser()->set_base_uri: Invalid argument 1, expected string.\n");
+    Pike_error("XSLT.Parser()->set_base_uri: Invalid argument 1, expected string.\n");
   if(THIS->base_uri != NULL)
     free_string(THIS->base_uri);
   THIS->base_uri = sp[-args].u.string;
@@ -326,9 +320,9 @@ void f_set_base_uri(INT32 args)
 void f_set_xsl_file(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_xsl_file: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_xsl_file: Expected one argument.\n");
   if(sp[-args].type != T_STRING)
-    error("XSLT.Parser()->set_xsl_file: Invalid argument 1, expected string.\n");
+    Pike_error("XSLT.Parser()->set_xsl_file: Invalid argument 1, expected string.\n");
   if(THIS->xsl != NULL)
     free_string(THIS->xsl);
   THIS->xsl = sp[-args].u.string;
@@ -340,9 +334,9 @@ void f_set_xsl_file(INT32 args)
 void f_set_variables(INT32 args)
 {
   if(args != 1)
-    error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
+    Pike_error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
   if(sp[-args].type != T_MAPPING)
-    error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected mapping.\n");
+    Pike_error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected mapping.\n");
   if(THIS->variables != NULL)
     free_mapping(THIS->variables);
   THIS->variables = sp[-args].u.mapping;

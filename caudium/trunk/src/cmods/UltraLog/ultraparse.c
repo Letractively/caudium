@@ -21,19 +21,8 @@
 /* $Id$ */
 #include "global.h"
 RCSID("$Id$");
-#include "interpret.h"
-#include "fdlib.h"
-#include "stralloc.h"
-#include "pike_macros.h"
-#include "object.h"
-#include "program.h"
-#include "multiset.h"
-#include "mapping.h"
-#include "builtin_functions.h"
-#include "module_support.h"
-#include "error.h"
+#include "caudium_util.h"
 
-#include "threads.h"
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -334,20 +323,20 @@ static void f_ultraparse( INT32 args )
   get_all_args("UltraLog.ultraparse", args, "%*%*%*%*%*", &log_format, &statfun, &daily, &file,
 	       &pagexts);
   if(log_format->type != T_STRING) 
-    error("Bad argument 1 to Ultraparse.ultraparse, expected string.\n");
+    Pike_error("Bad argument 1 to Ultraparse.ultraparse, expected string.\n");
   if(statfun->type != T_FUNCTION)  
-    error("Bad argument 2 to Ultraparse.ultraparse, expected function.\n");
+    Pike_error("Bad argument 2 to Ultraparse.ultraparse, expected function.\n");
   if(daily->type != T_FUNCTION)    
-    error("Bad argument 3 to Ultraparse.ultraparse, expected function.\n");
+    Pike_error("Bad argument 3 to Ultraparse.ultraparse, expected function.\n");
   if(pagexts->type != T_MULTISET)  
-    error("Bad argument 5 to Ultraparse.ultraparse, expected multiset.\n");
+    Pike_error("Bad argument 5 to Ultraparse.ultraparse, expected multiset.\n");
   
   if(file->type == T_OBJECT)
   {
     f = fd_from_object(file->u.object);
     
     if(f == -1)
-      error("UltraLog.ultraparse: File is not open.\n");
+      Pike_error("UltraLog.ultraparse: File is not open.\n");
     my_fd = 0;
   } else if(file->type == T_STRING &&
 	    file->u.string->size_shift == 0) {
@@ -356,10 +345,10 @@ static void f_ultraparse( INT32 args )
     } while(f < 0 && errno == EINTR);
     
     if(errno < 0)
-      error("UltraLog.ultraparse(): Failed to open file for reading (errno=%d).\n",
+      Pike_error("UltraLog.ultraparse(): Failed to open file for reading (errno=%d).\n",
 	    errno);
   } else 
-    error("Bad argument 4 to UltraLog.ultraparse, expected string or object .\n");
+    Pike_error("Bad argument 4 to UltraLog.ultraparse, expected string or object .\n");
 
   state_list = malloc((log_format->u.string->len +3) * sizeof(INT32));
   save_field_num = malloc((log_format->u.string->len +3) * sizeof(INT32));
@@ -371,7 +360,7 @@ static void f_ultraparse( INT32 args )
     free(state_list);
     free(save_field_num);
     free(field_endings);
-    error("UltraLog.ultraparse(): Failed to parse log format.\n");
+    Pike_error("UltraLog.ultraparse(): Failed to parse log format.\n");
   }
   
   fd_lseek(f, offs0, SEEK_SET);

@@ -769,6 +769,8 @@ esac
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
+CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
+
 #
 # Some variables we want to export to the other configure scripts.
 #
