@@ -41,7 +41,6 @@ inherit "caudiumlib";
 #define DWERROR(X)
 #endif /* PHP_DEBUG */
 
-
 #include <roxen.h>
 
 constant cvs_version="$Id$";
@@ -58,9 +57,7 @@ the Pike CVS as of November 6th, 2000, 13:30 PST. Please make sure that your \
 Pike is newer than this. </p></font>";
 constant module_unique = 0;
 
-
 #if constant(PHP4.Interpreter)
-
 class PHPScript
 {
   PHP4.Interpreter interpreter;
@@ -77,7 +74,7 @@ class PHPScript
     if(strlen(buffer))
     {
       close_when_done = 1;
-      if(query("rxml"))
+      if(QUERY(rxml))
       {
         if( mid )
           buffer = parse_rxml(buffer, mid);
@@ -132,7 +129,7 @@ class PHPScript
     if(buffer == "" )
     {
       buffer = what;
-      if(!query("rxml")) write_callback();
+      if(!QUERY(rxml)) write_callback();
     }
     else
       buffer += what;
@@ -199,7 +196,7 @@ class PHPScript
       "env":environment,
     ]);
 
-    if(!query("rxml"))
+    if(!QUERY(rxml))
     {
       mid->my_fd->set_blocking();
       if(_typeof(mid->my_fd) == _typeof(Stdio.File()))
@@ -267,14 +264,28 @@ class PHPScript
 }
 
 mapping(string:string) global_env = ([]);
+object thfarm; 
+void stop() {
+}
+
 void start(int n, object conf)
 {
   DWERROR("PHP:start()\n");
+  thfarm = caudium->query_var("php_thread_farm");
+  if(!thfarm) {
+    thfarm = ThreadFarm.Farm(QUERY(threads));
+    caudium->set_var("php_thread_farm", thfarm);
+  } else {
+    thfarm->resize(QUERY(threads));
+  }
+
+#if 0
 #ifndef THREADS
   // Ugly? Yes, definitely. Required? Yes. If there is only one thread
   // the interpreter lock will never be released (naturally) and thus the
   // th_farm threads can never lock it which is required.
   thread_create(lambda() { catch { while(this_object()) sleep(5); }; });
+#endif
 #endif
   module_dependencies(conf, ({ "pathinfo" }));
   if(conf)
@@ -302,7 +313,7 @@ int|mapping handle_file_extension(object o, string e, object id)
   id->do_not_disconnect = 1;
   // call_out required or the script might actually finish too early
   // causing ugly, but harmless, backtraces.
-  call_out(PHPScript(id)->run, 0);
+  call_out(thfarm->enqueue, 0, PHPScript(id)->run);
   //  PHPScript(id)->run();
   DWERROR("PHP:handle_file_extension done\n");
   return http_pipe_in_progress();
@@ -353,6 +364,12 @@ void create(object conf)
 	 "If this is set, the output from PHP-scripts handled by this "
          "module will be RXMl parsed. NOTE: No data will be returned to the "
          "client until the PHP-script is fully parsed.");
+  defvar("threads", 5, "PHP Handler Threads", TYPE_INT,
+	 "The number of handler threads to use for running PHP scripts. "
+	 "This variable is somewhat special. The created thread pool is "
+	 "shared among different instances of the PHP4 module (across virtual "
+	 "servers even). The thread pool size will be that of the "
+	 "largest value in all PHP4 module instances.");
 
   defvar("extra_env", "", "Extra environment variables", TYPE_TEXT_FIELD,
 	 "Extra variables to be sent to the script, format:<pre>"
@@ -374,6 +391,11 @@ void create(object conf)
 //! If this is set, the output from PHP-scripts handled by this module will be RXMl parsed. NOTE: No data will be returned to the client until the PHP-script is fully parsed.
 //!  type: TYPE_FLAG
 //!  name: Parse RXML in PHP-scripts
+//
+//! defvar: threads
+//! The number of handler threads to use for running PHP scripts. This variable is somewhat special. The created thread pool is shared among different instances of the PHP4 module (across virtual servers even). The thread pool size will be that of the largest value in all PHP4 module instances.
+//!  type: TYPE_INT
+//!  name: PHP Handler Threads
 //
 //! defvar: extra_env
 //! Extra variables to be sent to the script, format:<pre>NAME=value<br />NAME=value</pre>Please note that the standard variables will have higher priority.
