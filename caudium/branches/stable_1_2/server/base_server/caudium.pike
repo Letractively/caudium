@@ -3206,6 +3206,8 @@ void create_pid_file(string where)
 void shuffle(object from, object to,
 	      object|void to2, function(:void)|void callback)
 {
+  /*
+  Quick and dirty comment: if callback is void, there is a backtrace
   if(!to2)
   {
     object p = pipe();
@@ -3213,13 +3215,14 @@ void shuffle(object from, object to,
     p->set_done_callback(callback);
     p->output(to);
   } else {
+  */
     // Sad but we need Pipe.pipe here...
     object p = Pipe.pipe();
     if (callback) p->set_done_callback(callback);
     p->output(to);
     if(to2) p->output(to2);
     p->input(from);
-  }
+  //}
 }
 
 
