@@ -25,39 +25,26 @@
 #include <module.h>
 
 inherit "wizard";
-constant name= "Cache//Flush Caching Sub-System";
+constant name= "Cache//Flush Caches";
 
-constant doc = ("Selectively flush caches in the caching engine.");
+constant doc = ("Selectively flush caches in Caudium's caching engine.");
 
 mixed page_0 ( object id, object mc ) {
-  string select =
-    "<table border=0>\n"
-    "<tr><td colspan=2><h3>Cache</h3></td></tr>\n";
-  foreach( indices( caudium->cache_manager->caches ), string namespace ) {
-    string desc = caudium->cache_manager->get_cache( namespace )->cache_description();
-    select +=
-      sprintf( "<tr><td><input type=\"checkbox\" name=\"flush\" value=\"%O\"></td><td><b>%O</b></td></tr>\n", namespace, namespace );
-    if ( desc )
-      select += sprintf( "<tr><td></td><td>%O</td></tr>\n", desc );
-    select += "<tr><td colspan=2><hr noshade /></td></tr>\n";
+  string ret = "<cvar type=\"select_multiple\" name=\"flush\">";
+  ret += indices(caudium->cache_manager->caches) * ",";
+  ret += "</cvar>";
+  ret += "<help>\n<br />";
+  foreach(indices(caudium->cache_manager->caches), string namespace) {
+    string desc = caudium->cache_manager->get_cache(namespace)->cache_description();
+    if (!desc) continue;
+    ret += sprintf(
+      "<b>%s</b><blockquote>%s</blockquote>\n",
+      roxen_encode(namespace, "html"),
+      roxen_encode(desc, "html")
+    );
   }
-  select += "</table>\n";
-  return
-    "<h2>Currently Running Caches</h2>\n"
-    "<table border=1><tr><td>\n" +
-    select +
-    "</td></tr></table>\n"
-    "<br />"
-    "Please use the checkboxes above to select the cache, or caches "
-    "which you wish to flush. Flushing a cache removes all data "
-    "and metadata held in the cache, and may represent a short to "
-    "medium term performance hit.<br />"
-    "Please also note that any caches that are currently in a dormant "
-    "state (ie; removed from RAM and stored out to disk) will not be "
-    "present in this list. If the cache you are looking for is not "
-    "listed above then try accessing the cache you want flushed - "
-    "possibly by loading a page, etc."
-    "<br />";
+  ret += "</help>";
+  return html_border(ret);
 }
 
 mixed wizard_done ( object id, object mc ) {
@@ -68,7 +55,7 @@ mixed wizard_done ( object id, object mc ) {
   foreach( checked, string namespace ) {
     caudium->cache_manager->get_cache( namespace )->flush();
   }
-  return "<b>Caches Flushed:</b> " + ( checked * ", " );
+  return "<b>Caches Flushed:</b><ul><li>" + ( checked * "</li><li>" ) + "</li></ul>";
 }
 
 mixed handle( object id ) { return wizard_for( id, 0 ); }
