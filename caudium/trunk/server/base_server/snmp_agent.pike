@@ -31,6 +31,18 @@ constant cvs_version = "$Id$";
 //! SNMP Agent
 object agent;
 
+//! requests/minute history
+object request_history;
+int request_last=0;
+
+//! sent/minute history
+object sent_history;
+int sent_last=0;
+
+//! received/minute history
+object received_history;
+int received_last=0;
+
 //! Caudium Configuration Object Hook
 object caudium;
 
@@ -64,6 +76,15 @@ void create(object c)
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.5", snmp_get_server_total_requests);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.6", snmp_get_server_total_received);
   agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.7", snmp_get_server_total_sent);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.8", snmp_get_server_average_requests);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.9", snmp_get_server_average_received);
+  agent->set_get_oid_callback("1.3.6.1.4.1.14245.100.10", snmp_get_server_average_sent);
+
+  sent_history=ADT.History(5);
+  received_history=ADT.History(5);
+  request_history=ADT.History(5);
+
+  call_out(update_counters, 0);
 }
 
 //! Return the server version for SNMP for oid 100.1 (under Caudium OID)
@@ -99,9 +120,74 @@ array snmp_get_server_uptime(string oid, mapping rv)
   return ({1, "tick", uptimeticks});
 }
 
-
 //! Return the total number of requests for SNMP for oid 100.5 (under Caudium OID)
 array snmp_get_server_total_requests(string oid, mapping rv)
+{
+  int requests;
+
+  requests=get_total_requests();
+
+  return ({1, "count64", requests});
+}
+
+//! Return the total bytes of data received for SNMP for oid 100.6 (under Caudium OID)
+array snmp_get_server_total_received(string oid, mapping rv)
+{
+  int received;
+  
+  received=get_bytes_received();
+
+  return ({1, "count64", received});
+}
+
+//! Return the total bytes of data sent for SNMP for oid 100.7 (under Caudium OID)
+array snmp_get_server_total_sent(string oid, mapping rv)
+{
+  int sent;
+  
+  sent=get_bytes_sent();
+
+  return ({1, "count64", sent});
+}
+
+//! Return the 5 minute avg of requests for SNMP for oid 100.8 (under Caudium OID)
+array snmp_get_server_average_requests(string oid, mapping rv)
+{
+  int requests;
+  requests=ave(request_history);
+
+  return ({1, "count64", requests});
+}
+
+//! Return the 5 minute avg of bytes received for SNMP for oid 100.9 (under Caudium OID)
+array snmp_get_server_average_received(string oid, mapping rv)
+{
+  int received;
+  
+  received=ave(received_history);
+
+  return ({1, "count64", received});
+}
+
+//! Return the 5 minute avg of bytes sent for SNMP for oid 100.10 (under Caudium OID)
+array snmp_get_server_average_sent(string oid, mapping rv)
+{
+  int sent;
+  
+  sent=ave(sent_history);
+
+  return ({1, "count64", sent});
+}
+
+void destroy()
+{
+   report_error("Agent shutting down.");
+}
+
+//! update rolling request average
+
+
+int get_total_requests()
 {
   int requests;
   foreach(caudium->configurations, object conf) {
@@ -111,11 +197,10 @@ array snmp_get_server_total_requests(string oid, mapping rv)
     requests += conf->requests?conf->requests:0;
 #endif
   }  
-  return ({1, "count64", requests});
+  return requests;
 }
 
-//! Return the total bytes of data received for SNMP for oid 100.6 (under Caudium OID)
-array snmp_get_server_total_received(string oid, mapping rv)
+int get_bytes_received()
 {
   int received;
   foreach(caudium->configurations, object conf) {
@@ -125,11 +210,10 @@ array snmp_get_server_total_received(string oid, mapping rv)
     received += conf->received?conf->received:0;
 #endif
   }  
-  return ({1, "count64", received});
+  return received;
 }
 
-//! Return the total bytes of data sent for SNMP for oid 100.7 (under Caudium OID)
-array snmp_get_server_total_sent(string oid, mapping rv)
+int get_bytes_sent()
 {
   int sent;
   foreach(caudium->configurations, object conf) {
@@ -139,12 +223,48 @@ array snmp_get_server_total_sent(string oid, mapping rv)
     sent += conf->sent?conf->sent:0;
 #endif
   }  
-  return ({1, "count64", sent});
+  return sent;
 }
 
-void destroy()
+void update_sent_history()
 {
-   report_error("Agent shutting down.");
+  int sent=get_bytes_sent();
+  sent_history->push(sent-sent_last);
+  sent_last=sent;
 }
 
+void update_received_history()
+{
+  int received=get_bytes_received();
+  received_history->push(received-received_last);
+  received_last=received;
+}
 
+void update_request_history()
+{
+  int requests=get_total_requests();
+  request_history->push(requests-request_last);
+  request_last=requests;
+}
+
+void update_counters()
+{
+
+  update_received_history();
+  update_sent_history();
+  update_request_history();
+
+  remove_call_out(update_counters);
+  call_out(update_counters, 60);
+}
+
+mixed ave(object o)
+{
+   mixed t;
+
+   foreach(values(o), mixed x)
+     t+=x;
+
+   t=t/sizeof(o);
+   return (int)(t);
+}
