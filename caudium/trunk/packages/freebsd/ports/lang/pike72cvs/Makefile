@@ -20,8 +20,6 @@ DISTNAME=	pike-${PORTVERSION}
 
 MAINTAINER=	kiwi@oav.net
 
-USE_BISON=	yes
-
 LIB_DEPENDS=	jpeg.9:${PORTSDIR}/graphics/jpeg \
 		tiff.4:${PORTSDIR}/graphics/tiff \
 		gdbm.2:${PORTSDIR}/databases/gdbm \
@@ -32,6 +30,8 @@ BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
+
+USE_BISON=	yes
 
 WANT_MESA=	yes
 WANT_GTK=	yes
