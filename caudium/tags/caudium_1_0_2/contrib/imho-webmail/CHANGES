@@ -1,0 +1,190 @@
+Changelog for imho
+------------------
+
+ IMHO 0.97.1
+ -----------
+
+revision 1.40
+date: 2000/09/21 13:46:53;  author: kiwi;  state: Exp;  lines: +17 -3
+Adding option redirect_url to logout buttom
+
+revision 1.39
+date: 2000/08/10 18:27:15;  author: kiwi;  state: Exp;  lines: +4 -4
+Correction of type error in the configuration interface.
+
+revision 1.38
+date: 2000/08/10 16:44:43;  author: kiwi;  state: Exp;  lines: +9 -8
+Correct a bad effects with extended address book
+
+revision 1.37
+date: 2000/08/10 02:40:15;  author: kiwi;  state: Exp;  lines: +5 -2
+Typo corrections.
+
+revision 1.36
+date: 2000/08/10 02:20:25;  author: kiwi;  state: Exp;  lines: +153 -33
+Some modifications did by our internal developpers
+
+revision 1.35
+date: 2000/07/03 16:31:25;  author: kiwi;  state: Exp;  lines: +158 -31
+Adding new modifications from our internal developpers
+
+revision 1.34
+date: 2000/06/22 15:26:30;  author: kiwi;  state: Exp;  lines: +276 -72
+Added the extended addressbook + href target=_new for attachements
+
+revision 1.33
+date: 2000/06/14 13:06:00;  author: kiwi;  state: Exp;  lines: +12 -1
+2 new options:
+
+ - Features:User inactive logout
+ - Features:User sort order
+
+revision 1.32
+date: 2000/05/22 17:44:50;  author: kiwi;  state: Exp;  lines: +2 -1
+Corrected a minor bug into the date.
+
+revision 1.31
+date: 2000/05/19 18:50:49;  author: kiwi;  state: Exp;  lines: +39 -17
+Corrected a bug about mailboxes.
+Adding custom header when forwarding a mail. Subject, from, to, CC and 
+forward separator are now customisable.
+Corrected a bug (is it one ? 8bits password are stupid !) on password
+sended in UTF8 to the IMAP server...
+
+revision 1.30
+date: 2000/05/18 18:17:34;  author: kiwi;  state: Exp;  lines: +70 -2
+Adding Lucio's functions and auto display of buttons.
+
+revision 1.29
+date: 2000/05/18 10:37:57;  author: kiwi;  state: Exp;  lines: +2 -34
+Hummm... Forgot a flag...
+
+revision 1.28
+date: 2000/05/18 09:30:22;  author: kiwi;  state: Exp;  lines: +208 -15
+Adding Lucio's sorting options.
+
+revision 1.27
+date: 2000/05/17 21:23:04;  author: kiwi;  state: Exp;  lines: +49 -20
+Correcting the address book :
+ -> Empty entries are forbidden
+ -> New message for such errors
+ -> Displaying the button "delete this entry" only when modify a entry
+
+revision 1.26
+date: 2000/05/17 20:45:39;  author: kiwi;  state: Exp;  lines: +6 -0
+Minor corrections...
+
+revision 1.25
+date: 2000/05/15 17:01:58;  author: kiwi;  state: Exp;  lines: +19 -6
+Address book bug corrected...
+
+revision 1.24
+date: 2000/05/11 13:43:39;  author: kiwi;  state: Exp;  lines: +10 -2
+Add a new variable to avoid Javascript in some cases.
+
+revision 1.23
+date: 2000/05/10 18:23:47;  author: kiwi;  state: Exp;  lines: +1 -1
+Minor bug corrected...
+
+revision 1.22
+date: 2000/05/10 18:21:44;  author: kiwi;  state: Exp;  lines: +1 -1
+Wording corrected...
+
+revision 1.21
+date: 2000/05/10 17:45:10;  author: kiwi;  state: Exp;  lines: +14 -3
+Wording update, some new features, new help system.
+
+revision 1.20
+date: 2000/05/10 12:29:56;  author: kiwi;  state: Exp;  lines: +22 -16
+Internal corrections...
+
+revision 1.19
+date: 2000/05/09 13:57:42;  author: kiwi;  state: Exp;  lines: +16 -2
+ Names of folders, INBOX, Trash and sent-mail are now customizable...
+
+revision 1.18
+date: 2000/05/09 12:11:48;  author: kiwi;  state: Exp;  lines: +0 -2
+Deleting some debug code....
+
+revision 1.17
+date: 2000/05/09 11:59:53;  author: kiwi;  state: Exp;  lines: +8 -0
+Folder bugs are now corrected.
+
+revision 1.16
+date: 2000/05/08 19:29:14;  author: kiwi;  state: Exp;  lines: +116 -36
+Some corrections....
+
+revision 1.15
+date: 2000/05/08 15:25:03;  author: kiwi;  state: Exp;  lines: +1 -0
+New up to date version
+
+revision 1.14
+date: 2000/05/08 14:39:57;  author: kiwi;  state: Exp;  lines: +35 -2
+Signature size has been modified.
+<imho_main> and <imho_text> now support the <font size> options.
+
+revision 1.13
+date: 2000/05/08 01:58:40;  author: kiwi;  state: Exp;  lines: +99 -7
+New functionnalits, and more precisly modifications in the tags works.
+New <imho_*> tags
+
+revision 1.12
+date: 2000/05/07 13:40:40;  author: kiwi;  state: Exp;  lines: +1 -1
+Fixed : javascript error in file loading...
+
+revision 1.11
+date: 2000/05/05 19:03:16;  author: kiwi;  state: Exp;  lines: +1 -0
+Corrected an error when ispell is called.
+
+revision 1.10
+date: 2000/05/05 18:39:29;  author: kiwi;  state: Exp;  lines: +1 -1
+Typo error...
+
+revision 1.9
+date: 2000/05/05 18:28:09;  author: kiwi;  state: Exp;  lines: +168 -53
+The compose page is not totaly customisable...
+Cleanning the code...
+
+revision 1.8
+date: 2000/05/05 13:15:52;  author: kiwi;  state: Exp;  lines: +1 -1
+Internal correction...
+
+revision 1.7
+date: 2000/05/04 22:26:18;  author: kiwi;  state: Exp;  lines: +199 -52
+New things :
+  - custom separator when replying to messages
+  - login screen can now be changed using config interface...
+  - adding LDAP patches to select the IMAP server using LDAP from
+    Lai Yiu Fai <ccyflai@ust.uk>
+  - deleting some debug code
+  - new date format : short (aka IMHO standart...) or long (european format)
+
+revision 1.6
+date: 2000/05/03 20:11:29;  author: kiwi;  state: Exp;  lines: +9 -2
+New insertions..
+
+revision 1.5
+date: 2000/05/03 16:25:00;  author: kiwi;  state: Exp;  lines: +166 -33
+10 new functionalities
+
+revision 1.4
+date: 2000/04/28 16:56:23;  author: kiwi;  state: Exp;  lines: +258 -119
+Images buttons for all form buttons.
+Deleting <gtext buttons>.
+
+revision 1.3
+date: 2000/04/19 17:26:21;  author: kiwi;  state: Exp;  lines: +3 -2
+Internal revision
+
+revision 1.2
+date: 2000/04/19 10:18:17;  author: kiwi;  state: Exp;  lines: +127 -56
+Try of <gtext> buttons (need some *work*)
+Autoconfiguration codes
+
+revision 1.1
+date: 2000/04/19 09:34:51;  author: kiwi;  state: Exp;
+branches:  1.1.1;
+Added originals sources.
+
+
+$Id$
