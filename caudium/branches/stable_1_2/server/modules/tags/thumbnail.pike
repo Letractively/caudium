@@ -200,13 +200,26 @@ string tag_thumbnail(string tag, mapping args, object id, object file, mapping d
     }
     filename += args->src;
 
-    url = "<img _parsed=\"1\" src=\""+query("mountpoint")+
-      (args->trans?"1":"0")+"/"+
-      (args->rot?args->rot:"0")+"/"+
-      (args->bg?args->bg-"#":"ffffff")+"/"+
-      height+"/"+width+"/$"+filename+"\""+
-      (args->border?(" border=\""+args->border+"\""):"")+
-      (args->align?(" align=\""+args->align+"\""):"")+">";
+    mapping  imgtag = ([
+      "src" : sprintf("%s/%s/%s/%s/%d/%d/$%s", QUERY(mountpoint), (args->trans?"1":"0"),
+                      (args->rot?args->rot:"0"), (args->bg?args->bg-"#":"ffffff"),
+		      height, width, filename)
+    ]);
+    
+    if (args->border)
+       imgtag->border = args->border;
+    if (args->align)
+       imgtag->align = args->align;
+    if (width)
+       imgtag->width = (string)width;
+    if (height)
+       imgtag->height = (string)height;
+    if (args->alt)
+       imgtag->alt = args->alt;
+    else
+       imgtag->alt = filename;
+    
+    url = make_tag("img", imgtag);
   }
 
   usecount++;
