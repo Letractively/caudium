@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added support in VHS Sql to use Caudium system log directory instead of      
+  userdir one.
 - index.php and index.php3 now added in all directories modules.
 - Added support for RFC 3236 (XHTML media type)
 - Fix an error when PUT method is used...

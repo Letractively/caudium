@@ -181,7 +181,7 @@ string sql_getvirt(string hostname, object id)
 				       hostname,
 				       vpath + QUERY(wwwdir),
 				       vpath + QUERY(cgidir),
-				       vpath + QUERY(logdir),
+				       (QUERY(log2vhs))?(vpath + QUERY(logdir)):combine_path(caudium->QUERY(logdirprefix)+"/",hostname),
 				       vpath,
 				       (int)tmp->uid||QUERY(defaultuid),
 				       (int)tmp->gid||QUERY(defaultgid),
@@ -219,7 +219,7 @@ string sql_getvirt(string hostname, object id)
 				         hostname,
 				         vpath + QUERY(wwwdir),
 				         vpath + QUERY(cgidir),
-				         vpath + QUERY(logdir),
+					 (QUERY(log2vhs))?(vpath + QUERY(logdir)):combine_path(caudium->QUERY(logdirprefix)+"/",hostname),
 				         vpath,
 				         (int)tmp->uid||QUERY(defaultuid),
 				         (int)tmp->gid||QUERY(defaultgid),
@@ -377,10 +377,13 @@ void create()
          "Directory, where are virtuals and subvirtuals stored.");
 
   defvar("cgidir", "cgi-bin/", "CGI directory", TYPE_STRING,
-         "Directory, where are logfiles");
+         "Directory, mounted as cgi-bin");
 
   defvar("logdir", "logs/", "Logs directory", TYPE_STRING,
-         "Directory, mounted as cgi-bin");
+         "Directory, directory where are logfiles.");
+
+  defvar("log2vhs", 1, "Logs using VHS parameters", TYPE_FLAG,
+	 "Disable to log to system wide configurate directory");
 
   defvar("ttl_positive", 1800, "TTL:Positive TTL", TYPE_INT,
          "Time to cache positive config hits.");
