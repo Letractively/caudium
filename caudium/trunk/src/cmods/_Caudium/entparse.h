@@ -85,14 +85,15 @@ typedef struct
 
 typedef void (*entcallback)(char *entname, char params[], ENT_CBACK_RESULT *res, void *userdata, void *extra_args);
 
-#define ENT_ERR_OK             0x00
-#define ENT_ERR_OOM            0x01
-#define ENT_ERR_BUFTOOLONG     0x02
-#define ENT_ERR_INVPARM        0x03
-#define ENT_ERR_OPENENTITY     0x04
-#define ENT_ERR_ENTNAMELONG    0x05
-#define ENT_ERR_INVALIDNAME    0x06
-#define ENT_ERR_RETBUFTOOLONG  0x07
+/* The high bit is set for critical errors */
+#define ENT_ERR_OK             0x00000000
+#define ENT_ERR_OOM            0x80000001
+#define ENT_ERR_BUFTOOLONG     0x80000002
+#define ENT_ERR_INVPARM        0x00000003
+#define ENT_ERR_OPENENTITY     0x00000004
+#define ENT_ERR_ENTNAMELONG    0x00000005
+#define ENT_ERR_INVALIDNAME    0x00000006
+#define ENT_ERR_RETBUFTOOLONG  0x80000007
 
 /* the maximum size of the entity name (excluding the & and the ; chars) */
 #define ENT_MAX_ENTSIZE         255
