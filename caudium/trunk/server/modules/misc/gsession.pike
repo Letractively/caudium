@@ -1488,8 +1488,8 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
 {
   int              hashpos;
   array(string)    parts;
-  string           sepchar = append ? "&" : "?";
-    
+  string           sepchar = append ? "&amp;" : "?";
+    :
   hashpos = search(from, "#");
 
   if (hashpos >= 0) {
@@ -1540,8 +1540,12 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
   int restrict = ((args ? args->norewrite : 0) + id->misc->_gsession_cookie);
     
   if (!restrict && id->misc->session_id)
-    contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
-                       SVAR, id->misc->session_id) + contents;
+  //  contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
+  //                     SVAR, id->misc->session_id) + contents;
+	contents = Caudium.make_container("div", ([ ]),
+   			Caudium.make_container("input", ([ "type": "hidden", "name":
+     			SVAR, "value": id->misc->session_id ]), id->misc->is_xml),
+       		   id->misc->is_xml);
 
   m_delete(args, "norewrite");
     
