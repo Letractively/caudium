@@ -538,7 +538,7 @@ class DocGen
                 do_module(tdir, f, ofile);
                 break;
         }
-        
+
         close_file(ofile);
     }
     
@@ -561,12 +561,14 @@ class DocGen
         if (files) {
             foreach(files, DocParser.PikeFile f) {
                 output_file(subdirs[0] + "/", f);
+		end_output();
             }   
         }
 
         if (modules) {
             foreach(modules, DocParser.Module m) {
                 output_file(subdirs[1] + "/", m);
+		end_output();
             }
         }
         
