@@ -1393,10 +1393,10 @@ void send_result(mapping|void result)
   if(!mappingp(file))
   {
     // There is no file so calling error
-    tmp = conf->handle_error_request(this_object());
-    roxen_perror(sprintf("error out : %O\n",tmp));
-    if(mappingp(tmp)) 
-      file = (mapping)tmp;
+    mixed tmperr;
+    tmperr = conf->handle_error_request(this_object());
+    if(mappingp(tmperr)) 
+      file = (mapping)tmperr;
     else {  // Fallback error handler.
       if(misc->error_code)
         file = http_low_answer(misc->error_code, errors[misc->error]);
@@ -1405,18 +1405,7 @@ void send_result(mapping|void result)
       else 
         file = http_low_answer(404,"Not found.");
     }
-  }
-#if 0
- // Old error handler to be removed. 
-  if(!mappingp(file))
-  {
-    MARK_FD("send_result(): not a mapping -> sending error");
-    // XB: This handle the error :) Great
-    file = caudium->http_error->process_error (this_object ());
-  } 
-#endif
-   
-   else {
+  } else {
     if((file->file == -1) || file->leave_me) 
     {
       if(do_not_disconnect) {
