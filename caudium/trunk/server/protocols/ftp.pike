@@ -113,8 +113,7 @@
 
 #define FTP2_XTRA_HELP ({ "Report any bugs to our bug database system : http://sourceforge.net/bugs/?group_id=8825." })
 
-//#define FTP2_TIMEOUT	(5*60)
-#define FTP2_TIMEOUT	(1*60)
+#define FTP2_TIMEOUT	(5*60)
 
 #define Query(X) conf->variables[X][VAR_VALUE]
 
