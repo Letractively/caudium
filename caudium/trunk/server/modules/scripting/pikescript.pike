@@ -149,9 +149,9 @@ array|mapping call_script(function fun, object got, object file)
     return 0;
   string|array (int) uid, olduid, us;
 
-  if(got->rawauth && (!QUERY(rawauth) || !QUERY(clearpass)))
+  if(got->rawauth && QUERY(fork_exec) && (!QUERY(rawauth) || !QUERY(clearpass)))
     got->rawauth=0;
-  if(got->realauth && !QUERY(clearpass))
+  if(got->realauth && QUERY(fork_exec) && !QUERY(clearpass))
     got->realauth=0;
 
 #if efun(fork)
