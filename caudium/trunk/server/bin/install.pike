@@ -271,7 +271,7 @@ private string get_domain(int|void l)
   string t, s;
 
 //  ConfigurationURL is set by the 'install' script.
-#if efun(gethostbyname) && efun(gethostname)
+#if constant(gethostbyname) && constant(gethostname)
     f = gethostbyname(gethostname()); /* First try.. */
     if(f)
       foreach(f, f)

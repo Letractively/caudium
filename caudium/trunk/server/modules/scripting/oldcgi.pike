@@ -371,7 +371,7 @@ void start(int n, object conf)
   string tmp;
   array us;
   search_path = query("searchpath");
-#if efun(getpwnam)
+#if constant(getpwnam)
   if(us = getpwnam(  QUERY(runuser) ))
     runuser = ({ (int)us[2], (int)us[3] });
   else

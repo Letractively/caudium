@@ -181,7 +181,7 @@ string tag_pike(string tag, mapping m, string s, object request_id,
 
   request_id->misc->cacheable=0;
 
-#if efun(set_max_eval_time)
+#if constant(set_max_eval_time)
   if(err = catch {
     set_max_eval_time(2);
 #endif
@@ -229,7 +229,7 @@ string tag_pike(string tag, mapping m, string s, object request_id,
 	reporterr ("Error in <pike> tag in " + request_id->not_query + ":\n",
 		   s, (describe_backtrace (err) / "\n")[0..1] * "\n");
     }
-#if efun(set_max_eval_time)
+#if constant(set_max_eval_time)
     remove_max_eval_time(); // Remove the limit.
   })
   {

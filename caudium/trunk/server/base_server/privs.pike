@@ -139,10 +139,10 @@ void create(string reason, int|string|void uid, int|string|void gid)
 			  (string)reason,
 			  (string)dbt(backtrace()[-2])));
 
-#if efun(cleargroups)
+#if constant(cleargroups)
   catch { cleargroups(); };
 #endif /* cleargroups */
-#if efun(initgroups)
+#if constant(initgroups)
   catch { initgroups(u[0], u[3]); };
 #endif
   gid = gid || getgid();
@@ -244,7 +244,7 @@ void destroy()
 
   seteuid(0);
   array u = getpwuid(saved_uid);
-#if efun(cleargroups)
+#if constant(cleargroups)
   catch { cleargroups(); };
 #endif /* cleargroups */
   if(u && (sizeof(u) > 3)) {

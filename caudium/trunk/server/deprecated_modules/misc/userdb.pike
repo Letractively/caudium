@@ -79,7 +79,7 @@ void try_find_user(string|int u)
   array uid;
   switch(QUERY(method))
   {
-#if efun(getpwuid) && efun(getpwnam)
+#if constant(getpwuid) && constant(getpwnam)
   case "getpwent":
     if(intp(u)) uid = getpwuid(u);
     else        uid = getpwnam(u);
@@ -155,7 +155,7 @@ void create()
 	 "This file will be used if method is set to shadow.", 0, 
 	 method_is_not_shadow);
 
-#if efun(getpwent)
+#if constant(getpwent)
   defvar("method", "file", "Password database request method",
 	 TYPE_STRING_LIST, 
 	 "What method to use to maintain the passwd database. "
@@ -210,7 +210,7 @@ void create()
 
 private static int last_password_read = 0;
 
-#if efun(getpwent)
+#if constant(getpwent)
 private static array foo_users;
 private static int foo_pos;
 
@@ -248,7 +248,7 @@ void read_data()
   {
   case "ypcat":
     object privs;
-#if efun(geteuid)
+#if constant(geteuid)
 //  if(getuid() != geteuid()) privs = Privs("Reading password database");
 #endif
     data=Process.popen("ypcat "+query("args")+" passwd");
@@ -260,10 +260,10 @@ void read_data()
     break;
 
   case "getpwent":
-#if efun(getpwent)
+#if constant(getpwent)
     // This could be a _lot_ faster.
     tmp2 = ({ });
-#if efun(geteuid)
+#if constant(geteuid)
     if(getuid() != geteuid()) privs = Privs("Reading password database");
 #endif
     setpwent();
@@ -296,7 +296,7 @@ void read_data()
     string shadow;
     array pw, a, b;
     mapping sh = ([]);
-#if efun(geteuid)
+#if constant(geteuid)
     if(getuid() != geteuid()) privs=Privs("Reading password database");
 #endif
     fstat = file_stat(query("file"));
@@ -326,7 +326,7 @@ void read_data()
     break;
 
   case "niscat":
-#if efun(geteuid)
+#if constant(geteuid)
     if(getuid() != geteuid()) privs=Privs("Reading password database");
 #endif
     data=Process.popen("niscat "+query("args")+" passwd.org_dir");
@@ -362,7 +362,7 @@ void read_data()
     foreach(data/"\n", data)
       if(sizeof(entry=data/":") > 6)
 	uid2user[(int)((users[entry[0]] = entry)[2])]=entry;
-#if efun(getpwent)
+#if constant(getpwent)
   if(QUERY(method) == "getpwent" && (original_data))
     slow_update();
 #endif

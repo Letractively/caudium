@@ -321,7 +321,7 @@ mapping verify_changed_ports(object id, object o)
       if(port[2] && port[2]!="ANY") {
 	prt += port[2];
       } else {
-#if efun(gethostname)
+#if constant(gethostname)
 	prt += (gethostname()/".")[0] + "." +
 	  (glob ? caudium->get_domain() : server->query("Domain"));
 #else

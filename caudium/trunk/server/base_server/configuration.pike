@@ -3148,7 +3148,7 @@ int load_module(string module_file)
   mapping loaded_modules;
   object obj;
   program prog;
-#if efun(gethrtime)
+#if constant(gethrtime)
   int start_time = gethrtime();
 #endif
   // It is not thread-safe to use this.
@@ -3272,7 +3272,7 @@ int load_module(string module_file)
   tmpp->sname=module_file;
       
 #ifdef MODULE_DEBUG
-#if efun(gethrtime)
+#if constant(gethrtime)
   perror(" Done (%3.3f seconds).\n", (gethrtime()-start_time)/1000000.0);
 #else
   perror(" Done.\n");
@@ -3376,7 +3376,7 @@ string desc()
       prt += port[2];
       prtfile += port[2] ;
     } 
-#if efun(gethostname)
+#if constant(gethostname)
     else {
       prt += (gethostname()/".")[0] + "." + QUERY(Domain);
       prtfile = modprt ? replace(prt, modprt, port[1]) : prt;
@@ -3448,7 +3448,7 @@ object sql_connect(string db)
 private string get_my_url()
 {
   string s;
-#if efun(gethostname)
+#if constant(gethostname)
   s = (gethostname()/".")[0] + "." + query("Domain");
   s -= "\n";
 #else
@@ -3459,7 +3459,7 @@ private string get_my_url()
 
 void enable_all_modules()
 {
-#if efun(gethrtime)
+#if constant(gethrtime)
   int start_time = gethrtime();
 #endif
   array modules_to_process=sort(indices(retrieve("EnabledModules",this)));
@@ -3488,7 +3488,7 @@ void enable_all_modules()
 #endif
 	);
   caudium->current_configuration = 0;
-#if efun(gethrtime)
+#if constant(gethrtime)
   perror("\nAll modules for %s enabled in %4.3f seconds\n\n", query_name(),
 	 (gethrtime()-start_time)/1000000.0);
 #endif

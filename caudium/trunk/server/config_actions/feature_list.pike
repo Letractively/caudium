@@ -47,7 +47,7 @@ void find_modules()
     modules["dynamic_modules"] = -1;
   }
 
-#if efun(thread_create)
+#if constant(thread_create)
   modules["threads"] = 1;
 #else
   modules["threads"] = -1;

@@ -460,7 +460,7 @@ int is_attrval_greater(mapping m1, mapping m2, string attrname) {
     return 0;
 }
 
-#if efun(_Charset.encoder)
+#if constant(_Charset.encoder)
 string deutf8(string cset, string value) {
 
   if(stringp(cset) && sizeof(cset)) {
@@ -689,7 +689,7 @@ string ldapoutput_tag(string tag_name, mapping args, string contents,
 		  } //case
 		}
 	      }
-#if efun(_Charset.encoder)
+#if constant(_Charset.encoder)
 	      res_array += ({ ((value=="")?nullvalue:deutf8(cset, value)) }) + ({});
 #else
 	      res_array += ({ ((value=="")?nullvalue:value) }) + ({});

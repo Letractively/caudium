@@ -39,7 +39,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-#if efun(_static_modules)
+#if constant(_static_modules)
 /* New pike */
 import Stdio;
 import Array;
@@ -266,7 +266,7 @@ void create()
 	 "in the CVS repository is not used.</dd></dl>\n");
 }
 
-#if !efun(_static_modules)
+#if !constant(_static_modules)
 string query_location() { return query("location"); }
 #endif
 

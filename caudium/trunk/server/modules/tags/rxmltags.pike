@@ -552,7 +552,7 @@ string tagtime(int t,mapping m)
 
      case "discordian":
      case "disc":
-#if efun(discdate)
+#if constant(discdate)
       eris=discdate(t);
       res=eris[0];
       if(m->year)
@@ -565,7 +565,7 @@ string tagtime(int t,mapping m)
 #endif
      case "stardate":
      case "star":
-#if efun(stardate)
+#if constant(stardate)
       return (string)stardate(t, (int)m->prec||1);
 #else
       return "Stardate support disabled";
@@ -2795,7 +2795,7 @@ string tag_language(string tag, mapping m, object id)
 
 string tag_quote(string tagname, mapping m)
 {
-#if efun(set_start_quote)
+#if constant(set_start_quote)
   if(m->start && strlen(m->start))
     set_start_quote(m->start[0]);
   if(m->end && strlen(m->end))
@@ -3440,7 +3440,7 @@ class Tracer
   int level;
 
   mapping et = ([]);
-#if efun(gethrvtime)
+#if constant(gethrvtime)
   mapping et2 = ([]);
 #endif
 
@@ -3460,32 +3460,32 @@ class Tracer
     string efont="", font="";
     if(level>2) {efont="</font>";font="<font size=-1>";} 
     resolv += (font+"<b><li></b> "+type+" "+module_name(module)+"<ol>"+efont);
-#if efun(gethrvtime)
+#if constant(gethrvtime)
     et2[level] = gethrvtime();
 #endif
-#if efun(gethrtime)
+#if constant(gethrtime)
     et[level] = gethrtime();
 #endif
   }
 
   void trace_leave_ol(string desc)
   {
-#if efun(gethrtime)
+#if constant(gethrtime)
     int delay = gethrtime()-et[level];
 #endif
-#if efun(gethrvtime)
+#if constant(gethrvtime)
     int delay2 = gethrvtime()-et2[level];
 #endif
     level--;
     string efont="", font="";
     if(level>1) {efont="</font>";font="<font size=-1>";} 
     resolv += (font+"</ol>"+
-#if efun(gethrtime)
+#if constant(gethrtime)
 	       "Time: "+sprintf("%.5f",delay/1000000.0)+
 #endif
-#if efun(gethrvtime)
+#if constant(gethrvtime)
 	       " (CPU = "+sprintf("%.2f)", delay2/1000000.0)+
-#endif /* efun(gethrvtime) */
+#endif /* constant(gethrvtime) */
 	       "<br>"+html_encode_string(desc)+efont)+"<p>";
 
   }
@@ -3514,21 +3514,21 @@ class SumTracer
   void trace_leave_ol(string mess)
   {
     string t = levels[level--];
-#if efun(gethrtime)
+#if constant(gethrtime)
     int delay = gethrtime()-et[type+" "+module_name(module)];
 #endif
-#if efun(gethrvtime)
+#if constant(gethrvtime)
     int delay2 = +gethrvtime()-et2[t];
 #endif
     t+=html_encode_string(mess);
     if( sum[ t ] ) {
       sum[ t ][ 0 ] += delay;
-#if efun(gethrvtime)
+#if constant(gethrvtime)
       sum[ t ][ 1 ] += delay2;
 #endif
     } else {
       sum[ t ] = ({ delay, 
-#if efun(gethrvtime)
+#if constant(gethrvtime)
 		    delay2 
 #endif
       });

@@ -161,12 +161,12 @@ private static void really_low_shutdown(int exit_code)
 
   // FIXME: This probably doesn't work correctly on threaded servers,
   // since only one thread is left running after the fork().
-#if efun(_pipe_debug)
+#if constant(_pipe_debug)
   call_out(lambda() {  // Wait for all connections to finish
 	     call_out(Simulate.this_function(), 20);
 	     if(!_pipe_debug()[0]) exit(0);
 	   }, 1);
-#endif /* efun(_pipe_debug) */
+#endif /* constant(_pipe_debug) */
   call_out(lambda(){ exit(0); }, 600); // Slow buggers..
   array f=indices(portno);
   for(int i=0; i<sizeof(f); i++)
@@ -1295,7 +1295,7 @@ void create()
 private string get_my_url()
 {
   string s;
-#if efun(gethostname)
+#if constant(gethostname)
   s = (gethostname()/".")[0] + "." + query("Domain");
 #else
   s = "localhost";
@@ -1583,7 +1583,7 @@ public string config_url(void|object id)
 //  host = quick_ip_to_host( port[2] );
 // else
   {
-#if efun(gethostname)
+#if constant(gethostname)
     host = gethostname();
 #else
     host = "127.0.0.1";
@@ -2476,7 +2476,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "the cache will remove a few files. This check may work "
 	  "half-hearted if the diskcache is spread over several filesystems.",
 	  0,
-#if efun(filesystem_stat)
+#if constant(filesystem_stat)
 	  cache_disabled_p
 #else
 	  1
@@ -2670,7 +2670,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "If Audit trail is set to Yes, all changes of uid will be "
 	  "logged in the Event log.");
   
-#if efun(syslog)
+#if constant(syslog)
   globvar("LogA", "file", "Logging method", TYPE_STRING_LIST|VAR_MORE, 
 	  "What method to use for logging, default is file, but "
 	  "syslog is also available. When using file, the output is really"
@@ -2855,8 +2855,8 @@ string get_domain(int|void l)
       }
     }
   }
-#if efun(gethostbyname)
-#if efun(gethostname)
+#if constant(gethostbyname)
+#if constant(gethostname)
   if(!s) {
     f = gethostbyname(gethostname()); // First try..
     if(f)
@@ -3290,7 +3290,7 @@ void create_pid_file(string where)
 void shuffle(object from, object to,
 	      object|void to2, function(:void)|void callback)
 {
-#if efun(spider.shuffle)
+#if constant(spider.shuffle)
   if(!to2)
   {
     object p = pipe();
@@ -3305,7 +3305,7 @@ void shuffle(object from, object to,
     p->output(to);
     if(to2) p->output(to2);
     p->input(from);
-#if efun(spider.shuffle)
+#if constant(spider.shuffle)
   }
 #endif
 }
@@ -3445,7 +3445,7 @@ int main(int|void argc, array (string)|void argv)
   neighborhood = (object)"neighborhood";
 #endif /* ENABLE_NEIGHBOURHOOD */
 
-#if efun(syslog)
+#if constant(syslog)
   init_logger();
 #endif
 
@@ -3516,7 +3516,7 @@ int main(int|void argc, array (string)|void argv)
   start_handler_threads();
   catch( this_thread()->set_name("Backend") );
   backend_thread = this_thread();
-#if efun(thread_set_concurrency)
+#if constant(thread_set_concurrency)
   thread_set_concurrency(QUERY(numthreads)+1);
 #endif
 

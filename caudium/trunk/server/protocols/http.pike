@@ -29,7 +29,7 @@ constant cvs_version = "$Id$";
 #include <config.h>
 private inherit "caudiumlib";
 // int first;
-#if efun(gethrtime)
+#if constant(gethrtime)
 # define HRTIME() gethrtime()
 # define HRSEC(X) ((int)((X)*1000000))
 # define SECHR(X) ((X)/(float)1000000)

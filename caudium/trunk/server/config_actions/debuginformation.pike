@@ -38,7 +38,7 @@ constant colors = ({ "#f0f0ff", "white" });
 constant ok_label = " Refresh ";
 constant cancel_label = " Done ";
 
-#if efun(get_profiling_info)
+#if constant(get_profiling_info)
 string remove_cwd(string from)
 {
   return from-(getcwd()+"/");
@@ -203,7 +203,7 @@ mixed page_0(object id, object mc)
   first = html_border( res, 0, 5 );
   res = "";
 
-#if efun(_dump_obj_table)
+#if constant(_dump_obj_table)
   first += "<p><br><p>";
   res += ("<table  border=0 cellspacing=0 ceellpadding=2 width=50%>"
 	  "<tr align=left bgcolor=lightblue><th  colspan=2>List of all "
@@ -239,7 +239,7 @@ mixed page_0(object id, object mc)
   first += html_border( res, 0, 5 );
   res = "";
 #endif
-#if efun(_num_objects)
+#if constant(_num_objects)
   first += ("Number of destructed objects: " + _num_dest_objects() +"<br>\n");
 #endif  
   return first +"</ul>";

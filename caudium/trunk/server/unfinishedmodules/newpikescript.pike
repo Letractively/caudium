@@ -192,7 +192,7 @@ void start()
 	{
 	  mixed gid;
 	  sscanf(uid, "%s/%s", uid, gid);
-#if efun(getpwnam)
+#if constant(getpwnam)
 	  if(!(int)uid && (uid != "0"))
 	  {
 	    array t = getpwnam(uid);
@@ -203,7 +203,7 @@ void start()
 	    }
 	  }
 #endif
-#if efun(getgrnam)
+#if constant(getgrnam)
 	  if(!(int)gid && ((string)gid != "0"))
 	  {
 	    array t = getgrnam(uid);

@@ -126,7 +126,7 @@ void create()
 	  );
 
   defvar ("defaultuid",
-#if efun(geteuid)
+#if constant(geteuid)
 	  geteuid()
 #else
 	  0
@@ -138,7 +138,7 @@ void create()
 	  );
 
   defvar ("defaultgid",
-#if efun(getegid)
+#if constant(getegid)
 	  getegid()
 #else
 	  0

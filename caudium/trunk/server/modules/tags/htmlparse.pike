@@ -326,7 +326,7 @@ mapping handle_file_extension( object file, string e, object id)
 
   if(!defines->sizefmt)
   {
-#if efun(set_start_quote)
+#if constant(set_start_quote)
     set_start_quote(set_end_quote(0));
 #endif
     defines->sizefmt = "abbrev"; 
