@@ -3727,11 +3727,11 @@ void create(string config)
 	  "percentage the GC routine will run more often.",
 	  ({ 5, 10, 15, 20, 25, 30, 35, 40, 50 }));
 #endif /* ENABLE_RAM_CACHE */
+#ifdef ENABLE_NEW404
   defvar("ErrorTheme", "", "Error Theme", TYPE_STRING,
 	 "This is the theme to apply to any error messages generated " +
 	 "automatically by this server. Please enter an absolute path on the virtual " +
          "filesystem(s), otherwise the system-wide default will be used." );
-#ifdef ENABLE_NEW404
   defvar("Old404", 1, "Old-style 404's", TYPE_FLAG,
 	 "This allows you to override the new style error responses and use " +
          "the old fasioned 404 handling." );

@@ -294,7 +294,11 @@ class http_error_handler {
                                    id->conf->query ("MyWorldLocation") })));
        }
 
+#ifdef ENABLE_NEW404
        local_template = get_template (id->conf->query ("ErrorTheme"), id);
+#else
+       local_template = get_template ("", id);
+#endif /* ENABLE_NEW404 */
     }
 
     if (!error_code)
