@@ -87,19 +87,21 @@ mapping first_try(object id)
   path = query("searchpath");
 
   DEBUG("before: path: "+path);
-    
+  
   string domain = "";		// Store the modified domain
  
   // Deal with the domain requested
   if(query("strip_www"))
   {
-    if(id->request_headers->host[0..3]=="www.")
+    if(!zero_type(id->request_headers->host) &&
+       id->request_headers->host[0..3]=="www.")
       domain=id->request_headers->host[4..];
     else
       domain=id->request_headers->host;
   }
   else
-    domain=id->request_header->host;
+    if(!zero_type(id->request_headers->host))
+      domain=id->request_header->host;
 
   // domain is added a trailing / because it's now a directory
   domain=domain+"/";
