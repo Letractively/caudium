@@ -122,9 +122,6 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
     meta->_image = 1;
     break;
   }
-#ifdef CACHE_DEBUG
-  write( "Storing with metadata: %O\n", meta );
-#endif
   return meta;
 }
 

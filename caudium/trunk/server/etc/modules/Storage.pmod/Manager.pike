@@ -45,7 +45,6 @@ static mapping storage;
 static object permstore;
 static mapping clients;
 function destroy = sync_all;
-function stop = sync_all;
 
 void create(string _permstore, string path) {
   start(_permstore, path);
@@ -160,6 +159,14 @@ static void unlink(string namespace, void|string key) {
 static void unlink_regexp(string namespace, string regexp) {
   sync_all(namespace);
   permstore->unlink_regexp(namespace, regexp);
+}
+
+void stop(void|string namespace) {
+  if (stringp(namespace))
+    sync_all(namespace);
+  else
+    sync_all();
+  permstore->stop();
 }
 
 static void sync_all(void|string namespace) {

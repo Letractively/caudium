@@ -170,8 +170,15 @@ void store(mapping cache_response) {
   if (sizeof(_obj) > 100) {
     _obj = _obj[1..100];
   }
-  write(sprintf("CACHE: store(\"%s\", \"%s\", %s)\n",
-                 namespace, cache_response->name, _obj));
+  if (!stringp(_obj)) 
+    write("CACHE: store(\"%s\", \"%s\", %s)\n",
+          namespace, cache_response->name, _obj);
+  else if (sizeof(_obj) < 100)
+    write("CACHE: store(\"%s\", \"%s\", %s)\n",
+          namespace, cache_response->name, _obj);
+  else
+    write("CACHE: store(\"%s\", \"%s\", %s)\n",
+          namespace, cache_response->name, _obj[0..100]);
 #endif
   LOCK();
   if (!cache_response->expires)
