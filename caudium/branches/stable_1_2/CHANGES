@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Half fixed bug #533124. Needs more investigation.
 - Fixed bug id #530674
 
 Changes in Caudium 1.2.4 since Caudium 1.2.2
