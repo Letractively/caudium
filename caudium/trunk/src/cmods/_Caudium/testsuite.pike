@@ -24,13 +24,24 @@
 // This test if result is ok or not...
 int result(mixed a, mixed b) {
   if(a == b) {
-    write(" ok\n");
+    write("+");
     return 0;
   } else {
-    write(" fail\n");
-    write(sprintf("     a = %O \n",a));
-    write(sprintf("     b = %O \n",b));
+    write("-");
+//    write(sprintf("     a = %O \n",a));
+//    write(sprintf("     b = %O \n",b));
     return 1;
+  }
+}
+
+// This retrun a ok or fail if test has fails
+int returnok(int z) {
+  if(z) {
+    write(" fail\b");
+    return 1;
+  } else {
+    write(" ok\n");
+    return 0;
   }
 }
 
@@ -39,6 +50,23 @@ void prtest(string name) {
   write(sprintf("  Testing Caudium.%s()...\t",name));
 }
   
+int TEST_extension() {
+  int out = 0;
+  string a;
+  mapping tst = ([ "caudium.c":"c",
+                   "index.rxml":"rxml",
+                   "foo.c~":"c",
+                   "test.c#":"c",
+                   "zorgl.php":"php",
+                   "again.pof.rxml":"rxml" ]);
+  prtest("extension");
+
+  foreach(indices(tst), string foo) {
+    out += result(tst[foo],Caudium.extension(foo)); 
+  }
+
+  return returnok(out);
+}  
 
 int TEST_http_date() {
   int tmstmp = time();
@@ -49,7 +77,7 @@ int TEST_http_date() {
   a = Calendar.ISO_UTC.Second(tmstmp)->format_http();
   b = Caudium.http_date(tmstmp);
 
-  return result(a,b);
+  return returnok(result(a,b));
 }
 
 int TEST_cern_http_date() {
@@ -72,7 +100,7 @@ int TEST_cern_http_date() {
               lt->hour, lt->min, lt->sec, c, tzh);
   b = Caudium.cern_http_date(tmstmp);
  
-  return result(a,b);
+  return returnok(result(a,b));
 }
 
 int main() {
