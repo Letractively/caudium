@@ -1,3 +1,12 @@
+caudium (2:1.2.25-3) unstable; urgency=medium
+
+  * make_tag_attributes() now don't output any "/" that could be in the argument.
+    That affects both make_tag() and make_container()
+  * Force a rebuild on several architectures which had incorrect pike7.2 
+    version (closes: Bug#191613)
+
+ -- Marek Habersack <grendel@debian.org>  Fri,  2 May 2003 14:16:59 +0200
+
 caudium (2:1.2.25-2) unstable; urgency=low
 
   * Uploaded to match new pike 7.2
