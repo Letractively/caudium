@@ -76,6 +76,8 @@ void create(string _path) {
 void store(string namespace, string key, string value) {
   PRELOCK();
   LOCK();
+  if (!namespace || !key)
+    return;
   string objpath = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
   PREFLOCK();
   FLOCK(objpath, "w", 1);
@@ -111,6 +113,9 @@ void unlink(string namespace, void|string key) {
   PREFLOCK();
   string _path = path;
   UNLOCK();
+  if (!namespace)
+    return;
+
   if (stringp(key)) {
     string objpath = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
     if (Stdio.exist(objpath)) {

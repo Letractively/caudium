@@ -77,7 +77,7 @@ void start(string _permstore, string path) {
     break;
   }
 #ifdef STORAGE_DEBUG
-  write("Starting storage manager with %s backed.\n", _permstore);
+  write("Starting storage manager with %O backed.\n", _permstore);
 #endif
 }
 
@@ -108,7 +108,7 @@ public string storage_default() {
 
 static void store(string namespace, string key, mixed val) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Storing %s from %s\n", key, namespace);
+  write("STORAGE: Storing %O from %O\n", key, namespace);
 #endif
   LOCK();
   if (! storage[ namespace ])
@@ -120,7 +120,7 @@ static void store(string namespace, string key, mixed val) {
 
 static mixed retrieve(string namespace, string key) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Retrieving %s from %s\n", key, namespace);
+  write("STORAGE: Retrieving %O from %O\n", key, namespace);
 #endif
   LOCK();
   if (storage[namespace])
@@ -132,7 +132,7 @@ static mixed retrieve(string namespace, string key) {
 
 static void sync(string namespace, string key) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Syncing %s/%s to permanent storage\n", key, namespace);
+  write("STORAGE: Syncing %O/%O to permanent storage\n", key, namespace);
 #endif
   LOCK();
   if (storage[namespace])
@@ -143,7 +143,7 @@ static void sync(string namespace, string key) {
 
 static void unlink(string namespace, void|string key) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Removing %s in %s\n", (key?key:"all"), namespace);
+  write("STORAGE: Removing %O in %O\n", (key?key:"all"), namespace);
 #endif
   LOCK();
   if (stringp(key)) {
@@ -184,7 +184,7 @@ string storage_backend() {
 
 static int size(string namespace) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Getting total size of %s\n", namespace);
+  write("STORAGE: Getting total size of %O\n", namespace);
 #endif
   sync_all();
   return permstore->size(namespace);
@@ -192,7 +192,7 @@ static int size(string namespace) {
 
 static array list(string namespace) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Listing objects in %s\n", namespace);
+  write("STORAGE: Listing objects in %O\n", namespace);
 #endif
   sync_all();
   array _list = permstore->list(namespace);
