@@ -23,7 +23,7 @@
 
 //! Datacollector for Caudium. 
 //! @fixme
-//!   This Grendel beast !
+//!   This is yet another Grendel beast !
 
 #include <caudium.h>
 
