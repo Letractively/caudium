@@ -20,26 +20,49 @@
 
 //
 //! module: JavaScript support
-//!  Early support for inline and stand-alone javascripts. Today the only
-//!  way to output data is through a return statement. If you return zero, null
-//!  or undefined (which all end up being zero in Pike at the moment),
-//!  no output will be written. For future compatibility, return false
-//!  if you don't want any output.
-//!
-//!  <p>The syntax for using JavaScript in your pages is <?js ?> with the
-//!  XML-compliant parser and <js></js> with the old-style parser. Javascripts,
-//!  both inline and standalone, are much safer than pike scripts. You don't
-//!  have access to any dangerous functionality. Of course, you can always
-//!  write eternal loops etc.</p>
-//!
+//!  Early support for inline and stand-alone javascripts. Today the only 
+//!  way to output data is through a return statement (i.e there are no  
+//!  utility functions like <tt>write()</tt>. If you return zero, null or 
+//!  undefined (which all end up being zero in Pike at the moment), no 
+//!  output will be written. For future compatibility, 'return null' if you 
+//!  don't want any output. 
+//!  
+//!  <p>The syntax for using JavaScript in your pages is &lt;?js ?> with
+//!  the XML-compliant parser and &lt;js>&lt;/js> with the old-style
+//!  parser. Javascripts, both inline and standalone, are much safer than
+//!  pike scripts. You don't have access to any dangerous functionality. Of course, you can always write eternal loops etc.</p>
+//!  
 //!  <p>To exchange data with other parts of Caudium (read and write), you can
 //!  use any available variable scope using the same syntax. I.e to retrieve
 //!  a form variable, you would have the JS code 'form.varname'. You can set
 //!  variables (in writable scopes) the same way using the form.varname=value
 //!  syntax. It should be noted that you can set variables to integers, floats
 //!  and arrays from JavaScript. Doing this might cause problems in other
-//!  parts of Caudium and should be avoided for now.</p>
-//! inherits: module
+//!  parts of Caudium and should be avoided for now. <b>Please note that
+//!  the <b>var</b> scope is named <b>vars</b> in JavaScript, since
+//!  <b>var</b> conflicts with the variable definition keyword!</b> 
+//!  </p>
+//!  
+//!  <p>When using JavaScript scripts (ie stand-alone .js files), the byte
+//!  code compiled and pre-evaluated version of the script is cached for
+//!  performance. For each request, the <tt>parse()</tt> function is called
+//!  and the result from that function is returned to the end user. This
+//!  means that scripts work in a manner similar to FastCGI and Pike
+//!  scripts. If you return an array from the parse() function with two
+//!  string entries, the first entry will be considered data and the second
+//!  will be used as the content type. The default content type is text/html.
+//!  </p>
+//!  
+//!  <p>In tags, the byte code is cached but the environment (intepreter)
+//!  isn't. This means that you can't store data between runs and also that
+//!  you get somewhat worse performance using inlined code. One thing to remember
+//!  in inlined code is to 'return null' from any segment that shouldn't cause
+//!  any output but that normally would. I.e write
+//!  <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David'; return null; ?>
+//!  <br />instead of
+//!  <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David' ?>
+//!  </p>
+//!  //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION | MODULE_PARSER
 //! cvs_version: $Id$
@@ -56,17 +79,18 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_FILE_EXTENSION | MODULE_PARSER;
 constant module_name = "JavaScript support";
-constant module_doc  = #"
-way to output data is through a return statement. If you return zero, null
-or undefined (which all end up being zero in Pike at the moment),
-no output will be written. For future compatibility, return false
-if you don't want any output.
+constant module_doc  = #"\
+Early support for inline and stand-alone javascripts. Today the only \
+way to output data is through a return statement (i.e there are no  \
+utility functions like <tt>write()</tt>. If you return zero, null or \
+undefined (which all end up being zero in Pike at the moment), no \
+output will be written. For future compatibility, 'return null' if you \
+don't want any output. 
 
-<p>The syntax for using JavaScript in your pages is <?js ?> with the
-XML-compliant parser and <js></js> with the old-style parser. Javascripts,
-both inline and standalone, are much safer than pike scripts. You don't
-have access to any dangerous functionality. Of course, you can always
-write eternal loops etc.</p>
+<p>The syntax for using JavaScript in your pages is &lt;?js ?> with
+the XML-compliant parser and &lt;js>&lt;/js> with the old-style
+parser. Javascripts, both inline and standalone, are much safer than
+pike scripts. You don't have access to any dangerous functionality. Of course, you can always write eternal loops etc.</p>
 
 <p>To exchange data with other parts of Caudium (read and write), you can
 use any available variable scope using the same syntax. I.e to retrieve
@@ -74,7 +98,31 @@ a form variable, you would have the JS code 'form.varname'. You can set
 variables (in writable scopes) the same way using the form.varname=value
 syntax. It should be noted that you can set variables to integers, floats
 and arrays from JavaScript. Doing this might cause problems in other
-parts of Caudium and should be avoided for now.</p> ";
+parts of Caudium and should be avoided for now. <b>Please note that
+the <b>var</b> scope is named <b>vars</b> in JavaScript, since
+<b>var</b> conflicts with the variable definition keyword!</b> 
+</p>
+
+<p>When using JavaScript scripts (ie stand-alone .js files), the byte
+code compiled and pre-evaluated version of the script is cached for
+performance. For each request, the <tt>parse()</tt> function is called
+and the result from that function is returned to the end user. This
+means that scripts work in a manner similar to FastCGI and Pike
+scripts. If you return an array from the parse() function with two
+string entries, the first entry will be considered data and the second
+will be used as the content type. The default content type is text/html.
+</p>
+
+<p>In tags, the byte code is cached but the environment (intepreter)
+isn't. This means that you can't store data between runs and also that
+you get somewhat worse performance using inlined code. One thing to remember
+in inlined code is to 'return null' from any segment that shouldn't cause
+any output but that normally would. I.e write
+<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David'; return null; ?>
+<br />instead of
+<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;?js vars.name = 'David' ?>
+</p>
+";
 
 constant module_unique = 0;
 #ifdef THREADS
@@ -82,9 +130,10 @@ inherit Thread.Mutex;
 #endif
 
 #define JSERR(CODE, SHORT, LONG)  id->conf->http_error->handle_error(CODE, SHORT, LONG, id)
+#define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {
-  defvar("exts", ({ "js", "jsc" }), "Extensions", TYPE_STRING_LIST,
+  defvar("jsexts", ({ "js" }), "Extensions", TYPE_STRING_LIST,
 	 "The extensions to parse as stand-alone JavaScripts");
   defvar("securefile", 0, "Security: Allow file accesses", TYPE_FLAG,
 	 "Should JavaScript code be allowed to read and write files? "
@@ -101,8 +150,6 @@ void create()
 	 "should be allowed to have open at any time.");
 
   /*
-} else if(OPT_IS("secure_builtin_system")) {
-    options.secure_builtin_system = !IS_ZERO(sval);
   } else if(OPT_IS("annotate_assembler")) {
     options.annotate_assembler = !IS_ZERO(sval);
   } else if(OPT_IS("debug_info")) {
@@ -155,41 +202,42 @@ void start() {
   options->fd_count = QUERY(maxfd);
   compile_interpreter = JavaScript.Interpreter(0, options);  
   options->no_compiler = 1;
+  options->warn_undef = 0;
   parse_byte_code = compile_interpreter->compile("parse();");
 }
 
 string comment()
 {
-  return "JS Extensions "+QUERY(exts)*" ";
+  return "JavaScript Support (handled extensions: "+QUERY(jsexts)*" " +")";
 }
 
 array (string) query_file_extensions()
 {
-  return QUERY(exts);
+  return QUERY(jsexts);
 }
 
 void add_var_scopes(object id, JavaScript.Interpreter js)
 {
+  foreach(indices(id->misc->scopes), string name) {
+    js->add_scope(name, get_scope_var, set_scope_var);
+  }
+}
+
+void build_var_scopes(object id) {
   if(!id->misc->scopes && id->conf->parse_module) {
     id->misc->scopes = mkmapping(indices(id->conf->parse_module->scopes),
 				 values(id->conf->parse_module->scopes)->clone());
   } else {
     id->misc->scopes = ([]);
-  }
-  foreach(indices(id->misc->scopes), string name) {
-    js->add_scope(name == "var" ? "vars" : name,
-		  get_scope_var, set_scope_var);
-  }
+  }  
 }
 
-string js_to_byte_code(string js, int reload)
+string get_key_from_data(string js, void|int no_threadid)
 {
-  string bc, key;
+  string key = strlen(js)+":";
 #ifdef THREADS
-  object mtx;
+  if(!no_threadid) key += sprintf("%s", this_thread());
 #endif
-
-  key = strlen(js)+":";
 #if constant(Mhash.hash_md5)
   key += Mhash.hash_md5(js);
 #elif constant(Crypto.md5)
@@ -199,11 +247,15 @@ string js_to_byte_code(string js, int reload)
 #else
   key += js[..50]+hash(js); /* GUCK! */
 #endif
-  
-  if(!reload) {
-    bc = cache_lookup("js_byte_code", key);
-    if(bc) return bc;
-  }
+  return key;
+}
+
+string js_to_byte_code(string js)
+{
+  string bc;
+#ifdef THREADS
+  object mtx;
+#endif
 #ifdef THREADS
   mtx = lock();
 #endif
@@ -211,9 +263,27 @@ string js_to_byte_code(string js, int reload)
 #ifdef THREADS
   destruct(mtx);
 #endif
+  return bc;
+}
+
+JavaScript.Interpreter do_js_compile_and_cache_all(string source, object id,
+						   string key)
+{
+  JavaScript.Interpreter js;
+  js = JavaScript.Interpreter(id, options);
+  js->execute(js_to_byte_code(source));
+  add_var_scopes(id, js);
+  cache_set("js_interpreters", key, js);
+  return js;
+}
+
+string do_js_compile_and_cache(string source, object id, string key)
+{
+  string bc = js_to_byte_code(source);
   cache_set("js_byte_code", key, bc);
   return bc;
 }
+
 
 mapping handle_file_extension(object f, string e, object id)
 {
@@ -221,36 +291,115 @@ mapping handle_file_extension(object f, string e, object id)
   mixed eval_ret, ret;
   mixed err;
   NOCACHE();
-  js = JavaScript.Interpreter(id, options);
-  add_var_scopes(id, js);
-  err = catch {
-    eval_ret = js->execute(js_to_byte_code(f->read(), id->pragma["no-cache"]));
-  };
+  string js_source = f->read();
+  string key = get_key_from_data(js_source);
+  if(!id->pragma["no-cache"]) js = cache_lookup("js_interpreters", key);
+  build_var_scopes(id);
+  if(!js) {
+    err = catch(js = do_js_compile_and_cache_all(js_source, id, key));
+  }
   if(err) {
-    report_error("An error occured when evaluating JavaScript.\n"+
+    report_error("An error occured when compiling JavaScript.\n"+
 		 describe_backtrace(err));
     return JSERR(500, "Internal Server Error",
-		 "An error occured when evaluating JavaScript. This is the "
-		 "reported problem:<p>"
-		 "<pre>"+err[0]+"</pre>");
+		 "An error occured when compiling a JavaScript script. "
+		 "This is the reported problem:<p>"
+		 "<pre>"+html_encode_string(err[0])+"</pre>");
   }
-  if(!eval_ret) {
-    catch {
-      ret = js->execute(parse_byte_code);
-    };
-    if(arrayp(ret) && sizeof(ret) == 2 && stringp(ret[0]) && stringp(ret[1])) {
-      // Data returned from the parse function. If it's an array with two strings
-      // the first entry is data and the second content type. Otherwise use
-      // default handle.
-      return http_string_answer(@ret);
+  js->set_id_object(id);
+
+  err = catch {
+    ret = js->execute(parse_byte_code);
+  };
+  if(err) {
+    if(err[0] == "illegal function object in jsr\n") {
+      return JSERR(500, "Internal Server Error",
+		   "The JavaScript script is lacking a parse() "
+		   "function and thus couldn't be evaluated.");
+    } else {
+      report_error("An error occured when executing parse() in JavaScript .\n"+
+		   describe_backtrace(err));
+      return JSERR(500, "Internal Server Error",
+		   "An error occured when executing parse() JavaScript script. "
+		   "This is the reported problem:<p>"
+		   "<pre>"+html_encode_string(err[0])+"</pre>");
     }
-    eval_ret = ret;
   }
-  if(!eval_ret) {
+  if(arrayp(ret) && sizeof(ret) == 2 && stringp(ret[0]) && stringp(ret[1])) {
+    // Data returned from the parse function. If it's an array with two strings
+    // the first entry is data and the second content type. Otherwise use
+    // default handle.
+    return http_string_answer(@ret);
+  }
+  if(!ret) {
     return JSERR(500, "Internal Server Error",
 		 "The JavaScript script returned no data.");
-  } else if(stringp(eval_ret))
-    return http_string_answer(eval_ret);
+  } else if(stringp(ret))
+    return http_string_answer(ret);
   else
-    return http_string_answer(sprintf("%O", eval_ret), "text/plain");
+    return http_string_answer(sprintf("%O", ret), "text/plain");
+}
+#if 0
+
+mapping handle_file_extension(object f, string e, object id)
+{
+  int st = gethrtime();
+  mixed eval_ret = low_handle_file_extension(f, e, id);
+  werror("total eval time: %O\n\n", (gethrtime() - st) / 1000000.0);
+  return eval_ret;
+}
+#endif
+
+
+/* pi instruction call method */
+array(string)|string pi_javascript(string tag, string js_source, object id) 
+{
+  
+  JavaScript.Interpreter js;
+  mixed ret;
+  mixed err;
+  NOCACHE();
+  string bytecode;
+  string key = get_key_from_data(js_source, 1);
+  js = JavaScript.Interpreter(id, options); /* init interpreter */
+  add_var_scopes(id, js); /* register variable scopes */
+  if(!id->pragma["no-cache"]) bytecode = cache_lookup("js_byte_code", key);
+  if(!bytecode) {
+    err = catch(bytecode = do_js_compile_and_cache(js_source, id, key));
+  }
+  if(err) {
+    report_error("An error occured when compiling JavaScript.\n"+
+		 describe_backtrace(err));
+    return JSHTMLERR(html_encode_string(err[0]));
+  }
+
+  err = catch {
+    ret = js->execute(bytecode);
+  };
+  if(err) {
+    report_error("An error occured during JavaScript execution.\n"+
+		 describe_backtrace(err));
+    return JSHTMLERR(html_encode_string(err[0]));
+  }
+  if(!ret) {
+    return "";
+  } else if(stringp(ret))
+    return ret;
+  else if(arrayp(ret))
+    return "<pre>"+html_encode_string(sprintf("%O", ret))+"</pre>";
+  return (string)ret;
+}
+
+/* tag instruction call method */
+string tag_javascript(string tag, mapping m, mixed ... args)
+{
+  return pi_javascript(tag, @args);
+}
+
+mapping query_tag_callers() {
+  return ([ "js" : tag_javascript ]);
+}
+
+mapping query_pi_callers() {
+  return ([ "?js" : pi_javascript ]);
 }

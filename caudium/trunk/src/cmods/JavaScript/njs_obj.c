@@ -55,6 +55,7 @@ generic_compare_strings(X, strlen(X), 0,                                 \
  * session is destroyed. Takes the following optional arguments:
  *
  * arg1: Request ID object
+ * arg2: options mapping
  */
 static void f_njs_create(INT_TYPE args) {
   JSInterpOptions options;
@@ -138,6 +139,20 @@ static void f_njs_create(INT_TYPE args) {
   THIS->interp = js_create_interp(&options);
   if(THIS->interp == NULL) {
     Pike_error("Failed to create NJS interpreter!\n");
+  }
+  pop_n_elems(args);
+}
+
+static void f_njs_set_id_object(INT_TYPE args) {
+  if(args == 1 && sp[-1].type == T_OBJECT) {
+    if(THIS->id != NULL) {
+      free_object(THIS->id);
+      THIS->id = NULL;
+    }
+    add_ref((THIS->id = sp[-1].u.object));
+  } else {
+    SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->set_id_object", 1,
+			 "RequestID");
   }
   pop_n_elems(args);
 }
@@ -288,9 +303,6 @@ static void njs_free_scope_data(void *context) {
   free_string(SCOPE->name);
   free_svalue(& SCOPE->get);
   free_svalue(& SCOPE->set);
-  if(SCOPE->id != NULL) {
-    free_object(SCOPE->id);
-  }
   free(context);
 }
 
@@ -355,7 +367,7 @@ static JSMethodResult njs_scope_get(JSClassPtr cls, void *instance_context,
     strcpy(error_return, "Invalid argument 1, expected string.");
     return JS_ERROR;
   }
-  THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id,
+  THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->parent->id,
 				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->get,
 				    result_return));
@@ -394,7 +406,7 @@ static JSMethodResult njs_scope_set(JSClassPtr cls, void *instance_context,
     return JS_ERROR;
   }
 
-  THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id,
+  THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->parent->id,
 				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->set,
 				    argv[1], &set_ok));
@@ -417,8 +429,8 @@ static JSGenericResult
   GET_SCOPE();
   if(!setp) {
     /* Fetch a value */
-    THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->id, property,
-				      strlen(property), SCOPE->get,
+    THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->parent->id,
+				      property, strlen(property), SCOPE->get,
 				      value));
     return JS_HANDLED;
   } else {
@@ -437,8 +449,8 @@ static JSGenericResult
       return JS_FAILED;
     }
 
-    THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->id, property,
-				      strlen(property), SCOPE->set,
+    THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->parent->id,
+				      property, strlen(property), SCOPE->set,
 				      *value, &set_ok));
     if(set_ok) {
       value->type = JS_TYPE_BOOLEAN;
@@ -469,6 +481,7 @@ static void f_njs_add_scope(INT_TYPE args) {
   int i;
   scope_storage *storage;
   storage = malloc(sizeof(scope_storage));
+
   switch(args) {
    case 3:
     if(ARG(2).type != T_FUNCTION) {
@@ -490,12 +503,9 @@ static void f_njs_add_scope(INT_TYPE args) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->add_scope", 2);
     break;
   }
+
   add_ref(storage->name = ARG(0).u.string);
-  if(THIS->id != NULL) {
-    add_ref(storage->id = THIS->id);
-  } else {
-    storage->id = NULL;
-  }
+  storage->parent = THIS;
   assign_svalue_no_free(& storage->get, & ARG(1));
   if(args < 3) { /* No set function */
     storage->set.type = T_INT;
@@ -507,7 +517,16 @@ static void f_njs_add_scope(INT_TYPE args) {
   js_class_define_method(storage->class, "get", JS_CF_STATIC, njs_scope_get);
   js_class_define_method(storage->class, "set", JS_CF_STATIC, njs_scope_set);
   js_class_define_generic_method(storage->class, JS_CF_STATIC, njs_scope_property);
-  js_define_class(THIS->interp, storage->class, storage->name->str);
+
+  /* We have a 'var' scope. Transparently (to the Pike end) rename it to
+   * vars in the JavaScript environment since it conflicts with the
+   * statement 'var'.
+   */
+  if(storage->name->len == 3 && !memcmp(storage->name->str, "var", 3)) {
+    js_define_class(THIS->interp, storage->class, "vars");
+  } else {
+    js_define_class(THIS->interp, storage->class, storage->name->str);
+  }
   pop_n_elems(args);
 }
 
@@ -517,6 +536,8 @@ void njs_init_interpreter_program(void) {
   ADD_STORAGE( njs_storage  );
   ADD_FUNCTION("create",       f_njs_create,
 	       tFunc(tOr(tObj, tVoid) tOr(tMapping, tVoid),tVoid), 0);
+  ADD_FUNCTION("set_id_object",f_njs_set_id_object,
+	       tFunc(tObj, tVoid), 0);
   ADD_FUNCTION("eval",         f_njs_eval,
 	       tFunc(tString,tMixed), OPT_SIDE_EFFECT);
   ADD_FUNCTION("eval_file",    f_njs_eval_file,
