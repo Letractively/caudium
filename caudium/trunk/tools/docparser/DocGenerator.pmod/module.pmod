@@ -344,6 +344,15 @@ class DocGen
       ret += "</links>\n";
     }
 
+   /* Examples */
+   if (tag->example && sizeof(tag->example)) {
+	ret += "<examples>\n";
+	foreach(tag->example, string line)
+    	    ret += "\t<example>\n\t\t" + line + "\n\t</example>\n\n";
+	
+	ret += "</examples>\n\n";
+   }
+
     ret += "</tag>\n\n";
         
     return ret;
