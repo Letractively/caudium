@@ -7,6 +7,8 @@ constant module_name   = "superform version 2";
 constant thread_safe   = 1;
 constant module_unique = 1;
 
+constant cvs_version="$Id$";
+
 void create() 
 {
 
@@ -76,7 +78,7 @@ string replace_predefined(string match)
 
 mapping query_container_callers()
 {
-  return( ([ "sform":container_sform]));
+  return( ([ "sform":container_sform ]));
 }
 
 string container_sform(string tag_name, mapping args, string contents,
@@ -91,32 +93,52 @@ string container_sform(string tag_name, mapping args, string contents,
   }
 
   contents=parse_html(contents, ([ "input" : itag_input ]),
-                      (["success":icontainer_success]),id);
+                      (["success":icontainer_success, 
+                        "textarea":icontainer_textarea
+                      ]),id);
 
   return sprintf("<form method=\"%s\">\n%s\n</form>\n", 
                  args->method||"post", contents);
 }
 
+string|array(string) icontainer_textarea(string tag_name, mapping args, 
+				         string contents, object id, object f, 
+                                         mapping defines, object fd)
+{
+  if(contents != "")
+    args->value=contents;
+  return itag_input(tag_name, args, id, f, defines, fd);
+}
+
+
 string|array(string) itag_input(string tag_name, mapping args,
                                 object id, object f, mapping defines, 
                                 object fd)
 {
-
+  string output="";
   if(!args->value && id && id->variables[args->name])
-    args->value=id->variables[args->name];
+    //FIXME: this is a hack, that assumes forminput is utf8!!
+    args->value=utf8_to_string(id->variables[args->name]);
   else if(id && id->misc->sform_values && !args->value && 
           id->misc->sform_values[args->name])
     args->value=id->misc->sform_values[args->name];
 
-  if(args->type && intputtypes[args->type])
-    return ({ intputtypes[args->type](args->type, args, id) 
-              || make_tag(tag_name, args) });
+  if(tag_name=="textarea" && args->type && inputtypes["textarea"+args->type])
+    output=inputtypes["textarea"+args->type](args->type, args, id)
+              || make_container(tag_name, args, args->value);
+  else if(tag_name=="textarea")
+    output=make_container(tag_name, args, args->value);
+  else if(args->type && inputtypes[args->type])
+    output=inputtypes[args->type](args->type, args, id) 
+              || make_tag(tag_name, args) ;
   else
-    return ({ make_tag(tag_name, args) });
+    output=make_tag(tag_name, args);
+  return ({ output });
 }
 
-mapping intputtypes=([ "bool":type_bool, 
-                       "text":type_text,
+mapping inputtypes=([ "bool":type_bool, 
+                      "text":type_text,
+                      //"textarea":type_textarea,
                      ]);
 
 string type_text(string type, mapping args, object id)
@@ -143,7 +165,7 @@ string type_text(string type, mapping args, object id)
   else if(match)
     return 0;
   else
-    result+=message("Invalid input");
+    result+=args->error||message("Invalid input");
 
   return result;
 }
