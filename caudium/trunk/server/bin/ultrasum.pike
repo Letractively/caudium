@@ -185,12 +185,10 @@ void main(int argc, array argv)
   string noref;
   oldt = start = TIME();
   object fd;
-  if(sizeof(argv) > 2) {
-    if(argv[1] == "--pwd") {
-      cd(argv[2]);
-      argv = ({ argv[0] }) + argv[3..];
-      argc -= 2;
-    }
+  if(argc > 2 && argv[1] == "--pwd") {
+    cd(argv[2]);
+    argv = ({ argv[0] }) + argv[3..];
+    argc -= 2;
   }
   if(argc == 1)
   {

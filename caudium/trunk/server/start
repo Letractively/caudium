@@ -170,6 +170,7 @@ parse_args() {
     FILES=`basename $program .pike`
     fi
     once=1
+    nocaudium=1
     shift
   ;;
   -r*|-d*|-t*|-l*|-w*)
@@ -361,7 +362,7 @@ rotate () {
 }
 
 start_caudium() {
-  if [ "x$DIR" != "x../configurations/" ] ; then
+  if [ "$nocaudium" = "" -a "x$DIR" != "x../configurations/" ] ; then
     args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program --config-dir=$DIR $pass"
   else
     args="-DCAUDIUM -DROXEN $DEFINES $ARGS $program $pass"

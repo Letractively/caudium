@@ -129,7 +129,8 @@ class Master {
   int maxsize;
   void create(string|void file)
   {
-    if(file) load_profile(file);
+    if(file)
+      catch(load_profile(file));
   }
 
   string parse_profile(string tag, mapping m, mapping tmp) {
