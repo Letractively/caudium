@@ -173,7 +173,7 @@ fi
     rm -f /var/state/caudium${EXTVER}/virgin.install
     #fi
 
-    DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /etc/caudium${EXTVER}/servers /var/log/caudium${EXTVER}"
+    DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /var/cache/caudium${EXTVER}/args /etc/caudium${EXTVER}/servers /var/log/caudium${EXTVER}"
     for d in $DIRS; do
 	dpkg-statoverride --remove $d > /dev/null 2>&1 || true
 	dpkg-statoverride --update --add www-data www-data 0751 $d
