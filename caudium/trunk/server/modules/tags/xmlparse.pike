@@ -458,14 +458,14 @@ string container_emit(string t, mapping args, string contents, object id,
   if(args->maxrows)
   {
      if(sizeof(dataset)> args->maxrows)
-        dataset = dataset[0..(maxrows-1)];
+        dataset = dataset[0..(args->maxrows-1)];
   }
 
   // args->skiprows
   if(args->skiprows)
   {
      if(sizeof(dataset)> args->skiprows)
-        dataset = dataset[-skiprows..];
+        dataset = dataset[-(args->skiprows)..];
   }
 
 
