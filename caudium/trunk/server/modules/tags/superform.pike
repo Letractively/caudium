@@ -116,7 +116,7 @@ void create() {
  defvar("regexps", 
 	"::int::\t[0-9]+\n"
 	"::float::\t[0-9]+[.][0-9]+\n"
-	"::email::\t[a-zA-Z_.\\-0-9]+@[a-zA-Z_.\\-0-9]+\n"
+	"::email::\t[a-zA-Z.\\-0-9]+@[a-zA-Z.\\-0-9]+\n"
 	"::money::\t[0-9]+[.][0-9][0-9]\n",
 	"Predefined Regular expressions", TYPE_TEXT_FIELD,
 	"In the match strings each of the fixed strings on the left will "
