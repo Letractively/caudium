@@ -148,7 +148,7 @@ int get_current_page(object id)
   {
     NSESSION[NAV_CURRENT_PAGE] =
      ceil((float) NSESSION[NAV_NB_ELEM] / NSESSION[NAV_NB_ELEM_PAGE]);
-    NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE];
+    NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE] || 1;
     NDEBUG("get_current_page: page="+NSESSION[NAV_CURRENT_PAGE]);
   }
   return NSESSION[NAV_CURRENT_PAGE];
