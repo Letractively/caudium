@@ -1168,12 +1168,13 @@ mapping auto_image(string in, object id)
 
   // if we have both PNG and GIF support we prefer PNG
   // GIF is just a fallback
+  // Well... seems we're going back to GIF --grendel/2001-02-15
   imgext = "";
-#if constant(Image.PNG.encode)
-  imgext = ".png";
-#endif
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+#if constant(Image.GIF.encode)
   imgext = ".gif";
+#endif
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+  imgext = ".png";
 #endif
 
   if (imgext == "")
@@ -1230,7 +1231,7 @@ mapping auto_image(string in, object id)
   object ct;
 
 
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+#if constant(Image.GIF.encode)
   if (!(ct=my_colortable[key]))
      ct=my_colortable[key]=Image.colortable(i,256,4,4,4);
 #endif
@@ -1241,12 +1242,12 @@ mapping auto_image(string in, object id)
 //			     )
   object o = open("caudium-images/"+img_key,"wct"); 
 
-#if constant(Image.PNG.encode)
-  e=Image.PNG.encode(i);
+#if constant(Image.GIF.encode)
+  e=Image.GIF.encode(i,ct);
 #endif
 
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
-  e=Image.GIF.encode(i,ct);
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+  e=Image.PNG.encode(i);
 #endif
 
   i=0;
@@ -1256,12 +1257,12 @@ mapping auto_image(string in, object id)
   else {perror("Cannot open file for "+in+"\n");}
 #endif
 
-#if constant(Image.PNG.encode)
-  return http_string_answer(e,"image/png");
+#if constant(Image.GIF.encode)
+  return http_string_answer(e,"image/gif");
 #endif
 
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
-  return http_string_answer(e,"image/gif");
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+  return http_string_answer(e,"image/png");
 #endif
 
   return 0;
@@ -1339,7 +1340,7 @@ string status_row(object node)
     string node_path = describe_node_path( node );
     return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>" +
 	     "<tr>" +
-	     "<td align=bottom align=left><a href='http://www.caudium.net/'" + (open_caudium_link_in_new_window?" target='_blank'":"") + "><img border=0 src='/image/caudium-icon-gray.png' alt='Caudium'></a></td>" +
+	     "<td align=bottom align=left><a href='http://www.caudium.net/'" + (open_caudium_link_in_new_window?" target='_blank'":"") + "><img border=0 src='/image/caudium-icon-gray.gif' alt='Caudium'></a></td>" +
 	     "<td width='100%' align=right height=33 valign=bottom>" +
 	     "<font size='-1'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>" +
 	     "</tr>" +
