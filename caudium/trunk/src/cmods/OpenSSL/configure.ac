@@ -51,7 +51,7 @@ if test x$with_openssl = xyes; then
   AC_MSG_RESULT($pike_cv_openssl)
 
   if test x$pike_cv_openssl = xyes; then
-    AC_DEFINE(HAVE_OPENSSL)
+    AC_DEFINE(HAVE_OPENSSL, 1, [Define if you have OpenSSL installed])
   else
     # Restore variables, so we don't link with unnessesary libs
 
