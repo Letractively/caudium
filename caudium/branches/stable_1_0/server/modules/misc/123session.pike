@@ -45,27 +45,34 @@ string cvs_version = "$Id$";
 inherit "module";
 inherit "roxenlib";
 #include <module.h>
-import Sql;
 
 mapping (string:mapping (string:mixed)) _variables = ([]);
 object myconf;
 int foundcookieandprestate = 0;
+string authtemplate = "";
 
 int storage_is_not_sql() {
-  return (query("storage") != "sql");
+  return (QUERY(storage) != "sql");
 }
 
 int storage_is_not_file() {
-  return (query("storage") != "file");
+  return (QUERY(storage) != "file");
 }
 
 int dont_use_formauth() {
-  return (query("use_formauth") != 1);
+  return (QUERY(use_formauth) != 1);
 }
+
+int dont_use_formauth_file() {
+  return (QUERY(auth_template_file) != 1);
+}
+
+// cd34, 10/4/2001, regexp objects for include/exclude
+object incl=0,excl=0;
 
 void start(int num, object conf) {
   if (conf) { myconf = conf; }
-  if (query ("storage") == "memory") {
+  if (QUERY(storage) == "memory") {
     foreach (call_out_info (), array a)
       if ((sizeof (a) > 5) && (a[3] == "123_Survivor") && ((sizeof (a) < 7) || (a[6] == my_configuration ()))) {
         remove_call_out (a[5]);
@@ -73,10 +80,21 @@ void start(int num, object conf) {
         break;
       }
   }
+// cd34, 10/4/2001, code to exclude or include files for processing
+  catch {
+    if (strlen(query("regexpinclude")))
+      incl = Regexp(query("regexpinclude"));
+    if (strlen(query("regexpexclude")))
+      excl = Regexp(query("regexpexclude"));
+  };
+  if (QUERY(auth_template_file))
+     authtemplate = Stdio.read_file(QUERY(template_file));
+  else
+     authtemplate = QUERY(authpage);
 }
 
 void stop () {
-  if (query ("storage") == "memory") {
+  if (QUERY(storage) == "memory") {
     array a = ({ 0 });
     // Roxen tries to kill us. Escape...
     a[0] = call_out (lambda (mixed ... foo) { write ("Could not restore sessions\n"); }, 30, "123_Survivor",
@@ -91,18 +109,34 @@ void create (mixed ... foo) {
     return;
   }
 
+  defvar("inc_excl", "exclude",
+         "Session URLs allocation", TYPE_MULTIPLE_STRING,
+         "How should the sessions be allocated ?<br><ul>"
+         "<li>if you choose 'include', sessions will only be allocated under the given hierarchy.</li>"
+         "<li>if you choose 'exclude', sessions will be allocated for the whole site <b>except</b> the given dirs.</li>"
+         "</ul>",
+         ({"include", "exclude"}));
+  defvar("include_urls", "", "Include URLs", TYPE_TEXT_FIELD,
+         "URLs that should be branded with a Session Identifier."
+         " Examples:<pre>"
+         "/mail/\n"
+         "</pre>", 0, lambda() { return (QUERY(inc_excl)!="include"); });
   defvar("exclude_urls", "", "Exclude URLs", TYPE_TEXT_FIELD,
          "URLs that shouldn't be branded with a Session Identifier."
          " Examples:<pre>"
          "/images/\n"
          "/download/files/\n"
-         "</pre>");
+         "</pre>", 0, lambda() { return (QUERY(inc_excl)=="include"); });
   defvar("secret", "ChAnGeThIs", "Secret Word", TYPE_STRING,
          "a secret word that is needed to create secure IDs." );
   defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
          "Garbage collection will be done by this module." );
   defvar("garbage", 100, "Garbage Collection Frequency", TYPE_INT,
          "after how many connects expiration of old session should happen", 0, hide_gc);
+// cd34, 10/4/2001, Allow cookies to be set with expire times
+  defvar("cookieexpire", -1, "Cookie Expiration Time", TYPE_INT,
+         "if 0, do not set a cookie expiration, if >0, set cookie expiration "
+         "for that many seconds.  If <0, set cookie with date 10 years in the future" );
   defvar("expire", 600, "Expiration Time", TYPE_INT,
          "after how many seconds an unactive session is removed", 0, hide_gc);
   defvar("storage", "memory",
@@ -123,7 +157,7 @@ void create (mixed ... foo) {
          0, storage_is_not_file);
   defvar("use_formauth", 0, "Use Form based authentication", TYPE_FLAG,
          "You can protect single URLs with a HTML based form.");
-  defvar("auth_urls", "", "Include URLs", TYPE_TEXT_FIELD,
+  defvar("auth_urls", "", "Auth URLs", TYPE_TEXT_FIELD,
          "URLs that are protected by this module, i.e. URLs that"
          " only should be accessible by known users."
          " Examples:<pre>"
@@ -131,6 +165,11 @@ void create (mixed ... foo) {
          "/admin/\n"
          "</pre>",
          0, dont_use_formauth);
+  defvar("auth_template_file", 0, "Auth template in file", TYPE_FLAG,
+         "Auth form in file (instead in config)",
+         0, dont_use_formauth);
+  defvar("template_file", 0, "Template file", TYPE_FILE,
+         "Path to auth template", 0, dont_use_formauth_file);
   defvar("authpage",
          "<html><head><title>Login</title></head><body>\n"
          "<form method=\"post\"><table>\n"
@@ -146,11 +185,37 @@ void create (mixed ... foo) {
          "Should contain an form with input fields named <i>httpuser</i> "
          "and <i>httppass</i>.",
          0, dont_use_formauth);
+  defvar("parseauthpage",0,"RXML parse authentication page.", TYPE_FLAG,
+         "RXML parse the authentication page before sending the contents to "
+	 "the client.",0,dont_use_formauth);
   defvar("secure", 0, "Secure Cookies", TYPE_FLAG,
 	 "If used, cookies will be flagged as 'Secure' (RFC 2109)." );
+  defvar("debug", 0, "Debug", TYPE_FLAG,
+	 "When on, debug messages will be logged in Caudium's debug logfile. "
+	 "This information is very useful to the developers when fixing bugs.");
+// cd34, 10/4/2001, code to allow regexp includes/excludes & sql caching
+  defvar("regexpinclude", ".*",
+         "Regexp Include Specification", TYPE_STRING,
+         "An expression here will include processing for anything that matches this Pike Syntax Regexp<br>"
+         "For Example:<br>.*<br>will include processing for all files.  id->not_query is automatically "
+         "lowercased");
+  defvar("regexpexclude", "",
+         "Regexp Exclude Specification", TYPE_STRING,
+         "An expression here will exclude processing for anything that matches this Pike Syntax Regexp<br>"
+         "For Example:<br>\\.(jpe*g|gif|png)$ <br>will exclude processing for jpg, gif and png files "
+         "id->not_query is automatically lowercased");
+  defvar("sql_cache", 1, "Cache SQL traffic?", TYPE_FLAG,
+         "Implements a simple in-memory write-through cache when used with an SQL server",
+         0, storage_is_not_sql);
+  
+  defvar ("remove", 0, "Remove the sessions", TYPE_CUSTOM,
+	  "Pressing this button will remove all the sessions.",
+	  // function callbacks for the configuration interface
+	  ({ describe_remove, describe_form_remove, set_from_form_remove }),
+	  lambda () { return (QUERY(storage) != "memory"); });
 }
 
-int hide_gc () { return (!query ("dogc")); }
+int hide_gc () { return (!QUERY(dogc)); }
 
 mixed register_module() {
   return ({ MODULE_FIRST | MODULE_FILTER | MODULE_PARSER | MODULE_PROVIDER,
@@ -177,9 +242,9 @@ int session_size_memory() {
 }
 
 int session_size_sql() {
-  object(sql) con;
+  object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
   string query = "select count(*) as size from variables where region='session'";
   array(mapping(string:mixed)) result = con->query(query);
   return ((int)result[0]->size);
@@ -187,7 +252,7 @@ int session_size_sql() {
 
 int session_size_file() {
   int result=0;
-  foreach(get_dir(query("filepath")), string filename) {
+  foreach(get_dir(QUERY(filepath)), string filename) {
     if (filename[sizeof(filename)-8..] == ".session") {
       result++;
     }
@@ -199,7 +264,7 @@ string status() {
   string result = "";
   int size;
 
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       size = session_size_memory();
       break;
@@ -220,24 +285,24 @@ void session_gc_memory() {
     return;
   }
   foreach (indices(_variables->session), string session_id) {
-    if (time() > (_variables->session[session_id]->lastusage+query("expire"))) {
+    if (time() > (_variables->session[session_id]->lastusage+QUERY(expire))) {
       m_delete(_variables->session, session_id);
     }
   } 
 }
 
 void session_gc_sql() {
-  object(sql) con;
+  object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
-  int exptime = time()-query("expire");
+  con = sql_connect(QUERY(sql_url));
+  int exptime = time()-QUERY(expire);
   con->query("delete from variables where lastusage < '"+exptime+"' and region='session'");
 }
 
 void session_gc_file() {
-  string filepath=query("filepath");
+  string filepath=QUERY(filepath);
   string sfile;
-  int exptime = time()-query("expire");
+  int exptime = time()-QUERY(expire);
  
   foreach (get_dir(filepath), string filename) {
     if (filename[sizeof(filename)-8..] == ".session") {
@@ -250,7 +315,7 @@ void session_gc_file() {
 }
 
 void session_gc() {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       session_gc_memory();
       break;
@@ -277,11 +342,22 @@ mapping (string:mixed) variables_retrieve_memory(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve_sql(string region, string key) {
-  object(sql) con;
+  object(Sql.sql) con;
+// cd34, 10/4/2001, SQL Caching
+  array dbinfo;
+  if (QUERY(sql_cache))
+    dbinfo=cache_lookup("123"+region,key);
+  if (dbinfo)
+    return(sizeof(dbinfo[1])>0?string2values(dbinfo[1]):([]));
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
    string query = "select svalues from variables where region='"+region+"' and id='"+key+"'";
   array(mapping(string:mixed)) result = con->query(query);
+// cd34, 10/4/2001, SQL Caching
+  if ( (QUERY(sql_cache)) && (!dbinfo) ) {
+    dbinfo = ({ key, sizeof(result)?result[0]->svalues:([]) });
+    cache_set("123"+region,key,dbinfo);
+  }
   if (sizeof(result) != 0) {
     return (string2values(result[0]->svalues));
   } else {
@@ -290,7 +366,7 @@ mapping (string:mixed) variables_retrieve_sql(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve_file(string region, string key) {
-  string sfile=combine_path(query("filepath"),key+"."+region);
+  string sfile=combine_path(QUERY(filepath),key+"."+region);
   if (file_stat(sfile)) {
     return (string2values(Stdio.read_bytes(sfile)));
   }
@@ -298,7 +374,7 @@ mapping (string:mixed) variables_retrieve_file(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve(string region, string key) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       return (variables_retrieve_memory(region, key));
       break;
@@ -331,15 +407,20 @@ mixed string2values(string encoded_string) {
 }
 
 void variables_store_sql(string region, string key, mapping values) {
-  object(sql) con;
+  object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
   con->query("delete from variables where region='"+region+"' and id='"+key+"'");
   con->query("insert into variables(id, region, lastusage, svalues) values ('"+key+"', '"+region+"', '"+time()+"', '"+values2string(values)+"')");
+// cd34, 10/4/2001, SQL Caching
+  if (QUERY(sql_cache)) {
+    array dbinfo = ({ key, values2string(values) });
+    cache_set("123"+region,key,dbinfo);
+  }
 }
 
 void variables_store_file(string region, string key, mapping values) {
-  string sfile=combine_path(query("filepath"),key+"."+region);
+  string sfile=combine_path(QUERY(filepath),key+"."+region);
   if (file_stat(sfile)) {
     rm(sfile);
   }
@@ -351,7 +432,7 @@ void variables_store_file(string region, string key, mapping values) {
 }
 
 void variables_store(string region, string key, mapping values) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       variables_store_memory(region, key, values);
       break;
@@ -366,7 +447,9 @@ void variables_store(string region, string key, mapping values) {
 
 string sessionid_create() {
   object md5 = Crypto.md5();
-  md5->update(query("secret"));
+  // Kiwi: Add a Crypto.randomness.reasonably_random()->read(size) in this
+  //       function may add some more random session id ?
+  md5->update(QUERY(secret));
   md5->update(sprintf("%d", roxen->increase_id()));
   md5->update(sprintf("%d", time(1)));
   return(Crypto.string_to_hex(md5->digest()));
@@ -382,19 +465,22 @@ mixed sessionid_set_prestate(object id, string SessionID) {
 mixed sessionid_remove_prestate(object id) {   
   string url=strip_prestate(strip_config(id->raw_url));
   id->prestate = (<>);                                   
-  return(http_redirect(id->not_query));             
+  // cd34, 10/30/2001
+  return(http_redirect(id->not_query+(id->query ? "?"+id->query : ""), id));
 }
 
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
+// cd34, 10/4/2001, set cookie expiration based on info in the config interface
+  if (query ("cookieexpire") > 0)
+    Cookie += "; Expires=" + http_date(time()+query("cookieexpire")) +";";
+  if (query ("cookieexpire") < 0)
+    Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
   if (query ("secure"))
     Cookie += "; Secure";
   id->cookies->SessionID = SessionID;
-  id->misc->moreheads = ([ "Set-Cookie": Cookie,
-                           "Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
-                           "Pragma": "no-cache",
-                           "Last-Modified": http_date(time(1)),
-                           "Cache-Control": "no-cache, must-revalidate" ]);
+  id->misc->is_dynamic = 1;
+  id->misc->moreheads = ([ "Set-Cookie": Cookie ]);
 }
 
 string sessionid_get(object id) {
@@ -422,12 +508,34 @@ string sessionid_get(object id) {
 }
 
 mixed first_try(object id) {
-  
-  foreach (query("exclude_urls")/"\n", string exclude) {
-    if ((strlen(exclude) > 0) &&
-        (exclude == id->not_query[..strlen(exclude)-1])) {
-      return (0);
+
+// cd34, 10/4/2001, code to exclude or include processing by regexp
+  if (id->not_query && (incl && !incl->match(lower_case(id->not_query))) ||
+      (excl &&  excl->match(lower_case(id->not_query)))) {
+    return(0);
+  }
+
+  if (QUERY (inc_excl) == "exclude") {
+    foreach (QUERY(exclude_urls)/"\n", string exclude) {
+      if ((strlen(exclude) > 0) &&
+          (exclude == id->not_query[..strlen(exclude)-1])) {
+        return (0);
+      }
     }
+  }
+  else {
+    int bad = 1;
+    foreach (QUERY(include_urls)/"\n", string include) {
+      if ((strlen(include) > 0) &&
+          (include == id->not_query[..strlen(include)-1])) {
+        bad = 0;
+        // write ("123session: good url: " + id->not_query[..strlen(include)-1] + "\n");
+        break;
+      }
+    }
+
+    if (bad)
+      return 0;
   }
 
   if (query ("dogc") && (random (query ("garbage")) == 0)) {
@@ -461,7 +569,7 @@ mixed first_try(object id) {
 
   if (!id->misc->session_variables->username && (query ("use_formauth"))) {
     int userauthrequired=0;
-    foreach (query("auth_urls")/"\n", string url) {
+    foreach (QUERY(auth_urls)/"\n", string url) {
       if ((strlen(url) > 0) &&
           (url == id->not_query[..strlen(url)-1])) {
         userauthrequired=1;
@@ -475,10 +583,10 @@ mixed first_try(object id) {
         if (result[0] == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
-          return http_low_answer(200, query("authpage"));
+          return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):http_low_answer(200, authtemplate);
         }
       } else {
-        return http_low_answer(200, query("authpage"));
+        return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):http_low_answer(200, authtemplate);
       }
     }
   }
@@ -546,7 +654,8 @@ void kill_session (string session_id) {
 }
 
 void delete_session (object id, string session_id, void|int logout) {
-  write ("123>> killing session " + session_id + "...\n");
+  if (QUERY (debug))
+    write ("123>> killing session " + session_id + "...\n");
   if (id->misc->session_variables) {
     if (id->misc->session_variables->username)
       m_delete (id->misc, "user_variables");
@@ -561,11 +670,8 @@ void delete_session (object id, string session_id, void|int logout) {
       string Cookie = "SessionID=; path=/";
       if (query ("secure"))
 	Cookie += "; Secure";
-      id->misc->moreheads = ([ "Set-Cookie": Cookie,
-			       "Expires": "Fri, 12 Feb 1971 22:50:00 GMT",
-			       "Pragma": "no-cache",
-			       "Last-Modified": http_date(time(1)),
-			       "Cache-Control": "no-cache, must-revalidate" ]);
+      id->misc->is_dynamic = 1;
+      id->misc->moreheads = ([ "Set-Cookie": Cookie ]);
       m_delete (id->cookies, "SessionID");
     }
     
@@ -581,7 +687,7 @@ void variables_delete_memory (string region, string key) {
 }
 
 void variables_delete(string region, string key) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       variables_delete_memory(region, key);
       break;
@@ -622,8 +728,35 @@ mapping sessions () {
   return _variables->session;
 }
 
+string describe_remove () {
+  return "";
+}
+
+string describe_form_remove (array var, mixed path) {
+  string ret = "<input type=\"hidden\" name=\"foo\" value=bar>"; /* strange,
+								    but won't work
+								    without */
+  ret += "<input type=\"submit\" value=\"Reset\">";
+  return ret;
+}
+
+void set_from_form_remove (string val, int type, object o) {
+  _variables = ([ ]);
+}
+
 /* START AUTOGENERATED DEFVAR DOCS */
 
+//! defvar: inc_excl
+//! How should the sessions be allocated ?<br /><ul><li>if you choose 'include', sessions will only be allocated under the given hierarchy.</li><li>if you choose 'exclude', sessions will be allocated for the whole site <b>except</b> the given dirs.</li></ul>
+//!  type: TYPE_MULTIPLE_STRING
+//!  name: Session URLs allocation
+//
+//! defvar: include_urls
+//! URLs that should be branded with a Session Identifier. Examples:<pre>/mail/
+//!</pre>
+//!  type: TYPE_TEXT_FIELD
+//!  name: Include URLs
+//
 //! defvar: exclude_urls
 //! URLs that shouldn't be branded with a Session Identifier. Examples:<pre>/images/
 //!/download/files/
@@ -645,6 +778,11 @@ mapping sessions () {
 //! after how many connects expiration of old session should happen
 //!  type: TYPE_INT
 //!  name: Garbage Collection Frequency
+//
+//! defvar: cookieexpire
+//! if 0, do not set a cookie expiration, if >0, set cookie expiration for that many seconds.  If <0, set cookie with date 10 years in the future
+//!  type: TYPE_INT
+//!  name: Cookie Expiration Time
 //
 //! defvar: expire
 //! after how many seconds an unactive session is removed
@@ -676,15 +814,55 @@ mapping sessions () {
 //!/admin/
 //!</pre>
 //!  type: TYPE_TEXT_FIELD
-//!  name: Include URLs
+//!  name: Auth URLs
+//
+//! defvar: auth_template_file
+//! Auth form in file (instead in config)
+//!  type: TYPE_FLAG
+//!  name: Auth template in file
+//
+//! defvar: template_file
+//! Path to auth template
+//!  type: TYPE_FILE
+//!  name: Template file
 //
 //! defvar: authpage
 //! Should contain an form with input fields named <i>httpuser</i> and <i>httppass</i>.
 //!  type: TYPE_TEXT_FIELD
 //!  name: Form authentication page.
 //
+//! defvar: parseauthpage
+//! RXML parse the authentication page before sending the contents to the client.
+//!  type: TYPE_FLAG
+//!  name: RXML parse authentication page.
+//
 //! defvar: secure
 //! If used, cookies will be flagged as 'Secure' (RFC 2109).
 //!  type: TYPE_FLAG
 //!  name: Secure Cookies
+//
+//! defvar: debug
+//! When on, debug messages will be logged in Caudium's debug logfile. This information is very useful to the developers when fixing bugs.
+//!  type: TYPE_FLAG
+//!  name: Debug
+//
+//! defvar: regexpinclude
+//! An expression here will include processing for anything that matches this Pike Syntax Regexp<br />For Example:<br />.*<br />will include processing for all files.  id->not_query is automatically lowercased
+//!  type: TYPE_STRING
+//!  name: Regexp Include Specification
+//
+//! defvar: regexpexclude
+//! An expression here will exclude processing for anything that matches this Pike Syntax Regexp<br />For Example:<br />\.(jpe*g|gif|png)$ <br />will exclude processing for jpg, gif and png files id->not_query is automatically lowercased
+//!  type: TYPE_STRING
+//!  name: Regexp Exclude Specification
+//
+//! defvar: sql_cache
+//! Implements a simple in-memory write-through cache when used with an SQL server
+//!  type: TYPE_FLAG
+//!  name: Cache SQL traffic?
+//
+//! defvar: remove
+//! Pressing this button will remove all the sessions.
+//!  type: TYPE_CUSTOM
+//!  name: Remove the sessions
 //
