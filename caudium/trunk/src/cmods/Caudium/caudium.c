@@ -72,6 +72,7 @@ INLINE static struct pike_string *url_decode(unsigned char *str,
   int nlen = 0, i;
   unsigned char *mystr; /* Work string */ 
   unsigned char *ptr, *end, *prc; /* beginning and end pointers */
+  unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 #ifdef HAVE_ALLOCA
   mystr = (unsigned char *)alloca((len + 2) * sizeof(char));
@@ -85,13 +86,14 @@ INLINE static struct pike_string *url_decode(unsigned char *str,
   } else
     ptr = mystr;
   MEMCPY(ptr, str, len);
-  end = ptr + len;
+  endl2 = end = ptr + len;
+  endl2 -= 2;
   ptr[len] = '\0';
 
   for (i = exist; ptr < end; i++) {
     switch(*ptr) {
      case '%':
-      if (ptr < end-2)
+      if (ptr < endl2)
 	mystr[i] =
 	  (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
 	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
