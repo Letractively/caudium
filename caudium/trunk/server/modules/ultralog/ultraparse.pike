@@ -1453,10 +1453,12 @@ int load_profiles(string file, array|void last, array|void new) {
 void start(int n, object conf)
 {
   module_dependencies(conf, ({ "obox", "business" }));
+  catch {
   load_profiles(QUERY(profile));
   if (sizeof(profiles)) {
     filewatch = FileWatch.Callout(QUERY(profile), 5, load_profiles);
   }
+  }; // prevent CIF crash when profile is invalid
 }
 
 string status()
