@@ -74,18 +74,23 @@ int main(int argc, array argv)
   array stopwords=({});
   if(profile->index->stopwordsfile)
   {
-    foreach(profile->index->stopwordsfile, mapping s)
-    {
-      string f=Stdio.read_file(s->value);
-      if(f)
-        stopwords+=f/"\n";
-    }
+    Lucene->load_stopwords(profile->index->stopwordsfile);
   }
 
   index=Lucene.Index(profile->index->location[0]->value, stopwords);
   Lucene->check_exception();
-  index->search(argv[-1]);
-  Lucene->check_exception();
+  string q;
+  do
+  {
+    write("query: ");
+    q=Stdio.FILE("stdin")->gets();
+    if(strlen(q)==0) continue;
+    write("processing query!\n");
+    if(!q) break;
+    index->search(q);
+    Lucene->check_exception();
+  }
+  while(1);
 }
 
 #endif
