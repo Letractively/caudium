@@ -1,6 +1,6 @@
-caudium (2:1.2.23-6) unstable; urgency=low
+caudium (2:1.2.25-1) unstable; urgency=low
 
-  * Latest upstream update.
+  * Latest upstream version.
 
  -- Marek Habersack <grendel@debian.org>  Wed,  2 Apr 2003 16:54:41 +0200
 
