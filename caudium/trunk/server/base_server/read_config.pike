@@ -26,7 +26,7 @@
 
 #ifndef IN_INSTALL
 inherit "newdecode";
-// string cvs_version = "$Id$";
+string cvs_version = "$Id$";
 #else
 import spider;
 # define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
@@ -38,7 +38,7 @@ import spider;
 
 mapping (string:mapping) configs = ([ ]);
 mapping (string:array(int)) config_stat_cache = ([]);
-string configuration_dir; // Set by Roxen.
+string configuration_dir; // Set by Caudium.
 
 mapping copy_configuration(string from, string to)
 {
@@ -61,17 +61,17 @@ array (string) list_all_configurations()
     if(!fii)
     {
       report_fatal("I cannot read from the configurations directory ("+
-		   combine_path(getcwd(), configuration_dir)+")\n");
+                   combine_path(getcwd(), configuration_dir)+")\n");
       exit(-1);	// Restart.
     }
     return ({});
   }
   return Array.map(Array.filter(fii, lambda(string s){
-    if(s=="CVS" || s=="Global_Variables" || s=="Global Variables"
-       || s=="global_variables" || s=="global variables" )
-      return 0;
-    return (s[-1]!='~' && s[0]!='#' && s[0]!='.');
-  }), lambda(string s) { return replace(s, "_", " "); });
+                                       if(s=="CVS" || s=="Global_Variables" || s=="Global Variables"
+                                          || s=="global_variables" || s=="global variables" )
+                                         return 0;
+                                       return (s[-1]!='~' && s[0]!='#' && s[0]!='.');
+                                     }), lambda(string s) { return replace(s, "_", " "); });
 }
 
 void save_it(string cl)
@@ -89,9 +89,9 @@ void save_it(string cl)
   {
     error("Creation of configuration file failed ("+f+") "
 #if 0&&constant(strerror)
-	  " ("+strerror()+")"
+          " ("+strerror()+")"
 #endif
-	  "\n");
+          "\n");
     return;
   }
   string data = encode_regions( configs[ cl ] );
@@ -101,9 +101,9 @@ void save_it(string cl)
   {
     error("Failed to write all data to configuration file ("+f+") "
 #if constant(strerror)
-	  " ("+strerror(fd->errno())+")"
+          " ("+strerror(fd->errno())+")"
 #endif
-	  "\n");
+          "\n");
   }
   config_stat_cache[cl] = (array(int)) fd->stat();
   catch(fd->close("w"));
@@ -157,8 +157,8 @@ array config_is_modified(string cl)
       return st;
     else
       foreach( ({ 1, 3, 5, 6 }), int i)
-	if(st[i] != config_stat_cache[cl][i])
-	  return st;
+        if(st[i] != config_stat_cache[cl][i])
+          return st;
 }
 private static void read_it(string cl)
 {
@@ -178,7 +178,7 @@ private static void read_it(string cl)
     if(!fd) {
       configs[cl] = ([ ]);
       m_delete(config_stat_cache, cl);
-      } else {
+    } else {
       configs[cl] = decode_config_file( fd->read( 0x7fffffff ));
       config_stat_cache[cl] = (array(int))fd->stat();
       fd->close("rw");
@@ -188,7 +188,7 @@ private static void read_it(string cl)
   };
   if (err) {
     report_error(sprintf("Failed to read configuration file for %O\n"
-			 "%s\n", cl, describe_backtrace(err)));
+                         "%s\n", cl, describe_backtrace(err)));
   }
 }
 
@@ -220,9 +220,9 @@ void remove_configuration( string name )
   {
     error("Failed to remove configuration file ("+f+")! "+
 #if 0&&constant(strerror)
-	  strerror()
+          strerror()
 #endif
-	  "\n");
+          "\n");
   }
 }
 
@@ -270,3 +270,8 @@ mapping retrieve(string reg, object current_configuration)
 
   return configs[cl][reg] || ([ ]);
 }
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
