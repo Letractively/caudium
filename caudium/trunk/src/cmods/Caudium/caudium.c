@@ -17,12 +17,16 @@ RCSID("$Id$");
 #endif
 
 static void f_parse_headers( INT32 args );
+static void f_parse_query_string( INT32 args );
 
 /* Initialize and start module */
 void pike_module_init( void )
 {
   add_function_constant( "parse_headers", f_parse_headers,
-			 "function(string:mapping)", OPT_SIDE_EFFECT);
+			 "function(string:mapping)", 0);
+  add_function_constant( "parse_query_string", f_parse_query_string,
+			 "function(string,mapping:string)",
+			 OPT_SIDE_EFFECT);
 }
 
 /* Restore and exit module */
@@ -31,25 +35,88 @@ void pike_module_exit( void )
 }
 
 /* helper functions */
-INLINE static unsigned char *lowercasee(unsigned char *str, INT32 len)
+INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
 {
-/*  int changed = 0; */
   unsigned char *p, *end;
   unsigned char *mystr;
-
-  mystr = (char*)malloc((len + 1) * sizeof(char));
+  struct pike_string *pstr;
+#ifdef HAVE_ALLOCA
+  mystr = (unsigned char *)alloca((len + 1) * sizeof(char));
+#else
+  mystr = (unsigned char *)malloc((len + 1) * sizeof(char));
+#endif
   MEMCPY(mystr, str, len);
   end = mystr + len;
   mystr[len] = '\0';
   for(p = mystr; p < end; p++)
   {
     if(*p >= 'A' && *p <= 'Z') {
-      *p |= *p;
+      *p = *p+32;
     }
   }
-  
-  return mystr;
+  pstr = make_shared_binary_string(mystr, len);
+#ifndef HAVE_ALLOCA
+  free(mystr);
+#endif
+  return pstr;
 }
+
+/* Decode QUERY encoded strings.
+   Simple decodes %XX and + in the string. If exist is true, add a null char
+   first in the string. 
+ */
+INLINE static struct pike_string *url_decode(unsigned char *str,
+						      int len, int exist)
+{
+  int nlen = 0, i;
+  unsigned char *mystr; /* Work string */ 
+  unsigned char *ptr, *end, *prc; /* beginning and end pointers */
+  struct pike_string *newstr;
+#ifdef HAVE_ALLOCA
+  mystr = (unsigned char *)alloca((len + 2) * sizeof(char));
+#else
+  mystr = (unsigned char *)malloc((len + 2) * sizeof(char));
+#endif
+  if(exist) {
+    ptr = mystr+1;
+    *mystr = '\0';
+    exist = 1;
+  } else
+    ptr = mystr;
+  MEMCPY(ptr, str, len);
+  end = ptr + len;
+  ptr[len] = '\0';
+
+  for (i = exist; ptr < end; i++) {
+    switch(*ptr) {
+     case '%':
+      if (ptr < end-2)
+	mystr[i] =
+	  (((ptr[1] < 'A') ? (ptr[1] & 15) :(( ptr[1] + 9) &15)) << 4)|
+	  ((ptr[2] < 'A') ? (ptr[2] & 15) : ((ptr[2] + 9)& 15));
+      else
+	mystr[i] = '\0';
+      ptr+=3;
+      nlen++;
+      break;
+     case '+':
+      ptr++;
+      mystr[i] = ' ';
+      nlen++;
+      break;
+     default:
+      mystr[i] = *(ptr++);
+      nlen++;
+    }
+  }
+
+  newstr =  make_shared_binary_string(mystr, nlen+exist);
+#ifndef HAVE_ALLOCA
+  free(mystr);
+#endif
+  return newstr;
+}
+
 
 #if 0
 // Code to add a string to a string 
@@ -66,13 +133,9 @@ mapping_insert(headermap, &skey, &sval);
 INLINE static unsigned int get_next_header(unsigned char *heads, int len,
 					   struct mapping *headermap)
 {
-  struct pike_string *name, *value;
   int data, count, colon, count2=0;
   struct svalue skey, sval;
-#ifndef HAVE_ALLOCA
-  unsigned char *lowered = NULL;
-#endif
-
+  
   /* FIXME: error checking would be nice */
   for(count=0, colon=0; count < len; count++) {
     switch(heads[count]) {
@@ -83,38 +146,15 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
 	/* find end of header data */
 	if(heads[count2] == '\r') break;
       while(heads[data] == ' ') data++;
-#ifndef HAVE_ALLOCA
-      lowered = lowercase(heads, colon);
-      name = make_shared_binary_string(lowered, colon);
-      free(lowered);      
-#else
-#warning "using alloca!"
-      {
-          unsigned char *p, *end;
-          unsigned char *mystr = alloca(colon + 1);
-	  
-          MEMCPY(mystr, heads, colon);
-          end = mystr + colon;
-          mystr[colon] = '\0';
-          for(p = mystr; p < end; p++)
-          {
-              if(*p >= 'A' && *p <= 'Z') {
-                  *p |= *p;
-              }
-          }
-          name = make_shared_binary_string(mystr, colon);
-      }
-#endif
       skey.type = T_STRING;
       sval.type = T_STRING;
-      skey.u.string = name;
-      value = make_shared_binary_string(heads+data, count2 - data);
-      sval.u.string = value;
+      
+      skey.u.string = lowercase(heads, colon);      
+      sval.u.string = make_shared_binary_string(heads+data, count2 - data);
       mapping_insert(headermap, &skey, &sval);
       count = count2;
-      /* printf("Got [%s] = [%s(%d)]\n", name->str, value->str, value->len);*/
-      free_string(value);
-      free_string(name);
+      free_string(skey.u.string);
+      free_string(sval.u.string);
       break;
      case '\n':
       /*printf("Returning %d read\n", count);*/
@@ -125,6 +165,7 @@ INLINE static unsigned int get_next_header(unsigned char *heads, int len,
 }
 
 /** Functions implementing Pike functions **/
+
 static void f_parse_headers( INT32 args )
 {
   struct mapping *headermap;
@@ -142,4 +183,67 @@ static void f_parse_headers( INT32 args )
   }  
   pop_n_elems(args);
   push_mapping(headermap);
+}
+
+/* This function parses the query string */
+static void f_parse_query_string( INT32 args )     
+{
+  struct pike_string *query; /* Query string to parse */
+  struct svalue *exist, skey, sval; /* svalues used */
+  struct mapping *variables; /* Mapping to store vars in */
+  unsigned char *ptr;   /* Pointer to current char in loop */
+  unsigned char *name;  /* Pointer to beginning of name */
+  unsigned char *equal; /* Pointer to the equal sign */
+  unsigned char *end;   /* Pointer to the ending null char */
+  int namelen, valulen; /* Length of the current name and value */
+  
+  get_all_args("Caudium.parse_query_string", args, "%S%m", &query, &variables);
+  skey.type = T_STRING;
+  sval.type = T_STRING;
+
+  /* end of query string */
+  end = query->str + query->len;
+  name = ptr = query->str;
+  equal = NULL;
+  for(; ptr <= end; ptr++) {
+    switch(*ptr)
+    {
+     case '=':
+      equal=ptr;
+      break;
+     case '\0':
+      if(ptr != end)
+	continue;
+     case ';': /* It's recommended to support ; instead of & in query strings */
+     case '&':
+      if(equal == NULL) { /* value less variable, we can ignore this */
+	name = ptr+1;
+	break;
+      }
+      namelen = equal - name;
+      valulen = ptr - ++equal;
+      skey.u.string = url_decode(name, namelen, 0);
+
+      exist = low_mapping_lookup(variables, &skey);
+      if(exist == NULL || exist->type != T_STRING) {
+	sval.u.string = url_decode(equal, valulen, 0);
+      } else {
+	/* Add strings separed with '\0'... */
+	struct pike_string *tmp;
+	tmp = url_decode(equal, valulen, 1);
+	sval.u.string = add_shared_strings(exist->u.string, tmp);
+	free_string(tmp);
+      }
+     
+      mapping_insert(variables, &skey, &sval);
+      free_string(skey.u.string);
+      free_string(sval.u.string);
+
+      /* Reset pointers */
+      equal = NULL;
+      name = ptr+1;
+    }
+  }
+  pop_n_elems(args);
+  push_int(0);
 }
