@@ -62,6 +62,9 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
+inherit "module.pike";
+inherit "socket";
+inherit "caudiumlib";
 
 import Stdio;
 
@@ -106,10 +109,6 @@ Content-type: text/html\r\n\
 
 #define AUTH_REQUIRED "HTTP/1.0 401 Auth Required\r\nWWW-Authenticate: Basic realm=\"ftp server password needed\""
 
-
-inherit "module";
-inherit "socket";
-inherit "caudiumlib";
 
 #include <proxyauth.pike>
 
