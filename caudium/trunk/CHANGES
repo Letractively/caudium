@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added a -DMAX_BODY_SIZE=<size> option for starting caudium. The default size
+  for the body is 16k otherwise. 
 - Updated the error message that occured when the user want to list the open 
   ports in the CIF and Caudium does not run as root.
 - svg/svgz file image format handling.
