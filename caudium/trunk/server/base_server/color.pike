@@ -149,7 +149,11 @@ array(int) parse_color(string from)
     return ({ (int)(r*2.55), (int)(g*2.55), (int)(b*2.55) });
   }
 
-  // No luck. It might be a color on the form rrggbb (that is, no leading '#')
+  // No luck. It might be a color on the form rrggbb (that is, no
+  // leading '#')
+  // NOTE! The code below is a workaround for buggy pike. Current Pike
+  // 7's won't parse 0xHEXDIGIT /grendel
+  //
   if(sscanf(from, "%x", c) == 1)
   {
     if(strlen(from)>5)
