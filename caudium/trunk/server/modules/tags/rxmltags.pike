@@ -3031,12 +3031,12 @@ string tag_ximage(string tagname, mapping m, object id)
       if(file->open(fname,"r"))
       {
 	array(int) xysize;
-	if(xysize=Dims.dims()->get(file))
+	if(xysize=Image.Dims.dims()->get(file))
 	{
 	  m->width=(string)xysize[0];
 	  m->height=(string)xysize[1];
 	}else{
-	  m->err="Dims failed";
+	  m->err="Image.Dims failed";
 	}
       }else{
 	m->err="Failed to find file";
