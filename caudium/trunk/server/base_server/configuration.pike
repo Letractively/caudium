@@ -3609,10 +3609,10 @@ void create(string config)
 	  "considered for the cache");
 #endif
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
-	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "
-	 "vlink='#00007f' link='#0000ff'>\n"
-	 "<h2 align=center><configimage src=caudium.png alt=\"File not found\">\n"
-	 "<p><hr noshade>"
+	 "<body background=/internal-caudium-cowfish-bg bgcolor='#ffffff'\n"
+	 "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
+	 "<h2 align=center><configimage src=cowfish-caudium \n"
+	 "alt=\"File not found\"><p><hr noshade>\n"
 	 "\n<i>Sorry</i></h2>\n"
 	 "<br clear>\n<font size=\"+2\">The resource requested "
 	 "<i>$File</i>\ncannot be found.<p>\n\nIf you feel that this is a "
@@ -3723,9 +3723,9 @@ void create(string config)
 // This should be somewhere else, I think. Same goes for HTTP related ones
 
   defvar("FTPWelcome",  
-	 "              +-------------------------------------------------\n"
+	 "              +--------------------------------------------------\n"
 	 "              +-- Welcome to the Caudium Webserver FTP server ---\n"
-	 "              +-------------------------------------------------\n",
+	 "              +--------------------------------------------------\n",
 	 "FTP:FTP Welcome message",
 	 TYPE_TEXT_FIELD|VAR_MORE,
 	 "FTP Welcome answer; transmitted to new FTP connections if the file "
