@@ -78,7 +78,7 @@ class db_handler {
     num_dbs=num;
     mixed err;
     for(int i = 0; i < num; i++) {
-      err=catch( dbs += ({ Sql.sql(db_url) }));
+      err=catch( dbs += ({ Sql.Sql(db_url) }));
       if(err) perror("Error creating db object:\n" + describe_backtrace(err)+"\n");
     }
   }
@@ -98,7 +98,7 @@ class db_handler {
       }
     } else {
       if(!sizeof(dbs)) {
-	d = Sql.sql(db_url);
+	d = Sql.Sql(db_url);
       } else {
 	d = dbs[0];
 	dbs -= ({d});

@@ -3732,7 +3732,7 @@ object sql_cache_get(string what)
 {
 #ifdef THREADS
 #if !constant(this_thread)
-  return Sql.sql( what );
+  return Sql.Sql( what );
 #else
   string key;
 #if defined(__MAJOR__) && __MAJOR__ >= 7 
@@ -3747,14 +3747,14 @@ object sql_cache_get(string what)
   if(sql_cache[what] && sql_cache[what][key])
     return sql_cache[what][key];
   if(!sql_cache[what])
-    sql_cache[what] =  ([ key:Sql.sql( what ) ]);
+    sql_cache[what] =  ([ key:Sql.Sql( what ) ]);
   else
-    sql_cache[what][ key ] = Sql.sql( what );
+    sql_cache[what][ key ] = Sql.Sql( what );
   return sql_cache[what][ key ];
 #endif   /* !this_thread */
 #else /* !THREADS */
   if(!sql_cache[what])
-    sql_cache[what] =  Sql.sql( what );
+    sql_cache[what] =  Sql.Sql( what );
   return sql_cache[what];
 #endif
 }

@@ -134,7 +134,7 @@ void open_db() {
   if(objectp(db)) //already open
     return;
   err=catch{
-    db=Sql.sql(QUERY(sqlserver));
+    db=Sql.Sql(QUERY(sqlserver));
   };
   if (err) {
     perror ("Whiteboard: Couldn't open database!\n");

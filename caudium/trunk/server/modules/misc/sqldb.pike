@@ -94,7 +94,7 @@ string status()
       object o;
 
       catch {
-	o = Sql.sql(sql_urls[s]);
+	o = Sql.Sql(sql_urls[s]);
       };
 
       if (o) {

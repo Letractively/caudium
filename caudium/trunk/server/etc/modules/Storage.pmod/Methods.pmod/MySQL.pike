@@ -53,7 +53,7 @@ void create(string _sqlurl) {
   PRELOCK();
   LOCK();
   sqlurl = _sqlurl;
-  if (catch(Sql.sql(sqlurl)))
+  if (catch(Sql.Sql(sqlurl)))
     throw(({"Unable to connect to database", backtrace()}));
   UNLOCK();
   init_tables();
@@ -104,7 +104,7 @@ static object get_database() {
   PRELOCK();
   LOCK();
   if (!objectp(db))
-    db = Sql.sql(sqlurl);
+    db = Sql.Sql(sqlurl);
   return db;
 }
 

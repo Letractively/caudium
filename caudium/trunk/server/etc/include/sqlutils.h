@@ -86,7 +86,7 @@ void open_db(object id) {
   } else {
     SQLUDW("Using non thread-safe Pike SQL system... May have some clues !");
     err=catch {
-      db = Sql.sql(QUERY(sqlserver));
+      db = Sql.Sql(QUERY(sqlserver));
     };
   }
   if(err) {
