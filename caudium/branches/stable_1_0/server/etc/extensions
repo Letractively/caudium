@@ -271,6 +271,11 @@ wri	application/x-write
 
 ice	x-conference/x-cooltalk
 
+mime	www/mime
+
+pdb	chemical/x-pdb
+xyz	chemical/x-pdb
+
 # Netscape proxy config files.
 nspc	application/x-ns-proxy-autoconfig
 pac	application/x-ns-proxy-autoconfig
