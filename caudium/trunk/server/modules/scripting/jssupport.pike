@@ -206,6 +206,13 @@ void start() {
   options->secure_builtin_file   = !QUERY(securefile);
   options->secure_builtin_system = !QUERY(securesystem);
   options->fd_count = QUERY(maxfd);
+
+  /* Since we cache compiled byte code, we'll enable all optimizations. */
+  options->optimize_peephole       = 1;
+  options->optimize_jumps_to_jumps = 1;
+  options->optimize_bc_size        = 1;
+  options->optimize_heavy          = 1;
+
   compile_interpreter = JavaScript.Interpreter(0, options);  
   options->no_compiler = 1;
   options->warn_undef = 0;
