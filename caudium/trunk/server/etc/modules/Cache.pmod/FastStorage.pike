@@ -19,7 +19,7 @@
  *
  */
 
-//! This the the RAM cache, baiscally.
+//! This the the RAM cache, basically.
 
 constant cvs_version = "$Id$";
 
