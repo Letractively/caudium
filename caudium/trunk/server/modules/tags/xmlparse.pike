@@ -433,12 +433,19 @@ string|array(string)|int entity_callback(object parser, string entity,
 					 object id, mixed ... extra) {
   string scope, name, encoding;
   array tmp = (parser->tag_name()) / ":";
+  mixed ret;
   entity = tmp[0];
   encoding = tmp[1..] * ":";
+  if(!encoding || !strlen(encoding))
+    encoding = "html";
   if(sscanf(entity, "%s.%s", scope, name) != 2)
     return 0;
-  if(id->misc->scopes[scope])
-    return id->misc->scopes[scope]->get(name, id, @extra)||"";
+  if(id->misc->scopes[scope]) {
+    ret =  id->misc->scopes[scope]->get(name, id, @extra);
+    if(!ret) return "";
+    if(stringp(ret)) return roxen_encode(ret, encoding);
+    if(arrayp(ret)) return Array.map(ret, roxen_encode, encoding);
+  }
   return 0;
 }
 
