@@ -49,6 +49,6 @@ Package: caudium-dev
 Architecture: any
 Depends: ${shlibs:Depends}, pike7 (= ${pikever})
 Description: Developement files for Caudium
- This package is really a commodity one to facilate building the prospective PHP4
- package for Caudium. It contains only the files needed for the latter to detect 
- the presence of Caudium on the system.
+ A small package that contains files required for developing Caudium extension packages
+ without installing Caudium itself.
+
