@@ -1180,6 +1180,7 @@ private mapping internal_caudium_image(string from)
   int hue,bright,w;
   
   sscanf(from, "%s.png", from);
+  sscanf(from, "%s.gif", from);
   sscanf(from, "%s.jpg", from);
 
   // Disallow "internal-caudium-..", it won't really do much harm, but a list of
@@ -1198,6 +1199,8 @@ private mapping internal_caudium_image(string from)
     return (["file": img, "type":"image/png" ]);
   else if(object img = open("caudium-images/"+from+".jpg", "r"))
     return (["file": img, "type":"image/jpeg" ]);
+  else if(object img = open("caudium-images/"+from+".gif", "r"))
+    return (["file": img, "type":"image/gif" ]);
   else
     return
       http_string_answer("<html><title>No Such Internal Image!</title>"
