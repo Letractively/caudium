@@ -38,13 +38,13 @@ class mac_sha
 
   string hash_raw(string data)
   {
-#ifdef CaudiumSSL3_DEBUG_CRYPT
+#ifdef SSL3_DEBUG_CRYPT
     werror(sprintf("CaudiumSSL.cipher: hash_raw(%O)\n", data));
 #endif
     
     object h = algorithm();
     string res = h->update(data)->digest();
-#ifdef CaudiumSSL3_DEBUG_CRYPT
+#ifdef SSL3_DEBUG_CRYPT
     werror(sprintf("CaudiumSSL.cipher: hash_raw->%O\n",res));
 #endif
     
@@ -57,7 +57,7 @@ class mac_sha
 		       "\0\0\0\0\0\0\0\0", seq_num->digits(256),
 		       packet->content_type, strlen(packet->fragment),
 		       packet->fragment);
-#ifdef CaudiumSSL3_DEBUG_CRYPT
+#ifdef SSL3_DEBUG_CRYPT
 //    werror(sprintf("CaudiumSSL.cipher: hashing %O\n", s));
 #endif
     return hash_raw(secret + pad_2 +
@@ -190,7 +190,7 @@ object rsa_sign(object context, string cookie, object struct)
     + Crypto.sha()->update(params)->digest();    
       
   object s = context->rsa->raw_sign(digest);
-#ifdef CaudiumSSL3_DEBUG_CRYPT
+#ifdef SSL3_DEBUG_CRYPT
   werror(sprintf("  Digest: '%O'\n"
 		 "  Signature: '%O'\n",
 		 digest, s->digits(256)));

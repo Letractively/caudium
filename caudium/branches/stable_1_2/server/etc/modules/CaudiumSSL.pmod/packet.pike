@@ -46,7 +46,7 @@ object check_size(int version, int|void extra)
 object|string recv(string data,int version)
 {
 
-#ifdef CaudiumSSL3_FRAGDEBUG
+#ifdef SSL3_FRAGDEBUG
   werror(" CaudiumSSL.packet->recv: strlen(data)="+strlen(data)+"\n");
 #endif 
 
@@ -54,7 +54,7 @@ object|string recv(string data,int version)
   buffer += data;
   while (strlen(buffer) >= needed_chars)
   {
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 //    werror(sprintf("CaudiumSSL.packet->recv: needed = %d, avail = %d\n",
 //		     needed_chars, strlen(buffer)));
 #endif
@@ -66,7 +66,7 @@ object|string recv(string data,int version)
       {
 	if (SUPPORT_V2)
 	{
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 	  werror(sprintf("CaudiumSSL.packet: Receiving CaudiumSSL2 packet '%s'\n", buffer[..4]));
 #endif
 
@@ -76,7 +76,7 @@ object|string recv(string data,int version)
 	    return Alert(ALERT_fatal, ALERT_unexpected_message,version);
 	  length = ((buffer[0] & 0x7f) << 8 | buffer[1]
 		    - 3);
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
 //	  werror(sprintf("CaudiumSSL2 length = %d\n", length));
 #endif
 	  protocol_version = values(buffer[3..4]);
@@ -94,7 +94,7 @@ object|string recv(string data,int version)
 	return Alert(ALERT_fatal, ALERT_unexpected_message,version,
 		     sprintf("CaudiumSSL.packet->send: Version %d is not supported\n",
 			     protocol_version[0]), backtrace());
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
       if (protocol_version[1] > 0)
 	werror(sprintf("CaudiumSSL.packet->recv: received version %d.%d packet\n",
 		       @ protocol_version));
@@ -121,7 +121,7 @@ string send()
     throw( ({ sprintf("CaudiumSSL.packet->send: Version %d is not supported\n",
 		      protocol_version[0]), backtrace() }) );
   if (protocol_version[1] > 0)
-#ifdef CaudiumSSL3_DEBUG
+#ifdef SSL3_DEBUG
     werror(sprintf("CaudiumSSL.packet->send: received version %d.%d packet\n",
 		   @ protocol_version));
 #endif

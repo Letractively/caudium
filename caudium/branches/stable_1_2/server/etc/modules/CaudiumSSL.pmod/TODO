@@ -6,4 +6,4 @@ CaudiumSSL TODO-list
 * Splitting of large handshake packets
 * Combining small application packets
 * Blocking I/O
-* TLS (CaudiumSSL v3.1) support
+* TLS (SSL v3.1) support
