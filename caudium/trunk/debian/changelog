@@ -1,3 +1,33 @@
+caudium (2:1.3.23-1) experimental; urgency=low
+
+  * Latest upstream. The changes:
+    - Start script (start-caudium) now has a built in watchdog. See the CIF 
+      Global variables under "Watchdog..." for configuration information. 
+      Watchdog configuration is reloaded every 2 hours.
+    - Simple health check (Ping / pong) on Http protocol is back.
+    - Caudium start script is now done in 100% pike
+    - Removed ISMAP from server templates and sort server templates by 
+      filename.
+    - more_modules/ files are now in modules/examples/
+    - Added the Bitstream Vera Sans font
+    - Removed the Microsoft TTF fonts
+    - Removed Mirror Server / Mirror Filesystem since it is not used or
+      maintained and it is half working.
+    - Removed mnoGo search module from Caudium because now we have Lucene
+      instead.
+    - Removed PHP4 module due to its non-functioning status. Use FastUniscript 
+      instead.
+    - Removed FTP and Gopher protocols.
+    - Removed Verdana fonts due to licensing restrictions. You can supply your 
+      own font from a windows system.
+    - Pike C module OpenSSL is removed. It will be not used.
+    - Pike C module JavaScript is removed. NJS is a dead project.
+    - Removed old libfcgi C tools. FastCGI is totaly handled by a Pike code.
+    - Removed old deprecated modules from server.
+    - Changed requirement of pike version to at least 7.4.25.
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  2 Dec 2003 03:00:29 +0100
+
 caudium (2:1.3.19-2) experimental; urgency=low
 
   * Changes to make Caudium build under pbuilder. The pike interpreter
