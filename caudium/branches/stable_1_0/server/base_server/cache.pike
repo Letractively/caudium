@@ -195,7 +195,6 @@ void cache_clean()
   remove_call_out(cache_clean);
   call_out(cache_clean, CACHE_TIME_OUT);
   call_out(cache_clean, CACHE_TIME_OUT);
-  gc();
 // #ifdef THREADS
 //   mixed key;
 //   catch { key = cleaning_lock->lock(); };
@@ -250,7 +249,6 @@ void cache_clean()
       }
     }
   }
-  gc();
 }
 
 void create()
