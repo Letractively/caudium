@@ -88,6 +88,17 @@ void create(object c) {
   defvar("table", "accessed", "SQL Table", TYPE_STRING,
 	 "Which table should be used for the database backend.",
 	 0, lambda(){ return query("backend")!="SQL database"; } );
+
+  defvar("serverinpath",1,"Add server Id in SQL table", TYPE_FLAG|VAR_MORE,
+         "Add the server Id in the SQL table. <b>Note</b>: you will lose "
+	 "Roxen 2.x compatibility if this enabled.",
+	 0, lambda(){ return query("backend")!="SQL database"; } );
+  defvar("serverid",c->query("MyWorldLocation"),"Id to add in SQL table",
+         TYPE_STRING|VAR_MORE,"This will be added in the SQL database as "
+	 "unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> "
+	 "counter data will be reset to 0.",
+	 0, lambda() { return !query("serverinpath") ||
+	                      query("backend")!="SQL database"; } );
 }
 
 //TAGDOCUMENTATION
@@ -433,27 +444,37 @@ class SQLCounter {
   // SQL backend counter.
 
   Sql.sql db;
-  string table;
+  string table,servername;
+  int srvname = 0;
 
   void create() {
     db=Sql.sql(module::query("sqldb"));
     table = module::query("table");
+    if (module::query("serverinpath")) {
+      srvname = 1;
+      servername = module::query("serverid");
+    }
+    else {
+      srvname = 0;
+      servername= "";
+    }
     catch {
       db->query("CREATE TABLE "+table+" (path VARCHAR(255) PRIMARY KEY,"
 		" hits INT UNSIGNED DEFAULT 0, made INT UNSIGNED)");
+      // Kiwi: need to be fixed (used if file doesn't exist)
       db->query("INSERT INTO "+table+" (path,made) VALUES ('///',"+time(1)+")" );
     };
   }
 
   int creation_date(void|string file) {
     if(!file) file="///";
-    array x=db->query("SELECT made FROM "+table+" WHERE path='"+fix_file(file)+"'");
+    array x=db->query("SELECT made FROM "+table+" WHERE path='"+servername+fix_file(file)+"'");
     return x && sizeof(x) && (int)(x[0]->made);
   }
 
   private void create_entry(string file) {
     if(cache_lookup("access_entry", file)) return;
-    catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+file+"',"+time(1)+")" ));
+    catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+servername+file+"',"+time(1)+")" ));
     cache_set("access_entry", file, 1);
   }
 
@@ -466,19 +487,19 @@ class SQLCounter {
   void add(string file, int count) {
     file=fix_file(file);
     create_entry(file);
-    db->query("UPDATE "+table+" SET hits=hits+"+(count||1)+" WHERE path='"+file+"'" );
+    db->query("UPDATE "+table+" SET hits=hits+"+(count||1)+" WHERE path='"+servername+file+"'" );
   }
 
   int query(string file) {
     file=fix_file(file);
-    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+file+"'");
+    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+servername+file+"'");
     return x && sizeof(x) && (int)(x[0]->hits);
   }
 
   void reset(string file) {
     file=fix_file(file);
     create_entry(file);
-    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+file+"'");
+    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+servername+file+"'");
   }
 
   int size() {
