@@ -1,4 +1,4 @@
-#!bin/pike
+#!/usr/bin/env pike
 #!NO_MODULE
 /*
  * Caudium - An extensible World Wide Web server
@@ -31,7 +31,13 @@
  * This program is (C) 1997 Francesco Chemolli <kinkie@kame.usr.dsi.unimi.it>
  */
 
+// Define there the SQL url for password database access
+
+#define	PASSWDDB "mysql://user:passwd@localhost/passwd"
+
 #include <sql.h>
+
+object(Stdio.Readline) readline;
 
 string readline_until_got (string query) {
 	string retval;
@@ -42,7 +48,8 @@ string readline_until_got (string query) {
 
 int main() {
 	mapping data=([]);
-	object sql=Sql.sql("localhost","passwd");
+	//object sql=Sql.sql("localhost","passwd");
+	object sql=Sql.sql(PASSWDDB);
 	mixed tmp,err;
 	string query;
 	data->username=readline_until_got("username: ");
