@@ -1316,26 +1316,20 @@ string dn(object node)
 
 string describe_node_path(object node)
 {
-    string q="", res="";
+    string q="/";
+    array res = ({ });
     int cnt;
-    /* This appears to have always been buggy */
-    array nodes = (node->path( 1 ) / "/") - ({ "" });
+    /* This appears to have always been buggy, it's fixed now */
+    array nodes = ( node->path( 1 ) / "/" ) - ({ "" });
     if ( sizeof( nodes ) > 0 ) {
-        /* If I use "nodes" here it breaks. Anyone know why? */
-	foreach(node->path( 1 ) / "/", string p)
+	foreach( nodes, string p)
 	{
 	    q+=p+"/";
-	    if(cnt>0)
-	    {
-		//      werror("q="+q+"\n");
-		res += ("\n<b><a href=\""+q+"?"+bar+++"\">"+
-			dn(find_node(http_decode_string(q[..strlen(q)-2])))+
-			"</a></b> -&gt;\n");
-	    }
-	    else
-		cnt++;
+	    res += ({ "<a href=\""+q+"?"+bar+++"\">"+
+	              dn(find_node(http_decode_string(q[..strlen(q)-2])))+
+	              "</a>" });
 	}
-	return res[0..strlen(res)-8];
+	return (res * " -&gt; ");
     }
 }
 
