@@ -1,4 +1,4 @@
-Changes since last Roxen 1.3
+Changes in Caudium 1.0.6 (RC1)
 -----------------------------------------------
 + Caudium is a Roxen 1.3 fork. We have different goals and
   ideas on what the server need to become successful. We have opted to
@@ -7,10 +7,10 @@ Changes since last Roxen 1.3
   information.
 + We use SourceForge. This means public CVS, bug tracking, task lists
   and more. The URL is http://sourceforge.net/projects/caudium/ 
-+ Now works with Pike 7. Not completely tested but at least everything
-  seems to compile ok. This also means that quite a number of small
-  fixes has been made, since most errors are due to the better (and
-  more correct) type checking in the Pike 7 series.
++ Now works with Pike 7.0 and 7.1. To do this a number of minor fixes
+  has been made. Functionality with 7.1 is not guaranteed since it's type
+  control system is still improving. We recommend running Caudium with
+  the latest 7.0 from CVS.
 + Wrote query-string and HTTP header parsers in C. Seems to give a
   nice performance boast.
 + Fixed small bug in htmlparse.pike when using tags that return a
@@ -18,7 +18,8 @@ Changes since last Roxen 1.3
 + Added PiXSL, a glue to the XSLT parser Sablotron and UltraLog, a log
   parser, to the default distribution.
 + Option to edit the server name removed and added option to hide
-  server version. 
+  server version.  Also added a header with the Pike version used to
+  run Caudium. It can also be disabled (the version).
 + Pike not isn't built as part of the server, but instead you specify
   which Pike you want to use (or use the default one).
 + Don't send the Last-Modified header for dynamic (RXML-parsed)
@@ -27,73 +28,77 @@ Changes since last Roxen 1.3
 + Changed files named roxen* to caudium*, as well as references to roxen->
   etc. Caudium should still be completely Roxen 1.3 compatible.
 + Demo SSL-certificate fixed for Caudium.
-+ Various incompatible changes. See README.compatibility for details.
-+ protocols/http.pike use the parse_got David wrote for Roxen 2.1. It
-  sort-of-fixes the worst Roxen DOS (send an eternally long header and
-  see Roxen die). The second part of the fix is to implement a maximum
-  header length.
++ Various changes that might affect compatibility. Caudium should be
+  100% compatible with Roxen 1.3 per default however. See
+  README.compatibility for more details on this.
++ protocols/http.pike use the parse_got David originally wrote for
+  Roxen 2.1.  It sort-of-fixes the worst Roxen DOS (send an eternally
+  long header and see Roxen use 100% CPU in no time). If you use http2.pike
+  there is also a maximum request length which completely fixes the problem.
 + new protocols/http2.pike: This is considered experimental but will
   eventually replace protocols/http.pike. Major differences from
-  protocols/http.pike are: most request/header parsing done in (more
-  so than http.pike), uses ram cache code from Roxen 2.1 + various
-  rewrites for speed. This one, with the ram cache, is much faster
-  than the other http protocol.
+  protocols/http.pike are: most request/header parsing done in C (even
+  more so than http.pike), uses ram cache code from Roxen 2.1 +
+  various rewrites for speed. This one, with the ram cache, is much
+  faster than the other http protocol.
 + new options to modules/filesystems/userfs.pike : banish list can
   be disabled if needed, the virtual user system has now the option
   to add a kind of "workaround" to add some prefix to user name on the
   URL, and when the option "Look at the user dir" is set to No, the 
   home filesystem can be hashed. Very good for home pages hosting.
-+ Fixed the bug that sometimes added \r\n to the POST data.
-+ Added support for and use the Roxen 2.x module registration syntax:
++ Fixed the bug that sometimes added \r\n to the POST data (often
+  reported when Roxen was used with PHP, but it was in fact not related).
+- Added support for and use the Roxen 2.x module registration syntax:
   module_type, module_name, module_doc and module_unique.
-+ Re-added (it disappeared in Roxen 1.3) an option to disable the extra
+- Re-added (it disappeared in Roxen 1.3) an option to disable the extra
   Caudium environment variables in CGI-scripts since they sometimes cause
   unwanted problems.
-+ Replace '-=$ ' with '_' in the Caudium specific environment variables to
+- Replace '-=$ ' with '_' in the Caudium specific environment variables to
   avoid potential problems.
-+ Added strftime argument to date-related tags (<modified>, <date>
-  etc). Allows you to do custom formatting. See 'man strftime' normal
+- Added strftime argument to date-related tags (<modified>, <date>
+  etc). Allows you to do custom formatting. See 'man strftime' on normal
   UNIX box for details on strftime.
-+ Added new option to <noparse>, until. See <help for=noparse> for
+- Added new option to <noparse>, 'until'. See <help for=noparse> for
   more information.
-+ Fixed a bug in the help tag.
-+ Cast the MySQL insert id result to a string in the sqlquery
+- Fixed a bug in the help tag.
+- Cast the MySQL insert id result to a string in the <sqlquery>
   tag. Earlier it was inserted into id->variables as an integer, which
-  naturally isn't a good idea.
-+ New ip-less hosting module, Virtual Host Matcher, which does regular
+  caused various problems.
+- New ip-less hosting module, Virtual Host Matcher, which does regular
   expression based matching. Default is to do exact-only matching. You
   can then write a regexp that "rewrites" a host header for this exact
   matching. Also allows for default matching by using .* as the regular
   expression match.
-+ New module type, MODULE_PRECACHE. Needed to combine virtual hosting
+- New module type, MODULE_PRECACHE. Needed to combine virtual hosting
   and the http2 memory cache. Can also potentially be used to use custom keys
   for caching.
-+ Added define to disable the ip->host lookup in the config
-  interface. See README.performance.
-+ Split htmlparse.pike into two files. htmlparse.pike for the parser part and
+- Added define to disable the ip->host lookup in the config
+  interface. See README.performance for details and the reasoning behind this.
+- Split htmlparse.pike into two files. htmlparse.pike for the parser part and
   rxmltags.pike which contains all the tags.
-+ New "main" parser using the optionally XML-compliant Parser.HTML. This parser
-  is the same that's used in Roxen 2.x. Preliminary results show that
-  the parser is about half as fast as the older, more basic one.
-+ Added scope based variables using the 2.x syntax. Access though the
+- New "main" parser using the semi-XML-compliant Parser.HTML from Pike
+  7.x.  This parser is the same that's used in Roxen 2.x. Preliminary
+  results show that the parser is about half as fast as the older,
+  more basic one.
+- Added scope based variables using the 2.x syntax. Access though the
   entity syntax - &scope.var; - requires the new parser.
-  <insert variable="scope.var" /> and set works with both parsers.
-+ Added <inc/> and <dec/> tags to increment/decrement the value of a
+  <insert variable="scope.var" /> and similar syntaxes work with both parsers.
+- Added <inc/> and <dec/> tags to increment/decrement the value of a
   variable.
-+ Added <dice/> tag from Roxen 2.1 - return a random number based on the
+- Added <dice/> tag from Roxen 2.1 - return a random number based on the
   "type" attribute.
-+ Moved to an inline documentation format. See doc/docspec.html for the
+- Moved to an inline documentation format. See doc/docspec.html for the
   specification. This will hopefully lead to more up-do-date docs and
   better documented code.
-+ Embedded PHP4 should be working pretty well now. Requires the very
+- Embedded PHP4 should be working pretty well now. Requires the very
   latest PHP4 source (from CVS, but when 4.0.4 is released, that'll
   work) and the latest Pike 7.0 or 7.1 source.
-+ Caudium now comes with CAMAS, which is a continuation / fork of IMHO.
+- Caudium now comes with CAMAS, which is a continuation / fork of IMHO.
   The main reason being that newer IMHO most likely will only work with
   Roxen 2.x, but there are reasons too.
-+ External FastCGI program/library updated (might now work better than
+- External FastCGI program/library updated (might now work better than
   before).
-+ Tags are no longer priority based. Ie the priority of a tag module doesn't
+- Tags are no longer priority based. Ie the priority of a tag module doesn't
   affect the order of tag parsing. This shouldn't break anything since I don't
   know of anyone using this feature. The reason for the change was to simplify
   the parse modules. Also the XML parser never supported this feature.
