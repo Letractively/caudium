@@ -844,6 +844,9 @@ string tag_diagram(string tag, mapping m, string contents,
     return(sprintf("<pre>Timers: %O\n</pre>", bg_timers) + make_tag("img", m));
 #endif
 
+  if(m->tonedbox)
+    m_delete(m, "tonedbox");
+
   return make_tag("img", m);
 }
 
