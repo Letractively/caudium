@@ -1,3 +1,9 @@
+caudium (2:1.0.35-6) unstable; urgency=low
+
+  * Minor fixes upstream
+
+ -- Marek Habersack <grendel@debian.org>  Wed,  6 Jun 2001 13:36:11 +0200
+
 caudium (2:1.0.35-5) unstable; urgency=low
 
   * Two language files (pl & se) in CAMAS were broken.
