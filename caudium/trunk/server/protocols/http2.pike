@@ -248,53 +248,34 @@ private int do_post_processing()
 
   time       = _time(1);
   REQUEST_WERR(sprintf("HTTP: do_post_processing(%O)", raw));
-
-  if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
-
   if(!remoteaddr) {
-    end();
-    return 1;
+    if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
+    if(!remoteaddr) {
+      end();
+      return 1;
+    }
   }
-
-  if(query) Caudium.parse_query_string(query, variables);
-  REQUEST_WERR(sprintf("After query scan:%O", f));
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if (sscanf(f, "/<%s>/%s", a, f)==2)
-  {
-    config_in_url = 1;
-    mod_config = (a/",");
-    f = "/"+f;
-  }
-  REQUEST_WERR(sprintf("After cookie scan:%O", f));
-#endif
   
-  
-  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
-  {
-    prestate = aggregate_multiset(@(a/","-({""})));
-    f = "/"+f;
-  }
-
-  REQUEST_WERR(sprintf("After prestate scan:%O", f));
-
-  not_query = simplify_path(f);
-  REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
   if(misc->len && method == "POST") {
+    REQUEST_WERR(sprintf("Process post data (want %d, got %d): %O",
+			 misc->len, strlen(data), data));
     int l = wanted_data = misc->len;
     if(strlen(data) < misc->len) return 1;
     misc->cacheable = 0; /* No good caching posts */
     leftovers = data[l..];
     data = data[..l-1];
+
+    mapping tmp = ([]);
     if(request_headers["content-type"]) {
       // handle post data
       switch((lower_case(request_headers["content-type"])/";")[0]-" ")
       {
-       default: // Normal form data.
+       case "application/x-www-form-urlencoded": // Normal form data.
 	string v;
-	if(l < 200000)
+	if(l < 200000) {
 	  Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
 					     ({"", ""})), variables);
+	}
 	break;
 
        case "multipart/form-data":
@@ -317,6 +298,10 @@ private int do_post_processing()
 	  }
 	}
 	break;
+       default:
+	REQUEST_WERR("Unknown POST content type: "+
+		     request_headers["content-type"]);
+	
       }
     }
   }
@@ -324,6 +309,29 @@ private int do_post_processing()
   else
     leftovers = data;
 #endif
+  if(query) Caudium.parse_query_string(query, variables);
+  REQUEST_WERR(sprintf("After query scan:%O", f));
+
+#ifdef EXTRA_ROXEN_COMPAT
+  if (sscanf(f, "/<%s>/%s", a, f)==2)
+  {
+    config_in_url = 1;
+    mod_config = (a/",");
+    f = "/"+f;
+  }
+  REQUEST_WERR(sprintf("After cookie scan:%O", f));
+#endif
+  
+  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
+  {
+    prestate = aggregate_multiset(@(a/","-({""})));
+    f = "/"+f;
+  }
+
+  REQUEST_WERR(sprintf("After prestate scan:%O", f));
+
+  not_query = simplify_path(f);
+  REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
   
   foreach(indices(request_headers), string linename) {
     array(string) y;
@@ -1390,11 +1398,10 @@ void got_data(mixed fdid, string s)
   // is not killed prematurely.
   raw += s;
   if(!method) {
-	if (htp)
-    	tmp = htp->append(s);
-	else
-		return; /* or should we twist and shout?? */
-	
+    if (htp)
+      tmp = htp->append(s);
+    else
+      return; /* or should we twist and shout?? */
     switch(tmp)
     { 
      case 0:
@@ -1409,24 +1416,24 @@ void got_data(mixed fdid, string s)
       query = misc->query;
       data = misc->data;
       wanted_data = misc->len = (int)request_headers["content-length"];
+      destruct(htp);
+      if(strlen(data) < wanted_data) return;
       break;
      default:
-	 {
-	   string err = "Broken request";
-	   
-	   switch(tmp) {
-	   	 case 400: /* bad request */
-		   err = "Bad request";
-		   break;
-		   
-		 case 413: /* Request entity too large */
-		   err = "Request Entity Too Large (trying to overflow, eh?)";
-		   break;
-	   }
-	   
-       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
-       return;
-	 }
+      string err = "Broken request";
+      
+      switch(tmp) {
+       case 400: /* bad request */
+	err = "Bad request";
+	break;
+	
+       case 413: /* Request entity too large */
+	err = "Request Entity Too Large (trying to overflow, eh?)";
+	break;
+      }
+      
+      end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
+      return;
     }
   } else if(wanted_data) {
     data += s;
@@ -1561,7 +1568,7 @@ void create(void|object f, void|object c)
   /* htp should *always* exist */	
   htp = Caudium.ParseHTTP(misc, request_headers, QUERY(RequestBufSize));
   if (!htp)
-		report_error("htp is 0 in create!!\n"); /* should never happen */
+    report_error("htp is 0 in create!!\n"); /* should never happen */
 }
 
 void chain(object f, object c, string le)

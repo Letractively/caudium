@@ -166,7 +166,7 @@ private static void really_low_shutdown(int exit_code)
   // since only one thread is left running after the fork().
 #if constant(_pipe_debug)
   call_out(lambda() {  // Wait for all connections to finish
-	     call_out(Simulate.this_function(), 20);
+	     call_out(really_low_shutdown, 20);
 	     if(!_pipe_debug()[0]) exit(0);
 	   }, 1);
 #endif /* constant(_pipe_debug) */
@@ -1066,9 +1066,7 @@ public array|string type_from_filename( string|void file, int|void to )
   object current_configuration;
   string ext=extension(file);
     
-  if(!current_configuration)
-    current_configuration = find_configuration_for(Simulate.previous_object());
-  if(!current_configuration->types_fun)
+  if(!current_configuration || !current_configuration->types_fun)
     return to?({ "application/octet-stream", 0 }):"application/octet-stream";
 
   while(file[-1] == '/') 
@@ -3566,31 +3564,33 @@ void exit_when_done()
   }
   
   // Then wait for all sockets, but maximum 10 minutes.. 
-  call_out(lambda() { 
-    call_out(Simulate.this_function(), 5);
-    if(!_pipe_debug()[0])
-    {
-      roxen_perror("Exiting Caudium (all connections closed).\n");
-      stop_all_modules();
+  function callout1 =
+    lambda(function me ) { 
+      call_out(me, 5);
+      if(!_pipe_debug()[0])
+      {
+	roxen_perror("Exiting Caudium (all connections closed).\n");
+	stop_all_modules();
 #ifdef THREADS
-      stop_handler_threads();
+	stop_handler_threads();
 #endif /* THREADS */
-      add_constant("roxen", 0);	// Paranoia...
-      add_constant("caudium", 0);	// Paranoia...
-      exit(-1);	// Restart.
-      perror("Odd. I am not dead yet.\n");
-    }
-  }, 0.1);
-  call_out(lambda(){
-    roxen_perror("Exiting Caudium (timeout).\n");
-    stop_all_modules();
+	add_constant("roxen", 0);	// Paranoia...
+	add_constant("caudium", 0);	// Paranoia...
+	exit(-1);	// Restart.
+	perror("Odd. I am not dead yet.\n");
+      }
+    };
+  call_out(callout1, 0, callout1);
+  call_out(lambda() {
+	    roxen_perror("Exiting Caudium (timeout).\n");
+	    stop_all_modules();
 #ifdef THREADS
-    stop_handler_threads();
+	    stop_handler_threads();
 #endif /* THREADS */
-    add_constant("roxen", 0);	// Paranoia...
-    add_constant("caudium", 0);	// Paranoia...
-    exit(-1); // Restart.
-  }, 600, 0); // Slow buggers..
+	    add_constant("roxen", 0);	// Paranoia...
+	    add_constant("caudium", 0);	// Paranoia...
+	    exit(-1); // Restart.
+	  }, 600, 0); // Slow buggers..
 }
 
 void exit_it()

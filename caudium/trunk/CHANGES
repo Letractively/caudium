@@ -35,3 +35,5 @@ Changes in Caudium 1.1 since CVS branching
   disabled per default.
 - Correctly find libraries for various versions of Sablotron (0.50 and
   0.44 tested).
+- Fixed some bugs in the Caudium c-module.
+- Fixed newer 7.1 compaztibility problems (bye bye Simulate).
