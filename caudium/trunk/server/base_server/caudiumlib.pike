@@ -1489,7 +1489,7 @@ string roxen_encode( string val, string encoding )
    
       case "http":
         // HTTP encoding.
-        return http_encode_string (val);
+        return Protocols.HTTP.http_encode_string (val);
      
       case "cookie":
         // HTTP cookie encoding.
