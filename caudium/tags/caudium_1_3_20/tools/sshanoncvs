@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# $Id$
+#
+# This program implements the client side of anonymous cvs over ssh.
+# No more pserver! For details on how to use this and how it works,
+# visit http://www.caudiumforge.net/anoncvs.rxml.
+#
+# This is copyright 2002 by Xavier Beaudouin and the Caudium under the
+# terms of the GPL.
+# This is copyright 1999, 2001 by Joey Hess under the terms of the GPL.
+
+# Just run ssh, telling it to use this file as the identity file. 
+# Cvs will tell it what host to connect to as what user and will
+# proceed to communicate with the cvs server over the ssh link.
+# We do need to fix up the perms of the script to something ssh
+# will accept though, and put them back later.
+chmod 600 $0
+ssh -p 22 -2 -q -i $0 $@
+chmod 755 $0
+exit
+
+# The remainder of the file is the "private" key that lets users into my
+# cvs server. ssh 2 can find this key, ignoring the top part of the file.
+
+-----BEGIN DSA PRIVATE KEY-----
+MIIBuwIBAAKBgQCIKUfNNJZkrb0/IcvWWfZQu8PAytIqdxn3Bqrc7suVshnhUDuZ
+AZn5GO4mNujBFIiJTn6JNbV8MDDM5BNa65V2A7klf2+MvSPgiM8Ri3bO2TA7cNCI
+4FjawflyJFycaGq/Wn71t3q4W+zojE3DK1z9gBSFfQl6NBdxet42PO8SkwIVALhQ
+pcqeBxmFGiZ9VQtCxjG8M+HFAoGAaF0eA+Oi3GAUOdaaOEc0FcKzfuQuQCa2crkQ
+08XbMMOMsNHRmNcSp95Johd9nA0D17GykPOfoaoum6ZKUjTYo8ItxNFL5qJOqxoy
+2F5tuDWgZvBACLYYYVHsqFpj/jXqDym+1MoVHLc5rjstAkVuvl7hlRuzJUx4EsRJ
+SR1GsbYCgYBQ2CDRdb6voRP8qcx5Je803k7arEFoHw69wya/gSDO8LPTCrUShtbf
+EHgWT+oXF7hW0LfbdyI3Ho7CMAOi+LhvNZKOhrPRcuiMiMXXu6GDKAgZwnfo/zK1
+3S5DPMayzurcUMJDYU4e2eIC0yROSBTF3FhHXbM1s4GksLb1hRzrCgIVAJ40kz+O
+kMIBrhos0CtyyOuzVANJ
+-----END DSA PRIVATE KEY-----
+

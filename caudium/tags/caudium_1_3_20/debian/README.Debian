@@ -1,0 +1,44 @@
+Caudium Webserver for Debian
+----------------------------
+
+*** NOTE ***
+
+THIS IS A DEVELOPER'S RELEASE OF THE DEVELOPMENT CAUDIUM CVS TREE.
+DO NOT RELY UPON THIS PACKAGE FOR PRODUCTION USE - YOUR SERVER
+CONFIG FILES ETC. MIGHT BE DESTROYED WITH EVERY NEW RELEASE OF THIS
+PACKAGE.
+
+*** NOTE ***
+
+
+The default login/password pair for the config interface is admin/password, 
+respectively. Please make sure to change at least the password as soon
+as possible if you haven't done so during the installation process!
+
+A few notes regarding this package are due here since it differs a
+bit from its predecessor, Roxen.
+   
+ - libroxen
+   All the modules with names starting with libroxen- install themselves
+   in the /usr/share/roxen/modules directory. This path is searched
+   by Caudium, but the modules found there are loaded _last_ - so they
+   might be overriden by a module with the same name installed in directories
+   that precede the above dir in the Caudium module load pathlist.
+   One example of such situation is the libroxen-123session by Kai Voigt. This
+   module is part of the Caudium distribution, while it is not part of the
+   Roxen 1.3 one - the module from the Caudium package will be used (which
+   actually is a Good Thing(tm) - the Caudium module is newer :) )
+
+ - External packages
+   If you are a packager of an external package that requires or extends
+   Caudium, you can put the files that have to be found by Caudium in a
+   subdirectory of the /usr/share/pike_packages/apps/modules/ directory.
+   That directory is part of the standard Caudium module path.
+   NOTE: if you are upgrading from a previous version of the Caudium 1.2
+   or newer package, this path will not be added automatically. In such
+   case you will have to extend the modules path manually using the
+   Configuration Interface.
+
+ $Id$
+ 
+ -- Marek Habersack <grendel@debian.org>, Tue, 15 Aug 2000 13:47:27 +0200
