@@ -126,7 +126,7 @@ mixed verify_0(object id, object conf)
 
   string key = Tools.PEM.simple_build_pem
     ("RSA PRIVATE KEY",
-     Standards.PKCS.RSA.rsa_private_key(rsa));
+     Standards.PKCS.RSA.private_key(rsa));
   WERROR(key);
   
   if (strlen(key) != file->write(key))
