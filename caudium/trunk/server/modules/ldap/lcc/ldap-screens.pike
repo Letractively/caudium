@@ -95,6 +95,13 @@ string query_provides()
     return QUERY(provider_prefix) + "_screens";
 }
 
+private mapping(string:string) = ([
+    "add" : "screen_add",
+    "modify" : "screen_modify",
+    "error" : "screen_error",
+    "mainmenu" : "screen_mainmenu"
+]);
+
 string retrieve(object id, string name)
 {
     return "";

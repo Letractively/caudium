@@ -284,8 +284,6 @@ private mapping init_user(object id)
 {
     mapping(string:mixed)   ret = ([]);
 
-    report_notice(sprintf("id->auth == %O\n", id->auth));
-    
     if (id->auth && arrayp(id->auth) && id->auth[0]) {
         ret->name = id->auth[1];
         ret->password = id->auth[2];
@@ -302,8 +300,6 @@ private mapping init_user(object id)
     ret->my_world = id->conf->QUERY(MyWorldLocation);
     ret->mountpoint = QUERY(mountpoint);
     
-    report_notice(sprintf("ret == %O\n", ret));
-
     return ret;
 }
 
