@@ -26,8 +26,9 @@ RCSID("$Id$");
 #include "pike_macros.h"
 #include "module_support.h"
 #include "error.h"
-
+#include "mapping.h"
 #include "threads.h"
+
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -36,15 +37,37 @@ RCSID("$Id$");
 #ifdef HAVE_SABLOT
 #include <sablot.h>
 #endif
+/* This allows execution of c-code that requires the Pike interpreter to 
+ * be locked from the Sablotron callback functions.
+ */
+#if defined(PIKE_THREADS) && defined(_REENTRANT)
+#define THREAD_SAFE_RUN(COMMAND)  do {\
+  struct thread_state *state;\
+ if((state = thread_state_for_id(th_self()))!=NULL) {\
+    if(!state->swapped) {\
+      COMMAND;\
+    } else {\
+      mt_lock(&interpreter_lock);\
+      SWAP_IN_THREAD(state);\
+      COMMAND;\
+      SWAP_OUT_THREAD(state);\
+      mt_unlock(&interpreter_lock);\
+    }\
+  }\
+} while(0)
+#else
+#define THREAD_SAFE_RUN(COMMAND) COMMAND
+#endif
 
 /* Initialize and start module */
 void pike_module_init( void )
 {
 #ifdef HAVE_SABLOT
   add_function_constant( "parse", f_parse,
-			 "function(string,string,void|string:string)", 0);
+			 "function(string,string,void|string:string|mapping)",
+			 0);
   add_function_constant( "parse_files", f_parse_files,
-			 "function(string,string:string)", 0);
+			 "function(string,string:string|mapping)", 0);
 #endif
 }
 
@@ -56,20 +79,96 @@ void pike_module_exit( void )
 /** Functions implementing Pike functions **/
 #ifdef HAVE_SABLOT
 
-static void really_do_parse(SablotHandle sproc, char *xsl, char *xml,
-			    char **argums, char **res)
+/* Sablot Message Handlers */
+static MH_ERROR mh_makecode( void *ud, SablotHandle sproc,
+	int severity, unsigned short f, unsigned short code){
+  return code; /* use internal codes */
+};
+
+static MH_ERROR mh_log(void *ud, SablotHandle sproc,
+		       MH_ERROR code, MH_LEVEL level, char **fields)
 {
-  SablotRunProcessor(sproc, xsl, xml, "arg:/_output",
-			       NULL, argums);  
-  SablotGetResultArg(sproc, "arg:/_output", res);
+  /* No logging... */
+  return code;
+};
+
+inline static MH_ERROR low_mh_error(void *ud, SablotHandle sproc,
+			 MH_ERROR code, MH_LEVEL level, char **fields)
+{
+  struct mapping *map = *(struct mapping **)ud;
+  int len=500;
+  char *c;
+  char ** cc;
+  struct svalue skey, sval;
+  struct pike_string *key, *val;
+  if(map == NULL) {
+    map = allocate_mapping(7);
+    *(struct mapping **)ud = map;
+  }
+  skey.type = sval.type = T_STRING;
+  key = make_shared_binary_string("level", 5);
+  switch(level)
+  {
+  case 0:  val = make_shared_binary_string("DEBUG", 5); break;
+  case 1:  val = make_shared_binary_string("INFO", 4); break;
+  case 2:  val = make_shared_binary_string("WARNING", 7); break;
+  case 3:  val = make_shared_binary_string("ERROR", 5); break;
+  case 4:  val = make_shared_binary_string("FATAL", 5); break;
+  default: val = make_shared_binary_string("UNKNOWN", 7); break;
+  }
+  skey.u.string = key;
+  sval.u.string = val;
+  mapping_insert(map, &skey, &sval);
+  free_string(key);
+  free_string(val);
+  for (cc = fields; *cc != NULL; cc++) {
+    c = STRCHR(*cc, ':');
+    if(c == NULL) continue;
+    *c = '\0';
+    c++;
+    key = make_shared_string(*cc);
+    val = make_shared_string(c);
+    skey.u.string = key;
+    sval.u.string = val;
+    mapping_insert(map, &skey, &sval);
+    free_string(key);
+    free_string(val);
+  }
+  return 1; 
+}
+static MH_ERROR mh_error(void *ud, SablotHandle sproc,
+			 MH_ERROR code, MH_LEVEL level, char **fields)
+{
+  THREAD_SAFE_RUN(low_mh_error(ud, sproc, code, level, fields));
+  return 1;
+};
+
+MessageHandler sablot_mh = {
+  mh_makecode,
+  mh_log,
+  mh_error
+};
+
+
+static int really_do_parse(SablotHandle sproc, char *xsl, char *xml,
+			   char **argums, char **res,
+			   struct mapping **err)
+{
+  int ret;
+  ret = SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)err);
+  ret |= SablotRunProcessor(sproc, xsl, xml, "arg:/_output",
+			   NULL, argums);  
+  ret |= SablotGetResultArg(sproc, "arg:/_output", res);
+  return ret;
 }
 
 static void f_parse( INT32 args )
 {
   SablotHandle sproc;
-  struct pike_string *xml, *xsl, *out = NULL;
+  struct pike_string *xml, *xsl;
   struct svalue base;
   char *parsed = NULL;
+  struct mapping *err = NULL;
   int success;
   char *argums[] =
   {
@@ -107,22 +206,26 @@ static void f_parse( INT32 args )
   argums[1] = xsl->str;
   argums[3] = xml->str;
   THREADS_ALLOW();
-  really_do_parse(sproc, "arg:/_xsl", "arg:/_xml", argums, &parsed);
+  success = really_do_parse(sproc, "arg:/_xsl", "arg:/_xml", argums, &parsed,
+			    &err);
   THREADS_DISALLOW();
   pop_n_elems(args);
-  if(parsed != NULL) {
-    out = make_shared_string(parsed);
-    push_string(out);
-  } else
+  if(err != NULL) {
+    push_mapping(err);
+  } else if(parsed != NULL) {
+    push_text(parsed);    
+  } else {
     push_int(0);
+  }
   SablotDestroyProcessor(sproc);
 }
 
 static void f_parse_files( INT32 args )
 {
   SablotHandle sproc;
-  struct pike_string *xml, *xsl, *out = NULL;
+  struct pike_string *xml, *xsl;
   char *parsed = NULL;
+  struct mapping *err = NULL;
   int success;
   char *argums[] =
   {
@@ -133,12 +236,14 @@ static void f_parse_files( INT32 args )
   /*   SablotRegHandler(p, HLR_MESSAGE,  */
   THREADS_ALLOW();
   SablotCreateProcessor(&sproc);
-  really_do_parse(sproc, xsl->str, xml->str, argums, &parsed);
+  success = really_do_parse(sproc, xsl->str, xml->str, argums, &parsed,
+			    &err);
   THREADS_DISALLOW();
   pop_n_elems(args);
-  if(parsed != NULL) {
-    out = make_shared_string(parsed);
-    push_string(out);
+  if(err != NULL) {
+    push_mapping(err);
+  } else if(parsed != NULL) {
+    push_text(parsed);
   } else
     push_int(0);
   SablotDestroyProcessor(sproc);

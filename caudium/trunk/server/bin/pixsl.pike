@@ -3,7 +3,7 @@
 int main(int argc, array argv) {
 #if constant(PiXSL.parse)
   string xsl, xml, ofile;
-  string res;
+  mapping|string res;
   if(sizeof(argv) > 2) {
     if(argv[1] == "--pwd") {
       cd(argv[2]);
@@ -28,7 +28,20 @@ int main(int argc, array argv) {
   }
   if(!xml) xml = "file://stdin";
   res = PiXSL.parse_files(xsl, xml);
-  if(!res) exit(1);
+  if(mappingp(res)) {
+    werror("%s: XSLT Parsing failed with %serror code %s on\n"
+	   "line %s in %s:\n%s\n",
+	   res->level||upper_case(res->msgtype||"ERROR"), 
+	   res->module ? res->module + " " : "",
+	   res->code || "???",
+	   res->line || "???",
+	   res->URI || "unknown file",
+	   res->msg || "Unknown error");
+    exit(1);
+  } else if(!res) {
+    werror("Unknown error occured.\n");
+    exit(1);
+  }
   if(ofile) {
     rm(ofile);
     Stdio.write_file(ofile, res);

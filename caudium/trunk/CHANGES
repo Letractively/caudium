@@ -15,7 +15,7 @@ Changes since last Roxen 1.3
   nice performance boast.
 + Fixed small bug in htmlparse.pike when using tags that return a
   string directly.
-+ Added iXSL, a glue to Sablotron (XSLT parser) and UltraLog, a log
++ Added PiXSL, a glue to the XSLT parser Sablotron and UltraLog, a log
   parser, to the default distribution.
 + Option to edit the server name removed and added option to hide
   server version. 
