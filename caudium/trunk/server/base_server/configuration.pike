@@ -1369,7 +1369,7 @@ object _lock(object|function f)
       };
     } else
       thread_safe[f]++;
-  } else if (f->thread_safe) {
+  } else if ((!catch(f->thread_safe)) && (f->thread_safe)) {
     locks[f]=-1;
     thread_safe[f]++;
   } else {
