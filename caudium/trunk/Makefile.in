@@ -197,12 +197,6 @@ install_alt:
 	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new; \
 	 mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new \
 	    $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike
-	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium$(EXTRAVER)/;g" \
-	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium$(EXTRAVER)/servers/;g" \
-	     -e "s;\(-Metc/modules \)-M../local/pmods;\1-Mlocal_pmods;g" \
-	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start > \
-	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new; \
-	mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
 	@(cd src;$(MAKE) "prefix=$(prefix)" "DESTDIR=$(DESTDIR)" \ "CC=$(CC)" \
 	                 "LDFLAGS=$(LDFLAGS)" "EXTRAVER=$(EXTRAVER)"\
 	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@/" install_alt)
