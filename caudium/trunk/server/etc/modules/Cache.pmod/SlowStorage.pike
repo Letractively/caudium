@@ -69,6 +69,8 @@ void store( mapping meta ) {
   switch( meta->type ) {
   case "stdio":
 	// I would like to use nbio for this. Caudium.nbio maybe??
+    if (!objectp(meta->object) && meta->object->read)
+      break;
     string data = meta->object->read();
     meta->object->close();
     meta->size = sizeof( data );
@@ -96,7 +98,7 @@ void store( mapping meta ) {
     }
     break;
   case "image":
-    if ( meta->disk_cache ) {
+    if (meta->disk_cache && objectp(meta->object)) {
       string data = Image.PNM.encode( meta->object );
       meta->size = sizeof( data );
       m_delete( meta, "object" );
