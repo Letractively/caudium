@@ -6,7 +6,7 @@
 # the debian packaging files written by Marek Habersack <grendel@caudium.org>
 
 %define name	caudium
-%define version	cvs20000930
+%define version	cvs20001003
 %define release	2
 %define packager Mike A. Harris <mharris@meteng.on.ca>
 
@@ -130,6 +130,7 @@ cp redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
 
 # Create various dirs required for proper operation
 mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
+
 rm -rf /usr/share/caudium/unfinishedmodules
 
 ###############  CLEAN SECTION  ########################################
@@ -163,6 +164,7 @@ rm -rf /usr/share/caudium/unfinishedmodules
 %_libdir/caudium/start
 %_libdir/caudium/testca.pem
 %_datadir/caudium
+#%%dir /usr/doc/%{name}-%{version}
 %dir /usr/local/share/caudium/modules
 %dir /var/cache/caudium
 %dir /var/log/caudium
@@ -171,7 +173,7 @@ rm -rf /usr/share/caudium/unfinishedmodules
 %config %attr(0755, root, root) %_initdir/caudium
 %config(noreplace) %attr(0700, root, root) /etc/caudium/*
 
-%doc %_docdir/%{name}-%{version}/*
+%doc %_docdir/%{name}-%{version}
 
 
 ###############  FILES SECTION (caudium-modules)  ######################
@@ -191,7 +193,11 @@ rm -rf /usr/share/caudium/unfinishedmodules
 
 
 %changelog
-* Tue Oct 2 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Tue Oct 3 2000 Mike A. Harris <mharris@meteng.on.ca>
+  Corrected documentation packaging, stripped out unfinished modules
+  from being packaged in final install rpms.
+
+* Mon Oct 2 2000 Mike A. Harris <mharris@meteng.on.ca>
   Added pike version detection to spec file, then took it back away
   until the RPM guys get back to me with a fix.  ;o)
 
