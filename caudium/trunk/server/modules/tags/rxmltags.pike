@@ -2136,9 +2136,26 @@ string tag_modified(string tag, mapping m, object id, object file,
   return s ? tagtime(s[3], m) : "Error: Cannot stat file";
 }
 
-string tag_version(string rag, mapping m) 
+string tag_version(string tag, mapping m) 
 {
-  return caudium->version(); 
+    string ver = caudium->version;
+    int    minor, major, release;
+    
+    if (!m || !sizeof(m))
+        return ver;
+
+    sscanf(ver, "Caudium/%d.%d.%d", major, minor, release);
+
+    if (m->major)
+        return (string)major;
+
+    if (m->minor)
+        return (string)minor;
+
+    if (m->release)
+        return (string)release;
+
+    return "";
 }
 
 string tag_clientname(string tag, mapping m, object id)
