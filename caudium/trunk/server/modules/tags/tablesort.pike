@@ -29,23 +29,6 @@ constant thread_safe=1;
 #include <module.h>
 #define TSESSION id->misc->session_variables->tabsort
 
-// compat calls between Caudium 1.2 and 1.4
-#ifdef Caudium.parse_html
-#define PARSER Caudium.parse_html
-#else
-#ifdef CAMAS.Parse.parse_html
-#define PARSER CAMAS.Parse.parse_html
-#else
-#define PARSER parse_html
-#endif
-#endif
-
-#if constant(Caudium.add_pre_state) 
-#define ADD_PRE_STATE Caudium.add_pre_state
-#else
-#define ADD_PRE_STATE add_pre_state
-#endif
-
 #define TDEBUG(X) if(QUERY(debug)) { report_debug("TABLESORT_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
 
 inherit "module";
@@ -236,7 +219,7 @@ string container_tabsort(string tag_name, mapping args, string contents, object 
 {
   string out = "";                                              // string to output
 
-  out += PARSER(contents,
+  out += Caudium.Parse.parse_html(contents,
                       ([
                        ]),
                       ([
@@ -267,22 +250,18 @@ string container_tabsort_sort_href(string tag_name, mapping args, string content
     ]);
  
   string baseuri = args->basehref || id->not_query;
-  args->href = ADD_PRE_STATE(baseuri, id->prestate)
+  args->href = Caudium.add_pre_state(baseuri, id->prestate)
     + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
-  out = PARSER(contents,
+  out = Caudium.Parse.parse_html(contents,
                    ([
                        "img_arrow"        : tag_tabsort_sort_href_img,
                     ]),
                    ([
                     ]),
                    id, column, arrowup, arrowdown, arrownone);
-#if constant(CAMAS.Tools.make_container)
-  out = CAMAS.Tools.make_container("a", args, out);
-#else
   out = Caudium.make_container("a", args, out);
-#endif
 
   return out;
 }
@@ -299,7 +278,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
         args->src = arrowup;
       	args->alt = "/\\";
         m_delete(args, "arrowup");
-      	return make_tag("img", args);
+      	return Caudium.make_tag("img", args);
       }
       else
         return "/\\";
@@ -311,7 +290,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
         args->src = arrowdown;
       	args->alt = "\\/";
       	m_delete(args, "arrowdown");
-        return make_tag("img", args);
+        return Caudium.make_tag("img", args);
       }
       else
         return "\\/";
@@ -324,7 +303,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
       args->src = arrownone;
       args->alt = "-";
       m_delete(args, "arrownone");
-      return make_tag("img", args);
+      return Caudium.make_tag("img", args);
     }
     else
       return "-";
