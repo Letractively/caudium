@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2003 The Caudium Group
+ * Copyright © 2000-2002 The Caudium Group
  * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
@@ -18,6 +18,47 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+/* SQL Database description:
+
+CREATE TABLE comments (
+  id int(11) NOT NULL auto_increment,
+  pic_name varchar(251) DEFAULT '' NOT NULL,
+  comment text DEFAULT '' NOT NULL,
+  datetime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  user text DEFAULT '' NOT NULL,
+  ip varchar(16) DEFAULT '' NOT NULL,
+  PRIMARY KEY (id),
+  KEY pic_name (pic_name)
+);
+
+CREATE TABLE descr (
+  name varchar(255) DEFAULT '' NOT NULL,
+  descr text DEFAULT '' NOT NULL,
+  seclevel int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (name)
+);
+
+CREATE TABLE ratings (
+  id int(11) NOT NULL auto_increment,
+  datetime datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+  pic_name varchar(251) DEFAULT '' NOT NULL,
+  ip varchar(16) DEFAULT '' NOT NULL,
+  rating int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (id),
+  KEY pic_name (pic_name)
+);
+
+CREATE TABLE users (
+  login char(20) DEFAULT '' NOT NULL,
+  pass char(32) DEFAULT '' NOT NULL,
+  cookieval char(128) DEFAULT '' NOT NULL,
+  seclevel int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (login)
+);
+
+*/
+
 /*
  * $Id$
  */
@@ -26,6 +67,8 @@ inherit "module";
 
 #include <config.h>
 #include <module.h>
+
+#define SQLConnect(X) my_configuration()->sql_connect(X)
 
 //
 //! module: PikeGraphy
@@ -40,7 +83,15 @@ inherit "module";
 constant module_type  = MODULE_PARSER;
 constant module_name  = "PikeGraphy";
 constant module_doc   = "Another photoalbum module.<br>"
-                        "This is a phpGraphy clone like module for Caudium.";
+                        "This is a phpGraphy clone like module for Caudium."
+			"<p>\n"
+			"Tag Args: "
+			"nocss (optional) do not include configured stylesheet definitions"
+			"rootname (optional) change name of gallery root"
+			"separator (optional) change directory separator text"
+			"next (optional) change next link text"
+			"previous (optional) change previous link text";
+
 constant thread_safe=0;	// Not yet...
 
 void create () {
@@ -49,7 +100,9 @@ void create () {
           "A:link {text-decoration: none ; color: #aabbcc}\n" +
           "A:visited{text-decoration:none ; color: #aabbcc}\n" +
           "A:active{text-decoration:none; color: #aabbcc}\n" +
-          "A:hover{text-decoration:underline; color: #aabbcc}\n";
+	          "A:hover{text-decoration:underline; color: #aabbcc}\n"
+	  "FONT.totalimages{font-family: Helvetica, Arial, sans-serif; font-weight: bold}"
+	  "FONT.imagecount{}";
   defvar ("sqlserver", "localhost", "SQL server",
           TYPE_STRING,
           "This is the host running the SQL server with the " 
@@ -64,8 +117,8 @@ void create () {
   defvar ("css_classes", css_classes, "CSS Classes", TYPE_TEXT, "" );
   defvar ("image_by_line", 3, "Default number of cols", TYPE_INT, "Default number of columns." );
   defvar ("nb_pic_max", 12, "Default number of pics", TYPE_INT, "Default number of pictures." );
-  defvar ("root_dir", "/home/httpd/htdoc/home/pikegraphy/pictures/", "root_dir", TYPE_STRING, "" );
-  defvar ("root_images", "pictures/", "root_images", TYPE_STRING, "" );
+  defvar ("root_dir", "/home/httpd/htdoc/home/pikegraphy/pictures/", "root_dir", TYPE_DIR, "Location of the images in the real filesystem." );
+  defvar ("root_images", "pictures/", "root_images", TYPE_STRING, "Location in the Virtual Filesystem of the pictures (root_dir) to bedisplayed." );
 }
 
 string replace_string (string what)
@@ -80,14 +133,14 @@ string replace_string2 (string what)
 
 int get_nb_comment (string filename)
 {
-  object db = Sql.Sql(QUERY(sqlserver));
+  object db = SQLConnect(QUERY(sqlserver));
   array x = db->query("select * from comments where pic_name='"+filename+"'");
   return (int) (sizeof(x));
 }
 
 mixed get_comment (string filename)
 {
-  object db = Sql.Sql(QUERY(sqlserver));
+  object db = SQLConnect(QUERY(sqlserver));
   array x = db->query("select * from descr where name='"+filename+"'");
   if ( sizeof(x) == 0 ) {
      return "";
@@ -98,7 +151,7 @@ mixed get_comment (string filename)
 
 int get_level (string dir)
 {
-  object db = Sql.Sql(QUERY(sqlserver));
+  object db = SQLConnect(QUERY(sqlserver));
   array x = db->query("select * from descr where name='"+dir+"'");
   if ( sizeof(x) == 0 ) {
      return 0;
@@ -116,7 +169,7 @@ mixed t_pikegraphy(string tag, mapping args, object id)
   //variables necessaire au script
   int tmp_int=0;
   string dir="";
-  string cnt="";
+  string cnt="<style type=\"text/css\">" + QUERY(css_classes) + "</style>\n";
   int startpic=0;
   string filename="";
   int logging=0;
@@ -124,6 +177,15 @@ mixed t_pikegraphy(string tag, mapping args, object id)
   string username="";
   int userlevel=0;
   string txt_root_dir="home/";
+  string txt_separator="/";
+  string txt_next="  -- NeXT -->> ";
+  string txt_previous="  <<-- Previous -- ";
+
+  if(args->nocss) cnt="";
+  if(args->rootname) txt_root_dir=args->rootname;
+  if(args->separator) txt_separator=args->separator;
+  if(args->next) txt_next=args->next;
+  if(args->previous) txt_previous=args->previous;
 
 //cnt = head_page(cnt) ;
 
@@ -147,7 +209,7 @@ if (id->variables && id->variables->logout) {
 
 if (id->variables && id->variables->login) {
   cnt += "</td><tr><td align=left>";
-  cnt += "<form method=POST action=\"index.htm\">";
+  cnt += "<form method=POST action=\"" + id->not_query + "\">";
   cnt += "Login :    <input name=\"user\" size=20><br>";
   cnt += "Password : <input type=\"password\" name=\"pass\" size=20>";
   cnt += "<input type=\"hidden\" name=\"startlogin\" value=\"1\">";
@@ -160,7 +222,7 @@ if (id->variables && id->variables->login) {
  }
 
 if (id->variables && id->variables->startlogin) {
-   object db = Sql.Sql(QUERY(sqlserver));
+   object db = SQLConnect(QUERY(sqlserver));
    array x = (db->query("select * from users where login=\""+id->variables->user+"\" and pass=\""+id->variables->pass+"\""));
    if ( (sizeof(x)) != 0 ) {
    	cnt += "<set_cookie name=LoginValue value=\""+x[0]->cookieval+"\" minutes=15>";
@@ -175,7 +237,7 @@ if (id->variables && id->variables->startlogin) {
    }
 } else {
    if (id->cookies && id->cookies->LoginValue ) {
-       object db = Sql.Sql(QUERY(sqlserver));
+       object db = SQLConnect(QUERY(sqlserver));
        array x = (db->query("select * from users where cookieval=\""+id->cookies->LoginValue+"\" "));
        if ( sizeof(x) == 1 ) {
           if ((int)x[0]->seclevel==999) {
@@ -191,17 +253,17 @@ if (id->variables && id->variables->startlogin) {
  }
    
 if (id->variables && id->variables->dirlevel && admin == 1) {
-   object db = Sql.Sql(QUERY(sqlserver));
+   object db = SQLConnect(QUERY(sqlserver));
    db->query("replace into descr values('"+id->variables->dir+"','','"+id->variables->dirlevel+"')");
 }
 
 if (id->variables && id->variables->updpic && admin == 1 ) {
-   object db = Sql.Sql(QUERY(sqlserver));
+   object db = SQLConnect(QUERY(sqlserver));
    db->query("replace into descr values('"+id->variables->display+"','"+id->variables->dsc+"','"+id->variables->lev+"')");
 }
 
  if (id->data != "" && id->variables && id->variables->comment ){
-   object db = Sql.Sql(QUERY(sqlserver));
+   object db = SQLConnect(QUERY(sqlserver));
    db->query("insert into comments values (0,'"+id->variables->picname+"','"+id->variables->comment+"','2001-10-12 12:00','"+id->variables->username+"','"+id->variables->remoteaddr+"')");
    cnt = "<html><script language=\"javascript\">window.opener.location=\"?display="+id->variables->id+"\";window.close();</script></html>";
    return cnt;
@@ -228,23 +290,24 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
  // Construction du path en haut du tableau
  //
  if (id->variables) {
-  if ( (!id->variables->dir) || (id->variables->dir == "dir=") || (id->variables->dir == "") ) {
+  if ( (!id->variables->display) && ( (!id->variables->dir) || 
+     (id->variables->dir == "dir=") || (id->variables->dir == "")) ) {
    cnt += txt_root_dir+"</td>\n";
    }
    else
    {
-     cnt += "<a href=?dir=>"+txt_root_dir+"</a>";
+     cnt += "<a href=?dir=>"+txt_root_dir+"</a>" + txt_separator;
      array alldir= explode_path(dir);
      string alltmp="";
 
      for (int i=0;i<(sizeof(alldir));i++) {
        if ( i == (sizeof(alldir) -1) && (id->variables && id->variables->display == "")) {
-         cnt += "/"+alldir[i]+"\n";
+         cnt += " "+alldir[i]+"\n";
        }  else {
             if ( alltmp == "" ) {
-                cnt += "<a href=?dir="+alltmp+alldir[i]+">"+alldir[i]+"/</a>";
+                cnt += "<a href=?dir="+alltmp+alldir[i]+">"+alldir[i]+"</a>" + txt_separator;
             } else {
-                cnt += "<a href=?dir="+alltmp+"/"+alldir[i]+">"+alldir[i]+"/</a>";
+                cnt += "<a href=?dir="+alltmp+"/"+alldir[i]+">"+alldir[i]+"</a>" + txt_separator;
             }
        }
      alltmp += alldir[i];
@@ -303,7 +366,7 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    array(string) cnt_dir = sort(Array.filter(get_dir(QUERY(root_dir)+dir), lambda(string s) { return glob("*.jpg", s);}));
 
    if ( (sizeof(cnt_dir)) != 0 ) {
-     cnt += "\n\t<table cellspacing=0 cellpadding=3 border=0  width=\"100%\">\n";
+     cnt += "\n\t<table cellspacing=0 cellpadding=3 border=0 width=\"100%\">\n";
      cnt += "\t<tr>\n";
      for(int i = startpic; i<(sizeof(cnt_dir)) && i<QUERY(nb_pic_max)+startpic;i++) {
        cnt += "\t\t<td><a href=?display="+dir+"/"+replace_string(cnt_dir[i])+">";
@@ -330,19 +393,30 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
          cnt += "\n\t</tr>\n\t<tr>\n";
        }
      }
+   // display page count and total count for gallery section
+     cnt +="<tr>\n<td colspan="+(QUERY(image_by_line)+2)+">"
+	"<font class=imagecount>"
+	+ (startpic+1) + " - " +
+	((startpic+QUERY(nb_pic_max))<=sizeof(cnt_dir)?
+        (startpic+QUERY(nb_pic_max)):sizeof(cnt_dir))
+	+ " /</font> <font class=totalimages>" + sizeof(cnt_dir) + 
+	  "</font></td></tr>\n";
 
    /// Generation des lignes de navigation du previous/next
    if ( startpic != 0 ) {
      cnt += "\t<tr>\n\t\t<td colspan="+QUERY(image_by_line)*2+"><center>";
-     cnt += "<a href=?dir="+dir+"&startpic="+(startpic-QUERY(nb_pic_max))+"><<<<--- Previous </a>";
+     cnt += "<a href=?dir="+dir+"&startpic="+(startpic-QUERY(nb_pic_max))+">" +
+          txt_previous + "</a>";
      if ( (startpic+QUERY(nb_pic_max)) < (sizeof(cnt_dir))) {
-       cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+"> NeXT ->>>> </td>\n";
+       cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+">" +
+          txt_next + "</a></td>\n";
      }
    } else {
 
       if ((sizeof(cnt_dir)) > QUERY(nb_pic_max)) {
         cnt += "\t<tr>\n\t\t<td colspan="+QUERY(image_by_line)*2+"><center>";
-        cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+">  NeXT ->>>></a></td>\n";
+        cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+">"
+          + txt_next + "</a></td>\n";
       }
 
 //     cnt += (sizeof(cnt_dir))+"  "+QUERY(nb_pic_maxi);
@@ -368,7 +442,7 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
 //       cnt += comment+"</span>\n\t\t\t</td>\n\t\t</tr>\n";
 //   }
 
-   cnt += "\t\t<tr align=\"center\">\n\t\t\t<td > ( "+num_filename+"/"+(sizeof(cnt_dir)-1)+" ) \n\t\t\t</td>\n\t\t</tr>\n\t\t<tr align=\"center\" >\n\t\t\t<td>";
+   cnt += "\t\t<tr align=\"center\">\n\t\t\t<td > ( "+(num_filename+1)+"/"+(sizeof(cnt_dir)-1)+" )\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr align=\"center\" >\n\t\t\t<td>";
    if ( num_filename > 0 )
         cnt += "<a href=?display="+dir+"/"+replace_string(cnt_dir[(num_filename-1)])+">Previous </a>" ;
 
