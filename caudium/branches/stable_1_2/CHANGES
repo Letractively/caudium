@@ -1,4 +1,4 @@
-Changes in Caudium 1.2.xx since 1.2.26
+Changes in Caudium 1.2.28 since 1.2.26
 --------------------------------------
 - MIME.Decode in base_server/wizard.pike is now inside a catch() to avoid
   break in case of partial / malformed base64 data given to the webserver.
