@@ -69,27 +69,6 @@ void endreport()
     pp("\n*** Found %d potential problem%s.\n", warnings, (warnings>1 ? "s" : "") );
 }
 
-array(string) has_features(array features)
-{
-  array a = ({});
-
-  foreach(features, string modname)
-  {
-    catch
-    {
-      if(([ "Java":2 ])[modname] <
-	 sizeof(indices(master()->resolv(modname) || ({}))))
-      {
-	if(modname[0] == '_')
-	  modname = replace(modname[1..], "_", ".");
-	a += ({ modname });
-      }
-    };
-  }
-
-  return a;
-}
-
 int main(int argc, array argv)
 {
   if(argc > 1)
@@ -98,45 +77,31 @@ int main(int argc, array argv)
     if( sscanf(argv[1], "%d.%d", major, minor) != 2 )
     // but it seems to be badly formatted...
     {
-      Stdio.stderr.write("wrong Caudium version number given (wrong format)\n");
+      Stdio.stderr.write("Wrong Caudium version number given (wrong format)\n");
       exit(1);
     }
   }
 
-  array missing, existing;
   sscanf(version(), "Pike v%f release %d", ver, rel);
   write("Checking for potential compatibility problems with your Pike installation...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver < 7.5 ||
-     (ver == 7.5 && rel < 1))
-    warning("Caudium 1.3 requires Pike 7.5.1 or newer.");
+  if(ver < 7.6 ||
+     (ver == 7.6 && rel < 1))
+    warning("Caudium 1.5 requires Pike 7.6.1 or newer, current version is\n%s",
+      version());
 
   if(ver == 7.7) {
     warning("We strongly recommend the use of Pike 7.6 for Caudium. "
-            "Pike 7.7 is less\n"
-	    "tested and still a development version.");
+            "Pike %f is less\n"
+	    "tested and still a development version.", ver);
   }
-  
-#if constant(Parser.HTML) 
-  /* Parser.HTML recursion stuff */
-  if(!(Parser.HTML()->max_stack_depth))
-    warning("Your Parser.HTML is missing the max_stack_depth() function. This might cause\n"
-	    "'too deep recursion' errors when using the new XML compliant RXML parser.\n"
-	    "CAMAS is known to show this problem. Upgrade your Pike 7.0 to build >= 286\n"
-	    "or Pike 7.1 to build >= 12 to fix this problem.");
-#endif
 
-  missing = ({});
-#if !constant(Image.GIF.decode)
-  missing += ({ "GIF"});
-#endif
-#if !constant(Image.JPEG.decode)
-  missing += ({ "JPEG"});
-#endif
-#if !constant(Image.PNG.decode)
-  missing += ({ "PNG"});
-#endif
+// if the pike doesn't have Tools.Install.features it's not a pike 7.6 anyway
+#if constant(Tools.Install.features)
+  array missing, existing = Tools.Install.features();
+  
+  missing = ({ "Image.GIF", "Image.JPEG", "Image.PNG" }) - existing;
   if(sizeof(missing)) {
     warning("Pike is missing support for the image format%s %s.\n"
 	    "This might limit the functionality of the dynamic image generation in Caudium.",
@@ -144,10 +109,10 @@ int main(int argc, array argv)
 	    String.implode_nicely(missing));
   }
 
-  missing = ({ "Msql", "Mysql", "Odbc", "Oracle", "Postgres", "sybase" });
-
-  existing = has_features(missing);
-  missing -= existing;
+  array databases = ({ "Msql", "Mysql", "Odbc", "Oracle", "Postgres", "sybase" });
+  missing = databases - existing;
+  array supported_backend = databases & existing;
+  
 
   if(sizeof(missing)) {
     warning("Pike is missing support for the following database backend%s:\n"
@@ -155,21 +120,13 @@ int main(int argc, array argv)
 	    "\t%s",
 	    (sizeof(missing) == 1 ? "" : "s"), 
 	    String.implode_nicely(missing),
-	    (sizeof(existing) == 1 ? "" : "s"), 
-	    ( sizeof(existing) ? String.implode_nicely(existing) : "none" ));
+	    (sizeof(supported_backend) == 1 ? "" : "s"), 
+	    ( sizeof(supported_backend) ? String.implode_nicely(supported_backend) : "none" ));
   }
   
-#if !constant(Gmp.mpz)
+if(!has_value(existing, "Gmp"))
   warning("Your Pike is lacking Gmp support. This will, among other things, disable the\n"
 	  "SSL3 support. You can fetch the  GMP library from any GNU mirror.");
-#endif
-
-#if !defined(__MAJOR__) || __MAJOR__ < 7
-  warning("Caudium doesn't support SSL3 with Pike 0.6. Upgrade to Pike 7.0 if\n"
-	  "you need https support.");
-#elif !constant(Nettle)
-  warning("Your Pike is lacking the Nettle module so you won't be able to use SSL3.");
-#endif
 
 #if !constant(SSL)
   warning("Your Pike is lacking of SSL module. So you won't be able to use\n"
@@ -177,18 +134,17 @@ int main(int argc, array argv)
           "SSL module.");
 #endif 
 
-#if !constant(Image.TTF)
+if(!has_value(existing, "Image.TTF"))
   warning("Your Pike is lacking truetype font support. If you want to use <gtext> with\n"
 	  "truetype fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
-#endif
 
-#if !constant(Gdbm.gdbm)
+if(!has_value(existing, "Gdbm"))
   warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
 	  "for storing log summaries. You can still use UltraLog with the File and\n"
 	  " Filetree backends however.");
-#endif
 
+#endif
   endreport();
 }
 
