@@ -1169,7 +1169,7 @@ void check_using_PING()
   if(in_check)
     flex_write("Watchdog is already in a check... skipping.\n");
 
-  if(watchdog_params->sites && !in_check)
+  if(watchdog_params->sites && sizeof(watchdog_params->sites) && !in_check)
   {
     in_check=1;
     // we have a site to check.    
@@ -1219,7 +1219,7 @@ void check_using_GET()
   if(in_check)
     flex_write("Watchdog is already in a check... skipping.\n");
 
-  if(watchdog_params->sites && !in_check)
+  if(watchdog_params->sites && sizeof(watchdog_params->sites) && !in_check)
   {
     in_check=1;
     // we have a site to check.    
