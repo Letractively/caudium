@@ -22,10 +22,9 @@
  * $Id$
  */
 
-
-
 #include "config.h"
 #include "global.h"
+RCSID("$Id$");
 
 #include "array.h"
 #include "backend.h"
