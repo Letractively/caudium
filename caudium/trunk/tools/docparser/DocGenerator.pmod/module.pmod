@@ -232,7 +232,7 @@ class DocGen
     if (!sizeof(f->containers))
       return "";
     ret = "<containers>\n";
-    foreach(f->tags, object tag)
+    foreach(f->containers, object tag)
       ret += do_f_tag(tag, 1);
     ret += "</containers>\n";
 
@@ -402,7 +402,6 @@ class DocGen
 	/* And containers */
 	if (f->containers)
 	  ofile->write(f_containers(f));
-
 	ofile->write("</module>");
     }
     
