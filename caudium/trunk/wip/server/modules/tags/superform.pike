@@ -12,10 +12,10 @@ void create()
 
  defvar("regexps",
         "::int:: ^[0-9]+$\n"
-        "::float:: ^[0-9]+[.][0-9]+$\n"
+        "::float:: ^[0-9]+\\.[0-9]+$\n"
         "::email:: ^[a-zA-Z0-9]+[-+a-zA-Z0-9._]*@[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
         "::domain:: [-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
-        "::money:: ^[0-9]+[.][0-9][0-9]$\n"
+        "::money:: ^[0-9]+\\.[0-9][0-9]$\n"
         "::login:: [-a-zA-Z0-9._]+$\n",
         "Predefined Regular expressions", TYPE_TEXT_FIELD,
         "If the match string is one of the fixed strings on the left it will "
