@@ -247,7 +247,8 @@ mixed first_try(object id)
 
 //! defvar: fileredirect
 //! Redirect one file to another. The syntax is 'regexp to_URL',or 'prefix to_URL', or 'exact file_name to_URL<p>Some examples:<pre>	/from/.*      http://to.idonex.se/to/%f<br />	.*\.cgi      http://cgi.foo.bar/cgi-bin/%p<br />	/thb/.*       %u/thb_gone.html<br />	/roxen/       http://www.roxen.com/<br />	exact /       /main/index.html
-//!</pre></p><p><b>Special Substitutions (in the 'to' field):</b><dl compact="compact"><dt>%f</dt><dd>The file name of the matched URL without the path.</dd>
+//!</pre></p><p><b>Special Substitutions (in the 'to' field):</b><dl compact="compact"><dt>%%</dt><dd>Insert a literal % info the URL. Needed if you want to use URL encoding.</dd>
+//!<dt>%f</dt><dd>The file name of the matched URL without the path.</dd>
 //!<dt>%p</dt><dd>The full virtual path of the matched URL.</dd>
 //!<dt>%u</dt><dd>The manually configured Server URL. This is useful if you want your redirect to be external instead of an internal rewrite and don't want to hardcode the URL in the patterns.</dd>
 //!<dt>%h</dt><dd>The accessed Server URL, using the HTTP host header. If the host header is missing, the configured Server URL will be used instead. This is useful if you want your external redirect to to the same host as the user accessed (ie if they access the site as http://www/ they won't get a redirect to http://www.domain.com/).
