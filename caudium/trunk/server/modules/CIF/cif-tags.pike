@@ -68,7 +68,7 @@ array(string) container_conflist(string tag, mapping args, string contents, obje
     foreach(configs, mapping cfg) {
         mapping nmap = ([]);
 
-        nmap->url = sprintf("%s(showconf)/?name=%s",
+        nmap->url = sprintf("%sshowconf?name=%s",
                             id->conf->query("MyWorldLocation"),
                             Caudium.http_encode_url(cfg->name));
         nmap->name = cfg->name;
