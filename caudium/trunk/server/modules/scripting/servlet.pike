@@ -1,26 +1,51 @@
-// This is a Caudium module.
-// Copyright © 2003, The Caudium Group.
-// Copyright © 1999 - 2001, Roxen IS.
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2003 The Caudium Group
+ * Copyright © 1999-2001 Roxen Internet Software
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+/*
+ * $Id$
+ */
 
+//
+//! module: Java Servlet bridge
+//!  An interface to Java <a href="http://java.sun.com/products/servlet/index.html"
+//!  Servlets</a>.
+//! inherits: module
+//! inherits: http
+//! type: MODULE_FILE_EXTENSION | MODULE_LOCATION
+//! cvs_version: $Id$
+//
+
+#include <module.h>
 inherit "module";
 inherit "http";
 
-#include <module.h>
-
-string cvs_version = "$Id$";
-int thread_safe=1;
+constant cvs_version   = "$Id$";
+constant module_type   = MODULE_LOCATION | MODULE_FILE_EXTENSION;
+constant module_name   = "Java Servlet bridge";
 constant module_unique = 0;
-
-static inherit "http";
+constant thread_safe   = 1;
+#if constant(Java)
+constant module_doc    = "An interface to Java <a href=\"http://java.sun.com/"
+                         "products/servlet/index.html""\">Servlets</a>.";
 
 object servlet;
-
 string status_info="";
-
-constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
-constant module_name = "Java: Java Servlet bridge";
-constant module_doc  = "An interface to Java <a href=\"http://java.sun.com/"
-  "products/servlet/index.html""\">Servlets</a>.";
 
 #if constant(Servlet.servlet)
 
@@ -266,3 +291,10 @@ void create()
          "client until the output is fully parsed.");
 }
 
+#else /* constant(Java)
+constant module_doc  = "An interface to Java <a href=\"http://java.sun.com/"
+                       "products/servlet/index.html""\">Servlets</a>."
+                       "<br/><b>Your system is lacking for Java support in "
+                       "in Pike. Please check you have correctly installed "
+                       "Java support for your running pike.";
+#endif
