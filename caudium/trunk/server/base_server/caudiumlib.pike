@@ -304,7 +304,7 @@ static mapping build_caudium_env_vars(object id)
   return new;
 }
 
-/* Backwards Roxen compatibility */
+//! Backwards Roxen compatibility
 static function build_roxen_env_vars = build_caudium_env_vars; 
 
 //!  Return a textual description of the file mode.
@@ -1005,6 +1005,13 @@ static string add_config( string url, array config, multiset prestate )
   return "/<" + config * "," + ">" + add_pre_state(url, prestate);
 }
 
+//! Converts miliseconds to seconds
+//!
+//! @param t
+//!  Number of miliseconds.
+//!
+//! @returns
+//!  A string representation of the passed value converted to seconds.
 string msectos(int t)
 {
   if(t<1000) { /* One sec. */
@@ -1163,24 +1170,25 @@ static string short_date(int timestamp)
 //!
 //! @returns
 //!  The UNIX time value for the date.
+//!
+//! @note
+//!   Non-RIS implementation;
 int httpdate_to_time(string date)
 {     
-  if (intp(date)) return -1;
-  // Tue, 28 Apr 1998 13:31:29 GMT
-  // 0    1  2    3    4  5  6
-  int mday,hour,min,sec,year;
-  string month;
-  if (sscanf(date,"%*s, %d %s %d %d:%d:%d GMT",mday,month,year,hour,min,sec)==6)
-    return mktime((["year":year-1900,
-                    "mon":MONTHS[lower_case(month)],
-                    "mday":mday,
-                    "hour":hour,
-                    "min":min,
-                    "sec":sec,
-                    "timezone":0]));
-   
-   
-  return -1; 
+  if (intp(date))
+    return -1;
+
+  int   ret;
+  mixed error = catch {
+    ret = Calendar.parse("%e, %a %M %Y %h:%m:%s %z", date)->unix_time();
+  };
+
+  if (error) {
+    report_error("httpdate_to_time error: %O", error);
+    return -1;
+  }
+  
+  return ret;
 }
 
 //! Converts an integer into a Roman digit
@@ -1190,71 +1198,33 @@ int httpdate_to_time(string date)
 //!
 //! @returns
 //!  A string representing the Roman equivalent of the passed integer.
+//!
+//! @note
+//!  Non-RIS implementation
 static string int2roman(int m)
 {
-  string res="";
-  if (m>10000000||m<0)
+  if (m>10000||m<0)
     return "que";
-  
-  while (m>999) {
-    res+="M";
-    m-=1000;
-  }
-  
-  if (m>899) {
-    res+="CM";
-    m-=900;
-  } else if (m>499) {
-    res+="D";
-    m-=500;
-  } else if (m>399) {
-    res+="CD";
-    m-=400;
-  }
-  
-  while (m>99) {
-    res+="C";
-    m-=100;
-  }
-  
-  if (m>89) {
-    res+="XC";
-    m-=90;
-  } else if (m>49) {
-    res+="L";
-    m-=50;
-  } else if (m>39) {
-    res+="XL";
-    m-=40;
-  }
-  
-  while (m>9) {
-    res+="X";
-    m-=10;
-  }
-  
-  if (m>8)
-    return res+"IX";
-  else if (m>4) {
-    res+="V";
-    m-=5;
-  } else if (m>3)
-    return res+"IV";
-  
-  while (m) {
-    res+="I";
-    m--;
-  }
-  
-  return res;
+
+  mixed   error;
+  string  ret;
+
+  error = catch {
+    ret = String.int2roman(m);
+  };
+
+  if (error)
+    return "que";
+
+  return ret;
 }
 
 //! Converts an integer number into a string
 //!
-//! @param n
+//! @param num
 //!  Integer to be converted
 //!
-//! @param m
+//! @param params
 //!  Mapping with parameters. Currently known parameters are:
 //!
 //!   @mapping
@@ -1290,36 +1260,44 @@ static string int2roman(int m)
 //!
 //! @returns
 //!  String representation of the passed integer.
-static string number2string(int n ,mapping m, mixed names)
+//!
+//! @notes
+//!  Non-RIS implementation
+static string number2string(int num ,mapping params, mixed names)
 {
-  string s;
-  switch (m->type) {
+  string ret;
+  
+  switch (params->type) {
       case "string":
         if (functionp(names)) {
-          s=names(n);
+          ret = names(num);
           break;
         }
         
-        if (!arrayp(names) || n<0 || n>=sizeof(names))
-          s="";
+        if (!arrayp(names) || num < 0 || num >= sizeof(names))
+          ret = "";
         else
-          s=names[n];
+          ret = names[num];
         break;
         
       case "roman":
-        s=int2roman(n);
+        ret = int2roman(num);
         break;
         
       default:
-        return (string)n;
+        return (string)num;
   }
-  if (m->lower)
-    s=lower_case(s);
-  if (m->upper)
-    s=upper_case(s);
-  if (m->cap||m->capitalize)
-    s=String.capitalize(s);
-  return s;
+  
+  if (params->lower)
+    return lower_case(ret);
+  
+  if (params->upper)
+    return upper_case(ret);
+  
+  if (params->cap || params->capitalize)
+    return String.capitalize(ret);
+  
+  return ret;
 }
 
 static string image_from_type( string t )
