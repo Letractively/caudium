@@ -1355,24 +1355,28 @@ array parse_range_header(int len)
 
 static string make_content_type(object conf, mapping file)
 {
-  string     type, charset;
+  string     type, charset = 0;
 
   if (!file || !mappingp(file))
-    return "text/plain; charset=%s" + content_charset;
+    return "text/plain; charset=" + content_charset;
   
   type = file["type"];
 
   if (!type || sizeof(type) < 5 || type[0..4] != "text/")
     return type;
   
-  if (file->encoding)
-    charset = file->encoding;
-  else if (conf && objectp(conf))
-    charset = conf->query("content_charset");
-  else
+  if (file->charset)
+    charset = file->charset;
+  else if (conf && objectp(conf)) {
+    if (conf->query("set_default_charset")
+      charset = conf->query("content_charset");
+  } else
     charset = content_charset;
 
-  return type + "; charset=" + charset;
+  if (charset)
+    return type + "; charset=" + charset;
+  else
+    return type;
 }
 
 //! Send the result.

@@ -3239,7 +3239,13 @@ string check_variable(string name, string value)
 //! Used to hide some variables when logging is not enabled.
 int log_is_not_enabled()
 {
-  return !query("Log");
+  return !QUERY(Log);
+}
+
+//! Used to hide the default charset variable
+int default_charset_not_used()
+{
+  return !QUERY(content_charset);
 }
 
 //!
@@ -3908,13 +3914,18 @@ void create(string config)
 
   perror("Creating virtual server '"+config+"'\n");
 
+  defvar("set_default_charset", 0, "Set the default charset", TYPE_FLAG,
+         "If set then Caudium will set the specified charset "
+	 "for the served document. The value can be overriden only by setting "
+	 "a per-file character set from within RXML or Pike code.");
+  
   defvar("content_charset", "iso-8859-1", "Default content charset", TYPE_STRING,
          "This variable specifies the default content charset for this server. "
          "This value is sent in the <strong>Content-Type</strong> response "
-         "header. To override this value for a specific document, you have to "
-         "use the &lt;meta&gt; tag in the header section of your HTML file.<br />"
+         "header. <strong>If this option is used, the &lt;meta&gt; tag which sets "
+	 "the character set will be ignored.</strong><br>"
          "The format for this option is a valid ISO character set value in "
-         "lowercase.");
+         "lowercase.", 0, default_charset_not_used);
   
   defvar("netcraft_done", 0, "Netcraft submission done", TYPE_INT | VAR_MORE,
          "If different than 0, the domain has been submitted to Netcraft "
