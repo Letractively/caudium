@@ -55,18 +55,11 @@
 #define VAR_MORE          512
 
 // Fast but unreliable.
-#if constant(cpp)
-#define QUERY(var)	variables[ #var ][VAR_VALUE]
-#else /* !constant(cpp) */
-#define QUERY(var)      variables["var"][VAR_VALUE]
-#endif /* constant(cpp) */
+#define QUERY(var)	variables[#var][VAR_VALUE]
 
 // Like query, but for global variables.
-#if constant(cpp)
-#define GLOBVAR(x) caudium->variables[ #x ][VAR_VALUE]
-#else /* !constant(cpp) */
-#define GLOBVAR(x) caudium->variables["x"][VAR_VALUE]
-#endif /* constant(cpp) */
+#define GLOBVAR(var) caudium->variables[#var][VAR_VALUE]
+
 
 #define MODULE_ZERO              0
 #define MODULE_EXTENSION         (1<<0)

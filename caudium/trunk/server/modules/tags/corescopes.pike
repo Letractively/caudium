@@ -295,7 +295,11 @@ class CaudiumScope {
       //! entity: sent-mb
       //!  The total amount of data that has been sent, in Mebibytes.
       CACHE(10);
+#ifdef __AUTO_BIGNUM__
+      ret = sprintf("%1.2f",id->conf->sent/1048576.0);
+#else
       ret = sprintf("%1.2f",id->conf->sent->mb());
+#endif
       break;
 #if constant(Gmp.mpz);
      case "sent":
