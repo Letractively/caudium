@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000 The Caudium Group
- * Copyright © 1994-2000 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +38,7 @@ array register_module()
   return
   ({
     MODULE_PARSER,
-    "Caudium XSLT Tag",
+    "XSLT Tag",
     "Implements a tag that applies the specified (or the default) stylesheet "
     "to its contents. Syntax: <p><blockquote><b>"
     "&lt;xslt [stylesheet='file:fullpath|virt:virtual|var:varname'] "
@@ -117,10 +116,11 @@ string container_xslt(string tag, mapping args, string xml, object id)
   }
   if(!xsl)
     ERROR("Couldn't read XSLT stylesheet");
+  sscanf(xml, "%*[\n\t\r ]%s", xml);
   if(args->baseuri) 
     res = PiXSL.parse(xsl, xml, args->baseuri);
   else 
-    res = PiXSL.parse(xsl, xml, args->baseuri);
+    res = PiXSL.parse(xsl, xml);
   if(!res) return  "<false>";
   return res+"<true>";
 }
