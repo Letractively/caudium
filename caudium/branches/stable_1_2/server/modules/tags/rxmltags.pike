@@ -707,9 +707,23 @@ array permitted = ({ "1", "2", "3", "4", "5", "6", "7", "8", "9",
 		     "0", "-", "*", "+","/", "%", "&", "|", "(", ")" });
 string sexpr_eval(string what)
 {
-  array q = what/"";
+  array   q = what/"";
+  mixed   error;
+  string  ret;
+  
+  if (!what || !sizeof(what))
+      return "";
+  
   what = "mixed foo(){ return "+(q-(q-permitted))*""+";}";
-  return (string)compile_string( what )()->foo();
+
+  error = catch {
+      ret = compile_string( what )()->foo();
+  };
+
+  if (error)
+      return "";
+
+  return ret;
 }
 
 //! container: scope
