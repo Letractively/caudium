@@ -3942,43 +3942,16 @@ void create(string config)
           "percentage the GC routine will run more often.",
           ({ 5, 10, 15, 20, 25, 30, 35, 40, 50 }));
 #endif
+
+  //TODO: Remove all this and user Error module
   defvar("ErrorTheme", "", "Error Theme", TYPE_STRING,
          "This is the theme to apply to any error messages generated " +
          "automatically by this server. Please enter an absolute path on the virtual " +
          "filesystem(s), otherwise the system-wide default will be used." );
   
-  defvar("Old404", 1, "Old-style 404's", TYPE_FLAG,
-         "This allows you to override the new style error responses and use " +
-         "the old fasioned 404 handling." );
-  defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
-         "<body background='/(internal,image)/cowfish-bg' bgcolor='#ffffff'\n"
-         "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
-         "<h2 align='center'><configimage src='cowfish-caudium' \n"
-         "alt=\"File not found\"><p><hr noshade>\n"
-         "\n<i>Sorry</i></h2>\n"
-         "<br clear>\n<font size=\"+2\">The resource requested "
-         "<i>$File</i>\ncannot be found.<p>\n\nIf you feel that this is a "
-         "configuration error, please contact "
-         "the administrators or the author of the\n"
-         "<if referrer>"
-         "<a href=\"<referrer>\">referring</a>"
-         "</if>\n"
-         "<else>referring</else>\n"
-         "page."
-         "<p>\n</font>\n"
-         "<hr noshade>"
-         "<version>, at <a href=\"$Me\">$Me</a>.\n"
-         "</body>\n", 
-
-         "No such file Message (eg. 404 error)", TYPE_TEXT_FIELD,
-         "<b>This is depreciated, and will only work when &quot;Old-style 404's&quot; "
-         "is turned on.</b><br>"
-         "What to return when there is no resource or file available "
-         "at a certain location. $File will be replaced with the name "
-         "of the resource requested, and $Me with the URL of this server ");
-
+  //TODO: Move that to error module
   defvar("ZAuthenticationFailed", "<h1>Authentication Failed.</h1>\n",
-         "Messages: Authentication Failed - Error 401", TYPE_TEXT_FIELD,
+         "Authentication Failed Message - Error 401", TYPE_TEXT_FIELD,
          "What to return when authentication has failed");
 
   defvar("comment", "", "Virtual server comment",
