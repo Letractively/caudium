@@ -113,7 +113,7 @@ private string auth_cram_md5(string user, string pass, string challenge) {
 		opad[i] ^= 0x5c;
 	}
 	inner = Crypto.md5()->update(pass)->update(challenge)->digest();
-	outer = Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
+	outer = Caudium.Crypto.string_to_hex( Crypto.md5()->update(opad)->update(inner)->digest() );
 	return MIME.encode_base64( user + " " + outer );
 }
 #endif

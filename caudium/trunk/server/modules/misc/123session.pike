@@ -457,7 +457,7 @@ string sessionid_create() {
   md5->update(QUERY(secret));
   md5->update(sprintf("%d", roxen->increase_id()));
   md5->update(sprintf("%d", time(1)));
-  return(Crypto.string_to_hex(md5->digest()));
+  return(Caudium.Crypto.string_to_hex(md5->digest()));
 }
 
 mixed sessionid_set_prestate(object id, string SessionID) {
