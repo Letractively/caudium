@@ -946,11 +946,19 @@ public string full_status()
        ||!conf->received
        ||!conf->hsent)
       continue;
+#ifdef __AUTO_BIGNUM__
+    foo[0] += (conf->sent / 1048576.0)/(float)(time(1)-start_time+1);
+    foo[1] += conf->sent / 1048576.0;
+    foo[2] += conf->hsent / 1048576.0;
+    foo[3] += conf->received / 1048576.0;
+    foo[4] += conf->requests;
+#else    
     foo[0] += conf->sent->mb()/(float)(time(1)-start_time+1);
     foo[1] += conf->sent->mb();
     foo[2] += conf->hsent->mb();
     foo[3] += conf->received->mb();
     foo[4] += conf->requests;
+#endif
   }
 
   for(tmp = 1; tmp < 4; tmp ++)
@@ -3665,10 +3673,10 @@ int main(int|void argc, array (string)|void argv)
   define_global_variables(argc, argv);
 
   IFiles = InternalResolver(([
-             "html":GLOBVAR(InternalHTMLPath),
-			 "image":GLOBVAR(InternalImagePath)
-           ]));
-
+    "html": QUERY(InternalHTMLPath),
+    "image": QUERY(InternalImagePath)
+  ]));
+  
 #ifdef ENABLE_NEIGHBOURHOOD
   neighborhood = (object)"neighborhood";
 #endif /* ENABLE_NEIGHBOURHOOD */
@@ -4121,14 +4129,4 @@ string check_variable(string name, mixed value)
 //! Directory where the internal images are located.
 //!  type: TYPE_DIR|VAR_MORE
 //!  name: Internal files: Image files path
-//
-//! defvar: RequestBufSize
-//! Maximum size for a single request. This includes both headers and the URI itself.
-//!  type: TYPE_INT|VAR_MORE
-//!  name: Request Tuning: Buffer size
-//
-//! defvar: RequestCacheTimeout
-//! Time after which a single cached request is removed from the data cache
-//!  type: TYPE_INT|VAR_MORE
-//!  name: Request Tuning: Cache expiration value
 //

@@ -84,9 +84,6 @@ object conf;
 #include <caudium.h>
 #include <module.h>
 
-#undef QUERY
-#define QUERY(X)	_query( #X )
-
 int time;
 string raw_url;
 int do_not_disconnect;
@@ -169,99 +166,22 @@ string scan_for_query( string f )
   return f;
 }
 
-private int really_set_config(array mod_config)
-{
-  string url, m;
-  string base;
-  base = conf->query("MyWorldLocation")||"/";
-  if(supports->cookies)
-  {
-#ifdef REQUEST_DEBUG
-    perror("Setting cookie..\n");
-#endif
-    if(mod_config)
-      foreach(mod_config, m)
-	if(m[-1]=='-')
-	  config[m[1..]]=0;
-	else
-	  config[m]=1;
-      
-    if(sscanf(replace(raw_url,({"%3c","%3e","%3C","%3E" }),
-		      ({"<",">","<",">"})),"/<%*s>/%s",url)!=2)
-      url = "/";
-
-    if ((base[-1] == '/') && (strlen(url) && url[0] == '/')) {
-      url = base + url[1..];
-    } else {
-      url = base + url;
-    }
-
-    my_fd->write(prot + " 302 Config in cookie!\r\n"
-		 "Set-Cookie: "
-		  + http_caudium_config_cookie(indices(config) * ",") + "\r\n"
-		 "Location: " + url + "\r\n"
-		 "Content-Type: text/html\r\n"
-		 "Content-Length: 0\r\n\r\n");
-  } else {
-#ifdef REQUEST_DEBUG
-    perror("Setting {config} for user without Cookie support..\n");
-#endif
-    if(mod_config)
-      foreach(mod_config, m)
-	if(m[-1]=='-')
-	  prestate[m[1..]]=0;
-	else
-	  prestate[m]=1;
-      
-    if (sscanf(replace(raw_url, ({ "%3c", "%3e", "%3C", "%3E" }), 
-		       ({ "<", ">", "<", ">" })),   "/<%*s>/%s", url) == 2) {
-      url = "/" + url;
-    }
-    if (sscanf(replace(url, ({ "%28", "%29" }), ({ "(", ")" })),
-	       "/(%*s)/%s", url) == 2) {
-      url = "/" + url;
-    }
-
-    url = add_pre_state(url, prestate);
-
-    if (base[-1] == '/') {
-      url = base + url[1..];
-    } else {
-      url = base + url;
-    }
-
-    my_fd->write(prot + " 302 Config In Prestate!\r\n"
-		 "\r\nLocation: " + url + "\r\n"
-		 "Content-Type: text/html\r\n"
-		 "Content-Length: 0\r\n\r\n");
-  }
-  return 1;
-}
-
-private static mixed f, line;
-private int do_post_processing()
+private mixed f;
+/* Processing here not needed for cached connections. It mainly
+ * includes various URL processing and variable scanning.
+ */
+inline private void do_post_processing_nocache()
 {
   multiset (string) sup;
   array mod_config;
   string a, b, linename, contents, s;
   int config_in_url;
-
-  time       = _time(1);
-  REQUEST_WERR(sprintf("HTTP: do_post_processing(%O)", raw));
-  if(!remoteaddr) {
-    if(my_fd) sscanf(my_fd->query_address()||"", "%s ", remoteaddr);
-    if(!remoteaddr) {
-      end();
-      return 1;
-    }
-  }
-  
+  if(processed) return;
   if(misc->len && method == "POST") {
     REQUEST_WERR(sprintf("Process post data (want %d, got %d): %O",
 			 misc->len, strlen(data), data));
     int l = wanted_data = misc->len;
-    if(strlen(data) < misc->len) return 1;
-    misc->cacheable = 0; /* No good caching posts */
+    if(strlen(data) < misc->len) return;
     leftovers = data[l..];
     data = data[..l-1];
 
@@ -300,8 +220,7 @@ private int do_post_processing()
 	break;
        default:
 	REQUEST_WERR("Unknown POST content type: "+
-		     request_headers["content-type"]);
-	
+		     request_headers["content-type"]);	
       }
     }
   }
@@ -312,16 +231,7 @@ private int do_post_processing()
   if(query) Caudium.parse_query_string(query, variables);
   REQUEST_WERR(sprintf("After query scan:%O", f));
 
-#ifdef EXTRA_ROXEN_COMPAT
-  if (sscanf(f, "/<%s>/%s", a, f)==2)
-  {
-    config_in_url = 1;
-    mod_config = (a/",");
-    f = "/"+f;
-  }
-  REQUEST_WERR(sprintf("After cookie scan:%O", f));
-#endif
-  
+  // FIXME: This should be done in C
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
     prestate = aggregate_multiset(@(a/","-({""})));
@@ -332,7 +242,35 @@ private int do_post_processing()
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
-  
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
+#endif
+
+#ifdef EXTRA_ROXEN_COMPAT
+  if(!referer) referer = ({ });
+#endif
+
+  if(!supports->cookies)
+    config = prestate;
+  else if(conf
+	  && GLOBVAR(set_cookie)
+	  && !cookies->CaudiumUserID && strlen(not_query)
+	  && not_query[0]=='/' && method!="PUT")
+  {
+    if (GLOBVAR(set_cookie_only_once)) {
+      if(!cache_lookup("hosts_for_cookie",remoteaddr)) {
+	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+	cache_set("hosts_for_cookie",remoteaddr,1);
+      }
+    } else
+      misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
+  }
+
   foreach(indices(request_headers), string linename) {
     array(string) y;
     switch(linename) {
@@ -345,7 +283,6 @@ private int do_post_processing()
       if(conf && conf->auth_module)
 	y = conf->auth_module->auth( y, this_object() );
       auth = y;
-      misc->cacheable = 0;
       break;
       
      case "proxy-authorization":
@@ -369,6 +306,7 @@ private int do_post_processing()
       break;
       
      case "pragma":
+      // FIXME: Parse in C
       pragma = aggregate_multiset(@replace(request_headers[linename],
 					   " ", "")/ ",");
       if(pragma["no-cache"])
@@ -439,6 +377,7 @@ private int do_post_processing()
       break;
 
      case "cookie": /* This header is quite heavily parsed */
+      // FIXME: Definite candidate for parsing in C 
       string c;
       contents = misc->cookies = request_headers[linename];
       if (!sizeof(contents)) {
@@ -476,9 +415,8 @@ private int do_post_processing()
       }
       break;
 
-     case "host":
-      host = lower_case(request_headers[linename]);
 #ifdef EXTRA_ROXEN_COMPAT
+     case "host":
      case "proxy-connection":
      case "security-scheme":
      case "via":
@@ -494,48 +432,12 @@ private int do_post_processing()
       break;
     }
   }
-
-#ifdef ENABLE_SUPPORTS    
-  if(useragent == "unknown") {
-    supports = find_supports("", supports); // This makes it somewhat faster.
-  } else 
-    supports = find_supports(lower_case(useragent), supports);
-#else
-  supports = (< "images", "gifinline", "forms", "mailto">);
-#endif
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if(!referer) referer = ({ });
-#endif
-
-#ifdef EXTRA_ROXEN_COMPAT
-  if(config_in_url) {
-    return really_set_config( mod_config );
-  }
-#endif
-
-  if(!supports->cookies)
-    config = prestate;
-  else if(conf
-	  && QUERY(set_cookie)
-	  && !cookies->CaudiumUserID && strlen(not_query)
-	  && not_query[0]=='/' && method!="PUT")
-  {
-    if (QUERY(set_cookie_only_once)) {
-      if(!cache_lookup("hosts_for_cookie",remoteaddr)) {
-	misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
-	cache_set("hosts_for_cookie",remoteaddr,1);
-      }
-    } else
-      misc->moreheads = ([ "Set-Cookie": http_caudium_id_cookie(), ]);
-  }
-  return 0;	// Done.
+  processed = 1;
 }
 
-void disconnect()
+inline void disconnect()
 {
   file = 0;
-  MARK_FD("my_fd in HTTP disconnected?");
   if(do_not_disconnect) return;
   destruct();
 }
@@ -588,20 +490,16 @@ void end(string|void s, int|void keepit)
     disconnect();
     return;
   } 
-
 #endif
 
   if(objectp(my_fd))
   {
     MARK_FD("HTTP closed");
-    catch {
-      my_fd->set_close_callback(0);
-      my_fd->set_read_callback(0);
+    if(s) catch {
+      my_fd->write(s);
       my_fd->set_blocking();
-      if(s) my_fd->write(s);
-      my_fd->close();
     };
-    my_fd = 0;
+    destruct(my_fd);
   }
   disconnect();  
 }
@@ -776,7 +674,7 @@ array get_error(string eid)
 void internal_error(array err)
 {
   array err2;
-  if(QUERY(show_internals)) 
+  if(GLOBVAR(show_internals)) 
   {
     err2 = catch { 
       array(string) bt = (describe_backtrace(err)/"\n") - ({""});
@@ -849,7 +747,6 @@ void do_log()
     }
   }
   end(0,1);
-  return;
 }
 
 #ifdef FD_DEBUG
@@ -1384,7 +1281,7 @@ void handle_request( )
 /* We got some data on a socket.
  * ================================================= 
  */
-int processed, headprocessed;
+int processed;
 object htp;
 void got_data(mixed fdid, string s)
 {
@@ -1398,10 +1295,9 @@ void got_data(mixed fdid, string s)
   // is not killed prematurely.
   raw += s;
   if(!method) {
-    if (htp)
-      tmp = htp->append(s);
-    else
-      return; /* or should we twist and shout?? */
+    if (!htp)
+      htp = Caudium.ParseHTTP(misc, request_headers, GLOBVAR(RequestBufSize));
+    tmp = htp->append(s);
     switch(tmp)
     { 
      case 0:
@@ -1417,6 +1313,8 @@ void got_data(mixed fdid, string s)
       data = misc->data;
       wanted_data = misc->len = (int)request_headers["content-length"];
       destruct(htp);
+      if(request_headers->host)
+      	host = lower_case(request_headers->host);
       if(strlen(data) < wanted_data) return;
       break;
      default:
@@ -1443,23 +1341,17 @@ void got_data(mixed fdid, string s)
   }
   TIMER("parsed");
 #ifdef ENABLE_RAM_CACHE
-  misc->cacheable = QUERY(RequestCacheTimeout);
+  if(!request_headers->authorization && method != "POST")
+    misc->cacheable = GLOBVAR(RequestCacheTimeout);
 #endif
-  if(do_post_processing()) {
-    return 0;
-  }
-
-  TIMER("post_processed");
-
   if(conf)
   {
     conf->received += strlen(s);
     conf->requests++;
   }
+  
+  my_fd->set_nonblocking();
 
-  my_fd->set_close_callback(0); 
-  my_fd->set_read_callback(0); 
-  processed=1;
   if(conf) {
     conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
@@ -1481,6 +1373,9 @@ void got_data(mixed fdid, string s)
     }
 #endif
   }
+  TIMER("post_cache_check_processed");
+  do_post_processing_nocache();
+  TIMER("post_processed");
   TIMER("pre_handle");
 #ifdef THREADS
   handle(handle_request);
@@ -1554,21 +1449,15 @@ void create(void|object f, void|object c)
 {
   if(f)
   {
-    f->set_nonblocking();
     my_fd = f;
     conf = c;
     MARK_FD("HTTP connection");
-    my_fd->set_close_callback(end);
-    my_fd->set_read_callback(got_data);
+    f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
-  }
-  
-  /* htp should *always* exist */	
-  htp = Caudium.ParseHTTP(misc, request_headers, QUERY(RequestBufSize));
-  if (!htp)
-    report_error("htp is 0 in create!!\n"); /* should never happen */
+    remoteaddr = Caudium.get_address(my_fd->query_address()||"");
+  }  
 }
 
 void chain(object f, object c, string le)

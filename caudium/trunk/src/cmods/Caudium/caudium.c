@@ -539,6 +539,44 @@ static void f_parse_query_string( INT32 args )
   pop_n_elems(args);
 }
 
+static void f_get_address( INT32 args ) {
+  int i;
+  struct pike_string *res, *src;
+  char *orig;
+  if(sp[-1].type != T_STRING)
+    Pike_error("Invalid argument type, expected 8-bit string.\n");
+  src = sp[-1].u.string;
+  if(src->len < 7) {
+    res = make_shared_binary_string("unknown", 7);
+  } else {
+    orig = src->str;
+
+    /* We have at most 5 digits for the port (16 bit integer) */
+    i = src->len-6;
+
+    /* Unrolled loop to find the space separating the IP address and the port
+     * number. We start looking at position 6 from the end and work backwards.
+     * This is because we assume there are more 5 digits ports than 4 digit
+     * ports etc.
+     */
+    if(!(orig[i] & 0xDF)) /* char 6 */
+      res = make_shared_binary_string(orig, i);
+    else if(!(orig[++i] & 0xDF)) /* char 5 */
+      res = make_shared_binary_string(orig, i);
+    else if(!(orig[++i] & 0xDF)) /* char 4 */
+      res = make_shared_binary_string(orig, i);
+    else if(!(orig[++i] & 0xDF)) /* char 3 */
+      res = make_shared_binary_string(orig, i);
+    else if(!(orig[++i] & 0xDF)) /* char 2 */
+      res = make_shared_binary_string(orig, i);
+    else 
+      res = make_shared_binary_string("unknown", 7);
+  }
+  pop_stack();
+  push_string(res);
+}
+
+
 /* Initialize and start module */
 static struct program *parsehttp_program;
 void pike_module_init( void )
@@ -562,6 +600,8 @@ void pike_module_init( void )
   add_function_constant( "parse_query_string", f_parse_query_string,
 			 "function(string,mapping:void)",
 			 OPT_SIDE_EFFECT);
+  add_function_constant( "get_address", f_get_address,
+			 "function(string:string)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );

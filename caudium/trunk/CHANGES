@@ -42,3 +42,7 @@ Changes in Caudium 1.1 since CVS branching
   with too many failed authentication attempts.
 - Fixed some bugs in the XSLT Template module, added more configurable
   options. Also fixed the setting of the base uri.
+- Some major optimizations related to http2 and cached responses. Also
+  removed support for 'config in url' in the http2 protocol completely (ie
+  /<...config...>/foo.bar).
+

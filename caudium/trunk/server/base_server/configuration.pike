@@ -227,6 +227,7 @@ array (object) allocate_pris()
   return tmp;
 }
 
+#ifndef __AUTO_BIGNUM__
 class Bignum {
 #if constant(Gmp.mpz) // Perfect. :-)
   object gmp = Gmp.mpz();
@@ -295,7 +296,7 @@ class Bignum {
   }
 #endif
 }
-
+#endif
 
 
 /* For debug and statistics info only */
@@ -304,10 +305,13 @@ int requests;
 mapping(string:mixed) extra_statistics = ([]);
 mapping(string:mixed) misc = ([]);	// Even more statistics.
 
+#ifdef __AUTO_BIGNUM__
+int sent, hsent, received;
+#else
 object sent=Bignum();     // Sent data
 object hsent=Bignum();    // Sent headers
 object received=Bignum(); // Received data
-
+#endif
 object this = this_object();
 
 
@@ -872,6 +876,22 @@ public string status()
   float tmp;
   string res="";
 
+#ifdef __AUTO_BIGNUM__
+  tmp = (sent/(float)(time(1)-caudium->start_time+1));
+  res = sprintf("<table><tr align=right><td><b>Sent data:</b></td><td>%.2fMB"
+		"</td><td>%.2f Kbit/sec</td>",
+		sent/1048576.0,tmp/8192.0);
+  
+  res += sprintf("<td><b>Sent headers:</b></td><td>%.2fMB</td></tr>\n",
+		 hsent/1048576.0);
+  
+  tmp=(requests*600.0)/((time(1)-caudium->start_time)+1);
+
+  res += sprintf("<tr align=right><td><b>Number of requests:</b></td>"
+		 "<td>%8d</td><td>%.2f/min</td>"
+		 "<td><b>Received data:</b></td><td>%.2fMB</td></tr>\n",
+		 requests, tmp/10.0, received/1048576.0);
+#else
   if(!sent||!received||!hsent)
     return "Fatal error in status(): Bignum object gone.\n";
 
@@ -890,7 +910,7 @@ public string status()
 		 "<td>%8d</td><td>%.2f/min</td>"
 		 "<td><b>Received data:</b></td><td>%.2fMB</td></tr>\n",
 		 requests, (float)tmp/(float)10, received->mb());
-
+#endif
   if (!zero_type(misc->ftp_users)) {
     tmp = (((float)misc->ftp_users*(float)600)/
 	   (float)((time(1)-caudium->start_time)+1));
@@ -2922,7 +2942,7 @@ object enable_module( string modname )
   if(module->type & MODULE_LOCATION)
     pri[pr]->location_modules += ({ me });
 
-  if(module->type & MODULE_LOGGER)
+  if(module->type & MODULE_LOGGER) 
     pri[pr]->logger_modules += ({ me });
 
   if(module->type & MODULE_URL)
