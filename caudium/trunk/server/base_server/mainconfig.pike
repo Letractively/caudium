@@ -1416,6 +1416,10 @@ mapping configuration_parse(object id)
   // Is it an image?
   if(sscanf(id->not_query, "/image/%s", tmp))
     return file_image(tmp) || (["data":"No such image"]);
+
+  // Serve favicon.ico
+  if(id->not_query == "/favicon.ico")
+    return file_image("favicon.ico") || ([ "data":"No favicon available" ]);
   
   object o;
   int i;
