@@ -21,7 +21,9 @@
  * $Id$
  */
 
+/*
 #define EXPERIMENTAL 1
+*/
 
 #include "global.h"
 RCSID("$Id$");
@@ -36,6 +38,8 @@ RCSID("$Id$");
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+
+#include <time.h>
 
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
@@ -743,9 +747,9 @@ static void f_extension( INT32 args ) {
 
 /* The following will convert char to hex */
 
-char *hex_chars = "01234567890ABCDEF";
+static char *hex_chars = "01234567890ABCDEF";
 
-char hex_to_char(char c) 
+static char hex_to_char(char c) 
 {
   return c >= '0' && c <= 'g' ? c - '0'
     : c >= 'A' && c <= 'F' ? c - 'A' + 10
@@ -755,7 +759,7 @@ char hex_to_char(char c)
 /* check if character given is safe */
 /* maybe we'll probably need more safe char's here ? */
 
-int is_safe (char c) 
+static int is_safe (char c) 
 {
    if((c >= '0' && c <= 'g' ) ||
       (c >= 'A' && c <= 'Z' ) ||
@@ -887,6 +891,65 @@ static void f_http_decode(INT32 args)
 	push_string(end_shared_string(ret));
 }
 
+/* Used for cern_http_date */
+const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
+                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+static void f_cern_http_date(INT32 args)
+{
+  time_t now;
+  long diff;
+  int sign;
+  struct tm *tm;
+  char date[sizeof "01/Dec/2002:16:22:43 +0100"];
+
+  if ((now = time(NULL)) == (time_t) -1 ||
+      (tm = localtime(&now)) == NULL ||
+      tm->tm_mon > 11 || tm->tm_mon < 0) {
+      pop_stack();
+      push_string(make_shared_string("test2")); 
+      return;
+  }
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+  diff = -(tm->tm_gmtoff) / 60L;
+#elif defined(HAVE_SCALAR_TIMEZONE)
+  diff = -(timezone) / 60L;
+#else
+  {
+    struct tm gmt;
+    struct tm *t;
+    int days, hours, minutes;
+
+    gmt = *gmtime(&now);
+    t = localtime(&now);
+    days = t->tm_yday - gmt.tm_yday;
+    hours = ((days < -1 ? 24 : 1 < days ? -24 : days * 24)
+             + t->tm_hour - gmt.tm_hour);
+    minutes = hours * 60 + t->tm_min - gmt.tm_min;
+    diff = -minutes;
+  }
+#endif
+  if (diff > 0L) {
+    sign = '+';
+  } else {
+    sign = '-';
+    diff = -diff;
+  }
+  if(snprintf(date, sizeof date, "%02d/%s/%d:%02d:%02d:%02d %c%02ld%02ld",
+              tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
+              tm->tm_hour, tm->tm_min, tm->tm_sec, sign, diff / 60L,
+              diff % 60L)) {
+     pop_stack();
+     push_string(make_shared_string("test2"));
+     return;
+  }
+/*  pop_stack();
+*/
+  pop_n_elems(args);
+  push_string(make_shared_string(date));
+
+}
+
 #endif
 
 /* Initialize and start module */
@@ -923,6 +986,8 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "http_decode", f_http_decode,
                          "function(string:string)", 0);
+  add_function_constant( "cern_http_date", f_cern_http_date,
+                         "function(void:string)", 0);
 #endif 
 
   start_new_program();
