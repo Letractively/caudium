@@ -18,6 +18,14 @@ Changes in Caudium 1.0.X (RC3, not released)
   since that header is used to determine if the cache should or
   shouldn't be used. To solve this problem you can now use the
   prestate (nocache) to emulate this behavior. 
+- Added new special token to the access log file name format. %H will
+  be replaced with the hostname Caudium is running on. Useful if you
+  use the same configuration file for multiple machines.
+- New feature: access log files are now not opened until they are
+  used. Also there is a configurable maximum idle time after which the
+  log will be closed (can be disabled). Also made the "reopen timeout"
+  somewhat random to avoid the "all log files reopen at the same time"
+  misfeature.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
