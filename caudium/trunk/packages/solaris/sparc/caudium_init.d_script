@@ -29,7 +29,7 @@ umask 022
 # disabling threads.
 # 
 # flags="--without-threads"
-flags="--with-threads"
+flags="--with-threads --with-keep-alive"
 
 ### Check if that caudium is configured...
 if [ ! -f /usr/local/caudium/caudium/configurations/Global_Variables ]
