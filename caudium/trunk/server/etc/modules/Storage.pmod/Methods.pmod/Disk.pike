@@ -38,42 +38,10 @@ constant storage_type    = "Disk";
 
 //!
 constant storage_doc     = "Please enter the path on the filesystem that you would like to "
-                           "store the data in."
-#ifdef NFS_LOCK
-                           " <i>Using NFS safe hitchingpost file locking, this is good "
-			   "because it will stop multiple machines from writing to files "
-			   "at the same time - however, it is possible that you can put "
-			   "one or more machines in your cluster into what is essentially "
-			   "a deadlock condition. Be careful.</i>"
-#endif
-                           ;
+                           "store the data in.";
 
 //!
 constant storage_default = "+";
-
-#ifdef THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define PRELOCK() object __key
-#define LOCK() __key = mutex->lock()
-#define UNLOCK() destruct(__key)
-#else
-#define PRELOCK()
-#define LOCK()
-#define UNLOCK()
-#endif
-
-#ifdef NFS_LOCK
-static object hitch = HitchingPost;
-#define PREFLOCK() object __fkey
-#define FLOCK(X, Y, Z) __fkey = hitch->lock(X, Y, Z)
-#define KEY __fkey
-#define FUNLOCK() destruct(__fkey);
-#else
-#define PREFLOCK()
-#define FLOCK(X,Y,Z) ({X, Y, Z})
-#define KEY 0
-#define FUNLOCK()
-#endif
 
 #define SYNCTIME 30
 
@@ -85,8 +53,6 @@ int idx_sync_stop;
 
 //!
 void create(string _path) {
-  PRELOCK();
-  LOCK();
   _sending = ({});
   path = _path;
   _size = ([]);
@@ -95,7 +61,6 @@ void create(string _path) {
     idx = ([]);
   }
   else 
-  UNLOCK();
   call_out(idx_sync, SYNCTIME);
   if (!Stdio.is_dir(path))
     Stdio.mkdirhier(path);
@@ -131,15 +96,11 @@ void unlock(void|object key) {
 
 //!
 mixed retrieve(string namespace, string key) {
-  PRELOCK();
   if (!namespace || !key)
     return 0;
   string objpath = idx_path(namespace, key);
   if (Stdio.exist(objpath)) {
-    PREFLOCK();
-    FLOCK(objpath, "r", 1);
     string s = Stdio.read_file(objpath);
-    FUNLOCK();
     if (!stringp(s))
       return 0;
     mixed tmp = decode(s);
@@ -154,9 +115,7 @@ mixed retrieve(string namespace, string key) {
     }
     else {
       idx_rm(namespace, key);
-      FLOCK(objpath, "w", 1);
       rm(objpath);
-      FUNLOCK();
       return 0;
     }
   }
@@ -168,8 +127,6 @@ mixed retrieve(string namespace, string key) {
 
 //!
 void unlink(string namespace, void|string key) {
-  PRELOCK();
-  PREFLOCK();
   if (!namespace)
     return;
   if (!stringp(key)) {
@@ -178,9 +135,7 @@ void unlink(string namespace, void|string key) {
       string objpath = idx_path(namespace, _key);
       idx_rm(namespace, _key);
       if (Stdio.exist(objpath)) {
-        FLOCK(objpath, "w", 1);
         rm(objpath);
-        FUNLOCK();
       }
     }
     idx_rm(namespace);
@@ -189,16 +144,12 @@ void unlink(string namespace, void|string key) {
   string objpath = idx_path(namespace, key);
   idx_rm(namespace, key);
   if (Stdio.exist(objpath)) {
-    FLOCK(objpath, "w", 1);
     rm(objpath);
-    FUNLOCK();
   }
 }
 
 //!
 void unlink_regexp(string namespace, string regexp) {
-  PRELOCK();
-  PREFLOCK();
   object r = Regexp(regexp);
   array keys = list(namespace);
   foreach(keys, string key) {
@@ -206,9 +157,7 @@ void unlink_regexp(string namespace, string regexp) {
       continue;
     string objpath = idx_path(namespace, key);
     idx_rm(namespace, key);
-    FLOCK(objpath, "w", 1);
     rm(objpath);
-    FUNLOCK();
   }
 }
 
@@ -245,18 +194,14 @@ static string get_hash( string data ) {
 int size(string namespace) {
   if (_size[namespace])
     return _size[namespace];
-  PREFLOCK();
   int total;
   array keys = list(namespace)||({});
   foreach(keys, string key) {
     string objpath = idx_path(namespace, key);
     string s;
-    FLOCK(objpath, "r", 1);
     if (catch(s = Stdio.read_file(objpath))) {
-      FUNLOCK();
       continue;
     }
-    FUNLOCK();
     mapping p = decode(s);
     if (!mappingp(p))
       continue;
@@ -269,16 +214,13 @@ int size(string namespace) {
 
 //!
 array list(string namespace) {
-  PREFLOCK();
   if (idx[namespace] && sizeof(idx[namespace]))
     return indices(idx[namespace]);
   array ret = ({});
   array dir = get_dir(path)||({});
   foreach(dir, string fname) {
     string objpath = Stdio.append_path(path, fname);
-    FLOCK(objpath, "r", 1);
     string s = Stdio.read_file(objpath);
-    FUNLOCK();
     mapping obj = decode(s);
     if (mappingp(obj))
       if (obj->namespace == namespace) {
@@ -301,52 +243,36 @@ void flush() {
 
 //!
 static void sending(object o) {
-  PRELOCK();
-  LOCK();
   _sending += ({ o });
-  UNLOCK();
 }
 
 //!
 static void unsending(object o) {
-  PRELOCK();
-  LOCK();
   _sending -= ({ o });
-  UNLOCK();
 }
 
 //!
 string idx_path(string namespace, string key, void|string _path) {
-  PRELOCK();
   if (!idx[namespace]) {
-    LOCK();
     idx[namespace] = ([]);
-    UNLOCK();
   }
   if (stringp(_path)) {
-    LOCK();
     idx[namespace] += ([ key : _path ]);
-    UNLOCK();
     return _path;
   }
   else {
     _path = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
-    LOCK();
     idx[namespace] += ([ key : _path ]);
-    UNLOCK();
     return _path;
   }
 }
 
 //!
 void idx_sync(void|int stop) {
-  PREFLOCK();
   string ipath = Stdio.append_path(path, "storage_index"); 
-  FLOCK(ipath, "w", 1);
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
   data = MIME.encode_base64(data, 1);
   catch(Stdio.write_file(ipath, data));
-  FUNLOCK();
   if (stop)
     idx_sync_stop = 1;
   if (!idx_sync_stop) {
@@ -357,7 +283,6 @@ void idx_sync(void|int stop) {
 
 //!
 mapping idx_get() {
-  PREFLOCK();
   string ipath = Stdio.append_path(path, "storage_index");
   if (!Stdio.exist(ipath))
     return 0;

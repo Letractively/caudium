@@ -44,28 +44,6 @@ constant storage_doc     = "Please enter the full path that you would like to st
 //!
 constant storage_default = "+storage.gdbm";
 
-#ifdef THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define PRELOCK() object __key
-#define LOCK() __key = mutex->lock()
-#define UNLOCK() destruct(__key)
-#else
-#define PRELOCK()
-#define LOCK()
-#define UNLOCK()
-#endif
-
-#ifdef NFS_LOCK
-static object hitch = HitchingPost;
-#define PREFLOCK() object __fkey
-#define FLOCK(X, Y, Z) __fkey = hitch->lock(X, Y, Z)
-#define FUNLOCK() destruct(__fkey);
-#else
-#define PREFLOCK()
-#define FLOCK(X,Y,Z) ({X, Y, Z})
-#define FUNLOCK()
-#endif
-
 #define DB db
 
 //!
@@ -76,15 +54,11 @@ static string path;
 
 //!
 void create(string _path) {
-  PRELOCK();
-  LOCK();
   path = Stdio.append_path(_path, sprintf("%d.%d.%d.gdbm", __MAJOR__, __MINOR__, __BUILD__));
 }
 
 //!
 void store(string namespace, string key, string value) {
-  PRELOCK();
-  LOCK();
   if (!namespace || !key)
     return;
 
@@ -94,8 +68,6 @@ void store(string namespace, string key, string value) {
 
 //!
 mixed retrieve(string namespace, string key) {
-  PRELOCK();
-  LOCK();
   if (!namespace || !key)
     return 0;
 
@@ -105,8 +77,6 @@ mixed retrieve(string namespace, string key) {
 
 //!
 void unlink(string namespace, void|string key) {
-  PRELOCK();
-  LOCK();
   
   if (!namespace)
     return;
@@ -129,8 +99,6 @@ void unlink(string namespace, void|string key) {
 
 //!
 void unlink_regexp(string namespace, string regexp) {
-  PRELOCK();
-  LOCK();
   string lastkey = DB()->firstkey();
   object r = Regexp(regexp);
   while(string key = DB()->nextkey(lastkey)) {
@@ -169,8 +137,6 @@ static string get_hash( string data ) {
 
 //!
 int size(string namespace) {
-  PRELOCK();
-  LOCK();
   int total;
   string lastkey = DB()->firstkey();
   while(string key = DB()->nextkey(lastkey)) {
@@ -183,8 +149,6 @@ int size(string namespace) {
 
 //!
 array list(string namespace) {
-  PRELOCK();
-  LOCK();
   array ret = ({});
   string lastkey = DB()->firstkey();
   while(string key = DB()->nextkey(lastkey)) {
@@ -201,8 +165,6 @@ void|object _db() {
   if (!objectp(db))
     return db;
   else {
-    PREFLOCK();
-    FLOCK(path, "w", 1);
     db = Gdbm.gdbm(path, "crw");
     return db;
   }
