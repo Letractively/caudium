@@ -261,7 +261,7 @@ mixed tag_perl(string tag, mapping attr, string contents, object id)
 /* Processing instruction call method */
 string pi_perl(string tag, mixed ... args)
 {
-  return tag_pike(tag, ([]), @args);
+  return tag_perl(tag, ([]), @args);
 }
 
 mapping query_container_callers()
