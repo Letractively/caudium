@@ -1,18 +1,37 @@
+/* I'm -*-Pike-*-, dude 
+ *
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * $Id$
+ */
 
-// $Id$
-
-//! file: etc/modules/Watcher.pmod
+//! file: etc/modules/FileWatch.pmod
 //!  This Pike module provides a couple of classes that makes it possible for
 //!  module programmers to watch a file and get a callback every time the file
 //!  has changed (size, modification date, ownership and permission).
 //! cvs_version: $Id$
 
 
-//! class: Watcher._base
+//! class: FileWatch._base
 //!  This is the base class of the two watcher classes. You should never use
 //!  this class directly since it actually doesn't do anything.
 //! scope: private
-//! see_also: Watcher.Threaded, Watcher.Callout
+//! see_also: FileWatch.Threaded, FileWatch.Callout
 
 
 class _base {
@@ -63,13 +82,13 @@ class _base {
   }    
 }
 
-//! class: Watcher.Callout
+//! class: FileWatch.Callout
 //!  This class used a call_out to call the function that checks the watched
 //!  file for any modification. Any callbacks to the supplied function will
 //!  therefor be run in the backend (main) thread. This class is more scalable
-//!  than Watcher.Threaded since Pike easily can handle more call_outs than
+//!  than FileWatch.Threaded since Pike easily can handle more call_outs than
 //!  threads.
-//! see_also: Watcher._base, Watcher.Threaded
+//! see_also: FileWatch._base, FileWatch.Threaded
 class Callout {
   inherit _base;
   
@@ -87,16 +106,16 @@ class Callout {
   }
 }
 
-//! class: Watcher.Threaded
+//! class: FileWatch.Threaded
 //!  This class keeps track of a file with a new thread. The benefit
 //!  of this model is that the call back function will be running in this
 //!  same thread. The drawback is that it's less scalable since each watched
 //!  file uses one thread.
-//! see_also: Watcher._base, Watcher.Callout
+//! see_also: FileWatch._base, FileWatch.Callout
 //! note:
 //!  This class is, for obvious reasons, only available if the Pike supports
 //!  threads. If threads are not supported, this class will be identical to
-//!  Watcher.Callout.
+//!  FileWatch.Callout.
 class Threaded {
 #if constant(thread_create) 
   inherit _base;
