@@ -1,3 +1,9 @@
+caudium (2:1.2.5-1) unstable; urgency=low
+
+  * Latest upstream
+
+ -- Marek Habersack <grendel@debian.org>  Sun,  3 Mar 2002 13:25:40 +0100
+
 caudium (2:1.2.4-1) unstable; urgency=medium
 
   * Latest upstream release. Changes:
