@@ -29,7 +29,12 @@ import Array;
 
 constant module_type = MODULE_PARSER;
 constant module_name = "NNTP module";
-constant module_doc  = "This module gives the tag &lt;article&gt; and &lt;group&gt;<br>\n";
+constant module_doc  = "This module gives the tag &lt;article&gt; and &lt;group&gt;<br>\n"
+ "<ul><li><p>&lt;article&gt; display an article. The variables available are based on the name of the header.</p>"
+         "<p>&lt;formoutput&gt;&lt;article group=ece.assos.iteam msgid=1034&gt;From:#from# Subject:#subject# x-complaints-to:#x-complaints-to# Body:#body#&lt;/article &gt;&lt;/formoutput&gt;</p></li>"
+	         "<li><p>&lt;group&gt; display headers of news within a group. This mean it works like the sqloutput tag by running a loop for every article within the group. The min argument is the id of the first article. By default it is the last id - 25. The max argument is the id the last article.</p>"
+		          "<p>&lt;formoutput&gt;&lt;group group=ece.assos.iteam min=900 max=1000&gt;#article# #subject# #from# #date# #group#&lt;/group&gt;&lt;/formoutput&gt;</p></li></ul>";
+			  
 constant module_unique = 1;
 
 #define LDAPTAGDEBUG
