@@ -31,6 +31,26 @@ Description: Select options that should be used on startup
  .
  'keep-alive' - keep connections alive with HTTP/1.1
 
+Template: caudium/performance
+Type: boolean
+Default: false
+Description: Tune Caudium settings for maximum performance?
+ If you select this options the Caudium default configuration will
+ be tweaked by turning off certain features that can severely slow 
+ your server down. The features turned off are: 
+ .
+ - extra Roxen compatibility
+ .
+ - module level security
+ .
+ - the supports database
+ .
+ - DNS lookups
+ .
+ - URL modules
+ .
+ If you use any of the above features DO NOT turn this option on!
+
 Template: caudium/cfg_port_taken
 Type: note
 Description: Cannot bind to port.
