@@ -183,7 +183,7 @@ static mapping default_error = ([
 object cache = per_server_cache();
 
 //!
-/*
+
 mapping(string:string) handle(object id,
 			      string file,
 		              mapping(string:mixed) query,
@@ -204,4 +204,3 @@ mapping(string:string) handle(object id,
     }
 }
 
-*/
