@@ -387,11 +387,11 @@ else
 *** I couldn't find a suitable Pike for Caudium. Caudium 1.3
 *** requires Pike $REQ_PIKE_VER or newer. Running Caudium with Pike 0.6, 7.0 or 7.2
 *** is no longer supported. You can download and install one of
-*** our Pike 7.3 snapshots available from our website at:
+*** our Pike $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR snapshots available from our website at:
 ***
 ***     http://caudium.net/download/snapshot.html
 ***
-*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < 7.3!
+*** PLEASE NOTE: THIS VERSION OF CAUDIUM NO LONGER SUPPORTS PIKE < $REQ_PIKE_MAJOR.$REQ_PIKE_MINOR.$REQ_PIKE_BUILD!
 *****************************************************************************
 EOF
   exit 1;
