@@ -43,6 +43,7 @@ vqf	audio/x-twinvq
 vql	audio/x-twinvq
 wav	audio/x-wav
 
+ico	image/x-icon
 fif	image/fif 
 gif	image/gif
 ief	image/ief
