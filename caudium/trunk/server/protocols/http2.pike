@@ -19,6 +19,7 @@
  *
  */
 
+inherit RequestID;
 
 /* If defined, write files smaller than this define directly to
  * the output fd instead of using the data shuffler.
@@ -36,6 +37,7 @@ constant cvs_version = "$Id$";
 #include <variables.h>
 private inherit "caudiumlib";
 private inherit "cachelib";
+
 // int first;
 
 #ifdef DO_TIMER
@@ -77,70 +79,12 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-constant decode        = MIME.decode_base64;
-constant find_supports = caudium->find_supports;
-constant version       = caudium->version;
-constant _query        = caudium->query;
-constant thepipe       = caudium->pipe;
-constant _time         = predef::time;
-
-object conf;
-
 #include <caudium.h>
 #include <module.h>
 
 #undef QUERY
 
 #define QUERY(X)  _query( #X )
-
-int time;
-string raw_url;
-int do_not_disconnect;
-mapping (string:string) variables       = ([ ]);
-mapping (string:mixed)  misc            = ([ ]);
-mapping (string:string) cookies         = ([ ]);
-mapping (string:string) request_headers = ([ ]);
-
-multiset (string) prestate  = (< >);
-multiset (string) internal  = (< >);
-multiset (string) config    = (< >);
-multiset (string) supports  = (< >);
-multiset (string) pragma    = (< >);
-
-string remoteaddr, host;
-
-#ifdef EXTRA_ROXEN_COMPAT
-array  (string) client = ({"unknown"});
-array  (string) referer;
-#endif
-
-string referrer;
-string useragent = "unknown";
-
-
-mapping file;
-
-object my_fd; /* The client. */
-object pipe;
-
-// string range;
-string prot;
-string clientprot;
-string method;
-
-string realfile, virtfile;
-string rest_query="";
-string raw=""; // Raw request
-string query;
-string not_query;
-string extra_extension = ""; // special hack for the language module
-string data, leftovers;
-array (int|string) auth;
-string rawauth, realauth;
-string since;
-int|mapping user=0;
-
-private int cache_control_ok = 0;
 
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
@@ -1556,8 +1500,9 @@ void create(void|object f, void|object c)
 {
   if(f)
   {
-    my_fd = f;
-    conf = c;
+    ::create(f, c);
+    server_protocol="HTTP";
+
     f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
