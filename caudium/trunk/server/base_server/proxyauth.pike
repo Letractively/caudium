@@ -18,11 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
-/* $Id$ */
-
+//! Proxy Auth (?) for Caudium
+//! $Id$
+//! @fixme
+//!   Docs !!!
 inherit "http";
 
+//!
 mapping proxy_auth_needed(object id)
 {
   mixed res = id->conf->check_security(proxy_auth_needed, id);

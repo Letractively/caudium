@@ -18,8 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
-/* $Id$ */
+//! Restorable for caudium (what hell is this ?)
+//! $Id$
+//! @fixme
+//!  Docs!!!
 
 static private array __vars=({});
 
@@ -51,12 +57,14 @@ static private void restore_variables(array var)
       catch { this_object()[var[0]] = var[1]; };
 }
 
+//!
 string cast(string to)
 {
   if(to!="string") error("Cannot cast to "+to+".\n");
   return encode_value(save_variables());
 }
 
+//!
 void create(string from)
 {
   array f;
