@@ -267,6 +267,7 @@ cern.*linemode.*           nothing
 
 #section chimera {
 # Chimera.
+# chimera is a gecko-based browser for MacOS X that now declare itself as Mozilla/5.0 and Gecko/*
 .*	basic, -mailto
 # }
 
