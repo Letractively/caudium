@@ -64,6 +64,16 @@
 #undef NO_REVERSE_LOOKUP
 
 
+/* Should we allow the config interface to lookup the hostnames of
+ * all ip-addresses on the machine? This is the default, but if your
+ * machine has a large number of virtual interfaces, we recommend that you
+ * disable this feature. The reason being that it takes a long time to do the
+ * ip -> hostname lookups. It's done for cosmetical reasons only.
+ */
+
+#define CONFIG_IF_IP_LOOKUPS
+
+
 /* Should we use sete?id instead of set?id?.
  * There _might_ be security problems with the sete?id functions.
  */

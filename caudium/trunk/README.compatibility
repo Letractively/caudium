@@ -84,6 +84,14 @@ NO_REVERSE_LOOKUP (disabled)
  	hostname->ip lookups are still functional. This _is_ usable if
  	you run a proxy, but still breaks host based authentication.
 
+CONFIG_IF_IP_LOOKUPS (enabled) 
+	Should we allow the config interface to lookup the hostnames
+	of all ip-addresses on the machine? This is the default, but
+	if your machine has a large number of virtual interfaces, we
+	recommend that you disable this feature. The reason being that
+	it takes a long time to do the ip -> hostname lookups. It's
+	done for cosmetical reasons only.
+
 COMPAT (disabled)
 	Compatibility with some Really Old version of the
 	server. Quite possibly not even used at all anymore.
