@@ -22,6 +22,8 @@ array status_requests = ({ });
 
 // #define VPROXY_DEBUG
 
+#define WANT_HEADERS /* needs to be defined to get returned error code */
+
 #if __VERSION__ < 7.2
 #ifdef VPROXY_DEBUG
 void VDEBUG (string x, mixed ... args)
@@ -45,7 +47,7 @@ void create ()
 {
    set_module_creator ("eric lindvall <eric@5stops.com>");
 
-   defvar ("mountpoint", "http://", "Location", TYPE_LOCATION | VAR_MORE,
+   defvar ("mountpoint", "http:/", "Location", TYPE_LOCATION | VAR_MORE,
            "the mountpoint of your proxy on your virtual filesystem.<br><br>"
            "don't forget to set the \"<b>Proxy security</b>\" settings "
            "under <b>Builtin Variables</b>.");
@@ -113,6 +115,7 @@ class request
 #ifdef WANT_HEADERS
    int found_server_headers = 0;
    string server_headers = "";
+   int returned_error_code = 0;
 #endif
 
    int bytesent = 0;
@@ -213,6 +216,8 @@ class request
 
       mapping error = id->conf->http_error->process_error (id);
 
+      id->conf->log (([ "error":errno ]), id);
+
       id->end (sprintf ("%s %d %s\r\n"
                         "Content-type: %s\r\n"
                         "Content-Length: %d\r\n\r\n%s", 
@@ -261,6 +266,16 @@ class request
 #endif
    }
 
+#ifdef WANT_HEADERS
+   void parse_server_headers ()
+   {
+      if (found_server_headers != 1)
+         return;
+
+      sscanf (server_headers, "%*s %d %*s\n", returned_error_code);
+   }
+#endif
+
    int filter_host (string elem)
    {
       if (lower_case (elem)[0..4] == "host:")
@@ -289,6 +304,9 @@ class request
                found_server_headers = 1;
                server_headers = server_headers[..i - 1];
             }
+
+            if (found_server_headers == 1)
+               parse_server_headers ();
 
             bytesent += strlen (s);
             buffer += s;
@@ -326,17 +344,24 @@ class request
          con->close ();
          destruct (con);
       }
+
+      if (objectp (rpipe) && functionp (rpipe->bytes_sent))
+         bytesent += rpipe->bytes_sent ();
+
       if (id)
       {
+         if (returned_error_code == 0)
+            returned_error_code = 200;
+
+         id->conf->log (([ "error":returned_error_code,
+                           "len":bytesent ]), id);
+
          id->end ();
       }
 
       int timesince = time (1) - start_time;
       if (timesince < 0)
          timesince = 1;
-
-      if (objectp (rpipe) && functionp (rpipe->bytes_sent))
-         bytesent += rpipe->bytes_sent ();
 
       int bps = bytesent / timesince;
 
@@ -368,16 +393,6 @@ class request
       ret = sprintf ("%s -&gt; %s sent %s at %s/s", host_header, id->remoteaddr, sizetostring (bytes), sizetostring (bps));
 
       return (ret);
-   }
-
-   void failed_to_server ()
-   {
-      VDEBUG ("failed_to_server ()");
-
-      if (con)
-         destruct (con);
-
-      id->end ("connection didn't work\n");
    }
 
    void destroy ()
