@@ -205,7 +205,8 @@ void set_nb_elements_per_page(object id, int nb)
   if(!NSESSION || nb != NSESSION[NAV_NB_ELEM_PAGE])
   {
     create_session(id);
-    NSESSION[NAV_NB_ELEM_PAGE] = nb;
+    // if nb is 0, then it's a non sense, so default to 10 in that case
+    NSESSION[NAV_NB_ELEM_PAGE] = nb || 10;
     NDEBUG("set_nb_elements_per_page: nb="+nb);
   }
 }
