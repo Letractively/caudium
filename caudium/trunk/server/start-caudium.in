@@ -89,8 +89,9 @@ mapping(string:string|array) envvars = ([
   "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getuid()),
   "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket_" + getuid()),
   "CLASSPATH" : (getenv("CLASSPATH")?getenv("CLASSPATH") +":":"") + 
+  (getenv("JAVA_HOME")?getenv("JAVA_HOME") +"/lib/tools.jar:":"") + 
   ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
-   "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
+   "etc/classes/caudium_module.jar:etc/classes/caudium_servlet.jar:etc/classes/servlet.jar:etc/classes/jsdk.jar"),
   "PIKE_MODULE_PATH" : getenv("PIKE_MODULE_PATH") || "",
   "CAUDIUM_LANG" : getenv("CAUDIUM_LANG") || "en"
 ]);
