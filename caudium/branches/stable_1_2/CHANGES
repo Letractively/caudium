@@ -1,5 +1,9 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Fixed name space conflict between Pike 7.2's SSL.pmod and Caudium's one.
+  SSL.pmod has been renamed CaudiumSSL and it is used only when Pike 7.0
+  is used with Caudium. Otherwise, Caudium use Pike 7.2+ builtin SSL.pmod
+  for SSL3 connections.
 - Fixed the Last-Modified code in http.pike and http2.pike. If the request is
   not marked as dynamic (!id->misc->is_dynamic), then the header will be sent 
   properly. 
