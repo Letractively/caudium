@@ -70,9 +70,10 @@ mozilla/2.*OS/2		javascript, tcl, -pngalpha
 mozilla/2.*Win16	-java, javascript, -pngalpha
 mozilla/2.*Macintosh	-java, -pngalpha
 
-mozilla/[3-9].*		javascript, tablecolor, -pngalpha
+mozilla/[3-4].*		-pngalpha
+mozilla/[3-9].*		javascript, tablecolor
 
-mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer, -pngalpha
+mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
 mozilla/4\.0[4-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/4\.[5-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/5\.0b1		-java, pnginline, tcl
@@ -309,12 +310,6 @@ cern.*linemode.*           nothing
 .*url.*control		robot	ms-url-control
 # }
 
-#section chimera {
-# Chimera.
-# chimera is a gecko-based browser for MacOS X that now declare itself as Mozilla/5.0 and Gecko/*
-.*	basic, -mailto
-# }
-
 #section architext {
 # How nice it would have been if all robots had 'robot' in their name..
 .*		robot   architex
@@ -385,6 +380,10 @@ cern.*linemode.*           nothing
 
 #section wget {
 .*		robot	wget	mirror_script
+# }
+
+#section httrack {
+.*		robot	mirror_script
 # }
 
 #section roxen {
