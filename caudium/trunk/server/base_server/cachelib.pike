@@ -18,34 +18,17 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
- * Okay, whenever you want to use the cache you simply need to inherit
- * cachelib and then get hold of your cache object from caudium, this is
- * discussed in the notes for cache_manager.pike.
- * These are used kindof like you use the return functions in caudiumlib
- * (eg http_string_answer()) - whenever you ask the cache to store an
- * object you must do it through these functions to ensure that the
- * required metadata is present for the cache to use.
- *
- * The functions that are available are:
- *
- * mapping cache_file_object( Stdio.File file, string name, void|int exp )
- *  This function is used when you need to store a Stdio.File object in
- *  the cache, you give it the filehandle, a unique identifier (name)
- *  - probably the URI or file path - and then also the expire time,
- *  which can be either in seconds since epoch or seconds from now, also
- *  if you give it -1 then the object will never expire - this is
- *  particularly useful if you want to save rendering time on images or
- *  something similar (I'm using it in the new photo album module).
- *
- * mapping cache_pike_object( mixed var, string name, void|int exp )
- *  cache_pike_object and cache_string_object are almost identical and
- *  will be fleshed out later sometime, however just use cache_pike_object
- *  for the mean time, it stores any kind of pike data structure, however
- *  it doesn't use the disk cache at this time, it will do so in the future.
- *
+ * $Id$
  */
+
+//! Okay, whenever you want to use the cache you simply need to inherit
+//! cachelib and then get hold of your cache object from caudium, this is
+//! discussed in the notes for cache_manager.pike.
+//! These are used kindof like you use the return functions in caudiumlib
+//! (eg http_string_answer()) - whenever you ask the cache to store an
+//!  object you must do it through these functions to ensure that the
+//!  required metadata is present for the cache to use.
 
 constant cvs_version = "$Id$";
 
@@ -150,6 +133,13 @@ function cache_program = cache_program_object;
 function cache_string = cache_string_object;
 function cache_image = cache_image_object;
 
+//! This function is used when you need to store a Stdio.File object in
+//! the cache, you give it the filehandle, a unique identifier (name)
+//! - probably the URI or file path - and then also the expire time,
+//! which can be either in seconds since epoch or seconds from now, also
+//! if you give it -1 then the object will never expire - this is
+//! particularly useful if you want to save rendering time on images or
+//!  something similar (I'm using it in the new photo album module).
 mapping cache_file_object( object file, string name, void|int exp ) {
   return go( "file", file, name, exp );
 }
@@ -160,18 +150,37 @@ mapping cache_file_object( object file, string name, void|int exp ) {
  * }
  */
 
+
+//!
+//! @note
+//!   cache_pike_object and cache_string_object are almost identical
+//!   and will be fleshed out later sometime, however just use cache_pike_object
+//!   for the mean time, it store any kind of pike data structure, however
+//!   it doesn't use the disk cache at this time.
+//! @seealso
+//!   @[pike_string_object]
 mapping cache_pike_object( mixed var, string name, void|int exp ) {
   return go( "pike", var, name, exp );
 }
 
+//!
 mapping cache_program_object( program p, string name, void|int exp ) {
   return go( "program", p, name, exp );
 }
 
+//! 
+//! @note
+//!   cache_pike_object and cache_string_object are almost identical
+//!   and will be fleshed out later sometime, however just use cache_pike_object
+//!   for the mean time, it store any kind of pike data structure, however
+//!   it doesn't use the disk cache at this time.
+//! @seealso
+//!   @[pike_pike_object]
 mapping cache_string_object( string s, string name, void|int exp) {
   return go( "string", s, name, exp );
 }
 
+//!
 mapping cache_image_object( object img, string name, void|int exp ) {
   return go( "image", img, name, exp );
 }

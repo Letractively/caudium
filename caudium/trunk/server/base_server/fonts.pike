@@ -18,8 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+//! Font handler for Caudium
+//! @fixme
+//!   Document this !
 
-/* $Id$ */
+constant cvs_version="$Id$";
 
 #include <module.h>
 
@@ -31,7 +37,7 @@ constant Font = Image.Font;
 constant Font = Image.font;
 #endif
 
-
+//!
 string fix_name(string in)
 {
   return replace(lower_case(in), ({"-"," "}), ({ "_", "_" }));
@@ -46,6 +52,7 @@ string fix_name(string in)
 mapping ttf_done = ([]);
 mapping ttf_font_names_cache = ([]);
 
+//!
 string trimttfname( string n )
 {
   n = reverse(n);
@@ -60,6 +67,7 @@ string trimttfname( string n )
   return reverse(n);
 }
 
+//!
 string translate_ttf_style( string style )
 {
   switch( lower_case( (style-"-")-" " ) )
@@ -95,6 +103,7 @@ string translate_ttf_style( string style )
   return "nn";
 }
 
+//!
 array available_font_versions(string name, int size)
 {
   string base_dir, dir;
@@ -156,6 +165,7 @@ array available_font_versions(string name, int size)
   return available;
 }
 
+//!
 string describe_font_type(string n)
 {
   string res;
@@ -172,6 +182,7 @@ string describe_font_type(string n)
   return res;
 }
 
+//!
 array get_font_italic_bold(string n)
 {
   int italic,bold;
@@ -219,21 +230,26 @@ string make_font_name(string name, int size, int bold, int italic)
   return 0;
 }
 
+//!
 class TTFWrapper
 {
   int size;
   object real;
+
+  //!
   int height( )
   {
     return size;
   }
 
+  //!
   array text_extents( string what )
   {
     object o = real->write( what );
     return ({ o->xsize(), o->ysize() });
   }
 
+  //!
   void create(object r, int s)
   {
     real = r;
@@ -241,12 +257,14 @@ class TTFWrapper
     real->set_height( size );
   }
 
+  //!
   object write( string ... what )
   {
     return real->write(@Array.map( (array(string))what,replace," ",""));
   }
 }
 
+//!
 object get_font(string f, int size, int bold, int italic,
 		string justification, float xspace, float yspace)
 {
@@ -310,6 +328,7 @@ object get_font(string f, int size, int bold, int italic,
   return 0;
 }
 
+//!
 object resolve_font(string f, string|void justification)
 {
   int bold, italic;
@@ -374,6 +393,7 @@ object resolve_font(string f, string|void justification)
   return fn;
 }
 
+//!
 array available_fonts( )
 {
   array res = ({});
@@ -400,6 +420,7 @@ array available_fonts( )
 }
 
 
+//!
 void create()
 {
   add_constant("get_font", get_font);

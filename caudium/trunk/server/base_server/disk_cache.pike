@@ -18,13 +18,20 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
-// string cvs_version = "$Id$";
+//! Disk cache for Caudium
+//! @note
+//!   Still experimental
+//! @fixme
+//!   Is this the new cache handler ?
+
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <stat.h>
 
-
-// Still experimental
 #define CACHE_DEBUG
 
 inherit "caudiumlib";
@@ -33,6 +40,7 @@ object this = this_object();
 #undef QUERY
 #define QUERY(x) caudiump()->variables->x[VAR_VALUE]
 
+//!
 string file_name_r(string what, int nd, int hv)
 {
   if(nd)
@@ -40,6 +48,7 @@ string file_name_r(string what, int nd, int hv)
   return sprintf("%x",hv);
 }
 
+//!
 string file_name(string what)
 {
   int hn = hash(what,0xffffffff);
@@ -47,11 +56,7 @@ string file_name(string what)
 }
 
 
-/*+----------------------------------------------------------+
-  | The cache stream class. Each cache stream is an instance |
-  | of this class.                                           |
-  +----------------------------------------------------------+*/
-
+//! The Cache stream class. Each cache stream is an instance of this class
 class CacheStream 
 {
 //   import Stdio;
@@ -64,6 +69,7 @@ class CacheStream
   int new;
   mapping headers = ([]);
 
+  //!
   int get_code(string from)
   {
     int i;
@@ -73,6 +79,8 @@ class CacheStream
 
   string buf;
   int bpos=0;
+
+  //!
   string gets()
   {
     string s;
@@ -86,7 +94,8 @@ class CacheStream
 
 #define ROXEN_HEAD_VERS 2
 #define ROXEN_HEAD_SIZE 512
-  
+
+  //!
   int parse_headers()
   {
     string line, name, value;
@@ -125,6 +134,7 @@ class CacheStream
     return 1;
   }
   
+  //!
   int load_headers_compat()
   {
     string file;
@@ -142,6 +152,7 @@ class CacheStream
     return 0;
   }
 
+  //!
   int load_headers()
   {
     string head, roxenhead;
@@ -194,6 +205,7 @@ class CacheStream
     return 1;
   }
 
+  //!
   int save_headers()
   {
     if(headers->head_vers != ROXEN_HEAD_VERS)
@@ -221,6 +233,7 @@ class CacheStream
     return 1;
   }
 
+  //!
   void create(object a, string s, int n)
   {
 //    perror("Create cache-stream for "+s+"\n");
@@ -229,6 +242,7 @@ class CacheStream
     new = n;
   }
 
+  //!
   void destroy()
   {
     if(objectp(file))
@@ -240,7 +254,7 @@ class CacheStream
   }
 }
 
-
+//!
 class Cache {
 
 #ifdef THREADS
@@ -251,8 +265,10 @@ class Cache {
   object command_stream = Stdio.File();
   int last_resort;
 
+  //!
   string to_send="";
 
+  //!
   void really_send()
   {
 #ifdef THREADS
@@ -265,7 +281,8 @@ class Cache {
     key = 0;
 #endif
   }  
-
+  
+  //!
   void command(mixed ... cmd)
   {
     string d = encode_value(cmd);
@@ -273,13 +290,15 @@ class Cache {
     to_send += d;
     if(to_send==d) really_send();
   }
-
+  
+  //!
   int accessed(string filename, int howmuch)
   {
     command("accessed", filename, howmuch);
   }
 
-
+  
+  //!
   void reinit(string basename)
   {
     command("create", QUERY(cachedir), basename,
@@ -288,15 +307,15 @@ class Cache {
 	    QUERY(cache_gc_logfile));
   }
   
-  /*
-   * Create a new cache object.
-   * This involves starting a new pike process, and
-   * setting up a pipe for communication
-   */
   void nil(){}
 
   int t=10;
+
+  //! Create a new cache object. This involves starting a new pike
+  //! process and settung up a pipe for communication
   void create(string basename);
+
+  //!
   void do_create(string b)
   {
     t*=2;
@@ -336,9 +355,7 @@ class Cache {
     return;
   }
   
-  /*
-   * Return some statistics
-   */
+  //! Return some statistics
   string status()
   {
     int i = 10;
@@ -353,9 +370,7 @@ class Cache {
     return s;
   }
 
-  /*
-   * Returns the real amount of data if 'f' is set to 1.
-   */
+  //! Returns the real amount of data if 'f' is set to 1.
   int check(int howmuch, int|void f)
   {
     command( "check", howmuch );
@@ -363,7 +378,6 @@ class Cache {
     return 0;
   }
 }
-
 
 
 /*
@@ -381,6 +395,7 @@ private object cache;
  | API functions
  */
 
+//!
 public void reinit_garber()
 {
   if(!QUERY(cache)) return;
@@ -406,14 +421,17 @@ public void reinit_garber()
     cache->last_resort = QUERY(cache_last_resort) * DAY;
 }
 
+//!
 public void init_garber()
 {
   reinit_garber();
 }
 
 
+//!
 void default_check_cache_file(object file);
 
+//!
 object new_cache_stream(object fp, string fn)
 {
   object res;
@@ -607,6 +625,7 @@ object cache_file(string cl, string entry)
   return cf;
 }
 
+//!
 object create_cache_file(string cl, string entry)
 {
   if(!QUERY(cache)) return 0;
@@ -657,6 +676,7 @@ object create_cache_file(string cl, string entry)
   return cf;
 }
 
+//!
 void rmold(string fname)
 {
   int len;
@@ -665,7 +685,8 @@ void rmold(string fname)
   if((len>=0) && rm(fname) && (len > 0))
     cache->check(-len);
 }
-  
+ 
+//!
 void default_check_cache_file(object stream)
 {
   if (QUERY(cache)) {
@@ -686,6 +707,7 @@ void default_check_cache_file(object stream)
   destruct(stream);
 }
 
+//!
 string get_garb_info()
 {
   return "<pre>"+cache->status()+"</pre>";
@@ -694,6 +716,7 @@ string get_garb_info()
 #define DELETE_AND_RETURN(){rmold(cachef->rfiledone);if(cachef){cachef->new=1;destruct(cachef);}return;}
 #define RETURN() {if(cachef){destruct(cachef);}return;}
 
+//!
 void http_check_cache_file(object cachef)
 {
   if(!cachef->file) RETURN();

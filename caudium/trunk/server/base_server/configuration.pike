@@ -18,6 +18,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
 string cvs_version = "$Id$";
 #include <module.h>
@@ -117,6 +120,7 @@ int setvars( mapping (string:mixed) vars )
   return 1;
 }
 
+//! Kill a variable.
 void killvar(string name)
 {
   m_delete(variables, name);
@@ -145,6 +149,7 @@ static class ConfigurableWrapper
   }
 };
 
+//! Create a Defvar for Configuration interface
 int defvar(string var, mixed value, string name, int type,
            string|void doc_str, mixed|void misc,
            int|function|void not_in_config)
@@ -173,27 +178,32 @@ int defvar(string var, mixed value, string name, int type,
   variables[var][ VAR_SHORTNAME ] = var;
 }
 
+//!
 int definvisvar(string var, mixed value, int type)
 {
   return defvar(var, value, "", type, "", 0, 1);
 }
 
+//!
 string query_internal_location(object|void mod)
 {
   return QUERY(InternalLoc)+(mod? replace(otomod[mod]||"", "#", "!")+"/":"");
 }
 
+//!
 string query_name()
 {
   if(strlen(QUERY(name))) return QUERY(name);
   return name;
 }
 
+//!
 string comment()
 {
   return QUERY(comment);
 }
 
+//!
 class Priority 
 {
   array (object) url_modules = ({ });
@@ -224,11 +234,9 @@ class Priority
 
 
 
-/* A 'pri' is one of the ten priority objects. Each one holds a list
- * of modules for that priority. They are all merged into one list for
- * performance reasons later on.
- */
-
+//! A 'pri' is one of the ten priority objects. Each one holds a list
+//! of modules for that priority. They are all merged into one list for
+//! performance reasons later on.
 array (object) allocate_pris()
 {
   int a;
@@ -239,6 +247,7 @@ array (object) allocate_pris()
 }
 
 #ifndef __AUTO_BIGNUM__
+//!
 class Bignum {
 #if constant(Gmp.mpz) // Perfect. :-)
   object gmp = Gmp.mpz();
@@ -310,62 +319,67 @@ class Bignum {
 #endif
 
 
-/* For debug and statistics info only */
+//! Request used for debug and statistics info only
 int requests;
-// Protocol specific statistics.
+
+//! Protocol specific statistics.
 mapping(string:mixed) extra_statistics = ([]);
-mapping(string:mixed) misc = ([]);  // Even more statistics.
+//! Even more protocol specific statistics
+mapping(string:mixed) misc = ([]); 
 
 #ifdef __AUTO_BIGNUM__
 int sent, hsent, received;
 #else
-object sent=Bignum();     // Sent data
-object hsent=Bignum();    // Sent headers
-object received=Bignum(); // Received data
+//! Sent data
+object sent=Bignum();
+
+//! Sent headers
+object hsent=Bignum();
+
+//! Received data
+object received=Bignum();
 #endif
 object this = this_object();
 
 
-// Used to store 'parser' modules before the main parser module
-// is added to the configuration.
-
+//! Used to store 'parser' modules before the main parser module
+//! is added to the configuration.
 private array(object) _toparse_modules = ({});
 
-// Will write a line to the log-file. This will probably be replaced
-// entirely by log-modules in the future, since this would be much
-// cleaner.
-
+//! Will write a line to the log-file. This will probably be replaced
+//! entirely by log-modules in the future, since this would be much
+//! cleaner.
 int|function log_function;
 
-// The last time an item was logged. Used to determine if the log file
-// descriptor should be closed 
+//! The last time an item was logged. Used to determine if the log file
+//! descriptor should be closed 
 int last_log_time;
 
-// The logging format used. This will probably move the the above
-// mentioned module in the future.
+//! The logging format used. This will probably move the the above
+//! mentioned module in the future.
 private mapping (string:string) log_format = ([]);
 
-// The objects for each logging format. Each of the objects has the function
-// format_log which takes the file and id object as arguments and returns
-// a formatted string. the hashost variable is 1 if there is a $host that
-// needs to be resolved.
+//! The objects for each logging format. Each of the objects has the function
+//! format_log which takes the file and id object as arguments and returns
+//! a formatted string. the hashost variable is 1 if there is a $host that
+//! needs to be resolved.
 mapping (string:object) log_format_objs = ([]);
 
 
-// A list of priority objects (used like a 'struct' in C, really)
+//! A list of priority objects (used like a 'struct' in C, really)
 private array (object) pri = allocate_pris();
 
-// All enabled modules in this virtual server.
-// The format is "module":([ module_info ])
+//! All enabled modules in this virtual server.
+//! The format is "module":([ module_info ])
 public mapping (string:mapping(string:mixed)) modules = ([]);
 
-// A mapping from objects to module names
+//! A mapping from objects to module names
 public mapping (object:string) otomod = ([]);
 
 
-// Caches to speed up the handling of the module search.
-// They are all sorted in priority order, and created by the functions
-// below.
+//! Caches to speed up the handling of the module search.
+//! They are all sorted in priority order, and created by the functions
+//! below.
 private array (function) url_module_cache, last_module_cache;
 private array (function) logger_module_cache, first_module_cache;
 private array (function) filter_module_cache, precache_module_cache;
@@ -375,7 +389,7 @@ private mapping (string:array (function)) file_extension_module_cache=([]);
 private mapping (string:array (object)) provider_module_cache=([]);
 
 
-// Call stop in all modules.
+//! Call stop in all modules.
 void stop()
 {
   CATCH(parse_module && parse_module->stop && parse_module->stop());
@@ -385,17 +399,15 @@ void stop()
   for(int i=0; i<10; i++) CATCH(pri[i] && pri[i]->stop && pri[i]->stop());
 }
 
+//! returns the content-type for the given filename. if "to" is set,
+//! then returns the content-encoding as well.
+//! ok, so this fun changes according to the new MODULE_TYPE API.
+//! basically, from now on this is just a dummy function. the old one tried to play voodoo magic
+//! with data it didn't really have, so...
 public array|string type_from_filename( string file, int|void to ) {
-  // returns the content-type for the given filename. if "to" is set,
-  // then returns the content-encoding as well.
-
-  // ok, so this fun changes according to the new MODULE_TYPE API.
-  // basically, from now on this is just a dummy function. the old one tried to play voodoo magic
-  // with data it didn't really have, so...
-
   object current_configuration;
 
-  // the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
+  //! the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
   array retval = ({ "application/octet-stream", 0 });
 
   if( !types_fun )
@@ -409,12 +421,12 @@ public array|string type_from_filename( string file, int|void to ) {
   return to ? retval : retval[ 0 ];
 }
 
-// Return an array with all provider modules that provides "provides".
+//! Return an array with all provider modules that provides "provides".
+//! @fixme
+//!   Is there any way to clear this cache ? (grubba 1998-05-28)
+//!   Yes, it is zapped together with the rest in invalidate_cache()
 array (object) get_providers(string provides)
 {
-  // FIXME: Is there any way to clear this cache?
-  // /grubba 1998-05-28
-  // - Yes, it is zapped together with the rest in invalidate_cache().
   if(!provider_module_cache[provides])
   { 
     int i;
@@ -429,7 +441,7 @@ array (object) get_providers(string provides)
   return provider_module_cache[provides];
 }
 
-// Return the first provider module that provides "provides".
+//! Return the first provider module that provides "provides".
 object get_provider(string provides)
 {
   array (object) prov = get_providers(provides);
@@ -438,7 +450,7 @@ object get_provider(string provides)
   return 0;
 }
 
-// map the function "fun" over all matching provider modules.
+//! map the function "fun" over all matching provider modules.
 array(mixed) map_providers(string provides, string fun, mixed ... args)
 {
   array (object) prov = get_providers(provides);
@@ -462,8 +474,8 @@ array(mixed) map_providers(string provides, string fun, mixed ... args)
   return a;
 }
 
-// map the function "fun" over all matching provider modules and
-// return the first positive response.
+//! map the function "fun" over all matching provider modules and
+//! return the first positive response.
 mixed call_provider(string provides, string fun, mixed ... args)
 {
   foreach(get_providers(provides), object mod) {
@@ -483,6 +495,7 @@ mixed call_provider(string provides, string fun, mixed ... args)
   }
 }
 
+//!
 array (function) extension_modules(string ext, object id)
 {
   if(!extension_module_cache[ext])
@@ -501,7 +514,7 @@ array (function) extension_modules(string ext, object id)
   return extension_module_cache[ext];
 }
 
-
+//!
 array (function) file_extension_modules(string ext, object id)
 {
   if(!file_extension_module_cache[ext])
@@ -520,6 +533,7 @@ array (function) file_extension_modules(string ext, object id)
   return file_extension_module_cache[ext];
 }
 
+//!
 array (function) url_modules(object id)
 {
   if(!url_module_cache)
@@ -538,12 +552,16 @@ array (function) url_modules(object id)
   return url_module_cache;
 }
 
+//!
 mapping api_module_cache = ([]);
+
+//!
 mapping api_functions(object id)
 {
   return copy_value(api_module_cache);
 }
 
+//!
 array (function) logger_modules(object id)
 {
   if(!logger_module_cache)
@@ -563,6 +581,7 @@ array (function) logger_modules(object id)
   return logger_module_cache;
 }
 
+//!
 array (function) last_modules(object id)
 {
   if(!last_module_cache)
@@ -582,6 +601,7 @@ array (function) last_modules(object id)
   return last_module_cache;
 }
 
+//!
 array (function) first_modules(object id)
 {
   if(!first_module_cache)
@@ -606,6 +626,7 @@ array (function) first_modules(object id)
   return first_module_cache;
 }
 
+//!
 array (function) precache_modules(object id)
 {
   if(!precache_module_cache)
@@ -628,7 +649,7 @@ array (function) precache_modules(object id)
   return precache_module_cache;
 }
 
-
+//!
 array location_modules(object id)
 {
   if(!location_module_cache)
@@ -664,6 +685,7 @@ array location_modules(object id)
   return location_module_cache;
 }
 
+//!
 array filter_modules(object id)
 {
   if(!filter_module_cache)
@@ -684,6 +706,8 @@ array filter_modules(object id)
 }
 
 string cache_hostname=gethostname();
+
+//!
 int init_log_file(int|void force_open)
 {
   int t = time(1);
@@ -748,7 +772,7 @@ int init_log_file(int|void force_open)
   }
 }
 
-// Parse the logging format strings.
+//! Parse the logging format strings.
 private inline string fix_logging(string s)
 {
   string pre, post, c;
@@ -773,6 +797,7 @@ private inline string fix_logging(string s)
   return s;
 }
 
+//!
 private void parse_log_formats()
 {
   string b;
@@ -793,9 +818,7 @@ private void parse_log_formats()
   }
 }
 
-
-
-// Really write an entry to the log.
+//! Really write an entry to the log.
 private void write_to_log( string host, string rest, string oh, function fun )
 {
   int s;
@@ -807,7 +830,7 @@ private void write_to_log( string host, string rest, string oh, function fun )
   if(fun) fun(replace(rest, "$host", host));
 }
 
-// Logging format support functions.
+//! Logging format support functions.
 nomask private inline string host_ip_to_int(string s)
 {
   int a, b, c, d;
@@ -820,11 +843,13 @@ nomask private inline string unsigned_to_bin(int a)
   return sprintf("%4c", a);
 }
 
+//!
 nomask private inline string unsigned_short_to_bin(int a)
 {
   return sprintf("%2c", a);
 }
 
+//!
 nomask private inline string extract_user(string from)
 {
   array tmp;
@@ -836,6 +861,8 @@ nomask private inline string extract_user(string from)
 #ifdef THREADS
 private object log_file_mutex = Thread.Mutex();
 #endif
+
+//!
 public void log(mapping file, object request_id)
 {
 //    _debug(2);
@@ -876,7 +903,7 @@ public void log(mapping file, object request_id)
   }
 }
 
-// These are here for statistics and debug reasons only.
+//! These are here for statistics and debug reasons only.
 public string status()
 {
   float tmp;
@@ -965,6 +992,7 @@ public string status()
   return res;
 }
 
+//!
 public array(string) userinfo(string u, object|void id)
 {
   if(auth_module) return auth_module->userinfo(u);
@@ -972,6 +1000,7 @@ public array(string) userinfo(string u, object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
+//!
 public array(string) userlist(object|void id)
 {
   if(auth_module) return auth_module->userlist();
@@ -979,6 +1008,7 @@ public array(string) userlist(object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
+//!
 public array(string) user_from_uid(int u, object|void id)
 {
   if(auth_module)
@@ -987,10 +1017,8 @@ public array(string) user_from_uid(int u, object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
-
-
-// Some clients does _not_ handle the magic 'internal-gopher-...'.
-// So, lets do it here instead.
+//! Some clients does _not_ handle the magic 'internal-gopher-...'.
+//! So, lets do it here instead.
 private mapping internal_gopher_image(string from)
 {
   sscanf(from, "%s.gif", from);
@@ -1008,6 +1036,7 @@ private static int nest = 0;
 #ifdef MODULE_LEVEL_SECURITY
 private mapping misc_cache=([]);
 
+//!
 int|mapping check_security(function a, object id, void|int slevel)
 {
   array level;
@@ -1163,7 +1192,8 @@ int|mapping check_security(function a, object id, void|int slevel)
   }
 }
 #endif
-// Empty all the caches above.
+
+//! Empty all the caches above.
 void invalidate_cache()
 {
   last_module_cache = 0;
@@ -1182,7 +1212,7 @@ void invalidate_cache()
 #endif
 }
 
-// Empty all the caches above AND the ones in the loaded modules.
+//! Empty all the caches above AND the ones in the loaded modules.
 void clear_memory_caches()
 {
   invalidate_cache();
@@ -1200,7 +1230,7 @@ void clear_memory_caches()
   }
 }
 
-
+//!
 string draw_saturation_bar(int hue,int brightness, int where)
 {
   object bar=Image.image(30,256);
@@ -1219,8 +1249,8 @@ string draw_saturation_bar(int hue,int brightness, int where)
 }
 
 
-// Inspired by the internal-gopher-... thingie, this is the for internal
-// Caudium images, like logos etc.
+//! Inspired by the internal-gopher-... thingie, this is the for internal
+//! Caudium images, like logos etc.
 private mapping internal_caudium_image(string from)
 {
   object img;
@@ -1289,10 +1319,9 @@ private mapping internal_caudium_image(string from)
   return ret;
 }
 
-// The function that actually tries to find the data requested.  All
-// modules are mapped, in order, and the first one that returns a
-// suitable responce is used.
-
+//! The function that actually tries to find the data requested.  All
+//! modules are mapped, in order, and the first one that returns a
+//! suitable responce is used.
 mapping (mixed:function|int) locks = ([]);
 
 #ifdef THREADS
@@ -1350,6 +1379,7 @@ object _lock(object|function f)
 #define TRACE_ENTER(A,B) do{if(id->misc->trace_enter)id->misc->trace_enter((A),(B));}while(0)
 #define TRACE_LEAVE(A) do{if(id->misc->trace_leave)id->misc->trace_leave((A));}while(0)
 
+//!
 string examine_return_mapping(mapping m)
 {
   string res;
@@ -1423,6 +1453,7 @@ string examine_return_mapping(mapping m)
   return res;
 }
 
+//!
 mapping|int low_get_file(object id, int|void no_magic)
 {
 #ifdef MODULE_LEVEL_SECURITY
@@ -1773,9 +1804,9 @@ mapping|int low_get_file(object id, int|void no_magic)
   return fid;
 }
 
-// Call the precache_rewrite function in all MODULE_PRECACHE, if any.
-// This is done before the any raw caching is done and can be used for
-// virtual hosting and creation of a custom cache key.
+//! Call the precache_rewrite function in all MODULE_PRECACHE, if any.
+//! This is done before the any raw caching is done and can be used for
+//! virtual hosting and creation of a custom cache key.
 void handle_precache(object id) {
   foreach(precache_module_cache||precache_modules(id), function funp)
   {
@@ -1789,6 +1820,7 @@ void handle_precache(object id) {
   }
 }
 
+//!
 mixed handle_request( object id  )
 {
   function funp;
@@ -1818,6 +1850,7 @@ mixed handle_request( object id  )
   return file;
 }
 
+//!
 mixed get_file(object id, int|void no_magic)  
 {
   mixed res, res2;
@@ -1841,6 +1874,7 @@ mixed get_file(object id, int|void no_magic)
   return res;
 }
 
+//!
 public array find_dir(string file, object id)
 {
   string loc;
@@ -1947,8 +1981,7 @@ public array find_dir(string file, object id)
   TRACE_LEAVE("Returning 'no such directory'");
 }
 
-// Stat a virtual file. 
-
+//! Stat a virtual file. 
 public array stat_file(string file, object id)
 {
   string loc;
@@ -2037,11 +2070,13 @@ public array stat_file(string file, object id)
   TRACE_LEAVE("Returning 'no such file'");
 }
 
+//!
 class StringFile
 {
   string data;
   int offset;
 
+  //!
   string read(int nbytes)
   {
     if(!nbytes)
@@ -2054,16 +2089,19 @@ class StringFile
     return d;
   }
 
+  //!
   void write(mixed ... args)
   {
     throw( ({ "File not open for write", backtrace() }) );
   }
 
+  //!
   void seek(int to)
   {
     offset = to;
   }
 
+  //!
   void create(string d)
   {
     data = d;
@@ -2072,7 +2110,7 @@ class StringFile
 }
 
 
-// this is not as trivial as it sounds. Consider gtext. :-)
+//! this is not as trivial as it sounds. Consider gtext. :-)
 public array open_file(string fname, string mode, object id)
 {
   object oc = id->conf;
@@ -2141,7 +2179,7 @@ public array open_file(string fname, string mode, object id)
   return ({ 0,(["error":501,"data":"Not implemented"]) });
 }
 
-
+//!
 public mapping(string:array(mixed)) find_dir_stat(string file, object id)
 {
   string loc;
@@ -2264,8 +2302,7 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
 }
 
 
-// Access a virtual file?
-
+//! Access a virtual file?
 public array|string access(string file, object id)
 {
   string loc;
@@ -2423,10 +2460,7 @@ public int is_file(string what, object id)
   return !!stat_file(what, id);
 }
 
-//
-// A quick hack to generate correct protocol references
-//
-
+//! A quick hack to generate correct protocol references
 static string make_proto_name(string p)
 {
   // Note these are only the protocols that
@@ -2459,6 +2493,7 @@ static string make_proto_name(string p)
   return "about";
 }
 
+//!
 string MKPORTKEY(array(string) p)
 {
   if (sizeof(p[3])) {
@@ -2471,9 +2506,12 @@ string MKPORTKEY(array(string) p)
   }
 }
 
+//! Caudium opened ports.
 mapping(string:object) server_ports = ([]);
 
 int ports_changed = 1;
+
+//!
 void start(int num, void|object conf_id, array|void args)
 {
   // Note: This may be run before uid:gid is changed.
@@ -2665,7 +2703,7 @@ void save(int|void all)
   invalidate_cache();
 }
 
-// Save all variables in _one_ module.
+//! Save all variables in _one_ module.
 int save_one( object o )
 {
   mapping mod;
@@ -2701,7 +2739,7 @@ int save_one( object o )
 
 mapping _hooks=([ ]);
 
-
+//!
 void hooks_for( string modname, object mod )
 {
   array hook;
@@ -2715,6 +2753,7 @@ void hooks_for( string modname, object mod )
   }
 }
 
+//!
 object enable_module( string modname )
 {
   string id;
@@ -3093,7 +3132,7 @@ object enable_module( string modname )
   return me;
 }
 
-// Called from the configuration interface.
+//! Called from the configuration interface.
 string check_variable(string name, string value)
 {
   switch(name)
@@ -3120,14 +3159,13 @@ string check_variable(string name, string value)
 
 #define perr(X) do { report += X; perror(X); } while(0)
 
-// Used to hide some variables when logging is not enabled.
-
+//! Used to hide some variables when logging is not enabled.
 int log_is_not_enabled()
 {
   return !query("Log");
 }
 
-
+//!
 int disable_module( string modname )
 {
   mapping module;
@@ -3260,6 +3298,7 @@ int disable_module( string modname )
   return 1;
 }
 
+//!
 object|string find_module(string name)
 {
   int id;
@@ -3275,6 +3314,7 @@ object|string find_module(string name)
   return 0;
 }
 
+//!
 void register_module_load_hook( string modname, function fun, mixed ... args )
 {
   object o;
@@ -3294,7 +3334,7 @@ void register_module_load_hook( string modname, function fun, mixed ... args )
       _hooks[modname] += ({ ({ fun, args }) });
 }
 
-
+//!
 int load_module(string module_file)
 {
   int foo, disablep;
@@ -3431,6 +3471,7 @@ int load_module(string module_file)
   return 1;
 }
 
+//§
 int unload_module(string module_file)
 {
   mapping module;
@@ -3451,6 +3492,7 @@ int unload_module(string module_file)
   return 1;
 }
 
+//!
 int add_modules (array(string) mods)
 {
   foreach (mods, string mod)
@@ -3460,12 +3502,13 @@ int add_modules (array(string) mods)
     caudium->configuration_interface()->build_root(caudium->root);
 }
 
+//!
 int port_open(array prt)
 {
   return(server_ports[MKPORTKEY(prt)] != 0);
 }
 
-
+//! Function to add the current webserver to netcraft :)
 static string netcraft_submit()
 {
   if (query("netcraft_done"))
@@ -3491,6 +3534,7 @@ static string netcraft_submit()
   return sprintf(ret, name, name, query("MyWorldLocation"), random(123456));
 }
 
+//!
 string desc()
 {
   string res="";
@@ -3570,10 +3614,13 @@ string desc()
 
 // BEGIN SQL
 
+//! The SQL urls 
 mapping(string:string) sql_urls = ([]);
 
+//! The SQL Cache
 mapping(string|object:mapping|object) sql_cache = ([]);
 
+//!
 object sql_cache_get(string what)
 {
 #ifdef THREADS
@@ -3605,6 +3652,9 @@ object sql_cache_get(string what)
 #endif
 }
 
+//! Backend use to do thread safe connect to SQL
+//! @seealso
+//!  @[SqlDB]
 object sql_connect(string db)
 {
   if (sql_urls[db]) {
@@ -3616,8 +3666,7 @@ object sql_connect(string db)
 
 // END SQL
 
-// This is the most likely URL for a virtual server.
-
+//! This is the most likely URL for a virtual server.
 private string get_my_url()
 {
   string s;
@@ -3638,6 +3687,8 @@ Thread.Mutex enable_modules_mutex = Thread.Mutex();
 #endif
 
 int inited;
+
+//! Enable all modules
 void enable_all_modules()
 {
   MODULE_LOCK();
@@ -3648,6 +3699,8 @@ void enable_all_modules()
            name+":\n"+ describe_backtrace(err)+"\n");
   
 }
+
+//!
 void low_enable_all_modules() {
 #if constant(gethrtime)
   int start_time = gethrtime();
@@ -3686,7 +3739,7 @@ void low_enable_all_modules() {
 }
 
 #ifdef ENABLE_RAM_CACHE
-// Cacher for super request speed.
+//! Cacher for super request speed.
 class DataCache
 {
   mapping(string:array(string|mapping(string:mixed))) cache = ([]);
@@ -3697,6 +3750,7 @@ class DataCache
   
   int hits, misses;
 
+  //!
   static void clear_some_cache()
   {
     int i;
@@ -3709,6 +3763,7 @@ class DataCache
     }
   }
 
+  //!
   void expire_entry( string url )
   {
     if( cache[ url ] )
@@ -3718,6 +3773,7 @@ class DataCache
     }
   }
 
+  //!
   void set( string url, string data, mapping meta, int expire )
   {
     remove_call_out(url);
@@ -3728,6 +3784,7 @@ class DataCache
     cache[url] = ({ data, meta });
   }
   
+  //!
   array(string|mapping(string:mixed)) get( string url, mapping request_headers )
   {
     mixed res;
@@ -3740,6 +3797,7 @@ class DataCache
     return res;
   }
 
+  //!
   void init_from_variables(int _size, int _fsize, float gc_cleanup)
   {
     max_size = _size;
@@ -3749,6 +3807,7 @@ class DataCache
       clear_some_cache();
   }
 
+  //!
   static void create(int _size, int _fsize, float gc_cleanup )
   {
     init_from_variables(_size,_fsize, gc_cleanup);
@@ -3758,6 +3817,7 @@ class DataCache
 object(DataCache) datacache;
 #endif
 
+//!
 void create(string config)
 {
   int|array currentipaddress = gethostbyname(gethostname()); // The ip address
@@ -4045,6 +4105,7 @@ void create(string config)
 
 }
 
+//! Used to print all configuration for a virtual server
 string _sprintf( )
 {
   return "Configuration("+name+")";
