@@ -20,12 +20,16 @@
 //  For risks and side-effects please read the code or ask your local 
 //  unix or roxen-guru.
 
-constant cvs_version="$Id$";
 #include <module.h>
 #include <stdio.h>
 inherit "modules/filesystems/filesystem";
-inherit "utils.pike";
+inherit "utils";
 //inherit "relinsert.pike";
+
+constant my_cvs_version="$Id$";
+
+constant cvs_version = (my_cvs_version-"Exp $")+"<br>"
+             +(((::cvs_version*"<br>")-"$Id$");
 
 void create()
 {
