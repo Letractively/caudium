@@ -344,3 +344,70 @@ inherit _Caudium;
 //!               "user-agent":"Mozilla"
 //!             ])
 
+//! @decl string parse_prestates(string url, multiset prestates, multiset internals)
+//!  Parse the given url string and fill the passed multiseds with, 
+//!  repectively, "normal" and "internal" prestates. Note that the latter
+//!  is filled only if the FIRST prestate is "internal" and in such case the
+//!  the former has just one member : "internal".
+//! @param url
+//!  The url string to get prestates from.
+//! @param prestates
+//!  Multiset where "normal" prestates are filled.
+//! @param internals
+//!  Multiset where "internal" prestates are filled.
+//! @returns
+//!  Returns the passed url with the prestate part.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//! @example
+//! Pike v7.4 release 1 running Hilfe v3.5 (Incremental Pike Frontend)
+//! > multiset prestates = (< >);
+//! > multiset internal = (< >);
+//! > Caudium.parse_prestates("/(internal,images,test)/index.rxml",prestates,internal);
+//! (1) Result: "/index.rxml"
+//! > prestates;
+//! (2) Result: (< /* 1 element */
+//!                 "internal"
+//!             >)
+//! > internal;
+//! (3) Result: (< /* 2 elements */
+//!                 "test",
+//!                 "images"
+//!             >)
+//! > prestates = (< >);
+//! (4) Result: (< >)
+//! > internal = (< >);
+//! (5) Result: (< >)
+//! > Caudium.parse_prestates("/(test=1)/foo.c",prestates,internal);
+//! (6) Result: "/foo.c"
+//! > prestates;
+//! (7) Result: (< /* 1 element */
+//!                 "test=1"
+//!             >)
+//! > internal;
+//! (8) Result: (< >)
+
+//! @decl void parse_headers(string query, mapping results)
+//!  Format and unescape all query string and add the result to the
+//!  mapping @[results].
+//! @param query
+//!  The query string to parse.
+//! @param results
+//!  The mapping where results will be added.
+//! @returns
+//!  Void. Or throw when there is an error (usualy when a memory problem
+//!  happened).
+//! @note
+//!  Non RIS code, handled by _Caudium C module.
+//! @example
+//! Pike v7.4 release 1 running Hilfe v3.5 (Incremental Pike Frontend)
+//! > mapping pof = ([ ]);
+//! > Caudium.parse_query_string("toto=zzz&plink=pof%20zou", pof);
+//! (1) Result: 0
+//! > pof;
+//! (2) Result: ([ /* 2 elements */
+//!               "plink":"pof zou",
+//!               "toto":"zzz"
+//!             ])
+
+
