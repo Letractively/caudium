@@ -12,7 +12,7 @@ AC_REVISION($Revision$)
 # The oldest version of Pike we run
 REQ_MIN_PIKE_MAJOR=7
 REQ_MIN_PIKE_MINOR=6
-REQ_MIN_PIKE_BUILD=12
+REQ_MIN_PIKE_BUILD=24
 # But on the other end we can't run Pike above or equal this one
 REQ_MAX_PIKE_MAJOR=7
 REQ_MAX_PIKE_MINOR=7
@@ -791,7 +791,7 @@ export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK CAUDIUM_SERVERDIR
 
 AC_CONFIG_SUBDIRS(src tools)
 AC_CONFIG_COMMANDS([hail_epita],[sh tools/fixperms])
-AC_OUTPUT(Makefile server/start-caudium server/bin/install.pike)
+AC_OUTPUT(Makefile server/start-caudium server/bin/install)
 
 echo "
 

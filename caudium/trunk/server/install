@@ -2,4 +2,4 @@
 #
 # $Id$
 #
-./start-caudium "$@" --once --program bin/install.pike
+./bin/install
