@@ -1489,7 +1489,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     
   if (id->misc->session_id && args && !args->norewrite && args->href && !leave_me_alone(args->href)) {
     if (sscanf(args->href, "%*s?%s", query) == 2) {
-      parse_query_string(query, hvars);
+      Caudium.parse_query_string(query, hvars);
       have_query = 1;
     }
         
@@ -1523,7 +1523,7 @@ mixed tag_frame (string tag, mapping args, object id, object file)
     
   if (id->misc->session_id && args && !args->norewrite && args->src && !leave_me_alone(args->src)) {
     if (sscanf(args->src, "%*s?%s", query) == 2) {
-      parse_query_string(query, hvars);
+      Caudium.parse_query_string(query, hvars);
       have_query = 1;
     }
         
