@@ -363,7 +363,8 @@ object make_text_image(mapping args, object font, string text,string basedir,
   
   if(args->turbulence)
   {
-    array (float|array(int)) arg=({});
+    //array (float|array(int)) arg=({});
+    array arg=({});
     foreach((args->turbulence/";"),  string s)
     {
       array q= s/",";
