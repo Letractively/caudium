@@ -356,7 +356,7 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   object my_parser = (id->misc->_xml_parser || parse_object)->clone();
   if(!id->misc->scopes)
     id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
-  
+  object old_xml_parser = id->misc->_xml_parser || parse_object;
   id->misc->_xml_parser = my_parser;
   if(!id->misc->_tags) {
     id->misc->_tags = ([]);
@@ -370,6 +370,10 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   my_parser->set_extra(id, file, defines, my_fd);
   to_parse = my_parser->finish(to_parse)->read();
   id->misc->parse_level --;
+  id->misc->_xml_parser = old_xml_parser;
+  // To make sure we keep all containers defined within the parsing above.
+  id->misc->_xml_parser->add_tags(id->misc->_tags);
+  id->misc->_xml_parser->add_containers(id->misc->_containers);
   return to_parse;
 }
 

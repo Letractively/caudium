@@ -1,5 +1,7 @@
 Changes in Caudium 1.0.XX
 -------------------------
+- Fix for bug #450757: When calling parse_rxml() when using the XML compliant
+  RXML parser, make sure to propagate and keep custom tags correctly.
 - Removed old network neighbourhood code.
 - Fixed bug in connection timeout code. When running in non-threaded
   mode, long connections (ie large downloads) would be timed out
@@ -8,7 +10,7 @@ Changes in Caudium 1.0.XX
 - Fixed <if variable> to work with scopes.
 - Throw a bad request answer if the file contains unencoded spaces
   (http2 protocol).
-- Fixed bug #432433 (redirect module fix)
+- Fixed bugs #432433 and #449140 (redirect module fixed)
 - Fix to allow / in the name of modules and variables (bug #423435).
 - Always simplify path in low_get_file. This is added to prevent the
   possibility of a bugs allowing access to files outside of the

@@ -1,5 +1,7 @@
 Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
+- Fix for bug #450757: When calling parse_rxml() when using the XML compliant
+  RXML parser, make sure to propagate and keep custom tags correctly.
 - Added embedded Perl script / perl tag support from Roxen, originally
   ported to Caudium by Jan Legenhausen.
 - Made the ftp protocol use supplied error code if it's present after a
