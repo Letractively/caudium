@@ -258,13 +258,15 @@ if test "$PIKE" != ""; then
   if test -x "$tmppike"; then
  	PIKE=$tmppike
   fi
+  PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 else
   echo "Failed to find a suitable pike!"
   exit 1;
 fi
 
-export PIKE PIKE_INCLUDE_DIR PIKE_MODULE_DIR
+export PIKE PIKE_INCLUDE_DIR PIKE_MODULE_DIR PIKE_VERSION
 AC_SUBST(PIKE)
+AC_SUBST(PIKE_VERSION)
 
 #############################################################################
 
@@ -648,6 +650,7 @@ re-running configure with '--with-pike=/path/to/correct/pike'.
         LDFLAGS:    $LDFLAGS
 
         Pike binary used:      $PIKE
+        Pike version:          $PIKE_VERSION
         Pike include dir:      $PIKE_INCLUDE_DIR
         Pike module directory: $PIKE_MODULE_DIR"
 

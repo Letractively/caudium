@@ -83,13 +83,6 @@ if uname | grep 'HP-UX' >/dev/null 2>&1; then
   DEFINES="$DEFINES -DHPUX_KLUDGE"
 fi
 
-pike=pike
-if [ -x bin/pike ] ; then pike=bin/pike; fi
-if [ -x bin/caudium ] ; then  pike=bin/caudium; fi
-if [ "x$PIKE" = "x" ]; then :; else
-  if [ -x "$PIKE" ]; then pike="$PIKE"; fi
-fi
-
 gdb=no
 
 ####### END PREAMBLE
@@ -104,7 +97,10 @@ parse_args() {
   ;;
 # Used by the 'install' script
   --truss)
-     pike="truss $pike"
+     precmd="truss $pike"
+  ;;
+  --strace)
+     precmd="strace -f $pike"
   ;;
   --no-env-setup)
    pass2="$pass2 $1"
@@ -121,6 +117,9 @@ parse_args() {
   --config-dir=*)
    DIR=`echo $1 | sed -e 's/--config-dir=//'`
    FILES=`echo $1 | sed -e's/--config-dir=//' -e's/\.//g' -e's./..g' -e 's.-..g'`
+  ;;
+  --pike-version=*)
+   pikever=`echo $1 | sed -e 's/--pike-version=//'`
   ;;
   --pid-file=*)
    CAUDIUM_PID_FILE=`echo $1 | sed -e 's/--pid-file=//'`
@@ -179,6 +178,10 @@ the default arguments.
       .B--versionB.:                  Output version information.
 
       .B--help -?B.:                  This information
+
+      .B--pike-version=VERB.:         Use an alternate pike version. For this to 
+				  work correctly, you need a bin/caudium-VER
+				  and the Caudium pike modules in lib/VER/.
 
       .B--log-dir=DIRB.:              Set the log directory. Defaults to .B../logsB..
 
@@ -257,7 +260,7 @@ the default arguments.
      .BCAUDIUM_CONFIGDIRB.:             Same as .B--config-dir=... B.
      .BCAUDIUM_PID_FILEB.:              Same as .B--pid-file=... B.
      .BCAUDIUM_LANGB.:                  The default language for all language
-				  related tags. Defaults to 'en' for english.
+				    related tags. Defaults to 'en' for english.
 
 EOF
     tput 'rmso' 2>/dev/null
@@ -271,9 +274,35 @@ EOF
  done
 }
 
-####### END PREAMBLE
+# Parse arguments..
+parse_args "$@"
 
-parse_args $@
+# Find ourselves a Pike
+
+pike=pike
+if [ "$pikever" != "" ]; then 
+  if [ -x bin/caudium-$pikever ] ; then  pike=bin/caudium-$pikever; 
+  elif [ -x bin/pike-$pikever ] ; then pike=bin/pike-$pikever;
+  else
+    echo "Cannot find a pike with version $pikever"
+    exit 1
+  fi
+else
+  if [ -x bin/caudium ] ; then  pike=bin/caudium; 
+  elif [ -x bin/pike ] ; then pike=bin/pike; fi
+fi
+
+
+PIKE_VERSION=`$pike -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+
+if [ -f "lib/$PIKE_VERSION/Caudium.so" ]; then
+  DEFINES="-Mlib/$PIKE_VERSION/ $DEFINES"
+else
+  echo "Cannot find Caudium Pike modules for Pike version $PIKE_VERSION."
+  exit 1
+fi
+
+####### END PREAMBLE
 
 if [ ! "X$CAUDIUM_ARGS" = "X" ]; then
   echo $$: Using $CAUDIUM_ARGS from CAUDIUM_ARGS.
