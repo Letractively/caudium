@@ -211,7 +211,7 @@ void mhash_init_mhash_program(void) {
   ADD_FUNCTION("digest", f_hash_digest, 	tFunc(tVoid,tStr), 0);
   ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hash_reset,   	tFunc(tVoid,tVoid), 0 ); 
-  ADD_FUNCTION("set_type", f_hash_set_type, 	tFunc(tVoid,tVoid), 0 ); 
+  ADD_FUNCTION("set_type", f_hash_set_type, 	tFunc(tInt,tVoid), 0 ); 
   set_init_callback(init_hash_storage);
   set_exit_callback(free_hash_storage);
   end_class("Hash", 0);
