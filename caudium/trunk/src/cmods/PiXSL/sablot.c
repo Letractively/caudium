@@ -94,9 +94,9 @@ static void f_parse( INT32 args )
     push_string(out);
   } else
     push_int(0);
-  SablotFreeResultArgs(sproc); 
   SablotDestroyProcessor(sproc);
 }
+
 static void f_parse_files( INT32 args )
 {
   SablotHandle sproc;
@@ -111,7 +111,6 @@ static void f_parse_files( INT32 args )
   get_all_args("Sablotron.parse_lines", args, "%S%S", &xsl, &xml);
   /*   SablotRegHandler(p, HLR_MESSAGE,  */
   THREADS_ALLOW();
-  printf("xsl: %s, xml: %s\n", xsl->str, xml->str);
   SablotCreateProcessor(&sproc);
   really_do_parse(sproc, xsl->str, xml->str, argums, &parsed);
   THREADS_DISALLOW();
