@@ -78,15 +78,11 @@ constant find_supports = caudium->find_supports;
 
 //! the caudium version
 constant version       = caudium->version;
-
-//! query a configuration variable
 constant _query        = caudium->query;
-
 constant thepipe       = caudium->pipe;
 
 int wanted_data, have_data, unread_data;
 
-//! The configuration object
 object conf;
 
 #include <caudium.h>
@@ -168,8 +164,6 @@ string  content_charset = "iso-8859-1";
 
 //! The current FD to client.
 object my_fd; /* The client. */
-
-//! TODO: Document me
 object pipe;
 
 // string range;
@@ -180,7 +174,6 @@ string prot;
 //! the protocol being spoken during this request, such as http, https, ftp.
 string server_protocol="";
 
-//! TODO: document me
 string clientprot;
 
 //! the client request method, such as HEAD, GET, etc.
@@ -192,7 +185,6 @@ string realfile;
 //! The virtual file path on the disk.
 string virtfile;
 
-//! TODO: document me
 string rest_query="";
 
 //! The Raw request (eg. request from client with all headers, etc...)
@@ -208,7 +200,6 @@ string not_query;
 
 //! Used for language module.
 string extra_extension = ""; // special hack for the language module
-
 string data, leftovers;
 
 //! The array containing the authentication information. The format in case
@@ -232,13 +223,7 @@ string data, leftovers;
 //!
 //! @deprecated
 array (int|string) auth;
-
-//! The raw authentication sent by the browser in the Authorization header.
-string rawauth;
-
-//! TODO: document me
-string realauth;
-
+string rawauth, realauth;
 string since;
 
 //! description of user, if authenticated.
@@ -319,6 +304,16 @@ string url_base()
     conf=_conf;
     return;
   }
+}
+
+//! @appears Configuration
+//! The Configuration object.
+//! This module implements the base of the configuration object used by 
+//! virtual servers.  This is the same object that you access through the 
+//! common @tt{id->conf@} object in your modules, tags etc.
+class Configuration
+{
+
 }
 
 /*
