@@ -287,7 +287,7 @@ string tag_lcc_menus(string tag,
                      mapping args,
                      object id)
 {
-    return make_all_menus(id, SUSER(id));
+    return make_all_menus(id, SDATA(id));
 }
 
 mapping query_tag_callers()
