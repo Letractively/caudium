@@ -3032,7 +3032,7 @@ private void define_global_variables( int argc, array (string) argv )
           TYPE_DIR|VAR_MORE,
 	  	  "Directory where the internal HTML files are located.");
 		  
-  globvar("InternalImagePath","etc/internal/images/", "Internal files: Image files path",
+  globvar("InternalImagePath","caudium-images/", "Internal files: Image files path",
           TYPE_DIR|VAR_MORE,
 	  	  "Directory where the internal images are located.");
 
