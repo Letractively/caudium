@@ -93,12 +93,12 @@ mapping first_try (object id)
   }
   if(QUERY(msie)) {
    if (id->supports->msie404)
-     return http_string_answer(parse_rxml(html,id),"text/html");
+     return Caudium.HTTP.string_answer(parse_rxml(html,id),"text/html");
    else
-     return http_low_answer(QUERY(return_code), parse_rxml(html,id));
+     return Caudium.HTTP.low_answer(QUERY(return_code), parse_rxml(html,id));
   } 
   // if we do not support MSIE brain damage, then fail to normal way
-  return http_low_answer(QUERY(return_code), parse_rxml(html,id));
+  return Caudium.HTTP.low_answer(QUERY(return_code), parse_rxml(html,id));
 }
 
 void create()
