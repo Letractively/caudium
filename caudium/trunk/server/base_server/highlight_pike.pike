@@ -30,7 +30,7 @@
 //! Quote the string to plain text to html.
 //! @param s
 //!   The plain text string to quote
-//! @return
+//! @returns
 //!   The string quoted
 string quote(string s)
 {
@@ -45,6 +45,8 @@ string quote(string s)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_string(string s,mapping m)
 {
   if(m->dark)
@@ -61,6 +63,8 @@ string highlight_string(string s,mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_comment(string s, mapping m)
 {
   if(m->dark)
@@ -76,6 +80,8 @@ string highlight_comment(string s, mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_keyword(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkblue>"+quote(s)+"</font></b>");
@@ -90,6 +96,8 @@ string highlight_keyword(string s, mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_type(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkgreen>"+quote(s)+"</font></b>");
@@ -104,6 +112,8 @@ string highlight_type(string s, mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_pre(string s, mapping m)
 {
   if(m->dark) return ("<font color=brown>"+quote(s)+"</font>");
@@ -118,6 +128,8 @@ string highlight_pre(string s, mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_declarator(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkbrown>"+quote(s)+"</font></b>");
@@ -132,6 +144,8 @@ string highlight_declarator(string s, mapping m)
 //!   then it will use dark fonts.
 //! @returns
 //!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_case(string s, mapping m)
 {
   if(m->dark) return ("<font color=black>"+quote(s)+"</font>");
@@ -358,11 +372,11 @@ string do_the_highlighting(string s, mapping m)
 //! @param m
 //!   Mapping with current options that can use this code.
 //!  @mapping
-//!   @value light
-//!     Use light highlighting
-//!   @value dark
-//!     Use dark highlighting
-//!   @value nopre
+//!   @member string "light"
+//!     Use this for light highlighting
+//!   @member string "dark"
+//!     Use this for dark highlighting
+//!   @member string "nopre"
 //!     Do not add <pre></pre> HTML code between the rendered code.
 //!  @endmapping
 //! @param contents
