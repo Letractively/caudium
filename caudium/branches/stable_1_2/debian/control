@@ -3,13 +3,13 @@ Section: web
 Priority: optional
 Maintainer: Marek Habersack <grendel@debian.org>
 Standards-Version: 3.5.6
-Build-Depends: pike7.2|pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf (>=0.2.26), sharutils, autoconf
+Build-Depends: pike7.2, debhelper, debconf-utils, libsablot0-dev, libxmltok1-dev, debconf (>=0.2.26), sharutils, autoconf
 
 Package: caudium
 Architecture: any
 Pre-Depends: debconf (>= 0.2.26)
-Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium-modules (= ${Source-Version}), ${pike:name}-image (>= ${pike:ver}-1), ${pike:name}-image (<= ${pike:ver}-99) , ${pike:name}-gz (>= ${pike:ver}-1), ${pike:name}-gz (<= ${pike:ver}-99), ${pike:name}-crypto (>= ${pike:ver}-1) | ${pike:name}-lobotomized-crypto (>= ${pike:ver}-1), ${pike:name}-crypto (<= ${pike:ver}-99) | ${pike:name}-lobotomized-crypto (<= ${pike:ver}-99), logrotate
-Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium-modules (= ${Source-Version}), ${pike:name}-image (>= ${pike:ver}-1), ${pike:name}-image (<= ${pike:ver}-99) , ${pike:name}-gz (>= ${pike:ver}-1), ${pike:name}-gz (<= ${pike:ver}-99), ${pike:name}-crypto (>= ${pike:ver}-1), ${pike:name}-crypto (<= ${pike:ver}-99), logrotate
+Suggests: roxen-doc (>= 1.3.122-1)
 Recommends: caudium-pixsl, caudium-ultralog
 Provides: httpd, httpd-cgi
 Description: An extensible WWW server written in Pike
@@ -23,14 +23,14 @@ Description: An extensible WWW server written in Pike
 
 Package: caudium-modules
 Architecture: any
-Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, caudium (= ${Source-Version})
 Description: C modules for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains
  the compiled shared modules that are required by Caudium to run.
 
 Package: caudium-pixsl
 Architecture: any
-Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, caudium (= ${Source-Version})
 Description: Pike XSLT module for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains
  the compiled  shared extension module that provides Caudium with 
@@ -38,7 +38,7 @@ Description: Pike XSLT module for Caudium
 
 Package: caudium-ultralog
 Architecture: any
-Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Depends: ${shlibs:Depends}, caudium (= ${Source-Version})
 Description: Log Parser module for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains
  the compiled shared extension module that provides Caudium with a built-in
