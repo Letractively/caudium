@@ -32,7 +32,6 @@ RCSID("$Id$");
 #endif
 
 #include "caudium.h"
-#include <array.h>
 
 static_strings strs;
 
@@ -714,6 +713,67 @@ static void f_extension( INT32 args ) {
 
 extern int fd_from_object(struct object *o);
 
+static void internal_add_limit( struct perishables *storage, 
+                                char *limit_name,
+                                int limit_resource,
+                                struct svalue *limit_value )
+{
+  struct rlimit ol;
+  struct plimit *l = NULL;
+#ifndef RLIM_SAVED_MAX
+  getrlimit( limit_resource, &ol );
+#else
+  ol.rlim_max = RLIM_SAVED_MAX;
+  ol.rlim_cur = RLIM_SAVED_CUR;
+#endif
+
+  if(limit_value->type == T_INT)
+  {
+    l = malloc(sizeof( struct plimit ));
+    l->rlp.rlim_max = ol.rlim_max;
+    l->rlp.rlim_cur = limit_value->u.integer;
+  } else if(limit_value->type == T_MAPPING) {
+    struct svalue *tmp3;
+    l = malloc(sizeof( struct plimit ));
+    if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "soft"))) {
+      if(tmp3->type == T_INT)
+        l->rlp.rlim_cur=
+          tmp3->u.integer>=0?tmp3->u.integer:ol.rlim_cur;
+      else
+        l->rlp.rlim_cur = RLIM_INFINITY;
+    } else
+      l->rlp.rlim_cur = ol.rlim_cur;
+    if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "hard"))) {
+      if(tmp3->type == T_INT)
+        l->rlp.rlim_max =
+          tmp3->u.integer>=0?tmp3->u.integer:ol.rlim_max;
+      else
+        l->rlp.rlim_max = RLIM_INFINITY;
+    } else
+      l->rlp.rlim_max = ol.rlim_max;
+  } else if(limit_value->type == T_ARRAY && limit_value->u.array->size == 2) {
+    l = malloc(sizeof( struct plimit ));
+    if(limit_value->u.array->item[0].type == T_INT)
+      l->rlp.rlim_max = limit_value->u.array->item[0].u.integer;
+    else
+      l->rlp.rlim_max = ol.rlim_max;
+    if(limit_value->u.array->item[1].type == T_INT)
+      l->rlp.rlim_cur = limit_value->u.array->item[1].u.integer;
+    else
+      l->rlp.rlim_max = ol.rlim_cur;
+  } else if(limit_value->type == T_STRING) {
+    l = malloc(sizeof(struct plimit));
+    l->rlp.rlim_max = RLIM_INFINITY;
+    l->rlp.rlim_cur = RLIM_INFINITY;
+  }
+  if(l)
+  {
+    l->resource = limit_resource;
+    l->next = storage->limits;
+    storage->limits = l;
+  }
+}
+
 static void f_create_process( INT32 args ) {
   struct perishables storage;
   struct array *cmd = 0;
@@ -728,11 +788,14 @@ static void f_create_process( INT32 args ) {
   char *tmp_cwd;
   pid_t pid=-2;
 
+  extern char **environ;
+
   fds = stds;
   storage.env = NULL;
   storage.argv = NULL;
   storage.disabled = 0;
   storage.fds = NULL;
+  storage.limits = NULL;
 
   check_all_args("create_process",args, BIT_ARRAY, BIT_MAPPING | BIT_VOID, 0);
 
@@ -816,6 +879,89 @@ static void f_create_process( INT32 args ) {
         if(fds[2] == -1)
           Pike_error("Invalid stderr file\n");
      }
+
+     if((tmp=simple_mapping_string_lookup(optional, "rlimit"))) {
+        struct svalue *tmp2;
+        if(tmp->type != T_MAPPING)
+          error("Wrong type of argument for the 'rusage' option. "
+                "Should be mapping.\n");
+#define ADD_LIMIT(X,Y,Z) internal_add_limit(&storage,X,Y,Z);
+#ifdef RLIMIT_NPROC
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "nproc")))
+        ADD_LIMIT( "nproc", RLIMIT_NPROC, tmp2 );
+#endif        
+#ifdef RLIMIT_MEMLOCK
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "memlock")))
+        ADD_LIMIT( "memlock", RLIMIT_MEMLOCK, tmp2 );
+#endif        
+#ifdef RLIMIT_RSS
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "rss")))
+        ADD_LIMIT( "rss", RLIMIT_RSS, tmp2 );
+#endif        
+#ifdef RLIMIT_CORE
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "core")))
+        ADD_LIMIT( "core", RLIMIT_CORE, tmp2 );
+#endif        
+#ifdef RLIMIT_CPU
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "cpu")))
+        ADD_LIMIT( "cpu", RLIMIT_CPU, tmp2 );
+#endif        
+#ifdef RLIMIT_DATA
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "data")))
+        ADD_LIMIT( "data", RLIMIT_DATA, tmp2 );
+#endif        
+#ifdef RLIMIT_FSIZE
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "fsize")))
+        ADD_LIMIT( "fsize", RLIMIT_FSIZE, tmp2 );
+#endif        
+#ifdef RLIMIT_NOFILE
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "nofile")))
+        ADD_LIMIT( "nofile", RLIMIT_NOFILE, tmp2 );
+#endif        
+#ifdef RLIMIT_STACK
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "stack")))
+        ADD_LIMIT( "stack", RLIMIT_STACK, tmp2 );
+#endif        
+#ifdef RLIMIT_VMEM
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "map_mem"))
+         ||(tmp2=simple_mapping_string_lookup(tmp->u.mapping, "vmem")))
+        ADD_LIMIT( "map_mem", RLIMIT_VMEM, tmp2 );
+#endif        
+#ifdef RLIMIT_AS
+      if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "as"))
+         ||(tmp2=simple_mapping_string_lookup(tmp->u.mapping, "mem")))
+        ADD_LIMIT( "mem", RLIMIT_AS, tmp2 );
+#endif
+#undef ADD_LIMIT
+     }
+  }
+
+  if((tmp=simple_mapping_string_lookup(optional, "env"))) {
+    if(tmp->type == T_MAPPING) {
+      struct mapping *m=tmp->u.mapping;
+      struct array *i,*v;
+      int ptr=0;
+      i=mapping_indices(m);
+      v=mapping_values(m);
+
+      storage.env=(char **)xalloc((1+m_sizeof(m)) * sizeof(char *));
+      for(e=0;e<i->size;e++)
+      {
+        if(ITEM(i)[e].type == T_STRING &&
+           ITEM(v)[e].type == T_STRING)
+        {
+          check_stack(3);
+          ref_push_string(ITEM(i)[e].u.string);
+          push_string(make_shared_string("="));
+          ref_push_string(ITEM(v)[e].u.string);
+          f_add(3);
+          storage.env[ptr++]=sp[-1].u.string->str;
+        }
+      }
+      storage.env[ptr++]=0;
+      free_array(i);
+      free_array(v);
+    }
   }
 
   storage.argv = (char **)xalloc((1 + cmd->size) * sizeof(char *));
@@ -835,10 +981,28 @@ static void f_create_process( INT32 args ) {
   if (pid == -1) {
      Pike_error("Caudium.create_process() failed.");
   } else if (pid) {
+    
     pop_n_elems(args);
     push_int(pid);
     return;
+
   } else {
+
+    if(storage.limits) {
+      struct plimit *l = storage.limits;
+      while(l) {
+        int tmpres = setrlimit( l->resource, &l->rlp );
+        l = l->next;
+      }
+    }
+
+    if(storage.env) environ = storage.env;
+
+    seteuid(0);
+    setegid(0);
+
+    if (gid_request) setgid(wanted_gid);
+    if (uid_request) setuid(wanted_uid);
     
     dup2(fds[0], 0);
     dup2(fds[1], 1);
@@ -849,12 +1013,6 @@ static void f_create_process( INT32 args ) {
     set_close_on_exec(0,0);
     set_close_on_exec(1,0);
     set_close_on_exec(2,0);
-
-    seteuid(0);
-    setegid(0);
-
-    if (gid_request) setgid(wanted_gid);
-    if (uid_request) setuid(wanted_uid);
 
     execvp(storage.argv[0],storage.argv);
 
