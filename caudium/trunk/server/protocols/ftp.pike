@@ -2439,7 +2439,7 @@ class FTPSession
     logged_in = 0;
     cwd = "/";
     master_session->method = "LOGIN";
-    if ((< 0, "ftp", "anonymous" >)[user]) {
+    if ((< 0, "ftp", "anonymous" >)[lower_case(user)]) {
       master_session->not_query = "Anonymous";
       user = 0;
       if (Query("anonymous_ftp")) {
