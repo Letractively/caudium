@@ -86,6 +86,7 @@ string container_sform(string tag_name, mapping args, string contents,
                        mapping defines, object fd) 
 {
 
+  id->misc->superform=([]);
   if(args->sqlsource && id->misc->sqlquery && id->misc->sqlquery[args->sqlsource] && sizeof(id->misc->sqlquery[args->sqlsource]))
   { 
     deep_set(id->misc->sqlquery[args->sqlsource][0],
@@ -97,12 +98,20 @@ string container_sform(string tag_name, mapping args, string contents,
                         "textarea":icontainer_textarea
                       ]),id);
 
+  //werror("sform: %O\n%O\n", id->raw, id->variables);
+  string formcontent=sprintf("errors: %d<br />\nwarnings: %d<br />\n",
+                       id->misc->superform->errors, 
+                       id->misc->superform->warnings);
+  formcontent+=make_tag("input",
+                        ([ "type":"hidden", "name":"_sform",
+                           "value":"_true" ])
+                       );
+  formcontent+=contents;
+  if(!id->misc->superform->errors)
+    formcontent+=id->misc->superform->success;
   return 
     make_container("form", ([ "method":args->method||"post" ]),
-                   make_tag("input", 
-                            ([ "type":"hidden", "name":"_sform", 
-                               "value":"_true" ])
-                           )+contents);
+                   formcontent);
 }
 
 string|array(string) icontainer_textarea(string tag_name, mapping args, 
@@ -121,8 +130,7 @@ string|array(string) itag_input(string tag_name, mapping args,
 {
   string output="";
   if(!args->value && id && id->variables[args->name])
-    //FIXME: this is a hack, that assumes forminput is utf8!!
-    args->value=utf8_to_string(id->variables[args->name]);
+    args->value=id->variables[args->name];
   else if(id && id->misc->sform_values && !args->value && 
           !id->variables->_sform &&
           id->misc->sform_values[args->name])
@@ -138,14 +146,30 @@ string|array(string) itag_input(string tag_name, mapping args,
               || make_tag(tag_name, args);
   else
     output=make_tag(tag_name, args);
+  //werror("%O:%O:%s\n", id->misc->sform_values[args->name], args->value, args->value||"");
   return ({ output });
 }
 
 mapping inputtypes=([ "bool":type_bool, 
                       "text":type_text,
+                      "password":type_password,
                       "checkbox":type_checkbox,
                       //"textarea":type_textarea,
                      ]);
+
+string type_password(string type, mapping args, object id)
+{
+  string result="";
+  if(id->variables->_sform && args->check && args->value!=id->variables[args->check])
+  {
+    result+=args->error||message("passwords don't match");
+    id->misc->superform->errors++;
+  }
+    
+  return make_tag("input", (["name":args->name||"", 
+                             "value":"", 
+                             "type":"password" ]))+result;
+}
 
 string type_text(string type, mapping args, object id)
 {
@@ -166,19 +190,29 @@ string type_text(string type, mapping args, object id)
   if (catcherror) 
   {
     result+=message("Bad regular expression ", pattern+" "+catcherror[0]);
+    id->misc->superform->warnings++;
+//    werror("BRE: %O\n%O\n", id->variables, args);
   }
   else if(match)
     return 0;
   else
+  {
     result+=args->error||message("Invalid input");
+    id->misc->superform->errors++;
+  }
 
   return result;
 }
 
 string type_checkbox(string type, mapping args, object id)
 {
-  if(args->value)
+  if(args->value && args->value!="0")
     args->checked="";
+  else
+    id->variables[args->name]=0;
+  // the box may have been unchecked by the user, so we need to make sure
+  // it is listed in id->variables in case that is used as an indicator which 
+  // variables have changed.
   return make_tag("input", args); 
 }
 
