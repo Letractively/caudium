@@ -5,6 +5,8 @@ caudium (2:1.2.9-2) unstable; urgency=low
     and pike since the latter pulls pike in anyway)
   * Fixed bug in the XML compliant RXML parser that caused to to backtrace on
     certain tags (like <H1 />).
+  * closes: Bug#155584 (cannot reproduce)
+  * closes: Bug#155929 (not a Caudium bug)
 
  -- Marek Habersack <grendel@debian.org>  Sun, 11 Aug 2002 14:57:26 +0200
 
