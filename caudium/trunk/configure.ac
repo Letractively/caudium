@@ -12,7 +12,7 @@ AC_REVISION($Revision$)
 # The oldest version of Pike we run
 REQ_MIN_PIKE_MAJOR=7
 REQ_MIN_PIKE_MINOR=5
-REQ_MIN_PIKE_BUILD=1
+REQ_MIN_PIKE_BUILD=21
 # But on the other end we can't run Pike above or equal this one
 REQ_MAX_PIKE_MAJOR=7
 REQ_MAX_PIKE_MINOR=7
