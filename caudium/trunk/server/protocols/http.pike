@@ -108,6 +108,8 @@ string scan_for_query( string f )
 {
   if(sscanf(f,"%s?%s", f, query) == 2) {
     Caudium.parse_query_string(query, variables, empty_variables);
+    foreach(indices(empty_variables), string varname)
+      variables[varname] = "";
     rest_query = indices(empty_variables) * ";";
   }
   
@@ -200,6 +202,8 @@ void handle_body_encoding(int content_length)
       if(content_length < 200000) {
         Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
                                            ({"", ""})), variables, empty_variables);
+        foreach(indices(empty_variables), string varname)
+          variables[varname] = "";
         rest_query = indices(empty_variables) * ";";
       }
       break;
@@ -423,6 +427,8 @@ private int parse_got()
   
   if(sscanf(f,"%s?%s", f, query) == 2) {
     Caudium.parse_query_string(query, variables, empty_variables);
+    foreach(indices(empty_variables), string varname)
+      variables[varname] = "";
     rest_query = indices(empty_variables) * ";";
   }
   
