@@ -58,9 +58,9 @@ int|string luhn_check(string number) ;
 static private string doc()
 {
   string doc="This tag extends html forms to add new widget types, "+
-    "provide verification functions, and generally make dealing with <br>"+
+    "provide verification functions, and generally make dealing with "+
     "complex input easier.\n  Eventually it will provide widgets for all "+
-    "common database types.<br><p>"+
+    "common database types.\n\n<p>"+
     "<b>Usage:</b> Below shows an example demonstrating most features<br>"+
     "Number of hits: {accessed}{br}<br>"+
     "This should go up by 1000 if the input is good.{br}<br>"+
