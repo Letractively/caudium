@@ -68,6 +68,8 @@ int ldap_ttl, ldap_bind_result, ldap_count;
 
 int _initialized_ok;
 
+int lame_users = 0;
+
 class ConfigCache
 {
   string hostname;
@@ -189,6 +191,59 @@ string ldap_getvirt(string hostname, object id)
 				       QUERY(ttl_positive));
 
      return vpath;
+  }
+
+  if (lame_users && hostname[0..3] == "www.")
+  {
+      string tmphost = hostname[4..];
+
+#ifdef THREADS
+  object key = mutex->lock();
+#endif
+
+      mixed err = catch
+      {
+            result = ldap->search(sprintf("(wwwDomain=%s)", tmphost));
+      }
+      ;
+    
+      if (err)
+      {
+         ldap_err_count++;
+         if (ldap_err_count > QUERY(ldap_max_err)) return 0;
+         ldap_reconnect();
+         return ldap_getvirt(hostname, id);
+      }
+
+      res = result->fetch();
+      ldap_last_query = time();
+
+#ifdef THREADS
+  destruct(key);
+#endif
+
+      if (res)
+      {
+         string vpath;
+    
+         vpath = res->homeDirectory[0];
+    
+         if (vpath[-1] != '/') vpath += "/";
+    
+         // owner, hostname, path, ttl
+         virtcache[hostname] = ConfigCache(res->uid[0],
+                       			       hostname,
+                       			       vpath + QUERY(wwwdir),
+                       			       vpath + QUERY(cgidir),
+                       			       vpath + QUERY(logdir),
+                       			       vpath,
+                       			       (int)res->uidNumber[0],
+                       			       (int)res->gidNumber[0],
+                       			       QUERY(ttl_positive));
+    
+         return vpath;
+      }
+
   }
 
   return 0;
@@ -341,11 +396,14 @@ void create()
   defvar("logdir", "logs/", "Logs directory", TYPE_STRING,
          "Directory, where are logfiles");
 
-  defvar("ttl_positive", 1800, "Positive TTL", TYPE_INT,
+  defvar("ttl_positive", 1800, "TTL: Positive TTL", TYPE_INT,
          "Time to cache positive config hits.");
 
-  defvar("ttl_negative", 60, "Negative TTL", TYPE_INT,
+  defvar("ttl_negative", 60, "TTL: Negative TTL", TYPE_INT,
          "Time to cache negative config hits.");
+
+  defvar("lamers_mode", 1, "Enable lamers friendly mode", TYPE_INT,
+         "Append www prefix to each wirtual.");
 }
 
 void precache_rewrite(object id)
@@ -404,6 +462,8 @@ void precache_rewrite(object id)
 
 void start()
 {
+  if (QUERY(lamers_mode)) lame_users = 1;
+
   mixed err = catch {
    ldap_reconnect();
   };
