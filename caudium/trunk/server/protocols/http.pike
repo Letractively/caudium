@@ -557,8 +557,13 @@ private int parse_got()
 	 if(!data) data="";
 	 int l = misc->len;
 	 
-	 if ( objectp(conf) )
-	   wanted_data = min(l, conf->query("PostBodySize"));
+	 if ( objectp(conf) ) {
+	   int conf_size = conf->query("PostBodySize");
+	   if ( conf_size < 0 )
+	     wanted_data = l;
+	   else
+	     wanted_data = min(l, conf_size);
+	 }
 	 else
 	   wanted_data = min(l, POST_MAX_BODY_SIZE);
 	 have_data=strlen(data);
