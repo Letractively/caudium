@@ -87,6 +87,7 @@ void create(object c)
 
   agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.1", snmp_set_server_shutdown);
   agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.2", snmp_set_server_restart);
+  agent->set_set_oid_callback("1.3.6.1.4.1.14245.101.3", snmp_set_server_reload_config);
 
   sent_history=ADT.History(5);
   received_history=ADT.History(5);
@@ -185,6 +186,21 @@ array snmp_get_server_average_sent(string oid, mapping rv)
   sent=ave(sent_history);
 
   return ({1, "count64", sent});
+}
+
+//! Reload all configurations for oid 101.3
+array snmp_set_server_reload_config(string oid, mixed val, mapping req)
+{
+  if(val=="1" || val==1)
+  {
+    call_out(caudium->reload_all_configurations, 5);
+    return({1, "str", "Reload configs scheduled"});
+  }
+
+  else
+  {
+    return ({0, Protocols.SNMP.ERROR_BADVALUE});
+  }
 }
 
 //! Restart the server for oid 101.2
