@@ -22,7 +22,7 @@
  */
 
 //! Compatibility lib for proxyauth. 
-//! @deprecated. 
+//! @deprecated
 
 inherit "compatlib";
 inherit "caudiumlib14";
