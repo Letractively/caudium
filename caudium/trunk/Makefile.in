@@ -23,7 +23,7 @@ extern: force
 tools: force
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
 src: force
-	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" all)
 
 force:
 	-@$(BIN_TRUE)

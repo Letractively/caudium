@@ -3,7 +3,7 @@
 VPATH=@srcdir@
 prefix=@prefix@
 SRCDIR=@srcdir@
-
+INSTALL=@INSTALL@
 CC=@CC@
 CFLAGS=@CFLAGS@
 LIBS=@LIBS@
@@ -14,12 +14,7 @@ htpasswd: $(SRCDIR)/htpasswd.c
 	-$(CC) $(CFLAGS) -o htpasswd $(SRCDIR)/htpasswd.c $(LIBS)
 
 install: htpasswd
-	-$(RM) $(prefix)/roxen/server/bin/htpasswd
-	-/bin/cp htpasswd $(prefix)/roxen/server/bin/
-
-localinstall: htpasswd
-	-$(RM) $(SRCDIR)/../server/bin/htpasswd
-	-/bin/cp htpasswd $(SRCDIR)/../server/bin/
+	$(INSTALL) htpasswd $(prefix)/bin/
 
 clean:
 	$(RM) htpasswd

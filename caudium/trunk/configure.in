@@ -678,13 +678,13 @@ AC_SUBST(LINKFORSHARED)
 # Pass a joined CFLAGS to the other configure-scripts.
 CFLAGS="$CFLAGS $CCSHARED $WARN $OPTIMIZE"
 
-export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO
+export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO SMARTLINK
 
 #
 # Some variables we want to export to the other configure scripts.
 #
 
-
-AC_CONFIG_SUBDIRS( src)
+AC_SUBST(SMARTLINK)
+AC_CONFIG_SUBDIRS(src)
 AC_OUTPUT(Makefile)
 
