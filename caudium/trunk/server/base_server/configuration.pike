@@ -22,7 +22,6 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
-#include <http_error.h>
 #ifdef PROFILE
 mapping profile_map = ([]);
 #endif
@@ -68,8 +67,6 @@ string name;
  * This looked like a likely spot.. :)
  */
 mapping variables = ([]); 
-
-object http_error = http_error_handler();
 
 public mixed query(string var)
 {
@@ -2077,7 +2074,7 @@ public array open_file(string fname, string mode, object id)
     if(!mappingp(file))
     {
       if(!id->misc->error_request) {
-	file = http_error->process_error (id);
+	file = caudium->http_error->process_error (id);
 	id->not_query = oq;
 	return ({ 0, file });
       }

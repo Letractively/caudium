@@ -44,6 +44,7 @@ constant cvs_version = "$Id$";
 object backend_thread;
 object argcache;
 
+
 // Some headerfiles
 #define IN_ROXEN
 #include <caudium.h>
@@ -52,6 +53,9 @@ object argcache;
 #include <variables.h>
 #include <pcre.h>
 #include <schemes.h>;
+#include <http_error.h>
+
+object http_error = http_error_handler();
 
 // Inherits
 inherit "read_config";
