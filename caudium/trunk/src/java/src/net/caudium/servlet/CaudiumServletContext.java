@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Hashtable;
+import java.util.Set;
 import java.io.File;
 import java.io.StringWriter;
 import java.io.PrintWriter;
@@ -194,4 +195,15 @@ class CaudiumServletContext implements ServletContext
     return initparameters.keys();
   }
 
+  // 2.3 stuff follows
+
+   public Set getResourcePaths(String path)
+   {
+     return null;
+   }
+  
+   public String getServletContextName()
+   {
+     return null;
+   }
 }
