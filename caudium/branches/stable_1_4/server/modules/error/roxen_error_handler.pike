@@ -70,7 +70,7 @@ void create() {
   defvar("401msg","<hl>Authentication Failed.</h1>\n",
          "Authentication Failed - Error 401 message", TYPE_TEXT_FIELD,
          "What to return when authentication has failed.");
-  defvar("debug", 1, "Debug", TYPE_FLAG,
+  defvar("debug", 0, "Debug", TYPE_FLAG,
          "Debug the code into Caudium debug log");
 }
 
