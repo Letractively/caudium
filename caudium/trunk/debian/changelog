@@ -1,3 +1,9 @@
+caudium (1:1.1.1-11) unstable; urgency=low
+
+  * Email address change.
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 24 Apr 2001 12:14:34 +0200
+
 caudium (1:1.1.1-10) unstable; urgency=low
 
   * Latest upstream release
