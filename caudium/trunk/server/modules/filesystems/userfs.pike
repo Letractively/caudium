@@ -41,7 +41,7 @@
 // #define PASSWD_DISABLED ((us[1]=="") || (us[1][0]=='*'))
 
 #ifdef USERFS_DEBUG
-# define USERFS_WERR(X) werror("USERFS: "+X+"\n")
+# define USERFS_WERR(X) report_debug("USERFS: "+X+"\n")
 #else
 # define USERFS_WERR(X)
 #endif
@@ -101,12 +101,12 @@ void open_db()
   if(err)
   {
   	// Error ? so what ?
-	werror("USERFS: Couldn't open the SQL database !!!\n");
+	report_error("USERFS: Couldn't open the SQL database !!!\n");
 	if (db)
-	  werror("USERFS: Database interface replies : " + db->error()+"\n");
+	  report_error("USERFS: Database interface replies : " + db->error()+"\n");
 	else
-	  werror("USERFS: Unknown reason.\n");
-	werror("USERFS: Check the values in the configuration interface, and "
+	  report_error("USERFS: Unknown reason.\n");
+	report_error("USERFS: Check the values in the configuration interface, and "
 	       "that the user\n\trunning the server has adequate permissions "
 	       "to access to the server.\n");
 	db=0;
@@ -338,27 +338,27 @@ int|string query_db(string what)
   mixed tmp;
  
   #ifdef USERFS_DEBUG
-   werror("Entering query_db() for user "+what+"\n");
+   report_notice("Entering query_db() for user "+what+"\n");
   #endif
   if (QUERY(usecache))
     dbinfo=cache_lookup("userfs2webhosting",what);
   if (dbinfo)
   {
     #ifdef USERFS_DEBUG
-    werror("Entry in the cache is %O\n",dbinfo);
+    report_notice("Entry in the cache is %O\n",dbinfo);
     #endif
     return dbinfo[1];
   }
 
   #ifdef USERFS_DEBUG
-  werror("Entry not in the caudium cache\n");
+  report_notice("Entry not in the caudium cache\n");
   #endif
   open_db();		// Open the database if it is not allready opened
 
   if (!db)
   {
     #ifdef USERFS_DEBUG
-    werror("Cannot connect to the database. Return nothing.");
+    report_notice("Cannot connect to the database. Return nothing.");
     #endif
     return 1;
   }
@@ -395,27 +395,27 @@ int|string query_redir(string what)
   mixed tmp;
  
   #ifdef USERFS_DEBUG
-   werror("Entering query_redir() for site "+what+"\n");
+   report_notice("Entering query_redir() for site "+what+"\n");
   #endif
   if (QUERY(usecache))
     dbinfo=cache_lookup("userfs2webredirect",what);
   if (dbinfo)
   {
     #ifdef USERFS_DEBUG
-    werror("Entry in the cache is %O\n",dbinfo);
+    report_notice("Entry in the cache is %O\n",dbinfo);
     #endif
     return dbinfo[1];
   }
 
   #ifdef USERFS_DEBUG
-  werror("Entry not in the caudium cache\n");
+  report_notice("Entry not in the caudium cache\n");
   #endif
   open_db();		// Open the database if it is not allready opened
 
   if (!db)
   {
     #ifdef USERFS_DEBUG
-    werror("Cannot connect to the database. Return nothing.");
+    report_notice("Cannot connect to the database. Return nothing.");
     #endif
     return 1;
   }
@@ -465,17 +465,17 @@ static array(string) find_user(string f, object id)
 	}
       }
 #ifdef USERFS_DEBUG
-      werror("Host = %O, id->misc->host = %O,u = %O\n", host, id->misc->host,u);
+      report_notice("Host = %O, id->misc->host = %O,u = %O\n", host, id->misc->host,u);
 #endif
       if(QUERY(webhosting))
       {
         #ifdef USERFS_DEBUG
-	 werror("Webhosting is ON\n");
+	 report_notice("Webhosting is ON\n");
 	#endif
         if ( (u == "www") || (u == host) || (intp(u)))
 	{
 	  #ifdef USERFS_DEBUG
-	  werror("Let's look around it !\n");
+	  report_notice("Let's look around it !\n");
 	  #endif
 	  string host = lower_case(id->misc->host);	// We need here the host AND the port
 	  if ( sizeof(host / ":") < 2)			// No port is specified
@@ -489,13 +489,13 @@ static array(string) find_user(string f, object id)
 		int|string db_query_results;
 
 		#ifdef USERFS_DEBUG
-		werror("Sending SQL query for "+host+"\n");
+		report_notice("Sending SQL query for "+host+"\n");
 		#endif
 
 		db_query_results = query_db(host);	// Check for this username
 
 		#ifdef USERFS_DEBUG
-		werror("Gotcha query_db(%O) give us : %O\n",host,db_query_results);
+		report_notice("Gotcha query_db(%O) give us : %O\n",host,db_query_results);
 		#endif
 		if (stringp(db_query_results))		// This is a string ? So there is a user !
 		{
@@ -554,13 +554,13 @@ int|mapping|Stdio.File find_file(string f, object id)
       int|string db_query_results;
 
       #ifdef USERFS_DEBUG
-       werror("Sending query for http redirect for "+host+"\n");
+       report_notice("Sending query for http redirect for "+host+"\n");
       #endif
 
       db_query_results=query_redir(host);
 
       #ifdef USERFS_DEBUG
-       werror("Gotcha query_redir(%O) gives us : %O\n",host,db_query_results);
+       report_notice("Gotcha query_redir(%O) gives us : %O\n",host,db_query_results);
       #endif
       if(stringp(db_query_results))
       {

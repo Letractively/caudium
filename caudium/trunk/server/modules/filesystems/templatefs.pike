@@ -137,17 +137,17 @@ string apply_template(string newfile, string f, string template, object id)
 {
   string file;
 
-  werror("templatefs: loop: %s ...", template);
+  report_notice("templatefs: loop: %s ...", template);
   if(file=id->conf->try_get_file(template, id))
   {
-    werror(" found\n");
+    report_notice(" found\n");
     file = Caudium.parse_html(file, ([]), ([ "tmploutput":icontainer_tmploutput ]), id, f);
     
     newfile = Caudium.parse_html(file, ([ "tmplinsertall":itag_tmplinsertall, 
         "tmplinsertblock":itag_tmplinsertblock]), ([]), id, newfile);
   }
   else
-    werror(" not found\n");
+    report_notice(" not found\n");
 
   return newfile;
 }
@@ -157,7 +157,7 @@ string apply_all_templates( string f, string file, object id )
   string template="";
   array cd = ("/"+f) / "/";
   
-  werror("templatefs: %s, %O\n", f, cd);
+  report_notice("templatefs: %s, %O\n", f, cd);
 
   //for(i=0; i<sizeof(cd)-1; i++)
   int i = sizeof(cd)-1;
@@ -178,7 +178,7 @@ string apply_all_templates( string f, string file, object id )
   // apply the directory template found in each dir.
   while( i-- )
   {
-    werror("templatefs: outloop: %s ...", 
+    report_notice("templatefs: outloop: %s ...", 
            query_location()+cd[..i]*"/" + "/" + query("dirtmpl"));
 
     template=query_location()+cd[..i]*"/" + "/" + query("dirtmpl");
@@ -190,26 +190,26 @@ string apply_all_templates( string f, string file, object id )
 string template_for( string f, object id )
 {
   string current_dir = query_location()+dirname(f+"foo")+"/";
-  werror("templatefs: %s, %s\n", f, current_dir);
+  report_notice("templatefs: %s, %s\n", f, current_dir);
   array cd = current_dir / "/";
   int i = sizeof(cd);
   while( i-- )
   {
-    werror("templatefs: "+cd[..i]*"/"+"/template ...");
+    report_notice("templatefs: "+cd[..i]*"/"+"/template ...");
     if( id->conf->stat_file( cd[..i]*"/"+"/template", id ) )
     {
-      werror(" found\n");
+      report_notice(" found\n");
       return cd[..i]*"/"+"/template";
     }
     else
-      werror(" not found\n");
+      report_notice(" not found\n");
   }
 }
 
 mixed find_file( string f, object id )
 {
 
-  werror("templatefs:find_file%d: %s%s\n", id->misc->templatefs_internal_get, f, (id->query?"?"+id->query:""));
+  report_notice("templatefs:find_file%d: %s%s\n", id->misc->templatefs_internal_get, f, (id->query?"?"+id->query:""));
 
   if(id->misc->templatefs_internal_get)
     return 0;
@@ -228,7 +228,7 @@ mixed find_file( string f, object id )
   if(!file)
     return 0;
 
-  werror("templatefs:found: %s:%d\n", file->type, sizeof(file->data||""));
+  report_notice("templatefs:found: %s:%d\n", file->type, sizeof(file->data||""));
 
 //    if( notemplate( f, id ) )
 //      return retval;
@@ -241,7 +241,7 @@ mixed find_file( string f, object id )
      {
        string contents;
        contents = apply_all_templates(f, file->data, id);
-       //werror("new contents: %s\n", contents);
+       //report_notice("new contents: %s\n", contents);
        return http_string_answer(contents);
      }  
      default: return 0;
@@ -271,7 +271,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   
   targetpath = Caudium.simplify_path((thetarget[..sizeof(thetarget)-2])*"/");
 
-  werror("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
+  report_notince("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
   return replace(contents, 
         ({ "#file#", "#path#", "#base#", "#targetfile#", "#targetpath#", "#targetdir#", "#target#" }), 
 	({ file, dirname, (file/".")[0], targetfile, targetpath, targetdirname, target }));
@@ -318,7 +318,7 @@ mapping get_file(string s, object id, int|void nocache)
   id->misc->templatefs_internal_get=1;
   m = id->conf->get_file(id);
 
-  werror("templatefs:get_file: %O\n", m);
+  report_notice("templatefs:get_file: %O\n", m);
 
   if(!m || !(< 0, 200, 201, 202, 203 >)[m->error]) 
     return 0;
@@ -371,7 +371,7 @@ mapping try_get_file(string s, object id, int|void nocache)
 
   m = id->conf->get_file(fake_id);
 
-  werror("templatefs:try_get_file: %O\n", m);
+  report_notice("templatefs:try_get_file: %O\n", m);
 
   fake_id->end();
 
