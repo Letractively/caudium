@@ -25,7 +25,7 @@
     <str>fonts/ttf/</str>
   </a>
  </var>
- <var name='ModuleListType'>     <str>Standard</str> </var>
+ <var name='ModuleListType'>     <str>Compact</str> </var>
  <var name='next_supports_update'><int>1027445813</int> </var>
  <var name='default_font'>       <str>lucida</str> </var>
  <var name='cache_last_resort'>  <int>0</int> </var>
@@ -53,8 +53,8 @@
     <str>/usr/lib/caudium/local_modules/</str>
     <str>/usr/lib/caudium/modules/</str>
     <str>/usr/lib/caudium/more_modules/</str>
-    <str>/usr/local/share/caudium/modules/</str>
     <str>/usr/share/roxen/modules/</str>
+    <str>/usr/local/share/caudium/modules/</str>
   </a>
  </var>
  <var name='audit'>              <int>0</int> </var>
