@@ -2538,13 +2538,6 @@ private void define_global_variables( int argc, array (string) argv )
 	  "disable it here for security reasons, since it might be easier "
 	  "to crack a server if the exact version is known.");
 	  
-
-  globvar("ident", replace(real_version," ","·"), "Identify: Identify as",
-	  TYPE_STRING /* |VAR_MORE */,
-	  "Enter the name that Caudium should use when talking to clients. ",
-	  0, ident_disabled_p);
-
-
   globvar("DOC", 1, "Configuration interface: Help texts", TYPE_FLAG|VAR_MORE,
 	  "Do you want documentation? (this is an example of documentation)");
 
