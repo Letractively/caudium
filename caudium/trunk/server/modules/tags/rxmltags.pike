@@ -3583,6 +3583,10 @@ string tag_for(string t, mapping args, string c, object id)
   return res;
 }
 
+mapping query_pi_callers() {
+  return ([ "?comment": "" ]);
+}
+
 mapping query_container_callers()
 {
   return (["comment":lambda(){ return ""; },

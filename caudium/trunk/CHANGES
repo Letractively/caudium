@@ -25,3 +25,7 @@ Changes in Caudium 1.1 since CVS branching
   module since we have two parsing modules now.
 - Quote the chars < > @ in http_encode_url and http_encode_string.
 - added the excellent gbutton.pike module from Roxen 2.x
+- Added processing instructions in the XML parser. This is tags using the
+  syntax <?tagname contents ?>. Current existing processing instructions are
+  <?pike ?> (Pike tag module), <?comment ?> (rxmltags), <?perl ?>
+  (perl module).
