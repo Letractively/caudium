@@ -1,0 +1,22 @@
+diff -U3 -r caudium-1.0.37.orig/configure.in caudium-1.0.37/configure.in
+--- caudium-1.0.37.orig/configure.in	Mon Jul 23 11:03:47 2001
++++ caudium-1.0.37/configure.in	Mon Nov 26 12:26:31 2001
+@@ -208,7 +208,7 @@
+     fi
+     ;;
+   Linux\ 2.*)
+-    AC_DEFINE(USE_Wl)
++    AC_DEFINE(USE_LD_LIBRARY_PATH)
+     ;;
+   UnixWare\ 7.*)
+     if test "$ac_cv_prog_gcc" = "yes"; then
+@@ -471,8 +471,7 @@
+   do
+     AC_MSG_CHECKING($d)
+     if test -d "$d/." ; then
+-      AC_MSG_RESULT(added)
+-      LDFLAGS="${LDFLAGS} -R$d -L$d"
++      AC_MSG_RESULT(ignored for Debian)
+     else
+       AC_MSG_RESULT(no)
+     fi
