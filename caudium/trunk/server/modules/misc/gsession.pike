@@ -1580,7 +1580,7 @@ mixed tag_frame (string tag, mapping args, object id, object file)
 //!  name: Storage: default storage module
 //
 //! defvar: expire
-//! After how many seconds an inactive session is removed
+//! After how many seconds an inactive session is removed. This is only a default value - each session can be set its own expiry value.
 //!  type: TYPE_INT
 //!  name: Session: Expiration time
 //
@@ -1639,3 +1639,17 @@ mixed tag_frame (string tag, mapping args, object id, object file)
 //!  type: TYPE_STRING_LIST
 //!  name: Storage: default storage module
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
