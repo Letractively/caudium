@@ -1406,7 +1406,9 @@ static INLINE int is_safe (char c)
 
 /*
 ** method: string http_encode(string m)
-**   Encode with HTTP specification the given string
+**   Encode with HTTP specification the given string. This means replacing
+**   characters not in the following list to their % encoded equivalents:
+**   A-Za-z0-9
 ** arg: string m
 **   The string to encode.
 ** returns:
