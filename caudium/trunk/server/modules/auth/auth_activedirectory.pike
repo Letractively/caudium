@@ -236,7 +236,7 @@ mapping|int get_group_info(string groupname)
 
 }
 
-array list_all_groups()
+multiset list_all_groups()
 {
   ERROR("list_all_groups()");
 

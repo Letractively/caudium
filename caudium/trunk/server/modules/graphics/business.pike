@@ -561,7 +561,7 @@ string quote(mapping in)
   string data=encode_value(in);
   object o=Crypto.sha();
   o->update(data);
-  string out=replace(http_encode_string(MIME.encode_base64(o->digest(),1)),
+  string out=replace(Caudium.http_encode_string(MIME.encode_base64(o->digest(),1)),
 		     "/", "$");
   string cdir = _cdir();
   

@@ -29,8 +29,8 @@ inherit "modules/filesystems/filesystem";
 
 constant my_cvs_version="$Id$";
 
-constant cvs_version = (my_cvs_version-"Exp $")+"<br>"
-             +(((::cvs_version*"<br>") -" Exp $")-"$Id: ");
+constant cvs_version = (my_cvs_version-"Exp $")+" / "
+             +((::cvs_version -" Exp $")-"$Id: ");
 
 void create()
 {
