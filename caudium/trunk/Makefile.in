@@ -19,7 +19,7 @@ PIKE_VERISON=@PIKE_VERSION@
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 #extern tools
-all:	src 
+all:	src tools
 	-@$(BIN_TRUE)
 
 extern: force
@@ -48,9 +48,10 @@ depend:
 
 clean:
 #	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
-#	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
 	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
-install: all install_only 
+install: all install_only
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	-@$(BIN_TRUE)
 
 install_bin:
@@ -205,11 +206,12 @@ install_alt:
 	  else :; fi; \
 	done
 	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	@echo "Caudium installed."
 
 spotless:  clean
 #	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
-#	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	@(cd tools/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	rm -f $srcdir/tools/caudium-rc_script smartlink
 	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
@@ -317,7 +319,6 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
          done;\
         fi;\
 	echo Cleaning up the copied sources...; \
-	tools/exclude-dist $$version; \
 	for f in `find $$version/. -type f -name '*~' -print` \
 	  `find $$version/. -type f -name '.#*' -print` \
 	  `find $$version/. -type f -name '#*#' -print`; do \
