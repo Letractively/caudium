@@ -2479,9 +2479,30 @@ class FTPSession
           setegid((int)fullauth[3]);
           if(mkdirhier(master_session->misc->home, 0755))
             created = 1;
-          if (objectp(privs))
-             destruct(privs);
+          if(objectp(privs))
+            destruct(privs);
           privs = 0;
+#if constant(geteuid)
+          if(getuid() != geteuid()) privs=Privs("Setting homedir uid/gid");
+#endif
+          // Forcing UID/GID to the correct value because setegid() seems to
+          // to fail
+          if (created) chown(master_session->misc->home, (int)fullauth[2], (int)fullauth[3]);
+	  if(objectp(privs))
+            destruct(privs);
+          privs = 0;
+          if(Query("ftphdirautoext") && sizeof(Query("ftphdirxtra")) && created)
+          {
+#if constant(geteuid)
+            if(getuid() != geteuid()) privs=Privs("Creating user extra directories in homedir.");
+#endif
+            foreach(Query("ftphdirxtra")/",",string foo)
+             if (mkdir(master_session->misc->home + foo , 0755))
+               chown(master_session->misc->home+foo, (int)fullauth[2], (int)fullauth[3]);
+            if (objectp(privs))
+               destruct(privs);
+            privs = 0;
+          }
           fullauth = 0;
         }
         if(Query("ftpnohomedeny") && (created == 0))

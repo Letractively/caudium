@@ -3882,8 +3882,16 @@ void create(string config)
          "exist.");
   // This one works only on Pike 7.0 do I need to make a condition on 1.1 ?
   // -- Xavier
-  defvar("ftphomedircreate", 0, "FTP: Autocrete homdirs", TYPE_FLAG|VAR_MORE,
+  defvar("ftphomedircreate", 0, "FTP: Autocreate homedirs", TYPE_FLAG|VAR_MORE,
          "Autocreate the homedirectory if it doesn't exist.");
+  
+  defvar("ftphdirautoext", 0, "FTP: Autocreate homedirs extended", TYPE_FLAG|VAR_MORE,
+         "If set to \"Yes\", then this will create also directories into "
+         "homedirectory specified in Autocreate homedirs extras.");
+  defvar("ftphdirxtra","htdocs,cgi-bin,logs", "FTP: Autocreate homedirs extras", TYPE_STRING|VAR_MORE,
+         "Coma-sparated homedirectory to be created also in homedirectory. "
+         "Used only if Autocreate homedirs <b>AND</b> Autocreate homedirs "
+         "extended are set to \"Yes\"");
 
   defvar("InternalLoc", "/_internal/", 
 	 "Internal module resource mountpoint", TYPE_LOCATION|VAR_MORE,
@@ -4101,7 +4109,17 @@ string _sprintf( )
 //! defvar: ftphomedircreate
 //! Autocreate the homedirectory if it doesn't exist.
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: FTP: Autocrete homdirs
+//!  name: FTP: Autocreate homedirs
+//
+//! defvar: ftphdirautoext
+//! If set to "Yes", then this will create also directories into homedirectory specified in Autocreate homedirs extras.
+//!  type: TYPE_FLAG|VAR_MORE
+//!  name: FTP: Autocreate homedirs extended
+//
+//! defvar: ftphdirxtra
+//! Coma-sparated homedirectory to be created also in homedirectory. Used only if Autocreate homedirs <b>AND</b> Autocreate homedirs extended are set to "Yes"
+//!  type: TYPE_STRING|VAR_MORE
+//!  name: FTP: Autocreate homedirs extras
 //
 //! defvar: InternalLoc
 //! Some modules may want to create links to internal resources.  This setting configures an internally handled location that can be used for such purposes.  Simply select a location that you are not likely to use for regular resources.
