@@ -320,7 +320,7 @@ mapping handle_file_extension(object o, string e, object id)
 {
   DWERROR("CGI:handle_file_extension()\n");
 
-  return http_stream( CGIScript( id )->run()->get_fd() );
+  return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
 void create(object conf)
