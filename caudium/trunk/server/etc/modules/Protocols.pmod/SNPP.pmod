@@ -1,3 +1,24 @@
+/*
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+/*
+ * $Id$
+ */
+
+//! $Id$
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 1
@@ -6,16 +27,18 @@ object out;
 string err;
 multiset done;
 
+//!
 void create() {
   out = Stdio.FILE();
   done = (< >);
 }
 
+//!
 int connect( string host, void|int port ) {
   if ( out->connect( host, (port?port:444) ) ) {
     string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
     if ( ret[ 0..2 ] == "220" ) {
       done += (< "connect" >);
@@ -27,10 +50,12 @@ int connect( string host, void|int port ) {
   return 0;
 }
 
+//!
 string error() {
   return replace( err, "\r", "" );
 }
 
+//!
 function pager = cmd_pager;
 int cmd_pager( string id ) {
   if (! done->connect ) {
@@ -40,7 +65,7 @@ int cmd_pager( string id ) {
   out->printf( "PAGE %s\n", id );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] == "250" ) {
     done += (< "pager" >);
@@ -53,6 +78,7 @@ int cmd_pager( string id ) {
   }
 }
 
+//!
 function message = cmd_message;
 int cmd_message( string message ) {
   if ( ! done->pager ) {
@@ -62,7 +88,7 @@ int cmd_message( string message ) {
   out->printf( "MESS %s\n", message );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] == "250" ) {
     done += (< "data" >);
@@ -84,7 +110,7 @@ int cmd_data( string message ) {
   out->printf( "DATA\n" );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "354" ) {
     err = ret;
@@ -96,7 +122,7 @@ int cmd_data( string message ) {
   out->printf( "\r\n%s.\r\n", message );
   ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "250" ) {
     err = ret;
@@ -121,7 +147,7 @@ int cmd_send() {
   out->printf( "SEND\n" );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "250" ) {
     err = ret;
@@ -137,7 +163,7 @@ int cmd_reset() {
   out->printf( "RESE\n" );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "250" ) {
     err = ret;
@@ -152,7 +178,7 @@ int cmd_callerid( string email ) {
   out->printf( "CALL %s\n", email );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "250" ) {
     err = ret;
@@ -168,7 +194,7 @@ int cmd_quit() {
   out->printf( "QUIT\n" );
   string ret = out->gets();
 #ifdef SNTP_DEBUG
-  werror( ret[ 0..2 ] + ": " + ret + "\n" );
+  report_debug( ret[ 0..2 ] + ": " + ret + "\n" );
 #endif
   if ( ret[ 0..2 ] != "221" ) {
     err = ret;
