@@ -3628,9 +3628,10 @@ void create(string config)
           TYPE_INT, "The maximum size of a file that is to be "
 	  "considered for the cache");
 #endif
-  defvar("ErrorTheme", "default.html", "Error Theme", TYPE_STRING,
-	 "The theme to apply to error responses from " +
-	 "this server to the client. Defined by html files in etc/error_templates/" );
+  defvar("ErrorTheme", "", "Error Theme", TYPE_STRING,
+	 "This is the theme to apply to any error messages generated " +
+	 "automatically by this server. Please enter an absolute path on the virtual " +
+         "filesystem(s), otherwise the system-wide default will be used." );
   defvar("Old404", 0, "Old-style 404's", TYPE_FLAG,
 	 "This allows you to override the new style error responses and use " +
          "the old fasioned 404 handling." );
