@@ -520,24 +520,47 @@ class DocGen
             foreach(m->altnames, mapping an)
                 ret += "<syntax>\n\t" + pretty_syntax(dissect_method(an->first_line)) + "\n</syntax>\n\n";
         
-        /* Description */
-        if (m->contents && m->contents != "")
-            ret += sprintf("<description%s>\n%s\n</description>\n\n",
-                           (m->altnames && sizeof(m->altnames)) ? " form=\"1\"" : "",
-                           m->contents);
+        /* Description(s) */
+	/* First determine whether we have one description and many forms */
+	int  manydesc = 0;
+	if (m->altnames && sizeof(m->altnames))
+	    foreach(m->altnames, mapping an)
+		if (an->contents && an->contents != "")
+		    manydesc++;
+		    
+	if (m->contents && m->contents != "")
+	    manydesc++;
+	    
+	if (manydesc) {
+	    if (manydesc == 1) {
+		if (m->contents && m->contents != "") {
+		    ret += sprintf("<description>\n%s\n</description>\n\n",
+                        	    m->contents);
+		} else {
+		    foreach(m->altnames, mapping an)
+			if (an->contents && an->contents != "")
+			    ret += sprintf("<description>\n%s\n</description>\n\n",
+                        	    an->contents);
+		}
+	    } else {
+    		if (m->contents && m->contents != "")
+        	    ret += sprintf("<description%s>\n%s\n</description>\n\n",
+                                   (m->altnames && sizeof(m->altnames)) ? " form=\"1\"" : "",
+                        	    m->contents);
         
-        /* Descriptions of alternative forms */
-        if (m->altnames && sizeof(m->altnames)) {
-            int cnt = 1;
+    		/* Descriptions of alternative forms */
+    		if (m->altnames && sizeof(m->altnames)) {
+        	    int cnt = 1;
             
-            foreach(m->altnames, mapping an)
-                if (an->contents && an->contents != "") {
-                    cnt++;
-                    ret += sprintf("<description form=\"%d\">\n%s\n</description>",
-                                   cnt, an->contents);
-                }
-        }
-        
+        	    foreach(m->altnames, mapping an)
+            		if (an->contents && an->contents != "") {
+                	    cnt++;
+                	    ret += sprintf("<description form=\"%d\">\n%s\n</description>",
+                                           cnt, an->contents);
+            		}
+    		    }
+    	    }
+	}
         /* Arguments */
         if (m->args && sizeof(m->args)) {
             ret += "<arguments>\n";
