@@ -252,7 +252,7 @@ class PHPScript
       }
     }
     // Lets populate more!
-    environment["REQUEST_URI"] =  environment["DOCUMENT_URI"];
+    environment["REQUEST_URI"] =  id->raw_url;
     environment["PHP_SELF"]    =  environment["DOCUMENT_URI"];
 
     // Not part of the "standard" PHP environment apparently...
