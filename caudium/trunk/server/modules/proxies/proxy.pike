@@ -441,7 +441,8 @@ class Connection {
       return 0;
     } else {
       pipe->output(o);
-      my_clients += ({ (s / " ")[0] });
+      //my_clients += ({ (s / " ")[0] });
+      my_clients += ({ Caudium.get_address(s) });
       ids += ({ b });
       return 1;
     }

@@ -268,7 +268,9 @@ mixed page_0(object id)
   foreach(((fun && fun()) || caudium->configuration_ports), object o)
   {
     string port, ip;
-    sscanf(o->query_address(1), "%s %s", ip, port);
+    //sscanf(o->query_address(1), "%s %s", ip, port);
+    ip = Caudium.get_address(o->query_address(1));
+    port = Caudium.get_port(o->query_address(1));
 
     ip = cleanup_ip(ip);
 
