@@ -2035,7 +2035,10 @@ class ImageCache
     {
       if(nodraw)
         return 0;
-      draw( na, id );
+      if (catch (draw ( na, id )))
+      {
+         return (http_error_answer (id, 404));
+      }
       res = restore( na );
     }
     return res;
