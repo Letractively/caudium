@@ -16,7 +16,7 @@ fi
 
 AC_PROG_INSTALL
 
-AC_CHECK_HEADERS(unistd.h signal.h)
+AC_CHECK_HEADERS(unistd.h signal.h crypt.h)
 
 AC_CHECK_LIB(crypt,crypt)
 AC_CHECK_FUNCS(crypt)
