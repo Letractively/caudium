@@ -283,7 +283,7 @@ class CaudiumScope {
       break;
      case "hits":
      case "requests":
-      //! entity: hits-per-minute
+      //! entity: hits
       //!  Same as &amp;caudium.requests;. Roxen 2.x compatibility.
       //! entity: requests
       //!  The number of requests the server has received since boot.
