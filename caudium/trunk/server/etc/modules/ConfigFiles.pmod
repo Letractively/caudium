@@ -19,10 +19,9 @@
  *
  * $Id$
  */
+
 //! This module implements parsing and management of the flatfile configs on
 //! the local filesystem.
-//
-
 string cvs_version = "$Id$";
 
 #define FORMAT_OLD  0
@@ -33,8 +32,8 @@ private string xml_epilog = "</caudiumcfg>";
 
 //! This class represents the whole config directory
 //!
-//! @note
-//! TODO: Add caching of directory entries.
+//! @todo
+//! Add caching of directory entries.
 class Dir
 {
     private int     file_mode;
@@ -101,6 +100,11 @@ class Dir
         if (!file || !sizeof(file) || file[0] == '.')
             return 0;
             
+	array(int) fs = (array(int))file_stat(file);
+	
+	if (fs && sizeof(fs) && fs[1] <= 0)
+	    return 0;
+
         string  fc = Stdio.read_file(my_dir + file, 0, 2);
         if (!fc || !sizeof(fc))
             return 0;
@@ -238,11 +242,11 @@ class File
     private Dir        my_dir;
     private Stdio.File my_file;
     private mapping    my_file_format;
-
+    private string     my_name;
+    
     //! The storage area. Contains all the regions read from the config
     //! file and, within the regions, the variables defined for them.
-    //! Each region is a mapping that maps a variable name to its value.
-    mapping(string:mapping) regions;
+    Config             regions;
     
     //! Open a config file in the indicated directory creating it if it
     //! doesn't exist. Throws an error should there be any problems.
@@ -275,7 +279,9 @@ class File
             throw(({sprintf("Couldn't open/create the config file '%s%s'\n",
                             my_dir->get_path(), fname), backtrace()}));
 
-        regions = ([]);
+        my_name = fname;
+        
+        regions = 0;
     }
 
     private int|string parse_old()
@@ -304,13 +310,15 @@ class File
             return sprintf("Error parsing the config file '%s%s'\n",
                            my_dir->get_path(), my_file_format->name);
 
-        
+        // walk the tree and build the internal configuration storage
+        regions = Config(root, my_name);
+
         return 0;
     }
     
     //! Parse the associated file. If the parsing is successful then the
-    //! @[regions] mapping will contain all the variables defined in the
-    //! file. Otherwise the mapping will be empty.
+    //! @[regions] object will contain all the variables defined in the
+    //! file. Otherwise the object will be undefined.
     //!
     //! @returns
     //! 0 (or any other integer) if there was no error parsing the file, an
@@ -321,7 +329,7 @@ class File
         if (!my_dir || !mappingp(my_file_format) || !sizeof(my_file_format) || !my_file)
             return "Object not initialized properly.";
 
-        regions = ([]);
+        regions = 0;
         
         switch(my_file_format->format) {
             case FORMAT_OLD:
@@ -335,6 +343,52 @@ class File
 
         return sprintf("Unknown file format %d\n", my_file_format->format);
     }
+
+    //! Retrieves the given variable from the given region in this
+    //! configuration.
+    //!
+    //! @param region
+    //!  The region name
+    //!
+    //! @param var
+    //!  The variable name
+    //!
+    //! @returns
+    //!  value of the variable or 0, if the variable/region don't exist.
+    mixed retrieve(string region, string var)
+    {
+        if (regions)
+            return regions->retrieve(region, var);
+
+        return 0;
+    }
+
+    //! Stores (and creates if it doesn't exist) a variable in the
+    //! specified region. The allowed variable types are 'string', 'int'
+    //! and 'array' (containing either of the three supported types).
+    //!
+    //! @param region
+    //!  The region to store the variable in.
+    //!
+    //! @param var
+    //!  The variable name.
+    //!
+    //! @param val
+    //!  The variable value.
+    //!
+    //! @param docheck
+    //!  If different than 0, the passed value will be checked for type
+    //!  correctness.
+    //!
+    //! @returns
+    //!  1 on success, 0 on failure.
+    int store(string region, string var, mixed value, int|void docheck)
+    {
+        if (regions)
+            return regions->store(region, var, value, docheck);
+
+        return 0;
+    }
     
     static string _sprintf(int f)
     {
@@ -345,5 +399,305 @@ class File
             case 'O':
                 return sprintf("%t(%s%s)", this_object(), my_dir->get_path(), my_file_format->name);
         }
+    }
+};
+
+static private mapping(int:string) nodevis = ([
+    Parser.XML.Tree.STOP_WALK:"STOP_WALK",
+    Parser.XML.Tree.XML_ROOT:"XML_ROOT",
+    Parser.XML.Tree.XML_ELEMENT:"XML_ELEMENT",
+    Parser.XML.Tree.XML_TEXT:"XML_TEXT",
+    Parser.XML.Tree.XML_HEADER:"XML_HEADER",
+    Parser.XML.Tree.XML_PI:"XML_PI",
+    Parser.XML.Tree.XML_COMMENT:"XML_COMMENT",
+    Parser.XML.Tree.XML_DOCTYPE:"XML_DOCTYPE",
+    Parser.XML.Tree.XML_ATTR:"XML_ATTR",
+    Parser.XML.Tree.XML_NODE:"XML_NODE"
+]);
+
+//! Class that stores the contents of a parsed configuration file
+class Config
+{
+    mapping(string:mapping)           regions;
+
+    private mapping                   creg;
+    private mapping                   cvar;
+    private mapping                   carray;
+    private int                       array_nest;
+    
+    //! Create the configuration object and populate it with data retrieved
+    //! from the parsed XML file.
+    //!
+    //! @param root
+    //!  The root of the XML tree as returned from the XML parser.
+    void create(object root, string cfgname)
+    {
+        regions = ([]);
+
+        cvar = 0;
+        
+        if (!walk_tree(root))
+            throw(({sprintf("Error while traversing the config tree for '%s'\n", cfgname),
+                   backtrace()}));
+    }
+
+    //! Retrieves the given variable from the given region in this
+    //! configuration.
+    //!
+    //! @param region
+    //!  The region name
+    //!
+    //! @param var
+    //!  The variable name
+    //!
+    //! @returns
+    //!  value of the variable or 0, if the variable/region don't exist.
+    mixed retrieve(string region, string var)
+    {
+        if (!regions || !sizeof(regions))
+            return 0;
+
+        if (!regions[region] || !regions[region][var])
+            return 0;
+
+        if (mappingp(regions[region][var]))
+            return regions[region][var]->value;
+
+        return 0;
+    }
+
+    //! Stores (and creates if it doesn't exist) a variable in the
+    //! specified region. The allowed variable types are 'string', 'int'
+    //! and 'array' (containing either of the three supported types).
+    //!
+    //! @param region
+    //!  The region to store the variable in.
+    //!
+    //! @param var
+    //!  The variable name.
+    //!
+    //! @param val
+    //!  The variable value.
+    //!
+    //! @param docheck
+    //!  If different than 0, the passed value will be checked for type
+    //!  correctness.
+    //!
+    //! @returns
+    //!  1 on success, 0 on failure.
+    int store(string region, string var, mixed value, int|void docheck)
+    {
+        if (docheck && !var_valid(value))
+            return 0;
+        
+        if (!regions)
+            regions = ([]);
+
+        if (!regions[region])
+            regions[region] = ([]);
+        
+        regions[region][var] = ([
+            "name" : var,
+            "value" : value
+        ]);
+
+        return 1;
+    }
+
+    private int var_valid(mixed value)
+    {
+        return 1;
+    }
+    
+    private int handle_region(object element, mapping attrs)
+    {
+        if (!attrs || !sizeof(attrs)) {
+            write("No attributes for the 'region' tag\n");
+            return 0;
+        }
+
+        if (!attrs->name || !sizeof(attrs->name)) {
+            write("'region' tag without name\n");
+            return 0;
+        }
+
+        if (regions[attrs->name]) {
+            write("Warning: duplicate region '%s'. Ignoring.\n", attrs->name);
+            return 1;
+        }
+
+        regions += ([ attrs->name : ([]) ]);
+        creg = regions[attrs->name];
+        creg["@name@"] = attrs->name;
+
+        int ret = walk_children(element);
+
+        creg = 0;
+        
+        return ret;
+    }
+
+    private int handle_var(object element, mapping attrs)
+    {
+        if (!creg || !creg["@name@"]) {
+            werror("Variable found outside of any region\n");
+            return 1;
+        }
+        
+        if (!attrs || !attrs->name || !sizeof(attrs->name)) {
+            werror("Invalid variable syntax in region '%s' (missing or invalid 'name' attribute)\n",
+                   creg["@name@"]);
+            return 1;
+        }
+
+        cvar = ([
+            "name" : attrs->name
+        ]);
+
+        carray = 0;
+        
+        int ret = walk_children(element);
+
+        creg[attrs->name] = cvar;
+        
+        return ret;
+    }
+
+    private int handle_int(object element, mapping attrs)
+    {
+        string txt = String.trim_all_whites(return_text(element));
+        
+        if (carray) {
+            carray->data += ({ (int)txt });
+            return 1;
+        }
+        
+        cvar->value = (int)txt;
+        
+        return 1;
+    }
+
+    private int handle_str(object element, mapping attrs)
+    {
+        string txt = return_text(element);
+        
+        if (carray) {
+            carray->data += ({ txt });
+            return 1;
+        }
+        
+        cvar->value = txt;
+        
+        return 1;
+    }
+
+    private array convert_mappings(mapping m)
+    {
+        array   ret = ({});
+
+        foreach(m->data, mixed i) {
+            if (mappingp(i))
+                ret += ({ convert_mappings(i) });
+            else
+                ret += ({ i });
+        }
+
+        return ret;
+    }
+    
+    private int handle_a(object element, mapping attrs)
+    {
+        mapping        prevarray = carray;
+        mapping        tmp = ([
+            "data" : ({})
+        ]);        
+
+        if (!array_nest)
+            cvar->value = tmp;
+        else
+            carray->data += ({ tmp });
+
+        carray = tmp;
+        
+        array_nest++;
+        int ret = walk_children(element);
+        array_nest--;
+
+        carray = prevarray;
+
+        if (!array_nest)
+            // time to clean the mess up...
+            cvar->value = ({ convert_mappings(tmp) });
+        
+        return ret;
+    }
+
+    private int handle_caudiumcfg(object element, mapping attrs)
+    {
+        return walk_children(element);
+    }
+    
+    private int process_element(object element)
+    {
+        switch(element->get_tag_name()) {
+            case "region":
+                return handle_region(element, element->get_attributes());
+
+            case "var":
+                return handle_var(element, element->get_attributes());
+
+            case "int":
+                return handle_int(element, element->get_attributes());
+
+            case "str":
+                return handle_str(element, element->get_attributes());
+
+            case "a":
+                return handle_a(element, element->get_attributes());
+
+            case "caudiumcfg":
+                return handle_caudiumcfg(element, element->get_attributes());
+        }
+        
+        return 1;
+    }
+
+    private string return_text(object element)
+    {
+        string          ret = "";
+        array(object)   children = element->get_children();
+
+        foreach(children, object child)
+            if (child->get_node_type() == Parser.XML.Tree.XML_TEXT)
+                ret += child->get_text();
+        
+        return ret;
+    }
+    
+    private int walk_children(object root)
+    {
+        array(object) children  = root->get_children();
+        
+        if (children && sizeof(children))
+            foreach(children, object child)
+                if (!walk_tree(child))
+                    return 0;
+
+        return 1;
+    }
+    
+    private int walk_tree(object root)
+    {
+        int    flag = 1;
+        
+        if (!root)
+            return 0;
+
+        int      nt = root->get_node_type();
+
+        if (nt == Parser.XML.Tree.XML_ELEMENT)
+            return process_element(root);
+        
+        return walk_children(root);
     }
 };
