@@ -292,13 +292,13 @@ private int do_post_processing()
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
   if(misc->len && method == "POST") {
+    int l = wanted_data = misc->len;
+    if(strlen(data) < misc->len) return 1;
     misc->cacheable = 0; /* No good caching posts */
-    
+    leftovers = data[l+2..];
+    data = data[..l+1];
     if(request_headers["content-type"]) {
       // handle post data
-      int l = misc->len;
-      leftovers = data[l+2..];
-      data = data[..l+1];
       switch((lower_case(request_headers["content-type"])/";")[0]-" ")
       {
        default: // Normal form data.
@@ -1277,12 +1277,13 @@ void send_result(mapping|void result)
     return;
   } else {
 #ifdef ENABLE_RAM_CACHE
-    if( (misc->cacheable > 0) )
+    if( (misc->cacheable > 0) && file->len > 0)
     {
       if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
       {
-	string data = head_string + (file->file?file->file->read(file->len):
-				     (file->data[..file->len-1]));
+	string data = head_string +
+	  (file->file?file->file->read(file->len):
+	   (file->data[..file->len-1]));
 	conf->datacache->set( raw_url, data, 
 			      (["hs":strlen(head_string),
 				"len": file->len,
