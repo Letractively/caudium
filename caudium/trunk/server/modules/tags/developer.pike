@@ -94,6 +94,7 @@ mapping(string:array) developers = ([
   "mikeharris":({"Mike A. Harris", "mikeharris@users.sourceforge.net", "", "Canada"}),
   "neotron":({"David Hedbor", "david@caudium.net", "1974-11-30", "Sweden"}),
   //    "nikram":({"Fred van Dijk", "fred@caudium.net", "", "Holland"}),
+  "oliv3":({"Olivier Girondel", "olivier.girondel@idealx.com", "1973-02-02", "France"}),
   "redax":({"Zsolt Varga", "redax@caudium.net", "1973-02-01", "Hungary"}),
   "underley":({"Daniel Podlejski", "underley@underley.eu.org", "1976-08-08", "Poland"}),
   "wilsonm":({"Matthew Wilson", "matthew@caudium.net", "1976-4-10", "USA"})
