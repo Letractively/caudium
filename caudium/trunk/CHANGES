@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fix for SF Bug #652095 (lowercase boundary in CONTENT_TYPE)
 - Caudium.http_encode_url() used instead of Pike routine.
   *COMPAT Warning* Direct calls to http_encode_url() work only when
   API_COMPAT is set.
