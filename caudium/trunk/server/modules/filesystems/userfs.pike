@@ -39,8 +39,6 @@
 
 // #define USERFS_DEBUG 
 // #define PASSWD_DISABLED ((us[1]=="") || (us[1][0]=='*'))
-#define BAD_PASSWORD(us)	(QUERY(only_password) && \
-                                 ((us[1] == "") || (us[1][0] == '*')))
 
 #ifdef USERFS_DEBUG
 # define USERFS_WERR(X) werror("USERFS: "+X+"\n")
@@ -576,20 +574,20 @@ int|mapping|Stdio.File find_file(string f, object id)
   if(!u)
     return -1;
 
-  array(string) us;
+  mapping us;
   array(int) stat;
 
   if(!dude_ok[ u ] || f == "")
   {
-    us = id->conf->userinfo( u, id );
+    if(id->conf->auth_module)
+      us = id->conf->auth_module->user_info( u );
 
     USERFS_WERR(sprintf("checking out %O: %O", u, us));
     
     if(QUERY(blist))
-    if(!us || BAD_PASSWORD(us) || banish_list[u])
+    if(!us || banish_list[u])
     { // No user, or access denied.
-      USERFS_WERR(sprintf("Bad password: %O? Banished? %O",
-			  (us?BAD_PASSWORD(us):1),
+      USERFS_WERR(sprintf("Banished? ",
 			  banish_list[u]));
       if(!banish_reported[u])
       {
@@ -607,7 +605,7 @@ int|mapping|Stdio.File find_file(string f, object id)
     string dir;
 
     if(QUERY(homedir))
-      dir = us[ 5 ] + "/" + QUERY(pdir) + "/";
+      dir = us->home_directory + "/" + QUERY(pdir) + "/";
     else
       if(QUERY(directory_hash))
         dir = combine_path(QUERY(searchpath) + "/",dhash(u,QUERY(dhash_depth))) + "/";
@@ -639,7 +637,8 @@ int|mapping|Stdio.File find_file(string f, object id)
   {
     if(!us)
     {
-      us = id->conf->userinfo( u, id );
+      if(id->conf->auth_module)
+        us = id->conf->auth_module->user_info( u );
       if(!us)
       {
 	USERFS_WERR(sprintf("No userinfo for %O!", u));
@@ -649,7 +648,7 @@ int|mapping|Stdio.File find_file(string f, object id)
 
     stat = filesystem::stat_file(f, id);
 
-    if(!stat || (stat[5] != (int)(us[2])))
+    if(!stat || (stat[5] != (int)(u->uid)))
     {
       USERFS_WERR(sprintf("File not owned by user.", u));
       return 0;
@@ -683,14 +682,15 @@ string real_file(string f, object id)
     array(int) fs;
     if(query("homedir"))
     {
-      array(string) us;
-      us = id->conf->userinfo( u, id );
-      if((!us) || BAD_PASSWORD(us) || banish_list[u])
+      mapping us;
+      if(id->conf->auth_module)
+        us = id->conf->auth_module->user_info( u );
+      if((!us) || banish_list[u])
 	return 0;
-      if(us[5][-1] != '/')
-	f = us[ 5 ] + "/" + QUERY(pdir) + f;
+      if(us->home_directory[-1] != '/')
+	f = us->home_directory + "/" + QUERY(pdir) + f;
       else
-	f = us[ 5 ] + QUERY(pdir) + f;
+	f = us->home_directory + QUERY(pdir) + f;
     } else {
       if (QUERY(directory_hash))
         f = combine_path(QUERY(searchpath)+"/",dhash(u,QUERY(dhash_depth))) + "/" + f;
@@ -726,7 +726,8 @@ mapping|array find_dir(string f, object id)
   if (!a) {
     if (QUERY(user_listing)) {
       array l;
-      l = id->conf->userlist(id);
+      if(id->conf->auth_module)
+        l = id->conf->auth_module->user_list(id);
 
       if(l) return(l - QUERY(banish_list));
     }
@@ -740,19 +741,20 @@ mapping|array find_dir(string f, object id)
   {
     if(query("homedir"))
     {
-      array(string) us;
-      us = id->conf->userinfo( u, id );
+      mapping us;
+      if(id->conf->auth_module)
+        us = id->conf->auth_module->user_info( u, id );
       if(!us) return 0;
       if(QUERY(blist))
-	if((!us) || BAD_PASSWORD(us))
+	if(!us)
 	  return 0;
       // FIXME: Use the banish multiset.
       if(QUERY(blist))
 	if(search(QUERY(banish_list), u) != -1)             return 0;
-      if(us[5][-1] != '/')
-	f = us[ 5 ] + "/" + QUERY(pdir) + f;
+      if(us->home_directory[-1] != '/')
+	f = us->home_directory + "/" + QUERY(pdir) + f;
       else
-	f = us[ 5 ] + QUERY(pdir) + f;
+	f = us->home_directory + QUERY(pdir) + f;
     }
     else
       if(QUERY(directory_hash))
@@ -767,9 +769,7 @@ mapping|array find_dir(string f, object id)
       return ([ "files": dir ]);
     return dir;
   }
-  // Mater un peu par la...
-  //return id->conf->userlist(id) - QUERY(banish_list);
-  return (id->conf->userlist(id)||({})) - QUERY(banish_list);
+  return (id->conf->auth_module->list_all_users()||({})) - QUERY(banish_list);
 }
 
 array(int) stat_file(string f, object id)
@@ -787,25 +787,27 @@ array(int) stat_file(string f, object id)
 
   if(u)
   {
-    array us, st;
-    us = id->conf->userinfo( u, id );
+    mapping us;
+    array st;
+    if(id->config->auth_module)
+      us = id->conf->auth_module->user_info( u );
     if(query("homedir"))
     {
       if(!us) return 0;
       if(QUERY(blist))
-      if((!us) || BAD_PASSWORD(us))
+      if(!us)
 	return 0;
       // FIXME: Use the banish multiset.
       if(QUERY(blist))
       if(search(QUERY(banish_list), u) != -1) return 0;
-      if(us[5] == "") {
+      if(us->home_directory == "") {
 	// No home directory.
 	return 0;
       }
-      if(us[5][-1] != '/')
-	f = us[ 5 ] + "/" + QUERY(pdir) + f;
+      if(us->home_directory[-1] != '/')
+	f = us->home_directory + "/" + QUERY(pdir) + f;
       else
-	f = us[ 5 ] + QUERY(pdir) + f;
+	f = us->home_directory + QUERY(pdir) + f;
     } else {
       if (QUERY(directory_hash))
         f=combine_path(QUERY(searchpath)+"/",dhash(u,QUERY(dhash_depth)))+"/"+f;
@@ -817,7 +819,7 @@ array(int) stat_file(string f, object id)
 #endif
     st = filesystem::stat_file( f,id );
     if(!st) return 0;
-    if(QUERY(own) && (!us || ((int)us[2] != st[-2]))) return 0;
+    if(QUERY(own) && (!us || ((int)us->uid != st[-2]))) return 0;
     return st;
   }
   return 0;

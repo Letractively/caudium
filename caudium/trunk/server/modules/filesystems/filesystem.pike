@@ -221,10 +221,10 @@ mixed stat_file( mixed f, mixed id )
   array fs;
 #ifndef THREADS
   object privs;
-  if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+  if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
       (QUERY(access_as_user))) {
     // NB: Root-access is prevented.
-    privs=Privs("Statting file", (int)id->misc->uid, (int)id->misc->gid );
+    privs=Privs("Statting file", (int)id->user->uid, (int)id->user->gid );
   }
 #endif
 
@@ -261,10 +261,10 @@ array find_dir( string f, object id )
 #endif /* FILESYSTEM_DEBUG */
 
 #ifndef THREADS
-  if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+  if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
       (QUERY(access_as_user))) {
     // NB: Root-access is prevented.
-    privs=Privs("Getting dir", (int)id->misc->uid, (int)id->misc->gid );
+    privs=Privs("Getting dir", (int)id->user->uid, (int)id->user->gid );
   }
 #endif
 
@@ -410,10 +410,11 @@ mixed find_file( string f, object id )
 	return 0;
       }
 #ifndef THREADS
-      if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+      if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
 	  (QUERY(access_as_user))) {
 	// NB: Root-access is prevented.
-	privs=Privs("Getting file", (int)id->misc->uid, (int)id->misc->gid );
+	privs=Privs("Getting file", (int)id->user->uid, (int)id->user->gid 
+);
       }
 #endif
 
@@ -457,18 +458,18 @@ mixed find_file( string f, object id )
       return 0;
     }    
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MKDIR: Permission denied");
       return http_auth_required("foo",
 				"<h1>Permission to 'MKDIR' denied</h1>");
     }
     mkdirs++;
 
-    if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
 	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Creating directory",
-		  (int)id->misc->uid, (int)id->misc->gid );
+		  (int)id->user->uid, (int)id->user->gid );
     }
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
@@ -505,7 +506,7 @@ mixed find_file( string f, object id )
       return 0;
     }    
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("PUT: Permission denied");
       return http_auth_required("foo",
 				"<h1>Permission to 'PUT' files denied</h1>");
@@ -513,10 +514,10 @@ mixed find_file( string f, object id )
     puts++;
     
 
-    if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
 	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
-      privs=Privs("Saving file", (int)id->misc->uid, (int)id->misc->gid );
+      privs=Privs("Saving file", (int)id->user->uid, (int)id->user->gid );
     }
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
@@ -577,7 +578,7 @@ mixed find_file( string f, object id )
       return 0;
     }    
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("APPE: Permission denied");
       return http_auth_required("foo",
 				"<h1>Permission to 'APPE' files denied</h1>");
@@ -587,10 +588,10 @@ mixed find_file( string f, object id )
     object privs;
 
 // #ifndef THREADS // Ouch. This is is _needed_. Well well...
-    if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
       (QUERY(access_as_user))) {
       // NB: Root-access is prevented.
-      privs=Privs("Saving file", (int)id->misc->uid, (int)id->misc->gid );
+      privs=Privs("Saving file", (int)id->user->uid, (int)id->user->gid );
     }
 // #endif
 
@@ -650,16 +651,16 @@ mixed find_file( string f, object id )
       return 0;
     }    
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("CHMOD: Permission denied");
       return http_auth_required("foo",
 				"<h1>Permission to 'CHMOD' files denied</h1>");
     }
     
     // #ifndef THREADS // Ouch. This is is _needed_. Well well...
-    if (((int)id->misc->uid) && ((int)id->misc->gid)) {
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid)) {
       // NB: Root-access is prevented.
-      privs=Privs("CHMODing file", (int)id->misc->uid, (int)id->misc->gid );
+      privs=Privs("CHMODing file", (int)id->user->uid, (int)id->user->gid);
     }
     // #endif
     
@@ -714,7 +715,7 @@ mixed find_file( string f, object id )
       return 0;
     }
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MV: Permission denied");
       return http_auth_required("foo",
 				"<h1>Permission to 'MV' files denied</h1>");
@@ -730,9 +731,9 @@ mixed find_file( string f, object id )
     moves++;
     
     // #ifndef THREADS // Ouch. This is is _needed_. Well well...
-    if (((int)id->misc->uid) && ((int)id->misc->gid)) {
+    if ((id->user && (int)id->user->uid) && ((int)id->user->gid)) {
       // NB: Root-access is prevented.
-      privs=Privs("Moving file", (int)id->misc->uid, (int)id->misc->gid );
+      privs=Privs("Moving file", (int)id->user->uid, (int)id->user->gid );
     }
     // #endif
     
@@ -783,7 +784,7 @@ mixed find_file( string f, object id )
       return 0;
     }
 
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("MOVE: Permission denied");
       return http_auth_required("foo",
                                 "<h1>Permission to 'MOVE' files denied</h1>");
@@ -823,9 +824,9 @@ mixed find_file( string f, object id )
     }
 
     // #ifndef THREADS // Ouch. This is is _needed_. Well well...
-    if (((int)id->misc->uid) && ((int)id->misc->gid)) {
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid)) {
       // NB: Root-access is prevented.
-      privs=Privs("Moving file", (int)id->misc->uid, (int)id->misc->gid );
+      privs=Privs("Moving file", (int)id->user->uid, (int)id->user->gid );
     }
     // #endif
 
@@ -867,7 +868,7 @@ mixed find_file( string f, object id )
     size = FILE_SIZE(id->misc->destination);
     if ( size != -1 && id->misc->overwrite != "T" )
 	return http_error_answer(id, 403, "Forbidden");
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0]))
+    if(QUERY(check_auth) && (!id->user))
 	return http_auth_required("copy", "Permission to 'COPY' files denied");
     if(QUERY(no_symlinks) && 
        (contains_symlinks(path, f) || 
@@ -878,8 +879,8 @@ mixed find_file( string f, object id )
 	
     accesses++;
     report_notice("COPYING the file "+f+" to " + id->misc->destination + "\n");
-    if ( ((int)id->misc->uid) && ((int)id->misc->gid) ) 
-	privs = Privs("Copying file", (int)id->misc->uid,(int) id->misc->gid);
+    if ( id->user && ((int)id->user->uid) && ((int)id->user->gid) ) 
+	privs = Privs("Copying file", (int)id->user->uid,(int) id->user->gid);
     if ( f == id->misc->destination || !Stdio.cp(f, id->misc->destination) ) {
 	privs = 0;
 	return http_error_answer(id, 403, "Forbidden");
@@ -896,7 +897,7 @@ mixed find_file( string f, object id )
       TRACE_LEAVE("DELETE: Disabled");
       return 0;
     }
-    if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
+    if(QUERY(check_auth) && (!id->user)) {
       TRACE_LEAVE("DELETE: Permission denied");
       return (http_error_answer (id, 403, 0, "Permission to DELETE file denied"));
     }
@@ -911,10 +912,10 @@ mixed find_file( string f, object id )
     report_notice("DELETING the file "+f+"\n");
     accesses++;
 
-    if (((int)id->misc->uid) && ((int)id->misc->gid) &&
+    if (id->user && ((int)id->user->uid) && ((int)id->user->gid) &&
 	(QUERY(access_as_user))) {
       // NB: Root-access is prevented.
-      privs=Privs("Deleting file", id->misc->uid, id->misc->gid );
+      privs=Privs("Deleting file", id->user->uid, id->user->gid );
     }
 
     /* Clear the stat-cache for this file */
