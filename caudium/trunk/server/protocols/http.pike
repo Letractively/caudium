@@ -436,8 +436,8 @@ private int parse_got()
 	    REQUEST_WERR("HTTP: parse_request(): More data needed in POST.");
 	    return 0;
 	  }
-	  leftovers = data[l+2..];
-	  data = data[..l+1];
+	  leftovers = data[l..];
+	  data = data[..l-1];
 	  switch(lower_case((((request_headers["content-type"]||"")+";")/";")[0]-" "))
 	  {
 	   default: // Normal form data.
@@ -718,6 +718,8 @@ void end(string|void s, int|void keepit)
     object fd = my_fd;
     my_fd=0;
     if(s) leftovers += s;
+    while(sscanf(leftovers, "\r\n%s", lefovers))
+      ; // Remove beginning newlines..
     o->chain(fd,conf,leftovers);
     disconnect();
     return;
