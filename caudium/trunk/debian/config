@@ -49,7 +49,7 @@ get_iface() {
      fi
      
      db_reset caudium/listen_on
-     db_set caudium/listen_on $port
+     db_set caudium/listen_on $port || true
     done
 }
 
