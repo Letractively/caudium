@@ -64,11 +64,11 @@ int req_time = HRTIME();
 #endif
 
 #ifdef FD_DEBUG
-#define MARK_FD(X) catch{REQUEST_WERR(X); 1/0; mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
+#define MARK_FD(X) catch{REQUEST_WERR(X); mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
-#undef REQUEST_DEBUG
+
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
@@ -199,7 +199,7 @@ inline void do_post_processing()
        case "multipart/form-data":
 	//		perror("Multipart/form-data post detected\n");
 	object messg = MIME.Message(data, request_headers);
-	foreach(messg->body_parts, object part) {
+	foreach(messg->body_parts||({}), object part) {
 	  if(part->disp_params->filename) {
 	    variables[part->disp_params->name]=part->getdata();
 	    variables[part->disp_params->name+".filename"]=
