@@ -1,8 +1,8 @@
 caudium (2:1.2.35.1-1) unstable; urgency=high
 
   * Closes: #298963: contains non-free fonts
-  * Do not include the non-free Microsoft fonts. Instead, recommend the
-    Bistream Vera package and use the fonts if they exist
+  * Do not include the non-free Microsoft fonts. Instead, depend on the
+    bitstream font package.
   * Using a 'fake' upstream release number to be able to overwrite the
     .orig tarball in the debian archive.
 
