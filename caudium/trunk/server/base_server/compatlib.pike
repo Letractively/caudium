@@ -238,6 +238,28 @@ int _int(string w, array(string) a) {
    return Caudium._match(w,a);
 }
 
+//! Compat call of Caudium.short_name
+//! @deprecated
+string short_name(string name) {
+   WCOMPAT("Caudium","short_name");
+   return Caudium.short_name(name);
+}
+
+//! Compat call of Caudium.strip_config
+//! @deprecated
+string strip_config(string from) {
+   WCOMPAT("Caudium","strip_config");
+   return Caudium.strip_config(from);
+}
+
+//! Compat call of Caudium.strip_prestate
+//! @deprecated
+string strip_prestate(string from) {
+   WCOMPAT("Caudium","strip_prestate");
+   return Caudium.strip_prestate(from);
+}
+
+
 //! Compat call of Caudium.parse_html
 //! @deprecated
 string parse_html(mixed ... args) {
@@ -340,8 +362,6 @@ object clone(mixed ... args) {
 
 // This is inside caudiumlib14
 static mapping build_caudium_env_vars(object id);
-static string  http_caudium_id_cookie();
-static mapping http_low_answer(int errno, string data, void|int dohtml);
 
 //! Backward compatibility with Roxen
 //! @deprecated
@@ -385,7 +405,7 @@ mapping http_auth_failed(string realm, string|void m, int|void d) {
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth failed (%s)\n",realm);
 #endif
-  return http_low_answer(401, "<h1>Authentication failed.</h1>") 
+  return Caudium.HTTP.low_answer(401, "<h1>Authentication failed.</h1>") 
          + ([ "extra_heads": ([ "WWW-Authenticate":"basic realm=\""+realm+"\"",
                                ]),
               ]);

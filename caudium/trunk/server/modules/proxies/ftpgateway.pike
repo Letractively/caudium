@@ -1262,7 +1262,7 @@ string check_variable(string name, mixed value)
 void create()
 {         
   defvar("logfile", GLOBVAR(logdirprefix)+
-	 short_name(caudium->current_configuration?caudium->current_configuration->name:".")+"/ftp_proxy_log",
+	 Caudium.short_name(caudium->current_configuration?caudium->current_configuration->name:".")+"/ftp_proxy_log",
 	 "Logfile", TYPE_FILE,  "Empty the field for no log at all");
   
   defvar("mountpoint", "/ftp:/", "Location", TYPE_LOCATION|VAR_MORE,

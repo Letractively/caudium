@@ -34,7 +34,7 @@ void create(object c)
   if(c)
   {
     defvar("location", "/ri/", "The mountpoint", TYPE_LOCATION, "");
-    defvar("cache-dir", "../gimage/"+c->short_name( c->name )+"/",
+    defvar("cache-dir", "../gimage/"+Caudium.short_name( c->name )+"/",
 	   "Cache directory", TYPE_STRING, 
 	   "Image and argument cache directory.");
   }

@@ -1749,7 +1749,7 @@ string tag_aprestate(string tag, mapping m, string q, object id)
   multiset prestate=(< >);
 
   if(!(href = m->href))
-    href=strip_prestate(strip_config(id->raw_url));
+    href=Caudium.strip_prestate(Caudium.strip_config(id->raw_url));
   else 
   {
     if ((sizeof(foo = href / ":") > 1) && (sizeof(foo[0] / "/") == 1))
@@ -1785,7 +1785,7 @@ string tag_aconfig(string tag, mapping m, string q, object id)
   if(m->help) return "Alias for &lt;aconf&gt;";
 
   if(!m->href)
-    href=strip_prestate(strip_config(id->raw_url));
+    href=Caudium.strip_prestate(Caudium.strip_config(id->raw_url));
   else 
   {
     href=m->href;

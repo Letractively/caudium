@@ -501,14 +501,46 @@ string add_pre_state( string url, multiset state )
 //! @returns
 //!  1 if a match occured, -1 if the string to match is invalid, 0 if
 //!  no match occured.
-int _match(string w, array (string) a)
-{
+int _match(string w, array (string) a) {
   string q;
   if (!stringp(w)) // Internal request..
     return -1;
   foreach (a, q) 
     if (stringp(q) && strlen(q) && glob(q, w)) 
       return 1; 
+}
+
+//! Return a "short_name" of a virtual server. This is simply
+//! the name in lower case with space replaced with underscore,
+//! used for storing the configuration on disk, log directories etc...
+//! @param name
+//!  The name of the virtual server.
+string short_name(string name) {
+  return lower_case(replace(name, " ", "_"));
+}
+
+//! Strips the Caudium config cookie part of a path (not the url).
+//! The cookie part is everything withing < and > right after the 
+//! first slash.
+//! @param from
+//!   The path from which the cookie part will be stripped.
+//! @fixme
+//!   Shouldn't not be better to do that with Regexps ????
+string strip_config(string from) {
+  sscanf(from, "<%*s>%s", from);
+  return from;
+}
+
+//! Strips the Caudium prestate part of a path (not the URL).
+//! The prestate part is everything within ( and ) right after the first
+//! slash.
+//! @param from
+//!  The path from which the prestate part will be stripped.
+//! @fixme
+//!  Shouldn't not be better to do that with Regexps ????
+string strip_prestate(string from) {
+  sscanf(from, "/(%*s)%s", from);
+  return from;
 }
 
 /*

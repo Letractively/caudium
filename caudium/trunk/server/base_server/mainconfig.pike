@@ -957,7 +957,7 @@ int low_enable_configuration(string name, string type)
 	(tmp = caudium->copy_configuration(from, name)))
     {
       tmp["spider#0"]->LogFile = GLOBVAR(logdirprefix) + "/" +
-	caudiump()->short_name(name) + "/Log";
+	Caudium.short_name(name) + "/Log";
       caudiump()->save_it(name);
       caudium->enable_configuration(name);
     }

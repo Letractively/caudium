@@ -70,7 +70,7 @@ void create(object c) {
   defvar("restrict", 1, "Restrict reset", TYPE_FLAG, "Restrict the attribute reset "
 	 "so that the resetted file is in the same directory or below.");
 
-  defvar("Accesslog",GLOBVAR(logdirprefix)+short_name(c?c->name:".")+"/Accessed",
+  defvar("Accesslog",GLOBVAR(logdirprefix)+Caudium.short_name(c?c->name:".")+"/Accessed",
 	 "Access database file", TYPE_FILE|VAR_MORE,
 	 "This file will be used to keep the database of file accesses.");
   
