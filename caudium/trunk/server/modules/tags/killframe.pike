@@ -128,7 +128,7 @@ string tag_killframe( string tag, mapping m, object id )
     javascript = ( "   if(top.frames.length>1)\n"
 		   "     top.location = \""+ my_url +"\";\n" );
 
-  return("<script language=javascript><!--\n"
+  return("<script language=javascript type=\"text/javascript\"><!--\n"
 	 + javascript
 	 + "//--></script>\n");
 }
