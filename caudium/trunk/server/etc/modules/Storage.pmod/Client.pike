@@ -34,15 +34,6 @@
  */
 
 
-#ifdef THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define LOCK() object __key = mutex->lock()
-#define UNLOCK() destruct(__key)
-#else
-#define LOCK() 
-#define UNLOCK()
-#endif
-
 static function _store;
 static function _retrieve;
 static function _unlink;
@@ -54,7 +45,6 @@ static string namespace;
 
 //!
 void create(string _namespace, mapping callbacks) {
-  LOCK();
   _store = callbacks->store;
   _retrieve = callbacks->retrieve;
   _unlink = callbacks->unlink;
@@ -67,31 +57,26 @@ void create(string _namespace, mapping callbacks) {
 
 //!
 public void store(string key, mixed val) {
-  LOCK();
   _store(namespace, key, val);
 }
 
 //!
 public mixed retrieve(string key) {
-  LOCK();
   return _retrieve(namespace, key);
 }
 
 //!
 public void unlink(void|string key) {
-   LOCK();
    _unlink(namespace, key);
 }
 
 //!
 public void unlink_regexp(void|string regexp) {
-  LOCK();
   _unlink_regexp(namespace, regexp);
 }
 
 //!
 public int size() {
- LOCK();
  return _size(namespace);
 }
 

@@ -32,17 +32,6 @@
 //! This module implements multi-namespaced caching of data from within
 //! Caudium.
 
-#ifdef ENABLE_THREADS
-  static Thread.Mutex mutex = Thread.Mutex();
-#define PRELOCK() object __key;
-#define LOCK() __key = mutex->lock(1)
-#define UNLOCK() destruct(__key)
-#else
-#define PRELOCK()
-#define LOCK() 
-#define UNLOCK()
-#endif
-
 constant cvs_version = "$id: cache_manager.pike,v 1.0 2001/12/26 18:21:00 james_tyson Exp $";
 
 int max_ram_size;
@@ -58,8 +47,6 @@ object slow;
 
 //! Create the datastructures for the cache(s).
 void create() {
-  PRELOCK();
-  LOCK();
   caches = ([ ]);
   client_caches = ([ ]);
 #ifdef ENABLE_THREADS
@@ -74,13 +61,10 @@ void create() {
 //! up indexes for potentially large caches unless they are actually needed
 //! see also: delayed module loading.
 static void really_start() {
-  PRELOCK();
-  LOCK();
   if ( _really_started ) return;
 #ifdef CACHE_DEBUG
   write( "CACHE: Delayed cache start triggered. Loading caching subsystem: " );
 #endif
-  UNLOCK();
   caudium->cache_start();
 #ifdef CACHE_DEBUG
   write( "done.\n" );
@@ -93,8 +77,6 @@ static void really_start() {
 //! @note
 //!   please help me make this not suck. it's way off at the moment.
 mapping status() {
-  PRELOCK();
-  LOCK();
   if ( ! _really_started ) {
     return ([]);
   }
@@ -109,8 +91,6 @@ mapping status() {
 
 //! internal method used to create a cache instance.
 static void create_cache( string namespace ) {
-  PRELOCK();
-  LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
   caches += ([ namespace : Cache.Cache( namespace, max_object_ram, max_object_disk, slow->get_storage(namespace), default_ttl ) ]);
@@ -151,8 +131,6 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, int _default_
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
 	// Call set_max_ram_size() and set_max_disk_size() on every cache.
-  PRELOCK();
-  LOCK();
   _really_started = 1;
 #ifdef CACHE_DEBUG
   write( sprintf( "CACHE_MANAGER: start( %d, %d, %d, %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _default_ttl, _default_halflife ) );
@@ -174,8 +152,6 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, int _default_
 //! with the largest size and force objects to expire until the total size of
 //! all caches is back within operational tolerances.
 static void watch_size() {
-  PRELOCK();
-  LOCK();
   if ( ! _really_started ) {
     call_out( watch_size, sleepfor() );
     return;
@@ -257,8 +233,6 @@ static void watch_size() {
 //! Check to see whether any caches halflifes have expired - i.e. they havent
 //! been used for any operations within a certain period of time.
 static void watch_halflife() {
-  PRELOCK();
-  LOCK();
   if ( ! _really_started ) {
     call_out( watch_halflife, 3600 );
     return;
@@ -289,8 +263,6 @@ static void watch_halflife() {
 //! cache from the module itself.
 object get_cache( void|string|object one ) {
   really_start();
-  PRELOCK();
-  LOCK();
   string namespace;
   if ( stringp( one ) )
     namespace = one;
@@ -316,9 +288,7 @@ object get_cache( void|string|object one ) {
     return client_caches[ namespace ];
   }
   else {
-    UNLOCK();
     object _cache = low_get_cache(namespace);
-    LOCK();
     client_caches += ([ namespace : Cache.Client( _cache, low_get_cache, namespace, delete_cache ) ]);
     return client_caches[ namespace ];
   }
@@ -347,8 +317,6 @@ void destroy() {
 //! if this parameter exist then try and find a cache by the corresponding name
 //! and shut it down. If it's void then shut them all down.
 void stop( void|string namespace ) {
-  PRELOCK();
-  LOCK();
   if ( ! _really_started ) return;
   if ( namespace ) {
     if ( caches[ namespace ] ) {
@@ -371,8 +339,6 @@ object get_argcache() {
 }
 
 void set_slowstorage(object _slow) {
-  PRELOCK();
-  LOCK();
   slow = _slow;
 }
 

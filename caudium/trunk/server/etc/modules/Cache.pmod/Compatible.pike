@@ -34,13 +34,6 @@
 
 constant cvs_version = "$Id$";
 
-#ifdef ENABLE_THREADS
-  static Thread.Mutex mutex = Thread.Mutex();
-# define LOCK() object __key = mutex->lock(1)
-#else
-# define LOCK() 
-#endif
-
 #include <config.h>
 
 inherit "base_server/cachelib";
@@ -53,7 +46,6 @@ object my_cache;
 //! @param cm
 //! A Copy of the cache manager, so that we can get our cache when we want it.
 void create( object cm ) {
-  LOCK();
   cache_manager = cm;
 #ifdef CACHE_DEBUG
   write("CACHE: Compatibility now online.\n");
@@ -62,7 +54,6 @@ void create( object cm ) {
 
 //! Delayed start trigger.
 void start_cache() {
-  LOCK();
   if ( ! objectp( my_cache ) ) {
     my_cache = cache_manager->get_cache( "DEFAULT" );
     string desc =
