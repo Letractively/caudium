@@ -18,25 +18,24 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-
-/* Language support for numbers and dates. Very simple,
- * really. Look at one of the existing language plugins (not really
- * modules, you see..)
- *
+/*
  * $Id$
- * This file is included by roxen.pike. Not very nice to have a
- * cvs_version variable here.
- *
- * WARNING:
- * If the environment variable 'CAUDIUM_LANG' is set, it is used as the default 
- * language.
  */
+
+
+//! Language support for numbers and dates. Very simple,
+//! really. Look at one of the existing language plugins (not really
+//! modules, you see..)
+//! @note
+//!   If the environment variable 'CAUDIUM_LANG' is set, it is used as 
+//!   the default language.
 
 #include <caudium.h>
 
+//! Available languages
 mapping languages = ([ ]);
 
+//!
 void initiate_languages()
 {
   string lang, p;
@@ -91,9 +90,10 @@ private string nil()
 }
 
 
+//! The default language used for caudium
 string default_language = getenv("CAUDIUM_LANG")||"en";
 
-/* Return a pointer to an language-specific conversion function. */
+//! Return a pointer to an language-specific conversion function.
 public function language(string what, string func)
 {
 #ifdef LANGUAGE_DEBUG
