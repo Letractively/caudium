@@ -69,7 +69,7 @@
 	<var name='NumAccept'><int>64</int></var>
 	<var name='cache_storage_disk_path'><str><![CDATA[@prefix@/var/cache/caudium1.4/cache]]></str></var>
 	<var name='ConfigurationIPpattern'><str><![CDATA[*]]></str></var>
-	<var name='AutoUpdate'><int>0</int></var>
+	<var name='AutoUpdate'><int>1</int></var>
 </region>
 
 </caudiumcfg>
