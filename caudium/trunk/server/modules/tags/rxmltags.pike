@@ -636,7 +636,7 @@ string tagtime(int t,mapping m)
 //! <dt>second</dt> <dd>The number of seconds since the last full minute.</dd>
 //! <dt>yday</dt> <dd>The day since the first of January.</dd>
 //! <p>The return value of these parts are modified by both
-//! <tt>type</tt> and <tt>lang</tt>.</p>
+//! <tt>type</tt> and <tt>lang</tt>.</p></dl>
 //! attribute: second
 //!  Adds this number of seconds to the current date.
 //! attribute: time
@@ -747,7 +747,7 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 //!  if the operation failed.
 //! attribute: variable
 //!  The variable to set. It can be either a simple variable, i.e "variable", or a
-//!  variable on in scope form, ie "var.name". If the scope is left out, the &ampform;
+//!  variable on in scope form, ie "var.name". If the scope is left out, the &amp;form;
 //!  scope is used. 
 //! attribute: scope
 //!  Use this as the &amp;scope;. When used, the value of the variable attribute will be
@@ -1037,10 +1037,10 @@ string tag_use(string tag, mapping m, object id)
 //!  special tokens in the definition of tags and container tags:
 //!  <dl>
 //!   <p><dt><tt><b>#args#</b></tt></dt><dd>All arguments sent to the tag. Useful when
-//!   defining a new tag that is more or less only an alias for an old one.</dt></p>
+//!   defining a new tag that is more or less only an alias for an old one.</dd></p>
 //!   <p><dt><tt><b>&amp;attribute;</b></tt></dt><dd>Inserts the value of that attribute.</dd></p>
 //!  </dl>
-//!  In a custom container, <contents> will be replaced with the contents
+//!  In a custom container, &lt;contents> will be replaced with the contents
 //!  of the container.
 //! bugs:
 //!  Defined tags and containers DO NOT work with the XML compliant main

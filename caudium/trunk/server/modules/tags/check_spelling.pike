@@ -150,10 +150,9 @@ string spellit(string word,int warn)
 
   if(strlen(word)<2) return 0;
 
-  if(word[0]=='\'' && word[strlen(word)-1]=='\'')
+  if(word[0] == 39 && word[strlen(word)-1] == 39)
   {
-    /* de-quote */
-    word=word[1..strlen(word)-2];
+    word = word[1..strlen(word) - 2];
     if(!strlen(word)) return 0;
   }
 

@@ -22,11 +22,10 @@
 //
 //! module: Automatic sending of compressed files
 //!  This module implements a suggestion by Francesco Chemolli:<br/>
-//!  The modified filesystem should do\
-//!  about this:<br/>
+//!  The modified filesystem should do about this:<br/>
 //!  -check if the browser supports on-the-fly decompression<br/>
-//!  -check if a precompressed file already exists.<br/>\n"
-//!  -if so, send a redirection to the precompressed file<p>"
+//!  -check if a precompressed file already exists.<br/>
+//!  -if so, send a redirection to the precompressed file<p>
 //!  So, no cost for compression, all URLs, content-types and such would
 //!  remain vaild, no compression overhead and should be really simple
 //!  to implement. Also, it would allow a site mantainer to

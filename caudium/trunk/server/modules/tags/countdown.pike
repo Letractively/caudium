@@ -105,7 +105,7 @@
 //!  Prints the number of weeks until the time.
 //
 //! attribute: [when]
-//!  Prints when the time will occur. All valid <date> tag
+//!  Prints when the time will occur. All valid &lt;date> tag
 //!  attributes can be used.
 //
 //! attribute: [years]

@@ -63,7 +63,7 @@ void create()
   defvar("override", 0, "Allow directory index file overrides", TYPE_FLAG,
 	 "If this variable is set, you can get a listing of all files "
 	 "in a directory by appending '.' or '/' to the directory name, like "
-	 "this: <a href=http://www.roxen.com//>http://www.roxen.com//</a>"
+	 "this: http://caudium.net//"
 	 ". It is _very_ useful for debugging, but some people regard it as a "
 	 "security hole.");
 }
@@ -241,7 +241,7 @@ mapping parse_directory(object id)
 //!  name: Include readme files
 //
 //! defvar: override
-//! If this variable is set, you can get a listing of all files in a directory by appending '.' or '/' to the directory name, like this: <a href=http://www.roxen.com//>http://www.roxen.com//</a>. It is _very_ useful for debugging, but some people regard it as a security hole.
+//! If this variable is set, you can get a listing of all files in a directory by appending '.' or '/' to the directory name, like this: http://caudium.net//. It is _very_ useful for debugging, but some people regard it as a security hole.
 //!  type: TYPE_FLAG
 //!  name: Allow directory index file overrides
 //

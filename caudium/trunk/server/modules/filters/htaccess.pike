@@ -83,7 +83,8 @@ void create()
 	 ":-)"
 #endif
     );
-  defvar("file", ".htaccess", "Htaccess file name", TYPE_STRING|VAR_MORE);
+  defvar("file", ".htaccess", "Access file name", TYPE_STRING|VAR_MORE,
+	 "The file name of the file where the access information is stored.");
   defvar("denyhtlist", ({".htaccess", ".htpasswd", ".htgroup"}),
 	 "Deny file list", TYPE_STRING_LIST, 
 	 "Always deny access to these files. This is useful to protect "
@@ -1031,8 +1032,9 @@ mapping remap_url(object id)
 //!  name: Cache the failures
 //
 //! defvar: file
+//! The file name of the file where the access information is stored.
 //!  type: TYPE_STRING|VAR_MORE
-//!  name: Htaccess file name
+//!  name: Access file name
 //
 //! defvar: denyhtlist
 //! Always deny access to these files. This is useful to protect htaccess related files.

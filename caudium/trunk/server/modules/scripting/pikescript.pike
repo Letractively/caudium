@@ -121,7 +121,7 @@ void create()
   defvar("evaltime", 4, "Maximum evaluation time", TYPE_INT,
 	 "The maximum time (in seconds) that a script is allowed to run for. "
 	 "This might be changed in the script, but it will stop most mistakes "
-	 "like i=0; while(i<=0) i--;.. Setting this to 0 is not a good idea.");
+	 "like i=0; while(i&lt;=0) i--;.. Setting this to 0 is not a good idea.");
 #endif
 }
 
@@ -478,7 +478,7 @@ void start()
 //!  name: Exec mask: Forbidden
 //
 //! defvar: evaltime
-//! The maximum time (in seconds) that a script is allowed to run for. This might be changed in the script, but it will stop most mistakes like i=0; while(i<=0) i--;.. Setting this to 0 is not a good idea.
+//! The maximum time (in seconds) that a script is allowed to run for. This might be changed in the script, but it will stop most mistakes like i=0; while(i&lt;=0) i--;.. Setting this to 0 is not a good idea.
 //!  type: TYPE_INT
 //!  name: Maximum evaluation time
 //

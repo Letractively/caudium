@@ -31,10 +31,12 @@
 //! tag: developer
 //!   Shows info about Caudium developers:
 //!
-//!    - list of developers (<developer list>)
-//!    - info about one developer (<developer name="name">)
-//!    - birthdays of developers (<developer birthday>)
-//!    - notifies if any developer has birthday today (<developer birthday=notify>)
+//!   <ul>
+//!    <li>list of developers (&lt;developer list>)</li>
+//!    <li>info about one developer (&lt;developer name="name">)</li>
+//!    <li>birthdays of developers (&lt;developer birthday>)</li>
+//!    <li>notifies if any developer has birthday today (&lt;developer birthday="notify">)</li>
+//!  </ul>
 //
 //! attribute: [list]
 //!  List all active Caudium developers.

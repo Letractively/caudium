@@ -52,7 +52,9 @@ constant module_unique = 0;
 
 void create()
 {
-  defvar("logfile", GLOBVAR(logdirprefix)+"/Clients", "Client log file", 
+  /* Fool autodefvardoc generator... */
+  string default = GLOBVAR(logdirprefix)+"/Clients";
+  defvar("logfile", default, "Client log file", 
 	 TYPE_STRING,
 	 "This is the file into which all client names will be put.\n");
 }
@@ -81,6 +83,6 @@ void log(object id, mapping file)
 //! defvar: logfile
 //! This is the file into which all client names will be put.
 //!
-//!  type: "Client log file"
-//!  name: /Clients
+//!  type: TYPE_STRING
+//!  name: Client log file
 //

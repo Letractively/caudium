@@ -27,9 +27,9 @@
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
-//! tag: pike
-//!  Runs the content as Pike code. This tag is not always available, since
-//!  it can be a security hazard.
+//! container: pike
+//!  Compiles and executes the contents as Pike code. This tag is not always
+//!  available, since it can be a security hazard.
 //
 //! attribute: help
 //!  Show help for the tag

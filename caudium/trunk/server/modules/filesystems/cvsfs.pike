@@ -19,18 +19,14 @@
  */
 
 //
-//! module: Access CVS from Caudium
+//! module: CVS Filesystem
 //!  This module allows you to access CVS repositories from within Caudium.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOCATION
 //! cvs_version: $Id$
 //
-
-/* cvsfs.pike
- *
- * A location module for accessing files under CVS from Caudium.
- *
+/*
  * Written by Niels Möller 1997
  */
 
@@ -53,7 +49,7 @@ import Array;
 #endif
 
 constant module_type = MODULE_LOCATION;
-constant module_name = "CVS File system";
+constant module_name = "CVS File System";
 constant module_doc  = "Accessing files under CVS control.";
 constant module_unique = 0;
 
@@ -252,7 +248,7 @@ void create()
   defvar("location", "/CVS", "Mount point", TYPE_LOCATION,
 	 "This is where the module will be inserted in the "
 	 "name space of your server.");
-  defvar("cvsroot", getenv("CVSROOT") || "/usr/local/cvs",
+  defvar("cvsroot", "/usr/local/cvs",
 	 "CVS repository", TYPE_DIR, "Where CVS stores its files.");
   defvar("path", "/usr/bin:/usr/local/bin:/usr/gnu/bin", "Path for locating binaries",
 	 TYPE_STRING, "Colon separated list of directories to search for the cvs "
@@ -267,7 +263,7 @@ void create()
 	 "<dt><tt>/path</tt></dt>\n"
 	 "<dd>where <tt>path</tt> is the full path to a directory,\n"
 	 "starting at the cvs root. I.e., the module database\n"
-	 "in the CVS repository is not used.</dl>\n");
+	 "in the CVS repository is not used.</dd></dl>\n");
 }
 
 #if !efun(_static_modules)
@@ -451,8 +447,8 @@ array find_dir(string name, object id)
 //
 //! defvar: cvsroot
 //! Where CVS stores its files.
-//!  type: "CVS repository"
-//!  name: /usr/local/cvs
+//!  type: TYPE_DIR
+//!  name: CVS repository
 //
 //! defvar: path
 //! Colon separated list of directories to search for the cvs and rcs binaries.
@@ -467,7 +463,7 @@ array find_dir(string name, object id)
 //!<dt><tt>/path</tt></dt>
 //!<dd>where <tt>path</tt> is the full path to a directory,
 //!starting at the cvs root. I.e., the module database
-//!in the CVS repository is not used.</dl>
+//!in the CVS repository is not used.</dd></dl>
 //!
 //!  type: TYPE_STRING
 //!  name: CVS (sub)module

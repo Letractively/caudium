@@ -215,7 +215,7 @@ void create()
 	 ", like /http/. if you set this location, a link formed like "
 	 " this: &lt;a href=\"/http/\"&lt;my.www.server&gt;/a&gt; will enable"
 	 " accesses to local WWW-servers through a firewall.<p>"
-	 "Please consider security, though.");
+	 "Please consider security, though.</p>");
 
   defvar("NoCacheFor", "", "No cache for", TYPE_TEXT_FIELD|VAR_MORE,
 	 "This is a list of regular expressions. URLs that match "
@@ -231,31 +231,31 @@ void create()
 	 "requested from a host matching a pattern, the proxy will query the "
 	 "proxy server at the host and port specified.<p> "
 	 "Hopefully, that proxy will then connect to the remote computer. "
-	 "<p>"
-	 "Example:<hr noshade>"
+	 "</p><p>"
+	 "Example:<hr noshade=\"yes\" />"
 	 "<pre>"
-	 "# All hosts inside *.rydnet.lysator.liu.se has to be\n"
-	 "# accessed through lysator.liu.se\n"
-	 ".*\\.rydnet\\.lysator\\.liu\\.se        130.236.253.11  80\n"
-	 "# Do not access *.dec.com via a remote proxy\n"
-	 ".*\\.dec\\.com                         no_proxy        0\n"
-	 "# But all other .com\n"
-	 ".*\\.com                         130.236.253.11        0\n"
-	 "</pre>"
+	 "# All hosts inside *.rydnet.lysator.liu.se has to be<br>"
+	 "# accessed through lysator.liu.se<br>"
+	 ".*\\.rydnet\\.lysator\\.liu\\.se        130.236.253.11  80<br>"
+	 "# Do not access *.dec.com via a remote proxy<br>"
+	 ".*\\.dec\\.com                         no_proxy        0<br>"
+	 "# But all other .com<br>"
+	 ".*\\.com                         130.236.253.11        0<br>"
+	 "</pre></p>"
 	 "Please note that this <b>must</b> be "
-	 "<a href=$configurl/regexp.html>Regular Expressions</a>.");
+	 "regular expressions.");
 
   defvar("Filters", "", "External filter regular expressions", TYPE_TEXT_FIELD|VAR_MORE,
 	 "External filters to run if the regular expression match. "
 	 "<p>Examples (this one works): "
 	 "<pre>"
-	 "www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek\n"
-	 "www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek\n"
-	 "www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos\n"
-	 "www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos\n"
+	 "www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br>"
+	 "www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br>"
+	 "www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br>"
+	 "www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br>"
 	 "</pre>"
 	 "Please note that this <b>must<b> be "
-	 "<a href=$configurl/regexp.html>Regular Expressions</a>.");
+	 "regular expressions.</p>");
 }
 
 string query_location()  { return QUERY(mountpoint); }
@@ -618,7 +618,7 @@ string comment() { return QUERY(mountpoint); }
 //!  name: Logfile
 //
 //! defvar: mountpoint
-//! By default, this is http:/. If you set anything else, all normal WWW-clients will fail. But, other might be useful, like /http/. if you set this location, a link formed like  this: &lt;a href="/http/"&lt;my.www.server&gt;/a&gt; will enable accesses to local WWW-servers through a firewall.<p>Please consider security, though.
+//! By default, this is http:/. If you set anything else, all normal WWW-clients will fail. But, other might be useful, like /http/. if you set this location, a link formed like  this: &lt;a href="/http/"&lt;my.www.server&gt;/a&gt; will enable accesses to local WWW-servers through a firewall.<p>Please consider security, though.</p>
 //!  type: TYPE_LOCATION|VAR_MORE
 //!  name: Location
 //
@@ -633,23 +633,12 @@ string comment() { return QUERY(mountpoint); }
 //!  name: Cache pages with cookies
 //
 //! defvar: Proxies
-//! Here you can add redirects to remote proxy servers. If a file is requested from a host matching a pattern, the proxy will query the proxy server at the host and port specified.<p> Hopefully, that proxy will then connect to the remote computer. <p>Example:<hr noshade><pre># All hosts inside *.rydnet.lysator.liu.se has to be
-//!# accessed through lysator.liu.se
-//!.*\.rydnet\.lysator\.liu\.se        130.236.253.11  80
-//!# Do not access *.dec.com via a remote proxy
-//!.*\.dec\.com                         no_proxy        0
-//!# But all other .com
-//!.*\.com                         130.236.253.11        0
-//!</pre>Please note that this <b>must</b> be <a href=$configurl/regexp.html>Regular Expressions</a>.
+//! Here you can add redirects to remote proxy servers. If a file is requested from a host matching a pattern, the proxy will query the proxy server at the host and port specified.<p> Hopefully, that proxy will then connect to the remote computer. </p><p>Example:<hr noshade="yes" /><pre># All hosts inside *.rydnet.lysator.liu.se has to be<br /># accessed through lysator.liu.se<br />.*\.rydnet\.lysator\.liu\.se        130.236.253.11  80<br /># Do not access *.dec.com via a remote proxy<br />.*\.dec\.com                         no_proxy        0<br /># But all other .com<br />.*\.com                         130.236.253.11        0<br /></pre></p>Please note that this <b>must</b> be regular expressions.
 //!  type: TYPE_TEXT_FIELD|VAR_MORE
 //!  name: Remote proxy regular expressions
 //
 //! defvar: Filters
-//! External filters to run if the regular expression match. <p>Examples (this one works): <pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek
-//!www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek
-//!www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos
-//!www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos
-//!</pre>Please note that this <b>must<b> be <a href=$configurl/regexp.html>Regular Expressions</a>.
+//! External filters to run if the regular expression match. <p>Examples (this one works): <pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br /></pre>Please note that this <b>must<b> be regular expressions.</p>
 //!  type: TYPE_TEXT_FIELD|VAR_MORE
 //!  name: External filter regular expressions
 //

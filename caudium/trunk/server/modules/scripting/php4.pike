@@ -353,8 +353,8 @@ void create(object conf)
 
   defvar("extra_env", "", "Extra environment variables", TYPE_TEXT_FIELD,
 	 "Extra variables to be sent to the script, format:<pre>"
-	 "NAME=value\n"
-	 "NAME=value\n"
+	 "NAME=value<br>"
+	 "NAME=value"
 	 "</pre>Please note that the standard variables will have higher "
 	 "priority.");
 
@@ -383,9 +383,7 @@ void create(object conf)
 //!  name: Parse RXML in PHP-scripts
 //
 //! defvar: extra_env
-//! Extra variables to be sent to the script, format:<pre>NAME=value
-//!NAME=value
-//!</pre>Please note that the standard variables will have higher priority.
+//! Extra variables to be sent to the script, format:<pre>NAME=value<br />NAME=value</pre>Please note that the standard variables will have higher priority.
 //!  type: TYPE_TEXT_FIELD
 //!  name: Extra environment variables
 //

@@ -63,10 +63,10 @@ void create()
 	 TYPE_TEXT_FIELD, 
 	 "This is file extension "
 	 "to content type mapping. The format is as follows:\n"
-	 "<pre>extension type encoding\ngif image/gif\n"
-	 "gz STRIP application/gnuzip\n</pre>"
-	 "For a list of types, see <a href=ftp://ftp.isi.edu/in-"
-	 "notes/iana/assignments/media-types/media-types>ftp://ftp"
+	 "<pre>extension type encoding<br />gif image/gif<br />"
+	 "gz STRIP application/gnuzip</pre>"
+	 "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
+	 "notes/iana/assignments/media-types/media-types\">ftp://ftp"
 	 ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
   defvar("default", "application/octet-stream", "Default content type",
 	 TYPE_STRING, 
@@ -142,10 +142,7 @@ int may_disable()
 
 //! defvar: exts
 //! This is file extension to content type mapping. The format is as follows:
-//!<pre>extension type encoding
-//!gif image/gif
-//!gz STRIP application/gnuzip
-//!</pre>For a list of types, see <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types>ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types</a>
+//!<pre>extension type encoding<br />gif image/gif<br />gz STRIP application/gnuzip</pre>For a list of types, see <a href="ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types">ftp://ftp.isi.edu/in-notes/iana/assignments/media-types/media-types</a>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Extensions
 //

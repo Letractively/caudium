@@ -107,7 +107,7 @@ void create()
   defvar("lazy_entity_end", 0, "Parse options: Lazy entity end",
 	 TYPE_FLAG,
 	 "Normally, the parser search indefinitely for the entity end "
-	 "character (i.e. ';'). When this flag is set, the characters '&mp;', "
+	 "character (i.e. ';'). When this flag is set, the characters &amp;"
 	 "'&lt;', '&gt;', '\"', \"'\", and any whitespace breaks the search "
 	 "for the entity end, and the entity text is then  ignored, i.e. "
 	 "treated as data. ");
@@ -598,7 +598,7 @@ mapping query_tag_callers() {
 //!  name: Parse options: Lazy argument end
 //
 //! defvar: lazy_entity_end
-//! Normally, the parser search indefinitely for the entity end character (i.e. ';'). When this flag is set, the characters '&mp;', '&lt;', '&gt;', '"', "'", and any whitespace breaks the search for the entity end, and the entity text is then  ignored, i.e. treated as data. 
+//! Normally, the parser search indefinitely for the entity end character (i.e. ';'). When this flag is set, the characters &amp;'&lt;', '&gt;', '"', "'", and any whitespace breaks the search for the entity end, and the entity text is then  ignored, i.e. treated as data. 
 //!  type: TYPE_FLAG
 //!  name: Parse options: Lazy entity end
 //

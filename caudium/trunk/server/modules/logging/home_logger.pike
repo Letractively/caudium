@@ -150,34 +150,34 @@ string create()
 	 
 	 "What format to use for logging. The syntax is:\n"
 	 "<pre>"
-	 "response-code or *: Log format for that response acode\n\n"
+	 "response-code or *: Log format for that response acode<br /><br />"
 	 "Log format is normal characters, or one or more of the "
-	 "variables below:\n"
-	 "\n"
-	 "\\n \\t \\r       -- As in C, newline, tab and linefeed\n"
-	 "$char(int)     -- Insert the (1 byte) character specified by the integer.\n"
-	 "$wchar(int)    -- Insert the (2 byte) word specified by the integer.\n"
-	 "$int(int)      -- Insert the (4 byte) word specified by the integer.\n"
-	 "$^             -- Supress newline at the end of the logentry\n"
-	 "$host          -- The remote host name, or ip number.\n"
-	 "$ip_number     -- The remote ip number.\n"
-	 "$bin-ip_number -- The remote host id as a binary integer number.\n"
-	 "\n"
-	 "$cern_date     -- Cern Common Log file format date.\n"
-       "$bin-date      -- Time, but as an 32 bit iteger in network byteorder\n"
-	 "\n"
-	 "$method        -- Request method\n"
-	 "$resource      -- Resource identifier\n"
-	 "$protocol      -- The protocol used (normally HTTP/1.0)\n"
-	 "$response      -- The response code sent\n"
-	 "$bin-response  -- The response code sent as a binary short number\n"
-	 "$length        -- The length of the data section of the reply\n"
-       "$bin-length    -- Same, but as an 32 bit iteger in network byteorder\n"
-	 "$referer       -- the header 'referer' from the request, or '-'.\n"
-      "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
-	 "$user          -- the name of the auth user used, if any\n"
-	 "$user_id       -- A unique user ID, if cookies are supported,\n"
-	 "                  by the client, otherwise '0'\n"
+	 "variables below:<br />"
+	 "<br />"
+	 "\\n \\t \\r       -- As in C, newline, tab and linefeed<br />"
+	 "$char(int)     -- Insert the (1 byte) character specified by the integer.<br />"
+	 "$wchar(int)    -- Insert the (2 byte) word specified by the integer.<br />"
+	 "$int(int)      -- Insert the (4 byte) word specified by the integer.<br />"
+	 "$^             -- Supress newline at the end of the logentry<br />"
+	 "$host          -- The remote host name, or ip number.<br />"
+	 "$ip_number     -- The remote ip number.<br />"
+	 "$bin-ip_number -- The remote host id as a binary integer number.<br />"
+	 "<br />"
+	 "$cern_date     -- Cern Common Log file format date.<br />"
+       "$bin-date      -- Time, but as an 32 bit iteger in network byteorder<br />"
+	 "<br />"
+	 "$method        -- Request method<br />"
+	 "$resource      -- Resource identifier<br />"
+	 "$protocol      -- The protocol used (normally HTTP/1.0)<br />"
+	 "$response      -- The response code sent<br />"
+	 "$bin-response  -- The response code sent as a binary short number<br />"
+	 "$length        -- The length of the data section of the reply<br />"
+       "$bin-length    -- Same, but as an 32 bit iteger in network byteorder<br />"
+	 "$referer       -- the header 'referer' from the request, or '-'.<br />"
+      "$user_agent    -- the header 'User-Agent' from the request, or '-'.<br /><br />"
+	 "$user          -- the name of the auth user used, if any<br />"
+	 "$user_id       -- A unique user ID, if cookies are supported,<br />"
+	 "                  by the client, otherwise '0'<br />"
 	 "</pre>");
 
   
@@ -491,36 +491,7 @@ mixed log(object id, mapping file)
 //
 //! defvar: LogFormat
 //! What format to use for logging. The syntax is:
-//!<pre>response-code or *: Log format for that response acode
-//!
-//!Log format is normal characters, or one or more of the variables below:
-//!
-//!\n \t \r       -- As in C, newline, tab and linefeed
-//!$char(int)     -- Insert the (1 byte) character specified by the integer.
-//!$wchar(int)    -- Insert the (2 byte) word specified by the integer.
-//!$int(int)      -- Insert the (4 byte) word specified by the integer.
-//!$^             -- Supress newline at the end of the logentry
-//!$host          -- The remote host name, or ip number.
-//!$ip_number     -- The remote ip number.
-//!$bin-ip_number -- The remote host id as a binary integer number.
-//!
-//!$cern_date     -- Cern Common Log file format date.
-//!$bin-date      -- Time, but as an 32 bit iteger in network byteorder
-//!
-//!$method        -- Request method
-//!$resource      -- Resource identifier
-//!$protocol      -- The protocol used (normally HTTP/1.0)
-//!$response      -- The response code sent
-//!$bin-response  -- The response code sent as a binary short number
-//!$length        -- The length of the data section of the reply
-//!$bin-length    -- Same, but as an 32 bit iteger in network byteorder
-//!$referer       -- the header 'referer' from the request, or '-'.
-//!$user_agent    -- the header 'User-Agent' from the request, or '-'.
-//!
-//!$user          -- the name of the auth user used, if any
-//!$user_id       -- A unique user ID, if cookies are supported,
-//!                  by the client, otherwise '0'
-//!</pre>
+//!<pre>response-code or *: Log format for that response acode<br /><br />Log format is normal characters, or one or more of the variables below:<br /><br />\n \t \r       -- As in C, newline, tab and linefeed<br />$char(int)     -- Insert the (1 byte) character specified by the integer.<br />$wchar(int)    -- Insert the (2 byte) word specified by the integer.<br />$int(int)      -- Insert the (4 byte) word specified by the integer.<br />$^             -- Supress newline at the end of the logentry<br />$host          -- The remote host name, or ip number.<br />$ip_number     -- The remote ip number.<br />$bin-ip_number -- The remote host id as a binary integer number.<br /><br />$cern_date     -- Cern Common Log file format date.<br />$bin-date      -- Time, but as an 32 bit iteger in network byteorder<br /><br />$method        -- Request method<br />$resource      -- Resource identifier<br />$protocol      -- The protocol used (normally HTTP/1.0)<br />$response      -- The response code sent<br />$bin-response  -- The response code sent as a binary short number<br />$length        -- The length of the data section of the reply<br />$bin-length    -- Same, but as an 32 bit iteger in network byteorder<br />$referer       -- the header 'referer' from the request, or '-'.<br />$user_agent    -- the header 'User-Agent' from the request, or '-'.<br /><br />$user          -- the name of the auth user used, if any<br />$user_id       -- A unique user ID, if cookies are supported,<br />                  by the client, otherwise '0'<br /></pre>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Logging Format
 //
