@@ -213,7 +213,7 @@ class Dir
     if (fs && !fs->isreg)
       return 0;
         
-    Stdio.File ret = Stdio.File(fname, mode ? mode : "rwc");
+    Stdio.File ret = Stdio.File(my_dir + fname, mode ? mode : "rwc");
 
     if (ret && !fs)
       chmod(my_dir + fname, file_mode);
@@ -671,10 +671,7 @@ class Config
     if (!regions[region])
       regions[region] = ([]);
         
-    regions[region][var] = ([
-      "name" : var,
-      "value" : value
-    ]);
+    regions[region][var] = value;
 
     return 1;
   }
@@ -708,7 +705,7 @@ class Config
     int ret = walk_children(element);
 
     creg = 0;
-        
+    
     return ret;
   }
 
@@ -725,15 +722,13 @@ class Config
       return 1;
     }
 
-    cvar = ([
-      "name" : attrs->name
-    ]);
+    cvar = ([]);
 
     carray = 0;
         
     int ret = walk_children(element);
 
-    creg[attrs->name] = cvar;
+    creg[attrs->name] = arrayp(cvar->value) ? cvar->value[0] : cvar->value;
         
     return ret;
   }
