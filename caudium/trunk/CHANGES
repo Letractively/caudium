@@ -72,3 +72,4 @@ Changes in Caudium 1.1 since CVS branching
 - Removed the bug-causing directory override feature. If you need to list
   directories, don't put an index.html in it.
 - Fixed handling of precache modules in ip-less virtual servers.
+- Added timeout logic to http protocols (from Caudium 1.0).
