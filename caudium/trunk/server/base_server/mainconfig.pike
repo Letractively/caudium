@@ -28,15 +28,12 @@ inherit "config/draw_things";
 // import Array;
 // import Stdio;
 
-string status_row(object node);
-string display_tabular_header(object node);
-object get_template(string t);
-
 /* Work-around for Simulate.perror */
 #define perror roxen_perror
 
 #include <confignode.h>
 #include <module.h>
+#include <mainconfig_themeable.h>
 
 #define dR "ff"
 #define dG "ff"
@@ -54,6 +51,8 @@ object get_template(string t);
 
 int bar=time(1);
 multiset changed_port_servers;
+
+object cif = ThemedConfig( caudium->QUERY(cif_theme) );
 
 class Node {
   inherit "struct/node";
@@ -190,7 +189,6 @@ void create()
   build_root(root);
   init_ip_list();
   call_out(init_ip_list, 0);
-  
 }
 
 // Note stringification of ACTION and ALIGN
@@ -203,12 +201,6 @@ void create()
 
 #endif /* 0 */
 
-
-string default_head(string h, string|void save)
-{
-  return ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">"
-	  "<head><title>"+h+"</title>\n<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n</head>\n"+ BODY+"\n");
-}
 
 object find_node(string l)
 { 
@@ -255,7 +247,7 @@ static private constant default_ports = ([
 
 mapping verify_changed_ports(object id, object o)
 {
-  string res = default_head("Caudium Config: Setting Server URL") +
+  string res = cif->head("Caudium Config: Setting Server URL") + cif->body() +
     ("<h1>Set the correct server URL</h1>"
      "As you have changed the open ports in one or more servers "
      "you might have to adjust the default server URL(s). Check the "
@@ -352,13 +344,14 @@ mapping verify_changed_ports(object id, object o)
 
 mapping save_it(object id, object o)
 {
-  changed_port_servers = (<>);
-  root->save();
-  caudium->update_supports_from_caudium_net();
-  caudium->initiate_configuration_port( 0 );
-  id->referrer = CONFIG_URL + o->path(1);
-  if(sizeof(changed_port_servers))
-    return verify_changed_ports(id, o);
+    cif = ThemedConfig( caudium->QUERY(cif_theme) );
+    changed_port_servers = (<>);
+    root->save();
+    caudium->update_supports_from_caudium_net();
+    caudium->initiate_configuration_port( 0 );
+    id->referrer = CONFIG_URL + o->path(1);
+    if(sizeof(changed_port_servers))
+	return verify_changed_ports(id, o);
 }
 
 
@@ -649,7 +642,7 @@ string configuration_docs()
 
 string new_configuration_form()
 {
-  return (default_head("") + status_row(root) +
+  return ( cif->head( "" ) + cif->body()  + cif->status_row(root) +
 	  "<h2>Add a new virtual server</h2>\n"
 	  "<table bgcolor=#000000><tr><td >\n"
 	  "<table cellpadding=3 cellspacing=1 bgcolor=lightblue><tr><td>\n"
@@ -775,13 +768,13 @@ string new_module_form(object id, object node)
   
   switch(caudium->QUERY(ModuleListType)) {
    case "Compact":
-    res = (default_head("Add Modules")+"\n\n"+
- 	   status_row(node)+
- 	   "<table cellpadding=10><tr><td colspan=2>"
- 	   "<h2>Select one or more modules to add to this virtual server.</h2>\n"
- 	   "</td></tr><tr valign=top><td>"
- 	   "<form method=get action=\"/(addmodule)"+node->path(1)+"\">"
- 	   "<select multiple size=10 name=_add_new_modules>");
+    res = ( cif->head("Add Modules") + cif->body() + "\n\n"+
+	    cif->status_row(node)+
+	    "<table cellpadding=10><tr><td colspan=2>"
+	    "<h2>Select one or more modules to add to this virtual server.</h2>\n"
+	    "</td></tr><tr valign=top><td>"
+	    "<form method=get action=\"/(addmodule)"+node->path(1)+"\">"
+	    "<select multiple size=10 name=_add_new_modules>");
      
     foreach(mods, q)
     {
@@ -807,8 +800,8 @@ string new_module_form(object id, object node)
     break;
     
    default:
-    res = default_head("Add a module")+"\n\n"+
-      status_row(node)+
+    res = cif->head("Add a module")+cif->body()+"\n\n"+
+      cif->status_row(node)+
       //	  display_tabular_header(node)+
       "<table><tr><td>&nbsp;<td><h2>Select a module to add "
       "from the list below. You click on it's header to add it.</h2>";
@@ -951,14 +944,14 @@ mapping new_configuration(object id)
     return http_redirect(CONFIG_URL+id->not_query[1..]+"?"+bar++);
   
   if(!id->variables->name)
-    return stores(default_head("Bad luck")+
+    return stores(cif->head("Bad luck") + cif->body() +
 		  "<blockquote><h1>No configuration name?</h1>"
 		  "Either you entered no name, or your WWW-browser "
 		  "failed to include it in the request</blockquote>");
   
   id->variables->name=(replace(id->variables->name,"\000"," ")/" "-({""}))*" ";
   if(!low_enable_configuration(id->variables->name, id->variables->type))
-    return stores(default_head("Bad luck") +
+    return stores(cif->head("Bad luck") + cif->body() +
 		  "<blockquote><h1>Illegal configuration name</h1>"
 		  "The name of the configuration must contain characters"
 		  " other than space and tab, it should not end with "
@@ -1028,7 +1021,7 @@ mapping initial_configuration(object id)
     }
   }
   
-  res = default_head("Welcome to Caudium " +
+  res = cif->head("Welcome to Caudium " + cif->body() +
 		     caudium->__caudium_version__ + "." + caudium->__caudium_build__);
 
   res += Stdio.read_bytes("etc/welcome.html");
@@ -1071,62 +1064,6 @@ string extract_almost_top(object node)
   for(;node && (node->up!=root);node=node->up);
   if(!node) return "";
   return node->path(1);
-}
-
-
-
-
-string tablist(array(string) nodes, array(string) links, int selected)
-{
-    /*
-    array res = ({});
-    for(int i=0; i<sizeof(nodes); i++)
-	if(i!=selected)
-	    PUSH("<a href=\""+links[i]+"\"><img alt=\"_/"+
-		 nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/unselected/"+
-		 replace(nodes[i]," ","%20")+"\" border=0></a>");
-	else
-	    PUSH("<a href=\""+links[i]+"\"><b><img alt=\"_/"+
-		 nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/selected/"+
-		 replace(nodes[i]," ","%20")+"\" border=0></b></a>");
-    //PUSH("<br>");
-    return res*"";
-    */
-
-    string tab_0 = "<td rowspan=2><img border=0 alt='' src='/image/unit.gif' width=24 height=24></td>";
-    string tab_1 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-1.png'></td>";
-    string tab_2 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-2.png'></td>";
-    string tab_3 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-3.png'></td>";
-    string tab_4 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-4.png'></td>";
-    string tab_5 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-5.png'></td>";
-    string gap = "<td bgcolor='#ffffff'><img border=0 alt='' src='/image/unit.gif'></td>";
-    array magic = ({ });
-    array link = ({ });
-    for( int i = 0; i < sizeof( nodes ); i++ ) {
-	if ( i == selected ) {
-	    // This element is selected!
-	    link += ({ "<td bgcolor='#ffffff'>&nbsp;<a href='" + links[ i ] + "'><b>" + nodes[ i ] + "</b></a>&nbsp;</td>" }) ;
-	} else {
-            // This element is not!
-	    link += ({ "<td bgcolor='#003366'>&nbsp;<a href='" + links[ i ] + "'><b><font color='#eeeeee'>" + nodes[ i ] + "</font></b></a>&nbsp;</td>" });
-	}
-	magic += ({ ({ gap }) });
-    }
-    magic = magic * ({ tab_5 });
-    magic = ({ tab_4 }) + magic + ({ tab_2 });
-    if ( selected != -1 ) {
-	if ( selected == 0 ) {
-	    magic[ 0 ] = tab_0;
-	} else {
-	    magic[ ( selected * 2 ) ] = tab_1;
-	}
-	if ( selected == sizeof( nodes ) - 1 ) {
-	    magic[ ( selected * 2 ) + 2 ] = tab_3;
-	} else {
-	    magic[ ( selected * 2 ) + 2 ] = tab_4;
-	}
-    }
-    return "<table align='right' border=0 cellpadding=0 cellspacing=0><tr>" + ( magic * "" ) + "</tr><tr>" + ( link * "" ) + "</tr></table><br><br>";
 }
 
 mapping (string:string) selected_nodes =
@@ -1176,7 +1113,7 @@ string display_tabular_header(object node)
 
     links[search(tabs,s)]="/"+s+"/"+"?"+(bar++);
   }
-  return tablist(tab_names, links, search(tabs,s));
+  return cif->tablist(tab_names, links, search(tabs,s));
 }
 
 // Return the number of unfolded nodes on the level directly below the passed
@@ -1261,6 +1198,35 @@ mapping auto_image(string in, object id)
    case "unselected":
      i=draw_unselected_button(value,button_font);
      break;
+
+  case "tab0":
+      i=cif->tab_0();
+      break;
+
+  case "tab1":
+      i=cif->tab_1();
+      break;
+
+  case "tab2":
+      i=cif->tab_2();
+      break;
+
+  case "tab3":
+      i=cif->tab_3();
+      break;
+
+  case "tab4":
+      i=cif->tab_4();
+      break;
+
+  case "tab5":
+      i=cif->tab_5();
+      break;
+
+  case "cif_logo":
+      i=cif->logo();
+      break;
+
   }
 
   if (!i) return 0;
@@ -1352,46 +1318,6 @@ string dn(object node)
   return s;
 }
 
-string describe_node_path(object node)
-{
-    string q="/";
-    array res = ({ });
-    int cnt;
-    /* This appears to have always been buggy, it's fixed now */
-    array nodes = ( node->path( 1 ) / "/" ) - ({ "" });
-    if ( sizeof( nodes ) > 0 ) {
-	foreach( nodes, string p)
-	{
-	    q+=p+"/";
-	    res += ({ "<a href=\""+q+"?"+bar+++"\"><font color='#eeeeee'>"+
-	              dn(find_node(http_decode_string(q[..strlen(q)-2])))+
-	              "</font></a>" });
-	}
-	return (res * " -&gt; ");
-    }
-}
-
-string status_row(object node)
-{
-    int open_caudium_link_in_new_window = 1;
-    string node_path = describe_node_path( node );
-    return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>"
-             "<tr>"
-	     "<td colspan=4 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=2 height=6></td>"
-	     "</tr>"
-	     "<tr>"
-	     "<td bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=3 height=2></td>"
-	     "<td align=bottom align=left><a href='http://www.caudium.net/'" + (open_caudium_link_in_new_window?" target='_blank'":"") + "><img border=0 src='/image/caudium-icon-bordered.png' alt='Caudium'></a></td>"
-	     "<td width='100%' align=right height=33 valign=bottom bgcolor='#003366'>"
-	     "<font size='-1' color='#ffffff'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>"
-	     "<td bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=3 height=6></td>"
-	     "</tr>"
-             "<tr>"
-	     "<td colspan=4 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=2 height=3></td>"
-	     "</tr>"
-	     "</table>\n" );
-}
-
 mapping logged = ([ ]);
 
 void check_login(object id)
@@ -1459,10 +1385,11 @@ mapping configuration_parse(object id)
     // We also need to determine wether this is the full or the
     // lobotomized international version.
 
-    return http_string_answer(default_head("Caudium " +
+    return http_string_answer(cif->head("Caudium " +
 					   caudium->__caudium_version__ + "." +
-					   caudium->__caudium_build__)+
-			      status_row(root)+
+					caudium->__caudium_build__)+
+                              cif->body() +
+			      cif->status_row(root)+
 			      display_tabular_header(root)+
 			      Stdio.read_bytes("etc/config.html"),"text/html");
   }
@@ -1622,8 +1549,8 @@ mapping configuration_parse(object id)
       /* This only asks "do you really want to...", it does not delete
        * the node */
     case "delete":	
-     PUSH(default_head("Caudium Configuration")+
-	  status_row(o));
+     PUSH(cif->head("Caudium Configuration")+cif->body()+
+	  cif->status_row(o));
 //     PUSH("<hr noshade>");
        
       switch(o->type)
@@ -1869,10 +1796,10 @@ mapping configuration_parse(object id)
 
   check_login(id);
   
-  PUSH(default_head("Caudium configuration"));
+  PUSH(cif->head("Caudium configuration")+cif->body());
 //  PUSH("<table><tr><td>&nbsp;<td>"
   PUSH("<dl>\n");
-  PUSH("\n"+status_row(o)+"\n"+display_tabular_header( o )+"\n");
+  PUSH("\n"+cif->status_row(o)+"\n"+display_tabular_header( o )+"\n");
   PUSH("<p>");
   if(o->up != root && o->up)
     PUSH("<a href=\""+ o->up->path(1)+"?"+(bar++)+"\">"
