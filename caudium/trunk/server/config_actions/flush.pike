@@ -67,7 +67,9 @@ mixed page_1(object id, object mc)
 {
   string ret = "";
   if(CHECKED(user_cache))   ret += "The userdb cache<br>";
+#if 0
   if(CHECKED(memory_cache)) ret += "The memory cache<br>";    
+#endif
   if(CHECKED(dir_cache))    ret += "The directory cache<br>";
   if(CHECKED(module_cache)) ret += "The module cache<br>";
   if(CHECKED(gtext_cache)) ret += "The graphical text cache<br>";
@@ -109,12 +111,15 @@ mixed wizard_done(object id, object mc)
 	c->modules["userdb"]->master->read_data();
   }
   
+#if 0
   /* Flush the memory cache. */ 
   if(CHECKED(memory_cache))
   {
     info += ({ "the memory cache" });
     function_object(cache_set)->cache = ([]);
   }
+
+#endif
 
   /* Flush the gtext cache. */ 
   if(CHECKED(gtext_cache))
