@@ -3,7 +3,8 @@ AC_INIT(openssl.c)
 
 AC_CONFIG_HEADER(config.h)
 
-AC_MODULE_INIT()
+dnl AC_MODULE_INIT()
+CAUDIUM_MODULE_INIT()
 
 AC_ARG_WITH(openssl,  [  --with-openssl       enable the openssl-module],[],[with_openssl=yes])
 
