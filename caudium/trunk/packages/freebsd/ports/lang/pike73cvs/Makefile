@@ -53,8 +53,6 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-oob \
 		 --with-poll \
 		 --with-max-fd=60000 \
-		 --without-relocatable-dumped-modules \
-		 --without-libpanda \
 		 --without-perl \
 		 --with-gmp \
 		 --with-zlib \
@@ -63,9 +61,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-jpeg=${PREFIX} \
 		 --with-tiff \
 		 --with-gdbm \
+		 --without-java \
 		 --without-ssleay
-#		 --with-gdbm=${PREFIX} \
-#		 --without-relocatable-dumped-modules \
 
 .include <bsd.port.pre.mk>
 
@@ -101,13 +98,34 @@ WITH_SANE=	yes
 WITH_MESA=	yes
 .endif
 
-.if exists(${LOCALBASE}/lib/libpdf.so.4)
+.if exists(${LOCALBASE}/lib/libpdf.so.4) || exists(${LOCALBASE}/lib/libpanda.so.0)
 WITH_PDF=	yes
+.endif
+
+.if exists(${LOCALBASE}/lib/librsvg-2.so.2)
+WITH_SVG2=	yes
 .endif
 
 .if defined(WITH_MOST)
 WITH_TTF=	yes
 WITH_FREETYPE=	yes
+.endif
+
+.if defined(WITHOUT_RELOCATABLE_DUMPED_MODULES)
+CONFIGURE_ARGS+= --without-relocatable-dumped-modules
+.else
+CONFIGURE_ARGS+= --with-relocatable-dumped-modules
+.endif
+
+.if defined(WITH_EXPIREMENTAL_FEATURES)
+CONFIGURE_ARGS+= --with-computed-goto \
+		 --with-pg \
+		 --with-long-long-int \
+		 --with-long-int \
+		 --with-short-int \
+		 --with-keypair-loop \
+		 --without-lock \
+		 --with-new-multisets
 .endif
 
 .if defined(WITH_OPTIMIZED_CFLAGS)
@@ -175,10 +193,18 @@ CONFIGURE_ARGS+= --without-sane
 .endif
 
 .if defined(WITH_PDF)
-LIB_DEPENDS+=	pdf.4:${PORTSDIR}/print/pdflib
-CONFIGURE_ARGS+= --with-libpdf
+LIB_DEPENDS+=	pdf.4:${PORTSDIR}/print/pdflib \
+		panda.0:${PORTSDIR}/print/panda
+CONFIGURE_ARGS+= --with-libpdf --with-libpanda
 .else
-CONFIGURE_ARGS+= --without-libpdf
+CONFIGURE_ARGS+= --without-libpdf --without-libpanda
+.endif
+
+.if defined(WITH_SVG2)
+LIB_DEPENDS+=	librsvg-2.2:${PORTSDIR}/graphics/librsvg2
+CONFIGURE_ARGS+= --with-svg
+.else
+CONFIGURE_ARGS+= --without-svg
 .endif
 
 .if defined(HAVE_MESA) || defined(WITH_MESA)
