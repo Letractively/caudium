@@ -53,18 +53,22 @@ constant cvs_version = "$id: cache_manager.pike,v 1.0 2001/12/26 18:21:00 james_
 program dcache = (program)"disk_cache";
 program rcache = (program)"ram_cache";
 program cache = (program)"cache";
+program client_cache = (program)"client_cache";
 int max_ram_size;
 int max_disk_size;
 int vigilance;
 mapping caches;
+mapping client_caches;
 string path;
 int default_ttl;
 int default_halflife;
 int _really_started;
 object loader;
+program pipe = Caudium.nbio;
 
 void create( object _loader ) {
   caches = ([ ]);
+  client_caches = ([ ]);
   loader = _loader;
 }
 
@@ -249,7 +253,7 @@ void watch_halflife() {
   call_out( watch_halflife, 3600 );
 }
 
-object get_cache( void|string namespace ) {
+object get_cache( void|string namespace, void|int client ) {
   really_start();
 	// create a cache object using the namespace given and then store
 	// it in a mapping and return the object to the caller, thus allowing
@@ -264,7 +268,18 @@ object get_cache( void|string namespace ) {
   if ( ! caches[ namespace ] ) {
     create_cache( namespace );
   }
-  return caches[ namespace ];
+  if ( ! client ) {
+    if ( client_caches[ namespace ] ) {
+      return client_caches[ namespace ];
+    }
+    else {
+      client_caches += ([ namespace : client_cache( caches[ namespace ], get_cache, namespace ) ]);
+      return client_caches[ namespace ];
+    }
+  }
+  else {
+    return caches[ namespace ];
+  }
 }
 
 void destroy() {
