@@ -423,9 +423,9 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
     args->href += "&amp;navbarelement=" + args->countpageloop;
     m_delete(args, "countpageloop");
   }
-  // we need to replace &amp; by & here because we need the entity to be parsed
-  // by emit
-  return replace(Caudium.make_container("a", args, contents), "&amp;", "&");
+  // we must not encode & by &amp; automatically by make_xml_container 
+  // here because we need the entity to be parsed by emit
+  return Caudium.make_html_container("a", args, contents);
 }
 
 // Code for <navbar></> nested loop containers
