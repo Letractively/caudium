@@ -1,3 +1,10 @@
+caudium (2:1.0.35-9) unstable; urgency=low
+
+  * Corrected the description of the caudium-dev package 
+    (closes: #100200)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 18 Jun 2001 21:03:53 +0200
+
 caudium (2:1.0.35-8) unstable; urgency=low
 
   * Added a new -dev package 
