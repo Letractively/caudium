@@ -348,8 +348,10 @@ class File
                      strerror(errno()));
 
     array(string) contents = (c / "\n")[1..];
+    // we have to encode entities
+    string scontents = replace(contents * "\n",  "&", "&amp;");
 
-    return parse_xml(xml_prolog + (contents * "\n") + xml_epilog);
+    return parse_xml(xml_prolog + scontents + xml_epilog);
   }
 
   // parse the new (Caudium 1.3+) config file format. It is a valid XML
@@ -359,7 +361,10 @@ class File
   {
     object root;
     if (contents)
+    {
       root = Parser.XML.Tree.parse_input(contents);
+      contents = replace(contents, "&amp;", "&");
+    }
     else
       root = Parser.XML.Tree.parse_input(my_file->read());
     if (!root)
