@@ -1263,20 +1263,25 @@ void send_result(mapping|void result)
 #ifdef ENABLE_RAM_CACHE
     if( conf && (misc->cacheable > 0) && file->len > 0)
     {
-      if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
-      {
-	string data = head_string +
-	  (file->file?file->file->read(file->len):
-	   (file->data[..file->len-1]));
-	conf->datacache->set( raw_url, data, 
-			      (["hs":strlen(head_string),
-				"len": file->len,
-				"error": file->error,
-			      ]), 
-			      misc->cacheable );
-	file = ([ "data":data, "len": strlen(data) ]);
-	head_string = "";
-      }
+      string data = head_string +
+        (file->file?file->file->read(file->len):
+        (file->data[..file->len-1]));
+      conf->cache_manager->get_cache()->store(
+        cache_pike(
+	  ({
+	    data,
+	    ([
+	      "hs"    : strlen(head_string),
+	      "len"   : file->len,
+	      "error" : error
+	    ])
+	  }),
+	  sprintf("http2|%s", raw_url)
+	  misc->cacheable
+	)
+      );
+      file = ([ "data":data, "len": strlen(data) ]);
+      head_string = "";
     } 
 #endif
 #if DIRECT_WRITE
@@ -1441,7 +1446,7 @@ void got_data(mixed fdid, string s)
     conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
     array cv;
-    if( misc->cacheable && (cv = conf->datacache->get( raw_url )) )
+    if( misc->cacheable && (cv = conf->cache_manager->get_cache()->retrieve(sprintf("http2:%s", raw_url))) )
     {
       MARK_FD("http2 cached reply");
 
