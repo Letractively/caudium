@@ -22,17 +22,17 @@
 //! module: Filesystem
 //!  This is a virtual filesystem, use it to make files available to
 //!  the users of your WWW-server. If you want to serve any 'normal'
-//!  files from your server, you will have to have atleast one filesystem.
+//!  files from your server, you will have to have at least one filesystem.
+//!  A file system mounted on '/' is what other servers generally call
+//!  <b>DOCUMENT ROOT</b>. The whole concept is somewhat different in
+//!  Caudium however, since you can have any number of file systems mounted in
+//!  different locations.
 //! inherits: module
 //! inherits: caudiumlib
 //! inherits: socket
 //! type: MODULE_LOCATION
 //! cvs_version: $Id$
 //
-
-// This is a virtual "file-system".
-// It will be located somewhere in the name-space of the server.
-// Also inherited by some of the other filesystems.
 
 inherit "module";
 inherit "caudiumlib";
@@ -48,11 +48,15 @@ constant thread_safe=1;
 
 constant module_type = MODULE_LOCATION;
 constant module_name = "Filesystem";
-constant module_doc  = "This is a virtual filesystem, use it to make files available to "+
-     "the users of your WWW-server. If you want to serve any 'normal' "
-      "files from your server, you will have to have atleast one filesystem.";
+constant module_doc  = "This is a virtual filesystem, use it to make files available to "
+"the users of your WWW-server. If you want to serve any 'normal' "
+"files from your server, you will have to have at least one filesystem."
+"A file system mounted on '/' is what other servers generally call "
+"<b>DOCUMENT ROOT</b>. The whole concept is somewhat different in "
+"Caudium however, since you can have any number of file systems mounted in "
+"different locations. ";
 constant module_unique = 0;
-
+#define FILESYSTEM_DEBUG
 #if DEBUG_LEVEL > 20
 # ifndef FILESYSTEM_DEBUG
 #  define FILESYSTEM_DEBUG
@@ -77,10 +81,10 @@ string status()
 	  (accesses?"<b>Normal files</b>: "+accesses+"<br>"
 	   :"No file accesses<br>")+
 	  (QUERY(put)&&puts?"<b>Puts</b>: "+puts+"<br>":"")+
-	  (QUERY(put)&&mkdirs?"<b>Mkdirs</b>: "+mkdirs+"<br>":"")+
-	  (QUERY(put)&&QUERY(delete)&&moves?
+	  (QUERY(method_mkdir)&&mkdirs?"<b>Mkdirs</b>: "+mkdirs+"<br>":"")+
+	  (QUERY(method_mv)&&moves?
 	   "<b>Moved files</b>: "+moves+"<br>":"")+
-	  (QUERY(put)&&chmods?"<b>CHMODs</b>: "+chmods+"<br>":"")+
+	  (QUERY(method_chmod)&&chmods?"<b>CHMODs</b>: "+chmods+"<br>":"")+
 	  (QUERY(delete)&&deletes?"<b>Deletes</b>: "+deletes+"<br>":"")+
 	  (errors?"<b>Permission denied</b>: "+errors
 	   +" (not counting .htaccess)<br>":"")+
@@ -89,63 +93,88 @@ string status()
 
 void create()
 {
-  defvar("mountpoint", "/", "Mount point", TYPE_LOCATION, 
+  defvar("mountpoint", "/", "Paths: Mount point", TYPE_LOCATION, 
 	 "This is where the module will be inserted in the "+
 	 "namespace of your server.");
 
-  defvar("searchpath", "NONE", "Search path", TYPE_DIR,
-	 "This is where the module will find the files in the real "+
-	 "file system");
+  defvar("searchpath", "NONE", "Paths: Search path", TYPE_DIR,
+	 "This is where the module will find the files in the real "
+	 "file system and is equivalent to what is normally referred to as "
+	 "the <b>document root</b>.");
 
+  defvar("fileperm", "0666", "Permissions: Default mode for uploaded files",
+	 TYPE_STRING, "This is the default mode, specified as an octal "
+	 "integer, for uploaded files. The default or specified umask "
+	 "will modify the actual permission of uploaded files.");
+  defvar("dirperm", "0777", "Permissions: Default for created directories",
+	 TYPE_STRING, "This is the default mode, specified in octal "
+	 "integer, for created files. The default or specified umask "
+	 "will modify the actual permission of uploaded files.");
+  defvar("umask", "022", "Permissions: Default umask",
+	 TYPE_STRING, "This is the default umask for creating files and is "
+	 "used as a modified for the default file and directory "
+	 "modes. It can be overridden by using the 'SITE UMASK' "
+	 "command in FTP.");
+  
 #ifdef COMPAT
   defvar("html", 0, "All files are really HTML files", TYPE_FLAG|VAR_EXPERT,
 	 "If you set this variable, the filesystem will _know_ that all files "
 	 "are really HTML files. This might be useful now and then.");
 #endif
 
-  defvar(".files", 0, "Show hidden files", TYPE_FLAG|VAR_MORE,
+  defvar(".files", 0, "Directory Settings: Show hidden files", TYPE_FLAG|VAR_MORE,
 	 "If set, hidden files will be shown in dirlistings and you "
 	 "will be able to retrieve them.");
 
-  defvar("dir", 1, "Enable directory listings per default", TYPE_FLAG|VAR_MORE,
+  defvar("dir", 1, "Directory Settings: Enable directory listings per default", TYPE_FLAG|VAR_MORE,
 	 "If set, you have to create a file named .www_not_browsable ("
 	 "or .nodiraccess) in a directory to disable directory listings."
 	 " If unset, a file named .www_browsable in a directory will "
 	 "_enable_ directory listings.\n");
 
-  defvar("tilde", 0, "Show backup files", TYPE_FLAG|VAR_MORE,
+  defvar("tilde", 0, "Directory Settings: Show backup files", TYPE_FLAG|VAR_MORE,
 	 "If set, files ending with '~' or '#' or '.bak' will "+
 	 "be shown in directory listings");
 
-  defvar("put", 0, "Handle the PUT method", TYPE_FLAG,
-	 "If set, PUT can be used to upload files to the server.");
 
-  defvar("delete", 0, "Handle the DELETE method", TYPE_FLAG,
-	 "If set, DELETE can be used to delete files from the "
-	 "server.");
+  /* Methods to allow */
+  defvar("put", 0, "Allowed Access Methods: PUT", TYPE_FLAG,
+	 "If set, allow use of the PUT method, which is used for file "
+	 "uploads. ");
+  defvar("delete", 0, "Allowed Access Methods: DELETE", TYPE_FLAG,
+	 "If set, allow use of the DELETE method, which is used for file "
+	 "deletion.");
+  defvar("method_mkdir", 0, "Allowed Access Methods: MKDIR", TYPE_FLAG,
+	 "If set, allow use of the MKDIR method, enabling the ability to "
+	 "the create new directories.");
+  defvar("method_mv", 0, "Allowed Access Methods: MV", TYPE_FLAG,
+	 "If set, allow use of the MV method, which is used for renaming "
+	 "files and directories.");
+  defvar("method_chmod", 0, "Allowed Access Methods: CHMOD", TYPE_FLAG,
+	 "If set, allow use of the CHMOD command, which is used to change "
+	 "file permissions.");
 
-  defvar("check_auth", 1, "Require authentication for modification",
+  defvar("keep_old_perms", 1, "Permissions: Keep old file mode",
+	 TYPE_FLAG, "If true, existing files replaced by an FTP or HTTP "
+	 "upload will keep their previous file mode instead of using the "
+	 "default one. When enabled, the default mode and umask settings "
+	 "(default or specified by the client) won't apply. Pleae note that "
+	 "the user and group won't be retained by setting this flag. ");
+  
+  defvar("check_auth", 1, "Permissions: Require authentication for modification",
 	 TYPE_FLAG,
 	 "Only allow authenticated users to use methods other than "
 	 "GET and POST. If unset, this filesystem will be a _very_ "
 	 "public one (anyone can edit files located on it)");
 
-  defvar("stat_cache", 0, "Cache the results of stat(2)",
+  defvar("access_as_user", 0, "Permissions: Access file as the logged in user",
 	 TYPE_FLAG|VAR_MORE,
-	 "The stat(2) cache might give you a minor speed benefit in "
-	 "serving files, especially if they are served from a remote server "
-	 "using NFS or another networked filesystem. However using the cache "
-	 "can result in failures to reload files and other weird problems. "
-	 "Unless you really need a few extra percent of performance we "
-	 "recommend that you leave this option disabled.");
+	 "Accesses to a file will be made  as the logged in user.\n"
+	 "This is useful for named ftp, or if you want higher security.<br>\n"
+	 "NOTE: When running a threaded server requests that don't do any "
+	 "modification will be done as the server uid/gid.");
 
-  defvar("access_as_user", 0, "Access file as the logged in user",
-	 TYPE_FLAG|VAR_MORE,
-	 "EXPERIMENTAL. Access file as the logged in user.\n"
-	 "This is useful for eg named-ftp.<br>\n"
-	 "NOTE : Not possible when running in a threaded server.");
-
-  defvar("no_symlinks", 0, "Forbid access to symlinks", TYPE_FLAG|VAR_MORE,
+  defvar("no_symlinks", 0, "Permissions: Forbid access to symlinks", TYPE_FLAG|VAR_MORE,
 	 "EXPERIMENTAL.\n"
 	 "Forbid access to paths containing symbolic links.<br>\n"
 	 "NOTE : This can cause *alot* of lstat system-calls to be performed "
@@ -154,19 +183,21 @@ void create()
 
 
 string path;
-int stat_cache;
-
+int dirperm, fileperm, default_umask;
 void start()
 {
 #ifdef THREADS
   if(QUERY(access_as_user))
-    report_warning("It is not possible to use 'Access as user' when "
-		   "running with threads. Remove -DENABLE_THREADS from "
-		   "the start script if you really need this function\n");
+    report_warning("When running in threaded mode,  'Access as user' will only "
+		   "be used for requests that do some kind of modification. "
+		   "If you want reading to be done as the user as well, you "
+		   "need to run with threads disabled.");
 #endif
-     
+  sscanf(QUERY(dirperm),  "%o", dirperm);
+  sscanf(QUERY(fileperm), "%o", fileperm);
+  sscanf(QUERY(umask),    "%o", default_umask);
+  
   path = QUERY(searchpath);
-  stat_cache = QUERY(stat_cache);
 #ifdef FILESYSTEM_DEBUG
   perror("FILESYSTEM: Online at "+QUERY(mountpoint)+" (path="+path+")\n");
 #endif
@@ -181,10 +212,6 @@ string query_location()
 mixed stat_file( mixed f, mixed id )
 {
   array fs;
-  if(stat_cache && !id->pragma["no-cache"] &&
-     (fs=cache_lookup("stat_cache",path+f)))
-    return fs[0];
-
 #ifndef THREADS
   object privs;
   if (((int)id->misc->uid) && ((int)id->misc->gid) &&
@@ -198,9 +225,6 @@ mixed stat_file( mixed f, mixed id )
 #ifndef THREADS
   privs = 0;
 #endif
-  if(!stat_cache)
-    return fs;
-  cache_set("stat_cache", path+f, ({fs}));
   return fs;
 }
 
@@ -223,7 +247,6 @@ array find_dir( string f, object id )
 {
   mixed ret;
   array dir;
-
   object privs;
 
 #ifndef THREADS
@@ -287,25 +310,7 @@ void got_put_data( array (object) id, string data )
     done_with_put( id );
 }
 
-int _file_size(string X,object id)
-{
-  array fs;
-  if(!id->pragma["no-cache"]&&(fs=cache_lookup("stat_cache",(X))))
-  {
-    id->misc->stat = fs[0];
-    return fs[0]?fs[0][ST_SIZE]:-1;
-  }
-  if(fs = file_stat(X))
-  {
-    id->misc->stat = fs;
-    cache_set("stat_cache",(X),({fs}));
-    return fs[ST_SIZE];
-  } else
-    cache_set("stat_cache",(X),({0}));
-  return -1;
-}
-
-#define FILE_SIZE(X) (stat_cache?_file_size((X),id):Stdio.file_size(X))
+#define FILE_SIZE(X) (Stdio.file_size(X))
 
 int contains_symlinks(string root, string path)
 {
@@ -333,6 +338,7 @@ mixed find_file( string f, object id )
   string tmp;
   string oldf = f;
   object privs;
+  array|object st;
 
 #ifdef FILESYSTEM_DEBUG
   roxen_perror("FILESYSTEM: Request for \""+f+"\"\n");
@@ -442,10 +448,10 @@ mixed find_file( string f, object id )
     break;
   
   case "MKDIR":
-    if(!QUERY(put))
+    if(!QUERY(method_mkdir))
     {
       id->misc->error_code = 405;
-      TRACE_LEAVE("MKDIR disallowed (since PUT is disallowed)");
+      TRACE_LEAVE("MKDIR disallowed (method disabled)");
       return 0;
     }    
 
@@ -456,14 +462,12 @@ mixed find_file( string f, object id )
     }
     mkdirs++;
 
-// #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
       (QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Creating directory",
 		  (int)id->misc->uid, (int)id->misc->gid );
     }
-// #endif
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
       privs = 0;
@@ -479,7 +483,7 @@ mixed find_file( string f, object id )
 
     privs = 0;
     if (code) {
-      chmod(f, 0777 & ~(id->misc->umask || 022));
+      chmod(f, dirperm & ~(id->misc->umask || default_umask));
       TRACE_LEAVE("MKDIR: Success");
       TRACE_LEAVE("Success");
       return http_string_answer("Ok");
@@ -507,13 +511,11 @@ mixed find_file( string f, object id )
     puts++;
     
 
-// #ifndef THREADS // Ouch. This is is _needed_. Well well...
     if (((int)id->misc->uid) && ((int)id->misc->gid) &&
       (QUERY(access_as_user))) {
       // NB: Root-access is prevented.
       privs=Privs("Saving file", (int)id->misc->uid, (int)id->misc->gid );
     }
-// #endif
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
       privs = 0;
@@ -524,15 +526,11 @@ mixed find_file( string f, object id )
     }
 
     TRACE_ENTER("PUT: Accepted", 0);
-
+    if(QUERY(keep_old_perms))
+      st = file_stat(f);
     rm( f );
     mkdirhier( f );
-
-    /* Clear the stat-cache for this file */
-    if (stat_cache) {
-      cache_set("stat_cache", f, 0);
-    }
-
+    
     object to = open(f, "wct");
     
     privs = 0;
@@ -544,7 +542,9 @@ mixed find_file( string f, object id )
       TRACE_LEAVE("Failure");
       return 0;
     }
-    chmod(f, 0666 & ~(id->misc->umask || 022));
+    /* Set permission or use the previous permissions */
+    if(st) chmod(f, st[0]);
+    else   chmod(f, fileperm & ~(id->misc->umask || default_umask));
     putting[id->my_fd]=id->misc->len;
     if(id->data && strlen(id->data))
     {
@@ -570,10 +570,10 @@ mixed find_file( string f, object id )
    case "CHMOD":
     // Change permission of a file. 
     
-    if(!QUERY(put))
+    if(!QUERY(method_chmod))
     {
       id->misc->error_code = 405;
-      TRACE_LEAVE("CHMOD disallowed (since PUT is disallowed)");
+      TRACE_LEAVE("CHMOD disallowed");
       return 0;
     }    
 
@@ -601,9 +601,6 @@ mixed find_file( string f, object id )
 
     TRACE_ENTER("CHMOD: Accepted", 0);
 
-    if (stat_cache) {
-      cache_set("stat_cache", f, 0);
-    }
 #ifdef DEBUG
     report_notice(sprintf("CHMODing file "+f+" to 0%o\n", id->misc->mode));
 #endif
@@ -624,10 +621,10 @@ mixed find_file( string f, object id )
    case "MV":
     // This little kluge is used by ftp2 to move files. 
     
-    if(!QUERY(put))
+    if(!QUERY(method_mv))
     {
       id->misc->error_code = 405;
-      TRACE_LEAVE("MV disallowed (since PUT is disallowed)");
+      TRACE_LEAVE("MV disallowed");
       return 0;
     }    
     if(!QUERY(delete) && size != -1)
@@ -678,10 +675,7 @@ mixed find_file( string f, object id )
     TRACE_ENTER("MV: Accepted", 0);
 
     /* Clear the stat-cache for this file */
-    if (stat_cache) {
-      cache_set("stat_cache", movefrom, 0);
-      cache_set("stat_cache", f, 0);
-    }
+
 #ifdef DEBUG
     report_notice("Moving file "+movefrom+" to "+ f+"\n");
 #endif /* DEBUG */
@@ -703,10 +697,10 @@ mixed find_file( string f, object id )
   case "MOVE":
     // This little kluge is used by NETSCAPE 4.5
      
-    if(!QUERY(put))
+    if(!QUERY(method_mv))
     {
       id->misc->error_code = 405;
-      TRACE_LEAVE("MOVE disallowed (since PUT is disallowed)");
+      TRACE_LEAVE("MOVE disallowed");
       return 0;
     }    
     if(size != -1)
@@ -776,10 +770,6 @@ mixed find_file( string f, object id )
     moves++;
 
     /* Clear the stat-cache for this file */
-    if (stat_cache) {
-      cache_set("stat_cache", moveto, 0);
-      cache_set("stat_cache", f, 0);
-    }
 #ifdef DEBUG
     report_notice("Moving file " + f + " to " + moveto + "\n");
 #endif /* DEBUG */
@@ -827,9 +817,6 @@ mixed find_file( string f, object id )
     }
 
     /* Clear the stat-cache for this file */
-    if (stat_cache) {
-      cache_set("stat_cache", f, 0);
-    }
 
     if(!rm(f))
     {
@@ -863,12 +850,27 @@ string query_name()
 //! defvar: mountpoint
 //! This is where the module will be inserted in the 
 //!  type: TYPE_LOCATION
-//!  name: Mount point
+//!  name: Paths: Mount point
 //
 //! defvar: searchpath
-//! This is where the module will find the files in the real 
+//! This is where the module will find the files in the real file system and is equivalent to what is normally referred to as the <b>document root</b>.
 //!  type: TYPE_DIR
-//!  name: Search path
+//!  name: Paths: Search path
+//
+//! defvar: fileperm
+//! This is the default mode, specified as an octal integer, for uploaded files. The default or specified umask will modify the actual permission of uploaded files.
+//!  type: TYPE_STRING
+//!  name: Permissions: Default mode for uploaded files
+//
+//! defvar: dirperm
+//! This is the default mode, specified in octal integer, for created files. The default or specified umask will modify the actual permission of uploaded files.
+//!  type: TYPE_STRING
+//!  name: Permissions: Default for created directories
+//
+//! defvar: umask
+//! This is the default umask for creating files and is used as a modified for the default file and directory modes. It can be overridden by using the 'SITE UMASK' command in FTP.
+//!  type: TYPE_STRING
+//!  name: Permissions: Default umask
 //
 //! defvar: html
 //! If you set this variable, the filesystem will _know_ that all files are really HTML files. This might be useful now and then.
@@ -878,50 +880,65 @@ string query_name()
 //! defvar: .files
 //! If set, hidden files will be shown in dirlistings and you will be able to retrieve them.
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Show hidden files
+//!  name: Directory Settings: Show hidden files
 //
 //! defvar: dir
 //! If set, you have to create a file named .www_not_browsable (or .nodiraccess) in a directory to disable directory listings. If unset, a file named .www_browsable in a directory will _enable_ directory listings.
 //!
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Enable directory listings per default
+//!  name: Directory Settings: Enable directory listings per default
 //
 //! defvar: tilde
 //! If set, files ending with '~' or '#' or '.bak' will 
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Show backup files
+//!  name: Directory Settings: Show backup files
 //
 //! defvar: put
-//! If set, PUT can be used to upload files to the server.
+//! If set, allow use of the PUT method, which is used for file uploads. 
 //!  type: TYPE_FLAG
-//!  name: Handle the PUT method
+//!  name: Allowed Access Methods: PUT
 //
 //! defvar: delete
-//! If set, DELETE can be used to delete files from the server.
+//! If set, allow use of the DELETE method, which is used for file deletion.
 //!  type: TYPE_FLAG
-//!  name: Handle the DELETE method
+//!  name: Allowed Access Methods: DELETE
+//
+//! defvar: method_mkdir
+//! If set, allow use of the MKDIR method, enabling the ability to the create new directories.
+//!  type: TYPE_FLAG
+//!  name: Allowed Access Methods: MKDIR
+//
+//! defvar: method_mv
+//! If set, allow use of the MV method, which is used for renaming files and directories.
+//!  type: TYPE_FLAG
+//!  name: Allowed Access Methods: MV
+//
+//! defvar: method_chmod
+//! If set, allow use of the CHMOD command, which is used to change file permissions.
+//!  type: TYPE_FLAG
+//!  name: Allowed Access Methods: CHMOD
+//
+//! defvar: keep_old_perms
+//! If true, existing files replaced by an FTP or HTTP upload will keep their previous file mode instead of using the default one. When enabled, the default mode and umask settings (default or specified by the client) won't apply. Pleae note that the user and group won't be retained by setting this flag. 
+//!  type: TYPE_FLAG
+//!  name: Permissions: Keep old file mode
 //
 //! defvar: check_auth
 //! Only allow authenticated users to use methods other than GET and POST. If unset, this filesystem will be a _very_ public one (anyone can edit files located on it)
 //!  type: TYPE_FLAG
-//!  name: Require authentication for modification
-//
-//! defvar: stat_cache
-//! The stat(2) cache might give you a minor speed benefit in serving files, especially if they are served from a remote server using NFS or another networked filesystem. However using the cache can result in failures to reload files and other weird problems. Unless you really need a few extra percent of performance we recommend that you leave this option disabled.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Cache the results of stat(2)
+//!  name: Permissions: Require authentication for modification
 //
 //! defvar: access_as_user
-//! EXPERIMENTAL. Access file as the logged in user.
-//!This is useful for eg named-ftp.<br />
-//!NOTE : Not possible when running in a threaded server.
+//! Accesses to a file will be made  as the logged in user.
+//!This is useful for named ftp, or if you want higher security.<br />
+//!NOTE: When running a threaded server requests that don't do any modification will be done as the server uid/gid.
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Access file as the logged in user
+//!  name: Permissions: Access file as the logged in user
 //
 //! defvar: no_symlinks
 //! EXPERIMENTAL.
 //!Forbid access to paths containing symbolic links.<br />
 //!NOTE : This can cause *alot* of lstat system-calls to be performed and can make the server much slower.
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Forbid access to symlinks
+//!  name: Permissions: Forbid access to symlinks
 //
