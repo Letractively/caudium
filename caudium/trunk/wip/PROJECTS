@@ -17,3 +17,5 @@ top directory of caudium with / marking the top.
  This is a Pike reimplementation of the shell start script currently used
  by Caudium.
 
+---DESCRIPTIONS---[do not change this line]
+$Id$
