@@ -113,7 +113,7 @@ int cache_is_not_enabled() {
 string tag_humanid(string t, mapping m, object id)
 {
   array dbinfo;
-  string rdm = (string)Crypto.randomness.really_random()->read(10);
+  string rdm = (string)Caudium.Crypto.urandom(10);
   if (!(QUERY(cache)))
     rdm = (string)localtime(time())["wday"]+rdm;
   string rval = human_encrypt(rdm);
