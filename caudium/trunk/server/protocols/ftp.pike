@@ -31,6 +31,8 @@
  * TODO:
  *
  * How much is supposed to be logged?
+ * Correct statistics system.
+ *
  */
 
 /*
@@ -51,8 +53,9 @@
  * RFC 775	DIRECTORY ORIENTED FTP COMMANDS
  * RFC 949	FTP unique-named store command
  * RFC 1639	FTP Operation Over Big Address Records (FOOBAR)
+ * RFC 2428	FTP Extensions for IPv6 and NATs (only IPv4 is implemented since pike don't support IPv6)
  *
- * IETF draft 4	Extended Directory Listing, TVFS,
+ * IETF draft 12	Extended Directory Listing, TVFS,
  *		and Restart Mechanism for FTP
  *
  * RFC's with recomendations and discussions:
@@ -101,6 +104,10 @@
 #include <config.h>
 #include <module.h>
 #include <stat.h>
+
+// If you'd like to disable Ftp MLST and MLSD function uncomment the following
+// line
+//#define	DISABLE_MLST_MLSD
 
 //#define FTP2_DEBUG
 
@@ -326,6 +333,35 @@ class BinaryWrapper
 }
 
 // EBCDIC Wrappers here.
+class ToEBCDICWrapper
+{
+  inherit FileWrapper;
+
+  int converted;
+
+  static object converter = Locale.Charset.encoder("EBCDIC-US", "");
+
+  static string convert(string s)
+  {
+    converted += sizeof(s);
+    return(converter->feed(s)->drain());
+  }
+}
+ 
+class FromEBCDICWrapper
+{
+  inherit FileWrapper;
+
+  int converted;
+
+  static object converter = Locale.Charset.decoder("EBCDIC-US");
+
+  static string convert(string s)
+  {
+    converted += sizeof(s);
+    return(converter->feed(s)->drain());
+  }
+}
 
 
 class PutFileWrapper
@@ -404,7 +440,7 @@ class PutFileWrapper
     } else
       from_fd->set_nonblocking(@args);
   }
-
+  
   void set_id(mixed id)
   {
     from_fd->set_id(id);
@@ -542,17 +578,29 @@ class LS_L
       // FIXME: Convert st[6] to symbolic group name.
     }
 
+    string ts;
+    int now = time(1);
+    // Half a year:
+    //   365.25*24*60*60/2 = 15778800
+    if ((st[3] <= now - 15778800) || (st[3] > now)) {
+      // Month Day  Year
+      ts = sprintf("%s %02d  %04d",
+		   months[lt->mon], lt->mday, 1900+lt->year);
+    } else {
+      // Month Day Hour:minute
+      ts = sprintf("%s %02d %02d:%02d",
+		   months[lt->mon], lt->mday, lt->hour, lt->min);
+    }
+
     if (flags & LS_FLAG_G) {
       // No group.
-      return sprintf("%s   1 %-10s %12d %s %02d %02d:%02d %s\n", perm*"",
+      return sprintf("%s   1 %-10s %12d %s %s\n", perm*"",
 		     user, (st[1]<0? 512:st[1]),
-		     months[lt->mon], lt->mday,
-		     lt->hour, lt->min, file);
+		     ts, file);
     } else {
-      return sprintf("%s   1 %-10s %-6s %12d %s %02d %02d:%02d %s\n", perm*"",
+      return sprintf("%s   1 %-10s %-6s %12d %s %s\n", perm*"",
 		     user, group, (st[1]<0? 512:st[1]),
-		     months[lt->mon], lt->mday,
-		     lt->hour, lt->min, file);
+		     ts, file);
     }
   }
 
@@ -571,6 +619,8 @@ class LSFile
   static array(string) argv;
   static object ftpsession;
 
+  static object conv;
+
   static array(string) output_queue = ({});
   static int output_pos;
   static string output_mode = "A";
@@ -585,6 +635,7 @@ class LSFile
 	session = RequestID(master_session);
 	session->method = "DIR";
       }
+      long = replace(long, "//", "/");
       st = session->conf->stat_file(long, session);
       stat_cache[long] = st;
     }
@@ -598,6 +649,10 @@ class LSFile
       // ls is always ASCII-mode...
       // FIXME: Check output_mode here.
       s = replace(s, "\n", "\r\n");
+      if (conv) {
+	// EBCDIC or potentially other charsets.
+	s = conv->feed(s)->drain();
+      }
     }
     output_queue += ({ s });
   }
@@ -878,6 +933,11 @@ class LSFile
     argv = argv_;
     output_mode = output_mode_;
     ftpsession = ftpsession_;
+
+    if (output_mode == "E" ) {
+      // EBCDIC
+      conv = Locale.Charset.encoder("EBCDIC-US","");
+    }
     
     array(string) files = allocate(sizeof(argv));
     int n_files;
@@ -1201,8 +1261,12 @@ class FTPSession
     "MLSD":"<sp> path-name (Machine Processing List Directory)",
     "OPTS":"<sp> command <sp> options (Set Command-specific Options)",
 
+    // These are from RFC 2428
+    "EPRT":"<sp> <d>net-prt<d>net-addr<d>tcp-port<d> (Extended Address Port)",
+    "EPSV":"[<sp> net-prt|ALL] (Extended Address Passive Mode)",
+
     // These are in RFC 1639
-    "LPRT":"<SP> <long-host-port> (Long port)",
+    "LPRT":"<sp> <long-host-port> (Long port)",
     "LPSV":"(Long passive)",
 
     // Commands in the order from RFC 959
@@ -1778,8 +1842,20 @@ class FTPSession
       break;
     case "E":
       // EBCDIC handling here.
-      roxen_perror("FTP: EBCDIC not yet supported.\n");
-      send(504, ({ "EBCDIC not supported." }));
+      //roxen_perror("FTP: EBCDIC not yet supported.\n");
+      //send(504, ({ "EBCDIC not supported." }));
+      if (file->data) {
+	object conv = Locale.Charset.encoder("EBCDIC-US", "");
+	file->data = conv->feed(file->data)->drain();
+      }
+      if(objectp(file->file) && file->file->set_nonblocking)
+      {
+	// The list_stream object doesn't support nonblocking I/O,
+	// but converts to ASCII anyway, so we don't have to do
+	// anything about it.
+	// But EBCDIC doen't work...
+	file->file = ToEBCDICWrapper(file->file, this_object());
+      }
       break;
     default:
       // "I" and "L"
@@ -2300,16 +2376,27 @@ class FTPSession
 
     array f = indices(dir);
 
-    session->file->data = (Array.map(f, make_MLSD_fact, dir, session) * "\r\n")
-      + "\r\n";
+    session->file->data = sizeof(f)?(Array.map(f, make_MLSD_fact, dir, session) * "\r\n")+"\r\n":"";
 
     session->file->mode = "I";
     connect_and_send(session->file, session);
   }
 
+  void send_MLST_response(mapping(string:array) dir, object session)
+  {
+    dir = dir || ([]);
+    send(250,({ "OK" }) + 
+	 Array.map(indices(dir), make_MLSD_fact, dir, session) +
+	 ({ "OK" }) );
+  }
+
+
   /*
    * FTP commands begin here
    */
+
+  // Set to 1 by EPSV all
+  int epsv_only;
 
   void ftp_REIN(string|int args)
   {
@@ -2357,13 +2444,8 @@ class FTPSession
       user = 0;
       if (Query("anonymous_ftp")) {
 	logged_in = -1;
-#if 0
-	send(200, ({ "Anonymous ftp, at your service" }));
-#else /* !0 */
-	// ncftp doesn't like the above answer -- stupid program!
 	send(331, ({ "Anonymous ftp accepted, send "
 		     "your complete e-mail address as password." }));
-#endif /* 0 */
 	conf->log(([ "error":200 ]), master_session);
       } else {
 	send(530, ({ "Anonymous ftp disabled" }));
@@ -2643,6 +2725,11 @@ class FTPSession
 
   void ftp_PORT(string args)
   {
+    if (epsv_only) {
+      send(530, ({ "'PORT': Method not allowed in EPSV ALL mode." }));
+      return;
+    }
+
     int a, b, c, d, e, f;
 
     if (sscanf(args||"", "%d,%d,%d,%d,%d,%d", a, b, c, d, e, f)<6) 
@@ -2659,9 +2746,60 @@ class FTPSession
     }
   }
 
+  void ftp_EPRT(string args)
+  {
+    if (epsv_only) {
+      send(530, ({ "'EPRT': Method not allowed in EPSV ALL mode." }));
+      return;
+    }
+
+    if (sizeof(args) < 3) {
+      send(501, ({ "I don't understand your parameters." }));
+      return;
+    }
+
+    string delimiter = args[0..0];
+    if ((delimiter[0] <= 32) || (delimiter[0] >= 127)) {
+      send(501, ({ "Invalid delimiter." }));
+    }
+    array(string) segments = args/delimiter;
+
+    if (sizeof(args) != 4) {
+      send(501, ({ "I don't understand your parameters." }));
+      return;
+    }
+    if (segments[1] != "1") {
+      // FIXME: No support for IPv6 yet.
+      send(522, ({ "Sorry Network protocol not supported yes (IPv6 ?), use (1)" }));
+      return;
+    }
+    if ((sizeof(segments[2]/".") != 4) ||
+	sizeof(replace(segments[2], ".0123456789"/"", allocate(11, "")))) {
+      send(501, ({ sprintf("Bad IPv4 address: '%s'", segments[2]) }));
+      return;
+    }
+    if (!((int)segments[3])) {
+      send(501, ({ sprintf("Bad port number: '%s'", segments[3]) }));
+      return;
+    }
+    dataport_addr = segments[2];
+    dataport_port = (int)segments[3];
+
+    if (pasv_port) {
+      destruct(pasv_port);
+    }
+    send(200, ({ "EPRT command ok ("+dataport_addr+
+		 " port "+dataport_port+")" }));
+  }
+
   void ftp_PASV(string args)
   {
-    // Required by RFC 1123 4.1.2.6
+   // Required by RFC 1123 4.1.2.6
+   if (epsv_only) {
+     send(530, ({ "'PASV': Method not allowed in EPSV ALL mode." }));
+     return;
+   }
+
    if(Query("passive_ftp")) {
     if(pasv_port)
       destruct(pasv_port);
@@ -2701,6 +2839,48 @@ class FTPSession
    else send(504, ({ "Passive FTP is not enabled on this server." }));
   }
 
+  void ftp_EPSV(string args)
+  {
+    // Specified by RFC 2428:
+    // Extensions for IPv6 and NATs.
+
+    if (args && args != "1") {
+      if (lower_case(args) == "all") {
+	epsv_only = 1;
+	send(200, ({ "Entering EPSV ALL mode." }));
+      } else {
+	// FIXME: No support for IPv6 yet.
+	send(522, ({ "Sorry Network protocol not supported (IPv6 ?), use (1)" }));
+      }
+      return;
+    }
+    if (pasv_port)
+      destruct(pasv_port);
+    if(Query("restricpasv")) {
+      int port_to_bind, attempt;
+      int found_pasv_port = 0;
+
+      for (attempt = Query("maxpasvtry"); attempt > 0 && (!found_pasv_port); attempt--) {
+       object o_pasv = Stdio.Port();
+       port_to_bind = Query("lowpasvport") + random(Query("hipasvport") - Query("lowpasvport"));
+#ifdef FTP2_DEBUG
+       perror("Ftp: Passive port used : " + (string) port_to_bind + "\n");
+#endif
+       if (o_pasv->bind(port_to_bind,pasv_accept_callback, local_addr)) {
+         pasv_port = o_pasv;
+         found_pasv_port = 1;
+       } else destruct(o_pasv);
+      }
+      if (!found_pasv_port) send(504, ({ "Passive FTP port failled." }));
+    }
+    else {
+    pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
+    }
+    int port=(int)((pasv_port->query_address()/" ")[1]);
+
+    send(229, ({ sprintf("Entering Extended Passive Mode (|||%d|)",port) }));
+  }
+
   void ftp_TYPE(string args)
   {
     if (!expect_argument("TYPE", args)) {
@@ -2720,8 +2900,10 @@ class FTPSession
       mode = "A";
       break;
     case "E":
-      send(504, ({ "'TYPE': EBCDIC mode not supported." }));
-      return;
+//      send(504, ({ "'TYPE': EBCDIC mode not supported." }));
+//      return;
+      mode = "E";
+      break;
     default:
       send(504, ({ "'TYPE': Unknown type:"+args }));
       return;
@@ -2914,7 +3096,7 @@ class FTPSession
     ftp_NLST("-l " + (args||""));
   }
 
-#if 0
+#ifndef DISABLE_MLST_MLSD
   void ftp_MLST(string args)
   {
     args = fix_path(args || ".");
@@ -2928,7 +3110,7 @@ class FTPSession
     if (st) {
       session->file = ([]);
       session->file->full_path = args;
-      send_MLSD_response(([ args:st ]), session);
+      send_MLST_response(([ args:st ]), session);
     } else {
       send_error("MLST", args, session->file, session);
     }
@@ -3120,7 +3302,9 @@ class FTPSession
     }
     int size = st[1];
     if (size < 0) {
-      size = 512;
+      send_error("SIZE", args, ([ "error":405, ]), session);
+      return;
+      //size = 512;
     }
     send(213, ({ (string)size }));
   }
@@ -3352,7 +3536,7 @@ class FTPSession
 
     if ((i = search(line, " ")) != -1) {
       cmd = line[..i-1];
-      args = line[i+1..];
+      args = line[i+1..] - "\0";
     }
     cmd = upper_case(cmd);
 
@@ -3406,6 +3590,11 @@ class FTPSession
     master_session->not_query = user || "Anonymous";
     conf->log(([ "error":204, "request_time":(time(1)-master_session->time) ]),
 	      master_session);
+    if (fd) {
+      fd->close();
+    }
+    // Make sure we disappear...
+    destruct();
   }
 
   void destroy()
