@@ -687,8 +687,6 @@ static void f_parse_prestates( INT32 args )
   int                    done_first = 0, i;
   int                    last_start;
   
-  ind.type = T_STRING;
-  
   get_all_args("_Caudium.parse_prestates", args, "%S%M%M",
                &url, &prestate, &internal);
   if (url->len < 5 || url->str[1] != '(') { /* must have at least '/(#)/ */
@@ -717,6 +715,7 @@ static void f_parse_prestates( INT32 args )
   for(i = 2; i <= prestate_end; i++) {
     if (url->str[i] == ',' || url->str[i] == ')') {
       int len = i - last_start;
+      ind.type = T_STRING;
       
       switch(done_first) {
        case 0:
