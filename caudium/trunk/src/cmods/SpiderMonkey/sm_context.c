@@ -53,6 +53,7 @@ inline static void write_out(char *str, js_context *data)
     }
 
     strncat(data->output_buf, str, data->output_buf_len);
+    THIS->output_buf_last += strbytes;
 }
 
 static JSBool output_write(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -169,12 +170,114 @@ static void ctx_create(INT32 args)
     /* create some privacy for us */
     if (!JS_SetPrivate(THIS->ctx, global, THIS))
         Pike_error("Could not set the private storage for the global object\n");
+    
+    pop_n_elems(args);
+}
+
+static void ctx_evaluate(INT32 args)
+{
+    JSBool              ok;
+    JSString           *str;
+    jsval               rval;
+    struct pike_string *script;
+    INT32               version = -1, oldversion = -1;
+
+    if (!THIS->ctx) {
+        pop_n_elems(args);
+        push_int(0);
+        return;
+    }
+    
+    switch(args) {
+        case 2:
+            get_all_args("evaluate", args, "%S%i", &script, &version);
+            break;
+
+        case 1:
+            get_all_args("evaluate", args, "%S", &script);
+            break;
+
+        default:
+            Pike_error("Not enough arguments\n");
+    }
+
+    if (version != -1)
+        oldversion = JS_SetVersion(THIS->ctx, version);
+    
+    /* TODO: filename should indicate the actual location of the script */
+    ok = JS_EvaluateScript(THIS->ctx, global,
+                           script->str, script->len,
+                           "Caudium/js", 0, &rval);
+
+    if (oldversion != -1)
+        JS_SetVersion(THIS->ctx, oldversion);
+    
+    pop_n_elems(args);
+    
+    if (!ok) {
+        push_int(-1);
+        return;
+    }
+
+    if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
+        struct pike_string    *ret;
+        unsigned char         *tmp = NULL, *tval;
+        size_t                 blen = 0;
+        
+        str = JS_ValueToString(THIS->ctx, rval);
+
+        tval = JS_GetStringBytes(str);
+        
+        if (THIS->output_buf && THIS->output_buf_last) {
+            blen = strlen(tval) + strlen(THIS->output_buf) + 1;
+            tmp = (unsigned char*)alloca(blen);
+            if (!tmp)
+                Pike_error("Out of memory\n");
+        }
+
+        if (tmp) {
+            strncpy(tmp, THIS->output_buf, blen);
+            strncat(tmp, tval, blen - strlen(tmp));
+            memset(THIS->output_buf, 0, THIS->output_buf_len);
+            THIS->output_buf_last = 0;
+        } else
+            tmp = tval;
+        
+        push_text(tmp);
+    } else
+        push_text("");
+}
+
+static void ctx_init(struct object *obj)
+{
+    THIS->ctx = NULL;
+    THIS->output_buf = NULL;
+    THIS->output_buf_len = THIS->output_buf_last = 0;
+}
+
+static void ctx_exit(struct object *obj)
+{
+    if (THIS->ctx) {
+        JS_DestroyContext(THIS->ctx);
+        THIS->ctx = NULL;
+    }
+
+    if (THIS->output_buf) {
+        free(THIS->output_buf);
+        THIS->output_buf = NULL;
+        THIS->output_buf_len = THIS->output_buf_last = 0;
+    }
 }
 
 void init_context()
 {
+    set_init_callback(ctx_init);
+    set_exit_callback(ctx_exit);
+    
     ADD_STORAGE(js_context);
     ADD_FUNCTION("create", ctx_create,
                  tFunc(tOr(tVoid, tInt) tOr(tVoid, tInt), tVoid), 0);
+    ADD_FUNCTION("evaluate", ctx_evaluate,
+                 tFunc(tString tOr(tVoid, tInt), tOr(tString, tInt)), 0);
 }
 #endif
