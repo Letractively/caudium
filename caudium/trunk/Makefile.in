@@ -295,7 +295,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	  echo 'You need to make pre_dist first!'; \
 	  exit 1; \
 	fi
-	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
 	if ls -d $$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
@@ -323,7 +323,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	done
 
 tar_dist:
-	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
 	echo -n "Building tarfile..."; \
 	tar cf $$version.tar $$version; \
 	echo -n "tar.gz..."; \
