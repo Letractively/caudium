@@ -183,7 +183,7 @@ int main(int argc, array argv)
   warning("Your Pike is lacking true type font support. If you want to use <gtext> with\n"
 	  ".ttf fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
-#endif
+
 #if !constant(Gdbm.gdbm)
   warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
 	  "for storing log summaries. You can still use UltraLog with the File and\n"
