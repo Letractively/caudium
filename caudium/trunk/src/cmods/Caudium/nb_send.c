@@ -445,7 +445,8 @@ static INLINE int read_data(void)
   NBIO_INT_T to_read  = 0;
   char *rd;
   input *inp;
- redo: 
+ redo:
+  DERR(fprintf(stderr, "Reading from blocking input.\n"));
   THIS->buf_pos = 0;
   inp = THIS->inputs;
   if(inp == NULL)
@@ -469,7 +470,7 @@ static INLINE int read_data(void)
     THREADS_DISALLOW();
     DERR(fprintf(stderr, "read %ld from file\n", (long)to_read));
   } else {
-    if(inp->pos >= inp->len) {
+    if(inp->len != -1 && inp->pos >= inp->len) {
       /* We are done reading from this one */
       free_input(inp);
       goto redo; /* goto == ugly, but we want to read the next input
@@ -684,6 +685,7 @@ static void f__output_write_cb(INT32 args)
     
    case NBIO_BLOCK_OBJ: {
      int read;
+     DERR(fprintf(stderr, "blocking object data\n"));
      read = read_data(); /* At this point we have no data, so read some */
      switch(read) {
       case  -1:
