@@ -81,7 +81,7 @@ constant module_doc  = "This module adds support for ip-less virtual hosts. Add 
 
 constant module_unique = 1;
 
-#define IP_LESS_DEBUG
+//#define IP_LESS_DEBUG
 
 #if defined(DEBUG) || defined(IP_LESS_DEBUG)
 # define DWERR(x) report_debug("HOSTMATCH: %s\n", x)
