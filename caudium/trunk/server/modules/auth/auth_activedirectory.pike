@@ -172,7 +172,8 @@ mapping|int get_user_info(string username)
 
     return(["username": username, "primary_group": primary_group, 
 	"name": common_name, "uid": uid, "email": email,
-	"home_directory" : home_directory, "groups": groups]);
+	"home_directory" : home_directory, "groups": groups,
+	"_source": query("_name")]);
 
 }
 
@@ -858,6 +859,10 @@ string getUserDN(string username)
   return userdn;
 }
 
+//
+//  return 1 on success, -1 on failed authentication
+//    0 when user is not found, etc.
+//
 int authenticate(string username, string password)
 {
   object ldap, entry;
@@ -888,7 +893,7 @@ int authenticate(string username, string password)
   {
     ERROR("unable to bind: " + ldap->error_string());
     ldap(ldap->unbind());
-    return 0;
+    return -1;
   }
 
   // increment the success counter.
