@@ -24,7 +24,13 @@
 #include <module.h>
 
 //import Image;
+
+#if constant(Image.Font)
+constant Font = Image.Font;
+#else
 constant Font = Image.font;
+#endif
+
 
 string fix_name(string in)
 {
