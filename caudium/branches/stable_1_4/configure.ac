@@ -791,7 +791,7 @@ export CC CFLAGS CPPFLAGS LDFLAGS LDSHARED SO CLIBRARY_LINK CAUDIUM_SERVERDIR
 
 AC_CONFIG_SUBDIRS(src tools)
 AC_CONFIG_COMMANDS([hail_epita],[sh tools/fixperms])
-AC_OUTPUT(Makefile server/start-caudium server/bin/install.pike)
+AC_OUTPUT(Makefile server/start-caudium server/bin/install)
 
 echo "
 

@@ -17,7 +17,7 @@ CC=@CC@
 CPPFLAGS=@CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 PIKE=@PIKE@
-PIKE_VERISON=@PIKE_VERSION@
+PIKE_VERSION=@PIKE_VERSION@
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 #extern tools
@@ -129,7 +129,7 @@ install_only:
           rm -f $(prefix)/caudium/server/start-caudium.in ; \
 	done
 	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
-	-@for f in fcgi install.pike pdbi.pike pike caudium; \
+	-@for f in install install.pike pdbi.pike pike caudium; \
 	do \
 	  if test -f $(prefix)/caudium/server/bin/$$f ; then \
 	    echo Modifying permissions for file $(prefix)/caudium/server/bin/$$f... ; \
