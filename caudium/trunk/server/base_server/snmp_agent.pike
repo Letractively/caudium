@@ -118,7 +118,7 @@ void create(object c)
 void send_trap(string trapname, array trap_recipients, string trap_community, mixed|void args)
 {
   mapping varlist=([]);
-  string oid="1.3.6.1.4.1.14245.1.102.1";
+  string oid="1.3.6.1.4.1.14245.1";
   int type=6;
   int spectype;
 
