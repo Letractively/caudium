@@ -496,8 +496,8 @@ string tagtime(int t,mapping m)
   string s;
   mixed eris;
   string res;
-  if (m->strftime)
-    return strftime( m->strftime, t );
+  if (m->strftime || m->strfmt)
+    return strftime( m->strftime || m->strfmt, t );
   if (m->part)
   {
     string sp;
@@ -651,6 +651,8 @@ string tagtime(int t,mapping m)
 //!  Prints the result in upper case.
 //! attribute: strftime
 //!  Format the date according to the strftime format string.
+//! attribute: strfmt
+//!  Same as strftime. Here for Roxen 2.x compatibility reasons.
 //! example: rxml
 //!  {date part="day" type="string" lang="de"}
 
