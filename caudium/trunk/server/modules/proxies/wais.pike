@@ -1458,7 +1458,7 @@ mapping readSearchResponseInfo(string buf)
 	    val = readCompressedInteger(buf1);
 	    size -= sizeCompressedInteger(buf1);
 	    buf1 = skipCompressedInteger(buf1);
-	    types  += buf1[0..val];
+	    types  += ({ buf1[0..val] });
 #ifdef WAIS_DEBUG
 	    perror("WAIS: got DT_TYPE_BLOCK, type: "+buf1[0..val]+"\n");
 #endif

@@ -5,12 +5,6 @@
 // inherit Stdio.File : socket;
 inherit "connection" : connection;
 
-#ifdef SSL3_DEBUG
-#define SSL3_DEBUG_MSG werror
-#else /*! SSL3_DEBUG */
-#define SSL3_DEBUG_MSG
-#endif /* SSL3_DEBUG */
-
 object(Stdio.File) socket;
 
 object context;
@@ -46,7 +40,7 @@ void die(int status)
   }
   is_closed = 1;
   if (socket) {
-    socket->close();
+    catch( socket->close() );
     if(close_callback)
       close_callback(socket->query_id());
   }
@@ -58,12 +52,12 @@ void die(int status)
 private int queue_write()
 {
   int|string data = to_write();
-#ifdef SSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG
   werror(sprintf("SSL.sslfile->queue_write: '%O'\n", data));
 #endif
   if (stringp(data))
     write_buffer += data;
-#ifdef SSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG
   werror(sprintf("SSL.sslfile->queue_write: buffer = '%O'\n", write_buffer));
 #endif
 
@@ -73,7 +67,7 @@ private int queue_write()
     return(0);
   }
   
-#ifdef SSL3_DEBUG_TRANSPORT
+#ifdef SSL3_DEBUG
   werror("SSL.sslfile->queue_write: end\n");
 #endif
   return stringp(data) ? 0 : data;
@@ -86,8 +80,11 @@ void close()
 #endif
 
   if (is_closed) return;
-
   is_closed = 1;
+
+  if (sizeof (write_buffer))
+    ssl_write_callback(socket->query_id());
+
   send_close();
   queue_write();
   read_callback = 0;
@@ -107,6 +104,7 @@ int write(string|array(string) s)
     s = s*"";
   }
 
+  int call_write = !sizeof (write_buffer);
   int len = strlen(s);
   object packet;
   int res;
@@ -118,6 +116,12 @@ int write(string|array(string) s)
     send_packet(packet);
     s = s[PACKET_MAX_SIZE..];
   }
+
+#ifndef __NT__  
+  if (call_write)
+    ssl_write_callback(socket->query_id());
+#endif
+
 #if 0
   if (queue_write() == -1)
   {
@@ -126,11 +130,6 @@ int write(string|array(string) s)
   }
 #endif
   return len;
-}
-
-string read(mixed ...args)
-{
-  throw( ({ "SSL->sslfile: read() is not supported.\n", backtrace() }) );
 }
 
 private void ssl_read_callback(mixed id, string s)
@@ -162,6 +161,7 @@ private void ssl_read_callback(mixed id, string s)
     if (data > 0)
     {
       if (close_callback)
+
 	close_callback(socket->query_id());
     }
     else
@@ -180,7 +180,7 @@ private void ssl_read_callback(mixed id, string s)
       die(res);
   }
 }
-
+  
 private void ssl_write_callback(mixed id)
 {
 #ifdef SSL3_DEBUG
@@ -197,7 +197,11 @@ private void ssl_write_callback(mixed id)
       write_buffer = write_buffer[written ..];
     } else {
       if (written < 0)
-	die(-1);
+#ifdef __NT__
+	// You don't want to know.. (Bug observed in Pike 0.6.132.)
+	if (socket->errno() != 1)
+#endif
+	  die(-1);
     }
   }
   int res = queue_write();
@@ -218,8 +222,7 @@ private void ssl_write_callback(mixed id)
     }
     res = queue_write();
   }
-//   if (!strlen(write_buffer) && !query_write_callback())
-  if (!strlen(write_buffer))
+  if (!strlen(write_buffer) && !query_write_callback())
     socket->set_write_callback(0);
   if (res)
     die(res);
@@ -334,7 +337,7 @@ object accept()
 }
 #endif
 
-void create(object f, object c, int|void is_client)
+void create(object f, object c)
 {
 #ifdef SSL3_DEBUG
   werror("SSL.sslfile->create\n");
@@ -342,6 +345,6 @@ void create(object f, object c, int|void is_client)
   context = c;
   read_buffer = write_buffer = "";
   socket = f;
-  socket->set_nonblocking(ssl_read_callback, ssl_write_callback, ssl_close_callback);
-  connection::create(!is_client);
+  socket->set_nonblocking(ssl_read_callback, 0, ssl_close_callback);
+  connection::create(1);
 }

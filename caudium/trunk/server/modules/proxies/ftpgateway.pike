@@ -148,7 +148,7 @@ class Request {
   string last_read="";
   string buffer;
   string what_now;
-  string *links=({});
+  array(string)links=({});
 #ifdef SESSION_INFO
   string session="";
 #endif
@@ -287,10 +287,11 @@ class Request {
 
   string parse_uwp_directory() /* ftp.uwp.edu... */
   {
-    string *dir,s,filename,link,rest;
+    array(string) dir;
+    string s,filename,link,rest;
     int size,maxlen;
     string res="";
-    mixed *dirl=({}),*q;
+    array dirl=({}),q;
 
     rest=((buffer/"\r")*"");
     dir=((rest/"\n ")*" ")/"\n"; /* remove wrapped */
@@ -329,7 +330,7 @@ class Request {
 
   int|string parse_unix_ls_directory()
   {
-    string *dir;
+    array(string) dir;
     string res,f,a;
     int date_position,i,maxlen;
   
@@ -412,7 +413,7 @@ class Request {
 
   string parse_unix_ls_directory_floating_date()
   {
-    string *dir;
+    array(string) dir;
     string res,f,a;
     int i,maxlen,date_position;
 
@@ -497,7 +498,7 @@ class Request {
   string parse_directory_without_first_line()
   {
     string res ;
-    string *dir ;
+    array(string) dir;
     dir=((buffer/"\r")*"")/"\n";
     if (sizeof(dir)<1) return 0; /* nope */
  
@@ -636,7 +637,7 @@ class Request {
   void transfer()
   {
     object pipe;
-    string *type,stype;
+    array(string) type,stype;
     array tmp;
 
     if (getting_list)
@@ -801,7 +802,7 @@ class Request {
 
   void active_transfer_file()
   {
-    mixed *dataportid;
+    array dataportid;
     if (!(dataportid=master->get_dataport(active_transfer_accept)))
     {
       id->end(ERROR_MESSAGE("failed to listen on too many ports; this ought not to happen."));
@@ -969,7 +970,7 @@ class Request {
 
   void read_server(mixed dummy_id,string s)
   {
-    string *ss;
+    array(string) ss;
 
 #ifdef DESTRUCT_CHECK
     if (i_am_destructed)
@@ -1480,7 +1481,8 @@ string comment() { return QUERY(mountpoint); }
 object ftp_connection(string hostid)
 {
    multiset lo;
-   mixed o,*oa;
+   mixed o;
+   array oa;
 
    if (!(lo=ftp_connections[hostid])) return 0; /* no list */
    if (!sizeof(oa=indices(lo))) return 0; /* empty list */
@@ -1568,7 +1570,8 @@ mixed create_dataport(function acceptfunc)
 
 mixed get_dataport(function acceptfunc)
 {
-   mixed o,*oa;
+   mixed o;
+   array oa;
    for (;;)
    {
       if (!sizeof(oa=indices(dataports))) return create_dataport(acceptfunc); /* no dataports left */
@@ -1581,7 +1584,7 @@ mixed get_dataport(function acceptfunc)
    }
 }
 
-void save_dataport(mixed *m) /* ({portno,object}) */
+void save_dataport(array m) /* ({portno,object}) */
 {
    if (QUERY(save_dataports)=="Yes")
    {

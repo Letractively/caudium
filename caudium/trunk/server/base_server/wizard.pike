@@ -851,6 +851,7 @@ mapping get_actions(object id, string base,string dir, array args)
       report_error("Error compiling action:\n"+ e->get());
     else if(err)
       report_error(describe_backtrace(err));
+    e->print_warnings("Warnings while compiling action:");
   }
   master()->set_inhibit_compile_errors(0);
   master()->clear_compilation_failures();

@@ -428,7 +428,7 @@ int module_wanted(mapping mod_info, object module, function check)
   return check(module, mod_info);
 }
 
-string describe_variable_low(mixed *var, mixed path, int really_short,
+string describe_variable_low(array var, mixed path, int really_short,
 			     string|void name)
 {
   string res;
@@ -538,7 +538,7 @@ string describe_variable_low(mixed *var, mixed path, int really_short,
     if(var[VAR_MISC])
     {
       string tmp;
-      mixed *misc;
+      array misc;
       int i;
       
       tmp="<select name="+path+">  ";

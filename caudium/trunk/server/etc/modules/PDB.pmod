@@ -29,7 +29,7 @@ class FileIO {
   {
     object o = Stdio.File();
     if(!o->open(f,m))
-      return PDB_ERR("Failed to open file. "+f+": "+strerror(o->errno()));
+      PDB_ERR("Failed to open file. "+f+": "+strerror(o->errno()));
     return o;
   }
   
@@ -71,9 +71,10 @@ class FileIO {
     int n = safe_write(o, d, "write_file("+f+")");
     o->close();
     if(n == 1)
-      return mv(f+".tmp", f)?1:PDB_ERR("Cannot move file.");
+      if(mv(f+".tmp", f)) return 1;
+    else PDB_ERR("Cannot move file.");
     rm(f+".tmp");
-    return PDB_ERR("Failed to write file. Disk full?");
+    PDB_ERR("Failed to write file. Disk full?");
   }
   
   static mixed read_file(string f)
@@ -109,18 +110,18 @@ class Bucket
   static int write_at(int offset, string to)
   {
     if(file->seek(offset*size) < 0)
-      return PDB_ERR("write_at: seek failed");
+      PDB_ERR("write_at: seek failed");
 
     if(safe_write(file, to, "write_at") == 1)
       return 1;
 
-    return PDB_ERR("Failed to write file. Disk full?");
+    PDB_ERR("Failed to write file. Disk full?");
   }
   
   static string read_at(int offset)
   {
     if(file->seek(offset*size) == -1)
-      return PDB_ERR("Failed to seek.");
+      PDB_ERR("Failed to seek.");
     return file->read(size);
   }
   
@@ -461,7 +462,7 @@ class db
 				     ({ "\203\203", "\203n" })));
 
       if((rc = safe_write(logfile, entry, "log"))!=1)
-	return PDB_ERR("Failed to write log: "+(rc<0? strerror(logfile->errno()):
+	PDB_ERR("Failed to write log: "+(rc<0? strerror(logfile->errno()):
 						"Disk full (probably)"));
     }
     UNLOCK();

@@ -220,7 +220,7 @@ string tag_pike(string tag, mapping m, string s, object request_id,
       }
       throw(err);
     }
-
+    e->print_warnings("Warnings while compiling <pike> tag in "+request_id->not_query +":");
     if(err = catch{
       res = (o=p())->parse(request_id, defs, file, m);
     })

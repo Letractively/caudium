@@ -318,7 +318,7 @@ object this = this_object();
 // Used to store 'parser' modules before the main parser module
 // is added to the configuration.
 
-private object *_toparse_modules = ({});
+private array(object) _toparse_modules = ({});
 
 // Will write a line to the log-file. This will probably be replaced
 // entirely by log-modules in the future, since this would be much
@@ -489,7 +489,8 @@ array (function) extension_modules(string ext, object id)
     extension_module_cache[ext]  = ({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d = pri[i]->extension_modules[ext])
 	foreach(d, p)
 	  extension_module_cache[ext] += ({ p->handle_extension });
@@ -507,7 +508,8 @@ array (function) file_extension_modules(string ext, object id)
     file_extension_module_cache[ext]  = ({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d = pri[i]->file_extension_modules[ext])
 	foreach(d, p)
 	  file_extension_module_cache[ext] += ({ p->handle_file_extension });
@@ -524,7 +526,8 @@ array (function) url_modules(object id)
     url_module_cache=({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->url_modules)
 	foreach(d, p)
 	  url_module_cache += ({ p->remap_url });
@@ -547,7 +550,8 @@ array (function) logger_modules(object id)
     logger_module_cache=({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->logger_modules)
 	foreach(d, p)
 	  if(p->log)
@@ -565,7 +569,8 @@ array (function) last_modules(object id)
     last_module_cache=({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->last_modules)
 	foreach(d, p)
 	  if(p->last_resort)
@@ -584,7 +589,8 @@ array (function) first_modules(object id)
     });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->first_modules) {
 	foreach(d, p) {
 	  if(p->first_try) {
@@ -606,7 +612,8 @@ array (function) precache_modules(object id)
     precache_module_cache = ({ });
     for(i = 9; i >= 0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->precache_modules) {
 	foreach(d, p) {
 	  if(p->precache_rewrite) {
@@ -628,7 +635,8 @@ array location_modules(object id)
     array new_location_module_cache=({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->location_modules) {
 	array level_find_files = ({});
 	array level_locations = ({});
@@ -662,7 +670,8 @@ array filter_modules(object id)
     filter_module_cache=({ });
     for(i=9; i>=0; i--)
     {
-      object *d, p;
+      object p;
+      array(object) d;
       if(d=pri[i]->filter_modules)
 	foreach(d, p)
 	  if(p->filter)
@@ -954,21 +963,21 @@ public string status()
   return res;
 }
 
-public string *userinfo(string u, object|void id)
+public array(string) userinfo(string u, object|void id)
 {
   if(auth_module) return auth_module->userinfo(u);
   else report_warning(sprintf("userinfo(): No authorization module\n"
 			      "%s\n", describe_backtrace(backtrace())));
 }
 
-public string *userlist(object|void id)
+public array(string) userlist(object|void id)
 {
   if(auth_module) return auth_module->userlist();
   else report_warning(sprintf("userlist(): No authorization module\n"
 			      "%s\n", describe_backtrace(backtrace())));
 }
 
-public string *user_from_uid(int u, object|void id)
+public array(string) user_from_uid(int u, object|void id)
 {
   if(auth_module)
     return auth_module->user_from_uid(u);
@@ -3223,7 +3232,7 @@ int load_module(string module_file)
 {
   int foo, disablep;
   mixed err;
-  mixed *module_data;
+  array module_data;
   mapping loaded_modules;
   object obj;
   program prog;
@@ -3252,7 +3261,8 @@ int load_module(string module_file)
     if(strlen(e->get())) {
       report_error("Failed to compile module "+module_file+":\n"+e->get());
       return 0;
-    } 
+    }
+    e->print_warnings("Warnings while compiling module "+module_file+":");
   }
 
   if (err) {

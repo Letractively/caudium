@@ -402,7 +402,7 @@ void send_result(mapping|void result)
     {
       if(objectp(file->file))
 	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (int *)file->file->stat();
+	  file->stat = (array(int))file->file->stat();
       array fstat;
       if(arrayp(fstat = file->stat))
       {

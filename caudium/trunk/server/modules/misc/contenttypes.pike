@@ -91,7 +91,7 @@ string comment()
 void parse_ext_string(string exts)
 {
   string line;
-  string *f;
+  array(string) f;
 
   foreach((exts-"\r")/"\n", line)
   {

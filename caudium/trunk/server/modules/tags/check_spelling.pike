@@ -90,7 +90,8 @@ void start(int arg)
   int e;
   if(arg) return;
 
-  string l,*r,wrong,right;
+  string l, wrong, right;
+  array(string) r;
 
   l=Stdio.read_bytes(FILE);
   r=lower_case(l)/"\n";
@@ -337,7 +338,7 @@ string spellit(string word,int warn)
   return 0;
 }
 
-string *unique(string *str)
+array(string) unique(array(string) str)
 {
   int e;
   mapping q;
@@ -347,9 +348,9 @@ string *unique(string *str)
   return indices(q);
 }
 
-string *magic(string text,int warn)
+array(string) magic(string text,int warn)
 {
-  string *words;
+  array(string) words;
   int e;
   text=lower_case(text);
   text=replace(text,"-\n",""); 

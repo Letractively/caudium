@@ -25,7 +25,7 @@
 
 /* Set later on to something better in roxen.pike::main() */
 //array (object) configurations;
-mapping (string:mixed *) variables=([]); 
+mapping (string:array) variables=([]); 
 
 /* Variable support for the main Roxen "module". Normally this is
  * inherited from module.pike, but this is not possible, or wanted, in

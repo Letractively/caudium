@@ -181,7 +181,7 @@ mixed not_allowed(string f, object id)
 	 need_auth = 1;
 	 if (query("page") && id->cookies["httpauth"]) {
 	   string user,pass,last;
-	   string *y=({ "","" });
+	   array(string) y=({ "","" });
 	   sscanf(id->cookies["httpauth"],"%s:%s:%s", user, pass, last);
 	   y[1]=user+":"+pass;
 	   id->auth=id->conf->auth_module->auth(y,id);

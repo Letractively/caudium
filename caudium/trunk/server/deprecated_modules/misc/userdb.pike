@@ -107,14 +107,14 @@ void try_find_user(string|int u)
   }
 }
 
-string *userinfo(string u) 
+array(string) userinfo(string u) 
 {
   if(!users[u])
     try_find_user(u);
   return users[u];
 }
 
-string *userlist() { 
+array(string) userlist() { 
   return indices(users);
 }
 
@@ -236,7 +236,8 @@ void slow_update()
 
 void read_data()
 {
-  string data, *entry, u, *tmp, *tmp2;
+  string data,u;
+  array(string)  entry, tmp, tmp2;
   int foo, i;
   int original_data = 1; // Did we inherit this user list from another
                         //  user-database module?
@@ -411,7 +412,7 @@ int succ, fail, nouser;
 
 mapping failed  = ([ ]);
 
-array|int auth(string *auth, object id)
+array|int auth(array(string) auth, object id)
 {
   string u, p;
   array(string) arr = auth[1]/":";

@@ -39,7 +39,6 @@ inherit "module";
 inherit "caudiumlib";
 
 import Array;
-import Image;
 
 constant module_type = MODULE_PARSER | MODULE_LOCATION;
 constant module_name = "Tab lists";
@@ -49,27 +48,25 @@ constant module_doc  = "This module makes graphical tablists.<p>"
        "instead.<p>";
 constant module_unique = 1;
 
-//constant Image = image;
-constant Font = font;
-
 #define DEFAULT_FONT "32/urw_itc_avant_garde-demi-r"
 #define DEFAULT_PATH "fonts/"
 
 // #define DEBUG_TABLIST
 
-string *from=map(indices(allocate(256)),lambda(int l) { return sprintf("%c",l); });
-string *to=map(indices(allocate(256)),lambda(int l) {
-  switch(l)
-  {
-    case 0: return "-";
-    case 'a'..'z':
-    case '.':
-    case ':':
-    case 'A'+16..'Z':
-    case '0'..'9': return sprintf("%c",l);
-    default: return sprintf("%c%c",'A'+(l>>4),'A'+(l&15));
-  }
-});
+array(string) from=map(indices(allocate(256)),lambda(int l) { return sprintf("%c",l); });
+array(string) to=map(indices(allocate(256)),
+		     lambda(int l) {
+		       switch(l)
+		       {
+		       case 0: return "-";
+		       case 'a'..'z':
+		       case '.':
+		       case ':':
+		       case 'A'+16..'Z':
+		       case '0'..'9': return sprintf("%c",l);
+		       default: return sprintf("%c%c",'A'+(l>>4),'A'+(l&15));
+		       }
+		     });
 
 string make_filename(mapping arguments)
 {
@@ -189,7 +186,7 @@ object tab(string name, int select, int n, int last, string font,
   perror("Creating tab \"" + name + (select==n?"\" (selected)\n":"\"\n"));
 #endif
 
-  fnt = Font();
+  fnt = Image.Font();
   if (!fnt->load(font)) {
      perror("Could not load font \"" + font + "\"\n");
      fnt->load(DEFAULT_PATH DEFAULT_FONT);
@@ -201,7 +198,7 @@ object tab(string name, int select, int n, int last, string font,
   width = txt->xsize() + w_spacing;
   height = txt->ysize() + h_spacing;
 
-  img = image(width,height);
+  img = Image.Image(width,height);
   draw_bg(img, bg, tc);
   if (n == select)
     selected(img, bg);
@@ -213,7 +210,7 @@ object tab(string name, int select, int n, int last, string font,
     right_shadow(img, tc);
 
   if ((txt->xsize()) && (txt->ysize())) {
-    tmp=image(txt->xsize(), txt->ysize());
+    tmp=Image.Image(txt->xsize(), txt->ysize());
     tmp->box(0, 0, tmp->xsize()-1, tmp->ysize()-1, @fc);
     img->paste_mask(tmp, txt, w_spacing/3, h_spacing/2);
   }
