@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Set "Lazy entity end" default to yes (XML-compliant RXML parser)
 - Added ::login:: regexp (unixlike allowed regex for login / user) to
   superform
 - Fixed bug in the Explicit Hostname Redirector module if used in a SSL
