@@ -1733,7 +1733,7 @@ mixed get_scope_var(string variable, void|string scope, object id)
 
   if (!id->misc->_scope_status) {
       if (id->variables && id->variables[variable])
-          return variable;
+          return id->variables[variable];
       return 0;
   }
   
