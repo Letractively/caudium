@@ -172,7 +172,7 @@ mixed not_allowed(string f, object id)
 	// If match, this IP-number will never be permitted access. No need to
 	// check any more. User and allow patterns are always checked first.
 	 if(level[2](id->remoteaddr))
-	   return http_low_answer(403, "<h2>Access forbidden</h2>"); 
+	   return Caudium.HTTP.low_answer(403, "<h2>Access forbidden</h2>"); 
 	 break;
 	
 	
@@ -188,7 +188,7 @@ mixed not_allowed(string f, object id)
 
 	 if(!(id->user)) {
 	   if(query("page")) {
-	     return http_low_answer(200,
+	     return Caudium.HTTP.low_answer(200,
 				    replace(parse_rxml(query("authpage"), id),
 					    ({"$File", "$Me"}), 
 					    ({id->not_query,
@@ -208,7 +208,7 @@ mixed not_allowed(string f, object id)
   }
   if(need_auth) {
     if(query("page")) {
-      return http_low_answer(200,
+      return Caudium.HTTP.low_answer(200,
 			     replace(parse_rxml(query("authpage"), id),
 				     ({"$File", "$Me"}), 
 				     ({id->not_query,

@@ -54,135 +54,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-// All functions from http.pike are now inside caudiumlib14
-
-//! 
-//! Converts the file result sent in the @[file] argument to a HTTP
-//! response header (what you would get for a HEAD request on the
-//! resource.
-//!
-//! @param file
-//!   The file mapping (this is what @[http_string_answer()] etc. generate).
-//!
-//! @param id
-//!   The request object.
-//!
-//! @returns
-//!   The HTTP header string.
-//!
-string http_res_to_string( mapping file, object id )
-{
-  mapping heads=
-    ([
-      "Content-type":file["type"],
-      "Server":id->version(), 
-      "Date":Caudium.HTTP.date(id->time)
-      ]);
-    
-  if(file->encoding)
-    heads["Content-Encoding"] = file->encoding;
-    
-  if(!file->error) file->error = 200;
-    
-  if(!zero_type(file->expires)) 
-    heads->Expires = file->expires ? Caudium.HTTP.date(file->expires) : "0";
-
-  if(!file->len)
-  {
-    if(objectp(file->file))
-      if(!file->stat && !(file->stat=id->misc->stat))
-	file->stat = (array(int))file->file->stat();
-    array fstat;
-    if(arrayp(fstat = file->stat))
-    {
-      if(file->file && !file->len)
-	file->len = fstat[1];
-      
-      heads["Last-Modified"] = Caudium.HTTP.date(fstat[3]);
-    }
-    if(stringp(file->data)) 
-      file->len += strlen(file->data);
-  }
-
-  if(mappingp(file->extra_heads)) 
-    heads |= file->extra_heads;
-
-  if(mappingp(id->misc->moreheads))
-    heads |= id->misc->moreheads;
-    
-  array myheads=({id->prot+" "+(file->rettext||errors[file->error])});
-  foreach(indices(heads), string h)
-    if(arrayp(heads[h]))
-      foreach(heads[h], string tmp)
-	myheads += ({ `+(h,": ", tmp)});
-    else
-      myheads +=  ({ `+(h, ": ", heads[h])});
-  
-
-  if(file->len > -1)
-    myheads += ({"Content-length: " + file->len });
-  string head_string = (myheads+({"",""}))*"\r\n";
-
-  if(id->conf) {
-    id->conf->hsent+=strlen(head_string||"");
-    if(id->method != "HEAD")
-      id->conf->sent+=(file->len>0 ? file->len : 1000);
-  }
-  if(id->method != "HEAD")
-    head_string+=(file->data||"")+(file->file?file->file->read(0x7ffffff):"");
-  return head_string;
-}
-
-//!   Return a response mapping with the error and data specified. The
-//!   error is in fact the status response, so @tt{200@} is @i{HTTP Document
-//!   follows@}, and @tt{500@} @i{Internal Server error@}, etc. The content
-//!   type will always be @tt{text/html@}
-//!
-//! @param errno
-//!   The HTTP error code to use in the reply.
-//!
-//! @param data
-//!   The data to return.
-//!
-//! @param dohtml
-//!   If != 0 then use a valid HTML document as an answer.
-//!
-//! @returns
-//!   The HTTP response mapping.
-mapping http_low_answer( int errno, string data, void|int dohtml )
-{
-  if(!data) data="";
-#ifdef HTTP_DEBUG
-  report_debug("HTTP: Return code %d (%s)\n",errno, data);
-#endif
-  string ddata = data;
-  
-  if (dohtml)
-      ddata = make_htmldoc_string(data, sprintf("Error %d", errno));
-  
-  return 
-    ([ 
-      "error" : errno,
-      "data"  : ddata,
-      "len"   : strlen( ddata ),
-      "type"  : "text/html",
-      ]);
-}
-
-//!   Returns a response mapping that tells Caudium that this request
-//!   is in progress and that sending of data, closing the connection
-//!   and such will be handled by the module. If this is used and you 
-//!   fail to close connections correctly, FD leaking will be the result. 
-//! @returns
-//!   The HTTP response mapping.
-mapping http_pipe_in_progress()
-{
-#ifdef HTTP_DEBUG
-  report_debug("HTTP: Pipe in progress\n");
-#endif  
-  return ([ "file":-1, "pipe":1, ]);
-}
-
 //!   Convenience function to use in Caudium modules and Pike scripts. When you
 //!   just want to return a string of data, with an optional type, this is the
 //!   easiest way to do it if you don't want to worry about the internal
@@ -255,7 +126,7 @@ mapping http_error_answer(object id, void|int error_code, void|string error_name
    if(mappingp(tmperr))
      return (mapping)tmperr;
    else
-     return http_low_answer(error_code,error_message);
+     return Caudium.HTTP.low_answer(error_code,error_message);
 }
  
 //!   Return a response mapping with the text and the specified content type.
@@ -496,15 +367,15 @@ mapping http_redirect( string url, object|void id )
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Redirect -> %s\n",Caudium.http_encode_string(url));
 #endif  
-  return http_low_answer( 302, "") 
+  return Caudium.HTTP.low_answer( 302, "") 
     + ([ "extra_heads":([ "Location":Caudium.http_encode_string( url ) ]) ]);
 }
 
 //!   Returns a response mapping that tells Caudium that this request
 //!   is to be streamed as-is from the specified fd-object (until there is
-//!   nothing more to read). This differs from http_pipe_in_progress in that
+//!   nothing more to read). This differs from @[Caudium.HTTP.pipe_in_progress] in that
 //!   this function makes Roxen read the data from the specified object and will
-//!   close the connection when it's done. With http_pipe_in_progress you are
+//!   close the connection when it's done. With @[Caudium.HTTP.pipe_in_progress] you are
 //!   responsible for writing the content to the client and closing the
 //!   connection. Please note that a http_stream reply also inhibits the
 //!   sending of normal HTTP headers.
@@ -541,7 +412,7 @@ mapping http_auth_required(string realm, string|void message, void|int dohtml)
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth required (%s)\n",realm);
 #endif  
-  return http_low_answer(401, message)
+  return Caudium.HTTP.low_answer(401, message)
     + ([ "extra_heads":([ "WWW-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
@@ -563,7 +434,7 @@ mapping http_proxy_auth_required(string realm, void|string message)
 #endif  
   if(!message)
     message = "<h1>Proxy authentication failed.\n</h1>";
-  return http_low_answer(407, message)
+  return Caudium.HTTP.low_answer(407, message)
     + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
@@ -1761,12 +1632,15 @@ static string sizetostring(int size)
   return sprintf("%.1f %s", s, size_prefix[size]);
 }
 
+//! Used for proxy
+//! @fixme
+//!  Should be in Caudium.HTTP module
 mapping proxy_auth_needed(object id)
 {
   mixed res = id->conf->check_security(proxy_auth_needed, id);
   if (res) {
     if (res==1) // Nope...
-      return http_low_answer(403, "Access to this proxy has been denied.");
+      return Caudium.HTTP.low_answer(403, "Access to this proxy has been denied.");
 
     if (!mappingp(res))
       return 0;

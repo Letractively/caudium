@@ -330,7 +330,7 @@ mapping handle_file_extension(object f, string e, object id) {
 #else
   call_out(real_handle_file_extension, 0, f, e, id);
 #endif
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 
 }
 

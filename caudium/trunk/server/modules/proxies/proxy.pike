@@ -613,7 +613,7 @@ mapping find_file( string f, object id )
       async_cache_connect(host, port, "http", key, connected_to_server,
 			  key, id, 0, filter);
   }
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 string comment() { return QUERY(mountpoint); }

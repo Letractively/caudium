@@ -928,7 +928,7 @@ mapping try_htaccess(object id)
 
 	TRACE_LEAVE("Access Denied (1)");
 
-	return http_low_answer(403, file || 
+	return Caudium.HTTP.low_answer(403, file || 
 			       ("<title>Access Denied</title>"
 				"<h2 align=center>Access Denied</h2>"));
       }
@@ -939,7 +939,7 @@ mapping try_htaccess(object id)
 
 	TRACE_LEAVE("Access Denied (2)");
 
-	return http_low_answer(403, "<title>Access Denied</title>"
+	return Caudium.HTTP.low_answer(403, "<title>Access Denied</title>"
 			       "<h2 align=center>Access Denied</h2>"
 			       "<h3>This page is protected based on host name "
 			       "or domain name. The server couldn't resolve "
@@ -1014,7 +1014,7 @@ mapping remap_url(object id)
 	report_debug("Denied access for "+s+"\n");
 	id->misc->error_code = 401;
 	TRACE_LEAVE("Access Denied");
-	return http_low_answer(401, "<title>Access Denied</title>"
+	return Caudium.HTTP.low_answer(401, "<title>Access Denied</title>"
 			       "<h2 align=center>Access Denied</h2>");
       }
     }

@@ -191,7 +191,7 @@ class http_error_handler {
         report_error ("Internal server error in error routine:\n" + describe_backtrace(err) + "\n");
 
         /*
-        data =  http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+        data =  Caudium.HTTP.low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
                         "internal error in the error routine.</h1>" );
                         */
         if (id)
@@ -283,7 +283,7 @@ class http_error_handler {
        /* check if they want old-style 404 */
        if (id->conf->query("Old404") && error_code == 404)
        {
-          return http_low_answer (error_code,
+          return Caudium.HTTP.low_answer (error_code,
                           replace (parse_rxml (id->conf->query ("ZNoSuchFile"), id ),
                                   ({ "$File", "$Me" }),
                                   ({ _Roxen.html_encode_string (id->not_query), 

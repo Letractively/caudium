@@ -216,7 +216,7 @@ mapping search_entry(string f,object id,mapping var)
      sscanf(var["hosttype"],"%s %s",var["host"],var["port"]);
   }
   caudium->host_to_ip(var["host"], serv_request, id, var);
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 
 mapping find_file( string f , object id )

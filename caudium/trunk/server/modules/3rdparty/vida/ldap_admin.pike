@@ -1287,7 +1287,7 @@ mixed find_file(string path, object id)
 {
   mapping result;
   if(!checkdns(id->remoteaddr))
-    return http_low_answer(403, "<html><body><h2>Access forbidden</h2></body></html>");
+    return Caudium.HTTP.low_answer(403, "<html><body><h2>Access forbidden</h2></body></html>");
   id->misc->cacheable = 0;
   id->misc->is_dynamic = 1;
   switch(path)

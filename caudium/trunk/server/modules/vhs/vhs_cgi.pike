@@ -868,7 +868,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
   {
      if (QUERY(noexec)) return Stdio.File(real_file(f, id), "r");
      report_notice( "CGI: " + real_file(f, id) + " is not executable\n");
-     return http_low_answer(500, "<title>CGI Error - Script Not Executable</title>"
+     return Caudium.HTTP.low_answer(500, "<title>CGI Error - Script Not Executable</title>"
 			    "<h1>CGI Error - Script Not Executable</h1> <b>"
 			    "The script you tried to run is not executable. "
 			    "Please contact the server administrator about "
@@ -877,7 +877,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
 
   if(stat[1] < 0)
     if(!QUERY(ls))
-      return http_low_answer(403, "<title>CGI Directory Listing "
+      return Caudium.HTTP.low_answer(403, "<title>CGI Directory Listing "
 			     "Disabled</title><h1>Listing of CGI directories "
 			     "is disabled.</h1>");
     else

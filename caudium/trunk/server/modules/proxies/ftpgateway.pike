@@ -1471,7 +1471,7 @@ mixed|mapping find_file( string f, object id )
 
   requests[Request(id,this_object(),host,port,file, user, passw)]=1;
   log(key, "- New "+hostname(id->remoteaddr));
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }	  
 
 string comment() { return QUERY(mountpoint); }

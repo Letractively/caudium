@@ -393,7 +393,7 @@ void|mapping handle_http()
 	    internal_error( err );
 	DAV_WERR("Result="+sprintf("%O", file));
 	if ( mappingp(file) && file->error >= 200 && file->error < 200 )
-	    file = http_low_answer(200, "");
+	    file = Caudium.HTTP.low_answer(200, "");
     }
     else
 	file = caudium->configuration_parse( this_object() );
@@ -403,7 +403,7 @@ void|mapping handle_http()
 
 mapping handle_options()
 {	
-    mapping result = http_low_answer(200,"OK");
+    mapping result = Caudium.HTTP.low_answer(200,"OK");
     result->extra_heads = ([ 
 	"Allow": (indices(mHandler)*", "), "DAV":"1",
 	"MS-Author-Via": "DAV", ]);
@@ -418,7 +418,7 @@ mapping|string resolve_destination(string destination)
     if ( sscanf(destination, "http://%s/%s", dest_host, destination) == 2 )
     {
 	if ( dest_host != host ) 
-	    return http_low_answer(502, "Bad Gateway");
+	    return Caudium.HTTP.low_answer(502, "Bad Gateway");
     }
     return destination;
 }
@@ -442,7 +442,7 @@ mapping|void handle_move()
     
     mapping res = handle_http();
     if ( mappingp(res) && res->error == 200 )
-	return http_low_answer(201, "Created");
+	return Caudium.HTTP.low_answer(201, "Created");
     return res;
 }
 
@@ -451,7 +451,7 @@ mapping|void handle_mkcol()
     method = "MKDIR";
     mapping result =  handle_http();
     if ( mappingp(result) && (result->error == 200 || !result->error) )
-	return http_low_answer(201, "Created");
+	return Caudium.HTTP.low_answer(201, "Created");
     return result;
 }
 
@@ -470,7 +470,7 @@ mapping|void handle_copy()
 
     mixed result =  handle_http();
     if ( mappingp(result) && result->error == 200 ) {
-	return http_low_answer(201, "Created");
+	return Caudium.HTTP.low_answer(201, "Created");
     }
     return result;
 }
@@ -582,7 +582,7 @@ mapping|void handle_proppatch()
     response+="</D:response>\n";
     response+="</D:multistatus>\n";
     DAV_WERR("RESPONSE="+response);
-    result = http_low_answer(207, response);
+    result = Caudium.HTTP.low_answer(207, response);
     result["type"] = "text/xml; charset=\"utf-8\"";
     result["rettext"] = "207 Multi-Status";
     return result;
@@ -619,7 +619,7 @@ mapping|void handle_propfind()
 	response += "</D:response\r\n";
 	response += "</D:multistatus>\r\n";
 #endif
-	return http_low_answer(404,"");
+	return Caudium.HTTP.low_answer(404,"");
     }
     else if ( fstat[1] < 0 ) {
 	response += "<D:multistatus xmlns:D=\"DAV:\">\r\n";
@@ -633,7 +633,7 @@ mapping|void handle_propfind()
 	response += retrieve_props(raw_url, xmlData);
 	response += "</D:multistatus>\r\n";
     }
-    result = http_low_answer(207, response);
+    result = Caudium.HTTP.low_answer(207, response);
     result["rettext"] = "207 Multi-Status";
     result["type"] = "text/xml; charset=\"utf-8\"";
     return result;

@@ -77,7 +77,7 @@ mapping first_try (object id)
      return 0;
    }
   LOG("switch triggered");
-  return http_low_answer(QUERY(return_code),
+  return Caudium.HTTP.low_answer(QUERY(return_code),
                          parse_rxml(QUERY(return_message),id));
 }
 

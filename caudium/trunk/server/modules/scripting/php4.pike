@@ -321,7 +321,7 @@ int|mapping handle_file_extension(object o, string e, object id)
   call_out(thfarm->enqueue, 0, PHPScript(id)->run);
   //  PHPScript(id)->run();
   DWERROR("PHP:handle_file_extension done\n");
-  return http_pipe_in_progress();
+  return Caudium.HTTP.pipe_in_progress();
 }
 #else
 

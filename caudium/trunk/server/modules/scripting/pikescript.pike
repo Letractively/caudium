@@ -262,7 +262,7 @@ array|mapping call_script(function fun, object id, object file)
     return http_string_answer(parse_rxml(result, id, file));
   }
 
-  if(result == -1) return http_pipe_in_progress();
+  if(result == -1) return Caudium.HTTP.pipe_in_progress();
 
   if(mappingp(result))
   {

@@ -79,7 +79,8 @@ void create() {
 //!   browser request the user for authentication information. The optional
 //!   message will be used as the body of the page.
 //! @note
-//!   This function is called by http_auth_required() and http_auth_failed()
+//!   This function is called by @[Caudium.HTTP.auth_required] and 
+//!   @[Caudium.HTTP.http_auth_failed]
 //!   calls caudiumlib. So DO NOT call such API inside this call or Caudium
 //!   gets mad !
 //! @param realm
@@ -139,15 +140,15 @@ mapping|int handle_error(object id, void|mapping extra_heads)
     if(error_code = 401) 
       error_text=QUERY(401msg); 
     if(mappingp(extra_heads))
-      return http_low_answer(error_code, error_text) +
+      return Caudium.HTTP.low_answer(error_code, error_text) +
          ([ "extra_heads": extra_heads ]);
     else
-      return http_low_answer(error_code, error_text);
+      return Caudium.HTTP.low_answer(error_code, error_text);
   }
   else if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
-    return http_low_answer(501, "Not implemented.");
+    return Caudium.HTTP.low_answer(501, "Not implemented.");
   else if (err = catch {
-    return http_low_answer(404,
+    return Caudium.HTTP.low_answer(404,
                 replace(parse_rxml(QUERY(404msg), id),
                         ({"$File", "$Me"}),
                         ({_Roxen.html_encode_string(id->not_query),

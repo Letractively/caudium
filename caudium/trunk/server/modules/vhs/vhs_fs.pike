@@ -92,7 +92,7 @@ mixed find_file(string f, object id)
 	if (arrayp(dir))
 	   return http_redirect("http://" + dir[1] + "/", id);
 
-	if (dir == -2) return http_low_answer(400,sprintf("Invalid URL `%O' vs. `%O'", @debug));
+	if (dir == -2) return Caudium.HTTP.low_answer(400,sprintf("Invalid URL `%O' vs. `%O'", @debug));
 
 	if (!dir) return 0;
 

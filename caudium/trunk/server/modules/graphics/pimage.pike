@@ -197,7 +197,7 @@ class Constructors
       if(animator)
       {
 	Animation(id, this_object());
-	return http_pipe_in_progress();
+	return Caudium.HTTP.pipe_in_progress();
       }
       if(ci) { image=0; return ci; }
       if(bg)
