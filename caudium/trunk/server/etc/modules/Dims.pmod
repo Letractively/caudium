@@ -5,6 +5,9 @@
 //
 //   This software is based in part on the work of the Independent JPEG Group.
 
+//! Imagedimensionsreader module for Pike
+//! @fixme
+//!   Shouldn't this be handled now internaly by pike ?
 
 #define M_SOF0  0xC0		/* Start Of Frame N */
 #define M_SOF1  0xC1		/* N indicates which compression process */
@@ -24,6 +27,7 @@
 #define M_SOS   0xDA		/* Start Of Scan (begins compressed data) */
 #define M_COM   0xFE		/* COMment */
 
+//!  dims class itself
 class dims
 {
   object f;

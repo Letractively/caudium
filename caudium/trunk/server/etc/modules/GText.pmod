@@ -1,3 +1,6 @@
+//! Gtext module for Caudium
+//! @fixme
+//!   This need to be documented.
 
 #define MAX(a,b) ((a)<(b)?(b):(a))
 

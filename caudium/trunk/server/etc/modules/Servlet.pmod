@@ -1,3 +1,6 @@
+//! Java Serverlet interface for Caudium
+//! @fixme
+//!   Needs to be documented.
 
 static constant jvm = Java.machine;
 
@@ -63,6 +66,7 @@ static void check_exception()
   }
 }
 
+//!
 class servlet {
 
   static object s, d;
@@ -71,6 +75,7 @@ class servlet {
   static object lock;
 #endif
 
+  //!
   void destroy()
   {
     if(s) {
@@ -79,6 +84,7 @@ class servlet {
     }
   }
 
+  //!
   void service(object req, object|void res)
   {
     if(!res) {
@@ -98,6 +104,7 @@ class servlet {
     check_exception();
   }
 
+  //!
   string info()
   {
     object i = servlet_getservletinfo(s);
@@ -105,6 +112,7 @@ class servlet {
     return i && (string)i;
   }
 
+  //!
   void init(object cfgctx, mapping(string:string)|void params)
   {
     if(params)
@@ -113,6 +121,7 @@ class servlet {
     check_exception();
   }
 
+  //!
   void create(string|object name, string|object|void dir)
   {
     if(stringp(name)) {
@@ -140,10 +149,12 @@ class servlet {
 
 };
 
+//!
 class loader {
 
   static object cl;
 
+  //!
   object low_load(string name)
   {
     object c = load_class(cl, name);
@@ -151,11 +162,13 @@ class loader {
     return c;
   }
 
+  //!
   object load(string name)
   {
     return servlet(name, this_object());
   }
 
+  //!
   void create(string codedir)
   {
     cl = classloader2_class->alloc();
@@ -166,10 +179,12 @@ class loader {
 
 };
 
+//!
 class config {
 
   object cfg;
 
+  //!
   void create(object context, mapping(string:string)|void params)
   {
     cfg = config_class->alloc();
@@ -194,11 +209,13 @@ static object ctx_object(object ctx)
   return contexts[context_id_field->get(ctx)];
 }
 
+//!
 class context {
 
   object ctx, conf;
   static int id;
 
+  //!
   void create(object|void c)
   {
     id = context_id++;
@@ -215,6 +232,7 @@ class context {
     }
   }
 
+  //!
   void destroy()
   {
     m_delete(contexts, id);
@@ -224,36 +242,43 @@ class context {
   }
 
 
+  //!
   object get_servlet(string name)
   {
     return 0;
   }
 
+  //!
   array(string) get_servlet_list()
   {
     return ({});
   }
 
+  //!
   void log(string msg)
   {
     werror(msg+"\n");
   }
 
+  //!
   string get_real_path(string path)
   {
     return 0;
   }
 
+  //!
   string get_mime_type(string file)
   {
     return 0;
   }
 
+  //!
   string get_server_info()
   {
     return caudium->version();
   }
 
+  //!
   object get_attribute(string name)
   {
     return 0;
@@ -261,11 +286,15 @@ class context {
 
 };
 
+
+//!
 object conf_context(object conf)
 {
   return context_for_conf[conf]||context(conf);
 }
 
+
+//!
 object request(object context, mapping(string:string)|object id,
 	       mapping(string:string|object)|void attrs,
 	       mapping(string:string)|void headers, mixed ... rest)
@@ -349,6 +378,7 @@ object request(object context, mapping(string:string)|object id,
 static int stream_id = 0;
 mapping(int:object) streams = ([]);
 
+//!
 object response(object file)
 {
   int id = stream_id++;
@@ -367,21 +397,25 @@ object response(object file)
   return r;
 }
 
+//!
 static object native_getServlet(object ctx, object name)
 {
   return ctx_object(ctx)->get_servlet((string)name);
 }
 
+//!
 static array(string) native_getServletList(object ctx)
 {
   return ctx_object(ctx)->get_servlet_list();
 }
 
+//!
 static void native_log(object ctx, object msg)
 {
   ctx_object(ctx)->log((string)msg);
 }
 
+//!
 static string native_getRealPath(object ctx, object path)
 {
   return ctx_object(ctx)->get_real_path((string)path);
@@ -392,16 +426,19 @@ static string native_getMimeType(object ctx, object file)
   return ctx_object(ctx)->get_mime_type((string)file);
 }
 
+//!
 static string native_getServerInfo(object ctx)
 {
   return ctx_object(ctx)->get_server_info();
 }
 
+//!
 static object native_getAttribute(object ctx, object name)
 {
   return ctx_object(ctx)->get_attribute((string)name);
 }
 
+//!
 static void native_forgetfd(object str)
 {
   int id = stream_id_field->get(str);
@@ -411,6 +448,7 @@ static void native_forgetfd(object str)
     destruct(f);
 }
 
+//!
 static void native_close(object str)
 {
   int id = stream_id_field->get(str);
@@ -421,6 +459,7 @@ static void native_close(object str)
   }
 }
 
+//!
 static void native_writei(object str, int n)
 {
   object f = streams[stream_id_field->get(str)];
@@ -428,6 +467,7 @@ static void native_writei(object str, int n)
     f->write(sprintf("%c", n));
 }
 
+//!
 static void native_writeba(object str, object b, int off, int len)
 {
   object f = streams[stream_id_field->get(str)];
@@ -435,11 +475,13 @@ static void native_writeba(object str, object b, int off, int len)
     f->write(sprintf("%@c", values(b[off..off+len-1])));
 }
 
+//!
 static string native_blockingIPToHost(object n)
 {
   return caudium->blocking_ip_to_host((string)n);
 }
 
+//!
 void create()
 {
   natives_bind1 = context_class->register_natives(({

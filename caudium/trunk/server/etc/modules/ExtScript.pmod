@@ -5,12 +5,18 @@
 //
 // $Id$
 
+//! External script handler for Roxen and Caudium. Used for "mod_perl"
+//! like extension
+
+//!
 mapping scripthandlers = ([ ]);
 
+//!
 static void diag(string x)
 { // werror(x);
 }
 
+//!
 class Handler
 { object  proc;
   object  pipe;
@@ -23,6 +29,7 @@ class Handler
   object  mutex = Thread.Mutex();
 #endif
 
+  //!
   void terminate()
   {
 #if constant(Thread.Mutex)
@@ -35,6 +42,7 @@ class Handler
     }
   }
 
+  //!
   int busy()
   {
 #if constant(Thread.Mutex)
@@ -46,20 +54,24 @@ class Handler
     return 0;
   }
 
+  //!
   int procstat()
   { return proc ? proc->status() : -1;
   }
 
+  //!
   int probe()
   { return timeout < time(0);
   }
 
+  //!
   static void putvar(string vtype, string vname, string vval)
   { pipe->write(sprintf("%s%c%s%c%c%c", vtype, strlen(vname), vname,
           strlen(vval)/65536, strlen(vval)/256, strlen(vval) & 255));
     pipe->write(vval);
   }
 
+  //!
   static string launch_process(string how)
   { /* must have locked the mutex to call this function */
 
@@ -86,6 +98,7 @@ class Handler
     return 0;
   }
 
+  //!
   static array do_helper(string how, string arg, object id, void|mapping opts)
   {
 #if constant(Thread.Mutex)
@@ -262,14 +275,17 @@ class Handler
     else return ({ -1, "[Internal error?]" });
   }
 
+  //!
   array run(string path, object id)
   { return do_helper("run", path, id);
   }
 
+  //!
   array eval(string expr, object id)
   { return do_helper("eval", expr, id);
   }
 
+  //!
   void create(string helper_program_path, void|mapping settings0)
   { binpath = helper_program_path;
     settings = settings0 ? settings0 : ([ ]);
@@ -282,8 +298,10 @@ class Handler
 object dispatchmutex = Thread.Mutex();
 #endif
 
+//!
 static int lastobjdiag = 0;
 
+//!
 static void objdiag()
 { if (lastobjdiag > time(0)-25) return;
   lastobjdiag = time(0);
@@ -299,8 +317,10 @@ static void objdiag()
   }
 }
 
+//!
 static int lastcleanup = 0;
 
+//!
 void periodic_cleanup()
 { int now = time(0);
   if (lastcleanup+42 < now)
@@ -336,6 +356,7 @@ void periodic_cleanup()
   objdiag();
 }
 
+//!
 object getscripthandler(string binpath, void|int multi, void|mapping settings)
 { mapping m;
   object  h;
@@ -384,10 +405,4 @@ object getscripthandler(string binpath, void|int multi, void|mapping settings)
 
   return m->handlers[random(sizeof(m->handlers))];
 }
-
-
-
-
-
-
 
