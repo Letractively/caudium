@@ -1,5 +1,23 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Added AJP | Tomcat Connector module to allow connecting to Jakarta 
+  Tomcat and Jetty servlet engines.
+- <if group="somegroup"> now consults the new naming system for group 
+  membership information, as well as the groupfile option.
+- LDAP and SQL authentication sources have been completely rewritten, 
+  with incompatible settings. Users of these authentication sources will 
+  need to check their settings when these modules are upgraded.
+- Authentication and naming system has been completely rewritten. The 
+  system consists of a Master handler and one or more stackable 
+  authentication source providers. The new system also provides built in 
+  access to groups and group membership information. The new 
+  authentication system  provides new APIs, the existing APIs have been  
+  deprecated. Virtual servers that utilize existing authentication modules 
+  will be upgraded to the new system automatically on the first startup.
+- An automatic upgrade system is in place, for updating settings that may 
+  have incompatably changed between releases. A global variable "Upgrade 
+  Performed?" allows the upgrade procedure to be run manually on the next 
+  restart. Output messages are sent to the debug log and the CIF Event log.
 - Changed Cache API slightly to make programming easier.
 - Added some wrappers to parse_html() and parse_html_lines() that are
   called Caudium.parse_html() and Caudium.parse_html_lines(). This wrapper
