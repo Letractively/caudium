@@ -56,6 +56,8 @@ inherit "http";
 //! @returns
 //!  The size of the image as a string in a format suitable for use
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
+
+
 //
 // @note
 //  Now uses Image.Dims.get so it can gets info on GIF, JPEG and PNG as well.
