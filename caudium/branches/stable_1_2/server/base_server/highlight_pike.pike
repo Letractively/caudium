@@ -16,66 +16,262 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
+ * $Id$
  */
 
+//! Syntax highlighter for pike. Used when backtrace is done to
+//! send "good looking" pike formating for the developer
+
+//! Default CSS class
+constant defaultcss = "pre,code { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      "}\n"
+                      ".stringdark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-style: italic;\n"
+                      " color: darkred;\n"
+                      "}\n"
+                      ".stringlight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-style: italic;\n"
+                      " color: skyblue;\n"
+                      "}\n"
+                      ".commentdark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: red;\n"
+                      "}\n"
+                      ".commentlight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: yellow;\n"
+                      "}\n"
+                      ".keyworddark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: darkblue;\n"
+                      "}\n"
+                      ".keywordlight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: lightblue;\n"
+                      "}\n"
+                      ".typedark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: darkgreen;\n"
+                      "}\n"
+                      ".typelight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: lightgreen;\n"
+                      "}\n"
+                      ".predark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: brown;\n"
+                      "}\n"
+                      ".prelight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: pink;\n"
+                      "}\n"
+                      ".declaratordark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: darkbrown;\n"
+                      "}\n"
+                      ".declaratorlight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " font-weight: bold;\n"
+                      " color: #ffeeaa;\n"
+                      "}\n"
+                      ".casedark { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: #000000;\n"
+                      "}\n"
+                      ".caselight { \n"
+                      " font-family: \"andale mono\",\"monotype.com\",\"courier new\", monospace;\n"
+                      " font-size: 90%;\n"
+                      " color: aquamarine;\n"
+                      "}\n";
+
+//! Quote the string to plain text to html.
+//! @param s
+//!   The plain text string to quote
+//! @returns
+//!   The string quoted
 string quote(string s)
 {
   return replace(s,({ "<", ">", "&", }),({"&lt;", "&gt;", "&amp;" }));
 }
 
+//! Highlight a string
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_string(string s,mapping m)
 {
+  if(m->css && m->dark)
+    return "<span class=\"stringdark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"stringlight\">"+quote(s)+"</span>";
   if(m->dark)
     return "<i><font color=darkred>"+quote(s)+"</font></i>";
-  else
-    return "<i><font color=skyblue>"+quote(s)+"</font></i>";
+  return "<i><font color=skyblue>"+quote(s)+"</font></i>";
 }
 
+//! Highlight a comment
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_comment(string s, mapping m)
-{
+{ 
+  if(m->css && m->dark)
+    return "<span class=\"commentdark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"commentlight\">"+quote(s)+"</span>";
   if(m->dark)
     return ("<font color=red>"+quote(s)+"</font>");
   return ("<font color=yellow>"+quote(s)+"</font>");
 }
 
+//! Highlight a keyword
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_keyword(string s, mapping m)
 {
-  if(m->dark) return ("<b><font color=darkblue>"+quote(s)+"</font></b>");
+  if(m->css && m->dark)
+    return "<span class=\"keyworddark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"keywordlight\">"+quote(s)+"</span>";
+  if(m->dark)
+    return ("<b><font color=darkblue>"+quote(s)+"</font></b>");
   return ("<b><font color=lightblue>"+quote(s)+"</font></b>");
 }
 
+//! Highlight a type
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_type(string s, mapping m)
 {
-  if(m->dark) return ("<b><font color=darkgreen>"+quote(s)+"</font></b>");
+  if(m->css && m->dark)
+    return "<span class=\"typedark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"typelight\">"+quote(s)+"</span>";
+  if(m->dark)
+    return ("<b><font color=darkgreen>"+quote(s)+"</font></b>");
   return ("<b><font color=lightgreen>"+quote(s)+"</font></b>");
 }
 
+//! Highlight a pre (?)
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_pre(string s, mapping m)
 {
-  if(m->dark) return ("<font color=brown>"+quote(s)+"</font>");
+  if(m->css && m->dark)
+    return "<span class=\"predark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"prelight\">"+quote(s)+"</span>";
+  if(m->dark)
+    return ("<font color=brown>"+quote(s)+"</font>");
   return ("<font color=pink>"+quote(s)+"</font>");
 }
 
+//! Highlight a declarator
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_declarator(string s, mapping m)
 {
-  if(m->dark) return ("<b><font color=darkbrown>"+quote(s)+"</font></b>");
+  if(m->css && m->dark)
+    return "<span class=\"declaratordark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"declaratorlight\">"+quote(s)+"</span>";
+  if(m->dark)
+    return ("<b><font color=darkbrown>"+quote(s)+"</font></b>");
   return ("<b><font color=#ffeeaa>"+quote(s)+"</font></b>");
 }
 
-
+//! Highlight a case
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
+//! @seealso
+//!  @[highlight_pike]
 string highlight_case(string s, mapping m)
 {
-  if(m->dark) return ("<font color=black>"+quote(s)+"</font>");
+  if(m->css && m->dark)
+    return "<span class=\"casedark\">"+quote(s)+"</span>";
+  if(m->css)
+    return "<span class=\"caselight\">"+quote(s)+"</span>";
+  if(m->dark)
+    return ("<font color=black>"+quote(s)+"</font>");
   return ("<font color=aquamarine>"+quote(s)+"</font>");
 }
 
+//! The keyword to highlight
 constant keywords=({"foreach","break","constant","catch","gauge","class","continue","do","else","for","foreach","if","import","inherit","inline","lambda","nomask","private","protected","public","return","static","final", "switch","throw","while",});
 
+//! The types to highlight
 constant types=({"mapping","function","multiset","array","object","program","float","int","mixed","string","void"});
 
-
-
+//!
 array (string) find_decl(string in)
 {
   string pre,decl,p2;
@@ -88,6 +284,7 @@ array (string) find_decl(string in)
   return ({ "", pre+in });
 }
 
+//!
 string find_complex_type(string post)
 {
   string p="";
@@ -122,6 +319,7 @@ string find_complex_type(string post)
   return p;
 }
 
+//!
 array (string) find_type(string in)
 {
   string s,pre,post,decl;
@@ -163,6 +361,7 @@ array (string) find_type(string in)
   }
 }
 
+//! Find a keyword
 array (string) find_keyword(string in)
 {
   string s,pre,post;
@@ -174,6 +373,7 @@ array (string) find_keyword(string in)
 	return ({ pre, s, post });
 }
 
+//! Find a string
 array (string) find_string(string in)
 {
   string s,pre,post;
@@ -182,6 +382,7 @@ array (string) find_string(string in)
     return ({ pre, "\""+replace(s, "\0", "\\\"")+"\"", post });
 }
 
+//! Find a comment
 array (string) find_comment(string in)
 {
   string s,pre,post;
@@ -191,6 +392,8 @@ array (string) find_comment(string in)
     return ({ pre,  "/*"+s+"*/", post });
 }
 
+
+//! Find a comment outside of a string
 array (string) find_comment_outside_string(string in)
 {
   string s,pre,post,q;
@@ -204,6 +407,7 @@ array (string) find_comment_outside_string(string in)
     return ({ pre,  "/*"+s+"*/", post });
 }
 
+//! Find a case
 array (string) find_case(string in)
 {
   string mid,pre,post;
@@ -223,6 +427,7 @@ array (string) find_case(string in)
 	return ({ pre, "default", post, "", "" });
 }
 
+//! Find a preparse
 array (string) find_preparse(string in)
 {
   string s,post,q;
@@ -243,6 +448,7 @@ array highlight_patterns =
     
 #define push(X) res += X
 
+//! Highlight a line
 string highlight_line(string l, mapping m)
 {
   array p,r;
@@ -267,15 +473,53 @@ string highlight_line(string l, mapping m)
   return quote(l);
 }
 
+//! Do the highlighting work
 string do_the_highlighting(string s, mapping m)
 {
   return highlight_line(s, m);
 }
 
-string highlight_pike(string t, mapping m, string contents)
+//! Highlight a pike program
+//! @param t
+//!   Not really used. You can put any string there this will be ignored
+//! @param m
+//!   Mapping with current options that can use this code.
+//!  @mapping
+//!   @member string "light"
+//!     Use this for light highlighting
+//!   @member string "dark"
+//!     Use this for dark highlighting
+//!   @member string "nopre"
+//!     Do not add <pre></pre> HTML code between the rendered code.
+//!   @member string "css"
+//!     Use this to use CSS highlighting
+//!   @member string "cssfile"
+//!     Use this to when using a CSS and if you like to specify a custom CSS.
+//!  @endmapping
+//! @param contents
+//!   The Pike code to render
+//! @returns
+//!   HTMLized pike code :)
+string highlight(string t, mapping m, string contents)
 {
-  if(!m->light) m->dark="yep";
-  if(m->nopre) return do_the_highlighting(contents,m);
-  return "<pre>"+do_the_highlighting(contents,m)+"</pre>";
+  string out = "";
+  if(!m->light) 
+    m->dark="yep";
+ // if(m->nopre)
+ //   out = do_the_highlighting(contents,m);
+  if(m->css) {
+    out = "<style type=\"text/css\">\n<!--\n";
+    if ((m->cssfile) && (stringp(m->cssfile)) && (sizeof(m->cssfile) > 0))
+       out += m->cssfile;
+    else
+       out += defaultcss;
+    out += "\n-->\n</style>\n";
+  }
+  if(!m->nopre)
+   out += "<pre>"+do_the_highlighting(contents,m)+"</pre>";
+  else
+   out += do_the_highlighting(contents,m);
+ // return "<pre>"+do_the_highlighting(contents,m)+"</pre>";
+  return out;
 }
 
