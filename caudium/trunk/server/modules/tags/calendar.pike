@@ -570,7 +570,7 @@ string calendar_action_tag(string tag, mapping args, string cont,
     // not a submission from the calendar form
     return "";
 
-  if (id->variables->changetype != "day")
+  if (!myargs->default && id->variables->changetype != "day")
     return "";
     
   if (!myargs->default) {
