@@ -39,7 +39,7 @@ class ThemedConfig {
 	    "vlink='" + s->html_colour( "vlink" ) + "' "
 	    "alink='" + s->html_colour( "alink" ) + "' " +
 	    (s->bgimage()?("background='" + s->bgimage() + "' "):"") +
-	    ">\n";
+	    " leftmargin='0' marginwidth='0' topmargin='0' marginheight='0'>\n";
     }
 
     string head(string h, string|void save) {
