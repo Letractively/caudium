@@ -1542,9 +1542,9 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
   //  contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
   //                     SVAR, id->misc->session_id) + contents;
 	contents = Caudium.make_container("div", ([ ]),
-   			Caudium.make_container("input", ([ "type": "hidden", "name":
-     			SVAR, "value": id->misc->session_id ]), id->misc->is_xml),
-       		   id->misc->is_xml);
+   			Caudium.make_tag("input", ([ "type": "hidden", "name":
+     			SVAR, "value": id->misc->session_id ]), id->misc->is_xml) 
+       		   + contents, id->misc->is_xml);
 
   m_delete(args, "norewrite");
     
