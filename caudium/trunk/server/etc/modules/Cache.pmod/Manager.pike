@@ -95,43 +95,19 @@ static void really_start() {
 //!
 //! @note
 //!   please help me make this not suck. it's way off at the moment.
-string status() {
+mapping status() {
   PRELOCK();
   LOCK();
   if ( ! _really_started ) {
-    return "<b>Caching Sub-System Is Currently Innactive.</b>";
+    return ([]);
   }
-  array retval = ({ });
+  mapping ret = ([]);
   foreach( sort( indices( caches ) ), string cache ) {
-    string ret = "";
     object my = caches[ cache ];
     if (!my) continue;
-    mapping status = my->status();
-    int fast_hitrate = 100;
-    int slow_hitrate = 100;
-    if ( status->fast_misses ) {
-      fast_hitrate = (int)(status->fast_hits / status->fast_misses * 100);
-    }
-    if ( status->slow_misses ) {
-      slow_hitrate = (int)(status->slow_hits / status->slow_misses * 100);
-    }
-    ret += "<tr><td colspan=4><h1>" + my->namespace + "</h1></td></tr>\n";
-    if ( my->cache_description() ) {
-      ret += "<tr><td colspan=3>" + my->cache_description() + "</td></tr>\n";
-    }
-    ret += "<tr><td colspan=4><hr noshade></td></tr>\n";
-    ret += "<tr><td colspan=2>Total Hits</td><td colspan=2>" + (string)status->total_hits + "</td></tr>\n";
-    ret += "<tr><td colspan=2>Total Misses</td><td colspan=2>" + (string)status->total_misses + "</td></tr>\n";
-    ret += "<tr><td colspan=2>Total Object Count</td><td colspan=2>" + (string)status->total_object_count + "</td></tr>\n";
-    ret += "<tr><td colspan=4><hr noshade></td></tr>\n";
-    ret += "<tr><td colspan=2><b>Fast Cache</b></td><td colspan=2><b>Slow Cache</b></td></tr>\n";
-    ret += "<tr><td>Hits</td><td>" + (string)status->fast_hits + "</td><td>Hits</td><td>" + (string)status->slow_hits + "</td></tr>\n";
-    ret += "<tr><td>Misses</td><td>" + (string)status->fast_misses + "</td><td>Misses</td><td>" + (string)status->slow_misses + "</td></tr>\n";
-    ret += "<tr><td>Objects</td><td>" + (string)status->fast_object_count + "</td><td>Objects</td><td>" + (string)status->slow_object_count + "</td></tr>";
-    ret += "<tr><td>Hitrate</td><td>" + (string)fast_hitrate + "%</td><td>Hitrate</td><td>" + (string)slow_hitrate + "%</td></tr>\n";
-    retval += ({ ret });
+    ret[cache] = my->status();
   }
-  return "<table border=0>\n" + (retval * "<tr><td colspan=4><br></td></tr>\n") + "</table>\n";
+  return ret;
 }
 
 //! internal method used to create a cache instance.
