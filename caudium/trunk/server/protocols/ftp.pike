@@ -221,6 +221,15 @@ class RequestID
     misc->trace_leave = trace_leave;
 #endif /* FTP2_DEBUG */
   }
+  void send_result(mapping|void result)
+  {
+    if (mappingp(result) && my_fd && my_fd->done) {
+      my_fd->done(result);
+      return;
+    }
+
+    error("Async sending with send_result() not supported yet.\n");
+  }
 };
 
 class FileWrapper
