@@ -38,8 +38,10 @@ constant language = caudium->language;
 constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "XML-Compliant RXML Parser";
 constant module_doc  = "This is a new XML-compliant RXML parser. It requires \
-Pike 7.0 or newer, since Parser.HTML doesn't exist in Pike 0.6. Depending on \
-how the module is configured, it is more or less strict, in the XML-sense.";
+Pike 7.0 or newer, since it depends on Parser.HTML which doesn't exist in \
+Pike 0.6. Depending on the module is configured, it is more or less strict, \
+in the XML-sense. Please note that although this parser handles XML-syntax, \
+it never requires it. For example you can still use unquoted arguments. ";
 
 constant module_unique = 1;
 
@@ -79,14 +81,60 @@ void create()
 	 "in order for them to be parsed by this module. The exec bit "
 	 "is the one that is set by 'chmod +x filename'");
 	 
-  defvar("no_parse_exec", 0, "Don't Parse files with exec bit",
+  defvar("no_parse_exec", 0, "Don't parse files with exec bit",
 	 TYPE_FLAG|VAR_MORE,
 	 "If set, no files with the exec bit set will be parsed. This is the "
 	 "reverse of the 'Require exec bit on files for parsing' flag. "
 	 "It is not very useful to set both variables.");
-	 
+  
   defvar("max_parse", 200, "Maximum file size", TYPE_INT|VAR_MORE,
 	 "Maximum file size to parse, in Kilo Bytes.");
+
+  defvar("case_insensitive_tag", 1, "Parse options: Case insensitive parsing",
+	 TYPE_FLAG,
+	 "If enabled, the case of tags is ignored during parsing. When "
+	 "disabled, &lt;TAG&gt; and &lt;tag&gt; are two different tags. ");
+  defvar("lazy_argument_end", 0, "Parse options: Lazy argument end",
+	 TYPE_FLAG,
+	 "A '&gt;' in a tag argument closes both the argument and "
+	 "the tag, even if the argument is quoted. ");
+  defvar("lazy_entity_end", 0, "Parse options: Lazy entity end",
+	 TYPE_FLAG,
+	 "Normally, the parser search indefinitely for the entity end "
+	 "character (i.e. ';'). When this flag is set, the characters '&mp;', "
+	 "'&lt;', '&gt;', '\"', \"'\", and any whitespace breaks the search "
+	 "for the entity end, and the entity text is then  ignored, i.e. "
+	 "treated as data. ");
+  
+  defvar("match_tag", 1, "Parse options: Match tags",
+	 TYPE_FLAG,
+	 "Unquoted nested tag starters and enders will be balanced when "
+	 "parsing tags. ");
+  defvar("xml_conformance", 2, 
+	 "Parse options: XML syntax conformance level",
+	 TYPE_INT_LIST,
+	 "Whether or not to use XML syntax to tell empty tags and  container "
+	 "tags apart. "
+	 "<br><b>0.</b> Use HTML syntax only. If there's a '/' last in a tag, it's "
+	 "just treated as any other argument."
+	 "<br><b>1.</b> Use HTML syntax, but ignore a '/' if it comes "
+	 "last in a tag."
+	 "<br><b>2.</b> Use XML syntax, but when a tag that does not end with '/>' is "
+	 "found which only got a non-container tag callback, treat it as a "
+	 "non-container (i.e. don't start to seek for the container "
+	 "end). "
+	 "<br><b>3.</b> Use XML syntax only. If a tag got both container and "
+	 "non-container callbacks, the non-container callback is "
+	 "called when the empty element form (i.e. the one ending "
+	 "with '/>') is used, and the container callback otherwise. If "
+	 "only a container callback exists, it gets the empty "
+	 "string as content when  there's none to be parsed. If "
+	 "only a non-container callback exists, it will be only be called "
+	 "for tags in the empty element form. Otherwise an error message "
+	 "will be returned.",
+	 ({ 0, 1, 2, 3 }) );
+  
+  
 }
 
 void start(int cnt, object conf)
@@ -119,11 +167,24 @@ string handle_help(string file, string tag, mapping args)
 			   "<date-attributes>",date_doc),tag);
 }
 
+array(string)|string tag_with_contents(object parser, mapping args,
+				      string contents,
+				      mixed ... extra)
+{
+  array tag = parser->tag();
+  string res;
+  return 
+    "<p><b>Syntax Error: Non-container &lt;"+tag[0]+"/&gt; called with content. "
+    "Did you forget the /?</b></p>" + contents;
+}
+
 string call_tag(object parser, mapping args,
 		object id, object file, mapping defines,
 		object client)
 {
   string tag = parser->tag_name();
+  if(QUERY(case_insensitive_tag))
+    tag = lower_case(tag);
   string|function rf = real_tag_callers[tag][0];
   id->misc->line = (string)parser->at_line();
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
@@ -153,6 +214,8 @@ call_container(object parser, mapping args, string contents,
 	       object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
+  if(QUERY(case_insensitive_tag))
+    tag = lower_case(tag);
   string|function rf = real_container_callers[tag][0];
   id->misc->line = (string)parser->at_line();
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
@@ -378,24 +441,41 @@ void build_callers()
      if(o->query_tag_callers)
      {
        foo=o->query_tag_callers();
-       if(mappingp(foo)) insert_in_map_list(foo, "tag");
+       if(mappingp(foo)) {
+	 if(QUERY(case_insensitive_tag))
+	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
+	 insert_in_map_list(foo, "tag");
+       }
      }
      
      if(o->query_container_callers)
      {
        foo=o->query_container_callers();
-       if(mappingp(foo)) insert_in_map_list(foo, "container");
+       if(mappingp(foo)) {
+	 if(QUERY(case_insensitive_tag))
+	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
+	 insert_in_map_list(foo, "container");
+       }
      }
    }
    sort_lists();
    parse_object = Parser.HTML();
    for(int i = 0; i < sizeof(tag_callers); i++) {
      parse_object->add_tags(tag_callers[i]);
+     if(QUERY(xml_conformance) == 3)
+       /* Add a "container" for each tag so we can report errors */
+       parse_object->add_containers(mkmapping(indices(tag_callers[i]),
+					      allocate(sizeof(tag_callers[i]),
+						       tag_with_contents)));
+
      parse_object->add_containers(container_callers[i]);
    }
-   parse_object->case_insensitive_tag(1);
-   parse_object->ignore_unknown(1);
-   parse_object->xml_tag_syntax(2);
+   parse_object->case_insensitive_tag(QUERY(case_insensitive_tag));
+   parse_object->ignore_unknown(0);
+   parse_object->xml_tag_syntax(QUERY(xml_conformance));
+   parse_object->lazy_argument_end(QUERY(lazy_argument_end));
+   parse_object->lazy_entity_end(QUERY(lazy_entity_end));
+   parse_object->match_tag(QUERY(match_tag));
    parse_object->splice_arg("::");
 }
 
