@@ -32,7 +32,7 @@
 //!  one of the requested host. We strongly  recommend having the
 //!  proxies in their own virtual server with a dedicated
 //!  IP and / or port.</p>
-//!  <p><strong>IP less hosting also does not work well with https.<strong>
+//!  <p><strong>IP less hosting also does not work well with https.</strong>
 //!  The reason here is that you can only have one certificate per ip/port.
 //!  By the time any hostname is transmitted you're already past the decryption
 //!  and thus have a set certificate used. As the certificate usually is
@@ -72,7 +72,7 @@ constant module_doc  = "This module adds support for ip-less virtual hosts. Add 
 	    "one of the requested host. We strongly  recommend having the "
 	    "proxies in their own virtual server with a dedicated "
 	    "IP and / or port.</p>"
-	    "<p><strong>IP less hosting also does not work well with https.<strong>"
+	    "<p><strong>IP less hosting also does not work well with https.</strong>"
 	    "The reason here is that you can only have one certificate per "
 	    "ip/port.  By the time any hostname is transmitted you're already "
 	    "past the decryption and thus have a set certificate used. As the "
