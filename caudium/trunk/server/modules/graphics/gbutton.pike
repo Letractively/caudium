@@ -555,7 +555,7 @@ mapping find_internal(string f, object id)
 
 static array mk_url(object id, mapping args, string contents)
 {
-    string fi = (args["frame-image"] ||
+    string fi = (args["frame-image"] || 
                  id->misc->defines["gbutton-frame-image"]);
 
     if (fi)
@@ -974,7 +974,7 @@ string tag_gbutton(string tag, mapping args, string contents,
 
         result = make_container("a", a_attrs, result);
     }
-
+    if (tag == "gbutton-url") return img_attrs->src;
     return result;
 }
 
