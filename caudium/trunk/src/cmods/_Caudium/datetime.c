@@ -370,7 +370,7 @@ static void f_is_modified(INT32 args)
   time_t                ret;
 #endif
   
-  get_all_args("is_modified", args, "%S%u%u", &header, &tmod, &use_weird);
+  get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
   pop_n_elems(args);
 
 #ifdef HAVE_STRPTIME
