@@ -16,12 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ */
+/*
  * $Id$
  */
 
 //!  The base scope class. Implements the default versions of all scope
 //!  callback functions. You should inherit this class if you make your
 //!  own scope.
+//! $Id$
 
 //!  Set the value of an entity in the current scope.
 //! @param name
@@ -61,6 +64,7 @@ object clone()
   return this_object();
 }
 
+//! 
 string name;
 
 //!  Return the name of this scope. It you don't override this function,
@@ -73,6 +77,7 @@ string query_name()
   return name;
 }
 
+//!
 string _sprintf()
 {
   return "Scope("+name+")";
