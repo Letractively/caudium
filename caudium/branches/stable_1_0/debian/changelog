@@ -1,3 +1,9 @@
+caudium (1:1.0.35-3) unstable; urgency=low
+
+  * Corrected the build depends
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 18 Apr 2001 11:39:58 +0200
+
 caudium (1:1.0.35-2) unstable; urgency=low
 
   * Upstream bugfixes

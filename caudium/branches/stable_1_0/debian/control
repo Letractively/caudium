@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Marek Habersack <grendel@vip.net.pl>
 Standards-Version: 3.1.1
-Build-Depends: pike7, debconf-utils
+Build-Depends:  pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf
 
 Package: caudium
 Architecture: any
