@@ -32,7 +32,7 @@ private string xml_epilog = "</caudiumcfg>";
 
 //! This class represents the whole config directory
 //!
-//! @todo
+//! @note
 //! Add caching of directory entries.
 class Dir
 {
