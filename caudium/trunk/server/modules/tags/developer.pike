@@ -98,8 +98,8 @@ mapping(string:array) developers = ([
   "redax":({"Zsolt Varga", "redax@caudium.net", "1973-02-01", "Hungary"}),
   "underley":({"Daniel Podlejski", "underley@underley.eu.org", "1976-08-08", "Poland"}),
   "wilsonm":({"Matthew Wilson", "matthew@caudium.net", "1976-04-10", "USA"}),
-  "kazmer":({"Tamas Tevesz", "ice@caudium.net", "1976-06-24", "Hungary"})
-  "bertrand_lupart":({"Bertrand Lupart", "bertrand@caudium.net", "1977-05-15", "France"})
+  "kazmer":({"Tamas Tevesz", "ice@caudium.net", "1976-06-24", "Hungary"}),
+  "bertrand_lupart":({"Bertrand Lupart", "bertrand@caudium.net", "1977-05-15", "France"}),
   "gourdelier":({"David Gourdelier", "vida@caudium.net", "1979-02-16", "France"})
 ]);
 
