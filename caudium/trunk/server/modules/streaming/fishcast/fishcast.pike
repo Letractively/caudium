@@ -126,113 +126,71 @@ string query_location() {
 }
 
 mixed find_file( string path, object id ) {
-    // I'll rewrite this with a switch. You just watch me :)
-    if ( path == "/" ) {
+    switch ( path ) {
+    case "/":
 	return -1;
-    } else if ( path == "" ) {
+	break;
+    case "":
 	return -1;
-	// Root directory
-    } else if ( path == "streams/" ) {
+	break;
+    case "streams/":
 	return -1;
-	// Streams directory
-    } else if ( path == "playlists/" ) {
+	break;
+    case "playlists/":
 	return -1;
-        // Playlists directory
-    } else if ( path == "incoming/" ) {
+	break;
+    case "incoming/":
 	return -1;
-	// Incoming streams directory
-    } else {
-	array parts = path / "/";
-	parts = parts - ({ "" });
-	if ( parts[ 0 ] == "streams" ) {
-            // They want a stream!
+	break;
+    default:
+	array parts = (path / "/") - ({ "" });
+	switch ( parts[ 0 ] ) {
+	case "streams":
 	    int sid = (int)parts[ 1 ];
-#ifdef DEBUG
-	    perror( "Request for ID: " + (string)sid + "\n" );
-#endif
-	    if( streams[ sid ] ) {
-#ifdef DEBUG
-		perror( "Stream exists.\n" );
-#endif
+	    if ( streams[ sid ] ) {
 		id->my_fd->set_blocking();
-#ifdef DEBUG
-		perror( "done.\n" );
-		perror( "Registering client to stream: " );
-#endif
 		streams[ sid ]->register_client( id );
-#ifdef DEBUG
-		perror( "done.\nReturning.\n" );
-#endif
 		return http_pipe_in_progress();
 	    } else {
-#ifdef DEBUG
-		perror( "Stream doesnt exist.\n" );
-#endif
 		return 0;
 	    }
-	} else if ( parts[ 0 ] == "playlists" ) {
-            // They want a playlist!
-	    int sid = (int)replace( parts[ 1 ], ".pls", "" );
+	    break;
+	case "playlists":
+	    array pls = ( parts[ 1 ] / "." ) - ({ "" });
+	    int sid = (int)pls[ 0 ];
 	    if ( streams[ sid ] ) {
-		return http_string_answer(
-					  "[playlist]\n"
-					  "NumberOfEntries=1\n"
-					  "File1=http://" + replace( id->host + "/" + QUERY(location) + "/streams/" + (string)sid, "//", "/" ) + "\n",
-					  "audio/mpegurl" );
+		switch ( pls[ 1 ] ) {
+		case "pls":
+		    return http_string_answer(
+					      "[playlist]\n"
+					      "NumberOfEntries=1\n"
+					      "File1=http://" + replace( id->host + "/" + QUERY(location) + "/streams/" + (string)sid, "//", "/" ) + "\n",
+					      "audio/mpegurl"
+					     );
+		    break;
+		case "m3u":
+		    return http_string_answer(
+					      replace( id->host + "/" + QUERY(location) + "/streams/" + (string)sid, "//", "/" ) + "\n",
+					      "audio/mpegurl"
+					     );
+		    break;
+		}
 	    } else {
 		return 0;
 	    }
-	} else if ( parts[ 0 ] == "incoming" ) {
-            /*
-	    // I havent even been able to test that this works yet
-	    // mostly because last night when I was getting to it
-	    // friends arrived and dragged us out to dinner :)
-	    // If you feel like it, see if you can pipe a "live source"
-	    // into the stream :)
-	    if ( QUERY(incoming_enable) == 0 ) {
-		return 0;
-	    } else {
-		int sid = (int)id->variables->sid;
-		if ( streams[ sid ] ) {
-		    // We dont want people streaming into existing streams!
-		    return 0;
-		} else {
-		    if ( id->variables->password == QUERY(incoming_password) ) {
-			mapping vars =
-			    ([ "files" : ({ }),
-			       "search_mp3" : "",
-			       "loop" : 0,
-			       "shuffle" : 0,
-			       "bitrate" : id->vars->bitrate,
-			       "maxclients" : QUERY(maxclients),
-			       "maxsession" : QUERY(sessiontimeout),
-			       "pause" : 0,
-			       "name" : (id->variables->name?id->variables->name:id->remoteaddr),
-			       "titlestreaming" : "Disabled",
-			       "sid" : sid
-			     ]);
-			object s = stream( vars );
-                        s->send_headers( id->my_fd );
-                        thread_create( s->live_source, id->my_fd );
-			streams += ([ sid : s ]);
-                        return http_pipe_in_progress();
-		    } else {
-			return 0;
-		    }
-		}
-		}
-		*/
-            return 0;
+	    break;
 	}
+	break;
     }
 }
 
 mixed find_dir( string path, object id ) {
-    array parts = path / "/";
-    parts = parts = ({ "" });
+    array parts = (path / "/") - ({ "" });
     if ( sizeof( parts ) == 0 ) {
 	return ({ "streams", "playlists", "incoming" });
-    } else if ( parts[ 0 ] == "streams" ) {
+    }
+    switch ( parts[ 0 ] ) {
+    case "streams":
 	if ( QUERY(listing_streams) ) {
 	    array retval = ({ });
 	    array tmp = indices( streams );
@@ -244,11 +202,12 @@ mixed find_dir( string path, object id ) {
 	} else {
 	    return 0;
 	}
-    } else if ( parts[ 0 ] == "playlist" ) {
+	break;
+    case "playlists":
 	if ( QUERY(listing_playlists) ) {
 	    array retval = ({ });
 	    array tmp = indices( streams );
-            int sid;
+	    int sid;
 	    foreach( tmp, sid ) {
 		retval += ({ (string)sid + ".pls" });
 	    }
@@ -256,9 +215,13 @@ mixed find_dir( string path, object id ) {
 	} else {
 	    return 0;
 	}
-    } else if ( parts[ 0 ] == "incoming" ) {
+	break;
+    case "incoming":
 	return 0;
-	// NOT IMPLEMENTED YET
+	break;
+    default:
+	return 0;
+        break;
     }
 }
 
@@ -486,7 +449,7 @@ class stream_client {
 	skip_count++;
 	if ( skip_count > 100 ) {
 	    // If the queue has been full for more than 10 seconds then
-            // feel free to disconnect them, because they must have timedout.
+            // feel free to disconnect them, because they must have timed out.
 	    return this_object();
 	}
 	return 0;
@@ -505,12 +468,16 @@ class stream_client {
     }
 
     mixed protocol() {
-	if ( vars->protocol == 1 ) {
-	    return "ICY";
-	} else if ( vars->protocol == 2 ) {
-	    return "Audiocast";
-	} else {
+	switch (vars->protocol) {
+	case 0:
 	    return 0;
+            break;
+	case 1:
+	    return "ICY";
+            break;
+	case 2:
+	    return "Audiocast";
+	    break;
 	}
     }
 
