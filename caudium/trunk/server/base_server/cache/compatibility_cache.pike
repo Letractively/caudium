@@ -27,15 +27,29 @@ inherit "caudiumlib";
 inherit "cachelib";
 
 object cache_manager;
+mapping caches;
+
+void create() {
+  caches = ([ ]);
+}
+
+private object find_cache( string in ) {
+  if (! caches[ in ] ) {
+    object res = cache_manager->get_cache( in );
+    caches[ in ] = res;
+    return res;
+  }
+  return caches[ in ];
+}
 
 void cache_expire(string in)
 {
-  object this_cache = cache_manager->get_cache( in );
+  object this_cache = find_cache( in );
   this_cache->flush();
 }
 
 mixed cache_lookup( string in, string what ) {
-  object this_cache = cache_manager->get_cache( in );
+  object this_cache = find_cache( in );
   return this_cache->retrieve( what, 1 )||0;
 }
 
@@ -43,16 +57,16 @@ string status() {
   /*
    * Not implemented, sorry. ***FIXME***
    */
-  return "";
+  return cache_manager->status();
 }
 
 void cache_remove(string in, string what) {
-  object this_cache = cache_manager->get_cache( in );
+  object this_cache = find_cache( in );
   this_cache->refresh( what );
 }
 
 mixed cache_set(string in, string what, mixed to, int|void tm) {
-  object this_cache = cache_manager->get_cache( in );
+  object this_cache = find_cache( in );
   this_cache->store( cache_pike_object( to, what, tm ) );
   return to;
 }

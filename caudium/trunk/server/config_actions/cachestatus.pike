@@ -26,15 +26,15 @@
 inherit "wizard";
 constant name= "Cache//Cache status";
 
-constant doc = ("Show hitrate of the caching system.");
+constant doc = ("Show information about the Caudium Caching Sub-system.");
 
 constant more=1;
 
 constant ok_label = " Refresh ";
 constant cancel_label = " Done ";
 
-mixed page_0(object id, object mc)
-{
+mixed page_0(object id, object mc) {
+/*
   string ret;
 
   ret = "<font size=\"+1\">Memory</font>";
@@ -45,10 +45,11 @@ mixed page_0(object id, object mc)
     ret += html_border( caudium->get_garb_info(), 0, 5 );
   }
   return ret;
+*/
+  return cache->status();
 }
 
-int verify_0()
-{
+int verify_0() {
   return 1;
 }
 
