@@ -203,8 +203,8 @@ void parse_ext_string(string exts, mapping m)
   if( !exts )
     return;
 
-  foreach( (exts - "\r")/"\n", line) {
-    line = String.trim_whites(lower_case( line ));
+  foreach( exts/"\n", line) {
+    line = String.trim_all_whites(lower_case( line ));
 
     // throw away empty lines
     if( !strlen(line) )
