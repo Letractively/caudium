@@ -151,6 +151,12 @@ ncsa.mosaic.*[2-9].[7-9]*.* pnginline
 .*        forms 
 # }
 
+#
+# Links has good support for tables and frames
+#section links {
+.*	  forms, frames, tables
+#}
+
 #section emacs {
 # Emacs w3 is quite slow, but a very impressive hack...
 .*                    basic, jpeginline, fonts, imagealign
