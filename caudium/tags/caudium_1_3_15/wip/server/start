@@ -1,0 +1,282 @@
+#!@PIKEBIN@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2003-2000 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+ 
+/*
+ * Authors: 
+ *   Marek Habersack <grendel@caudium.net>
+ *
+ * License: MPL/LGPL
+ * 
+ * $Id$
+ */
+ 
+// for convenience
+string pikever = sprintf("lib/%u.%u.%u/", __REAL_MAJOR__, __REAL_MINOR__, __REAL_BUILD__);
+
+// argumentss we understand
+array(array(string | array(string))) arguments = ({
+  ({"D", Getopt.HAS_ARG, ({"-D", "--define"})}),
+  ({"quiet", Getopt.NO_ARG, ({"--quiet"})}),
+  ({"truss", Getopt.NO_ARG, ({"--truss"})}),
+  ({"strace", Getopt.NO_ARG, ({"--strace"})}),
+  ({"ltrace", Getopt.NO_ARG, ({"--ltrace"})}),
+  ({"log-dir", Getopt.HAS_ARG, ({"--log-dir", "--logdir"})}),
+  ({"config-dir", Getopt.HAS_ARG, ({"--config-dir", "--configdir"})}),
+  ({"pike-version", Getopt.HAS_ARG, ({"--pike-version", "--pikeversion"})}),
+  ({"pid-file", Getopt.HAS_ARG, ({"--pid-file", "--pidfile"})}),
+  ({"debug", Getopt.NO_ARG, ({"--debug", "--with-debug", "--enable-debug"})}),
+  ({"nodebug", Getopt.NO_ARG, ({"--witout-debug", "--nodebug", "--disable-debug"})}),
+  ({"fddebug", Getopt.NO_ARG, ({"--fd-debug", "--with-fd-debug", "--enable-fd-debug"})}),
+  ({"threads", Getopt.NO_ARG, ({"--threads", "--with-threads", "--enable-threads"})}),
+  ({"nothreads", Getopt.NO_ARG, ({"--no-threads", "--without-threads", "--disable-threads"})}),
+  ({"profile", Getopt.NO_ARG, ({"--profile", "--with-profile", "--enable-profile"})}),
+  ({"fileprofile", Getopt.NO_ARG, ({"--file-profile", "--with-file-profile", "--enable-file-profile"})}),
+  ({"keepalive", Getopt.NO_ARG, ({"--keep-alive", "--with-keep-alive", "--enable-keep-alive"})}),
+  ({"once", Getopt.NO_ARG, ({"--once"})}),
+  ({"gdb", Getopt.MAY_HAVE_ARG, ({"--gdb"}), 0, "gdb"}),
+  ({"program", Getopt.HAS_ARG, ({"--program"})}),
+  ({"pikeargs", Getopt.MAY_HAVE_ARG, ({"-r", "-d", "-t", "-l", "-w"})}),
+  ({"pikedefines", Getopt.HAS_ARG, ({"-D", "-M", "-I", "-P"})}),
+  ({"version", Getopt.NO_ARG, ({"--version"})}),
+  ({"help", Getopt.NO_ARG, ({"--help"})})
+});
+
+// loader options (with defaults)
+mapping(string:mixed) options = ([
+  "gdb" : "gdb",
+  "pike" : 0,
+  "pikever" : 0,
+  "program" : 0, 
+]);
+
+// files we load/use
+// paths relative to the caudium server dir
+mapping(string:string) files = ([
+  "environment" : "etc/environment",
+  "loader" : "base_server/caudiumloader.pike"
+]);
+
+// default directory locations. Relative to the caudium server dir.
+mapping(string:string|array) dirs = ([
+  "LOG" : "../logs/",
+  "CONFIG" : "../configurations/",
+  "extra_modpath" : ({
+    "etc/modules/", pikever
+  }),
+  "extra_incpath" : ({
+    "etc/include", "base_server"
+  }),
+  "extra_progpath" : ({
+  })
+]);
+
+// environment variables we set for caudium
+// all of them are merged with the values of variables from the shell
+// environment, if they exist. The existing variables are appended to the
+// values below. Some of the variables are constructed dynamically, those
+// are not included in the mapping below.
+mapping(string:string|array) envvars = ([
+  "CLASSPATH" : "etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar",
+  "PIKE_MODULE_PATH" : getenv("PIKE_MODULE_PATH") || "",
+]);
+
+// components of the Caudium command line.
+mapping(string:string|array) command_line = ([
+  "DEFINES" : ({}),
+  "INCLUDES" : ({})
+]);
+
+// standard descriptors for caudium
+Stdio.File   stdout;
+Stdio.File   stderr;
+
+// load the environment variables
+
+int daemonize()
+{
+  if (fork())
+    return 0;
+
+  Stdio.stdin->close();
+  Stdio.stdout->close();
+  Stdio.stderr->close();
+
+  System.setsid();
+
+  return 0;
+}
+
+// run Caudium and return its exit status.
+int run_caudium(array(string) args, mapping|void opts)
+{
+  Process.Process   proc;
+  mapping           myopts = opts || ([]);
+
+  opts->stdout = stdout;
+  opts->stderr = stderr;
+  opts->cwd = "/usr/src/tmp";
+
+  proc = Process.create_process(({"/usr/bin/pike7.4", "-M /usr/src/tmp", "/usr/src/tmp/t.pike"}), opts);
+
+  if (!proc) {
+    stderr->write("Failed to execute the child process\n");
+    return 1;
+  }
+
+  return proc->wait();
+}
+
+void append_env_path(string envvar, string value)
+{
+  if (!envvar || !sizeof(envvar))
+    return;
+  
+  if (envvars[envvar] && sizeof(envvars[envvar]))
+    envvars[envvar] += ":";
+  envvars[envvar] += value;
+}
+
+// Sets some initial and extra values. This function MUST be ran with the
+// cwd set to the caudium toplevel directory.
+void preamble()
+{
+  mapping(string:string)  osdata = System.uname();
+  int                     go_threads = 0;
+  string                  os_label = "";
+  array(string)           os_rel;
+  Stdio.Stat              fstat;
+
+  if (options->pikever) {
+    fstat = file_stat("bin/caudium-" + options->pikever);
+    if (fstat && fstat->isreg && (fstat->mode & 0111))
+      options->pike = "bin/caudium-" + options->pikever;
+    if (!options->pike) {
+      fstat = file_stat("bin/pike-" + options->pikever);
+      if (fstat && fstat->isreg && (fstat->mode & 0111))
+        options->pike = "bin/pike-" + options->pikever;
+    }
+    if (!options->pike) {
+      write("Cannot find Pike v%s in %s/bin/\n", options->pikever, getcwd());
+      exit(1);
+    }
+  } else {
+    if (!options->program) {
+      fstat = file_stat("bin/caudium");
+      if (fstat && fstat->isreg && (fstat->mode & 0111))
+        options->pike = "bin/caudium";
+    }
+    if (!options->pike) {
+      fstat = file_stat("bin/pike");
+      if (fstat && fstat->isreg && (fstat->mode & 0111))
+        options->pike = "bin/pike";
+    }
+    if (!options->pike) {
+      write("Cannot find Pike in %s/bin/\n", getcwd());
+      exit(1);
+    }
+  }
+
+  os_rel = osdata->release / ".";
+  if (sizeof(os_rel) < 2)
+    os_rel += ({"0"}); // better this than nothing
+  
+  switch(osdata->sysname) {
+      case "SunOS":
+        if ((int)os_rel[0] >= 5 && (int)os_rel[1] >= 5) {
+          os_label = "Solaris 2.5 or later";
+          go_threads = 1;
+        }
+        break;
+
+      case "FreeBSD":
+        if ((int)os_rel[0] >= 4) {
+          os_label = "FreeBSD 4.0 or later";
+          go_threads = 1;
+        }
+        break;
+
+      case "Linux":
+        if ((int)os_rel[0] >= 2 && (int)os_rel[1] >= 2) {
+          os_label = "Linux 2.2 or later";
+          go_threads = 1;
+        }
+        break;
+
+      case "Darwin":
+        os_label = "Darwin or MacOS X";
+        go_threads = 1;
+        break;
+  }
+
+  if (go_threads) {
+    write("%s detected, enabling threads by default (if available in Pike)\n",
+          os_label);
+    command_line->DEFINES += ({"ENABLE_THREADS"});
+  }
+
+  System.umask(022);
+
+  if (!getenv("PIKE_NO_DEFAULT_PATHS")) {
+    if (!getenv("PIKE_MASTER")) { // Pike default master program
+      // obsolete code, but kept for compatibility
+      if (Stdio.is_dir("share/pike/")) {
+        command_line->INCLUDES += ({"share/pike/include/"});
+        append_env_path("PIKE_MODULE_PATH", "share/pike/modules/");
+      }
+
+      if (Stdio.is_file("lib/master.pike")) {
+        command_line->OTHER += ({"-mlib/master.pike"});
+        command_line->INCLUDES += ({"lib/include/"});
+        append_env_path("PIKE_MODULE_PATH", "lib/modules/");
+      } else if (Stdio.is_file("lib/pike/master.pike")) {
+        command_line->OTHER += ({"-mlib/pike/master.pike"});
+        command_line->INCLUDES += ({"lib/pike/include/"});
+        append_env_path("PIKE_MODULE_PATH", "lib/pike/modules/");
+      }
+    } else {
+      command_line->OTHER += ({"-m" + getenv("PIKE_MASTER")});
+    }
+  }
+
+  // extra paths
+  dirs->extra_progpath += ({getcwd()});
+
+  // a kludge for HPUX which doesn't like group 60001 (nobody)
+  if (osdata->sysname == "HP-UX") {
+    write("WARNING: applying a kludge for HPUX (see base_server/privs.pike)\n");
+    command_line->DEFINES += ({"HPUX_KLUDGE"});
+  }
+}
+
+void parse_arguments(array(string) argv)
+{
+  array(array)  parsed = Getopt.find_all_options(argv, arguments, 0);
+
+}
+
+int main(int argc, array(string) argv)
+{
+  preamble();
+
+  write("command_line: %O\nenvvars: %O\n", command_line, envvars);
+  
+  return 0;
+}
