@@ -90,12 +90,18 @@ mozilla/[5-9].*		pnginline, gecko
 .*compatible.*opera.5.*	opera5
 .*compatible.*opera.6.*	opera6
 
-# Opera 5.0 masquereaded as Mozilla
+# Opera 5.0 masqueraded as Mozilla
 mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				opera, cssfaulty, nocssbackrepeat
 mozilla/[3-5].*opera.5.*	opera5
 mozilla/[3-5].*opera.6.*	opera6
+
+# Konqueror masqueraded as Mozilla
+mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
+				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
+				konqueror3
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
