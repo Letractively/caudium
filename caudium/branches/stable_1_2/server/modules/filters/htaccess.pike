@@ -22,7 +22,7 @@
 //
 //! module: .htaccess support
 //!  Almost complete support for NCSA/Apache .htaccess files.
-//!  See <a href="http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html">http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.
+//!  See <a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.
 //!  Manual is also <a href="http://manuals.oav.net/creator/security/index.html">available</a>.
 //! inherits: module
 //! inherits: caudiumlib
@@ -46,9 +46,9 @@ inherit "caudiumlib";
 constant module_type = MODULE_SECURITY | MODULE_URL;
 constant module_name = ".htaccess support";
 constant module_doc  = "Almost complete support for NCSA/Apache .htaccess files. See "
-	      "<a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information."
+	      "<a href='http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html'>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information."
 		       "Manual is also <a href=\"http://manuals.oav.net/creator/security/index.html\">"
-                       "available</a>.";
+		       "available</a>.";
 constant module_unique = 1;
 
 #define SERIOUS
@@ -177,7 +177,7 @@ mapping|int parse_htaccess(object f, object id, string rht)
   array(int) s;
   mixed in_cache;
   mapping access = ([ ]);
-  cache_key = "htaccess:" + id->conf->name;
+  cache_key = "htaccess:" + id->host;
     
 
   s = (array(int))f->stat();
@@ -416,7 +416,7 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
   object f;
   mixed in_cache;
 
-  cache_key = "groupfile:" + id->conf->name;
+  cache_key = "groupfile:" + id->host;
 
   if (!groupfile) {
 #ifdef HTACCESS_DEBUG
@@ -718,7 +718,10 @@ inline string dot_dot(string from)
 string|int cache_path_of_htaccess(string path, object id)
 {
   mixed f;
-  f = cache_lookup("htaccess_files:"+id->conf->name, path);
+
+	string cache_key = "htaccess_files:"+id->host;
+	
+  f = cache_lookup(cache_key, path);
 #ifdef HTACCESS_DEBUG
   if(f==0)
     HT_WERR("Location of .htaccess file for "+path+" not cached.");
@@ -736,7 +739,10 @@ void cache_set_path_of_htaccess(string path, string|int htaccess_file, object id
   HT_WERR("Setting cached location for "
 	 +path+" to "+htaccess_file+"");
 #endif
-  cache_set("htaccess_files:"+id->conf->name, path, htaccess_file);
+
+	string cache_key = "htaccess_files:"+id->host;
+
+  cache_set(cache_key, path, htaccess_file);
 }
 
 // This function traverse the virtual filepath to see if there are any 
@@ -876,7 +882,7 @@ mapping htaccess_no_file(object id)
     }
     if (st && (st[1] == -4)) {
       report_error(sprintf("HTACCESS: Nofile \"%s\" is a device!\n"
-			   "query: \"%s\"\n", file, id->query + ""));
+		   "query: \"%s\"\n", file, id->query + ""));
     }
   }
   return 0;
