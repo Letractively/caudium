@@ -60,12 +60,12 @@ constant module_unique = 0;
 HTTP/1.0 500 "+X+"\r\n\
 Content-type: text/html\r\n\
 \r\n\
-<title>Roxen: "+X+"</title>\n\
+<title>Caudium: "+X+"</title>\n\
 <h1>Proxy Request Failed</h1>\
 <hr>\
 <font size=+2><i>"+X+"</i></font>\
 <hr>\
-<font size=-2><a href=http://www.roxen.com/>Caudium</a></font>"
+<font size=-2><a href=http://www.caudium.net/>Caudium</a></font>"
 
 import Stdio;
 import Array;
