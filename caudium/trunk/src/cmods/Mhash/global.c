@@ -129,6 +129,7 @@ void mhash_init_globals(void) {
   add_integer_constant("HAVAL160", MHASH_HAVAL160, 0);
   add_integer_constant("HAVAL128", MHASH_HAVAL128, 0);
   add_integer_constant("HAVAL224", MHASH_HAVAL224, 0);
+  add_integer_constant("version", 2, 0);
 #if 0
   /* Not existing yet...  */
   add_integer_constant("SNEFRU", MHASH_SNEFRU, 0);

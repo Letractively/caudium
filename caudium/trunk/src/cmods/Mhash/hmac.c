@@ -118,12 +118,14 @@ void f_hmac_set_key(INT32 args)
   pop_n_elems(args);
 }
 
-//! method: void feed(string data)
-//! method: void update(string data)
+//! method: object feed(string data)
+//!    alt: object update(string data)
 //!  Update the current hash context with data.
 //!  update() is here for compatibility reasons with Crypto.md5.
 //! arg: string data
 //!  The data to update the context with.
+//! returns:
+//!  The current Mhash.HMAC object.
 //! name: feed - Update the current hash context.
 void f_hmac_feed(INT32 args) 
 {
@@ -139,7 +141,9 @@ void f_hmac_feed(INT32 args)
    case HMAC_FAIL:
     Pike_error("Failed to initialize the hash due to an unknown error.\n");
    case HMAC_DONE:
-    Pike_error("Hash is ended. Use Mhash.HMAC()->reset() to reset the hash.\n");
+    free_hash();
+    init_hmac();
+    
    case HMAC_OK:
    case HMAC_LIVE:
     /* Ready to go! */
@@ -154,6 +158,7 @@ void f_hmac_feed(INT32 args)
     }
   }
   pop_n_elems(args);
+  push_object(this_object());
 }
 
 static int get_digest(void)
@@ -251,8 +256,8 @@ void mhash_init_hmac_program(void) {
   ADD_STORAGE( mhash_storage  );
   ADD_FUNCTION("create", f_hmac_create,   tFunc(tOr(tInt,tVoid),tVoid), 0);
   ADD_FUNCTION("set_key", f_hmac_set_key, tFunc(tStr,tVoid), 0);
-  ADD_FUNCTION("update", f_hmac_feed,   	tFunc(tStr,tVoid), 0 ); 
-  ADD_FUNCTION("feed", f_hmac_feed,     	tFunc(tStr,tVoid), 0 );
+  ADD_FUNCTION("update", f_hmac_feed,   	tFunc(tStr,tObj), 0 ); 
+  ADD_FUNCTION("feed", f_hmac_feed,     	tFunc(tStr,tObj), 0 );
   ADD_FUNCTION("digest", f_hmac_digest, 	tFunc(tVoid,tStr), 0);
   ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hmac_reset,   	tFunc(tVoid,tVoid), 0 ); 

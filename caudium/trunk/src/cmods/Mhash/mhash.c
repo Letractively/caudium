@@ -57,6 +57,11 @@ void f_hash_create(INT32 args)
       Pike_error("Invalid argument 1. Expected integer.\n");
     }
     THIS->type = sp[-args].u.integer;
+    THIS->hash = mhash_init(THIS->type);
+    if(THIS->hash == MHASH_FAILED) {
+      THIS->hash = NULL;
+      Pike_error("Failed to initialize hash.\n");
+    }
     break;
   case 0:
     break;
@@ -65,19 +70,26 @@ void f_hash_create(INT32 args)
   pop_n_elems(args);
 }
 
-//! method: void feed(string data)
-//! method: void update(string data)
+//! method: Mhash.hash feed(string data)
+//!    alt: Mhash.hash update(string data)
 //!  Update the current hash context with data.
 //!  update() is here for compatibility reasons with Crypto.md5.
 //! arg: string data
 //!  The data to update the context with.
+//! returns:
+//!  The current hash object.
 //! name: feed - Update the current hash context.
 void f_hash_feed(INT32 args) 
 {
   if(THIS->hash == NULL) {
-    if(THIS->type != -1)
-      Pike_error("Hash is ended. Use Mhash.Hash()->reset() to reset the hash.\n");
-    else
+    if(THIS->type != -1) {
+      free_hash();
+      THIS->hash = mhash_init(THIS->type);
+      if(THIS->hash == MHASH_FAILED) {
+	THIS->hash = NULL;
+	Pike_error("Failed to initialize hash.\n");
+      }
+    } else
       Pike_error("Hash is uninitialized. Use Mhash.Hash()->set_type() to select hash type.\n");
   }
   if(args == 1) {
@@ -90,6 +102,7 @@ void f_hash_feed(INT32 args)
     Pike_error("Invalid number of arguments to Mhash.Hash->feed(), expected 1.\n");
   }
   pop_n_elems(args);
+  push_object(this_object());
 }
 
 static int get_digest(void)
@@ -193,8 +206,8 @@ void mhash_init_mhash_program(void) {
   start_new_program();
   ADD_STORAGE( mhash_storage  );
   ADD_FUNCTION("create", f_hash_create,   tFunc(tOr(tInt,tVoid),tVoid), 0);
-  ADD_FUNCTION("update", f_hash_feed,   	tFunc(tStr,tVoid), 0 ); 
-  ADD_FUNCTION("feed", f_hash_feed,     	tFunc(tStr,tVoid), 0 );
+  ADD_FUNCTION("update", f_hash_feed,   	tFunc(tStr,tObj), 0 ); 
+  ADD_FUNCTION("feed", f_hash_feed,     	tFunc(tStr,tObj), 0 );
   ADD_FUNCTION("digest", f_hash_digest, 	tFunc(tVoid,tStr), 0);
   ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hash_reset,   	tFunc(tVoid,tVoid), 0 ); 
