@@ -22,8 +22,10 @@
 #define ALLOCA_KLUNDGE_H
 
 #ifdef __FreeBSD__
-# undef HAVE_ALLOCA
-# undef HAVE_ALLOCA_H
+# if __FreeBSD_version < 50200
+#  undef HAVE_ALLOCA
+#  undef HAVE_ALLOCA_H
+# endif
 #endif
 
 #ifdef __NetBSD__
@@ -45,14 +47,14 @@
  * For INLINE with alloca
  */
 #ifndef HAVE_ALLOCA
-# ifndef __FreeBSD__
-#  ifndef __OpenBSD__
-#   ifndef __NetBSD__
-#    ifndef __APPLE__
-#     define DO_INLINE
-#    endif
+# if !defined(__OpenBSD__) && !defined(__APPLE__) && !defined(__NetBSD__)
+#  ifdef __FreeBSD__
+#   if __FreeBSD_version >= 502000
+#    define DO_INLINE
 #   endif
-#  endif
+#  else
+#   define DO_INLINE
+#  endif 
 # endif
 #endif
 
