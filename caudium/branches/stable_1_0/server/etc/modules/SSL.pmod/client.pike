@@ -37,7 +37,7 @@ int main(int argc, array(string) argv)
     exit(-1);
   }
   socket->set_nonblocking();
-  sslfile = SSL.sslfile(socket, context, 1);
+  sslfile = SSL.sslfile(socket, context);
 
   sslfile->set_nonblocking(read_callback, write_callback, exit);
 
