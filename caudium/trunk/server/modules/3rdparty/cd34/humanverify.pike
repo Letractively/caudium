@@ -92,9 +92,9 @@ void create()
   defvar("salt", 
          "ABCabc",
          "Insert a random local value here", TYPE_STRING,
-         "This value is added so that the simple formula is not easily discovered");
+         "This value is added so that the simple formula is not easily discovered.  The salt should be a string of numbers and characters.  Spaces will be removed, so you can use a phrase or something similar.");
   defvar("capital", "Leave as is", "Case Assignment", TYPE_STRING_LIST,
-         "Leave case as is, Force Uppercase, Force Lowercase", 
+         "You can force the validation result to all uppercase, all lowercase or leave it as is.", 
          ({ "Leave as is", "Force Uppercase", "Force Lowercase" }));
   defvar("cache", 
          "1",
