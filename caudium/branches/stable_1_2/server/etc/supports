@@ -17,7 +17,7 @@
 
 # The syntax is quite straightforward:
 # regular_expression  value,value,value...
-# \ can be used to escape newlines.
+# \ can be used to escape newlines. Regexps are case insensitive.
 # If a line starts with '#', it is skipped, unless it is
 #
 # '#include <file>'
@@ -40,9 +40,12 @@
 
 
 #section opera {
-opera/5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera
-#}
+.*opera/[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera, cssfaulty,\
+		nocssbackrepeat
+.*opera/5.*	opera5
+.*opera/6.*	opera6
+# }
 
 ## Netscape is named "mozilla/major.minor system ..."
 
@@ -51,54 +54,60 @@ opera/5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, ta
 .*               basic, tables, jpeginline, font, imagealign,\
 			cookies, push, pull, backgrounds, ssl,\
 			java, frames, backgrounds, autogunzip,\
-			netscape_javascript
+			netscape_javascript, pngalpha
 
-mozilla/0\..*	-tables, -backgrounds, -ssl, -frames, -java, -javascript -netscape_javascript
-mozilla/1.[01].*	-tables, -backgrounds, -ssl, -frames, -java, -javascript, -netscape_javascript
-mozilla/1\..*	-ssl, -frames, -java, -javascript, -netscape_javascript
+mozilla/0\..*	-tables, -backgrounds, -ssl, -frames, -java, -javascript, -netscape_javascript, -pngalpha
+mozilla/1.[01].*	-tables, -backgrounds, -ssl, -frames, -java, -javascript, -netscape_javascript, -pngalpha
+mozilla/1\..*	-ssl, -frames, -java, -javascript, -netscape_javascript, -pngalpha
 
-mozilla.[2-9].[0-9].*	some_html3, fontcolor, pjpeginline
-mozilla.2.0b[2-9].*	-java
+mozilla.[2-9].[0-9].*	some_html3, fontcolor, pjpeginline, -pngalpha
+mozilla.2.0b[2-9].*	-java, -pngalpha
 
 #Old versions on Mac crash the entire machine if you use javascript.
-mozilla/2.*	        -netscape_javascript
-mozilla/2.*X11		javascript
-mozilla/2.*OS/2		javascript, tcl
-mozilla/2.*Win16	-java, javascript
-mozilla/2.*Macintosh	-java
+mozilla/2.*	        -netscape_javascript, -pngalpha
+mozilla/2.*X11		javascript, -pngalpha
+mozilla/2.*OS/2		javascript, tcl, -pngalpha
+mozilla/2.*Win16	-java, javascript, -pngalpha
+mozilla/2.*Macintosh	-java, -pngalpha
 
-mozilla/[3-9].*		javascript, tablecolor
+mozilla/[3-9].*		javascript, tablecolor, -pngalpha
 
-mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
-mozilla/4\.0[4-9].*	pnginline
-mozilla/4\.[5-9].*	pnginline
+mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer, -pngalpha
+mozilla/4\.0[4-9].*	pnginline, -pngalpha
+mozilla/4\.[5-9].*	pnginline, -pngalpha
 mozilla/5\.0b1		-java, pnginline, tcl
-mozilla/[5-9].*		pnginline
+mozilla/[5-9].*		pnginline, gecko
 
 # Opera 3
 
-.*compatible.*opera.3.*	-java, javascript, opera
+.*compatible.*opera.3.*	-java, javascript, opera, -pngalpha, cssfaulty, nobgrepeat
+.*compatible.*opera.3.*	opera3
 
-# Opera 5.0 "hided" as MSIE
-.*compatible.*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera
-# Opera 5.0 "hided" as Mozilla
-mozilla/[3-5].*opera.5.*	
-mozilla/[3-5].*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
+# Opera 5.0 masqueraded as MSIE
+.*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty, \
+			nobgrepeat
+.*compatible.*opera.5.*	opera5
+.*compatible.*opera.6.*	opera6
+
+# Opera 5.0 masquereaded as Mozilla
+mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				opera
+				opera, cssfaulty, nobgrepeat
+mozilla/[3-5].*opera.5.*	opera5
+mozilla/[3-5].*opera.6.*	opera6
 
 # BLAM BLAM BLAM BLAM
-.*compatible.*			-push
-.*compatible.*msie		msie
-.*compatible.*msie.1		-javascript
-.*compatible.*msie.[1-2]	-java ssl_faulty
-.*compatible.*msie.[1-3]	-netscape_javascript, ssl_faulty
+.*compatible.*			-push, -pngalpha
+.*compatible.*msie		msie, -pngalpha
+.*compatible.*msie.1		-javascript, -pngalpha
+.*compatible.*msie.[1-2]	-java, ssl_faulty, -pngalpha
+.*compatible.*msie.[1-3]	-netscape_javascript, ssl_faulty, -pngalpha
 
-.*compatible.*msie.[2-9]	tablecolor, javascript, ssl_faulty
-.*compatible.*msie.[3-9]	activex, tableimages, ssl_faulty
+.*compatible.*msie.[2-9]	tablecolor, javascript, ssl_faulty, -pngalpha
+.*compatible.*msie.[3-9]	activex, tableimages, ssl_faulty, -pngalpha
 # MSIE3 stylesheets are broken
-.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer, ssl_faulty
+.*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer, ssl_faulty, -pngalpha
 .*compatible.*msie.[5-9]	pnginline, ssl_faulty
 .*compatible.*msie.[5-9]\.01	-ssl_faulty
 .*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
@@ -268,6 +277,7 @@ cern.*linemode.*           nothing
 
 #section chimera {
 # Chimera.
+# chimera is a gecko-based browser for MacOS X that now declare itself as Mozilla/5.0 and Gecko/*
 .*	basic, -mailto
 # }
 
@@ -371,7 +381,118 @@ cern.*linemode.*           nothing
 
 .*libwww-perl.*		robot
 
+# GNU Wget
+wget.*			robot
+
+# BSD's fetch
+fetch.*			robot
 
 # The default. If nothing else matches this is used to determine the
 # supports values.
+
 default      images, gifinline, forms, mailto
+
+
+# Some email gatherers most of them are used as email tracker
+# and gatherer. Looking for new mails to get and add to spam lists
+# See http://www.neilgunton.com/spambot_trap/ for more informations
+
+[A-Z]+$			robot,spamrobot
+Browse.*		robot,spamrobot
+.Eval.*			robot,spamrobot
+.Surf.*			robot,spamrobot
+.*Harvest.*		robot,spamrobot
+.*HTTrack.*		robot,spamrobot
+.*LWP.*			robot,spamrobot
+.*prospector.*		robot,spamrobot
+ASSORT.*		robot,spamrobot
+attache.*		robot,spamrobot
+ATHENS.*		robot,spamrobot
+autohttp.*		robot,spamrobot
+Digger.*		robot,spamrobot
+bew.*			robot,spamrobot
+Bullseye.*		robot,spamrobot
+CherryPicker.*		robot,spamrobot
+Crescent.*		robot,spamrobot
+curl.*			robot,spamrobot
+devsoft's.*		robot,spamrobot
+Deweb.*			robot,spamrobot
+Digimarc.*		robot,spamrobot
+digout4uagent.*		robot,spamrobot
+DIIbot.*		robot,spamrobot
+disco.*			robot,spamrobot
+ecollector.*		robot,spamrobot
+EmailCollector.*	robot,spamrobot
+EmailSiphon.*		robot,spamrobot
+EmailWolf.*		robot,spamrobot
+EO.*			robot,spamrobot
+Browse.*		robot,spamrobot
+ExtractorPro.*		robot,spamrobot
+fastlwspider.*		robot,spamrobot
+FEZhead.*		robot,spamrobot
+Getleft.*		robot,spamrobot
+GetURL.*		robot,spamrobot
+GetWebPage.*		robot,spamrobot
+go-ahead-got-it.*	robot,spamrobot
+ia_archiver.*		robot,spamrobot
+IBM_Planetwide.*	robot,spamrobot
+IncyWincy.*		robot,spamrobot
+KWebGet.*		robot,spamrobot
+leech.*			robot,spamrobot
+MCspider.*		robot,spamrobot
+Microsoft.URL.*		robot,spamrobot
+Monster.*		robot,spamrobot
+Mozilla.*NEWT.*		robot,spamrobot
+Mozilla/3.0.+Indy.*	robot,spamrobot
+Library.*		robot,spamrobot
+Mozilla/3.Mozilla/2..*	robot,spamrobot
+Mozilla/4.0$		robot,spamrobot
+Mirror.*		robot,spamrobot
+Net.Vampire.*		robot,spamrobot
+netattache.*		robot,spamrobot
+NetCarta.*		robot,spamrobot
+nicerspro.*		robot,spamrobot
+OpaL.*			robot,spamrobot
+Openfind.*		robot,spamrobot
+OpenTextSiteCrawler.*	robot,spamrobot
+PackRat.*		robot,spamrobot
+pavuk.*			robot,spamrobot
+Plucker.*		robot,spamrobot
+PushSite.*		robot,spamrobot
+reget.*			robot,spamrobot
+RepoMonkey.*		robot,spamrobot
+Rover.*			robot,spamrobot
+Rsync.*			robot,spamrobot
+ScoutAbout.*		robot,spamrobot
+searchterms.it.*	robot,spamrobot
+Shai.*			robot,spamrobot
+sitecheck.*		robot,spamrobot
+Spegla.*		robot,spamrobot
+SpiderBot.*		robot,spamrobot
+SuperBot.*		robot,spamrobot
+SurfWalker.*		robot,spamrobot
+tarspider.*		robot,spamrobot
+teleport.*		robot,spamrobot
+pro/1..*		robot,spamrobot
+Telesoft.*		robot,spamrobot
+Templeton.*		robot,spamrobot
+UtilMind.*		robot,spamrobot
+w3mir.*			robot,spamrobot
+web.by.mail.*		robot,spamrobot
+WebBandit.*		robot,spamrobot
+WebCopier.*		robot,spamrobot
+WebCopy.*		robot,spamrobot
+WebEMailExtrac.*	robot,spamrobot
+WebMiner.*		robot,spamrobot
+WebReaper.*		robot,spamrobot
+WebSnake.*		robot,spamrobot
+WebStripper.*		robot,spamrobot
+webvac.*		robot,spamrobot
+webwalk.*		robot,spamrobot
+WebZIP.*		robot,spamrobot
+WhosTalking.*		robot,spamrobot
+WUMPUS.*		robot,spamrobot
+www.pl.*		robot,spamrobot
+XGET.*			robot,spamrobot
+Zeus.*Webster.*		robot,spamrobot
+MSIECrawler.*		robot,spamrobot
