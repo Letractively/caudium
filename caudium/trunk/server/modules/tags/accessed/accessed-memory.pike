@@ -25,19 +25,22 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
+
 #include <module.h>
 
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version = "$Id$";
-constant thread_safe = 1;
-constant module_type = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
-constant module_name = "Accessed counter";
-constant module_doc  = "This module provides access counters, through the "
+constant cvs_version   = "$Id$";
+constant thread_safe    = 1;
+constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
+constant module_name   = "Accessed counter";
+constant module_doc    = "This module provides access counters, through the "
 "<tt>&lt;accessed&gt;</tt> tag and the <tt>&amp;page.accessed;</tt> entity.";
-
+constant module_unique=1;
 constant language = roxen->language;
+
+object counter;
 
 string status() {
   return counter->size()+" entries in the accessed database.<br />";
@@ -221,8 +224,6 @@ constant tagdoc=([
 */
 #endif
 
-object counter;
-
 void start() {
 //  query_tag_set()->prepare_context=set_entities;
   switch(query("backend")) {
@@ -238,6 +239,8 @@ void start() {
     break;
   }
 }
+
+// Kiwi: Can someone do an compatible entity for this module ???
 
 //class Entity_page_accessed {
 //  int rxml_var_eval(RXML.Context c) {
@@ -430,25 +433,27 @@ class SQLCounter {
   // SQL backend counter.
 
   Sql.sql db;
+  string table;
 
   void create() {
     db=Sql.sql(module::query("sqldb"));
+    table = module::query("table");
     catch {
-      db->query("CREATE TABLE "+query("accessed")+" (path VARCHAR(255) PRIMARY KEY,"
+      db->query("CREATE TABLE "+table+" (path VARCHAR(255) PRIMARY KEY,"
 		" hits INT UNSIGNED DEFAULT 0, made INT UNSIGNED)");
-      db->query("INSERT INTO "+query("accessed")+" (path,made) VALUES ('///',"+time(1)+")" );
+      db->query("INSERT INTO "+table+" (path,made) VALUES ('///',"+time(1)+")" );
     };
   }
 
   int creation_date(void|string file) {
     if(!file) file="///";
-    array x=db->query("SELECT made FROM "+query("accessed")+" WHERE path='"+fix_file(file)+"'");
+    array x=db->query("SELECT made FROM "+table+" WHERE path='"+fix_file(file)+"'");
     return x && sizeof(x) && (int)(x[0]->made);
   }
 
   private void create_entry(string file) {
     if(cache_lookup("access_entry", file)) return;
-    catch(db->query("INSERT INTO "+query("accessed")+" (path,made) VALUES ('"+file+"',"+time(1)+")" ));
+    catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+file+"',"+time(1)+")" ));
     cache_set("access_entry", file, 1);
   }
 
@@ -461,23 +466,23 @@ class SQLCounter {
   void add(string file, int count) {
     file=fix_file(file);
     create_entry(file);
-    db->query("UPDATE "+query("accessed")+" SET hits=hits+"+(count||1)+" WHERE path='"+file+"'" );
+    db->query("UPDATE "+table+" SET hits=hits+"+(count||1)+" WHERE path='"+file+"'" );
   }
 
   int query(string file) {
     file=fix_file(file);
-    array x=db->query("SELECT hits FROM "+query("accessed")+" WHERE path='"+file+"'");
+    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+file+"'");
     return x && sizeof(x) && (int)(x[0]->hits);
   }
 
   void reset(string file) {
     file=fix_file(file);
     create_entry(file);
-    db->query("UPDATE "+query("accessed")+" SET hits=0 WHERE path='"+file+"'");
+    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+file+"'");
   }
 
   int size() {
-    array x=db->query("SELECT count(*) from "+query("accessed"));
+    array x=db->query("SELECT count(*) from "+table);
     return (int)(x[0]["count(*)"])-1;
   }
 }
@@ -565,11 +570,10 @@ string tag_accessed(string tag, mapping m, object id)
     counts = counter->query(m->file);
   }
   else {
-// TODO: Correct this hell
-//    if(!_Roxen._match(id->remoteaddr, id->conf->query("NoLog")) &&
-//       !id->misc->accessed) {
-//      counter->add(id->not_query, (int)m->add);
-//    }
+    if(!_match(id->remoteaddr, id->conf->query("NoLog")) &&
+       !id->misc->accessed) {
+      counter->add(id->not_query, (int)m->add);
+    }
     m->file=id->not_query;
     counts = counter->query(m->file);
     id->misc->accessed = counts;
@@ -659,11 +663,11 @@ string tag_accessed(string tag, mapping m, object id)
 
   case "ordered":
     m->type="string";
-    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "ordered"));
+    res=number2string(counts, m, language(m->lang, "ordered"));
     break;
 
   default:
-    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "number"));
+    res=number2string(counts, m, language(m->lang, "number"));
   }
 
   if(m->minlength) {
