@@ -18,13 +18,23 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
+/*
+ * $Id$
+ */
 /* Based on original CGI module */
 
 #include <caudium.h>
 #include <module.h>
 inherit "module";
 inherit "caudiumlib";
+
+//! module: VHS - CGI executable support
+//!   Support for the <a href="http://hoohoo.ncsa.uiuc.edu/docs/cgi/interface.html>
+//!   CGI/1.1 interface</a>, and more.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION | MODULE_FILE_EXTENSION
+//! cvs_version: $Id$
 
 constant cvs_version = "$Id$";
 

@@ -18,6 +18,15 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+//! module: VHS - Logger module
+//!  This module logs the accesses of each vitual in VHS
+//! inberits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOGGER
+//! cvs_version: $Id$
 
 /* Based on user logging module */
 
@@ -42,7 +51,7 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_LOGGER;
 constant module_name = "VHS - Logger module";
-constant module_doc  = "This module logs the accesses of each virtaul in VHS.";
+constant module_doc  = "This module logs the accesses of each virtual in VHS.";
 constant module_unique = 1;
 
 // Parse the logging format strings.

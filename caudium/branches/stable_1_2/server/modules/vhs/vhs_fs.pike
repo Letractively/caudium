@@ -17,6 +17,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+//! module: VHS - Virtual Filesystem
+//!  VHS - Virtual Filesystem
+//! type: MODULE_LOCATION
+//! inherits: modules/filesystems/filesystem
+//! cvs_version: $Id$
 
 // #define USERFS_DEBUG 
 // #define PASSWD_DISABLED ((us[1]=="") || (us[1][0]=='*'))
