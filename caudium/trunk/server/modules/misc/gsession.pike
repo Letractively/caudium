@@ -1202,12 +1202,15 @@ string rewrite_uri(object id, string from, void|int append, void|mapping qvars)
     hashpos = search(from, "#");
 
     if (hashpos >= 0) {
+        int skip_sid = 0;
+        
         parts = from / "#";
         if (parts[0] == "") {
             parts[0] = id->raw_url;
+            skip_sid = 1;
         }
 
-        if (!id->variables[SVAR])
+        if (!skip_sid || (search(from, SVAR) < 0 && search(parts[0], SVAR) < 0))
             parts = ({parts[0], SVAR, "=" + id->misc->session_id, "#" + parts[1]});
         else {
             sepchar = "";
