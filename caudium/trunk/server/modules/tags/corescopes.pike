@@ -120,7 +120,7 @@ class CookieScope {
 
   array(string) get(string entity, object id) {
     NOCACHE();
-    return ({ id->cookies[entity] || "" });
+    return id->cookies[entity];
   }
 }
 
@@ -144,7 +144,7 @@ class FormScope {
   }
   array(string) get(string entity, object id) {
     NOCACHE();
-    return ({ id->variables[entity] || "" });
+    return id->variables[entity];
   }
 }
 
@@ -198,7 +198,7 @@ class VarScope {
     }
     if(!value) return 0;
     catch {
-      return ({ (string)value });
+      return (string)value;
     };
     return 0;
   }

@@ -49,6 +49,7 @@ constant module_doc  =
 constant module_unique = 1;
 
 int cnum=0;
+mapping scopes;
 array (mapping) tag_callers, container_callers;
 mapping (string:mapping(int:function)) real_tag_callers, real_container_callers;
 int bytes;
@@ -273,6 +274,7 @@ mapping handle_file_extension( object file, string e, object id)
     if(_stat[1] > (QUERY(max_parse)*1024))
       return 0; // To large for me..
   }
+  id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
   if(QUERY(parse_exec) &&   !(_stat[0] & 07111)) return 0;
   if(QUERY(no_parse_exec) && (_stat[0] & 07111)) return 0;
 
@@ -370,7 +372,7 @@ void build_callers()
    object o;
    real_tag_callers=([]);
    real_container_callers=([]);
-
+   scopes = ([]);
 //   misc_cache = ([]);
    tag_callers=({ ([]) });
    container_callers=({ ([]) });
@@ -379,7 +381,7 @@ void build_callers()
 
    foreach (parse_modules,o)
    {
-     mapping foo;
+     array|mapping foo;
      if(o->query_tag_callers)
      {
        foo=o->query_tag_callers();
@@ -390,6 +392,15 @@ void build_callers()
      {
        foo=o->query_container_callers();
        if(mappingp(foo)) insert_in_map_list(foo, "container");
+     }
+     if(o->query_scopes) {
+       foo = o->query_scopes();
+       if(arrayp(foo)) {
+	 foreach(foo, mixed value) {
+	   if(objectp(value) && functionp(value->query_name))
+	     scopes[value->query_name()] = value;
+	 }
+       }
      }
    }
    sort_lists();

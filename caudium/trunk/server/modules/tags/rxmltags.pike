@@ -668,8 +668,7 @@ string tag_set( string tag, mapping m, object id )
   {
     int ret;
     function _set, _get;
-    [scope,variable] = get_scope_var(m->variable, m->scope);
-
+    [scope,variable] = get_scope_var(m->variable, m->scope);      
     if(!id->misc->scopes[scope])
       return "<b> &lt;"+tag+"&gt;: Invalid scope "+scope+".</b>";
     if(!(_set = id->misc->scopes[scope]->set))
@@ -687,7 +686,7 @@ string tag_set( string tag, mapping m, object id )
 	return "<b>&lt;"+tag+"&gt;: Invalid scope "+fscope+".</b>";
       if(!(_get = id->misc->scopes[fscope]->get))
 	return "<b>&lt;"+tag+"&gt;: Scope "+fscope+" can't be read.</b>";
-      val = _get(fscope, fvar, id);
+      val = _get(fvar, id);
       if(!val && (m->debug || id->misc->debug))
 	return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
       ret = _set(variable, val, id);
@@ -1099,12 +1098,13 @@ string tag_echo(string tag,mapping m,object id,object file,
   }
 }
 
-string tag_insert(string tag,mapping m,object id,object file,mapping defines)
+array(string)|string tag_insert(string tag,mapping m,object id,object file,mapping defines)
 {
-  string n;
+  string n, scope, var;
   mapping fake_id=([]);
-
+  function _get;
   array encodings=({ "html" });
+  mixed val;
   
   if(m->encode)
   {
@@ -1122,22 +1122,52 @@ string tag_insert(string tag,mapping m,object id,object file,mapping defines)
 
   if (n=m->variable) 
   {
+    [scope, var] = get_scope_var(n, m->scope);
+    
+    m_delete(m, "scope");
     m_delete(m, "variable");
-    return do_safe_replace(id->variables[n]||
-			   (id->misc->debug?"No such variable: "+n:""),
+    
+    if(!id->misc->scopes[scope])
+      return "<b>&lt;"+tag+"&gt;: Invalid scope "+scope+".</b>";
+    if(!(_get = id->misc->scopes[scope]->get))
+      return "<b>&lt;"+tag+"&gt;: Scope "+scope+" can't be read.</b>";
+    val = _get(var, id);
+    if(arrayp(val))
+      return val;
+    return do_safe_replace(val||(id->misc->debug?"No such variable: "+n:""),
 			   m, encodings);
   }
-
+  
   if (n=m->variables) 
   {
     if(n!="variables")
-      return Array.map(indices(id->variables), lambda(string s, mapping m) {
-	return s+"="+sprintf("%O", m[s])+"\n";
-      }, id->variables)*"\n";
+      return Array.map(replace(n, ",", " ")/ " " - ({ "" }), 
+		       lambda(string s, object id) {
+			 mixed val;
+			 string scope, var;
+			 function _get;
+			 [scope, var] = get_scope_var(s, 0);
+			 
+			 if(!id->misc->scopes[scope])
+			   return "<b>&lt;"+tag+"&gt;: Invalid scope "+
+			     scope+".</b><br>";
+			 if(!(_get = id->misc->scopes[scope]->get))
+			   return "<b>&lt;"+tag+"&gt;: Scope "+scope+
+			     " can't be read.</b><br>";
+			 val = _get(var, id);
+			 if(arrayp(val))
+			   val = val[0];
+			 return
+			   sprintf("%s=%O\n<br>", s,
+				   do_safe_replace(val||
+						   (id->misc->debug ?
+						    "No such variable: "+n:""),
+						   m, encodings));
+		       }, id)*"\n";
     return do_safe_replace(String.implode_nicely(indices(id->variables)),
 			   m, encodings);
   }
-
+  
   if (n=m->cookies) 
   {
     NOCACHE();
