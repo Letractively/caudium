@@ -35,7 +35,7 @@ dBase		"dBase database support" OFF \
 OpenLDAP1	"OpenLDAP 1.x support" OFF \
 OpenLDAP2	"OpenLDAP 2.x support" OFF \
 OpenSSL		"OpenSSL support" OFF \
-SNMP		"SNMP support" OFF \
+SNMP		"SNMP support (currently broken)" OFF \
 XML		"XML support" OFF \
 XMLRPC		"XMLRPC-EPI support (implies XML and iconv)" OFF \
 XSLT		"Sablotron support (implies XML and iconv)" OFF \
