@@ -23,7 +23,7 @@
 //! module: PHP Script Support
 //!  This module allows Caudium users to run PHP scripts,
 //!  optionally with RXML post-parsing. Note that this requires
-//!  that PHP4 is compiled with Caudium/Roxen support.
+//!  that PHP4 is compiled with Caudium support.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
@@ -52,8 +52,17 @@ constant module_name = "PHP Script Support";
 constant module_doc  = "This module allows Caudium users to run PHP scripts, \
 optionally with RXML post-parsing. See <a href=\"http://\
 www.php.net/\">www.php.net</a> for further information about \
-PHP. <font color=\"red\">Please note that the support for PHP \
-very immature and isn't good enough for actual production use.</font>";
+PHP. <font color=\"red\">\
+<p>A name conflict between Pike and PHP, which is not yet fixed, \
+will cause many crashes. To fix this change \
+<pre><b>struct svalue empty_string</b><br />\
+   to<br />\
+<b>static struct svalue empty_string</b></pre> in \
+<b>src/modules/spider/spider.c</b> in the Pike source and recompile your Pike. \
+Hopefully this patch will soon be incorporated into the Pike source. \
+If you want to use embedded PHP, you HAVE to apply this patch to get a \
+usable environment.\
+</p></b>";
 constant module_unique = 0;
 
 
@@ -316,7 +325,7 @@ constant dont_dump_program = 1;
 string status()
 {
   return
-    "<p><font color=\"red\">The PHP4 interpreter isn't available."
+    "<font color=\"red\"><p>The PHP4 interpreter isn't available."
     "To get PHP4 installed:"
     "<ol>"
     "<li> Check php4 out from CVS or download the release from "
@@ -325,7 +334,8 @@ string status()
     "<li> Configure php4 with --with-caudium="+getcwd()+"</li>"
     "<li> Make and install php4</li>"
     "<li> Restart Caudium</li>"
-    "</ol></font>";
+    "</ol></p>"
+    "</font>";
 }
 
 int|mapping handle_file_extension(object o, string e, object id)
