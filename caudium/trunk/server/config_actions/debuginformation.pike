@@ -88,23 +88,6 @@ array get_prof_info(string|void foo)
   return res;
 }
 
-#if !constant(ADT.Table)
-string mktable(array titles, array data)
-{
-  string fmt = "";
-  array head = ({});
-  foreach(titles, mixed w)
-    if(intp(w)) 
-      fmt += "%"+w+"s ";
-    else
-      head += ({ w });
-  data = copy_value(data);
-  for(int i=0;i<sizeof(data);i++) data[i] = sprintf(fmt, @data[i]);
-  return "<pre><b>"+sprintf(fmt, @head)+"</b>\n"+
-    (data*"\n")+"</pre>";
-}
-#endif
-
 mixed page_1(object id, object conf)
 {
   string res = ("<font size=+1>Profiling information</font><br>"
@@ -112,15 +95,10 @@ mixed page_1(object id, object conf)
 		" time of child functions. No callgraph is available yet.<br>"
 		"Function glob: <var type=string name=subnode><br>");
 
-#if constant(ADT.Table)
   object t = ADT.Table->table(get_prof_info("*"+(id->variables->subnode||"")+"*"),
 			      ({ "Function", "Time", "Calls",
 				 "Time/Call"}));
   return res + "\n\n<pre>"+ADT.Table.ASCII.encode( t )+"</pre>";
-#else
-  return res+mktable(({"Function",-70,"Time",7,"Calls",6,"Time/Call",10}),
-		     get_prof_info(id->variables->subnode));
-#endif
 }
 #endif
 
