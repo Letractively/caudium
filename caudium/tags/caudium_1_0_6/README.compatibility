@@ -1,0 +1,106 @@
+Roxen Compatibility Notes
+=========================
+
+Caudium 1.0 is mostly compatible with Roxen 1.3. However there are
+some subtle changes, mainly for performance reasons. You can modify
+the different behavior by editing the file 'server/etc/include/performace.h'. 
+
+
+Summary of Incompatible Changes
+===============================
+
+- HTTP/0.9 is not handled per default (uncomment the SUPPORT_HTTP_09
+  define to renable). In the future, support will most likely be removed
+  completely.
+- PING support removed (sorry, no define to enable this).
+- id->client and id->referer are not set per default. The reason for
+  making those fields arrays are beyond us. You can reach the headers
+  as strings in id->request_headers or the shortcuts in id->useragent
+  and id->referrer (uncomment the EXTRA_ROXEN_COMPAT to renable).
+- The following headers are no longer but in the misc mapping (they
+  are still in the request_headers mapping of course): host,
+  proxy-connection, security-scheme, via, cache-control, negotiate,
+  forwarded, connection, content-type (uncomment the
+  EXTRA_ROXEN_COMPAT to renable).
+- spinnerlib is removed (Spinner compat not deemed necessary).
+- RoxenUserID cookie renamed to CaudiumUserID.
+- New module type added, MODULE_PRECACHE. Doesn't break any Roxen
+  modules, but aren't Roxen compatible
+
+Summary of Other Changes
+========================
+
+- id->host is now used for the Host header (lowercased). This
+  obviously doesn't break any existing code.
+- Use caudium-> instead of roxen-> and caudiumlib instead of
+  roxenlib. roxen and roxenlib still exist however.
+- If CAUDIUM is defined, you're using CAUDIUM. You can use this to
+  check whether you're using Roxen or Caudium. ROXEN is still defined
+  since there's code that checks for that to see whether they run
+  Roxen or Spinner... :-)
+
+
+Summary of Performance / Compat Flags
+=====================================
+
+This are flags you can change in server/etc/include/performance.h. The
+default value is also indicated.
+
+EXTRA_ROXEN_COMPAT (enabled)
+	Do some extra, redundant (today) parsing of headers, like
+	generating arrays of the referrer and user agent headers.
+
+ENABLE_RAM_CACHE (enabled)
+	Cache finished requests in ram for a short amount of time
+	(default time is 30 seconds). This greatly increases
+	performance if you have a less-than-huge set of data
+
+SUPPORT_HTTP_O9 (disabled)
+	Enable support for HTTP/0.9. The only thing that generally use
+	this is is badly written fetch/status checking scripts.
+
+MODULE_LEVEL_SECURITY (enabled)
+	Enable or disable module level security. This is the builtin
+	username / ip security that is part of every module. Disabling
+	it might make a small difference in performance.
+
+ENABLE_SUPPORTS (enabled)
+	Undefine this to disable the UserAgent -> supports
+	lookup. This could have a very small impact in
+	performance. Since the lookups are cached nowadays, the
+	difference should be rather small.
+
+ENABLE_DNS (enabled)
+ 	Define this if you don't want Roxen to use DNS. Note: This is
+ 	a minor speed optimization It's mainly used to reload network
+ 	/ dns server load on busy servers. Please note that option
+ 	turns off ALL ip -> hostname and hostname -> ip
+ 	conversion. Thus you can't use if if you want to run a proxy
+ 	or domain/host name based security. See NO_REVERSE_LOOKUP
+ 	below.
+
+NO_REVERSE_LOOKUP (disabled)
+ 	This option turns of all ip->hostname lookups. However the
+ 	hostname->ip lookups are still functional. This _is_ usable if
+ 	you run a proxy, but still breaks host based authentication.
+
+CONFIG_IF_IP_LOOKUPS (enabled) 
+	Should we allow the config interface to lookup the hostnames
+	of all ip-addresses on the machine? This is the default, but
+	if your machine has a large number of virtual interfaces, we
+	recommend that you disable this feature. The reason being that
+	it takes a long time to do the ip -> hostname lookups. It's
+	done for cosmetical reasons only.
+
+COMPAT (disabled)
+	Compatibility with some Really Old version of the
+	server. Quite possibly not even used at all anymore.
+
+URL_MODULES (enabled)
+	Should support for URL modules be included? This includes the
+	htaccess module for example. Disabling this might result in a
+	very slight speed boast
+
+API_COMPAT (disabled)
+	Another compat flag for some very old server. Don't enable,
+	and will probably be removed soon.
