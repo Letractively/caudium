@@ -398,7 +398,7 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
 #else
   object proc;
 #endif
-  mixed err = { 
+  mixed err = catch { 
      proc = Process.create_process( ({"/bin/sh", "-c", s }), opts );
   };
   if (err) {
