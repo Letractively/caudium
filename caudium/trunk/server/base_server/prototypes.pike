@@ -96,6 +96,11 @@ int time;
 //! the raw url, as provided as part of the browser request string.
 string raw_url;
 
+//! if the request  contains an absolute URI, this variable receives
+//! the host part which is in turn removed from raw_url. Otherwise the
+//! variable is set to an empty string.
+string absolute_uri;
+  
 int do_not_disconnect;
 
 //! Variables available during the current request. The variables may come
