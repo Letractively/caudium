@@ -123,15 +123,15 @@ string tag_mnogosearch(string tag, mapping m, object id)
 		     "query.</font><br>Word count: %s.\n"
 		     "<hr noshade size=0>%s%s",
 		     res->first_doc(), res->last_doc(), res->total_found(),
-		     html_encode_string(res->wordinfo()),
+		     _Roxen.html_encode_string(res->wordinfo()),
 		     (nextprev * " - "),
 		     sizeof(nextprev) ? "<hr noshade size=0>" : "");
       while(mapping row = res->fetch_row()) {
-	row->url = html_encode_string(row->url);
+	row->url = _Roxen.html_encode_string(row->url);
 	ret += sprintf("<p><b>%d. %s</b><br>%s<br><a href=\"%s\">%s</a> - %s</p>",
 		       row->order, 
-		       html_encode_string(row->title),
-		       html_encode_string(row->text),
+		       _Roxen.html_encode_string(row->title),
+		       _Roxen.html_encode_string(row->text),
 		       row->url, row->url,
 		       sizetostring(row->size));
       }

@@ -151,7 +151,7 @@ string page_2(object id)
     if(sscanf(i, "%s/%s", conf, mod)==2)
     {
 //      werror("conf: "+conf+" mod: "+mod+"\n");
-      mod = html_encode_string(mod);
+      mod = _Roxen.html_encode_string(mod);
       int to_enable = (id->variables[i] != "0");
       object config = find_config(conf);
       string m = features[mod]->module;

@@ -937,15 +937,15 @@ string format_backtrace(array bt, int eid)
       if(sizeof(ares)) {
 	line = String.trim_whites(line);
 	if(strlen(line) > 20) {
-	  ares[-1] += "<br>&nbsp;&nbsp;&nbsp;&nbsp;"+html_encode_string(line);
+	  ares[-1] += "<br>&nbsp;&nbsp;&nbsp;&nbsp;"+_Roxen.html_encode_string(line);
 	} else {	 
-	  ares[-1] += html_encode_string(line);
+	  ares[-1] += _Roxen.html_encode_string(line);
 	}
       } else {
-	ares += ({ html_encode_string(line) });
+	ares += ({ _Roxen.html_encode_string(line) });
       }
     } else if(sscanf(line, "%s:%d%s", ff, ln, rest) == 3) {
-      line =  html_encode_string(rest[1..]);
+      line =  _Roxen.html_encode_string(rest[1..]);
       if(strlen(line)) {
 	line = "<br>&nbsp;&nbsp;&nbsp;&nbsp;"+ line;
       }
@@ -953,7 +953,7 @@ string format_backtrace(array bt, int eid)
       ares += ({ (link_to(ff, ln,eid,sizeof(bt)-q-1)+ff+"</a> on line "+ln
 		  +rest+":"+line)  -(getcwd()+"/") });
     } else {
-      ares += ({ html_encode_string(line) });
+      ares += ({ _Roxen.html_encode_string(line) });
     }
   }
   res += "<li>"+(ares * "</li><li><p>") +"</li>"+
@@ -966,7 +966,7 @@ string format_backtrace(array bt, int eid)
 string generate_bugreport(array from, string u, string rd)
 {
   add_id(from);
-  return ("<pre>"+html_encode_string("Caudium version: "+version()+
+  return ("<pre>"+_Roxen.html_encode_string("Caudium version: "+version()+
 	  (caudium->real_version != version()?
 	   " ("+caudium->real_version+")":"")+
 	  "\nRequested URL: "+u+"\n"

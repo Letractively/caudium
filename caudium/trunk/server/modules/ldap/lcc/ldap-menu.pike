@@ -306,7 +306,7 @@ string tag_lcc_menu(string tag,
     
     if (!SMENU(id, args->provider))
         return sprintf("<!-- No provider '%s' in the lcc_menu tag -->",
-                       html_encode_string(args->provider));
+                       _Roxen.html_encode_string(args->provider));
     
     // first the standard attributes
     foreach(indices(args), string idx)
@@ -317,8 +317,8 @@ string tag_lcc_menu(string tag,
     mapping menu = find_one_menu(id, args->provider, args->menu);
     if (!menu || !sizeof(menu))
         return sprintf("<!-- no such menu %s %s -->",
-                       html_encode_string(args->provider),
-                       html_encode_string(args->menu));
+                       _Roxen.html_encode_string(args->provider),
+                       _Roxen.html_encode_string(args->menu));
 
     if (args->gbutton || QUERY(def_gbutton)) {
         string gbargs = "";

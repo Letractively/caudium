@@ -322,7 +322,7 @@ string describe_module_copy_status(object node)
     if (err = catch {
       q=node->data();
     }) {
-      q = "<font color=red><pre>"+html_encode_string(describe_backtrace(err))+
+      q = "<font color=red><pre>"+_Roxen.html_encode_string(describe_backtrace(err))+
 	"</pre></font>";
     }
   }
@@ -489,7 +489,7 @@ mixed describe_docs(object node, object id)
     }
   } else {
     return("<h1>Manual for " + id->variables->manual + " here</h1>" +
-	   html_encode_string(sprintf("<pre>%O</pre>\n",
+	   _Roxen.html_encode_string(sprintf("<pre>%O</pre>\n",
 				      mkmapping(indices(node), values(node))))
 	   );
   }

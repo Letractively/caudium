@@ -363,7 +363,7 @@ void real_handle_file_extension(object f, string e, object id)
     JSERR(500, "Internal Server Error",
 	  "An error occured when compiling a JavaScript script. "
 	  "This is the reported problem:<p>"
-	  "<pre>"+html_encode_string(err[0])+"</pre>");
+	  "<pre>"+_Roxen.html_encode_string(err[0])+"</pre>");
   }
   js->set_id_object(id);
 
@@ -382,7 +382,7 @@ void real_handle_file_extension(object f, string e, object id)
       JSERR(500, "Internal Server Error",
 	    "An error occured when executing parse() JavaScript script. "
 	    "This is the reported problem:<p>"
-	    "<pre>"+html_encode_string(err[0])+"</pre>");
+	    "<pre>"+_Roxen.html_encode_string(err[0])+"</pre>");
     }
   }
   if(arrayp(ret) && sizeof(ret) == 2 && stringp(ret[0]) && stringp(ret[1])) {
@@ -422,7 +422,7 @@ array(string)|string pi_javascript(string tag, string js_source, object id)
   if(err) {
     report_error("An error occured when compiling JavaScript.\n"+
 		 describe_backtrace(err));
-    return JSHTMLERR(html_encode_string(err[0]));
+    return JSHTMLERR(_Roxen.html_encode_string(err[0]));
   }
 
   err = catch {
@@ -431,14 +431,14 @@ array(string)|string pi_javascript(string tag, string js_source, object id)
   if(err) {
     report_error("An error occured during JavaScript execution.\n"+
 		 describe_backtrace(err));
-    return JSHTMLERR(html_encode_string(err[0]));
+    return JSHTMLERR(_Roxen.html_encode_string(err[0]));
   }
   if(!ret) {
     return "";
   } else if(stringp(ret))
     return ret;
   else if(arrayp(ret))
-    return "<pre>"+html_encode_string(sprintf("%O", ret))+"</pre>";
+    return "<pre>"+_Roxen.html_encode_string(sprintf("%O", ret))+"</pre>";
   return (string)ret;
 }
 

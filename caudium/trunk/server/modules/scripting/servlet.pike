@@ -148,8 +148,8 @@ string reporterr (string header, string dump)
     case "HTML comment":
       return "\n<!-- " + header + dump + "\n-->\n";
     case "HTML text":
-      return "\n<br><font color=red><b>" + html_encode_string (header) +
-	"</b></font><pre>\n" + html_encode_string (dump) + "</pre><br>\n";
+      return "\n<br><font color=red><b>" + _Roxen.html_encode_string (header) +
+	"</b></font><pre>\n" + _Roxen.html_encode_string (dump) + "</pre><br>\n";
     default:
       return "";
   }

@@ -394,10 +394,10 @@ string encode_one_port(array port, int id)
 	    "<table width=100% cellspacing=0  border=0 bgcolor=#f0f0ff>\n"
 	    "<tr width=100%><td colspan=2 width=100%><b>SMTP Options</b></td></tr>\n");
     res += ("<tr><td>Server identification string:</td> <td><input size=30,1 "
-	    "name=smtp_id_"+id+" value=\""+html_encode_string(arg1)+
+	    "name=smtp_id_"+id+" value=\""+_Roxen.html_encode_string(arg1)+
 	    "\"></td></tr>\n"
 	    "<tr><td>Max Message Size:</td> <td><input size=30,1 "
-	    "name=smtp_size_"+id+"  value=\""+html_encode_string(arg2)+
+	    "name=smtp_size_"+id+"  value=\""+_Roxen.html_encode_string(arg2)+
 	    "\"></td></tr>\n");
     res += "</table></td></tr>\n";
     break;
@@ -486,7 +486,7 @@ string describe_variable_low(array var, mixed path, int really_short,
 		 + ((arrayp(var[VAR_VALUE])?
 		     search(var[VAR_VALUE], o)!=-1:
 		     var[VAR_VALUE]==o)
-		    ?" selected":"")+">" + html_encode_string(name_of_module(o))+
+		    ?" selected":"")+">" + _Roxen.html_encode_string(name_of_module(o))+
 	       "</option>" });
     if(var[VAR_TYPE] == TYPE_MODULE)
       res = ("<select name="+path+">\n"+
@@ -503,7 +503,7 @@ string describe_variable_low(array var, mixed path, int really_short,
     
    case TYPE_TEXT_FIELD:
     res="<textarea name="+path+" cols=60 rows=10 wrap=off>"
-      + html_encode_string(var[VAR_VALUE]||"")
+      + _Roxen.html_encode_string(var[VAR_VALUE]||"")
       + "</textarea><br><input type=submit value=Ok>\n";
     break;
     

@@ -66,15 +66,15 @@ string format_proc_line(string in, int ipid)
   if((end = search(in, ") ")) == -1 &&(end = search(in, ")")) == -1) 
     end =  strlen(in) -1;
   else
-    opts =  html_encode_string(replace(sprintf("%-=65s", in[end+1..]), "\n",
+    opts =  _Roxen.html_encode_string(replace(sprintf("%-=65s", in[end+1..]), "\n",
 				       "\n" + " "*(end+2)));
   //  perror("%d %d %s\n", begin, end, in[begin..end], in[end+1..]);
 
   if(search(in,"/proc/")==-1)
-    return ((begin ? html_encode_string(in[0..begin-1]) :"")+
+    return ((begin ? _Roxen.html_encode_string(in[0..begin-1]) :"")+
 	    "<a href=?action=linuxproc.pike&pid="+pid+"&unique="+time()+">"+
 	    (ipid==pid?"<b>":"")+
-	    html_encode_string(in[begin..end])+
+	    _Roxen.html_encode_string(in[begin..end])+
 	    (ipid==pid?"</b>":"")+"</a>"+opts+
 	    "\n");
   return "";

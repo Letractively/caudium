@@ -133,7 +133,7 @@ string tag_mfield(string tag_name, mapping arguments,
 		}
 	if(arguments->add && (string)request_id->variables[arguments->name]!="")
 		retval+=arguments->add;
-	return html_encode_string(retval);
+	return _Roxen.html_encode_string(retval);
 	}
 
 string tag_attach(string tag_name, mapping arguments,

@@ -101,10 +101,10 @@ string reporterr (string header, string prg, string dump)
 
   switch (QUERY (debugmode)) {
     case "HTML comment":
-      return "\n<!-- " + html_encode_string(header + dump) + "\n-->\n";
+      return "\n<!-- " + _Roxen.html_encode_string(header + dump) + "\n-->\n";
     case "HTML text":
-      return "\n<br><font color=red><b>" + html_encode_string (header) +
-	"</b></font><pre>\n" + html_encode_string (dump) + "</pre><br>\n";
+      return "\n<br><font color=red><b>" + _Roxen.html_encode_string (header) +
+	"</b></font><pre>\n" + _Roxen.html_encode_string (dump) + "</pre><br>\n";
     default:
       return "";
   }

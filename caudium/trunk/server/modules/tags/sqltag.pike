@@ -169,7 +169,7 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
 			       "%s\n", describe_backtrace(error)));
 	}
 	contents = ("<h3>Couldn't connect to SQL-server</h1><br>\n" +
-		    html_encode_string(error[0]) + "<false>");
+		    _Roxen.html_encode_string(error[0]) + "<false>");
       } else {
 	contents = "<false>";
       }
@@ -180,8 +180,8 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
 			       "%s\n",
 			       args->query, describe_backtrace(error)));
 	}
-        contents = ("<h3>Query \"" + html_encode_string(args->query)
-                    + "\" failed: " + html_encode_string(con->error() || "") 
+        contents = ("<h3>Query \"" + _Roxen.html_encode_string(args->query)
+                    + "\" failed: " + _Roxen.html_encode_string(con->error() || "") 
                     + "</h1>\n<false>");
       } else {
 	contents = "<false>";
@@ -252,7 +252,7 @@ string sqlquery_tag(string tag_name, mapping args,
 			       "%s\n", describe_backtrace(error)));
 	}
 	return("<h3>Couldn't connect to SQL-server</h1><br>\n" +
-	       html_encode_string(error[0])+"<false>");
+	       _Roxen.html_encode_string(error[0])+"<false>");
       } else {
 	return("<false>");
       }
@@ -263,8 +263,8 @@ string sqlquery_tag(string tag_name, mapping args,
 			       "%s\n",
 			       args->query, describe_backtrace(error)));
 	}
-	return("<h3>Query \"" + html_encode_string(args->query)+"\" failed: "
-	       + html_encode_string(con->error() || "") + "</h1>\n<false>");
+	return("<h3>Query \"" + _Roxen.html_encode_string(args->query)+"\" failed: "
+	       + _Roxen.html_encode_string(con->error() || "") + "</h1>\n<false>");
       } else {
 	return("<false>");
       }
@@ -343,7 +343,7 @@ string sqltable_tag(string tag_name, mapping args,
 			       "%s\n", describe_backtrace(error)));
 	}
 	return("<h3>Couldn't connect to SQL-server</h1><br>\n" +
-	       html_encode_string(error[0])+"<false>");
+	       _Roxen.html_encode_string(error[0])+"<false>");
       } else {
 	return("<false>");
       }
@@ -354,8 +354,8 @@ string sqltable_tag(string tag_name, mapping args,
 			       "%s\n",
 			       args->query, describe_backtrace(error)));
 	}
-	return ("<h3>Query \"" + html_encode_string(args->query) +
-	        "\" failed: " + html_encode_string(con->error() || "") + "</h1>\n" +
+	return ("<h3>Query \"" + _Roxen.html_encode_string(args->query) +
+	        "\" failed: " + _Roxen.html_encode_string(con->error() || "") + "</h1>\n" +
 	        "<false>");
       } else {
 	return("<false>");

@@ -127,7 +127,7 @@ string field_text_field (object id, string module, string variable) {
   mixed stuff = id->conf->modules[module]->master->variables[variable];
 
   res += "<br><textarea name=\"" + module + "." + variable + "\" cols=\"50\" rows=\"10\">";
-  res += html_encode_string (stuff[VAR_VALUE]) + "</textarea>";
+  res += _Roxen.html_encode_string (stuff[VAR_VALUE]) + "</textarea>";
 
   if (id->prestate && id->prestate->doc)
     res += "<br><i>" + stuff[VAR_DOC_STR] + "</i>";
@@ -141,7 +141,7 @@ string field_string (object id, string module, string variable) {
   mixed stuff = id->conf->modules[module]->master->variables[variable];
 
   res += "<input type=\"text\" name=\"" + module + "." + variable + "\"";
-  res += " value=\"" + html_encode_string ((string)stuff[VAR_VALUE]) + "\">";
+  res += " value=\"" + _Roxen.html_encode_string ((string)stuff[VAR_VALUE]) + "\">";
 
   if (id->prestate && id->prestate->doc)
     res += "<br><i>" + stuff[VAR_DOC_STR] + "</i>";

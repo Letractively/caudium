@@ -96,7 +96,7 @@ string format_proc_line(string in, int ipid)
     return (pre+
 	    "<a href=/Actions/?action=proc.pike&pid="+pid+"&unique="+time()+">"+
 	    (ipid==pid?"<b>":"")+
-	    html_encode_string(in)+
+	    _Roxen.html_encode_string(in)+
 	    (ipid==pid?"</b>":"")+
 	    "</a>\n");
   return "";

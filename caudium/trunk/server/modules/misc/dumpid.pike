@@ -60,14 +60,14 @@ string|int s_body(string tag_name, mapping args, object id, object file)
   {
     string tmp = sprintf("%O", mkmapping(indices(id),values(id)));
     retid = sprintf("<strong>Request ID:</strong><br><pre>%s\n</pre></p>",
-                    html_encode_string(tmp));
+                    _Roxen.html_encode_string(tmp));
   }
   
   if (id->prestate->dumpconf && id->conf)
   {
     string tmp = sprintf("%O", mkmapping(indices(id->conf),values(id->conf)));
     retconf = sprintf("<strong>Request ID Config:</strong><br><pre>%s\n</pre></p>",
-                     html_encode_string(tmp));
+                     _Roxen.html_encode_string(tmp));
   }
   
   if (!retid && !retconf)

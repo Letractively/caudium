@@ -67,7 +67,7 @@ array register_module() {
 	"It automagically generates photo albums based on a directory of\n" +
 	"image files.<br>\n" +
         "The syntax is easy to use, and can be embedded in any HTML page.<blockquote>\n" +
-	html_encode_string( "<album name=\"My Photo Album\" dir=\"myphotos/\">\n" ) +
+	_Roxen.html_encode_string( "<album name=\"My Photo Album\" dir=\"myphotos/\">\n" ) +
 	"</blockquote>\n" +
 	"The <i>name</i> argument sets the photo album name to be displayed,\n" +
 	"if not specified it uses the default value set in the config interface.<br>\n" +
@@ -269,7 +269,7 @@ class album {
 
     string render_othumb(object id, int i) {
       return "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) +"\">\n" +
-	"<cimg alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
+	"<cimg alt=\"" + _Roxen.html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
 	"src=\"" + get_photo( i )[ 0 ] + "\" " +
 	/*	"border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +*/
 	"maxwidth=\"" + QUERY(width) + "\" "+
@@ -347,7 +347,7 @@ class album {
                 "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br />\n" +
 		"<div class=\"photo\">" +
 		"<img border=\"" + sprintf( "%d", QUERY(photo_border) ) + "\" " +
-		"alt=\"" + id->conf->html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
+		"alt=\"" + _Roxen.html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
 		"src=\"" + get_photo( page_num )[ 0 ] + "\">" +
 		"</div><br />\n" +
                 "<div class=\"nav\">" +
