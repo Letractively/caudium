@@ -120,11 +120,9 @@ static string title(mapping args)
 		     args->outlinecolor,
 		     empty,
 		     (args->left ? " width="+args->left : ""),
-		     (args->fixedleft ?
-		      String.strmult ("&nbsp;", (int) args->fixedleft) : "&nbsp;"),
+		     (args->fixedleft ? "&nbsp;"*(int) args->fixedleft : "&nbsp;"),
 		     (args->right ? " width="+args->right : ""),
-		     (args->fixedright ?
-		      String.strmult ("&nbsp;", (int) args->fixedright) : "&nbsp;"),
+		     (args->fixedright ? "&nbsp;"*(int) args->fixedright : "&nbsp;"),
 		     args->outlinecolor,
 		     empty);
      case "caption":
@@ -156,11 +154,9 @@ static string title(mapping args)
 		     args->outlinecolor,
 		     empty,
 		     (args->left ? " width="+args->left : ""),
-		     (args->fixedleft ?
-		      String.strmult ("&nbsp;", (int) args->fixedleft) : "&nbsp;"),
+		     (args->fixedleft ? "&nbsp;"*(int) args->fixedleft : "&nbsp;"),
 		     (args->right ? " width="+args->right : ""),
-		     (args->fixedright ?
-		      String.strmult ("&nbsp;", (int) args->fixedright) : "&nbsp;"),
+		     (args->fixedright ? "&nbsp;"*(int) args->fixedright : "&nbsp;"),
 		     args->outlinecolor,
 		     empty);
     }
