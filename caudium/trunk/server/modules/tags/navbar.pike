@@ -41,8 +41,11 @@ constant thread_safe=1;
 
 constant rands = "thisisarandomstring3294832094832904832RJKZEJRKZKjfn43249832U432";
 
-
 #define NDEBUG(X) if(QUERY(debug)) { report_debug("NAVBAR_DEBUG\t"__FILE__+"@"+__LINE__+": "+ X + "\n"); }
+
+#define NAV_NB_ELEM 0       // The number of total elements
+#define NAV_NB_ELEM_PAGE 1  // The number of element to display in a page
+#define NAV_CURRENT_PAGE 2  // The current page number
 
 inherit "module";
 inherit "caudiumlib";
@@ -105,7 +108,7 @@ private void create_session(object id)
     NDEBUG("Creating session");
     NSESSION = allocate(3);
     // page 0 does not exist, default to page 1
-    NSESSION[2] = 1;
+    NSESSION[NAV_CURRENT_PAGE] = 1;
     id->misc->navbar_session_flushed = 1;
   }
 }
@@ -137,24 +140,24 @@ int get_current_page(object id)
   wrong_usage(id);
   if(id->misc->navbar_session_flushed)
   {
-    NSESSION[2] =
-     ceil((float) NSESSION[0] / NSESSION[1]);
-    NSESSION[2] = (int) NSESSION[2];
-    NDEBUG("get_current_page: page="+NSESSION[2]);
+    NSESSION[NAV_CURRENT_PAGE] =
+     ceil((float) NSESSION[NAV_NB_ELEM] / NSESSION[NAV_NB_ELEM_PAGE]);
+    NSESSION[NAV_CURRENT_PAGE] = (int) NSESSION[NAV_CURRENT_PAGE];
+    NDEBUG("get_current_page: page="+NSESSION[NAV_CURRENT_PAGE]);
   }
-  return NSESSION[2];
+  return NSESSION[NAV_CURRENT_PAGE];
 }
 
 private int get_nb_elements(object id)
 {
-  NDEBUG("get_nb_elements: nb="+NSESSION[0]);
-  return NSESSION[0];
+  NDEBUG("get_nb_elements: nb="+NSESSION[NAV_NB_ELEM]);
+  return NSESSION[NAV_NB_ELEM];
 }
 
 private int get_nb_elements_per_page(object id)
 {
-  NDEBUG("get_nb_elements_per_page: nb="+NSESSION[1]);
-  return NSESSION[1];
+  NDEBUG("get_nb_elements_per_page: nb="+NSESSION[NAV_NB_ELEM_PAGE]);
+  return NSESSION[NAV_NB_ELEM_PAGE];
 }
 
 private int get_lastpage(object id)
@@ -174,20 +177,20 @@ void start(int num, object conf)
 
 void set_nb_elements(object id, int nb)
 {
-  if(!NSESSION || nb != NSESSION[0])
+  if(!NSESSION || nb != NSESSION[NAV_NB_ELEM])
   {
     create_session(id);
-    NSESSION[0] = nb;
+    NSESSION[NAV_NB_ELEM] = nb;
     NDEBUG("set_nb_elements: nb="+nb);
   }
 }
 
 void set_nb_elements_per_page(object id, int nb)
 {
-  if(!NSESSION || nb != NSESSION[1])
+  if(!NSESSION || nb != NSESSION[NAV_NB_ELEM_PAGE])
   {
     create_session(id);
-    NSESSION[1] = nb;
+    NSESSION[NAV_NB_ELEM_PAGE] = nb;
     NDEBUG("set_nb_elements_per_page: nb="+nb);
   }
 }
@@ -195,7 +198,7 @@ void set_nb_elements_per_page(object id, int nb)
 void set_current_page(object id, int page)
 {
   wrong_usage(id);
-  NSESSION[2] = page;
+  NSESSION[NAV_CURRENT_PAGE] = page;
   NDEBUG("set_current_page: page="+page);
 }
 
