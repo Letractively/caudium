@@ -10,10 +10,6 @@ AC_SET_MAKE
 
 AC_PROG_INSTALL
 
-# installbsd seems to be broken on some versions of AIX
-#
-# /grubba 1997-08-16
-
 case "$ac_cv_path_install" in
   *installbsd*)
     AC_MSG_CHECKING(if $ac_cv_path_install works)
