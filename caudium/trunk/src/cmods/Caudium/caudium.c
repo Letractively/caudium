@@ -968,7 +968,6 @@ static void f_http_encode_string(INT32 args)
   push_string(end_shared_string(ret));
 }
 
-
 /* Check if the char given is safe or not */
 static INLINE int is_cookie_safe (char c)
 {
@@ -1029,6 +1028,92 @@ static void f_http_encode_cookie(INT32 args)
 
   for(o=out, i=in; *i; i++) {
     if (!is_cookie_safe(*i)) {
+      *o++ = '%';
+      *o++ = hex_chars[*i >> 4];
+      *o++ = hex_chars[*i & 15];
+    } else *o++ = *i;
+  }
+
+  /* grendel: i think this _is_ needed?! - pit */
+  /* *o++ = 0; */
+  pop_n_elems(args);
+  push_string(end_shared_string(ret));
+}
+
+/* Check if the char given is safe or not */
+static INLINE int is_url_safe (char c)
+{
+   switch(c)
+   {
+     case 0:
+     case ' ':
+     case '\t':
+     case '\n':
+     case '\r':
+     case '%':
+     case '\'':
+     case '\"':
+     case '#':
+     case '&':
+     case '?':
+     case '=':
+     case '/':
+     case ':':
+     case '+':
+     case '<':
+     case '>':
+     case '@':
+          return 0; break;
+     default:
+          return 1; break;
+   }
+   return 1;  /* Never used, but added to keep some compilers happy */
+}
+
+/*
+** method: string http_encode_url(string m)
+**   URL encode the specified string and return it. This means replacing
+**   the following characters to the %XX format: null (char 0), space, tab,
+**   carriage return, newline, and % ' " # & ? = / : +
+** arg: string m
+**   The string to encode.
+** returns:
+**   The URL encoded string.
+*/
+static void f_http_encode_url(INT32 args)
+{
+  char *o, *out, *in;
+  unsigned char *i;
+  int unsafe = 0;
+  int out_len, in_len;
+  struct pike_string *ret;
+  struct pike_string *src;
+
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_url", 1, "string");
+  src = Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("Caudium.http_encode_url(): Only 8-bit strings allowed.\n");
+  }
+
+  in = src->str;
+  in_len = src->len-1;
+	
+  /* count unsafe characters */
+  for(i=in; *i; i++) if(!is_url_safe((int )*i)) unsafe++;
+
+  /* no need to convert	*/
+  if(unsafe == 0) {
+    pop_n_elems(args-1);
+    return;
+  }
+	
+  out_len = in_len + (unsafe * 2) + 1;
+  ret = begin_shared_string(out_len);
+  out = ret->str;
+
+  for(o=out, i=in; *i; i++) {
+    if (!is_url_safe(*i)) {
       *o++ = '%';
       *o++ = hex_chars[*i >> 4];
       *o++ = hex_chars[*i & 15];
@@ -1267,6 +1352,8 @@ void pike_module_init( void )
   add_function_constant( "http_encode_string", f_http_encode_string,
                          "function(string:string)", 0);
   add_function_constant( "http_encode_cookie", f_http_encode_cookie,
+                         "function(string:string)", 0);
+  add_function_constant( "http_encode_url", f_http_encode_url,
                          "function(string:string)", 0);
 
   start_new_program();
