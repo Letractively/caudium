@@ -44,9 +44,9 @@ INLINE static struct pike_string *lowercase(unsigned char *str, INT32 len)
   mystr = (unsigned char *)alloca((len + 1) * sizeof(char));
 #else
   mystr = (unsigned char *)malloc((len + 1) * sizeof(char));
-  if (!mystr)
-    return (pike_string*)0;
 #endif
+  if (mystr == NULL)
+    return (struct pike_string *)NULL;
   MEMCPY(mystr, str, len);
   end = mystr + len;
   mystr[len] = '\0';
@@ -80,9 +80,9 @@ INLINE static struct pike_string *url_decode(unsigned char *str,
   mystr = (unsigned char *)alloca((len + 2) * sizeof(char));
 #else
   mystr = (unsigned char *)malloc((len + 2) * sizeof(char));
-  if (!mystr)
-    return (pike_string*)0;
 #endif
+  if (mystr == NULL)
+    return (struct pike_string *)NULL;
   if(exist) {
     ptr = mystr+1;
     *mystr = '\0';
@@ -156,8 +156,7 @@ INLINE static int get_next_header(unsigned char *heads, int len,
       sval.type = T_STRING;
       
       skey.u.string = lowercase(heads, colon);      
-      if (!skey.u.string)
-        return -1;
+      if (skey.u.string == NULL) return -1;
       sval.u.string = make_shared_binary_string(heads+data, count2 - data);
       mapping_insert(headermap, &skey, &sval);
       count = count2;
@@ -179,7 +178,7 @@ static void f_parse_headers( INT32 args )
   struct mapping *headermap;
   struct pike_string *headers;
   unsigned char *ptr;
-  int len = 0, parsed;
+  int len = 0, parsed = 0;
   get_all_args("Caudium.parse_headers", args, "%S", &headers);
   headermap = allocate_mapping(1);
   ptr = headers->str;
@@ -190,11 +189,16 @@ static void f_parse_headers( INT32 args )
    * allocating a new mapping? Should we return that half-finished
    * mapping or rather return NULL? For now it's the former case.
    * /Grendel
+   *
+   * If memory allocation fails, just bail out with error()
    */
   while(len > 0 &&
     (parsed = get_next_header(ptr, len, headermap)) >= 0 ) {
     ptr += parsed;
     len -= parsed;
+  }
+  if(parsed == -1) {
+    error("Caudium.parse_headers(): Out of memory while parsing.\n");
   }
   pop_n_elems(args);
   push_mapping(headermap);
@@ -238,25 +242,23 @@ static void f_parse_query_string( INT32 args )
       namelen = equal - name;
       valulen = ptr - ++equal;
       skey.u.string = url_decode(name, namelen, 0);
-
+      if (skey.u.string == NULL) { /* OOM. Bail out */
+	error("Caudium.parse_query_string(): Out of memory in url_decode().\n");
+      }
       exist = low_mapping_lookup(variables, &skey);
       if(exist == NULL || exist->type != T_STRING) {
 	sval.u.string = url_decode(equal, valulen, 0);
-	if (!sval.u.string) {
-	    /* OOM. Bail out */
-	    pop_n_elems(args);
-	    push_int(-1);
-	    return;
+	if (sval.u.string == NULL) { /* OOM. Bail out */
+	  error("Caudium.parse_query_string(): "
+		"Out of memory in url_decode().\n");
 	}
       } else {
 	/* Add strings separed with '\0'... */
 	struct pike_string *tmp;
 	tmp = url_decode(equal, valulen, 1);
-	if (!tmp) {
-	    /* OOM. Bail out */
-	    pop_n_elems(args);
-	    push_int(-1);
-	    return;
+	if (tmp == NULL) {
+	  error("Caudium.parse_query_string(): "
+		"Out of memory in url_decode().\n");
 	}
 	sval.u.string = add_shared_strings(exist->u.string, tmp);
 	free_string(tmp);
