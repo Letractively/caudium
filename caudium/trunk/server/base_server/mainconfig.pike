@@ -1316,41 +1316,45 @@ string dn(object node)
 
 string describe_node_path(object node)
 {
-  string q="", res="";
-  int cnt;
-  foreach(node->path(1)/"/", string p)
-  {
-    q+=p+"/";
-    if(cnt>0)
-    {
-//      werror("q="+q+"\n");
-      res += ("\n<b><a href=\""+q+"?"+bar+++"\">"+
-	      dn(find_node(http_decode_string(q[..strlen(q)-2])))+
-	      "</a></b> -&gt;\n");
+    string q="", res="";
+    int cnt;
+    /* This appears to have always been buggy */
+    array nodes = (node->path( 1 ) / "/") - ({ "" });
+    if ( sizeof( nodes ) > 0 ) {
+        /* If I use "nodes" here it breaks. Anyone know why? */
+	foreach(node->path( 1 ) / "/", string p)
+	{
+	    q+=p+"/";
+	    if(cnt>0)
+	    {
+		//      werror("q="+q+"\n");
+		res += ("\n<b><a href=\""+q+"?"+bar+++"\">"+
+			dn(find_node(http_decode_string(q[..strlen(q)-2])))+
+			"</a></b> -&gt;\n");
+	    }
+	    else
+		cnt++;
+	}
+	return res[0..strlen(res)-8];
     }
-    else
-      cnt++;
-  }
-  return res[0..strlen(res)-8];
 }
 
 string status_row(object node)
 {
-   return ("<table width=\"100%\" border=0 cellpadding=0"
-	   " cellspacing=0>\n"
-	   "<tr><td valign=bottom align=left>"/*"<a href=\"$docurl"+
-	   node->path(1)+"\">"*/
-	   "<img border=0 src=\"/image/caudium-icon-gray.png\" alt=\"\">"/*"</a>"*/
-	   "</td>\n<td>&nbsp;</td><td  width=100% height=39>"
-	   "<table cellpadding=0 cellspacing=0 width=100% border=0>\n"
-	   "<tr width=\"100%\">\n"
-	   "<td width=\"100%\" align=right valign=center height=28>"
-	   +describe_node_path(node)+"</td>"
-	   "</tr><tr width=\"100%\">"
-	   "<td bgcolor=\"#003366\" align=right height=12 width=\"100%\">"
-	   "<font color=white size=-2>Administration Interface"
-	   "&nbsp;&nbsp;</font></td></tr></table></td>"
-	   "\n</tr>\n</table><br>");
+    string node_path = describe_node_path( node );
+    return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>" +
+	     "<tr>" +
+	     "<td align=bottom align=left><a href='http://www.caudium.net/'><img border=0 src='/image/caudium-icon-gray.png' alt='Caudium'></a></td>" +
+	     "<td width='100%' align=right height=33 valign=bottom>" +
+	     "<font size='-1'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>" +
+	     "</tr>" +
+	     "<tr>" +
+	     "<td colspan=2 width='100%' height=1><img border=0 alt='' src='/image/unit.gif'></td>" +
+	     "</tr>" +
+	     "<tr>" +
+	     "<td colspan=2 width='100%' height=1 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif'></td>" +
+	     "</tr>" +
+	     "</table><br>\n" );
 }
 
 mapping logged = ([ ]);
