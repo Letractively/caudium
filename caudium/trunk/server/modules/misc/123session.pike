@@ -588,7 +588,7 @@ mixed first_try(object id) {
     }
     if (userauthrequired == 1) {
       if ((id->variables->httpuser) && (id->variables->httppass)) {
-        int result = id->conf->auth_module->authenticate(httpuser, httppass);
+        int result = id->conf->auth_module->authenticate(id->variables->httpuser, id->variables->httppass);
         if (result == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {

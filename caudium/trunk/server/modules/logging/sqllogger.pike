@@ -151,19 +151,22 @@ void log(object id, mapping file)  {
   object sql_conn=db->handle();
   
   mixed err=catch {
-    if (id->user) {
-	username=id->user->username;
-      } else {
-	username="nobody";
-      }
-    } else if (sizeof(id->cookies->RoxenUserID)) {
-      username=id->cookies->RoxenUserID;
-    } else {
-      username="nobody";
+    if (id->user) 
+    {
+      username=id->user->username;
+    } 
+    else if (sizeof(id->cookies->RoxenUserID)) 
+    {
+      username=id->cookies->RoxenUserID;  
+    }
+    else 
+    {
+      username="nobody";  
     }
   };
   
-  if (err) {
+  if (err)
+  {
     username="nobody"; 
   }
 

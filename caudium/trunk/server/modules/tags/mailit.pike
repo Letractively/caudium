@@ -250,7 +250,7 @@ Protocols.SMTP.client(query("mailserver"),query("mailport"))->send_message(reque
 #endif
 		}
 
-        program in=((program)Stdio.File)("stdout");
+        object in=Stdio.File("stdout");
         object  out=in->pipe();
  
 	if(query("mailitdebug")){

@@ -396,7 +396,7 @@ string makeindex(string project, string user) {
         }
         if(x->comments==0)
           x->comments=({});
-        result+=t+"<a href="+http_encode_string(x->project)+"/>"+x->project+"</a>"
+        result+=t+"<a href="+Caudium.http_encode_string(x->project)+"/>"+x->project+"</a>"
                 "|"+priority[x->priority]+"|"+x->status+
                 "|"+x->description+"|"+x->creator+"|"+
                 nctime((int) x->timestamp)+"|"+sizeof(x->comments);
