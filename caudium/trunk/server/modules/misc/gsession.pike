@@ -429,7 +429,7 @@ private mapping memory_storage_registration_record = ([
     "delete_variable" : memory_delete_variable,
     "expire_old" : memory_expire_old,
     "delete_session" : memory_delete_session,
-    "get_storage" : memory_get_region
+    "get_region" : memory_get_region
 ]);
 
 //
