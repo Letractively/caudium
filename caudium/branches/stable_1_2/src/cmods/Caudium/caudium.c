@@ -694,7 +694,7 @@ static void f_extension( INT32 args ) {
       break;
     }
   }
-  pop_n_elems(args);
+  
   if(found) {
     int len = src->len - i;    
     switch(orig[src->len-1]) {
@@ -702,9 +702,11 @@ static void f_extension( INT32 args ) {
       /* Remove unix backup extension */
       len--;
     }
+    pop_n_elems(args);
     push_string(make_shared_binary_string(orig+i, len));
 
   } else {
+    pop_n_elems(args);
     push_text("");
   }
 }
