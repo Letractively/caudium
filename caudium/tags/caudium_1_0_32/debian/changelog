@@ -1,0 +1,232 @@
+caudium (1:1.0.27-1) unstable; urgency=low
+
+  * Latest upstream sources
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 26 Feb 2001 15:46:56 +0100
+
+caudium (1:1.0.25-1) unstable; urgency=low
+
+  * Now that pike7 in Debian is at the latest version, we can depend on it
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 16 Feb 2001 19:32:10 +0100
+
+caudium (1:1.0.15-1) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Improved http2 (the alternative HTTP protocol implementation)
+  * A minor security bug fixed
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 10 Feb 2001 16:59:22 +0100
+
+caudium (1:1.0.11-8) unstable; urgency=low
+
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri,  9 Feb 2001 20:57:20 +0100
+
+caudium (1:1.0.11-7) unstable; urgency=low
+
+  * Latest CVS snapshot (minor fixes)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon,  5 Feb 2001 23:54:11 +0100
+
+caudium (1:1.0.11-6) unstable; urgency=low
+
+  * Debian Policy change wrt /etc/default/*
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 31 Jan 2001 19:40:22 +0100
+
+caudium (1:1.0.11-5) unstable; urgency=low
+
+  * minor security update
+  * small changes to the rules
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 25 Jan 2001 16:39:56 +0100
+
+caudium (1:1.0.11-4) unstable; urgency=low
+
+  * Latest CVS snapshot - it's a pre-release freeze
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 17 Jan 2001 03:49:26 +0100
+
+caudium (1:1.0.11-3) unstable; urgency=low
+
+  * Latest CVS snapshot - a few changes to the source happened
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 11 Jan 2001 12:34:22 +0100
+
+caudium (1:1.0.11-2) unstable; urgency=low
+
+  * Fixed a problem with debconf
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 28 Dec 2000 19:04:59 +0100
+
+caudium (1:1.0.11-1) unstable; urgency=low
+
+  * This is the latest release (RC2)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 14 Dec 2000 20:52:48 +0100
+
+caudium (1:1.0.9rc1-1) unstable; urgency=low
+
+  * Got rid of the Pike-based port tests from preconfig phase. It
+    would fail if there were no Pike installed on the system.
+  * localhost vserver isn't added when it doesn't exist
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri,  8 Dec 2000 16:43:16 +0100
+
+caudium (1:1.0.8rc1-6) unstable; urgency=low
+
+  * Caudium will now suggest the PCRE and Mhash modules from the
+    pexts package
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed,  6 Dec 2000 20:58:44 +0100
+
+caudium (1:1.0.8rc1-5) unstable; urgency=low
+
+  * Pike 7.1 fixes for the C modules.
+  * Photoalbum fixes
+  * PCRE and MHash from pexts used when available
+  * minor other fixes
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed,  6 Dec 2000 17:16:02 +0100
+
+caudium (1:1.0.8rc1-4) unstable; urgency=low
+
+  * Fixed the missing local_fonts/ and fonts/ directories in the font dirs
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 29 Nov 2000 20:37:47 +0100
+
+caudium (1:1.0.8rc1-3) unstable; urgency=low
+
+  * Latest fixes from CVS
+  * Now pre-depends on pike7-cvs
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue, 28 Nov 2000 09:44:13 +0100
+
+caudium (1:1.0.8rc1-2) unstable; urgency=low
+
+  * Fixed a bug in the postinst script
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 27 Nov 2000 16:49:46 +0100
+
+caudium (1:1.0.8rc1-1) unstable; urgency=low
+
+  * First Release Candidate, now official
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 27 Nov 2000 15:52:50 +0100
+
+caudium (1:1.0.5-2) unstable; urgency=low
+
+  * Language files for CAMAS work now
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sun, 19 Nov 2000 02:47:36 +0100
+
+caudium (1:1.0.5-1) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Now with CAMAS!
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 18 Nov 2000 13:11:03 +0100
+
+caudium (1:1.0.0-13) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Fixes for PHP4 support (you need latest pike7 and PHP4 from CVS)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue,  7 Nov 2000 10:45:05 +0100
+
+caudium (1:1.0.0-12) unstable; urgency=low
+
+  * Caudium uses PNG by default
+  * PHP4 works (provided you have correct Pike + PHP4 version)
+  * latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri,  3 Nov 2000 20:16:50 +0100
+
+caudium (1:1.0.0-11) unstable; urgency=low
+
+  * removed /etc/caudium/servers/localhost from config files
+  * added pike7-cvs-gmp to dependencies
+  * latest CVS snapshot with improved DocParser/DocGenerator
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue, 24 Oct 2000 14:48:16 +0200
+
+caudium (1:1.0.0-10) unstable; urgency=low
+
+  * latest CVS snapshot
+  * XML parser added
+  * support for entities started
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 21 Oct 2000 01:42:45 +0200
+
+caudium (1:1.0.0-9) unstable; urgency=low
+
+  * Moved UltraLog files where they belong - to the ultralog package :P
+  * Removed the fixed version numbers from the .files
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Tue,  3 Oct 2000 13:31:13 +0200
+
+caudium (1:1.0.0-8) unstable; urgency=low
+
+  * UltraLog script invocation fixed
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 25 Sep 2000 21:47:36 +0200
+
+caudium (1:1.0.0-7) unstable; urgency=low
+
+  * split the caudium-modules package into three separate packages:
+     - caudium-modules for the essential stuff
+     - caudium-ultralog for UltraLog
+     - caudium-pixsl for XSLT support
+  * changed the default UID:GID to www-data:www-data. Postinst chowns
+    all directories that must be writable.
+  * no more file shuffling wrt the two different http modules - now it's
+    handled using sed.    
+  * prerm backs the configuration up on --purge
+  
+ -- Marek Habersack <grendel@vip.net.pl>  Sun, 24 Sep 2000 22:40:54 +0200
+
+caudium (1.0.0-6) unstable; urgency=low
+
+  * Several changes in the mainstream
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 22 Sep 2000 21:26:50 +0200
+
+caudium (1.0.0-5) unstable; urgency=low
+
+  * Changes in modules upstream, some bug fixes
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 16 Sep 2000 10:21:58 +0200
+
+caudium (1.0.0-4) unstable; urgency=low
+
+  * Latest CVS snapshot
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 13 Sep 2000 17:10:32 +0200
+
+caudium (1.0.0-3) unstable; urgency=low
+
+  * Polished up the installation
+  * Thanks to Martin Bialasinski <martinb@debian.org> for helping me 
+    with this package :)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 26 Aug 2000 11:58:14 +0200
+
+caudium (1.0.0-2) unstable; urgency=low
+
+  * Few changes wrt debconf
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 25 Aug 2000 18:12:17 +0200
+
+caudium (1.0.0-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Marek Habersack <grendel@vip.net.pl>  Fri, 18 Aug 2000 14:24:51 +0200
+
+Local variables:
+mode: debian-changelog
+End:
