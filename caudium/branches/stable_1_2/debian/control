@@ -47,7 +47,7 @@ Description: Log Parser module for Caudium
 
 Package: caudium-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99)
+Depends: ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99)
 Description: Development files for Caudium
  A small package that contains files required for developing Caudium
  extension packages without installing Caudium itself.

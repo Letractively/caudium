@@ -30,7 +30,7 @@ db_capb
 #     installation fails and the `postinst' is called with `abort-upgrade',
 #     `abort-remove' or `abort-deconfigure'.
 CAUDIUM_PIKE=/usr/lib/caudium${EXTVER}/base_server/caudium.pike
-PIKE=/usr/lib/caudium${EXTVER}/bin/pike
+PIKE=/usr/lib/caudium${EXTVER}/bin/caudium
 
 case "$1" in
     configure)
