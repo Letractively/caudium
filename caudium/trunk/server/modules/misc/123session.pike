@@ -51,20 +51,20 @@ object myconf;
 int foundcookieandprestate = 0;
 
 int storage_is_not_sql() {
-  return (query("storage") != "sql");
+  return (QUERY(storage) != "sql");
 }
 
 int storage_is_not_file() {
-  return (query("storage") != "file");
+  return (QUERY(storage) != "file");
 }
 
 int dont_use_formauth() {
-  return (query("use_formauth") != 1);
+  return (QUERY(use_formauth) != 1);
 }
 
 void start(int num, object conf) {
   if (conf) { myconf = conf; }
-  if (query ("storage") == "memory") {
+  if (QUERY(storage) == "memory") {
     foreach (call_out_info (), array a)
       if ((sizeof (a) > 5) && (a[3] == "123_Survivor") && ((sizeof (a) < 7) || (a[6] == my_configuration ()))) {
         remove_call_out (a[5]);
@@ -75,7 +75,7 @@ void start(int num, object conf) {
 }
 
 void stop () {
-  if (query ("storage") == "memory") {
+  if (QUEYR(storage) == "memory") {
     array a = ({ 0 });
     // Roxen tries to kill us. Escape...
     a[0] = call_out (lambda (mixed ... foo) { write ("Could not restore sessions\n"); }, 30, "123_Survivor",
@@ -152,7 +152,7 @@ void create (mixed ... foo) {
 	 "This information is very useful to the developers when fixing bugs.");
 }
 
-int hide_gc () { return (!query ("dogc")); }
+int hide_gc () { return (!QUERY(dogc)); }
 
 mixed register_module() {
   return ({ MODULE_FIRST | MODULE_FILTER | MODULE_PARSER | MODULE_PROVIDER,
@@ -181,7 +181,7 @@ int session_size_memory() {
 int session_size_sql() {
   object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
   string query = "select count(*) as size from variables where region='session'";
   array(mapping(string:mixed)) result = con->query(query);
   return ((int)result[0]->size);
@@ -189,7 +189,7 @@ int session_size_sql() {
 
 int session_size_file() {
   int result=0;
-  foreach(get_dir(query("filepath")), string filename) {
+  foreach(get_dir(QUERY(filepath)), string filename) {
     if (filename[sizeof(filename)-8..] == ".session") {
       result++;
     }
@@ -201,7 +201,7 @@ string status() {
   string result = "";
   int size;
 
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       size = session_size_memory();
       break;
@@ -222,7 +222,7 @@ void session_gc_memory() {
     return;
   }
   foreach (indices(_variables->session), string session_id) {
-    if (time() > (_variables->session[session_id]->lastusage+query("expire"))) {
+    if (time() > (_variables->session[session_id]->lastusage+QUERY(expire))) {
       m_delete(_variables->session, session_id);
     }
   } 
@@ -231,15 +231,15 @@ void session_gc_memory() {
 void session_gc_sql() {
   object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
-  int exptime = time()-query("expire");
+  con = sql_connect(QUERY(sql_url));
+  int exptime = time()-QUERY(expire);
   con->query("delete from variables where lastusage < '"+exptime+"' and region='session'");
 }
 
 void session_gc_file() {
-  string filepath=query("filepath");
+  string filepath=QUERY(filepath);
   string sfile;
-  int exptime = time()-query("expire");
+  int exptime = time()-QUERY(expire);
  
   foreach (get_dir(filepath), string filename) {
     if (filename[sizeof(filename)-8..] == ".session") {
@@ -252,7 +252,7 @@ void session_gc_file() {
 }
 
 void session_gc() {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       session_gc_memory();
       break;
@@ -281,7 +281,7 @@ mapping (string:mixed) variables_retrieve_memory(string region, string key) {
 mapping (string:mixed) variables_retrieve_sql(string region, string key) {
   object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
    string query = "select svalues from variables where region='"+region+"' and id='"+key+"'";
   array(mapping(string:mixed)) result = con->query(query);
   if (sizeof(result) != 0) {
@@ -292,7 +292,7 @@ mapping (string:mixed) variables_retrieve_sql(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve_file(string region, string key) {
-  string sfile=combine_path(query("filepath"),key+"."+region);
+  string sfile=combine_path(QUERY(filepath),key+"."+region);
   if (file_stat(sfile)) {
     return (string2values(Stdio.read_bytes(sfile)));
   }
@@ -300,7 +300,7 @@ mapping (string:mixed) variables_retrieve_file(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve(string region, string key) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       return (variables_retrieve_memory(region, key));
       break;
@@ -335,13 +335,13 @@ mixed string2values(string encoded_string) {
 void variables_store_sql(string region, string key, mapping values) {
   object(Sql.sql) con;
   function sql_connect = myconf->sql_connect;
-  con = sql_connect(query("sql_url"));
+  con = sql_connect(QUERY(sql_url));
   con->query("delete from variables where region='"+region+"' and id='"+key+"'");
   con->query("insert into variables(id, region, lastusage, svalues) values ('"+key+"', '"+region+"', '"+time()+"', '"+values2string(values)+"')");
 }
 
 void variables_store_file(string region, string key, mapping values) {
-  string sfile=combine_path(query("filepath"),key+"."+region);
+  string sfile=combine_path(QUERY(filepath),key+"."+region);
   if (file_stat(sfile)) {
     rm(sfile);
   }
@@ -353,7 +353,7 @@ void variables_store_file(string region, string key, mapping values) {
 }
 
 void variables_store(string region, string key, mapping values) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       variables_store_memory(region, key, values);
       break;
@@ -368,7 +368,7 @@ void variables_store(string region, string key, mapping values) {
 
 string sessionid_create() {
   object md5 = Crypto.md5();
-  md5->update(query("secret"));
+  md5->update(QUERY(secret));
   md5->update(sprintf("%d", roxen->increase_id()));
   md5->update(sprintf("%d", time(1)));
   return(Crypto.string_to_hex(md5->digest()));
@@ -425,7 +425,7 @@ string sessionid_get(object id) {
 
 mixed first_try(object id) {
   
-  foreach (query("exclude_urls")/"\n", string exclude) {
+  foreach (QUERY(exclude_urls)/"\n", string exclude) {
     if ((strlen(exclude) > 0) &&
         (exclude == id->not_query[..strlen(exclude)-1])) {
       return (0);
@@ -463,7 +463,7 @@ mixed first_try(object id) {
 
   if (!id->misc->session_variables->username && (query ("use_formauth"))) {
     int userauthrequired=0;
-    foreach (query("auth_urls")/"\n", string url) {
+    foreach (QUERY(auth_urls)/"\n", string url) {
       if ((strlen(url) > 0) &&
           (url == id->not_query[..strlen(url)-1])) {
         userauthrequired=1;
@@ -477,10 +477,10 @@ mixed first_try(object id) {
         if (result[0] == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
-          return http_low_answer(200, query("authpage"));
+          return http_low_answer(200, QUERY(authpage));
         }
       } else {
-        return http_low_answer(200, query("authpage"));
+        return http_low_answer(200, QUERY(authpage));
       }
     }
   }
@@ -584,7 +584,7 @@ void variables_delete_memory (string region, string key) {
 }
 
 void variables_delete(string region, string key) {
-  switch(query("storage")) {
+  switch(QUERY(storage)) {
     case "memory":
       variables_delete_memory(region, key);
       break;
