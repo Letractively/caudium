@@ -244,7 +244,7 @@ private static void read_it(string cl)
     return;
   }
 
-  configs[ccl] = file;
+  configs[cl] = file;
 }
 
 void remove( string reg , object current_configuration) 
@@ -313,17 +313,18 @@ mapping retrieve(string reg, object current_configuration)
 {
   string cl;
 
-  if(!current_configuration)
+  if (!current_configuration)
     cl="Global Variables";
   else
     cl=current_configuration->name;
   
   read_it(cl);
-
-  if (configs[cl])
+  
+  if (configs[cl]) {
     return configs[cl]->retrieve(reg) || ([]);
-  else
+  } else {
     return ([]);
+  }
 }
 /*
  * Local Variables:
