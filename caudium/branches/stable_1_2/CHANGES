@@ -1,3 +1,6 @@
+Changes in Caudium 1.2.x since Caudium 1.2.6
+--------------------------------------------
+
 Changes in Caudium 1.2.6 since Caudium 1.2.4
 --------------------------------------------
 - New define ENABLE_NEW404 / DISABLE_NEW404 to allow administrator to
