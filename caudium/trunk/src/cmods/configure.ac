@@ -11,7 +11,7 @@ fi
 dirs=""
 for a in `(cd $srcdir ; echo *)`
 do
-  if test "$a" != "CVS" -a "$a" != "RCS" -a "$a" != "autom4te.cache" -o "$a" != "libxslt" ; then
+  if test "$a" != "CVS" -a "$a" != "RCS" -a "$a" != "autom4te.cache" -a "$a" != "libxslt" ; then
     if test -d "$srcdir/$a" ; then
       yesno=`eval echo \\$with_$a`
       if test "${yesno-}" != "no" ; then
