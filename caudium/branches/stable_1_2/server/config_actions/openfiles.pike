@@ -81,7 +81,7 @@ string page_0()
 		string details = "-";
 
 		if(stat->isreg) 
-			details = Caudium.sizetostring(stat->size);
+			details = sizetostring(stat->size);
 		if(stat->ino)
 			details += sprintf(", inode: %d", stat->ino);
 		else if (stat->issock) {
