@@ -363,6 +363,8 @@ else
   CAUDIUM_SERVERDIR=""
 fi
 
+CAUDIUM_SERVERDIR="$prefix/caudium/server/"
+
 AC_ARG_WITH(serverdir,
 AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directory after installation]),
 [
