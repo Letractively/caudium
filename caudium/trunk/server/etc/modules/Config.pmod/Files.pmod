@@ -399,7 +399,8 @@ class File
   {
     string name;
     mapping mod;
-    
+
+#ifdef CAUDIUM
     foreach(values(caudiump()->current_configuration->modules), mod)
     {
       if(mod->copies)
@@ -411,7 +412,11 @@ class File
         if(mod->enabled==m)
           return mod->sname+"#0"; 
     }
+    
     return name;
+#else
+    return "";
+#endif
   }
   
   private string get_type_desc(mixed val)
