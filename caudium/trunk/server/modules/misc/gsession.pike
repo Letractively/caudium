@@ -1120,15 +1120,18 @@ int store(object id, string|mapping(string:mapping(string:mixed)) key, void|mixe
 //   key      - a variable name or an array of variable names to retrieve
 //   reg      - (optional) region from which to retrieve the data. Defaults
 //              to "session".
+//  session_id - (optional) session id of the region to retrieve. Defaults
+//              to id->misc->session_id
 //
 //  Returns:
 //   a mixed value of the given variable if 'key' is a string, a mapping of
 //   key/value ('key' and 'data' indices, respectively) if 'key' is an
 //   array.
 //
-mixed|mapping(string:mixed) retrieve(object id, string|array(string) key, void|string reg)
+mixed|mapping(string:mixed) retrieve(object id, string|array(string) key, void|string reg, void|string session_id)
 {
-  if (!cur_storage || !id->misc->session_id)
+  string _session_id = session_id || id->misc->session_id;
+  if (!cur_storage || !_session_id)
     return 0;
 
   mixed|mapping(string:mixed) ret;
@@ -1138,7 +1141,7 @@ mixed|mapping(string:mixed) retrieve(object id, string|array(string) key, void|s
     foreach(key, string k)
       ret += ([ "key" : k, "data" : cur_storage->retrieve(id, k, reg) ]);
   } else
-    ret = cur_storage->retrieve(id, key, id->misc->session_id, reg);
+    ret = cur_storage->retrieve(id, key, _session_id, reg);
 
   return ret;
 }
@@ -1227,17 +1230,21 @@ void set_expire_hook(function exphook, string|object id)
 //
 //  Params:
 //    id     - the request object
+//    session_id - the optional session id of the session to retrieve. If no
+//    session id is provided, the current session will be returned.
 //
 //  Returns:
 //    a mapping containing the current session settings
-mapping get_session_area(object id)
+mapping get_session_area(object id, void|string session_id)
 {
   if (!cur_storage || !id->misc->session_id)
     return 0;
 
+  string _session_id = session_id || id->misc->session_id;
+
   mapping sa = cur_storage->get_sessions_area(id);
-  if (sa && sa[id->misc->session_id])
-    return sa[id->misc->session_id];
+  if (sa && sa[_session_id])
+    return sa[_session_id];
 
   return 0;
 }
