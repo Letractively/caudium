@@ -66,7 +66,8 @@ constant module_doc  = "Adds the &lt;navbar&gt; &lt;/navbar&gt; container."
         "&nbsp;&lt;!-- A link to go to the previous page --&gt;<br/>"
         "&nbsp;&lt;previous&gt; &lt;href action=\"prevpage\"&gt; &amp;lt &lt;/href&gt; &lt;/previous&gt;<br/>"
         "&nbsp;&lt;!-- the previous pages (numbered) --&gt;<br/>"
-        "&nbsp;&lt;loop_previous&gt; &lt;href action=\"gopage\"&gt; #number# &lt;/href&gt; &lt;/loop_previous&gt;<br/>"
+        "<-- You can use basehref to specify the path part of the URI -->"
+        "&nbsp;&lt;loop_previous&gt; &lt;href basehref=\"/foobar\" action=\"gopage\"&gt; #number# &lt;/href&gt; &lt;/loop_previous&gt;<br/>"
         "&nbsp;&lt;!-- the current page --&gt;<br/>"
         "&nbsp;&lt;current/&gt;<br/>"
         "&nbsp;&lt;!-- the next pages (numbered) --&gt;<br/>"
@@ -337,7 +338,8 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
       ]);
   }
 
-  args->href = add_pre_state(id->not_query, id->prestate) + "?" + Protocols.HTTP.http_encode_query(vars); 
+  string baseuri = args->basehref || id->not_query;
+  args->href = add_pre_state(baseuri, id->prestate) + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
   return make_container("a", args, contents);
