@@ -3025,6 +3025,13 @@ void initiate_configuration_port( int|void first )
                      " Converted to FTP.\n");
       port[1] = "FTP";
     }
+
+    if ((< "http2" >)[port[1]]) {
+      // Obsolete versions of the SSL protocol.
+      report_warning("Obsolete HTTP2 protocol-module \""+port[1]+"\"."
+                     " Converted to HTTP.\n");
+      port[1] = "http";
+    }
     
     string key = MKPORTKEY(port);
     if (!configuration_ports[key]) {
