@@ -445,7 +445,7 @@ private int parse_got()
 	   case "multipart/form-data":
 	    //		perror("Multipart/form-data post detected\n");
 	    object messg = MIME.Message(data, request_headers);
-	    foreach(messg->body_parts, object part) {
+	    foreach(messg->body_parts||({}), object part) {
 	      if(part->disp_params->filename) {
 		variables[part->disp_params->name]=part->getdata();
 		variables[part->disp_params->name+".filename"]=
