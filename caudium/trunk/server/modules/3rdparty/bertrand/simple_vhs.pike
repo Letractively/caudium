@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2002  The Caudium Group
+ * Copyright © 2002 - 2003  The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,13 +18,22 @@
  *
  */
 
+/* Module derivated from a quick hack of the filesystem module made for me
+ * by p|kachu (kazmer, tamasz, or whatever he'd like us to call him atm :) )
+ * This code is now more than a quick hack and handle dynamic contents as well
+ * as virtual requests.
+ * 
+ * Authors:
+ *  Bertrand LUPART <bertrand@caudium.net>
+ */
+
 #include<module.h>
 
 inherit "modules/filesystems/filesystem.pike" : filesystem;
 
 #define DEBUG(X) write("VHS-FS: "+X+"\n")
 
-constant module_type = MODULE_FIRST|MODULE_LOCATION|MODULE_EXPERIMENTAL;
+constant module_type = MODULE_FIRST|MODULE_LOCATION;
 constant module_name = "VHS - Virtual Hosting System (Filesystem)";
 constant module_doc = "Basic Virtual Hosting module based on a directory structure.\n<br>"
   "Just put your sites in directories matching the scheme setup below:<br>"
@@ -88,7 +97,8 @@ mapping first_try(object id)
 
   DEBUG("before: path: "+path);
  
-  if(!zero_type(id->request_headers->host))
+  if(!zero_type(id->request_headers->host) &&
+     id->request_headers->host!="127.0.0.1")
   {
     string domain = "";		// Store the modified domain
  
