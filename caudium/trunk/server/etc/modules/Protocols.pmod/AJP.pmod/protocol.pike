@@ -596,21 +596,22 @@ werror("%O\n", packet);
   // now we get the attributes.
   packet->attributes=([]);
   int ended=0;
-  do 
-  {
-    werror("scanning attributes.\n");
-   int code;
-   string value;
-   array x = 
-    array_sscanf(packet->data, "%2c%s");
-   if(x[0]==0xff) ended=1;
-   else
-   {
-      packet->data = x[1]||"";
-     [value, packet->data] = pull_string(packet->data);
-     packet->attributes[search(attribute_values, code)] = value;
-   }
-  } while (!ended);
+  if(strlen(packet))
+    do 
+    {
+      werror("scanning attributes.\n");
+     int code;
+     string value;
+     array x = 
+      array_sscanf(packet->data, "%2c%s");
+     if(x[0]==0xff) ended=1;
+     else
+     {
+       packet->data = x[1]||"";
+       [value, packet->data] = pull_string(packet->data);
+       packet->attributes[search(attribute_values, code)] = value;
+     }
+    } while (!ended);
 
   return packet;
 }
