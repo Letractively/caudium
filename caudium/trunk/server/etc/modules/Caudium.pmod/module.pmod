@@ -37,5 +37,26 @@ inherit _Caudium;
 //!  in common log format.
 //! @returns
 //!  The date in the common log file format
+//! @example
+//!  Pike v7.4 release 10 running Hilfe v3.5 (Incremental Pike Frontend)
+//!  > Caudium.cern_http_date();
+//!  (1) Result: "16/Feb/2003:23:38:48 +0100"
 //! @note
 //!  Non RIS code, handled by _Caudium C module.
+
+//! @decl string http_date(int|void t)
+//!  Return the specified date (as returned by time()) formated in the
+//!  HTTP-protocol standart date format, which is "Day, DD MMM YYYY HH:MM:SS GMT"
+//!  Used in, for example, the "Last-Modified" header.
+//! @param t
+//!  The time in seconds since the 00:00:00 UTC, January 1, 1970. If this
+//!  argument is void, then the function will return the current date in
+//!  HTTP-protocol date format.
+//! @returns
+//!  The date in the common log file format
+//! @example
+//!  Pike v7.4 release 10 running Hilfe v3.5 (Incremental Pike Frontend)
+//!  > Caudium.http_date();
+//!  (1) Result: "Sun, 16 Feb 2003 22:41:25 GMT"
+//! @note
+//!  Non RIS code, handled by _Caudium C module
