@@ -1314,8 +1314,9 @@ void send_result(mapping|void result)
 	"Connection"	: "close",
 #endif
 	"Server":version(),
-	"X-Got-Fish": caudium->query("identpikever") ? fish_version : "Yes",	
-	"Date":http_date(time) ]);    
+	"X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"),	
+	"Date":http_date(time)
+      ]);    
       
       if(file->encoding)
 	heads["Content-Encoding"] = file->encoding;
