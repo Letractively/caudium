@@ -142,6 +142,9 @@ INLINE static int get_next_header(unsigned char *heads, int len,
 {
   int data, count, colon, count2=0;
   struct svalue skey, sval;
+
+  skey.type = T_STRING;
+  sval.type = T_STRING;
   
   for(count=0, colon=0; count < len; count++) {
     switch(heads[count]) {
@@ -152,8 +155,6 @@ INLINE static int get_next_header(unsigned char *heads, int len,
 	/* find end of header data */
 	if(heads[count2] == '\r') break;
       while(heads[data] == ' ') data++;
-      skey.type = T_STRING;
-      sval.type = T_STRING;
       
       skey.u.string = lowercase(heads, colon);      
       if (skey.u.string == NULL) return -1;
