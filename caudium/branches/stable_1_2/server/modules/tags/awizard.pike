@@ -21,7 +21,8 @@ string cvs_version = "$Id$";
 //
 //! container: verify
 //!  Code enclosed within that container will be executed when leaving this
-//!  page.
+//!  page. use &lt;error&gt error message &lt;/error&gt; containers inside
+//!  verify if you want to prohibit user to leave the page.
 //
 //! tag: button
 //!  Create a button that, when pressed, will transfer the user to either
@@ -47,7 +48,7 @@ string cvs_version = "$Id$";
 //! container: come-from
 //!  Contents of this container is executed whenever the user arrived from the given
 //!  page.
-//! attribute: page = page_name
+//! attribute: name = page_name
 //!  Sets the name of the previous page which will trigger execution of the associated
 //!  RXML code in this container.
 //!
@@ -60,12 +61,32 @@ string cvs_version = "$Id$";
 //
 //! container: warn
 //!  Display the contents of the container as a warning.
+//! attribute: quiet
+//!  no output, just sets warn_message variable
+//! attribute: silent
+//!  html commented output of the warning message
+//! attribute: solid
+//!  displays only the message without info sign.
 //
 //! container: notice
 //!  Display the contents of the container as a notice.
+//! attribute: quiet
+//!  no output, just sets notice_message variable
+//! attribute: silent
+//!  html commented output of the notice message
+//! attribute: solid
+//!  displays only the message without info sign.
 //
 //! container: error
-//!  Display the contents of the container as an error.
+//!  Display the contents of the container as an error, 
+//!  or prohibits leave a page if used inside a
+//!  verify container.
+//! attribute: quiet
+//!  no output, just sets error_message variable
+//! attribute: silent
+//!  html commented output of the error message
+//! attribute: solid
+//!  displays only the message without info sign.
 //
 constant module_type = MODULE_PARSER;
 constant module_name = "Advanced Wizards";
@@ -91,7 +112,6 @@ constant module_unique = 1;
 
 
 // Store (advanced wizards with procedures) module...
-
 // tags:
 //  <awizard title=...>
 //  <page [name=...]>
@@ -123,9 +143,16 @@ void init_tags()
 
 
 string ce = "";
-string container_awizard_pike(string t, mapping m, string c, int line, int i,
-			    object id)
+string container_awizard_pike(string t, mapping m, string c, int l, object id,
+			    object awiz)
 {
+
+  if( !query("allow_awizard_pike") ) {
+	report_warning("Awizard: &lt;awizard-pike&gt; called, '<b>%s</b>' on virtual server: <b>%s:%s</b> while awizard-pike is disabled for this virtualserver",
+		id->not_query, 
+		id->conf->this->name, id->conf->this->variables->name[0] );
+	return "<!-- awizard-pike is disabled -->";
+  }
   array err;
   string res;
   object e = ErrorContainer();
@@ -148,11 +175,11 @@ string container_awizard_pike(string t, mapping m, string c, int line, int i,
   }
   master()->set_inhibit_compile_errors(0);
   master()->clear_compilation_failures();
-  if(e) throw(e);
+  if(err) throw(err);
   return res||"";
 }
 
-string tag_goto(string t, mapping m, int q, int w, object id)
+string tag_goto(string t, mapping m, int l, object id, object awiz)
 {
   if(m->page)
     id->misc->return_me = ([ "page":m->page ]);
@@ -161,7 +188,7 @@ string tag_goto(string t, mapping m, int q, int w, object id)
   return "";
 }
 
-string tag_wizardbuttons(string t, mapping m, int q, int w, object id)
+string tag_wizardbuttons(string t, mapping m, int l, object id, object awiz)
 {
   return ("<p><table width=100%><tr width=100% >\n"
 	  "<td  width=50% align=left>"
@@ -171,7 +198,7 @@ string tag_wizardbuttons(string t, mapping m, int q, int w, object id)
 	  "</table>");
 }
 
-string tag_button(string t, mapping m, int q, int w, object id)
+string tag_button(string t, mapping m, int l, object id, object awiz)
 {
   mapping args = ([]);
   if(m->page)
@@ -194,6 +221,7 @@ string tag_button(string t, mapping m, int q, int w, object id)
   if(m->image) {
     args->type = "image";
     args->alt  = m->title||m->alt||m->page||"[ "+m->image+" ]";
+    args->title = args->alt;
     args->border="0";
     args->src = replace(m->image, ({" ","?"}), ({"%20", "%3f"}));
   } else {
@@ -203,7 +231,7 @@ string tag_button(string t, mapping m, int q, int w, object id)
   return make_tag("input", args);
 }
 
-string container_dbutton(string t, mapping m, string c, int q, int w, object id)
+string container_dbutton(string t, mapping m, string c, int l, object id, object awiz)
 {
   mapping args = ([]);
   if(m->page)
@@ -225,6 +253,8 @@ string container_dbutton(string t, mapping m, string c, int q, int w, object id)
     args->name = "goto_current_page/"+m->id;
   if(m->image) {
     args->type = "image";
+    args->alt  = m->title||m->alt||m->page||"[ "+m->image+" ]";
+    args->title = args->alt;
     args->border="0";
     args->src = replace(m->image, ({" ","?"}), ({"%20", "%3f"}));
   } else {
@@ -235,20 +265,46 @@ string container_dbutton(string t, mapping m, string c, int q, int w, object id)
   return make_tag("input", args);
 }
 
-string container_warn(string t, mapping m, string c, int q, int w, object id)
+string container_warn(string t, mapping m, string c, int l, object id, object awiz )
 {
+  id->variables->warn_message=c;
+
+  if( m->quiet )  
+  	return "";
+  if( m->silent) 
+  	return "<!-- error: '"+c+"' -->";
+  if( m->solid ) 
+  	return c;
+
   return html_warning( c, id );
 }
 
-string container_notice(string t, mapping m, string c, int q, int w, object id)
+string container_notice(string t, mapping m, string c, int q, object id, object awiz )
 {
+  id->variables->notice_message=c;
+
+  if( m->quiet )  
+  	return "";
+  if( m->silent) 
+  	return "<!-- notice: '"+c+"' -->";
+  if( m->solid ) 
+  	return c;
+
   return html_notice( c, id );
 }
 
-string container_error(string t, mapping m, string c, int q, int w, object id) 
+string container_error(string t, mapping m, string c, int q, object id, object awiz) 
 {
   id->variables->error_message = c;
-  return c;
+
+  if( m->quiet )  
+  	return "";
+  if( m->silent) 
+  	return "<!-- error: '"+c+"' -->";
+  if( m->solid ) 
+  	return c;
+
+  return html_error( c,id );
 }
 
   int num, id, button_id, line_offset;
@@ -560,6 +616,13 @@ void create()
   defvar("proc", "", "Procedure library", TYPE_FILE, 
 	 "If set, this variable points to a file with procedures that "
 	 "can be used by all stores. Use the real (physical) filename.");
+  defvar("allow_awizard_pike",0,"Awizard-Pike tag", TYPE_FLAG,
+         "If set, you can use, and additonal tag for scripting in AWizards: "
+	 "<b>&lt;awizard-pike&gt</b>...pike code...<b>&lt;/awizard-pike&gt;</b>"
+	 "in your pages, or procedures.<br>"
+	 "this is doing somewhat same like pike tag support.<br>"
+	 "<font color=red>NOTE: Enabling awizard-pike is the same thing as letting your users"
+	 "run programs with the same right as the server!</font>" );
 }
 
 
