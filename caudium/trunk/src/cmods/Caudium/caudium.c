@@ -647,6 +647,15 @@ static void f_parse_prestates( INT32 args )
   push_string(make_shared_string(url->str + prestate_end));
 }
 
+/*
+** method: get_address(string addr)
+**  Get the IP Address from Pike query_address string.
+** arg: string addr
+**  The address + port given from Pike with the following
+**  format "ip.ad.dr.ess port" like this example "127.0.0.1 49505"
+** returns:
+**  The IP Address string.
+*/
 static void f_get_address( INT32 args ) {
   int i;
   struct pike_string *res, *src;
@@ -770,12 +779,17 @@ static void f_http_encode(INT32 args)
 	int unsafe = 0;
 	int out_len, in_len;
 	struct pike_string *ret;
-	
-	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
-		Pike_error("Invalid argument to Caudium.http_encode(STRING);\n");
+        struct pike_string *src;
 
-	in = Pike_sp[-args].u.string->str;
-	in_len = Pike_sp[-args].u.string->len;
+        if(Pike_sp[-1].type != T_STRING)
+          SIMPLE_BAD_ARG_ERROR("Caudium.http_encode", 1, "string");
+        src = Pike_sp[-1].u.string;
+        if(src->size_shift) {
+          Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+        }
+
+        in = src->str;
+        in_len = src->len-1;
 	
 	// count unsave characters
 	for(i=in; *i; i++) if(!is_safe((int )*i)) unsafe++;
@@ -816,14 +830,18 @@ static void f_http_decode(INT32 args)
 	char *i, *o, *out, *in; 
 	struct pike_string *ret;
 	int in_len, check;
+        struct pike_string *src;
 
         check = 0;  /* Just in case */
-	
-	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
-		Pike_error("Invalid argument to Caudium.http_eecode(STRING);\n");
 
-	in = Pike_sp[-args].u.string->str;
-	in_len = Pike_sp[-args].u.string->len;
+        if(Pike_sp[-1].type != T_STRING)
+          SIMPLE_BAD_ARG_ERROR("Caudium.http_encode",1,"string");
+        src = Pike_sp[-1].u.string;
+        if(src->size_shift) {
+          Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+        }
+        in = src->str;
+        in_len = src->len-1;
 
 	// count encoded characters
 	for(i=in; *i; i++) if(*i == '%') check++;
