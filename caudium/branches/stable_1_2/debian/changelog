@@ -5,6 +5,8 @@ caudium (2:1.2.19-3) unstable; urgency=low
     Caudium no loger diverts htpasswd to point to its own version. 
     htpasswd is accessible only using the htpasswd-caudium name.
     (closes: Bug#148316)
+  * Forgotten (but fixed) bugs closed. (closes: Bug#130781, 
+    closes: Bug#130969, closes: Bug#130976, closes: Bug#131012)
 
  -- Marek Habersack <grendel@debian.org>  Fri, 13 Dec 2002 15:32:35 +0100
 
