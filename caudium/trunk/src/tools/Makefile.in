@@ -20,6 +20,9 @@ install_alt: htpasswd
 	$(INSTALL) htpasswd $(DESTDIR)/$(prefix)/bin/
 	-strip --strip-unneeded $(DESTDIR)/$(prefix)/bin/htpasswd
 
+install_bin:
+	@true
+
 clean:
 	rm -f htpasswd
 
