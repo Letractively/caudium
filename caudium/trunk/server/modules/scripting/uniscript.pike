@@ -1078,37 +1078,42 @@ void create(object conf)
 //
 //! defvar: nice
 //! The nice level to use when running scripts. 20 is nicest, and 0 is the most aggressive available to normal users. Defining the Nice value to anyting but 0 will override the 'Priority' setting.
-//!  type: TYPE_INT|VAR_MORE
+//!  type: TYPE_INT
 //!  name: Limits: Nice value
 //
 //! defvar: coresize
 //! The maximum size of a core-dump, in 512 byte blocks. -2 is unlimited.
-//!  type: TYPE_INT|VAR_MORE
+//!  type: TYPE_INT
 //!  name: Limits: Core dump size
 //
 //! defvar: maxtime
 //! The maximum CPU time the script might use in seconds. -2 is unlimited.
-//!  type: TYPE_INT_LIST|VAR_MORE
+//!  type: TYPE_INT_LIST
 //!  name: Limits: Maximum CPU time
 //
 //! defvar: datasize
 //! The maximum size of the memory used, in Kb. -2 is unlimited.
-//!  type: TYPE_INT|VAR_EXPERT
+//!  type: TYPE_INT
 //!  name: Limits: Memory size
+//
+//! defvar: nproc
+//! Maximum nuber of user process.
+//!  type: TYPE_INT
+//!  name: Limits: Max procs
 //
 //! defvar: filesize
 //! The maximum size of any file created, in 512 byte blocks. -2 is unlimited.
-//!  type: TYPE_INT|VAR_EXPERT
+//!  type: TYPE_INT
 //!  name: Limits: Maximum file size
 //
 //! defvar: open_files
 //! The maximum number of files the script can keep open at any time. It is not possible to set this value over the system maximum. On most systems, there is no limit, but some unix systems still have a static filetable (Linux and *BSD, basically).
-//!  type: TYPE_INT_LIST|VAR_MORE
+//!  type: TYPE_INT_LIST
 //!  name: Limits: Maximum number of open files
 //
 //! defvar: stack
 //! The maximum size of the stack used, in kilobytes. -2 is unlimited.
-//!  type: TYPE_INT|VAR_EXPERT
+//!  type: TYPE_INT
 //!  name: Limits: Stack size
 //
 //! defvar: kill_call_out

@@ -969,6 +969,11 @@ string query_name()
 //!  type: TYPE_FLAG
 //!  name: Allowed Access Methods: PUT
 //
+//! defvar: appe
+//! If set and if PUT method too, APPEND method can be used on file uploads.
+//!  type: TYPE_FLAG
+//!  name: Allowed Access Methods: APPE
+//
 //! defvar: delete
 //! If set, allow use of the DELETE method, which is used for file deletion.
 //!  type: TYPE_FLAG
