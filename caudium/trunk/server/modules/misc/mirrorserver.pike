@@ -104,7 +104,7 @@ class MirrorServer {
   {
     url = replace(base+url,"//","/");
     string foo = caudium->real_file(url, fid);
-    if(foo) return read_bytes(foo);
+    if(foo) return Stdio.read_bytes(foo);
     return fid->conf->try_get_file(url, fid);
   }
 

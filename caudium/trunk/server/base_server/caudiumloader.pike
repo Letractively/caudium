@@ -762,19 +762,6 @@ class empty_class {
   }
 };
 
-// Fallback efuns.
-#if !constant(getuid)
-int getuid(){ return 17; }
-int getgid(){ return 42; }
-#endif
-#if !constant(gethrtime)
-int gethrtime()
-{
-  return (time()*1000000);
-}
-#endif
-
-
 // Some function that can used by Caudium
 
 //! @decl void werror(string format, mixed ... args)

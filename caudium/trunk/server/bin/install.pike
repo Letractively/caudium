@@ -273,7 +273,7 @@ private string get_domain(int|void l)
 #endif
     if(!s)
     {
-      t = read_bytes("/etc/resolv.conf");
+      t = Stdio.read_bytes("/etc/resolv.conf");
       if(t) 
       {
 	if(sscanf(t, "%*sdomain%*[ \t]%s\n", s)!=3)

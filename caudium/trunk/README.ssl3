@@ -4,7 +4,7 @@
 This is a short, step by step guide for setting up a SSL-server:
  
 o Check that your Pike contains Gmp. If you run
-	bin/pike -m lib/pike/master.pike bin/feature_list
+	bin/pike --features
   from the server-directory, you should see Gmp among the listed features.
 
 o Get (or make) a certificate. A test-certificate is distributed with
