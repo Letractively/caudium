@@ -418,16 +418,9 @@ string cern_http_date(int t)
     c="+";
   }
 
-#if 1
   return(sprintf("%02d/%s/%04d:%02d:%02d:%02d %s%02d00",
 		 lt->mday, months[lt->mon], 1900+lt->year,
 		 lt->hour, lt->min, lt->sec, c, tzh));
-#else
-  string s = ctime(t);
-  
-  return sprintf("%02d/%s/%s:%s %s%02d00", (int)s[8..9], s[4..6], s[20..23], 
-		 s[11..18], c ,tzh);
-#endif /* 1 */
 }
 
 #if 0
