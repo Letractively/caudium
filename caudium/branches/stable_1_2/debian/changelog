@@ -1,8 +1,10 @@
-caudium (2:1.2.35-2) unstable; urgency=high
+caudium (2:1.2.35.1-1) unstable; urgency=high
 
   * Closes: #298963: contains non-free fonts
   * Do not include the non-free Microsoft fonts. Instead, recommend the
     Bistream Vera package and use the fonts if they exist
+  * Using a 'fake' upstream release number to be able to overwrite the
+    .orig tarball in the debian archive.
 
  -- Marek Habersack <grendel@debian.org>  Mon,  4 Apr 2005 00:43:07 +0200
 
