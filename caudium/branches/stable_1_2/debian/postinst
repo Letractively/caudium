@@ -144,10 +144,6 @@ EOF
 # -----------------------
 if [ ! -f /var/www/index.html ]; then
     ln -sf ../../usr/share/doc/caudium/www/index.html /var/www/index.html
-    cd /var/www/images/
-    for f in ../../../usr/share/doc/caudium/www/*.png; do
-        ln -sf $f /var/www/images/
-    done
 fi
     db_stop
 
