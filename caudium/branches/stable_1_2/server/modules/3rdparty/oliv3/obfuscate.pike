@@ -47,6 +47,12 @@ mapping query_container_callers () {
 }
 
 string container_address (string tag_name, mapping args, string contents, object id) {
+  mapping gtextargs = ([ ]);
+  foreach (glob ("gtext_*", indices (args)), string q) {
+    gtextargs[q[6..]] = args[q];
+    m_delete (args, q);
+  }
+
   // get user and domain
   array tmp = contents / "@";
   if (sizeof (tmp) == 2) {
@@ -93,7 +99,10 @@ string container_address (string tag_name, mapping args, string contents, object
     if (args->nogtext)
       res += contents;
     else {
-      res += "<gtext alt=\"\">"; 
+      res += "<gtext alt=\"\"";
+      foreach (indices (gtextargs), string a)
+	res += " " + a + "=\"" + gtextargs[a] + "\"";
+      res += ">"; 
       res += contents;
       res += "</gtext>";
     }
