@@ -1,0 +1,12 @@
+etc/caudium-1.1
+etc/caudium-1.1/servers
+usr/bin
+usr/lib/caudium-1.1/lib
+usr/lib/caudium-1.1/local_modules
+usr/lib/caudium-1.1/local_fonts
+var/log/caudium-1.1
+var/run/caudium-1.1
+var/state/caudium-1.1
+var/cache/caudium-1.1
+var/cache/caudium-1.1/args
+var/www

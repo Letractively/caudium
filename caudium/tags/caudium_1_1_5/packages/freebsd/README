@@ -1,0 +1,8 @@
+This directory is meant to keep all the packaging systems stuff for FreeBSD.
+
+Note you need a up to date port tree (use cvsup) to use fresh ports.
+
+You can check at ftp://ftp.oav.net/caudium/pkg/FreeBSD/ for old ports, 
+binairies, sources used in this source tree.
+
+Feedback ? mail to  kiwi@caudium.net
