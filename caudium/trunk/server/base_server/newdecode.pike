@@ -291,7 +291,7 @@ mapping decode_config_file(string s)
 {
 //  werror(sprintf("Decoding \n%s\n",s));
   mapping res = ([ ]);
-  if(!sizeof(s)) return res; // Empty file..
+  if(s && !sizeof(s)) return res; // Empty file..
   switch(s[0])
   {
   case ';':
