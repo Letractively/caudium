@@ -62,6 +62,8 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
+#define DEFAULT_MAX_BODY_LENGTH 1024*16
+
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
@@ -69,7 +71,8 @@ constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
-private static int wanted_data, have_data;
+private static int wanted_data, have_data, ignore_data, max_body_length;
+
 
 object conf;
 
@@ -283,9 +286,10 @@ private int really_set_config(array mod_config)
 
 }
 
+
 // handle the encryption of the body data
 // this is usually just the case for the POST method
-static void handle_body_encryption(int content_length)
+static void handle_body_encoding(int content_length)
 {
   string content_type =lower_case(
     (((request_headers["content-type"]||"")+";")/";")[0]-" "); 
@@ -294,7 +298,7 @@ static void handle_body_encryption(int content_length)
     default: // Normal form data.
       string v;
       if ( method != "POST" )
-	return; // no encryption if not POST method
+	return; // no encroding if not POST method
       if(content_length < 200000)
 	Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
 					   ({"", ""})), variables);
@@ -530,17 +534,24 @@ private int parse_got()
 	 // read the data in any case though
 	 if(!data) data="";
 	 int l = misc->len;
-	 wanted_data=l;
+	 
+	 wanted_data = min(l, max_body_length);
 	 have_data=strlen(data);
-
-	 if(strlen(data) < l)
+	 
+	 if( have_data < wanted_data )
 	 {
-	   REQUEST_WERR("HTTP: parse_request(): More data needed.");
-	   return 0;
+	     REQUEST_WERR("HTTP: parse_request(): More data needed.");
+	     return 0;
+	 }
+	 if ( wanted_data < l ) {
+	   ignore_data = l - have_data;
+	   REQUEST_WERR("HTTP: parsing, ignoring next " + ignore_data +
+			" bytes of request body.");
 	 }
 	 leftovers = data[l..];
 	 data = data[..l-1];
-	 handle_body_encryption(l);
+	 handle_body_encoding(l);
+	 wanted_data = 0;
 	 break;
        case "authorization":
 	rawauth = request_headers[linename];
@@ -1650,9 +1661,26 @@ void got_data(mixed fdid, string s)
                          // within 30 seconds. Should be more than enough.
   time = _time(1); // Check is made towards this to make sure the object
   		  // is not killed prematurely.
+  // if data is ingored dont store it in raw - its body data from
+  // the last request...
+  int read_data = strlen(s);
+
+  if ( ignore_data > 0 ) {
+    REQUEST_WERR("Ignoring " + ignore_data + " bytes...");
+    if ( ignore_data > read_data ) {
+      s = s[ignore_data+1..];
+      ignore_data = 0;
+    }
+    else {
+      ignore_data -= read_data; 
+      return;
+    }
+  }
   raw += s;
-  if(wanted_data && strlen(raw) < wanted_data)
+  if( wanted_data > 0 && strlen(raw) < wanted_data) 
     return;
+ 
+  
   if(strlen(raw))
     tmp = parse_got();
 
@@ -1766,6 +1794,8 @@ void create(void|object f, void|object c)
     remoteaddr = Caudium.get_address(my_fd->query_address()||"");
     MARK_FD("HTTP connection");
   }
+  ignore_data = 0;
+  max_body_length = DEFAULT_MAX_BODY_LENGTH;
 }
 
 void chain(object f, object c, string le)
