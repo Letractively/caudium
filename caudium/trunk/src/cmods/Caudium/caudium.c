@@ -887,9 +887,11 @@ static void f_http_decode(INT32 args)
   push_string(end_shared_string(ret));
 }
 
-/* Used for cern_http_date */
+/* Used for cern_http_date and for http_date */
 const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+const char *days[7]= { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
 /*
 ** method: string cern_http_date(int|void t)
@@ -981,6 +983,93 @@ static void f_cern_http_date(INT32 args)
   push_string(ret);
 }
 
+/*
+** method: string http_date(int|void t)
+**  Return the specified date (as returned by time()) formatted in the
+**  HTTP-protocol standart date format, which is "Dayn DD MMM YYYY HH:MM:SS GMT".
+**  Used in for example the Last-Modified header.
+** @param t
+**  The time in seconds since the 00:00:00 UTC, January 1, 1970
+**  If this argument is void, then the function returns the current 
+**  date in common log format.
+** @returns
+**  The date in the HTTP standard date format.
+**  Example: Wed, 11 Dec 2002 17:13:15 GMT
+*/
+static void f_http_date(INT32 args)
+{
+  time_t now;
+  long diff;
+  struct tm *tm;
+  char date[sizeof "Wed, 11 Dec 2002 17:13:15 GMT"];
+  struct pike_string *ret;
+  INT_TYPE timestamp;
+
+  switch(args) {
+   default:
+     Pike_error("Wrong number of arguments Caudium.http_date(). Expected 1 or less arguments.\n");
+     break;
+
+     case 1:
+       if(Pike_sp[-1].type != T_INT) {
+         Pike_error("Bad argument 1 to Caudium.http_date(). Expected int.\n");
+       } else {
+         timestamp = Pike_sp[-1].u.integer;
+       }
+       break;
+
+     case 0:
+       timestamp = NULL;
+       break;
+   }
+  
+  if(args == 0) { 
+    if ((now = time(NULL)) == (time_t) -1 ||
+        (tm = localtime(&now)) == NULL ||
+        tm->tm_mon > 11 || tm->tm_mon < 0) {
+        return;
+    }
+   } else {
+     now = (time_t)timestamp;
+     if ((tm = localtime(&now)) == NULL ||
+         tm->tm_mon > 11 || tm->tm_mon < 0) {
+         return;
+     }
+   }
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+  diff = -(tm->tm_gmtoff) / 60L;
+#elif defined(HAVE_SCALAR_TIMEZONE)
+  diff = -(timezone) / 60L;
+#else
+  {
+    struct tm gmt;
+    struct tm *t;
+    int days, hours, minutes;
+
+    gmt = *gmtime(&now);
+    t = localtime(&now);
+    days = t->tm_yday - gmt.tm_yday;
+    hours = ((days < -1 ? 24 : 1 < days ? -24 : days * 24)
+             + t->tm_hour - gmt.tm_hour);
+    minutes = hours * 60 + t->tm_min - gmt.tm_min;
+    diff = -minutes;
+  }
+#endif
+  if (diff <= 0L) {
+    diff = -diff;
+  }
+  if(snprintf(date, sizeof date, "%s, %02d %s %d %02d:%02d:%02d GMT",
+              days[tm->tm_wday], tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
+              (tm->tm_hour) - (int)(diff / 60L), (tm->tm_min) - (int)(diff % 60L), 
+              tm->tm_sec ) == sizeof date) {
+     return;
+  }
+  ret = (make_shared_string(date));
+  if(args == 1)
+    pop_stack();
+  push_string(ret);
+}
+
 /* Initialize and start module */
 void pike_module_init( void )
 {
@@ -1015,6 +1104,8 @@ void pike_module_init( void )
   add_function_constant( "http_decode", f_http_decode,
                          "function(string:string)", 0);
   add_function_constant( "cern_http_date", f_cern_http_date,
+                         "function(int|void:string)", 0);
+  add_function_constant( "http_date", f_http_date,
                          "function(int|void:string)", 0);
 
   start_new_program();
