@@ -1,4 +1,4 @@
-Changes in Caudium 1.2.3x since 1.2.32
+Changes in Caudium 1.2.34 since 1.2.32
 --------------------------------------
 - Fix error on vhs_dirparser when there is no files on directory and that
   option "show dot files" is set to no
