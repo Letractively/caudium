@@ -26,6 +26,7 @@
  * Authors:
  *   Marek Habersack <grendel@caudium.net> (core module)
  *   Chris Davies <mcd@daviesinc.com> (SQL plugins)
+ *   David Gourdelier <vida@caudium.net> (debug functions)
  *
  */
 constant cvs_version = "$Id$";
@@ -42,6 +43,12 @@ constant thread_safe = 1;
 
 #define CACHE "_gsession_stronghold_"
 #define SVAR QUERY(svarname)
+
+#ifdef SESSION_DEBUG
+#define SESSDEBUG(X) { report_debug("GSESSION_DEBUG\t"+__FILE__+"@"+__LINE__+": "+X+"\n"); }
+#else
+#define SESSDEBUG(X)
+#endif
 
 #ifdef THREADS
 private object gc_lock = Thread.Mutex();
@@ -214,6 +221,7 @@ private class SettableWrapper
   
   void create(object reqid, string reqsid, void|string r)
   {
+    SESSDEBUG("SettableWrapper: create called with reqsid="+reqsid+", r="+r);
     id = reqid;
     sid = reqsid;
     reg = r;
@@ -222,18 +230,26 @@ private class SettableWrapper
   mixed `[](string what) 
   {
     mixed ret;
+    SESSDEBUG(sprintf("SettableWrapper: [%O]", what));
 
     if (!cur_storage)
+    {
+      SESSDEBUG("No current storage present");
       return ([])[0];
-    
+    }
+    SESSDEBUG(sprintf("retreiving %O with sid %O", what, sid));
     return cur_storage->retrieve(id, what, sid, reg);
   }
 
   mixed `[]=(string what, mixed contents)
   {
+    SESSDEBUG(sprintf("SettableWrapper: [%O]=%O", what, contents));
     if (!cur_storage)
+    {
+      SESSDEBUG("No current storage present");
       return ([])[0];
-
+    }
+    SESSDEBUG(sprintf("storing %O=%O with sid %O", what, contents, sid));
     cur_storage->store(id, what, contents, sid, reg);
     return contents;
   }
@@ -250,7 +266,7 @@ private class SettableWrapper
 
   mixed _m_delete(mixed index)
   {
-    report_notice("_m_delete for %t called, deleting %O\n", this_object(), index);
+    SESSDEBUG(sprintf("_m_delete for %t called, deleting %O\n", this_object(), index));
     if (stringp(index) && cur_storage) {  
       return cur_storage->delete_variable(id, index, sid, reg);
     }
@@ -765,13 +781,13 @@ private int memory_validate_storage(string reg, string sid, string fn)
 {
   if (!_memory_storage[reg]) {
     // To throw (up) or not to throw (up) - that is the question...
-    report_error("gSession: Fugazi! No memory storage for region '%s'! (called from '%s')\n", reg, fn);
+    report_error("gSession: Fugazi! No memory storage for region '%O'! (called from '%O')\n", reg, fn);
     return -1;
   }
 
   if (!_memory_storage[reg][sid]) {
     // To throw (up) or not to throw (up) - that is the question...
-    report_error("gSession: Fugazi! No session storage for region '%s' and session '%s'! (called from '%s')\n", reg, sid || "", fn);
+    report_error("gSession: Fugazi! No session storage for region '%O' and session '%O'! (called from '%O')\n", reg, sid || "", fn);
     return -1;
   }
 
@@ -869,6 +885,9 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
     _memory_storage["_sessions_"]->idle_sessions--;
     _memory_storage["_sessions_"][sid]->fresh = 0;
   }
+  SESSDEBUG(sprintf("storing _memory_storage[%O][%O]->data[%O]=%O",
+                region, sid, key, data));
+  
   _memory_storage[region][sid]->data[key] = data;
   _memory_storage["_sessions_"][sid]->lastchanged = t;
 }
@@ -893,6 +912,8 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
   if (!_memory_storage[region][sid]->data[key])
     return 0;
   _memory_storage["_sessions_"][sid]->lastretrieved = t;
+  SESSDEBUG(sprintf("retrieving _memory_storage[%O][%O]->data[%O]=%O",
+        region, sid, key, _memory_storage[region][sid]->data[key]));
   
   return _memory_storage[region][sid]->data[key];
 }
@@ -1086,7 +1107,7 @@ int store(object id, string|mapping(string:mapping(string:mixed)) key, void|mixe
       cur_storage->store(id, key[s]->key, key[s]->data, id->misc->session_id, reg);
     }
   } else
-    cur_storage->store(id, key, data, reg);
+    cur_storage->store(id, key, data, id->misc->session_id, reg);
     
   return 0;
 }
@@ -1183,7 +1204,7 @@ void set_expire_time(int timeval, string|object id)
     sid = id;
   else if (objectp(id))
     sid = id->misc->session_id;
-  
+ 
   cur_storage->set_expire_time(sid, timeval);
 }
 
