@@ -427,15 +427,17 @@ private int parse_got()
 	if(method == "POST")
 	{
 	  if(!data) data="";
-	  int l = misc->len-1; /* Length - 1 */
+	  int l = misc->len;
 	  wanted_data=l;
 	  have_data=strlen(data);
 
-	  if(strlen(data) <= l) // \r are included. 
+	  if(strlen(data) < l)
+	  {
+	    REQUEST_WERR("HTTP: parse_request(): More data needed in POST.");
 	    return 0;
-
-	  leftovers = data[l+1..];
-	  data = data[..l];
+	  }
+	  leftovers = data[l+2..];
+	  data = data[..l+1];
 	  switch(lower_case((((request_headers["content-type"]||"")+";")/";")[0]-" "))
 	  {
 	   default: // Normal form data.
@@ -447,7 +449,7 @@ private int parse_got()
 
 	   case "multipart/form-data":
 	    //		perror("Multipart/form-data post detected\n");
-	    object messg = MIME.Message(data, misc);
+	    object messg = MIME.Message(data, request_headers);
 	    foreach(messg->body_parts, object part) {
 	      if(part->disp_params->filename) {
 		variables[part->disp_params->name]=part->getdata();
@@ -466,6 +468,7 @@ private int parse_got()
 	    }
 	    break;
 	  }
+	  werror("%O\n", variables);
 	}
 	break;
 	  
