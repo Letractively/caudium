@@ -68,7 +68,7 @@ mixed wizard_done ( object id, object mc ) {
   foreach( checked, string namespace ) {
     caudium->cache_manager->get_cache( namespace )->flush();
   }
-  return "<b>Caches Flushed:</b> " + ( checked * " " );
+  return "<b>Caches Flushed:</b> " + ( checked * ", " );
 }
 
 mixed handle( object id ) { return wizard_for( id, 0 ); }
