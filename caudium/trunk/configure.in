@@ -334,7 +334,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 			PIKE=""
 		else
 		   AC_MSG_RESULT(ok)
-	           PIKE=`echo $PIKE | pike -e 'int tries=100;
+	           PIKE=`echo $PIKE | $PIKE -e 'int tries=100;
 		   string orig,pike=Stdio.File("stdin")->read()-"\n";
 		   orig=pike;
 		   if(search(orig, "/"))
