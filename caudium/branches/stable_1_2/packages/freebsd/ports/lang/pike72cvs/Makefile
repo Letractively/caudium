@@ -34,6 +34,10 @@ LIB_DEPENDS=	gmp.4:${PORTSDIR}/math/libgmp3 \
 
 WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 
+WANT_MESA=	yes
+WANT_GTK=	yes
+WANT_GNOME=	yes
+
 GNU_CONFIGURE=  yes
 
 CONFIGURE_ARGS+= --without-debug \
@@ -83,8 +87,21 @@ WITH_POSTGRES=	yes
 WITH_UNIXODBC=	yes
 .endif
 
+.if exists(${LOCALBASE}/lib/libiodbc.so.2)
+WITH_IODBC=	yes
+.endif
+
 .if exists(${LOCALBASE}/lib/libsane.so.1)
 WITH_SANE=	yes
+.endif
+
+.if defined(WITH_MOST)
+WITH_TTF=	yes
+WITH_FREETYPE=	yes
+.endif
+
+.if defined(WITH_OPTIMIZED_CFLAGS)
+CFLAGS+=	-O3 -ffast-math -fomit-frame-pointer
 .endif
 
 .if defined(WITH_TTF)
@@ -136,11 +153,27 @@ CONFIGURE_ARGS+= --with-odbc
 CONFIGURE_ARGS+= --without-odbc
 .endif
 
-.id defined(WITH_SANE)
+.if defined(WITH_SANE)
 LIB_DEPENDS+=	sane.1:${PORTSDIR}/graphics/sane-backends
 CONFIGURE_ARGS+= --with-sane
 .else
 CONFIGURE_ARGS+= --without-sane
+.endif
+
+.if defined(HAVE_MESA) || defined(WITH_MESA)
+USE_MESA=	yes
+CONFIGURE_ARGS+= --with-GL --with-GLUT
+.else
+CONFIGURE_ARGS+= --without-GL --without-GLUT
+.endif
+
+.if defined(HAVE_GNOME)
+USE_GNOME=	yes
+USE_GTK=	yes
+USE_GLI=	yes
+CONFIGURE_ARGS+= --with-GTK --with-gnome --with-glade
+.else
+CONFIGURE_ARGS+= --without-GTK --without-gnome --without-glade
 .endif
 
 .if (${MACHINE} == "i386")
@@ -152,10 +185,39 @@ CONFIGURE_ARGS+= --without-poll
 
 USE_GMAKE=	yes
 
-#pre-fetch:
-#.if !defined(BATCH)
-#	@${SETENV} ${SCRIPTS_ENV} ${SH} ${SCRIPTDIR}/configure.pike
-#.endif
+pre-everything::
+.if !defined(WITH_OPTIMIZED_CFLAGS)
+	@${ECHO_MSG} "You can enable additional compilation optimizations"
+	@${ECHO_MSG} "by defining WITH_OPTIMIZED_CFLAGS"
+.endif
+.if !defined(WITH_TTF) && !defined(WITH_MOST)
+	@${ECHO_MSG} "You can enable _Image_TTF support by defining WITH_TTF."
+.endif
+.if !defined(WITH_FREETYPE) && !defined(WITH_MOST)
+	@${ECHO_MSG} "You can enable _Image_FreeType support by defining WITH_FREETYPE."
+.endif
+.if !defined(WITH_MYSQL)
+	@${ECHO_MSG} "You can enable MySQL support by defining WITH_MYSQL."
+.endif
+.if !defined(WITH_POSTGRES)
+	@${ECHO_MSG} "You can enable PostGres support by defining WITH_POSTGRES."
+.endif
+.if !defined(WITH_UNIXODBC) && !defined(WITH_IODBC)
+	@${ECHO_MSG} "You can enable unixODBC support by defining WITH_UNIXODBC."
+	@${ECHO_MSG} "You can enable iodbc support by defining WITH_IODBC."
+	@${ECHO_MSG} "Note that you can support only ONE of these two ODBC libs."
+.endif
+.if !defined(WITH_SANE)
+	@${ECHO_MSG} "You can enable Sane support by defining WITH_SANE."
+.endif
+.if !defined(WITH_SANE) || !defined(HAVE_MESA)
+	@${ECHO_MSG} "You can enable MesaGL support by defining WITH_MESA."
+.endif
+.if !defined(WITH_MOST)
+	@${ECHO_MSG} "You can enable most of the features here except Sane,"
+	@${ECHO_MSG} "MesaGLi, GNOME and SQL support by defining WITH_MOST."
+.endif
+
 
 pre-configure:
 	@${ECHO} ${CONFIGURE_ARGS}
