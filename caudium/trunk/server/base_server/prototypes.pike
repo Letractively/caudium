@@ -230,7 +230,9 @@ string since;
 //! if not authenticated, this element will be 0 (zero).
 int|mapping user=0;
 
-private int cache_control_ok = 0;
+// FIXME: Why this was private ?
+//private int cache_control_ok = 0;
+int cache_control_ok = 0;
 
 //! Get the base portion of a URL
 //! Returned string will end in "/" or will be "" if no base could

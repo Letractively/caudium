@@ -233,7 +233,7 @@ string add_pre_state(string url, multiset state) {
 
 //! Compat call of Caudium._match
 //! @deprecated
-int _int(string w, array(string) a) {
+int _match(string w, array(string) a) {
    WCOMPAT("Caudium","_match");
    return Caudium._match(w,a);
 }
@@ -265,6 +265,28 @@ string short_date(int t) {
    WCOMPAT("Caudium","short_date");
    return Caudium.short_date(t);
 }
+
+//! Compat call of Caudium.is_modified
+//! @deprecated
+int is_modified(string a, int t, void|int len) {
+   WCOMPAT("Caudium","is_modified");
+   return Caudium.is_modified(a,t,len);
+}
+
+//! Compat call of Caudium.html_to_unicade
+//i @deprecated
+string html_to_unicode(string str) {
+   WCOMPAT("Caudium","html_to_unicode");
+   return Caudium.html_to_unicode(str);
+}
+
+//! Compat call of Caudium.unicode_to_html
+//! @deprecated
+string unicode_to_html(string str) {
+   WCOMPAT("Caudium","unicode_to_html");
+   return Caudium.unicode_to_html(str);
+}
+
 
 //! Compat call of Caudium.parse_html
 //! @deprecated

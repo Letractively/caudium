@@ -1070,7 +1070,7 @@ void send_result(mapping|void result)
           heads["Last-Modified"] = Caudium.HTTP.date(fmtime);
           if(since)
           {
-            if(is_modified(since, fmtime, fsize))
+            if(Caudium.is_modified(since, fmtime, fsize))
             {
               file->error = 304;
               file->file = 0;

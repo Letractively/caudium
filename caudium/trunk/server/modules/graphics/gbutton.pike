@@ -985,7 +985,7 @@ string tag_gbutton(string tag, mapping args, string contents,
     m_delete(args, "img-align");
 
 	if( args->content && lower_case(args->content) == "html" ) {
-		contents = html_to_unicode(contents);
+		contents = Caudium.html_to_unicode(contents);
 	}
 
     [string img_src, mapping new_args] = mk_url(id, args, contents);

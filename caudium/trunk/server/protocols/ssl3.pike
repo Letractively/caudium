@@ -435,7 +435,7 @@ void send_result(mapping|void result)
 	
 	if(since)
 	{
-	  if(is_modified(since, fstat[3], fstat[1]))
+	  if(Caudium.is_modified(since, fstat[3], fstat[1]))
 	  {
 	    file->error = 304;
 	    method="HEAD";

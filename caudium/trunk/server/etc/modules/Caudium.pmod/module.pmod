@@ -334,6 +334,34 @@ inherit _Caudium;
 //!  The date in the Unix time format.
 //
 
+//
+//! @decl int is_modified(string header, int tmod, int|void use_weird)
+//!
+//!  This method is specific to Caudium and is used to test whether the
+//!  unix time passed in the tmod parameter is newer than the date passed
+//!  in the header argument. This method accepts formats required by
+//!  RFC2068 for the If-Modified-Since header and it will NOT parse any
+//!  other formats.
+//!
+//! @param header
+//!  The value of the If-Modified-Since header
+//!
+//! @param tmod
+//!  The unix time value to compare the header against
+//!
+//! @param use_weird
+//!  Caudium and Roxen used to accept several weird date formats with this
+//!  function. This implementation optionally supports and parses them. Set
+//!  this parameter to 1 to enable parsing of the weird formats. By default
+//!  the formats are not parsed.
+//!
+//! @returns
+//!  0 if the file was modified, 1 if it wasn't
+//!
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+//
+
 //! @decl string extension(string what)
 //!   Get the extension name from a filename string. Handles also
 //!   known unix backup extensions as well eg '#' and '~' ending files. 
@@ -712,6 +740,30 @@ string short_date(int timestamp) {
 
   return ctimet[4..9] +" "+ ctimet[11..15];
 #endif /* constant(_Caudium.strftime) */
+}
+
+//! Converts html entities coded chars to unicode
+//! @param str
+//!  The string to convert, contains the html entities
+//! @returns
+//!  A unicde string
+string html_to_unicode(string str) {
+  if(!stringp(str))
+    return str;
+  return replace((string)str, Caudium.Const.replace_entities,
+                              Caudium.Const.replace_values);
+}
+
+//! Convert unicode string to html entity coded string
+//! @param str
+//!  The string to convert, contains unicode string
+//! @returns
+//!  HTML encoded string
+string unicode_to_html(string str) {
+  if(!stringp(str))
+    return str;
+  return replace((string)str, Caudium.Const.replace_values,
+                              Caudium.Const.replace_entities);
 }
 
 /*
