@@ -228,7 +228,7 @@ mixed find_dir(string f, object id)
 
 string status()
 {
-  string result = "<br>\n<h3>Module enabled<h3>\n";
+  string result = "<br>\n<h3>Module enabled</h3>\n";
 
   return result;
 }
