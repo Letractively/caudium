@@ -1,6 +1,7 @@
 caudium (2:1.0.35-8) unstable; urgency=low
 
   * Added a new -dev package 
+  * corrected a stupid dpkg-statoverride mistake
 
  -- Marek Habersack <grendel@debian.org>  Fri,  8 Jun 2001 10:48:04 +0200
 
