@@ -3236,7 +3236,7 @@ int load_module(string module_file)
 #ifdef MODULE_DEBUG
   perror("\nLoading " + module_file + "... ");
 #endif
-
+ 
   if(prog=cache_lookup("modules", module_file)) {
     err = catch {
       obj = prog(this_object());
@@ -3253,10 +3253,7 @@ int load_module(string module_file)
       report_error("Failed to compile module "+module_file+":\n"+e->get());
       return 0;
     }
-    if (!obj) {
-      return(0);
-    }
-    
+
     prog = caudium->last_loaded();
   }
 
@@ -3265,10 +3262,9 @@ int load_module(string module_file)
 		 describe_backtrace(err) + "\n");
     return(0);
   }
-
   if(!obj)
   {
-    report_error("Module load failed (" + module_file + ") (not found).\n");
+    report_error("*** Module load failed: " + module_file + " (not found?)\n");
     return 0;
   }
 

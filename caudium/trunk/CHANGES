@@ -62,5 +62,5 @@ Changes in Caudium 1.1 since CVS branching
 - Fixed security bug which allowed people to ge the RXML source code
   of a page if a request was made to an RXML file while Caudium was
   loading.
-
+- Fixed error message when a modules was not found (accidently broken).
   
