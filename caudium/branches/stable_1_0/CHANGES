@@ -1,5 +1,6 @@
 Changes in Caudium 1.0.XX since Caudium 1.0.54
 ----------------------------------------------
+- Fix plugins path for rimage module.
 - Fix submitted in caudium_general ml about corrupted Accessed db.
 
 Changes in Caudium 1.0.54 since Caudium 1.0.52

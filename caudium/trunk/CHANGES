@@ -1,5 +1,6 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fix pluging path for rimage module.
 - modules/scripting/oldcgi.pike and modules/scripting/fcgi.pike are now 
   deprecated. For FastCGI support you can use now fastcgi.pike that work
   mutch better than the old one.
