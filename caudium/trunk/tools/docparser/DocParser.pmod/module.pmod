@@ -608,7 +608,7 @@ class Module {
                         return;
                     }
 
-                    tags = ({newstuff});
+                    tags += ({newstuff});
                     break;
 
                 case "container":
@@ -617,7 +617,7 @@ class Module {
                         return;
                     }
 
-                    containers = ({newstuff});
+                    containers += ({newstuff});
                     break;
                     
                 case "method":
