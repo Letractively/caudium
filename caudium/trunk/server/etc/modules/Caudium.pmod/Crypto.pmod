@@ -223,9 +223,9 @@ string hash_sha(string|array key, void|int hexify)
 
   error = catch {
     if (key && arrayp(key))
-      ret = Crypto.sha()->update(key * "")->digest();
+      ret = Crypto.SHA1()->update(key * "")->digest();
     else
-      ret = Crypto.sha()->update(key)->digest();
+      ret = Crypto.SHA1()->update(key)->digest();
   };
 
   if (error)
