@@ -121,13 +121,13 @@ string status()
 
 mapping first_try(object id)
 {
-  NOCACHE();
   if(QUERY(gzipprecompress) && 
      id->supports->autogunzip &&
      id->conf->real_file(id->not_query + ".gz", id))
     {
       array|int gz_statfile = id->conf->stat_file(id->not_query + ".gz", id);
       array|int statfile = id->conf->stat_file(id->not_query, id);
+      id->misc->cacheable=0;
       if(gz_statfile && statfile)
       { 
         // don't send the compressed version if it is older than 
@@ -428,13 +428,14 @@ mapping filter(mapping response, object id)
   if(!mappingp(response) || !stringp(response->data))
     return 0;
   
-  DEBUG(sprintf("supports->autogunzip=%d, supports->autoinflate=%d\n", id->supports->autogunzip, id->supports->autoinflate));
+  DEBUG(sprintf("supports->autogunzip=%d, supports->autoinflate=%d\n", id->supports->autogunzip, id->supports->autoinflate, ));
   if(  QUERY(gzipfly)
-    && (id->supports->autoinflate || id->supports->autogunzip)
-    && !response->encoding && response->extra_heads != "Content-Encoding"
-    && checkdatasize(response->data) 
-    && !is_in_excludelist(response->type, id->not_query)
-    && is_in_includelist(response->type, id->not_query) )
+    && id->my_fd // be sure this is a real request, not one made by <insert> for example
+    && (id->supports->autoinflate || id->supports->autogunzip) // does the browser support it ?
+    && !response->encoding && response->extra_heads != "Content-Encoding" // don't encode on already encoded
+    && checkdatasize(response->data) // is the data not to small or big ?
+    && !is_in_excludelist(response->type, id->not_query) // is in exclude list ?
+    && is_in_includelist(response->type, id->not_query) ) // is in include list ?
   {
       LOCK();
       stats["totaldata"] += sizeof(response->data);
