@@ -22,7 +22,7 @@ undo_hacks:
 		mv ../server/$$h.orig ../server/$$h ; \
 	done
 
-make_crefhtml: makecrefdirs makeautodoc makecrefxml
+make_crefhtml: makecrefdirs makecrefxml
 	rm -rf generated/caudiumref || /bin/true
 	mkdir generated/caudiumref
 	cp -p structure/caudiumref.css generated/caudiumref/style.css
@@ -32,15 +32,20 @@ make_crefhtml: makecrefdirs makeautodoc makecrefxml
 makecrefxml: makeautodoc structure/caudiumref.xml
 	$(PIKE) bin/assembler.pike structure/caudiumref.xml build/autodoc.xml > build/cref.xml
 
-makeautodoc: makeserver
-	$(PIKE) bin/join.pike --post-process build/autodoc.xml build/server.xml
+makeautodoc: makeserver makeetc
+	$(PIKE) bin/join.pike --post-process build/autodoc.xml build/server.xml build/etc.xml
 
 makeserver:
 	$(PIKE) bin/cextract.pike ../server/base_server/ build/server/ build/images/
 	$(PIKE) bin/join.pike build/server.xml build/server/
 
+makeetc:
+	$(PIKE) bin/cextract.pike ../server/etc/ build/etc/ build/images/
+	$(PIKE) bin/join.pike build/etc.xml build/etc/
+
 makecrefdirs:
 	@install -d -m 755 build/server/
+	@install -d -m 755 build/etc/
 
 spotless:
 	@for f in `cat .cvsignore`; do \
@@ -51,5 +56,6 @@ spotless:
 	done
 	@rm -f bin/.deleteus
 	@rm -rf build/server/
+	@rm -rf build/etc/
 	@rm -rf build/*.xml
 	@rm -rf generated/caudiumref

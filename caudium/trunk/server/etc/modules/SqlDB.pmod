@@ -20,16 +20,11 @@
  * $Id$
  */
 
-//! file: etc/modules/SqlDB.pmod
 //!  This Pike module provides a couple of classes that makes it possible for
 //!  module programmers to get Sql Databases connection persistant with
 //!  programmable values (timeout, database name, etc...).
-//! cvs_version: $Id$
 
-
-//! class: SqlDB.DB
 //!   This is the DB handler itself. 
-
 class DB {
   static private int last_db_access = 0;	// Last time when 
 						// db was accessed
@@ -42,28 +37,26 @@ class DB {
   static private string sqlurl;			// The SqlURL
   object id;					// The Caudium Id
 
-  //! method: void create(int _timeout, string _dburl, object _id)
-  //!  Create and opens the database 
-  //! returns:
-  //!  Nothing
-  //! arg: int _timeout
+  //!  Create and opens the database
+  //! @param _timeout
   //!  The timeout used to autoclose the database is not used.
-  //! arg: string _dburl
+  //! @param _dburl
   //!  The dbURI used to connect to the db. The string should be on the
-  //!  format dbtype://[user[:password]@]hostname[:port][/database]. Use
+  //!  format dbtype://[user[:password]@@]hostname[:port][/database]. Use
   //!  the dbtype protocol to connect to the database server on the
   //!  specified host (mysql,postgres,msql,odbc,oracle,sybase...).
-  //! arg: object _id
+  //! @param _id
   //!  The Caudium Object id
+  //! @returns
+  //!  Nothing    
   void create(int _timeout, string _dburl, object _id) {
     timeout = _timeout;
     dburl = _dburl;
     id = _id;		// Can be dangerous if we modify here some id things.
   }
 
-  //! method: void close_db()
   //!  Autoclose the db if needed
-  //! returns:
+  //! @returns
   //!  Nothing directly, used internaly only
   void close_db() {
    if((time(1)-last_db_access) > timeout {
@@ -74,9 +67,8 @@ class DB {
    call_out(close_db,timeout);
   }
 
-  //! method: void opendb()
   //!  Opens the database.
-  //! returns:
+  //! @returns
   //!  Nothing directly, used internaly only
   private void opendb() {
     mixed err;
@@ -98,19 +90,18 @@ class DB {
     call_out(close_db, timeout);
   }
  
-  //! method: array(mapping(string:mixed) query(object|string q, mixed ... extraargs)
   //!  Send a SQL query to the Sql module using Caudium's SQL handler.
   //!  The call is similar to Sql.Sql()->query() from Pike's manual.
-  //! returns:
+  //! @returns
   //!  Usual Sql.Sql->query() stuff.
-  //! arg: object|string q
+  //! @param q
   //!  The query to execute or a compiled query made by compile_query().
-  //! arg: mixed ... extraargs
+  //! @param args
   //!  The args to a sprintf() like string (see Pike Manual)
+  int|array(mapping(string:mixed)) query(mixed ... args) {
   //
   // Yeah I don't use what I've defined before... But it is directly
-  // sent to the SQL handler so I must define it here :P
-  int|array(mapping(string:mixed) query(mixed ... args) {
+  // sent to the SQL handler so I must define it here :P      
     opendb();
     if (!db)
       return 0;
