@@ -89,6 +89,8 @@ constant thread_safe = 1;
 
 array resin_hosts=({});
 
+object module_cache;
+
 constant module_type	= MODULE_FILE_EXTENSION | MODULE_LAST;
 constant module_unique	= 0;
 constant module_name	= "mod_caucho for Caudium";
@@ -399,7 +401,7 @@ string caucho_request(object id)
 
   if(jsid)  // we have an existing session, which resin do we connect to?
   {
-     r=mc->retrieve(jsid);
+     r=module_cache->retrieve(jsid);
   }
 
  if(!jsid || !r) // we don't know the current session's destination, so pick one.
@@ -451,7 +453,7 @@ string caucho_request(object id)
 
   // if we have a session, let us remember the host we conneted to.
   if(jsid)
-   mc->store(cache_pike(({ shost, sport }), jsid, 3600));
+   module_cache->store(cache_pike(({ shost, sport }), jsid, 3600));
 
   // set sessionid
   if (jsid) id->misc->srun->session = id->misc->srun->decode_session(jsid);
@@ -475,7 +477,7 @@ string caucho_request(object id)
 void start(int n, object conf)
 {
   resin_hosts=({});
-
+  module_cache=GET_CACHE();
   if(QUERY(hosts) && QUERY(hosts)!="")
   {
      array r=QUERY(hosts)/"\n";

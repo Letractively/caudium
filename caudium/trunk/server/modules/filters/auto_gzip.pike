@@ -65,6 +65,7 @@ object __key;
 #else
 #define DEBUG(X)
 #endif
+object module_cache;
 
 // for status screen
 mapping(string:int|float) stats;
@@ -256,6 +257,7 @@ array(object) compile_regexp(string text)
 void start()
 {
   LOCK();
+  module_cache=GET_CACHE();
   stats = ([ 
              "totaldata": 0,
 	     "compresseddata": 0,
@@ -305,7 +307,7 @@ string real_deflate(string _data, string _name)
   stats["cache_miss"]++;
   UNLOCK();
   if(QUERY(cache))
-    mc->store(cache_string(_data, _name, cache_timeout));
+    module_cache->store(cache_string(_data, _name, cache_timeout));
   return _data;
 }
 
@@ -321,8 +323,8 @@ string deflate(string data, object id)
     string hash = get_hash(data); 
     //FIXME: do we need to check for id->misc->cacheable here ?
     if(id->pragma->nocache)
-      mc->refresh(hash);
-    data = mc->retrieve(hash, real_deflate, ({ data, hash }));  
+      module_cache->refresh(hash);
+    data = module_cache->retrieve(hash, real_deflate, ({ data, hash }));  
   }
   else
     data = real_deflate(data, "cache disable, no name");
