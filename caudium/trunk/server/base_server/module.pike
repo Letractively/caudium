@@ -189,40 +189,65 @@ static class ConfigurableWrapper
 
 //!  Define a configuration variable in the CIF, with error checking.
 //!  Usually called by the constructor of the module (create()).
+//!
 //! @param var
 //!  Name used to identify the variable.
+//!
 //! @param value
 //!  Variable's default value.
+//!
 //! @param name
 //!  Name the variable will be given in the configuration interface.
 //!  A colon (":") in the name can be used to build submenus.
+//!
 //! @param type
 //!  Variable's type. The data input by the user will be checked.
 //!  Available types are:
-//!   TYPE_FLAG: yes/no choice. Stored as an int.
-//!   TYPE_INT: integer number.
-//!   TYPE_INT_LIST: list of int. Stored as an array of int.
-//!   TYPE_MULTIPLE_INT: int chosen from a list.
-//!   TYPE_FLOAT: floating point number.
-//!   TYPE_STRING: string.
-//!   TYPE_STRING_LIST: list of strings. Stored as an array os string.
-//!   TYPE_MULTIPLE_STRING: string chosen from a list.
-//!   TYPE_TEXT: text. Stored as a string.
-//!   TYPE_TEXT_FIELD: multiple lines text. Stored as a string.
-//!   TYPE_FILE: path to a file in the filesystem. Stored as a string.
-//!   TYPE_DIR: path to a dir in the filesystem. Stored as a string.
-//!   TYPE_DIR_LIST: list of directories. Stored as an array of string.
-//!   TYPE_LOCATION: mountpoint in virtual filesystem. Stored as a string.
-//!   TYPE_COLOR: int containing 24bit RGB color value.
-//!   TYPE_PASSWORD: password. Stored via unix crypt().
+//!  @int
+//!   @value TYPE_FLAG
+//!    yes/no choice. Stored as an int.
+//!   @value TYPE_INT
+//!    integer number.
+//!   @value TYPE_INT_LIST
+//!    list of int. Stored as an array of int.
+//!   @value TYPE_MULTIPLE_INT
+//!    int chosen from a list.
+//!   @value TYPE_FLOAT
+//!    floating point number.
+//!   @value TYPE_STRING
+//!    string.
+//!   @value TYPE_STRING_LIST
+//!    list of strings. Stored as an array os string.
+//!   @value TYPE_MULTIPLE_STRING
+//!    string chosen from a list.
+//!   @value TYPE_TEXT
+//!    text. Stored as a string.
+//!   @value TYPE_TEXT_FIELD
+//!    multiple lines text. Stored as a string.
+//!   @value TYPE_FILE
+//!    path to a file in the filesystem. Stored as a string.
+//!   @value TYPE_DIR
+//!    path to a dir in the filesystem. Stored as a string.
+//!   @value TYPE_DIR_LIST
+//!    list of directories. Stored as an array of string.
+//!   @value TYPE_LOCATION
+//!    mountpoint in virtual filesystem. Stored as a string.
+//!   @value TYPE_COLOR
+//!    int containing 24bit RGB color value.
+//!   @value TYPE_PASSWORD
+//!    password. Stored via unix crypt().
+//!  @endint
+//!
 //! @param doc_str
 //!  Documentation for the variable.
 //!  If a newline (\n) is present in the first line, the user will have a
 //!  "more documentation" button for accessing following lines.
+//!
 //! @param misc
 //!  Only used for TYPE_MULTIPLE_* types.
 //!  This field contains array(int|string) for possible values. Ignore or set
 //!  to 0 for other types.
+//!
 //! @param not_in_config
 //!  Integer value or function.
 //!  If integer or return of the function is 0, then the variable will be
@@ -430,12 +455,16 @@ void definvisvar(string name, mixed value, int type, mixed|void misc)
 
 //! Check a variable if 'value' is OK to store into variable 's'.
 //! If so, return 0 otherwise return a string describing the error.
+//!
 //! @param s
 //!  The variable name to check (that is given in @[defvar()] function)
+//!
 //! @param value
 //!  The value given but CIF user
+//!
 //! @returns
 //!  0 if ok, otherwise a string with the error.
+//!
 //! @fixme
 //!  Type of this function shouldn't be int|string ???
 string check_variable( string s, mixed value )
@@ -511,6 +540,7 @@ string _sprintf()
 
 
 //! Used to register module
+//!
 //! @note 
 //!  On new API this is deprecated.
 array register_module()
