@@ -640,7 +640,8 @@ class new_stream {
 	ident = (meta->sid?meta->sid:time() * random( time() ));
 	clients = ({ });
 	write_callbacks = ({ });
-	fifo = Thread.Fifo();
+//        fifo = Thread.Fifo();
+	fifo = Thread.Queue();
     }
 
     int get_ID() {
@@ -770,8 +771,6 @@ class new_stream {
 	    }
 	    meta->bytes += block;
             meta->current_track->file_read += block;
-	    // If there are no clients listening then you might as well
-	    // wait until there are some.
 	    if ( term == 1 ) {
 #ifdef DEBUG
 		perror( "Terminating thread.\n" );
