@@ -38,11 +38,11 @@ constant module_unique = 1;
 mapping streams = ([ ]);
 
 void create() {
-    defvar( "location", "/fishcast/", "Mountpoint: Outgoing Streams", TYPE_LOCATION, "The mountpoint in the virtual filesystem for this module" );
+    defvar( "location", "/fishcast/", "Mountpoint", TYPE_LOCATION, "The mountpoint in the virtual filesystem for this module" );
     defvar( "search_mp3", "/var/spool/mp3/", "Search Paths: MP3 Files", TYPE_STRING, "The path in the real filesystem to the MP3 directory" );
     defvar( "search_promo", "/var/spool/promo/", "Search Paths: Promo's", TYPE_STRING, "The path int the real filesystem to promo's if they are enabled", 0, promos_enable );
     defvar( "listing_streams", 0, "Listing: Stream Directory", TYPE_FLAG, "Enable listing of available streams", ({ "Yes", "No" }) );
-    defvar( "listing_incoming", 0, "Listing: Incoming Directory", TYPE_FLAG, "Enable listing of available incoming streams", ({ "Yes", "No" }) );
+    defvar( "listing_incoming", 0, "Listing: Incoming Directory", TYPE_FLAG, "Enable listing of available incoming streams", ({ "Yes", "No" }), incoming_enable );
     defvar( "listing_playlists", 0, "Listing: Playlist Directory", TYPE_FLAG, "Enable listing of available playlists", ({ "Yes", "No" }) );
     defvar( "maxclients", 20, "Clients: Maximum Clients", TYPE_INT, "Maximum connected clients. Zero is infinite (*very dangerous*)" );
     defvar( "sessiontimeout", 0, "Clients: Maximum Session Length", TYPE_INT, "Disconnect clients after this many seconds" );
@@ -173,9 +173,44 @@ mixed find_file( string path, object id ) {
 	    } else {
 		return 0;
 	    }
-	} else {
-            // Who knows!
-            return 0;
+	} else if ( parts[ 0 ] == "incoming" ) {
+            // I havent even been able to test that this works yet
+	    // mostly because last night when I was getting to it
+	    // friends arrived and dragged us out to dinner :)
+	    // If you feel like it, see if you can pipe a "live source"
+	    // into the stream :)
+	    if ( QUERY(incoming_enable) == 0 ) {
+		return 0;
+	    } else {
+		int sid = (int)id->variables->sid;
+		if ( streams[ sid ] ) {
+		    // We dont want people streaming into existing streams!
+		    return 0;
+		} else {
+		    if ( id->variables->password == QUERY(incoming_password) ) {
+			mapping vars =
+			    ([ "files" : ({ }),
+			       "search_mp3" : "",
+			       "loop" : 0,
+			       "shuffle" : 0,
+			       "bitrate" : id->vars->bitrate,
+			       "maxclients" : QUERY(maxclients),
+			       "maxsession" : QUERY(sessiontimeout),
+			       "pause" : 0,
+			       "name" : (id->variables->name?id->variables->name:id->remoteaddr),
+			       "titlestreaming" : 0,
+			       "sid" : sid
+			     ]);
+			object s = stream( vars );
+			id->my_fd->write( "ICY 200 OK\n\n" );
+                        thread_create( s->live_source, id->my_fd );
+			streams += ([ sid : s ]);
+                        return http_pipe_in_progress();
+		    } else {
+			return 0;
+		    }
+		}
+	    }
 	}
     }
 }
@@ -307,7 +342,8 @@ class stream {
     bytes, bitrate,
     wait, maxclients,
     promos_enable, promos_freq,
-    promos_shuffle, maxsession;
+    promos_shuffle, maxsession,
+    thyme;
     string name, base, playing, search_promo;
 
     void create( mapping vars ) {
@@ -326,7 +362,7 @@ class stream {
 	    promos_freq = vars->promos_freq;
             search_promo = vars->search_promo;
 	}
-	ident = time() * random( time() );
+	ident = (vars->sid?vars->sid:time() * random( time() ));
     }
 
     int get_ID() {
@@ -340,7 +376,7 @@ class stream {
 	int _loop = 1;
 	string filename;
 	int block = (int)( bitrate * 12.8 );
-	int thyme = time();
+	thyme = time();
         array promos;
 	if ( promos_enable ) {
 	    promos = sort( get_dir( search_promo ) );
@@ -379,45 +415,72 @@ class stream {
 #ifdef DEBUG
 		write( "Stream: " + name + ", playing: " + playing + "\n" );
 #endif
-		string buff;
-		int eof;
-                float elapsed;
-		while( eof == 0 ) {
-		    elapsed = (float)time( thyme );
-		    buff = f->read( block );
-		    if ( buff == "" ) {
-                        eof = 1;
-                        break;
-		    }
-                    bytes += block;
-		    // If there are no clients listening then you might as well
-		    // wait until there are some.
-		    // Does half a second between checks seem reasonable?
-		    while( ( sizeof( clients ) == 0 ) && ( pause == 1 ) ) {
-			sleep( 0.5 );
-		    }
-		    if ( term == 1 ) {
+		if ( input( f, block ) == -1 ) {
 #ifdef DEBUG
-			write( "Terminating thread.\n" );
+		    write( "Terminating Stream.\n" );
 #endif
-			return;
-		    }
-		    //send( buff );
-		    // I am not sure about this thread - should probably
-		    // use thread_farm, however it seems to work, and has
-		    // greatly improved performance, ie 25 client and only
-                    // using 10% CPU on my PII 400!
-		    thread_create( send, buff );
-		    // this really needs to be changed so that if it takes
-		    // longer than 1/10th of a second to send data to the clients
-		    // then we are too busy, and should reduce samples to 9/second
-		    // and increase the sample size. Or else maybe disconenct a client :)
-		    sleep( ( 0.1 - ( (float)time( thyme) - elapsed ) ) );
+		    return;
 		}
-                f->close();
+		f->close();
 	    }
 	}
 	running = 0;
+    }
+
+    void live_source( object f ) {
+	// I am the reader thread if the source is live!
+	running = 1;
+	bytes = 0;
+	string filename;
+	int block = (int)( bitrate * 12.8 );
+	thyme = time();
+	if ( input( f, block ) == -1 ) {
+#ifdef DEBUG
+	    write( "Terminating Stream.\n" );
+#endif
+	    return;
+	}
+	f->close();
+	running = 0;
+    }
+
+    int input( object f, int block ) {
+	string buff;
+	int eof;
+	float elapsed;
+	while( eof == 0 ) {
+	    elapsed = (float)time( thyme );
+	    buff = f->read( block );
+	    if ( buff == "" ) {
+		eof = 1;
+		break;
+	    }
+	    bytes += block;
+	    // If there are no clients listening then you might as well
+	    // wait until there are some.
+		    // Does half a second between checks seem reasonable?
+	    while( ( sizeof( clients ) == 0 ) && ( pause == 1 ) ) {
+		sleep( 0.5 );
+	    }
+	    if ( term == 1 ) {
+#ifdef DEBUG
+		write( "Terminating thread.\n" );
+#endif
+		return -1;
+	    }
+	    //send( buff );
+	    // I am not sure about this thread - should probably
+	    // use thread_farm, however it seems to work, and has
+	    // greatly improved performance, ie 25 client and only
+	    // using 10% CPU on my PII 400!
+	    thread_create( send, buff );
+	    // this really needs to be changed so that if it takes
+	    // longer than 1/10th of a second to send data to the clients
+	    // then we are too busy, and should reduce samples to 9/second
+	    // and increase the sample size. Or else maybe disconenct a client :)
+	    sleep( ( 0.1 - ( (float)time( thyme) - elapsed ) ) );
+	}
+        return 0;
     }
 
     void send( string buffer ) {
