@@ -316,7 +316,6 @@ void create()
 
 }
 
-
 void close_dir() {
 
     if (!QUERY(CI_close_dir))
@@ -470,14 +469,21 @@ array(string) userinfo (string u,mixed p) {
 	}
 	tmp=results->fetch();
 	//DEBUGLOG(sprintf("userinfo: got %O",tmp));
+	if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
+	      werror("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
+	 else
+	     rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
+	/*
 	if(!access_mode_is_guest()) {	// mode is 'guest'
 	    if(zero_type(tmp[QUERY(CI_default_attrname_upw)]))
 		werror("LDAPuserauth: WARNING: entry haven't '" + QUERY(CI_default_attrname_upw) + "' attribute !\n");
 	    else
 		rpwd = tmp[QUERY(CI_default_attrname_upw)][0];
 	}
+	*/
 	if(!access_mode_is_user_or_roaming())	// mode is 'user'
-	    rpwd = stringp(p) ? p : "{x-hop}*";
+	// this is use when no password suplied (for example fetching www.website.com/~user) 
+	 rpwd = stringp(p) ? rpwd : "{x-hop}*";
 	if(!access_mode_is_roaming()) {	// mode is 'roaming'
 	  // OK, now we'll try to bind ...
 	  string binddn = get_attrval(tmp, QUERY(CI_owner_attr), "");
@@ -589,7 +595,6 @@ array|int auth (array(string) auth, object id)
     mixed err;
 
     att++;
-
     sscanf (auth[1],"%s:%s",u,p);
 
 #if LOG_ALL
@@ -621,7 +626,7 @@ array|int auth (array(string) auth, object id)
     if(pw == "{x-hop}*")  // !!!! HACK
 	pw = p;
     if(p != pw) {
-	// Digests {CRYPT}, {SH1} and {MD5}
+	// Digests {CRYPT}, {SHA1} and {MD5}
 	int pok = 0;
 	if (sizeof(pw) > 6)
 	    switch (upper_case(pw[..4])) {
@@ -636,14 +641,15 @@ array|int auth (array(string) auth, object id)
 		    break;
 
 		case "{CRYP" :
-		    if (sizeof(pw) > 7 && pw[5..7] == "T}") {
-			pok = !crypt(p,pw[8..]);
+		    if (sizeof(pw) > 7 && upper_case(pw[5..6]) == "T}") {
+			pok = crypt(p,pw[7..]);
 			DEBUGLOG ("Trying CRYPT digest ...");
 		    }
 		    break;
 	    } // switch
 	if (!pok) {
-	    DEBUGLOG ("password check (" + pw + ", " + p + ") failed");
+	    //DEBUGLOG ("password check (" + pw + ", " + p + ") failed");
+	    DEBUGLOG ("password check failed");
 	    //fail++;
 	    failed[id->remoteaddr]++;
 	    caudium->quick_ip_to_host(id->remoteaddr);
