@@ -1814,7 +1814,7 @@ class FTPSession
 
     if(fd)
     {
-      if (file->len) {
+      if (file->len > 0) {
 	send(150, ({ sprintf("Opening %s data connection for %s (%d bytes).",
 			     modes[file->mode], file->full_path, file->len) }));
       } else {
@@ -3613,11 +3613,11 @@ class FTPSession
     // I don't think those lines are usefull. I've taken from Roxen's FTP 
     // modifications... 
     //  -- Xavier
-    //if (fd) {
-    //  fd->close();
-    //}
+    if (fd) {
+      destruct(fd);
+    }
     // Make sure we disappear...
-    //destruct();
+    destruct();
   }
 
   void destroy()

@@ -38,13 +38,13 @@ class mac_sha
   string hash_raw(string data)
   {
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.cipher: hash_raw('%s')\n", data));
+    werror(sprintf("SSL.cipher: hash_raw('%O')\n", data));
 #endif
     
     object h = algorithm();
     string res = h->update(data)->digest();
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.cipher: hash_raw->'%s'\n",res));
+    werror(sprintf("SSL.cipher: hash_raw->'%O'\n",res));
 #endif
     
     return res;

@@ -68,15 +68,7 @@ inherit "fonts";
 inherit "internals";
 
 // The datashuffler program
-#if BAD_OLD
-#if constant(spider.shuffle) && defined(THREADS) 
-constant pipe = (program)"smartpipe";
-#else
-constant pipe = Pipe.pipe;
-#endif
-#else
 constant pipe = Caudium.nbio;
-#endif
 
 // This is the real Caudium version. It should be changed before each
 // release
@@ -3242,7 +3234,6 @@ void create_pid_file(string where)
 void shuffle(object from, object to,
 	      object|void to2, function(:void)|void callback)
 {
-#if constant(spider.shuffle)
   if(!to2)
   {
     object p = pipe();
@@ -3250,16 +3241,13 @@ void shuffle(object from, object to,
     p->set_done_callback(callback);
     p->output(to);
   } else {
-#endif
-    // 'smartpipe' does not support multiple outputs.
+    // Sad but we need Pipe.pipe here...
     object p = Pipe.pipe();
     if (callback) p->set_done_callback(callback);
     p->output(to);
     if(to2) p->output(to2);
     p->input(from);
-#if constant(spider.shuffle)
   }
-#endif
 }
 
 

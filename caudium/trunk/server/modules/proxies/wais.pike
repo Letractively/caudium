@@ -936,16 +936,18 @@ void write_to_client_and_cache(object client, string data, string key)
     if(key)
       cache = caudium->create_cache_file("wais", key);
 
-  pip=Pipe.pipe( );
-  if(cache)
-  {
+  if(!cache) {
+    pip = Caudium.nbio( );
+    pip->write(data);
+  } else {
+    pip =  Pipe.pipe();
+    pip->write(data);
     pip->set_done_callback(my_pipe_done, ({ cache, client }));
     pip->output(cache->file);
   }
   if(client->my_fd)
   {
     pip->output(client->my_fd);
-    pip->write(data);
   }
 }
 
