@@ -9,9 +9,6 @@ include @makefile_rules@
 
 extrainstall:
 
-pcrelib/libpcre.a: pcrelib/config.h pcrelib/dftables.c pcrelib/get.c pcrelib/internal.h pcrelib/maketables.c pcrelib/pcre.c pcrelib/pcre.h pcrelib/pcretest.c pcrelib/study.c
-	(cd pcrelib ; ${MAKE} )
-
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
 
