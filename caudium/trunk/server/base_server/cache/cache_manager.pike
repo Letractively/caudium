@@ -58,8 +58,11 @@ int max_disk_size;
 int vigilance;
 mapping caches;
 string path;
+int default_ttl;
+int default_halflife;
 
-void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path ) {
+/*
+void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path, int _default_ttl, int _default_halflife ) {
 	// store the max_ram_size and max_disk_size as properties of
 	// cache_manager. Also, create the mapping used to store the caches.
 	// set a callout to to watch_size() for calling in the not too
@@ -80,7 +83,15 @@ void create( int _max_ram_size, int _max_disk_size, int _vigilance, string _path
   vigilance = _vigilance;
   path = _path;
   caches = ([ ]);
+  default_ttl = _default_ttl;
+  default_halflife = _default_halflife * 3600;
   call_out( watch_size, sleepfor() );
+  call_out( watch_halflife, 3600 );
+}
+*/
+
+void create() {
+  caches = ([ ]);
 }
 
 string status() {
@@ -116,7 +127,7 @@ string status() {
 private void create_cache( string namespace ) {
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
-  caches += ([ namespace : cache( namespace, path, max_object_ram, max_object_disk, rcache, dcache ) ]);
+  caches += ([ namespace : cache( namespace, path, max_object_ram, max_object_disk, rcache, dcache, default_ttl ) ]);
 }
 
 private int sleepfor() {
@@ -128,18 +139,24 @@ private int sleepfor() {
   return random(1200 * ( 1 - ( vigilance / 100 ) ) ) + 30 + random(30);
 }
 
-void set_params( int _max_ram_size, int _max_disk_size, int _vigilance ) {
+void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path, int _default_ttl, int _default_halflife ) {
 	// Provide the ability to change the size of the caches on the fly
 	// from the config interface.
 	// Call set_max_ram_size() and set_max_disk_size() on every cache.
+#ifdef CACHE_DEBUG
+  roxen_perror( sprintf( "CACHE_MANAGER: start( %d, %d, %d, \"%s\", %d, %d ) called\n", _max_ram_size, _max_disk_size, _vigilance, _path, _default_ttl, _default_halflife ) );
+#endif
   max_ram_size = _max_ram_size;
   max_disk_size = _max_disk_size;
   vigilance = _vigilance;
-/*
+  default_ttl = _default_ttl;
+  default_halflife = _default_halflife;
+  path = _path;
   foreach( indices( caches ), string namespace ) {
-    caches[ namespace ]->set_sizes( max_ram_size, max_disk_size );
+    caches[ namespace ]->set_sizes( max_ram_size * 0.25, max_disk_size * 0.25 );
   }
-*/
+  call_out( watch_size, sleepfor() );
+  call_out( watch_halflife, 3600 );
 }
 
 void watch_size() {
@@ -215,6 +232,21 @@ void watch_size() {
     }
   }
   call_out( watch_size, sleepfor() );
+}
+
+void watch_halflife() {
+#ifdef CACHE_DEBUG
+  roxen_perror( "CACHE: Checking cache halflives.\n" );
+#endif
+  foreach( indices( caches ), string cache ) {
+    if ( caches[ cache ]->last_access < time() - default_halflife ) {
+#ifdef CACHE_DEBUG
+      roxen_perror( "CACHE: HALFLIFE: Calling stop() on " + cache + "\n" );
+#endif
+      caches[ cache ]->stop();
+    }
+  }
+  call_out( watch_halflife, 3600 );
 }
 
 object get_cache( void|string namespace ) {

@@ -29,8 +29,12 @@ inherit "cachelib";
 object cache_manager;
 mapping caches;
 
-void create() {
+void create( object cm ) {
+  cache_manager = cm;
   caches = ([ ]);
+#ifdef CACHE_DEBUG
+  perror("CACHE: Compatibility now online.\n");
+#endif
 }
 
 private object find_cache( string in ) {
@@ -76,12 +80,4 @@ void cache_clear(string in) {
 }
 
 void cache_clean() {
-}
-
-void start( object cm )
-{
-#ifdef CACHE_DEBUG
-  perror("CACHE: Now online.\n");
-#endif
-  cache_manager = cm;
 }

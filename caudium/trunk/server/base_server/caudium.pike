@@ -200,6 +200,15 @@ private static void low_shutdown(int exit_code)
   setuid(0);
 #endif
   stop_all_modules();
+
+  // Not sure if this is the right place for this - does anyone want to enlighten me?
+#ifdef CACHE_DEBUG
+  roxen_perror( "Calling shutdown on all caches: " );
+#endif
+  cache_manager->stop();
+#ifdef CACHE_DEBUG
+  roxen_perror( "done." );
+#endif
   
   if(main_configuration_port && objectp(main_configuration_port))
   {
@@ -1245,9 +1254,8 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
-  program cm = (program)"cache/cache_manager";
-  cache_manager = cm( QUERY(cache_max_ram) * 1024, QUERY(cache_max_slow) * 1024, QUERY(cache_vigilance), QUERY(cache_fs_path) );
-  cache_start( cache_manager );
+  cache_manager = get_cache_manager();
+  cache_manager->start( QUERY(cache_max_ram) * 1024, QUERY(cache_max_slow) * 1024, QUERY(cache_vigilance), QUERY(cache_fs_path), QUERY(cache_default_ttl), QUERY(cache_default_halflife) );
 }
 
 void create()
@@ -2514,6 +2522,23 @@ private void define_global_variables( int argc, array (string) argv )
           "Path on the filesystem for storage of cached data if, indeed the "
           "disk storage method is being used.",
           0 );
+
+  globvar("cache_default_ttl", 5,
+          "Caching Sub-system: Default time to live (Minutes)", TYPE_INT,
+          "This is the default length of time to hold onto objects that have "
+          "been placed in the cache without an expiry date.",
+          0 );
+
+  globvar("cache_default_halflife", 6,
+          "Caching Sub-system: Default cache halflife (Hours)", TYPE_INT,
+          "The caching subsystem is capable of handling many concurrent "
+          "caches and dynamically managing their memory and disk usage - "
+          "however, every now and then a cache will be created by something "
+          "in Caudium (say, a module), and will never be requested. By "
+          "setting this value you can tell the caching sub-system to shutdown "
+          "a cache and store it's data on the disk after a configurable "
+          "period of inactivity.",
+          0, );
 
   /* NOT IMPLEMENTED YET
   globvar("cache_slow_store", "Disk Cache",

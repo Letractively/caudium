@@ -37,8 +37,10 @@ string namespace;
 int max_object_ram;
 int max_object_disk;
 string path;
+int default_ttl;
+int last_access;
 
-void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, program rcache, program dcache ) {
+void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, program rcache, program dcache, int _default_ttl ) {
 	// Create the cache, and memory management.
 	// namespace: The namespace of the object, ie what virtual
 	//            server the data is for - or maybe for specialised
@@ -47,6 +49,7 @@ void create( string _namespace, string _path, int _max_object_ram, int _max_obje
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
   path = _path;
+  default_ttl = _default_ttl;
   disk_cache = dcache( namespace, path );
   ram_cache = rcache( namespace, disk_cache );
 }
@@ -54,6 +57,10 @@ void create( string _namespace, string _path, int _max_object_ram, int _max_obje
 void set_sizes( int _max_object_ram, int _max_object_disk ) {
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
+}
+
+void set_default_ttl( int _default_ttl ) {
+  default_ttl = _default_ttl;
 }
 
 int ram_usage() {
@@ -106,6 +113,14 @@ void store( mapping cache_response ) {
   perror(sprintf("CACHE: cache_set(\"%s\", \"%s\", %O)\n",
                  namespace, cache_response->name, cache_response->object));
 #endif
+  last_access = time();
+  if ( cache_response->expires ) {
+    if ( cache_response->expires < time() ) {
+      cache_response->expires = time() + cache_response->expires;
+    }
+  } else {
+    cache_response->expires = time() + default_ttl;
+  }
   if ( cache_response->size > max_object_ram ) {
     if ( cache_response->disk_cache ) {
       if ( cache_response->size > max_object_disk ) {
@@ -126,6 +141,7 @@ void|mapping retrieve( string name, void|int objectonly ) {
 #ifdef CACHE_DEBUG
   roxen_perror( sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name ) );
 #endif
+  last_access = time();
   mixed _object = ram_cache->retrieve( name );
   if ( mappingp( _object ) ) {
 #ifdef CACHE_DEBUG
@@ -160,6 +176,7 @@ void refresh( string name ) {
 #ifdef CACHE_DEBUG
   roxen_perror(sprintf("CACHE: cache_remove(\"%s\",\"%O\")\n", namespace, name));
 #endif
+  last_access = time();
   ram_cache->refresh( name );
   disk_cache->refresh( name );
 }
@@ -177,12 +194,16 @@ void free_disk( int nbytes ) {
 
 void flush() {
 	// Flush the entire cache
+  last_access = time();
   ram_cache->flush();
   disk_cache->flush();
 }
 
 void stop() {
 	// Save the state of the cache
+#ifdef CACHE_DEBUG
+  roxen_perror( "[" + namespace + "] " );
+#endif
   ram_cache->stop();
   disk_cache->stop();
 }
