@@ -505,9 +505,9 @@ void pike_module_init( void )
 
   start_new_program();
   ADD_STORAGE( buffer  );
-  pike_add_function( "append", f_buf_append,
-		     "function(string:int)", OPT_SIDE_EFFECT );
-  pike_add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
+  add_function( "append", f_buf_append,
+		"function(string:int)", OPT_SIDE_EFFECT );
+  add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
   set_exit_callback(free_buf_struct);
   parsehttp_program = end_program();
   add_program_constant("ParseHTTP", parsehttp_program);
