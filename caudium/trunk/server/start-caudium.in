@@ -67,6 +67,7 @@ mapping(string:mixed) options = ([
   "pike" : 0,
   "pikever" : 0,
   "threads" : 1,
+  "watchdog": 1,
   "program" : "base_server/caudiumloader.pike", 
 ]);
 
@@ -116,6 +117,9 @@ mapping(string:string|array) command_line = ([
   "PROGRAMS" : ({}),
   "COTHER": ({})
 ]);
+
+// to be filled in by the watchdog starter.
+mapping watchdog_params = ([ ]);
 
 // a list of valid interpreters we should try to use.
 array valid_interpreters=({"@PIKE@", "bin/caudium", "bin/pike"});
@@ -469,6 +473,8 @@ void do_multi_run(array o, mapping opt)
     opt->stderr=opt->stdout;
     opt->setsid=1;
     run_caudium(o, opt);
+    // give caudium 30 seconds to start up, then fire up the watchdog.
+    call_out(start_watchdog, 30);
   }
 }
 
@@ -541,6 +547,10 @@ int act_on_args()
         case "log-dir":
           envvars->CAUDIUM_LOGDIR=m[1];        
           continue;
+	case "watchdog":
+	  options->watchdog=1;
+	case "nowatchdog":
+	  options->watchdog=0;
         case "config-dir":
           envvars->CAUDIUM_CONFIGDIR=m[1];        
           continue;
@@ -571,6 +581,7 @@ int act_on_args()
           continue;
         case "once":
           options->once=1;
+          options->watchdog=0;
           continue;
         case "gdb":
           options->precmd=({"gdb"});
@@ -648,6 +659,7 @@ information
 				  
       .B--onceB.:  Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
+       				  Implies --without-watchdog.
       .B--gdbB.:  Run the server in gdb. Implies .B--onceB..
       .B--programB.:  Start a different program with the caudium pike. As
 an example,
@@ -696,5 +708,85 @@ will
      Sending INT to the start process will cause caudium to restart itself (if it's able to do this on its own)
 ", ({".B", "B."}), ({bon, boff}))
 );
+
+}
+
+//
+// Get a list of servers and ports that speak http. 
+// 
+array get_servers() {
+  array srvs=({});
+  object config_dir=Config.Files.Dir(opts->config_dir);
+  if(!config_dir)
+  {
+    werror("unable to open config dir.\n");
+    exit(1);
+  }
+  foreach(config_dir->list_files(), mapping cf)
+  {
+    werror("looking at the configuration file " + cf->name + "\n");
+    object cfr=Config.Files.File(config_dir, cf->name);
+    cfr->parse();
+    mapping cfg=cfr->retrieve_region("spider#0");
+    if(cfg)
+    {
+      int port;
+      string host, prot;
+   
+      sscanf(cfg->MyWorldLocation, "%s//%s:%d", prot, host, port);
+      if(prot=="http")
+        srvs+=({ ({host, port}) });
+    }
+  }
+           
+  return srvs;
+} 
+
+//
+// get watchdog parameters from configuration files
+//
+void get_watchdog_params()
+{
+  if(opts->stdout)
+    stdout->write("Loading watchdog parameters\n");
+  else
+    write("Loading watchdog parameters\n");    
+
+  object config_dir=Config.Files.Dir(opts->config_dir);
+  if(!config_dir)
+  {
+    werror("unable to open config dir.\n");
+    exit(1);
+  }
+
+  object cfr=Config.Files.File(config_dir, "Global_Variables");
+  mapping cfg=cfr->retrieve_region("Variables");
+
+  if(cfg)
+  {
+     if(cfg->watchdog_timer)
+       watchdog_params->timer=cfg->watchdog_timer;
+
+     if(cfg->watchdog_timeout)
+       watchdog_params->timeout=cfg->watchdog_timeout;
+  }
+
+  watchdog_params->sites=get_servers() || ({});
+
+  if(watchdog_params->sites && sizeof(watchdog_params->sites)>1 && cfg->watchdog_checkall!="1")
+    watchdog_params->sites=watchdog_params->sites[0..0];
+
+ call_out(get_watchdog_params, 7200);
+
+} 
+
+void start_watchdog()
+{
+  if(opts->stdout)
+    stdout->write("Starting the watchdog\n");
+  else
+    write("Starting the watchdog\n");    
+
+  get_watchdog_params();
 
 }
