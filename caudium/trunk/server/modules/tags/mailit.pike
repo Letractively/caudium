@@ -1,4 +1,4 @@
-//
+;//
 // This is a Roxen module.
 //
 // Written by Bill Welliver, <hww3@riverweb.com>
@@ -107,7 +107,13 @@ string tag_header(string tag_name, mapping arguments,
   else return "<!-- Skipping header tag because of incorrect usage. -->";
 // perror("parsing header: "+headtype+" "+headvalue+"\n");
 
-  request_id->misc->mailithdrs+=([headtype:headvalue]);
+  if (headtype == "to" && stringp(request_id->misc->mailithdrs[headtype])) {
+     array(string) tmp = ({ request_id->misc->mailithdrs[headtype], headvalue });
+     request_id->misc->mailithdrs[headtype] = tmp;
+  } else if (headtype == "to" && arrayp(request_id->misc->mailithdrs[headtype])) {
+     request_id->misc->mailithdrs[headtype] += ({ headvalue });
+  } else
+     request_id->misc->mailithdrs+=([headtype:headvalue]);
   return "";
 
   }
@@ -221,9 +227,15 @@ request_id->misc->mailitattachments;
 #if constant(Protocols.SMTP)
 	if(query("usesmtp"))
         {
-
+           array(string)  toa;
+	   
+	   if (arrayp(request_id->misc->mailithdrs->to))
+	      toa = request_id->misc->mailithdrs->to;
+	   else 
+	      toa = ({ request_id->misc->mailithdrs->to || query("defaultrecipient") });
+	   
 Protocols.SMTP.client(query("mailserver"),query("mailport"))->send_message(request_id->misc->mailithdrs->from
-|| query("defaultsender"),({ request_id->misc->mailithdrs->to ||  query("defaultrecipient") }), (string)mpmsg);
+|| query("defaultsender"), ({"grendel@vip.net.pl"}), (string)mpmsg);
         }
         else
         {
