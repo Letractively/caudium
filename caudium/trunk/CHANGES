@@ -70,3 +70,9 @@ Changes since last Roxen 1.3
   for caching.
 + Added define to disable the ip->host lookup in the config
   interface. See README.performance.
++ Split htmlparse.pike into two files. htmlparse.pike for the parser part and
+  rxmltags.pike which contains all the tags.
++ New "main" parser using the optionally XML-compliant Parser.HTML. This parser
+  is the same that's used in Roxen 2.x. It will give us support for entities
+  in a way similar to Roxen 2.x (although not identical). Preliminary results
+  show that the parser is about half as fast as the older, more basic one.

@@ -130,8 +130,8 @@ void create()
 	 "only a container callback exists, it gets the empty "
 	 "string as content when  there's none to be parsed. If "
 	 "only a non-container callback exists, it will be only be called "
-	 "for tags in the empty element form. Otherwise an error message "
-	 "will be returned.",
+	 "for tags with empty content (ie &lt;tag/&gt; or "
+	 "&lt;tag&gt;&lt;/tag&gt;). Otherwise an error will be printed.",
 	 ({ 0, 1, 2, 3 }) );
   
   
@@ -173,6 +173,10 @@ array(string)|string tag_with_contents(object parser, mapping args,
 {
   array tag = parser->tag();
   string res;
+  if(!strlen(contents)) {
+    /* <foo></foo> should be the same as <foo/> */
+    return call_tag(parser, args, @extra);
+  }
   return 
     "<p><b>Syntax Error: Non-container &lt;"+tag[0]+"/&gt; called with content. "
     "Did you forget the /?</b></p>" + contents;
