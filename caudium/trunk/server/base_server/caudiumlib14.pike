@@ -736,28 +736,6 @@ static string simplify_path(string file)
   return file; // better to return the original than 0
 }
 
-//! Returns a short date string from a time @tt{int@}
-//!
-//! @param timestamp
-//!  The UNIX time value to convert.
-//!
-//! @returns
-//!  String representation of the param
-//!
-//! @note
-//!  Non-RIS code
-static string short_date(int timestamp)
-{
-  int      date = time(1);
-  string   ctimed = ctime(date)[20..23];
-  string   ctimet = ctime(timestamp);
-  
-  if ( ctimed < ctimet[20..23])
-    return ctimet[4..9] +" "+ ctimet[20..23];
-  
-  return ctimet[4..9] +" "+ ctimet[11..15];
-}
-
 //! Converts a string representing a HTTP date into a UNIX time value.
 //!
 //! @param date
