@@ -1,0 +1,17 @@
+<!-- This file contains information telling the final joiner how to -->
+<!-- put everything together, as well as information about how to -->
+<!-- split it up into smaller files. -->
+
+<!-- This file orignally taken from the Pike 7.3 sources -->
+
+<!-- $Id$ -->
+
+<manual>
+  <dir name="ignored">
+  <file name="ignored">
+    <chapter title="ignored">
+      <insert-move entity=""/>
+    </chapter>
+  </file>
+  </dir>
+</manual>
