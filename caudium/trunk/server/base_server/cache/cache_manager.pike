@@ -253,33 +253,30 @@ void watch_halflife() {
   call_out( watch_halflife, 3600 );
 }
 
-object get_cache( void|string namespace, void|int client ) {
+object get_cache( void|string|object one ) {
   really_start();
-	// create a cache object using the namespace given and then store
-	// it in a mapping and return the object to the caller, thus allowing
-	// us to make sure that ram and disk quotas arent exceeded.
-        // Also, only call create_cache() if it doesn't already exist - coz
-	// if we call create_cache() on a cache that already exists then all
-	// it's existing data will effectively be flushed - and possibly
-	// corrupted.
-  if ( ! namespace ) {
+  string namespace;
+  if ( stringp( one ) )
+    namespace = one;
+  else if ( objectp( one ) )
+    namespace = one->get_modname( one );
+  else
     namespace = "DEFAULT";
-  }
-  if ( ! caches[ namespace ] ) {
-    create_cache( namespace );
-  }
-  if ( ! client ) {
-    if ( client_caches[ namespace ] ) {
-      return client_caches[ namespace ];
-    }
-    else {
-      client_caches += ([ namespace : client_cache( caches[ namespace ], get_cache, namespace ) ]);
-      return client_caches[ namespace ];
-    }
+
+  if ( client_caches[ namespace ] ) {
+    return client_caches[ namespace ];
   }
   else {
-    return caches[ namespace ];
+    client_caches += ([ namespace : client_cache( low_get_cache( namespace ), low_get_cache, namespace ) ]);
+    return client_caches[ namespace ];
   }
+}
+
+object low_get_cache( string namespace ) {
+  really_start();
+  if ( ! caches[ namespace ] )
+    create_cache( namespace );
+  return caches[ namespace ];
 }
 
 void destroy() {
