@@ -24,7 +24,7 @@
 #include <stdio.h>
 inherit "caudiumlib";
 inherit "modules/filesystems/filesystem";
-inherit "utils";
+//inherit "utils";
 //inherit "relinsert.pike";
 
 constant my_cvs_version="$Id$";
