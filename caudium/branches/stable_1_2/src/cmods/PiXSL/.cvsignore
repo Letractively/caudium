@@ -6,3 +6,5 @@ config.log
 configure
 pixsl
 autom4te.cache
+sablot_config.h
+sablot_config.h.in
