@@ -180,7 +180,7 @@ printf("considering %d of %d\n", curpos, buflen);
 printf("got an ampersand.\n");
 #endif
           if (*(tmp+1) == '&') {
-            tmp++;
+            tmp++; curpos++;
             goto append_data;
           }
           if (!cback)
@@ -269,7 +269,7 @@ printf("got a character in an entity: %c\n", *tmp);
     /* the 3 is to account for one char in "normal" case and 2 chars when
      * we are to append the entity name verbatim. That way it's faster.
      */
-    tmplen = curlen + cbackres.buflen + 2;
+    tmplen = curlen + cbackres.buflen+2;
     
     if (curlen + tmplen >= retval->buflen) {
       retval->buflen += tmplen << 1;
