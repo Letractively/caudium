@@ -1,3 +1,9 @@
+caudium (2:1.2.3-2) unstable; urgency=high
+
+  * Serious bugs with the <set> and <insert> tags fixed
+
+ -- Marek Habersack <grendel@debian.org>  Fri,  8 Feb 2002 15:48:15 +0100
+
 caudium (2:1.2.3-1) unstable; urgency=medium
 
   * Latest upstream release
