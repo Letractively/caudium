@@ -1396,6 +1396,11 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
   {
     string s;
     string f;
+    
+    // forbid such code - can lead to infinite recursion
+    if (((m->file / "/")[-1] == ".") || ((m->file / "/")[-1] == ".."))
+	return id->misc->debug?"Cannot include a directory!":"";
+
     f = fix_relative(m->file, id);
     id = id->clone_me();
     if(m->nocache) id->pragma["no-cache"] = 1;
