@@ -26,12 +26,18 @@
 //!  fuzzy matching, this module uses regexps to rewrite the host header
 //!  and then does an exact match on the result. No rules or no matched
 //!  rules uses exact matching on the host header.
-//!  <p><strong>Please note that  ip less hosting
-//!  doesn't work well together with proxies. The reason is that the
+//!  <p>Please note that <strong> IP less hosting
+//!  doesn't work well together with proxies.</strong> The reason is that the
 //!  host header sent isn't the one of the proxy server, but the
 //!  one of the requested host. We strongly  recommend having the
 //!  proxies in their own virtual server with a dedicated
-//!  IP and / or port.</strong></p>
+//!  IP and / or port.</p>
+//!  <p><strong>IP less hosting also does not work well with https.<strong>
+//!  The reason here is that you can only have one certificate per ip/port.
+//!  By the time any hostname is transmitted you're already past the decryption
+//!  and thus have a set certificate used. As the certificate usually is
+//!  specific to one hostname. other hostnames will cause a warning, unless you
+//!  have a wildcard certificate.</p>
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PRECACHE
@@ -51,17 +57,28 @@ constant module_type = MODULE_PRECACHE;
 constant module_name = "Virtual Host Matcher";
 constant module_doc  = "This module adds support for ip-less virtual hosts. Add this "
 	    "module to a server with an open listen port. All requests will "
-	    "be matched exactly against all your virtual servers. You can also "
+	    "be matched exactly with protocol, hostname and port against all "
+	    "your virtual servers. (https requests will also be matched by "
+	    "virtual servers configured for http on the same port (or the "
+	    "default port for the respective protocol)) You can also "
 	    "optionally write regexp rules to rewrite the host before doing "
 	    "the exact matching. This module replaces the old IP-less virtual "
 	    "hosting module, which used fuzzy matching which often gave a bad "
 	    "result"
-	    "<p><b>Please note that  ip less hosting "
-	    "doesn't work well together with proxies. The reason is that the "
+	    "<p>Please note that <strong>IP less hosting "
+	    "doesn't work well together with proxies.</strong>"
+	    "The reason is that the "
 	    "host header sent isn't the one of the proxy server, but the "
 	    "one of the requested host. We strongly  recommend having the "
 	    "proxies in their own virtual server with a dedicated "
-	    "IP and / or port.</b>";
+	    "IP and / or port.</p>"
+	    "<p><strong>IP less hosting also does not work well with https.<strong>"
+	    "The reason here is that you can only have one certificate per "
+	    "ip/port.  By the time any hostname is transmitted you're already "
+	    "past the decryption and thus have a set certificate used. As the "
+	    "certificate usually is specific to one hostname. other hostnames "
+	    "will cause a warning, unless you have a wildcard certificate.</p>";
+
 constant module_unique = 1;
 
 #define IP_LESS_DEBUG
