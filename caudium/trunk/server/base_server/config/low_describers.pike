@@ -336,9 +336,9 @@ string encode_one_port(array port, int id)
 {
   string res;
   /* PortNo, Protocol, IP, options */
-  res= "\n<tr height=100%><td>\n"
-    "<table cellspacing=0 border=0 bgcolor=#e0e0ff>\n"
-    "<tr>\n  <td><input size=5,1 name=port_"+id+" value="+
+  res= "\n<tr  valign=top height=100%><td height=100%>\n"
+    "<table cellspacing=0 border=0 height=100% bgcolor=#e0e0ff>\n"
+    "<tr height=100%>\n  <td height=100%><input size=5,1 name=port_"+id+" value="+
     port[0]+"></td>\n    <td>"+all_protocols_as_selection(id, port[1])+
     "</td>\n    <td>"+all_ip_numbers_as_selection(id, port[2])+"</td>\n"
     "</tr>\n";
@@ -393,7 +393,7 @@ string encode_one_port(array port, int id)
 
 string encode_ports(array from)
 {
-  string res = "<table border=0 cellpadding=1 bgcolor=black cellspacing=1>\n";
+  string res = "<table border=0 cellpadding=0 bgcolor=#e0e0ff cellspacing=0>\n";
   int i;
   if(ip_number_list)
   {
