@@ -41,12 +41,12 @@ inherit "wizard";
 
 import UltraSupport;
 import Util;
-#include "calendar.h";
+#include <ultralog/calendar.h>;
 
 constant thread_safe = 1;
 mapping report_modules = ([]);
-#include "ultra.h"
-#include "country.h"
+#include <ultralog/ultra.h>
+#include <ultralog/country.h>
 
 #if constant(thread_create)
 mapping locks = ([]);
