@@ -62,7 +62,9 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-#define DEFAULT_MAX_BODY_LENGTH 1024*16
+#ifndef MAX_BODY_SIZE
+#define MAX_BODY_SIZE 1024*16
+#endif
 
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
@@ -71,7 +73,7 @@ constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
-int wanted_data, have_data, unread_data, max_body_length;
+int wanted_data, have_data, unread_data;
 
 
 object conf;
@@ -298,7 +300,7 @@ static void handle_body_encoding(int content_length)
     default: // Normal form data.
       string v;
       if ( method != "POST" )
-	return; // no encroding if not POST method
+	return; // no encoding if not POST method
       if(content_length < 200000)
 	Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
 					   ({"", ""})), variables);
@@ -535,7 +537,7 @@ private int parse_got()
 	 if(!data) data="";
 	 int l = misc->len;
 	 
-	 wanted_data = min(l, max_body_length);
+	 wanted_data = min(l, MAX_BODY_SIZE);
 	 have_data=strlen(data);
 	 
 	 if( have_data < wanted_data )
@@ -1795,7 +1797,6 @@ void create(void|object f, void|object c)
     MARK_FD("HTTP connection");
   }
   unread_data = 0;
-  max_body_length = DEFAULT_MAX_BODY_LENGTH;
 }
 
 void chain(object f, object c, string le)
