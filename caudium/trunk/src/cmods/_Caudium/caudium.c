@@ -1155,7 +1155,10 @@ static void f_http_decode_url(INT32 args) {
 static char *hex_chars = "0123456789ABCDEF";
 
 /* routine used by all the *_encode_* functions below */
-INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun)
+#ifndef HAVE_ALLOCA
+INLINE
+#endif
+static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun)
 {
   int                 unsafe = 0;
   int                 out_len, in_len;
@@ -1176,7 +1179,11 @@ INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_f
 
   out_len = in_len + (unsafe << 1) + 1;
 
+#ifdef HAVE_ALLOCA
+  out = alloca(out_len);
+#else
   out = malloc(out_len);
+#endif
   if (!out)
     Pike_error("Out of memory.");
 
@@ -1190,9 +1197,11 @@ INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_f
   }
 
   *o++ = 0;
-  
+
+#ifndef HAVE_ALLOCA
   if (out)
     free(out);
+#endif
   
   return make_shared_string(out);
 }
