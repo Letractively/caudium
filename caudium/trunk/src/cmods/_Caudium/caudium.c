@@ -46,21 +46,6 @@ RCSID("$Id$");
 # endif
 #endif
 
-/* AIX requires this to be the first thing in the file.  */
-#ifndef __GNUC__
-# if HAVE_ALLOCA_H
-#  include <alloca.h>
-# else
-#  ifdef _AIX
- #pragma alloca
-#  else
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#   endif
-#  endif
-# endif
-#endif
-
 #define THISOBJ (Pike_fp->current_object)
 
 /*#define C_DEBUG 1 */
@@ -73,6 +58,11 @@ char *alloca ();
 #include "caudium.h"
 #include "datetime.h"
 #include "scratchpad.h"
+
+static void f_parse_headers( INT32 args );
+static void f_parse_query_string( INT32 args );
+static void free_buf_struct(struct object *);
+static void alloc_buf_struct(struct object *);
 
 typedef int (*safe_func)(char c);
 
@@ -115,7 +105,7 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
 {
   struct array            *indices, *values;
   struct mapping          *result;
-  struct pike_string      *key, *val, *tmp;
+  struct pike_string      *key = NULL, *val = NULL, *tmp = NULL;
   int                     i, j, k, do_replace;
   int                     size;
 
@@ -129,11 +119,11 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
   /* encode any key/value pair in the mapping */
   for(i = 0; i < size; i++)
   {
+    if(indices->real_item[i].type != T_STRING
+         || values->real_item[i].type != T_STRING)
+        continue;
     for(j = 0; j < 2; j++)
     {
-      if(indices->real_item[i].type != T_STRING 
-         || values->real_item[i].type != T_STRING)
-        Pike_error("You must have string inside mapping for this function to work\n");
       if(j == 0)
         tmp = indices->real_item[i].u.string;
       if(j == 1)
@@ -245,6 +235,9 @@ static void f_make_tag_attributes(INT32 args)
   char                    *tmp;
   int                      len;
   INT32                    encoding = 0;
+  /* Used by NEW_MAPPING_LOOP */
+  struct keypair          *k;
+  INT32                    e;
  
   switch(args)
   {
@@ -270,11 +263,12 @@ static void f_make_tag_attributes(INT32 args)
    * builder
    */
   max_shift = 0;
-  for (i = 0; i < (unsigned)indices->size; i++) {
-    if (indices->real_item[i].type == T_STRING && indices->real_item[i].u.string->size_shift > max_shift)
-      max_shift = indices->real_item[i].u.string->size_shift;
-    else if (values->real_item[i].type == T_STRING && values->real_item[i].u.string->size_shift > max_shift)
-      max_shift = values->real_item[i].u.string->size_shift;
+  NEW_MAPPING_LOOP(in->data) {
+    if(k->ind.type!=T_STRING || k->val.type!=T_STRING) continue;
+    if(k->ind.u.string->size_shift > max_shift)
+      max_shift = k->ind.u.string->size_shift;
+    if(k->val.u.string->size_shift > max_shift)
+      max_shift = k->val.u.string->size_shift;
   }
 
   init_string_builder(&ret, max_shift);  
@@ -351,13 +345,9 @@ static void setproctitle_init(int argc, char **argv)
 static void setproctitle(char *fmt, ...)
 {
   va_list     ap;
-  /* char       *buf = CAUDIUM_ALLOCA(_maxargvlen); */
   char       *buf = scratchpad_get(_maxargvlen);/* it always returns a valid pointer */
   
-  /* CAUDIUM_PTR_VALID(buf); */
-  
   if (!argv0 || !_maxargvlen || !fmt || !strlen(fmt)) {
-    /* CAUDIUM_UNALLOCA(buf); */
     return;
   }
 
@@ -379,7 +369,6 @@ static void setproctitle(char *fmt, ...)
   memset(argv0, 0, _maxargvlen);
   strncpy(argv0, buf, _maxargvlen - 1);
 
-  /* CAUDIUM_UNALLOCA(buf); */
 }
 #endif
 
@@ -649,7 +638,6 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
   unsigned char *mystr;
   struct pike_string *pstr;
 
-  /* mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 1) * sizeof(char)); */
   mystr = (unsigned char *)scratchpad_get((len + 1) * sizeof(char));/* it always returns a valid pointer */
   
   if (mystr == NULL)
@@ -665,7 +653,6 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
     }
   }
   pstr = make_shared_binary_string((char *)mystr, len);
-  /* CAUDIUM_UNALLOCA(mystr); */
   
   return pstr;
 }
@@ -689,7 +676,6 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   unsigned char *endl2; /* == end-2 - to speed up a bit */
   struct pike_string *newstr;
 
-  /*mystr = (unsigned char *)CAUDIUM_ALLOCA((len + 2) * sizeof(char)); */
   mystr = (unsigned char *)scratchpad_get((len + 2) * sizeof(char));/* it always returns a valid pointer */
   
   if (mystr == NULL)
@@ -738,7 +724,6 @@ static struct pike_string *url_decode(unsigned char *str, int len, int exist,
   }
 
   newstr = make_shared_binary_string((char *)mystr, nlen+exist);
-  /* CAUDIUM_UNALLOCA(mystr); */
   
   return newstr;
 }
@@ -904,8 +889,10 @@ static void f_parse_entities( INT32 args )
   ENT_RESULT *eres;
   if (args<2)
     SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.parse_entities", 2);
-  if(Pike_sp[-args].type != PIKE_T_STRING || Pike_sp[1-args].type != PIKE_T_MAPPING)
-    Pike_error("Wrong argument to _Caudium.parse_entities\n");
+  if(Pike_sp[-args].type != PIKE_T_STRING)
+    Pike_error("Wrong argument 1 to _Caudium.parse_entities\n");
+  if(Pike_sp[1-args].type != PIKE_T_MAPPING)
+    Pike_error("Wrong argument 2 to _Caudium.parse_entities\n");
   input = Pike_sp[-args].u.string;
   scopemap = Pike_sp[1-args].u.mapping;
   if(args > 2)
@@ -1228,9 +1215,7 @@ static void f_get_port(INT32 args) {
     if (!orig)
       Pike_error("Out of stack space");
 #else /* HAVE_STRNDUPA */
-    /* orig = CAUDIUM_ALLOCA(src->len + 1); */
     orig = scratchpad_get(src->len + 1);/* it always returns a valid pointer */
-    /* CAUDIUM_PTR_VALID(orig); */
     
     MEMCPY(orig, src->str, src->len);
     orig[src->len] = 0;
@@ -1252,7 +1237,6 @@ static void f_get_port(INT32 args) {
       push_text("0");
     }
 
-    /* CAUDIUM_UNALLOCA(orig); */
   }
 }
 
@@ -1277,9 +1261,7 @@ static void f_extension( INT32 args ) {
   if (!orig)
     Pike_error("Out of stack space");
 #else /* HAVE_STRNDUPA */
-  /* orig = CAUDIUM_ALLOCA(src->len + 1); */
   orig = scratchpad_get(src->len + 1);/* it always returns a valid pointer */
-  /* CAUDIUM_PTR_VALID(orig); */
   
   MEMCPY(orig, src->str, src->len);
   orig[src->len] = 0;
@@ -1307,7 +1289,6 @@ static void f_extension( INT32 args ) {
     push_text("");
   }
 
-  /* CAUDIUM_UNALLOCA(orig); */
 }
 
 /*
@@ -1362,8 +1343,6 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   out_len = in_len + (unsafe << 1) + 1;
 
-  /* out = CAUDIUM_ALLOCA(out_len);
-     CAUDIUM_PTR_VALID(out); */
   out = scratchpad_get(out_len);/* it always returns a valid pointer */
   
   for(o=out, i=in->str; *i; i++) {
@@ -1377,8 +1356,6 @@ static struct pike_string *do_encode_stuff(struct pike_string *in, safe_func fun
 
   *o++ = 0;
 
-  /* CAUDIUM_UNALLOCA(out); */
-  
   return make_shared_string(out);
 }
 
@@ -1627,8 +1604,6 @@ const char *days[7]= { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 static void f_cern_http_date(INT32 args)
 {
   time_t now;
-  long diff;
-  int sign;
   struct tm *tm;
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
   struct pike_string *ret;

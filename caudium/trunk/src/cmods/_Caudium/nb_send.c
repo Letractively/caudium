@@ -484,7 +484,6 @@ static int read_data(void)
 {
   int buf_size = READ_BUFFER_SIZE;
   NBIO_INT_T to_read  = 0;
-  char *rd;
   input *inp;
  redo:
   DERR(fprintf(stderr, "Reading from blocking input.\n"));

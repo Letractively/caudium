@@ -55,7 +55,6 @@ RCSID("$Id$");
 
 #include <locale.h>
 
-#include "caudium.h"
 #include "getdate.h"
 #include "datetime.h"
 
@@ -432,7 +431,7 @@ static void f_parse_date(INT32 args)
 static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
-  int                   tmod, use_weird = 0, i;
+  int                   tmod, use_weird = 0;
   time_t                ret;
 #ifdef HAVE_STRPTIME
   struct tm             ttm;

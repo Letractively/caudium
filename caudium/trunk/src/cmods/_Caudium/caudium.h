@@ -9,12 +9,8 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-static void f_parse_headers( INT32 args );
-static void f_parse_query_string( INT32 args );
 void pike_module_init( void );
 void pike_module_exit( void );
-static void free_buf_struct(struct object *);
-static void alloc_buf_struct(struct object *);
 void init_nbio(void);
 void exit_nbio(void);
 
