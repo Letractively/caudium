@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# $Id
+#
+# This is an ugly hack, but we need to know the Debian version of the pike7 package
+#
+
+PIKE7_CHANGELOG=/usr/share/doc/pike7/changelog.Debian.gz
+PIKE7=${1}
+
+
+if ! test -f ${PIKE7_CHANGELOG}; then
+    echo "no_ver"
+    exit 1
+fi
+
+if ! test -x ${PIKE7}; then
+    echo "no_pike"
+    exit 1
+fi
+
+PIKE_DEBIAN_VER=$(gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
+
+echo ${PIKE_DEBIAN_VER}

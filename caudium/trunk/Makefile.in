@@ -111,7 +111,7 @@ install_only:
 # well
 #
 install_alt:
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium/servers/
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@
@@ -167,7 +167,7 @@ install_alt:
 	 mv $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike.new \
 	    $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike
 	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium/;g" \
-	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium/;g" \
+	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium/servers/;g" \
 	     $(DESTDIR)/$(prefix)/lib/caudium/start > \
 	     $(DESTDIR)/$(prefix)/lib/caudium/start.new; \
 	mv $(DESTDIR)/$(prefix)/lib/caudium/start.new $(DESTDIR)/$(prefix)/lib/caudium/start
