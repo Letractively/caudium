@@ -992,7 +992,6 @@ string msectos(int t)
 }
 
 //! @decl string extension( string f)
-//! @decl string Caudium.extension( string f)
 //!
 //! This function gets the right extension name from 
 //! filename @[f].
