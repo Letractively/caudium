@@ -496,7 +496,7 @@ mapping query_container_callers()
 
 object(sql) sql_object(void|string host)
 {
-  string host = stringp(host)?host:query("hostname");
+  host = stringp(host) ? host : QUERY(hostname);
   object(sql) con;
   function sql_connect = conf->sql_connect;
   mixed error;

@@ -2172,7 +2172,7 @@ void got_search_data(array i, string s)
 
 void connected(object ok, string file, object send_to, string key)
 {
-  string key,database,doctype,docname,basetitle;
+  string database,doctype,docname,basetitle;
   int doclen,i;
   string reqmsg,header;
 
