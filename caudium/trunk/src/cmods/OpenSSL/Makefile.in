@@ -1,0 +1,12 @@
+# $Id$
+@make_variables@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODULE_CFLAGS=@DEFS@ @CPPFLAGS@
+OBJS=openssl.o
+MODULE_LDFLAGS=@LDFLAGS@ @LIBS@
+
+CONFIG_HEADERS=@CONFIG_HEADERS@
+
+@dynamic_module_makefile@
+@dependencies@
+
