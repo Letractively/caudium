@@ -19,6 +19,11 @@
  *
  */
 
+//! This class should be inherited by any code that implements a Caudium
+//! module. It defines all the API that must be found in any Caudium module
+//! and provides reasonable defaults for the elements not implemented in
+//! the inheriting class.
+
 /* $Id$ */
 
 #include <module.h>
@@ -27,6 +32,7 @@
 #define TRACE_ENTER(A,B) do{if(id->misc->trace_enter)id->misc->trace_enter((A),(B));}while(0)
 #define TRACE_LEAVE(A) do{if(id->misc->trace_leave)id->misc->trace_leave((A));}while(0)
 
+//! The module variable store.
 mapping (string:array) variables=([]);
 
 constant is_module = 1;
@@ -43,6 +49,15 @@ string fix_cvs(string from)
   return from;
 }
 
+//! Makes sure that all the modules required by the caller module are
+//! present before it initializes. Should be called as the first function
+//! in your @[start()] method.
+//!
+//! @param configuration
+//!  The @[id->conf] configuration object.
+//!
+//! @param modules
+//!  An array of module names this function should load.
 int module_dependencies(object configuration, array (string) modules)
 {
   if(configuration) configuration->add_modules (modules);
@@ -60,6 +75,7 @@ string file_name_and_stuff()
 
 static private object _my_configuration;
 
+//! Returns the module's configuration object.
 object my_configuration()
 {
   if(_my_configuration)
@@ -91,6 +107,10 @@ void set_module_url(string to)
   module_url = to;
 }
 
+//! Removes the specified variable from the variable store.
+//!
+//! @param var
+//!  Name of the variable to be removed.
 int killvar(string var)
 {
   if(!variables[var]) error("Killing undefined variable.\n");
@@ -100,7 +120,22 @@ int killvar(string var)
 
 void free_some_sockets_please(){}
 
+//! The first method called when the module is loaded. It is called only
+//! once when the module is initialized (loaded or reloaded).
+//!
+//! @param num
+//!  If the module can exist in several copies, this parameter gives the
+//!  number saying which copy the new instance is.
+//!
+//! @param conf
+//!  The configuration object.
 void start(void|int num, void|object conf) {}
+
+//! Module-specific status information. You can return anything that has
+//! any meaning for the module.
+//!
+//! @returns
+//!  The status string displayed in the CIF
 string status() {}
 
 string info(object conf)
@@ -309,9 +344,24 @@ void defvar(string|void var, mixed|void value, string|void name,
 }
 
 
-// Convenience function, define an invissible variable, this variable
-// will be saved, but it won't be vissible in the configuration interface.
-void definvisvar(string name, int value, int type, array|void misc)
+//! Convenience function, define an invissible variable, this variable
+//! will be saved, but it won't be visible in the configuration interface.
+//!
+//! @param name
+//!  The variable name
+//!
+//! @param value
+//!  The variable value.
+//!
+//! @param type
+//!  The variable type. For the list of types, see @[defvar()].
+//!
+//! @param misc
+//!  Miscelanneous data that depends on the variable type.
+//!
+//! @seealso
+//!  @[defvar()]
+void definvisvar(string name, mixed value, int type, mixed|void misc)
 {
   defvar(name, value, "", type, "", misc, 1);
 }
@@ -324,6 +374,19 @@ string check_variable( string s, mixed value )
   return 0;
 }
 
+//! Return the value of a variable.
+//!
+//! @param var
+//!  Variable name
+//!
+//! @param ok
+//!  If it is ok for the variable to be absent, set this parameter to a
+//!  value different than 0 - otherwise an exception will be thrown and
+//!  your module will fail to load (which is a desirable behavior when
+//!  developing the module)
+//!
+//! @returns
+//!  The module variables store.
 mixed query(string|void var, int|void ok)
 {
   if(var) {
