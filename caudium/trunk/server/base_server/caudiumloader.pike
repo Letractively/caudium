@@ -516,7 +516,8 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 static private void initiate_cache()
 {
   object cache;
-  cache=((program)"base_server/cache")();
+  cache=((program)"base_server/cache/compatibility_cache.pike")();
+  add_constant("cache_start", cache->start);
   add_constant("cache_set", cache->cache_set);
   add_constant("cache_lookup", cache->cache_lookup);
   add_constant("cache_remove", cache->cache_remove);
