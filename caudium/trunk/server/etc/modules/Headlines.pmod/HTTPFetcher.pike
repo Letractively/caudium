@@ -72,7 +72,7 @@ int async_fetch(string url, function ok, function fail, mixed extra)
     host_header = sprintf("%s:%d", host, port);
   http->async_request(host, port, "GET "+file+" HTTP/1.0",
 		      ([ 
-			"User-Agent":"PikeFetcher/"+hversion,
+			"User-Agent":"PikeFetcher",
 			"Host": host_header || host,
 			"Content-Length": "0"
 		      ]));
