@@ -149,7 +149,7 @@ string td(string t, string|void align, int|void rows, int|void cols)
 //! @param s
 //!   The string
 //! @param i
-//!   How mutch bigger must be it.
+//!   How much bigger must be it.
 //! @returns
 //!   A <font size=+i><b>s</b></font>
 //! @fixme
