@@ -20,6 +20,20 @@
  * $Id$
  */
 
+// Some 25% of the original RIS code remains in this file. The code lives
+// in the following functions:
+//
+//  build_env_vars
+//  decode_mode
+//  is_modified (GROSS!!)
+//  parse_rml
+//  msectos
+//  get_size
+//  do_output_tag (GROSS!!)
+//  get_module
+//  get_modname
+//  roxen_encode
+
 //! Caudiumlib is a collection of utility functions used by modules and
 //! the Caudium core. 
 
@@ -932,68 +946,6 @@ static string make_container(string tag,mapping in, string contents)
   return make_tag(tag,in)+contents+"</"+tag+">";
 }
 
-//
-// hmm, isn't that a dupe from Pike?
-// /grendel
-//
-static string dirname( string file )
-{
-  if(!file) 
-    return "/";
-  mixed tmp;
-
-  if (file[-1] == '/')
-    if (strlen(file) > 1)
-      return file[0..strlen(file)-2];
-    else
-      return file;
-  tmp=file/"/";
-  if (sizeof(tmp)==2 && tmp[0]=="")
-    return "/";
-  return tmp[0..sizeof(tmp)-2]*"/";
-}
-
-static string conv_hex( int color )
-{
-  int c;
-  string result;
-
-  result = "";
-  for (c=0; c < 6; c++, color>>=4)
-    switch (color & 15) {
-        case 0: case 1: case 2: case 3: case 4:
-        case 5: case 6: case 7: case 8: case 9:
-          result = (color & 15) + result;
-          break;
-          
-        case 10: 
-          result = "A" + result;
-          break;
-          
-        case 11: 
-          result = "B" + result;
-          break;
-          
-        case 12: 
-          result = "C" + result;
-          break;
-          
-        case 13: 
-          result = "D" + result;
-          break;
-          
-        case 14: 
-          result = "E" + result;
-          break;
-          
-        case 15: 
-          result = "F" + result;
-          break;
-    }
-  return "#" + result;
-  
-}
-
 static string add_config( string url, array config, multiset prestate )
 {
   if (!sizeof(config)) 
@@ -1124,26 +1076,20 @@ static int ipow(int what, int how)
 //!
 //! @returns
 //!  The simplified path string.
+//!
+//! @note
+//!   Non-RIS code
 static string simplify_path(string file)
 {
-  int no_pre_slash, end_slash;
-  if (!strlen(file))
-    return "";
-  
-  if (file[0] != '/')
-    no_pre_slash = 1;
+  string   ret;
+  mixed    error = catch {
+    ret = Stdio.simplify_path(file);
+  };
 
-  if (strlen(file) > 1 && (file[-1] == '/' || (file[-1] == '.'  && file[-2] == '/')))
-    end_slash = 1;
+  if (!error)
+    return ret;
   
-  file = combine_path("/", file);
-  if (end_slash && file[-1] != '/')
-    file += "/";
-  
-  if (no_pre_slash)
-    return file[1..];
-  
-  return file;
+  return file; // better to return the original than 0
 }
 
 //! Returns a short date string from a time @tt{int@}
@@ -1153,14 +1099,19 @@ static string simplify_path(string file)
 //!
 //! @returns
 //!  String representation of the param
+//!
+//! @note
+//!  Non-RIS code
 static string short_date(int timestamp)
 {
-  int date = time(1);
+  int      date = time(1);
+  string   ctimed = ctime(date)[20..23];
+  string   ctimet = ctime(timestamp);
   
-  if (ctime(date)[20..23] < ctime(timestamp)[20..23])
-    return ctime(timestamp)[4..9] +" "+ ctime(timestamp)[20..23];
+  if ( ctimed < ctimet[20..23])
+    return ctimet[4..9] +" "+ ctimet[20..23];
   
-  return ctime(timestamp)[4..9] +" "+ ctime(timestamp)[11..15];
+  return ctimet[4..9] +" "+ ctimet[11..15];
 }
 
 //! Converts a string representing a HTTP date into a UNIX time value.
@@ -1300,39 +1251,44 @@ static string number2string(int num ,mapping params, mixed names)
   return ret;
 }
 
-static string image_from_type( string t )
+static mapping(string:string) ift = ([
+  "unknown" : "internal-gopher-unknown",
+  "audio" : "internal-gopher-sound",
+  "sound" : "internal-gopher-sound",
+  "image" : "internal-gopher-image",
+  "application" : "internal-gopher-binary",
+  "text" : "internal-gopher-text"
+]);
+
+// non-RIS code
+static string image_from_type(string t)
 {
   if (t) {
     sscanf(t, "%s/%*s", t);
-    switch (t) {
-        case "audio":
-        case "sound":
-          return "internal-gopher-sound";
-        case "image":
-          return "internal-gopher-image";
-        case "application":
-          return "internal-gopher-binary";
-        case "text":
-          return "internal-gopher-text";
-    }
+
+    if (ift[t])
+      return ift[t];
   }
-  return "internal-gopher-unknown";
+  
+  return ift->unknown;
 }
 
-#define  PREFIX ({ "bytes", "kB", "MB", "GB", "TB", "HB" })
-static string sizetostring( int size )
+static array(string) size_prefix = ({ "bytes", "kB", "MB", "GB", "TB", "HB" });
+
+static string sizetostring(int size)
 {
   float s = (float)size;
-  if (size<0)
+  if (size < 0.0)
     return "--------";
+  
   size=0;
 
   while( s > 1024.0 ) {
     s /= 1024.0;
-    size ++;
+    size++;
   }
   
-  return sprintf("%.1f %s", s, PREFIX[ size ]);
+  return sprintf("%.1f %s", s, size_prefix[size]);
 }
 
 mapping proxy_auth_needed(object id)
@@ -1340,13 +1296,16 @@ mapping proxy_auth_needed(object id)
   mixed res = id->conf->check_security(proxy_auth_needed, id);
   if (res) {
     if (res==1) // Nope...
-      return http_low_answer(403, "You are not allowed to access this proxy");
+      return http_low_answer(403, "Access to this proxy has been denied.");
+
     if (!mappingp(res))
-      return 0; // Error, really.
+      return 0;
+    
     res->error = 407;
     
     return res;
   }
+  
   return 0;
 }
 
@@ -1360,30 +1319,6 @@ string program_directory()
 {
   array(string) p = program_filename()/"/";
   return (sizeof(p)>1? p[..sizeof(p)-2]*"/" : getcwd());
-}
-
-// *DUPE ALERT*
-// They are all dupes from http.pike
-//
-string html_encode_string(string str)
-// Encodes str for use as a literal in html text.
-{
-  return replace(str, ({"&", "<", ">", "\"", "\'", "\000", ":" }),
-                 ({"&amp;", "&lt;", "&gt;", "&#34;", "&#39;", "&#0;", "&#58;"}));
-}
-
-string html_decode_string(string str)
-// Decodes str, opposite to html_encode_string()
-{
-  return replace(str,
-                 ({"&amp;","&lt;","&gt;","&#34;","&#39;","&#0;","&#58;"}),
-                 ({"&", "<", ">", "\"", "\'", "\000", ":" }) );
-}
-
-string html_encode_tag_value(string str)
-// Encodes str for use as a value in an html tag.
-{
-  return "\"" + replace(str, ({"&", "\""}), ({"&amp;", "&quot;"})) + "\"";
 }
 
 //! This function exist to aid in finding a module object identified by the
@@ -1601,19 +1536,9 @@ string roxen_encode( string val, string encoding )
   }
 }
 
-// internal method for do_output_tag
-private string remove_leading_trailing_ws( string str )
-{
-  sscanf( str, "%*[\t\n\r ]%s", str );
-  str = reverse( str ); 
-  sscanf( str, "%*[\t\n\r ]%s", str );
-  str = reverse( str );
-  return str;
-}
-
 // This method needs lot of work... but so does the rest of the system too
 // RXML needs types
-private int compare( string a, string b )
+private int compare( string a, string b ) // what a mess!
 {
   if (!a)
     if (b)
@@ -1888,7 +1813,7 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
           exploded[c] = quote;
         else {
           array(string) options =  exploded[c] / ":";
-          string var = remove_leading_trailing_ws (options[0]);
+          string var = String.trim_all_whites(options[0]);
           mixed val = vars[var];
           array(string) encodings = ({});
           string multisep = multi_separator;
@@ -1897,9 +1822,9 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
 
           foreach (options[1..], string option) {
             array (string) pair = option / "=";
-            string optval = remove_leading_trailing_ws (pair[1..] * "=");
+            string optval = String.trim_all_whites (pair[1..] * "=");
 
-            switch (lower_case (remove_leading_trailing_ws( pair[0] ))) {
+            switch (lower_case (String.trim_all_whites( pair[0] ))) {
                 case "empty":
                   empty = optval;
                   break;
@@ -1927,12 +1852,12 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
                   
                 case "encode":
                   encodings += Array.map (lower_case (optval) / ",",
-                                          remove_leading_trailing_ws);
+                                          String.trim_all_whites);
                   break;
                   
                 default:
                   return "<b>Unknown option "
-                    + remove_leading_trailing_ws (pair[0])
+                    + String.trim_all_whites (pair[0])
                     + " in replace field " + ((c >> 1) + 1) + "</b>";
             }
           }
@@ -1955,7 +1880,7 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
           if (!sizeof (encodings))
             encodings = args->encode ?
               Array.map (lower_case (args->encode) / ",",
-                         remove_leading_trailing_ws) : ({"html"});
+                         String.trim_all_whites) : ({"html"});
 
           string tmp_val;
           foreach (encodings, string encoding)
@@ -2026,7 +1951,9 @@ string fix_relative(string file, object id)
 //!  name. 
 //! @returns
 //!  An array consisting of the scope and the variable.
-//! name: parse_scope_var - return the scope and variable name.
+//!
+//! @note
+//!  Non-RIS code
 array(string) parse_scope_var(string variable, string|void scope)
 {
   array scvar = allocate(2);
@@ -2056,6 +1983,9 @@ array(string) parse_scope_var(string variable, string|void scope)
 //!  exist.
 //! @seealso
 //!   @[set_scope_var()], @[parse_scope_var()]
+//!
+//! @note
+//!  Non-RIS code
 mixed get_scope_var(string variable, void|string scope, object id)
 {
   function _get;
@@ -2090,9 +2020,12 @@ mixed get_scope_var(string variable, void|string scope, object id)
 //!  The request id object.
 //! @returns
 //!  1 if the variable was set correctly, 0 if it failed.
-//! name: set_scope_var - set the value of a scope variable
+//! 
 //! @seealso
 //!  @[get_scope_var()], @[parse_scope_var()]
+//!
+//! @note
+//!  non-RIS code
 int set_scope_var(string variable, void|string scope, mixed value, object id)
 {
   function _set;
@@ -2128,6 +2061,9 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
 //!  Optional arguments to pass to the callback function.
 //! @returns
 //!  The parsed result.
+//!
+//! @note
+//!  non-RIS code
 static mixed cb_wrapper(object parser, string entity, object id, function cb,
                         mixed ... args) {
   string scope, name, encoding;
@@ -2150,6 +2086,26 @@ static mixed cb_wrapper(object parser, string entity, object id, function cb,
     return Array.map(ret, roxen_encode, encoding);    
 }
 
+//! Parse the passed string looking for entities referring to the scopes
+//! defined in Caudium.
+//!
+//! @param data
+//!  The string to parse
+//!
+//! @param cb
+//!  The callback for extra data found in the string.
+//!
+//! @param id
+//!  The request ID in which context the function is called.
+//!
+//! @param extra
+//!  Extra parameters sent to the @tt{cb@} callback
+//!
+//! @returns
+//!  The input string with all the defined entities replaced.
+//!
+//! @note
+//!  non-RIS code
 string parse_scopes(string data, function cb, object id, mixed ... extra) {
   object mp = Parser.HTML();
   mp->lazy_entity_end(1);
