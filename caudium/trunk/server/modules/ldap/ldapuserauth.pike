@@ -778,6 +778,11 @@ array|int auth (string *auth, object id)
 //!  type: TYPE_STRING
 //!  name: Defaults: User ID map
 //
+//! defvar: CI_default_gid
+//! Same as User ID, only it refers rather to the group.
+//!  type: TYPE_INT
+//!  name: Defaults: Group ID
+//
 //! defvar: CI_default_attrname_gid
 //! The mapping between passwd:gid and LDAP.
 //!  type: TYPE_STRING
