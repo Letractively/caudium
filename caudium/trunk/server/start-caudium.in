@@ -81,23 +81,23 @@ mapping(string:string|array) envvars = ([
   "CAUDIUM_LOGDIR" : getenv("CAUDIUM_LOGDIR") || "../logs",
   "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getenv("UID")),
   "CLASSPATH" : getenv("CLASSPATH") +":" + 
-     ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
-      "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
+  ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
+   "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
   "PIKE_MODULE_PATH" : getenv("PIKE_MODULE_PATH") || "",
   "CAUDIUM_LANG" : getenv("CAUDIUM_LANG") || "en"
 ]);
 
 // locations that we should search for modules in, if present
 array lib_locations=({"lib/modules", 
-  "lib/pike/modules", "etc/modules", "lib/" + pikever,
-  "share/pike/modules"});
+                      "lib/pike/modules", "etc/modules", "lib/" + pikever,
+                      "share/pike/modules"});
       
 // locations that we should search for programs in, if present
 array program_locations=({getcwd()});
       
 // locations that we should search for includes in, if present
 array include_locations=({"lib/include", "etc/include", 
-  "share/pike/include", "base_server"});
+                          "share/pike/include", "base_server"});
 
 // parsed arguments
 array parsed_args=({});
@@ -131,10 +131,10 @@ int run_caudium(array(string) args, mapping|void opts)
   if(!options->quiet)
   {
     write("Starting the Caudium Webserver.\n"
-        "Log dir is " + envvars->CAUDIUM_LOGDIR + ", Configuration dir is " + envvars->CAUDIUM_CONFIGDIR 
-        + "\n");
+          "Log dir is " + envvars->CAUDIUM_LOGDIR + ", Configuration dir is " + envvars->CAUDIUM_CONFIGDIR 
+          + "\n");
     if(!options->once)
-        write("Debug output is located in " + envvars->CAUDIUM_LOGDIR + "/debug/default.1\n");
+      write("Debug output is located in " + envvars->CAUDIUM_LOGDIR + "/debug/default.1\n");
   }
   if(opts->stdout && !options->quiet)
     opts->stdout->write("Running " + (args*" ") + "\n");
@@ -210,11 +210,11 @@ void preamble()
           break;
         }
       }
-    if(!options->pike || options->pike=="")
-    {
-      write("Unable to find a usable Pike interpreter.\n");
-      exit(1);
-    }
+      if(!options->pike || options->pike=="")
+      {
+        write("Unable to find a usable Pike interpreter.\n");
+        exit(1);
+      }
 
     }
   }
@@ -254,7 +254,7 @@ void preamble()
   if (go_threads && options->threads) {
     if(!options->quiet && !options->backgrounded)
       write("%s detected, enabling threads (if available in Pike)\n",
-          os_label);
+            os_label);
     command_line->DEFINES += ({"ENABLE_THREADS"});
   }
 
@@ -267,42 +267,42 @@ void preamble()
 
       command_line->OTHER += ({"-w"});
 /*
-      foreach(master_locations, string ml)
-      {
-         if(Stdio.is_file(ml))
-         {
-           command_line->OTHER += ({"-m" + ml});
-         }
-      }
+  foreach(master_locations, string ml)
+  {
+  if(Stdio.is_file(ml))
+  {
+  command_line->OTHER += ({"-m" + ml});
+  }
+  }
 */
       foreach(include_locations, string il)
       {
-         if(Stdio.is_dir(il))
-         {
-           command_line->INCLUDES += ({il});
-           add_include_path(il);
-         }
+        if(Stdio.is_dir(il))
+        {
+          command_line->INCLUDES += ({il});
+          add_include_path(il);
+        }
       }
 
       foreach(lib_locations, string ll)
       {
-         if(Stdio.is_dir(ll))
-         {
-           command_line->MODULES += ({ll});
-           add_module_path(ll);
-         }
-       }
+        if(Stdio.is_dir(ll))
+        {
+          command_line->MODULES += ({ll});
+          add_module_path(ll);
+        }
+      }
 
       foreach(program_locations, string pl)
       {
-         if(Stdio.is_dir(pl))
-         {
-           command_line->PROGRAMS += ({pl});
-           add_program_path(pl);
-         }
+        if(Stdio.is_dir(pl))
+        {
+          command_line->PROGRAMS += ({pl});
+          add_program_path(pl);
+        }
       }
-   }
-   else {
+    }
+    else {
       command_line->OTHER += ({"-m" + getenv("PIKE_MASTER")});
     }
   }
@@ -414,7 +414,7 @@ void continue_startup()
 {
   array o = generate_command_options();
 
-    mapping opt=([]);
+  mapping opt=([]);
 
   if(options->once)
   {
@@ -423,11 +423,11 @@ void continue_startup()
 
     if(options->precmd && options->precmd[0]=="gdb")
     {
-       Stdio.write_file(".gdbinit", "handle SIGPIPE nostop noprint pass\n"
-        "handle SIGUSR1 nostop noprint pass\n"
-        "handle SIGUSR2 nostop noprint pass\n"
-        "run " + (o*" ") + "\n");
-       do_one_run(options->precmd + ({options->pike}), opt);
+      Stdio.write_file(".gdbinit", "handle SIGPIPE nostop noprint pass\n"
+                       "handle SIGUSR1 nostop noprint pass\n"
+                       "handle SIGUSR2 nostop noprint pass\n"
+                       "run " + (o*" ") + "\n");
+      do_one_run(options->precmd + ({options->pike}), opt);
     }
 
     else do_one_run(o, opt);
@@ -443,33 +443,33 @@ void continue_startup()
 
 void do_one_run(array o, mapping opt)
 {
-    call_out(do_one_run, 2, o, opt);
-    // if we don't have a running process, exit.
-    if(!proc)
-    {
-       run_caudium(o, opt);
-    }
-    else if(proc->status()!=0)
-    {
-      if(options->precmd[0]=="gdb")
-        rm(".gdbinit");
-    }
+  call_out(do_one_run, 2, o, opt);
+  // if we don't have a running process, exit.
+  if(!proc)
+  {
+    run_caudium(o, opt);
+  }
+  else if(proc->status()!=0)
+  {
+    if(options->precmd[0]=="gdb")
+      rm(".gdbinit");
+  }
 
 
 }
 
 void do_multi_run(array o, mapping opt)
 {
-    call_out(do_multi_run, 2, o, opt);
-    // if we don't have a running process, start it.
-    if(!proc || proc->status()!=0)
-    {
-      rotate_logs(o, opt);
-      opt->stdout=Stdio.File(envvars->CAUDIUM_LOGDIR + "/debug/default.1", "crw");
-      opt->stderr=opt->stdout;
-      opt->setsid=1;
-      run_caudium(o, opt);
-    }
+  call_out(do_multi_run, 2, o, opt);
+  // if we don't have a running process, start it.
+  if(!proc || proc->status()!=0)
+  {
+    rotate_logs(o, opt);
+    opt->stdout=Stdio.File(envvars->CAUDIUM_LOGDIR + "/debug/default.1", "crw");
+    opt->stderr=opt->stdout;
+    opt->setsid=1;
+    run_caudium(o, opt);
+  }
 }
 
 void rotate_logs(array o, mapping opt)
@@ -495,27 +495,27 @@ array generate_command_options()
     o+=({options->pike});
   } 
 
-    if(command_line->DEFINES)
-      foreach(command_line->DEFINES, string d)
-        o+=({"-D" + d});
-    if(command_line->INCLUDES)
-      foreach(command_line->INCLUDES, string d)
-        o+=({"-I" + d});
-    if(command_line->MODULES)
-      foreach(command_line->MODULES, string d)
-        o+=({"-M" + d});
-    if(command_line->PROGRAMS)
-      foreach(command_line->PROGRAMS, string d)
-        o+=({"-P" + d});
-    if(command_line->OTHER)
-      foreach(command_line->OTHER, string d)
-        o+=({d});
+  if(command_line->DEFINES)
+    foreach(command_line->DEFINES, string d)
+      o+=({"-D" + d});
+  if(command_line->INCLUDES)
+    foreach(command_line->INCLUDES, string d)
+      o+=({"-I" + d});
+  if(command_line->MODULES)
+    foreach(command_line->MODULES, string d)
+      o+=({"-M" + d});
+  if(command_line->PROGRAMS)
+    foreach(command_line->PROGRAMS, string d)
+      o+=({"-P" + d});
+  if(command_line->OTHER)
+    foreach(command_line->OTHER, string d)
+      o+=({d});
 
-    o+=({options->program});
+  o+=({options->program});
 
-    if(command_line->PROG_OTHER)
-      foreach(command_line->PROG_OTHER, string d)
-        o+=({d});
+  if(command_line->PROG_OTHER)
+    foreach(command_line->PROG_OTHER, string d)
+      o+=({d});
 
   return o;
 } 
@@ -526,84 +526,84 @@ int act_on_args()
   {
     switch(m[0])
     {
-      case "truss":
-        options->precmd=({"truss"});
-        options->once=1;
-        continue;
-      case "strace":
-        options->precmd=({"strace", "-f"});
-        options->once=1;
-        continue;
-      case "ltrace":
-        options->precmd=({"ltrace", "-f"});
-        options->once=1;
-        continue;
-      case "log-dir":
-        envvars->CAUDIUM_LOGDIR=m[1];        
-        continue;
-      case "config-dir":
-        envvars->CAUDIUM_CONFIGDIR=m[1];        
-        continue;
-      case "pike-version":
-        options->pikever=m[1];
-        continue;
-      case "pid-file":
-        envvars->CAUDIUM_PID_FILE=m[1];
-        continue;
-      case "backgrounded":
-        options->backgrounded=1;
-        continue;
-      case "help":
-        write_help();
-        return 1;
-        continue;
-      case "threads":
-        options->threads=1;
-        continue;
-      case "nothreads":
-        options->threads=0;
-        continue;
-      case "profile":
-         command_line->DEFINES+=({"PROFILE"});
-         continue;
-      case "fileprofile":
-         command_line->DEFINES+=({"FILE_PROFILE"});
-         continue;
-      case "once":
-         options->once=1;
-         continue;
-      case "gdb":
-         options->precmd=({"gdb"});
-         options->once=1;
-         continue;
-      case "nodebug":
-         command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
-         continue;
-      case "debug":
-         command_line->DEFINES+=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
-         continue;
-      case "fddebug":
-         command_line->DEFINES+=({"FD_DEBUG"});
-         continue;
-      case "keepalive":
-        command_line->DEFINES+=({"KEEP_ALIVE"});
-        continue;
-      case "version":
-         command_line->COTHER+=({"--version"});
-         options->once=1;
-         continue;
-      case "pike":
-        options->pike=m[1];
-        continue;
-      case "program":
-        options->program=m[1];
-        options->once=1;
-        continue;
-      case "quiet":
-        options->quiet=1;
-        continue;
+        case "truss":
+          options->precmd=({"truss"});
+          options->once=1;
+          continue;
+        case "strace":
+          options->precmd=({"strace", "-f"});
+          options->once=1;
+          continue;
+        case "ltrace":
+          options->precmd=({"ltrace", "-f"});
+          options->once=1;
+          continue;
+        case "log-dir":
+          envvars->CAUDIUM_LOGDIR=m[1];        
+          continue;
+        case "config-dir":
+          envvars->CAUDIUM_CONFIGDIR=m[1];        
+          continue;
+        case "pike-version":
+          options->pikever=m[1];
+          continue;
+        case "pid-file":
+          envvars->CAUDIUM_PID_FILE=m[1];
+          continue;
+        case "backgrounded":
+          options->backgrounded=1;
+          continue;
+        case "help":
+          write_help();
+          return 1;
+          continue;
+        case "threads":
+          options->threads=1;
+          continue;
+        case "nothreads":
+          options->threads=0;
+          continue;
+        case "profile":
+          command_line->DEFINES+=({"PROFILE"});
+          continue;
+        case "fileprofile":
+          command_line->DEFINES+=({"FILE_PROFILE"});
+          continue;
+        case "once":
+          options->once=1;
+          continue;
+        case "gdb":
+          options->precmd=({"gdb"});
+          options->once=1;
+          continue;
+        case "nodebug":
+          command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
+          continue;
+        case "debug":
+          command_line->DEFINES+=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
+          continue;
+        case "fddebug":
+          command_line->DEFINES+=({"FD_DEBUG"});
+          continue;
+        case "keepalive":
+          command_line->DEFINES+=({"KEEP_ALIVE"});
+          continue;
+        case "version":
+          command_line->COTHER+=({"--version"});
+          options->once=1;
+          continue;
+        case "pike":
+          options->pike=m[1];
+          continue;
+        case "program":
+          options->program=m[1];
+          options->once=1;
+          continue;
+        case "quiet":
+          options->quiet=1;
+          continue;
     }
-  return 0;
+    return 0;
   }
 }
 
