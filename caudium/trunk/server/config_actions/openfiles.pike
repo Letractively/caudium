@@ -84,7 +84,7 @@ string page_0()
 	    
 #endif
 	    catch {
-	      array args = checkfd_fix_line(fd_info(fd));
+	      array args = checkfd_fix_line(spider.fd_info(fd));
 	      args = (args[0] / ", ") + args[1..];
 	      args[-2] = ( args[-2] / " " - ({""})) * " ";
 	      args[1] = (args[1] - "<tt>") - "</tt>";
