@@ -86,3 +86,11 @@ Changes in Caudium 1.1 since CVS branching
   one: To utilize this module, you need a patched version of the NJS
   JavaScript interpreter. Send a mail to david@caudium.net if you want
   to beta-test this!
+- Greatly improved the redirect module. Improvements include:
+  + Patterns are matched in the order entered instead of random
+    order.
+  + Greater control of the type of matching done using keywords.
+  + Added glob match method.
+  + Compilation of regular expression is cached, which should greatly
+    improve matching speed when there are many regexp patterns.
+
