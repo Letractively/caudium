@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 /*
  * $Id$
@@ -25,7 +24,7 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
-//! module: Accessed Counter Tag - Memory
+//! module: Accessed Counter Tag: Memory
 //!  This module provides access counters, through the &lt;accessed&gt; tag.
 //! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
 //! inherits: module

@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 /*
  * $Id$
@@ -25,7 +24,7 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
-//! module: Accessed Counter Tag - FileDB
+//! module: Accessed Counter Tag: FileDB
 //!  This module provides accessed counters, through the &lt;accessed&gt; tag. 
 //!  Using FileDB compatibility mode.
 //! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
@@ -41,7 +40,7 @@ inherit "caudiumlib";
 constant cvs_version   = "$Id$";
 constant thread_safe   = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
-constant module_name   = "Accessed Counter Tag - FileDB";
+constant module_name   = "Accessed Counter Tag: FileDB";
 // Kiwi: we do not support yet entities so =)
 //constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "

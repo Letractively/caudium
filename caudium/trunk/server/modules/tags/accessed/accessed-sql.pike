@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 /*
  * $Id$
@@ -25,7 +24,7 @@
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
-//! module: Accessed Counter Tag - SQL
+//! module: Accessed Counter Tag: SQL
 //!  This module provides access counters, through the &lt;accessed&gt; tag.
 //! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
 //! inherits: module
@@ -40,7 +39,7 @@ inherit "caudiumlib";
 constant cvs_version   = "$Id$";
 constant thread_safe    = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
-constant module_name   = "Accessed Counter Tag - SQL";
+constant module_name   = "Accessed Counter Tag: SQL";
 // Kiwi: we do not support yet entities so =)
 //constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
@@ -114,7 +113,8 @@ void start(int cnt, object conf) {
 class SQLCounter {
   // SQL backend counter.
 
-  Sql.sql db;
+  object db;
+
   string table,servername;
   int srvname = 0;
 
@@ -144,9 +144,10 @@ class SQLCounter {
   }
 
   private void create_entry(string file) {
-    if(cache_lookup("access_entry", file)) return;
-    catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+servername+file+"',"+time(1)+")" ));
-    cache_set("access_entry", file, 1);
+    if(!cache_lookup("access_entry", file)) {
+      catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+servername+file+"',"+time(1)+")" ));
+      cache_set("access_entry", file, 1);
+    }
   }
 
   private string fix_file(string file) {
