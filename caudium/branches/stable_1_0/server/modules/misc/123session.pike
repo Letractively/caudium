@@ -780,7 +780,7 @@ void set_from_form_remove (string val, int type, object o) {
 //!  name: Garbage Collection Frequency
 //
 //! defvar: cookieexpire
-//! if 0, do not set a cookie expiration, if >0, set cookie expiration for that many seconds.  If <0, set cookie with date 10 years in the future
+//! if 0, do not set a cookie expiration, if &gt;0, set cookie expiration for that many seconds.  If &lg;0, set cookie with date 10 years in the future
 //!  type: TYPE_INT
 //!  name: Cookie Expiration Time
 //
