@@ -23,9 +23,32 @@ How to install and use:
 
 TODO
 
-Indexer needs to be more full featured (allow, deny, non-text formats)
+Indexer needs to be more full featured (non-text formats)
 Indexer needs web interface
 Search module needs paging capabilities
 Search module needs more flexible output
 Search module needs search forms
 Both indexer and searcher need support for custom stopwords.
+
+EXAMPLE PROFILE
+
+<profile name="blah">
+<crawler>
+  <startingpoint>http://www.mtp/</startingpoint>
+  <allow type="glob">http://www.mtp/*</allow>
+  <deny type="glob">http://www.mtp/calendar/*</deny>
+  <http_user></http_user>
+  <http_password></http_password>
+</crawler>
+<converters>
+  <type mime="application/pdf">/opt/sfw/bin/pdf2text</type>
+</converters>
+<indexer>
+  <addtype>text/plain</addtype>
+  <addtype>text/html</addtype>
+</indexer>
+<index>
+  <location>/tmp/db</location>
+  <stopwordfile></stopwordfile>
+</index>
+</profile>
