@@ -89,6 +89,9 @@ function decode_base64( what )
 
 	while( !isNaN( x = what.charCodeAt( ptr++ ) ) )
 	{
+		if( x == 13 || x == 10 )
+			continue;
+
 		if( ( x > 127 ) || (( x = base64_decodetable[x] ) == 255) )
 			return false;
 		if( ( isNaN( y = what.charCodeAt( ptr++ ) ) ) || (( y = base64_decodetable[y] ) == 255) )
