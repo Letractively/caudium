@@ -6,6 +6,9 @@
 #define USE_MMAP 1
 #endif
 
+#include <sys/time.h>
+#include <sys/resource.h>
+
 static void f_parse_headers( INT32 args );
 static void f_parse_query_string( INT32 args );
 void pike_module_init( void );
@@ -31,6 +34,13 @@ void exit_nbio(void);
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
 
+struct plimit
+{
+  int resource;
+  struct rlimit rlp;
+  struct plimit *next;
+};
+
 struct perishables
 {
   char **env;
@@ -39,9 +49,7 @@ struct perishables
   int *fds;
 
   int disabled;
-#ifdef HAVE_SETRLIMIT
   struct plimit *limits;
-#endif
 
 #ifdef HAVE_SETGROUPS
   gid_t *wanted_gids;

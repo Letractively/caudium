@@ -708,10 +708,12 @@ class CGIScript
     if( limits )
       options->rlimit = limits;
 
-    if(!(pid = Process.create_process( ({ command }) + arguments, options ))) 
-      error("Failed to create CGI process.\n");
-    if(QUERY(kill_call_out))
-      call_out( kill_script, QUERY(kill_call_out)*60 );
+    Caudium.create_process( ({ command }) + arguments, options );
+
+//    if(!(pid = Process.create_process( ({ command }) + arguments, options ))) 
+//      error("Failed to create CGI process.\n");
+//    if(QUERY(kill_call_out))
+//      call_out( kill_script, QUERY(kill_call_out)*60 );
     return this_object();
   }
 
@@ -749,6 +751,7 @@ class CGIScript
     LIMIT( limits, data, datasize, 1024, -2 );
     LIMIT( limits, map_mem, datasize, 1024, -2 );
     LIMIT( limits, mem, datasize, 1024, -2 );
+    LIMIT( limits, nproc, nproc, 1, -2 );
 #undef LIMIT
 
     if (id->misc->vhs && id->misc->vhs->host)
@@ -1034,37 +1037,40 @@ void create(object conf)
 	 "NOTE : This option only has effect if scripts are run as owner.",
 	 0, run_as_user_enabled);
 
-  defvar("nice", 0, "Limits: Nice value", TYPE_INT|VAR_MORE,
+  defvar("nice", 0, "Limits: Nice value", TYPE_INT,
 	 "The nice level to use when running scripts. "
 	 "20 is nicest, and 0 is the most aggressive available to "
 	 "normal users. Defining the Nice value to anyting but 0 will override"
          " the 'Priority' setting.");
 
-  defvar("coresize", 0, "Limits: Core dump size", TYPE_INT|VAR_MORE,
+  defvar("coresize", 0, "Limits: Core dump size", TYPE_INT,
 	 "The maximum size of a core-dump, in 512 byte blocks."
 	 " -2 is unlimited.");
 
-  defvar("maxtime", 60, "Limits: Maximum CPU time", TYPE_INT_LIST|VAR_MORE,
+  defvar("maxtime", 60, "Limits: Maximum CPU time", TYPE_INT_LIST,
 	 "The maximum CPU time the script might use in seconds. -2 is unlimited.",
 	 ({ -2, 10, 30, 60, 120, 240 }));
 
-  defvar("datasize", -2, "Limits: Memory size", TYPE_INT|VAR_EXPERT,
+  defvar("datasize", -2, "Limits: Memory size", TYPE_INT,
 	 "The maximum size of the memory used, in Kb. -2 is unlimited.");
 
-  defvar("filesize", -2, "Limits: Maximum file size", TYPE_INT|VAR_EXPERT,
+  defvar("filesize", -2, "Limits: Maximum file size", TYPE_INT,
 	 "The maximum size of any file created, in 512 byte blocks. -2 "
 	 "is unlimited.");
 
   defvar("open_files", 64, "Limits: Maximum number of open files",
-	 TYPE_INT_LIST|VAR_MORE,
+	 TYPE_INT_LIST,
 	 "The maximum number of files the script can keep open at any time. "
          "It is not possible to set this value over the system maximum. "
          "On most systems, there is no limit, but some unix systems still "
          "have a static filetable (Linux and *BSD, basically).",
 	 ({64,128,256,512,1024,2048}));
 
-  defvar("stack", -2, "Limits: Stack size", TYPE_INT|VAR_EXPERT,
+  defvar("stack", -2, "Limits: Stack size", TYPE_INT,
 	 "The maximum size of the stack used, in kilobytes. -2 is unlimited.");
+
+  defvar("nproc", 10, "Limits: Max procs", TYPE_INT,
+	 "Maximum nuber of user process.");
 
   defvar("kill_call_out", 0, "Limits: Time before killing scripts",
 	 TYPE_INT_LIST|VAR_MORE,
