@@ -73,7 +73,7 @@ constant __caudium_version__ = "1.3";
 constant __caudium_build__ = "5";
 constant __caudium_state_ver__ = "DEVEL";
 
-// any code may _append_ to this string - NEVER replace it!
+//! any code may _append_ to this string - NEVER replace it!
 string __caudium_extra_ver__ = "";
 
 //! The full Caudium version string
@@ -148,6 +148,13 @@ void stop_all_modules()
     conf->stop();
 }
 
+private void co_really_low_shutdown()
+{
+  call_out(really_low_shutdown, 20);
+  if(!_pipe_debug()[0])
+    exit(0);
+}
+
 //! Function that actually shuts down Caudium.
 //!
 //! @param exit_code
@@ -192,13 +199,10 @@ private static void really_low_shutdown(int exit_code)
   // FIXME: This probably doesn't work correctly on threaded servers,
   // since only one thread is left running after the fork().
 #if constant(_pipe_debug)
-  call_out(lambda() {  // Wait for all connections to finish
-             call_out(really_low_shutdown, 20);
-             if(!_pipe_debug()[0]) exit(0);
-           }, 1);
+  call_out(co_really_low_shutdown, 1);
 #endif /* constant(_pipe_debug) */
   call_out(lambda(){ exit(0); }, 600); // Slow buggers..
-  array f=indices(portno);
+  array f = indices(portno);
   for(int i=0; i<sizeof(f); i++)
     catch(destruct(f[i]));
 #else /* !constant(fork) || constant(thread_create) */
@@ -249,7 +253,7 @@ private static void low_shutdown(int exit_type)
     if (exit_type) {
       roxen_perror("Restarting Caudium.\n");
     } else {
-      roxen_perror("Shutting down Caudium.\n");
+      roxen_perror("Shutting Caudium down.\n");
 
       // This has to be refined in some way. It is not all that nice to do
       // it like this (write a file in /tmp, and then exit.)  The major part
@@ -310,7 +314,7 @@ void shut_down_cache() {
 
 void cache_shutdown_failled() {
   write("***WARNING***\n\n");
-  write("Caudium was able to cleanly shutdown the cache.\n");
+  write("Caudium was not able to cleanly shutdown the cache.\n");
   write("You may have to manually clean %s.\n", QUERY(cachedir));
   exit(1);
 }
@@ -328,6 +332,7 @@ mapping shutdown()
     "PWD":getcwd()]));
 }
 
+// non-RIS
 static void create_js_context()
 {
 #if constant(SpiderMonkey.Context)
@@ -361,8 +366,8 @@ static int shutting_down;
 private static void accept_callback( object port )
 {
   object file;
-  int q=QUERY(NumAccept);
-  array pn=portno[port];
+  int    q = QUERY(NumAccept);
+  array  pn = portno[port];
   
 #ifdef DEBUG
   if (!pn) {
@@ -439,6 +444,7 @@ function handle = unthreaded_handle;
  */
 #ifdef THREADS
 
+//! Creates a handler thread
 object do_thread_create(string id, function f, mixed ... args)
 {
   object t = thread_create(f, @args);
@@ -542,6 +548,8 @@ void stop_handler_threads()
 }
 
 mapping accept_threads = ([]);
+//! A thread which accepts all the incoming connections and hands the
+//! connection over to the associated protocol module.
 void accept_thread(object port,array pn)
 {
   accept_threads[port] = this_thread();
@@ -563,8 +571,6 @@ void accept_thread(object port,array pn)
 }
 
 #endif /* THREADS */
-
-
 
 //! Listen to a port, connected to the configuration 'conf', binding
 //! only to the netinterface 'ether', using 'requestprogram' as a
@@ -644,25 +650,24 @@ object create_listen_socket(mixed port_no, object conf,
 }
 
 
-// The configuration interface is loaded dynamically for faster
-// startup-time, and easier coding in the configuration interface (the
-// Caudium environment is already finished when it is loaded)
+//! The configuration interface is loaded dynamically for faster
+//! startup-time, and easier coding in the configuration interface (the
+//! Caudium environment is already finished when it is loaded)
 object configuration_interface_obj;
 int loading_config_interface;
 int enabling_configurations;
 
+//! The CIF loader.
 object configuration_interface()
 {
   if(enabling_configurations)
     return 0;
-  if(loading_config_interface)
-  {
+  if(loading_config_interface) {
     perror("Recursive calls to configuration_interface()\n"
            + describe_backtrace(backtrace())+"\n");
   }
   
-  if(!configuration_interface_obj)
-  {
+  if (!configuration_interface_obj) {
     perror("Loading configuration interface.\n");
     loading_config_interface = 1;
     object e = ErrorContainer();
@@ -687,7 +692,7 @@ object configuration_interface()
   return configuration_interface_obj;
 }
 
-// Unload the configuration interface
+//! Unload the configuration interface
 void unload_configuration_interface()
 {
   report_notice("Unloading the configuration interface\n");
@@ -702,7 +707,6 @@ void unload_configuration_interface()
 
 
 // Create a new configuration from scratch.
-
 // 'type' is as in the form. 'none' for a empty configuration.
 int add_new_configuration(string name, string type)
 {
@@ -748,7 +752,7 @@ int start_time;
 
 string version()
 {
-  return QUERY(identversion) ? real_version:"Caudium";
+  return QUERY(identversion) ? real_version : "Caudium";
 }
 
 // The db for the nice '<if supports=..>' tag.
@@ -869,6 +873,8 @@ public void initiate_supports()
 
 array _new_supports = ({});
 
+//! The close callback for the supports update transaction. It processes the
+//! received data and stores it locally in the supports file.
 void done_with_caudium_net()
 {
   string new, old;
@@ -899,6 +905,7 @@ void done_with_caudium_net()
 #endif
 }
 
+//! read callback for the supports data transaction.
 void got_data_from_caudium_net(object this, string foo)
 {
   if (!foo)
@@ -906,6 +913,8 @@ void got_data_from_caudium_net(object this, string foo)
   _new_supports += ({ foo });
 }
 
+//! connection callback for the supports data transaction. Sets up the
+//! non-blocking mode on the socket over which the data is sent.
 void connected_to_caudium_net(object port)
 {
   if(!port) {
@@ -933,7 +942,10 @@ void connected_to_caudium_net(object port)
                         done_with_caudium_net);
 }
 
-public void update_supports_from_caudium_net()
+//! This is called periodically to check whether the supports update server
+//! has anything new for the local server. If so, a connection is initiated
+//! to fetch the new supports data from caudium.net.
+void update_supports_from_caudium_net()
 {
   // FIXME:
   // This code has a race-condition, but it only occurs once a week...
@@ -953,9 +965,8 @@ public void update_supports_from_caudium_net()
   call_out(update_supports_from_caudium_net, QUERY(next_supports_update)-time());
 }
 
-// Return a list of 'supports' values for the current connection.
-
-public multiset find_supports(string from, void|multiset existing_sup)
+//! Return a list of 'supports' values for the current connection.
+multiset find_supports(string from, void|multiset existing_sup)
 {
   multiset (string) sup =  (< >);
   multiset (string) nsup = (< >);
@@ -999,7 +1010,8 @@ public multiset find_supports(string from, void|multiset existing_sup)
   return sup|existing_sup;
 }
 
-public void log(mapping file, object request_id)
+//! Pass the log request down to the current request configuration object. 
+void log(mapping file, object request_id)
 {
   if (!request_id->conf)
     return; 
@@ -1028,6 +1040,7 @@ private void restore_current_user_id_number()
 #endif
 }
 
+//! Increase the unique user id.
 int increase_id()
 {
   if (!current_user_id_file) {
@@ -1046,7 +1059,8 @@ int increase_id()
   return current_user_id_number;
 }
 
-public string full_status()
+//! Return the full server status.
+string full_status()
 {
   int     tmp;
   string  res = "";
@@ -1181,7 +1195,7 @@ private object find_configuration_for(object bar)
 }
 
 // FIXME  
-public string|array type_from_filename( string|void file, int|void to )
+string|array type_from_filename( string|void file, int|void to )
 {
   throw(({ "Please use id->conf->type_from_filename instead.", backtrace() }));
   return "Blah.";
@@ -1200,12 +1214,12 @@ COMPAT_ALIAS(is_file);
 COMPAT_ALIAS(userinfo);
 /*@PIKEPARSER_HACK_END@*/
 
-public mapping|int get_file(object id, int|void no_magic)
+mapping|int get_file(object id, int|void no_magic)
 {
   return id->conf->get_file(id, no_magic);
 }
 
-public mixed try_get_file(string s, object id, int|void status, int|void nocache)
+mixed try_get_file(string s, object id, int|void status, int|void nocache)
 {
   return id->conf->try_get_file(s,id,status,nocache);
 }
@@ -1226,8 +1240,7 @@ static string MKPORTKEY(array(string) p)
   }
 }
 
-// Is this only used to hold the config-ports?
-// Seems like it. Changed to a mapping.
+//! Holds all the information about the config ports.
 private mapping(string:object) configuration_ports = ([]);
 
 // Used by openports.pike
@@ -1238,7 +1251,6 @@ array(object) get_configuration_ports()
 
 string docurl;
 
-// I will remove this in a future version of caudium.
 mapping my_loaded = ([]);
 string last_module_name;
 
@@ -1252,6 +1264,17 @@ string filename(object|program o)
 // ([ filename:stat_array ])
 mapping(string:array) module_stat_cache = ([]);
 
+//! (Re)loads the specified source file in the context of the passed
+//! configuration object.
+//!
+//! @param s
+//!  Base name of the source file to reload.
+//!
+//! @param conf
+//!  The configuration object.
+//!
+//! @returns
+//!  The (re)loaded program's instance.
 object load(string s, object conf)   // Should perhaps be renamed to 'reload'. 
 {
   string   cvs;
@@ -1301,6 +1324,21 @@ array(string) expand_dir(string d)
 
 array(string) last_dirs=0, last_dirs_expand;
 
+//! Load a module from one of the specified directories. The function
+//! traverses the directories recursively.
+//!
+//! @param dirs
+//!  An array of directories to traverse.
+//!
+//! @param f
+//!  A file name to look for in all the directories (without the
+//!  extension).
+//!
+//! @param conf
+//!  The configuration object.
+//!
+//! @returns
+//!  The instantiated program or 0 on failure.
 object load_from_dirs(array dirs, string f, object conf)
 {
   string dir;
@@ -1350,6 +1388,7 @@ void restart_if_stuck (int force)
 #endif
 }
 
+//! Start the cache subsystem.
 void cache_start() {
   switch(QUERY(cache_storage_type)) {
   case "Disk":
@@ -1380,6 +1419,7 @@ void post_create () {
   }
 }
 
+//! Create the caudium object.
 void create()
 {
   ::create();
@@ -1429,12 +1469,11 @@ private string get_my_url()
   return "http://" + s + "/";
 }
 
-// Set the uid and gid to the ones requested by the user. If the sete*
-// functions are available, and the define SET_EFFECTIVE is enabled,
-// the euid and egid is set. This might be a minor security hole, but
-// it will enable caudium to start CGI scripts with the correct
-// permissions (the ones the owner of that script have).
-
+//! Set the uid and gid to the ones requested by the user. If the sete*
+//! functions are available, and the define SET_EFFECTIVE is enabled,
+//! the euid and egid is set. This might be a minor security hole, but
+//! it will enable caudium to start CGI scripts with the correct
+//! permissions (the ones the owner of that script have).
 int set_u_and_gid()
 {
   string u, g;
@@ -1563,11 +1602,6 @@ int set_u_and_gid()
 
 static mapping __vars = ([ ]);
 
-// These two should be documented somewhere. They are to be used to
-// set global, but non-persistent, variables in Caudium. By using
-// these functions modules can "communicate" with one-another. This is
-// not really possible otherwise.
-
 //! Set a global (non-persistent, though) variable. This mechanism,
 //! together with the @[query_var()] function, can be
 //! used to implement poor man's inter-module communication.
@@ -1609,6 +1643,7 @@ mixed query_var(string var)
   return __vars[var];
 }
 
+//! Reload all the configurations from disk.
 void reload_all_configurations()
 {
   object conf;
@@ -1686,6 +1721,13 @@ void reload_all_configurations()
   }
 }
 
+//! Enable the specified configuration.
+//!
+//! @param name
+//!  Name of the configuration to enable.
+//!
+//! @returns
+//!  An object corresponding to the enabled configuration.
 object enable_configuration(string name)
 {
   object cf = Configuration(name);
@@ -1775,6 +1817,7 @@ int range_disabled_p() { return !QUERY(EnableRangeHandling);  }
 int storage_disk_p() { return QUERY(storage_type)!="MySQL"; }
 int storage_mysql_p() { return QUERY(storage_type)!="Disk"; }
 
+//! Handles all image caching throughout Caudium.
 class ImageCache
 {
 
@@ -2772,8 +2815,7 @@ private void define_global_variables(int argc, array (string) argv)
     docurl=QUERY(docurl2);
 }
 
-// Get the current domain. This is not as easy as one could think.
-
+//! Get the current domain. This is not as easy as one could think.
 string get_domain(int|void l)
 {
   array f;
@@ -2836,10 +2878,9 @@ string get_domain(int|void l)
 }
 
 
-// Somewhat misnamed, since there can be more then one
-// configuration-interface port nowdays. But, anyway, this function
-// opens and listens to all configuration interface ports.
-
+//! Somewhat misnamed, since there can be more then one
+//! configuration-interface port nowdays. But, anyway, this function
+//! opens and listens to all configuration interface ports.
 void initiate_configuration_port( int|void first )
 {
   object o;
