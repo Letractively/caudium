@@ -296,7 +296,7 @@ array type_from_filename(string filename) {
       string _enc = tmp[sizeof(tmp)-1];
       string _ext = tmp[sizeof(tmp)-2];
 
-      if( knows_encs[_enc] && known_exts[_ext] ) {
+      if( known_encs[_enc] && known_exts[_ext] ) {
         // here, both encodings and extensions exist, so act accordingly:
         retval[ 0 ] = extensions[_ext];
         retval[ 1 ] = encodings[_enc];
