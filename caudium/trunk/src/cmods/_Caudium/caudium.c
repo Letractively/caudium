@@ -47,6 +47,7 @@ RCSID("$Id$");
 #endif
 
 #include "caudium.h"
+#include "datettime.h"
 
 static_strings strs;
 
@@ -1434,6 +1435,8 @@ void pike_module_init( void )
                          "function(string,int:string)", 0);
 #endif
 
+  init_datetime();
+  
   start_new_program();
   ADD_STORAGE( buffer );
   add_function( "append", f_buf_append,
