@@ -21,6 +21,9 @@
  * TODO: documentation
  * TODO: remove all debugging code
  * TODO: clean the code up
+ *
+ * BUGS: test 13 fails. week 15 is active, it shouldn't be.
+ * BUGS: all tests with after/before mark week 50 as active.
  */
 
 constant cvs_version="$Id$";
