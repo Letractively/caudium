@@ -186,8 +186,8 @@ class DocGen
 	if (a->def && strlen(a->def))
 	  ret += " default=\""+a->def+"\"";
 	ret += ">\n\t\t";
-	if (a->description)
-	  ret += a->description;
+	if (a->contents)
+	  ret += a->contents;
 	else
 	  ret += "NO DESCRIPTION";
 	ret += "\n\t</attribute>\n\n";
