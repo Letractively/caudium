@@ -1,3 +1,28 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2002 The Caudium Group
+ * Copyright © 1994-2001 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+constant storage_type    = "MySQL";
+constant storage_doc     = "Please enter the SQL URL for the mysql server you would like "
+                            "to store data in.";
+constant storage_default = "mysql://localhost/caudium";
 
 #ifdef THREADS
 static Thread.Mutex mutex = Thread.Mutex();
@@ -90,12 +115,6 @@ static object init_tables() {
       "  UNIQUE KEY storage (namespace, dkey)\n"
       ")"
     );
-  else
-    db->query("delete from storage where pike_version != %s", version);
-}
-
-string name() {
-  return "MySQL";
 }
 
 int size(string namespace) {
