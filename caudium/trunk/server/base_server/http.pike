@@ -352,6 +352,26 @@ string http_encode_string(string f)
 }
 
 /*
+**! method: string http_decode_string(string s)
+**!   HTTP decode the specified string and return it. This means replacing
+**!   the following characters from the %XX format: null (char 0), space, tab,
+**!   carriage return, newline, percent and single and double quotes.
+**! arg: string s
+**!   The string to decode.
+**! returns:
+**!   The HTTP decoded string.
+**! name: http_decode_string - HTTP decode a string
+*/
+string http_decode_string(string f)
+{
+  return
+    replace(f,
+	    ({ "%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22",
+	      "%3c", "%3e", "%40" }),
+            ({ "\000", " ", "\t", "\n", "\r", "%", "'", "\"", "<", ">", "@" }));
+}
+
+/*
 **! method: string http_encode_cookie(string s)
 **!   Encode the specified string in as to the HTTP cookie standard.
 **!   The following characters will be replaced: = , ; % :
@@ -387,6 +407,28 @@ string http_encode_url (string f)
 	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
 	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40"
 	     }));
+}
+
+/*
+**! method: string http_decode_url(string s)
+**!   URL decode the specified string and return it. This means replacing
+**!   the following characters from the %XX format: null (char 0), space, tab,
+**!   carriage return, newline, and % ' " # &amp; ? = / : +
+**! arg: string s
+**!   The string to decode.
+**! name: http_decode_url - URL decode a string
+**! returns:
+**!   The URL decoded string.
+*/
+string http_decode_url (string f)
+{
+  return
+    replace (f,
+	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
+	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40"
+	     }),
+	     ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
+	       "&", "?", "=", "/", ":", "+", "<", ">", "@" }));
 }
 
 /*
