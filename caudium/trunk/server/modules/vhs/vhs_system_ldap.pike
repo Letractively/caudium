@@ -29,6 +29,13 @@
  *
  */
 
+//! module: VHS - Virtual Hosting System - SQL
+//!  Basic Virtual Hosting module (LDAP)
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_PRECACHE
+//! cvs_version: $Id$
+
 constant cvs_version = "$Id$";
 constant thread_safe = 1;
 
@@ -240,8 +247,8 @@ string ldap_getvirt(string hostname, object id)
                        			       vpath + QUERY(cgidir),
                        			       vpath + QUERY(logdir),
                        			       vpath,
-                       			       (int)res->uidNumber[0],
-                       			       (int)res->gidNumber[0],
+                       			       (int)res->uidNumber[0]||QUERY(defaultuid),
+                       			       (int)res->gidNumber[0]||QUERY(defaultgid),
                        			       QUERY(ttl_positive));
     
          return vpath;
@@ -358,34 +365,40 @@ string find_nearest_virt(string name)
 void create()
 {
   defvar("ldap_url", "ldap://localhost/dc=none",
-         "LDAP: database URL", TYPE_STRING,
+         "LDAP:database URL", TYPE_STRING,
 	 "LDAP database with virtuals data.");
 
-  defvar("ldap_reconnect", 1800, "LDAP: Reconnect interval", TYPE_INT,
+  defvar("ldap_reconnect", 1800, "LDAP:Reconnect interval", TYPE_INT,
          "Time since last query to reconnect to ldap.");
 
-  defvar("ldap_max_err", 10, "LDAP: Max connection attempts", TYPE_INT,
+  defvar("ldap_max_err", 10, "LDAP:Max connection attempts", TYPE_INT,
          "Caudium try to connect to LDAP n times, and return error.");
 
   defvar("bind_dn", "cn=readonly,ou=adm,dc=none",
-         "LDAP: Bind DN", TYPE_STRING,
+         "LDAP:Bind DN", TYPE_STRING,
 	 "Bind DN");
 
   defvar("base_dn", "ou=caudium,dc=none",
-         "LDAP: Base DN", TYPE_STRING,
+         "LDAP:Base DN", TYPE_STRING,
 	 "DN with virtuals data.");
 
-  defvar("bind_pw", "secret", "LDAP: Bind password", TYPE_STRING,
+  defvar("bind_pw", "secret", "LDAP:Bind password", TYPE_STRING,
          "Password used to bind");
 
-  defvar("host_query", "(wwwDomain=%s)", "LDAP: Query", TYPE_STRING,
+  defvar("host_query", "(wwwDomain=%s)", "LDAP:Query", TYPE_STRING,
          "LDAP query used to get virtual data");
 
-  defvar("proto_ver", 2, "LDAP: Protocol version", TYPE_INT,
-         "Which LDAP protocol version use to bind");
+  defvar("proto_ver", 2, "LDAP:Protocol version", TYPE_INT_LIST,
+         "Which LDAP protocol version use to bind", ({ 2, 3}) );
 
-  defvar("ttl_reconnect", 600, "LDAP: LDAP connection TTL", TYPE_INT,
+  defvar("ttl_reconnect", 600, "LDAP:LDAP connection TTL", TYPE_INT,
 	 "Time since last LDAP query to reconnect.");
+
+  defvar("defaultuid", 65534, "LDAP:Default User ID", TYPE_INT,
+         "Default user id");
+
+  defvar("defaultgid", 65534, "LDAP:Default Group ID", TYPE_INT,
+         "Default group id");
 
   defvar("defvirtual", "default.domain.com", "Default virtual name", TYPE_STRING,
 	 "Redirect to this virtual, if no valid.");
@@ -528,47 +541,57 @@ string status()
 //! defvar: ldap_url
 //! LDAP database with virtuals data.
 //!  type: TYPE_STRING
-//!  name: LDAP: database URL
+//!  name: LDAP:database URL
 //
 //! defvar: ldap_reconnect
 //! Time since last query to reconnect to ldap.
 //!  type: TYPE_INT
-//!  name: LDAP: Reconnect interval
+//!  name: LDAP:Reconnect interval
 //
 //! defvar: ldap_max_err
 //! Caudium try to connect to LDAP n times, and return error.
 //!  type: TYPE_INT
-//!  name: LDAP: Max connection attempts
+//!  name: LDAP:Max connection attempts
 //
 //! defvar: bind_dn
 //! Bind DN
 //!  type: TYPE_STRING
-//!  name: LDAP: Bind DN
+//!  name: LDAP:Bind DN
 //
 //! defvar: base_dn
 //! DN with virtuals data.
 //!  type: TYPE_STRING
-//!  name: LDAP: Base DN
+//!  name: LDAP:Base DN
 //
 //! defvar: bind_pw
 //! Password used to bind
 //!  type: TYPE_STRING
-//!  name: LDAP: Bind password
+//!  name: LDAP:Bind password
 //
 //! defvar: host_query
 //! LDAP query used to get virtual data
 //!  type: TYPE_STRING
-//!  name: LDAP: Query
+//!  name: LDAP:Query
 //
 //! defvar: proto_ver
 //! Which LDAP protocol version use to bind
-//!  type: TYPE_INT
-//!  name: LDAP: Protocol version
+//!  type: TYPE_INT_LIST
+//!  name: LDAP:Protocol version
 //
 //! defvar: ttl_reconnect
 //! Time since last LDAP query to reconnect.
 //!  type: TYPE_INT
-//!  name: LDAP: LDAP connection TTL
+//!  name: LDAP:LDAP connection TTL
+//
+//! defvar: defaultuid
+//! Default user id
+//!  type: TYPE_INT
+//!  name: LDAP:Default User ID
+//
+//! defvar: defaultgid
+//! Default group id
+//!  type: TYPE_INT
+//!  name: LDAP:Default Group ID
 //
 //! defvar: defvirtual
 //! Redirect to this virtual, if no valid.
