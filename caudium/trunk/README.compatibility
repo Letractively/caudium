@@ -24,6 +24,8 @@ Summary of Incompatible Changes
   EXTRA_ROXEN_COMPAT to renable).
 - spinnerlib is removed (Spinner compat not deemed necessary).
 - RoxenUserID cookie renamed to CaudiumUserID.
+- New module type added, MODULE_PRECACHE. Doesn't break any Roxen
+  modules, but aren't Roxen compatible
 
 Summary of Other Changes
 ========================
