@@ -160,10 +160,6 @@ mapping http_pipe_in_progress()
   return ([ "file":-1, "pipe":1, ]);
 }
 
-static string parse_rxml(string what, object id,
-			 void|object file, 
-			 void|mapping defines);
-
 //!   Convenience function to use in Caudium modules and Pike scripts. When you
 //!   just want to return a string of data, with an optional type, this is the
 //!   easiest way to do it if you don't want to worry about the internal
