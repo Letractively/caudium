@@ -20,7 +20,7 @@
  */
 
 /* From: Tvns B|ker <bueker@bidnix.bid.fh-hannover.de> 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
    Subject: New 'german.lpc' ...
  
    Hi,

@@ -24,7 +24,7 @@
 //! Caudium mainconfig object
 
 inherit "config/builders";
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 //inherit "caudiumlib";
 
 inherit "config/draw_things";

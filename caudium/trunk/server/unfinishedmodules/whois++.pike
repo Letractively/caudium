@@ -21,7 +21,7 @@
 
 // Experimental whois++ *client* module
 // Written by Pontus Hagland <law@idonex.se>
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 
 inherit "module";

@@ -35,7 +35,7 @@
  *		thanks to Attila Toth <cirby@rosvig.hu> 
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 import ".";
 inherit english;

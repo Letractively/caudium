@@ -26,7 +26,7 @@
  * doc = "Main part of the install script that is run upon installation of caudium";
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 import Stdio;
 

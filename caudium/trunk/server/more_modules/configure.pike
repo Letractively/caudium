@@ -30,7 +30,7 @@
 //! cvs_version: $Id$
 //
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 /*
  * Mounts the configuration interface on a location in the virtual
  * filesystem.

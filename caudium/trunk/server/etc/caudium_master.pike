@@ -25,7 +25,7 @@
 //! Caudium master, replacing the default Pike master.
 //! $Id$
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 mapping names=([]);
 int unique_id=time();

@@ -24,7 +24,7 @@
  * doc = "Handles the conversion of numbers and dates to Swedish. You have to restart the server for updates to take effect.";
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 string month(int num)
 {
   return ({ "januari", "februari", "mars", "april", "maj",

@@ -22,7 +22,7 @@
 
 //! This module implements parsing and management of the flatfile configs on
 //! the local filesystem.
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #define FORMAT_OLD  0
 #define FORMAT_XML  1

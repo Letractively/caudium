@@ -35,7 +35,7 @@
 //! cvs_version: $Id$
 //! inherits: module
 //! inherits: caudiumlib
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #include <module.h>
 #include <config.h>

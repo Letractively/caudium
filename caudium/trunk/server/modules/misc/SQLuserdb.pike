@@ -37,7 +37,7 @@
  * or should have been shipped along with the module.
  */
 
-string cvs_version="$Id$";
+constant cvs_version="$Id$";
 
 //#define SQLAUTHDEBUG
 

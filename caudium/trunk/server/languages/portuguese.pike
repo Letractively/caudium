@@ -27,7 +27,7 @@
  * doc = "Handles the conversion of numbers and dates to Portuguese. You have to restart the server for updates to take effect. Translation by cjsawaia@8415.com.br";
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
  
 string month(int num)
 {

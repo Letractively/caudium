@@ -31,7 +31,7 @@
 // Support for the FastCGI interface, using an external fast-cgi
 // wrapper. This should be handled internally.
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #include <module.h>
 inherit "modules/scripting/oldcgi";

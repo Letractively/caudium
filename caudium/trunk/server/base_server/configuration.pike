@@ -22,7 +22,7 @@
  * $Id$
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
 #ifdef PROFILE

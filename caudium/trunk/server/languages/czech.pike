@@ -33,7 +33,7 @@
              		(First letter must be lower case)
 
 */
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 string month(int num)
 {
   return ({ "ledna", "února", "bøezna", "dubna", "kvìtna",

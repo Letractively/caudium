@@ -25,7 +25,7 @@
 
 inherit "http";
 
-// static string _cvs_version = "$Id$";
+// constant _cvs_version = "$Id$";
 // This code has to work both in the roxen object, and in modules
 #if !constant(caudium)
 #define caudium caudiump()

@@ -25,7 +25,7 @@
  * doc = "This is the proxy garbage collector";
  */
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 //#define DEBUG
 #pike 7.0

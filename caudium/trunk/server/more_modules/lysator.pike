@@ -27,7 +27,7 @@
 //! cvs_version: $Id$
 //
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 /* Lysator specific parsing, used at www.lysator.liu.se */
 
 #include <config.h>

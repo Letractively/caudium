@@ -38,7 +38,7 @@ inherit "caudiumlib";
 // written by Leif Stensson for Roxen Webserver. Ported to Caudium
 // by Jan Legenhausen and David Hedbor. 
 
-string cvs_version =
+constant cvs_version =
        "$Id$";
 
 constant module_type = MODULE_EXPERIMENTAL|MODULE_FILE_EXTENSION|MODULE_PARSER;

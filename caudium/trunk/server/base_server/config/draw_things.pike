@@ -27,7 +27,7 @@
 
 #include <module.h>
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 //!
 Image.image load_image(string f)

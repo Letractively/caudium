@@ -31,7 +31,7 @@
 
 #ifndef IN_INSTALL
 inherit "newdecode";
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #else
 import spider;
 # define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)

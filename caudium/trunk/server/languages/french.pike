@@ -21,7 +21,7 @@
 
 /*
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 Created by:
 
 ---------------------+--------------------------------------------------

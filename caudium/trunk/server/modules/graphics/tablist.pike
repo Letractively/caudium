@@ -32,7 +32,7 @@
 //
 
 /* The Tab lists tag module. */
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 
 inherit "module";
