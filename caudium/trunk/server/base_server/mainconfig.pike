@@ -1362,7 +1362,8 @@ mapping configuration_parse(object id)
 
       if (t && sizeof(t) >= 3)
         do_netcraft = sprintf(ncurl, t[2]);
-    }
+    } else if (id->variables && id->variables->forgetit)
+      do_netcraft = "";
   }
   
   // Permission denied by userid?
@@ -1819,7 +1820,8 @@ mapping configuration_parse(object id)
     if (stringp(do_netcraft) && sizeof(do_netcraft)) {
       save_it(id, o); // so that the user doesn't have to do it :>
       return http_redirect(do_netcraft);
-    }
+    } else if (stringp(do_netcraft) && !sizeof(do_netcraft))
+      save_it(id, o);
     
     return std_redirect(o, id);
   }
