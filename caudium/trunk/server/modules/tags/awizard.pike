@@ -3,6 +3,47 @@ inherit "module";
 
 string cvs_version = "$Id$";
 
+//! module: Advanced Wizard
+//!  This module contains code that implements advanced wizard interface. You can
+//!  use this module to create versatile wizard-based user dialogs.
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+//! tag: awizard
+//!  Defines a new wizard.
+//! attribute: title
+//!  Set title of the new wizard.
+//
+//! container: page
+//!  Creates a new wizard page.
+//! attribute: name
+//!  Optional attribute to set the page name.
+//
+//! container: verify
+//!  Code enclosed within that container will be executed when leaving this
+//!  page.
+//
+//! tag: button
+//!  Create a button that, when pressed, will transfer the user to either
+//!  a wizard page or an URL.
+//! attribute: prev
+//!  Go to the previous page when pressed.
+//! attribute: next
+//!  Go to the next page when pressed.
+//! attribute: page = page_name
+//!  Go to the specified page (defined in this awizard) when pressed.
+//! attribute: href = URL
+//!  Go to the specified URL when pressed.
+//! attribute: title = title_text
+//!  Set the button title.
+//! attribute: image = image_URL
+//!  Set the image for the button. If not present, created button will be of the
+//!  'submit' type.
+//
+//! container: ebutton
+//!  The same as the &lt;button&gt; tag, with the exception that the contents of the
+//!  tag is considered to be an RXML code and executed when the button is pressed.
+//
 constant module_type = MODULE_PARSER;
 constant module_name = "Advanced Wizards";
 constant module_doc  = "<B>Advanced Wizards module</b><p><br>\n"
