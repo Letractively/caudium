@@ -1,4 +1,4 @@
-caudium (2:1.2.31-5) unstable; urgency=low
+caudium (2:1.2.31-5) unstable; urgency=high
 
   * Recompiled to match the latest Pike 7.2 version
 
