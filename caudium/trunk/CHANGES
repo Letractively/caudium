@@ -1,2 +1,4 @@
 Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
+- Added embedded Perl script / perl tag support from Roxen, originally
+  ported to Caudium by Jan Legenhausen.
