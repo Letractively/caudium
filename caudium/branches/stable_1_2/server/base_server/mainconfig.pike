@@ -466,7 +466,7 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
    case TYPE_DIR_LIST:
     array foo;
     foo=Array.map((var-" ")/",", lambda(string var, object node) {
-      if (!strlen( var ) || Stdio.file_size( var ) != -2)
+      if (!strlen( var ) || !Stdio.is_dir(var))
       {
 	if(node->error)	
 	  node->error += ", " +var + " is not a directory";
@@ -485,7 +485,7 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
     
    case TYPE_DIR:
     array st;
-    if (!strlen( var ) || !(st = file_stat( var )) || (st[1] != -2))
+    if (!strlen( var ) || !Stdio.is_dir(var))
     {
       node->error = var + " is not a directory";
       return 0;
@@ -494,6 +494,13 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
       return var + "/";
     return var;
     
+   case TYPE_EXISTING_FILE:
+     if (!strlen(var) || !Stdio.is_file(var)) {
+       node->error = "the file \"" +var + "\" cannot be found";
+       return 0;
+     }
+     return var;
+
    case TYPE_TEXT_FIELD:
     var -= "\r";
    case TYPE_FONT:

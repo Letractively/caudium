@@ -173,6 +173,7 @@ void defvar(string|void var, mixed|void value, string|void name,
 
   case TYPE_TEXT_FIELD:
   case TYPE_FILE:
+  case TYPE_EXISTING_FILE:
   case TYPE_STRING:
   case TYPE_LOCATION:
   case TYPE_PASSWORD:
