@@ -610,7 +610,7 @@ array (function) last_modules(object id)
 //!   Non RIS calls
 array (function) error_modules(object id)
 {
-  if(!error_module_cache)
+if(!error_module_cache)
   {  
     int i;
     error_module_cache=({ });
@@ -620,8 +620,8 @@ array (function) error_modules(object id)
       array(object) d;
       if(d=pri[i]->error_modules)
         foreach(d, p)
-          if(p->last_resort)
-            error_module_cache += ({ p->last_resort });
+          if(p->handle_error)
+            error_module_cache += ({ p->handle_error });
     }  
   } 
   return error_module_cache;
@@ -1838,6 +1838,34 @@ void handle_precache(object id) {
       return;
     }
   }
+}
+
+//! Call the handle_error function in all MODULE_ERROR, if any.
+//! This is done at the end of request if there is nothing from others module
+//!
+//! @params id
+//!   Caudium Object id
+//!
+//! @returns 
+//!   object or data from http_low_answer function or 0 if error
+//!
+//! @note
+//!   Non RIS implementation
+mixed handle_error_request( object id ) {
+  REQUEST_WERR("handle_error_request(): called");
+  mixed out, ret;
+  foreach(error_module_cache||error_modules(id), function funp) {
+    REQUEST_WERR("handle_error_request(): try module");
+    if(ret = funp(id)) break;
+    REQUEST_WERR(sprintf("handle_error_request(): get %O",ret));
+    if(ret == 1) {
+      REQUEST_WERR("handle_error_request(): Recurse");
+      return handle_error_request(id);
+    }
+  } 
+  out = ret;
+  REQUEST_WERR("handle_error_request(): Done");
+  return out;
 }
 
 //! This function handle the request for the server.

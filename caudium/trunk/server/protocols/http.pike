@@ -1390,7 +1390,15 @@ void send_result(mapping|void result)
   if (result) {
     file = result;
   }
-
+  if(!mappingp(file))
+  {
+    // There is no file so calling error
+    tmp = conf->handle_error_request(this_object());
+    roxen_perror(sprintf("error out : %O\n",tmp));
+    if(mappingp(tmp)) 
+      file = (mapping)tmp;
+  }
+ // Old error handler to be removed. 
   if(!mappingp(file))
   {
     MARK_FD("send_result(): not a mapping -> sending error");
