@@ -1,5 +1,10 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fix a problem when Caudium is not running as root : display a warning if 
+  the user tries to run lsof in open ports action tab.
+- The Generate a self signed certificate and a RSA key-pair was not delivering
+  any warning to the user. Now it displays in red on the HTML output.
+- Added a link to the caudium.info website from the CIF.
 - 404 handler is not set per default on Old 404 system. To avoid 1.0 -> 1.2    
   compatiblity and keep the XML-Compliant parser quiet. 
 - Fixed #530674: passive mode FTP connection problem (with Mozilla  
