@@ -30,6 +30,10 @@ tools: force
 src: force
 	@(cd src;$(MAKE) "prefix=$(prefix)" all)
 
+# Verify target
+verify:	src tools
+	@(cd src;$(MAKE) "prefix=$(prefix)" verify)
+
 force:
 	-@$(BIN_TRUE)
 

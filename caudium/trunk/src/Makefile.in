@@ -9,6 +9,9 @@ all: @DIRS@
 force:
 	@:
 
+verify: cmods
+	( cd cmods && $(MAKE) $(MAKE_FLAGS) verify)
+
 cmods: force
 	( cd $@ && $(MAKE) $(MAKE_FLAGS))
 tools: force
