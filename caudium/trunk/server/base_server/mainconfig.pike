@@ -1015,7 +1015,7 @@ int low_enable_configuration(string name, string type)
 //!
 mapping new_configuration(object id)
 {
-  if(!sizeof(id->variables))
+  if(!sizeof(id->variables - id->empty_variables))
     return stores(new_configuration_form());
   if(id->variables->no)
     return Caudium.HTTP.redirect(CONFIG_URL+id->not_query[1..]+"?"+bar++);
