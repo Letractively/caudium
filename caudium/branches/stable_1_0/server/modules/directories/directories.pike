@@ -460,22 +460,12 @@ mapping parse_directory(object id)
   mapping got;
   f=id->not_query;
 
-// If this prestate is set, do some folding/unfolding.
+  // If this prestate is set, do some folding/unfolding.
   if(!id->prestate->diract) 
   { 
-    if(strlen(f) > 1) // I check the last two characters.
-    {
-      if(!((f[-1] == '/') || ( (f[-1] == '.') && (f[-2] == '/') )))
-	return http_redirect(id->not_query+"/", id);
-    } else {
-      if(f != "/" )
-	return http_redirect(id->not_query+"/", id);
-    }
+    if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
+      return http_redirect(id->not_query+"/", id);
       
-    /* If the pathname ends with '.', and the 'override' variable
-     * is set, a directory listing should be sent instead of the
-     * indexfile.
-     */
     old_file = id->not_query;
     if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
     foreach(query("indexfiles")-({""}), file) // Make recursion impossible
