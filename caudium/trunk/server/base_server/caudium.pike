@@ -411,7 +411,7 @@ private static void accept_callback( object port )
             if (!shutting_down) {
               shutting_down=1;
               report_fatal("Out of sockets (%d active). Restarting server gracefully.\n",
-                           sizeof(get_all_active_fd()));
+                           sizeof(spider.get_all_active_fd()));
               low_shutdown(-1);
             }
             return;

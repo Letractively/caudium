@@ -73,7 +73,7 @@ string page_0()
      sprintf("<pre><b>%-5s  %-9s  %-10s   %-10s   %s</b>\n\n",
 	     "fd", "type", "mode", "size", "inode")+
 	     
-     (Array.map(get_all_active_fd(),
+     (Array.map(spider.get_all_active_fd(),
 	  lambda(int fd) 
 	  {
 	    string fdc = 
