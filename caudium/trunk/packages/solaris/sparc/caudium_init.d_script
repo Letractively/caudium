@@ -29,7 +29,13 @@ umask 022
 # disabling threads.
 # 
 # flags="--without-threads"
-flags="--with-threads --with-keep-alive"
+flags="--with-threads --with-keep-alive --log-dir=/var/httpd/logs"
+
+### Check if variable directory exist
+if [ ! -d /var/httpd ]
+then
+   mkdir /var/httpd
+fi
 
 ### Check if that caudium is configured...
 if [ ! -f /usr/local/caudium/caudium/configurations/Global_Variables ]
