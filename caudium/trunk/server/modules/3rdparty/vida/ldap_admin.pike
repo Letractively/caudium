@@ -792,7 +792,7 @@ mapping getfullinformation(object con, string uid)
           throw ( ({ sprintf("LDAP Search for '%s' failed: %s",
                              filter, con->error_string()), backtrace() }) );
       else
-          throw ( ({ sprintf("User '%s' not found in LDAP", uid),
+          throw ( ({ sprintf("User '%O' not found in LDAP", uid),
                      backtrace() }));
   }
   
@@ -986,7 +986,9 @@ void rchown(string dir, int uid, int gid)
     type = file_stat(dir + filename);
     if((type != 0) && (type[1] == -2))
       rchown(dir + filename, uid, gid);
-    chown(dir + filename, uid, gid);
+    // problem when file pointed by a link doesn't exist
+    if(type[1] != -3)
+      chown(dir + filename, uid, gid);
   }
 }
 
@@ -1096,7 +1098,7 @@ string showupdateinputs(object id, mapping defines)
   if(strlen(QUERY(updaterequireauth)[0]) > 0)
   {
     //TODO: use a select box to list logins in currentgidnumber
-    inputs_to = ({ "<input type=\"text\" value=\"fill in user login\" name=\"uid\"", QUERY(location), "will find it", "will find it", "will find it" });
+    inputs_to = ({ "<input type=\"text\" value=\"fill in user login\" name=\"uid\">", QUERY(location), "will find it", "will find it", "will find it" });
     inputs = replace(QUERY(ui_update_input), inputs_from, inputs_to);
     return inputs;
   }
@@ -1171,7 +1173,9 @@ mapping modify(object id, string action)
 	  return http_auth_required("update member user", "Only some users may update");  
         if(isloginexist(con, id->variables->uid) == 0)
           throw ( ({ "You '" + id->variables->uid + "' don't exist, go away!" }) );
-        defines[QUERY(defvaruid)] = id->variables->uid;
+        defines[QUERY(defvaruid)][0] = id->variables->uid;
+	if(QUERY(debug))
+	  write(sprintf("uid=%O\n", defines[QUERY(defvaruid)][0]));
         defines = getfullinformation(con, defines[QUERY(defvaruid)][0]);
         defines["uid"] = defines[QUERY(defvaruid)];
         defines["uidNumber"] = defines[QUERY(defvaruidnumber)];
