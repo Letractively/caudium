@@ -1,3 +1,9 @@
+caudium (1:1.0.8rc1-2) unstable; urgency=low
+
+  * Fixed a bug in the postinst script
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 27 Nov 2000 16:49:46 +0100
+
 caudium (1:1.0.8rc1-1) unstable; urgency=low
 
   * First Release Candidate, now official
