@@ -795,20 +795,25 @@ static void f_parse_entities( INT32 args )
  if (eres->errcode != ENT_ERR_OK)
     switch (eres->errcode) {
         case ENT_ERR_OOM:
-          Pike_error("_Caudium.parse_entities(): Out of memory.\n");
-          break;
+          Pike_error("_Caudium.parse_entities(): out of memory.\n");
 
         case ENT_ERR_INVPARM:
-          Pike_error("_Caudium.parse_entities(): Invalid parameter.\n");
-          break;
+          Pike_error("_Caudium.parse_entities(): invalid parameter.\n");
 
         case ENT_ERR_BUFTOOLONG:
-          Pike_error("_Caudium.parse_entities(): Buffer too long.\n");
-          break;
+          Pike_error("_Caudium.parse_entities(): buffer too long.\n");
+
+        case ENT_ERR_RETBUFTOOLONG:
+          Pike_error("_Caudium.parse_entities(): entity too long after replacement.\n");
 
         case ENT_ERR_INVALIDNAME:
-          Pike_error("_Caudium.parse_entities(): Invalid entity name.\n");
-          break;
+          Pike_error("_Caudium.parse_entities(): invalid entity name.\n");
+	  
+	default: /* I guess a warning for non-fatal errors could be a good thing here/grendel */
+	  if (eres->errcode & 0x80000000)
+	    Pike_error("_Caudium.parse_entities(): unhandled error code 0x%08X returned from ent_parse.\n",
+	               eres->errcode);
+	  break;
     }
 
    /* we've gotten this far, so we were probably successful. */
