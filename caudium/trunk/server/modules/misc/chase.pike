@@ -79,7 +79,7 @@ void create()
 
 mapping query_tag_callers()
 {
-  return (["lucene_search": tag_lucene]);
+  return (["chase_form": tag_chaseform, "chase_results": tag_chaseresults]);
 }
 
 mixed tag_chaseform (string tag_name, mapping args,
@@ -90,7 +90,7 @@ mixed tag_chaseform (string tag_name, mapping args,
   
   retval+="<input type=text size=20 name=q value=\"" + 
     (id->variables->q||"") +  "\">\n";
-  retval+="<input type=submit value=\"Search\">"
+  retval+="<input type=submit value=\"Search\">";
   if(!args->nohelp)
     retval+=" <a href=\"" + id->not_query + "?help=1\">QueryHelp</a>";
   retval+="</form>";
@@ -194,7 +194,7 @@ void start_engine(string name)
   if(profiles[name]->index->stopwordsfile)
     stopwords=Lucene->load_stopwords(profiles[name]->index->stopwordsfile);
 
-  engines[name]=Lucene.Index(profiles[name]->index->location[0]->value, stopwords));
+  engines[name]=Lucene.Index(profiles[name]->index->location[0]->value, stopwords);
 }
 
 #endif
