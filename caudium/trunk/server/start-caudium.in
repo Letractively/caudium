@@ -58,7 +58,6 @@ array(array(string | array(string))) arguments = ({
   ({"gdb", Getopt.MAY_HAVE_ARG, ({"--gdb"}), 0, "gdb"}),
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
-  ({"backgrounded", Getopt.NO_ARG, ({"--backgrounded"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
 });
@@ -127,7 +126,7 @@ mapping(string:string|array) command_line = ([
 mapping watchdog_params = ([ ]);
 
 // a list of valid interpreters we should try to use.
-array valid_interpreters=({"@PIKE@", "bin/caudium", "bin/pike"});
+array valid_interpreters=({"/usr/local/pike/7.5.23/bin/pike", "bin/caudium", "bin/pike"});
 
 // call out for the watchdog
 mixed cs_callout;
@@ -278,7 +277,7 @@ void preamble()
   }
 
   if (go_threads && options->threads) {
-    if(!options->quiet && !options->backgrounded)
+    if(!options->quiet)
       write("%s detected, enabling threads (if available in Pike)\n",
             os_label);
     command_line->DEFINES += ({"ENABLE_THREADS"});
@@ -343,7 +342,9 @@ void preamble()
 
 array parse_arguments(array(string) argv)
 {
-  array(array)  parsed = Getopt.find_all_options(argv, arguments, 0);
+  array(array)  parsed=({});
+  parsed = Getopt.find_all_options(argv, arguments, 0, 0);
+
   argv-=({0});
   if(sizeof(argv)>1) command_line->PROG_OTHER += argv[1..];
   return parsed;
@@ -390,11 +391,14 @@ int main(int argc, array(string) argv)
   if(code) return 0;
 
   preamble();
-  if(!options->once && !options->backgrounded)
+  if(!options->once)
   {
-    Process.create_process(passed_args + ({"--backgrounded"}), (["env": passed_env]));
-    sleep(1);
-    return 0;
+    object havechild = fork();
+    if(havechild)  // are we the parent?
+    {
+      sleep(1);
+      return 0;
+    }
   }
 //  write("options: %O\n", options);
 
