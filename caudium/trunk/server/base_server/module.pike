@@ -665,7 +665,7 @@ string comment()
 string query_internal_location()
 {
   if(!_my_configuration)
-    error("Please do not call this function from create()!\n");
+    error("Please do not call this query_internal_location() function from create()!\n");
   return _my_configuration->query_internal_location(this_object());
 }
 
