@@ -169,7 +169,7 @@ INLINE static int get_next_header(unsigned char *heads, int len,
       return count+1;
     }
   }
-  return 0;
+  return count;
 }
 
 /** Functions implementing Pike functions **/
