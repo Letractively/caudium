@@ -1581,7 +1581,7 @@ void got_data(mixed fdid, string s)
 object clone_me()
 {
   object c,t;
-  c = object_program(t = this_object())(my_fd, conf);
+  c = object_program(t = this_object())();
 
   // c->first = first;
   c->conf = conf;
@@ -1636,7 +1636,7 @@ void clean()
     end();
 }
 
-void create(object f, object c)
+void create(void|object f, void|object c)
 {
   if(f)
   {
