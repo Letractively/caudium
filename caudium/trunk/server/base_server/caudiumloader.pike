@@ -952,10 +952,11 @@ int main(int argc, array(string) argv)
   add_constant("http_decode_string", _Roxen.http_decode_string);
   add_constant("html_encode_string", _Roxen.html_encode_string);
   add_constant("http_encode_string", Caudium.http_encode_string);
-  add_constant("http_encode_cookie", Protocols.HTTP.http_encode_cookie);
-  add_constant("http_date", Caudium.http_date);
+  add_constant("http_encode_cookie", Caudium.http_encode_cookie);
+  add_constant("http_encode_url",    Caudium.http_encode_url);
+  add_constant("http_date",          Caudium.http_date);
   add_constant("html_decode_string", Protocols.HTTP.unentity);
-  add_constant("cern_http_date", Caudium.cern_http_date);
+  add_constant("cern_http_date",     Caudium.cern_http_date);
 #endif
 
   add_constant("mark_fd", mark_fd);

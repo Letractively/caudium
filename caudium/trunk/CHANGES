@@ -1,5 +1,11 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Caudium.http_encode_url() used instead of Pike routine.
+  *COMPAT Warning* Direct calls to http_encode_url() work only when
+  API_COMPAT is set.
+- Caudium.http_encode_cookie() used instead of Pike routine.
+  *COMPAT Warning* Direct calls to http_encode_cookie() work only when
+  API_COMPAT is set.
 - Caudium.http_encode_string() used instead of Pike's base_server/http.pike one.
   *COMPAT Warning* Direct calls to http_encode_string() work only when
   API_COMPAT is set.

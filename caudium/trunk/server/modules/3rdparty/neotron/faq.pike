@@ -8,7 +8,7 @@ inherit "roxenlib";
 #include <module.h>
 
 #define srcencode(x) replace(x, ({ "&", "<", ">", "\"" }),({ "&amp;", "&lt;", "&gt;", "&quot;" }))
-#define REDIR "<redirect to=\""+id->not_query+"?r="+time()+"&a=edit&faqname="+http_encode_url(v->faqname)+"\">"
+#define REDIR "<redirect to=\""+id->not_query+"?r="+time()+"&a=edit&faqname="+Caudium.http_encode_url(v->faqname)+"\">"
 
 #define DBFIELDS "(\
 ordernr INT UNSIGNED NOT NULL, KEY(ordernr),\
