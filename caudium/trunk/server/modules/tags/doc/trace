@@ -208,7 +208,7 @@ parser.
 <trace>
   <nooutput>
     <for variable=i from=1 to=2>
-      <list-tags>
+      <pr>
     </form>
   </nooutput>
 </trace> 
@@ -240,7 +240,7 @@ parser.
 <trace>
   <nooutput>
     <for variable=i from=1 to=2>
-      <list-tags>
+      <pr>
     </form>
   </nooutput>
 </trace> 
