@@ -39,6 +39,7 @@ static constant codes =
    "referer"      : "(id->referrer||\"-\")",
    "useragent"    : "Caudium.http_encode_string(id->useragent)",
    "agentunquoted": "id->useragent",
+	 "siteid"       : "id->site_id",
    "user"         : "extract_user(id->realauth)",
    "userid"       : "(string)id->cookies->CaudiumUserID",
    "requesttime"  : "(time(1)-id->time)",
@@ -65,12 +66,12 @@ string parse_log_format(string log_format) {
 			  "$ip_number", "$bin-ip_number", "$cern_date",
 			  "$bin-date",  "$full_resource", "$bin-response",
 			  "$bin-length","$user_agent", "$agent_unquoted",
-			  "$user_id", "$request-time" }), 
+			  "$site_id", "$user_id", "$request-time" }), 
 		       ({ "%%", "\\\"", "",
 			  "$ipnumber", "$binipnumber", "$cerndate",
 			  "$bindate",  "$fullresource", "$binresponse",
 			  "$binlength","$useragent", "$agentunquoted",
-			  "$userid", "$requesttime" }) );
+			  "$siteid", "$userid", "$requesttime" }) );
   while(strlen(log_format)) {
     switch(sscanf(log_format, "%s$%[a-z]%s", pre, kw, post)) {
      case 3:
