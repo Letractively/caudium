@@ -135,7 +135,7 @@ string since;
 
 void end(string|void a,int|void b);
 
-private void setup_pipe()
+private void setup_pipe() /*FOLD00*/
 {
   if(!my_fd) 
   {
@@ -145,7 +145,7 @@ private void setup_pipe()
   if(!pipe) pipe=thepipe();
 }
 
-void send(string|object what, int|void len)
+void send(string|object what, int|void len) /*FOLD00*/
 {
 #ifdef REQUEST_DEBUG
   roxen_perror(sprintf("send(%O, %O)\n", what, len));
@@ -159,18 +159,18 @@ void send(string|object what, int|void len)
 }
 
 /* Not used internally, but used by external files */
-string scan_for_query( string f )
+string scan_for_query( string f ) /*FOLD00*/
 {
   if(sscanf(f,"%s?%s", f, query) == 2)
     Caudium.parse_query_string(query, variables);
   return f;
 }
-
+ /*FOLD00*/
 private mixed f;
 /* Processing here not needed for cached connections. It mainly
  * includes various URL processing and variable scanning.
  */
-inline void do_post_processing()
+inline void do_post_processing() /*FOLD00*/
 {
   multiset (string) sup;
   array mod_config;
@@ -438,14 +438,14 @@ inline void do_post_processing()
   processed = 1;
 }
 
-inline void disconnect()
+inline void disconnect() /*FOLD00*/
 {
   file = 0;
   if(do_not_disconnect) return;
   destruct();
 }
 
-void end(string|void s, int|void keepit)
+void end(string|void s, int|void keepit) /*FOLD00*/
 {
   pipe = 0;
   
@@ -511,7 +511,7 @@ void end(string|void s, int|void keepit)
   disconnect();  
 }
 
-static void do_timeout()
+static void do_timeout() /*FOLD00*/
 {
   // werror("do_timeout() called, time="+time+"; time()="+_time()+"\n");
   int elapsed = _time()-time;
@@ -531,7 +531,7 @@ static void do_timeout()
 }
 
 static string last_id, last_from;
-string get_id(string from)
+string get_id(string from) /*FOLD00*/
 {
   if(last_from == from) return last_id;
   last_from=from;
@@ -546,14 +546,14 @@ string get_id(string from)
   return "";
 }
 
-void add_id(array to)
+void add_id(array to) /*FOLD00*/
 {
   foreach(to[1], array q)
     if(stringp(q[0]))
       q[0]+=get_id(q[0]);
 }
 
-string link_to(string what, int eid, int qq)
+string link_to(string what, int eid, int qq) /*FOLD00*/
 {
   int line;
   string file, fun;
@@ -575,7 +575,7 @@ string link_to(string what, int eid, int qq)
 }
 
 
-string format_backtrace(array bt, int eid)
+string format_backtrace(array bt, int eid) /*FOLD00*/
 {
   // first entry is always the error, 
   // second is the actual function, 
@@ -629,7 +629,7 @@ string format_backtrace(array bt, int eid)
   return res+"</body>";
 }
 
-string generate_bugreport(array from, string u, string rd)
+string generate_bugreport(array from, string u, string rd) /*FOLD00*/
 {
   add_id(from);
   return ("<pre>"+html_encode_string("Caudium version: "+version()+
@@ -642,7 +642,7 @@ string generate_bugreport(array from, string u, string rd)
 	  "\n\nRequest data:\n"+rd));
 }
 
-string censor(string what)
+string censor(string what) /*FOLD00*/
 {
   string a, b, c;
   if(sscanf(what, "%shorization:%s\n%s", a, b, c)==3)
@@ -650,7 +650,7 @@ string censor(string what)
   return what;
 }
 
-int store_error(array err)
+int store_error(array err) /*FOLD00*/
 {
   mapping e = caudium->query_var("errors");
   if(!e) caudium->set_var("errors", ([]));
@@ -662,7 +662,7 @@ int store_error(array err)
   return id;
 }
 
-array get_error(string eid)
+array get_error(string eid) /*FOLD00*/
 {
   mapping e = caudium->query_var("errors");
   if(e) return e[(int)eid];
@@ -678,30 +678,40 @@ array get_error(string eid)
     report_error("Internal server error: " + describe_backtrace(err) +		\
 		 "internal_error() also failed: " + describe_backtrace(__eRr))
 
-void internal_error(array err)
+void internal_error(array err) /*FOLD00*/
 {
-  array err2;
-  if(GLOBVAR(show_internals)) 
-  {
-    err2 = catch { 
-      array(string) bt = (describe_backtrace(err)/"\n") - ({""});
-      file = http_low_answer(500, format_backtrace(bt, store_error(err)));
-    };	
-    if(err2) {
-      werror("Internal server error in internal_error():\n" +
-	     describe_backtrace(err2)+"\n while processing \n"+
-	     describe_backtrace(err));
-      file = http_low_answer(500, "<h1>Error: The server failed to "
-			     "fulfill your query, due to an "
-			     "internal error in the internal error routine.</h1>");
+    string error_message;
+    array err2;
+    if(QUERY(show_internals))
+    {
+	err2 = catch {
+	    array(string) bt = (describe_backtrace(err)/"\n") - ({""});
+	    error_message = format_backtrace(bt, store_error(err));
+	};
+	if(err2) {
+	    werror("Internal server error in internal_error():\n" +
+		   describe_backtrace(err2)+"\n while processing \n"+
+		   describe_backtrace(err));
+	    error_message =
+		"<h1>Error: The server failed to " +
+		"fulfill your query, due to an " +
+		"internal error in the internal error routine.</h1>";
+	}
+    } else {
+	error_message =
+	    "<h1>Error: The server failed to " +
+	    "fulfill your query, due to an internal error.</h1>";
     }
-  } else {
-    file = http_low_answer(500, "<h1>Error: The server failed to "
-			   "fulfill your query, due to an internal error.</h1>");
-  }
-  report_error("Internal server error: " +
-	       describe_backtrace(err) + "\n");
+    report_error("Internal server error: " +
+		 describe_backtrace(err) + "\n");
+    if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
+	report_error("*** http_error object missing during internal_error() ***\n");
+	file =
+	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+			     "internal error in the internal error routine.</h1>" );
+    }
 }
+
 
 constant errors =
 ([
@@ -711,7 +721,7 @@ constant errors =
   203:"203 Provisional Information",
   204:"204 No Content",
   206:"206 Partial Content", // Byte ranges
-  
+
   300:"300 Moved",
   301:"301 Permanent Relocation",
   302:"302 Temporary Relocation",
@@ -738,7 +748,7 @@ constant errors =
   ]);
 
 
-void do_log()
+void do_log() /*FOLD00*/
 {
   MARK_FD("HTTP logging"); // fd can be closed here
   TIMER("data sent");
@@ -757,7 +767,7 @@ void do_log()
 }
 
 #ifdef FD_DEBUG
-void timer(int start)
+void timer(int start) /*FOLD00*/
 {
   if(pipe) {
     // FIXME: Disconnect if no data has been sent for a long while
@@ -776,7 +786,7 @@ void timer(int start)
 }
 #endif
 
-string handle_error_file_request(array err, int eid)
+string handle_error_file_request(array err, int eid) /*FOLD00*/
 {
 //   return "file request for "+variables->file+"; line="+variables->line;
   string data = Stdio.read_bytes(variables->file);
@@ -938,7 +948,7 @@ class MultiRangeWrapper
 
 
 // Parse the range header itno multiple ranges.
-array parse_range_header(int len)
+array parse_range_header(int len) /*FOLD00*/
 {
   array ranges = ({});
   foreach(misc->range / ",", string range)
@@ -978,7 +988,7 @@ array parse_range_header(int len)
   return ranges;
 }
 
-void start_sender() 
+void start_sender()  /*FOLD00*/
 {  
   if (pipe) {
     MARK_FD("HTTP really handled, piping "+not_query);
@@ -993,8 +1003,17 @@ void start_sender()
   }
 }
 
+private mapping old_404() { /*FOLD00*/
+    return http_low_answer( 404,
+			    replace( parse_rxml( conf->query("ZNoSuchFile"), this_object() ),
+				     ({ "$File", "$Me" }),
+				     ({ html_encode_string( not_query ), conf->query( "MyWorldLocation" ) })
+				   ) );
+}
+
+
 // Send the result.
-void send_result(mapping|void result)
+void send_result(mapping|void result) /*FOLD00*/
 {
   array err;
   int tmp;
@@ -1005,20 +1024,14 @@ void send_result(mapping|void result)
   TIMER("enter_send_result");
   if(!mappingp(file))
   {
-    if(misc->error_code)
-      file = http_low_answer(misc->error_code, errors[misc->error]);
-    else if(method != "GET" && method != "HEAD" && method != "POST")
-      file = http_low_answer(501, "Not implemented.");
-    else if(err = catch {
-      file = http_low_answer(404,
-			     replace(parse_rxml(conf->query("ZNoSuchFile"),
-						thiso),
-				     ({"$File", "$Me"}), 
-				     ({ html_encode_string(not_query),
-					conf->query("MyWorldLocation")})));
-    }) {
-      INTERNAL_ERROR(err);
-    }
+      if ( misc->error_code ) {
+	  file = conf->http_error->handle_error( misc->error_code, errors[misc->error], this_object() );
+      }
+      else if ( method != "GET" && method != "HEAD" && method != "POST" )
+	  file = conf->http_error->handle_error( 501, "Not implemented.", "Method (" + html_encode_string( method ) + ") not recognised.", this_object() );
+      else if ( err = catch( file = conf->query( "Old404" )?old_404():conf->http_error->handle_error( 404, errors[ 404 ], "Unable to locate the file: " + not_query + ".<br>The page you are looking for may have moved or been removed.", this_object() ) ) ) {
+	  INTERNAL_ERROR( err );
+      }
   } else {
     if((file->file == -1) || file->leave_me) 
     {
@@ -1226,7 +1239,7 @@ void send_result(mapping|void result)
 
 
 // Execute the request
-void handle_request( )
+void handle_request( ) /*FOLD00*/
 {
   mixed err;
   function funp;
@@ -1284,13 +1297,13 @@ void handle_request( )
   }  
   send_result();
 }
-
+ /*FOLD00*/
 /* We got some data on a socket.
  * ================================================= 
  */
 int processed;
 object htp;
-void got_data(mixed fdid, string s)
+void got_data(mixed fdid, string s) /*FOLD00*/
 {
   int tmp;
   ITIMER();
@@ -1397,7 +1410,7 @@ void got_data(mixed fdid, string s)
 /* Get a somewhat identical copy of this object, used when doing 
  * 'simulated' requests. */
 
-object clone_me()
+object clone_me() /*FOLD00*/
 {
   object c,t;
   c = object_program(t = this_object())(0, 0);
@@ -1447,7 +1460,7 @@ object clone_me()
   return c;
 }
 
-void clean()
+void clean() /*FOLD00*/
 {
   if(!(my_fd && objectp(my_fd)))
     end();
@@ -1455,7 +1468,7 @@ void clean()
     end();
 }
 
-void create(void|object f, void|object c)
+void create(void|object f, void|object c) /*FOLD00*/
 {
   if(f)
   {
@@ -1470,7 +1483,7 @@ void create(void|object f, void|object c)
   }  
 }
 
-void chain(object f, object c, string le)
+void chain(object f, object c, string le) /*FOLD00*/
 {
   my_fd = f;
   conf = c;
