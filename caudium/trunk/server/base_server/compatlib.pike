@@ -288,7 +288,7 @@ static int is_modified(string a, int t, void|int len) {
    return Caudium.is_modified(a,t,len);
 }
 
-//! Compat call of @[Caudium.html_to_unicade]
+//! Compat call of @[Caudium.html_to_unicode]
 //! @deprecated
 static string html_to_unicode(string str) {
    WCOMPAT("Caudium","html_to_unicode");
