@@ -63,34 +63,9 @@ string query_provides()
 //
 
 
-//
-// Retrieve a list of configuration files from the config directory.
-// Note that the config "directory" might in reality be something
-// completely different depending on the storage used. This module
-// implements only the flatfile, plain text storage (Caudium/Roxen format 6
-// and XML).
-//
-// Parameters:
-//
-//  configdir  - the directory with configurations, defaults to
-//               caudium->configuration_dir.
-//
-//  creat      - if != 0 then the config directory is created if not
-//               found. 
-//
-//  cmod       - if creat != 0 then this parameter (if present) specifies
-//               the access mode for the directory. Defaults to 0711.
-//
-//
-// Returns:
-//
-//  An array of mappings containing the configuration names. This array
-//  should be passed to the function doing actual configuration
-//  reading/parsing.
-//
-array(mapping) list_all_configurations(void|string configdir, void|int creat, void|int cmod)
+static object get_the_storage(string fname) 
 {
-    object storage = 0;
+  object storage = 0;
     
     //
     // Find the module implementing the given storage. We implement
@@ -108,65 +83,114 @@ array(mapping) list_all_configurations(void|string configdir, void|int creat, vo
         return 0;
     }
 
-    if (!functionp(storage->get_configs_list)) {
+    if (!functionp(storage[fname])) {
         report_error(EPREFIX + "The '%s' storage module is invalid (missing get_configs_list)\n",
                      storage_method);
         return 0;
     }
 
-    return storage->get_configs_list(configdir, creat, cmod);
+    return storage;
 }
 
+//
+// Retrieve a list of configuration files from the config directory.
+// Note that the config "directory" might in reality be something
+// completely different depending on the storage used. This module
+// implements only the flatfile, plain text storage (Caudium/Roxen format 6
+// and XML).
+//
+// Returns:
+//
+//  An array of mappings containing the configuration names. 
+//
+array(mapping) list_all_configurations()
+{
+  object storage = get_the_storage("get_configs_list");
+
+  if (storage)
+    return storage->get_configs_list();
+
+  return 0;
+}
+
+array(string) list_all_region_names(string cfg_name)
+{
+  object storage = get_the_storage("get_config_region_names");
+
+  if (storage)
+    return storage->get_config_region_names(cfg_name);
+
+  return 0;
+}
 
 //
 // Storage API
 //
-private mapping config_files_only(string file)
-{
-    Stdio.Stat  fs = Stdio.Stat(file_stat(file));
+private object cfg_dir = 0;
+private string global_vars_name = "Global_Variables";
 
-    if (fs && fs->isreg && file[-1] != '~')
-        return ([
-            "name" : file,
-            "size" : fs->size,
-            "mtime" : fs->mtime
-        ]);
+private void open_cfg_dir()
+{
+  if (!cfg_dir) {
+    mixed error = catch {
+      cfg_dir = Config.Files.Dir(caudium->configuration_dir);
+    };
     
-    return 0;
+    if (error || !cfg_dir) {
+      report_fatal("Cannot read from the configurations directory ("+
+                   combine_path(getcwd(), caudium->configuration_dir)+")\n");
+      exit(-1); // Restart.
+    }
+  }
 }
 
-array(mapping) get_configs_list(void|string configdir, void|int creat, void|int cmod)
+array(mapping(string:string|int)) get_configs_list()
 {
-    string    cfdir = configdir || caudium->configuration_dir;
-    int       cmode = cmod || 0711;
-    string    cwd = getcwd();
-    
-    if (!cd(cfdir)) {
-        if (!creat) {
-            report_error(EPREFIX + "Configuration directory '%s' does not exist.\n", cfdir);
-            return 0;
-        }
-        
-        if (!Stdio.mkdirhier(cfdir, cmode)) {
-            report_error(EPREFIX + "Couldn't create the config directory '%s'\n", cfdir);
-            return 0;
-        }
+  open_cfg_dir();
+  
+  array(mapping(string:string|int)) cfiles = cfg_dir->list_files();
 
-        cd(cfdir);
+  foreach(cfiles, mapping(string:string|int) cf)
+    if (cf->name == global_vars_name) {
+      cfiles -= ({ cf });
+      break;
     }
-
-    array(string)  files = get_dir(cfdir);
-
-    if (!files) {
-        // shouldn't happen...
-        report_error(EPREFIX + "Couldn't get the directory listing for '%s'\n", cfdir);
-        return 0;
-    }
-
-    array(mapping) ret = map(files, config_files_only) - ({0}) - ({([])});
-
-    cd(cwd);
-
-    return ret;
+  
+  return cfiles;
 }
 
+array(string) get_config_region_names(string cfg_name)
+{
+  open_cfg_dir();
+
+  mixed      error;
+  string|int errmsg;
+  object     file;
+
+  error = catch {
+    file = Config.Files.File(cfg_dir, cfg_name);
+  };
+
+  if (error) {
+    report_error("Failed to open configuration file for %O:\n%s\n",
+                 cfg_name, describe_backtrace(error));
+    return ({});
+  }
+
+  error = catch {
+    errmsg = file->parse();
+  };
+
+  if (error || stringp(errmsg)) {
+    report_error("Error reading configuration file '%O':\n%s\n",
+                 cfg_name, stringp(errmsg) ? errmsg : describe_backtrace(error));
+    destruct(file);
+    return ({});
+  }
+
+  array(string) module_names = file->retrieve_region_names();
+
+  if (module_names && sizeof(module_names))
+    return sort(module_names);
+  return ({});
+}

@@ -82,21 +82,21 @@ private mapping error_style = ([
 ]);
 
 //
-// The actions we handle
+// The actions we handle (the first segment of the path)
 //
 private mapping cif_actions = ([
-  "root" : do_root,
+  "/" : do_root,
   "showconf" : do_showconf
 ]);
 
 //
 // Show the main screen of the interface
 //
-private mapping do_root(object id)
+private mapping do_root(object id, string path)
 {
-  return http_htmldoc_answer(parse_rxml(sprintf("<strong>Not yet (config dir: %s)</strong><br>"
-                                                "Configurations:<br>"
-                                                "<conflist>#name#: <a href='#url#'>#name#</a><br></conflist>",
+  id->misc->gsession->session->showdata = "configs";
+  return http_htmldoc_answer(parse_rxml(sprintf("<strong>Configurations (config dir: %s)</strong><br>"
+                                                "<showdata>#name#: <a href='#url#'>#label#</a><br></showdata>",
                                                 caudium->configuration_dir), id),
                              QUERY(title), 0, notyet_style);
 }
@@ -104,12 +104,17 @@ private mapping do_root(object id)
 //
 // Show the given configuration
 //
-private mapping do_showconf(object id)
+private mapping do_showconf(object id, string path)
 {
   string  title = "Configuration for %s";
-
-  return http_htmldoc_answer("showconf",
-                            sprintf(title, id->variables->name ? id->variables->name : "unnamed"));
+  
+  id->misc->gsession->session->showdata = "data";
+  id->misc->gsession->session->showdata_path = path;
+  
+  return http_htmldoc_answer(parse_rxml(sprintf("<strong>%s</strong><br><ul>"
+                                                "<showdata><li>#name#: <a href='#url#'>#label#</a></li></showdata></ul>",
+                                                id->variables->name), id),
+                             QUERY(title), 0, notyet_style);
 }
 
 //
@@ -146,15 +151,21 @@ mixed find_file(string f, object id)
             return get_auth_data(id);
     }
 
-    if (!f || f == "" || f == "/")
-      f = "root";
+    if (!f || f == "")
+      f = "/";
 
+    array(string)   parts = f / "/" - ({""});
+    string          path = 0;
+
+    if (parts && sizeof(parts))
+      path = parts[1..] * "/";
+    
     foreach(indices(cif_actions), string index)
       if (index == f) {
         if (objectp(cif_actions[f]) && functionp(cif_actions[f]->run))
-          return cif_actions[f]->run(id);
+          return cif_actions[f]->run(id, path);
         else if (functionp(cif_actions[f]))
-          return cif_actions[f](id);
+          return cif_actions[f](id, path);
         else
           report_warning("Unknown file '%s' in the CIF", f);
       }
