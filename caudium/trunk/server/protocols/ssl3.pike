@@ -352,7 +352,19 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-    file = caudium->http_error->process_error (this_object ());
+    // There is no file so calling error
+    mixed tmperr;
+    tmperr = conf->handle_error_request(this_object());
+    if(mappingp(tmperr)) 
+      file = (mapping)tmperr;
+    else {  // Fallback error handler.
+      if(misc->error_code)
+        file = http_low_answer(misc->error_code, errors[misc->error]);
+      else if(method != "GET" && method != "HEAD" && method != "POST")
+        file = http_low_answer(501,"Not implemented.");
+      else 
+        file = http_low_answer(404,"Not found.");
+    }
   } else {
     if((file->file == -1) || file->leave_me) 
     {
