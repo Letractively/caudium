@@ -47,7 +47,7 @@ object get_template(string t);
 #define bdB "90"
 
 
-#define BODY "<body bgcolor=white text=black link=darkblue vlink=black alink=red background=\"/image/cowfish-bg.gif\">"
+#define BODY "<body bgcolor=white text=black link=darkblue vlink=black alink=red background=\"/image/cowfish-bg.gif\" leftmargin='0' marginwidth='0' topmargin='0' marginheight='0'>"
 
 #define TABLEP(x, y) (id->supports->tables ? x : y)
 #define PUSH(X) do{res+=({(X)});}while(0)
@@ -1078,18 +1078,55 @@ string extract_almost_top(object node)
 
 string tablist(array(string) nodes, array(string) links, int selected)
 {
-  array res = ({});
-  for(int i=0; i<sizeof(nodes); i++)
-    if(i!=selected)
-      PUSH("<a href=\""+links[i]+"\"><img alt=\"_/"+
-          nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/unselected/"+
-          replace(nodes[i]," ","%20")+"\" border=0></a>");
-    else
-      PUSH("<a href=\""+links[i]+"\"><b><img alt=\"_/"+
-          nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/selected/"+
-          replace(nodes[i]," ","%20")+"\" border=0></b></a>");
-//PUSH("<br>");
-  return res*"";
+    /*
+    array res = ({});
+    for(int i=0; i<sizeof(nodes); i++)
+	if(i!=selected)
+	    PUSH("<a href=\""+links[i]+"\"><img alt=\"_/"+
+		 nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/unselected/"+
+		 replace(nodes[i]," ","%20")+"\" border=0></a>");
+	else
+	    PUSH("<a href=\""+links[i]+"\"><b><img alt=\"_/"+
+		 nodes[i][0..strlen(nodes[i])-1]+"\\__\" src=\"/auto/selected/"+
+		 replace(nodes[i]," ","%20")+"\" border=0></b></a>");
+    //PUSH("<br>");
+    return res*"";
+    */
+
+    string tab_0 = "<td rowspan=2><img border=0 alt='' src='/image/unit.gif' width=24 height=24></td>";
+    string tab_1 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-1.png'></td>";
+    string tab_2 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-2.png'></td>";
+    string tab_3 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-3.png'></td>";
+    string tab_4 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-4.png'></td>";
+    string tab_5 = "<td rowspan=2><img border=0 alt='' src='/image/caudium-tab-5.png'></td>";
+    string gap = "<td bgcolor='#ffffff'><img border=0 alt='' src='/image/unit.gif'></td>";
+    array magic = ({ });
+    array link = ({ });
+    for( int i = 0; i < sizeof( nodes ); i++ ) {
+	if ( i == selected ) {
+	    // This element is selected!
+	    link += ({ "<td bgcolor='#ffffff'>&nbsp;<a href='" + links[ i ] + "'><b>" + nodes[ i ] + "</b></a>&nbsp;</td>" }) ;
+	} else {
+            // This element is not!
+	    link += ({ "<td bgcolor='#003366'>&nbsp;<a href='" + links[ i ] + "'><b><font color='#eeeeee'>" + nodes[ i ] + "</font></b></a>&nbsp;</td>" });
+	}
+	magic += ({ ({ gap }) });
+    }
+    magic = magic * ({ tab_5 });
+    magic = ({ tab_4 }) + magic + ({ tab_2 });
+    if ( selected != -1 ) {
+	if ( selected == 0 ) {
+	    magic[ 0 ] = tab_0;
+	} else {
+	    magic[ ( selected * 2 ) ] = tab_1;
+	}
+	if ( selected == sizeof( nodes ) - 1 ) {
+	    magic[ ( selected * 2 ) + 2 ] = tab_3;
+	} else {
+	    magic[ ( selected * 2 ) + 2 ] = tab_4;
+	}
+    }
+    return "<table align='right' border=0 cellpadding=0 cellspacing=0><tr>" + ( magic * "" ) + "</tr><tr>" + ( link * "" ) + "</tr></table><br><br>";
 }
 
 mapping (string:string) selected_nodes =
@@ -1326,9 +1363,9 @@ string describe_node_path(object node)
 	foreach( nodes, string p)
 	{
 	    q+=p+"/";
-	    res += ({ "<a href=\""+q+"?"+bar+++"\">"+
+	    res += ({ "<a href=\""+q+"?"+bar+++"\"><font color='#eeeeee'>"+
 	              dn(find_node(http_decode_string(q[..strlen(q)-2])))+
-	              "</a>" });
+	              "</font></a>" });
 	}
 	return (res * " -&gt; ");
     }
@@ -1338,19 +1375,21 @@ string status_row(object node)
 {
     int open_caudium_link_in_new_window = 1;
     string node_path = describe_node_path( node );
-    return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>" +
-	     "<tr>" +
-	     "<td align=bottom align=left><a href='http://www.caudium.net/'" + (open_caudium_link_in_new_window?" target='_blank'":"") + "><img border=0 src='/image/caudium-icon-gray.gif' alt='Caudium'></a></td>" +
-	     "<td width='100%' align=right height=33 valign=bottom>" +
-	     "<font size='-1'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>" +
-	     "</tr>" +
-	     "<tr>" +
-	     "<td colspan=2 width='100%' height=1><img border=0 alt='' src='/image/unit.gif'></td>" +
-	     "</tr>" +
-	     "<tr>" +
-	     "<td colspan=2 width='100%' height=1 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif'></td>" +
-	     "</tr>" +
-	     "</table><br>\n" );
+    return ( "<table width='100%' border=0 cellpadding=0 cellspacing=0>"
+             "<tr>"
+	     "<td colspan=4 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=2 height=6></td>"
+	     "</tr>"
+	     "<tr>"
+	     "<td bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=3 height=2></td>"
+	     "<td align=bottom align=left><a href='http://www.caudium.net/'" + (open_caudium_link_in_new_window?" target='_blank'":"") + "><img border=0 src='/image/caudium-icon-bordered.png' alt='Caudium'></a></td>"
+	     "<td width='100%' align=right height=33 valign=bottom bgcolor='#003366'>"
+	     "<font size='-1' color='#ffffff'><b>Administration Interface</b>" + (node_path?(": " + node_path):"") + "</font></td>"
+	     "<td bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=3 height=6></td>"
+	     "</tr>"
+             "<tr>"
+	     "<td colspan=4 bgcolor='#003366'><img border=0 alt='' src='/image/unit.gif' width=2 height=3></td>"
+	     "</tr>"
+	     "</table>\n" );
 }
 
 mapping logged = ([ ]);
