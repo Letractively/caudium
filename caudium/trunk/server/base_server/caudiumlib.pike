@@ -873,28 +873,20 @@ static int ipow(int what, int how)
 
 static string simplify_path(string file)
 {
-  string tmp;
-  int t2,t1;
+  int no_pre_slash, end_slash;
   if(!strlen(file))
     return "";
-
-  if(file[0] != '/')
-      t2 = 1;
-
-  if(strlen(file) > 1 
-     && ((file[-1] == '/') || (file[-1]=='.')) 
-     && file[-2]=='/')
-    t1=1;
-
-  tmp=combine_path("/", file);
-
-  if(t1) tmp += "/.";
   
-// perror(file+"->"+tmp+"\n");
+  if(file[0] != '/')  no_pre_slash = 1;
 
-  if(t2) return tmp[1..];
-    
-  return tmp;
+  if(strlen(file) > 1 &&
+     (file[-1] == '/' ||
+      (file[-1] == '.'  && file[-2] == '/')))
+    end_slash = 1;
+  file = combine_path("/", file);
+  if(end_slash && file[-1] != '/') file += "/";
+  if(no_pre_slash) return file[1..];
+  return file;
 }
 
 /* Returns a short date string from a time-int 
