@@ -405,10 +405,10 @@ private int compare( string a, string b ) // what a mess!
 //!         value assigned.
 //!
 //!       @member string "pad"
-//!         Padding ?
+//!         Pad string to length with spaces
 //!
 //!       @member string "align"
-//!         Align argument
+//!         Align argument, "left", "right" or "center"
 //!
 //!       @member string "delimiter"
 //!         A string put after each replaced variable.
