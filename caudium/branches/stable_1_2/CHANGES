@@ -1,6 +1,7 @@
 Changes in Caudium 1.2.x since 1.2.8
 ------------------------------------
 
+- Added 404file module from Chris David (was present on 1.3 branch)
 - Fixed an obscure bug that locks caudium on FreeBSD when using the 404 
   redirector.
 - Fixed typo in uniscript.pike (SF bug #604758)
