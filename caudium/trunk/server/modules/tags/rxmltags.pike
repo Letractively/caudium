@@ -748,7 +748,8 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 //!  This tag sets a variable to a new value.
 //!  If none of the source attributes are specified, the variable is unset.
 //!  If debug is currently on, more specific debug information is provided
-//!  if the operation failed.
+//!  if the operation failed. If debug is off, error messages are sent to
+//!  the debug log only.
 //! attribute: variable
 //!  The variable to set. It can be either a simple variable, i.e "variable", or a
 //!  variable on in scope form, ie "var.name". If the scope is left out, the &amp;form;
@@ -801,15 +802,27 @@ string tag_set( string tag, mapping m, object id )
             mixed val;
             // Set variable to the value of another variable
             val = get_scope_var(m->from, 0, id);
-            if(!val && (m->debug || id->misc->debug))
-                return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
+            if(!val ) {
+                if ((m->debug || id->misc->debug))
+                    return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
+                else {
+                    report_error("<%s>: Variable '%s' doesn't exist.\n", tag, m->from);
+                    return "";
+                }
+            }
             ret = set_scope_var(m->variable, m->scope, val, id);
         } else if (m->other) {
             // Set variable to the value of a misc variable
             if (id->misc->variables && id->misc->variables[ m->other ])
                 ret = set_scope_var(m->variable, m->scope, id->misc->variables[ m->other ], id);
-            else if (m->debug || id->misc->debug)
-                return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
+            else {
+                if (m->debug || id->misc->debug)
+                    return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
+                else {
+                    report_error("<%s>: other variable doesn't exist.\n", tag);
+                    return "";
+                }
+            }
         } else if(m->define) {
             // Set variable to the value of a define
             ret = set_scope_var(m->variable, 0, id->misc->defines[ m->define ], id);
@@ -820,13 +833,27 @@ string tag_set( string tag, mapping m, object id )
             // Unset variable.
             ret = set_scope_var(m->variable, m->scope, 0, id);
         }
-        if(!ret && (m->debug || id->misc->debug))
-            return "<b>Set/unset failed or scope is read-only.</b>";
+        if(!ret) {
+            if (m->debug || id->misc->debug)
+                return "<b>Set/unset failed or scope is read-only.</b>";
+            else
+                report_error("Set/unset failed or scope is read-only.");
+        }
         return("");
-    } else if (id->misc->defines && (m->debug || id->misc->debug)) {
-        return("<!-- set (line "+id->misc->line+"): variable not specified -->");
-    } else if (m->debug || id->misc->debug) {
-        return("<!-- set: variable not specified -->");
+    } else if (id->misc->defines) {
+        if (m->debug || id->misc->debug)
+            return("<!-- set (line "+id->misc->line+"): variable not specified -->");
+        else {
+            report_error("set (line %O): variable not specified\n", id->misc->line);
+            return "";
+        }
+    } else {
+        if (m->debug || id->misc->debug)
+            return("<!-- set: variable not specified -->");
+        else {
+            report_error("set: variable not specified\n");
+            return "";
+        }
     }
 }
 
