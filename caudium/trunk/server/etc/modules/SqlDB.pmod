@@ -49,7 +49,10 @@ class DB {
   //! arg: int _timeout
   //!  The timeout used to autoclose the database is not used.
   //! arg: string _dburl
-  //!  The dbURI used to connect to the db
+  //!  The dbURI used to connect to the db. The string should be on the
+  //!  format dbtype://[user[:password]@]hostname[:port][/database]. Use
+  //!  the dbtype protocol to connect to the database server on the
+  //!  specified host (mysql,postgres,msql,odbc,oracle,sybase...).
   //! arg: object _id
   //!  The Caudium Object id
   void create(int _timeout, string _dburl, object _id) {
