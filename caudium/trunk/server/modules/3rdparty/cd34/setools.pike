@@ -24,7 +24,7 @@
  * The Search Engine Tools module and the accompanying code is 
  * Copyright © 2002 Davies, Inc.
  *
- * This code is released under the GPL license and is part of the Caudium
+ * This code is released under the LGPL license and is part of the Caudium
  * WebServer.
  *
  * Authors:
@@ -67,7 +67,7 @@ engine or misleading the engine to get traffic that is not topical
 for your site.
 <p>
 For those of you with a templated site that want to bump keyword relevence
-up for a site, there is the &lt;randomkeyword> container which will parse the 
+up for a site, there is the &lt;randomkeywords> container which will parse the 
 , delimited contents of the container and return 1 of the items.  You can
 put this within an &lt;a> container to provide a random keyword so that you
 can boost relevence, without having the same keyword present on 2000
@@ -77,7 +77,9 @@ As with all Search Engine Manipluation, Use this module and its tools with cauti
 <p>
 <ul>
 <li><a href=\"#nose\">&lt;nose> and &lt;se></a></li>
-<li><a href=\"#randomkeyword\">&lt;randomkeyword></a></li>
+<li><a href=\"#randomkeyword\">&lt;randomkeywords></a></li>
+<li><a href=\"#randomhref\">&lt;randomhref></a></li>
+<li><a href=\"#notes\">Notes</a></li>
 </ul>
 <p>
 <a name=\"nose\"><strong>&lt;nose> and &lt;se></strong></a><p>
@@ -93,10 +95,10 @@ Content within the &lt;nose> container is shown only when the useragent matches<
 the regexp specified in the Configuration Interface<br>
 &lt;/nose><br>
 <p>
-<a name=\"randomkeyword\"><strong>&lt;randomkeyword></strong></a><p>
+<a name=\"randomkeyword\"><strong>&lt;randomkeywords></strong></a><p>
 The Random Keyword container works like this:<br>
 &lt;a href=\"http://site.com\"><br>
-&lt;randomkeyword>Running Shoes,Kids Shoes,Dress Shoes&lt;/randomkeyword><br>
+&lt;randomkeywords>Running Shoes,Kids Shoes,Dress Shoes&lt;/randomkeywords><br>
 &lt;/a><p>
 In order to boost keyword relevency, it is important to remember that 
 a link like &lt;a href=\"http://nike.com\">Nike&lt;/a> will boost relevence
@@ -109,6 +111,43 @@ However, with a database or template driven site that may have the same template
 running on 1500 pages, having the same keyword repeated over and over on a 
 per page basis may not help the keyword relevence as much.  Additionally,
 using different keywords can help immensely when launching a new site.
+<p>
+<a name=\"randomhref\"><strong>&lt;randomhref></strong></a><p>
+The &lt;randomhref> container works like this:<p>
+&lt;randomhref target=\"_top\"><br>
+&lt;href>http://firsturl&lt;/href><br>
+&lt;href>http://secondurl&lt;/href><br>
+&lt;href>http://thirdurl&lt;/href><br>
+Text within container<br>
+&lt;randomhref><br>
+<p>
+and will return a randomly chosen &lt;href> container from within the
+&lt;randomhref> container.  
+<p>
+The benefit to this is that in a template driven site, you can couple
+this with the &lt;randomkeywords> container and create a veritable random
+link and random keyword that points to another set of sites, thereby 
+increasing the odds that a Search Engine Spider will follow the links and
+boost the relevence of the page it has spidered.
+<p>
+<a name=\"notes\"><strong>NOTES:</strong></a><p>
+If you were really wanting to do this purely for search engine purposes, 
+something like the following would be ideal for handling this type of 
+data.<p>
+&lt;se><br>
+&lt;randomhref><br>
+&lt;href>http://site1.com/&lt;/href><br>
+&lt;href>http://site2.com/&lt;/href><br>
+&lt;href>http://site3.com/&lt;/href><br>
+&lt;href>http://site4.com/&lt;/href><br>
+&lt;randomkeywords>Keyword Phrase 1,Keyword Phrase 2,Keyword Phrase 3,Keyword Phrase 4,Keyword Phrase 5,Keyword Phrase 6&lt;/randomkeywords><br>
+&lt;/randomhref><br>
+&lt;/se><br>
+<p>
+This would create 24 permuations of the 6 keyword phrases and the 4 urls.
+As a result, on a template driven site with thousands of pages, the search
+engine that was spidering the site would be more inclined to find other 
+keywords and associate relevence on multiple keywords to the sites.
 ";
 constant module_unique = 1;
 constant thread_safe=1;
@@ -159,10 +198,36 @@ string container_randomkeywords(string tag, mapping m, string contents, object i
   return(contents);
 }
 
+array(string) container_randomhref(string tag, mapping m, string contents, object id, mapping defines)
+{
+//  catch {
+//    array keys = contents / ",";
+//    return(keys[random(sizeof(keys))]);
+//  }; 
+//  return(contents);
+  mapping args = ([]);
+  foreach (indices(m),string argname) {
+    args[argname] = m[argname];
+  }
+  contents = parse_rxml(contents, id);
+  args["href"] = (string)id->misc->href[random(sizeof(id->misc->href))];
+  return ({
+    make_container("a", args, contents)
+  });
+}
+
+string container_href(string tag, mapping m, string contents, object id)
+{
+  id->misc[tag] += ({contents});
+  return("");
+}
+
 mapping query_container_callers()
 {
   return ([ "nose":container_se,"se":container_se,
             "randomkeywords":container_randomkeywords,
+            "randomhref":container_randomhref,
+            "href":container_href,
          ]);
 }
 
