@@ -1492,7 +1492,10 @@ string tag_deny(string a,  mapping b, string c, object d, object e,
   {							\
     string a, b;					\
     if(sscanf(m->X, "%s is %s", a, b)==2)		\
-      TEST(Caudium._match(Y[a], b/","));			\
+    { \
+      if(!Y[a] && zero_type(Y[a])==1) return "<false>"; \
+      TEST(Caudium._match(Y[a], b/","));		\
+    } \
     else						\
       TEST(Y[m->X]);					\
   }							\
@@ -1551,8 +1554,11 @@ string tag_allow(string a, mapping (string:string) m,
     }
   }
 
-  if(m->cookie) NOCACHE();
+  if(m->cookie)
+    NOCACHE();
+
   IS_TEST(cookie, id->cookies);
+
   IS_TEST(defined, defines);
 
   if (m->successful) TEST (_ok);
