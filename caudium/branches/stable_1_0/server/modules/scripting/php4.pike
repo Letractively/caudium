@@ -245,6 +245,15 @@ class PHPScript
       environment["HTTP_AUTHORIZATION"] = (string)id->rawauth;
       environment["AUTH_TYPE"] = (id->rawauth/" ")[0];
     }
+    if(id->realauth) {
+      array utmp = id->realauth / ":";
+      if(sizeof(utmp) >= 2)
+      {
+	environment["REMOTE_USER"] = utmp[0];
+	/* password can have colon in it. */
+	environment["REMOTE_PASSWORD"] = utmp[1..] * ":"; 
+      }
+    }
     // Lets populate more!
     environment["REQUEST_URI"] =  environment["DOCUMENT_URI"];
     environment["PHP_SELF"]    =  environment["DOCUMENT_URI"];
