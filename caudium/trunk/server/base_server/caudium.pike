@@ -2268,7 +2268,7 @@ class ImageCache
         return 0;
       
       if (catch (draw ( na, id )))
-        return (http_error_answer (id, 404));
+        return Caudium.HTTP.error_answer(id, 404);
       
       res = restore( na );
     }

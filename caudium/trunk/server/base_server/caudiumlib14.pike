@@ -53,48 +53,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//!   Return an error mapping with the current error theme with the specified
-//!   error code, name, and message.
-//!
-//! @param id
-//!   The request id object.
-//!
-//! @param error_code
-//!   An optional error code to respond with.
-//!
-//! @param error_name
-//!   Optional error name.
-//!
-//! @param error_name
-//!   Optional error message.
-//!
-//! @returns
-//!   The HTTP response mapping.
-mapping http_error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
-{
-   mixed tmperr;
-
-   if (!error_code)
-      error_code = 404;
-
-   if (!error_name)
-      error_name = "Not found.";
-
-   if (!error_message)
-      error_message = "Not found.";
-
-   id->misc->error_code = error_code;
-   id->misc->error_name = error_name;
-   id->misc->error_message = error_message;
-
-   tmperr = id->conf->handle_error_request(id);
-
-   if(mappingp(tmperr))
-     return (mapping)tmperr;
-   else
-     return Caudium.HTTP.low_answer(error_code,error_message);
-}
- 
 //!   Return a response mapping with the text and the specified content type.
 //!   If the content type argument is left out, text/html will be used.
 //!

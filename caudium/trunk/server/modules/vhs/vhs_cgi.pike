@@ -821,8 +821,8 @@ mapping handle_file_extension(object o, string e, object id)
   DWERROR("CGI:handle_file_extension()\n");
 
   if (o && !(o->stat()[0]&0100))
-     return (http_error_answer (id, 500, "CGI ERROR",
-             "<b>The script you tried to run is not executable.</b>"));
+     return Caudium.HTTP.error_answer (id, 500, "CGI ERROR",
+             "<b>The script you tried to run is not executable.</b>");
 
   return http_stream( CGIScript( id )->run()->get_fd() );
 }

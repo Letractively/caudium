@@ -141,6 +141,14 @@ mapping http_rxml_answer(string rxml, object id, void|object(Stdio.File) file,
    return Caudium.HTTP.rxml_answer(rxml, id, file, type);
 }
 
+//! Compat call of Caudium.HTTP.error_answer
+//! @deprecated
+mapping http_error_answer(object id, void|int error_code, void|string name,
+                          void|string message) {
+   WCOMPAT2("Caudium.HTTP.error_answer", "http_error_answer");
+   return Caudium.HTTP.error_answer(id,error_code,name,message);
+}
+
 // Some spider calls are not under spider module so here is some compat
 // things
 

@@ -843,10 +843,10 @@ mapping handle_file_extension(object o, string e, object id)
     if(QUERY(noexec))
       return 0;
     else
-    return (http_error_answer (id, 500, "CGI Error - Script Not Executable",
+    return Caudium.HTTP.error_answer (id, 500, "CGI Error - Script Not Executable",
              "<b>The script you tried to run is not executable. "
              "Please contact the server administrator about "
-             "this problem.</b>"));
+             "this problem.</b>");
   return http_stream( CGIScript( id )->run()->get_fd() );
 }
 
@@ -870,16 +870,16 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
     if(QUERY(noexec))
       return Stdio.File(real_file(f, id), "r");
     report_notice( "CGI: "+real_file(f,id)+" is not executable\n");
-    return (http_error_answer (id, 500, "CGI Error - Script Not Executable",
+    return Caudium.HTTP.error_answer (id, 500, "CGI Error - Script Not Executable",
              "<b>The script you tried to run is not executable. "
              "Please contact the server administrator about "
-             "this problem.</b>"));
+             "this problem.</b>");
   }
 
   if(stat[1] < 0)
     if(!QUERY(ls))
-       return (http_error_answer (id, 403, "CGI Directory Listing Disabled", 
-                "Listing of CGI directories is disabled."));
+       return Caudium.HTTP.error_answer (id, 403, "CGI Directory Listing Disabled", 
+                "Listing of CGI directories is disabled.");
     else
       return -1;
   if(!strlen(f) || f[-1] == '/')
