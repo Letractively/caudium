@@ -76,7 +76,7 @@ import Array;
 program filep = Stdio.File;
 
 mapping (object:string) requests = ([ ]);
-object logfile;
+object lfile;
 
 function nf=lambda(){};
 
@@ -99,8 +99,8 @@ void start()
 
   if(!no_cache_for) no_cache_for = lambda(string i){return 0;};
   
-  if(logfile) 
-    destruct(logfile);
+  if(lfile) 
+    destruct(lfile);
 
   if(!strlen(QUERY(logfile)))
     return;
@@ -111,11 +111,11 @@ void start()
 
   if(QUERY(logfile) == "stdout")
   {
-    logfile=stdout;
+    lfile=stdout;
   } else if(QUERY(logfile) == "stderr") {
-    logfile=stderr;
+    lfile=stderr;
   } else {
-    logfile=open(QUERY(logfile), "wac");
+    lfile=open(QUERY(logfile), "wac");
   }
 }
 
@@ -126,7 +126,7 @@ void do_write(string host, string oh, string id, string more)
 		       host, oh, id, more));
 #endif /* PROXY_DEBUG */
   if(!host)     host=oh;
-  logfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] http://" +
+  lfile->write("[" + Caudium.HTTP.cern_date(id->time) + "] http://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 
@@ -137,7 +137,7 @@ void log(string file, string more)
 #ifdef PROXY_DEBUG
   roxen_perror(sprintf("PROXY: log(\"%s\",\"%s\")\n", file, more));
 #endif /* PROXY_DEBUG */
-  if(!logfile) return;
+  if(!lfile) return;
   sscanf(file, "%s:%s", host, rest);
   caudium->ip_to_host(host, do_write, host, rest, more);
 }

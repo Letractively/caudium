@@ -216,7 +216,7 @@ mapping first_try(object fid)
   if(fid->method != "CONNECT")
     return 0;
   mapping tmp;
-  if(tmp = Caudium.proxy_auth_needed(fid))
+  if(tmp = Caudium.HTTP.proxy_auth_needed(fid))
     return tmp;
   return relay(fid);
 }
