@@ -502,9 +502,9 @@ caudium/server/caudium-images/caudium-icon-bordered.png
 caudium/server/caudium-images/.cvsignore
 caudium/server/caudium-images/back.gif
 caudium/server/caudium-images/caudium-small.gif
-caudium/server/lib/7.2.296/Caudium.so
-caudium/server/lib/7.2.296/PiXSL.so
-caudium/server/lib/7.2.296/UltraLog.so
+caudium/server/lib/7.2.308/Caudium.so
+caudium/server/lib/7.2.308/PiXSL.so
+caudium/server/lib/7.2.308/UltraLog.so
 caudium/server/etc/include/sqlfs/stdio_helper.h
 caudium/server/etc/include/sqlfs/cache.h
 caudium/server/etc/include/sqlfs/read.h
@@ -762,7 +762,7 @@ caudium/server/.cvsignore
 @dirrm caudium/server/caudium-images/dir
 @dirrm caudium/server/caudium-images/modules
 @dirrm caudium/server/caudium-images
-@dirrm caudium/server/lib/7.2.296
+@dirrm caudium/server/lib/7.2.308
 @dirrm caudium/server/lib
 @dirrm caudium/server/etc/include/sqlfs
 @dirrm caudium/server/etc/include/headlines
