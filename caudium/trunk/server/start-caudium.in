@@ -546,12 +546,15 @@ array generate_command_options()
   if(command_line->MODULES)
     foreach(command_line->MODULES, string d)
       o+=({"-M" + d});
-  if(command_line->PROGRAMS)
-    foreach(command_line->PROGRAMS, string d)
-      o+=({"-P" + d});
   if(command_line->OTHER)
     foreach(command_line->OTHER, string d)
       o+=({d});
+  if(command_line->PROG_OTHER)
+    foreach(command_line->PROG_OTHER, string d)
+      o+=({d});
+  if(command_line->PROGRAMS)
+    foreach(command_line->PROGRAMS, string d)
+      o+=({"-P" + d});
 
   o+=({options->program});
 
