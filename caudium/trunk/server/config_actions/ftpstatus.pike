@@ -21,6 +21,10 @@
 
 /* $Id$ */
 
+/* ftp status is disabled since ftp protocol on caudium doesn't support it
+ */
+#if 0
+
 inherit "wizard";
 
 constant name= "Status//Current FTP sessions";
@@ -101,3 +105,5 @@ string handle(object id)
 {
   return wizard_for(id,0);
 }
+
+#endif /* 0 */
