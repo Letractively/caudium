@@ -2417,7 +2417,7 @@ private void define_global_variables( int argc, array (string) argv )
   globvar("default_font", "lucida", "Fonts: Default font", TYPE_FONT,
 	  "The default font to use when modules request a font.");
 
-  globvar("font_dirs",({"/usr/share/caudium/local_fonts/", "../local/nfonts/","nfonts/","local_fonts/"}),
+  globvar("font_dirs",({"/usr/share/caudium/local_fonts/", "../local/nfonts/","nfonts/","local_fonts/", "fonts/ttf"}),
 	  "Fonts: Font directories", TYPE_DIR_LIST,
 	  "This is where the fonts are located.");
 
