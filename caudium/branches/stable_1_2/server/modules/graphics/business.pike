@@ -217,6 +217,12 @@ void create()
 	  "relative to the argument cache directory." );
 }
 
+string query_provides()
+{
+  return "business_graphics";
+}
+  
+
 string itag_xaxis(string tag, mapping m, mapping res)
 {
 #ifdef BG_DEBUG
