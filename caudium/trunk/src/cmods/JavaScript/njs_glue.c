@@ -33,34 +33,34 @@ RCSID("$Id$");
  * push it onto the stack.
  */
 
-void push_js_type(JSType val) {
+void push_njs_type(NJSValue val) {
   unsigned int i;
   switch(val.type) {
-   case JS_TYPE_UNDEFINED:
+   case NJS_VALUE_UNDEFINED:
     /*     printf("pushed undefined.\n"); */
      push_int(0);
     break;
-   case JS_TYPE_NULL:
+   case NJS_VALUE_NULL:
     /*     printf("pushed null.\n");*/
     push_int(0);
     break;
-   case JS_TYPE_BOOLEAN:
-   case JS_TYPE_INTEGER:
+   case NJS_VALUE_BOOLEAN:
+   case NJS_VALUE_INTEGER:
     push_int64(val.u.i);
     break;
-   case JS_TYPE_STRING:
+   case NJS_VALUE_STRING:
     push_string(make_shared_binary_string(val.u.s->data, val.u.s->len));
     break;
-   case JS_TYPE_DOUBLE:
+   case NJS_VALUE_DOUBLE:
     push_float(val.u.d);
     break;
-   case JS_TYPE_ARRAY:
+   case NJS_VALUE_ARRAY:
     for(i = 0; i < val.u.array->length; i++) {
-      push_js_type(val.u.array->data[i]);
+      push_njs_type(val.u.array->data[i]);
     }
     push_array(aggregate_array(val.u.array->length));
     break;
-   case JS_TYPE_BUILTIN:
+   case NJS_VALUE_BUILTIN:
     /* FIXME: these are builtin classes. How should we handle them? */
     push_int(0);
     break;
@@ -70,33 +70,33 @@ void push_js_type(JSType val) {
 /* Convert a pike type to a javascript type if possible. Returns 1 if
  * it succeeded, 0 otherwise.
  */
-int pike_type_to_js_type(JSInterpPtr interp,
-			  struct svalue *from, JSType *to) {
+int pike_type_to_njs_type(NJSInterpPtr interp,
+			  struct svalue *from, NJSValue *to) {
   INT32 i;
   switch(from->type) {
    case T_STRING:
-    js_type_make_string(interp, to, from->u.string->str, from->u.string->len);
+    njs_type_make_string(interp, to, from->u.string->str, from->u.string->len);
     break;
 
    case T_INT:
-    to->type = JS_TYPE_INTEGER;
+    to->type = NJS_VALUE_INTEGER;
     to->u.i = from->u.integer;
     break;
 
    case T_FLOAT:
-    to->type = JS_TYPE_DOUBLE;
+    to->type = NJS_VALUE_DOUBLE;
     to->u.d = from->u.float_number;
     break;
 
    case T_ARRAY:
-    js_type_make_array(interp, to, from->u.array->size);
+    njs_type_make_array(interp, to, from->u.array->size);
     for(i = 0; i < from->u.array->size; i++) {
-      pike_type_to_js_type(interp, & (ITEM(from->u.array)[i]), 
+      pike_type_to_njs_type(interp, & (ITEM(from->u.array)[i]), 
 			   & (to->u.array->data[i]));
     }
     break;
    default:
-    to->type = JS_TYPE_UNDEFINED;
+    to->type = NJS_VALUE_UNDEFINED;
     return 0;
   }
   return 1;
