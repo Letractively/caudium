@@ -1,3 +1,9 @@
+caudium (1:1.0.11-6) unstable; urgency=low
+
+  * Debian Policy change wrt /etc/default/*
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 31 Jan 2001 19:40:22 +0100
+
 caudium (1:1.0.11-5) unstable; urgency=low
 
   * minor security update

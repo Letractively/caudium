@@ -66,11 +66,17 @@ case "$1" in
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
-    if [ -n "$START_OPTIONS" ]; then
-	cat <<EOF > /etc/caudium/start_options
+    if [ ! -f /etc/default/caudium ]; then
+	cat <<EOF > /etc/default/caudium
 #
 # This variable will be joined with the default
 # Caudium startup options in the init script
+#
+# This file has been generated automatically the first
+# time Caudium was installed on this machine. You can
+# modify the START_OPTIONS variable below at your will
+# as this file won't ever be modified by the Caudium
+# package.
 #
 # For available options type
 # /usr/lib/caudium/start --help
