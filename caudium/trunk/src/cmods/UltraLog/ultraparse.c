@@ -21,6 +21,7 @@
 /* $Id$ */
 #include "global.h"
 RCSID("$Id$");
+#include "interpret.h"
 #include "fdlib.h"
 #include "stralloc.h"
 #include "pike_macros.h"
@@ -28,7 +29,6 @@ RCSID("$Id$");
 #include "program.h"
 #include "multiset.h"
 #include "mapping.h"
-#include "interpret.h"
 #include "builtin_functions.h"
 #include "module_support.h"
 #include "error.h"

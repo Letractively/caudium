@@ -20,13 +20,13 @@
 
 #include "global.h"
 RCSID("$Id$");
+#include "interpret.h"
 #include "stralloc.h"
 #include "pike_macros.h"
 #include "object.h"
 #include "program.h"
 #include "multiset.h"
 #include "mapping.h"
-#include "interpret.h"
 #include "builtin_functions.h"
 #include "module_support.h"
 #include "error.h"
