@@ -1446,6 +1446,8 @@ mapping|int low_get_file(object id, int|void no_magic)
           break;
 
       default:
+          id->misc->_use_scopes = 0;
+	  id->misc->_scope_status = 0;
           break;
   }
     
@@ -2872,7 +2874,7 @@ object enable_module( string modname )
 	     "An optional name. Set to something to remaind you what "
 	     "the module really does.");
 
-  me->defvar("_use_scopes", "Off/Conditional", "Compatibility: Scopes", TYPE_STRING_LIST,
+  me->defvar("_use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
              "<p>This compatibility option manages the new feature of the Caudium Webserver "
              "known as <em>scopes</em>.</p>"
              "<p>Under Roxen 1.3, variable names can contain periods "
@@ -2883,10 +2885,15 @@ object enable_module( string modname )
              "this breaks compatablity with existing RXML. A small example "
              "to illustrate the situation:</p>"
              "<blockquote><pre>"
-             "<if variable=\"new.formvar is \"><set"
-             "variable=\"new.formvar\" value=\"blargh\"></if>"
-             "<formoutput><form><input name=\"new.formvar\""
-             "value=\"#new.formvar#\"></form></formoutput>"
+             "&lt;if variable=\"new.formvar is \"&gt;\n"
+	     "\t&lt;set variable=\"new.formvar\" value=\"blargh\"&gt;\n"
+	     "&lt;/if&gt;\n"
+             "&lt;formoutput&gt;\n"
+	     "\t&lt;form&gt;\n"
+	     "\t\t&lt;input name=\"new.formvar\""
+             "value=\"#new.formvar#\"&gt;&lt;\n"
+	     "\t/form&gt;\n"
+	     "&lt;/formoutput&gt;"
              "</pre></blockquote>",
              ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
   
