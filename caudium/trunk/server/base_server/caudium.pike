@@ -2237,7 +2237,7 @@ class ImageCache
     string f = mycache->retrieve(sprintf("data://%s", id));
     if (!stringp(f))
       return 0;
-    return http_string_answer(f, m->type||("image/gif"));
+    return Caudium.HTTP.string_answer(f, m->type||("image/gif"));
   }
 
   string data(string|mapping args, object id, int|void nodraw)

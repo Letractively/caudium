@@ -312,7 +312,7 @@ mapping filter (mapping result, object id) {
       ret += "<h1><font color=red>Could not open file for reading...</font></h1>";
     }
 
-    return http_string_answer (ret);
+    return Caudium.HTTP.string_answer (ret);
   }
   else
     return 0;

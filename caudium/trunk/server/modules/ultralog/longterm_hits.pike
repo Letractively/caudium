@@ -148,7 +148,7 @@ mixed view_report(string f, object id, object ultralog)
 		       column(sorts[1..], 0)*"\t",
 		       column(sorts[1..], 1)*"\t",
 		       column(sorts[1..], 2)*"\t");
-    return http_string_answer(res);
+    return Caudium.HTTP.string_answer(res);
   }
   return res+mres+"</tablify>";
 }

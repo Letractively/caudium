@@ -575,7 +575,7 @@ mapping thevoid()
 #ifndef FUN
   return 0;
 #else
-  return http_string_answer("<html><head><title>The Void!</title></head>"
+  return Caudium.HTTP.string_answer("<html><head><title>The Void!</title></head>"
 			    "<body bgcolor=#000000 text=#ff0000>"
 			    "<h1 align=center>The Void!</h1>"
 			    "<h2>You come to the void if you fall out of a "

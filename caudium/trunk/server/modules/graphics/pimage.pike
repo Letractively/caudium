@@ -201,8 +201,8 @@ class Constructors
       }
       if(ci) { image=0; return ci; }
       if(bg)
-	return (ci=http_string_answer(image->togif(@bg), "image/gif"));
-      return (ci=http_string_answer(image->togif(), "image/gif"));
+	return (ci=Caudium.HTTP.string_answer(image->togif(@bg), "image/gif"));
+      return (ci=Caudium.HTTP.string_answer(image->togif(), "image/gif"));
     }
 
     class FunctionCall

@@ -591,10 +591,10 @@ mixed first_try(object id) {
         if (result == 1) {
           id->misc->session_variables->username = id->variables->httpuser;
         } else {
-          return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):Caudium.HTTP.low_answer(200, authtemplate);
+          return QUERY(parseauthpage)?Caudium.HTTP.string_answer(parse_rxml(authtemplate,id)):Caudium.HTTP.low_answer(200, authtemplate);
         }
       } else {
-        return QUERY(parseauthpage)?http_string_answer(parse_rxml(authtemplate,id)):Caudium.HTTP.low_answer(200, authtemplate);
+        return QUERY(parseauthpage)?Caudium.HTTP.string_answer(parse_rxml(authtemplate,id)):Caudium.HTTP.low_answer(200, authtemplate);
       }
     }
   }

@@ -352,9 +352,8 @@ string status()
     "</ol></font></p>";
 }
 
-int|mapping handle_file_extension(object o, string e, object id)
-{
-  return http_string_answer( status(), "text/html" );
+int|mapping handle_file_extension(object o, string e, object id) {
+  return Caudium.HTTP.string_answer( status(), "text/html" );
 }
 #endif
 

@@ -404,7 +404,7 @@ mapping auth(object id, mapping user, object ldap)
         
         string authscr = sprov->retrieve(id, "auth");
         if (authscr && authscr != "")
-            return http_string_answer(authscr);
+            return Caudium.HTTP.string_answer(authscr);
         else
             return ([
                 "lcc_error" : ERR_SCREEN_ABSENT,

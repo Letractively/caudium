@@ -225,7 +225,7 @@ mapping find_file( string f , object id )
      return search_entry(f, id, id->variables);
 
   return 
-    http_string_answer("<html><head><title>Whois++</title></head>"+
+    Caudium.HTTP.string_answer("<html><head><title>Whois++</title></head>"+
       "<body>"+
       "<form action=\"\" method=get>\n"+
       "\n<p>Search for: <input name=\"tag\" size=60 value=\"\">"+

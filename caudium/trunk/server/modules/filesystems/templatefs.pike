@@ -218,7 +218,7 @@ mixed find_file( string f, object id )
   {
     id->variables->image = id->not_query;
     m_delete( id->variables, "show_img" );
-    return http_string_answer( parse_rxml( ::find_file( "/showimg", id )->read(), id ) );
+    return Caudium.HTTP.string_answer( parse_rxml( ::find_file( "/showimg", id )->read(), id ) );
   } 
   else 
   {
@@ -251,7 +251,7 @@ mixed find_file( string f, object id )
        //fd->write(contents);
        //return http_file_answer( pipe, type );
      }
-//       return http_string_answer( parse_rxml("<use file="+template_for(f,id)+">"
+//       return Caudium.HTTP.string_answer( parse_rxml("<use file="+template_for(f,id)+">"
 //                                             "<tmpl-head title=\""+f+"\">"+
 //                                             retval->read()+"<tmpl-foot>", id) );
     }

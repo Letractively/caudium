@@ -149,6 +149,14 @@ mapping http_error_answer(object id, void|int error_code, void|string name,
    return Caudium.HTTP.error_answer(id,error_code,name,message);
 }
 
+//! Compat call of Caudium.HTTP.string_anwser
+//! @deprecated
+mapping http_string_answer(string text, string|void type) {
+   WCOMPAT2("Caudium.HTTP.string_answer", "http_string_answer");
+   return Caudium.HTTP.string_answer(text,type);
+}
+
+
 // Some spider calls are not under spider module so here is some compat
 // things
 

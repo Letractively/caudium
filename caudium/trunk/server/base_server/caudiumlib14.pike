@@ -53,25 +53,6 @@
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//!   Return a response mapping with the text and the specified content type.
-//!   If the content type argument is left out, text/html will be used.
-//!
-//! @param text
-//!   The data string.
-//!
-//! @param type
-//!   The optional content type to override the default text/html.
-//!
-//! @returns
-//!   The HTTP response mapping.
-mapping http_string_answer(string text, string|void type)
-{
-#ifdef HTTP_DEBUG
-  report_debug("HTTP: String answer (%s)\n",(type||"text/html");
-#endif  
-  return ([ "data":text, "type":(type||"text/html") ]);
-}
-
 //!   Make a nice HTML doc
 //! @param contents
 //!   Contents of document
@@ -177,7 +158,7 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
 mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
                             void|mapping|string style, string|void dtype)
 {
-    return http_string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
+    return Caudium.HTTP.string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
 }
 
 //!   Return a response mapping with the specified file descriptior using the

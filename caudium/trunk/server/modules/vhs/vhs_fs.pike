@@ -184,7 +184,7 @@ mixed find_dir(string f, object id)
 	dir = getdata(f, id);
 
 	if (dir == -2)
-           return http_string_answer(sprintf("Invalid URL `%O' vs. `%O'", @debug));
+           return Caudium.HTTP.string_answer(sprintf("Invalid URL `%O' vs. `%O'", @debug));
 
 	dir = replace(dir, "//", "/");
 

@@ -619,7 +619,7 @@ class Store
         id->misc->prev_possible = ((int)v->_page_num) > 0;
     
         if (!pages || !sizeof(pages))
-            return http_string_answer("<strong>There are no pages to show!</strong><br />");
+            return Caudium.HTTP.string_answer("<strong>There are no pages to show!</strong><br />");
 
         page = pages[ (int)v->_page_num ];
 

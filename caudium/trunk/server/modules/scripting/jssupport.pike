@@ -146,7 +146,7 @@ inherit Thread.Mutex;
 object thfarm; 
 #endif
 #define SEND(X) do { id->do_not_disconnect = 0; id->send_result(X); return; } while(0)
-#define JSERR(CODE, SHORT, LONG)  SEND(http_string_answer(caudium->http_error->handle_error(CODE, SHORT, LONG, id)));
+#define JSERR(CODE, SHORT, LONG)  SEND(Caudium.HTTP.string_answer(caudium->http_error->handle_error(CODE, SHORT, LONG, id)));
 #define JSHTMLERR(LONG)  ("<p><b>An error occured during javascript evaluation:</b><pre>\n" +(LONG)+ "</pre></p>")
 void create()
 {
@@ -381,15 +381,15 @@ void real_handle_file_extension(object f, string e, object id)
     // Data returned from the parse function. If it's an array with two strings
     // the first entry is data and the second content type. Otherwise use
     // default handle.
-    SEND(http_string_answer(@ret));
+    SEND(Caudium.HTTP.string_answer(@ret));
   }
   if(!ret) {
     JSERR(500, "Internal Server Error",
 	  "The JavaScript script returned no data.");
   } else if(stringp(ret))
-    SEND(http_string_answer(ret));
+    SEND(Caudium.HTTP.string_answer(ret));
   else
-    SEND(http_string_answer(sprintf("%O", ret), "text/plain"));
+    SEND(Caudium.HTTP.string_answer(sprintf("%O", ret), "text/plain"));
 }
 
 /* pi instruction call method */

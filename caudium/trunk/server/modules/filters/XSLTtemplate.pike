@@ -119,7 +119,7 @@ void create()
 	 "without trying to find and apply a stylesheet.");
 }
 #if constant(PiXSL.Parser)
-#define ERROR(x) return http_string_answer("<html><head><title>XSLT Template error</title></head><body><p><b>XSLT Template error: "+ x +"</b><p></body></html>")
+#define ERROR(x) return Caudium.HTTP.string_answer("<html><head><title>XSLT Template error</title></head><body><p><b>XSLT Template error: "+ x +"</b><p></body></html>")
 object regexp;
 string xsldir;
 
@@ -257,7 +257,7 @@ mapping|int first_try(object id)
   }
   if(charset)
     content_type += "; charset="+charset;
-  return http_string_answer(res, content_type);
+  return Caudium.HTTP.string_answer(res, content_type);
 }
 
 #endif

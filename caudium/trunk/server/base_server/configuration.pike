@@ -1311,7 +1311,7 @@ private mapping internal_caudium_image(string from)
   
   // New idea: Automatically generated colorbar. Used by wizard code...
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
-    return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
+    return Caudium.HTTP.string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
 
 #if 0
@@ -1350,7 +1350,7 @@ private mapping internal_caudium_image(string from)
   mapping ret = caudium->IFiles->get("image://" + from);
   if (!ret) {
     mapping err = caudium->IFiles->get("html://no_internal_image.html");
-    return http_string_answer(err->data);
+    return Caudium.HTTP.string_answer(err->data);
   }
   return ret;
 }

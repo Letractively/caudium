@@ -237,7 +237,7 @@ private mixed get_redirect(object id)
     }
     
     return url ? http_redirect(url, id) :
-        http_string_answer(sprintf(default_return,
+        Caudium.HTTP.string_answer(sprintf(default_return,
                                    QUERY(dc_name),
                                    DATA(id)));
 }
@@ -253,7 +253,7 @@ private mixed get_error_redirect(object id)
     }
     
     return error_url ? http_redirect(error_url, id) :
-        http_string_answer(sprintf(default_error_return,
+        Caudium.HTTP.string_answer(sprintf(default_error_return,
                                    QUERY(dc_name),
                                    DATA(id)));
 }
@@ -304,7 +304,7 @@ private mixed provider_error(object id, mapping res)
                              res->title ? res->title : "Error",
                              res->text);
         
-        return http_string_answer(ret);
+        return Caudium.HTTP.string_answer(ret);
     }
 
     return get_error_redirect(id);

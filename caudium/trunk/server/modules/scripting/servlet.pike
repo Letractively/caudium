@@ -209,14 +209,12 @@ string status()
   </ol></font>";
 }
 
-mixed find_file( string f, object id )
-{
-  return http_string_answer( status(), "text/html" );
+mixed find_file( string f, object id ) {
+  return Caudium.HTTP.string_answer( status(), "text/html" );
 }
 
-int|mapping handle_file_extension(object o, string e, object id)
-{
-  return http_string_answer( status(), "text/html" );
+int|mapping handle_file_extension(object o, string e, object id) {
+  return Caudium.HTTP.string_answer( status(), "text/html" );
 }
 
 

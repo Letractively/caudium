@@ -257,7 +257,7 @@ mapping find_file(string f,object id)
              reason[is_valid(id)] + "</font>";
     error += "<br><a href=\"" + id->variables->filepath + "\">Go back</a>";
     error += "</body></html>";
-    return http_string_answer(error);
+    return Caudium.HTTP.string_answer(error);
   }
   
   if (id->conf->sql_connect)

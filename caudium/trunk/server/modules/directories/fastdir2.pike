@@ -225,7 +225,7 @@ mapping parse_directory(object id)
   if(id->pragma["no-cache"] || !(dir = cache_lookup(key, f))) {
     cache_set(key, f, dir=new_dir(f, id));
   }
-  return http_string_answer(head(f, id) + dir + foot());
+  return Caudium.HTTP.string_answer(head(f, id) + dir + foot());
 }
 
 

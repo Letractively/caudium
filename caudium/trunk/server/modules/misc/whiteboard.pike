@@ -616,7 +616,7 @@ mixed find_file(string path, object id) {
   if(result=="")
     return 0;
   else
-    return http_string_answer(parse_rxml(result,id));
+    return Caudium.HTTP.string_answer(parse_rxml(result,id));
 }
 
 void|array(string) find_dir(string path, object id) {

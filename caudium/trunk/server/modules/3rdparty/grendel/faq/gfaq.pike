@@ -398,7 +398,7 @@ private static mixed send_faq_css(object id)
 {
 
   if (default_css != "")
-    return http_string_answer(default_css, "text/css");
+    return Caudium.HTTP.string_answer(default_css, "text/css");
   
   foreach(sort(indices(default_css_desc)), string idx) {
     mapping entry = default_css_desc[idx];
@@ -409,7 +409,7 @@ private static mixed send_faq_css(object id)
     default_css += "}\n";
   }
   
-  return http_string_answer(default_css, "text/css");
+  return Caudium.HTTP.string_answer(default_css, "text/css");
 }
 
 // variables we copy from the form to the local storage
@@ -468,7 +468,7 @@ private static mixed save_edit_data(object id)
   
 //  return http_redirect(sprintf("%s/%s", QUERY(mountpoint), id->variables->entry_path));
 
-  return http_string_answer(ret);
+  return Caudium.HTTP.string_answer(ret);
 }
 
 private static array(mapping) get_entries(object id, mapping options, string|void path)

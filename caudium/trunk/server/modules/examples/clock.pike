@@ -69,11 +69,11 @@ int my_time() {  return time(1)+query("modification"); }
 mapping find_file( string f )
 {
   if((int)f)
-    return http_string_answer("<title>And the time is...</title>"+
+    return Caudium.HTTP.string_answer("<title>And the time is...</title>"+
 			      "<h1>Local time: "+ctime((int)f)+
 			      "</h1><h1>GMT: "+Caudium.HTTP.date((int)f)+"</h1>");
 
-  return http_string_answer("<html><head><title>" + ctime(my_time())
+  return Caudium.HTTP.string_answer("<html><head><title>" + ctime(my_time())
 			    +"</title></head><body><h1>"
 			    +ctime(time(1))+"</h1></body></html>\n")
     + ([ "extra_heads":
