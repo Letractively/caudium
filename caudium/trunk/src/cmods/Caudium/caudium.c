@@ -741,8 +741,6 @@ static void f_extension( INT32 args ) {
 }
 
 
-#ifdef EXPERIMENTAL
-
 /* Some basic http function to speedup caudium (and gets more free from Pike 
    changing things... */
 
@@ -888,6 +886,7 @@ static void f_http_decode(INT32 args)
 	push_string(end_shared_string(ret));
 }
 
+#ifdef EXPERIMENTAL
 /* Used for cern_http_date */
 const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -978,11 +977,11 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
-#ifdef EXPERIMENTAL
   add_function_constant( "http_encode", f_http_encode,
                          "function(string:string)", 0);
   add_function_constant( "http_decode", f_http_decode,
                          "function(string:string)", 0);
+#ifdef EXPERIMENTAL
   add_function_constant( "cern_http_date", f_cern_http_date,
                          "function(void:string)", 0);
 #endif 
