@@ -3,7 +3,7 @@ MODNAME=Mhash
 OBJS= mhash.o hmac.o global.o main.o 
 SOURCES=mhash.c hmac.c global.c main.c
 MODULE_LIBS=@LIBS@
-EXTRA_CLEAN=mhash_config.h mhash_config.h.in
+EXTRA_CLEAN=mhash_config.h mhash_config.h.in Mhash.so
 
 @module_makefile@
 
