@@ -1009,6 +1009,11 @@ string query_name()
 //!  type: TYPE_FLAG
 //!  name: Allowed Access Methods: DELETE
 //
+//! defvar: copy
+//! If set, allow use of the COPY method, which is used for file copy by WebDAV.
+//!  type: TYPE_FLAG
+//!  name: Allowed Access Methods: COPY
+//
 //! defvar: method_mkdir
 //! If set, allow use of the MKDIR method, enabling the ability to the create new directories.
 //!  type: TYPE_FLAG

@@ -325,7 +325,7 @@ mapping query_container_callers() { return (["mailit":container_mailit, ]); }
 //!  type: TYPE_INT
 //!  name: SMTP port
 //
-//! defvar: defaultrecepient
+//! defvar: defaultrecipient
 //! The default recepient email address, if the user doesn't specify a recipient.
 //!  type: TYPE_STRING
 //!  name: Default Recipient

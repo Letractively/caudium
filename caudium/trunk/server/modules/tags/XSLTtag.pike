@@ -330,8 +330,8 @@ mapping query_tag_callers()
 //!  type: TYPE_FILE
 //!  name: Default XSLT Stylesheet
 //
-
-
-
-
-
+//! defvar: use_xslt
+//! If set the libxslt library will be used !
+//!  type: TYPE_FLAG
+//!  name: Use libxslt Library ?
+//
