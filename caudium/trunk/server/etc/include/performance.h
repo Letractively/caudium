@@ -10,7 +10,7 @@
 
 /* Define this for maximum performance. Handy for benchmarking. */
 
-/* #define MAX_PERFORMANCE */
+#undef MAX_PERFORMANCE
 
 /* Enable extra Roxen 1.3 compatibility. This is mainly performance issues.
  * See the file README.compatibility for a complete list of changes related
