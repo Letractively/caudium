@@ -19,7 +19,7 @@
  <var name='cache_check_last_modified'><int>0</int> </var>
  <var name='LogST'>              <str>Daemon</str> </var>
  <var name='LogA'>               <str>file</str> </var>
- <var name='argument_cache_dir'> <str>%p/var/cache/caudium1.2/argument_cache</str> </var>
+ <var name='argument_cache_dir'> <str>@PREFIX@/var/cache/caudium1.2/argument_cache</str> </var>
  <var name='User'>               <str>70:70</str> </var>
  <var name='LogWH'>              <str>Errors</str> </var>
  <var name='LogNA'>              <str>Caudium</str> </var>
@@ -54,7 +54,7 @@
  <var name='default_font_size'>  <int>32</int> </var>
  <var name='next_supports_update'><int>1068135778</int> </var>
  <var name='docurl2'>            <str>http://www.roxen.com/documentation/context.pike?page=</str> </var>
- <var name='logdirprefix'>       <str>%p/var/logs/caudium1.2/</str> </var>
+ <var name='logdirprefix'>       <str>@PREFIX@/var/logs/caudium1.2/</str> </var>
  <var name='show_internals'>     <int>1</int> </var>
  <var name='cache_size'>         <int>25</int> </var>
  <var name='RestoreConnLogFull'> <int>0</int> </var>
@@ -67,7 +67,7 @@
  <var name='audit'>              <int>0</int> </var>
  <var name='ModuleDirs'>         
   <a>
-    <str>../local/modules/</str>
+    <str>../local/caudium1.2/modules/</str>
     <str>modules/</str>
   </a>
  </var>
@@ -78,8 +78,8 @@
  <var name='argument_cache_db_path'><str>mysql://localhost/caudium</str> </var>
  <var name='cache'>              <int>0</int> </var>
  <var name='ConfigurationIPpattern'><str>*</str> </var>
- <var name='ConfigurationPassword'><str>ha4IKPnGsVU6k</str> </var>
- <var name='ConfigurationUser'>  <str>admin</str> </var>
+ <var name='ConfigurationPassword'><str></str> </var>
+ <var name='ConfigurationUser'>  <str></str> </var>
  <var name='cache_last_resort'>  <int>0</int> </var>
  <var name='cache_gc_logfile'>   <str></str> </var>
  <var name='cachedir'>           <str>/tmp/caudium_cache/</str> </var>
