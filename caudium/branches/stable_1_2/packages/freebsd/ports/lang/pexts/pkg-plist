@@ -1,6 +1,6 @@
-pike/7.2.296/lib/modules/Curses.so
-pike/7.2.296/lib/modules/Gzip.so
-pike/7.2.296/lib/modules/Mhash.so
-pike/7.2.296/lib/modules/PCRE.so
-pike/7.2.296/lib/modules/bzip2.so
-pike/7.2.296/lib/modules/mcrypt.so
+pike/7.2.308/lib/modules/Curses.so
+pike/7.2.308/lib/modules/Gzip.so
+pike/7.2.308/lib/modules/Mhash.so
+pike/7.2.308/lib/modules/PCRE.so
+pike/7.2.308/lib/modules/bzip2.so
+pike/7.2.308/lib/modules/mcrypt.so
