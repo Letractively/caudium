@@ -64,6 +64,7 @@ RCSID("$Id$");
 extern int fd_from_object(struct object *o);
 
 /*#define NB_DEBUG*/
+/*#define TEST_MMAP_FAILOVER NBIO_BLOCK_OBJ*/
 #ifdef NB_DEBUG
 # define DERR(X) do { fprintf(stderr, "** Caudium.nbio:%d: ", __LINE__); X; } while(0)
 #else
@@ -548,6 +549,7 @@ static INLINE int read_data(void)
     inp->pos += to_read;
     if(inp->pos == inp->len)
       free_input(inp);
+    THIS->buf_len = to_read;
     break;
   }
   return to_read;
@@ -576,7 +578,7 @@ static INLINE int do_write(char *buf, int buf_len) {
 
   if(written < 0)
   { 
-    DERR(fprintf(stderr, "write returned -1 (errno %d)\n", errno));
+    DERR(fprintf(stderr, "write returned -1...\n"));
     switch(errno)
     {      
     default:
@@ -584,8 +586,10 @@ static INLINE int do_write(char *buf, int buf_len) {
       finished();
       return -1; /* -1 == write failed and that's it */
     case EINTR: /* interrupted by signal - try again */
+      DERR(fprintf(stderr, "write -> EINTR = retry.\n"));
       goto write_retry;
     case EWOULDBLOCK:
+      DERR(fprintf(stderr, "would block.\n"));
       return 0; /* Treat this as if we wrote no data */      
     }
   } else {
@@ -662,7 +666,7 @@ static void f__output_write_cb(INT32 args)
     DERR(fprintf(stderr, "Sending string data (%ld bytes left)\n", (long)len));
     written = do_write(buf, len);
 
-    if(written > 0) {
+    if(written >= 0) {
       inp->pos += written;
       if(inp->pos == inp->len)
 	free_input(inp);
@@ -682,16 +686,45 @@ static void f__output_write_cb(INT32 args)
       mmapped -= inp->u.mmap_storage->m_len;
       DERR(fprintf(stderr, "trying to mmap %ld bytes starting at pos %ld\n",
 		   (long)len, (long)inp->pos));
+#ifdef TEST_MMAP_FAILOVER
+      inp->u.mmap_storage->data = MAP_FAILED;
+#else
       inp->u.mmap_storage->data =
 	(char *)mmap(0, len, PROT_READ,
 		     MAP_FILE | MAP_SHARED, inp->fd,
 		     inp->pos);
+#endif
       if(inp->u.mmap_storage->data == MAP_FAILED) {
+	struct object *tmp;
 	DERR(perror("additional mmap failed"));
-	free_input(inp);
+	/* converting to NBIO_OBJ */
+	THIS->outp->mode = IDLE;
+	tmp = inp->u.mmap_storage->file;
+	free(inp->u.mmap_storage);
+	inp->u.file = tmp;
+#if TEST_MMAP_FAILOVER == NBIO_BLOCK_OBJ
+	inp->set_nb_off = -1;	inp->set_b_off  = -1;
+#else
+	inp->set_nb_off = find_identifier("set_nonblocking",inp->u.file->prog);
+	inp->set_b_off  = find_identifier("set_blocking", inp->u.file->prog);
+#endif
+	if(inp->set_nb_off < 0 || inp->set_b_off < 0)
+	{
+	  inp->type   = NBIO_BLOCK_OBJ; /* No set_nonblocking/set_blocking funcs */
+	  inp->set_nb_off = inp->set_b_off = 0;
+	  DERR(fprintf(stderr, "Converting input to NBIO_BLOCK_OBJ.\n"));
+	  goto nbio_block_obj_read;
+	} else {
+	  DERR(fprintf(stderr, "Converting input to NBIO_OBJ.\n"));
+	  inp->type   = NBIO_OBJ; /* Fake nonblocking object */
+	  push_callback(input_read_cb_off);
+	  push_int(0);
+	  push_callback(input_close_cb_off);
+	  apply_low(inp->u.file, inp->set_nb_off, 3);
+	  inp->mode = READING;
+	}
 	/* FIXME: Better error handling here? */
-	f__output_write_cb(0);
-	return;
+	break;
       } else {
 	inp->u.mmap_storage->m_start = inp->pos;
 	inp->u.mmap_storage->m_len   = len;
@@ -705,7 +738,7 @@ static void f__output_write_cb(INT32 args)
 		 , (long)len, (long)(inp->len - inp->pos)));
     written = do_write(buf, len);
 
-    if(written > 0) {
+    if(written >= 0) {
       inp->pos += written;
       if(inp->pos == inp->len)
 	free_input(inp);
@@ -715,6 +748,7 @@ static void f__output_write_cb(INT32 args)
     break;
     
   case NBIO_BLOCK_OBJ:
+  nbio_block_obj_read:
     {
       int read;
       read = read_data(); /* At this point we have no data, so read some */
@@ -732,7 +766,7 @@ static void f__output_write_cb(INT32 args)
       buf = THIS->buf;
       DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
       written = do_write(buf, len);
-      if(written > 0) {
+      if(written >= 0) {
 	THIS->buf_len -= written;
 	THIS->buf_pos += written;
 	set_outp_write_cb(THIS->outp);
