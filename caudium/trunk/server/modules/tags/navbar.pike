@@ -205,8 +205,9 @@ int get_min_element(object id)
   // always begin the list at the beginning of a page
   if(offset != 0)
     min_elem -= offset;
+  // overflow management
   if(min_elem > get_nb_elements(id))
-    min_elem = get_nb_elements(id) - 1;
+    min_elem = 0;
   NDEBUG("get_min_element: min_elem="+min_elem);
   return min_elem;
 }
@@ -216,8 +217,14 @@ int get_max_element(object id)
   wrong_usage(id);
   fetch_args(id);
   int max_elem = get_min_element(id) + get_nb_elements_per_page(id) - 1;
+  // overflow management
   if(max_elem >= get_nb_elements(id))
-    max_elem = get_nb_elements(id) - 1;
+  {
+    if(get_nb_elements_per_page(id) + get_min_element(id) < get_nb_elements(id))
+      max_elem = get_nb_elements_per_page(id) + get_min_element(id);
+    else
+      max_elem = get_nb_elements(id) - 1;
+  }
   NDEBUG("get_max_element: max_elem="+max_elem);
   return max_elem;
 }
@@ -339,7 +346,8 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   }
 
   string baseuri = args->basehref || id->not_query;
-  args->href = add_pre_state(baseuri, id->prestate) + "?" + Protocols.HTTP.http_encode_query(vars); 
+  args->href = add_pre_state(baseuri, id->prestate) + "?" + 
+    replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
   args->target = "_self";
 
   return make_container("a", args, contents);
