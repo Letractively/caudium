@@ -359,6 +359,7 @@ static struct pike_string *lowercase(unsigned char *str, INT32 len)
 /* Decode QUERY encoded strings.
    Simple decodes %XX and + in the string. If exist is true, add a null char
    first in the string. 
+   If simple exist (eg = 1) then decode only %XX inside the string.
  */
 #ifndef HAVE_ALLOCA
 INLINE

@@ -191,3 +191,15 @@ inherit _Caudium;
 //! @note
 //!    Non RIS function, handled by _Caudium C module that calls system
 //!    strftime(3).
+
+//! @decl string extension(string what)
+//!   Get the extension name from a filename string. Handles also
+//!   known unix backup extensions as well eg '#' and '~' ending files. 
+//! @param what
+//!   The filename to get extension.
+//! @returns 
+//!   The extension string.
+//! @note
+//!   Non RIS function, handled by _Caudium C module.
+
+
