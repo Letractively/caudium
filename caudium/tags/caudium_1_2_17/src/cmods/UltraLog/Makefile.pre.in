@@ -1,0 +1,15 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=UltraLog
+OBJS= ultrautil.o ultraparse.o
+SOURCES=ultrautil.c ultraparse.c
+MODULE_LIBS=@LIBS@
+
+@module_makefile@
+
+extrainstall:
+	$(INSTALL) ultrasum $(DESTDIR)/@prefix@/bin/
+
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
+
