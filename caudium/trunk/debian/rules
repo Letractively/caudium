@@ -20,7 +20,7 @@ export DH_OPTIONS
 ifdef USE_PIKE
 PIKE=pike$(USE_PIKE)
 else
-PIKE=pike7.4
+PIKE=pike7.5
 endif
 PIKEBIN=/usr/bin/$(PIKE)
 
