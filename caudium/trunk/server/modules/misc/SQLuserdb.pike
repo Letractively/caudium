@@ -277,7 +277,6 @@ array(string) userinfo (string u) {
     cache_set("sqlauthentries",u,dbinfo);
   DEBUGLOG(sprintf("Result: %O",dbinfo)-"\n");
   return dbinfo;
-  return 0;
 }
 
 array(string) userlist() {
