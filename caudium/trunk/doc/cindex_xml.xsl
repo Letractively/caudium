@@ -9,7 +9,7 @@
 <xsl:param name="display">files</xsl:param>
 
 <xsl:template match="index">
-  <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
+  <xsl:text disable-output-escaping="yes">&lt;use file="/caudium.tmpl"></xsl:text>
   <xsl:choose>
     <xsl:when test="$display = 'modules'">
       <page title="Caudium Module Index">
