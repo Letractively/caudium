@@ -317,7 +317,11 @@ private object *_toparse_modules = ({});
 // entirely by log-modules in the future, since this would be much
 // cleaner.
 
-function log_function;
+int|function log_function;
+
+// The last time an item was logged. Used to determine if the log file
+// descriptor should be closed 
+int last_log_time;
 
 // The logging format used. This will probably move the the above
 // mentioned module in the future.
@@ -662,20 +666,27 @@ array filter_modules(object id)
 }
 
 string cache_hostname=gethostname();
-
-void init_log_file()
+int init_log_file(int|void force_open)
 {
+  int t = time(1);
   remove_call_out(init_log_file);
-
-  if(log_function)
+  
+  if(functionp(log_function))
   {
     destruct(function_object(log_function)); 
     // Free the old one.
   }
-  
+  // Here we close the log file since it hasn't been used for
+  // 'max_open_time' seconds, and we don't need it open, i.e
+  // this open call is not from the logging.p
+  if(!force_open && QUERY(max_open_time) && 
+     (t - last_log_time) > QUERY(max_open_time)) {
+    log_function = 0;
+    return 0;
+  }
   if(query("Log")) // Only try to open the log file if logging is enabled!!
   {
-    mapping m = localtime(time());
+    mapping m = localtime(t);
     string logfile = QUERY(LogFile);
     m->year += 1900;	/* Adjust for years being counted since 1900 */
     m->mon++;		/* Adjust for months being counted 0-11 */
@@ -694,19 +705,29 @@ void init_log_file()
 	  if(!(lf=open( logfile, "wac"))) {
 	    report_error("Failed to open logfile. ("+logfile+")\n" +
 			 "No logging will take place!\n");
-	    log_function=0;
-	    break;
+	    log_function=-1;
+	    return 0;
 	  }
 	}
 	log_function=lf->write;	
 	// Function pointer, speeds everything up (a little..).
 	lf=0;
       } while(0);
-    } else
-      log_function=0;	
-    call_out(init_log_file, 60);
-  } else
-    log_function=0;	
+    } else {
+      log_function=-1;
+      return 0;
+    }
+    // Call out to this to reopen or close (if that feature is enabled)
+    // the log file. reopening is done in case the file name has changed
+    // or in case the file has been removed. A random(20) is added to avoid
+    // getting ALL virtual servers calling this at the same time. Reopening
+    // 500 files at once is expensive. :-)
+    call_out(init_log_file, 60 + random(20));
+    return 1;
+  } else {
+    log_function=-1;
+    return 0;
+  }
 }
 
 // Parse the logging format strings.
@@ -794,7 +815,9 @@ nomask private inline string extract_user(string from)
   
   return tmp[0];      // username only, no password
 }
-
+#ifdef THREADS
+private object log_file_mutex = Thread.Mutex();
+#endif
 public void log(mapping file, object request_id)
 {
 //    _debug(2);
@@ -806,62 +829,33 @@ public void log(mapping file, object request_id)
   foreach(logger_modules(request_id), f) // Call all logging functions
     if(f(request_id,file)) return;
 
-  if(!log_function || !request_id) return;// No file is open for logging.
-
-
-  if(QUERY(NoLog) && _match(request_id->remoteaddr, QUERY(NoLog)))
+  if(log_function == -1 || !request_id ||
+     (QUERY(NoLog) && _match(request_id->remoteaddr, QUERY(NoLog))))
     return;
-  
-#ifdef OLD_LOGGING
-  if(!(form=log_format[(string)file->error]))
-    form = log_format["*"];
-  
-  if(!form) return;
-  form = replace(form, 
-		 ({ 
-		   "$ip_number", "$bin-ip_number", "$cern_date",
-		   "$bin-date", "$method", "$resource", "$full_resource", "$protocol",
-		   "$response", "$bin-response", "$length", "$bin-length",
-		   "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id",
-		   "$request-time"
-		 }), ({
-		   (string)request_id->remoteaddr,
-		   host_ip_to_int(request_id->remoteaddr),
-		   cern_http_date(time(1)),
-		   unsigned_to_bin(time(1)),
-		   (string)request_id->method,
-		   http_encode_string((string)request_id->not_query),
-		   (string)request_id->raw_url,
-		   (string)request_id->prot,
-		   (string)(file->error||200),
-		   unsigned_short_to_bin(file->error||200),
-		   (string)(file->len>=0?file->len:"?"),
-		   unsigned_to_bin(file->len),
-		   (string)(request_id->referrer||"-"), 
-		   http_encode_string(request_id->useragent), 
-		   request_id->useragent, 
-		   extract_user(request_id->realauth),
-		   (string)request_id->cookies->CaudiumUserID,
-		   (string)(time(1)-request_id->time)
-	       }));
-
-  if(search(form, "host") != -1)
-    caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
-		      request_id->remoteaddr, log_function);
-  else
-    log_function(form);
-#else
-  if(!(fobj = log_format_objs[(string)file->error]))
-    if(!(fobj = log_format_objs["*"]))
-      return; // no logging for this one.
-  if(fobj->hashost)
-    caudium->ip_to_host(request_id->remoteaddr, write_to_log,
-			fobj->format_log(file, request_id),
-			request_id->remoteaddr, log_function);
-  else
-    log_function(fobj->format_log(file, request_id));
+  if(!log_function) {
+#ifdef THREADS
+    object key = log_file_mutex->lock(1);
+    // Second if to avoid call the function if it was already done by previous
+    // locker, if any. 
+    if(!log_function)
 #endif
-  //    _debug(0);
+      init_log_file(1);
+#ifdef THREADS
+    destruct(key);
+#endif
+  }
+  if(functionp(log_function)) {
+    if(!(fobj = log_format_objs[(string)file->error]))
+      if(!(fobj = log_format_objs["*"]))
+	return; // no logging for this one.
+    last_log_time = time(1);
+    if(fobj->hashost)
+      caudium->ip_to_host(request_id->remoteaddr, write_to_log,
+			  fobj->format_log(file, request_id),
+			  request_id->remoteaddr, log_function);
+    else
+      log_function(fobj->format_log(file, request_id));
+  }
 }
 
 // These are here for statistics and debug reasons only.
@@ -2466,7 +2460,10 @@ void start(int num, void|object conf_id, array|void args)
 			     })*"");
   }
   parse_log_formats();
-  init_log_file();
+  // We are not automatically opening the logfile until it's needed
+  // to save file descriptors.
+  // init_log_file();
+  log_function = 0;
 }
 
 
@@ -3467,8 +3464,8 @@ void enable_all_modules()
   string tmp_string;
 
   parse_log_formats();
-  init_log_file();
-
+  // Don't automatically open the log file until it's used.
+  //  init_log_file();
   perror("\nEnabling all modules for "+query_name()+"... \n");
 
 #if constant(_compiler_trace)
@@ -3617,7 +3614,6 @@ void create(string config)
 	 "This is the name that will be used in the configuration "
 	 "interface. If this is left empty, the actual name of the "
 	 "virtual server will be used");
-  
   defvar("LogFormat", 
 	 "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
 	 "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
@@ -3655,6 +3651,13 @@ void create(string config)
 	 "                  by the client, otherwise '0'\n"
 	 "</pre>", 0, log_is_not_enabled);
   
+  defvar("max_open_time", 300, "Logging: Maximum idle time before closing",
+	 TYPE_INT_LIST,
+	 "This variables sets the idle timeout before in seconds an opened "
+	 "log file is closed. The benefit of this variable is that little "
+	 "used virtual servers won't waste file descriptors. Set to zero "
+	 "to disable this feature.", ({ 0, 60, 120, 180,240,300,400,500,600 }),
+	 log_is_not_enabled);
   defvar("Log", 1, "Logging: Enabled", TYPE_FLAG, "Log requests");
   
   defvar("LogFile", caudium->QUERY(logdirprefix)+
