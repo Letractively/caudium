@@ -4,6 +4,7 @@ Changes in Caudium 1.2.x since Caudium 1.2.6
   than the previous one.
 - Fixed in XSLTtag the problem with retrieving templates from the virtual
   filesystem.
+- Added svg/svgz mime type handling.
 
 Changes in Caudium 1.2.6 since Caudium 1.2.4
 --------------------------------------------
