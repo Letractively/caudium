@@ -223,10 +223,7 @@ spotless:  clean
 	@echo "Run make again"
 	@exit 1
 
-bump_version.stamp:
-	@touch bump_version.stamp
-
-bump_version: bump_version.stamp
+bump_version: 
 	@if test -f $(SRCDIR)/server/base_server/caudium.pike.new; then \
 	  echo Deleting old $(SRCDIR)/server/base_server/caudium.pike.new...; \
 	  rm $(SRCDIR)/server/base_server/caudium.pike.new || exit 1; \
