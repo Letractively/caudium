@@ -405,10 +405,9 @@ string tag_accessed(string tag, mapping m, object id)
     object rxmltags_module = RXMLTAGS;
     if (objectp(rxmltags_module))
     {
-     // FIXME: Doesn't support lang option... :/
      if(m->database)
-      return rxmltags_module->api_tagtime(id,counter->creation_date(), m); // From rxmltags
-     return rxmltags_module->api_tagtime(id,counter->creation_date(m->file), m);
+      return rxmltags_module->tagtime(counter->creation_date(), m); // From rxmltags
+     return rxmltags_module->tagtime(counter->creation_date(m->file), m);
     }
     return "<!-- No RXML Tag module ? -->";
   }
