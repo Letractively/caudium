@@ -188,7 +188,7 @@ void main(int argc, array argv)
   if(sizeof(argv) > 2) {
     if(argv[1] == "--pwd") {
       cd(argv[2]);
-      argv = argv[2..];
+      argv = ({ argv[0] }) + argv[3..];
       argc -= 2;
     }
   }
