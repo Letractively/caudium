@@ -64,11 +64,11 @@ int req_time = HRTIME();
 #endif
 
 #ifdef FD_DEBUG
-#define MARK_FD(X) catch{REQUEST_WERR(X); mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
+#define MARK_FD(X) catch{REQUEST_WERR("MARK_FD: "+X); 1/0; mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
 #else
-#define MARK_FD(X) REQUEST_WERR(X)
+#define MARK_FD(X) REQUEST_WERR("NO_MARK_FD: "+X)
 #endif
-
+#undef REQUEST_DEBUG
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
@@ -241,7 +241,7 @@ inline void do_post_processing()
     f = "/"+f;
   }
 #else
-  f = "/" + Caudium.parse_prestates(f, prestate, internal);
+  f = Caudium.parse_prestates(f, prestate, internal);
   REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
                        prestate, internal));
 #endif
@@ -456,7 +456,7 @@ inline void disconnect()
 void end(string|void s, int|void keepit)
 {
   pipe = 0;
-  
+  MARK_FD("http2 end");
 #ifdef PROFILE
   if(conf)
   {
@@ -1010,6 +1010,7 @@ void send_result(mapping|void result)
   object thiso = this_object();
   file = result || file;
   TIMER("enter_send_result");
+  MARK_FD("send_result");
   if(!mappingp(file))
   {
       if ( misc->error_code ) {
@@ -1186,6 +1187,7 @@ void send_result(mapping|void result)
 #endif /* REQUEST_DEBUG */
   
   TIMER("send_result");
+  MARK_FD("send_result");
   if(method == "HEAD" || file->error == 304)
   {
     my_fd->write(head_string);
@@ -1233,7 +1235,7 @@ void handle_request( )
   function funp;
   object thiso=this_object();
   TIMER("enter_handle");
-
+  MARK_FD("handle request");
 #ifdef MAGIC_ERROR
   if(prestate->old_error)
   {
@@ -1272,7 +1274,7 @@ void handle_request( )
 #endif /* MAGIC_ERROR */
 
   remove_call_out(do_timeout);
-  MARK_FD("HTTP handling request");
+  MARK_FD("handling request");
   TIMER("handle_request");
   if(!file) {
     if(conf) {
@@ -1296,7 +1298,7 @@ void got_data(mixed fdid, string s)
   int tmp;
   ITIMER();
   TIMER("got_data");
-
+  MARK_FD("http2 got_data");
   remove_call_out(do_timeout);
   call_out(do_timeout, 30); // Close down if we don't get more data 
                          // within 30 seconds. Should be more than enough.
@@ -1330,6 +1332,7 @@ void got_data(mixed fdid, string s)
       break;
      default:
       string err = "Broken request";
+      MARK_FD("http2 broken request");
       
       switch(tmp) {
        case 400: /* bad request */
@@ -1370,6 +1373,8 @@ void got_data(mixed fdid, string s)
     array cv;
     if( misc->cacheable && (cv = conf->datacache->get( raw_url )) )
     {
+      MARK_FD("http2 cached reply");
+
       string d = cv[ 0 ];
       file = cv[1];
       conf->hsent += file->hs;
@@ -1462,12 +1467,12 @@ void create(void|object f, void|object c)
   {
     my_fd = f;
     conf = c;
-    MARK_FD("HTTP connection");
     f->set_nonblocking(got_data, 0, end);
     // No need to wait more than 30 seconds to get more data.
     call_out(do_timeout, 30);
     time = _time(1);
     remoteaddr = Caudium.get_address(my_fd->query_address()||"");
+    MARK_FD("HTTP connection");
   }  
 }
 

@@ -189,9 +189,9 @@ void start() {
   debug_perror("Opening port "+QUERY(port)+"\n");
   accept_port=Stdio.Port();
   if (!accept_port)
-    THROW("Can't create a port to listen on");
+    report_error("port_forwarder: Can't create a port to listen on.\n");
   if (!accept_port->bind(QUERY(port),got_connection))
-    THROW("Can't bind");;
+    report_error("port_forwarder: Can't bind to port "+QUERY(port)+".\n");
   accept_port->set_id(accept_port);
 }
 
@@ -207,7 +207,7 @@ void got_connection (mixed port) {
   object in;
   in=port->accept();
   if (!in)
-    THROW("Couldn't accept connection");
+    THROW("Couldn't accept connection.\n");
   async_connect(QUERY(host),QUERY(r_port),connected,in);
 }
 

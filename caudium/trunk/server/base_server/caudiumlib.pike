@@ -343,10 +343,10 @@ static string decode_mode(int m)
   if(S_ISLNK(m))  s += "Symbolic link";
   else if(S_ISREG(m))  s += "File";
   else if(S_ISDIR(m))  s += "Dir";
+  else if(S_ISSOCK(m)) s += "Socket";
   else if(S_ISCHR(m))  s += "Special";
   else if(S_ISBLK(m))  s += "Device";
   else if(S_ISFIFO(m)) s += "FIFO";
-  else if(S_ISSOCK(m)) s += "Socket";
   else if((m&0xf000)==0xd000) s+="Door";
   else s+= "Unknown";
   
