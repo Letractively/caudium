@@ -28,8 +28,8 @@ test -f $DAEMON || exit 0
 
 set -e
 
-if test -f /etc/caudium/start_options; then
-    . /etc/caudium/start_options
+if test -f /etc/default/caudium; then
+    . /etc/default/caudium
 fi
 
 case "$1" in
