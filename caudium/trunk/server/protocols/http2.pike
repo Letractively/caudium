@@ -1408,7 +1408,6 @@ void got_data(mixed fdid, string s)
       data = misc->data;
       wanted_data = misc->len = (int)request_headers["content-length"];
       break;
-    
      default:
       // Some error so we return an error message
       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>Broken request</h1>");
@@ -1439,28 +1438,27 @@ void got_data(mixed fdid, string s)
   my_fd->set_close_callback(0); 
   my_fd->set_read_callback(0); 
   processed=1;
-
+  if(conf) {
+    conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
-  array cv;
-  if( misc->cacheable && conf && (cv = conf->datacache->get( raw_url )) )
-  {
-    string d = cv[ 0 ];
-    file = cv[1];
-    conf->hsent += file->hs;
-    if( strlen( d ) < 4000 )
+    array cv;
+    if( misc->cacheable && (cv = conf->datacache->get( raw_url )) )
     {
-      my_fd->write( d );
-      do_log();
-    } 
-    else 
-    {
-      send( d );
-      start_sender();      
+      string d = cv[ 0 ];
+      file = cv[1];
+      conf->hsent += file->hs;
+      if( strlen( d ) < 4000 )
+      {
+	my_fd->write( d );
+	do_log();
+      } else {
+	send( d );
+	start_sender();      
+      }
+      return;
     }
-    return;
-  }
 #endif
-
+  }
   TIMER("pre_handle");
 #ifdef THREADS
   handle(handle_request);

@@ -1298,8 +1298,12 @@ class FTPSession
 
   static private int time_touch = time();
 
+#if constant(ADT.queue)
   static private object(ADT.queue) to_send = ADT.queue();
-
+#else
+  static private object(ADT.Queue) to_send = ADT.Queue();
+#endif
+  
   static private int end_marker = 0;
 
   void touch_me()

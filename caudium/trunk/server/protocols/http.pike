@@ -1563,6 +1563,11 @@ void got_data(mixed fdid, string s)
   my_fd->set_close_callback(0); 
   my_fd->set_read_callback(0); 
   processed=1;
+  /* Call the precache modules, which include virtual hosting
+   * and other modules which might not be relevant to http like
+   * cache key generator modules for http2...
+   */
+  if(conf)  conf->handle_precache(this_object());
 #ifdef THREADS
   handle(handle_request);
 #else

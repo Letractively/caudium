@@ -35,7 +35,7 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
-constant module_type = MODULE_FIRST;
+constant module_type = MODULE_PRECACHE;
 constant module_name = "Virtual Host Matcher";
 constant module_doc  = "This module adds support for ip-less virtual hosts. Add this "
 	    "module to a server with an open listen port. All requests will "
@@ -91,7 +91,7 @@ void create() {
 
 array regexp_pairs;
 
-object first_try(object id)
+void precache_rewrite(object id)
 {
   object old_conf = id->conf;
   string host = id->host || "COWFISHSTEW";
@@ -143,7 +143,7 @@ object first_try(object id)
   // add the request to the 'destination' server
   id->conf->requests++;
 
-  return 0;
+  return;
 }
 
 void start()

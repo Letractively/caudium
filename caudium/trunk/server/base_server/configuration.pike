@@ -188,6 +188,7 @@ class Priority
   array (object) filter_modules = ({ });
   array (object) last_modules = ({ });
   array (object) first_modules = ({ });
+  array (object) precache_modules = ({ });
   
   mapping (string:array(object)) extension_modules = ([ ]);
   mapping (string:array(object)) file_extension_modules = ([ ]);
@@ -202,6 +203,7 @@ class Priority
     foreach(location_modules, object m)		 CATCH(m->stop && m->stop());
     foreach(last_modules, object m)    		 CATCH(m->stop && m->stop());
     foreach(first_modules, object m)    	 CATCH(m->stop && m->stop());
+    foreach(precache_modules, object m)    	 CATCH(m->stop && m->stop());
     foreach(indices(provider_modules), object m) CATCH(m->stop && m->stop());
   }
 }
@@ -333,7 +335,7 @@ public mapping (object:string) otomod = ([]);
 // below.
 private array (function) url_module_cache, last_module_cache;
 private array (function) logger_module_cache, first_module_cache;
-private array (function) filter_module_cache;
+private array (function) filter_module_cache, precache_module_cache;
 private array (array (string|function)) location_module_cache;
 private mapping (string:array (function)) extension_module_cache=([]);
 private mapping (string:array (function)) file_extension_module_cache=([]);
@@ -585,6 +587,27 @@ array (function) first_modules(object id)
   }
 
   return first_module_cache;
+}
+
+array (function) precache_modules(object id)
+{
+  if(!precache_module_cache)
+  {
+    int i;
+    precache_module_cache = ({ });
+    for(i = 9; i >= 0; i--)
+    {
+      object *d, p;
+      if(d=pri[i]->precache_modules) {
+	foreach(d, p) {
+	  if(p->precache_rewrite) {
+	    precache_module_cache += ({ p->precache_rewrite });
+	  }
+	}
+      }
+    }
+  }
+  return precache_module_cache;
 }
 
 
@@ -1085,6 +1108,7 @@ void invalidate_cache()
   last_module_cache = 0;
   filter_module_cache = 0;
   first_module_cache = 0;
+  precache_module_cache = 0;
   url_module_cache = 0;
   location_module_cache = 0;
   logger_module_cache = 0;
@@ -1616,6 +1640,12 @@ mapping|int low_get_file(object id, int|void no_magic)
   return fid;
 }
 
+// Call the precache_rewrite function in all MODULE_PRECACHE, if any.
+// This is done before the any raw caching is done and can be used for
+// virtual hosting and creation of a custom cache key.
+void handle_precache(object id) {
+  (precache_module_cache||precache_modules(id))(id);
+}
 
 mixed handle_request( object id  )
 {
@@ -2559,7 +2589,8 @@ object enable_module( string modname )
   if (module->type & (MODULE_LOCATION | MODULE_EXTENSION |
 		      MODULE_FILE_EXTENSION | MODULE_LOGGER |
 		      MODULE_URL | MODULE_LAST | MODULE_PROVIDER |
-		      MODULE_FILTER | MODULE_PARSER | MODULE_FIRST))
+		      MODULE_FILTER | MODULE_PARSER | MODULE_FIRST |
+		      MODULE_PRECACHE))
   {
     me->defvar("_priority", 5, "Priority", TYPE_INT_LIST,
 	       "The priority of the module. 9 is highest and 0 is lowest."
@@ -2569,8 +2600,7 @@ object enable_module( string modname )
 	       " priority is applied.",
 	       ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
       
-    if(module->type != MODULE_LOGGER &&
-       module->type != MODULE_PROVIDER)
+    if(!(module->type & (MODULE_LOGGER | MODULE_PROVIDER | MODULE_PRECACHE)))
     {
       if(!(module->type & MODULE_PROXY))
       {
@@ -2678,7 +2708,7 @@ object enable_module( string modname )
   } else {
     me->defvar("_priority", 0, "", TYPE_INT, "", 0, 1);
   }
-
+  
   me->defvar("_comment", "", " Comment", TYPE_TEXT_FIELD|VAR_MORE,
 	     "An optional comment. This has no effect on the module, it "
 	     "is only a text field for comments that the administrator "
@@ -2841,6 +2871,11 @@ object enable_module( string modname )
     pri[pr]->first_modules += ({ me });
   }
 
+  if(module->type & MODULE_PRECACHE) {
+    pri[pr]->precache_modules += ({ me });
+  }
+
+  
   hooks_for(module->sname+"#"+id, me);
       
   enabled_modules=retrieve("EnabledModules", this);
@@ -2963,6 +2998,10 @@ int disable_module( string modname )
   if(module->type & MODULE_PROVIDER) {
     for(pr=0; pr<10; pr++)
       m_delete(pri[pr]->provider_modules, me);
+  }
+  if(module->type & MODULE_PRECACHE) {
+    for(pr=0; pr<10; pr++)
+      pri[pr]->precache_modules -= ({ me });
   }
   
   if(module["type"] & MODULE_TYPES)
