@@ -294,7 +294,7 @@ static void openssl_SSL_shutdown(INT32 args) {
 
 static MUTEX_T openssl_locks[CRYPTO_NUM_LOCKS];
 
-static unsigned long openssl_thread_id() {
+static unsigned long openssl_thread_id(void) {
 	return (unsigned long)th_self();
 }
 
@@ -304,7 +304,7 @@ static void openssl_locking_callback(int m, int t, const char *f, int l) {
 	return;
 }
 
-static void openssl_init_threads() {
+static void openssl_init_threads(void) {
 	int i;
 
 	for (i = 0; i < CRYPTO_NUM_LOCKS; i++) mt_init(openssl_locks + i);
@@ -349,7 +349,7 @@ static void openssl_SSL_program_exit(struct object *o) {
 **  pike_module_exit()                                                      **
 *****************************************************************************/
 
-void pike_module_init() {
+void pike_module_init(void) {
 #ifdef HAVE_OPENSSL
 	SSL_load_error_strings();
 	SSL_library_init();
@@ -398,7 +398,7 @@ void pike_module_init() {
 	return;
 }
 
-void pike_module_exit() {
+void pike_module_exit(void) {
 #ifdef HAVE_OPENSSL
 	free_program(openssl_SSL_program);
 	openssl_SSL_program = NULL;
