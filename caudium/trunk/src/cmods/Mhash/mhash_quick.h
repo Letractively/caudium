@@ -25,15 +25,15 @@ void PIKE_CONCAT(f_hash_,NAME)(INT32 args) { \
   unsigned char *res;\
   struct pike_string *str;\
   int len, i;\
-  if(args != 1 && sp[-1].type != T_STRING) {\
+  if(args != 1 && Pike_sp[-1].type != T_STRING) {\
     Pike_error("Invalid / incorrect args to hash_" #NAME ". Expected string.\n");\
   }\
   hash = mhash_init(TYPE);\
   if(hash == MHASH_FAILED) {\
     Pike_error("Failed to initialize hash.\n");\
   }\
-  mhash(hash, sp[-1].u.string->str,\
-	sp[-1].u.string->len << sp[-1].u.string->size_shift);\
+  mhash(hash, Pike_sp[-1].u.string->str,\
+	Pike_sp[-1].u.string->len << Pike_sp[-1].u.string->size_shift);\
   res = mhash_end(hash);\
   len = mhash_get_block_size(TYPE);\
   str = begin_shared_string(len);\
