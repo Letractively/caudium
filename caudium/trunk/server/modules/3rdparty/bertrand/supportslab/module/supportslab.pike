@@ -108,6 +108,7 @@ string scope_callback(object parser, string scope, string name, object id, strin
 void override_supports(string useragent, object id)
 {
   useragent = lower_case(useragent);
+  // TODO: force reload the supports file
   multiset newsupports = caudium->find_supports(useragent);
   id->supports = newsupports;
 }
