@@ -192,6 +192,148 @@ inherit _Caudium;
 //!    Non RIS function, handled by _Caudium C module that calls system
 //!    strftime(3).
 
+//
+//! @decl int strptime(string date, string format)
+//!  Parse the specified date according to the given format and put the
+//!  broken-down time in the mapping passed to the function.
+//!
+//! @param date
+//!  The date string to parse
+//!
+//! @param format
+//!  The format to be used when parsing the date. The format may contain
+//!  printf-style formatting codes consisting of a percent character
+//!  followed by a single character. The following formatting codes are
+//!  recognized:
+//!
+//!  @dl
+//!   @item %%
+//!    The % character.
+//!   @item %a or %A
+//!    The weekday name according to the current locale, in abbreviated
+//!    form or the full name.
+//!   @item %b or %B or %h
+//!     The month name according to the current locale, in abbreviated form
+//!     or the full name.
+//!   @item %c
+//!    The date and time representation for the current locale.
+//!   @item %C
+//!    The century number (0-99).
+//!   @item %d or %e
+//!    The day of month (1-31).
+//!   @item %D
+//!    Equivalent  to  %m/%d/%y.  (This  is the American style date, very
+//!    confusing to non-Americans, especially since %d/%m/%y is widely used
+//!    in Europe.  The ISO 8601 standard format is %Y-%m-%d.)
+//!   @item %H
+//!    The hour (0-23).
+//!   @item %I
+//!    The hour on a 12-hour clock (1-12).
+//!   @item %j
+//!    The day number in the year (1-366).
+//!   @item %m
+//!    The month number (1-12).
+//!   @item %M
+//!    The minute (0-59).
+//!   @item %n
+//!    Arbitrary whitespace.
+//!   @item %p
+//!    The locale's equivalent of AM or PM. (Note: there may be none.)
+//!   @item %r
+//!    The 12-hour clock time (using the locale's AM or PM).  In the POSIX
+//!    locale equivalent to %I:%M:%S %p.   If  t_fmt_ampm  is  empty  in
+//!    the LC_TIME part of the current locale then the behaviour is
+//!    undefined.
+//!   @item %R
+//!    Equivalent to %H:%M.
+//!   @item %S
+//!    The second (0-60; 60 may occur for leap seconds; earlier also 61 was
+//!    allowed).
+//!   @item %t
+//!    Arbitrary whitespace.
+//!   @item %T
+//!    Equivalent to %H:%M:%S.
+//!   @item %U
+//!    The week number with Sunday the first day of the week (0-53).  The
+//!    first Sunday of January is the first day of week 1.
+//!   @item %w
+//!    The weekday number (0-6) with Sunday = 0.
+//!   @item %W
+//!    The week number with Monday the first day of the week (0-53).  The
+//!    first Monday of January is the first day of week 1.
+//!   @item %x
+//!    The date, using the locale's date format.
+//!   @item %X
+//!    The time, using the locale's time format.
+//!   @item %y
+//!    The year within century (0-99).  When a century is not otherwise
+//!    specified, values in the range 69-99 refer to years in the twentieth
+//!    century (1969-1999); values in the range 00-68 refer to years in the
+//!    twenty-first century (2000-2068).
+//!   @item %Y
+//!    The year, including century (for example, 1991).
+//!  @enddl
+//!
+//! Some field descriptors can be modified by the E or O modifier
+//! characters to indicate that an alternative format or specification
+//! should be used. If the alternative format or specification does not
+//! exist in the current locale, the unmodified field descriptor is used.
+//! The E modifier specifies that the input string may contain alternative
+//! locale-dependent versions of the date and time representation:
+//!
+//!  @dl
+//!   @item %Ec
+//!    The locale's alternative date and time representation.
+//!   @item %EC
+//!    The name of the base year (period) in the locale's alternative representation.
+//!   @item %Ex
+//!    The locale's alternative date representation.
+//!   @item %EX
+//!    The locale's alternative time representation.
+//!   @item %Ey
+//!    The offset from %EC (year only) in the locale's alternative
+//!    representation.
+//!   @item %EY
+//!    The full alternative year representation.
+//!  @enddl
+//!
+//! The O modifier specifies that the numerical input may be in an
+//! alternative locale-dependent format:
+//!
+//!  @dl
+//!   @item %Od or %Oe
+//!    The day of the month using the locale's alternative numeric symbols;
+//!    leading zeros are permitted but not required.
+//!   @item %OH
+//!    The hour (24-hour clock) using the locale's alternative numeric
+//!    symbols.
+//!   @item %OI
+//!    The hour (12-hour clock) using the locale's alternative numeric
+//!    symbols.
+//!   @item %Om
+//!    The month using the locale's alternative numeric symbols.
+//!   @item %OM
+//!    The minutes using the locale's alternative numeric symbols.
+//!   @item %OS
+//!    The seconds using the locale's alternative numeric symbols.
+//!   @item %OU
+//!    The week number of the year (Sunday as the first day of the week)
+//!    using the locale's alternative numeric symbols.
+//!   @item %Ow
+//!    The number of the weekday (Sunday=0) using the locale's alternative
+//!    numeric symbols.
+//!   @item %OW
+//!    The week number of the year (Monday as the first day of the week)
+//!    using the locale's alternative numeric symbols.
+//!   @item %Oy
+//!    The year (offset from %C) using the locale's alternative numeric
+//!    symbols.
+//!  @enddl
+//!
+//! @returns
+//!  The date in the Unix time format.
+//
+
 //! @decl string extension(string what)
 //!   Get the extension name from a filename string. Handles also
 //!   known unix backup extensions as well eg '#' and '~' ending files. 
