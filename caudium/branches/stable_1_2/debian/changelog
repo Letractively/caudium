@@ -1,3 +1,9 @@
+caudium (2:1.2.33-3) unstable; urgency=low
+
+  * Updated the build dependency on Pike
+
+ -- Marek Habersack <grendel@debian.org>  Sun, 25 Jul 2004 03:21:01 +0200
+
 caudium (2:1.2.33-2) unstable; urgency=low
 
   * Included the Dutch translation by Bart Cornelis <cobaco@linux.be>. 
