@@ -442,7 +442,7 @@ string compress_state(mapping state)
   m_delete(state,"action");
   m_delete(state,"unique");
 
-//  werror(sprintf("State=%O\n", state));
+//  report_debug("State=%O\n", state);
 
   string from = encode_value(state);
   object gz = Gz;

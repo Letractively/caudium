@@ -75,8 +75,8 @@ void create(string reason, int|string|void uid, int|string|void gid)
 #ifdef THREADS
 #if constant(roxen_pid) && !constant(_disable_threads)
   if(getpid() == roxen_pid)
-    werror("Using Privs ("+reason+") in threaded environment, source is\n  "+
-	   replace(describe_backtrace(backtrace()), "\n", "\n  ")+"\n");
+    report_debug("Using Privs ("+reason+") in threaded environment, source is\n  "+
+	         replace(describe_backtrace(backtrace()), "\n", "\n  ")+"\n");
 #endif
 #endif
 #ifdef HAVE_EFFECTIVE_USER
