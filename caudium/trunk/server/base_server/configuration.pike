@@ -1424,6 +1424,9 @@ mapping|int low_get_file(object id, int|void no_magic)
   mixed tmp, tmp2;
   mapping|object fid;
 
+  if (!id->misc)
+    id->misc = ([]);
+
   switch(QUERY(_use_scopes)) {
       case "Off":
           id->misc->_use_scopes = 0;
@@ -2873,29 +2876,6 @@ object enable_module( string modname )
   me->defvar("_name", "", " Module name", TYPE_STRING|VAR_MORE,
 	     "An optional name. Set to something to remaind you what "
 	     "the module really does.");
-
-  me->defvar("_use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
-             "<p>This compatibility option manages the new feature of the Caudium Webserver "
-             "known as <em>scopes</em>.</p>"
-             "<p>Under Roxen 1.3, variable names can contain periods "
-             "(such as \"new.form.variable\") but with Caudium the "
-             "scope-parsing code will attempt to make this a variable "
-             "called \"form.variable\" in the \"new\" scope - and since "
-             "there is no scope called \"new\", the action will fail - "
-             "this breaks compatablity with existing RXML. A small example "
-             "to illustrate the situation:</p>"
-             "<blockquote><pre>"
-             "&lt;if variable=\"new.formvar is \"&gt;\n"
-	     "\t&lt;set variable=\"new.formvar\" value=\"blargh\"&gt;\n"
-	     "&lt;/if&gt;\n"
-             "&lt;formoutput&gt;\n"
-	     "\t&lt;form&gt;\n"
-	     "\t\t&lt;input name=\"new.formvar\""
-             "value=\"#new.formvar#\"&gt;&lt;\n"
-	     "\t/form&gt;\n"
-	     "&lt;/formoutput&gt;"
-             "</pre></blockquote>",
-             ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
   
   me->setvars(retrieve(modname + "#" + id, this));
 
@@ -3946,6 +3926,29 @@ void create(string config)
 	 "This setting configures an internally handled location that can "
 	 "be used for such purposes.  Simply select a location that you are "
 	 "not likely to use for regular resources.");
+	 
+  defvar("_use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
+         "<p>This compatibility option manages the new feature of the Caudium Webserver "
+         "known as <em>scopes</em>.</p>"
+         "<p>Under Roxen 1.3, variable names can contain periods "
+         "(such as \"new.form.variable\") but with Caudium the "
+         "scope-parsing code will attempt to make this a variable "
+         "called \"form.variable\" in the \"new\" scope - and since "
+         "there is no scope called \"new\", the action will fail - "
+         "this breaks compatablity with existing RXML. A small example "
+         "to illustrate the situation:</p>"
+         "<blockquote><pre>"
+         "&lt;if variable=\"new.formvar is \"&gt;\n"
+	 "\t&lt;set variable=\"new.formvar\" value=\"blargh\"&gt;\n"
+	 "&lt;/if&gt;\n"
+         "&lt;formoutput&gt;\n"
+	 "\t&lt;form&gt;\n"
+	 "\t\t&lt;input name=\"new.formvar\""
+         "value=\"#new.formvar#\"&gt;&lt;\n"
+	 "\t/form&gt;\n"
+	 "&lt;/formoutput&gt;"
+         "</pre></blockquote>",
+         ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
 
   setvars(retrieve("spider#0", this));
 
