@@ -271,7 +271,7 @@ object get_statistics(string profile, string period, string action, array t,
   return stats;
 }
 
-#define LINK(x,y, link) (dates[y] ? (y == sel ? sprintf("<font size=+1><b><a href=%s%s/%s/>%s</a></b></font>", base_url, period, link, x): sprintf("<a href=%s%s/%s/>%s</a>", base_url, period, link, x)) : x)
+#define LINK(x,y, link) ((dates && dates[y]) ? (y == sel ? sprintf("<font size=+1><b><a href=%s%s/%s/>%s</a></b></font>", base_url, period, link, x): sprintf("<a href=%s%s/%s/>%s</a>", base_url, period, link, x)) : x)
 
 string list_years(string base_url, mapping dates, int|void sel)
 {
