@@ -211,22 +211,19 @@ static void init_hash_storage(struct object *o)
 }
 
 struct program *mhash_init_mhash_program(void) {
-  struct program *prog;
   start_new_program();
   ADD_STORAGE( mhash_storage  );
-  add_function("create", f_hash_create, "function(int|void:void)", 0 ); 
-  add_function("update", f_hash_feed,   "function(string:void)", 0 ); 
-  add_function("feed", f_hash_feed,     "function(string:void)", 0 ); 
-  add_function("digest", f_hash_digest, "function(void:string)", 0 ); 
-  add_function("hexdigest", f_hash_hexdigest, "function(void:string)", 0 ); 
-  add_function("name", f_hash_name,     "function(void:string)", 0 ); 
-  add_function("reset", f_hash_reset,   "function(void:void)", 0 ); 
-  add_function("set_type", f_hash_set_type, "function(void:void)", 0 ); 
+  ADD_FUNCTION("create", f_hash_create,   tFunc(tOr(tInt,tVoid),tVoid), 0);
+  ADD_FUNCTION("update", f_hash_feed,   	tFunc(tStr,tVoid), 0 ); 
+  ADD_FUNCTION("feed", f_hash_feed,     	tFunc(tStr,tVoid), 0 );
+  ADD_FUNCTION("digest", f_hash_digest, 	tFunc(tVoid,tStr), 0);
+  ADD_FUNCTION("hexdigest", f_hash_hexdigest, 	tFunc(tVoid,tStr), 0 ); 
+  ADD_FUNCTION("name", f_hash_name,     	tFunc(tVoid,tStr), 0 ); 
+  ADD_FUNCTION("reset", f_hash_reset,   	tFunc(tVoid,tVoid), 0 ); 
+  ADD_FUNCTION("set_type", f_hash_set_type, 	tFunc(tVoid,tVoid), 0 ); 
   set_init_callback(init_hash_storage);
   set_exit_callback(free_hash_storage);
-  prog = end_program();
-  add_program_constant("Hash", prog, 0);
-  return prog;
+  end_class("Hash", 0);
 }
 
 #endif

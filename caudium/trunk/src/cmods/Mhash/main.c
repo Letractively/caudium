@@ -34,12 +34,11 @@ RCSID("$Id$");
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
-static struct program *hash_program;
 
 /* Init the module */
 void pike_module_init(void)
 {  
-  hash_program = mhash_init_mhash_program();
+  mhash_init_mhash_program();
   mhash_init_globals();
 }
 
@@ -47,7 +46,6 @@ void pike_module_init(void)
 /* Restore and exit module */
 void pike_module_exit( void )
 {
-  free_program(hash_program);
 }
 
 #else /* HAVE_MHASH */
