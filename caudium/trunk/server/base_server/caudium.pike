@@ -2475,6 +2475,51 @@ private void define_global_variables( int argc, array (string) argv )
 	  0, cache_disabled_p);
 
   /// End of cache variables..
+
+  /// Beginning of *new* cache variables. Watch the old ones dissappear over time...
+
+  globvar("cache_max_ram", 128,
+          "Caching Sub-system: Maximum RAM Usage (MB)", TYPE_INT,
+          "The maximum amount of RAM that should be consumed by the "
+          "caching system in Megabytes.",
+          0, cache_disabled_p );
+
+  globvar("cache_max_slow", 1024,
+          "Caching Sub-system: Maximum Slow Storage Usage (MB)", TYPE_INT,
+          "The maximum amount of storage space that can be consumed by the "
+          "caching systems slow storage method in Megabytes.",
+          0, cache_disabled_p );
+
+  globvar("cache_vigilance", 75,
+          "Caching Sub-system: Vigilance (%), TYPE_INT,
+          "The caching system uses an asynchronous method of maintaining "
+          "the limits to the caches RAM and slow storage methods as "
+          "also configured here. A setting of 100% will mean that the "
+          "cache sizes will be forced to no more than the configured values "
+          "every 30 seconds, a setting of 0% will mean the sizes are checked "
+          "approximately 20 minutes. If you have heaps of RAM and disk then "
+          "you might mean that setting this value low will increase the "
+          "performance of the server by causing it to cache more data in RAM, "
+          "however this is not correct as when it does come time to clear "
+          "the caches it will have to shuffle more data. 75% is the reccomended "
+          "value, and should probably not be fiddled with unless you are sure "
+          "of what you're doing.",
+          0, cache_disabled_p );
+
+  globvar("cache_fs_path", "/var/cache/caudium/cache",
+          "Caching Sub-system: Slow Storage Path", TYPE_DIR,
+          "Path on the filesystem for storage of cached data if, indeed the "
+          "disk storage method is being used.",
+          0, cache_disabled_p );
+
+  /* NOT IMPLEMENTED YET
+  globvar("cache_slow_store", "Disk Cache",
+          "Caching Sub-system: Slow Storage Method", TYPE_STRING_LIST,
+          "There are several methods of slow storage available, including "
+          "disk storage and SQL storage. Please select the method.",
+          caudium->cache->slow_store_methods(), cache_disabled_p );
+  */
+  // End of *new* cache variabled.
   
   globvar("docurl2", "http://www.roxen.com/documentation/context.pike?page=",
 	  "Documentation URL", TYPE_STRING|VAR_MORE|VAR_EXPERT,
