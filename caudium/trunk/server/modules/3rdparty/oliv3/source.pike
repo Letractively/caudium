@@ -17,11 +17,9 @@ constant module_type = MODULE_FILTER;
 constant module_name = "Oliv3's source module";
 constant module_doc  = "Show the sources."
 
-// #ifdef CAMAS_DEBUG
   " <font color=\"#ff0000\"><b><br />  <u>WARNING</u>: this module *IS*"
   " *NOT* a safe module, as it shows visitors the RXML source of your pages."
-  " Use at your own risks...</b></font>"
-// #endif;
+  " Use at your own risks...</b></font>";
 
 constant module_unique = 1;
 
@@ -59,8 +57,6 @@ constant html4_t = html4_tags;
 // ==============================================================================
 
 void create () {
-  defvar ("on", 0, "Enabled", TYPE_FLAG, "Is this module enabled ?");
-
   defvar ("xml_style", 0, "XML-like output", TYPE_FLAG, "if yes, add \" /\""
 	  " at the end of tags.");
   
@@ -154,7 +150,7 @@ string do_container (object parser, mapping m, string content, object id,
       string filename = caudium->filename (mod);
       //write("insert container doc from filename: [" + filename + "]\n");
 	if (filename && !search (filename, "modules/")) {
-	  string url = QUERY (base_url) + filename + ".xml#" + cname;
+	  string url = QUERY (base_url) + "/" + filename + ".xml#" + cname;
 	  ret += LT "a target=\"new\" href=\"" + url + "\"" GT;
 	  ret += cname;
 	  ret += LT "/a" GT;
@@ -186,7 +182,7 @@ string do_tag (object parser, mapping m, object id, int highlight, int doc) {
       string filename = caudium->filename (mod);
       //write("insert tag doc from filename: [" + filename + "]\n");
 	if (filename && !search (filename, "modules/")) {
-	  string url = QUERY (base_url) + filename + ".xml#" + tname;
+	  string url = QUERY (base_url) + "/" + filename + ".xml#" + tname;
 	  ret += LT "a target=\"new\" href=\"" + url + "\"" GT;
 	  ret += tname;
 	  ret += LT "/a" GT;
@@ -199,24 +195,6 @@ string do_tag (object parser, mapping m, object id, int highlight, int doc) {
   }
   else
     ret += tname;
-
-#if 0 // {#~^\@~{# **** does not work yet
-  /*
-    the idea here is to possibly allow a redirect
-    on a file which is <insert>ed. comments welcomed :)
-   */
-  if (tname == "insert") {
-    write ("found an insert tag !!!\n");
-    if (m->file) {
-      write ("  found a file attribute !!!\n");
-      string ref = m->file;
-      string newref = LT "a href=\"" + "/" + ref + "/(source)/\"" GT;
-      newref += ref;
-      newref += LT "/a" GT;
-      m->file = newref;
-    }
-  }
-#endif
 
   ret += my_make_attributes (m, highlight);
   if (QUERY (xml_style)) ret += " /";
@@ -254,32 +232,20 @@ object prepare_highlight (object id) {
   foreach (indices (id->conf->modules), string s) {
     mapping m = id->conf->modules[s];
     if (m->type & MODULE_PARSER) {
-      //      write(sprintf("found module: %O\n", m));
+      //write(sprintf("found module: %O\n", m));
       object mod = id->conf->find_module (m->sname);
       //write ("name = " + caudium->filename(mod) + "\n");
 
-      if (mod->query_tag_callers) {
-        //write(sprintf("found tags: %O\n", mod->query_tag_callers ()));
-        //array tags_to_disable = indices (mod->query_tag_callers ());
-        //write(sprintf("found tags to disable: %O\n", tags_to_disable));
-	foreach (indices (mod->query_tag_callers ()), string t) {
-	  //write ("tag: " + t + "\n");
+      if (mod->query_tag_callers)
+	foreach (indices (mod->query_tag_callers ()), string t)
 	  tags += ([ t : do_tag ]);
-	}
-      }
 
-      if (mod->query_container_callers) {
-	//write(sprintf("found containers: %O\n", mod->query_container_callers ()));
-	//array containers_to_disable = indices (mod->query_container_callers ());
-	//write(sprintf("found containers to disable: %O\n", containers_to_disable));
-	foreach (indices (mod->query_container_callers ()), string c) {
-	  //write ("container: " + c + "\n");
+      if (mod->query_container_callers)
+	foreach (indices (mod->query_container_callers ()), string c)
 	  containers += ([ c : do_container ]);
-	}
-      }
     }
   }
-
+  
   foreach (html4_c, string c)
     containers += ([ c : do_container ]);
 
@@ -319,12 +285,15 @@ string do_highlight (string s, int highlight, int doc) {
 }
 
 mapping filter (mapping result, object id) {
-  if (!QUERY (on) || !result || !result->type
+  if (!result || !result->type
       || search (result->type, "text/") || !stringp (result->data)
       || id->misc->source_filtered++)
     return 0;
   
-  if (id->variables->source || id->prestate->source && id->realfile) {  
+  if (!id->prestate->source)
+    return 0;
+
+  if (id->realfile) {  
     string ret = result->data;
 
     ret += QUERY (prolog);
@@ -333,8 +302,8 @@ mapping filter (mapping result, object id) {
     if (file) {
       id = prepare_highlight (id); // oliv3 FIXME wrong name !!!
       file = do_highlight (file,
-			   (id->variables->highlight || id->prestate->highlight),
-			   (id->variables->doc || id->prestate->doc));
+			   id->prestate->highlight,
+			   id->prestate->doc);
       
       // ret += html_encode_string (file) + QUERY (epilog);
       ret += file + QUERY (epilog);
