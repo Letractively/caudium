@@ -1,37 +1,39 @@
-MODNAME=PiXSL
-OBJS= sablot.o
-SOURCES=sablot.c
-CFLAGS=  @CPPFLAGS@ @CFLAGS@ -I@PIKE_INCLUDE_DIR@
+MODNAME=UltraLog
+OBJS= ultrautil.o ultraparse.o
+SOURCES=ultrautil.c ultraparse.c
+CFLAGS=  @CFLAGS@ -I@PIKE_INCLUDE_DIR@
 CC=@CC@
-LDFLAGS=   @LDFLAGS@ @LIBS@
 LIBGCC=@LIBGCC@
+LDFLAGS=  @LDFLAGS@
 LD= @LDSHARED@
 PIKE=@PIKE@
 SO=@SO@
+prefix=@prefix@
 all: $(MODNAME).$(SO)
+
 INSTALLDIR=@PIKE_MODULE_DIR@
 
-all:  Makefile $(MODNAME).$(SO)
+all:  Makefile.pre $(MODNAME).$(SO)
 
 .SUFFIXES: .c .o
-
 force:
 	@:
 
 install: all
 	cp -f $(MODNAME).$(SO) $(INSTALLDIR)
+	cp -f ultrasum $(prefix)/bin/
 
 $(MODNAME).$(SO):  $(OBJS)
 	@echo "linking $(MODNAME)" ;\
-	if $(LD)  -o $(MODNAME).$(SO) $(OBJS)  $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
+	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
 	  :\
 	else \
 	  echo "Linking failed:" >&2; \
-	  echo $(LD) -o $(MODNAME).$(SO) $(OBJS) $(LDFLAGS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
+	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
 	fi
 
-Makefile: Makefile.in configure config.status
-	@echo "configure or Makefile.in changed."
+Makefile.pre: Makefile.pre.in configure config.status
+	@echo "configure or Makefile.pre.in changed."
 	@if test -f config.status; then \
            echo -n "Rebuilding Makefile myself using: ";\
 	   echo "`head config.status|grep 'configure '|tr '#' ' '` "; \
@@ -56,16 +58,20 @@ configure: configure.in
 config.status: configure
 	./config.status --recheck
 
-depend: force
-	$(CC) -MM $(CFLAGS) *.c > dependencies
+depend:  force
+	@echo "Calculating dependencies..."
+	@cat Makefile.pre >  Makefile
+	@$(CC) -MM $(CFLAGS) *.c >> Makefile
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
 
 distclean: clean
-	rm -f config.* Makefile dependencies sablot_config.h
+	rm -f config.* Makefile dependencies Makefile.pre
 
 spotless: distclean
-	rm -f configure  sablot_config.h.in
+	rm -f configure 
 
-include dependencies
+
+# Dependencies goes here...
+
