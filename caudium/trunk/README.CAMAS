@@ -12,9 +12,9 @@ more details.
 WARNING
 -------
 
-CAMAS is in heavy developpement, without any documentation and it
-is possible that some bugs still exist in the code.
-Modules CAMAS:* are marked as experimental and using them you should keep
-it in mind that you are using experimental code.
-
-
+CAMAS is under heavy development, without any documentation and it's
+possible that some bugs still exist in the code.  All CAMAS:* modules
+are considered experimental and if you decide to use them, you should
+know that you're using non-finished code. If you find any bugs or have
+any problems, please report them to our bug tracking system at
+http://sourceforge.net/bugs/?group_id=8825
