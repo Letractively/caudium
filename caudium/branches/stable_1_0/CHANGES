@@ -7,6 +7,7 @@ Changes in Caudium 1.0.XX
   passwd was not in cache (eg where you were the first to login after a
   restart/start of caudium).
 - ldapuserauth.pike: crypt problem fixed.
+- little fixes with installation on OpenBSD
 
 Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
 --------------------------------------------------------
