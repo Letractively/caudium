@@ -1,3 +1,14 @@
+caudium (2:1.0.35-12) unstable; urgency=low
+
+  * Added the Swedish translation of the debconf template (submitted
+    by Martin Sj|gren <md9ms@mdstud.chalmers.se>)
+  * Removed the 'text' type from the debconf template (closes: #106331)
+  * Fixed the postrm script not to try to remove the '.' and '..' 
+    directories (patch submitted by David Coe <dcoe@peoplink.org>, 
+    closes: #108427)
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 23 Aug 2001 14:29:18 +0200
+
 caudium (2:1.0.35-11) unstable; urgency=low
 
   * Added build dependency on autoconf (closes: #106149)
