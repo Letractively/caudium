@@ -50,9 +50,13 @@ constant module_unique = 1;
 
 void create() {
 
+  defvar("virtonly", 1, "Support only virtual acccess", TYPE_FLAG,
+         "If set, Caudium will accept only \"virtual\" method to #include, "
+         "#flastmod and to #fsize SSI extensions. Warning allow this can "
+         "have some big security problems for public websites.");
+
   defvar("exec", 0, "SSI execute command", 
-	 TYPE_FLAG,
-	 "If set and if server side include support is enabled, Roxen "
+	 TYPE_FLAG, "If set, Caudium "
 	 "will accept NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt;. "
 	 "Note that this will allow your users to execute arbitrary "
 	 "commands.");
@@ -186,7 +190,7 @@ string tag_compat_include(string tag,mapping m,object id,object file,
       return "<!-- No RXML Tags Module ??? -->";
   }
 
-  if(m->file) {
+  if(m->file && !QUERY(virtonly)) {
     mixed tmp;
     string fname1 = m->file;
     string fname2;
@@ -261,11 +265,11 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
     }
     m->file = id->conf->real_file(m->virtual, id);
     m_delete(m, "virtual");
-  } else if (m->file && sizeof(m->file) && (m->file[0] != '/')) {
+  } else if (m->file && sizeof(m->file) && (m->file[0] != '/') && !QUERY(virtonly)) {
     // Fix relative path
     m->file = combine_path(id->conf->real_file(id->not_query, id) || "/", "../" + m->file);
   }
-  if(m->file) {
+  if(m->file && !QUERY(virtonly)) {
     array s;
     s = file_stat(m->file);
     CACHE(5);
