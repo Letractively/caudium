@@ -147,7 +147,6 @@ install: build
 	chmod 755 debian/tmp/usr/lib/caudium$(EXTVER)/perl/bin/perlhelper
 
 	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/share/pike_packages/apps/modules/
-	install -d -m 755 -o root -g root $(CURDIR)/debian/tmp/usr/local/share/caudium/modules/
 
 	#
 	# the -p debhelper param seems to be not working... 

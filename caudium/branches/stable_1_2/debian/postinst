@@ -164,6 +164,10 @@ EOF
 	rm -r /usr/lib/caudium/caudium-images
     fi
     ln -sf ../../share/caudium/caudium-images /usr/lib/caudium/caudium-images
+    
+    if [ ! -d /usr/local/share/caudium/modules/ ]; then
+	install -d -m 755 -o root -g root /usr/local/share/caudium/modules/
+    fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
