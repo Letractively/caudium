@@ -30,12 +30,12 @@ mapping below=([]);
 array (string) _path = ({ });
 string path(int i)
 {
-  array rp = Array.map(_path, replace, "/", ";;");
+  array rp = Array.map(_path, replace, "/", "%2F");
   if(i) return replace("/"+rp*"/",
 		       ({ " ", "\t", "\n", "\r", 
-			  "?", "&", }), 
+			  "?", "&", "%"}), 
 		       ({ "%20", "%07", "%0A", "%0D", 
-			  "%3f", "%26", }) );
+			  "%3f", "%26", "%25" }) );
   return "/"+rp*"/";
 }
 
@@ -67,7 +67,7 @@ object descend(string what, int nook)
 {
   object o;
 
-  what = replace(what, ";;", "/");
+  what = replace(what, "%2F", "/");
   if(objectp(below[what]))
     return below[what];
   if(nook) return 0;
