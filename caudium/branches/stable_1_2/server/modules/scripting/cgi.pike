@@ -658,7 +658,7 @@ class CGIScript
        stderr = Stdio.stderr;
        break;
      case "custom log file":
-       stderr = open_log_file( query( "cgilog" ) );
+       stderr = open_log_file( QUERY(cgilog) );
        break;
      case "browser":
        stderr = stdout;
@@ -818,7 +818,7 @@ void start(int n, object conf)
     global_env["SERVER_URL"]=conf->query("MyWorldLocation");
 
     array us = ({0,0});
-    foreach(query("extra_env")/"\n", tmp)
+    foreach(QUERY(extra_env)/"\n", tmp)
       if(sscanf(tmp, "%s=%s", us[0], us[1])==2)
         global_env[us[0]] = us[1];
   }
@@ -902,7 +902,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
 */
 array (string) query_file_extensions()
 {
-  return query("ext");
+  return QUERY(ext);
 }
 
 int run_as_user_enabled() { return (getuid() || !QUERY(user)); }
@@ -1103,7 +1103,7 @@ int|string tag_cgi( string tag, mapping args, object id )
 {
   DWERROR("CGI:tag_cgi()\n");
 
-  if(!query("cgi_tag")) 
+  if(!QUERY(cgi_tag)) 
     return 0;
 
   if(args->help)
