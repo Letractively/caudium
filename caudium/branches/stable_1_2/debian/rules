@@ -161,6 +161,8 @@ install: build
 	# move all the arch independent files to /usr/share and symlink them from their original location
 	# in /usr/lib/caudium/
 	
+	# pbuilder seems to have a problem with the script permissions
+	chmod 755 $(CURDIR)/debian/reflect.sh
 	for p in $(PACKAGES); do \
 	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
 	     -name "*.pike" -type f -print \
