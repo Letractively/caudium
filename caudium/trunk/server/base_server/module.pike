@@ -623,7 +623,10 @@ string query_internal_location()
 string query_location()
 {
   string s;
-  catch{s = query("location");};
+  mixed err = catch{
+    s = query("location");
+  };
+  if (err) s = "";
   return s;
 }
 
