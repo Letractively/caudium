@@ -524,11 +524,13 @@ class Store
             pages_by_name = ([]);
             footer=header="";
 
-            string tmp;
+            string tmp, tmp2;
             
-            tmp = parse_html_lines( parse_html_lines(contents, 
-                                                     ([ "awizard_include":internal_tag_include]),
-                                                     ([ "comment":lambda(){ return ""; } ]),id), 
+	    tmp2 = parse_html_lines(contents, 
+                                    ([ "awizard_include":internal_tag_include]),
+                                    ([ "comment":lambda(){ return ""; } ]),id);
+				    
+            tmp = parse_html_lines(tmp2, 
                                     ([ ]),
                                     ([ "page":internal_tag_page,
                                        "header":internal_tag_header,
