@@ -73,7 +73,7 @@ constant module_doc =
 	"declared as thread safe, this module can't be runned a second time, "
 	"blocking the 1st level virtual server where it is enabled.</p>"
 	"<p><strong>Warning:</strong> this module is intended for educational "
-	"purpose only, like watchdog testing.</p>";
+	"purpose only, eg watchdog testing.</p>";
 
 constant module_unique = 1;
 constant thread_safe = 0;
@@ -100,7 +100,7 @@ void create()
 		"Block Caudium?",
 		TYPE_FLAG,
 		"<p>Do you really want to block Caudium?</p>"
-		"<p>If yes, all the requests to your 2st level virtual host will be "
+		"<p>If yes, all the requests to your 1st level virtual host will be "
 		"blocked.</p>"
 		"<p>Watchdog behavior:"
 		"<ul>"
