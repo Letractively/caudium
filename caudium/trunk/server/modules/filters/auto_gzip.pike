@@ -444,6 +444,8 @@ mapping filter(mapping response, object id)
         response->data = gzip(response->data, id);
 	response["extra_heads"] += ([ "Content-Encoding" : "gzip" ]);
       }
+      // now set the content-length accordingly
+      response->len = strlen(response->data);
       if(sizeof(QUERY(vary)) > 0)
 	response["extra_heads"] += ([ "Vary" : QUERY(vary) * "," ]);
       LOCK();
