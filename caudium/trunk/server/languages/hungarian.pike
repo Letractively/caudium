@@ -36,20 +36,13 @@
  */
 
 string cvs_version = "$Id$";
-string month(int num)
-{
-  return ({ "janu&aacute;r",  "febru&aacute;r", "m&aacute;rcius",
-            "&aacute;prilis", "m&aacute;jus",   "j&uacute;nius",
-            "j&uacute;lius",  "augusztus",      "szeptember",
-            "okt&oacute;ber", "november",       "december" })[ num - 1 ];
-}
 
-string day(int num)
-{
-  return ({ "vas&aacute;rnap", "h&eacute;tf&otilde;",      "kedd",
-            "szerda",          "cs&uuml;t&ouml;rt&ouml;k", "p&eacute;ntek",
-            "szombat" })[ num - 1 ];
-}
+import ".";
+inherit english;
+
+array(string)    the_words = ({
+    "év", "hónap", "hét", "nap"
+});
 
 string ordered(int i)
 {
@@ -61,37 +54,47 @@ string ordered(int i)
 
 string date(int timestamp, mapping|void m)
 {
-  mapping t1=localtime(timestamp);
-  mapping t2=localtime(time(0));
+    object  target = Calendar.Second("unix", timestamp)->set_language("hungarian");
+    object  now = Now;
+    string  curtime = target->format_mod();
+    string  curday = ordered(target->month_day());
+    string  curmonth = month(target->month_no());
+    string  curyear = target->year_name();
+    
+    if(!m) m=([]);
 
-  if(!m) m=([]);
-
-  if(!(m["full"] || m["date"] || m["time"]))
-  {
-    if(t1["yday"] == t2["yday"] && t1["year"] == t2["year"])
-      return "ma, "+ ctime(timestamp)[11..15];
+    if(!(m["full"] || m["date"] || m["time"]))
+    {
+        int     dist;
+        
+        if (target > now)
+            dist = -now->distance(target)->how_many(Calendar.Day);
+        else
+            dist = target->distance(now)->how_many(Calendar.Day);
+      
+        if (!dist)
+            return "ma, " + curtime;
   
-    if(t1["yday"]+1 == t2["yday"] && t1["year"] == t2["year"])
-      return "tegnap, "+ ctime(timestamp)[11..15];
+        if (dist == -1)
+            return "tegnap, " + curtime;
   
-    if(t1["yday"]-1 == t2["yday"] && t1["year"] == t2["year"])
-      return "holnap, "+ ctime(timestamp)[11..15];
+        if (dist == 1)
+            return "holnap, " + curtime;
   
-    if(t1["year"] != t2["year"])
-      return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) );
+        if(now->year_no() != target->year_no())
+            return curyear + ". " + curmonth;
 
-    return (month(t1["mon"]+1) + ". " + ordered(t1["mday"]));
-  }
-  if(m["full"])
-    return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) + " " +
-           ordered(t1["mday"]) + ", " + ctime(timestamp)[11..15] );
+        return curmonth + ". " + curmonth;
+    }
+        
+    if(m["full"])
+        return curyear + ". " + curmonth + " " + curday + ", " + curtime;
 
-  if(m["date"])
-    return ( (t1["year"]+1900) + ". " + month(t1["mon"]+1) + " " +
-           ordered(t1["mday"]) );
+    if(m["date"])
+        return curyear + ". " + curmonth + " " + curday;
 
-  if(m["time"])
-    return ctime(timestamp)[11..15];
+    if(m["time"])
+        return curtime;
 }
 
 string number(int num)
@@ -159,4 +162,11 @@ string number(int num)
 array aliases()
 {
   return ({ "hu", "hun", "magyar", "hungarian" });
+}
+
+void create()
+{
+    Now = Calendar.now()->set_language("hungarian");
+    initialize_months(Now);
+    initialize_days(Now);
 }
