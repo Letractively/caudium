@@ -11,6 +11,7 @@ caudium (2:1.0.37-1) unstable; urgency=medium
     - little fixes with installation on OpenBSD
     
   * The init script now checks whether the PID to be killed exists (closes: #120628)
+  * Updated the standards version
 
  -- Marek Habersack <grendel@debian.org>  Mon, 26 Nov 2001 11:30:23 +0100
 
