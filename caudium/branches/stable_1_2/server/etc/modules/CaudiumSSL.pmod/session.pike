@@ -24,7 +24,7 @@ void set_cipher_suite(int suite,int version)
   cipher_suite = suite;
   ke_method = res[0];
   cipher_spec = res[1];
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("CaudiumSSL.session: cipher_spec %O\n",
 		 mkmapping(indices(cipher_spec), values(cipher_spec))));
 #endif
@@ -61,7 +61,7 @@ string generate_key_block(string client_random, string server_random,array(int) 
       {
 	i++;
 	string cookie = replace(allocate(i), 0, sprintf("%c", 64+i)) * "";
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 	werror(sprintf("cookie %O\n", cookie));
 #endif
 	key += md5->hash_raw(master_secret +
@@ -72,13 +72,13 @@ string generate_key_block(string client_random, string server_random,array(int) 
     key=prf(master_secret,"key expansion",server_random+client_random,required);
 
   }
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("key_block: %O\n", key));
 #endif
   return key;
 }
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
 void printKey(string name , string key) {
 
   string res="";
@@ -99,7 +99,7 @@ array generate_keys(string client_random, string server_random,array(int) versio
   object key_data = Struct(generate_key_block(client_random, server_random,version));
   array keys = allocate(6);
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror(sprintf("client_random: %O\nserver_random: %O\n",
 		client_random, server_random));
 #endif
@@ -113,7 +113,7 @@ array generate_keys(string client_random, string server_random,array(int) versio
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
   {
     if(version[1]==0) {
-      //SSL3.0
+      //CaudiumSSL3.0
       object md5 = mac_md5()->hash_raw;
       
       keys[2] = md5(key_data->get_fix_string(5) +
@@ -157,7 +157,7 @@ array generate_keys(string client_random, string server_random,array(int) versio
   }
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
 
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   printKey( "client_write_MAC_secret",keys[0]);
   printKey( "server_write_MAC_secret",keys[1]);
   printKey( "keys[2]",keys[2]);

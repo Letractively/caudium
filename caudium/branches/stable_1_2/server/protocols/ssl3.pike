@@ -55,7 +55,7 @@ mapping parse_args(string options)
 }
 
 class roxen_ssl_context {
-  inherit SSL.context;
+  inherit CaudiumSSL.context;
   int port; /* port number */
 }
 
@@ -638,7 +638,7 @@ void ssl_accept_callback(object id)
 }
 
 class roxen_sslfile {
-  inherit SSL.sslfile : ssl;
+  inherit CaudiumSSL.sslfile : ssl;
 
   object raw_file;
   object config;

@@ -62,7 +62,7 @@ object accept()
 
 void create()
 {
-#ifdef SSL3_DEBUG
+#ifdef CaudiumSSL3_DEBUG
   werror("CaudiumSSL.sslport->create\n");
 #endif
   context::create();

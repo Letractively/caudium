@@ -1,6 +1,6 @@
 #! /usr/bin/env pike
 
-// SSL Client example
+// CaudiumSSL Client example
 
 import CaudiumSSL.constants;
 
@@ -19,14 +19,13 @@ void read_callback(mixed id, string s)
 
 int main(int argc, array(string) argv)
 {
-  CaudiumSSL.context context = SSL.context();
+  CaudiumSSL.context context = CaudiumSSL.context();
 
   // Allow only strong crypto
   context->preferred_suites = ({
-    SSL_rsa_with_idea_cbc_sha,
-    SSL_rsa_with_rc4_128_sha,
-    SSL_rsa_with_rc4_128_md5,
-    SSL_rsa_with_3des_ede_cbc_sha,
+    CaudiumSSL_rsa_with_rc4_128_sha,
+    CaudiumSSL_rsa_with_rc4_128_md5,
+    CaudiumSSL_rsa_with_3des_ede_cbc_sha,
   });
 
   context->random = Crypto.randomness.reasonably_random()->read;
