@@ -67,7 +67,7 @@ case "$1" in
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
-    if [! -f /etc/default/caudium ]; then
+    if [ ! -f /etc/default/caudium ]; then
 	cat <<EOF > /etc/default/caudium
 #
 # This variable will be joined with the default
