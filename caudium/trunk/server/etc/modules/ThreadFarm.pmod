@@ -95,4 +95,10 @@ class Farm {
     void enqueue(function fun, mixed ... args) {
         queue->write( ({ fun, args }) );
     }
+
+    //! Find out how many requests are waiting in the queue.
+    //! ie. how busy is the threadfarm?
+    int depth() {
+      return queue->size();
+    }
 }
