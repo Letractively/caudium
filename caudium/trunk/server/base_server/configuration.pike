@@ -3582,16 +3582,17 @@ class DataCache
     while( (strlen( data ) + current_size) > max_size )
       clear_some_cache();
     current_size += strlen( data );
-    meta += (["ETag":Crypto.sha()->update(url)->digest()]);
     cache[url] = ({ data, meta });
   }
   
-  array(string|mapping(string:mixed)) get( string url )
+  array(string|mapping(string:mixed)) get( string url, mapping request_headers )
   {
     mixed res;
-    if( res = cache[ url ] )  
+    
+    if( res = cache[ url ] ) {
+      // Fixme: we need ETag (If-Match, If-None-Match and Vary) processing here
       hits++;
-    else
+    } else
       misses++;
     return res;
   }
