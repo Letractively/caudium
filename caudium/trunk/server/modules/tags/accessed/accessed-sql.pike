@@ -79,7 +79,7 @@ void create(object c) {
          "Add the server Id in the SQL table. <b>Note</b>: you will lose "
 	 "Roxen 2.x compatibility if this enabled.");
 
-  defvar("serverid",c->query("MyWorldLocation"),"Id to add in SQL table",
+  defvar("serverid","www.domain.com","Id to add in SQL table",
          TYPE_STRING|VAR_MORE,"This will be added in the SQL database as "
 	 "unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> "
 	 "counter data will be reset to 0.");
