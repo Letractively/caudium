@@ -24,6 +24,7 @@
 
 extern JSRuntime      *smrt;
 extern JSObject       *global;
+extern JSObject       *caudium;
 
 /* in sm_main.c */
 int init_globals(JSContext *ctx);

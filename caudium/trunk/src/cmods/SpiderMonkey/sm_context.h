@@ -31,6 +31,15 @@ typedef struct
 } js_context;
 
 #define THIS ((js_context*)(Pike_interpreter.frame_pointer->current_storage))
+#define JS_FUNCDEF(name) static JSBool name (JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 #define DEF_OUTPUTBUF_LEN 8192
+
+/* in sm_caudium.c */
+JSObject *init_caudium(JSContext*);
 #endif
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */

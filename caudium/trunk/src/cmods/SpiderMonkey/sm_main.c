@@ -30,13 +30,16 @@ RCSID("$Id$");
 
 #include "sm_globals.h"
 #include "sm_main.h"
+#include "sm_context.h"
 
 #ifndef RT_MAXBYTES
 #define RT_MAXBYTES (8L * 1024L * 1024L)
 #endif
 
+/* shared stuff, initialized only once */
 JSRuntime      *smrt = NULL; /* the runtime */
 JSObject       *global = NULL; /* the global object */
+JSObject       *caudium = NULL;
 
 static JSClass global_class = {
     "global", JSCLASS_NEW_RESOLVE,
@@ -88,6 +91,7 @@ int init_globals(JSContext *ctx)
    */
   JS_SetGlobalObject(ctx, global);
 
+  caudium = init_caudium(ctx);
   return 1;
 }
 
