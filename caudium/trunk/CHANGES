@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Apache/NSCA SSI tags are now handled into a separate module called
+  SSI Compat Tags (ssi_compat.pike). Don't forget to add this to your
+  configuration interface if you need this support...
 - Fix pluging path for rimage module.
 - modules/scripting/oldcgi.pike and modules/scripting/fcgi.pike are now 
   deprecated. For FastCGI support you can use now fastcgi.pike that work
