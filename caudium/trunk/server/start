@@ -72,7 +72,7 @@ fi
 
 # Extra module-path
 if [ -d etc/modules ]; then
-  DEFINES="$DEFINES -Metc/modules"
+  DEFINES="$DEFINES -Metc/modules -M../local/pmods"
 fi
 
 # Extra include-path

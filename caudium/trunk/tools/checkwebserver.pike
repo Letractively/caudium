@@ -12,7 +12,7 @@
 // process to the remote server
 #define TIMEOUT 10
 // the MAX number of simultaneous connections we made
-#define MAX_CONN 200
+#define MAX_CONN 2000
 
 // the number of connections at a given time
 static int nb_connections = 0;
@@ -155,7 +155,7 @@ class http {
     output_fd = _output_fd;
     start_time = _start_time;
     checked = 0;
-    _lines = Array.uniq(_lines);
+    //_lines = Array.uniq(_lines);
     foreach(_lines, string site)
     {
       if(site[0..6] == "http://")
@@ -174,8 +174,9 @@ class http {
   {
     int elapsed_time = time() - start_time;
     write("\nTest finished\n");
-    write("Scanned %d hosts in %d seconds: %f hosts/s\n", 
-      checked, elapsed_time, (float)checked/elapsed_time);
+    if(elapsed_time > 0)
+      write("Scanned %d hosts in %d seconds: %f hosts/s\n", 
+        checked, elapsed_time, (float)checked/elapsed_time);
     string output = "";
     foreach(indices(results), string indice)
       output += sprintf("%s %s\n", indice, results[indice]);

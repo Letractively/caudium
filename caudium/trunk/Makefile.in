@@ -106,7 +106,7 @@ install_only:
 	@find $(prefix)/caudium/server/ -name CVS -print | xargs rm -rf
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
 	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
-	for d in local local/modules local/nfonts server/lib ; \
+	for d in local local/modules local/pmods local/nfonts server/lib ; \
 	  do \
 	    test -d $(prefix)/caudium/$$d/. || mkdir $(prefix)/caudium/$$d; \
 	done
@@ -147,6 +147,7 @@ install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
@@ -198,6 +199,7 @@ install_alt:
 	    $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike
 	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium$(EXTRAVER)/;g" \
 	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium$(EXTRAVER)/servers/;g" \
+	     -e "s;\(-Metc/modules \)-M../local/pmods;\1-Mlocal_pmods;g" \
 	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start > \
 	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new; \
 	mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
