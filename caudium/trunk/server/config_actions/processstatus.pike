@@ -44,7 +44,8 @@ string describe_global_status()
 mixed page_0(object id, object mc)
 {
   string res;
-  int *ru, tmp, use_ru;
+  array(int) ru;
+  int tmp, use_ru;
   array err;
   if(err = catch(ru=rusage()))
     return sprintf("<h1>Failed to get rusage information: </h1><pre>%s</pre>",

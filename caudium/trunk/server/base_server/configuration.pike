@@ -1425,7 +1425,11 @@ mapping|int low_get_file(object id, int|void no_magic)
   mixed tmp, tmp2;
   mapping|object fid;
 
-
+  // Simplify the path to ensure that the file never points under the
+  // current directory. Generally not needed, but it's a cheap
+  // operation considering the security problems it stops.
+  file = combine_path("/", file); 
+  
   if(!no_magic)
   {
     if (id->prestate->internal) {
@@ -1436,8 +1440,7 @@ mapping|int low_get_file(object id, int|void no_magic)
 #ifndef NO_INTERNAL_HACK 
     // No, this is not beautiful... :) 
 
-    if(sizeof(file) && (file[0] == '/') &&
-       sscanf(file, "%*s/internal-%s-%s", type, loc) == 3)
+    if(sscanf(file, "%*s/internal-%s-%s", type, loc) == 3)
     {
       switch(type) {
           case "gopher":

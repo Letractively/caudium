@@ -44,7 +44,7 @@ int verify_0()
 // Debug functions.  List _all_ open filedescriptors
 inline static private array checkfd_fix_line(string l)
 {
-  string *s;
+  array(string) s;
   s=l/",";
   if (sizeof(s) > 1) {
     s[0]=decode_mode((int)("0"+s[0]));
