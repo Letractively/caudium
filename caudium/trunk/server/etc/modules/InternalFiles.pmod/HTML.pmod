@@ -19,14 +19,22 @@
  *
  * $Id$
  */
+
+//! HTML wrapper for internal files.
+
+//!
+constant cvs_version="$Id$";
+
+//!
 static constant mime_type = "text/html";
 
+//!
 static mapping empty_file = ([
     "data":#string "nofile.html",
     "type":mime_type]);
 
-static string
-replace_vars(string file, mapping(string:string) vars)
+//!
+static string replace_vars(string file, mapping(string:string) vars)
 {
     if (!vars || !sizeof(vars))
         return file;
@@ -41,6 +49,7 @@ replace_vars(string file, mapping(string:string) vars)
     return replace(file, from, to);
 }
 
+//!
 mapping(string:string) handle(object id,
                               string file,
 			      mapping(string:mixed) query,

@@ -20,6 +20,12 @@
  * $Id$
  */
 
+//! Image handler for Internal files.
+
+//!
+constant cvs_version="$Id$";
+
+//!
 static array(mapping) image_types =
 ({
     (["ext": "gif","type":"image/gif"]),
@@ -112,6 +118,7 @@ private mapping(string:mixed)
     return 0; /* for now */
 }
 
+//!
 mapping(string:string) handle(object id,
                               string file,
                               mapping(string:mixed) query,
