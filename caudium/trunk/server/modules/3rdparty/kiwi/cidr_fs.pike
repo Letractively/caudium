@@ -80,46 +80,6 @@ constant thread_safe    = 0;
 object  filewatch;    // Filewatcher object
 mapping cidrlist;     // CIDR list with actions in an array    
 
-class CIDRFile {
-  
- private string datafile;    // file to be used
-
-#define LINE_COMMENT  0x00
-#define LINE_DIRECTIVE 0x01
-
- private int qualify_line(string line)
- {
-   if (!line || line == "")
-     return LINE_COMMENT;
-   if (sizeof(line) >=1 && line [0..0] == "#")
-     return LINE_COMMENT;
-   if (sizeof(line) >=1 && line [0..0] == " ")
-     return LINE_COMMENT;
-   if (sizeof(line/"\t") == 3)
-     return LINE_DIRECTIVE;
-   return -1;
-  }
-
-  void create(string path)
-  {
-    datafile = Stdio.read_bytes(path);
-    if (datafile == 0) throw("Unable to read "+path+"file !");
-  }
-
-  mapping doindex()
-  {
-    mapping out = ([ ]);
-    foreach((datafile-"\r")/"\n",string foo)
-    {
-      if(qualify_line(foo) == LINE_DIRECTIVE)
-      {
-         array l= foo / "\t";
-         out += ([ l[0] : l[1] ]);
-      }
-    return out;
-  }
-}
-
 #if 0
 //! method: int load_cidrfile(string file)
 //!  Load the specified file into cidrlist
@@ -192,6 +152,47 @@ class IP_check {
       return (sprintf("%1c%1c%1c%1c", a1, a2, a3, a4) & _mask) == _ip;
 
     return 255;
+  }
+}
+
+// Create the mapping of CIDR things
+class CIDRFile {
+  
+ private string datafile;    // file to be used
+
+#define LINE_COMMENT  0x00
+#define LINE_DIRECTIVE 0x01
+
+ private int qualify_line(string line)
+ {
+   if (!line || line == "")
+     return LINE_COMMENT;
+   if (sizeof(line) >=1 && line [0..0] == "#")
+     return LINE_COMMENT;
+   if (sizeof(line) >=1 && line [0..0] == " ")
+     return LINE_COMMENT;
+   if (sizeof(line/"\t") == 3)
+     return LINE_DIRECTIVE;
+   return -1;
+  }
+
+  void create(string path)
+  {
+    datafile = Stdio.read_bytes(path);
+    if (datafile == 0) throw("Unable to read "+path+"file !");
+  }
+
+  mapping doindex()
+  {
+    mapping out = ([ ]);
+    foreach((datafile-"\r")/"\n",string foo)
+    {
+      if(qualify_line(foo) == LINE_DIRECTIVE)
+      {
+         array l= foo / "\t";
+         out += ([ l[0] : l[1] ]);
+      }
+    return out;
   }
 }
 
