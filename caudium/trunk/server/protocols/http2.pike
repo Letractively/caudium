@@ -292,7 +292,7 @@ private int do_post_processing()
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
   if(misc->len && method == "POST") {
-    id->misc->cacheable = 0; /* No good caching posts */
+    misc->cacheable = 0; /* No good caching posts */
     
     if(request_headers["content-type"]) {
       // handle post data
