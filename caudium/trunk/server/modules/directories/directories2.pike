@@ -173,7 +173,7 @@ string find_readme(string d, object id)
 string describe_directory(string d, object id)
 {
   // Clean the path...
-  d = combine_path(d, ".");
+  d = combine_path(d, "./");
   array(string) path = d/"/" - ({ "" });
   array(string) dir;
   string result = "";
