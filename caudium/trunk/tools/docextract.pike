@@ -732,7 +732,9 @@ void make_doc_files()
    stderr->write("modules: "+sort(indices(parse) - ({ "_order"}))*", "+"\n");
    
    foreach (sort(indices(parse)-({"_order"})),string module) {
+     stdout->write("<documentation>\n\n");
      document(parse[module]->_type,parse[module],module,module+".",stdout);
+     stdout->write("\n</documentation>\n\n");
    }
 }
 
