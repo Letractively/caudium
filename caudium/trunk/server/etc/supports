@@ -93,7 +93,7 @@ mozilla/[5-9].*		pnginline
 # }
 
 #section Opera {
-.*/5.*		-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies, \
+/5.0		-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies, \
                  ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline
 #}
 
