@@ -1753,8 +1753,11 @@ class FTPSession
           }
           break;
         case 401:
-        case 403:
           send(530, ({ sprintf("'%s': %s: Access denied.",
+                               cmd, f) }));
+          break;
+        case 403:
+          send(451, ({ sprintf("'%s': %s: Forbidden.",
                                cmd, f) }));
           break;
         case 405:
