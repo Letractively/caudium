@@ -4,7 +4,8 @@ static void f_parse_headers( INT32 args );
 static void f_parse_query_string( INT32 args );
 void pike_module_init( void );
 void pike_module_exit( void );
-void free_buf_struct(struct object *);
+static void free_buf_struct(struct object *);
+static void alloc_buf_struct(struct object *);
 
 #define BUFSIZE 16535
 #define BUF ((buffer *)fp->current_storage)
@@ -34,11 +35,11 @@ typedef struct
 
 typedef struct
 {
-  unsigned char data[BUFSIZE];
   unsigned char *pos;
   int free;
   struct mapping *headers;
   struct mapping *other;
+  unsigned char *data;
 } buffer;
 
 #ifdef NEW_MAPPING_LOOP

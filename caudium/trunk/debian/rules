@@ -98,7 +98,6 @@ install: build
 	           debian/tmp/usr/lib/caudium/etc/roxen_hilfe.pike \
 		   debian/tmp/usr/lib/caudium/base_server/config/font
 		   
-	-rm -f debian/usr/share/doc/caudium/COPYING
 	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
 	
 	# add libroxen modules path
@@ -116,7 +115,6 @@ install: build
 	ln -sf ../../../bin/pike7-cvs `pwd`/debian/tmp/usr/lib/caudium/bin/pike
 	ln -sf ../../../bin/pike7-cvs `pwd`/debian/tmp/usr/lib/caudium/bin/caudium
 	rm -rf debian/tmp/usr/local/
-	
 	dh_movefiles
 
 # Build architecture-independent files here.

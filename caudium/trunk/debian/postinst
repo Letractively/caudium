@@ -142,14 +142,6 @@ EOT
 fi
     db_stop
 
-    #
-    # Some modules inherit other with relative paths
-    #
-    cd /usr/lib/caudium/
-    for d in ../../share/caudium/*; do
-	ln -sf ${d} /usr/lib/caudium/
-    done
-
     # Now let's take care of permissions
     # if it is the first time we run Caudium
     if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
