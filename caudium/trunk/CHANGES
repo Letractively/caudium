@@ -82,3 +82,5 @@ Changes in Caudium 1.3 since Caudium 1.2.1
   initialized).
 - File index.rxml is now recognized as index file.
 - New cache system added
+- Fixed bug in http.pike/mainconfig.pike that didn't allow modules with a :
+  in the name to be selected in the Configuration Interface
