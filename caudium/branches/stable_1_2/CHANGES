@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.3x since 1.2.32
 --------------------------------------
+- Added Switch File module for handle Switch like 404files does.
+   (Xavier Beaudouin)
 - Floats are now handled by sexpr_eval()
    (Bertrand Lupart, Jan-Felix Wittman)
 - Fixed a bug in store() in Gsesion module (wrong arguments given to the
