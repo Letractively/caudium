@@ -118,26 +118,35 @@ private void wrong_usage(object id)
 private void fetch_args(object id)
 {
   // fetch arguments from links only one time for each HTTP request
+  // also handle overflow that could happen if the same url is sent
+  // twice for example
   if(!id->misc->navbar_args_fetched)
   {
     NDEBUG("Fetching args");
-    if(id->variables->navbarnextblock)
+    if(id->variables->navbarnextblock 
+        && (get_current_page(id) + 1) <= get_lastpage(id))
       set_current_page(id, get_current_page(id) + 1);
-    if(id->variables->navbarprevblock)
+    if(id->variables->navbarprevblock && (get_current_page(id) - 1) > 0)
       set_current_page(id, get_current_page(id) - 1);
     if(id->variables->navbarnextgroup)
-      {
-	int page_id = get_current_page (id) + NAV_MAX_PAGES;
-	if (page_id>get_lastpage (id)) page_id =get_lastpage (id);
-	set_current_page(id, page_id);
-      }
+    {
+      int page_id = get_current_page (id) + NAV_MAX_PAGES;
+      // overflow catching
+      if (page_id > get_lastpage (id))
+        page_id = get_lastpage (id);
+      set_current_page(id, page_id);
+    }
     if(id->variables->navbarprevgroup)
-      {
-	int page_id = get_current_page(id) - NAV_MAX_PAGES;
-	if (page_id<1) page_id =1;
-	set_current_page(id, page_id);
-      }
-    if(id->variables->navbargotoblock)
+    {
+      int page_id = get_current_page(id) - NAV_MAX_PAGES;
+      // overflow catching
+      if (page_id < 1)
+        page_id = 1;
+      set_current_page(id, page_id);
+    }
+    if(id->variables->navbargotoblock 
+        && (int)id->variables->navbarelement > 0 
+        && (int)id->variables->navbarelement <= get_lastpage(id))
       set_current_page(id, (int)id->variables->navbarelement);
     id->misc->navbar_args_fetched = 1;
   }
