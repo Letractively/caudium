@@ -28,22 +28,22 @@ AC_CHECK_HEADERS( sablot.h )
 dnl  if we need this, use em.
 dnl No need to continue unless the header is found...
 if test "$ac_cv_header_sablot_h" = "yes"; then
-    unset ac_cv_lib_sablot_SablotProcess
+    unset ac_cv_lib_sablot_SablotRunProcessorGen
     OLDLIBS="$LIBS"
     LIBS=""
-    AC_CHECK_LIB(sablot, SablotProcess,
+    AC_CHECK_LIB(sablot, SablotRunProcessorGen,
     [
       AC_DEFINE(HAVE_LIBSABLOT)
   	  LIBS="-lsablot $OLDLIBS"
   	], [
-  	  unset ac_cv_lib_sablot_SablotProcess
-  	  AC_CHECK_LIB(sablot, SablotProcess,
+  	  unset ac_cv_lib_sablot_SablotRunProcessorGen
+  	  AC_CHECK_LIB(sablot, SablotRunProcessorGen,
   	  [
   		AC_DEFINE(HAVE_LIBSABLOT)
   		LIBS="-lsablot -lexpat $OLDLIBS"
   	  ], [
-  		unset ac_cv_lib_sablot_SablotProcess
-  		AC_CHECK_LIB(sablot, SablotProcess,
+  		unset ac_cv_lib_sablot_SablotRunProcessorGen
+  		AC_CHECK_LIB(sablot, SablotRunProcessorGen,
   		[
   		  AC_DEFINE(HAVE_LIBSABLOT)
   		  LIBS="-lsablot -lxmlparse -lxmltok $OLDLIBS"
@@ -53,12 +53,12 @@ if test "$ac_cv_header_sablot_h" = "yes"; then
 fi
 
 if test "$ac_cv_header_sablot_h" != "yes" -o \
-	    "$ac_cv_lib_sablot_SablotProcess" != "yes"; then
+	    "$ac_cv_lib_sablot_SablotRunProcessorGen" != "yes"; then
 cat << EOF
 *************************************************************
 **** The Sablotron XSLT processing library couldn't be found.
 **** PiXSL will not be built. You can get Sablotron from
-**** http://www.gingerall.com/
+**** http://www.gingerall.org/charlie/ga/xml/d_sab.xml?s=org
 *************************************************************
 EOF
 fi
