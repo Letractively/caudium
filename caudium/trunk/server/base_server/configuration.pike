@@ -1303,7 +1303,8 @@ private mapping internal_caudium_image(string from)
     "png":"image/png",
     "jpg":"image/jpeg",
     "jpeg":"image/jpeg",
-    "xcf":"image/x-xcf"
+    "xcf":"image/x-xcf",
+    "ico":"image/x-icon",
   ]);
   
   switch(ext) {
