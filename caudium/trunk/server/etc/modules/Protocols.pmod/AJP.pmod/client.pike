@@ -138,7 +138,7 @@ class connection
   void request_done()
   {
     if(destruct_on_close && destroy_function)
-      destroy_function(this);
+      destroy_function(this_object());
   }
 
 }
