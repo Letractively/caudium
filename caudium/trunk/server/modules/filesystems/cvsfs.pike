@@ -84,7 +84,7 @@ object|array run_cvs(string prog, string dir, int with_stderr, string ...args)
   int id;
   object|array result;
 
-  // werror(sprintf("run_cvs: %s %s\n", prog, args * " ")); 
+  // report_debug("run_cvs: %s %s\n", prog, args * " "); 
   
   stdin->open("/dev/null", "r");
   if (with_stderr)
@@ -104,7 +104,7 @@ mapping parse_modules_file(string modules)
   int i;
   array rows = map(replace(modules, "\t", " ") / "\n",
 		   lambda (string row) { return (row / " ") - ({""}); } ) - ({ ({}) }) ;
-// werror(sprintf("parse_modules_file: %O\n", rows));
+// report_debug("parse_modules_file: %O\n", rows);
   return mkmapping(map(rows, lambda(array data) { return data[0]; }), rows);
 }
 
@@ -135,27 +135,27 @@ string lookup_cvs_module(string prog, string root, string module)
   if (! (prog && root && module))
     return 0;
   
-  /* werror(sprintf("lookup_cvs_module: prog = %O, root = %O, module=%O\n",
-     prog, root, module));
+  /* report_debug("lookup_cvs_module: prog = %O, root = %O, module=%O\n",
+     prog, root, module);
      */
   f = run_cvs(prog, 0, 0, "-d", root, "checkout", "-p", "CVSROOT/modules");
   if (!f)
     return 0;
 
-  // werror("Reading from cvs\n");
+  // report_debug("Reading from cvs\n");
   mods = f->read(1000000);
   
   if (!strlen(mods))
     return 0;
-  // werror("cvsmodules: " + mods + "\n");
+  // report_debug("cvsmodules: " + mods + "\n");
   mods = handle_cvs_comments_etc(mods);
-  // werror("cvsmodules: " + mods + "\n");
+  // report_debug("cvsmodules: " + mods + "\n");
   
   array mod = parse_modules_file(mods)[module];
   
   if (!mod)
     return 0;
-  // werror(sprintf("Module: %O\n", mod));
+  // report_debug("Module: %O\n", mod);
   int index=1;
   while (mod[index][0] == '-') /* Skip flags */
     {
@@ -191,11 +191,11 @@ string find_binaries(array path, array|void extra)
   string prog;
 
   cvs_program = locate_binary(path, "cvs");
-  // werror(sprintf("cvs program located as: %s\n", cvs_program || ""));
+  // report_debug("cvs program located as: %s\n", cvs_program || "");
   rlog_program = locate_binary(path, "rlog");
-  // werror(sprintf("rlog program located as: %s\n", rlog_program || ""));
+  // report_debug("rlog program located as: %s\n", rlog_program || "");
   rcsdiff_program = locate_binary(path, "rcsdiff");
-  // werror(sprintf("rcsdiff program located as: %s\n", rcsdiff_program ||""));
+  // report_debug("rcsdiff program located as: %s\n", rcsdiff_program ||"");
 
   if (!cvs_program)
     return "No cvs program found.";
@@ -216,11 +216,11 @@ string find_cvs_dir(string path)
   array(string) components = path / "/";
   string subpath = components[1..] * "/";
   if (strlen(components[0])) {
-    // werror("Looking for cvs submodule.\n");
+    // report_debug("Looking for cvs submodule.\n");
     string name =
       lookup_cvs_module(cvs_program, query("cvsroot"),
 			components[0] );
-    // werror(sprintf("components = %O\n", components));
+    // report_debug("components = %O\n", components);
     if (! (name && strlen(name) ))
       return "Module not found in CVS";
     if (!file_stat(query("cvsroot") + name))
@@ -231,7 +231,7 @@ string find_cvs_dir(string path)
       return "No such directory";
     cvs_module_path = subpath;
   }
-  // werror(sprintf("Using path '%s'\n", cvs_module_path));
+  // report_debug("Using path '%s'\n", cvs_module_path);
   return 0;
 }
 
@@ -273,7 +273,7 @@ string query_location() { return query("location"); }
 string|void check_variable(string name, string value)
 {
   string path;
-  // werror("Trying to set '" + name + "' = '" + value + "'\n");
+  // report_debug("Trying to set '" + name + "' = '" + value + "'\n");
   switch(name)
   {
   case "cvsmodule":
@@ -312,7 +312,7 @@ string status()
 
 mixed stat_file(string name, object id)
 {
-  // werror(sprintf("file_stat: Looking for '%s'\n", name));
+  // report_debug("file_stat: Looking for '%s'\n", name);
   // Strip .. and .
   name = secure_path(name);
   name = combine_path(query("cvsroot"), cvs_module_path + "/" + name);
@@ -419,7 +419,7 @@ array find_dir(string name, object id)
   array info;
   string fname = combine_path(query("cvsroot"),
 			      cvs_module_path + "/" + secure_path(name));
-  // werror(sprintf("find_dir: Looking for '%s'\n", name));
+  // report_debug("find_dir: Looking for '%s'\n", name);
 
   if (cvs_module_path
       && (info = file_stat(fname))
