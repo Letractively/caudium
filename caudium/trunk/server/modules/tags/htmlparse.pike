@@ -1891,7 +1891,11 @@ string tag_clientname(string tag, mapping m, object id)
   NOCACHE();
   if(m->full) 
     return html_encode_string(id->useragent);
-  else 
+  else if (m->short)
+    return html_encode_string((((id->useragent/" ")[0])/"/")[0]);
+  else if (m->version)
+    return html_encode_string((((id->useragent/" ")[0])/"/")[1]);
+  else
     return html_encode_string((id->useragent/" ")[0]);
 }
 
