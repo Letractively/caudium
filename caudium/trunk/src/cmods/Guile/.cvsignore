@@ -1,7 +1,0 @@
-Makefile
-Makefile.pre
-dependencies
-config.status
-config.log
-configure
-guile_config.h.in
