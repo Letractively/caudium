@@ -181,5 +181,7 @@ mapping cache_string_object( string s, string name, void|int exp) {
 
 //!
 mapping cache_image_object( object img, string name, void|int exp ) {
+  if (!objectp(img))
+    throw(({ "cache_image must take an Image.Image() object.\n", backtrace() }));
   return go( "image", img, name, exp );
 }
