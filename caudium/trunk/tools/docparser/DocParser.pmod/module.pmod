@@ -314,6 +314,7 @@ class Method {
     
     string                        name;
     string                        scope;
+    string                        general;
     array(mapping(string:string)) args;
     array(string)                 returns;
     array(string)                 seealso;
@@ -343,6 +344,10 @@ class Method {
                     scope = newstuff;
                     break;
 
+                case "general":
+                    general = newstuff;
+                    break;
+                    
                 case "arg":
                     args += ({(["synopsis":newstuff])});
                     break;
@@ -408,6 +413,13 @@ class Method {
                 scope = newstuff;
                 break;
 
+            case "general":
+                if (newstuff == "")
+                    general += "\n";
+                else
+                    general += newstuff + "\n";
+                break;
+                
             case "arg":
                 if (!args[-1]->description)
                     args[-1]->description = newstuff + "\n";
@@ -456,6 +468,7 @@ class Method {
         first_line = line;
         name = "";
         scope = "";
+        general = "";
         args = ({});
         returns = ({});
         seealso = ({});
@@ -1523,6 +1536,7 @@ mapping(string:object|string) container_scope = ([
 mapping(string:object|string) method_scope = ([
     "name":"",
     "scope":"",
+    "general":"",
     "arg":"",
     "returns":"",
     "see_also":"",
