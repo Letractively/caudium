@@ -89,7 +89,7 @@ void create() {
 	 "showall is present. Hiding can be used to remove unnecessary "
 	 "statistic groups that display info you don't log or "
 	 "aren't interested in.");
-  defvar("cssuri", "", Stylesheet URL", TYPE_STRING,
+  defvar("cssuri", "", "Stylesheet URL", TYPE_STRING,
          "URL or relative URI to a stylesheet file that you wish to apply "
 	 "to the HTML output from Ultralog.");
 }
