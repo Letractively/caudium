@@ -49,6 +49,9 @@ mapping fton=([]);
 
 object database, names_file;
 
+#define CALL_USER_TAG id->conf->parse_module->call_user_tag
+#define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
+
 // Used by the compatibility functions...
 #if !constant(strftime)
 string strftime(string fmt, int t)
@@ -1015,64 +1018,19 @@ string tag_use(string tag, mapping m, object id)
   foreach(indices(res->_tags), string t)
     id->misc->_tags[t] = res->_tags[t];
 
-  foreach(indices(res->_containers), string t)
+  foreach(indices(res->_containers), string t) 
     id->misc->_containers[t] = res->_containers[t];
+
+  if(id->misc->_xml_parser) {
+    id->misc->_xml_parser->add_tags(res->_tags);
+    id->misc->_xml_parser->add_containers(res->_containers);
+  }
 
   if(id->misc->debug)
     return sprintf("<!-- Using the file %s, id %O -->", m->file, res);
   else
     return "";
 }
-
-
-string call_user_tag(string tag, mapping args, int line, mixed foo, object id)
-{
-  id->misc->line = line;
-  args = id->misc->defaults[tag]|args;
-  if(!id->misc->up_args) id->misc->up_args = ([]);
-  TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
-  array replace_from = ({"#args#"})+
-    Array.map(indices(args)+indices(id->misc->up_args),
-	      lambda(string q){return "&"+q+";";});
-  array replace_to = (({make_tag_attributes( args + id->misc->up_args ) })+
-		      values(args)+values(id->misc->up_args));
-  foreach(indices(args), string a)
-  {
-    id->misc->up_args["::"+a]=args[a];
-    id->misc->up_args[tag+"::"+a]=args[a];
-  }
-  string r = replace(id->misc->tags[ tag ], replace_from, replace_to);
-  TRACE_LEAVE("");
-  return r;
-}
-
-string call_user_container(string tag, mapping args, string contents, int line,
-			 mixed foo, object id)
-{
-  id->misc->line = line;
-  args = id->misc->defaults[tag]|args;
-  if(!id->misc->up_args) id->misc->up_args = ([]);
-  if(args->preparse
-     && (args->preparse=="preparse" || (int)args->preparse))
-    contents = parse_rxml(contents, id);
-  if(args->trimwhites) {
-    sscanf(contents, "%*[ \t\n\r]%s", contents);
-    contents = reverse(contents);
-    sscanf(contents, "%*[ \t\n\r]%s", contents);
-    contents = reverse(contents);
-  }
-  TRACE_ENTER("user defined container &lt;"+tag+"&gt", call_user_container);
-  array replace_from = ({"#args#", "<contents>"})+
-    Array.map(indices(args),
-	      lambda(string q){return "&"+q+";";});
-  array replace_to = (({make_tag_attributes( args  ),
-			contents })+
-		      values(args));
-  string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
-  TRACE_LEAVE("");
-  return r;
-}
-
 
 //! container: define
 //!  Defines new tags, container tags or defines. You can use a few
@@ -1140,7 +1098,11 @@ string tag_define(string tag, mapping m, string str, object id, object file,
 	id->misc->defaults[m->tag] += ([ arg[8..]:m[arg] ]);
     
     id->misc->tags[m->tag] = str;
-    id->misc->_tags[m->tag] = call_user_tag;
+    if(id->misc->_xml_parser) {
+      id->misc->_xml_parser->add_tag(m->tag, CALL_USER_TAG);
+    } else {
+      id->misc->_tags[m->tag] = CALL_USER_TAG;
+    }
   }
   else if (m->container) 
   {
@@ -1157,7 +1119,11 @@ string tag_define(string tag, mapping m, string str, object id, object file,
 	id->misc->defaults[m->container] += ([ arg[8..]:m[arg] ]);
     
     id->misc->containers[m->container] = str;
-    id->misc->_containers[m->container] = call_user_container;
+    if(id->misc->_xml_parser) {
+      id->misc->_xml_parser->add_container(m->container, CALL_USER_CONTAINER);
+    } else {
+      id->misc->_containers[m->container] = CALL_USER_CONTAINER;
+    }
   }
   else return "<!-- No name, tag or container specified for the define! "
 	 "&lt;define help&gt; for instructions. -->";
@@ -1184,11 +1150,15 @@ string tag_undefine(string tag, mapping m, object id, object file,
   {
     m_delete(id->misc->tags,m->tag);
     m_delete(id->misc->_tags,m->tag);
+    if(id->misc->_xml_parser) 
+      id->misc->_xml_parser->add_tag(m->tag, 0);
   }
   else if (m->container) 
   {
     m_delete(id->misc->containers,m->container);
     m_delete(id->misc->_containers,m->container);
+    if(id->misc->_xml_parser) 
+      id->misc->_xml_parser->add_container(m->container, 0);
   }
   else return "<!-- No name, tag or container specified for undefine! "
 	 "&lt;undefine help&gt; for instructions. -->";
@@ -2954,9 +2924,9 @@ string tag_help(string t, mapping args, object id)
     help_for = replace(help_for, ({"/","\\"}), ({"",""}));
 
     if(Stdio.file_size("modules/tags/doc/"+help_for) > 0) {
-      string h = id->conf->call_provider("rxml:core", "handle_help",
-					 "modules/tags/doc/"+help_for,
-					 help_for, args);
+      string h =
+	id->conf->parse_module->handle_help("modules/tags/doc/"+help_for,
+					    help_for, args);
       return h;
     } else {
       return "<h3>No help available for "+help_for+".</h3>";

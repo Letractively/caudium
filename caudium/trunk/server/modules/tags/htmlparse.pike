@@ -88,7 +88,7 @@ string status()
 
 void create()
 {
-  defvar("toparse", ({ "rxml","spml", "html", "htm" }), "Extensions to parse", 
+  defvar("toparse", ({ "rxml", "html", "htm" }), "Extensions to parse", 
 	 TYPE_STRING_LIST, "Parse all files ending with these extensions. "
 	 "Note: This module must be reloaded for a change here to take "
 	 "effect.");
@@ -105,7 +105,7 @@ void create()
 	 "reverse of the 'Require exec bit on files for parsing' flag. "
 	 "It is not very useful to set both variables.");
 	 
-  defvar("max_parse", 100, "Maximum file size", TYPE_INT|VAR_MORE,
+  defvar("max_parse", 200, "Maximum file size", TYPE_INT|VAR_MORE,
 	 "Maximum file size to parse, in Kilo Bytes.");
 }
 
@@ -135,6 +135,56 @@ string handle_help(string file, string tag, mapping args)
 {
   return parse_doc(replace(Stdio.read_bytes(file),
 			   "<date-attributes>",date_doc),tag);
+}
+
+
+
+string call_user_tag(string tag, mapping args, int line, mixed foo, object id)
+{
+  id->misc->line = line;
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
+  array replace_from = ({"#args#"})+
+    Array.map(indices(args)+indices(id->misc->up_args),
+	      lambda(string q){return "&"+q+";";});
+  array replace_to = (({make_tag_attributes( args + id->misc->up_args ) })+
+		      values(args)+values(id->misc->up_args));
+  foreach(indices(args), string a)
+  {
+    id->misc->up_args["::"+a]=args[a];
+    id->misc->up_args[tag+"::"+a]=args[a];
+  }
+  string r = replace(id->misc->tags[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
+}
+
+string call_user_container(string tag, mapping args, string contents, int line,
+			 mixed foo, object id)
+{
+  id->misc->line = line;
+  args = id->misc->defaults[tag]|args;
+  if(!id->misc->up_args) id->misc->up_args = ([]);
+  if(args->preparse
+     && (args->preparse=="preparse" || (int)args->preparse))
+    contents = parse_rxml(contents, id);
+  if(args->trimwhites) {
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+    sscanf(contents, "%*[ \t\n\r]%s", contents);
+    contents = reverse(contents);
+  }
+  TRACE_ENTER("user defined container &lt;"+tag+"&gt", call_user_container);
+  array replace_from = ({"#args#", "<contents>"})+
+    Array.map(indices(args),
+	      lambda(string q){return "&"+q+";";});
+  array replace_to = (({make_tag_attributes( args  ),
+			contents })+
+		      values(args));
+  string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
+  TRACE_LEAVE("");
+  return r;
 }
 
 string call_tag(string tag, mapping args, int line, int i,
