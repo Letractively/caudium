@@ -348,16 +348,18 @@ class File
                      strerror(errno()));
 
     array(string) contents = (c / "\n")[1..];
-    // we have to encode entities and decode %3c and %3e
+    // we have to encode entities
     string scontents = replace(contents * "\n",  "&", "&amp;");
 
-    return parse_xml(xml_prolog + scontents + xml_epilog);
+    return parse_xml(xml_prolog + scontents + xml_epilog, 1);
   }
 
   // parse the new (Caudium 1.3+) config file format. It is a valid XML
   // document. Returns 0 on success, a string with the error message
   // otherwise. 
-  private int|string parse_xml(void|string contents)
+  // if old_configfile is 1, the parser will decode some HTML entities since the
+  // old parser used to encode them while this one put them in CDATA
+  private int|string parse_xml(void|string contents, void|int old_configfile)
   {
     object root;
     if (contents)
@@ -372,7 +374,7 @@ class File
                      my_dir->get_path(), my_file_format->name);
 
     // walk the tree and build the internal configuration storage
-    regions = Config(root, my_name);
+    regions = Config(root, my_name, old_configfile);
 
     return 0;
   }
@@ -712,17 +714,20 @@ class Config
   private mapping                   cvar;
   private mapping                   carray;
   private int                       array_nest;
+  private int                       old_configfile;
     
   //! Create the configuration object and populate it with data retrieved
   //! from the parsed XML file.
   //!
   //! @param root
   //!  The root of the XML tree as returned from the XML parser.
-  void create(object root, string cfgname)
+  void create(object root, string cfgname, int _old_configfile)
   {
     regions = ([]);
 
     cvar = 0;
+
+    old_configfile = _old_configfile;
         
     if (!walk_tree(root))
       throw(({sprintf("Error while traversing the config tree for '%s'\n", cfgname),
@@ -1166,7 +1171,8 @@ class Config
     foreach(children, object child)
       if (child->get_node_type() == Parser.XML.Tree.XML_TEXT)
         ret += child->get_text();
-        
+    if(old_configfile)
+      ret = replace(ret, ({ "%3c", "%3e" }), ({ "<", ">" }));
     return ret;
   }
 
