@@ -325,11 +325,9 @@ string|mapping parse_directory(object id)
    *
    * It must end with "/" or "/."
    */
-  if (!(((sizeof(f) > 1) && ((f[-1] == '/') ||
-			     ((f[-2] == '/') && (f[-1] == '.')))) ||
-	(f == "/"))) {
-    return(http_redirect(f + "/", id));
-  }
+  if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
+    return http_redirect(id->not_query+"/", id);
+  
   /* Handle indexfiles */
   old_file = old_not_query = id->not_query;
   if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
