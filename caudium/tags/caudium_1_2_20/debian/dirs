@@ -1,0 +1,16 @@
+etc/caudium
+etc/caudium/servers
+usr/bin
+usr/lib/caudium/lib
+usr/lib/caudium/local_modules
+usr/lib/caudium/local_fonts
+usr/share/roxen/modules
+usr/local/share/caudium/modules
+var/log/caudium
+var/run/caudium
+var/state/caudium
+var/cache/caudium
+var/cache/caudium/args
+var/www
+var/www/caudiumimages
+usr/share/pike_packages/apps/modules/
