@@ -294,8 +294,6 @@ void destroy()
 }
 
 //! update rolling request average
-
-
 int get_total_requests()
 {
   int requests;
