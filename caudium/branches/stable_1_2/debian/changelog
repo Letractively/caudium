@@ -1,3 +1,11 @@
+caudium (2:1.2.25-2) unstable; urgency=low
+
+  * Uploaded to match new pike 7.2
+  * Bumbed the standards version
+  * Versioned dependency on debhelper
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 17 Apr 2003 02:42:24 +0200
+
 caudium (2:1.2.25-1) unstable; urgency=low
 
   * Latest upstream version.
