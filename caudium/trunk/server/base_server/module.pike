@@ -42,6 +42,8 @@ constant module_type   = MODULE_ZERO;
 constant module_name   = "Unnamed module";
 constant module_doc    = "Undocumented";
 constant module_unique = 1;
+
+//! Used in module to get a "pointer" to current compiled module.
 object this = this_object();
 
 //! Remove cvs marker: "$", "Id: " and "Exp $"
@@ -56,9 +58,10 @@ object this = this_object();
 //!   Non-RIS code
 string fix_cvs(string from)
 {
-  from -= "$";
-  sscanf(from, "Id: %*s,v %s  Exp ", from);
-  return from;
+  string cvs_author;
+
+  sscanf(from, "$Id$", cvs_author);
+  return cvs_author;
 }
 
 //! Makes sure that all the modules required by the caller module are
