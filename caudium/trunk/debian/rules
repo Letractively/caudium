@@ -127,6 +127,9 @@ install: build
 	install -m 755 -d debian/caudium-ultralog/usr/share/man/man1/
 	cp src/cmods/UltraLog/docs/ultrasum.1 \
 	   debian/caudium-ultralog/usr/share/man/man1/
+
+	# ugly hack - remove manual from caudium deb
+	rm debian/tmp/usr/share/man/man1/ultrasum.1.gz
 	
 	dh_movefiles
 	
