@@ -398,15 +398,15 @@ mapping failed(object rid) {
     to=replace(to, ({ "\000", " " }), ({"%00", "%20" }));
     string q="";
     foreach (indices(rid->variables),string v) {
-      q+="&"+v+"="+http_encode_string(rid->variables[v]);
+      q+="&"+v+"="+Protocols.HTTP.http_encode_string(rid->variables[v]);
     }
     to+="?"+q;
     // return a redirect.  We can't use http_redirect because that does
-    // a http_encode_string on the whole url including any query
+    // a Protocols.HTTP.http_encode_string on the whole url including any query
     return http_low_answer( 302, "")
       + ([ "extra_heads":([ "Location":to ]) ]); 
   } else {
-    rid->raw_url = http_encode_string(to);
+    rid->raw_url = Protocols.HTTP.http_encode_string(to);
     rid->not_query = rid->scan_for_query(to);
   }
 }

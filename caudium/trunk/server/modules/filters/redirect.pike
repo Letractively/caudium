@@ -483,7 +483,7 @@ mixed first_try(object id)
   } else {
     id->misc->is_redirected = 1; // Prevent recursive internal redirects
     id->variables = ([]);
-    id->raw_url = http_encode_string(to);
+    id->raw_url = Protocols.HTTP.http_encode_string(to);
     id->not_query = id->scan_for_query( to );
   }
 }

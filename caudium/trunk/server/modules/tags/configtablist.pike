@@ -126,7 +126,7 @@ string tag_config_tab(string t, mapping a, string contents)
   m_delete(a, "selected");
 
   img_attrs->src = QUERY(location) + dir +
-    replace(http_encode_string(contents), "?", "%3f") + ".gif";
+    replace(Protocols.HTTP.http_encode_string(contents), "?", "%3f") + ".gif";
   if (a->alt) {
     img_attrs->alt = a->alt;
     m_delete(a, "alt");
