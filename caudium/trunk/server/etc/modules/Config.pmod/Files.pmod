@@ -849,7 +849,7 @@ class Config
       regions = ([]);
     
     if (regions[region])
-      werror("Warning: region '%s' already exists, overwriting.\n", region);
+      report_warning("Warning: region '%s' already exists, overwriting.\n", region);
     
     regions[region] = vals || ([]);
     
@@ -949,12 +949,12 @@ class Config
   private int handle_var(object element, mapping attrs)
   {
     if (!creg  || !creg["@name@"]) {
-      werror("Variable found outside of any region\n");
+      report_warning("Variable found outside of any region\n");
       return 1;
     }
         
     if (!attrs || !attrs->name || !sizeof(attrs->name)) {
-      werror("Invalid variable syntax in region '%s' (missing or invalid 'name' attribute)\n",
+      report_warning("Invalid variable syntax in region '%s' (missing or invalid 'name' attribute)\n",
              creg["@name@"]);
       return 1;
     }
