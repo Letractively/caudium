@@ -1484,6 +1484,7 @@ class FTPSession
 	mark_fd(fd->query_fd(),
 		"ftp communication: -> "+remote[0]+":"+remote[1]);
 #endif
+    pasv_port->set_id(fd);
 	if(pasv_callback) {
 	  pasv_callback(fd, @pasv_args);
 	  pasv_callback = 0;
@@ -1500,8 +1501,16 @@ class FTPSession
     touch_me();
 
     if (sizeof(pasv_accepted)) {
-      fun(pasv_accepted[0], @args);
-      pasv_accepted = pasv_accepted[1..];
+      object pasv_fd = pasv_port->query_id();
+      
+      foreach(pasv_accepted, object f) {
+        if (equal(f, pasv_fd)) {
+          DWRITE(sprintf("match: %s\n", f->query_address()));
+          fun(f, @args);
+          pasv_accepted -= ({ f });
+          break;
+        }
+      }
     } else {
       pasv_callback = fun;
       pasv_args = args;
