@@ -206,7 +206,7 @@ array list(string namespace) {
   PREFLOCK();
   array ret = ({ });
   array dir = get_dir(path)?get_dir(path):({});
-  foreach(get_dir(path), string fname) {
+  foreach(dir, string fname) {
     string objpath = Stdio.append_path(path, fname);
     FLOCK(objpath, "r", 1);
     mapping obj = decode(Stdio.read_file(objpath));
