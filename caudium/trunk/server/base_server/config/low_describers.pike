@@ -482,7 +482,7 @@ string describe_variable_low(array var, mixed path, int really_short,
 
     
    case TYPE_TEXT_FIELD:
-    res="<textarea name="+path+" cols=60 rows=10>"
+    res="<textarea name="+path+" cols=60 rows=10 wrap=off>"
       + html_encode_string(var[VAR_VALUE]||"")
       + "</textarea><br><input type=submit value=Ok>\n";
     break;
