@@ -1,3 +1,11 @@
+caudium (1:1.0.15-1) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Improved http2 (the alternative HTTP protocol implementation)
+  * A minor security bug fixed
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 10 Feb 2001 16:59:22 +0100
+
 caudium (1:1.0.11-8) unstable; urgency=low
 
   * Latest CVS snapshot
