@@ -129,13 +129,13 @@ class API_Function
 
       array args = ({ });
       int i = 0;
-      int optional;
+      int opt;
       
       while(arglist != Lempty)
       {
 	if (i == sizeof(types))
 	{
-	  if (!optional)
+	  if (!opt)
 	    return 0;
 	  else
 	    break;
@@ -144,7 +144,7 @@ class API_Function
 	switch(types[i])
 	{
 	case 0: /* Any arguments left are optional */
-	  optional = 1;
+	  opt = 1;
 	  i++;
 	  break;
 	case "string":

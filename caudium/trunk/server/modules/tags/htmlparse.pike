@@ -3484,7 +3484,7 @@ mapping query_container_callers()
 		     return r;
 		   },
 	   "throw":lambda(string t, mapping m, string c) {
-		     if(c[-1] != "\n") c+="\n";
+		     if(c[-1] != '\n') c+="\n";
 		     throw( ({ c, backtrace() }) );
 		   },
 	   "nooutput":tag_nooutput,
