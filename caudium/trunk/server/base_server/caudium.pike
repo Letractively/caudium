@@ -76,8 +76,8 @@ constant pipe = Caudium.nbio;
 
 // This is the real Caudium version. It should be changed before each
 // release
-constant __caudium_version__ = "1.1";
-constant __caudium_build__ = "5";
+constant __caudium_version__ = "1.2";
+constant __caudium_build__ = "0";
 
 constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__;
 
