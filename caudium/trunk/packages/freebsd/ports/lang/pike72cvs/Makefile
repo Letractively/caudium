@@ -201,7 +201,7 @@ CONFIGURE_ARGS+= --with-GTK --with-gnome --with-glade
 CONFIGURE_ARGS+= --without-GTK --without-gnome --without-glade
 .endif
 
-.if defined(WITH_TDS)
+.if defined(WITH_FREETDS)
 LIB_DEPENDS+=	ct.0:${PORTSDIR}/databases/freetds
 CONFIGURE_ARGS+= --with-sybase
 .else
