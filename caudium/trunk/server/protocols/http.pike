@@ -1335,8 +1335,11 @@ void send_result(mapping|void result)
     
       if(!file->error) 
 	file->error = 200;
-    
-      if(file->expires)
+
+      // expires == 0 is a valid value - it can serve to invalidate
+      // the browser's (or Squid) cache because an invalid date
+      // in that header should cause immediate expire of the page.
+      if(!zero_type(file->expires))
 	heads->Expires = http_date(file->expires);
     
       if(mappingp(file->extra_heads)) {
