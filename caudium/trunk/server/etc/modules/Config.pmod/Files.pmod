@@ -348,8 +348,9 @@ class File
                      strerror(errno()));
 
     array(string) contents = (c / "\n")[1..];
-    // we have to encode entities
-    string scontents = replace(contents * "\n",  "&", "&amp;");
+    // we have to encode entities and decode %3c and %3e
+    string scontents = replace(contents * "\n",  
+       ({ "&", "%3c", "%3e" }), ({ "&amp;", "<", ">" }));
 
     return parse_xml(xml_prolog + scontents + xml_epilog);
   }
