@@ -1,3 +1,4 @@
+#pike7.2
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2003 The Caudium Group
@@ -71,9 +72,8 @@ static string describe_ftp(object ftp)
 
 string page_0(object id)
 {
-//  program p = ((program)"protocols/ftp");
-//  object pc = clone(p);
-  program pc = ((program)"protocols/ftp");
+  program p = ((program)"protocols/ftp");
+  object pc = clone(p);
   multiset(object) ftps = (< >);
   object o = next_object();
   for(;;) {
