@@ -6,12 +6,24 @@
 </head>
 <body bgcolor="#efefef" text="#000000" link="#370fa0" vlink="#969696" alink="#ef1b11">
 
-<h1>Introduction</h1>
+<h1>Table of contents</h1>
+<ul>
+ <li><a href="#toc_intro">Introduction</a></li>
+ <li><a href="#toc_docspec">Documentation specification</a></li>
+ <li><a href="#toc_fields">Defined fields and their attributes</a></li>
+ <ul>
+   <li><a href="#toc_classh">Class hierarchy</a></li>
+   <li><a href="#toc_srcdoc">Source code documentation</a></li>
+   <li><a href="#toc_moddoc">Module interface documentation</a></li>
+ </ul>
+</ul>
+
+<a name="toc_intro"><h1>Introduction</h1></a>
 
 <p>
-There are two types of fields: <em>containers</em> and <em>terminal</em>. Containers describe Pike language "objects" like a <em>function</em>, 
-<em>variable</em>, <em>class</em> etc. or structural source code elements like a <em>file</em> or <em>module</em>. Terminal fields are the given object's 
-description properties. The container fields must always appear before the terminal fields they contain! The terminal fields available for the given container have
+There are two types of fields: <em>containers</em> and <em>attribute</em>. Containers describe Pike language "objects" like a <em>function</em>, 
+<em>variable</em>, <em>class</em> etc. or structural source code elements like a <em>file</em> or <em>module</em>. Attribute fields are the given object's 
+description properties. The container fields must always appear before the attribute fields they contain! The attribute fields available for the given container have
 to (if they appear) be in the same comment as their container.
 </p>
 
@@ -19,6 +31,7 @@ to (if they appear) be in the same comment as their container.
 Descriptions are organized in a tree structure resembling the Pike code lexical structure - the variables, methods and classes belong in files where they are defined.
 This allows for documenting objects with the same names but defined in different files.
 </p>
+
 <p>
 As Caudium is extensible through the use of <em>modules</em> a separate container to describe the public interface and task of the given module is also provided. Keep
 in mind that the Caudium <strong><u>module</u></strong> is different to Pike module and its description has a different purpose than that of the source code methods,
@@ -26,16 +39,78 @@ variables and classes although certain elements appear (or may appear) in both d
 for the developer documentation, while the module descriptions are meant for the user/administrator of the Caudium server. For that reason the documentation parser
 generates two sets of documentation - one containing all the source code documentation and the other containing only the Caudium module documentation.
 </p>
+
 <hr align="center" width="45%">
-<h1>Documentation specification</h1>
+<a name="toc_docspec"><h1>Documentation specification</h1></a>
 <p>
 The general format of the inline Caudium documentation is as follows:
 </p>
 
 <blockquote>
-<em>field_name</em><strong>:</strong> <em>field contents</em>
+<pre>
+/*
+**|
+**| field_name: field contents
+**|  field_contents
+**|  .
+**|  field_contents
+*/
+</pre>
 </blockquote>
 
+<p>
+The documentation extraction program parses only C comments formatted as shown above. If the
+continuation lines of a comment have no the &lt;asterisk&gt;&lt;asterisk&gt;&lt;pipe&gt; form 
+they are not treated as extractable documentation block. The <tt>**|</tt> block is ignored and
+the following character is treated as the first column of the actual documentation page. Think
+of <tt>**|</tt> as about gutter or margin :).
+</p>
+<p>
+<code>field_name</code> must be separated from the comment chars (<tt>**|</tt>) with at least one
+horizontal whitespace character (tab or space). <code>field_contents</code> must have at least
+one more horizontal whitespace character to be treated as the contents of the field. If this is 
+not the case, the line will be treated as the next field label, possibly causing a parser
+error. The only exception to this rule is an empty line - that is line containing only horizontal
+whitespace or just a newline (except for the <tt>**|</tt> string, of course)
+</p>
+<p>
+<code>field_contents</code> may contain any valid HTML markup as well as the Caudium-specific
+XML markup (*fixme* - define the markup :-)). Keep in mind, however, that both kinds of markup
+must follow the XML syntax - the attribute names are case-sensitive, the attribute values
+must be enclosed in single or double quotes, the closing tag is always required. If the parser
+encounters a string enclosed in single quotes being not the markup attribute value, such string
+is treated as a reference to a function/variable/constant described elsewhere in the documentation
+(the string in quotes must match that of the <tt>name:</tt> field of the relevant function) and
+will be replaced by a reference to that description.
+</p>
+
+<p>
+<code>field_contents</code> may also contain a simplified bullet list construct. Every list item must
+be indented at least as much as the field body but must start with the '-' (dash) character followed
+by the body of the item.The body must be indented to the same column as the first non-whitespace
+character following the starting dash. If you want to embed an empty line in the item body, you
+must put a single '.' (dot) character as the sole content of the line. An example:
+<blockquote>
+<pre>
+/*
+**| method: int foo(void);
+**|  Field contents starts here - indented with one space more than the label above.
+**|
+**|  The above line is a part of the field contents. Below is a list:
+**|
+**|   - ITEM - item description. It may span several
+**|     lines. Note the 'l' at the start of this line is below 'I' above.
+**|     .
+**|     The dot above introduces an empty line in the item description.
+**|
+**|   - NEXT ITEM - next item is described here.
+*/
+</pre>
+</blockquote>
+</p>
+
+<hr align="center" width="45%">
+<a name="toc_fields"><h1>Defined fields and their attributes</h1></a>
 <p>
 Below you will find a description of all recognized documentation fields. Each container field is described in a separate table. Some fields take a set of
 predefined values while the other fields have textual contents. The former fields may have a default value which is marked in the <em>Value</em> column with
@@ -44,11 +119,12 @@ of symbols:
 <ul>
  <li><strong>C</strong> - the field is a container</li>
  <li><strong>CT</strong> - the field is a top-level container</li>
- <li><strong>T</strong> - the field is a terminal one</li>
- <li><strong>TR</strong> - the field is a required terminal one</li>
+ <li><strong>T</strong> - the field is a attribute one</li>
+ <li><strong>TR</strong> - the field is a required attribute one</li>
 </ul>
 </p>
 
+<a name="toc_classh"><h2>Class hierarchy</h2></a>
 <p>
 Here is the "class hierarchy" tree with links to element definitions:
 </p>
@@ -100,7 +176,7 @@ Here is the "class hierarchy" tree with links to element definitions:
 
 </pre>
 
-<h2>Source code documentation</h2>
+<a name="toc_srcdoc"><h2>Source code documentation</h2></a>
 
 <table width="100%" border="2"><a name="container_file"></a>
 <tr>
@@ -245,7 +321,7 @@ Here is the "class hierarchy" tree with links to element definitions:
   </td>
  
   <!- Type -->
-  <td>TR</td>
+  <td>T</td>
 
   <!- Contains -->
   <td>&nbsp;</td>
@@ -413,7 +489,7 @@ Here is the "class hierarchy" tree with links to element definitions:
 </tr>
 </table>
 
-<h2>Module interface documentation</h2>
+<a name="toc_moddoc"><h2>Module interface documentation</h2></a>
 
 <table width="100%" border="2"><a name="container_module"></a>
 <tr>
