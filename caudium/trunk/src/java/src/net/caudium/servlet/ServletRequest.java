@@ -100,6 +100,7 @@ class ServletRequest implements javax.servlet.http.HttpServletRequest
 
   public String getParameter(String name)
   {
+    context.log("getting parameter "  + name );
     String[] pv = getParameterValues(name);
     return (pv == null || pv.length == 0? null : pv[0]);
   }
@@ -116,12 +117,14 @@ class ServletRequest implements javax.servlet.http.HttpServletRequest
 
   public Object getAttribute(String name)
   {
+    context.log("getting attribute " + name);
     return attributes.get(name);
   }
 
   public void setAttribute(String name, Object object)
   {
-    attributes.put(name, object);
+    if(object != null)
+      attributes.put(name, object);
   }
 
   public Enumeration getAttributeNames()
@@ -364,6 +367,7 @@ class ServletRequest implements javax.servlet.http.HttpServletRequest
 
   public void removeAttribute(String name)
   {
+    context.log("removing attribute " + name );
     attributes.remove(name);
   }
 
