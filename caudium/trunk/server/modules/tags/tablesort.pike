@@ -53,7 +53,7 @@ constant module_doc  = #"Adds the &lt;tabsort&gt; &lt;/tabsort&gt; container.
          <li>backward_sort: Does the first sort should be a reverse sort ?</li></ul></ul>
          Then you can call these functions:<br/><br/>
          <ul><li>Get the array sorted according to user's need
-         <br/><pre>array(array) id-&gt;conf-&gt;get_provider(&quot;tabsort&quot;)-&gt;array(array) get_table(object id);</pre></li></ul>
+         <br/><pre>array(array) id-&gt;conf-&gt;get_provider(&quot;tabsort&quot;)-&gt;get_table(object id);</pre></li></ul>
          In your RXML page, use the following code to display a  a navigation bar:
          <pre>&lt;table border=&quot;1&quot;&gt;
   &lt;tr&gt;
@@ -81,7 +81,7 @@ id-&gt;conf-&gt;get_provider(&quot;tabsort&quot;)-&gt;set_table(id,<br/>
 </pre>
 To get the array sorted according to the user's need:
 <pre>
-id-&gt;conf-&gt;get_provider(&quot;tabsort&quot;)-&gt;array(array) get_table(id);</pre>";
+array(array) id-&gt;conf-&gt;get_provider(&quot;tabsort&quot;)-&gt;get_table(id);</pre>";
 
 
 constant module_unique = 1;
