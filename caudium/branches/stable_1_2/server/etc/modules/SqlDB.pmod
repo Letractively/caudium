@@ -80,7 +80,7 @@ class DB {
 	db = id->conf->sql_connect(dburl);
     };
     if (err) {
-	perror("Error in opening DB ("+dburl+")\n");
+	perror("Error in opening DB ("+dburl+") "+err->describe()+"\n");
 	if (db) 
 		perror("Error is : "+db->error()+"\n");
 	db = 0;
