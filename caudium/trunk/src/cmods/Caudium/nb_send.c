@@ -833,12 +833,18 @@ static void f_nbio_status(INT32 args)
   f_aggregate(7);
 }
 
+static void f_nbio_start(INT32 args) {
+  pop_n_elems(args);
+  push_int(0);
+}
+
 /* Initialized the sender */
 void init_nbio(void) {
   start_new_program();
   ADD_STORAGE( nbio_storage );
   set_init_callback(alloc_nb_struct);
   set_exit_callback(free_nb_struct);
+  ADD_FUNCTION("start", f_nbio_start, tFunc(tVoid, tVoid), 0);
   ADD_FUNCTION("nbio_status", f_nbio_status, tFunc(tVoid, tArray), 0);
   ADD_FUNCTION("input",  f_input, tFunc(tObj tOr(tInt, tVoid), tVoid), 0);
   ADD_FUNCTION("write",  f_write, tFunc(tStr, tVoid), 0);

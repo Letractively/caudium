@@ -628,6 +628,7 @@ static void f_parse_prestates( INT32 args )
 	multiset_insert(prestate, &ind);
 	break;
       }
+      free_svalue(&ind);
       last_start = i + 1;
     }
   }
