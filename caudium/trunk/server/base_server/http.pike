@@ -393,7 +393,7 @@ string http_caudium_id_cookie()
 		 http_date (3600*24*365*2 + time (1)) + "; path=/",
 		 caudium->increase_id());
 }
-function(string:void) http_roxen_id_cookie = http_caudium_id_cookie;
+function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
 
 /*
 **! method: static string add_pre_state()
