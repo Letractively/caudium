@@ -146,4 +146,10 @@
  */
 #undef OLD_SPIDER
 
+/*
+ * Compare results between old spider and Parse.HTML return.
+ * Used only if OLD_SPIDER is not set.
+ */
+#define COMPARE_SPIDER
+
 #endif

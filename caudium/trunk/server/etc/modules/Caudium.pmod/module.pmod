@@ -626,8 +626,16 @@ string sexpr_eval(string what) {
 string parse_html(string data, mapping(string:function|string) tags,
                   mapping(string:function|string) containers, mixed ... args) {
 #ifndef OLD_SPIDER
+#ifdef COMPARE_SPIDER
+  string oldp = spider.parse_html(data, tags, containers, @args);
+  string newp = Caudium.Parse.parse_html(data, tags, containers, @args);
+  if (oldp != newp)
+    write("parse_html() : old spider: %O, new one: %O\n", oldp, newp);
+  return newp; 
+#else /* COMPARE_SPIDER */
   return Caudium.Parse.parse_html(data, tags, containers, @args);
-#else
+#endif /* COMPARE_SPIDER */
+#else  /* OLD_SPIDER */
   return spider.parse_html(data, tags, containers, @args);
 #endif /* OLD_SPIDER */
 }
@@ -640,8 +648,16 @@ string parse_html(string data, mapping(string:function|string) tags,
 string parse_html_lines(string data, mapping tags, mapping containers, 
                         mixed ... args) {
 #ifndef OLD_SPIDER
+#ifdef COMPARE_SPIDER
+  string oldp = spider.parse_html_lines(data, tags, containers, @args);
+  string newp = Caudium.Parse.parse_html_lines(data, tags, containers, @args);
+  if (oldp != newp)
+    write("parse_html_lines() : old spider: %O, new one: %O\n", oldp, newp);
+  return newp;
+#else /* COMPARE_SPIDER */ 
   return Caudium.Parse.parse_html_lines(data, tags, containers, @args);
-#else
+#endif /* COMPARE_SPIDER */
+#else /* OLD_SPIDER */
   return spider.parse_html_lines(data, tags, containers, @args);
 #endif /* OLD_SPIDER */
 }
