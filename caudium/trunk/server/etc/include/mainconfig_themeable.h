@@ -153,7 +153,7 @@ class ThemedConfig {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
 	i = Image.Image( 24, 24, @fg_rgb);
-	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 0);
 	cache->store( cache_image( i, "auto_images://tab_1", -1 ) );
         return i;
     }
@@ -166,8 +166,8 @@ class ThemedConfig {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
 	i = Image.Image( 24, 24, @bg_rgb );
-	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
-	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 0);
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 0);
 	cache->store( cache_image( i, "auto_images://tab_2", -1 ) );
         return i;
     }
@@ -180,7 +180,7 @@ class ThemedConfig {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
 	i = Image.Image( 24, 24, @bg_rgb);
-	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 0);
 	cache->store( cache_image( i, "auto_images://tab_3", -1 ) );
         return i;
     }
@@ -193,7 +193,7 @@ class ThemedConfig {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
         i = Image.Image( 24, 24, @bg_rgb);
-	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 0);
         i->line( 0, 0, 24, 0, @fg_rgb );
 	cache->store( cache_image( i, "auto_images://tab_4", -1 ) );
         return i;
@@ -207,8 +207,8 @@ class ThemedConfig {
 	array fg_rgb = s->rgb_colour( "titlefg" );
         array bg_rgb = s->rgb_colour( "titlebg" );
 	i = Image.Image( 24, 24, @bg_rgb);
-	i = circlefill( i, 0, 24, 24, @fg_rgb, 255 );
-	i = circlefill( i, 0, 24, 23, @bg_rgb, 255 );
+	i = circlefill( i, 0, 24, 24, @fg_rgb, 0);
+	i = circlefill( i, 0, 24, 23, @bg_rgb, 0);
 	i->line( 0, 0, 24, 0, @fg_rgb );
 	cache->store( cache_image( i, "auto_images://tab_5", -1 ) );
         return i;
@@ -237,13 +237,13 @@ class ThemedConfig {
 			   _ysize,
 			   _ysize,
 			   @fg_rgb,
-			   255 );
+			   0);
 	back = circlefill( back,
 			   ( xsize + ysize ),
 			   0,
 			   _ysize,
 			   @fg_rgb,
-			   255 );
+			   0);
 	// This is a hack to fix the bug in circlefill();
 	back->line( back->xsize() - _ysize,
 		    0,
@@ -260,7 +260,6 @@ class ThemedConfig {
 			  text,
 			  ( ( back->xsize() - text->xsize() ) / 2 ),
 			  ( ( back->ysize() - text->ysize() ) / 2 ) );
-	/* Stdio.write_file("/tmp/image.gif", Image.GIF.encode(back)); */
 	cache->store( cache_image( back, "auto_images://cif_logo", -1 ) );
         return back;
     }
