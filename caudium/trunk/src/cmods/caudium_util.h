@@ -86,3 +86,10 @@
 #ifndef ARG
 #define ARG(_n_) Pike_sp[-((args - _n_) + 1)]
 #endif
+
+/*
+ * This allow run a module using dmalloc library http://www.dmalloc.org/
+ */
+#ifdef
+# include <dmalloc.h>
+#endif

@@ -16,6 +16,10 @@ stress:	all
 	@echo Doing a Thread Safety stress test.
 	@$(PIKE) -M. threadstest.pike
 
+slurp:	all
+	@echo Doing a memory test.
+	@$(PIKE) -M. memorytest.pike
+
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
 
