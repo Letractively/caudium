@@ -749,14 +749,14 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
  **!  This object must contain a string get(string subpart_entity_value) method.
  **!
  **!  The argument given to this method will be the subpart of the entity the
- **!  parser found within the given entity scope (the index of the mapping). The
- **!  string returned by this method will replace the entity the mapping is
- **!  indexed by. If there are no subpart in the contents for the given scope,
+ **!  parser found within the given entity scope (the index of the mapping).
+ **!  If there are no subpart in the contents for the given scope,
  **!  the string "" will be given to the get() method.
  **!  
  **! returns:
- **!  contents with the entity replaced by the given output from the get()
- **!  method in the given object from the scope mapping.
+ **!  contents with the entity replaced by the string returned by the
+ **!  get() method in the given object from the scope mapping whose index is
+ **!  the scope of this entity.
  */
 
 static void f_parse_entities( INT32 args )
