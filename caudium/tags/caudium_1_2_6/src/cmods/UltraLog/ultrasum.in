@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Wrapper for the UltraLog summary program that sets correct paths...
+#
+dir=`pwd`
+(cd  @prefix@/caudium/server/
+./start --quiet --program  ./bin/ultrasum.pike --pwd "$dir" "$@"
+)

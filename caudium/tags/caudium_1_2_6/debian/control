@@ -1,0 +1,53 @@
+Source: caudium
+Section: web
+Priority: optional
+Maintainer: Marek Habersack <grendel@debian.org>
+Standards-Version: 3.5.6
+Build-Depends: pike7.2|pike7, debconf-utils, gzip, libpcre3-dev, libsablot0-dev, debhelper, libxmltok1-dev, debconf (>= 0.2.26)
+
+Package: caudium
+Architecture: any
+Pre-Depends: debconf (>= 0.2.26)
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium-modules (= ${Source-Version}), ${pike:name}-image (>= ${pike:ver}-1), ${pike:name}-image (<= ${pike:ver}-99) , ${pike:name}-gz (>= ${pike:ver}-1), ${pike:name}-gz (<= ${pike:ver}-99), ${pike:name}-crypto (>= ${pike:ver}-1) | ${pike:name}-lobotomized-crypto (>= ${pike:ver}-1), ${pike:name}-crypto (<= ${pike:ver}-99) | ${pike:name}-lobotomized-crypto (<= ${pike:ver}-99), logrotate
+Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
+Recommends: caudium-pixsl, caudium-ultralog
+Provides: httpd, httpd-cgi
+Description: An extensible WWW server written in Pike
+ Caudium is a modern, fast and extensible WWW server derived from Roxen. 
+ Caudium is by default compatible with Roxen 1.3 although some incompatible 
+ options, mostly introduced to improve the performance, security etc. of the
+ server, can be turned on. 
+ Caudium features built-in log parsing engine (UltraLog), XSLT parser, native
+ PHP4 support, multiple execution threads and many more features - see 
+ http://caudium.net/ and http://caudium.org/ for more information.
+
+Package: caudium-modules
+Architecture: any
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Description: C modules for Caudium
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the compiled shared modules that are required by Caudium to run.
+
+Package: caudium-pixsl
+Architecture: any
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Description: Pike XSLT module for Caudium
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the compiled  shared extension module that provides Caudium with 
+ XSLT support.
+
+Package: caudium-ultralog
+Architecture: any
+Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99), caudium (= ${Source-Version})
+Description: Log Parser module for Caudium
+ Certain parts of Caudium are coded in C for speed. This package contains
+ the compiled shared extension module that provides Caudium with a built-in
+ log file parser that is capable of generating extensive statistics on the
+ fly for virtual servers configured in your Caudium WebServer.
+
+Package: caudium-dev
+Architecture: any
+Depends: ${pike:name} (>= ${pike:ver}-1), ${pike:name} (<= ${pike:ver}-99)
+Description: Development files for Caudium
+ A small package that contains files required for developing Caudium
+ extension packages without installing Caudium itself.
