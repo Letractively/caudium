@@ -290,7 +290,7 @@ faked_pre_dist:
 
 date_pre_dist:  date_version
 
-copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
+copy_dist: 
 	@if test -f $(SRCDIR)/VERSION; then :; else \
 	  echo 'You need to make pre_dist first!'; \
 	  exit 1; \
