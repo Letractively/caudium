@@ -52,7 +52,7 @@ void initialize_days(object now)
 
     for(int i = 0; i < 7; i++) {
         days[i] = cdays[i]->week_day_name();
-        days[i] = cdays[i]->week_day_shortname();
+        days_short[i] = cdays[i]->week_day_shortname();
     }
 }
 
@@ -241,7 +241,10 @@ array aliases()
 
 void create()
 {
-    Now = Calendar.now();
+    // we use gregorian for compatibility with the older versions of 
+    // Caudium and Roxen which used to have a static array of day
+    // names starting from Sunday.
+    Now = Calendar.Gregorian.now();
     
     initialize_months(Now);
     initialize_days(Now);

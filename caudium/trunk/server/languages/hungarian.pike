@@ -164,7 +164,10 @@ array aliases()
 
 void create()
 {
-    Now = Calendar.now()->set_language("hungarian");
+    // we use gregorian for compatibility with the older versions of 
+    // caudium and Roxen which used to have a static array of day
+    // names starting from Sunday.
+    Now = Calendar.Gregorian.now()->set_language("hungarian");
     initialize_months(Now);
     initialize_days(Now);
 }
