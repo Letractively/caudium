@@ -608,7 +608,7 @@ class DocGen
         /* Synopsis */
         ret += "<syntax>" + pretty_syntax(method) + "</syntax>\n\n";
         if (m->contents && m->contents != "") {
-                    ret += sprintf("<description>\n%s\n</description>\n\n",
+                    ret += sprintf("<description type=\"syntax\">\n%s\n</description>\n\n",
                                    m->contents);
         }
         
@@ -617,9 +617,13 @@ class DocGen
             foreach(m->altnames, mapping an) {
                 ret += "<syntax>\n\t" + pretty_syntax(dissect_method(an->first_line)) + "\n</syntax>\n\n";
                 if (an->contents && an->contents != "") {
-                    ret += sprintf("<description>\n%s\n</description>", an->contents);
+                    ret += sprintf("<description type=\"syntax\">\n%s\n</description>\n\n", an->contents);
                 }
             }
+
+        /* The general description, if any */
+        if (m->general && m->general != "")
+            ret += sprintf("<description type=\"general\">\n%s\n</description>\n\n", m->general);
         
         /* Arguments */
         if (m->args && sizeof(m->args)) {
