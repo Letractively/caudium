@@ -90,11 +90,11 @@ void create(object conf)
 	 "This is where the module will be inserted in the "
 	 "namespace of your server. In most cases this should be the root "
 	 "file system. This module will only answer to requests if the "
-	 "url has vti_bin in it. Some examples:<pre>\n"
-	 "	/cgi-bin/         		Ignored.\n"
-	 "	/_vti_bin/ 			Handled.\n"
-	 "	/index.html 			Ignored.\n"
-	 "	/mysubweb/_vti_bin/		Handled.\n</pre>"
+	 "url has vti_bin in it. Some examples:<pre><br>"
+	 "	/cgi-bin/         		Ignored.<br>"
+	 "	/_vti_bin/ 			Handled.<br>"
+	 "	/index.html 			Ignored.<br>"
+	 "	/mysubweb/_vti_bin/		Handled.<br></pre>"
 	 "As you can see the only time you would want to change this is "
 	 "if you don't want the root _vti_bin to be handled.");
  
@@ -144,12 +144,7 @@ array find_dir(string f, object id)
 //!  name: Frontpage: Server Port
 //
 //! defvar: location
-//! This is where the module will be inserted in the namespace of your server. In most cases this should be the root file system. This module will only answer to requests if the url has vti_bin in it. Some examples:<pre>
-//!	/cgi-bin/         		Ignored.
-//!	/_vti_bin/ 			Handled.
-//!	/index.html 			Ignored.
-//!	/mysubweb/_vti_bin/		Handled.
-//!</pre>As you can see the only time you would want to change this is if you don't want the root _vti_bin to be handled.
+//! This is where the module will be inserted in the namespace of your server. In most cases this should be the root file system. This module will only answer to requests if the url has vti_bin in it. Some examples:<pre><br />	/cgi-bin/         		Ignored.<br />	/_vti_bin/ 			Handled.<br />	/index.html 			Ignored.<br />	/mysubweb/_vti_bin/		Handled.<br /></pre>As you can see the only time you would want to change this is if you don't want the root _vti_bin to be handled.
 //!  type: TYPE_LOCATION
 //!  name: Frontpage: Root Mountpoint
 //

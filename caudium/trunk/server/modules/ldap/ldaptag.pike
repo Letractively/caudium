@@ -775,23 +775,23 @@ void create()
   defvar("user", "", "Defaults:  username",
 	 TYPE_STRING,
 	 "Specifies the default username to use for access.\n"
-	 "<br><p><b>DEPRECATED!</b>");
+	 "<p><b>DEPRECATED!</b></p>");
   defvar("password", "", "Defaults:  password",
 	 TYPE_STRING,
 	 "Specifies the default password to use for access.\n"
-	 "<br><p><b>DEPRECATED!</b>");
+	 "<p><b>DEPRECATED!</b></p>");
 
   defvar("charset", "", "Defaults:  charset",
 	 TYPE_STRING,
 	 "Specifies the default charset to use for encoding values.\n"
-	 "<br><p>Usable only for decoding UTF8-coded strings to national "
-	 "character set (like iso-8859-1, iso-8859-2, ...)"
-	 "<br><p><b>Be warned!</b>"
-	 "<br>LDAP servers works with national characters "
+	 "<p>Usable only for decoding UTF8-coded strings to national "
+	 "character set (like iso-8859-1, iso-8859-2, ...)</p>"
+	 "<p><b>Be warned!</b> "
+	 "LDAP servers works with national characters "
 	 "in protocol v2 mode (only one implemented in Pike/Roxen) very "
 	 "specificly (Netscape Directory server uses UTF8, but M$ Exchange "
-	 "doesn't)."
-	 "<br><p>Empty value forbidden decoding.");
+	 "doesn't).</p>"
+	 "<p>Empty value forbidden decoding.</p>");
 }
 
 /*
@@ -837,19 +837,19 @@ string status()
 //
 //! defvar: user
 //! Specifies the default username to use for access.
-//!<br /><p><b>DEPRECATED!</b>
+//!<p><b>DEPRECATED!</b></p>
 //!  type: TYPE_STRING
 //!  name: Defaults:  username
 //
 //! defvar: password
 //! Specifies the default password to use for access.
-//!<br /><p><b>DEPRECATED!</b>
+//!<p><b>DEPRECATED!</b></p>
 //!  type: TYPE_STRING
 //!  name: Defaults:  password
 //
 //! defvar: charset
 //! Specifies the default charset to use for encoding values.
-//!<br /><p>Usable only for decoding UTF8-coded strings to national character set (like iso-8859-1, iso-8859-2, ...)<br /><p><b>Be warned!</b><br />LDAP servers works with national characters in protocol v2 mode (only one implemented in Pike/Roxen) very specificly (Netscape Directory server uses UTF8, but M$ Exchange doesn't).<br /><p>Empty value forbidden decoding.
+//!<p>Usable only for decoding UTF8-coded strings to national character set (like iso-8859-1, iso-8859-2, ...)</p><p><b>Be warned!</b> LDAP servers works with national characters in protocol v2 mode (only one implemented in Pike/Roxen) very specificly (Netscape Directory server uses UTF8, but M$ Exchange doesn't).</p><p>Empty value forbidden decoding.</p>
 //!  type: TYPE_STRING
 //!  name: Defaults:  charset
 //

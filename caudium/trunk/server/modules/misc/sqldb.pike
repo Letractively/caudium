@@ -46,7 +46,7 @@ void create()
   defvar("table", "", "Table", TYPE_TEXT_FIELD,
 	 "Associates names with SQL Database URLs.<br>\n"
 	 "Format :<br>\n"
-	 "<pre>Name1\tSQLURL1\n"
+	 "<pre>Name1\tSQLURL1<br>"
 	 "Name2\tSQLURL2</pre><br>\n"
 	 "An \"SQL-URL\" is specified on the following format:<br><ul>\n"
 	 "<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@]"
@@ -122,8 +122,7 @@ string status()
 //! defvar: table
 //! Associates names with SQL Database URLs.<br />
 //!Format :<br />
-//!<pre>Name1	SQLURL1
-//!Name2	SQLURL2</pre><br />
+//!<pre>Name1	SQLURL1<br />Name2	SQLURL2</pre><br />
 //!An "SQL-URL" is specified on the following format:<br /><ul>
 //!<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@][<i>host</i>[:<i>port</i>]]/<i>database</i></pre><br />
 //!</ul>Valid values for "sqlserver" depend on which sql-servers your pike has support for, but the following might exist: <tt>msql</tt>, <tt>mysql</tt>, <tt>odbc</tt>, <tt>oracle</tt>, <tt>postgres</tt>.<br />

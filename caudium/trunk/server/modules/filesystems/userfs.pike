@@ -224,32 +224,34 @@ void create()
 	 "from his home directory. This prohibits users from making "
 	 "confidental files available by symlinking to them. On the other "
 	 "hand it also makes it harder for user to cooperate on projects.");
-
-  defvar("virtual_hosting", 0, "Virtual User Hosting: Virtual user support", TYPE_FLAG,
-	 "If set, each user will get her own site. You access the user's "
-	 "with "
-	 "<br><tt>http://&lt;user&gt;.domain.com/&lt;mountpoint&gt;</tt> "
-	 "<br>instead of "
-	 "<br><tt>http://domain.com/&lt;mountpoint&gt;&lt;user&gt;</tt>. "
-	 "<p>This means that you normally set the mount point to '/'. "
+  
+  defvar("virtual_hosting", 0, "Virtual User Hosting: Virtual user support",
+	 TYPE_FLAG,
+	 "If set, each user will get her own site. You access the user's with "
+	 "<br /><tt>http://&lt;user&gt;.domain.com/&lt;mountpoint&gt;</tt> "
+	 "<br />instead of "
+	 "<br /><tt>http://domain.com/&lt;mountpoint&gt;&lt;user&gt;</tt>. "
+	 "<p>This means that you normally set the mount point to '/'.</p>"
 	 "<p>You need to set up CNAME entries in DNS for all users, or a "
 	 "regexp CNAME that matches all users, to get this to "
-	 "work.");
+	 "work.</p>");
 
   defvar("webhosting",0,"Web Hosting: Web Hosting", TYPE_FLAG,
          "If set, this add the options to add to this module the capabilities of "
 	 "webhosting, e.g. using a SQL database you can provide a \"<i>translation</i>\" "
 	 "between urls and local user names and/or home directories on where the websites are "
-	 "stored on the local filesystem.<br>Example :<br>Someone on the net ask for "
+	 "stored on the local filesystem.<br />Example :<br />Someone on the net ask for "
 	 "<em>http://www.foo.com/</em> and there is a can on the site that have this module, "
 	 "if this option is activated, then you can tell this module that user \"nop\" is "
-	 "the user where is stored the files for this site.",0,hide_www_virtual_hosting);
+	 "the user where is stored the files for this site.",0,
+	 hide_www_virtual_hosting);
 
-  defvar("www_virtual_hosting",0,"Virtual User Hosting: Stupid user workaround", TYPE_FLAG,
+  defvar("www_virtual_hosting",0,
+	 "Virtual User Hosting: Stupid user workaround", TYPE_FLAG,
          "If set, a workaround/hack about virtual hosting is enabled. "
 	 "This mean that not only the host module <b>will</b> look at the \"host\" "
 	 "header to determine which users directory to access to, but also correct "
-	 "some stupid users of addding \"www\" to the name of the site, e.g. :<br>"
+	 "some stupid users of addding \"www\" to the name of the site, e.g. :<br />"
 	 "the site <tt><b>http://user.domain.com/&lt;mountpoint&gt;</b></tt> "
 	 "can be <b>also</b> accessed by <tt><b>http://<u>www.</u>user.domain.com/"
 	 "&lt;mountpoint&gt;</b></tt>.",0,hide_www_virtual_hosting);
@@ -259,22 +261,22 @@ void create()
 
   defvar("sqlserver","mysql://localhost/webhosting","Web Hosting: SQL Server", TYPE_STRING,
          "This is the host running SQL server with the webhosting database "
-	 "where is stored all the webhosting informations.<br>"
+	 "where is stored all the webhosting informations.<br />"
 	 "Specify an \"SQL-URL\". (see roxen manual or documentation about SQL module)",0,hide_webhosting);
   defvar("closedb",1,"Web Hosting: Close the database if not used", TYPE_FLAG,
          "Setting this will save one filedescriptor without a small "
 	 "performance loss.",0,hide_webhosting);
   defvar("usecache",1,"Web Hosting: Cache DB entries", TYPE_FLAG,
-         "Setting this will cache entries in the roxen cache subsystem. <br>"
+         "Setting this will cache entries in the roxen cache subsystem. <br />"
 	 "This can lower the load on the SQL Database on heavy loaded sites.", 0, hide_webhosting);
   defvar("timer",60,"Web Hosting: Database close timer", TYPE_INT,
          "The timer after which the database is closed",0,
 	 lambda() { return !(QUERY(closedb) && QUERY(webhosting) && QUERY(virtual_hosting)); } );
   defvar("sqlquery","SELECT ftpuser FROM webhosting WHERE website=#website#","Web Hosting: SQL Query for selecting users",
-         TYPE_STRING,"The SQL Query to search localuser in the SQL Database, with standart replacements :<br>"
-	 "<b>#website#</b> : will replaced by the hostname asked for e.g.<br><em>http://www.foo.com/</em> will give "
-	 "to the module <i>www.foo.com</i><br><em>http://www.foo.com:8000/</em> will give to the module "
-	 "<i>www.foo.com:8000</i>.<br><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.",0,hide_webhosting);
+         TYPE_STRING,"The SQL Query to search localuser in the SQL Database, with standart replacements :<br />"
+	 "<b>#website#</b> : will replaced by the hostname asked for e.g.<br /><em>http://www.foo.com/</em> will give "
+	 "to the module <i>www.foo.com</i><br /><em>http://www.foo.com:8000/</em> will give to the module "
+	 "<i>www.foo.com:8000</i>.<br /><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.",0,hide_webhosting);
   defvar("redirect",0,"Web Hosting: Enable redirect",TYPE_FLAG,
          "This allow the module as http redirect module for people that have a lots of url but wants to redirect the "
 	 "client navigator to another site...:)",0,hide_webhosting);
@@ -664,18 +666,18 @@ int|mapping|Stdio.File find_file(string f, object id)
 string real_file(string f, object id)
 {
   string u;
-
+  
   USERFS_WERR(sprintf("real_file(%O, X)", f));
-
+  
   array a = find_user(f, id);
-
+  
   if (!a) {
     return 0;
   }
-
+  
   u = a[0];
   f = a[1];
-
+  
   if(u)
   {
     array(int) fs;
@@ -689,22 +691,23 @@ string real_file(string f, object id)
 	f = us[ 5 ] + "/" + QUERY(pdir) + f;
       else
 	f = us[ 5 ] + QUERY(pdir) + f;
-    } else
+    } else {
       if (QUERY(directory_hash))
         f = combine_path(QUERY(searchpath)+"/",dhash(u,QUERY(dhash_depth))) + "/" + f;
       else
         f = QUERY(searchpath) + u + "/" + f;
+    }
 #ifdef USERFR_DEBUG
-      roxen_perror(sprintf("USERFS: real_file(%O, X)\n", f);
+    roxen_perror(sprintf("USERFS: real_file(%O, X)\n", f));
 #endif
-
+		 
     // Use the inherited stat_file
     fs = filesystem::stat_file( f,id );
-
-    //    werror(sprintf("%O: %O\n", f, fs));
+    
     // FIXME: Should probably have a look at this code.
-    if (fs && ((fs[1] >= 0) || (fs[1] == -2)))
+    if (fs && (fs[1] >= 0 || fs[1] == -2)) {
       return f;
+    }
   }
   return 0;
 }
@@ -736,11 +739,11 @@ mapping|array find_dir(string f, object id)
       us = id->conf->userinfo( u, id );
       if(!us) return 0;
       if(QUERY(blist))
-      if((!us) || BAD_PASSWORD(us))
-	return 0;
+	if((!us) || BAD_PASSWORD(us))
+	  return 0;
       // FIXME: Use the banish multiset.
       if(QUERY(blist))
-      if(search(QUERY(banish_list), u) != -1)             return 0;
+	if(search(QUERY(banish_list), u) != -1)             return 0;
       if(us[5][-1] != '/')
 	f = us[ 5 ] + "/" + QUERY(pdir) + f;
       else
@@ -752,7 +755,7 @@ mapping|array find_dir(string f, object id)
       else
         f = QUERY(searchpath) + u + "/" + f;
 #ifdef USERFS_DEBUG
-        roxen_perror(sprintf("USERFS: find_dir(%O,X)\n",f));
+    roxen_perror(sprintf("USERFS: find_dir(%O,X)\n",f));
 #endif
     array dir = filesystem::find_dir(f, id);
     if(QUERY(virtual_hosting) && arrayp(dir))
@@ -798,13 +801,14 @@ array(int) stat_file(string f, object id)
 	f = us[ 5 ] + "/" + QUERY(pdir) + f;
       else
 	f = us[ 5 ] + QUERY(pdir) + f;
-    } else
+    } else {
       if (QUERY(directory_hash))
         f=combine_path(QUERY(searchpath)+"/",dhash(u,QUERY(dhash_depth)))+"/"+f;
       else
         f = QUERY(searchpath) + u + "/" + f;
+    }
 #ifdef USERFR_DEBUG
-	roxen_perror(sprintf("USERFR: stat_file(%O, X)\n",f);
+    roxen_perror(sprintf("USERFR: stat_file(%O, X)\n",f));
 #endif
     st = filesystem::stat_file( f,id );
     if(!st) return 0;
@@ -840,57 +844,97 @@ string query_name()
 //!  name: Hashing: Hash depth
 //
 //! defvar: only_password
-//! Only users who have a valid password can be accessed through this module
+//! Mount only home directories for users who has valid passwords can be accessed through this module.
 //!  type: TYPE_FLAG
 //!  name: Password users only
 //
 //! defvar: user_listing
-//! Enable a directory listing showing users with homepages. When the mountpoint is accessed.
+//! If set a listing of all users will be shown when you access the mount point.
 //!  type: TYPE_FLAG
 //!  name: Enable userlisting
 //
 //! defvar: banish_list
-//! None of these users are valid.
+//! This is a list of users who's home directories will not be mounted.
 //!  type: TYPE_STRING_LIST
 //!  name: Banish list: Banish list
 //
 //! defvar: blist
 //! If set the banish list will be activated.
 //!  type: TYPE_FLAG
-//!  name: Banish list: Enable banish list
+//!  name: Banish list: Enable Banish list
 //
 //! defvar: own
-//! If set, users can only send files they own through the user filesystem. This can be a problem if many users are working together with a project, but it will enhance security, since it will not be possible to link to some file the user does not own.
+//! If set, only files actually owned by the user will be sent from his home directory. This prohibits users from making confidental files available by symlinking to them. On the other hand it also makes it harder for user to cooperate on projects.
 //!  type: TYPE_FLAG
 //!  name: Only owned files
 //
 //! defvar: virtual_hosting
-//! If set, virtual user hosting is enabled. This means that the module will look at the "host" header to determine which users directory to access. If this is set, you access the users directory with <tt><b>http://user.domain.com/&lt;mountpoint&gt;</b></tt> instead of <tt><b>http://user.domain.com/&lt;mountpoint&gt;user</b></tt>. Note that this means that you will usually want to set the mountpoint to "/". To set this up you need to add CNAME entries for all your users pointing to the IP(s) of this virtual server.
+//! If set, each user will get her own site. You access the user's with <br /><tt>http://&lt;user&gt;.domain.com/&lt;mountpoint&gt;</tt> <br />instead of <br /><tt>http://domain.com/&lt;mountpoint&gt;&lt;user&gt;</tt>. <p>This means that you normally set the mount point to '/'.</p><p>You need to set up CNAME entries in DNS for all users, or a regexp CNAME that matches all users, to get this to work.</p>
 //!  type: TYPE_FLAG
-//!  name: Virtual User Hosting: Virtual User Support
+//!  name: Virtual User Hosting: Virtual user support
+//
+//! defvar: webhosting
+//! If set, this add the options to add to this module the capabilities of webhosting, e.g. using a SQL database you can provide a "<i>translation</i>" between urls and local user names and/or home directories on where the websites are stored on the local filesystem.<br />Example :<br />Someone on the net ask for <em>http://www.foo.com/</em> and there is a can on the site that have this module, if this option is activated, then you can tell this module that user "nop" is the user where is stored the files for this site.
+//!  type: TYPE_FLAG
+//!  name: Web Hosting: Web Hosting
 //
 //! defvar: www_virtual_hosting
-//! If set, a work around/hack about virtual hosting is enabled. This mean that not only the host module <b>will</b> look at the "host" header to determine which users directory to access, but also correct some stupid users attempt of adding "www" to the name of the site, eg. :<br />the site <tt><b>http://user.domain.com/&lt;mountpoint&gt;</b></tt> can be <b>also</b> accessed by <tt><b>http://<u>www</b>.user.domain.com/&lt;mountpoint&gt;</b></tt>.
+//! If set, a workaround/hack about virtual hosting is enabled. This mean that not only the host module <b>will</b> look at the "host" header to determine which users directory to access to, but also correct some stupid users of addding "www" to the name of the site, e.g. :<br />the site <tt><b>http://user.domain.com/&lt;mountpoint&gt;</b></tt> can be <b>also</b> accessed by <tt><b>http://<u>www.</u>user.domain.com/&lt;mountpoint&gt;</b></tt>.
 //!  type: TYPE_FLAG
 //!  name: Virtual User Hosting: Stupid user workaround
 //
 //! defvar: www_prefix
-//! This is the prefix to add for the virtual user hosting
+//! This is the prefix to use for "Stupid user workaround".
 //!  type: TYPE_STRING
-//!  name: Virtual User Hosting: Prefix to use for the user workaround
+//!  name: Virtual User Hosting: Workaround prefix
+//
+//! defvar: sqlserver
+//! This is the host running SQL server with the webhosting database where is stored all the webhosting informations.<br />Specify an "SQL-URL". (see roxen manual or documentation about SQL module)
+//!  type: TYPE_STRING
+//!  name: Web Hosting: SQL Server
+//
+//! defvar: closedb
+//! Setting this will save one filedescriptor without a small performance loss.
+//!  type: TYPE_FLAG
+//!  name: Web Hosting: Close the database if not used
+//
+//! defvar: usecache
+//! Setting this will cache entries in the roxen cache subsystem. <br />This can lower the load on the SQL Database on heavy loaded sites.
+//!  type: TYPE_FLAG
+//!  name: Web Hosting: Cache DB entries
+//
+//! defvar: timer
+//! The timer after which the database is closed
+//!  type: TYPE_INT
+//!  name: Web Hosting: Database close timer
+//
+//! defvar: sqlquery
+//! The SQL Query to search localuser in the SQL Database, with standart replacements :<br /><b>#website#</b> : will replaced by the hostname asked for e.g.<br /><em>http://www.foo.com/</em> will give to the module <i>www.foo.com</i><br /><em>http://www.foo.com:8000/</em> will give to the module <i>www.foo.com:8000</i>.<br /><b>NOTE:</b> The SQL Query result <b>MUST</b> be <b>UNIQUE</b>.
+//!  type: TYPE_STRING
+//!  name: Web Hosting: SQL Query for selecting users
+//
+//! defvar: redirect
+//! This allow the module as http redirect module for people that have a lots of url but wants to redirect the client navigator to another site...:)
+//!  type: TYPE_FLAG
+//!  name: Web Hosting: Enable redirect
+//
+//! defvar: redirectquery
+//! The SQL Query to search the destination of the http_redirect function. Like previous SQL Query, use <b>#website#</b> as the hostname requested...
+//!  type: TYPE_STRING
+//!  name: Web Hosting: SQL Query for redirect
 //
 //! defvar: useuserid
-//! If set, users cgi and pike scripts will be run as the user who owns the file, that is, not the actual file, but the user in whose dir the file was found. This only works if the server was started as root (however, it doesn't matter if you changed uid/gid after startup).
+//! If set, users' CGI and Pike scripts will be run as the user whos home directory the file was found in. This only works if the server was started as root.
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Run user scripts as the owner of the script
 //
 //! defvar: pdir
-//! This is where the public directory is located. If the module is mounted on /~, and the file /~per/foo is accessed, and the home-dir of per is /home/per, the module will try to file /home/per/&lt;Public dir&gt;/foo.
+//! This is the directory in the home directory of the users which contains the files that will be shown on the web. If the module is mounted on <tt>/home/</tt>, the file <tt>/home/anne/test.html</tt> is accessed and the home direcory of Anne is <tt>/export/users/anne/</tt> the module will fetch the file <tt>/export/users/anne/&lt;Public dir&gt;/test.html</tt>.
 //!  type: TYPE_STRING
 //!  name: Public directory
 //
 //! defvar: homedir
-//! If set, the user's files are looked for in the home directory of the user, according to the <em>Public directory</em> variable. Otherwise, the <em>Search path</em> is used to find a directory with the same name as the user.
+//! If set, the module will look for the files in the user's home directory, according to the <i>Public directory</i> variable. Otherwise the files are fetched from a directory with the same name as the user in the directory configured in the <i>Search path</i> variable.
 //!  type: TYPE_FLAG
 //!  name: Look in users homedir
 //

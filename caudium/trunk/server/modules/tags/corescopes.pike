@@ -361,11 +361,13 @@ class CaudiumScope {
       ret = time(1);
       break;
      case "server":
-      //! entity: time
+      //! entity: server
       //!  The user-configured URL for the current server.
       ret = id->conf->query("MyWorldLocation");
       break;
      case "domain":
+      //! entity: domain
+      //!  The hostname of the current server (i.e. the URL without http:// etc).
       tmp = id->conf->query("MyWorldLocation");
       sscanf(tmp, "%*s//%s", tmp);
       sscanf(tmp, "%s:", tmp);
@@ -440,8 +442,8 @@ class FormScope {
 
 //! entity_scope: var
 //!  This scope is to be used for storage of request specific user
-//!  variables. In addition to allowing normal variables, i.e. &var.name;, 
-//!  it can store second level variables, like &var.prices.banana;. This is
+//!  variables. In addition to allowing normal variables, i.e. &amp;var.name;, 
+//!  it can store second level variables, like &amp;var.prices.banana;. This is
 //!  useful if you want to group variables together. It has no predefined
 //!  entities and is always empty at the beginning of a request.
 

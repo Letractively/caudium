@@ -95,9 +95,6 @@ constant module_unique = 1;
 
 #define MAX( a, b )	( (a>b)?a:b )
 
-//
-// ROXEN Config-Interface
-//
 void create()
 {
   defvar("mountpoint", "/counter/", "Mount point", TYPE_LOCATION, 
@@ -107,7 +104,7 @@ void create()
 	 "Were are located PPM/GIF digits (Ex: 'digits/')");
 
   defvar("userpath", "html/digits/", "PPM GIF path under Users HOME", TYPE_STRING,
-	 "Where are users PPM/GIF files (Ex: 'html/digits/')<BR>Note: Relative to users $HOME" );
+	 "Where are users PPM/GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME" );
 
   defvar("ppm", "a", "Default PPM GIF-Digit style", TYPE_STRING,
 	 "Default PPM/GIF-Digits style for counters (Ex: 'a')"); 
@@ -516,7 +513,7 @@ mapping query_tag_callers()
 //!  name: PPM GIF Digits Path
 //
 //! defvar: userpath
-//! Where are users PPM/GIF files (Ex: 'html/digits/')<BR>Note: Relative to users $HOME
+//! Where are users PPM/GIF files (Ex: 'html/digits/')<BR/>Note: Relative to users $HOME
 //!  type: TYPE_STRING
 //!  name: PPM GIF path under Users HOME
 //

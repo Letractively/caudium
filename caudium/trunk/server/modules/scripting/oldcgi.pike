@@ -222,11 +222,11 @@ void create(object c)
 	 "and all the other ones (For a quick test, try this script with "
 	 "and without this variable set:"
 	 "<pre>"
-	 "#!/bin/sh\n\n"
-         "echo Content-type: text/plain\n"
-	 "echo ''\n"
-	 "env\n"
-	 "</pre>)");
+	 "#!/bin/sh<br><br>"
+         "echo Content-type: text/plain<br>"
+	 "echo ''<br>"
+	 "env<br>"
+	 "</pre>");
 
   defvar("stderr","main log file",	 
 	 "Log CGI errors to...", TYPE_STRING_LIST,
@@ -269,25 +269,19 @@ void create(object c)
 	 "If set, the variable REMOTE_PASSWORD will be set to the decoded "
 	 "password value.");
 
-  defvar("use_wrapper", 
-#ifdef __NT__
-         0
-#else
-         (getcwd()==""?0:1)
-#endif
-, "Use cgi wrapper", 
+  defvar("use_wrapper", (getcwd()==""?0:1), "Use cgi wrapper", 
 	 TYPE_FLAG|VAR_EXPERT,
 	 "If set, an external wrapper will be used to start the CGI script.\n"
 	 "<br>This will:<ul>\n"
-	 "<li>Enable Caudium to send redirects from cgi scripts\n"
+	 "<li>Enable Caudium to send redirects from cgi scripts</li>\n"
 	 "<li>Work around the fact that stdout is set to nonblocking mode\n"
-	 "    for the script. It simply will _not_ work for most scripts\n"
-	 "<li>Make scripts start somewhat slower...\n"
+	 "    for the script. It simply will _not_ work for most scripts</li>\n"
+	 "<li>Make scripts start somewhat slower...</li>\n"
 	 "</ul>"
 	 "<p>"
 	 "You only need this if you plan to send more than 8Kb of data from "
-	 " a script, or use Location: headers in a non-nph script.\n"
-	 "<p>More or less always, that is..");
+	 " a script, or use Location: headers in a non-nph script.</p>\n"
+	 "<p>More or less always, that is..</p>");
 
   defvar("wrapper", "bin/cgi", "The wrapper to use",
 	 TYPE_STRING|VAR_EXPERT,
@@ -1474,12 +1468,7 @@ mapping handle_file_extension(object o, string e, object id)
 //!  name: CGI-script extensions
 //
 //! defvar: env
-//! If this is set, all environment variables will be passed to CGI scripts, not only those defined in the CGI/1.1 standard (with Caudium CGI enhancements added, if defined). This include LOGNAME and all the other ones (For a quick test, try this script with and without this variable set:<pre>#!/bin/sh
-//!
-//!echo Content-type: text/plain
-//!echo ''
-//!env
-//!</pre>)
+//! If this is set, all environment variables will be passed to CGI scripts, not only those defined in the CGI/1.1 standard (with Caudium CGI enhancements added, if defined). This include LOGNAME and all the other ones (For a quick test, try this script with and without this variable set:<pre>#!/bin/sh<br /><br />echo Content-type: text/plain<br />echo ''<br />env<br /></pre>
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Pass environment variables
 //
@@ -1508,12 +1497,12 @@ mapping handle_file_extension(object o, string e, object id)
 //! defvar: use_wrapper
 //! If set, an external wrapper will be used to start the CGI script.
 //!<br />This will:<ul>
-//!<li>Enable Caudium to send redirects from cgi scripts
+//!<li>Enable Caudium to send redirects from cgi scripts</li>
 //!<li>Work around the fact that stdout is set to nonblocking mode
-//!    for the script. It simply will _not_ work for most scripts
-//!<li>Make scripts start somewhat slower...
-//!</ul><p>You only need this if you plan to send more than 8Kb of data from  a script, or use Location: headers in a non-nph script.
-//!<p>More or less always, that is..
+//!    for the script. It simply will _not_ work for most scripts</li>
+//!<li>Make scripts start somewhat slower...</li>
+//!</ul><p>You only need this if you plan to send more than 8Kb of data from  a script, or use Location: headers in a non-nph script.</p>
+//!<p>More or less always, that is..</p>
 //!  type: TYPE_FLAG|VAR_EXPERT
 //!  name: Use cgi wrapper
 //

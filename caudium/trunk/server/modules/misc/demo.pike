@@ -45,7 +45,7 @@ constant module_unique = 0;
 void create()
 {
   defvar("location", "/demo/", "Mount point", TYPE_LOCATION, 
-	 "This is where the module will be inserted in the "+
+	 "This is where the module will be inserted in the "
 	 "namespace of your server.");
 }
 

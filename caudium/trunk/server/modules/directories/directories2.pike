@@ -95,7 +95,7 @@ void create()
   defvar("override", 0, "Allow directory index file overrides", TYPE_FLAG,
 	 "If this variable is set, you can get a listing of all files "
 	 "in a directory by appending '.' or '/' to the directory name, like "
-	 "this: http://caudium.net//</a>"
+	 "this: <b>http://caudium.net//</b>"
 	 ". It is _very_ useful for debugging, but some people regard it as a "
 	 "security hole.",
 	 0, dirlisting_not_set);
@@ -390,7 +390,7 @@ string|mapping parse_directory(object id)
 //!  name: Include readme files
 //
 //! defvar: override
-//! If this variable is set, you can get a listing of all files in a directory by appending '.' or '/' to the directory name, like this: http://caudium.net//</a>. It is _very_ useful for debugging, but some people regard it as a security hole.
+//! If this variable is set, you can get a listing of all files in a directory by appending '.' or '/' to the directory name, like this: <b>http://caudium.net//</b>. It is _very_ useful for debugging, but some people regard it as a security hole.
 //!  type: TYPE_FLAG
 //!  name: Allow directory index file overrides
 //

@@ -36,8 +36,8 @@
 //!  <br/><strong>&lt;available_languages&gt;</strong> gives a list of other
 //!  languages the current page is in, with links to them.
 //!  <br/><strong>&lt;unavailable_language&gt;</strong> shows the language
-//!  the user wanted, if the page was not available in that "
-//!  language. "
+//!  the user wanted, if the page was not available in that 
+//!  language. </p>
 //!  <p>All tags take the argument type={txt,img}.</p>
 //! inherits: modules/directories/directories
 //! type: MODULE_DIRECTORIES | MODULE_URL | MODULE_PARSER
@@ -89,48 +89,49 @@ void create()
 	  "sv	Svenska		en", "Languages", TYPE_TEXT_FIELD,
 	  "The languages supported by this site. One language on each row. "
 	  "Syntax: "
-	  "<br>language-code language-name optional-next-language-codes"
-	  "<br>For example:\n"
-	  "<pre>sv	Svenska		en de\n"
-	  "en	English		de\n"
+	  "<br />language-code language-name optional-next-language-codes"
+	  "<br />For example:\n"
+	  "<pre>sv	Svenska		en de<br />"
+	  "en	English		de<br />"
 	  "de	Deutch		en\n"
 	  "</pre><p>"
 	  "The next-language-code is used to determine what language should "
 	  "be used in case the chosen language is unavailable. To find a "
 	  "page with a suitable language the languages is tried as follows. "
-	  "<ol><li>The selected language, stored as a prestate"
-	  "<li>The user agent's accept-headers"
-	  "<li>The selected languages next-languages-codes if any"
-	  "<li>The default language"
+	  "<ol><li>The selected language, stored as a prestate</li>"
+	  "<li>The user agent's accept-headers</li>"
+	  "<li>The selected languages next-languages-codes if any</li>"
+	  "<li>The default language</li>"
 	  "<li>If there were no selected language, the default language's "
-	  "next-language-codes"
-	  "<li>All languages, in the order they appear in this text-field"
-	  "</ol>"
+	  "next-language-codes</li>"
+	  "<li>All languages, in the order they appear in this text-field</li>"
+	  "</ol></p>"
 	  "<p>Empty lines, lines beginning with # or // will be ignored."
-	  " Lines with errors may be ignored, or execute a HCF instruction." );
+	  " Lines with errors may be ignored, or execute a HCF instruction."
+	  "</p>");
 
   defvar( "flag_dir", "/icons", "Flag directory", TYPE_STRING,
 	  "A directory with small pictures of flags, or other symbols, "
 	  "representing the various languages. Each flag should exist in the "
 	  "following versions:"
-	  "<dl><dt>language-code.selected.gif"
+	  "<dl><dt>language-code.selected.gif</dt>"
 	  "<dd>Shown to indicate that the page is in that selected language, "
-	  "usually by the header-module."
-	  "<dt>language-code.available.gif"
+	  "usually by the header-module.</dd>"
+	  "<dt>language-code.available.gif</dt>"
 	  "<dd>Shown as a link to the page in that language. Will of course "
-	  "only be used if the page exists in that language."
-	  "<dt>language-code.unavailable.gif"
+	  "only be used if the page exists in that language.</dd>"
+	  "<dt>language-code.unavailable.gif</dt>"
 	  "<dd>Shown to indicate that the user has selected an language that "
-	  "this page hasn't been translated to."
-/*	 "<dt>language-code.dir.selected.gif"
-	 "<dd>Shown to indicate that the dir-entry will be shown in that "
-	 "language."
-	 "<dt>language-code.dir.available.gif"
-	 "<dd>Shown as a link to the dir-entry translated to that language."
-	 */
+	  "this page hasn't been translated to.</dd>"
 	  "</dl>"
 	  "<p>It is of course not necessary to have all this pictures if "
-	  "their use is not enabled in this module nor the header module." );
+	  "their use is not enabled in this module nor the header module.</p>" );
+/*	 "<dt>language-code.dir.selected.gif</dt>"
+	 "<dd>Shown to indicate that the dir-entry will be shown in that "
+	 "language.</dd>"
+	 "<dt>language-code.dir.available.gif</dt>"
+	 "<dd>Shown as a link to the dir-entry translated to that language.</dd>"
+	 */
 
 /*
   defvar( "flags_or_text", 1, "Flags in directory lists", TYPE_FLAG,
@@ -443,15 +444,13 @@ mapping query_tag_callers()
 //
 //! defvar: languages
 //! The languages supported by this site. One language on each row. Syntax: <br />language-code language-name optional-next-language-codes<br />For example:
-//!<pre>sv	Svenska		en de
-//!en	English		de
-//!de	Deutch		en
-//!</pre><p>The next-language-code is used to determine what language should be used in case the chosen language is unavailable. To find a page with a suitable language the languages is tried as follows. <ol><li>The selected language, stored as a prestate<li>The user agent's accept-headers<li>The selected languages next-languages-codes if any<li>The default language<li>If there were no selected language, the default language's next-language-codes<li>All languages, in the order they appear in this text-field</ol><p>Empty lines, lines beginning with # or // will be ignored. Lines with errors may be ignored, or execute a HCF instruction.
+//!<pre>sv	Svenska		en de<br />en	English		de<br />de	Deutch		en
+//!</pre><p>The next-language-code is used to determine what language should be used in case the chosen language is unavailable. To find a page with a suitable language the languages is tried as follows. <ol><li>The selected language, stored as a prestate</li><li>The user agent's accept-headers</li><li>The selected languages next-languages-codes if any</li><li>The default language</li><li>If there were no selected language, the default language's next-language-codes</li><li>All languages, in the order they appear in this text-field</li></ol></p><p>Empty lines, lines beginning with # or // will be ignored. Lines with errors may be ignored, or execute a HCF instruction.</p>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Languages
 //
 //! defvar: flag_dir
-//! A directory with small pictures of flags, or other symbols, representing the various languages. Each flag should exist in the following versions:<dl><dt>language-code.selected.gif<dd>Shown to indicate that the page is in that selected language, usually by the header-module.<dt>language-code.available.gif<dd>Shown as a link to the page in that language. Will of course only be used if the page exists in that language.<dt>language-code.unavailable.gif<dd>Shown to indicate that the user has selected an language that this page hasn't been translated to.
+//! A directory with small pictures of flags, or other symbols, representing the various languages. Each flag should exist in the following versions:<dl><dt>language-code.selected.gif</dt><dd>Shown to indicate that the page is in that selected language, usually by the header-module.</dd><dt>language-code.available.gif</dt><dd>Shown as a link to the page in that language. Will of course only be used if the page exists in that language.</dd><dt>language-code.unavailable.gif</dt><dd>Shown to indicate that the user has selected an language that this page hasn't been translated to.</dd></dl><p>It is of course not necessary to have all this pictures if their use is not enabled in this module nor the header module.</p>
 //!  type: TYPE_STRING
 //!  name: Flag directory
 //

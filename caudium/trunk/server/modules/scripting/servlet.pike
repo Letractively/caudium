@@ -21,7 +21,7 @@
 
 //
 //! module: Java Servlet bridge
-//!  An interface to Java&tm; Servlets
+//!  An interface to Java Servlets
 //! inherits: module
 //! inherits: caudiumlib
 //! inherits: http
@@ -133,7 +133,7 @@ void create()
 	 "<li><i>Log</i> - System debug log.</li>\n"
 	 "<li><i>HTML comment</i> - Include in the generated page as an HTML comment.</li>\n"
 	 "<li><i>HTML text</i> - Include in the generated page as normal text.</li>\n"
-	 "</ul>\n",
+	 "</ul></p>\n",
 	 ({"Off", "Log", "HTML comment", "HTML text"}));
 
 }
@@ -203,7 +203,7 @@ mixed find_file( string f, object id )
 //!<li><i>Log</i> - System debug log.</li>
 //!<li><i>HTML comment</i> - Include in the generated page as an HTML comment.</li>
 //!<li><i>HTML text</i> - Include in the generated page as normal text.</li>
-//!</ul>
+//!</ul></p>
 //!
 //!  type: TYPE_STRING_LIST|VAR_MORE
 //!  name: Error messages

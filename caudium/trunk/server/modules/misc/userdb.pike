@@ -184,8 +184,8 @@ void create()
   defvar("args", "", "Password command arguments",
 	 TYPE_STRING|VAR_MORE,
 	 "Extra arguments to pass to either ypcat or niscat."
-	 "For ypcat the full command line will be 'ypcat <args> passwd'."
-	 " for niscat 'niscat <args> passwd.org_dir'"
+	 "For ypcat the full command line will be 'ypcat [args] passwd'."
+	 " for niscat 'niscat [args] passwd.org_dir'"
 	 "If you do not want the passwd part, you can end your args with '#'",
 	 0,
 	 method_is_file_or_getpwent);
@@ -502,7 +502,7 @@ int may_disable() { return 0; }
 //!  name: Password database request method
 //
 //! defvar: args
-//! Extra arguments to pass to either ypcat or niscat.For ypcat the full command line will be 'ypcat <args> passwd'. for niscat 'niscat <args> passwd.org_dir'If you do not want the passwd part, you can end your args with '#'
+//! Extra arguments to pass to either ypcat or niscat.For ypcat the full command line will be 'ypcat [args] passwd'. for niscat 'niscat [args] passwd.org_dir'If you do not want the passwd part, you can end your args with '#'
 //!  type: TYPE_STRING|VAR_MORE
 //!  name: Password command arguments
 //
