@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Variable HTTPS is set to "on" when SSL is used. (compatibility variable 
+  used for CGIs...)
 - Webdav protocol implementation (RFC 2518) added. Not finished yet
 - Added a -DMAX_BODY_SIZE=<size> option for starting caudium. The default size
   for the body is 16k otherwise. 
