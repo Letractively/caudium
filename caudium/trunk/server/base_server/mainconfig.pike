@@ -209,7 +209,7 @@ void create()
 
 string default_head(string h, string|void save)
 {
-  return ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Draft//EN\">"
+  return ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">"
 	  "<head><title>"+h+"</title>\n<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n</head>\n"+ BODY+"\n");
 }
 
@@ -1275,7 +1275,7 @@ string status_row(object node)
 	   "</td>\n<td>&nbsp;</td><td  width=100% height=39>"
 	   "<table cellpadding=0 cellspacing=0 width=100% border=0>\n"
 	   "<tr width=\"100%\">\n"
-	   "<td width=\"100%\" align=right valigh=center height=28>"
+	   "<td width=\"100%\" align=right valign=center height=28>"
 	   +describe_node_path(node)+"</td>"
 	   "</tr><tr width=\"100%\">"
 	   "<td bgcolor=\"#003366\" align=right height=12 width=\"100%\">"
