@@ -322,6 +322,7 @@ private static void low_shutdown(int exit_type)
 #endif /* USE_SHUTDOWN_FILE */
 
 
+#if 0
       // Try to kill the start-script.
       if(startpid != getpid()) {
       	if(exit_type)
@@ -329,6 +330,8 @@ private static void low_shutdown(int exit_type)
 	else
           kill(startpid, signum("SIGTERM"));
       }
+#endif
+
     }
   }
 

@@ -514,6 +514,12 @@ void do_multi_run(array o, mapping opt)
   // if we don't have a running process, start it.
   if(!proc || proc->status()!=0)
   {
+    if(proc && proc->wait()==0) // caudium returns 0, we quit.
+    {
+      write("start-caudium: exiting.\n");
+      cleanup_watchdog();
+      exit(0);
+    }
     rotate_logs(o, opt);
     opt->stdout=Stdio.File(envvars->CAUDIUM_LOGDIR + "/debug/default.1", "crw");
     opt->stderr=opt->stdout;
