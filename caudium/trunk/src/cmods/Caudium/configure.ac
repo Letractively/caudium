@@ -35,6 +35,7 @@ AH_TOP([
 AH_BOTTOM([
 #endif
 ])
+AC_CHECK_HEADERS([stdio.h alloca.h])
 
 AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
 
