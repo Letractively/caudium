@@ -247,6 +247,7 @@ inline void do_post_processing()
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
+  /*
 #ifdef ENABLE_SUPPORTS    
   if(useragent == "unknown") {
     supports = find_supports("", supports); // This makes it somewhat faster.
@@ -255,6 +256,7 @@ inline void do_post_processing()
 #else
   supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
+  */
 
 #ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
@@ -322,6 +324,14 @@ inline void do_post_processing()
       sscanf(useragent = request_headers[linename], "%s via", useragent);
 #ifdef EXTRA_ROXEN_COMPAT
       client = (useragent/" ") - ({ "" });
+#endif
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
       break;
 
