@@ -271,7 +271,15 @@ void got_data(mixed fdid, string s)
 
       // we got a forward request.
       case 2:
-       parse_forward();
+       if(parse_forward())  // we're done, as we've been short circuited.
+       {
+         packet = "";
+         body_len = 0;
+         processed = 0;
+         if(reuse) ready_for_request();
+         else this->destroy();
+
+       }
        if(!body_len) // if we need to wait for the body, we should continue.
        ready_to_process=1;
        break;
@@ -323,13 +331,18 @@ void got_data(mixed fdid, string s)
 }
 
 // we need to pull the forward packet apart.
-void parse_forward()
+int parse_forward()
 {
+  string a, h;
+  string contents;
+  int config_in_url;
+  array mod_config;
+
   mapping r = decode_forward((["data": packet, "type": MSG_FORWARD_REQUEST]));
 
   werror("request: %O\n", r);
   body_len=r->request_headers["content-length"];
-  method = r->method;
+  method = method_names[r->method];
   prot = clientprot = r->protocol;
   string f = raw_url = r->req_uri;
   time = _time(1);
@@ -380,17 +393,9 @@ void parse_forward()
 
   REQUEST_WERR(sprintf("After cookie scan:%O", f));
 
-#if 0  
-  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
-  {
-    prestate = aggregate_multiset(@(a/","-({""})));
-    f = "/"+f;
-  }
-#else
   f = Caudium.parse_prestates(f, prestate, internal);
   REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
                        prestate, internal));
-#endif
 
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
@@ -398,9 +403,9 @@ void parse_forward()
 
   REQUEST_WERR(sprintf("After Caudium.simplify_path == not_query:%O", not_query));
 
-  request_headers = h->request_headers;
+  request_headers = r->request_headers;
 
-foreach(indices(request_headers), string linename) {
+  foreach(indices(request_headers), string linename) {
       array(string) y;
       switch(linename) {
        case "content-length":
@@ -425,20 +430,7 @@ foreach(indices(request_headers), string linename) {
 	 else
 	   wanted_data = min(l, POST_MAX_BODY_SIZE);
 	 have_data=strlen(data);
-/*	 
-	 if( have_data < wanted_data )
-	 {
-	   if ( clientprot == "HTTP/1.1" )
-	     my_fd->write("HTTP/1.1 100 Continue\r\n\r\n");
-	     REQUEST_WERR("HTTP: parse_request(): More data needed.");
-	     return 0;
-	 }
-	 if ( wanted_data < l ) {
-	   unread_data = l - have_data;
-	   REQUEST_WERR("HTTP: parsing, ignoring next " + unread_data +
-			" bytes of request body.");
-	 }
-*/
+
 	 leftovers = data[l..];
 	 data = data[..l-1];
 	 handle_body_encoding(l);
@@ -612,8 +604,8 @@ foreach(indices(request_headers), string linename) {
 	break;
       }
     }
-#endif
-  }
+//  }
+
   if(prestate->nocache) {
     // This allows you to "reload" a page with MSIE by setting the
     // (nocache) prestate.
@@ -644,7 +636,8 @@ foreach(indices(request_headers), string linename) {
   }
 
   if(config_in_url) {
-    return really_set_config( mod_config );
+    really_set_config( mod_config );
+    return 1;
   }
   if(!supports->cookies)
     config = prestate;
@@ -669,7 +662,7 @@ foreach(indices(request_headers), string linename) {
 	{
 		site_id = conf->name;
 	}
-
+  return 0;
 }
 
 /* Get a somewhat identical copy of this object, used when doing 
@@ -1029,51 +1022,14 @@ if(file->len>=0)
 
     my_fd->write(generate_container_packet(encode_send_body_chunk(chunk)));
     sent+=sizeof(chunk);
+werror("sending " + sizeof(chunk) + " bytes of " + sent + " / "+ file->len + ".\n");
   
   } while (sent < file->len);
 }
 
   my_fd->write(generate_container_packet(encode_end_response(1)));
 
-/*
-  if(file->len >= 0 && file->len < 2000)
-  {
-    my_fd->write((head_string || "") +
-                 (file->file?file->file->read():file->data));
-    do_log();
-    return;
-  }
-
-  if(head_string) send(head_string);
-
-  if(method != "HEAD" && file->error != 304)
-    // No data for these two...
-  {
-    if(file->data && strlen(file->data))
-      send(file->data, file->len);
-    if(file->file)  
-      send(file->file, file->len);
-  } else
-    file->len = 1; // Keep those alive, please...
-  if (pipe) {
-    MARK_FD("HTTP really handled, piping "+not_query);
-    //  The timer function keeps track of the data sending. If no data
-    //  has been sent for 360 seconds, the connection is closed.
-    //  It seems like sometimes, when using poll() at least, Pike doesn't
-    //  detect that the remote end closed which w/o this function would
-    //  leave stale sockets.
-    call_out(timer, 60, _time(1), 0, 0);
-    pipe->set_done_callback( do_log );
-#ifdef USE_SHUFFLER
-    pipe->start();
-#else
-    pipe->output(my_fd);
-#endif
-  } else {
-    MARK_FD("HTTP really handled, pipe done");
-  }
-*/
-    do_log();
+  catch(do_log());
   packet = "";
   body_len = 0;
   processed = 0;
