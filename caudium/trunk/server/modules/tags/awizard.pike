@@ -230,7 +230,7 @@ class Page
             args->value  = m->title||(string)m->page;
         }
 
-        return Caudium.make_tag("input", args);
+        return Caudium.make_tag("input", args, id->misc->is_xml);
     }
 
     string container_dbutton(string t, mapping m, string c, int l, object id, object awiz)
@@ -264,7 +264,7 @@ class Page
             args->value  = m->title||m->page;
         }
         args->name += "/eval/"+MIME.encode_base64( c, 1 );
-        return Caudium.make_tag("input", args);
+        return Caudium.make_tag("input", args, id->misc->is_xml);
     }
 
     string container_warn(string t, mapping m, string c, int l, object id, object awiz )
@@ -323,7 +323,7 @@ class Page
     {
         m->id=(string)++button_id;
         button_code[(int)m->id] = c;
-        return Caudium.make_tag("button", m);
+        return Caudium.make_tag("button", m, id->misc->is_xml);
     }
 
     string internal_tag_come_from(string t, mapping args, string c)

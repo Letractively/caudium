@@ -1748,7 +1748,7 @@ string tag_configurl(string f, mapping m, object id)
   return caudium->config_url(id);
 }
 
-string tag_configimage(string f, mapping m)
+string tag_configimage(string f, mapping m, object id)
 {
   string args="";
 
@@ -1765,7 +1765,10 @@ string tag_configimage(string f, mapping m)
     }
     m_delete(m, q);
   }
-  return ("<img border=0 "+args+">");
+  if (id->misc->is_xml)
+    return ("<img border=0 "+args+" />");
+  else
+    return ("<img border=0 "+args+">");
 }
 
 string tag_aprestate(string tag, mapping m, string q, object id)
@@ -2225,7 +2228,7 @@ string tag_ximage(string tagname, mapping m, object id)
       m->err="Virtual path failed";
     }
   }
-  return Caudium.make_tag("img", m);
+  return Caudium.make_tag("img", m, id->misc->is_xml);
 }
 
 mapping pr_sizes = ([]);
@@ -2243,7 +2246,7 @@ string get_pr_size(string size, string color)
                                         file->width, file->height);
 }
 
-string tag_pr(string tagname, mapping m)
+string tag_pr(string tagname, mapping m, object id)
 {
     string size = m->size || "small";
     string color = m->color || "red";    
@@ -2277,7 +2280,7 @@ string tag_pr(string tagname, mapping m)
         m->border="0";
     
     m_delete(m, size);
-    return ("<a href=\"http://caudium.net/\">"+Caudium.make_tag("img", m)+"</a>");
+    return ("<a href=\"http://caudium.net/\">"+Caudium.make_tag("img", m, id->misc->is_xml)+"</a>");
 }
 
 string tag_ipv6(string tagname, mapping m, object id)
@@ -2300,7 +2303,7 @@ string tag_ipv6(string tagname, mapping m, object id)
        if (id->remoteaddr)
           from = sprintf("<br /><font size='-1'>Coming from <strong>%s</strong></font>",
 	                 id->remoteaddr);
-       return (Caudium.make_tag("img", m) + from);
+       return (Caudium.make_tag("img", m, id->misc->is_xml) + from);
     } else
        return "&nbsp;";
 }
@@ -2427,11 +2430,18 @@ string tag_pikeversion(string tag, mapping args, object id)
     return version();
 }
 
+void tag_doctype(string tag, mapping args, object id) {
+  if (args["XHTML"])
+    id->misc->is_xml = 1;
+}
+
 
 
 mapping query_tag_callers()
 {
    return ([ 
+	    "!DOCTYPE":tag_doctype,
+	    "?xml":pi_xml,
             "get_prestate":tag_getprestate,
             "modified":tag_modified,
             "pr":tag_pr,
@@ -3134,8 +3144,16 @@ string tag_urldecode (string tagname, mapping args, string contents,
     return Caudium.HTTP.decode_url(contents);
 }
 
+void pi_xml(string tag, mapping args, object id) {
+  if (args->version && (float)args->version >= 1.0)
+    id->misc->is_xml = 1;
+}
+
 mapping query_pi_callers() {
-  return ([ "?comment": "" ]);
+  return ([ 
+	  "?comment": "",
+	  "?xml": pi_xml
+	 ]);
 }
 
 mapping query_container_callers()

@@ -322,21 +322,21 @@ static string make_ds_form(object id, mapping my_args, object now, object target
     
   input->name = "calyear";
   input->value = id->variables->calyear;
-  fcontents += Caudium.make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input, id->misc->is_xml);
 
   input->name = "calmonth";
   input->value = id->variables->calmonth;
-  fcontents += Caudium.make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input, id->misc->is_xml);
 
   input->name = "calday";
   input->value = id->variables->calday;
-  fcontents += Caudium.make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input, id->misc->is_xml);
 
   input->name = "calweek";
   input->value = id->variables->calweek || "0";
-  fcontents += Caudium.make_tag("input", input);
+  fcontents += Caudium.make_tag("input", input, id->misc->is_xml);
   
-  fcontents += Caudium.make_tag("input", ds_changetype);
+  fcontents += Caudium.make_tag("input", ds_changetype, id->misc->is_xml);
     
   tcontents += Caudium.make_container("form", ds_form, fcontents) + "</td></tr>";
     
