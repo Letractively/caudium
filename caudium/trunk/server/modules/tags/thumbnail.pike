@@ -200,7 +200,7 @@ string tag_thumbnail(string tag, mapping args, object id, object file, mapping d
     }
     filename += args->src;
 
-    url = "<img _parsed=\"1\" src=\""+query("mountpoint")+
+    url = "<img src=\""+query("mountpoint")+
       (args->trans?"1":"0")+"/"+
       (args->rot?args->rot:"0")+"/"+
       (args->bg?args->bg-"#":"ffffff")+"/"+
