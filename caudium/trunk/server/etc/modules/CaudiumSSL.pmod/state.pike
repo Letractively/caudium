@@ -14,7 +14,7 @@ object compress;
 
 object(Gmp.mpz)|int seq_num;    /* Bignum, values 0, .. 2^64-1 are valid */
 
-constant Alert = SSL.alert;
+constant Alert = CaudiumSSL.alert;
 
 void create(object s)
 {
@@ -54,15 +54,15 @@ string tls_unpad(string data ) {
 object decrypt_packet(object packet,int version)
 {
 #ifdef SSL3_DEBUG_CRYPT
-  werror(sprintf("SSL.state->decrypt_packet: data = %O\n", packet->fragment));
+  werror(sprintf("CaudiumSSL.state->decrypt_packet: data = %O\n", packet->fragment));
 #endif
   
   if (crypt)
   {
     string msg;
 #ifdef SSL3_DEBUG_CRYPT
-    werror("SSL.state: Trying decrypt..\n");
-    //    werror("SSL.state: The encrypted packet is:"+sprintf("%O\n",packet->fragment));
+    werror("CaudiumSSL.state: Trying decrypt..\n");
+    //    werror("CaudiumSSL.state: The encrypted packet is:"+sprintf("%O\n",packet->fragment));
     werror("strlen of the encrypted packet is:"+strlen(packet->fragment)+"\n");
 #endif
     msg=packet->fragment;
@@ -82,13 +82,13 @@ object decrypt_packet(object packet,int version)
   }
   
 #ifdef SSL3_DEBUG_CRYPT
-  werror(sprintf("SSL.state: Decrypted_packet %O\n", packet->fragment));
+  werror(sprintf("CaudiumSSL.state: Decrypted_packet %O\n", packet->fragment));
 #endif
 
   if (mac)
   {
 #ifdef SSL3_DEBUG_CRYPT
-    werror("SSL.state: Trying mac verification...\n");
+    werror("CaudiumSSL.state: Trying mac verification...\n");
 #endif
     int length = strlen(packet->fragment) - session->cipher_spec->hash_size;
     string digest = packet->fragment[length ..];
@@ -107,7 +107,7 @@ object decrypt_packet(object packet,int version)
   if (compress)
   {
 #ifdef SSL3_DEBUG_CRYPT
-    werror("SSL.state: Trying decompression...\n");
+    werror("CaudiumSSL.state: Trying decompression...\n");
 #endif
     string msg;
     msg = compress(packet->fragment);

@@ -1,6 +1,6 @@
 /* $Id$
  *
- * SSL Record Layer
+ * CaudiumSSL Record Layer
  */
 
 inherit "constants";
@@ -20,7 +20,7 @@ private int needed_chars;
 int marginal_size;
 
 /* Circular dependence */
-program Alert = master()->resolv("SSL")["alert"];
+program Alert = master()->resolv("CaudiumSSL")["alert"];
 // #define Alert ((program) "alert")
 
 void create(void|int extra)
@@ -47,7 +47,7 @@ object|string recv(string data,int version)
 {
 
 #ifdef SSL3_FRAGDEBUG
-  werror(" SSL.packet->recv: strlen(data)="+strlen(data)+"\n");
+  werror(" CaudiumSSL.packet->recv: strlen(data)="+strlen(data)+"\n");
 #endif 
 
 
@@ -55,7 +55,7 @@ object|string recv(string data,int version)
   while (strlen(buffer) >= needed_chars)
   {
 #ifdef SSL3_DEBUG
-//    werror(sprintf("SSL.packet->recv: needed = %d, avail = %d\n",
+//    werror(sprintf("CaudiumSSL.packet->recv: needed = %d, avail = %d\n",
 //		     needed_chars, strlen(buffer)));
 #endif
     if (needed_chars == HEADER_SIZE)
@@ -67,23 +67,23 @@ object|string recv(string data,int version)
 	if (SUPPORT_V2)
 	{
 #ifdef SSL3_DEBUG
-	  werror(sprintf("SSL.packet: Receiving SSL2 packet '%s'\n", buffer[..4]));
+	  werror(sprintf("CaudiumSSL.packet: Receiving SSL2 packet '%s'\n", buffer[..4]));
 #endif
 
 	  content_type = PACKET_V2;
-	  if ( (!(buffer[0] & 0x80)) /* Support only short SSL2 headers */
+	  if ( (!(buffer[0] & 0x80)) /* Support only short CaudiumSSL2 headers */
 	       || (buffer[2] != 1))
 	    return Alert(ALERT_fatal, ALERT_unexpected_message,version);
 	  length = ((buffer[0] & 0x7f) << 8 | buffer[1]
 		    - 3);
 #ifdef SSL3_DEBUG
-//	  werror(sprintf("SSL2 length = %d\n", length));
+//	  werror(sprintf("CaudiumSSL2 length = %d\n", length));
 #endif
 	  protocol_version = values(buffer[3..4]);
 	}
 	else
 	  return Alert(ALERT_fatal, ALERT_unexpected_message,version,
-		       "SSL.packet->recv: invalid type\n", backtrace());
+		       "CaudiumSSL.packet->recv: invalid type\n", backtrace());
       } else {
 	protocol_version = values(buffer[1..2]);
 	sscanf(buffer[3..4], "%2c", length);
@@ -92,11 +92,11 @@ object|string recv(string data,int version)
       }
       if (protocol_version[0] != 3)
 	return Alert(ALERT_fatal, ALERT_unexpected_message,version,
-		     sprintf("SSL.packet->send: Version %d is not supported\n",
+		     sprintf("CaudiumSSL.packet->send: Version %d is not supported\n",
 			     protocol_version[0]), backtrace());
 #ifdef SSL3_DEBUG
       if (protocol_version[1] > 0)
-	werror(sprintf("SSL.packet->recv: received version %d.%d packet\n",
+	werror(sprintf("CaudiumSSL.packet->recv: received version %d.%d packet\n",
 		       @ protocol_version));
 #endif
 
@@ -115,18 +115,18 @@ object|string recv(string data,int version)
 string send()
 {
   if (! PACKET_types[content_type] )
-    throw( ({ "SSL.packet->send: invalid type", backtrace() }) );
+    throw( ({ "CaudiumSSL.packet->send: invalid type", backtrace() }) );
   
   if (protocol_version[0] != 3)
-    throw( ({ sprintf("SSL.packet->send: Version %d is not supported\n",
+    throw( ({ sprintf("CaudiumSSL.packet->send: Version %d is not supported\n",
 		      protocol_version[0]), backtrace() }) );
   if (protocol_version[1] > 0)
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.packet->send: received version %d.%d packet\n",
+    werror(sprintf("CaudiumSSL.packet->send: received version %d.%d packet\n",
 		   @ protocol_version));
 #endif
   if (strlen(fragment) > (PACKET_MAX_SIZE + marginal_size))
-    throw( ({ "SSL.packet->send: maximum packet size exceeded\n",
+    throw( ({ "CaudiumSSL.packet->send: maximum packet size exceeded\n",
 		backtrace() }) );
   return sprintf("%c%c%c%2c%s", content_type, @protocol_version,
 		 strlen(fragment), fragment);

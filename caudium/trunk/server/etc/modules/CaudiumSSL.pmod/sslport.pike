@@ -6,7 +6,7 @@ inherit Stdio.Port : socket;
 inherit "context";
 inherit ADT.Queue : accept_queue;
 
-constant sslfile = SSL.sslfile;
+constant sslfile = CaudiumSSL.sslfile;
 
 function(object:void) accept_callback;
 
@@ -29,12 +29,12 @@ void ssl_callback(mixed id)
 #if 0
 void set_id(mixed id)
 {
-  throw( ({ "SSL.sslport->set_id: Not supported\n", backtrace() }) );
+  throw( ({ "CaudiumSSL.sslport->set_id: Not supported\n", backtrace() }) );
 }
 
 mixed query_id()
 {
-  throw( ({ "SSL.sslport->query_id: Not supported\n", backtrace() }) );
+  throw( ({ "CaudiumSSL.sslport->query_id: Not supported\n", backtrace() }) );
 }
 #endif
 
@@ -63,7 +63,7 @@ object accept()
 void create()
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslport->create\n");
+  werror("CaudiumSSL.sslport->create\n");
 #endif
   context::create();
   accept_queue::create();

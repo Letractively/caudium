@@ -39,13 +39,13 @@ class mac_sha
   string hash_raw(string data)
   {
 #ifdef SSL3_DEBUG_CRYPT
-    werror(sprintf("SSL.cipher: hash_raw(%O)\n", data));
+    werror(sprintf("CaudiumSSL.cipher: hash_raw(%O)\n", data));
 #endif
     
     object h = algorithm();
     string res = h->update(data)->digest();
 #ifdef SSL3_DEBUG_CRYPT
-    werror(sprintf("SSL.cipher: hash_raw->%O\n",res));
+    werror(sprintf("CaudiumSSL.cipher: hash_raw->%O\n",res));
 #endif
     
     return res;
@@ -58,7 +58,7 @@ class mac_sha
 		       packet->content_type, strlen(packet->fragment),
 		       packet->fragment);
 #ifdef SSL3_DEBUG_CRYPT
-//    werror(sprintf("SSL.cipher: hashing %O\n", s));
+//    werror(sprintf("CaudiumSSL.cipher: hashing %O\n", s));
 #endif
     return hash_raw(secret + pad_2 +
 		    hash_raw(secret + pad_1 + s));
@@ -214,7 +214,7 @@ int rsa_verify(object context, string cookie, object struct,
 
 object dsa_sign(object context, string cookie, object struct)
 {
-  /* NOTE: The details are not described in the SSL 3 spec. */
+  /* NOTE: The details are not described in the CaudiumSSL 3 spec. */
   string s = context->dsa->sign_ssl(cookie + struct->contents());
   struct->put_var_string(s, 2); 
   return struct;
@@ -272,7 +272,7 @@ class dh_parameters
 #endif
 	break;
       default:
-	throw( ({ "SSL.cipher.dh_parameters->create: "
+	throw( ({ "CaudiumSSL.cipher.dh_parameters->create: "
 		  "Wrong number of arguments.\n", backtrace() }) );
       }
     }
@@ -339,7 +339,7 @@ array lookup(int suite,int version)
     res->sign = anon_sign;
     break;
   default:
-    throw( ({ "SSL.cipher.pike: Internal error.\n", backtrace() }) );
+    throw( ({ "CaudiumSSL.cipher.pike: Internal error.\n", backtrace() }) );
   }
 
   switch(algorithms[1])

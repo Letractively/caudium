@@ -13,7 +13,7 @@ int ke_method;
 string master_secret; /* 48 byte secret shared between client and server */
 
 constant Struct = ADT.struct;
-constant State = SSL.state;
+constant State = CaudiumSSL.state;
 array(int) version;
 array(string) client_certificate_chain;
 array(string) server_certificate_chain;
@@ -25,7 +25,7 @@ void set_cipher_suite(int suite,int version)
   ke_method = res[0];
   cipher_spec = res[1];
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.session: cipher_spec %O\n",
+  werror(sprintf("CaudiumSSL.session: cipher_spec %O\n",
 		 mkmapping(indices(cipher_spec), values(cipher_spec))));
 #endif
 }
@@ -33,7 +33,7 @@ void set_cipher_suite(int suite,int version)
 void set_compression_method(int compr)
 {
   if (compr != COMPRESSION_null)
-    throw( ({ "SSL.session->set_compression_method: Method not supported\n",
+    throw( ({ "CaudiumSSL.session->set_compression_method: Method not supported\n",
 		backtrace() }) );
   compression_algorithm = compr;
 }
