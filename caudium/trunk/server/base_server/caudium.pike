@@ -43,7 +43,6 @@ object snmp_agent;
 // Some headerfiles
 #define IN_ROXEN
 #include <caudium.h>
-#include <caudium_version.h>
 #include <config.h>
 #include <module.h>
 #include <variables.h>
@@ -67,6 +66,7 @@ inherit "disk_cache";
 inherit "language";
 inherit "fonts";
 inherit "internals";
+inherit CaudiumVersion;
 
 //! The datashuffler program
 constant pipe = Caudium.nbio;
