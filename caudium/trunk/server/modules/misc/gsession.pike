@@ -931,6 +931,9 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
 //
 private void memory_delete_session(string sid)
 {
+  if (memory_validate_storage("_sessions_", sid, "memory_delete_session") < 0)
+    return 0;
+
   if (_memory_storage["_sessions_"][sid]->fresh)
     _memory_storage["_sessions_"]->idle_sessions--;
   _memory_storage["_sessions_"]->total_sessions--;
@@ -1162,6 +1165,8 @@ void delete_session(object|string id)
     cur_storage->delete_session(id->misc->session_id);
   else if (stringp(id))
     cur_storage->delete_session(id);
+    
+  id->misc->session_id = 0;
 }
 
 function kill_session = delete_session;
@@ -1411,6 +1416,7 @@ string tag_end_session (string tag, mapping args, object id, object file)
       gsession_set_cookie(id, 0, 1);
         
     cur_storage->delete_session (id->misc->session_id);
+    id->misc->session_id = 0;
   }
     
   return "";
