@@ -433,27 +433,6 @@ static string parse_rxml(string what, object id,
   return what;
 }
 
-//! Used for proxy
-//! @fixme
-//!  Should be in Caudium.HTTP module
-mapping proxy_auth_needed(object id)
-{
-  mixed res = id->conf->check_security(proxy_auth_needed, id);
-  if (res) {
-    if (res==1) // Nope...
-      return Caudium.HTTP.low_answer(403, "Access to this proxy has been denied.");
-
-    if (!mappingp(res))
-      return 0;
-    
-    res->error = 407;
-    
-    return res;
-  }
-  
-  return 0;
-}
-
 string program_filename()
 {
   return caudium->filename(this_object()) ||

@@ -64,7 +64,7 @@ constant module_unique = 1;
 
 import Array;
 
-#include <proxyauth.pike>
+//#include <proxyauth.pike>
 
 string query_location() { return query("loc"); }
 
@@ -351,7 +351,7 @@ mapping find_file(string fi, object id)
   perror("GOPHER: find_file()\n");
 #endif
 
-  if(tmp = proxy_auth_needed(id))
+  if(tmp = Caudium.proxy_auth_needed(id))
     return tmp;
 
   sscanf(fi, "%[^/]/%s", h, f);

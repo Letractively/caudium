@@ -70,7 +70,7 @@ Content-type: text/html\r\n\
 import Stdio;
 import Array;
 
-#include <proxyauth.pike>
+//#include <proxyauth.pike>
 #include <caudium.h>
 
 program filep = Stdio.File;
@@ -587,7 +587,7 @@ mapping find_file( string f, object id )
   host = lower_case(host);
   sscanf(host, "%*s@%s", host);
   id->misc->proxyhost = host; // Used if the host is unknown.
-  if(tmp = proxy_auth_needed(id))
+  if(tmp = Caudium.proxy_auth_needed(id))
     return tmp;
 
   if(!file) file="";

@@ -221,6 +221,13 @@ static mapping http_proxy_auth_required(string realm,void|string message) {
    return Caudium.HTTP.auth_required(realm,message);
 }
 
+//! Compat Call of Caudium.HTTP.proxy_auth_needed
+//! @deprecated
+static mapping proxy_auth_needed(object id) {
+   WCOMPAT2("Caudium.HTTP.proxy_auth_needed", "http_proxy_auth_needed");
+   return Caudium.HTTP.proxy_auth_needed(id);
+}
+
 // Some spider calls are not under spider module so here is some compat
 // things
 

@@ -592,6 +592,24 @@ mapping proxy_auth_required(string realm, void|string message)
     + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
 }
 
+//!
+//! @fixme
+//!   Undocumented and redondant with proxy_auth_required.
+mapping proxy_auth_needed(object id)
+{
+  mixed res = id->conf->check_security(proxy_auth_needed, id);
+  if(res)
+  {
+    if(res==1) // Nope...
+      return low_answer(403, "You are not allowed to access this proxy");
+    if(!mappingp(res))
+      return 0; // Error, really.
+    res->error = 407;
+    return res;
+  }
+  return 0;
+}
+
 /*
  * If you visit a file that doesn't contain these lines at its end, please
  * cut and paste everything from here to that file.
