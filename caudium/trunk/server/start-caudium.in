@@ -771,7 +771,7 @@ array get_servers() {
       string host, prot;
    
       sscanf(cfg->MyWorldLocation, "%s://%s:%d", prot, host, port);
-      if(prot=="http")
+      if(prot=="http" && host && port)
         srvs+=({ ({host, port}) });
     }
   }
@@ -831,7 +831,11 @@ void check_site()
     // we have a site to check.    
     conn=Stdio.File();
    
-    // can we connect?
+    // do we have a valid server and port?
+    if(!(watchdog_params->site[0] && watchdog_params->site[1])) 
+      return;
+
+    // if so, can we connect?
     if(!conn->connect(watchdog_params->site[0], 
         (int)(watchdog_params->site[1])))
     {
