@@ -68,10 +68,11 @@ int req_time = HRTIME();
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
-#undef REQUEST_DEBUG
+
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
+constant _query        = caudium->query;
 constant thepipe       = caudium->pipe;
 constant _time         = predef::time;
 
@@ -229,17 +230,33 @@ inline void do_post_processing()
       Caudium.parse_query_string(query, variables);
   REQUEST_WERR(sprintf("After query scan:%O", f));
 
+#if 0
   // FIXME: This should be done in C
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
     prestate = aggregate_multiset(@(a/","-({""})));
     f = "/"+f;
   }
+#else
+  f = Caudium.parse_prestates(f, prestate, internal);
+  REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
+                       prestate, internal));
+#endif
   
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
+  /*
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
+#endif
+  */
 
 #ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
@@ -307,6 +324,14 @@ inline void do_post_processing()
       sscanf(useragent = request_headers[linename], "%s via", useragent);
 #ifdef EXTRA_ROXEN_COMPAT
       client = (useragent/" ") - ({ "" });
+#endif
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
 #endif
       break;
 
@@ -419,14 +444,6 @@ inline void do_post_processing()
       break;
     }
   }
-#ifdef ENABLE_SUPPORTS    
-  if(useragent == "unknown") {
-    supports = find_supports("", supports); // This makes it somewhat faster.
-  } else 
-    supports = find_supports(lower_case(useragent), supports);
-#else
-  supports = (< "images", "gifinline", "forms", "mailto">);
-#endif
   if(prestate->nocache) {
     // This allows you to "reload" a page with MSIE by setting the
     // (nocache) prestate.
@@ -572,8 +589,8 @@ string link_to(string what, int eid, int qq)
   return "<a>";
 }
 
-string format_backtrace(array bt, int eid)
-{
+
+string format_backtrace(array bt, int eid) {
   // first entry is always the error, 
   // second is the actual function, 
   // rest is backtrace.
@@ -581,26 +598,8 @@ string format_backtrace(array bt, int eid)
   string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
-  string res = ("<title>Internal Server Error</title>"
-		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
-		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
-		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/internal-caudium-":"/img/")+
-		"caudium-icon-gray.png\" alt=\"\"></td>"
-		"<td>&nbsp;</td><td width=100% height=39>"
-		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
-		"<td width=\"100%\" align=right valigh=center height=28>"
-		"<b><font size=+1>Failed to complete your request</font>"
-		"</b></td></tr><tr width=\"100%\"><td bgcolor=\"#003366\" "
-		"align=right height=12 width=\"100%\"><font color=white "
-		"size=-2>Internal Server Error&nbsp;&nbsp;</font></td>"
-		"</tr></table></td></tr></table>"
-		"<p>\n\n"
-		"<font size=+2 color=darkred>"
-		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
-		+bt[0]+"</font><br>\n"
-		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
+  string res = (
+		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
 		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
 
@@ -676,29 +675,38 @@ array get_error(string eid)
 
 void internal_error(array err)
 {
-  array err2;
-  if(GLOBVAR(show_internals)) 
-  {
-    err2 = catch { 
-      array(string) bt = (describe_backtrace(err)/"\n") - ({""});
-      file = http_low_answer(500, format_backtrace(bt, store_error(err)));
-    };	
-
-    if(err2) {
-      werror("Internal server error in internal_error():\n" +
-	     describe_backtrace(err2)+"\n while processing \n"+
-	     describe_backtrace(err));
-      file = http_low_answer(500, "<h1>Error: The server failed to "
-			     "fulfill your query, due to an "
-			     "internal error in the internal error routine.</h1>");
+    string error_message;
+    array err2;
+    if(QUERY(show_internals))
+    {
+	err2 = catch {
+	    array(string) bt = (describe_backtrace(err)/"\n") - ({""});
+	    error_message = format_backtrace(bt, store_error(err));
+	};
+	if(err2) {
+	    werror("Internal server error in internal_error():\n" +
+		   describe_backtrace(err2)+"\n while processing \n"+
+		   describe_backtrace(err));
+	    error_message =
+		"<h1>Error: The server failed to " +
+		"fulfill your query, due to an " +
+		"internal error in the internal error routine.</h1>";
+	}
+    } else {
+	error_message =
+	    "<h1>Error: The server failed to " +
+	    "fulfill your query, due to an internal error.</h1>";
     }
-  } else {
-    file = http_low_answer(500, "<h1>Error: The server failed to "
-			   "fulfill your query, due to an internal error.</h1>");
-  }
-  report_error("Internal server error: " +
-	       describe_backtrace(err) + "\n");
+    report_error("Internal server error: " +
+		 describe_backtrace(err) + "\n");
+    if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
+	report_error("*** http_error object missing during internal_error() ***\n");
+	file =
+	    http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+			     "internal error in the internal error routine.</h1>" );
+    }
 }
+
 
 constant errors =
 ([
@@ -1010,23 +1018,16 @@ void send_result(mapping|void result)
   file = result || file;
   TIMER("enter_send_result");
   MARK_FD("send_result");
-
   if(!mappingp(file))
   {
-    if(misc->error_code)
-      file = http_low_answer(misc->error_code, errors[misc->error]);
-    else if(method != "GET" && method != "HEAD" && method != "POST")
-      file = http_low_answer(501, "Not implemented.");
-    else if(err = catch {
-      file=http_low_answer(404,
-			   replace(parse_rxml(conf->query("ZNoSuchFile"),
-					      this_object()),
-				   ({"$File", "$Me"}), 
-				   ({html_encode_string(not_query),
-				     conf->query("MyWorldLocation")})));
-    }) {
-      INTERNAL_ERROR(err);
-    }
+      if ( misc->error_code ) {
+	  file = conf->http_error->handle_error( misc->error_code, errors[misc->error], this_object() );
+      }
+      else if ( method != "GET" && method != "HEAD" && method != "POST" )
+	  file = conf->http_error->handle_error( 501, "Not implemented.", "Method (" + html_encode_string( method ) + ") not recognised.", this_object() );
+      else if ( err = catch( file = conf->query( "Old404" )?old_404():conf->http_error->handle_error( 404, errors[ 404 ], "Unable to locate the file: " + not_query + ".<br>The page you are looking for may have moved or been removed.", this_object() ) ) ) {
+	  INTERNAL_ERROR( err );
+      }
   } else {
     if((file->file == -1) || file->leave_me) 
     {
@@ -1037,11 +1038,10 @@ void send_result(mapping|void result)
       my_fd = file = 0;
       return;
     }
-
     if(file->type == "raw")  file->raw = 1;
     else if(!file->type)     file->type="text/plain";
   }
-   
+
     
   if(!file->raw)
   {
@@ -1201,7 +1201,6 @@ void send_result(mapping|void result)
     do_log();
     return;
   } else {
-    
 #ifdef ENABLE_RAM_CACHE
     if( conf && (misc->cacheable > 0) && file->len > 0)
     {
@@ -1219,7 +1218,7 @@ void send_result(mapping|void result)
 	file = ([ "data":data, "len": strlen(data) ]);
 	head_string = "";
       }
-    }
+    } 
 #endif
     if(file->len > 0 && file->len < 4000) {
       my_fd->write(head_string + (file->file ? file->file->read() :
@@ -1315,7 +1314,7 @@ void got_data(mixed fdid, string s)
   raw += s;
   if(!method) {
     if (!htp)
-      htp = Caudium.ParseHTTP(misc, request_headers);
+      htp = Caudium.ParseHTTP(misc, request_headers, GLOBVAR(RequestBufSize));
     tmp = htp->append(s);
     switch(tmp)
     { 
