@@ -219,9 +219,10 @@ void set_nb_elements_per_page(object id, int nb)
 {
   if(nb <= 0)
     throw(({ "Can't set a negative or null number of elements per page\n", backtrace() }));
-  if(!NSESSION || nb != NSESSION[NAV_NB_ELEM_PAGE])
-  {
+  if(!NSESSION)
     create_session(id);
+  if(nb != NSESSION[NAV_NB_ELEM_PAGE])
+  {
     NSESSION[NAV_NB_ELEM_PAGE] = nb;
     NDEBUG("set_nb_elements_per_page: nb="+nb);
   }
