@@ -78,7 +78,7 @@ string page_0()
 	  {
 	    string fdc = 
 #ifdef FD_DEBUG
-	      mark_fd(fd)||"?";
+	      mark_fd(fd)||"";
 #else
 	    "";
 	    
@@ -89,7 +89,7 @@ string page_0()
 	      args[-2] = ( args[-2] / " " - ({""})) * " ";
 	      args[1] = (args[1] - "<tt>") - "</tt>";
 	      //	    werror("%O\n", args);
-	      return sprintf("%-5s  %-9s  %-10s   %-12s  %s",
+	      return sprintf("%-5s  %-9s  %-10s   %-12s  %s    %s",
 			   (string)fd,
 			   @args,
 			   fdc);
