@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class Search { 
 
-    private static Searcher searcher; 
+    private Searcher searcher; 
 
     /*
        create a new search engine
@@ -23,7 +23,7 @@ public class Search {
       searcher = new IndexSearcher(dir);
     }
 
-    private static final String attrib[] = 
+    private final String attrib[] = 
        { "url", "title", "desc", "date", "type" };
 
     /**
@@ -33,7 +33,7 @@ public class Search {
      *
      * @param query Query to run against the index 
      */
-    public static ArrayList search(String query) throws Exception {
+    public ArrayList search(String query) throws Exception {
         ArrayList list=search(query, 0, Integer.MAX_VALUE);
         return list;
     }
@@ -47,7 +47,7 @@ public class Search {
      * @param offset Position in the result set to start returning results
      * @param limit Max number of results to return
      */
-    public static ArrayList search(String query, int offset, 
+    public ArrayList search(String query, int offset, 
                                   int limit) throws Exception {
 
         Query q = QueryParser.parse(query, "body", new StandardAnalyzer());
