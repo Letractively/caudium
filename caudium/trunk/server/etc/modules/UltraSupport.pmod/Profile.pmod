@@ -105,7 +105,7 @@ class profile {
 			 data->format[f],
 			 data->filter[f]) });
     }    
-    extensions = data->extensions;
+    extensions = data->extensions || (<"html","htm", "rxml","shtml", "cgi">);
     noref = data->noref;
     savedir = _savedir;
     method = Storage[_method](savedir);
