@@ -277,7 +277,7 @@ mapping find_file_ppm( string f, object id )
   object digit, result;
   float scale;
   string buff, dir;
-  array(string) us;
+  mapping us;
   array (string)strcounter;
   if(sscanf(f, "%s/%s/%s/%d/%d/%f/%d/%s/%s.%*s", 
 	    user, bg, fg, trans, len, scale, rot, fontname, counter) != 10 )
@@ -299,8 +299,8 @@ mapping find_file_ppm( string f, object id )
 
 
   if(!arrayp(digits)) {
-    if( user != "1" && !catch(us = id->conf->userinfo(user, id)) && us)
-      dir = us[5] + (us[5][-1]!='/'?"/":"") + query("userpath");
+    if( user != "1" && !catch(us = id->conf->auth_module->user_info(user)) && us)
+      dir = us->home_directory + (us->home_directory[-1]!='/'?"/":"") + query("userpath");
     else
       dir = query("ppmpath"); 
 
