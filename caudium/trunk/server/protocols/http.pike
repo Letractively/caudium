@@ -27,6 +27,7 @@ private inherit "caudiumlib";
 
 // HTTP protocol module.
 #include <config.h>
+#include <module.h>
 
 #if constant(gethrtime)
 # define HRTIME() gethrtime()
@@ -56,6 +57,8 @@ int req_time = HRTIME();
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
+
+private int cache_control_ok = 0;
 
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
