@@ -668,6 +668,7 @@ array filter_modules(object id)
   return filter_module_cache;
 }
 
+string cache_hostname=gethostname();
 
 void init_log_file()
 {
@@ -682,15 +683,15 @@ void init_log_file()
   if(query("Log")) // Only try to open the log file if logging is enabled!!
   {
     mapping m = localtime(time());
-    string logfile = query("LogFile");
+    string logfile = QUERY(LogFile);
     m->year += 1900;	/* Adjust for years being counted since 1900 */
     m->mon++;		/* Adjust for months being counted 0-11 */
     if(m->mon < 10) m->mon = "0"+m->mon;
     if(m->mday < 10) m->mday = "0"+m->mday;
     if(m->hour < 10) m->hour = "0"+m->hour;
-    logfile = replace(logfile,({"%d","%m","%y","%h" }),
+    logfile = replace(logfile,({"%d","%m","%y","%h","%H"}),
 		      ({ (string)m->mday, (string)(m->mon),
-			 (string)(m->year),(string)m->hour,}));
+			 (string)(m->year),(string)m->hour,cache_hostname}));
     if(strlen(logfile))
     {
       do {
@@ -3725,7 +3726,9 @@ void create(string config)
 	 "%y    Year  (i.e. '1997')\n"
 	 "%m    Month (i.e. '08')\n"
 	 "%d    Date  (i.e. '10' for the tenth)\n"
-	 "%h    Hour  (i.e. '00')\n</pre>"
+	 "%h    Hour  (i.e. '00')\n"
+	 "%H    The hostname of the server machine.\n"
+	 "</pre>"
 	 ,0, log_is_not_enabled);
   
   defvar("NoLog", ({ }), 
@@ -3739,7 +3742,6 @@ void create(string config)
 	 "enter the correct domain name here, and send a bug report to "
 	 "<a href=\"mailto:caudium-bugs@caudium.net\">caudium-bugs@caudium.net"
 	 "</a>");
-  
 
   defvar("Ports", ({ }), 
 	 "Listen ports", TYPE_PORTS,
