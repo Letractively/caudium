@@ -4,9 +4,6 @@
 #
 . /usr/share/debconf/confmodule
 
-PORTCHECK='object port = Stdio.Port(); if (!port->bind((int)getenv("PORTNO"))) write("no"); else write("yes");'
-PIKE=/usr/bin/pike7-cvs
-
 get_cfg_port() {
     local yesno;
     local port;
@@ -23,18 +20,8 @@ get_cfg_port() {
       continue
      fi
      
-     port="$RET"
-     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
-     if test "$yesno" = "no"; then
-      db_reset caudium/config_port || true
-      db_reset caudium/cfg_port_taken || true
-      db_input medium caudium/cfg_port_taken || true
-      db_go
-      continue
-     else
-      db_subst caudium/last_screen cfgport "$port"
-      break
-     fi
+     db_subst caudium/last_screen cfgport "$port"
+     return
     done
 }
 
@@ -46,11 +33,6 @@ get_iface() {
     db_subst caudium/listen_on portno $port
 
     while test 1; do
-     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
-     if [ "$yesno" = "yes" ]; then
-        break
-     fi
-     
      db_input medium caudium/listen_on || true
      db_go
      
@@ -58,7 +40,10 @@ get_iface() {
      port=$RET
      if test -z "$port"; then
         port="`expr $port + 1`"	
+     else
+        return
      fi
+     
      db_reset caudium/listen_on
      db_set caudium/listen_on $port
     done
