@@ -44,7 +44,7 @@ Description-fr: Sur quel port le serveur doit-il écouter ?
 Template: caudium/start_options
 Type: multiselect
 Choices: threads, debug, once, profile, fd-debug, keep-alive
-Defaukt: threads
+Default: threads
 Description: Select options that should be used on startup
  'threads' - use threads (if available)
  .
@@ -186,3 +186,31 @@ Description-fr: Utiliser le module expérimental HTTP ?
  lors de son utilisation. Par conséquent, son utilisation N'est PAS
  recommandée pour un serveur en production. Cependant si vous voulez
  tester ses fonctionnalités, répondez OUI à cette question.
+
+Template: caudium/config_login
+Type: string
+Default: admin
+Description: Configuration interface login.
+ This is the user login name for the configuration interface access.
+ If you don't specify anything here, anybody who will access the
+ config interface first will be able to set the login/password and
+ manage your server. This is probably not what you want. Please
+ specify the login name below or accept the default value.
+Description-pl: Login do interfejsu konfiguracyjnego.
+ Nazwa u¿ytkownika wykorzystywana przy logowaniu siê do interfejsu
+ konfiguracyjnego. Je¶li nie podasz niczego w polu poni¿ej ka¿da 
+ osoba, która otworzy stronê interfejsu konfiguracyjnego jako 
+ pierwsza, bêdzie mog³a ustawiæ login/has³o i przej±æ kontrolê
+ nad zarz±dzaniem serwerem. Prawdopodobnie nie jest to twoim zamiarem.
+ Proszê podaæ login w polu poni¿ej, lub zaakceptowaæ domy¶ln± warto¶æ.
+
+Template: caudium/config_password
+Type: password
+Default: password
+Description: Configuration interface password
+ This is the password used to access the configuration interface. The
+ default value for it is 'password' - it is HIGHLY RECOMMENDED to
+ change the default below!
+Description-pl: Has³o dostêpu do interfejsu konfiguracyjnego.
+ Has³o dostêpu do interfejsu konfiguracyjnego. Domy¶ln± warto¶ci±
+ has³a jest 'password' - ZALECA siê zmianê domy¶lnej warto¶ci!

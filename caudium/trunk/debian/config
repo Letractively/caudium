@@ -55,10 +55,56 @@ get_iface() {
     done
 }
 
+get_cfg_login() {
+    local login="${1:-admin}"
 
+    db_title 'Config interface login'
+    db_subst caudium${EXTVER}/config_login ciflogin $login
+
+    while test 1; do
+        db_input high caudium${EXTVER}/config_login || true
+        db_go
+
+        db_get caudium${EXTVER}/config_login
+        login="$RET"
+        if test -z "$login"; then
+            login="admin"
+        else
+            return 0
+        fi
+
+        db_reset caudium${EXTVER}/config_login
+        db_set caudium${EXTVER}/config_login $login || true
+    done
+}
+
+get_cfg_pass() {
+    local pass="${1:-password}"
+
+    db_title 'Config interface password'
+    db_subst caudium${EXTVER}/config_password cifpass $pass
+
+    while test 1; do
+        db_input high caudium${EXTVER}/config_password || true
+        db_go
+
+        db_get caudium${EXTVER}/config_password
+        pass="$RET"
+        if test -z "$pass"; then
+            pass="password"
+        else
+            return 0
+        fi
+
+        db_reset caudium${EXTVER}/config_password
+        db_set caudium${EXTVER}/config_password $pass || true
+    done
+}
 
 if test ! -f /etc/caudium${EXTVER}/servers/Global_Variables; then
     get_cfg_port
+    get_cfg_login
+    get_cfg_pass
     get_iface
 fi
 

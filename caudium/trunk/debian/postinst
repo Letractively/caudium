@@ -30,6 +30,7 @@ db_capb
 #     installation fails and the `postinst' is called with `abort-upgrade',
 #     `abort-remove' or `abort-deconfigure'.
 CAUDIUM_PIKE=/usr/lib/caudium${EXTVER}/base_server/caudium.pike
+PIKE=/usr/lib/caudium${EXTVER}/bin/pike
 
 case "$1" in
     configure)
@@ -41,7 +42,7 @@ case "$1" in
 
     db_get caudium${EXTVER}/config_port
     CFGPORTNO="$RET"
-    if [ -n "$RET" -a "$RET" != "22203" ]; then
+    if [ -n "$RET" -a "$RET" != "22202" ]; then
         CONFIG_PORT="$RET"
 	sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new && \
 	mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
@@ -52,13 +53,26 @@ case "$1" in
 
     if [ ! -f /etc/caudium${EXTVER}/servers/Global_Variables ]; then    
      touch /var/state/caudium${EXTVER}/virgin.install
-     sed -e "s;@CFGPORT@;$CFGPORTNO;" /etc/caudium${EXTVER}/Global_Variables.sample > \
+     db_get caudium${EXTVER}/config_login
+     CONFIGADMIN="$RET"
+
+     db_get caudium${EXTVER}/config_password
+     CONFIGPASS="`echo $RET | $PIKE -e 'string p; p=Stdio.stdin->gets(); write(replace(crypt(p), "/", "\/"));'`"
+
+     cat <<EOF | sed -f - /etc/caudium${EXTVER}/Global_Variables.sample > \
          /etc/caudium${EXTVER}/servers/Global_Variables.new && mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
-	 /etc/caudium${EXTVER}/servers/Global_Variables
+         /etc/caudium${EXTVER}/servers/Global_Variables
+s/@CFGPORT@/$CFGPORTNO/g
+s/@CONFIGADMIN@/$CONFIGADMIN/g
+s/@CONFIGPASS@/$CONFIGPASS/g
+EOF
+#     sed -e "s;@CFGPORT@;$CFGPORTNO;" /etc/caudium${EXTVER}/Global_Variables.sample > \
+#         /etc/caudium${EXTVER}/servers/Global_Variables.new && mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
+#         /etc/caudium${EXTVER}/servers/Global_Variables
 
      sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium${EXTVER}/localhost.sample > \
          /etc/caudium${EXTVER}/servers/localhost.new && mv /etc/caudium${EXTVER}/servers/localhost.new \
-  	 /etc/caudium${EXTVER}/servers/localhost
+         /etc/caudium${EXTVER}/servers/localhost
     elif [ -f /var/state/caudium${EXTVER}/virgin.install ]; then
      rm -f /var/state/caudium${EXTVER}/virgin.install
     fi
