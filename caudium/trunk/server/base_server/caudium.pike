@@ -2111,19 +2111,21 @@ class ImageCache
     string ci;
     if( mappingp( data ) ) {
         if (!data->format) {
-#if constant(Image.PNG.encode)
-            data->format = "png";
-#else   
+#if constant(Image.GIF.encode)
             data->format = "gif";
+#endif
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+            data->format = "png";
 #endif
         }
         ci = argcache->store( data );
     }else if( arrayp( data ) ) {
         if (!data[0]->format) {
-#if constant(Image.PNG.encode)
-            data[0]->format = "png";
-#else
+#if constant(Image.GIF.encode)
             data[0]->format = "gif";
+#endif
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+            data[0]->format = "png";
 #endif
         }
         ci = Array.map( Array.map( data, tomapp ), argcache->store )*"$";
