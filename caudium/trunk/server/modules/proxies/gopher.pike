@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
+ * $Id$
  */
 
 //
@@ -49,7 +51,7 @@ constant module_doc  = "This is a caching gopher gateway, might be useful for fi
 constant module_unique = 1;
 
 #define CONNECTION_REFUSED "HTTP/1.0 500 Connection refused by remote "	\
-"host\r\nContent-type: text/html\r\n\r\n<title>Roxen: Connection "	\
+"host\r\nContent-type: text/html\r\n\r\n<title>Caudium: Connection "	\
 "refused </title>\n<h1>Proxy request failed</h1><hr><font "		\
 "size=+2><i>Connection refused by remote host</i></font><hr><font "	\
 "size=-2><a href=http://www.roxen.com/>Caudium</a></font>"
@@ -86,7 +88,7 @@ string make_html_line(array(string) s)
 void my_pipe_done(array (object) a)
 {
 //if(a[1]) destruct(a[1]);
-  if(a[0]) ::my_pipe_done(a[0]);
+  if(a[0]) a::my_pipe_done(a[0]);
 }
 
 void write_to_client_and_cache(object client, string data, string key)
