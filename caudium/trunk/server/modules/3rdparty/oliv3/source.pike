@@ -59,7 +59,7 @@ constant html4_t = html4_tags;
 // ==============================================================================
 
 void create () {
-  defvar ("on", 1, "Enabled", TYPE_FLAG, "Is this module enabled ?");
+  defvar ("on", 0, "Enabled", TYPE_FLAG, "Is this module enabled ?");
 
   defvar ("xml_style", 0, "XML-like output", TYPE_FLAG, "if yes, add \" /\""
 	  " at the end of tags.");
