@@ -1164,8 +1164,8 @@ string|void pop_color(string tagname,mapping args,object id,object file,
 mapping query_tag_callers()
 {
   mapping tags = ([ "gtext-id":tag_gtext_id ]);
-  if(query("colorparse"))
-    foreach(query("colorparsing"), string t)
+  if(QUERY(colorparse))
+    foreach(QUERY(colorparsing), string t)
     {
       switch(t)
       {
