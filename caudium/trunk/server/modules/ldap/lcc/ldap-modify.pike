@@ -54,6 +54,14 @@ private mapping my_tags = ([
     "_mmail" : tag_mmail
 ]);
 
+//
+// Those are the default LDAP attributes that can be added to the user's
+// record
+//
+private multiset(string) blessed_attribs = (<
+    "uid", "maildrop", "mail", "sn", "givenName"
+>);
+
 void create()
 {
     defvar("provider_prefix", "lcc", "Provider module name prefix", TYPE_STRING,
@@ -123,8 +131,13 @@ private void insert_attr(string atype, string|array(string) value,
         case "replace":
             opval = do_op = 2;
             break;
+
+        case "delete":
+            opval = do_op = 1;
+            break;
             
         case "modify":
+        case "add":
             opval = 0;
             do_op = 1;
             break;
@@ -135,7 +148,7 @@ private void insert_attr(string atype, string|array(string) value,
 
     if (stringp(value))
         data[atype] += ({value});
-    else
+    else if (value)
         data[atype] += value;
 }
 
@@ -147,6 +160,11 @@ private void add_attribute(string name, string|array(string) value, mapping(stri
 private void replace_attribute(string name, string|array(string) value, mapping(string:array(string)) data)
 {
     insert_attr(name, value, "replace", data);
+}
+
+private void delete_attribute(string name, mapping(string:array(string)) data)
+{
+    insert_attr(name, 0,  "delete", data);
 }
 
 private void add_class(string|array(string) name, mapping(string:array(string)) data)
@@ -215,23 +233,18 @@ private void replace_if_differs(string name, array(string) entry,
 //
 private int replace_or_append(array(string) entry, string nval, int index)
 {
-    report_notice("Entry: %O\nnval: %s\nindex: %d\n",
-                  entry, nval, index);
-    
     if (sizeof(entry) <= index || index < 0) {
         entry += ({nval});
+        entry = Array.uniq(entry);
         return 1;
     }
     
-    report_notice("Checking for replacements...\n");
     if (entry[index] != nval) {
-        report_notice("Replacing '%s' with '%s' at position %d\n",
-                      entry[index], nval, index);
         entry[index] = nval;
+        entry = Array.uniq(entry);
         return 1;
     }
 
-    report_notice("Nothing's changed\n");
     return 0;
 }
 
@@ -254,7 +267,9 @@ private mixed do_modify(object id, mapping data, string f)
     int                           max = SUSER(id)->ldap_data->maxMailAliases ? SUSER(id)->ldap_data->maxMailAliases : QUERY(max_mails);
     
     foreach(indices(id->variables), string idx) {
-        if (sizeof(idx) > 4 && idx[0..3] == "mail") {
+        int    mailno;
+        
+        if (sizeof(idx) > 4 && idx[0..3] == "mail" && sscanf(idx, "mail%d", mailno)) {
             string maddr = "";
 
             if (id->variables[idx] != "")
@@ -262,7 +277,7 @@ private mixed do_modify(object id, mapping data, string f)
             
             if (data->user->ldap_data && data->user->ldap_data->mail)
                 mailchanged += replace_or_append(data->user->ldap_data->mail,
-                                                 maddr, max - (int)(idx[4..]));
+                                                 maddr, max - mailno);
             continue;
         }
 
@@ -277,9 +292,21 @@ private mixed do_modify(object id, mapping data, string f)
 
             //TODO: encryption stuff goes here
         }
+
+        if (!data->user->ldap_data)
+            data->user->ldap_data = ([]);
         
-        if (data->user->ldap_data && data->user->ldap_data[idx])
-            replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
+        if (data->user->ldap_data[idx] || blessed_attribs[idx]) {
+            if (id->variables[idx] == "") {
+                delete_attribute(idx, ldata);
+                m_delete(data->user->ldap_data, idx);
+            } else if (data->user->ldap_data[idx])
+                replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
+            else {
+                add_attribute(idx, id->variables[idx], ldata);
+                data->user->ldap_data[idx] = id->variables[idx];
+            }
+        }
     }
     
     if (mailchanged)
@@ -297,27 +324,28 @@ private mixed do_modify(object id, mapping data, string f)
 
     string screen;
     
-    if (sizeof(ldata)) {
-        report_notice("modifying '%s' with data '%O'\n",
-                      data->user->dn, ldata);
-    
+    if (sizeof(ldata)) {    
         int res = ldap->modify(data->user->dn, ldata);
 
         // TODO: handle the res == 50 situation specially here
         if (res != 0) {
             string errs = ldap->error_string(res);
+            report_notice("Error: %O\n", errs);
 
-            report_notice("Error string: %O\n", errs);
-        
-            return ([
+            mapping ret = ([
                 "lcc_error" : ERR_LDAP_MODIFY,
                 "lcc_error_extra" : ldap->error_string(res)
             ]);
+
+            report_notice("Returning: %O\n", ret);
+            
+            return ret;
         }
     
          screen = sprov->retrieve(id, "modified");
     } else
-        screen = sprov->retrieve(id, "modify");
+        return http_redirect(data->user->my_world +
+                             data->user->mountpoint + "/modify");
     
     if (screen && screen != "")
         return http_string_answer(screen);
