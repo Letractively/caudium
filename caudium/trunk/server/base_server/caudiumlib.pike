@@ -1565,3 +1565,51 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
   return _set(variable, value, id);
 }
 
+
+//! method: int parse_scopes(string data, function cb, object id, mixed ... extra)
+//!  Parse the data for entities.
+//! arg: string data
+//!  The text to parse.
+//! arg: function cb
+//!  The function called when an entity is encountered. Arguments are:
+//!  the parser object, the entity scope, the entity name, the request id
+//!  and any extra arguments specified.
+//! arg: object id
+//!  The request id object.
+//! arg: mixed ... extra
+//!  Optional arguments to pass to the callback function.
+//! returns:
+//!  The parsed result.
+//! name: parse_scopes - parse text for entities
+
+#if constant Parser.HTML
+static mixed cb_wrapper(object parser, string entity, object id, function cb,
+			mixed ... args) {
+  string scope, name, encoding;
+  array tmp = (parser->tag_name()) / ":";
+  entity = tmp[0];
+  encoding = tmp[1..] * ":";
+  if(!encoding || !strlen(encoding))
+    encoding = (id && id->misc->_default_encoding) || "html";
+  if(sscanf(entity, "%s.%s", scope, name) != 2)
+    return 0;
+  mixed ret = cb(parser, scope, name, id, @args);
+  if(!ret) return 0;
+  if(stringp(ret)) return roxen_encode(ret, encoding);
+  if(arrayp(ret)) return Array.map(ret, roxen_encode, encoding);    
+}
+
+string parse_scopes(string data, function cb, object id, mixed ... extra) {
+  object mp = Parser.HTML();
+  mp->lazy_entity_end(1);
+  mp->ignore_tags(1);
+  mp->set_extra(id, cb, @extra);
+
+  mp->_set_entity_callback(cb_wrapper);
+  return mp->finish(data)->read();
+}
+#else
+string parse_scopes(string data, function cb, object id, mixed ... extra) {
+  error("Parser.HTML is required.\n");
+}
+#endif
