@@ -16,6 +16,7 @@ Changes in Caudium 1.0.X (CVS)
 - Fixed the server template creator.
 - Added a script that tries to find, and warn about, potential
   problem in the Pike used.
+- Fixed PHP4 scripting support when using the SSL3 protocol.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
