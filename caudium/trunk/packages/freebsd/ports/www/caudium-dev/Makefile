@@ -6,18 +6,19 @@
 #
 
 PORTNAME=	caudium
-PORTVERSION=	1.2.0
+PORTVERSION=	1.3.1
 CATEGORIES=	www
-MASTER_SITES=	ftp://ftp.oav.net/caudium/snapshot/1.2/	\
-		ftp://ftp.caudium.net/caudium/snapshots/caudium/1.2/ \
+MASTER_SITES=	ftp://ftp.oav.net/caudium/snapshot/1.3/	\
+		ftp://ftp.caudium.net/caudium/snapshots/caudium/1.3/ \
 		ftp://ftp.oav.net/caudium/pkg/FreeBSD/distfiles/ \
 		http://grendel.firewall.com/caudium-pkg/
-DISTNAME=	Caudium-${PORTVERSION}-20020123-cvs
+DISTNAME=	Caudium-${PORTVERSION}-20020129-cvs
 
 MAINTAINER=	kiwi@oav.net
 
 BUILD_DEPENDS=	pike:${PORTSDIR}/lang/pike72cvs/
-LIB_DEPENDS=	sablot.67:${PORTSDIR}/textproc/sablotron/
+LIB_DEPENDS=	sablot.67:${PORTSDIR}/textproc/sablotron/ \
+		js.0:${PORTSDIR}/lang/njs/
 DEPENDS=	${PORTSDIR}/lang/pexts/
 
 WRKSRC=		${WRKDIR}/${DISTNAME}
