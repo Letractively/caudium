@@ -1,5 +1,12 @@
 --- TODO (more long term projects..)
 
+** This one is from Roxen and might be more or less out of date. I
+** opted to keep it since there are still some good ideas here. Go to
+** our Sourceforge task managed at http://sourceforge.net/pm/?group_id=8825 
+** to view current plans and ideas. Feel free to give us more ideas of
+** what should be done.
+
+
 o  SSL authentification
 
 > #       AUTH_TYPE       "ssl"
