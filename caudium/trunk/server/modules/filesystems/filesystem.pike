@@ -339,9 +339,6 @@ mixed find_file( string f, object id )
 #endif /* FILESYSTEM_DEBUG */
 
   f = path + f;
-#ifdef __NT__
-  if(f[-1]=='/') f = f[..strlen(f)-2];
-#endif
   size = FILE_SIZE( f );
 
   /*
@@ -681,10 +678,6 @@ mixed find_file( string f, object id )
     TRACE_ENTER("MV: Accepted", 0);
 
     /* Clear the stat-cache for this file */
-#ifdef __NT__
-    //    if(movefrom[-1] == '/')
-    //      movefrom = move_from[..strlen(movefrom)-2];
-#endif
     if (stat_cache) {
       cache_set("stat_cache", movefrom, 0);
       cache_set("stat_cache", f, 0);
@@ -783,10 +776,6 @@ mixed find_file( string f, object id )
     moves++;
 
     /* Clear the stat-cache for this file */
-#ifdef __NT__
-    //    if(movefrom[-1] == '/')
-    //      movefrom = move_from[..strlen(movefrom)-2];
-#endif
     if (stat_cache) {
       cache_set("stat_cache", moveto, 0);
       cache_set("stat_cache", f, 0);

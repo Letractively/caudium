@@ -47,7 +47,6 @@ constant module_doc  = "Experimental module for authorization using "
 	      "Pike's internal YP-database interface.";
 constant module_unique = 1;
 
-#ifndef __NT__
 #if constant(Yp.Domain)
 
 // import Stdio;
@@ -164,4 +163,4 @@ void start(int i)
 }
 
 #endif /* constant(Yp.Domain) */
-#endif
+

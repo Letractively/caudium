@@ -60,13 +60,8 @@ constant module_unique = 1;
 #define TRACE_LEAVE(A)
 #endif /* HTACCESS_DEBUG */
 
-#ifdef __NT__
-#define IS_PATH (strlen(id->not_query)&&(id->not_query[0]=='/'||id->not_query[0]=='\\'))
-#define NOT_QUERY (replace(id->not_query,"\\","/"))
-#else /* !__NT__ */
 #define IS_PATH (strlen(id->not_query)&&id->not_query[0]=='/')
 #define NOT_QUERY (id->not_query)
-#endif /* __NT__ */
 
 void create()
 {

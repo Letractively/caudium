@@ -368,12 +368,7 @@ void got_connection(object on)
 
 string query_address()
 {
-  return
-#ifdef __NT__
-    replace(port->query_address(),"0.0.0.0","127.0.0.1");
-#else
-  port->query_address();
-#endif    
+  return port->query_address();
 }
 
 void create(string|object host, int|string|void p, string|void key)

@@ -72,11 +72,8 @@ object conf;
 #include <module.h>
 
 #undef QUERY
-#if constant(cpp)
+
 #define QUERY(X)	_query( #X )
-#else /* !constant(cpp) */
-#define QUERY(X) 	_query("X")
-#endif /* constant(cpp) */
 
 int time;
 string raw_url;

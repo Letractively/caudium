@@ -83,11 +83,7 @@ void save_it(string cl)
 #endif
 
   f = configuration_dir + replace(cl, " ", "_");
-  mv(f,
-#ifdef __NT__
-     "."+  // Don't ask why...
-#endif      
-     f+"~");
+  mv(f, f+"~");
   fd = open(f, "wc");
   if(!fd)
   {

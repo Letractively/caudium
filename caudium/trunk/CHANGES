@@ -6,6 +6,9 @@ Changes in Caudium 1.0.X (CVS)
 - Remove smartlink from the cached CC value in the beginning of the configure
   script to account for times when the smartlink binary has been removed but
   config.cache is kept.
+- Various bugfixes to CAMAS, including support for Pike 7.1
+- Removed NT compatibility hacks since we have no plans of ever
+  supporting NT.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------

@@ -19,7 +19,6 @@
  *
  */
 
-#ifndef __NT__
 /*
  * $Id$
  */
@@ -315,6 +314,4 @@ mixed handle(object id, object mc)
 {
   return wizard_for(id,0);
 }
-#else
-constant action_disabled = 1;
-#endif
+

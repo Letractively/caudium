@@ -197,12 +197,6 @@ void create()
   add_constant("name_program", name_program);
   add_constant("objectof", objectof);
   add_constant("nameof", nameof);
-#ifdef __NT__
-  add_constant("getcwd", lambda()
-			 {
-			   return replace(getcwd(),"\\","/");
-			 });
-#endif  
 }
 
 

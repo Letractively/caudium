@@ -26,8 +26,6 @@
 //
 
 
-#ifndef __NT__
-
 static private int port;
 static private string host, path;
 
@@ -77,4 +75,3 @@ void create(string url)
     path = "";
 }
 
-#endif

@@ -197,11 +197,7 @@ private void ssl_write_callback(mixed id)
       write_buffer = write_buffer[written ..];
     } else {
       if (written < 0)
-#ifdef __NT__
-	// You don't want to know.. (Bug observed in Pike 0.6.132.)
-	if (socket->errno() != 1)
-#endif
-	  die(-1);
+	die(-1);
     }
   }
   int res = queue_write();
