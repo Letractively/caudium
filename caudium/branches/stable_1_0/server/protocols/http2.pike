@@ -501,7 +501,7 @@ void end(string|void s, int|void keepit)
   if(objectp(my_fd))
   {
     MARK_FD("HTTP closed");
-    if(s) catch {
+    if(s && strlen(s)) catch {
       my_fd->write(s);
       my_fd->set_blocking();
     };
