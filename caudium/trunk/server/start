@@ -14,7 +14,11 @@ if test -f etc/environment; then
   . etc/environment
 fi
 
-# Make sure $CLASSPATH contains the servlet stuff
+# All Caudium launcher script, core and modules make the rely on getcwd() 
+# being Caudium base path
+cd `pwd`; cd `dirname $0`
+
+  # Make sure $CLASSPATH contains the servlet stuff
 CLASSPATH=etc/classes:etc/classes/roxen_servlet.jar:etc/classes/jsdk.jar${CLASSPATH:+:}$CLASSPATH
 export CLASSPATH
 
@@ -324,11 +328,6 @@ fi
 
 
 PIKE_VERSION=`$pike -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
-CAUDIUM_CWD=`$pike -e "write(dirname(\"$0\"));"`
-
-if [ -n "$CAUDIUM_CWD" ]; then
-  cd $CAUDIUM_CWD
-fi
 
 if [ -f "lib/$PIKE_VERSION/Caudium.so" ]; then
   DEFINES="-Mlib/$PIKE_VERSION/ $DEFINES"
