@@ -699,7 +699,6 @@ if test x${C_INCLUDE_PATH-} = x ; then
 else
   :
 fi
-AC_FUNC_ALLOCA(alloca)
 
 AC_OUTPUT(Makefile)
 
