@@ -200,7 +200,7 @@ mapping low_answer( int errno, string data, void|int dohtml )
   string ddata = data;
   
   if (dohtml)
-      ddata = Caudium.HTTP.make_htmldoc_string(data, sprintf("Error %d", errno));
+      ddata = make_htmldoc_string(data, sprintf("Error %d", errno));
   
   return 
     ([ 
@@ -427,7 +427,7 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
 mapping htmldoc_answer(string contents, string title,void|mapping meta,
                             void|mapping|string style, string|void dtype)
 {
-    return string_answer(Caudium.HTTP.make_htmldoc_string(contents, title, meta, style, dtype));
+    return string_answer(make_htmldoc_string(contents, title, meta, style, dtype));
 }
 
 //!   Return a response mapping with the specified file descriptior using the
@@ -561,7 +561,7 @@ mapping auth_required(string realm, string|void message, void|int dohtml)
     message = "<h1>Authentication failed.\n</h1>";
 
   if (dohtml)
-      message = Caudium.HTTP.make_htmldoc_string(message, "Caudium: Authentication failed");
+      message = make_htmldoc_string(message, "Caudium: Authentication failed");
   
 #ifdef HTTP_DEBUG
   report_debug("HTTP: Auth required (%s)\n",realm);
