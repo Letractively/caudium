@@ -2479,6 +2479,8 @@ private void define_global_variables(int argc, array (string) argv)
   globvar("watchdog_enable", 1, "Watchdog: Enable Watchdog", TYPE_FLAG,
 	"Should the Caudium Watchdog be enabled?");
 
+	globvar("watchdog_method", "ping", "Watchdog: Watchdog check method", TYPE_MULTIPLE_STRING, "Which method whould the watchdog use?", ({ "ping", "get" }));
+
 #if constant(SpiderMonkey.Context);
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
           "If set to Yes, the server will enable the global JavaScript support. "
