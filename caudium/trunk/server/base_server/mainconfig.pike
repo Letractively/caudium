@@ -1479,7 +1479,7 @@ mapping configuration_parse(object id)
 				 + caudium->last_error + "</pre>" );
 	return rep;
       }
-      cache_set ("modules", modname, newprg); // Do not compile again in enable_module.
+      cache_set ("modules", modname, newprg, 21600); // Do not compile again in enable_module.
       if(!(mod=o->config()->enable_module(name))) {
 	mapping rep;
 	rep = http_string_answer("Failed to enable this module.\n"
@@ -1487,7 +1487,7 @@ mapping configuration_parse(object id)
 				 + caudium->last_error + "</pre>" );
 	// Recover..
 	master()->programs = oldprgs;
-	cache_set ("modules", modname, oldprg);
+	cache_set ("modules", modname, oldprg, 21600);
 #ifdef MODULE_DEBUG
 	perror ("Modules: Trying to re-enable the old module.\n");
 #endif
