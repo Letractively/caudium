@@ -1342,8 +1342,11 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
     return "<!-- user requires an user database! -->\n";
 
   if (m->queryname) 
-    return (id->user?id->user->username:"");
-  
+  {
+    int|mapping u=id->get_user();
+    return (u?u->username:"");
+  }
+
   if (!(b=m->name)) {
     return(tag_modified("modified", m | ([ "by":"by" ]), id, file,defines));
   }
@@ -1414,7 +1417,7 @@ int match_user(string raw, string user, string f, int wwwfile, object id)
   if(user!="" && u[0]!=user) return 0;
   pass=simple_parse_users_file(s, u[0]);
   if(!pass) return 0;
-  if(id->user && pass)
+  if(id->get_user() && pass)
     return 1;
   return match_passwd(u[1], pass);
 }
@@ -1706,7 +1709,7 @@ string tag_allow(string a, mapping (string:string) m,
 			!!m->wwwfile, id));
        }
        else
- 	TEST(id->user);
+ 	TEST(id->get_user);
     }
     else
       if(m->file && id->auth) {
@@ -1714,8 +1717,11 @@ string tag_allow(string a, mapping (string:string) m,
 	TEST(match_user(id->rawauth,m->user,Caudium.fix_relative(m->file,id),
 			!!m->wwwfile, id));
       } else
-	TEST(id->user && search(m->user/",", id->user->username)
+      {
+        int|mapping u=id->get_user();
+	TEST(u && search(m->user/",", u->username)
 	     != -1);
+      }
   }
 
   if (m->group) {
@@ -1724,8 +1730,9 @@ string tag_allow(string a, mapping (string:string) m,
     if (m->groupfile && sizeof(m->groupfile)) {
       TEST(group_member(id->rawauth, m->group, m->groupfile, id));
     } else { // we can use the nifty new group functionality.
-      if(!id->user) return "<false>";
-      else if(search(id->user->groups, m->group)!=-1) return "<true>";
+      int|mapping u=id->get_user();
+      if(!u) return "<false>";
+      else if(search(u->groups, m->group)!=-1) return "<true>";
       else return "<false>";
     }
   }

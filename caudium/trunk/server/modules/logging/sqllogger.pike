@@ -151,9 +151,11 @@ void log(object id, mapping file)  {
   object sql_conn=db->handle();
   
   mixed err=catch {
-    if (id->user) 
+    int|mapping u=id->get_user();
+
+    if (u) 
     {
-      username=id->user->username;
+      username=u->username;
     } 
     else if (sizeof(id->cookies->RoxenUserID)) 
     {
