@@ -14,10 +14,10 @@ void create()
 
  defvar("regexps",
         "::int:: ^[0-9]+$\n"
-        "::float:: ^[0-9]+\\.[0-9]+$\n"
+        "::float:: ^[0-9]+[.,][0-9]+$\n"
         "::email:: ^[a-zA-Z0-9]+[-+a-zA-Z0-9._]*@[-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
         "::domain:: [-a-zA-Z0-9.]+\\.[a-zA-Z][a-zA-Z]+$\n"
-        "::money:: ^[0-9]+\\.[0-9][0-9]$\n"
+        "::money:: ^[0-9]+[.,][0-9][0-9]$\n"
         "::login:: [-a-zA-Z0-9._]+$\n",
         "Predefined Regular expressions", TYPE_TEXT_FIELD,
         "If the match string is one of the fixed strings on the left it will "
@@ -97,8 +97,12 @@ string container_sform(string tag_name, mapping args, string contents,
                         "textarea":icontainer_textarea
                       ]),id);
 
-  return sprintf("<form method=\"%s\">\n%s\n</form>\n", 
-                 args->method||"post", contents);
+  return 
+    make_container("form", ([ "method":args->method||"post" ]),
+                   make_tag("input", 
+                            ([ "type":"hidden", "name":"_sform", 
+                               "value":"_true" ])
+                           )+contents);
 }
 
 string|array(string) icontainer_textarea(string tag_name, mapping args, 
@@ -120,6 +124,7 @@ string|array(string) itag_input(string tag_name, mapping args,
     //FIXME: this is a hack, that assumes forminput is utf8!!
     args->value=utf8_to_string(id->variables[args->name]);
   else if(id && id->misc->sform_values && !args->value && 
+          !id->variables->_sform &&
           id->misc->sform_values[args->name])
     args->value=id->misc->sform_values[args->name];
 
@@ -130,7 +135,7 @@ string|array(string) itag_input(string tag_name, mapping args,
     output=make_container(tag_name, args, args->value);
   else if(args->type && inputtypes[args->type])
     output=inputtypes[args->type](args->type, args, id) 
-              || make_tag(tag_name, args) ;
+              || make_tag(tag_name, args);
   else
     output=make_tag(tag_name, args);
   return ({ output });
@@ -138,6 +143,7 @@ string|array(string) itag_input(string tag_name, mapping args,
 
 mapping inputtypes=([ "bool":type_bool, 
                       "text":type_text,
+                      "checkbox":type_checkbox,
                       //"textarea":type_textarea,
                      ]);
 
@@ -160,7 +166,6 @@ string type_text(string type, mapping args, object id)
   if (catcherror) 
   {
     result+=message("Bad regular expression ", pattern+" "+catcherror[0]);
-//    werror("BRE: %O\n%O\n", id->variables, args);
   }
   else if(match)
     return 0;
@@ -168,6 +173,13 @@ string type_text(string type, mapping args, object id)
     result+=args->error||message("Invalid input");
 
   return result;
+}
+
+string type_checkbox(string type, mapping args, object id)
+{
+  if(args->value)
+    args->checked="";
+  return make_tag("input", args); 
 }
 
 
