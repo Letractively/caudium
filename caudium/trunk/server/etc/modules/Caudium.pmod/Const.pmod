@@ -381,7 +381,7 @@ constant errors=
   // Internal Server Errors
   500:"500 Internal Server Error.",
   501:"501 Not Implemented",
-  502:"502 Gateway Timeout",
+  502:"502 Bad Gateway",
   503:"503 Service unavailable",
   504:"504 Gateway Timeout",
   505:"505 HTTP Version Not Supported",
