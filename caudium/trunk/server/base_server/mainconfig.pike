@@ -1831,7 +1831,9 @@ mapping configuration_parse(object id)
 
   check_login(id);
   
-  PUSH(cif->head("Caudium configuration")+cif->body());
+  PUSH(cif->head("Caudium configuration v" +
+                 (string)caudium->__caudium_version__ + "." +
+                 (string)caudium->__caudium_build__)+cif->body());
 //  PUSH("<table><tr><td>&nbsp;<td>"
   PUSH("<dl>\n");
   PUSH("\n"+cif->status_row(o)+"\n"+display_tabular_header( o )+"\n");
