@@ -54,7 +54,7 @@
  <var name='default_font_size'>  <int>32</int> </var>
  <var name='next_supports_update'><int>1068135778</int> </var>
  <var name='docurl2'>            <str>http://www.roxen.com/documentation/context.pike?page=</str> </var>
- <var name='logdirprefix'>       <str>@PREFIX@/var/logs/caudium1.2/</str> </var>
+ <var name='logdirprefix'>       <str>@PREFIX@/var/log/caudium1.2/</str> </var>
  <var name='show_internals'>     <int>1</int> </var>
  <var name='cache_size'>         <int>25</int> </var>
  <var name='RestoreConnLogFull'> <int>0</int> </var>
