@@ -25,6 +25,15 @@
 #include <module.h>
 inherit "module";
 inherit "caudiumlib";
+//! module: Data Collector Module
+//!  Module serving the purpose of collecting, preliminary processing and storing data 
+//!  from the forms that use this module as their action.<br />
+//!  For more information see the on-line documenation on Caudium Configuration
+//!  InterFace.
+//! type: MODULE_LOCATION|MODULE_PARSER
+//! inherits: module
+//! inherits: caudiumlib
+//! cvs_version: $Id$
 
 constant cvs_version = "$Id$";
 constant thread_safe = 1;
