@@ -905,7 +905,7 @@ mapping new_module(object id, object node)
    we don't want to load such a module and thus remove empty entries from
    the mapping
        /vida */
-  if(!sizeof(id->variables) || !sizeof(indices(id->variables)[0]))
+  if(!sizeof(id->variables) || !sizeof(values(id->variables)[0]))
     return stores(new_module_form(id, node));
   if(id->variables->_add_new_modules) {
     // Compact mode.
