@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Fix an error in disk_cache.pike on hash() call since it has changed a lot
+  since pike 7.0.
 - mod_perl / Perl support for Caudium is known to work now... but only with
   perl 5.8. This close sf bug #512601.
 - Added a README.Perl
