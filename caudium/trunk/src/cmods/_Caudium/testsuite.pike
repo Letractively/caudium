@@ -195,8 +195,10 @@ int TEST_cern_http_date() {
 int main() {
   int failtests = 0;
   int alltests = 0;
+  float temps;
   write("Starting testsuite for _Caudium module...\n");
-  
+ 
+  temps = gauge { 
   foreach(indices(this_object()), string fun) {
     if(fun[..4]=="TEST_") {
       mixed err;
@@ -204,15 +206,17 @@ int main() {
       if (err = catch {
           failtests += this_object()[fun]();
       }) {
-          write(sprintf("Error in test %s: %s\n",fun, describe_backtrace(err)));
+          write("Error in test %s: %s\n",fun, describe_backtrace(err));
           return 1;
          }
     }
   }
+  };
   
-  write(sprintf("Functions tested (Successfull/Total) :\t%d/%d\n",
-                alltests-failtests, alltests));
-  write(sprintf("Tests (individuals tests) :\t\t%d/%d\n",testsok,tests));
+  write("Functions tested (Successfull/Total) :\t%d/%d\n",
+         alltests-failtests, alltests);
+  write("Tests (individuals tests) :\t\t%d/%d\n",testsok,tests);
+  write("Gauge time :\t\t\t\t%f s\n",temps);
 
   if (failtests != 0) return 1;
   else return 0;
