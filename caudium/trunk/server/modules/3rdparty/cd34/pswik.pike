@@ -107,36 +107,36 @@ void simple_mail(string msg, object id)
 #if constant(Protocols.ESMTP)
   Protocols.ESMTP.client(QUERY(mailserver), 25,
   QUERY(maildomain))->send_message(from, ({ to }),
-              (string)MIME.Message(msg, (["mime-version":"1.0",
-                                          "subject":subject,
-                                          "from":from,
-                                          "to":to,
-                                          "content-type":
-					  "text/plain;charset=iso-8859-1",
-                                          "content-transfer-encoding":
+              (string)MIME.Message(msg, (["MIME-Version":"1.0",
+                                          "Subject":subject,
+                                          "From":from,
+                                          "To":to,
+                                          "Content-Type":
+					  "text/plain; charset=\"iso-8859-1\"",
+                                          "Content-Transfer-Encoding":
                                           "8bit",
-					  "X-originating-ip":
+					  "X-Originating-IP":
 					  (string) id->remoteaddr,
-					  "X-user-agent": 
+					  "User-Agent": 
 					  (string) id->useragent,
-					  "X-referrer": 
+					  "X-Referrer": 
 					  (string) id->referrer])));
 #else
   QUERY(maildomain))->send_message(from, ({ to })
   Protocols.SMTP.client(QUERY(mailserver), 25)->send_message(from, ({ to }),
-                (string)MIME.Message(msg, (["mime-version":"1.0",
-                                            "subject":subject,
-                                            "from":from,
-                                            "to":to,
-                                            "content-type":
-					    "text/plain;charset=iso-8859-1",
-                                            "content-transfer-encoding":
+                (string)MIME.Message(msg, (["MIME-Version":"1.0",
+                                            "Subject":subject,
+                                            "From":from,
+                                            "To":to,
+                                            "Content-Type":
+					    "text/plain; charset=\"iso-8859-1\"",
+                                            "Content-Transfer-Encoding":
                                             "8bit",
-					    "X-originating-ip": 
+					    "X-Originating-IP": 
 					    (string) id->remoteaddr,
-					    "X-user-agent": 
+					    "User-Agent": 
 					    (string) id->useragent,
-					    "X-referrer": 
+					    "X-Referrer": 
 					    (string) id->referrer])])));
 #endif
 }
