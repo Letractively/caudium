@@ -1,0 +1,3 @@
+i pkginfo=./pkginfo
+i depend=./depend
+i postinstall=./postinstall
