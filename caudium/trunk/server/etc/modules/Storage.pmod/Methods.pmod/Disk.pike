@@ -79,7 +79,12 @@ mixed retrieve(string namespace, string key) {
   if (Stdio.exist(objpath)) {
     PREFLOCK();
     FLOCK(objpath, "r", 1);
-    return decode(Stdio.read_file(objpath))->value;
+    //return decode(Stdio.read_file(objpath))->value;
+    mixed tmp = decode(Stdio.read_file(objpath));
+    if(mappingp(tmp) && (tmp->value))
+      return tmp->value;
+    else
+      return 0;
   }
   else
     return 0;
