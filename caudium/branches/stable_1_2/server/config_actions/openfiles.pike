@@ -104,7 +104,7 @@ string page_0()
 			}
 		}
 		return sprintf("%-5s  %-9s  %-10s  %-12s",
-				(string)fd, type, stat->mode_string, (string)details);
+				(string)fd, type, (string)stat->mode_string, details);
 	  })*"\n")+
      "</pre>");
 }
