@@ -154,7 +154,7 @@ void unlink_regexp(string namespace, string regexp) {
 }
 
 static string encode(string namespace, string key, string value) {
-  string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : \"%s\", \"key\" : \"%s\", \"value\" : \"%s\" ]);", namespace, replace(key, "\"", "\\\""), replace(value, "\"", "\\\""));
+  string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : %O, \"key\" : %O, \"value\" : \"%s\" ]);", namespace, (string)replace(key, "\"", "\\\""), (string)replace(value, "\"", "\\\""));
   return MIME.encode_base64(data, 1);
 }
 
