@@ -1,5 +1,8 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+=======
+- Caudium now requires Pike 7.5
+   (Marek Habersack)
 - Profiled and streamlined the Cache's disk storage system.  Now uses an
   index of cached content to speed up startup times massively.  Also writes
   to disk in a way that should no longer block the server.
