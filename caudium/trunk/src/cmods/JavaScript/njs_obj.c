@@ -63,7 +63,7 @@ static void f_njs_create(INT_TYPE args) {
   struct keypair *k;
   INT32 e;
 
-  free_njs_storage(fp->current_object);
+  free_njs_storage(Pike_fp->current_object);
 
   js_init_default_options (&options);
 
