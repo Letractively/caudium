@@ -1,5 +1,9 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- It is now possible to unset more than one variable at a time by using globs,
+  both normal variable of the &form; scope and those of the &var; scrope. 
+  Undefine of defines, tags and containers also works with globs. Patch #536492
+  from disumu.
 - Added patch #534125 to ultralog that check the file exist before set 
   filewatch and a status of the module.
 - Added patch #534118 that fix for TYPE_FILE and TYPE_DIR checks.

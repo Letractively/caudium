@@ -767,7 +767,12 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 //! attribute: variable
 //!  The variable to set. It can be either a simple variable, i.e "variable", or a
 //!  variable on in scope form, ie "var.name". If the scope is left out, the &amp;form;
-//!  scope is used. 
+//!  scope is used.
+//!  If no value attribute is supplied, the variable will be unset (deleted).
+//!  When unsetting variables, you may provide the exact name of the variable or
+//!  you can have wildcards by using one or more asterisks in the variable.
+//!  If an asterisk * is used in the value, all variables that match that wildcard
+//!  will be unset.
 //! attribute: scope
 //!  Use this as the &amp;scope;. When used, the value of the variable attribute will be
 //!  used as a simple name within this scope.
@@ -802,7 +807,8 @@ string tag_set( string tag, mapping m, object id )
 {
     if(m->help) 
         return ("<b>&lt;unset variable=...&gt;</b>: Unset the variable specified "
-                "by the 'variable' argument");
+                "by the 'variable' argument.  If an asterisk '*' is used in the "
+                "variable, all variables that match that wildcard will be unset. ");
 
     if (m->variable)
     {
@@ -845,7 +851,61 @@ string tag_set( string tag, mapping m, object id )
             ret = set_scope_var(m->variable, m->scope, parse_rxml(m->eval, id), id);
         } else {
             // Unset variable.
+          if (search(m->variable,"*") >= 0) {
+            if (m->scope == "var") {
+              string group, variable;
+              if (sscanf(m->variable, "%s.%s", group, variable) == 2) {
+                if (search(group,"*") >= 0) {
+                  foreach(indices(id->misc->scopes->var->sub_vars), string g) {
+                    if (glob(group,g)) {
+                      foreach(indices(id->misc->scopes->var->sub_vars[g]), string v) {
+                        if (search(variable,"*") >= 0) {
+                          if (glob(variable,v)) {
+                            ret = set_scope_var(g + "." + v, "var", 0, id);
+                          }
+                        } else {
+                          if (v == variable) {
+                            ret = set_scope_var(g + "." + v, "var", 0, id);
+                          }
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  foreach(indices(id->misc->scopes->var->sub_vars), string g) {
+                    if (g == group) {
+                      foreach(indices(id->misc->scopes->var->sub_vars[g]), string v) {
+                        if (glob(variable,v)) {
+                          ret = set_scope_var(group + "." + v, "var", 0, id);
+                        }
+                      }
+                    }
+                  }
+                }
+              } else {
+                foreach(indices(id->misc->scopes->var->sub_vars), string group) {
+                  if (glob(m->variable,group)) {
+                    foreach(indices(id->misc->scopes->var->sub_vars[group]), string v) {
+                      ret = set_scope_var(group + "." + v, "var", 0, id);
+                    }
+                  }
+                }
+                foreach(indices(id->misc->scopes[m->scope]->top_vars), string v) {
+                  if (glob(m->variable,v)) {
+                    ret = set_scope_var(v, "var", 0, id);
+                  }
+                }
+              }
+            } else {
+              foreach (indices(id->variables),string v) {
+                if (glob(m->variable,v)) {
+                  ret = set_scope_var(v, m->scope, 0, id);
+                }
+              }
+            }
+          } else {
             ret = set_scope_var(m->variable, m->scope, 0, id);
+          }
         }
         if(!ret) {
             if (m->debug || id->misc->debug)
@@ -1174,6 +1234,8 @@ string tag_define(string tag, mapping m, string str, object id, object file,
 
 //! tag: undefine
 //!  Undefines a previously defined tag, container tag or define.
+//!  Wildcard globs with one or more asterisk make it possible to
+//!  undefine more than one of a certain type at a time.
 //! attribute: name
 //!  Undefine this define.
 //! attribute: tag
@@ -1185,22 +1247,66 @@ string tag_undefine(string tag, mapping m, object id, object file,
 		    mapping defines)
 { 
   if (m->name) 
+  {
+    if (search(m->name,"*") >= 0) {
+      foreach (indices(defines),string d) {
+        if (glob(m->name,d)) {
+          m_delete(defines,d);
+        }
+      }
+    } else {
     m_delete(defines,m->name);
+    }
+  }
   else if(m->variable)
+  {
+    if (search(m->variable,"*") >= 0) {
+      foreach (indices(id->variables),string v) {
+        if (glob(m->variable,v)) {
+          m_delete(id->variables,v);
+        }
+      }
+    } else {
     m_delete(id->variables,m->variable);
+    }
+  }
   else if (m->tag) 
   {
+    if (search(m->tag,"*") >= 0) {
+      foreach (indices(id->misc->tags),string t) {
+        if (glob(m->tag,t)) {
+          m_delete(id->misc->tags,t);
+          m_delete(id->misc->_tags,t);
+          if(id->misc->_xml_parser) {
+            id->misc->_xml_parser->add_tag(t, 0);
+          }
+        }
+      }
+    } else {
     m_delete(id->misc->tags,m->tag);
     m_delete(id->misc->_tags,m->tag);
     if(id->misc->_xml_parser) 
       id->misc->_xml_parser->add_tag(m->tag, 0);
+    }
   }
   else if (m->container) 
   {
+    if (search(m->container,"*") >= 0) {
+      foreach (indices(id->misc->containers),string c) {
+        if (glob(m->container,c)) {
+          m_delete(id->misc->containers,c);
+          m_delete(id->misc->_containers,c);
+          if(id->misc->_xml_parser) {
+            id->misc->_xml_parser->add_container(c, 0);
+          }
+        }
+      }
+    } else {
     m_delete(id->misc->containers,m->container);
     m_delete(id->misc->_containers,m->container);
     if(id->misc->_xml_parser) 
       id->misc->_xml_parser->add_container(m->container, 0);
+    }
   }
   else return "<!-- No name, tag or container specified for undefine! "
 	 "&lt;undefine help&gt; for instructions. -->";
