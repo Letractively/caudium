@@ -554,7 +554,9 @@ private int parse_got()
 #endif
        case "content-type":
 #ifdef EXTRA_ROXEN_COMPAT
-	misc[linename] = lower_case(request_headers[linename]);
+        array ct_parts = request_headers[linename] / ";";
+        ct_parts[0] = lower_case(ct_parts[0]);
+        misc[linename] = ct_parts * ";";
 #endif
 	break;
 
