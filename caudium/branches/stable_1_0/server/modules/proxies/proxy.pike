@@ -255,7 +255,7 @@ void create()
 	 "www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br>"
 	 "www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br>"
 	 "</pre>"
-	 "Please note that this <b>must<b> be "
+	 "Please note that this <b>must</b> be "
 	 "regular expressions.</p>");
 }
 
@@ -646,7 +646,7 @@ string comment() { return QUERY(mountpoint); }
 //!  name: Remote proxy regular expressions
 //
 //! defvar: Filters
-//! External filters to run if the regular expression match. <p>Examples (this one works): <pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br /></pre>Please note that this <b>must<b> be regular expressions.</p>
+//! External filters to run if the regular expression match. <p>Examples (this one works): <pre>www2.infoseek:[0-9]*/       bin/proxyfilterdemo infoseek<br />www2.infoseek.com:[0-9]*/.*html   bin/proxyfilterdemo infoseek<br />www.lycos.com:[0-9]*/       bin/proxyfilterdemo lycos<br />www.lycos.com:[0-9]*/.*html bin/proxyfilterdemo lycos<br /></pre>Please note that this <b>must</b> be regular expressions.</p>
 //!  type: TYPE_TEXT_FIELD|VAR_MORE
 //!  name: External filter regular expressions
 //
