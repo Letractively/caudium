@@ -23,7 +23,9 @@
 
 //
 //! module: mod_caucho for Caudium
-//!  This module provides srun Caudium interface.
+//!  This module provides srun Caudium interface. Enable you to use 
+//!  Resin/Caucho pages with Caudium. See <a href="http://www.caucho.com/">
+//!  www.caucho.com</a> for more informations about Resin/Caucho.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION | MODULE_LAST
@@ -85,7 +87,10 @@ inherit "caudiumlib";
 constant module_type	= MODULE_FILE_EXTENSION | MODULE_LAST;
 constant module_unique	= 0;
 constant module_name	= "mod_caucho for Caudium";
-constant module_doc	= "This module provides srun Caudium interface.\n";
+constant module_doc	= "This module provides srun Caudium interface. Enable you to use "
+			  "Resin/Caucho pages with Caudium. See <a "
+			  "href=\"http://www.caucho.com/\">www.caucho.com</a> for more "
+			  "informations about Resin/Caucho.";
 
 // srun protocol class
 class CseStream
