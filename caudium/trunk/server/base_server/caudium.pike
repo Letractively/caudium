@@ -1264,8 +1264,8 @@ void create()
   ::create();
   catch
   {
-    module_stat_cache = decode_value(Stdio.read_bytes(".module_stat_cache"));
-    allmodules = decode_value(Stdio.read_bytes(".allmodules"));
+    module_stat_cache = decode_value(Stdio.read_bytes(QUERY(ConfigurationStateDir) + ".module_stat_cache"));
+    allmodules = decode_value(Stdio.read_bytes(QUERY(ConfigurationStateDir) + ".allmodules"));
   };
   add_constant("roxen", this_object()); /* Roxen compat */
   add_constant("caudium", this_object());
@@ -2593,7 +2593,12 @@ private void define_global_variables( int argc, array (string) argv )
 	  "Only clients running on computers with IP numbers matching "
 	  "this pattern will be able to use the configuration "
 	  "interface.");
-  
+
+  globvar("ConfigurationStateDir","./", "Configuration interface: Status Directory",
+          TYPE_DIR|VAR_MORE,
+	  "Directory where the configuration interface keeps its state - module "
+	  "cache, interface settings etc.");
+
   globvar("User", "", "Change uid and gid to", TYPE_STRING,
 	  "When caudium is run as root, to be able to open port 80 "
 	  "for listening, change to this user-id and group-id when the port "
@@ -3147,10 +3152,10 @@ void rescan_modules()
     }
   }
   catch {
-    rm(".module_stat_cache");
-    rm(".allmodules");
-    Stdio.write_file(".module_stat_cache", encode_value(module_stat_cache));
-    Stdio.write_file(".allmodules", encode_value(allmodules));
+    rm(QUERY(ConfigurationStateDir) + ".module_stat_cache");
+    rm(QUERY(ConfigurationStateDir) + ".allmodules");
+    Stdio.write_file(QUERY(ConfigurationStateDir) + ".module_stat_cache", encode_value(module_stat_cache));
+    Stdio.write_file(QUERY(ConfigurationStateDir) + ".allmodules", encode_value(allmodules));
   };
   report_notice("Done with module directory scan. Found "+
 		sizeof(allmodules)+" modules.\n");
