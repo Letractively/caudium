@@ -386,7 +386,12 @@ class Constructors
 	q = g->inflate()->inflate(q);
       };
     }
+    // XB: Do we drop 0.6 compatibity ?
+#if __REAL_VERSION__ > 0.6
+    return myimage(bg(),Image.PNM.decode( q ));
+#else
     return myimage(bg(),IMAGE()->fromppm(q));
+#endif
   }
 
   object Roxen( )
