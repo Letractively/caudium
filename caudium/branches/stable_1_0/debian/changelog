@@ -1,4 +1,4 @@
-caudium (2:1.0.51-1) unstable; urgency=high
+caudium (2:1.0.53-1) unstable; urgency=high
 
   * Fixed SF bug 530674: passive mode FTP connection problem (with Mozilla
     and derivative browsers).
