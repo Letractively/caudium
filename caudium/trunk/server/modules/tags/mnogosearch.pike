@@ -86,7 +86,7 @@ string tag_mnogosearch(string tag, mapping m, object id)
     
     cache_key = m->source + sprintf("%O\n", this_thread());
     if(!(qobj = cache_lookup("mnogo", cache_key))) {
-      qobj = mnoGo.Query(m->source, m->dbmode || "simgle");
+      qobj = mnoGo.Query(m->source, m->dbmode || "single");
       cache_set("mnogo", cache_key, qobj);
     }
     
