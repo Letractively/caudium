@@ -81,6 +81,9 @@
 #define MODULE_LOGGER            (1<<12)
 #define MODULE_FILTER            (1<<13)
 
+// Modules there are Caudium Specific API. Using them on a non Caudium
+// server is not supported by Roxen 1.3
+
 // This module type is called before request caching is done.
 // Used for virtual hosting that changes the virtual server (to fix caching)
 // and can also be used to build a custom cache key.
@@ -90,7 +93,8 @@
 #define MODULE_PROVIDER		 (1<<15)
 // The module implements a protocol.
 #define MODULE_PROTOCOL          (1<<16)
-
+// The module that handle error conditions (404, 500, etc..)
+#define MODULE_ERROR             (1<<17)
 
 // Flags.
 #define MODULE_SECURITY          (1<<29)
