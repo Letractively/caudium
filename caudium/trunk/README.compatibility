@@ -41,6 +41,10 @@ Summary of Incompatible Changes in Caudium 1.0
 - New module type added, MODULE_PRECACHE. Doesn't break any Roxen
   modules, but PRECACHE modules aren't compatible with Roxen for
   obvious reasons.
+- The accessed database for the <accessed> and <counter> tags is now
+  handled by the Core RXML Tags module. This means that if you changed
+  the default value in Main HTML Parser before, these changes need to
+  be reapplied.
 
 Summary of Other Changes
 ========================

@@ -26,6 +26,10 @@ Summary of Incompatible Changes
 - RoxenUserID cookie renamed to CaudiumUserID.
 - New module type added, MODULE_PRECACHE. Doesn't break any Roxen
   modules, but aren't Roxen compatible
+- The accessed database for the <accessed> and <counter> tags is now
+  handled by the Core RXML Tags module. This means that if you changed
+  the default value in Main HTML Parser before, these changes need to
+  be reapplied.
 
 Summary of Other Changes
 ========================
