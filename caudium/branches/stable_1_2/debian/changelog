@@ -1,3 +1,11 @@
+caudium (2:1.2.25-4) unstable; urgency=low
+
+  * Applied the patch from Denis Barbier correcting errors and rearranging
+    the po templates file. Thank you. (closes: Bug#193081)
+  * Updated the Polish translation.
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 13 May 2003 00:08:27 +0200
+
 caudium (2:1.2.25-3) unstable; urgency=medium
 
   * make_tag_attributes() now don't output any "/" that could be in the argument.

@@ -15,7 +15,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-05-02 14:24+0200\n"
+"POT-Creation-Date: 2003-05-12 23:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,132 +23,84 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Default
-#: ../templates:3
-msgid "22202"
-msgstr ""
-
 #. Description
-#: ../templates:4
+#: ../templates:19
 msgid "On what port should the config interface be?"
 msgstr ""
 
 #. Description
-#: ../templates:4
+#: ../templates:19
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
 "Mozilla, Lynx, Links or Galeon)"
 msgstr ""
 
-#. Default
-#: ../templates:11
-msgid "80"
-msgstr ""
-
 #. Description
-#: ../templates:12
+#: ../templates:27
 msgid "What port should the server listen on?"
 msgstr ""
 
 #. Description
-#: ../templates:12
+#: ../templates:27
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
-"interface in your machine. You can, however, specify a different port here "
-"if there's such need."
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
 msgstr ""
 
 #. Choices
-#: ../templates:19
+#: ../templates:34
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr ""
 
 #. Description
-#: ../templates:21
+#: ../templates:36
 msgid "Select options that should be used on startup"
 msgstr ""
 
 #. Description
-#: ../templates:21
-msgid "'threads' - use threads (if available)"
+#: ../templates:36
+msgid ""
+"You can select zero or more options from:\n"
+" 'threads' - use threads (if available)\n"
+" 'debug' - output debugging information while running\n"
+" 'once' - run in foreground\n"
+" 'profile' - store profiling information\n"
+" 'fd-debug' - debug file descriptor usage\n"
+" 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
 
 #. Description
-#: ../templates:21
-msgid "'debug' - output debugging information while running"
-msgstr ""
-
-#. Description
-#: ../templates:21
-msgid "'once' - run in foreground"
-msgstr ""
-
-#. Description
-#: ../templates:21
-msgid "'profile' - store profiling information"
-msgstr ""
-
-#. Description
-#: ../templates:21
-msgid "'fd-debug' - debug file descriptor usage"
-msgstr ""
-
-#. Description
-#: ../templates:21
-msgid "'keep-alive' - keep connections alive with HTTP/1.1"
-msgstr ""
-
-#. Description
-#: ../templates:37
+#: ../templates:48
 msgid "Tune Caudium settings for maximum performance?"
 msgstr ""
 
 #. Description
-#: ../templates:37
+#: ../templates:48
 msgid ""
 "If you select this options the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
-"features turned off are:"
+"features turned off are:\n"
+" - extra Roxen compatibility\n"
+" - module level security\n"
+" - the supports database\n"
+" - DNS lookups\n"
+" - URL modules"
 msgstr ""
 
 #. Description
-#: ../templates:37
-msgid "- extra Roxen compatibility"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- module level security"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- the supports database"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- DNS lookups"
-msgstr ""
-
-#. Description
-#: ../templates:37
-msgid "- URL modules"
-msgstr ""
-
-#. Description
-#: ../templates:37
+#: ../templates:48
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 
 #. Description
-#: ../templates:56
+#: ../templates:62
 msgid "Cannot bind to port."
 msgstr ""
 
 #. Description
-#: ../templates:56
+#: ../templates:62
 msgid ""
 "The port you have specified for Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -157,12 +109,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 msgid "Caudium configuration"
 msgstr ""
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
@@ -171,7 +123,7 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:64
+#: ../templates:70
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -179,32 +131,26 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:78
+#: ../templates:84
 msgid "Use the experimental HTTP protocol module?"
 msgstr ""
 
 #. Description
-#: ../templates:78
+#: ../templates:84
 msgid ""
 "Caudium comes with an experimental HTTP module that is faster than the "
 "original one. The code is still Work-In-Progress, so you might experience "
 "problems running it. It is NOT recommended to run this code on a production "
-"server. If, however, you want to test its functionality, answer YES to this "
-"question."
-msgstr ""
-
-#. Default
-#: ../templates:87
-msgid "admin"
+"server. If, however, you want to test its functionality, turn this option on."
 msgstr ""
 
 #. Description
-#: ../templates:88
+#: ../templates:94
 msgid "Configuration interface login."
 msgstr ""
 
 #. Description
-#: ../templates:88
+#: ../templates:94
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -213,18 +159,13 @@ msgid ""
 "the default value."
 msgstr ""
 
-#. Default
-#: ../templates:97
-msgid "password"
-msgstr ""
-
 #. Description
-#: ../templates:98
+#: ../templates:104
 msgid "Configuration interface password"
 msgstr ""
 
 #. Description
-#: ../templates:98
+#: ../templates:104
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
