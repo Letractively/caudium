@@ -367,7 +367,7 @@ string make_attributes(mapping a)
 
 string decode_send_body_chunk(mapping packet)
 {
-//  werror("decode_send_body_chunk: ");
+//  report_debug("decode_send_body_chunk: ");
   if(packet->type != MSG_SEND_BODY_CHUNK)
     error("Attempt to decode invalid send body chunk packet.\n");
   
@@ -375,13 +375,13 @@ string decode_send_body_chunk(mapping packet)
 
   sscanf(packet->data, "%2c%s", len, packet->data);
   sscanf(packet->data, "%" + len + "s", packet->data);
-//  werror(" " + len + " bytes of data.\n");
+//  report_debug(" " + len + " bytes of data.\n");
   return packet->data;
 }
 
 mapping decode_end_response(mapping packet)
 {
-//  werror("decode_end_response\n");
+//  report_debug("decode_end_response\n");
   if(packet->type != MSG_END_RESPONSE)
     error("Attempt to decode invalid end response packet.\n");
 
@@ -393,7 +393,7 @@ mapping decode_end_response(mapping packet)
 
 mapping decode_send_headers(mapping packet)
 {
-//  werror("decode_send_headers\n");
+//  report_debug("decode_send_headers\n");
   if(packet->type != MSG_SEND_HEADERS)
     error("Attempt to decode invalid send headers packet.\n");
 
@@ -408,7 +408,7 @@ mapping decode_send_headers(mapping packet)
 
   packet->response_headers=([]);
 
-//  werror("decoding " + packet->num_headers + " headers.\n");
+//  report_debug("decoding " + packet->num_headers + " headers.\n");
 
   for(int i=0; i<packet->num_headers; i++)
   {
