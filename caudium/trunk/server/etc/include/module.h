@@ -38,6 +38,8 @@
 #define TYPE_CUSTOM          20
 #define TYPE_NODE            21
 
+#define TYPE_EXISTING_FILE   22
+
 
 /* Variable indexes */
 #define VAR_VALUE           0
