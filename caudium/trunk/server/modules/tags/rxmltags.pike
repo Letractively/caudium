@@ -660,42 +660,55 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 
 string tag_set( string tag, mapping m, object id )
 {
+  string scope, variable;
   if(m->help) 
     return ("<b>&lt;unset variable=...&gt;</b>: Unset the variable specified "
 	    "by the 'variable' argument");
   if (m->variable)
   {
+    int ret;
+    function _set, _get;
+    [scope,variable] = get_scope_var(m->variable, m->scope);
 
-    if (m->value)
+    if(!id->misc->scopes[scope])
+      return "<b> &lt;"+tag+"&gt;: Invalid scope "+scope+".</b>";
+    if(!(_set = id->misc->scopes[scope]->set))
+      return "<b> &lt;"+tag+"&gt;: scope "+scope+" is read-only.</b>";
+    if (m->value) {
       // Set variable to value.
-      id->variables[ m->variable ] = m->value;
-    else if (m->expr)
-      id->variables[ m->variable ] = sexpr_eval( m->expr );
-    else if (m->from)
+      ret = _set(variable, m->value, id);
+    } else if (m->expr) {
+      ret = _set(variable, sexpr_eval( m->expr ), id);
+    } else if (m->from) {
       // Set variable to the value of another variable
-      if (id->variables[ m->from ])
-	id->variables[ m->variable ] = id->variables[ m->from ];
-      else if (!m->debug || id->misc->debug)
-	return "Set: from variable doesn't exist";
-      else
-	return "";
-    else if (m->other)
+      string fscope, fvar, val;
+      [fscope,fvar] = get_scope_var(m->from, 0);
+      if(!id->misc->scopes[fscope])
+	return "<b>&lt;"+tag+"&gt;: Invalid scope "+fscope+".</b>";
+      if(!(_get = id->misc->scopes[fscope]->get))
+	return "<b>&lt;"+tag+"&gt;: Scope "+fscope+" can't be read.</b>";
+      val = _get(fscope, fvar, id);
+      if(!val && (m->debug || id->misc->debug))
+	return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
+      ret = _set(variable, val, id);
+    } else if (m->other) {
       // Set variable to the value of a misc variable
       if (id->misc->variables && id->misc->variables[ m->other ])
-	id->variables[ m->variable ] = id->misc->variables[ m->other ];
+	ret = _set(variable, id->misc->variables[ m->other ], id);
       else if (m->debug || id->misc->debug)
-	return "Set: other variable doesn't exist";
-      else 
-	return "";
-    else if(m->define)
+	return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
+    } else if(m->define) {
       // Set variable to the value of a define
-      id->variables[ m->variable ] = id->misc->defines[ m->define ];
-    else if (m->eval)
+      ret = _set(variables, id->misc->defines[ m->define ], id);
+    } else if (m->eval) {
       // Set variable to the result of some evaluated RXML
-      id->variables[ m->variable ] = parse_rxml(m->eval, id);
-    else
+      ret = _set(variable, parse_rxml(m->eval, id), id);
+    } else {
       // Unset variable.
-      m_delete( id->variables, m->variable );
+      ret = _set(variable, 0, id);
+    }
+    if(!ret)
+      return "<b>Set/unset failed or scope "+scope+" is read-only.</b>";
     return("");
   } else if (id->misc->defines) {
     return("<!-- set (line "+id->misc->line+"): variable not specified -->");

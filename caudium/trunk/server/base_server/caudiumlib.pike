@@ -1413,3 +1413,34 @@ string fix_relative(string file, object id)
     file = dirname(id->not_query) + "/" +  file;
   return simplify_path(file);
 }
+
+
+//! method: array(string) get_scope_var(string variable, void|string scope)
+//!  Return the scope and variable name based on the input data.
+//! arg: string variable
+//!  The variable to parse. Should be either "variable" or "scope.variable".
+//!  If a specific scope is sent to the function, the variable is uses as-is
+//!  for the variable name.
+//! arg: void|string scope
+//!  The optional scope. If present, this overrides any scope specification
+//!  in the variable name. If left out, the scope is parsed from the variable
+//!  name. 
+//! returns:
+//!  An array consisting of the scope and the variable.
+//! name: get_scope_var - return the scope and variable name.
+
+array(string) get_scope_var(string variable, string|void scope)
+{
+  array scvar = allocate(2);
+  if(scope) {
+    scvar[0] = scope;
+    scvar[1] = variable;
+  } else {
+    if(sscanf(variable, "%s.%s", scvar[0], scvar[1]) != 2)
+    {
+      scvar[0] = "form";
+      scvar[1] = variable;
+    }
+  }
+  return scvar;
+}
