@@ -129,7 +129,8 @@ void create()
          get_plugin_descriptions(), get_plugin_names());
 
   defvar("expire", 600, "Session: Expiration time", TYPE_INT,
-         "After how many seconds an inactive session is removed", 0, hide_gc);
+         "After how many seconds an inactive session is removed. This is only a default "
+         "value - each session can be set its own expiry value.", 0, hide_gc);
 
   defvar("expidletime", 600, "Session: Idle session expiration time", TYPE_INT,
          "After how many seconds an idle session (that is a session on which no store/retrieve "
@@ -533,6 +534,12 @@ private array(string) get_plugin_names()
   return ret;
 }
 
+static private array(string) __required_plugin_funcs = ({
+  "setup", "store", "retrieve", "delete_variable", "expire_old", "get_region",
+  "get_all_regions", "session_exists", "get_sessions_area", "is_touched",
+  "expire_idle", "get_counters", "set_expire_time", "set_expire_hook"
+});
+
 void register_plugins(void|object conf)
 {
   //
@@ -554,7 +561,8 @@ void register_plugins(void|object conf)
   foreach(sproviders, object sp) {
     if (functionp(sp->register_gsession_plugin)) {
       mapping regrec = sp->register_gsession_plugin();
-
+      int     broken = 0;
+      
       //
       // Check whether the returned mapping contains all the required
       // data
@@ -563,66 +571,16 @@ void register_plugins(void|object conf)
         rec_item_missing("name");
         continue;
       }
-            
-      if (!functionp(regrec->setup) || !regrec->setup) {
-        rec_item_missing("setup", regrec->name);
-        continue;
+
+      foreach(__required_plugin_funcs, string funcname) {
+        if (!regrec[funcname] || !functionp(regrec[funcname])) {
+          rec_item_missing("setup", regrec->name);
+          broken = 1;
+        }
       }
 
-      if (!functionp(regrec->store) || !regrec->store) {
-        rec_item_missing("store", regrec->name);
+      if (broken)
         continue;
-      }
-
-      if (!functionp(regrec->retrieve) || !regrec->retrieve) {
-        rec_item_missing("retrieve", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->delete_variable) || !regrec->delete_variable) {
-        rec_item_missing("delete_variable", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->expire_old) || !regrec->expire_old) {
-        rec_item_missing("expire_old", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->get_region) || !regrec->get_region) {
-        rec_item_missing("get_region", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->get_all_regions) || !regrec->get_all_regions) {
-        rec_item_missing("get_all_regions", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->session_exists) || !regrec->session_exists) {
-        rec_item_missing("session_exists", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->get_sessions_area) || !regrec->get_sessions_area) {
-        rec_item_missing("get_sessions_area", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->is_touched) || !regrec->is_touched) {
-        rec_item_missing("is_touched", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->expire_idle) || !regrec->expire_idle) {
-        rec_item_missing("expire_idle", regrec->name);
-        continue;
-      }
-
-      if (!functionp(regrec->get_counters) || !regrec->get_counters) {
-        rec_item_missing("get_counters", regrec->name);
-        continue;
-      }
       
       if (storage_plugins[regrec->name])
         report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
@@ -655,6 +613,9 @@ void register_plugins(void|object conf)
 //           'lastretrieved':time_of_last_retrieve
 //           'cookieattempted':1 if a cookie set was attempted
 //           'ctime':creation_time
+//           'exptime':expiration time in s
+//           'exphook':function, if any, to be called when the session is
+//                     about to expire.
 //         session2_id:session2_options
 //           'nocookies':1 if no cookies should be set, 0 if cookies are ok
 //           'lastused':time_when_last_used
@@ -766,6 +727,17 @@ private mapping(string:mapping(string:mapping(string:mixed))|object) _memory_sto
 //     index contains the total number of sessions, the second index
 //     contains the number of idle sessions.
 //
+//  function set_expire_time: (mandatory)
+//  synopsis: void set_expire_time(string sid, int seconds);
+//     sets the expire time for the specified session.
+//
+//  function set_expire_hook: (mandatory)
+//  synopsis: void set_expire_hook(string sid, function|void hook);
+//     defines a hook to be called when the session is about to expire. The
+//     hook takes one argument - the session id string - and returns no
+//     result. Passing a null hook (or not passing it at all) removes any
+//     existing hook from the specified session.
+//
 private mapping memory_storage_registration_record = ([
   "name" : "Memory",
   "description" : "Memory-only storage of session data",
@@ -781,7 +753,9 @@ private mapping memory_storage_registration_record = ([
   "session_exists" : memory_session_exists,
   "get_sessions_area" : memory_get_sessions_area,
   "is_touched" : memory_is_touched,
-  "get_counters" : memory_get_counters
+  "get_counters" : memory_get_counters,
+  "set_expire_time" : memory_set_expire_time,
+  "set_expire_hook" : memory_set_expire_hook
 ]);
 
 //
@@ -842,7 +816,8 @@ private void memory_setup(object id, string|void sid)
       "nocookies" : 0,
       "cookieattempted" : 0,
       "lastused" : time(),
-      "fresh" : 1
+      "fresh" : 1,
+      "exptime" : QUERY(expire)
     ]);
     _memory_storage["_sessions_"]->total_sessions++;
     _memory_storage["_sessions_"]->idle_sessions++;
@@ -996,7 +971,9 @@ private void memory_expire_old(int curtime)
     if (mappingp(_memory_storage[region])) {
       foreach(indices(_memory_storage[region]), string sid) {
         if (_memory_storage["_sessions_"][sid] && mappingp(_memory_storage["_sessions_"][sid])) {
-          if (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire)) {
+          if (curtime - _memory_storage["_sessions_"][sid]->lastused > _memory_storage["_sessions_"][sid]->exptime) {
+            if (_memory_storage["_sessions_"][sid]->exphook)
+              _memory_storage["_sessions_"][sid]->exphook(sid);
             memory_delete_session(sid);
             continue;
           }
@@ -1041,6 +1018,26 @@ private mapping memory_get_sessions_area(object id)
   return 0;
 }
 
+private void memory_set_expire_time(string sid, int timeval)
+{  
+  if (memory_validate_storage("session", sid, "memory_set_expire_time") < 0)
+    return;
+
+  _memory_storage["_sessions_"][sid]->exptime = timeval;
+}
+
+private void memory_set_expire_hook(string sid, function exphook)
+{  
+  if (memory_validate_storage("session", sid, "memory_set_expire_hook") < 0)
+    return;
+
+  _memory_storage["_sessions_"][sid]->exphook = exphook;
+}
+
+//
+// provider interface
+//
+
 
 int is_touched(object id, string|mapping(string:mapping(string:mixed)) key)
 {
@@ -1050,9 +1047,6 @@ int is_touched(object id, string|mapping(string:mapping(string:mixed)) key)
   return cur_storage->is_touched(id, id->misc->session_id);
 }
 
-//
-// provider interface
-//
 //     "store" : memory_store,
 //     "retrieve" : memory_retrieve,
 //     "delete_variable" : memory_delete_variable,
@@ -1161,7 +1155,7 @@ mixed|mapping(string:mixed) delete_variable(object id, string|array(string) key,
 //
 void delete_session(object|string id)
 {
-  if (!cur_storage || !id->misc->session_id)
+  if (!cur_storage || (objectp(id) && !id->misc->session_id))
     return;
 
   if (objectp(id))
@@ -1171,6 +1165,36 @@ void delete_session(object|string id)
 }
 
 function kill_session = delete_session;
+
+void set_expire_time(int timeval, string|object id)
+{
+  if (!cur_storage || (objectp(id) && !id->misc->session_id))
+    return;
+
+  string sid;
+  
+  if (stringp(id))
+    sid = id;
+  else if (objectp(id))
+    sid = id->misc->session_id;
+  
+  cur_storage->set_expire_time(sid, timeval);
+}
+
+void set_expire_hook(function exphook, string|object id)
+{
+  if (!cur_storage || (objectp(id) && !id->misc->session_id))
+    return;
+
+  string sid;
+  
+  if (stringp(id))
+    sid = id;
+  else if (objectp(id))
+    sid = id->misc->session_id;
+  
+  cur_storage->set_expire_hook(sid, exphook);
+}
 
 // GET SESSIONS AREA
 //
@@ -1276,7 +1300,7 @@ private string alloc_session(object id)
         sa->nocookies = 1;
       }
     }
-        
+    
     return id->misc->session_id;
   }
 
