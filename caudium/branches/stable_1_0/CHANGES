@@ -1,3 +1,6 @@
+Changes in Caudium 1.0.XX
+-------------------------
+
 Changes in Caudium 1.0.36 (stable release 2, 2001-11-06)
 --------------------------------------------------------
 - Fix for bug #450757: When calling parse_rxml() when using the XML compliant
