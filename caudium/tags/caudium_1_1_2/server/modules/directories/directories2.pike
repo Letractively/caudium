@@ -1,0 +1,376 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2001 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+//
+//! module: Directory parsing module MKII
+//!  This module is responsible for pretty-printing the directory contents
+//!  with neat, macintosh-like, fold/unfold buttons next to each directory.
+//!  Unlike the [modules/directories/directories.pike], this module uses the flik
+//!  module to do the folding/unfolding.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_DIRECTORIES
+//! cvs_version: $Id$
+//
+
+/* 
+ * $Id$
+ *
+ * Directory listings mark 2
+ *
+ * Henrik Grubbström 1997-02-13
+ *
+ * TODO:
+ * Filter out body statements and replace them with tables to simulate
+ * the correct background and fontcolors.
+ *
+ * Make sure links work _inside_ unfolded dokuments.
+ */
+
+constant cvs_version = "$Id$";
+constant thread_safe=1;
+
+#include <module.h>
+inherit "module";
+inherit "caudiumlib";
+
+import Array;
+
+constant module_type = MODULE_DIRECTORIES | MODULE_PARSER;
+constant module_name = "Enhanced directory listings";
+constant module_doc  = "This module is an experimental directory parsing module. "
+	      "It pretty prints a list of files much like the ordinary "
+	      "directory parsing module. "
+	      "The difference is that this one uses the flik-module "
+	      "for the fold/unfolding, and uses relative URL's with "
+	      "the help of some new tags: "
+	      "&lt;REL&gt;, &lt;AREL&gt; and &lt;INSERT-QUOTED&gt;.";
+constant module_unique = 1;
+
+void start( int num, object conf )
+{
+  module_dependencies (conf, ({ "flik" }));
+}
+
+int dirlisting_not_set()
+{
+  return(!QUERY(dirlisting));
+}
+
+void create()
+{
+  defvar("indexfiles", ({ "index.html", "Main.html", "welcome.html",
+			  "index.cgi", "index.lpc", "index.pike", "index.htm" }),
+	 "Index files", TYPE_STRING_LIST,
+	 "If one of these files is present in a directory, it will "
+	 "be returned instead of the directory listing.");
+
+  defvar("dirlisting", 1, "Enable directory listings", TYPE_FLAG,
+	 "If set, a directory listing is generated if there is "
+	 "no index file for the directory.<br>\n"
+	 "If disabled, a file not found error will be generated "
+	 "instead.<br>\n");
+
+  defvar("readme", 1, "Include readme files", TYPE_FLAG,
+	 "If set, include readme files in directory listings",
+	 0, dirlisting_not_set);
+  
+  defvar("size", 1, "Include file size", TYPE_FLAG,
+	 "If set, include the size of the file in the listing.",
+	 0, dirlisting_not_set);
+}
+
+string quote_plain_text(string s)
+{
+  return(replace(s, ({"<",">","&"}),({"&lt;","&gt;","&amp;"})));
+}
+
+string tag_rel(string tag_name, mapping args, string contents,
+	       object request_id, mapping defines)
+{
+  string old_base;
+  string res;
+
+  if (request_id->misc->rel_base) {
+    old_base = request_id->misc->rel_base;
+  } else {
+    old_base = "";
+  }
+  request_id->misc->rel_base = old_base + args->base;
+  
+  res = parse_rxml(contents, request_id);
+
+  request_id->misc->rel_base = old_base;
+  return(res);
+}
+
+string tag_arel(string tag_name, mapping args, string contents,
+		object request_id, mapping defines)
+{
+  if (request_id->misc->rel_base) {
+    args->href = request_id->misc->rel_base+args->href;
+  }
+
+  return(make_tag("a", args)+contents+"</a>");
+}
+
+string tag_insert_quoted(string tag_name, mapping args, object request_id,
+			 mapping defines)
+{
+  if (args->file) {
+    string s = caudium->try_get_file(args->file, request_id);
+
+    if (s) {
+      return(quote_plain_text(s));
+    }
+    return("<!-- Couldn't open file \""+args->file+"\" -->");
+  }
+  return("<!-- File not specified -->");
+}
+
+mapping query_container_callers()
+{
+  return( ([ "rel":tag_rel, "arel":tag_arel ]) );
+}
+
+mapping query_tag_callers()
+{
+  return( ([ "insert-quoted":tag_insert_quoted ]) );
+}
+
+string find_readme(string d, object id)
+{
+  foreach(({ "README.html", "README"}), string f) {
+    string readme = caudium->try_get_file(d+f, id);
+
+    if (readme) {
+      if (f[strlen(f)-5..] != ".html") {
+	readme = "<pre>" + quote_plain_text(readme) +"</pre>";
+      }
+      return("<hr noshade>"+readme);
+    }
+  }
+  return("");
+}
+
+string describe_directory(string d, object id)
+{
+  array(string) path = d/"/" - ({ "" });
+  array(string) dir;
+  string result = "";
+  int toplevel;
+
+  // werror(sprintf("describe_directory(%s)\n", d));
+  
+  dir = caudium->find_dir(d, id);
+
+  if (dir && sizeof(dir)) {
+    dir = sort(dir);
+  } else {
+    dir = ({});
+  }
+
+  if (id->prestate->spartan_directories) {
+    return(sprintf("<html><head><title>Directory listing of %s</title></head>\n"
+		   "<body><h1>Directory listing of %s</h1>\n"
+		   "<pre>%s</pre></body</html>\n",
+		   d, d,
+		   map(sort(dir), lambda(string f, string d, object r, object id) {
+		     array stats = r->stat_file(d+f, id);
+		     if (stats && stats[1]<0) {
+		       return("<a href=\""+f+"/.\">"+f+"/</a>");
+		     } else {
+		       return("<a href=\""+f+"\">"+f+"</a>");
+		     } }, d, caudium, id)*"\n"+"</pre></body></html>\n"));
+  }
+
+  if ((toplevel = !id->misc->dir_no_head)) {
+    id->misc->dir_no_head = 1;
+
+    result += "<html><head><title>Directory listing of "+d+"</title></head>\n"
+      "<body>\n<h1>Directory listing of "+d+"</h1>\n<p>";
+
+    if (QUERY(readme)) {
+      result += find_readme(d, id);
+    }
+    result += "<hr noshade><pre>\n";
+  }
+  result += "<fl folded>\n";
+
+  foreach(sort(dir), string file) {
+    array stats = caudium->stat_file(d + file, id);
+    string type = "Unknown";
+    string icon;
+    int len = stats?stats[1]:0;
+
+    // werror(sprintf("stat_file(\"%s\")=>%O\n", d+file, stats));
+
+    switch(-len) {
+    case 3:
+    case 2:
+      type = "   "+({ 0,0,"Directory","Module location" })[-stats[1]];
+      
+      /* Directory or module */
+      file += "/";
+      icon = "internal-gopher-menu";
+      
+      break;
+    default:
+      array tmp = id->conf->type_from_filename(file,1);
+      if (tmp) {
+	type = tmp[0];
+      }
+      icon = image_from_type(type);
+      if (tmp && tmp[1]) {
+	type += " " + tmp[1];
+      }
+      
+      break;
+    }
+    result += sprintf("<ft><img border=0 src=\"%s\" alt=\"\"> "
+		      "<arel href=\"%s\">%-40s</arel> %8s %-20s\n",
+		      icon, file, file, sizetostring(len), type);
+    
+    array(string) split_type = type/"/";
+    string extras = "";
+    
+    switch(split_type[0]) {
+    case "text":
+      if (sizeof(split_type) > 1) {
+	switch(split_type[1]) {
+	case "html":
+	  extras = "</pre>\n<insert file=\""+d+file+"\"><pre>";
+	  break;
+	case "plain":
+	  extras = "<insert-quoted file=\""+d+file+"\">";
+	  break;
+	}
+      }
+      break;
+    case "application":
+      if (sizeof(split_type) > 1) {
+	switch(split_type[1]) {
+	case "x-include-file":
+	case "x-c-code":
+	  extras = "<insert-quoted file=\""+d+file+"\">";
+	  break;
+	}
+      }
+      break;
+    case "image":
+      extras = "<img src=\""+ replace( d, "//", "/" ) + file +"\" border=0>";
+      break;
+    case "   Directory":
+    case "   Module location":
+      extras = "<rel base=\""+file+"\">"
+	"<insert nocache file=\""+d+file+".\"></rel>";
+      break;
+    case "Unknown":
+      switch(lower_case(file)) {
+      case ".cvsignore":
+      case "configure":
+      case "configure.in":
+      case "bugs":
+      case "copying":
+      case "copyright":
+      case "changelog":
+      case "disclaimer":
+      case "makefile":
+      case "makefile.in":
+      case "readme":
+	extras = "<insert-quoted file=\""+d+file+"\">";
+	break;
+      }
+      break;
+    }
+    result += "<fd>"+extras+"\n";
+  }
+  result += "</fl>\n";
+  if (toplevel) {
+    result +="</pre></body></html>\n";
+  }
+
+  // werror(sprintf("describe_directory()=>\"%s\"\n", result));
+
+  return(result);
+}
+
+string|mapping parse_directory(object id)
+{
+  string f = id->not_query;
+  string file, old_file;
+  string old_not_query;
+  mapping got;
+
+  // werror(sprintf("parse_directory(%s)\n", id->raw_url));
+
+  /* First fix the URL
+   *
+   * It must end with "/" or "/."
+   */
+  if(strlen(f) > 1 ?  f[-1] != '/' : f != "/")
+    return http_redirect(id->not_query+"/", id);
+  
+  /* Handle indexfiles */
+  old_file = old_not_query = id->not_query;
+  if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
+  foreach(query("indexfiles")-({""}), file) { // Make recursion impossible
+    id->not_query = old_file+file;
+    if(got = caudium->get_file(id))
+      return got;
+  }
+  id->not_query = old_not_query;
+
+  if (!QUERY(dirlisting)) {
+    return 0;
+  }
+  if (f[-1] != '.') {
+#if 0
+    return(http_redirect(f+".",id));
+#endif /* 0 */
+    f += ".";
+  }
+  return http_string_answer(parse_rxml(describe_directory(f, id), id));
+}
+
+/* START AUTOGENERATED DEFVAR DOCS */
+
+//! defvar: indexfiles
+//! If one of these files is present in a directory, it will be returned instead of the directory listing.
+//!  type: TYPE_STRING_LIST
+//!  name: Index files
+//
+//! defvar: dirlisting
+//! If set, a directory listing is generated if there is no index file for the directory.<br />
+//!If disabled, a file not found error will be generated instead.<br />
+//!
+//!  type: TYPE_FLAG
+//!  name: Enable directory listings
+//
+//! defvar: readme
+//! If set, include readme files in directory listings
+//!  type: TYPE_FLAG
+//!  name: Include readme files
+//
+//! defvar: size
+//! If set, include the size of the file in the listing.
+//!  type: TYPE_FLAG
+//!  name: Include file size
+//

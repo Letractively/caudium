@@ -1,0 +1,182 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper. 
+# GNU copyright 1997 by Joey Hess.
+#
+# This version is for a hypothetical package that builds an
+# architecture-dependant package, as well as an architecture-independent
+# package.
+#
+# This is the Caudium Webserver rules file
+# $Id$
+#
+# Uncomment this to turn on verbose mode. 
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# we need to know what pike are we using
+
+ifdef NEW_PIKE
+PIKE=pike7.2
+else
+PIKE=pike7
+endif
+PIKEBIN=/usr/bin/$(PIKE)
+
+PIKE_VERSION=$(shell $(PIKEBIN) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
+CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
+PIKE7_CHANGELOG=/usr/share/doc/$(PIKE)/changelog.Debian.gz
+PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
+PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
+ADD_VER=-1.1
+
+SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
+        bin/ultrasum.pike bin/install.pike 
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	
+	if test "$(CVS_SNAPSHOT)" = "yes"; then \
+	    ./autogen.sh; \
+	fi
+	./configure --prefix=/usr --with-pike=$(PIKEBIN)
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	$(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) spotless
+	-rm -f `find -name ".cvsignore" -type f -print`
+	-rm -rf `find -name "CVS" -type d -print`
+	-rm -f smartlink statuslock
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/tmp.
+	$(MAKE) install_alt prefix=/usr DESTDIR=`pwd`/debian/tmp EXTRAVER=$(ADD_VER)
+	-rm -f `pwd`/debian/tmp/usr/share/doc/caudium$(ADD_VER)/COPYING
+	cp debian/localhost `pwd`/debian/tmp/etc/caudium$(ADD_VER)/localhost.sample
+	cp debian/Global_Variables `pwd`/debian/tmp/etc/caudium$(ADD_VER)/Global_Variables.sample
+	
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
+	 debian/tmp/usr/bin/ultrasum > debian/tmp/usr/bin/ultrasum.new && \
+	mv debian/tmp/usr/bin/ultrasum.new debian/tmp/usr/bin/ultrasum ; \
+	chmod 755 debian/tmp/usr/bin/ultrasum
+	
+	sed -e 's;/usr/caudium/server;/usr/lib/caudium$(ADD_VER);g'< \
+	 debian/tmp/usr/bin/pixsl > debian/tmp/usr/bin/pixsl.new && \
+	mv debian/tmp/usr/bin/pixsl.new debian/tmp/usr/bin/pixsl ; \
+	chmod 755 debian/tmp/usr/bin/pixsl debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pixsl.pike
+	
+	for s in $(SCRIPTS); do \
+	  sed -e 's;^#\!.*;#\!/usr/bin/pike7;' debian/tmp/usr/lib/caudium$(ADD_VER)/$$s > \
+	      debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new && \
+	  mv debian/tmp/usr/lib/caudium$(ADD_VER)/$$s.new debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
+	  chmod 755 debian/tmp/usr/lib/caudium$(ADD_VER)/$$s ; \
+	done
+	
+	# perms fixing fest
+	-chmod 644 debian/tmp/usr/lib/caudium$(ADD_VER)/fonts/32/urw_itc_avant_garde-demi-r \
+	           debian/tmp/usr/lib/caudium$(ADD_VER)/etc/roxen_hilfe.pike \
+		   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/config/font
+		   
+	mv debian/tmp/usr/bin/htpasswd debian/tmp/usr/bin/htpasswd-caudium
+	
+	# add libroxen modules path
+	# change the state directory
+	sed -e 's;\(^.*globvar("ModuleDirs".*,({\)\(".*"\)\(}),\);\1\2,"/usr/share/roxen/modules/"\3;' \
+	    -e 's;\(^.*globvar("font_dirs".*,({\)\(".*"\)\(}),\);\1\2,"local_fonts/",\3;' \
+	    -e 's;\(^.*globvar("ConfigurationStateDir".*,\)\(".*"\)\([ ]*,.*,\);\1"/var/state/caudium$(ADD_VER)/"\3;' \
+	    -e 's;\(^.*globvar("User"[ ]*,[ ]*\)\(""\)\(.*,\);\1"33:33"\3;' \
+	       debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike > \
+	       debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike.new && \
+	mv debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike.new \
+	   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike
+
+	# fix what lintian whines about
+	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pike
+	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/caudium
+	rm -rf debian/tmp/usr/local/
+	
+	#
+	# the -p debhelper param seems to be not working... 
+	# so let's do it by hand
+	#
+	install -m 755 -d debian/caudium-ultralog-1.1/usr/share/man/man1/
+	cp src/cmods/UltraLog/docs/ultrasum.1 \
+	   debian/caudium-ultralog-1.1/usr/share/man/man1/
+
+	dh_movefiles
+	
+	# clean up CAMAS debris here
+	rm -rf debian/tmp/usr/share/caudium$(ADD_VER)/modules/camas
+	rm -rf debian/caudium-camas/usr/lib/caudium$(ADD_VER)/etc/include/camas/language.templates
+	rm -rf debian/caudium-camas/usr/share/caudium$(ADD_VER)/modules/camas/docs
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+#binary-indep: DH_OPTIONS=-i
+binary-indep: build install
+
+# Build architecture-dependent files here.
+# Pass -a to all debhelper commands in this target to reduce clutter.
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	# Need this version of debhelper for DH_OPTIONS to work.
+#	dh_testversion 1.1.17
+	dh_testdir
+	dh_testroot
+	dh_installdebconf
+	dh_installdocs
+#	dh_installexamples
+#	dh_installmenu
+#	dh_installemacsen
+#	dh_installpam
+	dh_installlogrotate
+	dh_installinit
+#	dh_installcron
+#	dh_installmanpages
+#	dh_installinfo
+	dh_undocumented htpasswd-caudium.1 pixsl.1
+	dh_installchangelogs CHANGES
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	# You may want to make some executables suid here.
+#	dh_suidregister
+	dh_installdeb
+#	dh_makeshlibs
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol -- -Vpike:ver=$(PIKE_VERSION) -Vpike:name=$(PIKE)
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
