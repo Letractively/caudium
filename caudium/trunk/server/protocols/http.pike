@@ -62,9 +62,7 @@ int req_time = HRTIME();
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
 
-#ifndef MAX_BODY_SIZE
-#define MAX_BODY_SIZE 1024*16
-#endif
+
 
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
@@ -559,7 +557,10 @@ private int parse_got()
 	 if(!data) data="";
 	 int l = misc->len;
 	 
-	 wanted_data = min(l, MAX_BODY_SIZE);
+	 if ( objectp(conf) )
+	   wanted_data = min(l, conf->query("PostBodySize"));
+	 else
+	   wanted_data = min(l, POST_MAX_BODY_SIZE);
 	 have_data=strlen(data);
 	 
 	 if( have_data < wanted_data )
