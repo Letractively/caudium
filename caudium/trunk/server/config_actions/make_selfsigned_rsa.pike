@@ -50,11 +50,11 @@ constant doc =
  "self-signed certificate is a lot better than "
  "nothing.");
 
-#if !constant(_Crypto) || !constant(Crypto.rsa)
+#if !constant(Crypto.RSA)
 
 constant action_disabled = 1;
 
-#else /* constant(_Crypto) && constant(Crypto.rsa) */
+#else /* constant(Crypto.RSA) */
 
 mixed page_0(object id, object conf)
 {
@@ -399,4 +399,4 @@ mixed verify_3(object id, object conf)
 
 mixed handle(object id) { return wizard_for(id,0); }
 
-#endif /* constant(_Crypto) && constant(Crypto.rsa) */
+#endif /* constant(Crypto.RSA) */
