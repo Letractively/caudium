@@ -34,6 +34,12 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_LOGGER;
+constant module_name = "User logger";
+constant module_doc  = "This module log the accesses of each user in their home dirs, "
+	     "if they create a file named 'AccessLog' (or whatever is configurated in the configuration interface) in that directory, and "
+	     "allow write access for roxen.";
+constant module_unique = 1;
 
 mixed register_module()
 {

@@ -26,6 +26,12 @@ constant thread_safe=1;
 
 #include <config.h>
 
+constant module_type = MODULE_LOCATION | MODULE_PROXY;
+constant module_name = "Gopher Gateway";
+constant module_doc  = "This is a caching gopher gateway, might be useful for firewall sites, if "
+      "anyone is still using gopher.";
+constant module_unique = 1;
+
 #define CONNECTION_REFUSED "HTTP/1.0 500 Connection refused by remote "	\
 "host\r\nContent-type: text/html\r\n\r\n<title>Roxen: Connection "	\
 "refused </title>\n<h1>Proxy request failed</h1><hr><font "		\

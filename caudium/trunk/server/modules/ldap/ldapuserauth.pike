@@ -87,6 +87,14 @@ inherit "caudiumlib";
 import Stdio;
 import Array;
 
+constant module_type = MODULE_AUTH | MODULE_EXPERIMENTAL;
+constant module_name = "LDAP directory authorization";
+constant module_doc  = "Experimental module for authorization using "
+	"Pike's internal Ldap directory interface."
+	"<p>&copy; 1998,99 Honza Petrous (with enhancements by Wim Bonis)<br>"
+	"distributed freely under GPL license.";
+constant module_unique = 1;
+
 #define LDAPAUTHDEBUG
 #ifdef LDAPAUTHDEBUG
 #define DEBUGLOG(s) werror("LDAPuserauth: "+s+"\n")
@@ -692,7 +700,7 @@ array|int auth (string *auth, object id)
 array register_module()
 {
 
-    return(({ MODULE_AUTH || MODULE_EXPERIMENTAL,
+    return(({ MODULE_AUTH | MODULE_EXPERIMENTAL,
 	"LDAP directory authorization",
 	"Experimental module for authorization using "
 	"Pike's internal Ldap directory interface."

@@ -29,6 +29,14 @@ int thread_safe=1;   /* Probably. Check _root */
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_DIRECTORIES;
+constant module_name = "Directory parsing module";
+constant module_doc  = "This is the default directory parsing module. "
+	               "This one pretty prints a list of files, with "
+	               "macintosh like fold and unfold buttons next to each "
+	               "directory.";
+constant module_unique = 1;
+
 /************** Generic module stuff ***************/
 int nocache;
 

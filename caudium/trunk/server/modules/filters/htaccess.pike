@@ -32,6 +32,12 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_SECURITY | MODULE_URL;
+constant module_name = ".htaccess support";
+constant module_doc  = "Almost complete support for NCSA/Apache .htaccess files. See "
+	      "<a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.";
+constant module_unique = 1;
+
 #define SERIOUS
 //#define HTACCESS_DEBUG
 

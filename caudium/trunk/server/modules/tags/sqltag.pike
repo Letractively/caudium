@@ -43,6 +43,66 @@ import Sql;
 
 object conf;
 
+constant module_type = MODULE_PARSER | MODULE_PROVIDER;
+constant module_name = "SQL-module";
+constant module_doc  = "This module gives the three tags &lt;SQLQUERY&gt;, "
+	     "&lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;.<br>\n"
+	     "Usage:<ul>\n"
+	     "<table border=0>\n"
+	     "<tr><td valign=top><b>&lt;sqloutput&gt;</b></td>"
+	     "<td>Executes an SQL-query, and "
+	     "replaces #-quoted fieldnames with the results. # is "
+	     "quoted as ##. The content between &lt;sqloutput&gt; and "
+	     "&lt;/sqloutput&gt; is repeated once for every row in the "
+	     "result.</td></tr>\n"
+	     "<tr><td valign=top><b>&lt;sqlquery&gt;</b></td>\n"
+	     "<td>Executes an SQL-query, but "
+	     "doesn't do anything with the result. This is useful if "
+	     "you do queries like INSERT and CREATE.</td></tr>\n"
+	     "<tr><td valign=top><b>&lt;sqltable&gt;</td>"
+	     "<td>Executes an SQL-query, and makes "
+	     "an HTML-table from the result.</td></tr>\n"
+	     "</table></ul>\n"
+	     "The following attributes are used by the above tags:<ul>\n"
+	     "<table border=0>\n"
+	     "<tr><td valign=top><b>query</b></td>"
+	     "<td>The actual SQL-query. (<b>REQUIRED</b>)</td></tr>\n"
+	     "<tr><td valign=top><b>host<b></td>"
+	     "<td>The hostname of the machine the SQL-server runs on.<br>\n"
+	     "This argument can also be used to specify which SQL-server "
+	     "to use by specifying an \"SQL-URL\":<br><ul>\n"
+	     "<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@]"
+	     "[<i>host</i>[:<i>port</i>]]/<i>database</i></pre><br>\n"
+	     "</ul>Valid values for \"sqlserver\" depend on which "
+	     "sql-servers your pike has support for, but the following "
+	     "might exist: msql, mysql, odbc, oracle, postgres.</td></tr>\n"
+	     "<tr><td valign=top><b>database</b></td>"
+	     "<td>The name of the database to use.</td></tr>\n"
+	     "<tr><td valign=top><b>user</b></td>"
+	     "<td>The name of the user to access the database with.</td></tr>\n"
+	     "<tr><td valign=top><b>password</b></td>"
+	     "<td>The password to access the database.</td></tr>\n"
+	     "<tr><td valign=top><b>parse</b></td>"
+	     "<td>If specified, the query will be parsed by the "
+	     "RXML-parser</td></tr>\n"
+	     "<tr><td valign=top><b>quiet</b></td>"
+	     "<td>If specified, SQL-errors will be kept quiet.</td></tr>\n"
+	     "<tr><td valign=top><b>mysql-insert-id</b></td>"
+	     "<td>If the query creates a record, the variable specified by "
+	     "this argument will get the record unique number from the "
+	     "AUTO_INCREMENT column in the table. Only applicable for MySQL "
+	     "databases.</td></tr>\n"
+	     "</table></ul><p>\n"
+	     "The &lt;sqltable&gt; tag has an additional attribute "
+	     "<b>ascii</b>, which generates a tab-separated table (usefull "
+	     "with eg the &lt;diagram&gt; tag).<p>\n"
+	     "\n"
+	     "<b>NOTE</b>: Specifying passwords in the documents may prove "
+	     "to be a security hole if the module is not loaded for some "
+	     "reason.<br>\n"
+	     "<b>SEE ALSO</b>: The &lt;FORMOUTPUT&gt; tag can be "
+	     "useful to generate the queries.<br>\n";
+constant module_unique = 1;
 
 /*
  * Module interface functions
@@ -50,7 +110,7 @@ object conf;
 
 array register_module()
 {
-  return( ({ MODULE_PARSER|MODULE_PROVIDER,
+  return( ({ MODULE_PARSER | MODULE_PROVIDER,
 	     "SQL-module",
 	     "This module gives the three tags &lt;SQLQUERY&gt;, "
 	     "&lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;.<br>\n"

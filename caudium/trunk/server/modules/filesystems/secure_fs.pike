@@ -29,6 +29,13 @@ constant thread_safe=1;
 #include <module.h>
 inherit "filesystem";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Secure file system module (Mk II)";
+constant module_doc  = "This is a (somewhat) more secure filesystem module. It "
+            "allows an per-regexp level security.\n"
+	    "Mark 2 allows for authentication via a form.\n";
+constant module_unique = 0;
+
 array register_module()
 {
   return ({ MODULE_LOCATION,

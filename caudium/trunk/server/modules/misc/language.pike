@@ -31,6 +31,27 @@ string cvs_version = "$Id$";
 # endif
 #endif
 
+constant module_type = MODULE_DIRECTORIES | MODULE_URL | MODULE_PARSER;
+constant module_name = "Language module";
+constant module_doc  = "Handles documents in different languages. "
+	      "<p>Is also a directory module that generates no directory "
+	      "listings. It must be a directory module to work, though it "
+	      "could of course be fixed to make directory listings."
+	      "The module works by using appropriate magic to find out what "
+	      "language the user wants and then finding a file in that "
+	      "language. What language a file is in is specified with an "
+	      "extra extension. index.html.sv would be a file in swedish "
+	      "while index.html.en would be one in english. "
+	      "<p>The module also defines three new tags. "
+	      "<br><b>&lt;language&gt;</b> that tells which language the "
+	      "current page is in. "
+	      "<br><b>&lt;available_languages&gt;</b> gives a list of other "
+	      "languages the current page is in, with links to them. "
+	      "<br><b>&lt;unavailable_language&gt;</b> shows the language "
+	      "the user wanted, if the page was not available in that "
+	      "language. "
+	      "<p>All tags take the argument type={txt,img}. ";
+constant module_unique = 1;
 
 array register_module()
 {

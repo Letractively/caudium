@@ -32,6 +32,13 @@ inherit "caudiumlib";
 #define VAR_MORE	0
 #endif /* VAR_MORE */
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Graphics text";
+constant module_doc  = "Generates graphical texts.<p>"
+	    "See <tt>&lt;gtext help&gt;&lt;/gtext&gt;</tt> for "
+	    "more information.";
+constant module_unique = 1;
+	    
 array register_module()
 {
   return ({ MODULE_PARSER,

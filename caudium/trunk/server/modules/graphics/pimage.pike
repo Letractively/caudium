@@ -25,6 +25,21 @@ string cvs_version="$Id$";
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_LOCATION | MODULE_PARSER;
+constant module_name = "Pike Image Module";
+constant module_doc  = "This module adds two new tags, &lt;gclock&gt; and "
+   	      "&lt;pimage&gt;&lt;/pimage&gt;. GClock draws clocks, and "
+	      " pimage draws an image from pike-code. <p> "
+	      "There are several predefined images-constructors to use "
+	      "in pimage: <p>"
+	      "Clock( delay, time_offset, background_image ); Animated clock-gif.<br>"
+	      "Progress( callback_function ); Animated progress bar.<br>"
+	      "PPM( \"file_name\" ); Loads a PPM file.<br>"
+	      "PImage(xs,ys, bg_color ); Simple (cleared) image<br>"
+	      "Text( \"font\", \"string\", fg_color, bg_color ); <br>"
+	      "Draws some text..<br>";
+constant module_unique = 1;
+
 #if constant(Image.image)
 #define IMAGE Image.image
 #else

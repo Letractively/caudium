@@ -29,6 +29,11 @@ constant thread_safe=1;
 inherit "module";
 inherit "wizard";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Wizard generator";
+constant module_doc  = "Generates wizards<p>See &lt;wizard help&gt; for more information\n";
+constant module_unique = 1;
+
 mixed *register_module()
 {
   return ({MODULE_PARSER,"Wizard generator",

@@ -27,6 +27,26 @@ constant thread_safe=1;
 inherit "module";
 
 //#define IP_LESS_DEBUG
+constant module_type = MODULE_FIRST;
+constant module_name = "IP-Less virtual hosting (DEPRECATED)";
+constant module_doc  = "<b><font color=red>THIS MODULE IS DEPRECATED.</font> Please "
+	    "use the Virtaul Host Matcher module instead. It gives you the "
+	    "ability to control how the host matching is done, using "
+	    "regular expressions.</b><p>"
+	    "This module adds support for IP-less virtual hosts, "
+	    "simply add this module to a server with a real listen port "
+	    "(Server Variables -&gt; Listen ports) "
+	    "configured, then add no ports to all the servers you want to "
+	    "use ip-less virtual hosting for, but configure their "
+	    "server-URLs. This module will then automagically "
+	    "select the server the request should be sent to."
+	    "<p><b>Please note that the ip less hosting module "
+	    "doesn't work together with proxies. The reason is that the "
+	    "host header sent isn't the one of the proxy server, but the "
+	    "one of the requested host. We recommend having the proxies in "
+	    "their own virtual server, with a unique IP and / or port.</b>";
+constant module_unique = 1;
+constant module_deprecated = 1;
 
 array register_module()
 {

@@ -10,6 +10,13 @@ inherit "modules/scripting/oldcgi";
 
 #define ipaddr(x,y) (((x)/" ")[y])
 
+constant module_type = MODULE_FIRST | MODULE_LOCATION | MODULE_FILE_EXTENSION;
+constant module_name = "Fast-CGI executable support";
+constant module_doc  = "Partial support for the "
+      "<a href=http://www.fastcgi.com>Fast-CGI interface</a>. "
+      "This module is useful, but not finished.";
+constant module_unique = 0;
+
 void create(object c)
 {
   ::create(c);

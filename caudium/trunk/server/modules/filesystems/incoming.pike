@@ -25,6 +25,11 @@ inherit "modules/filesystems/filesystem";
 
 constant cvs_version= "$Id$";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Incoming filesystem";
+constant module_doc  = "This is a virtual filesystem than can be used only for uploads, not "
+                       "downloads.";
+constant module_unique = 0;
 
 static class decaying_file {
 

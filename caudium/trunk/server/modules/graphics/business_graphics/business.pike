@@ -39,6 +39,12 @@ inherit "module";
 inherit "caudiumlib";
 import Array;
 
+constant module_type = MODULE_PARSER | MODULE_LOCATION;
+constant module_name = "Business Graphics";
+constant module_doc  = "The Business Graphics tag. This module draws\n"
+       "line charts, pie charts, graphs and bar charts.<p>\n"
+       "&lt;diagram help&gt;&lt;/diagram&gt; gives help.\n";
+
 #if constant(Image.image)
 #define OLDSTYLE
 #endif

@@ -34,6 +34,13 @@ constant thread_safe=1;
 #include <caudium.h>
 #include <stat.h>
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Filesystem";
+constant module_doc  = "This is a virtual filesystem, use it to make files available to "+
+     "the users of your WWW-server. If you want to serve any 'normal' "
+      "files from your server, you will have to have atleast one filesystem.";
+constant module_unique = 0;
+
 #if DEBUG_LEVEL > 20
 # ifndef FILESYSTEM_DEBUG
 #  define FILESYSTEM_DEBUG

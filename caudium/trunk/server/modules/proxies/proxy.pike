@@ -29,6 +29,12 @@ string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
 
+constant module_type = MODULE_PROXY | MODULE_LOCATION;
+constant module_name = "HTTP-Proxy"; 
+constant module_doc  = "This is a caching HTTP-proxy with quite "
+	       " a few bells and whistles";
+constant module_unique = 0;
+
 #if DEBUG_LEVEL > 21
 # ifndef PROXY_DEBUG
 #  define PROXY_DEBUG

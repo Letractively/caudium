@@ -29,6 +29,14 @@ inherit "caudiumlib";
 import Array;
 import Image;
 
+constant module_type = MODULE_PARSER | MODULE_LOCATION;
+constant module_name = "Tab lists";
+constant module_doc  = "This module makes graphical tablists.<p>"
+       "<b>NOTE:</b> This module is not supported and is only here "
+       "for compatibility reasons. Please use ``<b>Config tab-list</b>'' "
+       "instead.<p>";
+constant module_unique = 1;
+
 //constant Image = image;
 constant Font = font;
 

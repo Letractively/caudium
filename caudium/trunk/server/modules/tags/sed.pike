@@ -31,6 +31,11 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "SED tag";
+constant module_doc  = "";
+constant module_unique = 1;
+
 mapping flcache=([]); 
    // not_query:(flno: 1=fodled 2=unfolded )
 int flno=1;

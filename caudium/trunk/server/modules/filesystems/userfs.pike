@@ -37,6 +37,16 @@ inherit "filesystem" : filesystem;
 
 constant cvs_version="$Id$";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "User Filesystem";
+constant module_doc  = "User filesystem. Uses the userdatabase (and thus the system passwd "
+      "database) to find the home-dir of users, and then looks in a "
+      "specified directory in that directory for the files requested. "
+      "<p>Normaly mounted under /~, but / or /users/ would work equally well. "
+      " is quite useful for IPPs, enabling them to have URLs like "
+      " http://www.hostname.of.provider/customer/. ";
+constant module_unique = 0;
+
 // import Array;
 // import Stdio;
 

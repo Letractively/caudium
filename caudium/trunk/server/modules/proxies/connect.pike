@@ -39,6 +39,12 @@ inherit "socket";
 
 /* Simply relay a request to another server if the data was not found. */
 
+constant module_type = MODULE_FIRST | MODULE_PROXY;
+constant module_name = "SSL Proxy";
+constant module_doc  = "Implements the CONNECT method, as in <a href="
+      "http://www1.netscape.com/newsref/std/tunneling_ssl.html>the draft</a>"
+      " Useful for tunneling of SSL connections (Secure proxy in Netscape).";
+constant module_unique = 1;
 
 mixed *register_module()
 {

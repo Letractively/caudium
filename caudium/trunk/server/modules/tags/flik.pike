@@ -46,6 +46,19 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_PARSER; 
+constant module_name = "Folder list tag";
+constant module_doc  = "Adds the &lt;fl&gt;, &lt;ft&gt; and &lt;fd&gt; tags."
+	       " This makes it easy to build a folder list or an outline. "
+	       "Example:<pre>"
+	       "&lt;fl unfolded&gt;\n"
+	       "  &lt;ft folded&gt;ho\n"
+	       "   &lt;fd&gt;heyhepp\n"
+	       "  &lt;ft&gt;alakazot\n"
+	       "   &lt;fd&gt;no more\n"
+	       "&lt;/fl&gt;</pre>";
+constant module_unique = 1;
+
 mapping flcache=([]); 
    // not_query:(flno: 1=fodled 2=unfolded )
 int flno=1;

@@ -32,6 +32,12 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Manual tag";
+constant module_doc  = "This tag is the manual librarian.<p>"
+      "See <tt>&lt;manual help&gt</tt> for more information.\n\n<p>"+doc();
+constant module_unique = 1;
+
 static private int loaded;
 
 static private string doc()

@@ -32,6 +32,21 @@ inherit "modules/scripting/cgi.pike";
 
 constant cvs_version = "$Id$";
 
+constant module_type = MODULE_LOCATION;
+constant module_name = "Frontpage Script support";
+constant module_doc  = "This module is an extension to the normal CGI module. The main "
+    "differences are that this module is mainly a MODULE_FIRST. The reason "
+    "for this is that otherwise you most likely would have to fight with "
+    "priority levels to make it work correctly. It's there to make the setup "
+    "procedure easier. Also this module's default mountpath is <tt>/</tt>. The "
+    "reason for this is that we need to be able to handle Frontpage sub-webs. "
+    "<p>Another feature is that you easily can modify the value of the "
+    "environment variable SERVER_PORT. The reason for doing that is that "
+    "Frontpage uses it to figure out which configuration file to use. "
+    "Without it you wouldn't be able to use Frontpage and Roxen when doing "
+    "virtual hosting (where many servers will have the same port number).";
+constant module_unique = 1;
+
 mapping build_env_vars(string f, object id, string|void path_info)
 {
   mapping new = ::build_env_vars(f, id, path_info);

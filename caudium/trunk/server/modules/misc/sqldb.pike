@@ -27,6 +27,11 @@
 
 inherit "module";
 
+constant module_type = 0;
+constant module_name = "SQL Databases";
+constant module_doc  = "Associates names with SQL Database URLs.";
+constant module_unique = 1;
+
 array register_module()
 {
   return (({ 0, "SQL Databases",

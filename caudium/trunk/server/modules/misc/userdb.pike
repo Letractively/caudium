@@ -33,6 +33,14 @@ inherit "caudiumlib";
 // import Stdio;
 // import Array;
 
+constant module_type = MODULE_AUTH;
+constant module_name = "User database and security";
+constant module_doc  = "This module handles the security in roxen, and uses "
+	"the normal system password and user database to validate "
+	"users. It also maintains the user database for all other "
+	"modules in roxen, e.g. the user homepage module.";
+constant module_unique = 1;
+
 // Fairly weak check of password for portability.
 #define CRYPTWD_CHECK(cryptwd) \
   (!!(cryptwd) && sizeof (cryptwd) >= 10 && \

@@ -26,6 +26,13 @@ inherit "module";
 
 constant cvs_version = "$Id$";
 
+constant module_type = MODULE_PARSER;
+constant module_name = "Spell checker";
+constant module_doc  = "Checks for and marks common misspellings inside the &lt;spell&gt; tag.<p>"
+      " &lt;spell [help] [warn]&gt;text to spellcheck[&lt;/spell&gt;]<p>If "
+      "warn is defined, all unknown words will be reported";
+constant module_unique = 1;
+
 #define FILE "etc/errordata"
 
 /* no need to make this very big, it will seldom be used anyway */
