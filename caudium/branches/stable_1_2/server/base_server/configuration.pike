@@ -19,7 +19,13 @@
  *
  */
 
-string cvs_version = "$Id$";
+//! file: base_server/configuration.pike
+//!   Caudium's Configuration InterFace (CIF) main handler
+//! inherits: caudiumlib
+//! inherits: logformat
+//! cvs_version: $Id$
+
+string cvs_ve rsion = "$Id$";
 #include <module.h>
 #include <caudium.h>
 #ifdef PROFILE
