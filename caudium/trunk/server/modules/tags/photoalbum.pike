@@ -281,7 +281,7 @@ class album {
 		    "src=\"" + get_photo( i )[ 0 ] + "\" " +
 		    "border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +
 		    "width=\"" + sprintf( "%d", QUERY(width) ) + "\">" +
-		    "</a><br>\n" +
+		    "</a></div><br>\n" +
 		    "<div class=\"thumbnaildesc\">" +
 		    get_photo( i )[ 1 ] +
                     "</div><br>\n";
