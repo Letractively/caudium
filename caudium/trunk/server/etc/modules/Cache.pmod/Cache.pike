@@ -75,15 +75,15 @@ string _cache_desc;
 //! SlowStorage is a bit of a hack - at this stage disk storage is the only
 //! supported backend, and this is hacked in as a constant. This needs to be
 //! changed to support a pluggable method.
-void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, program dcache, int _default_ttl ) {
+void create( string _namespace, string _path, int _max_object_ram, int _max_object_disk, object dcache, int _default_ttl ) {
   LOCK();
   namespace = _namespace;
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
   path = _path;
   default_ttl = _default_ttl;
-  disk_cache = dcache( namespace, path );
-  ram_cache = Cache.FastStorage( namespace, disk_cache );
+  disk_cache = Cache.SlowStorage(namespace, dcache);
+  ram_cache = Cache.FastStorage(namespace, disk_cache);
 }
 
 //! Change the size options that were set upon creation.

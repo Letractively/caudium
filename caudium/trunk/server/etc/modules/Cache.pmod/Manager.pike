@@ -49,7 +49,6 @@ program pipe = Caudium.nbio;
 #endif
 object caudium;
 // This is a hack until someone else writes a storage method.
-#define dcache Cache.SlowStorage.Disk
 
 //! Create the datastructures for the cache(s).
 void create() {
@@ -130,7 +129,7 @@ static void create_cache( string namespace ) {
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
-  caches += ([ namespace : Cache.Cache( namespace, path, max_object_ram, max_object_disk, dcache, default_ttl ) ]);
+  caches += ([ namespace : Cache.Cache( namespace, path, max_object_ram, max_object_disk, caudium->storage_manager->get_storage(namespace), default_ttl ) ]);
 }
 
 //! internal method that uses randomness to decide how long to wait in between
