@@ -480,8 +480,9 @@ class Request {
 
   string parse_directory()
   {
-    string res,s,r,t;
-    string *path;
+    string s,r,t;
+    array(string) path;
+    mixed res;
     /* check if known format */
     if (effect=="raw"||buffer=="")
     {

@@ -7,7 +7,7 @@
 
 string cvs_version = "$Id$";
 
-#include <simulate.h>
+import Stdio;
 #include <roxen.h>
 
 #undef DEBUG
@@ -15,7 +15,7 @@ string cvs_version = "$Id$";
 
 string version = "1.0";
 
-object stderr = Stdio.File("stderr");
+object stderr = File("stderr");
 
 void roxen_perror(string format,mixed ... args)
 {
@@ -44,7 +44,7 @@ object roxenp()
 object|void open(string filename, string mode, int|void perm)
 {
   object o;
-  o=File();
+  o = File();
   if(o->open(filename, mode, perm || 0666)) {
 #ifdef DEBUG
     perror("Opened fd "+o->query_fd()+"\n");
@@ -484,7 +484,7 @@ void main(int argc, string *argv)
 		     ({ "ROXEN_CONFIGDIR", "CONFIGURATIONS" }),
 		     "../logs/");
 
-  write(popen("clear"));
+  write(Process.popen("clear"));
   host=gethostname();
   domain = get_domain();
   if(search(host, domain) == -1)
@@ -514,7 +514,7 @@ void main(int argc, string *argv)
 	write("Environment not changed.\n");
 	exit(0);
       }
-      write(popen("clear"));
+      write(Process.popen("clear"));
     }
   }
 
@@ -628,11 +628,12 @@ void main(int argc, string *argv)
   setglobvar("ConfigurationURL",  prot_spec+host+":"+port+"/");
   setglobvar("logdirprefix", log_dir);
 
-  write(popen("./start "
-	      +(configuration_dir_changed?"--config-dir="+configuration_dir
-		+" ":"")
-	      +(logdir_changed?"--log-dir="+log_dir+" ":"")
-	      +argv[1..] * " "));
+  write(Process.popen("./start "
+		      +(configuration_dir_changed?
+			"--config-dir="+configuration_dir
+			+" ":"")
+		      +(logdir_changed?"--log-dir="+log_dir+" ":"")
+		      +argv[1..] * " "));
   
   if(configuration_dir_changed || logdir_changed)
     write("\nAs you use non-standard directories for the configuration \n"

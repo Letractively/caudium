@@ -287,7 +287,7 @@ mapping handle_file_extension(object f, string e, object got)
     else
       file = cpp(file);
 #endif
-    array (function) ban = allocate(6, "function");
+    array (function) ban = allocate(6);
 #ifndef __NT__
 #if efun(setegid)
     ban[0] = setegid;

@@ -10,6 +10,9 @@ string fix_name(string in)
   return replace(lower_case(in), ({"-"," "}), ({ "_", "_" }));
 }
 
+#if !constant(roxen)
+#define roxen this_object()
+#endif
 
 // name:([ version:fname, version:fname, ... ])
 mapping ttf_done = ([]);
@@ -72,8 +75,8 @@ array available_font_versions(string name, int size)
   int ttffound;
   int ttffontschanged;
 
-   if(ttf_font_names_cache[ name ])
-     return indices(ttf_font_names_cache[ name ]);
+  if(ttf_font_names_cache[ name ])
+    return indices(ttf_font_names_cache[ name ]);
   foreach(roxen->query("font_dirs"), dir)
   {
     foreach(get_dir( dir )||({}), string fname)
@@ -82,12 +85,12 @@ array available_font_versions(string name, int size)
       {
 	if(!ttf_done[combine_path(dir+"/",fname)]++)
 	{
-//   werror("Trying TTF: "+combine_path(dir+"/",fname)+"\n");
+	  //   werror("Trying TTF: "+combine_path(dir+"/",fname)+"\n");
 	  object ttf = Image.TTF( combine_path(dir+"/",fname) );
 	  if(ttf)
 	  {
 	    mapping n = ttf->names();
-//        werror("okiedokie! "+n->family+"\n");
+	    //        werror("okiedokie! "+n->family+"\n");
 	    ttffontschanged++;
 	    string f = lower_case(trimttfname(n->family));
 	    if(!ttf_font_names_cache[f])

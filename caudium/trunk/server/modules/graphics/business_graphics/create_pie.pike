@@ -12,7 +12,10 @@ constant LITET = 1.0e-38;
 constant STORTLITET = 1.0e-30;
 constant STORT = 1.0e30;
 
-import Image;
+#if constant(Image.image)
+#define OLDSTYLE
+#endif
+
 import Array;
 import Stdio;
 
@@ -46,7 +49,11 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
 
   string where_is_ax;
 
-  object(image) piediagram;
+#ifdef OLDSTYLE
+  object(Image.image) piediagram;
+#else
+  Image.Image piediagram;
+#endif
 
   init_bg(diagram_data);
   piediagram=diagram_data["image"];
@@ -121,15 +128,25 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
     if (notext)
       for(int i=0; i<sizeof(names); i++)
 	{
+	  
 	  if ((names[i]!=0) && (names[i]!=""))
 	    text[i]=notext->write((string)(names[i]))
 	      ->scale(0,diagram_data["fontsize"]);
-	  else
-	    text[i]=image(diagram_data["fontsize"],diagram_data["fontsize"]);
+	  else {
+#ifdef OLDSTYLE
+	    text[i]=Image.image(diagram_data["fontsize"],diagram_data["fontsize"]);
+#else
+	    text[i]=Image.Image(diagram_data["fontsize"],diagram_data["fontsize"]);
+#endif
+	  }
 
-	  if (text[i]->xsize()<1)
-	    text[i]=image(diagram_data["fontsize"],diagram_data["fontsize"]);
-
+	  if (text[i]->xsize()<1) {
+#ifdef OLDSTYLE
+	    text[i]=Image.image(diagram_data["fontsize"],diagram_data["fontsize"]);
+#else
+	    text[i]=Image.Image(diagram_data["fontsize"],diagram_data["fontsize"]);
+#endif
+	  }
 	  if (text[i]->xsize()>diagram_data["xsize"]/5+diagram_data["3Ddepth"])
 	    text[i]=text[i]->scale((int)diagram_data["xsize"]/5, 0);
 
@@ -217,13 +234,13 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
   //Initiate the piediagram!
   float FI=0;
   if (diagram_data["center"])
-    {
-      //If to great center integer is given, module is used. 
-      // Center should not be greater than sizeof(data[0]).
-      diagram_data["center"]%=(1+sizeof(numbers));
-      FI=(400-`+(0,@pnumbers[0..diagram_data["center"]-2])
+  {
+    //If to great center integer is given, module is used. 
+    // Center should not be greater than sizeof(data[0]).
+    diagram_data["center"]%=(1+sizeof(numbers));
+    FI=(400-`+(0,@pnumbers[0..diagram_data["center"]-2])
 	-pnumbers[diagram_data["center"]-1]*0.5)*2.0*PI/400.0;
-    }
+  }
   else
     if (diagram_data["rotate"])
       FI=((float)(diagram_data["rotate"])*2.0*PI/360.0)%(2*PI);
@@ -272,10 +289,17 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
 	  arrpp[1+2*i]=yc+miniwyr*sin(-PI/2-i*2.0*PI/400.0+FI)+
 	    diagram_data["3Ddepth"];
 	}
+#ifdef OLDSTYLE
       object skugg;
       skugg=Image.image(piediagram->xsize(),piediagram->ysize(), 255,255,255);
       object foo;
       foo=Image.image(piediagram->xsize(),piediagram->ysize(), 255,255,255);
+#else
+      Image.Image skugg;
+      skugg=Image.Image(piediagram->xsize(),piediagram->ysize(), 255,255,255);
+      Image.Image foo;
+      foo=Image.Image(piediagram->xsize(),piediagram->ysize(), 255,255,255);
+#endif
       skugg->tuned_box(xc,yc-yr-1,xc+xr+1,1+yc+yr+diagram_data["3Ddepth"],  
 		       ({			 
 			 ({255,255,255}),
@@ -412,31 +436,35 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
       int imysize=piediagram->ysize(); //diagram_data["ysize"]+diagram_data["legendsize"];
 
       if(tone)
-	{
-	  
-	  
-	  tbild=image(imxsize, imysize, 255, 255, 255)->
-	    tuned_box(0, 0 , 1, imysize,
-		      ({a,a,b,b}));
-	  tbild=tbild->paste(tbild->copy(0,0,0, imysize), 1, 0);
-	  tbild=tbild->paste(tbild->copy(0,0,1, imysize), 2, 0);
-	  tbild=tbild->paste(tbild->copy(0,0,3, imysize), 4, 0);
-	  tbild=tbild->paste(tbild->copy(0,0,7, imysize), 8, 0);
-	  tbild=tbild->paste(tbild->copy(0,0,15, imysize), 16, 0);
-	  if (imxsize>32)
-	    tbild=tbild->paste(tbild->copy(0,0,31, imysize), 32, 0);
+      {
+#ifdef OLDSTYLE
+	tbild = Image.image(imxsize, imysize, 255, 255, 255)->
+	  tuned_box(0, 0 , 1, imysize,
+		    ({a,a,b,b}));
+#else
+	tbild = Image.Image(imxsize, imysize, 255, 255, 255)->
+	  tuned_box(0, 0 , 1, imysize,
+		    ({a,a,b,b}));
+#endif
+	tbild=tbild->paste(tbild->copy(0,0,0, imysize), 1, 0);
+	tbild=tbild->paste(tbild->copy(0,0,1, imysize), 2, 0);
+	tbild=tbild->paste(tbild->copy(0,0,3, imysize), 4, 0);
+	tbild=tbild->paste(tbild->copy(0,0,7, imysize), 8, 0);
+	tbild=tbild->paste(tbild->copy(0,0,15, imysize), 16, 0);
+	if (imxsize>32)
+	  tbild=tbild->paste(tbild->copy(0,0,31, imysize), 32, 0);
       
-	  if (imxsize>64)
-	    tbild->
-	      paste(tbild->copy(0,0,63, imysize), 64, 0);
-	  if (imxsize>128)
-	    tbild=tbild->paste(tbild->copy(0,0,128, imysize), 128, 0);
-	  if (imxsize>256)
-	    tbild=tbild->paste(tbild->copy(0,0,256, imysize), 256, 0);
-	  if (imxsize>512)
-	    tbild=tbild->paste(tbild->copy(0,0,512, imysize), 512, 0);
-	  piediagram+=tbild;
-	}
+	if (imxsize>64)
+	  tbild->
+	    paste(tbild->copy(0,0,63, imysize), 64, 0);
+	if (imxsize>128)
+	  tbild=tbild->paste(tbild->copy(0,0,128, imysize), 128, 0);
+	if (imxsize>256)
+	  tbild=tbild->paste(tbild->copy(0,0,256, imysize), 256, 0);
+	if (imxsize>512)
+	  tbild=tbild->paste(tbild->copy(0,0,512, imysize), 512, 0);
+	piediagram+=tbild;
+      }
 
       //Vertical lines below
       edge_nr=(int)(FI*200.0/PI+0.5);
@@ -505,6 +533,5 @@ mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
   diagram_data["image"]=piediagram;
   return diagram_data;
 
-
-
 }
+  

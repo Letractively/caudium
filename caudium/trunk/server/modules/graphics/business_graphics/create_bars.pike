@@ -12,10 +12,14 @@ constant LITET = 1.0e-38;
 constant STORTLITET = 1.0e-30;
 constant STORT = 1.0e30;
 
-import Image;
 import Array;
 import Stdio;
-
+#if constant(Image.image)
+#define OLDSTYLE
+#define IMAGE Image.image
+#else
+#define IMAGE Image.Image
+#endif
 inherit "polyline.pike";
 inherit "create_graph.pike";
 
@@ -50,7 +54,7 @@ mapping(string:mixed) create_bars(mapping(string:mixed) diagram_data)
 
   string where_is_ax;
 
-  object(image) barsdiagram;
+  object(IMAGE) barsdiagram;
 
 #ifdef BG_DEBUG
   bg_timers->init_bg = gauge {
@@ -231,10 +235,10 @@ mapping(string:mixed) create_bars(mapping(string:mixed) diagram_data)
       labelimg=notext
 	->write(label)->scale(0,diagram_data["labelsize"]);
     else
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
 
     if (labelimg->xsize()<1)
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
 
     if (labelimg->xsize()>
 	diagram_data["xsize"]/2)
@@ -816,10 +820,10 @@ mapping(string:mixed) create_bars(mapping(string:mixed) diagram_data)
       labelimg=notext
 	->write(label)->scale(0,diagram_data["labelsize"]);
     else
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
     
     if (labelimg->xsize()<1)
-      labelimg=image(diagram_data["labelsize"],diagram_data["labelsize"]);
+      labelimg=IMAGE(diagram_data["labelsize"],diagram_data["labelsize"]);
     
     if (labelimg->xsize()>
 	diagram_data["xsize"])

@@ -384,7 +384,7 @@ int low_spawne(string s,string *args, mapping|array env, object stdin,
 int spawne(string s,string *args, mapping|array env, object stdin, 
 	   object stdout, object stderr, void|string wd, void|array (int) uid)
 {
-  int pid, *olduid = allocate(2, "int");
+  int pid, *olduid = allocate(2);
 
   int u, g;
   if(uid) { u = uid[0]; g = uid[1]; } else
@@ -500,6 +500,8 @@ class restricted_cd
 
 // Place holder.
 class empty_class {
+  void create(mixed ... args) {
+  }
 };
 
 // Fallback efuns.

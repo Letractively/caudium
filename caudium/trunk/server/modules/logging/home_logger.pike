@@ -269,7 +269,7 @@ class CacheFile {
     d = delay;
     master = m;
     if(num > 1)
-      next = object_program(this_object())( --num, delay, m );
+      next = object_program(this_object())(--num, delay, m, mu );
   }
 
   void destroy()
@@ -386,13 +386,14 @@ mapping cached_homes = ([]);
 
 string home(string of, object id)
 {
-  string l, f;
+  string f;
+  string|int l;
   foreach(QUERY(Logs), l)
   {
     if(!search(of, l))
     {
-      if(cached_homes[l] && !(cached_homes[l]==-1 && id->pragma["no-cache"]))
-	return (l=cached_homes[l])==-1?0:l;
+      if(cached_homes[l] && !(cached_homes[l] == -1 && id->pragma["no-cache"]))
+	return (l = cached_homes[l]) == -1?0:l;
       f=l;
       l=roxen->real_file(l+QUERY(AccessLog), id);
       if(l) cached_homes[f]=l;
