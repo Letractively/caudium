@@ -84,7 +84,7 @@ void create()
 {
 // LDAP server definitions
 
-        defvar ("CI_dir_server","localhost","LDAP server: Location",
+        defvar ("CI_dir_server","ldap://localhost","LDAP server: Server",
                    TYPE_STRING, "This is LDAP URL for the LDAP server with "
                    "the authentication information. Example: ldap(s)://myldaphost");
 
@@ -131,18 +131,18 @@ void create()
                    "as filter for searching for users"
 		   "<b>%u%</b> : Will be replaced by entered username." );
 
-        defvar ("CI_groupsearch_templ","(&(objectclass=group)(cn=%g%))","Search: Group Search template",
+        defvar ("CI_groupsearch_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Group Search template",
                    TYPE_STRING, "Template used by LDAP search operation "
                    "as filter for searching for groups"
 		   "<b>%g%</b> : Will be replaced by entered groupname." );
 
-        defvar ("CI_userforgroup_search_templ","(&(objectclass=group)(cn=%g%))","Search: Users in groups Search template",
+        defvar ("CI_userforgroup_search_templ","(&(objectclass=posixgroup)(cn=%g%))","Search: Users in groups Search template",
                    TYPE_STRING, "Search template used as filter "
                    "when searching for user members of groups."
 		   "<b>%g%</b> : Will be replaced by entered groupname."
 		   "<b>%d%</b> : Will be replaced by group's full dn." );
 
-        defvar ("CI_groupforuser_search_templ","(&(objectclass=group)(memberuid=%u%))","Search: Groups for user Search template",
+        defvar ("CI_groupforuser_search_templ","(&(objectclass=posixgroup)(memberuid=%u%))","Search: Groups for user Search template",
                    TYPE_STRING, "Template used by LDAP search operation"
 		   " as filter."
 		   "<b>%u%</b> : Will be replaced by entered username."
@@ -151,7 +151,7 @@ void create()
         defvar ("CI_userlist_search_templ","(objectclass=person)","Search: Userlist search query",
                    TYPE_STRING, "Template used by LDAP userlist search operation");
 
-        defvar ("CI_grouplist_search_templ","(objectclass=group)","Search: Grouplist search query",
+        defvar ("CI_grouplist_search_templ","(objectclass=posixgroup)","Search: Grouplist search query",
                    TYPE_STRING, "Template used by LDAP grouplist search operation");
 
 // ATTRIBUTE DEFINITIONS
@@ -204,7 +204,7 @@ void create()
 		   "User Attributes: E-Mail Address", TYPE_STRING,
                    "The attribute containing the user E-Mail Address.");
 
-        defvar ("CI_attr_user_fullname", "gecos",
+        defvar ("CI_attr_user_fullname", "cn",
 		   "User Attributes: Full Name", TYPE_STRING,
                    "The attribute containing the user Full Name.");
 
