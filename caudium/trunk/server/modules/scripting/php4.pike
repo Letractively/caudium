@@ -49,10 +49,11 @@ constant thread_safe=1;
 
 constant module_type = MODULE_FILE_EXTENSION;
 constant module_name = "PHP Script Support";
-constant module_doc  = "This module allows Caudium users to run PHP scripts, "
-    "optionally with RXML post-parsing. See <a href=\"http://"
-    "www.php.net/\">www.php.net</a> for further information about "
-    "PHP.";
+constant module_doc  = "This module allows Caudium users to run PHP scripts, \
+optionally with RXML post-parsing. See <a href=\"http://\
+www.php.net/\">www.php.net</a> for further information about \
+PHP. <font color=\"red\">Please note that the support for PHP \
+very immature and isn't good enough for actual production use.</font>";
 constant module_unique = 0;
 
 
@@ -294,15 +295,15 @@ constant dont_dump_program = 1;
 string status()
 {
   return
-    "<p><font color=\"red\">The PHP4 interpreter isn't available.<p>"
+    "<font color=\"red\">The PHP4 interpreter isn't available."
     "To get PHP4 installed:"
     "<ol>"
     "<li> Check php4 out from CVS or download the release from"
     "<a href=\"http://us.php.net/downloads.php\">http://us.php.net/downloads.php</a>.<br />"
-    "See <a target=new href=\"http://www.php.net/version4/cvs.php\">the PHP4 CVS instructions</a>"
-    "<li> Configure php4 with --with-caudium="+(getcwd()-"server")+
-    "<li> Make and install php4"
-    "<li> Restart Caudium"
+    "See <a target=\"new\" href=\"http://www.php.net/version4/cvs.php\">the PHP4 CVS instructions</a></li>"
+    "<li> Configure php4 with --with-roxen="+(getcwd()-"server")+"</li>"
+    "<li> Make and install php4</li>"
+    "<li> Restart Caudium</li>"
     "</ol></font>";
 }
 
