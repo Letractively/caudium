@@ -2602,7 +2602,7 @@ class FTPSession
       destruct(pasv_port);
     pasv_port = Stdio.Port(0, pasv_accept_callback, local_addr);
     int port=(int)((pasv_port->query_address()/" ")[1]);
-    send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
+    send(227, ({ sprintf("Entering Passive Mode. (%s,%d,%d)",
 			 replace(local_addr, ".", ","),
 			 (port>>8), (port&0xff)) }));
   }

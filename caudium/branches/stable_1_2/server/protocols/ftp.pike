@@ -2851,12 +2851,12 @@ class FTPSession
       }
       int port=(int)((pasv_port->query_address()/" ")[1]);
       if(Query("pasvnat")) {
-	send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
+	send(227, ({ sprintf("Entering Passive Mode. (%s,%d,%d)",
 			     replace(Query("pasvipaddr"), ".", ","),
 			     (port>>8), (port&0xff)) }));
       }
       else {
-	send(227, ({ sprintf("Entering Passive Mode. %s,%d,%d",
+	send(227, ({ sprintf("Entering Passive Mode. (%s,%d,%d)",
 			     replace(local_addr, ".", ","),
 			     (port>>8), (port&0xff)) }));
 
