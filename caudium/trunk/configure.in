@@ -334,6 +334,14 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 			PIKE=""
 		else
 		   AC_MSG_RESULT(ok)
+	           PIKE=`echo $PIKE | pike -e 'int tries=100;
+		   string orig,pike=Stdio.File("stdin")->read()-"\n";
+		   orig=pike;
+		   if(search(orig, "/"))
+		     orig = combine_path(getcwd(), orig);
+		   while(!catch(pike=readlink(pike)) && tries--)
+		     ;
+		   write(combine_path(dirname(orig), pike)); '`
 		   if test "$prefix" != "NONE"; then
 		       PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
 		   else
@@ -380,10 +388,6 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
   fi
 done
 if test "$PIKE" != ""; then 
-  tmppike=`ls -l $PIKE | awk -F ' -> ' '{ print $2 }' 2>/dev/null`
-  if test -x "$tmppike"; then
- 	PIKE=$tmppike
-  fi
   PIKE_VERSION=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
 else
   echo "Failed to find a suitable pike!"
@@ -793,5 +797,10 @@ re-running configure with '--with-pike=/path/to/correct/pike'.
 
         Pike binary used:      $PIKE
         Pike version:          $PIKE_VERSION
-        Pike include dir:      $PIKE_INCLUDE_DIRS"
+        Pike include dir:      $PIKE_INCLUDE_DIRS
+
+	"
+
+# Verify the pike ... 
+$PIKE $srcdir/tools/verify_pike.pike
 

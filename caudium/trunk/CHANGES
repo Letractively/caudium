@@ -14,6 +14,8 @@ Changes in Caudium 1.0.X (CVS)
   supporting NT.
 - Removed C++ comments from FastIMHO (fix compile error).
 - Fixed the server template creator.
+- Added a script that tries to find, and warn about, potential
+  problem in the Pike used.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
