@@ -821,10 +821,12 @@ mapping get_actions(object id, string base,string dir, array args)
 {
   mapping acts = ([  ]);
   if(id->pragma["no-cache"]) wizards=([]);
+  
   foreach(get_dir(dir), string act)
   {
+    object e = ErrorContainer();
     mixed err;
-    master()->set_inhibit_compile_errors(0);
+    master()->set_inhibit_compile_errors(e);
     err = catch
     {
       if(!(<'#', '_'>)[act[0]] && act[-1]=='e')
@@ -845,8 +847,13 @@ mapping get_actions(object id, string base,string dir, array args)
 	      name+"</a></font><dd>"+(get_wizard(act,dir,@args)->doc||"")});
       }
     };
-    if(err) report_error(describe_backtrace(err));
+    if(strlen(e->get()))
+      report_error("Error compiling action:\n"+ e->get());
+    else if(err)
+      report_error(describe_backtrace(err));
   }
+  master()->set_inhibit_compile_errors(0);
+  master()->clear_compilation_failures();
   return acts;
 }
 

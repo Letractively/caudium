@@ -213,6 +213,13 @@ void set_inhibit_compile_errors(mixed f)
   errors="";
 }
 
+
+void clear_compilation_failures()
+{
+  foreach (indices (programs), string fname)
+    if (!programs[fname]) m_delete (programs, fname);
+}
+
 /*
  * This function is called whenever a compiling error occurs,
  * Nothing strange about it.

@@ -1433,20 +1433,15 @@ mapping configuration_parse(object id)
       mapping oldprgs = copy_value (master()->programs);
       cache_remove("modules", modname);
 
-      // Not useful since load_module() also does it.
-      // _master->set_inhibit_compile_errors("");
-      
       if(!o->config()->load_module(modname))
       {
 	mapping rep;
 	rep = http_string_answer("The reload of this module failed.\n"
 				 "This is (probably) the reason:\n<pre>"
 				 + caudium->last_error + "</pre>" );
-	// _master->set_inhibit_compile_errors(0);
 	return rep;
       }
       program newprg = cache_lookup ("modules", modname);
-      // _master->set_inhibit_compile_errors(0);
       if(!o->config()->disable_module(name)) {
 	mapping rep;
 	rep = http_string_answer("Failed to disable this module.\n"
