@@ -94,6 +94,10 @@ private mapping go( string type, mixed obj, string name, void|int exp ) {
     case "program":
       meta->_program = 1;
       break;
+    default:
+      meta->_unknown_type = 1;
+      meta->disk_cache = 0;
+      break;
     }
     break;
   case "program":
