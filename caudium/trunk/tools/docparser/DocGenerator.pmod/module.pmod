@@ -69,6 +69,10 @@ class DocGen
             f->close();
     }
 
+    void end_output()
+    {
+    }
+    
     private string xml_comment(string cmt) 
     {
         return "<!-- " + cmt + " -->\n";
