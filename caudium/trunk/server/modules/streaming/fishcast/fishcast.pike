@@ -432,13 +432,23 @@ class stream_client {
     }
 
     void client_write_callback() {
+        /*
 	if( queue->size() > 0 ) {
 	    string tmp = queue->read();
 	    bytes += sizeof( tmp );
 	    fd->write( tmp );
 	} else {
+            sleep( 0.1 );
 	    fd->write( "" );
 	}
+	*/
+
+	while ( queue->size() == 0 ) {
+	    sleep( 0.1 );
+	}
+	string tmp = queue->read();
+	bytes += sizeof ( tmp );
+        fd->write( tmp );
     }
 
     void client_close_callback() {
@@ -449,7 +459,7 @@ class stream_client {
     void client_read_callback() {}
 
     void set_nonblocking() {
-        client_write_callback();
+//        client_write_callback();
 	fd->set_nonblocking( client_read_callback, client_write_callback, client_close_callback );
     }
 
@@ -475,16 +485,13 @@ class stream_client {
 	    }
 	}
 
-        /*
-	if( fd->write( buff ) == -1 ) {
-	    return this_object();
-	    }
-	    */
-
 	if ( queue->size() <= 128 ) {
             queue->write( buff );
 	    return 0;
 	}
+#ifdef DEBUG
+	perror( sprintf( "Client: %s buffer skipped (queue full)\n", remoteaddr() ) );
+#endif
 	return 0;
     }
 
