@@ -616,9 +616,9 @@ string describe_module_type(int t)
   if(t & MODULE_AUTH)
   {
     if(!w)
-      res += "This is the authentification module. ";
+      res += "This is the authentication module. ";
     else
-      res += "It is also the authentification module. ";
+      res += "It is also the authentication module. ";
     w++;
   }
   
