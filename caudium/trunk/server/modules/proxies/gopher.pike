@@ -68,7 +68,7 @@ string query_location() { return query("loc"); }
 
 void create()
 {
-  defvar("loc", "gopher:/", "Location", TYPE_LOCATION|VAR_MORE,
+  defvar("loc", "/gopher:/", "Location", TYPE_LOCATION|VAR_MORE,
 	 "The mountpoint of the gopher proxy");
 }
 
