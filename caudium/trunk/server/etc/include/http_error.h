@@ -6,8 +6,6 @@
  * It seems to be working correctly and even doesnt crash the server!
  * Template files are in etc/error_templates/ and the new tag <error> is
  * now defined - but only within the scope of http_error_handler.
- *
- * $Id$
  */
 
 /*
@@ -27,6 +25,8 @@
  **! name: http_error_handler - new and pretty HTTP error handler.
  */
 class http_error_handler {
+
+    constant cvs_version = "$Id$"
 
     inherit "caudiumlib";
 
