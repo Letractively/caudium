@@ -52,8 +52,7 @@ it never requires it. For example you can still use unquoted arguments. ";
 constant module_unique = 1;
 
 mapping (string:object) scopes;
-array (mapping) tag_callers, container_callers;
-mapping (string:mapping(int:function)) real_tag_callers, real_container_callers;
+mapping (string:mixed) tag_callers, container_callers;
 int bytes;
 array (object) parse_modules = ({ });
 object(Parser.HTML) parse_object;
@@ -220,9 +219,10 @@ string call_tag(object parser, mapping args,
 		object client)
 {
   string tag = parser->tag_name();
+  string|function rf;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
-  string|function rf = real_tag_callers[tag][0];
+  rf = tag_callers[tag];
   id->misc->line = (string)parser->at_line();
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
   {
@@ -254,9 +254,10 @@ call_container(object parser, mapping args, string contents,
 	       object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
+  string|function rf;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
-  string|function rf = real_container_callers[tag][0];
+  rf = container_callers[tag];
   id->misc->line = (string)parser->at_line();
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
   {
@@ -320,12 +321,11 @@ string call_user_tag(object parser, mapping args,
 
 array(string)|string 
 call_user_container(object parser, mapping args, string contents,
-	       object id, object file, mapping defines, object client)
+		    object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
-  string|function rf = real_container_callers[tag][0];
   id->misc->line = (string)parser->at_line();
   args = id->misc->defaults[tag]|args;
   if(!id->misc->up_args) id->misc->up_args = ([]);
@@ -358,10 +358,14 @@ string do_parse(string to_parse, object id, object file, mapping defines,
     id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
   
   id->misc->_xml_parser = my_parser;
-  if(!id->misc->_tags)
+  if(!id->misc->_tags) {
     id->misc->_tags = ([]);
-  if(!id->misc->_containers)
+    id->misc->tags = ([]);
+  }
+  if(!id->misc->_containers) {
     id->misc->_containers = ([]);
+    id->misc->containers = ([]);
+  }
   id->misc->parse_level ++;
   my_parser->set_extra(id, file, defines, my_fd);
   to_parse = my_parser->finish(to_parse)->read();
@@ -375,39 +379,27 @@ string tag_list_tags( string t, mapping args, object id, object f )
   string res="";
   if(args->verbose) verbose = 1;
 
-  for(int i = 0; i<sizeof(tag_callers); i++)
+  res += ("<b><font size=+1>List of all tags: </b></font><p>");
+  foreach(sort(indices(tag_callers)), string tag)
   {
-    res += ("<b><font size=+1>Tags at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(tag_callers[i])), string tag)
+    res += "  <a name=\""+replace(tag, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag, "#","%23")+"#"+replace(tag, "#", ".")+"\">&lt;"+tag+"&gt;</a></a><br>";
+    if(verbose || id->variables->verbose == tag)
     {
-      res += "  <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#","%23")+"#"+replace(tag+i, "#", ".")+"\">&lt;"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_tag(id->misc->_xml_parser, (["help":"help"]), 
-			  id, f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
+      res += "<blockquote><table><tr><td>" 
+	"<"+tag+" help=\"help\" />"
+	"</td></tr></table></blockquote>";
     }
   }
-
-  for(int i = 0; i<sizeof(container_callers); i++)
+  
+  res += ("<p><b><font size=+1>List of all containers: </b></font><p>");
+  foreach(sort(indices(container_callers)), string tag)
   {
-    res += ("<p><b><font size=+1>Containers at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(container_callers[i])), string tag)
+    res += " <a name=\""+replace(tag, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag, "#", "%23")+"#"+replace(tag,"#",".")+"\">&lt;"+tag+"&gt;&lt;/"+tag+"&gt;</a></a><br>";
+    if(verbose || id->variables->verbose == tag)
     {
-      res += " <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#", "%23")+"#"+replace(tag+i,"#",".")+"\">&lt;"+tag+"&gt;&lt;/"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_container(id->misc->_xml_parser, (["help":"help"]), "",
-				id,f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
+      res += "<blockquote><table><tr><td>" 
+	"<"+tag+" help=\"help\"></"+tag+">"
+	"</td></tr></table></blockquote>";
     }
   }
   return res;
@@ -465,70 +457,6 @@ mapping handle_file_extension( object file, string e, object id)
 	   ]);
 }
 
-/* parsing modules */
-void insert_in_map_list(mapping to_insert, string map_in_object)
-{
-  function do_call = this_object()["call_"+map_in_object];
-
-  array (mapping) in = this_object()[map_in_object+"_callers"];
-  mapping (string:mapping) in2=this_object()["real_"+map_in_object+"_callers"];
-
-  
-  foreach(indices(to_insert), string s)
-  {
-    if(!in2[s]) in2[s] = ([]);
-    int i;
-    for(i=0; i<sizeof(in); i++)
-      if(!in[i][s])
-      {
-	in[i][s] = do_call;
-	in2[s][i] = to_insert[s];
-	break;
-      }
-    if(i==sizeof(in))
-    {
-      in += ({ ([]) });
-      if(map_in_object == "tag")
-	container_callers += ({ ([]) });
-      else
-	tag_callers += ({ ([]) });
-      in[i][s] = do_call;
-      in2[s][i] = to_insert[s];
-    }
-  }
-  this_object()[map_in_object+"_callers"]=in;
-  this_object()["real_"+map_in_object+"_callers"]=in2;
-}
-
-void sort_lists()
-{
-  array ind, val, s;
-  foreach(indices(real_tag_callers), string c)
-  {
-    ind = indices(real_tag_callers[c]);
-    val = values(real_tag_callers[c]);
-    sort(ind);
-    s = Array.map(val, lambda(function f) {
-       if(functionp(f)) return function_object(f)->query("_priority");
-       return 5;
-    });
-    sort(s,val);
-    real_tag_callers[c]=mkmapping(ind,val);
-  }
-  foreach(indices(real_container_callers), string c)
-  {
-    ind = indices(real_container_callers[c]);
-    val = values(real_container_callers[c]);
-    sort(ind);
-    s = Array.map(val, lambda(function f) {
-      if (functionp(f)) return function_object(f)->query("_priority");
-      return 5;
-    });
-    sort(s,val);
-    real_container_callers[c]=mkmapping(ind,val);
-  }
-}
-
 string|array(string)|int entity_callback(object parser, string entity,
 					 object id, mixed ... extra) {
   string scope, name, encoding;
@@ -552,12 +480,10 @@ string|array(string)|int entity_callback(object parser, string entity,
 void build_callers()
 {
    object o;
-   real_tag_callers = ([]);
-   real_container_callers = ([]);
+   tag_callers = ([]);
+   container_callers = ([]);
    scopes = ([]);
 //   misc_cache = ([]);
-   tag_callers = ({ ([]) });
-   container_callers = ({ ([]) });
 
    parse_modules -= ({0});
 
@@ -570,7 +496,7 @@ void build_callers()
        if(mappingp(foo)) {
 	 if(QUERY(case_insensitive_tag))
 	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
-	 insert_in_map_list(foo, "tag");
+	 tag_callers += foo;
        }
      }
      
@@ -580,7 +506,7 @@ void build_callers()
        if(mappingp(foo)) {
 	 if(QUERY(case_insensitive_tag))
 	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
-	 insert_in_map_list(foo, "container");
+	 container_callers += foo;
        }
      }
      if(o->query_scopes) {
@@ -593,18 +519,20 @@ void build_callers()
        }
      }
    }
-   sort_lists();
    parse_object = Parser.HTML();
-   for(int i = 0; i < sizeof(tag_callers); i++) {
-     parse_object->add_tags(tag_callers[i]);
-     if(QUERY(xml_conformance) == 3)
-       /* Add a "container" for each tag so we can report errors */
-       parse_object->add_containers(mkmapping(indices(tag_callers[i]),
-					      allocate(sizeof(tag_callers[i]),
-						       tag_with_contents)));
-
-     parse_object->add_containers(container_callers[i]);
-   }
+   parse_object->add_tags(mkmapping(indices(tag_callers),
+				    allocate(sizeof(tag_callers),
+					     call_tag)));
+   
+   if(QUERY(xml_conformance) == 3)
+     /* Add a "container" for each tag so we can report errors */
+     parse_object->add_containers(mkmapping(indices(tag_callers),
+					    allocate(sizeof(tag_callers),
+						     tag_with_contents)));
+   
+   parse_object->add_containers(mkmapping(indices(container_callers),
+					  allocate(sizeof(container_callers),
+						   call_container)));
    parse_object->case_insensitive_tag(QUERY(case_insensitive_tag));
    parse_object->ignore_unknown(0);
    parse_object->xml_tag_syntax(QUERY(xml_conformance));
@@ -621,14 +549,14 @@ void add_parse_module(object o)
 {
   parse_modules |= ({o});
   remove_call_out(build_callers);
-  call_out(build_callers,0);
+  call_out(build_callers,1);
 }
 
 void remove_parse_module(object o)
 {
   parse_modules -= ({o});
   remove_call_out(build_callers);
-  call_out(build_callers,0);
+  call_out(build_callers,1);
 }
 
 int may_disable()  { return 0; }
@@ -673,6 +601,11 @@ mapping query_tag_callers() {
 //! Normally, the parser search indefinitely for the entity end character (i.e. ';'). When this flag is set, the characters '&mp;', '&lt;', '&gt;', '"', "'", and any whitespace breaks the search for the entity end, and the entity text is then  ignored, i.e. treated as data. 
 //!  type: TYPE_FLAG
 //!  name: Parse options: Lazy entity end
+//
+//! defvar: recurse_levels
+//! This setting decides how deep the parser should recurse before throwing an error. Recursion happens when a tag or entity returns a simple string as opposed to a string in an array.
+//!  type: TYPE_INT|VAR_MORE
+//!  name: Parse options: Maximum Recursion Level
 //
 //! defvar: match_tag
 //! Unquoted nested tag starters and enders will be balanced when parsing tags. 

@@ -63,8 +63,8 @@ constant module_unique = 1;
 
 int cnum=0;
 mapping scopes;
-array (mapping) tag_callers, container_callers;
-mapping (string:mapping(int:function)) real_tag_callers, real_container_callers;
+mapping (string:mixed) tag_callers, container_callers;
+mapping (string:function) real_tag_callers, real_container_callers;
 int bytes;
 array (object) parse_modules = ({ });
 
@@ -139,7 +139,7 @@ string handle_help(string file, string tag, mapping args)
 
 
 
-string call_user_tag(string tag, mapping args, int line, mixed foo, object id)
+string call_user_tag(string tag, mapping args, int line, object id)
 {
   id->misc->line = line;
   args = id->misc->defaults[tag]|args;
@@ -161,7 +161,7 @@ string call_user_tag(string tag, mapping args, int line, mixed foo, object id)
 }
 
 string call_user_container(string tag, mapping args, string contents, int line,
-			 mixed foo, object id)
+			   object id)
 {
   id->misc->line = line;
   args = id->misc->defaults[tag]|args;
@@ -187,11 +187,11 @@ string call_user_container(string tag, mapping args, string contents, int line,
   return r;
 }
 
-string call_tag(string tag, mapping args, int line, int i,
+string call_tag(string tag, mapping args, int line, 
 		object id, object file, mapping defines,
 		object client)
 {
-  string|function rf = real_tag_callers[tag][i];
+  string|function rf = real_tag_callers[tag];
   id->misc->line = (string)line;
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
   {
@@ -217,12 +217,14 @@ string call_tag(string tag, mapping args, int line, int i,
 
 string query_provides() { return "rxml:core"; }
 
-array(string)|string 
-call_container(string tag, mapping args, string contents, int line,
-	       int i, object id, object file, mapping defines, object client)
+array(string)|string call_container(string tag, mapping args, string contents,
+				    int line, object id, object file,
+				    mapping defines, object client)
 {
+  string|function rf;
   id->misc->line = (string)line;
-  string|function rf = real_container_callers[tag][i];
+
+  rf = real_container_callers[tag];
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
   {
     TRACE_ENTER("container &lt;"+tag+" help&gt", rf);
@@ -257,16 +259,19 @@ string do_parse(string to_parse, object id, object file, mapping defines,
 {
   if(!id->misc->scopes)
     id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
-  if(!id->misc->_tags)
-    id->misc->_tags = copy_value(tag_callers[0]);
-  if(!id->misc->_containers)
-    id->misc->_containers = copy_value(container_callers[0]);
+  if(!id->misc->_tags) {
+    id->misc->_tags = copy_value(tag_callers);
+    id->misc->tags = ([]);
+  }
+  if(!id->misc->_containers) {
+    id->misc->_containers = copy_value(container_callers);
+    id->misc->containers = ([]);
+  }
   id->misc->parse_level ++;
-  to_parse=parse_html_lines(to_parse,id->misc->_tags,id->misc->_containers,
-			    0, id, file, defines, my_fd);
-  for(int i = 1; i<sizeof(tag_callers); i++)
-    to_parse=parse_html_lines(to_parse,tag_callers[i], container_callers[i],
-			      i, id, file, defines, my_fd);
+
+  to_parse =
+    parse_html_lines(to_parse, id->misc->_tags, id->misc->_containers,
+		     id, file, defines, my_fd);
   id->misc->parse_level --;
   return to_parse;
 }
@@ -277,41 +282,35 @@ string tag_list_tags( string t, mapping args, object id, object f )
   string res="";
   if(args->verbose) verbose = 1;
 
-  for(int i = 0; i<sizeof(tag_callers); i++)
+  res += ("<b><font size=+1>Listing of all tags: </b></font><p>");
+  foreach(sort(indices(tag_callers)), string tag)
   {
-    res += ("<b><font size=+1>Tags at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(tag_callers[i])), string tag)
+    res += "  <a name=\""+replace(tag, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag, "#","%23")+"#"+replace(tag, "#", ".")+"\">&lt;"+tag+"&gt;</a></a><br>";
+    if(verbose || id->variables->verbose == tag)
     {
-      res += "  <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#","%23")+"#"+replace(tag+i, "#", ".")+"\">&lt;"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_tag(tag, (["help":"help"]), 
-			  id->misc->line,i,
+      res += "<blockquote><table><tr><td>";
+      string tr;
+      catch(tr = call_tag(tag, (["help":"help"]), 
+			  id->misc->line,
 			  id, f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
+      if(tr) res += tr; else res += "no help";
+      res += "</td></tr></table></blockquote>";
     }
   }
-
-  for(int i = 0; i<sizeof(container_callers); i++)
+  
+  res += ("<p><b><font size=+1>Listing of all containers: </b></font><p>");
+  foreach(sort(indices(container_callers)), string tag)
   {
-    res += ("<p><b><font size=+1>Containers at prioity level "+i+": </b></font><p>");
-    foreach(sort(indices(container_callers[i])), string tag)
+    res += " <a name=\""+replace(tag, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag, "#", "%23")+"#"+replace(tag,"#",".")+"\">&lt;"+tag+"&gt;&lt;/"+tag+"&gt;</a></a><br>";
+    if(verbose || id->variables->verbose == tag)
     {
-      res += " <a name=\""+replace(tag+i, "#", ".")+"\"><a href=\""+id->not_query+"?verbose="+replace(tag+i, "#", "%23")+"#"+replace(tag+i,"#",".")+"\">&lt;"+tag+"&gt;&lt;/"+tag+"&gt;</a></a><br>";
-      if(verbose || id->variables->verbose == tag+i)
-      {
-	res += "<blockquote><table><tr><td>";
-	string tr;
-	catch(tr=call_container(tag, (["help":"help"]), "",
-				id->misc->line,
-				i, id,f, id->misc->defines, id->my_fd ));
-	if(tr) res += tr; else res += "no help";
-	res += "</td></tr></table></blockquote>";
-      }
+      res += "<blockquote><table><tr><td>";
+      string tr;
+      catch(tr=call_container(tag, (["help":"help"]), "",
+			      id->misc->line,
+			      id,f, id->misc->defines, id->my_fd ));
+      if(tr) res += tr; else res += "no help";
+      res += "</td></tr></table></blockquote>";
     }
   }
   return res;
@@ -369,82 +368,16 @@ mapping handle_file_extension( object file, string e, object id)
 //	   "expires": time(1) - 100,
 	   ]);
 }
-
-/* parsing modules */
-void insert_in_map_list(mapping to_insert, string map_in_object)
-{
-  function do_call = this_object()["call_"+map_in_object];
-
-  array (mapping) in = this_object()[map_in_object+"_callers"];
-  mapping (string:mapping) in2=this_object()["real_"+map_in_object+"_callers"];
-
-  
-  foreach(indices(to_insert), string s)
-  {
-    if(!in2[s]) in2[s] = ([]);
-    int i;
-    for(i=0; i<sizeof(in); i++)
-      if(!in[i][s])
-      {
-	in[i][s] = do_call;
-	in2[s][i] = to_insert[s];
-	break;
-      }
-    if(i==sizeof(in))
-    {
-      in += ({ ([]) });
-      if(map_in_object == "tag")
-	container_callers += ({ ([]) });
-      else
-	tag_callers += ({ ([]) });
-      in[i][s] = do_call;
-      in2[s][i] = to_insert[s];
-    }
-  }
-  this_object()[map_in_object+"_callers"]=in;
-  this_object()["real_"+map_in_object+"_callers"]=in2;
-}
-
-void sort_lists()
-{
-  array ind, val, s;
-  foreach(indices(real_tag_callers), string c)
-  {
-    ind = indices(real_tag_callers[c]);
-    val = values(real_tag_callers[c]);
-    sort(ind);
-    s = Array.map(val, lambda(function f) {
-       if(functionp(f)) return function_object(f)->query("_priority");
-       return 5;
-    });
-    sort(s,val);
-    real_tag_callers[c]=mkmapping(ind,val);
-  }
-  foreach(indices(real_container_callers), string c)
-  {
-    ind = indices(real_container_callers[c]);
-    val = values(real_container_callers[c]);
-    sort(ind);
-    s = Array.map(val, lambda(function f) {
-      if (functionp(f)) return function_object(f)->query("_priority");
-      return 5;
-    });
-    sort(s,val);
-    real_container_callers[c]=mkmapping(ind,val);
-  }
-}
-
 void build_callers()
 {
    object o;
+   tag_callers=([]);
+   container_callers=([]);
    real_tag_callers=([]);
    real_container_callers=([]);
    scopes = ([]);
-//   misc_cache = ([]);
-   tag_callers=({ ([]) });
-   container_callers=({ ([]) });
 
-   parse_modules-=({0});
+   parse_modules -= ({ 0 });
 
    foreach (parse_modules,o)
    {
@@ -452,13 +385,17 @@ void build_callers()
      if(o->query_tag_callers)
      {
        foo=o->query_tag_callers();
-       if(mappingp(foo)) insert_in_map_list(foo, "tag");
+       if(mappingp(foo)) {
+	 real_tag_callers += foo;
+       }
      }
      
      if(o->query_container_callers)
      {
        foo=o->query_container_callers();
-       if(mappingp(foo)) insert_in_map_list(foo, "container");
+       if(mappingp(foo)) {
+	 real_container_callers += foo;
+       }
      }
      if(o->query_scopes) {
        foo = o->query_scopes();
@@ -470,21 +407,25 @@ void build_callers()
        }
      }
    }
-   sort_lists();
+   tag_callers = mkmapping(indices(real_tag_callers),
+			   allocate(sizeof(real_tag_callers), call_tag));
+   container_callers = mkmapping(indices(real_container_callers),
+				 allocate(sizeof(real_container_callers),
+					  call_container));
 }
 
 void add_parse_module(object o)
 {
   parse_modules |= ({o});
   remove_call_out(build_callers);
-  call_out(build_callers,0);
+  call_out(build_callers,1);
 }
 
 void remove_parse_module(object o)
 {
   parse_modules -= ({o});
   remove_call_out(build_callers);
-  call_out(build_callers,0);
+  call_out(build_callers,1);
 }
 
 int may_disable()  { return 0; }
