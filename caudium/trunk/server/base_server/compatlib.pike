@@ -158,7 +158,7 @@ mapping http_string_answer(string text, string|void type) {
 
 //! Compat call of Caudium.HTTP.make_htmldoc_string
 //! @deprecated
-mapping make_htmldoc_string(string contents, string title, void|mapping meta,
+string make_htmldoc_string(string contents, string title, void|mapping meta,
                             void|mapping|string style, string|void dtype) {
    WCOMPAT("Caudium.HTTP", "make_htmldoc_string");
    return Caudium.HTTP.make_htmldoc_string(contents,title,meta,style,dtype);
