@@ -14,6 +14,7 @@ class CipherSpec {
   int iv_size;
   int key_bits;
   function sign;
+  function verify;
 }
 
 #if 0
@@ -37,14 +38,14 @@ class mac_sha
 
   string hash_raw(string data)
   {
-#ifdef SSL3_DEBUG
-    werror(sprintf("SSL.cipher: hash_raw('%O')\n", data));
+#ifdef SSL3_DEBUG_CRYPT
+    werror(sprintf("SSL.cipher: hash_raw(%O)\n", data));
 #endif
     
     object h = algorithm();
     string res = h->update(data)->digest();
-#ifdef SSL3_DEBUG
-    werror(sprintf("SSL.cipher: hash_raw->'%O'\n",res));
+#ifdef SSL3_DEBUG_CRYPT
+    werror(sprintf("SSL.cipher: hash_raw->%O\n",res));
 #endif
     
     return res;
@@ -56,8 +57,8 @@ class mac_sha
 		       "\0\0\0\0\0\0\0\0", seq_num->digits(256),
 		       packet->content_type, strlen(packet->fragment),
 		       packet->fragment);
-#ifdef SSL3_DEBUG
-//    werror(sprintf("SSL.cipher: hashing '%s'\n", s));
+#ifdef SSL3_DEBUG_CRYPT
+//    werror(sprintf("SSL.cipher: hashing %O\n", s));
 #endif
     return hash_raw(secret + pad_2 +
 		    hash_raw(secret + pad_1 + s));
@@ -86,15 +87,65 @@ class mac_md5 {
   constant algorithm = Crypto.md5;
 }
 
-#if 0
-class crypt_none
-{
-  /* Dummy stream cipher */
-  object set_encrypt_key(string k) { return this_object(); }
-  object set_decrypt_key(string k) { return this_object(); }  
-  string crypt(string s) { return s; }
+class mac_hmac_sha {
+
+  string secret;
+  object hmac;
+  
+  string hash(object packet,object seq_num) {
+
+    string s = sprintf("%~8s%c%c%c%2c%s",
+		       "\0\0\0\0\0\0\0\0", seq_num->digits(256),
+		       packet->content_type,
+		       packet->protocol_version[0],packet->protocol_version[1],
+		       strlen(packet->fragment),
+		       packet->fragment);
+
+    return  hmac(secret)(s);
+  }
+
+  void create(string|void s) {
+    secret = s || "";
+    hmac=Crypto.hmac(Crypto.sha);
+  }
 }
-#endif
+
+class mac_hmac_md5 {
+  inherit mac_hmac_sha;
+
+  void create(string|void s) {
+    secret = s || "";
+    hmac=Crypto.hmac(Crypto.md5);
+  }
+}
+
+// Hashfn is either a Crypto.md5 or Crypto.sha 
+static string P_hash(object hashfn,int hlen,string secret,string seed,int len) {
+   
+  Crypto.hmac hmac=Crypto.hmac(hashfn);
+  string temp=seed;
+  string res="";
+  
+  int noblocks=(int)ceil((1.0*len)/hlen);
+
+  for(int i=0 ; i<noblocks ; i++) {
+    temp=hmac(secret)(temp);
+    res+=hmac(secret)(temp+seed);
+  }
+    return res[..(len-1)];  
+} 
+
+string prf(string secret,string label,string seed,int len) { 
+
+  string s1=secret[..(int)(ceil(strlen(secret)/2.0)-1)];
+  string s2=secret[(int)(floor(strlen(secret)/2.0))..];
+
+  string a=P_hash(Crypto.md5,16,s1,label+seed,len);
+  string b=P_hash(Crypto.sha,20,s2,label+seed,len);
+
+  return a ^ b;
+}
+
 
 class des
 {
@@ -139,7 +190,7 @@ object rsa_sign(object context, string cookie, object struct)
     + Crypto.sha()->update(params)->digest();    
       
   object s = context->rsa->raw_sign(digest);
-#ifdef SSL3_DEBUG
+#ifdef SSL3_DEBUG_CRYPT
   werror(sprintf("  Digest: '%O'\n"
 		 "  Signature: '%O'\n",
 		 digest, s->digits(256)));
@@ -147,6 +198,18 @@ object rsa_sign(object context, string cookie, object struct)
   
   struct->put_bignum(s);
   return struct;
+}
+
+int rsa_verify(object context, string cookie, object struct,
+	       object(Gmp.mpz) signature)
+{
+  /* Exactly how is the signature process defined? */
+
+  string params = cookie + struct->contents();
+  string digest = Crypto.md5()->update(params)->digest()
+    + Crypto.sha()->update(params)->digest();
+
+  return context->rsa->raw_verify(digest, signature);
 }
 
 object dsa_sign(object context, string cookie, object struct)
@@ -251,7 +314,7 @@ class dh_key_exchange
 }
 
 /* Return array of auth_method, cipher_spec */
-array lookup(int suite)
+array lookup(int suite,int version)
 {
   object res = CipherSpec();
   int ke_method;
@@ -267,6 +330,7 @@ array lookup(int suite)
   case KE_rsa:
   case KE_dhe_rsa:
     res->sign = rsa_sign;
+    res->verify = rsa_verify;
     break;
   case KE_dhe_dss:
     res->sign = dsa_sign;
@@ -277,7 +341,7 @@ array lookup(int suite)
   default:
     throw( ({ "SSL.cipher.pike: Internal error.\n", backtrace() }) );
   }
-  
+
   switch(algorithms[1])
   {
   case CIPHER_rc4_40:
@@ -353,11 +417,17 @@ array lookup(int suite)
   switch(algorithms[2])
   {
   case HASH_sha:
-    res->mac_algorithm = mac_sha;
+    if(version==1)
+      res->mac_algorithm = mac_hmac_sha;
+    else
+      res->mac_algorithm = mac_sha;
     res->hash_size = 20;
     break;
   case HASH_md5:
-    res->mac_algorithm = mac_md5;
+    if(version==1)
+      res->mac_algorithm = mac_hmac_md5;
+    else
+      res->mac_algorithm = mac_md5;
     res->hash_size = 16;
     break;
   case 0:
