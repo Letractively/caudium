@@ -3,8 +3,8 @@ Changes in Caudium 1.0.14 (final)
 - Removed htmlparse dependency from the Enhanced Directory Listings
   module since we have two parsing modules now.
 - Quote the chars < > @ in http_encode_url and http_encode_string.
-- Removed CAMAS since it's not stable. Use the 1.1 version if you want
-  to use it (either CVS or a snapshot).
+- *** Removed CAMAS since it's not stable. Use the 1.1 version if you want
+  *** to use it (either CVS or a snapshot).
 - Correctly find libraries for various versions of Sablotron (0.50 and
   0.44 tested). 
 - Fixed a bug in Caudium.ParseHTTP->create (http2.pike fix).
