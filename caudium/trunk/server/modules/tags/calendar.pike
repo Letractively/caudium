@@ -518,8 +518,13 @@ string make_monthdays_grid(object id, mapping my_args, object now,
         rcontents += make_container("td", md_cell, ccontents);
     }
 
+    int deckludge = month->month_no() == 12;
+    
     if (weeks && sizeof(weeks) && y <= sizeof(weeks)) {
       int weekno = weeks[y - 1]->week_no();
+
+      if (deckludge && weekno == 1)
+        weekno = 53; // that's what ISO say we should do
       
       if (!aweeks[weekno])
         rcontents += make_container("td", md_weekcell, sprintf("%02d", weekno));
