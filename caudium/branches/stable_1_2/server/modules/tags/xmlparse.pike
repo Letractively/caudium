@@ -366,8 +366,8 @@ call_user_container(object parser, mapping args, string contents,
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   id->misc->line = (string)parser->at_line();
-  if (id->misc->defaults[tag])
-    args = id->misc->defaults[tag];
+  if (id->misc->defaults)
+    args = id->misc->defaults[tag]|args;
   if(!id->misc->up_args) id->misc->up_args = ([]);
   if(args->preparse
      && (args->preparse=="preparse" || (int)args->preparse))
@@ -385,7 +385,7 @@ call_user_container(object parser, mapping args, string contents,
   array replace_to = (({make_tag_attributes( args  ),
 			contents })+
 		      values(args));
-  string r = replace(id->misc->containers[ tag ], replace_from, replace_to);
+  string r = replace((id->misc->containers[ tag ]?id->misc->containers[ tag ]:""), replace_from, replace_to);
   TRACE_LEAVE("");
   return r;
 }
