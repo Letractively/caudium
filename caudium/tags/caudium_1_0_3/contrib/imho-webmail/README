@@ -1,0 +1,28 @@
+This directory contains some addons/patches to imho.
+
+This include new functionnalities, bug fixes and/or new implementations
+of some functions.
+
+Descriptions of the files
+--------------------------
+
+
+imho-0_97_1.diff.bz2 :
+
+ This is the patch against imho 0.97.1 provided in this directory.
+ My employeer use this modified version of IMHO on our production servers
+ for more than 50000 users. So it is a quite stable.
+
+imho-0_98.diff.bz2 :
+ 
+ This is the patch against imho 0.98 provided in this directory
+ Since imho 0.98 seems to works only on Roxen 2.0, we didn't upgrade
+ our servers to roxen 2.0, we didn't go more far.
+
+imho_french.diff.bz2 :
+
+ This is a patch to french language for 0.97.1 (and maybe 0.98, but this
+ is not tested yet !) with a better and more "end user" french. The wording
+ is better and less technical than the original one...
+
+$Id$
