@@ -465,6 +465,8 @@ static void check_array(mapping var, string name)
 //TODO: too many options here, rel is not needed anymore
 static int value_in_range(int val, array(mapping) range, int rel, void|int min, void|int max)
 {
+  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
+
   if (!range || !sizeof(range))
     return 0;
 
@@ -472,9 +474,7 @@ static int value_in_range(int val, array(mapping) range, int rel, void|int min, 
     return 0;
 
   if (!zero_type(max) && val > max)
-    return 0;
-  
-  report_notice("value_in_range: val == %d, range:\n\t%O\n", val, range);
+    return 0;  
   
   int  checks_counter;
   
@@ -1113,26 +1113,35 @@ string calendar_action_tag(string tag, mapping args, string cont,
   if (!myargs->default && !changetypes[id->variables->changetype])
     return "";
 
-  if (id->variables->changetype == "week") {
-    if (!myargs->default && !myargs->week || !id->variables->calweek || ((int)id->variables->calweek <= 0 || (int)id->variables->calweek > 52))
-      return "";
-    else if (!myargs->default && myargs->week != id->variables->calweek)
-      return "";
-  } else {
-    if (!myargs->default) {
-      wanted[0] = (int)(myargs->day || 0);
-      wanted[1] = (int)(myargs->month || 0);
-      wanted[2] = (int)(myargs->year || 0);
-    
-      has[0] = myargs->day ? (int)(id->variables->calday || 0) : 0;
-      has[1] = myargs->month ? (int)(id->variables->calmonth || 0) : 0;
-      has[2] = myargs->year ? (int)(id->variables->calyear || 0) : 0;
-    }
+  if (myargs->default)
+    return parse_rxml(cont, id);
 
-    if (!myargs->default && (wanted[0] != has[0] || wanted[1] != has[1] || wanted[2] == has[2]))
-      return "";
-  }
+  array(mapping)  weeks;
+  array(mapping)  days;
+  array(mapping)  months;
+  array(mapping)  years;
+
+  if (myargs->week && sizeof(myargs->week))
+    weeks = parse_ranges(myargs->week);
+  if (myargs->day && sizeof(myargs->day))
+    days = parse_ranges(myargs->day);
+  if (myargs->month && sizeof(myargs->month))
+    months = parse_ranges(myargs->month);
+  if (myargs->year && sizeof(myargs->year))
+    years = parse_ranges(myargs->year);
+
+  mixed error;
   
+  if (days && sizeof(days) && !value_in_range((int)id->variables->calday, days, 0, 1, 31))
+    return "";
+  if (months && sizeof(months) && !value_in_range((int)id->variables->calmonth, months, 0, 1, 12))
+    return "";
+  if (years && sizeof(years) && !value_in_range((int)id->variables->calyear, years, 1))
+    return "";
+  if (weeks && sizeof(weeks) && !value_in_range((int)id->variables->calweek, weeks, 0, 1, 52))
+    return "";
+
+  // something matches, go ahead.
   string ret = parse_rxml(cont, id);
 
   return ret;
