@@ -40,6 +40,11 @@ int usedefdomain_not_set()
     return(!QUERY(user_usedefdomain));
 }
 
+int useother_not_set()
+{
+    return (QUERY(user_dntype) != "other");
+}
+
 void create()
 {
     defvar("provider_prefix", "lcc", "Provider module prefix", TYPE_STRING,
@@ -77,9 +82,22 @@ void create()
            "<li><strong><code>both</strong></code>. This setting means that the user search "
            "will be performed using both the <code>uid</code> and the <code>mail</code> "
            "attributes. In this case the rules described in the previous section apply.</li>"
+           "<li><strong><code>other</strong></code>. This allows the administrator to "
+           "specify the filter to be used to search the directory.</li>"
            "</ul></blockquote>",
-           ({ "any", "uid", "email", "both"}));
+           ({ "any", "uid", "email", "both", "other"}));
 
+    defvar("user_filter", "&((mail=%m)(uid=%u))", "User auth: LDAP search filter", TYPE_STRING,
+           "This option is used when the <code>other</code> authentication scheme was "
+           "selected as the value of the <em>DN type</em> option. The string here must be a "
+           "valid LDAP filter string and you can use the following macros in it:<br /><blockquote><ul>"
+           "<li><code>%m</code> - mail address as typed by the user in the login screen. If the user "
+           "typed only the user name part, default domain will be appended (if enabled).</li>"
+           "<li><code>%u</code> - user name as typed by the user.</li>"
+           "<li><code>%d</code> - domain name from the user's mail address (or from the default "
+           "domain, if enabled)</li>"
+           "<ul></blockquote>", 0, useother_not_set);
+    
     defvar("user_uidfallback", 0, "User auth: Fallback to UID", TYPE_FLAG,
            "If enabled, the failed <code>email</code> authentication will be attempted "
            "using the <code>uid</code> attribute as explained in the <em>DN type</em> "
@@ -122,6 +140,10 @@ string query_provides()
     return QUERY(provider_prefix) + "_auth";
 }
 
+//
+// Making the DN depends upon the settings in the CIF, see create() above
+// for description of the modes we support
+//
 private string make_dn(object id, string login)
 {}
 
