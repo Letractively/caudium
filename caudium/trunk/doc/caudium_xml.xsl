@@ -4,7 +4,7 @@
 <!-- Caudium doc parsing XSLT stylesheet
      Very early version - don't expect any bells and whistles.
 -->
-<xsl:include href="file:/home/neotron/src/caudium/doc/base_html.xsl"/>
+<xsl:include href="base_html.xsl"/>
 <xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
 <xsl:template match="documentation">
  <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
@@ -20,10 +20,10 @@
 <xsl:template match="module">
   <dt><h2><xsl:value-of select="@name"/></h2></dt>
   <xsl:apply-templates select="description"/>
-  <p><dd><xsl:apply-templates select="inherits"/></dd></p>
+  <p><dd><xsl:apply-templates select="inherits"><xsl:sort select="@link"/></xsl:apply-templates></dd></p>
   <xsl:apply-templates select="type"/>
   <xsl:apply-templates select="version"/>
-  <xsl:apply-templates select="defvars"/>
+  <xsl:apply-templates select="defvars"><xsl:sort/></xsl:apply-templates>
   <xsl:apply-templates select="tags | containers | entities"/>
 </xsl:template>
 
@@ -46,7 +46,7 @@
 <xsl:template match="defvars">
  <xsl:if test="count(defvar) > 0">
   <p><h3>Module Variables:</h3>
-  <dl><xsl:apply-templates select="defvar"/></dl>
+  <dl><xsl:apply-templates select="defvar"><xsl:sort select="@short"/></xsl:apply-templates></dl>
   </p>
  </xsl:if>
 </xsl:template>
@@ -54,7 +54,7 @@
 <xsl:template match="tags">
  <xsl:if test="count(tag) > 0">
   <p><h3>Tags defined in this module:</h3>
-  <dl><xsl:apply-templates select="tag"/></dl>
+  <dl><xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates></dl>
   </p>
  </xsl:if>
 </xsl:template>
@@ -62,14 +62,14 @@
 <xsl:template match="containers">
  <xsl:if test="count(tag) > 0">
   <p><h3>Containers defined in this module:</h3>
-  <dl><xsl:apply-templates select="tag"/></dl></p>
+  <dl><xsl:apply-templates select="tag"><xsl:sort select="@name"/></xsl:apply-templates></dl></p>
  </xsl:if>
 </xsl:template>
 
 <xsl:template match="entities">
  <xsl:if test="count(scope) > 0">
   <p><h3>Entity scopes defined in this module:</h3>
-  <xsl:apply-templates select="scope"/></p>
+  <xsl:apply-templates select="scope"><xsl:sort select="@name"/></xsl:apply-templates></p>
  </xsl:if>
 </xsl:template>
 
@@ -84,6 +84,7 @@
   <dl><dt><b><a name="{@name}">&amp;<xsl:value-of select="@name"/>;</a></b></dt>
   <xsl:apply-templates select="description" mode="tag"/>
   <xsl:apply-templates select="entity">
+    <xsl:sort select="@name"/>
     <xsl:with-param name="scope"><xsl:value-of select="@name"/></xsl:with-param>
   </xsl:apply-templates>
   </dl><hr noshade="noshade" size="1"/>

@@ -9,7 +9,7 @@
  <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
  <page title="Caudium Module Index">
   <h3>List of all Caudium Modules</h3>
-  <dl><xsl:apply-templates select='entry[@type="module"]' mode="top"/></dl>
+  <dl><xsl:apply-templates select='entry[@type="module"]' mode="top"><xsl:sort select="@name"/></xsl:apply-templates></dl>
   <xsl:comment>XSLT Template version $Id$</xsl:comment>
  </page>
 </xsl:template>

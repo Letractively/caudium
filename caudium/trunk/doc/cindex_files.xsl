@@ -12,7 +12,7 @@
   the documentation is far from complete. This reference documentation is ment
   for programmers that want to make custom modules, Pike scripts or want to
   work on the webserver itself.
-  <dl><xsl:apply-templates select='entry[@type="file" or @type="method"]' mode="top"/></dl>
+  <dl><xsl:apply-templates select='entry[@type="file" or @type="method"]' mode="top"></xsl:apply-templates></dl>
   <xsl:comment>XSLT Template version $Id$</xsl:comment>
  </page>
 </xsl:template>
@@ -73,7 +73,7 @@
   <dd><p><xsl:value-of select="description"/></p></dd>
   <xsl:apply-templates select="version"/>
   <dd><hr noshade="" size="1"/></dd>
-  <dd><xsl:apply-templates select="method"/></dd>
+  <dd><xsl:apply-templates select="method"><xsl:sort select="@name"/></xsl:apply-templates></dd>
 </xsl:template>
 
 <xsl:template match="method">
