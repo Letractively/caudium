@@ -1005,6 +1005,7 @@ void check_site()
         flex_write("Killing Caudium...\n");
 	// try to make caudium describing all the threads
         proc->kill(signum("SIGTRAP"));
+				sleep(2);
         proc->kill(signum("SIGKILL"));
       }
     }
@@ -1055,6 +1056,7 @@ void kill_caudium()
     watchdog_off();
     // try to make caudium describing all the threads
     proc->kill(signum("SIGTRAP"));
+		sleep(2);
     proc->kill(signum("SIGKILL"));
   }
 
