@@ -478,21 +478,6 @@ class db
     UNLOCK();
     return bucket;
   }
-  
-  static void mkdirhier(string from)
-  {
-    string a, b;
-    array f;
-
-    f=(from/"/");
-    b="";
-
-    foreach(f[0..sizeof(f)-2], a)
-    {
-      mkdir(b+a);
-      b+=a+"/";
-    }
-  }
 
   object(Table) table(string tname)
   {

@@ -169,38 +169,6 @@ void roxen_perror(string format,mixed ... args)
   stderr->write(format);
 }
 
-// Make a directory hierachy
-int mkdirhier(string from, int|void mode)
-{
-  int r = 1;
-  string a, b;
-  array(string) f;
-
-  f=(from/"/");
-  b="";
-
-  foreach(f[0..sizeof(f)-2], a)
-  {
-    if (query_num_arg() > 1) {
-      mkdir(b+a, mode);
-#if constant(chmod)
-      array(int) stat = caudium_fstat (b + a, 1);
-      if (stat && stat[0] & ~mode)
-	// Race here. Not much we can do about it at this point. :\
-	catch (chmod (b+a, stat[0] & mode));
-#endif
-    }
-    else
-      // 0.6 defaults umask to 0770 for some reason. (This will still
-      // be modified with the process umask.)
-      mkdir(b+a, 0777);
-    b+=a+"/";
-  }
-  if(!r)
-    return (caudium_fstat(from)||({0,0}))[1] == -2;
-  return 1;
-}
-
 /*
  * PDB support
  */
