@@ -62,10 +62,19 @@ void roxen_perror(string format,mixed ... args)
 }
 
 
+// Print an error message
+void report_error(string message, mixed ... args)
+{
+  if(sizeof(args)) message = sprintf(message, @args);
+  werror(message);
+}
+
+/*
 void report_error(string s)
 {
   werror(s);
 }
+*/
 
 void report_fatal(string s)
 {
@@ -540,7 +549,7 @@ string gets(void|int sp)
       s += tmp;
     }
 }
-void main(int argc, string *argv)
+void main(int argc, array argv)
 {
   string host, client, log_dir, domain, var_dir, user, pass, pass2;
   mixed tmp;
