@@ -20,155 +20,177 @@
  */
 
 
-  constant cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
 #define EXPIRE_CHECK 300
 
-  mapping thecache;
-  string namespace;
-  string path;
-  string cache_path;
-  int disk_usage;
-  int _hits, _misses;
+mapping thecache;
+string namespace;
+string path;
+string cache_path;
+int disk_usage;
+int _hits, _misses;
 
-  void create( string _namespace, string _path ) {
-    namespace = _namespace;
-    path = _path;
-    cache_path = Stdio.append_path( path, namespace );
-    thecache = get_index();
-    call_out( expire_cache, EXPIRE_CHECK );
-  }
+void create( string _namespace, string _path ) {
+  namespace = _namespace;
+  path = _path;
+  cache_path = Stdio.append_path( path, namespace );
+  thecache = get_index();
+  call_out( expire_cache, EXPIRE_CHECK );
+}
 
-  mapping get_index() {
-    if ( Stdio.is_dir( cache_path ) ) {
+mapping get_index() {
+  if ( Stdio.is_dir( cache_path ) ) {
 	// Excellent. We already should have data in the cache.
-      array dirs = get_dir( cache_path );
-      if ( sizeof( dirs ) > 0 ) {
-        mapping thecache = ([ ]);
-        foreach( dirs, string dirname ) {
-          object metadata = Stdio.File( Stdio.append_path( cache_path, dirname, "meta" ), "r" );
+    array dirs = get_dir( cache_path );
+    if ( sizeof( dirs ) > 0 ) {
+      mapping thecache = ([ ]);
+      foreach( dirs, string dirname ) {
+        object metadata;
+        if (! catch(  metadata = Stdio.File( Stdio.append_path( cache_path, dirname, "meta" ), "r" ) ) ) {
           string m = metadata->read();
           metadata->close();
           mapping meta = decode_value( m );
           thecache += ([ dirname : meta ]);
           rm( Stdio.append_path( cache_path, dirname, "meta" ) );
         }
-        return thecache;
-      } else {
-        return ([ ]);
       }
+      return thecache;
     } else {
+      return ([ ]);
+    }
+  } else {
 	// Initialise a new cache.
-      if ( Stdio.mkdirhier( cache_path ) ) {
-        return ([ ]);
-      } else {
-        throw( ({ "Error: Unable to create cache directory for: " + namespace, backtrace() }) );
-      }
+    if ( Stdio.mkdirhier( cache_path ) ) {
+      return ([ ]);
+    } else {
+      throw( ({ "Error: Unable to create cache directory for: " + namespace, backtrace() }) );
     }
   }
+}
 
-  string hash( string data ) {
+string hash( string data ) {
+  string retval;
 #if constant(_Lobotomized_Crypto)
-    return _Lobotomized_Crypto.md5()->update( data )->digest();
+  retval = _Lobotomized_Crypto.md5()->update( data )->digest();
 #elseif constant(Crypto)
-    return Crypto.md5()->update( data )->digest();
+  retval = Crypto.md5()->update( data )->digest();
 #else
-    return data;
+  retval = data;
 #endif
-  }
+  return sprintf("%@02x",(array(int)) retval);
+}
 
-  void store( mapping meta ) {
-    meta->create_time = (meta->create_time?meta->create_time:time());
-    meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
-    meta->hits = (meta->hits?meta->hits:0);
-    meta->hash = (meta->hash?meta->hash:hash( meta->name ));
-    switch( meta->type ) {
-    case "stdio":
+void store( mapping meta ) {
+  meta->create_time = (meta->create_time?meta->create_time:time());
+  meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
+  meta->hits = (meta->hits?meta->hits:0);
+  meta->hash = (meta->hash?meta->hash:hash( meta->name ));
+  switch( meta->type ) {
+  case "stdio":
 	// I would like to use nbio for this. Caudium.nbio maybe??
-      string data = meta->object->read();
-      meta->object->close();
-      meta->size = sizeof( data );
-      m_delete( meta, "object" );
-      if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
-        object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object" ), "cw" );
-        f->write( data );
-        f->close();
-        disk_usage += meta->size;
-        thecache += ([ meta->hash : meta ]);
-      }
-      break;
-    default:
-#ifdef DEBUG
-      write( "DISK_CACHE( " + namespace + " ): Unknown object type: " + meta->type + ", discarding.\n" );
-#endif
-      break;
+    string data = meta->object->read();
+    meta->object->close();
+    meta->size = sizeof( data );
+    m_delete( meta, "object" );
+    if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
+      object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object" ), "cw" );
+      f->write( data );
+      f->close();
+      disk_usage += meta->size;
+      thecache += ([ meta->hash : meta ]);
     }
+    break;
+  case "string":
+	// Write the string to disk.
+    string data = meta->object;
+    meta->size = sizeof( data );
+    m_delete( meta, "object" );
+    if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
+      object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object"
+ ), "cw" );
+      f->write( data );
+      f->close();
+      disk_usage += meta->size;
+      thecache += ([ meta->hash : meta ]);
+    }
+    break;
+  default:
+#ifdef DEBUG
+    write( "DISK_CACHE( " + namespace + " ): Unknown object type: " + meta->type + ", discarding.\n" );
+#endif
+    break;
   }
+}
 
-  void|mixed retrieve( string name, void|int object_only ) {
+void|mixed retrieve( string name, void|int object_only ) {
 	// Search the metadata for the object, if we have it then
 	// open a file handle to the file and return it.
 	// Else return 0.
-    string hash = hash( name );
+  string hash = hash( name );
 	// search for the hash in thecache and return it. This could be tricky.
-    if ( thecache[ hash ] ) {
-      thecache[ hash ]->hits++;
-      thecache[ hash ]->last_retrieval = time();
-      _hits++;
-      string object_path = Stdio.append_path( cache_path, hash, "object" );
-      if ( Stdio.exist( object_path ) ) {
-        mapping meta = thecache[ hash ] + ([ ]);
-        meta->object = Stdio.File( object_path, "r" );
-        if ( object_only ) {
-          return meta->object;
-        }
-        return meta;
+  if ( thecache[ hash ] ) {
+    thecache[ hash ]->hits++;
+    thecache[ hash ]->last_retrieval = time();
+    _hits++;
+    string object_path = Stdio.append_path( cache_path, hash, "object" );
+    if ( Stdio.exist( object_path ) ) {
+      mapping meta = thecache[ hash ] + ([ ]);
+      meta->object = Stdio.File( object_path, "r" );
+      if ( object_only ) {
+        return meta->object;
       }
+      return meta;
     }
-    _misses++;
-    return 0;
   }
+  _misses++;
+  return 0;
+}
 
-  void refresh( string name ) {
+void refresh( string name ) {
 	// remove the object from cache.
-    string hash = hash( name );
-    if (thecache[ hash ]) {
-      disk_usage -= thecache[ hash ]->size;
-      m_delete( thecache, hash );
-      Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
-    }
+  string hash = hash( name );
+  if (thecache[ hash ]) {
+    disk_usage -= thecache[ hash ]->size;
+    m_delete( thecache, hash );
+    Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
   }
+}
 
-  void flush() {
+void flush() {
 	// flush the cache.
-    thecache= ([ ]);
-    disk_usage = 0;
-    Stdio.recursive_rm( cache_path );
-    Stdio.mkdirhier( cache_path );
-  }
+  thecache= ([ ]);
+  disk_usage = 0;
+  Stdio.recursive_rm( cache_path );
+  Stdio.mkdirhier( cache_path );
+}
 
-  int usage() {
-    return disk_usage;
-  }
+int usage() {
+  return disk_usage;
+}
 
-  void destroy() {
+void stop() {
 	// Write all the metadata to disk so that we can have some content
 	// when it's time to come back.
 #ifdef DEBUG
-    write( "DISK_CACHE: Destroy() called, writing metadata to disk..\n" );
+  write( "DISK_CACHE: Destroy() called, writing metadata to disk..\n" );
+  write( sprintf( "%O\n", thecache ) );
 #endif
-    foreach( indices( thecache ), string hash ) {
-      string metapath = Stdio.append_path( cache_path, hash, "meta" );
-      object metafile = Stdio.File( metapath, "cw" );
-      metafile->write( encode_value( thecache[ hash ] ) );
-      metafile->close();
-    }
+  foreach( indices( thecache ), string hash ) {
 #ifdef DEBUG
-    write( "DISK_CACHE: All done.\n" );
+    write( "DISK_CACHE: Writing metadata about " + thecache[ hash ]->name + " to " + Stdio.append_path( cache_path,hash,"meta" ) + "\n" );
 #endif
+    string metapath = Stdio.append_path( cache_path, hash, "meta" );
+    object metafile = Stdio.File( metapath, "cw" );
+    metafile->write( encode_value( thecache[ hash ] ) );
+    metafile->close();
   }
+#ifdef DEBUG
+  write( "DISK_CACHE: All done.\n" );
+#endif
+}
 
-  void free( int n ) {
+void free( int n ) {
 	// sort the objects in the cache into a list of the least retrieved
 	// objects since the last time free was called, then simply vape
 	// them one by one until the memory limit is satisfied.
@@ -183,67 +205,67 @@
 	// about caching.
 
 	// First: remove expired objects so that we don't double handle.
-    int _usage = disk_usage;
-    expire_cache( 1 );
+  int _usage = disk_usage;
+  expire_cache( 1 );
 	// Second: check to see if the cache is now n bytes smaller.
-    if ( _usage - disk_usage > n ) {
+  if ( _usage - disk_usage > n ) {
 	// our work here is done.
-      return 0;
-    }
-    int freed;
-    array _hash = ({ });
-    array _hitrate = ({ });
-    foreach( indices( thecache ), string hash ) {
-      _hash += ({ hash });
-      _hitrate += ({ (float)thecache[ hash ]->hits / (float)( time() - thecache[ hash ]->create_time ) });
-    }
-    sort( _hitrate, _hash );
+    return 0;
+  }
+  int freed;
+  array _hash = ({ });
+  array _hitrate = ({ });
+  foreach( indices( thecache ), string hash ) {
+    _hash += ({ hash });
+    _hitrate += ({ (float)thecache[ hash ]->hits / (float)( time() - thecache[ hash ]->create_time ) });
+  }
+  sort( _hitrate, _hash );
 	// Okay, that nastylooking thing was creating arrays of hitrate and the
 	// mapping index for thecache so that we can sort them into a list
 	// of objects with the lowest hitrate.
-    foreach( _hash, string hash ) {
+  foreach( _hash, string hash ) {
 	// Step through the list, in order of lowest hitrate to highest.
-      if ( freed >= n ) {
- 	// If we have freed enough memory then yay!
-        break;
-      }
+    if ( freed >= n ) {
+	// If we have freed enough memory then yay!
+      break;
+    }
 	// Before removing the object, check to see if you can stick it
 	// on the disk.
-      freed += thecache[ hash ]->size;
+    freed += thecache[ hash ]->size;
+    disk_usage -= thecache[ hash ]->size;
+    m_delete( thecache, hash );
+    Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
+  }
+}
+
+void expire_cache( void|int nocallout ) {
+#ifdef DEBUG
+  write( "DISK_CACHE::expire_cache() called.\n" );
+#endif
+    // Remove expired objects.
+  foreach( indices( thecache ), string hash ) {
+    if ( thecache[ hash ]->expires == -1 ) {
+      continue;
+    }
+    if ( thecache[ hash ]->expires <= time() ) {
       disk_usage -= thecache[ hash ]->size;
       m_delete( thecache, hash );
       Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
     }
   }
-
-  void expire_cache( void|int nocallout ) {
-#ifdef DEBUG
-    write( "DISK_CACHE::expire_cache() called.\n" );
-#endif
-    // Remove expired objects.
-    foreach( indices( thecache ), string hash ) {
-      if ( thecache[ hash ]->expires == -1 ) {
-        continue;
-      }
-      if ( thecache[ hash ]->expires <= time() ) {
-        disk_usage -= thecache[ hash ]->size;
-        m_delete( thecache, hash );
-        Stdio.recursive_rm( Stdio.append_path( cache_path, hash ) );
-      }
-    }
-    if ( ! nocallout ) {
-      call_out( expire_cache, EXPIRE_CHECK );
-    }
+  if ( ! nocallout ) {
+    call_out( expire_cache, EXPIRE_CHECK );
   }
+}
 
-  int hits() {
-    return _hits;
-  }
+int hits() {
+  return _hits;
+}
 
-  int misses() {
-    return _misses;
-  }
+int misses() {
+  return _misses;
+}
 
-  int object_count() {
-    return sizeof( thecache );
-  }
+int object_count() {
+  return sizeof( thecache );
+}
