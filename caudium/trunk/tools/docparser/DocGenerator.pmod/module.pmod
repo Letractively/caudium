@@ -288,6 +288,14 @@ class DocGen
         return ret;
     }
     
+    /* Class output */
+    private string f_classes(DocParser.PikeFile f)
+    {
+	string   ret = "";
+	
+	return ret;
+    }
+    
     void do_file(string tdir, DocParser.PikeFile f, Stdio.File ofile)
     {
         /* First take care of the file itself */
@@ -301,6 +309,10 @@ class DocGen
         /* Next the methods */
         if (f->methods)
             ofile->write(f_methods(f));
+	    
+	/* And Classes */
+	if (f->classes)
+	    ofile->write(f_classes(f));
     }
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
