@@ -164,9 +164,9 @@ string get_ldap_logfile(string vpath, string hostname, mapping res) {
 
 string ldap_getvirt(string hostname, object id)
 {
-#ifdef THREADS
-  object key = mutex->lock();
-#endif
+//#ifdef THREADS
+//  object key = mutex->lock();
+//#endif
 
   if ((time() - ldap_last_query) > QUERY(ldap_reconnect))
      ldap_reconnect();
@@ -197,39 +197,40 @@ string ldap_getvirt(string hostname, object id)
 
   DW(sprintf("result->fetch() = %O", res));
 
-#ifdef THREADS
-  destruct(key);
-#endif
+//#ifdef THREADS
+//  destruct(key);
+//#endif
  
-  if (res->homeDirectory)
+  if (res)
   {
      string vpath;
 
-     vpath = (string)res->homeDirectory[0];
+     mixed errtmp = catch {
+        vpath = (string)res->homeDirectory[0];
+     };
 
-     if (vpath[-1] != '/') vpath += "/";
+     if (!errtmp || stringp(vpath)) {
 
-     // owner, hostname, path, ttl
-     virtcache[hostname] = ConfigCache(res->uid[0],
-				       hostname,
-				       vpath + QUERY(wwwdir),
-				       vpath + QUERY(cgidir),
-				       get_ldap_logfile(vpath,hostname,res),
-				       vpath,
-				       res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
-				       res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
-				       QUERY(ttl_positive));
+       if (vpath[-1] != '/') vpath += "/";
 
-     return vpath;
+       // owner, hostname, path, ttl
+       virtcache[hostname] = ConfigCache(res->uid[0],
+  				         hostname,
+				         vpath + QUERY(wwwdir),
+				         vpath + QUERY(cgidir),
+				         get_ldap_logfile(vpath,hostname,res),
+				         vpath,
+				         res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
+				         res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
+				         QUERY(ttl_positive));
+
+       return vpath;
+    }
   }
 
   if (lame_users && hostname[0..3] == "www.")
   {
       string tmphost = hostname[4..];
-
-#ifdef THREADS
-  object key = mutex->lock();
-#endif
 
       mixed err = catch
       {
@@ -248,15 +249,16 @@ string ldap_getvirt(string hostname, object id)
       res = result->fetch();
       ldap_last_query = time();
 
-#ifdef THREADS
-  destruct(key);
-#endif
 
       if (res)
       {
          string vpath;
-    
-         vpath = res->homeDirectory[0];
+         mixed errtmp = catch {
+            vpath = (string)res->homeDirectory[0];
+         };
+
+	 if (err) return 0;
+	 if (!stringp(vpath)) return 0;
     
          if (vpath[-1] != '/') vpath += "/";
     
