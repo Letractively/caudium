@@ -99,4 +99,4 @@ Changes in Caudium 1.3 since Caudium 1.2.1
   initialized).
 - File index.rxml is now recognized as index file.
 - New cache system added
-
+- Updated SQLuserdb to utilize new accept group= code
