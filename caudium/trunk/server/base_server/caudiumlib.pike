@@ -230,7 +230,7 @@ static mapping build_env_vars(string f, object id, string path_info)
 
   catch {
     if(id->my_fd) {
-      new["REMOTE_PORT"] = ipaddr(id->my_fd->query_address(), 1);
+      new["REMOTE_PORT"] = Caudium.get_port(id->my_fd->query_address());
     }
   };
     
