@@ -38,64 +38,68 @@ int verify_0()
   return 1;
 }
 
-
 #include <stat.h>
 
 // Debug functions.  List _all_ open filedescriptors
-inline static private array checkfd_fix_line(string l)
-{
-  array(string) s;
-  s=l/",";
-  if (sizeof(s) > 1) {
-    s[0]=decode_mode((int)("0"+s[0]));
-    if((int)s[1])
-      s[1]=sizetostring((int)s[1]);
-    else
-      s[1]="-";
-    // mode size inode ? ?
-    s[2]=(int)s[3]?s[3]:"-";
-    int m = (int)("0"+s[0]);
-    if(!(S_ISLNK(m)||S_ISREG(m)||S_ISDIR(m)||S_ISCHR(m)||S_ISBLK(m)))
-      s[2]="-";
-    return s[0..2];//*",";
-  }
-  return l/",";
+inline static private string fix_port(string p) {
+  array(string) a = p / " ";
+  if(a[0] == "0.0.0.0") 
+    a[0] = "*";
+  if(a[1] == "0")
+    a[1] = "ANY";
+  return a * ":";
 }
 
 string page_0()
 {
   return
     ("<h1>Active filedescriptors</h1>\n"+
-     //     "<br clear=left><hr>\n"+
-     //     "<table width=100% cellspacing=0 cellpadding=3>\n"+
-     //     "<tr align=right><td>fd</td><td>type</td><td>mode</td>"+
-     //     "<td>size</td><td>inode</td></tr>\n"+
-     sprintf("<pre><b>%-5s  %-9s  %-10s   %-10s   %s</b>\n\n",
-	     "fd", "type", "mode", "size", "inode")+
+     sprintf("<pre><b>%-5s  %-9s  %-10s   %-10s</b>\n\n",
+	     "fd", "type", "mode", "details")+
 	     
      (Array.map(get_all_active_fd(),
 	  lambda(int fd) 
 	  {
-	    string fdc = 
-#ifdef FD_DEBUG
-	      mark_fd(fd)||"";
-#else
-	    "";
-	    
-#endif
-	    catch {
-	      array args = checkfd_fix_line(fd_info(fd));
-	      args = (args[0] / ", ") + args[1..];
-	      args[-2] = ( args[-2] / " " - ({""})) * " ";
-	      args[1] = (args[1] - "<tt>") - "</tt>";
-	      //	    werror("%O\n", args);
-	      return sprintf("%-5s  %-9s  %-10s   %-12s  %s    %s",
-			   (string)fd,
-			   @args,
-			   fdc);
-	    };
-	    return "Error when making info list...\n";
-		
+		object f = Stdio.File(fd);
+		object stat = f->stat();
+
+		string type = ([
+			"reg":"File",
+			"dir":"Dir",
+			"lnk":"Link",
+			"chr":"Special",
+			"blk":"Device",
+			"fifo":"FIFO",
+			"sock":"Socket",
+			"unknown":"Unknown",
+		])[stat->type] || "Unknown";
+
+		// Doors are not standardized yet....
+		if ((type == "Unkown") && ((stat->mode & 0xf000) == 0xd000))
+			type = "Door";
+
+		string details = "-";
+
+		if(stat->isreg) 
+			details = Caudium.sizetostring(stat->size);
+		if(stat->ino)
+			details += sprintf(", inode: %d", stat->ino);
+		else if (stat->issock) {
+			string remote_port = f->query_address();
+			string local_port = f->query_address(1);
+			if(!remote_port) {
+				if(local_port && (local_port != "0.0.0.0 0")) {
+					type = "Port";
+					details = fix_port(local_port);
+				}
+			} else {
+				details = sprintf("%s &lt;=&gt; %s",
+						local_port?fix_port(local_port):"-",
+						fix_port(remote_port));
+			}
+		}
+		return sprintf("%-5s  %-9s  %-10s  %-12s",
+				(string)fd, type, stat->mode_string, details);
 	  })*"\n")+
      "</pre>");
 }
