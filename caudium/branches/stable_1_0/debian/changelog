@@ -1,3 +1,10 @@
+caudium (2:1.0.37-3) unstable; urgency=high
+
+  * Fixed the dependency screwup. Not sure how did it happen...
+    (closes: #130235)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 21 Jan 2002 12:36:37 +0100
+
 caudium (2:1.0.37-2) unstable; urgency=medium
 
   * Latest CVS snapshot
