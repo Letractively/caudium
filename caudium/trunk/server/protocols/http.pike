@@ -280,6 +280,55 @@ private int really_set_config(array mod_config)
 		 "Content-Length: 0\r\n\r\n");
   }
   return 2;
+
+}
+
+// handle the encryption of the body data
+// this is usually just the case for the POST method
+static void handle_body_encryption(int content_length)
+{
+  string content_type =lower_case(
+    (((request_headers["content-type"]||"")+";")/";")[0]-" "); 
+  switch(content_type)
+  {
+    default: // Normal form data.
+      string v;
+      if ( method != "POST" )
+	return; // no encryption if not POST method
+      if(content_length < 200000)
+	Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
+					   ({"", ""})), variables);
+      break;
+      
+    case "multipart/form-data":
+      object messg = MIME.Message(data, request_headers);
+      foreach(messg->body_parts||({}), object part) {
+	if(part->disp_params->filename) {
+	  variables[part->disp_params->name]=part->getdata();
+	  string fname=part->disp_params->filename;
+	  if( part->headers["content-disposition"] ) {
+	    array fntmp=part->headers["content-disposition"]/";";
+	    if( sizeof(fntmp) >= 3 && search(fntmp[2],"=") != -1 ) {
+	      fname=((fntmp[2]/"=")[1]);
+	      fname=fname[1..(sizeof(fname)-2)];
+	    }
+	  }
+	  variables[part->disp_params->name+".filename"]=fname;
+		
+	  if(!misc->files)
+	    misc->files = ({ part->disp_params->name });
+	  else
+	    misc->files += ({ part->disp_params->name });
+	} 
+	else {
+	  if(variables[part->disp_params->name])
+	    variables[part->disp_params->name] += "\0" + part->getdata();
+	  else
+	    variables[part->disp_params->name] = part->getdata();
+	}
+      }
+      break;
+  }
 }
 
 private static mixed f, line;
@@ -471,64 +520,28 @@ private int parse_got()
       array(string) y;
       switch(linename) {
        case "content-length":
-	misc->len = (int)(request_headers[linename]-" ");
-	if(!misc->len) continue;
-	if(method == "POST")
-	{
-	  if(!data) data="";
-	  int l = misc->len;
-	  wanted_data=l;
-	  have_data=strlen(data);
+	
+	 // read the data on every request, even though some methods 
+	 // dont require request bodies
+	 misc->len = (int)(request_headers[linename]-" ");
+	 if(!misc->len) continue;
+	
+	 // only the POST method should have a body
+	 // read the data in any case though
+	 if(!data) data="";
+	 int l = misc->len;
+	 wanted_data=l;
+	 have_data=strlen(data);
 
-	  if(strlen(data) < l)
-	  {
-	    REQUEST_WERR("HTTP: parse_request(): More data needed in POST.");
-	    return 0;
-	  }
-	  leftovers = data[l..];
-	  data = data[..l-1];
-	  switch(lower_case((((request_headers["content-type"]||"")+";")/";")[0]-" "))
-	  {
-	   default: // Normal form data.
-	    string v;
-	    if(l < 200000)
-	      Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
-						 ({"", ""})), variables);
-	    break;
-
-	   case "multipart/form-data":
-	    //		perror("Multipart/form-data post detected\n");
-	    object messg = MIME.Message(data, request_headers);
-	    foreach(messg->body_parts||({}), object part) {
-	      if(part->disp_params->filename) {
-			variables[part->disp_params->name]=part->getdata();
-            string fname=part->disp_params->filename;
-            if( part->headers["content-disposition"] ) {
-               array fntmp=part->headers["content-disposition"]/";";
-               if( sizeof(fntmp) >= 3 && search(fntmp[2],"=") != -1 ) {
-                       fname=((fntmp[2]/"=")[1]);
-                       fname=fname[1..(sizeof(fname)-2)];
-               }
-
-           }
-		variables[part->disp_params->name+".filename"]=fname;
-
-		if(!misc->files)
-		  misc->files = ({ part->disp_params->name });
-		else
-		  misc->files += ({ part->disp_params->name });
-	      } else {
-		if(variables[part->disp_params->name])
-		  variables[part->disp_params->name] += "\0" + part->getdata();
-		else
-		  variables[part->disp_params->name] = part->getdata();
-	      }
-	    }
-	    break;
-	  }
-	}
-	break;
-	  
+	 if(strlen(data) < l)
+	 {
+	   REQUEST_WERR("HTTP: parse_request(): More data needed.");
+	   return 0;
+	 }
+	 leftovers = data[l..];
+	 data = data[..l-1];
+	 handle_body_encryption(l);
+	 break;
        case "authorization":
 	rawauth = request_headers[linename];
 	y = rawauth / " ";
