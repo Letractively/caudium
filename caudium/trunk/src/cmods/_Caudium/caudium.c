@@ -46,6 +46,15 @@ RCSID("$Id$");
 # endif
 #endif
 
+#define THISOBJ (Pike_fp->current_object)
+
+/*#define C_DEBUG 1 */
+#ifdef C_DEBUG
+# define DERR(X) do { fprintf(stderr, "** _Caudium.(%p):%d: ", THISOBJ, __LINE__); X; } while (0)
+#else
+# define DERR(X)
+#endif
+
 /* AIX requires this to be the first thing in the file.  */
 #ifndef __GNUC__
 # if HAVE_ALLOCA_H
@@ -1160,11 +1169,7 @@ INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_f
 
   out_len = in_len + (unsafe << 1) + 1;
 
-#ifdef HAVE_ALLOCA
-  out = alloca(out_len);
-#else
   out = malloc(out_len);
-#endif
   if (!out)
     Pike_error("Out of memory.");
 
@@ -1179,10 +1184,8 @@ INLINE static struct pike_string *do_encode_stuff(struct pike_string *in, safe_f
 
   *o++ = 0;
   
-#if !defined(HAVE_ALLOCA)
   if (out)
     free(out);
-#endif
   
   return make_shared_string(out);
 }
@@ -1393,8 +1396,10 @@ static void f_http_encode_url(INT32 args)
   struct pike_string *ret;
   struct pike_string *src;
 
+  DERR(fprintf(stderr,"Calling http_encode_url\n"));
   get_all_args("_Caudium.http_encode_url", args, "%S", &src);
 
+  DERR(fprintf(stderr,"Calling http_encode_url, encode the stuff\n"));
   ret = do_encode_stuff(src, is_url_safe);
 
   /* no need to convert	*/
@@ -1403,6 +1408,7 @@ static void f_http_encode_url(INT32 args)
     return;
   }	
 
+  DERR(fprintf(stderr,"Calling http_encode_url, send result\n"));
   pop_n_elems(args);
   push_string(ret);
 }
