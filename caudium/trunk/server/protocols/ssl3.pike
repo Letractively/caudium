@@ -672,7 +672,7 @@ void destroy()
   };
 }
 
-void create(object f, object c)
+void create(void|object f, void|object c)
 {
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:create(X, X)\n"));
