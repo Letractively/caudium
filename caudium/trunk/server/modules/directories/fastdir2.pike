@@ -65,10 +65,10 @@ void create()
   defvar("readme", 1, "Include readme files", TYPE_FLAG,
 	 "If set, include readme files in directory listings");
 
-  defvar("header","","Header",TYPE_STRING,
+  defvar("header","","Header",TYPE_TEXT_FIELD,
          "The HTML text to include before the listing of the directory.");
 
-  defvar("footer","","Footer",TYPE_STRING,
+  defvar("footer","","Footer",TYPE_TEXT_FIELD,
          "The HTML text to include at the end of the listing.");
 
 }
@@ -242,11 +242,11 @@ mapping parse_directory(object id)
 //
 //! defvar: header
 //! The HTML text to include before the listing of the directory.
-//!  type: TYPE_STRING
+//!  type: TYPE_TEXT_FIELD
 //!  name: Header
 //
 //! defvar: footer
 //! The HTML text to include at the end of the listing.
-//!  type: TYPE_STRING
+//!  type: TYPE_TEXT_FIELD
 //!  name: Footer
 //
