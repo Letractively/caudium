@@ -29,7 +29,7 @@
  *
  */
 
-//! module: VHS - Virtual Hosting System - SQL
+//! module: VHS - Virtual Hosting System - LDAP
 //!  Basic Virtual Hosting module (LDAP)
 //! inherits: module
 //! inherits: caudiumlib
