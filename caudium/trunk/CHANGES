@@ -1,5 +1,30 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Added make_html_tag, make_html_container, make_html_tag_attributes that 
+  output HTML compliant strings escaping any unsafe characters (only " 
+  actually).
+   (David Gourdelier)
+- Added make_xml_tag, make_xml_container, make_xml_tag_attributes that
+  output XML compliant strings escaping any unsafe characters.
+   (David Gourdelier)
+- Modifed make_tag, make_container, make_tag_attributes so that you can
+  output either HTML or XML strings with the value of the last argument of 
+  these functions.
+  You can give id->misc->is_xml as the last argument of these functions and
+  it'll automatically output the correct string format according to the
+  headers of your RXML template.
+  Default to HTML output (exactly the same output as Caudium 1.2).
+   (David Gourdelier)
+- Added Caudium.xml_encode_mapping and Caudium.html_encode_mapping that
+  respectivly encode the key/value pairs of a mapping into a XML or HTML safe
+  key/value pairs. This should be much faster than doing the same in Pike.
+   (David Gourdelier)
+- Added an option to _make_tag_attributes so that you can specify the 
+  encoding to use, can be HTML or XML (default to HTML).
+   (David Gourdelier)
+- Fixed a bug that prevent the quoting of " in _make_tag_attributes as well
+  as some missing encoding for XML.
+   (David Gourdelier)
 - Fixed try_get_file so that it can run in 2nd level virtual hosting mode.
    (Bertrand Lupart)
 - Fixed htaccess module so that it can run in 2nd level virtual hosting mode.
