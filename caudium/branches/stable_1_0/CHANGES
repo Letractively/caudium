@@ -42,6 +42,8 @@ Changes in Caudium 1.0 Release 1
   path).
 - Added timeout for sending connections to work around problem in Pike where
   remotely closed connections aren't handled correctly. 
+- Removed the bug-causing directory override feature. If you need to list
+  directories, don't put an index.html in it.
 
 Changes in Caudium 1.0.10 (RC2, released 2000-12-14)
 ----------------------------------------------------
