@@ -783,6 +783,28 @@ static void f_extension( INT32 args ) {
   }
 }
 
+/*
+** Some function like http_decode_url
+** Since there is some calls inside this code, it should be good to use it.
+*/
+static void f_http_decode_url(INT32 args) {
+  struct pike_string *tmp;
+  struct pike_string *src;
+
+  if(Pike_sp[-1].type != T_STRING)
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_decode_url",1,"string");
+  src =  Pike_sp[-1].u.string;
+  if(src->size_shift) {
+    Pike_error("_Caudium.http_decode_url(): Only 8-bits strings allowed.\n");
+  }
+  tmp = url_decode(src->str, src->len, 0);
+  if(tmp==NULL) {
+    Pike_error("_Caudium.http_decode_url(): Out of memory in url_decode().\n");
+  }
+  pop_stack();
+  push_string(tmp);
+}
+
 
 /* Some basic http function to speedup caudium (and gets more free from Pike 
    changing things... */
@@ -867,9 +889,12 @@ static void f_http_encode(INT32 args)
 ** returns:
 **  Decoded string
 */
+/*
+ * FIXME: this don't works well yet
+ */
 static void f_http_decode(INT32 args) 
 {
-  char *o, *out, *in;
+  unsigned char *o, *out, *in;
   unsigned char *i;
   struct pike_string *ret;
   int in_len, check;
@@ -924,7 +949,7 @@ static void f_http_decode(INT32 args)
     i++;
   }
 
-  *o = '\0';
+  /* *o = '\0'; */
   pop_n_elems(args);
   push_string(end_shared_string(ret));
 }
@@ -1403,6 +1428,8 @@ void pike_module_init( void )
   add_function_constant( "http_encode_cookie", f_http_encode_cookie,
                          "function(string:string)", 0);
   add_function_constant( "http_encode_url", f_http_encode_url,
+                         "function(string:string)", 0);
+  add_function_constant( "http_decode_url", f_http_decode_url,
                          "function(string:string)", 0);
 
   start_new_program();
