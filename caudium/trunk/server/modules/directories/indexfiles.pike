@@ -70,7 +70,7 @@ mapping parse_directory(object id)
   {
     mapping result;
     id->not_query = oq+file;
-    if(result=caudium->get_file(id)) 
+    if(result=id->conf->low_get_file(id)) 
       return result; // File found, return it.
   }
   id->not_query = oq;
