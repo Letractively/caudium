@@ -1,5 +1,9 @@
 Changes in Caudium 1.3.21 since Caudium 1.3.19
 ----------------------------------------------
+- Ported Bill's roxenlib patch for iVend (see 
+  http://hww3.riverweb.com/dist/ivend/patches/roxenlib_quote.patch for more
+  informations).
+   (Xavier Beaudouin)
 - Removed ISMAP from server templates and sort server templates by 
   filename.
    (Bil Welliver) 
