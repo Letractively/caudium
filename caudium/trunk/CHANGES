@@ -1,7 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
 - Caudium.cern_http_date() used instead of Pike's base_server/http.pike one.
-  *COMPAT Warning* Directs calls cern_http_date() works only when API_COMPAT
+  *COMPAT Warning* Direct calls to cern_http_date() work only when API_COMPAT
   is set.
 - *COMPAT Warning* Dims module is now removed. Use Image.Dims instead.
 - Caudium now _requires_ Pike 7.4.1+
