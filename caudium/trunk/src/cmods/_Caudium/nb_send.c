@@ -19,8 +19,7 @@
  */
 
 /* Non-blocking sending of a string and/or data from a file object
- * to another file object. I.e data pipe function.
- */
+ * to another file object. I.e data pipe function. */
 
 #include "global.h"
 RCSID("$Id$");
@@ -99,6 +98,7 @@ static void alloc_nb_struct(struct object *obj) {
   THIS->last_input = NULL;
   THIS->outp       = NULL;
   THIS->buf        = NULL;
+  THIS->objread    = NULL;
   THIS->cb.type    = T_INT;
   THIS->args.type  = T_INT;
   THIS->args.u.integer = 0;
@@ -107,7 +107,7 @@ static void alloc_nb_struct(struct object *obj) {
 }
 
 /* Free an input */
-static void free_input(input *inp) {
+static INLINE void free_input(input *inp) {
   DERR(fprintf(stderr, "Freeing input 0x%x\n", (unsigned int)inp));
   ninputs--;
   switch(inp->type) {
@@ -226,8 +226,33 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 }
 
 
+
+/* Allocate the temporary read buffer */
+static INLINE void alloc_data_buf(void) {
+  THIS->buf = malloc(READ_BUFFER_SIZE);
+  nbuffers ++;
+  sbuffers += READ_BUFFER_SIZE;
+  if(THIS->buf == NULL) {
+    Pike_error("Failed to allocate read buffer.\n");
+  }
+}
+
+/* Allocate the temporary read buffer */
+static INLINE void free_data_buf(void) {
+  if(THIS->objread != NULL) {
+    free_string(THIS->objread);
+    THIS->objread = NULL;
+    THIS->buf = NULL;
+  } else if(THIS->buf != NULL) {
+    free(THIS->buf);
+    nbuffers --;
+    sbuffers -= READ_BUFFER_SIZE;
+    THIS->buf = NULL;
+  }
+}
+
 /* free output object */
-static void free_output(output *outp) {
+static INLINE  void free_output(output *outp) {
   noutputs--;
   free_object(outp->file);
   free(outp);
@@ -243,12 +268,7 @@ static void free_nb_struct(struct object *obj) {
     free_output(THIS->outp);
     THIS->outp = NULL;
   }
-  if(THIS->buf != NULL) {
-    nbuffers--;
-    sbuffers -= READ_BUFFER_SIZE;
-    free(THIS->buf);
-    THIS->buf = NULL;
-  }
+  free_data_buf();
   free_svalue(&THIS->args);
   free_svalue(&THIS->cb);
   THIS->cb.type = T_INT; 
@@ -352,7 +372,7 @@ static void f_write(INT32 args) {
  */
 static void finished(void)
 {
-  DERR(fprintf(stderr, "Done writing (%d sent)\n", THIS->written));
+  DERR(fprintf(stderr, "Done writing (%d sent)\n", (INT32)THIS->written));
 
   while(THIS->inputs != NULL) {
     free_input(THIS->inputs);
@@ -371,46 +391,56 @@ static void finished(void)
   }
 }
 
-
-
 /* This function reads some data from the file cache..
  * Called when we want some data to send.
  */
-static void read_data(void)
+static INLINE void read_data(void)
 {
   int buf_size = READ_BUFFER_SIZE;
   NBIO_INT_T to_read  = 0;
   char *rd;
   input *inp;
+  THIS->buf_pos = 0;
 
-  if(!THIS->buf) {
-    /* Allocate the temporary read buffer */
-    THIS->buf = malloc(READ_BUFFER_SIZE);
-    nbuffers ++;
-    sbuffers += READ_BUFFER_SIZE;
-    if(THIS->buf == NULL) {
-      Pike_error("Failed to allocate read buffer.\n");
-    }
-  }
   while((inp = THIS->inputs) && buf_size) {
     if(inp->type == NBIO_OBJ) {
-      if(inp->len != -1) 
-	to_read = MIN(buf_size, inp->len - inp->pos);
-      else
-	to_read = buf_size;
       if(inp->fd != -1) {
-	char *ptr = THIS->buf+THIS->buf_len;
+	char * ptr;
+	if(THIS->buf == NULL) {
+	  alloc_data_buf();
+	}
+	if(inp->len != -1) 
+	  to_read = MIN(buf_size, inp->len - inp->pos);
+	else
+	  to_read = buf_size;
+	
+	ptr = THIS->buf+THIS->buf_len;
 	THREADS_ALLOW();
 	to_read = fd_read(inp->fd, ptr, to_read);
 	THREADS_DISALLOW();
 	DERR(fprintf(stderr, "read %ld from file (%d free)\n",
 		     (long)to_read, buf_size));
       } else {
+	if(THIS->buf_len != 0) {
+	  /* We have other data. This read replaces that data and thus
+	   * needs to be taken care of.
+	   */
+	  return;
+	}
+	to_read = READ_BUFFER_SIZE;
 	push_int(to_read);
 	push_int(1);
 	apply_low(inp->u.file, inp->read_off, 2);
-	if(Pike_sp[-1].type == T_INT) to_read = Pike_sp[-1].u.integer;
-	else to_read = 0;
+	if(Pike_sp[-1].type == T_STRING) {
+	  free_data_buf();
+	  add_ref(THIS->objread = Pike_sp[-1].u.string);
+	  THIS->buf     = THIS->objread->str;
+	  buf_size = to_read = THIS->objread->len;
+	} else if(Pike_sp[-1].type == T_INT && Pike_sp[-1].u.integer == 0) {
+	  to_read = 0;
+	} else {
+	  Pike_error("Incorrect result from read callback, expected string.\n");
+	}
 	pop_stack();
 	DERR(fprintf(stderr, "read %ld from fake file (%d free)\n",
 		     (long)to_read, buf_size));
@@ -515,7 +545,7 @@ static void f__output_write_cb(INT32 args)
       read_data();
     }
     len = THIS->buf_len;
-    buf = THIS->buf;
+    buf = THIS->buf + THIS->buf_pos;
     DERR(fprintf(stderr, "Sending buffered data (%ld bytes left)\n", (long)len));
     THREADS_ALLOW();
     written = fd_write(fd, buf, len);
@@ -541,8 +571,10 @@ static void f__output_write_cb(INT32 args)
     THIS->written += written;
     if(THIS->buf_len) {
       THIS->buf_len -= written;
-      if(THIS->buf_len)
-	MEMCPY(THIS->buf, THIS->buf + written, THIS->buf_len);
+      THIS->buf_pos += written;
+      if(!THIS->buf_len && THIS->objread != NULL) {
+	free_data_buf();
+      }
     }
   }
   pop_n_elems(args-1);
