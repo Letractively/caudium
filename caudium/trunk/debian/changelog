@@ -1,3 +1,9 @@
+caudium (1:1.0.0-8) unstable; urgency=low
+
+  * UltraLog script invocation fixed
+
+ -- Marek Habersack <grendel@vip.net.pl>  Mon, 25 Sep 2000 21:47:36 +0200
+
 caudium (1:1.0.0-7) unstable; urgency=low
 
   * split the caudium-modules package into three separate packages:
