@@ -145,6 +145,17 @@ AC_DEFUN(AC_SYS_OS_COMPILER_FLAG,
   fi
 ])
 
+# Test the following compiler flag only for OS + CPU that NOT 
+# passed in $1 and $2 args
+AC_DEFUN(AC_SYS_NOT_OS_CPU_COMPILER_FLAG,
+ [
+   if test "x$caudium_cv_sys_os" != "x$1"; then
+     if test "`uname -m 2>/dev/null`" != "$2" ; then
+       AC_SYS_COMPILER_FLAG($3,$4,$5)
+     fi
+   fi
+])
+
 # We need some special hacks when running slowaris
 ## Build smartlink
 
@@ -490,7 +501,9 @@ if test $cflags_is_set = no; then
  if test "x${GCC-}" = xyes ; then
   WARN="-W -Wall -Wpointer-arith -Wno-unused -Wstrict-prototypes \
 	-Wpointer-arith  -Wmissing-declarations -Winline -Wcast-align"
-  AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
+  ## -O2 is buggy on FreeBSD/Alpha
+  ##AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
+  AC_SYS_NOT_OS_CPU_COMPILER_FLAG(FreeBSD,alpha,-O2,O2,OPTIMIZE)
   AC_SYS_COMPILER_FLAG(-ffast-math,ffast_math,OPTIMIZE)
   AC_SYS_OS_COMPILER_FLAG(AIX,-mprototype,mprototype,WARN)
 ### Optimize for different SUN machines. If there is no working 'uname'

@@ -1,5 +1,6 @@
 Changes in Caudium 1.2.xx since 1.2.26
 --------------------------------------
+- Avoid use -O2 on FreeBSD Alpha
 - Created new version of uniscript that uses FastCGI to communicate with
   the script interpreter, hopefully providing better performance.
    (Bill Welliver)
