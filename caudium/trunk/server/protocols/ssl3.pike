@@ -33,7 +33,6 @@ mapping to_send;
 #include <stdio.h>
 #include <caudium.h>
 #include <module.h>
-#include <variables.h>
 
 // #define SSL3_DEBUG
 
@@ -376,7 +375,7 @@ void send_result(mapping|void result)
       file = (mapping)tmperr;
     else {  // Fallback error handler.
       if(misc->error_code)
-        file = Caudium.HTTP.low_answer(misc->error_code, errors[misc->error]);
+        file = Caudium.HTTP.low_answer(misc->error_code, Caudium.Const.errors[misc->error]);
       else if(method != "GET" && method != "HEAD" && method != "POST")
         file = Caudium.HTTP.low_answer(501,"Not implemented.");
       else 
@@ -452,7 +451,7 @@ void send_result(mapping|void result)
     if(mappingp(misc->moreheads))
       heads |= misc->moreheads;
     
-    array myheads = ({prot+" "+(file->rettext||errors[file->error])});
+    array myheads = ({prot+" "+(file->rettext||Caudium.Const.errors[file->error])});
     foreach(indices(heads), h)
       if(arrayp(heads[h]))
 	foreach(heads[h], tmp)

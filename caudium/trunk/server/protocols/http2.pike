@@ -31,7 +31,6 @@ inherit RequestID;
 constant cvs_version = "$Id$";
 // HTTP protocol module.
 #include <config.h>
-#include <variables.h>
 private inherit "caudiumlib";
 private inherit "cachelib";
 
@@ -1015,7 +1014,7 @@ void send_result(mapping|void result)
       file = (mapping)tmperr;
     else {  // Fallback error handler.
       if(misc->error_code)
-        file = Caudium.HTTP.low_answer(misc->error_code, errors[misc->error]);
+        file = Caudium.HTTP.low_answer(misc->error_code, Caudium.Const.errors[misc->error]);
       else if(method != "GET" && method != "HEAD" && method != "POST")
         file = Caudium.HTTP.low_answer(501,"Not implemented.");
       else 
@@ -1182,7 +1181,7 @@ void send_result(mapping|void result)
       }
     }
 
-    head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
+    head_string = prot+" "+(file->rettext||Caudium.Const.errors[file->error]) + "\r\n";
     if(file->len > -1) {
       heads["Content-Length"] = (string)file->len;
 #ifdef KEEP_ALIVE
