@@ -30,22 +30,20 @@
  * now defined - but only within the scope of http_error_handler.
  */
 
-/*
- **! file: etc/include/http_error.h
- **!  This file implemented a new and improved error handler that let's
- **!  the administrator implement themed error messages on a per-server
- **!  basis.
- */
+
+//! file: etc/include/http_error.h
+//!  This file implemented a new and improved error handler that let's
+//!  the administrator implement themed error messages on a per-server
+//!  basis.
+//! cvs_version: $Id$
 
 
-/*
- **! class: http_error_handler
- **!  This is the new HTTP error handler, which tried to make all the error
- **!  messages look constant and nice in a per-server basis.
- **!  A possible fixme is the need to clear the template file out of the
- **!  on a change. I will look at this in the near future.
- **! name: http_error_handler - new and pretty HTTP error handler.
- */
+//! class: http_error_handler
+//!  This is the new HTTP error handler, which tried to make all the error
+//!  messages look constant and nice in a per-server basis.
+//!  A possible fixme is the need to clear the template file out of the
+//!  on a change. I will look at this in the near future.
+//! name: http_error_handler - new and pretty HTTP error handler.
 class http_error_handler {
 
   inherit "caudiumlib";

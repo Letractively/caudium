@@ -19,11 +19,12 @@
  *
  */
 
-//! file: base_server/configuration.pike
-//!   Caudium's Configuration InterFace (CIF) main handler
-//! inherits: caudiumlib
-//! inherits: logformat
-//! cvs_version: $Id$
+/*
+**! file: base_server/configuration.pike
+**!   Caudium's Configuration InterFace (CIF) main handler
+**!
+**! cvs_version: $Id$
+*/
 
 string cvs_version = "$Id$";
 #include <module.h>
@@ -114,6 +115,8 @@ void killvar(string name)
   m_delete(variables, name);
 }
 
+//! class: ConfigurableWrappe
+//!  To be documented
 static class ConfigurableWrapper
 {
   int mode;
@@ -186,6 +189,8 @@ string comment()
   return QUERY(comment);
 }
 
+//! class: Priority
+//!  To be documented.
 class Priority 
 {
   array (object) url_modules = ({ });
@@ -231,6 +236,8 @@ array (object) allocate_pris()
 }
 
 #ifndef __AUTO_BIGNUM__
+//! class: Bignum
+//!  Bignum handler.
 class Bignum {
 #if constant(Gmp.mpz) // Perfect. :-)
   object gmp = Gmp.mpz();
@@ -2027,6 +2034,8 @@ public array stat_file(string file, object id)
   TRACE_LEAVE("Returning 'no such file'");
 }
 
+//! class: StringFile
+//!  To be documented.
 class StringFile
 {
   string data;
@@ -3637,6 +3646,8 @@ void low_enable_all_modules() {
 
 #ifdef ENABLE_RAM_CACHE
 // Cacher for super request speed.
+//! class: DataCache
+//!  To be docmented
 class DataCache
 {
   mapping(string:array(string|mapping(string:mixed))) cache = ([]);
