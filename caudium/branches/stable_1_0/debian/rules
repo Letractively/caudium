@@ -128,7 +128,7 @@ binary-indep: build install
 binary-arch: DH_OPTIONS=-a
 binary-arch: build install
 	# Need this version of debhelper for DH_OPTIONS to work.
-	dh_testversion 1.1.17
+#	dh_testversion 1.1.17
 	dh_testdir
 	dh_testroot
 	dh_installdebconf
@@ -142,7 +142,8 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installmanpages
 #	dh_installinfo
-	dh_undocumented htpasswd-caudium.1 ultrasum.1 pixsl.1
+	dh_undocumented htpasswd-caudium.1 pixsl.1
+	dh_undocumented -pcaudium-ultralog ultrasum.1
 	dh_installchangelogs CHANGES
 	dh_strip
 	dh_link
