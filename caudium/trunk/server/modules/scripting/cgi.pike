@@ -761,9 +761,9 @@ class CGIScript
 
     environment =(QUERY(env)?getenv():([]));
     environment |= global_env;
-    environment |= build_env_vars( id->realfile, id, id->misc->path_info );
+    environment |= Caudium.Env.build_vars( id->realfile, id, id->misc->path_info );
     if(QUERY(Enhancements))
-      environment |= build_caudium_env_vars(id);
+      environment |= Caudium.Env.build_caudium_vars(id);
     if(id->misc->ssi_env)
       environment |= id->misc->ssi_env;
     if(id->misc->is_redirected)

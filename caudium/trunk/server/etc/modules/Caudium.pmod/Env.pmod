@@ -166,7 +166,7 @@ mapping build_vars(string f, object id, string path_info) {
   new["REMOTE_ADDR"]=addr;
     
   if (caudiump()->quick_ip_to_host(addr) != addr)
-    new["REMOTE_HOST"]=caudium->quick_ip_to_host(addr);
+    new["REMOTE_HOST"]=caudiump()->quick_ip_to_host(addr);
 
   catch {
     if(id->my_fd) {
@@ -221,7 +221,7 @@ mapping build_vars(string f, object id, string path_info) {
 //!  accessible from the request id object.
 //! @fixme
 //!  RIS code.
-static mapping build_caudium_vars(object id) {
+mapping build_caudium_vars(object id) {
   mapping new = ([]);
   mixed tmp;
 

@@ -893,7 +893,7 @@ string tag_echo(string tag,mapping m,object id,object file,
     // Variables set with !--#set.
     return _Roxen.html_encode_string(id->misc->ssi_variables[m->var]);
 
-  mapping myenv =  build_env_vars(0,  id, 0);
+  mapping myenv =  Caudium.Env.build_vars(0,  id, 0);
   m->var = lower_case(replace(m->var, " ", "_"));
   switch(m->var)
   {

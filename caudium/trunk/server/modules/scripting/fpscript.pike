@@ -67,7 +67,7 @@ constant module_unique = 1;
 
 mapping build_env_vars(string f, object id, string|void path_info)
 {
-  mapping new = ::build_env_vars(f, id, path_info);
+  mapping new = Caudium.Env.build_vars(f, id, path_info);
 #ifdef FPSCRIPT_DEBUG
   werror(sprintf("%O\n", new));
 #endif /* FPSCRIPT_DEBUG */

@@ -112,10 +112,10 @@ void init_log_file()
 
 mapping my_build_env_vars(string f, object id, string|void path_info)
 {
-  mapping new = build_env_vars(f, id, path_info);
+  mapping new = Caudium.Env.build_vars(f, id, path_info);
 
   if(QUERY(Enhancements))
-    new |= build_caudium_env_vars(id);
+    new |= Caudium.Env.build_caudium_vars(id);
 
 #if 0
   // Not needed here...
