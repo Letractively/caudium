@@ -35,8 +35,8 @@ class conn {
 
   object sslfile;
 
-  string message = "<html><head><title>SSL-3 server</title></head>\n"
-  "<body><h1>This is a minimal SSL-3 http server</h1>\n"
+  string message = "<html><head><title>CaudiumSSL-3 server</title></head>\n"
+  "<body><h1>This is a minimal CaudiumSSL-3 http server</h1>\n"
   "<hr><it>/nisse</it></body></html>\n";
   int index = 0;
 
@@ -115,10 +115,10 @@ int main()
 #ifdef SSL3_DEBUG
   werror(sprintf("Cert: '%s'\n", Crypto.string_to_hex(my_certificate)));
   werror(sprintf("Key:  '%s'\n", Crypto.string_to_hex(my_key)));
-//  werror(sprintf("Decoded cert: %O\n", SSL.asn1.ber_decode(my_certificate)->get_asn1()));
+//  werror(sprintf("Decoded cert: %O\n", CaudiumSSL.asn1.ber_decode(my_certificate)->get_asn1()));
 #endif
 #if 0
-  array key = SSL.asn1.ber_decode(my_key)->get_asn1()[1];
+  array key = CaudiumSSL.asn1.ber_decode(my_key)->get_asn1()[1];
 #ifdef SSL3_DEBUG
   werror(sprintf("Decoded key: %O\n", key));
 #endif

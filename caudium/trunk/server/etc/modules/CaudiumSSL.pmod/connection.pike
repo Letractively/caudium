@@ -1,6 +1,6 @@
 /* $Id$
  *
- * SSL packet layer
+ * CaudiumSSL packet layer
  */
 
 
@@ -18,7 +18,7 @@ inherit "constants";
 inherit "handshake";
 
 constant Queue = ADT.Queue;
-constant State = SSL.state;
+constant State = CaudiumSSL.state;
 
 constant PRI_alert = 1;
 constant PRI_urgent = 2;
@@ -53,7 +53,7 @@ static object recv_packet(string data)
   mixed res;
 
 #ifdef SSL3_DEBUG
-//  werror(sprintf("SSL.connection->recv_packet(%O)\n", data));
+//  werror(sprintf("CaudiumSSL.connection->recv_packet(%O)\n", data));
 #endif
   if (left_over || !packet)
   {
@@ -73,7 +73,7 @@ static object recv_packet(string data)
       return current_read_state->decrypt_packet(packet,version[1]);
     } else {
 #ifdef SSL3_DEBUG
-      werror(sprintf("SSL.connection->recv_packet(): current_read_state is zero!\n"));
+      werror(sprintf("CaudiumSSL.connection->recv_packet(): current_read_state is zero!\n"));
 #endif /* SSL3_DEBUG */
       return 0;
     }
@@ -90,7 +90,7 @@ void send_packet(object packet, int|void priority)
 
 
   #ifdef SSL3_FRAGDEBUG
-  werror(" SSL.connection->send_packet: strlen(packet)="+strlen(packet)+"\n");
+  werror(" CaudiumSSL.connection->send_packet: strlen(packet)="+strlen(packet)+"\n");
   #endif
   if (!priority)
     priority = ([ PACKET_alert : PRI_alert,
@@ -100,16 +100,16 @@ void send_packet(object packet, int|void priority)
 #ifdef SSL3_DEBUG
 #if 0
   if (packet->content_type == 22)
-    werror(sprintf("SSL.connection->send_packet() called from:\n"
+    werror(sprintf("CaudiumSSL.connection->send_packet() called from:\n"
 		   "%s\n", describe_backtrace(backtrace())));
 #endif
-  werror(sprintf("SSL.connection->send_packet: type %d, %d, '%O'\n",
+  werror(sprintf("CaudiumSSL.connection->send_packet: type %d, %d, '%O'\n",
 		 packet->content_type, priority,  packet->fragment[..5]));
 #endif
   switch (priority)
   {
   default:
-    throw( ({"SSL.connection->send_packet: internal error\n", backtrace() }) );
+    throw( ({"CaudiumSSL.connection->send_packet: internal error\n", backtrace() }) );
   case PRI_alert:
     alert::put(packet);
     break;
@@ -137,7 +137,7 @@ string|int to_write()
     return "";
 
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.connection: writing packet of type %d, %O\n",
+  werror(sprintf("CaudiumSSL.connection: writing packet of type %d, %O\n",
 		 packet->content_type, packet->fragment[..6]));
 #endif
   if (packet->content_type == PACKET_alert)
@@ -168,20 +168,20 @@ int handle_alert(string s)
   if (! (ALERT_levels[level] && ALERT_descriptions[description]))
   {
     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.connection->handle_alert: invalid alert\n", backtrace()));
+		      "CaudiumSSL.connection->handle_alert: invalid alert\n", backtrace()));
     return -1;
   }
   if (level == ALERT_fatal)
   {
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.connection: Fatal alert %d\n", description));
+    werror(sprintf("CaudiumSSL.connection: Fatal alert %d\n", description));
 #endif
     return -1;
   }
   if (description == ALERT_close_notify)
   {
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.connection: Close notify  alert %d\n", description));
+    werror(sprintf("CaudiumSSL.connection: Close notify  alert %d\n", description));
 #endif
     return 0;
 //     return 1;			// looses data
@@ -189,7 +189,7 @@ int handle_alert(string s)
   if (description == ALERT_no_certificate)
   {
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.connection: No certificate  alert %d\n", description));
+    werror(sprintf("CaudiumSSL.connection: No certificate  alert %d\n", description));
 #endif
 
     if ((certificate_state == CERT_requested) && (auth_level == AUTHLEVEL_ask))
@@ -204,7 +204,7 @@ int handle_alert(string s)
     }
   }
   else
-    werror(sprintf("SSL.connection: Received warning alert %d\n", description));
+    werror(sprintf("CaudiumSSL.connection: Received warning alert %d\n", description));
   return 0;
 }
 
@@ -213,7 +213,7 @@ int handle_change_cipher(int c)
   if (!expect_change_cipher || (c != 1))
   {
 #ifdef SSL3_DEBUG
-    werror("SSL.connection: handle_change_cipher: Unexcepted message!");
+    werror("CaudiumSSL.connection: handle_change_cipher: Unexcepted message!");
 #endif
     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1]));
     return -1;
@@ -249,7 +249,7 @@ string|int got_data(string|int s)
     if (packet->is_alert)
     { /* Reply alert */
 #ifdef SSL3_DEBUG
-      werror("SSL.connection: Bad received packet\n");
+      werror("CaudiumSSL.connection: Bad received packet\n");
 #endif
       send_packet(packet);
       if (alert_callback)
@@ -260,7 +260,7 @@ string|int got_data(string|int s)
     else
     {
 #ifdef SSL3_DEBUG
-      werror(sprintf("SSL.connection: received packet of type %d\n",
+      werror(sprintf("CaudiumSSL.connection: received packet of type %d\n",
 		     packet->content_type));
 #endif
       switch (packet->content_type)

@@ -60,9 +60,9 @@ string client_random;
 string server_random;
 
 constant Struct = ADT.struct;
-constant Session = SSL.session;
-constant Packet = SSL.packet;
-constant Alert = SSL.alert;
+constant Session = CaudiumSSL.session;
+constant Packet = CaudiumSSL.packet;
+constant Alert = CaudiumSSL.alert;
 
 
 #ifdef SSL3_PROFILING
@@ -115,12 +115,12 @@ object server_hello_packet()
 
   string data = struct->pop_data();
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.handshake: Server hello: '%O'\n", data));
+  werror(sprintf("CaudiumSSL.handshake: Server hello: '%O'\n", data));
 #endif
   return handshake_packet(HANDSHAKE_server_hello, data);
 }
 
-SSL.packet client_hello()
+CaudiumSSL.packet client_hello()
 {
   object struct = Struct();
   /* Build client_hello message */
@@ -141,7 +141,7 @@ SSL.packet client_hello()
   string data = struct->pop_data();
 
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.handshake: Client hello: '%O'\n", data));
+  werror(sprintf("CaudiumSSL.handshake: Client hello: '%O'\n", data));
 #endif
 
   return handshake_packet(HANDSHAKE_client_hello, data);
@@ -229,7 +229,7 @@ object client_key_exchange_packet()
   case KE_dh_anon:
     werror("FIXME: Not handled yet\n");
     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.session->handle_handshake: unexpected message\n",
+		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
     return 0;
     break;
@@ -282,7 +282,7 @@ int reply_new_session(array(int) cipher_suites, array(int) compression_methods)
     
     int len = `+( @ Array.map(context->certificates, strlen));
 #ifdef SSL3_DEBUG
-//    werror(sprintf("SSL.handshake: certificate_message size %d\n", len));
+//    werror(sprintf("CaudiumSSL.handshake: certificate_message size %d\n", len));
 #endif
     struct->put_uint(len + 3 * sizeof(context->certificates), 3);
     foreach(context->certificates, string cert)
@@ -352,7 +352,7 @@ string server_derive_master_secret(string data)
   switch(session->ke_method)
   {
   default:
-    throw( ({ "SSL.handshake: internal error\n", backtrace() }) );
+    throw( ({ "CaudiumSSL.handshake: internal error\n", backtrace() }) );
 #if 0
     /* What is this for? */
   case 0:
@@ -366,7 +366,7 @@ string server_derive_master_secret(string data)
        * requested and received a client certificate of type
        * rsa_fixed_dh or dss_fixed_dh. Not supported. */
 #ifdef SSL3_DEBUG
-      werror("SSL.handshake: Client uses implicit encoding if its DH-value.\n"
+      werror("CaudiumSSL.handshake: Client uses implicit encoding if its DH-value.\n"
 	     "               Hanging up.\n");
 #endif
       send_packet(Alert(ALERT_fatal, ALERT_certificate_unknown,version[1]));
@@ -384,7 +384,7 @@ string server_derive_master_secret(string data)
 	} || !struct->is_empty())
       {
 	send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.session->handle_handshake: unexpected message\n",
+		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
 	return 0;
       }
@@ -422,7 +422,7 @@ string server_derive_master_secret(string data)
 	* Finished-message (or some other invalid message) has been *
 	* recieved. */
 
-       werror("SSL.handshake: Invalid premaster_secret! "
+       werror("CaudiumSSL.handshake: Invalid premaster_secret! "
 	      "A chosen ciphertext attack?\n");
        premaster_secret = context->random(48);
        rsa_message_was_bad = 1;
@@ -433,7 +433,7 @@ string server_derive_master_secret(string data)
 	* for a version rollback attack. */
 #ifdef SSL3_DEBUG
        if (premaster_secret[1] > 0)
-	 werror("SSL.handshake: Newer version detected in key exchange message.\n");
+	 werror("CaudiumSSL.handshake: Newer version detected in key exchange message.\n");
 #endif
      }
      break;
@@ -497,8 +497,8 @@ mapping state_descriptions = lambda()
 
 mapping type_descriptions = lambda()
 {
-  array inds = glob("HANDSHAKE_*", indices(SSL.constants));
-  array vals = map(inds, lambda(string ind) { return SSL.constants()[ind]; });
+  array inds = glob("HANDSHAKE_*", indices(CaudiumSSL.constants));
+  array vals = map(inds, lambda(string ind) { return CaudiumSSL.constants()[ind]; });
   return mkmapping(vals, inds);
 }();
 
@@ -537,7 +537,7 @@ int handle_handshake(int type, string data, string raw)
   addRecord(type,0);
 #endif
 #ifdef SSL3_DEBUG_HANDSHAKE_STATE
-  werror("SSL.handshake: state %s, type %s\n",
+  werror("CaudiumSSL.handshake: state %s, type %s\n",
 	 describe_state(handshake_state), describe_type(type));
   werror("strlen(data)="+strlen(data)+"\n");
 #endif
@@ -545,7 +545,7 @@ int handle_handshake(int type, string data, string raw)
   switch(handshake_state)
   {
   default:
-    throw( ({ "SSL.handshake: internal error\n", backtrace() }) );
+    throw( ({ "CaudiumSSL.handshake: internal error\n", backtrace() }) );
   case STATE_server_wait_for_hello:
    {
      array(int) cipher_suites;
@@ -562,7 +562,7 @@ int handle_handshake(int type, string data, string raw)
      {
      default:
        send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			 "SSL.session->handle_handshake: unexpected message\n",
+			 "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			 backtrace()));
        return -1;
      case HANDSHAKE_client_hello:
@@ -592,28 +592,28 @@ int handle_handshake(int type, string data, string raw)
 	  || (version[0] != 3) || (version[1] > 1) || (cipher_len & 1))
 	{
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			    "SSL.session->handle_handshake: unexpected message\n",
+			    "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			    backtrace()));
 	  return -1;
 	}
 
 #ifdef SSL3_DEBUG
 	if (!input->is_empty())
-	  werror("SSL.connection->handle_handshake: "
+	  werror("CaudiumSSL.connection->handle_handshake: "
 		 "extra data in hello message ignored\n");
       
 	if (version[1] > 1)
-	  werror(sprintf("SSL.handshake->handle_handshake: "
+	  werror(sprintf("CaudiumSSL.handshake->handle_handshake: "
 			 "Version %d.%d hello detected\n", @version));
 	
 	if (strlen(id))
-	  werror(sprintf("SSL.handshake: Looking up session %O\n", id));
+	  werror(sprintf("CaudiumSSL.handshake: Looking up session %O\n", id));
 #endif
 	session = strlen(id) && context->lookup_session(id);
 	if (session)
 	  {
 #ifdef SSL3_DEBUG
-	    werror(sprintf("SSL.handshake: Reusing session %O\n", id));
+	    werror(sprintf("CaudiumSSL.handshake: Reusing session %O\n", id));
 #endif
 	    /* Reuse session */
 	  reuse = 1;
@@ -648,7 +648,7 @@ int handle_handshake(int type, string data, string raw)
      case HANDSHAKE_hello_v2:
       {
 #ifdef SSL3_DEBUG
-	werror("SSL.handshake: SSL2 hello message received\n");
+	werror("CaudiumSSL.handshake: SSL2 hello message received\n");
 #endif
 	int ci_len;
 	int id_len;
@@ -663,18 +663,18 @@ int handle_handshake(int type, string data, string raw)
 	|| (version[0] != 3))
 	{
 #ifdef SSL3_DEBUG
-	  werror(sprintf("SSL.handshake: Error decoding SSL2 handshake:\n"
+	  werror(sprintf("CaudiumSSL.handshake: Error decoding SSL2 handshake:\n"
 			 "%s\n", describe_backtrace(err)));
 #endif /* SSL3_DEBUG */
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.session->handle_handshake: unexpected message\n",
+		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
 	  return -1;
 	}
 
 #ifdef SSL3_DEBUG
 	if (version[1] > 1)
-	  werror(sprintf("SSL.connection->handle_handshake: "
+	  werror(sprintf("CaudiumSSL.connection->handle_handshake: "
 			 "Version %d.%d hello detected\n", @context->version));
 #endif
 
@@ -685,7 +685,7 @@ int handle_handshake(int type, string data, string raw)
 	} || !input->is_empty()) 
 	{
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.session->handle_handshake: unexpected message\n",
+		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
 	  return -1;
 	}
@@ -707,7 +707,7 @@ int handle_handshake(int type, string data, string raw)
     {
     default:
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     case HANDSHAKE_finished:
@@ -722,7 +722,7 @@ int handle_handshake(int type, string data, string raw)
 	 } || !input->is_empty())
 	   {
 	     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			       "SSL.session->handle_handshake: unexpected message\n",
+			       "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			       backtrace()));
 	     return -1;
 	   }
@@ -733,7 +733,7 @@ int handle_handshake(int type, string data, string raw)
 	 } || !input->is_empty())
 	   {
 	     send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			       "SSL.session->handle_handshake: unexpected message\n",
+			       "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			       backtrace()));
 	     return -1;
 	   }
@@ -749,7 +749,7 @@ int handle_handshake(int type, string data, string raw)
 	 if(my_digest != digest)
 	   SSL3_DEBUG_MSG("digests differ\n");
 	 send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-		      "SSL.session->handle_handshake: unexpected message\n",
+		      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 		      backtrace()));
 	 return -1;
        }
@@ -777,7 +777,7 @@ int handle_handshake(int type, string data, string raw)
     {
     default:
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     case HANDSHAKE_client_key_exchange:
@@ -787,7 +787,7 @@ int handle_handshake(int type, string data, string raw)
       if (certificate_state == CERT_requested)
       { /* Certificate should be sent before key exchange message */
 	send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			  "SSL.session->handle_handshake: unexpected message\n",
+			  "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			  backtrace()));
 	return -1;
       }
@@ -820,7 +820,7 @@ int handle_handshake(int type, string data, string raw)
        if (certificate_state != CERT_requested)
        {
 	 send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			   "SSL.session->handle_handshake: unexpected message\n",
+			   "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			   backtrace()));
 	 return -1;
        }
@@ -833,7 +833,7 @@ int handle_handshake(int type, string data, string raw)
        } || !input->is_empty())
        {
 	 send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			   "SSL.session->handle_handshake: unexpected message\n",
+			   "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			   backtrace()));
 	 return -1;
        }	
@@ -849,7 +849,7 @@ int handle_handshake(int type, string data, string raw)
     {
     default:
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     case HANDSHAKE_certificate_verify:
@@ -866,7 +866,7 @@ int handle_handshake(int type, string data, string raw)
 	} || verification_ok)
 	{
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			    "SSL.session->handle_handshake: verification of"
+			    "CaudiumSSL.session->handle_handshake: verification of"
 			    " CertificateVerify message failed\n",
 			    backtrace()));
 	  return -1;
@@ -887,7 +887,7 @@ int handle_handshake(int type, string data, string raw)
     if(type != HANDSHAKE_server_hello)
     {
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     }
@@ -909,7 +909,7 @@ int handle_handshake(int type, string data, string raw)
 	// The server tried to trick us to use some other cipher suite
 	// or compression method than we wanted
 	send_packet(Alert(ALERT_fatal, ALERT_handshake_failure,version[1],
-			  "SSL.session->handle_handshake: handshake failure\n",
+			  "CaudiumSSL.session->handle_handshake: handshake failure\n",
 			  backtrace()));
 	return -1;
       }
@@ -935,7 +935,7 @@ int handle_handshake(int type, string data, string raw)
     {
     default:
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     case HANDSHAKE_certificate:
@@ -964,7 +964,7 @@ int handle_handshake(int type, string data, string raw)
 	  {
 	    werror("Other certificates than rsa not supported!\n");
 	    send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			      "SSL.session->handle_handshake: unexpected message\n",
+			      "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			      backtrace()));
 	    return -1;
 	  }
@@ -975,7 +975,7 @@ int handle_handshake(int type, string data, string raw)
 	{
 	  werror("Failed to decode certificate!\n");
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			    "SSL.session->handle_handshake: unexpected message\n",
+			    "CaudiumSSL.session->handle_handshake: unexpected message\n",
 			    backtrace()));
 	  return -1;
 	}
@@ -999,7 +999,7 @@ int handle_handshake(int type, string data, string raw)
 	    || !verification_ok)
 	{
 	  send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			    "SSL.session->handle_handshake: verification of"
+			    "CaudiumSSL.session->handle_handshake: verification of"
 			    " ServerKeyExchange message failed\n",
 			    backtrace()));
 	  return -1;
@@ -1033,7 +1033,7 @@ int handle_handshake(int type, string data, string raw)
     
 	int len = `+( @ Array.map(context->certificates, strlen));
 #ifdef SSL3_DEBUG
-	//    werror(sprintf("SSL.handshake: certificate_message size %d\n", len));
+	//    werror(sprintf("CaudiumSSL.handshake: certificate_message size %d\n", len));
 #endif
 	struct->put_uint(len + 3 * sizeof(context->certificates), 3);
 	foreach(context->certificates, string cert)
@@ -1068,7 +1068,7 @@ int handle_handshake(int type, string data, string raw)
       SSL3_DEBUG_MSG("Expected type HANDSHAKE_finished(%d), got %d\n",
 		     HANDSHAKE_finished, type);
       send_packet(Alert(ALERT_fatal, ALERT_unexpected_message,version[1],
-			"SSL.session->handle_handshake: unexpected message\n",
+			"CaudiumSSL.session->handle_handshake: unexpected message\n",
 			backtrace()));
       return -1;
     }
@@ -1077,7 +1077,7 @@ int handle_handshake(int type, string data, string raw)
     }
   }
 #ifdef SSL3_DEBUG
-//  werror(sprintf("SSL.handshake: messages = '%O'\n", handshake_messages));
+//  werror(sprintf("CaudiumSSL.handshake: messages = '%O'\n", handshake_messages));
 #endif
   return 0;
 }

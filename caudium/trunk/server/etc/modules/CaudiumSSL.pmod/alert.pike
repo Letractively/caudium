@@ -15,9 +15,9 @@ constant is_alert = 1;
 object create(int l, int d, int version,string|void m, mixed|void t)
 {
   if (! ALERT_levels[l])
-    throw( ({ "SSL.alert->create: Invalid level\n", backtrace() }));
+    throw( ({ "CaudiumSSL.alert->create: Invalid level\n", backtrace() }));
   if (! ALERT_descriptions[d])
-    throw( ({ "SSL.alert->create: Invalid description\n", backtrace() }));    
+    throw( ({ "CaudiumSSL.alert->create: Invalid description\n", backtrace() }));    
 
   level = l;
   description = d;

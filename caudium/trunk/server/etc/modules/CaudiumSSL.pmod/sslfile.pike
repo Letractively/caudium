@@ -38,14 +38,14 @@ private void ssl_write_callback(mixed id);
 void die(int status)
 {
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.sslfile->die: is_closed = %d\n", is_closed));
+  werror(sprintf("CaudiumSSL.sslfile->die: is_closed = %d\n", is_closed));
 #endif
   if (status < 0)
   {
     /* Other end closed without sending a close_notify alert */
     context->purge_session(this_object());
 #ifdef SSL3_DEBUG
-    werror("SSL.sslfile: Killed\n");
+    werror("CaudiumSSL.sslfile: Killed\n");
 #endif
   }
   is_closed = 1;
@@ -71,12 +71,12 @@ private int queue_write()
 {
   int|string data = to_write();
 #ifdef SSL3_DEBUG_TRANSPORT
-  werror(sprintf("SSL.sslfile->queue_write: '%O'\n", data));
+  werror(sprintf("CaudiumSSL.sslfile->queue_write: '%O'\n", data));
 #endif
   if (stringp(data))
     write_buffer += data;
 #ifdef SSL3_DEBUG_TRANSPORT
-  werror(sprintf("SSL.sslfile->queue_write: buffer = '%O'\n", write_buffer));
+  werror(sprintf("CaudiumSSL.sslfile->queue_write: buffer = '%O'\n", write_buffer));
 #endif
 
   if(!blocking) {
@@ -87,7 +87,7 @@ private int queue_write()
     }
   }
 #ifdef SSL3_DEBUG_TRANSPORT
-  werror("SSL.sslfile->queue_write: end\n");
+  werror("CaudiumSSL.sslfile->queue_write: end\n");
 #endif
   return stringp(data) ? 0 : data;
 }
@@ -95,7 +95,7 @@ private int queue_write()
 void close()
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslfile->close\n");
+  werror("CaudiumSSL.sslfile->close\n");
 #endif
 
   if (is_closed || !socket) return;
@@ -170,7 +170,7 @@ string|int read(string|int ...args) {
 
   default:
 
-    throw( ({ "SSL.sslfile->read: Wrong number of arguments\n",
+    throw( ({ "CaudiumSSL.sslfile->read: Wrong number of arguments\n",
 		backtrace() }) );
   }
   
@@ -222,7 +222,7 @@ string|int read(string|int ...args) {
 int write(string|array(string) s)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslfile->write\n");
+  werror("CaudiumSSL.sslfile->write\n");
 #endif
 
   if (is_closed || !socket) return -1;
@@ -305,13 +305,13 @@ private void write_blocking() {
 private void ssl_read_callback(mixed id, string s)
 {
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.sslfile->ssl_read_callback, connected=%d, handshake_finished=%d\n", connected, handshake_finished));
+  werror(sprintf("CaudiumSSL.sslfile->ssl_read_callback, connected=%d, handshake_finished=%d\n", connected, handshake_finished));
 #endif
   string|int data = got_data(s);
   if (stringp(data))
   {
 #ifdef SSL3_DEBUG
-    werror(sprintf("SSL.sslfile->ssl_read_callback: application_data: '%O'\n", data));
+    werror(sprintf("CaudiumSSL.sslfile->ssl_read_callback: application_data: '%O'\n", data));
 #endif
     if (!connected && handshake_finished)
       {
@@ -356,7 +356,7 @@ private void ssl_read_callback(mixed id, string s)
 private void ssl_write_callback(mixed id)
 {
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.sslfile->ssl_write_callback: handshake_finished = %d\n"
+  werror(sprintf("CaudiumSSL.sslfile->ssl_write_callback: handshake_finished = %d\n"
 		 "blocking = %d, write_callback = %O\n",
 		 handshake_finished, blocking, write_callback));
 #endif
@@ -378,14 +378,14 @@ private void ssl_write_callback(mixed id)
   }
   int res = queue_write();
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.sslport->ssl_write_callback: res = '%O'\n", res));
+  werror(sprintf("CaudiumSSL.sslport->ssl_write_callback: res = '%O'\n", res));
 #endif
   
   if ( !res && !strlen(write_buffer)
        && connected && !blocking && write_callback)
   {
 #ifdef SSL3_DEBUG
-    werror("SSL.sslport->ssl_write_callback: Calling write_callback\n");
+    werror("CaudiumSSL.sslport->ssl_write_callback: Calling write_callback\n");
 #endif
     write_callback(id);
     if (!this_object()) {
@@ -411,7 +411,7 @@ private void ssl_write_callback(mixed id)
 private void ssl_close_callback(mixed id)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslport: ssl_close_callback\n");
+  werror("CaudiumSSL.sslport: ssl_close_callback\n");
 #endif
   if (close_callback && socket) {
     function f = close_callback;
@@ -426,7 +426,7 @@ private void ssl_close_callback(mixed id)
 void set_accept_callback(function(mixed:void) a)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslport: set_accept_callback\n");
+  werror("CaudiumSSL.sslport: set_accept_callback\n");
 #endif
   accept_callback = a;
 }
@@ -436,7 +436,7 @@ function query_accept_callback() { return accept_callback; }
 void set_read_callback(function(mixed,string:void) r)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslport: set_read_callback\n");
+  werror("CaudiumSSL.sslport: set_read_callback\n");
 #endif
   read_callback = r;
   if (strlen(read_buffer)&& socket)
@@ -449,7 +449,7 @@ function query_read_callback() { return read_callback; }
 void set_write_callback(function(mixed:void) w)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslfile->set_write_callback\n");
+  werror("CaudiumSSL.sslfile->set_write_callback\n");
 #endif
   write_callback = w;
   if (w && socket)
@@ -461,7 +461,7 @@ function query_write_callback() { return write_callback; }
 void set_close_callback(function(mixed:void) c)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslport: set_close_callback\n");
+  werror("CaudiumSSL.sslport: set_close_callback\n");
 #endif
   close_callback = c;
 }
@@ -471,7 +471,7 @@ function query_close_callback() { return close_callback; }
 void set_nonblocking(function ...args)
 {
 #ifdef SSL3_DEBUG
-  werror(sprintf("SSL.sslfile->set_nonblocking(%O)\n", args));
+  werror(sprintf("CaudiumSSL.sslfile->set_nonblocking(%O)\n", args));
 #endif
 
   if (is_closed || !socket) return;
@@ -489,7 +489,7 @@ void set_nonblocking(function ...args)
     }
     break;
   default:
-    throw( ({ "SSL.sslfile->set_nonblocking: Wrong number of arguments\n",
+    throw( ({ "CaudiumSSL.sslfile->set_nonblocking: Wrong number of arguments\n",
 		backtrace() }) );
   }
   blocking = 0;
@@ -502,7 +502,7 @@ void set_nonblocking(function ...args)
 void set_blocking()
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslfile->set_blocking\n");
+  werror("CaudiumSSL.sslfile->set_blocking\n");
 #endif
   if (sizeof (write_buffer) && !blocking && socket)
     ssl_write_callback(socket->query_id());
@@ -523,7 +523,7 @@ string query_address(int|void arg)
 void create(object f, object c, int|void is_client, int|void is_blocking)
 {
 #ifdef SSL3_DEBUG
-  werror("SSL.sslfile->create\n");
+  werror("CaudiumSSL.sslfile->create\n");
 #endif
   _fd=f->_fd;
   context = c;

@@ -1,14 +1,14 @@
-Overview of the SSL implementation.
+Overview of the CaudiumSSL implementation.
 
 FILES
 
   alert.pike:      Used for creating the alert packets we transmit.
-  cipher.pike:     Encryption and MAC algorithms used in SSL.
-  connection.pike: SSL packet layer. Inherits handshake.
+  cipher.pike:     Encryption and MAC algorithms used in CaudiumSSL.
+  connection.pike: CaudiumSSL packet layer. Inherits handshake.
                    Described below.
   constants.pike:  Protocol constants.
   context.pike:    "Context" state (see below).
-  handshake.pike:  SSL handshake and key exchange.
+  handshake.pike:  CaudiumSSL handshake and key exchange.
   https.pike:      Dummy https-server. (*)
   packet.pike:     Handle formatting and parsing of packets.
   server.pike:     Not used.
@@ -24,15 +24,15 @@ bit-decay.
 
 STATE
 
-There's lot of state in an SSL-server, at several levels. We start at
+There's lot of state in an CaudiumSSL-server, at several levels. We start at
 the top.
 
-SSL.context keeps the state that is shared by all SSL-connections for
+CaudiumSSL.context keeps the state that is shared by all SSL-connections for
 one server (or one port). It includes policy configuration, a server
 certificate, the server's private key(s), etc. It also includes the
 session cache.
 
-SSL.session: The most important information in a session object is a
+CaudiumSSL.session: The most important information in a session object is a
 choice of encryption algorithms and a "master secret" created by
 keyexchange with a client. Each connection can either do a full key
 exchange to established a new session, or reuse a previously
@@ -43,7 +43,7 @@ sequence or simultaneously.
 It is also possible to change to a new session in the middle of a
 connection.
 
-SSL.handshake keeps the state relevant for SSL handshaking. This
+CaudiumSSL.handshake keeps the state relevant for SSL handshaking. This
 includes a pointer to a context object (which doesn't change), various
 buffers, a pointer to a session object (reuse or created as
 appropriate), and pending read and write states being negotiated.
@@ -53,13 +53,13 @@ current read and write states used for encryption, and pending read
 and write states to be taken into use when the current keyexchange
 handshake is finished.
 
-SSL.connection inherits SSL.handshake, and in addition to the state in
+CaudiumSSL.connection inherits SSL.handshake, and in addition to the state in
 the handshake super class, it contains the current read and write
 states, packet queues. This object is responsible for receiving and
 sending packets, processing handshake packets, and providing a clear
 text packages for some application.
 
-SSL.state: At last, the state objects. As described above, a
+CaudiumSSL.state: At last, the state objects. As described above, a
 connection switches from one set of state objects to another, one or
 more times during its lifetime. Each state object handles a one-way
 stream of packets, and operates in either decryption or encryption
@@ -71,7 +71,7 @@ METHODS and ATTRIBUTES
 When describing these classes in more detail, let's start from the
 other end.
 
-SSL.state
+CaudiumSSL.state
 
   object session
 
@@ -101,7 +101,7 @@ SSL.state
     Encrypts a packet (including deflating and MAC-generation).
 
 
-SSL.session (inherits cipher)
+CaudiumSSL.session (inherits cipher)
 
   string identity
 
@@ -143,7 +143,7 @@ SSL.session (inherits cipher)
     Similar function for the client end.
 
 
-SSL.context
+CaudiumSSL.context
 
   object rsa
 
@@ -223,7 +223,7 @@ SSL.context
     disabled.
 
 
-SSL.handshake
+CaudiumSSL.handshake
 
   int auth_level
 
@@ -254,13 +254,13 @@ SSL.handshake
   void send_packet(object packet, int|void fatal)
 
     Prototype. Must be defined in inheriting classes, i.e.
-    SSL.connection.
+    CaudiumSSL.connection.
 
   int handle_handshake(int type, string data, string raw)
 
     Do handshake processing. Type is one of HANDSHAKE_*, data is the
     contents of the packet, and raw is the raw packet received (needed
-    for supporting SSLv2 hello messages).
+    for supporting CaudiumSSLv2 hello messages).
 
     This function returns 0 if hadshake is in progress, 0 if handshake
     is finished, and -1 if a fatal error occured. It uses the
@@ -271,7 +271,7 @@ SSL.handshake
     Only create(1) is implemented.
 
 
-SSL.connection (inherits SSL.handshake)
+CaudiumSSL.connection (inherits SSL.handshake)
 
   object current_read_state
   object current_write_state

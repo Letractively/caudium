@@ -1,10 +1,10 @@
 #! /usr/bin/env pike
 
-// SSL Client example
+// CaudiumSSL Client example
 
-import SSL.constants;
+import CaudiumSSL.constants;
 
-SSL.sslfile sslfile;
+CaudiumSSL.sslfile sslfile;
 
 void write_callback(mixed id)
 {
@@ -19,14 +19,14 @@ void read_callback(mixed id, string s)
 
 int main(int argc, array(string) argv)
 {
-  SSL.context context = SSL.context();
+  CaudiumSSL.context context = SSL.context();
 
   // Allow only strong crypto
   context->preferred_suites = ({
-    SSL_rsa_with_idea_cbc_sha,
-    SSL_rsa_with_rc4_128_sha,
-    SSL_rsa_with_rc4_128_md5,
-    SSL_rsa_with_3des_ede_cbc_sha,
+    CaudiumSSL_rsa_with_idea_cbc_sha,
+    CaudiumSSL_rsa_with_rc4_128_sha,
+    CaudiumSSL_rsa_with_rc4_128_md5,
+    CaudiumSSL_rsa_with_3des_ede_cbc_sha,
   });
 
   context->random = Crypto.randomness.reasonably_random()->read;
@@ -37,7 +37,7 @@ int main(int argc, array(string) argv)
     exit(-1);
   }
   socket->set_nonblocking();
-  sslfile = SSL.sslfile(socket, context, 1,0);
+  sslfile = CaudiumSSL.sslfile(socket, context, 1,0);
 
   sslfile->set_nonblocking(read_callback, write_callback, exit);
 
