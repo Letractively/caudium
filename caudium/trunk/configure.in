@@ -246,7 +246,7 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 			PIKE=""
 		else
 		   
-		   PIKE_C_INCLUDE=/usr/include/${PIKE##*/}
+		   PIKE_C_INCLUDE=/usr/include/`basename ${PIKE}`
 		   AC_MSG_CHECKING(for C includes in ${PIKE_C_INCLUDE})
 		   if test -d $PIKE_C_INCLUDE; then
 			PIKE_INCLUDE_DIRS="-I$PIKE_C_INCLUDE $PIKE_INCLUDE_DIRS"
