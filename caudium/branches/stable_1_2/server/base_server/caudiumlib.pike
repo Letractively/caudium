@@ -877,6 +877,8 @@ static int is_safe_string(string in)
 
 //! method: string make_tag_attributes(mapping in)
 //!  Convert a mapping with key-value pairs to tag attribute format.
+//!  args whose value equals name -eg ([foo:"foo"])- are output as "foo",
+//!  not "foo=foo" 
 //! arg: mapping in
 //!  The mapping with the attributes
 //! returns:
@@ -900,6 +902,8 @@ static string make_tag_attributes(mapping in)
 
 //! method: string make_tag(string tag, mapping in)
 //!  Build a tag with the specified name and attributes.
+//!  args whose value equals name -eg ([foo:"foo"])- are output as "foo",
+//!  not "foo=foo" 
 //! arg: string tag
 //!  The name of the tag.
 //! arg: mapping in
@@ -916,6 +920,8 @@ static string make_tag(string tag,mapping in)
 
 //! method: string make_container(string tag, mapping in, string contents)
 //!  Build a container with the specified name, attributes and content.
+//!  args whose value equals name -eg ([foo:"foo"])- are output as "foo",
+//!  not "foo=foo" 
 //! arg: string tag
 //!  The name of the container.
 //! arg: mapping in
