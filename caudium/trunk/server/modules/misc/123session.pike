@@ -248,7 +248,7 @@ int session_size_memory() {
 }
 
 int session_size_sql() {
-  object(Sql.sql) con;
+  object con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(QUERY(sql_url));
   string query = "select count(*) as size from variables where region='session'";
@@ -287,18 +287,17 @@ string status() {
 }
 
 void session_gc_memory() {
-  if (!_variables->session) {
-    return;
+  if (_variables->session) {
+    foreach (indices(_variables->session), string session_id) {
+      if (time() > (_variables->session[session_id]->lastusage+QUERY(expire))) {
+        m_delete(_variables->session, session_id);
+      }
+    } 
   }
-  foreach (indices(_variables->session), string session_id) {
-    if (time() > (_variables->session[session_id]->lastusage+QUERY(expire))) {
-      m_delete(_variables->session, session_id);
-    }
-  } 
 }
 
 void session_gc_sql() {
-  object(Sql.sql) con;
+  object con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(QUERY(sql_url));
   int exptime = time()-QUERY(expire);
@@ -348,7 +347,7 @@ mapping (string:mixed) variables_retrieve_memory(string region, string key) {
 }
 
 mapping (string:mixed) variables_retrieve_sql(string region, string key) {
-  object(Sql.sql) con;
+  object con;
 // cd34, 10/4/2001, SQL Caching
   array dbinfo;
   if (QUERY(sql_cache))
@@ -413,7 +412,7 @@ mixed string2values(string encoded_string) {
 }
 
 void variables_store_sql(string region, string key, mapping values) {
-  object(Sql.sql) con;
+  object con;
   function sql_connect = myconf->sql_connect;
   con = sql_connect(QUERY(sql_url));
   con->query("delete from variables where region='"+region+"' and id='"+key+"'");
