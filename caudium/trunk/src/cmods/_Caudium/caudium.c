@@ -510,7 +510,7 @@ void pike_module_init( void )
   add_function( "create", f_buf_create, "function(mapping,mapping:void)", 0 );
   set_exit_callback(free_buf_struct);
   parsehttp_program = end_program();
-  add_program_constant("ParseHTTP", parsehttp_program);
+  add_program_constant("ParseHTTP", parsehttp_program, 0);
 }
 
 /* Restore and exit module */
