@@ -87,7 +87,7 @@ void start(int level, object conf)
 
   if(conf)
   {
-    setup_cache(conf);
+    cache = caudium->cache_manager->get_cache(this_object());
     int timeout=query("cachetimeout");
     int listtimeout=query("listcachetimeout");
   }
@@ -387,14 +387,6 @@ array|int auth(array(string) auth, object id)
 int succ, fail, nouser;
 
 mapping failed  = ([ ]);
-
-private void setup_cache(object conf)
-{
-  if(!conf) return;
-
-  cache=caudium->cache_manager->get_cache(
-	conf->query("MyWorldLocation")+"-auth_cache");
-}
 
 private int low_authenticate(string user, string password)
 {
