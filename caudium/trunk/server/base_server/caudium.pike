@@ -237,6 +237,8 @@ private static void low_shutdown(int exit_code)
       else f->write(""+getpid());
 #endif /* USE_SHUTDOWN_FILE */
 
+      shut_down_cache();
+
       // Try to kill the start-script.
       if(startpid != getpid())
       {
@@ -263,6 +265,16 @@ mapping restart()
                      "docurl":caudium->docurl,
 					 "PWD":getcwd()]));
 } 
+
+void shut_down_cache() {
+#ifdef CACHE_DEBUG
+  roxen_perror( "Calling shutdown on all caches: " );
+#endif
+  cache_manager->stop();
+#ifdef CACHE_DEBUG
+  roxen_perror( "done." );
+#endif
+}
 
 mapping shutdown() 
 {
