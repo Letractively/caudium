@@ -3,12 +3,13 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
-AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h time.h sys/time.h)
-AC_HAVE_FUNCS(mmap munmap free strftime)
+AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h)
+AC_HAVE_FUNCS(mmap munmap free strftime strptime getdate getdate_r)
+AC_HEADER_TIME
 
 dnl Test for snprintf..
 AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
-	AC_MSG_ERROR([Your system lacks the snprintf function. Please send a bug report with OS/environment details to bugs@caudium.info. Caudium can not be built on your system.])])
+AC_MSG_ERROR([Your system lacks the snprintf function. Please send a bug report with OS/environment details to bugs@caudium.info. Caudium can not be built on your system.])])
 
 dnl For _Caudium.cern_http_date() function
 AC_STRUCT_TIMEZONE
