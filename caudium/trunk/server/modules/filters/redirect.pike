@@ -24,14 +24,18 @@
 //!  The redirect module. Redirects requests from one filename to
 //!  another. This can be done using "internal" redirects (much
 //!  like a symbolic link in unix), or with normal HTTP redirects.
-//!
 //!  This third version of the module is backwards compatible with
-//!  version 2.0. The improvements are: <ul>
+//!  version 2.0 and include the following improvements:
+//!  <ul>
 //!  <li>Patterns are matched in the order entered instead of random order.</li>
 //!  <li>Greater control of the type of matching done using keywords.</li>
 //!  <li>Added glob match method.</li>
 //!  <li>Compilation of regular expression is cached, which should greatly
 //!      improve matching speed when there are many regexp patterns.</li>
+//!  <li>Ability to match on host names using the new \"host\" keyword (see 
+//!      module documentation). </li> 
+//!  <li>Ability to insert the query string of the original request in the 
+//!      destination. Can be useful in combination with %p or %f.</li> 
 //!  </ul>
 //! inherits: module
 //! inherits: caudiumlib
@@ -49,18 +53,22 @@ inherit "module";
 inherit "caudiumlib";
 
 constant module_type = MODULE_FIRST;
-constant module_name = "Redirect v3.0";
+constant module_name = "Redirect v3.1";
 constant module_doc  = "\
 The redirect module. Redirects requests from one filename to \
 another. This can be done using \"internal\" redirects (much \
 like a symbolic link in unix), or with normal HTTP redirects. \
 <p>This third version of the module is backwards compatible with \
-version 2.0. The improvements are: <ul> \
+version 2.0 and include the following improvements: <ul> \
  <li>Patterns are matched in the order entered instead of random order.</li> \
  <li>Greater control of the type of matching done using keywords.</li>\
  <li>Added glob match method.</li>\
  <li>Compilation of regular expression is cached, which should greatly \
      improve matching speed when there are many regexp patterns.</li> \
+ <li>Ability to match on host names using the new \"host\" keyword (see \
+     module documentation). </li> \
+ <li>Ability to insert the query string of the original request in the \
+     destination. Can be useful in combination with %p or %f.</li> \
 </ul>";
 
 constant module_unique = 1;
@@ -92,6 +100,23 @@ prefix is added last to the <b>destination</b> location.</dd></p> \n\
 expression.</dd></p> \n\
  \n\
 </dl>\
+New in version 3.1 is modifier keywords which can be used to match on other \
+things than the path, like the full URL or specific HTTP headers. The syntax is \
+<b>matchtype[modifier]</b>. These are all available modifiers: \
+<dl> \
+<p><dt><b>host</b></dt>\
+<dd>This includes the server URL in the string that is matched. It \
+uses the <tt>Host</tt> if available or the configured server URL \
+otherwise. Can be used for simple virtual hosting. </dd> \
+<p><dt><b>header=[name]</b></dt> \
+<dd>Match against the specified HTTP header. This could be for example \
+UserAgent. The name is case-insensitive.</dd> \
+<p><dt><b>var=[name]</b></dt> \
+<dd>Match against the specified variable. This variable could be sent using \
+either the GET method or the POST method. The name is case-sensitive.</dd> \
+<p><dt><b>cookier=[name]</b></dt> \
+<dd>Match against the specified cookie. The name is case-sensitive.</dd> \
+</dl>\
  \n\
 <p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the \n\
 pattern type will be deducted automatically as follows: If \n\
@@ -106,6 +131,12 @@ tokens. They will be replaced after matching is completed as described below.</p
 <dd>The file name of the matched URL without the path.</dd> \n\
 <dt><b>%p</b></dt> \n\
 <dd>The full virtual path of the matched URL excluding the initial /.</dd> \n\
+<dt><b>%q</b></dt> \n\
+<dd>The query string for the requested file, prepended by a question \
+mark. Empty string when no query is available.</dd> \n\
+<dt><b>%Q</b></dt> \n\
+<dd>The raw query string (without prepended question mark). Empty string when \
+no query string is available. \n\
 <dt><b>%u</b></dt> \n\
 <dd>The manually configured server url. This is useful if you want  \n\
 your redirect to be external instead of an internal rewrite and  \n\
@@ -151,6 +182,11 @@ text is an example of the effect of all previous non-described lines.</p> \n\
 	 "<b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />"
 	 "    <font size=\"-1\">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br />"
 
+	 "<b>glob[header=UserAgent]	*MSIE*	http://www.devnull.com/</b><br />"
+	 "    <font size=\"-1\">Ex: redirects all requests from browsers with a UserAgent name matching MSIE to http://www.devnull.com/</font><br />"
+
+	 "<b>prefix[host]	http://oldhost.com/	http://newhost.com/%p%q</b><br />"
+	 "    <font size=\"-1\">Ex: Redirects all requests to the site http://oldhost.com/ to http://newhost.com/, keeping the path and query string.</font><br />"
 	 "</pre></p>"
 	 );
 }
@@ -226,20 +262,77 @@ class GlobMatch {
   }
 }
 
-array patterns;
+class HostModifier {
+  GlobMatch | ExactMatch | RegMatch | PrefixMatch match_obj;
+  void create(GlobMatch | ExactMatch | RegMatch | PrefixMatch _match_obj) {
+    match_obj = _match_obj;
+  }
+  string match(string with, object id) {
+    return match_obj->match(get_host_url(id) + with, id);
+  }
+}
 
+class VarModifier {
+  GlobMatch | ExactMatch | RegMatch | PrefixMatch match_obj;
+  string var;
+  void create(GlobMatch | ExactMatch | RegMatch | PrefixMatch _match_obj,
+	      string _var) {
+    match_obj = _match_obj;
+    var = _var;
+  }
+  string match(string with, object id) {
+    if(id->variables[var]) 
+      return match_obj->match(id->variables[var], id);
+    return 0;
+  }
+}
+
+class CookieModifier {
+  GlobMatch | ExactMatch | RegMatch | PrefixMatch match_obj;
+  string cookie;
+  void create(GlobMatch | ExactMatch | RegMatch | PrefixMatch _match_obj,
+	      string _cookie) {
+    match_obj = _match_obj;
+    cookie = _cookie;
+  }
+  string match(string with, object id) {
+    if(id->cookies[cookie]) 
+      return match_obj->match(id->cookies[cookie], id);
+    return 0;
+  }
+}
+
+class HeaderModifier {
+  GlobMatch | ExactMatch | RegMatch | PrefixMatch match_obj;
+  string header;
+  void create(GlobMatch | ExactMatch | RegMatch | PrefixMatch _match_obj,
+	      string _header) {
+    match_obj = _match_obj;
+    header = lower_case(_header);
+  }
+  string match(string with, object id) {
+    if(id->request_headers[header]) 
+      return match_obj->match(id->request_headers[header], id);
+    return 0;
+  }
+}
+
+array patterns;
+#define CHECK_VALUE() if(!value || !strlen(error)) { report_error("Redirect modifier %s requires a value.\n", modifier); break; }
 void start()
 {
   array a;
   string s;
   array new_patterns = ({});
-
+  
   foreach(replace(QUERY(fileredirect), "\t", " ")/"\n", s)
   {
+    string modifier, value;
     a = s/" " - ({""});
     switch(sizeof(a)) {
     case 3:
-      switch(a[0]) {
+      sscanf(a[0], "%s[%s]", a[0], modifier); // Get modifier if any.
+      switch(lower_case(a[0])) {
       case "exact":
 	new_patterns += ({ ExactMatch(a[1], a[2]) });
 	break;
@@ -247,7 +340,7 @@ void start()
       case "reg":
       case "rx":
 	if(catch(new_patterns += ({ RegMatch(a[1], a[2]) }))) {
-	  werror("Failed to compile pattern "+a[1]+"\n");
+	  report_error("Failed to compile pattern %s\n", a[1]);
 	}
 	break;
       case "glob":
@@ -257,25 +350,49 @@ void start()
 	new_patterns += ({ PrefixMatch(a[1], a[2]) });
 	break;
       default:
-	werror("Invalid redirect keyword: %s\n", a[0]);
+	report_error("Invalid redirect keyword: %s\n", a[0]);
 	break;
       }
+      if(modifier) {
+	sscanf(modifier, "%s=%s", value);
+	switch(lower_case(modifier)) {
+	case "host":
+	  new_patterns[-1] = HostModifier(new_patterns[-1]); 
+	  break;
+	case "var":
+	  CHECK_VALUE();
+	  new_patterns[-1] = VarModifier(new_patterns[-1], value);
+	  break;
+	case "cookie":
+	  CHECK_VALUE();
+	  new_patterns[-1] = CookieModifier(new_patterns[-1], value);
+	  break;
+	case "header":
+	  CHECK_VALUE();
+	  new_patterns[-1] = HeaderModifier(new_patterns[-1], value);
+	  break;
+	}
+      }
       break;
-    case 2:
-      if(search(a[0], "*") != -1) {
+      
+      case 2:
+	if(search(a[0], "*") != -1) {
 	if(catch { 
 	  if(a[0][0] != '^') // compatibility
 	    new_patterns += ({ RegMatch("^"+a[0], a[1]) });
 	  else
 	    new_patterns += ({ RegMatch(@a) });
 	})
-	  werror("Failed to compile pattern "+a[0]+"\n");
+	  report_error("Failed to compile pattern "+a[0]+"\n");
       } else {
 	new_patterns += ({ PrefixMatch(@a) });
       }
       break;
+      case 0: // Skip empty lines
+	break;
     default:
-      werror("Invalid pattern line: %s\n", s);
+      report_error("Invalid pattern line: %s\n", s);
+      break;
     }
   }
   patterns = new_patterns;
@@ -290,6 +407,7 @@ string comment()
 string get_host_url(object id)
 {
   string url;
+  if(id->misc->_host_url) return id->misc->_host_url;
   if(id->misc->host) {
     string p = ":80", prot = "http://";
     array h;
@@ -304,17 +422,22 @@ string get_host_url(object id)
       url=prot+h[0];
     else
       url=prot+id->misc->host;
+  } else {
+    url = id->conf->query("MyWorldLocation");
+    url = url[..strlen(url)-2];
   }
-  return url;
+  return lower_case(id->misc->_host_url = url);
 }
 
 mixed first_try(object id)
 {
   string f, to;
   mixed tmp;
+  string url,hurl;
 
-  if(id->misc->is_redirected)
+  if(id->misc->is_redirected) {
     return 0;
+  }
   
   string m;
   int ok;
@@ -328,15 +451,17 @@ mixed first_try(object id)
 
   if(!to)  return 0;
 
-  string url,hurl;
   url = id->conf->query("MyWorldLocation");
   url = url[..strlen(url)-2];
-  hurl = get_host_url(id)||url;
+  hurl = get_host_url(id);
   
-  to = replace(to, ({"%u", "%h", "%f", "%p" }),
+  to = replace(to, ({"%u", "%h", "%f", "%p", "%q", "%Q" }),
 	       ({ url, hurl,
 		  ( ({""}) + (id->not_query / "/" - ({""})) )[-1],
-		  id->not_query[1..] })
+		  id->not_query[1..],
+		  id->query ? "?"+id->query : "",
+		  id->query || ""
+	       })
 	       );
   if(to == url + id->not_query ||
      url == id->not_query ||

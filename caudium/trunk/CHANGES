@@ -93,6 +93,10 @@ Changes in Caudium 1.1 since CVS branching
   + Added glob match method.
   + Compilation of regular expression is cached, which should greatly
     improve matching speed when there are many regexp patterns.
+  + Ability to match on host names, headers and cookies using the new modifier
+    keywords (see module docs).
+  + Ability to insert the query string of the original request in the
+    destination. Can be useful in combination with %p or %f.
 - Fixed a couple of problem related to ssl3.
 - Added delayed loading of modules in virtual servers. 
 - Fixed broken caching of directory expansion. Could significantly speed
