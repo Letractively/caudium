@@ -151,7 +151,8 @@ int authenticate(string user, string password)
      }
    int auth=low_authenticate(user, password);
 
-   if(!auth) {fail++; return 0; } // authentication failed.
+   if(!auth) {fail++; return 0; } // authentication failed, user doesn't exist.
+   if(auth==-1) {fail++; return 0; } // authentication failed, exists.
    data["__authdata"]=Crypto.string_to_hex(
          Crypto.md5()->update(user+"|"+password)->digest());
    set_user_info(user, data);
@@ -290,23 +291,26 @@ array|int list_all_groups()
 }
 
 //! return an array of information for a user
+//!
+//! @deprecated
+//!
 //! @param u
 //! user name to return data for
 //! @returns
 //! @array
-//!   @elem string 0
+//!   @elem string
 //!     user name
-//!   @elem string 1
+//!   @elem string 
 //!     password (will always be empty)
-//!   @elem int 2
+//!   @elem int 
 //!     numeric user id
-//!   @elem int 3
+//!   @elem int 
 //!     numeric group id (primary)
-//!   @elem string 4
+//!   @elem string 
 //!     real name (gecos)
-//!   @elem string 5
+//!   @elem string 
 //!     home directory
-//!   @elem string 6
+//!   @elem string 
 //!     login shell
 //! @endarray
 array(string) userinfo(string u) 
@@ -333,6 +337,9 @@ string user_from_uid(int u)
 
 
 //! authenticate a user
+//!
+//! @deprecated 
+//!
 //! @param auth
 //!   @array
 //!     @elem 0 string
