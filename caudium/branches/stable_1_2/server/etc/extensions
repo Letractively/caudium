@@ -98,7 +98,7 @@ html	text/html
 java	text/plain
 m	text/plain
 rtf	text/rtf
-rtx	text/richtext
+rtx	text/enriched
 rxml	text/html
 sgm	text/sgml
 sgml	text/sgml
