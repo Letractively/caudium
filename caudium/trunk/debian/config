@@ -14,7 +14,7 @@ get_cfg_port() {
     db_title 'Config Interface Port'
         
     while test 1; do
-     db_input high caudium/config_port || true
+     db_input medium caudium/config_port || true
      db_go
      
      db_get caudium/config_port || true
@@ -28,7 +28,7 @@ get_cfg_port() {
      if test "$yesno" = "no"; then
       db_reset caudium/config_port || true
       db_reset caudium/cfg_port_taken || true
-      db_input high caudium/cfg_port_taken || true
+      db_input medium caudium/cfg_port_taken || true
       db_go
       continue
      else
@@ -51,7 +51,7 @@ get_iface() {
         break
      fi
      
-     db_input high caudium/listen_on || true
+     db_input medium caudium/listen_on || true
      db_go
      
      db_get caudium/listen_on
