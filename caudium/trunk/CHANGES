@@ -6,7 +6,6 @@ Changes in Caudium 1.3 since Caudium 1.2.1
 - *COMPAT Warning* Dims module is now removed. Use Image.Dims instead.
 - Caudium now _requires_ Pike 7.4.1+
 - Caudium can now be monitored using SNMP
-- Caudium now _requires_ Pike 7.3.62+
 - Set the "charset" field in the response mapping to specify the
   charset for the file being served. Otherwise a default charset
   is used (if enabled in the CIF).
