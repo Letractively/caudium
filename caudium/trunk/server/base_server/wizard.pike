@@ -527,7 +527,7 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
 	 "<table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=80%>\n"
 	 "  <tr><td><table bgcolor=#eeeeee cellpadding=0 "
 	 "         cellspacing=0 border=0 width=100%>\n"
-	 "    <tr><td valign=top><table width=100% height=100% cellspacing=0 cellpadding=5>\n<tr><td valign=top>\n"
+	 "    <tr><td valign=top><table width=100% cellspacing=0 cellpadding=5>\n<tr><td valign=top>\n"
 	 "<font size=+2>"+make_title()+"</font>"
 	 " </td>\n<td align=right>"+
 	 (wiz_name=="done"
