@@ -29,7 +29,6 @@ constant cvs_version = "$Id$";
 #include <config.h>
 private inherit "caudiumlib";
 // int first;
-#define RAM_CACHE
 
 #ifdef DO_TIMER
 static int global_timer, global_total_timer;
@@ -1277,7 +1276,7 @@ void send_result(mapping|void result)
     do_log();
     return;
   } else {
-#ifdef RAM_CACHE
+#ifdef ENABLE_RAM_CACHE
     if( (misc->cacheable > 0) )
     {
       if( (file->len + strlen( head_string )) < conf->datacache->max_file_size )
@@ -1416,7 +1415,7 @@ void got_data(mixed fdid, string s)
       return;
   }
   TIMER("parsed");
-#ifdef RAM_CACHE
+#ifdef ENABLE_RAM_CACHE
   misc->cacheable = 30; // FIXME: Make configurable.
 #endif
 
@@ -1435,7 +1434,7 @@ void got_data(mixed fdid, string s)
   my_fd->set_read_callback(0); 
   processed=1;
 
-#ifdef RAM_CACHE
+#ifdef ENABLE_RAM_CACHE
   array cv;
   if( misc->cacheable && conf && (cv = conf->datacache->get( raw_url )) )
   {

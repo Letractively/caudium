@@ -10,7 +10,8 @@ Summary of Incompatible Changes
 ===============================
 
 - HTTP/0.9 is not handled per default (uncomment the SUPPORT_HTTP_09
-  define to renable).
+  define to renable). In the future, support will most likely be removed
+  completely.
 - PING support removed (sorry, no define to enable this).
 - id->client and id->referer are not set per default. The reason for
   making those fields arrays are beyond us. You can reach the headers
@@ -37,7 +38,6 @@ Summary of Other Changes
   Roxen or Spinner... :-)
 
 
-
 Summary of Performance / Compat Flags
 =====================================
 
@@ -47,6 +47,11 @@ default value is also indicated.
 EXTRA_ROXEN_COMPAT (enabled)
 	Do some extra, redundant (today) parsing of headers, like
 	generating arrays of the referrer and user agent headers.
+
+ENABLE_RAM_CACHE (enabled)
+	Cache finished requests in ram for a short amount of time
+	(default time is 30 seconds). This greatly increases
+	performance if you have a less-than-huge set of data
 
 SUPPORT_HTTP_O9 (disabled)
 	Enable support for HTTP/0.9. The only thing that generally use

@@ -17,10 +17,16 @@
 
 
 /* Enable support for HTTP/0.9. This is an extremely minor optimization. If
- * you need HTTP/0.9, enable this one... 
+ * you need HTTP/0.9, enable this one. Will not work with http2.pike...
  */
 
 #undef SUPPORT_HTTP_09
+
+
+/* Enable the request memory cache. This greatly speeds up requests. It's
+ * worth it for most sites. Only used by the experimental http2 protocol.
+  */
+#define ENABLE_RAM_CACHE
 
 
 /* Do we want module level deny/allow security (IP-numbers and usernames). 

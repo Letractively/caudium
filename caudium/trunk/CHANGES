@@ -32,4 +32,12 @@ Changes since last Roxen 1.3
   sort-of-fixes the worst Roxen DOS (send an eternally long header and
   see Roxen die). The second part of the fix is to implement a maximum
   header length.
++ new protocols/http2.pike: This is considered experimental but will
+  eventually replace protocols/http.pike. Major differences from
+  protocols/http.pike are: most request/header parsing done in (more
+  so than http.pike), uses ram cache code from Roxen 2.1 + various
+  rewrites for speed. This one, with the ram cache, is much faster
+  than the other http protocol.
+
+ 
 

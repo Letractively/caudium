@@ -2202,13 +2202,14 @@ void start(int num, void|object conf_id, array|void args)
   int err=0;
   object lf;
   mapping new=([]), o2;
+#ifdef ENABLE_RAM_CACHE
   if(!datacache)
     datacache = DataCache(query( "data_cache_size" ) * 1024,
 			  query( "data_cache_file_max_size" ) * 1024);
   else
     datacache->init_from_variables(query( "data_cache_size" ) * 1024,
 				   query( "data_cache_file_max_size" ) * 1024);
-
+#endif
 
 #if 0
   // Doesn't seem to be set correctly.
@@ -3343,6 +3344,7 @@ void enable_all_modules()
 #endif
 }
 
+#ifdef ENABLE_RAM_CACHE
 // Cacher for super request speed.
 class DataCache
 {
@@ -3410,14 +3412,16 @@ class DataCache
 };
 
 object(DataCache) datacache;
-
+#endif
 void create(string config)
 {
   caudium->current_configuration = this;
   name=config;
 
   perror("Creating virtual server '"+config+"'\n");
-  // for now only theese two. In the future there might be more variables.
+
+#ifdef ENABLE_RAM_CACHE
+// for now only theese two. In the future there might be more variables.
   defvar( "data_cache_size", 2048, "Data Cache:Cache size",
 	  TYPE_INT,"The size of the data cache used to speed up requests "
 	  "for commonly requested files, in KBytes");
@@ -3425,7 +3429,7 @@ void create(string config)
   defvar( "data_cache_file_max_size", 50, "Data Cache:Max file size",
           TYPE_INT, "The maximum size of a file that is to be "
 	  "considered for the cache");
-
+#endif
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "
 	 "vlink='#00007f' link='#0000ff'>\n"
