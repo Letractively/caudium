@@ -1,5 +1,5 @@
---- modules/_Image_FreeType/freetype.c.orig	Thu Jan  3 02:18:46 2002
-+++ modules/_Image_FreeType/freetype.c	Thu Mar 28 23:48:14 2002
+--- modules/_Image_FreeType/freetype.c.orig	Fri May 23 01:22:10 2003
++++ modules/_Image_FreeType/freetype.c	Fri May 23 01:23:07 2003
 @@ -3,7 +3,11 @@
  RCSID("$Id$");
  
