@@ -1,0 +1,58 @@
+$Id$
+
+This is a little guide to setup your SQL layout for SQL Logger module
+
+There to kind of layout
+
+ 1- When SQL internal date is used
+ ---------------------------------
+
+ The module use then the SQL command NOW() to add the current date
+ into the database. Then you can use a datetime format
+ to store the date in a efficient way.
+
+ For example using MySQL you can use :
+
+ #
+ # Table structure for table 'access_log'
+ #
+ CREATE TABLE access_log (
+   host varchar(64) DEFAULT '' NOT NULL,
+   timestmp datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+   request varchar(250) DEFAULT '' NOT NULL,
+   referer varchar(250) DEFAULT '' NOT NULL,
+   email varchar(127),
+   user_agent varchar(127) DEFAULT '' NOT NULL,
+   user_id varchar(64) DEFAULT '' NOT NULL,
+   bin_len int(11) DEFAULT '0' NOT NULL,
+   result_code int(10),
+   method_type varchar(10),
+   KEY request (request),
+   KEY timestmp (timestmp)
+ );
+
+ 2- When the Caudium Server date is used 
+ ---------------------------------------
+
+ The date is computed "a la" CERN eg : '[30/Dec/2000:02:23:57 -0100]'
+ then you must modify a bit the layout to support this eg with MySQL
+
+ #
+ # Table structure for table 'access_log'
+ #
+ CREATE TABLE access_log (
+   host varchar(64) DEFAULT '' NOT NULL,
+   timestmp char(30) DEFAULT '' NOT NULL,
+   request varchar(250) DEFAULT '' NOT NULL,
+   referer varchar(250) DEFAULT '' NOT NULL,
+   email varchar(127),
+   user_agent varchar(127) DEFAULT '' NOT NULL,
+   user_id varchar(64) DEFAULT '' NOT NULL,
+   bin_len int(11) DEFAULT '0' NOT NULL,
+   result_code int(10),
+   method_type varchar(10),
+   KEY request (request),
+   KEY timestmp (timestmp)
+ );
+
+

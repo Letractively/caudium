@@ -1,0 +1,129 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+  <!ENTITY caudium  "<productname>Caudium WebServer</productname>">
+  <!ENTITY docbook "<productname>DocBook</productname>">
+  <!ENTITY sgml    "<abbrev>SGML</abbrev>">
+]>
+
+<!-- Manual page for caudiumctl, DocBook source file
+     (C) 2002 Marek Habersack <grendel@caudium.net>
+
+     $Id$ -->
+
+<refentry>
+  <refentryinfo>
+    <address>
+      <email>grendel@caudium.net</email>
+    </address>
+    <author>
+      <firstname>Marek</firstname>
+      <surname>Habersack</surname>
+    </author>
+    <date>2002-01-09</date>
+  </refentryinfo>
+  <refmeta>
+    <refentrytitle>caudiumctl</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo>The Caudium WebServer</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+    <refname>caudiumctl</refname> <refpurpose>control the &caudium;</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>caudiumctl </command> 
+      <arg choice="req"><option>start</option> |
+        <option>stop</option> |
+        <option>restart</option> |
+        <option>reload</option> </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>Description</title>
+
+    <para>
+      This is a simple program modelled after the
+      <command>apachectl</command> utility that serves the purpose of
+      controlling the &caudium;. With this program, the administrator can 
+      control, to some extent, the Caudium process state.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Options</title>
+    
+    <itemizedlist>
+      <listitem>
+        <para>
+          start - start the server.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          stop - stop the running server.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          restart - restart the running server.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          reload - reload the configuration of a running server.
+        </para>
+      </listitem>
+    </itemizedlist>
+  </refsect1>
+
+  <refsect1>
+    <title>Config files</title>
+
+    <para>
+      The configuration for this program is kept in the
+      <filename>/etc/default/caudium</filename> file which is sourced by
+      <command>caudiumctl</command> on startup. The administrator
+      is able to set the following options in the file:
+      <blockquote>
+        <simpara>
+          <firstterm>caudiumhome</firstterm> - specifies the location of the &caudium;
+        </simpara>
+        <simpara>
+          <firstterm>pidfile</firstterm> - specifies the location of a file
+          where Caudium stores its PID.
+        </simpara>
+        <simpara>
+          <firstterm>wwwuser</firstterm> - specifies the user under which
+          the &caudium; will run.
+        </simpara>
+        <simpara>
+          <firstterm>killallwww</firstterm> - if set to
+          <emphasis>yes</emphasis>, then the script will kill all processes
+          running as the user spcified in the <emphasis>wwwuser</emphasis>
+          variable above.
+        </simpara>
+      </blockquote>
+    </para>
+  </refsect1>
+  <refsect1>
+    <title>See also</title>
+
+    <para>caudium(8)</para>
+  </refsect1>
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
