@@ -105,23 +105,3 @@ if test "$RET" = "true"; then
     
     db_go || true
 fi
-#!/bin/sh -e
-#
-# $Id$
-#
-. /usr/share/debconf/confmodule
-
-db_version 2.0
-db_capb
-db_subst caudium/listen_on hostname `hostname -f`
-
-db_title 'Config Interface Port'
-db_input medium caudium/config_port || true
-
-db_title 'Host address'
-db_input medium caudium/listen_on || true
-
-db_title 'Startup options'
-db_input medium caudium/start_options || true
-
-db_go || true
