@@ -1315,7 +1315,7 @@ void got_data(mixed fdid, string s)
       // Processed OK
       method = misc->method;
       prot = clientprot = misc->protocol;
-      f = misc->file;
+      not_query = f = misc->file;
       raw_url = misc->raw_url;
       query = misc->query;
       data = misc->data;
