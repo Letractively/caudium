@@ -396,7 +396,7 @@ string http_caudium_id_cookie()
 function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
 
 /*
-**! method: static string add_pre_state()
+**! method: string add_pre_state(string url, multiset state)
 **!   Prepend the URL with the prestate specified. The URL is a path
 **!   beginning with /.
 **! name: add_pre_state - add a prestate to an url
@@ -407,6 +407,8 @@ function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
 **! scope: private
 **! returns:
 **!   The new URL
+**! bugs: 
+//! A bug a  bug 
 */
 static string add_pre_state( string url, multiset state )
 {
@@ -491,7 +493,7 @@ mapping http_stream(object from)
 }
 
 /*
-**! method: http_auth_required(string realm, string|void message)
+**! method: mapping http_auth_required(string realm, string|void message)
 **!   Returns a http authentication response mapping which will make the
 **!   browser request the user for authentication information. The optional
 **!   message will be used as the body of the page. 
@@ -531,7 +533,7 @@ function http_auth_failed = http_auth_required;
 
 
 /*
-**! method: http_proxy_auth_required(string realm, string|void message)
+**! method: mapping http_proxy_auth_required(string realm, string|void message)
 **!   Returns a http proxy authentication response mapping which will make the
 **!   browser request the user for authentication information for use with
 **!   a proxy. This is different than the normal auth in that it's ment for
