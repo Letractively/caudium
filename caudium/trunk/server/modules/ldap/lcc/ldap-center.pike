@@ -60,6 +60,11 @@ private mapping(string:object) conn_cache = ([]);
 //
 // Indices are request "file" names (if the PROVIDER_REQUEST flag is set)
 //
+private multiset(string) reserved_providers = (<
+    "add", "modify", "auth", "log", "admin", "screens",
+    "error", "menu"
+>);
+
 private mapping(string:mapping) providers = ([
     "add" : ([ "flags" : PROVIDER_REQUEST, "name" : 0 ]),
     "modify" : ([ "flags" : PROVIDER_REQUEST, "name" : 0 ]),
@@ -87,6 +92,16 @@ private array(mapping) my_menus = ({
     ])
 });
 
+private string make_reserved_ul()
+{
+    string ret = "<ul>";
+    
+    foreach(sort(indices(reserved_providers)), string idx)
+        ret += "<li><strong><code>" + idx + "</code></strong></li>";
+
+    return ret;
+}
+
 void create()
 {
     defvar("mountpoint", "/", "Mount point", TYPE_LOCATION,
@@ -110,13 +125,14 @@ void create()
            "provider modules. Provider definitions are given one entry per line and "
            "must follow the format given below:<br />"
            "<blockquote><strong><code>module_base_name:is_required</code></strong></blockquote>"
-           "where,<br /><ul>"
+           "where,<br /><blockquote><ul>"
            "<li><strong><code>module_base_name</code></strong> is a name of the provider module to which "
            "the <em>Provider module name prefix</em> will be prepended to form the real provider name.</li>"
            "<li><strong><code>is_required</code></strong> is <code>0</code> if the provider isn't required "
-           "and <code>&gt;0</code> if it is.</li>"
-           "</ul>All the user-defined modules are request handlers - that is, they will be called through "
-           "the <code>handle_request</code> function that must be present in the object.");
+           "and <code>&gt;0</code> if it is.</li></ul></blockquote>"
+           "All the user-defined modules are request handlers - that is, they will be called through "
+           "the <code>handle_request</code> function that must be present in the object. "
+           "The following module names are reserved:<blockquote>" + make_reserved_ul() + "</blockquote>");
     
     //  
     // Provider Modules
@@ -210,8 +226,35 @@ void start(int cnt, object conf)
                                 "ldap-error",
                                 "ldap-menu"}));
 
+    // Parse the user-defined providers
+    
     // prepare provider names and check for the presence of the required
-    // ones
+    // ones, if any
+    array(string) udprov = (QUERY(user_providers) / "\n") - ({}) - ({""});
+    foreach(udprov, string prov) {
+        array(string) line = prov / ":";
+
+        if (sizeof(line) != 2)
+            continue;
+
+        string name = lower_case(String.trim_whites(line[0]));
+        if (reserved_providers[name]) {
+            report_warning("LCC: Reserved module name '%s' used in user defined modules.\n",
+                           name);
+            continue;
+        }
+        
+        mapping menu = ([
+            "flags" : PROVIDER_REQUEST
+        ]);
+        
+        menu->name = QUERY(prov_prefix) + "_" + name;
+        if (String.trim_whites(line[1]) != "0")
+            menu->flags |= PROVIDER_REQUIRED;
+
+        providers[name] = menu;
+    }
+        
     foreach(indices(providers), string idx) {
         providers[idx]->name = sprintf("%s_%s", QUERY(prov_prefix), idx);
         if (providers[idx]->flags & PROVIDER_REQUIRED)
