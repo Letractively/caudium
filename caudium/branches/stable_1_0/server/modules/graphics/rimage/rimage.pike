@@ -58,7 +58,7 @@ mapping layer_ops = ([
   "diff":    5,
 ]);
 
-constant plugin_dir = combine_path(__FILE__, "../plugins/");
+constant plugin_dir = combine_path(__FILE__, "./plugins/");
 
 mapping plugins = ([]);
 
