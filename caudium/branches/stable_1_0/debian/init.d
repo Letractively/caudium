@@ -48,6 +48,10 @@ case "$1" in
 	;;
   stop)
     echo -n "Stopping $DESC: "
+    if [ ! -f $PIDFILE ]; then
+	echo "$NAME not running"
+	exit 0
+    fi
     for p in `cat $PIDFILE`; do
        if [ -n "`ps -p $p --no-headers`" ]; then
             kill -TERM $p > /dev/null || true
