@@ -1477,9 +1477,9 @@ static void f_cern_http_date(INT32 args)
 #ifdef HAVE_LOCALTIME_R
 #ifdef HAVE_ALLOCA
    tm = (struct tm *)alloca(sizeof(struct tm));
-#else
+#else /* HAVE_ALLOCA */
    tm = (struct tm *)malloc(sizeof(struct tm));
-#endif
+#endif /* HAVE_ALLOCA */
    if (tm == NULL) {
      Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
      return;
@@ -1487,6 +1487,7 @@ static void f_cern_http_date(INT32 args)
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) {
+
     now = time(NULL);
 #ifdef HAVE_LOCALTIME_R
     THREADS_ALLOW();
@@ -1535,9 +1536,9 @@ static void f_cern_http_date(INT32 args)
 #ifdef HAVE_GMTIME_R
 #ifdef HAVE_ALLOCA
     gmt = (struct tm *)alloca(sizeof(struct tm));
-#else
+#else /* HAVE_ALLOCA */
     gmt = (struct tm *)malloc(sizeof(struct tm));
-#endif
+#endif /* HAVE_ALLOCA */
     if (gmt==NULL) {
       Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
       return;
@@ -1552,9 +1553,9 @@ static void f_cern_http_date(INT32 args)
 #ifdef HAVE_LOCALTIME_R
 #ifdef HAVE_ALLOCA
     t = (struct tm *)alloca(sizeof(struct tm));
-#else
+#else /* HAVE_ALLOCA */
     t = (struct tm *)malloc(sizeof(struct tm));
-#endif
+#endif /* HAVE_ALLOCA */
     if (t==NULL) {
       Pike_error("_Caudium.cern_http_date(): Out of memory!\n");
       return;
@@ -1577,7 +1578,7 @@ static void f_cern_http_date(INT32 args)
 #ifdef HAVE_GMTIME_R
     free(gmt);
 #endif /* HAVE_GMTIME_R */
-#endif /* HAVE_ALLOCA *
+#endif /* HAVE_ALLOCA */
   }
 #endif
   if (diff > 0L) {
@@ -1598,7 +1599,9 @@ static void f_cern_http_date(INT32 args)
      return;
   }
 #ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
   free(tm);
+#endif /* HAVE_ALLOCA */
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
@@ -1770,7 +1773,9 @@ static void f_http_date(INT32 args)
      return;
   }
 #ifdef HAVE_LOCALTIME_R
+#ifndef HAVE_ALLOCA
   free(tm);
+#endif
 #endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
