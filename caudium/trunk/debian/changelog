@@ -1,3 +1,9 @@
+caudium-cvs (1:1.1.0-1) unstable; urgency=low
+
+  * OK. These debs are for the unstable version now
+
+ -- Marek Habersack <grendel@vip.net.pl>  Wed, 13 Dec 2000 16:27:26 +0100
+
 caudium (1:1.0.9rc1-1) unstable; urgency=low
 
   * Got rid of the Pike-based port tests from preconfig phase. It
