@@ -1372,10 +1372,14 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
-  if (QUERY(storage_type)=="Disk")
+  switch(QUERY(storage_type)) {
+  case "Disk":
     storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_disk_path));
-  else if (QUERY(storage_type)=="MySQL")
+    break;
+  case "MySQL":
     storage_manager = Storage.Manager(QUERY(storage_type), QUERY(storage_mysql_url));
+    break;
+  }
 }
 
 void create()
@@ -2530,7 +2534,10 @@ private void define_global_variables(int argc, array (string) argv)
     globvar("cache_storage_type", "Disk",
             "Caching Sub-system: Slow Storage Backend", TYPE_STRING_LIST,
 	    "Select the backend that you want Caudium to use for slow "
-	    "object storage.",
+	    "object storage."
+	    "Please note that when changing this value you will need to "
+	    "restart caudium for it to take effect, you will also need to "
+	    "manually clean the data out of the old method.",
 	    ({ "Disk", "MySQL" }));
 
     globvar("cache_storage_mysql_url", "",
