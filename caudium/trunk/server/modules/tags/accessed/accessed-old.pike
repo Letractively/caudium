@@ -190,11 +190,30 @@ int database_created(string file)
   return w;
 }
 
-int query_num(string file, int count) {
+
+//!   Queries the accessed database for a file entry and increment it with count
+//! @param file
+//!   The file to query the database with
+//! @param count
+//!   The value to increment the database for the count of file
+//! @param id
+//!   The Caudium request id object
+int query_num(string file, int count, object id)
+{
   int p, n;
   string f;
 
   mixed key = open_db_file();
+
+	// if id->site_id has been set, then Caudium is doing 2nd level virtual
+	// hosting. In this case, store the site_id in the database
+	// Otherwise, only store the file in the database for Caudium 1.2 compat
+	write("id->conf->name: "+id->conf->name+"\n");
+	write("id->site_id: "+id->site_id+"\n");
+	if(id->conf->name != id->site_id)
+	{
+		file = id->site_id+":"+file;
+	}
 
   // if(lock) lock->aquire();
   
@@ -238,18 +257,20 @@ int query_num(string file, int count) {
 
 // To inform Caudium that this module will handle some extensions (used
 // to hanlde "always count" extensions.
-array(string) query_file_extensions() {
+array(string) query_file_extensions()
+{
   return QUERY(noparse); 
 }
 
 // Handle "always count" extensions.
-mapping handle_file_extension( object file, string e, object id) {
+mapping handle_file_extension( object file, string e, object id)
+{
   mapping defines = id->misc->defines || ([]);
   id->misc->defines = defines;
 
   if(search(QUERY(noparse),e)!=-1)
   {
-    query_num(id->not_query, 1);
+    query_num(id->not_query, 1, id);
     defines->counted = "1";
   }
   return 0;
@@ -347,18 +368,18 @@ string tag_accessed(string tag,mapping m,object id,object file,
   {
     m->file = Caudium.fix_relative(m->file, id);
     if(m->add) 
-      counts = query_num(m->file, (int)m->add||1);
+      counts = query_num(m->file, (int)m->add||1, id);
     else
-      counts = query_num(m->file, 0);
+      counts = query_num(m->file, 0, id);
   } else {
     if(Caudium._match(id->remoteaddr, id->conf->query("NoLog")))
-      counts = query_num(id->not_query, 0);
+      counts = query_num(id->not_query, 0, id);
     else if(defines->counted != "1") 
     {
-      counts =query_num(id->not_query, 1);
+      counts =query_num(id->not_query, 1, id);
       defines->counted = "1";
     } else {
-      counts = query_num(id->not_query, 0);
+      counts = query_num(id->not_query, 0, id);
     }
       
     m->file=id->not_query;
@@ -369,7 +390,7 @@ string tag_accessed(string tag,mapping m,object id,object file,
     if( !search( (dirname(m->file)+"/")-"//",
 		 (dirname(id->not_query)+"/")-"//" ) )
     {
-      query_num(m->file, -counts);
+      query_num(m->file, -counts, id);
       database_set_created(m->file, time(1));
       return "Number of counts for "+m->file+" is now 0.<br>";
     } else {
