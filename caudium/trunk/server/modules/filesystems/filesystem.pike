@@ -253,6 +253,10 @@ array find_dir( string f, object id )
   array dir;
   object privs;
 
+#ifdef FILESYSTEM_DEBUG
+  roxen_perror("FILESYSTEM: Request for dir \""+f+"\"\n");
+#endif /* FILESYSTEM_DEBUG */
+
 #ifndef THREADS
   if (((int)id->misc->uid) && ((int)id->misc->gid) &&
       (QUERY(access_as_user))) {
@@ -266,6 +270,12 @@ array find_dir( string f, object id )
     return 0;
   }
   privs = 0;
+
+  if (QUERY(no_symlinks) && contains_symlinks(path, f))
+  {
+     errors++;
+     return 0;
+  }
 
   if(!QUERY(dir))
     // Access to this dir is allowed.
@@ -345,7 +355,7 @@ mixed find_file( string f, object id )
   array|object st;
 
 #ifdef FILESYSTEM_DEBUG
-  roxen_perror("FILESYSTEM: Request for \""+f+"\"\n");
+  roxen_perror("FILESYSTEM: Request for file \""+f+"\"\n");
 #endif /* FILESYSTEM_DEBUG */
 
   f = path + f;
@@ -414,13 +424,13 @@ mixed find_file( string f, object id )
 
       if(!o || (QUERY(no_symlinks) && (contains_symlinks(path, oldf))))
       {
-	errors++;
-	report_error("Open of " + f + " failed. Permission denied.\n");
-	
-	TRACE_LEAVE("");
-	TRACE_LEAVE("Permission denied.");
-	return http_low_answer(403, "<h2>File exists, but access forbidden "
-			       "by user</h2>");
+         errors++;
+         report_error("Open of " + f + " failed. Permission denied.\n");
+
+         TRACE_LEAVE("");
+         TRACE_LEAVE("Permission denied.");
+         return (http_error_answer (id, 403, 0, 
+                  "File exists, but access forbidden by user"));
       }
 
       id->realfile = f;
@@ -464,7 +474,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("MKDIR: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     TRACE_ENTER("MKDIR: Accepted", 0);
@@ -512,7 +522,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("PUT: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     TRACE_ENTER("PUT: Accepted", 0);
@@ -587,7 +597,7 @@ mixed find_file( string f, object id )
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("PUT: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     TRACE_ENTER("APPE: Accepted", 0);
@@ -655,7 +665,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("CHMOD: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     chmods++;
@@ -730,7 +740,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("MV: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     TRACE_ENTER("MV: Accepted", 0);
@@ -823,7 +833,7 @@ mixed find_file( string f, object id )
       privs = 0;
       errors++;
       TRACE_LEAVE("MOVE: Contains symlinks. Permission denied");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     TRACE_ENTER("MOVE: Accepted", 0);
@@ -858,14 +868,14 @@ mixed find_file( string f, object id )
     }
     if(QUERY(check_auth) && (!id->auth || !id->auth[0])) {
       TRACE_LEAVE("DELETE: Permission denied");
-      return http_low_answer(403, "<h1>Permission to DELETE file denied</h1>");
+      return (http_error_answer (id, 403, 0, "Permission to DELETE file denied"));
     }
 
     if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
       errors++;
       report_error("Deletion of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("DELETE: Contains symlinks");
-      return http_low_answer(403, "<h2>Permission denied.</h2>");
+      return (http_error_answer (id, 403, 0, "Permission denied."));
     }
 
     report_notice("DELETING the file "+f+"\n");

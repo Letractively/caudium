@@ -78,13 +78,17 @@ class http_error_handler {
       500 : "Something has gone horribly wrong inside the web server (Caudium).<br>This is probably caused by an error in a CGI or other server side script, but can also mean that something is broke.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
     ]);
 
-  private mixed my_get_file (string _file, object id) {
-    if(!id->conf) return 0;
+  private mixed my_get_file (string _file, object id) 
+  {
+    if (!id || !id->conf) 
+       return 0;
+
     object clone_id = id->clone_me (); /* open_file() modifies id */
     clone_id->misc->error_request = 1;
+
     array f = id->conf->open_file ( _file, "Rr", clone_id);
 
-    if (f[0])
+    if (f && f[0])
     {
       string data = f[0]->read ();
       f[0]->close ();
@@ -99,13 +103,15 @@ class http_error_handler {
   private string get_template_data (string _name, object id)
   {
     string data;
+    string key;
+
     if (_name == "default_caudium_error_template")
       return (default_data);
 
     if (!id)
       return (default_data);
-    string key;
-    if(id->conf) {
+
+    if (id->conf) {
       key = "error:" + id->conf->name;
     } else {
       key = "error:Global_Variables";
@@ -189,17 +195,17 @@ class http_error_handler {
   }
 
   public void set_template( string _template_name, object id ) {
-    if ( _template_name == "" ) {
+    if (_template_name == "") {
       // If the template name isnt set in the config interface then
       // make reset it to the default.
-      if ( template->name != "default_caudium_error_template" ) {
+      if (template->name != "default_caudium_error_template") {
 	template = default_template;
       }
     } else {
       // If it's been changed then change the error template, else
       // do nothing.
       string data = my_get_file (_template_name, id);
-      if ( data == 0 ) {
+      if (!data) {
 	template = default_template;
       } else {
 	template = ([
@@ -257,7 +263,7 @@ class http_error_handler {
   public mapping handle_error( int error_code, string error_name, string error_message, object id ) {
     mapping local_template;
 
-    if ( id == 0 ) {
+    if (!id) {
       // We don't have a request id object - this is *REALLY* bad!
       // Someone forgot to buy David a beer, coz this can only happen
       // in the *core*core* server.
@@ -297,7 +303,7 @@ class http_error_handler {
     string error_page = parse_html (get_template_data (local_template->name, id), ([ "error" : _tag_error ]), ([ ]), ([ "code" : error_code, "name" : error_name, "message" : error_message ]));
 
     if (id)
-      error_page = parse_rxml (error_page,id);
+      error_page = parse_rxml (error_page, id);
 
     if (error_code > 499 || debug) {
       if (id)

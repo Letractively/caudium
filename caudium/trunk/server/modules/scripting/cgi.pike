@@ -878,7 +878,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
   if(stat[1] < 0)
     if(!QUERY(ls))
        return (http_error_answer (id, 403, "CGI Directory Listing Disabled", 
-                "<h1>Listing of CGI directories is disabled.</h1>"));
+                "Listing of CGI directories is disabled."));
     else
       return -1;
   if(!strlen(f) || f[-1] == '/')
