@@ -24,6 +24,9 @@
 
 #ifdef THREADS
   static Thread.Mutex mutex = Thread.Mutex();
+  write("The Caudium Caching sub-system hasn't been well tested when operating\n");
+  write("in threaded mode, be warned that there may be deadlocks.\n");
+  write("Starting anyway, as you request.\n");
 # define LOCK() object __key = mutex->lock()
 #else
 # define LOCK() 
@@ -57,7 +60,7 @@ void create() {
 //! Trigger delayed start for the cache, this stops us from having to load
 //! up indexes for potentially large caches unless they are actually needed
 //! see also: delayed module loading.
-void really_start() {
+static void really_start() {
   LOCK();
   if ( _really_started ) return;
 #ifdef CACHE_DEBUG
@@ -112,7 +115,7 @@ string status() {
 }
 
 //! internal method used to create a cache instance.
-private void create_cache( string namespace ) {
+static void create_cache( string namespace ) {
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
@@ -121,7 +124,7 @@ private void create_cache( string namespace ) {
 
 //! internal method that uses randomness to decide how long to wait in between
 //! expiry and size management runs
-private int sleepfor() {
+static int sleepfor() {
 	// sleepfor() calculates how long to sleep between callouts to
 	// watch_size(), alsolute minimum time for a sleep is 30 seconds,
 	// providing that vigilance is set to 100% and the last random
@@ -179,7 +182,7 @@ void start( int _max_ram_size, int _max_disk_size, int _vigilance, string _path,
 //! mathematical algorhythm (which wont be discussed here) to find the caches
 //! with the largest size and force objects to expire until the total size of
 //! all caches is back within operational tolerances.
-void watch_size() {
+static void watch_size() {
   LOCK();
   if ( ! _really_started ) {
     call_out( watch_size, sleepfor() );
@@ -261,7 +264,7 @@ void watch_size() {
 
 //! Check to see whether any caches halflifes have expired - i.e. they havent
 //! been used for any operations within a certain period of time.
-void watch_halflife() {
+static void watch_halflife() {
   LOCK();
   if ( ! _really_started ) {
     call_out( watch_halflife, 3600 );
@@ -328,7 +331,7 @@ object get_cache( void|string|object one ) {
 //!
 //! @param namespace
 //! The namespace of the cache we want.
-object low_get_cache( string namespace ) {
+static object low_get_cache( string namespace ) {
   really_start();
   LOCK();
   if ( ! caches[ namespace ] )

@@ -19,14 +19,17 @@
  *
  */
 
+//! This the the RAM cache, baiscally.
 
 constant cvs_version = "$Id$";
 
 #ifdef THREADS
   static Thread.Mutex mutex = Thread.Mutex();
-# define LOCK() object __key = mutex->lock()
+#define LOCK() object __key = mutex->lock()
+#define UNLOCK() destruct(__key)
 #else
-# define LOCK() 
+#define LOCK() 
+#define UNLOCK()
 #endif
 
 #define EXPIRE_CHECK 300
@@ -38,14 +41,15 @@ mixed disk_cache;
 int ram_usage;
 int _hits, _misses;
 
+//! Initialise the cache, create the internal data structures that we need.
+//!
+//! @param _namespace
+//! The namespace of the cache.
+//!
+//! @param _disk_cache
+//! Optional copy of the slow storage object, for moving non-expired objects
+//! to slow storage when shutting down, or when freeing ram.
 void create( string _namespace, void|object _disk_cache ) {
-	// Initialise and pre-allocate the ram cache.
-	// disk_cache: This is the disk cache object, we need it so that
-	//             we can move stuff in and out of ram when it's too old.
-	// max_size: The maximum size of RAM that we're allowed to use.
-	// call disk_cache->get_index() to retrieve the metadata about
-	// any objects that are on the disk after being stored last time
-	// we we're here.
   LOCK();
   namespace = _namespace;
   thecache = ([ ]);
@@ -57,8 +61,12 @@ void create( string _namespace, void|object _disk_cache ) {
   call_out( expire_cache, EXPIRE_CHECK );
 }
 
+//! Store an object in the RAM cache, which is just a mapping anyway, but
+//! there is no need for the client to know that :)
+//!
+//! @param meta
+//! The mapping created by one of the functions in cachelib
 void store( mapping meta ) {
-  LOCK();
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
@@ -72,17 +80,22 @@ void store( mapping meta ) {
     meta->object = stdio->read();
     stdio->close();
     meta->size = sizeof( meta->object );
+    LOCK();
     ram_usage += meta->size;
     thecache += ([ meta->hash : meta ]);
+    UNLOCK();
     break;
   case "variable":
-	// Use standard blocking to move to ram.
+    LOCK();
     ram_usage += (meta->size?meta->size:0);
     thecache += ([ meta->hash : meta ]);
+    UNLOCK();
     break;
   case "image":
+    LOCK();
     ram_usage += (meta->size?meta->size:0);
     thecache += ([ meta->hash : meta ]);
+    UNLOCK();
     break;
   default:
 #ifdef CACHE_DEBUG
@@ -92,18 +105,17 @@ void store( mapping meta ) {
   }
 }
 
+//! Retrieve the object from the RAM cache, and return it.
+//!
+//! @param name
+//! Name of the object
+//!
+//! @param object_only
+//! Optional argument specifying whether to return the entire object + metadata
+//! or just the object itself.
 void|mixed retrieve( string name, void|int object_only ) {
-	// same as cache->retrieve()
-	// search the ram_cache, and then the disk_cache index for an object
-	// and then return in. If it turns out that we don't have it then 
-	// return 0.
-	// if it's in the disk_cache then move it back into the ram_cache
-	// as long as it's not bigger than the pre-decided limit for 
-	// object size. this will be done with a flash bi-directional
-	// non-blocking io class, kindof like a proxy for file objects.
-  LOCK();
   string hash = get_hash( name );
-	// search for the hash in thecache and return it. This could be tricky.
+  LOCK();
   if ( thecache[ hash ] ) {
     thecache[ hash ]->hits++;
     thecache[ hash ]->last_retrieval = time();
@@ -126,6 +138,12 @@ void|mixed retrieve( string name, void|int object_only ) {
   return;
 }
 
+//! If the object is a Stdio.File object, then this method is called by
+//! retrieve to create a new Stdio.File object, and pipe the data into
+//! it, in order to make it appear the same as it was.
+//!
+//! @param hash
+//! The hash that is used to uniquely identify the object.
 private mixed get_stdio( string hash ) {
   LOCK();
   mapping tmp = thecache[ hash ] + ([ ]);
@@ -138,16 +156,24 @@ private mixed get_stdio( string hash ) {
   return tmp;
 }
 
+//! Force the removal of an object from the RAM cache.
+//!
+//! @param name
+//! The name of the object.
 void refresh( string name ) {
-  LOCK();
-	// remove the object from cache.
   string hash = get_hash( name );
+  LOCK();
   if (thecache[ hash ]) {
     ram_usage -= thecache[ hash ]->size;
     m_delete( thecache, hash );
   }
 }
 
+//! Flush objects from the RAM cache.
+//!
+//! @param regexp
+//! Optional regular expression used to selectively delete objects from
+//! the cache.
 void flush( void|string regexp ) {
   LOCK();
   if ( regexp ) {
@@ -171,10 +197,14 @@ void flush( void|string regexp ) {
   thecache = ([ ]);
 }
 
+//! Return the amount of RAM being used by this cache.
 int usage() {
   return ram_usage;
 }
 
+//! Use the copy of slow storage that we might have to copy everything to
+//! slow storage. If we dont have it then there's not much we can do.
+//! Just delete it all.
 void stop() {
 	// use the standard stuff to move everything to disk_cache
 	// cycle through all the data in the ram cache and call
@@ -202,39 +232,33 @@ void stop() {
     write( "RAM_CACHE: All done.\n" );
 #endif
   }
+  UNLOCK();
   flush();
 }
 
+//! Deep voodoo magic to remove objects when we need to free some RAM.
+//! First, sort the list of objects in the cache in a list of least
+//! retrieved (lowest hitrate) to most retrieved (highest hitrate).
+//! Then simply remove them one by one until we have removed >= n
+//!
+//! @param n
+//! Remove n bytes worth of objects.
 void free( int n ) {
-  LOCK();
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE: Cache asked to reduce RAM usage by " + n + " bytes\n" );
 #endif
-	// sort the objects in the cache into a list of the least retrieved
-	// objects since the last time free was called, then simply vape
-	// them one by one until the memory limit is satisfied.
-	// free() doesn't have to be particularly complex because either
-	// the object isn't worth caching, or it will be on the disk.
-	// how it get's in the disk however, is a fairly interesting story.
-	// basically, once free has gotten rid of all the crap objects in
-	// the cache then it searches for anything that has a hitrate of less
-	// than the average hitrate or anything that is larger than the
-	// average size and moves it to the disk_cache. this is about the
-	// best way I can figure it, but I am reading lots of whitepapers
-	// about caching.
-
-	// First: remove expired objects so that we don't double handle.
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE: Calling expire_cache()....\n" );
 #endif
+  LOCK();
   int _usage = ram_usage;
+  UNLOCK();
   expire_cache( 1 );
-	// Second: check to see if the cache is now n bytes smaller.
+  LOCK();
   if ( _usage - ram_usage > n ) {
 #ifdef CACHE_DEBUG
     write( "RAM_CACHE: Expiring the cache freed enough memory to satisfy\n" );
 #endif
-	// our work here is done.
     return;
   }
   int freed;
@@ -248,9 +272,6 @@ void free( int n ) {
     _hitrate += ({ (float)thecache[ hash ]->hits / (float)( time() - thecache[ hash ]->create_time ) });
   }
   sort( _hitrate, _hash );
-	// Okay, that nastylooking thing was creating arrays of hitrate and the
-	// mapping index for thecache so that we can sort them into a list
-	// of objects with the lowest hitrate.
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE: Freeing objects in order of lowest hitrate.\n" );
 #endif
@@ -258,24 +279,21 @@ void free( int n ) {
 #ifdef CACHE_DEBUG
     write( "RAM_CACHE: Freeing object " + thecache[ hash ]->name + "\n" );
 #endif
-	// Step through the list, in order of lowest hitrate to highest.
     if ( freed >= n ) {
 #ifdef CACHE_DEBUG
       write( "RAM_CACHE: RAM free is finished\n" );
 #endif
- 	// If we have freed enough memory then yay!
-      //break;
       return;
     }
-	// Before removing the object, check to see if you can stick it
-	// on the disk.
     if ( ( objectp( disk_cache ) ) && ( thecache[ hash ]->disk_cache ) ) {
 #ifdef CACHE_DEBUG
       write( "RAM_CACHE: Storing object in disk_cache\n" );
 #endif
       mixed obj;
       if ( thecache[ hash ]->type == "stdio" ) {
+        UNLOCK();
         obj = get_stdio( hash );
+	LOCK();
       } else {
         obj = thecache[ hash ];
       }
@@ -295,11 +313,15 @@ void free( int n ) {
   }
 }
 
+//! Remove expired objects from the RAM cache.
+//!
+//! @param nocallout
+//! Optionally dont schedule a callout to expire_cache()
 void expire_cache( void|int nocallout ) {
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE::expire_cache() called.\n" );
 #endif
-	// Remove expired objects.
+  LOCK();
   foreach( indices( thecache ), string hash ) {
     if ( thecache[ hash ]->expires == -1 ) {
       continue;
@@ -317,14 +339,20 @@ void expire_cache( void|int nocallout ) {
   }
 }
 
+//! Return the total number of hits against this cache.
 int hits() {
+  LOCK();
   return _hits;
 }
 
+//! Return the total number of misses against this cache.
 int misses() {
+  LOCK();
   return _misses;
 }
 
+//! Return the total number of objects in this cache.
 int object_count() {
+  LOCK();
   return sizeof( thecache );
 }
