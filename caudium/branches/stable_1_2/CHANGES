@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- perl scripting module and subsystem removed. Anyway the uniscript.pike
+  can allow administrator to support perl scripting. SF bug #512601
 - mnogosearch pike module removed since the pike glue doesn't work.
 - Fix a problem when Caudium is not running as root : display a warning if 
   the user tries to run lsof in open ports action tab.
