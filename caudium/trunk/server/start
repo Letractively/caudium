@@ -29,6 +29,28 @@ if uname | grep 'SunOS' >/dev/null 2>&1; then
   fi
 fi
 
+# Enable thread (if available) on Linux
+if uname | grep 'Linux' >/dev/null 2>&1; then
+  if uname -r | grep '2\.[2-9]' >/dev/null 2>&1; then
+    if [ x"$1" != "x--help" ] ; then
+      echo 'Linux 2.2 or later detected. Enabling threads (if available).'
+    fi
+    DEFINES="$DEFINES -DENABLE_THREADS"
+  fi
+fi
+
+# Enable thread (if available) on FreeBSD
+if uname | grep 'FreeBSD' >/dev/null 2>&1; then
+  if uname -r | grep '[45]\.[0-9]' >/dev/null 2>&1; then
+    if [ x"$1" != "x--help" ] ; then
+      echo 'FreeBSD 4.0 or later detected. Enabling threads (if available).'
+    fi
+    DEFINES="$DEFINES -DENABLE_THREADS"
+  fi
+fi
+
+
+
 # Caudium will create files as the initial user,
 # which it expects to be able to read as the run-time user.
 umask 022
