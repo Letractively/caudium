@@ -39,11 +39,15 @@ object myconf;
 int foundcookieandprestate = 0;
 
 int storage_is_not_sql() {
- return (query("storage") != "sql");
+  return (query("storage") != "sql");
 }
 
 int storage_is_not_file() {
- return (query("storage") != "file");
+  return (query("storage") != "file");
+}
+
+int dont_use_formauth() {
+  return (query("use_formauth") != 1);
 }
 
 void start(int num, object conf) {
@@ -79,6 +83,31 @@ void create() {
          "File Method Path", TYPE_DIR,
          "The storage directory for File Method",
          0, storage_is_not_file);
+  defvar("use_formauth", 0, "Use Form based authentication", TYPE_FLAG,
+         "You can protect single URLs with a HTML based form.");
+  defvar("auth_urls", "", "Include URLs", TYPE_TEXT_FIELD,
+         "URLs that are protected by this module, i.e. URLs that"
+         " only should be accessible by known users."
+         " Examples:<pre>"
+         "/login/\n"
+         "/admin/\n"
+         "</pre>",
+         0, dont_use_formauth);
+  defvar("authpage",
+         "<html><head><title>Login</title></head><body>\n"
+         "<form method=\"post\"><table>\n"
+         "<tr><td>Username:</td>\n"
+         "<td><input name=\"httpuser\" size=\"20\"/></tr>\n"
+         "<tr><td>Password:</td>\n"
+         "<td><input type=\"password\" name=\"httppass\" size=\"20\"/></tr>\n"
+         "<tr><td>&nbsp;</td><td><input type=\"submit\" value=\"Login\"></tr>\n"
+         "</table></form>\n"
+         "</body></html>\n",
+         "Form authentication page.",
+         TYPE_TEXT_FIELD,
+         "Should contain an form with input fields named <i>httpuser</i> "
+         "and <i>httppass</i>.",
+         0, dont_use_formauth);
 }
 
 mixed register_module() {
@@ -308,7 +337,6 @@ mixed sessionid_set_prestate(object id, string SessionID) {
   return(http_redirect(url, id));
 }
 
-// Code by Allen
 mixed sessionid_remove_prestate(object id) {   
   string url=strip_prestate(strip_config(id->raw_url));
   id->prestate = (<>);                                   
@@ -377,6 +405,30 @@ mixed first_try(object id) {
 
   id->misc->session_variables = variables_retrieve("session", SessionID);
   id->misc->session_id = SessionID;
+
+  if (!id->misc->session_variables->username) {
+    int userauthrequired=0;
+    foreach (query("auth_urls")/"\n", string url) {
+      if ((strlen(url) > 0) &&
+          (url == id->not_query[..strlen(url)-1])) {
+        userauthrequired=1;
+      }
+    }
+    if (userauthrequired == 1) {
+      if ((id->variables->httpuser) && (id->variables->httppass)) {
+        string comb = id->variables->httpuser+":"+id->variables->httppass;
+        array(string) auth = ({"Basic", comb});
+        mixed result = id->conf->auth_module->auth(auth, id);
+        if (result[0] == 1) {
+          id->misc->session_variables->username = id->variables->httpuser;
+        } else {
+          return http_low_answer(200, query("authpage"));
+        }
+      } else {
+        return http_low_answer(200, query("authpage"));
+      }
+    }
+  }
 
   if (id->misc->session_variables->username) {
     id->misc->user_variables =
