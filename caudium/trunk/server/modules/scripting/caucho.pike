@@ -330,6 +330,40 @@ class CseStream
   }
 }
 
+// wrapper for parsing html from output.
+class RXMLParseWrapper
+{
+  static object _file;
+  static object _id;
+  static string _data;
+
+  int write(string data)
+  {
+    _data += data;
+    return strlen(data);
+  }
+
+  int close(void|string how)
+  {
+    _file->write(parse_rxml(_data,_id));
+    _data="";
+    return _file->close(how);
+  }
+
+  mixed `->(string n)
+  {
+    return ::`->(n) || predef::`->(_file, n);
+  }
+
+  void create(object file, object id)
+  {
+    _file = file;
+    _id = id;
+    _data = "";
+  }
+}
+
+
 // throw error page
 // TODO - maybe this should return HTTP 500 status ?
 string caucho_error(object id, string err)
@@ -415,6 +449,10 @@ string caucho_request(object id)
   if(!srun_connected)
      return caucho_error(id, "Can't connect to srun.\n");
 
+  // if we have a session, let us remember the host we conneted to.
+  if(jsid)
+   session_cache->store(cache_pike(({ shost, sport }), jsid, 3600));
+
   // set sessionid
   if (jsid) id->misc->srun->session = id->misc->srun->decode_session(jsid);
 
@@ -473,6 +511,11 @@ void create(object conf)
          "Hosts where srun is running, provided in the format: host:port, "
          "one per line. Omitting the port will cause the default port "
          "of DEFAULT_PORT to be used");
+ defvar("rxml", 0, "Parse RXML in servlet output", TYPE_FLAG|VAR_MORE,
+         "If this is set, the output from Resin handled by this "
+         "module will be RXML parsed. NOTE: No data will be returned to the "
+         "client until the output is fully parsed.");
+
 }
 
 array(string) query_file_extensions()
@@ -482,7 +525,11 @@ array(string) query_file_extensions()
 
 int|mapping handle_file_extension(object o, string e, object id)
 {
-  return ([ "data":caucho_request(id),
+
+  if(QUERY(rxml)) return (["data": parse_rxml(caucho_request(id), id),
+              "type": id->request_headers["content-type"] ]);
+
+  else return ([ "data":caucho_request(id),
             "type":id->request_headers["content-type"] ]);
 }
 
