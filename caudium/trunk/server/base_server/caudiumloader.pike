@@ -1104,6 +1104,7 @@ int main(int argc, array(string) argv)
   add_constant("http_date",          Caudium.http_date);
   add_constant("html_decode_string", Protocols.HTTP.unentity);
   add_constant("cern_http_date",     Caudium.cern_http_date);
+  add_constant("parse_html",         spider.parse_html);
 #endif
 
   add_constant("mark_fd", mark_fd);
