@@ -785,49 +785,49 @@ array(string) tag_scope(string tag, mapping m, string contents, object id)
 
 string tag_set( string tag, mapping m, object id )
 {
-  if(m->help) 
-    return ("<b>&lt;unset variable=...&gt;</b>: Unset the variable specified "
-	    "by the 'variable' argument");
+    if(m->help) 
+        return ("<b>&lt;unset variable=...&gt;</b>: Unset the variable specified "
+                "by the 'variable' argument");
 
-  if (m->variable)
-  {
-    int ret;
-    if (m->value) {
-      // Set variable to value.
-      ret = set_scope_var(m->variable, m->scope, m->value, id);
-    } else if (m->expr) {
-      ret = set_scope_var(m->variable, m->scope, sexpr_eval( m->expr ), id);
-    } else if (m->from) {
-      mixed val;
-      // Set variable to the value of another variable
-      val = get_scope_var(m->from, 0, id);
-      if(!val && (m->debug || id->misc->debug))
-	return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
-      ret = set_scope_var(m->variable, m->scope, val, id);
-    } else if (m->other) {
-      // Set variable to the value of a misc variable
-      if (id->misc->variables && id->misc->variables[ m->other ])
-	ret = set_scope_var(m->variable, m->scope, id->misc->variables[ m->other ], id);
-      else if (m->debug || id->misc->debug)
-	return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
-    } else if(m->define) {
-      // Set variable to the value of a define
-      ret = set_scope_var(m->variable, 0, id->misc->defines[ m->define ], id);
-    } else if (m->eval) {
-      // Set variable to the result of some evaluated RXML
-      ret = set_scope_var(m->variable, m->scope, parse_rxml(m->eval, id), id);
-    } else {
-      // Unset variable.
-      ret = set_scope_var(m->variable, m->scope, 0, id);
+    if (m->variable)
+    {
+        int ret;
+        if (m->value) {
+            // Set variable to value.
+            ret = set_scope_var(m->variable, m->scope, m->value, id);
+        } else if (m->expr) {
+            ret = set_scope_var(m->variable, m->scope, sexpr_eval( m->expr ), id);
+        } else if (m->from) {
+            mixed val;
+            // Set variable to the value of another variable
+            val = get_scope_var(m->from, 0, id);
+            if(!val && (m->debug || id->misc->debug))
+                return "<b>&lt;"+tag+"&gt;: Variable "+m->from+" doesn't exist.</b>";
+            ret = set_scope_var(m->variable, m->scope, val, id);
+        } else if (m->other) {
+            // Set variable to the value of a misc variable
+            if (id->misc->variables && id->misc->variables[ m->other ])
+                ret = set_scope_var(m->variable, m->scope, id->misc->variables[ m->other ], id);
+            else if (m->debug || id->misc->debug)
+                return "<b>&lt;"+tag+"&gt;: other variable doesn't exist.</b>";
+        } else if(m->define) {
+            // Set variable to the value of a define
+            ret = set_scope_var(m->variable, 0, id->misc->defines[ m->define ], id);
+        } else if (m->eval) {
+            // Set variable to the result of some evaluated RXML
+            ret = set_scope_var(m->variable, m->scope, parse_rxml(m->eval, id), id);
+        } else {
+            // Unset variable.
+            ret = set_scope_var(m->variable, m->scope, 0, id);
+        }
+        if(!ret && (m->debug || id->misc->debug))
+            return "<b>Set/unset failed or scope is read-only.</b>";
+        return("");
+    } else if (id->misc->defines && (m->debug || id->misc->debug)) {
+        return("<!-- set (line "+id->misc->line+"): variable not specified -->");
+    } else if (m->debug || id->misc->debug) {
+        return("<!-- set: variable not specified -->");
     }
-    if(!ret)
-      return "<b>Set/unset failed or scope is read-only.</b>";
-    return("");
-  } else if (id->misc->defines) {
-    return("<!-- set (line "+id->misc->line+"): variable not specified -->");
-  } else {
-    return("<!-- set: variable not specified -->");
-  }
 }
 
 //! tag: append
