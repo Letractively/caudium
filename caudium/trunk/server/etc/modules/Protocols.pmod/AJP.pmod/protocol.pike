@@ -49,6 +49,20 @@ constant METHOD_MERGE = 25;
 constant METHOD_BASELINE_CONTROL = 26; 
 constant METHOD_MKACTIVITY = 27;
 
+constant attribute_values=([
+    "context" : 0x01,  // not implimented
+    "servlet_path" : 0x02,  // not implimented
+    "remote_user" : 0x03,
+    "auth_type" : 0x04,
+    "query_string" : 0x05,
+    "jvm_route" : 0x06,
+    "ssl_cert" : 0x07,
+    "ssl_cipher" : 0x08,
+    "ssl_session" : 0x09,
+    "req_attribute" : 0x0a,
+    "terminator" : 0xff
+    ]);
+
 constant header_values=([
     "accept" : 0xa001,
     "accept-charset" : 0xa002,
@@ -80,7 +94,7 @@ string packet_shutdown()
 
 string packet_body(string d)
 {
-  return push_string(d);
+  return sprintf("%2c%s",strlen(d),d);
 }
 
 string packet_forward_request(object id)
@@ -92,7 +106,20 @@ string packet_forward_request(object id)
   int server_port;
   int is_ssl=0;
 
-  if(id->server_protocol=="HTTPS") is_ssl=1;
+  if(id->server_protocol=="HTTPS")
+  {
+   is_ssl=1;
+//   we need to figure out what this information should be.
+//   attributes->ssl_cert=id->;
+//   attributes->ssl_cipher="";
+//   attributes->ssl_session="";
+  }
+  if(id->user)
+  {
+    attributes->remote_user=id->user->username;
+    attributes->auth_type="Basic";
+  }
+
 
   server_name=id->conf->query("MyWorldLocation");
   sscanf(server_name, "%*s//%s", server_name);
@@ -100,12 +127,15 @@ string packet_forward_request(object id)
   sscanf(server_name, "%s/", server_name);
 
   sscanf(id->my_fd->query_address(1), "%*s %d", server_port);
+  
+  if(id->query)
+    attributes->query_string=id->query;
 
   packet=sprintf("%c%c%s%s%s%s%s%2c%c%2c%s%s%c",
      MSG_FORWARD_REQUEST,
      method,
      push_string(id->clientprot),
-     push_string(id->raw_url),
+     push_string(id->not_query),
      push_string(id->remoteaddr),
      push_string(caudium->quick_ip_to_host(id->remoteaddr)),
      push_string(server_name),
@@ -284,8 +314,14 @@ string make_attributes(mapping a)
 
   foreach(indices(a), string attribute)
   {
-      attribute_string+=push_string(attribute) + push_string(a[attribute]);
+    if(attribute_values[attribute])
+      attribute_string+= sprintf("%c", attribute_values[attribute]) + 
+        push_string(a[attribute]);
+    else
+      error("unknown attribute " + attribute + ".\n");
   }
+
+//  attribute_string+=sprintf("%c", attribute_values->terminator);
   return attribute_string;
 }
 
@@ -301,6 +337,18 @@ string decode_send_body_chunk(mapping packet)
   sscanf(packet->data, "%" + len + "s", packet->data);
   werror(" " + len + " bytes of data.\n");
   return packet->data;
+}
+
+mapping decode_end_response(mapping packet)
+{
+  werror("decode_end_response\n");
+  if(packet->type != MSG_END_RESPONSE)
+    error("Attempt to decode invalid end response packet.\n");
+
+  sscanf(packet->data, "%c", packet->reuse);
+
+  return packet;
+
 }
 
 mapping decode_send_headers(mapping packet)

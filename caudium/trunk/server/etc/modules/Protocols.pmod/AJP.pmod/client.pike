@@ -38,8 +38,13 @@ object get_connection()
 
 void replace_connection(object conn)
 {
+  werror("sizeof conns: " + sizeof(conns) + "\n");
   if(sizeof(conns)<max_conns)
+  {
+    conn->set_destroy_function(lambda(object cnx){ conns-=({cnx});});
     conns+=({conn});
+    conn->request_done();
+  }
 }
 
 class connection
@@ -47,6 +52,8 @@ class connection
   inherit .protocol;
   object c;
   int inuse=0;
+  int destruct_on_close=0;
+  function destroy_function;
 
   void create(string host, int port)
   {
@@ -110,7 +117,9 @@ class connection
       else if(r1->type==MSG_END_RESPONSE) 
       {
         keep_listening=0;
-        werror("received end response packet.\n");
+        r1=decode_end_response(r1);
+        if(r1->reuse!=1)
+          destruct_on_close=1;
       }
       else error("Invalid packet type " + r1->type + " received.\n");
     }
@@ -118,6 +127,18 @@ class connection
 
     inuse=0;
     return r;
+  }
+  
+  void set_destroy_function(function f)
+  {
+    if(f)
+      destroy_function=f;
+  }
+
+  void request_done()
+  {
+    if(destruct_on_close && destroy_function)
+      destroy_function(this);
   }
 
 }
