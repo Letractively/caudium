@@ -360,9 +360,9 @@ static void f_getdate(INT32 args)
   if (err || !tmptr) {
     push_int(err);
     if ((unsigned int)err > sizeof(getdate_errors) - 1 || err < 1)
-      push_string(getdate_errors[0]);
+      ref_push_string(getdate_errors[0]);
     else
-      push_string(getdate_errors[err]);
+      ref_push_string(getdate_errors[err]);
     aret = aggregate_array(2);
     push_array(aret);
   } else{
@@ -371,7 +371,7 @@ static void f_getdate(INT32 args)
       push_int(ret);
     else {
       push_int(8);
-      push_string(getdate_errors[8]);
+      ref_push_string(getdate_errors[8]);
       aret = aggregate_array(2);
       push_array(aret);
     }
@@ -401,7 +401,7 @@ static void f_parse_date(INT32 args)
   ret = get_date(date->str, NULL);
   pop_n_elems(args);
   if (ret < 0)
-    push_string(gd_bad_format);
+    ref_push_string(gd_bad_format);
   else
     push_int(ret);
 }
@@ -457,7 +457,7 @@ static void f_is_modified(INT32 args)
   pop_n_elems(args);
   
   if (!is_modified_formats[i].fmt) {
-    push_string(gd_bad_format);
+    ref_push_string(gd_bad_format);
     return;
   }
 
@@ -470,13 +470,13 @@ static void f_is_modified(INT32 args)
 
   ret = mktime(&ttm);
   if (ret >= 0)
-    push_string(gd_bad_format);  
+    ref_push_string(gd_bad_format);  
 #else /* HAVE_STRPTIME */
   ret = get_date(header->str, NULL);
   pop_n_elems(args);
 
   if (ret < 0)
-    push_string(gd_bad_format);
+    ref_push_string(gd_bad_format);
 #endif /* HAVE_STRPTIME */
 
   if (tmod > ret)
