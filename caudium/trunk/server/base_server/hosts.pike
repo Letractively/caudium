@@ -18,8 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
-// "$Id$";
+//! Caudium Resolver
+
+constant cvs_version="$Id$";
 #include <caudium.h>
 
 public mapping (string:array(mixed)) do_when_found=([]);
@@ -30,6 +35,7 @@ mapping lookup_funs;
 #define LOOKUP(MODE,NAME,CB,ARGS) do{if(!do_when_found[NAME]){do_when_found[NAME]=(CB?({({CB,ARGS})}):({}));lookup(MODE, NAME);} else if(CB) do_when_found[NAME]+=({({CB,ARGS})});}while(0)
 #define ISIP(H,CODE) do {mixed entry;if(sizeof(entry = H / "." ) == 4){int isip = 1;foreach(entry, string s)if((string)((int)s) != s)isip = 0;if(isip) {CODE;};}}while(0)
 
+//!
 void got_one_result(string from, string to)
 {
 #ifdef HOST_NAME_DEBUG
@@ -41,6 +47,7 @@ void got_one_result(string from, string to)
   foreach(cbs||({}), cbs) cbs[0](to, @cbs[1]);
 }
 
+//!
 string blocking_ip_to_host(string ip)
 {
   if(!stringp(ip))
@@ -53,6 +60,7 @@ string blocking_ip_to_host(string ip)
 
 }
 
+//!
 string blocking_host_to_ip(string host)
 {
   if(!stringp(host) || !strlen(host)) return host;
@@ -64,6 +72,7 @@ string blocking_host_to_ip(string host)
   return addr?(addr[1][0]):host;
 }
 
+//!
 string quick_ip_to_host(string ipnumber)
 {
 #ifdef NO_REVERSE_LOOKUP
@@ -77,6 +86,7 @@ string quick_ip_to_host(string ipnumber)
 }
 
 
+//!
 string quick_host_to_ip(string h)
 {
   if(h[-1] == '.') h=h[..strlen(h)-2];
@@ -86,6 +96,7 @@ string quick_host_to_ip(string h)
   return h;
 }
 
+//!
 void ip_to_host(string|void ipnumber, function|void callback, mixed ... args)
 {
 #ifdef NO_REVERSE_LOOKUP
@@ -100,6 +111,7 @@ void ip_to_host(string|void ipnumber, function|void callback, mixed ... args)
   LOOKUP(IP_TO_HOST,ipnumber,callback,args);
 }
 
+//!
 void host_to_ip(string|void host, function|void callback, mixed ... args)
 {
   if(!stringp(host) || !strlen(host)) return callback(0, @args);
@@ -113,16 +125,19 @@ void host_to_ip(string|void host, function|void callback, mixed ... args)
   LOOKUP(HOST_TO_IP,host,callback,args);
 }
 
+//!
 static void dummy_ip_to_host(string ip, function callback, mixed ... args)
 {
   callback(ip, 0, @args);
 }
 
+//!
 static void dummy_host_to_ip(string host, function callback, mixed ... args)
 {
   callback(host, 0, @args);
 }
 
+//!
 void create()
 {
   mixed e;
