@@ -460,7 +460,7 @@ string encode_send_headers(mapping h)
 {
    string r="";
 
-   r += sprintf("%c%2c", MSG_SEND_HEADERS, h->response_code)
+   r += sprintf("%c%2c", MSG_SEND_HEADERS, h->response_code);
    r += push_string(h->response_msg);
    r += sprintf("%2c", sizeof(h->headers));
    r += make_response_headers(h->headers);
@@ -542,34 +542,6 @@ mapping decode_send_headers(mapping packet)
   return packet;
 }
 
-string read_client_body(object f, int len)
-{
-  string body="";
-  int data_to_receive=1;
- 
-  do 
-  {
-    string p = f->read(2);
-    int bytes; 
-    sscanf(p, "%2c", bytes);
-    if(bytes>MAX_PACKET_SIIZE-6) error("body packet too long\n");
-    if(bytes==0) data_to_receive=0;
-    else
-    {
-      string read_data=f->read(bytes);
-      if(sizeof(read_data)<bytes)
-        error("received short data\n");
-      body+=read_data;
-      if(sizeof(body)>=len) data_to_receive=0;
-      else
-        f->write(generate_container_packet(packet_get_body()));
-    }
-  }
-  while(data_to_receive);  
-
-  return body;
-}
-
 mapping decode_forward(mapping packet)
 {
 //  report_debug("decode_send_headers\n");
@@ -588,12 +560,12 @@ mapping decode_forward(mapping packet)
   [packet->server_host, packet->data] = pull_string(packet->data);
   [packet->server_name, packet->data] = pull_string(packet->data);
 
-  [packet->server_port, packet->is_ssl, packet->data, packet->num_headers] = 
+  [packet->server_port, packet->is_ssl, packet->num_headers, packet->data] = 
     array_sscanf(packet->data, "%2c%c%2c%s");
 
   packet->request_headers=([]);
 
-//  report_debug("decoding " + packet->num_headers + " headers.\n");
+ report_debug("decoding " + packet->num_headers + " headers.\n");
 
   for(int i=0; i<packet->num_headers; i++)
   {
@@ -620,19 +592,21 @@ mapping decode_forward(mapping packet)
     }
     packet->request_headers[h]=v;
   }
-
+werror("%O\n", packet);
   // now we get the attributes.
   packet->attributes=([]);
   int ended=0;
   do 
   {
+    werror("scanning attributes.\n");
    int code;
    string value;
-   [code, packet->data] = 
+   array x = 
     array_sscanf(packet->data, "%2c%s");
-   if(code==0xff) ended=1;
+   if(x[0]==0xff) ended=1;
    else
    {
+      packet->data = x[1]||"";
      [value, packet->data] = pull_string(packet->data);
      packet->attributes[search(attribute_values, code)] = value;
    }
@@ -646,7 +620,8 @@ mapping decode_client_packet(string packet)
   mapping result=([]);
   int len=0;
 
-  if(packet[0..1]!=0x1234)
+  if(packet[0..0]!=String.int2char(0x12) || 
+      packet[1..1]!=String.int2char(0x34))
   {
     error("Invalid packet from server.\n");
   }
