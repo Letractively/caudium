@@ -178,7 +178,7 @@ mapping|int parse_htaccess(object f, object id, string rht)
   array(int) s;
   mixed in_cache;
   mapping access = ([ ]);
-  cache_key = "htaccess:" + id->conf->name;
+  cache_key = "htaccess:" + id->conf->name + " " + id->host;
     
 
   s = (array(int))f->stat();
@@ -417,7 +417,7 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
   object f;
   mixed in_cache;
 
-  cache_key = "groupfile:" + id->conf->name;
+  cache_key = "groupfile:" + id->conf->name + " " + id->host;
 
   if (!groupfile) {
 #ifdef HTACCESS_DEBUG
@@ -719,7 +719,10 @@ inline string dot_dot(string from)
 string|int cache_path_of_htaccess(string path, object id)
 {
   mixed f;
-  f = cache_lookup("htaccess_files:"+id->conf->name, path);
+
+	string cache_key = "htaccess_files:"+id->conf->name+" "+id->host;
+	
+  f = cache_lookup(cache_key, path);
 #ifdef HTACCESS_DEBUG
   if(f==0)
     HT_WERR("Location of .htaccess file for "+path+" not cached.");
@@ -737,7 +740,10 @@ void cache_set_path_of_htaccess(string path, string|int htaccess_file, object id
   HT_WERR("Setting cached location for "
 	 +path+" to "+htaccess_file+"");
 #endif
-  cache_set("htaccess_files:"+id->conf->name, path, htaccess_file);
+
+	string cache_key = "htaccess_files:"+id->conf->name+" "+id->host;
+
+  cache_set(cache_key, path, htaccess_file);
 }
 
 // This function traverse the virtual filepath to see if there are any 
