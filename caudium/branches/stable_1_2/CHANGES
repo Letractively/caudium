@@ -1,5 +1,9 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
+- Changed the regexp in superform.pike for email, it is now more realistic
+  than the previous one.
+- Fixed in XSLTtag the problem with retrieving templates from the virtual
+  filesystem.
 
 Changes in Caudium 1.2.6 since Caudium 1.2.4
 --------------------------------------------
