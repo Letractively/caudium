@@ -94,12 +94,12 @@ multiset (string) pragma    = (< >);
 string remoteaddr, host;
 
 #ifdef EXTRA_ROXEN_COMPAT
-array  (string) client;
+array  (string) client = ({"unknown"});
 array  (string) referer;
 #endif
 
 string referrer;
-string useragent;
+string useragent = "unknown";
 
 
 mapping file;
@@ -500,8 +500,7 @@ private int parse_got()
        case "user-agent":
 	sscanf(useragent = request_headers[linename], "%s via", useragent);
 #ifdef EXTRA_ROXEN_COMPAT
-	if(!client)
-	  client = (useragent/" ") - ({ "" });
+	client = (useragent/" ") - ({ "" });
 #endif
 	break;
 
@@ -624,11 +623,7 @@ private int parse_got()
 #endif
   }
 #ifdef ENABLE_SUPPORTS    
-  if(!useragent) {
-#ifdef EXTRA_ROXEN_COMPAT
-    client = ({ "unknown" });
-#endif
-    useragent = "unknown";    
+  if(useragent == "unknown") {
     supports = find_supports("", supports); // This makes it somewhat faster.
   } else 
     supports = find_supports(lower_case(useragent), supports);
