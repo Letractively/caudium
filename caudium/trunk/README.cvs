@@ -31,11 +31,18 @@ http://community.roxen.com/developers/cvs/anoncvs.html
 For more information on obtaining Pike 7.0 from anonymous cvs.
 
 Once you've installed Pike following the instructions you can continue
-installing Caudium. Don't forget to run autogen.sh first as listed above. A
-typical install would then look like (assuming Pike is installed in
-/opt/pike):
+installing Caudium. A typical install would then look like (assuming 
+Pike is installed in /opt/pike):
 
-# ./configure --prefix=/opt/www --with-pike=/opt/pike/7.0.81/bin/pike
+# ./autogen.sh
+Running autogen in 'src'
+Running autogen in 'src/cmods'
+Running autogen in 'src/cmods/Caudium'
+Running autogen in 'src/cmods/PiXSL'
+Running autogen in 'src/cmods/UltraLog'
+Running autogen in 'src/tools'
+Running autogen in 'tools'
+# ./configure --prefix=/opt/www --with-pike=/opt/bin/pike
 [configure checks]
 # make
 [compilation]
