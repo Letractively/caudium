@@ -1,0 +1,90 @@
+Template: caudium/config_port
+Type: string
+Default: 22202
+Default-fr: 22202
+Description: On what port should the config interface be?
+ Specify the port on which Caudium will provide its configuration
+ interface. You can access the interface using any form capable web browser
+ (like Mozilla, Lynx, Links or Galeon)
+Description-fr: Sur quel port faut-il mettre l'interface de configuration ?
+ Indiquez le port où sera accessible l'interface de configuration de Caudium.
+ Tout butineur web acceptant les formulaires (comme Mozilla, Lynx, Links
+ ou Galeon) peut accéder à cette interface.
+
+Template: caudium/listen_on
+Type: string
+Default: 80
+Default-fr: 80
+Description: What port should the server listen on?
+ Caudium is currently configured to listen on port '${portno}' of every
+ interface in your machine. It seems, however, that this port is already
+ taken by some other application. Please specify a different port.
+Description-fr: Quel port le serveur doit-il écouter ?
+ Caudium est actuellement configuré pour écouter le port ${portno} de
+ chaque interface de votre machine. Cependant, ce port semble être déjà
+ pris par une autre application. Veuillez donner un port différent.
+
+Template: caudium/start_options
+Type: multiselect
+Choices: threads, debug, once, profile, fd-debug, keep-alive
+Choices-fr: threads, debug, once, profile, fd-debug, keep-alive
+Description: Select options that should be used on startup
+ 'threads' - use threads (if available); 'debug' - output debugging
+ information while running; 'once' - run in foreground; 'profile' - store
+ profiling information; 'fd-debug' - debug file descriptor usage
+ 'keep-alive' - keep connections alive
+Description-fr: Choisissez les options qui seront utilisées au démarrage.
+ « threads » - utilisation en mode multi-processus (si disponible) ; « debug »
+ - produire des informations de débogage pendant le fonctionnement ;
+ « once » - exécution en avant-plan ; « profile » - garder les
+ informations de profilement ; « fd-debug » déboguer l'utilisation des
+ descripteurs de fichier ; «  keep-alive » - garder les connexions
+ vivantes.
+
+Template: caudium/cfg_port_taken
+Type: note
+Description: Cannot bind to port.
+ The port you have specified for Caudium configuration interface is
+ unavailable. Please specify another port number - Caudium cannot function
+ properly without binding its configuration interface to a port on your
+ system.
+Description-fr: Impossible de se lier au port.
+ Le port que vous avez indiqué pour l'interface de configuration n'est
+ pas disponible. Veuillez donner un autre numéro de port -- Caudium ne peut
+ fonctionner correctement si son interface de configuration n'est pas liée
+ à un port de votre système.
+
+Template: caudium/last_screen
+Type: note
+Description: Caudium configuration
+ After your Caudium is installed and running, you should point your
+ forms-capable browser to localhost:${cfgport} to further configure Caudium
+ using its web-based configuration interface.
+ .
+ For more information about Caudium see the documents in the
+ /usr/share/doc/caudium directory and make sure to visit
+ http://caudium.net/, http://caudium.org/ and http://caudium.info/
+Description-fr: Configuration de Caudium.
+ Une fois que Caudium fonctionne, il est souhaitable de poursuivre la
+ configuration en utilisant l'interface web de configuration :
+ localhost:${cfgport} avec votre butineur.
+ .
+ Voyez les documents dans le répertoire /usr/share/doc/caudium pour des
+ renseignements supplémentaires sur Caudium ; consultez sans faute
+ http://caudium.net/, http://caudium.org/ et http://caudium.info.
+
+Template: caudium/experimental_http
+Type: boolean
+Default: false
+Description: Use the experimental HTTP protocol module?
+ Caudium comes with an experimental HTTP module that is faster than the
+ original one. The code is still Work-In-Progress, so you might experience
+ problems running it. It is NOT recommended to run this code on a
+ production server. If, however, you want to test its functionality, answer
+ YES to this question.
+Description-fr: Voulez-vous utiliser le module expérimental pour HTTP ?
+ Caudium apporte un module expérimental concernant le protocole HTTP qui
+ est plus rapide que le standard. Ce code est un « Work-In-Progress » et
+ vous pouvez rencontrer des problèmes en l'utilisant. N'utilisez Pas ce code
+ avec un serveur de production. Cependant, si vous voulez le tester, répondez
+ « oui » à cette question.

@@ -1,0 +1,5 @@
+This is the directories where Solaris specific packages definitions
+are saved.
+
+sparc/ -> for sparc and compatibles computers
+x86/   -> for x86 and compatibles
