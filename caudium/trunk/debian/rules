@@ -20,11 +20,16 @@ export DH_OPTIONS
 
 # we need to know what pike are we using
 
-# The ugly hack is here because CVS keeps losing the perm bits...
-PIKE=/usr/bin/pike7.2
-PIKE_VERSION=$(shell $(PIKE) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
+ifdef NEW_PIKE
+PIKE=pike7.2
+else
+PIKE=pike7
+endif
+PIKEBIN=/usr/bin/$(PIKE)
+
+PIKE_VERSION=$(shell $(PIKEBIN) -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);')
 CVS_SNAPSHOT=$(shell if test -f configure; then echo no; else echo yes; fi)
-PIKE7_CHANGELOG=/usr/share/doc/pike7.2/changelog.Debian.gz
+PIKE7_CHANGELOG=/usr/share/doc/$(PIKE)/changelog.Debian.gz
 PIKE_DEBIAN_VER=$(shell gunzip -c ${PIKE7_CHANGELOG} | head -1 | sed -e 's/\(.*(\)\(.*\)\().*\)/\2/')
 PIKE_DEBIAN_VER2=$(shell echo $(PIKE_DEBIAN_VER) | sed -e 's/\(.*\)\(-.*\)/\1/')
 ADD_VER=-1.1
@@ -40,7 +45,7 @@ configure-stamp:
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
 	fi
-	./configure --prefix=/usr --with-pike=$(PIKE)
+	./configure --prefix=/usr --with-pike=$(PIKEBIN)
 
 	touch configure-stamp
 
@@ -114,8 +119,8 @@ install: build
 	   debian/tmp/usr/lib/caudium$(ADD_VER)/base_server/caudium.pike
 
 	# fix what lintian whines about
-	ln -sf ../../../bin/pike7.2 `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pike
-	ln -sf ../../../bin/pike7.2 `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/caudium
+	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/pike
+	ln -sf ../../../bin/$(PIKE) `pwd`/debian/tmp/usr/lib/caudium$(ADD_VER)/bin/caudium
 	rm -rf debian/tmp/usr/local/
 	
 	#
@@ -169,7 +174,7 @@ binary-arch: build install
 #	dh_makeshlibs
 #	dh_perl
 	dh_shlibdeps
-	dh_gencontrol -u"-Vpikever=$(PIKE_DEBIAN_VER)"
+	dh_gencontrol -- -Vpike:ver=$(PIKE_DEBIAN_VER) -Vpike:name=$(PIKE)
 	dh_md5sums
 	dh_builddeb
 
