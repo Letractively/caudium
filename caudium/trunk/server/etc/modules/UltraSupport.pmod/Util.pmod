@@ -4,14 +4,21 @@
 
 // $Id$
 
+//!
 constant PERIOD_MONTH = 0;
+
+//!
 constant PERIOD_YEAR  = 1;
+
+//!
 constant PERIOD_WEEK  = 2;
+
+//!
 constant PERIOD_DAY   = 3;
 
 import ".";
 
-/* These will be size limited to the defined size */
+//! These will be size limited to the defined size 
 constant compmaps =
 (<
   "agents",
@@ -24,27 +31,28 @@ constant compmaps =
   "sites",
 >);
 
+//!
 void compress_mappings(object o, string|int table, int maxsize)
 {
   if(!table)
     foreach(indices(compmaps), table) 
     {
       if((sizeof(o[table])-1) > maxsize) {
-	werror("\t\tCleaning table %s: %d...", table,sizeof(o[table]));
+	report_debug("\t\tCleaning table %s: %d...", table,sizeof(o[table]));
 	o[table] = UltraLog.compress_mapping(o[table], maxsize);
-	werror("done.\n");
+	report_debug("done.\n");
       }
     }
   else if(compmaps[table]) {
     if((sizeof(o[table])-1) > maxsize) {
-      werror("\t\tCleaning table %s: %d...", table, sizeof(o[table]));
+      report_debug("\t\tCleaning table %s: %d...", table, sizeof(o[table]));
       o[table] = UltraLog.compress_mapping(o[table], maxsize);
-      werror("done.\n");
+      report_debug("done.\n");
     }
   } 
 }
 
-
+//!
 array dir_glob(string dirname, string p) {
   array matches = ({});
   array dir = get_dir(dirname);
@@ -53,6 +61,8 @@ array dir_glob(string dirname, string p) {
   foreach(sort(dir), string sf)  matches += ({ dirname + sf });
   return matches;
 }
+
+//!
 array glob_expand(string glob)
 {
   array path;
@@ -92,6 +102,7 @@ array glob_expand(string glob)
   return  matches;
 }
 
+//!
 void add_mapping_mapstr(mapping orig, mapping add)
 {
   string ns;
@@ -103,6 +114,7 @@ void add_mapping_mapstr(mapping orig, mapping add)
   }
 }
 
+//!
 void add_mapping_str(mapping orig, mapping add)
 {
   foreach(indices(add), string ind)
@@ -110,6 +122,7 @@ void add_mapping_str(mapping orig, mapping add)
     orig[ind] += add[ind];
 }
 
+//!
 void add_mapping_mapint(mapping orig, mapping add)
 {
   foreach(indices(add), int ind)
@@ -119,12 +132,14 @@ void add_mapping_mapint(mapping orig, mapping add)
   }
 }
 
+//!
 void add_mapping_int(mapping orig, mapping add)
 {
   foreach(indices(add), int ind)
     orig[ind] += add[ind];
 }
 
+//!
 string compress(string data)
 {
 #if constant(Gz.deflate)
@@ -134,6 +149,7 @@ string compress(string data)
 #endif
 }
 
+//!
 string uncompress(string data)
 {
 #if constant(Gz.inflate)
@@ -143,6 +159,7 @@ string uncompress(string data)
 #endif
 }
 
+//!
 void low_load_all(object db, mapping|object stat, array data)
 {
   mixed tmp = db->load_list(data);
@@ -161,6 +178,8 @@ void low_load_all(object db, mapping|object stat, array data)
     stat->loaded = 1;
   }
 }
+
+//!
 void low_load(object db, string table, mapping|object stat)
 {
   mixed tmp, data;
@@ -180,6 +199,7 @@ void low_load(object db, string table, mapping|object stat)
   
 }
 
+//!
 int load(object db, mapping|object stat, array data, string|void table) 
 {
   if(table) {
@@ -249,7 +269,7 @@ int load(object db, mapping|object stat, array data, string|void table)
   }
 }
 
-
+//!
 int save(object db, array data, object period) 
 {
   foreach(data, string f) {

@@ -17,10 +17,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
 
-/* $Id$ */
+//! $Id$
    
-//import "../";
 mapping available;
 array tdate;
 string path;
@@ -28,7 +30,7 @@ string key;
 int modified;
 
 
-
+//!
 mapping get_available_dates()
 {
   mapping dates;
@@ -56,6 +58,7 @@ mapping get_available_dates()
   return available = dates;
 }
 
+//!
 array(int) get_days()
 {
   get_available_dates();
@@ -65,6 +68,7 @@ array(int) get_days()
   return ({ });
 }
 
+//!
 array(int) get_months()
 {
   get_available_dates();
@@ -72,6 +76,8 @@ array(int) get_months()
     return indices(available[ tdate[1] ]);
   return ({ });
 }
+
+//!
 void create(string _path)
 {
   path = _path;
@@ -80,6 +86,7 @@ void create(string _path)
   get_available_dates();
 }
 
+//!
 void set_period(array period)
 {
   tdate = period;
@@ -99,6 +106,8 @@ void set_period(array period)
     break;
   }
 }
+
+//!
 void invalidate(mapping dates)
 {
 #define urm(x) do { /*write("%s\n", x);*/ rm(x); } while(0)
@@ -121,6 +130,7 @@ void invalidate(mapping dates)
   }
 }
 
+//!
 mixed load(string table)
 {
   if(!table || !strlen(table))
@@ -131,13 +141,14 @@ mixed load(string table)
   catch { tmp = UltraSupport.Util.uncompress(tmp); };
   mixed err = catch { tmp = decode_value(tmp); };
   if(err) {
-    werror("Error decoding data for %s (%s)\n%s\n",
-	   table, key, describe_backtrace(err));
+    report_error("Error decoding data for %s (%s)\n%s\n",
+	         table, key, describe_backtrace(err));
     return 0;
   }
   return tmp;
 }
 
+//!
 mapping load_list(array list)
 {
   mapping tmp = ([]);
@@ -146,6 +157,7 @@ mapping load_list(array list)
   return tmp;
 }
 
+//!
 void save(string table, mixed data)
 {
   get_available_dates();
@@ -166,6 +178,7 @@ void save(string table, mixed data)
   modified = 1;
 }
 
+//!
 void sync() {
   /*
     if(modified) {
@@ -175,6 +188,7 @@ void sync() {
   */
 }
 
+//!
 void destroy() {
   sync();
 }
