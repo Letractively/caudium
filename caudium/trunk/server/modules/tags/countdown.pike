@@ -19,6 +19,98 @@
  *
  */
 
+//
+//! module: Countdown
+//!  Defines the &lt;countdown&gt; tag.
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
+//! tag: countdown
+//!  This tag counts the time to or from a specified date.
+//
+//! attribute: [day = number|weekday]
+//!  Sets the weekday.
+//
+//! attribute: [hour = number]
+//!  Sets the hour.
+//
+//! attribute: [iso = year-month-day]
+//!  Sets the year, month and day, all at once, in the ISO format.
+//
+//! attribute: [mday = number]
+//!  Sets the day of month.
+//
+//! attribute: [min = number]
+//!  Sets the minute.
+//
+//! attribute: [month = number|month]
+//!  Sets the month.
+//
+//! attribute: [sec = number]
+//!  Sets the second.
+//
+//! attribute: [year = number]
+//!  Sets the year.
+//
+//! attribute: [combined]
+//!  Shows an English text describing the time period. Example: 2
+//!  days, 1 hour and 5 seconds. You may use the prec attribute to
+//!  limit how precise the description should be. You can also use
+//!  the month attribute if you want to see years/months/days
+//!  instead of years/weeks/days.
+//
+//! attribute: [days]
+//!  Prints the number of days until the time.
+//
+//! attribute: [dogyears]
+//!  Prints the number of dog years until the time, with one decimal.
+//
+//! attribute: [hours]
+//!  Prints the number of hours until the time.
+//
+//! attribute: [lang = ca|es_CA|hr|cs|nl|en|fi|fr|de|hu|it|jp|mi|no|pt|ru|sr|si|es|sv
+//!  Will print the result as words in the chosen language if used
+//!  together with type=string. Available languages are ca, es_CA
+//!  (Catalan), hr (Croatian), cs (Czech), nl (Dutch), en (English),
+//!  fi (Finnish), fr (French), de (German), hu (Hungarian), it
+//!  (Italian), jp (Japanese), mi (Maori), no (Norwegian), pt
+//!  (Portuguese), ru (Russian), sr (Serbian), si (Slovenian), es
+//!  (Spanish) and sv (Swedish).
+//
+//! attribute: [minutes]
+//!  Prints the number of minutes until the time.
+//
+//! attribute: [months]
+//!  Prints the number of month until the time.
+//
+//! attribute: [nowp]
+//!  Returns 1 if the specified time is now, otherwise 0. How
+//!  precise now should be interpreted is defined by the prec
+//!  attributes. The default precision is one day.
+//
+//! attribute: [prec = year|month|week|day|hour|minute|second]
+//!  A modifier for the nowp and combined attributes. Sets the
+//!  precision for these attributes.
+//
+//! attribute: [seconds]
+//!  Prints how many seconds until the time.
+          
+   since
+          Counts from a time rather than towards it.
+          
+   type=string number ordered
+          How to present the result.
+          
+   weeks
+          Prints the number of weeks until the time.
+          
+   when
+          Prints when the time will occur. All valid <date> tag
+          attributes can be used.
+          
+   years
+          Prints the number of years until the time.
+
 /* Countdown tag. Counts down to the specified data */
 
 constant cvs_version="$Id$";
