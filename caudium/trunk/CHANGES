@@ -31,3 +31,5 @@ Changes in Caudium 1.1 since CVS branching
   (perl module).
 - Wrote a tar filesystem module. This module allows you to mount an
   uncompressed tar file in the virtual filesystem.
+- Added new http_error handler. The old 404 handler is still there, but
+  disabled per default.
