@@ -26,7 +26,7 @@
 inherit "wizard";
 constant name= "Cache//Cache Status";
 
-constant doc = ("Show information about the Caudium's caching engine.");
+constant doc = ("Show information about Caudium's caching engine.");
 
 constant more=1;
 
