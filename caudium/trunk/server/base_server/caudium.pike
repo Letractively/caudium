@@ -3639,6 +3639,11 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_TOGGLE
 //!  name: Range: Enable range handling
 //
+//! defvar: ModuleListType
+//! This variable decides how the <tt>Add Module</tt> page should look like. The standard mode is very verbose with graphical headers and documentation for each module. There is also a compact mode which allows for addition of one or more modules simultaneously. This mode has no module documentation and is therefore ment for more advanced users.
+//!  type: TYPE_STRING_LIST
+//!  name: Configuration interface: Add module page layout
+//
 //! defvar: default_font
 //! The default font to use when modules request a font.
 //!  type: TYPE_FONT
