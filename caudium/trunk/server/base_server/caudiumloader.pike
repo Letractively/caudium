@@ -530,7 +530,6 @@ object cache_manager() {
 static private void initiate_cache()
 {
   object cache=Cache.Compatible( cache_manager() );
-  add_constant("get_cache_manager", cache_manager );
   add_constant("cache_set", cache->cache_set);
   add_constant("cache_lookup", cache->cache_lookup);
   add_constant("cache_remove", cache->cache_remove);
@@ -893,6 +892,8 @@ int main(mixed ... args)
 
   initiate_cache();
   load_caudium();
+  caudium->cache_manager = cache_manager();
+  cache_manager()->caudium = caudium;
   int retval = caudium->main(@args);
   perror_status_reported = 0;
   roxen_perror("\n-- Total boot time %4.3f seconds ---------------------------\n\n",

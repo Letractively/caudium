@@ -33,9 +33,7 @@ int _really_started;
 #if constant(Caudium)
 program pipe = Caudium.nbio;
 #endif
-#if !constant(caudium)
-#define caudium caudiump()
-#endif
+object caudium;
 // This is a hack until someone else writes a storage method.
 #define dcache Cache.SlowStorage.Disk
 

@@ -23,16 +23,15 @@
 
 #include <config.h>
 
-inherit "caudiumlib";
-inherit "cachelib";
+inherit "base_server/cachelib";
 
 object cache_manager;
 object my_cache;
 
 void create( object cm ) {
-  cache_manager = cm
+  cache_manager = cm;
 #ifdef CACHE_DEBUG
-  perror("CACHE: Compatibility now online.\n");
+  write("CACHE: Compatibility now online.\n");
 #endif
 }
 
