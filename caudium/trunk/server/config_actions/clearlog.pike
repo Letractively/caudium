@@ -57,7 +57,7 @@ mixed wizard_done(object id)
     report_notice("Event log cleared by admin from "+
 		  caudium->blocking_ip_to_host(id->remoteaddr)+".\n");
   }
-  return http_redirect(caudium->config_url()+"Errors/?"+time());
+  return http_redirect(caudium->config_url(id)+"Errors/?"+time());
 }
 
 string handle(object id)

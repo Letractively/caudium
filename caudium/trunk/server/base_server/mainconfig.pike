@@ -248,7 +248,7 @@ mapping stores( string s )
       ]);
 }
 
-#define CONFIG_URL caudium->config_url()
+#define CONFIG_URL caudium->config_url(id)
 
 // Holds the default ports for various protocols.
 static private constant default_ports = ([
@@ -915,7 +915,7 @@ mapping new_configuration(object id)
   if(!sizeof(id->variables))
     return stores(new_configuration_form());
   if(id->variables->no)
-    return http_redirect(caudium->config_url()+id->not_query[1..]+"?"+bar++);
+    return http_redirect(CONFIG_URL+id->not_query[1..]+"?"+bar++);
   
   if(!id->variables->name)
     return stores(default_head("Bad luck")+

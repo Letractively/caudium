@@ -1,6 +1,8 @@
 // $Id$
-#ifndef ROXEN_MODULE_H
-#define ROXEN_MODULE_H
+#ifndef CAUDIUM_MODULE_H
+#define CAUDIUM_MODULE_H
+
+#include "roxen.h"
 
 /* Variable types. */
 #define TYPE_STRING           1

@@ -1019,7 +1019,7 @@ public string last_modified_by(object file, object id)
   int uid;
   mixed *u;
   
-  if(objectp(file)) s=file->stat();
+  if(objectp(file)) s = (array(int))file->stat();
   if(!s || sizeof(s)<5) return "A. Nonymous";
   uid=s[5];
   u=user_from_uid(uid, id);
@@ -1530,18 +1530,26 @@ object enable_configuration(string name)
 // return the URL of the configuration interface. This is not as easy
 // as it sounds, unless the administrator has entered it somewhere.
 
-public string config_url()
+public string config_url(void|object id)
 {
-  if(strlen(QUERY(ConfigurationURL)-" "))
+  int p;
+  string prot;
+  string host;
+  if(id && id->request_headers->host) {
+    string p = ":80", url="/";
+    prot = "http://";
+    if(id->ssl_accept_callback) {
+      // This is an SSL port. Not a great check, but what is one to do?
+      p = ":443";
+      prot = "https://";
+    }
+    return prot+id->request_headers->host+url;
+  }  else if(strlen(QUERY(ConfigurationURL)-" "))
     return QUERY(ConfigurationURL)-" ";
 
   array ports = QUERY(ConfigPorts), port, tmp;
 
   if(!sizeof(ports)) return "CONFIG";
-
-  int p;
-  string prot;
-  string host;
 
   foreach(ports, tmp)
     if(tmp[1][0..2]=="ssl") 

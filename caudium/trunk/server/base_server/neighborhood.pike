@@ -230,7 +230,7 @@ array config_info(object c)
 mapping neigh_data()
 {
   mapping m = (["last_reboot":lr]);
-  m->configurl=caudium->config_url();
+  m->configurl=caudium->config_url(id);
   m->seq=seq++;
   switch(seq & 1)
   {

@@ -2277,9 +2277,9 @@ string tag_allow(string a, mapping (string:string) m,
   return ok?(QUERY(compat_if)?"<true>"+s:s+"<true>"):"<false>";
 }
 
-string tag_configurl(string f, mapping m)
+string tag_configurl(string f, mapping m, object id)
 {
-  return caudium->config_url();
+  return caudium->config_url(id);
 }
 
 string tag_configimage(string f, mapping m)

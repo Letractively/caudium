@@ -172,7 +172,7 @@ mapping find_file( string f, object id )
   if(ret->extra_heads && ret->extra_heads->Location)
   {
     string nl;
-    if(sscanf(ret->extra_heads->Location, caudium->config_url()+"%s", nl))
+    if(sscanf(ret->extra_heads->Location, caudium->config_url(id)+"%s", nl))
       return http_redirect(query("mountpoint") + nl);
   }
   if(ret->type == "text/html" && ret->data && strlen(ret->data))

@@ -42,7 +42,7 @@ constant cvs_version="$Id$";
 #define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
 
 #include <caudium.h>
-
+#undef file_stat
 // The privs.pike program
 program Privs;
 
@@ -115,6 +115,20 @@ mixed mark_fd(mixed ... args) { }
  * Some efuns used by Caudium
  */
 
+array(int) caudium_fstat(string|object file, int|void nolink) {
+  mixed st;
+  if(objectp(file)) {
+    if(file->stat)
+      st = (array(int))file->stat();
+    else
+      throw("caudium_fstat: Object not a file.\n");
+  }    
+  else
+    st = file_stat(file, nolink);
+  if(st) return (array(int))st;
+  return 0;
+}
+
 // Used to print error/debug messages
 void roxen_perror(string format,mixed ... args)
 {
@@ -159,7 +173,7 @@ int mkdirhier(string from, int|void mode)
     if (query_num_arg() > 1) {
       mkdir(b+a, mode);
 #if constant(chmod)
-      array(int) stat = file_stat (b + a, 1);
+      array(int) stat = caudium_fstat (b + a, 1);
       if (stat && stat[0] & ~mode)
 	// Race here. Not much we can do about it at this point. :\
 	catch (chmod (b+a, stat[0] & mode));
@@ -172,7 +186,7 @@ int mkdirhier(string from, int|void mode)
     b+=a+"/";
   }
   if(!r)
-    return (file_stat(from)||({0,0}))[1] == -2;
+    return (caudium_fstat(from)||({0,0}))[1] == -2;
   return 1;
 }
 
@@ -445,7 +459,7 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 			     "../pike/src/lib/master.pike");
   array preargs = ({ });
 
-  if (file_stat(mast))
+  if (caudium_fstat(mast))
     preargs += ({ "-m"+mast });
 #ifdef __NT__
   foreach(new_master->pike_include_path, string s)
@@ -702,6 +716,7 @@ int main(mixed ... args)
 			      });				
   add_constant("error", lambda(string s){error(s);});
   add_constant("spawne",spawne);
+  add_constant("caudium_fstat", caudium_fstat);
   add_constant("spawn_pike",spawn_pike);
   add_constant("perror",perror);
   add_constant("roxen_perror",perror);
