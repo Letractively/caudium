@@ -47,6 +47,7 @@ array(array(string | array(string))) arguments = ({
   ({"watchdog-socket", Getopt.HAS_ARG, ({"--watchdog-socket", "--watchdog-socket"})}),
   ({"pid-file", Getopt.HAS_ARG, ({"--pid-file", "--pidfile"})}),
   ({"debug", Getopt.NO_ARG, ({"--debug", "--with-debug", "--enable-debug"})}),
+  ({"watchdog-debug", Getopt.NO_ARG, ({"--watchdog-debug", "--with-watchdog-debug", "--enable-watchdog-debug"})}),
   ({"watchdog", Getopt.NO_ARG, ({"--with-watchdog", "--watchdog", "--enable-watchdog"})}),
   ({"watchdog-pidcheck", Getopt.NO_ARG, ({"--with-watchdog-pidcheck", "--watchdog-pidcheck", "--enable-watchdog-pidcheck"})}),
   ({"nowatchdog", Getopt.NO_ARG, ({"--without-watchdog", "--nowatchdog", "--disable-watchdog"})}),
@@ -75,6 +76,7 @@ mapping(string:mixed) options = ([
   "threads"          : 1,
   "watchdog"         : 1,
 	"watchdog_pidcheck": 1,
+	"watchdog_debug"   : 0,
   "program"          : "base_server/caudiumloader.pike", 
 ]);
 
@@ -167,8 +169,7 @@ class SiteChecker
 		conn = Stdio.File();
 	}
 
-	//! Runs an HTTP GET on the site
-	//! 
+	//! Run an HTTP GET on the site
 	void check()
 	{
 		if(!conn->connect(url, port))
@@ -179,7 +180,6 @@ class SiteChecker
 			// restarted at the next check of the starter. 
 
 			int proc_status = proc->status();
-			flex_write("proc->status: "+proc_status+"\n");
 
 			if(proc && proc->status()==1)
 			{
@@ -195,7 +195,7 @@ class SiteChecker
 		}
 
 		// let's send the request and wait for a response.
-		flex_write("GET request to "+url+" "+(string)port+"\n");
+		flex_debug("GET request to "+url+" "+(string)port+"\n");
 
 		conn->set_nonblocking();
 		conn->set_read_callback(GET_response_received);
@@ -216,7 +216,7 @@ class SiteChecker
 		if(sizeof(data))
 		{
 			// request was successful.
-			flex_write("Got response for GET on "+url+":"+(string)port+"\n");
+			flex_debug("Got response for GET on "+url+":"+(string)port+"\n");
 			remove_call_out(timeout_callout);
 			conn->close();
 			conn=0;
@@ -428,6 +428,15 @@ void preamble()
 		}
 		options->watchdog_pidcheck = 0;
   }
+
+	if(options->debug || options->watchdog_debug)
+	{
+		if(!options->quiet)
+		{
+			write("Enabling watchdog debug\n");
+		}
+		options->watchdog_debug = 1;
+	}
 
   command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN"});
 
@@ -754,6 +763,10 @@ int act_on_args()
           break;
 				case "watchdog":
 	  			options->watchdog=1;
+					break;
+				case "watchdog-debug":
+					options->watchdog_debug = 1;
+					break;
 				case "watchdog-pidcheck":
 					options->watchdog_pidcheck = 1;
           break;
@@ -896,6 +909,7 @@ will
       .B--without-watchdog-pidcheckB.:  Disable watchdog PID check
 
       .B--with-debugB.:  Enable debug
+			.B--with-watchdog-debug:  Enable watchdog debug
       .B--without-debugB.:  Disable all debug
 	
       .B--with-fd-debugB.:  Enable FD debug.
@@ -1185,6 +1199,8 @@ void check_using_PING()
         proc->kill(signum("SIGKILL"));
       }
     }
+		flex_debug("PING request\n");
+		
     // let's send the request and wait for a response.
     conn->set_nonblocking();
     conn->set_read_callback(PING_response_received);
@@ -1219,7 +1235,7 @@ void check_using_GET()
 		// Do the check for all virtual servers we want to
 		foreach(sites_to_check, array site)
 		{
-			flex_write("Checking #"+current_site+" "+site[0]+":"+site[1]+"\n");
+			flex_debug("Checking #"+current_site+" "+site[0]+":"+site[1]+"\n");
 
     	// do we have a valid server and port?
     	if(!(site[0] && site[1])) 
@@ -1243,6 +1259,10 @@ void check_using_GET()
 
 
 //! Handle data received from watchdog's PING request
+//!	This method is a read callback from Stdio.File()
+//!
+//! @param id
+//! 
 void PING_response_received(mixed id, mixed data)
 {
   // we are now not at the first request.
@@ -1253,6 +1273,7 @@ void PING_response_received(mixed id, mixed data)
   // did we get the expected response?
   if(data=="PONG\r\n")
   {
+		flex_debug("Got response for PING request\n");
     // request was successful.
     remove_call_out(cs_callout);
     conn->close();
@@ -1270,6 +1291,7 @@ void PING_response_received(mixed id, mixed data)
   }
 }
 
+
 //! Kill Caudium
 void kill_caudium()
 {
@@ -1285,13 +1307,15 @@ void kill_caudium()
   }
 }
 
+
+//! Method called when a PING check did timeout
+//! If The PING check timeout, Caudium is restarted
 void check_timedout()
 {
-
   conn->close();
   conn=0;
 
-  flex_write("Check timed out.\n");
+  flex_write("PING Check timed out.\n");
 
   in_check=0;
 
@@ -1301,6 +1325,23 @@ void check_timedout()
   if(cs_callout) remove_call_out(cs_callout);
 }
 
+
+//! Write a message if watchdog debug is enabled.
+//! If debug is enabled, the string is passed to flex_write()
+//!
+//! @param s
+//! The string to write
+void flex_debug(string s)
+{
+	if(options->watchdog_debug)
+		flex_write(s);
+}
+
+
+//! Write a message to stderr appended to a watchdog identifier
+//!
+//! @param s
+//! The string to write
 void flex_write(string s)
 {
   stderr->write("Watchdog: "+s);
