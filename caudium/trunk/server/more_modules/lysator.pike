@@ -206,11 +206,9 @@ string lys_header(string t, mapping m, string s, object id)
   return res;
 }
 
-object _regexp = Regexp();
 inline array regexp_match(string match, string in)
 {
-  _regexp->create("^"+match+"$");
-  return _regexp->split(in);
+  return Regexp("^"+match+"$")->split(in);
 }
 
 #define MAINTAINERS "/usr/www/html/maintainers"
