@@ -33,7 +33,7 @@ constant cvs_version = "$Id$";
 //! @decl string _make_tag_attributes(mapping in)
 //!  Convert a mapping with key-value pairs to tag attribute 
 //!  format escaping any unsafe charaters
-//! @pararm in
+//! @param in
 //!  The mapping with the attributes
 //! @returns
 //!  The string of attributes
