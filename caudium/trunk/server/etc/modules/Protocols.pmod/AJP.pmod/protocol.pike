@@ -114,10 +114,24 @@ constant send_header_values=([
     0xa005: "Last-Modified",
     0xa006: "Location",
     0xa007: "Set-Cookie",
-    0xa008: "Cet-Cookie2",
+    0xa008: "Set-Cookie2",
     0xa009: "Servlet-Engine",
     0xa00a: "Status",
     0xa00b: "WWW-Authenticate"
+]);
+
+constant response_header_names=([
+ "content-type": 0xa001,
+ "content-language": 0xa002,
+ "content-length": 0xa003,
+ "date": 0xa004,
+ "last-modified": 0xa005,
+ "location": 0xa006,
+ "set-cookie": 0xa007,
+ "set-cookie2": 0xa008,
+ "servlet-engine": 0xa009,
+ "status": 0xa00a,
+"www-authenticate": 0xa00b
 ]);
 
 constant header_values=([
@@ -375,8 +389,23 @@ string make_request_headers(mapping h)
 
   foreach(indices(h), string header)
   {
-    if(header_values[h])
-      header_string+=header_values[h] + push_string(h[header]);
+    if(header_values[header])
+      header_string+=header_values[header] + push_string(h[header]);
+    else
+      header_string+=push_string(header) + push_string(h[header]);
+  }
+  return header_string;
+}
+
+string make_response_headers(mapping h)
+{
+  string header_string="";
+
+  foreach(indices(h), string header)
+  {
+    header=
+    if(response_header_names[header])
+      header_string+=response_header_names[header] + push_string(h[header]);
     else
       header_string+=push_string(header) + push_string(h[header]);
   }
@@ -398,6 +427,45 @@ string make_attributes(mapping a)
 
 //  attribute_string+=sprintf("%c", attribute_values->terminator);
   return attribute_string;
+}
+
+string encode_send_body_chunk(string data)
+{
+  string r = "";
+
+  r+=sprintf("%c%2c%s", MSG_SEND_BODY_CHUNK, sizeof(data), data);
+
+  return r;
+}
+
+string encode_end_response(int reuse)
+{
+  string r = "";
+
+  r+=sprintf("%c%c", MSG_END_RESPONSE, reuse);
+
+  return r;
+}
+
+string encode_get_body_chunk(int len)
+{
+  string r = "";
+  
+  r+=sprintf("%c%2c", MSG_GET_BODY_CHUNK, len);
+  
+  return r;
+}
+
+string encode_send_headers(mapping h)
+{
+   string r="";
+
+   r += sprintf("%c%2c", MSG_SEND_HEADERS, h->response_code)
+   r += push_string(h->response_msg);
+   r += sprintf("%2c", sizeof(h->headers));
+   r += make_response_headers(h->headers);
+
+   return r;
 }
 
 string decode_send_body_chunk(mapping packet)
