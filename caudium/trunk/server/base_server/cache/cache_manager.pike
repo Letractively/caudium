@@ -63,13 +63,14 @@ string path;
 int default_ttl;
 int default_halflife;
 int _really_started;
-object loader;
 program pipe = Caudium.nbio;
+#if !constant(caudium)
+#define caudium caudiump()
+#endif
 
-void create( object _loader ) {
+void create() {
   caches = ([ ]);
   client_caches = ([ ]);
-  loader = _loader;
 }
 
 void really_start() {
@@ -77,7 +78,7 @@ void really_start() {
 #ifdef CACHE_DEBUG
   perror( "CACHE: Delayed cache start triggered. Loading caching subsystem: " );
 #endif
-  loader->caudium->cache_start();
+  caudium->cache_start();
   _really_started = 1;
 #ifdef CACHE_DEBUG
   perror( "done.\n" );
@@ -260,13 +261,14 @@ object get_cache( void|string|object one ) {
     namespace = one;
   else if ( objectp( one ) )
     foreach( caudium->configurations, object conf ) {
-      string mname = conf->otod[ one ];
+      string mname = conf->otomod[ one ];
       if ( mname ) {
         mapping moddata = conf->modules[ mname ];
 	if ( moddata )
 	  if ( moddata->copies )
 	    foreach ( indices( moddata->copies ), int i ) {
-	      namespace = sprintf( "%s instance %d on virtual server %s", one->module_name, i, conf->name );
+	      if ( moddata->copies[ i ] == one )
+	        namespace = sprintf( "%s instance %d on virtual server %s", one->module_name, i, conf->name );
 	    }
 	  else if ( moddata->master == one || moddata->enabled == one )
 	    namespace = sprintf( "%s on virtual server %s", one->module_name, conf->name );
