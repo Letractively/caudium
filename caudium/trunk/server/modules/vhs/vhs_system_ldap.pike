@@ -482,8 +482,10 @@ void precache_rewrite(object id)
   id->misc->vhs = vhs;
 }
 
-void start()
+void start(int count, object conf)
 {
+	module_dependencies(conf, ({ "vhs_fs" }));
+
   if (QUERY(lamers_mode)) lame_users = 1;
 
   ldapquery = QUERY(host_query);
