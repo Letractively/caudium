@@ -1526,9 +1526,7 @@ static void f_cern_http_date(INT32 args)
    }
   
 #ifdef HAVE_LOCALTIME_R
-   /* tm = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
    tm = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
-   /* CAUDIUM_PTR_VALID(tm); */
 #endif /* HAVE_LOCALTIME_R */
 
   if(args == 0) {
@@ -1536,7 +1534,7 @@ static void f_cern_http_date(INT32 args)
     now = time(NULL);
 #ifdef HAVE_LOCALTIME_R
     THREADS_ALLOW();
-    tm = localtime_r(&now, tm);
+    localtime_r(&now, tm);
     THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     tm = localtime(&now);
@@ -1545,22 +1543,16 @@ static void f_cern_http_date(INT32 args)
     if (now == (time_t) -1 ||
         tm == NULL ||
         tm->tm_mon > 11 || tm->tm_mon < 0) {
-#ifdef HAVE_LOCALTIME_R
-      /* CAUDIUM_UNALLOCA(tm); */
-#endif /* HAVE_LOCALTIME_R */
         return;
     }
    } else {
      now = (time_t)timestamp;
 #ifdef HAVE_LOCALTIME_R
-     if ((tm = localtime_r(&now, tm)) == NULL ||
+     if ((localtime_r(&now, tm)) == NULL ||
 #else /* HAVE_LOCALTIME_R */
      if ((tm = localtime(&now)) == NULL ||
 #endif /* HAVE_LOCALTIME_R */
          tm->tm_mon > 11 || tm->tm_mon < 0) {
-#ifdef HAVE_LOCALTIME_R
-       /* CAUDIUM_UNALLOCA(tm); */
-#endif /* HAVE_LOCALTIME_R */
          return;
      }
    }
@@ -1575,24 +1567,20 @@ static void f_cern_http_date(INT32 args)
     int days, hours, minutes;
 
 #ifdef HAVE_GMTIME_R
-    /* gmt = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
     gmt = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
-    /* CAUDIUM_PTR_VALID(gmt); */
     
     THREADS_ALLOW();
-    gmt = gmtime_r(&now, gmt);
+    gmtime_r(&now, gmt);
     THREADS_DISALLOW();
 #else /* HAVE_GMTIME_R */
     gmt = gmtime(&now);
 #endif /* HAVE_GMTIME_R */
 
 #ifdef HAVE_LOCALTIME_R
-    /* t = (struct tm *)CAUDIUM_ALLOCA(sizeof(struct tm)); */
     t = (struct tm *)scratchpad_get(sizeof(struct tm));/* it always returns a valid pointer */
-    /* CAUDIUM_PTR_VALID(t); */
     
     THREADS_ALLOW();
-    t = localtime_r(&now, t);
+    localtime_r(&now, t);
     THREADS_DISALLOW();
 #else /* HAVE_LOCALTIME_R */
     t = localtime(&now);
@@ -1602,12 +1590,6 @@ static void f_cern_http_date(INT32 args)
              + t->tm_hour - gmt->tm_hour);
     minutes = hours * 60 + t->tm_min - gmt->tm_min;
     diff = -minutes;
-#ifdef HAVE_LOCALTIME_R
-    /* CAUDIUM_UNALLOCA(t); */
-#endif /* HAVE_LOCALTIME_R */
-#ifdef HAVE_GMTIME_R
-    /* CAUDIUM_UNALLOCA(gmt); */
-#endif /* HAVE_GMTIME_R */
   }
 #endif
   if (diff > 0L) {
@@ -1620,14 +1602,8 @@ static void f_cern_http_date(INT32 args)
               tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
               tm->tm_hour, tm->tm_min, tm->tm_sec, sign, diff / 60L,
               diff % 60L) == sizeof date) {
-#ifdef HAVE_LOCALTIME_R
-    /* CAUDIUM_UNALLOCA(tm); */
-#endif /* HAVE_LOCALTIME_R */
      return;
   }
-#ifdef HAVE_LOCALTIME_R
-  /* CAUDIUM_UNALLOCA(tm); */
-#endif /* HAVE_LOCALTIME_R */
   ret = (make_shared_string(date));
   if(args == 1)
     pop_stack();
