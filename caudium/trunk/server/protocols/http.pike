@@ -1284,7 +1284,7 @@ void send_result(mapping|void result)
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(!file->is_dynamic) {
+	if(!file->is_dynamic || !id->misc->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
 	  if(prot != "HTTP/0.9") {
 #endif
@@ -1309,6 +1309,10 @@ void send_result(mapping|void result)
            * non-cacheable. /grendel
 	   */
 	  heads["Cache-Control"] = "no-cache, no-store, max-age=0, private";
+	  
+	  // The below is only for HTTP 1.0 - should we test whether the
+	  // current request proto is 1.0 and set the header only then? /grendel
+	  heads["pragma"] = "no-cache";
 	}
       }
       if(stringp(file->data)) 
@@ -1344,7 +1348,7 @@ void send_result(mapping|void result)
       // the browser's (or Squid) cache because an invalid date
       // in that header should cause immediate expire of the page.
       if(!zero_type(file->expires))
-	heads->Expires = http_date(file->expires);
+	heads->Expires = file->expires ? http_date(file->expires) : "0";
     
       if(mappingp(file->extra_heads)) {
 	heads |= file->extra_heads;

@@ -225,6 +225,8 @@ mixed call_tag(object parser, mapping args, object id, object file,
 {
   string tag = parser->tag_name();
   string|function rf;
+  
+  id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   rf = tag_callers[tag];
@@ -259,6 +261,8 @@ mixed call_pi_tag(object parser, string contents, object id, object file,
 {
   string tag = parser->tag_name();
   string|function rf;
+  
+  id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   rf = pi_callers[tag];
@@ -285,6 +289,8 @@ mixed call_container(object parser, mapping args, string contents,
 {
   string tag = parser->tag_name();
   string|function rf;
+  
+  id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   rf = container_callers[tag];
@@ -328,6 +334,8 @@ string call_user_tag(object parser, mapping args,
 		     object client)
 {
   string tag = parser->tag_name();
+  
+  id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   id->misc->line = (string)parser->at_line();
@@ -354,6 +362,8 @@ call_user_container(object parser, mapping args, string contents,
 		    object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
+  
+  id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
   id->misc->line = (string)parser->at_line();
@@ -442,7 +452,8 @@ mapping handle_file_extension( object file, string e, object id)
   mapping defines = id->misc->defines || ([]);
 
   id->misc->defines = defines;
-
+  id->misc->is_dynamic = 0;
+  
   if(!defines->sizefmt)
   {
 #if constant(set_start_quote)
@@ -479,7 +490,7 @@ mapping handle_file_extension( object file, string e, object id)
   return (["data":to_parse,
 	   "type":(id->misc->_content_type || "text/html"), 
 	   "stat":_stat,
-	   "is_dynamic": 1,
+	   "is_dynamic": (id->misc->is_dynamic ? 1 : 0),
 	   "error":_error,
 	   "rettext":_rettext,
 	   "extra_heads":_extra_heads,

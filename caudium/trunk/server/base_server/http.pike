@@ -67,7 +67,8 @@ string http_res_to_string( mapping file, object id )
     
   if(!file->error) file->error = 200;
     
-  if(file->expires) heads->Expires = http_date(file->expires);
+  if(!zero_type(file->expires)) 
+    heads->Expires = file->expires ? http_date(file->expires) : "0";
 
   if(!file->len)
   {
