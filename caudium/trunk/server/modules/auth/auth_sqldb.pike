@@ -76,7 +76,7 @@ defvar("grouptable", "groups",
 	TYPE_STRING,
 	"The name of the table containing group data.");
 defvar("usergrouptable", "user_group",
-	"User to Group Table"
+	"User to Group Table",
 	TYPE_STRING,
 	"The name of the table containing the user to group mapping.");
 defvar("passwordformat", "Crypt",
