@@ -82,15 +82,15 @@ defvar("usergrouptable", "user_group",
 defvar("passwordformat", "Crypt",
 	"Password Format",
 	TYPE_SELECT,
-	"Password storage format. Choose the method used to store user passwords."
+	"Password storage format. Choose the method used to store user passwords.",
 	({"Crypt", "MD5", "SHA1", "Plaintext"}));
 defvar("user_usernamef", "username",
-	"Fields: User/Username"
+	"Fields: User/Username",
 	TYPE_SELECT,
 	"The name of the field containing the user name.",
 	list_user_fields());
 defvar("group_groupnamef", "groupname",
-	"Fields: Group/Groupname"
+	"Fields: Group/Groupname",
 	TYPE_SELECT,
 	"The name of the field containing the group name.",
 	list_group_fields());
