@@ -1,0 +1,3 @@
+/etc/init.d/caudium
+/etc/logrotate.d/caudium
+/etc/caudium/localhost.sample
