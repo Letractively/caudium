@@ -166,7 +166,6 @@ string tag_config_tablist(string t, mapping a, string contents)
 {
 #if use_contents_cache  
   key = Caudium.Crypto.hash_md5(contents+my_hash(a));
-# endif
   if(contents_cache[key])
     return contents_cache[key];
 #endif
