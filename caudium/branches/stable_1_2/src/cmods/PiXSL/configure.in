@@ -19,6 +19,10 @@ dnl There is also another call in libiconv that can
 dnl be used
 AC_CHECK_LIB(iconv, libiconv)
 
+dnl Check if libexpat exist (some calls)
+AC_CHECK_LIB(expat, XML_Parse)
+AC_CHECK_LIB(expat, XML_SetBase)
+AC_CHECK_LIB(expat, XML_SetEncoding)
 
 AC_CHECK_HEADERS( sablot.h )
 dnl  if we need this, use em.
