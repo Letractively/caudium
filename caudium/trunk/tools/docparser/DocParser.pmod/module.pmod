@@ -626,7 +626,7 @@ class Module {
                         return;
                     }
 
-                    methods = ({newstuff});
+                    methods += ({newstuff});
                     break;
                     
                 default:
