@@ -1,3 +1,11 @@
+caudium (2:1.0.37-2) unstable; urgency=medium
+
+  * Latest CVS snapshot
+    - Fix for the SF bug 498377: the environment variable didn't show the complete url
+      with the query.
+
+ -- Marek Habersack <grendel@debian.org>  Thu,  3 Jan 2002 17:10:20 +0100
+
 caudium (2:1.0.37-1) unstable; urgency=medium
 
   * Latest CVS snapshot.
