@@ -39,6 +39,12 @@ constant thread_safe=1;
 inherit "module";
 inherit "caudiumlib";
 
+#ifdef HTML_DEBUG
+#define CDEBUG(X) write(__FILE__ + "@:" + X + "\n");
+#else
+#define CDEBUG(X)
+#endif
+
 string date_doc=Stdio.read_bytes("modules/tags/doc/date_doc");
 constant language = caudium->language;
 
@@ -199,6 +205,7 @@ array(string)|string tag_with_contents(object parser, mapping args,
 				      mixed ... extra)
 {
   array tag = parser->tag();
+  CDEBUG("tag_with_contents called for tag: " + tag * ","); 
   string res;
   if(!strlen(contents)) {
     /* <foo></foo> should be the same as <foo/> */
@@ -227,6 +234,7 @@ mixed call_tag(object parser, mapping args, object id, object file,
 	       mapping defines, object client)
 {
   string tag = parser->tag_name();
+  CDEBUG("call_tag called for tag: " + tag);
   string|function rf;
   
   id->misc->is_dynamic = 1;
@@ -254,7 +262,15 @@ mixed call_tag(object parser, mapping args, object id, object file,
   if(sizeof(args) && QUERY(parse_arg_entities)) {
     parse_args(args, id, file, defines, client);
   }
-  mixed result=rf(tag,args,id,file,defines,client);
+  mixed result;
+#ifdef HTML_DEBUG
+  float exectime = gauge {
+    result=rf(tag,args,id,file,defines,client);
+  };
+  CDEBUG(sprintf("Exec function time: %f", exectime));
+#else
+  result=rf(tag,args,id,file,defines,client);
+#endif
   TRACE_LEAVE("");
   return result;
 }
@@ -263,6 +279,7 @@ mixed call_pi_tag(object parser, string contents, object id, object file,
 	       mapping defines, object client)
 {
   string tag = parser->tag_name();
+  CDEBUG("call_pi_tag called for tag: " + tag);
   string|function rf;
   
   id->misc->is_dynamic = 1;
@@ -281,8 +298,15 @@ mixed call_pi_tag(object parser, string contents, object id, object file,
     return 0;
   }
 #endif
-
-  mixed result = rf(tag, contents, id, file, defines, client);
+  mixed result;
+#ifdef HTML_DEBUG
+  float exectime = gauge {
+    result = rf(tag, contents, id, file, defines, client);
+  };
+  CDEBUG(sprintf("Exec function time: %f", exectime));
+#else
+  result = rf(tag, contents, id, file, defines, client);
+#endif
   TRACE_LEAVE("");
   return result;
 }
@@ -291,6 +315,7 @@ mixed call_container(object parser, mapping args, string contents,
 	       object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
+  CDEBUG("call_container called for container: " + tag);
   string|function rf;
   
   id->misc->is_dynamic = 1;
@@ -324,7 +349,15 @@ mixed call_container(object parser, mapping args, string contents,
   if(sizeof(args) && QUERY(parse_arg_entities)) {
     parse_args(args, id, file, defines, client);
   }
-  mixed result=rf(tag,args,contents,id,file,defines,client);
+  mixed result;
+#ifdef HTML_DEBUG
+  float exectime = gauge {
+    result=rf(tag,args,contents,id,file,defines,client);
+  };
+  CDEBUG(sprintf("Exec function time: %f", exectime));
+#else
+    result=rf(tag,args,contents,id,file,defines,client);
+#endif
   TRACE_LEAVE("");
   if(args->noparse && stringp(result)) return ({ result });
   return result;
@@ -337,6 +370,7 @@ string call_user_tag(object parser, mapping args,
 		     object client)
 {
   string tag = parser->tag_name();
+  CDEBUG("call_user_tag called for tag: " + tag);
   
   id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
@@ -365,6 +399,7 @@ call_user_container(object parser, mapping args, string contents,
 		    object id, object file, mapping defines, object client)
 {
   string tag = parser->tag_name();
+  CDEBUG("call_user_container called for container: " + tag);
   id->misc->is_dynamic = 1;
   if(QUERY(case_insensitive_tag))
     tag = lower_case(tag);
@@ -427,6 +462,7 @@ string container_emit(string t, mapping args, string contents, object id,
 {
   function plugin;
   int rowinfo;
+  CDEBUG("container_emit called for source: " + args->source);
 
   if(!args->source) return "emit: no source specified";
   if(!args->scope) return "emit: no scope specified";
@@ -437,8 +473,14 @@ string container_emit(string t, mapping args, string contents, object id,
 
   array dataset;
   mixed e;
+#ifdef HTML_DEBUG
+  float exectime = gauge {
+    e=catch(dataset = plugin(args, id));
+  };
+  CDEBUG(sprintf("Exec function time: %f", exectime));
+#else
   e=catch(dataset = plugin(args, id));
-
+#endif
   if(e) throw(e);
 
   NOCACHE();
