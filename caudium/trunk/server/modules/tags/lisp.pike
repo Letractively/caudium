@@ -36,7 +36,7 @@ constant module_type = MODULE_PARSER;
 constant module_name = "Lisp tag module";
 constant module_doc  = "This module defines a new tag, "
 	    "&lt;lisp [context=foo]&gt;&lt;/lisp&gt;";
-constant module_unique = 0
+constant module_unique = 0;
 #endif // constant(Languages)
 
 array register_module()
