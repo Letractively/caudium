@@ -83,11 +83,16 @@ class http_error_handler {
 	    if ( template->name != _template_name ) {
 		// If it's been changed then change the error template, else
                 // do nothing.
-		template = ([
-			     "data" : id->conf->try_get_file( _template_name, id, 0, 1 ),
-			     "type" : id->conf->type_from_filename( _template_name ),
-			     "name" : _template_name
-			    ]);
+                string data = id->conf->try_get_file( _template_name, id, 0, 1 );
+		if ( date == 0 ) {
+		    template = default_template;
+		} else {
+		    template = ([
+				 "data" : id->conf->try_get_file( _template_name, id, 0, 1 ),
+				 "type" : id->conf->type_from_filename( _template_name ),
+				 "name" : _template_name
+				]);
+		}
 	    }
 	}
     }
