@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- _Caudium.getip() call to get interfaces names and ips for *BSD flavors.
+   (Xavier Beaudouin)
 - <if> no longer evaluates true if using the "element is value" syntax and the
   element is not present.
    (Bill Welliver)
