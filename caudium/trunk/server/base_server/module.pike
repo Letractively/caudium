@@ -404,6 +404,7 @@ void defvar(string|void var, mixed|void value, string|void name,
 
 //! Convenience function, define an invisible variable, this variable
 //! will be saved, but it won't be visible in the configuration interface.
+//! It's a wrapper for @[defvar()] with not_in_config set to 1.
 //!
 //! @param name
 //!  The variable name
