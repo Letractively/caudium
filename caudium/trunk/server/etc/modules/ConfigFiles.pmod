@@ -182,6 +182,9 @@ class Dir
     //! @param fname
     //! Name of the config file
     //!
+    //! @param mode
+    //! Mode to open the file in. Defaults to 'rwc' (read/write/create)
+    //!
     //! @returns
     //! An object corresponding to the opened file or 0 if the file
     //! couldn't have been opened/created. File is opened in the read-write
@@ -192,7 +195,7 @@ class Dir
     //! file. It is assumed that the caller got the file name from the
     //! @[Dir.list_files()] routine which does check the content of the files
     //! before returning them.
-    Stdio.File open_file(string fname)
+    Stdio.File open_file(string fname, string|void mode)
     {
         if (!fname || !sizeof(fname))
             return 0;
@@ -210,7 +213,7 @@ class Dir
         if (fs && !fs->isreg)
             return 0;
         
-        Stdio.File ret = Stdio.File(fname, "rwc");
+        Stdio.File ret = Stdio.File(fname, mode ? mode : "rwc");
 
         if (ret && !fs)
             chmod(my_dir + fname, file_mode);
@@ -234,7 +237,7 @@ class Dir
     //!  0 (zero) on failure, 1 otherwise.
     int move(string from, string to)
     {
-        return mv(mydir + "/" + from, mydir + "/" + to);
+        return mv(my_dir + "/" + from, my_dir + "/" + to);
     }
     
     //! Return the path this object is managing.
@@ -421,19 +424,27 @@ class File
 
         return "\t" + render_xml("var", ([ "name" : var->name ]), vcontents) + "\n";
     }
-    
+
+    //! Save the contents to a file. The files are always saved in the new
+    //! (XML) format. After saving, the file is reparsed.
+    //!
+    //! @param nobackup
+    //!  If present, file will not be backed up prior to writing it.
+    //!
+    //! @returns
+    //!  An integer if everything went fine, an error message otherwise.
     int|string save(int|void nobackup)
     {
         if (!regions || !sizeof(regions))
-            return "Nothing to save";
+            return 0;
         
         if (my_file && objectp(my_file) && functionp(my_file->close))
             my_file->close();
 
-        if (!my_dir->move(my_name, my_name + "~"))
+        if (!nobackup && !my_dir->move(my_name, my_name + "~"))
             return "Error creating a backup copy of the file";
 
-        my_file = my_dir->open_file(my_name);
+        my_file = my_dir->open_file(my_name, "rwct");
 
         if (!my_file) {
             // try to clean up...
