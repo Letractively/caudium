@@ -22,11 +22,11 @@
 // of a container.
  
 // This variable is shown in the configinterface as the varion of the module.
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 
-// Tell Roxen that this module is threadsafe. That is there is no
+// Tell Caudium that this module is threadsafe. That is there is no
 // request specific data in global variables.
-int thread_safe=1;
+consant thread_safe=1;
 
 #include <module.h>
 inherit "module";

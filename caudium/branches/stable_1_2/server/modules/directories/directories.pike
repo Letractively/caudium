@@ -32,8 +32,8 @@
 //! cvs_version: $Id$
 //
 
-string cvs_version = "$Id$";
-int thread_safe=1;   /* Probably. Check _root */
+constant cvs_version = "$Id$";
+constant thread_safe=1;   /* Probably. Check _root */
 
 #include <module.h>
 inherit "module";

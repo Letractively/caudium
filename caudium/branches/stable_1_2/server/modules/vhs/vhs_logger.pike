@@ -23,7 +23,7 @@
  */
 //! module: VHS - Logger module
 //!  This module logs the accesses of each vitual in VHS
-//! inberits: module
+//! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOGGER
 //! cvs_version: $Id$

@@ -32,7 +32,7 @@
 //
 
 /* The Tab lists tag module. */
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 #include <module.h>
 
 inherit "module";
@@ -47,6 +47,7 @@ constant module_doc  = "This module makes graphical tablists.<p>"
        "for compatibility reasons. Please use ``<b>Config tab-list</b>'' "
        "instead.<p>";
 constant module_unique = 1;
+constant thread_safe   = 1;
 
 #define DEFAULT_FONT "32/urw_itc_avant_garde-demi-r"
 #define DEFAULT_PATH "fonts/"

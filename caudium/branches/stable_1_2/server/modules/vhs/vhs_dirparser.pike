@@ -40,7 +40,7 @@
 //! type: MODULE_DIRECTORIES
 //! cvs_version: $Id$
 
-string cvs_version = "$Id$";
+constant cvs_version = "$Id$";
 constant thread_safe = 1;   /* Probably. Check _root */
 
 #include <module.h>
