@@ -113,7 +113,8 @@
 
 #define FTP2_XTRA_HELP ({ "Report any bugs to our bug database system : http://sourceforge.net/bugs/?group_id=8825." })
 
-#define FTP2_TIMEOUT	(5*60)
+//#define FTP2_TIMEOUT	(5*60)
+#define FTP2_TIMEOUT	(1*60)
 
 #define Query(X) conf->variables[X][VAR_VALUE]
 
@@ -3685,9 +3686,6 @@ class FTPSession
     master_session->not_query = user || "Anonymous";
     conf->log(([ "error":204, "request_time":(time(1)-master_session->time) ]),
               master_session);
-    // I don't think those lines are usefull. I've taken from Roxen's FTP 
-    // modifications... 
-    //  -- Xavier
     if (fd) {
       destruct(fd);
     }
