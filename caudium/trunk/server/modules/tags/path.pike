@@ -245,7 +245,7 @@ string tag_path( string tag, mapping args, object id, object file, mapping defin
 void start(int cnt, object conf) // read the definitions from the config interface
 {
  // we need gtext :)
- module_dependencies(conf, ({ "graphic_text" });
+ module_dependencies(conf, ({ "graphic_text" }));
  tagname = query("tagname");
 }
 
