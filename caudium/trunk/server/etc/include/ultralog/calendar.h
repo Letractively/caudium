@@ -4,14 +4,8 @@ constant month_names = ({ "January", "February", "March",
 			 "July", "August", "September",
 			 "October", "November", "December" });
 
-constant smonth_names = ({ "Jan", "Feb", "Mar", "Apr",
-			  "May", "Jun", "Jul", "Aug",
-			  "Sep", "Oct", "Nov", "Dec" });
-
 constant day_names = ({ "Monday", "Tuesday", "Wednesday",
 			"Thursday", "Friday", "Saturday", "Sunday" });
-
-constant sday_names = ({ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" });
 
 int lastdayofmonth(int year, int month)
 {
