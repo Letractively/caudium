@@ -216,6 +216,7 @@ spotless:  clean
 	@(cd tools/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	rm -f $srcdir/tools/caudium-rc_script smartlink
+	-rm -rf $(shell find -name "autom4te.cache" -type d -print)
 	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
         -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
 	config.cache -o -name config.status -o -name config.log -o -name \

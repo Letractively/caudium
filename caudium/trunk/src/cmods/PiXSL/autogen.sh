@@ -7,5 +7,5 @@ then
   autoconf213 --localdir=$1
 else
   autoheader
-  autoconf --localdir=$1
+  autoconf --include=$1
 fi

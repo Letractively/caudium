@@ -14,4 +14,5 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(PIKE)
-AC_OUTPUT(caudium-rc_script docparser/docparse Makefile, [chmod +x caudium-rc_script docparser/docparse])
+AC_CONFIG_FILES(caudium-rc_script docparser/docparse Makefile, [chmod +x caudium-rc_script docparser/docparse])
+AC_OUTPUT

@@ -102,7 +102,7 @@ AC_HAVE_FUNCS(memmove memcpy realloc)
 #  Build with profiling?
 #--------------------------------------------------------------------
 AC_ARG_WITH(profile,
-    [  --with-profile          Build a version with profiling],
+    AC_HELP_STRING([--with-profile],[Build a version with profiling]),
     [with_profile=$withval],
     [with_profile=no]
 )
@@ -118,8 +118,7 @@ AC_SUBST(PROFILE)
 #  asserts?  No testing code?
 #--------------------------------------------------------------------
 AC_ARG_WITH(nodebug, 
-    [  --with-nodebug          Build a production version,
-                          with no debugging code],
+    AC_HELP_STRING([--with-nodebug],[ Build a production version with no debugging code]),
     [with_nodebug=$withval],
     [with_nodebug=no]
 )
@@ -132,8 +131,7 @@ else
     fi
 fi
 AC_ARG_WITH(noassert,
-    [  --with-noassert         Build a production version,
-                          with no ASSERTs],
+    AC_HELP_STRING([--with-noassert],[Build a production version with no ASSERTs]),
     [with_noassert=$withval],
     [with_noassert=no]
 )
@@ -141,8 +139,7 @@ if test "$with_noassert" = "no" ; then
     AC_DEFINE(WITH_ASSERT)
 fi
 AC_ARG_WITH(notest,
-    [  --with-notest           Build a production version,
-                          with no testing code],
+    AC_HELP_STRING([--with-notest],[Build a production version with no testing code]),
     [with_notest=$withval],
     [with_notest=no]
 )
@@ -199,21 +196,15 @@ CCDEFS="$CCDEFS $WARNDEFS"
 #--------------------------------------------------------------------
 CC_PURE="$CC"
 AC_ARG_WITH(purify,
-    [  --with-purify           Build a WebServer executable with Purify
-                          (Pure Software's tool for finding memory
-                          errors)],
+    AC_HELP_STRING([--with-purify],[Build a WebServer executable with Purify (Pure Software's tool for finding memory errors)]),
     [CC_PURE="purify $CC_PURE"],)
 
 AC_ARG_WITH(purecov,
-    [  --with-purecov          Build a WebServer executable with PureCoverage
-                          (Pure Software's tool for doing test coverage
-                          analysis)],
+    AC_HELP_STRING([--with-purecov],[Build a WebServer executable with PureCoverage (Pure Software's tool for doing test coverage analysis)]),
     [CC_PURE="purecov $CC_PURE"],)
 
 AC_ARG_WITH(quantify,
-    [  --with-quantify         Build a WebServer executable with Quantify
-                          (Pure Software's tool for doing performance
-                          analysis)],
+    AC_HELP_STRING([--with-quantify],[Build a WebServer executable with Quantify (Pure Software's tool for doing performance analysis)]),
     [CC_PURE="quantify $CC_PURE"],)
 
 AC_SUBST(CC_PURE)
