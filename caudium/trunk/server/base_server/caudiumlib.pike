@@ -694,7 +694,7 @@ static string make_tag_attributes(mapping in)
 
 //! method: string make_tag(string tag, mapping in)
 //!  Build a tag with the specified name and attributes.
-//! string: string tag
+//! arg: string tag
 //!  The name of the tag.
 //! arg: mapping in
 //!  The mapping with the attributes
@@ -710,7 +710,7 @@ static string make_tag(string tag,mapping in)
 
 //! method: string make_container(string tag, mapping in, string contents)
 //!  Build a container with the specified name, attributes and content.
-//! string: string tag
+//! arg: string tag
 //!  The name of the container.
 //! arg: mapping in
 //!  The mapping with the attributes

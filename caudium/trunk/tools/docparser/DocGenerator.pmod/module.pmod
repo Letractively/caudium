@@ -51,12 +51,138 @@ private static mapping(string:string|function) template_vars =
              }
 ]);
 
+/*
+ * This object generates all the index files.
+ */
+class IndexGen
+{
+    string             module_idx = "modules_index.xml";
+    string             file_idx = "files_index.xml";
+    string             target_dir;
+    object(Stdio.File) mfile, ffile;
+    
+    /*
+     * Set the file index to be a file relative to the
+     * document top directory.
+     */
+    void set_file_idx(string relpath)
+    {	
+	file_idx = target_dir + relpath;
+    }
+    
+    /*
+     * Set the module index to be a file relative to the
+     * document top directory.
+     */
+    void set_module_idx(string relpath)
+    {
+	module_idx = target_dir + relpath;
+    }
+    
+    void open_files()
+    {
+	ffile = Stdio.File(target_dir + file_idx, "wct");
+	if (module_idx == file_idx)
+	    mfile = ffile;
+	else
+	    mfile = Stdio.File(target_dir + module_idx, "wct");
+	    
+	if (!mfile || !ffile) {
+	    string   err = "Unable to open index output file";
+	    
+	    if (!mfile && !ffile) {
+		if (mfile != ffile) {
+		    err += "s: ";
+		    err += file_idx + " and " + module_idx;
+		} else {
+		    err += ": " + file_idx;
+		}
+	    } else if (!mfile) {
+		err += ": " + module_idx;
+	    } else if (!ffile) {
+		err += ": " + file_idx;
+	    }
+	    
+	    throw(({err + "\n", backtrace()}));
+	}
+	
+	ffile->write("<index>\n");
+	if (mfile != ffile)
+	    mfile->write("<index>\n");
+    }
+
+    void close_files()
+    {
+	if (mfile)
+	    mfile->write("</index>\n");
+	    
+	if (ffile && ffile != mfile)
+	    ffile->write("</index>\n");
+	
+	if (ffile != mfile) {
+	    ffile->close();
+	    mfile->close();
+	} else
+	    ffile->close();
+    }
+    
+    /*
+     * Output a generic entry:
+     *
+     *  <entry type="file|module|symbol" name="name" file="path" />
+     */
+    void entry(string type, string name, string path, object(Stdio.File) f)
+    {
+	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" />\n",
+	         type, path, name));
+    }
+    
+    /*
+     * Output an entry for a file
+     */
+    void file(string path, string name)
+    {
+	if (!ffile)
+	    open_files();
+	entry("file", name, path, ffile);
+    }
+    
+    void module(string path, string name)
+    {
+	if (!mfile)
+	    open_files();
+	entry("module", name, path, mfile);
+    }
+    
+    void file_symbol(string path, string name)
+    {
+	if (!ffile)
+	    open_files();
+	entry("symbol", name, path, ffile);
+    }
+    
+    void module_symbol(string path, string name)
+    {
+	if (!mfile)
+	    open_files();
+	entry("symbol", name, path, mfile);
+    }
+
+    void create(string tdir)
+    {
+	target_dir = tdir;
+	mfile = ffile = 0;
+    }
+};
+
 class DocGen 
 {
     array(DocParser.PikeFile)     files;
     array(DocParser.Module)       modules;
     string                        rel_path;
     array(string)                 tvars;
+    object(IndexGen)              index;
+    string                        fname; /* current file path */
     
     object(Stdio.File) create_file(string tdir, string fpath)
     {
@@ -651,10 +777,12 @@ class DocGen
         
         switch(f->myName) {
             case "PikeFile":
+		index->file(basename(fname), fname);
                 do_file(tdir, f, ofile);
                 break;
 
             case "Module":
+		index->module(basename(fname), fname);
                 do_module(tdir, f, ofile);
                 break;
         }
@@ -678,6 +806,8 @@ class DocGen
         }
         
         cd(tdir);
+	index = IndexGen("./");
+	index->open_files();
         if (files) {
             foreach(files, DocParser.PikeFile f) {
                 output_file(subdirs[0] + "/", f);
@@ -691,7 +821,8 @@ class DocGen
 		end_output();
             }
         }
-        
+        index->close_files();
+	
         cd(cwd);
     }
 
@@ -748,9 +879,9 @@ class TreeMirror
     
     object(Stdio.File) create_file(string tdir, string fpath)
     {
-        string   fname = replace(tdir + (fpath - rel_path), ".pike", ".xml");
         object(Stdio.File) f;
-        
+        fname = replace(tdir + (fpath - rel_path), ".pike", ".xml");
+	
         if (!Stdio.mkdirhier(dirname(fname)))
             throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));
         
@@ -787,7 +918,7 @@ class Monolith
             return fout;
         }
         
-        string fname = tdir + "/docs.xml";
+        fname = tdir + "/docs.xml";
 
         if (!Stdio.mkdirhier(dirname(fname)))
             throw(({"Cannot create directory '" + dirname(fname) + "'\n", backtrace()}));
