@@ -1814,7 +1814,20 @@ void handle_precache(object id) {
   }
 }
 
+//! This function handle the request for the server.
+//! All request goes thru this function
 //!
+//! @param id
+//!   Caudium Object id
+//!
+//! @returns
+//!   To be documented
+//!
+//! @note
+//!   RIS Implmentation with some additions
+//!
+//! @fixme 
+//!   To be documented
 mixed handle_request( object id  )
 {
   function funp;
@@ -1844,7 +1857,22 @@ mixed handle_request( object id  )
   return file;
 }
 
+//! Get the file in probably VFS
 //!
+//! @param id
+//!   Caudium ID object
+//!
+//! @param no_magic
+//!   Undocumented.
+//!
+//! @returns
+//!   Undocumented.
+//!
+//! @note
+//!   RIS implementation
+//!
+//! @fixme
+//!   Undocumented
 mixed get_file(object id, int|void no_magic)  
 {
   mixed res, res2;
