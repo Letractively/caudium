@@ -27,13 +27,18 @@ inherit "caudiumlib";
 
 caudium.ImageCache  button_cache;
 
-constant module_type = MODULE_PARSER;
+constant module_type = MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "GButton";
 constant module_doc  = 
 "Provides the <tt>&lt;gbutton&gt;</tt> tag that is used to draw graphical "
 "buttons.";
 
 #define ST_MTIME 3
+
+string query_provides() {
+  return("gbutton");
+}
+
 
 function TIMER( function f )
 {
@@ -585,7 +590,7 @@ static array mk_url(object id, mapping args, string contents)
     args->icon_src = args["icon-src"] || args->icon_src || "";
     args->icon_data = args["icon-data"] || args->icon_data || "";
     args->align_icon = args["align-icon"] || args->align_icon || "";
-    args->valign_icon = args["valign-icon"] || args->valign_icon || "";
+    args->valign_icon = args["valign-icon"] || args->valign_icon || "middle";
     m_delete(args, "icon-src");
     m_delete(args, "icon-data");
     m_delete(args, "align-icon");
@@ -968,7 +973,7 @@ static array mk_url(object id, mapping args, string contents)
 //
 
 string tag_gbutton(string tag, mapping args, string contents,
-                   object id, object foo, mapping defines)
+                   object id, object|void foo, mapping|void defines)
 {
     string result = "";
     string img_align = args["img-align"];
