@@ -90,18 +90,18 @@ string http_encode_url(string m) {
    return Caudium.http_encode_url(m);
 }
 
-//! Compat call of Caudium.cern_http_date
+//! Compat call of Caudium.HTTP.cern_date
 //! @deprecated
 string cern_http_date(int t) {
-   WCOMPAT("Caudium","cern_http_date");
-   return Caudium.cern_http_date(t);
+   WCOMPAT2("Caudium.HTTP.cern_date","cern_http_date");
+   return Caudium.HTTP.cern_date(t);
 }
 
-//! Compat call of Caudium.http_date
+//! Compat call of Caudium.HTTP.date
 //! @deprecated
 string http_date(int t) {
-   WCOMPAT("Caudium","http_date");
-   return Caudium.http_date(t);
+   WCOMPAT2("Caudium.HTTP.date","http_date");
+   return Caudium.HTTP.date(t);
 }
 
 // Some spider calls are not under spider module so here is some compat

@@ -406,7 +406,7 @@ void send_result(mapping|void result)
       ([
 	"Content-type":file["type"],
 		      "Server":replace(version(), " ", "·"),
-		      "Date":Caudium.http_date(time)
+		      "Date":Caudium.HTTP.date(time)
 	 ]);
     
     if(file->encoding)
@@ -416,7 +416,7 @@ void send_result(mapping|void result)
       file->error=200;
     
     if(!zero_type(file->expires))
-      heads->Expires = file->expires ? Caudium.http_date(file->expires) : "0";
+      heads->Expires = file->expires ? Caudium.HTTP.date(file->expires) : "0";
 
     if(!file->len)
     {
@@ -430,7 +430,7 @@ void send_result(mapping|void result)
 	  file->len = fstat[1];
     
     
-	heads["Last-Modified"] = Caudium.http_date(fstat[3]);
+	heads["Last-Modified"] = Caudium.HTTP.date(fstat[3]);
 	
 	if(since)
 	{
