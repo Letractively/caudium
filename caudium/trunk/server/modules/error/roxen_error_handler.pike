@@ -90,7 +90,7 @@ void create() {
 //!   module.
 //! @param dohtml
 //!   Optional to make a nice HTML docuemnt.
-mapping|int auth_required(string realm, string|void message void|int dohtml)
+mapping|int auth_required(string realm, string|void message, void|int dohtml)
 {
 
 }
