@@ -15,6 +15,14 @@ fi
 dnl FreeBSD of Sablot + Expart uses iconv lib 
 dnl when linking
 AC_CHECK_LIB(iconv, iconv)
+dnl There is also another call in libiconv that can
+dnl be used
+AC_CHECK_LIB(iconv, libiconv)
+
+dnl Check if libexpat exist (some calls)
+AC_CHECK_LIB(expat, XML_Parse)
+AC_CHECK_LIB(expat, XML_SetBase)
+AC_CHECK_LIB(expat, XML_SetEncoding)
 
 AC_CHECK_HEADERS( sablot.h )
 dnl  if we need this, use em.
@@ -51,15 +59,8 @@ cat << EOF
 **** The Sablotron XSLT processing library couldn't be found.
 **** PiXSL will not be built. You can get Sablotron from
 **** http://www.gingerall.com/
-****
-**** Install the library and remove config.cache in the base
-**** build directory and rerun configure to get XSLT support.
-****
-**** To build Caudium without XSLT support run configure with
-**** the --without-PiXSL flag.
 *************************************************************
 EOF
-exit 1
 fi
 
 AC_OUTPUT(Makefile.pre pixsl, [make -f Makefile.pre depend])
