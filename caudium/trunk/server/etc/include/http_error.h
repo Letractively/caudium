@@ -203,7 +203,7 @@ class http_error_handler {
 	template = default_template;
       } else {
 	template = ([
-	  "type" : id->conf ? id->conf->type_from_filename (_template_name) : "text/html",
+	  "type" : (id->conf ? id->conf->type_from_filename (_template_name) : "text/html"),
 	  "name" : _template_name
 	]);
       }
