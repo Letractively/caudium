@@ -60,7 +60,9 @@ string gif_size(object gif)
   return "width=\""+x+"\" height=\""+y+"\"";
 }
 
-#define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
+#define VARQUOTE(X) replace(X,\
+({",", ".", " ", "$", "-", "\0", "="}),\
+({",", "_", "_", "_", "_", ""  , "_" }))
 
 //! method: mapping build_env_vars(string f, object id, string path_info)
 //!  Build a mapping with standard CGI environment variables for use with
