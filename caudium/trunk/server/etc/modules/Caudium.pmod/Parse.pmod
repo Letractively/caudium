@@ -78,6 +78,7 @@ class ParseHtmlCompat
     lazy_entity_end (1);
     match_tag (0);
     ignore_unknown (1);
+    max_stack_depth (17);
   }
 }
 
@@ -135,6 +136,7 @@ class ParseHtmlLinesCompat
     lazy_entity_end (1);
     match_tag (0);
     ignore_unknown (1);
+    max_stack_depth (17);
   }
 }
 
