@@ -66,7 +66,7 @@ AH_TOP([
 
 AH_BOTTOM([
 
-#include "alloca_klundge.h"
+#include "alloca_kludge.h"
 
 #endif /* CAUDIUM_MACHINE_H */
 ])
