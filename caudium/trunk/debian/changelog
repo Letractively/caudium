@@ -1,3 +1,10 @@
+caudium (1:1.0.5-1) unstable; urgency=low
+
+  * Latest CVS snapshot
+  * Now with CAMAS!
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 18 Nov 2000 13:11:03 +0100
+
 caudium (1:1.0.0-13) unstable; urgency=low
 
   * Latest CVS snapshot
