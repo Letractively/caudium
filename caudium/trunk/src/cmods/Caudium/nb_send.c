@@ -117,12 +117,12 @@ static INLINE void free_input(input *inp) {
     break;
 #ifdef USE_MMAP
    case NBIO_MMAP:
-    if(inp->u.mmap->data != MAP_FAILED) {
-      munmap(inp->u.mmap->data, inp->u.mmap->m_len);
-      mmapped -= inp->u.mmap->m_len;
+    if(inp->u.mmap_storage->data != MAP_FAILED) {
+      munmap(inp->u.mmap_storage->data, inp->u.mmap_storage->m_len);
+      mmapped -= inp->u.mmap_storage->m_len;
     }
-    free_object(inp->u.mmap->file);
-    free(inp->u.mmap);
+    free_object(inp->u.mmap_storage->file);
+    free(inp->u.mmap_storage);
     break;
 #endif
    case NBIO_OBJ:
@@ -184,18 +184,18 @@ static INLINE void new_input(struct svalue inval, NBIO_INT_T len) {
 			    inp->fd, filep);
 	if(mtmp != MAP_FAILED)
 	{
-	  if( (inp->u.mmap = malloc(sizeof(mmap_data))) == NULL) {
+	  if( (inp->u.mmap_storage = malloc(sizeof(mmap_data))) == NULL) {
 	    Pike_error("Failed to allocate mmap structure. Out of memory?\n");
 	  }
 	  inp->type   = NBIO_MMAP;
 	  inp->len    = s.st_size;
 	  inp->pos    = filep;
 
-	  inp->u.mmap->data    = mtmp;
-	  inp->u.mmap->m_start = filep;
-	  inp->u.mmap->m_len   = alloc_len;
-	  inp->u.mmap->m_end   = filep + alloc_len;
-	  add_ref(inp->u.mmap->file = inval.u.object);
+	  inp->u.mmap_storage->data    = mtmp;
+	  inp->u.mmap_storage->m_start = filep;
+	  inp->u.mmap_storage->m_len   = alloc_len;
+	  inp->u.mmap_storage->m_end   = filep + alloc_len;
+	  add_ref(inp->u.mmap_storage->file = inval.u.object);
 	  
 	  DERR(fprintf(stderr, "new mmap input (fd %d)\n", inp->fd));
 	  mmapped += alloc_len;
@@ -500,35 +500,35 @@ static void f__output_write_cb(INT32 args)
 #ifdef USE_MMAP
     } else {
 
-      len = inp->u.mmap->m_end - inp->pos;
+      len = inp->u.mmap_storage->m_end - inp->pos;
       if(!len) {
 	/* need to mmap more data. No need to check if there's more to allocate
 	 * since the object would have been freed in that case
 	 */
 	DERR(fprintf(stderr, "mmapping more data from fd %d\n", inp->fd));
 	len = MIN(inp->len - inp->pos, MAX_MMAP_SIZE);
-	munmap(inp->u.mmap->data, inp->u.mmap->m_len);
-	mmapped -= inp->u.mmap->m_len;
+	munmap(inp->u.mmap_storage->data, inp->u.mmap_storage->m_len);
+	mmapped -= inp->u.mmap_storage->m_len;
 	DERR(fprintf(stderr, "trying to mmap %ld bytes starting at pos %ld\n",
 		     (long)len, (long)inp->pos));
-	inp->u.mmap->data =
+	inp->u.mmap_storage->data =
 	  (char *)mmap(0, len, PROT_READ,
 		       MAP_FILE | MAP_SHARED, inp->fd,
 		       inp->pos);
-	if(inp->u.mmap->data == MAP_FAILED) {
+	if(inp->u.mmap_storage->data == MAP_FAILED) {
 	  DERR(perror("additional mmap failed"));
 	  free_input(inp);
 	  /* FIXME: Better error handling here? */
 	  f__output_write_cb(args);
 	  return;
 	} else {
-	  inp->u.mmap->m_start = inp->pos;
-	  inp->u.mmap->m_len   = len;
-	  inp->u.mmap->m_end   = len + inp->pos;
+	  inp->u.mmap_storage->m_start = inp->pos;
+	  inp->u.mmap_storage->m_len   = len;
+	  inp->u.mmap_storage->m_end   = len + inp->pos;
 	  mmapped += len;
 	}
       }
-      data = inp->u.mmap->data + (inp->pos - inp->u.mmap->m_start);
+      data = inp->u.mmap_storage->data + (inp->pos - inp->u.mmap_storage->m_start);
       DERR(fprintf(stderr, "Sending mmapped file (%ld to write, %ld total left)\n", (long)len, (long)(inp->len - inp->pos)));
     }
 #endif

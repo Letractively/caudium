@@ -96,7 +96,7 @@ typedef struct _input_struct
     struct object *file;      /* Pike file object */
     struct pike_string *data; /* Data */
 #ifdef USE_MMAP
-    mmap_data *mmap;               /* mmap memory area */
+    mmap_data *mmap_storage;               /* mmap memory area */
 #endif
   } u;
   int read_off;
