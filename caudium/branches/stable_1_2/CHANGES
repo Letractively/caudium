@@ -1,4 +1,7 @@
-Changes in Caudium 1.2.xx since 1.2.24
+Changes in Caudium 1.2.xx since 1.2.26
+--------------------------------------
+
+Changes in Caudium 1.2.26 since 1.2.24
 --------------------------------------
 - Fix a bug in autoconf script that avoid autoconf to detect pike when 
   configure script is executed under FreeBSD ports.
