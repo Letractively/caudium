@@ -68,6 +68,7 @@
 #define GLOBVAR(x) caudium->variables["x"][VAR_VALUE]
 #endif /* constant(cpp) */
 
+#define MODULE_ZERO              0
 #define MODULE_EXTENSION         (1<<0)
 #define MODULE_LOCATION          (1<<1)
 #define MODULE_URL	         (1<<2)
