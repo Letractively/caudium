@@ -212,7 +212,7 @@ void stop( void|string namespace ) {
       m_delete( caches, namespace );
     }
   } else { 
-    foreach( indices( caches ), string namespave ) {
+    foreach( indices( caches ), string namespace ) {
       caches[ namespace ]->stop();
       destruct( caches[ namespace ] );
       m_delete( caches, namespace );

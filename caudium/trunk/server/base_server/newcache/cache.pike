@@ -108,6 +108,7 @@ void store( mapping cache_response ) {
         return 0;
       }
       disk_cache->store( cache_response );
+      return 0;
     }
   }
   ram_cache->store( cache_response );

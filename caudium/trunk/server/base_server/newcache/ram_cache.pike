@@ -105,7 +105,7 @@ void|mixed retrieve( string name, void|int object_only ) {
     thecache[ hash ]->hits++;
     thecache[ hash ]->last_retrieval = time();
     _hits++;
-    if ( thecache[ hash ]->type = "stdio" ) {
+    if ( thecache[ hash ]->type == "stdio" ) {
 	// This is a hax to move anything that used to be a stdio.file object
 	// back to a new stdio.file object.
       mapping tmp = get_stdio( hash );
@@ -245,11 +245,18 @@ void free( int n ) {
 #ifdef DEBUG
       write( "RAM_CACHE: Storing object in disk_cache\n" );
 #endif
-      mixed obj = get_stdio( hash );
+      mixed obj;
+      if ( thecache[ hash ]->type == "stdio" ) {
+        obj = get_stdio( hash );
+      } else if ( thecache[ hash ]->_string ) {
+        obj = thecache[ hash ];
+      }
 #ifdef DEBUG
       write( sprintf( "%O\n", obj ) );
 #endif
-      disk_cache->store( obj );
+      if ( ! zero_type( obj ) ) {
+        disk_cache->store( obj );
+      }
     }
     freed += thecache[ hash ]->size;
     ram_usage -= thecache[ hash ]->size;

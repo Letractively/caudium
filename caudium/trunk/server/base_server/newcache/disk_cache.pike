@@ -51,7 +51,11 @@ mapping get_index() {
           string m = metadata->read();
           metadata->close();
           mapping meta = decode_value( m );
+#ifdef DEBUG
+          write( "DISK_CACHE: get_index %O\n", meta );
+#endif
           thecache += ([ dirname : meta ]);
+          disk_usage += meta->size;
           rm( Stdio.append_path( cache_path, dirname, "meta" ) );
         }
       }
@@ -101,18 +105,22 @@ void store( mapping meta ) {
       thecache += ([ meta->hash : meta ]);
     }
     break;
-  case "string":
+  case "variable":
 	// Write the string to disk.
-    string data = meta->object;
-    meta->size = sizeof( data );
-    m_delete( meta, "object" );
-    if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
-      object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object"
- ), "cw" );
-      f->write( data );
-      f->close();
-      disk_usage += meta->size;
-      thecache += ([ meta->hash : meta ]);
+    if ( meta->_string ) {
+      string data = meta->object + "";
+      meta->size = sizeof( data );
+      m_delete( meta, "object" );
+      if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
+        object f = Stdio.File( Stdio.append_path( cache_path, meta->hash, "object" ), "cw" );
+write( data  + "\n");
+        f->write( data );
+        f->close();
+        disk_usage += meta->size;
+        thecache += ([ meta->hash : meta ]);
+      }
+    } else {
+      break;
     }
     break;
   default:
@@ -136,7 +144,11 @@ void|mixed retrieve( string name, void|int object_only ) {
     string object_path = Stdio.append_path( cache_path, hash, "object" );
     if ( Stdio.exist( object_path ) ) {
       mapping meta = thecache[ hash ] + ([ ]);
-      meta->object = Stdio.File( object_path, "r" );
+      if ( meta->type == "stdio" ) {
+        meta->object = Stdio.File( object_path, "r" );
+      } else if ( meta->_string ) {
+        meta->object = Stdio.File( object_path, "r" )->read();
+      }
       if ( object_only ) {
         return meta->object;
       }
