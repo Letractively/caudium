@@ -302,3 +302,6 @@ uu	STRIP	uuencode
 b64	STRIP	base64
 
 
+# Mozilla extended types
+xul	application/vnd.mozilla.xul+xml
+xpi	application/x-xpinstall
