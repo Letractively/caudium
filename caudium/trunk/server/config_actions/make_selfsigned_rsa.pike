@@ -193,7 +193,7 @@ mixed page_1(mixed id, mixed mc)
      "</blockquote>"
 	  
      "<b>Organization/Company</b><br>\n"
-     "<var name=organizationName type=string default=\"Idonex AB\"><br>"
+     "<var name=organizationName type=string default=\"The Caudium Group\"><br>"
      "<blockquote>"
      "The organization name under which you are registered with some "
      "national or regional authority."
@@ -217,7 +217,7 @@ mixed page_1(mixed id, mixed mc)
      "if they don't match.<p>"
      "Some Certificate Authorities allow wild cards in the Common "
      "Name. This means that you can have a certificate for "
-     "<tt>*.caudium.net</tt> which will match all servers at Idonex. "
+     "<tt>*.caudium.net</tt> which will match all servers in caudium.net. "
      "Thawte allows wild card certificates, while VeriSign does not."
      "</blockquote>");
 }
@@ -311,8 +311,19 @@ mixed page_3(object id, object mc)
 	      "organizationUnitName", "commonName" }), attr)
   {
     if (attrs[attr])
-      name += ({ ([ attr : (printable_invalid_chars->match (attrs[attr]) ?
-			    asn1_T61_string :
+      name += ({ ([ attr : (
+#if constant(asn1_printable_valid)
+			    asn1_printable_valid(attrs[attr])
+#else
+			    printable_invalid_chars->match (attrs[attr])
+#endif
+			    ?
+#if constant(asn1_T61_string)
+			    asn1_T61_string
+#else
+			    asn1_broken_teletex_string
+#endif
+			    :
 			    asn1_printable_string) (attrs[attr]) ]) });
   }
 

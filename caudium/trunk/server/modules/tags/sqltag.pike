@@ -22,7 +22,7 @@
 /* 
  * $Id$
  *
- * A module for Roxen Challenger, which gives the tags
+ * A module for Caudium, which gives the tags
  * <SQLQUERY> and <SQLOUTPUT>.
  *
  * Henrik Grubbström 1997-01-12

@@ -2906,7 +2906,7 @@ class FTPSession
 
   void ftp_SYST(string args)
   {
-    send(215, ({ "UNIX Type: L8: Roxen Challenger Information Server"}));
+    send(215, ({ "UNIX Type: L8: Caudium Information Server"}));
   }
 
   void ftp_CLNT(string args)

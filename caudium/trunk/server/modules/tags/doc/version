@@ -97,7 +97,7 @@
 
 <tt>&lt;version&gt;</tt> is defined in the <i>Main RXML parser</i> module.
 <p>
-Print the version number of the Roxen Challenger web server you are
+Print the version number of the Caudium web server you are
 using.
 
 

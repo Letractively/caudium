@@ -30,7 +30,7 @@ constant thread_safe=1;
 "host\r\nContent-type: text/html\r\n\r\n<title>Roxen: Connection "	\
 "refused </title>\n<h1>Proxy request failed</h1><hr><font "		\
 "size=+2><i>Connection refused by remote host</i></font><hr><font "	\
-"size=-2><a href=http://www.roxen.com/>Roxen Challenger</a></font>"
+"size=-2><a href=http://www.roxen.com/>Caudium</a></font>"
 
 #if DEBUG_LEVEL > 22
 # ifndef GOPHER_DEBUG

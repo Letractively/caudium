@@ -44,7 +44,7 @@ Content-type: text/html\r\n\
 <hr>\
 <font size=+2><i>"+X+"</i></font>\
 <hr>\
-<font size=-2><a href=http://www.roxen.com/>Roxen Challenger</a></font>"
+<font size=-2><a href=http://www.roxen.com/>Caudium</a></font>"
 
 import Stdio;
 import Array;
