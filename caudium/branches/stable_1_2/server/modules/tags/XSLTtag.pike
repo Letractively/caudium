@@ -109,7 +109,7 @@ string container_xslt(string tag, mapping args, string xml, object id)
     if(!args->baseuri)
       xsl = id->conf->try_get_file(key,id);
     else
-      xsl = id->conf->try_get_file( Stdio.append_path( args->baseuri, key ) );
+      xsl = id->conf->try_get_file(Stdio.append_path(args->baseuri,key),id);
     break;
   case "file":
     xsl = Stdio.read_file(key);
