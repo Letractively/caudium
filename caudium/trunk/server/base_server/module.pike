@@ -101,15 +101,12 @@ static private object _my_module = this;
 //! Useful for working outside a request (when you don't have request_id).
 object my_configuration()
 {
-  werror("looking for my configuration.\n");
-  werror(sprintf("%O\n", _my_module));
   if(_my_configuration)
     return _my_configuration;
   object conf;
   foreach(caudium->configurations, conf)
     if(conf->otomod[_my_module])
     {
-      werror("found configuration.\n");
       return conf;
     }
   return 0;
