@@ -53,7 +53,7 @@ Specification of the config file format
 # NO DATA WILL BE WRITTEN TO STDIN OF THE FILTER EVEN IF $f IS LEFT OUT.
 #
 # If you want to you can customize the log format on a per-file basis. The
-# default format is: %H %R %U [%D/%M/%Y:%h:%m:%s %j] \"%j %f %j\" %c %b
+# default format is: %H %j %U [%D/%M/%Y:%h:%m:%s %j] "%j %f %j" %c %b "%R" "%U"
 #
 # Format and Filter are optional arguments.
 
