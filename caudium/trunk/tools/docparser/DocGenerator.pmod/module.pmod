@@ -143,7 +143,7 @@ class DocGen
         if (gv->contents && gv->contents != "")
             ret += gv->contents + "\n";
         else
-            ret += "unknown\n";
+            ret += "No documentation.\n";
 
         ret += "</globvar>\n\n";
         
@@ -220,27 +220,23 @@ class DocGen
 	if (m->contents && m->contents != "")
 	    ret += "<description>\n" + m->contents + "\n</description>\n\n";
 	else
-	    ret += "<description>\nNO DESCRIPTION</description>\n\n";
+	    ret += "<description>\nNo documentation.\n</description>\n\n";
 
 	/* Arguments */
-	if (m->args) {
-	    ret += "<arguments>\n";
-	    foreach(m->args, mapping(string:string) a) {
-		ret += "\t<argument>\n\t\t<syntax>\n\t\t\t";
-		if (a->synopsis)
-		    ret += a->synopsis;
-		else
-		    ret += "NO SYNOPSIS";
-		ret += "\n\t\t</syntax>\n";
-		
-		ret += "\t\t<description>\n\t\t\t";
-		if (a->description)
-		    ret += a->description;
-		else
-		    ret += "NO DESCRIPTION";
-		ret += "\n\t\t</description>\n\t</argument>\n\n";
-	    }
-	    ret += "</arguments>\n\n";
+	if (m->args && sizeof(m->args)) {
+	  ret += "<arguments>\n";
+	  foreach(m->args, mapping(string:string) a) {
+	    ret += "\t<argument";
+	    if (a->synopsis)
+	      ret += " syntax=\""+a->synopsis+"\"";
+	    ret += "\n\t\t";
+	    if (a->description)
+	      ret += a->description;
+	    else
+	      ret += "NO DESCRIPTION";
+	    ret += "\n\t</argument>\n\n";
+	  }
+	  ret += "</arguments>\n\n";
 	}
 	
 	/* Returns */
