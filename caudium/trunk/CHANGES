@@ -1,5 +1,9 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Fixed image generation in the Caudium configuration interface.
+  Removed some duplicate caches and replaced very old cache with new one.
+  Fixed some wrong return type for images from the CIF in the HTTP headers.
+   (David Gourdelier)
 - Fixed some breakage on bump_version / snapshots etc... since we have 
   moved the version of caudium from base_server/caudium.pike into 
   etc/modules/CaudiumVersion.pmod
