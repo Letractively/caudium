@@ -3,8 +3,8 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
-AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h)
-AC_HAVE_FUNCS(mmap munmap)
+AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h sdtlib.h)
+AC_HAVE_FUNCS(mmap munmap free)
 
 AH_TOP([
 /*

@@ -22,7 +22,11 @@
 RCSID("$Id$");
 #include "caudium_util.h"
 #include <fd_control.h>
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
+#else
+#error "Your system doesn't seems to have stdio.h header."
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -674,7 +678,15 @@ static void f_get_address( INT32 args ) {
   push_string(res);
 }
 
-
+/*
+** method: string extension(string file)
+**  Returns the extension name from the file. Eg foo.c will return c
+**  checks also that file is not a known backup file.
+** arg: string file
+**  The file to get the extension
+** returns:
+**  The extension file
+*/
 static void f_extension( INT32 args ) {
   int i, found=0;
   struct pike_string *src;
@@ -708,6 +720,36 @@ static void f_extension( INT32 args ) {
     push_text("");
   }
 }
+
+#ifdef EXPERIMENTAL
+
+/* Some basic http function to speedup caudium (and gets more free from Pike 
+   changing things... */
+
+/* The following will convert char to hex */
+
+char *hex_chars = "01234567890ABCDEF";
+
+char hex_to_char(char c) 
+{
+  return c >= '0' && c <= 'g' ? c - '0'
+    : c >= 'A' && c <= 'F' ? c - 'A' + 10
+    : c - 'a' + 10;
+}
+
+/* check if character given is safe */
+/* maybe we'll probably need more safe char's here ? */
+
+int is_safe (char c) 
+{
+   if((c >= '0' && c <= 'g' ) ||
+      (c >= 'A' && c <= 'Z' ) ||
+      (c >= 'a' && c <= 'z' )
+     ) return 1;
+   return 0;
+}
+
+#endif
 
 /* Initialize and start module */
 void pike_module_init( void )
