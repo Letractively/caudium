@@ -1,0 +1,9 @@
+Some items to fix:
+
+- Fix a 'NULL' object to use for converting too/from null/undefined.
+- Add a class, perhaps Server, were we can put custom functions.
+- Add C-level to bind a Pike-function to the above class. Would be
+  by modules and the core to add JS-level functions.
+- Fix a wrapper for JS_TYPE_BUILTIN (NJS class/object). Unclear
+  exactly how this could be done.
+
