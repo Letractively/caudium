@@ -1,7 +1,7 @@
 Changes in Caudium 1.2.xx since 1.2.24
 --------------------------------------
-- Fix a bug on ssl3.pike where the redirect would always pick the admin port,
-  because this what get_context(0) finds.
+- Fix a bug in ssl3.pike where the redirect from http would always pick the
+  admin port.
 - make_tag_attributes() now don't output any "/" that could be in the argument.
   That affects both make_tag() and make_container()
 - Backported Highlight pike system from 1.3 that now support CSS :)
