@@ -398,16 +398,9 @@ string tag_counter( string tagname, mapping args, object id )
   //
   // bypass compatible accessed attributes
   // 
-  accessed="<accessed"
-    + (args->cheat?" cheat="+args->cheat:"")
-    + (args->factor?" factor="+args->factor:"")
-    + (args->file?" file="+args->file:"")
-    + (args->prec?" prec="+args->prec:"")
-    + (args->precision?" precision="+args->precision:"")
-    + (args->add?" add="+args->add:"")
-    + (args->reset?" reset":"")
-    + (args->per?" per="+args->per:"")
-    + ">";
+  accessed = Caudium.make_tag("accessed", args);
+
+  accessed = parse_rxml(accessed, id);
 
   pre = "<IMG SRC=\"";
   url = query("mountpoint");
