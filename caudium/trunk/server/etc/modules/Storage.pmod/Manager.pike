@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+//! Storage Manager (eg disk/mem/sql cache)
 
 /*
  * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
@@ -46,6 +51,7 @@ static object permstore;
 static mapping clients;
 function destroy = sync_all;
 
+//!
 void create(string _permstore, string path) {
   start(_permstore, path);
   storage = ([ ]);
@@ -57,6 +63,7 @@ void create(string _permstore, string path) {
 #endif
 }
 
+//!
 void start(string _permstore, string path) {
 
   if(functionp(path)) path=call_function(path);
@@ -80,6 +87,7 @@ void start(string _permstore, string path) {
 #endif
 }
 
+//!
 public object get_storage(string namespace) {
   LOCK();
   mapping callbacks = ([ "store" : store, "retrieve" : retrieve, "unlink" : unlink, "size" : size, "list" : list, "stop" : stop, "unlink_regexp" : unlink_regexp ]);
@@ -89,6 +97,7 @@ public object get_storage(string namespace) {
   return clients[namespace];
 }
 
+//!
 public mapping storage_globvar() {
   return ([
     "default" : permstore->storage_default|"",
@@ -97,14 +106,17 @@ public mapping storage_globvar() {
   ]);
 }
 
+//!
 public array storage_types() {
   return ({ "Disk", "MySQL", "GDBM" });
 }
 
+//!
 public string storage_default() {
   return "Disk";
 }
 
+//!
 static void store(string namespace, string key, mixed val) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Storing %O from %O\n", key, namespace);
@@ -117,6 +129,7 @@ static void store(string namespace, string key, mixed val) {
   call_out( sync, SYNC_IN, namespace, key );
 }
 
+//!
 static mixed retrieve(string namespace, string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Retrieving %O from %O\n", key, namespace);
@@ -129,6 +142,7 @@ static mixed retrieve(string namespace, string key) {
   return permstore->retrieve(namespace, key);
 }
 
+//!
 static void sync(string namespace, string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing %O/%O to permanent storage\n", key, namespace);
@@ -140,6 +154,7 @@ static void sync(string namespace, string key) {
     }
 }
 
+//!
 static void unlink(string namespace, void|string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Removing %O in %O\n", (key?key:"all"), namespace);
@@ -156,11 +171,13 @@ static void unlink(string namespace, void|string key) {
   permstore->unlink(namespace, key);
 }
 
+//!
 static void unlink_regexp(string namespace, string regexp) {
   sync_all(namespace);
   permstore->unlink_regexp(namespace, regexp);
 }
 
+//!
 void stop(void|string namespace) {
   if (stringp(namespace))
     sync_all(namespace);
@@ -169,6 +186,7 @@ void stop(void|string namespace) {
   permstore->stop();
 }
 
+//!
 static void sync_all(void|string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing all objects\n");
@@ -185,10 +203,12 @@ static void sync_all(void|string namespace) {
       sync(namespace, key);
 }
 
+//!
 string storage_backend() {
   return permstore->name();
 }
 
+//!
 static int size(string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Getting total size of %O\n", namespace);
@@ -197,6 +217,7 @@ static int size(string namespace) {
   return permstore->size(namespace);
 }
 
+//!
 static array list(string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Listing objects in %O\n", namespace);

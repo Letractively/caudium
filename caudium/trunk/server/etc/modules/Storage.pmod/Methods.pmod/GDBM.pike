@@ -18,6 +18,11 @@
  *
  * $Id$
  */
+/*
+ * $Id$
+ */
+
+//! Storage Module : GDBM Method
 
 /*
  * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
@@ -29,9 +34,14 @@
  *
  */
 
+//!
 constant storage_type    = "GDBM";
+
+//!
 constant storage_doc     = "Please enter the full path that you would like to store the "
                            "GDBM database in";
+
+//!
 constant storage_default = "+storage.gdbm";
 
 #ifdef THREADS
@@ -58,15 +68,20 @@ static object hitch = HitchingPost;
 
 #define DB db
 
+//!
 static object db;
+
+//!
 static string path;
 
+//!
 void create(string _path) {
   PRELOCK();
   LOCK();
   path = Stdio.append_path(_path, sprintf("%d.%d.%d.gdbm", __MAJOR__, __MINOR__, __BUILD__));
 }
 
+//!
 void store(string namespace, string key, string value) {
   PRELOCK();
   LOCK();
@@ -77,6 +92,7 @@ void store(string namespace, string key, string value) {
   DB()->store(_hash, value);
 }
 
+//!
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   LOCK();
@@ -87,6 +103,7 @@ mixed retrieve(string namespace, string key) {
   DB()->fetch(_hash);
 }
 
+//!
 void unlink(string namespace, void|string key) {
   PRELOCK();
   LOCK();
@@ -110,6 +127,7 @@ void unlink(string namespace, void|string key) {
   }
 }
 
+//!
 void unlink_regexp(string namespace, string regexp) {
   PRELOCK();
   LOCK();
@@ -125,6 +143,7 @@ void unlink_regexp(string namespace, string regexp) {
   }
 }
 
+//!
 static string encode(string namespace, string key, string value) {
   if (!namespace || !key || !value)
     return "";
@@ -133,6 +152,7 @@ static string encode(string namespace, string key, string value) {
   return MIME.encode_base64(data, 1);
 }
 
+//!
 static mixed decode(string data) {
   program p;
   if (catch(p = compile_string(MIME.decode_base64(data))))
@@ -140,12 +160,14 @@ static mixed decode(string data) {
   return p()->data;
 }
 
+//!
 static string get_hash( string data ) {
   string retval;
   retval = Caudium.Crypto.hash_md5(data);
   return sprintf("%@02x",(array(int)) retval);
 }
 
+//!
 int size(string namespace) {
   PRELOCK();
   LOCK();
@@ -159,6 +181,7 @@ int size(string namespace) {
   }
 }
 
+//!
 array list(string namespace) {
   PRELOCK();
   LOCK();
@@ -172,6 +195,7 @@ array list(string namespace) {
   }
 }
 
+//!
 void|object _db() {
 #if constant(Gdbm.gdbm)
   if (!objectp(db))

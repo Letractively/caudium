@@ -410,39 +410,87 @@ int index(string uri, string data, string title, string type, string date)
 class Index
 {
 
+//!
 static object class_class = FINDCLASS("java/lang/Class");
+
+//!
 static object classloader_class = FINDCLASS("java/lang/ClassLoader");
 
+//!
 static object load_class = classloader_class->get_method("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 
+//!
 static object throwable_class = FINDCLASS("java/lang/Throwable");
+
+//!
 static object stringwriter_class = FINDCLASS("java/io/StringWriter");
+
+//!
 static object printwriter_class = FINDCLASS("java/io/PrintWriter");
+
+//!
 static object dictionary_class = FINDCLASS("java/util/Dictionary");
+
+//!
 static object array_class = FINDCLASS("java/lang/reflect/Array");
+
+//!
 static object arraylist_class = FINDCLASS("java/util/ArrayList");
+
+//!
 static object list_class = FINDCLASS("java/util/List");
+
+//!
 static object hashmap_class = FINDCLASS("java/util/HashMap");
+
+//!
 static object collection_class = FINDCLASS("java/util/Collection");
+
+//!
 static object string_class = FINDCLASS("java/lang/String");
 
+//!
 static object throwable_printstacktrace = throwable_class->get_method("printStackTrace", "(Ljava/io/PrintWriter;)V");
+
+//!
 static object stringwriter_init = stringwriter_class->get_method("<init>", "()V");
+
+//!
 static object printwriter_init = printwriter_class->get_method("<init>", "(Ljava/io/Writer;)V");
+
+//!
 static object printwriter_flush = printwriter_class->get_method("flush", "()V");
 
 
+//!
 static object array_newinstance = array_class->get_static_method("newInstance", "(Ljava/lang/Class;I)Ljava/lang/Object;");
+
+//!
 static object array_set = array_class->get_static_method("set", "(Ljava/lang/Object;ILjava/lang/Object;)V");
+
+//!
 static object array_get = array_class->get_static_method("get", "(Ljava/lang/Object;I)Ljava/lang/Object;");
+
+//!
 static object arraylist_init = arraylist_class->get_method("<init>", "()V");
+
+//!
 static object arraylist_get = list_class->get_method("get", "(I)Ljava/lang/Object;");
+
+//!
 static object arraylist_size = collection_class->get_method("size", "()I");
+
+//!
 static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object;)Ljava/lang/Object;");
 
 
+//!
 static object search_class = FINDCLASS("net/caudium/search/Search");
+
+//!
 static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;[Ljava/lang/String;)V");
+
+//!
 static object search_search = search_class->get_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
 
 private object se;

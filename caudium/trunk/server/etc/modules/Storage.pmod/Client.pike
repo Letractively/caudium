@@ -17,6 +17,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+//! Storage Client (eg disk/mem/sql cache)
 
 /*
  * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
@@ -47,6 +52,7 @@ static function _list;
 static function _stop;
 static string namespace;
 
+//!
 void create(string _namespace, mapping callbacks) {
   LOCK();
   _store = callbacks->store;
@@ -59,35 +65,42 @@ void create(string _namespace, mapping callbacks) {
   namespace = _namespace;
 }
 
+//!
 public void store(string key, mixed val) {
   LOCK();
   _store(namespace, key, val);
 }
 
+//!
 public mixed retrieve(string key) {
   LOCK();
   return _retrieve(namespace, key);
 }
 
+//!
 public void unlink(void|string key) {
    LOCK();
    _unlink(namespace, key);
 }
 
+//!
 public void unlink_regexp(void|string regexp) {
   LOCK();
   _unlink_regexp(namespace, regexp);
 }
 
+//!
 public int size() {
  LOCK();
  return _size(namespace);
 }
 
+//!
 public array list() {
   return _list(namespace);
 }
 
+//!
 public void stop() {
   _stop(namespace);
 }
