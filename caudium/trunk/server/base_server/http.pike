@@ -19,12 +19,11 @@
  *
  */
 
-//! $Id$
-
+// $Id$
 //
-//! This file implements various helper functions related to the HTTP
-//! protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
-//! enough to get access to these functions. 
+// This file implements various helper functions related to the HTTP
+// protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
+// enough to get access to these functions. 
 //
 
 #include <config.h>
@@ -117,7 +116,7 @@ string http_res_to_string( mapping file, object id )
 //!   Return a response mapping with the error and data specified. The
 //!   error is in fact the status response, so @tt{200@} is @i{HTTP Document
 //!   follows@}, and @tt{500@} @i{Internal Server error@}, etc. The content type will
-//!   always be @tt{text/html}
+//!   always be @tt{text/html@}
 //!
 //! @param errno
 //!   The HTTP error code to use in the reply.
@@ -394,7 +393,7 @@ string cern_http_date(int t)
 //!   Return the specified date (as returned by time()) formatted in the
 //!   HTTP-protocol standard date format. Used in for example the Last-Modified
 //!   header.
-//! @param int t
+//! @param t
 //!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
 //! @returns
 //!   The date in the HTTP standard date format.
@@ -505,6 +504,7 @@ string http_caudium_config_cookie(string from)
   return "CaudiumConfig="+http_encode_cookie(from)
     +"; expires=" + http_date (3600*24*365*2 + time (1)) + "; path=/";
 }
+
 function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
 
 
@@ -518,6 +518,7 @@ string http_caudium_id_cookie()
 		 http_date (3600*24*365*2 + time (1)) + "; path=/",
 		 caudium->increase_id());
 }
+
 function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
 
 //!   Prepend the URL with the prestate specified. The URL is a path
