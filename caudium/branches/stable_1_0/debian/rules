@@ -137,6 +137,11 @@ install: build
 	   debian/caudium-ultralog/usr/share/man/man1/
 	   
 	dh_movefiles
+	
+	# clean up CAMAS debris here
+	rm -rf debian/tmp/usr/share/caudium/modules/camas
+	rm -rf debian/caudium-camas/usr/lib/caudium/etc/include/camas/language.templates
+	rm -rf debian/caudium-camas/usr/share/caudium/modules/camas/docs
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
