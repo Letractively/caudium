@@ -483,3 +483,18 @@ void block401(object id) {
 //!  type: TYPE_FILE
 //!  name: Defaults: Login Shell
 //
+//! defvar: cachetimer
+//! User information is cached in memory to speed up authorization and to avoid unnecessary requests to the database server. This option sets the maximum age in minute of individual cache entries. If they are too old the entry is refreshed from the database.
+//!  type: TYPE_INT
+//!  name: Maximum cache time
+//
+//! defvar: ignorenumber401
+//! This option sets the number of 401 attempts allowed from a particular IP address before completely ignoring the requests. This is useful to block potential password cracking attempts.
+//!  type: TYPE_INT
+//!  name: Number of failed 401 attempts before ignoring
+//
+//! defvar: ignoretimer401
+//! The number of minutes to block an IP that exceeded the failed authentication limit.
+//!  type: TYPE_INT
+//!  name: Blocked IP ignore time
+//

@@ -28,6 +28,7 @@ mapping(string:string) handle(object id,
                               mapping(string:string) vars,
                               string basedir) 
 {
+  werror("%O\n", query);
     if (!basedir)
         throw(({"Must have a base directory!", backtrace()}));
 
@@ -39,8 +40,8 @@ mapping(string:string) handle(object id,
 
     while(sizeof(query) && query[0] == '/')
         query = query[1..];
-    
-    string fpath = basedir + query;
+
+    //    string fpath = basedir + query;
 
     if (!file_stat(fpath)) {
         empty_file->file = replace_vars(empty_file->file,

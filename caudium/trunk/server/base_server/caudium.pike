@@ -4122,3 +4122,13 @@ string check_variable(string name, mixed value)
 //!  type: TYPE_DIR|VAR_MORE
 //!  name: Internal files: Image files path
 //
+//! defvar: RequestBufSize
+//! Maximum size for a single request. This includes both headers and the URI itself.
+//!  type: TYPE_INT|VAR_MORE
+//!  name: Request Tuning: Buffer size
+//
+//! defvar: RequestCacheTimeout
+//! Time after which a single cached request is removed from the data cache
+//!  type: TYPE_INT|VAR_MORE
+//!  name: Request Tuning: Cache expiration value
+//
