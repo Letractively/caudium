@@ -189,7 +189,45 @@ string sql_getvirt(string hostname, object id)
 
      return vpath;
   }
+  if (QUERY("lamers_mode") && hostname[0..3] == "www.")
+  {
+    string tmphost = hostname[4..];
 
+    DW("Entering to lamers mode search");
+    
+    sql_results=db->query("SELECT username,uid,gid,homedir "
+                          "FROM "+QUERY(table)+" WHERE wwwdomain='"+tmphost+"'");
+                         
+    if(!sql_results||!sizeof(sql_results)) {
+      DW("No entry in the database");
+      return 0;
+    }
+    DW("search for "+hostname);
+    tmp=sql_results[0];
+    DW(sprintf("got : %O",tmp));
+
+    if (tmp)
+    {
+       string vpath;
+
+       vpath = tmp->homedir||QUERY(searchpath);
+
+       if (vpath[-1] != '/') vpath += "/";
+
+       // owner, hostname, path, ttl
+       virtcache[hostname] = ConfigCache(tmp->username,
+				         hostname,
+				         vpath + QUERY(wwwdir),
+				         vpath + QUERY(cgidir),
+				         vpath + QUERY(logdir),
+				         vpath,
+				         (int)tmp->uid||QUERY(defaultuid),
+				         (int)tmp->gid||QUERY(defaultgid),
+				         QUERY(ttl_positive));
+
+       return vpath;
+    }
+  }
   return 0;
 }
 
@@ -323,6 +361,12 @@ void create()
          "Table where is stored VHS information. This can be the same table as "
          "used SQL User database");
 
+  defvar("defaultuid",65534,"SQL:Default User ID", TYPE_INT,
+         "Default user id");
+
+  defvar("defaultgid",65534,"SQL:Default Group ID", TYPE_INT,
+         "Default group id");
+
   defvar("defvirtual", "witch.underley.eu.org", "Default virtual path", TYPE_STRING,
 	 "Redirect to this virtual, if no valid.");
 
@@ -338,16 +382,14 @@ void create()
   defvar("logdir", "logs/", "Logs directory", TYPE_STRING,
          "Directory, mounted as cgi-bin");
 
-  defvar("ttl_positive", 1800, "Positive TTL", TYPE_INT,
+  defvar("ttl_positive", 1800, "TTL:Positive TTL", TYPE_INT,
          "Time to cache positive config hits.");
 
-  defvar("ttl_negative", 60, "Negative TTL", TYPE_INT,
+  defvar("ttl_negative", 60, "TTL:Negative TTL", TYPE_INT,
          "Time to cache negative config hits.");
-  
-  defvar("defaultuid",65534,"Default User ID", TYPE_INT,
-         "Default user id");
-  defvar("defaultgid",65534,"Default Group ID", TYPE_INT,
-         "Default group id");
+
+  defvar("lamers_mode", 1, "Enable lamers friendly mode", TYPE_FLAG,
+         "Adds 'www.' prefix to each virtual.");
 }
 
 void precache_rewrite(object id)
