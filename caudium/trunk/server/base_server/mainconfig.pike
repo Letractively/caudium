@@ -346,17 +346,17 @@ mapping verify_changed_ports(object id, object o)
       }
 
       if(prt != def)
-	res += sprintf("     <input type=radio name=\"%s\" value=\"%s\">     %s\n",
-		       name, prt, prt);
+	res += sprintf("     <input id='%s' type='radio' name='%s' value='%s'>     <label for='%s'>%s</label>\n",
+		       prt, name, prt, prt, prt);
 
     }
-      res += sprintf("     <input type=radio checked value=own name=\"%s\">     "
-		     "<input size=70 name=\"%s->own\" "
-		     "value=\"%s\">\n</pre><p>",
+      res += sprintf("     <input type='radio' checked='checked' value='own' name='%s'>     "
+		     "<input size=70 name='%s->own' "
+		     "value='%s'>\n</pre><p>",
 		     name, name, def);
   }
   changed_port_servers = (<>);
-  return stores(res+"<input type=submit value=\"Continue...\"></form>");
+  return stores(res+"<input type='submit' value='Continue...'></form>");
 }
 
 //!
