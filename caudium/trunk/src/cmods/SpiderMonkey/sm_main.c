@@ -91,7 +91,7 @@ int init_globals(JSContext *ctx)
   return 1;
 }
 
-void pike_module_init()
+void pike_module_init(void)
 {
   fprintf(stderr, "Initializing the JavaScript engine. ");
 
@@ -115,7 +115,7 @@ void pike_module_init()
   end_class("Context", 0);
 }
 
-void pike_module_exit()
+void pike_module_exit(void)
 {
   if (!smrt)
     return;

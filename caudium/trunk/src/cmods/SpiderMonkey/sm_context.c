@@ -31,75 +31,121 @@ RCSID("$Id$");
 #include "sm_globals.h"
 #include "sm_context.h"
 
-static JSBool output_write(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-static JSBool output_writeln(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+#define JS_FUNCDEF(name) static JSBool name (JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
-/* Custom Caudium objects/functions */
+/* the global object */
+JS_FUNCDEF(output_write);
+JS_FUNCDEF(output_writeln);
+
+/* the Caudium object */
+JS_FUNCDEF(caudium_version);
+JS_FUNCDEF(caudium_pikever);
+JS_FUNCDEF(caudium_log_message);
+
+static struct pike_string     *idx_result = NULL;
+static struct pike_string     *idx_output = NULL;
+
+/*
+ * Custom Caudium objects/functions
+ */
+
+/*
+ * The global JS object - functions defined here are inherited by all the
+ * other objects and available without the need of specifying any object at
+ * their invocation time.
+ */
 static JSFunctionSpec output_functions[] = {
-    {"write", output_write, 1, 0, 0},
-    {"writeln", output_writeln, 1, 0, 0}
+  {"write", output_write, 1, 0, 0},
+  {"writeln", output_writeln, 1, 0, 0}
 };
 
 inline static void write_out(char *str, js_context *data)
 {
-    int    strbytes = strlen(str);
+  int    strbytes = strlen(str);
     
-    if (data->output_buf_last + strbytes >= data->output_buf_len) {
-        data->output_buf_len <<= 1; /* TODO: check for overflows and max
-                                     * size limit */
-        data->output_buf = (unsigned char*)realloc(data->output_buf, data->output_buf_len);
-        if (!data->output_buf)
-            Pike_error("Out of memory");
-    }
+  if (data->output_buf_last + strbytes >= data->output_buf_len) {
+    data->output_buf_len <<= 1; /* TODO: check for overflows and max
+                                 * size limit */
+    data->output_buf = (unsigned char*)realloc(data->output_buf, data->output_buf_len);
+    if (!data->output_buf)
+      Pike_error("Out of memory");
+  }
 
-    strncat(data->output_buf, str, data->output_buf_len);
-    THIS->output_buf_last += strbytes;
+  strncat(data->output_buf, str, data->output_buf_len);
+  THIS->output_buf_last += strbytes;
 }
 
-static JSBool output_write(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JS_FUNCDEF(output_write)
 {
-    js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
-    JSString     *str;
-    uintN         i;
+  js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
+  JSString     *str;
+  uintN         i;
     
-    if (!data)
-        return JS_FALSE;
+  if (!data)
+    return JS_FALSE;
 
-    if (!data->output_buf || !data->output_buf_len) {
-        data->output_buf = (unsigned char*)malloc(sizeof(unsigned char) * DEF_OUTPUTBUF_LEN);
-        if (!data->output_buf)
-            Pike_error("Out of memory\n");
-        data->output_buf_len = DEF_OUTPUTBUF_LEN;
-        data->output_buf_last = 0;
-        memset(data->output_buf, 0, data->output_buf_len);
-    }
+  if (!data->output_buf || !data->output_buf_len) {
+    data->output_buf = (unsigned char*)malloc(sizeof(unsigned char) * DEF_OUTPUTBUF_LEN);
+    if (!data->output_buf)
+      Pike_error("Out of memory\n");
+    data->output_buf_len = DEF_OUTPUTBUF_LEN;
+    data->output_buf_last = 0;
+    memset(data->output_buf, 0, data->output_buf_len);
+  }
     
-    for (i = 0; i < argc; i++) {
-        str = JS_ValueToString(ctx, argv[i]);
-        if (!str)
-            return JS_FALSE;
+  for (i = 0; i < argc; i++) {
+    str = JS_ValueToString(ctx, argv[i]);
+    if (!str)
+      return JS_FALSE;
 
-        argv[i] = STRING_TO_JSVAL(str);
-        write_out(JS_GetStringBytes(str), data);
-    }
+    argv[i] = STRING_TO_JSVAL(str);
+    write_out(JS_GetStringBytes(str), data);
+  }
 
-    return JS_TRUE;
+  return JS_TRUE;
 }
 
-static JSBool output_writeln(JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JS_FUNCDEF(output_writeln)
 {
-    js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
-    JSBool        ret = output_write(ctx, obj, argc, argv, rval);
+  js_context   *data = (js_context*)JS_GetPrivate(ctx, obj);
+  JSBool        ret = output_write(ctx, obj, argc, argv, rval);
 
-    if (!ret)
-        return JS_FALSE;
+  if (!ret)
+    return JS_FALSE;
 
-    if (data)
-        write_out("\n", data);
-    else
-        return JS_FALSE;
+  if (data)
+    write_out("\n", data);
+  else
+    return JS_FALSE;
 
-    return JS_TRUE;
+  return JS_TRUE;
+}
+
+/*
+ * The Caudium JS object.
+ * Contains functions that provide information about the whole server and
+ * ones that allow the programmer to output messages logged in the Caudium
+ * debug log.
+ */
+static JSFunctionSpec caudium_functions[] = {
+  {"version", caudium_version, 1, 0, 0},
+  {"pikever", caudium_pikever, 1, 0, 0},
+  {"log_message", caudium_log_message, 1, 0, 0}
+};
+
+JS_FUNCDEF(caudium_version)
+{
+  return JS_TRUE;
+}
+
+JS_FUNCDEF(caudium_pikever)
+{
+  return JS_TRUE;
+}
+
+JS_FUNCDEF(caudium_log_message)
+{
+  return JS_TRUE;
 }
 
 /*! @class Context
@@ -142,142 +188,191 @@ static JSBool output_writeln(JSContext *ctx, JSObject *obj, uintN argc, jsval *a
  */
 static void ctx_create(INT32 args)
 {
-    INT32      version = JSVERSION_1_5;
-    INT32      stacksize = 8192;
+  INT32      version = JSVERSION_1_5;
+  INT32      stacksize = 8192;
 
-    switch(args) {
-        case 2:
-            get_all_args("create", args, "%i%i", &version, &stacksize);
-            break;
+  switch(args) {
+      case 2:
+        get_all_args("create", args, "%i%i", &version, &stacksize);
+        break;
 
-        case 1:
-            get_all_args("create", args, "%i", &version);
-            break;
-    }
+      case 1:
+        get_all_args("create", args, "%i", &version);
+        break;
+  }
 
-    THIS->ctx = JS_NewContext(smrt, stacksize);
-    if (!THIS->ctx)
-        Pike_error("Could not create a new context\n");
+  THIS->ctx = JS_NewContext(smrt, stacksize);
+  if (!THIS->ctx)
+    Pike_error("Could not create a new context\n");
     
-    if (!init_globals(THIS->ctx))
-        Pike_error("Could not initialize the new context.\n");
+  if (!init_globals(THIS->ctx))
+    Pike_error("Could not initialize the new context.\n");
 
-    if (!JS_DefineFunctions(THIS->ctx, global, output_functions))
-        Pike_error("Could not populate the global object with output functions\n");
+  if (!JS_DefineFunctions(THIS->ctx, global, output_functions))
+    Pike_error("Could not populate the global object with output functions\n");
     
-    JS_SetVersion(THIS->ctx, version);
+  JS_SetVersion(THIS->ctx, version);
 
-    /* create some privacy for us */
-    if (!JS_SetPrivate(THIS->ctx, global, THIS))
-        Pike_error("Could not set the private storage for the global object\n");
+  /* create some privacy for us */
+  if (!JS_SetPrivate(THIS->ctx, global, THIS))
+    Pike_error("Could not set the private storage for the global object\n");
     
-    pop_n_elems(args);
+  pop_n_elems(args);
 }
 
+/*! @decl mapping|int evaluate(string script, int|void version)
+ *!
+ *! Evaluates the passed script (that is, compiles it and then executes)
+ *! and returns a mapping with the execution results. The passed version is
+ *! set only for the passed script, it doesn't affect the globally used JS
+ *! version.
+ *!
+ *! @param script
+ *! Text of the JavaScript program to evaluate.
+ *!
+ *! @param version
+ *! One of the JavaScript version constants.
+ *!
+ *! @returns
+ *! A mapping containing the script output and the return value:
+ *!
+ *!  @mapping
+ *!   @member string "output"
+ *!     The script output - that is strings output using the write and
+ *!     writeln functions. Might be "" if no output was produced.
+ *!
+ *!   @member string "result"
+ *!     The script result (the value used in the 'return' JavaScript
+ *!     statement). Might be "" if the script returned no value or an
+ *!     undefined value.
+ *!  @end_mapping
+ */
 static void ctx_evaluate(INT32 args)
 {
-    JSBool              ok;
-    JSString           *str;
-    jsval               rval;
-    struct pike_string *script;
-    INT32               version = -1, oldversion = -1;
+  JSBool              ok;
+  JSString           *str;
+  jsval               rval;
+  struct pike_string *script;
+  INT32               version = -1, oldversion = -1;
 
-    if (!THIS->ctx) {
-        pop_n_elems(args);
-        push_int(0);
-        return;
-    }
-    
-    switch(args) {
-        case 2:
-            get_all_args("evaluate", args, "%S%i", &script, &version);
-            break;
-
-        case 1:
-            get_all_args("evaluate", args, "%S", &script);
-            break;
-
-        default:
-            Pike_error("Not enough arguments\n");
-    }
-
-    if (version != -1)
-        oldversion = JS_SetVersion(THIS->ctx, version);
-    
-    /* TODO: filename should indicate the actual location of the script */
-    ok = JS_EvaluateScript(THIS->ctx, global,
-                           script->str, script->len,
-                           "Caudium/js", 0, &rval);
-
-    if (oldversion != -1)
-        JS_SetVersion(THIS->ctx, oldversion);
-    
+  if (!THIS->ctx) {
     pop_n_elems(args);
+    push_int(0);
+    return;
+  }
     
-    if (!ok) {
-        push_int(-1);
-        return;
-    }
+  switch(args) {
+      case 2:
+        get_all_args("evaluate", args, "%S%i", &script, &version);
+        break;
 
-    if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
-        struct pike_string    *ret;
-        unsigned char         *tmp = NULL, *tval;
-        size_t                 blen = 0;
-        
-        str = JS_ValueToString(THIS->ctx, rval);
+      case 1:
+        get_all_args("evaluate", args, "%S", &script);
+        break;
 
-        tval = JS_GetStringBytes(str);
-        
-        if (THIS->output_buf && THIS->output_buf_last) {
-            blen = strlen(tval) + strlen(THIS->output_buf) + 1;
-            tmp = (unsigned char*)alloca(blen);
-            if (!tmp)
-                Pike_error("Out of memory\n");
-        }
+      default:
+        Pike_error("Not enough arguments\n");
+  }
 
-        if (tmp) {
-            strncpy(tmp, THIS->output_buf, blen);
-            strncat(tmp, tval, blen - strlen(tmp));
-            memset(THIS->output_buf, 0, THIS->output_buf_len);
-            THIS->output_buf_last = 0;
-        } else
-            tmp = tval;
+  if (version != -1)
+    oldversion = JS_SetVersion(THIS->ctx, version);
+    
+  /* TODO: filename should indicate the actual location of the script */
+  ok = JS_EvaluateScript(THIS->ctx, global,
+                         script->str, script->len,
+                         "Caudium/js", 0, &rval);
+
+  if (oldversion != -1)
+    JS_SetVersion(THIS->ctx, oldversion);
+    
+  pop_n_elems(args);
+    
+  if (!ok) {
+    push_int(-1);
+    return;
+  }
+
+  push_string(idx_output);
+  if (THIS->output_buf && THIS->output_buf_last) {
+    push_text(THIS->output_buf);
+    memset(THIS->output_buf, 0, THIS->output_buf_len);
+    THIS->output_buf_last = 0;
+  } else
+    push_text("");
+
+  push_string(idx_result);
+  if (!JSVAL_IS_NULL(rval) && !JSVAL_IS_VOID(rval)) {
+    struct pike_string    *ret;
+    unsigned char         *tmp = NULL, *tval;
+    size_t                 blen = 0;
         
-        push_text(tmp);
-    } else
-        push_text("");
+    str = JS_ValueToString(THIS->ctx, rval);
+    push_text(JS_GetStringBytes(str));
+  } else
+    push_text("");
+
+  f_aggregate_mapping(4);
+}
+
+/*! @decl void set_id(object id)
+ *! Pass the RequestID object to this context. This function should be
+ *! called @b{once@} for @b{each@} request in Caudium!
+ *!
+ *! @param id
+ *!  The Caudium RequestID object.
+ */
+static void ctx_set_id(INT32 args)
+{
+  get_all_args("set_id", args, "%o", &THIS->id);
+
+  pop_n_elems(args);
 }
 
 static void ctx_init(struct object *obj)
 {
-    THIS->ctx = NULL;
-    THIS->output_buf = NULL;
-    THIS->output_buf_len = THIS->output_buf_last = 0;
+  THIS->ctx = NULL;
+  THIS->output_buf = NULL;
+  THIS->output_buf_len = THIS->output_buf_last = 0;
+
+  idx_result = make_shared_string("result");
+  idx_output = make_shared_string("output");
 }
 
 static void ctx_exit(struct object *obj)
 {
-    if (THIS->ctx) {
-        JS_DestroyContext(THIS->ctx);
-        THIS->ctx = NULL;
-    }
+  if (THIS->ctx) {
+    JS_DestroyContext(THIS->ctx);
+    THIS->ctx = NULL;
+  }
 
-    if (THIS->output_buf) {
-        free(THIS->output_buf);
-        THIS->output_buf = NULL;
-        THIS->output_buf_len = THIS->output_buf_last = 0;
-    }
+  if (THIS->output_buf) {
+    free(THIS->output_buf);
+    THIS->output_buf = NULL;
+    THIS->output_buf_len = THIS->output_buf_last = 0;
+  }
+
+  if (idx_result)
+    free_string(idx_result);
+  if (idx_output)
+    free_string(idx_output);
 }
 
 void init_context()
 {
-    set_init_callback(ctx_init);
-    set_exit_callback(ctx_exit);
+  set_init_callback(ctx_init);
+  set_exit_callback(ctx_exit);
     
-    ADD_STORAGE(js_context);
-    ADD_FUNCTION("create", ctx_create,
-                 tFunc(tOr(tVoid, tInt) tOr(tVoid, tInt), tVoid), 0);
-    ADD_FUNCTION("evaluate", ctx_evaluate,
-                 tFunc(tString tOr(tVoid, tInt), tOr(tString, tInt)), 0);
+  ADD_STORAGE(js_context);
+  ADD_FUNCTION("create", ctx_create,
+               tFunc(tOr(tVoid, tInt) tOr(tVoid, tInt), tVoid), 0);
+  ADD_FUNCTION("evaluate", ctx_evaluate,
+               tFunc(tString tOr(tVoid, tInt), tOr(tMapping, tInt)), 0);
+  ADD_FUNCTION("set_id", ctx_set_id,
+               tFunc(tObj, tVoid), 0);
 }
 #endif
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
