@@ -93,7 +93,7 @@ mixed page_0(object id, object conf)
   if(ru->nvcsw)
          out += "Number of voluntary CS    : " + ru->nvcsw + "\n";
   if(ru->nivcsw)
-         out += "Nb of peemptions          : " + ru->nivcsw + "\n";
+         out += "Nb of preemptions          : " + ru->nivcsw + "\n";
 
   out += "</pre>";
   return out;
