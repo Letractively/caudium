@@ -26,7 +26,7 @@ constant cvs_version = "$Id$";
 
 // Tell Caudium that this module is threadsafe. That is there is no
 // request specific data in global variables.
-consant thread_safe=1;
+contsant thread_safe=1;
 
 #include <module.h>
 inherit "module";
