@@ -190,15 +190,15 @@ mapping get_actions(string base,string dir)
 string act_describe_submenues(array menues, string base, string sel)
 {
   if(sizeof(menues)==1) return "";
-  string res = "<font size=+3>";
+  string res = "<font size=+3><ul>";
   foreach(sort(menues), string s) {
     s = s || "Misc";
     res+=
-      (s==sel?"<li>":"<font color=#eeeeee><li></font><a href=\""+base+"?sm="+replace(s," ","%20")+
+      (s==sel?"<li>":"<li><a href=\""+base+"?sm="+replace(s," ","%20")+
        "&uniq="+(++zonk)+"\"><font color=#888888>")+s+
-      (s==sel?"<br>":"</font></a><br>");
+      (s==sel?"</li>":"</font></a></li>");
   }
-  return res + "</font>";
+  return res + "</ul></font>";
 }
 
 string focused_action_menu="Maintenance";

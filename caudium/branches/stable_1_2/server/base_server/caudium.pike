@@ -2576,7 +2576,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "Client supports regexps", TYPE_TEXT_FIELD|VAR_MORE,
 	  "What do the different clients support?\n<br>"
 	  "The default information is normally fetched from the file "+
-	  getcwd()+"etc/supports, and the format is:<pre>"
+	  getcwd()+"/etc/supports, and the format is:<pre>"
 	  //"<a href=$docurl/configuration/regexp.html>regular-expression</a>"
 	  "regular-expression"
 	  " feature, -feature, ...\n"
