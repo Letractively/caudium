@@ -442,8 +442,6 @@ static void f_is_modified(INT32 args)
     get_all_args("is_modified", args, "%S%d%d", &header, &tmod, &use_weird);
   else
     get_all_args("is_modified", args, "%S%d", &header, &tmod);
-  
-  pop_n_elems(args);
 
 #ifdef HAVE_STRPTIME
   i = 0;
@@ -456,6 +454,8 @@ static void f_is_modified(INT32 args)
     
     i++;
   }
+  pop_n_elems(args);
+  
   if (!is_modified_formats[i].fmt) {
     push_string(gd_bad_format);
     return;
@@ -473,6 +473,8 @@ static void f_is_modified(INT32 args)
     push_string(gd_bad_format);  
 #else /* HAVE_STRPTIME */
   ret = get_date(header->str, NULL);
+  pop_n_elems(args);
+
   if (ret < 0)
     push_string(gd_bad_format);
 #endif /* HAVE_STRPTIME */
