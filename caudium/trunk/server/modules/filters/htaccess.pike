@@ -438,12 +438,12 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
 #endif
       if(!gr || !gr[3])
 	continue;
-      if(!userfile && id->conf->userlist(id)){
+      if(!userfile && id->conf->auth_module->list_all_users(id)){
 #ifdef HTACCESS_DEBUG
 	HT_WERR("Checking login group for user "+auth[0]
-	       +"("+id->conf->userinfo(auth[0],id)[3]+") against gid("+gr[2]+")");
+	       +"("+id->conf->auth_module->user_info(auth[0])->gid+") against gid("+gr[2]+")");
 #endif
-	if((int)id->conf->userinfo(auth[0],id)[3]==gr[2])
+	if((int)id->conf->auth_module->user_info(auth[0])->gid==gr[2])
 	  return 1;
       }
       int gr_i;
