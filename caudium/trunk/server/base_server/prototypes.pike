@@ -152,6 +152,7 @@ mapping file;
 //! This is the default content charset sent in the Content-Type: header
 string  content_charset = "iso-8859-1";
 
+//! The current FD to client.
 object my_fd; /* The client. */
 object pipe;
 
@@ -160,11 +161,26 @@ string prot;
 string clientprot;
 string method;
 
-string realfile, virtfile;
+//! The realfile path on the disk.
+string realfile;
+
+//! The virtual file path on the disk.
+string virtfile;
+
 string rest_query="";
+
+//! The Raw request (eg. request from client with all headers, etc...)
 string raw=""; // Raw request
+
+//! The Query of request (eg. part after the '?', ex: for /index.html?foo=test
+//! in this case query = "foo=test")
 string query;
+
+//! The not query of request (eg. part before the '?', ex: for /index.html?foo=test
+//! in this case not_query = "/index.html")
 string not_query;
+
+//! Used for language module.
 string extra_extension = ""; // special hack for the language module
 string data, leftovers;
 
