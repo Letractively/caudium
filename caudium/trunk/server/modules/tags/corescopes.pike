@@ -243,7 +243,7 @@ class CaudiumScope {
      case "version":
       //! entity: version
       //!  The version of the Caudium webserver.
-      ret = caudium.version();
+      ret = caudium.real_version;
       break;
      case "base-version":
       //! entity: base-version

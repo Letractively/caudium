@@ -364,13 +364,11 @@ void send_result(mapping|void result)
     if((file->file == -1) || file->leave_me) 
     {
       if(do_not_disconnect) {
-	file = 0;
-	pipe = 0;
+	file = pipe = 0;
 	return;
       }
-      destroy();		// To mark we're not interested in my_fd anymore.
-      my_fd = 0;
-      file = 0;
+      destroy(); // To mark we're not interested in my_fd anymore.
+      my_fd = file = 0;
       return;
     }
 
