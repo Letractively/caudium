@@ -2266,15 +2266,38 @@ public int is_file(string what, object id)
   return !!stat_file(what, id);
 }
 
+//
+// A quick hack to generate correct protocol references
+//
+static string make_proto_name(string p)
+{
+    // Note these are only the protocols that
+    // Caudium can directly use
+    multiset(string) known_protos = (<"http", "ftp", "tetris", "https">);
+	  
+    if (known_protos[p])
+	return p;
+	
+    foreach(indices(known_protos), string proto) {
+	string ret;
+	
+	ret = String.common_prefix(({proto, p}));
+	if (ret && ret != "")
+	    return ret;
+    }
+    
+    return "about";
+}
+
 string MKPORTKEY(array(string) p)
 {
   if (sizeof(p[3])) {
     return(sprintf("%s://%s:%s/(%s)",
-		   p[1], p[2], (string)p[0],
+		   make_proto_name(p[1]), p[2], (string)p[0],
 		   replace(p[3], ({"\n", "\r"}), ({ " ", " " }))));
   } else {
     return(sprintf("%s://%s:%s/",
-		   p[1], p[2], (string)p[0]));
+		   make_proto_name(p[1]), p[2], (string)p[0]));
   }
 }
 
