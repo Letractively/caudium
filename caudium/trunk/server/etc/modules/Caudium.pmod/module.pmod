@@ -435,3 +435,31 @@ string sexpr_eval(string what) {
 
   return ret;
 }
+
+//! parse_html like function.
+//! This function will use spider.parse_html() only if OLD_SPIDER define
+//! is set.
+//! @note
+//!   Work in progress
+string parse_html(string data, mapping(string:function|string) tags,
+                  mapping(string:function|string) containers, mixed ... args) {
+#ifndef OLD_SPIDER
+  return Caudium.Parse.parse_html(data, tags, containers, @args);
+#else
+  return spider.parse_html(data, tags, containers, @args);
+#endif /* OLD_SPIDER */
+}
+
+//! parse_html_lines function.
+//! This function will use spider.parse_html_lines() only if OLD_SPIDER
+//! define is set.
+//! @note
+//!   Work in progress
+string parse_html_lines(string data, mapping tags, mapping containers, 
+                        mixed ... args) {
+#ifndef OLD_SPIDER
+  return Caudium.Parse.parse_html_lines(data, tags, containers, @args);
+#else
+  return spider.parse_html_lines(data, tags, containers, @args);
+#endif /* OLD_SPIDER */
+}
