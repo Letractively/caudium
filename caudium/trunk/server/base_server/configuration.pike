@@ -3612,5 +3612,7 @@ void create(string config)
 
 }
 
-
-
+string _sprintf( )
+{
+  return "Configuration("+name+")";
+}
