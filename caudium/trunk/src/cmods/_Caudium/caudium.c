@@ -709,6 +709,151 @@ static void f_extension( INT32 args ) {
   }
 }
 
+/* Caudium.create_process */
+
+extern int fd_from_object(struct object *o);
+
+static void f_create_process( INT32 args ) {
+  struct perishables storage;
+  struct array *cmd = 0;
+  struct mapping *optional = 0;
+  struct svalue *tmp;
+  int e;
+  int stds[3];
+  int *fds;
+  int num_fds = 3;
+  int wanted_gid, wanted_uid;
+  int gid_request, uid_request;
+  char *tmp_cwd;
+  pid_t pid=-2;
+
+  fds = stds;
+  storage.env = 0;
+  storage.argv = 0;
+  storage.disabled = 0;
+  storage.fds = NULL;
+
+  check_all_args("create_process",args, BIT_ARRAY, BIT_MAPPING | BIT_VOID, 0);
+
+  switch(args)
+  {
+    default:
+      optional=sp[1-args].u.mapping;
+      mapping_fix_type_field(optional);
+
+      if(m_ind_types(optional) & ~BIT_STRING)
+        Pike_error("Bad index type in argument 2 to Caudium.create_process()\n");
+
+    case 1: cmd=sp[-args].u.array;
+      if(cmd->size < 1)
+        Pike_error("Too few elements in argument array.\n");
+
+      for(e=0;e<cmd->size;e++)
+        if(ITEM(cmd)[e].type!=T_STRING)
+          Pike_error("Argument is not a string.\n");
+
+      array_fix_type_field(cmd);
+
+      if(cmd->type_field & ~BIT_STRING)
+        Pike_error("Bad argument 1 to Caudium.create_process().\n");
+  }
+
+  if (optional) {
+
+     if ((tmp = simple_mapping_string_lookup(optional, "gid"))) {
+        switch(tmp->type)
+	{
+	  case T_INT:
+	    wanted_gid = tmp->u.integer;
+	    gid_request = 1;
+	    break;
+
+	  dafault:
+	    Pike_error("Invalid argument for gid.");
+	}
+     } 
+/*
+     if ((tmp = simple_mapping_string_lookup(optional, "uid"))) {
+        switch(tmp->type)
+	{
+	  case T_INT:
+	    wanted_uid = tmp->u.integer;
+	    uid_request = 1;
+	    break;
+
+	  dafault:
+	    Pike_error("Invalid argument for uid.");
+	}
+     } 
+*/
+     if((tmp = simple_mapping_string_lookup( optional, "cwd" )) &&
+	 tmp->type == T_STRING && !tmp->u.string->size_shift)
+       tmp_cwd = tmp->u.string->str;
+
+     if((tmp = simple_mapping_string_lookup( optional, "stdin" )) &&
+         tmp->type == T_OBJECT)
+     {
+        fds[0] = fd_from_object( tmp->u.object );
+        if(fds[0] == -1)
+          Pike_error("Invalid stdin file\n");
+     }
+
+     if((tmp = simple_mapping_string_lookup( optional, "stdout" )) &&
+         tmp->type == T_OBJECT)
+     {
+        fds[1] = fd_from_object( tmp->u.object );
+        if(fds[1] == -1)
+          Pike_error("Invalid stdout file\n");
+     }
+
+     if((tmp = simple_mapping_string_lookup( optional, "stderr" )) &&
+         tmp->type == T_OBJECT)
+     {
+        fds[2] = fd_from_object( tmp->u.object );
+        if(fds[2] == -1)
+          Pike_error("Invalid stderr file\n");
+     }
+  }
+
+  storage.argv=(char **)xalloc((1+cmd->size) * sizeof(char *));
+  for (e = 0; e < cmd->size; e++) storage.argv[e] = ITEM(cmd)[e].u.string->str;
+  storage.argv[e] = 0;
+  
+  th_atfork_prepare();
+  
+  pid = fork();
+
+  if (pid) {
+     th_atfork_parent();
+  } else {
+     th_atfork_child();
+  }
+
+  if (pid == -1) {
+     Pike_error("Caudium.create_process() failed.");
+  } else if (pid) {
+    pop_n_elems(args);
+    push_int(pid);
+    return;
+  } else {
+    int fd = 0;
+    
+    for (fd = 0; fd++; fd < 3) dup2(fds[fd], fd);
+    
+    do_set_close_on_exec();
+
+    set_close_on_exec(0,0);
+    set_close_on_exec(1,0);
+    set_close_on_exec(2,0);
+
+    execvp(storage.argv[0],storage.argv);
+
+    exit(99);
+  }
+
+  pop_n_elems(args);
+  push_int(0);
+}
 
 /* Initialize and start module */
 void pike_module_init( void )
@@ -739,6 +884,8 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "extension", f_extension,
                          "function(string:string)", 0);
+  add_function_constant( "create_process", f_create_process,
+                         "function(array(string),void|mapping(string:mixed):object)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );

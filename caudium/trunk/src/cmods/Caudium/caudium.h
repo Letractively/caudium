@@ -6,7 +6,6 @@
 #define USE_MMAP 1
 #endif
 
-
 static void f_parse_headers( INT32 args );
 static void f_parse_query_string( INT32 args );
 void pike_module_init( void );
@@ -31,6 +30,25 @@ void exit_nbio(void);
 #define BUF ((buffer *)Pike_fp->current_storage)
 #define STRS(x) strs.x.u.string
 #define SVAL(x) (&(strs.x))
+
+struct perishables
+{
+  char **env;
+  char **argv;
+
+  int *fds;
+
+  int disabled;
+#ifdef HAVE_SETRLIMIT
+  struct plimit *limits;
+#endif
+
+#ifdef HAVE_SETGROUPS
+  gid_t *wanted_gids;
+  struct array *wanted_gids_array;
+  int num_wanted_gids;
+#endif
+};
 
 typedef struct
 {
