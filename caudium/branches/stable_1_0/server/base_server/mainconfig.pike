@@ -565,7 +565,7 @@ mapping std_redirect(object o, object id)
 
   if(!o)  o=root;
   
-  if(id->referrer)
+  if(id && id->referrer)
     loc=(((((id->referrer/"#")[0])/"?")[0])+"?"+(bar++)
 	 +"#"+o->path(1));
   else
