@@ -39,11 +39,11 @@ public class Indexer {
    {
             Document doc = new Document();
             doc.add(Field.UnIndexed("url", summary.url));
-            doc.add(Field.UnIndexed("title", summary.title));
+            doc.add(Field.Text("title", summary.title));
             doc.add(Field.UnIndexed("type", summary.type));
             doc.add(Field.UnIndexed("date", summary.date));
             doc.add(Field.UnIndexed("desc", summary.desc));
-            doc.add(Field.Text("body", summary.body));
+            doc.add(Field.UnStored("body", summary.body));
             synchronized(this) {
                 bytes += summary.body.length();
                 index.addDocument(doc);
