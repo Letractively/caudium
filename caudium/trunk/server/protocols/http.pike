@@ -1372,20 +1372,19 @@ void send_result(mapping|void result)
 	  }
 	}
       }
-    
-      array myheads = ({prot+" "+(file->rettext||errors[file->error])});
+      head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
+      if(file->len > -1) heads["Content-Length"] = (string)file->len;
+#if constant(_Roxen.make_http_headers)
+      head_string += _Roxen.make_http_headers(heads);
+#else
       foreach(indices(heads), h)
 	if(arrayp(heads[h]))
 	  foreach(heads[h], tmp)
-	    myheads += ({ `+(h,": ", tmp)});
+	    head_string +=  h+": "+tmp+"\r\n";
 	else
-	  myheads +=  ({ `+(h, ": ", heads[h])});
-    
-
-      if(file->len > -1)
-	myheads += ({"Content-length: " + file->len });
-      head_string = (myheads+({"",""}))*"\r\n";
-    
+	  head_string += h+": "+heads[h]+"\r\n";
+      head_string += "\r\n";
+#endif
       if(conf) conf->hsent+=strlen(head_string||"");
 #ifdef SUPPORT_HTTP_09
     }
