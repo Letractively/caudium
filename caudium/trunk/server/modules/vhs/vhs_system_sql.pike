@@ -19,7 +19,7 @@
  */
 
 //! module: VHS - Virtual Hosting System - SQL
-//!  Basisc Virtual Hosting module in SQL mode.
+//!  Basic Virtual Hosting module in SQL mode.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PRECACHE
