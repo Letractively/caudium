@@ -718,3 +718,8 @@ void set_from_form_remove (string val, int type, object o) {
 //!  type: TYPE_FLAG
 //!  name: Debug
 //
+//! defvar: remove
+//! Pressing this button will remove all the sessions.
+//!  type: TYPE_CUSTOM
+//!  name: Remove the sessions
+//
