@@ -68,7 +68,7 @@ object|mapping find_file( string f, object id )
     return 0;
 
   if((f=="" || f[0]!='/') && query_location()[-1] != '/')
-    return http_redirect( query_location()+"/"+f, id );
+    return Caudium.HTTP.redirect( query_location()+"/"+f, id );
 
 //  sucker_clients[id->client[0]]++;
 //  sucker_hosts[id->remoteaddr]++;
@@ -82,9 +82,9 @@ object|mapping find_file( string f, object id )
     body+="<a href=\"mailto:"+random_string()+"@"+random_string()+"."+tlds[random(sizeof(tlds))]+"\">"+
       random_string()+"</a><br>\n";
 
-  return http_string_answer("<html><head><title>"+random_string()+
-			    "</title><head>\n<body>"+body+
-			    "</body>\n</html>\n", "text/html");
+  return Caudium.HTTP.string_answer("<html><head><title>"+random_string()+
+				    "</title><head>\n<body>"+body+
+				    "</body>\n</html>\n", "text/html");
 }
 
 void start() {
