@@ -279,7 +279,7 @@ array(int) caudium_fstat(string|Stdio.File file, int|void nolink) {
   return 0;
 }
 
-//! @appear roxen_perror
+//! @appears roxen_perror
 //! Used to print error/debug messages
 void roxen_perror(string format,mixed ... args)
 {
@@ -348,7 +348,7 @@ mapping(string:string) make_mapping(array(string) f)
 }
 
 
-//! @appear caudiump
+//! @appears caudiump
 //! Caudium itself
 object caudium;
 
