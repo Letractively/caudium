@@ -92,7 +92,15 @@ void create ()
            "the mountpoint of your proxy on your virtual filesystem.<br><br>"
            "don't forget to set the \"<b>Proxy security</b>\" settings "
            "under <b>Builtin Variables</b>.");
-
+   defvar ("transparent", 0, "Transparent proxy", TYPE_FLAG,
+           "Set this to enable transparent proxy support. In this mode, "
+           "the module will use the HTTP host header to proxy the remote website"
+           " to the client. With the Virtual Host module and several virtual "
+           " servers defined, it can also be used as "
+           " a reverse proxy for multiple webservers.<br>"
+           "Please also note that checking only the host header for transparent "
+           "proxy has some security concerns as the proxy choose the destination"
+           " based on a DNS resolution.");
 }
 
 string info ()
@@ -182,6 +190,8 @@ class request
    void parse_url ()
    {
       string query = id->raw_url[sizeof (QUERY (mountpoint)) ..];
+      if(QUERY(transparent))
+        query = id->host + id->raw_url;
 
       while (query[0] == '/')
          query = query[1..];
