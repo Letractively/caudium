@@ -303,9 +303,9 @@ defvar("usergrouptable", "users_groups",
 	"The name of the table containing the user to group mapping.");
 defvar("passwordformat", "Crypt",
 	"Password Format",
-	TYPE_STRING,
+	TYPE_MULTIPLE_STRING,
 	"Password storage format. Choose the method used to store user passwords.",
-	({"Crypt", "MD5", "SHA1", "Plaintext"}));
+	({"Crypt", "MD5", "Plaintext"}));
 defvar("user_usernamef", "",
 	"Fields: User- Username",
 	TYPE_STRING,
@@ -538,8 +538,36 @@ string|int get_groupname(int|string gid)
 
 int authenticate(string user, string password)
 {
-  if(!sqldb) return 0;
+  if(!sqldb || query_getuserbyname=="") return 0;
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getuserbyname, (string)user);
+  if(sizeof(result)!=1) return 0; // user not found.
 
-  return 0;
+  string auth_password=result[0]->_password;
+
+  // should we really treat empty password field as no password?
+  if(auth_password=="" && password=="") return 1;
+
+  if(QUERY(passwordformat)=="Plaintext")
+  {
+    if(password==auth_password) return 1;
+    else return -1;
+  }
+  
+  if(QUERY(passwordformat)=="Crypt")
+  {
+    if(crypt(password, auth_password))
+      return 1;
+    else return -1;
+  }
+
+  if(QUERY(passwordformat)=="MD5")
+  {
+    if(Crypto.crypt_md5(password, auth_password) == auth_password)
+      return 1;
+    else return -1;
+  }  
+
+  return -1; // failed authentication.
 }
 
