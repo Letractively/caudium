@@ -66,7 +66,7 @@
 	<var name='LogSP'><int>1</int></var>
 	<var name='storage_type'><str><![CDATA[Disk]]></str></var>
 	<var name='snmp_port'><int>161</int></var>
-	<var name='ConfigPorts'><a><a><int>@CONFIGPORT@</int><str><![CDATA[http]]></str><str><![CDATA[ANY]]></str><str><![CDATA[]]></str></a></a></var>
+	<var name='ConfigPorts'><a><a><int>@CFGPORT@</int><str><![CDATA[http]]></str><str><![CDATA[ANY]]></str><str><![CDATA[]]></str></a></a></var>
 	<var name='identversion'><int>1</int></var>
 	<var name='pidfile'><str><![CDATA[/var/run/caudium/caudium.pid]]></str></var>
 	<var name='permanent_uid'><int>0</int></var>
