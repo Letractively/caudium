@@ -317,6 +317,7 @@ array|int list_all_groups()
 //! @endarray
 array(string) userinfo(string u) 
 {
+  report_warning("auth_module->userinfo() is deprecated and may not be available in future releases of this software.");
   if(!u || u=="") return 0;
 
   mapping data=get_user_info(u);
@@ -360,6 +361,7 @@ string user_from_uid(int u)
 //!   @endarray
 array|int auth(array(string) auth, object id)
 {
+  report_warning("auth_module->auth() is deprecated and may not be available in future releases of this software.");
   if(!auth || sizeof(auth) !=2) error("incorrect arguments to auth().");
   array a=auth[1]/":";
   if(sizeof(a)!=2) error("incorrectly formatted user/password string.");

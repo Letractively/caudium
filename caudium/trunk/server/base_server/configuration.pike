@@ -1017,6 +1017,7 @@ public string status()
 //! @deprecated
 public array(string) userinfo(string u, object|void id)
 {
+  report_warning("Calls to conf->userinfo() are deprecated and may not exist in future releases of this software.\n");
   if(auth_module) return auth_module->userinfo(u);
   else report_warning(sprintf("userinfo(): No authorization module\n"
                               "%s\n", describe_backtrace(backtrace())));
@@ -1025,6 +1026,7 @@ public array(string) userinfo(string u, object|void id)
 //! @deprecated
 public array(string) userlist(object|void id)
 {
+  report_warning("Calls to conf->userlist() are deprecated and may not exist in future releases of this software.\n");
   if(auth_module) return auth_module->userlist();
   else report_warning(sprintf("userlist(): No authorization module\n"
                               "%s\n", describe_backtrace(backtrace())));
@@ -1033,6 +1035,7 @@ public array(string) userlist(object|void id)
 //! @deprecated
 public array(string) user_from_uid(int u, object|void id)
 {
+  report_warning("Calls to conf->user_from_uid() are deprecated and may not exist in future releases of this software.\n");
   if(auth_module)
     return auth_module->user_from_uid(u);
   else report_warning(sprintf("user_from_uid(): No authorization module\n"
