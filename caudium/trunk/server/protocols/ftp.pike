@@ -133,6 +133,8 @@
 #define BACKEND_CLOSE(FD)	do { DWRITE("close\n"); FD->set_blocking(); FD->close(); FD = 0; } while(0)
 #endif /* constant(thread_create) */
 
+object(FTPSession) ftp_session;
+
 class RequestID
 {
 #ifdef EXTRA_ROXEN_COMPAT
@@ -3632,6 +3634,7 @@ class FTPSession
 
     conf->extra_statistics->ftp->sessions--;
     conf->misc->ftp_users_now--;
+    ftp_session = 0;
   }
 
   void create(object fd, object c)
@@ -3674,6 +3677,6 @@ void create(object f, object c)
     }
     c->misc->ftp_users++;
     c->misc->ftp_users_now++;
-    FTPSession(f, c);
+    ftp_session = FTPSession(f, c);
   }
 }
