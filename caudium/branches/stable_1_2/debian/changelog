@@ -1,3 +1,9 @@
+caudium (2:1.2.7-2) unstable; urgency=low
+
+  * latest snapshot
+
+ -- Marek Habersack <grendel@debian.org>  Sat, 25 May 2002 00:01:47 +0200
+
 caudium (2:1.2.7-1) unstable; urgency=low
 
   * Latest upstream snapshot.
