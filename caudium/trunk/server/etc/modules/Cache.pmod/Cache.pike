@@ -264,7 +264,8 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
 //! @param out
 //! The open Stdio.File() object to send the output to.
 void|int retrieve_async(string name, object out) {
-  object obj = retrieve(name);
+  mapping m = retrieve(name);
+  object obj = m->object;
   if (!objectp(obj))
     return 0;
   if (!obj->set_id)
