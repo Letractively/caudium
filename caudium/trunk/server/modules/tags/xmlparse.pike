@@ -143,7 +143,7 @@ string call_tag(object parser, mapping args,
     return 0;
   }
 #endif
-  mixed result=rf(parser->tag,args,id,file,defines,client);
+  mixed result=rf(tag,args,id,file,defines,client);
   TRACE_LEAVE("");
   return result;
 }
