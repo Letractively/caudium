@@ -140,8 +140,6 @@ string container_xslt(string tag, mapping args, string xml, object id)
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
   
-  myID = id;
-
   if(args->baseuri) {
     if ( sscanf(args->baseuri, "%s:%s", type, key) != 2 ) {
       key = args->baseuri;
@@ -149,10 +147,10 @@ string container_xslt(string tag, mapping args, string xml, object id)
     }
     switch(type) {
      case "virt":  
-	 key = id->realfile(key, id);
+       // key = id->realfile(key, id);   <--- why is this here? It's totally broken!
      case "file":
-	args->baseuri = key;
-	break;
+       args->baseuri = key;
+       break;
      default:
       ERROR("Invalid baseuri method. Valid methods are file: and virt:");
     }
@@ -163,7 +161,10 @@ string container_xslt(string tag, mapping args, string xml, object id)
     ERROR("Incorrect or missing stylesheet");
   switch(type) {
   case "virt":
-    key = id->conf->realfile(key, id);
+    if (args->baseuri)
+      xsl = id->conf->try_get_file(Stdio.append_path(args->baseuri,key),id);
+    else
+      xsl = id->conf->try_get_file(key,id);
     break;
   case "file":
     xsl = Stdio.read_file(key);
