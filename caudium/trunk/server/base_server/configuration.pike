@@ -3833,6 +3833,16 @@ void create(string config)
 	 "is set. Caudium will random the use of the range. If it cannot "
 	 "open a port then passive transfert will failled.");
 
+  defvar("pasvnat", 0, "FTP:Passive FTP NAT support", TYPE_FLAG|VAR_MORE,
+         "Enable NAT (Network Address Translation) support for Passive "
+         "transferts. This allow you to specify the real IP address used "
+         "by the NATed ftp server.");
+
+  defvar("pasvipaddr", gethostbyname(gethostname())[1][0],
+         "FTP:Passive FTP NATed real address", TYPE_STRING|VAR_MORE,
+         "When Passive FTP NAT support is set, can specify the real IP "
+         "address to send in Passive transfert requests.");
+
   defvar("anonymous_ftp", 0, "FTP:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
 	 "Allows anonymous ftp.\n");
 
