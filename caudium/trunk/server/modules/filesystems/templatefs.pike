@@ -29,8 +29,7 @@ inherit "utils";
 constant my_cvs_version="$Id$";
 
 constant cvs_version = (my_cvs_version-"Exp $")+"<br>"
-             +(((::cvs_version*"<br>")-"$Id: ")
-	     -" Exp $");
+             +(((::cvs_version*"<br>") -" Exp $")-"$Id: ");
 
 void create()
 {
