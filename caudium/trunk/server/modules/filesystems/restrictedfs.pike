@@ -83,7 +83,7 @@ mixed stat_file(string f, object id)
     if (home[-1] != '/') {
       home += "/";
     }
-    return(::stat_file(home + f, id));
+    return(::stat_file(id->misc->_real_file = home + f, id));
   } else {
     if (search("/" + f, home)) {
       // Not a prefix, or short.
@@ -93,8 +93,20 @@ mixed stat_file(string f, object id)
       }
       // Short.
     }
-    return(::stat_file(f, id));
+    return(::stat_file(id->misc->_real_file = f, id));
   }
+}
+
+string real_file( mixed f, mixed id ) 
+{ 
+  string home = id->misc->home; 
+  
+  if (!stringp(home)) { 
+    return(0); 
+  } 
+  
+  if(stat_file( f, id )) 
+    return path + id->misc->_real_file;
 }
 
 array find_dir(string f, object id)
