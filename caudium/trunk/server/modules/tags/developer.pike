@@ -100,7 +100,7 @@ mapping(string:array) developers = ([
   "wilsonm":({"Matthew Wilson", "matthew@caudium.net", "1976-04-10", "USA"}),
   "kazmer":({"Tamas Tevesz", "ice@caudium.net", "1976-06-24", "Hungary"})
   "bertrand_lupart":({"Bertrand Lupart", "bertrand@caudium.net", "1977-05-15", "France"})
-  "gourdelier":({"David Gourdelier", "vida@caudium.net", "1978-02-16", "France"})
+  "gourdelier":({"David Gourdelier", "vida@caudium.net", "1979-02-16", "France"})
 ]);
 
 static string print_developer(string dev, array devdata, int full)
