@@ -12,7 +12,7 @@ AC_CHECK_MEMBER(struct tm.tm_gmtoff, [AC_DEFINE(STRUCT_TM_TM_GMTOFF,,[Define if 
 #include <sys/types.h>
 #include <$ac_cv_struct_tm>
 ])
-AC_MSG_CHECKINK([whether timezone is scalar])
+AC_MSG_CHECKING([whether timezone is scalar])
 AC_TRY_COMPILE([
 #include <sys/types.h>
 #include <$ac_cv_struct_tm
