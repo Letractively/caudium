@@ -23,6 +23,7 @@
  * Authors: 
  *   Marek Habersack <grendel@caudium.net>
  *   Bill Welliver <hww3@riverweb.com>
+ *   David Gourdelier <vida@caudium.net>
  *
  * License: MPL/LGPL
  * 
@@ -85,8 +86,8 @@ Stdio.File stdout;
 mapping(string:string|array) envvars = ([
   "CAUDIUM_CONFIGDIR" : getenv("CAUDIUM_CONFIGDIR") || "../configurations",
   "CAUDIUM_LOGDIR" : getenv("CAUDIUM_LOGDIR") || "../logs",
-  "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getenv("UID")),
-  "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket" + getenv("UID")),
+  "CAUDIUM_PID_FILE" : getenv("CAUDIUM_PID_FILE") || ("/tmp/caudium_" + getuid()),
+  "CAUDIUM_WATCHDOG_SOCKET" : getenv("CAUDIUM_WATCHDOG_SOCKET") || ("/tmp/caudium_watchdog_socket_" + getuid()),
   "CLASSPATH" : getenv("CLASSPATH") +":" + 
   ("etc/classes:etc/classes/caudium_search.jar:etc/classes/lucene_1.2.jar:"
    "etc/classes/caudium_servlet.jar:etc/classes/jsdk.jar"),
@@ -432,6 +433,8 @@ void signal_hup()
 // we stop caudium and the start process
 void signal_term()
 {
+  // avoid infinite signal loop (exit and backtrace sends a sigterm to ourself)
+  signal(signum("SIGTERM"), 0);
   if(proc && proc->status()==0)
   {
     write("Sending shutdown request to Caudium.\n");
@@ -908,17 +911,17 @@ void watchdog_accept()
 
 void cleanup_watchdog()
 {
-  string s = getenv("CAUDIUM_WATCHDOG_SOCKET");
+  string s = envvars->CAUDIUM_WATCHDOG_SOCKET;
  
   // close the socket.
-  watchdog_socket->close();
+  if(watchdog_socket)
+    watchdog_socket->close();
   
   // turn the watchdog off.
   watchdog_off();
 
   // remove the socket
-  if(strlen(s) && file_stat(s))
-    rm(s);
+  catch(rm(s));
 }
 
 void watchdog_on()
@@ -958,8 +961,8 @@ void start_watchdog()
 
   // first, create the socket.
   watchdog_socket = Stdio.Port();
-  flex_write("creating watchdog communication socket at " + getenv("CAUDIUM_WATCHDOG_SOCKET") + "\n");
-  if(!watchdog_socket->bind_unix(getenv("CAUDIUM_WATCHDOG_SOCKET"), watchdog_accept))
+  flex_write("creating watchdog communication socket at " + envvars->CAUDIUM_WATCHDOG_SOCKET + "\n");
+  if(!watchdog_socket || !watchdog_socket->bind_unix(envvars->CAUDIUM_WATCHDOG_SOCKET, watchdog_accept))
   {
     flex_write("unable to create watchdog communication socket. not starting watchdog.\n");
     return;
