@@ -28,7 +28,7 @@ void pike_module_exit( void )
 /* helper functions */
 INLINE static unsigned char *lowercase(unsigned char *str, INT32 len)
 {
-  int changed = 0;
+/*  int changed = 0; */
   unsigned char *p, *end;
   unsigned char *mystr;
   mystr = malloc((len + 1));
@@ -38,7 +38,7 @@ INLINE static unsigned char *lowercase(unsigned char *str, INT32 len)
   for(p = mystr; p < end; p++)
   {
     if(*p >= 'A' && *p <= 'Z') {
-      *p = *p+32;
+      *p |= *p;
     }
   }
   return mystr;
