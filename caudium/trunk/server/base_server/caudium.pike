@@ -3075,7 +3075,7 @@ void scan_module_dir(string d)
 	case "lpc":
 	  if(catch{
 	    string shebang = open(path+file,"r")->read(6);
-	    if(shebang == "//#!NO" || mod[..4] == "!#NO") {
+	    if(shebang == "//#!NO" || shebang[..4] == "!#NO") {
 	      MD_PERROR(("Not a module\n"));
 	      file=0;
 	    }
