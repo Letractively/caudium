@@ -169,7 +169,7 @@ void watchdog_on()
      Stdio.File wds = Stdio.File();
      if(!wds->connect_unix(sock))
      {
-       werror("Watchdog not listening. Unable to turn watchdog on.\n");
+       report_error("Watchdog not listening. Unable to turn watchdog on.\n");
        return;
      }
      wds->write("WATCHDOG ON %d", pid);
