@@ -95,7 +95,7 @@ private mapping cif_actions = ([
 private mapping do_root(object id, string path)
 {
   id->misc->gsession->session->showdata = "configs";
-  return http_htmldoc_answer(parse_rxml(sprintf("<strong>Configurations (config dir: %s)</strong><br>"
+  return Caudium.HTTP.htmldoc_answer(parse_rxml(sprintf("<strong>Configurations (config dir: %s)</strong><br>"
                                                 "<showdata>#name#: <a href='#url#'>#label#</a><br></showdata>",
                                                 caudium->configuration_dir), id),
                              QUERY(title), 0, notyet_style);
@@ -111,7 +111,7 @@ private mapping do_showconf(object id, string path)
   id->misc->gsession->session->showdata = "data";
   id->misc->gsession->session->showdata_path = path;
   
-  return http_htmldoc_answer(parse_rxml(sprintf("<strong>%s</strong><br><ul>"
+  return Caudium.HTTP.htmldoc_answer(parse_rxml(sprintf("<strong>%s</strong><br><ul>"
                                                 "<showdata><li>#name#: <a href='#url#'>#label#</a></li></showdata></ul>",
                                                 id->variables->name), id),
                              QUERY(title), 0, notyet_style);
@@ -132,7 +132,7 @@ mixed find_file(string f, object id)
     // we need a session here
     //
     if (!id->misc->gsession || !id->misc->gsession->session)
-        return http_htmldoc_answer("<strong>Session data missing. Cannot continue</strong>",
+        return Caudium.HTTP.htmldoc_answer("<strong>Session data missing. Cannot continue</strong>",
                                    QUERY(title), 0, error_style);
 
     mapping session = id->misc->gsession->session;
@@ -170,7 +170,7 @@ mixed find_file(string f, object id)
           report_warning("Unknown file '%s' in the CIF", f);
       }
 
-    return http_htmldoc_answer("404", "CIF: No such file");
+    return Caudium.HTTP.htmldoc_answer("404", "CIF: No such file");
 }
 
 //
