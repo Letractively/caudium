@@ -1167,6 +1167,9 @@ private int leave_me_alone(string uri)
 
     if (sizeof(uri) >= 7 && uri[0..6] == "mailto:")
         return 1;
+
+    if (sizeof(uri) > 11 && uri[0..10] == "javascript:")
+        return 1;
     
     if (search(uri, "://") < 0)
         return 0; // assuming it's a relative URI
