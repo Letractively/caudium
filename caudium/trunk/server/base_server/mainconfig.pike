@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+//! Caudium mainconfig object
 
 inherit "config/builders";
 string cvs_version = "$Id$";
@@ -55,6 +59,7 @@ multiset changed_port_servers;
 object cif = ThemedConfig( caudium->QUERY(cif_theme),
 			   caudium->QUERY(InternalImagePath));
 
+//!
 class Node {
   inherit "struct/node";
 
@@ -64,6 +69,7 @@ class Node {
   function saver;
   string|array error;
   
+  //!
   void change(int i)
   {
     changed += i;
@@ -85,6 +91,7 @@ class Node {
 	      "</a>\n "+s+"\n");
   }
 
+  //!
   mixed describe(int i, object id)
   {
     array (string) res=({""});
@@ -136,6 +143,7 @@ class Node {
   }
   
   
+  //!
   object config()
   {
     object node;
@@ -147,6 +155,7 @@ class Node {
 	node=node->up;
   }
   
+  //!
   void save()
   {
     object node;
@@ -168,6 +177,7 @@ class Node {
   }
 }
 
+//!
 int restore_more_mode()
 {
   return !!file_stat(caudium->QUERY(ConfigurationStateDir) + ".more_mode");
@@ -176,6 +186,7 @@ int restore_more_mode()
 object root=Node();
 int expert_mode, more_mode=restore_more_mode();
 
+//!
 void save_more_mode()
 {
   if(more_mode)
@@ -185,6 +196,7 @@ void save_more_mode()
 }
 
 
+//!
 void create()
 {
   build_root(root);
@@ -203,6 +215,7 @@ void create()
 #endif /* 0 */
 
 
+//!
 object find_node(string l)
 { 
   l = http_decode_url(l);
@@ -214,6 +227,7 @@ object find_node(string l)
   return o;
 }
 
+//!
 mapping file_image(string img)
 {
   object o;
@@ -222,6 +236,7 @@ mapping file_image(string img)
   return ([ "file":o, "type":"image/" + ((img[-1]=='f')?"gif":"jpeg"), ]);
 }
 
+//!
 mapping stores( string s )
 {
   return 
@@ -247,6 +262,7 @@ static private constant default_ports = ([
   "https":443,
 ]);
 
+//!
 mapping verify_changed_ports(object id, object o)
 {
   string res = cif->head("Caudium Config: Setting Server URL") + cif->body() +
@@ -344,6 +360,7 @@ mapping verify_changed_ports(object id, object o)
   return stores(res+"<input type=submit value=\"Continue...\"></form>");
 }
 
+//!
 mapping save_it(object id, object o)
 {
     cif = ThemedConfig( caudium->QUERY(cif_theme),
@@ -361,6 +378,7 @@ mapping save_it(object id, object o)
 }
 
 
+//!
 object find_module(string name, object in)
 {
   mapping mod;
@@ -406,6 +424,7 @@ object find_module(string name, object in)
   return 0;
 }
 
+//!
 mixed decode_form_result(string var, int type, object node, mapping allvars)
 {
   mixed tmp;
@@ -565,6 +584,7 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
   error("Unknown type.\n");
 }
 
+//!
 mapping std_redirect(object o, object id)
 {
   string loc, l2;
@@ -587,6 +607,7 @@ mapping std_redirect(object o, object id)
   return http_redirect(http_decode_string(loc));
 }
 
+//!
 string configuration_list()
 {
   string res="";
@@ -598,6 +619,7 @@ string configuration_list()
   return res;
 }
 
+//!
 string configuration_types()
 {
   string res="";
@@ -620,6 +642,7 @@ string configuration_types()
   return res;
 }
 
+//!
 string describe_config_modules(array mods)
 {
   string res = "This configuration template adds the following modules:<p><ul>";
@@ -640,6 +663,7 @@ string describe_config_modules(array mods)
   return res+"</ul>";
 }
 
+//!
 string configuration_docs()
 {
   string res="";
@@ -653,6 +677,7 @@ string configuration_docs()
   return res;
 }
 
+//!
 string new_configuration_form()
 {
   return ( cif->head( "" ) + cif->body()  + cif->status_row(root) +
@@ -685,6 +710,7 @@ string new_configuration_form()
 }
 
 
+//!
 mapping module_nomore(string name, int type, object conf)
 {
   mapping module;
@@ -700,6 +726,7 @@ mapping module_nomore(string name, int type, object conf)
     return conf->modules[conf->otomod[o]];
 }
 
+//!
 mixed new_module_copy(object node, string name, object id)
 {
   object orig;
@@ -752,11 +779,13 @@ mixed new_module_copy(object node, string name, object id)
   return std_redirect(root, id);
 }
 
+//!
 mixed new_module_copy_copy(object node, object id)
 {
   return new_module_copy(node, node->data->sname, id);
 }
 
+//!
 string new_module_form(object id, object node)
 {
   int i;
@@ -843,6 +872,7 @@ string new_module_form(object id, object node)
   return res+"</td></tr></table>";
 }
 
+//!
 mapping new_module(object id, object node)
 {
   string varname;
@@ -861,6 +891,8 @@ mapping new_module(object id, object node)
 
 string ot;
 object oT;
+
+//!
 object get_template(string t)
 {
   t-=".pike";
@@ -868,6 +900,7 @@ object get_template(string t)
   return (oT = compile_file("server_templates/"+t+".pike")());
 }
 
+//!
 int check_config_name(string name)
 {
   if(strlen(name) && name[-1] == '~') name = "";
@@ -885,6 +918,7 @@ int check_config_name(string name)
   return !strlen(name);
 }
 
+//!
 int low_enable_configuration(string name, string type)
 {
   object node;
@@ -949,6 +983,7 @@ int low_enable_configuration(string name, string type)
   return 1;
 }
 
+//!
 mapping new_configuration(object id)
 {
   if(!sizeof(id->variables))
@@ -974,6 +1009,7 @@ mapping new_configuration(object id)
   return std_redirect(root->descend("Configurations"), id);
 }
 
+//!
 int conf_auth_ok(mixed auth)
 {
   if(!(auth && sizeof(auth)>1))
@@ -987,6 +1023,7 @@ int conf_auth_ok(mixed auth)
     return 1;
 }
 
+//!
 mapping initial_configuration(object id)
 {
   object n2;
@@ -1062,6 +1099,7 @@ mapping initial_configuration(object id)
   return stores(res);
 }
 
+//!
 object module_of(object node)
 {
   while(node)
@@ -1075,6 +1113,7 @@ object module_of(object node)
   return caudium;
 }
 
+//!
 string extract_almost_top(object node)
 {
   if(!node) return "";
@@ -1083,6 +1122,7 @@ string extract_almost_top(object node)
   return node->path(1);
 }
 
+//!
 mapping (string:string) selected_nodes =
 ([
   "Configurations":"/Configurations",
@@ -1094,6 +1134,7 @@ mapping (string:string) selected_nodes =
 #endif /* ENABLE_MANUAL */
 ]);
 
+//!
 array tabs = ({
   "Configurations",
   "Globals",
@@ -1104,6 +1145,7 @@ array tabs = ({
 #endif /* ENABLE_MANUAL */
 });
 
+//!
 array tab_names = ({
  "Virtual Servers",
  "Global Variables",
@@ -1115,6 +1157,7 @@ array tab_names = ({
 });
 		
 
+//!
 string display_tabular_header(object node)
 {
   string p, s;
@@ -1133,9 +1176,8 @@ string display_tabular_header(object node)
   return cif->tablist(tab_names, links, search(tabs,s));
 }
 
-// Return the number of unfolded nodes on the level directly below the passed
-// node.
-
+//! Return the number of unfolded nodes on the level directly below the passed
+//! node.
 int nunfolded(object o)
 {
   int i;
@@ -1149,6 +1191,7 @@ object module_font = get_font("base_server/config/font",0,0,0,"left",1.0,1.0);
 object button_font = get_font("base_server/config/button_font",0,0,0,"left",1.0,1.0);
 mapping(string:object) my_colortable = ([]);
 
+//!
 mapping auto_image(string in, object id)
 {
   string key, value, imgext;
@@ -1280,12 +1323,13 @@ mapping auto_image(string in, object id)
 }
 
 
+//!
 string remove_font(string t, mapping m, string c)
 {
   return "<b>"+c+"</b>";
 }
 
-
+//!
 int nfolded(object o)
 {
   int i;
@@ -1294,6 +1338,7 @@ int nfolded(object o)
   return i;
 }
 
+//!
 int nfoldedr(object o)
 {
   object node;
@@ -1308,6 +1353,7 @@ int nfoldedr(object o)
   return i;
 }
 
+//!
 string dn(object node)
 {
   if(!node) return "???";
@@ -1326,8 +1372,10 @@ string dn(object node)
   return s;
 }
 
+//!
 mapping logged = ([ ]);
 
+//!
 void check_login(object id)
 {
   if(logged[id->remoteaddr] + 1000 < time()) {
@@ -1337,6 +1385,7 @@ void check_login(object id)
   logged[id->remoteaddr] = time(1);
 }
 
+//!
 mapping configuration_parse(object id)
 {
   array (string) res=({});
