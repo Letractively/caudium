@@ -1356,9 +1356,9 @@ void got_data(mixed fdid, string s)
       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
       return;
     }
+  } else {
+    data += s;
   }
-  
-  data += s;
   if(strlen(data) < misc->len) {
     // Need more data
     return;
