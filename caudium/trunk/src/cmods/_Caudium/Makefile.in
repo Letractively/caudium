@@ -56,7 +56,8 @@ force:
 	@:
 
 depend: force
-	$(CC) -MM $(CFLAGS) *.c > dependencies
+	echo $$srcdir
+	$(CC) -MM $(CFLAGS) $(SOURCES) >> Makefile
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
@@ -67,4 +68,6 @@ distclean: clean
 spotless: distclean
 	rm -f configure  sablot_config.h.in
 
-include dependencies
+# Dependencies goes here...
+
+

@@ -13,7 +13,7 @@ AC_SUBST(LDSHARED)
 AC_SUBST(SO)
 AC_SUBST(LIBGCC)
 
-AC_OUTPUT(Makefile dependencies, [make depend])
+AC_OUTPUT(Makefile.pre, [make -f Makefile.pre depend])
 
 
 dnl ## Local Variables:
