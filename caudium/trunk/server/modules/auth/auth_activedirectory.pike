@@ -892,7 +892,7 @@ int authenticate(string username, string password)
   if(!res) 
   {
     ERROR("unable to bind: " + ldap->error_string());
-    ldap(ldap->unbind());
+    ldap->unbind();
     return -1;
   }
 
