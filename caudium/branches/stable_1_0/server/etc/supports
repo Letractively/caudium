@@ -77,7 +77,7 @@ mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer
 mozilla/4\.0[4-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/4\.[5-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/5\.0b1		-java, pnginline, tcl
-mozilla/[5-9].*		pnginline, gecko, pngalpha
+mozilla/[5-9].*		pnginline, gecko, pngalpha, css2positionfixed
 
 # Opera 3
 
@@ -87,14 +87,14 @@ mozilla/[5-9].*		pnginline, gecko, pngalpha
 # Opera 5.0 masqueraded as MSIE
 .*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
 			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty, \
-			nocssbackrepeat
+			nocssbackrepeat, css2positionfixed
 .*compatible.*opera.5.*	opera5
 .*compatible.*opera.6.*	opera6
 
 # Opera 5.0 masqueraded as Mozilla
 mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				opera, cssfaulty, nocssbackrepeat
+				opera, cssfaulty, nocssbackrepeat, css2positionfixed
 mozilla/[3-5].*opera.5.*	opera5
 mozilla/[3-5].*opera.6.*	opera6
 
@@ -102,14 +102,14 @@ mozilla/[3-5].*opera.6.*	opera6
 mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
-				konqueror3
+				konqueror3, css2positionfixed
 
 # Safari is Apple browser based on Konqueror3. 
 # See http://www.apple.com/safari/
-mozilla/[5-9].*applewebkit/[4-9].*safari/[4-9].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+mozilla/[5-9].*applewebkit/[4-10].*safari/[4-10].*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
-				konqueror3, safari
+				webcal, konqueror3, safari, css2positionfixed, -gecko
 
 
 # Omniweb browser Mac OS X Browser only (http://www.omnigroup.com)
@@ -133,9 +133,9 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 .*compatible.*msie.[3-9]	activex, tableimages, ssl_faulty, -pngalpha
 # MSIE3 stylesheets are broken
 .*compatible.*msie.[4-9]	stylesheets, javascript1.2, -layer, -ilayer, ssl_faulty, -pngalpha
-.*compatible.*msie.[5-9]	pnginline, ssl_faulty
-.*compatible.*msie.[5-9]\.01	-ssl_faulty
-.*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
+.*compatible.*msie.[5-9]	pnginline, ssl_faulty, -css2positionfixed
+.*compatible.*msie.[5-9]\.01	-ssl_faulty, -css2positionfixed
+.*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty, -css2positionfixed
 # }
 
 #section portalmm {
@@ -606,3 +606,9 @@ www.pl.*		robot,spamrobot
 XGET.*			robot,spamrobot
 Zeus.*Webster.*		robot,spamrobot
 MSIECrawler.*		robot,spamrobot
+
+# Greets for vida
+
+#section vida {
+.*              robot, virus, uce, ups, some_things, may_have_intelligence, limited_battery
+# }
