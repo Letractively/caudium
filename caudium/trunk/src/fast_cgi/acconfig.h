@@ -8,9 +8,10 @@
 #undef HAVE_SOCKADDR_UN_SUN_LEN 
 #undef HAVE_SYS_SELECT_H 
 #undef NO_FD_SET 
-#undef USE_GCC_CONSTRUCTOR_ATTR 
 #undef USE_LOCKING 
 #undef WITH_ASSERT 
 #undef WITH_DEBUG 
-#undef WITH_TEST 
+#undef WITH_TEST
+#undef HAVE_VA_ARG_LONG_DOUBLE_BUG
+#undef HAVE_SOCKLEN
 #endif

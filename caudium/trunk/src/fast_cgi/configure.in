@@ -19,7 +19,12 @@ AC_SET_MAKE
 
 AC_PROG_CC
 AC_PROG_RANLIB
-AC_EGREP_HEADER(sun_len, sys/un.h, AC_DEFINE(HAVE_SOCKADDR_UN_SUN_LEN))
+AC_MSG_CHECKING(for sun_len in sys/un.h)
+AC_EGREP_HEADER(sun_len,
+   sys/un.h,
+   AC_MSG_RESULT(yes)
+   AC_DEFINE(HAVE_SOCKADDR_UN_SUN_LEN),
+   AC_MSG_RESULT(no))
 
 if test "x$INSTALL" = "x"; then :; else
   # $INSTALL overrides ac_cv_path_install anyway...
@@ -52,89 +57,46 @@ AC_REPLACE_FUNCS(strerror strtol)
 #       special flag.
 #--------------------------------------------------------------------
 
-echo checking for sys/select.h
+AC_MSG_CHECKING(for fd_set in in sys/types.h)
 AC_TRY_LINK([#include <sys/types.h>],
-	[fd_set readMask, writeMask;], ,
-	AC_HEADER_EGREP(fd_mask, sys/select.h, AC_DEFINE(HAVE_SYS_SELECT_H),
-        AC_DEFINE(NO_FD_SET)))
+   [fd_set readMask, writeMask;],
+   AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no)
+   AC_MSG_CHECKING(for fd_mask in in sys/select.h)
+   AC_HEADER_EGREP(fd_mask,
+      sys/select.h,
+      AC_MSG_RESULT(yes)
+      AC_DEFINE(HAVE_SYS_SELECT_H),
+      AC_MSG_RESULT(no)
+      AC_DEFINE(NO_FD_SET)))
 
-echo checking for fpos functions in stdio.h
-AC_EGREP_HEADER(fpos_t, stdio.h, AC_DEFINE(HAVE_FPOS))
+AC_MSG_CHECKING(for fpos in stdio.h)
+AC_EGREP_HEADER(fpos_t,
+   stdio.h,
+   AC_MSG_RESULT(yes)
+   AC_DEFINE(HAVE_FPOS),
+   AC_MSG_RESULT(no))
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h unistd.h sys/socket.h netdb.h netinet/in.h)
+AC_CHECK_HEADERS(fcntl.h unistd.h sys/socket.h netdb.h netinet/in.h \
+		 arpa/inet.h strings.h sys/time.h)
+
+if test "x$ac_cv_header_sys_socket_h" = "xyes"; then
+    AC_MSG_CHECKING(for socklen_t in sys/socket.h)
+    AC_EGREP_HEADER(socklen_t,
+       sys/socket.h,
+       AC_MSG_RESULT(yes)
+       AC_DEFINE(HAVE_SOCKLEN),
+       AC_MSG_RESULT(no))
+fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_TIME
 
 dnl Checks for library functions.
-dnl AC_FUNC_MEMCMP
-dnl AC_CHECK_FUNCS(select socket)
 
 AC_HAVE_FUNCS(memmove memcpy realloc)
-
-
-#
-# In glibc 2.1 stdio, stdout and stderr are ordinary variables,
-# and not constant.
-#
-# /grubba 1999-05-23
-#
-AC_MSG_CHECKING([if stdin, stdout and stderr are constant expressions])
-AC_CACHE_VAL(pike_cv_constant_stdio, [
-  AC_TRY_COMPILE([
-#include <stdio.h>
-
-    FILE *f[3] = { stdin, stdout, stderr };
-  ], [
-    return 0;
-  ], [
-    pike_cv_constant_stdio="yes"
-  ], [
-    pike_cv_constant_stdio="no"
-  ])
-])
-AC_MSG_RESULT($pike_cv_constant_stdio)
-if test "$pike_cv_constant_stdio" = "yes"; then :; else
-  # Try using a workaround suggested by
-  # Rainer Maximini <maximini@informatik.uni-kl.de>
-  AC_MSG_CHECKING(if gcc style constructors can be used)
-  AC_CACHE_VAL(pike_cv_gcc_constructor_attr, [
-    AC_TRY_RUN([
-#include <stdio.h>
-
-FILE *f[3];
-
-static void f_init(void) __attribute__((constructor));
-static void f_init(void)
-{
-  f[0] = stdin;
-  f[1] = stdout;
-  f[2] = stderr;
-}
-
-int main(int argc, char **argv)
-{
-  exit((f[0] != stdin) || (f[1] != stdout) || (f[2] != stderr));
-}
-    ], [
-      pike_cv_gcc_constructor_attr="yes"
-    ], [
-      pike_cv_gcc_constructor_attr="no"
-    ], [
-      if test "$GCC" = "yes"; then
-        pike_cv_gcc_constructor_attr="yes"
-      else
-        pike_cv_gcc_constructor_attr="no"
-      fi
-    ])
-  ])
-  AC_MSG_RESULT($pike_cv_gcc_constructor_attr)
-  if test "$pike_cv_gcc_constructor_attr" = "yes"; then
-    AC_DEFINE(USE_GCC_CONSTRUCTOR_ATTR)
-  else :; fi
-fi
 
 #--------------------------------------------------------------------
 #  Build with profiling?
@@ -190,14 +152,35 @@ fi
 #--------------------------------------------------------------------
 #  Do we need cross-process locking on this platform?
 #--------------------------------------------------------------------
+AC_MSG_CHECKING("if this machine needs cross-process locking")
 case "`uname -sr`" in
     IRIX\ 5.*)	
 	AC_DEFINE(USE_LOCKING)
+	AC_MSG_RESULT(yes)
     ;;
     SunOS\ 5.*)	
 	AC_DEFINE(USE_LOCKING)
+	AC_MSG_RESULT(yes)
+    ;;
+    UNIX_System_V\ 4.0)
+	AC_DEFINE(USE_LOCKING)
+	AC_MSG_RESULT(yes)
+    ;;
+    *)
+	AC_MSG_RESULT(no)
     ;;
 esac
+
+#--------------------------------------------------------------------
+#  Does va_arg(arg, long double) crash the compiler?
+#  hpux 9.04 compiler does and so does Stratus FTX (uses HP's compiler)
+#--------------------------------------------------------------------
+AC_MSG_CHECKING(if va_arg(arg, long double) crashes the compiler)
+AC_TRY_COMPILE([#include <stdarg.h>],
+   [long double lDblArg; va_list arg; lDblArg = va_arg(arg, long double);],
+   AC_MSG_RESULT(no),
+   AC_DEFINE(HAVE_VA_ARG_LONG_DOUBLE_BUG)
+   AC_MSG_RESULT(yes))
 
 #--------------------------------------------------------------------
 #  Determine the best warning options for this platform

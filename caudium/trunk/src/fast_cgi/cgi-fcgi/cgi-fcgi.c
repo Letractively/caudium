@@ -28,7 +28,9 @@ static const char rcsid[] = "$Id$";
 #include <errno.h>
 #include <ctype.h>
 #include <netdb.h>
+#ifdef HAVE_SYS_TIME
 #include <sys/time.h>
+#endif
 #include <sys/param.h>
 
 #include "fcgimisc.h"
