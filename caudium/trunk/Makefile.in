@@ -144,6 +144,7 @@ install_alt:
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/man/man1
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium$(EXTRAVER)
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/log/caudium$(EXTRAVER)
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/run/caudium$(EXTRAVER)
@@ -205,6 +206,7 @@ install_alt:
 	    chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f; \
 	  else :; fi; \
 	done
+	@cp -p doc/caudiumctl.1 $(DESTDIR)/$(prefix)/share/man/man1/
 	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	@echo "Caudium installed."
