@@ -507,9 +507,9 @@ int may_disable() { return 0; }
 //!  name: Password command arguments
 //
 //! defvar: Swashii
-//! Will make the module turn }{| into &aring;&auml;&ouml; in the Real Name 
+//! Will make the module turn %7d%7b%7c into &aring;&auml;&ouml; in the Real Name 
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Turn }{| into &aring;&auml;&ouml;
+//!  name: Turn %7d%7b%7c into &aring;&auml;&ouml;
 //
 //! defvar: Strip
 //! This will strip everyting after the first ',' character from the GECOS field of the user database.
