@@ -545,8 +545,8 @@ void create()
          method_is_file_or_getpwent);
   
 
-  defvar("Swashii", 1, "Turn }{| into едц", TYPE_FLAG|VAR_MORE,
-         "Will make the module turn }{| into едц in the Real Name "+
+  defvar("Swashii", 1, "Turn }{| into Swashii", TYPE_FLAG|VAR_MORE,
+         "Will make the module turn }{| into Swashii in the Real Name "+
          "field in the userinfo database. This is useful in a european "+
          "country, Sweden.");
 
