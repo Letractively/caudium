@@ -190,7 +190,7 @@ mixed t_pikegraphy(string tag, mapping args, object id)
 //cnt = head_page(cnt) ;
 
 if (id->variables && id->variables->logout) {
-   	cnt += "<remove_cookie name=\"LoginValue\">\n<redirect to=\"?dir=test_seclevel\">";
+   	cnt += "<remove_cookie name=\"LoginValue\">\n<redirect to=\"?dir=\">";
         logging=0;
         admin=0;
 }
@@ -208,7 +208,7 @@ if (id->variables && id->variables->logout) {
  }
 
 if (id->variables && id->variables->login) {
-  cnt += "</td><tr><td align=left>";
+  cnt += "</td><td align=left>";
   cnt += "<form method=POST action=\"" + id->not_query + "\">";
   cnt += "Login :    <input name=\"user\" size=20><br>";
   cnt += "Password : <input type=\"password\" name=\"pass\" size=20>";
@@ -254,17 +254,22 @@ if (id->variables && id->variables->startlogin) {
    
 if (id->variables && id->variables->dirlevel && admin == 1) {
    object db = SQLConnect(QUERY(sqlserver));
-   db->query("replace into descr values('"+id->variables->dir+"','','"+id->variables->dirlevel+"')");
+   db->query("replace into descr values('"+db->quote(id->variables->dir)+"','','"+db->quote(id->variables->dirlevel)+"')");
 }
 
 if (id->variables && id->variables->updpic && admin == 1 ) {
    object db = SQLConnect(QUERY(sqlserver));
-   db->query("replace into descr values('"+id->variables->display+"','"+id->variables->dsc+"','"+id->variables->lev+"')");
+   db->query("replace into descr values('"+db->quote(id->variables->display)+"','"+db->quote(id->variables->dsc)+"','"+db->quote(id->variables->lev)+"')");
+}
+
+if (id->variables && id->variables->delcomment && admin == 1) {
+   object db = SQLConnect(QUERY(sqlserver));
+   db->query("delete from comments where id=" + id->variables->delcomment);
 }
 
  if (id->data != "" && id->variables && id->variables->comment ){
    object db = SQLConnect(QUERY(sqlserver));
-   db->query("insert into comments values (0,'"+id->variables->picname+"','"+id->variables->comment+"','2001-10-12 12:00','"+id->variables->username+"','"+id->variables->remoteaddr+"')");
+   db->query("insert into comments values(0,'"+db->quote(id->variables->picname)+"','"+db->quote(id->variables->comment)+"',NOW(),'"+id->variables->username+"','"+id->variables->remoteaddr+"')");
    cnt = "<html><script language=\"javascript\">window.opener.location=\"?display="+id->variables->id+"\";window.close();</script></html>";
    return cnt;
  }
@@ -296,7 +301,7 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    }
    else
    {
-     cnt += "<a href=?dir=>"+txt_root_dir+"</a>" + txt_separator;
+     cnt += "<a href=\"" + id->not_query + "?dir=\">"+txt_root_dir+"</a>" + txt_separator;
      array alldir= explode_path(dir);
      string alltmp="";
 
@@ -305,9 +310,10 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
          cnt += " "+alldir[i]+"\n";
        }  else {
             if ( alltmp == "" ) {
-                cnt += "<a href=?dir="+alltmp+alldir[i]+">"+alldir[i]+"</a>" + txt_separator;
+                cnt += "<a href=\"" + id->not_query +"?dir="+alltmp+alldir[i]+"\">"+alldir[i]+"</a>"+ txt_separator;
             } else {
-                cnt += "<a href=?dir="+alltmp+"/"+alldir[i]+">"+alldir[i]+"</a>" + txt_separator;
+                cnt += "<a href=\"" + id->not_query
+			+"?dir="+alltmp+"/"+alldir[i]+"\">"+alldir[i]+"</a>" + txt_separator;
             }
        }
      alltmp += alldir[i];
@@ -315,9 +321,11 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    }
  }
  if (logging == 1) {
-    cnt += "\t\t</td>\n\t\t<td align=right>"+username+" - <a href=?logout=1>logout</a></td>\n";
+    cnt += "\t\t\n\t\t<td align=right>"+username+" - <a href=\"" +
+	id->not_query + "?logout=1\">logout</a></td>\n";
  } else {
-    cnt += "\t\t</td>\n\t\t<td align=right><a href=?dir="+dir+"&login=1>login</a></td>\n";
+    cnt += "\t\t\n\t\t<td align=right><a href=\"" + id->not_query +
+	"?dir="+dir+"&login=1\">login</a></td>\n";
  }
 
  cnt += "\t</tr>\n\t</table>\n";
@@ -328,19 +336,23 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    //
    // Recherche des directory dans le directory
    //
-   array dirs=Array.filter(get_dir(QUERY(root_dir)+dir), lambda(string f) { return (file_stat(QUERY(root_dir)+dir+"/"+f)[1] == -2 ); });
+   array dirs=({});
+   catch(
+     dirs=Array.filter(get_dir(QUERY(root_dir)+dir)||get_dir(QUERY(root_dir)), lambda(string f) { return (file_stat(QUERY(root_dir)+dir+"/"+f)[1] == -2 ); }));
 
 
    for (int i=0;i<(sizeof(dirs));i++) {
      if ( dir == "") {
         if (get_level(dirs[i]) <= userlevel) {
 //           cnt += dir+" alevel "+userlevel+"    get_level    "+get_level(dirs[i])+"  "+dirs[i];
-           cnt += "\t\t&nbsp;&nbsp&nbsp;&nbsp<a href=?dir="+dirs[i]+">"+dirs[i]+"<br></a>\n";
+           cnt += "\t\t&nbsp;&nbsp&nbsp;&nbsp<a href=\"" + id->not_query +
+		"?dir="+dirs[i]+"\">"+dirs[i]+"</a><br>\n";
         }
      } else {
 //           cnt += " blevel "+userlevel+"    get_level    "+get_level(dir+"/"+dirs[i])+"  "+dir+"/"+dirs[i];
         if (get_level(dir+"/"+dirs[i]) <= userlevel) {
-           cnt += "\t\t&nbsp;&nbsp&nbsp;&nbsp<a href=?dir="+dir+"/"+dirs[i]+">"+dirs[i]+"<br></a>\n"; 
+           cnt += "\t\t&nbsp;&nbsp&nbsp;&nbsp<a href=\"" + id->not_query + 
+		"?dir="+dir+"/"+dirs[i]+"\">"+dirs[i]+"</a><br>\n"; 
         }
      }
    }
@@ -363,16 +375,18 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    // Recherche des images dans le rep
    //
    int t=1;
-   array(string) cnt_dir = sort(Array.filter(get_dir(QUERY(root_dir)+dir), lambda(string s) { return glob("*.jpg", s);}));
+   array(string) cnt_dir = sort(Array.filter(get_dir(QUERY(root_dir)+dir)||get_dir(QUERY(root_dir)), lambda(string s) { return glob("*.jpg", s);}));
 
    if ( (sizeof(cnt_dir)) != 0 ) {
      cnt += "\n\t<table cellspacing=0 cellpadding=3 border=0 width=\"100%\">\n";
      cnt += "\t<tr>\n";
      for(int i = startpic; i<(sizeof(cnt_dir)) && i<QUERY(nb_pic_max)+startpic;i++) {
-       cnt += "\t\t<td><a href=?display="+dir+"/"+replace_string(cnt_dir[i])+">";
+       cnt += "\t\t<td><a href=\"" + id->not_query 
+	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
        cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+replace_string(cnt_dir[i])+"\" format=jpeg quant=\"64\" maxwidth=\"100\" border=0 ></a></td>\n";
 
-       cnt += "\t\t<td align=left><a href=?display="+dir+"/"+replace_string(cnt_dir[i])+">";
+       cnt += "\t\t<td align=left><a href=\"" + id->not_query 
+	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
        string comment = get_comment(dir+"/"+cnt_dir[i]);
        if ( comment == "" ) {
           cnt += cnt_dir[i]+"</a><br>";
@@ -405,18 +419,21 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
    /// Generation des lignes de navigation du previous/next
    if ( startpic != 0 ) {
      cnt += "\t<tr>\n\t\t<td colspan="+QUERY(image_by_line)*2+"><center>";
-     cnt += "<a href=?dir="+dir+"&startpic="+(startpic-QUERY(nb_pic_max))+">" +
+     cnt += "<a href=\"" + id->not_query +
+	"?dir="+dir+"&startpic="+(startpic-QUERY(nb_pic_max))+"\">" +
           txt_previous + "</a>";
      if ( (startpic+QUERY(nb_pic_max)) < (sizeof(cnt_dir))) {
-       cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+">" +
-          txt_next + "</a></td>\n";
+       cnt += "<a href=\"" +
+	id->not_query + "?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+"\">"
+	+ txt_next + "</a></td>\n";
      }
    } else {
 
       if ((sizeof(cnt_dir)) > QUERY(nb_pic_max)) {
         cnt += "\t<tr>\n\t\t<td colspan="+QUERY(image_by_line)*2+"><center>";
-        cnt += "<a href=?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+">"
-          + txt_next + "</a></td>\n";
+        cnt += "<a href=\"" + id->not_query +
+		"?dir="+dir+"&startpic="+(startpic+QUERY(nb_pic_max))+"\">"
+		+ txt_next + "</a></td>\n";
       }
 
 //     cnt += (sizeof(cnt_dir))+"  "+QUERY(nb_pic_maxi);
@@ -444,7 +461,8 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
 
    cnt += "\t\t<tr align=\"center\">\n\t\t\t<td > ( "+(num_filename+1)+"/"+(sizeof(cnt_dir)-1)+" )\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr align=\"center\" >\n\t\t\t<td>";
    if ( num_filename > 0 )
-        cnt += "<a href=?display="+dir+"/"+replace_string(cnt_dir[(num_filename-1)])+">Previous </a>" ;
+        cnt += "<a href=\""  + id->not_query +
+		"?display="+dir+"/"+replace_string(cnt_dir[(num_filename-1)])+"\">Previous</a>" ;
 
 //   if ( id->variables && ! id->variables->hi ) {
 //      cnt += "<a href=?display="+dir+"/"+replace_string(cnt_dir[(num_filename)])+"&hi=1> HiRes </a>";
@@ -453,7 +471,9 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
 //   }
 
    if ( num_filename < (sizeof(cnt_dir)-1)) {
-      cnt += "<a href=?display="+dir+"/"+replace_string(cnt_dir[(num_filename+1)])+"> Next </a>\n\t\t\t</td>\n\t\t</tr>\n ";
+      cnt += "<a href=\"" + id->not_query 
+	+ "?display="+dir+"/"+replace_string(cnt_dir[(num_filename+1)])+
+	"\">Next</a>\n\t\t\t</td>\n\t\t</tr>\n ";
    } else {
       cnt += "\n\t</td></tr>\n";
    }
@@ -486,6 +506,9 @@ if (id->variables && id->variables->updpic && admin == 1 ) {
      cnt += "\t\t<tr>\n\t\t\t<td>";
      cnt += "<sqloutput host=\""+QUERY(sqlserver)+"\" query=\"select * from comments where pic_name='"+dir+"/"+filename+"'\">";
      cnt += " From #user# on #datetime# <br> #comment# <br><br>";
+     if(admin==1)
+       cnt +="(<a href=\"" + id->not_query + "?" + id->query +
+           "&delcomment=#id#\">delete</a>)";
      cnt += "</sqloutput>";
      cnt += "\n\t\t\t</td>\n\t\t</tr>";
    }
@@ -531,26 +554,10 @@ mapping query_tag_callers() {
 //!  name: Default number of pics
 //
 //! defvar: root_dir
-//! Location of the images in the real filesystem.
-//!  type: TYPE_DIR
+//!  type: TYPE_STRING
 //!  name: root_dir
 //
 //! defvar: root_images
-//! Location in the Virtual Filesystem of the pictures (root_dir) to bedisplayed.
 //!  type: TYPE_STRING
 //!  name: root_images
 //
-
-/*
- * If you visit a file that doesn't contain these lines at its end, please
- * cut and paste everything from here to that file.
- */
-
-/*
- * Local Variables:
- * c-basic-offset: 2
- * End:
- *
- * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
- */
-
