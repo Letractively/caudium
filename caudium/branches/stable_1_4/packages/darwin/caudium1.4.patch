@@ -190,3 +190,17 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/tools/caudium-rc_script.in cau
  
  case $1 in
  	'start')
+
+diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/etc/modules/CaudiumVersion.pmod caudium-1.4-darwin/server/etc/modules/CaudiumVersion.pmod
+--- caudium-1.4/server/etc/modules/CaudiumVersion.pmod  Thu Oct 28 17:25:27 2004
++++ caudium-1.4-darwin/server/etc/modules/CaudiumVersion.pmod   Wed Nov  3 19:25:03 2004
+@@ -25,7 +25,7 @@
+ //! release
+ constant __caudium_version__ = "1.4";
+ constant __caudium_build__ = "5";
+-constant __caudium_state_ver__ = "RC1";
++constant __caudium_state_ver__ = "RC2";
+ 
+ //! any code may _append_ to this string - NEVER replace it!
+ string __caudium_extra_ver__ = "";
+
