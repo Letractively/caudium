@@ -1,3 +1,9 @@
+caudium (1:1.0.35-1) unstable; urgency=low
+
+  * Latest upstream version
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu,  5 Apr 2001 16:05:58 +0200
+
 caudium (1:1.0.34-1) unstable; urgency=low
 
   * First official Caudium release
