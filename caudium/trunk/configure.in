@@ -230,36 +230,35 @@ echo "looking for Pike..."
 
 for a in $DEFPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
 		 /usr/gnu/bin/pike /usr/bin/pike; do    
-  if test  "$PIKE" != "" ; then
+  if test  "x$PIKE" != "x" ; then
     break;
   fi
-  echo -n "looking in $a..."
+  AC_MSG_CHECKING(${a})
   if test -x ${a}; then
-	PIKE="${a}"
-	echo -n "verifying version..."
+    PIKE="${a}"
     if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116) exit(1); exit(0);'; then
 		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep lib|grep modules|head -1 | sed -e 's/.*: //'`"
 		PIKE_INCLUDE_DIR="`echo $PIKE_MODULE_DIR | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
 
 		if test -z "$PIKE_INCLUDE_DIR" -o -z "$PIKE_MODULE_DIR"; then
-			echo "can't find mod/inc dirs"
+			AC_MSG_RESULT(no dirs found)
 			PIKE=""
 		else
-		   echo "ok!"
+		   AC_MSG_RESULT(ok)
 		fi
 	else
-		echo "too old."
+		AC_MSG_RESULT(too old)
 		PIKE=""
 	fi
   else
-    echo "no."
+    AC_MSG_RESULT(no)
   fi
 done
-tmppike=`ls -l /usr/local/bin/pike|awk -F ' -> ' '{ print $2 }' 2>/dev/null`
 if test "$PIKE" != ""; then 
-if test -x $tmppike; then
-	PIKE=$tmppike
-fi
+  tmppike=`ls -l $PIKE | awk -F ' -> ' '{ print $2 }' 2>/dev/null`
+  if test -x "$tmppike"; then
+ 	PIKE=$tmppike
+  fi
   echo "Pike binary used:      $PIKE
 Pike include dir:      $PIKE_INCLUDE_DIR
 Pike module directory: $PIKE_MODULE_DIR"

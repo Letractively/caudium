@@ -28,7 +28,7 @@ install: all
 $(MODNAME).$(SO):  $(OBJS)
 	@echo "linking $(MODNAME)" ;\
 	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
-	  :\
+	  : ; \
 	else \
 	  echo "Linking failed:" >&2; \
 	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\

@@ -66,7 +66,7 @@ extern INT32 lmu;
 #define YEAR	10
 #define HOUR	11
 #define MINUTE	12
-#define SEC	13
+#define UP_SEC	13
 #define CODE	14
 #define BYTES	15
  
