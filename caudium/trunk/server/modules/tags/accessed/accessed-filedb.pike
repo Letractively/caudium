@@ -105,7 +105,7 @@ class FileCounter {
     if(olf != module::query("Accesslog"))
     {
       olf = module::query("Accesslog");
-      Stdio.mkdirhier(module::query("Accesslog"));
+      Stdio.mkdirhier(dirname(module::query("Accesslog")));
       if(names_file=open(olf+".names", "wrca"))
       {
 	cnum=0;
