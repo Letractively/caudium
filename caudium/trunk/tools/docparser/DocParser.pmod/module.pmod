@@ -29,7 +29,7 @@
  */
 import Stdio;
 
-multiset wspace = (<' ', '\t'>);
+multiset wspace = (<' ', '\t', '\n'>);
 
 private constant kwtype_err = "Wrong keyword type for '%s' in class '%s'\n";
 private constant kwname_err = "Unknown keyword '%s' for class '%s'\n";
@@ -108,11 +108,17 @@ class DocObject {
     {
         if (kw)
             lastkw = kw;
-
+	
         if (kw)
             new_field(newstuff, kw);
-        else
-            append_field(newstuff);
+        else {
+	  if(!strlen(newstuff))
+	    newstuff = "\n";
+	  else
+	    if(!wspace[newstuff[-1]])
+	      newstuff += " ";
+	  append_field(newstuff);
+	}
     }    
     
     array(string) split_cvs_version()
@@ -207,7 +213,7 @@ class PikeFile {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 		
             case "cvs_version":
@@ -316,7 +322,7 @@ class Method {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
             case "name":
@@ -409,7 +415,7 @@ class GlobVar {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
                 
             default:
@@ -499,7 +505,7 @@ class Class {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
 	    case "inherits":
@@ -647,7 +653,7 @@ class Module {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
                     
 	    case "inherits":
@@ -737,7 +743,7 @@ class Variable {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
             case "type":
@@ -821,7 +827,7 @@ class Tag {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
             case "returns":
@@ -912,7 +918,7 @@ class Container {
                 if (newstuff == "")
                     contents += "\n";
                 else
-                    contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
             case "returns":
@@ -981,7 +987,7 @@ class Attribute {
                 if (newstuff == "")
                     contents += "\n";
                 else
-		  contents += ((wspace[newstuff[0]] || contents == "") ? "" : " ") + newstuff;
+		  contents += newstuff;
                 break;
 
             case "default":
