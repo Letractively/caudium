@@ -45,6 +45,7 @@ it never requires it. For example you can still use unquoted arguments. ";
 
 constant module_unique = 1;
 
+mapping (string:object) scopes;
 array (mapping) tag_callers, container_callers;
 mapping (string:mapping(int:function)) real_tag_callers, real_container_callers;
 int bytes;
@@ -139,7 +140,7 @@ void create()
 
 void start(int cnt, object conf)
 {
-  module_dependencies(conf, ({ "rxmltags" }));
+  module_dependencies(conf, ({ "rxmltags", "corescopes" }));
   build_callers();
 }
 
@@ -335,9 +336,10 @@ mapping handle_file_extension( object file, string e, object id)
     if(_stat[1] > (QUERY(max_parse)*1024))
       return 0; // To large for me..
   }
+  id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
   if(QUERY(parse_exec) &&   !(_stat[0] & 07111)) return 0;
   if(QUERY(no_parse_exec) && (_stat[0] & 07111)) return 0;
-
+  
   if(err=catch(to_parse = do_parse(file->read(),id,file,defines,id->my_fd )))
   {
     file->close();
@@ -427,12 +429,25 @@ void sort_lists()
   }
 }
 
+string|array(string)|int entity_callback(object parser, string entity,
+					 object id, mixed ... extra) {
+  string scope, name, encoding;
+  array tmp = (parser->tag_name()) / ":";
+  entity = tmp[0];
+  encoding = tmp[1..] * ":";
+  if(sscanf(entity, "%s.%s", scope, name) != 2)
+    return 0;
+  if(id->misc->scopes[scope])
+    return id->misc->scopes[scope]->get(name, id, @extra)||"";
+  return 0;
+}
+
 void build_callers()
 {
    object o;
    real_tag_callers = ([]);
    real_container_callers = ([]);
-
+   scopes = ([]);
 //   misc_cache = ([]);
    tag_callers = ({ ([]) });
    container_callers = ({ ([]) });
@@ -441,7 +456,7 @@ void build_callers()
 
    foreach (parse_modules,o)
    {
-     mapping foo;
+     array|mapping foo;
      if(o->query_tag_callers)
      {
        foo=o->query_tag_callers();
@@ -459,6 +474,15 @@ void build_callers()
 	 if(QUERY(case_insensitive_tag))
 	   foo = mkmapping(Array.map(indices(foo), lower_case), values(foo));
 	 insert_in_map_list(foo, "container");
+       }
+     }
+     if(o->query_scopes) {
+       foo = o->query_scopes();
+       if(arrayp(foo)) {
+	 foreach(foo, mixed value) {
+	   if(objectp(value) && functionp(value->query_name))
+	     scopes[value->query_name()] = value;
+	 }
        }
      }
    }
@@ -481,6 +505,7 @@ void build_callers()
    parse_object->lazy_entity_end(QUERY(lazy_entity_end));
    parse_object->match_tag(QUERY(match_tag));
    parse_object->splice_arg("::");
+   parse_object->_set_entity_callback(entity_callback);
 }
 
 void add_parse_module(object o)
