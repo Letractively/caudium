@@ -43,7 +43,7 @@ class http_error_handler {
 	  500 : "Something has gone horribly wrong inside the web server (Caudium).<br>This is probably caused by an error in a CGI or other server side script, but can also mean that something is broke.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	 ]);
 
-    public void set_template( string _template_name, id ) {
+    public void set_template( string _template_name, object id ) {
 	if ( _template_name == "" ) {
 	    // If the template name isnt set in the config interface then
             // make reset it to the default.
