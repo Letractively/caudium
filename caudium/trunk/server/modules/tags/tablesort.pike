@@ -133,7 +133,7 @@ private void create_session(object id)
 private void wrong_usage(object id)
 {
    if(!TSESSION)
-    throw("You must call set_table() before using this function\n");
+    throw(({ "You must call set_table() before using this function\n", backtrace() }));
 }
 
 private void fetch_args(object id)
