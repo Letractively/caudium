@@ -158,6 +158,11 @@ static void f_njs_set_id_object(INT_TYPE args) {
 }
 
 /* Evaluate the given string and return the result */
+/*
+ * I assume this function accepts JS _source_ - the njs_eval_data function
+ * is gone from the NJS CVS
+ * /Grendel 2002.01.08
+ */
 static void f_njs_eval(INT_TYPE args) {
   int res;
   NJSValue ret;
@@ -173,10 +178,10 @@ static void f_njs_eval(INT_TYPE args) {
   }
   interp = THIS->interp;
   data = ARG(1).u.string->str;
-  data_len = ARG(1).u.string->len;
+/*  data_len = ARG(1).u.string->len; */
 
   THREADS_ALLOW();
-  res = njs_eval_data(interp, data, data_len);
+  res = njs_eval(interp, data);
   THREADS_DISALLOW();
 
   NJS_PROCESS_EVAL_RESULT();
