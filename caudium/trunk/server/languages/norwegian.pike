@@ -36,7 +36,7 @@ string month(int num)
 
 string ordered(int i)
 {
-    return "" + i + ".";
+    return  i+".";
 }
 
 string date(int timestamp, mapping m)

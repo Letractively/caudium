@@ -43,13 +43,9 @@ string month(int num)
 
 string ordered(int i)
 {
-  switch(i)
-  {
-   case 0:
-    return ("buggy");
-   default:
-      return (i+".");
-  }
+  if(i==0)
+    return "buggy";
+  return i+".";
 }
 
 string date(int timestamp, mapping|void m)
