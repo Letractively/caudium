@@ -276,7 +276,7 @@ class CGIScript
     {
        array(int) statres = file_stat(id->realfile);
        if (statres[5] >= 100) uid = statres[5];
-       if (statres[6] >= 100) gid = statres[5];
+       if (statres[6] >= 100) gid = statres[6];
     }
 
     environment =(QUERY(env)?getenv():([]));
