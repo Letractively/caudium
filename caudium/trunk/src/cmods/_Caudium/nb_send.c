@@ -730,8 +730,9 @@ static void f__input_close_cb(INT32 args) {
   if(THIS->inputs) {
     free_input(THIS->inputs);
   }
-  if(!THIS->inputs)
+  if(!THIS->buf_len && THIS->inputs == NULL) {
     finished();
+  }
 }
 
 /* Our nb input read callback */
