@@ -1,5 +1,3 @@
-#!@PIKE@ -M@CAUDIUM_SERVERDIR@etc/modules
-
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2004 The Caudium Group
@@ -188,7 +186,7 @@ mixed Privs(mixed ... args) { return 0; }
 
 #define VAR_VALUE 0
 #define IN_INSTALL 1
-#include "../base_server/read_config.pike"
+#include <base_server/read_config.pike>
 
 void setglobvar(string var, mixed value)
 {

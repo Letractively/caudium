@@ -28,8 +28,7 @@
 int zonk=time();
 #define link(d) ("<a href=\""+node->path(1)+"?"+(zonk++)+"\">\n"+(d)+"\n</a>\n")
 
-inherit "low_describers";
-//inherit "config/low_describers";
+inherit "config/low_describers";
 
 //import Array;
 //import String;
