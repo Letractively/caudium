@@ -104,7 +104,7 @@
 
 //#define FTP2_DEBUG
 
-#define FTP2_XTRA_HELP ({ "Report any bugs to roxen-bugs@roxen.com." })
+#define FTP2_XTRA_HELP ({ "Report any bugs to our bug database system : http://sourceforge.net/bugs/?group_id=8825." })
 
 #define FTP2_TIMEOUT	(5*60)
 
