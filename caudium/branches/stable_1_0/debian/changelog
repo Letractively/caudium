@@ -1,3 +1,15 @@
+caudium (2:1.0.35-5) unstable; urgency=low
+
+  * Two language files (pl & se) in CAMAS were broken.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 21 May 2001 14:42:43 +0200
+
+caudium (2:1.0.35-4) unstable; urgency=low
+
+  * New CAMAS stable release
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 21 May 2001 11:20:33 +0200
+
 caudium (2:1.0.35-3) unstable; urgency=low
 
   * Added CAMAS again.
