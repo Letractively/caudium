@@ -142,6 +142,7 @@ string handle_help(string file, string tag, mapping args)
 string call_user_tag(string tag, mapping args, int line, object id)
 {
   id->misc->line = line;
+  id->misc->is_dynamic = 1;
   args = id->misc->defaults[tag]|args;
   if(!id->misc->up_args) id->misc->up_args = ([]);
   TRACE_ENTER("user defined tag &lt;"+tag+"&gt;", call_user_tag);
@@ -164,6 +165,7 @@ string call_user_container(string tag, mapping args, string contents, int line,
 			   object id)
 {
   id->misc->line = line;
+  id->misc->is_dynamic = 1;
   args = id->misc->defaults[tag]|args;
   if(!id->misc->up_args) id->misc->up_args = ([]);
   if(args->preparse
@@ -191,6 +193,7 @@ string call_tag(string tag, mapping args, int line,
 		object id, object file, mapping defines,
 		object client)
 {
+  id->misc->is_dynamic = 1;
   string|function rf = real_tag_callers[tag];
   id->misc->line = (string)line;
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
@@ -223,7 +226,8 @@ array(string)|string call_container(string tag, mapping args, string contents,
 {
   string|function rf;
   id->misc->line = (string)line;
-
+  id->misc->is_dynamic = 1;
+  
   rf = real_container_callers[tag];
   if(args->help && Stdio.file_size("modules/tags/doc/"+tag) > 0)
   {
@@ -361,7 +365,7 @@ mapping handle_file_extension( object file, string e, object id)
   return (["data":to_parse,
 	   "type":(id->misc->_content_type || "text/html"), 
 	   "stat":_stat,
-	   "is_dynamic": 1,
+	   "is_dynamic": (id->misc->is_dynamic ? 1 : 0),
 	   "error":_error,
 	   "rettext":_rettext,
 	   "extra_heads":_extra_heads,

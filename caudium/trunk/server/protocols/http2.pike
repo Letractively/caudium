@@ -1083,7 +1083,7 @@ void send_result(mapping|void result)
 	if(file->file && !file->len)
 	  file->len = fstat[1];
     	
-	if(!file->is_dynamic)
+	if(!file->is_dynamic && !misc->is_dynamic)
 	{
 	  heads["Last-Modified"] = http_date(fstat[3]);
 	  if(since)
@@ -1103,6 +1103,10 @@ void send_result(mapping|void result)
            * non-cacheable. /grendel
 	   */
 	  heads["Cache-Control"] = "no-store, no-cache, max-age=0, private";
+	  
+	  // The below is only for HTTP 1.0 - should we test whether the
+	  // current request proto is 1.0 and set the header only then? /grendel
+	  heads["pragma"] = "no-cache";
 	}
       }
       if(stringp(file->data)) 
@@ -1131,7 +1135,7 @@ void send_result(mapping|void result)
       file->error = 200;
     
     if(!zero_type(file->expires))
-      heads->Expires = http_date(file->expires);
+      heads->Expires = file->expires ? http_date(file->expires) : "0";
     
     if(mappingp(file->extra_heads)) {
       heads |= file->extra_heads;

@@ -2790,7 +2790,7 @@ string tag_expire_time(string tag, mapping m, object id, object file,
   } else
     NOCACHE();
 
-  add_header(_extra_heads, "Expires", http_date(t));
+  add_header(_extra_heads, "Expires", t ? http_date(t) : "0");
   if(m->now)
     id->since=http_date(0);
 
