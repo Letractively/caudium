@@ -1,5 +1,10 @@
 Changes in Caudium 1.2.xx since 1.2.34
 --------------------------------------
+- Added VHS 404 module for handle a 404 file on the request located in the VFS.
+   (Xavier Beaudouin)
+- Added VHS SQL logger module to handle logging into a database like
+  apache mod_log_sql does.
+   (Xavier Beaudouin)
 - Add Index redirect files option that allow people that use L7 load balancers
   to redirect to files that have been specified instead of listing the
   directory.
