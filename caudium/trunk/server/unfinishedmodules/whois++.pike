@@ -25,7 +25,7 @@ string cvs_version = "$Id$";
 #include <module.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Array;
 

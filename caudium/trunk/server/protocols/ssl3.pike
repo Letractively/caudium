@@ -25,7 +25,7 @@
  */
 
 inherit "protocols/http" : http;
-inherit "roxenlib";
+inherit "caudiumlib";
 
 mapping to_send;
 

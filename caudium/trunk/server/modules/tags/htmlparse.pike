@@ -42,7 +42,7 @@ constant thread_safe=1;
 #include <module.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 constant language = caudium->language;
 
@@ -3338,7 +3338,7 @@ string tag_recursive_output (string tagname, mapping args, string contents,
 
 class Tracer
 {
-  inherit "roxenlib";
+  inherit "caudiumlib";
   string resolv="<ol>";
   int level;
 

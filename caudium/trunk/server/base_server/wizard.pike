@@ -88,7 +88,7 @@
    Bugs: There's no good way to share variables between the functions.
    Can we say id->misc? :P */
 
-inherit "roxenlib";
+inherit "caudiumlib";
 
 
 #ifdef DEBUG_WIZARD

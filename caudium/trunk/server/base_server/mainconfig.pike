@@ -21,7 +21,7 @@
 
 inherit "config/builders";
 string cvs_version = "$Id$";
-//inherit "roxenlib";
+//inherit "caudiumlib";
 
 inherit "config/draw_things";
 

@@ -32,7 +32,7 @@ constant thread_safe=1;
 #include <module.h>
 #include <config.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 
 mixed register_module()

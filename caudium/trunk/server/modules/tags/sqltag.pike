@@ -36,7 +36,7 @@ constant thread_safe=1;
 // #define SQL_TAG_COMPAT
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Array;
 import Sql;

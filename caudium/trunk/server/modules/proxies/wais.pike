@@ -281,7 +281,7 @@ string cvs_version = "$Id$";
 
 inherit "module";
 inherit "socket";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #include <module.h>
 #include <proxyauth.pike>

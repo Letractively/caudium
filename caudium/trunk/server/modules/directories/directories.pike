@@ -27,7 +27,7 @@ int thread_safe=1;   /* Probably. Check _root */
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 /************** Generic module stuff ***************/
 int nocache;

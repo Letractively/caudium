@@ -27,7 +27,7 @@ string cvs_version = "$Id$";
 int thread_safe=1;
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 static inherit "http";
 
 /* Doesn't work on NT yet */

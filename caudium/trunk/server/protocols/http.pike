@@ -27,7 +27,7 @@ inherit "highlight_pike";
 constant cvs_version = "$Id$";
 // HTTP protocol module.
 #include <config.h>
-private inherit "roxenlib";
+private inherit "caudiumlib";
 // int first;
 #if efun(gethrtime)
 # define HRTIME() gethrtime()

@@ -27,7 +27,7 @@
 // Still experimental
 #define CACHE_DEBUG
 
-inherit "roxenlib";
+inherit "caudiumlib";
 object this = this_object();
 
 #undef QUERY

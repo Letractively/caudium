@@ -26,7 +26,7 @@ constant thread_safe=1;
 #include <module.h>
 #include <stat.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #ifndef VAR_MORE
 #define VAR_MORE	0

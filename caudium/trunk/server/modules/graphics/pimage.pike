@@ -23,7 +23,7 @@ string cvs_version="$Id$";
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #if constant(Image.image)
 #define IMAGE Image.image
@@ -94,7 +94,7 @@ class Constructors
     }
   }
 
-  inherit "roxenlib";
+  inherit "caudiumlib";
 
   object id;
   

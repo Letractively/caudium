@@ -23,7 +23,7 @@
 
 #include <config.h>
 
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #define TIMESTAMP 0
 #define DATA 1

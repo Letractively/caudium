@@ -44,6 +44,9 @@
 // -----------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2000/08/07 00:56:13  neotron
+// moved roxen.pike to caudium.pike and renamed roxenlib to caudiumlib, with a compat roxenlib
+//
 // Revision 1.5  2000/08/07 00:50:43  neotron
 // major changes, caudium -> roxen. some 7.0 changes
 //
@@ -173,7 +176,7 @@ string copyright = ("<BR>Copyright 1997 "
 #include <module.h>
 #include <array.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Image;
 constant thread_safe = 1;

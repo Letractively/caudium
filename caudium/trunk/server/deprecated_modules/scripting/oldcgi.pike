@@ -33,7 +33,7 @@ int thread_safe=1;
 #include <module.h>
 
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 //#define CGI_DEBUG
 // #define CGI_WRAPPER_DEBUG

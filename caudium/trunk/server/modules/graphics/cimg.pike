@@ -21,7 +21,7 @@
 
 #include <module.h>
 inherit "module";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 caudium.ImageCache the_cache;
 

@@ -40,7 +40,7 @@ constant thread_safe=1;
 
 inherit "module";
 inherit "socket";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 import Array;
 

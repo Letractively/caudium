@@ -35,7 +35,7 @@ string cvs_version="$Id$";
 //#define SQLAUTHDEBUG
 
 #include <module.h>
-inherit "roxenlib";
+inherit "caudiumlib";
 inherit "module";
 
 #ifdef SQLAUTHDEBUG

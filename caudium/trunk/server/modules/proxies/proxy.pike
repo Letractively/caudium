@@ -51,7 +51,7 @@ import Array;
 
 inherit "module";
 inherit "socket";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #include <proxyauth.pike>
 #include <roxen.h>

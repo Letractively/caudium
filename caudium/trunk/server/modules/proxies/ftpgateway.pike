@@ -104,13 +104,13 @@ Content-type: text/html\r\n\
 
 inherit "module";
 inherit "socket";
-inherit "roxenlib";
+inherit "caudiumlib";
 
 #include <proxyauth.pike>
 
 class Request {
   inherit "socket";
-  inherit "roxenlib";
+  inherit "caudiumlib";
 
 #define CONNECTION_TIMEOUT (master->query("connection_timeout"))
 #define ACTIVE_CONNECT_TIMEOUT (master->query("data_connection_timeout"))
