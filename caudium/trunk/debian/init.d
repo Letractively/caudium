@@ -29,7 +29,7 @@ test -f $DAEMON || exit 0
 set -e
 
 if test -f /etc/caudium/start_options; then
-    . cat /etc/caudium/start_options
+    . /etc/caudium/start_options
 fi
 
 case "$1" in
