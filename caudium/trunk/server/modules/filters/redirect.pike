@@ -318,7 +318,7 @@ class HeaderModifier {
 }
 
 array patterns;
-#define CHECK_VALUE() if(!value || !strlen(error)) { report_error(sprintf ("Redirect modifier %s requires a value.\n", modifier)); break; }
+#define CHECK_VALUE() if(!value || !strlen(error)) { report_error("Redirect modifier %s requires a value.\n", modifier); break; }
 void start()
 {
   array a;
@@ -340,7 +340,7 @@ void start()
       case "reg":
       case "rx":
 	if(catch(new_patterns += ({ RegMatch(a[1], a[2]) }))) {
-	  report_error(sprintf ("Failed to compile pattern %s\n", a[1]));
+	  report_error("Failed to compile pattern %s\n", a[1]);
 	}
 	break;
       case "glob":
@@ -350,7 +350,7 @@ void start()
 	new_patterns += ({ PrefixMatch(a[1], a[2]) });
 	break;
       default:
-	report_error(sprintf ("Invalid redirect keyword: %s\n", a[0]));
+	report_error("Invalid redirect keyword: %s\n", a[0]);
 	break;
       }
       if(modifier && sizeof (new_patterns)) {
@@ -383,7 +383,7 @@ void start()
 	  else
 	    new_patterns += ({ RegMatch(@a) });
 	})
-	  report_error(sprintf ("Failed to compile pattern %s\n", a[0]));
+	  report_error("Failed to compile pattern %s\n", a[0]);
       } else {
 	new_patterns += ({ PrefixMatch(@a) });
       }
@@ -391,7 +391,7 @@ void start()
       case 0: // Skip empty lines
 	break;
     default:
-      report_error(sprintf ("Invalid pattern line: %s\n", s));
+      report_error("Invalid pattern line: %s\n", s);
       break;
     }
   }
