@@ -1138,17 +1138,25 @@ string calendar_action_tag(string tag, mapping args, string cont,
   if (myargs->year && sizeof(myargs->year))
     years = parse_ranges(myargs->year);
 
-  mixed error;
-  
-  if (days && sizeof(days) && !value_in_range((int)id->variables->calday, days, 0, 1, 31))
-    return "";
-  if (months && sizeof(months) && !value_in_range((int)id->variables->calmonth, months, 0, 1, 12))
-    return "";
-  if (years && sizeof(years) && !value_in_range((int)id->variables->calyear, years, 1))
-    return "";
-  if (weeks && sizeof(weeks) && !value_in_range((int)id->variables->calweek, weeks, 0, 1, 52))
-    return "";
+  mixed error = catch {
+    if (days && sizeof(days) && !value_in_range((int)id->variables->calday, days, 0, 1, 31))
+      return "";
+    if (months && sizeof(months) && !value_in_range((int)id->variables->calmonth, months, 0, 1, 12))
+      return "";
+    if (years && sizeof(years) && !value_in_range((int)id->variables->calyear, years, 1))
+      return "";
+    if (weeks && sizeof(weeks) && !value_in_range((int)id->variables->calweek, weeks, 0, 1, 52))
+      return "";
+  };
 
+  if (error) {
+    report_error("Calendar: error in the action handler. Backtrace:\n%O\n", error);
+    return "<!-- error in the calendar action handler. See the logs for more information. -->";
+  }
+  
+  if (id->variables->changetype == "week" && id->variables->calday == "1")
+    return "";
+  
   // something matches, go ahead.
   string ret = parse_rxml(cont, id);
 
