@@ -994,16 +994,8 @@ string msectos(int t)
 //! @decl string extension( string f)
 //! @decl string Caudium.extension( string f)
 //!
-//! Gets the extension from filename
-//!
-//! @param f
-//!   The filename to get the extension
-//!
-//! @returns
-//!   The good extension values
-//! 
-//! @seealso
-//!   Caudium.extension
+//! This function gets the right extension name from 
+//! filename @[f].
 //!
 //! @note
 //!   Non RIS code.
