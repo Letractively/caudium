@@ -20,6 +20,13 @@
 constant cvs_version = "$Id$";
 
 //
+// Error constants
+//
+int ERR_REQUIRED_MISSING = 0x0001;
+int ERR_DEFAULT_USED = 0x0002;
+int ERR_NOT_IN_POLICY = 0x0003;
+
+//
 // Module setup
 //
 private int auto_add_recommended = 1;
@@ -37,7 +44,7 @@ private int auto_add_recommended = 1;
 //   objectClass   - (boolean) 0 - is an attribute, != 0 is an objectClass
 //   required      - (boolean) 0 - not required, != 0 required
 //   recommended   - (boolean) 1 - the item is recommended
-//   default       - (string) default value of the item used when
+//   def           - (string) default value of the item used when
 //                   recommended == 1 _and_ the client code
 //                   chose to let this module add recommended items
 //                   automatically (the default behavior)
@@ -48,8 +55,9 @@ private int auto_add_recommended = 1;
 // a response mapping with the situation description to the client. The
 // response mapping has the following structure:
 //
-//   name          - (string) name of the attribute in question
-//   errorCode     - (int) the error code, one of:
+//   index          - (string) name of the attribute in question [note: this is the
+//                    mapping _index_ not a member named 'index']
+//   errorCode      - (int) the error code, one of:
 //                        ERR_REQUIRED_MISSING
 //                           attribute was missing and it is required
 //
@@ -57,14 +65,16 @@ private int auto_add_recommended = 1;
 //                           more a warning than an error. The attribute is
 //                           recommended but was absent and the default
 //                           value was used.
-//   errorMesage   - (string) error message in English that corresponds to
-//                   the above error code.
+//                        ERR_NOT_IN_POLICY
+//                           the item isn't found in the current policy
+//   errorMesage    - (string) error message in English that corresponds to
+//                    the above error code.
 //
 
 #define REQ_OBJECTCLASS(name) name : ([ "objectClass" : 1, "required" : 1 ])
 #define RECOM_OBJECTCLASS(name) name : ([ "objectClass" : 1, "recommended" : 1 ])
 #define REQ_ATTRIBUTE(name) name : ([ "objectClass" : 0, "required" : 1 ])
-#define RECOM_ATTRIBUTE(name, def) name : ([ "objectClass" : 0, "recommended" : 1, "default" : def ])
+#define RECOM_ATTRIBUTE(name, def) name : ([ "objectClass" : 0, "recommended" : 1, "def" : def ])
 
 private mapping(string:mapping(string:string|int)) policy = ([
     REQ_OBJECTCLASS("top"),
@@ -96,5 +106,73 @@ mapping(string:mapping(string:string|int)) get_policy()
 void set_policy(mapping(string:mapping(string:string|int)) npolicy)
 {
     policy = npolicy;
+}
+
+
+//
+// The new user mapping structure:
+//
+//    name      - (string) LDAP item name
+//    value     - (array of strings) values for this item
+//
+
+//
+// Verify the passed user structure. Note that by default the items that
+// aren't found in the policy mapping are ignored. You can, however, tell
+// this function to check for such items and report them as errors.
+// If an int < 0 is returned it means that policy exists but the user record
+// was empty - thus it fails the verification. 0 is returned on success.
+// The user record is not modified at this stage.
+//
+mapping(string:mapping(string:string|int))|int verify(mapping(string:array(string)) user, int|void strict)
+{
+    mapping(string:mapping(string:string|int)) ret = ([]);
+    multiset(string)  reqstuff = (<>); // missing required stuff
+    multiset(string)  recomstuff = (<>); // missing recommended stuff
+    multiset(string)  notinpolicy = (<>); // stuff not in the policy
+    string            idx;
+    
+    if ((policy && sizeof(policy)) && (!user || !sizeof(user)))
+        return -1;
+    
+    foreach(indices(policy), idx) {
+        if (policy[idx]->required && !user[idx])
+            reqstuff += (<idx>);
+        else if (policy[idx]->recommended && !user[idx])
+            recomstuff += (<idx>);
+    }
+
+    if (strict) {
+        // Check the user record against the policy
+        foreach(indices(user), idx) {
+            if (!policy[idx])
+                notinpolicy += (<idx>);
+        }
+    }
+
+    // generate the reports
+    if (strict) { // report items not in the policy
+        foreach(indices(notinpolicy), idx)
+            ret += ([ idx : ([ "errorCode" : ERR_NOT_IN_POLICY,
+                               "errorMessage" : sprintf("Item '%s' not in the current policy",
+                                                        idx) ]) ]);
+    }
+    
+    // report missing required items
+    foreach(indices(reqstuff), idx)
+        ret += ([ idx : ([ "errorCode" : ERR_REQUIRED_MISSING,
+                           "errorMessage" : sprintf("Required item '%s' missing",
+                                                    idx) ]) ]);
+
+    // report missing recommended items
+    foreach(indices(recomstuff), idx)
+        ret += ([ idx : ([ "errorCode" : ERR_DEFAULT_USED,
+                           "errorMessage" : sprintf("Recommended item '%s' missing. Default value %O will be used'",
+                                                    idx, policy[idx]->def ) ]) ]);
+
+    if (!sizeof(ret))
+        return 0;
+    
+    return ret;
 }
 
