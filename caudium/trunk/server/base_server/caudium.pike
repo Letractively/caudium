@@ -625,7 +625,7 @@ object create_listen_socket(mixed port_no, object conf,
 #ifdef SOCKET_DEBUG
         perror("SOCKETS:    -> Failed.\n");
 #endif
-        report_warning("Failed to open socket on %s:%O (already bound?)\nErrno is: %O\n"
+        report_warning("Failed to open socket on %O:%O (already bound?)\nErrno is: %O\n"
                        "Retrying...\n", ether, port_no, port->errno());
         sleep(1);
         
@@ -635,7 +635,7 @@ object create_listen_socket(mixed port_no, object conf,
           if(!port->bind(port_no, accept_callback, ether))
 #endif
           {
-            report_error("Failed to open socket on %s:%O (already bound?)\nErrno is: %O\n",
+            report_error("Failed to open socket on %O:%O (already bound?)\nErrno is: %O\n",
                         ether, port_no, port->errno());
             return 0;
           }

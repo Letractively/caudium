@@ -271,60 +271,130 @@ void init_logger()
 //! Print a debug message
 void report_debug(string message, mixed ... args)
 {
-  if(sizeof(args)) message = sprintf(message, @args);
-  nwrite(message,0,2);
+  mixed error;
+  
+  error = catch {
+    if(sizeof(args)) 
+      message = sprintf(message, @args);
+  };
+  
+  if (error)
+    nwrite("Warning: exception caught in report_debug. Cannot print the requested message.\n", 0, 2);
+  else
+    nwrite(message,0,2);
+
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_DEBUG))
-    foreach(message/"\n", message)
-      syslog(LOG_DEBUG, replace(message+"\n", "%", "%%"));
+    if (!error) {
+      foreach(message/"\n", message)
+        syslog(LOG_DEBUG, replace(message+"\n", "%", "%%"));
+    } else {
+      syslog(LOG_WARNING, "Warning: exception caught in report_debug. Cannot print the requested message.\n");
+    }
 #endif
 }
 
 //! Print a warning
 void report_warning(string message, mixed ... args)
 {
-  if(sizeof(args)) message = sprintf(message, @args);
-  nwrite(message,0,2);
+  mixed error;
+  
+  error = catch {
+    if(sizeof(args)) 
+      message = sprintf(message, @args);
+  };
+  
+  if (error)
+    nwrite("Warning: exception caught in report_warning. Cannot print the requested message.\n", 0, 2);
+  else
+    nwrite(message,0,2);
+
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_WARNING))
-    foreach(message/"\n", message)
-      syslog(LOG_WARNING, replace(message+"\n", "%", "%%"));
+    if (!error) {
+      foreach(message/"\n", message)
+        syslog(LOG_WARNING, replace(message+"\n", "%", "%%"));
+    } else {
+      syslog(LOG_WARNING, "Warning: exception caught in report_warning. Cannot print the requested message.\n");
+    }
 #endif
 }
 
 //! Print a notice
 void report_notice(string message, mixed ... args)
 {
-  if(sizeof(args)) message = sprintf(message, @args);
-  nwrite(message,0,1);
+  mixed error;
+  
+  error = catch {
+    if(sizeof(args)) 
+      message = sprintf(message, @args);
+  };
+  
+  if (error)
+    nwrite("Warning: exception caught in report_notice. Cannot print the requested message.\n", 0, 1);
+  else
+    nwrite(message,0,1);
+
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_NOTICE))
-    foreach(message/"\n", message)
-      syslog(LOG_NOTICE, replace(message+"\n", "%", "%%"));
+    if (!error) {
+      foreach(message/"\n", message)
+        syslog(LOG_NOTICE, replace(message+"\n", "%", "%%"));
+    } else {
+      syslog(LOG_WARNING, "Warning: exception caught in report_notice. Cannot print the requested message.\n");
+    }
 #endif
 }
 
 //! Print an error message
 void report_error(string message, mixed ... args)
 {
-  if(sizeof(args)) message = sprintf(message, @args);
-  nwrite(message,0,3);
+  mixed error;
+  
+  error = catch {
+    if(sizeof(args)) 
+      message = sprintf(message, @args);
+  };
+
+  if (error)
+    nwrite("Warning: exception caught in report_error. Cannot print the requested message.\n", 0, 3);
+  else  
+    nwrite(message,0,3);
+
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_ERR))
-    foreach(message/"\n", message)
-      syslog(LOG_ERR, replace(message+"\n", "%", "%%"));
+    if (!error) {
+      foreach(message/"\n", message)
+        syslog(LOG_ERR, replace(message+"\n", "%", "%%"));
+    } else {
+      syslog(LOG_WARNING, "Warning: exception caught in report_error. Cannot print the requested message.\n");
+    }
 #endif
 }
 
 //! Print a fatal error message
 void report_fatal(string message, mixed ... args)
 {
-  if(sizeof(args)) message = sprintf(message, @args);
-  nwrite(message,0,3);
+  mixed error;
+  
+  error = catch {
+    if(sizeof(args)) 
+      message = sprintf(message, @args);
+  };
+  
+  if (error)
+    nwrite("Warning: exception caught in report_fatal. Cannot print the requested message.\n", 0, 3);
+  else
+    nwrite(message,0,3);
+
 #if constant(syslog)
   if(use_syslog && (loggingfield&LOG_EMERG))
-    foreach(message/"\n", message)
-      syslog(LOG_EMERG, replace(message+"\n", "%", "%%"));
+    if (!error) {
+      foreach(message/"\n", message)
+        syslog(LOG_EMERG, replace(message+"\n", "%", "%%"));
+  } else {
+      syslog(LOG_WARNING, "Warning: exception caught in report_fatal. Cannot print the requested message.\n");
+    }
 #endif
 }
 
