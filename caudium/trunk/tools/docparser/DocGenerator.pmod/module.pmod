@@ -311,12 +311,11 @@ class DocGen
 	    ret += "\t<argument";
 	    if (a->synopsis)
 	      ret += " syntax=\""+a->synopsis+"\"";
-	    ret += ">\n\t\t";
-	    if (a->description)
-	      ret += a->description;
+	    if (a->description) 
+	      ret += ">\n\t\t"+ a->description +"\n\t</argument>\n";
 	    else
-	      ret += "NO DESCRIPTION";
-	    ret += "\n\t</argument>\n\n";
+	      ret += "/>\n";
+		
 	  }
 	  ret += "</arguments>\n\n";
 	}
