@@ -218,10 +218,30 @@ mapping http_rxml_answer( string rxml, object id,
 //!   The HTTP response mapping.
 mapping http_error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
 {
+   mixed tmperr;
+
    if (!error_code)
       error_code = 404;
 
-   return (caudium->http_error->process_error (id, error_code, error_name, error_message));
+   if (!error_name)
+      error_name = "Not found.";
+
+   if (!error_message)
+      error_message = "Not found.";
+
+   id->misc->error_code = error_code;
+   id->misc->error_name = error_name;
+   id->misc->error_message = error_message;
+
+   tmperr = id->conf->handle_error_request(id);
+
+   if(mappingp(tmperr))
+     return (mapping)tmperr;
+   else
+     return http_low_answer(error_code,error_message);
+   
+  // return (caudium->http_error->process_error (id, error_code, error_name, error_message));
+   
 }
  
 //!   Return a response mapping with the text and the specified content type.
