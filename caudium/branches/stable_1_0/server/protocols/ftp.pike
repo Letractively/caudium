@@ -1683,7 +1683,7 @@ class FTPSession
       if ((err = catch(file = conf->get_file(session)))) {
 	report_error(sprintf("FTP: Error opening file \"%s\"\n"
 			     "%s\n", fname, describe_backtrace(err)));
-	send(550, ({ sprintf("%s: Error, can't open file.", fname) }));
+	send(550,({ sprintf("%s: Error, can't open file.", fname) }));
 	return 0;
       }
     } else if ((< "STOR", "APPE", "MKD", "MOVE" >)[cmd]) {
@@ -1699,6 +1699,7 @@ class FTPSession
     session->file = file;
 
     if (!file || (file->error && (file->error/100 != 2))) {
+      if(!file && session->misc->error_code) file = (["error": session->misc->error_code ]);
       DWRITE(sprintf("FTP: open_file(\"%s\") failed: %O\n", fname, file));
       send_error(cmd, fname, file, session);
       return 0;

@@ -31,6 +31,9 @@ Changes in Caudium 1.0.X (CVS)
 - Added the compact 'Add module' page originally added in Roxen 1.4.
 - Fixed compile error reporting when loading the configuration interface.
 - CAMAS support folders caching now.
+- Made the ftp protocol use supplied error code if it's present after a
+  command fails. This leads to more helpful error messages than
+  "file not found'.
 - CVS branched. The main trunk is now Caudium 1.1. To check work with the
   1.0 stable version, do a 'cvs update -r stable_1_0' in your checked
   out source tree.
