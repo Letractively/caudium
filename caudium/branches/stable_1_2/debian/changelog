@@ -1,3 +1,9 @@
+caudium (2:1.2.23-6) unstable; urgency=low
+
+  * Latest upstream update.
+
+ -- Marek Habersack <grendel@debian.org>  Wed,  2 Apr 2003 16:54:41 +0200
+
 caudium (2:1.2.23-5) unstable; urgency=low
 
   * Recompiled to catch up with the latest pike
