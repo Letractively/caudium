@@ -1,14 +1,14 @@
 # $Id$
 # $Revision$
 #
-# Created by Mike A. Harris <mikeharris@users.sourceforge.net> for
+# Created by Mike A. Harris <mharris@caudium.org> for
 # the Caudium webserver project.  Portions of text were borrowed from
 # the debian packaging files written by Marek Habersack <grendel@caudium.org>
 
 %define name	caudium
 %define version	cvs20001003
-%define release	4
-%define packager Mike A. Harris <mharris@meteng.on.ca>
+%define release	8
+%define packager Mike A. Harris <mharris@caudium.org>
 
 # This line creates a macro _initdir which is where initscripts will
 # get placed.  This is done to maintain backwards compatibility now
@@ -25,10 +25,8 @@ Release: %{release}
 Copyright: GPL
 Group: System Environment/Daemons
 Source: %{name}-%{version}.tgz
-#Source1: caudium.init
-#Patch: patch-pikepath.diff
 
-BuildRoot: /tmp/%{name}-build
+BuildRoot: %_tmppath/%{name}-build
 Packager: %packager
 Vendor: The Caudium Group
 URL: http://www.caudium.org
@@ -101,6 +99,9 @@ make
 %install
 make install_alt DESTDIR=$RPM_BUILD_ROOT
 
+# Strip binaries (install_alt target doesn't)
+strip $RPM_BUILD_ROOT/%_bindir/*
+
 # Create documentation directory
 mkdir -p $RPM_BUILD_ROOT/%_docdir/%name-%version
 
@@ -116,7 +117,11 @@ rmdir $RPM_BUILD_ROOT/usr/share/doc
 mkdir -p $RPM_BUILD_ROOT/etc/caudium/servers
 cp debian/localhost $RPM_BUILD_ROOT/etc/caudium/servers/localhost
 mkdir -p $RPM_BUILD_ROOT/%_initdir
-cp redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
+cp packages/redhat/caudium.init $RPM_BUILD_ROOT/%_initdir/caudium
+
+# Install logrotate file
+mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d/
+cp packages/redhat/caudium.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/caudium
 
 # Create various dirs required for proper operation
 mkdir -p $RPM_BUILD_ROOT/var/{cache,log,run}/caudium
@@ -163,16 +168,28 @@ rm -rf $RPM_BUILD_ROOT/usr/share/caudium/unfinishedmodules
 %_libdir/caudium/mkdir
 %_libdir/caudium/start
 %_libdir/caudium/testca.pem
-%_datadir/caudium
+%_datadir/caudium/modules/directories
+%_datadir/caudium/modules/filesystems
+%_datadir/caudium/modules/graphics
+%_datadir/caudium/modules/logging
+%_datadir/caudium/modules/proxies
+%_datadir/caudium/modules/tags
+%_datadir/caudium/modules/examples
+%_datadir/caudium/modules/filters
+%_datadir/caudium/modules/ldap
+%_datadir/caudium/modules/misc
+%_datadir/caudium/modules/scripting
+%dir %_datadir/caudium/modules
 %dir /usr/local/share/caudium/modules
 %dir /var/cache/caudium
 %dir /var/log/caudium
 %dir /var/run/caudium
 
 %config %attr(0755, root, root) %_initdir/caudium
-%config(noreplace) %attr(0700, root, root) /etc/caudium/*
+%config(noreplace) %attr(0755, root, root) /etc/caudium/*
+%config(noreplace) %attr(0755, root, root) /etc/logrotate.d/caudium
 
-%doc %_docdir/%{name}-%{version}
+%doc %_docdir/%{name}-%{version}/*
 
 
 ###############  FILES SECTION (caudium-modules)  ######################
@@ -191,56 +208,76 @@ rm -rf $RPM_BUILD_ROOT/usr/share/caudium/unfinishedmodules
 %_libdir/caudium/lib/%{PIKEVERSION}/UltraLog.so
 %_libdir/caudium/etc/modules/UltraSupport.pmod
 %_libdir/caudium/bin/ultrasum.pike
-%_datadir/caudium/modules/ultralog
-%doc %_docdir/%{name}-%{version}/ultralog
+%_datadir/caudium/modules/ultralog/*
+%dir %_datadir/caudium/modules/ultralog
 %dir /var/log/caudium/ultralog
 
+# No easy way to pull the docs out of the main package without jumping
+# through hoops, so the ultralog docs are not here yet.
+#%doc %_docdir/%{name}-%{version}/ultralog
+
+%preun
+if [ $1 -eq 0 ]; then   # We're running "rpm -e"
+  if [ -x %_initdir/caudium ];then
+    %_initdir/caudium stop
+    chkconfig --del caudium;
+  fi
+fi
+
 %changelog
-* Tue Oct 3 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Thu Oct 5 2000 Mike A. Harris <mharris@caudium.org>
+  Added logrotate config file to installation, and made tweaks to make
+  everything work with the new moved dir (packages/redhat).
+
+* Tue Oct 3 2000 Mike A. Harris <mharris@caudium.org>
+  Added '%preun' section.  Strip compiled binaries in install section.
+  Changed my email address to caudium.org everywhere.
+
+* Tue Oct 3 2000 Mike A. Harris <mharris@caudium.org>
   Modified the build to be pike version independant (hopefully).
   Got pike version detection with RPM working correctly.
   Big cleanup of spec file debugging cruft that is no longer needed.
 
-* Tue Oct 3 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Tue Oct 3 2000 Mike A. Harris <mharris@caudium.org>
   Corrected documentation packaging, stripped out unfinished modules
   from being packaged in final install rpms.
 
-* Mon Oct 2 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Mon Oct 2 2000 Mike A. Harris <mharris@caudium.org>
   Added pike version detection to spec file, then took it back away
   until the RPM guys get back to me with a fix.  ;o)
 
-* Sat Sep 30 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Sat Sep 30 2000 Mike A. Harris <mharris@caudium.org>
   Now that the redhat stuff is built into the CVS sources, I changed
   the spec to use the files in the main tarball instead of being
   external.  I also updated the lame package descriptions I had, by
   stealing Marek's debian package descriptions.  ;o)
 
-* Thu Sep 28 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Thu Sep 28 2000 Mike A. Harris <mharris@caudium.org>
   Prepared first public release of RPM spec file, and submitted
   it to caudium-devel mailing list for inclusion.
 
-* Wed Sep 27 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Wed Sep 27 2000 Mike A. Harris <mharris@caudium.org>
   Updated my local tree again, and made more tweaks to the Red Hat
   build.  Made a few changes similar to Marek's debian build.
 
-* Mon Sep 25 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Mon Sep 25 2000 Mike A. Harris <mharris@caudium.org>
   Updated working caudium cvs tree, made few modifications to
   spec to allow building in Red Hat 6.x and 7.0 environments.
 
-* Sat Sep 23 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Sat Sep 23 2000 Mike A. Harris <mharris@caudium.org>
   Changed documentation install from hardcoded /usr/share/doc to
   softcoded %_docdir so that FHS compliant systems get docs where
   they should be, however FHS non-compliant systems have docs where
   users expect them.  The spec file shouldn't dictate FHS compliance,
   but should follow compliance if the given system is compliant.
 
-* Fri Aug 18 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Fri Aug 18 2000 Mike A. Harris <mharris@caudium.org>
   Fixed install section to put the initscript in proper place.
   Fixed files section to more properly include the files it should.
 
-* Thu Aug 17 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Thu Aug 17 2000 Mike A. Harris <mharris@caudium.org>
   Refined spec file, and proper file lists.  Corrected many
   numerous errors from the original broken first build.
 
-* Thu Aug 17 2000 Mike A. Harris <mharris@meteng.on.ca>
+* Thu Aug 17 2000 Mike A. Harris <mharris@caudium.org>
   Initial .spec file creation
