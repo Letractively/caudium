@@ -271,7 +271,7 @@ string icontainer_tmploutput(string container, mapping arguments, string content
   
   targetpath = Caudium.simplify_path((thetarget[..sizeof(thetarget)-2])*"/");
 
-  report_notince("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
+  report_notice("templatefs: tmploutput: %s, %s, %s, %s, %s, %s, %s, %s\n", dirname, file, (file/".")[0], targetfile, targetpath, targetdirname, target, id->not_query );
   return replace(contents, 
         ({ "#file#", "#path#", "#base#", "#targetfile#", "#targetpath#", "#targetdir#", "#target#" }), 
 	({ file, dirname, (file/".")[0], targetfile, targetpath, targetdirname, target }));
