@@ -124,7 +124,7 @@ install: build
 	   debian/tmp/usr/lib/caudium$(EXTVER)/base_server/caudium.pike
 
 	for p in $(CURDIR)/debian/www/*.png.uu; do \
-	    uudecode -o $(CURDIR)/debian/tmp/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
+	    uudecode -o $(CURDIR)/debian/caudium/var/www/caudiumimages/`basename $${p%*.uu}` $$p; \
 	done
 	# fix what lintian whines about
 	ln -sf ../../../bin/$(PIKE) $(CURDIR)/debian/tmp/usr/lib/caudium$(EXTVER)/bin/caudium
