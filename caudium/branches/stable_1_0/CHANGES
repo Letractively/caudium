@@ -1,3 +1,8 @@
+Changes in Caudium 1.0.xx since Caudium 1.0.52
+----------------------------------------------
+- Variable HTTPS is set to "on" when SSL is used. (compatibility variable      
+  used for CGIs...) 
+
 Changes in Caudium 1.0.52 (stable release 4, 2002-05-16)
 --------------------------------------------------------
 - Fixed #530674: passive mode FTP connection problem (with Mozilla
