@@ -48,16 +48,6 @@ constant module_doc  = "This module will allow you to send compressed "
 constant module_unique = 1;
 
 /* some defines */
-// Mutexes
-#ifdef ENABLE_THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-object __key;
-#define LOCK() __key = mutex->lock(1)
-#define UNLOCK() destruct(__key)
-#else
-#define LOCK() 
-#define UNLOCK()
-#endif
 // Debug
 //#define GZIP_DEBUG 1
 #ifdef GZIP_DEBUG
@@ -256,7 +246,6 @@ array(object) compile_regexp(string text)
 
 void start()
 {
-  LOCK();
   module_cache=GET_CACHE();
   stats = ([ 
              "totaldata": 0,
@@ -280,7 +269,6 @@ void start()
     else
       cache_timeout = QUERY(cache_timeout) * 60;
   }
-  UNLOCK();
 }
 
 // taken from Cache code
@@ -302,10 +290,8 @@ string real_deflate(string _data, string _name)
   float cputime = gauge {
     _data = Gz.deflate(level)->deflate(_data);
   };
-  LOCK();
   stats["cputime"] += cputime; 
   stats["cache_miss"]++;
-  UNLOCK();
   if(QUERY(cache))
     module_cache->store(cache_string(_data, _name, cache_timeout));
   return _data;
@@ -314,9 +300,7 @@ string real_deflate(string _data, string _name)
 string deflate(string data, object id)
 {
   DEBUG(sprintf("need compressed version of '%s'\n", id->not_query));
-  LOCK();
   stats["requests2compress"]++;
-  UNLOCK();
   if(QUERY(cache))
   {
     // we made a hash on the data and decide to cache or not
@@ -429,9 +413,7 @@ mapping filter(mapping response, object id)
     && !is_in_excludelist(response->type, id->not_query) // is in exclude list ?
     && is_in_includelist(response->type, id->not_query) ) // is in include list ?
   {
-      LOCK();
       stats["totaldata"] += sizeof(response->data);
-      UNLOCK();
       if(id->supports->autoinflate)
       {
         response["extra_heads"] += ([ "Content-Encoding" : "deflate" ]);
@@ -446,16 +428,12 @@ mapping filter(mapping response, object id)
       response->len = strlen(response->data);
       if(sizeof(QUERY(vary)) > 0)
 	response["extra_heads"] += ([ "Vary" : QUERY(vary) * "," ]);
-      LOCK();
       stats["compresseddata"] += sizeof(response->data);
-      UNLOCK();     
       m_delete(response,"file");
       DEBUG(sprintf("response[\"extra_heads\"]=%O\n", response["extra_heads"]));
       return response;
   }
-  LOCK();   
   stats["notmatchingdata"] += sizeof(response->data);
-  UNLOCK();   
   return 0;
 }
 
