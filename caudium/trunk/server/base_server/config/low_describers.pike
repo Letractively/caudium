@@ -207,6 +207,7 @@ string describe_variable_as_text(array var, int|void verbose)
    case TYPE_FLOAT:
     return sprintf("%.4f", var[VAR_VALUE]);
     
+   case TYPE_FILE_LIST:
    case TYPE_DIR_LIST:
    case TYPE_STRING_LIST:
    case TYPE_INT_LIST:
@@ -559,7 +560,8 @@ string describe_variable_low(array var, mixed path, int really_short,
     res=input(path, sprintf("%.4f", var[VAR_VALUE]), 10)
       +"<input type=submit value=Ok>";
     break;
-    
+ 
+   case TYPE_FILE_LIST:   
    case TYPE_DIR_LIST:
    case TYPE_STRING_LIST:
    case TYPE_INT_LIST:

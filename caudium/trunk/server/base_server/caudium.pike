@@ -1499,6 +1499,12 @@ void create()
   add_constant("__caudium_version__", __caudium_version__);
   add_constant("__caudium_build__", __caudium_build__);
   
+  // load some of the prototype objects
+  object prototypes=(object)"base_server/prototypes.pike";
+
+  add_constant("RequestID",    prototypes->RequestID);
+
+
   Configuration = (program)"configuration";
 
   call_out(post_create,1); //we just want to delay some things a little
