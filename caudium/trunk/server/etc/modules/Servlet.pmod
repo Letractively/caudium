@@ -26,7 +26,7 @@
 //!   Not documented.
 
 static constant jvm = Java.machine;
-#if constan(jvm)
+#if constant(jvm)
 
 #define FINDCLASS(X) (jvm->find_class(X)||(jvm->exception_describe(),jvm->exception_clear(),error("Failed to load class " X ".\n"),0))
 
