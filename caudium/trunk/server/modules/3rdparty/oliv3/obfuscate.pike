@@ -19,6 +19,10 @@
  *
  */
 
+/*
+ * based on http://www.u.arizona.edu/~trw/spam/index.htm
+ */
+ 
 //
 //! module:Address obfuscator
 //! inherits: module
