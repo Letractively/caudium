@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- Added support for the default character set for the returned content
+  type. The information is sent in the Content-Type response header and
+  may be overwritten using the <meta> tag in the document.
 - Added support in VHS LDAP to use Caudium system log directory instead of
   userdir one.
 - Added .htaccess manual link... Usefull since most of apache people
