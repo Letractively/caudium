@@ -400,7 +400,11 @@ inline void do_post_processing()
 
      case "accept-encoding":
       if(search(request_headers[linename], "gzip") != -1)
-	supports["autogunzip"] = 1;
+        supports["autogunzip"] = 1;
+      if(search(request_headers[linename], "deflate") != -1)
+        supports["autoinflate"] = 1;
+      if(search(request_headers[linename], "compress") != -1)
+        supports["autouncompress"] = 1;
      case "accept":
      case "accept-charset":
      case "accept-language":
