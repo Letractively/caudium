@@ -42,7 +42,7 @@ static constant codes =
    "requesttime"  : "(string)(time(1)-id->time)",
 ]);
 
-static constant prg_prefix = "inherit \"caudiumlib\";";
+static constant prg_prefix = "inherit \"caudiumlib\"; inherit \"logformat_support.pike\";";
 
 string parse_log_format(string log_format) {
   string pre, kw, post;
