@@ -69,7 +69,7 @@ static void f_njs_create(INT_TYPE args) {
 
   switch(args) {
    case 2: /* Got options mapping */    
-    MY_MAPPING_LOOP(ARG(1).u.mapping, e, k) {
+     MY_MAPPING_LOOP(ARG(2).u.mapping, e, k) {
       sind = &k->ind;
       sval = &k->val;
       if(OPT_IS("stack_size")) {
@@ -126,13 +126,13 @@ static void f_njs_create(INT_TYPE args) {
         
     /* FALL THROUGH */
    case 1: /* Got the request object */
-    if(ARG(0).type != T_OBJECT) {
-      if(!IS_ZERO((&ARG(0)))) {
+    if(ARG(1).type != T_OBJECT) {
+      if(!IS_ZERO((&ARG(1)))) {
 	SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->create", 1,
 			     "RequestID");
       }
     } else {
-      add_ref((THIS->id = ARG(0).u.object));
+      add_ref((THIS->id = ARG(1).u.object));
     }
   }  
 
@@ -167,13 +167,13 @@ static void f_njs_eval(INT_TYPE args) {
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval",1);
   }
-  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+  if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->eval", 1,
 			 "string(8-bit)");
   }
   interp = THIS->interp;
-  data = ARG(0).u.string->str;
-  data_len = ARG(0).u.string->len;
+  data = ARG(1).u.string->str;
+  data_len = ARG(1).u.string->len;
 
   THREADS_ALLOW();
   res = njs_eval_data(interp, data, data_len);
@@ -191,18 +191,18 @@ static void f_njs_eval_file(INT_TYPE args) {
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval_file",1);
   }
-  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+  if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->eval_file", 1,
 			 "string(8-bit)");
   }
 
-  if((unsigned int)ARG(0).u.string->len != strlen(ARG(0).u.string->str)) {
+  if((unsigned int)ARG(1).u.string->len != strlen(ARG(1).u.string->str)) {
     Pike_error("JavaScript.Interpreter()->eval_file: file name cannot "
 	       "contain null characters.\n");
   }
   
   interp = THIS->interp;
-  file = ARG(0).u.string->str;
+  file = ARG(1).u.string->str;
 
   THREADS_ALLOW();
   res = njs_eval_file(interp, file);
@@ -221,14 +221,14 @@ static void f_njs_execute(INT_TYPE args) {
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval",1);
   }
-  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+  if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->eval", 1,
 			 "string(8-bit)");
   }
 
   interp = THIS->interp;
-  bc = ARG(0).u.string->str;
-  bc_len = ARG(0).u.string->len;
+  bc = ARG(1).u.string->str;
+  bc_len = ARG(1).u.string->len;
 
   THREADS_ALLOW();
   res = njs_execute_byte_code(interp, bc, bc_len);
@@ -251,13 +251,13 @@ static void f_njs_compile(INT_TYPE args) {
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
   }
-  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+  if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->compile", 1,
 			 "string(8-bit)");
   }
   interp = THIS->interp;
-  data = ARG(0).u.string->str;
-  data_len = ARG(0).u.string->len;
+  data = ARG(1).u.string->str;
+  data_len = ARG(1).u.string->len;
 
   THREADS_ALLOW();
   res = njs_compile_data_to_byte_code(interp, data, data_len,
@@ -280,16 +280,16 @@ static void f_njs_compile_file(INT_TYPE args) {
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
   }
-  if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+  if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->compile", 1,
 			 "string(8-bit)");
   }
-  if((unsigned int)ARG(0).u.string->len != strlen(ARG(0).u.string->str)) {
+  if((unsigned int)ARG(1).u.string->len != strlen(ARG(1).u.string->str)) {
     Pike_error("JavaScript.Interpreter()->eval_file: file name cannot "
 	       "contain null characters.\n");
   }
   interp = THIS->interp;
-  file = ARG(0).u.string->str;
+  file = ARG(1).u.string->str;
 
   THREADS_ALLOW();
   res = njs_compile_to_byte_code(interp, file, &bc_str, &bc_len);
@@ -484,17 +484,17 @@ static void f_njs_add_scope(INT_TYPE args) {
 
   switch(args) {
    case 3:
-    if(ARG(2).type != T_FUNCTION) {
+    if(ARG(3).type != T_FUNCTION) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 3,
 			   "function(string,string,mixed:int)");
     }
     
    default:
-    if(ARG(1).type != T_FUNCTION) {
+    if(ARG(2).type != T_FUNCTION) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 2,
 			   "function(string,string:mixed)");
     }
-    if(ARG(0).type != T_STRING || ARG(0).u.string->size_shift) {
+    if(ARG(1).type != T_STRING || ARG(1).u.string->size_shift) {
       SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->add_scope", 1,
 			   "string(8-bit)");
     }
@@ -504,13 +504,13 @@ static void f_njs_add_scope(INT_TYPE args) {
     break;
   }
 
-  add_ref(storage->name = ARG(0).u.string);
+  add_ref(storage->name = ARG(1).u.string);
   storage->parent = THIS;
-  assign_svalue_no_free(& storage->get, & ARG(1));
+  assign_svalue_no_free(& storage->get, & ARG(2));
   if(args < 3) { /* No set function */
     storage->set.type = T_INT;
   } else {
-    assign_svalue_no_free(& storage->set, & ARG(2));
+    assign_svalue_no_free(& storage->set, & ARG(3));
   }
 
   storage->class = njs_class_create((void *)storage, njs_free_scope_data, 0, 0);
