@@ -31,6 +31,7 @@ Changes in Caudium 1.0.X (CVS)
 - Added the compact 'Add module' page originally added in Roxen 1.4.
 - Fixed compile error reporting when loading the configuration interface.
 - CAMAS support folders caching now.
+- CVS branched. This is the 1.1 branch.
 
 Changes in Caudium 1.0.8 (RC1, released 2000-11-26)
 ---------------------------------------------------
