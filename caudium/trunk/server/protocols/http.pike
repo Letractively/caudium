@@ -1236,14 +1236,6 @@ array parse_range_header(int len)
   return ranges;
 }
 
-private mapping old_404() {
-    return http_low_answer( 404,
-			    replace( parse_rxml( conf->query("ZNoSuchFile"), this_object() ),
-				     ({ "$File", "$Me" }),
-				     ({ html_encode_string( not_query ), conf->query( "MyWorldLocation" ) })
-				   ) );
-}
-
 // Send the result.
 void send_result(mapping|void result)
 {
