@@ -357,6 +357,16 @@ AC_SUBST(LD)
 #################
 AM_WITH_DMALLOC
 
+AC_ARG_WITH(serverdir,
+AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directory after installation]),
+[
+  if test ! -z "$withval"; then
+    CAUDIUM_SERVERDIR="$withval"
+  else
+    CAUDIUM_SERVERDIR="@prefix@/caudium/server"
+  fi
+])
+
 ### Pike Detection ###
 ######################
 
@@ -886,6 +896,7 @@ CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
 CPPFLAGS="$CPPFLAGS -I$srcdir/src/cmods/"
 CAUDIUM_CPPFLAGS="$CPPFLAGS"
 AC_SUBST(CAUDIUM_CPPFLAGS)
+AC_SUBST(CAUDIUM_SERVERDIR)
 
 #
 # Some variables we want to export to the other configure scripts.
