@@ -122,10 +122,10 @@ void start()
 
 array type_from_extension(string ext)
 {
+  ext = lower_case(ext);
   if(ext == "default") {
-//    roxen_perror("%O\n", ({ QUERY(default), 0 }));
     accessed[ ext ] ++;
-    return ({ query("default"), 0 });
+    return ({ QUERY(default), 0 });
   } else if(extensions[ ext ]) {
     accessed[ ext ]++;
     return ({ extensions[ ext ], encodings[ ext ] });
