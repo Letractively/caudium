@@ -66,12 +66,10 @@ AH_TOP([
 
 AH_BOTTOM([
 
-#include "alloca_kludge.h"
-
 #endif /* CAUDIUM_MACHINE_H */
 ])
 
-dnl AC_CHECK_HEADERS([stdio.h alloca.h])
+AC_CHECK_HEADERS([stdio.h alloca.h])
 
 # reset it just in case
 CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
