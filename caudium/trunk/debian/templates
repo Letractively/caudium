@@ -203,6 +203,13 @@ Description-pl: Login do interfejsu konfiguracyjnego.
  pierwsza, bêdzie mog³a ustawiæ login/has³o i przej±æ kontrolê
  nad zarz±dzaniem serwerem. Prawdopodobnie nie jest to twoim zamiarem.
  Proszê podaæ login w polu poni¿ej, lub zaakceptowaæ domy¶ln± warto¶æ.
+Description-fr: Login pour l'interface de configuration.
+ Il s'agit du login pour l'accès à l'interface de configuration.
+ Si vous ne spécifiez pas de login maintenant, la première
+ personne qui se connectera sur l'interface de configuration pourra
+ configurer le login/mot de passe et configurer le serveur à votre
+ place. Vous ne le souhaitez sûrement pas. Merci de spécifier un
+ login ou d'accepter celui par défaut.
 
 Template: caudium/config_password
 Type: password
@@ -214,3 +221,7 @@ Description: Configuration interface password
 Description-pl: Has³o dostêpu do interfejsu konfiguracyjnego.
  Has³o dostêpu do interfejsu konfiguracyjnego. Domy¶ln± warto¶ci±
  has³a jest 'password' - ZALECA siê zmianê domy¶lnej warto¶ci!
+Description-fr: Mot de passe pour l'interface de configuration.
+ Il s'agit du mot de passe pour accéder à l'interface de configuration.
+ La valeur par défaut est 'password'. Il est EXTREMEMENT RECOMMANDE
+ de changer le mot de passe par défaut!
