@@ -17,7 +17,7 @@ dnl when linking
 AC_CHECK_LIB(iconv, iconv)
 dnl There is also another call in libiconv that can
 dnl be used
-AC_CHECL_LIB(iconv, libiconv)
+AC_CHECK_LIB(iconv, libiconv)
 
 
 AC_CHECK_HEADERS( sablot.h )
