@@ -66,7 +66,7 @@ inherit "color";
 inherit "fonts";
 
 // The datashuffler program
-#if constant(spider.shuffle) && (defined(THREADS) || defined(__NT__))
+#if constant(spider.shuffle) && defined(THREADS) 
 constant pipe = (program)"smartpipe";
 #else
 constant pipe = Pipe.pipe;
@@ -77,11 +77,7 @@ constant pipe = Pipe.pipe;
 constant __caudium_version__ = "1.0";
 constant __caudium_build__ = "8";
 
-#ifdef __NT__
-constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+"-NT";
-#else
 constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__;
-#endif
 
 #if _DEBUG_HTTP_OBJECTS
 mapping httpobjects = ([]);
@@ -192,11 +188,11 @@ private static void really_low_shutdown(int exit_code)
 private static void low_shutdown(int exit_code)
 {
   // Change to root user if possible ( to kill the start script... )
-#if efun(seteuid)
+#if constant(seteuid)
   seteuid(getuid());
   setegid(getgid());
 #endif
-#if efun(setuid)
+#if constant(setuid)
   setuid(0);
 #endif
   stop_all_modules();
@@ -213,7 +209,6 @@ private static void low_shutdown(int exit_code)
       // This has to be refined in some way. It is not all that nice to do
       // it like this (write a file in /tmp, and then exit.)  The major part
       // of code to support this is in the 'start' script.
-#ifndef __NT__
 #ifdef USE_SHUTDOWN_FILE
       // Fallback for systems without geteuid, Caudium will (probably)
       // not be able to kill the start-script if this is the case.
@@ -235,7 +230,6 @@ private static void low_shutdown(int exit_code)
 	kill(getppid(), signum("SIGINTR"));
 	kill(getppid(), signum("SIGHUP"));
       }
-#endif /* !__NT__ */
     }
   }
 
@@ -1316,7 +1310,6 @@ private string get_my_url()
 
 int set_u_and_gid()
 {
-#ifndef __NT__
   string u, g;
   int uid, gid;
   array pw;
@@ -1425,7 +1418,6 @@ int set_u_and_gid()
       return !!u;
     }
   }
-#endif
   return 0;
 }
 
@@ -2841,21 +2833,6 @@ private void define_global_variables( int argc, array (string) argv )
 
 // Get the current domain. This is not as easy as one could think.
 
-#ifdef __NT__
-string get_tcpip_param(string val)
-{
-  foreach(({
-    "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters",
-    "SYSTEM\\CurrentControlSet\\Services\\VxD\\MSTCP"
-  }),string key)
-  {
-    catch {
-      return RegGetValue(HKEY_LOCAL_MACHINE, key, val);
-    };
-  }
-}
-#endif
-
 string get_domain(int|void l)
 {
   array f;
@@ -2895,9 +2872,6 @@ string get_domain(int|void l)
   }
 #endif
 #endif
-#ifdef __NT__
-  s=get_tcpip_param("Domain")||"";
-#else
   if(!s) {
     t = Stdio.read_bytes("/etc/resolv.conf");
     if(t) {
@@ -2915,7 +2889,6 @@ string get_domain(int|void l)
   } else {
     s="unknown"; 
   }
-#endif
   return s;
 }
 
@@ -3276,7 +3249,6 @@ private string find_arg(array argv, array|string shortform,
 
 private void fix_root(string to)
 {
-#ifndef __NT__
   if(getuid())
   {
     perror("It is impossible to chroot() if the server is not run as root.\n");
@@ -3286,18 +3258,16 @@ private void fix_root(string to)
   if(!chroot(to))
   {
     perror("Caudium: Cannot chroot to "+to+": ");
-#if efun(real_perror)
+#if constant(real_perror)
     real_perror();
 #endif
     return;
   }
   perror("Root is now "+to+".\n");
-#endif
 }
 
 void create_pid_file(string where)
 {
-#ifndef __NT__
   if(!where) return;
   where = replace(where, ({ "$pid", "$uid" }), 
 		  ({ (string)getpid(), (string)getuid() }));
@@ -3305,7 +3275,6 @@ void create_pid_file(string where)
   rm(where);
   if(catch(Stdio.write_file(where, sprintf("%d\n%d", getpid(), getppid()))))
     perror("I cannot create the pid file ("+where+").\n");
-#endif
 }
 
 // External multi-threaded data shuffler. This leaves caudium free to

@@ -461,27 +461,17 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 
   if (caudium_fstat(mast))
     preargs += ({ "-m"+mast });
-#ifdef __NT__
-  foreach(new_master->pike_include_path, string s)
-    preargs += ({ "-I"+s });
-  foreach(new_master->pike_module_path, string s)
-    preargs += ({ "-M"+s });
-  foreach(new_master->pike_program_path, string s)
-    preargs += ({ "-P"+s });
-#endif
   object proc = Process.create_process(({ pikebin }) + preargs + args, ([
     "toggle_uid":1,
     "stdin":stdin,
     "stdout":stdout,
     "stderr":stderr,
     "cwd":wd,
-#ifndef __NT__    
     "env":getenv() + ([
       "PIKE_INCLUDE_PATH": new_master->pike_include_path * ":",
       "PIKE_MODULE_PATH": new_master->pike_module_path * ":",
       "PIKE_PROGRAM_PATH": new_master->pike_program_path * ":",
     ]),
-#endif    
   ]));
 
   if (proc) {
@@ -683,7 +673,6 @@ void load_caudium()
 #endif
   
   // Attempt to resolv cross-references...
-#ifndef __NT__
   if(!getuid())
     add_constant("Privs", myprivs(this_object()));
   else  // No need, we are not running as root.
@@ -695,17 +684,9 @@ void load_caudium()
     Privs = ((program)"privs");
     add_constant("Privs", Privs);
   }
-#else
-  /* NT */
-  add_constant("Privs", (Privs=empty_class));
-  caudium = really_load_caudium();
-#endif
+
   perror("Caudium version "+caudium->cvs_version+"\n"
-	 "Caudium release "+caudium->real_version+"\n"
-#ifdef __NT__
-	 "Running on NT\n"
-#endif
-    );
+	 "Caudium release "+caudium->real_version+"\n");
   nwrite = caudium->nwrite;
 }
 

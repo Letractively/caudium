@@ -30,12 +30,6 @@
 
 /* Da CGI module */
 
-#if !defined(__NT__) && !defined(__AmigaOS__)
-# define UNIX 1
-#else
-# define UNIX 0
-#endif
-
 #include <caudium.h>
 #include <module.h>
 inherit "module";
@@ -138,7 +132,6 @@ string trim( string what )
 #define DWERROR(X)
 #endif /* CGI_DEBUG */
 
-#if UNIX
 /*
 ** All this code to handle UID, GID and some other permission
 ** problems gracefully.
@@ -242,7 +235,6 @@ array verify_access( object id )
     us = ({ getuid(), getgid() });
   return ({ us[0], us[1], init_groups( us[0], us[1] ) });
 }
-#endif
 
 
 /* Basic wrapper.
@@ -589,67 +581,6 @@ class CGIWrapper
   }
 }
 
-#ifdef __NT__
-mapping(string:object) nt_opencommands = ([]);
-
-class NTOpenCommand
-{
-  static array(string) line;
-  static array(string) repsrc;
-  static int starpos;
-
-  static int expiry;
-
-  int expired()
-  {
-    return time(1)>expiry;
-  }
-
-  array(string) open(string file, array(string) args)
-  {
-    array(string) res;
-    res = Array.map(line, replace, repsrc, 
-		    (({file})+args+
-		     (sizeof(args)+1>=sizeof(repsrc)? ({}) :
-		      allocate(sizeof(repsrc)-sizeof(args)-1, "")))
-		    [..sizeof(repsrc)-1]);
-    if(starpos>=0)
-      res = res[..starpos-1]+args+res[starpos+1..];
-    return res;
-  }
-
-  void create(string ext)
-  {    
-    string ft, cmd;
-
-    catch {
-      ft = RegGetValue(HKEY_CLASSES_ROOT, ext, "");
-      cmd = RegGetValue(HKEY_CLASSES_ROOT, ft+"\\shell\\open\\command", "");
-    };
-    if(!ft)
-      error("Unknown extension "+ext+"\n");
-    else if(!cmd)
-      error("No open command for filetype "+ft+"\n");
-    else {
-      line = cmd/" "-({""});
-      starpos = search(line, "%*");
-      int i=-1, n=0;
-      do {
-	int t;
-	i = search(cmd, "%", i+1);
-	if(i>=0 && sscanf(cmd[i+1..], "%d", t)==1 && t>n)
-	  n=t;
-      } while(i>=0);
-      repsrc = Array.map(indices(allocate(n)), lambda(int a) {
-						 return sprintf("%%%d", a+1);
-					       });
-    }
-    expiry = time(1)+600;
-    nt_opencommands[ext]=this_object();
-  }
-}
-#endif
-
 class CGIScript
 {
   string command;
@@ -665,14 +596,10 @@ class CGIScript
   string tosend;   // data from the client to the script.
   Stdio.File ffd; // pipe from the client to the script
   object mid;
-#if UNIX
+
   mapping (string:int)    limits;
   int uid, gid;  
   array(int) extra_gids;
-#endif
-#ifdef __NT__
-  function(string,array(string):array(string)) nt_opencommand;
-#endif
 
   void check_pid()
   {
@@ -784,7 +711,6 @@ class CGIScript
     ]);
     stdin = stdin->pipe(); /* Stdio.PROP_IPC | Stdio.PROP_NONBLOCKING */
 
-#if UNIX
     if(!getuid())
     {
       if (uid >= 0) {
@@ -824,14 +750,8 @@ class CGIScript
     }
     if( limits )
       options->rlimit = limits;
-#endif
 
-#ifdef __NT__
-    if(!(pid = Process.create_process( nt_opencommand(command, arguments),
-				       options ))) 
-#else
     if(!(pid = Process.create_process( ({ command }) + arguments, options ))) 
-#endif /* __NT__ */
       error("Failed to create CGI process.\n");
     if(QUERY(kill_call_out))
       call_out( kill_script, QUERY(kill_call_out)*60 );
@@ -862,7 +782,6 @@ class CGIScript
               ", thus it's not possible to run it as a CGI script.\n");
     }
     command = id->realfile;
-#if UNIX
 #define LIMIT(L,X,Y,M,N) if(query(#Y)!=N){if(!L)L=([]);L->X=query(#Y)*M;}
     [uid,gid,extra_gids] = verify_access( id );
     LIMIT( limits, core, coresize, 1, -2 );
@@ -874,19 +793,6 @@ class CGIScript
     LIMIT( limits, map_mem, datasize, 1024, -2 );
     LIMIT( limits, mem, datasize, 1024, -2 );
 #undef LIMIT
-#endif
-
-#ifdef __NT__
-    {
-      string extn = "exe";
-      sscanf(reverse(command), "%s.", extn);
-      extn = "."+lower_case(reverse(extn));
-      object ntopencmd = nt_opencommands[extn];
-      if(!ntopencmd || ntopencmd->expired())
-	ntopencmd = NTOpenCommand(extn);
-      nt_opencommand = ntopencmd->open;    
-    }
-#endif
 
     environment =(QUERY(env)?getenv():([]));
     environment |= global_env;
@@ -968,7 +874,6 @@ mapping handle_file_extension(object o, string e, object id)
   if(!QUERY(ex))
     return 0;
 
-#if UNIX
   if(o && !(o->stat()[0]&0111))
     if(QUERY(noexec))
       return 0;
@@ -978,7 +883,6 @@ mapping handle_file_extension(object o, string e, object id)
 			     "The script you tried to run is not executable."
 			     "Please contact the server administrator about "
 			     "this problem.</b>");
-#endif
   return http_stream( CGIScript( id )->run()->get_fd() );
 }
 
@@ -996,7 +900,7 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
 
   array stat=stat_file(f,id);
   if(!stat) return 0;
-#if UNIX
+
   if(!(stat[0]&0111))
   {
     if(QUERY(noexec))
@@ -1008,7 +912,6 @@ int|object(Stdio.File)|mapping find_file( string f, object id )
 			   "Please contact the server administrator about "
 			   "this problem.</b>");
   }
-#endif
 
   if(stat[1] < 0)
     if(!QUERY(ls))
@@ -1095,12 +998,7 @@ void create(object conf)
 	 "of the Apache server (the extensions to handle can be set in the "
 	 "CGI-script extensions variable).");
 
-  defvar("ext",
-	 ({"cgi",
-#ifdef __NT__
-	   "exe",
-#endif	   
-	 }), "CGI-script extensions", TYPE_STRING_LIST,
+  defvar("ext", ({"cgi",}), "CGI-script extensions", TYPE_STRING_LIST,
          "All files ending with these extensions, will be parsed as "+
 	 "CGI-scripts.");
 
@@ -1157,12 +1055,9 @@ void create(object conf)
            "higher",
            "realtime",
          }) 
-#if UNIX
          ,lambda(){return QUERY(nice);}
-#endif
          );
   
-#if UNIX
   defvar("noexec", 1, "Treat non-executable files as ordinary files",
 	 TYPE_FLAG,
 	 "If this flag is set, non-executable files will be returned "
@@ -1229,7 +1124,6 @@ void create(object conf)
 
   defvar("stack", -2, "Limits: Stack size", TYPE_INT|VAR_EXPERT,
 	 "The maximum size of the stack used, in kilobytes. -2 is unlimited.");
-#endif
 
   defvar("kill_call_out", 0, "Limits: Time before killing scripts",
 	 TYPE_INT_LIST|VAR_MORE,

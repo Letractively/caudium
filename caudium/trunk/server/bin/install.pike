@@ -615,9 +615,7 @@ void main(int argc, string *argv)
   {
     object envobj = Environment("etc/environment");
 
-#ifndef __NT__
     config_env(envobj);
-#endif
 
     if(envobj->finalize()) {
       if(find_arg(argv, 0, "recheck-env")) {

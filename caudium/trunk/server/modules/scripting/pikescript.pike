@@ -312,15 +312,12 @@ mapping handle_file_extension(object f, string e, object id)
   
   if (!functionp(fun = scripts[id->not_query])) {
     file=f->read(0x7ffffff);   // fix this?
-#if constant(cpp)
     if(id->realfile)
       file = cpp(file, id->realfile);
     else
       file = cpp(file);
-#endif
     array (function) ban = allocate(6);
-#ifndef __NT__
-#if efun(setegid)
+#if constant(setegid)
     ban[0] = setegid;
     ban[2] = seteuid;
 #endif
@@ -333,7 +330,6 @@ mapping handle_file_extension(object f, string e, object id)
     add_constant("setgid", 0);
     add_constant("setuid", 0);
     //add_constant("spawne", 0);
-#endif
     ban[5] = cd;
     add_constant("cd", 0);
     object e = ErrorContainer();
@@ -358,7 +354,6 @@ mapping handle_file_extension(object f, string e, object id)
       throw( err );
     }
     
-#ifndef __NT__
 #if efun(setegid)
     add_constant("setegid", ban[0]);
     add_constant("seteuid", ban[2]);
@@ -366,7 +361,6 @@ mapping handle_file_extension(object f, string e, object id)
     add_constant("setgid", ban[1]);
     add_constant("setuid", ban[3]);
     //add_constant("spawne", ban[4]);
-#endif
     add_constant("cd", ban[5]);
     
     if(err) {

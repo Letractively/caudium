@@ -274,12 +274,7 @@ void create()
         defvar ("CI_default_attrname_uid", "uidnumber",
 		   "Defaults: User ID map", TYPE_STRING,
                    "The mapping between passwd:uid and LDAP.");
-        defvar ("CI_default_gid",
-#ifdef __NT__
-		0,
-#else		
-		getegid(),
-#endif		
+        defvar ("CI_default_gid", getegid(),
 		"Defaults: Group ID", TYPE_INT,
                    "Same as User ID, only it refers rather to the group.");
         defvar ("CI_default_attrname_gid", "gidnumber",

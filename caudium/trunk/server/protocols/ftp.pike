@@ -311,11 +311,7 @@ class FromAsciiWrapper
   static string convert(string s)
   {
     converted += sizeof(s);
-#ifdef __NT__
-    return(replace(replace(s, "\r\n", "\n"), "\n", "\r\n"));
-#else /* !__NT__ */
     return(replace(s, "\r\n", "\n"));
-#endif /* __NT__ */
   }
 }
 
