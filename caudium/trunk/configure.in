@@ -2,7 +2,6 @@
 # $Id$
 #
 
-prefix=$PWD
 AC_INIT(Makefile.in)
 
 
@@ -208,8 +207,6 @@ AC_SUBST(LD)
 ### Pike Detection ###
 ######################
 
-DEFPIKE="/usr/local/bin/pike"
-
 AC_ARG_WITH(pike, 
 [  --with-pike[=binary]    Use the specified Pike. ],
 [
@@ -227,8 +224,10 @@ AC_ARG_WITH(pike,
 ])
 RESULT=no
 echo "looking for Pike..."
-
-for a in $DEFPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
+if test "$prefix" != "NONE"; then
+  PREFIXPIKE="$prefix/bin/pike"
+fi
+for a in $DEFPIKE $PREFIXPIKE /usr/local/bin/pike /opt/pike/bin/pike /opt/local/bin/pike \
 		 /usr/gnu/bin/pike /usr/bin/pike; do    
   if test  "x$PIKE" != "x" ; then
     break;
