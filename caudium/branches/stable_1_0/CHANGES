@@ -1,7 +1,10 @@
-Changes in Caudium 1.0.50 (stable release 4, 2002-05-15)
+Changes in Caudium 1.0.52 (stable release 4, 2002-05-16)
 --------------------------------------------------------
 - Fixed #530674: passive mode FTP connection problem (with Mozilla
   and derivative browsers).
+
+Changes in Caudium 1.0.50 (stable release 4, 2002-05-15)
+--------------------------------------------------------
 - <if exists="file"> shouldn't use the cache. Thanks to Endre Hirling.
 - Fixed bug #542177 that makes incorrect listings from directories2.pike.
 - Fixed SF bug #530674
