@@ -3464,6 +3464,29 @@ int port_open(array prt)
 }
 
 
+static string netcraft_submit()
+{
+  if (query("netcraft_done"))
+    return "";
+
+  string ret =
+    "<blockquote><table width='400'><tr><td>" 
+    "The Caudium Group would appreciate if you agreed to submit the name "
+    "of this virtual domain to the <a href='http://netcraft.com' target='self_'>NetCraft.Com</a> "
+    "server survey. That would help making Caudium more recognized and popular. "
+    "Thank you in advance for your support!</td></tr>"
+    "<tr><td>"
+    "<form action='/(netcraft)/Configurations/%s/Global/netcraft_done' method='POST' name='netcraftform' target='self_'>"
+    "<input type='hidden' name='/Configurations/%s/Global/netcraft_done' value='1'>"
+    "<input type='hidden' name='URL' value='%s'>"
+    "<input type='hidden' name='random' value='%d'>"
+    "<input type='submit' name='goahead' value='OK, go ahead'>&nbsp;"
+    "<input type='submit' name='forgetit' value='Forget it.'>"
+    "</form></td></tr></table></blockquote><br>";
+
+  return sprintf(ret, name, name, query("MyWorldLocation"), random(123456));
+}
+
 string desc()
 {
   string res="";
@@ -3482,21 +3505,21 @@ string desc()
     array handlers = ({});
     foreach(caudium->configurations, object c)
       if(c->modules["ip-less_hosts"] || c->modules["hostmatch"])
-	handlers+=({({http_encode_string("/Configurations/"+c->name),
-			strlen(c->query("name"))?c->query("name"):c->name})});
+        handlers+=({({http_encode_string("/Configurations/"+c->name),
+                      strlen(c->query("name"))?c->query("name"):c->name})});
 
     
     if(sizeof(handlers)==1)
     {
       res = "This server is handled by the ports in <a href=\""+handlers[0][0]+
-	"\">"+handlers[0][1]+"</a><br>\n";
+        "\">"+handlers[0][1]+"</a><br>\n";
     } else if(sizeof(handlers)) {
       res = "This server is handled by the ports in any of the following servers:<br>";
       foreach(handlers, array h)
-	res += "<a href=\""+h[0]+"\">"+h[1]+"</a><br>\n";
+        res += "<a href=\""+h[0]+"\">"+h[1]+"</a><br>\n";
     } else
       res=("There are no ports configured, and no virtual server seems "
-	   "to have support for ip-less virtual hosting enabled<br>\n");
+           "to have support for ip-less virtual hosting enabled<br>\n");
   }
   
   foreach(QUERY(Ports), port)
@@ -3506,15 +3529,15 @@ string desc()
     prtfile = port[1] + "://";
     switch(port[1][0..2])
     {
-     case "ssl":
-      prt = "https://";
-      break;
-     case "ftp":
-      prt = "ftp://";
-      break;
+        case "ssl":
+          prt = "https://";
+          break;
+        case "ftp":
+          prt = "ftp://";
+          break;
       
-     default:
-      prt = (modprt = make_proto_name(port[1]))+"://";
+        default:
+          prt = (modprt = make_proto_name(port[1]))+"://";
     }
     
     if(port[2] && port[2]!="ANY") {
@@ -3534,10 +3557,11 @@ string desc()
       res += "<font color=darkblue><b>Open:</b></font> <a target=server_view href=\""+prt+"\">"+prtfile+"</a> \n<br>";
     else
       res += "<font color=red><b>Not open:</b> <a target=server_view href=\""+
-	prt+"\">"+prtfile+"</a></font> <br>\n";
+        prt+"\">"+prtfile+"</a></font> <br>\n";
   }
   return (res+"<font color=darkgreen>Server URL:</font> <a target=server_view "
-	  "href=\""+query("MyWorldLocation")+"\">"+query("MyWorldLocation")+"</a><p>");
+          "href=\""+query("MyWorldLocation")+"\">"+query("MyWorldLocation")+"</a><p>"
+          + netcraft_submit());
 }
 
 // BEGIN SQL
@@ -3739,6 +3763,11 @@ void create(string config)
 
   perror("Creating virtual server '"+config+"'\n");
 
+  defvar("netcraft_done", 0, "Netcraft submission done", TYPE_INT | VAR_MORE,
+         "If different than 0, the domain has been submitted to Netcraft "
+         "already and the submission form won't appear at the top of the "
+         "virtual server's description.");
+  
 #ifdef ENABLE_RAM_CACHE
 // for now only theese two. In the future there might be more variables.
   defvar( "data_cache_size", 2048, "Data Cache:Cache size",

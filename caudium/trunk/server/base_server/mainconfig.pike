@@ -408,156 +408,156 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
   mixed tmp;
   switch(type)
   {
-   case TYPE_CUSTOM:
-    return node->data[ VAR_MISC ][2]( var, type, node, allvars );
+      case TYPE_CUSTOM:
+        return node->data[ VAR_MISC ][2]( var, type, node, allvars );
     
-  case TYPE_MODULE_LIST:
-    return Array.map(var/"\000", find_module);
+      case TYPE_MODULE_LIST:
+        return Array.map(var/"\000", find_module);
 
-  case TYPE_MODULE:
-   return find_module((var/"\000")[0], node->config());
+      case TYPE_MODULE:
+        return find_module((var/"\000")[0], node->config());
 
-  case TYPE_PORTS:  
-   /*
-     Encoded like this:
+      case TYPE_PORTS:  
+        /*
+          Encoded like this:
 
-     new_port    --> Add a new port
-     ok[_<ID>]   --> Save the value for all or one port
-     delete_<ID> --> Delete a port
+          new_port    --> Add a new port
+          ok[_<ID>]   --> Save the value for all or one port
+          delete_<ID> --> Delete a port
 
-     ---- { A port is defined by:
-     port_<ID> == INT
-     protocol_<ID> == STRING
-     ip_number_<ID> == STRING
-     arguments_<ID> == STRING
-     } ---- 
-    */
-   if(allvars->new_port)
-     return node->data[VAR_VALUE] + ({ ({ 80, "http", "ANY", "" }) });
+          ---- { A port is defined by:
+          port_<ID> == INT
+          protocol_<ID> == STRING
+          ip_number_<ID> == STRING
+          arguments_<ID> == STRING
+          } ---- 
+        */
+        if(allvars->new_port)
+          return node->data[VAR_VALUE] + ({ ({ 80, "http", "ANY", "" }) });
 
-   array op = copy_value(node->data[VAR_VALUE]);
-   int i;
-   for(i = 0; i<sizeof(op); i++)
-   {
-     if(!allvars["delete_"+i])
-     {
-       if(allvars["other_"+i] && (allvars["other_"+i] != op[i][2]))
-       {
-	 allvars["ip_number_"+i] = allvars["other_"+i];
-	 ip_number_list += ({ allvars["other_"+i] });
-       }
-       op[i][0] = (int)allvars["port_"+i]||op[i][0];
-       op[i][1] = allvars["protocol_"+i]||op[i][1];
-       op[i][2] = allvars["ip_number_"+i]||op[i][2];
-       string args = "";
+        array op = copy_value(node->data[VAR_VALUE]);
+        int i;
+        for(i = 0; i<sizeof(op); i++)
+        {
+          if(!allvars["delete_"+i])
+          {
+            if(allvars["other_"+i] && (allvars["other_"+i] != op[i][2]))
+            {
+              allvars["ip_number_"+i] = allvars["other_"+i];
+              ip_number_list += ({ allvars["other_"+i] });
+            }
+            op[i][0] = (int)allvars["port_"+i]||op[i][0];
+            op[i][1] = allvars["protocol_"+i]||op[i][1];
+            op[i][2] = allvars["ip_number_"+i]||op[i][2];
+            string args = "";
        
-       if(allvars["key_"+i] && strlen(allvars["key_"+i]))
-	 args += "key-file "+allvars["key_"+i]+"\n";
-       if(allvars["cert_"+i] && strlen(allvars["cert_"+i]))
-	 args += "cert-file "+allvars["cert_"+i]+"\n";
+            if(allvars["key_"+i] && strlen(allvars["key_"+i]))
+              args += "key-file "+allvars["key_"+i]+"\n";
+            if(allvars["cert_"+i] && strlen(allvars["cert_"+i]))
+              args += "cert-file "+allvars["cert_"+i]+"\n";
        
-       if(strlen(args))
-	 op[i][3] = args;
+            if(strlen(args))
+              op[i][3] = args;
        
-     } else  // Delete this port.
-       op[i]=0;
-   }
-   return op  - ({ 0 });
+          } else  // Delete this port.
+            op[i]=0;
+        }
+        return op  - ({ 0 });
 
-   case TYPE_DIR_LIST:
-    array foo;
-    foo=Array.map((var-" ")/",", lambda(string var, object node) {
-      if (!strlen( var ) || !Stdio.is_dir(var))
-      {
-	if(node->error)	
-	  node->error += ", " +var + " is not a directory";
-	else
-	  node->error = var + " is not a directory";
-	return 0;
-      }
-      if(var[-1] != '/')
-	return var + "/";
-      return var;
-    }, node);
+      case TYPE_DIR_LIST:
+        array foo;
+        foo=Array.map((var-" ")/",", lambda(string var, object node) {
+                                       if (!strlen( var ) || !Stdio.is_dir(var))
+                                       {
+                                         if(node->error)	
+                                           node->error += ", " +var + " is not a directory";
+                                         else
+                                           node->error = var + " is not a directory";
+                                         return 0;
+                                       }
+                                       if(var[-1] != '/')
+                                         return var + "/";
+                                       return var;
+                                     }, node);
     
-    if(sizeof(foo-({0})) != sizeof(foo))
-      return 0;
-    return foo;
+        if(sizeof(foo-({0})) != sizeof(foo))
+          return 0;
+        return foo;
     
-   case TYPE_DIR:
-    array st;
-    if (!strlen( var ) || !Stdio.is_dir(var))
-    {
-      node->error = var + " is not a directory";
-      return 0;
-    }
-    if(var[-1] != '/')
-      return var + "/";
-    return var;
+      case TYPE_DIR:
+        array st;
+        if (!strlen( var ) || !Stdio.is_dir(var))
+        {
+          node->error = var + " is not a directory";
+          return 0;
+        }
+        if(var[-1] != '/')
+          return var + "/";
+        return var;
 
-   case TYPE_EXISTING_FILE:
-     if (!strlen(var) || !Stdio.is_file(var)) {
-       node->error = "the file \"" +var + "\" cannot be found";
-       return 0;
-     }
-     return var;
+      case TYPE_EXISTING_FILE:
+        if (!strlen(var) || !Stdio.is_file(var)) {
+          node->error = "the file \"" +var + "\" cannot be found";
+          return 0;
+        }
+        return var;
     
-   case TYPE_TEXT_FIELD:
-    var -= "\r";
-   case TYPE_FONT:
-   case TYPE_STRING:
-   case TYPE_FILE:
-   case TYPE_LOCATION:
-    return (var/"\000")[0];
+      case TYPE_TEXT_FIELD:
+        var -= "\r";
+      case TYPE_FONT:
+      case TYPE_STRING:
+      case TYPE_FILE:
+      case TYPE_LOCATION:
+        return (var/"\000")[0];
     
-   case TYPE_PASSWORD:
-    return crypt((var/"\000")[0]);
+      case TYPE_PASSWORD:
+        return crypt((var/"\000")[0]);
     
-   case TYPE_FLAG:
-    return lower_case((var/"\000")[0]) == "yes";
+      case TYPE_FLAG:
+        return lower_case((var/"\000")[0]) == "yes";
     
-   case TYPE_INT:
-    if (!sscanf( var, "%d", tmp ))
-    {
-      node->error= var + " is not an integer";
-      return 0;
-    }
-    return tmp;
+      case TYPE_INT:
+        if (!sscanf( var, "%d", tmp ))
+        {
+          node->error= var + " is not an integer";
+          return 0;
+        }
+        return tmp;
     
-   case TYPE_FLOAT:
-    if (!sscanf( var, "%f", tmp ))
-    {
-      node->error= var + " is not a arbitary precision floating point number";
-      return 0;
-    }
-    return tmp;
+      case TYPE_FLOAT:
+        if (!sscanf( var, "%f", tmp ))
+        {
+          node->error= var + " is not a arbitary precision floating point number";
+          return 0;
+        }
+        return tmp;
     
-   case TYPE_INT_LIST:
-    if(node->data[VAR_MISC])
-      return (int)var;
-    else
-      return Array.map((var-" ")/",", lambda(string s){ 
-	return (int)s;
-      });
+      case TYPE_INT_LIST:
+        if(node->data[VAR_MISC])
+          return (int)var;
+        else
+          return Array.map((var-" ")/",", lambda(string s){ 
+                                            return (int)s;
+                                          });
     
     
-   case TYPE_STRING_LIST:
-    if(node->data[VAR_MISC])
-      return var;
-    else
-      return (var-" ")/",";
+      case TYPE_STRING_LIST:
+        if(node->data[VAR_MISC])
+          return var;
+        else
+          return (var-" ")/",";
     
-   case TYPE_COLOR:
-    int red, green, blue;
+      case TYPE_COLOR:
+        int red, green, blue;
     
-    if (sscanf( var, "%d:%d:%d", red, green, blue ) != 3
-	|| red < 0 || red > 255 || green < 0 || green > 255
-	|| blue < 0 || blue > 255)
-    {
-      node->error = var + " is not a valid color specification";
-      return 0;
-    }
-    return (red << 16) + (green << 8) + blue;
+        if (sscanf( var, "%d:%d:%d", red, green, blue ) != 3
+            || red < 0 || red > 255 || green < 0 || green > 255
+            || blue < 0 || blue > 255)
+        {
+          node->error = var + " is not a valid color specification";
+          return 0;
+        }
+        return (red << 16) + (green << 8) + blue;
   }
   error("Unknown type.\n");
 }
@@ -1333,7 +1333,10 @@ void check_login(object id)
 mapping configuration_parse(object id)
 {
   array (string) res=({});
-  mixed tmp;
+  mixed          tmp;
+  string         do_netcraft = 0;
+  string         varval = 0;
+  
   // Is it an image?
   if(sscanf(id->not_query, "/image/%s", tmp))
     return file_image(tmp) || (["data":"No such image"]);
@@ -1348,16 +1351,30 @@ mapping configuration_parse(object id)
     if(strlen(caudium->QUERY(ConfigurationIPpattern)) &&
        !glob(caudium->QUERY(ConfigurationIPpattern),id->remoteaddr))
       return stores("Permission denied.\n");
+
+  // it might be a netcraft redirect
+  if (sizeof(id->prestate) && id->prestate->netcraft) {
+    string ncurl="http://uptime.netcraft.com/up/graph?mode_u=off&mode_w=on&site=%s&submit=Examine";
+
+      
+    if (id->variables && id->variables->goahead && stringp(id->variables->URL) && sizeof(id->variables->URL)) {
+      array(string) t = http_decode_url(id->variables->URL) / "/";
+
+      if (t && sizeof(t) >= 3)
+        do_netcraft = sprintf(ncurl, t[2]);
+    }
+  }
   
   // Permission denied by userid?
   if(!id->misc->read_allow)
   {
     if(!(strlen(caudium->QUERY(ConfigurationPassword))
-	 && strlen(caudium->QUERY(ConfigurationUser))))
+         && strlen(caudium->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
       return http_auth_failed("Caudium maintenance"); // Denied
   } else {
+    
     id->prestate = aggregate_multiset(@indices(id->prestate)
                                       &({"fold","unfold"}));
 
@@ -1370,13 +1387,13 @@ mapping configuration_parse(object id)
     return auto_image(tmp,id) || (["data":"No such image"]);
 
   o = find_node(id->not_query); // Find the requested node (from the filename)
-
+  
   if(!o) // Bad node, perhaps an old bookmark or something.
   {
     id->referrer = 0;
     foreach(indices(selected_nodes), string n)
       if(selected_nodes[n] == id->not_query)
-	selected_nodes[n] = "/"+n;
+        selected_nodes[n] = "/"+n;
     return std_redirect(0, id);
   } else if(o == root) {
     // The URL is http://config-url/, not one of the top nodes, but
@@ -1385,413 +1402,425 @@ mapping configuration_parse(object id)
 
     // We also need to determine wether this is the full or the
     // lobotomized international version.
-
     return http_string_answer(cif->head("Caudium " +
-					   caudium->__caudium_version__ + "." +
-					caudium->__caudium_build__)+
+                                        caudium->__caudium_version__ + "." +
+                                        caudium->__caudium_build__)+
                               cif->body() +
-			      cif->status_row(root)+
-			      display_tabular_header(root)+
-			      Stdio.read_bytes("etc/config.html"),"text/html");
+                              cif->status_row(root)+
+                              display_tabular_header(root)+
+                              Stdio.read_bytes("etc/config.html"),"text/html");
   }
-  
+
   if(sizeof(id->prestate))
   {
     object mod;
+
+    // this is dumb - why restrict to just one prestate? /grendel
     switch(indices(id->prestate)[0])
     {
       // It is possible to mark variables as 'VAR_EXPERT', this
       // will make it impossible to configure them whithout the
       // 'expert' mode. It can be useful.
-    case "expert":   expert_mode = 1;  break;
-    case "noexpert": expert_mode = 0;  break;
+        case "expert":   expert_mode = 1;  break;
+        case "noexpert": expert_mode = 0;  break;
 
-    case "morevars":   more_mode = 1; save_more_mode(); break;
-    case "nomorevars": more_mode = 0; save_more_mode(); break;
+        case "morevars":   more_mode = 1; save_more_mode(); break;
+        case "nomorevars": more_mode = 0; save_more_mode(); break;
       
-      // Fold and unfold nodes, this is _very_ simple, once all the
-      // supporting code was writte.
-    case "fold":     o->folded=1;      break;
-    case "unfold":   o->folded=0;      break;
+          // Fold and unfold nodes, this is _very_ simple, once all the
+          // supporting code was writte.
+        case "fold":     o->folded=1;      break;
+        case "unfold":   o->folded=0;      break;
 
-    case "moredocs":   o->moredocs=1;      break;
-    case "lessdocs":   o->moredocs=0;      break;
+        case "moredocs":   o->moredocs=1;      break;
+        case "lessdocs":   o->moredocs=0;      break;
 
-    case "foldall":
-      o->map(lambda(object o) {	o->folded=1; });
-      break;
-
-
-    case "unfoldmodified":
-      o->map(lambda(object o) { if(o->changed) o->folded=0; });
-      break;
+        case "foldall":
+          o->map(lambda(object o) {	o->folded=1; });
+          break;
 
 
-      // There is no button for this in the configuration interface,
-      // the results are quite horrible, especially when applied to
-      // one of the top nodes.
-    case "unfoldall":
-      o->map(lambda(object o) { o->folded=0; });
-      break;
+        case "unfoldmodified":
+          o->map(lambda(object o) { if(o->changed) o->folded=0; });
+          break;
 
-     case "unfoldlevel":
-      object node;
-      node=o->down;
-      while(node)
-      {
-	node->folded=0;
-	node = node->next;
-      }
-      break;
+
+          // There is no button for this in the configuration interface,
+          // the results are quite horrible, especially when applied to
+          // one of the top nodes.
+        case "unfoldall":
+          o->map(lambda(object o) { o->folded=0; });
+          break;
+
+        case "unfoldlevel":
+          object node;
+          node=o->down;
+          while(node)
+          {
+            node->folded=0;
+            node = node->next;
+          }
+          break;
 
       
-      // And now the actual actions..
+          // And now the actual actions..
       
-      // Re-read a module from disk
-      // This is _not_ as easy as it sounds, since quite a lot of
-      // caches and stuff have to be invalidated..
-    case "refresh":
-    case "reload":
-      string name, modname;
-      mapping cmod;
+          // Re-read a module from disk
+          // This is _not_ as easy as it sounds, since quite a lot of
+          // caches and stuff have to be invalidated..
+        case "refresh":
+        case "reload":
+          string name, modname;
+          mapping cmod;
       
-      mod = module_of(o);
-      if(!mod || mod==caudium)
-	error("This module cannot be updated.\n");
-      name = module_short_name(mod, o->config());
-      if(!name)
-	error("This module cannot be updated");
-      sscanf(name, "%s#%*s", modname);
+          mod = module_of(o);
+          if(!mod || mod==caudium)
+            error("This module cannot be updated.\n");
+          name = module_short_name(mod, o->config());
+          if(!name)
+            error("This module cannot be updated");
+          sscanf(name, "%s#%*s", modname);
 
-      if(!(cmod = o->config()->modules[ modname ]))
- 	error("This module cannot be updated");
+          if(!(cmod = o->config()->modules[ modname ]))
+            error("This module cannot be updated");
       
-      o->save();
-      program oldprg = cache_lookup ("modules", modname);
-      mapping oldprgs = copy_value (master()->programs);
-      cache_remove("modules", modname);
+          o->save();
+          program oldprg = cache_lookup ("modules", modname);
+          mapping oldprgs = copy_value (master()->programs);
+          cache_remove("modules", modname);
 
-      if(!o->config()->load_module(modname))
-      {
-	mapping rep;
-	rep = http_string_answer("The reload of this module failed.\n"
-				 "This is (probably) the reason:\n<pre>"
-				 + caudium->last_error + "</pre>" );
-	return rep;
-      }
-      program newprg = cache_lookup ("modules", modname);
-      if(!o->config()->disable_module(name)) {
-	mapping rep;
-	rep = http_string_answer("Failed to disable this module.\n"
-				 "This is (probably) the reason:\n<pre>"
-				 + caudium->last_error + "</pre>" );
-	return rep;
-      }
-      cache_set ("modules", modname, newprg, 21600); // Do not compile again in enable_module.
-      if(!(mod=o->config()->enable_module(name))) {
-	mapping rep;
-	rep = http_string_answer("Failed to enable this module.\n"
-				 "This is (probably) the reason:\n<pre>"
-				 + caudium->last_error + "</pre>" );
-	// Recover..
-	master()->programs = oldprgs;
-	cache_set ("modules", modname, oldprg, 21600);
+          if(!o->config()->load_module(modname))
+          {
+            mapping rep;
+            rep = http_string_answer("The reload of this module failed.\n"
+                                     "This is (probably) the reason:\n<pre>"
+                                     + caudium->last_error + "</pre>" );
+            return rep;
+          }
+          program newprg = cache_lookup ("modules", modname);
+          if(!o->config()->disable_module(name)) {
+            mapping rep;
+            rep = http_string_answer("Failed to disable this module.\n"
+                                     "This is (probably) the reason:\n<pre>"
+                                     + caudium->last_error + "</pre>" );
+            return rep;
+          }
+          cache_set ("modules", modname, newprg, 21600); // Do not compile again in enable_module.
+          if(!(mod=o->config()->enable_module(name))) {
+            mapping rep;
+            rep = http_string_answer("Failed to enable this module.\n"
+                                     "This is (probably) the reason:\n<pre>"
+                                     + caudium->last_error + "</pre>" );
+            // Recover..
+            master()->programs = oldprgs;
+            cache_set ("modules", modname, oldprg, 21600);
 #ifdef MODULE_DEBUG
-	perror ("Modules: Trying to re-enable the old module.\n");
+            perror ("Modules: Trying to re-enable the old module.\n");
 #endif
-	o->config()->enable_module(name);
-	return rep;
-      }
+            o->config()->enable_module(name);
+            return rep;
+          }
 
-      o->clear();
+          o->clear();
 //    caudium->fork_it();
       
-      if(mappingp(o->data))
-      {
-	o->data = o->config()->modules[modname];
-	build_module(o);
-      } else {
-	object n = o->up;
-	n->clear();
-	n->data = n->config()->modules[modname];
-	build_module(n);
-      }
-      break;
+          if(mappingp(o->data))
+          {
+            o->data = o->config()->modules[modname];
+            build_module(o);
+          } else {
+            object n = o->up;
+            n->clear();
+            n->data = n->config()->modules[modname];
+            build_module(n);
+          }
+          break;
       
-      /* Shutdown Caudium... */
-    case "shutdown":	
-      return caudium->shutdown();
+          /* Shutdown Caudium... */
+        case "shutdown":	
+          return caudium->shutdown();
       
-      /* Restart Caudium, somewhat more nice. */
-    case "restart":	
-       return caudium->restart();
+          /* Restart Caudium, somewhat more nice. */
+        case "restart":	
+          return caudium->restart();
       
-       /* Rename a configuration. Not Yet Used... */
+          /* Rename a configuration. Not Yet Used... */
 #if 0
-    case "rename":
-      if(o->type == NODE_CONFIGURATION)
-      {
-	mv("configurations/"+o->data->name, 
-	   "configurations/"+id->variables->name);
-	o->data->name=id->variables->name;
-      }
-      break;
+        case "rename":
+          if(o->type == NODE_CONFIGURATION)
+          {
+            mv("configurations/"+o->data->name, 
+               "configurations/"+id->variables->name);
+            o->data->name=id->variables->name;
+          }
+          break;
 #endif /* 0 */
       
-      /* Clear any memory caches associated with this configuration */
-    case "zapcache":
-      object c = o->config();
-      if (c && c->clear_memory_caches)
-      {
-	c->clear_memory_caches();
-      }
-      break;
+          /* Clear any memory caches associated with this configuration */
+        case "zapcache":
+          object c = o->config();
+          if (c && c->clear_memory_caches)
+          {
+            c->clear_memory_caches();
+          }
+          break;
 
-      /* This only asks "do you really want to...", it does not delete
-       * the node */
-    case "delete":	
-     PUSH(cif->head("Caudium Configuration")+cif->body()+
-	  cif->status_row(o));
+          /* This only asks "do you really want to...", it does not delete
+           * the node */
+        case "delete":	
+          PUSH(cif->head("Caudium Configuration")+cif->body()+
+               cif->status_row(o));
 //     PUSH("<hr noshade>");
        
-      switch(o->type)
-      {
-       case NODE_CONFIGURATION:
-	PUSH("<font size=\"+2\">Do you really want to delete the configuration "+
-	     o->data->name + ", all its modules and their copies?"
-	     "\n\n<p></font>");
-	break;
-	
-       case NODE_MODULE_MASTER_COPY:
-       case NODE_MODULE:
-	PUSH("<font size=\"+2\">Do you really want to delete the module "+
-	     o->data->name + ", and its copies?\n\n<p></font>");
-	break;
-	
-       case NODE_MODULE_COPY_VARIABLES:
-	
-       case NODE_MODULE_COPY:
-	PUSH("<font size=\"+2\">Do you really want to delete this copy "
-	     " of the module "+ o->up->data->name + "?\n\n<p></font>");
-	break;
-	
-       case NODE_CONFIGURATIONS:
-	return stores("You don't want to do that...\n");
-      }
-      PUSH("<blockquote><font size=\"+2\"><i>This action cannot be"
-	   " undone.\n\n<p></font>"+ TABLEP("<table>", "")+
-	   "<tr><td><form action=\""+ o->path(1)+"\">"
-	   "<input type=submit value=\"No, I do not want to delete it\"> "
-	   "</form></td><td><form action=\"/(really_delete)"+ o->path(1)+
-	   "\"><input type=submit value=\"Go ahead\"></form></td></tr> "
-	   "</table></blockquote>");
-      
-      return stores(res*"");
-      break;
-      
-      /* When this has been called, the node will be * _very_ deleted
-       * The amount of work needed to delete a node does vary
-       * depending on the node, since there is no 'zap' function in
-       * the nodes at the moment. I will probably move this code into
-       * function-pointers in the nodes.
-       */
-
-    case "really_delete":
-      id->referrer = CONFIG_URL + o->up->path(1);
-      
-      switch(o->type)
-      {
-       case NODE_CONFIGURATION:
-	object oroot;
-	
-	for(i=0; i<sizeof(caudium->configurations); i++)
-	  if(caudium->configurations[i] == o->data)
-	    break;
-	
-	if(i==sizeof(caudium->configurations))
-	  error("Configuration not found.\n");
-	
-	caudium->remove_configuration(o->data->name);
-
-	if(caudium->configurations[i]->ports_open)
-	  Array.map(values(caudium->configurations[i]->ports_open), destruct);
-	destruct(caudium->configurations[i]);
-	
-	caudium->configurations = 
-	  caudium->configurations[..i-1] + caudium->configurations[i+1..];
-	
-	o->change(-o->changed);
-	o->dest();
-	break;
-	
-       case NODE_MODULE_COPY_VARIABLE:
-       case NODE_MODULE_COPY_VARIABLES:
-	// Ehum? Lets zap the module instead of it's variables...
-	o=o->up;
-	
-       case NODE_MODULE_COPY:
-	string name;
-	object n;
-	
-	name = module_short_name(o->data, o->config());
-	o->config()->disable_module(name);
-	// Remove the suitable part of the configuration file.
-	caudium->remove(name, o->config());
-	o->change(-o->changed);
-	n=o->up;
-	o->dest();
-	
-	if(!objectp(n))
-	{
-	  o=root; 
-	  // Error, really, no parent module for this module class.
-	} else {
-	  if(!sizeof(n->data->copies))
+          switch(o->type)
           {
-	    // No more instances in this module, let's zap the whole class.
-	    o=n->up; 
-	    
-	    n->change(-n->changed);
-	    n->dest();
-	    build_configuration(o);
-	    return std_redirect(o, 0); 
-	  } else
-	    o = n;
-	}
-	break;
+              case NODE_CONFIGURATION:
+                PUSH("<font size=\"+2\">Do you really want to delete the configuration "+
+                     o->data->name + ", all its modules and their copies?"
+                     "\n\n<p></font>");
+                break;
 	
-       case NODE_MODULE_MASTER_COPY:
-       case NODE_MODULE:
-	if(o->data->copies)
-	{
-	  if(sizeof(o->data->copies))
-	  {
-	    int i;
-	    array a,b;
-	    a=indices(o->data->copies);
-	    b=values(o->data->copies);
-	    name=o->config()->otomod[b[0]];
-	    i=sizeof(a);
-	    while(i--) 
-	    {
-	      o->config()->disable_module(name+"#"+a[i]);
-	      caudium->remove(name+"#"+a[i], o->config());
-	    }
-	  } else if(o->data->master) {
-	    name=o->config()->otomod[o->data->enabled];
-	  } 
-	} else if(o->data->enabled) {
-	  name=o->config()->otomod[o->data->enabled];
-	  o->config()->disable_module(name+"#0");
-	  caudium->remove(name+"#0", o->config());
-	}
-	o->change(-o->changed);
-	o->dest();
-	break;
-      }
-      break;
+              case NODE_MODULE_MASTER_COPY:
+              case NODE_MODULE:
+                PUSH("<font size=\"+2\">Do you really want to delete the module "+
+                     o->data->name + ", and its copies?\n\n<p></font>");
+                break;
+	
+              case NODE_MODULE_COPY_VARIABLES:
+	
+              case NODE_MODULE_COPY:
+                PUSH("<font size=\"+2\">Do you really want to delete this copy "
+                     " of the module "+ o->up->data->name + "?\n\n<p></font>");
+                break;
+	
+              case NODE_CONFIGURATIONS:
+                return stores("You don't want to do that...\n");
+          }
+          PUSH("<blockquote><font size=\"+2\"><i>This action cannot be"
+               " undone.\n\n<p></font>"+ TABLEP("<table>", "")+
+               "<tr><td><form action=\""+ o->path(1)+"\">"
+               "<input type=submit value=\"No, I do not want to delete it\"> "
+               "</form></td><td><form action=\"/(really_delete)"+ o->path(1)+
+               "\"><input type=submit value=\"Go ahead\"></form></td></tr> "
+               "</table></blockquote>");
+      
+          return stores(res*"");
+          break;
+      
+          /* When this has been called, the node will be * _very_ deleted
+           * The amount of work needed to delete a node does vary
+           * depending on the node, since there is no 'zap' function in
+           * the nodes at the moment. I will probably move this code into
+           * function-pointers in the nodes.
+           */
+
+        case "really_delete":
+          id->referrer = CONFIG_URL + o->up->path(1);
+      
+          switch(o->type)
+          {
+              case NODE_CONFIGURATION:
+                object oroot;
+	
+                for(i=0; i<sizeof(caudium->configurations); i++)
+                  if(caudium->configurations[i] == o->data)
+                    break;
+	
+                if(i==sizeof(caudium->configurations))
+                  error("Configuration not found.\n");
+	
+                caudium->remove_configuration(o->data->name);
+
+                if(caudium->configurations[i]->ports_open)
+                  Array.map(values(caudium->configurations[i]->ports_open), destruct);
+                destruct(caudium->configurations[i]);
+	
+                caudium->configurations = 
+                  caudium->configurations[..i-1] + caudium->configurations[i+1..];
+	
+                o->change(-o->changed);
+                o->dest();
+                break;
+	
+              case NODE_MODULE_COPY_VARIABLE:
+              case NODE_MODULE_COPY_VARIABLES:
+                // Ehum? Lets zap the module instead of it's variables...
+                o=o->up;
+	
+              case NODE_MODULE_COPY:
+                string name;
+                object n;
+	
+                name = module_short_name(o->data, o->config());
+                o->config()->disable_module(name);
+                // Remove the suitable part of the configuration file.
+                caudium->remove(name, o->config());
+                o->change(-o->changed);
+                n=o->up;
+                o->dest();
+	
+                if(!objectp(n))
+                {
+                  o=root; 
+                  // Error, really, no parent module for this module class.
+                } else {
+                  if(!sizeof(n->data->copies))
+                  {
+                    // No more instances in this module, let's zap the whole class.
+                    o=n->up; 
+	    
+                    n->change(-n->changed);
+                    n->dest();
+                    build_configuration(o);
+                    return std_redirect(o, 0); 
+                  } else
+                    o = n;
+                }
+                break;
+	
+              case NODE_MODULE_MASTER_COPY:
+              case NODE_MODULE:
+                if(o->data->copies)
+                {
+                  if(sizeof(o->data->copies))
+                  {
+                    int i;
+                    array a,b;
+                    a=indices(o->data->copies);
+                    b=values(o->data->copies);
+                    name=o->config()->otomod[b[0]];
+                    i=sizeof(a);
+                    while(i--) 
+                    {
+                      o->config()->disable_module(name+"#"+a[i]);
+                      caudium->remove(name+"#"+a[i], o->config());
+                    }
+                  } else if(o->data->master) {
+                    name=o->config()->otomod[o->data->enabled];
+                  } 
+                } else if(o->data->enabled) {
+                  name=o->config()->otomod[o->data->enabled];
+                  o->config()->disable_module(name+"#0");
+                  caudium->remove(name+"#0", o->config());
+                }
+                o->change(-o->changed);
+                o->dest();
+                break;
+          }
+          break;
 
 
-      // Create a new configuration. All the work is done in another
-      // function.. This _should_ be the case with some of the other
-      // actions too.
-     case "newconfig":
-       id->referrer = CONFIG_URL + o->path(1);
-       return new_configuration(id);
+          // Create a new configuration. All the work is done in another
+          // function.. This _should_ be the case with some of the other
+          // actions too.
+        case "newconfig":
+          id->referrer = CONFIG_URL + o->path(1);
+          return new_configuration(id);
 
 
-       // When a port has been changed the admin is prompted to
-       // change the server URL. This is where we come when we are
-       // done.
+          // When a port has been changed the admin is prompted to
+          // change the server URL. This is where we come when we are
+          // done.
        
-     case "modify_server_url":
+        case "modify_server_url":
 
-       string srv, url;
-       object thenode;
-       foreach(indices(id->variables), string var)
-       {
-	 if(sscanf(var, "%s->own", srv)) {
-	   url = id->variables[srv] == "own" ?
-	     id->variables[var] : id->variables[srv];
-	   if(srv == "Global Variables")
-	     thenode = find_node("/Globals/Configuration interface/URL");
-	   else {
-	     thenode = find_node("/Configurations/"+srv+
-				 "/Global/MyWorldLocation");
-	   }
-	   if(thenode) {
-	     thenode->data[VAR_VALUE] = url;
-	     thenode->change(1);
-	     thenode->up->save();
-	   } else {
-	     report_debug(sprintf("Attempt to set the Server URL for "
-				  "a non-existent server \"%s\".\n", srv));
-	   }
-	 }
-       }
-       id->referrer = CONFIG_URL + o->path(1);
-      break;
-      // Save changes done to the node 'o'. Currently 'o' is the root
-      // node most of the time, thus saving _everything_.
-     case "save":
-      mapping cf;
-      if(cf = save_it(id, o))
-	return cf;
-      break;
+          string srv, url;
+          object thenode;
+          foreach(indices(id->variables), string var)
+          {
+            if(sscanf(var, "%s->own", srv)) {
+              url = id->variables[srv] == "own" ?
+                id->variables[var] : id->variables[srv];
+              if(srv == "Global Variables")
+                thenode = find_node("/Globals/Configuration interface/URL");
+              else {
+                thenode = find_node("/Configurations/"+srv+
+                                    "/Global/MyWorldLocation");
+              }
+              if(thenode) {
+                thenode->data[VAR_VALUE] = url;
+                thenode->change(1);
+                thenode->up->save();
+              } else {
+                report_debug(sprintf("Attempt to set the Server URL for "
+                                     "a non-existent server \"%s\".\n", srv));
+              }
+            }
+          }
+          id->referrer = CONFIG_URL + o->path(1);
+          break;
+          // Save changes done to the node 'o'. Currently 'o' is the root
+          // node most of the time, thus saving _everything_.
+        case "save":
+          mapping cf;
+          if(cf = save_it(id, o))
+            return cf;
+          break;
 
 
-      // Set the password and username, the first time, or when
-      // the action 'changepass' is requested.
-     case "initial":
-     case "changepass":
-      return initial_configuration(id);
+          // Set the password and username, the first time, or when
+          // the action 'changepass' is requested.
+        case "initial":
+        case "changepass":
+          return initial_configuration(id);
       
 
-      // Hmm. No idea, really. Beats me :-)  /Per
-    case "new":
-      o->new();
-      break;
+          // Hmm. No idea, really. Beats me :-)  /Per
+        case "new":
+          o->new();
+          break;
 
-      // Add a new module to the current configuration.
-    case "newmodule": // For backward compatibility
-    case "addmodule":
-      id->referrer = CONFIG_URL + o->path(1);
-      return new_module(id,o);
-
-
-      // Add a new copy of the current module to the current configuration.
-     case "newmodulecopy":
-      id->referrer = CONFIG_URL + o->path(1);
-      new_module_copy_copy(o, id);
-      break;
+          // Add a new module to the current configuration.
+        case "newmodule": // For backward compatibility
+        case "addmodule":
+          id->referrer = CONFIG_URL + o->path(1);
+          return new_module(id,o);
 
 
-      // Set a variable to a new (or back to an old..) value.
-     case "set":
-      o->error = 0;
-      if(sizeof(id->variables))
-	tmp=decode_form_result(values(id->variables)[0],
-			       o->data[VAR_TYPE], o, id->variables);
-      else
-	tmp=0;
-      if(!module_of(o)) perror("No module for this node.\n");
-      if(!o->error && module_of(o) 
-	 && module_of(o)->check_variable)
-	o->error = module_of(o)->check_variable(o->data[VAR_SHORTNAME], tmp);
+          // Add a new copy of the current module to the current configuration.
+        case "newmodulecopy":
+          id->referrer = CONFIG_URL + o->path(1);
+          new_module_copy_copy(o, id);
+          break;
+
+
+          // Set a variable to a new (or back to an old..) value.
+        case "netcraft":
+          varval = "1";
+          
+        case "set":
+          o->error = 0;
+          if (!varval)
+            varval = values(id->variables)[0];
+          
+          if(sizeof(id->variables))
+            tmp=decode_form_result(varval,o->data[VAR_TYPE], o, id->variables);
+          else
+            tmp=0;
+          if(!module_of(o)) perror("No module for this node.\n");
+          if(!o->error && module_of(o) 
+             && module_of(o)->check_variable)
+            o->error = module_of(o)->check_variable(o->data[VAR_SHORTNAME], tmp);
 	
-      if(!o->error)
-	if(!equal(tmp, o->data[VAR_VALUE]))
-	{
-	  if(!o->original)
-	    o->original = o->data[VAR_VALUE];
-	  o->data[VAR_VALUE]=tmp;
-	  if(equal(o->original, tmp))
-	    o->change(-1);
-	  else if(!o->changed)
-	    o->change(1);
-	} 
-      break;
+          if(!o->error)
+            if(!equal(tmp, o->data[VAR_VALUE]))
+            {
+              if(!o->original)
+                o->original = o->data[VAR_VALUE];
+              o->data[VAR_VALUE]=tmp;
+              if(equal(o->original, tmp))
+                o->change(-1);
+              else if(!o->changed)
+                o->change(1);
+            } 
+          break;
     }
+    
+    if (stringp(do_netcraft) && sizeof(do_netcraft)) {
+      save_it(id, o); // so that the user doesn't have to do it :>
+      return http_redirect(do_netcraft);
+    }
+    
     return std_redirect(o, id);
   }
 
@@ -1804,7 +1833,7 @@ mapping configuration_parse(object id)
   PUSH("<p>");
   if(o->up != root && o->up)
     PUSH("<a href=\""+ o->up->path(1)+"?"+(bar++)+"\">"
-	 "<img src=/auto/back alt=\"[Up]\" align=left hspace=0 border=0></a>\n");
+         "<img src=/auto/back alt=\"[Up]\" align=left hspace=0 border=0></a>\n");
 
   if(i=o->folded) o->folded=0;
   tmp = o->describe(1,id);
@@ -1882,3 +1911,9 @@ mapping configuration_parse(object id)
   PUSH("</body>\n");
   return stores(res*"");
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
