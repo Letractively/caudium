@@ -111,7 +111,7 @@ void create() {
 }
 
 mixed register_module() {
-  return ({ MODULE_FIRST | MODULE_FILTER | MODULE_PARSER,
+  return ({ MODULE_FIRST | MODULE_FILTER | MODULE_PARSER | MODULE_PROVIDER,
     "123 Sessions",
     "This Module will provide each session with a distinct set "
     "of session variables."
