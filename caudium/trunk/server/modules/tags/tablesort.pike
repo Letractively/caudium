@@ -278,7 +278,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
         args->src = arrowup;
       	args->alt = "/\\";
         m_delete(args, "arrowup");
-      	return Caudium.make_tag("img", args);
+      	return Caudium.make_tag("img", args, id->misc->is_xml);
       }
       else
         return "/\\";
@@ -290,7 +290,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
         args->src = arrowdown;
       	args->alt = "\\/";
       	m_delete(args, "arrowdown");
-        return Caudium.make_tag("img", args);
+        return Caudium.make_tag("img", args, id->misc->is_xml);
       }
       else
         return "\\/";
@@ -303,7 +303,7 @@ string tag_tabsort_sort_href_img(string tag_name, mapping args, object id,
       args->src = arrownone;
       args->alt = "-";
       m_delete(args, "arrownone");
-      return Caudium.make_tag("img", args);
+      return Caudium.make_tag("img", args, id->misc->is_xml);
     }
     else
       return "-";

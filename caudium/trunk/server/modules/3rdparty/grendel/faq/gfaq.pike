@@ -800,7 +800,7 @@ array(string) cont_faqedit(string tag, mapping args, string contents,
     hidden->value = entries[0]->path;
     
     ret = Caudium.make_container("form", form,
-                         Caudium.make_tag("input", hidden) + ret);
+                         Caudium.make_tag("input", hidden, id->misc->is_xml) + ret);
   }
   
   id->misc->faq_entries = 0;

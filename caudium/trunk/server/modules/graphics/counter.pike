@@ -398,7 +398,7 @@ string tag_counter( string tagname, mapping args, object id )
   //
   // bypass compatible accessed attributes
   // 
-  accessed = Caudium.make_tag("accessed", args);
+  accessed = Caudium.make_tag("accessed", args, id->misc->is_xml);
 
   accessed = parse_rxml(accessed, id);
 

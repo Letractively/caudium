@@ -1004,7 +1004,7 @@ string tag_gbutton(string tag, mapping args, string contents,
         img_attrs->height = size->ysize;
     }
 
-    result = Caudium.make_tag("img", img_attrs);
+    result = Caudium.make_tag("img", img_attrs, id->misc->is_xml);
 
     if (args->href && !new_args->dim)
     {

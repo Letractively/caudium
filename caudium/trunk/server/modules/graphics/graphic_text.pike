@@ -1037,7 +1037,7 @@ string tag_graphicstext(string t, mapping arg, string contents,
         tag->width  = (string)size->xsize;
         tag->height = (string)size->ysize;
       }
-      res += ({ Caudium.make_tag( "img", tag )+" " });
+      res += ({ Caudium.make_tag( "img", tag, id->misc->is_xml )+" " });
     }
     if(lp) res += ({ "</a>"+post });
     return res*"";
@@ -1125,7 +1125,7 @@ string|array (string) tag_body(string t, mapping args, object id, object file,
   FIX(alink,  "#ff0000",alink);
   FIX(vlink,  "#551a8b",vlink);
   if(changed && QUERY(colormode))
-    return ({Caudium.make_tag("body", args) });
+    return ({Caudium.make_tag("body", args, id->misc->is_xml) });
 }
 
 
@@ -1148,7 +1148,7 @@ string|array(string) tag_fix_color(string tagname, mapping args, object id,
 #undef FIX
 
   if(changed && QUERY(colormode))
-    return ({ Caudium.make_tag(tagname, args) });
+    return ({ Caudium.make_tag(tagname, args, id->misc->is_xml) });
   return 0;
 }
 
