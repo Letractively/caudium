@@ -1730,6 +1730,13 @@ array(string) parse_scope_var(string variable, string|void scope)
 mixed get_scope_var(string variable, void|string scope, object id)
 {
   function _get;
+
+  if (!id->misc->_scope_status) {
+      if (id->variables && id->variables[variable])
+          return variable;
+      return 0;
+  }
+  
   if(!scope)
     [scope,variable] = parse_scope_var(variable);
   if(!id->misc->scopes[scope])  return 0;
@@ -1757,6 +1764,12 @@ mixed get_scope_var(string variable, void|string scope, object id)
 int set_scope_var(string variable, void|string scope, mixed value, object id)
 {
   function _set;
+
+  if (!id->misc->_scope_status) {
+      id->variables[variable] = value;
+      return 1;
+  }
+  
   if(!scope)
     [scope,variable] = parse_scope_var(variable);
   if(!id->misc->scopes[scope])  return 0;
