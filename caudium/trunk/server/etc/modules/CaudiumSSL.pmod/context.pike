@@ -1,6 +1,6 @@
 /* $Id$
  *
- * Keeps track of global data for an CaudiumSSL server,
+ * Keeps track of global data for an SSL server,
  * such as preferred encryption algorithms and session cache.
  */
 
@@ -34,15 +34,15 @@ void rsa_mode()
 #endif
   preferred_suites = ({
 #ifndef WEAK_CRYPTO_40BIT
-    CaudiumSSL_rsa_with_idea_cbc_sha,
-    CaudiumSSL_rsa_with_rc4_128_sha,
-    CaudiumSSL_rsa_with_rc4_128_md5,
-    CaudiumSSL_rsa_with_3des_ede_cbc_sha,
-    CaudiumSSL_rsa_with_des_cbc_sha,
+    SSL_rsa_with_idea_cbc_sha,
+    SSL_rsa_with_rc4_128_sha,
+    SSL_rsa_with_rc4_128_md5,
+    SSL_rsa_with_3des_ede_cbc_sha,
+    SSL_rsa_with_des_cbc_sha,
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
-    CaudiumSSL_rsa_export_with_rc4_40_md5,
-    CaudiumSSL_rsa_with_null_sha,
-    CaudiumSSL_rsa_with_null_md5,
+    SSL_rsa_export_with_rc4_40_md5,
+    SSL_rsa_with_null_sha,
+    SSL_rsa_with_null_md5,
   });
 }
 
@@ -53,10 +53,10 @@ void dhe_dss_mode()
 #endif
   preferred_suites = ({
 #ifndef WEAK_CRYPTO_40BIT
-    CaudiumSSL_dhe_dss_with_3des_ede_cbc_sha,
-    CaudiumSSL_dhe_dss_with_des_cbc_sha,
+    SSL_dhe_dss_with_3des_ede_cbc_sha,
+    SSL_dhe_dss_with_des_cbc_sha,
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
-    CaudiumSSL_dhe_dss_export_with_des40_cbc_sha,
+    SSL_dhe_dss_export_with_des40_cbc_sha,
   });
 }
 

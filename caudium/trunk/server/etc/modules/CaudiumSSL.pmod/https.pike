@@ -35,8 +35,8 @@ class conn {
 
   object sslfile;
 
-  string message = "<html><head><title>CaudiumSSL-3 server</title></head>\n"
-  "<body><h1>This is a minimal CaudiumSSL-3 http server</h1>\n"
+  string message = "<html><head><title>SSL-3 server</title></head>\n"
+  "<body><h1>This is a minimal SSL-3 http server</h1>\n"
   "<hr><it>/nisse</it></body></html>\n";
   int index = 0;
 

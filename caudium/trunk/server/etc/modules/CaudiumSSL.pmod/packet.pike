@@ -1,6 +1,6 @@
 /* $Id$
  *
- * CaudiumSSL Record Layer
+ * SSL Record Layer
  */
 
 inherit "constants";

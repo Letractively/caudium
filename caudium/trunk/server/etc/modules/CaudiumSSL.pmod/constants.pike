@@ -95,38 +95,38 @@ constant CONNECTION_server 	= 1;
 constant CONNECTION_client_auth = 2;
 
 /* Cipher suites */
-constant CaudiumSSL_null_with_null_null 		= 0x0000;
-constant CaudiumSSL_rsa_with_null_md5			= 0x0001;
-constant CaudiumSSL_rsa_with_null_sha			= 0x0002;
-constant CaudiumSSL_rsa_export_with_rc4_40_md5		= 0x0003;
-constant CaudiumSSL_rsa_export_with_rc2_cbc_40_md5	= 0x0006;
-constant CaudiumSSL_rsa_export_with_des40_cbc_sha	= 0x0008;
-constant CaudiumSSL_dh_dss_export_with_des40_cbc_sha	= 0x000b;
-constant CaudiumSSL_dh_rsa_export_with_des40_cbc_sha	= 0x000e;
-constant CaudiumSSL_dhe_dss_export_with_des40_cbc_sha	= 0x0011;
-constant CaudiumSSL_dhe_rsa_export_with_des40_cbc_sha	= 0x0014;
-constant CaudiumSSL_dh_anon_export_with_rc4_40_md5	= 0x0017;
-constant CaudiumSSL_dh_anon_export_with_des40_cbc_sha	= 0x0019;
+constant SSL_null_with_null_null 		= 0x0000;
+constant SSL_rsa_with_null_md5			= 0x0001;
+constant SSL_rsa_with_null_sha			= 0x0002;
+constant SSL_rsa_export_with_rc4_40_md5		= 0x0003;
+constant SSL_rsa_export_with_rc2_cbc_40_md5	= 0x0006;
+constant SSL_rsa_export_with_des40_cbc_sha	= 0x0008;
+constant SSL_dh_dss_export_with_des40_cbc_sha	= 0x000b;
+constant SSL_dh_rsa_export_with_des40_cbc_sha	= 0x000e;
+constant SSL_dhe_dss_export_with_des40_cbc_sha	= 0x0011;
+constant SSL_dhe_rsa_export_with_des40_cbc_sha	= 0x0014;
+constant SSL_dh_anon_export_with_rc4_40_md5	= 0x0017;
+constant SSL_dh_anon_export_with_des40_cbc_sha	= 0x0019;
 #ifndef WEAK_CRYPTO_40BIT
-constant CaudiumSSL_rsa_with_rc4_128_md5		= 0x0004;
-constant CaudiumSSL_rsa_with_rc4_128_sha		= 0x0005;
-constant CaudiumSSL_rsa_with_idea_cbc_sha		= 0x0007;
-constant CaudiumSSL_rsa_with_des_cbc_sha		= 0x0009;
-constant CaudiumSSL_rsa_with_3des_ede_cbc_sha		= 0x000a; 
-constant CaudiumSSL_dh_dss_with_des_cbc_sha		= 0x000c;
-constant CaudiumSSL_dh_dss_with_3des_ede_cbc_sha	= 0x000d;
-constant CaudiumSSL_dh_rsa_with_des_cbc_sha		= 0x000f;
-constant CaudiumSSL_dh_rsa_with_3des_ede_cbc_sha	= 0x0010;
-constant CaudiumSSL_dhe_dss_with_des_cbc_sha		= 0x0012;
-constant CaudiumSSL_dhe_dss_with_3des_ede_cbc_sha	= 0x0013;
-constant CaudiumSSL_dhe_rsa_with_des_cbc_sha		= 0x0015;
-constant CaudiumSSL_dhe_rsa_with_3des_ede_cbc_sha	= 0x0016; 
-constant CaudiumSSL_dh_anon_with_rc4_128_md5		= 0x0018;
-constant CaudiumSSL_dh_anon_with_des_cbc_sha		= 0x001a;
-constant CaudiumSSL_dh_anon_with_3des_ede_cbc_sha	= 0x001b; 
-constant CaudiumSSL_fortezza_dms_with_null_sha		= 0x001c;
-constant CaudiumSSL_fortezza_dms_with_fortezza_cbc_sha	= 0x001d;
-constant CaudiumSSL_fortezza_dms_with_rc4_128_sha	= 0x001e;
+constant SSL_rsa_with_rc4_128_md5		= 0x0004;
+constant SSL_rsa_with_rc4_128_sha		= 0x0005;
+constant SSL_rsa_with_idea_cbc_sha		= 0x0007;
+constant SSL_rsa_with_des_cbc_sha		= 0x0009;
+constant SSL_rsa_with_3des_ede_cbc_sha		= 0x000a; 
+constant SSL_dh_dss_with_des_cbc_sha		= 0x000c;
+constant SSL_dh_dss_with_3des_ede_cbc_sha	= 0x000d;
+constant SSL_dh_rsa_with_des_cbc_sha		= 0x000f;
+constant SSL_dh_rsa_with_3des_ede_cbc_sha	= 0x0010;
+constant SSL_dhe_dss_with_des_cbc_sha		= 0x0012;
+constant SSL_dhe_dss_with_3des_ede_cbc_sha	= 0x0013;
+constant SSL_dhe_rsa_with_des_cbc_sha		= 0x0015;
+constant SSL_dhe_rsa_with_3des_ede_cbc_sha	= 0x0016; 
+constant SSL_dh_anon_with_rc4_128_md5		= 0x0018;
+constant SSL_dh_anon_with_des_cbc_sha		= 0x001a;
+constant SSL_dh_anon_with_3des_ede_cbc_sha	= 0x001b; 
+constant SSL_fortezza_dms_with_null_sha		= 0x001c;
+constant SSL_fortezza_dms_with_fortezza_cbc_sha	= 0x001d;
+constant SSL_fortezza_dms_with_rc4_128_sha	= 0x001e;
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
 
 #if 0
@@ -139,20 +139,20 @@ constant SIGN_dsa = 2;
 #endif
 
 constant CIPHER_SUITES =
-([ CaudiumSSL_null_with_null_null :    	({ 0, 0, 0 }),
-   CaudiumSSL_rsa_with_null_md5 :      	({ KE_rsa, 0, HASH_md5 }), 
-   CaudiumSSL_rsa_with_null_sha :      	({ KE_rsa, 0, HASH_sha }),
-   CaudiumSSL_rsa_export_with_rc4_40_md5 :	({ KE_rsa, CIPHER_rc4_40, HASH_md5 }),
-   CaudiumSSL_dhe_dss_export_with_des40_cbc_sha :
+([ SSL_null_with_null_null :    	({ 0, 0, 0 }),
+   SSL_rsa_with_null_md5 :      	({ KE_rsa, 0, HASH_md5 }), 
+   SSL_rsa_with_null_sha :      	({ KE_rsa, 0, HASH_sha }),
+   SSL_rsa_export_with_rc4_40_md5 :	({ KE_rsa, CIPHER_rc4_40, HASH_md5 }),
+   SSL_dhe_dss_export_with_des40_cbc_sha :
       ({ KE_dhe_dss, CIPHER_des40, HASH_sha }),
 #ifndef WEAK_CRYPTO_40BIT
-   CaudiumSSL_rsa_with_rc4_128_sha :		({ KE_rsa, CIPHER_rc4, HASH_sha }),
-   CaudiumSSL_rsa_with_rc4_128_md5 :		({ KE_rsa, CIPHER_rc4, HASH_md5 }),
-   CaudiumSSL_rsa_with_idea_cbc_sha :		({ KE_rsa, CIPHER_idea, HASH_sha }),
-   CaudiumSSL_rsa_with_des_cbc_sha :		({ KE_rsa, CIPHER_des, HASH_sha }),
-   CaudiumSSL_rsa_with_3des_ede_cbc_sha :	({ KE_rsa, CIPHER_3des, HASH_sha }),
-   CaudiumSSL_dhe_dss_with_des_cbc_sha :	({ KE_dhe_dss, CIPHER_des, HASH_sha }),
-   CaudiumSSL_dhe_dss_with_3des_ede_cbc_sha :	({ KE_dhe_dss, CIPHER_3des, HASH_sha }),
+   SSL_rsa_with_rc4_128_sha :		({ KE_rsa, CIPHER_rc4, HASH_sha }),
+   SSL_rsa_with_rc4_128_md5 :		({ KE_rsa, CIPHER_rc4, HASH_md5 }),
+   SSL_rsa_with_idea_cbc_sha :		({ KE_rsa, CIPHER_idea, HASH_sha }),
+   SSL_rsa_with_des_cbc_sha :		({ KE_rsa, CIPHER_des, HASH_sha }),
+   SSL_rsa_with_3des_ede_cbc_sha :	({ KE_rsa, CIPHER_3des, HASH_sha }),
+   SSL_dhe_dss_with_des_cbc_sha :	({ KE_dhe_dss, CIPHER_des, HASH_sha }),
+   SSL_dhe_dss_with_3des_ede_cbc_sha :	({ KE_dhe_dss, CIPHER_3des, HASH_sha }),
 #endif /* !WEAK_CRYPTO_40BIT (magic comment) */
 ]);
 
