@@ -28,11 +28,11 @@ constant cvs_version = "$Id$";
 #define __replace(X) (X)
 
 //! Creates a <input type > html code
-//! @params name
+//! @param name
 //!   The name used for input type.
-//! @params val
+//! @param val
 //!   The default value
-//! @params t
+//! @param t
 //!   If this <input> should be hidden
 //! @returns
 //!   An Form input string.
@@ -58,15 +58,15 @@ string pre(string f)
 }
 
 //! Create a HTML table
-//! @params t
+//! @param t
 //!   The contents of the table
-//! @params cellspacing
+//! @param cellspacing
 //!   The cellspacing value
-//! @params callpadding
+//! @param callpadding
 //!   The cellpadding value
-//! @params border
+//! @param border
 //!   The size of border
-//! @params width
+//! @param width
 //!   The size of the table
 //! @returns
 //!   HTML table.
@@ -100,9 +100,9 @@ string table(string|void t, int|void cellspacing, int|void cellpadding,
 }
 
 //! Create a Table line
-//! @params data
+//! @param data
 //!   The data to put inside the line
-//! @params row
+//! @param row
 //!   The rowspan parameter.
 //! @returns
 //!   HTML code for Line in a table
@@ -121,13 +121,13 @@ string tr(string data, int|void rows)
 }
 
 //! Create a data cell for a Table
-//! @params t
+//! @param t
 //!   The data
-//! @params align
+//! @param align
 //!   The align value
-//! @params rows
+//! @param rows
 //!   The rowspan value
-//! @params cols
+//! @param cols
 //!   The colspan value
 //! @returns
 //!   HTML code for a cell in a table
@@ -147,9 +147,9 @@ string td(string t, string|void align, int|void rows, int|void cols)
 }
 
 //! Bigger font for a string
-//! @params s
+//! @param s
 //!   The string
-//! @params i
+//! @param i
 //!   How mutch bigger must be it.
 //! @returns
 //!   A <font size=+i><b>s</b></font>
@@ -161,13 +161,13 @@ string bf(string|void s, int|void i)
 }
 
 //! Table header for HTML tables
-//! @params t
+//! @param t
 //!   The data to put on header
-//! @params align
+//! @param align
 //!   The align value
-//! @params rows
+//! @param rows
 //!   The rowspan value
-//! @params cols
+//! @param cols
 //!   The colspan value
 //! @returns
 //!   HTML code for table headers
@@ -188,7 +188,7 @@ string th(string t, string|void align, int|void rows,
 }
 
 //! Add <H1></H1>
-//! @parms h
+//! @parm h
 //!   The string
 //! @returns
 //!   Html results
@@ -198,7 +198,7 @@ string h1(string h)
 }
 
 //! Add <H2></H2>
-//! @parms h
+//! @parm h
 //!   The string
 //! @returns
 //!   Html results
@@ -208,7 +208,7 @@ string h2(string h)
 }
 
 //! Add <H3></H3>
-//! @parms h
+//! @parm h
 //!   The string
 //! @returns
 //!   Html results
