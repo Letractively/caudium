@@ -1095,6 +1095,7 @@ class Attribute {
 class Defvar {
     inherit DocObject;
     string type;
+    string name;
     
     void new_field(string|object newstuff, string kw)
     {
@@ -1110,6 +1111,10 @@ class Defvar {
                     type = newstuff;
                     break;
 	    
+		case "name":
+		    name = newstuff;
+		    break;
+		    
                 default:
                     wrong_keyword(kw);
                     break;
@@ -1130,6 +1135,13 @@ class Defvar {
     case "type":
       type += newstuff;
       break;
+      
+    case "name": 
+      if (name != "")
+          field_redefined(lastkw);
+      name = newstuff;
+      break;
+
     default:
       wrong_keyword(lastkw);
       break;
@@ -1488,6 +1500,7 @@ mapping(string:object|string) attribute_scope = ([
 
 mapping(string:object|string) defvar_scope = ([
     "type":"",
+    "name":"",
     "ScopeName":"defvar"
 ]);
 
