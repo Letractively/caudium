@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2003 The Caudium Group
+ * Copyright © 2003-2004 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -131,7 +131,8 @@ private void create_session(object id)
 private void wrong_usage(object id)
 {
   if(!NSESSION)
-    throw("You must call set_nb_elements() and set_nb_elements_per_page() before using this function\n");
+    throw(({ "You must call set_nb_elements() and "
+          "set_nb_elements_per_page() before using this function\n", backtrace() }));
 }
 
 private void fetch_args(object id)
@@ -192,21 +193,44 @@ void start(int num, object conf)
 
 void set_nb_elements(object id, int nb)
 {
-  if(!NSESSION || nb != NSESSION[NAV_NB_ELEM])
+  if(nb < 0)
+    throw(({ "Can't set a negative number of elements", backtrace() }));
+  if(!NSESSION)
   {
     create_session(id);
     NSESSION[NAV_NB_ELEM] = nb;
+    NDEBUG("set_nb_elements: nb="+nb);
+  }
+  if(nb != NSESSION[NAV_NB_ELEM])
+  {
+    int old_nb = NSESSION[NAV_NB_ELEM];
+    NSESSION[NAV_NB_ELEM] = nb;
+    // we were on the last page and one element come
+    // put the last page again so that the user can see
+    // the new element more easily
+    if(NSESSION[NAV_CURRENT_PAGE] == get_lastpage(id) - 1 &&
+        (int)ceil((float)old_nb/(float)get_nb_elements_per_page(id)) < get_lastpage(id))
+    {
+      NSESSION[NAV_CURRENT_PAGE]++;
+    }
+    // overflow: we have less page(s) now than before
+    if(NSESSION[NAV_CURRENT_PAGE] > get_lastpage(id))
+    {
+      // page 0 does not exist, default to page 1
+      NSESSION[NAV_CURRENT_PAGE] = get_lastpage(id);
+    }
     NDEBUG("set_nb_elements: nb="+nb);
   }
 }
 
 void set_nb_elements_per_page(object id, int nb)
 {
+  if(nb <= 0)
+    throw(({ "Can't set a negative or null number of elements per page\n", backtrace() }));
   if(!NSESSION || nb != NSESSION[NAV_NB_ELEM_PAGE])
   {
     create_session(id);
-    // if nb is 0, then it's a non sense, so default to 10 in that case
-    NSESSION[NAV_NB_ELEM_PAGE] = nb || 10;
+    NSESSION[NAV_NB_ELEM_PAGE] = nb;
     NDEBUG("set_nb_elements_per_page: nb="+nb);
   }
 }
@@ -214,6 +238,8 @@ void set_nb_elements_per_page(object id, int nb)
 void set_current_page(object id, int page)
 {
   wrong_usage(id);
+  if(page <= 0)
+    throw(({ "Can't set a negative or null page\n", backtrace() }));
   NSESSION[NAV_CURRENT_PAGE] = page;
   NDEBUG("set_current_page: page="+page);
 }
