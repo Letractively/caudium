@@ -109,6 +109,7 @@ spml	text/html
 tsv	text/tab-separated-values
 txt	text/plain
 xml	text/xml
+xsl	text/xml
 
 aab	application/x-authorware-bin
 aam	application/x-authorware-map
