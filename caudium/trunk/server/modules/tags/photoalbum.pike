@@ -425,3 +425,8 @@ class album {
 //!  type: TYPE_STRING|VAR_MORE
 //!  name: The text shown in place of a description if none is provided
 //
+//! defvar: void_cols
+//! Default number of columns.
+//!  type: TYPE_INT
+//!  name: Default number of col's
+//

@@ -512,7 +512,7 @@ mixed first_try(object id)
 //!<p><dt><b>regexp</b></dt><dd>The <b>matchstring</b> is a regular 
 //!expression.</dd></p> 
 //! 
-//!</dl> 
+//!</dl>New in version 3.1 is modifier keywords which can be used to match on other things than the path, like the full URL or specific HTTP headers. The syntax is <b>matchtype[modifier]</b>. These are all available modifiers: <dl> <p><dt><b>host</b></dt><dd>This includes the server URL in the string that is matched. It uses the <tt>Host</tt> if available or the configured server URL otherwise. Can be used for simple virtual hosting. </dd> <p><dt><b>header=name</b></dt> <dd>Match against the specified HTTP header. This could be for example UserAgent. The name is case-insensitive.</dd> <p><dt><b>var=name</b></dt> <dd>Match against the specified variable. This variable could be sent using either the GET method or the POST method. The name is case-sensitive.</dd> <p><dt><b>cookier=name</b></dt> <dd>Match against the specified cookie. The name is case-sensitive.</dd> </dl> 
 //!<p>For v2.0 compatibility reasons, <b>[type]</b> can be omitted. Then the 
 //!pattern type will be deducted automatically as follows: If 
 //!<b>matchstring</b> contains a <b>*</b> character, it will be treated 
@@ -521,13 +521,15 @@ mixed first_try(object id)
 //!<p>The <b>destination</b> field can contain one or more special 
 //!tokens. They will be replaced after matching is completed as described below.</p> 
 //! 
-//!<p><dl compact="compact">
-//!<dt><b>%%</b></dt> 
-//!<dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd>
-//!<dt><b>%f</b></dt> 
+//!<p><dl compact="compact"> 
+//!<dt><b>%%</b></dt> <dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd><dt><b>%f</b></dt> 
 //!<dd>The file name of the matched URL without the path.</dd> 
 //!<dt><b>%p</b></dt> 
 //!<dd>The full virtual path of the matched URL excluding the initial /.</dd> 
+//!<dt><b>%q</b></dt> 
+//!<dd>The query string for the requested file, prepended by a question mark. Empty string when no query is available.</dd> 
+//!<dt><b>%Q</b></dt> 
+//!<dd>The raw query string (without prepended question mark). Empty string when no query string is available. 
 //!<dt><b>%u</b></dt> 
 //!<dd>The manually configured server url. This is useful if you want  
 //!your redirect to be external instead of an internal rewrite and  
@@ -551,7 +553,7 @@ mixed first_try(object id)
 //!<p>Some examples on how to use this module. The smaller, non-bold 
 //!text is an example of the effect of all previous non-described lines.</p> 
 //! 
-//!<p><pre><b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />    <font size="-1">Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br /><b>exact	/index.html	/index.cgi</b><br />    <font size="-1">Ex: rewrites only /index.html to /index.cgi</font><br /><b>glob	*		http://otherhost.com/%p</b><br /><b>regexp	^/		http://otherhost.com/%p</b><br /><b>regexp	^/(.*)		http://otherhost.com/$1</b><br /><b>prefix	/		http://otherhost.com/</b><br />    <font size="-1">Ex: redirects all files to http://otherhost.com/</font><br /><b>regexp	^/old[^/]*/	/newdir/%f</b><br />    <font size="-1">Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br /><b>prefix	/oldfiles/	%h/</b><br />    <font size="-1">Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br /><b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />    <font size="-1">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br /></pre></p>
+//!<p><pre><b>prefix	/helpdesk/	http://helpdesk.domain.com/</b><br />    <font size="-1">Ex: redirects  /helpdesk/mice/ to http://helpdesk.domain.com/mice/</font><br /><b>exact	/index.html	/index.cgi</b><br />    <font size="-1">Ex: rewrites only /index.html to /index.cgi</font><br /><b>glob	*		http://otherhost.com/%p</b><br /><b>regexp	^/		http://otherhost.com/%p</b><br /><b>regexp	^/(.*)		http://otherhost.com/$1</b><br /><b>prefix	/		http://otherhost.com/</b><br />    <font size="-1">Ex: redirects all files to http://otherhost.com/</font><br /><b>regexp	^/old[^/]*/	/newdir/%f</b><br />    <font size="-1">Ex: rewrites /olddocs/documents/file.html to /newdir/file.html</font><br /><b>prefix	/oldfiles/	%h/</b><br />    <font size="-1">Ex: redirects /oldfiles/anypath/file.html to SERVERURL/anypath/file.html</font><br /><b>regexp	^/old-([^/]*)/(.*)	%u/$1/$2</b><br />    <font size="-1">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br /><b>glob[header=UserAgent]	*MSIE*	http://www.devnull.com/</b><br />    <font size="-1">Ex: redirects all requests from browsers with a UserAgent name matching<br />    MSIE to http://www.devnull.com/</font><br /><b>prefix[host]	http://oldhost.com/	http://newhost.com/%p%q</b><br />    <font size="-1">Ex: Redirects all requests to the site http://oldhost.com/ to<br />    http://newhost.com/, keeping the path and query string.</font><br /></pre></p>
 //!  type: TYPE_TEXT_FIELD
 //!  name: Redirect patterns
 //
