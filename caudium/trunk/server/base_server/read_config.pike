@@ -41,17 +41,7 @@ mapping (string:array(int))     config_stat_cache = ([]);
 string configuration_dir; // Set in caudium.pike:main()
 private object dir = 0;
 
-mapping copy_configuration(string from, string to)
-{
-  if(!configs[from]) return 0;
-#ifdef DEBUG
-  write(sprintf("Copying configuration \"%s\" to \"%s\"\n", from, to));
-#endif /* DEBUG */
-  configs[to] = copy_value( configs[from] );
-  return configs[to];
-}
-
-array(mapping(string:string|int)) list_all_configurations()
+private void open_cfg_dir()
 {
   mixed      error;
   
@@ -66,12 +56,32 @@ array(mapping(string:string|int)) list_all_configurations()
       exit(-1);	// Restart.
     }
   }
+}
+
+mapping copy_configuration(string from, string to)
+{
+#if 0 //FIXME!!
+  if(!configs[from]) return 0;
+#ifdef DEBUG
+  write(sprintf("Copying configuration \"%s\" to \"%s\"\n", from, to));
+#endif /* DEBUG */
+  configs[to] = copy_value( configs[from] );
+  
+  return configs[to];
+#endif
+}
+
+array(mapping(string:string|int)) list_all_configurations()
+{
+  if (!dir)
+    open_cfg_dir();
   
   return dir->list_files();
 }
 
 void save_it(string cl)
 {
+#if 0 //FIXME!
   object fd;
   string f;
 #ifdef DEBUG_CONFIG
@@ -104,6 +114,7 @@ void save_it(string cl)
   config_stat_cache[cl] = (array(int)) fd->stat();
   catch(fd->close("w"));
   destruct(fd);
+#endif
 }
 
 void fix_config(mapping c);
@@ -163,12 +174,15 @@ private static void read_it(string cl)
   if(configs[cl])
     return;
 
+  if (!dir)
+    open_cfg_dir();
+  
   mixed       err;
   string|int  errmsg;
   object      file;
   
   err = catch {
-    file = Config.Files.File(dir, cl);
+    file = Config.Files.File(dir, replace(cl, " ", "_"));
   };
   
   if (err) {
@@ -270,7 +284,10 @@ mapping retrieve(string reg, object current_configuration)
   
   read_it(cl);
 
-  return configs[cl]->retrieve(reg) || ([ ]);
+  if (configs[cl])
+    return configs[cl]->retrieve(reg) || ([]);
+  else
+    return ([]);
 }
 /*
  * Local Variables:
