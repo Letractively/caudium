@@ -1679,7 +1679,7 @@ class FTPSession
     if (arrayp(file)) {
       array st = file;
       file = 0;
-      if (st && (st[1] < 0) && !((<"RMD", "CHMOD">)[cmd])) {
+      if (st && (st[1] < 0) && !((<"RMD", "XRMD", "CHMOD">)[cmd])) {
 	send(550, ({ sprintf("%s: not a plain file.", fname) }));
 	return 0;
       }
@@ -1690,7 +1690,7 @@ class FTPSession
 	send(550,({ sprintf("%s: Error, can't open file.", fname) }));
 	return 0;
       }
-    } else if ((< "STOR", "APPE", "MKD", "MOVE" >)[cmd]) {
+    } else if ((< "STOR", "APPE", "MKD", "XMKD", "MOVE" >)[cmd]) {
       mixed err;
       if ((err = catch(file = conf->get_file(session)))) {
 	report_error(sprintf("FTP: Error opening file \"%s\"\n"
