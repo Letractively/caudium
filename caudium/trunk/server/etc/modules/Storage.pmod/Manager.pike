@@ -1,4 +1,6 @@
 
+#include <module.h>
+
 #ifdef THREADS
 static Thread.Mutex mutex = Thread.Mutex();
 #define LOCK() object __key = mutex->lock()
@@ -34,6 +36,9 @@ void start(string _permstore, string path) {
   case "MySQL":
     permstore = Storage.Methods.MySQL(path);
     break;
+  case "GDBM":
+    permstore = Storage.Methods.GDBM(path);
+    break;
   }
 #ifdef STORAGE_DEBUG
   write("Starting storage manager with %s backed.\n", _permstore);
@@ -47,6 +52,22 @@ public object get_storage(string namespace) {
     clients += ([ namespace : Storage.Client(namespace, callbacks) ]);
   }
   return clients[namespace];
+}
+
+public mapping storage_globvar() {
+  return ([
+    "default" : permstore->storage_default|"",
+    "name " : permstore->storage_name,
+    "doc" : permstore->storage_doc
+  ]);
+}
+
+public array storage_types() {
+  return ({ "Disk", "MySQL", "GDBM" });
+}
+
+public string storage_default() {
+  return "Disk";
 }
 
 static void store(string namespace, string key, mixed val) {
@@ -105,7 +126,7 @@ static void unlink_regexp(string namespace, string regexp) {
   permstore->unlink_regexp(namespace, regexp);
 }
 
-void sync_all(void|string namespace) {
+static void sync_all(void|string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing all objects\n");
 #endif
@@ -122,7 +143,7 @@ string storage_backend() {
   return permstore->name();
 }
 
-int size(string namespace) {
+static int size(string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Getting total size of %s\n", namespace);
 #endif
@@ -130,7 +151,7 @@ int size(string namespace) {
   return permstore->size(namespace);
 }
 
-array list(string namespace) {
+static array list(string namespace) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Listing objects in %s\n", namespace);
 #endif

@@ -1,3 +1,36 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2002 The Caudium Group
+ * Copyright © 1994-2001 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+constant storage_type    = "Disk";
+constant storage_doc     = "Please enter the path on the filesystem that you would like to "
+                           "store the data in."
+#ifdef NFS_LOCK
+                           " <i>Using NFS safe hitchingpost file locking, this is good "
+			   "because it will stop multiple machines from writing to files "
+			   "at the same time - however, it is possible that you can put "
+			   "one or more machines in your cluster into what is essentially "
+			   "a deadlock condition. Be careful.</i>"
+#endif
+                           ;
+constant storage_default = "+";
 
 #ifdef THREADS
 static Thread.Mutex mutex = Thread.Mutex();
@@ -26,7 +59,7 @@ static string path;
 void create(string _path) {
   PRELOCK();
   LOCK();
-  path = Stdio.append_path(_path, sprintf("%d.%d.%d", __MAJOR__, __MINOR__, __BUILD__));
+  path = _path;
   if (!Stdio.is_dir(path))
     Stdio.mkdirhier(path);
 }
@@ -117,18 +150,15 @@ void unlink_regexp(string namespace, string regexp) {
 }
 
 static string encode(string namespace, string key, string value) {
-  mapping p = ([
-    "namespace" : namespace,
-    "key"       : key,
-    "value"     : value
-  ]);
-  return MIME.encode_base64(encode_value(p,master()->Codec()), 1);
+  string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : \"%s\", \"key\" : \"%s\", \"value\" : \"%s\" ]);", namespace, replace(key, "\"", "\\\""), replace(value, "\"", "\\\""));
+  return MIME.encode_base64(data, 1);
 }
 
 static mixed decode(string data) {
-  mixed val;
-  catch(val = decode_value(MIME.decode_base64(data), master()->Codec()));
-  return val;
+  program p;
+  if (catch(p = compile_string(MIME.decode_base64(data))))
+    return 0;
+  return p()->data;
 }
 
 static string get_hash( string data ) {
@@ -141,10 +171,6 @@ static string get_hash( string data ) {
   retval = MIME.encode_base64( data );
 #endif
   return sprintf("%@02x",(array(int)) retval);
-}
-
-string name() {
-  return "Disk";
 }
 
 int size(string namespace) {
