@@ -1299,8 +1299,6 @@ void create()
 	 "How long time in <b>seconds</b> a dataport is kept open without usage before closage");
   defvar("icons", "Yes", "Icons", TYPE_STRING_LIST|VAR_MORE,
 	 "Icons in directory listnings",({"Yes","No"}));
-//  defvar("logo", "Yes", "Roxen logo", TYPE_STRING_LIST,
-//	 "Show a Roxen logo in the right-up corner on directories",({"Yes","No"}));
   defvar("hold", "Yes", "Hold until response", TYPE_STRING_LIST|VAR_MORE,
 	 "Hold data transfer until response from server; "+
 	 "if the server sends file size, size will be sent to the http client. "+
