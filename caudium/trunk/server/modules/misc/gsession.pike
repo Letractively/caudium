@@ -161,6 +161,10 @@ void create()
     defvar("excludefiles", "jpg\njpeg\npng\ngif\ncgi\npike", "Session: Exclude file types", TYPE_TEXT_FIELD,
            "A list of file extensions for which no session should ever be allocated. "
            "One entry per line");
+
+    defvar("relativeonly", 1, "Session: Rewrite only relative URIs", TYPE_FLAG,
+           "If enabled, only the relative URIs will be rewritten when parsing the &lt;a&gt; tag. "
+           "Relative URIs are those that don't contain the <em>protocol://host</em> part.");
 }
 
 int hide_gc ()
@@ -1166,11 +1170,17 @@ private int leave_me_alone(string uri)
     
     if (search(uri, "://") < 0)
         return 0; // assuming it's a relative URI
+
+    if (QUERY(relativeonly))
+        return 1;
     
     if (sizeof(uri) >= 7 && uri[0..6] == "http://")
         return 0;
 
     if (sizeof(uri) >= 8 && uri[0..7] == "https://")
+        return 0;
+
+    if (sizeof(uri) >= 6 && uri[0..5] == "ftp://")
         return 0;
     
     return 1;
@@ -1206,17 +1216,22 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
 {
     string   query;
     mapping  hvars = ([]);
-
+    int      have_query = 0;
+    
     if (id->misc->session_id && args && !args->norewrite && args->href && !leave_me_alone(args->href)) {
-        if (sscanf(args->href, "%*s?%s", query) == 2)
+        if (sscanf(args->href, "%*s?%s", query) == 2) {
             Caudium.parse_query_string(query, hvars);
+            have_query = 1;
+        }
         
         if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
             if (!sizeof(hvars))
-                args->href = rewrite_uri(id,  args->href);
+                args->href = rewrite_uri(id,  args->href, have_query);
             else
-                args->href = rewrite_uri(id,  args->href, 1);
+                args->href = rewrite_uri(id,  args->href, have_query);
     }
+
+    m_delete(args, "norewrite");
     
     return ({ make_container("a", args, parse_rxml(contents, id)) });
 }
@@ -1226,6 +1241,8 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     if (args && !args->norewrite && id->misc->session_id)
         contents = sprintf("<input type=\"hidden\" name=\"%s\" value=\"%s\">",
                            SVAR, id->misc->session_id) + contents;
+
+    m_delete(args, "norewrite");
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
 }
