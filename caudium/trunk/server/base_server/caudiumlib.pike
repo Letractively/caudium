@@ -1321,6 +1321,15 @@ string program_directory()
   return (sizeof(p)>1? p[..sizeof(p)-2]*"/" : getcwd());
 }
 
+//! Encodes str for use as a value in an html tag.  
+//!
+//! @param str
+//!   String to encode
+string html_encode_tag_value(string str)  
+{  
+   return "\"" + replace(str, ({"&", "\""}), ({"&amp;", "&quot;"})) + "\"";  
+}
+
 //! This function exist to aid in finding a module object identified by the
 //! passed module name.
 //!
