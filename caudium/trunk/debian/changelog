@@ -2,6 +2,7 @@ caudium (1:1.0.8rc1-7) unstable; urgency=low
 
   * Got rid of the Pike-based port tests from preconfig phase. It
     would fail if there were no Pike installed on the system.
+  * localhost vserver isn't added when it doesn't exist
 
  -- Marek Habersack <grendel@vip.net.pl>  Fri,  8 Dec 2000 16:43:16 +0100
 
