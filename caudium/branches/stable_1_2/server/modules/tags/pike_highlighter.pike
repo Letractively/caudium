@@ -25,10 +25,10 @@
 //
 //! module: Pike Source Highlighter
 //!  Pike Source Highlighter module
+//! type: MODULE_PARSER
 //! inherits: module
 //! inherits: caudiumlib
 //! inherits: highlight_pike
-//! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
 
