@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# $Id$
+#
+./start-caudium "$@" --once --program bin/install.pike
