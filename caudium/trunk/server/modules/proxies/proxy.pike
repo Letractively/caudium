@@ -38,6 +38,10 @@ string cvs_version = "$Id$";
 #include <module.h>
 #include <config.h>
 
+inherit "module";
+inherit "socket";
+inherit "caudiumlib";
+
 constant module_type = MODULE_PROXY | MODULE_LOCATION;
 constant module_name = "HTTP-Proxy"; 
 constant module_doc  = "This is a caching HTTP-proxy with quite "
@@ -63,10 +67,6 @@ Content-type: text/html\r\n\
 
 import Stdio;
 import Array;
-
-inherit "module";
-inherit "socket";
-inherit "caudiumlib";
 
 #include <proxyauth.pike>
 #include <caudium.h>
