@@ -80,7 +80,7 @@ void log(object id, mapping file)
                    "\",NOW())");
        };
        if(err) {
-         perror("Failed to insert sql query"+err->describe());
+         werror("Failed to insert sql query"+err->describe());
        }
      }
    }
