@@ -1,0 +1,338 @@
+<!-- $Id$ -->
+<comment>
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2001 The Caudium Group
+ * Based on IMHO © Stefan Wallström and Bosse Lincoln.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+</comment>
+
+<imho_doctype><html>
+<head><title><imho_banner></title>
+<if supports="stylesheets">
+<style type="text/css">
+body {font: 10pt arial, helvetica; color: black; background-color: #8db6cd}
+
+p {font: 10pt arial, helvetica}
+b {font-weight: bold}
+
+h1 {font: 22pt arial, helvetica}
+h2 {font: 18pt arial, helvetica}
+h3 {font: 14pt arial, helvetica}
+h4 {font: 10pt arial, helvetica}
+
+th {font: 13pt arial, helvetica; color: black; font-weight: bold; line-height: 110% }
+td {font: 10pt arial, helvetica; color: black;}
+
+a {font: 10pt arial, helvetica; text-decoration: underline}
+a.mailbox {font: 10pt arial, helvetica; text-decoration: none}
+a:link {color: black}
+a:visited {color: black}
+a:active {color: black}
+
+input {font: 10pt courier; text-decoration: none}
+textarea {font: 10pt courier; text-decoration: none}
+</style>
+</if>
+
+<if not defined="imhostate is login">
+ <if defined="imhostate is in">
+
+  <if supports="frames">
+   <if defined="imhoframe is idlemailnotify"> 
+    <comment>Mail Notify Window</comment>
+    </head>
+    <comment>Add a refresh timeout for mail notification</comment>
+    <if match="&caudium.version; is Caudium*">
+    <cset preparse="" scope="var" variable="url"><imho_url href="checkactivemailboxes" /></cset>
+    <script language="JavaScript" type="text/javascript">
+      window.setTimeout('window.location="&var.url;";',60000);
+    </script>
+    </if>
+    <else>
+    <set variable="url" eval="<imho_url href="checkactivemailboxes" />">
+    <formoutput quote="$">
+    <script language="JavaScript" type="text/javascript">
+      window.setTimeout('window.location="$url:quote=none$";',60000);
+    </script>
+    </formoutput>
+    </else>
+    <if not defined="imhonewmail is 0"><comment>No new mail</comment>
+     <body>
+     <center>
+     <table border="0"><tr><td bgcolor="#000070">
+      <imho_image image="newmail" quant="250" insideenvcolor="#202020" bg="#000070" scale="0.5" /><br />
+     </td></tr>
+     <if supports="javascript">
+      <script language="JavaScript" type="text/javascript">
+      function openWin(url,name) {
+       window.open(url, name);
+      }
+      </script>
+      <if match="&caudium.version; is Caudium*">
+      <cset preparse="" scope="var" variable="url"><imho_url target="_top" href="reloadactivemailboxes" /></cset>
+      <tr><td><a href="javascript:openWin('&var.url;','CAMAS')"><imho_string no="1401" /></a></td></tr>
+      </if>
+      <else>
+      <set variable="url" eval="<imho_url target="_top" href="reloadactivemailboxes" />">
+      <formoutput quote="$">
+      <tr><td><a href="javascript:openWin('$url$','CAMAS')"><imho_string no="1401" /></a></td></tr>
+      </formoutput>
+      </else>
+     </if>
+     </table>
+     </center>
+     </body>
+    </if>
+    <else>
+     <body>
+     <center>
+     <table bgcolor="#000070" border="0"><tr><td>
+      <imho_image image="nonewmail" quant="250" insideenvcolor="#202020" bg="#000070" scale="0.5" />
+     </td></tr></table>
+     </center>
+     </body>
+    </else>
+   </if> <comment>End Mail Notify Window</comment>
+
+   <else>
+   <if defined="imhoframe is _top">
+     <imho_jslogout>
+     <frameset rows="50,*" frameborder="no" border="0" framespacing="0">
+      <imho_frame scrolling="no" name="banner" />
+      <imho_frame scrolling="no" name="notbanner" />
+    </frameset>
+    </head>
+    </if> <comment>End Top frame</comment>
+
+   <else>
+    <if defined="imhoframe is notbanner">
+      <frameset cols="153,*" frameborder="no" border="0" framespacing="0">
+       <imho_frame scrolling="no" name="head" />
+       <imho_frame scrolling="auto" name="mail" />
+     </frameset>
+     </head>
+     </if><comment>End Notbanner frame</comment>
+
+    <else>
+     <if defined="imhoframe is banner">
+      </head>
+       <body text="black" bgcolor="#dde1f0" link="black" vlink="black" alink="black">
+       <if match="&caudium.version; is Caudium*">
+       <cset preparse="" scope="var" variable="banner"><imho_banner /></cset>
+        <imho_image image="bannerleft" text="&var.banner;" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" />
+     </if>
+     <else>
+       <set variable="banner" eval="<imho_banner />">
+       <formoutput quote="$">
+        <imho_image image="bannerleft" text="$banner$" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" />
+       </formoutput>
+       </else>
+       <imho_image image="bannerright" bg="#000070" width="100%" border="0" hspace="0" />
+       </body>
+      </if><comment>End banner frame</comment>
+
+      <else>
+      <if defined="imhoframe is mail">
+       <if defined="imhoscreen is readmail">
+         <frameset rows="40%,*" frameborder="yes" border="2" framespacing="0">
+          <imho_frame scrolling="auto" name="list" />
+          <imho_frame scrolling="auto" name="main" />
+        </frameset>
+        </if><comment>End of mail readmail frame set (only used when
+                      imhoscreen is readmail</comment>
+
+        <else><comment>The main CAMAS output if this frame is not split
+                       in "list" and "main"</comment>
+        </head>
+         <body bgcolor="#dde1f0" text="black" link="black" vlink="black" alink="black">
+        <if defined="imhoscreen is mailindex">
+          <h3><imho_mailbox />:</h3>
+        </if>
+         <imho_main nogtext="" tdbgcolor="#a4d3ee" thbgcolor="#000070" thcolor="white" checkcolor="black" checksize="14" arrowsize="14" target="mail" notopbuttons="" columns="num,mark,new,answered,date,fromto,subject,size" />
+        </body>
+        </else><comment>End CAMAS main output</comment>
+       </if><comment>End mail frame</comment>
+ 
+       <else><comment>Frame is one of the output frames "list", "mail", 
+                      "head"</comment>
+       </head>
+        <body bgcolor="#dde1f0" text="black" link="black" vlink="black" alink="black">
+
+        <if defined="imhoframe is head"><comment>Buttons etc</comment>
+         <imho_name /><br /><hr />
+         <table width="100%" border="2" cellspacing="0" cellpadding="3">
+         <imho_buttonoutput target="mail" quote="$" noupdate="">
+           <tr><td bgcolor="#000070" align="center">
+           <a href="$button-url$" target="$button-target$" style="text-decoration: none"><font color="white">$button-text$</font></a>
+          </td></tr>
+        </imho_buttonoutput>
+        </table>
+        <br />
+         <table width="100%" border="2" cellspacing="0" cellpadding="3">
+         <imho_buttonoutput buttons="inboxes" target="mail" quote="$" noupdate="">
+           <tr><td bgcolor="#9099b4" align="center">
+           <a href="$button-url$" target="$button-target$" style="text-decoration: none"><font color="white">$button-text$</font></a>
+          </td></tr>
+        </imho_buttonoutput>
+	 <if supports="javascript"><if defined="imhomailnotify is yes">
+          <tr><td bgcolor="#000070" align="center"><font color="white">
+	   <script language="JavaScript" type="text/javascript">
+           function openWin(url,name,opts) {
+             window.open(url, name, opts);
+	   }
+	   </script>
+           <if match="&caudium.version; is Caudium*">
+           <cset preparse="" scope="var" variable="url"><imho_url target="idlemailnotify" href="checkactivemailboxes" /></cset>
+           <a style="text-decoration: none" href="javascript:openWin('&var.url;','Notify','toolbar=no,directories=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,copyhistory=no,width=100,height=100');"><font color="white"><imho_string no="1400" /></font></a>
+           </if>
+           <else>
+           <set variable="url" eval="<imho_url target="idlemailnotify" href="checkactivemailboxes" />">
+           <formoutput quote="$">
+           <a style="text-decoration: none" href="javascript:openWin('$url$','Notify','toolbar=no,directories=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,copyhistory=no,width=100,height=100');"><font color="white"><imho_string no="1400" /></font></a>
+           </formoutput>
+           </else>
+	   </font>
+          </td></tr>
+	 </if></if>
+         <tr><td bgcolor="#000070" align="center">
+         <imho_a href="reloadactivemailboxes" target="mail" style="text-decoration: none"><font color="white"><imho_string no="203" /></font></a>
+        </td></tr>
+        </table>
+        <br />
+         <imho_about />
+        </if><comment>End head frame (buttons etc)</comment>
+
+       <else>
+ 
+        <if defined="imhoframe is list">
+          <h3><imho_mailbox />:</h3>
+          <imho_mailindex nogtext="" tdbgcolor="#a4d3ee" thbgcolor="#000070" thcolor="white" checkcolor="black" checksize="14" arrowsize="14" uptarget="mail" sidetarget="main" notopbuttons="" columns="num,mark,new,answered,date,fromto,subject,size" />
+         </if><comment>End list frame</comment>
+
+         <else><comment>Finally! If no other frame, output imho_main</comment>
+          <imho_main nogtext="" tdbgcolor="#a4d3ee" thbgcolor="#000070" thcolor="white" checkcolor="black" checksize="14" arrowsize="14" target="mail" nobackbutton="" />
+       </else>
+        </else><comment>End list or main frames</comment>
+       </body>
+       </else><comment>End output frames</comment>
+      </else><comment>End not banner frame</comment>
+     </else><comment>End not banner frameset</comment>
+    </else><comment>End not top frame</comment>
+   </else><comment>End not mail notify window</comment>
+  </if>
+
+  <else><comment>No frames</comment>
+   </head>
+   <body text="black" bgcolor="#dde1f0" link="black" vlink="black" alink="black">
+   <if match="&caudium.version; is Caudium*">
+   <cset preparse="" scope="var" variable="banner"><imho_banner /></cset>
+   <imho_image image="bannerleft" text="&var.banner;" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" />
+   </if>
+   <else>
+   <set variable="banner" eval="<imho_banner />">
+   <formoutput quote="$">
+   <imho_image image="bannerleft" text="$banner$" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" /></formoutput>
+   </else>
+   <imho_image image="bannerright" bg="#000070" width="100%" border="0" hspace="0" />
+
+   <table width="100%" nowrap="nowrap" cellpadding="2" cellspacing="2"><tr>
+    <td bgcolor="#9099b4">
+     <table width="100%"><tr><td>
+      <table border="1" cellpadding="5" cellspacing="2"><tr>
+       <imho_buttonoutput quote="$">
+         <td bgcolor="#000070" align="center">
+         <a href="$button-url$" target="$button-target$" style="text-decoration: none"><font color="white">$button-text$</font></a>
+         </td>
+       </imho_buttonoutput>
+       </tr></table>
+     </td></tr></table>
+    </td>
+    <td bgcolor="#000070" align="center">
+      <font color="#ffffff"><imho_name /> : <imho_title /></font>
+    </td>
+   </tr></table>
+
+   <imho_main nogtext="" tdbgcolor="#a4d3ee" thbgcolor="#000070" thcolor="white" checkcolor="black" checksize="14" arrowsize="14" columns="num,mark,new,answered,date,fromto,subject,size" />
+   <hr /><imho_about />
+   </body>
+
+  </else>
+
+ </if>
+
+ <else> <comment>Logged out</comment>
+  </head>
+  <if supports="javascript">
+  <script language="JavaScript" type="text/javascript"><!--
+    if (window.name == "Notify") {
+      window.close(); 
+    }
+  //-->\n</script>
+  </if>
+  <body bgcolor="#dde1f0" text="black" link="black" vlink="black" alink="black">
+  <if match="&caudium.version; is Caudium*">
+  <cset preparse="" scope="var" variable="banner"><imho_banner /></cset>
+  <imho_image image="bannerleft" text="&var.banner;" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" /></formoutput>
+  <imho_image image="bannerright" bg="#000070" width="100%" border="0" hspace="0" />
+  </if>
+  <else>
+  <set variable="banner" eval="<imho_banner />">
+  <formoutput quote="$">
+  <imho_image image="bannerleft" text="$banner$" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" /></formoutput>
+  <imho_image image="bannerright" bg="#000070" width="100%" border="0" hspace="0" />
+  </else>
+  <imho_main />
+  <hr /><imho_about />
+  </body>
+ </else>
+</if>
+
+<else> <comment>Login screen</comment>
+ <killframe />
+ <if supports="javascript">
+  <script language="JavaScript" type="text/javascript"><!--
+    if (window.name == "Notify") {
+      window.close(); 
+    }
+  //-->\n</script>
+ </if>
+ </head>
+ <body bgcolor="#dde1f0" text="black" link="black" vlink="black" alink="black">
+ <if match="&caudium.version; is Caudium*">
+ <cset preparse="" scope="var" variable="banner"><imho_banner /></cset>
+ <imho_image image="bannerleft" text="&var.banner;" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" />
+ </if>
+ <else>
+ <set variable="banner" eval="<imho_banner />">
+ <formoutput quote="$">
+ <imho_image image="bannerleft" text="$banner$" quant="250" clouds="white" fg="white" bg="#000070" align="left" border="0" hspace="0" />
+ </formoutput>
+ </else>
+ <imho_image image="bannerright" bg="#000070" width="100%" border="0" hspace="0" />
+ <center>
+   <br /><h2><imho_banner /></h2>
+   <imho_main nogtext="" />
+ </center>
+  <hr /><imho_about />
+ </body>
+</else>
+
+</html>
+
+
