@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.3x since 1.2.32
 --------------------------------------
+- Fixed a bug in store() in Gsesion module (wrong arguments given to the
+  storage specific store function)
+   (David Gourdelier)
 - Fixed htaccess module so that it can run in 2nd level virtual hosting mode.
    (Bertrand Lupart)
 - Added mimetype for XML stylesheets.
