@@ -1,5 +1,7 @@
 Changes in Caudium 1.2 since Caudium 1.0
 ----------------------------------------
+- Corrected incorrect status computation of servers usage. Was counting only
+  one virtual server.
 - "caudiumctl" script was added. Very usefull to help people who
   knows well apache.
 - Fix for bug #479167: The argument cache garbage collector was buggy.
