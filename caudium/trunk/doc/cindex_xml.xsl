@@ -3,115 +3,128 @@
                 version="1.0">
 <!-- Caudium index XSLT stylesheet
 -->
-<xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
-
-<xsl:template match="index">
- <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
- <page title="Caudium Module Index">
-  <h3>List of all Caudium Modules</h3>
-  <dl><xsl:apply-templates select='entry[@type="module"]' mode="top"><xsl:sort select="@name"/></xsl:apply-templates></dl>
-  <xsl:comment>XSLT Template version $Id$</xsl:comment>
- </page>
-</xsl:template>
-
+<xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
 
 <!-- Index for modules and files -->
+<xsl:param name="display">files</xsl:param>
+
+<xsl:template match="index">
+  <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
+  <xsl:choose>
+    <xsl:when test="$display = 'files'">
+      <page title="Caudium File / Method Index">
+        This is an index of all documented files and methods. Please note
+        that the documentation is far from complete. This reference 
+	documentation is meant for programmers that want to make custom
+	modules, Pike scripts or want to work on the webserver itself.
+	<dl>
+          <xsl:apply-templates select='entry[@type="file"]' mode="top">
+		<xsl:sort select="@name"/>
+	  </xsl:apply-templates>
+       </dl>
+       <xsl:comment>XSLT Template version $Id$</xsl:comment>
+      </page>
+    </xsl:when>
+    <xsl:when test="$display = 'modules'">
+      <page title="Caudium Module Index">
+       <h3>List of all Caudium Modules</h3>
+       <dl><xsl:apply-templates select='entry[@type="module"]' mode="top">
+           <xsl:sort select="@name"/></xsl:apply-templates></dl>
+       <xsl:comment>XSLT Template version $Id$</xsl:comment>
+      </page>
+    </xsl:when>
+    <xsl:when test="$display = 'tags'">
+      <page title="Caudium RXML Tags Index">
+       <h3>Caudium RXML Tags Index</h3>
+         <p><tablify wrap="1" nice='' cellseparator="/%%/" rowseparator="/@@/">Tag / Container/%%/In Module
+         <xsl:apply-templates select='/descendant::entry[@type="tag" or @type="container"]' mode="top">
+           <xsl:sort select="@name"/></xsl:apply-templates>
+         </tablify></p>
+       <xsl:comment>XSLT Template version $Id$</xsl:comment>
+      </page>
+    </xsl:when>
+  </xsl:choose>
+</xsl:template>
 
 <xsl:template match="entry" mode="top">
-  <dt><b><a href="{@path}">
-	<xsl:choose>
-         <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
-         <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-        </xsl:choose>
-      </a></b></dt>
-  <dd></dd>
+  <xsl:choose>
+   <xsl:when test="@type='file'">
+    <dt><b><a href="{@path}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></b></dt>
+    <dl><xsl:apply-templates select='entry[@type="method" or @type="class"]' mode="top"><xsl:sort select="@name"/></xsl:apply-templates></dl><br />
+   </xsl:when>
+
+   <xsl:when test="@type='module'">
+    <dt><b><a href="{@path}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></b></dt>
+   </xsl:when>
+
+   <xsl:when test="@type='tag'">
+    /@@/<a href="{@path}#{@name}">
+     &lt;<xsl:value-of select="@name"/> /&gt;
+    </a>/%%/<a href="{../@path}">
+     <xsl:choose>
+     <xsl:when test="../@title"><xsl:value-of select="../@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="../@name"/></xsl:otherwise>
+     </xsl:choose></a>
+   </xsl:when>
+
+   <xsl:when test="@type='container'">
+    /@@/<a href="{@path}#{@name}">
+     &lt;<xsl:value-of select="@name"/>&gt;&lt;/<xsl:value-of select="@name"/>&gt;
+    </a>/%%/<a href="{../@path}">
+     <xsl:choose>
+     <xsl:when test="../@title"><xsl:value-of select="../@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="../@name"/></xsl:otherwise>
+     </xsl:choose></a>
+   </xsl:when>
+
+   <xsl:otherwise>
+    <dd><a href="{@path}#{@name}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></dd>
+    <dl><xsl:apply-templates select='entry[@type="method" or @type="class"]' mode="top"><xsl:sort select="@name"/></xsl:apply-templates></dl>
+   </xsl:otherwise>   
+
+  </xsl:choose> 
 </xsl:template>
 
-<xsl:template match="tag">
-  <dl><dt><h3><xsl:value-of select="@name"/> </h3></dt>
-  <xsl:apply-templates select="description" mode="tag"/>
-  <xsl:apply-templates select="attributes"/>
-  <xsl:apply-templates select="returns"/>
-  </dl><hr noshade="" size="1"/>
+<xsl:template match="entry" mode="tag">
+  <xsl:choose>
+   <xsl:when test="@type='module'">
+    <xsl:if test='count(entry[@type="tag" or @type="container"]) > 0'>
+    <dt><b><a href="{@path}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></b></dt>
+    <dd><xsl:apply-templates select='entry[@type="tag" or @type="container"]' mode='tag'><xsl:sort select="@name"/></xsl:apply-templates></dd>
+
+   </xsl:if>
+   </xsl:when>
+   <xsl:when test="@type='tag'">
+    <a href="{@path}#{@name}">
+     &lt;<xsl:value-of select="@name"/> /&gt;
+    </a><br />
+   </xsl:when>
+   <xsl:when test="@type='container'">
+    <a href="{@path}#{@name}">
+     &lt;<xsl:value-of select="@name"/>&gt;&lt;/<xsl:value-of select="@name"/>&gt;
+    </a><br />
+   </xsl:when>
+  </xsl:choose> 
 </xsl:template>
-
-<xsl:template match="attributes">
-  <dt><p><b>Attributes</b></p></dt>
-  <dd><p><tablify wrap="1" nice="" cellseparator="%" rowseparator="@">Attribute%Default%Description
-   <xsl:for-each select="attribute">@
-     <xsl:value-of select="name"/>%
-     <xsl:value-of select="default"/>%
-     <xsl:value-of select="description"/>
-   </xsl:for-each>
-  </tablify></p></dd>
-</xsl:template>
-
-<xsl:template match="description" mode="tag">
-  <dt><p><b>Description</b></p></dt>
-  <dd><p><xsl:value-of select="."/></p>
-  </dd>
-</xsl:template>
-
-<!-- Layout for files (non-modules) -->
-
-<xsl:template match="file">
-  <dt><h2>File <xsl:value-of select="@name"/></h2></dt>
-  <dd><p><xsl:value-of select="description"/></p></dd>
-  <xsl:apply-templates select="version"/>
-  <dd><hr noshade="" size="1"/></dd>
-  <dd><xsl:apply-templates select="method"/></dd>
-</xsl:template>
-
-<xsl:template match="method">
-  <h3><xsl:value-of select="@name"/> </h3>
-  <dl><dt><p><b>Function</b></p></dt>
-  <dd><p><xsl:value-of select="short"/></p></dd>
-  <xsl:apply-templates select="syntax"/>
-  <xsl:apply-templates select="description" mode="method">
-    <xsl:with-param name="scope"><xsl:value-of select="scope"/></xsl:with-param>
-  </xsl:apply-templates>
-  <xsl:apply-templates select="arguments"/>
-  <xsl:apply-templates select="returns"/>
-  </dl><hr noshade="" size="1"/>
-</xsl:template>
-
-<xsl:template match="arguments">
-  <dt><p><b>Arguments</b></p></dt>
-  <dd><p><tablify wrap="1" nice="" cellseparator="%" rowseparator="@">Argument%Description
-   <xsl:for-each select="argument">@
-     <xsl:value-of select="syntax"/>%
-     <xsl:value-of select="description"/>
-   </xsl:for-each>
-  </tablify></p></dd>
-</xsl:template>
-
-<xsl:template match="returns">
-  <dt><p><b>Returns</b></p></dt>
-  <dd><p><xsl:value-of select="."/></p></dd>
-</xsl:template>
-
-<xsl:template match="syntax">
-  <dt><p><b>Syntax</b></p></dt>
-  <dd><p><xsl:value-of select="."/></p></dd>
-</xsl:template>
-
-<xsl:template match="description" mode="method">
-  <xsl:param name="scope"/>
-  <dt><p><b>Description</b></p></dt>
-  <dd><p><xsl:value-of select="."/></p>
-  <xsl:if test="$scope = 'private'"><p><b>This is an internal function for use in the
-  Caudium core only.</b></p></xsl:if>
-  </dd>
-</xsl:template>
-
-
-<!-- Shared templates -->
-
-<xsl:template match="version">
-  <dd><dl><dt><p><h4>Version</h4></p></dt>
-  <dd><xsl:value-of select="."/></dd></dl></dd>
-</xsl:template>
-
-
 
 </xsl:stylesheet>

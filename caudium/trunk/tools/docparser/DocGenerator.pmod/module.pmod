@@ -79,7 +79,7 @@ class Entry
     out_start(Stdio.File outfile, int recurse)
     {
         outfile->write(sprintf("%s<entry type=\"%s\" name=\"%s\" path=\"%s\" ",
-                               String.strmult(" ", recurse),
+                               String.strmult(" ", recurse+1),
                                myType,
                                myName,
                                myPath));
@@ -99,7 +99,7 @@ class Entry
             return;
 
         outfile->write(sprintf("%s</entry>\n",
-                               String.strmult(" ", recurse)));
+                               String.strmult(" ", recurse+1)));
     }
     
     /*
@@ -180,7 +180,6 @@ class Entry
         myName = name;
         myTitle = title;
         myMode = mode;
-        
         myState = STATE_OPEN;
         
         children = ({});
@@ -253,6 +252,7 @@ class Index
         /*
          * Files always go first, modules after them
          */
+	outfile ->write("<!DOCTYPE cindex>\n<index>\n");
         foreach(entries, Entry entry) {
             if (entry->myMode == MODE_FILE) {
                 entry->output(outfile, 0);
@@ -261,10 +261,12 @@ class Index
         }
 
         if (!single_file) {
+	    outfile->write("</index>\n");
             outfile->close();
             outfile = Stdio.File(topdir + "/modules_index.xml", "wct");
             if (!outfile)
                 throw(({"Cannot create output index file!\n", backtrace()}));
+	    outfile->write("<!DOCTYPE cindex>\n<index>\n");
         }
 
         foreach(entries, Entry entry) {
@@ -273,7 +275,7 @@ class Index
                 outfile->write("\n");
             }
         }
-
+	outfile->write("</index>\n");
         outfile->close();
     }
     
@@ -409,7 +411,10 @@ class DocGen
                             int|void is_container)
     {
         string   ret = "";
-        index->add("tag", tag->first_line);
+        if(is_container)
+	  index->add("container", tag->first_line);
+	else
+	  index->add("tag", tag->first_line);
 
         if (tag->first_line && tag->first_line != "") {
             if(is_container)
@@ -1036,7 +1041,7 @@ class DocGen
         if (files) {
             DocParser.trace("  ==> Files");
             foreach(files, DocParser.PikeFile f) {
-                output_file(subdirs[0] + "/", f);
+                output_file(subdirs[0], f);
                 end_output();
             }   
         }
@@ -1044,7 +1049,7 @@ class DocGen
         if (modules) {
             DocParser.trace("  ==> Modules");
             foreach(modules, DocParser.Module m) {
-                output_file(subdirs[1] + "/", m);
+                output_file(subdirs[1], m);
                 end_output();
             }
         }
