@@ -74,8 +74,35 @@ void create() {
          "Debug the code into Caudium debug log");
 }
 
-// General error code handler.
-// This used in 404 in general
+//!   Auth error code handler.
+//!   Return http authentication response mapping which will make the
+//!   browser request the user for authentication information. The optional
+//!   message will be used as the body of the page.
+//! @note
+//!   This function is called by http_auth_required() and http_auth_failed()
+//!   calls caudiumlib. So DO NOT call such API inside this call or Caudium
+//!   gets mad !
+//! @param realm
+//!   The realm of this authentication. This is show in various methods by the
+//!   authenticating browser.
+//! @param message
+//!   An optional message which defaults to message in the defvar of this 
+//!   module.
+//! @param dohtml
+//!   Optional to make a nice HTML docuemnt.
+mapping|int auth_required(string realm, string|void message void|int dohtml)
+{
+
+}
+
+//!   General error code handler.
+//!   This used in 404 in general
+//! @param id
+//!   The Caudium Object ID
+//! @param extra_heads
+//!   Extra heads to send to browser (optional).
+//! @returns
+//!   The HTTP response mapping.
 mapping|int handle_error(object id, void|mapping extra_heads)
 { 
   int error_code;    // The HTTP Error code
