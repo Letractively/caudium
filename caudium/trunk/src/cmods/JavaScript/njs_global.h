@@ -21,7 +21,6 @@
 #ifndef NJS_GLOBAL_H
 #define NJS_GLOBAL_H
 
-#define ARG(_n_) sp[-(args - _n_)]
 #define THIS ((njs_storage *)(Pike_fp->current_storage))
 #define SCOPE ((scope_storage *)context)
 #define GET_SCOPE() scope_storage *context = js_class_context(cls)
