@@ -104,12 +104,11 @@ page.%3cp%3e
   <a>
     
   <a>
-    <int>80</int>
+    <int>@PORTNUM@</int>
     <str>http</str>
-    <str>localhost</str>
+    <str>ANY</str>
     <str></str>
   </a>
-  @PLACEHOLDER@
   </a>
  </var>
 </region>

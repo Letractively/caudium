@@ -27,13 +27,7 @@ CAUDIUM_PIKE=/usr/lib/caudium/base_server/caudium.pike
 
 case "$1" in
     configure)
-    set -x
-    db_get caudium/reconfig_localhost
-    if test "$RET" = "false"; then
-	db_stop
-	exit 0
-    fi
-    
+
     db_get caudium/config_port
     if test -n "$RET" -a "$RET" != "22202"; then
         CONFIG_PORT="$RET"
@@ -42,24 +36,14 @@ case "$1" in
     fi
 
     db_get caudium/listen_on
-    if test -z "$RET"; then
-	LISTEN_IF="`hostname -f`"
-	PORTNO=80
-    else
-	LISTEN_IF="$RET"
-	PORTNO="`echo $RET | cut -s -d ':' -f 2`"
-        if test -z "$PORTNO"; then
-    	    PORTNO=80
-        else
-	    RET="`echo $RET | cut -s -d ':' -f 1`"
-	fi
+    PORTNO="$RET"
+
+    if [ ! -f /etc/caudium/Global_Variables ]; then    
+     sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/servers/localhost > \
+         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
+  	 /etc/caudium/servers/localhost
     fi
     
-    CAUDIUM_IF="<a><str>$PORTNO</str><str>http</str><str>$RET</str><str></str></a>"
-    sed -e "s;@PLACEHOLDER@;$CAUDIUM_IF;" /etc/caudium/servers/localhost > \
-        /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
-	/etc/caudium/servers/localhost
-
     db_get caudium/start_options
     START_OPTIONS=
 

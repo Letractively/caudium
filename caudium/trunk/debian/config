@@ -6,17 +6,13 @@
 
 PORTCHECK='object port = Stdio.Port(); if (!port->bind((int)getenv("PORTNO"))) write("no"); else write("yes");'
 PIKE=/usr/bin/pike7
-
-init() {
-    db_reset caudium/config_port || true
-}
-
+set -x
 get_cfg_port() {
     local yesno;
     local port;
     
     db_title 'Config Interface Port'
-    
+        
     while test 1; do
      db_input high caudium/config_port || true
      db_go
@@ -43,65 +39,46 @@ get_cfg_port() {
 }
 
 get_iface() {
-    local port;
+    local port = "80";
     local yesno;
     
-    db_title 'Host address'
-    
+    db_title 'Port number'
+    db_subst caudium/listen_on portno $port
+
     while test 1; do
+     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
+     if [ "$yesno" = "yes" ]; then
+        break
+     fi
+     
      db_input high caudium/listen_on || true
      db_go
      
      db_get caudium/listen_on
-     port="`echo $RET | cut -s -d ':' -f 2`"
+     port=$RET
      if test -z "$port"; then
-        port=80
+        port="`expr $port + 1`"	
      fi
-     
-     yesno=`env PORTNO=$port $PIKE -e "$PORTCHECK"`
-     if test "$yesno" = "no"; then
-      db_reset caudium/listen_on || true
-      db_reset caudium/if_port_taken || true
-      db_subst caudium/if_port_taken portno $port
-      db_input high caudium/if_port_taken || true
-      db_go
-      continue
-     else
-      break
-     fi
+     db_reset caudium/listen_on
+     db_set caudium/listen_on $port
     done
 }
 
 db_version 2.0
 db_capb
-db_subst caudium/listen_on hostname `hostname -f`
 
-init
-
-if test -f /etc/caudium/servers/localhost; then
-    db_title 'Reconfiguration'
-    db_input medium caudium/reconfig_localhost || true
-    db_go || true
-else
-    db_set caudium/reconfig_localhost "true"
-    RET="true"
+if test -f /etc/caudium/Global_Variables; then
+    exit 0
 fi
 
-if test "$RET" = "true"; then
-    db_reset caudium/config_port
-    db_reset caudium/start_options
-    db_reset caudium/listen_on
-    
-    get_cfg_port
-    get_iface
+get_cfg_port
+get_iface
 
-    db_title 'Startup options'
+db_title 'Startup options'
     
-    db_input medium caudium/start_options || true
+db_input medium caudium/start_options || true
 
-    db_title 'Caudium configuration'
-    db_reset caudium/last_screen
-    db_input medium caudium/last_screen || true
+db_title 'Caudium configuration'
+db_input medium caudium/last_screen || true
     
-    db_go || true
-fi
+db_go || true
