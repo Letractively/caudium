@@ -25,25 +25,21 @@
 //! @note
 //!   All theses calls are here to allow transparent migration
 //!   between Roxen 1.3 and Caudium. This allows also some modules
-//!   designed for Caudium to run without modifications.
+//!   designed for Caudium to run without modifications. This Library
+//!   contains also some compat call for Pike as well.
 
 constant cvs_version = "$Id$";
 
-#define WCOMPAT(Y,X) \
-	string sourcefile; \
-        int    sourceline; \
-        sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n", \
-               sourceline,sourcefile); \
-        report_error("Compat "+X+"() used in %s:%d, please consider using " \
-                     ""+Y+"."+X+"() instead\n",sourcefile,sourceline);
+// Private functions
+// Used for backtrace work
+static private string dbt(array t) {
+  if(!arrayp(t) || (sizeof(t)<2)) return "";
+  return (((t[0]||"Unknown program")-(getcwd()+"/"))-"base_server/")+":"+t[1];
+}        
 
-#define WCOMPAT2(Y,X) \
-	string sourcefile; \
-        int    sourceline; \
-        sscanf(describe_backtrace(backtrace()[1]),"%*s\n%d\n%s\n", \
-               sourceline,sourcefile); \
-        report_error("Compat "+X+"() used in %s:%d, please consider using " \
-                     ""+Y+"() instead\n",sourcefile,sourceline);
+#define WCOMPAT(Y,X) report_error("Compat "+X+"() used in %s, please consider using "+Y+"."+X+"() instead\n",dbt(backtrace()[-2]));
+
+#define WCOMPAT2(Y,X) report_error("Compat "+X+"() used in %s, please consider using "+Y+"() instead\n",dbt(backtrace()[-2]));
 
 //! Compat call of Stdio.mkdirhier
 //! @deprecated
@@ -63,7 +59,7 @@ string http_decode_string(string m) {
 //! @deprecated
 string html_encode_string(string m) {
    WCOMPAT("_Roxen","html_encode_string");
-   return _Roxen.html_decode_string(m);
+   return _Roxen.html_encode_string(m);
 }
 
 //! Compat call of Protocols.HTTP.unentity
@@ -104,8 +100,23 @@ string cern_http_date(int t) {
 //! Compat call of Caudium.http_date
 //! @deprecated
 string http_date(int t) {
-   WCOMPAT("Cadium","http_date");
+   WCOMPAT("Caudium","http_date");
    return Caudium.http_date(t);
 }
 
+// Some spider calls are not under spider module so here is some compat
+// things
 
+//! Compat call of spider.parse_html
+//! @deprecated
+string parse_html(mixed ... args) {
+   WCOMPAT("spider","parse_html");
+   return spider.parse_html(@args);
+}
+
+//! Compat call of spider.parse_html_lines
+//! @deprecated
+string parser_html_lines(mixed ... args) {
+   WCOMPAT("spider","parse_html_lines");
+   return spider.parse_html_lines(@args);
+}
