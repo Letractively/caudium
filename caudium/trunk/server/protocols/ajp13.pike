@@ -73,11 +73,16 @@ private int len_to_get=0;
 private int body_len=0;
 private int last_get_success=0;
 private int sent;
-private int reuse;
+private int reuse=1;
 private string packet="";
 string body="";
 
 #define GETTING_REQUEST_BODY 1
+
+void destroy()
+{
+ werror("AJP13::destory()\n");
+}
 
 private int really_set_config(array mod_config)
 {
@@ -118,6 +123,7 @@ h->headers = ([
 ]);
   my_fd->write(generate_container_packet(encode_send_headers(h)));
   my_fd->write(generate_container_packet(encode_end_response(1)));
+werror("end response!\n");
   // do we need to end the request?
 
   } else {
@@ -158,7 +164,7 @@ h->headers = ([
 ]);
   my_fd->write(generate_container_packet(encode_send_headers(h)));
   my_fd->write(generate_container_packet(encode_end_response(1)));
-
+werror("end response\n");
   // do we need to end the request?
 
   }
@@ -240,7 +246,7 @@ private int current_state;
 
 void got_data(mixed fdid, string s)
 {
-
+werror("got data\n");
   int tmp, ready_to_process, keep_trying;
   MARK_FD("AJP got data");
   remove_call_out(do_timeout);
@@ -262,6 +268,7 @@ void got_data(mixed fdid, string s)
   {
     last_get_success=0;
     tmp = parse_got();
+werror("parse got returned " + tmp + "\n");
 
     switch(tmp)
     {
@@ -277,7 +284,6 @@ void got_data(mixed fdid, string s)
          body_len = 0;
          processed = 0;
          if(reuse) ready_for_request();
-         else this->destroy();
 
        }
        if(!body_len) // if we need to wait for the body, we should continue.
@@ -1027,22 +1033,26 @@ werror("sending " + sizeof(chunk) + " bytes of " + sent + " / "+ file->len + ".\
   } while (sent < file->len);
 }
 
-  my_fd->write(generate_container_packet(encode_end_response(1)));
-
+  my_fd->write(generate_container_packet(encode_end_response(reuse)));
+  werror("end response\n");
+  if(reuse) ready_for_request();
+  else 
+  {
+    my_fd->close();
+  }
   catch(do_log());
   packet = "";
   body_len = 0;
   processed = 0;
-  if(reuse) ready_for_request();
-  else this->destroy();
 }
 
 void ready_for_request()
 {
-    my_fd->set_nonblocking(got_data, 0, end);
-    // No need to wait more than 30 seconds to get more data.
-    call_out(do_timeout, 30);
-    time = _time(1);
+    werror("ready_for_request\n");
+    object o = object_program(this_object())(my_fd, conf);
+    object fd = my_fd;
+    my_fd = 0;
+    o->chain(fd, conf, to_process);
 }
 
 void create(void|object f, void|object c)
@@ -1062,3 +1072,38 @@ void create(void|object f, void|object c)
   unread_data = 0;
 }
 
+void chain(object f, object c, string le)
+{
+
+ werror("chain()\n");
+  my_fd = f;
+  conf = c;
+  do_not_disconnect=-1;
+  MARK_FD("Kept alive");
+  if(strlen(le))
+    // More to handle already.
+    got_data(0,le);
+  else
+  {
+    // If no pipelined data is available, call out...
+//    call_out(do_timeout, 150);
+    time = _time(1);
+  }
+    
+  if(!my_fd)
+  {
+    if(do_not_disconnect == -1)
+    {
+      do_not_disconnect=0;
+      disconnect();
+    }
+  } else {
+    if(do_not_disconnect == -1)
+      do_not_disconnect = 0;
+    if(!processed) {
+      f->set_close_callback(this->destroy);
+      f->set_read_callback(got_data);
+    }
+  }
+}
+   
