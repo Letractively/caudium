@@ -1,3 +1,28 @@
+caudium (2:1.0.38-1) unstable; urgency=medium
+
+  * Latest upstream release. Changes:
+    - business graphics module now creates the cache directory in the correct
+      location (under the argument_cache_dir hierarchy)
+    - Font name can now be specified in the <diagram> tag and use the CIF default
+      font name.
+    - The compilation process may skip rpath from the compiler/linker command line
+      if either building a Debian package or the NO_RPATH_PLEASE variable is found
+      in the environment when running configure (and smartlink thereafter).
+    - Corrected a bug in ftp protocol in pasv mode. Thanks to 
+      Joe Radinger <cheese@nosuchhost.net>
+    - New configuration files are created with the 0600 permission bits now.
+    - Fix for SFBUG 498377: the environment variable didn't show the complete url
+      with the query.
+    - Added support for //!NOMODULE in modules. This closes SFBUG 473716
+    - oldcgi is not not shown in the module list.
+    - ldapuserauth.pike: fixed a security problem when using user access mode :
+      it was possible to login as any user by typing any password when user 
+      passwd was not in cache (eg where you were the first to login after a
+      restart/start of caudium).
+    - ldapuserauth.pike: crypt problem fixed.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 25 Feb 2002 13:04:38 +0100
+
 caudium (2:1.0.37-7) unstable; urgency=low
 
   * got rid of rpath for good this time
