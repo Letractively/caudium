@@ -68,7 +68,7 @@ private static int wanted_data, have_data;
 
 object conf;
 
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 
 #undef QUERY

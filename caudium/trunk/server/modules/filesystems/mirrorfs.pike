@@ -22,7 +22,7 @@ constant cvs_version="$Id$";
 constant thread_safe=1;
 
 import RoxenRPC;
-#include <roxen.h>
+#include <caudium.h>
 #include <module.h>
 #include <stat.h>
 inherit "filesystem";

@@ -30,7 +30,7 @@ constant cvs_version = "$Id$";
 constant thread_safe=1;
 
 #include <module.h>
-#include <roxen.h>
+#include <caudium.h>
 
 #define VOIDSYMBOL "\n"
 #define SEP "\t"
