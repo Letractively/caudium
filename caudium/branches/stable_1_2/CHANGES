@@ -2,6 +2,7 @@ Changes in Caudium 1.2.xx since 1.2.26
 --------------------------------------
 - Fixes in responses given to FTP client in the ftp protocol. Mostly because
   Opera don't like it too mutch. (SF bug #560771)
+    (Xavier Beaudouin)
 
 Changes in Caudium 1.2.26 since 1.2.24
 --------------------------------------
