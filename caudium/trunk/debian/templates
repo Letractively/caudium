@@ -37,9 +37,9 @@ Description-pl: Na którym porcie serwer ma nas³uchiwaæ?
  po³±czenia na porcie '${portno}' ka¿dego interfejsu w twoim
  komputerze. Wydaje siê jednak, i¿ ów port jest ju¿ zajêty
  przez inny program. Podaj, proszê, inny numer portu.
-Description-fr: Sur quel port le server devrait-il écouter ?
+Description-fr: Sur quel port le serveur devrait-il écouter ?
  Caudium utilise actuellement le port '${portno}' sur toutes les
- interface de votre machine. Il semble que ce port est déjà 
+ interface de votre machine. Il semble que ce port soit déjà 
  pris par une autre application. Merci de spécifier un autre port.
 
 Template: caudium/start_options
@@ -94,7 +94,7 @@ Description-pl: Nie mo¿na otworzyæ portu
 Description-fr: Impossible d'ouvrir (bind) le port.
  Le port que vous avez configuré pour l'interface de configuration de 
  Caudium n'est pas disponible. Merci de préciser un autre numéro de 
- port - Caudium ne peux fonctionner normale sans ouvrir un port pour
+ port - Caudium ne peux fonctionner normalement sans ouvrir un port pour
  son interface de configuration sur votre système.
 
 Template: caudium/last_screen
@@ -128,12 +128,12 @@ Description-pl: Konfiguracja Caudium
  w katalogu /usr/share/doc/caudium i odwiedziæ strony http://caudium.net/
  oraz http://caudium.org/
 Description-fr: Configuration de Caudium
- Après l'installation de Caudium et son lancement effectué, vous pourrer
+ Après l'installation de Caudium et son lancement effectué, vous pourrez
  pointer votre navigateur web supportant les formulaires sur 
- localhost:${cfgport} pour afiner la configuration de Caudium en utilisant
+ localhost:${cfgport} pour affiner la configuration de Caudium en utilisant
  son interface de configuration web. Cette étape est VRAIMENT IMPORTANTE
  sachant que vous allez créer un utilisateur/mot de passe administratif.
- Pour plus d'information sur Caudium, veuillez consulter les docuement 
+ Pour plus d'information sur Caudium, veuillez consulter les documents 
  dans le répertoire /usr/share/doc/caudium et veillez à visitez les sites
  web http://caudium.net/ et http://caudium.org/
 
