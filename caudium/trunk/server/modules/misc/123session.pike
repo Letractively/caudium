@@ -409,7 +409,7 @@ mixed first_try(object id) {
   if (id->variables->logout && id->misc->session_variables->username) {
     if (id->variables->logout == id->misc->session_variables->username) {
       m_delete(id->misc->session_variables, "username");
-      store_everything(([]), id);
+      store_everything(id);
     }
   }
 
