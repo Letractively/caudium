@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.32 since 1.2.30
 -------------------------------
+- Fixes usage of Pike_sp instead of sp. Thanks to Karl Pitrich that reports
+  this bug.
+   (Xavier Beaudouin)
 - Imported a SSL pmod from Pike 7.2.340 since it works a little better
   than SSL in newer Pike 7.2. 
    (David Gourdelier)
