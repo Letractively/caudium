@@ -83,7 +83,8 @@ static void really_start() {
 //! returns an HTML string containing status information about the current;y
 //! running caches; object count, hitrate, etc.
 //!
-//! @todo please help me make this not suck. it's way off at the moment.
+//! @note
+//!   please help me make this not suck. it's way off at the moment.
 string status() {
   PRELOCK();
   LOCK();
