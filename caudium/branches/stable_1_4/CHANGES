@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- <if> no longer evaluates true if using the "element is value" syntax and the 
+  element is not present.
+   (Bill Welliver)
 - Fixed a backtrace when loading the WebApp module.
    (Bill Welliver)
 
