@@ -36,7 +36,7 @@ import Standards.ASN1.Encode;
 
 
 #if SSL_DEBUG
-#define WERROR report_debug
+#define WERROR(x) report_debug(x)
 #else
 #define WERROR(x)
 #endif
@@ -293,7 +293,7 @@ mixed page_4(object id, object conf)
 			     Certificate.build_distinguished_name(@name),
 			     csr_attrs);
 
-  WERROR("csr: %s\n", Caudium.Crypto.to_hex(csr->get_der());
+  //WERROR("csr: %s\n", Caudium.Crypto.to_hex(csr->get_der()));
 
   string res = "The certificate request:<br>\n";
 
