@@ -1,7 +1,6 @@
 // This is a roxen module. Copyright © 1996 - 2000, Roxen IS.
 //
 
-
 // From what module we take some functions
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
