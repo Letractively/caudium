@@ -1,0 +1,51 @@
+AC_INIT(sablot.c)
+AC_CONFIG_HEADER(sablot_config.h)
+
+CAUDIUM_MODULE_INIT()
+
+AC_PROG_INSTALL
+
+dnl Solaris have math functions in libm
+dnl so this is needed to linking libsablot
+AC_CHECK_LIB(m, ceil)
+AC_CHECK_LIB(m, floor)
+
+AC_CHECK_HEADERS( sablot.h )
+dnl The standart Sablot/Expat need the libxmlok library
+AC_CHECK_LIB(xmltok, XmlInitEncoding)
+AC_CHECK_LIB(xmlparse, XML_Parse)
+dnl The GNOME xmltok/xmlparse library is different but works OK
+dnl on some systems that run sablotron modified to use
+dnl the GNOME lib (like, e.g. Debian GNU/Linux woody)
+if test "$ac_cv_lib_xmlparse_XML_Parse" = no; then
+    AC_CHECK_LIB(xmltok, XmlInitEncoding)
+    AC_CHECK_LIB(xmlparse, XML_ParserCreate)
+fi
+
+AC_CHECK_LIB(sablot, SablotProcess)
+
+if test "$ac_cv_header_sablot_h" != "yes" -o \
+	    "$ac_cv_lib_sablot_SablotProcess" != "yes"; then
+cat << EOF
+*************************************************************
+**** The Sablotron XSLT processing library couldn't be found.
+**** PiXSL will not be built. You can get Sablotron from
+**** http://www.gingerall.com/
+****
+**** Install the library and remove config.cache in the base
+**** build directory and rerun configure to get XSLT support.
+****
+**** To build Caudium without XSLT support run configure with
+**** the --without-PiXSL flag.
+*************************************************************
+EOF
+exit 1
+fi
+
+AC_OUTPUT(Makefile.pre pixsl, [make -f Makefile.pre depend])
+
+
+dnl ## Local Variables:
+dnl ## tab-width: 4
+dnl ## End:
+	

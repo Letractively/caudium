@@ -1,0 +1,49 @@
+Compiling Caudium from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+It's easy to compile Caudium from CVS. Just run ./autogen.sh before
+following the standard installation instructions. Please note that
+this step requires a new automake.
+
+To get Caudium from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-
+
+cvs -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium login
+[Hit [Return] as the password (ie empty password)]
+
+cvs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
+
+You can later update your Caudium source from CVS by typing:
+
+cvs -z3 update -Pd
+
+with the current directory being the "caudium" directory you got from
+the initial checkout.
+
+to build Caudium from CVS:
+-=-=-=-=-=-=-=-=-=-=-=-=-
+
+You also need a recent pike 0.6, 7.0 or 7.1. We recommend using
+7.0. Check out pike.roxen.com, or better, get one from cvs. See
+
+http://community.roxen.com/developers/cvs/anoncvs.html
+
+For more information on obtaining Pike 7.0 from anonymous cvs.
+
+Once you've installed Pike following the instructions you can continue
+installing Caudium. Don't forget to run autogen.sh first as listed above. A
+typical install would then look like (assuming Pike is installed in
+/opt/pike):
+
+# ./configure --prefix=/opt/www --with-pike=/opt/pike/7.0.81/bin/pike
+[configure checks]
+# make
+[compilation]
+# make install
+[installation]
+# cd /opt/www/caudium/server/
+# ./install
+[install questions]
+
+This will place the caudium base-directory in /opt/www/caudium . 
+
