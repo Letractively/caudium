@@ -26,7 +26,7 @@
 //  build_env_vars
 //  decode_mode
 //  is_modified (GROSS!!)
-//  parse_rml
+//  parse_rxml
 //  msectos
 //  get_size
 //  do_output_tag (GROSS!!)
@@ -56,6 +56,10 @@ inherit "http";
 //! @returns
 //!  The size of the image as a string in a format suitable for use
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
+//
+// @note
+//  Now uses Image.Dims.get so it can gets info on GIF, JPEG and PNG as well.
+//  This is now non-RIS implementation.
 string gif_size(object gif)
 {
   int x,y;
@@ -63,8 +67,22 @@ string gif_size(object gif)
   gif->seek(6);
   d = gif->read(4);
   x = (d[1]<<8) + d[0]; y = (d[3]<<8) + d[2];
+  return "width=\""+x+"\" height=\""+x+"\"";
 
-  return "width=\""+x+"\" height=\""+y+"\"";
+// This need to be fixed and tested... Will try this later.  
+//  array size;
+//  mixed err;
+//
+//  err = catch{
+//  size = Image.Dims.get(gif);
+//  };
+//  if(err) return "";
+//  else {
+//    if(arrayp(size))
+//      return "width=\""+size[0]+"\" height=\""+size[1]+"\"";
+//    else
+//      return "";
+//  }
 }
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
@@ -977,43 +995,33 @@ string msectos(int t)
   return sprintf("%d:%02d h:m", t/3600000, (t%3600000)/60000);
 }
 
-#if constant(Caudium.extension)
+//! @decl string extension( string f)
+//! @decl string Caudium.extension( string f)
+//!
+//! Gets the extension from filename
+//!
+//! @param f
+//!   The filename to get the extension
+//!
+//! @returns
+//!   The good extension values
+//! 
+//! @seealso
+//!   Caudium.extension
+//!
+//! @note
+//!   Non RIS code.
+
+
 static function extension = Caudium.extension;
-#else
-static string extension( string f )
-{
-  string q;
-  sscanf(f, "%s?%*s", f); // Forms.
 
-  f=lower_case( f );
-  if (strlen(f))
-    switch(f[-1]) {
-      case '#':
-        sscanf(f, "%s#", f);
-        break;
-        
-      case '~':
-        sscanf(f, "%s~%*s", f);
-        break;
-        
-      case 'd':
-        sscanf(f, "%s.old", f);
-        break;
-        
-      case 'k':
-        sscanf(f, "%s.bak", f);
-        break;
-  }
-  
-  q=f;
-  sscanf(reverse(f), "%s.%*s", f);
-  f = reverse(f);
-  if(q==f)
-    return "";
-  return f;
-}
-#endif
-
+//! Gets the backup extension
+//! 
+//! @note
+//!   RIS code ?
+//!
+//! @fixme
+//!   Is this usefull ???
 static int backup_extension( string f )
 {
   if (!strlen(f)) 
@@ -1056,6 +1064,7 @@ int get_size(mixed x)
   return 20; // Ints and floats are 8 bytes, refcount and float/int.
 }
 
+//!
 static int ipow(int what, int how)
 {
   int r=what;
@@ -1260,7 +1269,11 @@ static mapping(string:string) ift = ([
   "text" : "internal-gopher-text"
 ]);
 
-// non-RIS code
+//! Gets image from type
+//! @note
+//!   non-RIS code
+//! @fixme
+//!   Undocumented.
 static string image_from_type(string t)
 {
   if (t) {
