@@ -787,10 +787,20 @@ array get_servers() {
     {
       int port;
       string host, prot;
-   
-      sscanf(cfg->MyWorldLocation, "%s://%s:%d", prot, host, port);
-      if(prot=="http" && host && port)
-        srvs+=({ ({host, port}) });
+      object uri;
+
+      mixed err = catch {
+        uri = Standards.URI(cfg->MyWorldLocation);
+      };
+      if(err)
+        werror("Can't parse URI: %O\n", cfg->MyWorldLocation);
+      if(uri && uri->scheme=="http" && uri->host)
+      {
+        int port = uri->port;
+        if(!port)
+          port = 80;
+        srvs+=({ ({ uri->host, port}) });
+      }
     }
   }
            
@@ -876,6 +886,8 @@ void check_site()
     else
       ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
   }
+  else
+   flex_write("Can't get a site to connect to: Not starting watchdog\n");
     
 }
 
