@@ -50,8 +50,8 @@ Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-$(SRCDIR)/configure: $(SRCDIR)/configure.in
-	@echo "configure.in changed. Rebuilding."
+$(SRCDIR)/configure: $(SRCDIR)/configure.ac
+	@echo "configure.ac changed. Rebuilding."
 	@(cd  $(SRCDIR); autogen.sh)
 
 config.status:  $(SRCDIR)/configure
