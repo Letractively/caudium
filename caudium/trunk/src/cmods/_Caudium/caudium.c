@@ -1556,7 +1556,7 @@ static void f_cern_http_date(INT32 args)
          return;
      }
    }
-#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+#ifdef STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
   diff = -(timezone) / 60L;
@@ -1686,7 +1686,7 @@ static void f_http_date(INT32 args)
          return;
      }
    }
-#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+#ifdef STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
   diff = -(timezone) / 60L;
