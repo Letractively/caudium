@@ -116,8 +116,6 @@ string describe_type(int type, mixed flag)
   return "";
 }
 
-string encode_ports(array from);
-
 //!
 string strip_html(string from)
 {
