@@ -1,4 +1,4 @@
 #!/bin/sh
 
 autoheader
-autoconf --localdir=$1
+autoconf -B $1
