@@ -102,3 +102,8 @@ mapping|int last_resort(object id)
 //!  type: TYPE_STRING
 //!  name: Filename
 //
+//! defvar: msie
+//! Returns a 200 response to Microsoft Internet Explorer browser instead of 404.
+//!  type: TYPE_FLAG
+//!  name: Return a 200 to MSIE
+//
