@@ -43,7 +43,7 @@ Description: Caudium configuration
  .
  For more information about Caudium see the documents in the
  /usr/share/doc/caudium directory and make sure to visit
- http://caudium.net/ and http://caudium.org/
+ http://caudium.net/, http://caudium.org/ and http://caudium.info/
 
 Template: caudium/experimental_http
 Type: boolean
