@@ -1439,17 +1439,22 @@ array|mapping|string view_log(string f, object id) {
 
 object profile_master;
 mapping profiles;
+object filewatch;
 
-array profstat;
-
+int load_profiles(string file, array|void last, array|void new) {
+  write("UltraLog: (re)loading configuration file from disk.\n");
+  profile_master = Profile.Master(file);
+  profiles = ([]);
+  foreach(profile_master->profiles, object p)
+    profiles[p->name] = p;
+  return 0;
+}
+							       
 void start(int n, object conf)
 {
   module_dependencies(conf, ({ "obox", "business" }));
-  profiles = ([]);
-  profstat = file_stat(QUERY(profile));
-  profile_master = Profile.Master(QUERY(profile));
-  foreach(profile_master->profiles, object p)
-    profiles[p->name] = p;
+  load_profiles(QUERY(profile));
+  filewatch = FileWatch.Callout(QUERY(profile), 5, load_profiles);
 }
 
 
