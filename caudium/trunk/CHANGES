@@ -69,3 +69,5 @@ Changes in Caudium 1.1 since CVS branching
   Pipe.pipe for high traffic, large file sites.
 - Fixed <use> cache lookup (use the full path as the key, not the unresolved
   path).
+- Removed the bug-causing directory override feature. If you need to list
+  directories, don't put an index.html in it.
