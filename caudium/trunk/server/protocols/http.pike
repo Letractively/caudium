@@ -286,82 +286,82 @@ private int parse_got()
 
     string trailer, trailer_trailer;
     switch(sscanf(line+" ", "%s %s %s %s %s",
-		  method, f, clientprot, trailer, trailer_trailer))
+                  method, f, clientprot, trailer, trailer_trailer))
     {
-    case 5:
-      // Stupid sscanf!
-      if (trailer_trailer != "") {
-	// Get rid of the extra space from the sscanf above.
-	trailer += " " + trailer_trailer[..sizeof(trailer_trailer)-2];
-      }
-      /* FALL_THROUGH */
-    case 4:
-      // Got extra spaces in the URI.
-      // All the extra stuff is now in the trailer.
+        case 5:
+          // Stupid sscanf!
+          if (trailer_trailer != "") {
+            // Get rid of the extra space from the sscanf above.
+            trailer += " " + trailer_trailer[..sizeof(trailer_trailer)-2];
+          }
+          /* FALL_THROUGH */
+        case 4:
+          // Got extra spaces in the URI.
+          // All the extra stuff is now in the trailer.
 
-      // Get rid of the extra space from the sscanf above.
-      trailer = trailer[..sizeof(trailer) - 2];
-      f += " " + clientprot;
+          // Get rid of the extra space from the sscanf above.
+          trailer = trailer[..sizeof(trailer) - 2];
+          f += " " + clientprot;
 
-      // Find the last space delimiter.
-      int end;
-      if (!(end = (search(reverse(trailer), " ") + 1))) {
-        // Just one space in the URI.
-        clientprot = trailer;
-      } else {
-        f += " " + trailer[..sizeof(trailer) - (end + 1)];
-        clientprot = trailer[sizeof(trailer) - end ..];
-      }
-      /* FALL_THROUGH */
-    case 3:
-      // >= HTTP/1.0
+          // Find the last space delimiter.
+          int end;
+          if (!(end = (search(reverse(trailer), " ") + 1))) {
+            // Just one space in the URI.
+            clientprot = trailer;
+          } else {
+            f += " " + trailer[..sizeof(trailer) - (end + 1)];
+            clientprot = trailer[sizeof(trailer) - end ..];
+          }
+          /* FALL_THROUGH */
+        case 3:
+          // >= HTTP/1.0
 
-      prot = clientprot;
-      //      method = upper_case(p1);
-      if(!(< "HTTP/1.0", "HTTP/1.1" >)[prot]) {
-	// We're nice here and assume HTTP even if the protocol
-	// is something very weird.
-	prot = "HTTP/1.1";
-      }
-      // Do we have all the headers?
-      if ((end = search(raw[last_search..], "\r\n\r\n")) == -1) {
-	// No, we still need more data.
-	REQUEST_WERR("HTTP: parse_got(): Request is still not complete.");
-	last_search = max(strlen(raw) - 5, 0);
-	return 0;
-      }
+          prot = clientprot;
+          //      method = upper_case(p1);
+          if(!(< "HTTP/1.0", "HTTP/1.1" >)[prot]) {
+            // We're nice here and assume HTTP even if the protocol
+            // is something very weird.
+            prot = "HTTP/1.1";
+          }
+          // Do we have all the headers?
+          if ((end = search(raw[last_search..], "\r\n\r\n")) == -1) {
+            // No, we still need more data.
+            REQUEST_WERR("HTTP: parse_got(): Request is still not complete.");
+            last_search = max(strlen(raw) - 5, 0);
+            return 0;
+          }
       
-      if (prot == "HTTP/1.1")
-        cache_control_ok = 1;
+          if (prot == "HTTP/1.1")
+            cache_control_ok = 1;
 
-      end += last_search;
-      last_search = 0;
-      data = raw[end+4..];
-      s = raw[sizeof(line)+2..end-1];
-      // s now contains the unparsed headers.
-      break;
+          end += last_search;
+          last_search = 0;
+          data = raw[end+4..];
+          s = raw[sizeof(line)+2..end-1];
+          // s now contains the unparsed headers.
+          break;
 
-    case 2:
-    case 1:
-      if(method=="PING")
-      {
-        clientprot = prot = "HTTP/0.9";
-        my_fd->write("PONG\r\n");
-        return 2;
-      }
+        case 2:
+        case 1:
+          if(method=="PING")
+          {
+            clientprot = prot = "HTTP/0.9";
+            my_fd->write("PONG\r\n");
+            return 2;
+          }
 #ifdef SUPPORT_HTTP_09
-     // HTTP/0.9
-      clientprot = prot = "HTTP/0.9";
-      method = "GET"; // 0.9 only supports get.
-      s = data = ""; // no headers or extra data...
-      break;
+          // HTTP/0.9
+          clientprot = prot = "HTTP/0.9";
+          method = "GET"; // 0.9 only supports get.
+          s = data = ""; // no headers or extra data...
+          break;
 #endif     
-    default:
-      // Invalid request
-     method = "UNKNOWN";
-     clientprot = prot = "HTTP/1.0";
-     REQUEST_WERR("HTTP: Unknown / unsupported protocol.");
-     return 1;
+        default:
+          // Invalid request
+          method = "UNKNOWN";
+          clientprot = prot = "HTTP/1.0";
+          REQUEST_WERR("HTTP: Unknown / unsupported protocol.");
+          return 1;
     }
   } else {
     // HTTP/1.0 or later
@@ -382,6 +382,31 @@ private int parse_got()
   
   REQUEST_WERR(sprintf("RAW_URL:%O", raw_url));
 
+  if (clientprot == "HTTP/1.1") {
+    REQUEST_WERR("HTTP/1.1 request - checking for absolute URI");
+    int startpos = 0;
+    if (has_prefix(raw_url, "http://"))
+      startpos = 7;
+    if (has_prefix(raw_url, "https://"))
+      startpos = 8;
+
+    if (startpos) {
+      REQUEST_WERR("Apparently an absoluteURI - recording the host part");
+      int i = startpos;
+      int l = strlen(raw_url);
+      
+      while (i < l && raw_url[i] != '/')
+        i++;
+      
+      if (i < l && raw_url[i] == '/') {
+        absolute_uri = raw_url[0..i];
+        raw_url = raw_url[i..];
+        f = f[i..];
+        REQUEST_WERR(sprintf("AbsoluteURI == %s; raw_url == %s", absolute_uri, raw_url));
+      }
+    }
+  }
+  
   if(sscanf(f,"%s?%s", f, query) == 2)
     Caudium.parse_query_string(query, variables);
   
