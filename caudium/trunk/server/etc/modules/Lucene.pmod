@@ -336,34 +336,47 @@ static object search_class = FINDCLASS("net/caudium/search/Search");
 static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;[Ljava/lang/String;)V");
 static object search_search = search_class->get_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
 
-object se;
+private object se;
+private object sw;
+private string dbdir;
 
-void create(string dbdir, array stopwords)
+void create(string _dbdir, array stopwords)
 {
-  object sw=array_newinstance(string_class, sizeof(stopwords));
+  dbdir=_dbdir;
+
+  sw=array_newinstance(string_class, sizeof(stopwords));
   for(int i=0; i<sizeof(stopwords); i++)
     array_set(sw, i, stopwords[i]);
 
   se=search_class->alloc();
-  search_init(se, dbdir, sw);
-  Lucene->check_exception();
 }
 
-void search(string q)
+array(mapping) search(string q)
 {
+  search_init(se, dbdir, sw);
+  Lucene->check_exception();
+
+  array results=({});
+
   object r=search_search(se,q);
   Lucene->check_exception();
   for(int i=0; i< arraylist_size(r); i++)
   {
+     mapping row=([]);
      object re=arraylist_get(r, i);
      Lucene->check_exception();
-     werror((string)hashmap_get(re,"url")  + "\n");
-     werror((string)hashmap_get(re,"title")  + "\n");
-     werror((string)hashmap_get(re,"type")  + "\n");
-     werror((string)hashmap_get(re,"date")  + "\n");
-     werror((string)hashmap_get(re,"desc")  + "\n");
-     werror("\n");
+    
+     row->url=(string)hashmap_get(re,"url");
+     row->title=(string)hashmap_get(re,"title");
+     row->type=(string)hashmap_get(re,"type");
+     row->date=(string)hashmap_get(re,"date");
+     row->desc=(string)hashmap_get(re,"desc");
+     row->score=(float)((string)hashmap_get(re,"score"));
+
+     results+=({ row });
   }
+
+  return results;
 }
 
 }
