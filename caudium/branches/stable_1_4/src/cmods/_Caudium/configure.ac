@@ -11,6 +11,10 @@ AC_FUNC_ALLOCA
 dnl SCO has strftime() and strptime() in libint.
 AC_CHECK_FUNCS(strftime, break, [AC_CHECK_LIB(intl, strftime)])
 AC_CHECK_FUNCS(strptime, break, [AC_CHECK_LIB(intl, strptime)])
+dnl For *BSD that can get his ip :)
+AC_CHECK_HEADERS([sys/types.h sys/socket.h netinet/in.h net/if.h net/if_dl.h arpa/inet.h arpa/inet.h])
+AC_CHECK_HEADERS([assert.h ifaddrs.h netdb.h])
+AC_HAVE_FUNCS(getifaddrs getnameinfo)
 
 dnl if we have strftime, check whether it supports the %z format
 if test "$ac_cv_func_strftime" = "yes"; then
