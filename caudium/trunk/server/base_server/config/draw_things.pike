@@ -18,11 +18,18 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+
+//! Caudium CIF module for drawing button, icons etc...
+//! $Id$
 
 #include <module.h>
 
-string cvs_verison = "$Id$";
+string cvs_version = "$Id$";
 
+//!
 Image.image load_image(string f)
 {
   object file = Stdio.File();
@@ -70,6 +77,7 @@ Image.image load_image(string f)
 #define fade          load_image("fade.ppm")->scale(0,48)
 #define pad           load_image("padding.ppm")->scale(0,48)
 
+//!
 Image.image draw_module_header(string name, int type, object font)
 {
   object result = Image.image(1000,48);
@@ -153,6 +161,7 @@ Image.image draw_module_header(string name, int type, object font)
 object unselected_tab_image = load_image("../tab_unselected.ppm");
 object selected_tab_image = load_image("../tab_selected.ppm");
 
+//!
 Image.Image draw_config_button(string name, object font, int lm, int rm,
 			       void|array bg, void|array fg, void|array page)
 {
@@ -185,6 +194,7 @@ Image.Image draw_config_button(string name, object font, int lm, int rm,
   return ruta->scale(0,15);
 }
 
+//!
 Image.image draw_tab( object tab, object text, array(int) bgcolor )
 {
   text = text->scale( 0, tab->ysize()-2 );
@@ -204,6 +214,7 @@ Image.image draw_tab( object tab, object text, array(int) bgcolor )
 }
 
 
+//!
 Image.image draw_unselected_button(string name, object font,
 					    void|array(int) pagecol)
 {
@@ -211,6 +222,7 @@ Image.image draw_unselected_button(string name, object font,
   return draw_tab( unselected_tab_image, txt, pagecol );
 }
 
+//!
 Image.image draw_selected_button(string name, object font,
 					  void|array(int) pagecol)
 {
@@ -219,6 +231,7 @@ Image.image draw_selected_button(string name, object font,
 }
 
 
+//!
 object pil(int c, object s)
 {
   object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
@@ -233,18 +246,21 @@ object pil(int c, object s)
   return f;
 }
 
+//!
 object draw_unfold(int c, void|object s)
 {
   object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
   return pil(c, s)->setcolor(@bgc)->rotate(-90)->scale(15,0);
 }
 
+//!
 object draw_fold(int c, void|object s)
 {
   object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
   return pil(c, s)->setcolor(@bgc)->rotate(-180)->scale(15,0);
 }
 
+//!
 object draw_back(int c, void|object s)
 {
   object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
