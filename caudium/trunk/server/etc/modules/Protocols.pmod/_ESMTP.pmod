@@ -51,7 +51,7 @@ class client {
   	"esmtp":		0,
   	"tls":			0,
   	"dsn":			0,
-  	"authenticated":	0,
+  	"authenticated":	0
   ]);							// current connection's properties
 #if constant(Crypto.md5)
   private multiset known_auth_methods = (<
