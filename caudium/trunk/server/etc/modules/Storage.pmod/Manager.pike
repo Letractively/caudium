@@ -86,7 +86,7 @@ static void sync(string namespace, string key) {
 
 static void unlink(string namespace, void|string key) {
 #ifdef STORAGE_DEBUG
-  write("STORAGE: Removing %s in %s\n", key, namespace);
+  write("STORAGE: Removing %s in %s\n", (key?key:"all"), namespace);
 #endif
   LOCK();
   if (stringp(key)) {
@@ -135,5 +135,9 @@ array list(string namespace) {
   write("STORAGE: Listing objects in %s\n", namespace);
 #endif
   sync_all();
-  return permstore->list(namespace);
+  array _list = permstore->list(namespace);
+  if (arrayp(_list))
+    return _list;
+  else
+    return ({ });
 }
