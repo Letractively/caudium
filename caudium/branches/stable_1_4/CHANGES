@@ -1,6 +1,7 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
-
+- Fixed a backtrace when loading the WebApp module.
+   (Bill Welliver)
 
 Changes in Caudium 1.4.4 since Caudium 1.4.2
 --------------------------------------------
