@@ -313,10 +313,10 @@ class File
   // open the associated file
   private void open_file()
   {
-    my_file = my_dir->open_file(fname);
+    my_file = my_dir->open_file(my_name);
     if (!my_file)
       throw(({sprintf("Couldn't open/create the config file '%s%s'\n",
-                      my_dir->get_path(), fname), backtrace()}));
+                      my_dir->get_path(), my_name), backtrace()}));
   }
 
   // parse the old (that is Roxen 1.2+, Caudium up to 1.2) version of the
