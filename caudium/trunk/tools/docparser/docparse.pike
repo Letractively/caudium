@@ -5,7 +5,7 @@ int main()
 {
     object o = DocParser.Parse("q");
     object g;
-    string topdir = "/usr/src/Caudium/caudium/server/";
+    string topdir = "/usr/src/Grendel/cvs/Caudium/caudium/server/";
     
     o->parse(topdir);
     g = DocGenerator.TreeMirror(o->files, o->modules, topdir);

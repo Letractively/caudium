@@ -29,6 +29,7 @@
  */
 
 import DocParser;
+import Stdio;
 
 /*
  * Subdirectories created by the output classes in the target
@@ -163,14 +164,96 @@ class DocGen
     }
 
     /* Method output */
-    private string pretty_syntax(string syntax)
+    private mapping(string:string|array(string)) 
+    dissect_method(string s)
     {
-        return syntax;
+	object(Regexp)    fn = Regexp("([a-zA-Z_0-9]+)[ \t]+([_a-zA-Z0-9]+)[ \t]*(.*)");
+	mapping(string:string|array(string)) ret = ([]);
+	array(string) split;
+    
+	if ((split = fn->split(s))) {
+	    if (sizeof(split) != 3) {
+		stderr->write("Incorrect method synopsis\n");
+		return ret;
+	    }
+	
+	    ret->type = split[0];
+	    ret->name = split[1];
+	    ret->args = ({});
+	    foreach(split[-1][1..(sizeof(split[-1]) - 2)] / ",", string arg)
+		ret->args += ({String.trim_whites(arg)});
+	}
+    
+	return ret;
+    }
+    
+    private string pretty_syntax(mapping(string:string|array(string)) m)
+    {
+	string ret = "";
+	
+	ret += "<strong>" + m->name + "</strong> ( ";
+	if (m->args)
+		ret += m->args * ", ";
+	ret += " )";
+
+        return ret;
     }
     
     private string do_f_method(DocParser.Method m)
     {
-        string    ret = "";
+        string                                 ret = "";
+	mapping(string:string|array(string))   method;
+	
+	method = dissect_method(m->first_line);
+	
+	/* Method start */
+	ret += "<method name=\"" + method->name + "\">\n";
+	
+	/* Short description */
+	ret += "<short>\n\t" + m->name + "\n</short>\n\n";
+
+	/* Synopsis */
+	ret += "<syntax>\n\t" + pretty_syntax(method) + "\n</syntax>\n\n";
+
+        /* Description */
+	if (m->contents && m->contents != "")
+	    ret += "<description>\n" + m->contents + "\n</description>\n\n";
+	else
+	    ret += "<description>\nNO DESCRIPTION</description>\n\n";
+
+	/* Arguments */
+	
+	/* Returns */
+	if (m->returns)
+	    foreach(m->returns, string r)
+		if (r != "")
+		    ret += "<returns>\n" + r + "\n</returns>\n\n";
+		
+	/* Notes */
+	if (m->notes) {
+	    switch(sizeof(m->notes)) {
+		case 0:
+		    break;
+		    
+		case 1:
+		    if (m->notes[0] != "")
+			ret += "<note>\n" + m->notes[0] + "\n</note>\n\n";
+		    break;
+		    
+		default:
+		    ret += "<ul>\n";
+		    foreach(m->notes, string n)
+			if (n != "")
+			    ret += "<li><note>\n" + n + "</note></li>\n";
+		    ret += "</ul>\n\n";
+		    break;
+	    }
+	}
+	
+	/* El Final Grande */
+	ret += "</method>\n\n";
+		
+	return ret;
     }
     
     private string f_methods(DocParser.PikeFile f)
@@ -181,7 +264,7 @@ class DocGen
             return "";
 
         foreach(f->methods, object m)
-            ret += do_f_method(gv);
+            ret += do_f_method(m);
 
         return ret;
     }
@@ -198,7 +281,7 @@ class DocGen
 
         /* Next the methods */
         if (f->methods)
-            ofile->methods(f_methods(f));
+            ofile->write(f_methods(f));
     }
 
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
