@@ -209,18 +209,26 @@ inherit _Caudium;
 //!  @dl
 //!   @item %%
 //!    The % character.
-//!   @item %a or %A
+//!   @item %a
 //!    The weekday name according to the current locale, in abbreviated
 //!    form or the full name.
+//!   @item %A
+//!    Same as %a
 //!   @item %b or %B or %h
 //!     The month name according to the current locale, in abbreviated form
 //!     or the full name.
+//!   @item %B
+//!     Same as %b
+//!   @item %h
+//!     Same as %b
 //!   @item %c
 //!    The date and time representation for the current locale.
 //!   @item %C
 //!    The century number (0-99).
-//!   @item %d or %e
+//!   @item %d
 //!    The day of month (1-31).
+//!   @item %e
+//!    Same as %e
 //!   @item %D
 //!    Equivalent  to  %m/%d/%y.  (This  is the American style date, very
 //!    confusing to non-Americans, especially since %d/%m/%y is widely used
@@ -301,9 +309,11 @@ inherit _Caudium;
 //! alternative locale-dependent format:
 //!
 //!  @dl
-//!   @item %Od or %Oe
+//!   @item %Od
 //!    The day of the month using the locale's alternative numeric symbols;
 //!    leading zeros are permitted but not required.
+//!   @item %Oe
+//!    Same as %Od
 //!   @item %OH
 //!    The hour (24-hour clock) using the locale's alternative numeric
 //!    symbols.
