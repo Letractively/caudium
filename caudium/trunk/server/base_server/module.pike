@@ -47,8 +47,8 @@ int module_dependencies(object configuration, array (string) modules)
 {
   if(configuration) configuration->add_modules (modules);
   mixed err;
-  if (err = catch (_do_call_outs()))
-    report_error ("Error doing call outs:\n" + describe_backtrace (err));
+  //  if (err = catch (_do_call_outs()))
+  //    report_error ("Error doing call outs:\n" + describe_backtrace (err));
   return 1;
 }
 

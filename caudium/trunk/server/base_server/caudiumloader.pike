@@ -39,7 +39,7 @@ private static object new_master;
 constant cvs_version="$Id$";
 
 // Macro to throw errors
-#define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
+//#define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
 
 #include <caudium.h>
 #undef file_stat
@@ -823,7 +823,7 @@ int main(mixed ... args)
   add_constant("do_destruct", lambda(object o) {
 				if(o&&objectp(o))  destruct(o);
 			      });				
-  add_constant("error", lambda(string s){error(s);});
+  //  add_constant("error", lambda(string s){error(s);});
   add_constant("spawne",spawne);
   add_constant("caudium_fstat", caudium_fstat);
   add_constant("spawn_pike",spawn_pike);
