@@ -81,7 +81,7 @@ static void push_callback(int no)
   add_ref(Pike_sp->u.object = THISOBJ);
   Pike_sp->subtype = no + Pike_fp->context.identifier_level;
   Pike_sp->type = T_FUNCTION;
-  sp++;
+  Pike_sp++;
 }
 
 /* allocate / initialize the struct */
@@ -386,7 +386,7 @@ static void read_data(void)
 	push_int(to_read);
 	push_int(1);
 	apply_low(inp->u.file, inp->read_off, 2);
-	if(sp[-1].type == T_INT) to_read = sp[-1].u.integer;
+	if(Pike_sp[-1].type == T_INT) to_read = Pike_sp[-1].u.integer;
 	else to_read = 0;
 	pop_stack();
 	DERR(fprintf(stderr, "read %ld from fake file (%d free)\n",
@@ -544,10 +544,10 @@ static void f_set_done_callback(INT32 args)
     THIS->cb.type=T_INT;
     return;
   }
-  if (sp[-args].type != T_FUNCTION)
+  if (Pike_sp[-args].type != T_FUNCTION)
     Pike_error("Illegal argument to set_done_callback()\n");
 
-  assign_svalue(&(THIS->cb), sp-args); 
+  assign_svalue(&(THIS->cb), Pike_sp-args); 
   pop_n_elems(args - 1); 
 }
 

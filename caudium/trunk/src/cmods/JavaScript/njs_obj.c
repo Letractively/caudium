@@ -144,12 +144,12 @@ static void f_njs_create(INT_TYPE args) {
 }
 
 static void f_njs_set_id_object(INT_TYPE args) {
-  if(args == 1 && sp[-1].type == T_OBJECT) {
+  if(args == 1 && Pike_sp[-1].type == T_OBJECT) {
     if(THIS->id != NULL) {
       free_object(THIS->id);
       THIS->id = NULL;
     }
-    add_ref((THIS->id = sp[-1].u.object));
+    add_ref((THIS->id = Pike_sp[-1].u.object));
   } else {
     SIMPLE_BAD_ARG_ERROR("JavaScript.Interpreter()->set_id_object", 1,
 			 "RequestID");
@@ -319,11 +319,11 @@ static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
     apply_svalue(&get, 2);
   }
 
-  if(sp[-1].type == T_ARRAY && sp[-1].u.array->size == 1) {
+  if(Pike_sp[-1].type == T_ARRAY && Pike_sp[-1].u.array->size == 1) {
     // Currently the nice special case of "don't parse me pls"
-    pike_type_to_js_type(interp, &(ITEM(sp[-1].u.array)[0]), ret);
+    pike_type_to_js_type(interp, &(ITEM(Pike_sp[-1].u.array)[0]), ret);
   } else {
-    pike_type_to_js_type(interp, &sp[-1], ret);
+    pike_type_to_js_type(interp, &Pike_sp[-1], ret);
   }
   pop_stack();
 }
@@ -343,7 +343,7 @@ static void low_njs_scope_set(JSInterpPtr interp, struct pike_string *scope,
     apply_svalue(&set, 3);
   }
   
-  if(sp[-1].type == T_INT && sp[-1].u.integer == 0) {
+  if(Pike_sp[-1].type == T_INT && Pike_sp[-1].u.integer == 0) {
     *success = 0;
   } else {
     *success = 1;

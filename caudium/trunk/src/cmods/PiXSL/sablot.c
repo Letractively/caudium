@@ -267,10 +267,10 @@ void f_set_xml_data(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
-  if(sp[-args].type != T_STRING)
+  if(Pike_sp[-args].type != T_STRING)
     Pike_error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected string.\n");
   if(THIS->xml != NULL) free_string(THIS->xml);
-  THIS->xml = sp[-args].u.string;
+  THIS->xml = Pike_sp[-args].u.string;
   add_ref(THIS->xml);
   THIS->xml_type = SX_DATA;
   pop_n_elems(args);
@@ -280,11 +280,11 @@ void f_set_xml_file(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_xml_file: Expected one argument.\n");
-  if(sp[-args].type != T_STRING)
+  if(Pike_sp[-args].type != T_STRING)
     Pike_error("XSLT.Parser()->set_xml_file: Invalid argument 1, expected string.\n");
   if(THIS->xml != NULL)
     free_string(THIS->xml);
-  THIS->xml = sp[-args].u.string;
+  THIS->xml = Pike_sp[-args].u.string;
   add_ref(THIS->xml);
   THIS->xml_type = SX_FILE;
   pop_n_elems(args);
@@ -294,11 +294,11 @@ void f_set_xsl_data(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_xsl_data: Expected one argument.\n");
-  if(sp[-args].type != T_STRING)
+  if(Pike_sp[-args].type != T_STRING)
     Pike_error("XSLT.Parser()->set_xsl_data: Invalid argument 1, expected string.\n");
   if(THIS->xsl != NULL)
     free_string(THIS->xsl);
-  THIS->xsl = sp[-args].u.string;
+  THIS->xsl = Pike_sp[-args].u.string;
   add_ref(THIS->xsl);
   THIS->xsl_type = SX_DATA;
   pop_n_elems(args);
@@ -308,11 +308,11 @@ void f_set_base_uri(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_base_uri: Expected one argument.\n");
-  if(sp[-args].type != T_STRING)
+  if(Pike_sp[-args].type != T_STRING)
     Pike_error("XSLT.Parser()->set_base_uri: Invalid argument 1, expected string.\n");
   if(THIS->base_uri != NULL)
     free_string(THIS->base_uri);
-  THIS->base_uri = sp[-args].u.string;
+  THIS->base_uri = Pike_sp[-args].u.string;
   add_ref(THIS->base_uri);
   pop_n_elems(args);
 }
@@ -321,11 +321,11 @@ void f_set_xsl_file(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_xsl_file: Expected one argument.\n");
-  if(sp[-args].type != T_STRING)
+  if(Pike_sp[-args].type != T_STRING)
     Pike_error("XSLT.Parser()->set_xsl_file: Invalid argument 1, expected string.\n");
   if(THIS->xsl != NULL)
     free_string(THIS->xsl);
-  THIS->xsl = sp[-args].u.string;
+  THIS->xsl = Pike_sp[-args].u.string;
   add_ref(THIS->xsl);
   THIS->xsl_type = SX_FILE;
   pop_n_elems(args);
@@ -335,11 +335,11 @@ void f_set_variables(INT32 args)
 {
   if(args != 1)
     Pike_error("XSLT.Parser()->set_xml_data: Expected one argument.\n");
-  if(sp[-args].type != T_MAPPING)
+  if(Pike_sp[-args].type != T_MAPPING)
     Pike_error("XSLT.Parser()->set_xml_data: Invalid argument 1, expected mapping.\n");
   if(THIS->variables != NULL)
     free_mapping(THIS->variables);
-  THIS->variables = sp[-args].u.mapping;
+  THIS->variables = Pike_sp[-args].u.mapping;
   add_ref(THIS->variables);
   pop_n_elems(args);
 }
