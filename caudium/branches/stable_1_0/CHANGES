@@ -1,5 +1,7 @@
 Changes in Caudium 1.0.XX
 -------------------------
+- Now font name can be specified in <diagram > tag and use the CIF default
+  font name.
 - The compilation process may skip rpath from the compiler/linker command line
   if either building a Debian package or the NO_RPATH_PLEASE variable is found
   in the environment when running configure (and smartlink thereafter).

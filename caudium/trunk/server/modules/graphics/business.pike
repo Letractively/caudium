@@ -983,6 +983,10 @@ mapping find_file(string f, object id)
       m_delete( res, "bgcolor" );
     }
   */
+  if(res->font)
+    res->font = resolve_font(res->font);
+  else
+    res->font = resolve_font("default");
   
   diagram_data = res;
   Image.Image img;
