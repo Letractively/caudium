@@ -39,6 +39,7 @@ private mixed  gc_key;
 #endif
 
 private Regexp dcookie_rx = Regexp("^[0-9.]+$");    
+private array(Regexp) uri_regexps = ({});
 
 //
 // All registered storage plugins
@@ -103,19 +104,49 @@ void create()
            "Which plugin should be used to store the session data. Registered plugins:<br>\n" +
            get_plugin_descriptions(), get_plugin_names());
 
-    defvar("expire", 600, "Session expiration Time", TYPE_INT,
+    defvar("expire", 600, "Session: Expiration time", TYPE_INT,
            "After how many seconds an unactive session is removed", 0, hide_gc);
 
-    defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
+    defvar("dogc", 1, "Session: Garbage Collection", TYPE_FLAG,
            "If set, then the sessions will expire automatically after the "
            "given period. If unset, session expiration must be done elsewhere.");
 
-    defvar("reflist", "", "Referrers treated as valid", TYPE_TEXT,
+    defvar("reflist", "", "Session: Referrers treated as valid", TYPE_TEXT,
            "This variable holds a list (one per line) of referrer addresses that "
            "are considered valid for accepting a session id should it not be "
            "stored in the client cookie. By default the module accepts all session "
            "IDs when the referring site is this virtual host.<br>"
            "<strong>Note: You must use the full URI of the referrer!</strong>");
+
+    defvar("urimode", "exclude", "Session: URI classification mode", TYPE_MULTIPLE_STRING,
+           "What should be the behaviour if an URI from a list is matched:<br>"
+           "<ul>"
+           "<li><strong>exclude</strong> - all URIs will be accepted except for those in the list. "
+           "No session will be created if an URI matches one in the list.</li>"
+           "<li><strong>include</strong> - all URIs will be ignored except for those in the list. "
+           "A session will be created only if an URI is in the list.</li>"
+           "</ul>",
+           ({"exclude", "include"}));
+
+    defvar("includeuris", "", "Session: Include URIs", TYPE_TEXT_FIELD,
+           "A list of regular expressions (one entry per line) specifying the URIs to "
+           "allocate session ID for. The regular expressions should describe only the "
+           "path part of the URI, i.e. without the protocol and server parts. Matching "
+           "is case-insensitive."
+           "Examples:<br><blockquote><pre>"
+           "^.*mail/\n"
+           "^/site/[0-9]+/archive\n"
+           "</pre></blockquote>", 0, lambda() { return (QUERY(urimode)!="include"); });
+
+    defvar("excludeuris", "", "Session: Exclude URIs", TYPE_TEXT_FIELD,
+           "A list of regular expressions (one entry per line) specifying the URIs <strong>not</strong> to "
+           "allocate session ID for. The regular expressions should describe only the "
+           "path part of the URI, i.e. without the protocol and server parts. "
+           "Matching is case-insensitive."
+           "Examples:<br><blockquote><pre>"
+           "^.*mail/\n"
+           "^/site/[0-9]+/archive\n"
+           "</pre></blockquote>", 0, lambda() { return (QUERY(urimode)!="exclude"); });
 }
 
 int hide_gc ()
@@ -125,8 +156,20 @@ int hide_gc ()
 
 mixed first_try(object id)
 {
+    id->misc->session_id = 0;
+
+    if (cur_storage)
+        cur_storage->setup(id);
+    
+    if (!check_access(id)) {
+        report_notice("Access denied for '%s'\n", id->not_query);
+        return 0;
+    }
+    
     alloc_session(id);
     setup_compat(id);
+
+    return 1;
 }
 
 mixed find_file ( string path, object id )
@@ -172,7 +215,51 @@ mapping query_container_callers()
 //
 // Session handling functions
 //
-void co_session_gc() 
+private int check_access(object id)
+{
+    array(string)   ra;
+    
+    switch(QUERY(urimode)) {
+        case "include":
+            ra = (QUERY(includeuris) / "\n") - ({}) - ({""});
+            break;
+
+        case "exclude":
+            ra = (QUERY(excludeuris) / "\n")  - ({}) - ({""});
+            break;
+    }
+
+    if (sizeof(ra) != sizeof(uri_regexps)) {
+        // recompile the regexps, something's changed
+        uri_regexps = ({});
+        foreach(ra, string rs) {
+            report_notice("Compiling regexp '%s'\n", rs);
+            uri_regexps += ({ Regexp(lower_case(rs)) });
+        }
+    }
+
+    int   res = 0;
+
+    if (!id->not_query || !sizeof(uri_regexps))
+        return 1;
+
+    string path = dirname(id->not_query);
+    if (path == "")
+        path = "/";
+    
+    foreach(uri_regexps, object r)
+        if ((res = r->match(path)))
+            break;
+
+    report_notice("match result: %d\n", res);
+    
+    if (QUERY(urimode) == "include")
+        return res;
+
+    return res ? 0 : 1;
+}
+
+private void co_session_gc() 
 {
     if (!cur_storage) {
         if (QUERY(dogc))
@@ -383,47 +470,46 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //     plugin description
 //
 //  function setup; (mandatory)
+//  synopsis: void setup(object id, string|void sid);
 //     function to setup the plugin. Called once for every
-//     request. Synopsis below.
+//     request. If sid is absent, the function is required just to make
+//     sure the storage exists and exit. If sid is present, a new area for
+//     the given session must be created in every region.
 //
 //  function store; (mandatory)
+//  synopsis: void store(object id, string key, mixed data, string sid, void|string reg);
 //     function to store a variable into a region. Synopsis below.
 //
 //  function retrieve; (mandatory)
+//  synopsis: mixed retrieve(object id, string key, string sid, void|string reg);
 //     function to retrieve a variable from a region. Synopsis below.
 //
 //  function delete_variable; (mandatory)
+//  synopsis: mixed delete_variable(object id, string key, string sid, void|string reg);
 //     function to delete a variable from a region. Synopsis below.
 //
 //  function expire_old; (mandatory)
+//  synopsis: void expire_old(int curtime, int expiration_time);
 //     called from a callout to expire aged sessions. Ran in a separate
 //     thread, if available.
 //
 //  function delete_session; (mandatory)
+//  synopsis: void delete_session(string sid);
 //     delete a session from all the regions of the storage.
 //
 //  function get_region; (mandatory)
+//  synopsis: mapping get_region(object id, string sid, string reg);
 //     return a storage mapping of the specified region. This function
 //     _must_ return valid mappings for the "session" and "user" regions
 //     (compatibility with 123sessions)
 //
 //  function get_all_regions; (mandatory)
+//  synopsis: mapping get_all_regions(object id);
 //     returns a mapping of all the regions in use - i.e. full storage.
 //
 //  function session_exists; (mandatory)
+//  synopsis: int session_exists(object id, string sid);
 //     checks whether the given session exists in the storage
-//
-// Function synopses:
-//
-//   void setup(object id, string sid);
-//   void store(object id, string key, mixed data, string sid, void|string reg);
-//   mixed retrieve(object id, string key, string sid, void|string reg);
-//   mixed delete_variable(object id, string key, string sid, void|string reg);
-//   void expire_old(int curtime, int expiration_time);
-//   void delete_session(sid);
-//   mapping get_region(object id, string sid, string reg);
-//   mapping get_all_regions(object id);
-//   int session_exists(object id, string sid);
 //
 private mapping memory_storage_registration_record = ([
     "name" : "Memory",
@@ -442,17 +528,17 @@ private mapping memory_storage_registration_record = ([
 //
 // Validate region+session storage. Report an error if anything's wrong.
 //
-private int memory_validate_storage(string reg, string sid) 
+private int memory_validate_storage(string reg, string sid, string fn) 
 {
     if (!_memory_storage[reg]) {
         // To throw (up) or not to throw (up) - that is the question...
-        report_error("gSession: Fugazi! No memory storage for region '%s'!", reg);
+        report_error("gSession: Fugazi! No memory storage for region '%s'! (called from '%s')\n", reg, fn);
         return -1;
     }
 
     if (!_memory_storage[reg][sid]) {
         // To throw (up) or not to throw (up) - that is the question...
-        report_error("gSession: Fugazi! No session storage for region '%s' and session '%s'!", reg, sid);
+        report_error("gSession: Fugazi! No session storage for region '%s' and session '%s'! (called from '%s')\n", reg, sid || "", fn);
         return -1;
     }
 
@@ -465,7 +551,7 @@ private int memory_validate_storage(string reg, string sid)
 // responsible for setting up the two legacy regions - "session" and
 // "user". They _must_ exist in every storage!
 //
-private void memory_setup(object id, string sid) 
+private void memory_setup(object id, string|void sid) 
 {
     if (!_memory_storage || !sizeof(_memory_storage)) {
         //
@@ -478,6 +564,9 @@ private void memory_setup(object id, string sid)
         _memory_storage->user = ([]);
     }
 
+    if (!sid)
+        return;
+    
     //
     // If storage for the passed session id doesn't exist, allocate it in
     // all the regions. At the same time, set up the id->misc->gsession mapping
@@ -504,7 +593,7 @@ private void memory_store(object id, string key, mixed data, string sid, void|st
 {
     string    region = reg || "session";
 
-    if (memory_validate_storage(region, sid) < 0)
+    if (memory_validate_storage(region, sid, "memory_storage") < 0)
         return;
 
     _memory_storage[region][sid]->data += ([
@@ -520,7 +609,7 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
 {
     string    region = reg || "session";
 
-    if (memory_validate_storage(region, sid) < 0)
+    if (memory_validate_storage(region, sid, "memory_retrieve") < 0)
         return 0;
 
     if (!_memory_storage[region][sid]->data[key])
@@ -539,7 +628,7 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
 {
     string    region = reg || "session";
 
-    if (memory_validate_storage(region, sid) < 0)
+    if (memory_validate_storage(region, sid, "memory_delete_variable") < 0)
         return 0;
 
     if (_memory_storage[region][sid][key]) {
@@ -583,7 +672,7 @@ private mapping memory_get_region(object id, string sid, string reg)
 {
     string    region = reg || "session";
     
-    if (memory_validate_storage(region, sid) < 0)
+    if (memory_validate_storage(region, sid, "memory_get_region") < 0)
         return 0;
 
     return _memory_storage[region][sid];
@@ -597,7 +686,7 @@ private mapping memory_get_all_regions(object id)
 
 private int memory_session_exists(object id, string sid)
 {
-    if (memory_validate_storage("session", sid) < 0)
+    if (memory_validate_storage("session", sid, "memory_session_exists") < 0)
         return 0;
 
     return 1;
@@ -630,7 +719,7 @@ private string alloc_session(object id)
     string   sp = QUERY(splugin);
     if (!storage_plugins[sp])
         throw(({
-            sprintf("gSessions: something seriously broken! Storage plugin '%s' on in the registry!\n",
+            sprintf("gSessions: something seriously broken! Storage plugin '%s' not in the registry!\n",
                     sp),
             backtrace()
         }));
@@ -692,7 +781,7 @@ private void setup_compat(object id)
     mapping data;
 
     if (!cur_storage) {
-        report_warning("gSession: cur_storage unset!");
+        report_warning("gSession: cur_storage unset!\n");
         return;
     }
     
@@ -701,7 +790,7 @@ private void setup_compat(object id)
     if (data)
         id->misc->session_variables = data->data;
     else {
-        report_warning("gSession: the 'session' region absent from storage '%s'",
+        report_warning("gSession: the 'session' region absent from storage '%s'\n",
                        cur_storage->name);
         id->misc->session_variables = ([]);
     }
@@ -711,7 +800,7 @@ private void setup_compat(object id)
     if (data)
         id->misc->user_variables = data->data;
     else {
-        report_warning("gSession: the 'user' region absent from storage '%s'",
+        report_warning("gSession: the 'user' region absent from storage '%s'\n",
                        cur_storage->name);
         id->misc->user_variables = ([]);
     }
@@ -730,8 +819,6 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
         return "";
     }
 
-    setup_compat(id);
-    
     string region;
     if (tag == "session_variable")
         region = "session";
@@ -749,7 +836,8 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
 
 string tag_dump_session (string tag, mapping args, object id, object file)
 {
-    setup_compat(id);
+    if (!id->misc->session_id)
+        return "";
     
     return (id->misc->session_variables) ?
         (sprintf ("<pre>id->misc->session_variables : %O\n</pre>", id->misc->session_variables)) : "";
@@ -757,17 +845,19 @@ string tag_dump_session (string tag, mapping args, object id, object file)
 
 string tag_dump_sessions (string tag, mapping args, object id, object file)
 {
+    if (!id->misc->session_id)
+        return "";
+    
     string   ret;
     mapping  m = cur_storage->get_all_regions(id);
 
-    setup_compat(id);
-    
     return m ? sprintf("<pre>_variables : %O\n</pre>", m) : "";
 }
 
 string tag_end_session (string tag, mapping args, object id, object file)
 {
-    setup_compat(id);
+    if (!id->misc->session_id)
+        return "";
     
     if (id->misc->session_id && cur_storage)
         cur_storage->delete_session (id->misc->session_id);
@@ -831,9 +921,10 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     string   query;
     mapping  hvars = ([]);
 
-    setup_compat(id);
+    if (!id->misc->session_id)
+        return "";
     
-    if (args && args->href && !leave_me_alone(args->href)) {
+    if (id->misc->session_id && args && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
             Caudium.parse_query_string(query, hvars);
         
@@ -852,10 +943,11 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     string   query;
     mapping  hvars = ([]);
     int      do_hidden = 1;
+
+    if (!id->misc->session_id)
+        return "";
     
-    setup_compat(id);
-    
-    if (args && args->action && !leave_me_alone(args->action)) {
+    if (id->misc->session_id && args && args->action && !leave_me_alone(args->action)) {
         if (!args->method || (args->method && lower_case(args->method) != "post")) {
             if (sscanf(args->action, "%*s?%s", query) == 2)
                 Caudium.parse_query_string(query, hvars);
