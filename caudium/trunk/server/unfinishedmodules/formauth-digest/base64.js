@@ -22,6 +22,8 @@
  * base64.js - a JavaScript implementation of the base64 algorithm,
  *             (mostly) as defined in RFC 2045.
  *
+ * TODO: add the 76-char linebreaks and the like
+ *
  * This is a direct JavaScript reimplementation of the original C code
  * as found in the Exim mail transport agent, by Philip Hazel.
  *
