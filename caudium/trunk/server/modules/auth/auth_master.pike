@@ -196,8 +196,9 @@ int get_gid(string groupname)
 //! username or 0 if not found.
 string|int get_username(int uid)
 {
-  int data=cache->retrieve("uid-" + uid, low_get_username, ({uid}));
-  return data;
+  int|string data=cache->retrieve("uid-" + uid, low_get_username, ({uid}));
+  if(data==-1) return 0;
+  else return data;
    
 }
 
@@ -208,8 +209,9 @@ string|int get_username(int uid)
 //! group name or 0 if not found.
 string|int get_groupname(int gid)
 {
-  int data=cache->retrieve("gid-" + gid, low_get_groupname, ({gid}));
-  return data;
+  int|string data=cache->retrieve("gid-" + gid, low_get_groupname, ({gid}));
+  if(data==-1) return 0;
+  else return data;
 }
 
 //! find information about a user.
