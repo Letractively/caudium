@@ -672,7 +672,7 @@ array do_match(array in, function filter, int negate)
 
 array(string)|string get_profile_list(void|int raw)
 {
-  array servers = indices(profiles);
+  array servers = indices(profiles) - QUERY(dontshow);
 
   servers = 
     sort(Array.filter(servers,
