@@ -268,36 +268,41 @@ string makeindex(string project, string user) {
   if(project=="") {
     result="Total Projects: "+sizeof(masterfile)+"<BR>";
     if(sizeof(masterfile)>0) {
-      result+="<table border=1><tr><th>Name</th><th>Priority</th><th>Status</th>"
-              "<th>Description</th><th>Created By</th><th>Updated</th><th>Comments</th></tr>\n";
+      result+="<tablify nice cellseparator='|' rowseparator='~'>"
+              " Name | Priority | Status | Description | Created by | Updated | Comments";
       foreach(masterfile, mapping x) {
-        string t="<tr>";
-        if(x->status=="Closed") {
-          t="<tr bgcolor=#BBBBBB>";
-        }
+//        string t="<tr>";
+        string t="~ ";
+//        if(x->status=="Closed") {
+//          t="<tr bgcolor=#BBBBBB>";
+//        }
         if(x->users==0)
-          t+="<td bgcolor=green>";
+//          t+="<td bgcolor=green>";
+          t+="";
         else {
           if(sizeof(x->users-({""}))==0)
-            t+="<td bgcolor=green>";
+            //t+="<td bgcolor=green>";
+            t+="";
           else {
             array a=x->users-({""})+({x->creator});
             if(search(a,user)<0)
-              t+="<td bgcolor=red>";
+              //t+="<td bgcolor=red>";
+              t+="";
             else
-              t+="<td bgcolor=yellow>";
+              //t+="<td bgcolor=yellow>";
+              t+="";
           }
         }
         if(x->comments==0)
           x->comments=({});
-        result+=t+"<a href="+http_encode_string(x->project)+"/>"+x->project+"</a></td>"
-                "<td>"+priority[x->priority]+"</td><td>"+x->status+"</td>"
-                "<td>"+x->description+"</td><td>"+x->creator+"</td><td>"+
-                nctime((int) x->timestamp)+"</td><td align=center>"+sizeof(x->comments)+"</td></tr>\n";
+        result+=t+"<a href="+http_encode_string(x->project)+"/>"+x->project+"</a>"
+                "|"+priority[x->priority]+"|"+x->status+
+                "|"+x->description+"|"+x->creator+"|"+
+                nctime((int) x->timestamp)+"|"+sizeof(x->comments);
       }
-      result+="</table><br>\n";
+      result+="</tablify>";
     }
-    result+="<br><p><a href=createnewproject.html>Create New Project</a></p>\n";
+    result+="<p><a href=createnewproject.html>Create New Project</a></p>";
     title="Project Index";
   }
   else {
@@ -510,7 +515,7 @@ mixed find_file(string path, object id) {
   if(result=="")
     return 0;
   else
-    return http_string_answer(result);
+    return http_string_answer(parse_rxml(result,id));
 }
 
 void|array(string) find_dir(string path, object id) {
