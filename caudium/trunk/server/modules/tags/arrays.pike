@@ -21,7 +21,7 @@
  */
 
 /*
-**! module: Array Handling for RXML.
+**! module: Array Handling for RXML
 **!   A module to easily handle arrays from RXML. This can be very useful
 **!   for example when when dealing with multi-select form variables
 **!   (which normally are separated by \0).
@@ -266,7 +266,7 @@ mapping query_tag_callers()
 
 /*
 **! container: arrayoutput
-**!   Insert element(s) from arrays. Works like other <*output> tags. The
+**!   Insert element(s) from arrays. Works like other &lt;*output&gt; tags. The
 **!   replaced variables are array names and index. 
 **! attribute: arrays
 **!   The name(s) of the array(s) to output, separated by commas.
@@ -280,7 +280,8 @@ mapping query_tag_callers()
 **!   Array referenced by the to attribute. Defaults to the largest
 **!   array listed in the arrays attribute. 
 **! attribute: std output attributes
-**!   all normal <*output> vars like encode and quote (see formoutput).
+**!   all normal &lt;*output&gt; vars like encode and quote (see formoutput).
+**! see also: <formoutput>
 **! 
 **! tag: arrayfetch
 **!   Fetch a single element from an array.
