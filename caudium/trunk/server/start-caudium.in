@@ -650,8 +650,8 @@ int act_on_args()
           command_line->DEFINES+=({"KEEP_ALIVE"});
           continue;
         case "version":
-	  write(real_version + "\n");
-          continue;
+	  write(CaudiumVersion.real_version + "\n");
+	  return 1;
 	case "piketrace":
 	  command_line->OTHER+=({"-t"+m[1] });
 	  continue;

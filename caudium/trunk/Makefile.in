@@ -236,25 +236,25 @@ spotless:  clean
 	@exit 1
 
 only_bump_version:  force
-	@if test -f $(SRCDIR)/server/etc/include/caudium_version.h.new; then \
-	  echo Deleting old $(SRCDIR)/server/etc/include/caudium_version.h.new...; \
-	  rm $(SRCDIR)/server/etc/include/caudium_version.h.new || exit 1; \
+	@if test -f $(SRCDIR)/server/etc/modules/CaudiumVersion.pmod.new; then \
+	  echo Deleting old $(SRCDIR)/server/etc/modules/CaudiumVersion.pmod.new...; \
+	  rm $(SRCDIR)/server/etc/modules/CaudiumVersion.pmod.new || exit 1; \
 	else : ; fi
-	@(cd $(SRCDIR)/server/etc/include/; \
+	@(cd $(SRCDIR)/server/etc/modules/; \
 	  echo Bumping Caudium version...; \
-	  build=`sed <caudium_version.h -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	  newbuild=`echo $$build 1+p|dc`; \
-	  sed <caudium_version.h -e"/__caudium_build__/s/$$build/$$newbuild/" >caudium_version.h.new; \
-	  checkbuild=`sed <caudium_version.h.new -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  sed <CaudiumVersion.pmod -e"/__caudium_build__/s/$$build/$$newbuild/" >CaudiumVersion.pmod.new; \
+	  checkbuild=`sed <CaudiumVersion.pmod.new -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	  if test "x$$newbuild" = "x$$checkbuild"; then \
-	    mv -f caudium_version.h.new caudium_version.h || exit 1; \
+	    mv -f CaudiumVersion.pmod.new CaudiumVersion.pmod || exit 1; \
 	    echo "Successfull bump to build $$newbuild."; \
 	  else \
 	    echo "Version bump failed: $$newbuild != $$checkbuild."; \
 	    exit 1; \
 	  fi; \
-	  version=`sed <caudium_version.h -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." caudium_version.h || exit 1; \
+	  version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
 	  echo "Caudium $$version.$$newbuild" >../../VERSION; \
 	  cat ../../VERSION; \
 	)
@@ -268,15 +268,15 @@ bump_version: force only_bump_version
 
 
 same_version: force
-	@cd $(SRCDIR)/server/etc/include; \
-	 build=`sed <caudium_version.h -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
-	 version=`sed <caudium_version.h -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	@cd $(SRCDIR)/server/etc/modules; \
+	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "Caudium $$version.$$build" >../../VERSION;
 
 date_version: force
-	@cd $(SRCDIR)/server/etc/include; \
-	 build=`sed <caudium_version.h -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
-	 version=`sed <caudium_version.h -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	@cd $(SRCDIR)/server/etc/modules; \
+	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../VERSION;
 
 
@@ -350,9 +350,9 @@ dist: copy_dist tar_dist
 	@echo "'make only_bump_version' if this is not a test release."
 
 solaris_pkg: all
-	@cd $(SRCDIR)/server/etc/include; \
-	 build=`sed <caudium_version.h -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
-	 version=`sed <caudium_version.h -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	@cd $(SRCDIR)/server/etc/modules; \
+	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "$$version.$$build" >../../VERSION;
 	@tools/build_solaris_pkg.ksh `cat VERSION` $(PIKE)
 	@rm VERSION
