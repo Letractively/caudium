@@ -330,9 +330,9 @@ private int do_post_processing()
 #endif
   
   foreach(indices(request_headers), string linename) {
+    array(string) y;
     switch(linename) {
      case "authorization":
-      array(string) y;
       rawauth = request_headers[linename];
       y = rawauth / " ";
       if(sizeof(y) < 2) break;
@@ -345,7 +345,6 @@ private int do_post_processing()
       break;
       
      case "proxy-authorization":
-      array(string) y;
       y = request_headers[linename] / " ";
       if(sizeof(y) < 2)
 	break;

@@ -60,7 +60,7 @@ The data is taken from the diagram_data-mapping which is described in doc/diagra
 */ 
 
 
-#define GETFONT(WHATFONT) object notext=resolve_font(diagram_data->WHATFONT||diagram_data->font);
+#define GETFONT(WHATFONT) notext = resolve_font(diagram_data->WHATFONT||diagram_data->font);
 
 mapping(string:mixed) create_pie(mapping(string:mixed) diagram_data)
 {

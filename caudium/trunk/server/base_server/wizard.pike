@@ -113,6 +113,7 @@ string loc_encode(string val, void|mapping args, void|string def)
 string wizard_tag_var(string n, mapping m, mixed a, mixed b)
 {
   object id;
+  string res;
   if(n=="cvar") // Container. Default value in 'a', id in 'b'.
   {
     id = b;
@@ -143,7 +144,8 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     return make_tag("input", m);
 
    case "list": // String....
-    string n = m->name, res="<table cellpadding=0 cellspacing=0 border=0>";
+    string n = m->name;
+    res="<table cellpadding=0 cellspacing=0 border=0>";
     if(!id->variables[n]) id->variables[n]=current;
     
     m->type = "text";
@@ -193,7 +195,6 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
     //          Should be fixed be separating current and default.
     // /ZinO
    case "checkbox":
-    string res;
     m_delete(m,"default");
     if (!m->value) m->value="on";
     if (current && current != "0" &&
@@ -283,8 +284,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       m->name+".entered size=8 value='"+
       color_name(a)+"'> <input type=submit value=Ok></font></td></table>\n");
 
-   case "color-small":
-     int h, s, v;
+  case "color-small":
      if(id->variables[m->name+".hsv"]) 
        sscanf(id->variables[m->name+".hsv"], "%d,%d,%d", h, s, v);
      else
@@ -310,8 +310,8 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      m_delete(id->variables, m->name+".bar.y");
      id->variables[m->name+".hsv"] = h+","+s+","+v;
 
-     array a=hsv_to_rgb(h,s,v);
-     string bgcol=sprintf("#%02x%02x%02x",a[0],a[1],a[2]); 
+     a=hsv_to_rgb(h,s,v);
+     bgcol=sprintf("#%02x%02x%02x",a[0],a[1],a[2]); 
      id->variables[m->name] = bgcol;
      return 
      ("<table border=0 cellpadding=0 cellspacing=0><tr>\n"
@@ -347,7 +347,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
       "</table>\n");
 
    case "font":
-     string res="";
+     res="";
      m->type = "select";
      m->lines = "20";
      m->choices = available_fonts()*",";

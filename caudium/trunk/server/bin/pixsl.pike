@@ -22,9 +22,9 @@ int main(int argc, array argv) {
     break;    
    case 1:
    default:
-    werror("Syntax: pixsl <stylesheet> [<input> [<output>]]\n"
+    werror("Syntax: pixsl <stylesheet> [<input1>  [<output>]]\n"
 	   "\tApply <stylesheet> to <input>, which defaults to stdin,\n"
-	   "\tand write the output to <output> which defaults to stdout.\n\n");
+	   "\tand write the output to which defaults to stdout.\n\n");
     exit(1);
   }
   if(!xml) xml = "file://stdin";

@@ -58,7 +58,7 @@ Create_graph draws a graph but there are also some other functions
 used by create_pie and create_bars.
 */ 
 
-#define GETFONT(WHATFONT) object notext=resolve_font(diagram_data->WHATFONT||diagram_data->font);
+#define GETFONT(WHATFONT) notext=resolve_font(diagram_data->WHATFONT||diagram_data->font);
 
 
 
@@ -509,6 +509,7 @@ object get_font(string j, int p, int t, int h, string fdg, int s, int hd)
 //ta ut xmaxynames, ymaxynames xmaxxnames ymaxxnames
 mapping(string:mixed) create_text(mapping(string:mixed) diagram_data)
 {
+  object notext;
   int tobig=1;
   int xmaxynames=0, ymaxynames=0, xmaxxnames=0, ymaxxnames=0;
   int r=0;
@@ -959,6 +960,7 @@ mapping(string:mixed) init_bg(mapping diagram_data)
 
 int write_name(mapping diagram_data)
 {
+  object notext;
   if (!diagram_data["name"])
     return 0;
   GETFONT(namefont);
@@ -993,7 +995,7 @@ mapping(string:mixed) create_graph(mapping diagram_data)
 {
   //Supportar bara xsize>=100
   int si=diagram_data["fontsize"];
-  
+  object notext;  
   string where_is_ax;
   
   //No uneven data

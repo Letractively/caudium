@@ -234,7 +234,6 @@ string array_output(string tag, mapping args, string contents, object id)
   int g2 = gauge {
     res = do_output_tag( args, replaceme, contents, id );
   };
-  werror("In: %d, Out: %d\n", g1, g2);
   return res;
 }
 

@@ -2730,7 +2730,6 @@ object enable_module( string modname )
 
   otomod[ me ] = modname;
       
-  mixed err;
   if((me->start) && (err = catch{
     me->start(0, this);
   })) {
