@@ -2327,7 +2327,7 @@ private void define_global_variables(int argc, array (string) argv)
           "or writing Pike scripts.");
   
   globvar("RestoreConnLogFull", 0,
-          "Range: Log entire file length in restored connections",
+          "Partial Transfers: Log entire file length in restored connections",
           TYPE_TOGGLE,
           "If this toggle is enabled log entries for restored connections "
           "will log the amount of sent data plus the restoration location. "
@@ -2340,7 +2340,7 @@ private void define_global_variables(int argc, array (string) argv)
           "statistics in Caudium will continue being correct.</p>", 0,
           range_disabled_p); 
 
-  globvar("EnableRangeHandling", 1, "Range: Enable range handling",
+  globvar("EnableRangeHandling", 1, "Partial Transfers: Enable partial file transfers",
           TYPE_TOGGLE,
           "Enable handling of the range headers. This allows browsers to "
           "download partial files. Mostly used to continue interrupted "
