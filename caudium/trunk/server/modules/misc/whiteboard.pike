@@ -1,22 +1,61 @@
 /*
- * Whiteboard module v.0.2
- *
- * (c) Karl Stevens <karl@maxim.ca>
- * This code is released under the GNU Public License (GPL)
- *
- * This is a web-based whiteboard.
- *
- *
- * TODO:
- *       make thread-safe
- *	 make the storage into a SQL database
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Based on work from Karl Stevens <karl@maxim.ca>
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-constant cvs_version = "$Id$";
+/*
+ * $Id$
+ */
+
+//
+//! module: Whiteboard / Todo list
+//!  Make a whiteboard or a todo list for multiuser environment.
+//! inherits: module
+//! inherits: caudiumlib
+//! type: MODULE_LOCATION
+//! cvs_version: $Id$
+//! todo: make thread-safe, make the storage into a SQL database
+//
 #include <module.h>
 #include <process.h>
 inherit "module";
 inherit "caudiumlib";
+
+constant cvs_version  = "$Id$";
+constant module_type  = MODULE_LOCATION;
+constant module_name  = "Whiteboard / Todo list";
+constant module_doc   = "Make a whiteboard or a todo list for multiuser "
+                        "environment";
+constant module_unique= 1;
+
+#define WHITEBOARDDEBUG 1
+
+#ifdef WHITEBOARDDEBUG 
+#define DEBUGLOG(X) perror("WhiteBoard: "+X+"\n");
+#else
+#define DEBUGLOG(X)
+#endif
+
+
+// Database variables
+object db=0;
+int db_accesses=0, last_db_access=0;
+// End of Database variables
 
 string tail="<br><hr></body>";
 string back="\n<br><a href=../>Back</a>";
@@ -24,15 +63,6 @@ array priority=({"HIGHEST","HIGH","Normal","low","lowest"});
 array statuses=({"Open", "Suspended", "Waiting"});
 
 array masterfile=({});
-
-array register_module()
-{
-  return ({ MODULE_LOCATION,
-            "Web-based whiteboard",
-            "Makes a whiteboard. ",
-            ({}),
-            1 });
-}
 
 void create() {
  defvar("mountpoint", "/whiteboard", "Location of module in virtual file system.",
@@ -52,7 +82,78 @@ void create() {
         TYPE_INT,
         "This is the amount of time (in hours) before closed projects "
         "get expunged from the database.");
+ defvar ("sqlserver", "mysql://localhost/todolist", "SQL: server",
+	 TYPE_STRING,
+	 "This is the host running the SQL server with the "
+	 "authentication information.<br>\n"
+	 "Specify an \"SQL-URL\":<ul>\n"
+	 "<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@]"
+	 "[<i>host</i>[:<i>port</i>]]/<i>database</i></pre></ul><br>\n"
+	 "Valid values for \"sqlserver\" depend on which "
+	 "sql-servers your pike has support for, but the following "
+	 "might exist: msql, mysql, odbc, oracle, postgres.\n",
+	 );
+ defvar ("prjtable", "projects", "SQL: Projects table",
+	 TYPE_STRING,
+	 "This is the table containing the data. It is advisable not "
+	 "to change it once the service has been started."
+	 );
+ defvar ("closedb", 1, "SQL: Close the database if not used", TYPE_FLAG,
+	 "Setting this will save one filedescriptor without a small "
+	 "performance loss."
+	 );
+ defvar ("timer", 60, "SQL: Database close timer", TYPE_INT,
+	 "The timer after which the database is closed",0,
+	 lambda(){return !QUERY(closedb);}
+	 );
 }
+
+/*
+ * DB management functions
+ */
+//this gets called only by call_outs, so we can avoid storing call_out_ids
+//Also, I believe storing in a local variable the last time of an access
+//to the database is more efficient than removing and resetting call_outs
+//This leaves a degree of uncertainty on when the DB will be effectively
+//closed, but it's below the value of the module variable "timer" for sure.
+void close_db() {
+	if (!QUERY(closedb))
+		return;
+	if( (time(1)-last_db_access) > QUERY(timer) ) {
+		db=0;
+		DEBUGLOG("closing the database");
+		return;
+	}
+	call_out(close_db,QUERY(timer));
+}
+
+void open_db() {
+  mixed err;
+  last_db_access=time(1);
+  db_accesses++; //I count DB accesses here, since this is called before each
+  if(objectp(db)) //already open
+    return;
+  err=catch{
+    db=Sql.sql(QUERY(sqlserver));
+  };
+  if (err) {
+    perror ("SQLauth: Couldn't open authentication database!\n");
+    if (db)
+      perror("SQLauth: database interface replies: "+db->error()+"\n");
+    else
+      perror("SQLauth: unknown reason\n");
+    perror ("SQLauth: check the values in the configuration interface, and "
+	    "that the user\n\trunning the server has adequate permissions "
+	    "to the server\n");
+    db=0;
+    return;
+  }
+  DEBUGLOG("database successfully opened");
+  if(QUERY(closedb))
+    call_out(close_db,QUERY(timer));
+}
+
+// End of database functions
 
 array readfile(string file) {
   object o=Stdio.File();
@@ -552,4 +653,28 @@ string query_location()
 //! This is the amount of time (in hours) before closed projects get expunged from the database.
 //!  type: TYPE_INT
 //!  name: Time before closed projects get deleted.
+//
+//! defvar: sqlserver
+//! This is the host running the SQL server with the authentication information.<br />
+//!Specify an "SQL-URL":<ul>
+//!<pre>[<i>sqlserver</i>://][[<i>user</i>][:<i>password</i>]@][<i>host</i>[:<i>port</i>]]/<i>database</i></pre></ul><br />
+//!Valid values for "sqlserver" depend on which sql-servers your pike has support for, but the following might exist: msql, mysql, odbc, oracle, postgres.
+//!
+//!  type: TYPE_STRING
+//!  name: SQL: server
+//
+//! defvar: prjtable
+//! This is the table containing the data. It is advisable not to change it once the service has been started.
+//!  type: TYPE_STRING
+//!  name: SQL: Projects table
+//
+//! defvar: closedb
+//! Setting this will save one filedescriptor without a small performance loss.
+//!  type: TYPE_FLAG
+//!  name: SQL: Close the database if not used
+//
+//! defvar: timer
+//! The timer after which the database is closed
+//!  type: TYPE_INT
+//!  name: SQL: Database close timer
 //
