@@ -1,15 +1,38 @@
-// This is a roxen module. Copyright © 1996 - 1999, Idonex AB.
-//
-// The main RXML parser. If this module is not added to a configuration,
-// no RXML parsing will be done at all.  This module also maintains an
-// accessed database, to be used by the <accessed> tag.
-//
-// It is in severe need of a cleanup in the code.
-//
-// This file *should* be split into multiple files, one with all
-// 'USER' related tags, one with all CLIENT related tags, etc.
-// 
-// the only thing that should be in this file is the main parser.  
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+/*
+ * The main RXML parser. If this module is not added to a configuration,
+ * no RXML parsing will be done at all.  This module also maintains an
+ * accessed database, to be used by the <accessed> tag.
+ *
+ * It is in severe need of a cleanup in the code.
+ *
+ * This file *should* be split into multiple files, one with all
+ * 'USER' related tags, one with all CLIENT related tags, etc.
+ * 
+ * The only thing that should be in this file is the main parser, but right
+ * now it also has a lot of tags.
+ * 
+ */
 string date_doc=Stdio.read_bytes("modules/tags/doc/date_doc");
 
 constant cvs_version = "$Id$";

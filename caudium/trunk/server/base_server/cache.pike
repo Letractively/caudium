@@ -1,4 +1,5 @@
-//string cvs_version = "$Id$";
+string cvs_version
+// $Id$
 
 #include <config.h>
 

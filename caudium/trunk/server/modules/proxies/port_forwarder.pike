@@ -1,18 +1,34 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1998 Francesco Chemolli,
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+/*
+ * This is a TCP port forwarding module for the Roxen webserver.
+ * Using it is very simple, just add it to your virtual server of choice.
+ */
+
 inherit "roxenlib";
 inherit "module";
 inherit "socket";
 #include <module.h>;
 
-/*
- * This software is (C) 1998 Francesco Chemolli,
- * and is freely availible under the terms of the
- * GNU General Public License, version 2.
- * This software comes with NO WARRANTY of ANY KIND, EITHER IMPLICIT
- * OR EXPLICIT. Use at your own risk.
- *
- * This is a TCP port forwarding module for the Roxen webserver.
- * Using it is very simple, just add it to your virtual server of choice.
- */
 
 //#define TCPFORWARDER_DEBUG
 /*

@@ -1,20 +1,42 @@
-// This is a roxen module. Copyright © 1996 - 1998, Idonex AB.
-// $Id$
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
-// Adds the <fl>, <ft> and <fd> tags. This makes it easy to 
-// build a folder list or an outline. Example:
-// 
-//               <fl>
-//                 <ft>ho
-//                  <fd>heyhepp
-//                 <ft>alakazot
-//                  <fd>no more
-//               </fl>
-
-// the fl-list can be nestled
-// ie <ft>...<fd>...</fd></ft> with implicit end tags
-
-// made by Pontus Hagland <law@idonex.se> december -96
+/*
+ * $Id$
+ *
+ * Adds the <fl>, <ft> and <fd> tags. This makes it easy to 
+ * build a folder list or an outline. Example:
+ * 
+ *               <fl>
+ *                 <ft>ho
+ *                  <fd>heyhepp
+ *                 <ft>alakazot
+ *                  <fd>no more
+ *               </fl>
+ *
+ * the fl-list can be nestled
+ * ie <ft>...<fd>...</fd></ft> with implicit end tags
+ *
+ * made by Pontus Hagland <law@idonex.se> december -96
+ */
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;

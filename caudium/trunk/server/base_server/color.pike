@@ -1,4 +1,6 @@
-// Color support for roxen. 
+roxen. 
+
+// Color support for Caudium.
 
 //string cvs_version = "$Id$";
 
