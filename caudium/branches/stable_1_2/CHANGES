@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.x since Caudium 1.2.4
 --------------------------------------------
+- Fixed the Last-Modified code in http.pike and http2.pike. If the request is
+  not marked as dynamic (!id->misc->is_dynamic), then the header will be sent 
+  properly. 
 - Added patch #534125 to ultralog that check the file exist before set 
   filewatch and a status of the module.
 - Added patch #534118 that fix for TYPE_FILE and TYPE_DIR checks.
