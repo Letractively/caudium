@@ -1,6 +1,11 @@
-mapping sql_update(object db, array(mapping) data, string unique, string tablename, string passthrough)
+#include <module.h>
+inherit "module";
+inherit "caudiumlib";
+
+mapping sql_update(object db, array(mapping) data, string unique, string tablename, object id, void|string uniquevalue, void|string passthrough)
 {
 
+  werror("sql_update!!\n");
 // 'unique' defines the field that is the 'auto_increment' or unique field 
 // identifiers to make sure that we are editing and updating the correct
 // record in the SQL server database
@@ -17,10 +22,11 @@ mapping sql_update(object db, array(mapping) data, string unique, string tablena
 
   foreach(data, mapping row)
   {
+    werror("%O\n", row);
     string update = "";
     foreach (fields,string field) 
     {
-      if (field[0..(sizeof(tablename))] != (tablename+".")
+      if (field[0..(sizeof(tablename))] != (tablename+"."))
         if (row[field])
           update += "," + field + " = '" + 
                     db->quote((string)row[field]) + "'";
@@ -37,7 +43,7 @@ mapping sql_update(object db, array(mapping) data, string unique, string tablena
     // as data driven as possible
     update = "update " + tablename + " set " + update +
              passthrough + " where " + unique + "='" + 
-             (string)row[unique] + "'";
+             (uniquevalue||(string)row[unique]) + "'";
 
     // Mysql returns 0 rows updated if there is no change, so the only thing
     // we can really do here is check to make sure there is no error when 
@@ -46,9 +52,9 @@ mapping sql_update(object db, array(mapping) data, string unique, string tablena
     //  catch {
       db->query(update);
   }
-      return Caudium.HTTP.redirect((string)id->variables->successpage,id);
+      return http_redirect((string)id->variables->successpage,id);
     //  };
-  return Caudium.HTTP.redirect((string)id->variables->errorpage + "?" + 
+  return http_redirect((string)id->variables->errorpage + "?" + 
                        (string)id->variables->unique + "=" +
                        (string)id->variables[(string)id->variables->unique],id);
 }

@@ -177,7 +177,6 @@ string sqlupdate_tag(string tag_name, mapping args,
                     object request_id, object f,
                     mapping defines, object fd)
 {
-  werror("sqlupdate!!\n");
   object(Sql.sql) con;
   mixed err;
   mixed res;
@@ -210,13 +209,13 @@ string sqlupdate_tag(string tag_name, mapping args,
   if(args->scope=="form")
     data=({ request_id->variables });
 
-  else if (err = catch(res = sql_update(con, data, args->unique, args->tablename, request_id, args->passthrough)))
+  if (err = catch(res = sql_update(con, data, args->unique, args->tablename, request_id, args->uniquevalue, args->passthrough)))
   {
         report_error(sprintf("SQLTAG: Update failed:\n"
                              "%s\n", describe_backtrace(err)));
   }
   else
-    return("foo<true>");
+    return("<true>");
 }
 
 Sql.sql get_database_connection(mapping args, object request_id)
