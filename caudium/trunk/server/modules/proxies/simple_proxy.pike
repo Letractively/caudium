@@ -194,7 +194,7 @@ class request
          file = "";
       }
 
-      not_file = http_decode_string (not_file);
+      not_file = _Roxen.http_decode_string (not_file);
 
       if (sscanf (not_file, "%[^:]:%d", host, port) != 2)
       {

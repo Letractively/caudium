@@ -424,8 +424,8 @@ inline void do_post_processing()
 	while(sizeof(c) && c[0]==' ') c=c[1..];
 	if(sscanf(c, "%s=%s", name, value) == 2)
 	{
-	  value=http_decode_string(value);
-	  name=http_decode_string(name);
+	  value=_Roxen.http_decode_string(value);
+	  name=_Roxen.http_decode_string(name);
 	  cookies[ name ]=value;
 #ifdef EXTRA_ROXEN_COMPAT
 	  if(name == "CaudiumConfig" && strlen(value))

@@ -604,7 +604,7 @@ mapping std_redirect(object o, object id)
 
   loc = replace(replace(replace(loc, "://", ""), "//", "/"), "", "://");
 
-  return http_redirect(http_decode_string(loc));
+  return http_redirect(_Roxen.http_decode_string(loc));
 }
 
 //!

@@ -129,7 +129,7 @@ void log(object id, mapping file)
   //     werror(sprintf("%O",mkmapping(indices(id),values(id))));
        string caud_version;
        int    cv1,cv2,cv3;
-       caud_version = (http_decode_string(id->useragent) - "Caudium/");
+       caud_version = (_Roxen.http_decode_string(id->useragent) - "Caudium/");
        sscanf(caud_version,"%*s%d.%d.%d%*s",cv1,cv2,cv3);
        caud_version = sprintf("%d.%d.%d",cv1,cv2,cv3);
        mixed err = catch{

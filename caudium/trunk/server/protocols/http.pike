@@ -508,7 +508,7 @@ private int parse_got()
   
   REQUEST_WERR(sprintf("After query scan:%O", f));
 
-  f = http_decode_string( f );
+  f = _Roxen.http_decode_string( f );
 
   /* Fix %00 (NULL) bug */
   sscanf( f, "%s\0", f );
@@ -693,8 +693,8 @@ private int parse_got()
 	  while(sizeof(c) && c[0]==' ') c=c[1..];
 	  if(sscanf(c, "%s=%s", name, value) == 2)
 	  {
-	    value=http_decode_string(value);
-	    name=http_decode_string(name);
+	    value=_Roxen.http_decode_string(value);
+	    name=_Roxen.http_decode_string(name);
 	    cookies[ name ]=value;
 	    if(name == "CaudiumConfig" && strlen(value))
 	    {
