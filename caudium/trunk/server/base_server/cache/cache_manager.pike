@@ -259,7 +259,19 @@ object get_cache( void|string|object one ) {
   if ( stringp( one ) )
     namespace = one;
   else if ( objectp( one ) )
-    namespace = one->get_modname( one );
+    foreach( caudium->configurations, object conf ) {
+      string mname = conf->otod[ one ];
+      if ( mname ) {
+        mapping moddata = conf->modules[ mname ];
+	if ( moddata )
+	  if ( moddata->copies )
+	    foreach ( indices( moddata->copies ), int i ) {
+	      namespace = sprintf( "%s instance %d on virtual server %s", one->module_name, i, conf->name );
+	    }
+	  else if ( moddata->master == one || moddata->enabled == one )
+	    namespace = sprintf( "%s on virtual server %s", one->module_name, conf->name );
+      }
+    }
   else
     namespace = "DEFAULT";
 

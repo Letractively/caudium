@@ -1284,6 +1284,18 @@ object get_module (string modname)
   return 0;
 }
 
+/*
+**! method: string get_modname( object module )
+**!   Given a copy of a Caudium module object create a uniquely identifying
+**!   for that object. Along the lines of localhost/filesystem#copy
+**! arg: object module
+**!   An object containing an active caudium module (probably this_object()
+**!   from inside a modules namespace).
+**! returns:
+**!   A unique name string.
+**! name: get_modname - Get a unique name for a module
+*/
+
 string get_modname (object module)
 // Returns a string uniquely identifying the given module on the form
 // `<config name>/<module short name>#<copy>', where `<copy>' is 0 for
