@@ -21,13 +21,7 @@ install: all extrainstall
 	$(INSTALL) $(MODNAME).$(SO) $(INSTALLDIR)
 
 $(MODNAME).$(SO):  $(OBJS)
-	@echo "linking $(MODNAME)" ;\
-	if $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) ; then \
-	  : ;\
-	else \
-	  echo "Linking failed:" >&2; \
-	  echo $(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) >&2 ;\
-	fi
+	$(LD) $(LDFLAGS) -o $(MODNAME).$(SO) $(OBJS) $(MODULE_ARCHIVES) $(MODULE_LDFLAGS) $(LIBGCC) -lc $(LIBGCC) 
 
 Makefile.pre: $(SRCDIR)/Makefile.pre.in $(SRCDIR)/configure config.status
 	@echo "configure or Makefile.in changed."
@@ -60,7 +54,7 @@ force:
 depend: force
 	@echo "Calculating dependencies..."
 	@cat  Makefile.pre > Makefile
-	@$(CC) -MM $(CFLAGS) $(SRCDIR)/*.c >> Makefile
+	@$(CC) -MM $(CFLAGS) $(SRCDIR)/*.c >> Makefile 2>/dev/null
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 

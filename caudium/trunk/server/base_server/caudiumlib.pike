@@ -110,8 +110,10 @@ static mapping build_env_vars(string f, object id, string path_info)
   
   new["DOCUMENT_URI"]= tmpid->not_query;
   
-  if( (tmp = tmpid->conf->stat_file(tmpid->not_query||"", tmpid) )
-     && sizeof(tmp))
+  if(((tmp = (tmpid->misc && tmpid->misc->stat)) ||
+      (tmp = (tmpid->defined && tmpid->defines[" _stat"])) ||
+      (tmpid->conf &&
+       (tmp = tmpid->conf->stat_file(tmpid->not_query||"", tmpid)))))
     new["LAST_MODIFIED"]=http_date(tmp[3]);
 
   // End SSI vars.

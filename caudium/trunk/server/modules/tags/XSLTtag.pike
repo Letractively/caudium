@@ -47,7 +47,7 @@ constant module_doc =
 "At this point the error messages only gets printed to the Caudium "
 "debug log. Also note that at this point only file URIs are "
 "accepted for both the XSL path and the base URI."
-#if !constant(PiXSL.parse)
+#if !constant(PiXSL.Parser)
 "<p><b><blink>ERROR</blink>: "
 "<font color=red>The PiXSL.so pike-module is missing. This "
 "module will not function correctly!</font></b>\n"
@@ -64,13 +64,14 @@ void create()
 	 "omitted. Uses the same file:, virt: and var: syntax as the age.\n");
 }
 
-#if constant(PiXSL.parse)
+#if constant(PiXSL.Parser)
 #define ERROR(x) return "<p><b>XSLT Error: " x "</b><p><false>";
 
 string container_xslt(string tag, mapping args, string xml, object id)
 {
   string xsl, type, key;
   string|mapping res;
+  object(PiXSL.Parser) parser;
   if(!args->stylesheet) args->stylesheet = QUERY(stylesheet);
   if(!args->baseuri) args->baseuri = QUERY(baseuri);
   if(!strlen(args->baseuri)) m_delete(args, "baseuri");
@@ -103,56 +104,61 @@ string container_xslt(string tag, mapping args, string xml, object id)
   case "var":
     xsl = id->variables[key];
     break;
-    
+
   default:
     ERROR("Invalid stylesheet method. Valid methods are file:, virt: and var:");
   }
   if(!xsl)
     ERROR("Couldn't read XSLT stylesheet");
   sscanf(xml, "%*[\n\t\r ]%s", xml);
+
+  parser = PiXSL.Parser();
   if(args->baseuri) 
-    res = PiXSL.parse(xsl, xml, args->baseuri);
-  else 
-    res = PiXSL.parse(xsl, xml);
-  if(!res)
-    return  "<b>ERROR:</b> XSLT Parsing failed with unknown error.<false>";
-  else if(mappingp(res)) {
-    int line = (int)res->line, sline, eline;
-    string line_emph="";
-    array lines;
-    if(!res->URI) res->URI = "unknown file";
-    if(search(res->URI, "xsl") != -1) {
-      res->URI = "XSLT input <i>"+args->stylesheet+"</i>";
-      if(line) lines = xsl / "\n";
-    } else if(search(res->URI, "xml") != -1) {
-      res->URI = "XML source data";
-      if(line) lines = xml / "\n";
-    }
-    if(lines) {
-      line--;
-      sline = max(line - 3, 0);
-      eline = min(sizeof(lines), sline + 7);
-      line_emph="<h3>Extract of incorrect line</h3>";
-      for(int i = sline; i < eline; i++) {
-	if(i == line) {
-	  line_emph += "<b>"+(i+1)+": <font size=+3>"+
-	    html_encode_string(lines[i])+"</font></b><br>";
-	} else {
-	  line_emph += "<b>"+(i+1)+"</b>: "+
-	    html_encode_string(lines[i])+"<br>";
+    parser->set_base_uri(args->baseuri);
+  parser->set_xsl_data(xsl);
+  parser->set_xml_data(xml);
+  parser->set_variables(id->variables);
+  if(catch(res = parser->run())) {
+    res = parser->error();
+    if(!res)
+      return  "<b>ERROR:</b> XSLT Parsing failed with unknown error.<false>";
+    else if(mappingp(res)) {
+      int line = (int)res->line, sline, eline;
+      string line_emph="";
+      array lines;
+      if(!res->URI) res->URI = "unknown file";
+      if(search(res->URI, "xsl") != -1) {
+	res->URI = "XSLT input <i>"+args->stylesheet+"</i>";
+	if(line) lines = xsl / "\n";
+      } else if(search(res->URI, "xml") != -1) {
+	res->URI = "XML source data";
+	if(line) lines = xml / "\n";
+      }
+      if(lines) {
+	line--;
+	sline = max(line - 3, 0);
+	eline = min(sizeof(lines), sline + 7);
+	line_emph="<h3>Extract of incorrect line</h3>";
+	for(int i = sline; i < eline; i++) {
+	  if(i == line) {
+	    line_emph += "<b>"+(i+1)+": <font size=+3>"+
+	      html_encode_string(lines[i])+"</font></b><br>";
+	  } else {
+	    line_emph += "<b>"+(i+1)+"</b>: "+
+	      html_encode_string(lines[i])+"<br>";
+	  }
 	}
       }
+      return 
+	sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
+		"line %s in %s:<br>\n%s<p>%s<br>\n<false>",
+		res->level||upper_case(res->msgtype||"ERROR"), 
+		res->module ? res->module + " " : "",
+		res->code || "???",
+		res->line || "???",
+		res->URI || "unknown file",
+		res->msg || "Unknown error", line_emph);
     }
-    
-    return 
-      sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
-	      "line %s in %s:<br>\n%s<p>%s<br>\n<false>",
-	      res->level||upper_case(res->msgtype||"ERROR"), 
-	      res->module ? res->module + " " : "",
-	      res->code || "???",
-	      res->line || "???",
-	      res->URI || "unknown file",
-	      res->msg || "Unknown error", line_emph);
   }
   return res+"<true>";
 }
