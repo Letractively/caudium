@@ -310,7 +310,7 @@ private mixed do_logout(object id, mapping data, string f)
     if (!id->misc->session_id | !data->user || !data->user->authenticated)
         return http_redirect(id->conf->QUERY(MyWorldLocation) +
                              QUERY(mountpoint) + "/auth");
-    
+
     object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
     if (!sprov)
         return ([
@@ -328,6 +328,8 @@ private mixed do_logout(object id, mapping data, string f)
     object session = PROVIDER("123sessions");
     if (session)
         session->delete_session(id, id->misc->session_id, 1);
+
+    kill_ldap(id);
     
     if (logoutscr && logoutscr != "")
         return http_string_answer(logoutscr);
@@ -350,6 +352,16 @@ mixed handle_request(object id, mapping data, string f)
     }
 }
 
+private void kill_ldap(object id)
+{
+    mixed error;
+    
+    if (conn_cache[id->misc->session_id] && objectp(conn_cache[id->misc->session_id])) {
+        error = catch(conn_cache[id->misc->session_id]->unbind());
+        destruct(conn_cache[id->misc->session_id]);
+        m_delete(conn_cache, id->misc->session_id);
+    }
+}
 
 mixed find_file(string f, object id)
 {
@@ -459,14 +471,9 @@ mixed find_file(string f, object id)
     //
     response =  req_prov->handle_request(id, SDATA(id), f);
 
-    if (response && response->close_ldap) {
-        if (conn_cache[id->misc->session_id] && objectp(conn_cache[id->misc->session_id])) {
-            error = catch(conn_cache[id->misc->session_id]->unbind());
-            destruct(conn_cache[id->misc->session_id]);
-            m_delete(conn_cache, id->misc->session_id);
-        }
-    }
-
+    if (response && response->close_ldap)
+        kill_ldap(id);
+    
     return response ? response : http_string_answer("Some screwup - check your provider modules");
 }
 
