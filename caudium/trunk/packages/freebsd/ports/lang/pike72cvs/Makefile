@@ -7,7 +7,7 @@
 
 PORTNAME=	pike72cvs
 PORTVERSION=	7.2.380
-PORTREVISION=	2
+PORTREVISION=	3
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -20,7 +20,8 @@ DISTNAME=	pike-${PORTVERSION}
 
 MAINTAINER=	kiwi@oav.net
 
-BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
+#BUILD_DEPENDS=	bison:${PORTSDIR}/devel/bison/
+USE_BISON=	yes
 .if (${MACHINE} == "i386")
 BUILD_DEPENDS+=	nasm:${PORTSDIR}/devel/nasm/
 .endif
