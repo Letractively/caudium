@@ -170,7 +170,7 @@ install_alt:
 	 echo "Copying $$f ..."; \
 	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
 	done
-	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -print`
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -or -name start-caudium.in`
 	@echo "Copying modules..."
 	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
 	@for f in $(SRCDIR)/server/*; do \
