@@ -80,24 +80,16 @@ constant thread_safe    = 0;
 object  filewatch;    // Filewatcher object
 mapping cidrlist;     // CIDR list with actions in an array    
 
-#if 0
-//! method: int load_cidrfile(string file)
-//!  Load the specified file into cidrlist
-int load_cidrfile(string file) {
-  if (file == NONE) {
-    cidrlist = ([ ]);
-    return 0;
-  }
-
-}
-
-#endif
-
 //! method: void start()
 //!  When the module is started, start filesystem
 void start(int count, object conf)
 {
   filesystem::start();
+  WERR(" CIDR File is " + QUERY(cidrf));
+  catch {
+  load_cidrfile(QUERY(cidrf));
+  filewatch = FileWatch.Callout(QUERY(cidrf), 5, load_cidrfile);
+  };
 }
 
 //! method: void create()
@@ -112,7 +104,7 @@ void create()
          "If set to yes, some debug information will be put in the debug logs.");
 #endif
 
-  defvar("cidrfile", "NONE", "CIDR Definition file", TYPE_FILE,
+  defvar("cidrf", "NONE", "CIDR Definition file", TYPE_FILE,
          "The file that contains definition of CIDR and Actions to be done.");
 
 }
@@ -186,14 +178,28 @@ class CIDRFile {
   {
     mapping out = ([ ]);
     foreach((datafile-"\r")/"\n",string foo)
-    {
       if(qualify_line(foo) == LINE_DIRECTIVE)
       {
          array l= foo / "\t";
-         out += ([ l[0] : l[1] ]);
+         out += ([ l[0] : ({ l[1], l[2] }) ]);
       }
     return out;
   }
+}
+
+//! method: int load_cidrfile (string file)
+//!  Load the cidr file, parse it and update the cidrlist mapping
+int load_cidrfile(string file)
+{
+  WERR("(re)loading the CIDR action file");
+  if(file == "NONE")
+  {
+    WERR("File is not set, we don't reload anything");
+    return 0;
+  }
+  cidrlist = CIDRFile(file)->doindex();
+  WERR("File loaded, with "+(string)sizeof(cidrlist)+" CIDR definitions in it");
+  return 0;
 }
 
 //! mapping first_try(object id)
@@ -207,6 +213,24 @@ mapping first_try(object id)
 
   // Get the remote ip address from id object
   WERR("Ip source address : "+id->remoteaddr);
+  string source = id->remoteaddr;
+
+  foreach(indices(cidrlist), string subnet) 
+  {
+    int isinlist = IP_check(subnet)->check(source);
+
+    if (isinlist) {
+      WERR(source + " is in the list ... Checking actions ...");
+      WERR(source + " Action is : "+cidrlist[subnet][0]);
+      WERR(source + " Args is : "+cidrlist[subnet][1]);
+      switch(upper_case(cidrlist[subnet][0])) {
+        case "REDIRECT":  return Caudium.HTTP.redirect(cidrlist[subnet][1],id);
+                          break;
+        case "DIR"     :  path += combine_path("/./",cidrlist[subnet][1]);
+                          break;
+        }
+      }
+  }
 
   path = Caudium.simplify_path(path);
 
