@@ -48,7 +48,7 @@ string cram_md5(string secret, string challenge)
 	        opad[i] ^= 0x5c;
 	}
 
-	return Crypto.string_to_hex(Crypto.md5()->update(opad)->update(Crypto.md5()->update(ipad)->update(challenge)->digest())->digest());
+	return Caudium.Crypto.to_hex(Crypto.md5()->update(opad)->update(Crypto.md5()->update(ipad)->update(challenge)->digest())->digest());
 }
 
 string cram_md5_resp(string secret, string challenge, string username)
