@@ -24,8 +24,8 @@
  * SSL3 (https) protocol
  */
 
-//inherit "protocols/http" : http;
-inherit "protocols/http2" : http;
+inherit "protocols/http" : http;
+//inherit "protocols/http2" : http;
 inherit "caudiumlib";
 
 mapping to_send;
