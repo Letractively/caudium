@@ -7,7 +7,7 @@
 
 PORTNAME=	pike73cvs
 PORTVERSION=	7.3.51
-PORTREVISION=	0
+PORTREVISION=	1
 CATEGORIES=	lang
 MASTER_SITES=	ftp://ftp.oav.net/pkg_freebsd/distfiles/ \
 		http://ftp.oav.net/pkg_freebsd/distfiles/ \
@@ -62,7 +62,8 @@ CONFIGURE_ARGS+= --without-debug \
 		 --with-tiff \
 		 --with-gdbm \
 		 --without-java \
-		 --without-ssleay
+		 --without-ssleay \
+		 --prefix=${PREFIX}
 
 .include <bsd.port.pre.mk>
 
