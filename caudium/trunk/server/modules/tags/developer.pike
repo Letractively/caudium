@@ -71,7 +71,7 @@ void start(int num, object configuration)
 //
 //  [0] - full name
 //  [1] - contact e-mail
-//  [2] - birthday in ISO format (text - DD.MM.YYYY)
+//  [2] - birthday in ISO format (text - YYYY-MM-DD)
 //  [3] - country of origin
 //
 // All the array elements are optional. Every developer has to agree for
@@ -82,18 +82,18 @@ void start(int num, object configuration)
 // In alphabetical order, please :)
 //
 mapping(string:array) developers = ([
-//    "aleph1":({"Aleph One", "aleph1@caudium.net", "", ""}),
-//    "duerrj":({"Joseph Duerr", "duerrj@caudium.net", "", "USA"}),
-//    "eMBee":({"Martin Baehr", "mbaehr@caudium.net", "", "Austria"}),
-    "grendel":({"Marek Habersack", "grendel@caudium.net", "11.09.1973", "Poland"}),
-//    "james_tyson":({"James Tyson", "james_tyson@users.sourceforge.net", "", "New Zealand"}),
-//    "kvoigt":({"Kai Voigt","k@caudium.net", "", "Germany"}),
-    "kiwi":({"Xavier Beaudouin", "kiwi@caudium.net", "6.11.1972", "France"}),
-    "mikeharris":({"Mike A. Harris", "mikeharris@users.sourceforge.net", "1.5.1972", "Canada"}),
-//    "neotron":({"David Hedbor", "david@caudium.net", "30.11.1974", "Sweden"}),
-//    "nikram":({"Fred van Dijk", "fred@caudium.net", "", "Holland"}),
-//    "redax":({"Zsolt Varga", "redax@caudium.net", "", "Hungary"}),
-//    "wilsonm":({"Matthew Wilson", "matthew@caudium.net", "", "USA"})
+  //    "aleph1":({"Aleph One", "aleph1@caudium.net", "", ""}),
+  //    "duerrj":({"Joseph Duerr", "duerrj@caudium.net", "", "USA"}),
+  //    "eMBee":({"Martin Baehr", "mbaehr@caudium.net", "", "Austria"}),
+  "grendel":({"Marek Habersack", "grendel@caudium.net", "1973-09-11.", "Poland"}),
+  //    "james_tyson":({"James Tyson", "james_tyson@users.sourceforge.net", "", "New Zealand"}),
+  "kvoigt":({"Kai Voigt","k@caudium.net", "", "Germany"}),
+  "kiwi":({"Xavier Beaudouin", "kiwi@caudium.net", "1972-11-6", "France"}),
+  "mikeharris":({"Mike A. Harris", "mikeharris@users.sourceforge.net", "1972-05-01", "Canada"}),
+  "neotron":({"David Hedbor", "david@caudium.net", "1974-11-30", "Sweden"}),
+  //    "nikram":({"Fred van Dijk", "fred@caudium.net", "", "Holland"}),
+  //    "redax":({"Zsolt Varga", "redax@caudium.net", "", "Hungary"}),
+  //    "wilsonm":({"Matthew Wilson", "matthew@caudium.net", "", "USA"})
 ]);
 
 static string print_developer(string dev, array devdata, int full)
