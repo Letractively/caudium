@@ -1,6 +1,9 @@
 // This is a roxen module. Copyright © 1996 - 2000, Roxen IS.
 //
 
+// From what module we take some functions
+#define RXMLTAGS id->conf->get_provider("rxml:tags")
+
 #include <module.h>
 
 inherit "module";
@@ -555,9 +558,14 @@ string tag_accessed(string tag, mapping m, object id)
     return "";
 
   if(m->since) {
-    if(m->database)
-      return tag_time(counter->creation_date(), m, id, language); // From rxmltags
-    return tag_time(counter->creation_date(m->file), m, id, language);
+    object rxmltags_module = RXMLTAGS;
+    if (objectp(rxmltags_module))
+    {
+     if(m->database)
+      return rxmltags_module->api_tagtime(counter->creation_date(), m, id, language); // From rxmltags
+     return rxmltags_module->api_tagtime(counter->creation_date(m->file), m, id, language);
+    }
+    return "<!-- No RXML Tag module ? -->";
   }
 
   string real="<!-- ("+counts+") -->";
@@ -620,7 +628,7 @@ string tag_accessed(string tag, mapping m, object id)
   case "mcdonalds":
     q=0;
     while(counts>10) { counts/=10; q++; }
-    res="More than "+language("eng", "number", id)(counts*10->pow(q))
+    res="More than "+language("eng", "number")(counts*10->pow(q))
         + " served.";
     break;
 
@@ -630,11 +638,11 @@ string tag_accessed(string tag, mapping m, object id)
 
   case "ordered":
     m->type="string";
-    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "ordered", id));
+    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "ordered"));
     break;
 
   default:
-    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "number", id));
+    res=number2string(counts, m, language(m->lang||id->misc->defines->theme_language, "number"));
   }
 
   if(m->minlength) {
@@ -647,4 +655,9 @@ string tag_accessed(string tag, mapping m, object id)
   }
 
   return res+(m->addreal?real:"");
+}
+
+mapping query_tag_callers()
+{
+  return([ "accessed2":tag_accessed ]);
 }
