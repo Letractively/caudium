@@ -50,7 +50,7 @@ constant module_unique = 1;
 
 class ClientScope {
   inherit "scope";  
-  constant name = "client";
+  string name = "client";
 
   array(string)|string get(string entity, object id) {
     mixed tmp;
@@ -127,7 +127,7 @@ class ClientScope {
 
 class PageScope {
   inherit "scope";  
-  constant name = "page";
+  string name = "page";
 
   array(string)|string get(string entity, object id) {
     mixed tmp;
@@ -392,7 +392,7 @@ class CaudiumScope {
 
 class RandomScope {
   inherit "scope";
-  constant name = "random";
+  string name = "random";
 
   array(string) get(string entity, object id) {
     NOCACHE();
@@ -409,7 +409,7 @@ class RandomScope {
 
 class CookieScope {
   inherit "scope";
-  constant name = "cookie";
+  string name = "cookie";
 
   string get(string entity, object id) {
     NOCACHE();
@@ -426,7 +426,7 @@ class CookieScope {
 
 class FormScope {
   inherit "scope";
-  constant name = "form";
+  string name = "form";
   int set(string entity, mixed value, object id) {
     if(!value)
       m_delete(id->variables, entity);
@@ -449,7 +449,7 @@ class FormScope {
 
 class VarScope {
   inherit "scope";
-  constant name = "var";
+  string name = "var";
   mapping top_vars = ([]);
   mapping sub_vars = ([]);
   int set(string entity, mixed value, object id) {
