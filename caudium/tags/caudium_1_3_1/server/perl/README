@@ -1,0 +1,10 @@
+mod_perl embedded Perl support for the Caudium webserver. Written by
+Leif Stensson for the Roxen Webserver. First ported to Caudium by Jan
+Legengausen. Additional porting by David Hedbor etc.
+
+--
+
+The server/perl/lib/ directory will contain Perl modules, and should
+be added to @INC for Caudium-related Perl scripts.
+
+
