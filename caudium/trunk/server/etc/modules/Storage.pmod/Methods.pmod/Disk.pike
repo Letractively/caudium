@@ -68,11 +68,19 @@ void unlink(string namespace, void|string key) {
     }
   }
   else {
-    foreach(get_dir(_path), string fname) {
+    array dir = get_dir(_path)?get_dir(_path):({});
+    foreach(dir, string fname) {
       string objpath = Stdio.append_path(_path, fname);
-      if (decode(Stdio.read_file(objpath))->namespace == namespace) {
+      mapping obj = decode(Stdio.read_file(objpath));
+      if (mappingp(obj))
+        if (obj->namespace == namespace) {
+          FLOCK(objpath, "w", 1);
+          rm(objpath);
+	  FUNLOCK();
+        }
+      else {
         FLOCK(objpath, "w", 1);
-        rm(objpath);
+	rm(objpath);
 	FUNLOCK();
       }
     }
@@ -163,6 +171,7 @@ int size(string namespace) {
 array list(string namespace) {
   PREFLOCK();
   array ret = ({ });
+  array dir = get_dir(path)?get_dir(path):({});
   foreach(get_dir(path), string fname) {
     string objpath = Stdio.append_path(path, fname);
     FLOCK(objpath, "r", 1);
