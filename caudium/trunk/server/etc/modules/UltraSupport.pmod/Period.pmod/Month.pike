@@ -73,6 +73,8 @@ array(float)   sess_day_pages= allocate(32);
 array(float)   sess_len = allocate(32);
 int loaded;
 mapping extra;
+
+//!
 void create(int year, int month, object method, string|void table,
 	    int|void maxsize, mapping|void saveinme, mixed ... args) {
   int multiload;
@@ -86,7 +88,7 @@ void create(int year, int month, object method, string|void table,
   if(!table || (table && search(table, "kb_per"))) {
     Util.load(method, saveinme||this_object(), data, table);
   }
-    //  werror("Preload took %d (%d) ms\n", preload, loaded);
+    //  report_debug("Preload took %d (%d) ms\n", preload, loaded);
   if(loaded || (extra&&extra->loaded)) 
     return;
   array dates = method->get_days();
@@ -95,7 +97,7 @@ void create(int year, int month, object method, string|void table,
   foreach(sort((array(int))(dates||({})) - ({0})), int day)
   {
     if(d) destruct(d);
-    werror("   Date %d-%02d-%02d\n", year, month, day);
+    report_debug("   Date %d-%02d-%02d\n", year, month, day);
     if(saveinme)  saveinme = ([]);
     method->set_period( ({ Util.PERIOD_DAY, year, month, day }) );
     d = Period.Day(year,month,day,method ,table &&

@@ -70,6 +70,8 @@ mapping domains = ([]);
 mapping topdomains = ([]);
 mapping extra;
 int loaded;
+
+//!
 void create(int year, int week, object method, string|void table,
 	    int|void maxsize, mapping|void saveinme, mixed ... args) {
   if(saveinme) extra = saveinme;
@@ -80,13 +82,13 @@ void create(int year, int week, object method, string|void table,
   if(!table || (table && search(table, "kb_per"))) {
     Util.load(method, saveinme||this_object(), data, table);
   }
-  //  werror("Preload took %d (%d) ms\n", preload, loaded);
+  //  report_debug("Preload took %d (%d) ms\n", preload, loaded);
   if(loaded || (saveinme&&saveinme->loaded)){
     return;
   }  
   int count, g, load;
   object d, wobj = Calendar.ISO.Week(year, week);
-  werror("Week %d %d (%s)\n", year, week, table||"none");
+  report_debug("Week %d %d (%s)\n", year, week, table||"none");
   for(int i = 1; i < 8; i ++) {
     int day = wobj->day(i)->month_day();
     int month;
@@ -99,7 +101,7 @@ void create(int year, int week, object method, string|void table,
 #endif
     if(d) destruct(d);
       
-    werror("   Date %d-%02d-%02d\n", year, month, day);
+    report_debug("   Date %d-%02d-%02d\n", year, month, day);
     if(saveinme)
       saveinme = ([]);
     method->set_period( ({ Util.PERIOD_DAY, year, month, day }) );
@@ -157,7 +159,7 @@ void create(int year, int week, object method, string|void table,
   //compress_mappings(t);
   if(count)
     avg_bandwidth /= count;
-  //  werror("Add: %d ms, Load: %d ms\n", g, load);
+  //  report_debug("Add: %d ms, Load: %d ms\n", g, load);
   method->set_period( ({ Util.PERIOD_WEEK, year, week }) );
   Util.save(method, data, this_object());
   method->destroy();
