@@ -36,3 +36,10 @@
 #define SDATA(_id_) SVARS(_id_)->ldap_center_data
 #define SUSER(_id_) SDATA(_id_)->user
 #define SSTORE(_id_) SVARS(_id_)->session_store
+
+//
+// Other macros
+//
+#define PROVIDER(name) id->conf->get_provider(name)
+#define P_MENU(prefix) id->conf->get_provider(QUERY(prefix) + "_menu")
+#define P_SCREENS(prefix) id->conf->get_provider(QUERY(prefix) + "_screens")

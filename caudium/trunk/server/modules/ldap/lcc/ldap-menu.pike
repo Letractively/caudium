@@ -108,7 +108,18 @@ private string make_all_menus(object id, mapping data, string|void f)
 
 mapping handle_request(object id, mapping data, string f)
 {
-    return http_string_answer(make_all_menus(id, data, f));
+    string menuname = "mainmenu";
+    
+    if (id->variables && id->variables->menuname)
+        menuname = id->variables->menuname;
+
+    object sprov = id->conf->get_provider(QUERY(provider_prefix) + "_screens");
+    string menuscreen = sprov ? sprov->retrieve(id, menuname, data->lang) : "";
+
+    if (!menuscreen || menuscreen == "")
+        return http_string_answer(make_all_menus(id, data, f));
+
+    return http_string_answer(menuscreen);
 }
 
 //

@@ -35,8 +35,6 @@ constant module_doc  = "Central LDAP management module. Provides the connection 
 
 constant module_unique = 0;
 
-#define PROVIDER(name) id->conf->get_provider(name)
-
 //
 // LDAP connection cache
 //
@@ -299,6 +297,7 @@ private mapping init_user(object id)
     ret->prefix = QUERY(prov_prefix);
     ret->my_world = id->conf->QUERY(MyWorldLocation);
     ret->mountpoint = QUERY(mountpoint);
+    ret->lang = "en";
     
     return ret;
 }
