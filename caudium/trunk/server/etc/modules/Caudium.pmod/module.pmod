@@ -1045,7 +1045,7 @@ string make_html_container(string tag,mapping in, string contents) {
 //!  The attributes are XML encoded
 string make_xml_container(string tag,mapping in, string contents) {
   string q = make_xml_tag_attributes(in);
-  return "<"+tag+(strlen(q)?" "+q:"")+contents+"</"+tag+">";
+  return "<"+tag+(strlen(q)?" "+q:"")+">"+contents+"</"+tag+">";
 }
 
 //! A mix of make_html_container and make_xml_container
