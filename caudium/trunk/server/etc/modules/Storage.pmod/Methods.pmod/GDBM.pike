@@ -19,6 +19,16 @@
  * $Id$
  */
 
+/*
+ * The Storage module and the accompanying code is Copyright © 2002 James Tyson.
+ * This code is released under the GPL license and is part of the Caudium
+ * WebServer.
+ *
+ * Authors:
+ *   James Tyson	<jnt@caudium.net>
+ *
+ */
+
 constant storage_type    = "GDBM";
 constant storage_doc     = "Please enter the full path that you would like to store the "
                            "GDBM database in";

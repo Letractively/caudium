@@ -19,6 +19,16 @@
  *
  */
 
+/*
+ * The Cache module and the accompanying code is Copyright © 2002 James Tyson.
+ * This code is released under the GPL license and is part of the Caudium
+ * WebServer.
+ *
+ * Authors:
+ *   James Tyson	<jnt@caudium.net>
+ *
+ */
+
 //! This module implements a wrapper around a real cache which will cause
 //! the client script to believe it has a fully functioning cache even if
 //! the cache it refers to has been shutdown due to inactivity.
