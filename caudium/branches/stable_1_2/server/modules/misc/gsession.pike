@@ -1077,7 +1077,7 @@ int store(object id, string|mapping(string:mapping(string:mixed)) key, void|mixe
       cur_storage->store(id, key[s]->key, key[s]->data, id->misc->session_id, reg);
     }
   } else
-    cur_storage->store(id, key, data, reg);
+    cur_storage->store(id, key, data, id->misc->session_id, reg);
     
   return 0;
 }
