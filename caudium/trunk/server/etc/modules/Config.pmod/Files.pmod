@@ -585,29 +585,36 @@ class File
     return 0;
   }
 
-  //! Stores (and creates if it doesn't exist) a variable in the
-  //! specified region. The allowed variable types are 'string', 'int'
-  //! and 'array' (containing either of the three supported types).
+  //! Removes a variable in the specified region. 
   //!
   //! @param region
-  //!  The region to store the variable in.
+  //!  The region to remove the variable from.
   //!
   //! @param var
   //!  The variable name.
   //!
-  //! @param val
-  //!  The variable value.
+  //! @returns
+  //!  1 on success, 0 on failure.
+  int remove(string region, string var)
+  {
+    if (regions)
+      return regions->remove(region, var);
+
+    return 0;
+  }
+
+
+  //! Removes the specified region. 
   //!
-  //! @param docheck
-  //!  If different than 0, the passed value will be checked for type
-  //!  correctness.
+  //! @param region
+  //!  The region to remove the variable from.
   //!
   //! @returns
   //!  1 on success, 0 on failure.
-  int store(string region, string var, mixed value, int|void docheck)
+  int remove_region(string region)
   {
     if (regions)
-      return regions->store(region, var, value, docheck);
+      return regions->remove_region(region);
 
     return 0;
   }
@@ -695,6 +702,52 @@ class Config
       return regions[region];
         
     return 0;
+  }
+
+  //! Removes a variable from the specified region or the entire region
+  //! if the variable isn't specified.
+  //!
+  //! @param region
+  //!  The region name
+  //!
+  //! @param var
+  //!  The variable name
+  //!
+  //! @returns
+  //!  1 upon successful removal or 0, if the variable/region don't exist.
+  mixed remove(string region, string var)
+  {
+    if (!regions || !sizeof(regions))
+      return 0;
+
+    if (!regions[region])
+      return 0;
+
+    if (var && regions[region][var])
+      m_delete(regions[region], var);
+        
+    return 1;
+  }
+
+
+  //! Removes an entire region.
+  //!
+  //! @param region
+  //!  The region name
+  //!
+  //! @returns
+  //!  1 upon successful removal or 0, if the region don't exist.
+  mixed remove_region(string region)
+  {
+    if (!regions || !sizeof(regions))
+      return 0;
+
+    if (!regions[region])
+      return 0;
+
+    m_delete(regions, region);
+        
+    return 1;
   }
 
   //! Stores (and creates if it doesn't exist) a variable in the
