@@ -6,9 +6,9 @@ that is missing, but here is a list of packages that you will most likely
 have to install yourself.
 
 Required Packages:
-  Pike 7.5:
-    You will need version 7.5 or better. Caudium 1.3 will not be
-    able to run with older pike (eg pike 7.2, 7.1, 7.0, 7.4 or 0.6).
+  Pike 7.6:
+    You will need version 7.6.7 or better. Caudium 1.3 will not be
+    able to run with older pike (eg pike 7.5 7.2, 7.1, 7.0, 7.4 or 0.6).
 
 Optional Packages (recommended)
   Sablotron (requires expat)
@@ -29,14 +29,6 @@ Optional Packages (recommended)
 
   PHP
     See http://caudium.net/server/docs/related/php4.rxml
-
-  NJS JavaScript Interpreter - HIGHLY EXPERIMENTAL!!!
-    If you want to use server side Javascript support, you'll need to install
-    it. You need to install NJS library before compiling Caudium. See 
-    http://www.bbassett.net/njs/ for more informations. You also need to
-    enable the support explicitly by modifying the src/cmods/configure.in
-    file. Also, note that you need the latest CVS version of NJS for this
-    module to work.
 
 ----------------------------------------------------------------------------
 
@@ -109,8 +101,8 @@ Installing Caudium 1.3 from source:
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.3.23.tar.gz
-bash$ cd caudium-1.3.23
+bash$ tar xzf caudium-1.3.31.tar.gz
+bash$ cd caudium-1.3.31
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
