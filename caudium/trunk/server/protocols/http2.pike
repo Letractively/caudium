@@ -1080,42 +1080,42 @@ void send_result(mapping|void result)
     {
       array fstat;
       if(objectp(file->file))
-	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (array(int))file->file->stat();
+        if(!file->stat && !(file->stat=misc->stat))
+          file->stat = (array(int))file->file->stat();
 	 
       fstat = file->stat;
       if(arrayp(fstat) || objectp(fstat))
       {
         int fsize, fmtime;
 	
-	if (objectp(fstat)) {
-	    fsize = fstat->size;
-	    fmtime = fstat->mtime;
-	} else {
-	    fsize = fstat[1];
-	    fmtime = fstat[3];
-	}
+        if (objectp(fstat)) {
+          fsize = fstat->size;
+          fmtime = fstat->mtime;
+        } else {
+          fsize = fstat[1];
+          fmtime = fstat[3];
+        }
 	
-	if(file->file && !file->len)
-	  file->len = fsize;
+        if(file->file && !file->len)
+          file->len = fsize;
     	
-	if(!file->is_dynamic && !misc->is_dynamic)
-	{
-	  heads["Last-Modified"] = http_date(fmtime);
-	  if(since)
-	  {
-	    if(is_modified(since, fmtime, fsize))
-	    {
-	      file->error = 304;
-	      file->file = 0;
-	      file->data="";
-	      // 	    method="";
-	    }
-	  }
-	} 
+        if(!file->is_dynamic && !misc->is_dynamic)
+        {
+          heads["Last-Modified"] = http_date(fmtime);
+          if(since)
+          {
+            if(is_modified(since, fmtime, fsize))
+            {
+              file->error = 304;
+              file->file = 0;
+              file->data="";
+              // 	    method="";
+            }
+          }
+        } 
       }
       if(stringp(file->data)) 
-	file->len += strlen(file->data);
+        file->len += strlen(file->data);
     }
 
     //
@@ -1582,3 +1582,9 @@ void chain(object f, object c, string le)
     }
   }
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ */
