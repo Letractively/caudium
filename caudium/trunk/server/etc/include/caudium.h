@@ -19,5 +19,3 @@
 #endif
 #endif
 #endif /* DEBUG_LEVEL is not defined from install */
-
-#define CAUDIUM_CACHE 1

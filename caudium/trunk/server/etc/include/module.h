@@ -120,7 +120,7 @@ defvar((X)+"_slant", "plain", (Z)+": slant", TYPE_STRING_LIST, "", ({"italic","p
 #define NOCACHE() id->misc->cacheable=0
 #endif
 
-
+#define CAUDIUM_CACHE 1
 
 
 
