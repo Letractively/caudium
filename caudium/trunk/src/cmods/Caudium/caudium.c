@@ -772,7 +772,7 @@ static void f_http_encode(INT32 args)
 	struct pike_string *ret;
 	
 	if (!args || Pike_sp[-args].type != PIKE_T_STRING)
-		Pike_error("Invalid argument to Caudium.http_eecode(STRING);\n");
+		Pike_error("Invalid argument to Caudium.http_encode(STRING);\n");
 
 	in = Pike_sp[-args].u.string->str;
 	in_len = Pike_sp[-args].u.string->len;
@@ -798,7 +798,7 @@ static void f_http_encode(INT32 args)
 		} else *o++ = *i;
 	}
 	
-	*o++ = 0;
+	/* *o++ = 0; */
 	pop_n_elems(args);
 	push_string(end_shared_string(ret));
 }
