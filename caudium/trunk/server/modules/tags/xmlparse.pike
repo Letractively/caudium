@@ -420,10 +420,13 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   return to_parse;
 }
 
+//! still need to support arguments: sort and filter to be rxml2 
+//! compliant.
 string container_emit(string t, mapping args, string contents, object id,  
   object f)
 {
   function plugin;
+  int rowinfo;
 
   if(!args->source) return "emit: no source specified";
   if(!args->scope) return "emit: no scope specified";
@@ -447,18 +450,17 @@ string container_emit(string t, mapping args, string contents, object id,
   // changes the dataset).
   //
 
-  if(!dataset || !sizeof(dataset))
-  {
-    if(args["do-once"]) dataset=({([])});
-    else 
-      return "";
-  }
+  int datasetsize= sizeof(dataset);
+  int remainder;
 
   // args->maxrows
   if(args->maxrows)
   {
+      
      if(sizeof(dataset)> args->maxrows)
         dataset = dataset[0..(args->maxrows-1)];
+
+     remainder = datasetsize - sizeof(dataset);
   }
 
   // args->skiprows
@@ -468,9 +470,39 @@ string container_emit(string t, mapping args, string contents, object id,
         dataset = dataset[-(args->skiprows)..];
   }
 
-  foreach(dataset, mapping row)
+  rowinfo = sizeof(dataset);
+
+  if(!dataset || !sizeof(dataset))
   {
-    retval->add(Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ])));
+    if(args["do-once"])
+    {
+       dataset=({([])});
+    }
+    else 
+      return "";
+  }
+
+  object counter = EmitScope((["counter": 0]));
+
+  foreach(dataset; int cnt; mapping row)
+  {
+    counter->v->counter=cnt;
+
+    // args->remainderinfo
+    if(args->remainderinfo && strlen(args->remainderinfo))
+    {
+       row[args->remainderinfo]=remainder;   
+    }
+
+    // args->rowinfo
+    if(args->rowinfo && strlen(args->rowinfo))
+    {
+      row[args->rowinfo] = rowinfo;
+    }
+
+
+    retval->add(Caudium.parse_entities(contents, 
+      ([ args->scope: EmitScope(row), "_" : counter ])));
   }
 
 
@@ -479,6 +511,7 @@ string container_emit(string t, mapping args, string contents, object id,
     // args["do-once"]
     //args->filter
     // args->sort
+
 
   return retval->get();
 }
