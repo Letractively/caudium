@@ -2125,10 +2125,7 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
 
   if(sscanf(s, "%s?%s", s, q))
   {
-    string v, name, value;
-    foreach(q/"&", v)
-      if(sscanf(v, "%s=%s", name, value))
-	fake_id->variables[http_decode_string(name)]=value;
+    Caudium.parse_query_string(q, fake_id->variables);
     fake_id->query=q;
   }
 
