@@ -201,6 +201,11 @@ void start(int i)
  
 }
 
+string query_provides()
+{
+  return "authentication";
+}
+
 void create()
 {
 defvar("update", 60,
