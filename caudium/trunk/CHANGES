@@ -1,5 +1,11 @@
 Changes in Caudium 1.3 since Caudium 1.3.14
 -------------------------------------------
+- Created new version of uniscript that uses FastCGI to communicate with 
+  the script interpreter, hopefully providing better performance.
+   (Bill Welliver)
+- Updated uniscript to inherit CGI rather than copy it. (Bill Welliver)
+- AJP | Tomcat Connector should now talk nicely to Tomcat 3 and 4 engines.
+   (Bill Welliver)
 - Added a check in CGI module (and the all modules that inherits it) that
   ask for a mountpoint that ends with and '/' at the end to avoid potential
   security problems (eg list of files directories) (SF bug #713835).
