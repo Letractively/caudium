@@ -89,6 +89,9 @@ void create() {
 	 "showall is present. Hiding can be used to remove unnecessary "
 	 "statistic groups that display info you don't log or "
 	 "aren't interested in.");
+  defvar("cssuri", "", "Stylesheet URL", TYPE_STRING,
+         "URL or relative URI to a stylesheet file that you wish to apply "
+	 "to the HTML output from Ultralog.");
 }
 
 string query_location() { return QUERY(mountpoint); }
@@ -163,11 +166,13 @@ array summarize_map(mapping m, int|void r) {
 
 mapping string_reply(string body, object id)
 {
-  body = sprintf("<html><head><title>UltraLog: %s</title></head>"
+  body = sprintf("<html><head><title>UltraLog: %s</title>%s</head>"
 		 "<body bgcolor=\"white\" text=\"black\" vlink=\"#000050\" "
 		 "alink=\"red\" link=\"#0000a0\"><h1>UltraLog: %s</h1>"
 		 "%s</body></html>",
-		 id->variables->title || "", id->variables->title || "",
+		 id->variables->title || "",
+		 (sizeof(QUERY(cssuri))?sprintf("<link rel=\"stylesheet\" href=\"%s\" />", QUERY(cssuri)):""),
+		 id->variables->title || "",
 		 parse_rxml(body, id));
   return Caudium.HTTP.string_answer(body);
 }
