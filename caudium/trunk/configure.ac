@@ -356,7 +356,12 @@ AC_SUBST(LD)
 ### Let's set the default,            ###
 ### which we can change if we'd like. ###
 #########################################
-CAUDIUM_SERVERDIR="$prefix/caudium/server/"
+# Sometimes prefix is set to NONE (EPITA, why ?)
+if test "$prefix" != "NONE"; then
+  CAUDIUM_SERVERDIR="$prefix/caudium/server/"
+else
+  CAUDIUM_SERVERDIR=""
+fi
 
 AC_ARG_WITH(serverdir,
 AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directory after installation]),
