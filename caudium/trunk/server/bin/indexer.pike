@@ -75,7 +75,7 @@ int allowed_type(string type)
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
   if(verbose)
-    werror("Received Page: " + (string)uri + ", " + sizeof(data) + "\n");
+    werror((string)uri + "\n");
   if(!allowed_type((headers["content-type"]/";")[0]))
     return ({});
   files++;
@@ -226,8 +226,17 @@ int main(int argc, array argv)
 
    q=Web.Crawler.MemoryQueue(Web.Crawler.Stats(2,1),Web.Crawler.Policy(), allow, deny);
 
+
+   call_out(print_update, 60);
+
   crawler=Web.Crawler.Crawler(q, page_cb, error_cb, done_cb, 0, urls, 0); 
   return -1;
+}
+
+void print_update()
+{
+  werror("Indexed " + files + ", " + filesize + " bytes\n" );
+  call_out(print_update, 60);
 }
 
 void setup_converters()
@@ -244,7 +253,9 @@ void setup_converters()
       else werror("unknown converter type " + c->type +  " for mime type " + c->mimetype + "\n");
     }
 
+      werror("Configuring internal converter for text/plain\n");
   converters["text/plain"]=Lucene.Indexer.PikeFilter(lambda(string d){ return d;});
+      werror("Configuring internal converter for text/html\n");
   converters["text/html"]=Lucene.Indexer.PikeFilter(lambda(string d){ return d;});
 
 }
