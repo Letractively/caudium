@@ -157,7 +157,7 @@ class PikeFile {
                     break;
     
 		case "inherits":
-		    inherits = ({newstuff});
+		    inherits += ({newstuff});
 		    break;
 		    
                 default:
@@ -283,23 +283,23 @@ class Method {
                     break;
 
                 case "returns":
-                    returns = ({newstuff});
+                    returns += ({newstuff});
                     break;
 
                 case "see_also":
-                    seealso = ({newstuff});
+                    seealso += ({newstuff});
                     break;
 
                 case "note":
-                    notes = ({newstuff});
+                    notes += ({newstuff});
                     break;
 
                 case "example":
-                    example = ({newstuff});
+                    example += ({newstuff});
                     break;
 
                 case "bugs":
-                    bugs = ({newstuff});
+                    bugs += ({newstuff});
                     break;
                     
                 default:
@@ -448,7 +448,7 @@ class Class {
                     break;
 
 		case "inherits":
-		    inherits = ({newstuff});
+		    inherits += ({newstuff});
 		    break;
 		    
                 case "scope":
@@ -456,15 +456,15 @@ class Class {
                     break;
 
                 case "see_also":
-                    seealso = ({newstuff});
+                    seealso += ({newstuff});
                     break;
 
                 case "example":
-                    examples = ({newstuff});
+                    examples += ({newstuff});
                     break;
 
                 case "bugs":
-                    bugs = ({newstuff});
+                    bugs += ({newstuff});
                     break;
                     
                 default:
@@ -476,13 +476,13 @@ class Class {
                 case "method":
                     if (newstuff->myName != "Method")
                         wrong_otype(kw, newstuff->myName);
-                    methods = ({newstuff});
+                    methods += ({newstuff});
                     break;
 
                 case "globvar":
                     if (newstuff->myName != "GlobVar")
                         wrong_otype(kw, newstuff->myName);
-                    vars = ({newstuff});
+                    vars += ({newstuff});
                     break;
                     
                 default:
@@ -567,7 +567,7 @@ class Module {
                     break;
     
 		case "inherits":
-		    inherits = ({newstuff});
+		    inherits += ({newstuff});
 		    break;
 		                    
                 case "cvs_version":
@@ -603,7 +603,7 @@ class Module {
                         return;
                     }
 
-                    variables = ({newstuff});
+                    variables += ({newstuff});
                     break;
 
                 case "tag":
@@ -786,15 +786,15 @@ class Tag {
                     break;
 
                 case "returns":
-                    returns = ({newstuff});
+                    returns += ({newstuff});
                     break;
 
                 case "see_also":
-                    seealso = ({newstuff});
+                    seealso += ({newstuff});
                     break;
 
                 case "note":
-                    notes = ({newstuff});
+                    notes += ({newstuff});
                     break;
                     
                 default:
@@ -804,7 +804,7 @@ class Tag {
         } else {
             switch(kw){
                 case "attribute":
-                    attrs = ({newstuff});
+                    attrs += ({newstuff});
                     break;
                     
                 default:
@@ -877,15 +877,15 @@ class Container {
                     break;
 
                 case "returns":
-                    returns = ({newstuff});
+                    returns += ({newstuff});
                     break;
 
                 case "see_also":
-                    seealso = ({newstuff});
+                    seealso += ({newstuff});
                     break;
 
                 case "note":
-                    notes = ({newstuff});
+                    notes += ({newstuff});
                     break;
                     
                 default:
@@ -895,7 +895,7 @@ class Container {
         } else {
             switch(kw){
                 case "attribute":
-                    attrs = ({newstuff});
+                    attrs += ({newstuff});
                     break;
                     
                 default:
