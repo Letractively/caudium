@@ -3765,6 +3765,14 @@ void create(string config)
 
   perror("Creating virtual server '"+config+"'\n");
 
+  defvar("content_charset", "iso-8859-1", "Default content charset", TYPE_STRING,
+         "This variable specifies the default content charset for this server. "
+         "This value is sent in the <strong>Content-Type</strong> response "
+         "header. To override this value for a specific document, you have to "
+         "use the &lt;meta&gt; tag in the header section of your HTML file.<br />"
+         "The format for this option is a valid ISO character set value in "
+         "lowercase.");
+  
   defvar("netcraft_done", 0, "Netcraft submission done", TYPE_INT | VAR_MORE,
          "If different than 0, the domain has been submitted to Netcraft "
          "already and the submission form won't appear at the top of the "
@@ -3773,169 +3781,170 @@ void create(string config)
 #ifdef ENABLE_RAM_CACHE
 // for now only theese two. In the future there might be more variables.
   defvar( "data_cache_size", 2048, "Data Cache:Cache size",
-	  TYPE_INT,"The size of the data cache used to speed up requests "
-	  "for commonly requested files, in KBytes");
+          TYPE_INT,"The size of the data cache used to speed up requests "
+          "for commonly requested files, in KBytes");
 
   defvar( "data_cache_file_max_size", 50, "Data Cache:Max file size",
           TYPE_INT, "The maximum size of a file that is to be "
-	  "considered for the cache");
+          "considered for the cache");
   defvar( "data_cache_gc_cleanup", 25, "Data Cache:Garbage Collection Percentage",
           TYPE_INT_LIST, "The amount of the cache space to clean up during "
-	  "a garbage collection run in percent. If you have a large cache, "
-	  "you can make this value lower. With a small cache and a small "
-	  "percentage the GC routine will run more often.",
-	  ({ 5, 10, 15, 20, 25, 30, 35, 40, 50 }));
+          "a garbage collection run in percent. If you have a large cache, "
+          "you can make this value lower. With a small cache and a small "
+          "percentage the GC routine will run more often.",
+          ({ 5, 10, 15, 20, 25, 30, 35, 40, 50 }));
 #endif
   defvar("ErrorTheme", "", "Error Theme", TYPE_STRING,
-	 "This is the theme to apply to any error messages generated " +
-	 "automatically by this server. Please enter an absolute path on the virtual " +
+         "This is the theme to apply to any error messages generated " +
+         "automatically by this server. Please enter an absolute path on the virtual " +
          "filesystem(s), otherwise the system-wide default will be used." );
+  
   defvar("Old404", 1, "Old-style 404's", TYPE_FLAG,
-	 "This allows you to override the new style error responses and use " +
+         "This allows you to override the new style error responses and use " +
          "the old fasioned 404 handling." );
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
-	 "<body background='/(internal,image)/cowfish-bg' bgcolor='#ffffff'\n"
-	 "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
-	 "<h2 align=center><configimage src='cowfish-caudium' \n"
-	 "alt=\"File not found\"><p><hr noshade>\n"
-	 "\n<i>Sorry</i></h2>\n"
-	 "<br clear>\n<font size=\"+2\">The resource requested "
-	 "<i>$File</i>\ncannot be found.<p>\n\nIf you feel that this is a "
-	 "configuration error, please contact "
-	 "the administrators or the author of the\n"
-	 "<if referrer>"
-	 "<a href=\"<referrer>\">referring</a>"
-	 "</if>\n"
-	 "<else>referring</else>\n"
-	 "page."
-	 "<p>\n</font>\n"
-	 "<hr noshade>"
-	 "<version>, at <a href=\"$Me\">$Me</a>.\n"
-	 "</body>\n", 
+         "<body background='/(internal,image)/cowfish-bg' bgcolor='#ffffff'\n"
+         "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
+         "<h2 align=center><configimage src='cowfish-caudium' \n"
+         "alt=\"File not found\"><p><hr noshade>\n"
+         "\n<i>Sorry</i></h2>\n"
+         "<br clear>\n<font size=\"+2\">The resource requested "
+         "<i>$File</i>\ncannot be found.<p>\n\nIf you feel that this is a "
+         "configuration error, please contact "
+         "the administrators or the author of the\n"
+         "<if referrer>"
+         "<a href=\"<referrer>\">referring</a>"
+         "</if>\n"
+         "<else>referring</else>\n"
+         "page."
+         "<p>\n</font>\n"
+         "<hr noshade>"
+         "<version>, at <a href=\"$Me\">$Me</a>.\n"
+         "</body>\n", 
 
-	 "No such file Message (eg. 404 error)", TYPE_TEXT_FIELD,
-	 "<b>This is depreciated, and will only work when &quot;Old-style 404's&quot; "
+         "No such file Message (eg. 404 error)", TYPE_TEXT_FIELD,
+         "<b>This is depreciated, and will only work when &quot;Old-style 404's&quot; "
          "is turned on.</b><br>"
-	 "What to return when there is no resource or file available "
-	 "at a certain location. $File will be replaced with the name "
-	 "of the resource requested, and $Me with the URL of this server ");
+         "What to return when there is no resource or file available "
+         "at a certain location. $File will be replaced with the name "
+         "of the resource requested, and $Me with the URL of this server ");
 
 
   defvar("comment", "", "Virtual server comment",
-	 TYPE_TEXT_FIELD|VAR_MORE,
-	 "This text will be visible in the configuration interface, it "
-	 " can be quite useful to use as a memory helper.");
+         TYPE_TEXT_FIELD|VAR_MORE,
+         "This text will be visible in the configuration interface, it "
+         " can be quite useful to use as a memory helper.");
   
   defvar("name", "", "Virtual server name",
-	 TYPE_STRING|VAR_MORE,
-	 "This is the name that will be used in the configuration "
-	 "interface. If this is left empty, the actual name of the "
-	 "virtual server will be used");
+         TYPE_STRING|VAR_MORE,
+         "This is the name that will be used in the configuration "
+         "interface. If this is left empty, the actual name of the "
+         "virtual server will be used");
   defvar("LogFormat", 
-	 "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
-	 "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
-	 "*: $host $referer $user_agent [$cern_date] \"$method $resource $protocol\" $response $length\n"
-	 ,
-	 "Logging: Format", 
-	 TYPE_TEXT_FIELD,	 
-	 "What format to use for logging. The syntax is:\n"
-	 "<pre>"
-	 "response-code or *: Log format for that response acode\n\n"
-	 "Log format is normal characters, or one or more of the "
-	 "variables below:\n"
-	 "\n"
-	 "$host          -- The remote host name, or ip number.\n"
-	 "$ip_number     -- The remote ip number.\n"
-	 "$bin-ip_number -- The remote host id as a binary integer number.\n"
-	 "\n"
-	 "$cern_date     -- Cern Common Log file format date.\n"
-	 "$bin-date      -- Time, but as an 32 bit iteger in network byteorder\n"
-	 "\n"
-	 "$method        -- Request method\n"
-	 "$resource      -- Resource identifier\n"
-	 "$full_resource -- The full requested resource, with query fields and all\n"
-	 "$protocol      -- The protocol used (normally HTTP/1.0)\n"
-	 "$response      -- The response code sent\n"
-	 "$bin-response  -- The response code sent as a binary short number\n"
-	 "$length        -- The length of the data section of the reply\n"
-	 "$bin-length    -- Same, but as an 32 bit iteger in network byteorder\n"
-	 "$request-time  -- The time the request took (seconds)\n"
-	 "$referer       -- the header 'referer' from the request, or '-'.\n"
-	 "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
-	 "$agent_unquoted -- the unquoted header 'User-Agent' from the request, or '-'.\n\n"
-	 "$user          -- the name of the auth user used, if any\n"
-	 "$user_id       -- A unique user ID, if cookies are supported,\n"
-	 "                  by the client, otherwise '0'\n"
-	 "</pre>", 0, log_is_not_enabled);
+         "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
+         "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
+         "*: $host $referer $user_agent [$cern_date] \"$method $resource $protocol\" $response $length\n"
+         ,
+         "Logging: Format", 
+         TYPE_TEXT_FIELD,	 
+         "What format to use for logging. The syntax is:\n"
+         "<pre>"
+         "response-code or *: Log format for that response acode\n\n"
+         "Log format is normal characters, or one or more of the "
+         "variables below:\n"
+         "\n"
+         "$host          -- The remote host name, or ip number.\n"
+         "$ip_number     -- The remote ip number.\n"
+         "$bin-ip_number -- The remote host id as a binary integer number.\n"
+         "\n"
+         "$cern_date     -- Cern Common Log file format date.\n"
+         "$bin-date      -- Time, but as an 32 bit iteger in network byteorder\n"
+         "\n"
+         "$method        -- Request method\n"
+         "$resource      -- Resource identifier\n"
+         "$full_resource -- The full requested resource, with query fields and all\n"
+         "$protocol      -- The protocol used (normally HTTP/1.0)\n"
+         "$response      -- The response code sent\n"
+         "$bin-response  -- The response code sent as a binary short number\n"
+         "$length        -- The length of the data section of the reply\n"
+         "$bin-length    -- Same, but as an 32 bit iteger in network byteorder\n"
+         "$request-time  -- The time the request took (seconds)\n"
+         "$referer       -- the header 'referer' from the request, or '-'.\n"
+         "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
+         "$agent_unquoted -- the unquoted header 'User-Agent' from the request, or '-'.\n\n"
+         "$user          -- the name of the auth user used, if any\n"
+         "$user_id       -- A unique user ID, if cookies are supported,\n"
+         "                  by the client, otherwise '0'\n"
+         "</pre>", 0, log_is_not_enabled);
   
   defvar("max_open_time", 300, "Logging: Maximum idle time before closing",
-	 TYPE_INT_LIST,
-	 "This variables sets the idle timeout before in seconds an opened "
-	 "log file is closed. The benefit of this variable is that little "
-	 "used virtual servers won't waste file descriptors. Set to zero "
-	 "to disable this feature.", ({ 0, 60, 120, 180,240,300,400,500,600 }),
-	 log_is_not_enabled);
+         TYPE_INT_LIST,
+         "This variables sets the idle timeout before in seconds an opened "
+         "log file is closed. The benefit of this variable is that little "
+         "used virtual servers won't waste file descriptors. Set to zero "
+         "to disable this feature.", ({ 0, 60, 120, 180,240,300,400,500,600 }),
+         log_is_not_enabled);
   defvar("Log", 1, "Logging: Enabled", TYPE_FLAG, "Log requests");
   
   defvar("LogFile", caudium->QUERY(logdirprefix)+
-	 short_name(name)+"/Log", 
+         short_name(name)+"/Log", 
 
-	 "Logging: Log file", TYPE_FILE, "The log file. "
-	 ""
-	 "A file name. May be relative to "+getcwd()+"."
-	 " Some substitutions will be done:"
-	 "<pre>"
-	 "%y    Year  (i.e. '1997')\n"
-	 "%m    Month (i.e. '08')\n"
-	 "%d    Date  (i.e. '10' for the tenth)\n"
-	 "%h    Hour  (i.e. '00')\n"
-	 "%H    The hostname of the server machine.\n"
-	 "</pre>"
-	 ,0, log_is_not_enabled);
+         "Logging: Log file", TYPE_FILE, "The log file. "
+         ""
+         "A file name. May be relative to "+getcwd()+"."
+         " Some substitutions will be done:"
+         "<pre>"
+         "%y    Year  (i.e. '1997')\n"
+         "%m    Month (i.e. '08')\n"
+         "%d    Date  (i.e. '10' for the tenth)\n"
+         "%h    Hour  (i.e. '00')\n"
+         "%H    The hostname of the server machine.\n"
+         "</pre>"
+         ,0, log_is_not_enabled);
   
   defvar("NoLog", ({ }), 
-	 "Logging: No Logging for", TYPE_STRING_LIST|VAR_MORE,
+         "Logging: No Logging for", TYPE_STRING_LIST|VAR_MORE,
          "Don't log requests from hosts with an IP number which matches any "
-	 "of the patterns in this list. This also affects the access counter "
-	 "log.\n",0, log_is_not_enabled);
+         "of the patterns in this list. This also affects the access counter "
+         "log.\n",0, log_is_not_enabled);
   
   defvar("Domain", caudium->get_domain(), "Domain", TYPE_STRING,
-	 "Your domainname, should be set automatically, if not, "
-	 "enter the correct domain name here, and send a bug report to "
-	 "<a href=\"mailto:caudium-bugs@caudium.net\">caudium-bugs@caudium.net"
-	 "</a>");
+         "Your domainname, should be set automatically, if not, "
+         "enter the correct domain name here, and send a bug report to "
+         "<a href=\"mailto:caudium-bugs@caudium.net\">caudium-bugs@caudium.net"
+         "</a>");
 
   defvar("Ports", ({ }), 
-	 "Listen ports", TYPE_PORTS,
+         "Listen ports", TYPE_PORTS,
          "The ports this virtual instance of Caudium will bind to.\n");
 
   defvar("MyWorldLocation", get_my_url(), 
-	 "Server URL", TYPE_STRING,
-	 "This is where your start page is located.");
+         "Server URL", TYPE_STRING,
+         "This is where your start page is located.");
 
 
 // This should be somewhere else, I think. Same goes for HTTP related ones
 
   defvar("FTPWelcome",  
-	 "              +--------------------------------------------------\n"
-	 "              +-- Welcome to the Caudium Webserver FTP server ---\n"
-	 "              +--------------------------------------------------\n",
-	 "FTP:FTP Welcome message",
-	 TYPE_TEXT_FIELD|VAR_MORE,
-	 "FTP Welcome answer; transmitted to new FTP connections if the file "
-	 "<i>/welcome.msg</i> doesn't exist.\n");
+         "              +--------------------------------------------------\n"
+         "              +-- Welcome to the Caudium Webserver FTP server ---\n"
+         "              +--------------------------------------------------\n",
+         "FTP:FTP Welcome message",
+         TYPE_TEXT_FIELD|VAR_MORE,
+         "FTP Welcome answer; transmitted to new FTP connections if the file "
+         "<i>/welcome.msg</i> doesn't exist.\n");
   
   defvar("named_ftp", 0, "FTP:Allow named FTP", TYPE_FLAG|VAR_MORE,
-	 "Allow ftp to normal user-accounts (requires an authentication "
-	 "module, e.g. 'User database and security').\n");
+         "Allow ftp to normal user-accounts (requires an authentication "
+         "module, e.g. 'User database and security').\n");
 
   defvar("passive_ftp", 1, "FTP:Allow passive FTP", TYPE_FLAG|VAR_MORE,
          "Allow passive transfers on ftp server.");
  
   defvar("restricpasv", 1, "FTP:Restrict Passive FTP ports", TYPE_FLAG|VAR_MORE,
          "Restrict passive FTP port to a specific range. For example when "
-	 "using Caudium as a FTP server behind a firewall or in a NATed "
-	 "environment.");
+         "using Caudium as a FTP server behind a firewall or in a NATed "
+         "environment.");
 
   defvar("lowpasvport",65000, "FTP:Passive FTP lowest port",TYPE_INT|VAR_MORE,
          "The lowest port to use when Restrict Passive FTP ports is set.");
@@ -3945,8 +3954,8 @@ void create(string config)
 
   defvar("maxpasvtry", 3, "FTP:Passive FTP max attempts", TYPE_INT|VAR_MORE,
          "Number of trys to open a Passive port when Restrict Passive FTP "
-	 "is set. Caudium will random the use of the range. If it cannot "
-	 "open a port then passive transfert will failled.");
+         "is set. Caudium will random the use of the range. If it cannot "
+         "open a port then passive transfert will failled.");
 
   defvar("pasvnat", 0, "FTP:Passive FTP NAT support", TYPE_FLAG|VAR_MORE,
          "Enable NAT (Network Address Translation) support for Passive "
@@ -3959,19 +3968,19 @@ void create(string config)
          "address to send in Passive transfert requests.");
 
   defvar("anonymous_ftp", 0, "FTP:Allow anonymous FTP", TYPE_FLAG|VAR_MORE,
-	 "Allows anonymous ftp.\n");
+         "Allows anonymous ftp.\n");
 
   defvar("guest_ftp", 0, "FTP:Allow FTP guest users", TYPE_FLAG|VAR_MORE,
-	 "Allows FTP guest users.\n");
+         "Allows FTP guest users.\n");
 
   defvar("ftp_user_session_limit", 0,
-	 "FTP:FTP user session limit", TYPE_INT|VAR_MORE,
-	 "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
+         "FTP:FTP user session limit", TYPE_INT|VAR_MORE,
+         "Limit of concurrent sessions a FTP user may have. 0 = unlimited.\n");
 
   defvar("shells", "/etc/shells", "FTP:Shell database", TYPE_FILE|VAR_MORE,
-	 "File which contains a list of all valid shells\n"
-	 "(usually /etc/shells). Used for named ftp.\n"
-	 "Specify the empty string to disable shell database lookup.\n");
+         "File which contains a list of all valid shells\n"
+         "(usually /etc/shells). Used for named ftp.\n"
+         "Specify the empty string to disable shell database lookup.\n");
 
   defvar("ftpnohomedeny", 0, "FTP: Deny named users with non-existant homedir",
          TYPE_FLAG|VAR_MORE,"Deny access to ftp named users when homedir "
@@ -3993,11 +4002,11 @@ void create(string config)
          "homedir extended are set to \"Yes\"");
 
   defvar("InternalLoc", "/_internal/", 
-	 "Internal module resource mountpoint", TYPE_LOCATION|VAR_MORE,
+         "Internal module resource mountpoint", TYPE_LOCATION|VAR_MORE,
          "Some modules may want to create links to internal resources.  "
-	 "This setting configures an internally handled location that can "
-	 "be used for such purposes.  Simply select a location that you are "
-	 "not likely to use for regular resources.");
+         "This setting configures an internally handled location that can "
+         "be used for such purposes.  Simply select a location that you are "
+         "not likely to use for regular resources.");
 	 
   defvar("use_scopes", "On/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
          "<p>This compatibility option manages the new feature of the Caudium Webserver "
@@ -4011,14 +4020,14 @@ void create(string config)
          "to illustrate the situation:</p>"
          "<blockquote><pre>"
          "&lt;if variable=\"new.formvar is \"&gt;\n"
-	 "\t&lt;set variable=\"new.formvar\" value=\"blargh\"&gt;\n"
-	 "&lt;/if&gt;\n"
+         "\t&lt;set variable=\"new.formvar\" value=\"blargh\"&gt;\n"
+         "&lt;/if&gt;\n"
          "&lt;formoutput&gt;\n"
-	 "\t&lt;form&gt;\n"
-	 "\t\t&lt;input name=\"new.formvar\""
+         "\t&lt;form&gt;\n"
+         "\t\t&lt;input name=\"new.formvar\""
          "value=\"#new.formvar#\"&gt;&lt;\n"
-	 "\t/form&gt;\n"
-	 "&lt;/formoutput&gt;"
+         "\t/form&gt;\n"
+         "&lt;/formoutput&gt;"
          "</pre></blockquote>",
          ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
 

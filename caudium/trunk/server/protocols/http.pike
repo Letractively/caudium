@@ -149,6 +149,9 @@ string useragent = "unknown";
 //! TODO: explain what's in the mapping
 mapping file;
 
+//! This is the default content charset sent in the Content-Type: header
+string  content_charset = "iso-8859-1";
+
 object my_fd; /* The client. */
 object pipe;
 
@@ -1180,22 +1183,22 @@ class MultiRangeWrapper
     } else {
       foreach(indices(heads), string h)
       {
-	if(lower_case(h) == "content-type") {
-	  type = heads[h];
-	  m_delete(heads, h);
-	}
+        if(lower_case(h) == "content-type") {
+          type = heads[h];
+          m_delete(heads, h);
+        }
       }
       if(id->request_headers["request-range"])
-	heads["Content-Type"] = "multipart/x-byteranges; boundary=" BOUND;
+        heads["Content-Type"] = "multipart/x-byteranges; boundary=" BOUND;
       else
-	heads["Content-Type"] = "multipart/byteranges; boundary=" BOUND;
+        heads["Content-Type"] = "multipart/byteranges; boundary=" BOUND;
       foreach(ranges, array range) {
-	int rlen = 1+ range[1] - range[0];
-	string sep =  sprintf("\r\n--" BOUND "\r\nContent-Type: %O\r\n"
-			      "Content-Range: bytes %d-%d/%d\r\n\r\n",
-			      type, @range, len);
-	clen += rlen + strlen(sep);
-	range_info += ({ ({ rlen, sep }) });
+        int rlen = 1+ range[1] - range[0];
+        string sep =  sprintf("\r\n--" BOUND "\r\nContent-Type: %O\r\n"
+                              "Content-Range: bytes %d-%d/%d\r\n\r\n",
+                              type, @range, len);
+        clen += rlen + strlen(sep);
+        range_info += ({ ({ rlen, sep }) });
       }
       clen += strlen(BOUND) + 8; // End boundary length.
     }
@@ -1322,6 +1325,28 @@ array parse_range_header(int len)
   return ranges;
 }
 
+static string make_content_type(object conf, mapping file)
+{
+  string     type, charset;
+
+  if (!file || !mappingp(file))
+    return "text/plain; charset=%s" + content_charset;
+  
+  type = file["type"];
+
+  if (!type || sizeof(type) < 5 || type[0..4] != "text/")
+    return type;
+  
+  if (file->encoding)
+    charset = file->encoding;
+  else if (conf && objectp(conf))
+    charset = conf->query("content_charset");
+  else
+    charset = content_charset;
+
+  return type + "; charset=" + charset;
+}
+
 //! Send the result.
 //!
 //! @param result
@@ -1339,20 +1364,22 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-     file = caudium->http_error->process_error (this_object ());
+    file = caudium->http_error->process_error (this_object ());
   } else {
-     if((file->file == -1) || file->leave_me) 
-     {
-        if(do_not_disconnect) {
-           file = pipe = 0;
-           return;
-        }
-        my_fd = file = 0;
+    if((file->file == -1) || file->leave_me) 
+    {
+      if(do_not_disconnect) {
+        file = pipe = 0;
         return;
-     }
+      }
+      my_fd = file = 0;
+      return;
+    }
 
-     if(file->type == "raw")  file->raw = 1;
-     else if(!file->type)     file->type="text/plain";
+    if(file->type == "raw")
+      file->raw = 1;
+    else if(!file->type)
+      file->type="text/plain";
   }
 
   if(!file->raw)
@@ -1436,109 +1463,109 @@ void send_result(mapping|void result)
 #endif
       string h;
       heads +=
-      (["MIME-Version":(file["mime-version"] || "1.0"),
-	"Content-Type":file["type"],
-	"Accept-Ranges": "bytes",
+        (["MIME-Version":(file["mime-version"] || "1.0"),
+          "Content-Type": make_content_type(conf, file),
+          "Accept-Ranges": "bytes",
 #ifdef KEEP_ALIVE
-	"Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
+          "Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
 #else
-	"Connection"	: "close",
+          "Connection"	: "close",
 #endif
-	"Server":version(),
-	"X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"),	
-	"Date":http_date(time)
-      ]);    
+          "Server":version(),
+          "X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"),	
+          "Date":http_date(time)
+        ]);    
       
       if(file->encoding)
-	heads["Content-Encoding"] = file->encoding;
+        heads["Content-Encoding"] = file->encoding;
     
       if(!file->error) 
-	file->error = 200;
+        file->error = 200;
 
       // expires == 0 is a valid value - it can serve to invalidate
       // the browser's (or Squid) cache because an invalid date
       // in that header should cause immediate expire of the page.
       if(!zero_type(file->expires))
-	heads->Expires = file->expires ? http_date(file->expires) : "0";
+        heads->Expires = file->expires ? http_date(file->expires) : "0";
     
       if(mappingp(file->extra_heads)) {
-	heads |= file->extra_heads;
+        heads |= file->extra_heads;
       }
 
       if(mappingp(misc->moreheads)) {
-	heads |= misc->moreheads;
+        heads |= misc->moreheads;
       }
 
       if(misc->range && file->len && objectp(file->file) && !file->data &&
-	 file->error == 200 && (method == "GET" || method == "HEAD"))
-	// Plain and simple file and a Range header. Let's play.
-	// Also we only bother with 200-requests. Anything else should be
-	// nicely and completely ignored. Also this is only used for GET and
-	// HEAD requests.
+         file->error == 200 && (method == "GET" || method == "HEAD"))
+        // Plain and simple file and a Range header. Let's play.
+        // Also we only bother with 200-requests. Anything else should be
+        // nicely and completely ignored. Also this is only used for GET and
+        // HEAD requests.
       {
-	// split the range header. If no valid ranges are found, ignore it.
-	// If one is found, send that range. If many are found we need to
-	// use a wrapper and send a multi-part message. 
-	array ranges = parse_range_header(file->len);
-	if(ranges) // No incorrect syntax...
-	{ 
-	  if(sizeof(ranges)) // And we have valid ranges as well.
-	  {
-	    file->error = 206; // 206 Partial Content
-	    if(sizeof(ranges) == 1)
-	    {
-	      heads["Content-Range"] = sprintf("bytes %d-%d/%d",
-					       @ranges[0], file->len);
-	      if(ranges[0][1] == (file->len - 1) &&
-		 GLOBVAR(RestoreConnLogFull))
-		// Log continuations (ie REST in FTP), 'range XXX-'
-		// using the entire length of the file, not just the
-		// "sent" part. Ie add the "start" byte location when logging
-		misc->_log_cheat_addition = ranges[0][0];
-	      file->file = MultiRangeWrapper(file, heads, ranges, this_object());
-	    } else {
-	      // Multiple ranges. Multipart reply and stuff needed.
-	      // We do this by replacing the file object with a wrapper.
-	      // Nice and handy.
-	      file->file = MultiRangeWrapper(file, heads, ranges, this_object());
-	    }
-	  } else {
-	    // Got the header, but the specified ranges was out of bounds.
-	    // Reply with a 416 Requested Range not satisfiable.
-	    file->error = 416;
-	    heads["Content-Range"] = "*/"+file->len;
-	    if(method == "GET") {
-	      file->data = "The requested byte range is out-of-bounds. Sorry.";
-	      file->len = strlen(file->data);
-	      file->file = 0;
-	    }
-	  }
-	}
+        // split the range header. If no valid ranges are found, ignore it.
+        // If one is found, send that range. If many are found we need to
+        // use a wrapper and send a multi-part message. 
+        array ranges = parse_range_header(file->len);
+        if(ranges) // No incorrect syntax...
+        { 
+          if(sizeof(ranges)) // And we have valid ranges as well.
+          {
+            file->error = 206; // 206 Partial Content
+            if(sizeof(ranges) == 1)
+            {
+              heads["Content-Range"] = sprintf("bytes %d-%d/%d",
+                                               @ranges[0], file->len);
+              if(ranges[0][1] == (file->len - 1) &&
+                 GLOBVAR(RestoreConnLogFull))
+                // Log continuations (ie REST in FTP), 'range XXX-'
+                // using the entire length of the file, not just the
+                // "sent" part. Ie add the "start" byte location when logging
+                misc->_log_cheat_addition = ranges[0][0];
+              file->file = MultiRangeWrapper(file, heads, ranges, this_object());
+            } else {
+              // Multiple ranges. Multipart reply and stuff needed.
+              // We do this by replacing the file object with a wrapper.
+              // Nice and handy.
+              file->file = MultiRangeWrapper(file, heads, ranges, this_object());
+            }
+          } else {
+            // Got the header, but the specified ranges was out of bounds.
+            // Reply with a 416 Requested Range not satisfiable.
+            file->error = 416;
+            heads["Content-Range"] = "*/"+file->len;
+            if(method == "GET") {
+              file->data = "The requested byte range is out-of-bounds. Sorry.";
+              file->len = strlen(file->data);
+              file->file = 0;
+            }
+          }
+        }
       }
       head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
 
-    head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
-    if(file->len > -1) {
-      heads["Content-Length"] = (string)file->len;
+      head_string = prot+" "+(file->rettext||errors[file->error]) + "\r\n";
+      if(file->len > -1) {
+        heads["Content-Length"] = (string)file->len;
 #ifdef KEEP_ALIVE
-      if(!file->len) {
-	request_headers->connection = heads->Connection = "close";
-      }
+        if(!file->len) {
+          request_headers->connection = heads->Connection = "close";
+        }
 #endif
-    }
+      }
 #ifdef KEEP_ALIVE
-    else request_headers->connection = heads->Connection = "close";
+      else request_headers->connection = heads->Connection = "close";
 #endif
 
 #if constant(_Roxen.make_http_headers)
       head_string += _Roxen.make_http_headers(heads);
 #else
       foreach(indices(heads), h)
-	if(arrayp(heads[h]))
-	  foreach(heads[h], tmp)
-	    head_string +=  h+": "+tmp+"\r\n";
-	else
-	  head_string += h+": "+heads[h]+"\r\n";
+        if(arrayp(heads[h]))
+          foreach(heads[h], tmp)
+            head_string +=  h+": "+tmp+"\r\n";
+        else
+          head_string += h+": "+heads[h]+"\r\n";
       head_string += "\r\n";
 #endif
       if(conf) conf->hsent+=strlen(head_string||"");
@@ -1548,7 +1575,7 @@ void send_result(mapping|void result)
   }
 #ifdef REQUEST_DEBUG
   roxen_perror(sprintf("Sending result for prot:%O, method:%O file:%O\n",
-		       prot, method, file));
+                       prot, method, file));
 #endif /* REQUEST_DEBUG */
 
   if(method == "HEAD")
@@ -1566,7 +1593,7 @@ void send_result(mapping|void result)
   if(file->len >= 0 && file->len < 2000)
   {
     my_fd->write((head_string || "") +
-		 (file->file?file->file->read():file->data));
+                 (file->file?file->file->read():file->data));
     do_log();
     return;
   }
