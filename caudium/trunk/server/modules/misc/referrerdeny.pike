@@ -74,7 +74,7 @@ void create()
   defvar("msg", 
          "<TITLE>Sorry, access to this resource is not authorized \n"
 	 "<if referer>from <referer></if></TITLE>\n"
-	 "<h2 align=center><configimage src=roxen.gif alt=\"Access Forbidden\">\n"
+	 "<h2 align=center><configimage src=caudium.gif alt=\"Access Forbidden\">\n"
 	 "<hr noshade>\n"
 	 "<i>Sorry</i></h2>\n"
 	 "<br clear><font size=+2>Access to this resource is not authorized \n"
@@ -86,7 +86,7 @@ void create()
 	 "Message to send for denied accesses.");
   defvar("match", "(\\.caudium.net|\\.caudium.org)", 
 	 "Configuration: Allowed Regexp", TYPE_STRING, 
-	 "Referrers matching this regexp will not be allowed access to "
+	 "Referrers matching this regexp will be allowed access to "
 	 "files matching the file regexp.");
   defvar("noempty", 1, 
 	 "Configuration: Deny empty referrers ", TYPE_FLAG, 
