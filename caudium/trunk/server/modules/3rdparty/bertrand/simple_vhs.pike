@@ -84,7 +84,7 @@ void create()
 mapping first_try(object id)
 {
   // path is a filesystem global variable which contain the path to data
-  path = query("searchpath");
+  path = QUERY(searchpath);
 
   DEBUG("before: path: "+path);
  
@@ -93,7 +93,7 @@ mapping first_try(object id)
     string domain = "";		// Store the modified domain
  
     // Deal with the domain requested
-    if(query("strip_www"))
+    if(QUERY(strip_www))
     {
       if(id->request_headers->host[0..3]=="www.")
         domain=id->request_headers->host[4..];
@@ -107,7 +107,7 @@ mapping first_try(object id)
     domain=domain+"/";
  
     // Modify the path given the filesystem structure
-    switch(query("fs_struct"))
+    switch(QUERY(fs_struct))
     {
       case "simple": 
         path = path+domain;
@@ -124,7 +124,7 @@ mapping first_try(object id)
         break;
 
       default:
-        DEBUG(query("fs_struct")+" is not a known filesystem structure");
+        DEBUG(QUERY(fs_struct)+" is not a known filesystem structure");
     }
   
     // clean up the path a bit
