@@ -5,3 +5,4 @@ config.status
 Makefile.pre
 mhash_config.h
 mhash_config.h.in
+autom4te.cache
