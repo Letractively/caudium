@@ -172,8 +172,17 @@ string create()
 	 "$virtname      -- virtual host name<br />"
 	 "</pre>");
 
-  defvar("AccessLog", "AccessLog", "AccessLog filename", TYPE_STRING,
-	 "The filename of the access log file.");
+  defvar("AccessLog", "Log", "AccessLog filename", TYPE_STRING,
+	 "The filename of the access log file."
+         "<br>"
+         "A file name. Some substitutions will be done:"
+         "<pre>"
+         "%y    Year  (i.e. '2001')\n"
+         "%m    Month (i.e. '08')\n"
+         "%d    Date  (i.e. '10')\n"
+         "%h    Hour  (i.e. '02')\n"
+         "%H    The hostname of the server machine.\n"
+         "<pre>");
 }
 
 
@@ -398,6 +407,21 @@ inline string format_log(object id, mapping file)
 		 (string)(file->len>=0?file->len:"?"));
 }
 
+string getlogfilename(string logfile)
+{
+  mapping m = localtime(time(1));
+
+  m->year += 1900;              // Adjust for years being counted since 1900
+  m->mon++;                     // Adjust for months being counted 0-11
+  if(m->mon < 10)  m->mon  = "0"+m->mon;
+  if(m->mday < 10) m->mday = "0"+m->mday;
+  if(m->hour < 10) m->hour = "0"+m->hour;
+  return replace(logfile, ({"%d","%m","%y","%h","%H"}),
+                 ({ (string)(m->mday), (string)(m->mon),
+                    (string)(m->year), (string)(m->hour),
+                    gethostname() }));
+}
+
 mixed log(object id, mapping file)
 {
   string s;
@@ -405,7 +429,7 @@ mixed log(object id, mapping file)
 
   if (!id->misc->vhs || !id->misc->vhs->logpath) return 0;
 
-  if ( (s = id->misc->vhs->logpath) && (fnord = find_cache_file(s + "Log")) )
+  if ( (s = id->misc->vhs->logpath) && (fnord = find_cache_file(s + getlogfilename(QUERY(AccessLog)))) )
   {
     DW(sprintf("[VHLog] file = %s", s || "???"));
     fnord->wait(); // Tell it not to die
@@ -456,7 +480,12 @@ string status()
 //!  name: Logging Format
 //
 //! defvar: AccessLog
-//! The filename of the access log file.
+//! The filename of the access log file.<br />A file name. Some substitutions will be done:<pre>%y    Year  (i.e. '2001')
+//!%m    Month (i.e. '08')
+//!%d    Date  (i.e. '10')
+//!%h    Hour  (i.e. '02')
+//!%H    The hostname of the server machine.
+//!<pre>
 //!  type: TYPE_STRING
 //!  name: AccessLog filename
 //

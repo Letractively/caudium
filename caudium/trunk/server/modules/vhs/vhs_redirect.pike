@@ -30,7 +30,7 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_FIRST;
 constant module_name = "VHS - Redirect";
-constant module_doc  = "Redirect VHF requests if need";
+constant module_doc  = "Redirect VHS requests if need";
 
 constant module_unique = 1;
 
