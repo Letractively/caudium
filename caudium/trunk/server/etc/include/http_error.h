@@ -80,7 +80,7 @@ class http_error_handler {
 
     private mixed my_get_file (string _file, object id) {
        object clone_id = id->clone_me (); /* open_file() modifies id */
-
+       clone_id->misc->error_request = 1;
        array f = id->conf->open_file ( _file, "Rr", clone_id);
 
        if (f[0])

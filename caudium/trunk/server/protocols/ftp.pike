@@ -276,10 +276,10 @@ class FileWrapper
     return -1;
   }
 
-  string read(int|void n)
+  string read(int|void n, int nb)
   {
     ftpsession->touch_me();
-    return(convert(f->read(n)));
+    return(convert(f->read(n, nb)));
   }
 
   void close()

@@ -2076,10 +2076,12 @@ public array open_file(string fname, string mode, object id)
 
     if(!mappingp(file))
     {
-       file = http_error->process_error (id);
-
-       id->not_query = oq;
-       return ({ 0, file });
+      if(!id->misc->error_request) {
+	file = http_error->process_error (id);
+	id->not_query = oq;
+	return ({ 0, file });
+      }
+      return ({ 0, 0 });
     }
 
     if(file->data) 
