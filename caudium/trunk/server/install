@@ -2,4 +2,4 @@
 #
 # $Id$
 #
-./start $@ --once --program bin/install.pike
+./start "$@" --once --program bin/install.pike
