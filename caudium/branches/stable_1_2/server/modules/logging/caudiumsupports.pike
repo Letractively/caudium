@@ -127,11 +127,15 @@ void log(object id, mapping file)
      open_db(id);
      if( id->not_query == QUERY(supports)) {
   //     werror(sprintf("%O",mkmapping(indices(id),values(id))));
+       string caud_version;
+       int    cv1,cv2,cv3;
+       caud_version = (http_decode_string(id->useragent) - "Caudium/");
+       sscanf(caud_version,"%*s%d.%d.%d%*s",cv1,cv2,cv3);
+       caud_version = sprintf("%d.%d.%d",cv1,cv2,cv3);
        mixed err = catch{
          db->query("INSERT INTO support (host,version,timestmp) VALUES (\""+ 
                    caudium->blocking_ip_to_host(id->remoteaddr) +"\",\"" +
-                   (http_decode_string(id->useragent) - "Caudium/") +
-                   "\",NOW())");
+                   caud_version + "\",NOW())");
        };
        if(err) {
          werror("Failed to insert sql query"+err->describe());
