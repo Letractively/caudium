@@ -324,11 +324,39 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
 			PIKE=""
 		else
 		   AC_MSG_RESULT(ok)
-		   PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
+		   if test "$prefix" != "NONE"; then
+		       PIKE_C_INCLUDE=$prefix/include/`basename ${PIKE}`
+		   else
+		       PIKE_C_INCLUDE=/usr/include/`basename ${PIKE}`
+		   fi
 		   AC_MSG_CHECKING(for C includes in ${PIKE_C_INCLUDE})
-		   if test -d $PIKE_C_INCLUDE; then
-			PIKE_INCLUDE_DIRS=" $PIKE_INCLUDE_DIRS -I$PIKE_C_INCLUDE"
-			AC_MSG_RESULT(found)
+		   if test -f $PIKE_C_INCLUDE/version.h; then
+		      PIKE_TEST_VER=`$PIKE -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+		      ###### VERSION MATCH CHECK #######
+		      PMAJOR="^#define PIKE_MAJOR_VERSION"
+		      PMINOR="^#define PIKE_MINOR_VERSION"
+		      PBUILD="^#define PIKE_BUILD_VERSION"
+
+		      PIKE_CMAJOR_VERSION=0
+		      PIKE_CMINOR_VERSION=0
+		      PIKE_CBUILD_VERSION=0
+
+		      PIKE_CMAJOR_VERSION=`grep "$PMAJOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+    		      if test -z "$PIKE_CMAJOR_VERSION"; then
+			if test -n "`grep f_version $PIKE_C_INCLUDE/version.h`"; then
+			   PIKE_CMAJOR_VERSION=6
+			fi
+		      else
+		        PIKE_CMINOR_VERSION=`grep "$PMINOR" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+			PIKE_CBUILD_VERSION=`grep "$PBUILD" $PIKE_C_INCLUDE/version.h | sed -e 's/\(#define.*N \)\(.*\)/\2/'`
+                      fi
+		      
+		      if test "$PIKE_TEST_VER" = "${PIKE_CMAJOR_VERSION}.${PIKE_CMINOR_VERSION}.${PIKE_CBUILD_VERSION}"; then
+		         PIKE_INCLUDE_DIRS=" $PIKE_INCLUDE_DIRS -I$PIKE_C_INCLUDE"
+		         AC_MSG_RESULT(found)
+		      else
+		         AC_MSG_RESULT(version mismatch)
+		      fi
 		   else
 			AC_MSG_RESULT(not found)
 		   fi
