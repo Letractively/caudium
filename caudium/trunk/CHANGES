@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.17 since Caudium 1.3.16
 ----------------------------------------------
+- Imported Roxen 1.2/1.3 Robot Trap Module
+   (Xavier Beaudouin)
 - Backported Roxen 3.4 relay2 proxy.
    (Xavier Beaudouin)
 - MIME.Decode in base_server/wizard.pike is now inside a catch() to avoid
