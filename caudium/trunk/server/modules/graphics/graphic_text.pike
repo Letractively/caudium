@@ -581,9 +581,9 @@ void start(int|void val, object|void conf)
   image_cache = caudium.ImageCache( "gtext", draw_callback );
 }
 
-constant nbsp = iso88591["&nbsp;"];
-constant replace_from = indices( iso88591 )+ ({"&ss;","&lt;","&gt;","&amp;",});
-constant replace_to   = values( iso88591 ) + ({ nbsp, "<", ">", "&", }); 
+constant nbsp = Caudium.Const.iso88591["&nbsp;"];
+constant replace_from = indices( Caudium.Const.iso88591 )+ ({"&ss;","&lt;","&gt;","&amp;",});
+constant replace_to   = values( Caudium.Const.iso88591 ) + ({ nbsp, "<", ">", "&", }); 
 
 #define simplify_text( from ) replace(from,replace_from,replace_to)
 

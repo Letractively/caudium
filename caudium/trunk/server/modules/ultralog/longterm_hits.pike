@@ -41,10 +41,6 @@ constant months = ({
   ({ 11, "November" }),
   ({ 12 , "December" }) });
 
-void create()
-{
-}
-
 string month_list(int m)
 {
   string out = "";

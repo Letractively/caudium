@@ -324,14 +324,6 @@ mapping string_answer(string text, string|void type)
   return ([ "data":text, "type":(type||"text/html") ]);
 }
 
-private mapping(string:string) doctypes = ([
-    "transitional" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\"http://www.w3.org/TR/html4/loose.dtd\">",
-    "strict" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\"http://www.w3.org/TR/html4/strict.dtd\">",
-    "frameset" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"\n\"http://www.w3.org/TR/html4/frameset.dtd\">"
-]);
-
-private string docstart = "%s\n<html><head><title>%s</title>%s%s</head><body>%s</body></html>";
-
 //!   Make a nice HTML doc
 //! @param contents
 //!   Contents of document
@@ -352,8 +344,8 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
 {
     string doctype, smetas = "", sstyle = "";
     
-    if (dtype && doctypes[dtype])
-        doctype = doctypes[dtype];
+    if (dtype && Caudium.Const.doctypes[dtype])
+        doctype = Caudium.Const.doctypes[dtype];
     else
         doctype = doctypes->transitional;
 
@@ -394,7 +386,7 @@ string make_htmldoc_string(string contents, string title,void|mapping meta,
         sstyle = "";
     }
 
-    return sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
+    return sprintf(Caudium.Const.docstart, doctype, (title ? title : ""), smetas, sstyle, contents);
 }
 
 //!   Return a response mapping with the 'contents' wrapped up to form a
