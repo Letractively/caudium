@@ -1,0 +1,24 @@
+# $Id$
+AC_INIT(configure.in)
+
+AC_SET_MAKE
+
+dirs=
+
+for a in `(cd $srcdir ; echo *)`
+do
+  if test "$a" != "CVS" -a "$a" != "RCS" ; then
+    if test -d "$srcdir/$a" ; then
+      yesno=`eval echo \\$with_$a`
+      if test "x${yesno-}" != xno ; then
+        dirs="$dirs $a"
+        module_names="$module_names $a"
+      fi
+    fi
+  fi
+done
+
+AC_CONFIG_SUBDIRS($dirs)
+
+AC_OUTPUT(Makefile,[],dirs="$module_names")
+
