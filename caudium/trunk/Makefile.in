@@ -126,6 +126,7 @@ install_only:
 	  echo Modifying permissions for directory $(prefix)/caudium/server/$$d... ; \
 	  find $(prefix)/caudium/server/$$d -type d -exec chmod a+x '{}' \; ; \
 	  chmod -R a+r $(prefix)/caudium/server/$$d ;\
+          rm -f $(prefix)/caudium/server/start-caudium.in ; \
 	done
 	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	-@for f in fcgi install.pike pdbi.pike pike caudium; \
