@@ -473,7 +473,7 @@ static void f_parse_headers( INT32 args )
   struct pike_string *headers;
   unsigned char *ptr;
   int len = 0, parsed = 0;
-  get_all_args("Caudium.parse_headers", args, "%S", &headers);
+  get_all_args("_Caudium.parse_headers", args, "%S", &headers);
   headermap = allocate_mapping(1);
   ptr = (unsigned char *)headers->str;
   len = headers->len;
@@ -492,7 +492,7 @@ static void f_parse_headers( INT32 args )
     len -= parsed;
   }
   if(parsed == -1) {
-    Pike_error("Caudium.parse_headers(): Out of memory while parsing.\n");
+    Pike_error("_Caudium.parse_headers(): Out of memory while parsing.\n");
   }
   pop_n_elems(args);
   push_mapping(headermap);
@@ -509,7 +509,7 @@ static void f_parse_query_string( INT32 args )
   unsigned char *equal; /* Pointer to the equal sign */
   unsigned char *end;   /* Pointer to the ending null char */
   int namelen, valulen; /* Length of the current name and value */
-  get_all_args("Caudium.parse_query_string", args, "%S%m", &query, &variables);
+  get_all_args("_Caudium.parse_query_string", args, "%S%m", &query, &variables);
   skey.type = sval.type = T_STRING;
   /* end of query string */
   end = (unsigned char *)(query->str + query->len);
@@ -537,13 +537,13 @@ static void f_parse_query_string( INT32 args )
       valulen = ptr - ++equal;
       skey.u.string = url_decode(name, namelen, 0);
       if (skey.u.string == NULL) { /* OOM. Bail out */
-	Pike_error("Caudium.parse_query_string(): Out of memory in url_decode().\n");
+	Pike_error("_Caudium.parse_query_string(): Out of memory in url_decode().\n");
       }
       exist = low_mapping_lookup(variables, &skey);
       if(exist == NULL || exist->type != T_STRING) {
 	sval.u.string = url_decode(equal, valulen, 0);
 	if (sval.u.string == NULL) { /* OOM. Bail out */
-	  Pike_error("Caudium.parse_query_string(): "
+	  Pike_error("_Caudium.parse_query_string(): "
 		     "Out of memory in url_decode().\n");
 	}
       } else {
@@ -551,7 +551,7 @@ static void f_parse_query_string( INT32 args )
 	struct pike_string *tmp;
 	tmp = url_decode(equal, valulen, 1);
 	if (tmp == NULL) {
-	  Pike_error("Caudium.parse_query_string(): "
+	  Pike_error("_Caudium.parse_query_string(): "
 		     "Out of memory in url_decode().\n");
 	}
 	sval.u.string = add_shared_strings(exist->u.string, tmp);
@@ -589,7 +589,7 @@ static void f_parse_prestates( INT32 args )
   
   ind.type = T_STRING;
   
-  get_all_args("Caudium.parse_prestates", args, "%S%M%M",
+  get_all_args("_Caudium.parse_prestates", args, "%S%M%M",
                &url, &prestate, &internal);
   if (url->len < 5 || url->str[1] != '(') { /* must have at least '/(#)/ */
     pop_n_elems(args-1);  /* Leave URL on the stack == return it */
@@ -713,10 +713,10 @@ static void f_get_port(INT32 args) {
   char *orig, *ptr;
   
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.get_port",1,"string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.get_port",1,"string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.get_port(): only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.get_port(): only 8-bit strings allowed.\n");
   }
   if(src->len < 7) {
     pop_n_elems(args);
@@ -755,10 +755,10 @@ static void f_extension( INT32 args ) {
   char *orig, *ptr;
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.extension", 1, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.extension", 1, "string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.extension(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.extension(): Only 8-bit strings allowed.\n");
   }
   orig = src->str;
   for(i = src->len-1; i >= 0; i--) {
@@ -845,10 +845,10 @@ static void f_http_encode(INT32 args)
   struct pike_string *src;
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode", 1, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode", 1, "string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_encode(): Only 8-bit strings allowed.\n");
   }
 
   in = src->str;
@@ -903,10 +903,10 @@ static void f_http_decode(INT32 args)
   check = 0;  /* Per default there is no encoded characters to decode */
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode",1,"string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_decode",1,"string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.http_encode(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_decode(): Only 8-bit strings allowed.\n");
   }
   in = src->str;
   in_len = src->len-1;
@@ -999,10 +999,10 @@ static void f_http_encode_string(INT32 args)
   struct pike_string *src;
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_string", 1, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_string", 1, "string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.http_encode_string(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_encode_string(): Only 8-bit strings allowed.\n");
   }
 
   in = src->str;
@@ -1071,10 +1071,10 @@ static void f_http_encode_cookie(INT32 args)
   struct pike_string *src;
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_cookie", 1, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_cookie", 1, "string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.http_encode_cookie(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_encode_cookie(): Only 8-bit strings allowed.\n");
   }
 
   in = src->str;
@@ -1157,10 +1157,10 @@ static void f_http_encode_url(INT32 args)
   struct pike_string *src;
 
   if(Pike_sp[-1].type != T_STRING)
-    SIMPLE_BAD_ARG_ERROR("Caudium.http_encode_url", 1, "string");
+    SIMPLE_BAD_ARG_ERROR("_Caudium.http_encode_url", 1, "string");
   src = Pike_sp[-1].u.string;
   if(src->size_shift) {
-    Pike_error("Caudium.http_encode_url(): Only 8-bit strings allowed.\n");
+    Pike_error("_Caudium.http_encode_url(): Only 8-bit strings allowed.\n");
   }
 
   in = src->str;
@@ -1224,12 +1224,12 @@ static void f_cern_http_date(INT32 args)
 
   switch(args) {
    default:
-     Pike_error("Wrong number of arguments Caudium.cern_http_date(). Expected 1 or less arguments.\n");
+     Pike_error("Wrong number of arguments _Caudium.cern_http_date(). Expected 1 or less arguments.\n");
      break;
 
      case 1:
        if(Pike_sp[-1].type != T_INT) {
-         Pike_error("Bad argument 1 to Caudium.cern_http_date(). Expected int.\n");
+         Pike_error("Bad argument 1 to _Caudium.cern_http_date(). Expected int.\n");
        } else {
          timestamp = Pike_sp[-1].u.integer;
        }
@@ -1315,12 +1315,12 @@ static void f_http_date(INT32 args)
 
   switch(args) {
    default:
-     Pike_error("Wrong number of arguments Caudium.http_date(). Expected 1 or less arguments.\n");
+     Pike_error("Wrong number of arguments _Caudium.http_date(). Expected 1 or less arguments.\n");
      break;
 
      case 1:
        if(Pike_sp[-1].type != T_INT) {
-         Pike_error("Bad argument 1 to Caudium.http_date(). Expected int.\n");
+         Pike_error("Bad argument 1 to _Caudium.http_date(). Expected int.\n");
        } else {
          timestamp = Pike_sp[-1].u.integer;
        }
