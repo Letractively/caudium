@@ -25,27 +25,77 @@
 string cvs_version = "$Id$";
 
 //
-// usage: <lucene_search db="/path/to/lucene/db" query="search query">
+// usage: searcher.pike --profile=/path/to/profile "search query"
 //
 
 #if constant(Java)
 
 static constant jvm = Java.machine;
 
+string profile_path;
+int verbose;
 object index;
+mapping profile=([]);
 
-string status_info="";
+void display_help()
+{
+   werror("usage: \n");
+   exit(0);
+}
+
+void read_profile(string filename)
+{
+  if(!file_stat(filename))
+  {
+    werror("profile " + filename + " does not exist.\n");
+    exit(1);
+  }
+
+  string f=Stdio.read_file(filename);
+  if(!f) 
+  {
+    werror("profile " + filename + " is empty.\n");
+    exit(1);
+  }
+
+  array lines=f/"\n";
+
+  profile->dbdir=lines[0];
+
+  return;
+}
 
 int main(int argc, array argv)
 {
- start();
+  array options=({ ({"profile", Getopt.HAS_ARG, ({"--profile"}) }),
+	({"verbose", Getopt.NO_ARG, ({"-v", "--verbose"}) }),
+	({"help", Getopt.NO_ARG, ({"-h", "--help"}) }) });
+  array args=Getopt.find_all_options(argv, options);
+
+  foreach(args, array a)
+  {
+    if(a[0]=="profile")
+      profile_path=a[1];
+    if(a[0]=="verbose")
+      verbose=1;
+    if(a[0]=="help")
+      display_help();
+  }
+
+  if(!profile_path)
+  {
+    werror("no profile specified.\n");
+    exit(1);
+  }
+
+
+
+  read_profile(profile_path);
+
+  index=Index(profile->dbdir);
   index->search(argv[1]);
 }
 
-void start()
-{
-  index=Index();
-}
 
 class Index
 {
@@ -86,10 +136,10 @@ static object search_search = search_class->get_static_method("search", "(Ljava/
 
 object se;
 
-void create()
+void create(string dbdir)
 {
   se=search_class->alloc();
-  search_init(se, "db");
+  search_init(se, dbdir);
   check_exception();
 }
 

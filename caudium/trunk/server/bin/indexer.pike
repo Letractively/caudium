@@ -26,11 +26,40 @@ string cvs_version = "$Id$";
 
 static constant jvm = Java.machine;
 
+string profile_path;
+int verbose;
 object index;
-
-string status_info="";
-
+mapping profile=([]);
 object crawler;
+
+void display_help()
+{
+   werror("usage: \n");
+   exit(0);
+}
+
+void read_profile(string filename)
+{
+  if(!file_stat(filename))
+  {
+    werror("profile " + filename + " does not exist.\n");
+    exit(1);
+  }
+
+  string f=Stdio.read_file(filename);
+  if(!f)
+  {
+    werror("profile " + filename + " is empty.\n");
+    exit(1);
+  }
+
+  array lines=f/"\n";
+
+  profile->dbdir=lines[0];
+  profile->site=lines[1];
+
+  return;
+}
 
 void error_cb(mixed real_uri, int status, mapping headers)
 {
@@ -100,21 +129,48 @@ mixed strip_tag(Parser.HTML p, string t)
 int main(int argc, array argv)
 {
    signal(2, quit);
-   mixed url=argv[1];
+
+  array options=({ ({"profile", Getopt.HAS_ARG, ({"--profile"}) }),
+        ({"verbose", Getopt.NO_ARG, ({"-v", "--verbose"}) }),
+        ({"help", Getopt.NO_ARG, ({"-h", "--help"}) }) });
+  array args=Getopt.find_all_options(argv, options);
+
+  foreach(args, array a)
+  {
+    if(a[0]=="profile")
+      profile_path=a[1];
+    if(a[0]=="verbose")
+      verbose=1;
+    if(a[0]=="help")
+      display_help();
+  }
+
+  if(!profile_path)
+  {
+    werror("no profile specified.\n");
+    exit(1);
+  }
+
+  read_profile(profile_path);
+
+  index=Indexer(profile->dbdir);
+
+
+   mixed url=profile->site;
    parser=Parser.HTML();
    stripper=Parser.HTML();
    parser->add_container("title", set_title);
    parser->add_container("a", add_url);
    parser->add_container("script", strip_tag);
+   parser->add_container("style", strip_tag);
    stripper->_set_tag_callback(strip_tag);
 
    object allow=Web.Crawler.RuleSet();
    object deny=Web.Crawler.RuleSet();
 
-   allow->add_rule(Web.Crawler.GlobRule(argv[1] + "*"));
+   allow->add_rule(Web.Crawler.GlobRule(profile->site + "*"));
    q=Web.Crawler.MemoryQueue(Web.Crawler.Stats(2,1),Web.Crawler.Policy(), allow, deny);
 
- start();
 
 crawler=Web.Crawler.Crawler(
 q,
@@ -125,12 +181,8 @@ done_cb,
    return -1;
 }
 
-void start()
-{
-  index=Index();
-}
 
-class Index
+class Indexer
 {
 
 static constant jvm = Java.machine;
@@ -181,10 +233,10 @@ static object summary_date=summary_class->get_field("date", "Ljava/lang/String;"
 
 object ie;
 
-void create()
+void create(string datadir)
 {
   ie=index_class->alloc();
-  index_init(ie, "db", 0);
+  index_init(ie, datadir, 0);
   check_exception();
 }
 
