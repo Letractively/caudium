@@ -43,52 +43,15 @@ constant module_doc  = "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/do
     "interface.html\">CGI/1.1 interface</a>, and more.";
 constant module_unique = 0;
 
-class Shuffle
-{
-  string buffer;
-  object to;
-  function done;
-  void write_some_more()
-  {
-    if(strlen(buffer))
-    {
-      int len = to->write(buffer);
-      if(len < 0)
-	// if len == 0, the buffer is full and we still want to continue.
-      {
-	to->set_write_callback(0);
-	(done && done());
-	return;
-      }
 
-      buffer = buffer[len..];
-      if(!strlen(buffer))
-      {
-	//    to->set_blocking();
-	to->set_write_callback(0);
-	done && done();
-      }
-    }
-  }
-
-  void create( string data, object fd, function cb )
-  {
-    buffer = data;
-    to = fd;
-    done = cb;
-    if(!strlen(data))
-    {
-      call_out(done,0);
-    }else{
-      to->set_nonblocking( 0, write_some_more, 0 );
-      write_some_more();
-    }
-  }
-}
+// This is used to send any POST data to the CGI script.
 
 void sendfile( string data, object fromfd, object tofd, function done )
 {
-  Shuffle( data, tofd, done );
+  object pipe = Caudium.nbio();
+  pipe->write(data);
+  pipe->set_done_callback(done, pipe);
+  pipe->output(tofd);
 }
 
 Stdio.File open_log_file( string logfile )
@@ -620,7 +583,7 @@ class CGIScript
     DWERROR("CGI:CGIScript::get_fd()\n");
 
     // Send input to script..
-    if( tosend || ffd )
+    if( tosend || ffd ) 
       sendfile( tosend||"",ffd, stdin,
 		lambda(int i,mixed q){ stdin=0; });
     else
