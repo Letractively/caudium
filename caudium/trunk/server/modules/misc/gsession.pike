@@ -154,8 +154,8 @@ int hide_gc ()
 
 mixed first_try(object id)
 {
-    id->misc->session_variables = ([]);
-    id->misc->user_variables = ([]);
+    alloc_session(id);
+    setup_compat(id);
 }
 
 mixed find_file ( string path, object id )
@@ -641,8 +641,6 @@ private string alloc_session(object id)
     if (id->misc->session_id) {
         cur_storage->setup(id, id->misc->session_id);
         id->misc->_gsession_is_here = 1;
-        id->misc->session_variables = cur_storage->get_region(id, id->misc->session_id, "session")->data;
-        id->misc->user_variables = cur_storage->get_region(id, id->misc->session_id, "user")->data;
         return id->misc->session_id;
     }
     
@@ -663,18 +661,6 @@ private string alloc_session(object id)
 
     id->misc->_gsession_is_here = 1;
     id->misc->session_id = ret;
-
-    mapping  store = cur_storage->get_region(id, id->misc->session_id, "session")->data || ([]);
-
-    if (id->misc->session_variables)
-        store += id->misc->session_variables;
-    
-    id->misc->session_variables = store;
-
-    store = cur_storage->get_region(id, id->misc->session_id, "user")->data || ([]);
-    if (id->misc->user_variables)
-        store += id->misc->user_variables;
-    id->misc->user_variables = store;
     
     gsession_set_cookie(id, ret);
     
@@ -684,6 +670,36 @@ private string alloc_session(object id)
 //
 // tags below
 //
+private void setup_compat(object id)
+{
+    mapping data;
+
+    if (!cur_storage) {
+        report_warning("gSession: cur_storage unset!");
+        return;
+    }
+    
+    data = cur_storage->get_region(id, id->misc->session_id, "session");
+
+    if (data)
+        id->misc->session_variables = data->data;
+    else {
+        report_warning("gSession: the 'session' region absent from storage '%s'",
+                       cur_storage->name);
+        id->misc->session_variables = ([]);
+    }
+    
+    data = cur_storage->get_region(id, id->misc->session_id, "user");
+
+    if (data)
+        id->misc->user_variables = data->data;
+    else {
+        report_warning("gSession: the 'user' region absent from storage '%s'",
+                       cur_storage->name);
+        id->misc->user_variables = ([]);
+    }
+    
+}
 
 //
 // 123sessions compatibility tags
@@ -697,7 +713,7 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
         return "";
     }
 
-    alloc_session(id);
+    setup_compat(id);
     
     string region;
     if (tag == "session_variable")
@@ -716,6 +732,8 @@ string tag_variables(string tag, mapping args, object id, object file, mapping d
 
 string tag_dump_session (string tag_name, mapping args, object id, object file)
 {
+    setup_compat(id);
+    
     return (id->misc->session_variables) ?
         (sprintf ("<pre>id->misc->session_variables : %O\n</pre>", id->misc->session_variables)) : "";
 }
@@ -724,6 +742,8 @@ string tag_dump_sessions (string tag_name, mapping args, object id, object file)
 {
     string   ret;
     mapping  m = cur_storage->get_all_regions(id);
+
+    setup_compat(id);
     
     return m ? sprintf("<pre>_variables : %O\n</pre>", m) : "";
 }
@@ -785,7 +805,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     string   query;
     mapping  hvars = ([]);
 
-    alloc_session(id);
+    setup_compat(id);
     
     if (args && args->href && !leave_me_alone(args->href)) {
         if (sscanf(args->href, "%*s?%s", query) == 2)
@@ -807,7 +827,7 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     mapping  hvars = ([]);
     int      do_hidden = 1;
     
-    alloc_session(id);
+    setup_compat(id);
     
     if (args && args->action && !leave_me_alone(args->action)) {
         if (!args->method || (args->method && lower_case(args->method) != "post")) {
