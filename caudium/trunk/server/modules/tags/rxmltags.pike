@@ -3151,61 +3151,54 @@ string tag_autoformat(string tag, mapping m, string s, object id,object file)
 
 string tag_smallcaps(string t, mapping m, string s)
 {
-  string build="";
-  int i,lc=1,j;
-  string small=m->small;
-  if (m->size)
-  {
-    build="<font size="+m->size+">";
-    if (!small)
-    {
-      if (m->size[0]=='+') small="+"+(((int)m->size[1..10])-1);
-      else if (m->size[0]=='-') small="-"+(((int)m->size[1..10])+1);
-      else small=""+(((int)m->size)-1);
+    string build = "";
+    string uc = upper_case(s);
+    int end = sizeof(s);
+    int last_cut = 0;
+    int i = 0;
+    int bigsize = 0;
+    int smallsize = -1;
+
+    string switch_to_small;
+    string switch_to_big;
+
+    if (m->size) { bigsize = (int)m->size; smallsize = bigsize-1; }  
+    if (m->small) { smallsize = (int)m->small; }
+
+    switch_to_small =
+        (bigsize ? "</font>" : "") +
+        (smallsize ? ("<font size="+smallsize+">") : "");
+
+    switch_to_big =
+        (smallsize ? "</font>" : "") +
+        (bigsize ? ("<font size="+bigsize+">") : "");
+
+    if (bigsize) build = "<font size="+bigsize+">";
+
+    while(i < end) {
+        if (s[i] == '<') {
+            while ((i < end) && (s[i] != '>')) i++;
+            build += s[last_cut..(i-1)];
+            last_cut = i+1;
+        } else if (s[i] == '&') {
+            while ((i < end) && (search("; \t\n",s[i]) == -1)) i++;
+            build += s[last_cut..(i-1)];
+        } else if (s[i] != uc[i]) {
+            while ((i < end) && (s[i] != uc[i])) i++;
+            build += switch_to_small+
+                uc[last_cut..(i-1)]+
+                switch_to_big;
+        } else {
+            while ((i < end) &&
+                   (s[i] == uc[i]) &&
+                   (s[i] != '<') && (s[i] != '&')) i++;
+            build += s[last_cut..(i-1)];
+        }
+        last_cut = i;
     }
-  } else if (!small) small="-1";
-  
-  for (i=0; i<strlen(s); i++)
-    if (s[i]=='<') 
-    { 
-      if (!lc) 
-      { 
-	build+="</font>";
-	lc=1; 
-      }
-      for (j = i;j < strlen(s) && s[j] != '>'; j++);
-      build += s[i..j];
-      i = j;
-    }
-    else if (s[i]<=32) 
-    { 
-      if (!lc) build+="</font>"+s[i..i]; 
-      else 
-	build+=s[i..i]; 
-      lc=1; 
-    }
-    else if (s[i]&64)
-      if (s[i]&32) 
-      { 
-	if (lc) 
-	  build+="<font size="+small+">"+sprintf("%c",s[i]-32)
-	    +(m->space?"&nbsp;":""); 
-	else 
-	  build+=sprintf("%c",s[i]-32)+(m->space?"&nbsp;":""); lc=0; }
-      else { 
-	if (!lc) 
-	  build+="</font>"+s[i..i]+(m->space?"&nbsp;":""); 
-	else 
-	  build+=s[i..i]+(m->space?"&nbsp;":""); 
-	lc=1; 
-      }
-    else 
-      build+=s[i..i]+(m->space?"&nbsp;":"");
-  if (!lc) 
-    build+="</font>"; 
-  if (m->size) 
-    build+="</font>";
-  return build;
+
+    if (bigsize) build += "</font>";
+    return build;
 }
 
 string tag_random(string tag, mapping m, string s)
