@@ -40,10 +40,6 @@
 
 inherit "http";
 
-// Compatiblity thing
-// This should be moved somewhere else... Like renaming caudiumlib to caudiumlib2
-inherit "compatlib";
-
 // constant _cvs_version = "$Id$";
 // This code has to work both in the roxen object, and in modules
 #if !constant(caudium)
