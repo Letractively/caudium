@@ -283,7 +283,6 @@ array type_from_extension(string ext)
  * our shiny new one.
  */
 array type_from_filename(string filename) {
-  // FIXME: mmmm, the case where extension doesn't, but encoding does present ? is it likely ?
   filename = lower_case(filename);
   // set the most sensible default available at this time
   array retval = ({ QUERY(default_ct), 0 });
@@ -297,10 +296,15 @@ array type_from_filename(string filename) {
       // no extensions, return the defaults
       break;
     case 2:
-      // one extension: there will be no encoding, only content-type
-      if( extensions[tmp[1]] )
+      // one extension: it's either a content-type, or an encoding (calculated in this order)
+      // i'm not quite sure whether it's likely to happen or not.
+      if( knows_exts[ tmp[1] ] ) {
         retval[ 0 ] = extensions[tmp[1]];
         accessed["extensions"][ tmp[1] ]++;
+      } else if(known_encs[ tmp[1] ] ) {
+        retval[ 1 ] = encodings[ tmp[1] ];
+        accessed["encodings"][ tmp[1] ]++;
+      };
       break;
     default:
       // two or more extensions. things get two-fold here: either
