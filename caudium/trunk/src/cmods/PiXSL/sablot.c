@@ -30,10 +30,26 @@ RCSID("$Id$");
 #ifdef HAVE_SABLOT
 #include <sablot.h>
 #include <shandler.h>
+
 struct program *xslt_program=NULL;
 
 /** Functions implementing Pike functions **/
 #include "pixsl.h"
+
+static char                 *bad_scheme =
+  "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>"
+  "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+  "<!-- unsupported scheme -->"
+  "</xsl:stylesheet>";
+
+static struct pike_string   *bad_scheme_return = NULL;
+
+static char                 *bad_retval =
+  "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>"
+  "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">"
+  "<!-- bad return value from the Pike handler -->"
+  "</xsl:stylesheet>";
+static struct pike_string   *bad_retval_return = NULL;
 
 /* Sablot Message Handlers */
 static MH_ERROR mh_makecode(void *ud, SablotHandle sproc,
@@ -277,6 +293,8 @@ static void init_xslt_storage(struct object *o)
   THIS->cb_get.type = T_INT;
   THIS->cb_freeMemory.type = T_INT;
   THIS->cb_extra_args.type = T_INT;
+
+  
 }
 
 static void f_create(INT32 args)
@@ -426,7 +444,14 @@ INLINE static int getRespValues(struct svalue *retcode, struct svalue *retval, I
  *
  * index 0 of the returned contains the error result (0 - success, 1 -
  * failure) 
- * index 1 of the returned array contains the result of the get.
+ * index 1 of the returned array contains the result of the get (or an
+ * empty string when failure is signalled).
+ *
+ * NOTE: this callback always returns a success on the C level. The reason
+ * for that is that this is the easiest way to make sure sablotron won't
+ * return with an error thus breaking the whole document. The responses
+ * used in case of errors are at the top of the file (keep in mind that the
+ * returned buffer MUST be valid XSLT).
  */
 static int sh_getAll(void *userData, SablotHandle processor,
                      const char *scheme, const char *rest,
@@ -434,7 +459,10 @@ static int sh_getAll(void *userData, SablotHandle processor,
 {
   xslt_storage       *This = (xslt_storage*)userData;
   struct svalue       retcode, retval;
-
+  size_t              retlen;
+  struct pike_string *retstring;
+  int                 rettype = 0;
+  
   if (!buffer || !byteCount || !This || This->cb_getAll.type != T_FUNCTION)
     return 1;
 
@@ -448,12 +476,21 @@ static int sh_getAll(void *userData, SablotHandle processor,
   
   if (getRespValues(&retcode, &retval, T_STRING)) {
     pop_stack();
-    return 1;
+    rettype = 1;
+    retcode.u.integer = 1;
   }
 
   if (retcode.u.integer != 0) {
-    pop_stack();
-    return retcode.u.integer;
+    if (rettype) {
+      retlen = bad_retval_return->len;
+      retstring = bad_retval_return;
+    } else {
+      retlen = bad_scheme_return->len;
+      retstring = bad_scheme_return;
+    }
+  } else {
+    retlen = retval.u.string->len;
+    retstring = retval.u.string;
   }
   
   if (This->getAllBuffer) {
@@ -461,18 +498,18 @@ static int sh_getAll(void *userData, SablotHandle processor,
     This->getAllBuffer = NULL;
   }
 
-  *buffer = (char*)calloc(retval.u.string->len + 1, sizeof(char));
+  *buffer = (char*)calloc(retlen + 1, sizeof(char));
   if (!*buffer) {
     pop_stack();
     return 1;
   }
   
-  *byteCount = retval.u.string->len;
-  MEMCPY(*buffer, retval.u.string->str, retval.u.string->len);
+  *byteCount = retlen;
+  MEMCPY(*buffer, retstring->str, retlen);
   This->getAllBuffer = *buffer;
   pop_stack();
 
-  return retcode.u.integer;
+  return 0;
 }
 
 /*
@@ -755,6 +792,9 @@ static void f_set_scheme_callbacks(INT32 args)
 void pike_module_init( void )
 {
 #ifdef HAVE_SABLOT
+  bad_scheme_return = make_shared_binary_string(bad_scheme, strlen(bad_scheme));
+  bad_retval_return = make_shared_binary_string(bad_retval, strlen(bad_retval));
+  
   start_new_program();
   ADD_STORAGE(xslt_storage);
   set_init_callback(init_xslt_storage);
@@ -787,6 +827,12 @@ void pike_module_init( void )
 void pike_module_exit( void )
 {
 #ifdef HAVE_SABLOT
+  if (bad_scheme_return)
+    free_string(bad_scheme_return);
+
+  if (bad_retval_return)
+    free_string(bad_retval_return);
+  
   if(xslt_program)
     free_program(xslt_program);
 #endif
