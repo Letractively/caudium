@@ -109,7 +109,7 @@ Installing Caudium 1.2 from source:
  Once you have installed the server, consider joining the Caudium
  mailing list by sending a mail to:
 
-    caudium-general-request@lists.sourceforge.net
+    general-request@caudium.info
 
  with Subject: subscribe
 
@@ -119,8 +119,8 @@ Installing Caudium 1.2 from source:
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.2.2.tar.gz
-bash$ cd caudium-1.2.2
+bash$ tar xzf caudium-1.2.24.tar.gz
+bash$ cd caudium-1.2.24
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
