@@ -9,7 +9,7 @@
 #include <module.h>
 inherit "module";
 
-string cvs_version = "$Id";
+string cvs_version = "$Id$";
 
 array register_module()
 {
