@@ -3,7 +3,7 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
-AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h)
+AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h alloca.h)
 AC_HAVE_FUNCS(mmap munmap free strftime strptime getdate getdate_r)
 AC_HEADER_TIME
 
