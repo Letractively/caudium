@@ -186,10 +186,13 @@ static void f_buf_append( INT32 args )
   /* find protocol */
   for( i = 0; i < l; i++ ) {
     if( in[i] == '\n' ) break;
+    else if(in[i] == ' ') {
+      push_int( 400 ); /* Bad Request */
+      return;
+    }
   }
   if( in[i-1] != '\r' ) 
     i++;
-   
   sval.u.string = make_shared_binary_string((char *)in, i-1);
   mapping_insert(BUF->other, SVAL(protocol), &sval);
   free_string(sval.u.string);

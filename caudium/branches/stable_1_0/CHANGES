@@ -6,6 +6,8 @@ Changes in Caudium 1.0.XX
   incorrectly.
 - Fixed a couple of problem related to ssl3.
 - Fixed <if variable> to work with scopes.
+- Throw a bad request answer if the file contains unencoded spaces
+  (http2 protocol).
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------
