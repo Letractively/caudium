@@ -154,7 +154,9 @@ int main()
    write("%O",_Caudium.strftime(stst,time()));
    write("\n");
    write("Legacy:  ");
+   catch {
    write("%O",strftime(stst,time()));
+   };
    write("\n");
   }
   return 0;
