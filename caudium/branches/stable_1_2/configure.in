@@ -392,7 +392,7 @@ if test "$PIKE" != ""; then
 else
   cat << EOF
 *********************************************************************
-*** I couldn't find a suitable Pike for Caudium. Caudium 11.
+*** I couldn't find a suitable Pike for Caudium. Caudium 1.2
 *** requires Pike 7.0.268 or newer. Running Caudium with Pike 0.6
 *** is no longer supported. You can download and install one of
 *** our Pike 7.0 snapshots available from our website at:
@@ -400,7 +400,7 @@ else
 ***     http://caudium.net/download/snapshot.html
 ***
 *** IMPORTANT: Do not try using Pike 7.0.78 from the Pike website 
-*** since that version is to old to work with Caudium 1.1!
+*** since that version is to old to work with Caudium 1.2!
 ***
 *** Although Caudium 1.2 should function with Pike 7.3/7.4, we don't
 *** recommend this, since Pike 7.3/7.4 is still in development which has
