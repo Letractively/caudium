@@ -324,6 +324,7 @@ int requests;
 
 //! Protocol specific statistics.
 mapping(string:mixed) extra_statistics = ([]);
+
 //! Even more protocol specific statistics
 mapping(string:mixed) misc = ([]); 
 
@@ -407,7 +408,7 @@ void stop()
 public array|string type_from_filename( string file, int|void to ) {
   object current_configuration;
 
-  //! the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
+  // the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
   array retval = ({ "application/octet-stream", 0 });
 
   if( !types_fun )
