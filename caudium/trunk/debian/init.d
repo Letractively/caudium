@@ -22,7 +22,7 @@ NAME=caudium${EXTVER}
 DESC="Caudium Webserver"
 
 PIDFILE=/var/run/caudium${EXTVER}/caudium.pid
-DEFSTART_OPTIONS="--pid-file=$PIDFILE"
+DEFSTART_OPTIONS="--pid-file=$PIDFILE --config-dir=/etc/caudium${EXTVER}/servers/ --log-dir=/var/log/caudium${EXTVER}/"
 
 test -f $DAEMON || exit 0
 
