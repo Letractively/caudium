@@ -301,7 +301,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	else :; fi; \
 	mkdir $$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; make dist_clean); \
+	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; make dist_clean >& /dev/null); \
 	echo Cleaning up the copied sources...; \
 	for f in `find $$version/. -type f -name '*~' -print` \
 	  `find $$version/. -type f -name '.#*' -print` \
@@ -311,8 +311,11 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`; \
-	echo "Building Distribution..."; \
-	tar cf - $$version | gzip -9 >$$version.tar.gz
+	@echo "Building Distribution..."
+	tar cf $$version.tar
+	gzip -9 < $$version.tar >$$version.tar.gz
+	bzip2 -9 < $$version.tar >$$version.tar.bz2
+	rm $$version.tar
 
 dist: copy_dist tar_dist
 	@echo Distribution build complete.
