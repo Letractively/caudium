@@ -251,14 +251,14 @@ class PikeFile {
 class Method {
     inherit DocObject;
     
-    string          name;
-    string          scope;
-    array(string)   args;
-    array(string)   returns;
-    array(string)   seealso;
-    array(string)   notes;
-    array(string)   example;
-    array(string)   bugs;
+    string                   name;
+    string                   scope;
+    array(mapping(string:string))   args;
+    array(string)            returns;
+    array(string)            seealso;
+    array(string)            notes;
+    array(string)            example;
+    array(string)            bugs;
 
     private void new_field(object|string newstuff, string kw)
     {
@@ -279,7 +279,7 @@ class Method {
                     break;
 
                 case "arg":
-                    args = ({newstuff});
+                    args += ({(["synopsis":newstuff])});
                     break;
 
                 case "returns":
@@ -332,7 +332,10 @@ class Method {
                 break;
 
             case "arg":
-                args[-1] += newstuff;
+		if (!args[-1]->description)
+		    args[-1]->description = newstuff;
+		else
+            	    args[-1]->description += newstuff;
                 break;
 
             case "returns":
