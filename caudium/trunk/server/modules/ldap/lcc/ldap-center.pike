@@ -104,8 +104,21 @@ void create()
            TYPE_TEXT_FIELD,
            "Message that will be sent to the browser when the user's authentication failed "
            "or was cancelled by the user.");
+    defvar("user_providers", "", "User-defined providers",
+           TYPE_TEXT_FIELD,
+           "You can define your own actions this module will handle with the aid of your "
+           "provider modules. Provider definitions are given one entry per line and "
+           "must follow the format given below:<br />"
+           "<blockquote><strong><code>module_base_name:is_required</code></strong></blockquote>"
+           "where,<br /><ul>"
+           "<li><strong><code>module_base_name</code></strong> is a name of the provider module to which "
+           "the <em>Provider module name prefix</em> will be prepended to form the real provider name.</li>"
+           "<li><strong><code>is_required</code></strong> is <code>0</code> if the provider isn't required "
+           "and <code>&gt;0</code> if it is.</li>"
+           "</ul>All the user-defined modules are request handlers - that is, they will be called through "
+           "the <code>handle_request</code> function that must be present in the object.");
     
-    //
+    //  
     // Provider Modules
     //
     /*
@@ -181,10 +194,7 @@ void create()
     // LDAP
     //
     defvar("ldap_server", "ldap://localhost", "LDAP: server URL", TYPE_STRING,
-           "LDAP URL of the directory server to be used");
-
-
-    
+           "LDAP URL of the directory server to be used");    
 }
 
 string query_location()
