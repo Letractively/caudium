@@ -2631,7 +2631,7 @@ private void define_global_variables( int argc, array (string) argv )
 	  "for CGI, and also access files as user in the filesystems, but "
 	  "it gives better security.");
 
-  globvar("ModuleDirs",({"../local/modules", "modules/"}),
+  globvar("ModuleDirs",({"../local/modules/", "modules/"}),
 	  "Module directories", TYPE_DIR_LIST,
 	  "This is a list of directories where Caudium should look for "
 	  "modules. Can be relative paths, from the "
