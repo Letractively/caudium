@@ -32,6 +32,12 @@ constant module_doc	= "Pike Source Highlighter module";
 constant module_unique	= 1;
 constant thread_safe	= 1;
 
+void create() {
+  defvar("css", 1, "Force usage of CSS", TYPE_FLAG,
+         "If set, the Pike Highlighter will use CSS to set colors and fonts "
+         "instead of old HTML 2.0 font color systems.");
+}
+
 mapping query_container_callers() {
   return ([
            "phl":cont_phigh,
@@ -40,5 +46,7 @@ mapping query_container_callers() {
 
 string cont_phigh(string tag_name, mapping args, string contents, object id, object f, mapping defines, object fd) {
 
+  if(QUERY(css))
+   args += ([ "css":"yes" ]);
   return Caudium.HighLight.Pike.highlight("foo", args, contents);
 }
