@@ -1,4 +1,4 @@
-#!@PIKE@
+#!@PIKE@ -M@prefix@/caudium/server/etc/modules
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2003 The Caudium Group
@@ -71,6 +71,9 @@ mapping(string:mixed) options = ([
   "program" : "base_server/caudiumloader.pike", 
 ]);
 
+// stderr and stdout
+Stdio.File stderr;
+Stdio.File stdout;
 
 // environment variables we set for caudium
 // all of them are merged with the values of variables from the shell
@@ -124,10 +127,26 @@ mapping watchdog_params = ([ ]);
 // a list of valid interpreters we should try to use.
 array valid_interpreters=({"@PIKE@", "bin/caudium", "bin/pike"});
 
+// call out for the watchdog
+mixed cs_callout;
+mixed ct_callout;
+
+// object for the watchdog
+object conn;
+
 // run Caudium and return its exit status.
 int run_caudium(array(string) args, mapping|void opts)
 {
   mapping           myopts = opts || ([]);
+
+  if(opts->stdout)
+    stdout=opts->stdout;
+  else
+    stdout=Stdio.File("stdout");
+  if(opts->stderr)
+    stderr=opts->stderr;
+  else
+    stderr=Stdio.File("stderr");
 
   opts->cwd = getcwd();
   opts->env = getenv() | envvars;
@@ -142,7 +161,7 @@ int run_caudium(array(string) args, mapping|void opts)
   }
   if(opts->stdout && !options->quiet)
     opts->stdout->write("Running " + (args*" ") + "\n");
-//  args=({"/bin/sleep", "60"});
+
   proc = Process.create_process(args, opts);
 
   if (!proc) {
@@ -154,7 +173,6 @@ int run_caudium(array(string) args, mapping|void opts)
 
   return 1;
 
-//  return proc->wait();
 }
 
 void append_env_path(string envvar, string value)
@@ -366,7 +384,7 @@ int main(int argc, array(string) argv)
     sleep(1);
     return 0;
   }
-  write("options: %O\n", options);
+//  write("options: %O\n", options);
 
   // set up signal handlers
   setup_signals();
@@ -407,6 +425,14 @@ void signal_term()
 // we stop caudium and restart it
 void signal_int()
 {
+  if(options->once)
+  {
+    if(proc && proc->status()==0)
+    { 
+      proc->kill(signum("SIGTERM"));
+      exit(0);
+    }
+  }
   write("Restarting Caudium.\n");
   if(proc && proc->status()==0)
   {
@@ -472,7 +498,15 @@ void do_multi_run(array o, mapping opt)
     opt->stdout=Stdio.File(envvars->CAUDIUM_LOGDIR + "/debug/default.1", "crw");
     opt->stderr=opt->stdout;
     opt->setsid=1;
+
+    // remove the watchdog while we're restarting Caudium
+    if(cs_callout)
+      remove_call_out(cs_callout);
+    if(ct_callout)
+      remove_call_out(ct_callout);
+
     run_caudium(o, opt);
+
     // give caudium 30 seconds to start up, then fire up the watchdog.
     call_out(start_watchdog, 30);
   }
@@ -716,7 +750,7 @@ will
 // 
 array get_servers() {
   array srvs=({});
-  object config_dir=Config.Files.Dir(opts->config_dir);
+  object config_dir=Config.Files.Dir(envvars->CAUDIUM_CONFIGDIR);
   if(!config_dir)
   {
     werror("unable to open config dir.\n");
@@ -733,7 +767,7 @@ array get_servers() {
       int port;
       string host, prot;
    
-      sscanf(cfg->MyWorldLocation, "%s//%s:%d", prot, host, port);
+      sscanf(cfg->MyWorldLocation, "%s://%s:%d", prot, host, port);
       if(prot=="http")
         srvs+=({ ({host, port}) });
     }
@@ -747,12 +781,9 @@ array get_servers() {
 //
 void get_watchdog_params()
 {
-  if(opts->stdout)
-    stdout->write("Loading watchdog parameters\n");
-  else
-    write("Loading watchdog parameters\n");    
+  flex_write("Loading watchdog parameters\n");    
 
-  object config_dir=Config.Files.Dir(opts->config_dir);
+  object config_dir=Config.Files.Dir(envvars->CAUDIUM_CONFIGDIR);
   if(!config_dir)
   {
     werror("unable to open config dir.\n");
@@ -760,6 +791,7 @@ void get_watchdog_params()
   }
 
   object cfr=Config.Files.File(config_dir, "Global_Variables");
+  cfr->parse();
   mapping cfg=cfr->retrieve_region("Variables");
 
   if(cfg)
@@ -771,22 +803,106 @@ void get_watchdog_params()
        watchdog_params->timeout=cfg->watchdog_timeout;
   }
 
-  watchdog_params->sites=get_servers() || ({});
-
-  if(watchdog_params->sites && sizeof(watchdog_params->sites)>1 && cfg->watchdog_checkall!="1")
-    watchdog_params->sites=watchdog_params->sites[0..0];
-
- call_out(get_watchdog_params, 7200);
+  array srvrs=get_servers() || ({});
+  if(srvrs && sizeof(srvrs))
+    watchdog_params->site=srvrs[0];
+ 
+  call_out(get_watchdog_params, 7200);
 
 } 
 
 void start_watchdog()
 {
-  if(opts->stdout)
-    stdout->write("Starting the watchdog\n");
-  else
-    write("Starting the watchdog\n");    
+  flex_write("Starting the watchdog\n");    
 
   get_watchdog_params();
 
+  check_site();
+}
+
+void check_site()
+{
+
+  if(watchdog_params->site)
+  {
+    // we have a site to check.    
+    conn=Stdio.File();
+   
+    // can we connect?
+    if(!conn->connect(watchdog_params->site[0], 
+        (int)(watchdog_params->site[1])))
+    {
+      flex_write("Unable to connect to " + watchdog_params->site[0] + ":" 
+        + watchdog_params->site[1] + "\n");       
+      // if we're running, we need to be kicked, otherwise it will get
+      // restarted at the next check of the starter. 
+      if(proc && proc->status()==1) 
+      {
+        flex_write("Killing Caudium...\n");
+        proc->kill(signum("SIGKILL"));
+      }
+    } 
+    // let's send the request and wait for a response.
+    conn->set_nonblocking();
+    conn->set_read_callback(response_received);
+    conn->write("PING\r\n");
+    ct_callout=call_out(check_timedout, (int)(watchdog_params->timeout));  
+  }
+    
+}
+
+void response_received(mixed id, mixed data)
+{
+  // did we get the expected response?
+  if(data=="PONG\r\n")
+  {
+    // request was successful.
+    remove_call_out(ct_callout);
+    remove_call_out(cs_callout);
+    conn->close();
+    conn=0;
+
+    // restart the watchdog.
+    call_out(check_site, watchdog_params->timer);
+  }
+  else  // we got something else. kill the process.
+  {
+     flex_write("Got unexpected response from PING.\n");
+     conn->close();
+     conn=0;
+     kill_caudium();
+  }
+}
+
+void kill_caudium()
+{
+  // kill the Caudium process with extreme prejudice
+  if(proc)
+  {
+    flex_write("Killing Caudium...\n");
+    proc->kill(signum("SIGKILL"));
+  }
+
+}
+
+void check_timedout()
+{
+
+  conn->close();
+  conn=0;
+
+  flex_write("Check timed out.\n");
+  kill_caudium();
+
+  // remove any of the check call outs.
+  if(cs_callout) remove_call_out(cs_callout);
+  if(ct_callout) remove_call_out(ct_callout);
+
+  // add a new call out for the check after it's had time to restart.
+  call_out(check_site, 60);
+}
+
+void flex_write(string s)
+{
+  stdout->write(s);
 }
