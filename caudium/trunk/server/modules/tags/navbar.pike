@@ -173,7 +173,7 @@ private int get_nb_elements(object id)
 private int get_nb_elements_per_page(object id)
 {
   NDEBUG("get_nb_elements_per_page: nb="+NSESSION[NAV_NB_ELEM_PAGE]);
-  return NSESSION[NAV_NB_ELEM_PAGE];
+  return NSESSION[NAV_NB_ELEM_PAGE] || 10;
 }
 
 private int get_lastpage(object id)
