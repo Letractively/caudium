@@ -353,16 +353,13 @@ inline void do_post_processing()
       }
       break;
 
-     case "connection":
-      request_headers[linename] = lower_case(request_headers[linename]);
-#ifndef EXTRA_ROXEN_COMPAT
-      break;
-#endif
-     case "content-type":
 #ifdef EXTRA_ROXEN_COMPAT
+     case "content-type":
+     case "connection":
       misc[linename] = lower_case(request_headers[linename]);
-#endif
+      misc[linename] = request_headers[linename];      
       break;
+#endif
 
      case "accept-encoding":
       if(search(request_headers[linename], "gzip") != -1)
@@ -445,6 +442,7 @@ inline void disconnect()
 void end(string|void s, int|void keepit)
 {
   pipe = 0;
+  
 #ifdef PROFILE
   if(conf)
   {
@@ -464,7 +462,8 @@ void end(string|void s, int|void keepit)
     if(elapsed > p[2]) p[2]=elapsed;
   }
 #endif
-
+  
+  
 #ifdef KEEP_ALIVE
   if(keepit &&
      (!(file->raw || file->len <= 0))
@@ -483,6 +482,8 @@ void end(string|void s, int|void keepit)
     MARK_FD("HTTP kept alive");
     object fd = my_fd;
     my_fd=0;
+    if(!leftovers && method != "POST")
+      leftovers = data;
     if(s) leftovers += s;
     while(sscanf(leftovers, "\r\n%s", leftovers))
       ; // Remove beginning newlines..
@@ -1288,6 +1289,7 @@ void got_data(mixed fdid, string s)
   int tmp;
   ITIMER();
   TIMER("got_data");
+
   remove_call_out(do_timeout);
   call_out(do_timeout, 30); // Close down if we don't get more data 
                          // within 30 seconds. Should be more than enough.
@@ -1315,7 +1317,9 @@ void got_data(mixed fdid, string s)
       destruct(htp);
       if(request_headers->host)
       	host = lower_case(request_headers->host);
-      if(strlen(data) < wanted_data) return;
+      if(request_headers->connection)
+	request_headers->connection = lower_case(request_headers->connection);
+
       break;
      default:
       string err = "Broken request";
@@ -1339,6 +1343,7 @@ void got_data(mixed fdid, string s)
       // Need more data
       return;
   }
+  
   TIMER("parsed");
 #ifdef ENABLE_RAM_CACHE
   if(!request_headers->authorization && method != "POST")
@@ -1350,7 +1355,7 @@ void got_data(mixed fdid, string s)
     conf->requests++;
   }
   
-  my_fd->set_nonblocking();
+  my_fd->set_nonblocking(0,0,0);
 
   if(conf) {
     conf->handle_precache(this_object());
@@ -1373,10 +1378,9 @@ void got_data(mixed fdid, string s)
     }
 #endif
   }
-  TIMER("post_cache_check_processed");
+  TIMER("post_cache_check");
   do_post_processing();
   TIMER("post_processed");
-  TIMER("pre_handle");
 #ifdef THREADS
   handle(handle_request);
 #else
@@ -1466,6 +1470,7 @@ void chain(object f, object c, string le)
   conf = c;
   do_not_disconnect=-1;
   MARK_FD("Kept alive");
+  
   if(strlen(le))
     // More to handle already.
     got_data(0,le);
@@ -1487,8 +1492,7 @@ void chain(object f, object c, string le)
     if(do_not_disconnect == -1) 
       do_not_disconnect = 0;
     if(!processed) {
-      f->set_close_callback(end);
-      f->set_read_callback(got_data);
+      f->set_nonblocking(got_data, 0, end);
     }
   }
 }
