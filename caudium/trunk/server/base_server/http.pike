@@ -251,7 +251,7 @@ constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 **!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
 **! returns:
 **!   The date in the common log file format.
-**!   Example: 02/Aug/2000:22:36:27 -0700
+**!   Example : 02/Aug/2000:22:36:27 -0700
 **! name: cern_http_date - return a date in the common log file format
 */
 string cern_http_date(int t)
@@ -288,7 +288,7 @@ string cern_http_date(int t)
 **!   The time in seconds since the 00:00:00 UTC, January 1, 1970.
 **! returns:
 **!   The date in the HTTP standard date format.
-**!   Example: Thu, 03 Aug 2000 05:40:39 GMT
+**!   Example : Thu, 03 Aug 2000 05:40:39 GMT
 **! name: cern_http_date - return a date in the HTTP standard format
 */
 string http_date(int t)

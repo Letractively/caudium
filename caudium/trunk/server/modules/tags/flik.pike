@@ -42,7 +42,8 @@
 //!  lists, but where each element can be unfolded. The tags used to build
 //!  the list elements are &lt;ft&gt; and &lt;fd&gt;.
 //
-//! example:  <fl>
+//! example: rxml
+//!  <fl>
 //!      <ft>ho
 //!          <fd>heyhepp
 //!      <ft>alakazot
