@@ -492,9 +492,9 @@ void continue_startup()
     do_multi_run(o, opt);
   }
 
-  // give caudium 60 seconds to start up, then fire up the watchdog.
+  // fire up the watchdog listener.
   if(options->watchdog)
-    call_out(start_watchdog, 60);
+    start_watchdog();
 
   return 0;
 }
@@ -876,6 +876,7 @@ void watchdog_accept()
   string cmd;
 
   Stdio.File ds=watchdog_socket->accept();
+  ds->set_blocking();
   string s = ds->read();
  
   if(sscanf(s,"WATCHDOG %s %d", cmd,pid)!=2)
@@ -895,10 +896,12 @@ void watchdog_accept()
   switch(cmd)
   {
     case "ON":
+      flex_write("Starting the Caudium Watchdog\n");
       watchdog_on();
       break;
 
     case "OFF":
+      flex_write("Stopping the Caudium Watchdog\n");
       watchdog_off();
       break;  
     
