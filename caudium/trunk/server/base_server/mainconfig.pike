@@ -1484,7 +1484,7 @@ mapping configuration_parse(object id)
                               cif->body() +
                               cif->status_row(root)+
                               display_tabular_header(root)+
-                              Stdio.read_bytes("etc/config.html"),"text/html");
+                              replace(Stdio.read_bytes("etc/config.html"), "$version", __caudium_version__+"."+__caudium_build__), "text/html");
   }
 
   if(sizeof(id->prestate))
