@@ -205,6 +205,36 @@ private void replace_if_differs(string name, array(string) entry,
     replace_attribute(name, nval, data);
 }
 
+//
+// Searches the given attribute for values matching the given one and
+// comparing them by the position in the array. If the original array
+// doesn't contain the given index, new value is appended to it, otherwise
+// value at this index in the original array is replaced.
+// If the array is modified, a value > 0 is returned, 0 otherwise. This
+// function is used for multi-value attributes.
+//
+private int replace_or_append(array(string) entry, string nval, int index)
+{
+    report_notice("Entry: %O\nnval: %s\nindex: %d\n",
+                  entry, nval, index);
+    
+    if (sizeof(entry) <= index || index < 0) {
+        entry += ({nval});
+        return 1;
+    }
+    
+    report_notice("Checking for replacements...\n");
+    if (entry[index] != nval) {
+        report_notice("Replacing '%s' with '%s' at position %d\n",
+                      entry[index], nval, index);
+        entry[index] = nval;
+        return 1;
+    }
+
+    report_notice("Nothing's changed\n");
+    return 0;
+}
+
 private mixed do_modify(object id, mapping data, string f)
 {
     object sprov = PROVIDER(QUERY(provider_prefix) + "_screens");
@@ -220,16 +250,28 @@ private mixed do_modify(object id, mapping data, string f)
     sprov->store(id, "modified");
 
     mapping(string:array(string)) ldata = ([]);
+    int                           mailchanged = 0;
+    int                           max = SUSER(id)->ldap_data->maxMailAliases ? SUSER(id)->ldap_data->maxMailAliases : QUERY(max_mails);
     
     foreach(indices(id->variables), string idx) {
         if (sizeof(idx) > 4 && idx[0..3] == "mail") {
-            // a special case - mail addresses
+            string maddr = "";
+
+            if (id->variables[idx] != "")
+                maddr = id->variables[idx] + "@" + id->variables["domain" + idx[4..]];
+            
+            if (data->user->ldap_data && data->user->ldap_data->mail)
+                mailchanged += replace_or_append(data->user->ldap_data->mail,
+                                                 maddr, max - (int)(idx[4..]));
             continue;
         }
         if (data->user->ldap_data && data->user->ldap_data[idx])
             replace_if_differs(idx, data->user->ldap_data[idx], id->variables[idx], ldata);
     }
-
+    
+    if (mailchanged)
+        replace_attribute("mail", data->user->ldap_data->mail, ldata);
+    
     object lccprov = PROVIDER(QUERY(provider_prefix) + "_ldap-center");
     object ldap = lccprov->get_ldap(id);
     
@@ -270,23 +312,20 @@ private mixed do_modify(object id, mapping data, string f)
 
 mixed handle_request(object id, mapping data, string f)
 {
-    function afun = do_start;
-    
     if (id->variables && id->variables->todo) {
         switch(id->variables->todo) {
             case "chpass":
-                break;
+                return do_start(id, data, f);
 
             case "modify":
-                afun = do_modify;
-                break;
+                return do_modify(id, data, f);
+                
+            default:
+                return do_start(id, data, f);
         }
     }
 
-    if (!afun)
-        return http_string_answer("<strong>BOOM!!! No handler found!</strong>");
-
-    return afun(id, data, f);
+    return do_start(id, data, f);
 }
 
 // tags
