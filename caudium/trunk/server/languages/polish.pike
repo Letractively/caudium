@@ -139,6 +139,11 @@ string day_short(int num)
   return ({ "N", "P", "W", "S", "C", "P", "S" })[ num - 1 ];
 }
 
+string words(int num)
+{
+  return ({ "rok", "miesi±c", "tydzieñ", "dzieñ" });
+}
+
 array aliases()
 {
   return ({ "pl", "PL", "pol", "polski", "polish", "pl_PL" });

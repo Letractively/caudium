@@ -162,6 +162,11 @@ string day_short(int num)
   return ({ "S", "M", "T", "W", "T", "F", "S" })[ num - 1 ];
 }
 
+string words(int num)
+{
+  return ({ "year", "month", "week", "day" });
+}
+
 array aliases()
 {
   return ({ "en", "eng", "english" });
