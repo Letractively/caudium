@@ -41,7 +41,10 @@
 
 #section opera {
 opera/[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera, cssfaulty
+		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera, cssfaulty,\
+		nocssbackrepeat
+opera/5.*	opera5
+opera/6.*	opera6
 #}
 
 ## Netscape is named "mozilla/major.minor system ..."
