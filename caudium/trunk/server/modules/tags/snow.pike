@@ -1,46 +1,87 @@
-// Version this module
-constant cvs_version = "$Id$";
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000 The Caudium Group
+ * Copyright © 1994-2000 Roxen Internet Software
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+/*
+ * $Id$
+ */
 
-// Tell Roxen that this module is threadsafe. That is there is no
-// request specific data in global variables.
+//
+//! module: JS Snow
+//!  THis module add a new RXML tag &lt;snow&gt; tag. <br />
+//!  The Javascript code is inspired from the Javascript code taken from
+//!  <a href="http://www.altan.hr/snow/">http://www.altan.hr/snow</a><br />
+//! inherits: module
+//! type: MODULE_PARSER
+//! cvs_version: $Id$
+//
 #include <module.h>
 inherit "module";
-inherit "caudiumlib";
+
+constant module_type   = MODULE_PARSER;
+constant module_name   = "JS Snow";
+constant module_doc    = "This module add a new RXML tag &lt;snow&gt; tag.<br />"
+                         "The Javascript code is inspired from the Javascript "
+			 "code taken from <a href=\"http://www.altan.hr/snow/\">"
+			 "http://www.altan.hr/snow/</a><br />"
+			 "Syntax for the &lt;snow&gt; tag is :<br />"
+			 "<b>&lt;snow <i>image=snow.gif</i> <i>num=n</i>&gt;</b> "
+			 "<br />where <b>image</b> is a URL where the image is "
+			 "taken and <b>num</b> the number of snow to show.";
+constant module_unique = 1;
+constant cvs_version   = "$Id$";
 constant thread_safe=1;
 
-array register_module()
-{
-  return ({ MODULE_PARSER,
-            "Snow",
-            ("This module add a new RXML &lt;snow&gt; tag.<br>"
-            "This tags add some snow on the top of html page"
-	    "<br>This tag can use the <b>image</b> as optional argument "
-	    "to specify a new URL for the stars and <b>num</b> as numbers "
-	    "of stars to display."
-	    ""),
-            0, 1
-            });
-}
-
+//
+//! tag: snow
+//!  Add snow on the top the layers on Netscape 4+ or MSIE 4+
+//!
+//! attribute: [image="URI"]
+//!  Set the image used by the Javascript using a URI to a new location
+//! default: /internal-caudium-snow
+//!
+//! attribute: [num="int"]
+//!  Set the number of images (and layers) used for this snow
+//! default: 10
+//
 string snow(string tag_name, mapping arg, object id, object file, mapping defines)
 {
   string retval="";
-  // Javascript start here =)
 
-  /*
-   Snow Effect Script
-   Created and submitted by Altan d.o.o. (snow@altan.hr,  http://www.altan.hr/snow/index.html)
-   Permission granted to Dynamicdrive.com to feature script in archive
-   For full source code and installation instructions to this script, visit http://dynamicdrive.com
-   */
-  
+  // Snow Effect Script
+  // Created and submitted by Altan d.o.o. 
+  // (snow@altan.hr,  http://www.altan.hr/snow/index.html)
+  // Permission granted to Dynamicdrive.com to feature script in archive
+  // For full source code and installation instructions to this script, 
+  // visit http://dynamicdrive.com
+ 
+  if (!id->supports->javascript) 
+    return "<!-- Javascript not supported by this navigator -->";
+
   retval += "<script language=\"JavaScript1.2\">\n";
 
   //Configure below to change URL path to the snow image
   if (arg->image)
     retval+="var snowsrc=\""+arg->image+"\";\n";
   else
-    retval+="var snowsrc=\"http://www.ariom.se/snow.gif\";\n";
+    retval+="var snowsrc=\"/internal-caudium-snow\";\n";
+    //retval+="var snowsrc=\"http://www.ariom.se/snow.gif\";\n";
   // Configure below to change number of snow to render
   if (arg->num)
     retval+="var no = "+arg->num+";\n";
@@ -74,40 +115,12 @@ string snow(string tag_name, mapping arg, object id, object file, mapping define
             "  yp[i] = Math.random()*doc_height;\n"
             "  am[i] = Math.random()*20;\n"             // set amplitude variables
             "  stx[i] = 0.02 + Math.random()/10;\n"     // set step variables
-            "  sty[i] = 0.7 + Math.random();\n"         // set step variables
-            "  if (ns4up) {\n"                          // set layers
-            "   if (i == 0) {\n"
-            "    document.write(\"<layer name=\\\"dot\"+ i +\"\\\" left=\\\"15\\\" top=\\\"15\\\" visibility=\\\"show\\\"><a href=\\\"http://dynamicdrive.com/\\\"><img src='\"+snowsrc+\"' border=\\\"0\\\"></a></layer>\");\n"
-            "   } else {\n"
-            "    document.write(\"<layer name=\\\"dot\"+ i +\"\\\" left=\\\"15\\\" top=\\\"15\\\" visibility=\\\"show\\\"><img src='\"+snowsrc+\"' border=\\\"0\\\"></layer>\");\n"
-            "   }\n"
-            "  } else if (ie4up) {\n"
-            "   if (i == 0) {\n"
-            "    document.write(\"<div id=\\\"dot\"+ i +\"\\\" style=\\\"POSITION: absolute; Z-INDEX: \"+ i +\"; VISIBILITY: visible; TOP: 15px; LEFT: 15px;\\\"><a href=\\\"http://dynamicdrive.com\\\"><img src='\"+snowsrc+\"' border=\\\"0\\\"></a></div>\");\n"
-            "   } else {\n"
+            "  sty[i] = 0.7 + Math.random();\n";        // set step variables
+  if(id->supports->msie) {
+   retval +="  if(ie4up) {\n"
             "    document.write(\"<div id=\\\"dot\"+ i +\"\\\" style=\\\"POSITION: absolute; Z-INDEX: \"+ i +\"; VISIBILITY: visible; TOP: 15px; LEFT: 15px;\\\"><img src='\"+snowsrc+\"' border=\\\"0\\\"></div>\");\n"
-            "   }\n"
             "  }\n"
             " }\n"
-  
-            "function snowNS() {\n"           // Netscape main animation function
-            " for (i = 0; i < no; ++ i) {\n"  // iterate for every dot
-            "  yp[i] += sty[i];\n"
-            "  if (yp[i] > doc_height-50) {\n"
-            "   xp[i] = Math.random()*(doc_width-am[i]-30);\n"
-            "   yp[i] = 0;\n"
-            "   stx[i] = 0.02 + Math.random()/10;\n"
-            "   sty[i] = 0.7 + Math.random();\n"
-            "   doc_width = self.innerWidth;\n"
-            "   doc_height = self.innerHeight;\n"
-            "  }\n"
-            "  dx[i] += stx[i];\n"
-            "  document.layers[\"dot\"+i].top = yp[i];\n"
-            "  document.layers[\"dot\"+i].left = xp[i] + am[i]*Math.sin(dx[i]);\n"
-            " }\n"
-            " setTimeout(\"snowNS()\", 10);\n"
-            "}\n"
-
             "function snowIE() {\n"         // IE main animation function
             "for (i = 0; i < no; ++ i) {\n" // iterate for every dot
             " yp[i] += sty[i];\n"
@@ -125,15 +138,32 @@ string snow(string tag_name, mapping arg, object id, object file, mapping define
             "}\n"
             "setTimeout(\"snowIE()\", 10);\n"
             "}\n"
-
-            "if (ns4up) {\n"
-            "snowNS();\n"
-            "} else if (ie4up) {\n"
-            "snowIE();\n"
+	    "if (ie4up) snowIE();\n";
+   } else {
+   retval +="  if(ns4up) {\n"
+            "    document.write(\"<layer name=\\\"dot\"+ i +\"\\\" left=\\\"15\\\" top=\\\"15\\\" visibility=\\\"show\\\"><img src='\"+snowsrc+\"' border=\\\"0\\\"></layer>\");\n"
+            "  }\n"
+            " }\n"
+            "function snowNS() {\n"           // Netscape main animation function
+            " for (i = 0; i < no; ++ i) {\n"  // iterate for every dot
+            "  yp[i] += sty[i];\n"
+            "  if (yp[i] > doc_height-50) {\n"
+            "   xp[i] = Math.random()*(doc_width-am[i]-30);\n"
+            "   yp[i] = 0;\n"
+            "   stx[i] = 0.02 + Math.random()/10;\n"
+            "   sty[i] = 0.7 + Math.random();\n"
+            "   doc_width = self.innerWidth;\n"
+            "   doc_height = self.innerHeight;\n"
+            "  }\n"
+            "  dx[i] += stx[i];\n"
+            "  document.layers[\"dot\"+i].top = yp[i];\n"
+            "  document.layers[\"dot\"+i].left = xp[i] + am[i]*Math.sin(dx[i]);\n"
+            " }\n"
+            " setTimeout(\"snowNS()\", 10);\n"
             "}\n"
-            "</script>";
-
-
+            "if (ns4up) snowNS();\n";
+   }
+  retval += "</script>";
   return retval; 
 }
 
