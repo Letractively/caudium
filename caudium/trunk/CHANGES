@@ -1,5 +1,6 @@
 Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
+- Fix for bug #479167: The argument cache garbage collector was buggy.
 - Fix for bug #446340: <list-tags> <dice> gives internal server error.
 - Fix for bug #498377: the environment variable didn't show the complete url
   with the query.
