@@ -90,12 +90,9 @@ string tag_header(string tag_name, mapping arguments,
   string headtype;
   string headvalue;
 
-  headtype=replace(headtype, ({":", "\r", "\n"}), ({"", "", ""}));
-  headvalue=replace(headvalue, ({"\r", "\n"}), ({"", ""}));
-
   if (arguments->subject)
     {
-    headtype="Subject";
+    headtype="subject";
     headvalue=arguments->subject;
     }
   else if (arguments->to)
@@ -114,6 +111,10 @@ string tag_header(string tag_name, mapping arguments,
     headvalue=arguments->value||"";
     }
   else return "<!-- Skipping header tag because of incorrect usage. -->";
+
+  headtype=replace(headtype, ({":", "\r", "\n"}), ({"", "", ""}));
+  headvalue=replace(headvalue, ({"\r", "\n"}), ({"", ""}));
+
 // perror("parsing header: "+headtype+" "+headvalue+"\n");
 
   if (headtype == "to" && stringp(request_id->misc->mailithdrs[headtype])) {
