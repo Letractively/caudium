@@ -241,8 +241,10 @@ class PHPScript
     environment |= build_caudium_env_vars(id);
     if(id->misc->ssi_env)     	environment |= id->misc->ssi_env;
     if(id->misc->is_redirected) environment["REDIRECT_STATUS"] = "1";
-    environment["HTTP_AUTHORIZATION"] = (string)id->rawauth;
-    environment["AUTH_TYPE"] = (id->rawauth/" ")[0];
+    if(id->rawauth) { 
+      environment["HTTP_AUTHORIZATION"] = (string)id->rawauth;
+      environment["AUTH_TYPE"] = (id->rawauth/" ")[0];
+    }
     // Lets populate more!
     environment["REQUEST_URI"] =  environment["DOCUMENT_URI"];
     environment["PHP_SELF"]    =  environment["DOCUMENT_URI"];
