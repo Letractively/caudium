@@ -104,6 +104,7 @@ void scratchpad_init(size_t max_size, size_t init_size, size_t grow_factor)
 void scratchpad_done(SCRATCHPAD *spad)
 {
   if (spad && spad->buf) {
+    free(spad->buf);
     spad->buf = NULL;
     spad->buf_size = 0;
     spad->buf_max = 0;
