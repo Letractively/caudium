@@ -468,7 +468,6 @@ private int parse_got()
 	    }
 	    break;
 	  }
-	  werror("%O\n", variables);
 	}
 	break;
 	  
