@@ -47,6 +47,15 @@ string|array(string) query_provides()
 	return "XML-RPC";
 }
 
+// load the XML-RPC management module
+void start(int cnt, object conf)
+{
+	module_dependencies(conf,
+         ({ 
+             "xml-rpc"
+         }));
+}								
+
 mapping(string:function) query_rpc_functions()
 {
 	return ([ "test_a" : test_a,
