@@ -7,7 +7,7 @@ AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h time.h sys/t
 AC_HAVE_FUNCS(mmap munmap free)
 
 dnl Test for snprintf..
-AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Checking for the presence of snprintf ...])],[
+AC_HAVE_FUNCS(snprintf,[AC_DEFINE(HAVE_SNPRINTF,,[Define to 1 if you have the snprintf function.])],[
 	AC_MSG_ERROR([Your system lacks the snprintf function. Please send a bug report with OS/environment details to bugs@caudium.info. Caudium can not be built on your system.])])
 
 dnl For Caudium.cern_http_date() function
