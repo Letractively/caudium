@@ -148,7 +148,7 @@ string container_awizard_pike(string t, mapping m, string c, int l, object id,
 {
 
   if( !query("allow_awizard_pike") ) {
-	report_warning("Awizard: &lt;awizard-pike&gt; called, '<b>%s</b>' on virtual server: <b>%s:%s</b> while awizard-pike is disabled for this virtualserver",
+	report_warning("Awizard: &lt;awizard-pike&gt; called, '<b>%s</b>' on virtual server: <b>%s:%s</b> while awizard-pike is disabled for this virtualserver\n",
 		id->not_query, 
 		id->conf->this->name, id->conf->this->variables->name[0] );
 	return "<!-- awizard-pike is disabled -->";
