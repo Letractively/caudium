@@ -1,8 +1,6 @@
 Package: caudium1.4
 Version: 1.4.4
-Revision: 1
-
-# $Id$
+Revision: 2
 
 Description: <<
 	Multi-threaded web server
@@ -102,7 +100,7 @@ InstallScript: <<
 PostInstScript: <<
 	# Don't mess up with other Caudium versions
   update-alternatives --install %p/bin/htpasswd-caudium htpasswd-caudium %p/bin/htpasswd-%n 20
-  update-alternatives --install %p/bin/caudiumctl start-caudium %p/bin/caudiumctl1.4 20
+  update-alternatives --install %p/bin/caudiumctl caudiumctl %p/bin/caudiumctl1.4 20
   update-alternatives --install %p/bin/pixsl pixsl %p/bin/pixsl1.4 20
 
 	# Run caudium as a deamon
@@ -152,7 +150,7 @@ SplitOff2: <<
 	Files: lib/%N/bin/ultrasum.pike bin/ultrasum lib/%N/etc/include/ultralog lib/%N/modules/ultralog lib/%N/etc/modules/UltraSupport.pmod lib/%N/lib/7.6.*/UltraLog.so
 	DescDetail: <<
 		Log reporter for webserver that builds nice graphics and handle long term statistics.
-		It can deal with other webservers logs, but require Caudium to run
+		It can deal with other webservers logs, but require Caudium to run.
 	<<
 <<
 
