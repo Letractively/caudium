@@ -1,0 +1,9 @@
+Makefile.pre
+sablot_config.h
+sablot_config.h.in
+Makefile
+dependencies
+config.status
+config.log
+configure
+pixsl
