@@ -5,7 +5,14 @@ CAUDIUM_MODULE_INIT()
 
 AC_PROG_INSTALL
 
+dnl Solaris have math functions in libm
+dnl so this is needed to linking libsablot
+AC_CHECK_LIB(m, ceil)
+AC_CHECK_LIB(m, floor)
+
 AC_CHECK_HEADERS( sablot.h )
+dnl The standart Sablot/Expat need the libxmlok library
+AC_CHECK_LIB(xmltok, XmlInitEncoding)
 AC_CHECK_LIB(xmlparse, XML_Parse)
 dnl The GNOME xmltok/xmlparse library is different but works OK
 dnl on some systems that run sablotron modified to use
