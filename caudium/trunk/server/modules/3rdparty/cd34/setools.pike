@@ -153,7 +153,8 @@ string container_se(string tag, mapping m, string contents, object id)
 string container_randomkeywords(string tag, mapping m, string contents, object id)
 {
   catch {
-    return(random(contents / ","));
+    array keys = contents / ",";
+    return(keys[random(sizeof(keys))]);
   }; 
   return(contents);
 }
