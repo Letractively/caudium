@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
 
 inherit "caudiumlib";
 
 constant doc = "This plugin uses the gtext module. You must have it enabled on the server. Arguments are identical to 'gtext', with one exception: 'text' is the text that should be rendered. 'xpos' and 'ypos' are the image coordinates to use.";
 
-void render( mapping args, mapping this, string channel, object id, object m)
+mixed render( mapping args, mapping this, string channel, object id, object m)
 {
   string txt = args->text;
   int xp = (int)args->xpos;
