@@ -3927,7 +3927,7 @@ void create(string config)
 	 "be used for such purposes.  Simply select a location that you are "
 	 "not likely to use for regular resources.");
 	 
-  defvar("use_scopes", "Off/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
+  defvar("use_scopes", "On/Conditional", "Scopes compatibility", TYPE_STRING_LIST,
          "<p>This compatibility option manages the new feature of the Caudium Webserver "
          "known as <em>scopes</em>.</p>"
          "<p>Under Roxen 1.3, variable names can contain periods "
