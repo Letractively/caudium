@@ -22,7 +22,7 @@
 //!  Show the sources
 //! inherits: module
 //! inherits: caudiumlib
-//! module_type: MODULE_FILTER
+//! type: MODULE_FILTER
 //! cvs_version: $Id$
 
 #include <module.h>
