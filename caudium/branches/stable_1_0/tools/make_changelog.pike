@@ -2,15 +2,20 @@ mapping (string:string) users = ([ ]);
 
 string domain;
 mapping user_list = ([
+  "uid35094": "Retired user",
+  "uid56983": "Retired user",
+  "uid22667": "Retired user",
   "neotron": "David Hedbor <david@caudium.net>",
   "grendel": "Marek Habersack <grendel@caudium.net>",
   "oliv3": " Olivier Girondel <oliv3@caudium.net>",
   "wilsonm": "Matthew Wilson <matthew@caudium.net>",
   "kiwi": "Xavier Beaudouin <kiwi@caudium.net>",
   "james_tyson": "James Tyson <james_tyson@caudium.net>",
+  "jnt": "James Tyson <james_tyson@caudium.net>",
   "underley": "Daniel Podlejski <underley@caudium.net>",
   "h3x": "Justin Hannah <h3x@caudium.net>",
   "embee": "Martin Bähr <mbaehr@caudium.net>",
+  "mbaehr": "Martin Bähr <mbaehr@caudium.net>",
   "redax": "Zsolt Varga <redax@caudium.net>",
   "stenad": "Sten Eriksson <stenad@caudium.net>",
   "kvoigt": "Kai Voigt <k@caudium.net>",
@@ -19,10 +24,15 @@ mapping user_list = ([
   "duerrj": "Joseph Duerr <duerrj@caudium.net>",
   "vee-eye": "Eric Lindvall <eric@caudium.net>",
   "bertrand_lupart": "Bertrand Lupart <bertrand@caudium.net>",
+  "bertrand": "Bertrand Lupart <bertrand@caudium.net>",
   "gourdelier": "David Gourdelier <vida@caudium.net>",
+  "vida": "David Gourdelier <vida@caudium.net>",
   "hww3": "Bill Welliver <hww3@caudium.net>",
+  "ice": "Tamas Tevesz <ice@caudium.net>",
   "kazmer": "Tamas Tevesz <ice@caudium.net>",
   "tombolala": "Thomas Bopp <tombolala@caudium.net>",
+  "cd34": "Chris Davies <cd34@caudium.net>",
+  "maverick": "Benoit Plessis <maverick@caudium.net>",
 ]);
 void find_user(string u)
 {
@@ -100,8 +110,7 @@ string trim(string what)
   string res="";
   foreach(what/"\n", string l)
   {
-    l = reverse(l);
-    sscanf(l, "%*[ \t]%s", l);
+    sscanf( reverse(l), "%*[ \t]%s", l);
     l = reverse(l);
     res += l+"\n";
   }
@@ -156,7 +165,7 @@ void main(int argc, array (string) argv)
   thread_create(twiddle);
 #endif
   werror("Running CVS log ");
-  string data = Process.popen("cvs log");
+  string data = Process.popen("cvs -z3 log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
   if(argc>1)
