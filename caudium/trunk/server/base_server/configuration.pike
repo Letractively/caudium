@@ -782,7 +782,7 @@ public void log(mapping file, object request_id)
 		 "$ip_number", "$bin-ip_number", "$cern_date",
 		 "$bin-date", "$method", "$resource", "$full_resource", "$protocol",
 		 "$response", "$bin-response", "$length", "$bin-length",
-		 "$referer", "$user_agent", "$user", "$user_id",
+		 "$referer", "$user_agent", "$agent_unquoted", "$user", "$user_id",
 		 "$request-time"
 	       }), ({
 		 (string)request_id->remoteaddr,
@@ -799,6 +799,7 @@ public void log(mapping file, object request_id)
 		 unsigned_to_bin(file->len),
 		 (string)(request_id->referrer||"-"), 
 		 http_encode_string(request_id->useragent), 
+		 request_id->useragent, 
 		 extract_user(request_id->realauth),
 		 (string)request_id->cookies->CaudiumUserID,
 		 (string)(time(1)-request_id->time)
@@ -2336,6 +2337,8 @@ void start(int num, void|object conf_id, array|void args)
 			       return sprintf("%5d %-10s %-20s\n", @p);
 			     })*"");
   }
+  parse_log_formats();
+  init_log_file();
 }
 
 
@@ -3465,14 +3468,12 @@ void create(string config)
 	 "virtual server will be used");
   
   defvar("LogFormat", 
- "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
- "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
- "*: $host - - [$cern_date] \"$method $resource $protocol\" $response $length"
+	 "404: $host $referer - [$cern_date] \"$method $resource $protocol\" 404 -\n"
+	 "500: $host $referer ERROR [$cern_date] \"$method $resource $protocol\" 500 -\n"
+	 "*: $host - - [$cern_date] \"$method $resource $protocol\" $response $length"
 	 ,
-
 	 "Logging: Format", 
-	 TYPE_TEXT_FIELD|VAR_MORE,
-	 
+	 TYPE_TEXT_FIELD,	 
 	 "What format to use for logging. The syntax is:\n"
 	 "<pre>"
 	 "response-code or *: Log format for that response acode\n\n"
@@ -3489,7 +3490,7 @@ void create(string config)
 	 "$bin-ip_number -- The remote host id as a binary integer number.\n"
 	 "\n"
 	 "$cern_date     -- Cern Common Log file format date.\n"
-       "$bin-date      -- Time, but as an 32 bit iteger in network byteorder\n"
+	 "$bin-date      -- Time, but as an 32 bit iteger in network byteorder\n"
 	 "\n"
 	 "$method        -- Request method\n"
 	 "$resource      -- Resource identifier\n"
@@ -3498,10 +3499,11 @@ void create(string config)
 	 "$response      -- The response code sent\n"
 	 "$bin-response  -- The response code sent as a binary short number\n"
 	 "$length        -- The length of the data section of the reply\n"
-       "$bin-length    -- Same, but as an 32 bit iteger in network byteorder\n"
+	 "$bin-length    -- Same, but as an 32 bit iteger in network byteorder\n"
 	 "$request-time  -- The time the request took (seconds)\n"
 	 "$referer       -- the header 'referer' from the request, or '-'.\n"
-      "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
+	 "$user_agent    -- the header 'User-Agent' from the request, or '-'.\n\n"
+	 "$agent_unquoted    -- the header 'User-Agent' from the request, or '-' not UTF encoded.\n\n"
 	 "$user          -- the name of the auth user used, if any\n"
 	 "$user_id       -- A unique user ID, if cookies are supported,\n"
 	 "                  by the client, otherwise '0'\n"
