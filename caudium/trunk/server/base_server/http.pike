@@ -398,6 +398,7 @@ constant months = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" });
 constant days = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" });
 
+#if 0
 //!   Return the specified date (as returned by time()) formatted in the
 //!   common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ". 
 //! @param t
@@ -423,7 +424,6 @@ string cern_http_date(int t)
 		 lt->hour, lt->min, lt->sec, c, tzh));
 }
 
-#if 0
 //!   Return the specified date (as returned by time()) formatted in the
 //!   HTTP-protocol standard date format. Used in for example the Last-Modified
 //!   header.

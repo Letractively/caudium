@@ -27,7 +27,7 @@
 static constant codes =
 ([ "ipnumber"     : "id->remoteaddr",
    "binipnumber"  : "host_ip_to_int(id->remoteaddr)",
-   "cerndate"     : "cern_http_date(time(1))",
+   "cerndate"     : "Caudium.cern_http_date()",
    "bindate"      : "time(1)",
    "method"       : "(string)id->method",
    "resource"     : "http_encode_string((string)id->not_query)",

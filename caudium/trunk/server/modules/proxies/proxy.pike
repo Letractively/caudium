@@ -126,7 +126,7 @@ void do_write(string host, string oh, string id, string more)
 		       host, oh, id, more));
 #endif /* PROXY_DEBUG */
   if(!host)     host=oh;
-  logfile->write("[" + cern_http_date(time(1)) + "] http://" +
+  logfile->write("[" + Caudium.cern_http_date() + "] http://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 

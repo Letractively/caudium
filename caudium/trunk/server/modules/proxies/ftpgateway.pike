@@ -1200,7 +1200,7 @@ void start()
 void do_write(string host, string oh, string id, string more)
 {
   if(!host)     host=oh;
-  logfile->write("[" + cern_http_date(time(1)) + "] ftp://" +
+  logfile->write("[" + Caudium.cern_http_date() + "] ftp://" +
 		 host + ":" + id + "\t" + more + "\n");
 }
 

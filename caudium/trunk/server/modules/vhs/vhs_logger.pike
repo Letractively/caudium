@@ -343,7 +343,7 @@ static void do_log(mapping file, object request_id, function log_function)
 	       }), ({
 		 (string)request_id->remoteaddr,
 		 host_ip_to_int(request_id->remoteaddr),
-		 cern_http_date(time(1)),
+		 Caudium.cern_http_date(),
 		 unsigned_to_bin(time(1)),
 		 (string)request_id->method,
 		 http_encode_string(request_id->not_query+
@@ -401,7 +401,7 @@ inline string format_log(object id, mapping file)
 		 caudium->quick_ip_to_host(id->remoteaddr),
 		 (string)(id->referrer||"-"), 
 		 replace(id->useragent ," ","%20"),
-		 cern_http_date(id->time),
+		 Caudium.cern_http_date(id->time),
 		 (string)id->method, (string)id->raw_url,
 		 (string)id->prot,   (string)file->error,
 		 (string)(file->len>=0?file->len:"?"));
