@@ -72,11 +72,12 @@ static string describe_ftp(object ftp)
 string page_0(object id)
 {
   program p = ((program)"protocols/ftp");
+  object pc = clone(p);
   multiset(object) ftps = (< >);
   object o = next_object();
   for(;;) {
-    if(o && object_program(o) == p && o->cmd_fd)
-      ftps[o]=1;
+    if(o && object_program(o) == object_program(pc) && o->cmd_fd)
+      ftps += (<o>);
     if(catch(o = next_object(o)))
       break;
   }
