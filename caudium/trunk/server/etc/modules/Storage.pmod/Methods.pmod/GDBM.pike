@@ -155,7 +155,8 @@ array list(string namespace) {
   }
 }
 
-object _db() {
+void|object _db() {
+#if constant(Gdbm.gdbm)
   if (!objectp(db))
     return db;
   else {
@@ -164,4 +165,7 @@ object _db() {
     db = Gdbm.gdbm(path, "crw");
     return db;
   }
+#else
+  return 0;
+#endif
 }
