@@ -1,3 +1,9 @@
+caudium (1:1.0.11-1) unstable; urgency=low
+
+  * This is the latest release (RC2)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 14 Dec 2000 20:52:48 +0100
+
 caudium (1:1.0.9rc1-1) unstable; urgency=low
 
   * Got rid of the Pike-based port tests from preconfig phase. It
