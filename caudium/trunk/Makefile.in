@@ -22,12 +22,12 @@ all:	src
 	-@$(BIN_TRUE)
 
 extern: force
-	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "LDFLAGS=$(LDFLAGS)" all)
 
 tools: force
-	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+	@(cd tools;$(MAKE) "prefix=$(prefix)"  "LDFLAGS=$(LDFLAGS)" all)
 src: force
-	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" all)
+	@(cd src;$(MAKE) "prefix=$(prefix)" all)
 
 force:
 	-@$(BIN_TRUE)
