@@ -10,7 +10,7 @@ Architecture: any
 Pre-Depends: debconf (>= 0.2.26)
 Depends: ${shlibs:Depends}, ${pike:name} (>= ${pike:ver}-1)|${pike:name} (<= ${pike:ver}-99), caudium-modules-1.1 (= ${Source-Version}),${pike:name}-image (>= ${pike:ver}-1) | ${pike:name}-image (<= ${pike:ver}-99) , ${pike:name}-gz (>= ${pike:ver}-1) | ${pike:name}-gz (<= ${pike:ver}-99), ${pike:name}-crypto (>= ${pike:ver}-1) | ${pike:name}-crypto (<= ${pike:ver}-99) | ${pike:name}-lobotomized-crypto (>= ${pike:ver}-1) | ${pike:name}-lobotomized-crypto (<= ${pike:ver}-99), logrotate
 Suggests: roxen-doc (>= 1.3.122-1), pexts-pcre, pexts-mhash
-Recommends: caudium-pixsl, caudium-ultralog
+Recommends: caudium-pixsl-1.1, caudium-ultralog-1.1
 Provides: httpd
 Description: An extensible WWW server written in Pike
  Caudium is a modern, fast and extensible WWW server derived from Roxen. 

@@ -1,3 +1,9 @@
+caudium-1.1 (2:1.1.3-4) unstable; urgency=low
+
+  * Small debian/control fixes
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 26 Jul 2001 13:43:12 +0200
+
 caudium-1.1 (2:1.1.3-3) unstable; urgency=low
 
   * Upstream fixes and additions to the server
