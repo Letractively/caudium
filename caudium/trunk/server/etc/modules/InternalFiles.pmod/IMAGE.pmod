@@ -62,7 +62,7 @@ private mapping(string:mixed)
         string        imgtype;
         string        myFile = file * "/";
 
-        if (sizeof(fname) == 1 || fname[-1] == "") {
+        if (fname && (sizeof(fname) == 1 || fname[-1] == "")) {
             /* Try to match several extensions */
             
             foreach(image_types, mapping(string:string) img) {
@@ -74,7 +74,7 @@ private mapping(string:mixed)
             }
             if (!imgfile)
                 return 0;
-        } else {
+        } else if (fname) {
             foreach(image_types, mapping(string:string) img) {
                 if (img->ext == fname[-1]) {
                     imgfile = open_file(basedir + myFile);
@@ -87,7 +87,8 @@ private mapping(string:mixed)
 
             if (!imgfile)
                 return 0;
-        }
+        } else
+	    return 0;
 
         ret = ([]);
         ret->data = imgfile->read();
@@ -125,7 +126,7 @@ mapping(string:string) handle(object id,
     array(string) parts = (file / "/") - ({""});
     string        special = 0;
     
-    if (sizeof(parts) > 1)
+    if (parts && sizeof(parts) > 1)
         switch(parts[0]) {
             case "auto":
             case "button":
