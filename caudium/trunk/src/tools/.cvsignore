@@ -1,6 +1,8 @@
 Makefile
+dependencies
 config.status
 config.log
 configure
-caudium-rc_script
-
+config.h
+htpasswd
+config.h.in
