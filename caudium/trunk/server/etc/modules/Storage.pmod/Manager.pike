@@ -35,15 +35,6 @@
 
 #include <module.h>
 
-#ifdef THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define LOCK() object __key = mutex->lock()
-#define UNLOCK() destruct(__key)
-#else
-#define LOCK() 
-#define UNLOCK()
-#endif
-
 #define SYNC_IN 5
 
 static mapping storage;
@@ -67,7 +58,6 @@ void create(string _permstore, string path) {
 void start(string _permstore, string path) {
 
   if(functionp(path)) path=call_function(path);
-  LOCK();
   if (objectp(permstore)) {
     destruct(permstore);
   }
@@ -89,7 +79,6 @@ void start(string _permstore, string path) {
 
 //!
 public object get_storage(string namespace) {
-  LOCK();
   mapping callbacks = ([ "store" : store, "retrieve" : retrieve, "unlink" : unlink, "size" : size, "list" : list, "stop" : stop, "unlink_regexp" : unlink_regexp ]);
   if (! clients[namespace]) {
     clients += ([ namespace : Storage.Client(namespace, callbacks) ]);
@@ -121,11 +110,9 @@ static void store(string namespace, string key, mixed val) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Storing %O from %O\n", key, namespace);
 #endif
-  LOCK();
   if (! storage[ namespace ])
     storage += ([ namespace : ([]) ]);
   storage[ namespace ] += ([ key : val ]);
-  UNLOCK();
   call_out( sync, SYNC_IN, namespace, key );
 }
 
@@ -134,11 +121,9 @@ static mixed retrieve(string namespace, string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Retrieving %O from %O\n", key, namespace);
 #endif
-  LOCK();
   if (storage[namespace])
     if (storage[namespace][key])
       return storage[namespace][key];
-  UNLOCK();
   return permstore->retrieve(namespace, key);
 }
 
@@ -147,7 +132,6 @@ static void sync(string namespace, string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing %O/%O to permanent storage\n", key, namespace);
 #endif
-  LOCK();
   if (storage[namespace])
     if (storage[namespace][key]) {
       permstore->store(namespace, key, storage[namespace][key]);
@@ -159,7 +143,6 @@ static void unlink(string namespace, void|string key) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Removing %O in %O\n", (key?key:"all"), namespace);
 #endif
-  LOCK();
   if (stringp(key)) {
     if (storage[namespace])
       if (storage[namespace][key])
@@ -167,7 +150,6 @@ static void unlink(string namespace, void|string key) {
   }
   else
     m_delete(storage,namespace);
-  UNLOCK();
   permstore->unlink(namespace, key);
 }
 

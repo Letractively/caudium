@@ -35,15 +35,6 @@
 //! This is really the brains of the cache. If that's the case why is it
 //! so messy? Dont ask me.
 
-#ifdef ENABLE_THREADS
-static Thread.Mutex mutex = Thread.Mutex();
-#define LOCK() object __key = mutex->lock(1)
-#define UNLOCK() destruct(__key)
-#else
-#define LOCK() 
-#define UNLOCK()
-#endif
-
 constant cvs_version = "$Id$";
 
 object ram_cache;
@@ -82,7 +73,6 @@ mapping behavior_m = ([ ]);
 //! supported backend, and this is hacked in as a constant. This needs to be
 //! changed to support a pluggable method.
 void create( string _namespace, int _max_object_ram, int _max_object_disk, object dcache, int _default_ttl ) {
-  LOCK();
   namespace = _namespace;
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
@@ -102,7 +92,6 @@ void create( string _namespace, int _max_object_ram, int _max_object_disk, objec
 //! The maximum size an object can be before an object is too big to be stored
 //! in slow storage. ie. a cache miss. always.
 void set_sizes( int _max_object_ram, int _max_object_disk ) {
-  LOCK();
   max_object_ram = _max_object_ram;
   max_object_disk = _max_object_disk;
 }
@@ -113,7 +102,6 @@ void set_sizes( int _max_object_ram, int _max_object_disk ) {
 //! The default time in seconds that the cache will hold onto an object before
 //! it's considered stale and must be expunged.
 void set_default_ttl( int _default_ttl ) {
-  LOCK();
   default_ttl = _default_ttl;
 }
 
@@ -180,7 +168,6 @@ void store(mapping cache_response) {
     write("CACHE: store(\"%s\", \"%s\", %s)\n",
           namespace, cache_response->name, _obj[0..100]);
 #endif
-  LOCK();
   if (!cache_response->expires)
     cache_response->expires = time() + default_ttl;
   cache_response + behavior_m;
@@ -242,7 +229,6 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
 #ifdef CACHE_DEBUG
   write(sprintf("CACHE: retrieve(\"%s\",\"%s\") -> ", namespace, name));
 #endif
-  LOCK();
   last_access = time();
   mixed _object = ram_cache->retrieve(name);
   if (mappingp(_object)) {
@@ -265,7 +251,6 @@ void|mapping retrieve(string name, void|function get_callback, void|array cb_arg
 #ifdef CACHE_DEBUG
   write("Miss");
 #endif
-  UNLOCK();
   if (get_callback && functionp(get_callback)) {
 #ifdef CACHE_DEBUG
     write(" - calling callback.");
@@ -304,7 +289,6 @@ void refresh(string name) {
 #ifdef CACHE_DEBUG
   write(sprintf("CACHE: cache_remove(\"%s\",\"%O\")\n", namespace, name));
 #endif
-  LOCK();
   last_access = time();
   ram_cache->refresh(name);
   disk_cache->refresh(name);
@@ -338,9 +322,7 @@ void flush(void|string regexp) {
 #ifdef CACHE_DEBUG
   write("CACHE: Flushing cache" + (regexp?" with regexp":"") + ".\n");
 #endif
-  LOCK();
   last_access = time();
-  UNLOCK();
   ram_cache->flush(regexp);
   disk_cache->flush(regexp);
 }
@@ -360,7 +342,6 @@ void stop() {
 //! @param desc
 //! Optional description for the cache.
 void|string cache_description(void|string desc) {
-  LOCK();
   if (desc) {
     _cache_desc = desc;
     return 0;

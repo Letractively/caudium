@@ -33,17 +33,6 @@
 
 constant cvs_version = "$Id$";
 
-#ifdef ENABLE_THREADS
-  static Thread.Mutex mutex = Thread.Mutex();
-#define PRELOCK() object __key
-#define LOCK() __key = mutex->lock(1)
-#define UNLOCK() destruct(__key);
-#else
-#define PRELOCK()
-#define LOCK()
-#define UNLOCK()
-#endif
-
 #define EXPIRE_CHECK 300
 inherit "helpers";
 
@@ -60,8 +49,6 @@ object storage;
 //! @param _path
 //! The path in the filesystem of the server to store objects under.
 void create( string _namespace, object _storage ) {
-  PRELOCK();
-  LOCK();
   storage = _storage;
   namespace = _namespace;
   disk_usage = storage->size();
@@ -75,7 +62,6 @@ void create( string _namespace, object _storage ) {
 void store( mapping meta ) {
   if (!meta)
     return; // yep, that can happen...
-  PRELOCK();
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
@@ -87,13 +73,11 @@ void store( mapping meta ) {
     meta->object->close();
     meta->size = sizeof( data );
     m_delete( meta, "object" );
-    LOCK();
     string objpath = Stdio.append_path("/", meta->hash, "/object");
     storage->store(objpath, data);
     string metapath = Stdio.append_path("/", meta->hash, "/meta");
     storage->store(metapath, _encode_value(meta));
     disk_usage += meta->size;
-    UNLOCK();
     break;
   case "variable":
     if (meta->_program && (__VERSION__ == 7.3) && (__BUILD__ < 51 )) 
@@ -104,13 +88,11 @@ void store( mapping meta ) {
         break;
       meta->size = sizeof( data );
       m_delete( meta, "object" );
-      LOCK();
       string objpath = Stdio.append_path("/", meta->hash, "/object");
       storage->store(objpath, data);
       string metapath = Stdio.append_path("/", meta->hash, "/meta");
       storage->store(metapath, _encode_value(meta));
       disk_usage += meta->size;
-      UNLOCK();
     }
     break;
   case "image":
@@ -118,13 +100,11 @@ void store( mapping meta ) {
       string data = Image.PNM.encode( meta->object );
       meta->size = sizeof( data );
       m_delete( meta, "object" );
-      LOCK();
       string objpath = Stdio.append_path("/", meta->hash, "/object");
       storage->store(objpath, data);
       string metapath = Stdio.append_path("/", meta->hash, "/meta");
       storage->store(metapath, _encode_value(meta));
       disk_usage += meta->size;
-      UNLOCK();
     }
     break;
   default:
@@ -143,8 +123,6 @@ void store( mapping meta ) {
 //! The name of the object to be retrieved.
 void|mixed retrieve(string name, void|int object_only) {
   string hash = get_hash(name);
-  PRELOCK();
-  LOCK();
   string data = storage->retrieve(Stdio.append_path("/", hash, "/object"));
   mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
   if (meta && mappingp(meta)) {
@@ -164,7 +142,6 @@ void|mixed retrieve(string name, void|int object_only) {
 #ifdef CACHE_DEBUG
 	 write("Unable to decode program %O!, object = %O, reason = %O", name, meta->object, err);
 #endif
-	 UNLOCK();
          refresh(hash);
          return 0;
         }
@@ -194,8 +171,6 @@ void|mixed retrieve(string name, void|int object_only) {
 //! @param name
 //! The name of the object to remove.
 void refresh(string name) {
-  PRELOCK();
-  LOCK();
   storage->unlink(get_hash(name));
 }
 
@@ -204,22 +179,17 @@ void refresh(string name) {
 //! @param regexp
 //! A regular expression used to selectively remove matching objects.
 void flush( void|string regexp ) {
-  PRELOCK();
   if ( regexp ) {
-    LOCK();
     storage->unlink_regexp(regexp);
     return;
   }
   // flush the cache.
-  LOCK();
   disk_usage = 0;
   storage->unlink();
 }
 
 //! Return the amount of disk space being occupied by the cache.
 int usage() {
-  PRELOCK();
-  LOCK();
   return disk_usage;
 }
 
@@ -229,8 +199,6 @@ void stop() {
 #ifdef CACHE_DEBUG
   write("DISK_CACHE: Shutting down (%s)\n", namespace);
 #endif
-  PRELOCK();
-  LOCK();
   storage->stop();
 #ifdef CACHE_DEBUG
   write("DISK_CACHE: All done.\n");
@@ -240,12 +208,8 @@ void stop() {
 //! Free n bytes of disk space by forcing an expire then removing objects
 //! with the lowest hitrate.
 void free( int n ) {
-  PRELOCK();
-  LOCK();
   int _usage = disk_usage;
-  UNLOCK();
   expire_cache( 1 );
-  LOCK();
   if ( _usage - disk_usage > n ) {
     return 0;
   }
@@ -282,11 +246,9 @@ void free( int n ) {
 //! @param nocallout
 //! Optionally dont schedule a callout to expire_cache();
 void expire_cache( void|int nocallout ) {
-  PRELOCK();
 #ifdef CACHE_DEBUG
   write( "DISK_CACHE::expire_cache() called.\n" );
 #endif
-  LOCK();
   foreach(storage->list(), string fname) {
     if ((fname / "/")[2] == "meta")
       continue;
@@ -314,22 +276,16 @@ void expire_cache( void|int nocallout ) {
 
 //! Return the total number of hits against this cache.
 int hits() {
-  PRELOCK();
-  LOCK();
   return _hits;
 }
 
 //! Return the total number of misses against this cache.
 int misses() {
-  PRELOCK();
-  LOCK();
   return _misses;
 }
 
 //! Return the total number of objects in this cache.
 int object_count() {
-  PRELOCK();
-  LOCK();
   return sizeof(storage->list()) / 2;
 }
 

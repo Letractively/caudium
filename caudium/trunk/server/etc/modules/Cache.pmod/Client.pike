@@ -35,13 +35,6 @@
 
 constant cvs_version = "$Id$";
 
-#ifdef ENABLE_THREADS
-  static Thread.Mutex mutex = Thread.Mutex();
-# define LOCK() object __key = mutex->lock(1)
-#else
-# define LOCK() 
-#endif
-
 object real_cache;
 function get_cache;
 function delete_cache;
@@ -51,7 +44,6 @@ string namespace;
 //! it is then ask the cache manager for a new copy, this will cause the
 //! index to be re-read from disk and cloned.
 private void restart_cache() {
-  LOCK();
   if (! real_cache) {
     real_cache = get_cache(namespace, 1);
   }
