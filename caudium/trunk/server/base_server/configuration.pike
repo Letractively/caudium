@@ -3807,7 +3807,7 @@ void create(string config)
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
          "<body background='/(internal,image)/cowfish-bg' bgcolor='#ffffff'\n"
          "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
-         "<h2 align=center><configimage src='cowfish-caudium' \n"
+         "<h2 align='center'><configimage src='cowfish-caudium' \n"
          "alt=\"File not found\"><p><hr noshade>\n"
          "\n<i>Sorry</i></h2>\n"
          "<br clear>\n<font size=\"+2\">The resource requested "
