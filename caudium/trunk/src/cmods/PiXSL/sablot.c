@@ -314,7 +314,7 @@ void f_set_xsl_data(INT32 args)
 {
   struct pike_string  *str;
 
-  get_all_args("set_xsl_data", args, "%t", &t);
+  get_all_args("set_xsl_data", args, "%t", &str);
   if (THIS->xsl != NULL)
     free_string(THIS->xsl);
   THIS->xsl = str;
@@ -327,7 +327,7 @@ void f_set_base_uri(INT32 args)
 {
   struct pike_string  *str;
 
-  get_all_args("set_base_uri", args, "%t", &t);
+  get_all_args("set_base_uri", args, "%t", &str);
   if(THIS->base_uri != NULL)
     free_string(THIS->base_uri);
   THIS->base_uri = str;
