@@ -1,3 +1,7 @@
+Changes in Caudium 1.2.x since Caudium 1.2.4
+--------------------------------------------
+- Fixed bug id #530674
+
 Changes in Caudium 1.2.4 since Caudium 1.2.2
 --------------------------------------------
 - Added support for Darwin (MacOS X) dynamic loading and correct pic flag for it.
