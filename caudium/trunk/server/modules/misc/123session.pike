@@ -636,6 +636,11 @@ mapping sessions () {
 //!  type: TYPE_STRING
 //!  name: Secret Word
 //
+//! defvar: dogc
+//! Garbage collection will be done by this module.
+//!  type: TYPE_FLAG
+//!  name: Garbage Collection
+//
 //! defvar: garbage
 //! after how many connects expiration of old session should happen
 //!  type: TYPE_INT
@@ -678,4 +683,8 @@ mapping sessions () {
 //!  type: TYPE_TEXT_FIELD
 //!  name: Form authentication page.
 //
-
+//! defvar: secure
+//! If used, cookies will be flagged as 'Secure' (RFC 2109).
+//!  type: TYPE_FLAG
+//!  name: Secure Cookies
+//
