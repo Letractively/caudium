@@ -53,9 +53,9 @@ void create() {
          "</pre>");
   defvar("secret", "ChAnGeThIs", "Secret Word", TYPE_STRING,
          "a secret word that is needed to create secure IDs." );
-  defvar("garbage", 10, "Garbage Collection Frequency", TYPE_INT,
+  defvar("garbage", 100, "Garbage Collection Frequency", TYPE_INT,
          "after how many connects expiration of old session should happen" );
-  defvar("expire", 60, "Expiration Time", TYPE_INT,
+  defvar("expire", 600, "Expiration Time", TYPE_INT,
          "after how many seconds an unactive session is removed" );
   defvar("storage", "memory",
          "Storage Method", TYPE_MULTIPLE_STRING,
