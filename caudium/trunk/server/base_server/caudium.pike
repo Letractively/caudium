@@ -1099,7 +1099,7 @@ COMPAT_ALIAS(access);
 COMPAT_ALIAS(real_file);
 COMPAT_ALIAS(is_file);
 COMPAT_ALIAS(userinfo);
-/*@PIKE_PARSER_HACK_END@*/
+/*@PIKEPARSER_HACK_END@*/
 
 public mapping|int get_file(object id, int|void no_magic)
 {
