@@ -45,6 +45,15 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+/* If NAME_PREFIX is specified substitute the variables and functions
+   names.  */
+#define yyparse gdparse
+#define yylex   gdlex
+#define yyerror gderror
+#define yylval  gdlval
+#define yychar  gdchar
+#define yydebug gddebug
+#define yynerrs gdnerrs
 
 
 /* Tokens.  */
@@ -280,7 +289,7 @@ typedef union YYSTYPE {
   textint textintval;
 } YYSTYPE;
 /* Line 191 of yacc.c.  */
-#line 284 "getdate.c"
+#line 293 "getdate.c"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -292,7 +301,7 @@ typedef union YYSTYPE {
 
 
 /* Line 214 of yacc.c.  */
-#line 296 "getdate.c"
+#line 305 "getdate.c"
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
@@ -1592,7 +1601,7 @@ yyreduce:
     }
 
 /* Line 999 of yacc.c.  */
-#line 1596 "getdate.c"
+#line 1605 "getdate.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
