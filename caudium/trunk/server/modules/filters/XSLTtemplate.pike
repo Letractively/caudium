@@ -62,15 +62,9 @@ constant module_doc =
 ;
 void create()
 {
-#if 0
-  defvar("baseuri", "", "Default Base URI", TYPE_DIR,
-	 "Default base URI to use when resolving includes in the XSL "
-	 "stylesheets. Can be overridden by the baseuri attribute to "
-	 "the xslt tag.\n");
   defvar("stylesheet", "", "Default XSLT Stylesheet", TYPE_FILE,
-	 "The default style sheet to use when the stylesheet attribute is "
-	 "omitted. Uses the same file:, virt: and var: syntax as the age.\n");
-#endif
+	 "The default style sheet to use when no other stylesheet is "
+	 "found. This should be a full path in the real filesystem.");
 }
 
 #if constant(PiXSL.Parser)
@@ -111,20 +105,27 @@ mapping|int first_try(object id)
     catch {
       xsl = Stdio.read_file(id->conf->real_file(xsl_name, id));
     };
-    if(!xsl)
+    if(!xsl) {
       ERROR("Specified template '"+id->variables->__xsl+"' not found.");
+    }
   } else {
     string tmp;
     sscanf(xml, "%*[\n\t\r ]%s", xml);
     sscanf(xml, "%*s<!DOCTYPE %s%*[ >]", tmp);
-    if(!tmp) 
-      ERROR("Missing template specification in XML source file.");
-    xsl_name = combine_path(dirname(id->not_query), tmp+"_"+extension+".xsl");
-    catch {
-      xsl = Stdio.read_file(id->conf->real_file(xsl_name, id));
-    };
-    if(!xsl)
-      ERROR("Wanted template '"+tmp+"' not found.");
+    if(!tmp) {
+      catch {
+	xsl = Stdio.read_file(QUERY(stylesheet));
+      };
+      if(!xsl) 
+	ERROR("Missing template specification in XML source file.");
+    } else {
+      xsl_name = combine_path(dirname(id->not_query), tmp+"_"+extension+".xsl");
+      catch {
+	xsl = Stdio.read_file(id->conf->real_file(xsl_name, id));
+      };
+      if(!xsl)
+	ERROR("Couldn't find a wanted stylesheet '"+xsl_name+"'.");
+    }
   }  
   parser = PiXSL.Parser();
   parser->set_xsl_data(xsl);
@@ -143,7 +144,7 @@ mapping|int first_try(object id)
 	res->URI = "XSLT input <i>"+xsl_name+"</i>";
 	if(line) lines = xsl / "\n";
       } else if(search(res->URI, "xml") != -1) {
-	res->URI = "XML file <i>"+xsl_name+"</i>";
+	res->URI = "XML file <i>"+xml_name+"</i>";
 	if(line) lines = xml / "\n";
       }
       if(lines) {
