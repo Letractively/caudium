@@ -37,7 +37,7 @@
 constant cvs_version = "$Id$";
 
 //
-//! module: Pike Tag
+//! module: Thumbnail tag
 //!  Automatic thumbnail tag (with caching)
 //! inherits: module
 //! inherits: caudiumlib
