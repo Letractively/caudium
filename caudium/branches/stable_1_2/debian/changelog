@@ -1,6 +1,7 @@
 caudium (2:1.2.23-3) unstable; urgency=low
 
   * Reordered the module paths in the default Global_Variables
+  * Added the missing module directories to the deb
   * The Add Module screen in the CIF uses the compact layout now
   * The caudiumctl script has a correct caudium home directory now
   * Thanks to Peter Lundqvist for reporting all of the above problems.
