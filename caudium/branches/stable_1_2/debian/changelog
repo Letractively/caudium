@@ -1,3 +1,9 @@
+caudium (2:1.2.3-4) unstable; urgency=medium
+
+  * gtext bug fixed - won't barf on invalid URLs now
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 20 Feb 2002 18:40:19 +0100
+
 caudium (2:1.2.3-3) unstable; urgency=high
 
   * New error handler code fixed - it now correctly HTML-encodes the
