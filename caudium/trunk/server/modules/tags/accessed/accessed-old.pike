@@ -47,9 +47,6 @@ mapping fton=([]);
 
 object database, names_file;
 
-#define CALL_USER_TAG id->conf->parse_module->call_user_tag
-#define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
-
 // Core RXML tags module from what we get some functions.
 #define RXMLTAGS id->conf->get_provider("rxml:tags");
 
@@ -62,11 +59,6 @@ int _match(string w, array (string) a)
       return 1;
 }
 
-private int ac_is_not_set()
-{
-  return !QUERY(ac);
-}
-
 void create()
 {
   defvar("Accesslog", 
@@ -75,17 +67,13 @@ void create()
 		    caudium->current_configuration->name:".")+"/Accessed", 
 	 "Access log file", TYPE_FILE|VAR_MORE,
 	 "In this file all accesses to files using the &lt;accessed&gt;"
-	 " tag will be logged.", 0, ac_is_not_set);
+	 " tag will be logged.");
 
   defvar("noparse", ({  }), "Extensions to access count",
           TYPE_STRING_LIST,
          "Always access count all files ending with these extensions. "
 	 "Note: This module must be reloaded for a change here to take "
 	 "effect.");
-
-  defvar("ac", 1, "Access log", TYPE_FLAG,
-	 "If unset, the &lt;accessed&gt; tag will not work, and no access log "
-	 "will be needed. This will save one file descriptors.");
 
   defvar("close_db", 1, "Close the database if it is not used",
 	 TYPE_FLAG|VAR_MORE,
@@ -155,17 +143,10 @@ void start()
 {
   mixed tmp;
 
-  if(!QUERY(ac))
-  {
-    if(database)  destruct(database);
-    if(names_file) destruct(names_file);
-    return;
-  }
-  
   if(olf != QUERY(Accesslog))
   {
     olf = QUERY(Accesslog);
-    Stdio.mkdirhier(query("Accesslog"));
+    Stdio.mkdirhier(dirname(query("Accesslog")));
     if(names_file=open(olf+".names", "wrca"))
     {
       cnum=0;
@@ -180,8 +161,6 @@ void start()
 static int mdc;
 int main_database_created()
 {
-  if(!QUERY(ac)) return -1;
-
   if(!mdc)
   {
     mixed key = open_db_file();
@@ -196,8 +175,6 @@ int database_set_created(string file, void|int t)
 {
   int p;
 
-  if(!QUERY(ac)) return -1;
-
   p=fton[file];
   if(!p) return 0;
   mixed key = open_db_file();
@@ -208,8 +185,6 @@ int database_set_created(string file, void|int t)
 int database_created(string file)
 {
   int p,w;
-
-  if(!QUERY(ac)) return -1;
 
   p=fton[file];
   if(!p) return main_database_created();
@@ -224,13 +199,10 @@ int database_created(string file)
   return w;
 }
 
-
 int query_num(string file, int count)
 {
   int p, n;
   string f;
-
-  if(!QUERY(ac)) return -1;
 
   mixed key = open_db_file();
 
@@ -279,15 +251,6 @@ array(string) query_file_extensions()
   return query("noparse"); 
 }
 
-#define _stat defines[" _stat"]
-#define _error defines[" _error"]
-#define _extra_heads defines[" _extra_heads"]
-#define _rettext defines[" _rettext"]
-#define _ok     defines[" _ok"]
-
-#define TRACE_ENTER(A,B) do{if(id->misc->trace_enter)id->misc->trace_enter((A),(B));}while(0)
-#define TRACE_LEAVE(A) do{if(id->misc->trace_leave)id->misc->trace_leave((A));}while(0)
-
 
 /* Handle "always count" extensions. */
 mapping handle_file_extension( object file, string e, object id)
@@ -309,9 +272,6 @@ string tag_accessed(string tag,mapping m,object id,object file,
 {
   int counts, n, prec, q, timep;
   string real, res;
-
-  if(!QUERY(ac))
-    return "Accessed support disabled.";
 
   NOCACHE();
   if(m->file)
@@ -357,8 +317,8 @@ string tag_accessed(string tag,mapping m,object id,object file,
     object rxmltags_module = RXMLTAGS;
     if(objectp(rxmltags_module)) {
       if(m->database)
-        return rxmltags_module->api_tagtime(id,database_created(0),m);
-      return rxmltags_module->api_tagtime(id,database_created(m->file),m);
+        return rxmltags_module->tagtime(database_created(0),m);
+      return rxmltags_module->tagtime(database_created(m->file),m);
    }
   }
 
