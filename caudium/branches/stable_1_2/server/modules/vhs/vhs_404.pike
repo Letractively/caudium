@@ -30,15 +30,15 @@
 inherit "module";
 inherit "caudiumlib";
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
-# define DEBUGLOG(X) werror("REFER: "+X+"\n")
+# define DEBUGLOG(X) werror("VHS_404: "+X+"\n")
 #else
 # define DEBUGLOG(X)
 #endif
 
-//! module: VHS 404 file
+//! module: VHS - 404 file
 //!  VHS Error 404 file: simple MODULE_LAST that presents and parses a file
 //!  when no modules can handle the request.<br />Based on Chris Davies 
 //!  <a href="http://www.daviesinc.com/modules/">module.</a>
@@ -48,7 +48,7 @@ inherit "caudiumlib";
 //! cvs_version: $Id$
 
 constant module_type = MODULE_LAST;
-constant module_name = "VHS 404 File";
+constant module_name = "VHS - 404 File";
 constant module_doc  = "VHS Error 404 file: simple MODULE_LAST that presents "
                        "and parses a file when no modules can handle the request. "
                        "<br/>Based on Chris Davies <a href=\"" 
@@ -113,7 +113,7 @@ string|int readvfsfile(string file, object id) {
          }
        }
     }
-  } else return 0;
+  } 
   return s;
 }
 
@@ -122,7 +122,6 @@ mapping|int last_resort(object id)
   string|int html;
 
   html = readvfsfile(QUERY(error404document), id);
-
 
   if(intp(html)) return 0;		// We don't handle the 404file.
 
