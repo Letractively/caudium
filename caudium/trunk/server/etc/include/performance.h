@@ -138,4 +138,12 @@
 #undef LOAD_CONFIGS_STARTUP
 
 
+/*
+ * Use spider.parse_html() and spider.parse_html_lines() instead
+ * of using Parse.HTML. Se this if you have some issues with this
+ * new routine. And don't forget to open a bug at our bug
+ * database : http://caudium.net/community/bugtraq.rxml
+ */
+#undef OLD_SPIDER
+
 #endif
