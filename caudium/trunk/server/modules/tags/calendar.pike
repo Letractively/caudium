@@ -424,7 +424,7 @@ string make_monthdays_grid(object id, mapping my_args, object now, object target
         rcontents += make_container("td", md_cell, ccontents);
     }
 
-    if (weeks && sizeof(weeks))
+    if (weeks && sizeof(weeks) && y <= sizeof(weeks))
       rcontents += make_container("td", md_weekcell, sprintf("%02d", weeks[y - 1]->week_no()));
                 
     ret += make_container("tr", md_row, rcontents);
