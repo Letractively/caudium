@@ -91,3 +91,5 @@ Changes since last Roxen 1.3
 + Caudium now comes with CAMAS, which is a continuation / fork of IMHO.
   The main reason being that newer IMHO most likely will only work with
   Roxen 2.x, but there are reasons too.
++ External FastCGI program/library updated (might now work better than
+  before). 
