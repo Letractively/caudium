@@ -30,7 +30,7 @@ string cram_md5(string secret, string challenge)
 {
 	if(strlen(secret) > 64)
 	{
-		secret = Crypto.md5()->update(secret)->digest();
+		secret = Caudium.Crypto.hash_md5(secret);
 	}
 
 	string ipad = secret;
@@ -48,7 +48,7 @@ string cram_md5(string secret, string challenge)
 	        opad[i] ^= 0x5c;
 	}
 
-	return Caudium.Crypto.to_hex(Crypto.md5()->update(opad)->update(Crypto.md5()->update(ipad)->update(challenge)->digest())->digest());
+	return Caudium.Crypto.string_to_hex(Crypto.md5()->update(opad)->update(Crypto.md5()->update(ipad)->update(challenge)->digest())->digest());
 }
 
 string cram_md5_resp(string secret, string challenge, string username)

@@ -30,7 +30,7 @@ string cram_sha(string secret, string challenge)
 {
 	if(strlen(secret) > 64)
 	{
-		secret = Crypto.sha()->update(secret)->digest();
+		secret = Caudium.Crypto.hash_sha(secret);
 	}
 
 	string ipad = secret;
@@ -48,7 +48,7 @@ string cram_sha(string secret, string challenge)
 	        opad[i] ^= 0x5c;
 	}
 
-	return Caudium.Crypto.to_hex(Crypto.sha()->update(opad)->update(Crypto.sha()->update(ipad)->update(challenge)->digest())->digest());
+	return Caudium.Crypto.string_to_hex(Crypto.sha()->update(opad)->update(Crypto.sha()->update(ipad)->update(challenge)->digest())->digest());
 }
 
 string cram_sha_resp(string secret, string challenge, string username)

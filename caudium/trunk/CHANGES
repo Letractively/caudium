@@ -1,5 +1,14 @@
 Changes in Caudium 1.3.17 since Caudium 1.3.16
 ----------------------------------------------
+- Backported Roxen 3.4 relay2 proxy.
+   (Xavier Beaudouin)
+- MIME.Decode in base_server/wizard.pike is now inside a catch() to avoid
+  break in case of partial / malformed base64 data given to the webserver.
+   (Xavier Beaudouin)
+- Added a catch() into MIME.Message used in multipart/form-data handler in
+  http.pike and http2.pike to avoid locks into Caudium when malformed data
+  comes into webserver.
+   (Xavier Beaudouin)
 
 Changes in Caudium 1.3.16 since Caudium 1.3.14
 ----------------------------------------------

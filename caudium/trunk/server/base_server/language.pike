@@ -34,7 +34,7 @@
 //! Available languages
 mapping languages = ([ ]);
 
-//!
+//! Initiate all available language.
 void initiate_languages()
 {
   string lang, p;
@@ -90,9 +90,22 @@ private string nil()
 
 
 //! The default language used for caudium
+//! @note 
+//!   English (en) is used per default excepted if the
+//!   env variable CAUDIUM_LANG is set.
 string default_language = getenv("CAUDIUM_LANG")||"en";
 
 //! Return a pointer to an language-specific conversion function.
+//! @param what
+//!   The language into what you want this to be translated
+//! @param func
+//!   What kind of function you want to use. There is 9 functions :
+//!   months, months_short, ordered, date, number, day, day_short,
+//!   day_really_short and words.
+//! @returns
+//!   The translated string
+//! @example
+//!   caudium->language("fr","number")(1);
 public function language(string what, string func)
 {
 #ifdef LANGUAGE_DEBUG

@@ -12,6 +12,10 @@ verify: all
 	@echo Verifying for $(MODNAME)...
 	@$(PIKE) -M. testsuite.pike
 
+stress:	all
+	@echo Doing a Thread Safety stress test.
+	@$(PIKE) -M. threadstest.pike
+
 # DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
 
 
