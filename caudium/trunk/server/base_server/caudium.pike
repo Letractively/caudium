@@ -166,6 +166,7 @@ void watchdog_on()
   
    if(strlen(sock))
    {
+     object privs=Privs("Caudium: Turning Watchdog On");
      Stdio.File wds = Stdio.File();
      if(!wds->connect_unix(sock))
      {
@@ -175,6 +176,7 @@ void watchdog_on()
      wds->write("WATCHDOG ON %d", pid);
      wds->close(); 
      watchdog_enabled=1;
+     privs=0;
    }
 }
 
@@ -187,6 +189,7 @@ void watchdog_off()
   
    if(strlen(sock))
    {
+     object privs=Privs("Caudium: Turning Watchdog Off");
      Stdio.File wds = Stdio.File();
      if(!wds->connect_unix(sock))
      {
@@ -196,6 +199,7 @@ void watchdog_off()
      wds->write("WATCHDOG OFF %d", pid);
      wds->close(); 
      watchdog_enabled=0;
+     privs=0;
    }
 }
 
