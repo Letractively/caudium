@@ -116,9 +116,10 @@ RCSID("$Id$");
  *              entity value or NULL
  *   userdata - the pointer passed to the parser function by the calling
  *              code.
+ *   extra_args - extra arguments to give to the function
  */
 ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
-                          entcallback cback, void *userdata)
+                          entcallback cback, void *userdata, void *extra_args)
 {
   ENT_RESULT        *retval;
   ENT_CBACK_RESULT   cbackres;
@@ -198,7 +199,7 @@ printf("got a semicolon.\n");
           }
           tmp++;
           in_entity = 0;
-          cback(entname, entparts, &cbackres, userdata);
+          cback(entname, entparts, &cbackres, userdata, extra_args);
           if (!cbackres.buf)
             cbackres.buflen = entlen;
           curpos++;

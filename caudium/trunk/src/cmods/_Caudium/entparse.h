@@ -83,7 +83,7 @@ typedef struct
   unsigned long     buflen;
 } ENT_CBACK_RESULT;
 
-typedef void (*entcallback)(char *entname, char params[], ENT_CBACK_RESULT *res, void *userdata);
+typedef void (*entcallback)(char *entname, char params[], ENT_CBACK_RESULT *res, void *userdata, void *extra_args);
 
 #define ENT_ERR_OK             0x00
 #define ENT_ERR_OOM            0x01
@@ -99,5 +99,5 @@ typedef void (*entcallback)(char *entname, char params[], ENT_CBACK_RESULT *res,
 #define ENT_MAX_RETBUFSIZE      (128*1024)
 
 ENT_RESULT* ent_parser(unsigned char *buf, unsigned long buflen,
-                       entcallback cback, void *userdata);
+                       entcallback cback, void *userdata, void *extra_args);
 #endif
