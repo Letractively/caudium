@@ -517,7 +517,9 @@ void handler_thread(int id)
   while(1) {
     if (q=catch {
       do {
-        if((h=handle_queue->read()) && programp(h[0])) {
+        h = handle_queue->read();
+//        report_debug("handle_queue : %O\n",h);
+        if((h) && h[0]) {
           h[0](@h[1]);
           h=0;
         } else if(!h) {
@@ -529,7 +531,7 @@ void handler_thread(int id)
           }
           
           // Caudium is shutting down.
-          werror("Handler thread ["+id+"] stopped\n");
+          report_notice("Handler thread ["+id+"] stopped\n");
           thread_reap_cnt--;
           return;
         }

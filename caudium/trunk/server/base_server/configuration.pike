@@ -32,7 +32,7 @@ mapping profile_map = ([]);
 
 
 #ifdef REQUEST_DEBUG
-# define REQUEST_WERR(X) werror("CONFIG: "+X+"\n")
+# define REQUEST_WERR(X) report_debug("CONFIG: "+X+"\n")
 #else
 # define REQUEST_WERR(X)
 #endif
