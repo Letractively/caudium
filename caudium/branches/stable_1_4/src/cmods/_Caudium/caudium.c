@@ -1012,6 +1012,7 @@ static void f_parse_query_string( INT32 args )
           } else {
             namelen = equal - name;
             valulen = ptr - ++equal;
+	    ptr++;
           }
           
           skey.u.string = url_decode(name, namelen, 0, 0);
