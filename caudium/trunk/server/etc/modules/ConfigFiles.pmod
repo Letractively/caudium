@@ -225,16 +225,16 @@ class Dir
     //!  in the Pike implementation of the mv() function!
     //!
     //! @param from
-    //!  The source file
+    //!  The source file - without path.
     //!
     //! @param to
-    //!  Target file.
+    //!  Target file - without path.
     //!
     //! @returns
     //!  0 (zero) on failure, 1 otherwise.
     int move(string from, string to)
     {
-        return mv(from, to);
+        return mv(mydir + "/" + from, mydir + "/" + to);
     }
     
     //! Return the path this object is managing.
