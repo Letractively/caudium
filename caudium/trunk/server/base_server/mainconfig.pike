@@ -1861,8 +1861,10 @@ mapping configuration_parse(object id)
     
   if((o->changed||root->changed))
     BUTTON(save, "Save", left);
-//  BUTTON(restart, "Restart", left);
-//  BUTTON(shutdown,"Shutdown", left);
+  if(expert_mode) {
+    BUTTON(restart, "Restart", left);
+    BUTTON(shutdown,"Shutdown", left);
+  }
 
   PUSH_BUTTONS(0);
 
