@@ -255,15 +255,15 @@ void read_user_data()
 #if constant(System.getpwent)
         // This could be a _lot_ faster.
         tmp2 = ({ });
-#if constant(geteuid)
-        if(getuid() != geteuid()) privs = Privs("Reading password database");
+#if constant(System.geteuid)
+        if(System.getuid() != System.geteuid()) privs = Privs("Reading password database");
 #endif
-        setpwent();
-        while(tmp = getpwent())
+        System.setpwent();
+        while(tmp = System.getpwent())
           tmp2 += ({
             Array.map(tmp, lambda(mixed s) { return (string)s; }) * ":"
           }); 
-        endpwent();
+        System.endpwent();
         if (objectp(privs)) {
           destruct(privs);
         }
@@ -287,8 +287,8 @@ void read_user_data()
         string shadow;
         array pw, a, b;
         mapping sh = ([]);
-#if constant(geteuid)
-        if(getuid() != geteuid()) privs=Privs("Reading password database");
+#if constant(System.geteuid)
+        if(System.getuid() != System.geteuid()) privs=Privs("Reading password database");
 #endif
         fstat = file_stat(query("userfile"));
         data=    Stdio.read_bytes(query("userfile"));
@@ -317,8 +317,8 @@ void read_user_data()
         break;
 
       case "niscat":
-#if constant(geteuid)
-        if(getuid() != geteuid()) privs=Privs("Reading password database");
+#if constant(System.geteuid)
+        if(System.getuid() != System.geteuid()) privs=Privs("Reading password database");
 #endif
         data=Process.popen("niscat "+query("args")+" passwd.org_dir");
         if (objectp(privs)) {
@@ -386,8 +386,8 @@ void read_group_data()
   {
       case "ypcat":
         object privs;
-#if constant(geteuid)
-//  if(getuid() != geteuid()) privs = Privs("Reading password database");
+#if constant(System.geteuid)
+//  if(System.getuid() != System.geteuid()) privs = Privs("Reading password database");
 #endif
         data=Process.popen("ypcat "+query("args")+" group");
         if (objectp(privs)) {
@@ -398,14 +398,14 @@ void read_group_data()
         break;
 
       case "getpwent":
-#if constant(getgrent)
+#if constant(System.getgrwnt)
         // This could be a _lot_ faster.
         tmp2 = ({ });
-#if constant(geteuid)
-        if(getuid() != geteuid()) privs = Privs("Reading group database");
+#if constant(System.geteuid)
+        if(System.getuid() != System.geteuid()) privs = Privs("Reading group database");
 #endif
-        setgrent();
-        while(tmp = getgrent())
+        System.setgrent();
+        while(tmp = System.getgrwnt())
 	{
           tmp2 += ({
             Array.map(tmp, lambda(mixed s) { if(arrayp(s)) return s*","; else return (string)s; }) * ":"
@@ -422,7 +422,7 @@ void read_group_data()
 
       case "file":
       case "shadow":
-//     if(getuid() != geteuid()) privs = Privs("Reading password database");
+//     if(System.getuid() != System.geteuid()) privs = Privs("Reading password database");
         fstat = file_stat(query("groupfile"));
         data = Stdio.read_bytes(query("groupfile"));
         if (objectp(privs)) {
@@ -434,8 +434,8 @@ void read_group_data()
         break;
     
         case "niscat":
-#if constant(geteuid)
-        if(getuid() != geteuid()) privs=Privs("Reading group database");
+#if constant(System.geteuid)
+        if(System.getuid() != System.geteuid()) privs=Privs("Reading group database");
 #endif
         data=Process.popen("niscat "+query("args")+" group.org_dir");
         if (objectp(privs)) {
