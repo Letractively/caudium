@@ -7,7 +7,7 @@ import Headlines;
 #include <headlines/base.h>
 #include <headlines/RDF.h>
 
-constant site = "apachetoday";
+constant name = "apachetoday";
 constant site = "Apache Today";
 constant url  = "http://apachetoday.com/";
 constant path  = "backend/biglt.rss";
