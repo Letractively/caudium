@@ -245,6 +245,39 @@ static void f_strptime(INT32 args)
 }
 #endif
 
+/*
+** method: string strftime(string f, int t)
+**   strftime() function for pike
+*/
+#ifdef HAVE_STRFTIME
+static void f_strftime(INT32 args) {
+  time_t now;
+  INT_TYPE timestamp = NULL;
+  struct pike_string *ret;
+  struct pike_string *format;
+  /* FIXME:  Use dynamic loading... */
+  char buf[1024];	/* I hate buf size... */
+
+  get_all_args("_Caudium.strftime",args,"%S%i", &format, &timestamp);
+  if(format->len > 1023)
+    Pike_error("_Caudium.strftime(): Out of length in arg 1\n");
+  if(format->len == 0)
+    Pike_error("_Caudium.strftime(): Empty string in arg 1\n");
+#ifdef DEBUG
+  printf("IN : %s : %d\n",format->str, timestamp);
+#endif
+  now = (time_t)timestamp;
+  strftime(buf, sizeof(buf), format->str, localtime(&now));
+#ifdef DEBUG
+  printf("Out : %s\n",buf);
+#endif
+  ret = make_shared_string(buf);
+  pop_n_elems(args);
+  push_string(ret);
+}
+#endif
+
+
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
 /*! @decl int|array(int|string) getdate(string date)
  *!
@@ -456,7 +489,11 @@ void init_datetime(void)
 #endif
   
 #ifdef HAVE_STRPTIME
-  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tString tMapping, tInt), 0);
+  ADD_FUNCTION("strptime", f_strptime, tFunc(tString tInt, tString), 0);
+#endif
+
+#ifdef HAVE_STRFTIME
+  ADD_FUNCTION("strftime", f_strftime, tFunc(tString tString tMapping, tInt), 0);
 #endif
   
   ADD_FUNCTION("parse_date", f_parse_date, tFunc(tString, tInt), 0);
