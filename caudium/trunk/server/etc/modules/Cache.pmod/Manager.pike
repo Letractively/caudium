@@ -105,6 +105,7 @@ string status() {
   foreach( sort( indices( caches ) ), string cache ) {
     string ret = "";
     object my = caches[ cache ];
+    if (!my) continue;
     mapping status = my->status();
     int fast_hitrate = 100;
     int slow_hitrate = 100;
@@ -329,10 +330,10 @@ object get_cache( void|string|object one ) {
 	  if ( moddata->copies )
 	    foreach ( indices( moddata->copies ), int i ) {
 	      if ( moddata->copies[ i ] == one )
-	        namespace = sprintf( "%s instance %d on virtual server %s", one->module_name, i, conf->name );
+	        namespace = sprintf( "%s #%d on %s", one->module_name, i, conf->name );
 	    }
 	  else if ( moddata->master == one || moddata->enabled == one )
-	    namespace = sprintf( "%s on virtual server %s", one->module_name, conf->name );
+	    namespace = sprintf( "%s on %s", one->module_name, conf->name );
       }
     }
   else
@@ -345,7 +346,7 @@ object get_cache( void|string|object one ) {
     UNLOCK();
     object _cache = low_get_cache(namespace);
     LOCK();
-    client_caches += ([ namespace : Cache.Client( _cache, low_get_cache, namespace ) ]);
+    client_caches += ([ namespace : Cache.Client( _cache, low_get_cache, namespace, delete_cache ) ]);
     return client_caches[ namespace ];
   }
 }
@@ -404,4 +405,12 @@ void set_slowstorage(object _slow) {
   PRELOCK();
   LOCK();
   slow = _slow;
+}
+
+void delete_cache(string namespace) {
+  if (caches[namespace]) {
+    caches[namespace]->stop();
+    destruct(caches[namespace]);
+    m_delete(caches, namespace);
+  }
 }
