@@ -35,7 +35,7 @@
 //!  <p>Another special feature is post-processing RXML-parsing.
 //!  To post-process a document, use <strong>&lt;xsl:output&gt;</strong> with the
 //!  media-type attribute set to <strong>rxml:real/type</strong>, ie <strong>rxml:text/html</strong>
-//!  for an HTML document.
+//!  for an HTML document.</p>
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FIRST
@@ -77,11 +77,11 @@ constant module_doc =
 "<p>Another special feature is post-processing RXML-parsing. "
 "To post-process a document, use <b>&lt;xsl:output&gt;</b> with the "
 "media-type attribute set to <b>rxml:real/type</b>, ie <b>rxml:text/html</b> "
-"for an HTML document. "
+"for an HTML document.</p>"
 #if !constant(PiXSL.Parser)
 "<p><b><blink>ERROR</blink>: "
 "<font color=red>The PiXSL.so pike-module is missing. This "
-"module will not function correctly!</font></b>\n"
+"module will not function correctly!</font></b></p>\n"
 #endif
 ;
 void create()
@@ -89,17 +89,25 @@ void create()
   defvar("stylesheet", "", "Default XSLT Stylesheet", TYPE_FILE,
 	 "The default style sheet to use when no other stylesheet is "
 	 "found. This should be a full path in the real filesystem.");
+  defvar("xsldir", "", "Template Directory", TYPE_DIR,
+         "If non-empty, this path in the real filesystem will be prepended "
+	 "to all stylesheet names as specified in the DOCTYPE attribute. ");
+  defvar("showxml", 0, "Show raw XML files", TYPE_FLAG,
+         "If this flag is set to Yes, requests for files ending will "
+	 ".xml will result in the file being sent as back as text/xml "
+	 "without trying to find and apply a stylesheet.");
 }
-
 #if constant(PiXSL.Parser)
 #define ERROR(x) return http_string_answer("<html><head><title>XSLT Template error</title></head><body><p><b>XSLT Template error: "+ x +"</b><p></body></html>")
 object regexp;
+string xsldir;
 void start() {
 #if constant(PCRE.Regexp)
   regexp = PCRE.Regexp("(.*)\\.(.*)$", "S");
 #else
   regexp = Regexp("(.*)\\.(.*)$");
 #endif
+  xsldir = QUERY(xsldir) == "" ? 0 : QUERY(xsldir);
 }
 
 mapping|int first_try(object id)
@@ -108,7 +116,7 @@ mapping|int first_try(object id)
   string|mapping res;
   object(PiXSL.Parser) parser;
   string content_type, charset;
-  string basename, extension;
+  string basedir, basename, extension;
   if(id->not_query[-1] == '/') {
     basename = id->not_query + "index.xml";
     extension = "html";
@@ -120,15 +128,21 @@ mapping|int first_try(object id)
     basename = tmp[-2];
     extension = tmp[-1];
   }
-  catch {
-    xml = Stdio.read_file(id->conf->real_file(xml_name=basename+".xml", id) ||"");
-  };
+  basedir = id->conf->real_file(dirname(id->not_query)+"/", id);
+  if(!basedir) return 0; /* non-existing directory */
+  basename = combine_path(basedir, predef::basename(basename));
+  if ( (extension == "xml") && (QUERY(showxml)==1) ) 
+    return 0; /* This passes on the request to the underlying filesystem */
+    
+  xml = Stdio.read_file(xml_name=basename+".xml");
   if(!xml) return 0; /* not for us... */
   if(id->variables->__xsl) {
-    xsl_name = combine_path(dirname(basename), id->variables->__xsl);
-    catch {
-      xsl = Stdio.read_file(id->conf->real_file(xsl_name, id));
-    };
+    xsl_name = combine_path(basedir, id->variables->__xsl);
+    xsl = Stdio.read_file(xsl_name);
+    if(!xsl && xsldir) {
+      xsl_name = combine_path(xsldir, id->variables->__xsl);
+      xsl = Stdio.read_file(xsl_name);
+    }      
     if(!xsl) {
       ERROR("Specified template '"+id->variables->__xsl+"' not found.");
     }
@@ -137,20 +151,24 @@ mapping|int first_try(object id)
     sscanf(xml, "%*[\n\t\r ]%s", xml);
     sscanf(xml, "%*s<!DOCTYPE %s%*[ >]", tmp);
     if(!tmp) {
-      catch {
-	xsl = Stdio.read_file(QUERY(stylesheet));
-      };
+      xsl = (Stdio.read_file(combine_path(basedir, QUERY(stylesheet))) ||
+	     (xsldir &&  Stdio.read_file(combine_path(xsldir,
+						      QUERY(stylesheet)))));
       if(!xsl) 
-	ERROR("Missing template specification in XML source file.");
+	ERROR("Missing template specification in XML source file and no "
+	      "default template configured / found.");
     } else {
-      xsl_name = combine_path(dirname(id->not_query), tmp+"_"+extension+".xsl");
-      catch {
-	xsl = Stdio.read_file(id->conf->real_file(xsl_name, id));
-      };
+      xsl_name = combine_path(basedir, tmp+"_"+extension+".xsl");
+      xsl = Stdio.read_file(xsl_name);
+      if(!xsl && xsldir) {
+	xsl_name = combine_path(xsldir, tmp+"_"+extension+".xsl");
+	xsl = Stdio.read_file(xsl_name);
+      }
       if(!xsl)
 	ERROR("Couldn't find a wanted stylesheet '"+xsl_name+"'.");
     }
-  }  
+  }
+
   parser = PiXSL.Parser();
   parser->set_xsl_data(xsl);
   parser->set_xml_data(xml);
@@ -215,4 +233,14 @@ mapping|int first_try(object id)
 //! The default style sheet to use when no other stylesheet is found. This should be a full path in the real filesystem.
 //!  type: TYPE_FILE
 //!  name: Default XSLT Stylesheet
+//
+//! defvar: xsldir
+//! If non-empty, this path in the real filesystem will be prepended to all stylesheet names as specified in the DOCTYPE attribute. 
+//!  type: TYPE_DIR
+//!  name: Template Directory
+//
+//! defvar: showxml
+//! If this flag is set to Yes, requests for files ending will .xml will result in the file being sent as back as text/xml without trying to find and apply a stylesheet.
+//!  type: TYPE_FLAG
+//!  name: Show raw XML files
 //
