@@ -82,9 +82,6 @@ caudium/server/protocols/http2.pike
 caudium/server/protocols/ssl3.pike
 caudium/server/protocols/tetris.pike
 caudium/server/protocols/http.pike
-caudium/server/perl/bin/perlhelper
-caudium/server/perl/bin/perlrun
-caudium/server/perl/README
 caudium/server/nfonts/32/avant_garde/bi
 caudium/server/nfonts/32/avant_garde/bn
 caudium/server/nfonts/32/avant_garde/ni
@@ -217,7 +214,6 @@ caudium/server/modules/scripting/fcgi.pike
 caudium/server/modules/scripting/fpscript.pike
 caudium/server/modules/scripting/jssupport.pike
 caudium/server/modules/scripting/oldcgi.pike
-caudium/server/modules/scripting/perl.pike
 caudium/server/modules/scripting/php4.pike
 caudium/server/modules/scripting/servlet.pike
 caudium/server/modules/scripting/uniscript.pike
@@ -355,7 +351,6 @@ caudium/server/modules/tags/tablify.pike
 caudium/server/modules/tags/thumbnail.pike
 caudium/server/modules/tags/wizard_tag.pike
 caudium/server/modules/tags/xmlparse.pike
-caudium/server/modules/tags/mnogosearch.pike
 caudium/server/modules/tags/123session-scope.pike
 caudium/server/modules/ultralog/calendar.h
 caudium/server/modules/ultralog/country.h
@@ -728,8 +723,6 @@ caudium/server/.cvsignore
 @dirrm caudium/server/unfinishedmodules
 @dirrm caudium/server/server_templates
 @dirrm caudium/server/protocols
-@dirrm caudium/server/perl/bin
-@dirrm caudium/server/perl
 @dirrm caudium/server/nfonts/32/avant_garde
 @dirrm caudium/server/nfonts/32/bell_gothic
 @dirrm caudium/server/nfonts/32/lucida
