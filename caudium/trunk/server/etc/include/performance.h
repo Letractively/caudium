@@ -13,7 +13,7 @@
  * to this define.
  */
 
-#undef EXTRA_ROXEN_COMPAT
+#define EXTRA_ROXEN_COMPAT
 
 
 /* Enable support for HTTP/0.9. This is an extremely minor optimization. If

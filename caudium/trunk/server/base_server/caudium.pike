@@ -41,13 +41,9 @@ object argcache;
 #include <module.h>
 #include <variables.h>
 
-// #ifdef __NT__
-// #define NO_DNS
-// #endif
-
 // Inherits
 inherit "read_config";
-#ifdef NO_DNS
+#ifndef ENABLE_DNS
 inherit "dummy_hosts";
 #else
 inherit "hosts";

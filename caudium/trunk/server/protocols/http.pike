@@ -623,7 +623,7 @@ private int parse_got()
     }
 #endif
   }
-#ifndef DISABLE_SUPPORTS    
+#ifdef ENABLE_SUPPORTS    
   if(!useragent) {
 #ifdef EXTRA_ROXEN_COMPAT
     client = ({ "unknown" });
