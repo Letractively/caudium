@@ -168,4 +168,7 @@ typedef struct
 #ifndef MAX
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
 #endif
+
+
+extern void do_set_close_on_exec(void);
 #endif

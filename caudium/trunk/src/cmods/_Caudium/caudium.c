@@ -21,7 +21,7 @@
 #include "global.h"
 RCSID("$Id$");
 #include "caudium_util.h"
-
+#include <fd_control.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -738,7 +738,7 @@ static void internal_add_limit( struct perishables *storage,
     if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "soft"))) {
       if(tmp3->type == T_INT)
         l->rlp.rlim_cur=
-          tmp3->u.integer>=0?tmp3->u.integer:ol.rlim_cur;
+          tmp3->u.integer >= 0 ? (unsigned INT32)tmp3->u.integer : ol.rlim_cur;
       else
         l->rlp.rlim_cur = RLIM_INFINITY;
     } else
@@ -746,7 +746,7 @@ static void internal_add_limit( struct perishables *storage,
     if((tmp3=simple_mapping_string_lookup(limit_value->u.mapping, "hard"))) {
       if(tmp3->type == T_INT)
         l->rlp.rlim_max =
-          tmp3->u.integer>=0?tmp3->u.integer:ol.rlim_max;
+          tmp3->u.integer >= 0 ? (unsigned INT32)tmp3->u.integer:ol.rlim_max;
       else
         l->rlp.rlim_max = RLIM_INFINITY;
     } else
@@ -783,8 +783,8 @@ static void f_create_process( INT32 args ) {
   int stds[3];
   int *fds;
   int num_fds = 3;
-  int wanted_gid, wanted_uid;
-  int gid_request, uid_request;
+  int wanted_gid=0, wanted_uid=0;
+  int gid_request=0, uid_request=0;
   char *tmp_cwd;
   pid_t pid=-2;
 
@@ -883,8 +883,8 @@ static void f_create_process( INT32 args ) {
      if((tmp=simple_mapping_string_lookup(optional, "rlimit"))) {
         struct svalue *tmp2;
         if(tmp->type != T_MAPPING)
-          error("Wrong type of argument for the 'rusage' option. "
-                "Should be mapping.\n");
+          Pike_error("Wrong type of argument for the 'rusage' option. "
+		     "Should be mapping.\n");
 #define ADD_LIMIT(X,Y,Z) internal_add_limit(&storage,X,Y,Z);
 #ifdef RLIMIT_NPROC
       if((tmp2=simple_mapping_string_lookup(tmp->u.mapping, "nproc")))
@@ -1008,8 +1008,6 @@ static void f_create_process( INT32 args ) {
     dup2(fds[1], 1);
     dup2(fds[2], 2);
 	  
-    do_set_close_on_exec();
-
     set_close_on_exec(0,0);
     set_close_on_exec(1,0);
     set_close_on_exec(2,0);
