@@ -39,7 +39,7 @@ static void really_do_parse(SablotHandle sproc, char *xsl, char *xml,
 			    char **argums, char **res)
 {
   SablotRunProcessor(sproc, xsl, xml, "arg:/_output",
-			       NULL, argums);
+			       NULL, argums);  
   SablotGetResultArg(sproc, "arg:/_output", res);
 }
 
@@ -91,13 +91,11 @@ static void f_parse( INT32 args )
   pop_n_elems(args);
   if(parsed != NULL) {
     out = make_shared_string(parsed);
-    SablotFree(parsed);
     push_string(out);
   } else
     push_int(0);
-  SablotSetBase(sproc,"");
   SablotFreeResultArgs(sproc); 
-  SablotDestroyProcessor(&sproc);
+  SablotDestroyProcessor(sproc);
 }
 static void f_parse_files( INT32 args )
 {
@@ -113,17 +111,16 @@ static void f_parse_files( INT32 args )
   get_all_args("Sablotron.parse_lines", args, "%S%S", &xsl, &xml);
   /*   SablotRegHandler(p, HLR_MESSAGE,  */
   THREADS_ALLOW();
+  printf("xsl: %s, xml: %s\n", xsl->str, xml->str);
   SablotCreateProcessor(&sproc);
   really_do_parse(sproc, xsl->str, xml->str, argums, &parsed);
   THREADS_DISALLOW();
   pop_n_elems(args);
   if(parsed != NULL) {
     out = make_shared_string(parsed);
-    SablotFree(parsed);
     push_string(out);
   } else
     push_int(0);
-  SablotFreeResultArgs(sproc); 
-  SablotDestroyProcessor(&sproc);
+  SablotDestroyProcessor(sproc);
 }
 #endif  
