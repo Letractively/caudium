@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Remove the proxy disc cache since it's not usefull, buggy and contain lot of
+  junk. (David Gourdelier)
 - Caudium.httpdate_to_time() now use _Caudium.parse_date(). Faster than
   using Calendar.
    (Xavier Beaudouin)
