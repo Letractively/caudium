@@ -1004,6 +1004,20 @@ string make_xml_tag(string tag,mapping in) {
   return "<"+tag+(strlen(q)?" "+q:"")+"/>";
 }
 
+//!  Build an XML processing instruction with the specified name and attributes.
+//! @param tag
+//!  The name of the tag.
+//! @param in
+//!  The mapping with the attributes
+//! @returns
+//!  A string containing the tag with attributes.
+//! @note
+//!  The attributes are XML encoded and the tag is closed
+string make_xml_pi(string tag, mapping in) {
+  string q = make_xml_tag_attributes(in);
+  return "<?"+tag+(strlen(q)?" "+q:"")+" ?>";
+}
+
 //! A mix of make_html_tag and make_xml_tag
 //! that can output either HTML or XML depending on the value of 
 //! format
