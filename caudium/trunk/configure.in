@@ -238,13 +238,15 @@ for a in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike \
   if test -x ${a}; then
     PIKE="${a}"
     if $PIKE -e 'float v; int rel;sscanf(version(), "Pike v%f release %d", v, rel);v += rel/10000.0; if(v < 0.6116) exit(1); exit(0);'; then
-		PIKE_MODULE_DIR="`$PIKE --show-paths 2>&1| grep lib|grep modules|head -1 | sed -e 's/.*: //'`"
-		PIKE_INCLUDE_DIR="`echo $PIKE_MODULE_DIR | sed -e 's,lib/pike/modules,include/pike,' -e 's,lib/modules,include/pike,'`"
+		PIKE_INCLUDE_DIR="`$PIKE --show-paths 2>&1| grep lib|grep include| sed -e 's/.*: //'`"
 
-		if test -z "$PIKE_INCLUDE_DIR" -o -z "$PIKE_MODULE_DIR"; then
+		if test -z "$PIKE_INCLUDE_DIR"; then
 			AC_MSG_RESULT(no dirs found)
 			PIKE=""
 		else
+		    for x in $PIKE_INCLUDE_DIR; do
+			PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$x"
+		    done
 		   AC_MSG_RESULT(ok)
 		fi
 	else
@@ -655,6 +657,5 @@ re-running configure with '--with-pike=/path/to/correct/pike'.
 
         Pike binary used:      $PIKE
         Pike version:          $PIKE_VERSION
-        Pike include dir:      $PIKE_INCLUDE_DIR
-        Pike module directory: $PIKE_MODULE_DIR"
+        Pike include dirs:     $PIKE_INCLUDE_DIRS"
 
