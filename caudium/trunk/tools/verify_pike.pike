@@ -74,6 +74,9 @@ int main(int argc, array argv)
 	    "version of if, the problems might very well still be there. We recommend an\n"
 	    "upgrade to the latest Pike 7.1 version to avoid any potential problems.");
 
+  if(ver == 7.1 && rel >= 12)
+    warning("The Caudium C-modules does not currently compile with Pike 7.1.12 or newer.\n"
+	    "This will be fixed very soon.");
 
   /* PHP 4 check */
   if(ver < 7.0
