@@ -1,5 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+- modules/scripting/oldcgi.pike and modules/scripting/fcgi.pike are now 
+  deprecated. For FastCGI support you can use now fastcgi.pike that work
+  mutch better than the old one.
 - Fix submitted in caudium_general ml about corrupted Accessed db.
 - Fix for sf bug #634688: Backtrace with cache and start as user.
 - Fixed error in setools.pike regarding user agent & regexp

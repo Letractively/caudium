@@ -28,7 +28,7 @@ constant cvs_version = "$Id$";
 
 constant module_unique = 0;
 constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
-constant module_name = "Fast CGI executable support 2";
+constant module_name = "Fast-CGI executable support";
 constant module_doc  =
 "Support for the <a href=\"http://www.fastcgi.com/\">Fast CGI 1 interface</a>";
 
