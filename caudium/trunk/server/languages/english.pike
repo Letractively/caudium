@@ -101,7 +101,11 @@ string date(int timestamp, mapping|void m)
 {
     object  target = Calendar.Second("unix", timestamp);
     object  now = Now;
-  
+    string  curtime = target->format_mod();
+    string  curday = ordered(target->month_day());
+    string  curmonth = month(target->month_no());
+    string  curyear = target->year_name();
+    
     if(!m) m=([]);
 
     if(!(m["full"] || m["date"] || m["time"]))
@@ -114,31 +118,28 @@ string date(int timestamp, mapping|void m)
             dist = target->distance(now)->how_many(Calendar.Day);
       
         if (!dist)
-            return "today, " + target->format_mod();
+            return "today, " + curtime;
 
         if (dist == -1)
-            return "yesterday, " + target->format_mod();
+            return "yesterday, " + curtime;
 
         if (dist == 1)
-            return "tomorrow, " + target->format_mod(); 
+            return "tomorrow, " + curtime; 
 
         if (now->year_no() != target->year_no())
-            return month(target->month_no()) +  " " + target->year_name();
+            return curmonth +  " " + curyear;
 
-        return month(target->month_no()) + " " + ordered(target->month_day());
+        return curmonth + " " + curday;
     }
   
     if(m["full"])
-        return target->format_mod() + ", " +
-            month(target->month_no()) + " the "
-            + ordered(target->month_day()) + ", " + target->year_name();
+        return curtime + ", " + curmonth + " the " + curday + ", " + curyear;
   
     if(m["date"])
-        return target->month_name() + " the "  + ordered(target->month_day())
-            + " in the year of " + target->year_name();
+        return curmonth + " the "  + curday + " in the year of " + curyear;
   
     if(m["time"])
-        return target->format_mod();
+        return curtime;
 }
 
 

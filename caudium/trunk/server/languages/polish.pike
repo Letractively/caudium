@@ -43,12 +43,16 @@ string date(int timestamp, mapping|void m)
 {
     object  target = Calendar.Second("unix", timestamp)->set_language("polish");
     object  now = Now;
-
+    string  curtime = target->format_mod();
+    string  curday = ordered(target->month_day());
+    string  curmonth = month(target->month_no());
+    string  curyear = target->year_name();
+    
     if(!m) m=([]);
 
     if(!(m["full"] || m["date"] || m["time"]))
     {
-        int dist;
+        int      dist;
 
         if (target > now)
             dist = -now->distance(target)->how_many(Calendar.Day);
@@ -56,32 +60,28 @@ string date(int timestamp, mapping|void m)
             dist = target->distance(now)->how_many(Calendar.Day);
       
         if (!dist)
-            return "dzisiaj, " + target->format_mod();
+            return "dzisiaj, " + curtime;
 
         if (dist == -1)
-            return "wczoraj, " + target->format_mod();
+            return "wczoraj, " + curtime;
 
         if (dist == 1)
-            return "jutro, " + target->format_mod(); 
+            return "jutro, " + curtime; 
 
         if (now->year_no() != target->year_no())
-            return month(target->month_no()) +  " " + target->year_name();
+            return curmonth +  " " + curyear;
 
-    return month(target->month_no()) + " " + ordered(target->month_day());
-}
+        return curmonth + " " + curday;
+    }
   
-if(m["full"])
-    return target->format_mod() + ", " +
-ordered(target->month_day()) + " " + 
-month(target->month_no()) + " " +
-target->year_name();
+    if(m["full"])
+        return curtime + ", " + curday + " " + curmonth + " " + curyear;
   
-if(m["date"])
-    return ordered(target->month_day()) + " " + month(target->month_no()) + " " +
-target->year_name();
+    if(m["date"])
+        return curday + " " + curmonth + " " + curyear;
   
-if(m["time"])
-    return target->format_mod();
+    if(m["time"])
+        return curtime;
 }
 
 
