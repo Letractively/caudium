@@ -135,7 +135,7 @@ mapping find_file (string file, object id)
    object r = request (id, this_object ());
    VDEBUG ("find_file on %s", id->raw_url);
 
-   return Caudium.HTTPpipe_in_progress();
+   return Caudium.HTTP.pipe_in_progress();
 }
 
 class request
