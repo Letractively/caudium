@@ -120,4 +120,13 @@
  */
 #undef API_COMPAT
 
+/*
+ * The maximum body size the server should read upon a post
+ * request. -1 means unlimited and 0 means the body is completely
+ * ignored. The default value should be a reasonable value.
+ */
+#ifndef POST_MAX_BODY_SIZE
+#define POST_MAX_BODY_SIZE 1024*16
+#endif
+
 #endif
