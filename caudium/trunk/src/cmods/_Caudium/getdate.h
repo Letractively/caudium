@@ -14,9 +14,7 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include "caudium_machine.h"
 
 #ifndef PARAMS
 # if defined PROTOTYPES || (defined __STDC__ && __STDC__)
@@ -43,4 +41,4 @@
 # endif
 #endif /* defined (vms) */
 
-time_t get_date PARAMS ((const char *p, const time_t *now));
+time_t get_date (const char *p, const time_t *now);

@@ -398,17 +398,17 @@ static void f_is_modified(INT32 args)
 
   ret = mktime(&ttm);
   if (ret >= 0)
-    push_int(ret);
-  else
-    push_string(gd_bad_format);
-  
+    push_string(gd_bad_format);  
 #else
   ret = get_date(header->str, NULL);
   if (ret < 0)
     push_string(gd_bad_format);
-  else
-    push_int(ret);
 #endif
+
+  if (tmod > ret)
+    push_int(0);
+  else
+    push_int(1);
 }
 
 void init_datetime(void)
