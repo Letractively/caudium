@@ -91,12 +91,12 @@ private constant default_error_return =
 #define SESSOBJ(__id) __id->conf->get_provider("123sessions")
 #define PROCOBJ(__id) __id->conf->get_provider(QUERY(data_plugin))
 #define SVARS(__id) __id->misc->session_variables
-#define DATA(__id) SVARS(__id)->dcdata[QUERY(dc_name)]
-#define DATAPART(__id, __part) DATA(__id)->parts[__part]
-#define CURDATA(__id) DATA(__id)->parts[-1]
-#define VARIABLES(__id) DATA(__id)->variables
-#define TAGS(__id) DATA(__id)->tags
-#define CONTAINERS(__id) DATA(__id)->containers
+#define DATA(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]
+#define DATAPART(__id, __part) __id->misc->session_variables->dcdata[QUERY(dc_name)]->parts[__part]
+#define CURDATA(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]->parts[-1]
+#define VARIABLES(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]->variables
+#define TAGS(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]->tags
+#define CONTAINERS(__id) __id->misc->session_variables->dcdata[QUERY(dc_name)]->containers
 
 #define CALL_USER_TAG id->conf->parse_module->call_user_tag
 #define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
