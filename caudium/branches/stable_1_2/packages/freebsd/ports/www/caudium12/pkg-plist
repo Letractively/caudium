@@ -54,12 +54,6 @@ caudium/server/base_server/wizard.pike
 caudium/server/base_server/caudium.pike
 caudium/server/base_server/cache.pike
 caudium/server/base_server/dc_provider.pike
-caudium/server/base_server/newcache/.exclude_dir
-caudium/server/base_server/newcache/cache.pike
-caudium/server/base_server/newcache/cache_manager.pike
-caudium/server/base_server/newcache/cachelib.pike
-caudium/server/base_server/newcache/disk_cache.pike
-caudium/server/base_server/newcache/ram_cache.pike
 caudium/server/unfinishedmodules/non-working/extended_logger.pike.gz
 caudium/server/unfinishedmodules/non-working/fastcgi.pike.gz
 caudium/server/unfinishedmodules/non-working/javascript.pike.gz
@@ -125,8 +119,6 @@ caudium/server/modules/3rdparty/cd34/browserdeny.pike
 caudium/server/modules/3rdparty/cd34/fslayout.pike
 caudium/server/modules/3rdparty/cd34/javamenu.pike
 caudium/server/modules/3rdparty/cd34/skimmer.pike
-caudium/server/modules/3rdparty/kiwi/.exclude_dir
-caudium/server/modules/3rdparty/kiwi/pop3.pike
 caudium/server/modules/3rdparty/oliv3/source.pike
 caudium/server/modules/3rdparty/vida/ldap_admin.pike
 caudium/server/modules/logging/client_logger.pike
@@ -192,14 +184,6 @@ caudium/server/modules/graphics/business.pike
 caudium/server/modules/graphics/counter.pike
 caudium/server/modules/ldap/ldapuserauth.pike
 caudium/server/modules/ldap/ldaptag.pike
-caudium/server/modules/ldap/lcc/.exclude_dir
-caudium/server/modules/ldap/lcc/ldap-auth.pike
-caudium/server/modules/ldap/lcc/ldap-center.pike
-caudium/server/modules/ldap/lcc/ldap-center.h
-caudium/server/modules/ldap/lcc/ldap-error.pike
-caudium/server/modules/ldap/lcc/ldap-menu.pike
-caudium/server/modules/ldap/lcc/ldap-modify.pike
-caudium/server/modules/ldap/lcc/ldap-screens.pike
 caudium/server/modules/misc/123session.pike
 caudium/server/modules/misc/SQLuserdb.pike
 caudium/server/modules/misc/contenttypes.pike
@@ -340,10 +324,8 @@ caudium/server/modules/tags/doc/user
 caudium/server/modules/tags/doc/version
 caudium/server/modules/tags/doc/vfs
 caudium/server/modules/tags/doc/wizard
-caudium/server/modules/tags/.exclude_files
 caudium/server/modules/tags/nntptag.pike
 caudium/server/modules/tags/XSLTtag.pike
-caudium/server/modules/tags/accessed.pike
 caudium/server/modules/tags/arrays.pike
 caudium/server/modules/tags/awizard.pike
 caudium/server/modules/tags/check_spelling.pike
@@ -520,9 +502,9 @@ caudium/server/caudium-images/caudium-icon-bordered.png
 caudium/server/caudium-images/.cvsignore
 caudium/server/caudium-images/back.gif
 caudium/server/caudium-images/caudium-small.gif
-caudium/server/lib/7.2.276/Caudium.so
-caudium/server/lib/7.2.276/PiXSL.so
-caudium/server/lib/7.2.276/UltraLog.so
+caudium/server/lib/7.2.284/Caudium.so
+caudium/server/lib/7.2.284/PiXSL.so
+caudium/server/lib/7.2.284/UltraLog.so
 caudium/server/etc/include/sqlfs/stdio_helper.h
 caudium/server/etc/include/sqlfs/cache.h
 caudium/server/etc/include/sqlfs/read.h
@@ -694,7 +676,6 @@ caudium/server/fonts/ttf/lucida_unicode.txt
 caudium/server/fonts/ttf/verdana.ttf
 caudium/server/fonts/ttf/verdana.txt
 caudium/server/fonts/ttf/fontrstc.ttf
-caudium/server/config_actions/.exclude_files
 caudium/server/config_actions/debuginformation.pike
 caudium/server/config_actions/cachestatus.pike
 caudium/server/config_actions/changepass.pike
@@ -702,7 +683,6 @@ caudium/server/config_actions/clearlog.pike
 caudium/server/config_actions/servertemplates.pike
 caudium/server/config_actions/feature_list.pike
 caudium/server/config_actions/flush.pike
-caudium/server/config_actions/ftpstatus.pike
 caudium/server/config_actions/generate_rsa.pike
 caudium/server/config_actions/linuxproc.pike
 caudium/server/config_actions/listfonts.pike
@@ -741,7 +721,6 @@ caudium/server/.cvsignore
 @dirrm caudium/server/more_modules
 @dirrm caudium/server/base_server/config
 @dirrm caudium/server/base_server/struct
-@dirrm caudium/server/base_server/newcache
 @dirrm caudium/server/base_server
 @dirrm caudium/server/unfinishedmodules/non-working
 @dirrm caudium/server/unfinishedmodules
@@ -756,7 +735,6 @@ caudium/server/.cvsignore
 @dirrm caudium/server/nfonts
 @dirrm caudium/server/languages
 @dirrm caudium/server/modules/3rdparty/cd34
-@dirrm caudium/server/modules/3rdparty/kiwi
 @dirrm caudium/server/modules/3rdparty/oliv3
 @dirrm caudium/server/modules/3rdparty/vida
 @dirrm caudium/server/modules/3rdparty
@@ -768,7 +746,6 @@ caudium/server/.cvsignore
 @dirrm caudium/server/modules/graphics/rimage/plugins
 @dirrm caudium/server/modules/graphics/rimage
 @dirrm caudium/server/modules/graphics
-@dirrm caudium/server/modules/ldap/lcc
 @dirrm caudium/server/modules/ldap
 @dirrm caudium/server/modules/misc
 @dirrm caudium/server/modules/proxies
@@ -783,7 +760,7 @@ caudium/server/.cvsignore
 @dirrm caudium/server/caudium-images/dir
 @dirrm caudium/server/caudium-images/modules
 @dirrm caudium/server/caudium-images
-@dirrm caudium/server/lib/7.2.276
+@dirrm caudium/server/lib/7.2.284
 @dirrm caudium/server/lib
 @dirrm caudium/server/etc/include/sqlfs
 @dirrm caudium/server/etc/include/headlines
