@@ -260,7 +260,8 @@ mapping query_tag_callers()
         "user_variable" : tag_variables,
         "dump_session" : tag_dump_session,
         "dump_sessions" : tag_dump_sessions,
-        "delete_session" : tag_end_session
+        "delete_session" : tag_end_session,
+        "frame" : tag_frame
     ]);
 }
 
@@ -1232,10 +1233,7 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
         }
         
         if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
-            if (!sizeof(hvars))
-                args->href = rewrite_uri(id,  args->href, have_query, hvars);
-            else
-                args->href = rewrite_uri(id,  args->href, have_query, hvars);
+            args->href = rewrite_uri(id,  args->href, have_query, hvars);
     }
 
     m_delete(args, "norewrite");
@@ -1254,4 +1252,25 @@ mixed container_form(string tag, mapping args, string contents, object id, mappi
     m_delete(args, "norewrite");
     
     return ({ make_container("form", args, parse_rxml(contents, id)) });
+}
+
+mixed tag_frame (string tag, mapping args, object id, object file)
+{
+    string   query;
+    mapping  hvars = ([]);
+    int      have_query = 0;
+    
+    if (id->misc->session_id && args && !args->norewrite && args->src && !leave_me_alone(args->src)) {
+        if (sscanf(args->src, "%*s?%s", query) == 2) {
+            Caudium.parse_query_string(query, hvars);
+            have_query = 1;
+        }
+        
+        if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
+                args->src = rewrite_uri(id,  args->src, have_query, hvars);
+    }
+
+    m_delete(args, "norewrite");
+    
+    return ({ make_tag("frame", args) });
 }
