@@ -37,7 +37,7 @@ static void init_njs_storage(struct object *obj) {
 
 static inline void free_njs_storage(struct object *obj) {
   if(THIS->interp != NULL) {
-    js_destroy_interp(THIS->interp);
+    njs_destroy_interp(THIS->interp);
     THIS->interp = NULL;
   }
   if(THIS->id != NULL) {
@@ -58,14 +58,14 @@ generic_compare_strings(X, strlen(X), 0,                                 \
  * arg2: options mapping
  */
 static void f_njs_create(INT_TYPE args) {
-  JSInterpOptions options;
+  NJSInterpOptions options;
   struct svalue *sind, *sval;
   struct keypair *k;
   INT32 e;
 
   free_njs_storage(Pike_fp->current_object);
 
-  js_init_default_options (&options);
+  njs_init_default_options (&options);
 
   switch(args) {
    case 2: /* Got options mapping */    
@@ -136,7 +136,7 @@ static void f_njs_create(INT_TYPE args) {
     }
   }  
 
-  THIS->interp = js_create_interp(&options);
+  THIS->interp = njs_create_interp(&options);
   if(THIS->interp == NULL) {
     Pike_error("Failed to create NJS interpreter!\n");
   }
@@ -160,10 +160,10 @@ static void f_njs_set_id_object(INT_TYPE args) {
 /* Evaluate the given string and return the result */
 static void f_njs_eval(INT_TYPE args) {
   int res;
-  JSType ret;
+  NJSValue ret;
   int data_len;
   char *data;
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval",1);
   }
@@ -176,7 +176,7 @@ static void f_njs_eval(INT_TYPE args) {
   data_len = ARG(0).u.string->len;
 
   THREADS_ALLOW();
-  res = js_eval_data(interp, data, data_len);
+  res = njs_eval_data(interp, data, data_len);
   THREADS_DISALLOW();
 
   NJS_PROCESS_EVAL_RESULT();
@@ -185,9 +185,9 @@ static void f_njs_eval(INT_TYPE args) {
 /* Evaluate the given file name (null terminates) and return the result */
 static void f_njs_eval_file(INT_TYPE args) {
   int res;
-  JSType ret;
+  NJSValue ret;
   char *file;
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval_file",1);
   }
@@ -205,7 +205,7 @@ static void f_njs_eval_file(INT_TYPE args) {
   file = ARG(0).u.string->str;
 
   THREADS_ALLOW();
-  res = js_eval_file(interp, file);
+  res = njs_eval_file(interp, file);
   THREADS_DISALLOW();
 
   NJS_PROCESS_EVAL_RESULT();
@@ -214,10 +214,10 @@ static void f_njs_eval_file(INT_TYPE args) {
 /* Execute the given bytecode and return the result */
 static void f_njs_execute(INT_TYPE args) {
   int res;
-  JSType ret;
+  NJSValue ret;
   int bc_len;
   char *bc;
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->eval",1);
   }
@@ -231,7 +231,7 @@ static void f_njs_execute(INT_TYPE args) {
   bc_len = ARG(0).u.string->len;
 
   THREADS_ALLOW();
-  res = js_execute_byte_code(interp, bc, bc_len);
+  res = njs_execute_byte_code(interp, bc, bc_len);
   THREADS_DISALLOW();
 
   NJS_PROCESS_EVAL_RESULT();
@@ -242,12 +242,12 @@ static void f_njs_execute(INT_TYPE args) {
  */
 static void f_njs_compile(INT_TYPE args) {
   int res;
-  JSType ret;
+  NJSValue ret;
   int data_len;
   unsigned int bc_len;
   char *data;
   unsigned char *bc_str;
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
   }
@@ -260,7 +260,7 @@ static void f_njs_compile(INT_TYPE args) {
   data_len = ARG(0).u.string->len;
 
   THREADS_ALLOW();
-  res = js_compile_data_to_byte_code(interp, data, data_len,
+  res = njs_compile_data_to_byte_code(interp, data, data_len,
 				     &bc_str, &bc_len);
   THREADS_DISALLOW();
 
@@ -272,11 +272,11 @@ static void f_njs_compile(INT_TYPE args) {
  */
 static void f_njs_compile_file(INT_TYPE args) {
   int res;
-  JSType ret;
+  NJSValue ret;
   unsigned int bc_len;
   char *file;
   unsigned char *bc_str;
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   if(args != 1) {
     SIMPLE_TOO_FEW_ARGS_ERROR("JavaScript.Interpreter()->compile",1);
   }
@@ -292,7 +292,7 @@ static void f_njs_compile_file(INT_TYPE args) {
   file = ARG(0).u.string->str;
 
   THREADS_ALLOW();
-  res = js_compile_to_byte_code(interp, file, &bc_str, &bc_len);
+  res = njs_compile_to_byte_code(interp, file, &bc_str, &bc_len);
   THREADS_DISALLOW();
 
   NJS_PROCESS_COMPILE_RESULT();
@@ -306,10 +306,10 @@ static void njs_free_scope_data(void *context) {
   free(context);
 }
 
-static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
+static void low_njs_scope_get(NJSInterpPtr interp,struct pike_string *scope,
 			      struct object *id, const char *var,
 			      unsigned int varlen, struct svalue get,
-			      JSType *ret) {
+			      NJSValue *ret) {
   push_string(make_shared_binary_string(var, varlen));
   ref_push_string(scope);
   if(id != NULL) {
@@ -321,21 +321,21 @@ static void low_njs_scope_get(JSInterpPtr interp,struct pike_string *scope,
 
   if(Pike_sp[-1].type == T_ARRAY && Pike_sp[-1].u.array->size == 1) {
     // Currently the nice special case of "don't parse me pls"
-    pike_type_to_js_type(interp, &(ITEM(Pike_sp[-1].u.array)[0]), ret);
+    pike_type_to_njs_type(interp, &(ITEM(Pike_sp[-1].u.array)[0]), ret);
   } else {
-    pike_type_to_js_type(interp, &Pike_sp[-1], ret);
+    pike_type_to_njs_type(interp, &Pike_sp[-1], ret);
   }
   pop_stack();
 }
 
-static void low_njs_scope_set(JSInterpPtr interp, struct pike_string *scope,
+static void low_njs_scope_set(NJSInterpPtr interp, struct pike_string *scope,
 			      struct object *id, const char *var,
 			      unsigned int varlen, struct svalue set,
-			      JSType set_to, int *success)
+			      NJSValue set_to, int *success)
 {
   push_string(make_shared_binary_string(var, varlen));
   ref_push_string(scope);
-  push_js_type(set_to);
+  push_njs_type(set_to);
   if(id != NULL) {
     ref_push_object(id);
     apply_svalue(&set, 4);
@@ -351,59 +351,59 @@ static void low_njs_scope_set(JSInterpPtr interp, struct pike_string *scope,
   pop_stack();
 }
 
-static JSMethodResult njs_scope_get(JSClassPtr cls, void *instance_context,
-				    JSInterpPtr interp, int argc,
-				    JSType *argv, JSType *result_return,
+static NJSMethodResult njs_scope_get(NJSClassPtr cls, void *instance_context,
+				    NJSInterpPtr interp, int argc,
+				    NJSValue *argv, NJSValue *result_return,
 				    char *error_return) {
   GET_SCOPE();
   if(argc != 1) {
-    js_snprintf(error_return, 1024, "Got %d arguments, expected 1.", argc);
-    return JS_ERROR;
+    njs_snprintf(error_return, 1024, "Got %d arguments, expected 1.", argc);
+    return NJS_ERROR;
   }
-  if(argv[0].type != JS_TYPE_STRING) {
+  if(argv[0].type != NJS_VALUE_STRING) {
     /* In reality we shouldn't require the key to be limited to a string
      * but for now this is fine
      */
     strcpy(error_return, "Invalid argument 1, expected string.");
-    return JS_ERROR;
+    return NJS_ERROR;
   }
   THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->parent->id,
 				    argv[0].u.s->data,
 				    argv[0].u.s->len, SCOPE->get,
 				    result_return));
-  return JS_OK;
+  return NJS_OK;
 }
 
-static JSMethodResult njs_scope_set(JSClassPtr cls, void *instance_context,
-				    JSInterpPtr interp, int argc,
-				    JSType *argv, JSType *return_type,
+static NJSMethodResult njs_scope_set(NJSClassPtr cls, void *instance_context,
+				    NJSInterpPtr interp, int argc,
+				    NJSValue *argv, NJSValue *return_type,
 				    char *error_return) {
   int set_ok;
   GET_SCOPE();
   if(argc != 2) {
-    js_snprintf(error_return, 1024,"Got %d argument%s, expected 2.", argc,
+    njs_snprintf(error_return, 1024,"Got %d argument%s, expected 2.", argc,
 	    argc == 1 ? "" : "s");
-    return JS_ERROR;
+    return NJS_ERROR;
   }
   if(SCOPE->set.type == T_INT) {
     /* Immutable scope, i.e read-only */
     strcpy(error_return, "Scope is read-only.");
-    return JS_ERROR;
+    return NJS_ERROR;
   }
-  if(argv[0].type != JS_TYPE_STRING) {
+  if(argv[0].type != NJS_VALUE_STRING) {
     /* In reality we shouldn't require the key to be limited to a string
      * but for now this is fine
      */
     strcpy(error_return, "Invalid argument 1, expected string.");
-    return JS_ERROR;
+    return NJS_ERROR;
   }
   
-  if(argv[1].type == JS_TYPE_BUILTIN) {
+  if(argv[1].type == NJS_VALUE_BUILTIN) {
     /* We don't yet handle the NJS objects type. Setting this variable
      * would result in a zero being set.
      */
     strcpy(error_return, "Invalid argument 2, class/object not allowed.");
-    return JS_ERROR;
+    return NJS_ERROR;
   }
 
   THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->parent->id,
@@ -411,59 +411,59 @@ static JSMethodResult njs_scope_set(JSClassPtr cls, void *instance_context,
 				    argv[0].u.s->len, SCOPE->set,
 				    argv[1], &set_ok));
   if(set_ok) {
-    return_type->type = JS_TYPE_BOOLEAN;
+    return_type->type = NJS_VALUE_BOOLEAN;
     return_type->u.i = 1;
-    return JS_OK;
+    return NJS_OK;
   } else {
-    js_snprintf(error_return, 1024,
+    njs_snprintf(error_return, 1024,
 		"Failed to set variable '%s' in scope '%s'.",
 		SCOPE->name->str, argv[0].u.s->data);
-    return JS_ERROR;
+    return NJS_ERROR;
   }
 }
 
-static JSGenericResult
-  njs_scope_property(JSClassPtr cls, void *instance_context,
-		     JSInterpPtr interp, const char *property,
-		     int setp, JSType *value, char *error_return) {
+static NJSGenericResult
+  njs_scope_property(NJSClassPtr cls, void *instance_context,
+		     NJSInterpPtr interp, const char *property,
+		     int setp, NJSValue *value, char *error_return) {
   GET_SCOPE();
   if(!setp) {
     /* Fetch a value */
     THREAD_SAFE_RUN(low_njs_scope_get(interp, SCOPE->name, SCOPE->parent->id,
 				      property, strlen(property), SCOPE->get,
 				      value));
-    return JS_HANDLED;
+    return NJS_HANDLED;
   } else {
     int set_ok;
     if(SCOPE->set.type == T_INT) {
       /* Immutable scope, i.e read-only */
       strcpy(error_return, "Scope is read-only.");
-      return JS_FAILED;
+      return NJS_FAILED;
     }
     
-    if(value->type == JS_TYPE_BUILTIN) {
+    if(value->type == NJS_VALUE_BUILTIN) {
       /* We don't yet handle the NJS objects type. Setting this variable
        * would result in a zero being set.
        */
       strcpy(error_return, "Invalid argument 2, class/object not allowed.");
-      return JS_FAILED;
+      return NJS_FAILED;
     }
 
     THREAD_SAFE_RUN(low_njs_scope_set(interp, SCOPE->name, SCOPE->parent->id,
 				      property, strlen(property), SCOPE->set,
 				      *value, &set_ok));
     if(set_ok) {
-      value->type = JS_TYPE_BOOLEAN;
+      value->type = NJS_VALUE_BOOLEAN;
       value->u.i = 1;
-      return JS_OK;
+      return NJS_OK;
     } else {
-      js_snprintf(error_return, 1024,
+      njs_snprintf(error_return, 1024,
 		  "Failed to set variable '%s' in scope '%s'.",
 		  SCOPE->name->str, property);
-      return JS_FAILED;
+      return NJS_FAILED;
     }
 
-    return JS_FAILED;
+    return NJS_FAILED;
   }
 }
 
@@ -513,19 +513,19 @@ static void f_njs_add_scope(INT_TYPE args) {
     assign_svalue_no_free(& storage->set, & ARG(2));
   }
 
-  storage->class = js_class_create((void *)storage, njs_free_scope_data, 0, 0);
-  js_class_define_method(storage->class, "get", JS_CF_STATIC, njs_scope_get);
-  js_class_define_method(storage->class, "set", JS_CF_STATIC, njs_scope_set);
-  js_class_define_generic_method(storage->class, JS_CF_STATIC, njs_scope_property);
+  storage->class = njs_class_create((void *)storage, njs_free_scope_data, 0, 0);
+  njs_class_define_method(storage->class, "get", NJS_CF_STATIC, njs_scope_get);
+  njs_class_define_method(storage->class, "set", NJS_CF_STATIC, njs_scope_set);
+  njs_class_define_generic_method(storage->class, NJS_CF_STATIC, njs_scope_property);
 
   /* We have a 'var' scope. Transparently (to the Pike end) rename it to
    * vars in the JavaScript environment since it conflicts with the
    * statement 'var'.
    */
   if(storage->name->len == 3 && !memcmp(storage->name->str, "var", 3)) {
-    js_define_class(THIS->interp, storage->class, "vars");
+    njs_define_class(THIS->interp, storage->class, "vars");
   } else {
-    js_define_class(THIS->interp, storage->class, storage->name->str);
+    njs_define_class(THIS->interp, storage->class, storage->name->str);
   }
   pop_n_elems(args);
 }

@@ -23,12 +23,12 @@
 
 #define THIS ((njs_storage *)(Pike_fp->current_storage))
 #define SCOPE ((scope_storage *)context)
-#define GET_SCOPE() scope_storage *context = js_class_context(cls)
+#define GET_SCOPE() scope_storage *context = njs_class_context(cls)
 
 /* Interpreter storage */
 typedef struct
 {
-  JSInterpPtr interp;
+  NJSInterpPtr interp;
   struct object *id;
 } njs_storage;
 
@@ -39,24 +39,24 @@ typedef struct
   struct svalue get;
   struct svalue set;
   njs_storage *parent;
-  JSClassPtr class;
+  NJSClassPtr class;
 } scope_storage;
 
 
 /* njs_glue.c */
 void pike_module_init(void);
 void pike_module_exit(void);
-void push_js_type(JSType);
-int pike_type_to_js_type(JSInterpPtr,struct svalue *, JSType *);
+void push_njs_type(NJSValue);
+int pike_type_to_njs_type(NJSInterpPtr,struct svalue *, NJSValue *);
 
 /* njs_obj.c */
 void njs_init_interpreter_program(void);
 
 /* from libnjs */
-int js_snprintf (char *str, unsigned long len, const char *fmt, ...);
+int njs_snprintf (char *str, unsigned long len, const char *fmt, ...);
 
 #define __NJS_ERROR                                            \
-    char *err = js_error_message(THIS->interp);                \
+    char *err = njs_error_message(THIS->interp);                \
     if(err != NULL) {                                          \
       ONERROR tmp;                                             \
       char *msg = malloc(strlen(err)+2);                       \
@@ -73,9 +73,9 @@ int js_snprintf (char *str, unsigned long len, const char *fmt, ...);
   if(!res) {                                                   \
     __NJS_ERROR                                                \
   } else {                                                     \
-    js_result(THIS->interp, &ret);                             \
+    njs_result(THIS->interp, &ret);                             \
     pop_n_elems(args);                                         \
-    push_js_type(ret);                                         \
+    push_njs_type(ret);                                         \
   }                                                             
 
 #define NJS_PROCESS_COMPILE_RESULT()                           \
