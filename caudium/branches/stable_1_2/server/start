@@ -318,8 +318,12 @@ else
   elif [ -x bin/pike ] ; then pike=bin/pike; fi
 fi
 
-
 PIKE_VERSION=`$pike -e 'string v; int rel;sscanf(version(), "Pike v%s release %d", v, rel); write(v+"."+rel);'`
+CAUDIUM_CWD=`$pike -e "write(dirname(\"$0\"));"`
+
+if [ -n "$CAUDIUM_CWD" ]; then
+  cd $CAUDIUM_CWD
+fi
 
 if [ -f "lib/$PIKE_VERSION/Caudium.so" ]; then
   DEFINES="-Mlib/$PIKE_VERSION/ $DEFINES"
