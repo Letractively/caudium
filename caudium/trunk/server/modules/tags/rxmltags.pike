@@ -52,149 +52,6 @@ object database, names_file;
 #define CALL_USER_TAG id->conf->parse_module->call_user_tag
 #define CALL_USER_CONTAINER id->conf->parse_module->call_user_container
 
-// Used by the compatibility functions...
-#if !constant(strftime)
-string strftime(string fmt, int t)
-{
-  mapping lt = localtime(t);
-  array a = fmt/"%";
-  int i;
-  for (i=1; i < sizeof(a); i++) {
-    if (!sizeof(a[i])) {
-      a[i] = "%";
-      i++;
-      continue;
-    }
-    string res = "";
-    switch(a[i][0]) {
-    case 'a':	// Abbreviated weekday name
-      res = ({ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" })[lt->wday];
-      break;
-    case 'A':	// Weekday name
-      res = ({ "Sunday", "Monday", "Tuesday", "Wednesday",
-	       "Thursday", "Friday", "Saturday" })[lt->wday];
-      break;
-    case 'b':	// Abbreviated month name
-    case 'h':	// Abbreviated month name
-      res = ({ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" })[lt->mon];
-      break;
-    case 'B':	// Month name
-      res = ({ "January", "February", "March", "April", "May", "June",
-	       "July", "August", "September", "October", "November", "December" })[lt->mon];
-      break;
-    case 'c':	// Date and time
-      res = strftime(sprintf("%%a %%b %02d  %02d:%02d:%02d %04d",
-			     lt->mday, lt->hour, lt->min, lt->sec, 1900 + lt->year), t);
-      break;
-    case 'C':	// Century number; 0-prefix
-      res = sprintf("%02d", 19 + lt->year/100);
-      break;
-    case 'd':	// Day of month [1,31]; 0-prefix
-      res = sprintf("%02d", lt->mday);
-      break;
-    case 'D':	// Date as %m/%d/%y
-      res = strftime("%m/%d/%y", t);
-      break;
-    case 'e':	// Day of month [1,31]; space-prefix
-      res = sprintf("%2d", lt->mday);
-      break;
-    case 'H':	// Hour (24-hour clock) [0,23]; 0-prefix
-      res = sprintf("%02d", lt->hour);
-      break;
-    case 'I':	// Hour (12-hour clock) [1,12]; 0-prefix
-      res = sprintf("%02d", 1 + (lt->hour + 11)%12);
-      break;
-    case 'j':	// Day number of year [1,366]; 0-prefix
-      res = sprintf("%03d", lt->yday);
-      break;
-    case 'k':	// Hour (24-hour clock) [0,23]; space-prefix
-      res = sprintf("%2d", lt->hour);
-      break;
-    case 'l':	// Hour (12-hour clock) [1,12]; space-prefix
-      res = sprintf("%2d", 1 + (lt->hour + 11)%12);
-      break;
-    case 'm':	// Month number [1,12]; 0-prefix
-      res = sprintf("%02d", lt->mon + 1);
-      break;
-    case 'M':	// Minute [00,59]
-      res = sprintf("%02d", lt->min);
-      break;
-    case 'n':	// Newline
-      res = "\n";
-      break;
-    case 'p':	// a.m. or p.m.
-      if (lt->hour < 12) {
-	res = "a.m.";
-      } else {
-	res = "p.m.";
-      }
-      break;
-    case 'r':	// Time in 12-hour clock format with %p
-      res = strftime("%l:%M %p", t);
-      break;
-    case 'R':	// Time as %H:%M
-      res = sprintf("%02d:%02d", lt->hour, lt->min);
-      break;
-    case 'S':	// Seconds [00,61]
-      res = sprintf("%02", lt->sec);
-      break;
-    case 't':	// Tab
-      res = "\t";
-      break;
-    case 'T':	// Time as %H:%M:%S
-      res = sprintf("%02d:%02d:%02d", lt->hour, lt->min, lt->sec);
-      break;
-    case 'u':	// Weekday as a decimal number [1,7], Sunday == 1
-      res = sprintf("%d", lt->wday + 1);
-      break;
-    case 'w':	// Weekday as a decimal number [0,6], Sunday == 0
-      res = sprintf("%d", lt->wday);
-      break;
-    case 'x':	// Date
-      res = strftime("%a %b %d %Y", t);
-      break;
-    case 'X':	// Time
-      res = sprintf("%02d:%02d:%02d", lt->hour, lt->min, lt->sec);
-      break;
-    case 'y':	// Year [00,99]
-      // FIXME: Does this handle negative years.
-      res = sprintf("%02d", lt->year % 100);
-      break;
-    case 'Y':	// Year [0000.9999]
-      res = sprintf("%04d", 1900 + lt->year);
-      break;
-
-    case 'U':	/* FIXME: Week number of year as a decimal number [00,53],
-		 * with Sunday as the first day of week 1
-		 */
-      break;
-    case 'V':	/* Week number of the year as a decimal number [01,53],
-		 * with  Monday  as  the first day of the week.  If the
-		 * week containing 1 January has four or more  days  in
-		 * the  new  year, then it is considered week 1; other-
-		 * wise, it is week 53 of the previous  year,  and  the
-		 * next week is week 1
-		 */
-      break;
-   case 'W':	/* FIXME: Week number of year as a decimal number [00,53],
-		 * with Monday as the first day of week 1
-		 */
-      break;
-    case 'Z':	/* FIXME: Time zone name or abbreviation, or no bytes if
-		 * no time zone information exists
-		 */
-      break;
-    default:
-      // FIXME: Some kind of error indication?
-      break;
-    }
-    a[i] = res + a[i][1..];
-  }
-  return(a*"");
-}
-#endif /* !constant(strftime) */
-
 // If the string 'w' match any of the patterns in 'a', return 1, else 0.
 int _match(string w, array (string) a)
 {
@@ -209,10 +66,12 @@ private int ac_is_not_set()
   return !QUERY(ac);
 }
 
+#if 0
 private int ssi_is_not_set()
 {
   return !QUERY(ssi);
 }
+#endif
 
 void create()
 {
@@ -233,7 +92,7 @@ void create()
   defvar("ac", 1, "Access log", TYPE_FLAG,
 	 "If unset, the &lt;accessed&gt; tag will not work, and no access log "
 	 "will be needed. This will save one file descriptors.");
-
+#if 0
   defvar("ssi", 1, "SSI support: NSCA and Apache SSI support", 
 	 TYPE_FLAG,
 	 "If set, Roxen will parse NCSA / Apache server side includes.");
@@ -263,6 +122,7 @@ void create()
 	 "GID to run NCSA / Apache &lt;!--#exec cmd=\"XXX\" --&gt; "
 	 "commands with.",
 	 ssi_is_not_set);
+#endif
 
   defvar("close_db", 1, "Close the database if it is not used",
 	 TYPE_FLAG|VAR_MORE,
@@ -1673,7 +1533,7 @@ static string|array(string) inc(mapping m, int val, object id)
   return "";
 }
 
-
+#if 0
 string tag_compat_exec(string tag,mapping m,object id,object file,
 		       mapping defines)
 {
@@ -1867,6 +1727,8 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
   }
   return "<!-- No file? -->";
 }
+
+#endif
 
 
 //! tag: accessed
@@ -3248,13 +3110,13 @@ string tag_remoteip(string tag, mapping args, object id)
 string tag_pikeversion(string tag, mapping args, object id)
 {
     if (args->major)
-        return (string)__MAJOR__;
+        return (string)__REAL_MAJOR__;
 
     if (args->minor)
-        return (string)__MINOR__;
+        return (string)__REAL_MINOR__;
 
     if (args->release)
-        return (string)__RELEASE__;
+        return (string)__REAL_BUILD__;
 
     return version();
 }
@@ -3313,6 +3175,7 @@ mapping query_tag_callers()
 	    "true":tag_true,	// Used internally
 	    "false":tag_false,	// by <if> and <else>
 	    "echo":tag_echo,           /* These commands are */
+#if 0
 	    "!--#echo":tag_compat_echo,           /* These commands are */
 	    "!--#exec":tag_compat_exec,           /* NCSA/Apache Server */
 	    "!--#flastmod":tag_compat_fsize,      /* Side includes.     */
@@ -3320,6 +3183,7 @@ mapping query_tag_callers()
 	    "!--#fsize":tag_compat_fsize, 
 	    "!--#include":tag_compat_include, 
 	    "!--#config":tag_compat_config,
+#endif
 	    "debug" : tag_debug,
 	    "help": tag_help
    ]);

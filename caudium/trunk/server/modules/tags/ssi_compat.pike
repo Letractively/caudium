@@ -108,7 +108,7 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
       m->nocache = "yes";
     m->file = _Roxen.http_decode_string(m->cgi);
     m_delete(m, "cgi");
-    object rxmltags_modules = RXMLTAGS;
+    object rxmltags_module = RXMLTAGS;
     if(objectp(rxmltags_module)) 
       return rxmltags_module->tag_insert(tag, m, id, file, defines);
     else
@@ -198,7 +198,7 @@ string tag_compat_include(string tag,mapping m,object id,object file,
 
   if(m->virtual) {
     m->file = m->virtual;
-    object rxmltags_modules = RXMLTAGS;
+    object rxmltags_module = RXMLTAGS;
     if(objectp(rxmltags_module)) 
       return rxmltags_module->tag_insert("insert", m, id, file, defines);
     else
@@ -238,7 +238,7 @@ string tag_compat_echo(string tag,mapping m,object id,object file,
   if(!QUERY(ssi))
     return "SSI support disabled. Use &lt;echo var=name&gt; instead.";
 
-  object rxmltags_modules = RXMLTAGS;
+  object rxmltags_module = RXMLTAGS;
   if(objectp(rxmltags_module))
     return rxmltags_module->tag_echo(tag, m, id, file, defines);
   else
@@ -275,7 +275,7 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
   if(!QUERY(ssi))
     return "SSI support disabled";
 
-  if(m->help || m["help--"]) {
+  if(m->help || m["help--"]) 
     if (tag == "!--#fsize")
       return ("Returns the size of the file specified (as virtual=... or file=...)");
     else
@@ -324,3 +324,4 @@ mapping query_tag_callers () {
             "!--#config":   tag_compat_config, 
           ]);
 }
+
