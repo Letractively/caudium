@@ -292,7 +292,7 @@ void create()
 	 "was started as root.",
 	 0, uid_was_zero);
 
-  defvar("pdir", "html/", "Public directory",
+  defvar("pdir", "public_html/", "Public directory",
 	 TYPE_STRING,
          "This is the directory in the home directory of the users which "
 	 "contains the files that will be shown on the web. "
