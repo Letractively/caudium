@@ -28,4 +28,8 @@ Changes since last Roxen 1.3
   etc. It should still be compatible however.
 + Demo ssl-certificate fixed for Caudium.
 + Various incompatible changes. See README.compatibility for details.
++ protocols/http.pike use the parse_got David wrote for Roxen 2.1. It
+  sort-of-fixes the worst Roxen DOS (send an eternally long header and
+  see Roxen die). The second part of the fix is to implement a maximum
+  header length.
 
