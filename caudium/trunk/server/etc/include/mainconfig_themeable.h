@@ -242,12 +242,12 @@ class ThemedConfig {
 	array points = ({ });
 	// positive y values
 	for( int _x = 0 - r; _x != r; _x++ ) {
-	    int _y = (int)floor( sqrt( pow( r, 2 ) - pow( _x, 2 ) ) );
+	    int _y = (int)floor( (float)sqrt( pow( r, 2 ) - pow( _x, 2 ) ) );
 	    points += ({ ( _x + x ), ( _y + y ) });
 	}
 	// negative y values
 	for( int _x = r; _x != 0 - r; _x-- ) {
-	    int _y = 0 - (int)floor( sqrt( pow( r, 2 ) - pow( _x, 2 ) ) );
+	    int _y = 0 - (int)floor( (float)sqrt( pow( r, 2 ) - pow( _x, 2 ) ) );
 	    points += ({ ( _x + x ) , ( _y + y ) });
 	}
 	i->setcolor( cr, cg, cb, alpha );
