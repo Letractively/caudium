@@ -8,38 +8,66 @@ this step requires a new version of the autoconf package.
 To get Caudium from CVS:
 -=-=-=-=-=-=-=--=-=-=-=-
 
-To checkout the current development version of Caudium from CVS, follow these
-commands:
+Because the design and the security ramifications of CVS's pserver are scary,
+we do not offer traditional anonymous cvs access to CVS repositories.
+However, you can access to them using an anonymous CVS over ssh2 method.
 
-cvs -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium login
-[Hit [Return] as the password (ie empty password)]
+It's pretty easy to use this - just as easy as using pserver. 
+There are two methods you can use; for either method, you will need the
+file tools/sshanoncvs.
 
-cvs -z3 -d:pserver:anonymous@cvs.caudium.sourceforge.net:/cvsroot/caudium co -P caudium
+   1. Make it executable, put it somewhere, say, ~/bin/sshanoncvs. 
+   Then set the CVS_RSH environment variable to point to it and use cvs 
+   as you normally would. For example, just run this command to check out
+   a project.
+
+   SSH_AUTH_SOCK= CVS_RSH=~/bin/sshanoncvs \
+   cvs -d anoncvs@cvs.caudiumforge.net:/cvs/project checkout module
+
+   2. Or you can just use the file as a ssh key file without making it
+   executable. Put it in ~/.ssh/sshanoncvs. Then add the following to 
+   your ~/.ssh/config:
+
+     Host cvs.caudiumforge.net
+     User anoncvs
+     Port 22
+     protocol 2
+     IdentityFile ~/.ssh/sshanoncvs
+     ForwardAgent no
+     ForwardX11 no
+     Compression no
+
+   Then just set CVS_RSH=ssh and checkout as normal:
+
+    SSH_AUTH_SOCK= CVS_RSH=ssh \
+    cvs -d anoncvs@cvs.caudiumforge.net:/cvs/project checkout module
 
 You can later update your Caudium source from CVS by typing:
 
 cvs -z3 update -Pd
 
-with the current directory being the "caudium" directory you got from
-the initial checkout.
+We wishes to thanks Joey Hess for who we took our inpiration. 
 
 For more detailed information on CVS access, including read/write
 developer access and access to other (stable) branches, visit the web
 page at
 
-	http://caudium.net/download/cvsinfo.html
+	http://caudium.net/download/source/cf-cvsinfo.rxml
 
 To build Caudium from CVS:
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-You also need a Pike 7.0.268 or newer for Caudium 1.1. We recommend
+You also need a Pike 7.0.268 or newer for Caudium 1.2. We recommend
 using 7.0 as opposed to 7.2 or 7.3. We consider 7.0 to be more stable
-and proven than 7.2 and 7.3. By the time Caudium 1.1 is released, it
-will probably require Pike 7.2 however. To get Pike you can either
-fetch it from CVS or from our snapshot page. The URLs are below:
+and proven than 7.2 and 7.3.
+For Caudium 1.3, you will need Pike 7.3.56 or later at the time of this 
+writing.
+
+To get Pike you can either fetch it from CVS or from our snapshot page.
+The URLs are below:
 
 	http://community.roxen.com/developers/cvs/anoncvs.html
-	http://caudium.net/download/snapshot.html
+	ftp://ftp.caudium.net/pike/7.3/
 
 Unless you plan to / want to update your Pike often, we recommend that
 you use our pre-built Pike snapshots. The major reason for this as
