@@ -767,7 +767,7 @@ class LSFile
       res = sprintf("%=-79s\n", (res/"\n")*", ");
       break;
     case LS_FLAG_l:
-      res = "total " + total + "\n" + res;
+      //res = "total " + total + "\n" + res;
       break;
     default:
       break;
@@ -849,13 +849,15 @@ class LSFile
 	if (sizeof(dir)) {
 	  listing = list_files(indices(dir), long);
 	} else if (flags & LS_FLAG_l) {
-	  listing = "total 0\n";
+	  listing = "\n";
+	  //listing = "total 0\n";
 	}
       } else {
 	DWRITE("FTP: LSFile->list_next_directory(): NO FILES!\n");
 
 	if (flags & LS_FLAG_l) {
-	  listing = "total 0\n";
+	  listing = "\n";
+	  //listing = "total 0\n";
 	}
       }
       if (name_directories) {
