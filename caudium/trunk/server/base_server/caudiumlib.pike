@@ -335,6 +335,8 @@ static mapping build_caudium_env_vars(object id)
   return new;
 }
 
+//FIXME: This shouldn't be under API_COMPAT ?
+
 //! Backwards Roxen compatibility
 static function build_roxen_env_vars = build_caudium_env_vars; 
 
