@@ -1,3 +1,11 @@
+caudium (1.0.0-3) unstable; urgency=low
+
+  * Polished up the installation
+  * Thanks to Martin Bialasinski <martinb@debian.org> for helping me 
+    with this package :)
+
+ -- Marek Habersack <grendel@vip.net.pl>  Sat, 26 Aug 2000 11:58:14 +0200
+
 caudium (1.0.0-2) unstable; urgency=low
 
   * Few changes wrt debconf
