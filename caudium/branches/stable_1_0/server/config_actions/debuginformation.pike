@@ -205,7 +205,7 @@ mixed page_0(object id, object mc)
 
 #if constant(_dump_obj_table)
   first += "<p><br><p>";
-  res += ("<table  border=0 cellspacing=0 ceellpadding=2 width=50%>"
+  res += ("<table  border=0 cellspacing=0 cellpadding=2 width=50%>"
 	  "<tr align=left bgcolor=lightblue><th  colspan=2>List of all "
 	  "programs with more than two clones:</th></tr>"
 	  "<tr align=left bgcolor=lightblue>"
