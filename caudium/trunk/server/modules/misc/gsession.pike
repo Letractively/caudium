@@ -201,7 +201,7 @@ void co_session_gc()
     }
 
 #ifdef THREADS
-    Thread.thread_create(cur_storage->expire, time());
+    Thread.thread_create(cur_storage->expire, time(), QUERY(expire));
 #else
     cur_storage->expire(time());
 #endif
@@ -406,7 +406,7 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //   void store(object id, string key, mixed data, string sid, void|string reg);
 //   mixed retrieve(object id, string key, string sid, void|string reg);
 //   mixed delete_variable(object id, string key, string sid, void|string reg);
-//   void expire_old(int curtime);
+//   void expire_old(int curtime, int expiration_time);
 //   void delete_session(sid);
 //
 private mapping memory_storage_registration_record = ([
