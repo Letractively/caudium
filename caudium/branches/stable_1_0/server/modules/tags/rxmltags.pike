@@ -2862,9 +2862,9 @@ string tag_pr(string tagname, mapping m)
   m_delete(m, "size");
   int w;
   if(get_pr_size(size,color)  == "NONEXISTANT COMBINATION") color = "red";
-  sscanf(get_pr_size(size,color), "%*swidth=%d", w);
+  sscanf(get_pr_size(size,color), "%*swidth=\"%d", w);
   m->width = (string)w;
-  sscanf(get_pr_size(size,color), "%*sheight=%d", w);
+  sscanf(get_pr_size(size,color), "%*sheight=\"%d", w);
   m->height = (string)w;
   m->src = "/internal-caudium-power-"+size+"-"+color;
   if(!m->alt) m->alt="Powered by Caudium";
