@@ -25,7 +25,7 @@
 #define RXMLTAGS id->conf->get_provider("rxml:tags")
 
 //! module: Accessed Counter Tag: FileDB
-//!  This module provides accessed counters, through the &lt;accessed&gt; tag. 
+//!  This module provides accessed counters, through the &lt;accessed2&gt; tag. 
 //!  Using FileDB compatibility mode.
 //! type: MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL
 //! inherits: module
@@ -44,7 +44,7 @@ constant module_name   = "Accessed Counter Tag: FileDB";
 // Kiwi: we do not support yet entities so =)
 //constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
-                         "<tt>&lt;accessed&gt;</tt> tag. Using FileDB compatibiliyy mode.";
+                         "<tt>&lt;accessed2&gt;</tt> tag. Using FileDB compatibility mode.";
 constant module_unique = 1;
 constant language      = roxen->language;
 
