@@ -273,7 +273,7 @@ string do_parse(string to_parse, object id, object file, mapping defines,
   }
   id->misc->parse_level ++;
 
-  toparse =
+  to_parse =
     parse_html_lines(to_parse, id->misc->_tags, id->misc->_containers,
 		    id, file, defines, my_fd);
   id->misc->parse_level --;
