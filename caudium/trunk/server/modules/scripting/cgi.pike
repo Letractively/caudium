@@ -117,6 +117,7 @@ Stdio.File open_log_file( string logfile )
     }
     return lf;
   }
+  // XB: return Stdio.File( "stderr" ); ?
   return Stdio.stderr;
 }
 
@@ -691,6 +692,7 @@ class CGIScript
     switch( QUERY(stderr) )
     {
      case "main log file":
+       // XB: stderr = Stdio.File( "stderr" ); ?
        stderr = Stdio.stderr;
        break;
      case "custom log file":
