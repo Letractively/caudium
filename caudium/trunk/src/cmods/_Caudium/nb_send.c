@@ -300,6 +300,11 @@ static INLINE void free_data_buf(void) {
 /* free output object */
 static INLINE  void free_output(output *outp) {
   noutputs--;
+  push_int(0);    push_int(0);    push_int(0);
+  apply_low(outp->file, outp->set_nb_off, 3);
+  pop_stack();
+  apply_low(outp->file, outp->set_b_off, 0);
+  pop_stack();
   free_object(outp->file);
   free(outp);
 }
@@ -423,11 +428,6 @@ static void finished(void)
   }
 
   if(THIS->outp != NULL) {
-    push_int(0);    push_int(0);    push_int(0);
-    apply_low(THIS->outp->file, THIS->outp->set_nb_off, 3);
-    pop_stack();
-    apply_low(THIS->outp->file, THIS->outp->set_b_off, 0);
-    pop_stack();
     free_output(THIS->outp);
     THIS->outp = NULL;
   }
