@@ -34,7 +34,7 @@ inherit "roxenlib";
 #include <module.h>
 import Sql;
 
-mapping (string:mapping (string:mixed)) _variables;
+mapping (string:mapping (string:mixed)) _variables = ([]);
 object myconf;
 int foundcookieandprestate = 0;
 
@@ -241,6 +241,12 @@ mapping (string:mixed) variables_retrieve(string region, string key) {
 }
 
 void variables_store_memory(string region, string key, mapping values) {
+  if (!_variables[region]) {
+    _variables[region] = ([]);
+  }
+  if (!_variables[region][key]) {
+    _variables[region][key] = ([]);
+  }
   _variables[region][key]->lastusage = time();
   _variables[region][key]->values = values;
 }
