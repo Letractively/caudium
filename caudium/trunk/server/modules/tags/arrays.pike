@@ -38,11 +38,12 @@ inherit "module";
 inherit "caudiumlib";
 
 #define STOR	id->misc->_extended_arrays
+
 #define GET_ARRAY(x) do { if(!STOR) STOR=([]); x = STOR[args->name]; if(!x) x = STOR[args->name] = ({}); } while(0)
 #define SET_ARRAY(x) do { if(!STOR) STOR=([]); STOR[args->name] = x; } while(0)
 #define GET_ARRAY_BYNAME(x, y) do { if(!STOR) STOR=([]); x = STOR[y]; if(!x) x = STOR[y] = ({}); } while(0)
 #define SET_ARRAY_BYNAME(x, y) do { if(!STOR) STOR=([]); STOR[y] = x; } while(0)
-
+#define GET_OLD_ARRAY_BYNAME(x, y) do { if(!STOR) STOR=([]); x = STOR[y]; } while(0)
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Array Handling for RXML";
@@ -237,6 +238,128 @@ string array_output(string tag, mapping args, string contents, object id)
   return res;
 }
 
+//! entity_scope: array
+//!  This scope is to be used for manipulation and access of values in arrays.
+//!  The syntax is similar to that of the &amp;var; scope. For example you get
+//!  the first entry of an array with &amp;array.NAME.0; where NAME is the
+//!  array you want to access. See below for further details.
+//! entity: NAME
+//!  Return 1 if the array NAME exists and 0 if it doesn't. This syntax is
+//!  invalid to use in &lt;set> or other tags that modify the value.
+//! entity: NAME.NUM
+//!  Return index NUM (starting at zero) from the array NAME. If the number is
+//!  out of bounds or if the array doesn't exist, the empty string is returned.
+//!  When setting an entry, the number also has to be within bounds. You can't
+//!  increase the size using this syntax.
+//! entity: NAME.size
+//!  Returns the size of the array NAME. A size of -1 means that the array
+//!  doesn't exist. You can also use this syntax to resize an array.
+//!  ie &lt;set variable="array.NAME.size" value="10"> will resize the array
+//!  NAME to 10. If the new size is larger than the old one, all new entries
+//!  will be set to the empty string. If the array doesn't exist, a new array
+//!  of this size will be created.
+//! entity: NAME.dump
+//!  Dump the entire contents of the array NAME with each entry separated by a
+//!  comma. This is ment for debug purposes and is invalid to use in the
+//!  &lt;set> tag or other tags that modify the value.
+
+class ArrayScope {
+  inherit "scope";
+  constant name = "array";
+  int set(mixed entity, mixed value, object id) {
+    array split = entity / ".";
+    string arr;
+    array this;
+    switch(sizeof(split)) {
+     case 1:
+      return 0; /* not valid. */
+      break;
+     default:
+      entity = split[-1];
+      arr = split[..sizeof(split)-2] * ".";
+      switch(entity) {
+       case "dump":
+	return 0;
+       case "size":
+	value = (int)value;
+	if(value > 0)
+	{
+	  GET_ARRAY_BYNAME(this, arr);
+	  if(value < sizeof(this)) {
+	    this = this[..value-1];
+	  } else if(value != sizeof(this)) {
+	    this += allocate(value - sizeof(this), "");
+	  }
+	  SET_ARRAY_BYNAME(this, arr);
+	  return 1;
+	} else if(!value) {
+	  SET_ARRAY_BYNAME(({}), arr);
+	  return 1;
+	}
+	return 0;
+       default:
+	entity = (int)entity;
+	if(entity < 0) return 0;  /* Only allow positive numbers */
+	GET_OLD_ARRAY_BYNAME(this, arr);
+	if(!this) return 0; /* No array with that name */
+	if(entity >= sizeof(this) )
+	  return 0; /* Index out of bound */
+	if(value == 0)
+	  this[entity] = ""; /* "delete" the entry */
+	else 
+	  this[entity] = (string)value;
+      }
+    }
+    return 1;
+  }
+  string get(mixed entity, object id) {
+    NOCACHE();
+    mixed value;
+    array this, split = entity / ".";
+    string arr;
+    switch(sizeof(split)) {
+     case 1: /* Name only, return 1 if it exists, 0 otherwise */
+      GET_OLD_ARRAY_BYNAME(this, entity);
+      value = !!this;
+      break;
+     default:
+      entity = split[-1];
+      arr = split[..sizeof(split)-2] * ".";
+      switch(entity) {
+       case "dump":
+	GET_OLD_ARRAY_BYNAME(this, arr);
+	if(!this) value = "";
+	else value = this*", ";
+	break;
+       case "size":
+	GET_OLD_ARRAY_BYNAME(this,arr);
+	if(!this) value = -1;
+	else      value = sizeof(this);
+	break;
+	
+       default:
+	entity = (int)entity;
+	if(entity < 0) return 0;  /* Only allow positive numbers */
+	GET_OLD_ARRAY_BYNAME(this, arr);
+	if(!this)
+	  value=""; /* No array with that name */
+	else if(sizeof(this) < entity)
+	  value = "";
+	else 
+	  value = this[entity];
+	break;
+      }
+    }
+    if(!value) return 0;
+    return (string)value;
+  }
+  
+  object clone()
+  {
+    return object_program(this_object())();
+  }    
+}
+
 mapping query_container_callers()
 {
   return ([ "arraycadd": array_container,
@@ -261,6 +384,14 @@ mapping query_tag_callers()
   ]);
   
 } 
+
+array(object) query_scopes()
+{
+  return ({
+    ArrayScope(),
+  });
+}
+  
 
 
 /*
