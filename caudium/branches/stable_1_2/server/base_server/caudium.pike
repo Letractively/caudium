@@ -78,8 +78,12 @@ constant pipe = Caudium.nbio;
 // release
 constant __caudium_version__ = "1.2";
 constant __caudium_build__ = "5";
+constant __caudium_state_ver__ = "RC1";
 
-constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__;
+// any code may _append_ to this string - NEVER replace it!
+string __caudium_extra_ver__ = "";
+
+constant real_version = "Caudium/"+__caudium_version__+"."+__caudium_build__+" "+__caudium_state_ver__;
 
 #if _DEBUG_HTTP_OBJECTS
 mapping httpobjects = ([]);
@@ -1250,6 +1254,12 @@ void post_create () {
 void create()
 {
   ::create();
+
+  //
+  // add the extra ver, if any
+  //
+  if (__caudium_extra_ver__ && sizeof(__caudium_extra_ver__))
+      real_version += " (" + __caudium_extra_ver__ + ")";
   
   catch
   {
