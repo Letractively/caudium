@@ -14,22 +14,22 @@
 # Caudium init.d startup file
 #
 # $Id$
-
+EXTVER=-1.1
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON_DIR=/usr/lib/caudium
+DAEMON_DIR=/usr/lib/caudium${EXTVER}
 DAEMON=$DAEMON_DIR/start
-NAME=caudium
+NAME=caudium${EXTVER}
 DESC="Caudium Webserver"
 
-PIDFILE=/var/run/caudium/caudium.pid
+PIDFILE=/var/run/caudium${EXTVER}/caudium.pid
 DEFSTART_OPTIONS="--pid-file=$PIDFILE"
 
 test -f $DAEMON || exit 0
 
 set -e
 
-if test -f /etc/default/caudium; then
-    . /etc/default/caudium
+if test -f /etc/default/caudium${EXTVER}; then
+    . /etc/default/caudium${EXTVER}
 fi
 
 case "$1" in
@@ -37,7 +37,7 @@ case "$1" in
 	if [ -f $PIDFILE ]
 	then
 		echo "PID file exists, Caudium already running ?"
-		/etc/init.d/caudium stop
+		/etc/init.d/caudium${EXTVER} stop
 		rm -f $PIDFILE
 		sleep 5
 	fi

@@ -1,6 +1,10 @@
 Caudium Webserver for Debian
 ----------------------------
 
+NOTE: THIS PACKAGE EXISTS SOLELY FOR THE COMFORT OF DEBIAN DEVELOPERS
+      AND PEOPLE INTERESTED IN TESTING THE 1.1 VERSION OF THE SERVER.
+      THE STRUCTURE OF THE PACKAGE, EVEN ITS NAME CAN (AND WILL) CHANGE.
+
 A few notes regarding this package are due here since it differs a
 bit from its predecessor, Roxen.
 

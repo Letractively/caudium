@@ -3,6 +3,7 @@ SRCDIR=@srcdir@
 VPATH=@srcdir@
 prefix=@prefix@
 DESTDIR=
+EXTRAVER=
 
 @SET_MAKE@
 
@@ -132,75 +133,75 @@ install_only:
 # well
 #
 install_alt:
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium/servers/
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/etc/caudium$(EXTRAVER)/servers/
 	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium/local_modules
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium/local_fonts
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/log/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/run/caudium
-	@$(SRCDIR)/mkdir -p $(DESTDIR)/usr/local/share/caudium/modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/local_modules
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/cache/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/log/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/var/run/caudium$(EXTRAVER)
+	@$(SRCDIR)/mkdir -p $(DESTDIR)/usr/local/share/caudium$(EXTRAVER)/modules
 	@for f in $(INSTALLFILES); do \
 	 echo "Copying $$f ..."; \
-	 cp -p $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium/; \
+	 cp -p $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/; \
 	done
 	@echo "Copying examples ..."
-	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium/ -name CVS -print`	
+	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name CVS -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
 	          protocols languages server_templates modules more_modules \
 			  unfinishedmodules; do \
 	 echo "Copying $$f ..."; \
-	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
 	done
-	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium -name CVS -print`
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -print`
 	@echo "Copying modules..."
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium -name CVS -print`
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
 	@for f in $(SRCDIR)/server/*; do \
 	 if test -f $$f; then \
-	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium; \
+	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
 	 fi; \
 	done
 	@echo "Fixing paths..."
-	@MDIR="$(prefix)/lib/caudium"; CACHETOP="/var/cache/caudium"; \
+	@MDIR="$(prefix)/lib/caudium$(EXTRAVER)"; CACHETOP="/var/cache/caudium$(EXTRAVER)"; \
 	 for v in more_modules modules local_modules; do \
 	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
 	 done; \
 	 if test "$(prefix)" != "/usr/local"; then \
-	  MODS="$$MODS\\\"/usr/local/share/caudium/modules/\\\""; \
+	  MODS="$$MODS\\\"/usr/local/share/caudium$(EXTRAVER)/modules/\\\""; \
 	 else \
 	  MODS="`echo $$MODS | sed -e 's;,$$;;g'`"; \
 	 fi; \
 	 sed -e "s;\(globvar(.*\"ModuleDirs\",\).*;\1({$$MODS}),;g" \
-	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"$(prefix)/share/caudium/local_fonts\",\"nfonts\"}),;g" \
-	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium/\"\2;g" \
+	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"$(prefix)/share/caudium$(EXTRAVER)/local_fonts\",\"nfonts\"}),;g" \
+	     -e "s;\(globvar(.*\"logdirprefix\",.*\)\"../logs/\"\(.*\);\1\"/var/log/caudium$(EXTRAVER)/\"\2;g" \
 	     -e "s;\(globvar(.*\"cachedir\",.*\)\"/tmp/caudium_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
-	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium/caudium.pid\"\2;g" \
+	     -e "s;\(globvar(.*\"pidfile\",.*\)\"/tmp/caudium_pid\"\(.*\);\1\"/var/run/caudium$(EXTRAVER)/caudium.pid\"\2;g" \
 	     -e "s;\(globvar(.*\"argument_cache_dir\",.*\)\"../argument_cache/\"\(.*\);\1\"$$CACHETOP/\"\2;g" \
-	  $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike > \
-	  $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike.new; \
-	 mv $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike.new \
-	    $(DESTDIR)/$(prefix)/lib/caudium/base_server/caudium.pike
-	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium/;g" \
-	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium/servers/;g" \
-	     $(DESTDIR)/$(prefix)/lib/caudium/start > \
-	     $(DESTDIR)/$(prefix)/lib/caudium/start.new; \
-	mv $(DESTDIR)/$(prefix)/lib/caudium/start.new $(DESTDIR)/$(prefix)/lib/caudium/start
+	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike > \
+	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new; \
+	 mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new \
+	    $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike
+	@sed -e "s;\(LOGDIR=\)../logs/;\1/var/log/caudium$(EXTRAVER)/;g" \
+	     -e "s;\(DIR=\)../configurations/;\1/etc/caudium$(EXTRAVER)/servers/;g" \
+	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start > \
+	     $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new; \
+	mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start.new $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
 	@(cd src;$(MAKE) "prefix=$(prefix)" "DESTDIR=$(DESTDIR)" \ "CC=$(CC)" \
-	                 "LDFLAGS=$(LDFLAGS)" \
-	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium/lib/@PIKE_VERSION@/" install_alt)
-	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium/bin/caudium
-	-@for f in fcgi install.pike pdbi.pike pike caudium; \
+	                 "LDFLAGS=$(LDFLAGS)" "EXTRAVER=$(EXTRAVER)"\
+	                 "INSTALLDIR=$(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@/" install_alt)
+	@ln -sf $(PIKE) $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/caudium$(EXTRAVER)
+	-@for f in fcgi install.pike pdbi.pike pike caudium$(EXTRAVER); \
 	do \
-	  if test -f $(DESTDIR)/$(prefix)/lib/caudium/bin/$$f ; then \
-	    echo Modifying permissions for file $(prefix)/lib/caudium/bin/$$f... ; \
-	    chmod 755 $(DESTDIR)/$(prefix)/lib/caudium/bin/$$f; \
+	  if test -f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/lib/caudium$(EXTRAVER)/bin/$$f... ; \
+	    chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/bin/$$f; \
 	  else :; fi; \
 	done
-	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium/start
+	@chmod 755 $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/start
 	@echo "Caudium installed."
 
 spotless:  clean
