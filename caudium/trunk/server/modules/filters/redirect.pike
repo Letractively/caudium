@@ -208,7 +208,7 @@ class RegMatch {
   string match(string with, object id) {
     string to;
     array split, from;  
-    if((split = split_fun(with)))  {
+    if((split = split_fun(replace(with, "%", "%%"))))  {
       from = Array.map(split, lambda(string s, mapping f) {
 				return "$"+(f->num++);
 			      }, ([ "num":1 ]));
