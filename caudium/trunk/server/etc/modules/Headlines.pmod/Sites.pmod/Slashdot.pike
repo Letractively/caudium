@@ -8,69 +8,32 @@
 import Headlines;
 
 #include <headlines/base.h>
+#include <headlines/RDF.h>
 
 constant name = "slashdot";
 constant site = "Slashdot.org";
-constant url = "http://slashdot.org/";
-constant path = "slashdot.xml";
+constant url  = "http://slashdot.org/";
+constant path  = "slashdot.rdf";
 
-constant names = ({ "title", "author", "topic", "time", "comments" });
-constant titles = ({" Title ", " Author ", " Topic ", " Date ", " #C " });
+constant names = ({ "title" });
+constant titles = ({" Application " });
 
 constant sub = "Computing/General";
-
 array headlines;
 
-static private string parse_it(string tag, mapping args,
-			       string|int contents, mapping hl)
+string entry2txt(mapping hl)
 {
-  switch(tag)
-  {
-  case "story":
-    hl = ([]);
-    parse_html(contents, ([ ]), ([ "title": parse_it, "url": parse_it,
-				   "time": parse_it,	"author": parse_it,
-				   "department": parse_it, "topic": parse_it,
-				   "comments": parse_it, "section": parse_it,
-				   "image": parse_it,  ]), hl);
-    headlines += ({ hl });
-    break;
-
-  case "comments":
-    hl[tag] = (int)contents;
-    break;
-  default:
-    hl[tag] = trim(contents);
-    break;
-  }
-  return "";
-}
-  
-private static void fetch_failed(object http)
-{
-  werror("%s: failed to get headlines..\n", site);
+  return sprintf("Program: %s\n"
+		 "URL:     %s\n",
+		 hl->title||"None", HTTPFetcher()->encode(hl->url||""));
 }
 
 private static void parse_reply(string data)
 {
-  parse_html(data, ([]), (["story" : parse_it ]) );
-}
+  rdf_parse_reply(data);
 
-string entry2txt(mapping hl)
-{
-  return sprintf("Title:    %s\n"
-		 "URL:      %s\n"
-		 "Date:     %s\n"
-		 "Author:   %s\n"
-		 "Dept:     %s\n"
-		 "Topic:    %s\n"
-		 "Section:  %s\n"
-		 "Comments: %d\n"
-		 "\n",
-		 hl->title||"None", 
-		 HTTPFetcher()->encode(hl->url||""),
-		 hl->time, hl->author||"",
-		 hl->department||"N/A", hl->topic ||"N/A",
-		 hl->section ||"N/A", hl->comments
-		 );
+  foreach(headlines, mapping hl) {
+    array tmp = hl->url / "/";
+    hl->time = ctime((int)tmp[-1])[4..23];
+  }
 }

@@ -124,8 +124,10 @@ string headlineoutput(string tag_name, mapping args, string contents,
      }
      else
      {
+       mixed err = catch {
        object me = Headlines.Sites[ sites [lower_case(args->site) ] ]();
        me->refetch(update_me);
+       };
      }
    }
    else
