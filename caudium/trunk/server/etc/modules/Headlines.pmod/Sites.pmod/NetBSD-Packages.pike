@@ -10,10 +10,10 @@ import Headlines;
 #include <headlines/base.h>
 #include <headlines/RDF.h>
 
-constant name = "freebsd";
-constant site = "FreeBSD";
-constant url  = "http://www.freebsd.org/";
-constant path  = "news/news.rdf";
+constant name = "netbsdpackages";
+constant site = "FreeBSD Packages";
+constant url  = "http://www.netbsd.org/";
+constant path  = "Changes/rss-netbsd-pkgs.xml";
 
 constant names = ({ "title", "time" });
 constant titles = ({" Application ", " Date " });
