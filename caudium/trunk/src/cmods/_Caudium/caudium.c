@@ -1625,7 +1625,10 @@ static void f_cern_http_date(INT32 args)
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
   struct pike_string *ret;
   INT_TYPE timestamp;
-
+#if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
+   long diff;
+   int sign;
+#endif
   switch(args) {
    default:
      Pike_error("Wrong number of arguments _Caudium.cern_http_date(). Expected at most 1 argument.\n");
@@ -1673,8 +1676,6 @@ static void f_cern_http_date(INT32 args)
    }
 
 #if !defined(HAVE_STRFTIME) || !defined(STRFTIME_SUPPORTS_Z)
-   long diff;
-   int sign;
 #ifdef STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
