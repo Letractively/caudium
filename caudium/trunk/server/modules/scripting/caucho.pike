@@ -21,7 +21,7 @@
 
 //
 //! module: mod_caucho for Caudium
-//!  This module provide srun Caudium interface.
+//!  This module provides srun Caudium interface.
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION | MODULE_LAST
@@ -82,7 +82,7 @@ inherit "caudiumlib";
 constant module_type	= MODULE_FILE_EXTENSION | MODULE_LAST;
 constant module_unique	= 0;
 constant module_name	= "mod_caucho for Caudium";
-constant module_doc	= "This module provide srun Caudium interface.\n";
+constant module_doc	= "This module provides srun Caudium interface.\n";
 
 class CseStream
 {
