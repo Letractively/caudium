@@ -298,7 +298,7 @@ string tag_sed(string tag,mapping m,string cont,object id)
    mapping c=(["e":({})]);
    string|array d;
    
-   spider.parse_html(cont,
+   Caudium.parse_html(cont,
 	      (["source":lambda(string tag,mapping m,mapping c,object id)
 			 { 
 			    if (m->variable)

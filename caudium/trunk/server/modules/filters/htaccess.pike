@@ -195,7 +195,7 @@ mapping|int parse_htaccess(object f, object id, string rht)
 
   access = ([]); 
 
-  spider.parse_html(htaccess - "\r",
+  Caudium.parse_html(htaccess - "\r",
 			([]), (["limit": parse_limit ]), id, access);
 
   if ((!access["head"]) && access["get"]) {

@@ -107,18 +107,18 @@ string http_date(int t) {
 // Some spider calls are not under spider module so here is some compat
 // things
 
-//! Compat call of spider.parse_html
+//! Compat call of Caudium.parse_html
 //! @deprecated
 string parse_html(mixed ... args) {
-   WCOMPAT("spider","parse_html");
-   return spider.parse_html(@args);
+   WCOMPAT("Caudium","parse_html");
+   return Caudium.parse_html(@args);
 }
 
-//! Compat call of spider.parse_html_lines
+//! Compat call of Caudium.parse_html_lines
 //! @deprecated
 string parse_html_lines(mixed ... args) {
-   WCOMPAT("spider","parse_html_lines");
-   return spider.parse_html_lines(@args);
+   WCOMPAT("Caudium","parse_html_lines");
+   return Caudium.parse_html_lines(@args);
 }
 
 //! Compat call of spider.parse_accessed_database

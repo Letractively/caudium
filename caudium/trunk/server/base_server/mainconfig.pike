@@ -1919,7 +1919,7 @@ mapping configuration_parse(object id)
   tmp = o->describe(1,id);
   if(mappingp(tmp)) return tmp;
   if(!id->supports->font)
-    tmp = spider.parse_html(tmp, ([]),(["font":remove_font, ]));
+    tmp = Caudium.parse_html(tmp, ([]),(["font":remove_font, ]));
   PUSH("<dl><dt>");
   PUSH(tmp);
   PUSH("</dl>");

@@ -123,7 +123,7 @@ class profile {
 }
 
 class Master {
-  import spider;
+  //import spider;
   // Master Profile
   array profiles = ({});
   string savedir, method;
@@ -221,7 +221,7 @@ class Master {
 	werror("Profile is missing a name.\n");
 	break;
       }
-      contents = spider.parse_html(contents||"", 
+      contents = Caudium.parse_html(contents||"", 
 		 ([ "file": parse_profile, 
 		    "noref": parse_profile, 
 		    "extensions": parse_profile,
@@ -250,7 +250,7 @@ class Master {
     string profdata = Stdio.read_file(file);
     if(!profdata) return;
    
-    profdata = spider.parse_html(profdata, ([ "savedir": parse_profdata,
+    profdata = Caudium.parse_html(profdata, ([ "savedir": parse_profdata,
 				       "table": parse_profdata ]),
 			  (["profile": parse_profdata,
 			    "ispprofile": parse_profdata]));

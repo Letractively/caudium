@@ -707,7 +707,7 @@ string tag_diagram(string tag, mapping m, string contents,
       res->dimensionsdepth = 20;
   }
 
-  spider.parse_html(contents,
+  Caudium.parse_html(contents,
 	     ([ "xaxis":itag_xaxis,
 	        "yaxis":itag_yaxis ]),
 	     ([ "data":itag_data,

@@ -504,7 +504,7 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
   int pageno = (int)page;
   mapping foo = ([]);
   // Cannot easily be inlined below, believe me... Side-effects.
-  form = spider.parse_html(form,(id->misc->extra_wizard_tags || ([])) +
+  form = Caudium.parse_html(form,(id->misc->extra_wizard_tags || ([])) +
         ([ "var":wizard_tag_var, ]),
         (id->misc->extra_wizard_container || ([])) +
         ([ "cvar":wizard_tag_var, 

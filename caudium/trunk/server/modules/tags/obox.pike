@@ -177,7 +177,7 @@ string container_obox(string name, mapping args,
   args->outlinecolor = args->outlinecolor || "#000000";
   args->style = args->style || "groupbox";
   if (!args->title) {
-    contents=spider.parse_html(contents,([]),(["title":handle_title,]),args);
+    contents=Caudium.parse_html(contents,([]),(["title":handle_title,]),args);
   }
 
   switch (name) {

@@ -220,7 +220,7 @@ string tag_fl( string tag, mapping arg, string cont,
 
 string recurse_parse_ftfd(string cont,mapping m,string id)
 {
-   return spider.parse_html(cont,([]),
+   return Caudium.parse_html(cont,([]),
 		(["ft":
 		  lambda(string tag,mapping arg,string cont,mapping m,string id)
 		  {

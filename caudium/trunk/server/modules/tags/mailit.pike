@@ -203,7 +203,7 @@ mixed container_mailit(string tag_name, mapping arguments,
 	request_id->misc->mailitbody="";
 
 	contents=parse_rxml(contents, request_id);
-	contents = spider.parse_html(contents,([ "mailheader":tag_header,
+	contents = Caudium.parse_html(contents,([ "mailheader":tag_header,
 			"mailattach":tag_attach ]),
                     (["mailmessage":container_message]), request_id ); 
 	object mpmsg;
