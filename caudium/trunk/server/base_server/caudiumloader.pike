@@ -717,6 +717,11 @@ int main(mixed ... args)
   add_constant("init_logger", init_logger);
   add_constant("open", open);
   add_constant("mkdirhier", mkdirhier);
+#if !constant(http_decode_string) && constant(_Roxen.http_decode_string)
+  add_constant("http_decode_string", _Roxen.http_decode_string);
+#endif
+  
+
 #if !constant(mark_fd)
   add_constant("mark_fd", lambda(mixed ... args) { } );
 #endif
