@@ -630,7 +630,7 @@ class roxen_sslfile {
   object config;
 
   int destructme; // 0: alive, 1: parent wants destruct, 2: self wants destruct.
-
+  int query_fd() { return -1; }
   void die(int status)
   {
 #ifdef SSL3_DEBUG
