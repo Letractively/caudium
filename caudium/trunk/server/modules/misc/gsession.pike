@@ -1159,13 +1159,18 @@ mixed|mapping(string:mixed) delete_variable(object id, string|array(string) key,
 //
 //    id     - the request object
 //
-void delete_session(object id)
+void delete_session(object|string id)
 {
   if (!cur_storage || !id->misc->session_id)
     return;
 
-  cur_storage->delete_session(id->misc->session_id);
+  if (objectp(id))
+    cur_storage->delete_session(id->misc->session_id);
+  else if (stringp(id))
+    cur_storage->delete_session(id);
 }
+
+function kill_session = delete_session;
 
 // GET SESSIONS AREA
 //
