@@ -18,12 +18,33 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
+//! Syntax highlighter for pike. Used when backtrace is done to
+//! send "good looking" pike formating for the developer
+//! @fixme
+//!   Do a CSS ( HTML 4.01 ) compliant code.
+
+//! Quote the string to plain text to html.
+//! @param s
+//!   The plain text string to quote
+//! @return
+//!   The string quoted
 string quote(string s)
 {
   return replace(s,({ "<", ">", "&", }),({"&lt;", "&gt;", "&amp;" }));
 }
 
+//! Highlight a string
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_string(string s,mapping m)
 {
   if(m->dark)
@@ -32,6 +53,14 @@ string highlight_string(string s,mapping m)
     return "<i><font color=skyblue>"+quote(s)+"</font></i>";
 }
 
+//! Highlight a comment
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_comment(string s, mapping m)
 {
   if(m->dark)
@@ -39,43 +68,83 @@ string highlight_comment(string s, mapping m)
   return ("<font color=yellow>"+quote(s)+"</font>");
 }
 
+//! Highlight a keyword
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_keyword(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkblue>"+quote(s)+"</font></b>");
   return ("<b><font color=lightblue>"+quote(s)+"</font></b>");
 }
 
+//! Highlight a type
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_type(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkgreen>"+quote(s)+"</font></b>");
   return ("<b><font color=lightgreen>"+quote(s)+"</font></b>");
 }
 
+//! Highlight a pre (?)
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_pre(string s, mapping m)
 {
   if(m->dark) return ("<font color=brown>"+quote(s)+"</font>");
   return ("<font color=pink>"+quote(s)+"</font>");
 }
 
+//! Highlight a declarator
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_declarator(string s, mapping m)
 {
   if(m->dark) return ("<b><font color=darkbrown>"+quote(s)+"</font></b>");
   return ("<b><font color=#ffeeaa>"+quote(s)+"</font></b>");
 }
 
-
+//! Highlight a case
+//! @param s
+//!   The string to highlight
+//! @param m
+//!   The type of highlighting. If 'dark' is give in this mapping
+//!   then it will use dark fonts.
+//! @returns
+//!   The string highlighted
 string highlight_case(string s, mapping m)
 {
   if(m->dark) return ("<font color=black>"+quote(s)+"</font>");
   return ("<font color=aquamarine>"+quote(s)+"</font>");
 }
 
+//! The keyword to highlight
 constant keywords=({"foreach","break","constant","catch","gauge","class","continue","do","else","for","foreach","if","import","inherit","inline","lambda","nomask","private","protected","public","return","static","final", "switch","throw","while",});
 
+//! The types to highlight
 constant types=({"mapping","function","multiset","array","object","program","float","int","mixed","string","void"});
 
-
-
+//!
 array (string) find_decl(string in)
 {
   string pre,decl,p2;
@@ -88,6 +157,7 @@ array (string) find_decl(string in)
   return ({ "", pre+in });
 }
 
+//!
 string find_complex_type(string post)
 {
   string p="";
@@ -122,6 +192,7 @@ string find_complex_type(string post)
   return p;
 }
 
+//!
 array (string) find_type(string in)
 {
   string s,pre,post,decl;
@@ -163,6 +234,7 @@ array (string) find_type(string in)
   }
 }
 
+//! Find a keyword
 array (string) find_keyword(string in)
 {
   string s,pre,post;
@@ -174,6 +246,7 @@ array (string) find_keyword(string in)
 	return ({ pre, s, post });
 }
 
+//! Find a string
 array (string) find_string(string in)
 {
   string s,pre,post;
@@ -182,6 +255,7 @@ array (string) find_string(string in)
     return ({ pre, "\""+replace(s, "\0", "\\\"")+"\"", post });
 }
 
+//! Find a comment
 array (string) find_comment(string in)
 {
   string s,pre,post;
@@ -191,6 +265,8 @@ array (string) find_comment(string in)
     return ({ pre,  "/*"+s+"*/", post });
 }
 
+
+//! Find a comment outside of a string
 array (string) find_comment_outside_string(string in)
 {
   string s,pre,post,q;
@@ -204,6 +280,7 @@ array (string) find_comment_outside_string(string in)
     return ({ pre,  "/*"+s+"*/", post });
 }
 
+//! Find a case
 array (string) find_case(string in)
 {
   string mid,pre,post;
@@ -223,6 +300,7 @@ array (string) find_case(string in)
 	return ({ pre, "default", post, "", "" });
 }
 
+//! Find a preparse
 array (string) find_preparse(string in)
 {
   string s,post,q;
@@ -243,6 +321,7 @@ array highlight_patterns =
     
 #define push(X) res += X
 
+//! Highlight a line
 string highlight_line(string l, mapping m)
 {
   array p,r;
@@ -267,11 +346,29 @@ string highlight_line(string l, mapping m)
   return quote(l);
 }
 
+//! Do the highlighting work
 string do_the_highlighting(string s, mapping m)
 {
   return highlight_line(s, m);
 }
 
+//! Highlight a pike program
+//! @param t
+//!   Not really used. You can put any string there this will be ignored
+//! @param m
+//!   Mapping with current options that can use this code.
+//!  @mapping
+//!   @value light
+//!     Use light highlighting
+//!   @value dark
+//!     Use dark highlighting
+//!   @value nopre
+//!     Do not add <pre></pre> HTML code between the rendered code.
+//!  @endmapping
+//! @param contents
+//!   The Pike code to render
+//! @returns
+//!   HTMLized pike code :)
 string highlight_pike(string t, mapping m, string contents)
 {
   if(!m->light) m->dark="yep";

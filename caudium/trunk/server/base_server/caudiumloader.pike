@@ -21,19 +21,15 @@
 
 /*
  * $Id$
- *
- * Caudium bootstrap program.
- *
  */
 
-// Sets up the caudium environment. Including custom functions like spawne().
+//! Caudium bootstrap program: sets up the caudium environment.
+//! Including custom functions like spawne().
+//! @note
+//!   This file uses replace_master(). This implies that the
+//!   master() efun when used in this file will return the old
+//!   master and not the new one.
 
-//
-// NOTE:
-//	This file uses replace_master(). This implies that the
-//	master() efun when used in this file will return the old
-//	master and not the new one.
-//
 private static object new_master;
 
 constant cvs_version="$Id$";
@@ -126,6 +122,7 @@ mixed mark_fd(int fd, mixed|void marker) {
  * Some efuns used by Caudium
  */
 
+//!
 array(int) caudium_fstat(string|Stdio.File file, int|void nolink) {
   mixed st;
   if(objectp(file)) {
@@ -140,7 +137,7 @@ array(int) caudium_fstat(string|Stdio.File file, int|void nolink) {
   return 0;
 }
 
-// Used to print error/debug messages
+//! Used to print error/debug messages
 void roxen_perror(string format,mixed ... args)
 {
   int t = time();
@@ -194,7 +191,7 @@ object open_db(string id)
 }
 
 
-// Help function used by low_spawne()
+//! Help function used by low_spawne()
 mapping(string:string) make_mapping(array(string) f)
 {
   mapping(string:string) foo=([ ]);
@@ -208,19 +205,16 @@ mapping(string:string) make_mapping(array(string) f)
 }
 
 
-// Caudium itself
+//! Caudium itself
 object caudium;
 
-// The function used to report notices/debug/errors etc.
-
+//! The function used to report notices/debug/errors etc.
 function(string,int|void,int|void:void) nwrite = stderr->write;
 
 
-/*
- * Code to get global configuration variable values from Caudium.
- */
 #define VAR_VALUE 0
 
+//! Code to get global configuration variable value from Caudium.
 mixed query(string arg) 
 {
   if(!caudium)
@@ -232,7 +226,7 @@ mixed query(string arg)
   return caudium->variables[arg][VAR_VALUE];
 }
 
-// used for debug messages. Sent to the configuration interface and STDERR.
+//! used for debug messages. Sent to the configuration interface and STDERR.
 void init_logger()
 {
 #if constant(syslog)
@@ -274,7 +268,7 @@ void init_logger()
 #endif
 }
 
-// Print a debug message
+//! Print a debug message
 void report_debug(string message, mixed ... args)
 {
   if(sizeof(args)) message = sprintf(message, @args);
@@ -286,7 +280,7 @@ void report_debug(string message, mixed ... args)
 #endif
 }
 
-// Print a warning
+//! Print a warning
 void report_warning(string message, mixed ... args)
 {
   if(sizeof(args)) message = sprintf(message, @args);
@@ -298,7 +292,7 @@ void report_warning(string message, mixed ... args)
 #endif
 }
 
-// Print a notice
+//! Print a notice
 void report_notice(string message, mixed ... args)
 {
   if(sizeof(args)) message = sprintf(message, @args);
@@ -310,7 +304,7 @@ void report_notice(string message, mixed ... args)
 #endif
 }
 
-// Print an error message
+//! Print an error message
 void report_error(string message, mixed ... args)
 {
   if(sizeof(args)) message = sprintf(message, @args);
@@ -322,7 +316,7 @@ void report_error(string message, mixed ... args)
 #endif
 }
 
-// Print a fatal error message
+//! Print a fatal error message
 void report_fatal(string message, mixed ... args)
 {
   if(sizeof(args)) message = sprintf(message, @args);
@@ -334,7 +328,7 @@ void report_fatal(string message, mixed ... args)
 #endif
 }
 
-// Pipe open 
+//! Pipe open 
 string popen(string s, void|mapping env, int|void uid, int|void gid)
 {
   Stdio.File p;
@@ -390,6 +384,7 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
   return 0;
 }
 
+//!
 int low_spawne(string s, array args,
                mapping(string:string)|array(string) env,
                Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
@@ -415,7 +410,7 @@ int low_spawne(string s, array args,
   exit(99);
 }
 
-// Create a process
+//! Create a process
 int spawne(string s, array(string) args, mapping|array env, object stdin, 
            object stdout, object stderr, void|string wd, void|array (int) uid)
 {
@@ -450,7 +445,7 @@ int spawne(string s, array(string) args, mapping|array env, object stdin,
   return(-1);
 }
 
-// Start a new Pike process with the same configuration as the current one
+//! Start a new Pike process with the same configuration as the current one
 int spawn_pike(array(string) args, void|string wd, object|void stdin,
                object|void stdout, object|void stderr)
 {
@@ -487,7 +482,7 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
   return -1;
 }
 
-// Add a few cache control related efuns
+//! Add a few cache control related efuns
 object cache_manager() {
   if (! objectp( _cache_manager ) ) {
     _cache_manager = Cache.Manager(); 
@@ -507,8 +502,11 @@ static private void initiate_cache()
   add_constant("capitalize", lambda(string s){return upper_case(s[0..0])+s[1..];});
 }
 
+//!
 class _error_handler {
+  //!
   void compile_error(string a,int b,string c);
+  //!
   void compile_warning(string a,int b,string c);
 }
 array(_error_handler) compile_error_handlers = ({});
@@ -565,6 +563,7 @@ class LowErrorContainer
   }
 }
 
+//!
 class ErrorContainer
 {
   inherit LowErrorContainer;
@@ -586,7 +585,7 @@ class ErrorContainer
 }
 
 
-// privs.pike placeholder during bootstrap.
+//! privs.pike placeholder during bootstrap.
 class myprivs
 {
   program privs;
@@ -605,7 +604,7 @@ class myprivs
   }
 }
 
-// Don't allow cd() unless we are in a forked child.
+//! Don't allow cd() unless we are in a forked child.
 class restricted_cd
 {
   int locked_pid = getpid();
@@ -618,7 +617,7 @@ class restricted_cd
   }
 }
 
-// Place holder.
+//! Place holder.
 class empty_class {
   void create(mixed ... args) {
   }
@@ -636,7 +635,7 @@ int gethrtime()
 }
 #endif
 
-// Load Caudium for real
+//! Load Caudium for real
 object really_load_caudium()
 {
   int start_time = gethrtime();
@@ -661,8 +660,8 @@ object really_load_caudium()
   return res;
 }
 
-// Debug function to trace calls to destruct().
 #ifdef TRACE_DESTRUCT
+//! Debug function to trace calls to destruct().
 void trace_destruct(mixed x)
 {
   roxen_perror(sprintf("DESTRUCT(%O)\n%s\n",
@@ -671,7 +670,7 @@ void trace_destruct(mixed x)
 }
 #endif /* TRACE_DESTRUCT */
 
-// Set up efuns and load Caudium.
+//! Set up efuns and load Caudium.
 void load_caudium()
 {
   add_constant("ErrorContainer", ErrorContainer);
@@ -708,12 +707,13 @@ void load_caudium()
   nwrite = caudium->nwrite;
 }
 
-// Code to trace fd usage.
 #ifdef FD_DEBUG
+//! Code to trace fd usage.
 class mf
 {
   inherit Stdio.File;
 
+  //!
   mixed open(string what, string mode)
   {
     int res;
@@ -729,11 +729,13 @@ class mf
     return res;
   }
 
+  //!
   void destroy()
   {
     catch { mark_fd(query_fd(),"CLOSED"); };
   }  
 
+  //!
   int close(string|void what)
   {
     destroy();
@@ -747,7 +749,7 @@ class mf
 constant mf = Stdio.File;
 #endif
 
-// open() constant.
+//! open() constant.
 object|void open(string filename, string mode, int|void perm)
 {
   object o;
@@ -773,7 +775,7 @@ object|void open(string filename, string mode, int|void perm)
   return o;
 }
 
-// Make a $PATH-style string
+//! Make a $PATH-style string
 string make_path(string ... from)
 {
   return Array.map(from, lambda(string a, string b) {
@@ -804,7 +806,7 @@ string common_prefix(array(string) strs)
 #endif
 
 
-// Caudium bootstrap code.
+//! Caudium bootstrap code.
 int main(int argc, array(string) argv)
 {
   int start_time = gethrtime();

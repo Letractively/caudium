@@ -20,15 +20,13 @@
  * $Id$
  */
 
-//  This file is the very core of Caudium. This is were all global
-//  variables are configured. From a programming point of view, the
-//  instantiated object is available using the global identifier
-//  <tt>caudium</tt>. For example, <b>caudium->reload_all_configurations()</b>
-//  calls the function that checks if any configuration files has changed
-//  on disk.
-//
-
-// ABS and suicide systems contributed freely by Francesco Chemolli
+//! This file is the very core of Caudium. This is were all global
+//! variables are configured. From a programming point of view, the
+//! instantiated object is available using the global identifier
+//! <tt>caudium</tt>. For example, <b>caudium->reload_all_configurations()</b>
+//! calls the function that checks if any configuration files has changed
+//! on disk.
+//! ABS and suicide systems contributed freely by Francesco Chemolli
 
 constant cvs_version = "$Id$";
 

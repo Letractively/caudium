@@ -17,15 +17,20 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
 /*
  * $Id$
  */
+
+//! Datacollector for Caudium. 
+//! @fixme
+//!   This Grendel beast !
+
 #include <caudium.h>
 
 constant RET_IGNORE = -1;
 constant RET_OK = 0;
 
+//!
 void make_variable(string name, string value, mapping variables, int|void overwrite)
 {
     if (!zero_type(variables[name]) && !overwrite)
@@ -34,6 +39,7 @@ void make_variable(string name, string value, mapping variables, int|void overwr
     variables[name] = value;
 }
 
+//!
 void make_tag(string name, string value, mapping tags,
               mapping|void defaults, int|void overwrite)
 {
@@ -51,6 +57,7 @@ void make_tag(string name, string value, mapping tags,
     }
 }
 
+//!
 void make_container(string name, string value, mapping containers,
                     mapping|void defaults, int|void overwrite)
 {
@@ -68,6 +75,7 @@ void make_container(string name, string value, mapping containers,
     }
 }
 
+//!
 mapping error_string(string error, void|string title, void|string charset)
 {
     return ([
@@ -77,6 +85,7 @@ mapping error_string(string error, void|string title, void|string charset)
     ]);
 }
 
+//!
 mapping error_redirect(string uri)
 {
     return ([
@@ -84,6 +93,7 @@ mapping error_redirect(string uri)
     ]);
 }
 
+//!
 mapping|int process(object id, mapping data,
                     mapping variables, mapping tags,
                     mapping containers)
@@ -91,6 +101,7 @@ mapping|int process(object id, mapping data,
     return RET_IGNORE;
 }
 
+//!
 mapping|int finale(object id, mapping data,
                    mapping variables, mapping tags,
                    mapping containers)

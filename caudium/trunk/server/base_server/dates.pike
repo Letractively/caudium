@@ -18,32 +18,38 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-// $Id$
-
-// Misc date functionality. To be inherited by functions that need it.
-
-// Or rather, not to be inherited at all until someone fixes it.
-// This code does not work.  Period.
+/*
+ * $Id$
+ */
 
 
+//! Misc date functionality. To be inherited by functions that need it.
+//! Or rather, not to be inherited at all until someone fixes it.
+//! This code does not work.  Period.
+
+//!
 class Date 
 {
+  //!
   int unix_time;
+
   mapping split;
 
+  //!
   int year(int|void y)
   {
     if(y) split->year = y-1900;
     return split->year+1900;
   }
   
+  //!
   int month(int|void m)
   {
     if(m) split->mon = m;
     return split->mon;
   }
 
+  //!
   int set_to_easter()
   {
     int year = (split->year+1900);
@@ -69,23 +75,27 @@ class Date
     }
   }
   
+  //!
   int day(int|void d)
   {
     if(d) split->wday = d-1;
     return split->wday;
   }
   
+  //!
   int mday(int|void d)
   {
     if(d) split->mday = d;
     return split->mday;
   }
 
+  //!
   int yday()
   {
     return split->yday;
   }
   
+  //!
   int leapyearp(int|void yea)
   {
     if(!yea) yea=year();
@@ -94,6 +104,7 @@ class Date
     if(!(yea%4)) return 1;
   }
 
+  //!
   void create(mixed what)
   {
     if(intp(what)) unix_time = what;
@@ -102,4 +113,5 @@ class Date
     }
   }
 };
+
 inherit Date;
