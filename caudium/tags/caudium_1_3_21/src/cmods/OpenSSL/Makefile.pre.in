@@ -1,0 +1,14 @@
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=OpenSSL
+OBJS= openssl.o
+SOURCES=openssl.c
+MODULE_LIBS=@LIBS@
+EXTRA_CLEAN=config.h config.h.in OpenSSL.so
+
+@module_makefile@
+
+extrainstall:
+
+# DO NOT DELETE THIS LINE -- make  depend  depends  on  it.
+
+

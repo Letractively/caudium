@@ -1,0 +1,8 @@
+Some patches to help FreeBSD build.
+
+Since FreeBSD 4.5+ have autoconf 2.53 and pike doesn't support it, you will
+have to apply these patches separatly.
+
+/Xavier
+
+$Id$
