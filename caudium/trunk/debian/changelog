@@ -1,3 +1,10 @@
+caudium (2:1.1.1-1) unstable; urgency=low
+
+  * Changed the Epoch to be in sync with the version in Debian/sid
+    That way this package will always be newer than the other.
+
+ -- Marek Habersack <grendel@debian.org>  Fri, 27 Apr 2001 12:31:02 +0200
+
 caudium (1:1.1.1-11) unstable; urgency=low
 
   * Email address change.
