@@ -33,6 +33,7 @@ RCSID("$Id$");
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #ifdef TIME_WITH_SYS_TIME_H
 # include <sys/time.h>
@@ -76,6 +77,103 @@ static_strings strs;
 **!  This class is used to parse a HTTP/1.0 or HTTP/1.1 request.
 **!  scope: private
 */
+
+static struct array    *mta_unsafe_chars;
+static struct array    *mta_safe_entities;
+static char            *_unsafechars[] = {"<",">","&"};
+static char            *_safeentities[] = {"&lt;", "&gt;", "&amp;"};
+
+#define UNSAFECHARS_SIZE sizeof(_unsafechars)/sizeof(char*)
+
+static void f_make_tag_attributes(INT32 args)
+{
+  struct mapping          *in;
+  struct array            *indices, *values;
+  unsigned                 i;
+  struct string_builder    ret;
+  struct pike_string      *retstr;
+  int                      max_shift;
+  char                    *tmp;
+  int                      len, do_replace;
+  
+  get_all_args("make_tag_attributes", args, "%m", &in);
+
+  /* Make sure there is no "/" that might be left from parsing <tag /> */
+  map_delete(in, &strs.mta_slash);
+
+  indices = mapping_indices(in);
+  values = mapping_values(in);
+
+  /* Find the widest string in the mapping, we need that for the string
+   * builder
+   */
+  max_shift = 0;
+  for (i = 0; i < (unsigned)indices->size; i++) {
+    if (indices->real_item[i].type == T_STRING && indices->real_item[i].u.string->size_shift > max_shift)
+      max_shift = indices->real_item[i].u.string->size_shift;
+    else if (values->real_item[i].type == T_STRING && values->real_item[i].u.string->size_shift > max_shift)
+      max_shift = values->real_item[i].u.string->size_shift;
+  }
+
+  init_string_builder(&ret, max_shift);  
+
+  /* we don't check whether the string is "safe" or not. We will run replae
+   * once over the entire resulting string in the end.
+   */
+  for (i = 0; i < (unsigned)indices->size; i++) {
+    if (indices->real_item[i].type != T_STRING || values->real_item[i].type != T_STRING)
+      continue;
+    /* alloc enough space for name="value" */
+    len = indices->real_item[i].u.string->len +
+      values->real_item[i].u.string->len + 5;
+    
+#ifdef HAVE_ALLOCA
+    tmp = (char*)alloca(len);
+#else
+    tmp = (char*)malloc(len);
+    if (!tmp)
+      Pike_error("Out of memory");
+#endif
+    /* ugly code, but fast */
+    tmp[len] = 0;
+    len = indices->real_item[i].u.string->len;
+    memcpy(tmp, indices->real_item[i].u.string->str, indices->real_item[i].u.string->len);
+    memcpy(tmp + len, "=\"", 2);
+    len += 2;
+    memcpy(tmp + len, values->real_item[i].u.string->str, values->real_item[i].u.string->len);
+    len += values->real_item[i].u.string->len;
+    memcpy(tmp + len, "\" ", 2);
+    len += 2;
+    
+    string_builder_append(&ret, MKPCHARP(tmp, 0), (ptrdiff_t)len);
+#ifndef HAVE_ALLOCA
+    free(tmp);
+#endif
+  }
+
+  retstr = finish_string_builder(&ret);
+  pop_n_elems(args);
+
+  /* let's see whether we have anything to encode */
+  do_replace = 0;
+  for (i = 0; i < UNSAFECHARS_SIZE; i++) {
+    if (memchr(retstr->str, _unsafechars[i][0], retstr->len)) {
+      do_replace = 1;
+      break;
+    }
+  }
+
+  if (do_replace) {
+    push_string(retstr);
+    push_array(mta_unsafe_chars);
+    push_array(mta_safe_entities);
+    f_replace(3);
+    retstr = Pike_sp[-1].u.string;
+    Pike_sp--;
+  }
+  
+  push_string(retstr);
+}
 
 #ifndef HAVE_SETPROCTITLE
 static long   _maxargvlen = -1;
@@ -1621,23 +1719,40 @@ static void f_http_date(INT32 args)
     pop_stack();
   push_string(ret);
 }
+
   
 /* Initialize and start module */
 void pike_module_init( void )
 {
-  STRS(data)     = make_shared_string("data");
-  STRS(file)     = make_shared_string("file");
-  STRS(method)   = make_shared_string("method");
-  STRS(protocol) = make_shared_string("protocol");
-  STRS(query)    = make_shared_string("query");
-  STRS(raw_url)  = make_shared_string("raw_url");
+  unsigned   i;
+  
+  STRS(data)       = make_shared_string("data");
+  STRS(file)       = make_shared_string("file");
+  STRS(method)     = make_shared_string("method");
+  STRS(protocol)   = make_shared_string("protocol");
+  STRS(query)      = make_shared_string("query");
+  STRS(raw_url)    = make_shared_string("raw_url");
+  STRS(mta_slash)  = make_shared_string("/");
+  STRS(mta_equals) = make_shared_string("=");
+  
+  strs.mta_equals_p = MKPCHARP_STR(strs.mta_equals.u.string);
+  
+  SVAL(data)->type       = T_STRING;
+  SVAL(file)->type       = T_STRING;
+  SVAL(method)->type     = T_STRING;
+  SVAL(protocol)->type   = T_STRING;
+  SVAL(query)->type      = T_STRING;
+  SVAL(raw_url)->type    = T_STRING;
+  SVAL(mta_slash)->type  = T_STRING;
+  SVAL(mta_equals)->type = T_STRING;
 
-  SVAL(data)->type     = T_STRING;
-  SVAL(file)->type     = T_STRING;
-  SVAL(method)->type   = T_STRING;
-  SVAL(protocol)->type = T_STRING;
-  SVAL(query)->type    = T_STRING;
-  SVAL(raw_url)->type  = T_STRING;
+  for (i = 0; i < UNSAFECHARS_SIZE; i++)
+    push_text(_unsafechars[i]);
+  mta_unsafe_chars = aggregate_array(UNSAFECHARS_SIZE);
+
+  for (i = 0; i < UNSAFECHARS_SIZE; i++)
+    push_text(_safeentities[i]);
+  mta_safe_entities = aggregate_array(UNSAFECHARS_SIZE);
   
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
@@ -1672,6 +1787,10 @@ void pike_module_init( void )
   add_function_constant( "http_decode_url", f_http_decode_url,
                          "function(string:string)", 0);
 
+  /* temporary, don't use */
+  add_function_constant( "_make_tag_attributes", f_make_tag_attributes,
+                         "function(mapping:string)", 0);
+  
   init_datetime();
   
   start_new_program();
@@ -1694,6 +1813,12 @@ void pike_module_exit( void )
   free_string(STRS(protocol));
   free_string(STRS(query));
   free_string(STRS(raw_url));
+  free_string(STRS(mta_slash));
+  free_string(STRS(mta_equals));
+  
+  free_array(mta_unsafe_chars);
+  free_array(mta_safe_entities);
+  
   exit_nbio();
   exit_datetime();
 }
