@@ -740,21 +740,17 @@ static void f_extension( INT32 args ) {
   }
 }
 
+
 #ifdef EXPERIMENTAL
 
 /* Some basic http function to speedup caudium (and gets more free from Pike 
    changing things... */
 
+/* convert bin to hex character */
+#define BIN(c)  ((c) > '9' ? ((c) - 7) & 0xf : (c) & 0xf)
+
 /* The following will convert char to hex */
-
-static char *hex_chars = "01234567890ABCDEF";
-
-static char hex_to_char(char c) 
-{
-  return c >= '0' && c <= 'g' ? c - '0'
-    : c >= 'A' && c <= 'F' ? c - 'A' + 10
-    : c - 'a' + 10;
-}
+static char *hex_chars = "0123456789ABCDEF";
 
 /* check if character given is safe */
 /* maybe we'll probably need more safe char's here ? */
@@ -778,8 +774,7 @@ static int is_safe (char c)
 */
 static void f_http_encode(INT32 args) 
 {
-	char *o, *out;
-	char *in;
+	char *o, *out, *in;
 	unsigned char *i;
 	int unsafe = 0;
 	int out_len, in_len;
@@ -817,6 +812,7 @@ static void f_http_encode(INT32 args)
 		} else *o++ = *i;
 	}
 	
+	/* grendel: i think this _is_ needed?! - pit */
 	/* *o++ = 0; */
 	pop_n_elems(args);
 	push_string(end_shared_string(ret));
@@ -832,7 +828,8 @@ static void f_http_encode(INT32 args)
 */
 static void f_http_decode(INT32 args) 
 {
-	char *i, *o, *out, *in; 
+	char *o, *out, *in;
+	unsigned char *i;
 	struct pike_string *ret;
 	int in_len, check;
         struct pike_string *src;
@@ -856,7 +853,6 @@ static void f_http_decode(INT32 args)
 		pop_n_elems(args-1);
 		return;
 	}
-
 	
 	ret = begin_shared_string(strlen(in)+1);
 	out = ret->str;
@@ -871,8 +867,8 @@ static void f_http_decode(INT32 args)
 				int h;
 				i++;
 				if(*i == '\0') break;
-				if((h = hex_to_char(*i)) == -1) break;
-				c = c << 4 + h;
+				if((h = BIN(*i)) == -1) break;
+				c = (c << 4) + h;
 			}
 			
 			if(x != 2) { // error 
