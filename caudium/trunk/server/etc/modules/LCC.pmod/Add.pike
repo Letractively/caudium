@@ -19,6 +19,8 @@
  */
 constant cvs_version = "$Id$";
 
+import ".";
+
 //
 // Error constants
 //
@@ -174,5 +176,60 @@ mapping(string:mapping(string:string|int))|int verify(mapping(string:array(strin
         return 0;
     
     return ret;
+}
+
+//
+// Add the record to the LDAP database. The given dn is added to the
+// database - no checks are performed whether the fields contained in the
+// record to be added are unique throughout the database (like unique mail
+// addresses, uids etc.) - the method relies upon the client having
+// checked those or upon the LDAP server checks. In case of error, the method
+// reports the LDAP error in a mapping. The 'ldap' object is assumed to be
+// connected to the server and ready for operations. Also, no validation of
+// the user record is performed - use the 'verify' function above to do
+// that prior to using this one. Non-LDAP errors are signalled by returning
+// integers < 0. On success 0 is returned.
+// Note also that this function shouldn't be used when a record with the
+// given dn exists in the LDAP - it will fail then.
+//
+mapping|int add(object ldap, string dn, mapping(string:array(string)) user)
+{
+    if (!objectp(ldap) || !dn || !sizeof(dn))
+        return -1;
+
+    if (!user || !sizeof(user))
+        return -2;
+    
+    mapping(string:array(string)) data = ([]);
+
+    foreach(indices(user), string idx) {
+        if (!user[idx] || !sizeof(user[idx]))
+            add_class(idx, data);
+        else
+            add_attribute(idx, user[idx], data);
+    }
+
+    int res;
+    
+    mixed error = catch {
+        res = ldap->add(dn, data);
+    };
+
+    if (res != 0) {
+        mapping ret = ([]);
+
+        ret->err_number = res;
+        if (arrayp(error)) {
+            ret->err_string = error[0];
+            ret->backtrace = error[1];
+        } else {
+            ret->err_string = ldap->error_string();
+            ret->backtrace = backtrace();
+        }
+
+        return ret;
+    }
+
+    return 0;
 }
 
