@@ -1,3 +1,9 @@
+caudium (2:1.0.35-11) unstable; urgency=low
+
+  * Added build dependency on autoconf (closes: #106149)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 23 Jul 2001 11:05:27 +0200
+
 caudium (2:1.0.35-10) unstable; urgency=low
 
   * Relaxed the dependency on pike
