@@ -18,10 +18,16 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
+//! Low describer module for Caudium. Used in general when Caudium gets
+//! out of describer.
+//! $Id$
+//! @note
+//!   These do _not_ use any nodes, instead, they are called from the node
+//!   describers (which are called from the nodes)
 
-/* $Id$ */
-// These do _not_ use any nodes, instead, they are called from the node
-// describers (which are called from the nodes)
 object this = this_object();
 
 #include <module.h>
@@ -32,6 +38,7 @@ import String;
 import Array;
 import Stdio;
 
+//!
 string describe_type(int type, mixed flag)
 {
   switch(type)
@@ -111,6 +118,7 @@ string describe_type(int type, mixed flag)
 
 string encode_ports(array from);
 
+//!
 string strip_html(string from)
 {
   string a, res="";
@@ -122,6 +130,7 @@ string strip_html(string from)
   return res;
 }
 
+//!
 string name_of_module( object m )
 {
   string name;
@@ -138,6 +147,7 @@ string name_of_module( object m )
   return strip_html(name);
 }
 
+//!
 string describe_variable_as_text(array var, int|void verbose)
 {
   switch(var[VAR_TYPE])
@@ -222,6 +232,7 @@ string describe_variable_as_text(array var, int|void verbose)
 
 array ip_number_list;
 
+//!
 string find_one(string ... of)
 {
   string s;
@@ -234,6 +245,7 @@ string find_one(string ... of)
 # define to_hostname(x) x
 #endif
 
+//!
 void init_ip_list()
 {
   string ifconfig = find_one("/usr/sbin/ifconfig", "/etc/ifconfig",
@@ -283,6 +295,7 @@ void init_ip_list()
 }
  
 
+//!
 string all_ip_numbers_as_selection(int id, string sel)
 {
   if(ip_number_list && sizeof(ip_number_list)) {
@@ -308,6 +321,7 @@ string all_ip_numbers_as_selection(int id, string sel)
   }
 }
 
+//!
 array protocols()
 {
   array(string) files = get_dir("protocols");
@@ -320,6 +334,7 @@ array protocols()
   }), lambda(string s) { return (s/".")[0]; });
 }
 
+//!
 string all_protocols_as_selection(int id, string sel)
 {
   return ("<select name=protocol_"+id+">\n"
@@ -329,6 +344,7 @@ string all_protocols_as_selection(int id, string sel)
 	  + "</select>\n");
 }
 
+//!
 string port_buttons(array port, int id)
 {
   return ("<input type=reset value=\"Reset to last entered\"><br>"
@@ -336,6 +352,7 @@ string port_buttons(array port, int id)
 	  " value=\"Delete this port\"></font>");
 }
 
+//!
 string encode_one_port(array port, int id)
 {
   string res;
@@ -395,6 +412,7 @@ string encode_one_port(array port, int id)
      "</table></td></tr>");
 }
 
+//!
 string encode_ports(array from)
 {
   string res = "<table border=0 cellpadding=0 bgcolor=#e0e0ff cellspacing=0>\n";
@@ -426,12 +444,14 @@ string encode_ports(array from)
   return res+"</table>";
 }
 
+//!
 int module_wanted(mapping mod_info, object module, function check)
 {
   if(!check) return 1;
   return check(module, mod_info);
 }
 
+//!
 string describe_variable_low(array var, mixed path, int really_short,
 			     string|void name)
 {
@@ -600,6 +620,7 @@ string describe_variable_low(array var, mixed path, int really_short,
   return res;
 }
 
+//!
 string describe_module_type(int t)
 {
   string res;
@@ -694,11 +715,4 @@ string describe_module_type(int t)
   
   return res;
 }
-
-
-
-
-
-
-
 

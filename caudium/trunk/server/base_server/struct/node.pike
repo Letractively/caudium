@@ -18,8 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$ 
+ */
 
-/* $Id$ */
+//! ??? something for Caudium
+//! @fixme
+//!   What is this for ?
+
 int folded=1, type;
 mixed data;
 function describer;
@@ -28,6 +34,8 @@ object prev, next, current, up, down;
 mapping below=([]);
 
 array (string) _path = ({ });
+
+//!
 string path(int i)
 {
   array rp = Array.map(_path, replace, "/", "%2F");
@@ -39,8 +47,10 @@ string path(int i)
   return "/"+rp*"/";
 }
 
+//!
 string name() { return _path[-1]; }
 
+//!
 string describe(int i)
 {
   string res="";
@@ -63,6 +73,7 @@ string describe(int i)
   return res;
 }
 
+//!
 object descend(string what, int nook)
 {
   object o;
@@ -90,6 +101,7 @@ object descend(string what, int nook)
   return below[what]=o;
 }
 
+//!
 void map(function fun)
 {
   object node;
@@ -103,6 +115,7 @@ void map(function fun)
   }
 }
 
+//!
 void clear()
 {
   object node;
@@ -119,6 +132,7 @@ void clear()
   down=0;
 }
 
+//!
 void dest()
 {
   object node;
@@ -147,5 +161,3 @@ void dest()
   up=down=0;
   destruct();
 }
-
-
