@@ -43,7 +43,13 @@ constant module_doc    = "Undocumented";
 constant module_unique = 1;
 object this = this_object();
 
+//! Remove cvs marker: "$", "Id: " and "Exp $"
 //!
+//! @param from
+//!  String to be cleaned
+//!
+//! @returns
+//!  String cleaned
 string fix_cvs(string from)
 {
   from = replace(from, ({ "$", "Id: "," Exp $" }), ({"","",""}));
@@ -69,7 +75,7 @@ int module_dependencies(object configuration, array (string) modules)
   return 1;
 }
 
-//!
+//! Returns file name and cvs version for the current module
 string file_name_and_stuff()
 {
   return ("<b>Loaded from:</b> "+(caudium->filename(this))+"<br>"+
@@ -439,7 +445,7 @@ string check_variable( string s, mixed value )
 //! Return the value of a variable.
 //!
 //! @param var
-//!  Variable name
+//!  Variable name (first param in defvar())
 //!
 //! @param ok
 //!  If it is ok for the variable to be absent, set this parameter to a
@@ -448,7 +454,7 @@ string check_variable( string s, mixed value )
 //!  developing the module)
 //!
 //! @returns
-//!  The module variables store.
+//!  The module variables stored.
 mixed query(string|void var, int|void ok)
 {
   if(var) {
@@ -514,7 +520,13 @@ array register_module()
   });
 }
 
+//! Method used to set the value of a configuration variable within the module.
 //!
+//! @param var
+//!  Name of the variable (first param in defvar())
+//!
+//! @param value
+//!  Value the variable should be given
 void set(string var, mixed value)
 {
   if(!variables[var])
@@ -534,7 +546,13 @@ void set(string var, mixed value)
       variables[var][VAR_VALUE]=value;
 }
 
-//! 
+//! Wrapper for bulk calling set()
+//!
+//! @param vars
+//!  Mapping containing the var:value pairs
+//!
+//! @returns
+//!  Seems to allways return true
 int setvars( mapping (string:mixed) vars )
 {
   string v;
@@ -553,7 +571,7 @@ string comment()
   return "";
 }
 
-//! Return Internal Localtion this module
+//! Return internal location of this module
 string query_internal_location()
 {
   if(!_my_configuration)
@@ -561,7 +579,11 @@ string query_internal_location()
   return _my_configuration->query_internal_location(this_object());
 }
 
-//! Per default, return the value of the module variable 'location' 
+//! Returns the mountpoint in the virtual filesystem
+//! It is rarely necessary to implement since this information can be
+//! automatically obtained via a defvar named 'location' or whose type is
+//! TYPE_LOCATION.
+//! The mountpoint should allways be configurable by the administrator
 string query_location()
 {
   string s;
