@@ -1,5 +1,6 @@
 Changes in Caudium 1.0.XX
 -------------------------
+- New configuration files are created with the 0600 permission bits now.
 - Fix for bug #498377: the environment variable didn't show the complete url
   with the query.
 - Added support for //!NOMODULE in modules. This close bug #473716
