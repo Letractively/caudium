@@ -4,6 +4,8 @@
 #
 # This is an ugly hack, but we need to know the Debian version of the pike7 package
 #
+# Why CVS loses the attributes of this file? Or does it? :)
+#
 
 PIKE7_CHANGELOG=/usr/share/doc/pike7-cvs/changelog.Debian.gz
 PIKE7=${1}
