@@ -20,7 +20,7 @@ BUILD_DEPENDS=	pike:${PORTSDIR}/lang/pike72cvs/
 LIB_DEPENDS=	sablot.67:${PORTSDIR}/textproc/sablotron/
 DEPENDS=	${PORTSDIR}/lang/pexts/
 
-WRKSRC=		${WRKDIR}/${DISTNAME}
+WRKSRC=		${WRKDIR}/${DISTNAME}-20020506-cvs
 
 GNU_CONFIGURE=  yes
 CONFIGURE_ARGS+= --without-debug --with-PiXSL
