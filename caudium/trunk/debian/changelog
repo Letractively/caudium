@@ -1,3 +1,9 @@
+caudium (2:1.3.1-2) unstable; urgency=high
+
+  * New cache system added
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 31 Jan 2002 12:42:38 +0100
+
 caudium (2:1.3.1-1) unstable; urgency=low
 
   * New developement tree.
