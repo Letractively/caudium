@@ -17,6 +17,24 @@ fi
 
 AC_CHECK_LIB(sablot, SablotProcess)
 
+if test "$ac_cv_header_sablot_h" != "yes" -o \
+	    "$ac_cv_lib_sablot_SablotProcess" != "yes"; then
+cat << EOF
+*************************************************************
+**** The Sablotron XSLT processing library couldn't be found.
+**** PiXSL will not be built. You can get Sablotron from
+**** http://www.gingerall.com/
+****
+**** Install the library and remove config.cache in the base
+**** build directory and rerun configure to get XSLT support.
+****
+**** To build Caudium without XSLT support run configure with
+**** the --without-PiXSL flag.
+*************************************************************
+EOF
+exit 1
+fi
+
 AC_OUTPUT(Makefile.pre pixsl, [make -f Makefile.pre depend])
 
 
