@@ -31,16 +31,9 @@ RCSID("$Id$");
 #include "sm_globals.h"
 #include "sm_context.h"
 
-#define JS_FUNCDEF(name) static JSBool name (JSContext *ctx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-
 /* the global object */
 JS_FUNCDEF(output_write);
 JS_FUNCDEF(output_writeln);
-
-/* the Caudium object */
-JS_FUNCDEF(caudium_version);
-JS_FUNCDEF(caudium_pikever);
-JS_FUNCDEF(caudium_log_message);
 
 static struct pike_string     *idx_result = NULL;
 static struct pike_string     *idx_output = NULL;
@@ -118,33 +111,6 @@ JS_FUNCDEF(output_writeln)
   else
     return JS_FALSE;
 
-  return JS_TRUE;
-}
-
-/*
- * The Caudium JS object.
- * Contains functions that provide information about the whole server and
- * ones that allow the programmer to output messages logged in the Caudium
- * debug log.
- */
-static JSFunctionSpec caudium_functions[] = {
-  {"version", caudium_version, 1, 0, 0},
-  {"pikever", caudium_pikever, 1, 0, 0},
-  {"log_message", caudium_log_message, 1, 0, 0}
-};
-
-JS_FUNCDEF(caudium_version)
-{
-  return JS_TRUE;
-}
-
-JS_FUNCDEF(caudium_pikever)
-{
-  return JS_TRUE;
-}
-
-JS_FUNCDEF(caudium_log_message)
-{
   return JS_TRUE;
 }
 
