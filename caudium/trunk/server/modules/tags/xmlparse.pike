@@ -558,6 +558,15 @@ string container_emit(string t, mapping args, string contents, object id,
   return retval->get();
 }
 
+// This function is used to know if we have a xml document and thus
+// we'll try to output XML tags and containers with make_tag, 
+// make_container defaulting to make_xml_tag and make_xml_container
+int pi_xml(string tag, string contents, object id)
+{
+  id->misc->is_xml = 1;
+  return 0;
+}
+
 string tag_list_tags( string t, mapping args, object id, object f )
 {
   int verbose;
@@ -778,6 +787,10 @@ mapping query_container_callers() {
 
 mapping query_tag_callers() {
   return ([ "list-tags":tag_list_tags ]);
+}
+
+mapping query_pi_callers() {
+  return ([ "?xml": pi_xml ]);
 }
 
 class EmitScope(mapping v) {
