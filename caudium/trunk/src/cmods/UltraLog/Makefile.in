@@ -59,7 +59,7 @@ config.status: configure
 	./config.status --recheck
 
 depend:  force
-	$(CC) -MM $(CFLAGS) *.c > dependencies
+	$(CC) -MM $(CFLAGS) *.c >> Makefile
 
 clean:
 	rm -f *.o *~ $(MODNAME).$(SO) 
@@ -70,4 +70,6 @@ distclean: clean
 spotless: distclean
 	rm -f configure 
 
-include dependencies
+
+# Dependencies goes here...
+

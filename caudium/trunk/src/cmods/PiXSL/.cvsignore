@@ -1,3 +1,4 @@
+Makefile.pre
 sablot_config.h
 sablot_config.h.in
 Makefile
