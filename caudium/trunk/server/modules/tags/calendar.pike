@@ -19,7 +19,8 @@
  * $Id$
  *
  * TODO: documentation
- * TODO: week navigation column
+ * TODO: remove all debugging code
+ * TODO: clean the code up
  */
 
 constant cvs_version="$Id$";
@@ -465,7 +466,7 @@ static void check_array(mapping var, string name)
 //TODO: too many options here, rel is not needed anymore
 static int value_in_range(int val, array(mapping) range, int rel, void|int min, void|int max)
 {
-  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
+//  report_notice("value_in_range: val == %d, range:\n\t%O\nmin = %O, max = %O\n", val, range, min, max);
 
   if (!range || !sizeof(range))
     return 0;
@@ -515,7 +516,7 @@ static int value_in_range(int val, array(mapping) range, int rel, void|int min, 
       break;
   }
 
-  report_notice("(rel == %d; val == %d) checks_counter: %d\n", rel, val, checks_counter);
+//  report_notice("(rel == %d; val == %d) checks_counter: %d\n", rel, val, checks_counter);
   
   if (checks_counter >= 0)
     return 1;
@@ -532,7 +533,7 @@ static multiset check_in_range(object date, mapping range, int maxdays)
   if (!range || !date)
     return 0;
 
-  report_notice("check_in_range: %O\n", date);
+//  report_notice("check_in_range: %O\n", date);
   
 
   day = date->month_day();
@@ -672,7 +673,7 @@ static multiset check_in_range(object date, mapping range, int maxdays)
     }
   }
   
-  report_notice("match_ret: %O\n", ret);
+//  report_notice("match_ret: %O\n", ret);
   
   return ret;
 }
@@ -713,7 +714,7 @@ static multiset mark_active_days(object target, object id)
 
   multiset day_matches = 0;
 
-  report_notice("working through the hot dates (target: %O)\n", target);
+//  report_notice("working through the hot dates (target: %O)\n", target);
   
   foreach(id->misc->_calendar->hotdates, mapping range) {
     if (range->before) {
@@ -792,6 +793,9 @@ static string startdate_tag(string tag, mapping args, object id)
   mixed  error;
   object now, then;
 
+  if (!id->misc->_calendar || !id->misc->_calendar->inside_calendar)
+    return "";
+  
   error = catch {
     now = Calendar.now();
   };
@@ -872,7 +876,7 @@ static array(mapping) make_ba_range(object date, string when, string how)
 {
   string           fun;
 
-  report_notice("make_ba_range(%O,%O,%O)\n", date, when, how);
+//  report_notice("make_ba_range(%O,%O,%O)\n", date, when, how);
   
   if (!date || !when || !sizeof(when))
     return ({});
@@ -923,7 +927,7 @@ static array(mapping) make_ba_range(object date, string when, string how)
     "rend" : -1
   ])});
 
-  report_notice("make_ba_range returning: %O\n", ({range}));
+//  report_notice("make_ba_range returning: %O\n", ({range}));
   
   return ({range});
 }
@@ -932,6 +936,9 @@ static string hotdate_tag(string tag, mapping args, object id)
 {
   multiset   relative = (<"tomorrow", "today", "yesterday", "specified">);
 
+  if (!id->misc->_calendar || !id->misc->_calendar->inside_calendar)
+    return "";
+  
   if (!args || !sizeof(args))
     return "";
 
@@ -1011,17 +1018,18 @@ string calendar_tag(string tag, mapping args, string cont,
   if (!id->misc->_calendar)
     id->misc->_calendar = ([]);
 
+  id->misc->_calendar->inside_calendar = 1;
+  
   error = catch {
-    tmp = parse_html(cont, ([
-      "hotdate" : hotdate_tag,
-      "startdate" : startdate_tag,
-    ]), ([]), id);
+    tmp = parse_rxml(cont, id);
   };  
 
+  id->misc->_calendar->inside_calendar = 0;
+  
   if (id->misc->_calendar->hotdates)
     id->misc->_calendar->hotdates -= ({({})});
   
-  report_notice("calendar: %O\nerror: %O\n", id->misc->_calendar, error);
+//  report_notice("calendar: %O\nerror: %O\n", id->misc->_calendar, error);
   
   if (!args)
     my_args = ([]);
@@ -1082,13 +1090,13 @@ string calendar_tag(string tag, mapping args, string cont,
                                               id->variables->calmonth,
                                               id->variables->calday));
 
-  report_notice("marking active days for: %O\n", target);
+//  report_notice("marking active days for: %O\n", target);
   
   active_days = mark_active_days(target, id);
-  report_notice("active_days: %O\n", active_days);
+//  report_notice("active_days: %O\n", active_days);
 
   active_weeks = mark_active_weeks(target, id);
-  report_notice("active_weeks: %O\n", active_weeks);
+//  report_notice("active_weeks: %O\n", active_weeks);
   
   contents += make_monthyear_selector(id, my_args, now, target);
   contents += make_weekdays_row(id, my_args, now, target);
@@ -1174,7 +1182,9 @@ mapping query_tag_callers()
     "calendar-js" : calendar_js_tag,
     "calendar_js" : calendar_js_tag,
     "calendar-css" : calendar_css_tag,
-    "calendar_css" : calendar_css_tag
+    "calendar_css" : calendar_css_tag,
+    "hotdate" : hotdate_tag,
+    "startdate" : startdate_tag
   ]);
 }
 
