@@ -70,6 +70,8 @@ inherit CaudiumVersion;
 //! The datashuffler program
 constant pipe = Caudium.nbio;
 
+object shuffler = Shuffler.Shuffler();
+
 #if _DEBUG_HTTP_OBJECTS
 mapping httpobjects = ([]);
 static int idcount;
@@ -84,6 +86,9 @@ int new_id(){ return idcount++; }
 
 //! pids of the start script and ourselves.
 int startpid, roxenpid;
+
+//! is the watchdog turned on?
+int watchdog_enabled;
 
 object caudium = this_object(), roxen=this_object(), current_configuration;
 
@@ -164,6 +169,7 @@ void watchdog_on()
      }
      wds->write("WATCHDOG ON %d", pid);
      wds->close(); 
+     watchdog_enabled=1;
    }
 }
 
@@ -183,6 +189,7 @@ void watchdog_off()
      }
      wds->write("WATCHDOG OFF %d", pid);
      wds->close(); 
+     watchdog_enabled=0;
    }
 }
 
@@ -435,9 +442,9 @@ static int shutting_down;
 // @param port
 //  Represents the object that handled the connection.
 
-private static void accept_callback( object port )
+private static void accept_callback( Stdio.Port port )
 {
-  object file;
+  Stdio.File file;
   int    q = QUERY(NumAccept);
   array  pn = portno[port];
   
@@ -493,6 +500,8 @@ private static void accept_callback( object port )
     if (pn[1] && !pn[1]->inited) {
       array err;
       pn[1]->enable_all_modules();
+      if(!watchdog_enabled && GLOBVAR(watchdog_enable))
+        watchdog_on();
     }
     
     // You won't fucking believe this, but I am about to clone
@@ -2426,6 +2435,9 @@ private void define_global_variables(int argc, array (string) argv)
 
   globvar("watchdog_checkall", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
 	"Should the watchdog check every virtual server, or just the first one it finds in the configuration?");
+
+  globvar("watchdog_enable", 1, "Watchdog: Check all Virtual Servers", TYPE_FLAG,
+	"Should the Caudium Watchdog be enabled?");
 
 #if constant(SpiderMonkey.Context);
   globvar("js_enable", 0, "JavaScript Support: Enable support", TYPE_FLAG,
