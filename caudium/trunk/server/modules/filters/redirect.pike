@@ -108,13 +108,13 @@ things than the path, like the full URL or specific HTTP headers. The syntax is 
 <dd>This includes the server URL in the string that is matched. It \
 uses the <tt>Host</tt> if available or the configured server URL \
 otherwise. Can be used for simple virtual hosting. </dd> \
-<p><dt><b>header=[name]</b></dt> \
+<p><dt><b>header=name</b></dt> \
 <dd>Match against the specified HTTP header. This could be for example \
 UserAgent. The name is case-insensitive.</dd> \
-<p><dt><b>var=[name]</b></dt> \
+<p><dt><b>var=name</b></dt> \
 <dd>Match against the specified variable. This variable could be sent using \
 either the GET method or the POST method. The name is case-sensitive.</dd> \
-<p><dt><b>cookier=[name]</b></dt> \
+<p><dt><b>cookier=name</b></dt> \
 <dd>Match against the specified cookie. The name is case-sensitive.</dd> \
 </dl>\
  \n\
@@ -127,6 +127,8 @@ as a <b>regexp</b>. If not, it will be treated as a <b>prefix</b>.</p> \n\
 tokens. They will be replaced after matching is completed as described below.</p> \n\
  \n\
 <p><dl compact=\"compact\"> \n\
+<dt><b>%%</b></dt> \
+<dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd>\
 <dt><b>%f</b></dt> \n\
 <dd>The file name of the matched URL without the path.</dd> \n\
 <dt><b>%p</b></dt> \n\
@@ -183,10 +185,12 @@ text is an example of the effect of all previous non-described lines.</p> \n\
 	 "    <font size=\"-1\">Ex: redirects /old-files/anything to SERVERURL/files/anything</font><br />"
 
 	 "<b>glob[header=UserAgent]	*MSIE*	http://www.devnull.com/</b><br />"
-	 "    <font size=\"-1\">Ex: redirects all requests from browsers with a UserAgent name matching MSIE to http://www.devnull.com/</font><br />"
+	 "    <font size=\"-1\">Ex: redirects all requests from browsers with a UserAgent name matching<br />"
+	 "    MSIE to http://www.devnull.com/</font><br />"
 
 	 "<b>prefix[host]	http://oldhost.com/	http://newhost.com/%p%q</b><br />"
-	 "    <font size=\"-1\">Ex: Redirects all requests to the site http://oldhost.com/ to http://newhost.com/, keeping the path and query string.</font><br />"
+	 "    <font size=\"-1\">Ex: Redirects all requests to the site http://oldhost.com/ to<br />"
+	 "    http://newhost.com/, keeping the path and query string.</font><br />"
 	 "</pre></p>"
 	 );
 }
@@ -455,8 +459,8 @@ mixed first_try(object id)
   url = url[..strlen(url)-2];
   hurl = get_host_url(id);
   
-  to = replace(to, ({"%u", "%h", "%f", "%p", "%q", "%Q" }),
-	       ({ url, hurl,
+  to = replace(to, ({"%%", "%u", "%h", "%f", "%p", "%q", "%Q" }),
+	       ({ "%", url, hurl,
 		  ( ({""}) + (id->not_query / "/" - ({""})) )[-1],
 		  id->not_query[1..],
 		  id->query ? "?"+id->query : "",
@@ -517,7 +521,9 @@ mixed first_try(object id)
 //!<p>The <b>destination</b> field can contain one or more special 
 //!tokens. They will be replaced after matching is completed as described below.</p> 
 //! 
-//!<p><dl compact="compact"> 
+//!<p><dl compact="compact">
+//!<dt><b>%%</b></dt> 
+//!<dd>Insert a literal % into the URL. Needed if you want to use URL encoding.</dd>
 //!<dt><b>%f</b></dt> 
 //!<dd>The file name of the matched URL without the path.</dd> 
 //!<dt><b>%p</b></dt> 
