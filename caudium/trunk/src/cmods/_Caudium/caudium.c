@@ -21,8 +21,6 @@
  * $Id$
  */
 
-#define EXPERIMENTAL 1
-
 #include "global.h"
 RCSID("$Id$");
 #include "caudium_util.h"
@@ -889,11 +887,20 @@ static void f_http_decode(INT32 args)
   push_string(end_shared_string(ret));
 }
 
-#ifdef EXPERIMENTAL
 /* Used for cern_http_date */
 const char *months[12]= { "Jan", "Feb", "Mar", "Apr", "May", "Jun", \
                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
+/*
+** method: string cern_http_date(int t)
+**  Return the specified date (as returned by time()) formated in the
+**  common log file format, which is "DD/MM/YYYY:HH:MM:SS [+/-]TZTZ".
+** @param t
+**  The time in seconds since the 00:00:00 UTC, January 1, 1970
+** @returns
+**  The date in the common log file format
+**  Example: 02/Aug/2000:22:36:27 -0700
+*/
 static void f_cern_http_date(INT32 args)
 {
   time_t now;
@@ -901,12 +908,29 @@ static void f_cern_http_date(INT32 args)
   int sign;
   struct tm *tm;
   char date[sizeof "01/Dec/2002:16:22:43 +0100"];
+  struct pike_string *ret;
 
-  if ((now = time(NULL)) == (time_t) -1 ||
-      (tm = localtime(&now)) == NULL ||
-      tm->tm_mon > 11 || tm->tm_mon < 0) {
-      return;
-  }
+  INT_TYPE timestamp;
+  if(args != 1)
+     wrong_number_of_args_error("Caudium.cern_http_date",args,1);
+  if(Pike_sp[-1].type != T_INT)
+     SIMPLE_BAD_ARG_ERROR("Caudium.cern_http_date",1,"int");
+
+  timestamp = Pike_sp[-1].u.integer;
+ 
+  if(timestamp == 0) { 
+    if ((now = time(NULL)) == (time_t) -1 ||
+        (tm = localtime(&now)) == NULL ||
+        tm->tm_mon > 11 || tm->tm_mon < 0) {
+        return;
+    }
+   } else {
+     now = (time_t)timestamp;
+     if ((tm = localtime(&now)) == NULL ||
+         tm->tm_mon > 11 || tm->tm_mon < 0) {
+         return;
+     }
+   }
 #ifdef HAVE_STRUCT_TM_TM_GMTOFF
   diff = -(tm->tm_gmtoff) / 60L;
 #elif defined(HAVE_SCALAR_TIMEZONE)
@@ -938,20 +962,10 @@ static void f_cern_http_date(INT32 args)
               diff % 60L) == sizeof date) {
      return;
   }
-/*  pop_stack();
-*/
-/*
-  pop_n_elems(args);
-*/
-  push_string(make_shared_string(date));
-/*
+  ret = (make_shared_string(date));
   pop_stack();
-  push_string(make_shared_string("fooo"));
-*/
-
+  push_string(ret);
 }
-
-#endif
 
 /* Initialize and start module */
 void pike_module_init( void )
@@ -986,10 +1000,8 @@ void pike_module_init( void )
                          "function(string:string)", 0);
   add_function_constant( "http_decode", f_http_decode,
                          "function(string:string)", 0);
-#ifdef EXPERIMENTAL
   add_function_constant( "cern_http_date", f_cern_http_date,
-                         "function(void:string)", 0);
-#endif 
+                         "function(int:string)", 0);
 
   start_new_program();
   ADD_STORAGE( buffer );
