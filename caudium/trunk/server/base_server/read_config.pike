@@ -81,40 +81,31 @@ array(mapping(string:string|int)) list_all_configurations()
 
 void save_it(string cl)
 {
-#if 0 //FIXME!
-  object fd;
-  string f;
-#ifdef DEBUG_CONFIG
-  perror("CONFIG: Writing configuration file for cl "+cl+"\n");
-#endif
-
-  f = configuration_dir + replace(cl, " ", "_");
-  mv(f, f+"~");
-  fd = open(f, "wc", 0600);
-  if(!fd)
-  {
-    error("Creation of configuration file failed ("+f+") "
-#if 0&&constant(strerror)
-          " ("+strerror()+")"
-#endif
-          "\n");
+  if (!configs[cl]) {
+    report_error("Config '%s' does not exist while trying to save.\n");
     return;
   }
-  string data = encode_regions( configs[ cl ] );
-  int num;
-  catch(num = fd->write(data));
-  if(num != strlen(data))
-  {
-    error("Failed to write all data to configuration file ("+f+") "
-#if constant(strerror)
-          " ("+strerror(fd->errno())+")"
-#endif
-          "\n");
+
+  if (!dir)
+    open_cfg_dir();
+
+  mixed       err;
+  string|int  errmsg;
+
+  err = catch {
+    errmsg = configs[cl]->save();
+  };
+
+  if (err) {
+    report_error("Error trying to save the '%s' config:\n%s\n",
+                 cl, describe_backtrace(err));
+    return;
   }
-  config_stat_cache[cl] = (array(int)) fd->stat();
-  catch(fd->close("w"));
-  destruct(fd);
-#endif
+
+  if (stringp(errmsg)) {
+    report_error("Error trying to save the '%s' config: %s\n", cl, errmsg);
+    return;
+  }
 }
 
 void fix_config(mapping c);
