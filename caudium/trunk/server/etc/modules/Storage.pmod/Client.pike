@@ -1,3 +1,5 @@
+//!  Storage.Client module.
+
 #ifdef THREADS
 static Thread.Mutex mutex = Thread.Mutex();
 #define LOCK() object __key = mutex->lock()
