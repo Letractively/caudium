@@ -1,8 +1,8 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
 
-- Fixed and obscur bug that locks caudium on FreeBSD when using 
-  404 redirector.
+- Fixed an obscure bug that locks caudium on FreeBSD when using 
+  the 404 redirector.
 - Removed Argument Cache variables from Global Variables because it is now
   handled by the new caching engine.
 - Fixed typo in uniscript.pike (SF bug #604758)
