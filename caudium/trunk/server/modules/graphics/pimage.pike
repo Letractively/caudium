@@ -352,12 +352,12 @@ class Constructors
 
   object Roxen( )
   {
-    return PPM( "roxen-images/roxen.ppm" );
+    return PPM( "caudium-images/roxen.ppm" );
   }
 
   object Dial( )
   {
-    return PPM( "roxen-images/urtavla.ppm" );
+    return PPM( "caudium-images/urtavla.ppm" );
   }
   
   object PImage(int xs, int ys, mixed bgc)

@@ -226,7 +226,7 @@ object find_node(string l)
 mapping file_image(string img)
 {
   object o;
-  o=open("roxen-images/"+img, "r");
+  o=open("caudium-images/"+img, "r");
   if (!o)  return 0;
   return ([ "file":o, "type":"image/" + ((img[-1]=='f')?"gif":"jpeg"), ]);
 }
@@ -1185,7 +1185,7 @@ mapping auto_image(string in, object id)
 //			     ({0,0,0}),({255,255,0}),16,
 //			     ({0,0,0}),({170,170,255}),48,
 //			     )
-  object o = open("roxen-images/"+img_key,"wct"); 
+  object o = open("caudium-images/"+img_key,"wct"); 
   e=Image.GIF.encode(i,ct);
   i=0;
   if(o) { o->write(e); o=0; }

@@ -31,7 +31,7 @@ Image.image load_image(string f)
 
 //  werror("Loading "+f+"\n");
 
-  if(!file->open("roxen-images/modules/"+f,"r"))
+  if(!file->open("caudium-images/modules/"+f,"r"))
   {
     perror("Image things: Failed to open file ("+f+").\n");
     return 0;
