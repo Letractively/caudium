@@ -1,5 +1,12 @@
 Changes in Caudium 1.3.31 since Caudium 1.3.23
 ----------------------------------------------
+- Changed rxmltags.pike to automatically parse !DOCTYPE and ?xml and set
+  id->misc->is_xml.  Changed several tag modules to use xml compliant
+  Caudium.make_tag where appropriate.  SF Bug # 1015082.
+   (James Tyson)
+- Changed Storage.Methods.Disk to explicitly destruct unused Stdio.File
+  objects in the hope of fixing SF bug #  979401.
+   (James Tyson)
 - Modified Servlet module so that Jasper can run on its own. 
    (Bill Welliver)
 - Web Applications work again, including Jasper JSP 
