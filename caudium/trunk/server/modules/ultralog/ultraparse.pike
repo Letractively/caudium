@@ -784,7 +784,7 @@ array|mapping|string view_log(string f, object id) {
      
       stats = Period.Year(t[0], profiles[profile]->method, action, QUERY(maxsize));
       _date = path[1];
-      names = Array.transpose_old( ({ smonth_names,
+      names = Array.transpose_old( ({ Caudium.Const.months,
 				      indices(allocate(13))[1..] }) );
       break;
      case "month":
@@ -1030,9 +1030,9 @@ array|mapping|string view_log(string f, object id) {
       if(sizeof(stats[action])) {
 	period = get_period_total(values(stats[action])) || 1000000;
 	foreach(sort(indices(stats[action])), int code) {
-	  if(!err_msgs[code])
+	  if(!Caudium.Const.errors[code])
 	    continue;
-	  sorts += ({ ({ err_msgs[code], (string)stats[action][code],
+	  sorts += ({ ({ Caudium.Const.errors[code], (string)stats[action][code],
 			 sprintf("%.2f%%",
 				 ((0.1 * stats[action][code]) / period)) }) });
 	}
@@ -1045,7 +1045,7 @@ array|mapping|string view_log(string f, object id) {
       tmp = ({});
       foreach(sort(indices(stats[action])), string user) {
 	foreach(sort(indices(stats[action][user])), int code) {
-	  tmp += ({ ({ user, stats[action][user][code], err_msgs[code] }) });
+	  tmp += ({ ({ user, stats[action][user][code], Caudium.Const.errors[code] }) });
 	}
       }
       sort(column(tmp, 1), tmp);
@@ -1103,7 +1103,7 @@ array|mapping|string view_log(string f, object id) {
 	int set = 0;
 	sorts += ({ ({ (string)(i + 1) ,
 		       prettify(tmp[i][1], tmp2),
-		       err_msgs[ tmp[i][0] ] ||
+		       Caudium.Const.errors[ tmp[i][0] ] ||
 		       prettify((string)tmp[i][0]),
 		       tmp[i][2] }) });
       }

@@ -332,6 +332,59 @@ constant replace_values = values( iso88591 ) +
          values( greek ) +
          ({"<",">","&","\"","\'","\"","\"","\'","\000"});
 
+//! Http responses codes and descriptions
+constant errors=
+([
+  // Informational
+  100:"100 Continue",
+  101:"101 Switching Protocols",
+
+  // Successful
+  200:"200 OK",
+  201:"201 URI follows",
+  202:"202 Accepted",
+  203:"203 Provisional Information",
+  204:"204 No Content",
+  205:"205 Reset Content",
+  206:"206 Partial Content", // Byte ranges
+ 
+  // Redirection  
+  300:"300 Moved",
+  301:"301 Permanent Relocation",
+  302:"302 Temporary Relocation",
+  303:"303 Temporary Relocation method and URI",
+  304:"304 Not Modified",
+  305:"305 Use Proxy",
+
+  // Client Error
+  400:"400 Bad Request",
+  401:"401 Access denied",
+  402:"402 Payment Required",
+  403:"403 Forbidden",
+  404:"404 No such file or directory.",
+  405:"405 Method not allowed",
+  406:"406 Not Acceptable",
+  407:"407 Proxy authorization needed",
+  408:"408 Request timeout",
+  409:"409 Conflict",
+  410:"410 This document is no more. It has gone to meet it's creator. It is gone. It will not be coming back. Give up. I promise. There is no such file or directory.",
+  411:"411 Length Required",
+  412:"412 Precondition Failed",
+  413:"413 Request Entity Too Large",
+  414:"414 Request-URI Too Large",
+  415:"415 Unsupported Media Type",
+  416:"416 Requested range not statisfiable",
+  
+  // Internal Server Errors
+  500:"500 Internal Server Error.",
+  501:"501 Not Implemented",
+  502:"502 Gateway Timeout",
+  503:"503 Service unavailable",
+  504:"504 Gateway Timeout",
+  505:"505 HTTP Version Not Supported",
+]);
+
+
 /*
  * If you visit a file that doesn't contain these lines at its end, please
  * cut and paste everything from here to that file.
