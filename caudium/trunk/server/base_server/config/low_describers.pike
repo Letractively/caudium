@@ -224,7 +224,11 @@ string find_one(string ... of)
   foreach(of, s) if(file_stat( s )) return s;
 }
 
-#define to_hostname caudium->blocking_ip_to_host
+#ifdef CONFIG_IF_IP_LOOKUPS
+# define to_hostname caudium->blocking_ip_to_hostx
+#else
+# define to_hostname(x) x
+#endif
 
 void init_ip_list()
 {

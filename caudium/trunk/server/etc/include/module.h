@@ -2,7 +2,7 @@
 #ifndef CAUDIUM_MODULE_H
 #define CAUDIUM_MODULE_H
 
-#include "roxen.h"
+#include "caudium.h"
 
 /* Variable types. */
 #define TYPE_STRING           1
