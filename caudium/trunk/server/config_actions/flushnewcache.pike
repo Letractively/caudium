@@ -36,9 +36,9 @@ mixed page_0 ( object id, object mc ) {
   foreach( indices( caudium->cache_manager->caches ), string namespace ) {
     string desc = caudium->cache_manager->get_cache( namespace )->cache_description();
     select +=
-      sprintf( "<tr><td><input type=\"checkbox\" name=\"flush\" value=\"%s\"></td><td><b>%s</b></td></tr>\n", namespace, namespace );
+      sprintf( "<tr><td><input type=\"checkbox\" name=\"flush\" value=\"%O\"></td><td><b>%O</b></td></tr>\n", namespace, namespace );
     if ( desc )
-      select += sprintf( "<tr><td></td><td>%s</td></tr>\n", desc );
+      select += sprintf( "<tr><td></td><td>%O</td></tr>\n", desc );
     select += "<tr><td colspan=2><hr noshade /></td></tr>\n";
   }
   select += "</table>\n";
