@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.8 (Release 1, 2002-07-10) since Caudium 1.2.6
 --------------------------------------------------------------------
+- Fixed bug in the XML compliant RXML parser that caused to to backtrace on
+  certain tags (like <H1 />).
 - Added support in VHS LDAP to use the Caudium system log directory instead of
   the userdir one. 
 - Added .htaccess manual link... Useful since ours is NSCA compatible...
