@@ -201,7 +201,7 @@ int main(int argc, array argv)
   warning("Your Pike is lacking the _Crypto module so you won't be able to use SSL3.");
 #endif
 
-#if !defined(SSL)
+#if !constant(SSL)
   warning("Your Pike is lacking of SSL module. So you won't be able to use\n"
           "SSL3 with Caudium. We recommand you to use a Pike toolkit with\n"
           "SSL module.");
