@@ -210,7 +210,7 @@ mapping low_answer( int errno, string data, void|int dohtml )
       "error" : errno,
       "data"  : ddata,
       "len"   : strlen( ddata ),
-      "type"  : "text/html",
+      "type"  : "text/html"
       ]);
 }
 

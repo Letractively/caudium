@@ -672,6 +672,25 @@ void unload_program(string p) {
   m_delete(master()->programs,search(master()->programs,(program)p));
 }
 
+mapping add_http_header(mapping to, string name, string value)
+//! Adds a header @[name] with value @[value] to the header style
+//! mapping @[to] (which commonly is @tt{id->misc[" _extra_heads"]@})
+//! if no header with that value already exist.
+{
+  if(to[name]) {
+    if(arrayp(to[name])) {
+      if (search(to[name], value) == -1)
+        to[name] += ({ value });
+    } else {
+      if (to[name] != value)
+        to[name] = ({ to[name], value });
+    }
+  }
+  else
+    to[name] = value;
+  return to;
+}
+
 //!   Prepend the URL with the prestate specified. The URL is a path
 //!   beginning with /.
 //! @param url
