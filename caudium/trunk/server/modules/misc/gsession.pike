@@ -161,6 +161,7 @@ mapping query_container_callers()
 {
     return ([
         "a" : container_a,
+        "form" : container_form
     ]);
 }
 
@@ -585,4 +586,25 @@ mixed container_a(string tag, mapping args, string contents, object id, mapping 
     }
     
     return ({ make_container("a", args, parse_rxml(contents, id)) });
+}
+
+mixed container_form(string tag, mapping args, string contents, object id, mapping defines)
+{
+    string   query;
+    mapping  hvars = ([]);
+
+    alloc_session(id);
+    
+    if (args && args->action) {
+        if (sscanf(args->action, "%*s?%s", query) == 2)
+            Caudium.parse_query_string(query, hvars);
+
+        if (!hvars[SVAR] && (!id->misc->_gsession_cookie || (id->misc->_gsession_cookie && !QUERY(cookienorewrite))))
+            if (!sizeof(hvars))
+                args->action = sprintf("%s?%s=%s", args->action, SVAR, id->misc->session_id);
+            else
+                args->action = sprintf("%s&%s=%s", args->action, SVAR, id->misc->session_id);
+    }
+    
+    return ({ make_container("form", args, parse_rxml(contents, id)) });
 }
