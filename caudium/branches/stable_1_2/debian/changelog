@@ -4,6 +4,7 @@ caudium (2:1.2.25-3) unstable; urgency=medium
     That affects both make_tag() and make_container()
   * Force a rebuild on several architectures which had incorrect pike7.2 
     version (closes: Bug#191613)
+  * Migrated to po-debconf
 
  -- Marek Habersack <grendel@debian.org>  Fri,  2 May 2003 14:16:59 +0200
 
