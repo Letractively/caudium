@@ -413,7 +413,7 @@ void create(object conf)
 //!  name: PHP Handler Threads
 //
 //! defvar: extra_env
-//! Extra variables to be sent to the script, format:<pre>NAME=value<br />NAME=value</pre>Please note that the standard variables will have higher priority.
+//! Extra variables to be sent to the script, format:<pre>NAME=value<br />NAME=value</pre>You can also change variables which are in php.ini just prepend PHP_:<BR>You need a patch for php which is available at http://caudium.net/download/source/php-4-caudium-phpini.patch (to be used with php 4.2.2 and more recent)<pre>PHP_auto_prepend_file=..../header.php<BR>PHP_allow_url_fopen=0<BR></pre>Please note that the standard variables will have higher priority.
 //!  type: TYPE_TEXT_FIELD
 //!  name: Extra environment variables
 //

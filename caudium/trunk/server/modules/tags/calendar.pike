@@ -798,12 +798,7 @@ a:hover.cal-todaytext {
 //!  type: TYPE_STRING
 //!  name: CSS Classes: Invalid date
 //
-//! defvar: wr_rowclass
-//! CSS class name for week number row.
-//!  type: TYPE_STRING
-//!  name: CSS Classes: Week number row
-//
-//! defvar: wr_weekclass
+//! defvar: md_weekclass
 //! CSS class name for week number cell.
 //!  type: TYPE_STRING
 //!  name: CSS Classes: Week number cell

@@ -1042,6 +1042,11 @@ void create(object conf)
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Pass environment variables
 //
+//! defvar: rxml
+//! If this is set, the output from uni-scripts handled by this module will be RXML parsed. NOTE: No data will be returned to the client until the uni-script is fully parsed.
+//!  type: TYPE_FLAG
+//!  name: Parse RXML in uni-scripts
+//
 //! defvar: extra_env
 //! Extra variables to be sent to the script, format:<pre>NAME=value
 //!NAME=value
