@@ -332,7 +332,7 @@ static void write_more_file()
     return;
   }    
 
-  if (sizeof(s)) {
+  if (s && sizeof(s)) {
     int pos = my_fd->write(s);
 
     // perror("Wrote "+pos+" bytes ("+s+")\n");
@@ -350,7 +350,9 @@ static void write_more_file()
     else
       cache = 0;
   } else {
+    // we got to this point; no data left
     cache = 0;
+    die();    
   }
 }
 
