@@ -310,13 +310,13 @@ static void f_ultraparse( INT32 args )
   struct mapping *tmpdest = NULL;
   /*  struct mapping *hits30x     = allocate_mapping(2);*/
   
-  if(args>6 && sp[-1].type == T_INT) {
-    offs0 = sp[-1].u.integer;
+  if(args>6 && Pike_sp[-1].type == T_INT) {
+    offs0 = Pike_sp[-1].u.integer;
     pop_n_elems(1);
     --args;
   }
-  if(args>5 && sp[-1].type == T_STRING) {
-    notref = sp[-1].u.string->str;
+  if(args>5 && Pike_sp[-1].type == T_STRING) {
+    notref = Pike_sp[-1].u.string->str;
     pop_n_elems(1);
     --args;
   }

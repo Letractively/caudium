@@ -30,7 +30,7 @@ void foo() {
     s->u.integer+=count->u.integer;
   else {          
     push_svalue(s); push_svalue(count); f_add(2);                         
-    mapping_string_insert(mappingen, key, sp-1); pop_stack();
+    mapping_string_insert(mappingen, key, Pike_sp-1); pop_stack();
   }
   if(s->type == T_INT && count->type == T_INT &&                
      !INT_TYPE_ADD_OVERFLOW(count->u.integer, s->u.integer))

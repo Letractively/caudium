@@ -85,10 +85,10 @@ static void f_buf_append( INT32 args )
   int os=0, i, j=0, l, qmark = -1;
   unsigned char *in, *query;
   
-  if( sp[-1].type != T_STRING )
+  if( Pike_sp[-1].type != T_STRING )
     Pike_error("Wrong type of argument to append()\n");
   
-  str = sp[-1].u.string;
+  str = Pike_sp[-1].u.string;
   
   if( str->len >= BUF->free ) {
     pop_n_elems(args);
@@ -232,19 +232,19 @@ static void f_buf_create( INT32 args )
         break;
 	  
       case 3:
-        if(sp[-1].type != T_INT) {
+        if(Pike_sp[-1].type != T_INT) {
           Pike_error("Wrong argument 3 to create. Expected int.\n");
-        } else if(sp[-1].u.integer < 100) {
+        } else if(Pike_sp[-1].u.integer < 100) {
           Pike_error("Specified buffer too small.\n");
         } else {
-          BUF->free = sp[-1].u.integer;
+          BUF->free = Pike_sp[-1].u.integer;
         }
         /* fall through */
 	  
       case 2:
-        if(sp[-(args - 1)].type != T_MAPPING)
+        if(Pike_sp[-(args - 1)].type != T_MAPPING)
           Pike_error("Wrong argument 2 to create. Expected mapping.\n");	
-        if(sp[-args].type != T_MAPPING)
+        if(Pike_sp[-args].type != T_MAPPING)
           Pike_error("Wrong argument 1 to create. Expected mapping.\n");
         break;
   }
@@ -256,8 +256,8 @@ static void f_buf_create( INT32 args )
   }
   
   BUF->pos = BUF->data;
-  add_ref(BUF->headers   = sp[-(args - 1)].u.mapping);
-  add_ref(BUF->other     = sp[-args].u.mapping);
+  add_ref(BUF->headers   = Pike_sp[-(args - 1)].u.mapping);
+  add_ref(BUF->other     = Pike_sp[-args].u.mapping);
   pop_n_elems(args);
 }
 
@@ -626,9 +626,9 @@ static void f_get_address( INT32 args ) {
   int i;
   struct pike_string *res, *src;
   char *orig;
-  if(sp[-1].type != T_STRING)
+  if(Pike_sp[-1].type != T_STRING)
     Pike_error("Invalid argument type, expected 8-bit string.\n");
-  src = sp[-1].u.string;
+  src = Pike_sp[-1].u.string;
   if(src->len < 7) {
     res = make_shared_binary_string("unknown", 7);
   } else {
