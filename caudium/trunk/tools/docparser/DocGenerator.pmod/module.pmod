@@ -159,13 +159,18 @@ class DocGen
     }
 
   /* GlobVar output */
-  private string do_f_tag(DocParser.Tag tag)
+  private string do_f_tag(DocParser.Tag|DocParser.Container tag,
+			  int|void is_container)
   {
     string   ret = "";
     
-    if (tag->first_line && tag->first_line != "")
-      ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;\">\n";
-    else
+    if (tag->first_line && tag->first_line != "") {
+      if(is_container)
+	ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;"
+	  "&lt;/" + tag->first_line + "&gt;\">\n";
+      else
+	ret += "<tag synopsis=\"&lt;" + tag->first_line + "&gt;\">\n";
+    } else
       ret += "<tag synopsis=\"" + ob_unnamed(tag) + "\">\n";
     
     if (tag->contents && tag->contents != "")
@@ -218,6 +223,18 @@ class DocGen
     foreach(f->tags, object tag)
       ret += do_f_tag(tag);
     ret += "</tags>\n";
+
+    return ret;
+  }
+  private string f_containers(DocParser.PikeFile f)
+  {
+    string   ret = "";
+    if (!sizeof(f->containers))
+      return "";
+    ret = "<containers>\n";
+    foreach(f->tags, object tag)
+      ret += do_f_tag(tag, 1);
+    ret += "</containers>\n";
 
     return ret;
   }
@@ -381,6 +398,10 @@ class DocGen
 	/* And Tags */
 	if (f->tags)
 	  ofile->write(f_tags(f));
+
+	/* And containers */
+	if (f->containers)
+	  ofile->write(f_containers(f));
 
 	ofile->write("</module>");
     }
