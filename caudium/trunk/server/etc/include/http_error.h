@@ -311,7 +311,13 @@ class http_error_handler {
     if (error_code > 499 || debug) {
       if (id)
       {
-         string url = id->conf->query ("MyWorldLocation");
+         string url;
+
+         if (id->conf)
+            url = id->conf->query ("MyWorldLocation");
+         else
+            url = "http://" + id->request_headers->host + "/";
+
          if (id->raw_url[0] == '/')
             url += id->raw_url[1..];
          else
