@@ -23,3 +23,4 @@ Changes in Caudium 1.1 since CVS branching
     upgrading!
 - Removed htmlparse dependency from the Enhanced Directory Listings
   module since we have two parsing modules now.
+- added the excellent gbutton.pike module from Roxen 2.x
