@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# $Id$
+#
+./start $@ --once --program bin/install.pike

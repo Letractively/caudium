@@ -1,0 +1,70 @@
+Caudium Webserver for Red Hat Linux
+===================================
+
+This README file was created by Mike A. Harris <mharris@caudium.org>.
+
+The files in this directory are for creating Caudium RPM packages 
+for Red Hat Linux.  The packaging is being designed on a Red Hat 6.2
+system, but in such a way that it should work with any 6.x release.
+The goal is to have the packaging compatible with Red Hat 7.x as
+well.
+
+The packages should be FHS compliant on an FHS compliant system, 
+however common locations for a given distribution are favored over 
+FHS compliance so as to not send people on a wild goose chase looking
+for files just in the name of standards compliance.  This may change
+in the future however.
+
+Red Hat 7.0 is much more FHS compliant, so the 7.0 packages will 
+reflect that.
+
+The packages should build and install on other RPM based systems as
+well, but I do not have time or access to test that at all, so use
+at your own risk.  ;o)  If someone needs minor tweaks to my Red Hat
+files, in order to be compatible with other RPM based dists, send me
+either complete copies of your changed files, or unified diff's 
+(diff -ruN), or describe to me in an email message what needs to
+be changed, and I'll do what I can to accomodate other RPM based
+distributions needs as well.
+
+Currently, this RPM packaging is of "alpha" quality.  There ARE glitches,
+and I am dealing with them as I find them.  If you find a bug, and know
+how to fix it, please please please send me a patch, or send it to
+the caudium-devel mailing list.  I hope to have most bugs ironed out
+for the official initial release of Caudium.
+
+
+BUILDING CAUDIUM FROM CVS SOURCES:
+==================================
+
+Right now, to build RPM packages, download the caudium sources from
+CVS, rename the dir to "caudium-YYYYMMDD" and tarball it up using the 
+name:  caudium-YYYYMMDD.tgz
+
+Plop this in your Red Hat SOURCES directory, take the spec file out
+of the caudium "redhat" dir, edit it and change the "version" define
+to reflect the name of the tarball you're using, and then build it.
+
+Example:
+
+After checking out the source from CVS:
+
+mv caudium caudium-cvs20001003
+tar -zcvf /usr/src/redhat/SOURCES/caudium-cvs20001003.tgz caudium-cvs20001003/
+cp caudium-cvs20001003/redhat/caudium.spec /usr/src/redhat/SPECS/
+cd /usr/src/redhat/SPECS/
+
+Now edit the caudium.spec, and change the define line at the top to say:
+
+%define version cvs20001003
+
+Then build:
+
+rpm -ba caudium.spec
+
+
+This procedure will be much more automated in the near future.  Feel
+free to suggest ideas for enhancements.
+
+		Mike A. Harris <mharris@caudium.org>
+
