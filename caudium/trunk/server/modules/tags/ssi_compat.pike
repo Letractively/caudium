@@ -37,9 +37,6 @@
 inherit "module";
 inherit "caudiumlib";
 
-// TODO: Is this needed.. ?
-constant language = caudium->language;
-
 constant cvs_version   = "$Id$";
 constant thread_safe   = 1;
 constant module_type   = MODULE_PARSER;
@@ -50,7 +47,8 @@ constant module_unique = 1;
 
 void create() {
 
-  defvar("virtonly", 1, "Support only virtual acccess", TYPE_FLAG,
+  defvar("virtonly", 1, "SSI include supports only \"virtual\" method",
+         TYPE_FLAG,
          "If set, Caudium will accept only \"virtual\" method to #include "
          "SSI extensions. Warning allow this can "
          "have some big security problems for public websites.");
@@ -306,7 +304,7 @@ mapping query_tag_callers () {
 //! defvar: virtonly
 //! If set, Caudium will accept only "virtual" method to #include SSI extensions. Warning allow this can have some big security problems for public websites.
 //!  type: TYPE_FLAG
-//!  name: Support only virtual acccess
+//!  name: SSI include supports only "virtual" method
 //
 //! defvar: exec
 //! If set, Caudium will accept NCSA / Apache &lt;!--#exec cmd="XXX" --&gt;. Note that this will allow your users to execute arbitrary commands.
