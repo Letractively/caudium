@@ -63,6 +63,10 @@
 //! cvs_version: $Id$
 //
 
+#include <module.h>
+inherit "module";
+inherit "caudiumlib";
+
 constant cvs_version  = "$Id$";
 constant module_type  = MODULE_PARSER;
 constant module_name  = "Path tag";
@@ -77,10 +81,6 @@ constant module_doc   = "Config interface style URL location thing!<P>"
                         "[gtext[=\"gtext options\"]] [magic]&gt;</I><P>";
 constant module_unique= 1;
 constant thread_safe=1;
-
-#include <module.h>
-inherit "module";
-inherit "caudiumlib";
 
 string tagname;
 int usecount;
