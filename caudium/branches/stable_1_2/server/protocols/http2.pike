@@ -1086,27 +1086,17 @@ void send_result(mapping|void result)
       fstat = file->stat;
       if(arrayp(fstat) || objectp(fstat))
       {
-        int fsize, fmtime;
-	
-        if (objectp(fstat)) {
-          fsize = fstat->size;
-          fmtime = fstat->mtime;
-        } else {
-          fsize = fstat[1];
-          fmtime = fstat[3];
-        }
-        
         if(file->file && !file->len)
-          file->len = fsize;
+          file->len = fstat[1];
     	
         if(!file->is_dynamic && !misc->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
           if(prot != "HTTP/0.9") {
 #endif
-            heads["Last-Modified"] = http_date(fmtime);
+            heads["Last-Modified"] = http_date(fstat[3]);
             if(since)
             {
-              if(is_modified(since, fmtime, fsize))
+              if(is_modified(since, fstat[3], fstat[1]))
               {
                 file->error = 304;
                 file->file = 0;
