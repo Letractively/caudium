@@ -196,8 +196,8 @@ string ldap_getvirt(string hostname, object id)
 				       vpath + QUERY(cgidir),
 				       vpath + QUERY(logdir),
 				       vpath,
-				       (int)res->uidNumber[0],
-				       (int)res->gidNumber[0],
+				       res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
+				       res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
 				       QUERY(ttl_positive));
 
      return vpath;
@@ -247,8 +247,8 @@ string ldap_getvirt(string hostname, object id)
                        			       vpath + QUERY(cgidir),
                        			       vpath + QUERY(logdir),
                        			       vpath,
-                       			       (int)res->uidNumber[0]||QUERY(defaultuid),
-                       			       (int)res->gidNumber[0]||QUERY(defaultgid),
+                       			       res->uidNumber?(int)res->uidNumber[0]:QUERY(defaultuid),
+                       			       res->gidNumber?(int)res->gidNumber[0]:QUERY(defaultgid),
                        			       QUERY(ttl_positive));
     
          return vpath;

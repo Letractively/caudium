@@ -38,7 +38,7 @@ constant module_name = "VHS - Virtual Hosting System (SQL)";
 constant module_doc  = "Basic Virtual Hosting module in SQL mode.";
 constant module_unique = 1;
 
-#define VHS_DEBUG
+//#define VHS_DEBUG
 
 #if defined(DEBUG) || defined(VHS_DEBUG)
 # define DW(x) werror("[VHS_system] " + x + "\n")
