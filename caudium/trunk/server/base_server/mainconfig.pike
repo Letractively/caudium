@@ -55,7 +55,7 @@ inherit "cachelib";  // Inherit the cache helper functions.
 
 int bar=time(1);
 multiset changed_port_servers;
-object cache = caudium->cache_manager->get_cache("my_very_own_cif");  // Get ourselves a cache to store stuff in.
+object cache = caudium->cache_manager->get_cache("Configuration Interface");  // Get ourselves a cache to store stuff in.
 
 object cif = ThemedConfig( caudium->QUERY(cif_theme),
 			   caudium->QUERY(InternalImagePath));
@@ -1324,7 +1324,7 @@ mapping auto_image(string in, object id)
 #if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
   e=Image.GIG.encode(i);
 #endif
- cache->store(cache_image(e, img_key, -1));
+ cache->store(cache_string(e, img_key, -1));
 
 #if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
   return Caudium.HTTP.string_answer(e,"image/png");
