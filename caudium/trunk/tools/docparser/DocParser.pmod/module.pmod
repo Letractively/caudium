@@ -281,8 +281,11 @@ class Method {
             switch(kw) {
                 case "method":
                     first_line = newstuff;
-		    if (parent)
+		    if (parent) {
+			debug(sprintf("Adding '%s' to parent '%s'",
+			      kw, parent->myName));
 			parent->add(this_object(), kw);
+		    }
                     break;
 
                 case "name":
@@ -1268,7 +1271,7 @@ class Parse {
                                   curob ? "child of " + curob->myName : "top-level"));
                     
                     object o = cur_scope->scope[lastkw](curob, String.trim_whites(spline[1]));
-
+		    
                     /* Does the object switch scopes? */
                     if (scopes[lastkw]) {
                         /* Yep. Make it happen. */
@@ -1296,6 +1299,7 @@ class Parse {
                      * in this scope
                      */
                     debug(sprintf("Keyword is a field of %s\n", cur_scope->curob->myName));
+		    cur_scope->curob->add(String.trim_whites(spline[1]), lastkw);
                 }   
             } else {
                 /* No, find out whether it switches scopes */
@@ -1312,8 +1316,7 @@ class Parse {
                 cur_scope = ns;
 		
 		debug(sprintf("Keyword switched the scope to '%s'", cur_scope->scope->ScopeName));
-            }
-            
+            }            
         } else {
             /*
              * It's a normal line - it will be appended to the current
@@ -1323,6 +1326,10 @@ class Parse {
                 wrerr(sprintf("No current container in scope '%s'!", cur_scope->scope->ScopeName));
                 return;
             }
+	    if (cur_scope->curob->lastkw == lastkw)
+		cur_scope->curob->add(String.trim_whites(line));
+	    else
+		cur_scope->curob->add(String.trim_whites(line), lastkw);
         }
 
         if (!cur_scope->curob) {
