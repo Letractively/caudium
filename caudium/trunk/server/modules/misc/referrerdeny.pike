@@ -151,7 +151,7 @@ void precache_rewrite(object id)
   }
   if (( (freg->match(id->not_query) && QUERY(deny)) ||
 	(!freg->match(id->not_query) && !QUERY(deny)) ) &&
-      ((!sizeof(REFERRER) && QUERY(noempty)) ||
+      ((!REFERRER && QUERY(noempty)) ||
        !areg->match(REFERRER)))
   {
     // Tada. This sucker is asking to be denied. We won't let them down.
