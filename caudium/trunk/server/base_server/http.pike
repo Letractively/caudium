@@ -243,6 +243,91 @@ mapping http_string_answer(string text, string|void type)
   return ([ "data":text, "type":(type||"text/html") ]);
 }
 
+private mapping(string:string) doctypes = ([
+    "transitional" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\"http://www.w3.org/TR/html4/loose.dtd\">",
+    "strict" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n\"http://www.w3.org/TR/html4/strict.dtd\">",
+    "frameset" : "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\"\n\"http://www.w3.org/TR/html4/frameset.dtd\">"
+]);
+
+private string docstart = "%s\n<html><head><title>%s</title>%s%s</head><body>%s</body></html>";
+
+/*
+**! method: mapping http_htmldoc_answer(string contents, string title,void|mapping meta, void|mapping style, string|void dtype)
+**!   Return a response mapping with the 'contents' wrapped up to form a
+**!   valid HTML document. The document is always of the 'text/html' type
+**!   and you can modify its look (using CSS) and add any meta tags you
+**!   find necessary. It is also specify one of the predefined document
+**!   types. The generated document is always identified as one following
+**!   the HTML 4.01 standard.
+**! arg: string contents
+**!   The document body.
+**! arg: string title
+**!   The document tile.
+**! arg: void|mapping meta
+**!   A mapping of meta entries. Each index in the mapping is also a
+**!   mapping and describes a single &lt;meta&gt; tag. The indices in the
+**!   inner mapping are the attribute names and their value constitutes the
+**!   attribute value. If both 'name' and 'http_equiv' indices exist in the
+**!   inner mapping, 'http_equiv' is used (to generate the http-equiv) meta
+**!   attribute. It is your responsibility to specify attributes that are
+**!   valid for the meta tag.
+**! arg: void|mapping style
+**!   Modifies the document style. Contents of this mapping is coverted to
+**!   the style container put in the document head section. Every index in
+**!   the mapping is considered to be the classifier and its value the
+**!   style assigned to the given classifier. The style is put between
+**!   curly braces.
+**! arg: string|void dtype
+**!   Specifies the name of the document type definition. The following
+**!   names are known: 'transitional' (the default), 'strict', 'frameset'.
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_string_answer - return a response mapping as specified
+*/
+mapping http_htmldoc_answer(string contents, string title,void|mapping meta,
+                            void|mapping style, string|void dtype)
+{
+    string doctype, smetas = "", sstyle = "";
+    
+    if (dtype && doctypes[dtype])
+        doctype = doctypes[dtype];
+    else
+        doctype = doctypes->transitional;
+
+    //
+    // construct the meta tags
+    //
+    if (meta && sizeof(meta)) {
+        foreach(indices(meta), string idx) {
+            array(string) attrs = ({});
+            mapping m = meta[idx];
+
+            if (m->name && m->http_equiv)
+                m_delete(m, "name");
+            
+            foreach(indices(m), string i)
+                attrs += ({ i + "='" + m[i] + "'"});
+
+            smetas += sprintf("<meta %s />", attrs * " ");
+        }
+    }
+
+    //
+    // Construct the style definition
+    //
+    if (style && sizeof(style)) {
+        array(string) styles = ({});
+        
+        foreach(indices(style), string idx)
+            styles += ({ idx + "{" + style[idx] + "}\n" });
+
+        sstyle = sprintf("<style type='text/css'>%s</style>",
+                         styles * " ");
+    }
+
+    return http_string_answer(sprintf(docstart, doctype, (title ? title : ""), smetas, sstyle, contents));
+}
+
 /*
 **! method: mapping http_file_answer( object fd, string|void type, int|void len)
 **!   Return a response mapping with the specified file descriptior using the
