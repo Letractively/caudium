@@ -233,7 +233,7 @@ string describe_directory(string d, object id)
       
       break;
     default:
-      array tmp = caudium->type_from_filename(file,1);
+      array tmp = id->conf->type_from_filename(file,1);
       if (tmp) {
 	type = tmp[0];
       }

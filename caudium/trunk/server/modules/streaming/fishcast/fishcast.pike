@@ -172,7 +172,7 @@ mixed find_file( string path, object id ) {
 	    break;
 	case "playlists":
 	    array pls = ( parts[ 1 ] / "." ) - ({ "" });
-	    int sid = (int)pls[ 0 ];
+	    sid = (int)pls[ 0 ];
 	    if ( streams[ sid ] ) {
 		switch ( pls[ 1 ] ) {
 		case "pls":

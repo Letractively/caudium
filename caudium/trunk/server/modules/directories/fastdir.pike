@@ -129,9 +129,9 @@ string describe_dir_entry(string path, string filename, array stat)
     icon = "internal-gopher-menu";
     break;
       
-   default:
+  default:
     array tmp;
-    tmp = caudium->type_from_filename(filename, 1);
+    tmp = my_configuration()->type_from_filename(filename, 1);
     if(!tmp)
       tmp=({ "Unknown", 0 });
     type = tmp[0];
