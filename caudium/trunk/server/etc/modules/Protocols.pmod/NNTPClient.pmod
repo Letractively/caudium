@@ -25,7 +25,9 @@
 		res = _cmd(X); \
 	} \
 	; \
-	if (!res) return 0;
+	if (!res) return 0; \
+
+#define NNTPPORT 119
 
 class connection
 {
@@ -34,14 +36,17 @@ class connection
   int locked = 0;
   mixed err = 0;
   
-  void create(void|string connectionserver)
+  void create(void|string connectionserver, void|int argport)
   {
+    int port = NNTPPORT;
+    if(argport)
+      port = argport;
     if (!connectionserver && !(connectionserver = getenv("NNTPSERVER")))
        return;
   
     connection = Stdio.FILE();
-  
-    if (!connection->connect(connectionserver, 119))
+
+    if (!connection->connect(connectionserver, port))
     {
        connection = 0;
        return;
@@ -62,12 +67,13 @@ class connection
     string result = connection->gets();
 
     sscanf(result, "%s\r", result);
-
+    write("NNTPClient: gets: " + result + "\n");
     return result;
   }
 
   string _cmd(string command)
   {
+    write("NNTPClient: _cmd: " + command + "\n");
     connection->write(command + "\r\n");
     return _gets();
   }
@@ -209,23 +215,21 @@ class connection
     return body;
   }
 
-  mapping active(void|string wildmat)
+  mapping active(void|string groupname)
   {
     string res;
     mapping result = ([]);
-    
-    // BUG: don't remove {} or pike cpp will fail
-    if(stringp(wildmat))
+
+    if(groupname)
     {
-      NNTPCMD(sprintf("list active %s", wildmat));
+      NNTPCMD(sprintf("list active %s", groupname));
     }
     else
     {
       NNTPCMD("list active");
     }
-
     sscanf(res, "%d %s", lastreply, res);
-    
+
     if (err)
     {
        destruct(connection);
@@ -244,6 +248,7 @@ class connection
 
       res = _gets();
     }
+
     return result;
   }
 
@@ -278,20 +283,19 @@ class connection
     return result;
   }
 
-  mapping newsgroups(void|string group)
+  mapping newsgroups(void|int|string groupname)
   {
     string res;
     mapping result = ([]);
- 
-    if(stringp(group))
+
+    if(groupname)
     {
-      NNTPCMD(sprintf("list newsgroups %s", group));
+      NNTPCMD(sprintf("list newsgroups %s", (string) groupname));
     }
     else
-    {
+    { 
       NNTPCMD("list newsgroups");
     }
-
     sscanf(res, "%d %s", lastreply, res);
 
     if (err)
@@ -347,13 +351,18 @@ class connection
     return result;
   }
 
-  mapping xover(string msgspec)
+  mapping xover(string|int msgspec, void|string msgspec2)
   {
     string res;
     mapping result = ([]);
-
-    NNTPCMD(sprintf("xover %s", msgspec));
-
+    if(!msgspec2)
+    {
+      NNTPCMD(sprintf("xover %s", (string) msgspec));
+    }
+    else
+    {
+      NNTPCMD(sprintf("xover %s-%s", (string) msgspec, (string) msgspec2));
+    }
     sscanf(res, "%d %s", lastreply, res);
 
     if (err)
@@ -362,7 +371,6 @@ class connection
        connection = 0;
        return 0;
     }
-
     if (lastreply != 224) return 0;
 
     res = _gets();
