@@ -18,13 +18,14 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
 //! This class should be inherited by any code that implements a Caudium
 //! module. It defines all the API that must be found in any Caudium module
 //! and provides reasonable defaults for the elements not implemented in
 //! the inheriting class.
-
-/* $Id$ */
 
 #include <module.h>
 #include <pcre.h>
@@ -42,6 +43,7 @@ constant module_doc    = "Undocumented";
 constant module_unique = 1;
 object this = this_object();
 
+//!
 string fix_cvs(string from)
 {
   from = replace(from, ({ "$", "Id: "," Exp $" }), ({"","",""}));
@@ -67,6 +69,7 @@ int module_dependencies(object configuration, array (string) modules)
   return 1;
 }
 
+//!
 string file_name_and_stuff()
 {
   return ("<b>Loaded from:</b> "+(caudium->filename(this))+"<br>"+
@@ -97,11 +100,13 @@ nomask void set_configuration(object c)
   _my_configuration = c;
 }
 
+//!
 void set_module_creator(string c)
 {
   module_creator = c;
 }
 
+//!
 void set_module_url(string to)
 {
   module_url = to;
@@ -118,6 +123,7 @@ int killvar(string var)
   return 1;
 }
 
+//!
 void free_some_sockets_please(){}
 
 //! The first method called when the module is loaded. It is called only
@@ -138,15 +144,19 @@ void start(void|int num, void|object conf) {}
 //!  The status string displayed in the CIF
 string status() {}
 
+//!
 string info(object conf)
 { 
   return this->register_module()[2];
 }
 
+//!
 static class ConfigurableWrapper
 {
   int mode;
   function f;
+
+  //!
   int check()
   {
     if ((mode & VAR_EXPERT) &&
@@ -159,6 +169,8 @@ static class ConfigurableWrapper
     }
     return(f());
   }
+
+  //!
   void create(int mode_, function f_)
   {
     mode = mode_;
@@ -166,7 +178,7 @@ static class ConfigurableWrapper
   }
 };
 
-// Define a variable, with more than a little error checking...
+//! Define a variable, with more than a little error checking...
 void defvar(string|void var, mixed|void value, string|void name,
             int|void type, string|void doc_str, mixed|void misc,
             int|function|void not_in_config)
@@ -366,6 +378,16 @@ void definvisvar(string name, mixed value, int type, mixed|void misc)
   defvar(name, value, "", type, "", misc, 1);
 }
 
+//! Check a variable if 'value' is OK to store into variable 's'.
+//! If so, return 0 otherwise return a string describing the error.
+//! @param s
+//!  The variable name to check (that is given in defvar() function)
+//! @param value
+//!  The value given but CIF user
+//! @returns
+//!  0 if ok, otherwise a string with the error.
+//! @fixme
+//!  Type of this function shouldn't be int|string ???
 string check_variable( string s, mixed value )
 {
   // Check if `value' is O.K. to store in the variable `s'.  If so,
@@ -399,6 +421,7 @@ mixed query(string|void var, int|void ok)
   return variables;
 }
 
+//!
 void set_module_list(string var, string what, object to)
 {
   int p;
@@ -414,6 +437,8 @@ void set_module_list(string var, string what, object to)
 }
 
 private string _module_identifier;
+
+//!
 string module_identifier()
 {
   if (!_module_identifier) {
@@ -428,11 +453,16 @@ string module_identifier()
   return _module_identifier;
 }
 
+//!
 string _sprintf()
 {
   return "CaudiumModule(" + module_identifier() + ")";
 }
 
+
+//! Used to register module
+//! @note 
+//!  On new API this is deprecated.
 array register_module()
 {
   return ({
@@ -444,6 +474,7 @@ array register_module()
   });
 }
 
+//!
 void set(string var, mixed value)
 {
   if(!variables[var])
@@ -463,6 +494,7 @@ void set(string var, mixed value)
       variables[var][VAR_VALUE]=value;
 }
 
+//! 
 int setvars( mapping (string:mixed) vars )
 {
   string v;
@@ -475,11 +507,13 @@ int setvars( mapping (string:mixed) vars )
 }
 
 
+//! Return the comment.
 string comment()
 {
   return "";
 }
 
+//! Return Internal Localtion this module
 string query_internal_location()
 {
   if(!_my_configuration)
@@ -487,7 +521,7 @@ string query_internal_location()
   return _my_configuration->query_internal_location(this_object());
 }
 
-/* Per default, return the value of the module variable 'location' */
+//! Per default, return the value of the module variable 'location' 
 string query_location()
 {
   string s;
@@ -495,7 +529,9 @@ string query_location()
   return s;
 }
 
-/* By default, provide nothing. */
+//! What the module provides.
+//! @note
+//!  By default, provide nothing.
 string query_provides() { return 0; } 
 
 /*
@@ -503,6 +539,7 @@ string query_provides() { return 0; }
  *
  */
 
+//!
 class IP_with_mask {
   int net;
   int mask;
@@ -514,6 +551,8 @@ class IP_with_mask {
     }
     return(res);
   }
+
+  //!
   void create(string _ip, string|int _mask)
   {
     net = ip_to_int(_ip);
@@ -533,12 +572,15 @@ class IP_with_mask {
       net &= mask;
     }
   }
+
+  //!
   int `()(string ip)
   {
     return((ip_to_int(ip) & mask) == net);
   }
 };
 
+//!
 array query_seclevels()
 {
   array patterns=({ });
@@ -735,8 +777,13 @@ array query_seclevels()
   return patterns;
 }
 
+//!
 mixed stat_file(string f, object id){}
+
+//!
 mixed find_dir(string f, object id){}
+
+//!
 mapping(string:array(mixed)) find_dir_stat(string f, object id)
 {
   TRACE_ENTER("find_dir_stat(): \""+f+"\"", 0);
@@ -758,19 +805,26 @@ mapping(string:array(mixed)) find_dir_stat(string f, object id)
   TRACE_LEAVE("");
   return(res);
 }
+
+//!
 mixed real_file(string f, object id){}
 
+//!
 mapping _api_functions = ([]);
+
+//!
 void add_api_function( string name, function f, void|array(string) types)
 {
   _api_functions[name] = ({ f, types });
 }
 
+//!
 mapping api_functions()
 {
   return _api_functions;
 }
 
+//!
 object get_font_from_var(string base)
 {
   int weight, slant;
