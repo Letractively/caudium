@@ -371,7 +371,9 @@ mixed find_file(string f, object id)
         error = catch {
             conn_cache[id->misc->session_id] = Protocols.LDAP.client(QUERY(ldap_server));
         };
-
+        report_notice("Created an LDAP connection for session '%s'. Error: <pre>%O</pre>",
+                      id->misc->session_id, error);
+        
         if (error) {
             if (arrayp(error))
                 return p_err->error(id, ERR_LDAP_CONNECT, error[0]);

@@ -62,8 +62,8 @@ void create()
     defvar("user_dntype", "any", "User auth: DN type", TYPE_STRING_LIST,
            "This module can authenticate users based on number of LDAP attributes. "
            "It is possible to create the DN using the <code>uid</code> attribute, "
-           "the <code>mail</code> attribute or both of them simultanously. Below "
-           "is a short explanation of what choices the adminstrator has:<br />"
+           "the <code>mail</code> attribute or both of them simultanously. <br />"
+           "Below is a short explanation of what choices the adminstrator has:<br />"
            "<blockquote><ul>"
            "<li><strong><code>any</code></strong>. This means that the module will "
            "attempt to authenticate the user using any of the two attributes mentioned "
@@ -382,6 +382,9 @@ private array(string) make_dn(object id, string login)
     return ret;
 }
 
+mapping read_user_info(object id, mapping user, object ldap)
+{}
+
 mapping auth(object id, mapping user, object ldap)
 {
     mixed    error;
@@ -412,6 +415,8 @@ mapping auth(object id, mapping user, object ldap)
         user->dn = make_dn(id, user->name);
         user->password = id->variables[lcc_password];
     }
+
+    ldap->set_basedn(QUERY(ldap_basedn));
     
     switch(QUERY(ldap_scope)) {
         case "subtree":
@@ -426,17 +431,16 @@ mapping auth(object id, mapping user, object ldap)
             ldap->set_scope(0);
             break;
     }
-    ldap->set_basedn(QUERY(ldap_basedn));
 
     foreach(user->dn, string dn) {
-        report_notice("Trying to bind with %s:%s on ldap %O\n", dn, user->password, ldap);
-    
         error = catch {
-            result = ldap->bind(user->dn, user->password, QUERY(ldap_protocol));
+            result = ldap->bind(dn, user->password, QUERY(ldap_protocol));
         };
-        
-        if (!result)
+
+        if (!result) {
+            user->dn = dn;
             break; // success
+        }
     }
     
     if (error) {
@@ -462,6 +466,43 @@ mapping auth(object id, mapping user, object ldap)
     user->ldap->god_dn = QUERY(ldap_god_dn);
     user->ldap->god_pass = QUERY(ldap_god_pass);
     user->ldap->protocol = QUERY(ldap_protocol);
+
+    // Try reading the user info. If the returned value doesn't contain the
+    // userPassword entry, it is assumed that the user hasn't been
+    // authenticated correctly.
+    object res = 0;
+    error = catch {
+        string suffix = "," + QUERY(ldap_dnprefix) + "," + QUERY(ldap_basedn);
+        res = ldap->search(user->dn - suffix);
+    };
+
+    if (error) {
+        mapping ret = ([]);
+        if (arrayp(error)) {
+            ret->lcc_error = ERR_INVALID_USER;
+            ret->lcc_error_extra = error[0];
+        } else {
+            ret->lcc_error = ERR_INVALID_USER;
+        }
+        ldap->unbind();
+        
+        return ret;
+    } else if (!res || !res->num_entries()) {
+        ldap->unbind();
+        return ([
+            "lcc_error" : ERR_INVALID_USER
+        ]);
+    }
+
+    mixed rdata = res->fetch();    
+    if (!rdata->userPassword) {
+        ldap->unbind();
+        return ([
+            "lcc_error" : ERR_INVALID_USER
+        ]);
+    }
+
+    user->ldap_data = rdata;
     
     return 0; // 0 == everything's fine
 }
@@ -480,9 +521,9 @@ private multiset(string) input_attrs = (<
     "readonly", "disabled", "tabindex", "accesskey", "dir"
 >);
 
-private string make_input_tag(string tag, mapping args, object id)
+private string make_input_tag(string ttype, string tag, mapping args, object id)
 {
-    string ret = "<input type='text' name='" + QUERY(provider_prefix) + tag + "' ";
+    string ret = "<input type='" + ttype + "' name='" + QUERY(provider_prefix) + tag + "' ";
     
     // first the standard attributes
     foreach(indices(args), string idx)
@@ -503,7 +544,7 @@ string tag_input_login(string tag,
                        mapping args,
                        object id)
 {
-    return make_input_tag("_login", args, id);
+    return make_input_tag("text", "_login", args, id);
 }
 
 //
@@ -515,7 +556,7 @@ string tag_input_password(string tag,
                           mapping args,
                           object id)
 {
-    return make_input_tag("_password", args, id);
+    return make_input_tag("password", "_password", args, id);
 }
 
 //
