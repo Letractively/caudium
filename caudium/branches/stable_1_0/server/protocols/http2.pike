@@ -222,8 +222,9 @@ inline void do_post_processing()
     }
   }
 #ifdef KEEP_ALIVE
-  else
+  else {
     leftovers = data;
+  }
 #endif
   if(query)
       Caudium.parse_query_string(query, variables);
@@ -1329,7 +1330,7 @@ void got_data(mixed fdid, string s)
       not_query = f = misc->file;
       raw_url = misc->raw_url;
       query = misc->query;
-      data = misc->data;      
+      data = misc->data;
       destruct(htp);
       if(request_headers->host)
       	host = lower_case(request_headers->host);
@@ -1357,9 +1358,9 @@ void got_data(mixed fdid, string s)
       end("HTTP/1.0 "+tmp +" Sorry dude.\r\n\r\n<h1>"+err+"</h1>");
       return;
     }
+  } else {
+    data += s;
   }
-  
-  data += s;
   if(strlen(data) < misc->len) {
     // Need more data
     return;
