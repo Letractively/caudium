@@ -8,7 +8,7 @@ static Thread.Mutex mutex = Thread.Mutex();
 #define UNLOCK()
 #endif
 
-#define SYNC_IN 30
+#define SYNC_IN 5
 
 static mapping storage;
 static object permstore;
@@ -31,7 +31,7 @@ void create(string _permstore, string path) {
 public object get_storage(string namespace) {
   LOCK();
   if (! clients[namespace]) {
-    clients += ([ namespace : Storage.Client(namespace,store,retrieve,flush) ]);
+    clients += ([ namespace : Storage.Client(namespace,store,retrieve,unlink) ]);
   }
   return clients[namespace];
 }
@@ -62,9 +62,14 @@ static void sync(string namespace, string key) {
     }
 }
 
-static void flush(string namespace) {
+static void unlink(string namespace, void|string key) {
   LOCK();
-  m_delete(storage,namespace);
+  if (stringp(key)) {
+    if (storage[namespace][key])
+      m_delete(storage[namespace], key);
+  }
+  else
+    m_delete(storage,namespace);
   UNLOCK();
-  permstore->flush();
+  permstore->unlink(key);
 }
