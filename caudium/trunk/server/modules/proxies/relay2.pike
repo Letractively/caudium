@@ -26,14 +26,14 @@
 //!  Smart HTTP Relay module. Can relay according to regular
 //!  expressions
 //! inherits: module
-//! type: MODULE_FIRST|MODULE_LAST
+//! type: MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL
 //! cvs_version: $Id$
 //
 #include <module.h>
 inherit "module";
 constant cvs_version   = "$Id$";
 constant thread_safe   = 1;
-constant module_type   = MODULE_FIRST|MODULE_LAST;
+constant module_type   = MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL;
 constant module_name   = "Proxies: HTTP Relay module";
 constant module_doc    = "Smart HTTP relay module. Can relay according to "
                          "regular expressions.";
