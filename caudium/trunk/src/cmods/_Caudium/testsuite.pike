@@ -25,18 +25,16 @@
 int tests = 0;		// Individual test counter.
 int testsok = 0;	// Individual test counter for successfull tests.
 
-// This test if result is ok or not...
-int result(mixed a, mixed b) {
+// This write to stdout if result is ok or not
+void write_result(int retcode, mixed a, mixed b) {
   tests++;
-  if(a == b) {
+  if(!retcode) {
     testsok++;
     write("+");
-    return 0;
   } else {
     write("-\n");
     write(sprintf("     a = %O \n",a));
     write(sprintf("     b = %O \n",b));
-    return 1;
   }
 }
 
@@ -58,14 +56,33 @@ void prtest(string name) {
 
 // Do test with mapping in format "source":"destination" with function given
 // in argument.
-int mapping_test(mapping tst, function totest) {
+// The mapping can also in the form "source": ({ "destination1", "destination2" })
+// In this case the test will fail only if source is not equal to destination1
+// AND source is not equal to destination2. This is used to test functions that
+// can output several good values
+int mapping_test(mapping tst, function totest, void|mixed ...args) {
   int out = 0;
   foreach(indices(tst), string foo) {
-    out += result(tst[foo],totest(foo)); 
+    int i = 1, j = 0;
+    array ress = ({ tst[foo] });
+    if(arrayp(tst[foo]))
+      ress = tst[foo];
+    array ress_from_fun = allocate(sizeof(ress));
+
+    foreach(ress, string res)
+    {
+      if(args && sizeof(args))
+        ress_from_fun[j] = totest(foo, @args); 
+      else
+        ress_from_fun[j] = totest(foo);
+      i &= !(res == ress_from_fun[j++]);
+    }
+    out |= i;
+    write_result(out, ress, ress_from_fun);
   }
   return returnok(out);
 }
-  
+
 int TEST_extension() {
   mapping tst = ([ "caudium.c":"c",
                    "index.rxml":"rxml",
@@ -163,27 +180,92 @@ int TEST__make_tag_attributes() {
   mapping tst = ([ ([
                     "href":"/mailmailindex--?mbox=INBOX&amp;msguid=3522&amp;actionread=1",
                     "target":"mailindex"
-                   ]):"target=\"mailindex\" href=\"/mailmailindex--?mbox=INBOX&amp;amp;msguid=3522&amp;amp;actionread=1\" "
+                   ]): ({ "href=\"/mailmailindex--?mbox=INBOX&amp;amp;msguid=3522&amp;amp;actionread=1\" target=\"mailindex\" ", "target=\"mailindex\" href=\"/mailmailindex--?mbox=INBOX&amp;amp;msguid=3522&amp;amp;actionread=1\" " }),
+		   ([ "input": "test", "foo\"a": "bar&<>" ]): ({ "input=\"test\" foo&#34;a=\"bar&amp;&lt;&gt;\" ", "foo&#34;a=\"bar&amp;&lt;&gt;\" input=\"test\" " })
                  ]);
   prtest("_make_tag_attributes");
-  return mapping_test(tst, _Caudium._make_tag_attributes);
+  return mapping_test(tst, _Caudium._make_tag_attributes, 1);
 }
-         
+
+int TEST_parse_entities() {
+  mapping tst = ([ 
+                  "&gt;&gt;": "&gt;&gt;",
+                  "&camas.login;": "&camas.login;",
+                ]);
+  prtest("parse_entities");
+  return mapping_test(tst, _Caudium.parse_entities, ([ ]));
+}
+
+int TEST2_parse_entities() {
+    class EmitScope(mapping v) {
+    string name = "emit";
+
+    string get(string entity) {
+      return v[entity];
+    }
+  };
+
+  mapping tst = ([ 
+                    "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td class=\"loopprev\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<href action=\"gopage\" countpageloop=\"&navbar_loop_previous.number;\"><img src=\"/mail_camastemplates/Caudium%20WWW/images/page.gif\" alt=\"&navbar_loop_previous.number;\" border=\"0\"><br>&navbar_loop_previous.number;</href>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t": "\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<td class=\"loopprev\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<href action=\"gopage\" countpageloop=\"27\"><img src=\"/mail_camastemplates/Caudium%20WWW/images/page.gif\" alt=\"27\" border=\"0\"><br>27</href>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+                ]);
+  prtest("parse_entities");
+  mapping v = ([ 
+    "number": "27"
+    ]);
+  return mapping_test(tst, _Caudium.parse_entities, ([ "navbar_loop_previous": EmitScope(v) ]));
+}
+
+int TEST3_parse_entities() {
+  class scope
+  {
+    string get(string val)
+    {
+      if(val=="test2")
+	return upper_case(val);
+      else
+	return 0;
+    }
+  };
+ 
+  mapping tst = ([
+                 "&nbsp; &test; &test.test2; &nbsp;": "&nbsp; &test; TEST2 &nbsp;",
+		 "&nbsp; &nbsp; &test; &test.test2; &nbsp; 12345 &nbsp; 12345 &test; &test.test2;": "&nbsp; &nbsp; &test; TEST2 &nbsp; 12345 &nbsp; 12345 &test; TEST2"
+                ]);
+  prtest("parse_entities");
+  return mapping_test(tst, _Caudium.parse_entities, ([ "test": scope() ]));
+}
+
+int TEST4_parse_entities()
+{
+  class scope2
+  {
+    string get(string val, mixed a)
+    {
+      return upper_case(val);
+    }
+  };
+  mapping tst = ([
+                   "entity that exists: &test.ent2; -- should be ENT2\n"
+     "entity that exists: &test.blahblah; -- should be BLAHBLAH\n"
+     "scope that doesn't exist: &see.wah; -- should be ampsee.wahsemi\n"
+     "scope doesnt exit, but no subpart: &ent; -- should be ampentsemi\n\n"
+     "scope exists, but no subpart: &blah; -- should be ampblahsemi\n\n": "entity that exists: ENT2 -- should be ENT2\nentity that exists: BLAHBLAH -- should be BLAHBLAH\nscope that doesn't exist: &see.wah; -- should be ampsee.wahsemi\nscope doesnt exit, but no subpart: &ent; -- should be ampentsemi\n\nscope exists, but no subpart: &blah; -- should be ampblahsemi\n\n"
+                ]);
+   prtest("parse_entities");
+   return mapping_test(tst, _Caudium.parse_entities, ([ "test": scope2() ]));
+}
+
 int TEST_http_date() {
   int tmstmp = time();
-  string a, b;
-
   prtest("http_date");
-  
-  a = Calendar.ISO_UTC.Second(tmstmp)->format_http();
-  b = _Caudium.http_date(tmstmp);
+  mapping tst = ([ tmstmp: Calendar.ISO_UTC.Second(tmstmp)->format_http() ]);
 
-  return returnok(result(a,b));
+  return mapping_test(tst, _Caudium.http_date);
 }
 
 int TEST_cern_http_date() {
   int tmstmp = time();
-  string a, b, c;
+  string a, c;
   mapping lt = localtime(tmstmp);
   // Do we have to take care of Day Light time ? I think no - XB.
   int tzh = lt->timezone/3600; // - lt->isdst;
@@ -200,9 +282,9 @@ int TEST_cern_http_date() {
   a = sprintf("%02d/%s/%04d:%02d:%02d:%02d %s%02d00",
               lt->mday, months[lt->mon], 1900+lt->year,
               lt->hour, lt->min, lt->sec, c, tzh);
-  b = _Caudium.cern_http_date(tmstmp);
+  mapping tst = ([ tmstmp: a ]);
  
-  return returnok(result(a,b));
+  return mapping_test(tst, _Caudium.cern_http_date);
 }
 
 int main() {
@@ -213,7 +295,7 @@ int main() {
  
   temps = gauge { 
   foreach(indices(this_object()), string fun) {
-    if(fun[..4]=="TEST_") {
+    if(sscanf(fun, "TEST%*s_%*s") >= 1) {
       mixed err;
       alltests++;
       if (err = catch {
