@@ -1,5 +1,10 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fixed a watchdog backtrace on fresh install when there are no virtual server
+  set up in the CIF, yet.
+   (Bertrand LUPART)
+- Starting Caudium with --gdb now turns the watchdog off.
+   (Bertrand LUPART)
 - On *BSD flavors we don't use /sbin/ifconfig to get all IP addresses from
   the system. An internal C function is used (_Caudium.getip()).
    (Xavier Beaudouin)
