@@ -19,7 +19,7 @@ mapping user_list = ([
   "duerrj": "Joseph Duerr <duerrj@caudium.net>",
   "vee-eye": "Eric Lindvall <eric@caudium.net>",
   "bertrand_lupart": "Bertrand Lupart <lupart@linkeo.com>",
-  "gourdelier": "David Gourdelier <vida@iteam.org>
+  "gourdelier": "David Gourdelier <vida@iteam.org>"
 ]);
 void find_user(string u)
 {
