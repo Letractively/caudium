@@ -1,3 +1,4 @@
+#!bin/pike
 /*
  * addfp98.pike
  *
@@ -10,7 +11,6 @@
  * $Id$
  */
 
-#!/usr/local/bin/pike
 #define FP_BASE "/usr/local/frontpage"
 
 import Getopt;
