@@ -98,4 +98,45 @@ void mhash_init_globals(void) {
   add_integer_constant("MD2", MHASH_MD2, 0);
 #endif
 }
+
+
+/* Free allocated data in a hash object */
+
+void free_hash(void)
+{
+  if(THIS->hash != NULL) {
+    void *tmp = mhash_end(THIS->hash);
+    if(tmp != NULL) free(tmp);
+    THIS->hash = NULL;
+  }
+  if(THIS->hmac != NULL) {
+    void *tmp = mhash_hmac_end(THIS->hmac);
+    if(tmp != NULL) free(tmp);
+    THIS->hmac = NULL;
+  }
+  if(THIS->res != NULL) {
+    free(THIS->res);
+    THIS->res = NULL;
+  }
+}
+
+/* Free the hash storage */
+void free_hash_storage(struct object *o)
+{
+  /* We don't want to free the password every time... */
+  if(THIS->pw != NULL) {
+    free_string(THIS->pw);
+    THIS->pw = NULL;
+  }
+  free_hash();
+}
+
+/* Initialize the hash storage */
+void init_hash_storage(struct object *o)
+{
+  MEMSET(THIS, 0, sizeof(mhash_storage));
+  THIS->type = -1;
+}
+
+
 #endif
