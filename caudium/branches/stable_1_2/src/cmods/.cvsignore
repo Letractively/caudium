@@ -3,3 +3,4 @@ config.status
 config.log
 configure
 module_makefile
+autom4te.cache
