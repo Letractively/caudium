@@ -221,7 +221,6 @@ string query_provides()
 {
   return "business_graphics";
 }
-  
 
 string itag_xaxis(string tag, mapping m, mapping res)
 {
@@ -582,7 +581,7 @@ constant _diagram_args =
    "orientation", "xstart", "xstop", "ystart", "ystop", "data", "colors",
    "xnames", "xvalues", "ynames", "yvalues", "axcolor", "gridcolor",
    "gridwidth", "vertgrid", "labels", "labelsize", "legendfontsize",
-   "legendfont",
+   "legendfont", "tonedbox", "tunedbox",
    "legend_texts", "labelcolor", "axwidth", "linewidth", "center",
    "rotate", "image", "bw", "eng", "neng", "xmin", "ymin", "turn", "notrans",
    "colortable_cache"});
