@@ -964,7 +964,8 @@ string tag_use(string tag, mapping m, object id)
 
   if(!m->file && !m->package) 
     return "<use help>";
-  
+  if(m->file)
+    m->file = fix_relative(m->file,nid)
   if(id->pragma["no-cache"] || 
      !(res = cache_lookup("macrofiles:"+ id->conf->name ,
 			  (m->file || m->package))))
@@ -972,7 +973,7 @@ string tag_use(string tag, mapping m, object id)
     res = ([]);
     string foo;
     if(m->file)
-      foo = nid->conf->try_get_file( fix_relative(m->file,nid), nid );
+      foo = nid->conf->try_get_file(m->file, nid );
     else 
       foo=Stdio.read_bytes("../rxml_packages/"+combine_path("/",m->package));
       
