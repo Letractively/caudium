@@ -913,5 +913,5 @@ void check_timedout()
 
 void flex_write(string s)
 {
-  stdout->write(s);
+  stderr->write(s);
 }
