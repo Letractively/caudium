@@ -118,7 +118,7 @@ class http_error_handler {
 	} else {
             string ErrorTheme = id->conf->query( "ErrorTheme" );
 	    if ( ErrorTheme != template->name ) {
-		set_template( ErrorTheme );
+		set_template( ErrorTheme, id );
 	    }
 	    local_template = template;
 	}
