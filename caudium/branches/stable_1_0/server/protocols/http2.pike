@@ -240,14 +240,6 @@ inline void do_post_processing()
 
   not_query = simplify_path(f);
   REQUEST_WERR(sprintf("After simplify_path == not_query:%O", not_query));
-#ifdef ENABLE_SUPPORTS    
-  if(useragent == "unknown") {
-    supports = find_supports("", supports); // This makes it somewhat faster.
-  } else 
-    supports = find_supports(lower_case(useragent), supports);
-#else
-  supports = (< "images", "gifinline", "forms", "mailto">);
-#endif
 
 #ifdef EXTRA_ROXEN_COMPAT
   if(!referer) referer = ({ });
@@ -427,6 +419,14 @@ inline void do_post_processing()
       break;
     }
   }
+#ifdef ENABLE_SUPPORTS    
+  if(useragent == "unknown") {
+    supports = find_supports("", supports); // This makes it somewhat faster.
+  } else 
+    supports = find_supports(lower_case(useragent), supports);
+#else
+  supports = (< "images", "gifinline", "forms", "mailto">);
+#endif
   if(prestate->nocache) {
     // This allows you to "reload" a page with MSIE by setting the
     // (nocache) prestate.
@@ -572,8 +572,8 @@ string link_to(string what, int eid, int qq)
   return "<a>";
 }
 
-
-string format_backtrace(array bt, int eid) {
+string format_backtrace(array bt, int eid)
+{
   // first entry is always the error, 
   // second is the actual function, 
   // rest is backtrace.
@@ -581,8 +581,26 @@ string format_backtrace(array bt, int eid) {
   string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
-  string res = (
-		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
+  string res = ("<title>Internal Server Error</title>"
+		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
+		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
+		"<tr><td valign=bottom align=left><img border=0 "
+		"src=\""+(conf?"/internal-caudium-":"/img/")+
+		"caudium-icon-gray.png\" alt=\"\"></td>"
+		"<td>&nbsp;</td><td width=100% height=39>"
+		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
+		"<td width=\"100%\" align=right valigh=center height=28>"
+		"<b><font size=+1>Failed to complete your request</font>"
+		"</b></td></tr><tr width=\"100%\"><td bgcolor=\"#003366\" "
+		"align=right height=12 width=\"100%\"><font color=white "
+		"size=-2>Internal Server Error&nbsp;&nbsp;</font></td>"
+		"</tr></table></td></tr></table>"
+		"<p>\n\n"
+		"<font size=+2 color=darkred>"
+		"<img alt=\"\" hspace=10 align=left src="+
+		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
+		+bt[0]+"</font><br>\n"
+		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
 		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
 
@@ -659,12 +677,13 @@ array get_error(string eid)
 void internal_error(array err)
 {
   array err2;
-  if(QUERY(show_internals)) 
+  if(GLOBVAR(show_internals)) 
   {
     err2 = catch { 
       array(string) bt = (describe_backtrace(err)/"\n") - ({""});
       file = http_low_answer(500, format_backtrace(bt, store_error(err)));
     };	
+
     if(err2) {
       werror("Internal server error in internal_error():\n" +
 	     describe_backtrace(err2)+"\n while processing \n"+
