@@ -414,6 +414,12 @@ cern.*linemode.*           nothing
 .*              robot	googlebot
 # }
 
+# MSN Search robot (yeah there is one MSN bot !)
+# See http://search.msn.com/msnbot.htm for more informations
+#section msnbot {
+.*		robot	msnbot
+# }
+
 #section xenu {
 .*              robot	xenu
 # }
