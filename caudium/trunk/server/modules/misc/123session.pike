@@ -98,7 +98,8 @@ void stop () {
     array a = ({ 0 });
     // Roxen tries to kill us. Escape...
     a[0] = call_out (lambda (mixed ... foo) { write ("Could not restore sessions\n"); }, 30, "123_Survivor",
-	             new (object_program (this_object ()), _variables, variables), a, my_configuration ());
+	             ((program)(object_program (this_object ()))(_variables, variables)), a, my_configuration ());
+	             //new (object_program (this_object ()), _variables, variables), a, my_configuration ());
   }
 }
 
