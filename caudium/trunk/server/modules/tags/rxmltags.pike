@@ -1712,7 +1712,7 @@ string tag_allow(string a, mapping (string:string) m,
 			!!m->wwwfile, id));
        }
        else
- 	TEST(id->get_user);
+ 	TEST(id->get_user());
     }
     else
       if(m->file && id->auth) {
