@@ -1,6 +1,7 @@
 caudium (2:1.2.3-4) unstable; urgency=medium
 
   * gtext bug fixed - won't barf on invalid URLs now
+  * got rid of -rpath for good this time
 
  -- Marek Habersack <grendel@debian.org>  Wed, 20 Feb 2002 18:40:19 +0100
 
