@@ -281,15 +281,7 @@ string get_key_from_data(string js, void|int no_threadid)
 #if constant(thread_create)
   if(!no_threadid) key += sprintf("%s", this_thread());
 #endif
-#if constant(Mhash.hash_md5)
-  key += Mhash.hash_md5(js);
-#elif constant(Crypto.md5)
-  object md5 = Crypto.md5();
-  md5->update(js);
-  key += md5->digest();
-#else
-  key += js[..50]+hash(js); /* GUCK! */
-#endif
+  key = Caudium.Crypto.hash_md5(js);
   return key;
 }
 

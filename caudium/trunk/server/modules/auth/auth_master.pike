@@ -140,9 +140,7 @@ int authenticate(string user, string password)
      return 0; // user doesn't exist.
    }
    if(data["__authdata"] && 
-        (data["__authdata"] == 
-	  Crypto.string_to_hex(
-            Crypto.md5()->update(user+"|"+password)->digest())
+        (data["__authdata"] == Caudium.Crypto.hash_md5(user+"|"+password, 1))
         )
      )
      {
@@ -152,8 +150,7 @@ int authenticate(string user, string password)
    int auth=low_authenticate(user, password);
    if(!auth) {fail++; return 0; } // authentication failed, user doesn't exist.
    if(auth==-1) {fail++; return 0; } // authentication failed, exists.
-   data["__authdata"]=Crypto.string_to_hex(
-         Crypto.md5()->update(user+"|"+password)->digest());
+   data["__authdata"]=Caudium.Crypto.hash_md5(user+"|"+password);
    set_user_info(user, data);
    succ++;
    return 1; // success!

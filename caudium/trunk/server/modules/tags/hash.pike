@@ -76,12 +76,12 @@ string cont_hash(string tag_name, mapping args, string contents,
           return Crypto.string_to_hex(Crypto.md2()->update(contents)->digest());
           break;
         case "md5":
-          return Crypto.string_to_hex(Crypto.md5()->update(contents)->digest());
+          return Caudium.Crypto.hash_md5(contents, 1);
           break;
         case "sha":
 	case "sha1":
 	case "sha-1":
-          return Crypto.string_to_hex(Crypto.sha()->update(contents)->digest());
+          return Caudium.Crypto.hash_sha(contents);
           break;
         default:
           return("<!-- No such hash type -->\n"+contents);
