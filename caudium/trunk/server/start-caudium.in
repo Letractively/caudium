@@ -99,7 +99,7 @@ array lib_locations=({"lib/modules",
                       "share/pike/modules"});
       
 // locations that we should search for programs in, if present
-array program_locations=({getcwd()});
+array program_locations=({});
       
 // locations that we should search for includes in, if present
 array include_locations=({"lib/include", "etc/include", 
@@ -362,10 +362,12 @@ int main(int argc, array(string) argv)
 {
   // first, copy argv to a safe place.
   passed_args=copy_value(argv);
-// write("%O\n", passed_args);
+
   // next, change into the directory that start is living in.
   string d=dirname(argv[0]);
   if(d) cd(d);
+
+  program_locations += ({ getcwd() });
 
   // is the directory we're in a valid caudium server root?
   if(!file_stat("base_server")) 
