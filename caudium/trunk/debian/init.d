@@ -17,7 +17,7 @@
 EXTVER=
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON_DIR=/usr/lib/caudium${EXTVER}
-DAEMON=$DAEMON_DIR/start
+DAEMON=$DAEMON_DIR/start-caudium
 NAME=caudium${EXTVER}
 DESC="Caudium Webserver"
 
