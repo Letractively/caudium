@@ -271,8 +271,23 @@ private mapping(string:string) doctypes = ([
 
 private string docstart = "%s\n<html><head><title>%s</title>%s%s</head><body>%s</body></html>";
 
-private string make_htmldoc_string(string contents, string title,void|mapping meta,
-                                   void|mapping|string style, string|void dtype)
+//!   Make a nice HTML doc
+//! @param contents
+//!   Contents of document
+//! @param title
+//!   The title of document
+//! @param meta
+//!   Optional mapping with meta names to add into document
+//! @param style
+//!   Optional style of document. (to be documented)
+//! @param dtype
+//!   Optional dtype (to be documented)
+//! @returns
+//!   A well nice HTML docuement
+//! @note
+//!   Non RIS Code
+string make_htmldoc_string(string contents, string title,void|mapping meta,
+                           void|mapping|string style, string|void dtype)
 {
     string doctype, smetas = "", sstyle = "";
     
