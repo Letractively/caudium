@@ -1,5 +1,7 @@
 Changes in Caudium 1.3.23 since Caudium 1.3.21
 ----------------------------------------------
+- Modified ultraparse.pike to include an explicit list of profiles to show.
+   (James Tyson)
 - Modified vhs_logger.pike to include $agent_unquoted log format.
    (James Tyson)
 - Added <get_prestate/> to get a list of prestates in a format suitable for
