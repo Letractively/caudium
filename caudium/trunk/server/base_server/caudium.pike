@@ -389,7 +389,7 @@ private static void accept_callback( object port )
     if (!file) {
       switch (port->errno()) {
           case 0:
-          case system.EAGAIN:
+          case System.EAGAIN:
             return;
 
           default:
@@ -401,7 +401,7 @@ private static void accept_callback( object port )
 #endif /* DEBUG */
             return;
 
-          case system.EMFILE:
+          case System.EMFILE:
             if (!shutting_down) {
               shutting_down=1;
               report_fatal("Out of sockets (%d active). Restarting server gracefully.\n",
