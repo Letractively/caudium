@@ -329,7 +329,7 @@ if test "$prefix" != "NONE"; then
 fi
 FOUND_PIKE=0
 PIKE_INCLUDE_DIRS=""
-for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74; do
+for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike74 /opt/bin/pike /opt/local/bin/pike /opt/local/bin/pike74; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
     THIS_PIKE_VER=`$PIKE -e 'int maj,min,bld;sscanf(version(),"Pike v%d.%d release %d",maj,min,bld);write(sprintf("%d.%d.%d",maj,min,bld));exit(0);'`
@@ -440,6 +440,7 @@ if test $cppflags_is_set = no -a x${C_INCLUDE_PATH-} = x ; then
     `echo $prefix | sed "s@^NONE@$ac_default_prefix@g"`/include \
     /usr/local/include /sw/local/include /usr/gnu/include /opt/gnu/include \
     /sw/gnu/include /sw/include /usr/freeware/include /usr/pkg/include \
+    /opt/include /opt/local/include \
     `echo /usr/X11*/include | sort -r`
   do
     AC_MSG_CHECKING($d)
@@ -461,6 +462,7 @@ if test $ldflags_is_set = no ; then
     `echo $exec_prefix | sed "s@^NONE@$prefix/lib@g" | sed "s@^NONE@$ac_default_prefix/lib@g"` \
     /usr/local/lib /sw/local/lib /sw/lib /usr/pkg/lib \
     /usr/gnu/lib /opt/gnu/lib /sw/gnu/lib /usr/freeware/lib \
+    /opt/local/lib /opt/lib \
     `echo /usr/X11*/lib | sort -r`
   do
     AC_MSG_CHECKING($d)
