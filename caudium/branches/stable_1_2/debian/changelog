@@ -1,3 +1,9 @@
+caudium (2:1.2.5-4) unstable; urgency=low
+
+  * Bugfixes
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 25 Mar 2002 18:38:50 +0100
+
 caudium (2:1.2.5-3) unstable; urgency=low
 
   * caudiumctl manpage is installed now
