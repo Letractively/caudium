@@ -332,6 +332,6 @@ tar_dist:
 
 dist: copy_dist tar_dist 
 	@echo "Distribution build complete. Don't forget to run"
-`	@echo "'make only_bump_version' if this is not a test release."
+	@echo "'make only_bump_version' if this is not a test release."
 
 
