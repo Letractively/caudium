@@ -195,7 +195,8 @@ mixed first_try(object id)
 	    array bar = Array.map(foo, lambda(string s, mapping f) {
 	      return "$"+(f->num++);
 	    }, ([ "num":1 ]));
-	    foo +=({(id->not_query/"/"-({""}))[-1], id->not_query[1..] });
+	    foo +=({( ({""}) + (id->not_query/"/"-({""})) )[-1],
+		    id->not_query[1..] });
 	    bar +=({ "%f", "%p" });
 	    foo = Array.map(foo, lambda(mixed s) { return (string)s; });
 	    bar = Array.map(bar, lambda(mixed s) { return (string)s; });

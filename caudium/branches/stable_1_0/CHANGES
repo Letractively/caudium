@@ -8,6 +8,7 @@ Changes in Caudium 1.0.XX
 - Fixed <if variable> to work with scopes.
 - Throw a bad request answer if the file contains unencoded spaces
   (http2 protocol).
+- Fixed bug #432433
 
 Changes in Caudium 1.0.34 (stable release 1, 2001-03-22)
 --------------------------------------------------------
