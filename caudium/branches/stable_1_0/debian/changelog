@@ -1,3 +1,19 @@
+caudium (2:1.0.37-1) unstable; urgency=medium
+
+  * Latest CVS snapshot.
+    - Added support for //!NOMODULE in modules. This closes the SF bug 473716.
+    - oldcgi is not not shown in the module list.
+    - ldapuserauth.pike: fixed a security problem when using user access mode :
+      it was possible to login as any user by typing any password when user 
+      passwd was not in cache (eg where you were the first to login after a
+      restart/start of caudium).
+    - ldapuserauth.pike: crypt problem fixed.
+    - little fixes with installation on OpenBSD
+    
+  * The init script now checks whether the PID to be killed exists (closes: #120628)
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 26 Nov 2001 11:30:23 +0100
+
 caudium (2:1.0.36-1) unstable; urgency=medium
 
   * Latest upstream release. Changes:
