@@ -100,7 +100,7 @@ class Dir
     if (!file || !sizeof(file) || file[0] == '.')
       return 0;
             
-    array(int) fs = (array(int))file_stat(file);
+    array(int) fs = (array(int))file_stat(my_dir + file);
 	
     if (fs && sizeof(fs) && fs[1] <= 0)
       return 0;
@@ -319,8 +319,9 @@ class File
     string c = my_file->read();
         
     if (!c || !sizeof(c))
-      return sprintf("Error parsing the config file '%s%s'\n",
-                     my_dir->get_path(), my_file_format->name);
+      return sprintf("Error reading the config file '%s%s':\n%s\n",
+                     my_dir->get_path(), my_file_format->name,
+                     strerror(errno()));
 
     array(string) contents = (c / "\n")[1..];
 
@@ -567,7 +568,9 @@ class File
           return "ConfigFiles.File";
 
         case 'O':
-          return sprintf("%t(%s%s)", this_object(), my_dir->get_path(), my_file_format->name);
+          return sprintf("%t(%s%s)", this_object(),
+                         my_dir ? my_dir->get_path() : "-",
+                         my_file_format ? my_file_format->name : "-");
     }
   }
 };
