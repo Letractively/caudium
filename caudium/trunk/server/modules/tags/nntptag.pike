@@ -59,7 +59,7 @@ object pop_nntp()
 
   if (sizeof(nntps) == 0)
   {
-     nntp = Protocols.NNTP.connection(QUERY(nntpserver));
+     nntp = Protocols.NNTPClient.connection(QUERY(nntpserver));
      nntp->reader();
   }
   else
@@ -70,7 +70,7 @@ object pop_nntp()
 
   if (!nntp->reader())
   {
-     nntp = Protocols.NNTP.connection(QUERY(nntpserver));
+     nntp = Protocols.NNTPClient.connection(QUERY(nntpserver));
      result = nntp->reader();
   }
 
