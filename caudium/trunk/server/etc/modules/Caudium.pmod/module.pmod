@@ -213,7 +213,58 @@ constant cvs_version = "$Id$";
 //!   The timestamp.
 //! @note
 //!    Non RIS function, handled by _Caudium C module that calls system
-//!    strftime(3).
+//!    strftime(3) depending of host operating system if supported.
+//
+
+//
+//! @decl int|array(int|string) getdate(string date)
+//!
+//! This method converts the passed date from the string format into the
+//! Unix time format. As it doesn't take the format string, it requires the
+//! DATEMSK environment variable to point to a file containing all the
+//! formats that are to be used in attempt to parse the passed date. The
+//! file must contain one format per line and the first matching line ends
+//! the parsing process. The matching is case-insensitive. See the
+//! @[strptime@] function for information on the formatting codes you can
+//! use in the pattern file.
+//!
+//! @param date
+//!  The date string to be parsed.
+//!
+//! @returns
+//!  The parsed date in the Unix time format or an array consisting of two
+//!  elements:
+//!
+//!  @array
+//!   @elem int 0
+//!    The error code as follows:
+//!    @int
+//!     @value 1
+//!      The DATEMSK environment variable is null or undefined.
+//!     @value 2
+//!      The template file cannot be opened for reading.
+//!     @value 3
+//!      Failed to get file status information.
+//!     @value 4
+//!      The template file is not a regular file.
+//!     @value 5
+//!      An error is encountered while reading the template file.
+//!     @value 6
+//!      Memory allocation failed (not enough memory available).
+//!     @value 7
+//!      There is no line in the file that matches the input.
+//!     @value 8
+//!      Invalid input specification.
+//!    @endint
+//!
+//!   @elem string 1
+//!    The error message corresponding to the error code.
+//!  @endarray
+//!
+//! @note
+//!  The API conforms to ISO 9899, POSIX 1003.1-2001. This function is
+//!  present depending of host operating system support.
+//
 
 //
 //! @decl int strptime(string date, string format)
@@ -365,6 +416,10 @@ constant cvs_version = "$Id$";
 //!
 //! @returns
 //!  The date in the Unix time format.
+//!
+//! @note
+//!  Depend of host platforms that has a work strptime() call.
+//!
 //
 
 //
