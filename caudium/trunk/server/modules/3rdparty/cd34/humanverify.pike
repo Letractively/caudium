@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright \xa9 2001-2002 The Caudium Group
+ * Copyright © 2001-2002 The Caudium Group
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 /*
  *
  * The HumanVerify module and the accompanying code is 
- * Copyright \xa9 2002 Davies, Inc
+ * Copyright © 2002 Davies, Inc
  *
  * This code is released under the LGPL license and is part of the Caudium
  * WebServer.
