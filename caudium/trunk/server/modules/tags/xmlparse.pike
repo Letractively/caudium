@@ -131,9 +131,9 @@ void create()
 	 "be allowed.");
   defvar("unknown_ent",1,"Parse options: Return unknown entities verbatim",
          TYPE_FLAG|VAR_MORE,
-	 "If true, the unknown entities are returned as is without any try "
-	 "to parse them. This option is usefull with CAMAS, who use lots "
-	 "links with multiple variables in it.");
+	 "If true, unknown entities are returned as they are without any try "
+	 "to parse them. This option is useful with CAMAS which uses a lots "
+	 "of links with multiple variables in them.");
   defvar("xml_conformance", 2, 
 	 "Parse options: XML syntax conformance level",
 	 TYPE_INT_LIST,
