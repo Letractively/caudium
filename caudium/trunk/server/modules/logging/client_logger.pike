@@ -53,8 +53,8 @@ constant module_unique = 0;
 void create()
 {
   /* Fool autodefvardoc generator... */
-  string default = GLOBVAR(logdirprefix)+"/Clients";
-  defvar("logfile", default, "Client log file", 
+  string default_home = GLOBVAR(logdirprefix)+"/Clients";
+  defvar("logfile", default_home, "Client log file", 
 	 TYPE_STRING,
 	 "This is the file into which all client names will be put.\n");
 }
