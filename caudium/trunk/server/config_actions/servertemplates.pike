@@ -32,8 +32,8 @@
 
 inherit "wizard";
 
-constant name= "Maintenance//Create you own server template...";
-constant doc = "Puts togheter you own server templates.";
+constant name= "Maintenance//Create your own server template...";
+constant doc = "Lets you create custom server templates by choosing modules from a list.";
 constant wizard_name = "Server template creator";
 
 mapping extract_module_info(array from)
@@ -58,7 +58,7 @@ string page_0(object id)
 {
   return ("<b>Welcome to the server template creation wizard.</b>"
 	  "<p>This action will create your own server template, with "
-	  "your own prefered modules.");
+	  "your own preferred modules.");
 }
 
 // Check modules in module path.
@@ -99,60 +99,72 @@ string page_1(object id)
 string page_2(object id)
 {
   string res;
-  res  = "<font size=+1>Where should we save the new template?</font><br>";
-  res += ("<font size=-1>Enter it without the <b>.pike</b> extension. It will be saved in the "
-	  "directory<br>.../server_templates/<name>.pike.</font><p>"
-	  "File name:<br><var name=fname size=30><p>");
-  res += ("<font size=+1>What do you want to call the server template?</font><br>"
-	  "Template name:<br><var name=tname size=30><p>");
-  res += ("<font size=+1>Any description for the server template?</font><br>"
-	  "Template description:<br><var name=description size=30><p>");
+  res  = ("<b>Server template file name:</b><p>"
+	  "<font size=-1>This is the file name of your template, without the ending <b>.pike</b> "
+	  "extension. It will be saved as ../server_templates/<name>.pike.</font><p>"
+	  "<var name=fname size=30><p>"
+	  "<b>Server template name:</b><p>"
+	  "<font size=-1>This is the name that the user sees when adding a new virtual server.</font><p>"
+	  "<var name=tname size=30><p>"
+	  "<b>Server template description:</b><p>"
+	  "<font size=-1>This is the description on the add virtual server page.</font>"
+	  "<var name=description type=text><p>");
 
   return(res);
 }
 
 // Verify action...
-array todo = ({});
+
+array get_modules(mapping vars)
+{
+  array todo = ({});
+  filter_checkbox_variables(vars);
+  foreach(sort(indices(vars)), string s)
+  {
+    string module;
+    if(sscanf(s, "M_%s", module))
+      todo += ({ module });
+  }
+  return todo;
+}
+
 string page_3(object id)
 {
+  array todo;
+  string res;
   if(! id->variables->fname ) {
     id->variables->_error = "No filename selected.";
     return "<font size=+2>You have not entered any filename to save this template as.</font>";
   }
-
-  filter_checkbox_variables(id->variables);
-  foreach(sort(indices(id->variables)), string s)
-  {
-    string module;
-    if(sscanf(s, "M_%s", module))
-      todo += ({ ({module}) });
-  }
-
-  string res = "<font size=+1>Summary: These modules will be used in the new template:</font><p>\n<ul>\n";
-
-  foreach(todo, array a)
+  res = "<font size=+1>Summary: These modules will be used in the new template:</font><p>\n<ul>\n";
+  
+  foreach(todo = get_modules(id->variables), array a)
     res += "<li> " + a[0] + "\n";
 
-  if(sizeof(todo)!=0)
+  if(sizeof(todo))
     res += "<p><font size=+1>Filename: " + id->variables->fname + "</font>\n";
 
   res += "</ul>";
 
-  if(sizeof(todo)==0)
+  if(!sizeof(todo))
     res = "<font size=+1>Summary: No actions will be taken</font><p>";
     
   return res + "</ul>";
 }
 
+#define safe(x) replace(x-"\r", ({ "\"", "\n"}), ({"\\\"", "\\n"}))
+
 string wizard_done(object id)
 {
+  id->variables->fname -= "/";
+  id->variables->fname -= "..";
   string fname = "server_templates/" + id->variables->fname + ".pike";
 
   if( file_stat(fname) ) {
     id->variables->_error = "File already exists.";
-    return "<font size=+2>Filename " + fname + " does already exists. Please choose another name!</font>";
+    return "<font size=+2>The file " + fname + "  already exists. Please choose another file name!</font>";
   }
-
+  werror("%s\n", safe(id->variables->description));
   object file = Stdio.File();
   object privs = Privs("Creating server template file");
 
@@ -164,24 +176,20 @@ string wizard_done(object id)
   }
   privs = 0;
 
-  file->write("/* Template created with the 'servertemplates.pike',\n");
-  file->write(" * by Turbo Fredriksson <turbo@nocrew.org>\n");
-  file->write(" */\n\n");
-
-  file->write("constant selected = 0;\n");
-  file->write("constant name = \"" + id->variables->tname + "\";\n");
-  file->write("constant desc = \"" + id->variables->description + "\";\n\n");
-
-  file->write("constant  modules = \({\n");
-  foreach(todo, array a)
-    file->write(" \"" + a[0] + "#0\",\n");
-  file->write("});\n\n");
-
-  file->write("void enable(object config)\n");
-  file->write("{\n");
-  file->write("  foreach(modules, string module)\n");
-  file->write("    config->enable_module(module);\n");
-  file->write("}\n");
+  file->write("// Template created with the server template action,\n"
+	      "// originally written by Turbo Fredriksson <turbo@nocrew.org>\n\n"
+	      "constant selected = 0;\n"
+	      "constant name = \"" + safe(id->variables->tname) + "\";\n"
+	      "constant desc = \"" + safe(id->variables->description)+ "\";\n\n"
+	      "constant  modules = \({\n");
+ foreach(get_modules(id->variables), string mod)
+    file->write(" \"" + safe(mod) + "#0\",\n");
+  file->write("});\n\n"
+	      "void enable(object config)\n"
+	      "{\n"
+	      "  foreach(modules, string module)\n"
+	      "    config->enable_module(module);\n"
+	      "}\n");
 
   // Close the file, we are done!
   file->close();
