@@ -757,7 +757,7 @@ string new_module_form(object id, object node)
   mixed a,b;
   string q;
   array mods;
-  array (string) res;
+  string res, doubles="";
   
   if(!caudium->allmodules || sizeof(id->pragma))
   {
@@ -768,48 +768,88 @@ string new_module_form(object id, object node)
     roxen_perror("CONFIG: Done.\n");
   }
   
-  a=caudium->allmodules;
-  mods=Array.sort_array(indices(a), lambda(string a, string b, mapping m) { 
-    return m[a][0] > m[b][0];
-  }, a);
+  a = caudium->allmodules;
+  mods = Array.sort_array(indices(a), lambda(string a, string b, mapping m) { 
+					return m[a][0] > m[b][0];
+				      }, a);
   
-  res = ({default_head("Add a module")+"\n\n"+
-	  status_row(node)+
-//	  display_tabular_header(node)+
-	  "<table><tr><td>&nbsp;<td><h2>Select a module to add"
-	  " from the list below, click on it's header to add it.</h2>" });
-  
-  foreach(mods, q)
-  {
-    if(b = module_nomore(q, a[q][2], node->config()))
+  switch(caudium->QUERY(ModuleListType)) {
+   case "Compact":
+    res = (default_head("Add Modules")+"\n\n"+
+ 	   status_row(node)+
+ 	   "<table cellpadding=10><tr><td colspan=2>"
+ 	   "<h2>Select one or more modules to add to this virtual server.</h2>\n"
+ 	   "</td></tr><tr valign=top><td>"
+ 	   "<form method=get action=\"/(addmodule)"+node->path(1)+"\">"
+ 	   "<select multiple size=10 name=_add_new_modules>");
+     
+    foreach(mods, q)
     {
-      if(b->sname != q)
-	res += ({("<p><img alt=\""+a[q][0]+"\" src=\"/auto/module/" + a[q][2] +
-		  "/"+ q+"\" height=24 width=500><br><blockquote>" + a[q][1] +
+      if(b = module_nomore(q, a[q][2], node->config()))
+      {
+ 	if(b->sname != q)
+ 	  doubles += 
+ 	    ("<p><dt><b>"+a[q][0]+"</b><dd>" +
+ 	     "<i>A module of the same type is already enabled ("+b->name+")"
+ 	     "<a href=\"/(delete)"+ node->descend(b->name, 1)->path(1) +
+	     "?" + (bar++) +"\">Disable that module</a> if you want this one "
+	     "instead.</i>\n");
+      } else {
+	res += ("<option value=\""+q+"\">"+a[q][0]+"\n");
+      }
+    }
+    if(strlen(doubles))
+      doubles = "<dl>"+doubles+"</dl>";
+    else doubles = "&nbsp;";
+    res += ("</select>\n"
+	    "<p><input type=submit value=\"Add Modules\"></form></td><td>"
+	    + doubles);
+    break;
+    
+   default:
+    res = default_head("Add a module")+"\n\n"+
+      status_row(node)+
+      //	  display_tabular_header(node)+
+      "<table><tr><td>&nbsp;<td><h2>Select a module to add "
+      "from the list below. You click on it's header to add it.</h2>";
+  
+     
+    foreach(mods, q)
+    {
+      if(b = module_nomore(q, a[q][2], node->config()))
+      {
+	if(b->sname != q)
+	  res += ("<p><img alt=\""+a[q][0]+"\" src=\"/auto/module/"+a[q][2] +
+		  "/"+ q+"\" height=24 width=500><br><blockquote>"+a[q][1] +
 		  "<p><i>A module of the same type is already enabled (" +
 		  b->name + "). <a href=\"/(delete)" +
 		  node->descend(b->name, 1)->path(1) + "?" + (bar++) +
 		  "\">Disable that module</a> if you want this one instead</i>"
-		  "\n<p><br><p></blockquote>")});
-    } else {
-      res += ({"<p><a href=\"/(addmodule)"+node->path(1)+"?"+q+"=1\">"
-		 "<img border=0 alt=\""+a[q][0]+"\" src=\"/auto/module/" +
-		 a[q][2]+"/"+q+"\" height=24 width=500>"
-		 "</a><blockquote><br>"+a[q][1]+"<p><br><p></blockquote>"});
+		  "\n<p><br><p></blockquote>");
+      } else {
+	res += "<p><a href=\"/(addmodule)"+node->path(1)+"?"+q+"=1\">"
+	  "<img border=0 alt=\""+a[q][0]+"\" src=\"/auto/module/" +
+	  a[q][2]+"/"+q+"\" height=24 width=500>"
+	  "</a><blockquote><br>"+a[q][1]+"<p><br><p></blockquote>";
+      }
     }
   }
-  return res*""+"</table>";
+  return res+"</td></tr></table>";
 }
 
 mapping new_module(object id, object node)
 {
   string varname;
-  
   if(!sizeof(id->variables))
     return stores(new_module_form(id, node));
-  
-  varname=indices(id->variables)[0];
-  
+  if(id->variables->_add_new_modules) {
+    // Compact mode.
+    array toadd = id->variables->_add_new_modules/"\0" - ({""});
+    foreach(toadd[1..], varname)
+      new_module_copy(node, varname, id);
+    varname = toadd[0];
+  } else 
+    varname = indices(id->variables)[0];
   return new_module_copy(node, varname, id);
 }
 
