@@ -1,4 +1,4 @@
-AC_INIT(caudium-rc_script.in Makefile.in)
+AC_INIT(caudium-rc_script.in)
 AC_PROG_CC
 # The AC_PROG_INSTALL test is broken if $INSTALL is specified by hand.
 # The FreeBSD ports system does this...
