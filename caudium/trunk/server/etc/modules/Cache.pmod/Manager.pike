@@ -47,7 +47,7 @@ int _really_started;
 program pipe = Caudium.nbio;
 #endif
 object caudium;
-// This is a hack until someone else writes a storage method.
+object slow;
 
 //! Create the datastructures for the cache(s).
 void create() {
@@ -128,7 +128,7 @@ static void create_cache( string namespace ) {
   LOCK();
   int max_object_ram = (int)(max_ram_size * 0.25);
   int max_object_disk = (int)(max_disk_size * 0.25);
-  caches += ([ namespace : Cache.Cache( namespace, max_object_ram, max_object_disk, caudium->storage_manager->get_storage(namespace), default_ttl ) ]);
+  caches += ([ namespace : Cache.Cache( namespace, max_object_ram, max_object_disk, slow->get_storage(namespace), default_ttl ) ]);
 }
 
 //! internal method that uses randomness to decide how long to wait in between
@@ -387,4 +387,10 @@ void stop( void|string namespace ) {
 //! Return a copy of the Argument Cache wrapper class, this is a bit of a kludge.
 object get_argcache() {
   return Cache.Argument( this_object() );
+}
+
+void set_slowstorage(object _slow) {
+  PRELOCK();
+  LOCK();
+  slow = _slow;
 }

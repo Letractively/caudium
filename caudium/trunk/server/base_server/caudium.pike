@@ -1353,6 +1353,14 @@ void restart_if_stuck (int force)
 }
 
 void cache_start() {
+  switch(QUERY(cache_storage_type)) {
+  case "Disk":
+    cache_manager->set_slowstorage(Storage.Manager(QUERY(cache_storage_type), QUERY(cache_storage_disk_path)));
+    break;
+  case "MySQL":
+    cache_manager->set_slowstorage(Storage.Manager(QUERY(cache_storage_type), QUERY(cache_storage_mysql_url)));
+    break;
+  }
   cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576,
                         QUERY(cache_vigilance),
                         QUERY(cache_default_ttl),
@@ -2518,6 +2526,31 @@ private void define_global_variables(int argc, array (string) argv)
             "a cache and store it's data on the disk after a configurable "
             "period of inactivity.",
             0, );
+
+    globvar("cache_storage_type", "Disk",
+            "Caching Sub-system: Slow Storage Backend", TYPE_STRING_LIST,
+	    "Select the backend that you want Caudium to use for slow "
+	    "object storage.",
+	    ({ "Disk", "MySQL" }));
+
+    globvar("cache_storage_mysql_url", "",
+            "Caching Sub-system: MySQL Database URL", TYPE_STRING,
+	    "If you have selected MySQL as the backend for slow object "
+	    "storage, then you must specify a SQL URL for Caudium to use "
+	    "to connect to the MySQL server. In the format "
+	    "mysql://user:password@host/database");
+
+    globvar("cache_storage_disk_path", Stdio.append_path(QUERY(cachedir), "cache"),
+            "Caching Sub-system: Disk Storage Path", TYPE_STRING,
+	    "If you have selected Disk as the default storage type "
+	    "please enter a filesystem path for Caudium to use to when "
+	    "storing cached objects."
+#ifdef NFS_LOCK
+            " <i>Using NFS hitching post style locks. This is really great, but"
+            "will probably slow disk access down, especially if you have many "
+            "Caudium's competing for access to files.</i>"
+#endif
+            );
 
     globvar("storage_type", "Disk",
             "Storage Manager: Storage Backend", TYPE_STRING_LIST,
