@@ -1,0 +1,137 @@
+Before Installing:
+
+There are a few required packages for installing Caudium.  Most are included
+with your distribution.  The configure script should alert you to anything
+that is missing, but here is a list of packages that you will most likely
+have to install yourself.
+
+Required Packages:
+  Pike 7.0 or 7.2:
+    You will need version 7.0.268 or better.  Do not use the official
+    7.0.78 available from pike.roxen.com, as it has bugs that affect
+    Caudium's stability and performance.  Grab a CVS snapshot of Pike
+    from http://caudium.net/download/snapshot.html until a newer
+    version is officially released.
+    However, we recommend pike 7.2 with Caudium 1.2 especialy because
+    the next Caudium branch will require it...
+
+Optional Packages (recommended)
+  Sablotron (requires expat)
+    In order to use the XSLT parser you will need to get the Sablotron
+    XSLT parser package.  This is highly recommended.  As of version 0.50,
+    you will need to install the expat libraries.  You can get these two
+    packages from:
+
+      Expat:
+       http://sourceforge.net/projects/expat/ 
+      Sablotron:
+        http://www.gingerall.com/
+
+  MySQL or other SQL packages
+    If you want to use an SQL database backend with Caudium, then you need
+    to have it installed BEFORE building Pike.  You can get MySQL from
+    http://www.mysql.com/
+
+  PHP
+    If you want to use Caudium's PHP4 support, you'll need to install it.
+    You do not need to install before caudium, but you will need to restart
+    the server if you install later.  You can use PHP3, but only through
+    the CGI interface.
+
+  NJS JavaScript Interpreter - HIGHLY EXPERIMENTAL!!!
+    If you want to use server side Javascript support, you'll need to install
+    it. You need to install NJS library before compiling Caudium. See 
+    http://www.bbassett.net/njs/ for more informations. You also need to
+    enable the support explicitly by modifying the src/cmods/configure.in
+    file. Also, note that you need the latest CVS version of NJS for this
+    module to work.
+
+----------------------------------------------------------------------------
+
+Installing Caudium 1.2 from source:
++++++++++++++++++++++++++++++++++++
+
+  1. Get the source server package.
+
+  2. Issue the command to unpack the archive:
+
+          .tar.gz:
+               If you have GNU tar; "tar xzf Caudium-archive-name"
+               If you don't have GNU tar: 
+               "gunzip < Caudium-archive-name| tar xf -" 
+          .tar.Z
+               If you have GNU tar; "tar xzf Caudium-archive-name"
+               If you don't have GNU tar: 
+               "uncompress < Caudium-archive-name| tar xf -"
+          .tar
+               "tar xf Caudium-archive-name"
+
+     (where "Caudium-archive-name" is the name of the Caudium archive
+     file.).
+
+  3. Type "cd <caudium_version>" to change to the new directory. This
+     directory should contain at the very least four directories:
+     server (Caudium server source), src (extra pike modules), extern
+     (misc. programs used by Caudium) and tools (misc tools). See README
+     for more information about the directory structure.
+
+     (Where caudium_version is the name of the unarchived Caudium directory.)
+
+ 4.  Type ./configure --prefix=<wanted_base_path_for_caudium>
+     (prefix is optional and defaults to /usr/local, thus placing Caudium in
+     /usr/local/caudium/) followed by make and make install to build
+     the binaries and copy them to the correct place.
+
+!!!  By default, the configuration will fail if the Sablotron XSLT
+!!!  library isn't found. If you are not interested in XSLT
+!!!  functionality, just add the flag '--without-PiXSL' to the
+!!!  configure script.
+
+     You can later on move the 'caudium' directory that will be
+     created when you type 'make install' to anywhere in your
+     filesystem. Caudium does not keep any absolute paths.
+     
+  5. If everything worked fine and the compilation is done, type 
+     cd <dir>/server.
+
+     (Where <dir> is <wanted_base_path_for_caudium>/caudium if you used 4.)
+
+  6. Start the install script by typing ./install.
+
+  7. Answer the simple questions and wait for your client.
+
+  9. If everything worked, configure the server, otherwise move on to the
+     troubleshooting section on the Caudium WWW-pages. 
+
+ 10. In order to start your server in the future (from startup scripts, etc)
+     cd to <dir>/server and run ./start.
+
+ Once you have installed the server, consider joining the Caudium
+ mailing list by sending a mail to:
+
+    caudium-general-request@lists.sourceforge.net
+
+ with Subject: subscribe
+
+ For more information about Caudium, read the online documentation at
+ http://caudium.net/
+
+----------------------------------------------------------------------------
+Example installation session:
+
+bash$ tar xzf caudium-1.0.10.tar.gz
+bash$ cd caudium-1.0.10
+bash$ ../configure --prefix=/usr/www
+
+<various checks...>
+
+bash$ make 
+
+<compilations>
+
+bash$ make  install
+bash$ cd /usr/www/caudium/server
+bash$ ./install
+
+<answer a few questions>
+
