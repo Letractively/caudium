@@ -22,6 +22,7 @@
 string cvs_version = "$Id$";
 #include <module.h>
 #include <caudium.h>
+#include <http_error.h>
 #ifdef PROFILE
 mapping profile_map = ([]);
 #endif
@@ -67,6 +68,8 @@ string name;
  * This looked like a likely spot.. :)
  */
 mapping variables = ([]); 
+
+object http_error = http_error_handler();
 
 public mixed query(string var)
 {
@@ -3608,6 +3611,12 @@ void create(string config)
           TYPE_INT, "The maximum size of a file that is to be "
 	  "considered for the cache");
 #endif
+  defvar("ErrorTheme", "default.html", "Error Theme", TYPE_STRING,
+	 "The theme to apply to error responses from " +
+	 "this server to the client. Defined by html files in etc/error_templates/" );
+  defvar("Old404", 0, "Old-style 404's", TYPE_FLAG,
+	 "This allows you to override the new style error responses and use " +
+         "the old fasioned 404 handling." );
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body background=/internal-caudium-cowfish-bg bgcolor='#ffffff'\n"
 	 "text='#000000' alink='#ff0000' vlink='#00007f' link='#0000ff'>\n"
@@ -3629,6 +3638,8 @@ void create(string config)
 	 "</body>\n", 
 
 	 "No such file Message (eg. 404 error)", TYPE_TEXT_FIELD,
+	 "<b>This is depreciated, and will only work when &quot;Old-style 404's&quot; "
+         "is turned on.</b><br>"
 	 "What to return when there is no resource or file available "
 	 "at a certain location. $File will be replaced with the name "
 	 "of the resource requested, and $Me with the URL of this server ");

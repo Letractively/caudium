@@ -810,26 +810,8 @@ string format_backtrace(array bt, int eid)
   string reason = caudium->diagnose_error( bt );
   if(sizeof(bt) == 1) // No backtrace?!
     bt += ({ "Unknown error, no backtrace."});
-  string res = ("<title>Internal Server Error</title>"
-		"<body bgcolor=white text=black link=darkblue vlink=darkblue>"
-		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
-		"<tr><td valign=bottom align=left><img border=0 "
-		"src=\""+(conf?"/internal-caudium-":"/img/")+
-		"caudium-icon-gray.png\" alt=\"\"></td>"
-		"<td>&nbsp;</td><td width=100% height=39>"
-		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
-		"<td width=\"100%\" align=right valigh=center height=28>"
-		"<b><font size=+1>Failed to complete your request</font>"
-		"</b></td></tr><tr width=\"100%\"><td bgcolor=\"#003366\" "
-		"align=right height=12 width=\"100%\"><font color=white "
-		"size=-2>Internal Server Error&nbsp;&nbsp;</font></td>"
-		"</tr></table></td></tr></table>"
-		"<p>\n\n"
-		"<font size=+2 color=darkred>"
-		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
-		+bt[0]+"</font><br>\n"
-		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
+  string res = (
+		"An error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")
 		+"<br><h3><br>Complete Backtrace:</h3>\n\n<ol>");
 
@@ -906,27 +888,36 @@ array get_error(string eid)
 
 void internal_error(array err)
 {
-  array err2;
-  if(QUERY(show_internals)) 
-  {
-    err2 = catch { 
-      array(string) bt = (describe_backtrace(err)/"\n") - ({""});
-      file = http_low_answer(500, format_backtrace(bt, store_error(err)));
-    };	
-    if(err2) {
-      werror("Internal server error in internal_error():\n" +
-	     describe_backtrace(err2)+"\n while processing \n"+
-	     describe_backtrace(err));
-      file = http_low_answer(500, "<h1>Error: The server failed to "
-			     "fulfill your query, due to an "
-			     "internal error in the internal error routine.</h1>");
+    string error_message;
+    array err2;
+    if(QUERY(show_internals))
+    {
+	err2 = catch {
+	    array(string) bt = (describe_backtrace(err)/"\n") - ({""});
+	    error_message = format_backtrace(bt, store_error(err));
+	};
+	if(err2) {
+	    werror("Internal server error in internal_error():\n" +
+		   describe_backtrace(err2)+"\n while processing \n"+
+		   describe_backtrace(err));
+	    error_message =
+		"<h1>Error: The server failed to " +
+		"fulfill your query, due to an " +
+		"internal error in the internal error routine.</h1>";
+	}
+    } else {
+	error_message =
+	    "<h1>Error: The server failed to " +
+	    "fulfill your query, due to an internal error.</h1>";
     }
-  } else {
-    file = http_low_answer(500, "<h1>Error: The server failed to "
-			   "fulfill your query, due to an internal error.</h1>");
-  }
-  report_error("Internal server error: " +
-	       describe_backtrace(err) + "\n");
+    report_error("Internal server error: " +
+		 describe_backtrace(err) + "\n");
+    if ( catch( file = conf->http_error->handle_error( 500, "Internal Server Error", error_message, this_object() ) ) ) {
+        report_error("*** http_error object missing during internal_error() ***\n");
+	file =
+	    http_low_answer( 500, "<h1>Error: The server failed to fulfil your query due to an " +
+            "internal error in the internal error routine.</h1>" );
+    }
 }
 
 constant errors =
@@ -1215,6 +1206,14 @@ array parse_range_header(int len)
   return ranges;
 }
 
+private mapping old_404() {
+    return http_low_answer( 404,
+			    replace( parse_rxml( conf->query("ZNoSuchFile"), this_object() ),
+				     ({ "$File", "$Me" }),
+				     ({ html_encode_string( not_query ), conf->query( "MyWorldLocation" ) })
+				   ) );
+}
+
 // Send the result.
 void send_result(mapping|void result)
 {
@@ -1229,20 +1228,14 @@ void send_result(mapping|void result)
 
   if(!mappingp(file))
   {
-    if(misc->error_code)
-      file = http_low_answer(misc->error_code, errors[misc->error]);
-    else if(method != "GET" && method != "HEAD" && method != "POST")
-      file = http_low_answer(501, "Not implemented.");
-    else if(err = catch {
-      file=http_low_answer(404,
-			   replace(parse_rxml(conf->query("ZNoSuchFile"),
-					      this_object()),
-				   ({"$File", "$Me"}), 
-				   ({html_encode_string(not_query),
-				     conf->query("MyWorldLocation")})));
-    }) {
-      INTERNAL_ERROR(err);
-    }
+      if ( misc->error_code ) {
+	  file = conf->http_error->handle_error( misc->error_code, errors[misc->error], this_object() );
+      }
+      else if ( method != "GET" && method != "HEAD" && method != "POST" )
+	  file = conf->http_error->handle_error( 501, "Not implemented.", "Method (" + html_encode_string( method ) + ") not recognised.", this_object() );
+      else if ( err = catch( file = conf->query( "Old404" )?old_404():conf->http_error->handle_error( 404, errors[ 404 ], "Unable to locate the file: " + not_query + ".<br>The page you are looking for may have moved or been removed.", this_object() ) ) ) {
+	  INTERNAL_ERROR( err );
+      }
   } else {
     if((file->file == -1) || file->leave_me) 
     {
