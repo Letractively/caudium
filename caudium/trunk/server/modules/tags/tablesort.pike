@@ -264,14 +264,14 @@ string container_tabsort_sort_href(string tag_name, mapping args, string content
     + "?" + Protocols.HTTP.http_encode_query(vars); 
   args->target = "_self";
 
-  out = CAMAS.Parse.parse_html(contents,
+  out = PARSER(contents,
                    ([
                        "img_arrow"        : tag_tabsort_sort_href_img,
                     ]),
                    ([
                     ]),
                    id, column, arrowup, arrowdown, arrownone);
-  out = CAMAS.Tools.make_container("a", args, out);
+  out = make_container("a", args, out);
 
   return out;
 }
