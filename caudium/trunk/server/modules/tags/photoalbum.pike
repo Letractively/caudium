@@ -41,10 +41,14 @@
 
 /* Standard includes */
 
+#include <config.h>
 #include <module.h>
+
 inherit "module";
-#ifdef CAUDIUM
 inherit "caudiumlib";
+
+#if 1
+
 #else
 inherit "roxenlib";
 #endif
@@ -69,8 +73,10 @@ array register_module() {
 	"The <i>name</i> argument sets the photo album name to be displayed,\n" +
 	"if not specified it uses the default value set in the config interface.<br>\n" +
 	"The <i>dir</i> argument points to a directory within the virtual filesystem\n" +
-	"where a bunch of images are stored.\n" +
-	"for every image (say <i>myphoto.jpg</i>) there optionally can be a\n" +
+	"where a bunch of images are stored. Note that this directory is relative not\n" +
+	"to your virtual filesystem root, but to the directory where the HTML file\n" +
+	"with the &lt;album&gt; tag is.<br />\n" + 
+	"For every image (say <i>myphoto.jpg</i>) there optionally can be a\n" +
 	"file called <i>myphoto.jpg.desc</i> that contains text to be used\n" +
         "as the description for that photo.<br>\n",
 	0, 1 });
@@ -160,13 +166,14 @@ mapping query_tag_callers() {
 
 mixed build_album( object id, mapping args ) {
     object newalbum = album( query );
-    string name = args->name?args->name:QUERY( "void_album_name" );
+    string name = args->name?args->name:QUERY(void_album_name);
     string dir = args->dir?args->dir:"";
     if ( dir == "" ) {
 	return "<b>ERROR:</b> No photo directory given!\n";
     }
     newalbum->set_name( name );
-    array dirlist = sort( id->conf->find_dir( fix_relative( dir, id ), id ) );
+    array tmp = id->conf->find_dir( fix_relative( dir, id ), id );
+    array dirlist = sort( tmp ? tmp : ({}) );
     if ( sizeof( dirlist ) == 0 ) {
 	return "<b>ERROR:</b> Photo directory is empty!\n";
     }
@@ -180,7 +187,7 @@ mixed build_album( object id, mapping args ) {
 	string fullpath = fix_relative( replace( dir + "/" + filename, "//", "/" ), id );
 	newalbum->set_photo(
                             fullpath,
-			    ( id->conf->try_get_file( fullpath + ".desc", id )?id->conf->try_get_file( fullpath + ".desc", id ):QUERY( "void_description" ) )
+			    ( id->conf->try_get_file( fullpath + ".desc", id )?id->conf->try_get_file( fullpath + ".desc", id ):QUERY(void_description))
 			   );
     }
     newalbum->set_template( args->template?args->template:0 );
@@ -250,8 +257,8 @@ class album {
 
     string render_index_page( object id ) {
 	string ret = "";
-	if ( QUERY( "use_css" ) ) {
-	    ret += "<style type=\"text/css\">\n<!--\n" + QUERY( "css_classes" ) + "\n-->\n</style>\n";
+	if ( QUERY(use_css) ) {
+	    ret += "<style type=\"text/css\">\n<!--\n" + QUERY(css_classes) + "\n-->\n</style>\n";
 	} else {
 	    ret += "";
 	}
@@ -260,7 +267,7 @@ class album {
 	} else {
 	    ret +=
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
-		((QUERY( "show_numofphotos" ))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
+		((QUERY(show_numofphotos))?("<div class=\"numofphotos\">Total Photos: " + sprintf( "%d", get_num_photos() ) + "</div><br>\n"):"") +
                 "<div class=\"thumbnail\">\n";
 	    int i;
 	    for( i = 0; i < get_num_photos(); i++ ) {
@@ -268,8 +275,8 @@ class album {
 		    "<a href=\"" + prestate( ({ "page_" + sprintf( "%d", i + 1 ) }), id->not_query ) + "\">" +
 		    "<thumbnail alt=\"" + id->conf->html_encode_string( get_photo( i )[ 1 ] ) + "\" " +
 		    "src=\"" + get_photo( i )[ 0 ] + "\" " +
-		    "border=\"" + sprintf( "%d", QUERY( "thumbnail_border" ) ) + "\" " +
-		    "width=\"" + sprintf( "%d", QUERY( "width" ) ) + "\">" +
+		    "border=\"" + sprintf( "%d", QUERY(thumbnail_border) ) + "\" " +
+		    "width=\"" + sprintf( "%d", QUERY(width) ) + "\">" +
 		    "</a><br>\n" +
 		    "<div class=\"thumbnaildesc\">" +
 		    get_photo( i )[ 1 ] +
@@ -299,8 +306,8 @@ class album {
 
     string render_photo_page( object id, int page_num ) {
 	string ret;
-	if ( QUERY( "use_css" ) ) {
-	    ret = "<style type\"text/css\">\n<!--\n" + QUERY( "css_classes" ) + "\n-->\n</style>\n";
+	if ( QUERY(use_css) ) {
+	    ret = "<style type\"text/css\">\n<!--\n" + QUERY(css_classes) + "\n-->\n</style>\n";
 	} else {
 	    ret = "";
 	}
@@ -311,14 +318,14 @@ class album {
 		"<div class=\"albumname\">" + get_name() + "</div><br>\n" +
                 "<div class=\"photodesc\">" + get_photo( page_num )[ 1 ] + "</div><br>\n" +
 		"<div class=\"photo\">" +
-		"<img border=\"" + sprintf( "%d", QUERY( "photo_border" ) ) + "\" " +
+		"<img border=\"" + sprintf( "%d", QUERY(photo_border) ) + "\" " +
 		"alt=\"" + id->conf->html_encode_string( get_photo( page_num )[ 1 ] ) + "\" " +
 		"src=\"" + get_photo( page_num )[ 0 ] + "\">" +
 		"</div><br>\n" +
                 "<div class=\"nav\">" +
-		a_next( id->not_query, page_num, QUERY( "nav_next" ) ) + " " +
-		"<a href=\"" + id->not_query + "\">" + QUERY( "nav_index" ) + "</a> " +
-		a_prev( id->not_query, page_num, QUERY( "nav_prev" ) ) +
+		a_next( id->not_query, page_num, QUERY(nav_next) ) + " " +
+		"<a href=\"" + id->not_query + "\">" + QUERY(nav_index) + "</a> " +
+		a_prev( id->not_query, page_num, QUERY(nav_prev) ) +
                 "</div>";
 	}
         return ret;
