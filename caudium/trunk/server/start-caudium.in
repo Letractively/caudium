@@ -814,6 +814,7 @@ int act_on_args()
         case "gdb":
           options->precmd=({"gdb"});
           options->once=1;
+					options->watchdog=0;
           break;
         case "nodebug":
           command_line->DEFINES-=({"DEBUG", "MODULE_DEBUG", "CACHE_DEBUG"});
