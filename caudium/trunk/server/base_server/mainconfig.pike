@@ -1449,7 +1449,7 @@ mapping configuration_parse(object id)
          && strlen(caudium->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
-      return http_auth_failed("Caudium maintenance"); // Denied
+      return http_auth_required("Caudium maintenance"); // Denied
   } else {
     
     id->prestate = aggregate_multiset(@indices(id->prestate)
