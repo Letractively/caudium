@@ -1,5 +1,6 @@
 Changes in Caudium 1.1 since CVS branching
 -----------------------------------------------
+- Restart and shutdown pages now follow the CIF theme.
 - Fix for bug #450757: When calling parse_rxml() when using the XML compliant
   RXML parser, make sure to propagate and keep custom tags correctly.
 - Added embedded Perl script / perl tag support from Roxen, originally
