@@ -36,7 +36,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version   = "$Id$";
-constant thread-safe   = 1;
+constant thread_safe   = 1;
 constant module_type   = MODULE_LOGGER;
 constant module_name   = "Caudium support logger module";
 constant module_doc    = "This module logs all access to <tt>/supports</tt> file "
@@ -64,7 +64,7 @@ void stop() {
 
 void log(object id, mapping file) 
 {
- if(( id->useragent ) && ( sizeof(id->useragent) > 1 ) {
+ if ( ( id->useragent ) && ( sizeof(id->useragent) > 1 )) {
    // We can log into db
    if(!objectp(db)) {
      // Open & create db
