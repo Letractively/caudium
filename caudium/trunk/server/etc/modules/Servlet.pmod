@@ -251,7 +251,7 @@ class context {
 
   string get_server_info()
   {
-    return roxen->version();
+    return caudium->version();
   }
 
   object get_attribute(string name)
@@ -276,7 +276,7 @@ object request(object context, mapping(string:string)|object id,
     sscanf(tmp, "%s:", tmp);
     sscanf(tmp, "%s/", tmp);
     string addr = id->remoteaddr || "Internal";
-    string host = roxen->quick_ip_to_host(addr);
+    string host = caudium->quick_ip_to_host(addr);
     string uri, query, pathtrans;
     if(id->raw) {
       if(sscanf(id->raw, "%[^?\r\n]?%s%*[ \t\n]", uri, query)>1)
@@ -300,7 +300,7 @@ object request(object context, mapping(string:string)|object id,
       t = t2 = "";
 
       while(1) {
-	t2 = roxen->real_file(path_info, id);
+	t2 = caudium->real_file(path_info, id);
 	if(t2) {
 	  pathtrans = t2 + t;
 	  break;
@@ -437,7 +437,7 @@ static void native_writeba(object str, object b, int off, int len)
 
 static string native_blockingIPToHost(object n)
 {
-  return roxen->blocking_ip_to_host((string)n);
+  return caudium->blocking_ip_to_host((string)n);
 }
 
 void create()
