@@ -18,6 +18,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
 /* _decode and decode_layers copied from _Image.pmod since it doesn't
    work with Pike 7.3 otherwise. It requires Protocols.HTTP.Query which
@@ -150,6 +153,8 @@ private array(Image.Layer) decode_layers( string data, mixed|void tocolor )
 // or maybe just make caudium.pike inherit this file? Dunno yet - after xmas :)
 // /grendel
 //
+
+//!
 mapping low_decode_image(string data, void|mixed tocolor)
 {
   mapping w = _decode( data, tocolor );
@@ -157,6 +162,7 @@ mapping low_decode_image(string data, void|mixed tocolor)
   return 0;
 }
 
+//!
 mapping low_load_image(string f, object id)
 {
   string data;
@@ -195,6 +201,7 @@ mapping low_load_image(string f, object id)
   return low_decode_image( data );
 }
 
+//!
 array(Image.Layer) load_layers(string f, object id, mapping|void opt)
 {
   string data;
@@ -224,6 +231,7 @@ array(Image.Layer) load_layers(string f, object id, mapping|void opt)
   return decode_layers( data, opt );
 }
 
+//!
 Image.Image load_image(string f, object id)
 {
   mapping q = low_load_image( f, id );
