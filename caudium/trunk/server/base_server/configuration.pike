@@ -50,8 +50,6 @@ function remove = caudium->remove;
 function do_dest = caudium->do_dest;
 function create_listen_socket = caudium->create_listen_socket;
 
-
-
 object   parse_module;
 object   types_module;
 object   auth_module;
@@ -68,6 +66,13 @@ string name;
  */
 mapping variables = ([]); 
 
+//! Retrieve (query) a variable from the configuration variable store.
+//!
+//! @param var
+//!  Variable name
+//!
+//! @returns
+//!  The variable value
 public mixed query(string var)
 {
   if(var && variables[var])
@@ -76,6 +81,17 @@ public mixed query(string var)
   error("query("+var+"): Unknown variable.\n");
 }
 
+//! Set the variable value for a variable in the configuration variable
+//! store.
+//!
+//! @param var
+//!  The variable name
+//!
+//! @param val
+//!  The value to be assigned to the variable.
+//!
+//! @returns
+//!  The value assigned to the function
 mixed set(string var, mixed val)
 {
 #if DEBUG_LEVEL > 30
@@ -100,8 +116,6 @@ int setvars( mapping (string:mixed) vars )
       variables[v][ VAR_VALUE ] = vars[ v ];
   return 1;
 }
-
-
 
 void killvar(string name)
 {
@@ -132,8 +146,8 @@ static class ConfigurableWrapper
 };
 
 int defvar(string var, mixed value, string name, int type,
-	   string|void doc_str, mixed|void misc,
-	   int|function|void not_in_config)
+           string|void doc_str, mixed|void misc,
+           int|function|void not_in_config)
 {
   variables[var]                = allocate( VAR_SIZE );
   variables[var][ VAR_VALUE ]        = value;
@@ -2274,8 +2288,16 @@ public array|string access(string file, object id)
   }
 }
 
-// Return the _real_ filename of a virtual file, if any.
-
+//! Return the @b{real@} filename of a virtual file, if any.
+//!
+//! @param file
+//!  Path to the @b{virtual@} file.
+//!
+//! @param id
+//!  The request object
+//!
+//! @returns
+//!  The real file corresponding to the virtual one.
 public string real_file(string file, object id)
 {
   string loc;
@@ -2302,24 +2324,20 @@ public string real_file(string file, object id)
   }
 }
 
-//
-//! method: mixed try_get_file(string s, object id, int|void status, int|void nocache)
 //!  Convenience function used in quite a lot of modules. Tries to read a file
 //!  into memory, and then returns the resulting string. Note that a 'file' 
 //!  can be a CGI script, which will executed, resulting in a horrible delay.
-//! arg: string s
+//! @param s
 //!  The file to read.
-//! arg: object id
+//! @param id
 //!  The Caudium Object Id
-//! arg: int|void status
+//! @param status
 //!  Ask the function to return 1 if file exist or 0 if it doesn't.
-//! arg: int|void nocache
+//! @param nocache
 //!  Set to 1 if you don't want to cache or use the caudium cache for this
 //!  access.
-//! returns:
+//! @returns
 //!  A string with the content of file or int if you ask a status of the file
-//
-
 public mixed try_get_file(string s, object id, int|void status, int|void nocache)
 {
   string res, q;
@@ -2391,13 +2409,12 @@ public mixed try_get_file(string s, object id, int|void status, int|void nocache
   return res;
 }
 
-//! method: int is_file(string what, object id)
 //!  Is 'what' a file in ou virtual filesystem ?
-//! arg: string what
+//! @param what
 //!  The file to test
-//! arg: object id
+//! @param id
 //!  The Caudium Object Id
-//! returns:
+//! @returns
 //!  1 if this a file. 0 otherwise.
 public int is_file(string what, object id)
 {
@@ -2612,8 +2629,13 @@ void start(int num, void|object conf_id, array|void args)
 
 
 
-// Save this configuration. If all is included, save all configuration
-// global variables as well, otherwise only all module variables.
+//! Save this configuration. If @[all] is present, save all the
+//! configuration  global variables as well, otherwise only all module
+//! variables.
+//!
+//! @param all
+//!  If present, all the global variables are saved, only the module ones
+//!  otherwise.
 void save(int|void all)
 {
   mapping mod;
