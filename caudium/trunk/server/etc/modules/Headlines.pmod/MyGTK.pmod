@@ -1,10 +1,31 @@
-/* MyGTK.pmod - Extensions and Widgets for the headlines project.
- * $Id$
- *
- * Written by David Hedbor <david@hedbor.org>.
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2002 The Caudium Group
+ * Copyright © David Hedbor
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+/*
+ * $Id$
+ */
 
+// MyGTK.pmod - Extensions and Widgets for the headlines project.
+// $Id$
+
+//!
 class Headline
 {
   GTK.SClist list;
@@ -15,15 +36,21 @@ class Headline
   int color_counter; // which color to use...
   int selected_row = -1; // Currently selected row
 
+  //!
   void f_select_row(mixed q, object w, int row) {
     selected_row = row;
   }
+  
+  //!
   void f_unselect_row() {  selected_row = -1; }
+
+  //!
   void f_mouse_button(function cb, object w, mapping event)
   {
     cb(event, w, selected_row);
   }    
   
+  //!
   void create(array titles, array _names, function|void mouse_cb)
   {
     names = _names;
@@ -46,6 +73,7 @@ class Headline
     }
   }
   
+  //!
   void set_data(array headlines)
   {
     list->freeze()->clear();
@@ -75,14 +103,18 @@ class Headline
   }
 }
 
+//!
 class EventLog
 {
   inherit Headline;
 
+  //!
   void create()
   {
     ::create( ({ "Date", "Site", "Event" }), ({ 0, 1, 2 }) );
   }
+
+  //!
   void set_data(array event_log) {
     ::set_data( Array.map (event_log,
 			   lambda(array entry) {
@@ -90,6 +122,8 @@ class EventLog
 					      entry);
 			   }));
   }
+
+  //!
   void add_log_entry(array event)
   {
     list -> freeze();
@@ -105,11 +139,14 @@ class EventLog
   
 }
 
+//!
 class ContextMenu {
   inherit GTK.Menu;
 
+  //!
   array callback;
 
+  //!
   void f_run_callback(mixed ... args)
   {
     if(callback)
@@ -117,6 +154,7 @@ class ContextMenu {
     ::popdown();
   }
   
+  //!
   void create(array layout)
   {
     ::create();
