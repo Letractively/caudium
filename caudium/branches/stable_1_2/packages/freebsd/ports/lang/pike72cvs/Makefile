@@ -37,6 +37,8 @@ WRKSRC=		${WRKDIR}/${DISTNAME}/src/
 WANT_MESA=	yes
 WANT_GTK=	yes
 WANT_GNOME=	yes
+#USE_AUTOCONF_VER=213
+#USE_AUTOMAKE=	yes
 
 GNU_CONFIGURE=  yes
 
@@ -225,10 +227,9 @@ pre-everything::
 
 
 pre-configure:
+#	@cd ${WRKSRC}; \
+#	./run_autoconfig
 	@${ECHO} ${CONFIGURE_ARGS}
-
-pre-clean:
-	@${RM} -f ${WRKDIRPREFIX}${.CURDIR}/Makefile.inc
 
 post-install:
 	${INSTALL_PROGRAM} ${WRKSRC}pike ${PREFIX}/bin
