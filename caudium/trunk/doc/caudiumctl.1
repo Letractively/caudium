@@ -1,0 +1,52 @@
+.TH "caudiumctl" "1" "1.2.0" "The Caudium Group" "Caudium WebServer"
+.SH "NAME"
+.LP 
+\fBcaudiumctl\fR \- control the \fBCaudium WebServer\fR from command line
+.SH "SYNTAX"
+.LP 
+caudiumctl start|stop|restart|reload
+.SH "DESCRIPTION"
+.LP 
+This program works similarily to the \fIapachectl\fR one \- it enables the user to control
+the \fBCaudium WebServer\fR from the command line. One is able to start, stop, restart and reload the configuration of the server.
+.SH "OPTIONS"
+.LP 
+.TP 
+\fBstart\fR
+Starts the server.
+.TP 
+\fBstop\fR
+Stops the running server.
+.TP 
+\fBrestart\fR
+Restarts a running server.
+.TP 
+\fBreload\fR
+Reloads the configuration of the running server.
+.SH "ENVIRONMENT VARIABLES"
+.LP 
+.TP 
+\fBHOME\fP
+Specifies the home directory
+.TP 
+\fBLOGINNAME\fP
+Specifies the user's login name
+.TP 
+\fBPRINTER\fP
+Specifies the printer
+.SH "FILES"
+.SH "EXAMPLES"
+.LP 
+To run this program the standard way type:
+.LP 
+myprogram /tmp/myfile
+.LP 
+Alternativly you can run it as:
+.LP 
+myprogram \-dscan /tmp
+.SH "AUTHORS"
+.LP 
+The Caudium Group \- \fBhttp://caudium.net/\fR
+.SH "SEE ALSO"
+.LP 
+myotherprogram(2) mynextprogram(2)
