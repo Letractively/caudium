@@ -29,6 +29,8 @@
 #define ERR_LDAP_BIND           0x0006
 #define ERR_SCREEN_ABSENT       0x0007
 #define ERR_INVALID_USER        0x0008
+#define ERR_LDAP_CONN_MISSING   0x0009
+#define ERR_LDAP_MODIFY         0x000A
 
 //
 // Session storage shortcuts

@@ -502,6 +502,10 @@ mapping auth(object id, mapping user, object ldap)
         ]);
     }
 
+    if (!rdata->preferredLanguage)
+        rdata->preferredLanguage = ({"en"}); // TODO: use the data from the
+                                             // screens module here!
+    
     user->ldap_data = rdata;
     
     return 0; // 0 == everything's fine

@@ -56,6 +56,7 @@ private mapping(int:string) num2type = ([
 private mapping(string:string) reserved_screens = ([
     "add" : "screen_add",
     "modify" : "screen_modify",
+    "modified" : "screen_modified",
     "error" : "screen_error",
     "mainmenu" : "screen_mainmenu",
     "auth" : "screen_auth",
@@ -96,6 +97,9 @@ void create()
     defvar("screen_modify", "modify.html", "Screens: 'MODIFY' template file", TYPE_STRING,
            "Name of the file that contains the 'modify' screen template.");
 
+    defvar("screen_modified", "modified.html", "Screens: 'MODIFIED' template file", TYPE_STRING,
+           "Name of the file that contains the 'modified' screen template.");
+    
     defvar("screen_error", "error.html", "Screens: 'ERROR' template file", TYPE_STRING,
            "Name of the file that contains the 'error' screen template.");
 
