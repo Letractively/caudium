@@ -576,6 +576,7 @@ class Module {
     array(Method)      methods;
     array(string)      inherits;
     array(EntityScope) escopes;
+    array(Defvar)      defvars;
     
     void new_field(object|string newstuff, string kw)
     {
@@ -652,6 +653,14 @@ class Module {
                     methods += ({newstuff});
                     break;
                     
+		case "defvar":
+		    if (newstuff->myName != "DefvarScope") {
+			wrong_otype(kw, newstuff->myName);
+			return;
+		    }
+		    
+		    defvars += ({newstuff});
+		    break;
 		case "entity_scope":
 		    if (newstuff->myName != "EntityScope") {
 			wrong_otype(kw, newstuff->myName);
@@ -725,6 +734,7 @@ class Module {
         containers = ({});
 	inherits = ({});
 	escopes = ({});
+	defvars = ({});
     }
 };
 
@@ -1034,6 +1044,60 @@ class Attribute {
     }
 };
 
+class Defvar {
+    inherit DocObject;
+    string type;
+    
+    void new_field(string|object newstuff, string kw)
+    {
+        if (stringp(newstuff)){
+            switch(kw) {
+                case "defvar":
+                    first_line = newstuff;
+		    if (parent)
+			parent->add(this_object(), kw);
+                    break;
+
+                case "type":
+                    type = newstuff;
+                    break;
+	    
+                default:
+                    wrong_keyword(kw);
+                    break;
+            }
+        }
+    }
+
+  void append_field(string newstuff)
+  {
+    switch(lastkw){
+    case "defvar":
+      if (newstuff == "")
+	contents += "\n";
+      else
+	contents += newstuff;
+      break;
+
+    case "type":
+      type += newstuff;
+      break;
+    default:
+      wrong_keyword(lastkw);
+      break;
+    }        
+  }
+    
+    void create(string line, void|object p)
+    {
+        ::create(p);
+
+        myName = "DefvarScope";
+
+        first_line = line;
+    }
+};
+
 class Entity {
     inherit DocObject;
     
@@ -1261,6 +1325,9 @@ mapping(string:object|string) module_scope = ([
     "inherits":"",
     "type":"",
     "provides":"",
+    "defvar":lambda(object curob, string line) {
+                   return Defvar(line, curob);
+               },
     "variable":lambda(object curob, string line) {
                    return Variable(line, curob);
                },
@@ -1365,6 +1432,12 @@ mapping(string:object|string) attribute_scope = ([
     "ScopeName":"attribute"
 ]);
 
+
+mapping(string:object|string) defvar_scope = ([
+    "type":"",
+    "ScopeName":"defvar"
+]);
+
 mapping(string:object|string) entityscope_scope = ([
     "entity":lambda(object curob, string line) {
                  return Entity(line, curob);
@@ -1417,7 +1490,8 @@ mapping(string:mapping) scopes = ([
     "container": container_scope,
     "attribute": attribute_scope,
     "entity_scope": entityscope_scope,
-    "entity": entity_scope
+    "entity": entity_scope,
+    "defvar": defvar_scope
 ]);
 
 class Parse {
@@ -1637,7 +1711,11 @@ class Parse {
         array(string)   dirs = ({}), files = ({});
 
         foreach(get_dir(top), string s) {
-            array(int) stbuf = (array)file_stat(top + s);
+	  mixed st = file_stat(top + s);
+	  array(int) stbuf;
+	  if(st)
+	    stbuf = (array(int))st;
+	      
 
             if (glob("CVS", s))
                 continue;
@@ -1660,15 +1738,15 @@ class Parse {
     
     int parse(string path)
     {
-        array(int)    stbuf;
+      object|array(int)    stbuf;
 
         if (path[-1] != '/')
             path += "/";
         
-        stbuf = (array(int))file_stat(path);
+        stbuf = file_stat(path);
         if (!stbuf)
             throw(({"File not found: " + path + "\n", backtrace()}));
-
+	stbuf = (array(int))stbuf;
         if (stbuf[1] == -2)
             parse_tree(path);
         else
