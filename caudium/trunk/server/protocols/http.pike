@@ -1307,7 +1307,7 @@ void send_result(mapping|void result)
 	   * Just a proposition. This should make the page effectivey
            * non-cacheable. /grendel
 	   */
-	  heads["Cache-Control"] = "no-cache, no-store, max-age=0, private";
+	  heads["Cache-Control"] = "no-cache, no-store, max-age=0, private, must-revalidate, proxy-revalidate";
 	  
 	  // The below is only for HTTP 1.0 - should we test whether the
 	  // current request proto is 1.0 and set the header only then? /grendel
