@@ -430,6 +430,14 @@ void defvar(string|void var, mixed|void value, string|void name,
   variables[var][ VAR_SHORTNAME ]= var;
 }
 
+void set_hidden(string var, mixed not_in_config)
+{
+  if (functionp(not_in_config)) {
+    variables[var][ VAR_CONFIGURABLE ] = not_in_config;
+  } 
+  else if(intp(not_in_config))
+    variables[var][ VAR_CONFIGURABLE ] = !not_in_config;
+}
 
 //! Convenience function, define an invisible variable, this variable
 //! will be saved, but it won't be visible in the configuration interface.
