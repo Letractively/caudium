@@ -23,8 +23,8 @@ the initial checkout.
 to build Caudium from CVS:
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-You also need a recent pike 0.6 or 7.0. We recommend using 7.0. Check out
-pike.roxen.com, or better, get one from cvs. See 
+You also need a recent pike 0.6, 7.0 or 7.1. We recommend using
+7.0. Check out pike.roxen.com, or better, get one from cvs. See
 
 http://community.roxen.com/developers/cvs/anoncvs.html
 
