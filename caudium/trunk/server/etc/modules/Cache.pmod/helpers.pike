@@ -30,7 +30,5 @@
  */
 
 string get_hash( string data ) {
-  string retval;
-  retval = Caudium.Crypto.hash_md5(data);
-  return sprintf("%@02x",(array(int)) retval);
+  return sprintf("%@02x", (array(int))Caudium.Crypto.hash_md5(data));
 }
