@@ -518,6 +518,10 @@ class Store
 
     id->misc->next_possible = ((int)v->_page_num) < (sizeof(pages)-1);
     id->misc->prev_possible = ((int)v->_page_num) > 0;
+    
+    if (!pages || !sizeof(pages))
+	return http_string_answer("<strong>There are no pages to show!</strong><br />");
+
     page = pages[ (int)v->_page_num ];
 
     if(!error) 
@@ -578,8 +582,11 @@ mixed tag_store(string tagname, mapping arguments, string contents, object id)
   if(mappingp(res)) 
   {
     string v = "";
-    foreach(indices(res->extra_heads), string i)
-      v += "<header name="+i+" value='"+res->extra_heads[i]+"'>";
+    if (res->extra_heads) {
+      foreach(indices(res->extra_heads), string i)
+        v += "<header name="+i+" value='"+res->extra_heads[i]+"'>";
+    }
+    
     return v+"<return code="+res->error+">";
   }
   return ({res});
