@@ -454,6 +454,21 @@ string container_emit(string t, mapping args, string contents, object id,
       return "";
   }
 
+  // args->maxrows
+  if(args->maxrows)
+  {
+     if(sizeof(dataset)> args->maxrows)
+        dataset = dataset[0..(maxrows-1)];
+  }
+
+  // args->skiprows
+  if(args->skiprows)
+  {
+     if(sizeof(dataset)> args->skiprows)
+        dataset = dataset[-skiprows..];
+  }
+
+
   foreach(dataset, mapping row)
   {
     if(!id->misc->scopes)
@@ -461,8 +476,7 @@ string container_emit(string t, mapping args, string contents, object id,
     retval+=Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ]));
   }
 
-    // args->maxrows
-    // args->skiprows
+
     // args->rowinfo
     // args->remainderinfo
     // args["do-once"]
