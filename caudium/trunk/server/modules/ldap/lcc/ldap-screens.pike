@@ -45,6 +45,23 @@ constant module_doc  = "Module that manages the user <em>screens</em> - i.e. "
 
 constant module_unique = 0;
 
+// mapping from digits to file type names for file_stat in Pike < 7.2
+private mapping(int:string) num2type = ([
+    -1 : "a file of unknown type",
+    -2 : "a directory",
+    -3 : "a symlink",
+    -4 : "a device"
+]);
+
+private mapping(string:string) reserved_screens = ([
+    "add" : "screen_add",
+    "modify" : "screen_modify",
+    "error" : "screen_error",
+    "mainmenu" : "screen_mainmenu"
+]);
+
+private mapping(string:string) module_screens = ([]);
+
 void create()
 {
     defvar("provider_prefix", "lcc", "Provider module prefix", TYPE_STRING,
@@ -57,10 +74,11 @@ void create()
     //
     defvar("misc_def_lang", "en", "Miscellaneous: Default language", TYPE_STRING,
            "The ISO code for the language that should be used when sending files, "
-           "messages etc. to the user. The template directory must contain templates "
-           "that have this extension. The exception is the default <code>en</code> - "
-           "files without extension will be treated as if though they had it.");
-
+           "messages etc. to the user. The template directory must contain subdirectories "
+           "that have this name.");
+    defvar("misc_max_fsize", 128, "Miscellaneous: Maximum file size (in Kb)", TYPE_INT,
+           "Maximum size of the screen HTML file in kilobytes.");
+    
     //
     // Directories
     //
@@ -90,21 +108,141 @@ void create()
            "</pre>");
 }
 
+
+void start(int cnt, object conf)
+{
+    // process the user-defined screens
+    array(string) uds = (QUERY(screen_custom) / "\n") - ({}) - ({""});
+    
+    if (sizeof(uds)) {
+        array(string) scrdef;
+        
+        foreach(uds, string scrline) {
+            scrdef = scrline / ":";
+
+            if (sizeof(scrdef) < 2) {
+                report_warning("Malformed screen definition line in provider '%s': %s\n",
+                               query_provides(), scrline);
+                continue;
+            }
+            scrdef[0] = String.trim_whites(scrdef[0]);
+            scrdef[1] = String.trim_whites(scrdef[1]);
+            
+            if (reserved_screens[scrdef[0]]) {
+                report_warning("Provider '%s' is using reserved name for user-defined screen ('%s')\n",
+                               query_provides(), scrdef[0]);
+                continue;
+            } else
+                module_screens[scrdef[0]] = scrdef[1];
+        }
+    }
+
+    // process the predefined screens
+    string sfile;
+    foreach(indices(reserved_screens), string idx) {
+        sfile = query(reserved_screens[idx]);
+        if (sfile[0] != '/')
+            sfile = "/" + sfile;
+        
+        module_screens[idx] = sfile;
+    }
+}
+
 string query_provides() 
 {
     return QUERY(provider_prefix) + "_screens";
 }
 
-private mapping(string:string) = ([
-    "add" : "screen_add",
-    "modify" : "screen_modify",
-    "error" : "screen_error",
-    "mainmenu" : "screen_mainmenu"
-]);
-
-string retrieve(object id, string name)
+private array(array(string)) make_replace_array(mapping rdata)
 {
-    return "";
+    array(array(string)) fromto = ({({}), ({})});
+
+    foreach(indices(rdata), string idx) {
+        fromto[0] += ({ "@" + idx + "@" });
+        fromto[1] += ({ rdata[idx] });
+    }
+
+    return fromto;
+}
+
+private array check_file(string fname, string|void lang)
+{
+    array(string) spath;
+    string dpath = QUERY(screens_path) + "/" + QUERY(misc_def_lang) + "/" + fname;
+    string ret = "";
+    int    fsize = 0;
+    
+    if (lang) {
+        string tmp = QUERY(screens_path) + "/" + lang + "/" + fname;
+        if (tmp != dpath)
+            spath = ({tmp, dpath});
+        else
+            spath = ({dpath});
+    } else {
+        spath = ({dpath});
+    }
+
+    foreach(spath, string file) {
+        array(int)|object f = file_stat(file);
+
+        if (!f)
+            continue;
+        
+        int ftype = arrayp(f) ? f[1] : (objectp(f) ? f->size : -1);
+                
+        if (ftype < 0) {
+            report_warning("Screen path '%s' points to %s and not to a regular file\n",
+                           spath, num2type[ftype]);
+            continue;
+        } else if (ftype == 0) {
+            report_warning("Screen path '%s' points to an empty file. Ignoring it.\n",
+                           spath);
+            continue;
+        }
+
+        ret = file;
+        fsize = ftype;
+        break;
+    }
+    
+    return ({ret, fsize});
+}
+
+//
+// if 'lang' == 0 then the default language will be retrieved
+//
+string retrieve(object id, string name, string|void lang)
+{
+    if (!name || name == "")
+        return "";
+
+    if (!module_screens[name])
+        return "<!-- No screen named '" + name + "' found -->\n";
+
+    array finfo = check_file(module_screens[name], lang);
+    if (finfo[0] == "")
+        return "<!-- no file for screen '" + name + "' -->";
+    
+    if (finfo[1] > (QUERY(misc_max_size) * 1024))
+        return sprintf("<!-- Screen file '%s' is too big (allowed max is %dKb)\n -->",
+                           module_screens[name], QUERY(misc_max_size));
+    
+    Stdio.File f = Stdio.File(finfo[0], "r");
+    if (!f)
+        return "<!-- Couldn't open the " + module_screens[name] + " screen file -->";
+
+    string fdata = f->read();
+    f->close();
+
+    mapping rdata = SSTORE(id)[name];
+    if (rdata) {
+        array(array(string)) fromto = make_replace_array(rdata);
+
+        if (sizeof(fromto) == 2 && sizeof(fromto[0]) && (sizeof(fromto[0]) == sizeof(fromto[1])))
+            fdata = replace(fdata, fromto[0], fromto[1]);
+    }
+
+    return fdata;
 }
 
 //
