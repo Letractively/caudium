@@ -1582,7 +1582,7 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
 //!  The parsed result.
 //! name: parse_scopes - parse text for entities
 
-#if constant Parser.HTML
+#if constant(Parser.HTML)
 static mixed cb_wrapper(object parser, string entity, object id, function cb,
 			mixed ... args) {
   string scope, name, encoding;
