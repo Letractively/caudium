@@ -471,8 +471,11 @@ string container_emit(string t, mapping args, string contents, object id,
 
   foreach(dataset, mapping row)
   {
+/* what are you for??? */
+/*
     if(!id->misc->scopes)
       id->misc->scopes = mkmapping(indices(scopes), values(scopes)->clone());
+*/
     retval+=Caudium.parse_entities(contents, ([ args->scope: EmitScope(row) ]));
   }
 
