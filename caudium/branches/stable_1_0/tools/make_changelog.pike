@@ -1,15 +1,32 @@
 mapping (string:string) users = ([ ]);
 
-int rxml;
 string domain;
-
+mapping user_list = ([
+  "neotron": "David Hedbor <david@caudium.net>",
+  "grendel": "Marek Habersack <grendel@caudium.net>",
+  "oliv3": " Olivier Girondel <oliv3@caudium.net>",
+  "wilsonm": "Matthew Wilson <matthew@caudium.net>",
+  "kiwi": "Xavier Beaudouin <kiwi@caudium.net>",
+  "james_tyson": "James Tyson <james_tyson@caudium.net>",
+  "underley": "Daniel Podlejski <underley@users.sourceforge.net>",
+  "h3x": "Justin Hannah <h3x@caudium.net>",
+  "embee": "Martin Bähr <mbaehr@caudium.net>",
+  "redax": "Zsolt Varga <redax@caudium.net>",
+  "stenad": "Sten Eriksson <stenad@caudium.net>",
+  "kvoigt": "Kai Voigt <k@caudium.net>",
+  "mikeharris": "Mike A. Harris <mikeharris@caudium.net>",
+  "nilkram": "Fred van Dijk <fred@caudium.net>",
+  "duerrj": "Joseph Duerr <duerrj@caudium.net>",
+]);
 void find_user(string u)
 {
-  array userinfo;
-  if( userinfo = getpwnam(u) )
-    users[u] = userinfo[4]+" <"+u+"@"+domain+">";
-  else
-    users[u] = " <"+u+"@"+domain+">";    
+  string ru = user_list[u];
+  if(ru ) {
+    users[u] = ru;
+  } else {
+    werror("Unknown user: %s\n", u);
+    users[u] = " <"+u+"@"+domain+">";
+  }
 }
 
 string mymktime(string from)
@@ -30,22 +47,15 @@ string mymktime(string from)
   m->min = t[4];
   m->sec = t[5];
 //werror("%O\n", m);
-  if(rxml) return "<date unix_time="+mktime(m)+"> ";
   return (ctime(mktime(m))-"\n"+" ");
 }
 
 array ofiles = ({});
 void output_changelog_entry_header(array from)
 {
-  string u = (from[1] == "law"?"mirar":from[1]);
-  if(rxml)
-    write("</ul></if>\n<if or prestate="+u+" variable=all><h3>"+
-	  mymktime(from[0])+" <user name="+u+"></h3>\n<ul>\n");
-  else
-  {
-    if(!users[u]) find_user(u);
-    write("\n"+mymktime(from[0])+" "+users[u]+"\n");
-  }
+  string u = from[1];
+  if(!users[u]) find_user(u);
+  write("\n"+mymktime(from[0])+" "+users[u]+"\n");
   ofiles = ({});
 }
 
@@ -100,27 +110,24 @@ void output_entry(array files, string message)
   message = reverse(message);
   if(equal(sort(files),sort(ofiles)))
   {
-    if(rxml) write("<blockquote>"+qte(message)+"</blockquote>\n\n");
-    else write(trim(sprintf("              %-=65s\n", message)));
+    write(trim(sprintf("              %-=65s\n", message)));
   }
   else
   {
 //     write("%O != %O", files, ofiles);
     string fh="";
-    foreach(files, string f)
-      fh += f+", ";
-    fh = fh[..sizeof(fh)-3]+":";
-    if(rxml)
-    {
-      write("<li><b><font color=darkblue>"+qte(fh)+"</font></b>"
-	    "<blockquote>"+qte(message)+"</blockquote>\n\n");
+    if(sizeof(files) > 5) {
+      fh = "Multiple files: ";
     } else {
-      if(strlen(message+fh)<70)
-	write("\t* "+fh+" "+message+"\n");
-      else
+      foreach(files, string f)
+	fh += f+", ";
+      fh = fh[..sizeof(fh)-3]+":";
+    }
+    if(strlen(message+fh)<70)
+      write("\t* "+fh+" "+message+"\n");
+    else
 	write(trim(replace(sprintf("\t* %-=69s\n", fh),"\n   ","\n\t  ")+
 		   sprintf("            %-=65s\n", message)));
-    }
     ofiles = files;
   }
 }
@@ -146,17 +153,13 @@ void main(int argc, array (string) argv)
   string data = Process.popen("cvs log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
-  rxml = argv[-1]=="--rxml";
-  if(argc>1 && argv[1] != "--rxml")
+  if(argc>1)
     domain = argv[1];
   else
   {
-    users->law = "Mirar <mirar@idonex.se>";
     domain = "users.sourceforge.net";
   }
   werror("Parsing data ... ");
-  if(rxml)
-    write("<body bgcolor=white text=black link=darkred><ul>");
   foreach(data/"=============================================================================\n", string file)
   {
     array foo = file/"----------------------------\nrevision ";
@@ -195,7 +198,7 @@ void main(int argc, array (string) argv)
   {
     string date = (e[0]/" ")[0];
     string time = (e[0]/" ")[1];
-//    werror(">>> %s\n", e[0]);
+    ///    werror(">>> %s >>> %s \n", date, time);
     if((date != od) || (e[1] != ou))
     {
       if(oc && sizeof(collected_files))
