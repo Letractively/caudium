@@ -620,6 +620,8 @@ if test "$GCC" != "yes"; then
   esac
 fi
 
+
+
 CCSHARED="$caudium_cv_sys_ccshared"
 AC_MSG_RESULT($CCSHARED)
 
