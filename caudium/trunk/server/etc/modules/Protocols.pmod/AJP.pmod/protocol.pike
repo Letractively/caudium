@@ -49,6 +49,23 @@ constant int METHOD_MERGE = 25;
 constant int METHOD_BASELINE_CONTROL = 26; 
 constant int METHOD_MKACTIVITY = 27;
 
+constant header_values=([
+    "accept" : 0xa001,
+    "accept-charset" : 0xa002,
+    "accept-encoding" : 0xa003,
+    "accept-language" : 0xa004,
+    "authorization" : 0xa005,
+    "connection" : 0xa006,
+    "content-type" : 0xa007,
+    "content-length" : 0xa0008,
+    "cookie" : 0xa009,
+    "cookie2" : 0xa00a,
+    "host" : 0xa00b,
+    "pragma" : 0xa00c,
+    "referer" : 0xa00d,
+    "user-agent" : 0xa00e
+    ]);
+
 string generate_server_packet(string data)
 {
   if(strlen(data)>MAX_PACKET_SIZE) error("AJP Packet too large: " + strlen(data) + ".");
@@ -77,11 +94,11 @@ string packet_forward_request(object id)
   packet=sprintf("%c%c%s%s%s%s%s%2c%c%2c%s%s%c",
      MSG_FORWARD_REQUEST,
      method,
-     to_string(id->clientprot),
-     to_string(id->raw_query),
-     to_string(id->remoteaddr),
-     to_string(quick_ip_to_host(id->remoteaddr)),
-     to_string(server_name),
+     push_string(id->clientprot),
+     push_string(id->raw_query),
+     push_string(id->remoteaddr),
+     push_string(quick_ip_to_host(id->remoteaddr)),
+     push_string(server_name),
      server_port,
      is_ssl,
      sizeof(id->request_headers),
@@ -215,19 +232,75 @@ int method_from_string(string method)
 //! @note 
 //!    the spec doesn't specifically say how to encode this, so we need to check
 //!    the apache source to see the length of the length code.
-string to_string(string s)
+string push_string(string s)
 {
-   string news=s;
+   string news=sprintf( "%2c%s%c", strlen(s) + 1, s, 0x00);
    
    return news;
 }
 
+//! @note 
+//!    the spec doesn't specifically say how to encode this, so we need to check
+//!    the apache source to see the length of the length code.
+array pull_string(string s)
+{
+   int len;
+   sscanf(s, "%2c%s", len, s);
+   if(!len) return "";
+   sscanf(s, "%" + len + "s%*c%s", news, s);   
+   return [news, s];
+}
+
 string make_request_headers(mapping h)
 {
-  return "";
+  string header_string="";
+
+  foreach(indices(h), string header)
+  {
+    if(header_values[h])
+      header_string+=header_values[h] + push_string(h[header]);
+    else
+      header_string+=push_string(header) + push_string(h[header]);
+  }
+  return header_string;
 }
 
 string make_attributes(mapping a)
 {
-  return "";
+  string attribute_string="";
+
+  foreach(indices(a), string attribute)
+  {
+      attribute_string+=push_string(attribute) + push_string(a[attribute]);
+  }
+  return attribute_string;
+}
+
+mapping decode_container_packet(string packet)
+{
+  mapping result=([]);
+  int len=0;
+
+  if(packet[0..1]!="AB")
+  {
+    error("Invalid packet from container.\n");
+  }
+
+  sscanf(packet[2..], "%2c%s", len, packet)
+  if(!len)
+  {
+    error("Invalid packet length from container.\n");
+  }
+
+  sscanf(packet, "%" + len + "s", packet);
+
+  if(strlen(packet) !=len)
+  {
+    error("Payload length not correct. Expected " + len + " got " + 
+      strlen(packet) + ".");
+  }
+
+  sscanf(packet, "%c%s", result->type, result->data);
+  
+  return result;
 }
