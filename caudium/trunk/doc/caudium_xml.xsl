@@ -26,7 +26,7 @@
   <xsl:apply-templates select="type"/>
   <xsl:apply-templates select="version"/>
   <xsl:apply-templates select="defvars"><xsl:sort select='@name'/></xsl:apply-templates>
-  <xsl:apply-templates select="tags | containers | entities"/>
+  <xsl:apply-templates select="methods | tags | containers | entities"/>
 </xsl:template>
 
 <xsl:template match="inherits">

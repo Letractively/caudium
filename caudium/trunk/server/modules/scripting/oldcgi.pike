@@ -20,8 +20,7 @@
  */
 /* This is the old, deprecated CGI module. */
 
-//
-//! module: CGI executable support (DEPRECATED)
+//! module: Old CGI executable support (DEPRECATED)
 //!  Support for the CGI/1.1 interface, and more. It is too bad
 //!  that the CGI specification is a moving target, it is hard to
 //!  implement a fully compatible copy of it.
@@ -30,11 +29,6 @@
 //! type: MODULE_LOCATION | MODULE_FILE_EXTENSION
 //! cvs_version: $Id$
 //
-
-// Support for the <a
-// href="http://hoohoo.ncsa.uiuc.edu/docs/cgi/interface.html">CGI/1.1
-// interface</a> (and more, the documented interface does _not_ cover
-// the current implementation in NCSA/Apache)
 
 string cvs_version = "$Id$";
 int thread_safe=1;

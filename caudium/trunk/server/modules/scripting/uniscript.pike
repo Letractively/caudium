@@ -24,7 +24,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-//! module: CGI executable support
+//! module: Universal script parser
 //!  This module provides extensions handling by misc script interpreters. 
 //!  Scripts can be run as choosen user, or by owner. Module is based on
 //!  CGI module.
