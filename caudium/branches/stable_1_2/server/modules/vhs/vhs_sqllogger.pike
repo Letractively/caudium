@@ -147,7 +147,7 @@ nomask private inline string extract_user(string from)
 }
 
 void log(object id, mapping file)  {
-  string log_query, referer;
+  string log_query, referer, host;
   array auth;
   object sql_conn=db->handle();
 
@@ -156,7 +156,11 @@ void log(object id, mapping file)  {
 
   if (!sizeof(referer)) referer = "-";
   
-  
+  host = (string)id->misc->host; 
+  if(search(host,":")) {
+    host = (host / ":")[0];
+  }
+
   log_query=sprintf("INSERT INTO %s (agent,bytes_sent,referer,remote_host,remote_user,"
                     "request_duration,request_method,request_protocol,"
                     "request_uri,request_args,status,time_stamp,virtual_host) VALUES("
@@ -173,7 +177,7 @@ void log(object id, mapping file)  {
                     id->query?sprintf("'?%s'",(string)id->query):"NULL",
 		    (int)(file->error||200),
 		    time(),
-		    (string)id->misc->host,
+		    host,
 		    );
 
 //  perror("SQL %s\n",log_query);
