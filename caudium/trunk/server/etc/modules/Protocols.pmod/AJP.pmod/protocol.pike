@@ -550,7 +550,7 @@ mapping decode_forward(mapping packet)
       [h, packet->data]=pull_string(packet->data);
       [v, packet->data]=pull_string(packet->data);
     }
-    packet->response_headers[h]=v;
+    packet->request_headers[h]=v;
   }
 
   // now we get the attributes.
@@ -569,8 +569,6 @@ mapping decode_forward(mapping packet)
      packet->attributes[search(attribute_values, code)] = value;
    }
   } while (!ended);
-
-  packet->request_headers=([]);
 
   return packet;
 }
