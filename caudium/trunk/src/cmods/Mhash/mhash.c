@@ -56,10 +56,10 @@ void f_hash_create(INT32 args)
     Pike_error("Invalid number of arguments to Mhash.Hash(), expected 0 or 1.\n");
     break;
   case 1:
-    if(sp[-args].type != T_INT) {
+    if(Pike_sp[-args].type != T_INT) {
       Pike_error("Invalid argument 1. Expected integer.\n");
     }
-    THIS->type = sp[-args].u.integer;
+    THIS->type = Pike_sp[-args].u.integer;
     THIS->hash = mhash_init(THIS->type);
     if(THIS->hash == MHASH_FAILED) {
       THIS->hash = NULL;
@@ -98,11 +98,11 @@ void f_hash_feed(INT32 args)
       Pike_error("Hash is uninitialized. Use Mhash.Hash()->set_type() to select hash type.\n");
   }
   if(args == 1) {
-    if(sp[-args].type != T_STRING) {
+    if(Pike_sp[-args].type != T_STRING) {
       Pike_error("Invalid argument 1. Expected string.\n");
     }
-    mhash(THIS->hash, sp[-args].u.string->str,
-	  sp[-args].u.string->len << sp[-args].u.string->size_shift);
+    mhash(THIS->hash, Pike_sp[-args].u.string->str,
+	  Pike_sp[-args].u.string->len << Pike_sp[-args].u.string->size_shift);
   } else {
     Pike_error("Invalid number of arguments to Mhash.Hash->feed(), expected 1.\n");
   }
@@ -196,10 +196,10 @@ void f_hash_reset(INT32 args)
 void f_hash_set_type(INT32 args)
 {
   if(args == 1) {
-    if(sp[-args].type != T_INT) {
+    if(Pike_sp[-args].type != T_INT) {
       Pike_error("Invalid argument 1. Expected integer.\n");
     } 
-    THIS->type = sp[-args].u.integer;
+    THIS->type = Pike_sp[-args].u.integer;
   } else {
     Pike_error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
   }

@@ -61,10 +61,10 @@ void f_query_name(INT32 args)
 {
   char *name;
   if(args == 1) {
-    if(sp[-args].type != T_INT) {
+    if(Pike_sp[-args].type != T_INT) {
       Pike_error("Invalid argument 1. Expected integer.\n");
     } 
-    name = mhash_get_hash_name(sp[-args].u.integer);
+    name = mhash_get_hash_name(Pike_sp[-args].u.integer);
     pop_n_elems(args);
     if(name == NULL) {
       push_int(0);
@@ -107,12 +107,12 @@ void f_to_hex(INT32 args)
   unsigned char *res, hex[3];
   struct pike_string *str;
   int len, i, e;
-  if(args != 1 && sp[-1].type != T_STRING) {
+  if(args != 1 && Pike_sp[-1].type != T_STRING) {
     Pike_error("Invalid / incorrect args to to_hex. Expected string.\n");
   }
-  len = sp[-1].u.string->len << sp[-1].u.string->size_shift;
+  len = Pike_sp[-1].u.string->len << Pike_sp[-1].u.string->size_shift;
   str = begin_shared_string(len*2);
-  res = (unsigned char *)sp[-1].u.string->str;
+  res = (unsigned char *)Pike_sp[-1].u.string->str;
   for(e = 0, i = 0; i < len; i++, e+=2) { 
     snprintf(hex, 3, "%.2x", res[i]); 
     STR0(str)[e] = hex[0]; 
