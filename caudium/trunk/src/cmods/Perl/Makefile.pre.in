@@ -1,0 +1,14 @@
+# $Id$
+VPATH=@srcdir@:@srcdir@/../..:../..
+MODNAME=Perl
+OBJS=perlmod.o @extra_objs@
+SOURCES=perlmod.c @extra_srcs@
+PERL=@perl@
+MODULE_LDFLAGS=@PERL_LDFLAGS@
+MODULE_CFLAGS=@PERL_CCFLAGS@
+
+@module_makefile@
+
+perlxsi.c:
+	$(PERL) -MExtUtils::Embed -e xsinit -- -o perlxsi.c
+
