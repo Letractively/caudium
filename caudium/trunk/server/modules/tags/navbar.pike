@@ -412,7 +412,7 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
 
   string baseuri = args->basehref || id->not_query;
   args->href = Caudium.add_pre_state(baseuri, id->prestate) + "?" + 
-    replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
+    Protocols.HTTP.http_encode_query(vars); 
   if(args->countpageloop)
   {
     args->href += "&amp;navbarelement=" + args->countpageloop;
