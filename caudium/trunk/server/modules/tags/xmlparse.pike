@@ -663,7 +663,7 @@ mapping query_tag_callers() {
 //!  name: Parse options: Parse entities in attributes
 //
 //! defvar: unknown_ent
-//! If true, the unknown entities are returned as is without any try to parse them. This option is usefull with CAMAS, who use lots links with multiple variables in it.
+//! If true, unknown entities are returned as they are without any try to parse them. This option is useful with CAMAS which uses a lots of links with multiple variables in them.
 //!  type: TYPE_FLAG|VAR_MORE
 //!  name: Parse options: Return unknown entities verbatim
 //

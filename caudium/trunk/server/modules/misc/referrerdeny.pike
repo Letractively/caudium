@@ -218,7 +218,7 @@ string status()
 //!  name: Configuration: Deny message
 //
 //! defvar: match
-//! Referrers matching this regexp will not be allowed access to files matching the file regexp.
+//! Referrers matching this regexp will be allowed access to files matching the file regexp.
 //!  type: TYPE_STRING
 //!  name: Configuration: Allowed Regexp
 //
