@@ -246,11 +246,11 @@ static void f_strptime(INT32 args)
   time_t               ret;
   
   get_all_args("strptime", args, "%S%S", &date, &format);
-  pop_n_elems(args);
   
   strptime(date->str, format->str, &tmret);
   ret = mktime(&tmret);
 
+  pop_n_elems(args);
   push_int(ret);
 }
 #endif /* STRPTIME */
@@ -345,7 +345,6 @@ static void f_getdate(INT32 args)
   time_t               ret;
   
   get_all_args("getdate", args, "%S", &date);
-  pop_n_elems(args);
   
 #ifdef HAVE_GETDATE_R
   THREADS_ALLOW();
@@ -356,6 +355,7 @@ static void f_getdate(INT32 args)
   tmptr = getdate(date->str);
   err = getdate_err;
 #endif
+  pop_n_elems(args);
 
   if (err || !tmptr) {
     push_int(err);
@@ -397,9 +397,9 @@ static void f_parse_date(INT32 args)
   time_t                ret;
   
   get_all_args("parse_date", args, "%S", &date);
-  pop_n_elems(args);
 
   ret = get_date(date->str, NULL);
+  pop_n_elems(args);
   if (ret < 0)
     push_string(gd_bad_format);
   else
