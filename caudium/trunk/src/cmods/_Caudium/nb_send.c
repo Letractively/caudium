@@ -113,15 +113,16 @@ static void alloc_nb_struct(struct object *obj) {
 
 /* Free an input */
 static INLINE void free_input(input *inp) {
-  DERR(fprintf(stderr, "Freeing input 0x%x\n", (unsigned int)inp));
   ninputs--;
   switch(inp->type) {
-  case NBIO_STR: 
+  case NBIO_STR:
+    DERR(fprintf(stderr, "Freeing string input 0x%x\n", (unsigned int)inp));
     free_string(inp->u.data);
     nstrings--;
     break;
 #ifdef USE_MMAP
   case NBIO_MMAP:
+    DERR(fprintf(stderr, "Freeing mmap input 0x%x\n", (unsigned int)inp));
     if(inp->u.mmap_storage->data != MAP_FAILED) {
       munmap(inp->u.mmap_storage->data, inp->u.mmap_storage->m_len);
       mmapped -= inp->u.mmap_storage->m_len;
@@ -139,6 +140,7 @@ static INLINE void free_input(input *inp) {
     /* FALL THROUGH */
     
   case NBIO_BLOCK_OBJ:
+    DERR(fprintf(stderr, "Freeing obj input 0x%x\n", (unsigned int)inp));
     free_object(inp->u.file);
     nobjects--;
     break;
@@ -149,6 +151,7 @@ static INLINE void free_input(input *inp) {
   THIS->inputs = inp->next;
   if(!THIS->finished && THIS->inputs && THIS->inputs->type == NBIO_OBJ) {
     /* Aha! Set read callback here */
+    DERR(fprintf(stderr, "Setting read/close callbacks for input 0x%x\n", (unsigned int)THIS->inputs));
     push_callback(input_read_cb_off);
     push_int(0);
     push_callback(input_close_cb_off);
@@ -322,6 +325,7 @@ static INLINE  void free_output(output *outp) {
 
 /* Free any allocated data in the struct */
 static void free_nb_struct(struct object *obj) {
+  DERR(fprintf(stderr, "Freeing storage.\n"));
   while(THIS->inputs != NULL) {
     free_input(THIS->inputs);
   }
@@ -501,8 +505,8 @@ static INLINE int read_data(void)
     DERR(fprintf(stderr, "Reading from fake fd.\n"));
     if(inp->len != -1 && inp->pos >= inp->len) {
       /* We are done reading from this one */
-      free_input(inp);
       DERR(fprintf(stderr, "Data done from fake fd.\n"));
+      free_input(inp);
       goto redo; /* goto == ugly, but we want to read the next input
 		  * if any
 		  */
@@ -534,21 +538,24 @@ static INLINE int read_data(void)
   }
   switch(to_read) {
   case 0: /* EOF */
-    free_input(inp);
     DERR(fprintf(stderr, "read zero blocking bytes == EOF\n"));
+    free_input(inp);
     break;
 
   case -1:
     if(errno != EAGAIN) {
       /* Got an error. Free input and continue */
+      DERR(perror("Error while reading:"));
       free_input(inp); 
     }
     goto redo;
 
   default:
     inp->pos += to_read;
-    if(inp->pos == inp->len)
+    if(inp->pos == inp->len) {
+      DERR(fprintf(stderr, "Done reading (position == length).\n"));
       free_input(inp);
+    }
     THIS->buf_len = to_read;
     break;
   }
@@ -668,8 +675,10 @@ static void f__output_write_cb(INT32 args)
 
     if(written >= 0) {
       inp->pos += written;
-      if(inp->pos == inp->len)
+      if(inp->pos == inp->len) {
+	DERR(fprintf(stderr, "Done sending string input (position == length).\n"));
 	free_input(inp);
+      }
       set_outp_write_cb(THIS->outp);
     }
     break;
@@ -740,8 +749,11 @@ static void f__output_write_cb(INT32 args)
 
     if(written >= 0) {
       inp->pos += written;
-      if(inp->pos == inp->len)
+      if(inp->pos == inp->len){
+	DERR(fprintf(stderr, "Done sending mmapped input (position == length).\n"));
+
 	free_input(inp);
+      }
       set_outp_write_cb(THIS->outp);
     }
 #endif
@@ -812,6 +824,7 @@ static void f__input_read_cb(INT32 args)
   inp->pos += len;
   if(inp->len != -1 && inp->pos >= inp->len) {
     len -= inp->pos - inp->len; /* Don't "read" too much */
+    DERR(fprintf(stderr, "Read all wanted input data.\n"));
     free_input(inp);
   }
   DERR(fprintf(stderr, "Input read callback (got %d bytes).\n", len));
