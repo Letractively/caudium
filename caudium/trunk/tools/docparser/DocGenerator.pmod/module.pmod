@@ -131,12 +131,20 @@ class IndexGen
      *
      *  <entry type="file|module|symbol" name="name" file="path" />
      */
-    void entry(object(Stdio.File) f ,string type, string name, string path, string|void title)
+    void entry(object(Stdio.File) f, 
+               int is_cont,
+               string type, 
+	       string name, 
+	       string path, 
+	       string|void title)
     {
-	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s />\n",
-	         type, name, path, title ? "title=\"" + title + "\"" : ""));
+	f->write("is_cont == " + is_cont + "\n");
+	f->write(sprintf("\t<entry type=\"%s\" name=\"%s\" path=\"%s\" %s %s>\n",
+	         type, name, path, 
+		 (title ? "title=\"" + title + "\"" : ""),
+		 (is_cont ? "/" : "")));
     }
-    
+
     /*
      * Output an entry for a file
      */
@@ -144,32 +152,40 @@ class IndexGen
     {
 	if (!ffile)
 	    open_files();
-	entry(ffile, "file", name, path);
+	entry(ffile, 1, "file", name, path);
     }
     
     void module(string path, string name, string title)
     {
 	if (!mfile)
 	    open_files();
-	
-	entry(mfile, "module", name, path, title);
+	entry(mfile, 1, "module", name, path, title);
     }
     
-    void file_symbol(string symbol, string path, string name, string|void title)
+    void file_symbol(string symbol, int container, string path, string name, string|void title)
     {
 	if (!ffile)
 	    open_files();
-
-	entry(ffile, symbol, name, path, title);
+	entry(ffile, container, symbol, name, path, title);
     }
-    
-    void module_symbol(string symbol, string path, string name, string|void title)
+
+    void file_close()
+    {
+	ffile->write("</entry>");
+    }
+        
+    void module_symbol(string symbol, int container, string path, string name, string|void title)
     {
 	if (!mfile)
 	    open_files();
-	entry(mfile, symbol, name, path, title);
+	entry(mfile, container, symbol, name, path, title);
     }
 
+    void module_close()
+    {
+	mfile->write("\t</entry>\n\n");
+    }
+    
     void create(string tdir)
     {
 	target_dir = tdir;
@@ -185,6 +201,7 @@ class DocGen
     array(string)                 tvars;
     object(IndexGen)              index;
     function                      sym_fn; /* current symbol index function */
+    function                      close_fn; /* current index close entry fn */
     string                        fname; /* current file path */
     
     object(Stdio.File) create_file(string tdir, string fpath)
@@ -263,7 +280,7 @@ class DocGen
     {
         string   ret = "";
 
-	sym_fn("globvar", fname, gv->first_line);
+	sym_fn("globvar", 0, fname, gv->first_line);
         if (gv->first_line && gv->first_line != "")
             ret += "<globvar synopsis=\"" + gv->first_line + "\"";
         else
@@ -297,7 +314,7 @@ class DocGen
   {
     string   ret = "";
     
-    sym_fn("tag", fname, tag->first_line);
+    sym_fn("tag", 0, fname, tag->first_line);
     if (tag->first_line && tag->first_line != "") {
       if(is_container)
 	ret += "<tag name=\""+tag->first_line+"\" synopsis=\"&lt;" + tag->first_line + "&gt;"
@@ -405,11 +422,11 @@ class DocGen
         continue;
       if(sizeof(parts) == 1) {
 	ret += " <defvar name=\""+dv->first_line+"\"";
-	sym_fn("defvar", fname, dv->first_line, dv->name);
+	sym_fn("defvar", 0, fname, dv->first_line, dv->name);
       } else {
 	ret += " <defvar group=\""+String.trim_whites(parts[0])+" \"name=\""+
 	  String.trim_whites(parts[1..]*":")+"\"";
-	sym_fn("defvar", fname,  String.trim_whites(parts[1..]*":"));
+	sym_fn("defvar", 0, fname,  String.trim_whites(parts[1..]*":"));
       }
       if (dv->name)
         ret += " short=\"" + dv->name + "\"";
@@ -469,7 +486,7 @@ class DocGen
 	
 	method = dissect_method(m->first_line);
 
-	sym_fn("method", fname, method->name);
+	sym_fn("method", 0, fname, method->name);
 		
 	/* Method start */
 	ret += "<method name=\"" + method->name + "\">\n";
@@ -549,7 +566,7 @@ class DocGen
     {
 	string   ret = "";
 	
-	sym_fn("class", fname, c->first_line);
+	sym_fn("class", 0, fname, c->first_line);
 	
 	/* Header */
 	ret = "<class name=\"" + c->first_line + "\">\n";
@@ -627,7 +644,7 @@ class DocGen
     {
 	string ret = "";
 	
-	sym_fn("entity", fname, e->first_line);
+	sym_fn("entity", 0, fname, e->first_line);
 	
 	ret = "<entity name=\"" + e->first_line + "\">\n\t";
 	
@@ -677,7 +694,7 @@ class DocGen
     {
 	string ret = "";
 	
-	sym_fn("scope", fname, es->first_line);
+	sym_fn("scope", 0, fname, es->first_line);
 	
 	ret = "<scope name=\"" + es->first_line + "\">\n";
 	ret += "<description>\n\t" + es->contents + "\n</description>\n\n";
@@ -745,6 +762,7 @@ class DocGen
     void do_file(string tdir, DocParser.PikeFile f, Stdio.File ofile)
     {
 	sym_fn = index->file_symbol;
+	close_fn = index->file_close;
 	
         /* First take care of the file itself */
         if (f->first_line)
@@ -771,6 +789,7 @@ class DocGen
     void do_module(string tdir, DocParser.Module f, Stdio.File ofile)
     {
 	sym_fn = index->module_symbol;
+	close_fn = index->module_close;
 	
         /* First take care of the file itself */
         if (f->first_line)
@@ -815,12 +834,14 @@ class DocGen
         switch(f->myName) {
             case "PikeFile":
 		index->file(fname, f->first_line);
-                do_file(tdir, f, ofile);
+                do_file(tdir, f, ofile);		
+		index->file_close();
                 break;
 
             case "Module":
 		index->module(fname, basename(fname), f->first_line);
-                do_module(tdir, f, ofile);
+		do_module(tdir, f, ofile);
+		index->module_close();
                 break;
         }
 
