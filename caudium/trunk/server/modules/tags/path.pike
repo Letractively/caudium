@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000 The Caudium Group
+ * Copyright © 2000-2001 The Caudium Group
  * Based on the word from Matthew Brookes <matt@broadcom.ie> and
  * Bill Welliver <hww3@riverweb.com>.
  *

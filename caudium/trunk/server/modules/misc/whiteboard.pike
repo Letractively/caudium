@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000 The Caudium Group
+ * Copyright © 2000-2001 The Caudium Group
  * Based on work from Karl Stevens <karl@maxim.ca>
  * 
  * This program is free software; you can redistribute it and/or
