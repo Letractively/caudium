@@ -10,6 +10,8 @@ SRCDIR = ../src
 MODULEDIR = ../../modules
 
 all : caudium_module.jar caudium_servlet.jar
+	rm -rf net
+	cp *.jar ../../../server/etc/classes
 
 caudium_servlet.jar : servlet_classes
 	jar cf $@ net/caudium/servlet/*.class
