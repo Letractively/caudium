@@ -6,7 +6,9 @@ Changes since last Roxen Challenger 1.3
   server. Check out our website at http://caudium.net/ for further
   information.
 + Now works with Pike 7. Not completely tested but at least everything
-  seems to compile ok. 
+  seems to compile ok. This also means that quite a number of small
+  fixes has been made, since most errors are due to the better (and
+  more correct) type checking in the Pike 7 series.
 + Wrote query-string and HTTP header parsers in C. Seems to give a
   nice performance boast.
 + Fixed small bug in htmlparse.pike when using tags that return a
@@ -14,4 +16,7 @@ Changes since last Roxen Challenger 1.3
 + Added PiXSL, a glue to Sablotron (XSLT parser) and UltraLog, a log
   parser, to the default distribution.
 + Pike not isn't built as part of the server, but instead you specify
-  which Pike you want to use (or use the default one). 
+  which Pike you want to use (or use the default one).
++ Don't send the Last-Modified header for dynamic (RXML-parsed)
+  pages. Fixes caching problems with clients that correctly handles
+  If-Modified-Since, like MSIE and Galeon.
