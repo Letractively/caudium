@@ -497,12 +497,12 @@ void main(int argc, string *argv)
 					       "config",
 					       "configurations",
 					       "configuration-directory" }),
-			       ({ "ROXEN_LOGDIR" }),
+			       ({ "CAUDIUM_LOGDIR" }),
 			       "../configurations");
   
   log_dir = find_arg(argv, "l", ({ "log-dir",
 				     "log-directory", }),
-		     ({ "ROXEN_CONFIGDIR", "CONFIGURATIONS" }),
+		     ({ "CAUDIUM_CONFIGDIR", "CONFIGURATIONS" }),
 		     "../logs/");
 
   write(Process.popen("clear"));
