@@ -1,7 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2002 The Caudium Group
- * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -156,11 +155,15 @@ object lock(string path, string mode, int behavior) {
   return _lock(id, unlock, sprintf("%s,%s",path, mode));
 }
 
+//! @fixme
+//!   Document this function.
 static void unlock(mixed id) {
   rm(locks[id]->lock_file);
   m_delete(locks, id);
 }
 
+//! @fixme
+//!   Document this function.
 static string get_hash( string data ) {
   string retval;
 #if constant(_Lobotomized_Crypto)
@@ -179,15 +182,14 @@ void destruct() {
   }
 }
 
-static class _lock {
-
 //! This class is the object containing the hitchingpost lock.
+static class _lock {
 
   mixed id;
   static function unlock;
   static string desc;
   int since;
-
+  
   void create(mixed _id, function _unlock, string _desc) {
     id = _id;
     desc = _desc;
