@@ -1,6 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
 
+- Fixed bug #515131 : gtext broke on weird URLs
 - Bill Welliver's Mailit! module is now included into Caudium.
 - Corrected a bug in ftp protocol in pasv mode. Thanks to  Joe Radinger <cheese@nosuchhost.net>
 - New configuration files are created with the 0600 permission bits now.
