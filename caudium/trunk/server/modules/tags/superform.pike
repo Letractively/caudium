@@ -151,6 +151,11 @@ void start(int num, object configuration)
 //!  Text to send when there is an error
 //! arg: match
 //!  The regexp used to verify (see configuration interface).
+//! arg: mail
+//!  Check this is a really a email and there is really a MX on this
+//!  mail. Warning a match="::email::" is need to enable the check.
+//! arg: mailerror
+//!  The message to send if the mail check fails.
 //! todo: Add a email type that verify, domain, mx etc... :)
 mixed tag_input(string tag_name, mapping args,
 		 object request_id, object f,
@@ -221,9 +226,18 @@ mixed tag_input(string tag_name, mapping args,
     }
   }               
   result+=">";
-  if (args->match) 
+  if (args->match) {
     result+="<input type=hidden name=sform_match_"+
       args->name+" value=\""+args->match+"\">\n";
+    if (args->match == "::email::") {
+      if (args->mail)
+        result +="<input type=hidden name=sform_mail_"+
+          args->name+" value=\""+args->mail+"\">\n";
+      if (args->mailerror)
+        result +="<input type=hidden name=sform_mailerror_"+
+	  args->name+" value=\""+args->mailerror+"\">\n";
+    }
+  }
   if (args->error) 
     result+="<input type=hidden name=sform_error_"+
       args->name+" value=\""+args->error+"\">\n";
@@ -243,6 +257,8 @@ mixed tag_input(string tag_name, mapping args,
 //! container: rxml
 //!  Execute the rxml stuff in &lt;rxml&gt; .. &lt;/rxml&gt; when
 //!  all verification stage have succeeded.
+//! attribute: debug
+//!  Debug the code
 //! note: this tag is only avaible in &lt;sform&gt; container
 string tag_rxml(string tag_name, mapping args, string contents,
 		object rid, object f, mapping defines, object fd) {
@@ -385,7 +401,7 @@ int process_widgets(object rid) {
 mixed first_try(object rid)
 {
   mixed match;
-  string error,value,mandatory;
+  string error,value,mail,mailerror,mandatory;
   int err=0;
   mixed tmp;
   if (!rid->variables["sform_rand"]) {
@@ -398,10 +414,13 @@ mixed first_try(object rid)
 
   // foreach form variable
   foreach (indices(rid->variables),string v) {
+//    werror(sprintf("%O\n",rid->variables));
     // skip if it matches sform_*
     if (sscanf(v,"sform_%*s")) continue;
     match="sform_match_"+v;  // get the regexp
     error="sform_error_"+v;  // get the error
+    mail="sform_mail_"+v;    // get the mail error if needed
+    mailerror="sform_mailerror_"+v; // get the mail error message if needed
     mandatory="sform_mandatory_"+v;
     
     // is the value empty?
@@ -420,6 +439,7 @@ mixed first_try(object rid)
     // if there is a match to check...
     if (rid->variables[match]) {
       string pattern=rid->variables[match];
+      string pattern2=rid->variables[match];
       function split;
       // replace any predifined expressions
       pattern=replace_predefined(pattern);
@@ -433,7 +453,23 @@ mixed first_try(object rid)
       if (catch(match=Regexp(pattern)->split(rid->variables[v]))) {
 	  err=1; rid->variables["sformerror"]="Bad regular expression "+
 		   pattern; break; }
-      if (match) rid->variables[v]=match[0];
+      if (match) {
+//        werror(" ==> GOT IT <== " + match[0] + "\n");
+//	werror("mail " + rid->variables[mail] + "\n");
+//	werror("mailerror " + rid->variables[mailerror] + "\n");
+//	werror("match " + pattern2 + "\n");
+	if ((pattern2 == "::email::")&&(rid->variables[mail])) {
+	  if(stringp(Protocols.DNS.client()->get_primary_mx((match[0]/"@")[1])))
+            rid->variables[v]=match[0];
+	  else {
+	    err=1;
+	    rid->variables["sformerror"]=
+	      rid->variables[mailerror]||"There is no MX for this email ("+v+")";
+	    break;
+	  }
+	}
+	else  rid->variables[v]=match[0];
+      }
       else { 
 	err=1;
 	rid->variables["sformerror"]=
