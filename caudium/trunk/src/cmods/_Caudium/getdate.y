@@ -44,6 +44,7 @@ char *alloca ();
 #   endif
 #  endif
 # endif
+#endif
 
 /* Since the code of getdate.y is not included in the Emacs executable
    itself, there is no need to #define static in this file.  Even if
