@@ -63,8 +63,17 @@ void precache_rewrite(object id) {
   if ( allowed_hosts[ id->request_headers->host ] ) {
     return;
   } else {
-    id->misc->redir = http_redirect( sprintf( "http://%s%s", query( "redirectto" ),
-					      id->raw_url ) );
+    // http/https disambiguation borrowed from redirect.pike
+    string p = "", prot = "http://";
+    if(id->ssl_accept_callback) {
+      // This is an SSL port. Not a great check, but what is one to do?
+      p = ":443";
+      prot = "https://";
+    }
+    id->misc->redir = http_redirect( sprintf( "%s%s%s%s", prot,
+                                             query( "redirectto" ),
+                                             p,
+                                             id->raw_url ));
     return;
   }
 }
