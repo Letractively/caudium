@@ -563,7 +563,6 @@ class LS_L
     if (user) {
         return(user);
       }
-    }
     return (uid?((string)uid):"root");
   }
 
