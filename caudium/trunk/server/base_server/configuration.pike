@@ -1268,9 +1268,8 @@ private mapping internal_caudium_image(string from)
   mapping ret = caudium->IFiles->get("image://" + from);
   if (!ret) {
       mapping err = caudium->IFiles->get("html://no_internal_image.html");
-      return http_string_answer(err->file);
+      return http_string_answer(err->data);
   }
-
   return ret;
 }
 

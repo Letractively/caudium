@@ -32,7 +32,12 @@ static array(mapping) image_types =
 private Stdio.File
 open_file(string path)
 {
-    Stdio.File imgfile = Stdio.File(path, "r");
+    Stdio.File imgfile;
+    mixed err = catch {
+      imgfile = Stdio.File(path, "r");
+    };
+    if (err)
+    	return 0;
     if (!imgfile) 
         return 0;
 
