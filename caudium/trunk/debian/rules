@@ -104,7 +104,8 @@ install: build
 	sed -e 's#caudiumhome=\$.*#caudiumhome=/usr/lib/caudium#g' \
 	    < $(CURDIR)/debian/tmp/usr/bin/caudiumctl \
 	    > $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new && \
-	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl
+	    mv $(CURDIR)/debian/tmp/usr/bin/caudiumctl.new $(CURDIR)/debian/tmp/usr/bin/caudiumctl && \
+	    chmod 755 $(CURDIR)/debian/tmp/usr/bin/caudiumctl
 
 	# perms fixing fest
 	-chmod 644 debian/tmp/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
