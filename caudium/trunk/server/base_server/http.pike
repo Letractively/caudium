@@ -426,6 +426,7 @@ string http_encode_string(string f)
 	       "%3c", "%3e", "%40" }));
 }
 
+#if 0
 //!   HTTP decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
@@ -441,6 +442,7 @@ string http_decode_string(string f)
 	      "%3c", "%3e", "%40" }),
             ({ "\000", " ", "\t", "\n", "\r", "%", "'", "\"", "<", ">", "@" }));
 }
+#endif
 
 //!   Encode the specified string in as to the HTTP cookie standard.
 //!   The following characters will be replaced: = , ; % :
