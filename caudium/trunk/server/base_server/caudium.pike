@@ -43,9 +43,7 @@ constant cvs_version = "$Id$";
 
 object backend_thread;
 object argcache;
-
-// New cache stuff
-object CacheManager;
+object cache_manager;
 
 // Some headerfiles
 #define IN_ROXEN
@@ -1247,8 +1245,9 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
-  program cache_manager = (program)"newcache/cache_manager";
-  CacheManager = cache_manager( QUERY(cache_max_ram) * 1024, QUERY(cache_max_slow) * 1024, QUERY(cache_vigilance), QUERY(cache_fs_path) );
+  program cm = (program)"cache/cache_manager";
+  cache_manager = cm( QUERY(cache_max_ram) * 1024, QUERY(cache_max_slow) * 1024, QUERY(cache_vigilance), QUERY(cache_fs_path) );
+  cache_start( cache_manager );
 }
 
 void create()
