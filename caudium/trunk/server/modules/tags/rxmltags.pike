@@ -3092,10 +3092,11 @@ string tag_pr(string tagname, mapping m)
     m->src = "/(internal,image)/power-"+size+"-"+color;
     
     if(!m->alt)
-        m->alt="Powered by Caudium";
+        m->alt="Powered by Caudium Webserver";
     if(!m->border)
         m->border="0";
     
+    m_delete(m, size);
     return ("<a href=\"http://caudium.net/\">"+make_tag("img", m)+"</a>");
 }
 
