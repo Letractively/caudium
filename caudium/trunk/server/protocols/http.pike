@@ -120,6 +120,8 @@ array (int|string) auth;
 string rawauth, realauth;
 string since;
 
+private int cache_control_ok = 0;
+
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
@@ -333,6 +335,10 @@ private int parse_got()
 	last_search = max(strlen(raw) - 5, 0);
 	return 0;
       }
+      
+      if (prot == "HTTP/1.1")
+        cache_control_ok = 1;
+
       end += last_search;
       last_search = 0;
       data = raw[end+4..];
@@ -1301,23 +1307,32 @@ void send_result(mapping|void result)
 #ifdef SUPPORT_HTTP_09
 	  }
 #endif
-	} else {
-	  /* Do not cache! */
-	  /* 
-	   * Just a proposition. This should make the page effectivey
-           * non-cacheable. /grendel
-	   */
-	  heads["Cache-Control"] = "no-cache, no-store, max-age=0, private, must-revalidate, proxy-revalidate";
-	  
-	  // The below is only for HTTP 1.0 - should we test whether the
-	  // current request proto is 1.0 and set the header only then? /grendel
-	  heads["pragma"] = "no-cache";
-	}
+	} 
       }
       if(stringp(file->data)) 
 	file->len += strlen(file->data);
     }
 
+    //
+    // Currently cache control is considered only when file is not raw
+    // Shouldn't we move the below block out of the !file->raw conditional?
+    // /grendel
+    //
+    if(file->is_dynamic && misc->is_dynamic)
+    {
+	  /* Do not cache! */
+	  /* 
+	   * Cache-Control is valid only with HTTP 1.1+
+	   */
+	  if (cache_control_ok)
+	    heads["Cache-Control"] = "no-cache, no-store, max-age=0, private, must-revalidate, proxy-revalidate";
+	  heads["Expires"] = "0";
+	  
+	  // The below is only for HTTP 1.0 - should we test whether the
+	  // current request proto is 1.0 and set the header only then? /grendel
+	  heads["pragma"] = "no-cache";
+    }
+    
 #ifdef SUPPORT_HTTP_09
     if(prot != "HTTP/0.9")
     {

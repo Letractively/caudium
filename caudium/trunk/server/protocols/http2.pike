@@ -137,6 +137,8 @@ array (int|string) auth;
 string rawauth, realauth;
 string since;
 
+private int cache_control_ok = 0;
+
 // Parse a HTTP/1.1 HTTP/1.0 or 0.9 request, including form data and
 // state variables.  Return 0 if more is expected, 1 if done, and -1
 // if fatal error.
@@ -1073,6 +1075,7 @@ void send_result(mapping|void result)
   if(!file->raw)
   {
     heads = ([]);
+
     if(!file->len)
     {
       array fstat;
@@ -1097,23 +1100,32 @@ void send_result(mapping|void result)
 	      // 	    method="";
 	    }
 	  }
-	} else {
-	  /* Do not cache! */
-	  /* 
-	   * Just a proposition. This should make the page effectivey
-           * non-cacheable. /grendel
-	   */
-	  heads["Cache-Control"] = "no-store, no-cache, max-age=0, private, must-revalidate, proxy-revalidate";
-	  
-	  // The below is only for HTTP 1.0 - should we test whether the
-	  // current request proto is 1.0 and set the header only then? /grendel
-	  heads["pragma"] = "no-cache";
-	}
+	} 
       }
       if(stringp(file->data)) 
 	file->len += strlen(file->data);
     }
 
+    //
+    // Currently cache control is considered only when file is not raw
+    // Shouldn't we move the below block out of the !file->raw conditional?
+    // /grendel
+    //
+    if(file->is_dynamic || misc->is_dynamic)
+    {
+	  /* Do not cache! */
+	  /* 
+	   * Cache-Control is valid only for the HTTP 1.1+ requests
+	   */
+	  if (cache_control_ok)
+	    heads["Cache-Control"] = "no-store, no-cache, max-age=0, private, must-revalidate, proxy-revalidate";
+	  heads["Expires"] = "0";
+	  
+	  // The below is only for HTTP 1.0 - should we test whether the
+	  // current request proto is 1.0 and set the header only then? /grendel
+	  heads["pragma"] = "no-cache";
+    }
+    
     string h;
     heads +=
     (["MIME-Version":(file["mime-version"] || "1.0"),
@@ -1359,6 +1371,8 @@ void got_data(mixed fdid, string s)
       // Processed OK
       method = misc->method;
       prot = clientprot = misc->protocol;
+      if (prot == "HTTP/1.1")
+        cache_control_ok = 1;
       not_query = f = misc->file;
       raw_url = misc->raw_url;
       query = misc->query;
