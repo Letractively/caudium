@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since Caudium 1.2.6
 --------------------------------------------
+- Variable HTTPS is set to "on" when SSL is used. (compatibility variable      
+  used for CGIs...) 
 - Updated the error message that occured when the user want to list the open 
   ports in the CIF and Caudium does not run as root.
 - Changed the regexp in superform.pike for email, it is now more realistic
