@@ -2840,7 +2840,7 @@ class FTPSession
     }
     array(string) segments = args/delimiter;
 
-    if (sizeof(args) != 4) {
+    if (sizeof(args) != 5) {
       send(501, ({ "I don't understand your parameters." }));
       return;
     }
