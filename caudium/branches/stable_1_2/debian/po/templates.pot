@@ -15,7 +15,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-05-12 23:50+0200\n"
+"POT-Creation-Date: 2003-05-13 01:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,12 +24,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Description
-#: ../templates:19
+#: ../templates:4
 msgid "On what port should the config interface be?"
 msgstr ""
 
 #. Description
-#: ../templates:19
+#: ../templates:4
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
@@ -37,12 +37,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:27
+#: ../templates:12
 msgid "What port should the server listen on?"
 msgstr ""
 
 #. Description
-#: ../templates:27
+#: ../templates:12
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
@@ -50,17 +50,17 @@ msgid ""
 msgstr ""
 
 #. Choices
-#: ../templates:34
+#: ../templates:19
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr ""
 
 #. Description
-#: ../templates:36
+#: ../templates:21
 msgid "Select options that should be used on startup"
 msgstr ""
 
 #. Description
-#: ../templates:36
+#: ../templates:21
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -72,12 +72,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:48
+#: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
 msgstr ""
 
 #. Description
-#: ../templates:48
+#: ../templates:33
 msgid ""
 "If you select this options the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
@@ -90,17 +90,17 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:48
+#: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 
 #. Description
-#: ../templates:62
+#: ../templates:47
 msgid "Cannot bind to port."
 msgstr ""
 
 #. Description
-#: ../templates:62
+#: ../templates:47
 msgid ""
 "The port you have specified for Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -109,12 +109,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:70
+#: ../templates:55
 msgid "Caudium configuration"
 msgstr ""
 
 #. Description
-#: ../templates:70
+#: ../templates:55
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
@@ -123,7 +123,7 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:70
+#: ../templates:55
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -131,12 +131,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:84
+#: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
 msgstr ""
 
 #. Description
-#: ../templates:84
+#: ../templates:69
 msgid ""
 "Caudium comes with an experimental HTTP module that is faster than the "
 "original one. The code is still Work-In-Progress, so you might experience "
@@ -145,12 +145,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:94
+#: ../templates:79
 msgid "Configuration interface login."
 msgstr ""
 
 #. Description
-#: ../templates:94
+#: ../templates:79
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -160,12 +160,12 @@ msgid ""
 msgstr ""
 
 #. Description
-#: ../templates:104
+#: ../templates:89
 msgid "Configuration interface password"
 msgstr ""
 
 #. Description
-#: ../templates:104
+#: ../templates:89
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
