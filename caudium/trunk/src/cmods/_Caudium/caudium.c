@@ -59,6 +59,7 @@ char *alloca ();
 #   endif
 #  endif
 # endif
+#endif
 
 #define THISOBJ (Pike_fp->current_object)
 
