@@ -1,3 +1,11 @@
+caudium (2:1.0.37-6) unstable; urgency=low
+
+  * Fixed the permissions on the config files created by
+    Caudium in /etc/caudium/servers. Note, that for the already
+    existing files you will have to adjust the permissions by hand.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 11 Feb 2002 16:12:15 +0100
+
 caudium (2:1.0.37-5) unstable; urgency=low
 
   * Really fixed the dependency bug (closes: #130235)
