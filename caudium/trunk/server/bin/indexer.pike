@@ -227,9 +227,8 @@ int main(int argc, array argv)
 
   start=time();
   profile=Lucene->read_profile(profile_path);
-  werror("Indexer starting at " + (ctime(start)-"\n") + " for profile " 
+  werror("Indexer PID " + getpid() + "  starting at " + (ctime(start)-"\n") + " for profile " 
     + profile->name + "\n");
-
   // load the stopwords file, if any.
   array stopwords=({});
   if(profile->index->stopwordsfile)
