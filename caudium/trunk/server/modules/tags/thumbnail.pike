@@ -91,15 +91,26 @@ mapping find_file(string f, object id)
     }
 
     object ourimage;
-
-    if(catch(ourimage = PNM.decode(buff))) {
-      if(catch(ourimage = GIF.decode(buff))) {
-	if(catch(ourimage = JPEG.decode(buff))) {
-	  return 0;
-	}
-      }
-    }
-
+#if constant(Image.ANY.decode)
+    if(catch(ourimage = Image.ANY.decode(buff))) 
+#endif
+#if constant(Image.GIF.decode)
+      if(catch(ourimage = Image.GIF.decode(buff)))
+#endif
+#if constant(Image.JPEG.decode)
+	if(catch(ourimage = Image.JPEG.decode(buff)))
+#endif
+#if constant(Image.PNG.decode)
+	  if(catch(ourimage = Image.PNG.decode(buff)))
+#endif
+#if constant(Image.BMP.decode)
+	    if(catch(ourimage = Image.BMP.decode(buff)))
+#endif
+#if constant(Image.PNM.decode)
+	      if(catch(ourimage = Image.PNM.decode(buff)))
+#endif
+		if(!ourimage) return 0;
+    
     float scale = 1.0;
     int xoffs = 0;
     int yoffs = 0;
