@@ -1093,6 +1093,16 @@ void create(object conf)
 	 "killed. 0 means unlimited.", ({ 0, 1, 2, 3, 4, 5, 7, 10, 15 }));
 }
 
+int|string check_variable(string var, mixed value) {
+  if(var == "location") {
+    if(stringp(value)) {
+      if (value[-1] == '/') return 0;	// Location is correctly finished by /
+      else return "Must finish with a \"/\" at the end.";
+    }
+  }
+  return 0;
+}
+
 int|string tag_cgi( string tag, mapping args, object id )
 {
   DWERROR("CGI:tag_cgi()\n");
