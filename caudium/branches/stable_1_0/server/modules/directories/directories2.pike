@@ -135,7 +135,7 @@ string tag_insert_quoted(string tag_name, mapping args, object request_id,
 			 mapping defines)
 {
   if (args->file) {
-    string s = caudium->try_get_file(args->file, request_id);
+    string s = id->conf->try_get_file(args->file, request_id);
 
     if (s) {
       return(quote_plain_text(s));
@@ -158,7 +158,7 @@ mapping query_tag_callers()
 string find_readme(string d, object id)
 {
   foreach(({ "README.html", "README"}), string f) {
-    string readme = caudium->try_get_file(d+f, id);
+    string readme = id->conf->try_get_file(d+f, id);
 
     if (readme) {
       if (f[strlen(f)-5..] != ".html") {
@@ -172,6 +172,8 @@ string find_readme(string d, object id)
 
 string describe_directory(string d, object id)
 {
+  // Clean the path...
+  d = combine_path(d, ".");
   array(string) path = d/"/" - ({ "" });
   array(string) dir;
   string result = "";
@@ -179,7 +181,7 @@ string describe_directory(string d, object id)
 
   // werror(sprintf("describe_directory(%s)\n", d));
   
-  dir = caudium->find_dir(d, id);
+  dir = id->conf->find_dir(d, id);
 
   if (dir && sizeof(dir)) {
     dir = sort(dir);
@@ -215,7 +217,7 @@ string describe_directory(string d, object id)
   result += "<fl folded>\n";
 
   foreach(sort(dir), string file) {
-    array stats = caudium->stat_file(d + file, id);
+    array stats = id->conf->stat_file(d + file, id);
     string type = "Unknown";
     string icon;
     int len = stats?stats[1]:0;
@@ -333,7 +335,7 @@ string|mapping parse_directory(object id)
   if(old_file[-1]=='.') old_file = old_file[..strlen(old_file)-2];
   foreach(query("indexfiles")-({""}), file) { // Make recursion impossible
     id->not_query = old_file+file;
-    if(got = caudium->get_file(id))
+    if(got = id->conf->get_file(id))
       return got;
   }
   id->not_query = old_not_query;
