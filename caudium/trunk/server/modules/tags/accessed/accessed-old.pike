@@ -199,8 +199,7 @@ int database_created(string file)
   return w;
 }
 
-int query_num(string file, int count)
-{
+int query_num(string file, int count) {
   int p, n;
   string f;
 
@@ -246,15 +245,14 @@ int query_num(string file, int count)
   return 0;
 }
 
-array(string) query_file_extensions() 
-{ 
-  return query("noparse"); 
+// To inform Caudium that this module will handle some extensions (used
+// to hanlde "always count" extensions.
+array(string) query_file_extensions() {
+  return QUERY(noparse); 
 }
 
-
-/* Handle "always count" extensions. */
-mapping handle_file_extension( object file, string e, object id)
-{
+// Handle "always count" extensions.
+mapping handle_file_extension( object file, string e, object id) {
   mapping defines = id->misc->defines || ([]);
   id->misc->defines = defines;
 
@@ -266,10 +264,90 @@ mapping handle_file_extension( object file, string e, object id)
   return 0;
 }
 
-// Tag accessed
-string tag_accessed(string tag,mapping m,object id,object file,
-		    mapping defines)
-{
+//! tag: accessed
+//!  <tt>&lt;accessed&gt;</tt> generates an access counter that shows how many
+//!  times the page has been accessed. In combination with the
+//!  <tt>&lt;gtext&gt;</tt>tag you can generate one of those popular graphical
+//!  counters.
+//!  <p>A file, <i>Accesslog</i>, in the logs directory is used to
+//!  store the number of accesses to each page. Thus it will use more
+//!  resources than most other tags and can therefore be deactivated.
+//!  By default the access count is only kept for files that actually
+//!  contain an <tt>&lt;accessed&gt;</tt> tag, but you can optionally
+//!  force access counting on file extension basis.</p>
+//! 
+//! attribute: add
+//!  Increments the number of accesses with this number instead of one,
+//!  each time the page is accessed.
+//! attribute: addreal
+//!  Prints the real number of accesses as an HTML comment. Useful if you
+//!  use the <tt>cheat</tt> attribute and still want to keep track of the
+//!  real number of accesses.
+//! attribute: capitalize
+//!  Capitalizes the first letter of the result.
+//! attribute: cheat
+//!  Adds this number of accesses to the actual number of accesses before
+//!  printing the result. If your page has been accessed 72 times and you
+//!  add <doc>{accessed cheat="100"}</doc> the result will be 172.
+//! attribute: factor
+//!  Multiplies the actual number of accesses by the factor.
+//! attribute: file
+//!  Shows the number of times the page <i>filename</i> has been
+//!  accessed instead of how many times the current page has been accessed.
+//!  If the filename does not begin with "/", it is assumed to be a URL
+//!  relative to the directory containing the page with the
+//!  <tt>&lt;accessed /&gt;</tt> tag. Note, that you have to type in the full name
+//!  of the file. If there is a file named tmp/index.html, you cannot
+//!  shorten the name to tmp/, even if you've set Caudium up to use
+//!  index.html as a default page. The <i>filename</i> refers to the
+//!  <b>virtual</b> filesystem.
+//! 
+//!  <p>One limitation is that you cannot reference a file that does not
+//!  have its own <doc>{accessed}</doc> tag. You can use <doc>{accessed
+//!  silent="silent" /}</doc> on a page if you want it to be possible to count accesses
+//!  to it, but don't want an access counter to show on the page itself.</p>
+//! attribute: lang
+//!  Will print the result as words in the chosen language if used together
+//!  with <tt>type=string</tt>. Available languages are ca, es_CA
+//!  (Catala), hr (Croatian), cs (Czech), nl (Dutch), en (English), fi
+//!  (Finnish), fr (French), de (German), hu (Hungarian), it (Italian), jp
+//!  (Japanese), mi (Maori), no (Norwegian), pt (Portuguese), ru (Russian),
+//!  sr (Serbian), si (Slovenian), es (Spanish) and sv (Swedish).
+//! attribute: lower
+//!  Prints the result in lowercase.
+//! attribute: per
+//!  Shows the number of accesses per unit of time (one of minute, hour, 
+//!  day, week and month).
+//! attribute: prec
+//!  Rounds the number of accesses to this number of significant digits. If
+//!  <tt>prec="2"</tt> show 12000 instead of 12148.
+//! attribute: reset
+//!  Resets the counter. This should probably only be done under very
+//!  special conditions, maybe within an <doc>{if}{/if}</doc> statement.
+//!  <p>This can be used together with the file argument, but it is limited
+//!  to files in the current- and sub-directories.</p>
+//! attribute: silent
+//!  Print nothing. The access count will be updated but not printed. This
+//!  option is useful because the access count is normally only kept for
+//!  pages with actual <tt>&lt;access&gt;</tt> on them. <doc>{accessed
+//!  file="filename" /}</doc> can then be used to get the access count for the
+//!  page with the silent counter.
+//! attribute: upper
+//!  Print the result in uppercase.
+//! attribute: since
+//!  Inserts the date that the access count started. The language will
+//!  depend on the <tt>lang</tt> tag, default is English. All normal [date]
+//!  related attributes can be used. See the <tt>&lt;date&gt;</tt> tag.
+//! attribute: type
+//!  Specifies how the count are to be presented. Some of these are only
+//!  useful together with the <tt>since</tt> attribute.
+//! example: rxml
+//!  This page has been accessed
+//!  {accessed type="string" cheat="90" addreal /}
+//!  times since {accessed since="since" /}.
+//
+string tag_accessed(string tag,mapping m,object id,object file, 
+		    mapping defines) {
   int counts, n, prec, q, timep;
   string real, res;
 
