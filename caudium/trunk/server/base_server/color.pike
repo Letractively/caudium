@@ -150,8 +150,6 @@ array(int) parse_color(string from)
   }
 
   // No luck. It might be a color on the form rrggbb (that is, no leading '#')
-  report_notice(sprintf("Strange situation: %u (from len: %u)\n", (int)("0x"+from), strlen(from)));
-  
   if(sscanf(from, "%x", c) == 1)
   {
     if(strlen(from)>5)
