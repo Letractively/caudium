@@ -22,12 +22,12 @@
 /*
  * $Id$
  */
-// Based on David's refererdeny with some few new features =)
+// Based on David's referrerdeny with some few new features =)
 
-#define REFERERDEBUG
+#define REFERRERDEBUG
 
-#ifdef REFERERDEBUG
-#define LOG(X) if(QUERY(debug)) werror("RefererDeny :" +X+"\n");
+#ifdef REFERRERDEBUG
+#define LOG(X) if(QUERY(debug)) werror("ReferrerDeny :" +X+"\n");
 #else
 #define LOG(X) /* */
 #endif
@@ -46,7 +46,7 @@ inherit "caudiumlib";
 //! cvs_version: $Id$
 //! todo: Agent type deny e.g. can deny somewhat GetRight/*, Wget/* apents
 //!  to stop leaching some files.
-//! todo: Add some regexp to deny some kind of referer regexp... =)
+//! todo: Add some regexp to deny some kind of referrer regexp... =)
 
 constant module_type   = MODULE_PRECACHE | MODULE_FIRST;
 constant module_name   = "Referrer Deny";
@@ -70,16 +70,16 @@ void create()
 	 "Files matching this regexp will be denied or accept depending of state of <tt>Referrer Deny Comportment</tt>"
 	 "switch. <br>"
 	 "If <tt>SET</tt>The following files will be denied if their referrer doesn't match the allowed regexp.<br>"
-	 "If <tt>NO SET</tt>The following files will be accepted whatever the referer is, but <b>all</b> other files "
-	 "will be rejected if their referer doesn't match the allowed regexp.");
+	 "If <tt>NO SET</tt>The following files will be accepted whatever the referrer is, but <b>all</b> other files "
+	 "will be rejected if their referrer doesn't match the allowed regexp.");
   defvar("msg", 
          "<TITLE>Sorry, access to this resource is not authorized \n"
-	 "<if referer>from <referer></if></TITLE>\n"
+	 "<if referrer>from <referrer></if></TITLE>\n"
 	 "<h2 align=center><configimage src=caudium.gif alt=\"Access Forbidden\">\n"
 	 "<hr noshade>\n"
 	 "<i>Sorry</i></h2>\n"
 	 "<br clear><font size=+2>Access to this resource is not authorized \n"
-	 "<if referer>from <a href=\"<referer>\"><referer></a></if><p></font>\n"
+	 "<if referrer>from <a href=\"<referrer>\"><referrer></a></if><p></font>\n"
 	 "Please stop leaching.\n"
 	 "<hr noshade>\n"
 	 "<version>\n",
@@ -105,7 +105,7 @@ void create()
 	 "For example : <br>"
 	 "&nbsp;&nbsp;<tt>/foo</tt> will <b>not</b> checked by this module,but<br>"
 	 "&nbsp;&nbsp;<tt>/foo/bar</tt> will <b>be</b> checked by this module.");
-#ifdef REFERERDEBUG
+#ifdef REFERRERDEBUG
   defvar("debug", 1, "Debug",TYPE_FLAG,
          "Debug the referrer deny access into server log...");
 #endif
@@ -124,9 +124,13 @@ void start()
 
 mapping first_try(object id)
 {
-  return id->misc->_referrer_denied_request;
+  return id->misc->_referrer_denied_request ?
+    http_low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id)) : 0;
+
 }
 
+
+#define REFERRER id->request_headers->referrer
 void precache_rewrite(object id)
 {
   if(!QUERY(switch)) 			// Do we active our cool referrer deny ?
@@ -147,21 +151,21 @@ void precache_rewrite(object id)
   }
   if (( (freg->match(id->not_query) && QUERY(deny)) ||
 	(!freg->match(id->not_query) && !QUERY(deny)) ) &&
-      (!areg->match(id->referer * " ") ||
-       (!sizeof(id->referer) && QUERY(noempty)))) {
+      ((!sizeof(REFERRER) && QUERY(noempty)) ||
+       !areg->match(REFERRER)))
+  {
     // Tada. This sucker is asking to be denied. We won't let them down.
     // Cowabunga.
-#ifdef REFERERDEBUG
+#ifdef REFERRERDEBUG
     werror("Denied access to %s\n  with referrer [%s].\n"
 	   "  with user agent [%s]\n",
-	   id->not_query, id->referer * " ", id->client * " ");
+	   id->not_query, REFERRER, id->request_headers["user-agent"]||"");
 #endif
     //    return http_low_answer(403, QUERY(msg));
     deny_counts++;			// Add some statistics
     
     NOCACHE(); // We don't want to cache negative responses
-    id->misc->_referrer_denied_request =
-      http_low_answer(QUERY(return_code), parse_rxml(QUERY(msg),id));
+    id->misc->_referrer_denied_request = 1;
   }
 }
 
@@ -170,7 +174,7 @@ string status()
 
   string retval;
 
-  retval = "<b>Referer Deny Statistics</b><br>";
+  retval = "<b>Referrer Deny Statistics</b><br>";
   retval+= "<table border=0>";
   retval+= "<tr><td>The module is </td><td>";
   retval+= QUERY(switch) ? "<i>active</i>":"disactivated";
@@ -203,7 +207,7 @@ string status()
 //!  name: Configuration: Referrer Deny comportment
 //
 //! defvar: exts
-//! Files matching this regexp will be denied or accept depending of state of <tt>Referrer Deny Comportment</tt>switch. <br />If <tt>SET</tt>The following files will be denied if their referrer doesn't match the allowed regexp.<br />If <tt>NO SET</tt>The following files will be accepted whatever the referer is, but <b>all</b> other files will be rejected if their referer doesn't match the allowed regexp.
+//! Files matching this regexp will be denied or accept depending of state of <tt>Referrer Deny Comportment</tt>switch. <br />If <tt>SET</tt>The following files will be denied if their referrer doesn't match the allowed regexp.<br />If <tt>NO SET</tt>The following files will be accepted whatever the referrer is, but <b>all</b> other files will be rejected if their referrer doesn't match the allowed regexp.
 //!  type: TYPE_STRING
 //!  name: Configuration: File Regexp
 //
