@@ -449,6 +449,7 @@ class File
     mapping mod;
 
 #ifdef CAUDIUM
+#if constant(caudiump)
     foreach(values(caudiump()->current_configuration->modules), mod) {
       if(mod->copies) {
         int i;
@@ -462,6 +463,9 @@ class File
     }
     
     return name;
+#else
+    return "";
+#endif
 #else
     return "";
 #endif
