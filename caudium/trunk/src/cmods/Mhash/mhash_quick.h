@@ -32,12 +32,10 @@ void PIKE_CONCAT(f_hash_,NAME)(INT32 args) { \
   if(hash == MHASH_FAILED) {\
     error("Failed to initialize hash.\n");\
   }\
-  THREADS_ALLOW(); \
   mhash(hash, sp[-1].u.string->str,\
 	sp[-1].u.string->len << sp[-1].u.string->size_shift);\
   res = mhash_end(hash);\
   len = mhash_get_block_size(TYPE);\
-  THREADS_DISALLOW(); \
   str = begin_shared_string(len);\
   for(i = 0; i < len; i++) {\
     STR0(str)[i] = res[i];\
