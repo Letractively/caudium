@@ -18,11 +18,11 @@ public class Indexer {
 
     private int bytes;
 
-    public Indexer(String indexDir, boolean incremental)
+    public Indexer(String indexDir, String[] sw, boolean incremental)
       throws java.io.IOException
     {
 
-        index = new IndexWriter(new File(indexDir), new StandardAnalyzer(),
+        index = new IndexWriter(new File(indexDir), new StandardAnalyzer(sw),
                                 !incremental);
     }
 

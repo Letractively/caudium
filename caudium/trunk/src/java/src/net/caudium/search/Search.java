@@ -12,14 +12,16 @@ import java.util.HashMap;
 public class Search { 
 
     private Searcher searcher; 
+    private String[] stopwords;
 
     /*
        create a new search engine
        @param dir directory the index is stored in
     */
-    public Search(String dir)
+    public Search(String dir, String[] sw)
       throws java.io.IOException
     {
+      stopwords=sw;
       searcher = new IndexSearcher(dir);
     }
 
@@ -50,7 +52,7 @@ public class Search {
     public ArrayList search(String query, int offset, 
                                   int limit) throws Exception {
 
-        Query q = QueryParser.parse(query, "body", new StandardAnalyzer());
+        Query q = QueryParser.parse(query, "body", new StandardAnalyzer(stopwords));
                                     
         Hits h = searcher.search(q);
         ArrayList list = new ArrayList(h.length());

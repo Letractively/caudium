@@ -112,6 +112,7 @@ static object classloader_class = FINDCLASS("java/lang/ClassLoader");
 static object load_class = classloader_class->get_method("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 
 static object dictionary_class = FINDCLASS("java/util/Dictionary");
+static object array_class = FINDCLASS("java/lang/reflect/Array");
 static object arraylist_class = FINDCLASS("java/util/ArrayList");
 static object list_class = FINDCLASS("java/util/List");
 static object hashmap_class = FINDCLASS("java/util/HashMap");
@@ -123,11 +124,14 @@ static object arraylist_get = list_class->get_method("get", "(I)Ljava/lang/Objec
 static object arraylist_size = collection_class->get_method("size", "()I");
 static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object;)Ljava/lang/Object;");
 
+static object array_newinstance = array_class->get_static_method("newInstance", "(Ljava/lang/Class;I)Ljava/lang/Object;");
+static object array_set = array_class->get_static_method("set", "(Ljava/lang/Object;ILjava/lang/Object;)V");
+static object array_get = array_class->get_static_method("get", "(Ljava/lang/Object;I)Ljava/lang/Object;");
 
 static object index_class = FINDCLASS("net/caudium/search/Indexer");
 static object summary_class = FINDCLASS("net/caudium/search/URLSummary");
 
-static object index_init = index_class->get_method("<init>", "(Ljava/lang/String;Z)V");
+static object index_init = index_class->get_method("<init>", "(Ljava/lang/String;[Ljava/lang/String;Z)V");
 static object summary_init = summary_class->get_method("<init>", "()V");
 static object index_close = index_class->get_method("close", "()V");
 static object index_add = index_class->get_method("add", "(Lnet/caudium/search/URLSummary;)V");
@@ -141,10 +145,14 @@ static object summary_date=summary_class->get_field("date", "Ljava/lang/String;"
 
 object ie;
 
-void create(string datadir)
+void create(string datadir, array stopwords)
 {
+  object sw=array_newinstance(string_class, sizeof(stopwords));
+  for(int i=0; i<sizeof(stopwords); i++)
+    array_set(sw, i, stopwords[i]);
+
   ie=index_class->alloc();
-  index_init(ie, datadir, 0);
+  index_init(ie, datadir, sw, 0);
   Lucene->check_exception();
 }
 
@@ -254,7 +262,7 @@ int index(string uri, string data, string title, string type, string date)
        } 
        while(1);
        werror(e->read(1024,1));
-//       rm(tempfile);
+       rm(tempfile);
 
        return ret;
     }
@@ -273,6 +281,7 @@ static object throwable_class = FINDCLASS("java/lang/Throwable");
 static object stringwriter_class = FINDCLASS("java/io/StringWriter");
 static object printwriter_class = FINDCLASS("java/io/PrintWriter");
 static object dictionary_class = FINDCLASS("java/util/Dictionary");
+static object array_class = FINDCLASS("java/lang/reflect/Array");
 static object arraylist_class = FINDCLASS("java/util/ArrayList");
 static object list_class = FINDCLASS("java/util/List");
 static object hashmap_class = FINDCLASS("java/util/HashMap");
@@ -285,6 +294,9 @@ static object printwriter_init = printwriter_class->get_method("<init>", "(Ljava
 static object printwriter_flush = printwriter_class->get_method("flush", "()V");
 
 
+static object array_newinstance = array_class->get_static_method("newInstance", "(Ljava/lang/Class;I)Ljava/lang/Object;");
+static object array_set = array_class->get_static_method("set", "(Ljava/lang/Object;ILjava/lang/Object;)V");
+static object array_get = array_class->get_static_method("get", "(Ljava/lang/Object;I)Ljava/lang/Object;");
 static object arraylist_init = arraylist_class->get_method("<init>", "()V");
 static object arraylist_get = list_class->get_method("get", "(I)Ljava/lang/Object;");
 static object arraylist_size = collection_class->get_method("size", "()I");
@@ -292,15 +304,19 @@ static object hashmap_get = hashmap_class->get_method("get", "(Ljava/lang/Object
 
 
 static object search_class = FINDCLASS("net/caudium/search/Search");
-static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;)V");
+static object search_init = search_class->get_method("<init>", "(Ljava/lang/String;[Ljava/lang/String;)V");
 static object search_search = search_class->get_method("search", "(Ljava/lang/String;)Ljava/util/ArrayList;");
 
 object se;
 
-void create(string dbdir)
+void create(string dbdir, array stopwords)
 {
+  object sw=array_newinstance(string_class, sizeof(stopwords));
+  for(int i=0; i<sizeof(stopwords); i++)
+    array_set(sw, i, stopwords[i]);
+
   se=search_class->alloc();
-  search_init(se, dbdir);
+  search_init(se, dbdir, sw);
   Lucene->check_exception();
 }
 

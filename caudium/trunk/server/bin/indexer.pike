@@ -50,7 +50,7 @@ void display_help()
 
 void error_cb(mixed real_uri, int status, mapping headers)
 {
-//  werror("error " + status + " received for " + (string)real_uri + "\n");
+  werror("error " + status + " received for " + (string)real_uri + "\n");
 }
 void done_cb()
 {
@@ -58,8 +58,28 @@ void done_cb()
   {
     werror("Indexer finished at " + ctime(time()) + "\n");
     werror(" Indexed " + files + " files, " + filesize + " bytes in " + (time()-start) + "  seconds.\n");
-  }
+  } 
+  if(verbose)
+    werror("Moving old database out of the way.\n");
+  destruct(index);
+  mv(profile->index->location[0]->value, 
+    profile->index->location[0]->value + ".old");
+  if(verbose)
+    werror("Moving new database into place.\n");
+  mv(profile->index->location[0]->value + ".work", 
+    profile->index->location[0]->value);
+  if(verbose)
+    werror("Deleting old database.\n");
+  Stdio.recursive_rm(profile->index->location[0]->value + ".old");
   quit();
+}
+
+void abort()
+{
+   werror("aborting crawl. existing data will not be replaced.\n");
+   destruct(index);
+   Stdio.recursive_rm(profile->index->location[0]->value + ".work");
+   quit();
 }
 
 object parser, stripper;
@@ -67,9 +87,27 @@ object current_uri;
 
 int allowed_type(string type)
 {
-   if(denied_types[type]) return 0;
-   if(allowed_types[type]) return 1;
+   foreach(indices(denied_types), string t)
+   {
+     if(glob(t, type)) return 0;
+   }
+   foreach(indices(allowed_types), string t)
+   {
+     if(glob(t, type)) return 1;
+   }
    return 0;
+}
+
+array prepare_cb(Standards.URI uri)
+{
+  if(profile->crawler->http_user||profile->crawler->http_password)
+  {
+    string s=profile->crawler->http_user[0]->value + ":" + 
+      profile->crawler->http_password[0]->value;
+    return ({uri, (["authorization": "Basic " + MIME.encode_base64(s)])});
+  }
+
+  return ({uri, ([])}); 
 }
 
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
@@ -108,6 +146,7 @@ array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
     title="";
     index->index((string)uri, data, title, type, date);    
   }
+  if(verbose) werror(sprintf("  Possible new URLS: %O\n", page_urls));
   return page_urls;
 }
 
@@ -122,6 +161,7 @@ mixed set_title(Parser.HTML p, mapping args, string content)
 
 mixed add_url(Parser.HTML p, mapping args, string content)
 {
+
   if(args->href)
   {
     // remove any targets
@@ -135,8 +175,7 @@ object q;
 
 void quit()
 {
-  destruct(index);
-  exit(1);
+    exit(1);
 }
 
 mixed strip_tag(Parser.HTML p, string t)
@@ -146,7 +185,10 @@ mixed strip_tag(Parser.HTML p, string t)
 
 int main(int argc, array argv)
 {
-   signal(2, quit);
+   signal(2, abort);
+   signal(3, abort);
+   signal(6, abort);
+   signal(9, abort);
 
   array options=({ ({"profile", Getopt.HAS_ARG, ({"--profile"}) }),
         ({"verbose", Getopt.NO_ARG, ({"-v", "--verbose"}) }),
@@ -171,10 +213,23 @@ int main(int argc, array argv)
 
   start=time();
   werror("Indexer starting at " + ctime(start) + "\n");
-
   profile=Lucene->read_profile(profile_path);
+
+  // load the stopwords file, if any.
+  array stopwords=({});
+  if(profile->index->stopwordsfile)
+  {
+    foreach(profile->index->stopwordsfile, mapping s)
+    {
+      string f=Stdio.read_file(s->value);
+      if(f)
+        stopwords+=f/"\n";  
+    }
+    stopwords=Array.uniq(stopwords);
+  }
   werror("Lucene Database location: " + profile->index->location[0]->value + "\n");
-  index=Lucene.Indexer(profile->index->location[0]->value);
+  index=Lucene.Indexer(profile->index->location[0]->value + ".work", stopwords);
+
 
   // load the starting urls
    array urls=({});
@@ -229,7 +284,7 @@ int main(int argc, array argv)
 
    call_out(print_update, 60);
 
-  crawler=Web.Crawler.Crawler(q, page_cb, error_cb, done_cb, 0, urls, 0); 
+  crawler=Web.Crawler.Crawler(q, page_cb, error_cb, done_cb, prepare_cb, urls, 0); 
   return -1;
 }
 
@@ -264,6 +319,7 @@ void setup_html_converter()
 {
    parser=Parser.HTML();
    stripper=Parser.HTML();
+   parser->case_insensitive_tag(1);
    parser->add_container("title", set_title);
    parser->add_container("a", add_url);
    parser->add_container("script", strip_tag);
