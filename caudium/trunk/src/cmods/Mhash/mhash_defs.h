@@ -23,29 +23,49 @@
 typedef struct
 {
   MHASH hash;
+  MHASH hmac;
   int type;
   unsigned char *res;
+  struct pike_string *pw;
 } mhash_storage;
 
-#ifndef ADD_STORAGE
-/* Pike 0.6 */
-#define ADD_STORAGE(x) add_storage(sizeof(x))
-#endif
 
-
-/* Mhash object functions */
+/* Mhash.Hash functions */
 void f_hash_create(INT32 args);
 void f_hash_feed(INT32 args);
 void f_hash_digest(INT32 args);
 void f_hash_hexdigest(INT32 args);
-void f_hash_name(INT32 args);
+void f_hash_query_name(INT32 args);
 void f_hash_reset(INT32 args);
 void f_hash_set_type(INT32 args);
 void mhash_init_mhash_program(void);
 
+/* Mhash.HMAC object functions */
+void f_hmac_create(INT32 args);
+void f_hmac_feed(INT32 args);
+void f_hmac_digest(INT32 args);
+void f_hmac_hexdigest(INT32 args);
+void f_hmac_reset(INT32 args);
+void f_hmac_set_type(INT32 args);
+void f_hmac_set_password(INT32 args);
+void mhash_init_hmac_program(void);
 
 /* Class global funcs */
 void mhash_init_globals(void);
 void f_query_name(INT32 args);
+     
+/* Shared functions */
+void free_hash(void);
+void free_hash_storage(struct object *);
+void init_hash_storage(struct object *);
+
+
+/* Return values from init_hmac */
+#define HMAC_OK		0
+#define HMAC_TYPE	1 /* Type missing */
+#define HMAC_PASS	2 /* Password missing */
+#define HMAC_FAIL	3 /* Failed to initialize */
+#define HMAC_LIVE	4 /* Current object is already live */
+#define HMAC_DONE	5 /* We have finished the current feed */
 
      

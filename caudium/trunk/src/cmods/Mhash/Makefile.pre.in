@@ -1,7 +1,7 @@
 VPATH=@srcdir@:@srcdir@/../..:../..
 MODNAME=Mhash
-OBJS= mhash.o global.o main.o 
-SOURCES=mhash.c global.c main.c
+OBJS= mhash.o hmac.o global.o main.o 
+SOURCES=mhash.c hmac.c global.c main.c
 MODULE_LIBS=@LIBS@
 
 @module_makefile@

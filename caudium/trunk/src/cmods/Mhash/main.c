@@ -39,6 +39,7 @@ RCSID("$Id$");
 void pike_module_init(void)
 {  
   mhash_init_mhash_program();
+  mhash_init_hmac_program();
   mhash_init_globals();
 }
 

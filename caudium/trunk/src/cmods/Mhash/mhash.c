@@ -35,21 +35,6 @@ RCSID("$Id$");
 
 #ifdef HAVE_MHASH
 
-/* Free allocated data in a hash object */
-
-static void free_hash(void)
-{
-  if(THIS->hash != NULL) {
-    void *tmp = mhash_end(THIS->hash);
-    if(tmp != NULL) free(tmp);
-    THIS->hash = NULL;
-  }
-  if(THIS->res != NULL) {
-    free(THIS->res);
-    THIS->res = NULL;
-  }
-}
-
 
 /* Create a new hash object.  */
 
@@ -146,7 +131,7 @@ void f_hash_hexdigest(INT32 args)
   push_string(res);
 }
 
-void f_hash_name(INT32 args)
+void f_hash_query_name(INT32 args)
 {
   char *name;
   pop_n_elems(args);
@@ -199,17 +184,6 @@ void f_hash_set_type(INT32 args)
   pop_n_elems(args);
 }
 
-static void free_hash_storage(struct object *o)
-{
-  free_hash();
-}
-
-static void init_hash_storage(struct object *o)
-{
-  MEMSET(THIS, 0, sizeof(mhash_storage));
-  THIS->type = -1;
-}
-
 void mhash_init_mhash_program(void) {
   start_new_program();
   ADD_STORAGE( mhash_storage  );
@@ -218,7 +192,7 @@ void mhash_init_mhash_program(void) {
   ADD_FUNCTION("feed", f_hash_feed,     	tFunc(tStr,tVoid), 0 );
   ADD_FUNCTION("digest", f_hash_digest, 	tFunc(tVoid,tStr), 0);
   ADD_FUNCTION("hexdigest", f_hash_hexdigest, 	tFunc(tVoid,tStr), 0 ); 
-  ADD_FUNCTION("name", f_hash_name,     	tFunc(tVoid,tStr), 0 ); 
+  ADD_FUNCTION("query_name", f_hash_query_name, tFunc(tVoid,tStr), 0 ); 
   ADD_FUNCTION("reset", f_hash_reset,   	tFunc(tVoid,tVoid), 0 ); 
   ADD_FUNCTION("set_type", f_hash_set_type, 	tFunc(tVoid,tVoid), 0 ); 
   set_init_callback(init_hash_storage);
