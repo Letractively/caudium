@@ -53,7 +53,7 @@ void create()
 	 "Clock location in filesystem.");
 }
 
-mixed *register_module()
+array register_module()
 {
   return ({ 
     MODULE_LOCATION,
