@@ -68,6 +68,15 @@ void create()
 	 "For a list of types, see <a href=\"ftp://ftp.isi.edu/in-"
 	 "notes/iana/assignments/media-types/media-types\">ftp://ftp"
 	 ".isi.edu/in-notes/iana/assignments/media-types/media-types</a>");
+  defvar("extsfile", "/etc/mime.types", "System-wide extension file",
+         TYPE_STRING,
+	 "This file holds extra extension-to-contenttype mapping, "
+	 "in the following format:<br />"
+	 "<pre>content-type&lt;one or more tabs&gt;extension(s) (separated by spaces if more than one)</pre><br />"
+	 "If the specified file does not exist, the module silently discards this setting (so you are "
+	 "safe to leave it as it is, if you are not sure). Empty lines and lines beginning with a '#' are also "
+	 "discarded.");
+	 // the parser is actually a bit more relaxed that that...
   defvar("default", "application/octet-stream", "Default content type",
 	 TYPE_STRING, 
 	 "This is the default content type which is used if a file lacks "
@@ -77,9 +86,31 @@ void create()
 string status()
 {
   string a,b;
+  int even = 0;
+  // accessed list follows
   b="<h2>Accesses per extension</h2>\n\n";
+  b += "<table cellpadding=\"4\" cellspacing=\"5\">";
   foreach(indices(accessed), a)
-    b += a+": "+accessed[ a ]+"<br>\n";
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + accessed[ a ] + "</td><td>" + a + "</td></tr>\n";
+  b += "</table>\n";
+
+  // extension list follows
+  b += "<h2>Extensions list</h2>\n\n";
+  b += "<table cellpadding=\"4\" cellspacing=\"5\">";
+  a = "";
+  even = 0;
+  foreach(sort(indices(extensions)), a)
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + extensions[ a ] + "</td><td>" + a + "</td></tr>\n";
+  b += "</table>\n";
+
+  // encoding list follows
+  b += "<h2>Encodings list</h2>\n\n";
+  b += "<table cellpadding=\"4\" cellspacing=\"5\">";
+  a = "";
+  even = 0;
+  foreach(sort(indices(encodings)), a)
+    b += "<tr" + ( (even = !even) ? " bgcolor=\"#d1d1d1\"" : "" ) + "><td>" + encodings[ a ] + "</td><td>" + a + "</td></tr>\n";
+  b += "</table>\n";
   return b;
 }
 
@@ -117,7 +148,27 @@ void parse_ext_string(string exts)
 
 void start()
 {
+  string line, ct, extra_exts;
+  array ext, atmp;
+  extra_exts = "";
   parse_ext_string(QUERY(exts));
+  if(file_stat(QUERY(extsfile))) {
+    foreach( (Stdio.read_bytes(QUERY(extsfile))-"\r")/"\n", line) {
+      ext = ({ });
+      // don't try to parse empty lines
+      if( strlen(line) && line[0] == '#' )
+        continue;
+      sscanf(line, "%s%*[ \t]%{%s%*[ ]%}", ct, atmp);
+      // beats me why "%{%s%*[ ]%}" expands to an array(array) ... ?!
+      foreach(atmp, array foo)
+        ext += foo;
+      // lines w/o at least one extension, we don't need 'em
+      if(!sizeof(ext)) continue;
+      foreach(ext, string s)
+        extra_exts += sprintf("%s\t%s\n", s, ct);
+    }
+    parse_ext_string( extra_exts );
+  }
 }
 
 array type_from_extension(string ext)
