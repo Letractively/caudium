@@ -98,9 +98,9 @@ mozilla/[3-5].*opera.5.*	opera5
 mozilla/[3-5].*opera.6.*	opera6
 
 # Konqueror masqueraded as Mozilla
-mozilla/[5-9].*konqueror/3	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				nocessbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
+				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				konqueror3
 
 # BLAM BLAM BLAM BLAM
