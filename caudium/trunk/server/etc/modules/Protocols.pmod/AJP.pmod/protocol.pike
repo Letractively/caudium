@@ -141,7 +141,7 @@ constant response_header_names=([
  "set-cookie2": 0xa008,
  "servlet-engine": 0xa009,
  "status": 0xa00a,
-"www-authenticate": 0xa00b
+ "www-authenticate": 0xa00b
 ]);
 
 constant header_values=([
@@ -401,9 +401,9 @@ string make_request_headers(mapping h)
 
   foreach(indices(h), string header)
   {
-werror("encoding " + header + "\n");
+//werror("encoding " + header + "\n");
     if(header_values[header])
-      header_string+=header_values[header] + push_string(h[header]);
+      header_string+=sprintf("%2c", header_values[header]) + push_string(h[header]);
     else
       header_string+=push_string(header) + push_string(h[header]);
   }
@@ -416,11 +416,15 @@ string make_response_headers(mapping h)
 
   foreach(indices(h), string header)
   {
-    header=lower_case(header);
-    if(response_header_names[header])
-      header_string+=response_header_names[header] + push_string(h[header]);
+    string hheader=lower_case(header);
+    if(response_header_names[hheader])
+    {
+     // werror("encoded header: " + hheader + "\n");
+      header_string+=sprintf("%2c", response_header_names[hheader]) + 
+          push_string(h[header]);
+    }
     else
-      header_string+=push_string(header) + push_string(h[header]);
+      header_string+=push_string(hheader) + push_string(h[header]);
   }
   return header_string;
 }
@@ -445,8 +449,8 @@ string make_attributes(mapping a)
 string encode_send_body_chunk(string data)
 {
   string r = "";
-werror("sending body chunk: " + sizeof(data) + "\n");
-  r+=sprintf("%c%2c%s", MSG_SEND_BODY_CHUNK, sizeof(data), data);
+//werror("sending body chunk: " + sizeof(data) + "\n");
+  r+=sprintf("%c%2c%s%c", MSG_SEND_BODY_CHUNK, sizeof(data), data, 0x00);
 
   return r;
 }
@@ -603,18 +607,18 @@ mapping decode_forward(mapping packet)
     {
       [h, packet->data]=pull_string(packet->data);
       [v, packet->data]=pull_string(packet->data);
-      werror("pulled a header " + h + " with value " + v + "\n");
+    //  werror("pulled a header " + h + " with value " + v + "\n");
     }
     packet->request_headers[h]=v;
   }
-werror("%O\n", packet);
+//werror("%O\n", packet);
   // now we get the attributes.
   packet->attributes=([]);
   int ended=0;
   if(strlen(packet))
     do 
     {
-      werror("scanning attributes.\n");
+      //werror("scanning attributes.\n");
      int code;
      string value;
      array x = 
