@@ -38,7 +38,8 @@ int verbose;
 object index;
 mapping profile=([]);
 mapping converters=([]);
-
+multiset allowed_types=(<>);
+multiset denied_types=(<>);
 object crawler;
 
 void display_help()
@@ -64,31 +65,47 @@ void done_cb()
 object parser, stripper;
 object current_uri;
 
+int allowed_type(string type)
+{
+   if(denied_types[type]) return 0;
+   if(allowed_types[type]) return 1;
+   return 0;
+}
+
 array page_cb(Standards.URI uri, mixed data, mapping headers, mixed ... args)
 {
   if(verbose)
-    werror("Received Page: " + (string)uri + "\n");
+    werror("Received Page: " + (string)uri + ", " + sizeof(data) + "\n");
+  if(!allowed_type((headers["content-type"]/";")[0]))
+    return ({});
   files++;
   filesize+=sizeof(data);
   page_urls=({});
   current_uri=uri;
-  parser->feed(data);  
-  data=parser->read();
-  stripper->feed(data);
-  data=stripper->read();
-  if(verbose)
-    werror("  Title: " + title + "\n");
-  title="";
-  string type=(headers["content-type"]/";")[0]||"text/html";
+  string type=(headers["content-type"]/";")[0]||"unknown/unknown";
   string date=headers["last-modified"]||"";
   if(verbose)
     werror("  Content type: " + type  + "\n");
+
+
   if(converters[type])
   {
-    data=converters[type](data);
-    if(type=="application/pdf")
-      werror(data + "\n");
-werror("indexing...\n");
+    data=converters[type]->convert(data);
+  }
+  if(!data || !strlen(data)) 
+  {
+     if(verbose)
+       werror("  ...converter returned no data\n");
+  }
+  else
+  {
+    parser->feed(data);  
+    data=parser->read();
+    stripper->feed(data);
+    data=stripper->read();
+    if(verbose)
+      werror("  Title: " + title + "\n");
+    title="";
     index->index((string)uri, data, title, type, date);    
   }
   return page_urls;
@@ -161,33 +178,49 @@ int main(int argc, array argv)
 
   // load the starting urls
    array urls=({});
-   foreach(profile->crawler->startingpoint, mapping s)
-   {
-     werror("Adding Starting Point " + s->value + "\n");
-     urls+=({s->value});
-   }
+   if(profile->crawler->startingpoint)
+     foreach(profile->crawler->startingpoint, mapping s)
+     {
+       werror("Adding Starting Point " + s->value + "\n");
+       urls+=({s->value});
+     }
 
    // now we do the allow/deny rules
    object allow=Web.Crawler.RuleSet();
    object deny=Web.Crawler.RuleSet();
+   if(profile->crawler->allow)
+     foreach(profile->crawler->allow, mapping s)
+     {
+       werror("Adding Allow Rule " + s->type + " " + s->value + "\n");
+       if(s->type=="glob")
+         allow->add_rule(Web.Crawler.GlobRule(s->value));
+       if(s->type=="regexp")
+         allow->add_rule(Web.Crawler.RegexpRule(s->value));
+     }
+   if(profile->crawler->deny)
+     foreach(profile->crawler->deny, mapping s)
+     {
+       werror("Adding Deny Rule " + s->type + " " + s->value + "\n");
+       if(s->type=="glob")
+         deny->add_rule(Web.Crawler.GlobRule(s->value));
+       if(s->type=="regexp")
+         deny->add_rule(Web.Crawler.RegexpRule(s->value));
+     }
+    
+   // set up allowed/denied types
+   if(profile->indexer->allowtype)
+     foreach(profile->indexer->allowtype, mapping t)
+     {
+        werror("Adding Allowed datatype " + t->value + "\n");
+        allowed_types+=(<t->value>);
+     }
+   if(profile->indexer->denytype)
+     foreach(profile->indexer->denytype, mapping t)
+     {
+        werror("Adding Denied datatype " + t->value + "\n");
+        denied_types+=(<t->value>);
+     }
 
-   foreach(profile->crawler->allow, mapping s)
-   {
-     werror("Adding Allow Rule " + s->type + " " + s->value + "\n");
-     if(s->type=="glob")
-       allow->add_rule(Web.Crawler.GlobRule(s->value));
-     if(s->type=="regexp")
-       allow->add_rule(Web.Crawler.RegexpRule(s->value));
-   }
-
-   foreach(profile->crawler->deny, mapping s)
-   {
-     werror("Adding Deny Rule " + s->type + " " + s->value + "\n");
-     if(s->type=="glob")
-       deny->add_rule(Web.Crawler.GlobRule(s->value));
-     if(s->type=="regexp")
-       deny->add_rule(Web.Crawler.RegexpRule(s->value));
-   }
 
    setup_converters();
 
@@ -200,19 +233,20 @@ int main(int argc, array argv)
 void setup_converters()
 {
   setup_html_converter();
-  foreach(profile->converters->converter, mapping c)
-  {
+  if(profile->converters->converter)
+    foreach(profile->converters->converter, mapping c)
+    {
       werror("Configuring converter for " + c->mimetype + "\n");
       if(c->type=="filter")
         converters[c->mimetype]=Lucene.Indexer.Filter(c->value);
       if(c->type=="converter")
         converters[c->mimetype]=Lucene.Indexer.Converter(c->value, profile->indexer->temp[0]->value);
       else werror("unknown converter type " + c->type +  " for mime type " + c->mimetype + "\n");
-  }
+    }
 
-  converters["text/plain"]=lambda(string d){ return d;};
-  converters["text/html"]=lambda(string d){ return d;};
-werror(sprintf("converters: %O\n", converters));
+  converters["text/plain"]=Lucene.Indexer.PikeFilter(lambda(string d){ return d;});
+  converters["text/html"]=Lucene.Indexer.PikeFilter(lambda(string d){ return d;});
+
 }
 
 void setup_html_converter()

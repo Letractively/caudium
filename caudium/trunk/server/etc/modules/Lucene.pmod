@@ -186,6 +186,10 @@ int index(string uri, string data, string title, string type, string date)
 //werror((string)us);
   return 1;
 }
+  class PikeFilter(function convert)
+  {
+
+  }
 
   class Filter(string command)
   {
@@ -250,7 +254,7 @@ int index(string uri, string data, string title, string type, string date)
        } 
        while(1);
        werror(e->read(1024,1));
-       rm(tempfile);
+//       rm(tempfile);
 
        return ret;
     }
