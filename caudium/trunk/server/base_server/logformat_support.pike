@@ -26,16 +26,6 @@ inline string host_ip_to_int(string s)
   return sprintf("%c%c%c%c",a, b, c, d);
 }
 
-inline string unsigned_to_bin(int a)
-{
-  return sprintf("%4c", a);
-}
-
-inline string unsigned_short_to_bin(int a)
-{
-  return sprintf("%2c", a);
-}
-
 inline string extract_user(string from)
 {
   array tmp;

@@ -23,23 +23,31 @@
  */
 static constant codes =
 ([ "ipnumber"     : "id->remoteaddr",
-   "binip_number" : "host_ip_to_int(id->remoteaddr)",
+   "binipnumber"  : "host_ip_to_int(id->remoteaddr)",
    "cerndate"     : "cern_http_date(time(1))",
-   "bindate"      : "unsigned_to_bin(time(1))",
+   "bindate"      : "time(1)",
    "method"       : "(string)id->method",
    "resource"     : "http_encode_string((string)id->not_query)",
    "fullresource" : "(string)id->raw_url",
    "protocol"     : "(string)id->prot",
-   "response"     : "(string)(file->error||200)",
-   "binresponse"  : "unsigned_short_to_bin(file->error||200)",
-   "length"       : "(string)(file->len>=0?file->len:\"?\")",
-   "binlength"    : "unsigned_to_bin(file->len)",
+   "response"     : "(file->error||200)",
+   "binresponse"  : "(file->error||200)",
+   "length"       : "(string)(file->len>=0?file->len:\"-\")",
+   "binlength"    : "(file->len)",
    "referer"      : "(id->referrer||\"-\")",
    "useragent"    : "http_encode_string(id->useragent)",
    "agentunquoted": "id->useragent",
    "user"         : "extract_user(id->realauth)",
    "userid"       : "(string)id->cookies->CaudiumUserID",
-   "requesttime"  : "(string)(time(1)-id->time)",
+   "requesttime"  : "(time(1)-id->time)",
+]);
+
+mapping specformat = ([
+  "binlength": "%4c",
+  "bindate"  : "%4c",
+  "response" : "%d",
+  "binresponse": "%2c",
+  "requesttime": "%d"
 ]);
 
 static constant prg_prefix = "inherit \"caudiumlib\"; inherit \"logformat_support.pike\";";
@@ -49,13 +57,13 @@ string parse_log_format(string log_format) {
   string format="";
   array args = ({});
   string hashost = "int hashhost = 0;";
-  log_format = replace(log_format-"\n",
-		       ({ "%", "\"", 
+  log_format = replace(log_format,
+		       ({ "%", "\"", "\n",
 			  "$ip_number", "$bin-ip_number", "$cern_date",
 			  "$bin-date",  "$full_resource", "$bin-response",
 			  "$bin-length","$user_agent", "$agent_unquoted",
 			  "$user_id", "$request-time" }), 
-		       ({ "%%", "\\\"",
+		       ({ "%%", "\\\"", "",
 			  "$ipnumber", "$binipnumber", "$cerndate",
 			  "$bindate",  "$fullresource", "$binresponse",
 			  "$binlength","$useragent", "$agentunquoted",
@@ -66,14 +74,14 @@ string parse_log_format(string log_format) {
       log_format = post;
       format += pre;
       if(kw == "host") hashost = "int hashost = 1; ";
-      if(codes[kw]) { format += "%s"; args += ({codes[kw] }); }
+      if(codes[kw]) { format += specformat[kw] || "%s"; args += ({codes[kw] }); }
       else { format += "$"+kw; }
       break;
      case 2:
       log_format = "";
       format += pre;
       if(kw == "host") hashost = "int hashost = 1; ";
-      if(codes[kw]) { format += "%s"; args += ({codes[kw] }); }
+      if(codes[kw]) { format += specformat[kw] || "%s"; args += ({codes[kw] }); }
       else { format += "$"+kw; }
       break;
      default:
@@ -86,3 +94,4 @@ string parse_log_format(string log_format) {
   else
     return hashost+"string format_log(mapping file, object id) { return \""+format+"\\\n\"; }";
 }
+
