@@ -35,6 +35,8 @@ constant module_unique = 0;
  * Global Variables
  */
 
+mixed conf;
+
 string sqldb="";
 string user_table="";
 string group_table="";
@@ -47,6 +49,9 @@ string query_getgroupbygroupid="";
 
 string query_getusersforgroup="";
 string query_getgroupsforuser="";
+
+string query_getusers="";
+string query_getgroups="";
 
 array tables=({});
 
@@ -190,6 +195,7 @@ void start(int i)
   if(QUERY(usergrouptable))
     usergroup_table=QUERY(usergrouptable);
 
+  conf=my_configuration();
   setup_queries();
 }
 
@@ -199,24 +205,27 @@ void setup_queries()
   {
     array usertablefields=({});
 
-    usertablefields+=({QUERY(user_usernamef)});
-    usertablefields+=({QUERY(user_uidf)});
-    usertablefields+=({QUERY(user_fullnamef)});
-    usertablefields+=({QUERY(user_passwordf)});
+    usertablefields+=({QUERY(user_usernamef) + " as _username"});
+    usertablefields+=({QUERY(user_uidf) + " as _uid"});
+    usertablefields+=({QUERY(user_fullnamef) + " as _fullname"});
+    usertablefields+=({QUERY(user_gidf) + " as _primary_group"});
+    usertablefields+=({QUERY(user_passwordf) + " as _password"});
 
-    if(QUERY(user_emailf)!="NONE")    
-      usertablefields+=({QUERY(user_emailf)});
-    if(QUERY(user_homedirectoryf)!="NONE")    
-      usertablefields+=({QUERY(user_homedirectoryf)});
+    if(QUERY(user_emailf)!="")    
+      usertablefields+=({QUERY(user_emailf) + " as _email"});
+    if(QUERY(user_homedirectoryf)!="")    
+      usertablefields+=({QUERY(user_homedirectoryf) + " as _home"});
 
     if(QUERY(user_otherf) && sizeof(QUERY(user_otherf))>0)
       usertablefields+=({(QUERY(user_otherf)/",")});
 
+    if(QUERY(user_usernamef) && QUERY(usertable))
+      query_getusers="SELECT " + QUERY(user_usernamef) + " AS _username FROM " +  QUERY(usertable);
 
     query_getuserbyname="SELECT " + usertablefields*", " + " FROM " + 
-       user_table + " WHERE " + QUERY(user_usernamef) + "=";
+       user_table + " WHERE " + QUERY(user_usernamef) + "=%s";
     query_getuserbyuserid="SELECT " + usertablefields*", " + " FROM " + 
-       user_table + " WHERE " + QUERY(user_uidf) + "=";
+       user_table + " WHERE " + QUERY(user_uidf) + "=%s";
 
     werror("byname: " + query_getuserbyname + "\n\n");
     werror("byid: " + query_getuserbyuserid + "\n\n");
@@ -226,22 +235,41 @@ void setup_queries()
   {
     array grouptablefields=({});
 
-    grouptablefields+=({QUERY(group_groupnamef)});
-    grouptablefields+=({QUERY(group_groupidf)});
-    grouptablefields+=({QUERY(group_fullnamef)});
+    grouptablefields+=({QUERY(group_groupnamef) + " as _groupname"});
+    grouptablefields+=({QUERY(group_groupidf) + " as _gid"});
+    grouptablefields+=({QUERY(group_fullnamef) + " as _fullname"});
 
     if(QUERY(group_otherf) && sizeof(QUERY(group_otherf))>0)
       grouptablefields+=({(QUERY(group_otherf)/",")});
 
+    if(QUERY(group_groupnamef) && QUERY(grouptable))
+      query_getgroups="SELECT " + QUERY(group_groupnamef) + " AS _groupname FROM " +  QUERY(grouptable);
 
     query_getgroupbyname="SELECT " + grouptablefields*", " + " FROM " + 
-       group_table + " WHERE " + QUERY(group_groupnamef) + "=";
+       group_table + " WHERE " + QUERY(group_groupnamef) + "=%s";
 
     query_getgroupbygroupid="SELECT " + grouptablefields*", " + " FROM " + 
-       group_table + " WHERE " + QUERY(group_groupidf) + "=";
+       group_table + " WHERE " + QUERY(group_groupidf) + "=%s";
 
     werror("byname: " + query_getgroupbyname + "\n\n");
     werror("byid: " + query_getgroupbygroupid + "\n\n");
+  }      
+
+  if(usergroup_table)
+  {
+    array usergrouptablefields=({});
+
+    usergrouptablefields+=({QUERY(usergroup_groupf) + " as _group"});
+    usergrouptablefields+=({QUERY(usergroup_userf) + " as _user"});
+
+    query_getusersforgroup="SELECT " + usergrouptablefields*", " + " FROM " + 
+       usergroup_table + " WHERE " + QUERY(usergroup_groupf) + "=%s";
+
+    query_getgroupsforuser="SELECT " + usergrouptablefields*", " + " FROM " + 
+       usergroup_table + " WHERE " + QUERY(usergroup_userf) + "=%s";
+
+    werror("bygroup: " + query_getusersforgroup + "\n\n");
+    werror("byuser: " + query_getgroupsforuser + "\n\n");
   }      
 
 }
@@ -278,6 +306,10 @@ defvar("user_usernamef", "",
 	"Fields: User- Username",
 	TYPE_STRING,
 	"The name of the field containing the user name.");
+defvar("user_gidf", "",
+	"Fields: User- Group ID",
+	TYPE_STRING,
+	"The name of the field containing the numeric primary group id.");
 defvar("user_uidf", "",
 	"Fields: User- User ID",
 	TYPE_STRING,
@@ -318,6 +350,14 @@ defvar("group_otherf", "",
 	"Fields: Group- Additional fields",
 	TYPE_STRING,
 	"Additional fields to include in the group record (optional).");
+defvar("usergroup_userf", "",
+	"Fields: UserGroup- User field",
+	TYPE_STRING,
+	"Field in the user to group mapping table containing the user name.");
+defvar("usergroup_groupf", "",
+	"Fields: UserGroup- Group field",
+	TYPE_STRING,
+	"Field in the user to group mapping table containing the group name.");
 }
 
 string query_provides()
@@ -337,37 +377,109 @@ string status()
 
 mapping|int get_user_info(string u)
 {
-  return 0;
+  if(!sqldb || query_getuserbyname=="") return 0;
+
+  if(!u) return 0;
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getuserbyname, (string)u);
+
+  if(sizeof(result!=1) return 0;
+  
+  mapping user=([]);
+
+  user->username=result[0]->_username;
+  user->primary_group=result[0]->_primary_group;  
+  user->name=result[0]->_username;  
+  user->uid=result[0]->_uid;  
+  user->name=result[0]->_fullname;  
+  if(result[0]->_home)
+    user->home_directory=result[0]->_home;  
+
+  foreach(indices(result[0]), string f)
+    if(f[0..0]=="_")
+      m_delete(result[0], f);
+
+  user->groups=({});
+
+  user->_source=QUERY(_name);
+
+  return user;
 }
 
 
 mapping|int get_group_info(string g)
 {
+  if(!sqldb || query_getgroupbyname=="") return 0;
+
+  if(!g) return 0;
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getgroupbyname, (string)g);
+
   return 0;
 }
 
 array(string) list_all_users()
 {
-  return ({});
+  if(!sqldb || query_getusers=="") return ({});
+  array res=({});
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getusers);
+
+  foreach(result, mapping row)
+    res+=({row->_username});
+
+  return res;
 }
 
 array(string) list_all_groups()
 {
-  return ({});
+  if(!sqldb || query_getgroups=="") return ({});
+  array res=({});
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getgroups);
+
+  foreach(result, mapping row)
+    res+=({row->_groupname});
+
+  return res;
 }
 
 string|int get_username(int|string uid)
 {
+  if(!sqldb || query_getuserbyuserid=="") return 0;
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getuserbyuserid, (string)uid);
+  if(sizeof(result) !=1) return 0;
+  else
+  {
+    return result[0]->_username;
+  }
   return 0;
 }
 
 string|int get_groupname(int|string gid)
 {
+  if(!sqldb || query_getgroupbygroupid=="") return 0;
+
+  object s=conf->sql_connect(sqldb);
+  mixed result=s->query(query_getgroupbygroupid, (string)gid);
+  if(sizeof(result) !=1) return 0;
+  else
+  {
+    return result[0]->_groupname;
+  }
   return 0;
 }
 
 int authenticate(string user, string password)
 {
+  if(!sqldb) return 0;
+
   return 0;
 }
 
