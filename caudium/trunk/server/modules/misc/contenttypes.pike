@@ -36,6 +36,8 @@
  * set the contenttype to 'text/html'
  */
 
+// FIXME: of course module docs don't, as of now, reflect the actual syntax
+
 constant cvs_version = "$Id$";
 constant thread_safe=1;
 
