@@ -67,14 +67,13 @@ object __key;
 #define DEBUG(X)
 #endif
 
+#define gzipcache caudium->cache_manager->get_cache(this_object())
+
 // for status screen
 mapping(string:int|float) stats;
 
 // Regexp to decide wherether to compress or not
 mapping regexps;
-
-// Get ourselves a cache to store stuff in.
-object gzipcache = caudium->cache_manager->get_cache("auto_gzip");
 
 // how much minutes to leave objects in the cache
 // taken from the CIF
