@@ -1505,6 +1505,7 @@ void create()
   object prototypes=(object)"base_server/prototypes.pike";
 
   add_constant("RequestID",    prototypes->RequestID);
+  add_constant("Configuration",    prototypes->Configuration);
 
 
   Configuration = (program)"configuration";

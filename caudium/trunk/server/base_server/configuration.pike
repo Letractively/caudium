@@ -39,6 +39,7 @@ mapping profile_map = ([]);
 
 /* A configuration.. */
 
+inherit Configuration;
 
 inherit "caudiumlib14";
 inherit "logformat";
