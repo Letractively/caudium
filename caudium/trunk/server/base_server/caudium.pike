@@ -517,13 +517,8 @@ void handler_thread(int id)
   while(1) {
     if (q=catch {
       do {
-        if((h=handle_queue->read()) && h[0]) {
-          mixed err = catch {
-            h[0](@h[1]);
-          };
-          if (err) { 
-            report_debug("Unknown function calling : h[0]=%O, h[1] = %O\n",h[0],h[1]);
-	  };
+        if((h=handle_queue->read()) && programp(h[0])) {
+          h[0](@h[1]);
           h=0;
         } else if(!h) {
           object smc = js_context->get();
