@@ -57,14 +57,14 @@ case "$1" in
      CONFIGADMIN="$RET"
 
      db_get caudium${EXTVER}/config_password
-     CONFIGPASS="`echo $RET | $PIKE -e 'string p; p=Stdio.stdin->gets(); write(replace(crypt(p), "/", "\/"));'`"
-
+     CONFIGPASS="`echo $RET | $PIKE -e 'string p; p=Stdio.stdin->gets(); write(crypt(p));'`"
+     
      cat <<EOF | sed -f - /etc/caudium${EXTVER}/Global_Variables.sample > \
          /etc/caudium${EXTVER}/servers/Global_Variables.new && mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
          /etc/caudium${EXTVER}/servers/Global_Variables
-s/@CFGPORT@/$CFGPORTNO/g
-s/@CONFIGADMIN@/$CONFIGADMIN/g
-s/@CONFIGPASS@/$CONFIGPASS/g
+s¤@CFGPORT@¤$CFGPORTNO¤g
+s¤@CONFIGADMIN@¤$CONFIGADMIN¤g
+s¤@CONFIGPASS@¤$CONFIGPASS¤g
 EOF
 #     sed -e "s;@CFGPORT@;$CFGPORTNO;" /etc/caudium${EXTVER}/Global_Variables.sample > \
 #         /etc/caudium${EXTVER}/servers/Global_Variables.new && mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
