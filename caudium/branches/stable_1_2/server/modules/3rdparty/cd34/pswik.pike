@@ -106,7 +106,7 @@ void simple_mail(string msg, object id)
   string tmp;
   tmp = "The following message has just been added to the\n";
   tmp += " "+(string)id->referrer+"\n\n"+msg;
-  tmp += "\n\n--\nThis message was sent by the wiki module,\n";
+  tmp += "\n\n--\nThis message was sent by the pseudo-wiki module,\n";
   tmp += "check headers of this mail for more informations.";
 
 #if constant(Protocols.ESMTP)
