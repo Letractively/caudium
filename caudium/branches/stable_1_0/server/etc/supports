@@ -53,7 +53,7 @@
 
 .*               basic, tables, jpeginline, font, imagealign,\
 			cookies, push, pull, backgrounds, ssl,\
-			java, frames, backgrounds, autogunzip,\
+			java, frames, backgrounds, \
 			netscape_javascript, pngalpha
 
 mozilla/0\..*	-tables, -backgrounds, -ssl, -frames, -java, -javascript, -netscape_javascript, -pngalpha
@@ -73,8 +73,8 @@ mozilla/2.*Macintosh	-java, -pngalpha
 mozilla/[3-9].*		javascript, tablecolor, -pngalpha
 
 mozilla/[4-9].*		stylesheets, tableimages, javascript1.2, layer, ilayer, -pngalpha
-mozilla/4\.0[4-9].*	pnginline, -pngalpha
-mozilla/4\.[5-9].*	pnginline, -pngalpha
+mozilla/4\.0[4-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
+mozilla/4\.[5-9].*	pnginline, -pngalpha, -autogunzip, -autouncompress, -autoinflate
 mozilla/5\.0b1		-java, pnginline, tcl
 mozilla/[5-9].*		pnginline, gecko, pngalpha
 
@@ -103,6 +103,14 @@ mozilla/[5-9].*konqueror/3.*	java, javascript, stylesheets, tableimages, javascr
 				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
 				konqueror3
 
+# Safari is Apple browser based on Konqueror3. 
+# See http://www.apple.com/safari/
+mozilla/[5-9].*applewebkit/48.*safari/48.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
+				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
+				nocssbackrepeat, tablecolor, netscape_javascript, msie, konqueror, \
+				konqueror3, safari
+
+
 # Omniweb browser Mac OS X Brownser only (http://www.omnigroup.com)
 mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, \
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
@@ -125,7 +133,21 @@ mozilla/[4-9].*omniweb/.*	java, javascript, stylesheets, tableimages, javascript
 .*compatible.*msie.[5-9]\..[1-9]	-ssl_faulty
 # }
 
+#section portalmm {
 
+# portalmm is iMode terminal (Wap terminal but really faster than others..
+portalmm/1..*	basic,tables,font,cookies,imode,gif,wbmp,wap,wml,marquee
+
+# Toshiba TS21i terminal
+portalmm/1.0.*ts21i	ts21i,midi
+
+# Nec N21i terminal
+portalmm/1.0.*n21i	n21i
+
+# Nec N22i terminal
+portalmm/1.0.*n22i	n22i,jpeginline
+
+# }
 
 #section netsurfer {
 # Netsurfer is a popular commercial Web browser for NEXTSTEP. for more
