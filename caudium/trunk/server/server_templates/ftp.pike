@@ -29,7 +29,7 @@
 
 constant name = "FTP server";
 constant desc = "An FTP server, with a preconfigured FTP port.";
-constant modules = ({ "filesystem#0", "userdb#0", "htaccess#0", });
+constant modules = ({ "filesystem#0", "auth_master#0", "auth_userdb#0", "htaccess#0", });
 
 void enable(object config)
 {
@@ -61,7 +61,7 @@ void post(object node)
       o2->change(1);
     }
   }
-  if (o = node->descend("User database and security", 1)) {
+  if (o = node->descend("Authentication Provider: User Database", 1)) {
     object o2;
     if (o2 = o->descend("Password database request method", 1)) {
       o2->folded = 0;
