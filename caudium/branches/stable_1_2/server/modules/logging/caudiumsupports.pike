@@ -72,11 +72,16 @@ void log(object id, mapping file)
    }
    if ( lower_case((id->useragent)[0..6]) == "caudium" ) {
      // This a caudium
-     if (catch(db->query("INSERT INTO support (host,version,timestmp) VALUES (\""+ 
-                          caudium->quick_ip_to_host(id->remoteaddr) +"\",\"" +
-                          (http_decode_string(id->useragent) - "Caudium") +
-                          "\",NOW())"))) {
-         perror("Failed to insert sql query");
+     if( id->not_query == "/supports") {
+       mixed err = catch{
+         db->query("INSERT INTO support (host,version,timestmp) VALUES (\""+ 
+                   caudium->quick_ip_to_host(id->remoteaddr) +"\",\"" +
+                   (http_decode_string(id->useragent) - "Caudium/") +
+                   "\",NOW())");
+       };
+       if(err) {
+         perror("Failed to insert sql query"+err->describe());
+       }
      }
    }
  }
