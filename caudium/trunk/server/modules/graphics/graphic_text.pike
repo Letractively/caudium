@@ -55,7 +55,7 @@ void create()
   defvar("colorparse", 1, "Parse tags for document colors", TYPE_FLAG,
 	 "If set, parse the specified tags for document colors.");
   
-  defvar("colorparsing", ({"body", "td", "layer", "ilayer", "table"}),
+  defvar("colorparsing", ({""}),
 	 "Tags to parse for color", 
 	 TYPE_STRING_LIST,
 	 "Which tags should be parsed for document colors? "
