@@ -590,7 +590,9 @@ string tag_use(string tag, mapping m, object id)
   mapping res = ([]);
   object nid = id->clone_me();
 
-  nid->misc = ([]);
+	if(!mappingp(id->misc))
+  	nid->misc = ([]);
+
   nid->misc->tags = 0;
   nid->misc->containers = 0;
   nid->misc->defines = ([]);
@@ -633,7 +635,7 @@ string tag_use(string tag, mapping m, object id)
   if(m->file)
     m->file = Caudium.fix_relative(m->file,nid);
   if(id->pragma["no-cache"] || 
-     !(res = cache_lookup("macrofiles:"+ id->conf->name ,
+     !(res = cache_lookup("macrofiles:"+ id->site_id ,
 			  (m->file || m->package))))
   {
     res = ([]);
@@ -660,7 +662,7 @@ string tag_use(string tag, mapping m, object id)
     res->defines = nid->misc->defines||([]);
     res->defaults = nid->misc->defaults||([]);
     m_delete(res->defines, "line");
-    cache_set("macrofiles:"+ id->conf->name, (m->file || m->package), res);
+    cache_set("macrofiles:"+ id->site_id, (m->file || m->package), res);
   }
   if(!id->misc->tags)
     id->misc->tags = res->tags;
@@ -2367,7 +2369,7 @@ string tag_help(string t, mapping args, object id)
 
 string tag_cache(string tag, mapping args, string contents, object id)
 {
-#define HASH(x) (x+id->not_query+id->query+id->realauth +id->conf->query("MyWorldLocation"))
+#define HASH(x) (x+id->not_query+id->query+id->realauth +id->site_id)
   string key = Caudium.Crypto.hash_md5(contents);
   
   if(args->key)
