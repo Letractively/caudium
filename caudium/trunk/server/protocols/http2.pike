@@ -1447,7 +1447,7 @@ void got_data(mixed fdid, string s)
     conf->handle_precache(this_object());
 #ifdef ENABLE_RAM_CACHE
     array cv;
-    if( misc->cacheable && (cv = caudium->cache_manager->get_cache()->retrieve(sprintf("http2:%s", raw_url))) )
+    if( misc->cacheable && (cv = caudium->cache_manager->get_cache()->retrieve(sprintf("http2|%s", raw_url))) )
     {
       MARK_FD("http2 cached reply");
 
