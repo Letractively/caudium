@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
 
 /*
-**! file: base_server/caudiumlib.pike
-**!  Caudiumlib is a collection of utility functions used by modules and
-**!  the Caudium core. 
-**!
-**! inherits: base_server/http.pike
-**! cvs_version: $Id$
+**  Caudiumlib is a collection of utility functions used by modules and
+**  the Caudium core. 
+**
 */
 
 inherit "http";
@@ -40,16 +38,13 @@ inherit "http";
 
 #define ipaddr(x,y) (((x)/" ")[y])
 
-//! method: string gif_size(object gif)
 //!  Get the size in pixels of the file pointed to by the
 //!  object gif.
-//! arg: object gif
+//! @param gif
 //!  The opened Stdio.File object with the GIF image.
-//! returns:
+//! @returns
 //!  The size of the image as a string in a format suitable for use
 //!  in a HTML &lt;img&gt; tag (width=&quot;XXX&quot; height=&quot;YYY&quot;).
-//! name: gif_size - get the size in pixels of a GIF
-
 string gif_size(object gif)
 {
   int x,y;
@@ -62,25 +57,22 @@ string gif_size(object gif)
 
 #define VARQUOTE(X) replace(X,({" ","$","-","\0","="}),({"_","_", "_","","_" }))
 
-//! method: mapping build_env_vars(string f, object id, string path_info)
 //!  Build a mapping with standard CGI environment variables for use with
 //!  CGI execution or Apache-style SSI.
-//! arg: string f
+//! @param f
 //!  The patch of the accessed file.
-//! arg: object id
+//! @param id
 //!  The request id object.
-//! arg: string path_info
+//! @param path_info
 //!  The path info string - ie the path prepended to the actual file name.
 //!  This is part of the CGI specification. In Caudium it's extracted by the
 //!  PATH INFO module.
-//! note:
+//! @note
 //!  Normally this function won't be called by the user. It's not really
 //!  useful outside the CGI / SSI concept since all the information is easily
 //!  accessible from the request id object.
-//! returns:
+//! @returns
 //!  The environment variable mapping.
-//! name: build_env_vars - build a mapping of CGI environment variables.
-
 static mapping build_env_vars(string f, object id, string path_info)
 {
   string addr=id->remoteaddr || "Internal";
@@ -248,20 +240,17 @@ static mapping build_env_vars(string f, object id, string path_info)
 }
 
 
-//! method: mapping build_caudium_env_vars(object id)
 //!  Build a mapping of the Caudium extended environment variables. These
 //!  include COOKIE_[cookiename], VAR_[variablename], SUPPORTS and PRESTATES.
 //!  When programming CGI, using these variables can be rather handy. 
-//! arg: object id
+//! @param id
 //!  The request id object.
-//! returns:
+//! @returns
 //!  The environment variable mapping.
-//! note:
+//! @note
 //!  Normally this function won't be called by the user. It's not really
 //!  useful outside the CGI / SSI concept since all the information is easily
 //!  accessible from the request id object.
-//! name: build_env_vars - build a mapping of CGI environment variables.
-
 static mapping build_caudium_env_vars(object id)
 {
   mapping new = ([]);
@@ -327,14 +316,12 @@ static mapping build_caudium_env_vars(object id)
 /* Backwards Roxen compatibility */
 static function build_roxen_env_vars = build_caudium_env_vars; 
 
-//! method: string decode_mode(int m)
 //!  Return a textual description of the file mode.
-//! arg: int m
+//! @param m
 //!  The file mode to decode.
-//! returns:
+//! @returns
 //!  The mode described as a string.
 //!  Example result: File, &lt;tt&gt;rwxr-xr--&lt;tt&gt;
-//! name: decode_mode - convert mode integer to text
 static string decode_mode(int m)
 {
   string s;
@@ -378,17 +365,14 @@ constant MONTHS=(["Jan":0, "Feb":1, "Mar":2, "Apr":3, "May":4, "Jun":5,
 		 "jan":0, "feb":1, "mar":2, "apr":3, "may":4, "jun":5,
 	         "jul":6, "aug":7, "sep":8, "oct":9, "nov":10, "dec":11,]);
 
-//! method: int _match(string w, array (string) a)
 //!  Internal glob matching function.
-//! scope: private
-//! arg: string w
+//! @param w
 //!  String to match.
-//! arg: array(string) a
+//! @param a
 //!  Glob patterns to match against the string.
-//! returns:
+//! @returns
 //!  1 if a match occured, -1 if the string to match is invalid, 0 if
 //!  no match occured.
-//! name: _match - internal glob matching
 static int _match(string w, array (string) a)
 {
   string q;
@@ -399,26 +383,23 @@ static int _match(string w, array (string) a)
       return 1; 
 }
 
-//! method: int is_modified(string a, int t, void|int len)
 //!  This function performs a check to see if the specified time
 //!  is newer or older than the Is-Modified-Since header sent in the request.
 //!  It also checks whether the size of the file has changed since the
 //!  browser first requested it.
-//! scope: private
-//! arg: string a
+//! @param a
 //!  The value of the Is-Modified-Since header .
-//! arg: int t
+//! @param t
 //!  The modification time of the file.
-//! arg: void|int len
+//! @param len
 //!  Optional length of the requested resource.
-//! returns:
+//! @returns
 //!  0 if the file is modified, 1 if it isn't.
-//! note:
+//! @note
 //!  It's somewhat confusing that it returns 1 for "not modified" and
 //!  0 for modified. Should be the other way around.
-//! bugs:
+//! @bugs
 //!  There has previously been bugs with this function. Is it fixed?
-
 static int is_modified(string a, int t, void|int len)
 {
   mapping t1;
@@ -470,34 +451,33 @@ static int is_modified(string a, int t, void|int len)
   return 1;
 }
 
-//! method: string short_name(string long_name)
 //!  Returns a "short name" of a virtual server. This is simply
 //!  the name in lower case with space replaced with underscore.
 //!  used for storing the configration on disk, log directories etc.
-//! arg: string long_name
+//! @param long_name
 //!  The name of the virtual server.
-//! scope: private
-//! name: short_name - return the short name of a virtual server
 string short_name(string long_name)
 {
   long_name = replace(long_name, " ", "_");
   return lower_case(long_name);
 }
 
-//! method: string strip_config(string from)
-//!  Strips the Caudium config cookie part of a path (not a URL).
+//!  Strips the Caudium config cookie part of a path (not the URL).
 //!  The cookie part is everything within &lt; and > right after the first
 //!  slash.
-//! arg: string from
+//! @param from
 //!  The path from which the cookie part will be stripped.
-//! scope: private
-//! name: strip_config - strip config cookie part from a path
 string strip_config(string from)
 {
   sscanf(from, "/<%*s>%s", from);
   return from;
 }
 
+//!  Strips the Caudium prestate part of a path (not the URL).
+//!  The prestate part is everything within ( and ) right after the first
+//!  slash.
+//! @param from
+//!  The path from which the prestate part will be stripped.
 string strip_prestate(string from)
 {
   sscanf(from, "/(%*s)%s", from);
@@ -508,22 +488,20 @@ string strip_prestate(string from)
 #define _extra_heads defines[" _extra_heads"]
 #define _rettext defines[" _rettext"]
 
-//! method: string parse_rxml(string what, object id, object|void file, void|mapping defines)
 //!  Run the RXML parser on a text string. This function is to be used if you
 //!  explicitely want to parse some text. It's commonly used in custom modules
 //!  or pike scripts.
-//! arg: string what
+//! @param what
 //!  The text to parse
-//! arg: object id
+//! @param id
 //!  The request object.
-//! arg: object|void file
+//! @param file
 //!  File object, which is sent as the second custom argument to all callback
 //!  functions.
-//! arg: mapping|void defines
+//! @param defines
 //!  The mapping with defines, sent as another optional argument to callback
 //!  functions. It defaults to id->misc->defines.
-//! returns: The RXML parsed result.
-//! name: parse_rxml - run the RXML parser on a string
+//! @returns The RXML parsed result.
 static string parse_rxml(string what, object id,
 			 void|object file, void|mapping defines)
 {
@@ -833,22 +811,20 @@ constant replace_values = values( iso88591 ) +
   values( greek ) +
   ({"<",">","&","\"","\'","\"","\"","\'","\000"});
 
-//! method: string html_to_unicode(string str)
 //!  Converts html entity coded chars to unicode
-//! arg: string str
+//! @param str
 //!  The string to convert, contains the html entities
-//! returns: unicode string
-//! name: html_to_unicode - Converts html entity coded chars to unicode
+//! @returns
+//!  a unicode string
 string html_to_unicode( string str ) {
 	return replace((string) str, replace_entities, replace_values );
 }
 
-//! method: string unicode_to_html(string str)
 //!  Converts unicode string to html entity coded string
-//! arg: string str
+//! @param str
 //!  The string to convert, contains unicode string
-//! returns: html encoded string
-//! name: unicode_to_html - Converts unicode string to html entity coded string
+//! @returns
+//!  html encoded string
 string unicode_to_html( string str ) {
 	return replace((string) str, replace_values, replace_entities );
 }
@@ -860,25 +836,22 @@ constant empty_strings = ({
   "","","","","","","","","","","","",
 });
 
-//! method: int is_safe_string(string in)
 //!  Check if a string contains only safe characters, which are defined as
 //!  a-z, A-Z and 0-9. Mainly used internally by make_tag_attributes.
-//! arg: string in
+//! @param in
 //!  The string to check.
-//! returns: 1 if the test contains only the safe characters, 0 otherwise.
-//! name: is_safe_string - check if a string contains unsafe characters
+//! @returns
+//!  1 if the test contains only the safe characters, 0 otherwise.
 static int is_safe_string(string in)
 {
   return strlen(in) && !strlen(replace(in, safe_characters, empty_strings));
 }
 
-//! method: string make_tag_attributes(mapping in)
 //!  Convert a mapping with key-value pairs to tag attribute format.
-//! arg: mapping in
+//! @param in
 //!  The mapping with the attributes
-//! returns:
+//! @returns
 //!  The string of attributes.
-//! name: make_tag_attributes - convert a mapping to tag attributes
 static string make_tag_attributes(mapping in)
 {
   array a=indices(in), b=values(in);
@@ -895,38 +868,37 @@ static string make_tag_attributes(mapping in)
   return a*" ";
 }
 
-//! method: string make_tag(string tag, mapping in)
 //!  Build a tag with the specified name and attributes.
-//! arg: string tag
+//! @param tag
 //!  The name of the tag.
-//! arg: mapping in
+//! @param in
 //!  The mapping with the attributes
-//! returns:
+//! @returns
 //!  A string containing the tag with attributes.
-//! name: make_tag - build a tag 
-
 static string make_tag(string tag,mapping in)
 {
   string q = make_tag_attributes(in);
   return "<"+tag+(strlen(q)?" "+q:"")+">";
 }
 
-//! method: string make_container(string tag, mapping in, string contents)
 //!  Build a container with the specified name, attributes and content.
-//! arg: string tag
+//! @param tag
 //!  The name of the container.
-//! arg: mapping in
+//! @param in
 //!  The mapping with the attributes
-//! arg: string contents
+//! @param contents
 //!  The contents of the container.
-//! returns:
+//! @returns
 //!  A string containing the finished container
-//! name: make_container - build a container
 static string make_container(string tag,mapping in, string contents)
 {
   return make_tag(tag,in)+contents+"</"+tag+">";
 }
 
+//
+// hmm, isn't that a dupe from Pike?
+// /grendel
+//
 static string dirname( string file )
 {
   if(!file) 
@@ -1034,8 +1006,13 @@ static int backup_extension( string f )
 	  || (f[-1] == 'k' && sscanf(f, "%*s.bak")));
 }
 
-/* ================================================= */
-/* Arguments: Anything Returns: Memory usage of the argument.  */
+//! Calculates the size (memory) usage of some element
+//!
+//! @param x
+//!  Anything you want to measure the memory usage for.
+//!
+//! @returns
+//!  Memory usage of the argument
 int get_size(mixed x)
 {
   if(mappingp(x))
@@ -1071,9 +1048,14 @@ static int ipow(int what, int how)
   return r;
 }
 
-/* This one will remove .././ etc. in the path. Might be useful :) */
-/* ================================================= */
-
+//! Simplifies the path by removing any relative elements in the middle of
+//! it (like @tt{../.@} etc.
+//!
+//! @param file
+//!  The path to be simplified
+//!
+//! @returns
+//!  The simplified path string.
 static string simplify_path(string file)
 {
   int no_pre_slash, end_slash;
@@ -1092,12 +1074,13 @@ static string simplify_path(string file)
   return file;
 }
 
-/* Returns a short date string from a time-int 
-   ===========================================
-   Arguments: int (time)
-   Returns:   string ("short_date")
-   */
-
+//! Returns a short date string from a time @tt{int@}
+//!
+//! @param timestamp
+//!  The UNIX time value to convert.
+//!
+//! @returns
+//!  String representation of the param
 static string short_date(int timestamp)
 {
   int date = time(1);
@@ -1108,7 +1091,13 @@ static string short_date(int timestamp)
   return ctime(timestamp)[4..9] +" "+ ctime(timestamp)[11..15];
 }
 
-
+//! Converts a string representing a HTTP date into a UNIX time value.
+//!
+//! @param date
+//!  The date string to be converted
+//!
+//! @returns
+//!  The UNIX time value for the date.
 int httpdate_to_time(string date)
 {     
    if (intp(date)) return -1;
@@ -1129,6 +1118,13 @@ int httpdate_to_time(string date)
    return -1; 
 }
 
+//! Converts an integer into a Roman digit
+//!
+//! @param m
+//!  The integer to be converted
+//!
+//! @returns
+//!  A string representing the Roman equivalent of the passed integer.
 static string int2roman(int m)
 {
   string res="";
@@ -1149,22 +1145,68 @@ static string int2roman(int m)
   return res;
 }
 
-static string number2string(int n,mapping m,mixed names)
+//! Converts an integer number into a string
+//!
+//! @param n
+//!  Integer to be converted
+//!
+//! @param m
+//!  Mapping with parameters. Currently known parameters are:
+//!
+//!   @mapping
+//!     @member string "type"
+//!       Type of the returned string. Can be either of:
+//!         @dl
+//!           @item string
+//!             A normal string representation of the integer. See below
+//!             for the description of additional options available through
+//!             the @tt{names@} parameter.
+//!           @item roman
+//!             A Roman representaion of the integer.
+//!         @enddl
+//!
+//!     @member mixed "lower"
+//!       If present, the resulting string will be all in lower case.
+//!
+//!     @member mixed "upper"
+//!       If present, the resulting string will be all in upper case.
+//!
+//!     @member mixed "capitalize"
+//!       If present, the resulting string will be capitalized.
+//!   @endmapping
+//!
+//! @param names
+//!  If the string type was chosen this parameter can be used to convert
+//!  digits into their string representation in two ways. If mixed is a
+//!  @tt{function@} then it will be called with the integer as a parameter
+//!  and it is supposed to return a string representing the integer. If, on
+//!  the other hand, this parameter is an array then each array element
+//!  represents a name for the digit corresponding to its position in the
+//!  array.
+//!
+//! @returns
+//!  String representation of the passed integer.
+static string number2string(int n ,mapping m, mixed names)
 {
   string s;
   switch (m->type)
   {
-   case "string":
-    if (functionp(names)) 
-    { s=names(n); break; }
-    if (!arrayp(names)||n<0||n>=sizeof(names)) s="";
-    else s=names[n];
-    break;
-   case "roman":
-    s=int2roman(n);
-    break;
-   default:
-    return (string)n;
+      case "string":
+        if (functionp(names)) {
+          s=names(n); break;
+        }
+        if (!arrayp(names) || n<0 || n>=sizeof(names))
+          s="";
+        else
+          s=names[n];
+        break;
+        
+      case "roman":
+        s=int2roman(n);
+        break;
+        
+      default:
+        return (string)n;
   }
   if (m->lower) s=lower_case(s);
   if (m->upper) s=upper_case(s);
@@ -1237,6 +1279,9 @@ string program_directory()
   return (sizeof(p)>1? p[..sizeof(p)-2]*"/" : getcwd());
 }
 
+// *DUPE ALERT*
+// They are all dupes from http.pike
+//
 string html_encode_string(string str)
 // Encodes str for use as a literal in html text.
 {
@@ -1258,9 +1303,15 @@ string html_encode_tag_value(string str)
   return "\"" + replace(str, ({"&", "\""}), ({"&amp;", "&quot;"})) + "\"";
 }
 
+//! This function exist to aid in finding a module object identified by the
+//! passed module name.
+//!
+//! @param modname
+//!  Name of the requested module.
+//!
+//! @returns
+//!  The corresponding module object (if any)
 object get_module (string modname)
-// Resolves a string as returned by get_modname to a module object if
-// one exists.
 {
   string cname, mname;
   int mid = 0;
@@ -1284,22 +1335,14 @@ object get_module (string modname)
   return 0;
 }
 
-/*
-**! method: string get_modname( object module )
-**!   Given a copy of a Caudium module object create a uniquely identifying
-**!   for that object. Along the lines of localhost/filesystem#copy
-**! arg: object module
-**!   An object containing an active caudium module (probably this_object()
-**!   from inside a modules namespace).
-**! returns:
-**!   A unique name string.
-**! name: get_modname - Get a unique name for a module
-*/
-
+//!   Given a copy of a Caudium module object create a uniquely identifying
+//!   for that object. Along the lines of localhost/filesystem#copy
+//! @param object module
+//!   An object containing an active caudium module (probably this_object()
+//!   from inside a modules namespace).
+//! @returns
+//!   A unique name string.
 string get_modname (object module)
-// Returns a string uniquely identifying the given module on the form
-// `<config name>/<module short name>#<copy>', where `<copy>' is 0 for
-// modules with no copies.
 {
   if (!module) return 0;
 
@@ -1308,21 +1351,27 @@ string get_modname (object module)
     if (mname) {
       mapping moddata = conf->modules[mname];
       if (moddata)
-	if (moddata->copies)
-	  foreach (indices (moddata->copies), int i) {
-	    if (moddata->copies[i] == module)
-	      return conf->name + "/" + mname + "#" + i;
-	  }
-	else if (moddata->master == module || moddata->enabled == module)
-	  return conf->name + "/" + mname + "#0";
+        if (moddata->copies)
+          foreach (indices (moddata->copies), int i) {
+            if (moddata->copies[i] == module)
+              return conf->name + "/" + mname + "#" + i;
+          }
+        else if (moddata->master == module || moddata->enabled == module)
+          return conf->name + "/" + mname + "#0";
     }
   }
 
   return 0;
 }
 
-// This determines the full module name in approximately the same way
-// as the config UI.
+//! This determines the full module name in approximately the same way
+//! as the config UI.
+//!
+//! @param module
+//!  Module object whos name is needed.
+//!
+//! @returns
+//!  The module name
 string get_modfullname (object module)
 {
   if (module) {
@@ -1334,7 +1383,50 @@ string get_modfullname (object module)
   else return 0;
 }
 
-//Quote content in a multitude of ways. Used primarily bu do_output_tag
+//! Quote content in a multitude of ways. Used primarily bu do_output_tag
+//!
+//! @param val
+//!  Value to encode.
+//!
+//! @param encoding
+//!  Desired string encoding on return:
+//!
+//!  @dl
+//!    @item none
+//!      Returns the value verbatim
+//!    @item http
+//!      HTTP encoding.
+//!    @item cookie
+//!      HTTP cookie encoding
+//!    @item url
+//!      HTTP encoding, including special characters in URLs
+//!    @item html
+//!      For generic html text and in tag arguments. Does
+//!      not work in RXML tags (use dtag or stag instead)
+//!    @item dtag
+//!      Quote quotes for a double quoted tag argument. Only
+//!      for internal use, i.e. in arguments to other RXML tags
+//!    @item stag
+//!      Quote quotes for a single quoted tag argument. Only
+//!      for internal use, i.e. in arguments to other RXML tags
+//!    @item pike
+//!      Pike string quoting (e.g. for use in the &lt;pike&gt; tag)
+//!    @item js or javascript
+//!      Javascript string quoting
+//!    @item mysql
+//!      MySQL quoting
+//!    @item mysql-dtag
+//!      MySQL quoting followed by dtag quoting
+//!    @item mysql-pike
+//!      MySQL quoting followed by Pike string quoting
+//!    @item sql or oracle
+//!      SQL/Oracle quoting
+//!    @item sql-dtag/oracle-dtag
+//!      SQL/Oracle quoting followed by dtag quoting
+//!  @endul
+//!
+//! @returns
+//!  The encoded string
 string roxen_encode( string val, string encoding )
 {
   switch (encoding) {
@@ -1455,10 +1547,105 @@ private int compare( string a, string b )
       return 0;
 }
 
-// method for use by tags that replace variables in their content, like
-// formoutput, sqloutput and others
+//! method for use by tags that replace variables in their content, like
+//! formoutput, sqloutput and others
+//!
+//! @param args
+//!  Arguments that influence the way the output tag does its job.
+//!
+//!    @mapping
+//!      @member string "quote"
+//!       The placeholder value quoting character. Defaults to @tt{#@}
+//!      @member mixed "preprocess"
+//!       If present, the passed contents string is parsed using
+//!       @[parse_rxml()] before replacing the placeholders.
+//!      @member string "debug-input"
+//!       If present and set to one of the supported values, this attribute
+//!       allows the programmer to see some debugging output. Supported
+//!       values:
+//!
+//!         @dl
+//!           @item log
+//!            Debugging information is sent to the default caudium log.
+//!           @item comment
+//!            Debugging information is sent to the browser in form of a
+//!            HTML comment.
+//!           @item any other value
+//!            The debugging info is presented as a bold, preformated text
+//!            between the square brackets.
+//!         @enddl
+//!
+//!      @member string "sort"
+//!       The array of variables is sorted relatively to the passed,
+//!       comma-separated, list of values.
+//!
+//!      @member string "range"
+//!       Only the variables from the passed array enclosed in the given
+//!       range (using the @code{X..Y@} syntax) are used for the
+//!       output.
+//!
+//!      @member string "replace"
+//!       If absent, or its value is different than "no", the tag will
+//!       perform the actual replacement. Each variable can have a number
+//!       of options attached to it. The options are attached by using the
+//!       syntax presented below:
+//!
+//!        @code{
+//!          #variable:option=value:option=value#
+//!        @}
+//!
+//!        The @tt{#@} character above is, in reality, the value of
+//!        @tt{args->quote@} and is the default quoting
+//!        character. Available options are presented below:
+//!
+//!          @dl
+//!           @item empty
+//!             The value given to variables that have no value
+//!             assigned. See also @[args->empty].
+//!           @item zero
+//!             The value assigned to the variables that are
+//!             uninitialized. See also @[args->zero].
+//!           @item multisep or multi_separator
+//!             Separator for variables whose content is a list. The
+//!             variable value will be divided on this string.
+//!           @item quote
+//!             The quote character to be used for the given variable
+//!             only. See also @[args->quote].
+//!           @item encode
+//!             The encoding for the given variable only.
+//!          @enddl
+//!
+//!       @member string "zero"
+//!         The default value returned for all variables which aren't
+//!         initialized.
+//!
+//!       @member string "empty"
+//!         The default value returned for all variables which have no
+//!         value assigned.
+//!
+//!       @member string "delimiter"
+//!         A string put after each replaced variable.
+//!    @endmapping
+//!
+//! @param var_arr
+//!   An array of mappings describing all the variables that can be
+//!   replaced. Each mapping index is the name of a quoted variable in the
+//!   passed contents. For example, if the passed mapping contains an index
+//!   called 'test' then its corresponding variable in the contents string
+//!   (assuming the default @tt{#@} quote character is used) will be
+//!   @tt{#test@}.
+//!
+//! @param contents
+//!   The contents of the that called this function container.
+//!
+//! @param id
+//!   The request id.
+//!
+//! @returns
+//!  Contents with all the variables found in @[var_arr] replaced with
+//!  their values.
 string do_output_tag( mapping args, array (mapping) var_arr, string contents,
-		      object id )
+                      object id )
 {
   string quote = args->quote || "#";
   mapping other_vars = id->misc->variables;
@@ -1474,16 +1661,16 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
     contents = parse_rxml( contents, id );
 
   switch (args["debug-input"]) {
-    case 0: break;
-    case "log":
-      report_debug ("tag input: " + contents + "\n");
-      break;
-    case "comment":
-      new_contents = "<!--\n" + html_encode_string (contents) + "\n-->";
-      break;
-    default:
-      new_contents = "\n<br><b>[</b><pre>" +
-	html_encode_string (contents) + "</pre><b>]</b>\n";
+      case 0: break;
+      case "log":
+        report_debug ("tag input: " + contents + "\n");
+        break;
+      case "comment":
+        new_contents = "<!--\n" + html_encode_string (contents) + "\n-->";
+        break;
+      default:
+        new_contents = "\n<br><b>[</b><pre>" +
+          html_encode_string (contents) + "</pre><b>]</b>\n";
   }
 
   if (args->sort)
@@ -1492,29 +1679,29 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
 
     order = args->sort / "," - ({ "" });
     var_arr = Array.sort_array( var_arr,
-				lambda (mapping m1, mapping m2, array order)
-				{
-				  int tmp;
+                                lambda (mapping m1, mapping m2, array order)
+                                {
+                                  int tmp;
 
-				  foreach (order, string field)
-				  {
-				    int tmp;
+                                  foreach (order, string field)
+                                  {
+                                    int tmp;
 				    
-				    if (field[0] == '-')
-				      tmp = compare( m2[field[1..]],
-						     m1[field[1..]] );
-				    else if (field[0] == '+')
-				      tmp = compare( m1[field[1..]],
-						     m2[field[1..]] );
-				    else
-				      tmp = compare( m1[field], m2[field] );
-				    if (tmp == 1)
-				      return 1;
-				    else if (tmp == -1)
-				      return 0;
-				  }
-				  return 0;
-				}, order );
+                                    if (field[0] == '-')
+                                      tmp = compare( m2[field[1..]],
+                                                     m1[field[1..]] );
+                                    else if (field[0] == '+')
+                                      tmp = compare( m1[field[1..]],
+                                                     m2[field[1..]] );
+                                    else
+                                      tmp = compare( m1[field], m2[field] );
+                                    if (tmp == 1)
+                                      return 1;
+                                    else if (tmp == -1)
+                                      return 0;
+                                  }
+                                  return 0;
+                                }, order );
   }
 
   if (args->range)
@@ -1541,9 +1728,9 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
       return "";
     if (begin < 0)
       if (end < 0)
-	return "";
+        return "";
       else
-	begin = 0;
+        begin = 0;
     var_arr = var_arr[begin..end];
   }
 
@@ -1552,17 +1739,17 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
   {
     if (args->set)
       foreach (indices (vars), string var) {
-	mixed val = vars[var];
-	if (!val) val = args->zero || "";
-	else {
-	  if (arrayp( val ))
-	    val = Array.map (val, lambda (mixed v) {return (string) v;}) *
-	      multi_separator;
-	  else
-	    val = replace ((string) val, "\000", multi_separator);
-	  if (!sizeof (val)) val = args->empty || "";
-	}
-	id->variables[var] = val;
+        mixed val = vars[var];
+        if (!val) val = args->zero || "";
+        else {
+          if (arrayp( val ))
+            val = Array.map (val, lambda (mixed v) {return (string) v;}) *
+              multi_separator;
+          else
+            val = replace ((string) val, "\000", multi_separator);
+          if (!sizeof (val)) val = args->empty || "";
+        }
+        id->variables[var] = val;
       }
 
     id->misc->variables = vars;
@@ -1571,91 +1758,91 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
     {
       array exploded = contents / quote;
       if (!(sizeof (exploded) & 1))
-	return "<b>Contents ends inside a replace field</b>";
+        return "<b>Contents ends inside a replace field</b>";
 
       for (int c=1; c < sizeof( exploded ); c+=2)
-	if (exploded[c] == "")
-	  exploded[c] = quote;
-	else
-	{
-	  array(string) options =  exploded[c] / ":";
-	  string var = remove_leading_trailing_ws (options[0]);
-	  mixed val = vars[var];
-	  array(string) encodings = ({});
-	  string multisep = multi_separator;
-	  string zero = args->zero || "";
-	  string empty = args->empty || "";
+        if (exploded[c] == "")
+          exploded[c] = quote;
+        else
+        {
+          array(string) options =  exploded[c] / ":";
+          string var = remove_leading_trailing_ws (options[0]);
+          mixed val = vars[var];
+          array(string) encodings = ({});
+          string multisep = multi_separator;
+          string zero = args->zero || "";
+          string empty = args->empty || "";
 
-	  foreach(options[1..], string option) {
-	    array (string) pair = option / "=";
-	    string optval = remove_leading_trailing_ws (pair[1..] * "=");
+          foreach(options[1..], string option) {
+            array (string) pair = option / "=";
+            string optval = remove_leading_trailing_ws (pair[1..] * "=");
 
-	    switch (lower_case (remove_leading_trailing_ws( pair[0] ))) {
-	      case "empty":
-		empty = optval;
-		break;
-	      case "zero":
-		zero = optval;
-		break;
-	      case "multisep":
-	      case "multi_separator":
-		multisep = optval;
-		break;
-	      case "quote":	// For backward compatibility.
-		optval = lower_case (optval);
-		switch (optval) {
-		  case "mysql": case "sql": case "oracle":
-		    encodings += ({optval + "-dtag"});
-		    break;
-		  default:
-		    encodings += ({optval});
-		}
-		break;
-	      case "encode":
-		encodings += Array.map (lower_case (optval) / ",",
-					remove_leading_trailing_ws);
-		break;
-	      default:
-		return "<b>Unknown option "
-		  + remove_leading_trailing_ws (pair[0])
-		  + " in replace field " + ((c >> 1) + 1) + "</b>";
-	    }
-	  }
+            switch (lower_case (remove_leading_trailing_ws( pair[0] ))) {
+                case "empty":
+                  empty = optval;
+                  break;
+                case "zero":
+                  zero = optval;
+                  break;
+                case "multisep":
+                case "multi_separator":
+                  multisep = optval;
+                  break;
+                case "quote":	// For backward compatibility.
+                  optval = lower_case (optval);
+                  switch (optval) {
+                      case "mysql": case "sql": case "oracle":
+                        encodings += ({optval + "-dtag"});
+                        break;
+                      default:
+                        encodings += ({optval});
+                  }
+                  break;
+                case "encode":
+                  encodings += Array.map (lower_case (optval) / ",",
+                                          remove_leading_trailing_ws);
+                  break;
+                default:
+                  return "<b>Unknown option "
+                    + remove_leading_trailing_ws (pair[0])
+                    + " in replace field " + ((c >> 1) + 1) + "</b>";
+            }
+          }
 
-	  if (!val)
-	    if (zero_type (vars[var]) && (args->debug || id->misc->debug))
-	      val = "<b>No variable " + options[0] + "</b>";
-	    else
-	      val = zero;
-	  else {
-	    if (arrayp( val ))
-	      val = Array.map (val, lambda (mixed v) {return (string) v;}) *
-		multisep;
-	    else
-	      val = replace ((string) val, "\000", multisep);
-	    if (!sizeof (val)) val = empty;
-	  }
+          if (!val)
+            if (zero_type (vars[var]) && (args->debug || id->misc->debug))
+              val = "<b>No variable " + options[0] + "</b>";
+            else
+              val = zero;
+          else {
+            if (arrayp( val ))
+              val = Array.map (val, lambda (mixed v) {return (string) v;}) *
+                multisep;
+            else
+              val = replace ((string) val, "\000", multisep);
+            if (!sizeof (val)) val = empty;
+          }
 
-	  if (!sizeof (encodings))
-	    encodings = args->encode ?
-	      Array.map (lower_case (args->encode) / ",",
-			 remove_leading_trailing_ws) : ({"html"});
+          if (!sizeof (encodings))
+            encodings = args->encode ?
+              Array.map (lower_case (args->encode) / ",",
+                         remove_leading_trailing_ws) : ({"html"});
 
-	  string tmp_val;
-	  foreach (encodings, string encoding)
-	    if( !(val = roxen_encode( val, encoding )) )
-	      return ("<b>Unknown encoding " + encoding
-		      + " in replace field " + ((c >> 1) + 1) + "</b>");
+          string tmp_val;
+          foreach (encodings, string encoding)
+            if( !(val = roxen_encode( val, encoding )) )
+              return ("<b>Unknown encoding " + encoding
+                      + " in replace field " + ((c >> 1) + 1) + "</b>");
 
-	  exploded[c] = val;
-	}
+          exploded[c] = val;
+        }
 
       if (first)
-	first = 0;
+        first = 0;
       else if (args->delimiter)
-	new_contents += args->delimiter;
+        new_contents += args->delimiter;
       new_contents += args->preprocess ? exploded * "" :
-	parse_rxml (exploded * "", id);
+        parse_rxml (exploded * "", id);
       if (args["debug-output"]) unparsed_contents += exploded * "";
     }
     else {
@@ -1665,16 +1852,16 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
   }
 
   switch (args["debug-output"]) {
-    case 0: break;
-    case "log":
-      report_debug ("tag output: " + unparsed_contents + "\n");
-      break;
-    case "comment":
-      new_contents += "<!--\n" + html_encode_string (unparsed_contents) + "\n-->";
-      break;
-    default:
-      new_contents = "\n<br><b>[</b><pre>" + html_encode_string (unparsed_contents) +
-	"</pre><b>]</b>\n";
+      case 0: break;
+      case "log":
+        report_debug ("tag output: " + unparsed_contents + "\n");
+        break;
+      case "comment":
+        new_contents += "<!--\n" + html_encode_string (unparsed_contents) + "\n-->";
+        break;
+      default:
+        new_contents = "\n<br><b>[</b><pre>" + html_encode_string (unparsed_contents) +
+          "</pre><b>]</b>\n";
   }
 
   id->misc->variables = other_vars;
@@ -1693,20 +1880,18 @@ string fix_relative(string file, object id)
 }
 
 
-//! method: array parse_scope_var(string variable, void|string scope)
 //!  Return the scope and variable name based on the input data.
-//! arg: string variable
+//! @param variable
 //!  The variable to parse. Should be either "variable" or "scope.variable".
 //!  If a specific scope is sent to the function, the variable is uses as-is
 //!  for the variable name.
-//! arg: void|string scope
+//! @param scope
 //!  The optional scope. If present, this overrides any scope specification
 //!  in the variable name. If left out, the scope is parsed from the variable
 //!  name. 
-//! returns:
+//! @returns
 //!  An array consisting of the scope and the variable.
 //! name: parse_scope_var - return the scope and variable name.
-
 array(string) parse_scope_var(string variable, string|void scope)
 {
   array scvar = allocate(2);
@@ -1723,22 +1908,19 @@ array(string) parse_scope_var(string variable, string|void scope)
   return scvar;
 }
 
-//! method: mixed get_scope_var(string variable, string scope, object id)
 //!  Return the value of the specified variable in the specified scope.
-//! arg: string variable
+//! @param variable
 //!  The variable to fetch from the scope.
-//! arg: string scope
+//! @param scope
 //!  The scope of the variable. If zero, the scope will be extracted from
 //!  the variable using [parse_scope_var].
-//! arg: object id
+//! @param id
 //!  The request id object.
-//! returns:
+//! @returns
 //!  The value of the variable or zero if the variable or scope doesn't
 //!  exist.
-//! name: get_scope_var - return the value of a scope variable
-//! see_also: set_scope_var
-//! see_also: parse_scope_var
-
+//! @seealso
+//!   @[set_scope_var()], @[parse_scope_var()]
 mixed get_scope_var(string variable, void|string scope, object id)
 {
   function _get;
@@ -1756,23 +1938,21 @@ mixed get_scope_var(string variable, void|string scope, object id)
   return _get(variable, id);
 }
 
-//! method: int set_scope_var(string variable, string scope, mixed value, object id)
 //!  Set the specified variable in the specified scope to the value.
-//! arg: string variable
+//! @param variable
 //!  The variable to fetch from the scope.
-//! arg: string scope
+//! @param scope
 //!  The scope of the variable. If zero, the scope will be extracted from
 //!  the variable using [parse_scope_var].
-//! arg: mixed value
+//! @param value
 //!  The value to set the variable to.
-//! arg: object id
+//! @param id
 //!  The request id object.
-//! returns:
+//! @returns
 //!  1 if the variable was set correctly, 0 if it failed.
 //! name: set_scope_var - set the value of a scope variable
-//! see_also: get_scope_var
-//! see_also: parse_scope_var
-
+//! @seealso
+//!  @[get_scope_var()], @[parse_scope_var()]
 int set_scope_var(string variable, void|string scope, mixed value, object id)
 {
   function _set;
@@ -1790,22 +1970,19 @@ int set_scope_var(string variable, void|string scope, mixed value, object id)
 }
 
 
-//! method: int parse_scopes(string data, function cb, object id, mixed ... extra)
 //!  Parse the data for entities.
-//! arg: string data
+//! @param data
 //!  The text to parse.
-//! arg: function cb
+//! @param cb
 //!  The function called when an entity is encountered. Arguments are:
 //!  the parser object, the entity scope, the entity name, the request id
 //!  and any extra arguments specified.
-//! arg: object id
+//! @param id
 //!  The request id object.
-//! arg: mixed ... extra
+//! @param extra
 //!  Optional arguments to pass to the callback function.
-//! returns:
+//! @returns
 //!  The parsed result.
-//! name: parse_scopes - parse text for entities
-
 #if constant(Parser.HTML)
 static mixed cb_wrapper(object parser, string entity, object id, function cb,
 			mixed ... args) {
