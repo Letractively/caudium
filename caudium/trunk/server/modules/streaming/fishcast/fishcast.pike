@@ -25,7 +25,7 @@ inherit "module";
 inherit "caudiumlib";
 
 constant cvs_version = "$Id$";
-constant version = "1.0a2";
+constant version = "1.0rc1";
 constant thread_safe = 0; // maybe more like "constant will_kill_your_box_if_sneezed_at = 1;"
 constant module_type = MODULE_LOCATION|MODULE_PARSER|MODULE_EXPERIMENTAL;
 constant module_name = "Fishcast";
