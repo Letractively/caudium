@@ -377,6 +377,10 @@ string do_the_highlighting(string s, mapping m)
 //!     Use this for dark highlighting
 //!   @member string "nopre"
 //!     Do not add <pre></pre> HTML code between the rendered code.
+//!   @member string "css"
+//!     Use this to use CSS highlighting
+//!   @member string "cssfile"
+//!     Use this to when using a CSS and if you like to specify a custom CSS.
 //!  @endmapping
 //! @param contents
 //!   The Pike code to render
