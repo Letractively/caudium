@@ -403,7 +403,7 @@ string make_response_headers(mapping h)
 
   foreach(indices(h), string header)
   {
-    header=
+    header=lower_case(header);
     if(response_header_names[header])
       header_string+=response_header_names[header] + push_string(h[header]);
     else
