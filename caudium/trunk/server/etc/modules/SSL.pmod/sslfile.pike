@@ -377,7 +377,7 @@ private void ssl_write_callback(mixed id)
     }
     res = queue_write();
   }
-  if (!strlen(write_buffer) && socket)
+  if (!strlen(write_buffer))
     catch(socket->set_write_callback(0)); // Catch in case it's closed.
   if (res)
     die(res);
