@@ -1728,6 +1728,7 @@ void handle_precache(object id) {
     funp( id );
     if(id->conf != this_object()) {
       REQUEST_WERR("handle_request(): Redirected (2)");
+      if(!id->conf->inited) { id->conf->enable_all_modules(); }
       id->conf->handle_precache(id);
       return;
     }
@@ -2031,6 +2032,7 @@ public array open_file(string fname, string mode, object id)
       break;
     else if(id->conf != oc) 
     {
+      if(!id->conf->inited) { id->conf->enable_all_modules(); }
       id->not_query = fname;
       return open_file(fname, mode,id);
     }
@@ -2638,17 +2640,11 @@ void hooks_for( string modname, object mod )
 }
 
 
-#ifdef THREADS
-Thread.Mutex enable_modules_mutex = Thread.Mutex();
-#define MODULE_LOCK() \
-  Thread.MutexKey enable_modules_lock = enable_modules_mutex->lock (2)
-#else
-#define MODULE_LOCK()
-#endif
+int unload_module( string modname );
+int load_module( string modname );
 
 object enable_module( string modname )
 {
-  MODULE_LOCK();
   string id;
   mapping module;
   mapping enabled_modules;
@@ -2925,13 +2921,9 @@ object enable_module( string modname )
   if(module->type & MODULE_PROVIDER) {
     if (err = catch {
       mixed provs = me->query_provides();
-      if(stringp(provs))
-	provs = (< provs >);
-      if(arrayp(provs))
-	provs = mkmultiset(provs);
-      if (multisetp(provs)) {
-	pri[pr]->provider_modules [ me ] = provs;
-      }
+      if(stringp(provs))	provs = (< provs >);
+      else if(arrayp(provs))	provs = mkmultiset(provs);
+      if (multisetp(provs))	pri[pr]->provider_modules [ me ] = provs;
     }) {
       report_error("Error while initiating module copy of " +
 		   module->name + "\n" + describe_backtrace(err));
@@ -3000,18 +2992,15 @@ object enable_module( string modname )
   if(module->type & MODULE_FILTER)
     pri[pr]->filter_modules += ({ me });
 
-  if(module->type & MODULE_FIRST) {
+  if(module->type & MODULE_FIRST) 
     pri[pr]->first_modules += ({ me });
-  }
 
-  if(module->type & MODULE_PRECACHE) {
+  if(module->type & MODULE_PRECACHE) 
     pri[pr]->precache_modules += ({ me });
-  }
-
   
   hooks_for(module->sname+"#"+id, me);
       
-  enabled_modules=retrieve("EnabledModules", this);
+  enabled_modules = retrieve("EnabledModules", this);
 
   if(!enabled_modules[modname+"#"+id])
   {
@@ -3251,7 +3240,7 @@ int load_module(string module_file)
   perror("\nLoading " + module_file + "... ");
 #endif
  
-  if(prog=cache_lookup("modules", module_file)) {
+  if(prog = cache_lookup("modules", module_file)) {
     err = catch {
       obj = prog(this_object());
     };
@@ -3262,21 +3251,19 @@ int load_module(string module_file)
     err = catch {
       obj = caudium->load_from_dirs(caudium->QUERY(ModuleDirs), module_file,
 				    this_object());
+      prog = object_program(obj);
     };
     if(strlen(e->get())) {
       report_error("Failed to compile module "+module_file+":\n"+e->get());
       return 0;
-    }
-
-    prog = caudium->last_loaded();
+    } 
   }
 
   if (err) {
     report_error("Error while enabling module (" + module_file + "):\n" +
 		 describe_backtrace(err) + "\n");
     return(0);
-  }
-  if(!obj)
+  } else if(!obj)
   {
     report_error("*** Module load failed: " + module_file + " (not found?)\n");
     return 0;
@@ -3299,41 +3286,39 @@ int load_module(string module_file)
        +"</i>", module_data[0] });
   if (!arrayp( module_data ))
     err = "Register_module didn't return an array.\n";
-  else
-    switch (sizeof( module_data ))
-    {
-     case 5:
-      foo=module_data[4];
-      module_data=module_data[0..3];
-     case 4:
-      if (module_data[3] && !arrayp( module_data[3] ))
-	err = "The fourth element of the array register_module returned "
-	  "(extra_buttons) wasn't an array.\n" + err;
-     case 3:
-      if (!stringp( module_data[2] ))
-	err = "The third element of the array register_module returned "
-	  "(documentation) wasn't a string.\n" + err;
-      if (!stringp( module_data[1] ))
-	err = "The second element of the array register_module returned "
-	  "(name) wasn't a string.\n" + err;
-      if (!intp( module_data[0] ))
-	err = "The first element of the array register_module returned "
-	  "(type) wasn't an integer.\n" + err;
-      break;
+  else switch (sizeof( module_data ))
+  {
+  case 5:
+    foo = module_data[4];
+    module_data = module_data[0..3];
+  case 4:
+    if (module_data[3] && !arrayp( module_data[3] ))
+      err = "The fourth element of the array register_module returned "
+	"(extra_buttons) wasn't an array.\n" + err;
+  case 3:
+    if (!stringp( module_data[2] ))
+      err = "The third element of the array register_module returned "
+	"(documentation) wasn't a string.\n" + err;
+    if (!stringp( module_data[1] ))
+      err = "The second element of the array register_module returned "
+	"(name) wasn't a string.\n" + err;
+    if (!intp( module_data[0] ))
+      err = "The first element of the array register_module returned "
+	"(type) wasn't an integer.\n" + err;
+    break;
 
-     default:
-      err = "The array register_module returned was too small/large. "
-	"It should have been three or four elements (type, name, "
-	"documentation and extra buttons (optional))\n";
-    }
-  if (err != "")
+  default:
+    err = "The array register_module returned was too small/large. "
+      "It should have been three or four elements (type, name, "
+      "documentation and extra buttons (optional))\n";
+  }
+  if (strlen(err))
   {
 #ifdef MODULE_DEBUG
     perror("FAILED\n"+err);
 #endif
     report_error( "Tried to load module " + module_file + ", but:\n" + err );
-    if(obj)
-      destruct( obj );
+    if(obj) destruct( obj );
     return 0;
   } 
     
@@ -3350,16 +3335,17 @@ int load_module(string module_file)
 
   if(!modules[ module_file ])
     modules[ module_file ] = ([]);
+
   mapping tmpp = modules[ module_file ];
 
-  tmpp->type=module_data[0];
-  tmpp->name=module_data[1];
-  tmpp->doc=module_data[2];
-  tmpp->extra=module_data[3];
-  tmpp["program"]=prog;
-  tmpp->master=obj;
-  tmpp->copies=(foo ? 0 : (tmpp->copies||([])));
-  tmpp->sname=module_file;
+  tmpp->type	= module_data[0];
+  tmpp->name	= module_data[1];
+  tmpp->doc	= module_data[2];
+  tmpp->extra	= module_data[3];
+  tmpp->master  = obj;
+  tmpp->copies  = (foo ? 0 : (tmpp->copies || ([])));
+  tmpp->sname	= module_file;
+  tmpp["program"] = prog;
       
 #ifdef MODULE_DEBUG
 #if constant(gethrtime)
@@ -3369,8 +3355,6 @@ int load_module(string module_file)
 #endif
 #endif
   cache_set("modules", module_file, modules[module_file]["program"]);
-// ??  invalidate_cache();
-
   return 1;
 }
 
@@ -3546,10 +3530,26 @@ private string get_my_url()
 #endif
   return "http://" + s + "/";
 }
+#ifdef THREADS
+Thread.Mutex enable_modules_mutex = Thread.Mutex();
+#define MODULE_LOCK() \
+  Thread.MutexKey enable_modules_lock = enable_modules_mutex->lock (2)
+#else
+#define MODULE_LOCK()
+#endif
 
+int inited;
 void enable_all_modules()
 {
   MODULE_LOCK();
+  array err;
+  inited = 1;
+  if(err = catch { low_enable_all_modules();  })
+    werror("Error while loading modules in configuration "+
+	   name+":\n"+ describe_backtrace(err)+"\n");
+  
+}
+void low_enable_all_modules() {
 #if constant(gethrtime)
   int start_time = gethrtime();
 #endif
