@@ -32,14 +32,14 @@ inherit "caudiumlib";
 //!  these menus without having to have the webmaster deal with cryptic
 //!  JavaScripting.  Not all features in the original Java Script have been
 //!  enabled in this version of the wrapper. <p />
-//!  Original:  Angus Turnbull<br />
-//!  Web Site:  http://gusnz.cjb.net<p />
+//!  Original :  Angus Turnbull<br />
+//!  Web Site :  http://gusnz.cjb.net<p />
 //!  This script and many more are available free online at<br />
 //!  The JavaScript Source!! http://javascript.internet.com<p />
 //!  Javascript Caudium Wrapper written by Chris Davies<br />
-//!  Web Site: <a href="http://daviesinc.com/javamenu/">
+//!  Web Site : <a href="http://daviesinc.com/javamenu/">
 //!  http://daviesinc.com/javamenu/</a><p />
-//!  This is what a demo page would look like:<p/>
+//!  This is what a demo page would look like :<p/>
 //!  <tt>&lt;HEAD&gt;<br />
 //!  &lt;menu defback="#3333ff" defover = "#000000" textcolor="yellow"&gt;<br />
 //!  &lt;header name="test" url="urlcangohere"&gt;<br />
