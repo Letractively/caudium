@@ -2668,19 +2668,15 @@ string tag_return(string tag, mapping m, object id, object file,
 string tag_error( string tag, mapping m, object id, object file,
 		  mapping defines)
 {
-    if (! m->code ) {
-        return "<!-- error requires a code argument -->";
-    } else if (! m->name ) {
-	return "<!-- error requires a name argument -->";
-    } else if (! m->message ) {
-        return "<!-- error requires a message argument -->";
+    if (! m->code && m->name && m->message ) {
+        return "<!-- requires arguments -->";
     } else if ( m->help ) {
 	return "<b>Usage: &lt;error code=&quot;404&quot; name=&quot;File not found&quot; message=&quot;The system was unable to locate the file you asked for. Sorry&quot;&gt;</b>";
     } else {
 	_error = (int)m->code;
 	_rettext = (int)m->name;
         mapping error_page = id->conf->http_error->handle_error( (int)m->code, m->name, m->message, id );
-        return error_page->data;
+	return error_page->data;
     }
 }
 
@@ -3016,7 +3012,7 @@ mapping query_tag_callers()
 	    "accept-language":tag_language,
 	    "insert":tag_insert,
 	    "return":tag_return,
-	    "error":tag_error,
+	    "httperror":tag_error,
 	    "file":tag_file,
 	    "realfile":tag_realfile,
 	    "vfs":tag_vfs,
