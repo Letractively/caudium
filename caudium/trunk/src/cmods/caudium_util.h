@@ -90,6 +90,6 @@
 /*
  * This allow run a module using dmalloc library http://www.dmalloc.org/
  */
-#ifdef
+#ifdef WITH_DMALLOC
 # include <dmalloc.h>
 #endif
