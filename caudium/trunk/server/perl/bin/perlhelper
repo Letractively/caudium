@@ -107,6 +107,23 @@ sub __foo
 { return 0;
 };
 
+package Roxen; # Some compatilibity with Roxen
+
+sub request
+{ return $Caudium::Request::req_req;
+}
+sub unescape_url
+{ my ($s) = (shift);
+  $s =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
+  return $s;
+}
+sub unescape_url_info
+{ my ($s) = (shift);
+  $s =~ s/\+/ /g;
+  $s =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr(hex($1))/eg;
+  return $s;
+}
+
 package Caudium;
 
 sub request
