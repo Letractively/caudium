@@ -330,7 +330,7 @@ class Cache {
 
     // FIXME: Should use spawn_pike() here.
     object proc = Process.create_process(({
-      "bin/pike", "-m", "lib/pike/master.pike", "-I", "etc/include",
+      "bin/caudium", "-m", "lib/pike/master.pike", "-I", "etc/include",
       "-I", "lib/pike/include",
       "-M", "etc/modules", "bin/garbagecollector.pike"
       }), ([

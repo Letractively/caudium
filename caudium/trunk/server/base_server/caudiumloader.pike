@@ -521,7 +521,7 @@ int spawn_pike(array(string) args, void|string wd, object|void stdin,
 {
   string cwd = getcwd();
   string pikebin = combine_path(cwd, [string]new_master->_pike_file_name ||
-                                "bin/pike");
+                                "bin/caudium");
   string mast = combine_path(cwd, [string]new_master->_master_file_name ||
                              "../pike/src/lib/master.pike");
   array preargs = ({ });
