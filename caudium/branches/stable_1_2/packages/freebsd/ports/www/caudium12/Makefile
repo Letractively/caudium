@@ -40,6 +40,7 @@ post-build:
 	@${SED} 's,@@PREFIX@@,${PREFIX},g' ${FILESDIR}/caudium.sh >${WRKDIR}/caudium.sh
 
 post-install:
+	@${CHOWN} -R www:www ${PREFIX}/caudium
 	@${INSTALL_SCRIPT} ${WRKDIR}/caudium.sh ${PREFIX}/etc/rc.d/caudium.sh.sample
 	@${CAT} ${PKGMESSAGE}
 
