@@ -343,8 +343,8 @@ object received=Bignum();
 object this = this_object();
 
 
-//! Used to store 'parser' modules before the main parser module
-//! is added to the configuration.
+// Used to store 'parser' modules before the main parser module
+// is added to the configuration.
 private array(object) _toparse_modules = ({});
 
 //! Will write a line to the log-file. This will probably be replaced
@@ -356,8 +356,8 @@ int|function log_function;
 //! descriptor should be closed 
 int last_log_time;
 
-//! The logging format used. This will probably move the the above
-//! mentioned module in the future.
+// The logging format used. This will probably move the the above
+// mentioned module in the future.
 private mapping (string:string) log_format = ([]);
 
 //! The objects for each logging format. Each of the objects has the function
@@ -367,20 +367,20 @@ private mapping (string:string) log_format = ([]);
 mapping (string:object) log_format_objs = ([]);
 
 
-//! A list of priority objects (used like a 'struct' in C, really)
+// A list of priority objects (used like a 'struct' in C, really)
 private array (object) pri = allocate_pris();
 
-//! All enabled modules in this virtual server.
-//! The format is "module":([ module_info ])
+// All enabled modules in this virtual server.
+// The format is "module":([ module_info ])
 public mapping (string:mapping(string:mixed)) modules = ([]);
 
-//! A mapping from objects to module names
+// A mapping from objects to module names
 public mapping (object:string) otomod = ([]);
 
 
-//! Caches to speed up the handling of the module search.
-//! They are all sorted in priority order, and created by the functions
-//! below.
+// Caches to speed up the handling of the module search.
+// They are all sorted in priority order, and created by the functions
+// below.
 private array (function) url_module_cache, last_module_cache;
 private array (function) logger_module_cache, first_module_cache;
 private array (function) filter_module_cache, precache_module_cache;
@@ -773,7 +773,7 @@ int init_log_file(int|void force_open)
   }
 }
 
-//! Parse the logging format strings.
+// Parse the logging format strings.
 private inline string fix_logging(string s)
 {
   string pre, post, c;
@@ -798,7 +798,6 @@ private inline string fix_logging(string s)
   return s;
 }
 
-//!
 private void parse_log_formats()
 {
   string b;
@@ -819,7 +818,7 @@ private void parse_log_formats()
   }
 }
 
-//! Really write an entry to the log.
+// Really write an entry to the log.
 private void write_to_log( string host, string rest, string oh, function fun )
 {
   int s;
@@ -831,7 +830,7 @@ private void write_to_log( string host, string rest, string oh, function fun )
   if(fun) fun(replace(rest, "$host", host));
 }
 
-//! Logging format support functions.
+// Logging format support functions.
 nomask private inline string host_ip_to_int(string s)
 {
   int a, b, c, d;
@@ -844,13 +843,11 @@ nomask private inline string unsigned_to_bin(int a)
   return sprintf("%4c", a);
 }
 
-//!
 nomask private inline string unsigned_short_to_bin(int a)
 {
   return sprintf("%2c", a);
 }
 
-//!
 nomask private inline string extract_user(string from)
 {
   array tmp;
@@ -863,7 +860,6 @@ nomask private inline string extract_user(string from)
 private object log_file_mutex = Thread.Mutex();
 #endif
 
-//!
 public void log(mapping file, object request_id)
 {
 //    _debug(2);
@@ -904,7 +900,7 @@ public void log(mapping file, object request_id)
   }
 }
 
-//! These are here for statistics and debug reasons only.
+// These are here for statistics and debug reasons only.
 public string status()
 {
   float tmp;
@@ -993,7 +989,6 @@ public string status()
   return res;
 }
 
-//!
 public array(string) userinfo(string u, object|void id)
 {
   if(auth_module) return auth_module->userinfo(u);
@@ -1001,7 +996,6 @@ public array(string) userinfo(string u, object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
-//!
 public array(string) userlist(object|void id)
 {
   if(auth_module) return auth_module->userlist();
@@ -1009,7 +1003,6 @@ public array(string) userlist(object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
-//!
 public array(string) user_from_uid(int u, object|void id)
 {
   if(auth_module)
@@ -1018,8 +1011,8 @@ public array(string) user_from_uid(int u, object|void id)
                               "%s\n", describe_backtrace(backtrace())));
 }
 
-//! Some clients does _not_ handle the magic 'internal-gopher-...'.
-//! So, lets do it here instead.
+// Some clients does _not_ handle the magic 'internal-gopher-...'.
+// So, lets do it here instead.
 private mapping internal_gopher_image(string from)
 {
   sscanf(from, "%s.gif", from);
@@ -1250,8 +1243,8 @@ string draw_saturation_bar(int hue,int brightness, int where)
 }
 
 
-//! Inspired by the internal-gopher-... thingie, this is the for internal
-//! Caudium images, like logos etc.
+// Inspired by the internal-gopher-... thingie, this is the for internal
+// Caudium images, like logos etc.
 private mapping internal_caudium_image(string from)
 {
   object img;
@@ -1875,7 +1868,6 @@ mixed get_file(object id, int|void no_magic)
   return res;
 }
 
-//!
 public array find_dir(string file, object id)
 {
   string loc;
@@ -1982,7 +1974,7 @@ public array find_dir(string file, object id)
   TRACE_LEAVE("Returning 'no such directory'");
 }
 
-//! Stat a virtual file. 
+// Stat a virtual file. 
 public array stat_file(string file, object id)
 {
   string loc;
@@ -2111,7 +2103,7 @@ class StringFile
 }
 
 
-//! this is not as trivial as it sounds. Consider gtext. :-)
+// this is not as trivial as it sounds. Consider gtext. :-)
 public array open_file(string fname, string mode, object id)
 {
   object oc = id->conf;
@@ -2180,7 +2172,6 @@ public array open_file(string fname, string mode, object id)
   return ({ 0,(["error":501,"data":"Not implemented"]) });
 }
 
-//!
 public mapping(string:array(mixed)) find_dir_stat(string file, object id)
 {
   string loc;
@@ -2303,7 +2294,7 @@ public mapping(string:array(mixed)) find_dir_stat(string file, object id)
 }
 
 
-//! Access a virtual file?
+// Access a virtual file?
 public array|string access(string file, object id)
 {
   string loc;
@@ -3667,7 +3658,7 @@ object sql_connect(string db)
 
 // END SQL
 
-//! This is the most likely URL for a virtual server.
+// This is the most likely URL for a virtual server.
 private string get_my_url()
 {
   string s;
