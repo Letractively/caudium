@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ */
+/*
+ * $Id$
  */
 
 //
@@ -132,7 +134,7 @@ string sqloutput_tag(string tag_name, mapping args, string contents,
 
     string host = query("hostname");
     string database, user, password;
-    object(Sql.sql) con;
+    object con;
     array(mapping(string:mixed)) result;
     function sql_connect = request_id->conf->sql_connect;
     mixed error;
@@ -215,7 +217,7 @@ string sqlquery_tag(string tag_name, mapping args,
 
     string host = query("hostname");
     string database, user, password;
-    object(Sql.sql) con;
+    object con;
     mixed error;
     function sql_connect = request_id->conf->sql_connect;
     array(mapping(string:mixed)) res;
@@ -305,10 +307,10 @@ string sqltable_tag(string tag_name, mapping args,
 
     string host = query("hostname");
     string database, user, password;
-    object(Sql.sql) con;
+    object con;
     mixed error;
     function sql_connect = request_id->conf->sql_connect;
-    object(Sql.sql_result) result;
+    object result;
     string res;
 
     if (args->host) {
@@ -474,10 +476,10 @@ mapping query_container_callers()
  */
 
 
-object(Sql.sql) sql_object(void|string host)
+object sql_object(void|string host)
 {
   host = stringp(host) ? host : QUERY(hostname);
-  object(Sql.sql) con;
+  object con;
   function sql_connect = conf->sql_connect;
   mixed error;
   error = catch(con = sql_connect(host));
