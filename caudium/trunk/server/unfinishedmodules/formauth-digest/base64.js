@@ -90,31 +90,31 @@ function decode_base64( what )
 	while( !isNaN( x = what.charCodeAt( ptr++ ) ) )
 	{
 		if( ( x > 127 ) || (( x = base64_decodetable[x] ) == 255) )
-			return -1;
+			return false;
 		if( ( isNaN( y = what.charCodeAt( ptr++ ) ) ) || (( y = base64_decodetable[y] ) == 255) )
-			return -1;
+			return false;
 
 		result += String.fromCharCode( (x << 2) | (y >> 4) );
 
 		if( (x = what.charCodeAt( ptr++ )) == 61 )
 		{
 			if( (what.charCodeAt( ptr++ ) != 61) || (!isNaN(what.charCodeAt( ptr ) ) ) )
-				return -1;
+				return false;
 		}
 		else
 		{
 			if( ( x > 127 ) || (( x = base64_decodetable[x] ) == 255) )
-				return -1;
+				return false;
 			result += String.fromCharCode( (y << 4) | (x >> 2) );
 			if( (y = what.charCodeAt( ptr++ )) == 61 )
 			{
 				if( !isNaN(what.charCodeAt( ptr ) ) )
-					return -1;
+					return false;
 			}
 			else
 			{
 				if( (y > 127) || ((y = base64_decodetable[y]) == 255) )
-					return -1;
+					return false;
 				result += String.fromCharCode( (x << 6) | y );
 			}
 		}
