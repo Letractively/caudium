@@ -2249,7 +2249,7 @@ class FTPSession
 
   string make_MDTM(int t)
   {
-    mapping lt = localtime(t);
+    mapping lt = gmtime(t);
     return(sprintf("%04d%02d%02d%02d%02d%02d",
 		   lt->year + 1900, lt->mon + 1, lt->mday,
 		   lt->hour, lt->min, lt->sec));
