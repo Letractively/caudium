@@ -30,7 +30,7 @@
  *
  */
 
-//! module: VHS - Directory parsing module"
+//! module: VHS - Directory parsing module
 //!  This is the default directory parsing module.
 //!  This one pretty prints a list of files, with
 //!  macintosh like fold and unfold buttons next to each
