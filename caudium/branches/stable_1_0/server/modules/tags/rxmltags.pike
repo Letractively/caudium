@@ -2386,7 +2386,7 @@ string tag_configimage(string f, mapping m)
     switch(q=indices(m)[0])
     {
      case "src":
-      args += " src=\"/internal-caudium-"+ (m->src-".png") + "\"";
+      args += " src=\"/internal-caudium-"+ (m->src-".gif") + "\"";
       break;
      default:
       args += " "+q+"=\""+m[q]+"\"";

@@ -1169,11 +1169,11 @@ mapping auto_image(string in, object id)
   // if we have both PNG and GIF support we prefer PNG
   // GIF is just a fallback
   imgext = "";
-#if constant(Image.PNG.encode)
-  imgext = ".png";
-#endif
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+#if constant(Image.GIF.encode)
   imgext = ".gif";
+#endif
+#if constant(Image.PNG.encode) && !constant(Image.GIF.encode)
+  imgext = ".png";
 #endif
 
   if (imgext == "")
@@ -1256,12 +1256,12 @@ mapping auto_image(string in, object id)
   else {perror("Cannot open file for "+in+"\n");}
 #endif
 
-#if constant(Image.PNG.encode)
-  return http_string_answer(e,"image/png");
+#if constant(Image.GIF.encode)
+  return http_string_answer(e,"image/gif");
 #endif
 
-#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
-  return http_string_answer(e,"image/gif");
+#if constant(Image.PNG.encode)
+  return http_string_answer(e,"image/png");
 #endif
 
   return 0;
@@ -1340,7 +1340,7 @@ string status_row(object node)
 	   " cellspacing=0>\n"
 	   "<tr><td valign=bottom align=left>"/*"<a href=\"$docurl"+
 	   node->path(1)+"\">"*/
-	   "<img border=0 src=\"/image/caudium-icon-gray.png\" alt=\"\">"/*"</a>"*/
+	   "<img border=0 src=\"/image/caudium-icon-gray.gif\" alt=\"\">"/*"</a>"*/
 	   "</td>\n<td>&nbsp;</td><td  width=100% height=39>"
 	   "<table cellpadding=0 cellspacing=0 width=100% border=0>\n"
 	   "<tr width=\"100%\">\n"
