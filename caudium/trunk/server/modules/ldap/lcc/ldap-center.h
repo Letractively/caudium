@@ -28,6 +28,7 @@
 #define ERR_AUTH_FAILED         0x0005
 #define ERR_LDAP_BIND           0x0006
 #define ERR_SCREEN_ABSENT       0x0007
+#define ERR_INVALID_USER        0x0008
 
 //
 // Session storage shortcuts
