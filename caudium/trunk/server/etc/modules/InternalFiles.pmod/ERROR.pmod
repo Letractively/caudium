@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id$
  */
 
 class http_error_handler {
@@ -44,7 +43,7 @@ class http_error_handler {
 	  500 : "Something has gone horribly wrong inside the web server (Caudium).<br>This is probably caused by an error in a CGI or other server side script, but can also mean that something is broke.<br>If you feel that you have recieved this page in error then please contact the site administrator.",
 	 ]);
 
-    public void set_template( string _template_name, object id ) {
+    public void set_template( string _template_name, id ) {
 	if ( _template_name == "" ) {
 	    // If the template name isnt set in the config interface then
             // make reset it to the default.
@@ -93,6 +92,17 @@ class http_error_handler {
                  html_encode_string( caudium->version() ) +
 		 " at " +
                  html_encode_string( ctime( time() ) );
+	 } else if ( args->help ) {
+	     return
+		 "<b>Usage: &lt;error <i>arg</i>&gt;</b>\n" +
+		 "<blockquote>\n" +
+		 "Where <i>arg</i> is one of the following:<br>\n" +
+		 "<ul>\n" +
+		 "<li>code : <i>The error number, such as 404, or 500</i></li>\n" +
+		 "<li>name : <i>The name of the error, ie &quot;internal server error&quot; or &quot;file not found&quot;</i></li>\n" +
+		 "<li>description : <i>Extra information about this error</i></li>\n" +
+		 "<li>stamp : </i>The server version and the current time</i></li>\n" +
+                 "</ul>\n";
 	 } else {
 	     return "";
 	}
@@ -138,17 +148,19 @@ class per_server_cache {
 
     void store( string server_name, object http_error ) {
 	if ( cache[ server_name ] ) {
-            mdelete( cache, server_name );
+	    mdelete( cache, server_name );
 	}
 	cache += ([ server_name : http_error ]);
     }
 
     mixed retrieve( string server_name ) {
-        return cache[ server_name ] | 0;
+	return cache[ server_name ] | 0;
     }
 
 }
 
+
+constant cvs_version = "$Id ERROR.pmod,v 1.3 2001/01/03 06:25:25 james_tyson Exp $";
 
 // I'm assuming this to be true for now - anyone want to make a nice 50Mb
 // flash file for 404? Then we can be just like MacOS :)
@@ -160,23 +172,24 @@ static mapping default_error = ([
 
 object cache = per_server_cache();
 
-// So what you do is: caudium->IFiles->get( "error://generate?code=404&name=file%20not%20found&message=Gilligan!%20What%20did%20you%20do" )
 mapping(string:string) handle(object id,
 			      string file,
-			      mapping(string:mixed) query,
+		              mapping(string:mixed) query,
 			      mapping(string:string) vars,
-			      string basedir) {
+			      string basedir)
+
+
     if ( basedir == "template" ) {
 	return default_template;
-    } else if ( basedir == "generate" ) {
-	object http_error = cache->retrieve( id->conf->name );
+    } else if ( basedir = "generate" ) {
+        object http_error = cache->retrieve( id->conf->name );
 	if ( http_error = 0 ) {
 	    http_error = http_error_handler();
 	    cache->store( id->conf->name, http_error );
 	}
 	int error_code;
 	sscanf( vars->code, "%d", error_code );
-	return http_error->handle_error( error_code, vars->name, vars->message, id );
+        return http_error->handle_error( error_code, vars->name, vars->message, id );
     }
 }
 
