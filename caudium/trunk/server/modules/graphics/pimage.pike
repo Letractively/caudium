@@ -389,23 +389,6 @@ class Constructors
 
 mapping compiled = ([]);
 
-array register_module()
-{
-  return ({ MODULE_LOCATION | MODULE_PARSER,
-	      "Pike Image Module",
-	      "This module adds two new tags, &lt;gclock&gt; and "
-   	      "&lt;pimage&gt;&lt;/pimage&gt;. GClock draws clocks, and "
-	      " pimage draws an image from pike-code. <p> "
-	      "There are several predefined images-constructors to use "
-	      "in pimage: <p>"
-	      "Clock( delay, time_offset, background_image ); Animated clock-gif.<br>"
-	      "Progress( callback_function ); Animated progress bar.<br>"
-	      "PPM( \"file_name\" ); Loads a PPM file.<br>"
-	      "PImage(xs,ys, bg_color ); Simple (cleared) image<br>"
-	      "Text( \"font\", \"string\", fg_color, bg_color ); <br>"
-	      "Draws some text..<br>", 0, 1 });
-}
-
 void create()
 {
   defvar("location", "/pimages/", "Mountpoint", TYPE_LOCATION|VAR_MORE,
@@ -445,7 +428,7 @@ object compile(string c, object id)
 string tag_pimage(string t, mapping m, string contents, object rid)
 {
   // Hohum. Here we go.
-  if(m->help) return register_module()[2];
+  if(m->help) return module_doc;
   int id = hash(contents);
   if(!m->nocache && compiled[id]) return do_replace(compiled[id]->tag(m), id);
   return do_replace((compiled[id]=compile(contents, rid))->tag(m), id);

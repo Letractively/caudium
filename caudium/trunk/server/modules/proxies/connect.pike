@@ -46,17 +46,6 @@ constant module_doc  = "Implements the CONNECT method, as in <a href="
       " Useful for tunneling of SSL connections (Secure proxy in Netscape).";
 constant module_unique = 1;
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_FIRST|MODULE_PROXY,
-    "SSL Proxy", 
-    "Implements the CONNECT method, as in <a href="
-      "http://www1.netscape.com/newsref/std/tunneling_ssl.html>the draft</a>"
-      " Useful for tunneling of SSL connections (Secure proxy in Netscape).",
-      ({}), 1
-    });
-}
 
 void nope(object hmm)
 {

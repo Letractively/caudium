@@ -47,15 +47,6 @@ constant module_unique = 0;
 
 // import Array;
 
-mixed *register_module()
-{
-  return ({ MODULE_LOCATION, "Restricted filesystem", 
-	      "This is a restricted filesystem, use it to make users home "
-	      "directories available to them if they login.<br>\n"
-	      "Usable for eg ftp-servers."
-	      });
-}
-
 void create()
 {
   ::create();

@@ -133,16 +133,6 @@ void create()
 	 lambda(){ return !QUERY(bitrot); });
 }
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LOCATION, 
-    "Incoming filesystem", 
-    ("This is a virtual filesystem than can be used only for uploads, not "
-     "downloads.")
-    });
-}
-
 static mixed not_allowed( object id )
 {
   id->misc->moreheads = (id->misc->moreheads||([]))|(["allow":"PUT"]);

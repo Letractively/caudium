@@ -138,12 +138,6 @@ object event = class
   }
 }();
 
-array register_module()
-{
-  return ({ MODULE_PARSER, "Countdown",
-	    "This module adds a new tag, when enabled, see "
-	    "&lt;countdown help&gt; for usage information.",0,1 });
-}
 
 // :-) This code is not exactly conforming to the Roxen API, since it
 // uses a rather private mapping the language object (which you are

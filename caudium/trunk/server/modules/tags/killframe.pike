@@ -60,28 +60,12 @@ void create()
 	  "the end of the URL, leaving only a slash." );
 }
 
-mixed register_module()
-{
-  return ({ 
-    MODULE_PARSER,
-    "Killframe tag",
-    ("Makes pages frameproof."
-     "<br>This module defines a tag,"
-     "<pre>"
-     "&lt;killframe&gt;: Adds some java script that will prevent others\n"
-     "             from putting your page in a frame.\n\n"
-     "             Will also strip any occurrences of 'indexfiles'\n"
-     "             from the end of the URL."
-     "</pre>"
-     ), ({}), 1,
-  });
-}
 
 string tag_killframe( string tag, mapping m, object id )
 {
   NOCACHE();
 
-  if(m->help) return register_module()[2];
+  if(m->help) return module_doc;
   
   if( !id->supports->javascript ) return "";
   

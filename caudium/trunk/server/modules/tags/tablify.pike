@@ -34,7 +34,7 @@ inherit "wizard";
 constant module_type = MODULE_PARSER;
 constant module_name = "Tablify";
 constant module_doc  = "This tag generates tables.<p>"
-    "<tt>&lt;tablify help&gt;&lt;/tablify&gt;</tt> gives help.\n\n<p>"; //+doc();
+"<tt>&lt;tablify help&gt;&lt;/tablify&gt;</tt> gives help.\n\n<p>"; //+doc();
 constant module_unique = 1;
 
 static private int loaded;
@@ -58,15 +58,6 @@ static private string doc()
 			    ({ "{", "}" }), ({ "&lt;", "&gt;" }));
 }
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_PARSER,
-    "Tablify", 
-    "This tag generates tables.<p>"
-    "<tt>&lt;tablify help&gt;&lt;/tablify&gt;</tt> gives help.\n\n<p>"+doc(),
-    ({}), 1, });
-}
 
 void start(int num, object configuration)
 {
@@ -164,7 +155,7 @@ string tag_tablify( string tag, mapping m, string q, object request_id,
 
   if(tag == "htable") m->nice="nice";
   
-  if(m->help) return register_module()[2];
+  if(m->help) return module_doc;
 
   if (m->preprocess || m->parse) {
     q = parse_rxml(q, request_id, file, defines);

@@ -1308,14 +1308,6 @@ void create()
 	 ({"Yes","No"}));
 }
 
-mixed *register_module()
-{
-  return 
-    ({  MODULE_PROXY|MODULE_LOCATION, 
-	  "FTP gateway", 
-	  "FTP gateway, not currently caching", 
-	  });
-}
 
 string query_location()  { return QUERY(mountpoint); }
 

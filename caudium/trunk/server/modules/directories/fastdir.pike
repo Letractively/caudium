@@ -38,17 +38,6 @@ constant module_doc  = "This is a _fast_ directory parsing module. "
 	    "Basically, this one just prints the list of files.";
 constant module_unique = 1;
 
-array register_module()
-{
-  return ({ MODULE_DIRECTORIES, 
-	    "Fast directory module",
-	    "This is a _fast_ directory parsing module. "
-	    "Basically, this one just prints the list of files.", 
-	    ({ }), 
-	    1
-         });
-}
-
 void create()
 {
   defvar("indexfiles", ({ "index.html", "Main.html", "welcome.html", }),

@@ -32,12 +32,6 @@ constant module_name = "SQL Databases";
 constant module_doc  = "Associates names with SQL Database URLs.";
 constant module_unique = 1;
 
-array register_module()
-{
-  return (({ 0, "SQL Databases",
-	     "Associates names with SQL Database URLs.", ({}), 1 }));
-}
-
 void create()
 {
   defvar("table", "", "Table", TYPE_TEXT_FIELD,

@@ -352,16 +352,6 @@ string trim_junk(string headline)
 }
 
 
-array register_module()
-{
-  return ({ 
-    MODULE_LOCATION|MODULE_PROXY,
-    "Wais Gateway",
-    "This is a caching wais gateway, useful for firewall sites."
-      " It has not been maintained for quite a while, but it works", ({}), 1
-    });
-}
-
 string query_location() { return query("loc"); }
 
 void create()

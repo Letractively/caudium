@@ -207,20 +207,6 @@ void start()
   // This is needed to override the inherited filesystem module start().
 }
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LOCATION, 
-    "User Filesystem", 
-      "User filesystem. Uses the userdatabase (and thus the system passwd "
-      "database) to find the home-dir of users, and then looks in a "
-      "specified directory in that directory for the files requested. "
-      "<p>Normaly mounted under /~, but / or /users/ would work equally well. "
-      " is quite useful for IPPs, enabling them to have URLs like "
-      " http://www.hostname.of.provider/customer/. "
-    });
-}
-
 static array(string) find_user(string f, object id)
 {
   string of = f;

@@ -59,14 +59,6 @@ constant module_unique = 1;
 #define NOT_QUERY (id->not_query)
 #endif /* __NT__ */
 
-array *register_module()
-{
-  return ({ MODULE_SECURITY|MODULE_URL, ".htaccess support", 
-	      "Almost complete support for NCSA/Apache .htaccess files. See "
-	      "<a href=http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html>http://hoohoo.ncsa.uiuc.edu/docs/setup/access/Overview.html</a> for more information.",
-	      ({}), 1 });
-}
-
 void create()
 {
   defvar("cache_all", 1, "Cache the failures",

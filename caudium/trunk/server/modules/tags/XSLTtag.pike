@@ -32,35 +32,27 @@ constant thread_safe = 1;
 inherit "module";
 inherit "caudiumlib";
 
-
-array register_module()
-{
-  return
-  ({
-    MODULE_PARSER,
-    "XSLT Tag",
-    "Implements a tag that applies the specified (or the default) stylesheet "
-    "to its contents. Syntax: <p><blockquote><b>"
-    "&lt;xslt [stylesheet='file:fullpath|virt:virtual|var:varname'] "
-    "[baseuri='file:base|virt:base']&gt;DATA&lt;/xslt&gt;"
-    "</b></blockquote><p>"
-    "In the syntax, the file:, virt: and var: is used to specify the source. "
-    "<b>file:</b> is a file in the real file system, <b>virt:</b> is a file "
-    "in Caudium's virtual filesystem and <b>var:</b> is a variable in the "
-    "id->variables mapping. If the parsing fails, <false> is returned. "
-    "At this point the error messages only gets printed to the Caudium "
-    "debug log. Also note that at this point only file URIs are "
-    "accepted for both the XSL path and the base URI."
+constant module_type = MODULE_PARSER;
+constant module_name = "XSLT Tag";
+constant module_doc = 
+"Implements a tag that applies the specified (or the default) stylesheet "
+"to its contents. Syntax: <p><blockquote><b>"
+"&lt;xslt [stylesheet='file:fullpath|virt:virtual|var:varname'] "
+"[baseuri='file:base|virt:base']&gt;DATA&lt;/xslt&gt;"
+"</b></blockquote><p>"
+"In the syntax, the file:, virt: and var: is used to specify the source. "
+"<b>file:</b> is a file in the real file system, <b>virt:</b> is a file "
+"in Caudium's virtual filesystem and <b>var:</b> is a variable in the "
+"id->variables mapping. If the parsing fails, <false> is returned. "
+"At this point the error messages only gets printed to the Caudium "
+"debug log. Also note that at this point only file URIs are "
+"accepted for both the XSL path and the base URI."
 #if !constant(PiXSL.parse)
-    "<p><b><blink>ERROR</blink>: "
-    "<font color=red>The PiXSL.so pike-module is missing. This "
-    "module will not function correctly!</font></b>\n"
+"<p><b><blink>ERROR</blink>: "
+"<font color=red>The PiXSL.so pike-module is missing. This "
+"module will not function correctly!</font></b>\n"
 #endif
-
-    , 0, 1
-  });
-}
-
+;
 void create()
 {
   defvar("baseuri", "", "Default Base URI", TYPE_DIR,

@@ -41,21 +41,6 @@ constant module_doc  = "This is a mirror filesystem, it mirrors the virtual file
 	     "same Caudium server. It will not work. At all.</b>";
 constant module_unique = 0;
 
-array register_module()
-{
-  return ({MODULE_LOCATION,"Mirror Filesystem",
-	     "This is a mirror filesystem, it mirrors the virtual file-tree "
-	     "of another Caudium server.\n<p>The filesystem connects to a "
-	     "Mirror Server using Roxen RPC.<p>\n"
-	     "The searchpath of the Mirror Filesystem is used as a "
-	     "cache.  It is not a good idea to use the same cache-directory "
-	     "in multiple mirror filesystems, and never store other files in it"
-	     ". There is a mirror for www.roxen.com at skuld.idonex.se:2000, "
-	     "if you want to test this module.<p><b>Do not under any "
-	     "circumstances let this module connect to a mirror server in the "
-	     "same Caudium server. It will not work. At all.</b>"});
-}
-
 void create()
 {
   ::create();

@@ -36,16 +36,6 @@ constant module_doc  = "This module can be used to turn off logging for some fil
 	      "It is based on Regular expressions";
 constant module_unique = 0;
 
-array register_module()
-{
-  return ({ MODULE_LOGGER,
-	      "Logging disabler",
-	      "This module can be used to turn off logging for some files. "
-	      "It is based on "/*"<a href=$docurl/regexp.html>"*/"Regular"
-	      " expressions"/*"</a>"*/,
-	      });
-}
-
 void create()
 {
   defvar("nlog", "", "No logging for",

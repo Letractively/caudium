@@ -114,16 +114,6 @@ void start()
   }
 }
 
-mixed register_module()
-{
-  return ({ MODULE_FIRST, 
-	    "Redirect Module v2.0", 
-	      "The redirect module. Redirects requests from one filename to "
-	      "another. This can be done using \"internal\" redirects (much"
-	      " like a symbolik link in unix), or with normal HTTP redirects.",
-	      ({}), 1, });
-}
-
 string comment()
 {
   return sprintf("Number of patterns: %d+%d=%d, Redirects so far: %d", 

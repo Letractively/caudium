@@ -60,26 +60,6 @@ constant module_unique = 1;
 # define DWERR(x)
 #endif
 
-array register_module()
-{
-  return ({ MODULE_FIRST,
-	    "Virtual Host Matcher",
-	    "This module adds support for ip-less virtual hosts. Add this "
-	    "module to a server with an open listen port. All requests will "
-	    "be matched exactly against all your virtual servers. You can also "
-	    "optionally write regexp rules to rewrite the host before doing "
-	    "the exact matching. This module replaces the old IP-less virtual "
-	    "hosting module, which used fuzzy matching which often gave a bad "
-	    "result"
-	    "<p><b>Please note that  ip less hosting "
-	    "doesn't work well together with proxies. The reason is that the "
-	    "host header sent isn't the one of the proxy server, but the "
-	    "one of the requested host. We strongly  recommend having the "
-	    "proxies in their own virtual server with a dedicated "
-	    "IP and / or port.</b>",
-	    0, 1 });
-}
-
 mapping config_cache = ([ ]);
 mapping rewrite_info = ([]);
 int is_ip(string s)

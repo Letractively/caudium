@@ -39,18 +39,6 @@ constant module_doc  = "Generates graphical texts.<p>"
 	    "more information.";
 constant module_unique = 1;
 	    
-array register_module()
-{
-  return ({ MODULE_PARSER,
-	    "Graphics text",
-	    "Generates graphical texts.<p>"
-	    "See <tt>&lt;gtext help&gt;&lt;/gtext&gt;</tt> for "
-	    "more information.",
-	    0, 1
-         });
-}
-
-
 void create()
 {
   defvar("colorparse", 1, "Parse tags for document colors", TYPE_FLAG,

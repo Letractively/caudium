@@ -53,16 +53,6 @@ import Array;
 
 #include <proxyauth.pike>
 
-array register_module()
-{
-  return ({ 
-    MODULE_LOCATION|MODULE_PROXY,
-    "Gopher Gateway",
-    "This is a caching gopher gateway, might be useful for firewall sites, if "
-      "anyone is still using gopher.", ({}), 1
-    });
-}
-
 string query_location() { return query("loc"); }
 
 void create()

@@ -44,18 +44,6 @@ constant module_doc  = "This module allows Caudium users to run PHP scripts, "
     "PHP.";
 constant module_unique = 0;
 
-array register_module()
-{
-  return 
-  ({
-    MODULE_FILE_EXTENSION,
-    "PHP Script Support", 
-    "This module allows Caudium users to run PHP scripts, "
-    "optionally with RXML post-parsing. See <a href=\"http://"
-    "www.php.net/\">www.php.net</a> for further information about "
-    "PHP."      
-  });
-}
 
 #if constant(PHP4.Interpreter)
 

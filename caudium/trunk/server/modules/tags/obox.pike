@@ -218,15 +218,6 @@ string container_obox(string name, mapping args,
   return s;
 }
 
-array register_module()
-{
-  return ({
-    MODULE_PARSER, "Outlined box",
-    "This is a container tag making outlined boxes.<p>"
-    "<tt>&lt;obox help&gt;&lt;/obox&gt;</tt> gives help.\n\n "+doc(),
-    0, 1 });
-}
-
 void start(int num, object configuration)
 {
   loaded = 1;

@@ -30,18 +30,6 @@ constant module_doc  = "Provides a tag 'cimg'. Usage: "
 
 caudium.ImageCache the_cache;
 
-array register_module()
-{
-   return 
-   ({ 
-      MODULE_PARSER,
-      "Image converter",
-      "Provides a tag 'cimg'. Usage: "
-      "&lt;cimg src=indata format=outformat [quant=numcolors] [img args]&gt;",
-      0,1
-   });
-}
-
 void start()
 {
   the_cache = caudium.ImageCache( "cimg", generate_image );

@@ -176,19 +176,6 @@ class Dirnode
   }
 };
 
-array register_module()
-{
-  return ({ MODULE_DIRECTORIES, 
-	    "Directory parsing module",
-	    "This is the default directory parsing module. "
-	      "This one pretty prints a list of files, with "
-	      "macintosh like fold and unfold buttons next to each "
-	      "directory.", 
-	    ({ }), 
-	    1
-	    });
-}
-
 void create()
 {
   defvar("indexfiles", ({ "index.html", "Main.html", "welcome.html",

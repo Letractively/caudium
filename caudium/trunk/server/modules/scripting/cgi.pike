@@ -129,16 +129,6 @@ string trim( string what )
 #define DWERROR(X)
 #endif /* CGI_DEBUG */
 
-array register_module()
-{
-  return 
-  ({
-    MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER,
-    "CGI executable support", 
-    "Support for the <a href=\"http://hoohoo.ncsa.uiuc.edu/docs/cgi/"
-    "interface.html\">CGI/1.1 interface</a>, and more.",
-  });
-}
 #if UNIX
 /*
 ** All this code to handle UID, GID and some other permission

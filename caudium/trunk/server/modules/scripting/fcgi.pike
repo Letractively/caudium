@@ -43,20 +43,6 @@ void create(object c)
 }
 
 
-mixed *register_module()
-{
-  if(file_stat("bin/fcgi")) {
-    return ({ 
-      MODULE_FIRST | MODULE_LOCATION | MODULE_FILE_EXTENSION,
-      "Fast-CGI executable support", 
-      "Partial support for the "
-      "<a href=http://www.fastcgi.com>Fast-CGI interface</a>. "
-      "This module is useful, but not finished."
-    });
-  }
-}
-
-
 string query_name() 
 { 
   return sprintf("Fast-CGI support, mounted on "+query_location());

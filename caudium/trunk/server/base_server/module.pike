@@ -104,7 +104,7 @@ string status() {}
 
 string info(object conf)
 { 
-  return module_doc;
+  return this->register_module()[2];
 }
 
 static class ConfigurableWrapper

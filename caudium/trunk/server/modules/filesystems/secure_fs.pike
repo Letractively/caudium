@@ -36,16 +36,6 @@ constant module_doc  = "This is a (somewhat) more secure filesystem module. It "
 	    "Mark 2 allows for authentication via a form.\n";
 constant module_unique = 0;
 
-array register_module()
-{
-  return ({ MODULE_LOCATION,
-	    "Secure file system module (Mk II)",
-	    "This is a (somewhat) more secure filesystem module. It "
-            "allows an per-regexp level security.\n"
-	    "Mark 2 allows for authentication via a form.\n"
-  });
-}
-
 array seclevels = ({ });
 
 #define  regexp(_) (Regexp(_)->match)

@@ -60,21 +60,6 @@ Content-type: text/html\r\n\
 
 /* Simply relay a request to another server if the data was not found. */
 
-mixed *register_module()
-{
-  return ({ 
-    MODULE_LAST | MODULE_FIRST,
-    "HTTP-Relay", 
-    "Relays HTTP requests from this server to another one. <p>"
-      "Like the redirect module, but transparent to the user. This module "
-      "will connect to another server, and get the data from there, and "
-      "then return the new data to the user.  The same results can be "
-      "achieved using the proxy and the redirect module.  With "
-      "caching. This module is therefore quite obsolete, really.  But "
-      "since it is so small, I have left it here. "
-      });
-}
-
 void create()
 {
   defvar("pri", "Last", "Module priority", TYPE_STRING_LIST,

@@ -41,12 +41,6 @@ constant module_name = "PATH_INFO support";
 constant module_doc  = "Support for PATH_INFO style URLs.";
 constant module_unique = 1;
 
-array register_module()
-{
-  return ({ MODULE_LAST, "PATH_INFO support",
-	    "Support for PATH_INFO style URLs.",
-	    0, 1 });
-}
 
 mapping|int last_resort(object id)
 {

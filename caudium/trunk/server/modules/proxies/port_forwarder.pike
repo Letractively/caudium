@@ -29,7 +29,7 @@ inherit "module";
 inherit "socket";
 #include <module.h>;
 
-constant module_type = 0;
+constant module_type = MODULE_ZERO;
 constant module_name = "TCP Port Forwarder";	
 constant module_doc  = "A basic port-forwarder"
 			"&copy; 1998 Francesco Chemolli "
@@ -141,16 +141,6 @@ class Connection
 	}
 };
 
-array register_module() {
-	return ({
-			0,
-			"TCP Port Forwarder",
-			"A basic port-forwarder"
-			"&copy; 1998 Francesco Chemolli "
-			"&lt;kinkie@kame.usr.dsi.unimi.it&gt;,<BR>\nfreely distributed "
-			"under the terms of the GNU General Public License, version 2"
-			});
-}
 
 multiset connections=(<>);
 
