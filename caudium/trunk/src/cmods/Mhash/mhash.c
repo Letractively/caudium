@@ -25,12 +25,7 @@
 #include "global.h"
 RCSID("$Id$");
 
-#include "stralloc.h"
-#include "pike_macros.h"
-#include "module_support.h"
-#include "program.h"
-#include "error.h"
-#include "threads.h"
+#include "pexts.h"
 #include "mhash_config.h"
 
 #ifdef HAVE_MHASH
@@ -49,17 +44,17 @@ RCSID("$Id$");
 void f_hash_create(INT32 args)
 {
   if(THIS->type != -1 || THIS->hash || THIS->res) {
-    error("Recursive call to create. Use Mhash.Hash()->reset() or \n"
+    Pike_error("Recursive call to create. Use Mhash.Hash()->reset() or \n"
 	  "Mhash.Hash()->set_type() to change the hash type or reset\n"
 	  "the object.\n");
   }
   switch(args) {
   default:
-    error("Invalid number of arguments to Mhash.Hash(), expected 0 or 1.\n");
+    Pike_error("Invalid number of arguments to Mhash.Hash(), expected 0 or 1.\n");
     break;
   case 1:
     if(sp[-args].type != T_INT) {
-      error("Invalid argument 1. Expected integer.\n");
+      Pike_error("Invalid argument 1. Expected integer.\n");
     }
     THIS->type = sp[-args].u.integer;
     break;
@@ -81,18 +76,18 @@ void f_hash_feed(INT32 args)
 {
   if(THIS->hash == NULL) {
     if(THIS->type != -1)
-      error("Hash is ended. Use Mhash.Hash()->reset() to reset the hash.\n");
+      Pike_error("Hash is ended. Use Mhash.Hash()->reset() to reset the hash.\n");
     else
-      error("Hash is uninitialized. Use Mhash.Hash()->set_type() to select hash type.\n");
+      Pike_error("Hash is uninitialized. Use Mhash.Hash()->set_type() to select hash type.\n");
   }
   if(args == 1) {
     if(sp[-args].type != T_STRING) {
-      error("Invalid argument 1. Expected string.\n");
+      Pike_error("Invalid argument 1. Expected string.\n");
     }
     mhash(THIS->hash, sp[-args].u.string->str,
 	  sp[-args].u.string->len << sp[-args].u.string->size_shift);
   } else {
-    error("Invalid number of arguments to Mhash.Hash->feed(), expected 1.\n");
+    Pike_error("Invalid number of arguments to Mhash.Hash->feed(), expected 1.\n");
   }
   pop_n_elems(args);
 }
@@ -104,7 +99,7 @@ static int get_digest(void)
     THIS->hash = NULL;
   }
   if(THIS->res == NULL) {
-    error("No hash result available!\n");
+    Pike_error("No hash result available!\n");
   }
   return mhash_get_block_size(THIS->type);
 }
@@ -163,7 +158,7 @@ void f_hash_reset(INT32 args)
     THIS->hash = mhash_init(THIS->type);
     if(THIS->hash == MHASH_FAILED) {
       THIS->hash = NULL;
-      error("Failed to initialize hash.\n");
+      Pike_error("Failed to initialize hash.\n");
     }
   }
   pop_n_elems(args);
@@ -177,18 +172,18 @@ void f_hash_set_type(INT32 args)
 {
   if(args == 1) {
     if(sp[-args].type != T_INT) {
-      error("Invalid argument 1. Expected integer.\n");
+      Pike_error("Invalid argument 1. Expected integer.\n");
     } 
     THIS->type = sp[-args].u.integer;
   } else {
-    error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
+    Pike_error("Invalid number of arguments to Mhash.Hash()->set_type, expected 1.\n");
   }
   free_hash();
   if(THIS->type != -1) {
     THIS->hash = mhash_init(THIS->type);
     if(THIS->hash == MHASH_FAILED) {
       THIS->hash = NULL;
-      error("Failed to initialize hash.\n");
+      Pike_error("Failed to initialize hash.\n");
     }
   }
   pop_n_elems(args);
