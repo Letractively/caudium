@@ -379,7 +379,7 @@ string get_calendar(string profile, string base_url, array selected) {
     
    case "month":
      cal = Calendar.ISO.Month(@selected[1..]);
-     werror("%O\n", );
+     //werror("%O\n", );
     out += monthname(cal)+", "+ selected[1]+"</title>\n"
       "<table cellspacing=1 cellpadding=1 width=100%><tr align=left>"
       "<th>Year</th><th colspan=3>&nbsp;Month</th><th>&nbsp;Week</th>";
@@ -685,7 +685,7 @@ array(string)|string get_profile_list(void|int raw)
 }
 
 array|mapping|string view_log(string f, object id) {
-  werror("view_log(%s)\n", f);
+  //werror("view_log(%s)\n", f);
   array path = f / "/" - ({""});
   mapping v = id->variables;
   int to_exit, start, num;
@@ -1056,7 +1056,7 @@ array|mapping|string view_log(string f, object id) {
      case "errorpages":
       sorts = ({ ({ "Num", "Path" , "Return Code", "Hits" }) });
       tmp = reverse(summarize_map(stats[action], 1));
-      werror("%O\n", tmp);
+      //werror("%O\n", tmp);
 
      case "errefs":
       if(!sorts) {
@@ -1385,7 +1385,7 @@ array|mapping|string view_log(string f, object id) {
     total = " name='"+total+"' ";
   else
     total = "";
-  werror("Gauge Times: %O\n", gmap);
+  //werror("Gauge Times: %O\n", gmap);
   if(sorts && sizeof(sorts) > 1) {
     switch(v->type)
     {
