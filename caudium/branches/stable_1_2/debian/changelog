@@ -1,3 +1,9 @@
+caudium (2:1.2.31-3) unstable; urgency=high
+
+  * Package description fixes (closes: Bug#209533)
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  9 Sep 2003 23:54:23 +0200
+
 caudium (2:1.2.31-2) unstable; urgency=high
 
   * Minor code fixes:
