@@ -6,7 +6,10 @@ A quick howto:
 
  - create a directory named after your distribution, e.g.:
      redhat/
-     debian/
+     debian/	[ actually don't do debian/. debian packaging	]
+		[ info is already in the tree, where it belongs	]
+		[ to according to debian standards. do the	]
+		[ others, though... //ice			]
      solaris/
      mandrake/
      
