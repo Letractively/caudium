@@ -516,10 +516,12 @@ void init_datetime(void)
 
 void exit_datetime(void)
 {
+#if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
   unsigned int i;
   for(i = 0; getdate_errors[i] != NULL; i++)
   {
     free_string(getdate_errors[i]);
   }
+#endif
   free_string(gd_bad_format);
 }
