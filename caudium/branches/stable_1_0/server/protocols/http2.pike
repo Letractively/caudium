@@ -68,7 +68,7 @@ int req_time = HRTIME();
 #else
 #define MARK_FD(X) REQUEST_WERR(X)
 #endif
-#undef REQUEST_DEBUG
+
 constant decode        = MIME.decode_base64;
 constant find_supports = caudium->find_supports;
 constant version       = caudium->version;
