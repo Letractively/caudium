@@ -132,7 +132,7 @@ mapping first_try(object id)
 }
 
 
-#define REFERRER id->request_headers->referrer
+#define REFERRER id->referrer
 void precache_rewrite(object id)
 {
   if(!QUERY(switch)) 			// Do we active our cool referrer deny ?
