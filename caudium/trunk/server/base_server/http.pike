@@ -443,6 +443,7 @@ string http_date(int t)
 {
     return Calendar.ISO_UTC.Second(t)->format_http();
 }
+#endif
 
 //!   HTTP encode the specified string and return it. This means replacing
 //!   the following characters to the %XX format: null (char 0), space, tab,
@@ -460,6 +461,7 @@ string http_encode_string(string f)
 	       "%3c", "%3e", "%40" }));
 }
 
+#if 0
 //!   HTTP decode the specified string and return it. This means replacing
 //!   the following characters from the %XX format: null (char 0), space, tab,
 //!   carriage return, newline, percent and single and double quotes.
@@ -519,182 +521,4 @@ string http_decode_url (string f)
   return
     replace (f,
 	     ({"%00", "%20", "%09", "%0a", "%0d", "%25", "%27", "%22", "%23",
-	       "%26", "%3f", "%3d", "%2f", "%3a", "%2b", "%3c", "%3e", "%40",
-               "%0A", "%0D", "%3F", "%3D", "%2F", "%3A", "%2B", "%3C", "%3E"
-	     }),
-	     ({"\000", " ", "\t", "\n", "\r", "%", "'", "\"", "#",
-	       "&", "?", "=", "/", ":", "+", "<", ">", "@",
-               "\n",  "\r",  "?",   "=",   "/",   ":",   "+",   "<",   ">"
-             }));
-}
-
-//!   Make a configuration cookie. This is is not a function meant to
-//!   be used by the average user.
-//! @param from
-//!   The cookie value to encode and put in the cookie.
-//! @returns
-//!   The cookie value.
-string http_caudium_config_cookie(string from)
-{
-  return "CaudiumConfig="+Protocols.HTTP.http_encode_cookie(from)
-    +"; expires=" + Protocols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/";
-}
-
-function(string:string) http_roxen_config_cookie = http_caudium_config_cookie;
-
-
-//!   Make a unique user id cookie. This is an internal function which is used
-//!   to set a cookie for all visitors
-//! @returns
-//!   The cookie value.
-string http_caudium_id_cookie()
-{
-  return sprintf("CaudiumUserID=0x%x; expires=" +
-		 Protocols.HTTP.Server.http_date (3600*24*365*2 + time (1)) + "; path=/",
-		 caudium->increase_id());
-}
-
-function(void:string) http_roxen_id_cookie = http_caudium_id_cookie;
-
-//!   Prepend the URL with the prestate specified. The URL is a path
-//!   beginning with /.
-//! @param url
-//!   The URL.
-//! @param state
-//!   The multiset with prestates.
-//! @returns
-//!   The new URL
-static string add_pre_state( string url, multiset state )
-{
-  if(!url)
-    error("URL needed for add_pre_state()\n");
-  if(!state || !sizeof(state))
-    return url;
-  if(strlen(url)>5 && (url[1] == '(' || url[1] == '<'))
-    return url;
-  return "/(" + sort(indices(state)) * "," + ")" + url ;
-}
-
-//!   Return a response mapping which defines a redirect to the
-//!   specified URL. If the URL begins with / and the ID object is present,
-//!   a host name (and the prestates) will be prefixed to the URL. If the
-//!   url doesn't begin with /, it won't be modified. This means that you
-//!   either need a complete URL (ie http://www.somewhere.com/a/path) or an
-//!   absolute url /a/path. Relative URLs won't work (ie path/index2.html).
-//! @param url
-//!   The URL to redirect to.
-//! @param id
-//!   The request id object.
-//! @returns
-//!   The HTTP response mapping for the redirect
-mapping http_redirect( string url, object|void id )
-{
-  if(url[0] == '/')
-  {
-    if(id)
-    {
-      url = add_pre_state(url, id->prestate);
-      if(id->request_headers->host) {
-	string p = ":80", prot = "http://";
-	array h;
-	if(id->ssl_accept_callback) {
-	  // This is an SSL port. Not a great check, but what is one to do?
-	  p = ":443";
-	  prot = "https://";
-	}
-	h = id->request_headers->host / p  - ({""});
-	if(sizeof(h) == 1)
-	  // Remove redundant port number.
-	  url=prot+h[0]+url;
-	else
-	  url=prot+id->request_headers->host+url;
-      } else
-	url = id->conf->query("MyWorldLocation") + url[1..];
-    }
-  }
-#ifdef HTTP_DEBUG
-  perror("HTTP: Redirect -> "+Protocols.HTTP.http_encode_string(url)+"\n");
-#endif  
-  return http_low_answer( 302, "") 
-    + ([ "extra_heads":([ "Location":Protocols.HTTP.http_encode_string( url ) ]) ]);
-}
-
-//!   Returns a response mapping that tells Caudium that this request
-//!   is to be streamed as-is from the specified fd-object (until there is
-//!   nothing more to read). This differs from http_pipe_in_progress in that
-//!   this function makes Roxen read the data from the specified object and will
-//!   close the connection when it's done. With http_pipe_in_progress you are
-//!   responsible for writing the content to the client and closing the
-//!   connection. Please note that a http_stream reply also inhibits the
-//!   sending of normal HTTP headers.
-//! @param from
-//!   The object Roxen should read data from. This can be any object that
-//!   implements the correct functions - read() is _probably_ enough.
-//! @returns
-//!   The HTTP response mapping.
-mapping http_stream(object from)
-{
-  return ([ "raw":1, "file":from, "len":-1, ]);
-}
-
-//!   Returns a http authentication response mapping which will make the
-//!   browser request the user for authentication information. The optional
-//!   message will be used as the body of the page. 
-//! @param realm
-//!   The realm of this authentication. This is show in various methods by the
-//!   authenticating browser.
-//! @param message
-//!   An option message which defaults to a simple "Authentication failed.".
-//! @returns
-//!   The HTTP response mapping.
-mapping http_auth_required(string realm, string|void message, void|int dohtml)
-{
-  if(!message)
-    message = "<h1>Authentication failed.\n</h1>";
-
-  if (dohtml)
-      message = make_htmldoc_string(message, "Caudium: Authentication failed");
-  
-#ifdef HTTP_DEBUG
-  perror("HTTP: Auth required ("+realm+")\n");
-#endif  
-  return http_low_answer(401, message)
-    + ([ "extra_heads":([ "WWW-Authenticate":"basic realm=\""+realm+"\"",]),]);
-}
-
-#ifdef API_COMPAT
-/* Not documented since it's an out-of-date API function */
-mapping http_auth_failed(string realm, string|void m, void|int d)
-{
-#ifdef HTTP_DEBUG
-  perror("HTTP: Auth failed ("+realm+")\n");
-#endif  
-  return http_low_answer(401, "<h1>Authentication failed.\n</h1>")
-    + ([ "extra_heads":([ "WWW-Authenticate":"basic realm=\""+realm+"\"",]),]);
-}
-#else
-function http_auth_failed = http_auth_required;
-#endif
-
-
-//!   Returns a http proxy authentication response mapping which will make the
-//!   browser request the user for authentication information for use with
-//!   a proxy. This is different than the normal auth in that it's meant for
-//!   proxies only. The optional message will be used as the body of the page. 
-//! @param realm
-//!   The realm of this authentication. This is show in various methods by the
-//!   authenticating browser.
-//! @param message
-//!   An option message which defaults to a simple "Authentication failed.".
-//! @returns
-//!   The HTTP response mapping.
-mapping http_proxy_auth_required(string realm, void|string message)
-{
-#ifdef HTTP_DEBUG
-  perror("HTTP: Proxy auth required ("+realm+")\n");
-#endif  
-  if(!message)
-    message = "<h1>Proxy authentication failed.\n</h1>";
-  return http_low_answer(407, message)
-    + ([ "extra_heads":([ "Proxy-Authenticate":"basic realm=\""+realm+"\"",]),]);
-}
+	       "%26", "%3f"
