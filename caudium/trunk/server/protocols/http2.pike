@@ -23,7 +23,7 @@
 /* If defined, write files smaller than this define directly to
  * the output fd instead of using the data shuffler.
  */
-#define DIRECT_WRITE 40000
+#define DIRECT_WRITE 4000
 
 #define MAGIC_ERROR
 
@@ -779,19 +779,20 @@ static void pipe_timeout() {
 static void timer(int start, int|void last_sent, int|void called_out)
 {
   if(pipe) {
-    if(pipe->sent != last_sent) {
+    int ps = pipe->bytes_sent();
+    if(ps != last_sent) {
       if(called_out) {
 	remove_call_out(pipe_timeout);
 	called_out = 0;
       }
-      last_sent = pipe->sent;
+      last_sent = ps;
     } else if(!called_out) {
       call_out(pipe_timeout, 300);
       called_out = 1;
     }
     
     MARK_FD(sprintf("HTTP piping (st=%d, ln=%d, lc=%d, tm=%d, fl=%s)",
-		    pipe->sent,
+		    ps,
 		    stringp(pipe->current_input) ?
 		    strlen(pipe->current_input) : -1,
 		    pipe->last_called,
