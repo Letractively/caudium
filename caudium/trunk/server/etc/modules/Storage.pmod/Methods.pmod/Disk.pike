@@ -205,7 +205,7 @@ int size(string namespace) {
 array list(string namespace) {
   PREFLOCK();
   array ret = ({ });
-  array dir = get_dir(path)?get_dir(path):({});
+  array dir = get_dir(path)||({});
   foreach(dir, string fname) {
     string objpath = Stdio.append_path(path, fname);
     FLOCK(objpath, "r", 1);
