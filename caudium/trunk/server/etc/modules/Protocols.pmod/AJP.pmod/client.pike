@@ -55,6 +55,16 @@ class connection
        error("Protocols.AJP.client.connection(): Unable to connect to " + host + ":" + port + ".");
   }
 
+  string read_packet()
+  {
+    int len;
+    string d= c->read(4); // get packet header and length.
+    sscanf(d, "%2*c%2c", len);
+    d+=c->read(len);
+    return d;
+ }
+
+
   mapping handle(object id)
   {
     inuse=1;
@@ -75,18 +85,40 @@ class connection
       }
     }
 
-    int keep_listening=0;
+    int keep_listening=1;
+    report_debug("sent AJP 1.3 request\n");
+
+    mapping r1;
 
     do
     {
-      string c=c->read(MAX_PACKET_SIZE, 1);
-      r=decode_container_packet(c);
+      string rcv=read_packet();
+      r1=decode_container_packet(rcv);
+
+      if(r1->type==MSG_GET_BODY_CHUNK)
+      {
+        c->write(generate_server_packet(packet_body("")));   
+        error("container asked for data we already should have sent.");
+      }
+      if(r1->type==MSG_SEND_HEADERS)
+       r=decode_send_headers(r1);
+      else if(r1->type==MSG_SEND_BODY_CHUNK)
+      {
+        if(!r->body) r->body="";
+        r->body+=decode_send_body_chunk(r1);
+      }
+      else if(r1->type==MSG_END_RESPONSE) 
+      {
+        keep_listening=0;
+        werror("received end response packet.\n");
+      }
+      else error("Invalid packet type " + r1->type + " received.\n");
     }
     while(keep_listening==1);
 
-    r=Caudium.HTTP.string_answer(sprintf("%O", r));
-    
     inuse=0;
     return r;
   }
+
 }
+

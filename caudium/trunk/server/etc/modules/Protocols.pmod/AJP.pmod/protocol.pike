@@ -92,7 +92,7 @@ string packet_forward_request(object id)
   int server_port;
   int is_ssl=0;
 
-  if(id->SSL) is_ssl=1;
+  if(id->server_protocol=="HTTPS") is_ssl=1;
 
   server_name=id->conf->query("MyWorldLocation");
   sscanf(server_name, "%*s//%s", server_name);
@@ -105,7 +105,7 @@ string packet_forward_request(object id)
      MSG_FORWARD_REQUEST,
      method,
      push_string(id->clientprot),
-     push_string(id->raw_query),
+     push_string(id->raw_url),
      push_string(id->remoteaddr),
      push_string(caudium->quick_ip_to_host(id->remoteaddr)),
      push_string(server_name),
@@ -116,6 +116,8 @@ string packet_forward_request(object id)
      make_attributes(attributes),
      0xff
      );
+
+  return packet;
 
 }
 
@@ -244,7 +246,7 @@ int method_from_string(string method)
 //!    the apache source to see the length of the length code.
 string push_string(string s)
 {
-   string news=sprintf( "%2c%s%c", strlen(s) + 1, s, 0x00);
+   string news=sprintf( "%2c%s%c", strlen(s), s, 0x00);
    
    return news;
 }
@@ -257,7 +259,7 @@ array pull_string(string s)
    string news;
    int len;
    sscanf(s, "%2c%s", len, s);
-   if(!len) return ({"", s});
+   if(!len) return ({"", s[1..]});
    sscanf(s, "%" + len + "s%*c%s", news, s);   
    return ({news, s});
 }
@@ -285,6 +287,43 @@ string make_attributes(mapping a)
       attribute_string+=push_string(attribute) + push_string(a[attribute]);
   }
   return attribute_string;
+}
+
+string decode_send_body_chunk(mapping packet)
+{
+  werror("decode_send_body_chunk: ");
+  if(packet->type != MSG_SEND_BODY_CHUNK)
+    error("Attempt to decode invalid send body chunk packet.\n");
+  
+  int len;
+
+  sscanf(packet->data, "%2c%s", len, packet->data);
+  sscanf(packet->data, "%" + len + "s", packet->data);
+  werror(" " + len + " bytes of data.\n");
+  return packet->data;
+}
+
+mapping decode_send_headers(mapping packet)
+{
+  werror("decode_send_headers\n");
+  if(packet->type != MSG_SEND_HEADERS)
+    error("Attempt to decode invalid send headers packet.\n");
+
+  sscanf(packet->data, "%2c%s", packet->response_code, packet->data);
+  [packet->response_msg, packet->data]=pull_string(packet->data);
+  sscanf(packet->data, "%2c%s", packet->num_headers, packet->data);
+
+  packet->response_headers=([]);
+
+  for(int i=0; i<packet->num_headers; i++)
+  {
+    string h,v;
+    [h, packet->data]=pull_string(packet->data);
+    [v, packet->data]=pull_string(packet->data);
+    packet->response_headers[h]=v;
+  }
+
+  return packet;
 }
 
 mapping decode_container_packet(string packet)
