@@ -119,16 +119,18 @@ void store( mapping cache_response ) {
       cache_response->expires = time() + cache_response->expires;
     }
   } else {
-    cache_response->expires = time() + default_ttl;
+    if ( ! cache_response->expires == -1 ) {
+      cache_response->expires = time() + default_ttl;
+    }
   }
   if ( cache_response->size > max_object_ram ) {
-    if ( cache_response->disk_cache ) {
+    //if ( cache_response->disk_cache ) {
       if ( cache_response->size > max_object_disk ) {
         return 0;
       }
       disk_cache->store( cache_response );
       return 0;
-    }
+    //}
   }
   ram_cache->store( cache_response );
 }
@@ -159,6 +161,7 @@ void|mapping retrieve( string name, void|int objectonly ) {
 #endif
     if ( _object->size < max_object_ram ) {
       ram_cache->store( _object );
+      disk_cache->refresh( name );
     }
     if ( objectonly ) {
       return _object->object;

@@ -23,6 +23,7 @@
 constant cvs_version = "$Id$";
 
 #define EXPIRE_CHECK 300
+inherit "cache_helpers";
 
 mapping thecache;
 string namespace;
@@ -48,23 +49,11 @@ void create( string _namespace, void|object _disk_cache ) {
   call_out( expire_cache, EXPIRE_CHECK );
 }
 
-string hash( string data ) {
-  string retval;
-#if constant(_Lobotomized_Crypto)
-  retval = _Lobotomized_Crypto.md5()->update( data )->digest();
-#elseif constant(Crypto)
-  retval = Crypto.md5()->update( data )->digest();
-#else
-  retval = data;
-#endif
-  return sprintf("%@02x",(array(int)) retval);
-}
-
 void store( mapping meta ) {
   meta->create_time = (meta->create_time?meta->create_time:time());
   meta->last_retrieval = (meta->last_retrieval?meta->last_retrieval:0);
   meta->hits = (meta->hits?meta->hits:0);
-  meta->hash = (meta->hash?meta->hash:hash( meta->name ));
+  meta->hash = (meta->hash?meta->hash:get_hash( meta->name ));
   switch( meta->type ) {
   case "stdio":
 	// Use non-blocking IO to move to RAM?
@@ -99,7 +88,7 @@ void|mixed retrieve( string name, void|int object_only ) {
 	// as long as it's not bigger than the pre-decided limit for 
 	// object size. this will be done with a flash bi-directional
 	// non-blocking io class, kindof like a proxy for file objects.
-  string hash = hash( name );
+  string hash = get_hash( name );
 	// search for the hash in thecache and return it. This could be tricky.
   if ( thecache[ hash ] ) {
     thecache[ hash ]->hits++;
@@ -136,7 +125,7 @@ private mixed get_stdio( string hash ) {
 
 void refresh( string name ) {
 	// remove the object from cache.
-  string hash = hash( name );
+  string hash = get_hash( name );
   if (thecache[ hash ]) {
     ram_usage -= thecache[ hash ]->size;
     m_delete( thecache, hash );
@@ -161,14 +150,18 @@ void stop() {
 	// the data is written before the object is destroyed?
   if ( objectp( disk_cache ) ) {
 #ifdef CACHE_DEBUG
-    write( "RAM_CACHE: Destroy() called, writing contents of cache to disk..\n" );
+    write( "RAM_CACHE: stop() called, writing contents of cache to disk..\n" );
 #endif
     foreach( indices( thecache ), string hash ) {
       if ( thecache[ hash ]->disk_cache ) {
 #ifdef CACHE_DEBUG
         write( "RAM_CACHE: Storing object " + thecache[ hash ]->name + " on disk\n" );
 #endif
-        disk_cache->store( get_stdio( hash ) );
+        if ( thecache[ hash ]->type == "stdio" ) {
+          disk_cache->store( get_stdio( hash ) );
+        } else {
+          disk_cache->store( thecache[ hash ] );
+        }
       }
     }
 #ifdef CACHE_DEBUG
@@ -248,7 +241,7 @@ void free( int n ) {
       mixed obj;
       if ( thecache[ hash ]->type == "stdio" ) {
         obj = get_stdio( hash );
-      } else if ( thecache[ hash ]->_string ) {
+      } else {
         obj = thecache[ hash ];
       }
 #ifdef CACHE_DEBUG
