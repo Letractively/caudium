@@ -99,12 +99,24 @@ void create (mixed ... foo) {
     return;
   }
 
+  defvar("inc_excl", "exclude",
+         "Session URLs allocation", TYPE_MULTIPLE_STRING,
+         "How should the sessions be allocated ?<br><ul>"
+         "<li>if you choose 'include', sessions will only be allocated under the given hierarchy.</li>"
+         "<li>if you choose 'exclude', sessions will be allocated for the whole site <b>except</b> the given dirs.</li>"
+         "</ul>",
+         ({"include", "exclude"}));
+  defvar("include_urls", "", "Include URLs", TYPE_TEXT_FIELD,
+         "URLs that should be branded with a Session Identifier."
+         " Examples:<pre>"
+         "/mail/\n"
+         "</pre>", 0, lambda() { return (QUERY(inc_excl)!="include"); });
   defvar("exclude_urls", "", "Exclude URLs", TYPE_TEXT_FIELD,
          "URLs that shouldn't be branded with a Session Identifier."
          " Examples:<pre>"
          "/images/\n"
          "/download/files/\n"
-         "</pre>");
+         "</pre>", 0, lambda() { return (QUERY(inc_excl)=="include"); });
   defvar("secret", "ChAnGeThIs", "Secret Word", TYPE_STRING,
          "a secret word that is needed to create secure IDs." );
   defvar("dogc", 1, "Garbage Collection", TYPE_FLAG,
@@ -131,7 +143,7 @@ void create (mixed ... foo) {
          0, storage_is_not_file);
   defvar("use_formauth", 0, "Use Form based authentication", TYPE_FLAG,
          "You can protect single URLs with a HTML based form.");
-  defvar("auth_urls", "", "Include URLs", TYPE_TEXT_FIELD,
+  defvar("auth_urls", "", "Auth URLs", TYPE_TEXT_FIELD,
          "URLs that are protected by this module, i.e. URLs that"
          " only should be accessible by known users."
          " Examples:<pre>"
@@ -444,12 +456,28 @@ string sessionid_get(object id) {
 }
 
 mixed first_try(object id) {
-  
-  foreach (QUERY(exclude_urls)/"\n", string exclude) {
-    if ((strlen(exclude) > 0) &&
-        (exclude == id->not_query[..strlen(exclude)-1])) {
-      return (0);
+
+  if (QUERY (inc_excl) == "exclude") {
+    foreach (QUERY(exclude_urls)/"\n", string exclude) {
+      if ((strlen(exclude) > 0) &&
+          (exclude == id->not_query[..strlen(exclude)-1])) {
+        return (0);
+      }
     }
+  }
+  else {
+    int bad = 1;
+    foreach (QUERY(include_urls)/"\n", string include) {
+      if ((strlen(include) > 0) &&
+          (include == id->not_query[..strlen(include)-1])) {
+        bad = 0;
+        // write ("123session: good url: " + id->not_query[..strlen(include)-1] + "\n");
+        break;
+      }
+    }
+
+    if (bad)
+      return 0;
   }
 
   if (query ("dogc") && (random (query ("garbage")) == 0)) {
