@@ -44,3 +44,11 @@ Description: Log Parser module for Caudium
  shared extension module that provides Caudium with a built-in log file parser that
  is capable of generating extensive statistics on the fly for virtual servers configured
  in your Caudium WebServer.
+
+Package: caudium-dev
+Architecture: any
+Depends: ${shlibs:Depends}, pike7 (= ${pikever})
+Description: Developement files for Caudium
+ This package is really a commodity one to facilate building the prospective PHP4
+ package for Caudium. It contains only the files needed for the latter to detect 
+ the presence of Caudium on the system.
