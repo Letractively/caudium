@@ -17,35 +17,60 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id$
  */
 
+/*
+ * made by Pontus Hagland <law@idonex.se> december -96
+ */
+ 
 //
 //! module: Folder list tag
 //!  Adds the tags to make creating folding lists an easy task.
+//!  Adds the &lt;fl&gt;, &lt;ft&gt; and &lt;fd&gt; tags. This makes it easy to 
+//!  build a folder list or an outline.
+//!
+//!  The lists can be nested, i.e.:
+//!    &lt;ft&gt;...&lt;fd&gt;...&lt;/fd&gt;&lt;/ft&gt; with implicit end tags
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
 //
-
-/*
- * $Id$
- *
- * Adds the <fl>, <ft> and <fd> tags. This makes it easy to 
- * build a folder list or an outline. Example:
- * 
- *               <fl>
- *                 <ft>ho
- *                  <fd>heyhepp
- *                 <ft>alakazot
- *                  <fd>no more
- *               </fl>
- *
- * the fl-list can be nestled
- * ie <ft>...<fd>...</fd></ft> with implicit end tags
- *
- * made by Pontus Hagland <law@idonex.se> december -96
- */
+//! container: fl
+//!  This tag is used to build folding lists, that are like {dl}
+//!  lists, but where each element can be unfolded. The tags used to build
+//!  the list elements are &lt;ft&gt; and &lt;fd&gt;.
+//
+//! example:  <fl>
+//!      <ft>ho
+//!          <fd>heyhepp
+//!      <ft>alakazot
+//!          <fd>no more
+//!  </fl>
+//
+//! tag: ft
+//!  Creates a folder list entry
+//
+//! attribute: [folded]
+//!  Will make all elements in the list or that element folded by
+//!  default.
+//
+//! attribute: [unfolded]
+//!  Will make all elements in the list or that element unfolded by
+//!  default.
+//
+//! tag: fd
+//!  Follows &lt;ft&gt; and marks the entry "definition".
+//
+//! attribute: [folded]
+//!  Will make all elements in the list or that element folded by
+//!  default.
+//
+//! attribute: [unfolded]
+//!  Will make all elements in the list or that element unfolded by
+//!  default.
+//
 
 constant cvs_version = "$Id$";
 constant thread_safe=1;
