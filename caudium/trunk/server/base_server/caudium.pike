@@ -34,6 +34,7 @@
 //! inherits: language
 //! inherits: color
 //! inherits: fonts
+//! inherits: internals
 //
 //! cvs_version: $Id$
 
@@ -65,6 +66,7 @@ inherit "disk_cache";
 inherit "language";
 inherit "color";
 inherit "fonts";
+inherit "internals";
 
 // The datashuffler program
 #if constant(spider.shuffle) && defined(THREADS) 
@@ -98,6 +100,7 @@ int startpid, roxenpid;
 object caudium = this_object(), roxen=this_object(), current_configuration;
 
 program Configuration;	/*set in create*/
+object IFiles;
 
 array configurations = ({});
 object main_configuration_port;
@@ -245,17 +248,19 @@ private static void low_shutdown(int exit_code)
 mapping restart() 
 { 
   low_shutdown(-1);
-  return ([ "data": replace(Stdio.read_bytes("etc/restart.html"),
-			    ({"$docurl", "$PWD"}), ({caudium->docurl, getcwd()})),
-		  "type":"text/html" ]);
+  
+  return IFiles->get("html://restart.html", ([
+                     "docurl":caudium->docurl,
+					 "PWD":getcwd()]));
 } 
 
 mapping shutdown() 
 {
   low_shutdown(0);
-  return ([ "data":replace(Stdio.read_bytes("etc/shutdown.html"),
-			   ({"$docurl", "$PWD"}), ({caudium->docurl, getcwd()})),
-	    "type":"text/html" ]);
+  
+  return IFiles->get("html://shutdown.html", ([
+                     "docurl":caudium->docurl,
+					 "PWD":getcwd()]));
 } 
 
 // This is called for each incoming connection.
@@ -1273,6 +1278,8 @@ void post_create () {
     call_out (restart_if_stuck,10);
   if (QUERY(suicide_engage))
     call_out (restart,60*60*24*QUERY(suicide_timeout));
+	
+
 }
 
 void create()
@@ -1291,6 +1298,7 @@ void create()
   add_constant("__caudium_build__", __caudium_build__);
   
   Configuration = (program)"configuration";
+  
   call_out(post_create,1); //we just want to delay some things a little
 }
 
@@ -3010,6 +3018,14 @@ private void define_global_variables( int argc, array (string) argv )
           0,
           lambda(){ return QUERY(argument_cache_in_db); });
 
+  globvar("InternalHTMLPath","etc/internal/html/", "Internal files: HTML files path",
+          TYPE_DIR|VAR_MORE,
+	  	  "Directory where the internal HTML files are located.");
+		  
+  globvar("InternalImagePath","etc/internal/images/", "Internal files: Image files path",
+          TYPE_DIR|VAR_MORE,
+	  	  "Directory where the internal images are located.");
+		  
   setvars(retrieve("Variables", 0));
 
   for(p = 1; p < argc; p++)
@@ -3630,6 +3646,12 @@ int main(int|void argc, array (string)|void argv)
   perror("Restart initiated at "+ctime(time())); 
 
   define_global_variables(argc, argv);
+
+  IFiles = InternalResolver(([
+             "html":GLOBVAR(InternalHTMLPath),
+			 "image":GLOBVAR(InternalImagePath)
+           ]));
+
 #ifdef ENABLE_NEIGHBOURHOOD
   neighborhood = (object)"neighborhood";
 #endif /* ENABLE_NEIGHBOURHOOD */
@@ -3677,6 +3699,8 @@ int main(int|void argc, array (string)|void argv)
                   + (describe_backtrace( e )/"\n")[0]+"\n");
   }
   roxen_perror( "\n" );
+
+
 
   foreach(configurations, object config)
   {
