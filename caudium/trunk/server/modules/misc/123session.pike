@@ -34,13 +34,13 @@ inherit "roxenlib";
 import Sql;
 
 mapping (string:mixed) session_variables;
-Configuration myconf;
+object myconf;
 
 int storage_is_not_sql() {
  return (query("storage") != "sql");
 }
 
-void start(int num, Configuration conf) {
+void start(int num, object conf) {
   if (conf) { myconf = conf; }
 }
 
@@ -54,10 +54,15 @@ void create() {
   defvar("storage", "memory",
    "Storage Method", TYPE_MULTIPLE_STRING,
    "The method to be used for storing the session variables."
-   " Available are Memory, Database and File storage.  Each"
+   " Available are Memory and Database storage.  Each"
    " of them have their pros and cons regarding speed and"
    " persistance.",
    ({"memory", "sql"}));
+  defvar("identify", "cookie",
+   "Identifying Method", TYPE_MULTIPLE_STRING,
+   "The method to be used for branding a webbrowser with a"
+   " unique Session Identifier. Available are Cookies and Prestates.",
+   ({"cookie", "prestate"}));
   defvar("sql_url", "",
    "Database URL", TYPE_STRING,
    "Which database to use for the session variables, use"
@@ -156,7 +161,6 @@ void session_gc() {
   }
 }
 
-
 mapping (string:mixed) session_retrieve_memory(string SessionID) {
   if (!session_variables) {
     session_variables = ([]);
@@ -250,6 +254,13 @@ string sessionid_create() {
   return(Crypto.string_to_hex(md5->digest()));
 }
 
+mixed sessionid_set_prestate(object id, string SessionID) {
+  string url=strip_prestate(strip_config(id->raw_url));
+  string new_prestate = "SessionID="+SessionID;
+  id->prestate += (<new_prestate>);
+  return(http_redirect(url, id));
+}
+
 void sessionid_set_cookie(object id, string SessionID) {
   string Cookie = "SessionID="+SessionID+"; path=/";
   id->cookies->SessionID = SessionID;
@@ -260,22 +271,20 @@ void sessionid_set_cookie(object id, string SessionID) {
                            "Cache-Control": "no-cache, must-revalidate" ]);
 }
 
-void sessionid_set(object id, string SessionID) {
-  // TODO: wrapper
-  sessionid_set_cookie(id, SessionID);
-}
-
 string sessionid_get(object id) {
   string SessionID;
 
   if (id->cookies->SessionID) {
     SessionID = id->cookies->SessionID;
   }
-  if (!SessionID) {
-    SessionID = sessionid_create();
-    sessionid_set(id, SessionID);
+  
+  foreach (indices(id->prestate), string prestate) {
+    if (prestate[..8] == "SessionID" ) {
+      SessionID = prestate[10..];
+    }
   }
-  return (SessionID);
+
+  return(SessionID);
 }
 
 mixed first_try(object id) {
@@ -284,6 +293,18 @@ mixed first_try(object id) {
   }
 
   string SessionID = sessionid_get(id);
+
+  if (!SessionID) {
+    SessionID = sessionid_create();
+    switch(query("identify")) {
+      case "cookie":
+        sessionid_set_cookie(id, SessionID);
+        break;
+      case "prestate":
+        return (sessionid_set_prestate(id, SessionID));
+        break;
+    }
+  }
 
   id->misc->session_variables = session_retrieve(SessionID);
   id->misc->session_id = SessionID;
