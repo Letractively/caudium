@@ -1,5 +1,5 @@
 <!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
-  <!ENTITY caudium  "<productname>Caudium WebServer</productname>">
+  <!ENTITY caudium  "<productname>serveur Caudium</productname>">
   <!ENTITY docbook "<productname>DocBook</productname>">
   <!ENTITY sgml    "<abbrev>SGML</abbrev>">
 ]>
@@ -29,9 +29,9 @@
     <refmiscinfo>The Caudium WebServer</refmiscinfo>
   </refmeta>
   <refnamediv>
-    <refname>caudiumctl</refname> <refpurpose>contrôle &caudium;</refpurpose>
+    <refname>caudiumctl</refname> <refpurpose>contrôle du &caudium;</refpurpose>
   </refnamediv>
-  <refsynopsisdiv>
+  <refsynopsisdiv>	
     <cmdsynopsis>
       <command>caudiumctl </command> 
       <arg choice="req"><option>start</option> |
@@ -45,7 +45,7 @@
 
     <para>
 			Il s'agit d'un programme simple calqué sur l'utilitaire
-      <command>apachectl</command> qui sert à contrôller &caudium;.
+      <command>apachectl</command> qui sert à contrôller le &caudium;.
 			Avec ce programme, l'administrateur peut contrôller certains aspects
 			du serveur Caudium.
     </para>
@@ -88,14 +88,14 @@
 			différentes options dans ce fichier:
       <blockquote>
         <simpara>
-          <firstterm>caudiumhome</firstterm> - l'endroit dans le système de fichier où se trouve &caudium;
+          <firstterm>caudiumhome</firstterm> - l'endroit dans le système de fichier où se trouve le &caudium;
         </simpara>
         <simpara>
           <firstterm>pidfile</firstterm> - fichier où Caudium stocke son
 					numéro de processus (PID)
         </simpara>
         <simpara>
-          <firstterm>wwwuser</firstterm> - l'utilisateur sous lequel 
+          <firstterm>wwwuser</firstterm> - l'utilisateur sous lequel le
           &caudium; va tourner.
         </simpara>
         <simpara>
@@ -108,7 +108,7 @@
     </para>
   </refsect1>
   <refsect1>
-    <title>Voir aussi</title>
+    <title>Voir egalement</title>
 
     <para>caudium(8)</para>
   </refsect1>
