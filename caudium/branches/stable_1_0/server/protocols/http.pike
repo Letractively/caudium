@@ -811,7 +811,7 @@ string format_backtrace(array bt, int eid)
 		"<table width=\"100%\" border=0 cellpadding=0 cellspacing=0>"
 		"<tr><td valign=bottom align=left><img border=0 "
 		"src=\""+(conf?"/internal-caudium-":"/img/")+
-		"caudium-icon-gray.png\" alt=\"\"></td>"
+		"caudium-icon-gray.gif\" alt=\"\"></td>"
 		"<td>&nbsp;</td><td width=100% height=39>"
 		"<table cellpadding=0 cellspacing=0 width=100% border=0>"
 		"<td width=\"100%\" align=right valigh=center height=28>"
@@ -823,7 +823,7 @@ string format_backtrace(array bt, int eid)
 		"<p>\n\n"
 		"<font size=+2 color=darkred>"
 		"<img alt=\"\" hspace=10 align=left src="+
-		(conf?"/internal-caudium-":"/img/") +"manual-warning.png>"
+		(conf?"/internal-caudium-":"/img/") +"manual-warning.gif>"
 		+bt[0]+"</font><br>\n"
 		"The error occured while calling <b>"+bt[1]+"</b><p>\n"
 		+(reason?reason+"<p>":"")

@@ -537,11 +537,11 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
 	  " \n<td align=right>"+
 	 (foo->help && !id->variables->help?
 	  "<font size=-1><input type=image name=help src="+
-	  (id->conf?"/internal-caudium-help":"/image/help.png")+
+	  (id->conf?"/internal-caudium-help":"/image/help.gif")+
 	  " border=0 value=\"Help\"></font>":"")
 	 +"</td>\n"
 	 " </tr><tr><td colspan=3><table cellpadding=0 cellspacing=0 border=0 width=100%><tr  bgcolor=#000000><td><img src="+
-	 (id->conf?"/internal-caudium-unit":"/image/unit.png")+
+	 (id->conf?"/internal-caudium-unit":"/image/unit.gif")+
 	 " width=1 height=1 alt=\"\"></td></tr></table></td></tr>\n"
 	 "  </table><table cellpadding=6><tr><td>\n"
 	 "<!-- The output from the page function -->\n"
@@ -1014,21 +1014,21 @@ string html_notice(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Notice: src=\""+
         (id->conf?"/internal-caudium-":"/image/")
-        +"err_1.png\"></td><td valign=top>"+notice+"</td></tr></table>");
+        +"err_1.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
 string html_warning(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Warning: src=\""+
         (id->conf?"/internal-caudium-":"/image/")
-        +"err_2.png\"></td><td valign=top>"+notice+"</td></tr></table>");
+        +"err_2.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
 string html_error(string notice, object id)
 {
   return ("<table><tr><td valign=top><img \nalt=Error: src=\""+
         (id->conf?"/internal-caudium-":"/image/")
-        +"err_3.png\"></td><td valign=top>"+notice+"</td></tr></table>");
+        +"err_3.gif\"></td><td valign=top>"+notice+"</td></tr></table>");
 }
 
 string html_border(string what, int|void width, int|void ww,

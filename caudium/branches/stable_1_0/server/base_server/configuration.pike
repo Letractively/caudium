@@ -1199,12 +1199,12 @@ private mapping internal_caudium_image(string from)
     return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
   from = replace(from, "roxen", "caudium");
 
-  if(img = open("caudium-images/"+from+".png", "r")) 
+  if(object img = open("caudium-images/"+from+".gif", "r"))
+    return (["file": img, "type":"image/gif" ]);
+  else if(img = open("caudium-images/"+from+".png", "r")) 
     return (["file": img, "type":"image/png" ]);
   else if(object img = open("caudium-images/"+from+".jpg", "r"))
     return (["file": img, "type":"image/jpeg" ]);
-  else if(object img = open("caudium-images/"+from+".gif", "r"))
-    return (["file": img, "type":"image/gif" ]);
   else
     return
       http_string_answer("<html><title>No Such Internal Image!</title>"
@@ -3613,7 +3613,7 @@ void create(string config)
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
 	 "<body bgcolor='#ffffff' text='#000000' alink='#ff0000' "
 	 "vlink='#00007f' link='#0000ff'>\n"
-	 "<h2 align=center><configimage src=caudium.png alt=\"File not found\">\n"
+	 "<h2 align=center><configimage src=caudium.gif alt=\"File not found\">\n"
 	 "<p><hr noshade>"
 	 "\n<i>Sorry</i></h2>\n"
 	 "<br clear>\n<font size=\"+2\">The resource requested "
