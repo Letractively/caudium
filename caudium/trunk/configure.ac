@@ -496,7 +496,7 @@ if test $cflags_is_set = no; then
 	-Wpointer-arith  -Wmissing-declarations -Winline -Wcast-align"
   AC_SYS_COMPILER_FLAG(-O2,O2,OPTIMIZE)
   AC_SYS_COMPILER_FLAG(-ffast-math,ffast_math,OPTIMIZE)
-#  AC_SYS_COMPILER_FLAG(-fexpensive-optimizations,fexpensive-optimizations,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-fexpensive-optimizations,fexpensiveoptimizations,OPTIMIZE)
   AC_SYS_OS_COMPILER_FLAG(AIX,-mprototype,mprototype,WARN)
 ### Optimize for different SUN machines. If there is no working 'uname'
 ### no extra optimization will be done, but nothing should break either.
@@ -507,6 +507,13 @@ if test $cflags_is_set = no; then
   AC_SYS_CPU_COMPILER_FLAG(sun4m,-mv8,microsparc,OPTIMIZE)
   AC_SYS_CPU_COMPILER_FLAG(sun4d,-msupersparc,supersparc,OPTIMIZE)
   AC_SYS_CPU_COMPILER_FLAG(sun4u,-msupersparc,ultrasparc,OPTIMIZE)
+
+  AC_SYS_COMPILER_FLAG(-mpentiumpro,pentiumpro,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-faltivec,faltivec,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-maltivec,maltivec,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-mpowerpc,powerpc,OPTIMIZE)
+dnl  AC_SYS_COMPILER_FLAG(-malign-power,alignpower,OPTIMIZE)
+  AC_SYS_COMPILER_FLAG(-malign-natural,alignnatural,OPTIMIZE)
  else
 
 ### Non-gcc thingies. This should probably be enhanced...
