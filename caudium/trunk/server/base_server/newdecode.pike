@@ -361,7 +361,7 @@ string encode_regions(mapping r)
 {
   string v;
   string res = "6 <- Do not remove this number!   "
-    "Roxen Challenger save file format>\n\n";
+    "Caudium save file format>\n\n";
   foreach(indices(r), v)
     res += "<region name='"+v+"'>\n" + encode_config_region(r[v]) 
            + "</region>\n\n";

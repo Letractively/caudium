@@ -122,7 +122,7 @@ mixed page_1(mixed id, mixed mc)
 	  "attributes are present. Do not abbreviate."
 	  "</blockquote></help>"
 	  
-	  "<var name=organizationName type=string default=\"Idonex AB\"><br>"
+	  "<var name=organizationName type=string default=\"The Caudium Group\"><br>"
 	  "Organization/Company<br>\n"
 	  "<help><blockquote>"
 	  "The organization name under which you are registered with some "
@@ -130,7 +130,7 @@ mixed page_1(mixed id, mixed mc)
 	  "</blockquote></help>"
 	  
 	  "<var name=organizationUnitName type=string "
-	  "default=\"The Caudium Group\"><br>"
+	  "default=\"\"><br>"
 	  "Organizational unit<br>\n"
 	  "<help><blockquote>"
 	  "This attribute is optional, and there are no "
@@ -147,7 +147,8 @@ mixed page_1(mixed id, mixed mc)
 	  "if they don't match.<p>"
 	  "Some Certificate Authorities allow wild cards in the Common "
 	  "Name. This means that you can have a certificate for "
-	  "<tt>*.caudium.net</tt> which will match all servers at Idonex."
+	  "<tt>*.caudium.net</tt> which will match all servers in the "
+	  "caudium.net domain. "
 	  "Thawte allows wild card certificates, while VeriSign does not."
 	  "</blockquote></help>");
 }
@@ -250,8 +251,19 @@ mixed page_4(object id, object mc)
 	      "organizationUnitName", "commonName" }), attr)
   {
     if (attrs[attr])
-      name += ({ ([ attr : (printable_invalid_chars->match (attrs[attr]) ?
-			    asn1_T61_string :
+      name += ({ ([ attr : (
+#if constant(asn1_printable_valid)
+			    asn1_printable_valid(attrs[attr])
+#else
+			    printable_invalid_chars->match (attrs[attr])
+#endif
+			    ?
+#if constant(asn1_T61_string)
+			    asn1_T61_string
+#else
+			    asn1_broken_teletex_string
+#endif
+			    :
 			    asn1_printable_string) (attrs[attr]) ]) });
   }
 

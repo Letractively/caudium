@@ -22,7 +22,7 @@
 /*
  * $Id$
  *
- * A module for Roxen Challenger, which gives the tags
+ * A module for Caudium, which gives the tags
  * <LDAP>, <LDAPOUTPUT> (with subtag <LDAPFOREACH>) and <LDAPELSE>
  *
  * Honza Petrous
