@@ -351,3 +351,17 @@ solaris_pkg: all
 	 echo "$$version.$$build" >../../VERSION;
 	@tools/build_solaris_pkg.ksh `cat VERSION` $(PIKE)
 	@rm VERSION
+
+#
+# Compilefarm 
+#
+# Not yet finished
+compilefarm:
+	test -d build || mkdir build
+	-rm -rf build/compilefarm
+	mkdir build/compilefarm
+	-$(MAKE) $(MAKE_FLAGS) compilefarm_low
+	echo Begin response assembly | tee -a build/compilefarm/compilefarmlog.txt
+	date >> build/compilefarm/compilefarmlog.txt
+	-cp "$(BUILDDIR)/config.info" build/compilefarm/configinfo.txt
+
