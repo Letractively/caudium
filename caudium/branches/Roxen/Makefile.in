@@ -1,0 +1,526 @@
+# @configure_input@
+SRCDIR=@srcdir@
+VPATH=@srcdir@
+prefix=@prefix@
+
+@SET_MAKE@
+
+INSTALL=@INSTALL@
+
+CC=@CC@
+CPPFLAGS=@CPPFLAGS@
+CFLAGS=@REALCFLAGS@
+JOINEDCFLAGS=@CFLAGS@
+LDFLAGS=@LDFLAGS@
+
+PIKEVERSION=@PIKEVERSION@
+
+# Used to avoid make compatibility problems.
+BIN_TRUE=":"
+
+all:	@MAKE_GMP@ @MAKE_GDBM@ @MAKE_ZLIB@ @MAKE_LIBIODBC@ @MAKE_PLATFORM@ pike extern tools
+	-@$(BIN_TRUE)
+
+pike: force
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS) @LINKFORSHARED@")
+
+extern: force
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+
+tools: force
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+
+gmp: force
+	@(cd gmp;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+
+gdbm: force
+	@(cd gdbm;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" all)
+
+zlib: force
+	@(cd zlib;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" libz.a)
+
+libiodbc: force
+	@(cd libiodbc;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS) -static" libiodbc.la)
+
+# Does not work. The top level makefile contaminates the enviroment.
+#platform: force
+#	@if test -d platform/. ; then \
+#	  (cd platform/;$(MAKE)) \
+#	else :; fi;
+
+force:
+	-@$(BIN_TRUE)
+
+# These are here for compatibility with the easy-start makefile
+easy: all
+	-@$(BIN_TRUE)
+
+hard: all
+	-@$(BIN_TRUE)
+
+depend:
+	-@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" depend)
+
+verify: all verify_other
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify)
+
+verbose_verify: all verify_other
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verbose_verify)
+
+verify_other: verify_extern
+	@if test "@MAKE_ZLIB@" = "zlib"; then \
+	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_zlib; \
+	fi
+	@if test "@MAKE_GMP@" = "gmp"; then \
+	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_gmp; \
+	fi
+	@if test "@MAKE_LIBIODBC@" = "libiodbc"; then \
+	  $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify_libiodbc; \
+	fi
+
+verify_extern:
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" verify)
+
+verify_zlib:
+	@(cd zlib;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" test)
+
+verify_gmp:
+	@(cd gmp;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" check)
+
+verify_libiodbc:
+	@(cd libiodbc;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" check)
+
+new_peep_engine:
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" new_peep_engine)
+
+check: verify
+	-@$(BIN_TRUE)
+
+clean:
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" clean)
+
+install_all: install_pike install
+	-@$(BIN_TRUE)
+
+install: all install_only
+	-@$(BIN_TRUE)
+
+install_only: 
+	$(SRCDIR)/mkdir -p $(prefix)/roxen/
+	@for f in `cd $(SRCDIR); ls [A-Z]* | grep -v Makefile`; do \
+	  if test -f $(SRCDIR)/$$f ; then \
+	    cp $(SRCDIR)/$$f $(prefix)/roxen/; \
+	  else :; fi; \
+	done
+	@if test -d $(prefix)/roxen/server.old/.; then \
+	  if test -d $(prefix)/roxen/server.older/.; then \
+	    echo; \
+	    echo "Warning, deleting old server \"$(prefix)/roxen/server.older\""; \
+	    echo; \
+	    rm -rf $(prefix)/roxen/server.older; \
+	  fi; \
+	  mv -f $(prefix)/roxen/server.old $(prefix)/roxen/server.older; \
+	fi
+	@if test -d $(prefix)/roxen/server/.; then \
+	  mv -f $(prefix)/roxen/server $(prefix)/roxen/server.old ; \
+	fi
+	cp -r $(SRCDIR)/server $(prefix)/roxen/
+	@if test -f $(prefix)/roxen/server.old/etc/environment ; then \
+	  cp $(prefix)/roxen/server.old/etc/environment $(prefix)/roxen/server/etc/ ; \
+	fi
+	@rm -rf	$(prefix)/roxen/server/CVS $(prefix)/roxen/server/*/CVS\
+		$(prefix)/roxen/server/*/*/CVS
+	cp pike/$(PIKEVERSION)/src/pike $(prefix)/roxen/server/bin
+	-@rm -f $(prefix)/roxen/server/bin/roxen >/dev/null 2>&1
+	ln $(prefix)/roxen/server/bin/pike $(prefix)/roxen/server/bin/roxen
+#	cp $(SRCDIR)/pike/$(PIKEVERSION)/bin/feature_list $(prefix)/roxen/server/bin
+	-@cp $(SRCDIR)/pike/$(PIKEVERSION)/bin/rsqld.pike $(prefix)/roxen/server/bin
+	for d in local local/modules local/nfonts server/lib server/lib/pike; \
+	  do \
+	    test -d $(prefix)/roxen/$$d/. || mkdir $(prefix)/roxen/$$d; \
+	done
+	@for d in `cd pike/$(PIKEVERSION)/src/lib >/dev/null; find . -type d -print`; do \
+	  if test -d $(prefix)/roxen/server/lib/pike/$$d; then :; else \
+	    mkdir $(prefix)/roxen/server/lib/pike/$$d || exit 1;\
+	  fi; \
+	done
+	@for d in `cd $(SRCDIR)/pike/$(PIKEVERSION)/lib >/dev/null; find . -type d -print`; do \
+	  if test -d $(prefix)/roxen/server/lib/pike/$$d; then :; else \
+	    mkdir $(prefix)/roxen/server/lib/pike/$$d || exit 1;\
+	  fi; \
+	done
+	@for f in `cd $(SRCDIR)/pike/$(PIKEVERSION)/lib >/dev/null; find . -type f -print`; do \
+	  if cmp $(SRCDIR)/pike/$(PIKEVERSION)/lib/$$f $(prefix)/roxen/server/lib/pike/$$f >/dev/null 2>&1; then :; else \
+	    if test -f $(prefix)/roxen/server/lib/pike/$$f; then \
+	      mv -f $(prefix)/roxen/server/lib/pike/$$f $(prefix)/roxen/server/lib/pike/$$f.old; \
+	    else :; fi; \
+	    if cp $(SRCDIR)/pike/$(PIKEVERSION)/lib/$$f $(prefix)/roxen/server/lib/pike/$$f; then :; else \
+	      echo "Failed to copy $$f"; \
+	      exit 1; \
+	    fi; \
+	  fi; \
+	done
+	@for f in `cd pike/$(PIKEVERSION)/src/lib >/dev/null; find . -type f -print`; do \
+	  if cmp pike/$(PIKEVERSION)/src/lib/$$f $(prefix)/roxen/server/lib/pike/$$f >/dev/null 2>&1; then :; else \
+	    if test -f $(prefix)/roxen/server/lib/pike/$$f; then \
+	      mv -f $(prefix)/roxen/server/lib/pike/$$f $(prefix)/roxen/server/lib/pike/$$f.old; \
+	    else :; fi; \
+	    if cp pike/$(PIKEVERSION)/src/lib/$$f $(prefix)/roxen/server/lib/pike/$$f; then :; else \
+	      echo "Failed to copy $$f"; \
+	      exit 1; \
+	    fi; \
+	  fi; \
+	done
+	test -d $(prefix)/roxen/server/include/. || mkdir $(prefix)/roxen/server/include
+	test -d $(prefix)/roxen/server/include/pike/. || mkdir $(prefix)/roxen/server/include/pike
+	for a in $(SRCDIR)/pike/$(PIKEVERSION)/src/*.h ./pike/$(PIKEVERSION)/src/*.h; do $(INSTALL) $$a $(prefix)/roxen/server/include/pike; done
+	-@(cd extern;$(MAKE) install "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)";cd ../)
+	-@(cd tools;$(MAKE) install "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)";cd ../)
+	-@$(SRCDIR)/mkdir -p $(prefix)/roxen/logs
+	-@$(SRCDIR)/mkdir -p $(prefix)/roxen/configurations
+	-chmod a+rx $(prefix)
+	-chmod a+rx $(prefix)/roxen
+	-chmod a+rx $(prefix)/roxen/server
+	-@for d in fonts nfonts modules etc bin base_server more_modules \
+		   config_actions server_templates \
+	           languages roxen-images protocols unfinishedmodules; do \
+	  echo Modifying permissions for directory $(prefix)/roxen/server/$$d... ; \
+	  find $(prefix)/roxen/server/$$d -type d -exec chmod a+x '{}' \; ; \
+	  chmod -R a+r $(prefix)/roxen/server/$$d ;\
+	done
+	-@for f in BUGS CHANGES CONTRIBUTORS COPYING GPL INSTALLING \
+		README README.ssl3 TODO; do \
+	  if test -f $(SRCDIR)/$$f ; then \
+	    echo Copying $$f...; cp $(SRCDIR)/$$f $(prefix)/roxen/$$f; \
+	  else :; fi; \
+	done
+	-@for f in cgi fcgi install.pike pdbi.pike pike roxen roxen_hostname; \
+	do \
+	  if test -f $(prefix)/roxen/server/bin/$$f ; then \
+	    echo Modifying permissions for file $(prefix)/roxen/server/bin/$$f... ; \
+	    chmod a+rx $(prefix)/roxen/server/bin/$$f; \
+	  else :; fi; \
+	done; \
+	if test -f $(prefix)/bin/pike-roxen ; then :; else \
+	  if test -d $(prefix)/bin/. ; then :; else \
+	    echo "Creating directory $(prefix)/bin"; \
+	    mkdir $(prefix)/bin || exit 1; \
+	    chmod a+rx $(prefix)/bin/.; \
+	  fi; \
+	  echo "Installing $(prefix)/bin/pike-roxen"; \
+	  sed <$(SRCDIR)/pike-roxen.in -e 's!#prefix#!$(prefix)!' >$(prefix)/bin/pike-roxen || exit 1; \
+	  chmod a+rx $(prefix)/bin/pike-roxen; \
+	fi
+#FIXME: Isn't this necessary? This dir is moved, so does it still work?
+	@if test -f platform/Makefile ; then \
+	  echo "Installing supplied Roxen Platform parts..."; \
+	  ( \
+	    cd platform; \
+	    $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install \
+	  ); \
+	else :; fi
+	@if test -f $(SRCDIR)/server/manual/parsed.tar ; then \
+	  echo "Installing parsed manual..."; \
+	  (cd $(prefix)/roxen/server/manual; tar xf $(SRCDIR)/server/manual/parsed.tar; rm parsed.tar); \
+	else :; fi
+	@if test -f $(SRCDIR)/server/manual/unparsed.tar ; then \
+	  echo "Installing unparsed manual..."; \
+	  (cd $(prefix)/roxen/server/manual; tar xf $(SRCDIR)/server/manual/unparsed.tar; rm unparsed.tar); \
+	else :; fi
+	@echo "Roxen installed."
+
+install_pike: all
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
+
+localinstall: all
+	cp pike/$(PIKEVERSION)/src/pike $(SRCDIR)/server/bin/
+	-@rm -f $(SRCDIR)/server/bin/roxen >/dev/null 2>&1
+	ln $(SRCDIR)/server/bin/pike $(SRCDIR)/server/bin/roxen
+	@for d in lib lib/pike; do \
+	  if [ -d "$(SRCDIR)/server/$$d/." ]; then : ; else \
+	    echo "$$d"; \
+	    mkdir "$(SRCDIR)/server/$$d" || exit 1; \
+	    chmod a+rx "$(SRCDIR)/server/$$d/."; \
+	    chmod u+w "$(SRCDIR)/server/$$d/."; \
+	  fi; \
+	done
+	@(cd pike/$(PIKEVERSION)/src/lib && { \
+	  echo "Updating from pike/$(PIKEVERSION)/src/lib"; \
+	  for d in `find . -type d \( -name CVS -o -print \)`; do \
+	    if [ -d "$(SRCDIR)/server/lib/pike/$$d/." ]; then : ; else \
+	      echo "Creating directory $(SRCDIR)/server/lib/pike/$$d"; \
+	      mkdir "$(SRCDIR)/server/lib/pike/$$d" || exit 1; \
+	      chmod a+rx "$(SRCDIR)/server/lib/pike/$$d/."; \
+	      chmod u+w "$(SRCDIR)/server/lib/pike/$$d/."; \
+	    fi; \
+	  done; \
+	  for f in `find . -type d -name CVS -prune -o -type f -print`; do \
+	    if cmp "$(SRCDIR)/server/lib/pike/$$f" "$$f" >/dev/null 2>&1 ; \
+	    then : ; else \
+	      echo "Copying pike/$(PIKEVERSION)/src/lib/$$f"; \
+	      if [ -f "$(SRCDIR)/server/lib/pike/$$f" ]; then \
+		mv -f "$(SRCDIR)/server/lib/pike/$$f" \
+		      "$(SRCDIR)/server/lib/pike/$$f.old"; \
+	      else : ; fi; \
+	      cp "$$f" "$(SRCDIR)/server/lib/pike/$$f" || exit 1; \
+	      chmod a+r "$(SRCDIR)/server/lib/pike/$$f"; \
+	      chmod u+w "$(SRCDIR)/server/lib/pike/$$f"; \
+	    fi; \
+	  done; \
+	} )
+	@(if [ -d $(SRCDIR)/pike/$(PIKEVERSION)/lib ] ; then \
+	  if [ -d "$(SRCDIR)/server/share/." ]; then : ; else \
+	    echo "$(SRCDIR)/server/share"; \
+	    mkdir "$(SRCDIR)/server/share" || exit 1; \
+	    chmod a+rx "$(SRCDIR)/server/share/."; \
+	    chmod u+w "$(SRCDIR)/server/share/."; \
+	  fi; \
+	  rm -f "$(SRCDIR)/server/share/pike" >/dev/null 2>&1; \
+	  ln -s "../../pike/$(PIKEVERSION)/lib" "$(SRCDIR)/server/share/pike"; \
+	else : ; fi)
+	(cd extern; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" localinstall)
+	(cd tools; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" localinstall)
+
+spotless:  clean
+	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	@(cd pike/$(PIKEVERSION)/src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
+	rm -f server/bin/selfdir server/bin/roxen_hostname pike/$(PIKEVERSION)/src/pike\
+	pike/$(PIKEVERSION)/src/pike.old server/bin/proxygarb 
+	find . '(' -name '#*#' -o -name '*~' -o -name '.*~' -o -name '*.bak'\
+        -o -name '.pine-debug*' -o -name '.*.bak' -o -name core -o -name \
+	config.cache -o -name config.status -o -name config.log -o -name \
+	"*.a" ')'  -print -exec /bin/rm '{}'  ';'
+	rm -rf server/logs
+	rm -rf logs
+
+
+distribute:	spotless
+	@(cd extern; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
+	@(cd tools; $(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" distribute)
+
+run_autoconfig:
+	@(cd $(SRCDIR); pike/$(PIKEVERSION)/src/run_autoconfig .)
+
+./Makefile: $(SRCDIR)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS="" ./config.status
+	@echo "Run make again"
+	@exit 1
+
+bump_version.stamp:
+	@touch bump_version.stamp
+
+bump_version: bump_version.stamp
+	@if test -f $(SRCDIR)/server/base_server/roxen.pike.new; then \
+	  echo Deleting old $(SRCDIR)/server/base_server/roxen.pike.new...; \
+	  rm $(SRCDIR)/server/base_server/roxen.pike.new || exit 1; \
+	else : ; fi
+# Do not update the source.
+#	@(cd $(SRCDIR); \
+#	  echo Updating sources...; \
+#	  if cvs -q update -d|egrep '^[CM?]'; then exit 1; else : ; fi; \
+#	)
+# Do not update the Pike build for every Roxen build. Irritates people.
+#	@for d in $(SRCDIR)/pike/0.5 $(SRCDIR)/pike/0.6; do \
+#	  if test -f $$d/src/version.c; then \
+#	    (cd $$d/; \
+#	      echo Bumping Pike version in directory $$d...; \
+#	      build=`sed <src/version.c -e'/push_text/s/.* \([0-9]*\).*/\1/p' -ed|head -1`; \
+#	      newbuild=`echo $$build 1+p|dc`; \
+#	      sed <src/version.c -e"/push_text/s/ $$build/ $$newbuild/" >src/version.c.new; \
+#	      checkbuild=`sed <src/version.c.new -e'/push_text/s/.* \([0-9]*\).*/\1/p' -ed|head -1`; \
+#	      if test "x$$newbuild" = "x$$checkbuild"; then \
+#		mv -f src/version.c.new src/version.c || exit 1; \
+#		echo "Successfull bump to build $$newbuild."; \
+#	      else \
+#		echo "Version bump failed: $$newbuild != $$checkbuild."; \
+#		exit 1; \
+#	      fi; \
+#	      cvs ci -m "Pike release bumped to $$newbuild by bump_version." src/version.c || exit 1; \
+#	      echo "Tagging Pike in $$d..."; \
+#	      cvs tag `sed <src/version.c -e '/push_text/s/.*"\(.*\)".*/\1/p' -ed|tr 'A-Z. ' 'a-z__'|head -1`||exit 1; \
+#	      echo Done with $$d.); \
+#	  else :; fi; \
+#	done
+#end pike version bump
+	@(cd $(SRCDIR)/server/base_server; \
+	  echo Bumping Roxen version...; \
+	  build=`sed <roxen.pike -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  newbuild=`echo $$build 1+p|dc`; \
+	  sed <roxen.pike -e"/__roxen_build__/s/$$build/$$newbuild/" >roxen.pike.new; \
+	  checkbuild=`sed <roxen.pike.new -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	  if test "x$$newbuild" = "x$$checkbuild"; then \
+	    mv -f roxen.pike.new roxen.pike || exit 1; \
+	    echo "Successfull bump to build $$newbuild."; \
+	  else \
+	    echo "Version bump failed: $$newbuild != $$checkbuild."; \
+	    exit 1; \
+	  fi; \
+	  version=`sed <roxen.pike -e'/__roxen_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	  cvs ci -m "Version bumped to $$version.$$newbuild by bump_version." roxen.pike || exit 1; \
+	  echo "Roxen $$version.$$newbuild" >../../VERSION; \
+	  cat ../../VERSION; \
+	)
+	@(cd $(SRCDIR); \
+	  echo Tagging...; \
+	  cvs tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
+	)
+	@touch bump_version
+
+same_version:
+	@cd $(SRCDIR)/server/base_server; \
+	 build=`sed <roxen.pike -e'/__roxen_build__/s/[^0-9]*//gp' -ed|head -1`; \
+	 version=`sed <roxen.pike -e'/__roxen_version__/s/[^.0-9]*//gp' -ed|head -1`; \
+	 echo "Roxen $$version.$$build" >../../VERSION;
+
+
+$(SRCDIR)/ChangeLog.gz:
+	cd $(SRCDIR); pike tools/make_changelog.pike | gzip -9 > ChangeLog.gz
+
+$(SRCDIR)/ChangeLog.rxml.gz:
+	cd $(SRCDIR); pike tools/make_changelog.pike --rxml | gzip -9 > ChangeLog.rxml.gz
+
+force_update: force
+	@rm $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz \
+	    $(SRCDIR)/VERSION bump_version bump_version.stamp \
+	    2>/dev/null || true
+	@echo Prepared for version update.
+
+pre_dist: bump_version
+	-@$(MAKE) depend
+	-@$(MAKE) new_peep_engine
+	-@$(MAKE) run_autoconfig
+#	@(cd pike; $(MAKE) pre_dist)
+
+same_pre_dist: same_version
+	-@$(MAKE) depend
+	-@$(MAKE) new_peep_engine
+	-@$(MAKE) run_autoconfig
+
+faked_pre_dist:
+	echo "Roxen 1.3.test_build" > $(SRCDIR)/VERSION
+	-@$(MAKE) depend
+	-@$(MAKE) new_peep_engine
+	-@$(MAKE) run_autoconfig
+
+copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
+	@if test -f $(SRCDIR)/VERSION; then :; else \
+	  echo 'You need to make pre_dist first!'; \
+	  exit 1; \
+	fi
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z_'`; \
+	if ls -d $$version* >/dev/null 2>&1; then \
+	  echo Deleting old distributions...; \
+	  rm -rf $$version* || exit 1; \
+	else :; fi; \
+	mkdir $$version; \
+	echo Copying files...; \
+	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; make dist_clean); \
+	echo Cleaning up the copied sources...; \
+	for f in `find $$version/. -type f -name '*~' -print` \
+	  `find $$version/. -type f -name '.#*' -print` \
+	  `find $$version/. -type f -name '#*#' -print`; do \
+	  echo $$f; rm $$f || exit 1; \
+	done; \
+	for d in \
+	  $$version/pike/0.6/about_pike $$version/pike/0.6/doc; do \
+	  if test -d $$d/. ; then \
+	    echo Removing $$d...; rm -rf $$d || exit 1; \
+	  else :; fi; \
+	done; \
+	echo "Zapping absolute paths in language.c..."; \
+	for f in $$version/pike/*/src/language.c; do \
+	  if test -f "$$f"; then \
+	    echo "Fixing $$f.."; \
+	    sed <"$$f" >"$$f.fix" -e '/^#line/s!/.*/\(language\.yacc\)!\1!' && \
+	      mv "$$f.fix" "$$f"; \
+	  else :; fi; \
+	done;
+
+tar_dist:
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z_'`; \
+	echo "Altering some CVS files to point to developer.roxen.com..."; \
+	for f in `find $$version/ -type d -name CVS -print`; do \
+	  if egrep '^//*cvs//*roxen_src' "$$f/Repository" 2>&1 >/dev/null; \
+	  then \
+	    echo "Altering $$f..."; \
+	    sed -e 's/^\/\/*cvs\/\/*roxen_src/\/cvs\/roxen/' <"$$f/Repository" \
+	      >"$$f/Repository.new" && \
+	      mv "$$f/Repository.new" "$$f/Repository"; \
+	    echo "anonymous@developer.roxen.com:/cvs" >"$$f/Root"; \
+	  else :; fi; \
+	done; \
+	echo Determining if this is a 0.5, 0.6 or dual distribution...; \
+	if test -d $$version/pike/0.5/. ; then \
+	  if test -d $$version/pike/0.6/. ; then \
+	    type="dual"; \
+	  else \
+	    type="0.5"; \
+	  fi ; \
+	else \
+	  if test -d $$version/pike/0.6/. ; then \
+	    type="0.6"; \
+	  else \
+	    type="no_pike"; \
+	  fi ; \
+	fi; \
+	if test -d platform/. ; then \
+	  type=$$type-pf; \
+	else :; fi; \
+	echo Type $$type.; \
+	echo "Storing away manuals..."; \
+	mv $$version/server/manual/*parsed*.tar . || exit 1; \
+	echo "Restoring Pro manual..."; \
+	cp unparsed_pro.tar $$version/server/manual/unparsed.tar || exit 1; \
+	cp parsed_pro.tar $$version/server/manual/parsed.tar || exit 1; \
+	echo "Building full Pro distribution..."; \
+	tar cf - $$version | gzip -9 >$$version-$$type-pro.tar.gz; \
+	if (cd $$version; make keep_dbapi || exit 1); then \
+	  mv $$version/dbapi.tar . || exit 1; \
+	else :; fi; \
+	if (cd $$version; make keep_pro || exit 1); then \
+	  mv $$version/pro.tar . || exit 1; \
+	else :; fi; \
+	(cd $$version; make censor_dbapi || exit 1); \
+	(cd $$version; make censor_pro || exit 1); \
+	echo "Removing Pro manual and restoring Challenger manual..."; \
+	rm $$version/server/manual/*parsed*.tar || exit 1; \
+	cp unparsed_challenger.tar $$version/server/manual/unparsed.tar \
+	 || exit 1; \
+	cp parsed_challenger.tar $$version/server/manual/parsed.tar \
+	 || exit 1; \
+	echo "Building full Challenger distribution..."; \
+	tar cf - $$version | gzip -9 >$$version-$$type.tar.gz; \
+	(cd $$version; make censor_crypto || exit 1); \
+	echo "Building lobotomized Challenger distribution..."; \
+	tar cf - $$version | gzip -9 >$$version-$$type-int.tar.gz; \
+	echo "Restoring DBAPI..."; \
+	(cd $$version; tar xf ../dbapi.tar || exit 1); \
+	echo "Restoring Challenger Pro parts..."; \
+	(cd $$version; tar xf ../pro.tar || exit 1); \
+	echo "Removing Challenger manual and restoring Pro manual..."; \
+	rm $$version/server/manual/*parsed*.tar || exit 1; \
+	cp unparsed_pro.tar $$version/server/manual/unparsed.tar || exit 1; \
+	cp parsed_pro.tar $$version/server/manual/parsed.tar || exit 1; \
+	echo "Building lobotomized Pro distribution..."; \
+	tar cf - $$version | gzip -9 >$$version-$$type-pro-int.tar.gz; \
+	(mkdir 40bit-nda; cd 40bit-nda; gzip -cd < ../$$version-$$type-pro.tar.gz | tar xf -; cd $$version; make censor_strong_crypto || exit 1); \
+	echo "Building 40bit Pro distribution..."; \
+	(cd 40bit-nda; tar cf - $$version | gzip -9 >../$$version-$$type-pro-40bit.tar.gz || exit 1); \
+	rm -rf 40bit-nda; \
+	(mkdir 40bit; cd 40bit; gzip -cd < ../$$version-$$type.tar.gz | tar xf -; cd $$version; make censor_strong_crypto || exit 1; make censor_pro || exit 1); \
+	echo "Removing Pro manual and restoring Challenger manual..."; \
+	rm $$version/server/manual/*parsed*.tar || exit 1; \
+	cp unparsed_challenger.tar $$version/server/manual/unparsed.tar \
+	 || exit 1; \
+	cp parsed_challenger.tar $$version/server/manual/parsed.tar \
+	 || exit 1; \
+	echo "Building 40bit ordinary distribution..."; \
+	(cd 40bit; tar cf - $$version | gzip -9 >../$$version-$$type-40bit.tar.gz || exit 1); \
+	rm -rf 40bit;
+
+dist: copy_dist tar_dist
+	@echo Distribution build complete.
+
