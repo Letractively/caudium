@@ -350,6 +350,11 @@ static void create_snmp_agent()
 }
 
 // non-RIS
+//! Send a trap via SNMP if it has been enabled and configured
+//! @param trapname
+//!   a string describing the event trap to send.
+//!   currently "server_restart", "server_shutdown", "server_startup"
+//!   and abs_engaged are supported.
 static void send_trap(string trapname)
 {
   // is snmp enabled and do we have trap recipients?
