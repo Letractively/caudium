@@ -84,7 +84,7 @@ constant module_unique = 1;
 #define IP_LESS_DEBUG
 
 #if defined(DEBUG) || defined(IP_LESS_DEBUG)
-# define DWERR(x) werror("HOSTMATCH: %s\n", x)
+# define DWERR(x) report_debug("HOSTMATCH: %s\n", x)
 #else
 # define DWERR(x)
 #endif
@@ -153,7 +153,7 @@ void precache_rewrite(object id)
       else
         h += ({ (["http":"80","https":"443"])[h[0]] });
 
-      werror("hostmatch: %s://%s:%s/\n", h[0], h[1], h[2]||"");
+      DWERR(sprintf(" %s://%s:%s/", h[0], h[1], h[2]||""));
       if(host == h[1] &&
          ((protocol == h[0] && port == h[2]) ||
           (protocol == "https" && h[0]=="http" && h[2]=="80"))
