@@ -3,16 +3,6 @@ Caudium Webserver for Debian
 
 A few notes regarding this package are due here since it differs a
 bit from its predecessor, Roxen.
-
- - PHP4 support.
-   To make it a reality you will need to get the php4 sources and
-   compile php4 with the --with-caudium=/usr/lib/caudium and then
-   manually install the resulting .so file into the _pike7_
-   /usr/lib/pike7/PIKE_VER/modules directory.
-   I'm sorry, but until the php4 packages in Debian contain Caudium
-   support there's no other way to do it...
-   NOTE!! To get PHP4 module working on systems with glibc 2.2.x you
-          will need to use the latest PHP4 version _from cvs_
  
  - libroxen
    All the modules with names starting with libroxen- install themselves
