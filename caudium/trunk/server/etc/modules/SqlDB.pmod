@@ -42,7 +42,7 @@ class DB {
   static private string sqlurl;			// The SqlURL
   object id;					// The Caudium Id
 
-  //! method: void create(int _timeout, string _dburl, object _id)
+  //! method: void DB.create(int _timeout, string _dburl, object _id)
   //!  Create and opens the database 
   //! returns:
   //!  Nothing
@@ -61,7 +61,7 @@ class DB {
     id = _id;		// Can be dangerous if we modify here some id things.
   }
 
-  //! method: void close_db()
+  //! method: void DB.close_db()
   //!  Autoclose the db if needed
   //! returns:
   //!  Nothing directly, used internaly only
@@ -74,7 +74,7 @@ class DB {
    call_out(close_db,timeout);
   }
 
-  //! method: void opendb()
+  //! method: void DB.opendb()
   //!  Opens the database.
   //! returns:
   //!  Nothing directly, used internaly only
@@ -98,7 +98,7 @@ class DB {
     call_out(close_db, timeout);
   }
  
-  //! method: array(mapping(string:mixed) query(object|string q, mixed ... extraargs)
+  //! method: DB.array(mapping(string:mixed) query(object|string q, mixed ... extraargs)
   //!  Send a SQL query to the Sql module using Caudium's SQL handler.
   //!  The call is similar to Sql.Sql()->query() from Pike's manual.
   //! returns:
