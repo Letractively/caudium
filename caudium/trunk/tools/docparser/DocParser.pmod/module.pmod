@@ -64,6 +64,15 @@ debug(string str)
 #endif
 
 /*
+ * replace unsafe chars with appropriate entities
+ */
+string xml_encode_string(string str)
+{
+  return replace(str, ({"&", "<", ">", "\"", "\'", "\000", ":" }),
+	       ({"&amp;", "&lt;", "&gt;", "&#34;", "&#39;", "&#0;", "&#58;"}));
+}
+
+/*
  * Classes corresponding to documentation classes
  */
 class DocObject {
@@ -324,7 +333,7 @@ class Method {
                     break;
 
                 case "example":
-                    example += ({newstuff});
+                    example += ({xml_encode_string(newstuff)});
                     break;
 
                 case "bugs":
@@ -380,7 +389,7 @@ class Method {
                 break;
 
             case "example":
-                example[-1] += newstuff;
+                example[-1] += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -489,7 +498,7 @@ class Class {
                     break;
 
                 case "example":
-                    examples += ({newstuff});
+                    examples += ({xml_encode_string(newstuff) + "\n"});
                     break;
 
                 case "bugs":
@@ -546,7 +555,7 @@ class Class {
                 break;
 
             case "example":
-                examples[-1] += newstuff;
+                examples[-1] += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -850,7 +859,7 @@ class Tag {
                     break;
                     
 		case "example":
-                    example += ({newstuff});
+                    example += ({xml_encode_string(newstuff) + "\n"});
                     break;
 		    
 		case "bugs":
@@ -897,7 +906,7 @@ class Tag {
                 break;
                     
 	    case "example":
-		example[-1] += newstuff;
+		example[-1] += xml_encode_string(newstuff) + "\n";
 		break;
 		
 	    case "bugs":
@@ -959,7 +968,7 @@ class Container {
                     break;
                     
                 case "example":
-                    example += ({newstuff});
+                    example += ({xml_encode_string(newstuff) + "\n"});
                     break;
 		    
                 case "bugs":
@@ -1006,7 +1015,7 @@ class Container {
                 break;
                     
             case "example":
-                example[-1] += newstuff;
+                example[-1] += xml_encode_string(newstuff) + "\n";
                 break;
 		
             case "bugs":
@@ -1185,7 +1194,7 @@ class Entity {
                     break;
 
                 case "example":
-                    examples += ({newstuff});
+                    examples += ({xml_encode_string(newstuff) + "\n"});
                     break;
 
                 case "bugs":
@@ -1218,7 +1227,7 @@ class Entity {
                 break;
 
             case "example":
-                examples[-1] += newstuff;
+                examples[-1] += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
@@ -1273,7 +1282,7 @@ class EntityScope {
                     break;
 
                 case "example":
-                    examples += ({newstuff});
+                    examples += ({xml_encode_string(newstuff) + "\n"});
                     break;
 
                 case "bugs":
@@ -1316,7 +1325,7 @@ class EntityScope {
                 break;
 
             case "example":
-                examples[-1] += newstuff;
+                examples[-1] += xml_encode_string(newstuff) + "\n";
                 break;
 
             case "bugs":
