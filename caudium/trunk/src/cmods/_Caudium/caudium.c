@@ -779,7 +779,8 @@ static int is_safe (char c)
 static void f_http_encode(INT32 args) 
 {
 	char *o, *out;
-	char *i, *in;
+	char *in;
+	unsigned char *i;
 	int unsafe = 0;
 	int out_len, in_len;
 	struct pike_string *ret;
