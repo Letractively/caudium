@@ -63,4 +63,8 @@ Changes in Caudium 1.1 since CVS branching
   of a page if a request was made to an RXML file while Caudium was
   loading.
 - Fixed error message when a modules was not found (accidently broken).
-  
+
+- Wrote a new non-blocking data sender that is somewhat more efficient
+  and much less buggy than Pipe.pipe. Also uses a moving window when
+  mmapping large files, thus overcoming the major problem with
+  Pipe.pipe for high traffic, large file sites.

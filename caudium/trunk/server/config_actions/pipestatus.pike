@@ -24,9 +24,9 @@
  */
 
 inherit "wizard";
-constant name= "Status//Pipe system status";
+constant name= "Status//Non-Blocking IO Status";
 
-constant doc = ("Show the number of data shuffling channels.");
+constant doc = ("Show data on the non-blocking io data shuffling system.");
 
 constant more=1;
 
@@ -41,13 +41,21 @@ int verify_0()
 mixed page_0(object id, object mc)
 {
   int *ru;
-  ru=_pipe_debug();
+  if(caudium->pipe == Caudium.nbio) 
+    ru = Caudium.nbio()->nbio_status();
+  else
+#if constant(_pipe_debug)
+    if(caudium->pipe == Pipe.pipe)
+      ru = _pipe_debug();
+    else
+#endif
+      return ("Idle");
   
-  if(!ru[0])
-    return ("Idle");
-  
+    if(!ru[0] || !ru[1])
+      return ("Idle");
+
   return ("<dd>"
-	  "<table border=0 cellspacing=0 cellpadding=-1>"
+	  "<table border=0 cellspacing=2 cellpadding=0>"
 	  "<tr align=right><td colspan=2>Number of open outputs:</td><td>"+
 	  ru[0] + "</td></tr>"
 	  "<tr align=right><td colspan=2>Number of open inputs:</td><td>"+
@@ -56,7 +64,7 @@ mixed page_0(object id, object mc)
 	  "<tr align=right><td></td><td>objects:</td><td>"+ru[3]+"</td></tr>"
 	  "<tr align=right><td></td><td>mmapped:</td><td>"+(ru[1]-ru[2]-ru[3])
 	  +"<td> ("+(ru[4]/1024)+"."+(((ru[4]*10)/1024)%10)+" Kb)</td></tr>"
-	  "<tr align=right><td colspan=2>Buffers used in pipe:</td><td>"+ru[5]
+	  "<tr align=right><td colspan=2>Buffers used:</td><td>"+ru[5]
           +"<td> (" + ru[6]/1024 + ".0 Kb)</td></tr>"
 	  "</table>\n");
 }

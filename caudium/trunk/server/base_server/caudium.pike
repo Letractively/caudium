@@ -69,12 +69,15 @@ inherit "fonts";
 inherit "internals";
 
 // The datashuffler program
+#if BAD_OLD
 #if constant(spider.shuffle) && defined(THREADS) 
 constant pipe = (program)"smartpipe";
 #else
 constant pipe = Pipe.pipe;
 #endif
-
+#else
+constant pipe = Caudium.nbio;
+#endif
 
 // This is the real Caudium version. It should be changed before each
 // release
