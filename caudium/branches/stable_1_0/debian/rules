@@ -61,7 +61,6 @@ clean:
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
 	-rm -f smartlink statuslock
-	-chmod 755 debian/debian_pike_version
 	dh_clean
 
 install: DH_OPTIONS=
