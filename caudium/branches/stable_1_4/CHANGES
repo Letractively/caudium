@@ -1,4 +1,4 @@
-Changes in Caudium 1.4.3 since Caudium 1.4.2
+Changes in Caudium 1.4.4 since Caudium 1.4.2
 --------------------------------------------
 - Backport of Watchdog stuff from the development branch:
   - Watchdog debug can be enabled using --watchdog-debug

@@ -101,8 +101,8 @@ Installing Caudium 1.4 from source:
 ----------------------------------------------------------------------------
 Example installation session:
 
-bash$ tar xzf caudium-1.4.1.tar.gz
-bash$ cd caudium-1.4.1
+bash$ tar xzf caudium-1.4.4.tar.gz
+bash$ cd caudium-1.4.4
 bash$ ../configure --prefix=/usr/www
 
 <various checks...>
