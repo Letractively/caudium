@@ -84,7 +84,7 @@ class http_error_handler {
 		// If it's been changed then change the error template, else
                 // do nothing.
                 string data = id->conf->try_get_file( _template_name, id, 0, 1 );
-		if ( date == 0 ) {
+		if ( data == 0 ) {
 		    template = default_template;
 		} else {
 		    template = ([
