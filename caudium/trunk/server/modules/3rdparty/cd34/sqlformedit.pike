@@ -20,13 +20,16 @@ The hidden field <b>tablename</b> defines the SQL table that is being updated.
 The hidden field <b>successpage</b> defines the page that the person will
 be sent to after a successful update.<br>
 The hidden field <b>errorpage</b> defines the page where a surfer will be 
-sent if there is an error during the SQL Update.<p>
+sent if there is an error during the SQL Update.<br>
+The hidden field <b>sqlpassthrough</b> defines a field that is passed to
+the SQL update command.<p>
 An example form follows:<p>\n\n
 &lt;form method=\"post\" action=\"/form/sqlsave\"><br>
 &lt;input type=\"hidden\" name=\"unique\" value=\"sequence\"><br>
 &lt;input type=\"hidden\" name=\"tablename\" value=\"links\"><br>
 &lt;input type=\"hidden\" name=\"successpage\" value=\"/success.rxml\"><br>
 &lt;input type=\"hidden\" name=\"errorpage\" value=\"/form.rxml\"><br>
+&lt;input type=\"hidden\" name=\"sqlpassthrough\" value=\"completed=null\"><br>
 &lt;sqloutput query=\"select * from links where sequence=3\"><br>
 &lt;input type=\"hidden\" name=\"sequence\" value=\"#sequence#\"><br>
 &lt;table><br>
@@ -85,7 +88,7 @@ mapping find_file(string f,object id)
   if (id->conf->sql_connect)
     db = id->conf->sql_connect(QUERY(sqldb));
   else
-    perror("REFER: Error: no connect<p>\n");
+    perror("SQLFORMEDIT: Error: no connect<p>\n");
 
 // This defines the field that is the 'auto_increment' or unique field 
 // identifiers to make sure that we are editing and updating the correct
@@ -113,18 +116,26 @@ mapping find_file(string f,object id)
 // remove the leading , 
   update = update[1..];
 
+// if there is a form variable called sqlpassthrough, append that to the
+// update query
+  string passthrough = (id->variables->sqlpassthrough?
+    (","+(string)id->variables->sqlpassthrough):"");
+
 // This builds the query that needs to be sent to the SQL server and is
 // as data driven as possible
   update = "update " + (string)id->variables->tablename + " set " + update +
-           " where " + (string)id->variables->unique + "='" + 
+           passthrough + " where " + (string)id->variables->unique + "='" + 
            (string)id->variables[(string)id->variables->unique] + "'";
-  
+
 // Mysql returns 0 rows updated if there is no change, so the only thing
 // we can really do here is check to make sure there is no error when 
 // the SQL statement is executed.
-  catch {
+perror("q: "+update+"\n");
+//  catch {
     db->query(update);
     return http_redirect((string)id->variables->successpage,id);
-  };
-  return http_redirect((string)id->variables->errorpage,id);
+//  };
+  return http_redirect((string)id->variables->errorpage + "?" + 
+                       (string)id->variables->unique + "=" +
+                       (string)id->variables[(string)id->variables->unique],id);
 }
