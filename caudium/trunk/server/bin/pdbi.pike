@@ -1,8 +1,10 @@
-#!bin/pike
+#!/usr/bin/env pike
+/*
  * By using it you implicitly state that you are aware of the risks, and
  * that take upon yourself all the responsabilities for any damage,
  * direct or indirect including loss of profict from the use of this software.
- * Don tell me I hadn't warned you..
+ * Don't tell me I hadn't warned you..
+ */
 
 /*
  * $Id$
@@ -10,6 +12,8 @@
  * name = "PDB Inspector";
  * doc = "This is a tool to inspect PDB databases.";
  */
+
+object (Stdio.Readline) readline;
 
 int rowsize(object o, string table, string row)
 {
