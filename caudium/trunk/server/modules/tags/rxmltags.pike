@@ -1142,7 +1142,7 @@ string tag_echo(string tag,mapping m,object id,object file,
 {
   if(m->help) 
     return ("This tag outputs the value of different configuration and"
-	    " request local variables. They are not really used by Roxen."
+	    " request local variables. They are not really used by Caudium."
 	    " This tag is included only to provide compatibility with"
 	    " \"normal\" WWW-servers");
   if(!m->var)
@@ -2792,7 +2792,7 @@ string tag_help(string t, mapping args, object id)
 
   if(!help_for)
   {
-    string out = "<h3>Roxen Interactive RXML Help</h3>"
+    string out = "<h3>Caudium Interactive RXML Help</h3>"
       "<b>Here is a list of all documented tags. Click on the name to "
       "receive more detailed information.</b><p>";
     array tag_links = ({});
