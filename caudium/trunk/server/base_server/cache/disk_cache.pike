@@ -98,7 +98,9 @@ void store( mapping meta ) {
 	// Write the string to disk.
     if ( meta->disk_cache ) {
      // string data = meta->object + "";
-      data = _encode_value( meta->object );
+      if ( catch( data = _encode_value( meta->object ) ) ) {
+        break;
+      }
       meta->size = sizeof( data );
       m_delete( meta, "object" );
       if ( Stdio.mkdirhier( Stdio.append_path( cache_path, meta->hash ) ) ) {
