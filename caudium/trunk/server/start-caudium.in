@@ -1,4 +1,4 @@
-#!@PIKE@ -M@CAUDIUM_SERVERDIR@etc/modules
+#!@PIKE@ -M@CAUDIUM_SERVERDIR@etc/modules -I@CAUDIUM_SERVERDIR@/etc/include
 /*
  * Caudium - An extensible World Wide Web server
  * Copyright © 2000-2004 The Caudium Group
@@ -650,8 +650,7 @@ int act_on_args()
           command_line->DEFINES+=({"KEEP_ALIVE"});
           continue;
         case "version":
-          command_line->COTHER+=({"--version"});
-          options->once=1;
+	  write(real_version + "\n");
           continue;
 	case "piketrace":
 	  command_line->OTHER+=({"-t"+m[1] });
