@@ -1,3 +1,28 @@
+/*
+ * Caudium - An extensible World Wide Web server
+ * Copyright © 2000-2003 The Caudium Group
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+/*
+ * $Id$
+ */
+
+//! Java Servelet interface for Caudium
+//! @fixme:
+//!   Not documented.
 
 static constant jvm = Java.machine;
 
@@ -117,8 +142,11 @@ static void check_unavailable_exception()
   }
 }
 
+
+//!
 class jarutil {
 
+  //!
   void expand(string dir, string jar)
   {
     jarutil_expand(dir, jar);
@@ -127,6 +155,7 @@ class jarutil {
 
 }
 
+//!
 class servlet {
 
   static object s, d;
@@ -137,6 +166,7 @@ class servlet {
   static object lock;
 #endif
 
+  //!
   void destroy()
   {
     if(s && d) {
@@ -145,6 +175,7 @@ class servlet {
     }
   }
 
+  //!
   void service(object req, object|void res)
   {
     if(!res) {
@@ -165,6 +196,7 @@ class servlet {
     check_exception();
   }
 
+  //!
   string info()
   {
     object i = servlet_getservletinfo(s);
@@ -172,6 +204,7 @@ class servlet {
     return i && (string)i;
   }
 
+  //!
   void init(object cfgctx, mapping(string:string)|void params, string|void nam)
   {
     context = cfgctx;
@@ -182,6 +215,7 @@ class servlet {
     d = servlet_destroy;
   }
 
+  //!
   void create(string|object name, string|array(string)|object|void dir)
   {
     werror("Servlet.servlet()\n");
@@ -210,10 +244,12 @@ class servlet {
 
 };
 
+//!
 class loader {
 
   static object cl;
 
+  //!
   object low_load(string name)
   {
     object c = load_class(cl, name);
@@ -221,11 +257,13 @@ class loader {
     return c;
   }
 
+  //!
   object load(string name)
   {
     return servlet(name, this_object());
   }
 
+  //!
   void create(string|array(string) codedirs)
   {
     if(stringp(codedirs))
@@ -251,10 +289,12 @@ class loader {
 
 };
 
+//!
 class config {
 
   object cfg;
 
+  //!
   void create(object context, mapping(string:string)|void params,
 	      string|void name)
   {
@@ -281,6 +321,7 @@ static object ctx_object(object ctx)
 }
 
 
+//!
 class context {
 
   object ctx, sctx, conf;
@@ -288,6 +329,7 @@ class context {
   static int id;
   static string dir;
 
+  //!
   string gettempdir()
   {
     if (parent_module)
@@ -301,6 +343,7 @@ class context {
     return dir;
   }
 
+  //!
   void create(object|void c, object|void mod, string|void _tmpdir)
   {
     dir = _tmpdir || "servlettmp/";
@@ -327,6 +370,7 @@ class context {
     }
   }
 
+  //!
   void destroy()
   {
     m_delete(contexts, id);
@@ -335,17 +379,20 @@ class context {
     ctx=0;
   }
 
+  //!
   object make_dummy_id()
   {
      object req=RequestID(Stdio.File(), conf);
     return req;
   }
 
+  //!
   void log(string msg)
   {
     werror(msg+"\n");
   }
 
+  //!
   string get_real_path(string path)
   {
     string loc;
@@ -375,22 +422,26 @@ class context {
     return 0;
   }
   
+  //!
   string get_mime_type(string file)
   {
     return conf && conf->type_from_filename(file);
   }
 
+  //!
   string get_server_info()
   {
     return caudium->version();
   }
 
+  //!
   object get_request_dispatcher(string path)
   {
     // FIXME
     return 0;
   }
 
+  //!
   string get_resource(string path)
   {
     string rp;
@@ -398,6 +449,7 @@ class context {
     return rp && ("file:"+rp);
   }
 
+  //!
   void set_init_parameters(mapping(string:string) pars)
   {
     object f = context_initpars_field->get(ctx);
@@ -407,17 +459,20 @@ class context {
     check_exception();
   }
 
+  //!
   void set_attribute(string name, mixed attribute)
   {
     context_set_attribute(ctx, name, attribute);
   }
 };
 
+//!
 object conf_context(object conf)
 {
   return context_for_conf[conf]||context(conf);
 }
 
+//!
 object request(object context, mapping(string:array(string))|object id,
 	       mapping(string:string|object)|void attrs,
 	       mapping(string:array(string)|string)|void headers, mixed ... rest)
@@ -503,6 +558,7 @@ object request(object context, mapping(string:array(string))|object id,
 static int stream_id = 0;
 mapping(int:object) streams = ([]);
 
+//!
 object response(object file)
 {
   int id = stream_id++;
@@ -521,7 +577,7 @@ object response(object file)
   return r;
 }
 
-
+//!
 static void native_log(object ctx, object msg)
 {
   if (ctx_object(ctx))
@@ -530,32 +586,38 @@ static void native_log(object ctx, object msg)
     werror((string)msg + "\n");
 }
 
+//!
 static string native_getRealPath(object ctx, object path)
 {
   return ctx_object(ctx)->get_real_path((string)path);
 }
 
+//!
 static string native_getMimeType(object ctx, object file)
 {
   return ctx_object(ctx)->get_mime_type((string)file);
 }
 
+//!
 static string native_getServerInfo(object ctx)
 {
   return ctx_object(ctx)->get_server_info();
 }
 
+//!
 static object native_getRequestDispatcher(object ctx, object path1, object path2)
 {
   return ctx_object(ctx)->get_request_dispatcher(combine_path((string)path1,
 							      (string)path2));
 }
 
+//!
 static string native_getResourceURL(object ctx, object path)
 {
   return ctx_object(ctx)->get_resource((string)path);
 }
 
+//!
 static void native_forgetfd(object str)
 {
   int id = stream_id_field->get(str);
@@ -565,6 +627,7 @@ static void native_forgetfd(object str)
     destruct(f);
 }
 
+//!
 static void native_close(object str)
 {
   int id = stream_id_field->get(str);
@@ -575,6 +638,7 @@ static void native_close(object str)
   }
 }
 
+//!
 static void native_writeba(object str, object b, int off, int len)
 {
   object f = streams[stream_id_field->get(str)];
@@ -582,11 +646,13 @@ static void native_writeba(object str, object b, int off, int len)
     f->write(((string)values(b[off..off+len-1]))&("\xff"*len));
 }
 
+//!
 static string native_blockingIPToHost(object n)
 {
   return caudium->blocking_ip_to_host((string)n);
 }
 
+//!
 void create()
 {
   natives_bind1 = context_class->register_natives(({
