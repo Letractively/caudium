@@ -124,3 +124,15 @@ function decode_base64( what )
 	return result;
 }
 
+function wrap76( what )
+{
+	var result = "";
+	var i;
+
+	for(i=0; i < what.length; i+=76)
+	{
+		result += what.substring(i, i+76) + String.fromCharCode(13) + String.fromCharCode(10);
+	}
+	return result;
+}
+
