@@ -4,5 +4,5 @@
 #
 dir=`pwd`
 (cd  @prefix@/caudium/server/
-./start --program  ./bin/ultrasum.pike --pwd "$dir" "$@"
+./start --quiet --program  ./bin/ultrasum.pike --pwd "$dir" "$@"
 )
