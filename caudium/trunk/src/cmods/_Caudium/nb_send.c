@@ -479,7 +479,7 @@ static INLINE void read_data(void)
 /* Our write callback */
 static void f__output_write_cb(INT32 args)
 {
-  NBIO_INT_T written=0, len;
+  NBIO_INT_T written=0, len = 0;
   int fd;
   char *buf = NULL;
   input *inp;
@@ -490,7 +490,7 @@ static void f__output_write_cb(INT32 args)
      || inp->type == NBIO_MMAP
 #endif
       )) {
-    void *data;
+    void *data = NULL;
 #ifdef USE_MMAP
     if(inp->type == NBIO_STR) {
 #endif
