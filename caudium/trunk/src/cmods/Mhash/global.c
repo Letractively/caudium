@@ -36,7 +36,20 @@ RCSID("$Id$");
 #ifdef HAVE_MHASH
 #include "mhash_quick.h"
 
-/* Hash id -> name */
+//! class: Mhash
+//!  Mhash is an open source library which provides a uniform interface
+//!  to a large number of hash algorithms. These algorithms can be used
+//!  to compute checksums,message digests, and other signatures. The HMAC
+//!  support implements the basics for message authentication, following
+//!  RFC 2104. This is the Mhash glue.
+
+//! method: string query_name(int type)
+//!  Return the name of the hash with the specified type.
+//! arg: int type
+//!  The type of the hash. Normally accessed through Mhash.MD5,
+//!  Mhash.HAVAL128 etc.
+//! returns:
+//!  The name of the hash.
 void f_query_name(INT32 args)
 {
   char *name;
@@ -72,8 +85,37 @@ QUICKHASH(tiger, MHASH_TIGER);
 
 
 
+//! method: string to_hex(string bin)
+//!  Convert a hash result to hexadecimal format from binary format.
+//!  This is useful if you want to use safe characters only.
+//! arg: string bin
+//!  The binary string to convert.
+//! returns:
+//!  The hexadecimal representation of bin.
+void f_to_hex(INT32 args)
+{
+  unsigned char *res, hex[3];
+  struct pike_string *str;
+  int len, i, e;
+  if(args != 1 && sp[-1].type != T_STRING) {
+    error("Invalid / incorrect args to to_hex. Expected string.\n");
+  }
+  len = sp[-1].u.string->len << sp[-1].u.string->size_shift;
+  str = begin_shared_string(len*2);
+  res = (unsigned char *)sp[-1].u.string->str;
+  for(e = 0, i = 0; i < len; i++, e+=2) { 
+    snprintf(hex, 3, "%.2x", res[i]); 
+    STR0(str)[e] = hex[0]; 
+    STR0(str)[e+1] = hex[1]; 
+  }
+  str = end_shared_string(str);
+  pop_n_elems(args);
+  push_string(str);
+}
+
 void mhash_init_globals(void) {
   add_function("query_name", f_query_name, "function(int:string)", 0 ); 
+  add_function("to_hex", f_to_hex, "function(string:string)", 0 ); 
 
   ADDQHASH(crc32);     ADDQHASH(crc32b);    ADDQHASH(gost);
   ADDQHASH(haval128);  ADDQHASH(haval160);  ADDQHASH(haval192);
