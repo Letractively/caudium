@@ -128,41 +128,64 @@ class http_error_handler {
     return (data);
   }
 
-  public mapping process_error (object id)
+  public mapping process_error (object id, void|int _error_code, void|string _error_name, void|string _error_message)
   {
-    mapping data;
+     mapping data;
+     int error_code;
+     string error_name;
+     string error_message;
 
-    array err = catch {
-      if (!id->misc->error_code)
-      {
-	if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
-	{
-	  id->misc->error_code = 501;
-	  id->misc->error_message = "Method (" + html_encode_string (id->method) + ") not recognised.";
-	}
-	else
-	{
-	  id->misc->error_code = 404;
-	  if (!id->misc->error_message)
-	    id->misc->error_message = "Unable to locate the file: " + id->not_query + ".<br>\n" +
-	      "The page you are looking for may have moved or been removed.";
-	}
-      }
-      if (!id->misc->error_message)
-	id->misc->error_message = id->errors[id->misc->error_code];
-   
-      data = handle_error (id->misc->error_code, id->errors[id->misc->error_code], id->misc->error_message, id);
-    };
+     array err = catch {
+        if (_error_code)
+           error_code = _error_code;
+        else
+        {
+           if (id->misc->error_code)
+              error_code = id->misc->error_code;
+           else
+           {
+              if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
+                 error_code = 501;
+              else
+                 error_code = 404;
+           }
+        }
 
-    if (err)
-    {
-      report_error ("Internal server error:\n" + describe_backtrace(err) + "\n");
+        if (_error_name)
+           error_name = _error_name;
+        else if (id->misc->error_name)
+           error_name = id->misc->error_name;
+        else
+           error_name = id->errors[error_code];
 
-      data =  http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
-			       "internal error in the error routine.</h1>" );
-    }
+        if (_error_message)
+           error_message = _error_message;
+        else
+        {
+           if (id->misc->error_message)
+              error_message = id->misc->error_message;
+           else
+           {
+              if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
+                 error_message = "Method (" + html_encode_string (id->method) + ") not recognised.";
+              else
+                 error_message = "Unable to locate the file: " + id->not_query + ".<br>\n" +
+                         "The page you are looking for may have moved or been removed.";
+           }
+        }
 
-    return (data);
+        data = handle_error (error_code, error_name, error_message, id);
+     };
+
+     if (err)
+     {
+        report_error ("Internal server error:\n" + describe_backtrace(err) + "\n");
+
+        data =  http_low_answer( 500, "<h1>Error: The server failed to fulfill your query due to an " +
+                        "internal error in the error routine.</h1>" );
+     }
+
+     return (data);
   }
 
   public void set_template( string _template_name, object id ) {

@@ -168,7 +168,7 @@ static string parse_rxml(string what, object id,
 			 void|mapping defines);
 
 /*
-**! method: string http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
+**! method: mapping http_rxml_answer(string rxml, object id, void|object(Stdio.File) file, string|void type)
 **!   Convenience function to use in Caudium modules and Pike scripts. When you
 **!   just want to return a string of data, with an optional type, this is the
 **!   easiest way to do it if you don't want to worry about the internal
@@ -199,7 +199,30 @@ mapping http_rxml_answer( string rxml, object id,
 	   ]);
 }
 
+/*
+**! method: mapping http_error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
+**!   Return an error mapping with the current error theme with the specified
+**!   error code, name, and message.
+**! arg: object id
+**!   The request id object.
+**! arg: void|int error_code
+**!   An optional error code to respond with.
+**! arg: void|string error_name
+**!   Optional error name.
+**! arg: void|string error_name
+**!   Optional error message.
+**! returns:
+**!   The HTTP response mapping.
+**! name: http_error_answer - return a response mapping as specified
+*/
+mapping http_error_answer(object id, void|int error_code, void|string error_name, void|string error_message)
+{
+   if (!error_code)
+      error_code = 404;
 
+   return (caudium->http_error->process_error (id, error_code, error_name, error_message));
+}
+ 
 /*
 **! method: mapping http_string_answer( string text, string|void type )
 **!   Return a response mapping with the text and the specified content type.
