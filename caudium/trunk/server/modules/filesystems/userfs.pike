@@ -648,7 +648,7 @@ int|mapping|Stdio.File find_file(string f, object id)
 
     stat = filesystem::stat_file(f, id);
 
-    if(!stat || (stat[5] != (int)(u->uid)))
+    if(!stat || (stat[5] != (int)(us->uid)))
     {
       USERFS_WERR(sprintf("File not owned by user.", u));
       return 0;
