@@ -36,6 +36,28 @@
  * set the contenttype to 'text/html'
  */
 
+/*
+ * oh joy. no word about module_types in the old roxen docs. i think this leaves pretty much
+ * only this file as reference... anyway, so i *think* the api must have been something like that:
+ *
+ * array(string)type_from_extension(string extension)
+ *
+ * returns a ({ content-type, content-encoding }) array for a given extension; with content-encoding
+ * set to 0 if no such thing belongs to the file (extension?! it doesn't know the filename...)
+ *
+ * this is unpleasant, and highly unusable. so i'm hereby redefining the api as:
+ *
+ * array(string)type_from_filename(string filename)
+ *
+ * returns a ({ content-type, content-encoding }) array for a given filename. content-encoding
+ * is set to 0, if no matches found (FIXME: read up on the i<something> stuff).
+ * (the old type_from_extension() is left there for backwards compat, but don't use it anymore.
+ * if anyone has ever did a MODULE_TYPE, drop me a note. i'd really like to know how/what have
+ * you done.
+ *
+ */
+
+
 // FIXME: of course module docs don't, as of now, reflect the actual syntax
 
 constant cvs_version = "$Id$";
@@ -47,13 +69,18 @@ inherit "module";
 constant module_type = MODULE_TYPES;
 constant module_name = "Content types";
 constant module_doc  = "This module handles all normal extension to "
-       "content type mapping. Given the file 'foo.html', it will "
-       "normally set the content type to 'text/html'.";
+  "content type mapping. Given the file 'foo.html', it will "
+  "normally set the content type to 'text/html'.";
 constant module_unique = 1;
 
+// the mappings that hold extension <-> content-type and extension <-> encoding info
 mapping (string:string) extensions = ([ ]);
 mapping (string:string) encodings = ([ ]);
+// stuff to get the accessed statistics
 mapping (string:int) accessed = ([ ]);
+
+// helpers for type_from_filename()
+multiset known_exts, known_encs;
 
 void create()
 {
@@ -96,7 +123,7 @@ void create()
 
 string status()
 {
-  string a,b;
+  string a, b;
   int even = 0;
 
   // accessed list follows
@@ -136,7 +163,7 @@ void parse_ext_string(string exts, mapping m)
 {
 
   /*
-   * ok, so the "fuck it all and fucking no regrets" extensions parser:
+   * ok, so the "fuck it all and fucking no regrets" extensions/encodings parser:
    * format is as:
    * extension[" "extension...][\t]+content-type
    * or:
@@ -213,12 +240,21 @@ void parse_ext_string(string exts, mapping m)
 
 void start()
 {
+  // here we fill up the extensions map from the internal database
   parse_ext_string(QUERY(exts), extensions);
+  // if an external one exists, add those too
   if( string s = Stdio.read_bytes(QUERY(extsfile)) )
     parse_ext_string(s, extensions);
+  // also for the encodings (internal db only, but can #include others
   parse_ext_string(QUERY(encs), encodings);
+  // and our helpers
+  known_exts = mkmultiset(indices(extensions));
+  known_encs = mkmultiset(indices(encodings));
 }
 
+/*
+ * the old api fun. left here for posterity and backwards compat.
+ */
 array type_from_extension(string ext)
 {
   ext = lower_case(ext);
@@ -230,6 +266,51 @@ array type_from_extension(string ext)
     return ({ extensions[ ext ], encodings[ ext ] });
   }
 }
+
+/*
+ * our shiny new one.
+ */
+array type_from_filename(string filename) {
+  filename = lower_case(filename);
+  // set the most sensible default available at this time
+  array retval = ({ QUERY(default_ct), 0 });
+  array tmp = filename / ".";
+  switch(sizeof(tmp)) {
+    case 0:
+      // strange this would be, we report it, too; then return the default. that should be the most fail-safe to do...
+      perror("contenttypes.pike:type_from_filename(): got null filename?\n");
+      break;
+    case 1:
+      // no extensions, return the defaults
+      break;
+    case 2:
+      // one extension: there will be no encoding, only content-type
+      if( extensions[tmp[1]] )
+        retval[ 0 ] = extensions[tmp[1]];
+      break;
+    default:
+      // two or more extensions. things get two-fold here: either
+      // 1. "fil.e.nam.e.extension.encoding", or
+      // 2. "file.e.nam.e.extension"
+
+      string _enc = tmp[sizeof(tmp)-1];
+      string _ext = tmp[sizeof(tmp)-2];
+
+      if( knows_encs[_enc] && known_exts[_ext] ) {
+        // here, both encodings and extensions exist, so act accordingly:
+        retval[ 0 ] = extensions[_ext];
+        retval[ 1 ] = encodings[_enc];
+      } else if( known_exts[_enc] ) {
+      // we're left with the confidence that the last token was not an encoding, so it might be a content-type...
+      // no, extensions[_enc] is not a typo. it's just a somewhat badly choosen name.
+        retval[ 0 ] = extensions[_enc];
+      };
+      // left in the dark. they were neither encodings, nor extensions.
+      break;
+  }
+  return retval;
+}
+
 
 int may_disable() 
 { 
