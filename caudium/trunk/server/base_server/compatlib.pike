@@ -204,7 +204,7 @@ mapping http_redirect(string url, object|void id) {
 //! @deprecated
 mapping http_stream(object from) {
    WCOMPAT2("Caudium.HTTP.stream", "http_stream");
-   return Caudium.HTTP.redirect(from);
+   return Caudium.HTTP.stream(from);
 }
 
 //! Compat call of Caudium.HTTP.auth_required
