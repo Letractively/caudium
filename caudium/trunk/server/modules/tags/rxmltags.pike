@@ -1698,11 +1698,20 @@ string tag_allow(string a, mapping (string:string) m,
     NOCACHE();
 
     if(m->user == "any")
+    {
+      // are we supplying our own auth file?
       if(m->file && id->rawauth) {
 	// FIXME: wwwfile attribute doesn't work.
 	TEST(match_user(id->rawauth, "", Caudium.fix_relative(m->file,id),
 			!!m->wwwfile, id));
-      } else
+       }
+       // or are we using the system databases?
+       else if(id->user)
+         return "<true>" + s;
+       // or are we not authenticated by anyone?
+       else return "<false>";
+     }
+     else
 	TEST(id->user);
     else
       if(m->file && id->auth) {
