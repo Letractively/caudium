@@ -109,8 +109,8 @@ void create()
             "This is the location where the session admin interface is found." );
 
     defvar("cookieexpire", -1, "Cookies: Cookie Expiration Time", TYPE_INT,
-           "if 0, do not set a cookie expiration, if >0, set cookie expiration "
-           "for that many seconds.  If <0, set cookie with date 10 years in the future" );
+           "if 0, do not set a cookie expiration, if more than 0, set cookie expiration "
+           "for that many seconds.  If less than 0, set cookie with date 8 years in the future" );
     
     defvar("domaincookies", 0, "Cookies: Domain Cookies", TYPE_FLAG,
            "If used, cookies will be tagged with <tt>.domain.com</tt> from "
