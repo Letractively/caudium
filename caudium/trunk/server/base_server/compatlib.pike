@@ -160,7 +160,7 @@ static mapping http_error_answer(object id, void|int error_code,
    return Caudium.HTTP.error_answer(id,error_code,name,message);
 }
 
-//! Compat call of @[Caudium.HTTP.string_anwser]
+//! Compat call of @[Caudium.HTTP.string_answer]
 //! @deprecated
 static mapping http_string_answer(string text, string|void type) {
    WCOMPAT2("Caudium.HTTP.string_answer", "http_string_answer");
@@ -316,7 +316,7 @@ static int is_safe_string(string in) {
    return Caudium.is_safe_string(in);
 }
 
-//! Compat call of @[Caudium.make_tag_attribute]
+//! Compat call of @[Caudium.make_tag_attributes]
 //! @deprecated
 static string make_tag_attributes(mapping in) {
    WCOMPAT("Caudium","make_tag_attributes");
