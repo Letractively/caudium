@@ -1,0 +1,9 @@
+Makefile
+Makefile.pre
+dependencies
+config.status
+config.log
+configure
+caudium_machine.h
+caudium_machine.h.in
+autom4te.cache
