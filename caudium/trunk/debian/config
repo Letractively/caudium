@@ -67,7 +67,7 @@ get_iface() {
 db_version 2.0
 db_capb
 
-if test ! -f /etc/caudium/Global_Variables; then
+if test ! -f /etc/caudium/servers/Global_Variables; then
     get_cfg_port
     get_iface
 fi
