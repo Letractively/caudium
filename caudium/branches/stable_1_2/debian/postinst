@@ -172,7 +172,7 @@ EOF
     
     # Link in the bitstream fonts
     if [ -d /usr/share/fonts/truetype/ttf-bitstream-vera ]; then
-      for f /usr/share/fonts/truetype/ttf-bitstream-vera/*.ttf; do
+      for f in /usr/share/fonts/truetype/ttf-bitstream-vera/*.ttf; do
         ln -sf $f /usr/lib/caudium/fonts/ttf/${f##*/}
       done
     fi

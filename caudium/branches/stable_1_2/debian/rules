@@ -152,7 +152,7 @@ install: build
 
 	# Remove non-dfsg fonts
 	for f in $(REMOVEFONTS); do \
-	 if -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; then \
+	 if [ -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f ]; then \
 	   rm -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; \
 	 fi \
 	done

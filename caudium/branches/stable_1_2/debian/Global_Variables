@@ -4,7 +4,7 @@
  <var name='Supports'>           <str>#include %3cetc/supports%3e
 </str> </var>
  <var name='hash_num_dirs'>      <int>500</int> </var>
- <var name='default_font'>       <str>lucida</str> </var>
+ <var name='default_font'>       <str>Bitstream Vera Sans</str> </var>
  <var name='font_dirs'>          
   <a>
     <str>/usr/share/caudium/local_fonts/</str>
