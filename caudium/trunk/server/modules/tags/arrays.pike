@@ -349,7 +349,7 @@ mapping query_tag_callers()
 **!   current array, add entry to the end. 
 **! attribute: delim
 **!   Delimiter between elements
-**!   detault: ,
+**! default: ,
 **! 
 **! container: arraycinsert
 **!   Insert values after a specific position in an array. 
