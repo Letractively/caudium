@@ -44,13 +44,13 @@ constant thread_safe = 1;
 
 // #define PATHINFO_DEBUG
 
-constant module_type = MODULE_LAST;
+constant module_type = MODULE_FIRST;
 constant module_name = "PATH_INFO support";
 constant module_doc  = "Support for PATH_INFO style URLs.";
 constant module_unique = 1;
 
 
-mapping|int last_resort(object id)
+mapping|int first_try(object id)
 {
 #ifdef PATHINFO_DEBUG
   roxen_perror(sprintf("PATHINFO: Checking %O...\n", id->not_query));
