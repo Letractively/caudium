@@ -563,7 +563,20 @@ void report_fatal(string message, mixed ... args)
 #endif
 }
 
-//! Pipe open 
+//! @apperas popen
+//! Starts the specified process and returns a string with the result.
+//! Mostly a compatibility function, uses Process.create_process in new
+//! programs
+//! @param s
+//!  The process to start
+//! @param env
+//!  Optional environment vars
+//! @param uid
+//!  Optional uid to run with.
+//! @param gid
+//!  Optional gid to run with.
+//! @fixme 
+//!   Compat call 
 string popen(string s, void|mapping env, int|void uid, int|void gid)
 {
   Stdio.File p;
@@ -620,6 +633,8 @@ string popen(string s, void|mapping env, int|void uid, int|void gid)
 }
 
 //!
+//! @fixme
+//!  Document this.
 int low_spawne(string s, array args,
                mapping(string:string)|array(string) env,
                Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
@@ -645,6 +660,7 @@ int low_spawne(string s, array args,
   exit(99);
 }
 
+//! @appears spawne
 //! Create a process
 int spawne(string s, array(string) args, mapping|array env, object stdin, 
            object stdout, object stderr, void|string wd, void|array (int) uid)
@@ -680,6 +696,7 @@ int spawne(string s, array(string) args, mapping|array env, object stdin,
   return(-1);
 }
 
+//! @appears spawn_pike
 //! Start a new Pike process with the same configuration as the current one
 int spawn_pike(array(string) args, void|string wd, object|void stdin,
                object|void stdout, object|void stderr)
@@ -816,11 +833,12 @@ class LowErrorContainer
   }
 }
 
-//!
+//! @appears ErrorContainer
 class ErrorContainer
 {
   inherit LowErrorContainer;
 
+  //!
   void compile_error(string file, int line, string err)
   {
     if( sizeof(compile_error_handlers) )
@@ -828,6 +846,8 @@ class ErrorContainer
     else
       ::compile_error(file,line,err);
   }
+
+  //!
   void compile_warning(string file, int line, string err)
   {
     if( sizeof(compile_error_handlers) )
@@ -857,6 +877,9 @@ class myprivs
   }
 }
 
+//! @decl in cd(string path)
+//! @appears cd
+//! Overloads the Pike cd function.
 //! Don't allow cd() unless we are in a forked child.
 class restricted_cd
 {
@@ -914,11 +937,14 @@ object really_load_caudium()
 }
 
 #ifdef TRACE_DESTRUCT
-//! Debug function to trace calls to destruct().
+//! @appears destruct
+//! Overload the Pike destruct function. If the webserver is
+//! started with the TRACE_DESTRUCT define set, all destruct
+//! call will be logged in the debug log.
 void trace_destruct(mixed x)
 {
-  roxen_perror(sprintf("DESTRUCT(%O)\n%s\n",
-                       x, describe_backtrace(backtrace())));
+  report_debug("DESTRUCT(%O)\n%s\n",
+               x, describe_backtrace(backtrace()));
   destruct(x);
 }
 #endif /* TRACE_DESTRUCT */
