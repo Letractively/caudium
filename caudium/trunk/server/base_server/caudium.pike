@@ -246,7 +246,6 @@ private static void low_shutdown(int exit_code)
 // start a new copy of Caudium automatically.
 mapping restart() 
 { 
-//  werror(sprintf("Theme: %O\n", QUERY(cif_theme)));
   low_shutdown(-1);
   
   return IFiles->get(sprintf("html://restart-%s.html",QUERY(cif_theme)), ([
@@ -256,10 +255,9 @@ mapping restart()
 
 mapping shutdown() 
 {
-//  werror(sprintf("Theme: %O\n", QUERY(cif_theme)));
   low_shutdown(0);
   
-  return IFiles->get("html://shutdown.html", ([
+  return IFiles->get(sprintf("html://shutdown-%s.html",QUERY(cif_theme)), ([
                      "docurl":caudium->docurl,
 					 "PWD":getcwd()]));
 } 
