@@ -1037,6 +1037,11 @@ class Attribute {
 class Entity {
     inherit DocObject;
     
+    array(string) example;
+    array(string) seealso;
+    array(string) notes;
+    array(string) bugs;
+    
     void new_field(string|object newstuff, string kw)
     {
         if (stringp(newstuff)){
@@ -1047,6 +1052,22 @@ class Entity {
 			parent->add(this_object(), kw);
                     break;
 
+                case "see_also":
+                    seealso += ({newstuff});
+                    break;
+
+                case "note":
+                    notes += ({newstuff});
+                    break;
+
+                case "example":
+                    example += ({newstuff});
+                    break;
+
+                case "bugs":
+                    bugs += ({newstuff});
+                    break;
+		    
                 default:
                     wrong_keyword(kw);
                     break;
@@ -1064,6 +1085,22 @@ class Entity {
 		  contents += newstuff;
                 break;
 
+            case "see_also":
+                seealso[-1] += newstuff;
+                break;
+
+            case "note":
+                notes[-1] += newstuff;
+                break;
+
+            case "example":
+                example[-1] += newstuff;
+                break;
+
+            case "bugs":
+                bugs[-1] += newstuff;
+                break;
+
             default:
                 wrong_keyword(lastkw);
                 break;
@@ -1077,6 +1114,10 @@ class Entity {
         myName = "EntityScope";
 
         first_line = line;
+	example = ({});
+	seealso = ({});
+	notes = ({});
+	bugs = ({});
     }
 };
 
@@ -1084,7 +1125,11 @@ class EntityScope {
     inherit DocObject;
     
     array(Entity)  entities;
-
+    array(string)  example;
+    array(string)  seealso;
+    array(string)  notes;
+    array(string)  bugs;
+    
     void new_field(string|object newstuff, string kw)
     {
         if (stringp(newstuff)){
@@ -1093,6 +1138,22 @@ class EntityScope {
                     first_line = newstuff;
 		    if (parent)
 			parent->add(this_object(), kw);
+                    break;
+
+                case "see_also":
+                    seealso += ({newstuff});
+                    break;
+
+                case "note":
+                    notes += ({newstuff});
+                    break;
+
+                case "example":
+                    example += ({newstuff});
+                    break;
+
+                case "bugs":
+                    bugs += ({newstuff});
                     break;
 
                 default:
@@ -1105,6 +1166,8 @@ class EntityScope {
 		    entities += ({newstuff});
 		    break;
 		    
+
+		
 		default:
 		    wrong_keyword(kw);
 		    break;
@@ -1122,6 +1185,22 @@ class EntityScope {
 		  contents += newstuff;
                 break;
 
+            case "see_also":
+                seealso[-1] += newstuff;
+                break;
+
+            case "note":
+                notes[-1] += newstuff;
+                break;
+
+            case "example":
+                example[-1] += newstuff;
+                break;
+
+            case "bugs":
+                bugs[-1] += newstuff;
+                break;
+
             default:
                 wrong_keyword(lastkw);
                 break;
@@ -1136,6 +1215,10 @@ class EntityScope {
 
         first_line = line;
         entities = ({});
+	example = ({});
+	seealso = ({});
+	notes = ({});
+	bugs = ({});
     }
 };
 
@@ -1284,11 +1367,23 @@ mapping(string:object|string) attribute_scope = ([
     "ScopeName":"attribute"
 ]);
 
-mapping(string:object|string) entity_scope = ([
+mapping(string:object|string) entityscope_scope = ([
     "entity":lambda(object curob, string line) {
                  return Entity(line, curob);
              },
+    "bugs":"",
+    "see_also":"",
+    "note":"",
+    "example":"",
     "ScopeName":"entity-scope"
+]);
+
+mapping(string:object|string) entity_scope = ([
+    "bugs":"",
+    "see_also":"",
+    "note":"",
+    "example":"",
+    "ScopeName":"entity"
 ]);
 
 mapping(string:object|string) top_scope = ([
@@ -1323,7 +1418,8 @@ mapping(string:mapping) scopes = ([
     "tag": tag_scope,
     "container": container_scope,
     "attribute": attribute_scope,
-    "entity-scope": entity_scope
+    "entity-scope": entityscope_scope,
+    "entity": entity_scope
 ]);
 
 class Parse {
@@ -1332,7 +1428,7 @@ class Parse {
     private object(File)   f;
     private int            where;
     private int	           indent;
-    private object(Regexp) kwreg = Regexp("(^[a-zA-Z0-9_]+):(.*)");
+    private object(Regexp) kwreg = Regexp("(^[a-zA-Z0-9_-]+):(.*)");
     private object         curob;
     private string         lastkw;
     private int            fadded;
