@@ -356,7 +356,7 @@ mapping save_it(object id, object o)
   root->save();
   caudium->update_supports_from_caudium_net();
   caudium->initiate_configuration_port( 0 );
-  id->referer = ({ CONFIG_URL + o->path(1) });
+  id->referrer = CONFIG_URL + o->path(1);
   if(sizeof(changed_port_servers))
     return verify_changed_ports(id, o);
 }
@@ -568,8 +568,8 @@ mapping std_redirect(object o, object id)
 
   if(!o)  o=root;
   
-  if(id && sizeof(id->referer))
-    loc=((((((id->referer*" ")/"#")[0])/"?")[0])+"?"+(bar++)
+  if(id->referrer)
+    loc=(((((id->referrer/"#")[0])/"?")[0])+"?"+(bar++)
 	 +"#"+o->path(1));
   else
     loc = CONFIG_URL+o->path(1)[1..]+"?"+bar++;
@@ -1335,7 +1335,7 @@ mapping configuration_parse(object id)
 
   if(!o) // Bad node, perhaps an old bookmark or something.
   {
-    id->referer = ({ });
+    id->referrer = 0;
     foreach(indices(selected_nodes), string n)
       if(selected_nodes[n] == id->not_query)
 	selected_nodes[n] = "/"+n;
@@ -1578,7 +1578,7 @@ mapping configuration_parse(object id)
        */
 
     case "really_delete":
-      id->referer = ({ CONFIG_URL + o->up->path(1) });
+      id->referrer = CONFIG_URL + o->up->path(1);
       
       switch(o->type)
       {
@@ -1677,7 +1677,7 @@ mapping configuration_parse(object id)
       // function.. This _should_ be the case with some of the other
       // actions too.
      case "newconfig":
-       id->referer = ({ CONFIG_URL + o->path(1) });
+       id->referrer = CONFIG_URL + o->path(1);
        return new_configuration(id);
 
 
@@ -1710,7 +1710,7 @@ mapping configuration_parse(object id)
 	   }
 	 }
        }
-       id->referer = ({ CONFIG_URL + o->path(1) });
+       id->referrer = CONFIG_URL + o->path(1);
       break;
       // Save changes done to the node 'o'. Currently 'o' is the root
       // node most of the time, thus saving _everything_.
@@ -1736,13 +1736,13 @@ mapping configuration_parse(object id)
       // Add a new module to the current configuration.
     case "newmodule": // For backward compatibility
     case "addmodule":
-      id->referer = ({ CONFIG_URL + o->path(1) });
+      id->referrer = CONFIG_URL + o->path(1);
       return new_module(id,o);
 
 
       // Add a new copy of the current module to the current configuration.
      case "newmodulecopy":
-      id->referer = ({ CONFIG_URL + o->path(1) });
+      id->referrer = CONFIG_URL + o->path(1);
       new_module_copy_copy(o, id);
       break;
 

@@ -167,10 +167,10 @@ static mapping build_env_vars(string f, object id, string path_info)
     if(stringp(id->misc->connection))
       new["HTTP_CONNECTION"]=id->misc->connection;
     
-    new["HTTP_USER_AGENT"] = id->client*" "; 
+    new["HTTP_USER_AGENT"] = id->useragent; 
     
-    if(id->referer && sizeof(id->referer))
-      new["HTTP_REFERER"] = id->referer*""; 
+    if(id->referrer)
+      new["HTTP_REFERER"] = id->referrer;
   }
 
   new["REMOTE_ADDR"]=addr;

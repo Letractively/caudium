@@ -338,24 +338,23 @@ static void do_log(mapping file, object request_id, function log_function)
 		 "$referer", "$user_agent", "$user", "$user_id",
 	       }), ({
 		 (string)request_id->remoteaddr,
-		   host_ip_to_int(request_id->remoteaddr),
-		   cern_http_date(time(1)),
-		   unsigned_to_bin(time(1)),
-		   (string)request_id->method,
-		   http_encode_string(request_id->not_query+
-				      (request_id->query?"?"+request_id->query:
-				       "")),
-		   (string)request_id->prot,
-		   (string)(file->error||200),
-		   unsigned_short_to_bin(file->error||200),
-		   (string)(file->len>=0?file->len:"?"),
-		   unsigned_to_bin(file->len),
-		   (string)
-		   (sizeof(request_id->referer)?request_id->referer[0]:"-"),
-		   http_encode_string(sizeof(request_id->client)?request_id->client*" ":"-"),
-		   extract_user(request_id->realauth),
-		   (string)request_id->cookies->CaudiumUserID,
-		 }));
+		 host_ip_to_int(request_id->remoteaddr),
+		 cern_http_date(time(1)),
+		 unsigned_to_bin(time(1)),
+		 (string)request_id->method,
+		 http_encode_string(request_id->not_query+
+				    (request_id->query?"?"+request_id->query:
+				     "")),
+		 (string)request_id->prot,
+		 (string)(file->error||200),
+		 unsigned_short_to_bin(file->error||200),
+		 (string)(file->len>=0?file->len:"?"),
+		 unsigned_to_bin(file->len),
+		 (string)(request_id->referrer||"-"),
+		 http_encode_string(request_id->useragent),
+		 extract_user(request_id->realauth),
+		 (string)request_id->cookies->CaudiumUserID,
+	       }) );
   
   if(search(form, "host") != -1)
     caudium->ip_to_host(request_id->remoteaddr, write_to_log, form,
@@ -441,8 +440,8 @@ inline string format_log(object id, mapping file)
 {
   return sprintf("%s %s %s [%s] \"%s %s %s\" %s %s\n",
 		 caudium->quick_ip_to_host(id->remoteaddr),
-		 (string)(sizeof(id->referer)?id->referer*", ":"-"),
-		 replace((string)(id->client?id->client*" ":"-")," ","%20"),
+		 (string)(id->referrer||"-"), 
+		 replace(id->useragent ," ","%20"),
 		 cern_http_date(id->time),
 		 (string)id->method, (string)id->raw_url,
 		 (string)id->prot,   (string)file->error,

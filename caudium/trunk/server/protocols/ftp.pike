@@ -128,7 +128,11 @@
 
 class RequestID
 {
+#ifdef EXTRA_ROXEN_COMPAT
   array client = ({ "ftp" });
+#endif
+  string useragent = "ftp";
+  
   constant prot = "FTP";
   constant clientprot = "FTP";
 
@@ -2916,7 +2920,10 @@ class FTPSession
     }
 
     send(200, ({ "Ok, gottcha!"}));
+#ifdef EXTRA_ROXEN_COMPAT
     master_session->client = args/" " - ({ "" });
+#endif
+    master_session->useragent = args;
   }
 
   void ftp_FEAT(string args)

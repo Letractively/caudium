@@ -791,9 +791,8 @@ public void log(mapping file, object request_id)
 		 unsigned_short_to_bin(file->error||200),
 		 (string)(file->len>=0?file->len:"?"),
 		 unsigned_to_bin(file->len),
-		 (string)
-		 (sizeof(request_id->referer||({}))?request_id->referer[0]:"-"),
-		 http_encode_string(sizeof(request_id->client||({}))?request_id->client*" ":"-"),
+		 (string)(request_id->referrer||"-"), 
+		 http_encode_string(request_id->useragent), 
 		 extract_user(request_id->realauth),
 		 (string)request_id->cookies->CaudiumUserID,
 		 (string)(time(1)-request_id->time)

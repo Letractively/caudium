@@ -695,7 +695,8 @@ int main(mixed ... args)
   }
 
   replace_master(new_master=(((program)"etc/roxen_master.pike")()));
-  add_constant("open_db", open_db);
+  add_constant("fish_version", version());
+   add_constant("open_db", open_db);
   add_constant("do_destruct", lambda(object o) {
 				if(o&&objectp(o))  destruct(o);
 			      });				
