@@ -156,7 +156,7 @@ mapping|int get_user_info(string username)
     array|int groups=({});
 
     if(data->primaryGroupID)
-      primary_group=get_groupname(data->primaryGroupID[0]);
+      primary_group=data->primaryGroupID[0];
     if(data->objectSid)
       uid=data->objectSid[0];
     if(data->cn)
