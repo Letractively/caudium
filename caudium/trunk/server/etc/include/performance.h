@@ -36,7 +36,7 @@
  * uncomment this define.
  */
 
-#undef DISABLE_SUPPORTS
+#define ENABLE_SUPPORTS
 
 
 /* Define this if you don't want Roxen to use DNS. Note: This is a
