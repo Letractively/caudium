@@ -38,13 +38,15 @@ inherit "module";
 inherit "caudiumlib";
 static inherit "http";
 
-#if constant(Lucene.Index)
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Chase Search Engine";
-constant module_doc  = "Caudium Has A Search Engine, based on the"
-    "Jakarta Lucene full text engine.";
 constant module_unique = 1;
+
+#if constant(Lucene.Index)
+
+constant module_doc  = "Caudium Has A Search Engine, based on the "
+    "Jakarta Lucene full text engine.";
 
 mapping engines=([]);
 mapping profiles=([]);
@@ -261,6 +263,12 @@ void start_engine(string name)
 
   engines[name]=Lucene.Index(profiles[name]->index->location[0]->value, stopwords);
 }
+
+#else
+
+constant module_doc  = "Caudium Has A Search Engine, based on the "
+    "Jakarta Lucene full text engine.<br>Since <strong>Lucene is not installed "
+    "</strong> on this computer, this module <strong>won't work</strong>.";
 
 #endif
 
