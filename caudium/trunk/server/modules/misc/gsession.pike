@@ -59,10 +59,21 @@ private mapping cur_storage = 0;
 
 string status()
 {
-  string ret = "Status? What status?! Buzz off, I want to sleep! And seriously: status quo... ";
+  string ret = "";
 
-  ret += sprintf("See the admin interface for information.");
-    
+  if (!cur_storage)
+    return "No current storage at this moment.";
+
+  array(int) counters = cur_storage->get_counters();
+  
+  ret += sprintf("<table>"
+                 "<tr><td>Current storage name</td><td><strong>%s</strong></td></tr>"
+                 "<tr><td>Current storage desc</td><td><strong>%s</strong></td></tr>"
+                 "<tr><td>Total number of sessions</td><td><strong>%d</td></tr>"
+                 "<tr><td>Number of idle sessions</td><td><strong>%d</td></tr>"
+                 "</table>", (string)cur_storage->name, (string)cur_storage->description,
+                 counters[0], counters[1]);
+  
   return ret;
 }
 
@@ -116,6 +127,11 @@ void create()
 
   defvar("expire", 600, "Session: Expiration time", TYPE_INT,
          "After how many seconds an inactive session is removed", 0, hide_gc);
+
+  defvar("expidletime", 600, "Session: Idle session expiration time", TYPE_INT,
+         "After how many seconds an idle session (that is a session on which no store/retrieve "
+         "operation was made) will be deleted from the storage. This is to minimize the memory "
+         "usage in case you have a lot of idle/unused sessions.");
 
   defvar("dogc", 1, "Session: Garbage Collection", TYPE_FLAG,
          "If set, then the sessions will expire automatically after the "
@@ -201,7 +217,7 @@ class SessionScope {
   {
     if (!cur_storage || !id->misc->session_id)
       return 0;
-        
+    
     if(val)
       cur_storage->store(id, var, val, id->misc->session_id, "session");
     else 
@@ -481,7 +497,12 @@ void register_plugins(void|object conf)
         rec_item_missing("get_sessions_area", regrec->name);
         continue;
       }
-            
+
+      if (!functionp(regrec->is_touched) || !regrec->is_touched) {
+        rec_item_missing("is_touched", regrec->name);
+        continue;
+      }
+      
       if (storage_plugins[regrec->name])
         report_warning("gSession: duplicate plugin '%s'\n", regrec->name);
             
@@ -578,7 +599,12 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //
 //  function delete_variable; (mandatory)
 //  synopsis: mixed delete_variable(object id, string key, string sid, void|string reg);
-//     function to delete a variable from a region. Synopsis below.
+//     function to delete a variable from a region.
+//
+//  function is_touched; (mandatory)
+//  synopsis: int is_touched(object id, string sid);
+//     returns 1 if the session was used (that is anything was
+//     stored/retrieved), 0 otherwise.
 //
 //  function expire_old; (mandatory)
 //  synopsis: void expire_old(int curtime, int expiration_time);
@@ -608,6 +634,12 @@ private mapping(string:mapping(string:mapping(string:mixed))) _memory_storage = 
 //     returns the special '_sessions_' area in the storage. That area
 //     stores all the options global to any session ID.
 //
+//  function get_counters; (mandatory)
+//  synopsis: array(int) get_counters(object id);
+//     returns a two element array with the session counters. The first
+//     index contains the total number of sessions, the second index
+//     contains the number of idle sessions.
+//
 private mapping memory_storage_registration_record = ([
   "name" : "Memory",
   "description" : "Memory-only storage of session data",
@@ -620,7 +652,9 @@ private mapping memory_storage_registration_record = ([
   "get_region" : memory_get_region,
   "get_all_regions" : memory_get_all_regions,
   "session_exists" : memory_session_exists,
-  "get_sessions_area" : memory_get_sessions_area
+  "get_sessions_area" : memory_get_sessions_area,
+  "is_touched" : memory_is_touched,
+  "get_counters" : memory_get_counters
 ]);
 
 //
@@ -660,7 +694,10 @@ private void memory_setup(object id, string|void sid)
     _memory_storage = ([]); // it might be 0
     _memory_storage->session = ([]);
     _memory_storage->user = ([]);
-    _memory_storage->_sessions_ = ([]);
+    _memory_storage->_sessions_ = ([
+      "total_sessions" : 0,
+      "idle_sessions" : 0
+    ]);
   }
 
   if (!sid)
@@ -672,9 +709,20 @@ private void memory_setup(object id, string|void sid)
   //
   if (!id->misc->gsession)
     id->misc->gsession = ([]);
-    
+
+  if (!_memory_storage->_sessions_[sid]) {
+    _memory_storage->_sessions_[sid] = ([
+      "nocookies" : 0,
+      "cookieattempted" : 0,
+      "lastused" : time(),
+      "fresh" : 1
+    ]);
+    _memory_storage["_sessions_"]->total_sessions++;
+    _memory_storage["_sessions_"]->idle_sessions++;
+  }
+  
   foreach(indices(_memory_storage), string region) {
-    if (!_memory_storage[region][sid])
+    if (region != "_sessions_" && !_memory_storage[region][sid])
       _memory_storage[region][sid] = ([
         "data" : ([])
       ]);
@@ -682,13 +730,25 @@ private void memory_setup(object id, string|void sid)
     if (!id->misc->gsession[region])
       id->misc->gsession[region] = _memory_storage[region][sid];
   }
-    
-  if (!_memory_storage->_sessions_[sid])
-    _memory_storage->_sessions_[sid] = ([
-      "nocookies" : 0,
-      "cookieattempted" : 0,
-      "lastused" : time()
-    ]);
+}
+
+private int memory_is_touched(object id, string sid)
+{
+  if (memory_validate_storage("session", sid, "memory_storage") < 0)
+    return 0;
+  
+  return _memory_storage["_sessions_"][sid]->fresh != 0;
+}
+
+private array(int) memory_get_counters(object|void id)
+{
+  if (!_memory_storage || !_memory_storage["_sessions_"])
+    return ({0, 0});
+  
+  return ({
+   (int)_memory_storage["_sessions_"]->total_sessions,
+   (int)_memory_storage["_sessions_"]->idle_sessions
+  });
 }
 
 //
@@ -697,17 +757,19 @@ private void memory_setup(object id, string|void sid)
 private void memory_store(object id, string key, mixed data, string sid, void|string reg)
 {
   string    region = reg || "session";
-  int       t = time();    
-
-  _memory_storage["_sessions_"][sid]->lastused = t;
+  int       t = time();
     
   if (memory_validate_storage(region, sid, "memory_storage") < 0)
     return;
 
+  _memory_storage["_sessions_"][sid]->lastused = t;
+  if (_memory_storage["_sessions_"][sid]->fresh) {
+    _memory_storage["_sessions_"]->idle_sessions--;
+    _memory_storage["_sessions_"][sid]->fresh = 0;
+  }
   _memory_storage[region][sid]->data += ([
     key : data
   ]);
-
   _memory_storage["_sessions_"][sid]->lastchanged = t;
 }
 
@@ -718,17 +780,20 @@ private mixed memory_retrieve(object id, string key, string sid, void|string reg
 {
   string    region = reg || "session";
   int       t = time();
-
-  _memory_storage["_sessions_"][sid]->lastused = t;
     
   if (memory_validate_storage(region, sid, "memory_retrieve") < 0)
     return 0;
 
+  _memory_storage["_sessions_"][sid]->lastused = t;
+  if (_memory_storage["_sessions_"][sid]->fresh) {
+    _memory_storage["_sessions_"][sid]->fresh = 0;
+    _memory_storage["_sessions_"]->idle_sessions--;
+  }
+  
   if (!_memory_storage[region][sid]->data[key])
     return 0;
-
   _memory_storage["_sessions_"][sid]->lastretrieved = t;
-    
+  
   return _memory_storage[region][sid]->data[key];
 }
 
@@ -741,11 +806,15 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
   string    region = reg || "session";
   int       t = time();    
 
-  _memory_storage["_sessions_"][sid]->lastused = t;
-    
   if (memory_validate_storage(region, sid, "memory_delete_variable") < 0)
     return 0;
-
+  
+  _memory_storage["_sessions_"][sid]->lastused = t;
+  if (_memory_storage["_sessions_"][sid]->fresh) {
+    _memory_storage["_sessions_"][sid]->fresh = 0;
+    _memory_storage["_sessions_"]->idle_sessions--;
+  }
+  
   if (_memory_storage[region][sid][key]) {
     mixed val = _memory_storage[region][sid][key]->data;
     m_delete(_memory_storage[region][sid], key);
@@ -762,6 +831,10 @@ private mixed memory_delete_variable(object id, string key, string sid, void|str
 //
 private void memory_delete_session(string sid)
 {
+  if (_memory_storage["_sessions_"][sid]->fresh)
+    _memory_storage["_sessions_"]->idle_sessions--;
+  _memory_storage["_sessions_"]->total_sessions--;
+  
   foreach(indices(_memory_storage), string region)
     m_delete(_memory_storage[region], sid);
 }
@@ -772,14 +845,22 @@ private void memory_expire_old(int curtime)
   gc_key = gc_lock->lock();
 #endif
 
-  foreach(indices(_memory_storage), string region) {
-    foreach(indices(_memory_storage[region]), string sid) {
-      if (_memory_storage["_sessions_"][sid] &&
-          (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire))) {
-        memory_delete_session(sid);
+  foreach(indices(_memory_storage), string region)
+    if (mappingp(_memory_storage[region])) {
+      foreach(indices(_memory_storage[region]), string sid) {
+        if (_memory_storage["_sessions_"][sid] && mappingp(_memory_storage["_sessions_"][sid])) {
+          if (curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expire)) {
+            memory_delete_session(sid);
+            continue;
+          }
+          
+          if (_memory_storage["_sessions_"][sid]->fresh &&
+              curtime - _memory_storage["_sessions_"][sid]->lastused > QUERY(expidletime)) {
+            memory_delete_session(sid);
+          }
+        }
       }
     }
-  }
 #ifdef THREADS
   destruct(gc_key);
 #endif
@@ -818,6 +899,14 @@ private mapping memory_get_sessions_area(object id)
   return 0;
 }
 
+
+int is_touched(object id, string|mapping(string:mapping(string:mixed)) key)
+{
+  if (!cur_storage || !id->misc->session_id)
+    return -1;
+
+  return cur_storage->is_touched(id, id->misc->session_id);
+}
 
 //
 // provider interface
