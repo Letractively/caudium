@@ -1,5 +1,7 @@
 Changes in Caudium 1.3 since Caudium 1.2.1
 ------------------------------------------
+
+- Fixed typo in uniscript.pike (SF bug #604758)
 - Added code to set the maximum POST body size on a per virtual server
   basis. The default value is defined in performance.h and can be modified
   from the CIF.

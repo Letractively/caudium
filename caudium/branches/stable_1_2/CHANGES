@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.x since 1.2.8
 ------------------------------------
+
+- Fixed typo in uniscript.pike (SF bug #604758)
 - Fixed bad HTML code in initial setup screen
 - Fixed comma placement defvar in superform.pike 
 - Fix htaccess module for redirecttemp, redirecttemporary, redirectperm,
