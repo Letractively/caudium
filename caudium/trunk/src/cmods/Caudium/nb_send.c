@@ -359,11 +359,6 @@ static void f_output(INT32 args) {
       outp->file = ARG(1).u.object;
       outp->fd = fd_from_object(outp->file);
 
-      if(outp->fd == -1) {
-	free(outp);
-	Pike_error("Only real files are accepted as outputs.\n");
-      }
-	
       outp->set_nb_off = find_identifier("set_nonblocking", outp->file->prog);
       outp->set_b_off  = find_identifier("set_blocking", outp->file->prog);
       outp->write_off  = find_identifier("write", outp->file->prog);
@@ -518,7 +513,7 @@ static INLINE int read_data(void)
       /* Got an error. Free input and continue */
       free_input(inp); 
     }
-    goto redo;
+   goto redo;
 
    default:
     inp->pos += to_read;
@@ -538,7 +533,14 @@ static INLINE int do_write(char *buf, int buf_len) {
     written = fd_write(fd, buf, buf_len);
     THREADS_DISALLOW();  
   } else {
-    /*... */
+    push_string(make_shared_binary_string(buf, buf_len));
+    apply_low(THIS->outp->file, THIS->outp->write_off, 1);
+    if(Pike_sp[-1].type != T_INT) {
+      written = -1;
+    } else {
+      written = Pike_sp[-1].u.integer;
+    }
+    pop_stack();
   }
 
   if(written < 0)
