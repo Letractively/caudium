@@ -94,7 +94,7 @@ void cache_expire(string in)
 //! The name of the object to retrieve
 mixed cache_lookup( string in, string what ) {
   start_cache();
-  return my_cache->retrieve( sprintf( "%s://%s", in, what ) )||0;
+  return (what && my_cache->retrieve( sprintf( "%s://%s", in, what ) ))||0;
 }
 
 //! Status information
@@ -135,7 +135,8 @@ void cache_remove(string in, string what) {
 //! Optional expiry time.
 mixed cache_set(string in, string what, mixed to, int|void tm) {
   start_cache();
-  my_cache->store( cache_pike_object( to, sprintf( "%s://%s", in, what ), tm ) );
+  if(what)
+    my_cache->store( cache_pike_object( to, sprintf( "%s://%s", in, what ), tm ) );
   return to;
 }
 
