@@ -1,3 +1,9 @@
+caudium-1.1 (2:1.1.1-10) unstable; urgency=low
+
+  * Relaxed the dependency on the Pike version
+
+ -- Marek Habersack <grendel@debian.org>  Thu,  5 Jul 2001 10:10:30 +0200
+
 caudium-1.1 (2:1.1.1-9) unstable; urgency=low
 
   * Latest upstream snapshot
