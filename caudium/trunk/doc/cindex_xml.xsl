@@ -139,7 +139,7 @@
 <xsl:template match="entry" mode="filemethod">
   <xsl:choose>
    <xsl:when test="@type='file' or @type='module'">
-    <xsl:if test='count(entry[@type="method" or @type="class"]) > 0'>
+    <xsl:if test='count(entry[@type="method" or @type="class"]) > 0 or @type="file"'>
       <dt><b><a href="{@path}">
        <xsl:choose>
        <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
