@@ -586,7 +586,7 @@ static array mk_url(object id, mapping args, string contents)
 		  	? id->misc->defines["gbutton-frame-image"] : 0);
 
     if (fi)
-           fi = fix_relative(fi, id);
+           fi = Caudium.fix_relative(fi, id);
 
     args->icon_src = args["icon-src"] || args->icon_src || "";
     args->icon_data = args["icon-data"] || args->icon_data || "";
@@ -631,7 +631,7 @@ static array mk_url(object id, mapping args, string contents)
         new_args->dim = "yes";
 
     if (args->icon_src) 
-        new_args->icn = fix_relative(args->icon_src, id);
+        new_args->icn = Caudium.fix_relative(args->icon_src, id);
 
     if (args->icon_data)
         new_args->icd =  args->icon_data;        

@@ -291,8 +291,8 @@ string tag_accessed(string tag, mapping m, object id)
   NOCACHE();
 
   if(m->reset) {
-    if( !query("restrict") || !search( (dirname(fix_relative(m->file, id))+"/")-"//",
-		 (dirname(fix_relative(id->not_query, id))+"/")-"//" ) )
+    if( !query("restrict") || !search( (dirname(Caudium.fix_relative(m->file, id))+"/")-"//",
+		 (dirname(Caudium.fix_relative(id->not_query, id))+"/")-"//" ) )
     {
       counter->reset(m->file);
       return "Number of counts for "+m->file+" is now 0.<br />";
@@ -306,7 +306,7 @@ string tag_accessed(string tag, mapping m, object id)
   int counts = id->misc->accessed;
 
   if(m->file) {
-    m->file = fix_relative(m->file, id);
+    m->file = Caudium.fix_relative(m->file, id);
     if(m->add) counter->add(m->file, (int)m->add);
     counts = counter->query(m->file);
   }

@@ -487,7 +487,7 @@ class Store
     string internal_tag_include(string t, mapping args, int l, object id)
     {
         if(args->define) return id->misc->defines[args->define]||"";
-        string q = roxen->try_get_file(fix_relative(args->file, id), id);
+        string q = roxen->try_get_file(Caudium.fix_relative(args->file, id), id);
         return q;
     }
 

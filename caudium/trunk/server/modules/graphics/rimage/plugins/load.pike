@@ -154,7 +154,7 @@ void low_render( mapping args, mapping this,
 		 string channel, object id, object m )
 {
   if(!args->file) return;
-  args->file = fix_relative( args->file, id );
+  args->file = Caudium.fix_relative( args->file, id );
   string data = id->conf->try_get_file( args->file,id );
   array (object) i;
 

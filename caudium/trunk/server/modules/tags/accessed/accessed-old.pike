@@ -345,7 +345,7 @@ string tag_accessed(string tag,mapping m,object id,object file,
   NOCACHE();
   if(m->file)
   {
-    m->file = fix_relative(m->file, id);
+    m->file = Caudium.fix_relative(m->file, id);
     if(m->add) 
       counts = query_num(m->file, (int)m->add||1);
     else

@@ -80,13 +80,6 @@ string internal_done(string t, mapping args, string contents, mixed f,
   f->done=contents;
 }
 
-string fix_relative(string file, object id)
-{
-  if(file != "" && file[0] == '/') return file;
-  file = combine_path(dirname(id->not_query) + "/",  file);
-  return file;
-}
-
 string old_pike = "";
 object old_wizard = 0;
 
@@ -143,13 +136,13 @@ string tag_wizard(string t, mapping args, string contents, object id,
 		    "  id->not_query = %O;\n\""+
 		    "  return caudium->get_file( id );\n"
 		    "}\n\n",
-		    fix_relative(args->ok, id));
+		    Caudium.fix_relative(args->ok, id));
 #else
     pike += ("# "+id->misc->line+" \""+id->not_query+"\"\n");
     pike += ("mixed wizard_done(object id)\n"
 	     "{\n"
 	     "  id->not_query = \""+
-	     fix_relative(replace(args->ok, ({"\"","\n","\r", "\\"}), 
+	     Caudium.fix_relative(replace(args->ok, ({"\"","\n","\r", "\\"}), 
 				  ({"\\\"", "\\n", "\\r", "\\\\"})),id)+"\";\n"
 	     "  return caudium->get_file( id );\n"
 	     "}\n\n");
@@ -219,7 +212,7 @@ string tag_wizard(string t, mapping args, string contents, object id,
   }
 
 
-  mixed res = w->wizard_for(id,fix_relative(args->cancel||args->done||"",id));
+  mixed res = w->wizard_for(id,Caudium.fix_relative(args->cancel||args->done||"",id));
 
   if(mappingp(res))
   {

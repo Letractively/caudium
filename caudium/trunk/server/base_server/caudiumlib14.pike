@@ -692,27 +692,6 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
   return new_contents;
 }
 
-//! method: string fix_relative(string file, object id)
-//!  Transforms relative paths to absolute ones in the virtual filesystem
-//! arg: string file
-//!  The relative path to transform
-//! arg: object id
-//!  The caudium id object
-//! returns:
-//!  A string containing the absolute path in he virtual filesystem
-string fix_relative(string file, object id)
-{
-  if(file != "" && file[0] == '/') 
-    ;
-  else if(file != "" && file[0] == '#') 
-    file = id->not_query + file;
-  else
-    file = dirname(id->not_query) + "/" +  file;
-  
-  return Caudium.simplify_path(file);
-}
-
-
 //!  Return the scope and variable name based on the input data.
 //! @param variable
 //!  The variable to parse. Should be either "variable" or "scope.variable".

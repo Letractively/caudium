@@ -825,17 +825,17 @@ string tag_gtext_url(string t, mapping arg, string ctn,
   if(defines->font &&  !arg->font) arg->font=defines->font;
 
   if(arg->background) 
-    arg->background = fix_relative(arg->background,id);
+    arg->background = Caudium.fix_relative(arg->background,id);
   if(arg->texture) 
-    arg->texture = fix_relative(arg->texture,id);
+    arg->texture = Caudium.fix_relative(arg->texture,id);
   if(arg->magic_texture)
-    arg->magic_texture=fix_relative(arg->magic_texture,id);
+    arg->magic_texture=Caudium.fix_relative(arg->magic_texture,id);
   if(arg->magic_background) 
-    arg->magic_background=fix_relative(arg->magic_background,id);
+    arg->magic_background=Caudium.fix_relative(arg->magic_background,id);
   if(arg->magicbg) 
-    arg->magicbg = fix_relative(arg->magicbg,id);
+    arg->magicbg = Caudium.fix_relative(arg->magicbg,id);
   if(arg->alpha) 
-    arg->alpha = fix_relative(arg->alpha,id);
+    arg->alpha = Caudium.fix_relative(arg->alpha,id);
   if(!arg->format)
     arg->format = "gif";
   if( arg->content && lower_case(arg->content) == "html" ) 
@@ -865,17 +865,17 @@ string tag_gtext_id(string t, mapping arg, object id, object foo,
   if(defines->font &&  !arg->font) arg->font=defines->font;
 
   if(arg->background) 
-    arg->background = fix_relative(arg->background,id);
+    arg->background = Caudium.fix_relative(arg->background,id);
   if(arg->texture) 
-    arg->texture = fix_relative(arg->texture,id);
+    arg->texture = Caudium.fix_relative(arg->texture,id);
   if(arg->magic_texture)
-    arg->magic_texture=fix_relative(arg->magic_texture,id);
+    arg->magic_texture=Caudium.fix_relative(arg->magic_texture,id);
   if(arg->magic_background) 
-    arg->magic_background=fix_relative(arg->magic_background,id);
+    arg->magic_background=Caudium.fix_relative(arg->magic_background,id);
   if(arg->magicbg) 
-    arg->magicbg = fix_relative(arg->magicbg,id);
+    arg->magicbg = Caudium.fix_relative(arg->magicbg,id);
   if(arg->alpha) 
-    arg->alpha = fix_relative(arg->alpha,id);
+    arg->alpha = Caudium.fix_relative(arg->alpha,id);
   if(!arg->format)
     arg->format = "gif";
 
@@ -906,17 +906,17 @@ string tag_graphicstext(string t, mapping arg, string contents,
   if(arg->help)
     return "This tag calls &lt;gtext&gt; with different default values.";
   if(arg->background) 
-    arg->background = fix_relative(arg->background,id);
+    arg->background = Caudium.fix_relative(arg->background,id);
   if(arg->texture) 
-    arg->texture = fix_relative(arg->texture,id);
+    arg->texture = Caudium.fix_relative(arg->texture,id);
   if(arg->magic_texture)
-    arg->magic_texture=fix_relative(arg->magic_texture,id);
+    arg->magic_texture=Caudium.fix_relative(arg->magic_texture,id);
   if(arg->magic_background) 
-    arg->magic_background=fix_relative(arg->magic_background,id);
+    arg->magic_background=Caudium.fix_relative(arg->magic_background,id);
   if(arg->magicbg) 
-    arg->magicbg = fix_relative(arg->magicbg,id);
+    arg->magicbg = Caudium.fix_relative(arg->magicbg,id);
   if(arg->alpha) 
-    arg->alpha = fix_relative(arg->alpha,id);
+    arg->alpha = Caudium.fix_relative(arg->alpha,id);
   if(!arg->format)
     arg->format = "gif";
 

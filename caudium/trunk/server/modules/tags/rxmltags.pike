@@ -631,7 +631,7 @@ string tag_use(string tag, mapping m, object id)
   if(!m->file && !m->package) 
     return "<use help>";
   if(m->file)
-    m->file = fix_relative(m->file,nid);
+    m->file = Caudium.fix_relative(m->file,nid);
   if(id->pragma["no-cache"] || 
      !(res = cache_lookup("macrofiles:"+ id->conf->name ,
 			  (m->file || m->package))))
@@ -1127,7 +1127,7 @@ array(string)|string tag_insert(string tag,mapping m,object id,object file,mappi
     if (id->misc->include_depth > max_depth)
 	return id->misc->debug ? "Recursion too deep!" : "";
 
-    f = fix_relative(m->file, id);
+    f = Caudium.fix_relative(m->file, id);
     id = id->clone_me();
     if(m->nocache) id->pragma["no-cache"] = 1;
 
@@ -1259,7 +1259,7 @@ string tag_modified(string tag, mapping m, object id, object file,
 
   if(m->file)
   {
-    m->realfile = id->conf->real_file(fix_relative(m->file,id), id);
+    m->realfile = id->conf->real_file(Caudium.fix_relative(m->file,id), id);
     m_delete(m, "file");
   }
 
@@ -1512,7 +1512,7 @@ string tag_allow(string a, mapping (string:string) m,
   
   if(m->exists) {
     CACHE(10);
-    TEST(id->conf->try_get_file(fix_relative(m->exists,id),id,1,1));
+    TEST(id->conf->try_get_file(Caudium.fix_relative(m->exists,id),id,1,1));
   }
 
   if(m->filename)
@@ -1700,14 +1700,14 @@ string tag_allow(string a, mapping (string:string) m,
     if(m->user == "any")
       if(m->file && id->rawauth) {
 	// FIXME: wwwfile attribute doesn't work.
-	TEST(match_user(id->rawauth, "", fix_relative(m->file,id),
+	TEST(match_user(id->rawauth, "", Caudium.fix_relative(m->file,id),
 			!!m->wwwfile, id));
       } else
 	TEST(id->user);
     else
       if(m->file && id->auth) {
 	// FIXME: wwwfile attribute doesn't work.
-	TEST(match_user(id->rawauth,m->user,fix_relative(m->file,id),
+	TEST(match_user(id->rawauth,m->user,Caudium.fix_relative(m->file,id),
 			!!m->wwwfile, id));
       } else
 	TEST(id->user && search(m->user/",", id->user->username)
@@ -1766,7 +1766,7 @@ string tag_aprestate(string tag, mapping m, string q, object id)
   {
     if ((sizeof(foo = href / ":") > 1) && (sizeof(foo[0] / "/") == 1))
       return Caudium.make_container("a",m,q);
-    href=fix_relative(href, id);
+    href=Caudium.fix_relative(href, id);
     m_delete(m, "href");
   }
   
@@ -1804,7 +1804,7 @@ string tag_aconfig(string tag, mapping m, string q, object id)
     if (search(href, ":") == search(href, "//")-1)
       return sprintf("<!-- Cannot add configs to absolute URLs -->\n"
 		     "<a href=\"%s\">%s</a>", href, q);
-    href=fix_relative(href, id);
+    href=Caudium.fix_relative(href, id);
     m_delete(m, "href");
   }
 
@@ -2184,7 +2184,7 @@ string tag_ximage(string tagname, mapping m, object id)
   if(m->src)
   {
     array a;
-    string fname=id->conf->real_file(fix_relative(m->src||"", id),id);
+    string fname=id->conf->real_file(Caudium.fix_relative(m->src||"", id),id);
 
     if(fname)
     {
@@ -2365,12 +2365,12 @@ string tag_cache(string tag, mapping args, string contents, object id)
 string tag_fsize(string tag, mapping args, object id)
 {
   catch {
-    array s = id->conf->stat_file( fix_relative( args->file, id ), id );
+    array s = id->conf->stat_file( Caudium.fix_relative( args->file, id ), id );
     if (s && (s[1]>= 0)) {
       return (string)s[1];
     }
   };
-  if(string s=id->conf->try_get_file(fix_relative(args->file, id), id ) )
+  if(string s=id->conf->try_get_file(Caudium.fix_relative(args->file, id), id ) )
     return (string)strlen(s);
 }
 
@@ -3206,7 +3206,7 @@ string api_tagtime(object id, int ti, string t, string l)
 
 string api_relative(object id, string path)
 {
-  return fix_relative( path, id );
+  return Caudium.fix_relative( path, id );
 }
 
 string api_set(object id, string what, string to)
