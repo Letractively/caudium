@@ -79,11 +79,6 @@ string body="";
 
 #define GETTING_REQUEST_BODY 1
 
-void destroy()
-{
- werror("AJP13::destory()\n");
-}
-
 private int really_set_config(array mod_config)
 {
   string url, m;
@@ -123,7 +118,6 @@ h->headers = ([
 ]);
   my_fd->write(generate_container_packet(encode_send_headers(h)));
   my_fd->write(generate_container_packet(encode_end_response(1)));
-werror("end response!\n");
   // do we need to end the request?
 
   } else {
@@ -164,7 +158,6 @@ h->headers = ([
 ]);
   my_fd->write(generate_container_packet(encode_send_headers(h)));
   my_fd->write(generate_container_packet(encode_end_response(1)));
-werror("end response\n");
   // do we need to end the request?
 
   }
@@ -246,7 +239,6 @@ private int current_state;
 
 void got_data(mixed fdid, string s)
 {
-werror("got data\n");
   int tmp, ready_to_process, keep_trying;
   MARK_FD("AJP got data");
   remove_call_out(do_timeout);
@@ -268,7 +260,6 @@ werror("got data\n");
   {
     last_get_success=0;
     tmp = parse_got();
-werror("parse got returned " + tmp + "\n");
 
     switch(tmp)
     {
@@ -283,6 +274,7 @@ werror("parse got returned " + tmp + "\n");
          packet = "";
          body_len = 0;
          processed = 0;
+	 remove_call_out(do_timeout);
          if(reuse) ready_for_request();
 
        }
@@ -312,6 +304,8 @@ werror("parse got returned " + tmp + "\n");
       break;
 
   } while(last_get_success);
+
+  remove_call_out(do_timeout);
 
   if(conf)
   {
@@ -346,7 +340,7 @@ int parse_forward()
 
   mapping r = decode_forward((["data": packet, "type": MSG_FORWARD_REQUEST]));
 
-  werror("request: %O\n", r);
+//  werror("request: %O\n", r);
   body_len=r->request_headers["content-length"];
   method = method_names[r->method];
   prot = clientprot = r->protocol;
@@ -1001,7 +995,7 @@ void send_result(mapping|void result)
 #ifdef KEEP_ALIVE
   if(!leftovers) leftovers = data||"";
 #endif
-
+my_fd->set_blocking();
 mapping h = ([]);
 h->response_msg = (file->rettext||Caudium.Const.errors[file->error]);
 h->response_code = file->error;
@@ -1018,29 +1012,30 @@ if(file->len>=0)
     chunk="";
     if(file->data)
     {  
-      if(sizeof(file->data)< ((MAX_PACKET_SIZE-6)*(pkt_no+1)))
-         chunk = file->data[(MAX_PACKET_SIZE-6)*pkt_no..];
+      if(sizeof(file->data)< ((MAX_PACKET_SIZE-7)*(pkt_no+1)))
+         chunk = file->data[(MAX_PACKET_SIZE-7)*pkt_no..];
       else
-        chunk = file->data[(MAX_PACKET_SIZE-6)*pkt_no..((MAX_PACKET_SIZE-6)*++pkt_no)-1];      
+        chunk = 
+file->data[(MAX_PACKET_SIZE-7)*pkt_no..((MAX_PACKET_SIZE-7)*++pkt_no)-1];      
     }
 
-    else chunk = file->file->read(MAX_PACKET_SIZE-6);
+    else chunk = file->file->read(MAX_PACKET_SIZE-7);
 
-    my_fd->write(generate_container_packet(encode_send_body_chunk(chunk)));
     sent+=sizeof(chunk);
-werror("sending " + sizeof(chunk) + " bytes of " + sent + " / "+ file->len + ".\n");
+//    werror("sending " + sizeof(chunk) + " bytes of " + sent + " / "+ file->len + " ");
+    
+  my_fd->write(generate_container_packet(encode_send_body_chunk(chunk)));
   
   } while (sent < file->len);
 }
 
   my_fd->write(generate_container_packet(encode_end_response(reuse)));
-  werror("end response\n");
+  do_log();
   if(reuse) ready_for_request();
   else 
   {
     my_fd->close();
   }
-  catch(do_log());
   packet = "";
   body_len = 0;
   processed = 0;
@@ -1048,12 +1043,36 @@ werror("sending " + sizeof(chunk) + " bytes of " + sent + " / "+ file->len + ".\
 
 void ready_for_request()
 {
-    werror("ready_for_request\n");
     object o = object_program(this_object())(my_fd, conf);
     object fd = my_fd;
     my_fd = 0;
     o->chain(fd, conf, to_process);
 }
+
+void do_log()
+{
+  MARK_FD("HTTP logging"); // fd can be closed here
+  if(conf)
+  {
+    int len;
+    if(pipe)
+#ifdef USE_SHUFFLER
+      file->len = pipe->sent_data();
+#else
+      file->len = pipe->bytes_sent();
+#endif
+    if(conf)
+    {
+      if(file->len > 0) conf->sent+=file->len;
+      file->len += misc->_log_cheat_addition;
+      conf->log(file, this_object());
+    }
+  }
+//  end(0,1);
+  return;
+}
+
+
 
 void create(void|object f, void|object c)
 {
@@ -1075,7 +1094,6 @@ void create(void|object f, void|object c)
 void chain(object f, object c, string le)
 {
 
- werror("chain()\n");
   my_fd = f;
   conf = c;
   do_not_disconnect=-1;
