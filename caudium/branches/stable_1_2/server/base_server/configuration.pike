@@ -3731,7 +3731,7 @@ void create(string config)
 	 "This is the theme to apply to any error messages generated " +
 	 "automatically by this server. Please enter an absolute path on the virtual " +
          "filesystem(s), otherwise the system-wide default will be used." );
-  defvar("Old404", 0, "Old-style 404's", TYPE_FLAG,
+  defvar("Old404", 1, "Old-style 404's", TYPE_FLAG,
 	 "This allows you to override the new style error responses and use " +
          "the old fasioned 404 handling." );
   defvar("ZNoSuchFile", "<title>Sorry. I cannot find this resource</title>\n"
