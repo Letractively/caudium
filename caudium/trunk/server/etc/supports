@@ -40,8 +40,8 @@
 
 
 #section opera {
-opera/5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera
+opera/[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+		ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, opera, cssfaulty
 #}
 
 ## Netscape is named "mozilla/major.minor system ..."
@@ -77,16 +77,15 @@ mozilla/[5-9].*		pnginline, gecko
 
 # Opera 3
 
-.*compatible.*opera.3.*	-java, javascript, opera, -pngalpha
+.*compatible.*opera.3.*	-java, javascript, opera, -pngalpha, cssfaulty
 
 # Opera 5.0 "hided" as MSIE
-.*compatible.*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
-			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, -pngalpha
+.*compatible.*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables, cookies,\
+			ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, msie, opera, cssfaulty
 # Opera 5.0 "hided" as Mozilla
-mozilla/[3-5].*opera.5.*	
-mozilla/[3-5].*opera.5.*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
+mozilla/[3-5].*opera.[56].*	-java, javascript, stylesheets, tableimages, javascript1.2, frames, tables,\
 				cookies, ssl, backgrounds, jpeginline, font, basic, imagealign, pnginline, \
-				opera, -pngalpha
+				opera, cssfaulty
 
 # BLAM BLAM BLAM BLAM
 .*compatible.*			-push, -pngalpha
