@@ -36,7 +36,7 @@ case "$1" in
 			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
 
     db_get caudium/config_port
-    if test -n "$RET" -a "$RET" != "22202"; then
+    if [ -n "$RET" -a "$RET" != "22202" ]; then
         CONFIG_PORT="$RET"
 	sed -e "s/\(ConfigPorts.*\)\(22202\)\(.*\)/\1$RET\3/" $CAUDIUM_PIKE > $CAUDIUM_PIKE.new && \
 	mv $CAUDIUM_PIKE.new $CAUDIUM_PIKE
@@ -45,7 +45,7 @@ case "$1" in
     db_get caudium/listen_on
     PORTNO="$RET"
 
-    if [ ! -f /etc/caudium/Global_Variables ]; then    
+    if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
      sed -e "s;@PORTNUM@;$PORTNO;" /etc/caudium/servers/localhost > \
          /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
   	 /etc/caudium/servers/localhost
@@ -64,7 +64,7 @@ case "$1" in
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
-    if test -n "$START_OPTIONS"; then
+    if [ -n "$START_OPTIONS" ]; then
 	cat <<EOF > /etc/caudium/start_options
 #
 # This variable will be joined with the default
@@ -79,11 +79,14 @@ EOF
 
     db_get caudium/experimental_http
     if test "$RET" = "true"; then
-	mv /usr/lib/caudium/protocols/http2.pike /usr/lib/caudium/protocols/http.new
-	mv /usr/lib/caudium/protocols/http.pike /usr/lib/caudium/protocols/http2.pike
-	mv /usr/lib/caudium/protocols/http.new /usr/lib/caudium/protocols/http.pike
+	PROTOCOL=http2
+    else
+	PROTOCOL=http
     fi
-        
+    
+    sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
+         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
+  	 /etc/caudium/servers/localhost
 
     
 # -----------------------
@@ -133,7 +136,17 @@ Unless you changed its configuration, the server is configured as follows:<p>
 EOT
 fi
     db_stop
-    
+
+    # Now let's take care of permissions
+    # if it is the first time we run Caudium
+    if [ ! -f /etc/caudium/servers/Global_Variables ]; then    
+	DIRS="/var/run/caudium /var/state/caudium /var/cache/caudium /etc/caudium/servers"
+	for d in $DIRS; do
+	    if test -d $d; then
+		chown -R www-data.www-data $d
+	    fi
+	done
+    fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -17,7 +17,6 @@ Description: What port should the server listen on?
 
 Template: caudium/start_options
 Type: multiselect
-Default: keep-alive
 Choices: threads, debug, once, profile, fd-debug, keep-alive
 Description: Select options that should be used on startup
  'threads' - use threads (if available); 
@@ -55,3 +54,4 @@ Description: Use the experimental HTTP protocol module?
  experience problems running it. It is NOT recommended to run this
  code on a production server. If, however, you want to test its 
  functionality, answer YES to this question.
+

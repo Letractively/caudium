@@ -105,7 +105,7 @@ page.%3cp%3e
     
   <a>
     <int>@PORTNUM@</int>
-    <str>http</str>
+    <str>@PROTOCOL@</str>
     <str>ANY</str>
     <str></str>
   </a>
