@@ -62,16 +62,13 @@ constant module_unique = 1;
 mapping first_try(object id)
 {
   NOCACHE();
+
   if(id->supports->autogunzip &&
      (caudium->real_file(id->not_query + ".gz", id)
       && caudium->stat_file(id->not_query + ".gz", id)))
   {
-    if ( ! id->misc ) id->misc = ([]);
-    if ( ! id->misc->moreheads ) id->misc->moreheads = ([]);
-    
-    id->misc->moreheads |= ([ "Content-Encoding" : "gzip" ]);
-    
+    // Actually, Content-Encoding is added automatically. Just had to fix
+    // the extensions file to use gzip instead of x-gzip...
     id->not_query += ".gz";
-    return caudium->get_file( id  );
   }
 }

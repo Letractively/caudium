@@ -1317,7 +1317,7 @@ void send_result(mapping|void result)
       string h;
       heads +=
       (["MIME-Version":(file["mime-version"] || "1.0"),
-	"Content-type":file["type"],
+	"Content-Type":file["type"],
 	"Accept-Ranges": "bytes",
 #ifdef KEEP_ALIVE
 	"Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
