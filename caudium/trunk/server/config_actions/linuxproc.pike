@@ -234,14 +234,14 @@ mixed page_0(object id, object conf)
 			    return reverse(l);
 			  })*"\n";
   
-  return ("<h2>Process Tree for "+pid+"</h2><pre>\n"+
-	  tree+"</pre>"+
+  return ("<h2>Process Tree for "+pid+"</h2><div style=\"width: 90%\"><pre>\n"+
+	  tree+"</pre></div>"+
 	  (caudium->euid_egid_lock ? 
-	   "<p><i>Please note that when using threads on Linux&reg; kernel v2.4 and earlier, each "
-	   "thread is more or less<br> a separate process, with the exception "
-	   "that they share all their memory.<br>With the Linux&reg; kernel version 2.6 and newer "
+	   "<div style=\"width: 60%\"><i>Please note that when using threads on Linux&reg; kernel v2.4 and earlier, each "
+	   "thread is more or less a separate process, with the exception "
+	   "that they share all their memory. With the Linux&reg; kernel version 2.6 and newer "
 	   "and the new threads library (NPTL) each thread has the same PID as the parent "
-	   "process but a different LWP ID.</b>" : "")+
+	   "process but a different LWP ID.</b></div>" : "")+
 	  "<h3>Misc status for "+pid
 	  +"</h3><pre>"+get_status(pid)+"</pre>");
 }
