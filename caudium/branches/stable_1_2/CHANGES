@@ -1,6 +1,8 @@
-Changes in Caudium 1.2.xx since 1.2.16
+Changes in Caudium 1.2.18 since 1.2.16
 --------------------------------------
 
+- Added Fast CGI module from Roxen 2. Now should work without any external
+  C glue. Note this is early work.
 - Fix for bug #601976
 - Added Minor patch in php4 scripting. And docs about php.ini variables 
   option.
