@@ -27,7 +27,7 @@
  *	destruct
  */
 
-constant cvs_version = "$Id:";
+constant cvs_version = "$Id$";
 
 #define CODECLASS(X)	( ((smtp_reply->retcode / 100) * 100 == X) ? 1 : 0 )
 
@@ -195,7 +195,7 @@ class client
 				address += ">";
 		} else {
 			// FIXME: something's fishy here too
-			for(int i=0; i<sizeof(address)-1; i++) {
+			for(int i=0; i<sizeof(address); i++) {
 				string s = address[i];
 				if(s[0] != '<') address[i] = "<" + s;
 				if(s[strlen(s)-1] != '>') address[i] += ">";
