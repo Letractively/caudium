@@ -18,7 +18,8 @@
  *
  */
 
-// $Id$
+//! $Id$
+
 import "..";
 import UltraLog;
 
