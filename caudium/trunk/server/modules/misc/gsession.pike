@@ -173,8 +173,13 @@ class SessionScope {
 
         mixed val = cur_storage->retrieve(id, var, id->misc->session_id, "session");        
 
+        if (!val)
+            return "";
+        
         catch {
-            return (string)val;
+            string vr = (string)val;
+            
+            return vr ? vr : "";
         };
     }
   
