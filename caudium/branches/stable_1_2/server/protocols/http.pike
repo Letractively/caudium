@@ -1280,37 +1280,50 @@ void send_result(mapping|void result)
     heads = ([]);
     if(!file->len)
     {
-      array fstat;
+      array|object fstat;
+      
       if(objectp(file->file))
-	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (array(int))file->file->stat();
-      if(arrayp(fstat = file->stat))
+        if(!file->stat && !(file->stat=misc->stat))
+          file->stat = (array(int))file->file->stat();
+
+      fstat = file->stat;
+      if(arrayp(fstat) || objectp(fstat))
       {
-	if(file->file && !file->len)
-	  file->len = fstat[1];
+        int fsize, fmtime;
+	
+        if (objectp(fstat)) {
+          fsize = fstat->size;
+          fmtime = fstat->mtime;
+        } else {
+          fsize = fstat[1];
+          fmtime = fstat[3];
+        }
+        
+        if(file->file && !file->len)
+          file->len = fsize;
     	
-	if(!file->is_dynamic && !misc->is_dynamic) {
+        if(!file->is_dynamic && !misc->is_dynamic) {
 #ifdef SUPPORT_HTTP_09
-	  if(prot != "HTTP/0.9") {
+          if(prot != "HTTP/0.9") {
 #endif
-	    heads["Last-Modified"] = http_date(fstat[3]);
-	    if(since)
-	    {
-	      if(is_modified(since, fstat[3], fstat[1]))
-	      {
-		file->error = 304;
-		file->file = 0;
-		file->data="";
-		// 	    method="";
-	      }
-	    }
+            heads["Last-Modified"] = http_date(fmtime);
+            if(since)
+            {
+              if(is_modified(since, fmtime, fsize))
+              {
+                file->error = 304;
+                file->file = 0;
+                file->data="";
+                // 	    method="";
+              }
+            }
 #ifdef SUPPORT_HTTP_09
-	  }
+          }
 #endif
-	} 
+        } 
       }
       if(stringp(file->data)) 
-	file->len += strlen(file->data);
+        file->len += strlen(file->data);
     }
 
     //
