@@ -669,9 +669,6 @@ if(QUERY(mail))
 {
   if(QUERY(debug))
     write(sprintf("mail=%s\n", msg));
-}
-else
-{
 #if constant(Protocols.ESMTP)
   Protocols.ESMTP.client(QUERY(mailserver), 25, QUERY(maildomain))->send_message(from, ({ to }),
               (string)MIME.Message(msg, (["mime-version":"1.0",
