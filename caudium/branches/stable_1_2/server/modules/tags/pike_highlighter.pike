@@ -22,6 +22,7 @@
  * $Id$
  */
 //
+
 //! module: Pike Source Highlighter
 //!  Pike Source Highlighter module
 //! inherits: module
@@ -29,6 +30,7 @@
 //! inherits: highlight_pike
 //! type: MODULE_PARSER
 //! cvs_version: $Id$
+
 #include <module.h> 
 inherit "module"; 
 inherit "caudiumlib"; 
