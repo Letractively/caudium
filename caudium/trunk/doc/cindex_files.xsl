@@ -6,10 +6,13 @@
 <xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
 
 <xsl:template match="index">
- <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>hello
- <page title="Caudium Module Index">
-  <h3>List of all Caudium Modules</h3>
-  <dl><xsl:apply-templates select='entry[@type="module"]' mode="top"/></dl>
+ <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
+ <page title="Caudium File / Method Index">
+  This is an index of all documented files and methods. Please note that
+  the documentation is far from complete. This reference documentation is ment
+  for programmers that want to make custom modules, Pike scripts or want to
+  work on the webserver itself.
+  <dl><xsl:apply-templates select='entry[@type="file" or @type="method"]' mode="top"/></dl>
   <xsl:comment>XSLT Template version $Id$</xsl:comment>
  </page>
 </xsl:template>
@@ -18,13 +21,24 @@
 <!-- Index for modules and files -->
 
 <xsl:template match="entry" mode="top">
-  <dt><b><a href="{@path}">
-	<xsl:choose>
-         <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
-         <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-        </xsl:choose>
-      </a></b></dt>
-  <dd></dd>
+  <xsl:choose>
+   <xsl:when test="@type='file'">
+    <dt><b><a href="{@path}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></b></dt>
+   </xsl:when>
+   <xsl:otherwise>
+    <dd><a href="{@path}#{@name}">
+     <xsl:choose>
+     <xsl:when test="@title"><xsl:value-of select="@title"/></xsl:when>
+     <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
+     </xsl:choose>
+    </a></dd>
+   </xsl:otherwise>   
+  </xsl:choose> 
 </xsl:template>
 
 <xsl:template match="tag">

@@ -5,12 +5,12 @@
      Very early version - don't expect any bells and whistles.
 -->
 <xsl:include href="file:/home/neotron/src/caudium/doc/base_html.xsl"/>
-<xsl:output indent="yes" method="html" media-type="rxml:text/html" encoding="iso-8859-1"/>
+<xsl:output indent="yes" method="html" media-type="text/html" encoding="iso-8859-1"/>
 <xsl:template match="documentation">
- <xsl:text disable-output-escaping="yes">&lt;use file="/caudium/layout.tmpl"></xsl:text>
-<page title="Caudium Docs">
+ <xsl:text disable-output-escaping="yes">&lt;use file="/layout.tmpl"></xsl:text>
+<page title="Caudium Documentation">
   <dl><xsl:apply-templates select="module | file"/></dl>
-  <p><font size="-2">XSLT Template version <tt>$Id$</tt></font></p>
+  <xsl:comment>XSLT Template version $Id$</xsl:comment>
  </page>
 </xsl:template>
 
@@ -28,7 +28,7 @@
 </xsl:template>
 
 <xsl:template match="inherits">
-  <b>Inherits <xsl:value-of select="@link"/></b><br />
+  <b>Inherits: </b> <xsl:value-of select="@link"/><br />
 </xsl:template>
 <xsl:template match="inherited">
   <b>Inherited by <a href="{@href}"><xsl:value-of select="@class"/></a></b><br />
@@ -120,12 +120,30 @@
 <xsl:template match="file">
   <dt><h2>File <xsl:value-of select="@name"/></h2></dt>
   <dd><p><xsl:value-of select="description"/></p></dd>
+  <xsl:apply-templates select="inherits"/>
   <xsl:apply-templates select="version"/>
-  <dd><xsl:apply-templates select="method"/></dd>
+  <xsl:apply-templates select="defvars" mode="globvar"/>
+  <xsl:apply-templates select="methods"/>
+</xsl:template>
+
+<xsl:template match="defvars" mode="globvar">
+ <xsl:if test="count(defvar) > 0">
+  <p><h3>Global Variables:</h3>
+  <dl><xsl:apply-templates select="defvar"/></dl>
+  </p>
+ </xsl:if>
+</xsl:template>
+
+<xsl:template match="methods">
+ <xsl:if test="count(method) > 0">
+  <p><dl><dt><h3>Methods:</h3></dt>
+  <dd><dl><xsl:apply-templates select="method"/></dl></dd></dl>
+  </p>
+ </xsl:if>
 </xsl:template>
 
 <xsl:template match="method">
-  <h3><xsl:value-of select="@name"/> </h3>
+  <a name="{@name}"><h3><xsl:value-of select="@name"/></h3></a>
   <dl><dt><p><b>Function</b></p></dt>
   <dd><p><xsl:value-of select="short"/></p></dd>
   <xsl:apply-templates select="syntax"/>
@@ -139,10 +157,10 @@
 
 <xsl:template match="arguments">
   <dt><p><b>Arguments</b></p></dt>
-  <dd><p><tablify wrap="1" nice="" cellseparator="%" rowseparator="@">Argument%Description
-   <xsl:for-each select="argument">@
-     <xsl:value-of select="syntax"/>%
-     <xsl:value-of select="description"/>
+  <dd><p><tablify wrap="1" nice="" cellseparator="/%/" rowseparator="/@/">Argument/%/Description
+   <xsl:for-each select="argument">/@/
+     <xsl:value-of select="@syntax"/>/%/
+     <xsl:apply-templates/>
    </xsl:for-each>
   </tablify></p></dd>
 </xsl:template>
