@@ -1,3 +1,9 @@
+caudium (2:1.2.31-5) unstable; urgency=low
+
+  * Recompiled to match the latest Pike 7.2 version
+
+ -- Marek Habersack <grendel@debian.org>  Mon,  3 Nov 2003 21:23:07 +0100
+
 caudium (2:1.2.31-4) unstable; urgency=high
 
   * Removed a stray dot from the build depends line (closes: Bug#212054)
