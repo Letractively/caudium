@@ -44,9 +44,13 @@ mixed retrieve(string namespace, string key) {
   PRELOCK();
   LOCK();
   string objpath = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
-  PREFLOCK();
-  FLOCK(objpath, "r", 1);
-  return decode(Stdio.read_file(objpath))->value;
+  if (Stdio.exist(objpath)) {
+    PREFLOCK();
+    FLOCK(objpath, "r", 1);
+    return decode(Stdio.read_file(objpath))->value;
+  }
+  else
+    return 0;
 }
 
 void unlink(string namespace, void|string key) {
@@ -57,8 +61,11 @@ void unlink(string namespace, void|string key) {
   UNLOCK();
   if (stringp(key)) {
     string objpath = Stdio.append_path(path, get_hash(sprintf("%s|%s", namespace, key)));
-    FLOCK(objpath, "w", 1);
-    rm(objpath);
+    if (Stdio.exist(objpath)) {
+      FLOCK(objpath, "w", 1);
+      rm(objpath);
+      FUNLOCK();
+    }
   }
   else {
     foreach(get_dir(_path), string fname) {
@@ -72,6 +79,33 @@ void unlink(string namespace, void|string key) {
   }
 }
 
+void unlink_regexp(string namespace, string regexp) {
+  PRELOCK();
+  PREFLOCK();
+  LOCK();
+  string _path = path;
+  UNLOCK();
+  object r = Regexp(regexp);
+  foreach(get_dir(path), string fname) {
+    string objpath = Stdio.append_path(_path, fname);
+    FLOCK(objpath,"r",1);
+    mapping p;
+    if (catch(p = decode(Stdio.read_file(objpath)))) {
+      FUNLOCK();
+      continue;
+    }
+    FUNLOCK();
+    if (!mappingp(p))
+      continue;
+    if (p->namespace = namespace)
+      if (r->match(p->key)) {
+        FLOCK(objpath, "w", 1);
+	rm(objpath);
+	FUNLOCK();
+      }
+  }
+}
+
 static string encode(string namespace, string key, string value) {
   mapping p = ([
     "namespace" : namespace,
@@ -82,7 +116,9 @@ static string encode(string namespace, string key, string value) {
 }
 
 static mixed decode(string data) {
-  return decode_value(MIME.decode_base64(data), master()->Codec());
+  mixed val;
+  catch(val = decode_value(MIME.decode_base64(data), master()->Codec()));
+  return val;
 }
 
 static string get_hash( string data ) {
@@ -99,4 +135,37 @@ static string get_hash( string data ) {
 
 string name() {
   return "Disk";
+}
+
+int size(string namespace) {
+  PREFLOCK();
+  int total;
+  foreach(get_dir(path), string fname) {
+    string objpath = Stdio.append_path(path, fname);
+    FLOCK(objpath, "r", 1);
+    mapping p;
+    if (catch(p = decode(Stdio.read_file(objpath))))
+      continue;
+    if (!mappingp(p))
+      continue;
+    if (p->namespace == namespace) {
+      string data = decode(Stdio.read_file(objpath))->value;
+      FUNLOCK();
+      total += sizeof(data);
+    }
+  }
+}
+
+array list(string namespace) {
+  PREFLOCK();
+  array ret = ({ });
+  foreach(get_dir(path), string fname) {
+    string objpath = Stdio.append_path(path, fname);
+    FLOCK(objpath, "r", 1);
+    if (decode(Stdio.read_file(objpath))->namespace == namespace) {
+      string key = decode(Stdio.read_file(objpath))->key;
+      ret += ({ key });
+    }
+    FUNLOCK();
+  }
 }

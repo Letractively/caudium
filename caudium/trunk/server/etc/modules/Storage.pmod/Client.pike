@@ -10,13 +10,21 @@ static Thread.Mutex mutex = Thread.Mutex();
 static function _store;
 static function _retrieve;
 static function _unlink;
+static function _unlink_regexp;
+static function _size;
+static function _list;
+static function _stop;
 static string namespace;
 
-void create(string _namespace, function __store, function __retrieve, function __unlink) {
+void create(string _namespace, mapping callbacks) {
   LOCK();
-  _store = __store;
-  _retrieve = __retrieve;
-  _unlink = __unlink;
+  _store = callbacks->store;
+  _retrieve = callbacks->retrieve;
+  _unlink = callbacks->unlink;
+  _unlink_regexp = callbacks->unlink_regexp;
+  _size = callbacks->size;
+  _list = callbacks->list;
+  _stop = callbacks->stop;
   namespace = _namespace;
 }
 
@@ -31,6 +39,24 @@ public mixed retrieve(string key) {
 }
 
 public void unlink(void|string key) {
+   LOCK();
+   _unlink(namespace, key);
+}
+
+public void unlink_regexp(void|string regexp) {
+  LOCK();
+  _unlink_regexp(namespace, regexp);
+}
+
+public int size() {
  LOCK();
- _unlink(namespace, key);
+ return _size(namespace);
+}
+
+public array list() {
+  return _list(namespace);
+}
+
+public void stop() {
+  _stop(namespace);
 }

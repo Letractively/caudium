@@ -13,9 +13,13 @@ static Thread.Mutex mutex = Thread.Mutex();
 static mapping storage;
 static object permstore;
 static mapping clients;
+function destroy = sync_all;
+function stop = sync_all;
 
 void create(string _permstore, string path) {
   start(_permstore, path);
+  storage = ([ ]);
+  clients = ([ ]);
 }
 
 void start(string _permstore, string path) {
@@ -23,8 +27,6 @@ void start(string _permstore, string path) {
   if (objectp(permstore)) {
     destruct(permstore);
   }
-  storage = ([]);
-  clients = ([]);
   switch (_permstore) {
   case "Disk":
     permstore = Storage.Methods.Disk(path);
@@ -40,13 +42,17 @@ void start(string _permstore, string path) {
 
 public object get_storage(string namespace) {
   LOCK();
+  mapping callbacks = ([ "store" : store, "retrieve" : retrieve, "unlink" : unlink, "size" : size, "list" : list, "stop" : stop, "unlink_regexp" : unlink_regexp ]);
   if (! clients[namespace]) {
-    clients += ([ namespace : Storage.Client(namespace,store,retrieve,unlink) ]);
+    clients += ([ namespace : Storage.Client(namespace, callbacks) ]);
   }
   return clients[namespace];
 }
 
 static void store(string namespace, string key, mixed val) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Storing %s from %s\n", key, namespace);
+#endif
   LOCK();
   if (! storage[ namespace ])
     storage += ([ namespace : ([]) ]);
@@ -56,6 +62,9 @@ static void store(string namespace, string key, mixed val) {
 }
 
 static mixed retrieve(string namespace, string key) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Retrieving %s from %s\n", key, namespace);
+#endif
   LOCK();
   if (storage[namespace])
     if (storage[namespace][key])
@@ -65,6 +74,9 @@ static mixed retrieve(string namespace, string key) {
 }
 
 static void sync(string namespace, string key) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Syncing %s/%s to permanent storage\n", key, namespace);
+#endif
   LOCK();
   if (storage[namespace])
     if (storage[namespace][key]) {
@@ -73,27 +85,55 @@ static void sync(string namespace, string key) {
 }
 
 static void unlink(string namespace, void|string key) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Removing %s in %s\n", key, namespace);
+#endif
   LOCK();
   if (stringp(key)) {
-    if (storage[namespace][key])
-      m_delete(storage[namespace], key);
+    if (storage[namespace])
+      if (storage[namespace][key])
+        m_delete(storage[namespace], key);
   }
   else
     m_delete(storage,namespace);
   UNLOCK();
-  permstore->unlink(key);
+  permstore->unlink(namespace, key);
 }
 
-void destroy() {
-  stop();
+static void unlink_regexp(string namespace, string regexp) {
+  sync_all(namespace);
+  permstore->unlink_regexp(namespace, regexp);
 }
 
-void stop() {
-  foreach(indices(storage), string namespace)
-    foreach(indices(storage[namespace]), string key)
+void sync_all(void|string namespace) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Syncing all objects\n");
+#endif
+  if (namespace)
+    if (storage[namespace])
+      foreach(indices(storage[namespace]), string key)
+        sync(namespace, key);
+  foreach(indices(storage), string _namespace)
+    foreach(indices(storage[_namespace]), string key)
       sync(namespace, key);
 }
 
 string storage_backend() {
   return permstore->name();
+}
+
+int size(string namespace) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Getting total size of %s\n", namespace);
+#endif
+  sync_all();
+  return permstore->size(namespace);
+}
+
+array list(string namespace) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE: Listing objects in %s\n", namespace);
+#endif
+  sync_all();
+  return permstore->list(namespace);
 }

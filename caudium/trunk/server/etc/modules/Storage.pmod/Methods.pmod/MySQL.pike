@@ -31,25 +31,39 @@ void store(string namespace, string key, string value) {
   LOCK();
   array res = db->query("select dkey from storage where namespace = %s and dkey = %s", namespace, key);
   if (sizeof(res) > 0)
-    db->query("delete from storage where namespace = %s and dkey = %s", namespace, key);
-  db->query("insert into storage values (%s, %s, %s, %s)", version, namespace, key, value);
+    db->query("update storage set value = %s where namespace = %s and dkey = %s", value, namespace, key);
+  else
+    db->query("insert into storage values (%s, %s, %s, %s)", version, namespace, key, value);
 }
 
 mixed retrieve(string namespace, string key) {
   PRELOCK();
   object db = DB();
   LOCK();
-  return db->query("select value from storage where namespace = %s and dkey = %s", namespace, key)[0]->value;
+  array result = db->query("select value from storage where namespace = %s and dkey = %s", namespace, key);
+  if (sizeof(result))
+    return result[0]->value;
+  else
+    return 0;
 }
 
 void unlink(string namespace, void|string key) {
   PRELOCK();
-  object db = DB();
   LOCK();
+  object db = DB();
+  UNLOCK();
   if (stringp(key))
     db->query("delete from storage where namespace = %s and dkey = %s", namespace, key);
   else
     db->query("delete from storage where namespace = %s", namespace);
+}
+
+void unlink_regexp(string namespace, string regexp) {
+  PRELOCK();
+  LOCK();
+  object db = DB();
+  UNLOCK();
+  db->query("delete from storage where namespace = %s and dkey regexp %s", namespace, regexp);
 }
 
 static object get_database() {
@@ -62,8 +76,9 @@ static object get_database() {
 
 static object init_tables() {
   PRELOCK();
-  object db = DB();
   LOCK();
+  object db = DB();
+  UNLOCK();
   multiset tables = (multiset)db->list_tables();
   if (!tables->storage)
     db->query(
@@ -81,4 +96,28 @@ static object init_tables() {
 
 string name() {
   return "MySQL";
+}
+
+int size(string namespace) {
+  PRELOCK();
+  LOCK();
+  object db = DB();
+  UNLOCK();
+  int total;
+  array result = db->query("select length(value) as size from storage where namespace = %s", namespace);
+  if (!sizeof(result))
+    return 0;
+  else
+    foreach(result, mapping row) {
+      total += (int)row->size;
+    }
+  return total;
+}
+
+array list(string namespace) {
+  PRELOCK();
+  LOCK();
+  object db = DB();
+  UNLOCK();
+  return db->query("select dkey from storage where namespace = %s", namespace)->dkey;
 }
