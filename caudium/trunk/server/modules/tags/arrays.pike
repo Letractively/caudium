@@ -265,7 +265,7 @@ string array_output(string tag, mapping args, string contents, object id)
 
 class ArrayScope {
   inherit "scope";
-  constant name = "array";
+  string name = "array";
   int set(mixed entity, mixed value, object id) {
     array split = entity / ".";
     string arr;
