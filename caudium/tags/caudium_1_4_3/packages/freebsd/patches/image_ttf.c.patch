@@ -1,0 +1,24 @@
+--- modules/_Image_TTF/image_ttf.c.orig	Fri May 23 01:28:42 2003
++++ modules/_Image_TTF/image_ttf.c	Fri May 23 01:29:59 2003
+@@ -9,6 +9,13 @@
+ RCSID("$Id$");
+ 
+ #ifdef HAVE_LIBTTF
++#if defined(HAVE_FREETYPE1_FREETYPE_FREETYPE_H) && defined(HAVE_FREETYPE1_FREETYPE_FTXKERN_H)
++
++#include <freetype1/freetype/freetype.h>
++#include <freetype1/freetype/ftxkern.h>
++
++#else /* !HAVE_FREETYPE1_FREETYPE_FREETYPE_H || !HAVE_FREETYPE1_FREETYPE_FTXKERN_H */
++
+ #if defined(HAVE_FREETYPE_FREETYPE_H) && defined(HAVE_FREETYPE_FTXKERN_H)
+ 
+ #include <freetype/freetype.h>
+@@ -20,6 +27,7 @@
+ #include <ftxkern.h>
+ 
+ #endif /* HAVE_FREETYPE_FREETYPE_H && HAVE_FREETYPE_FTXKERN_H */
++#endif /* HAVE_FREETYPE1_FREETYPE_FREETYPE_H && HAVE_FREETYPE1_FREETYPE_FTXKERN_H */
+ #endif /* HAVE_LIBTTF */
+ 
+ #include "pike_macros.h"
