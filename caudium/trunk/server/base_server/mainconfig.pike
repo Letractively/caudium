@@ -1124,13 +1124,26 @@ mapping(string:object) my_colortable = ([]);
 
 mapping auto_image(string in, object id)
 {
-  string key, value;
+  string key, value, imgext;
   array trans = ({ (int)("0x"+dR),(int)("0x"+dG),(int)("0x"+dB) });
   mapping r;
   mixed e;
   object i;
 
-  string img_key = "auto/"+replace(in,"/","_")+".gif"-" ";
+  // if we have both PNG and GIF support we prefer PNG
+  // GIF is just a fallback
+  imgext = "";
+#if constant(Image.PNG.encode)
+  imgext = ".png";
+#endif
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+  imgext = ".gif";
+#endif
+
+  if (imgext == "")
+     return 0; /* no img format we support */
+
+  string img_key = "auto/"+replace(in,"/","_")+imgext-" ";
   
   if(e=file_image(img_key))
     return e;
@@ -1180,25 +1193,42 @@ mapping auto_image(string in, object id)
 
   object ct;
 
-#if constant(Image.GIF.encode)
+
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
   if (!(ct=my_colortable[key]))
      ct=my_colortable[key]=Image.colortable(i,256,4,4,4);
+#endif
+
 //		  colortable(4,4,8,
 //			     ({0,0,0}),({255,255,0}),16,
 //			     ({0,0,0}),({170,170,255}),48,
 //			     )
   object o = open("caudium-images/"+img_key,"wct"); 
+
+#if constant(Image.PNG.encode)
+  e=Image.PNG.encode(i);
+#endif
+
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
   e=Image.GIF.encode(i,ct);
+#endif
+
   i=0;
   if(o) { o->write(e); o=0; }
   
 #ifdef DEBUG
   else {perror("Cannot open file for "+in+"\n");}
 #endif
-  return http_string_answer(e,"image/gif");
-#else
-  return 0;
+
+#if constant(Image.PNG.encode)
+  return http_string_answer(e,"image/png");
 #endif
+
+#if constant(Image.GIF.encode) && !constant(Image.PNG.encode)
+  return http_string_answer(e,"image/gif");
+#endif
+
+  return 0;
 }
 
 
@@ -1274,7 +1304,7 @@ string status_row(object node)
 	   " cellspacing=0>\n"
 	   "<tr><td valign=bottom align=left>"/*"<a href=\"$docurl"+
 	   node->path(1)+"\">"*/
-	   "<img border=0 src=\"/image/caudium-icon-gray.gif\" alt=\"\">"/*"</a>"*/
+	   "<img border=0 src=\"/image/caudium-icon-gray.png\" alt=\"\">"/*"</a>"*/
 	   "</td>\n<td>&nbsp;</td><td  width=100% height=39>"
 	   "<table cellpadding=0 cellspacing=0 width=100% border=0>\n"
 	   "<tr width=\"100%\">\n"
