@@ -141,28 +141,34 @@ MiscHandler sablot_misc  = {
 
 static void f_run(INT32 args)
 {
-  SablotHandle sproc;
-  struct keypair *k;
+  void               *sproc = NULL;
+  void               *situation = NULL;
+  struct keypair     *k;
   struct pike_string *xml, *xsl;
-  struct svalue base;
-  char *parsed = NULL;
-  struct mapping *err = NULL;
-  int success, count;
-  char *xmlsrc, *xslsrc;
-  char **vars = NULL;
-  char *argums[] =
-    {
-      "/_output", NULL, 
-      "/_xsl", NULL,
-      "/_xml", NULL, 
-      NULL
-    };
+  struct svalue       base;
+  char               *parsed = NULL;
+  struct mapping     *err = NULL;
+  int                 success, count;
+  char               *xmlsrc, *xslsrc;
+  char              **vars = NULL;
+  int                 errcode, i;
+  char               *argums[] = {
+    "/_output", NULL, 
+    "/_xsl", NULL,
+    "/_xml", NULL, 
+    NULL, NULL
+  };
 
   if (THIS->xml == NULL || THIS->xsl == NULL) {
     Pike_error("XML or XSL input not set correctly.\n");
   }
 
-  SablotCreateProcessor(&sproc);
+  if ((errcode = SablotCreateSituation(&situation)))
+    Pike_error("Error creating the Sablotron Situation object (err=%d)\n",
+               errcode);
+  if ((errcode = SablotCreateProcessorForSituation(situation, &sproc)))
+    Pike_error("Error creating the Sablotron Processor object (err=%d)\n",
+               errcode);
   
   if (THIS->base_uri != NULL) {
     /* Process the base URI */
@@ -172,9 +178,13 @@ static void f_run(INT32 args)
        * a string of enough length.
        */
       char *tmp = malloc(THIS->base_uri->len + 7);
-      if(tmp == NULL)
+      if (tmp == NULL) {
+        SablotDestroyProcessor(sproc);
+        SablotDestroySituation(situation);
         Pike_error("Sablotron.parse(): Failed to allocate string. Out of memory?\n");
-      if(THIS->base_uri->len > 1 && *THIS->base_uri->str == '/')
+      }
+      
+      if (THIS->base_uri->len > 1 && *THIS->base_uri->str == '/')
         sprintf(tmp, "file:%s", THIS->base_uri->str);
       else
         sprintf(tmp, "file:/%s", THIS->base_uri->str);
@@ -184,9 +194,19 @@ static void f_run(INT32 args)
       SablotSetBase(sproc, THIS->base_uri->str);
   }
 
+  /* set the arguments */
   argums[3] = THIS->xsl->str;
   argums[5] = THIS->xml->str;
-
+  for (i = 0; argums[i]; i += 2) {
+    errcode = SablotAddArgBuffer(situation, sproc, argums[i], argums[i+1]);
+    if (errcode) {
+      SablotDestroyProcessor(sproc);
+      SablotDestroySituation(situation);
+      Pike_error("Error adding arguments to the Situation (arg='%s')\n",
+                 argums[i]);
+    }
+  }
+  
   if (THIS->xsl_type == SX_DATA) { 
     xslsrc = "arg:/_xsl";
   } else {
@@ -198,37 +218,37 @@ static void f_run(INT32 args)
   } else {
     xmlsrc = THIS->xml->str;    
   }
+  
   if (THIS->variables != NULL) {
     struct svalue sind, sval;
-    int tmpint=0;
-    vars = malloc(sizeof(char *) * ( 1 + ((m_sizeof(THIS->variables)) * 2 )));
+    
     MY_MAPPING_LOOP(THIS->variables, count, k)  {
       sind = k->ind;
       sval = k->val;
       if (!(sind.type == T_STRING && sval.type == T_STRING)) {
         continue;
       }
-      vars[tmpint++] = sind.u.string->str;
-      vars[tmpint++] = sval.u.string->str;
+      SablotAddParam(situation, sproc, sind.u.string->str, sval.u.string->str);
     }
-    vars[tmpint] = NULL;
   }
+  
   SablotRegHandler(sproc, HLR_MESSAGE, &sablot_mh, (void *)(&THIS->err));
   SablotRegHandler(sproc, HLR_MISC, &sablot_misc, (void *)THIS);
   THREADS_ALLOW();
-  success |= SablotRunProcessor(sproc, xslsrc, xmlsrc, "arg:/_output", vars, argums);  
+  success |= SablotRunProcessorGen(situation, sproc, xslsrc, xmlsrc, "arg:/_output");
   success |= SablotGetResultArg(sproc, "arg:/_output", &parsed);
-  if (vars != NULL)
-    free(vars);
   THREADS_DISALLOW();
 
   if (parsed != NULL) {
     pop_n_elems(args);
     push_text(parsed);    
   } else {
+    SablotDestroyProcessor(sproc);
+    SablotDestroySituation(situation);
     Pike_error("Parsing failed.\n");
   }
   SablotDestroyProcessor(sproc);
+  SablotDestroySituation(situation);
 }
 
 static void free_xslt_storage(struct object *o)
