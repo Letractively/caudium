@@ -1,4 +1,4 @@
-caudium (2:1.0.38-1) unstable; urgency=medium
+caudium (2:1.0.40-1) unstable; urgency=medium
 
   * Latest upstream release. Changes:
     - business graphics module now creates the cache directory in the correct
