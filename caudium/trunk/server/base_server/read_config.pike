@@ -240,26 +240,27 @@ void store( string reg, mapping vars, int q, object current_configuration )
 {
   string cl;
   mapping m;
-#ifndef IN_INSTALL
+
   if(!current_configuration)
-#endif
     cl="Global Variables";
-#ifndef IN_INSTALL
   else
     cl=current_configuration->name;
-#endif
+
   read_it(cl);
   
-  if(q)
+  if (q) {
     configs[cl][reg] = copy_value(vars);
-  else
-  {
+  } else {
     mixed var;
+    
     m = ([ ]);
+    
     foreach(indices(vars), var)
       m[copy_value(var)] = copy_value( vars[ var ][ VAR_VALUE ] );
-    configs[cl][reg] = m;
-  }    
+    
+    configs[cl]->store_region(reg, m);
+  }
+  
   save_it(cl);
 }
 

@@ -451,15 +451,15 @@ class File
     return 0;
   }
 
-  private string render_variable(mapping var)
+  private string render_variable(mixed var, string name)
   {
     string         vcontents;
 
-    vcontents = get_type_desc((arrayp(var->value) ? var->value[0] : var->value));
+    vcontents = get_type_desc((arrayp(var) ? var[0] : var));
     if (!vcontents)
       return "";
 
-    return "\t" + render_xml("var", ([ "name" : var->name ]), vcontents) + "\n";
+    return "\t" + render_xml("var", ([ "name" : name ]), vcontents) + "\n";
   }
 
   //! Save the contents to a file. The files are always saved in the new
@@ -502,7 +502,7 @@ class File
         if (var == "@name@")
           continue;
                 
-        rcont += render_variable(regions->regions[reg][var]);
+        rcont += render_variable(regions->regions[reg][var], var);
       }
             
       my_file->write(render_xml("region", ([ "name" : reg ]), rcont, 1) + "\n\n");
@@ -560,7 +560,25 @@ class File
 
     return 0;
   }
-    
+
+  //! Store the entire region.
+  //!
+  //! @param region
+  //!  The region name to store the data in.
+  //!
+  //! @param vals
+  //!  A mapping with the variable values.
+  //!
+  //! @returns
+  //!  1 on success, 0 on failure
+  int store_region(string region, mapping vals)
+  {
+    if (regions)
+      return regions->store_region(region, vals);
+
+    return 0;
+  }
+  
   static string _sprintf(int f)
   {
     switch(f) {
@@ -676,6 +694,29 @@ class Config
     return 1;
   }
 
+  //! Store the entire region.
+  //!
+  //! @param region
+  //!  The region name to store the data in.
+  //!
+  //! @param vals
+  //!  A mapping with the variable values.
+  //!
+  //! @returns
+  //!  1 on success, 0 on failure
+  int store_region(string region, mapping vals)
+  {
+    if (!regions)
+      regions = ([]);
+    
+    if (regions[region])
+      werror("Warning: region '%s' already exists, overwriting.\n", region);
+    
+    regions[region] = vals || ([]);
+    
+    return 1;
+  }
+  
   private int var_valid(mixed value)
   {
     return 1;
