@@ -159,7 +159,8 @@ void precache_rewrite(object id)
 #ifdef REFERRERDEBUG
     werror("Denied access to %s\n  with referrer [%s].\n"
 	   "  with user agent [%s]\n",
-	   id->not_query, REFERRER, id->request_headers["user-agent"]||"");
+	   id->not_query, REFERRER||"empty",
+	   id->request_headers["user-agent"]||"unknown");
 #endif
     //    return http_low_answer(403, QUERY(msg));
     deny_counts++;			// Add some statistics
