@@ -25,10 +25,10 @@
 //!
 string cvs_version = "$Id$";
 
-#if constant(Java)
-
 //!
 static constant jvm = Java.machine;
+
+#if constant(jvm)
 
 //!
 static object throwable_class = FINDCLASS("java/lang/Throwable");
