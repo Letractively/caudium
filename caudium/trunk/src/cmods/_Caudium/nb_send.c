@@ -526,7 +526,7 @@ static INLINE int do_write(char *buf, int buf_len) {
     written = fd_write(fd, buf, buf_len);
     THREADS_DISALLOW();  
   } else {
-    //...
+    /*... */
   }
 
   if(written < 0)
