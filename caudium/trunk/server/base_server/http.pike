@@ -19,12 +19,11 @@
  *
  */
 
-// $Id$
-//
-// This file implements various helper functions related to the HTTP
-// protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
-// enough to get access to these functions. 
-//
+//! $Id$
+//!
+//! This file implements various helper functions related to the HTTP
+//! protocol. It is inherited by caudiumlib, so inheriting caudiumlib is 
+//! enough to get access to these functions. 
 
 #include <config.h>
 
