@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Add Index redirect files option that allow people that use L7 load balancers
+  to redirect to files that have been specified instead of listing the
+  directory.
+   (Xavier Beaudouin)
 - Fix error in start-caudium which doesn't look in lib/ for c-modules, which
   seems to be where they're put on OSX.
    (James Tyson)
