@@ -347,7 +347,6 @@ string container_navbar_href(string tag_name, mapping args, string contents, obj
   string baseuri = args->basehref || id->not_query;
   args->href = add_pre_state(baseuri, id->prestate) + "?" + 
     replace(Protocols.HTTP.http_encode_query(vars), "&", "&amp;"); 
-  args->target = "_self";
 
   return make_container("a", args, contents);
 }
