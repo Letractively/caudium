@@ -98,9 +98,12 @@ class Callout {
   }
 
   void callback() {
+    if(!this_object()) { return; }
     array|object new_stat;
     new_stat = file_stat(file);
-    do_callback(new_stat);
+    catch { 
+      do_callback(new_stat);
+    };
     if(timeout > 0)
       call_out(callback, timeout);
   }
