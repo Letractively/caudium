@@ -1,3 +1,10 @@
+caudium (1:1.0.11-5) unstable; urgency=low
+
+  * minor security update
+  * small changes to the rules
+
+ -- Marek Habersack <grendel@vip.net.pl>  Thu, 25 Jan 2001 16:39:56 +0100
+
 caudium (1:1.0.11-4) unstable; urgency=low
 
   * Latest CVS snapshot - it's a pre-release freeze
