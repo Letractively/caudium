@@ -23,7 +23,7 @@
  */
 
 //
-//! module: Whiteboard / Todo list
+//! module: Whiteboard and Todo list
 //!  Make a whiteboard or a todo list for multiuser environment.
 //! inherits: module
 //! inherits: caudiumlib
@@ -38,7 +38,7 @@ inherit "caudiumlib";
 
 constant cvs_version  = "$Id$";
 constant module_type  = MODULE_LOCATION;
-constant module_name  = "Whiteboard / Todo list";
+constant module_name  = "Whiteboard and Todo list";
 constant module_doc   = "Make a whiteboard or a todo list for multiuser "
                         "environment";
 constant module_unique= 1;
