@@ -21,7 +21,7 @@
 
 class Retrieve {
 
-  inherit "cachelib";
+  inherit "base_server/cachelib";
 
   object in, out;
   
@@ -46,7 +46,7 @@ class Retrieve {
 
 class Store {
 
-  inherit "cachelib";
+  inherit "base_server/cachelib";
 
   object in, out;
   function store;
@@ -58,7 +58,6 @@ class Store {
     in = _in;
     out = _out;
     store = _store;
-    retrieve = _retrieve;
     data = "";
     exp = (_exp?_exp:300);
     in->set_buffer(8192000);
