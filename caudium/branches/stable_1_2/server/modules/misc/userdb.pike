@@ -440,7 +440,11 @@ array|int auth(array(string) auth, object id)
     return ({0, u, p}); 
   }
   
+#if constant(Crypto.crypt_md5)
+  if(!users[u][1]) || (users[u][1][0..2 == "$1$" && Crypto.crypt_md5(p, users[u][1]) == users[u][1]) || !crypt(p, users[u][1]))
+#else
   if(!users[u][1] || !crypt(p, users[u][1]))
+#endif
   {
     fail++;
     failed[id->remoteaddr]++;

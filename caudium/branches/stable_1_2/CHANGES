@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.32 since 1.2.30
 -------------------------------
+- Modified userdb.pike to handle crypt_md5 style passwords provided that the pike
+  Crypto module is present.
+   (James Tyson)
 - Added support for chained SSL certificates. Chained certs should be provided as a 
   comma separated list, with the host certificate last.
    (Bill Welliver)
