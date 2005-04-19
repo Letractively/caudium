@@ -15,6 +15,10 @@ xht	application/xhtml+xml
 xhtml	application/xhtml+xml
 # RFC 3236
 
+# RFC 3870 http://www.faqs.org/rfcs/rfc3870.html
+rdf	application/rdf+xml
+# RFC 3870
+
 aif	audio/x-aiff
 aifc	audio/x-aiff
 aiff	audio/x-aiff
