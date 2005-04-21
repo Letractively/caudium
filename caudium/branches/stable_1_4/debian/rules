@@ -36,6 +36,7 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
 	bin/indexer.pike bin/searcher.pike
 
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
+REMOVEFONTS=lucida_unicode.ttf lucida_unicode.txt verdana.ttf verdana.txt
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 CFLAGS=-O0
@@ -162,6 +163,12 @@ install: build
 	mv debian/caudium/usr/lib/caudium$(EXTVER)/caudium-images debian/caudium/usr/share/caudium$(EXTVER)/
 
 	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
+	# Remove non-dfsg fonts
+	for f in $(REMOVEFONTS); do \
+	 if [ -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f ]; then \
+	   rm -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; \
+	 fi \
+	done
 
 	#
 	# copy perl
