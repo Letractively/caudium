@@ -1,3 +1,9 @@
+caudium (2:1.4.5-2) experimental; urgency=low
+
+  * Getting rid of the non-dfsg fonts
+
+ -- Marek Habersack <grendel@debian.org>  Fri, 22 Apr 2005 01:31:35 +0200
+
 caudium (2:1.4.5-1) experimental; urgency=low
 
   * The latest upstream version

@@ -35,11 +35,6 @@ PIKE=/usr/lib/caudium${EXTVER}/bin/caudium
 case "$1" in
     configure)
 
-    update-alternatives --install /usr/bin/htpasswd  htpasswd \
-				  /usr/bin/htpasswd-caudium 10 \
-			--slave /usr/share/man/man1/htpasswd.1.gz \
-			        htpasswd.1.gz /usr/share/man/man1/htpasswd-caudium.1.gz
-
     db_get caudium${EXTVER}/config_port
     CFGPORTNO="$RET"
     if [ -n "$RET" -a "$RET" != "22202" ]; then
@@ -57,8 +52,9 @@ case "$1" in
      CONFIGADMIN="$RET"
 
      db_get caudium${EXTVER}/config_password
-     CONFIGPASS="`echo $RET | $PIKE -e 'string p; p=Stdio.stdin->gets(); write(crypt(p));'`"
      
+     CONFIGPASS="`echo $RET | $PIKE -e 'string p; p=Stdio.stdin->gets(); write(crypt(p));'`"
+
      cat <<EOF | sed -f - /etc/caudium${EXTVER}/Global_Variables.sample > \
          /etc/caudium${EXTVER}/servers/Global_Variables.new && mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
          /etc/caudium${EXTVER}/servers/Global_Variables
@@ -79,12 +75,10 @@ EOF
     
     db_get caudium${EXTVER}/start_options
     START_OPTIONS=
-    NOTHREADS=y
-    
+
     for o in `echo $RET | sed -e 's/,//g'`; do
 	case $o in
-	    threads) START_OPTIONS="$START_OPTIONS --with-threads" 
-	             NOTHREADS=n ;;
+	    threads) START_OPTIONS="$START_OPTIONS --with-threads" ;;
 	    debug) START_OPTIONS="$START_OPTIONS --with-debug" ;;
 	    once) START_OPTIONS="$START_OPTIONS --once" ;;
 	    profile) START_OPTIONS="$START_OPTIONS --with-profile" ;;
@@ -92,10 +86,6 @@ EOF
 	    keep-alive) START_OPTIONS="$START_OPTIONS --with-keep-alive" ;;
 	esac
     done
-    if [ "x$NOTHREADS" = "xy" ]; then
-       START_OPTIONS="$START_OPTIONS --without-threads"
-    fi
-    
     db_get caudium${EXTVER}/performance
     if [ "$RET" = "true" ]; then
         START_OPTIONS="$START_OPTIONS -DMAX_PERFORMANCE"
@@ -148,9 +138,9 @@ EOF
 
     
 # -----------------------
-if [ ! -f /var/www/index.html ]; then
-    ln -sf ../../usr/share/doc/caudium/www/index.html /var/www/index.html
-fi
+    if [ ! -f /var/www/index.html ]; then
+	ln -sf ../../usr/share/doc/caudium/www/index.html /var/www/index.html
+    fi
     db_stop
 
     # Now let's take care of permissions
@@ -165,18 +155,26 @@ fi
     rm -f /var/state/caudium${EXTVER}/virgin.install
     #fi
 
-    DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /var/cache/caudium${EXTVER}/args /var/cache/caudium${EXTVER}/cache /etc/caudium${EXTVER}/servers /var/log/caudium${EXTVER}"
+    DIRS="/var/run/caudium${EXTVER} /var/state/caudium${EXTVER} /var/cache/caudium${EXTVER} /var/cache/caudium${EXTVER}/args /etc/caudium${EXTVER}/servers /var/log/caudium${EXTVER}"
     for d in $DIRS; do
 	dpkg-statoverride --remove $d > /dev/null 2>&1 || true
 	dpkg-statoverride --update --add www-data www-data 0751 $d
     done
-
+    
     if [ -d /usr/lib/caudium/caudium-images -a ! -L /usr/lib/caudium/caudium-images ]; then
 	rm -r /usr/lib/caudium/caudium-images
     fi
     ln -sf ../../share/caudium/caudium-images /usr/lib/caudium/caudium-images
+    
     if [ ! -d /usr/local/share/caudium/modules/ ]; then
 	install -d -m 755 -o root -g root /usr/local/share/caudium/modules/
+    fi
+    
+    # Link in the bitstream fonts
+    if [ -d /usr/share/fonts/truetype/ttf-bitstream-vera ]; then
+      for f in /usr/share/fonts/truetype/ttf-bitstream-vera/*.ttf; do
+        ln -sf $f /usr/lib/caudium/fonts/ttf/${f##*/}
+      done
     fi
     ;;
 

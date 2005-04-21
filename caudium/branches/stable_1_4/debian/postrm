@@ -1,6 +1,8 @@
 #! /bin/sh
 # postrm script for caudium
 #
+# $Id$
+#
 # see: dh_installdeb(1)
 
 set -e
@@ -24,23 +26,29 @@ case "$1" in
 	#
 	# Should we ask the user (using Debconf) whether to back the config
 	# up?
-	if test -d /etc/caudium; then
+	if [ -d /etc/caudium ]; then
 	    if test -f $BFILE; then
 		rm -f $BFILE
 	    fi
 	    (cd /; tar czvf $BFILE etc/caudium || true)
-	fi       
-
+	fi
+	
 	if [ -L /var/www/index.html ]; then
 	  IFILE="`readlink /var/www/index.html`"
 	  if [ "$IFILE" = "../../usr/share/doc/caudium/www/index.html" ]; then
 	    rm -f /var/www/index.html
 	  fi
 	fi
-
+	
 	rm -f /etc/default/caudium
 	rm -rf /etc/caudium
 	
+	# Remove the links to the vera fonts
+	for f in /usr/lib/caudium/fonts/ttf/*.ttf; do
+	  if [ -L $f ]; then
+	    rm -f $f
+	  fi
+	done
 	#
 	# Clean the cache files
 	#
