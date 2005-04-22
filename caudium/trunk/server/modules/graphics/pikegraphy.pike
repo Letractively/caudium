@@ -51,8 +51,6 @@ CREATE TABLE ratings (
 
 CREATE TABLE users (
   login char(20) DEFAULT '' NOT NULL,
-  pass char(32) DEFAULT '' NOT NULL,
-  cookieval char(128) DEFAULT '' NOT NULL,
   seclevel int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (login)
 );
@@ -208,49 +206,24 @@ if (id->variables && id->variables->logout) {
  }
 
 if (id->variables && id->variables->login) {
-  cnt += "</td><td align=left>";
-  cnt += "<form method=POST action=\"" + id->not_query + "\">";
-  cnt += "Login :    <input name=\"user\" size=20><br>";
-  cnt += "Password : <input type=\"password\" name=\"pass\" size=20>";
-  cnt += "<input type=\"hidden\" name=\"startlogin\" value=\"1\">";
-  cnt += "<input type=\"hidden\" name=\"dir\" value=\""+dir+"\">";
-  cnt += "<input type=\"submit\" value=\"Login\">";
-  cnt += "</form>";
-//  cnt += "\t</td>";
-//  cnt += "</tr>\n</table>";
-  return cnt;
+  return "<if user=\"any\" not><auth-required></if>";
  }
 
-if (id->variables && id->variables->startlogin) {
+else if (id->variables && id->get_user()) {
    object db = SQLConnect(QUERY(sqlserver));
-   array x = (db->query("select * from users where login=\""+id->variables->user+"\" and pass=\""+id->variables->pass+"\""));
+   array x = (db->query("select * from users where login=\"" +
+         id->get_user()->username + "\""));
    if ( (sizeof(x)) != 0 ) {
-   	cnt += "<set_cookie name=LoginValue value=\""+x[0]->cookieval+"\" minutes=15>";
         if ((int)x[0]->seclevel== 999) {
             admin=1;
             userlevel=999;
         } else {
             userlevel=(int)x[0]->seclevel;
         }
-        username = x[0]->login;
+        username = id->get_user()->username;
         logging = 1;
    }
-} else {
-   if (id->cookies && id->cookies->LoginValue ) {
-       object db = SQLConnect(QUERY(sqlserver));
-       array x = (db->query("select * from users where cookieval=\""+id->cookies->LoginValue+"\" "));
-       if ( sizeof(x) == 1 ) {
-          if ((int)x[0]->seclevel==999) {
-              admin=1;
-              userlevel=999;
-          } else {
-              userlevel=(int)x[0]->seclevel;
-          }
-          username = x[0]->login;
-          logging = 1;
-       }
-   }
- }
+}
    
 if (id->variables && id->variables->dirlevel && admin == 1) {
    object db = SQLConnect(QUERY(sqlserver));
@@ -383,7 +356,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
      for(int i = startpic; i<(sizeof(cnt_dir)) && i<QUERY(nb_pic_max)+startpic;i++) {
        cnt += "\t\t<td><a href=\"" + id->not_query 
 	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
-       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+cnt_dir[i]+"\" format=jpeg quant=\"64\" maxwidth=\"100\" border=0 ></a></td>\n";
+       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+cnt_dir[i]+"\" format=jpeg quant=\"64\" maxwidth=\"100\" maxheight=\"100\" border=0 ></a></td>\n";
 
        cnt += "\t\t<td align=left><a href=\"" + id->not_query 
 	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
