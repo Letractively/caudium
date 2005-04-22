@@ -92,6 +92,11 @@ constant module_doc   = "Another photoalbum module.<br>"
 
 constant thread_safe=0;	// Not yet...
 
+void start (int cnt, object conf) {
+    module_dependencies(conf, ({ "cimg" }));
+}
+
+
 void create () {
   string css_classes=
           "A {text-decoration: none ; color: #FFFFFF}\n" +
