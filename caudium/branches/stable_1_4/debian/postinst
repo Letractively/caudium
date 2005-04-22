@@ -73,6 +73,21 @@ EOF
      rm /var/state/caudium${EXTVER}/virgin.install
     fi
     
+    if head -1 /etc/caudium${EXTVER}/servers/Global_Variables|grep "^6.*Do not remove" > /dev/null 2>&1; then
+      # Old caudium format, make sure to DISABLE the watchdog
+      sed -r -e "s#(<region name='Variables'>)#\1<var name='watchdog_enable'><int>0</int></var>#" < \
+        /etc/caudium${EXTVER}/servers/Global_Variables > \
+	/etc/caudium${EXTVER}/servers/Global_Variables.new
+	
+	if [ -f /etc/caudium${EXTVER}/servers/Global_Variables.new ]; then
+	  if `ls -s /etc/caudium${EXTVER}/servers/Global_Variables.new | cut -d ' ' -f 1` -gt 0 ]; then
+	    mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
+	       /etc/caudium${EXTVER}/servers/Global_Variables
+	    chown www-data.www-data /etc/caudium${EXTVER}/servers/Global_Variables
+	    chmod 660 /etc/caudium${EXTVER}/servers/Global_Variables
+	  fi
+	fi
+    fi
     db_get caudium${EXTVER}/start_options
     START_OPTIONS=
 
