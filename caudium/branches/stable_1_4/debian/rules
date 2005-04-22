@@ -38,17 +38,18 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
 REMOVEFONTS=lucida_unicode.ttf lucida_unicode.txt verdana.ttf verdana.txt
 
+CFLAS = -fPIC
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-CFLAGS=-O0
+CFLAGS += -O0
 CFARGSEXTRA=--with-rtldebug --with-cdebug --with-debug --without-copt
 else
-CFLAGS=-O2
+CFLAGS += -O2
 CFARGSEXTRA=--without-rtldebug --without-cdebug --without-debug
 endif
 
 # Temporary workaround for hppa linker issues
 ifeq ($(DEB_BUILD_ARCH),hppa)
-CFLAGS+=-ffunction-sections
+CFLAGS += -ffunction-sections
 endif
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
@@ -56,7 +57,8 @@ CFLAGS += -g3 -ggdb3
 endif
 
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
+INSTALL_PROGRAM += -s
+CFLAGS += -s
 endif
 
 export CFLAGS
