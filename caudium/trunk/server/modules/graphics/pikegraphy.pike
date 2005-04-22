@@ -187,12 +187,6 @@ mixed t_pikegraphy(string tag, mapping args, object id)
 
 //cnt = head_page(cnt) ;
 
-if (id->variables && id->variables->logout) {
-   	cnt += "<remove_cookie name=\"LoginValue\">\n<redirect to=\"?dir=\">";
-        logging=0;
-        admin=0;
-}
-
 //
 // analyse query
 
@@ -294,8 +288,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    }
  }
  if (logging == 1) {
-    cnt += "\t\t\n\t\t<td align=right>"+username+" - <a href=\"" +
-	id->not_query + "?logout=1\">logout</a></td>\n";
+    cnt += "\t\t\n\t\t<td align=right>Username: "+username+"</td>\n";
  } else {
     cnt += "\t\t\n\t\t<td align=right><a href=\"" + id->not_query +
 	"?dir="+dir+"&login=1\">login</a></td>\n";
