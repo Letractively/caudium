@@ -38,7 +38,7 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
 REMOVEFONTS=lucida_unicode.ttf lucida_unicode.txt verdana.ttf verdana.txt
 
-CFLAS = -fPIC
+CFLAGS = -fPIC
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 CFLAGS += -O0
 CFARGSEXTRA=--with-rtldebug --with-cdebug --with-debug --without-copt
