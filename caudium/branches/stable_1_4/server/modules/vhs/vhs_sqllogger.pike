@@ -78,7 +78,7 @@ class db_handler {
     num_dbs=num;
     mixed err;
     for(int i = 0; i < num; i++) {
-      err=catch( dbs += ({ Sql.sql(db_url) }));
+      err=catch( dbs += ({ Sql.Sql(db_url) }));
       if(err) perror("Error creating db object:\n" + describe_backtrace(err)+"\n");
     }
   }
@@ -98,7 +98,7 @@ class db_handler {
       }
     } else {
       if(!sizeof(dbs)) {
-	d = Sql.sql(db_url);
+	d = Sql.Sql(db_url);
       } else {
 	d = dbs[0];
 	dbs -= ({d});
@@ -137,15 +137,6 @@ void stop() {
 }
 
 
-nomask private inline string extract_user(string from)
-{
-  array tmp;
-  if (!from || sizeof(tmp = from/":")<2)
-    return "-";
-  
-  return tmp[0];      // username only, no password
-}
-
 void log(object id, mapping file)  {
   string log_query, referer, host;
   array auth;
@@ -161,6 +152,8 @@ void log(object id, mapping file)  {
     host = (host / ":")[0];
   }
 
+  int|mapping user=id->get_user();
+
   log_query=sprintf("INSERT INTO %s (agent,bytes_sent,referer,remote_host,remote_user,"
                     "request_duration,request_method,request_protocol,"
                     "request_uri,request_args,status,time_stamp,virtual_host) VALUES("
@@ -170,12 +163,12 @@ void log(object id, mapping file)  {
 		    (string)file->len,
 		    referer,
 		    (string)id->remoteaddr,
-		    extract_user(id->realauth),
+		    (user?user->username:"-"),
 		    (string)id->method,
 		    (string)id->prot,
 		    (string)id->not_query,
                     id->query?sprintf("'?%s'",(string)id->query):"NULL",
-		    (int)(file->error||200),
+		    Logging.unsigned_to_bin(file->error||200),
 		    time(),
 		    host,
 		    );

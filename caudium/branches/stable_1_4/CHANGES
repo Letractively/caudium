@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Backported VHS - SQLlogger (untested since Pike is unstable on FreeBSD
+  and it cannot be compiled on OS X Tiger....)
+   (Xavier Beaudouin)
 - Fix bug #0000011
    (Xavier Beaudouin)
 - Fix bug #0000009 that prevents ultralog to run in command line
