@@ -1,6 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Backported VHS SQLogger from 1.2. Same warnings as for 1.4 branch....
+   (Xavier Beaudouin)
 - Fixed bug #11
+   (Xavier Beaudouin)
 - Because of changes in Pike 7.6.24+ that have been not compatible with
   it self, we requires now 7.6.24 now.
    (Xavier Beaudouin)
