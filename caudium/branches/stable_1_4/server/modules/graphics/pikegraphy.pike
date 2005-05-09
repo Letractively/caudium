@@ -51,8 +51,6 @@ CREATE TABLE ratings (
 
 CREATE TABLE users (
   login char(20) DEFAULT '' NOT NULL,
-  pass char(32) DEFAULT '' NOT NULL,
-  cookieval char(128) DEFAULT '' NOT NULL,
   seclevel int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (login)
 );
@@ -84,6 +82,10 @@ constant module_type  = MODULE_PARSER;
 constant module_name  = "PikeGraphy";
 constant module_doc   = "Another photoalbum module.<br>"
                         "This is a phpGraphy clone like module for Caudium."
+			"PikeGraphy uses Caudium's internal user authentication "
+			"system for user access. The user table is required "
+			"however, it only holds security level information "
+			"for the user."
 			"<p>\n"
 			"Tag Args: "
 			"nocss (optional) do not include configured stylesheet definitions"
@@ -93,6 +95,11 @@ constant module_doc   = "Another photoalbum module.<br>"
 			"previous (optional) change previous link text";
 
 constant thread_safe=0;	// Not yet...
+
+void start (int cnt, object conf) {
+    module_dependencies(conf, ({ "cimg" }));
+}
+
 
 void create () {
   string css_classes=
@@ -168,7 +175,7 @@ mixed t_pikegraphy(string tag, mapping args, object id)
 {
   //variables necessaire au script
   int tmp_int=0;
-  string dir="";
+  string dir="/";
   string cnt="<style type=\"text/css\">" + QUERY(css_classes) + "</style>\n";
   int startpic=0;
   string filename="";
@@ -189,12 +196,6 @@ mixed t_pikegraphy(string tag, mapping args, object id)
 
 //cnt = head_page(cnt) ;
 
-if (id->variables && id->variables->logout) {
-   	cnt += "<remove_cookie name=\"LoginValue\">\n<redirect to=\"?dir=\">";
-        logging=0;
-        admin=0;
-}
-
 //
 // analyse query
 
@@ -208,49 +209,24 @@ if (id->variables && id->variables->logout) {
  }
 
 if (id->variables && id->variables->login) {
-  cnt += "</td><td align=left>";
-  cnt += "<form method=POST action=\"" + id->not_query + "\">";
-  cnt += "Login :    <input name=\"user\" size=20><br>";
-  cnt += "Password : <input type=\"password\" name=\"pass\" size=20>";
-  cnt += "<input type=\"hidden\" name=\"startlogin\" value=\"1\">";
-  cnt += "<input type=\"hidden\" name=\"dir\" value=\""+dir+"\">";
-  cnt += "<input type=\"submit\" value=\"Login\">";
-  cnt += "</form>";
-//  cnt += "\t</td>";
-//  cnt += "</tr>\n</table>";
-  return cnt;
+  return "<if user=\"any\" not><auth-required></if>";
  }
 
-if (id->variables && id->variables->startlogin) {
+else if (id->variables && id->get_user()) {
    object db = SQLConnect(QUERY(sqlserver));
-   array x = (db->query("select * from users where login=\""+id->variables->user+"\" and pass=\""+id->variables->pass+"\""));
+   array x = (db->query("select * from users where login=\"" +
+         id->get_user()->username + "\""));
    if ( (sizeof(x)) != 0 ) {
-   	cnt += "<set_cookie name=LoginValue value=\""+x[0]->cookieval+"\" minutes=15>";
         if ((int)x[0]->seclevel== 999) {
             admin=1;
             userlevel=999;
         } else {
             userlevel=(int)x[0]->seclevel;
         }
-        username = x[0]->login;
+        username = id->get_user()->username;
         logging = 1;
    }
-} else {
-   if (id->cookies && id->cookies->LoginValue ) {
-       object db = SQLConnect(QUERY(sqlserver));
-       array x = (db->query("select * from users where cookieval=\""+id->cookies->LoginValue+"\" "));
-       if ( sizeof(x) == 1 ) {
-          if ((int)x[0]->seclevel==999) {
-              admin=1;
-              userlevel=999;
-          } else {
-              userlevel=(int)x[0]->seclevel;
-          }
-          username = x[0]->login;
-          logging = 1;
-       }
-   }
- }
+}
    
 if (id->variables && id->variables->dirlevel && admin == 1) {
    object db = SQLConnect(QUERY(sqlserver));
@@ -301,7 +277,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    }
    else
    {
-     cnt += "<a href=\"" + id->not_query + "?dir=\">"+txt_root_dir+"</a>" + txt_separator;
+     cnt += "<a href=\"" + id->not_query + "?dir=/\">"+txt_root_dir+"</a>" + txt_separator;
      array alldir= explode_path(dir);
      string alltmp="";
 
@@ -321,8 +297,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    }
  }
  if (logging == 1) {
-    cnt += "\t\t\n\t\t<td align=right>"+username+" - <a href=\"" +
-	id->not_query + "?logout=1\">logout</a></td>\n";
+    cnt += "\t\t\n\t\t<td align=right>Username: "+username+"</td>\n";
  } else {
     cnt += "\t\t\n\t\t<td align=right><a href=\"" + id->not_query +
 	"?dir="+dir+"&login=1\">login</a></td>\n";
@@ -383,11 +358,11 @@ if (id->variables && id->variables->delcomment && admin == 1) {
      for(int i = startpic; i<(sizeof(cnt_dir)) && i<QUERY(nb_pic_max)+startpic;i++) {
        cnt += "\t\t<td><a href=\"" + id->not_query 
 	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
-       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+replace_string(cnt_dir[i])+"\" format=jpeg quant=\"64\" maxwidth=\"100\" border=0 ></a></td>\n";
+       cnt += "<cimg src=\""+QUERY(root_images)+dir+"/"+cnt_dir[i]+"\" format=jpeg quant=\"64\" maxwidth=\"100\" maxheight=\"100\" border=0 ></a></td>\n";
 
        cnt += "\t\t<td align=left><a href=\"" + id->not_query 
-	+ "?display="+dir+"/"+replace_string(cnt_dir[i])+"\">";
-       string comment = get_comment(dir+"/"+cnt_dir[i]);
+	+ "?display="+combine_path(dir, replace_string(cnt_dir[i]))+"\">";
+       string comment = get_comment(combine_path(dir, cnt_dir[i]));
        if ( comment == "" ) {
           cnt += cnt_dir[i]+"</a><br>";
 	} else {
@@ -481,9 +456,10 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    if (  admin == 1 ) {
      cnt += "\t<tr align=center>\n\t\t<td>\n";
      cnt += "\t\t<form> Description:\n";
-     cnt += "\t\t<textarea name=\"dsc\" cols=60 rows=3>"+get_comment(dir+"/"+filename)+"</textarea><br><br>";
+     cnt += "\t\t<textarea name=\"dsc\" cols=60 rows=3>"+get_comment(combine_path(dir, filename))+"</textarea><br><br>";
      cnt += "\t\tSecurity level: <input name=\"lev\" value=\""+get_level(dir+"/"+filename)+"\" size=4>";
-     cnt += "\t\t<input type=hidden name=display value=\""+dir+"/"+filename+"\">";
+     cnt += "\t\t<input type=hidden name=display value=\"" 
++ combine_path(dir, filename) +"\">";
      cnt += "\t\t<input type=hidden name=updpic value=\"1\">";
      cnt += "\t\t<input type=submit value=\"Change\">";
      cnt += "\t\t</form>";
@@ -494,7 +470,7 @@ if (id->variables && id->variables->delcomment && admin == 1) {
    if (id->variables && id->variables->hi ) {
       cnt += "<td ><br><center><img src="+QUERY(root_images)+dir+"/"+filename+" ></center><br><br></td>";
    } else {
-      cnt += "\t\t<tr>\n\t\t\t<td><br><center><cimg src="+QUERY(root_images)+dir+"/"+filename+" maxwidth=800 maxheight=600 quant=64 format=\"jpeg\" border=0 ></center><br></td>";
+      cnt += "\t\t<tr>\n\t\t\t<td><br><center><cimg src=\""+QUERY(root_images)+dir+"/"+filename+"\" maxwidth=800 maxheight=600 quant=64 format=\"jpeg\" border=0 ></center><br></td>";
    }
    cnt += "\n\t\t</tr>\n\t\t<tr>\n";
    cnt += "\t\t\t<td align=right> <a href=\"\" onClick='enterWindow=window.open(\"?id="+dir+"/"+filename+"&addcomment=1\",\"commentadd\",\"width=400,height=260,top=250,left=500\"); return false'>Click to add comment</a> <br></td>\n";
