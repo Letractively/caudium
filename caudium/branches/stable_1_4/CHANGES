@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Backported: PikeGraphy uses Caudium's authentication system for 
+  user authentication. Security levels are still stored in the 
+  user table. 
+   (Bill Welliver)
 - Backported VHS - SQLlogger (untested since Pike is unstable on FreeBSD
   and it cannot be compiled on OS X Tiger....)
    (Xavier Beaudouin)
