@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
@@ -460,6 +460,7 @@ string do_parse(string to_parse, object id, object file, mapping defines,
 string container_emit(string t, mapping args, string contents, object id,  
   object f)
 {
+  function sort;
   function plugin;
   int rowinfo;
   CDEBUG("container_emit called for source: " + args->source);
@@ -470,6 +471,12 @@ string container_emit(string t, mapping args, string contents, object id,
   plugin = emit_callers[lower_case(args->source)];
   if(!plugin || !functionp(plugin))
     return "emit: no plugin " + args->source;
+
+   if(args->sort_function)
+   {
+     sort = master()->resolv(args->sort_function);
+     if(!sort) return sprintf("emit: invalid sort function %s", args->sort_function); 
+   }
 
   array dataset;
   mixed e;
@@ -492,6 +499,16 @@ string container_emit(string t, mapping args, string contents, object id,
   // changes the dataset).
   //
 
+  if(sort && args->sort_key)
+  {
+    dataset = emit_sort_array(dataset, sort, args->sort_key);
+  }
+
+  if(args->reverse)
+  {
+    dataset = reverse(dataset);
+  }
+
   int datasetsize= sizeof(dataset);
   int remainder;
 
@@ -499,8 +516,8 @@ string container_emit(string t, mapping args, string contents, object id,
   if(args->maxrows)
   {
       
-     if(sizeof(dataset)> args->maxrows)
-        dataset = dataset[0..(args->maxrows-1)];
+     if(sizeof(dataset)> (int)(args->maxrows))
+        dataset = dataset[0..((int)(args->maxrows)-1)];
 
      remainder = datasetsize - sizeof(dataset);
   }
@@ -508,8 +525,8 @@ string container_emit(string t, mapping args, string contents, object id,
   // args->skiprows
   if(args->skiprows)
   {
-     if(sizeof(dataset)> args->skiprows)
-        dataset = dataset[-(args->skiprows)..];
+     if(sizeof(dataset)> (int)(args->skiprows))
+        dataset = dataset[-((int)(args->skiprows))..];
   }
 
   rowinfo = sizeof(dataset);
@@ -557,6 +574,87 @@ string container_emit(string t, mapping args, string contents, object id,
 
   return retval->get();
 }
+
+array emit_sort_array(array foo, function|void cmp, string key, mixed ... args)
+{
+  array bar,tmp;
+  int len,start;
+  int length;
+  int foop, fooend, barp, barend;
+
+  if(!cmp || cmp==`>)
+  {
+    array x = allocate(sizeof(foo));
+    for(int q = 0; q < sizeof(foo); q++)
+      x[q] = foo[q][key];
+    foo+=({});
+    sort(x, foo);
+    return foo;
+  }
+
+  if(cmp == `<)
+  {
+    array x = allocate(sizeof(foo));
+    for(int q = 0; q < sizeof(foo); q++)
+      x[q] = foo[q][key];
+    foo+=({});
+    sort(x, foo);
+    return reverse(foo);
+  }
+
+  length=sizeof(foo);
+
+  foo+=({});
+  bar=allocate(length);
+
+  for(len=1;len<length;len*=2)
+  {
+    start=0;
+    while(start+len < length)
+    {
+      foop=start;
+      barp=start+len;
+      fooend=barp;
+      barend=barp+len;
+      if(barend > length) barend=length;
+
+      while(1)
+      {
+        
+        if(([function(mixed,mixed,mixed...:int)]cmp)(foo[foop][key],foo[barp][key],@args)
+            <= 0)
+        {
+          bar[start++]=foo[foop++];
+          if(foop == fooend)
+          {
+            while(barp < barend) {
+		bar[start++]=foo[barp++];
+		}
+            break;
+          }
+	  }else{
+          bar[start++]=foo[barp++];
+          if(barp == barend)
+          {
+            while(foop < fooend) {
+		bar[start++]=foo[foop++];
+		}
+            break;
+          }
+        }
+      }
+    }
+    while(start < length) {
+	bar[start]=foo[start++];
+	}
+    tmp=foo;
+    foo=bar;
+    bar=tmp;
+  }
+
+  return foo;
+}
+
 
 // This function is used to know if we have a xml document and thus
 // we'll try to output XML tags and containers with make_tag, 
