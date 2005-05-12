@@ -1,5 +1,13 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed emit->maxrows and emit->skiprows
+   (Bill Welliver)
+- Added emit->sort_function and emit->sort_key to sort query results
+   Example usage: sort_function="Array.oid_sort_func" sort_key="version"
+   where sort_function is the name of a function compatible with 
+   Array.sort_array, and sort_key is the name of a field in the resultset 
+   to sort by.
+   (Bill Welliver)
 - Backported VHS SQLogger from 1.2. Same warnings as for 1.4 branch....
    (Xavier Beaudouin)
 - Fixed bug #11
