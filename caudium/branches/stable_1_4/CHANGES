@@ -1,5 +1,13 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fixed emit->maxrows and emit->skiprows
+   (Bill Welliver)
+- Added emit->sort_function and emit->sort_key to sort query results
+   Example usage: sort_function="Array.oid_sort_func" sort_key="version"
+   where sort_function is the name of a function compatible with 
+   Array.sort_array, and sort_key is the name of a field in the resultset 
+   to sort by.
+   (Bill Welliver)
 - Backported: PikeGraphy uses Caudium's authentication system for 
   user authentication. Security levels are still stored in the 
   user table. 
