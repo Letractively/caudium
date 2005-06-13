@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: caudium 2/1.2.35.1-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-11-20 20:24+0100\n"
+"POT-Creation-Date: 2005-06-13 21:30+0200\n"
 "PO-Revision-Date: 2005-06-12 23:00+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net>\n"
@@ -15,51 +15,57 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 
-#.Type: string
-#.Description
-#:../templates:4
+#. Type: string
+#. Description
+#: ../templates:4
 msgid "On what port should the config interface be?"
 msgstr "Bạn có muốn gán giao diện cấu hình cho cổng nào?"
 
-#.Type: string
-#.Description
-#:../templates:4
+#. Type: string
+#. Description
+#: ../templates:4
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
 "Mozilla, Lynx, Links or Galeon)"
-msgstr "Bạn hãy ghi rõ cổng nơi trình Caudium sẽ cung cấp giao diện cấu hình của nó. Bạn có thể truy cập giao diện ấy dùng bất cứ trình duyệt Mạng nào có thể quản lý mẫu đơn."
+msgstr ""
+"Bạn hãy ghi rõ cổng nơi trình Caudium sẽ cung cấp giao diện cấu hình của nó. "
+"Bạn có thể truy cập giao diện ấy dùng bất cứ trình duyệt Mạng nào có thể "
+"quản lý mẫu đơn."
 
-#.Type: string
-#.Description
-#:../templates:12
+#. Type: string
+#. Description
+#: ../templates:12
 msgid "What port should the server listen on?"
 msgstr "Bạn có muốn trình phục vụ lắng nghe trên cổng nào?"
 
-#.Type: string
-#.Description
-#:../templates:12
+#. Type: string
+#. Description
+#: ../templates:12
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
 "there's such need."
-msgstr "Trình Caudium hiện thời được cấu hình để lắng nghe trên cổng «${portno}» của mọi giao diện trong máy bạn. Tuy nhiên, bạn có thể ghi rõ một cổng khác tại đây, nếu cần thiết."
+msgstr ""
+"Trình Caudium hiện thời được cấu hình để lắng nghe trên cổng «${portno}» của "
+"mọi giao diện trong máy bạn. Tuy nhiên, bạn có thể ghi rõ một cổng khác tại "
+"đây, nếu cần thiết."
 
-#.Type: multiselect
-#.Choices
-#:../templates:19
+#. Type: multiselect
+#. Choices
+#: ../templates:19
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "mạch, gỡ lỗi, một lần, nét chính, gỡ lỗi bt, giữ sống"
 
-#.Type: multiselect
-#.Description
-#:../templates:21
+#. Type: multiselect
+#. Description
+#: ../templates:21
 msgid "Select options that should be used on startup"
 msgstr "Hãy chọn những tùy chọn cần dùng khi khởi chạy."
 
-#.Type: multiselect
-#.Description
-#:../templates:21
+#. Type: multiselect
+#. Description
+#: ../templates:21
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -70,180 +76,217 @@ msgid ""
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
 "Bạn có thể chọn số không hay nhiều tùy chọn trong:\n"
-" • mạch		dùng mạch nếu có\n"
-" • gỡ lỗi		xuất thông tin gỡ lỗi trong khi chạy\n"
-" • một lần	chạy cảnh gần\n"
-" • nét chính	lưu thông tin nét chính\n"
-" • gỡ lỗi bt	gỡ lỗi trong cách dùng bô mô tả tập tin\n"
-" • giữ sống	giữ sự kết nối sống dùng HTTP/1.1"
+" • mạch\t\tdùng mạch nếu có\n"
+" • gỡ lỗi\t\txuất thông tin gỡ lỗi trong khi chạy\n"
+" • một lần\tchạy cảnh gần\n"
+" • nét chính\tlưu thông tin nét chính\n"
+" • gỡ lỗi bt\tgỡ lỗi trong cách dùng bô mô tả tập tin\n"
+" • giữ sống\tgiữ sự kết nối sống dùng HTTP/1.1"
 
-#.Type: boolean
-#.Description
-#:../templates:33
+#. Type: boolean
+#. Description
+#: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
-msgstr "Bạn có muốn điều hưởng tinh các thiết lập Caudium để đạt hiệu năng tối đa không?"
+msgstr ""
+"Bạn có muốn điều hưởng tinh các thiết lập Caudium để đạt hiệu năng tối đa "
+"không?"
 
-#.Type: boolean
-#.Description
-#:../templates:33
+#. Type: boolean
+#. Description
+#: ../templates:33
+#, fuzzy
 msgid ""
-"If you select this options the Caudium default configuration will be tweaked "
+"If you select this option the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
 "features turned off are:\n"
 " - extra Roxen compatibility\n"
 " - module level security\n"
-" - the supports database\n"
+" - the support database\n"
 " - DNS lookups\n"
 " - URL modules"
 msgstr ""
-"Nếu bạn chọn tùy chọn ấy thì sẽ điều chỉnh cấu hình Caudium mặc định, bằng cách tắt một số tính năng có thể giảm tốc độ trình phục vụ nhiều. Những tính năng sẽ bị tắt:\n"
+"Nếu bạn chọn tùy chọn ấy thì sẽ điều chỉnh cấu hình Caudium mặc định, bằng "
+"cách tắt một số tính năng có thể giảm tốc độ trình phục vụ nhiều. Những tính "
+"năng sẽ bị tắt:\n"
 " • mức độ tương thích Roxen cao hơn\n"
 " • sự bảo mật mức độ mô-đun\n"
 " • cơ sở dữ liệu hỗ trợ\n"
 " • tra cứu DNS\n"
 " • mô-đun địa chỉ Mạng"
 
-#.Type: boolean
-#.Description
-#:../templates:33
+#. Type: boolean
+#. Description
+#: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
-msgstr "Nếu bạn có phải sử dụng bất cứ tính năng nào ở trên, • ĐỪNG • hiệu lực tùy chọn này."
+msgstr ""
+"Nếu bạn có phải sử dụng bất cứ tính năng nào ở trên, • ĐỪNG • hiệu lực tùy "
+"chọn này."
 
-#.Type: note
-#.Description
-#:../templates:47
+#. Type: note
+#. Description
+#: ../templates:47
 msgid "Cannot bind to port."
 msgstr "Không đóng kết được đến cổng."
 
-#.Type: note
-#.Description
-#:../templates:47
+#. Type: note
+#. Description
+#: ../templates:47
+#, fuzzy
 msgid ""
-"The port you have specified for Caudium configuration interface is "
+"The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
 "properly without binding its configuration interface to a port on your "
 "system."
-msgstr "Bạn đã ghi rõ một cổng không sẵn sàng cho giao diện cấu hình Caudium. Hãy ghi rõ một số hiệu cổng khác: trình Caudium không thể chức năng cho đúng khi không đóng kết giao diện cấu hình của nó đến một cổng trong hệ thống bạn."
+msgstr ""
+"Bạn đã ghi rõ một cổng không sẵn sàng cho giao diện cấu hình Caudium. Hãy "
+"ghi rõ một số hiệu cổng khác: trình Caudium không thể chức năng cho đúng khi "
+"không đóng kết giao diện cấu hình của nó đến một cổng trong hệ thống bạn."
 
-#.Type: note
-#.Description
-#:../templates:55
+#. Type: note
+#. Description
+#: ../templates:55
 msgid "Caudium configuration"
 msgstr "Cấu hình Caudium"
 
-#.Type: note
-#.Description
-#:../templates:55
+#. Type: note
+#. Description
+#: ../templates:55
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
 "using its web-based configuration interface. THIS IS VERY IMPORTANT since "
 "that step involves creation of administrative login/password."
-msgstr "Sau khi cài đặt trình Caudium của bạn, và nó có chạy, bạn hãy sử dụng trình duyệt có khả năng quản lý mẫu đơn để tới địa chỉ «http://localhost:${cfgport}», để cấu hình Caudium nữa dùng giao diện cấu hình đựa vào Mạng. ••• Cấu hình thêm này rất quan trọng ••• vì nó gồm tạo thông tin đăng nhập quản lý (tên người dùng và mật khẩu)."
+msgstr ""
+"Sau khi cài đặt trình Caudium của bạn, và nó có chạy, bạn hãy sử dụng trình "
+"duyệt có khả năng quản lý mẫu đơn để tới địa chỉ «http://localhost:"
+"${cfgport}», để cấu hình Caudium nữa dùng giao diện cấu hình đựa vào Mạng. "
+"••• Cấu hình thêm này rất quan trọng ••• vì nó gồm tạo thông tin đăng nhập "
+"quản lý (tên người dùng và mật khẩu)."
 
-#.Type: note
-#.Description
-#:../templates:55
+#. Type: note
+#. Description
+#: ../templates:55
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
 "caudium.org/"
-msgstr "Để tìm thông tin thêm về trình Caudium, hãy xem những tài liệu trong thư mục «/usr/share/doc/"
-"caudium», và bạn hãy tham gia «http://caudium.net/» và «http://caudium.org/» nhé."
+msgstr ""
+"Để tìm thông tin thêm về trình Caudium, hãy xem những tài liệu trong thư mục "
+"«/usr/share/doc/caudium», và bạn hãy tham gia «http://caudium.net/» và "
+"«http://caudium.org/» nhé."
 
-#.Type: boolean
-#.Description
-#:../templates:69
+#. Type: boolean
+#. Description
+#: ../templates:69
 msgid "Use the experimental HTTP protocol module?"
 msgstr "Bạn có muốn sử dụng mô-đun giao thức HTTP đựa trên thí nghiệm không?"
 
-#.Type: boolean
-#.Description
-#:../templates:69
+#. Type: boolean
+#. Description
+#: ../templates:69
 msgid ""
 "Caudium comes with an experimental HTTP module that is faster than the "
 "original one. The code is still Work-In-Progress, so you might experience "
 "problems running it. It is NOT recommended to run this code on a production "
 "server. If, however, you want to test its functionality, turn this option on."
-msgstr "Trình Caudium có sẵn một mô-đun HTTP đựa trên thí nghiệm mà nhanh hơn điều gốc. Chúng tôi vấn còn đang phát triển mã này, thì bạn có lẽ sẽ gặp lỗi khi chạy nó. •• Không •• đệ nghị chạy mã này khi sử dụng trình phục vụ với thông tin mà bạn không muốn mất. Tuy nhiên, nếu bạn muốn thử ra chức năng với thông tin có thể mất, hãy bật tùy chọn này."
+msgstr ""
+"Trình Caudium có sẵn một mô-đun HTTP đựa trên thí nghiệm mà nhanh hơn điều "
+"gốc. Chúng tôi vấn còn đang phát triển mã này, thì bạn có lẽ sẽ gặp lỗi khi "
+"chạy nó. •• Không •• đệ nghị chạy mã này khi sử dụng trình phục vụ với thông "
+"tin mà bạn không muốn mất. Tuy nhiên, nếu bạn muốn thử ra chức năng với "
+"thông tin có thể mất, hãy bật tùy chọn này."
 
-#.Type: string
-#.Description
-#:../templates:79
+#. Type: string
+#. Description
+#: ../templates:79
 msgid "Configuration interface login."
 msgstr "Tên người dùng để đăng nhập vào giao diện cấu hình"
 
-#.Type: string
-#.Description
-#:../templates:79
+#. Type: string
+#. Description
+#: ../templates:79
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
 "first will be able to set the login/password and manage your server. This is "
 "probably not what you want. Please specify the login name below or accept "
 "the default value."
-msgstr "Tên người dùng này được dùng để truy cập giao diện cấu hình. Nếu bạn không nhập gì vào đây, bất cứ người nào có truy cập giao diện cấu hình trước hết, sẽ có thể lập thông tin đăng nhập và quản lý trình phục vụ bạn. Rất có thể là bạn không muốn đó. Hãy ghi rõ tên người dùng đăng nhập bên dưới, hoặc chấp nhận giá trị mặc định."
+msgstr ""
+"Tên người dùng này được dùng để truy cập giao diện cấu hình. Nếu bạn không "
+"nhập gì vào đây, bất cứ người nào có truy cập giao diện cấu hình trước hết, "
+"sẽ có thể lập thông tin đăng nhập và quản lý trình phục vụ bạn. Rất có thể "
+"là bạn không muốn đó. Hãy ghi rõ tên người dùng đăng nhập bên dưới, hoặc "
+"chấp nhận giá trị mặc định."
 
-#.Type: password
-#.Description
-#:../templates:89
+#. Type: password
+#. Description
+#: ../templates:89
 msgid "Configuration interface password"
 msgstr "Mật khẩu cho giao diện cấu hình"
 
-#.Type: password
-#.Description
-#:../templates:89
+#. Type: password
+#. Description
+#: ../templates:89
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
 "below!"
-msgstr "Mật khẩu này được dùng để truy cập giao diện cấu hình. Giá trị mặc định là chỉ đơn giản từ «password» mà không an toàn cách nào cả, thì ••• đệ nghị mạnh mẽ ••• bạn sửa đổi mật khẩu mặc định bên dưới."
+msgstr ""
+"Mật khẩu này được dùng để truy cập giao diện cấu hình. Giá trị mặc định là "
+"chỉ đơn giản từ «password» mà không an toàn cách nào cả, thì ••• đệ nghị "
+"mạnh mẽ ••• bạn sửa đổi mật khẩu mặc định bên dưới."
 
-#.Type: password
-#.Description
-#:../templates:97
+#. Type: password
+#. Description
+#: ../templates:97
 msgid "Confirm the configuration interface password"
 msgstr "Hãy xác nhận mật khẩu cho giao diện cấu hình."
 
-#.Type: password
-#.Description
-#:../templates:97
+#. Type: password
+#. Description
+#: ../templates:97
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr "Hãy gõ lại mật khẩu cho giao diện cấu hình, để xác nhận nó."
 
-#.Type: note
-#.Description
-#:../templates:103
+#. Type: note
+#. Description
+#: ../templates:103
 msgid "Configuration interface password mismatch"
 msgstr "Hai mật khẩu ấy không khớp."
 
-#.Type: note
-#.Description
-#:../templates:103
+#. Type: note
+#. Description
+#: ../templates:103
 msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
-msgstr "Bạn đã nhập hai mật khẩu không khớp được. Hãy gõ lại, và kiểm tra xem đã phân biệt chữ hoa, chữ thường, và không có bật phím Caps Lock (chữ hoa luôn)."
+msgstr ""
+"Bạn đã nhập hai mật khẩu không khớp được. Hãy gõ lại, và kiểm tra xem đã "
+"phân biệt chữ hoa, chữ thường, và không có bật phím Caps Lock (chữ hoa luôn)."
 
-#.Type: note
-#.Description
-#:../templates:109
+#. Type: note
+#. Description
+#: ../templates:109
 msgid "Configuration interface password reset"
 msgstr "Lập lại mật khẩu cho giao diện cấu hình."
 
-#.Type: note
-#.Description
-#:../templates:109
+#. Type: note
+#. Description
+#: ../templates:109
 msgid ""
 "The password has been reset to 'password'. You cannot have an empty  "
 "password for the configuration interface. Please change the default password "
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
-msgstr "Mật khẩu đã được lập lại thành «password». Không thể lập một mật khẩu rỗng. Hãy sửa đổi mật khẩu mặc định vào đúng lúc đã cài đặt xong trình Caudium. Bạn có thể làm như thế bằng cách đăng nhập vào giao diện cấu hình có thể truy cập tại địa chỉ Mạng bên dưới:"
+msgstr ""
+"Mật khẩu đã được lập lại thành «password». Không thể lập một mật khẩu rỗng. "
+"Hãy sửa đổi mật khẩu mặc định vào đúng lúc đã cài đặt xong trình Caudium. "
+"Bạn có thể làm như thế bằng cách đăng nhập vào giao diện cấu hình có thể "
+"truy cập tại địa chỉ Mạng bên dưới:"
 
-#.Type: note
-#.Description
-#:../templates:109
+#. Type: note
+#. Description
+#: ../templates:109
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"

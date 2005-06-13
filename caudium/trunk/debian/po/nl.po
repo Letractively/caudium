@@ -14,7 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: caudium\n"
-"POT-Creation-Date: 2003-11-20 20:24+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-06-13 21:30+0200\n"
 "PO-Revision-Date: 2004-02-10 20:55+0100\n"
 "Last-Translator: Bart Cornelis <cobaco@linux.be>\n"
 "Language-Team: debian-l10n-dutch <debian-l10n-dutch@lists.debian.org>\n"
@@ -99,13 +100,14 @@ msgstr "Caudium-instellingen bijstellen voor maximale performantie?"
 #. Type: boolean
 #. Description
 #: ../templates:33
+#, fuzzy
 msgid ""
-"If you select this options the Caudium default configuration will be tweaked "
+"If you select this option the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
 "features turned off are:\n"
 " - extra Roxen compatibility\n"
 " - module level security\n"
-" - the supports database\n"
+" - the support database\n"
 " - DNS lookups\n"
 " - URL modules"
 msgstr ""
@@ -133,8 +135,9 @@ msgstr "Kan niet aan poort binden."
 #. Type: note
 #. Description
 #: ../templates:47
+#, fuzzy
 msgid ""
-"The port you have specified for Caudium configuration interface is "
+"The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
 "properly without binding its configuration interface to a port on your "
 "system."
