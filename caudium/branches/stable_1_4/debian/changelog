@@ -1,3 +1,12 @@
+caudium (2:1.4.5.2-2) experimental; urgency=low
+
+  * Added the Vietnamese translation contributed by Clytie Siddall, 
+    thanks a lot.
+  * Fixed a few typos in the debconf templates, also submitted by 
+    Clytie Siddall, thanks again.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 13 Jun 2005 20:50:46 +0200
+
 caudium (2:1.4.5.2-1) experimental; urgency=medium
 
   * Getting rid of the non-dfsg fonts

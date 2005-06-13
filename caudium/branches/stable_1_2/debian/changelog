@@ -1,3 +1,12 @@
+caudium (2:1.2.35.1-2) unstable; urgency=low
+
+  * Closes: #313210: INTL:vi. Added the Vietnamese translation contributed 
+    by Clytie Siddall, thanks a lot.
+  * Closes: #313211: caudium. Fixed a few typos in the debconf templates, 
+    also submitted by Clytie Siddall, thanks again.
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 13 Jun 2005 20:45:43 +0200
+
 caudium (2:1.2.35.1-1) unstable; urgency=high
 
   * Closes: #298963: contains non-free fonts
