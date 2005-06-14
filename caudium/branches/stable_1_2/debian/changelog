@@ -1,11 +1,18 @@
+caudium (2:1.2.35.1-3) unstable; urgency=low
+
+  * Closes: #304880: [l10n] Czech translation for caudium, contributed by
+    Martin Šín <martin.sin@seznam.cz>, thanks a lot.
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 14 Jun 2005 02:19:32 +0200
+
 caudium (2:1.2.35.1-2) unstable; urgency=low
 
-  * Closes: #313210: INTL:vi. Added the Vietnamese translation contributed 
+  * Closes: #313210: INTL:vi. Added the Vietnamese translation contributed
     by Clytie Siddall, thanks a lot.
-  * Closes: #313211: caudium. Fixed a few typos in the debconf templates, 
+  * Closes: #313211: caudium. Fixed a few typos in the debconf templates,
     also submitted by Clytie Siddall, thanks again.
 
- -- Marek Habersack <grendel@debian.org>  Mon, 13 Jun 2005 20:45:43 +0200
+ -- Marek Habersack <grendel@debian.org>  Tue, 14 Jun 2005 02:19:01 +0200
 
 caudium (2:1.2.35.1-1) unstable; urgency=high
 
