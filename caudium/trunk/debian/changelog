@@ -1,5 +1,10 @@
 caudium (2:1.5.1-2) experimental; urgency=low
 
+  * bug at line 83 (missing eval command) and cosmetic
+    changes in postinstall. Reported and patch contributed by
+    Alban Browaeys <browaeys.alban@wanadoo.fr>, thank you.
+  * Czech translation for caudium, contributed by 
+    Martin Šín <martin.sin@seznam.cz>, thanks a lot.
   * Added the Vietnamese translation contributed by Clytie Siddall, 
     thanks a lot.
   * Fixed a few typos in the debconf templates, also submitted by 
