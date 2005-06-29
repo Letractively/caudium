@@ -1,0 +1,158 @@
+WATCHDOG ADMINISTRATOR'S MANUAL
+
+INTRODUCTION
+
+The Watchdog's purpose is to monitor the vital signs of a Caudium server. 
+If it detects a malfunction it will take an action
+specified by the maintainer.
+
+The Watchdog is built on the principle that it should remain simple to
+avoid bugs. It will not try to do anything "smart" if it encounters an
+unpredicted situation. Instead it will call for the administrator to
+fix the problem. However, the Watchdog should be able to handle most
+situations without involving the administrator.
+
+The Watchdog consists of three files:
+
+* The Pike script watchdog.pike
+
+* A configuration file with the default name dog.rc, see the
+  Configuration section
+
+* A log file created by the script with the default name doglog, see
+  the Logging section
+
+METHOD OF TESTING
+
+The supervision is done in the simplest possible way. The Watchdog
+tries to fetch one or more URLs from the server. If it fails to fetch
+a specific URL for a specific number of times, the Watchdog's alert
+mode changes and an action is triggered.
+
+ALERT MODES AND ACTIONS
+
+Each monitored URL must have two actions connected to itself. These
+actions are executed when the corresponding alert mode is reached for
+that URL. There are two alert modes, low and high alert mode, and each
+of them is reached after a specified number of failures to fetch the
+URL. Low alert mode is typically reached after one failure. If the
+Watchdog manages to fetch the URL again, it calls the action one more
+time, giving it a chance to finish any jobs it has started, notify the
+administrator that all is well, etc.
+
+Actions can be anything that can be distilled down to a Pike function. The Watchdog is delivered with action functions for:
+
+* mail notification of the administrator 
+* restart of the server
+
+Adding a new type of action is simple:
+
+1. Create an action function:
+	void action_MYACTION(string message, mapping rc, string 
+          ip, int port, void|int standdown), 
+   where
+
+   * message contains a message stating why the action was triggered
+   * rc contains all the keyword bindings from the configuration file
+   * ip is the ip/hostname of the failing server
+   * port is the port number of the failing server
+
+   * standdown is 0 or void if the Watchdog has just reached the
+     corresponding alert level, and 1 if it has left the alert level
+     and gone back to the normal state.
+
+
+2. Choose an abbreviation used to specify this action in the
+   configuration file.
+
+3. Add a case to the switch statement in the function get_function,
+   that returns the new action function.
+
+INTERVAL 
+
+The interval is the time span between two probings. After each interval the Watchdog will check the server and raise the alert mode if appropriate. 
+
+LOGGING
+
+The Watchdog logs its activities in a log file. By default, this file
+is called doglog and is placed in the start directory. However, by
+changing the value of the define LOGFILE in the script, another path
+to the file may be specified.
+
+A log entry consists of a time stamp and a message. The message should
+never contain the sequence "\n[".
+
+CONFIGURATION
+
+Configuration is done via the configuration file. This file is by
+default called dog.rc and placed in the start directory, but by
+changing the defines RCDIR and RCFILE in the script, another place and
+name for the file can be specified.  Each line holds one or zero
+keyword-value bindings. Keywords are separated from values by
+whitespace. Example: server www.caudium.net
+
+This binds the keyword server to the value www.caudium.net. Keywords are
+case independent, values are not. In addition to the original keyword
+set, any new keywords that are needed can be added at will.
+
+Appendix A contains the original set of keywords and their meanings.
+
+RUNNING THE WATCHDOG
+
+Before the Watchdog can be started, some requirements must be fulfilled:
+
+* Pike must be installed. The path to the Pike binary must be
+  hardcoded into the first line of the Watchdog script.
+
+  The Watchdog is written to work with the Pike included in the Caudium 
+  installation, but should run well on any modern version of Pike.
+
+* A configuration file, as mentioned in the section Configuration, has
+  to be present.
+
+* The Watchdog process must have write permission in the directory
+  containing the log file, which was mentioned in the section
+  Logging. However, since the Watchdog most often will be run as root
+  for reasons mentioned below, this will seldom be a problem. :)
+
+After making sure that all requirements are met, the Watchdog can be
+started with the command ./watchdog.pike --pid_file=pid_path 
+  --log_dir=log_path --config_dir=config_path.
+
+If the Watchdog should be able to restart the server, it has to be run as 
+root or the user that started the server.
+
+APPENDIX A: KEYWORDS
+
+Keyword		Value
+
+File		Mount point for file to fetch. See Appendix B for details.
+Interval	Interval between checks in seconds. 
+		Recommended value: 15 - 45
+
+ReadTimeout	How long in seconds before the Watchdog should time out in
+		an attempt to read data.
+ 		Recommended value: 5 - 15
+
+ConnectTimeout	How long in seconds before the Watchdog should time out a 
+		connection.  
+		Recommended value: 3 - 10
+
+AdminEmail	Email address of the administrator. Needed for mail 
+		notification.
+
+lowtime		How many failures there should be before the Watchdog
+		enters low alert mode. In this case one.
+
+low_action	The action that should be executed when the Watchdog
+                enters low alert mode. In this case, to mail the
+		administrator a report (y -> Yell for admin).
+
+hightime	How many failures there should be before the Watchdog
+		enters high alert mode. In this case three.
+
+high_action	The action that should be executed when the Watchdog
+                enters high alert mode. In this case, to restart the
+                server and to kill off any processes hogging the port,
+                if possible (r -> restart).
+
