@@ -4,4 +4,9 @@ A note for FreeBSD users
 Caudium 1.4 is not yet on FreeBSD ports, but
 there is a port for Pike 7.6 located at /usr/ports/lang/pike76/
 
+Note that also for obscur reason from IDA, that Pike 7.6 is not as stable
+than 7.2 or 7.0.
+
+So Caudium cannot be more stable on FreeBSD because of that facts. We are
+sorry, you'll have to blame some folks at IDA.
 
