@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Caudium 1.4 RELEASE
+   (Xavier Beaudouin)
 - Fixed emit->maxrows and emit->skiprows
    (Bill Welliver)
 - Added emit->sort_function and emit->sort_key to sort query results

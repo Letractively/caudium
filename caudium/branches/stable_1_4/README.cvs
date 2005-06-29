@@ -57,7 +57,7 @@ page at
 To build Caudium from CVS:
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
-For Caudium 1.4, you will need Pike 7.6.7 or later at the time of this 
+For Caudium 1.4, you will need Pike 7.6.24 or later at the time of this 
 writing.
 
 To get Pike you can either fetch it from CVS or from our snapshot page.
