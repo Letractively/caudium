@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# $Id$
+#
+@PIKE@ -I@CAUDIUM_SERVERDIR@ -I@CAUDIUM_SERVERDIR@etc/include -M@CAUDIUM_SERVERDIR@etc/modules -M@CAUDIUM_SERVERDIR@lib/@PIKE_VERSION@ @CAUDIUM_SERVERDIR@/bin/install.pike

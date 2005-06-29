@@ -1,0 +1,167 @@
+Package: caudium1.4
+Version: 1.4.4
+Revision: 2
+
+Description: <<
+	Multi-threaded web server
+<<
+
+License: GPL
+Homepage: http://caudium.net/
+Maintainer: Bertrand Lupart <bertrand@caudium.net>
+
+# TODO: DescDetails
+
+DescUsage: <<
+Now that caudium is installed, you should configure it with its web-based
+configuration interface (CIF). By default, this interface now listen on the
+port #22202 of your machine.
+
+Just point your favorite web browser to <http://127.0.0.1:22202/> to set your
+admin login and password. Then, you'll be able to configure the virtual servers
+for serving web pages.
+
+If you want caudium to listen on the port #80, you'll need to deactivate any
+other webserver such as Apache (System preferences -> Sharing -> Web sharing)
+
+Otherwise, you can get caudium listening on any other port and access it with
+<http://your.server.here:port/>
+<<
+
+DescPort: <<
+	-	Darwin strip don't know about --strip-unneeded.
+<<
+
+DescPackaging: <<
+	- Don't let fink set CPPFlags since that breaks the cmods building;
+	-	Makefile patched to put everything in place;
+	-	Default configuration for a generic virtual server with the virtual host
+		matcher module;
+	-	Default configuration for global server variables;
+	-	Default modules configuration set up to match MacOS X behaviour;
+	- Usage of caudiumctl mandatory for avoiding configurations mismatch;
+<<
+
+Source: ftp://ftp.caudium.net/caudium/source/caudium-%v.tar.gz
+
+Source-MD5: 624b3af61b00cd162f5916d637b0b95e
+
+# If you build Caudium yourself, you can change the Pike version required.
+# A Pike version is strictly harcoded here because of binary distribution:
+# Caudium needs the real Pike version it was compiled with.
+BuildDepends: pike7.6 (= 7.6.13-2), pcre
+Depends: pike7.6 (= 7.6.13-2), pcre-shlibs
+
+NoSetCPPFLAGS: True
+
+# %f is for extended fink file names, eg caudium1.4-1.4.4-1.patch
+# %n is for short fink file names, eg caudium1.4.patch
+#Patch: %f.patch
+Patch: %n.patch
+
+PatchScript: <<
+	# darwin strip don't know about --strip-unneeded
+	find . -name "*akefile.in" -exec perl -pi -e 's,--strip-unneeded,,g' {} \;
+<<
+
+CompileScript: <<
+	./configure --prefix=%p --with-pike=%p/bin/pike7.6 --mandir=%p/share/man --with-serverdir=%p/lib/%n
+	make
+<<
+
+InstallScript: <<
+	make install_alt DESTDIR=%d prefix=%p EXTRAVER=1.4
+
+	# Don't mess up with other Caudium versions
+	mv %i/bin/htpasswd %i/bin/htpasswd-%n
+	mv %i/bin/caudiumctl %i/bin/caudiumctl1.4
+	mv %i/bin/pixsl %i/bin/pixsl1.4
+
+	# Building missing hierarchy
+	mkdir -p %i/etc/default/
+	mkdir -p %i/var/state/%n
+
+	# Setting prefix for Fink special files
+	perl -pi -e 's,\@prefix\@,%p,g' packages/darwin/*
+
+	# Global configuration 
+	cp packages/darwin/Global_variables %i/etc/%n/Global_Variables
+
+	# TODO: localhost configuration
+
+	# Using the default system for startup option configuration
+	cp packages/darwin/startup_config %i/etc/default/%n
+
+	# Use MacOS X www:www
+	chown -R 70:70 %i/etc/%n %i/var/cache/%n %i/var/log/%n %i/var/run/%n %i/var/state/%n
+	#chmod g+w %i/var/cache/%n
+<<
+
+PostInstScript: <<
+	# Don't mess up with other Caudium versions
+  update-alternatives --install %p/bin/htpasswd-caudium htpasswd-caudium %p/bin/htpasswd-%n 20
+  update-alternatives --install %p/bin/caudiumctl caudiumctl %p/bin/caudiumctl1.4 20
+  update-alternatives --install %p/bin/pixsl pixsl %p/bin/pixsl1.4 20
+
+	# Run caudium as a deamon
+	daemonic enable %n
+
+	# Start Caudium once installed
+	%p/bin/caudiumctl1.4 start
+
+	# Ask to set up a password
+	echo "Please set up a password by connecting to http://127.0.0.1:22202/"
+<<
+
+PreRmScript: <<
+	# Stop Caudium
+	%p/bin/caudiumctl1.4 stop
+
+	if [ $1 != "upgrade" ]; then
+  	update-alternatives --remove htpasswd-caudium %p/bin/htpasswd-%n
+  	update-alternatives --remove caudiumctl %p/bin/caudiumctl1.4
+  	update-alternatives --remove pixsl %p/bin/pixsl1.4
+
+		# remove the daemonic entry
+		daemonic remove %n
+	fi
+<<
+
+DocFiles: <<
+	BUGS CHANGES README README.Lucene README.PHP4 README.Perl README.history README.ssl3 packages/darwin/*.fink
+<<
+
+ConfFiles: <<
+	%p/etc/default/%n
+<<
+
+# Documentation and Ultralog are splitted from the core
+SplitOff: <<
+	Description: Documentation for the Caudium webserver
+	Package: %N-doc
+	Enhances: %N
+	Files: share/doc/%N/examples
+<<
+
+SplitOff2: <<
+	Description: Log reporter for the Caudium webserver
+	Package: %N-ultralog
+	Depends: %N
+	Files: lib/%N/bin/ultrasum.pike bin/ultrasum lib/%N/etc/include/ultralog lib/%N/modules/ultralog lib/%N/etc/modules/UltraSupport.pmod lib/%N/lib/7.6.*/UltraLog.so
+	DescDetail: <<
+		Log reporter for webserver that builds nice graphics and handle long term statistics.
+		It can deal with other webservers logs, but require Caudium to run.
+	<<
+<<
+
+DaemonicFile: <<
+<service>
+	<description>Caudium 1.4 Web Server</description>
+	<message>Caudium 1.4 Web Server</message>
+
+	<daemon name="caudium">
+		<executable background="yes">%p/bin/caudiumctl1.4</executable>
+		<parameters>start</parameters>
+	</daemon>
+</service>
+<<
