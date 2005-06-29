@@ -1,0 +1,27 @@
+Notes for the Caudium autodoc
+-----------------------------
+
+We use the Pike 7.3+ autodoc system to produce documentation of the Caudium
+Pike/C API. The bin/ directory contains all the original Pike files that
+had to be modified in order to work with Caudium. The system processes only
+the Pike API calls - it does NOT understand the Caudium
+defvars/tags/containers for now. This is in the TODO :)
+
+To generate the documentation you will need the following software:
+
+1. Pike 7.3 sources
+2. Pike 7.3 binaries
+3. GNU Autoconf 2.5x+
+4. GNU Make
+
+Run the provided autogen.sh then invoke the generated configure script
+passing it the path to the Pike 7.3 source tree:
+
+./configure --with-pikesrc=/usr/src/pike-7.3
+
+optionally you can pass the configure script a path to the pike binary it
+should use using the --with-pike parameter.
+
+grendel
+
+$Id$
