@@ -26,7 +26,7 @@
 	<var name='EnableRangeHandling'><int>1</int></var>
 	<var name='cache_storage_disk_path'><str><![CDATA[/var/cache/caudium/cache]]></str></var>
 	<var name='storage_disk_path'><str><![CDATA[../caudium_cache/storage]]></str></var>
-	<var name='ConfigurationIPpattern'><str><![CDATA[*]]></str></var>
+	<var name='ConfigurationIPpattern'><str><![CDATA[127.0.0.1]]></str></var>
 	<var name='InternalImagePath'><str><![CDATA[caudium-images/]]></str></var>
 	<var name='docurl2'><str><![CDATA[http://www.roxen.com/documentation/context.pike?page=]]></str></var>
 	<var name='ModuleDirs'><a><str><![CDATA[/usr/share/pike_packages/apps/modules/]]></str><str><![CDATA[/usr/lib/caudium/local_modules/]]></str><str><![CDATA[/usr/lib/caudium/modules/]]></str><str><![CDATA[/usr/lib/caudium/more_modules/]]></str><str><![CDATA[/usr/share/roxen/modules/]]></str><str><![CDATA[/usr/local/share/caudium/modules/]]></str></a></var>
