@@ -1,3 +1,29 @@
+caudium (2:1.4.7-1) unstable; urgency=low
+
+  * The latest released version of the server
+  * Closes: #306070: bug at line 83 (missing eval command) and cosmetic
+    changes in postinstall
+  * Closes: #283847: /etc/init.d/caudium fails to stop caudium. Caudium
+    1.4 uses a different start/stop mechanism which does not exhibit the
+    problem (even though the init.d script is mostly the same)
+  * Closes: #315805: INTL:vi. Added the Vietnamese translation.
+  * Closes: #294975: config access is open on all interfaces by default
+    setup. Changed to allow connections only from 127.0.0.1. The only
+    issue with that is that you will need to use ssh forwarding to access
+    the configuration port from a remote location for initial config
+    (or use /e/links locally)
+  * Closes: #315288: French debconf templates translation update
+  * Closes: #304880: [l10n] Czech translation for caudium
+  * Closes: #297830: when purging caudium tries to remove /var/state
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 19 Jul 2005 11:49:10 +0200
+
+caudium (2:1.4.5.2-4) experimental; urgency=low
+
+  * Updated for the new pike7.6
+
+ -- Marek Habersack <grendel@debian.org>  Sun, 19 Jun 2005 03:32:09 +0200
+
 caudium (2:1.4.5.2-3) experimental; urgency=low
 
   * Closes: #306070: bug at line 83 (missing eval command) and cosmetic
