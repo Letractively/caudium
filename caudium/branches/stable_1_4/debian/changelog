@@ -1,4 +1,4 @@
-caudium (2:1.4.7-1) unstable; urgency=low
+caudium (2:1.4.7-1) unstable; urgency=high
 
   * The latest released version of the server
   * Closes: #306070: bug at line 83 (missing eval command) and cosmetic
