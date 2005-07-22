@@ -48,6 +48,7 @@
 #define LOG_SECURITY    (13<<3) /* security subsystems (firewalling, etc.) */
 #define LOG_CONSOLE     (14<<3) /* /dev/console output */
 
+#define LOG_LOCAL       (15<<6)	/* For compat with pike */
         /* other codes through 15 reserved for system use */
 #define LOG_LOCAL0      (16<<3) /* reserved for local use */
 #define LOG_LOCAL1      (17<<3) /* reserved for local use */
