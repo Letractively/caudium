@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed bug #17 (ultralog not working on 1.5)
+   (Xavier Beaudouin)
 - Fixed syslog to work as it is advertized on CIF
    (Xavier Beaudouin)
 - Fixed emit->maxrows and emit->skiprows

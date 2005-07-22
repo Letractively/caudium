@@ -4,6 +4,10 @@
 
 // $Id$
 
+#ifndef report_debug
+# define report_debug werror
+#endif
+
 //!
 constant PERIOD_MONTH = 0;
 
