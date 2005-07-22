@@ -1,5 +1,8 @@
 Changes in Caudium 1.2.xx since 1.2.34
 --------------------------------------
+- Make syslog working as it should be (eg no logging on screen when it is
+  set to on on CIF). Added syslog.h for usage in others modules.
+   (Xavier Beaudouin)
 - Fixed bug #11
    (Xavier Beaudouin)
 - Added VHS 404 module for handle a 404 file on the request located in the VFS.
