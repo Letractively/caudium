@@ -21,6 +21,10 @@
  * $Id$
  */
 
+#ifndef report_debug
+# define report_debug werror
+#endif
+
 //! $Id$
 
 constant multiload = 1;

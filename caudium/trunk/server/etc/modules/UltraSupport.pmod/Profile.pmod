@@ -21,6 +21,14 @@
 //! Log Profile Handling.
 //! $Id$
 
+#ifndef report_debug
+# define report_debug werror
+#endif
+#ifndef report_notice
+# define report_notice werror
+#endif
+
+
 import ".";
 
 //!
