@@ -9,7 +9,7 @@ void remote(int pri, string message, string host, int|void port)
   if (!intp(port) || port ==0) port = 514; // Default port value
 
   udp->bind(0);
-  udp->send(host, port, sprinf("<%d> %s", pri, message));
+  udp->send(host, port, sprintf("<%d> %s", pri, message));
   udp=0;
 }
 
