@@ -2,9 +2,9 @@ caudium (2:1.4.7-3) unstable; urgency=high
 
   * Caudium takes over from Apache (Closes: #295921). Really closing the
     bug now.
-  * urgency high to force recompile and test whether the RC bug 309191 can 
-    be closed now that Pike 7.6 was compiled for the most important
-    architectures.
+  * urgency high to force recompile and test (once again...) whether the 
+    RC bug 309191 can be closed now that Pike 7.6 was compiled for the 
+    most important architectures.
 
  -- Marek Habersack <grendel@debian.org>  Sat, 13 Aug 2005 00:52:07 +0200
 
