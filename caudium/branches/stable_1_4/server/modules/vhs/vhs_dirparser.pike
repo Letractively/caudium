@@ -531,6 +531,11 @@ mapping parse_directory(object id)
 //!  type: TYPE_STRING_LIST
 //!  name: Index files
 //
+//! defvar: indexredirectfiles
+//! If one of these files is present in a directory, it will redirected to it instead of the directory listing. This is usefull when you get a L7 load balancer and you would like to handle this kind of file on a third party server.
+//!  type: TYPE_STRING_LIST
+//!  name: Index files with redirect
+//
 //! defvar: dotfiles
 //! If set, show dotfiles (files beginning with '.') in directory listings
 //!  type: TYPE_FLAG|VAR_MORE
