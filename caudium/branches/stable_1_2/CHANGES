@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.xx since 1.2.34
 --------------------------------------
+- Added vhs_syslogger module to log using Syslog to local or distant host
+   (Xavier Beaudouin)
 - Make syslog working as it should be (eg no logging on screen when it is
   set to on on CIF). Added syslog.h for usage in others modules.
    (Xavier Beaudouin)
