@@ -613,12 +613,26 @@ mapping query_tag_callers()
 //!  name: SQL Table
 //
 //! defvar: serverinpath
-//! Add the server Id in the SQL table. <b>Note</b>: you will lose Roxen 2.x compatibility if this enabled.
+//! <p>Add the server Id in the SQL table.</p><p>This will allow to enable this module on more than one CIF virtual server without messing up the count records of each others.</p><p><strong>Note</strong>: you will lose Roxen 2.x compatibility if this enabled.</p><p><strong>Note</strong>: enabling this is useless for 2<sup>nd</sup> level virtual hosting as the site_id will be automatically put in the database entry if needed.</p>
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Add server Id in SQL table
+//!  name: Server ID: Add server Id in SQL table
 //
 //! defvar: serverid
-//! This will be added in the SQL database as unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> counter data will be reset to 0.
+//! <p>This string will be added in the SQL database as unique Id.</p><p>This allow you </p><p><strong>Note</strong>: if you change this Id, <strong>ALL</strong> counter data will be reset to 0.</p>
 //!  type: TYPE_STRING|VAR_MORE
-//!  name: Id to add in SQL table
+//!  name: Server ID: Identifier to add in SQL table
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+

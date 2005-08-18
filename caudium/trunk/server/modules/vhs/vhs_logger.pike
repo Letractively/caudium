@@ -418,7 +418,7 @@ string status()
 //!%d    Date  (i.e. '10')
 //!%h    Hour  (i.e. '02')
 //!%H    The hostname of the server machine.
-//!<pre>
+//!</pre>
 //!  type: TYPE_STRING
 //!  name: AccessLog filename
 //
