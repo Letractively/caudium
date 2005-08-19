@@ -88,6 +88,7 @@ class ConfigCache
   string owneruid;
   string redirect;
   string homedir;
+  string wwwDomain;
 
   int expires;
   int createtime;
@@ -97,7 +98,7 @@ class ConfigCache
 
   void create(string owner, string host, string path,
               string cgi, string log, string home, int uid, int gid,
-	      int ttl, void|string redir)
+	      int ttl, string whost, void|string redir )
   {
     createtime = time();
     expires = createtime + ttl;
@@ -110,6 +111,7 @@ class ConfigCache
     uidnumber = uid;
     gidnumber = gid;
     homedir = home;
+    wwwDomain = whost;
 
     DW(sprintf("New ConfigCache entry: uid=%s, host=%s, path=%s, cgi=%s, logs=%s, redir=%s",
                owneruid, hostname, virtpath, cgipath||"-", logpath||"-", redirect||"-"));
