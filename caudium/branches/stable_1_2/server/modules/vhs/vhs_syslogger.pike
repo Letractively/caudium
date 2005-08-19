@@ -131,6 +131,7 @@ private void parse_log_formats()
 }
 
 private int is_log_local() { return QUERY(LogLocal); };
+private int is_insert() { return !QUERY(Insert); };
 
 string create()
 {
@@ -196,7 +197,7 @@ string create()
 
   defvar("filename","1", "Use File from main VHS System as VHS Name", TYPE_FLAG,
          "If set, the VHS Hostname added at the begining of the line will be extracted from"
-         " logpath constructed by the main vhs system module using a basename()", 1, lamdba() { return !QUERY(Insert); }; );
+         " logpath constructed by the main vhs system module using a basename()", 1, is_insert );
 }
 
 int loggingfield;	// Set the stuff for logginf
@@ -248,7 +249,7 @@ void hostsyslog(string data)
 static void do_log(mapping file, object request_id, function log_function)
 {
   string a;
-  string form;
+  string form,out;
   function f;
 
   if (!(form=log_format[(string)file->error]))
@@ -287,12 +288,16 @@ static void do_log(mapping file, object request_id, function log_function)
 	       }) );
   
   DW(sprintf("To log (2)-> : %O",form));
-    if(QUERY(Insert))
+  out = "";
+    if(QUERY(Insert)) {
       if(QUERY(filename))
-        form = request_id->misc->vhs->logpath?basename((string)request_id->misc->vhs->logpath):"unknown" + " " + form;
+        out = request_id->misc->vhs->logpath?basename((string)request_id->misc->vhs->logpath):"unknown";
       else
-        form = request_id->misc->host?(string)request_id->misc->host:"unknown" + " " + form;
-    log_function(form);
+        out = request_id->misc->host?(string)request_id->misc->host:"unknown";
+     out += " ";
+    }
+    out += form;
+    log_function(out);
 }
 
 inline string format_log(object id, mapping file)
@@ -351,15 +356,15 @@ mixed log(object id, mapping file)
 //!  type: TYPE_STRING_LIST
 //!  name: Log type
 //
-//! defvar: LogNA
-//! When syslog is used, this will be the identification of the Caudium daemon. The entered value will be appended to all logs.
-//!  type: TYPE_STRING
-//!  name: Log as
-//
 //! defvar: Insert
 //! Insert VHS hostname at the begining of the line (before 200, or whatever
 //!  type: TYPE_FLAG
 //!  name: Insert VHS name
+//
+//! defvar: filename
+//! If set, the VHS Hostname added at the begining of the line will be extracted from logpath constructed by the main vhs system module using a basename()
+//!  type: TYPE_FLAG
+//!  name: Use File from main VHS System as VHS Name
 //
 
 /*
