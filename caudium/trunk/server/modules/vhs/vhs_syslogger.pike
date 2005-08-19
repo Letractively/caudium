@@ -131,6 +131,7 @@ private void parse_log_formats()
 }
 
 private int is_log_local() { return QUERY(LogLocal); };
+private int is_insert() { return !QUERY(Insert); };
 
 string create()
 {
@@ -191,12 +192,12 @@ string create()
 	  ({ "Daemon", "Local 0", "Local 1", "Local 2", "Local 3",
 	     "Local 4", "Local 5", "Local 6", "Local 7", "User" }) );
   
-  defvar("LogNA", "Caudium", "Log as", TYPE_STRING,
-	  "When syslog is used, this will be the identification of the "
-	  "Caudium daemon. The entered value will be appended to all logs.",
-	  1, is_log_local);
   defvar("Insert","1","Insert VHS name", TYPE_FLAG,
          "Insert VHS hostname at the begining of the line (before 200, or whatever");
+
+  defvar("filename","1", "Use File from main VHS System as VHS Name", TYPE_FLAG,
+         "If set, the VHS Hostname added at the begining of the line will be extracted from"
+         " logpath constructed by the main vhs system module using a basename()", 1, is_insert );
 }
 
 int loggingfield;	// Set the stuff for logginf
@@ -235,9 +236,7 @@ void localsyslog (string data)
   // but this is need because we don't want blocking IO.
 
   DW(sprintf("Local : %s",data));
-//  openlog(QUERY(LogNA), loggingfield);
   syslog(loggingfield, data);
-//  closelog();
 }
 
 void hostsyslog(string data)
@@ -250,7 +249,7 @@ void hostsyslog(string data)
 static void do_log(mapping file, object request_id, function log_function)
 {
   string a;
-  string form;
+  string form,out;
   function f;
 
   if (!(form=log_format[(string)file->error]))
@@ -289,9 +288,16 @@ static void do_log(mapping file, object request_id, function log_function)
 	       }) );
   
   DW(sprintf("To log (2)-> : %O",form));
-    if(QUERY(Insert))
-      form = (string)request_id->misc->host + " " + form;
-    log_function(form);
+  out = "";
+    if(QUERY(Insert)) {
+      if(QUERY(filename))
+        out = request_id->misc->vhs->logpath?basename((string)request_id->misc->vhs->logpath):"unknown";
+      else
+        out = request_id->misc->host?(string)request_id->misc->host:"unknown";
+     out += " ";
+    }
+    out += form;
+    log_function(out);
 }
 
 inline string format_log(object id, mapping file)
@@ -350,15 +356,15 @@ mixed log(object id, mapping file)
 //!  type: TYPE_STRING_LIST
 //!  name: Log type
 //
-//! defvar: LogNA
-//! When syslog is used, this will be the identification of the Caudium daemon. The entered value will be appended to all logs.
-//!  type: TYPE_STRING
-//!  name: Log as
-//
 //! defvar: Insert
 //! Insert VHS hostname at the begining of the line (before 200, or whatever
 //!  type: TYPE_FLAG
 //!  name: Insert VHS name
+//
+//! defvar: filename
+//! If set, the VHS Hostname added at the begining of the line will be extracted from logpath constructed by the main vhs system module using a basename()
+//!  type: TYPE_FLAG
+//!  name: Use File from main VHS System as VHS Name
 //
 
 /*
