@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixes for <user> tag when working with new authentication system.
+   (Bill Welliver)
 - Group functionality can be disabled in SQL Authentication Provider
    (Bill Welliver)
 - Added vhs_syslogger module to log using Syslog to local or distant host
