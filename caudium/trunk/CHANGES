@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- FastCGI module automatically kills any FastCGIs it created when 
+   the module stops. This should eliminate "stranded" FCGIs.
+   (Bill Welliver)
 - Fixes for <user> tag when working with new authentication system.
    (Bill Welliver)
 - Group functionality can be disabled in SQL Authentication Provider
