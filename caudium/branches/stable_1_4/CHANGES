@@ -1,5 +1,14 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- FastCGI module automatically kills any FastCGIs it created when 
+   the module stops. This should eliminate "stranded" FCGIs.
+   (Bill Welliver)
+- Fixes for <user> tag when working with new authentication system.
+   (Bill Welliver)
+- Group functionality can be disabled in SQL Authentication Provider
+   (Bill Welliver)
+- Fixed a bug that prevents streamed answers from working in ssl mode.
+   (Bill Welliver)
 - Added vhs_syslogger module to log using Syslog to local or distant host
    (Xavier Beaudouin)
 - Make syslog function work as it is advertised on CIF.

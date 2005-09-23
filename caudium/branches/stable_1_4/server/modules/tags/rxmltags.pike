@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
@@ -1340,7 +1340,7 @@ string tag_signature(string tag, mapping m, object id, object file,
 
 string tag_user(string tag, mapping m, object id, object file,mapping defines)
 {
-  array(string) u;
+  mapping u;
   string b, dom;
 
   if(!id->conf->auth_module)
@@ -1348,7 +1348,7 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
 
   if (m->queryname) 
   {
-    int|mapping u=id->get_user();
+    u=id->get_user();
     return (u?u->username:"");
   }
 
@@ -1362,27 +1362,27 @@ string tag_user(string tag, mapping m, object id, object file,mapping defines)
   if(sizeof(dom) && (dom[-1]=='.'))
     dom = dom[0..strlen(dom)-2];
   if(!b) return "";
-  u=id->conf->user_info(b, id);
+  u=id->conf->auth_module->user_info(b, id);
   if(!u) return "";
   
   if(m->realname && !m->email)
   {
     if(m->link && !m->nolink)
-      return "<a href=\"/~"+b+"/\">"+u[4]+"</a>";
-    return u[4];
+      return "<a href=\"/~"+b+"/\">"+u->name+"</a>";
+    return u->name;
   }
   if(m->email && !m->realname)
   {
     if(m->link && !m->nolink)
-      return "<a href=\"mailto:" + b + "@" + dom + "\">"
-	+ b + "@" + dom + "</a>";
-    return b + "@" + dom;
+      return "<a href=\"mailto:" + (u->email?u->email:(b + "@" + dom)) + "\">"
+	+ (u->email?u->email:(b + "@" + dom)) + "</a>";
+    return (u->email?u->email:(b + "@" + dom));
   }
   if(m->nolink && !m->link)
-    return u[4] + " &lt;" + b + "@" + dom + "&gt;";
-  return ("<a href=\"/~"+b+"/\">"+u[4]+"</a>"+
-	  " <a href=\"mailto:" + b + "@" + dom + "\"> &lt;"+
-	  b + "@" + dom + "&gt;</a>");
+    return u->name + " &lt;" + (u->email?u->email:(b + "@" + dom)) + "&gt;";
+  return ("<a href=\"/~"+b+"/\">"+u->name+"</a>"+
+	  " <a href=\"mailto:" + (u->email?u->email:(b + "@" + dom)) + "\"> &lt;"+
+	  (u->email?u->email:(b + "@" + dom)) + "&gt;</a>");
 }
 
 int match_passwd(string try, string org)

@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -193,9 +193,9 @@ void start(int i)
     sqldb=QUERY(sqlserver);
   if(QUERY(usertable))
     user_table=QUERY(usertable);
-  if(QUERY(grouptable))
+  if(QUERY(enablegroups) && QUERY(grouptable))
     group_table=QUERY(grouptable);
-  if(QUERY(usergrouptable))
+  if(QUERY(enablegroups) && QUERY(usergrouptable))
     usergroup_table=QUERY(usergrouptable);
 
   conf=my_configuration();
@@ -235,7 +235,7 @@ void setup_queries()
 #endif
   }      
 
-  if(group_table)
+  if(sizeof(group_table))
   {
     array grouptablefields=({});
 
@@ -260,7 +260,7 @@ void setup_queries()
 #endif
   }      
 
-  if(usergroup_table)
+  if(sizeof(usergroup_table))
   {
     array usergrouptablefields=({});
 
@@ -288,6 +288,10 @@ void stop()
 void create()
 {
 
+defvar("enablegroups", 1,
+         "Enable Group Functionality?",
+         TYPE_FLAG,
+         "Should group support be enabled for this authentication provider?");
 defvar("sqlserver", "",
          "SQL Data Source URL",
          TYPE_STRING,
@@ -385,6 +389,8 @@ string status()
 private array get_groups_for_user(string username, object s)
 {
   if(!username || !s) return ({});
+  if(!sizeof(query_getgroupsforuser))
+    return ({});
   array result=s->query(query_getgroupsforuser, username);
   if(!result || sizeof(result)==0) return ({});
   array groups=({});  
@@ -396,6 +402,8 @@ private array get_groups_for_user(string username, object s)
 private array get_users_for_group(string groupname, object s)
 {
   if(!groupname || !s) return ({});
+  if(!sizeof(query_getusersforgroup))
+    return ({});
   array result=s->query(query_getusersforgroup, groupname);
   if(!result || sizeof(result)==0) return ({});
   array users=({});  
