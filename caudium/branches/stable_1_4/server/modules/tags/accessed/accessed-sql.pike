@@ -41,7 +41,6 @@ constant thread_safe    = 1;
 constant module_type   = MODULE_PARSER | MODULE_LOGGER | MODULE_EXPERIMENTAL;
 constant module_name   = "Accessed Counter Tag: SQL";
 // Kiwi: we do not support yet entities so =)
-//constant module_doc    = "This module provides access counters, through the "
 constant module_doc    = "This module provides access counters, through the "
 "<tt>&lt;accessed&gt;</tt> tag.";
 constant module_unique=1;
@@ -49,12 +48,21 @@ constant language = roxen->language;
 
 object counter;
 
-string status() {
-  return counter->size()+" entries in the accessed database.<br />";
+string status()
+{
+	string status = "";
+	if(counter->connected())
+	{
+		status += "<p>This module is connected to the database.</p>";
+		status += "<p>"+counter->size()+" entries in the accessed database.</p>";
+	}
+	else
+		status += "<p>The connection to the database <strong>failed</strong>.</p>";
+  return status;
 }
 
-void create(object c) {
-
+void create(object c)
+{
   //------ Global defvars
 
   defvar("extcount", ({  }), "Extensions to access count",
@@ -75,17 +83,36 @@ void create(object c) {
   defvar("table", "accessed", "SQL Table", TYPE_STRING,
 	 "Which table should be used for the database backend." );
 
-  defvar("serverinpath",1,"Add server Id in SQL table", TYPE_FLAG|VAR_MORE,
-         "Add the server Id in the SQL table. <b>Note</b>: you will lose "
-	 "Roxen 2.x compatibility if this enabled.");
+  defvar(
+		"serverinpath",
+		1,
+		"Server ID: Add server Id in SQL table",
+		TYPE_FLAG|VAR_MORE,
+		"<p>Add the server Id in the SQL table.</p>"
+		"<p>This will allow to enable this module on more than one CIF virtual "
+		"server without messing up the count records of each others.</p>"
+		"<p><strong>Note</strong>: you will lose Roxen 2.x compatibility if this "
+		"enabled.</p>"
+		"<p><strong>Note</strong>: enabling this is useless for 2<sup>nd</sup> "
+		"level virtual hosting as the site_id will be automatically put in the "
+		"database entry if needed.</p>");
 
-  defvar("serverid","www.domain.com","Id to add in SQL table",
-         TYPE_STRING|VAR_MORE,"This will be added in the SQL database as "
-	 "unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> "
-	 "counter data will be reset to 0.");
+  defvar(
+		"serverid",
+		"www.domain.com",
+		"Server ID: Identifier to add in SQL table",
+		TYPE_STRING|VAR_MORE,
+		"<p>This string will be added in the SQL database as unique Id.</p>"
+		"<p>This allow you </p>"
+		"<p><strong>Note</strong>: if you change this Id, <strong>ALL</strong> "
+		"counter data will be reset to 0.</p>",
+		0,
+		lambda(){ return !QUERY(serverinpath);} );
 }
 
-void start(int cnt, object conf) {
+
+void start(int cnt, object conf)
+{
   // Depends of rxmltags 
   module_dependencies(conf ,({ "rxmltags" }));
   //  query_tag_set()->prepare_context=set_entities;
@@ -110,71 +137,189 @@ void start(int cnt, object conf) {
 //}
 
 
-class SQLCounter {
-  // SQL backend counter.
-
+//! SQL backend counter.
+class SQLCounter
+{
+	// database connection object
   object db;
 
-  string table,servername;
-  int srvname = 0;
+	// tables where the counter entries are stored
+  string table;
 
-  void create() {
-    db=Sql.Sql(module::query("sqldb"));
-    table = module::query("table");
-    if (module::query("serverinpath")) {
-      srvname = 1;
-      servername = module::query("serverid");
-    }
-    else {
-      srvname = 0;
-      servername= "";
-    }
-    catch {
-      db->query("CREATE TABLE "+table+" (path VARCHAR(255) PRIMARY KEY,"
-		" hits INT UNSIGNED DEFAULT 0, made INT UNSIGNED)");
+	// the name of the server
+	string servername;
+
+	//! Constructor for the SQL counter
+  void create()
+	{
+		catch
+		{
+			db=Sql.Sql(QUERY("sqldb"));
+		};
+
+		table = module::query("table");
+
+		if (module::query("serverinpath"))
+			servername = module::query("serverid");
+		else
+			servername= "";
+
+		catch
+		{
+			db->query("CREATE TABLE "+table+" (path VARCHAR(255) PRIMARY KEY,"
+			" hits INT UNSIGNED DEFAULT 0, made INT UNSIGNED)");
       // Kiwi: need to be fixed (used if file doesn't exist)
-      db->query("INSERT INTO "+table+" (path,made) VALUES ('///',"+time(1)+")" );
+      db->query("INSERT INTO "+table+" (path,made) VALUES ('///',"+time(1)+")");
     };
   }
 
-  int creation_date(void|string file) {
-    if(!file) file="///";
-    array x=db->query("SELECT made FROM "+table+" WHERE path='"+servername+fix_file(file)+"'");
+
+	//! Is the counter object connected to a database or not?
+	//!
+	//!	Bugs:
+	//! The check to know if the database is connected is done by testing if the
+	//! connection object has been instanciated. This can be weak.
+	//!
+	//! @returns
+	//! 1 if connected
+	//! 0 otherwise
+	int connected()
+	{
+		if(objectp(db))
+			return 1;
+		return 0;
+	}
+
+
+	//! Returns the time when the entry for the given file has been created in
+	//! the table.
+	//!
+	//! @param file
+	//! The file for which we want the creation date for.
+	//!
+	//! @param id
+	//! The Caudium request ID object
+	//!
+	//! @returns
+	//! The creation date of the given file as an int expressed as the number of
+	//! seconds since the epoch (01/01/1970)
+  int creation_date(void|string file, object id)
+	{
+    if(!file)
+			file="///";
+
+    array x = db->query("SELECT made FROM "+table+" WHERE path='"+db_path(file, id)+"'");
+
     return x && sizeof(x) && (int)(x[0]->made);
   }
 
-  private void create_entry(string file) {
-    if(!cache_lookup("access_entry", file)) {
-      catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+servername+file+"',"+time(1)+")" ));
+
+	//! Create an entry in the database for the given file if needed
+	//!
+	//! @param file
+	//! The file we want the entry in the database for 
+	//!
+	//! @param id
+	//! The Caudium request ID object
+  private void create_entry(string file, object id)
+	{
+    if(!cache_lookup("access_entry", file))
+		{
+      catch(db->query("INSERT INTO "+table+" (path,made) VALUES ('"+db_path(file, id)+"',"+time(1)+")" ));
       cache_set("access_entry", file, 1);
     }
   }
 
-  private string fix_file(string file) {
+
+	//!	Generate a path to insert/lookup the database with
+	private string db_path(string file, object id)
+	{
+		// servername 
+		string keyfile = servername;
+		
+		// Be 2nd level virtual hosting safe
+		if(sizeof(id->site_id))
+			keyfile += id->site_id+":";
+
+		// "Fix" file path
+		keyfile += fix_file(file);
+
+		return keyfile;
+	}
+
+
+	//! Fix file paths larger than 255 chars: those are not stored in the
+	//! database. Their MD5 checksums are used instead.
+	//!
+	//! @param file
+	//! The file path we want to fix.
+	//!
+	//! @returns
+	//! The file path SQL-quoted if its size is less than 255 chars.
+	//! The SQL-quoted base64-encoded MD5 of the file path otherwise.
+  private string fix_file(string file)
+	{
     if(sizeof(file)>255)
       file="//"+MIME.encode_base64(Caudium.Crypto.hash_md5(file),1);
     return db->quote(file);
   }
 
-  void add(string file, int count) {
-    file=fix_file(file);
-    create_entry(file);
-    db->query("UPDATE "+table+" SET hits=hits+"+(count||1)+" WHERE path='"+servername+file+"'" );
+
+	//! Increment the counter for a given site of the given amount
+	//!
+	//! @param file
+	//! The file which we want to increment the counter
+	//!
+	//! @param count
+	//! The amount the counter should be incremented
+	//!
+	//! @param id
+	//! The Caudium request ID object
+  void add(string file, int count, object id)
+	{
+    create_entry(file, id);
+
+    db->query("UPDATE "+table+" SET hits=hits+"+count+" WHERE path='"+db_path(file, id)+"'" );
   }
 
-  int query(string file) {
-    file=fix_file(file);
-    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+servername+file+"'");
+
+	//! Query the value of the counter for a given file
+	//!
+	//! @param file
+	//! The file path for which we want the counter value for
+	//!
+	//! @param id
+	//! The Caudium request ID object
+	//!
+	//! @returns
+	//! The counter's value, as an int
+  int query(string file, object id)
+	{
+    array x=db->query("SELECT hits FROM "+table+" WHERE path='"+db_path(file, id)+"'");
     return x && sizeof(x) && (int)(x[0]->hits);
   }
 
-  void reset(string file) {
-    file=fix_file(file);
-    create_entry(file);
-    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+servername+file+"'");
+
+	//! Reset the counter value for the given file
+	//!
+	//! @param file
+	//! The file path we want to reset the counter value
+	//!
+	//! @param id
+	//! The Caudium request ID object
+  void reset(string file, object id)
+	{
+    create_entry(file, id);
+    db->query("UPDATE "+table+" SET hits=0 WHERE path='"+db_path(file, id)+"'");
   }
 
-  int size() {
+
+	//! Size of all the counters entry
+	//!
+	//! @returns
+	//! The total number of counter entries as an int
+  int size()
+	{
     mixed err;
     array x;
     err = catch {
@@ -301,7 +446,7 @@ string tag_accessed(string tag, mapping m, object id)
     if( !query("restrict") || !search( (dirname(Caudium.fix_relative(m->file, id))+"/")-"//",
 		 (dirname(Caudium.fix_relative(id->not_query, id))+"/")-"//" ) )
     {
-      counter->reset(m->file);
+      counter->reset(m->file, id);
       return "Number of counts for "+m->file+" is now 0.<br />";
     }
     else
@@ -312,18 +457,27 @@ string tag_accessed(string tag, mapping m, object id)
 
   int counts = id->misc->accessed;
 
-  if(m->file) {
+	// How much should the counter be incremented
+	int toadd = 1;
+	if(has_index(m, "add"))
+		toadd = (int)m->add;
+
+  if(m->file)
+	{
     m->file = Caudium.fix_relative(m->file, id);
-    if(m->add) counter->add(m->file, (int)m->add);
-    counts = counter->query(m->file);
+    if(m->add)
+			counter->add(m->file, toadd, id);
+    counts = counter->query(m->file, id);
   }
-  else {
+  else
+	{
     if(!Caudium._match(id->remoteaddr, id->conf->query("NoLog")) &&
-       !id->misc->accessed) {
-      counter->add(id->not_query, (int)m->add);
+       !id->misc->accessed)
+		{
+      counter->add(id->not_query, toadd, id);
     }
     m->file=id->not_query;
-    counts = counter->query(m->file);
+    counts = counter->query(m->file, id);
     id->misc->accessed = counts;
   }
  
@@ -459,12 +613,26 @@ mapping query_tag_callers()
 //!  name: SQL Table
 //
 //! defvar: serverinpath
-//! Add the server Id in the SQL table. <b>Note</b>: you will lose Roxen 2.x compatibility if this enabled.
+//! <p>Add the server Id in the SQL table.</p><p>This will allow to enable this module on more than one CIF virtual server without messing up the count records of each others.</p><p><strong>Note</strong>: you will lose Roxen 2.x compatibility if this enabled.</p><p><strong>Note</strong>: enabling this is useless for 2<sup>nd</sup> level virtual hosting as the site_id will be automatically put in the database entry if needed.</p>
 //!  type: TYPE_FLAG|VAR_MORE
-//!  name: Add server Id in SQL table
+//!  name: Server ID: Add server Id in SQL table
 //
 //! defvar: serverid
-//! This will be added in the SQL database as unique Id. <b>Note</b>: if you change this Id, <b>ALL</b> counter data will be reset to 0.
+//! <p>This string will be added in the SQL database as unique Id.</p><p>This allow you </p><p><strong>Note</strong>: if you change this Id, <strong>ALL</strong> counter data will be reset to 0.</p>
 //!  type: TYPE_STRING|VAR_MORE
-//!  name: Id to add in SQL table
+//!  name: Server ID: Identifier to add in SQL table
 //
+
+/*
+ * If you visit a file that doesn't contain these lines at its end, please
+ * cut and paste everything from here to that file.
+ */
+
+/*
+ * Local Variables:
+ * c-basic-offset: 2
+ * End:
+ *
+ * vim: softtabstop=2 tabstop=2 expandtab autoindent formatoptions=croqlt smartindent cindent shiftwidth=2
+ */
+
