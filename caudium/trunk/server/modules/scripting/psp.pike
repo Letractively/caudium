@@ -57,6 +57,10 @@ void create()
   defvar("exts", ({ "psp" }), "Extensions", TYPE_STRING_LIST,
 	 "The extensions to parse");
 
+  defvar("reload_on_update", 0, "Reload on update?", TYPE_FLAG,
+         "should the psp file be recompiled when it is updated?\n"
+         "Note that this will slow operations down, and is recommended "
+         "only for development purposes.");
   defvar("fork_exec", 0, "Fork execution: Enabled", TYPE_FLAG,
 	 "If set, pike will fork to execute the script. "
 	 "This is a more secure way if you want to let "
@@ -126,9 +130,10 @@ mapping handle_file_extension(object f, string e, object id)
 
   if(scripts[id->not_query])
   {
-    if(id->pragma["no-cache"])
+    if(id->pragma["no-cache"] || (QUERY(reload_on_update) && 
+        f->stat()->mtime > scripts[id->not_query][0]))
     {
-      o = function_object(scripts[id->not_query]);
+      o = function_object(scripts[id->not_query][1]);
       // Reload the script from disk, if the script allows it.
       if(!o->no_reload || (functionp(o->no_reload) && o->no_reload(id)))
       {
@@ -141,7 +146,8 @@ mapping handle_file_extension(object f, string e, object id)
 
   function fun;
 
-  if (!functionp(fun = scripts[id->not_query])) {
+  
+  if(!(scripts[id->not_query] && (functionp( fun=(scripts[id->not_query][1]))))) {
     file=f->read(0x7ffffff);   // fix this?
 
     file = parse_psp(file, id->realfile);
@@ -210,7 +216,9 @@ werror("recompiling %s\n", id->realfile);
     }
 
     o=p();
-    if (!functionp(fun = scripts[id->not_query]=o->parse)) {
+    fun = o->parse;
+    scripts[id->not_query] = ({time(), fun});
+    if (!functionp(fun)) {
       /* Should not happen */
       destruct(f);
       return Caudium.HTTP.string_answer("<h1>Internal error in PSP page</h1>\n");
