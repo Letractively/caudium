@@ -1,3 +1,7 @@
+constant TYPE_SCRIPTLET = 1;
+constant TYPE_DECLARATION = 2;
+constant TYPE_INLINE = 3;
+
 program compile_string(string code, string realfile)
 {
   string psp = parse_psp(code);
@@ -62,16 +66,23 @@ string parse_psp(string file)
 
   // now, let's render some pike!
   string pikescript = "";
+  string header = "";
 
   pikescript+="string|mapping parse(RequestID request){\n";
   pikescript+="String.Buffer out = String.Buffer();\n";
+  pikescript+="object conf = request->conf;\n";
 
   foreach(contents, object e)
-    pikescript += e->render();
+  {
+    if(e->get_type() == TYPE_DECLARATION)
+      header += e->render();
+    else
+      pikescript += e->render();
+  }
 
   pikescript += "return out->get();\n }\n";  
 
-  return pikescript;
+  return header + "\n\n" + pikescript;
 }
 
 int main(int argc, array(string) argv)
@@ -120,6 +131,11 @@ class Block(string contents)
   int start;
   int end;
 
+  int get_type()
+  {
+    return 0;
+  }
+
   string _sprintf(mixed type)
   {
     return "Block(" + contents + ")";
@@ -165,9 +181,22 @@ class PikeBlock
 {
   inherit Block;
 
+  int get_type()
+  {
+    if(has_prefix(contents, "<%=")) return TYPE_INLINE;
+    if(has_prefix(contents, "<%!")) return TYPE_DECLARATION;
+    else return TYPE_SCRIPTLET;
+  }
+
   string render()
   {
-    if(has_prefix(contents, "<%="))
+    if(has_prefix(contents, "<%!"))
+    {
+      string expr = contents[3..strlen(contents)-3];
+      return("#line " + start + "\n" + expr);
+    }
+
+    else if(has_prefix(contents, "<%="))
     {
       string expr = String.trim_all_whites(contents[3..strlen(contents)-3]);
       return("#line " + start + "\nout->add((string)(" + expr + "));");
