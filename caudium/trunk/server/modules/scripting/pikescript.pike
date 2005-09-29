@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * Copyright © 1994-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
@@ -82,6 +82,11 @@ void create()
 	 "Run user scripts as owner and Change directory variables.\n"
 	 "Note, all features of pike-scripts are not available when "
 	 "this is enabled.");
+
+   defvar("reload_on_update", 0, "Reload on update?", TYPE_FLAG,
+          "should the script file be recompiled when it is updated?\n"
+          "Note that this will slow operations down, and is recommended "
+          "only for development purposes.");
 
   defvar("runuser", "", "Fork execution: Run scripts as", TYPE_STRING,
 	"If you start Roxen as root, and this variable is set, root uLPC "
@@ -295,9 +300,10 @@ mapping handle_file_extension(object f, string e, object id)
 
   if(scripts[id->not_query])
   {
-    if(id->pragma["no-cache"])
+    if(id->pragma["no-cache"] || (QUERY(reload_on_update) &&
+        f->stat()->mtime > scripts[id->not_query][0]))
     {
-      o = function_object(scripts[id->not_query]);
+      o = function_object(scripts[id->not_query][1]);
       // Reload the script from disk, if the script allows it.
       if(!o->no_reload || (functionp(o->no_reload) && o->no_reload(id)))
       {
@@ -310,7 +316,7 @@ mapping handle_file_extension(object f, string e, object id)
   
   function fun;
   
-  if (!functionp(fun = scripts[id->not_query])) {
+  if (!(scripts[id->not_query] && (functionp(fun = (scripts[id->not_query][1]))))) {
     file=f->read(0x7ffffff);   // fix this?
     if(id->realfile)
       file = cpp(file, id->realfile);
@@ -374,7 +380,10 @@ mapping handle_file_extension(object f, string e, object id)
       return Caudium.HTTP.string_answer("<h1>While compiling pike script</h1>\n"+s);
     }
     o=p();
-    if (!functionp(fun = scripts[id->not_query]=o->parse)) {
+    fun = o->parse;
+    scripts[id->not_query] = ({ time(), fun });
+    if(!functionp(fun))
+    {
       /* Should not happen */
       destruct(f);
       return Caudium.HTTP.string_answer("<h1>No string parse(object id) function in pike-script</h1>\n");
