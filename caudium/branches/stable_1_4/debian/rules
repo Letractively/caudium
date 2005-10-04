@@ -99,6 +99,7 @@ install: build
 	# Add here commands to install the package into debian/caudium.
 	$(MAKE) install_alt prefix=/usr DESTDIR=$(CURDIR)/debian/caudium EXTRAVER=$(EXTVER)
 	-rm -f $(CURDIR)/debian/caudium/usr/share/doc/caudium$(EXTVER)/COPYING
+	-rm -f $(CURDIR)debian/caudium/usr/lib/caudium/$(PIKE_VERSION)/lib/PCRE.so
 	cp debian/localhost $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/localhost.sample
 	cp debian/Global_Variables $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/Global_Variables.sample
 
