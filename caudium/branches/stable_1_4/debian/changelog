@@ -4,6 +4,7 @@ caudium (2:1.4.7-4) unstable; urgency=low
   * [l10n] Czech translation for caudium (Closes: #331131)
     Updated translation submitted by Martin Šín <martin.sin@seznam.cz>
     thanks a lot.
+  * Updated Standards-Version. No changes.
 
  -- Marek Habersack <grendel@debian.org>  Tue,  4 Oct 2005 07:54:56 +0200
 
