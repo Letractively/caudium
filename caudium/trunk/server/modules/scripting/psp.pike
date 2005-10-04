@@ -49,7 +49,7 @@ string parse_psp(string code, string realfile)
      compiler = Web.PikeServerPages.PSPCompiler();
 
 
-  return compiler->parse_psp(code);
+  return compiler->parse_psp(code, realfile);
 }
 
 void create()
