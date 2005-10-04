@@ -1,3 +1,12 @@
+caudium (2:1.4.7-4) unstable; urgency=low
+
+  * The latest upstream snapshot
+  * [l10n] Czech translation for caudium (Closes: #331131)
+    Updated translation submitted by Martin Šín <martin.sin@seznam.cz>
+    thanks a lot.
+
+ -- Marek Habersack <grendel@debian.org>  Tue,  4 Oct 2005 07:54:56 +0200
+
 caudium (2:1.4.7-3) unstable; urgency=high
 
   * Caudium takes over from Apache (Closes: #295921). Really closing the
