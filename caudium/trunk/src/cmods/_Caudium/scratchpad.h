@@ -104,7 +104,7 @@ static inline unsigned char *scratchpad_get(size_t wanted_size)
 
         case -2:
           Pike_error("Wanted size (%lu) exceeds the maximum scratchpad size (%lu)\n",
-                     wanted_size, __scratch_pad->buf_max_size);
+                     wanted_size, __scratch_pad->buf_max);
     }
   }
   
