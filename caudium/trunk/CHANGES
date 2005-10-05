@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed _Caudium C module to compile with a non threaded Pike.
+   (Xavier Beaudouin / Michel Luczak) 
 - FastCGI module automatically kills any FastCGIs it created when 
    the module stops. This should eliminate "stranded" FCGIs.
    (Bill Welliver)
