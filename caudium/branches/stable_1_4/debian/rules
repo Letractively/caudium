@@ -87,6 +87,7 @@ clean:
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
 	-rm -f smartlink statuslock
+	-rm -rf $(CURDIR)/debian/*.links
 	dh_clean
 
 install: DH_OPTIONS=
@@ -186,6 +187,13 @@ install: build
 
 	dh_movefiles  --sourcedir=debian/caudium
 
+	if test -f $(CURDIR)/debian/caudium-cleanup.txt; then \
+	    for d in `cat $(CURDIR)/debian/caudium-cleanup.txt`; do \
+		rm -rf $(CURDIR)/debian/caudium/$$d ; \
+		echo Removing $(CURDIR)/debian/caudium/$$d ; \
+	    done \
+	fi
+
 	# move all the arch independent files to /usr/share and symlink them from their original location
 	# in /usr/lib/caudium/u	
 
@@ -201,6 +209,7 @@ install: build
 	                                 usr/lib/caudium/ \
 					 $(CURDIR)/debian/$$p/) ; \
 	done
+
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
