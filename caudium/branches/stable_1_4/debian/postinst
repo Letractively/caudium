@@ -84,7 +84,7 @@ EOF
 	    if [ $(eval ls -s /etc/caudium${EXTVER}/servers/Global_Variables.new | cut -d ' ' -f 1) -gt 0 ]; then
 	      mv /etc/caudium${EXTVER}/servers/Global_Variables.new \
 		 /etc/caudium${EXTVER}/servers/Global_Variables
-	      chown www-data.www-data /etc/caudium${EXTVER}/servers/Global_Variables
+	      chown www-data:www-data /etc/caudium${EXTVER}/servers/Global_Variables
 	      chmod 660 /etc/caudium${EXTVER}/servers/Global_Variables
 	    fi
 	  fi

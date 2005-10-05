@@ -63,6 +63,7 @@ configure-stamp:
 
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
+	    rm -rf `find -name "CVS" -type d -print`; \
 	fi
 	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-serverdir=/usr/lib/caudium --without-PCRE
 
