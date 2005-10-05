@@ -266,7 +266,8 @@ class Wrapper
       // if nelems == 0, network buffer is full. We still want to continue.
     {
       buffer="";
-      done(); 
+      // FIXME: done();  ?
+      destroy();
     } else {
       buffer = buffer[nelems..]; 
       if(close_when_done && !strlen(buffer))
@@ -337,7 +338,7 @@ class Wrapper
     tofd = tofdremote->pipe( );// Stdio.PROP_NONBLOCK );
 
     if (!tofd) {
-      // FIXME: Out of fd's?
+	error("Failed to create pipe. errno: %s\n", strerror(errno()));
     }
 
     fromfd->set_nonblocking( read_callback, 0, close_callback );
@@ -358,7 +359,18 @@ class Wrapper
 #else /* !CGI_DEBUG */
     function read_cb = lambda(){};
 #endif /* CGI_DEBUG */
-    catch { tofd->set_nonblocking( read_cb, 0, destroy ); };
+  //  catch { tofd->set_nonblocking( read_cb, 0, destroy ); };
+    /* NOTE: Thread-race:
+     *       close_callback may get called directly
+     *       in which case both fds will get closed.
+     */
+    /*
+     * FIXME: What if the other end of tofd does a shutdown(3N)
+     *        on the backward direction ?
+     */
+    catch { fromfd->set_nonblocking( read_callback, 0, close_callback ); };
+    
+
   }
 
 
@@ -804,6 +816,8 @@ class CGIScript
 }
 
 mapping(string:string) global_env = ([]);
+
+int bu
 void start(int n, object conf)
 {
   DWERROR("CGI:start()\n");
