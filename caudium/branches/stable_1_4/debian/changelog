@@ -1,3 +1,10 @@
+caudium (2:1.4.7-5) unstable; urgency=low
+
+  * caudium depends on debconf without | debconf-2.0 alternate; blocks
+    cdebconf transition (Closes: #331771)
+
+ -- Marek Habersack <grendel@debian.org>  Wed,  5 Oct 2005 07:46:54 +0200
+
 caudium (2:1.4.7-4) unstable; urgency=low
 
   * The latest upstream snapshot
