@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Attempting to fix like RIS did on 4.1 the CGI when using Nagios
+   (Xavier Beaudouin)
 - Fixed _Caudium C module to compile with a non threaded Pike.
    (Xavier Beaudouin / Michel Luczak) 
 - FastCGI module automatically kills any FastCGIs it created when 
