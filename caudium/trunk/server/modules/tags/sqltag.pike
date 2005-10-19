@@ -100,9 +100,10 @@ constant module_doc  = "This module gives the three tags &lt;SQLQUERY&gt;, "
 	     "databases.</td></tr>\n"
 	     "</table></ul><p>\n"
 	     "The &lt;sqltable&gt; tag has an additional attribute "
-	     "<b>ascii</b>, which generates a tab-separated table (usefull "
-	     "with eg the &lt;diagram&gt; tag).<p>\n"
-	     "\n"
+	     "<b>ascii</b>, which generates a tab-separated table (useful "
+	     "with eg the &lt;diagram&gt; tag). You can also add the attribute "
+             "<b>showcolumns</b> when using <b>ascii</b> so that it places the "
+	     "column names ton the top like it does in the HTML table variation.<p>\n\n"
 	     "<b>NOTE</b>: Specifying passwords in the documents may prove "
 	     "to be a security hole if the module is not loaded for some "
 	     "reason.<br>\n"
@@ -374,6 +375,10 @@ string sqltable_tag(string tag_name, mapping args,
 
       if (ascii) {
 	res = "";
+        if(args->showcolumns) {
+i         res += (map(result->fetch_fields(), lambda (mapping m) {return(m->name);})) * "\t";
+          res += "\n";
+        }
       } else {
 	res = "<table";
 	foreach(indices(args) - ({ "host", "database", "user", "password",

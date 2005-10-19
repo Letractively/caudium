@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Added new showcolumns argument for <sqltable> (Caudium bug id #19, patch
+  by Hex).
+   (Xavier Beaudouin)
+- Fixed errors in russian translations (Caudium bug id #18)
+   (Xavier Beaudouin)
 - Fixed _Caudium C module to compile with a non threaded Pike.
    (Xavier Beaudouin / Michel Luczak) 
 - FastCGI module automatically kills any FastCGIs it created when 
