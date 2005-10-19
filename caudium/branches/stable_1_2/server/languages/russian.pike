@@ -31,14 +31,14 @@ string cvs_version = "$Id$";
 
 string month(int num)
 {
-  return ({ "январь", "фебраль", "март", "апрель", "май",
-	      "июнь", "июль", "августь", "сентябрь", "октябь",
+  return ({ "январь", "февраль", "март", "апрель", "май",
+	      "июнь", "июль", "август", "сентябрь", "октябрь",
 	      "ноябрь", "декабрь" })[num - 1];
 }
 
 string day(int num)
 {
-  return ({ "воскресенье","понедельник","вторник","среда", "четверк",
+  return ({ "воскресенье","понедельник","вторник","среда", "четверг",
 	      "пятница", "суббота" }) [ num - 1 ];
 }
 
@@ -60,10 +60,10 @@ string date(int timestamp, mapping m)
       return "сегодня, в " + ctime(timestamp)[11..15];
   
     if(t1["yday"] == t2["yday"]-1 && t1["year"] == t2["year"])
-      return "вчера, v " + ctime(timestamp)[11..15];
+      return "вчера, в " + ctime(timestamp)[11..15];
   
     if(t1["yday"] == t2["yday"]+1 && t1["year"] == t2["year"])
-      return "завтра, okolo "  + ctime(timestamp)[11..15];
+      return "завтра, около "  + ctime(timestamp)[11..15];
   
     if(t1["year"] != t2["year"])
       return month(t1["mon"]+1) + " " + (t1["year"]+1900);
@@ -112,7 +112,7 @@ string _number_10(int num)
   {
    case 2: return "двадцать";
    case 3: return "тридцать";
-   case 4: return "сопок";
+   case 4: return "сорок";
    case 5: return "пятьдесят";
    case 6: return "шестьдесят";
    case 7: return "семьдесят";
