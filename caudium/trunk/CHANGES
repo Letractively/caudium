@@ -1,5 +1,13 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Added support for Bonjour Advertisement of virtual servers. 
+   Available under Virtual Server Global Variables. Uses either
+   the virtual server config name, or the "virtual server name" 
+   setting under Global Variables (click on "More Options to 
+   show this option.) Available when Pike is compiled with
+   DNS_SD support, available on MacOSX/Darwin and systems with
+   Howl installed.
+   (Bill Welliver)
 - Added new showcolumns argument for <sqltable> (Caudium bug id #19, patch
   by Hex).
    (Xavier Beaudouin)
