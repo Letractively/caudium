@@ -817,7 +817,6 @@ class CGIScript
 
 mapping(string:string) global_env = ([]);
 
-int bu
 void start(int n, object conf)
 {
   DWERROR("CGI:start()\n");
