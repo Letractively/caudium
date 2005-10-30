@@ -1,28 +1,26 @@
-#
-#    Translators, if you are not familiar with the PO format, gettext
-#    documentation is worth reading, especially sections dedicated to
-#    this format, e.g. by running:
-#         info -n '(gettext)PO Files'
-#         info -n '(gettext)Header Entry'
-#
-#    Some information specific to po-debconf are available at
-#            /usr/share/doc/po-debconf/README-trans
-#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
-#
-#    Developers do not need to manually edit POT or PO files.
-#
-#, fuzzy
+# Translators, if you are not familiar with the PO format, gettext
+# documentation is worth reading, especially sections dedicated to
+# this format, e.g. by running:
+# info -n '(gettext)PO Files'
+# info -n '(gettext)Header Entry'
+# Some information specific to po-debconf are available at
+# /usr/share/doc/po-debconf/README-trans
+# or http://www.debian.org/intl/l10n/po-debconf/README-trans
+# Developers do not need to manually edit POT or PO files.
+# , fuzzy
+# 
+# 
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: caudium 2:1.4.7-3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-06-13 21:30+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2005-10-09 16:53+0200\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit"
 
 #. Type: string
 #. Description
@@ -51,21 +49,20 @@ msgstr "Vilken port ska servern lyssna på?"
 #. Type: string
 #. Description
 #: ../templates:12
-#, fuzzy
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
 "there's such need."
 msgstr ""
 "Caudium är för tillfället konfigurerad för att lyssna på port '${portno}' på "
-"varje nätverksenhet i din dator. Det verkar dock som att den här porten "
-"redan är upptagen av något annat program. Vänligen ange en annan port."
+"varje nätverksinterface i din dator. Du kan även ange en annan port här om du "
+"har behov för det."
 
 #. Type: multiselect
 #. Choices
 #: ../templates:19
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
-msgstr ""
+msgstr "trådar, debug, en gång, profil, fd-debug, keep-alive"
 
 #. Type: multiselect
 #. Description
@@ -85,12 +82,19 @@ msgid ""
 " 'fd-debug' - debug file descriptor usage\n"
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
+"Du kan välja noll eller fler funktioner från:\n"
+" 'threads' - använd trådar (om tillgängliga)\n"
+" 'debug' - skriv ut debuginformation under körning\n"
+" 'once' - kör i förgrunden\n"
+" 'profile' - lagra profiliinformation\n"
+" 'fd-debug' - debug file descriptor användning\n"
+" 'keep-alive' - håll anslutningar levande med HTTP/1.1"
 
 #. Type: boolean
 #. Description
 #: ../templates:33
 msgid "Tune Caudium settings for maximum performance?"
-msgstr ""
+msgstr "Skruva upp Caudium's inställningar för maximal prestanda?"
 
 #. Type: boolean
 #. Description
@@ -105,12 +109,20 @@ msgid ""
 " - DNS lookups\n"
 " - URL modules"
 msgstr ""
+"Om du väljer denna funktion kommer standardkonfigurationen i Caudium att "
+"bli justerad genom att vissa stäng av vissa funktioner som kan göra ditt system "
+"otroligt långsamt. Funktionerna som stängs av är:\n"
+" - extra kompatibilitet för Roxen\n"
+" - säkerhet på modulnivå\n"
+" - supportdatabasen\n"
+" - DNS-uppslag\n"
+" - URL-moduler"
 
 #. Type: boolean
 #. Description
 #: ../templates:33
 msgid "If you use any of the above features DO NOT turn this option on!"
-msgstr ""
+msgstr "Om du använder någon av ovanstående funktion ska DU INTE aktivera denna funktion!"
 
 #. Type: note
 #. Description
@@ -121,7 +133,6 @@ msgstr "Kan inte binda porten."
 #. Type: note
 #. Description
 #: ../templates:47
-#, fuzzy
 msgid ""
 "The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -172,7 +183,6 @@ msgstr "Använd den experimentella HTTP-modulen?"
 #. Type: boolean
 #. Description
 #: ../templates:69
-#, fuzzy
 msgid ""
 "Caudium comes with an experimental HTTP module that is faster than the "
 "original one. The code is still Work-In-Progress, so you might experience "
@@ -180,16 +190,15 @@ msgid ""
 "server. If, however, you want to test its functionality, turn this option on."
 msgstr ""
 "Caudium kommer med en experimentell HTTP-modul som är snabbare än den "
-"ursprungliga. Koden är fortfarande Pågående Arbete, så du kan få problem med "
-"den. Det rekommenderas INTE att köra den här modulen på en "
-"produktionsserver. Om du dock vill testa funktionaliteten, svara JA på den "
-"här frågan."
+"ursprungliga. Koden är fortfarande Pågående-Arbete, så du kan få problem med "
+"den. Det rekommenderas INTE att köra den här modulen på ett "
+"produktionssystem. Men om du vill testa funktionaliteten, svara JA."
 
 #. Type: string
 #. Description
 #: ../templates:79
 msgid "Configuration interface login."
-msgstr ""
+msgstr "Login för konfigurationsgränssnitt."
 
 #. Type: string
 #. Description
@@ -201,12 +210,16 @@ msgid ""
 "probably not what you want. Please specify the login name below or accept "
 "the default value."
 msgstr ""
+"Detta är loginnamnet för användaren för att få tillgång till konfigurationsgränssnittet. Om du "
+"inte anger något här kommer alla som ska logga in till gränssnittet att kunna sätta ett login och "
+"lösenord och hantera din server. Detta är antagligen inget du önskar ska hända. "
+"Ange loginnamnet nedan eller acceptera standardvärdet."
 
 #. Type: password
 #. Description
 #: ../templates:89
 msgid "Configuration interface password"
-msgstr ""
+msgstr "Lösenord för konfigurationsgränssnitt"
 
 #. Type: password
 #. Description
@@ -216,12 +229,14 @@ msgid ""
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
 "below!"
 msgstr ""
+"Dett är lösenord som används för att få tillgång till konfigurationsgränssnittet. Standardvärdet "
+"för det är 'password' - det är EXTREMT REKOMMENDERAT att ändra standardvärdet nedan!"
 
 #. Type: password
 #. Description
 #: ../templates:97
 msgid "Confirm the configuration interface password"
-msgstr ""
+msgstr "Bekräfta lösenordet för konfigurationsgränssnittet"
 
 #. Type: password
 #. Description
@@ -229,12 +244,13 @@ msgstr ""
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr ""
+"Ange lösenordet för konfigurationsgränssnittet igen för bekräftelse."
 
 #. Type: note
 #. Description
 #: ../templates:103
 msgid "Configuration interface password mismatch"
-msgstr ""
+msgstr "Lösenordet för konfigurationsgränssnittet var inte lika"
 
 #. Type: note
 #. Description
@@ -243,12 +259,14 @@ msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
 msgstr ""
+"Lösenorden du har matat in stämde inte. Ange dom igen och kom i håg att "
+"det är skillnad på gemener och versaler i lösenord."
 
 #. Type: note
 #. Description
 #: ../templates:109
 msgid "Configuration interface password reset"
-msgstr ""
+msgstr "Nollställ lösenord för konfigurationsgränssnittet"
 
 #. Type: note
 #. Description
@@ -259,27 +277,31 @@ msgid ""
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
 msgstr ""
+"Lösenordet har återställts till 'password'. Du kan inte ha ett blank lösenord för "
+"konfigurationsgränssnittet. Var god ändra standardlösenordet så fort som Caudium "
+"har blivit färdiginstallerat. Du kan göra detta genom att logga in till konfigurationsgränssnittet "
+"på URL:en som finns angiven nedan:"
 
 #. Type: note
 #. Description
 #: ../templates:109
 msgid "http://localhost:${cfgport}"
-msgstr ""
+msgstr "http://localhost:${cfgport}"
 
 #~ msgid "'threads' - use threads (if available)"
-#~ msgstr "\"trådar\" - Använd trådar (om möjligt)"
+#~ msgstr "\"trÃƒÂƒÃ‚Â¥dar\" - AnvÃƒÂƒÃ‚Â¤nd trÃƒÂƒÃ‚Â¥dar (om mÃƒÂƒÃ‚Â¶jligt)"
 
 #~ msgid "'debug' - output debugging information while running"
-#~ msgstr "\"avlusning\" - Skriv ut avlusningsinformation under körning"
+#~ msgstr "\"avlusning\" - Skriv ut avlusningsinformation under kÃƒÂƒÃ‚Â¶rning"
 
 #~ msgid "'once' - run in foreground"
-#~ msgstr "\"förgrund\" - Kör i förgrunden"
+#~ msgstr "\"fÃƒÂƒÃ‚Â¶rgrund\" - KÃƒÂƒÃ‚Â¶r i fÃƒÂƒÃ‚Â¶rgrunden"
 
 #~ msgid "'profile' - store profiling information"
 #~ msgstr "\"profilering\" - Spara profileringsinformation"
 
 #~ msgid "'fd-debug' - debug file descriptor usage"
-#~ msgstr "\"fd-avlusning\" - Avlusa användandet av filidentifierare"
+#~ msgstr "\"fd-avlusning\" - Avlusa anvÃƒÂƒÃ‚Â¤ndandet av filidentifierare"
 
 #~ msgid "'keep-alive' - keep connections alive with HTTP/1.1"
-#~ msgstr "\"håll-vid-liv\" - Håll anslutningar vid liv"
+#~ msgstr "\"hÃƒÂƒÃ‚Â¥ll-vid-liv\" - HÃƒÂƒÃ‚Â¥ll anslutningar vid liv"
