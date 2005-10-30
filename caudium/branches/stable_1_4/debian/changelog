@@ -1,3 +1,19 @@
+caudium (2:1.4.7-6) unstable; urgency=low
+
+  * [INTL:sv] Swedish debconf templates translation (Closes: #332777)
+    Contributed by Daniel Nylander <yeager@lidkoping.net>, thanks
+  * Spanish debconf translation (Closes: #334389)
+    Contributed by "César Gómez Martín" <cesar.gomez@gmail.com>, thanks
+  * chown www-data.www-data /var/cache/caudium/cache (Closes: #336369)
+  * please remove files created in postinst (Closes: #336383).
+    The changes:
+     - don't make backups of the config files anymore
+     - try to remove the dirs in /usr/local/share, if they're empty
+     - correctly handle the /usr/lib/caudium/caudium-images case
+  * Should use start-stop-daemon (Closes: #234554)
+
+ -- Marek Habersack <grendel@debian.org>  Sun, 30 Oct 2005 02:35:19 +0100
+
 caudium (2:1.4.7-5) unstable; urgency=low
 
   * caudium depends on debconf without | debconf-2.0 alternate; blocks

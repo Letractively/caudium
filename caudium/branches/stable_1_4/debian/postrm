@@ -22,17 +22,6 @@ BFILE=/var/backups/caudium.tar.gz
 
 case "$1" in
        purge)
-	# Backup the config files
-	#
-	# Should we ask the user (using Debconf) whether to back the config
-	# up?
-	if [ -d /etc/caudium ]; then
-	    if test -f $BFILE; then
-		rm -f $BFILE
-	    fi
-	    (cd /; tar czvf $BFILE etc/caudium || true)
-	fi
-	
 	if [ -L /var/www/index.html ]; then
 	  IFILE="`readlink /var/www/index.html`"
 	  if [ "$IFILE" = "../../usr/share/doc/caudium/www/index.html" ]; then
