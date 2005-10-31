@@ -38,10 +38,37 @@ case "$1" in
 	    rm -f $f
 	  fi
 	done
+	
+	if [ -d /usr/share/caudium ]; then
+	  rm -r /usr/share/caudium
+	fi
+	
+	rm -rf /usr/lib/caudium/caudium-images/
+	
+	
+	# Try to remove the dirs, if they're empty
+        if [ -d /usr/lib/caudium ]; then
+	  # We probably don't want that to fail - users might have put something in the
+	  # modules directory there (seen that happen several times), but that shouldn't
+	  # prevent the package from being removed.
+	  rmdir /usr/lib/caudium || true
+	fi
+	
+	if [ -d /usr/local/share/caudium ]; then
+	  if [ -d /usr/local/share/caudium/modules ]; then
+            rmdir /usr/local/share/caudium/modules || true
+	  fi
+	  rmdir /usr/local/share/caudium || true
+	fi
+	
 	#
 	# Clean the cache files
 	#
 	rm -rf /var/cache/caudium /var/state/caudium
+	
+	if [ -f /var/run/caudium/caudium.pid ]; then
+	  rm /var/run/caudium/caudium.pid
+	fi
 	;;
 	
        remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
