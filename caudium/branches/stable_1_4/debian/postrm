@@ -43,17 +43,9 @@ case "$1" in
 	  rm -r /usr/share/caudium
 	fi
 	
-	rm -rf /usr/lib/caudium/caudium-images/
+	rm -rf /usr/lib/caudium/caudium-images
 	
-	
-	# Try to remove the dirs, if they're empty
-        if [ -d /usr/lib/caudium ]; then
-	  # We probably don't want that to fail - users might have put something in the
-	  # modules directory there (seen that happen several times), but that shouldn't
-	  # prevent the package from being removed.
-	  rmdir /usr/lib/caudium || true
-	fi
-	
+	# Try to remove the dirs, if they're empty	
 	if [ -d /usr/local/share/caudium ]; then
 	  if [ -d /usr/local/share/caudium/modules ]; then
             rmdir /usr/local/share/caudium/modules || true
