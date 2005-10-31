@@ -35,20 +35,17 @@ fi
 case "$1" in
   start)
    echo -n "Starting $DESC: "
-   start-stop-daemon --pidfile $PIDFILE --quiet --chdir $DAEMON_DIR \
+   start-stop-daemon --start --pidfile $PIDFILE --quiet --chdir $DAEMON_DIR \
       --exec $DAEMON -- $DEFSTART_OPTIONS $START_OPTIONS > /dev/null
    echo "$NAME."
 	;;
   stop)
     echo -n "Stopping $DESC: "
-    start-stop-daemon --stop --pidfile $PIDFILE --signal 15 --oknodo --retry 10 --chdir $DAEMON_DIR \
-       --exec $DAEMON
-    rm -f $PIDFILE
+    start-stop-daemon --stop --pidfile $PIDFILE --signal 15 --oknodo --retry 10 > /dev/null 2>&1 || true
     echo "$NAME."
 	;;
   reload|force-reload)
-    start-stop-daemon --stop --pidfile $PIDFILE --signal 1 --oknodo --chdir $DAEMON_DIR \
-       --exec $DAEMON
+    start-stop-daemon --stop --pidfile $PIDFILE --signal 1 --oknodo > /dev/null 2>&1 || true
 	;;
   restart)
 	#
