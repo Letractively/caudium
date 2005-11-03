@@ -49,7 +49,7 @@ RCSID("$Id$");
 /*
  * Includes *BSD netincludes only if we are sure we have a BSD
  */
-#ifdef HAVE_NET_IF_DL_H && HAVE_IF_ADDRS_H && HAVE_NETINET_IN_H && HAVE_GETIFADDRS && HAVE_GETNAMEINFO
+#if defined(HAVE_NET_IF_DL_H) && defined(HAVE_IF_ADDRS_H) && defined(HAVE_NETINET_IN_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_GETNAMEINFO)
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
