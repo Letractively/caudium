@@ -354,27 +354,17 @@ static void free_nb_struct(struct object *obj) {
 /* Set the input file (file object, (max) bytes to read ) */
 static void f_input(INT32 args) {
   NBIO_INT_T len = -1;
-  switch(args) {
-  case 2:
-    if(ARG(2).type != T_INT) {
-      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->input", 2, "integer");
-    } else {
-      len = ARG(2).u.integer;
-    }
-    /* FALL THROUGH */
-  case 1:
-    if(ARG(1).type != T_OBJECT) {
-      SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->input", 1, "object");
-    } else {
-      /* Allocate a new input object and add it to our linked list */
-      new_input(ARG(1), len, 0);
-    }
-    break;
-    
-  case 0:
-    SIMPLE_TOO_FEW_ARGS_ERROR("_Caudium.nbio()->input", 1);
-    break;
+  struct svalue * input;
+
+  get_all_args("Caudium.nbio.input", args, "%*.%l", &input, &len);
+
+  if(input->type != T_OBJECT)
+  {
+    SIMPLE_BAD_ARG_ERROR("_Caudium.nbio()->input", 1, "object");
   }
+
+  new_input(*input, len, 0);
+
   pop_n_elems(args-1);
 }
 
