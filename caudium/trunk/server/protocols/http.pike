@@ -1382,7 +1382,10 @@ void send_result(mapping|void result)
         file = pipe = 0;
         return;
       }
-      my_fd = file = 0;
+      // it doesn't make sense to do a streaming pipe if we're just going to kill
+      // the connection to the client ...
+      // my_fd = 
+      file = 0;
       return;
     }
 
