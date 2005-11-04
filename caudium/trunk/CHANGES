@@ -1,5 +1,15 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix for the 2GB file limit in Caudium.nbio, which should allow
+   big files to be transmitted now.
+   (Bill Welliver)
+- Fix in protocols/http that inadvertantly caused modules using
+   HTTP.pipe_in_progress() to drop the connection with the client.
+   In particular, this should fix problems in proxy modules,
+   but other modules may see an impact as well.
+   (Bill Welliver)
+- Streaming mode now works in HTTP Relay Module.
+   (Bill Welliver)
 - Added support for Bonjour Advertisement of virtual servers. 
    Available under Virtual Server Global Variables. Uses either
    the virtual server config name, or the "virtual server name" 
