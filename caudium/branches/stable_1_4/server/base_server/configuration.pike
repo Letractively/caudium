@@ -54,6 +54,11 @@ function create_listen_socket = caudium->create_listen_socket;
 
 object logger = Logging.Logger();
 
+#if constant(_Protocols_DNS_SD)
+//! an object for service announcements using Bonjour (aka Zeroconf)
+Protocols.DNS_SD.Service bonjour;
+#endif
+
 //! the parser module for this configuration
 object   parse_module;
 
@@ -3834,6 +3839,11 @@ void create(string config)
          "If different than 0, the domain has been submitted to Netcraft "
          "already and the submission form won't appear at the top of the "
          "virtual server's description.");
+
+#if constant(_Protocols_DNS_SD)
+  defvar("bonjour_announce", 0, "Announce Virtual Server via Bonjour", TYPE_FLAG,
+         "If set, Caudium will announce this virtual server via the Bonjour (Zeroconf/Rendezvous) protocol.");
+#endif
   
 #ifdef ENABLE_RAM_CACHE
 // for now only theese two. In the future there might be more variables.
@@ -3991,7 +4001,26 @@ void create(string config)
          ({ "On", "Off", "On/Conditional", "Off/Conditional" }));
 
   /* CONFIGS LOADER IS HERE!! AND I CURSE WHOMEVER CREATED THAT MESS! /grendel :P */
-  setvars(retrieve("spider#0", this));
+  
+setvars(retrieve("spider#0", this));
+
+#if constant(_Protocols_DNS_SD)
+  if(QUERY(bonjour_announce))
+  {
+     int my_port;
+
+     foreach(query("Ports"), array port)
+       if(port[0])
+       {
+         my_port = port[0];
+         break; 
+       }
+    
+     if(my_port)
+       bonjour = Protocols.DNS_SD.Service(query_name(),
+                     "_http._tcp", "", my_port);
+  }
+#endif
 
 }
 
