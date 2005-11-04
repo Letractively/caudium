@@ -202,8 +202,8 @@ void handle_body_encoding(int content_length)
       if(content_length < 200000) {
         Caudium.parse_query_string(replace(data, ({ "\n", "\r"}),
                                            ({"", ""})), variables, empty_variables);
-       foreach(indices(empty_variables), string varname)
-         variables[varname] = "";
+        foreach(indices(empty_variables), string varname)
+          variables[varname] = "";
         rest_query = indices(empty_variables) * ";";
       }
       break;
@@ -1382,7 +1382,10 @@ void send_result(mapping|void result)
         file = pipe = 0;
         return;
       }
-      my_fd = file = 0;
+      // it doesn't make sense to do a streaming pipe if we're just going to kill
+      // the connection to the client ...
+      // my_fd = 
+      file = 0;
       return;
     }
 
