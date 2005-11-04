@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * Copyright © 2001-2001 Roxen Internet Software
  * 
  * This program is free software; you can redistribute it and/or
@@ -289,9 +289,14 @@ class Relay
 #ifdef RELAY_DEBUG
 			werror("RELAY: Request sent OK\n");
 #endif
-			Stdio.sendfile( 0, fd, 0, 0, 0, id->my_fd );
+			Stdio.sendfile( 0, fd, 0, -1, 0, id->my_fd, lambda(int q){ 
+id->conf->log(([]), id);
+destruct(id->my_fd); 
+ destruct(id);
+destruct(); 
+ } );
 		      } );
-      destruct();
+
     }
     else
     {
