@@ -3,8 +3,11 @@ caudium (2:1.4.7-7) unstable; urgency=low
   * Note to self: don't work when half asleep. Thanks Mario for noticing
     my braindamage :) - fixed the postrm/prerm files.
   * please remove files created in postinst (Closes: #336383)
+  * please support delayed compressed logs for webalizer (Closes:
+    #336742). Added the 'delaycompress' option to the logrotate config
+    file
 
- -- Marek Habersack <grendel@debian.org>  Mon, 31 Oct 2005 16:19:23 +0100
+ -- Marek Habersack <grendel@debian.org>  Tue,  1 Nov 2005 11:35:36 +0100
 
 caudium (2:1.4.7-6) unstable; urgency=low
 
