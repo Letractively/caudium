@@ -20,7 +20,7 @@
  */
 
 
-inherit "cgi.pike": normalcgi;
+inherit "modules/scripting/cgi.pike": normalcgi;
 
 constant cvs_version = "$Id$";
 
