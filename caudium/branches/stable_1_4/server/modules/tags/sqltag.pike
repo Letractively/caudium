@@ -376,7 +376,7 @@ string sqltable_tag(string tag_name, mapping args,
       if (ascii) {
 	res = "";
         if(args->showcolumns) {
-i         res += (map(result->fetch_fields(), lambda (mapping m) {return(m->name);})) * "\t";
+          res += (map(result->fetch_fields(), lambda (mapping m) { return(m->name); })) * "\t";
           res += "\n";
         }
       } else {
