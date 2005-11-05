@@ -525,7 +525,7 @@ private static void accept_callback( Stdio.Port port )
       pn[1]->enable_all_modules();
       if(!watchdog_enabled && GLOBVAR(watchdog_enable))
       {
-        watchdog_on();
+        call_out(watchdog_on, 5);
       }
     }
     
@@ -804,7 +804,7 @@ object configuration_interface() {
 
     if(!watchdog_enabled && GLOBVAR(watchdog_enable))
     {
-      watchdog_on();
+      call_out(watchdog_on, 5);
     }
   }
   return configuration_interface_obj;
@@ -1845,7 +1845,7 @@ void reload_all_configurations()
       conf->enable_all_modules();
       if(!watchdog_enabled && GLOBVAR(watchdog_enable))
       {
-        watchdog_on();
+        call_out(watchdog_on, 5);
       }
     };
     
@@ -3597,7 +3597,7 @@ int main(int argc, array(string) argv)
     config->enable_all_modules(); 
 
   if(!watchdog_enabled && GLOBVAR(watchdog_enable))
-    watchdog_on();
+    call_out(watchdog_on, 5);
 
 #endif
   enabling_configurations = 0;
