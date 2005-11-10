@@ -186,6 +186,16 @@ function functionof(array f)
   return o[f[-1]];
 }
 
+
+// Our describe_bactrace system :)
+constant bt_max_string_len = 99999999;
+int long_file_names;
+
+string describe_backtrace(mixed trace, void|int linewidth)
+{
+  return predef::describe_backtrace(trace, 999999);
+}
+
 //!
 void create()
 {
