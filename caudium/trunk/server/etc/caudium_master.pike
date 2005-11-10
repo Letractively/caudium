@@ -36,7 +36,6 @@ object mm = (object)"/master";
 
 inherit "/master": old_master;
 
-
 //!
 string program_name(program p)
 {
@@ -186,19 +185,36 @@ function functionof(array f)
   return o[f[-1]];
 }
 
-//!
-program handle_inherit (string pname, string current_file, object|void handler)
-{
-  if (has_prefix (pname, "caudium-module://")) {
-    pname = pname[sizeof ("caudium-module://")..];
-    if (object modinfo = roxenp()->find_module (pname))
-      if (program ret = cast_to_program (modinfo->filename, current_file, handler))
-        return ret;
-    return 0;
-  }
-  return ::handle_inherit (pname, current_file, handler);
-}
+// This will avoid messages about cannot set a mutex when
+// threads are disabled. Since threads are automatically
+// disabled when compiling a program.
+// This is more simple since we have only to catch such
+// messages.
 
+// For low_findprog();
+#if constant(_static_modules.Builtin.mutex)
+#define THREADED
+// NOTE: compilation_mutex is inherited from the original master.
+#endif
+
+//! Caudium low_findprog() 
+program low_findprog(string pname, string ext,
+		     object|void handler, void|int mkobj)
+{
+
+#ifdef THREADED
+  object key;
+  // FIXME: The catch is needed, since we might be called in
+  // a context when threads are disabled.
+  // (compile() disables threads).
+  catch {
+    key=compilation_mutex->lock(2);
+  };
+#endif
+
+  return old_master::low_findprog(pname, ext, handler, mkobj);
+
+}
 
 //!
 void handle_error(array(mixed)|object trace)
