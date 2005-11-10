@@ -186,6 +186,55 @@ function functionof(array f)
   return o[f[-1]];
 }
 
+//!
+program handle_inherit (string pname, string current_file, object|void handler)
+{
+  if (has_prefix (pname, "caudium-module://")) {
+    pname = pname[sizeof ("caudium-module://")..];
+    if (object modinfo = roxenp()->find_module (pname))
+      if (program ret = cast_to_program (modinfo->filename, current_file, handler))
+        return ret;
+    return 0;
+  }
+  return ::handle_inherit (pname, current_file, handler);
+}
+
+
+//!
+void handle_error(array(mixed)|object trace)
+{
+  catch {
+    if (arrayp (trace) && sizeof (trace) == 2 &&
+        arrayp (trace[1]) && !sizeof (trace[1]))
+      // Don't report the special compilation errors thrown above. Pike
+      // calls this if resolv() or similar throws.
+      return;
+  };
+  ::handle_error (trace);
+}
+
+//! Our own Describer class
+class Describer
+{
+  inherit old_master::Describer;
+
+  //!
+  string describe_string (string m, int maxlen)
+  {
+    canclip++;
+    if(sizeof(m) < 40)
+      return  sprintf("%O", m);;
+    clipped++;
+    return sprintf("%O+[%d]+%O",m[..15],sizeof(m)-(32),m[sizeof(m)-16..]);
+  }
+
+  //!
+  string describe_array (array m, int maxlen)
+  {
+    if(!sizeof(m)) return "({})";
+    return "({" + describe_comma_list(m,maxlen-2) +"})";
+  }
+}
 
 // Our describe_bactrace system :)
 constant bt_max_string_len = 99999999;
