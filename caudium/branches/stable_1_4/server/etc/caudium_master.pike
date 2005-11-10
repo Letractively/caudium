@@ -30,6 +30,8 @@ constant cvs_version = "$Id$";
 mapping names=([]);
 int unique_id=time();
 
+mapping(program:string) program_names = set_weak_flag (([]), 1);
+
 object mm = (object)"/master";
 
 inherit "/master": old_master;
@@ -39,7 +41,9 @@ inherit "/master": old_master;
 string program_name(program p)
 {
 //werror(sprintf("Program name %O = %O\n", p, search(programs,p)));
-  return search(programs, p);
+  //return search(programs, p);
+
+  return program_names[p];
 }
 
 //!
@@ -48,9 +52,19 @@ mapping saved_names = ([]);
 //!
 void name_program(program foo, string name)
 {
+//  programs[name] = foo;
+//  saved_names[foo] = name;
+//  saved_names[(program)foo] = name;
+  if(programs[name]) {
+    if (programs[name] == foo) return;
+    if (rev_programs && (rev_programs[programs[name]] == name)) {
+      m_delete(rev_programs, programs[name]);
+    }
+    m_delete(programs, name);
+  }
+  string t = programs_reverse_lookup(foo);
+  load_time[name] = t?load_time[t]:time(1);
   programs[name] = foo;
-  saved_names[foo] = name;
-  saved_names[(program)foo] = name;
 }
 
 private static int mid = 0;
@@ -182,6 +196,7 @@ void create()
     /* Ignore errors when copying functions */
   }
   programs["/master"] = object_program(o);
+  program_names[object_program(o)] = "/master";
   objects[object_program(o)] = o;
   /* make ourselves known */
   add_constant("_master",o);
@@ -212,3 +227,4 @@ void clear_compilation_failures()
   foreach (indices (programs), string fname)
     if (!programs[fname]) m_delete (programs, fname);
 }
+
