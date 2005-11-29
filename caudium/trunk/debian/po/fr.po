@@ -13,10 +13,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: caudium 2:1.2.31-6\n"
+"Project-Id-Version: caudium 2:1.2.35.1-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-13 21:30+0200\n"
-"PO-Revision-Date: 2004-01-10 10:32+0100\n"
+"POT-Creation-Date: 2005-06-13 21:29+0200\n"
+"PO-Revision-Date: 2005-06-21 17:52+0200\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -27,7 +27,7 @@ msgstr ""
 #. Description
 #: ../templates:4
 msgid "On what port should the config interface be?"
-msgstr "Sur quel port voulez-vous mettre l'interface de configuration ?"
+msgstr "Port de l'interface de configuration :"
 
 #. Type: string
 #. Description
@@ -37,16 +37,16 @@ msgid ""
 "You can access the interface using any form capable web browser (like "
 "Mozilla, Lynx, Links or Galeon)"
 msgstr ""
-"Indiquez le port sur lequel Caudium offrira son interface de configuration. "
-"Vous pourrez alors accéder à cette interface en utilisant n'importe quel "
-"navigateur web acceptant les formulaires (comme Mozilla, Lynx, Links ou "
-"Galeon)."
+"Veuillez indiquer le port sur lequel Caudium offrira son interface de "
+"configuration. Vous pourrez alors accéder à cette interface en utilisant "
+"n'importe quel navigateur web acceptant les formulaires (comme Mozilla, "
+"Lynx, Links ou Galeon)."
 
 #. Type: string
 #. Description
 #: ../templates:12
 msgid "What port should the server listen on?"
-msgstr "Sur quel port le serveur doit-il écouter ?"
+msgstr "Port où le serveur sera à l'écoute :"
 
 #. Type: string
 #. Description
@@ -69,7 +69,7 @@ msgstr "threads, debug, once, profile, fd-debug, keep-alive"
 #. Description
 #: ../templates:21
 msgid "Select options that should be used on startup"
-msgstr "Sélectionnez les options à utiliser lors du lancement"
+msgstr "Veuillez sélectionner les options à utiliser lors du lancement :"
 
 #. Type: multiselect
 #. Description
@@ -84,12 +84,12 @@ msgid ""
 " 'keep-alive' - keep connections alive with HTTP/1.1"
 msgstr ""
 "Vous pouvez choisir zéro, une ou plusieurs options :\n"
-" - threads - utiliser les « threads » (si disponible) ;\n"
-" - debug - afficher des informations de débogage ;\n"
-" - once - exécution au premier plan ;\n"
-" - profile - garder les informations de profilage ;\n"
-" - fd-debug - renseigner sur l'utilisation des descripteurs de fichier ;\n"
-" - keep-alive - garder les connexions ouvertes avec le protocole HTTP/1.1."
+" - threads    : utiliser les « threads » (si disponible) ;\n"
+" - debug      : afficher des informations de débogage ;\n"
+" - once       : exécution au premier plan ;\n"
+" - profile    : garder les informations de profilage ;\n"
+" - fd-debug   : renseigner sur l'utilisation des descripteurs de fichier ;\n"
+" - keep-alive : garder les connexions ouvertes avec le protocole HTTP/1.1."
 
 #. Type: boolean
 #. Description
@@ -100,7 +100,6 @@ msgstr "Faut-il rechercher la performance maximum ?"
 #. Type: boolean
 #. Description
 #: ../templates:33
-#, fuzzy
 msgid ""
 "If you select this option the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
@@ -116,7 +115,7 @@ msgstr ""
 "défaut. Ces possibilités sont les suivantes :\n"
 " - compatibilité supplémentaire avec Roxen ;\n"
 " - sécurité au niveau des modules ;\n"
-" - la base de données supports ;\n"
+" - la base de données support ;\n"
 " - les recherches DNS ;\n"
 " - les modules URL."
 
@@ -130,12 +129,11 @@ msgstr "Si vous utilisez ces possibilités, NE choisissez PAS cette option !"
 #. Description
 #: ../templates:47
 msgid "Cannot bind to port."
-msgstr "Impossible d'utiliser le port."
+msgstr "Impossible d'utiliser le port"
 
 #. Type: note
 #. Description
 #: ../templates:47
-#, fuzzy
 msgid ""
 "The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -143,7 +141,7 @@ msgid ""
 "system."
 msgstr ""
 "Le port que vous avez configuré pour l'interface de configuration de Caudium "
-"n'est pas disponible. Merci de préciser un autre numéro de port : Caudium ne "
+"n'est pas disponible. Veuillez choisir un autre numéro de port : Caudium ne "
 "peut fonctionner normalement sans ouvrir un port pour son interface de "
 "configuration sur le système."
 
@@ -205,7 +203,7 @@ msgstr ""
 #. Description
 #: ../templates:79
 msgid "Configuration interface login."
-msgstr "Nom d'utilisateur pour l'interface de configuration :"
+msgstr "Identifiant pour l'interface de configuration :"
 
 #. Type: string
 #. Description
@@ -217,8 +215,8 @@ msgid ""
 "probably not what you want. Please specify the login name below or accept "
 "the default value."
 msgstr ""
-"Il s'agit du nom de l'utilisateur qui accèdera à l'interface de "
-"configuration. Si vous ne spécifiez pas de nom maintenant, la première "
+"Un nom d'utilisateur est nécessaire pour accéder à l'interface de "
+"configuration. Si vous ne précisez pas de nom maintenant, la première "
 "personne qui se connectera sur l'interface de configuration pourra "
 "configurer le nom et le mot de passe et gérer le serveur à votre place. Vous "
 "ne le souhaitez sûrement pas. Veuillez spécifier un nom ou accepter celui "
@@ -238,29 +236,29 @@ msgid ""
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
 "below!"
 msgstr ""
-"Il s'agit du mot de passe pour accéder à l'interface de configuration. La "
-"valeur par défaut est « password ». Il est FORTEMENT RECOMMANDÉ de changer "
-"le mot de passe par défaut !"
+"Un mot de passe est nécessaire pour accéder à l'interface de configuration. "
+"La valeur par défaut est « password ». Il est FORTEMENT RECOMMANDÉ de "
+"changer le mot de passe par défaut !"
 
 #. Type: password
 #. Description
 #: ../templates:97
 msgid "Confirm the configuration interface password"
-msgstr "Confirmation du mot de passe pour l'interface de configuration :"
+msgstr "Veuillez confirmer le mot de passe :"
 
 #. Type: password
 #. Description
 #: ../templates:97
 msgid ""
 "Please type in the configuration interface password again for confirmation."
-msgstr "Veuillez indiquer à nouveau le mot de passe pour confirmation."
+msgstr ""
+"Veuillez indiquer à nouveau le mot de passe pour l'interface de configuration"
 
 #. Type: note
 #. Description
 #: ../templates:103
 msgid "Configuration interface password mismatch"
-msgstr ""
-"Les mots de passe pour l'interface de configuration ne correspondent pas."
+msgstr "Les mots de passe sont différents"
 
 #. Type: note
 #. Description
@@ -287,7 +285,7 @@ msgid ""
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
 msgstr ""
-"Le mot de passe a été redéfini à 'password'. Pour l'interface de "
+"Le mot de passe a été redéfini à « password ». Pour l'interface de "
 "configuration, ce mot doit être défini. Veuillez modifier le mot de passe "
 "par défaut dès que Caudium sera installé en accédant à l'interface de "
 "configuration à l'URL suivante : "

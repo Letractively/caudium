@@ -34,44 +34,18 @@ fi
 
 case "$1" in
   start)
-	if [ -f $PIDFILE ]
-	then
-		echo "PID file exists, Caudium already running ?"
-		/etc/init.d/caudium${EXTVER} stop
-		rm -f $PIDFILE
-		sleep 5
-	fi
-	echo -n "Starting $DESC: "
-	cd $DAEMON_DIR
-	$DAEMON $DEFSTART_OPTIONS $START_OPTIONS > /dev/null
-	echo "$NAME."
+   echo -n "Starting $DESC: "
+   start-stop-daemon --start --pidfile $PIDFILE --quiet --chdir $DAEMON_DIR \
+      --exec $DAEMON -- $DEFSTART_OPTIONS $START_OPTIONS > /dev/null
+   echo "$NAME."
 	;;
   stop)
     echo -n "Stopping $DESC: "
-    if [ ! -f $PIDFILE ]; then
-	echo "$NAME not running"
-	exit 0
-    fi
-    for p in `cat $PIDFILE`; do
-       if [ -n "`ps -p $p --no-headers`" ]; then
-            kill -TERM $p > /dev/null || true
-       fi
-    done
-	rm -f $PIDFILE
-	echo "$NAME."
+    start-stop-daemon --stop --pidfile $PIDFILE --signal 15 --oknodo --retry 10 > /dev/null 2>&1 || true
+    echo "$NAME."
 	;;
   reload|force-reload)
-	if test -f $PIDFILE; then
-	    echo -n "Restarting $DESC: "
-	    for p in `cat $PIDFILE | sed -e 1d`; do
-            if [ -n "`ps -p $p --no-headers`" ]; then
-                kill -HUP $p > /dev/null || true
-            fi
-	    done
-	    echo "$NAME."
-	else
-	    echo "No pidfile found. Cannot reload."
-	fi
+    start-stop-daemon --stop --pidfile $PIDFILE --signal 1 --oknodo > /dev/null 2>&1 || true
 	;;
   restart)
 	#

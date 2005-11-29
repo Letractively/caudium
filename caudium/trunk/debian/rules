@@ -36,18 +36,13 @@ SCRIPTS=protocols/tetris.pike bin/pdbi.pike bin/sqladduser.pike \
 	bin/indexer.pike bin/searcher.pike
 
 PACKAGES=caudium caudium-modules caudium-pixsl caudium-ultralog
+REMOVEFONTS=lucida_unicode.ttf lucida_unicode.txt verdana.ttf verdana.txt
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-CFLAGS=-O0
-CFARGSEXTRA=--with-rtldebug --with-cdebug --with-debug --without-copt
-else
-CFLAGS=-O2
-CFARGSEXTRA=--without-rtldebug --without-cdebug --without-debug
-endif
+CFLAGS = -fPIC
 
 # Temporary workaround for hppa linker issues
 ifeq ($(DEB_BUILD_ARCH),hppa)
-CFLAGS+=-ffunction-sections
+CFLAGS += -ffunction-sections
 endif
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
@@ -55,7 +50,8 @@ CFLAGS += -g3 -ggdb3
 endif
 
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
+INSTALL_PROGRAM += -s
+CFLAGS += -s
 endif
 
 export CFLAGS
@@ -67,8 +63,9 @@ configure-stamp:
 
 	if test "$(CVS_SNAPSHOT)" = "yes"; then \
 	    ./autogen.sh; \
+	    rm -rf `find -name "CVS" -type d -print`; \
 	fi
-	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-serverdir=/usr/lib/caudium
+	./configure --prefix=/usr --with-pike=$(PIKEBIN) --with-serverdir=/usr/lib/caudium --without-PCRE
 
 	touch configure-stamp
 
@@ -91,6 +88,7 @@ clean:
 	-rm -f `find -name ".cvsignore" -type f -print`
 	-rm -rf `find -name "CVS" -type d -print`
 	-rm -f smartlink statuslock
+	-rm -rf $(CURDIR)/debian/*.links
 	dh_clean
 
 install: DH_OPTIONS=
@@ -103,6 +101,7 @@ install: build
 	# Add here commands to install the package into debian/caudium.
 	$(MAKE) install_alt prefix=/usr DESTDIR=$(CURDIR)/debian/caudium EXTRAVER=$(EXTVER)
 	-rm -f $(CURDIR)/debian/caudium/usr/share/doc/caudium$(EXTVER)/COPYING
+	-rm -f $(CURDIR)debian/caudium/usr/lib/caudium/$(PIKE_VERSION)/lib/PCRE.so
 	cp debian/localhost $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/localhost.sample
 	cp debian/Global_Variables $(CURDIR)/debian/caudium/etc/caudium$(EXTVER)/Global_Variables.sample
 
@@ -162,6 +161,12 @@ install: build
 	mv debian/caudium/usr/lib/caudium$(EXTVER)/caudium-images debian/caudium/usr/share/caudium$(EXTVER)/
 
 	install -d -m 755 -o root -g root $(CURDIR)/debian/caudium/usr/share/pike_packages/apps/modules/
+	# Remove non-dfsg fonts
+	for f in $(REMOVEFONTS); do \
+	 if [ -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f ]; then \
+	   rm -f debian/caudium/usr/lib/caudium$(EXTVER)/fonts/ttf/$f; \
+	 fi \
+	done
 
 	#
 	# copy perl
@@ -183,9 +188,17 @@ install: build
 
 	dh_movefiles  --sourcedir=debian/caudium
 
+	if test -f $(CURDIR)/debian/caudium-cleanup.txt; then \
+	    for d in `cat $(CURDIR)/debian/caudium-cleanup.txt`; do \
+		rm -rf $(CURDIR)/debian/caudium/$$d ; \
+		echo Removing $(CURDIR)/debian/caudium/$$d ; \
+	    done \
+	fi
+
 	# move all the arch independent files to /usr/share and symlink them from their original location
 	# in /usr/lib/caudium/u	
 
+	chmod 755 $(CURDIR)/debian/reflect.sh
 	for p in $(PACKAGES); do \
 	(cd $(CURDIR)/debian/$$p/; find usr/lib/caudium/ \
 	     -name "*.pike" -type f -print \
@@ -197,6 +210,7 @@ install: build
 	                                 usr/lib/caudium/ \
 					 $(CURDIR)/debian/$$p/) ; \
 	done
+
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.
