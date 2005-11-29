@@ -1,6 +1,8 @@
 #! /bin/sh
 # postrm script for caudium
 #
+# $Id$
+#
 # see: dh_installdeb(1)
 
 set -e
@@ -20,31 +22,45 @@ BFILE=/var/backups/caudium.tar.gz
 
 case "$1" in
        purge)
-	# Backup the config files
-	#
-	# Should we ask the user (using Debconf) whether to back the config
-	# up?
-	if test -d /etc/caudium; then
-	    if test -f $BFILE; then
-		rm -f $BFILE
-	    fi
-	    (cd /; tar czvf $BFILE etc/caudium || true)
-	fi       
-
 	if [ -L /var/www/index.html ]; then
 	  IFILE="`readlink /var/www/index.html`"
 	  if [ "$IFILE" = "../../usr/share/doc/caudium/www/index.html" ]; then
 	    rm -f /var/www/index.html
 	  fi
 	fi
-
+	
 	rm -f /etc/default/caudium
 	rm -rf /etc/caudium
+	
+	# Remove the links to the vera fonts
+	for f in /usr/lib/caudium/fonts/ttf/*.ttf; do
+	  if [ -L $f ]; then
+	    rm -f $f
+	  fi
+	done
+	
+	if [ -d /usr/share/caudium ]; then
+	  rm -r /usr/share/caudium
+	fi
+	
+	rm -rf /usr/lib/caudium/caudium-images
+	
+	# Try to remove the dirs, if they're empty	
+	if [ -d /usr/local/share/caudium ]; then
+	  if [ -d /usr/local/share/caudium/modules ]; then
+            rmdir /usr/local/share/caudium/modules || true
+	  fi
+	  rmdir /usr/local/share/caudium || true
+	fi
 	
 	#
 	# Clean the cache files
 	#
 	rm -rf /var/cache/caudium /var/state/caudium
+	
+	if [ -f /var/run/caudium/caudium.pid ]; then
+	  rm /var/run/caudium/caudium.pid
+	fi
 	;;
 	
        remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
