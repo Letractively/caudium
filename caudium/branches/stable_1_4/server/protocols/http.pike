@@ -436,6 +436,8 @@ private int parse_got()
 
   f = _Roxen.http_decode_string( f );
 
+  catch(f = utf8_to_string(f));
+
   /* Fix %00 (NULL) bug */
   sscanf( f, "%s\0", f );
   if ((sscanf(f, "/<%s>/%s", a, f)==2) || (sscanf(f, "/%%3C%s%%3E%s", a, f)==2))

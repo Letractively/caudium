@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Properly decode UTF-8 requests that have been HTTP encoded.
+   (Bill Welliver)
 - Fix for the 2GB file limit in Caudium.nbio, which should allow
   big files to be transmitted now.
    (Bill Welliver)
