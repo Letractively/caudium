@@ -444,12 +444,15 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
                   $PIKE_INCDIR/include/pike$THIS_PIKE_VER \
                   $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR}\
                   $PIKE_INCDIR/include/pike/${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
+                  $PIKE_INCDIR/include/pike/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
                   $PIKE_INCDIR/include/pike \
                   $PIKE_INCDIR/src ; do
 
 	if test ! -f $INCDIR/version.h; then
+					echo "No version.h in $INCDIR"
           continue
         else
+					echo "Using $INCDIR as the C include directory"
           cd $INCDIR
           INCLUDE_DIR=`pwd`
 	fi
@@ -462,7 +465,7 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
 	    echo -n
 	    break
 	  fi
-	  echo ", $INCLUDE_DIR"
+	  echo "$INCLUDE_DIR"
 	  FOUND_PIKE=1
 	  PIKE_VERSION=$THIS_PIKE_VER
 	  PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
