@@ -40,7 +40,7 @@ int set(string name, mixed value, mixed ... args) {
 
 //!  Get the value of an entity in the scope.
 //! @param name
-//!  The name of tne entity to retrieve.
+//!  The name of the entity to retrieve.
 //! @param args
 //!  Various extra arguments passed by the parser.
 //! @returns
