@@ -334,6 +334,8 @@ mixed first_try(object id)
 {
   id->misc->session_id = 0;
 
+SESSDEBUG("first_try\n");
+  
   if (cur_storage)
     cur_storage->setup(id);
     
@@ -1390,6 +1392,9 @@ private void setup_compat(object id)
   }
 
   id->misc->session_variables = SettableWrapper(id, id->misc->session_id, "session");
+
+  SESSDEBUG("id->misc->session_variables: %O\n", id->misc->session_variables);
+  
   id->misc->user_variables = SettableWrapper(id, id->misc->session_id, "user");
 }
 
