@@ -5,6 +5,11 @@
 
 
 *
+** 2006/01/02 - Caudium 1.4.6 - caudium1.4-1.4.6-3
+*
+- Caudium 1.4.6, compiling against Pike 7.6.58
+
+*
 ** 2004/11/10 - Caudium 1.4.4 RC2 - caudium1.4-1.4.4-2
 *
 - Correction of a bug in caudiumctl alternatives.

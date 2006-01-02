@@ -1,7 +1,7 @@
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin/Makefile.in
---- caudium-1.4/Makefile.in	Fri Jun 18 12:11:34 2004
-+++ caudium-1.4-darwin/Makefile.in	Wed Sep 15 08:21:26 2004
-@@ -144,7 +144,7 @@
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/Makefile.in caudium-1.4.6-fink/Makefile.in
+--- caudium-1.4.6/Makefile.in	2005-05-06 17:03:07.000000000 +0200
++++ caudium-1.4.6-fink/Makefile.in	2006-01-02 15:18:45.000000000 +0100
+@@ -145,7 +145,7 @@
  # well
  #
  install_alt:
@@ -10,7 +10,7 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/bin
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/lib/@PIKE_VERSION@
-@@ -153,10 +153,9 @@
+@@ -154,10 +154,9 @@
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER)/local_fonts
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
  	@$(SRCDIR)/mkdir -p $(DESTDIR)/$(prefix)/share/man/man1
@@ -24,7 +24,7 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin
  	@for f in $(INSTALLFILES); do \
  	 echo "Copying $$f ..."; \
  	 cp -p $(SRCDIR)/$$f $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/; \
-@@ -170,7 +169,8 @@
+@@ -171,7 +170,8 @@
  	 echo "Copying $$f ..."; \
  	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
  	done
@@ -34,7 +34,7 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin
  	@echo "Copying modules..."
  	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
  	@for f in $(SRCDIR)/server/*; do \
-@@ -179,7 +179,7 @@
+@@ -180,7 +180,7 @@
  	 fi; \
  	done
  	@echo "Fixing paths..."
@@ -43,7 +43,7 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin
  	 for v in modules local_modules; do \
  	  MODS="\\\"$$MDIR/$$v/\\\",$$MODS"; \
  	 done; \
-@@ -190,9 +190,9 @@
+@@ -191,9 +191,9 @@
  	 fi; \
  	 sed -e "s;\(globvar(.*\"ModuleDirs\",\).*;\1({$$MODS}),;g" \
  	     -e "s;\(globvar(.*\"font_dirs\",\).*;\1({\"$(prefix)/share/caudium$(EXTRAVER)/local_fonts\",\"nfonts\"}),;g" \
@@ -55,9 +55,37 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/Makefile.in caudium-1.4-darwin
  	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike > \
  	  $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new; \
  	 mv $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER)/base_server/caudium.pike.new \
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/auth/auth_userdb.pike caudium-1.4-darwin/server/modules/auth/auth_userdb.pike
---- caudium-1.4/server/modules/auth/auth_userdb.pike	Tue Aug 10 17:56:54 2004
-+++ caudium-1.4-darwin/server/modules/auth/auth_userdb.pike	Wed Sep 15 08:21:26 2004
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/configure caudium-1.4.6-fink/configure
+--- caudium-1.4.6/configure	2005-06-29 15:57:21.000000000 +0200
++++ caudium-1.4.6-fink/configure	2006-01-02 16:19:38.000000000 +0100
+@@ -4016,12 +4016,15 @@
+                   $PIKE_INCDIR/include/pike$THIS_PIKE_VER \
+                   $PIKE_INCDIR/include/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR}\
+                   $PIKE_INCDIR/include/pike/${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
++                  $PIKE_INCDIR/include/pike/pike${THIS_PIKE_MAJOR}.${THIS_PIKE_MINOR} \
+                   $PIKE_INCDIR/include/pike \
+                   $PIKE_INCDIR/src ; do
+ 
+ 	if test ! -f $INCDIR/version.h; then
++					echo "No version.h in $INCDIR"
+           continue
+         else
++					echo "Using $INCDIR as the C include directory"
+           cd $INCDIR
+           INCLUDE_DIR=`pwd`
+ 	fi
+@@ -4034,7 +4037,7 @@
+ 	    echo -n
+ 	    break
+ 	  fi
+-	  echo ", $INCLUDE_DIR"
++	  echo "$INCLUDE_DIR"
+ 	  FOUND_PIKE=1
+ 	  PIKE_VERSION=$THIS_PIKE_VER
+ 	  PIKE_INCLUDE_DIRS="$PIKE_INCLUDE_DIRS -I$INCLUDE_DIR"
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/server/modules/auth/auth_userdb.pike caudium-1.4.6-fink/server/modules/auth/auth_userdb.pike
+--- caudium-1.4.6/server/modules/auth/auth_userdb.pike	2005-01-03 18:03:06.000000000 +0100
++++ caudium-1.4.6-fink/server/modules/auth/auth_userdb.pike	2006-01-02 15:18:45.000000000 +0100
 @@ -501,7 +501,7 @@
           method_is_not_shadow);
  
@@ -67,9 +95,9 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/auth/auth_userd
           TYPE_STRING_LIST, 
           "What method to use to maintain the passwd database. "
           "'getpwent' is by far the slowest of the methods, but it "
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/filesystems/userfs.pike caudium-1.4-darwin/server/modules/filesystems/userfs.pike
---- caudium-1.4/server/modules/filesystems/userfs.pike	Thu Aug  5 12:54:03 2004
-+++ caudium-1.4-darwin/server/modules/filesystems/userfs.pike	Wed Sep 15 08:21:26 2004
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/server/modules/filesystems/userfs.pike caudium-1.4.6-fink/server/modules/filesystems/userfs.pike
+--- caudium-1.4.6/server/modules/filesystems/userfs.pike	2005-01-03 18:03:08.000000000 +0100
++++ caudium-1.4.6-fink/server/modules/filesystems/userfs.pike	2006-01-02 15:18:45.000000000 +0100
 @@ -290,7 +290,7 @@
  	 "was started as root.",
  	 0, uid_was_zero);
@@ -79,9 +107,9 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/filesystems/use
  	 TYPE_STRING,
           "This is the directory in the home directory of the users which "
  	 "contains the files that will be shown on the web. "
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/scripting/cgi.pike caudium-1.4-darwin/server/modules/scripting/cgi.pike
---- caudium-1.4/server/modules/scripting/cgi.pike	Fri Oct  8 18:24:04 2004
-+++ caudium-1.4-darwin/server/modules/scripting/cgi.pike	Wed Oct 27 17:40:14 2004
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/server/modules/scripting/cgi.pike caudium-1.4.6-fink/server/modules/scripting/cgi.pike
+--- caudium-1.4.6/server/modules/scripting/cgi.pike	2005-01-03 18:03:13.000000000 +0100
++++ caudium-1.4.6-fink/server/modules/scripting/cgi.pike	2006-01-02 15:18:45.000000000 +0100
 @@ -959,7 +959,7 @@
    defvar("chroot","", "Chroot path", TYPE_STRING|VAR_MORE,
           "This is the path that is chrooted to before running a program.");
@@ -91,10 +119,10 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/modules/scripting/cgi.p
  	 "This is where the module will find the CGI scripts in the <b>real</b> "
  	 "file system.");
  
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/start-caudium.in caudium-1.4-darwin/server/start-caudium.in
---- caudium-1.4/server/start-caudium.in	Wed Oct 27 17:40:50 2004
-+++ caudium-1.4-darwin/server/start-caudium.in	Wed Oct 27 17:40:10 2004
-@@ -65,7 +65,8 @@
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/server/start-caudium.in caudium-1.4.6-fink/server/start-caudium.in
+--- caudium-1.4.6/server/start-caudium.in	2004-11-27 09:41:39.000000000 +0100
++++ caudium-1.4.6-fink/server/start-caudium.in	2006-01-02 15:18:45.000000000 +0100
+@@ -70,7 +70,8 @@
    ({"program", Getopt.HAS_ARG, ({"--program"})}),
    ({"version", Getopt.NO_ARG, ({"--version"})}),
    ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
@@ -104,11 +132,10 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/start-caudium.in caudiu
  });
  
  // loader options (with defaults)
-@@ -528,6 +529,15 @@
-     write_help();
+@@ -535,6 +536,15 @@
      return 1;
    }
-+
+ 
 +	// Don't let fink users shoot themselves in the foot and not use caudiumctl
 +	if(search(argv, "--caudiumctl")==-1)
 +	{
@@ -117,13 +144,14 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/server/start-caudium.in caudiu
 +		write("to start Caudium\n");
 +		return 1;
 +	}
- 
++
    parsed_args=parse_arguments(argv);
  
-diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/tools/caudium-rc_script.in caudium-1.4-darwin/tools/caudium-rc_script.in
---- caudium-1.4/tools/caudium-rc_script.in	Fri May 28 14:35:00 2004
-+++ caudium-1.4-darwin/tools/caudium-rc_script.in	Thu Sep 16 19:28:42 2004
-@@ -2,55 +2,34 @@
+   int code=act_on_args();
+diff -ruN --exclude=CVS --exclude='.#*' --exclude='*.orig' caudium-1.4.6/tools/caudium-rc_script.in caudium-1.4.6-fink/tools/caudium-rc_script.in
+--- caudium-1.4.6/tools/caudium-rc_script.in	2004-05-28 14:35:00.000000000 +0200
++++ caudium-1.4.6-fink/tools/caudium-rc_script.in	2006-01-02 15:18:45.000000000 +0100
+@@ -2,56 +2,35 @@
  #
  # $Id$
  #
@@ -184,10 +212,10 @@ diff -ruN --exclude=CVS --exclude=.#* caudium-1.4/tools/caudium-rc_script.in cau
  test -n "$pidfile" && flags="$flags --pid-file=$pidfile"
  test -n "$configdir" && flags="$flags --config-dir=$configdir"
  test -n "$logdir" && flags="$flags --log-dir=$logdir"
-+
+ 
 +# Tell the start script it is invoqued by caudiumctl
 +flags="$flags --caudiumctl"
- 
++
  case $1 in
  	'start')
-
+           echo "Starting Caudium from $caudiumhome..."

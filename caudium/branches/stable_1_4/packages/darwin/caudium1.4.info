@@ -1,14 +1,10 @@
 Package: caudium1.4
-Version: 1.4.4
-Revision: 2
+Version: 1.4.6
+Revision: 3
 
 Description: <<
 	Multi-threaded web server
 <<
-
-License: GPL
-Homepage: http://caudium.net/
-Maintainer: Bertrand Lupart <bertrand@caudium.net>
 
 # TODO: DescDetails
 
@@ -44,20 +40,43 @@ DescPackaging: <<
 
 Source: ftp://ftp.caudium.net/caudium/source/caudium-%v.tar.gz
 
-Source-MD5: 624b3af61b00cd162f5916d637b0b95e
+Source-MD5: 53bb87fc58e966ff7ea8fa0e65d2a080
 
-# If you build Caudium yourself, you can change the Pike version required.
+# If you build Caudium yourself, you can change the Pike version required in
+# Depends and BuildDepends.
 # A Pike version is strictly harcoded here because of binary distribution:
-# Caudium needs the real Pike version it was compiled with.
-BuildDepends: pike7.6 (= 7.6.13-2), pcre
-Depends: pike7.6 (= 7.6.13-2), pcre-shlibs
+# Caudium needs to run with the real Pike version it was compiled with.
+
+# TODO:
+# gdbm3?
+# sablotron?
+BuildDepends: <<
+	pike7.6-jpeg (= 7.6.58-4),
+	pike7.6-mysql(= 7.6.58-4),
+	pcre,
+	gdbm,
+	freetype
+<<
+
+# Caudium.Cache requires pike7.6-math, pike7.6-nettle, pike7.6-pcre 
+# gtext and truetype fonts require freetype-shlibs
+Depends: <<
+	pike7.6 (= 7.6.58-4),
+	pike7.6-jpeg (= 7.6.58-4),
+	pike7.6-math (= 7.6.58-4),
+	pike7.6-mysql(= 7.6.58-4),
+	pike7.6-nettle (= 7.6.58-4),
+	pcre-shlibs,
+	gdbm-shlibs,
+	freetype-shlibs,
+<<
 
 NoSetCPPFLAGS: True
 
 # %f is for extended fink file names, eg caudium1.4-1.4.4-1.patch
 # %n is for short fink file names, eg caudium1.4.patch
-#Patch: %f.patch
 Patch: %n.patch
+#Patch: %f.patch
 
 PatchScript: <<
 	# darwin strip don't know about --strip-unneeded
@@ -150,6 +169,8 @@ SplitOff2: <<
 	Files: lib/%N/bin/ultrasum.pike bin/ultrasum lib/%N/etc/include/ultralog lib/%N/modules/ultralog lib/%N/etc/modules/UltraSupport.pmod lib/%N/lib/7.6.*/UltraLog.so
 	DescDetail: <<
 		Log reporter for webserver that builds nice graphics and handle long term statistics.
+		It can deal with other webservers logs, but require Caudium to run
+		Log reporter for webserver that builds nice graphics and handle long term statistics.
 		It can deal with other webservers logs, but require Caudium to run.
 	<<
 <<
@@ -165,3 +186,7 @@ DaemonicFile: <<
 	</daemon>
 </service>
 <<
+
+License: GPL
+Homepage: http://caudium.net/
+Maintainer: Bertrand Lupart <bertrand@caudium.net>
