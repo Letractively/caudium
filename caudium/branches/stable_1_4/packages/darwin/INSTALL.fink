@@ -6,7 +6,7 @@ you'll have to download the data from the Caudium FTP.
 
 You have two options: build from source or install precompiled binaries.
 
-While building from source, you can compile Caudium against any Pike 7.6.12+.
+While building from source, you can compile Caudium against any Pike 7.6.26+.
 If you want to compile Caudium with another Pike version, just adapt the info
 file in the *Depends fields and the hardcoded paths in SplittOff fields.
 
