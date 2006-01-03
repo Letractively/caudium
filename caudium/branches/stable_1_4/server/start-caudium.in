@@ -71,6 +71,7 @@ array(array(string | array(string))) arguments = ({
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
+	({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
 });
 
 // loader options (with defaults)
@@ -851,6 +852,9 @@ int act_on_args()
         case "quiet":
           options->quiet=1;
           break;
+				case "shuffler":
+					command_line->DEFINES+=({"SHUFFLER"});
+					break;
     }    
   }
   
