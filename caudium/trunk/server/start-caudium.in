@@ -853,7 +853,7 @@ int act_on_args()
           options->quiet=1;
           break;
 				case "shuffler":
-					command_line->DEFINES+=({"SHUFFLER"});
+					command_line->DEFINES+=({"USE_SHUFFLER"});
 					break;
     }    
   }
