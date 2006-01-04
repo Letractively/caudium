@@ -11,8 +11,10 @@
 
 void pike_module_init( void );
 void pike_module_exit( void );
+#ifdef ENABLE_NBIO
 void init_nbio(void);
 void exit_nbio(void);
+#endif /* ENABLE_NBIO */
 
 /* The size of the mmap window used for large files. For busy sites,
  * you might  have to lower this value if you run out of process address
@@ -80,6 +82,7 @@ typedef struct
 
 } static_strings;
 
+
 typedef struct
 {
   unsigned char  *pos;
@@ -88,6 +91,8 @@ typedef struct
   struct mapping *other;
   unsigned char  *data;
 } buffer;
+
+#ifdef ENABLE_NBIO
 
 #ifdef INT64
 # define push_nbio_int(X) push_int64(X)
@@ -170,6 +175,8 @@ typedef struct
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
 #endif
 
+
+#endif /* ENABLE_NBIO */
 
 extern void do_set_close_on_exec(void);
 #endif
