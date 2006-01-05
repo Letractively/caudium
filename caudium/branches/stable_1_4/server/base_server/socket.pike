@@ -116,9 +116,9 @@ public void my_pipe_done(object which)
 void async_pipe(object to, object from, function|void callback, 
 		mixed|void id)
 {
-  // TODO: Remove Caudium.nbio there.
-  object pipe = Caudium.nbio ();
   object cache;
+#ifndef USE_SHUFFLER
+  object pipe = Caudium.nbio ();
 
 #ifdef SOCKET_DEBUG
   perror("async_pipe(): ");
@@ -130,4 +130,19 @@ void async_pipe(object to, object from, function|void callback,
 #endif
   pipe->input(from);
   pipe->output(to);
+
+#else /* USE_SHUFFLER */
+
+  object pipe = Shuffler.Shuffler();
+#ifdef SOCKET_DEBUG
+  perror("async_pipe(): ");
+#endif
+  if(callback) 
+    pipe->set_done_callback(callback, id);
+#ifdef SOCKET_DEBUG
+  perror("Using normal pipe.\n");
+#endif
+  pipe->shuffle(to);
+  pipe->add_source(from); 
+#endif /* USE_SUFFLER */
 }
