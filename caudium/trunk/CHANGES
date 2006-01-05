@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed some Caudium.nbio code that where still used in socket.pike
+   (Xavier Beaudouin)
 - Properly decode UTF-8 requests that have been HTTP encoded.
    (Bill Welliver)
 - Fix for the 2GB file limit in Caudium.nbio, which should allow
