@@ -116,6 +116,7 @@ public void my_pipe_done(object which)
 void async_pipe(object to, object from, function|void callback, 
 		mixed|void id)
 {
+  // TODO: Remove Caudium.nbio there.
   object pipe = Caudium.nbio ();
   object cache;
 
