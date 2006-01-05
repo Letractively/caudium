@@ -190,6 +190,8 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
     }
     mapping_string_insert_string(result, key, val);
   }
+  free_array(indices);
+  free_array(values);
   return result;
 }
 
@@ -318,7 +320,8 @@ static void f_make_tag_attributes(INT32 args)
   retstr = finish_string_builder(&ret);
   pop_n_elems(args);
   free_mapping(safe_in);
-
+  free_array(values);
+  free_array(indices);
   push_string(retstr);
 }
 
