@@ -70,7 +70,7 @@ array(array(string | array(string))) arguments = ({
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
-  ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
+  ({"help", Getopt.NO_ARG, ({"--help", "-?"})}),
 	({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
 });
 
@@ -899,6 +899,9 @@ information
 			          protocol module. This will soon be
                                   the default. Some clients might have
 				  problems with keepalive.
+
+      .B--with-shufflerB.:  Enable use of the Shuffler module instead of
+				  Caudium's NBIO module. 
 				  
       .B--onceB.:  Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
