@@ -162,18 +162,14 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
        if (do_replace) {
          ref_push_string(tmp);
          if(encode_type == 1)
-         {
-           add_ref(xml_mta_unsafe_chars);
-           add_ref(xml_mta_safe_entities);
-           push_array(xml_mta_unsafe_chars);
-           push_array(xml_mta_safe_entities);
-         }
+         { 
+           ref_push_array(xml_mta_unsafe_chars);
+           ref_push_array(xml_mta_safe_entities);
+	         }
          if(encode_type == 0)
          {
-           add_ref(html_mta_unsafe_chars);
-           add_ref(html_mta_safe_entities);
-           push_array(html_mta_unsafe_chars);
-           push_array(html_mta_safe_entities);
+           ref_push_array(html_mta_unsafe_chars);
+           ref_push_array(html_mta_safe_entities);
          }
          f_replace(3);
          if(j == 0)
@@ -245,8 +241,6 @@ static void f_html_encode_mapping(INT32 args)
 static void f_make_tag_attributes(INT32 args)
 {
   struct mapping          *in, *safe_in;
-  struct array            *indices, *values;
-  unsigned                 i;
   struct string_builder    ret;
   struct pike_string      *retstr;
   int                      max_shift;
@@ -274,9 +268,6 @@ static void f_make_tag_attributes(INT32 args)
   /* encode in the given encoding mecanism (for now HTML and XML) */
   safe_in = encode_mapping(in, encoding);
 
-  indices = mapping_indices(safe_in);
-  values = mapping_values(safe_in);
-
   /* Find the widest string in the mapping, we need that for the string
    * builder
    */
@@ -291,26 +282,23 @@ static void f_make_tag_attributes(INT32 args)
 
   init_string_builder(&ret, max_shift);  
 
-  /* we don't check whether the string is "safe" or not. We will run replace
-   * once over the entire resulting string in the end.
-   */
-  for (i = 0; i < (unsigned)indices->size; i++) {
-    if (indices->real_item[i].type != T_STRING || values->real_item[i].type != T_STRING)
+  NEW_MAPPING_LOOP(safe_in->data)
+  {
+    if (k->ind.type != T_STRING || k->val.type != T_STRING)
       continue;
     /* alloc enough space for name="value" */
-    len = indices->real_item[i].u.string->len +
-      values->real_item[i].u.string->len + 5;
+    len = k->ind.u.string->len + k->val.u.string->len + 5;
 
     tmp = scratchpad_get(len);/* it always returns a valid pointer */
     
     /* ugly code, but fast */
     tmp[len] = 0;
-    len = indices->real_item[i].u.string->len;
-    memcpy(tmp, indices->real_item[i].u.string->str, indices->real_item[i].u.string->len);
+    len = k->ind.u.string->len;
+    memcpy(tmp, k->ind.u.string->str, k->ind.u.string->len);
     memcpy(tmp + len, "=\"", 2);
     len += 2;
-    memcpy(tmp + len, values->real_item[i].u.string->str, values->real_item[i].u.string->len);
-    len += values->real_item[i].u.string->len;
+    memcpy(tmp + len, k->val.u.string->str, k->val.u.string->len);
+    len += k->val.u.string->len;
     memcpy(tmp + len, "\" ", 2);
     len += 2;
     
@@ -320,8 +308,6 @@ static void f_make_tag_attributes(INT32 args)
   retstr = finish_string_builder(&ret);
   pop_n_elems(args);
   free_mapping(safe_in);
-  free_array(values);
-  free_array(indices);
   push_string(retstr);
 }
 
@@ -2004,29 +1990,21 @@ void pike_module_init( void )
   SVAL(mta_slash)->type  = T_STRING;
   SVAL(mta_equals)->type = T_STRING;
 
-  push_text("<");
-  push_text(">");
-  push_text("&");
-  push_text("\"");
-  push_text("\'");
-  push_text("\000");
-  xml_mta_unsafe_chars = aggregate_array(6);
+  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
+    push_text(xml_unsafechars[i]);
+  xml_mta_unsafe_chars = aggregate_array(XML_UNSAFECHARS_SIZE);
 
-  push_text("&lt;");
-  push_text("&gt;");
-  push_text("&amp;");
-  push_text("&#34;");
-  push_text("&#39;");
-  push_text("&#0;");
+  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
+    push_text(xml_safeentities[i]);
+  xml_mta_safe_entities = aggregate_array(XML_UNSAFECHARS_SIZE);
 
-  xml_mta_safe_entities = aggregate_array(6);
+  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
+    push_text(html_unsafechars[i]);
+  html_mta_unsafe_chars = aggregate_array(HTML_UNSAFECHARS_SIZE);
 
-  push_text("\"");
-  html_mta_unsafe_chars = aggregate_array(1);
- 
-  push_text("&quot;");
-  html_mta_safe_entities = aggregate_array(1);
-
+  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
+    push_text(html_safeentities[i]);
+  html_mta_safe_entities = aggregate_array(HTML_UNSAFECHARS_SIZE);
   
   add_function_constant( "parse_headers", f_parse_headers,
                          "function(string:mapping)", 0);
