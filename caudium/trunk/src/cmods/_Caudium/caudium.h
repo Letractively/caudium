@@ -168,15 +168,14 @@ typedef struct
   
 } nbio_storage;         /* nbio object storage */
 
+#endif /* ENABLE_NBIO */
+
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
 #endif
 #ifndef MAX
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
 #endif
-
-
-#endif /* ENABLE_NBIO */
 
 extern void do_set_close_on_exec(void);
 #endif
