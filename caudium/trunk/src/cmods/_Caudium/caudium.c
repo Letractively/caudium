@@ -96,6 +96,7 @@ static_strings strs;
 **!  scope: private
 */
 
+
 static struct array    *xml_mta_unsafe_chars;
 static struct array    *xml_mta_safe_entities;
 static struct array    *html_mta_unsafe_chars;
@@ -119,59 +120,60 @@ static char            *html_safeentities[] = { "&quot;" };
  */
 static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode_type)
 {
-  struct array            *indices, *values;
+  INT32 e;
+  struct keypair *k;
   struct mapping          *result;
   struct pike_string      *key = NULL, *val = NULL, *tmp = NULL;
-  int                     i, j, k, do_replace;
-  int                     size;
+  int                     i, j, do_replace;
 
-  indices = mapping_indices(mapping2encode);
-  values = mapping_values(mapping2encode);
-  size = (unsigned)indices->size;
-  result = allocate_mapping(size);
+  result = allocate_mapping(1);
+
   if(result == NULL)
     Pike_error("Can't allocate result mapping\n");
 
-  /* encode any key/value pair in the mapping */
-  for(i = 0; i < size; i++)
+  NEW_MAPPING_LOOP(mapping2encode->data)
   {
-    if(indices->real_item[i].type != T_STRING
-         || values->real_item[i].type != T_STRING)
+   if(k->ind.type != T_STRING
+         || k->val.type != T_STRING)
         continue;
     for(j = 0; j < 2; j++)
     {
       if(j == 0)
-        tmp = indices->real_item[i].u.string;
+        tmp = k->ind.u.string;
       if(j == 1)
-        tmp = values->real_item[i].u.string;
+        tmp = k->val.u.string;
       /* let's see whether we have anything to encode */
        do_replace = 0;
        if(encode_type == 1)
-         for (k = 0; k < XML_UNSAFECHARS_SIZE; k++) {
-           if (memchr(tmp->str, xml_unsafechars[k][0], tmp->len)) {
+         for (i = 0; i < XML_UNSAFECHARS_SIZE; i++) {
+           if (memchr(tmp->str, xml_unsafechars[i][0], tmp->len)) {
              do_replace = 1;
              break;
            }
          }
        if(encode_type == 0)
-         for (k = 0; k < HTML_UNSAFECHARS_SIZE; k++) {
-           if (memchr(tmp->str, html_unsafechars[k][0], tmp->len)) {
+         for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++) {
+           if (memchr(tmp->str, html_unsafechars[i][0], tmp->len)) {
              do_replace = 1;
              break;
            }
          }
 
        if (do_replace) {
-         push_string(tmp);
+         ref_push_string(tmp);
          if(encode_type == 1)
          {
-           push_array(copy_array(xml_mta_unsafe_chars));
-           push_array(copy_array(xml_mta_safe_entities));
+           add_ref(xml_mta_unsafe_chars);
+           add_ref(xml_mta_safe_entities);
+           push_array(xml_mta_unsafe_chars);
+           push_array(xml_mta_safe_entities);
          }
          if(encode_type == 0)
          {
-           push_array(copy_array(html_mta_unsafe_chars));
-           push_array(copy_array(html_mta_safe_entities));
+           add_ref(html_mta_unsafe_chars);
+           add_ref(html_mta_safe_entities);
+           push_array(html_mta_unsafe_chars);
+           push_array(html_mta_safe_entities);
          }
          f_replace(3);
          if(j == 0)
@@ -190,8 +192,6 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
     }
     mapping_string_insert_string(result, key, val);
   }
-  free_array(indices);
-  free_array(values);
   return result;
 }
 
@@ -2004,21 +2004,28 @@ void pike_module_init( void )
   SVAL(mta_slash)->type  = T_STRING;
   SVAL(mta_equals)->type = T_STRING;
 
-  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
-    push_text(xml_unsafechars[i]);
-  xml_mta_unsafe_chars = aggregate_array(XML_UNSAFECHARS_SIZE);
+  push_text("<");
+  push_text(">");
+  push_text("&");
+  push_text("\"");
+  push_text("\'");
+  push_text("\000");
+  xml_mta_unsafe_chars = aggregate_array(6);
 
-  for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
-    push_text(xml_safeentities[i]);
-  xml_mta_safe_entities = aggregate_array(XML_UNSAFECHARS_SIZE);
+  push_text("&lt;");
+  push_text("&gt;");
+  push_text("&amp;");
+  push_text("&#34;");
+  push_text("&#39;");
+  push_text("&#0;");
 
-  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
-    push_text(html_unsafechars[i]);
-  html_mta_unsafe_chars = aggregate_array(HTML_UNSAFECHARS_SIZE);
+  xml_mta_safe_entities = aggregate_array(6);
 
-  for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
-    push_text(html_safeentities[i]);
-  html_mta_safe_entities = aggregate_array(HTML_UNSAFECHARS_SIZE);
+  push_text("\"");
+  html_mta_unsafe_chars = aggregate_array(1);
+ 
+  push_text("&quot;");
+  html_mta_safe_entities = aggregate_array(1);
 
   
   add_function_constant( "parse_headers", f_parse_headers,
@@ -2098,6 +2105,7 @@ void pike_module_exit( void )
   free_string(STRS(mta_slash));
   free_string(STRS(mta_equals));
 
+printf("shutting down\n");
   free_array(xml_mta_unsafe_chars);
   free_array(xml_mta_safe_entities);
   free_array(html_mta_unsafe_chars);
