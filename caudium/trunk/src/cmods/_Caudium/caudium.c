@@ -96,6 +96,8 @@ static_strings strs;
 **!  scope: private
 */
 
+#define ENCODE_TYPE_HTML 0
+#define ENCODE_TYPE_XML  1
 
 static struct array    *xml_mta_unsafe_chars;
 static struct array    *xml_mta_safe_entities;
@@ -104,13 +106,62 @@ static struct array    *html_mta_safe_entities;
 
 /* unsafe characters and entities for encode_mapping (used by make_tag_attributes)
  * used to generate tags and containers */
-static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\000"};
-static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
-static char            *html_unsafechars[] = { "\"" };
-static char            *html_safeentities[] = { "&quot;" };
+const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\000"};
+const static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
+const static char            *html_unsafechars[] = { "\"" };
+const static char            *html_safeentities[] = { "&quot;" };
 
 #define XML_UNSAFECHARS_SIZE sizeof(xml_unsafechars)/sizeof(char*)
 #define HTML_UNSAFECHARS_SIZE sizeof(html_unsafechars)/sizeof(char*)
+
+const static char*           (*__unsafe_chars[])[] = {
+  &html_unsafechars, &xml_unsafechars
+};
+
+const static char*           (*__safe_entities[])[] = {
+  &html_safeentities, &xml_safeentities
+};
+
+static struct array**    __mta_unsafe_chars[] = {
+  &html_mta_unsafe_chars, &xml_mta_unsafe_chars
+};
+
+static struct array**    __mta_safe_entities[] = {
+  &html_mta_safe_entities, &xml_mta_safe_entities
+};
+
+static INLINE struct pike_string *_encode_pike_string(struct pike_string *ps,
+                                                      char* unsafe_chars[],
+                                                      size_t unsafe_size,
+                                                      struct array **mta_unsafe_chars,
+                                                      struct array **mta_safe_entities)
+{
+  /* for brevity and clarity */
+  struct pike_string *ret;
+  
+  int          do_replace = 0, i;
+  
+  /* let's see whether we have anything to encode */
+  for (i = 0; i < unsafe_size; i++) {
+    if (memchr(ps->str, unsafe_chars[i][0], ps->len)) {
+      do_replace = 1;
+      break;
+    }
+  }
+
+  if (do_replace) {
+    ref_push_string(ps);
+    ref_push_array(*mta_unsafe_chars);
+    ref_push_array(*mta_safe_entities);
+    f_replace(3);
+    copy_shared_string(ret, Pike_sp[-1].u.string);
+    pop_stack();
+  }
+  else
+    copy_shared_string(ret, ps);
+
+  return ret;
+}
 
 /* helper function for encoding XHTML for make_tag_attributes in mappings 
  * This function encode every key/value pair in the mapping according to the 
@@ -118,7 +169,7 @@ static char            *html_safeentities[] = { "&quot;" };
  * If encode_type = 0, strings are encoded for HTML output
  * If encode_type = 1, string are encoded for XML output
  */
-static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode_type)
+static INLINE struct mapping *encode_mapping(struct mapping *mapping2encode, int encode_type)
 {
   INT32 e;
   struct keypair *k;
@@ -133,59 +184,20 @@ static struct mapping *encode_mapping(struct mapping *mapping2encode, int encode
 
   NEW_MAPPING_LOOP(mapping2encode->data)
   {
-   if(k->ind.type != T_STRING
-         || k->val.type != T_STRING)
-        continue;
-    for(j = 0; j < 2; j++)
-    {
-      if(j == 0)
-        tmp = k->ind.u.string;
-      if(j == 1)
-        tmp = k->val.u.string;
-      /* let's see whether we have anything to encode */
-       do_replace = 0;
-       if(encode_type == 1)
-         for (i = 0; i < XML_UNSAFECHARS_SIZE; i++) {
-           if (memchr(tmp->str, xml_unsafechars[i][0], tmp->len)) {
-             do_replace = 1;
-             break;
-           }
-         }
-       if(encode_type == 0)
-         for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++) {
-           if (memchr(tmp->str, html_unsafechars[i][0], tmp->len)) {
-             do_replace = 1;
-             break;
-           }
-         }
-
-       if (do_replace) {
-         ref_push_string(tmp);
-         if(encode_type == 1)
-         { 
-           ref_push_array(xml_mta_unsafe_chars);
-           ref_push_array(xml_mta_safe_entities);
-	         }
-         if(encode_type == 0)
-         {
-           ref_push_array(html_mta_unsafe_chars);
-           ref_push_array(html_mta_safe_entities);
-         }
-         f_replace(3);
-         if(j == 0)
-           copy_shared_string(key, Pike_sp[-1].u.string);
-         if(j == 1)
-           copy_shared_string(val, Pike_sp[-1].u.string);
-         pop_stack();
-      }
-      else
-      {
-        if(j == 0)
-          copy_shared_string(key, tmp);
-        if(j == 1)
-          copy_shared_string(val, tmp);
-      }
-    }
+    if (k->ind.type != T_STRING || k->val.type != T_STRING)
+      continue;
+    
+    key = _encode_pike_string(k->ind.u.string,
+                              __unsafe_chars[encode_type],
+                              encode_type == ENCODE_TYPE_XML ? XML_UNSAFECHARS_SIZE : HTML_UNSAFECHARS_SIZE,
+                              __mta_unsafe_chars[encode_type],
+                              __mta_safe_entities[encode_type]);
+    val = _encode_pike_string(k->val.u.string,
+                              __unsafe_chars[encode_type],
+                              encode_type == ENCODE_TYPE_XML ? XML_UNSAFECHARS_SIZE : HTML_UNSAFECHARS_SIZE,
+                              __mta_unsafe_chars[encode_type],
+                              __mta_safe_entities[encode_type]);    
+    
     mapping_string_insert_string(result, key, val);
   }
   return result;
@@ -204,7 +216,7 @@ static void f_xml_encode_mapping(INT32 args)
   struct mapping             *mapping2encode, *result;
 
   get_all_args("mapping_html_encode_string", args, "%m", &mapping2encode);
-  result = encode_mapping(mapping2encode, 1);
+  result = encode_mapping(mapping2encode, ENCODE_TYPE_XML);
   pop_stack();
   push_mapping(result);
 }
@@ -222,7 +234,7 @@ static void f_html_encode_mapping(INT32 args)
   struct mapping             *mapping2encode, *result;
 
   get_all_args("mapping_html_encode_string", args, "%m", &mapping2encode);
-  result = encode_mapping(mapping2encode, 0);
+  result = encode_mapping(mapping2encode, ENCODE_TYPE_HTML);
   pop_stack();
   push_mapping(result);
 }
@@ -244,7 +256,7 @@ static void f_make_tag_attributes(INT32 args)
   struct string_builder    ret;
   struct pike_string      *retstr;
   int                      max_shift;
-  char                    *tmp;
+  unsigned char           *tmp;
   int                      len;
   INT32                    encoding = 0;
   /* Used by NEW_MAPPING_LOOP */
@@ -258,6 +270,8 @@ static void f_make_tag_attributes(INT32 args)
       break;
     case 2:
       get_all_args("make_tag_attributes", args, "%m%d", &in, &encoding);
+      if (encoding < 0 || encoding > 1)
+        Pike_error("Encoding must be either 0 or 1\n");
       break;
     default:
       Pike_error("Wrong number of arguments, expected 1 or 2.\n");
@@ -350,7 +364,7 @@ static void setproctitle_init(int argc, char **argv)
 static void setproctitle(char *fmt, ...)
 {
   va_list     ap;
-  char       *buf = scratchpad_get(_maxargvlen);/* it always returns a valid pointer */
+  char       *buf = (char*)scratchpad_get(_maxargvlen);/* it always returns a valid pointer */
   
   if (!argv0 || !_maxargvlen || !fmt || !strlen(fmt)) {
     return;
@@ -585,7 +599,7 @@ static void f_buf_create( INT32 args )
   }
 
   if(BUF->free) {
-    BUF->data = (char*)malloc(BUF->free * sizeof(char));
+    BUF->data = (unsigned char*)malloc(BUF->free * sizeof(char));
     if(!BUF->data)
       Pike_error("Cannot allocate the request buffer. Out of memory.\n");
   }
@@ -815,7 +829,7 @@ void entity_callback(char *entname, char params[], ENT_CBACK_RESULT *res,
       memcpy(tmp2, Pike_sp[-1].u.string->str, 
          (Pike_sp[-1].u.string->len));
 
-     res->buf = tmp2;
+      res->buf = (unsigned char*)tmp2;
      res->buflen = Pike_sp[-1].u.string->len;
 
      pop_stack();
