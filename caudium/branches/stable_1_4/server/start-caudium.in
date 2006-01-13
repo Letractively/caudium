@@ -70,8 +70,8 @@ array(array(string | array(string))) arguments = ({
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
-  ({"help", Getopt.NO_ARG, ({"--help", "-?"})})
-	({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
+  ({"help", Getopt.NO_ARG, ({"--help", "-?"})}),
+  ({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
 });
 
 // loader options (with defaults)
