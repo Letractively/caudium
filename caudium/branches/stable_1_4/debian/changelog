@@ -1,3 +1,9 @@
+caudium (2:1.4.7-11) unstable; urgency=low
+
+  * New pike dependency
+
+ -- Marek Habersack <grendel@debian.org>  Tue, 31 Jan 2006 22:27:23 +0100
+
 caudium (2:1.4.7-10) unstable; urgency=low
 
   * Depends on newer pike
