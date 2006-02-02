@@ -1081,6 +1081,9 @@ static void f_parse_query_string( INT32 args )
           }
           low_mapping_insert(variables, &skey, &sval, 1);
 
+          free_svalue(&skey);
+          free_svalue(&sval);
+
           /* Reset pointers */
           equal = NULL;
           name = ptr+1;
