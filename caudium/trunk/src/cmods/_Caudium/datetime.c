@@ -490,17 +490,20 @@ void init_datetime(void)
   ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
   
   /* FIXME: how to make this working ????? */
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[0], "Unknown getdate error code.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[1], "The DATEMSK environment variable is null or undefined.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[2], "The template file cannot be opened for reading.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[3], "Failed to get file status information.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[4], "The template file is not a regular file.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[5], "An error is encountered while reading the template file.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[6], "Memory allocation failed (not enough memory available).");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[7], "There is no line in the file that matches the input.");
-  MAKE_CONSTANT_SHARED_STRING(getdate_errors[8], "Invalid input specification.");
+#define MAKE_SS(X, Y) X = make_shared_binary_string(Y, CONSTANT_STRLEN(Y))
+
+  
+  MAKE_SS(getdate_errors[0], "Unknown getdate error code.");
+  MAKE_SS(getdate_errors[1], "The DATEMSK environment variable is null or undefined.");
+  MAKE_SS(getdate_errors[2], "The template file cannot be opened for reading.");
+  MAKE_SS(getdate_errors[3], "Failed to get file status information.");
+  MAKE_SS(getdate_errors[4], "The template file is not a regular file.");
+  MAKE_SS(getdate_errors[5], "An error is encountered while reading the template file.");
+  MAKE_SS(getdate_errors[6], "Memory allocation failed (not enough memory available).");
+  MAKE_SS(getdate_errors[7], "There is no line in the file that matches the input.");
+  MAKE_SS(getdate_errors[8], "Invalid input specification.");
 #endif
-  MAKE_CONSTANT_SHARED_STRING(gd_bad_format, "Bad date format. Could not convert.");
+  MAKE_SS(gd_bad_format, "Bad date format. Could not convert.");
   
 #ifdef HAVE_STRPTIME
   add_function_constant("strptime", f_strptime, "function(string,string,mapping:int)", 0);
@@ -518,9 +521,11 @@ void exit_datetime(void)
 {
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
   unsigned int i;
-  for(i = 0; getdate_errors[i] != NULL; i++)
+
+  for(i = 0; i < 9; i++)
   {
-    free_string(getdate_errors[i]);
+    if(getdate_errors[i] != NULL)
+      free_string(getdate_errors[i]);
   }
 #endif
   free_string(gd_bad_format);
