@@ -1059,6 +1059,10 @@ static void f_parse_query_string( INT32 args )
             if (!sval.u.string)
               Pike_error("Out of memory.\n");
             multiset_insert(emptyvars, &sval);
+
+            free_svalue(&skey);
+            free_svalue(&sval);
+            
             name = ptr + 1;
             equal = NULL;
             break;
