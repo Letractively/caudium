@@ -199,6 +199,9 @@ static INLINE struct mapping *encode_mapping(struct mapping *mapping2encode, int
                               __mta_safe_entities[encode_type]);    
     
     mapping_string_insert_string(result, key, val);
+    
+    free_string(key);
+    free_string(val);
   }
   return result;
 }
