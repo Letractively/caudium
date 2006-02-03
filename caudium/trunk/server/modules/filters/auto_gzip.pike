@@ -150,7 +150,7 @@ void create()
       "<li>check if a precompressed file already exists.</li>\n"
       "<li>if so, send a redirection to the precompressed file</li></ul>\n"
       "<p>So, no cost for compression, all URLs, content-types and such would "
-      "remain vaild, no compression overhead."
+      "remain valid, no compression overhead. "
       "Also, it would allow a site mantainer to "
       "choose WHAT to precompress and what not to.</p>"
       "<p>With this option, the module will acts as a filter, and it _will_ use "
