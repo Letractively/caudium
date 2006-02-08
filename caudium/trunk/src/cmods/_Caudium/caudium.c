@@ -774,6 +774,8 @@ static int get_next_header(unsigned char *heads, int len,
                                                     count2 - data);
           low_mapping_insert(headermap, &skey, &sval, 1);
           count = count2;
+          free_svalue(&sval);
+          free_svalue(&skey);
           break;
         case '\n':
           return count+1;
