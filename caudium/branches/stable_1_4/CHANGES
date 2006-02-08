@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.5 since Caudium 1.4.4
 --------------------------------------------
+- Fixed a Virtual Host Matcher bug where the port number was not properly 
+   identified from the hostname.
+   (Bernd Shoeller)
 - Fixed some Caudium.nbio code that where still used in socket.pike
    (Xavier Beaudouin)
 - Properly decode UTF-8 requests that have been HTTP encoded.
