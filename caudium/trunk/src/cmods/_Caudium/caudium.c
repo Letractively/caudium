@@ -174,8 +174,7 @@ static INLINE struct mapping *encode_mapping(struct mapping *mapping2encode, int
   INT32 e;
   struct keypair *k;
   struct mapping          *result;
-  struct pike_string      *key = NULL, *val = NULL, *tmp = NULL;
-  int                     i, j, do_replace;
+  struct pike_string      *key = NULL, *val = NULL;
 
   result = allocate_mapping(1);
 
@@ -1792,12 +1791,10 @@ static void f_cern_http_date(INT32 args)
 static void f_http_date(INT32 args)
 {
   time_t now;
-  long diff;
   struct tm *tm;
   char date[sizeof "Wed, 11 Dec 2002 17:13:15 GMT"];
   struct pike_string *ret;
   INT_TYPE timestamp = 0;
-  int hour;
 
   switch(args) {
    default:
