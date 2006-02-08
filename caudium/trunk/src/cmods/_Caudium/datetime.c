@@ -431,7 +431,7 @@ static void f_parse_date(INT32 args)
 static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
-  int                   tmod, use_weird = 0, i;
+  int                   tmod, use_weird = 0;
   time_t                ret;
 #ifdef HAVE_STRPTIME
   struct tm             ttm;
@@ -486,11 +486,12 @@ static void f_is_modified(INT32 args)
 
 void init_datetime(void)
 {
+#define MAKE_SS(X, Y) X = make_shared_binary_string(Y, CONSTANT_STRLEN(Y))
+
 #if defined(HAVE_GETDATE) || defined(HAVE_GETDATE_R)
   ADD_FUNCTION("getdate", f_getdate, tFunc(tString tOr(tInt, tVoid), tInt), 0);
   
   /* FIXME: how to make this working ????? */
-#define MAKE_SS(X, Y) X = make_shared_binary_string(Y, CONSTANT_STRLEN(Y))
 
   
   MAKE_SS(getdate_errors[0], "Unknown getdate error code.");
