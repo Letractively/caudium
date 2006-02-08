@@ -147,11 +147,12 @@ void precache_rewrite(object id)
 
     foreach(caudium->configurations, object s)
     {
-      array h = array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s/");
-      if(sizeof(h)!=2)
-        h=array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s:%s/");
-      else
-        h += ({ (["http":"80","https":"443"])[h[0]] });
+			array h=array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s:%s/");
+			if(sizeof(h)!=3)
+			{
+				h = array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s/");
+				h += ({ (["http":"80","https":"443"])[h[0]] });
+			}
 
       DWERR(sprintf(" %s://%s:%s/", h[0], h[1], h[2]||""));
       if(host == h[1] &&
