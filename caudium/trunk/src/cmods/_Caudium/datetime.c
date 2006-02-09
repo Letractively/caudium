@@ -432,6 +432,7 @@ static void f_is_modified(INT32 args)
 {
   struct pike_string   *header;
   int                   tmod, use_weird = 0;
+  int                   i;
   time_t                ret;
 #ifdef HAVE_STRPTIME
   struct tm             ttm;

@@ -477,7 +477,8 @@ static void f_buf_append( INT32 args )
 
   sval.u.string = make_shared_binary_string( (char *)pp, BUF->pos - pp);
   low_mapping_insert(BUF->other, SVAL(data), &sval, 1); /* data */
-  
+  free_svalue(&sval);
+
   in = BUF->data;
   l = pp - BUF->data;
 
@@ -492,6 +493,7 @@ static void f_buf_append( INT32 args )
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
   low_mapping_insert(BUF->other, SVAL(method), &sval, 1);
+  free_svalue(&sval);
   
   i++; in += i; l -= i;
 
@@ -506,6 +508,7 @@ static void f_buf_append( INT32 args )
   }
   sval.u.string = make_shared_binary_string((char *)in, i);
   low_mapping_insert(BUF->other, SVAL(raw_url), &sval, 1);
+  free_svalue(&sval);
 
   /* Decode file part and return pointer to query, if any */
   query = char_decode_url(in, i);
@@ -513,11 +516,13 @@ static void f_buf_append( INT32 args )
   /* Decoded, query-less file up to the first \0 */
   sval.u.string = make_shared_string((char *)in); 
   low_mapping_insert(BUF->other, SVAL(file), &sval, 1);
+  free_svalue(&sval);
   
   if(query != NULL)  {
     /* Store the query string */
     sval.u.string = make_shared_binary_string((char *)query, i - (query-in)); /* Also up to first null */
     low_mapping_insert(BUF->other, SVAL(query), &sval, 1);
+    free_svalue(&sval);
   }
   
   i++; in += i; l -= i;
@@ -534,6 +539,7 @@ static void f_buf_append( INT32 args )
     i++;
   sval.u.string = make_shared_binary_string((char *)in, i-1);
   low_mapping_insert(BUF->other, SVAL(protocol), &sval, 1);
+  free_svalue(&sval);
 
   in += i; l -= i;
   if( *in == '\n' ) (in++),(l--);
@@ -567,6 +573,8 @@ static void f_buf_append( INT32 args )
       }
       
       low_mapping_insert(BUF->headers, &skey, &sval, 1);
+      free_svalue(&skey);
+      free_svalue(&sval);
       if( in[j+1] == '\n' ) j++;
       os = j+1;
       i = j;
@@ -1797,6 +1805,8 @@ static void f_http_date(INT32 args)
   char date[sizeof "Wed, 11 Dec 2002 17:13:15 GMT"];
   struct pike_string *ret;
   INT_TYPE timestamp = 0;
+  long diff;
+  int hour;
 
   switch(args) {
    default:
