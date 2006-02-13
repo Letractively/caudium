@@ -91,6 +91,9 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
+// TODO: remove me
+#define CGI_DEBUG
+
 #ifdef CGI_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !CGI_DEBUG */
@@ -250,11 +253,18 @@ class Wrapper
   object mid;
   mixed done_cb;
 
+  // flag set when the buffer isn't empty when done() is called
   int close_when_done;
+  // Counter for the resent attempts
+  int buffer_send_retry = 0;
+  
   void write_callback() 
   {
     DWERROR("CGI:Wrapper::write_callback()\n");
 
+    if(close_when_done)
+      buffer_send_retry++;
+    
     if(!strlen(buffer)) 
       return;
     int nelems = tofd->write( buffer ); 
@@ -267,10 +277,29 @@ class Wrapper
     {
       buffer="";
       done(); 
-    } else {
+    }
+    else
+    {
       buffer = buffer[nelems..]; 
-      if(close_when_done && !strlen(buffer))
-        destroy();
+     
+      DWERROR(sprintf("CGI:Wrapper::write_callback(): nelems: %d\n", nelems));
+      DWERROR(sprintf("CGI:Wrapper::write_callback(): buffer: %s\n", buffer));
+     
+      // If we tried more than 10 times to send the buffer, destroy 
+      // If all the buffer has been written to tofd, destroy
+      // Otherwise, try to resend the buffer
+      if(close_when_done)
+      {
+        if(buffer_send_retry>10)
+        {
+          report_error(sprintf("Tried too hard to send the buffer: %s\n", buffer));
+          destroy();
+        }
+        if(!strlen(buffer))
+          destroy();
+        else
+          write_callback();
+      }
     }
   }
 
@@ -368,7 +397,12 @@ class Wrapper
     DWERROR("CGI:Wrapper::done()\n");
 
     if(strlen(buffer))
+    {
+      // If there's still data in the buffer, set the flag and try to send the
+      // remaining data
       close_when_done = 1;
+      write_callback();
+    }
     else
       destroy();
   }
