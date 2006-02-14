@@ -91,7 +91,6 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
-// TODO: remove me
 #define CGI_DEBUG
 
 #ifdef CGI_DEBUG
@@ -252,19 +251,12 @@ class Wrapper
   Stdio.File fromfd, tofd, tofdremote; 
   object mid;
   mixed done_cb;
-
   // flag set when the buffer isn't empty when done() is called
   int close_when_done;
-  // Counter for the resent attempts
-  int buffer_send_retry = 0;
-  
   void write_callback() 
   {
     DWERROR("CGI:Wrapper::write_callback()\n");
 
-    if(close_when_done)
-      buffer_send_retry++;
-    
     if(!strlen(buffer)) 
       return;
     int nelems = tofd->write( buffer ); 
@@ -277,29 +269,10 @@ class Wrapper
     {
       buffer="";
       done(); 
-    }
-    else
-    {
+    } else {
       buffer = buffer[nelems..]; 
-     
-      DWERROR(sprintf("CGI:Wrapper::write_callback(): nelems: %d\n", nelems));
-      DWERROR(sprintf("CGI:Wrapper::write_callback(): buffer: %s\n", buffer));
-     
-      // If we tried more than 10 times to send the buffer, destroy 
-      // If all the buffer has been written to tofd, destroy
-      // Otherwise, try to resend the buffer
-      if(close_when_done)
-      {
-        if(buffer_send_retry>10)
-        {
-          report_error(sprintf("Tried too hard to send the buffer: %s\n", buffer));
-          destroy();
-        }
-        if(!strlen(buffer))
-          destroy();
-        else
-          write_callback();
-      }
+      if(close_when_done && !strlen(buffer))
+        destroy();
     }
   }
 
@@ -333,6 +306,13 @@ class Wrapper
   {
     DWERROR("CGI:Wrapper::destroy()\n");
 
+    if(sizeof(buffer))
+    {
+      report_error("CGI:Wrapper::destroy() killed while there was still data in the buffer");
+      DWERROR(sprintf("CGI:Wrapper:destroy() buffer:\n%s\n", buffer));
+    }
+      
+    
     catch(done_cb(this_object()));
     catch(tofd->set_blocking());
     catch(fromfd->set_blocking());
@@ -396,12 +376,18 @@ class Wrapper
   {
     DWERROR("CGI:Wrapper::done()\n");
 
+    // In case there's still some data to send
     if(strlen(buffer))
     {
-      // If there's still data in the buffer, set the flag and try to send the
-      // remaining data
+      // Set a flag
       close_when_done = 1;
-      write_callback();
+      report_warning("CGI:Wrapper::done() Some data from the buffer hasn't been sent, yet");
+      DWERROR(sprintf("CGI:Wrapper::done() buffer:\n%s\n", buffer));
+      // Set up a writte callback
+      tofd->set_write_callback(write_callback);
+      // In case write_callback() won't be called for a while, abort
+      if(QUERY(write_callback_call_out))
+        call_out(destroy, QUERY(write_callback_call_out));
     }
     else
       destroy();
@@ -757,13 +743,16 @@ class CGIScript
       error("Failed to create CGI process.\n");
     }
   // XXX Caudium.create_process returns int (pid number) now
-  /*
+
+    // TODO: why is the following commented? Are the scripts still killed when
+    // they last too long?
+    /*
     if(!objectp(pid)) {
       error("Failed to create CGI process.\n");
     }
     if(QUERY(kill_call_out))
       call_out( kill_script, QUERY(kill_call_out)*60 );
-  */
+    */
     return this_object();
   }
 
@@ -1138,6 +1127,17 @@ void create(object conf)
 	 TYPE_INT_LIST|VAR_MORE,
 	 "The maximum real time the script might run in minutes before it's "
 	 "killed. 0 means unlimited.", ({ 0, 1, 2, 3, 4, 5, 7, 10, 15 }));
+
+  defvar("write_callback_call_out",
+          30,
+          "Limits: Timeout when network buffer is full",
+          TYPE_INT|VAR_MORE,
+          "<p>Sometimes, when the script is run and we have the result in our "
+          "buffer, we can't send it because the network buffer is full.</p>"
+          "<p>This is the real time in second before we stop to try to send "
+          "it.</p>"
+          "<p>Once aborted, the result has not been sent, and the page is "
+          "incomplete.</p>");
 }
 
 int|string check_variable(string var, mixed value) {
