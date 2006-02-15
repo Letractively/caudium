@@ -91,8 +91,6 @@ Stdio.File open_log_file( string logfile )
   return Stdio.stderr;
 }
 
-#define CGI_DEBUG
-
 #ifdef CGI_DEBUG
 #define DWERROR(X)	report_debug(X)
 #else /* !CGI_DEBUG */
