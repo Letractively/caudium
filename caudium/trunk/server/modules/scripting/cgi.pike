@@ -308,7 +308,7 @@ class Wrapper
 
     if(sizeof(buffer))
     {
-      report_error("CGI:Wrapper::destroy() killed while there was still data in the buffer");
+      report_error("CGI:Wrapper::destroy() killed while there was still data in the buffer\n");
       DWERROR(sprintf("CGI:Wrapper:destroy() buffer:\n%s\n", buffer));
     }
       
@@ -381,7 +381,7 @@ class Wrapper
     {
       // Set a flag
       close_when_done = 1;
-      report_warning("CGI:Wrapper::done() Some data from the buffer hasn't been sent, yet");
+      report_warning("CGI:Wrapper::done() Some data from the buffer hasn't been sent, yet\n");
       DWERROR(sprintf("CGI:Wrapper::done() buffer:\n%s\n", buffer));
       // Set up a writte callback
       tofd->set_write_callback(write_callback);
