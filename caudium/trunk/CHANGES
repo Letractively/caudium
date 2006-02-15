@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed a bug where some CGI/uniscript pages where not fully displayed to the
+   client. See http://bertrand.gotpike.org/space/start/2006-02-15/1 for more 
+   informations.
+   (Bertrand LUPART)
 - Fixed a Virtual Host Matcher bug where the port number was not properly 
    identified from the hostname.
    (Bernd Shoeller)
