@@ -1,5 +1,18 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- 123sessions: added force_include_urls to be able to specify urls you 
+  wish to trigger a redirect to include the session identifier. if left 
+  empty, normal behavior is used. this augments include_urls and exclude 
+  urls, which are used to specify url subtrees where session processing 
+  is either performed or not performed.
+    (Bill Welliver)
+- Fixed a few leaks in Caudium.make_tag_attributes() and encode_mapping()
+   and optimized them a bit, which should plug a fast growing leak when
+   using <define>
+    (Bill Welliver)
+- Added --with-shuffler and --shuffler options for running with
+   Pike Shuffler 
+    (Bertrand LUPART)
 - Fixed a bug where some CGI/uniscript pages where not fully displayed to the
    client. See http://bertrand.gotpike.org/space/start/2006-02-15/1 for more 
    informations.
