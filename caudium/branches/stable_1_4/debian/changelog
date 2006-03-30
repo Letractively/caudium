@@ -1,3 +1,9 @@
+caudium (2:1.4.7-13) unstable; urgency=low
+
+  * Depend on newer Pike
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 30 Mar 2006 13:10:14 +0200
+
 caudium (2:1.4.7-12) unstable; urgency=low
 
   * [INTL:nl] Dutch po-debconf translation (Closes: #354599). 
