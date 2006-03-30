@@ -733,6 +733,7 @@ if test -z "$CCSHARED" ; then
     case $caudium_cv_sys_os in
 	BSD/OS*) CCSHARED="";;
 	Darwin*) CCSHARED="-fPIC";;
+	Linux*) CCSHARED="-fPIC" ;;
 	*) CCSHARED="-fpic";;
     esac
   else
