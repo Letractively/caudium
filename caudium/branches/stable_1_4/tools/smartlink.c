@@ -339,6 +339,14 @@ int main(int argc, char **argv)
     }
   }
 
+#if 0
+  int x = 0;
+  printf("smartlink[c]: %s ", argv[1]);
+  while (new_argv[x])
+    printf("%s ", new_argv[x++]);
+  printf("\n");
+#endif
+
   execv(argv[1], new_argv);
   fprintf(stderr, "%s: exec of %s failed!\n", argv[0], argv[1]);
   exit(1);
