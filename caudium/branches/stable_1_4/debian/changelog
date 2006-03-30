@@ -1,8 +1,15 @@
 caudium (2:1.4.7-13) unstable; urgency=low
 
   * Depend on newer Pike
+  * FTBFS: Not using -fPIC to make shared lib. (Closes: #358261)
+    Modified configure.ac to add -fPIC to the linker flags
+  * htpasswd-caudium has dangerous rpath /usr/local/devel/lib (Closes:
+    #359229)
+    Made the src/tools/ compilation use smartlink
+  * [INTL:nl] Dutch po-debconf translation (Closes: #354599)
+    Thanks to Bart Cornelis <cobaco@linux.be> for submitting the translation
 
- -- Marek Habersack <grendel@debian.org>  Thu, 30 Mar 2006 13:10:14 +0200
+ -- Marek Habersack <grendel@debian.org>  Thu, 30 Mar 2006 14:30:50 +0200
 
 caudium (2:1.4.7-12) unstable; urgency=low
 
