@@ -698,13 +698,26 @@ if test -z "$LDSHARED" ; then
     OSF*) LDSHARED="ld -expect_unresolved '*' -shared -msym -O3";;
     DYNIX/ptx*) LDSHARED="ld -G";;
     next*) LDSHARED="$CC $CFLAGS -nostdlib -r";;
-    Linux*) LDSHARED="$CC -shared";;
+    Linux*) 
+      LDSHARED="$CC -shared"
+      if test "$GCC" = yes ; then
+       # Necessary since we're passing -fPIC to the compiler, and the docs
+       # say that the PIC generation options must be passed to both the 
+       # compiler and the linker
+       LDSHARED="$LDSHARED -fPIC" 
+      fi 
+      ;;
     GNU*) LDSHARED="ld -Bshareable";;
     FreeBSD*) LDSHARED="$CC -Wl,-Bshareable";;
     NetBSD*) LDSHARED="ld -Bshareable";;
     OpenBSD*) LDSHARED="ld -Bshareable";;
     BSD/OS*) LDSHARED="shlicc -r";;
-    Darwin*) LDSHARED="$CC -bundle -undefined error -bundle_loader $PIKE";;
+    Darwin*) 
+      LDSHARED="$CC -bundle -undefined error -bundle_loader $PIKE"
+      if test "$GCC" = yes ; then
+        LDSHARED="$LDSHARED -fPIC"
+      fi
+      ;;
     UNIX_SV*) LDSHARED="ld -G";;
     SCO_SV*) LDSHARED="cc -G -KPIC -Wl,-Bexport";;
     UnixWare*)

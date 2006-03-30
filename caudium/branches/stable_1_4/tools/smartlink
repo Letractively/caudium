@@ -147,8 +147,8 @@ if test x$# != x0 ; then
    SunOS\ 5.*)
      LDOPTS="$LDOPTS -R$RPATH"
    ;;
-   Linux\ 2.*)
-     if test -z "$DEB_BUILD_ARCH"; then
+   Linux*)
+     if test -z "$DEB_BUILD_ARCH" -a -z "$NO_RPATH_PLEASE"; then
       if test x$LINKING != xno -a "x$RPATH" != x ; then
        for a in $RLIST; do 
         if test $LINKER_IS_LD = yes; then
@@ -186,7 +186,7 @@ fi
 #  ;;
 #esac
 
-#echo $LINKER $LDOPTS
+#echo "smartlink[sh]: $LINKER $LDOPTS"
 
 # exec $LINKER $LDOPTS
 # Used to be exec, but Digital-Unix's stupid sh has buggy variable-expansion.

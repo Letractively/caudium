@@ -54,7 +54,8 @@ INSTALL_PROGRAM += -s
 CFLAGS += -s
 endif
 
-export CFLAGS
+NO_RPATH_PLEASE=yes
+export CFLAGS NO_RPATH_PLEASE
 
 configure: configure-stamp
 configure-stamp:
