@@ -1,4 +1,4 @@
-Changes in Caudium 1.4.5 since Caudium 1.4.4
+Changes in Caudium 1.4.x since Caudium 1.4.5
 --------------------------------------------
 - Fixed a Virtual Host Matcher bug where the port number was not properly 
    identified from the hostname.
