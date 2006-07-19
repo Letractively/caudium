@@ -504,9 +504,20 @@ array emit_sql(mapping args, object request_id)
     }
     if (e) error(e);
 
-    if(con && con->query)
-     result = con->query(args->query);
-    else result = 0;
+    e = catch
+    {
+
+      if(con && con->query)
+       result = con->query(args->query);
+      else result = 0;
+    };
+
+    if(e && !args->quiet)
+    {
+     throw(e);
+    }
+    else
+      result = 0;
     return result;
  }
 }
