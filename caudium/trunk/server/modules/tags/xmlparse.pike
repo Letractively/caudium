@@ -492,6 +492,9 @@ string container_emit(string t, mapping args, string contents, object id,
 
   NOCACHE();
 
+  // we can short circuit things right here.
+  if(!contents || !dataset) return "";
+
   object retval = String.Buffer(sizeof(contents) * sizeof(dataset));
 
   //
