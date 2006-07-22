@@ -518,9 +518,10 @@ array emit_sql(mapping args, object request_id)
     {
      throw(e);
     }
-    else
+    else if(e)
       result = 0;
-    return result;
+
+   return result;
  }
 }
 
