@@ -55,7 +55,8 @@ CFLAGS += -s
 endif
 
 NO_RPATH_PLEASE=yes
-export CFLAGS NO_RPATH_PLEASE
+SMARTLINK_CMDLINE_DUMP=1
+export CFLAGS NO_RPATH_PLEASE SMARTLINK_CMDLINE_DUMP
 
 configure: configure-stamp
 configure-stamp:

@@ -1,3 +1,25 @@
+caudium (2:1.4.7-15) unstable; urgency=low
+
+  * New Pike version dependency
+  * Uninstallable due to unmet dep on pike7.6-core (<= 7.6.75-99) and
+    pike7.6-image (<= 7.6.75-99) (Closes: #381819)
+  * FTBFS with GCC 4.1: Not using -fPIC to make shared lib. (Closes:
+    #358261)
+  * diff for 2:1.4.7-14.1 NMU (Closes: #378255)
+  * [INTL:pt_BR] Please use the attached debconf template translation
+    (Closes: #374024)
+
+ -- Marek Habersack <grendel@debian.org>  Thu, 10 Aug 2006 11:48:06 +0200
+
+caudium (2:1.4.7-14.1) unstable; urgency=high
+ 
+  * Non-maintainer upload.
+  * Copy code from top-level configure.ac to src/cmods/configure.ac to work
+    around changes in autoconf 2.59c; patch from Niko Tynui, fixes FTBFS.
+    (Closes: #376516)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Fri, 14 Jul 2006 19:36:00 +0200
+
 caudium (2:1.4.7-14) unstable; urgency=low
 
   * New Pike version dependency

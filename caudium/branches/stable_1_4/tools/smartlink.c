@@ -61,6 +61,18 @@ int add_path(char *buffer, char *path)
   return 1;
 }
 
+void dump_gcc_cmdline(char **argv, char **new_argv)
+{
+  if (!argv || !new_argv)
+    return;
+
+  int x = 0;
+  printf("smartlink[c]: %s ", argv[1]);
+  while (new_argv[x])
+    printf("%s ", new_argv[x++]);
+  printf("\n");
+}
+
 int main(int argc, char **argv)
 {
   int i;
@@ -79,7 +91,8 @@ int main(int argc, char **argv)
   int new_argc;
   int n32 = 0;
   int linking = 1;	/* Maybe */
-
+  int cmdline_dump = 0;
+  
   prog_name = argv[0];
 
   if (argc < 2) {
@@ -88,13 +101,13 @@ int main(int argc, char **argv)
 
   if (!strcmp(argv[1], "-v")) {
     fprintf(stdout,
-	    "$Id$\n"
-	    "Usage:\n"
-	    "\t%s binary [args]\n",
-	    argv[0]);
+            "$Id$\n"
+            "Usage:\n"
+            "\t%s binary [args]\n",
+            argv[0]);
     exit(0);
   }
-  
+
   if (putenv("LD_PXDB=/dev/null")) {
     fatal("Out of memory (1)!\n");
   }
@@ -105,7 +118,9 @@ int main(int argc, char **argv)
   }
   if (getenv("DEB_BUILD_ARCH") || getenv("NO_RPATH_PLEASE"))
     skip_rpath = 1;
-
+  if (getenv("SMARTLINK_CMDLINE_DUMP"))
+    cmdline_dump = 1;
+  
   path = getenv("PATH");
 
   buf_size = 0;
@@ -135,7 +150,7 @@ int main(int argc, char **argv)
   rpath[0] = 0;
   lpath[0] = 0;
 
-  /* 150 extra args should be enough... */
+/* 150 extra args should be enough... */
   if (!(new_argv = malloc(sizeof(char *)*(argc + 150)))) {
     fatal("Out of memory (5)!\n");
   }
@@ -143,7 +158,7 @@ int main(int argc, char **argv)
   new_argc = 0;
   full_rpath = rpath;
 
-  /* small hack for Debian (and those who don't want rpath at all) */
+/* small hack for Debian (and those who don't want rpath at all) */
   if (!skip_rpath) {
 #ifdef USE_Wl
     strcat(rpath, "-Wl,-rpath,");
@@ -156,60 +171,60 @@ int main(int argc, char **argv)
 #endif /* defined(USE_Wl) || defined(USE_Wl_R) || defined(USE_R) || defined(USE_LD_LIBRARY_PATH) */
     rpath += strlen(rpath);
   }
- 
+
   new_argv[new_argc++] = argv[1];
 
   if (!strcmp(argv[1], "cpp")) {
-    /* Not linking */
+/* Not linking */
     linking = 0;
   }
 
-  /* NOTE: Skip arg 1 */
+/* NOTE: Skip arg 1 */
   for(i=2; i<argc; i++) {
     if (argv[i][0] == '-') {
       if ((argv[i][1] == 'R') || (argv[i][1] == 'L')) {
-	/* -R & -L */
-	if (argv[i][1] == 'L') {
-	  if (!argv[i][2]) {
-	    if (i+1 < argc) {
-	      if (add_path(lpath, argv[i+1])) {
-		new_argv[new_argc++] = argv[i];
-		new_argv[new_argc++] = argv[i+1];
-	      }
-	    }
-	  } else {
-	    if (add_path(lpath, argv[i]+2)) {
-	      new_argv[new_argc++] = argv[i];
-	    }
-	  }
-	}
-	if (!argv[i][2]) {
-	  i++;
-	  if (!skip_rpath && i < argc) {
-	    rpath_in_use |= add_path(rpath, argv[i]);
-	  }
-	} else if (!skip_rpath) {
-	  rpath_in_use |= add_path(rpath, argv[i] + 2);
-	}
-	continue;
+/* -R & -L */
+        if (argv[i][1] == 'L') {
+          if (!argv[i][2]) {
+            if (i+1 < argc) {
+              if (add_path(lpath, argv[i+1])) {
+                new_argv[new_argc++] = argv[i];
+                new_argv[new_argc++] = argv[i+1];
+              }
+            }
+          } else {
+            if (add_path(lpath, argv[i]+2)) {
+              new_argv[new_argc++] = argv[i];
+            }
+          }
+        }
+        if (!argv[i][2]) {
+          i++;
+          if (!skip_rpath && i < argc) {
+            rpath_in_use |= add_path(rpath, argv[i]);
+          }
+        } else if (!skip_rpath) {
+          rpath_in_use |= add_path(rpath, argv[i] + 2);
+        }
+        continue;
       } else if ((argv[i][1] == 'n') && (argv[i][2] == '3') &&
-		 (argv[i][3] == '2') && (!argv[i][4])) {
-	/* -n32 */
-	n32 = 1;
-	continue;	/* Skip */
+                 (argv[i][3] == '2') && (!argv[i][4])) {
+/* -n32 */
+        n32 = 1;
+        continue;	/* Skip */
       } else if (((argv[i][1] == 'c') || (argv[i][1] == 'E')) &&
-		 (!argv[i][2])) {
-	/* Not linking */
-	linking = 0;
+                 (!argv[i][2])) {
+/* Not linking */
+        linking = 0;
       }
     }
     new_argv[new_argc++] = argv[i];
   }
 
 #ifndef USE_Wl
-  /* This code strips '-Wl,' from arguments if the 
-   * linker is '*ld'
-   */
+/* This code strips '-Wl,' from arguments if the
+ * linker is '*ld'
+ */
   if(linking)
   {
     int len=strlen(argv[1]);
@@ -217,21 +232,21 @@ int main(int argc, char **argv)
     if(len > 1 && argv[1][len-2]=='l' && argv[1][len-1]=='d')
     {
       for(i=0; i<new_argc; i++) {
-	if (new_argv[i][0] == '-' && new_argv[i][1]=='W' &&
-	    new_argv[i][2]=='l' && new_argv[i][3]==',')
-	{
-	  char *ptr;
-	  new_argv[i]=new_argv[i]+4;
+        if (new_argv[i][0] == '-' && new_argv[i][1]=='W' &&
+            new_argv[i][2]=='l' && new_argv[i][3]==',')
+        {
+          char *ptr;
+          new_argv[i]=new_argv[i]+4;
 
-	  while((ptr=strchr(new_argv[i],',')))
-	  {
-	    int e;
-	    *ptr=0;
-	    for(e=argc;e>=i;e--) new_argv[e+1]=new_argv[e];
-	    new_argv[i+1]=ptr+1;
-	    i++;
-	  }
-	}
+          while((ptr=strchr(new_argv[i],',')))
+          {
+            int e;
+            *ptr=0;
+            for(e=argc;e>=i;e--) new_argv[e+1]=new_argv[e];
+            new_argv[i+1]=ptr+1;
+            i++;
+          }
+        }
       }
     }
   }
@@ -239,7 +254,7 @@ int main(int argc, char **argv)
 
   if (n32) {
     i = new_argc++;
-    /* Note don't copy index 0 */
+/* Note don't copy index 0 */
     while(--i) {
       new_argv[i+1] = new_argv[i];
     }
@@ -252,16 +267,16 @@ int main(int argc, char **argv)
     while (p = strchr(ld_lib_path, ':')) {
       *p = 0;
       if (!skip_rpath)
-         rpath_in_use |= add_path(rpath, ld_lib_path);
+        rpath_in_use |= add_path(rpath, ld_lib_path);
       *p = ':';		/* Make sure LD_LIBRARY_PATH isn't modified */
       ld_lib_path = p+1;
     }
     if (!skip_rpath)
-       rpath_in_use |= add_path(rpath, ld_lib_path);
+      rpath_in_use |= add_path(rpath, ld_lib_path);
   }
 
   if (!skip_rpath && rpath_in_use) {
-    /* Delete the terminating ':' */
+/* Delete the terminating ':' */
     rpath[strlen(rpath) - 1] = 0;
 
 #ifdef USE_RPATH
@@ -269,7 +284,7 @@ int main(int argc, char **argv)
     new_argv[new_argc++] = rpath;
 #elif defined(USE_PLUS_b)
     if (linking) {
-      /* +b: is probaly enough, but... */
+/* +b: is probaly enough, but... */
       new_argv[new_argc++] = "+b";
       new_argv[new_argc++] = rpath;
     }
@@ -295,9 +310,9 @@ int main(int argc, char **argv)
     if (putenv(full_rpath)) {
       fatal("Out of memory (6)!");
     }
-    /* LD_LIBRARY_PATH
-     *     LD_RUN_PATH
-     */
+/* LD_LIBRARY_PATH
+ *     LD_RUN_PATH
+ */
     memcpy(full_rpath + 4, "LD_RUN_PATH", 11);
     if (putenv(full_rpath + 4)) {
       fatal("Out of memory (7)!");
@@ -310,7 +325,7 @@ int main(int argc, char **argv)
   new_argv[new_argc++] = NULL;
 
   if ((argv[1][0] != '/') && path) {
-    /* Perform a search in $PATH */
+/* Perform a search in $PATH */
     struct stat stat_buf;
     char *p;
     while ((p = strchr(path, ':'))) {
@@ -319,11 +334,11 @@ int main(int argc, char **argv)
       *p = ':';		/* Make sure PATH isn't modified */
       strcat(buffer, "/");
       strcat(buffer, argv[1]);
-      /* fprintf(stderr, "Trying %s...\n", buffer); */
+/* fprintf(stderr, "Trying %s...\n", buffer); */
       if (!stat(buffer, &stat_buf)) {
-	/* Found. */
-	argv[1] = buffer;
-	break;
+/* Found. */
+        argv[1] = buffer;
+        break;
       }
       path = p + 1;
     }
@@ -331,22 +346,17 @@ int main(int argc, char **argv)
       strcpy(buffer, path);
       strcat(buffer, "/");
       strcat(buffer, argv[1]);
-      /* fprintf(stderr, "Trying %s...\n", buffer); */
+/* fprintf(stderr, "Trying %s...\n", buffer); */
       if (!stat(buffer, &stat_buf)) {
-	/* Found */
-	argv[1] = buffer;
+/* Found */
+        argv[1] = buffer;
       }
     }
   }
 
-#if 0
-  int x = 0;
-  printf("smartlink[c]: %s ", argv[1]);
-  while (new_argv[x])
-    printf("%s ", new_argv[x++]);
-  printf("\n");
-#endif
-
+  if (cmdline_dump)
+    dump_gcc_cmdline(argv, new_argv);
+  
   execv(argv[1], new_argv);
   fprintf(stderr, "%s: exec of %s failed!\n", argv[0], argv[1]);
   exit(1);
