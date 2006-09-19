@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed cgi when USE_SHUFFLER is used.
+    (Bill Welliver)
 - Added quiet option to EMIT SQL, so that sql backtraces don't get
   sent to the browser.
     (Bill Welliver)
