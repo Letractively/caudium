@@ -1,5 +1,22 @@
 Changes in Caudium 1.4.x since Caudium 1.4.5
 --------------------------------------------
+- Fixed cgi when USE_SHUFFLER is used.
+    (Bill Welliver)
+- Added quiet option to EMIT SQL, so that sql backtraces don't get
+  sent to the browser.
+    (Bill Welliver)
+- Added quoting capabilities to EMIT, so that you can do &foo.bar:mysql;
+  to get your entity replacements properly quoted.
+    (Bill Welliver)
+- 123sessions: added force_include_urls to be able to specify urls you
+  wish to trigger a redirect to include the session identifier. if left
+  empty, normal behavior is used. this augments include_urls and exclude
+  urls, which are used to specify url subtrees where session processing
+  is either performed or not performed.
+    (Bill Welliver)
+- Added --with-shuffler and --shuffler options for running with
+   Pike Shuffler
+    (Bertrand LUPART)
 - Fixed a Virtual Host Matcher bug where the port number was not properly 
    identified from the hostname.
    (Bernd Shoeller)

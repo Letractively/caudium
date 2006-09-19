@@ -52,7 +52,9 @@ object conf;
 constant module_type = MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "SQL-module";
 constant module_doc  = "This module gives the three tags &lt;SQLQUERY&gt;, "
-	     "&lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;.<br>\n"
+	     "&lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;, and when "
+             "using the XML compliant RXML parser, an EMIT provider for 
+             "SQL.<br>\n"
 	     "Usage:<ul>\n"
 	     "<table border=0>\n"
 	     "<tr><td valign=top><b>&lt;sqloutput&gt;</b></td>"
@@ -504,10 +506,22 @@ array emit_sql(mapping args, object request_id)
     }
     if (e) error(e);
 
-    if(con && con->query)
-     result = con->query(args->query);
-    else result = 0;
-    return result;
+    e = catch
+    {
+
+      if(con && con->query)
+       result = con->query(args->query);
+      else result = 0;
+    };
+
+    if(e && !args->quiet)
+    {
+     throw(e);
+    }
+    else if(e)
+      result = 0;
+
+   return result;
  }
 }
 

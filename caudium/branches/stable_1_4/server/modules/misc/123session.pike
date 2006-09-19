@@ -117,6 +117,11 @@ void create (mixed ... foo) {
          "<li>if you choose 'exclude', sessions will be allocated for the whole site <b>except</b> the given dirs.</li>"
          "</ul>",
          ({"include", "exclude"}));
+  defvar("force_include_urls", "", "Force Include URLs", TYPE_TEXT_FIELD,
+         "URLs that will trigger a session URL to be set. If empty, all urls that require a sesion will trigger the session URL to be set."
+         "When using this setting, note that the values provided here must match the non-query portion of the request "
+         "exactly. Example: /foo would match a request mysite.com/foo, but not mysite.com/foo/.
+         "</pre>", 0);
   defvar("include_urls", "", "Include URLs", TYPE_TEXT_FIELD,
          "URLs that should be branded with a Session Identifier."
          " Examples:<pre>"
@@ -555,9 +560,27 @@ mixed first_try(object id) {
   string SessionID = sessionid_get(id);
 
   if (!SessionID) {
-    SessionID = sessionid_create();
-    sessionid_set_cookie(id, SessionID);
-    return (sessionid_set_prestate(id, SessionID));
+
+    int bad = 1;
+    string u = QUERY(force_include_urls);
+
+    if(!u || !sizeof(u)) bad = 0;
+
+    foreach (u/"\n", string include) {
+      if ((strlen(include) > 0) &&
+          (include == id->not_query)) {
+        bad = 0;
+        // write ("123session: good url: " + id->not_query[..strlen(include)-1] + "\n");
+        break;
+      }
+    }
+
+    if(!bad)
+    {
+      SessionID = sessionid_create();
+      sessionid_set_cookie(id, SessionID);
+      return (sessionid_set_prestate(id, SessionID));
+    }
   }
 
   if (foundcookieandprestate == 1) {

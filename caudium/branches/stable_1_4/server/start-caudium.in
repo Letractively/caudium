@@ -71,7 +71,7 @@ array(array(string | array(string))) arguments = ({
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})}),
-  ({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
+	({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
 });
 
 // loader options (with defaults)
@@ -109,7 +109,7 @@ mapping(string:string|array) envvars = ([
 ]);
 
 // locations that we should search for modules in, if present
-array lib_locations=({"lib/modules", "lib",
+array lib_locations=({"lib/modules", 
                       "lib/pike/modules", "etc/modules", "lib/" + pikever,
                       "share/pike/modules"});
       
@@ -899,6 +899,9 @@ information
 			          protocol module. This will soon be
                                   the default. Some clients might have
 				  problems with keepalive.
+
+      .B--with-shufflerB.:  Enable use of the Shuffler module instead of
+				  Caudium's NBIO module. 
 				  
       .B--onceB.:  Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
