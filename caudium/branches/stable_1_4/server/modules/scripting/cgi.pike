@@ -49,10 +49,11 @@ constant module_unique = 0;
 void sendfile( string data, object tofd, function done )
 {
 #ifdef USE_SHUFFLER
+  object s;
   object pipe = Shuffler.Shuffler();
-  pipe->shuffle(tofd);
-  pipe->set_done_callback(done);
-  pipe->add_source(data);
+  s = pipe->shuffle(tofd);
+  s->set_done_callback(done);
+  s->add_source(data);
 #else
   object pipe = Caudium.nbio();
   pipe->write(data);
@@ -249,7 +250,7 @@ class Wrapper
   Stdio.File fromfd, tofd, tofdremote; 
   object mid;
   mixed done_cb;
-
+  // flag set when the buffer isn't empty when done() is called
   int close_when_done;
   void write_callback() 
   {
@@ -266,8 +267,7 @@ class Wrapper
       // if nelems == 0, network buffer is full. We still want to continue.
     {
       buffer="";
-      // FIXME: done();  ?
-      destroy();
+      done(); 
     } else {
       buffer = buffer[nelems..]; 
       if(close_when_done && !strlen(buffer))
@@ -305,6 +305,13 @@ class Wrapper
   {
     DWERROR("CGI:Wrapper::destroy()\n");
 
+    if(sizeof(buffer))
+    {
+      report_error("CGI:Wrapper::destroy() killed while there was still data in the buffer\n");
+      DWERROR(sprintf("CGI:Wrapper:destroy() buffer:\n%s\n", buffer));
+    }
+      
+    
     catch(done_cb(this_object()));
     catch(tofd->set_blocking());
     catch(fromfd->set_blocking());
@@ -338,7 +345,7 @@ class Wrapper
     tofd = tofdremote->pipe( );// Stdio.PROP_NONBLOCK );
 
     if (!tofd) {
-	error("Failed to create pipe. errno: %s\n", strerror(errno()));
+      // FIXME: Out of fd's?
     }
 
     fromfd->set_nonblocking( read_callback, 0, close_callback );
@@ -359,18 +366,7 @@ class Wrapper
 #else /* !CGI_DEBUG */
     function read_cb = lambda(){};
 #endif /* CGI_DEBUG */
-  //  catch { tofd->set_nonblocking( read_cb, 0, destroy ); };
-    /* NOTE: Thread-race:
-     *       close_callback may get called directly
-     *       in which case both fds will get closed.
-     */
-    /*
-     * FIXME: What if the other end of tofd does a shutdown(3N)
-     *        on the backward direction ?
-     */
-    catch { fromfd->set_nonblocking( read_callback, 0, close_callback ); };
-    
-
+    catch { tofd->set_nonblocking( read_cb, 0, destroy ); };
   }
 
 
@@ -379,8 +375,19 @@ class Wrapper
   {
     DWERROR("CGI:Wrapper::done()\n");
 
+    // In case there's still some data to send
     if(strlen(buffer))
+    {
+      // Set a flag
       close_when_done = 1;
+      report_warning("CGI:Wrapper::done() Some data from the buffer hasn't been sent, yet\n");
+      DWERROR(sprintf("CGI:Wrapper::done() buffer:\n%s\n", buffer));
+      // Set up a writte callback
+      tofd->set_write_callback(write_callback);
+      // In case write_callback() won't be called for a while, abort
+      if(QUERY(write_callback_call_out))
+        call_out(destroy, QUERY(write_callback_call_out));
+    }
     else
       destroy();
   }
@@ -735,13 +742,16 @@ class CGIScript
       error("Failed to create CGI process.\n");
     }
   // XXX Caudium.create_process returns int (pid number) now
-  /*
+
+    // TODO: why is the following commented? Are the scripts still killed when
+    // they last too long?
+    /*
     if(!objectp(pid)) {
       error("Failed to create CGI process.\n");
     }
     if(QUERY(kill_call_out))
       call_out( kill_script, QUERY(kill_call_out)*60 );
-  */
+    */
     return this_object();
   }
 
@@ -816,7 +826,6 @@ class CGIScript
 }
 
 mapping(string:string) global_env = ([]);
-
 void start(int n, object conf)
 {
   DWERROR("CGI:start()\n");
@@ -1117,6 +1126,17 @@ void create(object conf)
 	 TYPE_INT_LIST|VAR_MORE,
 	 "The maximum real time the script might run in minutes before it's "
 	 "killed. 0 means unlimited.", ({ 0, 1, 2, 3, 4, 5, 7, 10, 15 }));
+
+  defvar("write_callback_call_out",
+          30,
+          "Limits: Timeout when network buffer is full",
+          TYPE_INT|VAR_MORE,
+          "<p>Sometimes, when the script is run and we have the result in our "
+          "buffer, we can't send it because the network buffer is full.</p>"
+          "<p>This is the real time in second before we stop to try to send "
+          "it.</p>"
+          "<p>Once aborted, the result has not been sent, and the page is "
+          "incomplete.</p>");
 }
 
 int|string check_variable(string var, mixed value) {
