@@ -1,5 +1,13 @@
 Changes in Caudium 1.4.x since Caudium 1.4.5
 --------------------------------------------
+- The CIF can now show the system limits set for Caudium.
+  See http://bertrand.gotpike.org/space/start/2006-02-27/1 for more
+  informations.
+    (Bertrand LUPART)
+- Fixed a bug where some CGI/uniscript pages where not fully displayed to the
+   client. See http://bertrand.gotpike.org/space/start/2006-02-15/1 for more
+   informations.
+   (Bertrand LUPART)
 - Fixed cgi when USE_SHUFFLER is used.
     (Bill Welliver)
 - Added quiet option to EMIT SQL, so that sql backtraces don't get
