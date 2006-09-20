@@ -56,6 +56,11 @@ string tag_cimg( string t, mapping args, object id )
 {
 	string orig_src = args->src;
 
+  // Strip the original extension
+  array parts = orig_src/".";
+	if(sizeof(parts)>1)
+    orig_src = parts[0..sizeof(parts)-2]*"";
+
   mapping a = 
   ([  
     "src":Caudium.fix_relative( args->src, id ),
@@ -87,6 +92,11 @@ string tag_cimg( string t, mapping args, object id )
 string tag_cimg_url( string t, mapping args, object id )
 {
 	string orig_src=args->src;
+
+  // Strip the original extension
+  array parts = orig_src/".";
+  if(sizeof(parts)>1)
+    orig_src = parts[0..sizeof(parts)-2]*"";
 
   mapping a = 
   ([  
