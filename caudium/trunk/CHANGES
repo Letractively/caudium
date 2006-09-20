@@ -1,5 +1,12 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- <cimg> now append the original image filename to the internal path, so that
+  the webcrawlers can still index a <cimg> processed image.
+    (Bertrand LUPART)
+- The CIF can now show the system limits set for Caudium.
+  See http://bertrand.gotpike.org/space/start/2006-02-27/1 for more
+  informations.
+    (Bertrand LUPART)
 - Fixed cgi when USE_SHUFFLER is used.
     (Bill Welliver)
 - Added quiet option to EMIT SQL, so that sql backtraces don't get
