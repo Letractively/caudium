@@ -744,6 +744,8 @@ private int parse_got()
 
 void disconnect()
 {
+  pipe = 0;
+  if(file && file->file) destruct(file->file);
   file = 0;
   MARK_FD("my_fd in HTTP disconnected?");
   if(do_not_disconnect) return;
