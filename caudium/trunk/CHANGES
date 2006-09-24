@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix to destroy file objects after the request is sent when using shuffler.
+  This should fix a problem with running out of file descriptors. Also, a 
+  patch was applied to Pike 7.6 CVS to fix a crash caused by using shuffler.
+    (Bill Welliver)
 - <cimg> now append the original image filename to the internal path, so that
   the webcrawlers can still index a <cimg> processed image.
     (Bertrand LUPART)
