@@ -1,0 +1,23 @@
+# $Id$
+#
+# Changelog for the Caudium 1.4 fink packages.
+# See http://fink.sf.net/ for more informations.
+
+
+*
+** 2006/01/02 - Caudium 1.4.6 - caudium1.4-1.4.6-3
+*
+- Caudium 1.4.6, compiling against Pike 7.6.58
+
+*
+** 2004/11/10 - Caudium 1.4.4 RC2 - caudium1.4-1.4.4-2
+*
+- Correction of a bug in caudiumctl alternatives.
+- Patch that correct the real version of Caudium which declares itself as RC1
+  instead of RC2.
+
+
+*
+** 2004/10/28 - Caudium 1.4.4 RC2 - caudium1.4-1.4.4-1
+*
+- Initial package release.

@@ -1,0 +1,10 @@
+usr/lib/caudium/perl
+usr/share/doc/caudium/README.Perl
+usr/lib/caudium/etc/include/ultralog
+usr/lib/caudium/modules/ultralog
+usr/lib/caudium/etc/include/ultralog
+usr/lib/caudium/etc/modules/UltraSupport.pmod/
+usr/share/caudium/etc/include/ultralog
+usr/share/caudium/modules/ultralog
+usr/share/caudium/etc/include/ultralog
+usr/share/caudium/etc/modules/UltraSupport.pmod/

@@ -1,0 +1,12 @@
+# $Id$
+# name="Encodings database";
+# doc="The database used to map extensions to Content-transfer-encodings (example: *.gz to gz)";
+#
+
+Z	compress
+gz	gzip
+bz	x-bzip
+bz2	x-bzip2
+uu	uuencode
+b64	base64
+

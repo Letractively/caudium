@@ -1,0 +1,11 @@
+Caudium Webserver for Debian
+----------------------------
+
+ The default configuration now forbids access to the configuration
+ interface from IPs other than 127.0.0.1. That means, to access the
+ configuration interface remotely, you will need to use SSH port
+ forwarding or use (e)links/lynx locally (for that elinks is recommended)
+
+ $Id$
+ 
+ -- Marek Habersack <grendel@debian.org>, Tue, 15 Aug 2000 13:47:27 +0200
