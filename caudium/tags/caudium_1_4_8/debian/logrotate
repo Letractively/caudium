@@ -1,0 +1,9 @@
+/var/log/caudium/*/Log {
+  rotate 12
+  monthly
+  compress
+  delaycompress
+  copytruncate
+  missingok
+  notifempty
+}
