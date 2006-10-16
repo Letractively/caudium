@@ -43,6 +43,8 @@ RCSID("$Id$");
 #endif
 #endif
 
+#ifdef ENABLE_NBIO
+
 #ifndef S_ISREG
 #ifdef S_IFREG
 #define S_ISREG(mode)   (((mode) & (S_IFMT)) == (S_IFREG))
@@ -941,3 +943,4 @@ void exit_nbio(void) {
   free_program(nbio_program);
 }
 
+#endif /* ENABLE_NBIO */
