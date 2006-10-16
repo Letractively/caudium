@@ -1,0 +1,14 @@
+Legend: 
+ -  not done
+ +  done
+ *  in progress
+
+* moving a question to another section in the Edit screen
+* access control code
+- annotations handling
+* more documentation for the template
+- update the documentation for the structures (autodocs)
+- mysql storage code
+
+$Id$
+

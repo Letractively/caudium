@@ -1,0 +1,47 @@
+$Id$
+
+
+Pointers to other webservers SNMP MIBs documentation.
+
+
+
+** IETF HTTP-MIB project:
+
+http://www.ietf.org/ietf/httpmib/httpmib-charter.txt
+http://www.ietf.org/ietf/http/httpmib-minutes-96mar.txt
+http://www.ietf.org/rfc/rfc2039.txt
+http://www.ietf.org/rfc/rfc2594.txt
+http://www.simpleweb.org/ietf/mibs/modules/html/?category=IETF&module=WWW-MIB
+
+
+
+** Assure 24
+
+http://www.assure24.com/product/765-snmp-mibs-download.htm
+
+
+
+** IBM
+
+http://www-306.ibm.com/software/webservers/httpservers/doc/v136/ibm/9acmib.htm
+http://www-1.ibm.com/servers/eserver/iseries/software/http/services/snmp.htm
+
+
+
+** Microsoft
+
+http://www.microsoft.com/technet/prodtechnol/winntas/support/sur_mib.mspx#XSLTsection125121120120
+http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/Default.asp?url=/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/ref_we_counters.asp
+
+
+
+** Netscape
+
+http://developer.netscape.com/docs/manuals/enterprise/40/ag/essnmp.htm#1024847
+http://www.intermapper.com/contrib/mibs/Netscape-http-mib.txt
+
+
+
+** Sun
+
+http://docs.sun.com/source/816-5666-10/essnmp.htm#1024847
