@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+cd ${BASEDIR} && cd ../../etc/rc3.d/ && ln -s ../../usr/local/caudium/etc/init.d/caudium S99caudium
+cd ${BASEDIR} && cd ../../etc/rc1.d/ && ln -s ../../usr/local/caudium/etc/init.d/caudium K99caudium
+cd ${BASEDIR} && cd ../../etc/rc0.d/ && ln -s ../../usr/local/caudium/etc/init.d/caudium K99caudium
+cd ${BASEDIR} && cd ../../etc/init.d/ && ln -s ../../usr/local/caudium/etc/init.d/caudium caudium
+

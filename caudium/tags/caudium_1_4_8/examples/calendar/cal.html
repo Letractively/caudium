@@ -1,0 +1,127 @@
+<!-- $Id$ -->
+<define tag="optsel" default_name="noname" default_val="0">
+<if variable="test is &val;">
+<option name="&name;" value="&val;" selected style="color: #FF0000">&val;</option>
+</if>
+<else>
+<option name="&name;" value="&val;">&val;</option>
+</else>
+</define>
+<if not variable="test">
+  <set variable="test" value="1">
+</if>
+<if variable="test is ">
+  <set variable="test" value="1">
+</if>
+<html>
+<head>
+<title>Caudium Calendar test <insert variable="test"></title>
+<link rel="alternate stylesheet" type="text/css" href="other.css" title="Another Style">
+<calendar-css>
+<calendar-js>
+</head>
+  <body bgcolor="#efefef">
+    <div">
+      <gbutton href="cal.html?usa=1">US</gbutton> <gbutton href="cal.html?lang=polish">Polski</gbutton>
+      <gbutton href="cal.html?lang="french"">Français</gbutton> <gbutton href="cal.html?lang=german">Deutsch</gbutton>
+    </div>
+
+    <div>
+      <form name="testsel" method="get">
+      Select a test:
+        <select name="test" onChange="submit(); return true;" style="font-weight: bold;">
+          <optsel name="one" val="1">
+          <optsel name="two" val="2">
+          <optsel name="three" val="3">
+          <optsel name="four" val="4">
+          <optsel name="five" val="5">
+          <optsel name="six" val="6">
+          <optsel name="seven" val="7">
+          <optsel name="eight" val="8">
+          <optsel name="nine" val="9">
+          <optsel name="ten" val="10">
+          <optsel name="eleven" val="11">
+          <optsel name="twelve" val="12">
+          <optsel name="thirteen" val="13">
+        </select>
+      </form>
+    </div>
+
+    <div style="padding-bottom: 15pt; padding-top: 15pt;">
+        <strong>Test no <insert variable="test"></strong>. Active dates:
+        <if variable="test is 1">days 2, 4, 12 in May, any year</if>
+        <if variable="test is 2">days 1 - 10, every month, every year</if>
+        <if variable="test is 3">days 3 - 5, 13, 18 in February, March, years 2000 - 2002</if>
+        <if variable="test is 4">all before today</if>
+        <if variable="test is 5">all before 11 Sep 1973</if>
+        <if variable="test is 6">all before day 15 Nov 2001</if>
+        <if variable="test is 7">all before yesterday</if>
+        <if variable="test is 8">all before tomorrow</if>
+        <if variable="test is 9">all after tomorrow</if>
+        <if variable="test is 10">all after yesterday</if>
+        <if variable="test is 11">all after 3rd of May, any year</if>
+        <if variable="test is 12">week 13</if>
+        <if variable="test is 13">weeks 13 - 15 and 52, any year</if>
+    </div>
+
+    <div>
+    <if not variable="usa">
+      <calendar years="1900-1950,1971-2010" do_week="yes">
+        <startdate today>
+        <if variable="test is 1"><hotdate day="2,4,12" month="5"></if>
+        <if variable="test is 2"><hotdate day="1-10"></if>
+        <if variable="test is 3"><hotdate day="3-5,13,18" month="2,3" year="2000-2002"></if>
+        <if variable="test is 4"><hotdate before="today"></if>
+        <if variable="test is 5"><hotdate before="specified" day="11" month="9" year="1973"></if>
+        <if variable="test is 6"><hotdate before="specified" day="11-15" month="9-11,2" year="1973,1974,2000-2001"></if>
+        <if variable="test is 7"><hotdate before="yesterday"></if>
+        <if variable="test is 8"><hotdate before="tomorrow"></if>
+        <if variable="test is 9"><hotdate after="tomorrow"></if>
+        <if variable="test is 10"><hotdate after="yesterday"></if>
+        <if variable="test is 11"><hotdate after="specified" day="3" month="5"></if>
+        <if variable="test is 12"><hotdate week="13"></if>
+        <if variable="test is 13"><hotdate week="13-15,52"></if>
+      </calendar>
+    </if>
+    <else>
+      <calendar years="1900-1950,1971-2010" do_week="yes" weekstart="sunday">
+      </calendar>
+    </else>
+      <br><br>
+      <formoutput>
+        <date lang="#lang#">
+      </formoutput>
+    
+    <calendar_action day="3" month="7">
+      <br>You clicked on <strong>July 3rd</strong>
+    </calendar_action>
+
+    <calendar-action day="1">
+      <br><gtext>Month's 1st</gtext> handler invoked
+    </calendar-action>
+
+    <calendar-action week="49">
+      <br><gtext>Week 49</gtext> handler invoked
+    </calendar-action>
+
+    <calendar-action default>
+      <br>The default calendar handler - always "executed"
+      <br>Values present:
+      <pre>
+        Day: <insert variable="calday">
+        Month: <insert variable="calmonth">
+        Year: <insert variable="calyear">
+        Week: <insert variable="calweek">
+        Request type: <insert variable="changetype">
+      </pre>
+    </calendar-action>
+
+    <calendar-action week="13,14,52">
+      <br>Handler for weeks 13,14,52 invoked
+      <br>The clicked week was <insert variable="calweek">
+    </calendar-action>
+    </div>
+  </body>
+</html>			
+	
+	
