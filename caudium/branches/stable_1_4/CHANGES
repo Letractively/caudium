@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.5
 --------------------------------------------
+- Added --enable-nbio, defaulting to 'yes'
+   (Marek Habersack)
 - The CIF can now show the system limits set for Caudium.
   See http://bertrand.gotpike.org/space/start/2006-02-27/1 for more
   informations.
