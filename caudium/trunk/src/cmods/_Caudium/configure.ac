@@ -3,6 +3,10 @@ AC_CONFIG_HEADER(caudium_machine.h)
 
 CAUDIUM_MODULE_INIT()
 
+AC_ARG_ENABLE(nbio, [Enable NBIO support (defaults to yes)])
+if test "x$enable_nbio" != "xno"; then
+  AC_DEFINE(ENABLE_NBIO, 1, [Define to enable NBIO support])
+fi
 AC_HAVE_HEADERS(sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h unistd.h)
 AC_CHECK_HEADERS([sys/mman.h linux/mman.h sys/file.h stdio.h stdlib.h string.h ctype.h unistd.h])
 AC_HAVE_FUNCS(mmap munmap free getdate getdate_r setproctitle strpbrk)
