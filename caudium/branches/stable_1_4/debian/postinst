@@ -183,7 +183,7 @@ EOF
       ln -sf ../../share/caudium/caudium-images /usr/lib/caudium/caudium-images
       
       if [ ! -d /usr/local/share/caudium/modules/ ]; then
-	  install -d -m 755 -o root -g root /usr/local/share/caudium/modules/
+	  install -d -m 755 -o root -g root /usr/local/share/caudium/modules/ 2>/dev/null || true
       fi
       
       # Link in the bitstream fonts
