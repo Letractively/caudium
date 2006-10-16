@@ -1,7 +1,7 @@
 Template: caudium/config_port
 Type: string
 Default: 22202
-_Description: On what port should the config interface be?
+_Description: Config interface port:
  Specify the port on which Caudium will provide its configuration
  interface. You can access the interface using any form capable web browser
  (like Mozilla, Lynx, Links or Galeon)
@@ -9,7 +9,7 @@ _Description: On what port should the config interface be?
 Template: caudium/listen_on
 Type: string
 Default: 80
-_Description: What port should the server listen on?
+_Description: Server port:
  Caudium is currently configured to listen on port '${portno}' of every
  interface in your machine. You can however specify a different port here
  if there's such need.
@@ -18,7 +18,7 @@ Template: caudium/start_options
 Type: multiselect
 _Choices: threads, debug, once, profile, fd-debug, keep-alive
 Default: threads
-_Description: Select options that should be used on startup
+_Description: Startup options:
  You can select zero or more options from:
   'threads' - use threads (if available)
   'debug' - output debugging information while running
@@ -30,7 +30,7 @@ _Description: Select options that should be used on startup
 Template: caudium/performance
 Type: boolean
 Default: false
-_Description: Tune Caudium settings for maximum performance?
+_Description: Tune for maximum performance settings?
  If you select this option the Caudium default configuration will be
  tweaked by turning off certain features that can severely slow your server
  down. The features turned off are:
@@ -44,7 +44,7 @@ _Description: Tune Caudium settings for maximum performance?
 
 Template: caudium/cfg_port_taken
 Type: note
-_Description: Cannot bind to port.
+_Description: Cannot bind to port
  The port you have specified for the Caudium configuration interface is
  unavailable. Please specify another port number - Caudium cannot function
  properly without binding its configuration interface to a port on your
@@ -63,20 +63,10 @@ _Description: Caudium configuration
  /usr/share/doc/caudium directory and make sure to visit
  http://caudium.net/ and http://caudium.org/
 
-Template: caudium/experimental_http
-Type: boolean
-Default: false
-_Description: Use the experimental HTTP protocol module?
- Caudium comes with an experimental HTTP module that is faster than the
- original one. The code is still Work-In-Progress, so you might experience
- problems running it. It is NOT recommended to run this code on a
- production server. If, however, you want to test its functionality, turn
- this option on.
-
 Template: caudium/config_login
 Type: string
 Default: admin
-_Description: Configuration interface login.
+_Description: Configuration interface login:
  This is the user login name for the configuration interface access. If you
  don't specify anything here, anybody who will access the config interface
  first will be able to set the login/password and manage your server. This
@@ -86,7 +76,7 @@ _Description: Configuration interface login.
 Template: caudium/config_password
 Type: password
 Default: password
-_Description: Configuration interface password
+_Description: Configuration interface password:
  This is the password used to access the configuration interface. The
  default value for it is 'password' - it is HIGHLY RECOMMENDED to change
  the default below!
@@ -94,7 +84,7 @@ _Description: Configuration interface password
 Template: caudium/config_password_confirm
 Type: password
 Default: password
-_Description: Confirm the configuration interface password
+_Description: Confirm the configuration interface password:
  Please type in the configuration interface password again for
  confirmation.
 

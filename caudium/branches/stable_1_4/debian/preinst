@@ -20,9 +20,7 @@ OLDSYMLINKS="local_fonts modules more_modules unfinishedmodules"
 
 case "$1" in
     install|upgrade)
-        if [ "$1" = "upgrade" -a -x /etc/init.d/caudium${EXTVER} ]; then
-            /etc/init.d/caudium${EXTVER} stop
-            
+        if [ "$1" = "upgrade" -a -x /etc/init.d/caudium${EXTVER} ]; then            
             for d in $OLDSYMLINKS; do
                 if [ -L /usr/lib/caudium${EXTVER}/$d ]; then
                     rm /usr/lib/caudium${EXTVER}/$d

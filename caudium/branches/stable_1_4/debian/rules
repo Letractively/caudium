@@ -131,11 +131,11 @@ install: build
 	    chmod 755 $(CURDIR)/debian/caudium/usr/bin/caudiumctl
 
 	# perms fixing fest
-	-chmod 644 debian/caudium/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
+	chmod 644 debian/caudium/usr/lib/caudium$(EXTVER)/fonts/32/urw_itc_avant_garde-demi-r \
 	           debian/caudium/usr/lib/caudium$(EXTVER)/etc/roxen_hilfe.pike \
 		   debian/caudium/usr/lib/caudium$(EXTVER)/base_server/config/font \
-		   debian/caudium/usr/lib/caudium$(EXTVER)/etc/classes/*.jar \
-		   debian/caudium/usr/share/caudium$(EXTVER)/modules/scripting/webapp.pike
+		   debian/caudium/usr/lib/caudium$(EXTVER)/modules/scripting/webapp.pike \
+		   debian/caudium/usr/lib/caudium$(EXTVER)/bin/install.pike
 
 	mv debian/caudium/usr/bin/htpasswd debian/caudium/usr/bin/htpasswd-caudium
 
@@ -206,13 +206,19 @@ install: build
 	     -name "*.pike" -type f -print \
 	     -o -name "*.pmod" -type f -print \
 	     -o -name "*.html" -type f -print \
-	     -o -name "*.h" -type f -print | \
+	     -o -name "*.h" -type f -print \
+             -o -name "*.ppm" -type f -print \
+	     -o -name "content-encodings" -type f -print \
+	     -o -name "content-types" -type f -print \
+	     -o -name "errordata" -type f -print \
+	     -o -name "extensions" -type f -print \
+             -o -name "supports" -type f -print \
+	     -o -name ".autodoc" -type f -print | \
 	     $(CURDIR)/debian/reflect.sh usr/share/caudium/ \
 	                                 $(CURDIR)/debian/$$p.links \
 	                                 usr/lib/caudium/ \
 					 $(CURDIR)/debian/$$p/) ; \
 	done
-
 
 # Build architecture-independent files here.
 # Pass -i to all debhelper commands in this target to reduce clutter.

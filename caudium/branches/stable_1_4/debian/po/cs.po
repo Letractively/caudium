@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: caudium_2 1.2.35.1-1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-13 21:30+0200\n"
+"Report-Msgid-Bugs-To: grendel@debian.org\n"
+"POT-Creation-Date: 2006-10-16 10:52+0200\n"
 "PO-Revision-Date: 2005-10-01 21:09+0200\n"
 "Last-Translator: Martin Sin <martin.sin@seznam.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -14,13 +14,14 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:4
-msgid "On what port should the config interface be?"
-msgstr "Na kterém portu má běžet konfigurační rozhraní?"
+#: ../templates:1001
+#, fuzzy
+msgid "Config interface port:"
+msgstr "Heslo konfiguračního rozhraní"
 
 #. Type: string
 #. Description
-#: ../templates:4
+#: ../templates:1001
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
@@ -32,13 +33,13 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
-msgid "What port should the server listen on?"
-msgstr "Na kterém portu má server naslouchat?"
+#: ../templates:2001
+msgid "Server port:"
+msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
+#: ../templates:2001
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
@@ -50,19 +51,19 @@ msgstr ""
 
 #. Type: multiselect
 #. Choices
-#: ../templates:19
+#: ../templates:3001
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "threads, debug, once, profile, fd-debug, keep-alive"
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
-msgid "Select options that should be used on startup"
-msgstr "Zvolte možnost, která se má použít při startu systému."
+#: ../templates:3002
+msgid "Startup options:"
+msgstr ""
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
+#: ../templates:3002
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -82,13 +83,14 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
-msgid "Tune Caudium settings for maximum performance?"
+#: ../templates:4001
+#, fuzzy
+msgid "Tune for maximum performance settings?"
 msgstr "Nastavit Caudium na nejvyšší výkon?"
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 msgid ""
 "If you select this option the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
@@ -110,20 +112,21 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 "Jestliže použijete jakoukoliv předchozí vlastnost pak tuto volbu NEZAPÍNEJTE!"
 
 #. Type: note
 #. Description
-#: ../templates:47
-msgid "Cannot bind to port."
+#: ../templates:5001
+#, fuzzy
+msgid "Cannot bind to port"
 msgstr "Nemohu přiřadit port."
 
 #. Type: note
 #. Description
-#: ../templates:47
+#: ../templates:5001
 msgid ""
 "The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -136,13 +139,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid "Caudium configuration"
 msgstr "Konfigurace Caudium"
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
@@ -157,7 +160,7 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -167,35 +170,16 @@ msgstr ""
 "adresář_caudia a určitě se podívejte na http://caudium.net/ a http://caudium."
 "org/"
 
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid "Use the experimental HTTP protocol module?"
-msgstr "Použít experimentální modul protokolu HTTP?"
-
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid ""
-"Caudium comes with an experimental HTTP module that is faster than the "
-"original one. The code is still Work-In-Progress, so you might experience "
-"problems running it. It is NOT recommended to run this code on a production "
-"server. If, however, you want to test its functionality, turn this option on."
-msgstr ""
-"Caudium přichází s experimentálním modulem HTTP, který je rychlejší než "
-"originální. Na programu se stále pracuje, takže jeho běh může způsobit "
-"problémy. Na serveru se NEDOPORUČUJE spouštět tento kód. Samozřejmě, "
-"jestliže chcete vyzkoušet jeho funkčnost, pak zvolte tu volbu."
-
 #. Type: string
 #. Description
-#: ../templates:79
-msgid "Configuration interface login."
+#: ../templates:7001
+#, fuzzy
+msgid "Configuration interface login:"
 msgstr "Konfigurace přihlašovacího rozhraní."
 
 #. Type: string
 #. Description
-#: ../templates:79
+#: ../templates:7001
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -211,13 +195,14 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:89
-msgid "Configuration interface password"
+#: ../templates:8001
+#, fuzzy
+msgid "Configuration interface password:"
 msgstr "Heslo konfiguračního rozhraní"
 
 #. Type: password
 #. Description
-#: ../templates:89
+#: ../templates:8001
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
@@ -228,26 +213,27 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:97
-msgid "Confirm the configuration interface password"
+#: ../templates:9001
+#, fuzzy
+msgid "Confirm the configuration interface password:"
 msgstr "Podtvrďte heslo konfiguračního rozhraní"
 
 #. Type: password
 #. Description
-#: ../templates:97
+#: ../templates:9001
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr "Prosím, napište heslo konfiguračního rozhraní znovu pro ověření."
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid "Configuration interface password mismatch"
 msgstr "Hesla konfiguračního rozhraní nesouhlasí"
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
@@ -257,13 +243,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "Configuration interface password reset"
 msgstr "Heslo konfigurační rozhraní obnoveno na původní stav"
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid ""
 "The password has been reset to 'password'. You cannot have an empty  "
 "password for the configuration interface. Please change the default password "
@@ -277,6 +263,30 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"
+
+#~ msgid "On what port should the config interface be?"
+#~ msgstr "Na kterém portu má běžet konfigurační rozhraní?"
+
+#~ msgid "What port should the server listen on?"
+#~ msgstr "Na kterém portu má server naslouchat?"
+
+#~ msgid "Select options that should be used on startup"
+#~ msgstr "Zvolte možnost, která se má použít při startu systému."
+
+#~ msgid "Use the experimental HTTP protocol module?"
+#~ msgstr "Použít experimentální modul protokolu HTTP?"
+
+#~ msgid ""
+#~ "Caudium comes with an experimental HTTP module that is faster than the "
+#~ "original one. The code is still Work-In-Progress, so you might experience "
+#~ "problems running it. It is NOT recommended to run this code on a "
+#~ "production server. If, however, you want to test its functionality, turn "
+#~ "this option on."
+#~ msgstr ""
+#~ "Caudium přichází s experimentálním modulem HTTP, který je rychlejší než "
+#~ "originální. Na programu se stále pracuje, takže jeho běh může způsobit "
+#~ "problémy. Na serveru se NEDOPORUČUJE spouštět tento kód. Samozřejmě, "
+#~ "jestliže chcete vyzkoušet jeho funkčnost, pak zvolte tu volbu."

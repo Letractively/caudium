@@ -26,8 +26,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: caudium\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-13 21:30+0200\n"
+"Report-Msgid-Bugs-To: grendel@debian.org\n"
+"POT-Creation-Date: 2006-10-16 10:52+0200\n"
 "PO-Revision-Date: 2005-10-10 17:01+0100\n"
 "Last-Translator: César Gómez Martín <cesar.gomez@gmail.com>\n"
 "Language-Team: Debian l10n spanish <debian-l10n-spanish@lists.debian.org>\n"
@@ -39,37 +39,57 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #. Type: string
-#: ../templates:4
-msgid "On what port should the config interface be?"
-msgstr "¿En qué puerto debe estar la interfaz de configuración?"
+#. Description
+#: ../templates:1001
+#, fuzzy
+msgid "Config interface port:"
+msgstr "Contraseña de la interfaz de configuración"
 
 #. Type: string
-#: ../templates:4
-msgid "Specify the port on which Caudium will provide its configuration interface. You can access the interface using any form capable web browser (like Mozilla, Lynx, Links or Galeon)"
-msgstr "Especifique el puerto en el que se podrá acceder a la interfaz de configuración de Caudium. Puede acceder a la interfaz con cualquier navegador que soporte formularios (como Mozilla, Lynx, Links o Galeon)"
+#. Description
+#: ../templates:1001
+msgid ""
+"Specify the port on which Caudium will provide its configuration interface. "
+"You can access the interface using any form capable web browser (like "
+"Mozilla, Lynx, Links or Galeon)"
+msgstr ""
+"Especifique el puerto en el que se podrá acceder a la interfaz de "
+"configuración de Caudium. Puede acceder a la interfaz con cualquier "
+"navegador que soporte formularios (como Mozilla, Lynx, Links o Galeon)"
 
 #. Type: string
-#: ../templates:12
-msgid "What port should the server listen on?"
-msgstr "¿En qué puerto debe escuchar el servidor?"
+#. Description
+#: ../templates:2001
+msgid "Server port:"
+msgstr ""
 
 #. Type: string
-#: ../templates:12
-msgid "Caudium is currently configured to listen on port '${portno}' of every interface in your machine. You can however specify a different port here if there's such need."
-msgstr "Caudium está actualmente configurado para escuchar en el puerto «${portno}» de todas las interfaces de su máquina. Aquí puede especificar otro puerto si realmente lo necesita."
+#. Description
+#: ../templates:2001
+msgid ""
+"Caudium is currently configured to listen on port '${portno}' of every "
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
+msgstr ""
+"Caudium está actualmente configurado para escuchar en el puerto «${portno}» "
+"de todas las interfaces de su máquina. Aquí puede especificar otro puerto si "
+"realmente lo necesita."
 
 #. Type: multiselect
-#: ../templates:19
+#. Choices
+#: ../templates:3001
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "hilos, depurar, una vez, perfilar, depurar df, mantener vivas"
 
 #. Type: multiselect
-#: ../templates:21
-msgid "Select options that should be used on startup"
-msgstr "Seleccione las opciones que se deben usar en el arranque"
+#. Description
+#: ../templates:3002
+msgid "Startup options:"
+msgstr ""
 
 #. Type: multiselect
-#: ../templates:21
+#. Description
+#: ../templates:3002
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -88,21 +108,28 @@ msgstr ""
 "«mantener activas» - mantener conexiones activas con HTTP/1.1"
 
 #. Type: boolean
-#: ../templates:33
-msgid "Tune Caudium settings for maximum performance?"
+#. Description
+#: ../templates:4001
+#, fuzzy
+msgid "Tune for maximum performance settings?"
 msgstr "¿Ajustar las opciones de Caudium para un máximo rendimiento?"
 
 #. Type: boolean
-#: ../templates:33
+#. Description
+#: ../templates:4001
 msgid ""
-"If you select this option the Caudium default configuration will be tweaked by turning off certain features that can severely slow your server down. The features turned off are:\n"
+"If you select this option the Caudium default configuration will be tweaked "
+"by turning off certain features that can severely slow your server down. The "
+"features turned off are:\n"
 " - extra Roxen compatibility\n"
 " - module level security\n"
 " - the support database\n"
 " - DNS lookups\n"
 " - URL modules"
 msgstr ""
-"Si selecciona esta opción, la configuración por omisión de Caudium se retocará deshabilitando algunas características que pueden hacer que su servidor vaya más lento. Las características deshabilitadas son:\n"
+"Si selecciona esta opción, la configuración por omisión de Caudium se "
+"retocará deshabilitando algunas características que pueden hacer que su "
+"servidor vaya más lento. Las características deshabilitadas son:\n"
 "- compatibilidad Roxen extra\n"
 "- seguridad a nivel de módulo\n"
 "- base de datos de soporte\n"
@@ -110,97 +137,188 @@ msgstr ""
 "- módulos URL"
 
 #. Type: boolean
-#: ../templates:33
+#. Description
+#: ../templates:4001
 msgid "If you use any of the above features DO NOT turn this option on!"
-msgstr "¡NO habilite esta opción si usa alguna de las características de arriba!"
+msgstr ""
+"¡NO habilite esta opción si usa alguna de las características de arriba!"
 
 #. Type: note
-#: ../templates:47
-msgid "Cannot bind to port."
+#. Description
+#: ../templates:5001
+#, fuzzy
+msgid "Cannot bind to port"
 msgstr "No se puede obtener el puerto."
 
 #. Type: note
-#: ../templates:47
-msgid "The port you have specified for the Caudium configuration interface is unavailable. Please specify another port number - Caudium cannot function properly without binding its configuration interface to a port on your system."
-msgstr "El puerto que ha especificado para la interfaz de configuración de Caudium no está disponible. Por favor, especifique otro número de puerto ya que Caudium no puede funcionar correctamente sin tener un puerto de su sistema asociado a la interfaz de configuración."
+#. Description
+#: ../templates:5001
+msgid ""
+"The port you have specified for the Caudium configuration interface is "
+"unavailable. Please specify another port number - Caudium cannot function "
+"properly without binding its configuration interface to a port on your "
+"system."
+msgstr ""
+"El puerto que ha especificado para la interfaz de configuración de Caudium "
+"no está disponible. Por favor, especifique otro número de puerto ya que "
+"Caudium no puede funcionar correctamente sin tener un puerto de su sistema "
+"asociado a la interfaz de configuración."
 
 #. Type: note
-#: ../templates:55
+#. Description
+#: ../templates:6001
 msgid "Caudium configuration"
 msgstr "Configuración de Caudium"
 
 #. Type: note
-#: ../templates:55
-msgid "After your Caudium is installed and running, you should point your forms-capable browser to http://localhost:${cfgport} to further configure Caudium using its web-based configuration interface. THIS IS VERY IMPORTANT since that step involves creation of administrative login/password."
-msgstr "Para seguir configurando Caudium a través de su interfaz de configuración basada en web, debe visitar con su navegador la URL http://localhost:${cfgport} después de que se haya instalado Caudium y esté ejecutándose. ESTO ES MUY IMPORTANTE ya que este paso incluye la creación delusuario/contraseña administrativo"
+#. Description
+#: ../templates:6001
+msgid ""
+"After your Caudium is installed and running, you should point your forms-"
+"capable browser to http://localhost:${cfgport} to further configure Caudium "
+"using its web-based configuration interface. THIS IS VERY IMPORTANT since "
+"that step involves creation of administrative login/password."
+msgstr ""
+"Para seguir configurando Caudium a través de su interfaz de configuración "
+"basada en web, debe visitar con su navegador la URL http://localhost:"
+"${cfgport} después de que se haya instalado Caudium y esté ejecutándose. "
+"ESTO ES MUY IMPORTANTE ya que este paso incluye la creación delusuario/"
+"contraseña administrativo"
 
 #. Type: note
-#: ../templates:55
-msgid "For more information about Caudium see the documents in the /usr/share/doc/caudium directory and make sure to visit http://caudium.net/ and http://caudium.org/"
-msgstr "Mire los documentos del directorio /usr/share/doc/caudium si quiere más información acerca de Caudium y asegúrese de visitar http://caudium.net/ y http://caudium.org/"
-
-#. Type: boolean
-#: ../templates:69
-msgid "Use the experimental HTTP protocol module?"
-msgstr "¿Quiere usar el módulo experimental del protocolo HTTP?"
-
-#. Type: boolean
-#: ../templates:69
-msgid "Caudium comes with an experimental HTTP module that is faster than the original one. The code is still Work-In-Progress, so you might experience problems running it. It is NOT recommended to run this code on a production server. If, however, you want to test its functionality, turn this option on."
-msgstr "Caudium viene con un módulo HTTP experimental que es más rápido que el original. Todavía se está trabajando en el código, por lo que puede que haya problemas a la hora de ejecutarlo. ¡NO es recomendable ejecutar este código en un servidor en producción!. Habilite esta opción si lo que quiere es probar esta funcionalidad."
+#. Description
+#: ../templates:6001
+msgid ""
+"For more information about Caudium see the documents in the /usr/share/doc/"
+"caudium directory and make sure to visit http://caudium.net/ and http://"
+"caudium.org/"
+msgstr ""
+"Mire los documentos del directorio /usr/share/doc/caudium si quiere más "
+"información acerca de Caudium y asegúrese de visitar http://caudium.net/ y "
+"http://caudium.org/"
 
 #. Type: string
-#: ../templates:79
-msgid "Configuration interface login."
+#. Description
+#: ../templates:7001
+#, fuzzy
+msgid "Configuration interface login:"
 msgstr "Usuario de la interfaz de configuración."
 
 #. Type: string
-#: ../templates:79
-msgid "This is the user login name for the configuration interface access. If you don't specify anything here, anybody who will access the config interface first will be able to set the login/password and manage your server. This is probably not what you want. Please specify the login name below or accept the default value."
-msgstr "Este es el nombre de usuario para acceder a la interfaz de configuración. Cualquier persona que sea la primera en entrar en la interfaz de configuración podrá cambiar el usuario/contraseña y gestionar su servidor si aquí no especifica ningun nombre de usuario. Como lo más probable es que no quiera que ocurra esto, por favor introduzca un nombre de usuario o acepte el valor por omisión."
+#. Description
+#: ../templates:7001
+msgid ""
+"This is the user login name for the configuration interface access. If you "
+"don't specify anything here, anybody who will access the config interface "
+"first will be able to set the login/password and manage your server. This is "
+"probably not what you want. Please specify the login name below or accept "
+"the default value."
+msgstr ""
+"Este es el nombre de usuario para acceder a la interfaz de configuración. "
+"Cualquier persona que sea la primera en entrar en la interfaz de "
+"configuración podrá cambiar el usuario/contraseña y gestionar su servidor si "
+"aquí no especifica ningun nombre de usuario. Como lo más probable es que no "
+"quiera que ocurra esto, por favor introduzca un nombre de usuario o acepte "
+"el valor por omisión."
 
 #. Type: password
-#: ../templates:89
-msgid "Configuration interface password"
+#. Description
+#: ../templates:8001
+#, fuzzy
+msgid "Configuration interface password:"
 msgstr "Contraseña de la interfaz de configuración"
 
 #. Type: password
-#: ../templates:89
-msgid "This is the password used to access the configuration interface. The default value for it is 'password' - it is HIGHLY RECOMMENDED to change the default below!"
-msgstr "Esta es la contraseña que se usa para acceder a la interfaz de configuración. El valor por omisión es «password» - ¡Es MUY RECOMENDABLE cambiar el valor por omisión!"
+#. Description
+#: ../templates:8001
+msgid ""
+"This is the password used to access the configuration interface. The default "
+"value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
+"below!"
+msgstr ""
+"Esta es la contraseña que se usa para acceder a la interfaz de "
+"configuración. El valor por omisión es «password» - ¡Es MUY RECOMENDABLE "
+"cambiar el valor por omisión!"
 
 #. Type: password
-#: ../templates:97
-msgid "Confirm the configuration interface password"
+#. Description
+#: ../templates:9001
+#, fuzzy
+msgid "Confirm the configuration interface password:"
 msgstr "Confirme la contraseña de la interfaz de configuración"
 
 #. Type: password
-#: ../templates:97
-msgid "Please type in the configuration interface password again for confirmation."
-msgstr "Por favor, introduzca de nuevo la contraseña de la interfaz de configuración a modo de confirmación."
+#. Description
+#: ../templates:9001
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr ""
+"Por favor, introduzca de nuevo la contraseña de la interfaz de configuración "
+"a modo de confirmación."
 
 #. Type: note
-#: ../templates:103
+#. Description
+#: ../templates:10001
 msgid "Configuration interface password mismatch"
 msgstr "La contraseña de la interfaz de configuración no coincide"
 
 #. Type: note
-#: ../templates:103
-msgid "The passwords you have typed don't match. Please type again and keep in mind that the passwords are case-sensitive."
-msgstr "Las contraseñas que ha introducido no coinciden. Por favor, introdúzcalas de nuevo y tenga en cuenta que las contraseñas son sensibles a las mayúsculas."
+#. Description
+#: ../templates:10001
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+"Las contraseñas que ha introducido no coinciden. Por favor, introdúzcalas de "
+"nuevo y tenga en cuenta que las contraseñas son sensibles a las mayúsculas."
 
 #. Type: note
-#: ../templates:109
+#. Description
+#: ../templates:11001
 msgid "Configuration interface password reset"
 msgstr "Reajuste de la contraseña de la interfaz de configuración"
 
 #. Type: note
-#: ../templates:109
-msgid "The password has been reset to 'password'. You cannot have an empty  password for the configuration interface. Please change the default password as soon as Caudium has finished installing. You can do it by logging in to the configuration interface accessible under the URL given below:"
-msgstr "La contraseña se ha cambiado y ahora es «password». No puede tener una contraseña vacía para la interfaz de configuración. Por favor, cambie la contraseña por omisión tan pronto como Caudium termine de instalarse. Puede hacerlo accediendo a la interfaz de configuración a través de la URL:"
+#. Description
+#: ../templates:11001
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+"La contraseña se ha cambiado y ahora es «password». No puede tener una "
+"contraseña vacía para la interfaz de configuración. Por favor, cambie la "
+"contraseña por omisión tan pronto como Caudium termine de instalarse. Puede "
+"hacerlo accediendo a la interfaz de configuración a través de la URL:"
 
 #. Type: note
-#: ../templates:109
+#. Description
+#: ../templates:11001
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"
 
+#~ msgid "On what port should the config interface be?"
+#~ msgstr "¿En qué puerto debe estar la interfaz de configuración?"
+
+#~ msgid "What port should the server listen on?"
+#~ msgstr "¿En qué puerto debe escuchar el servidor?"
+
+#~ msgid "Select options that should be used on startup"
+#~ msgstr "Seleccione las opciones que se deben usar en el arranque"
+
+#~ msgid "Use the experimental HTTP protocol module?"
+#~ msgstr "¿Quiere usar el módulo experimental del protocolo HTTP?"
+
+#~ msgid ""
+#~ "Caudium comes with an experimental HTTP module that is faster than the "
+#~ "original one. The code is still Work-In-Progress, so you might experience "
+#~ "problems running it. It is NOT recommended to run this code on a "
+#~ "production server. If, however, you want to test its functionality, turn "
+#~ "this option on."
+#~ msgstr ""
+#~ "Caudium viene con un módulo HTTP experimental que es más rápido que el "
+#~ "original. Todavía se está trabajando en el código, por lo que puede que "
+#~ "haya problemas a la hora de ejecutarlo. ¡NO es recomendable ejecutar este "
+#~ "código en un servidor en producción!. Habilite esta opción si lo que "
+#~ "quiere es probar esta funcionalidad."

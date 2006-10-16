@@ -1,3 +1,24 @@
+caudium (2:1.4.8-1) unstable; urgency=low
+
+  * The latest upstream release
+  * Removed all the traces of Java from the source tarball and the
+    binary packages
+  * Build-depends on the latest Pike 7.6
+  * source code missing for lucene-1.2.jar? (Closes: #390634)
+    The file is gone from the package.
+  * Uninstallable due to unavailable pike7.6-dev (<= 7.6.87-99) (Closes:
+    #391253)
+  * diff for 2:1.4.7-15.1 NMU (Closes: #393119)
+    Patch incorporated, thanks to Joey Hess <joeyh@debian.org>
+  * xerces.jar corrupted in source tarball? (Closes: #392366)
+    The file is gone from the package.
+  * Fixed a bunch of warnings and errors from lintian/linda
+  * Updated the debconf template file
+  * Polish translation updated and translated for the above changes
+  * po files updated updated for the above changes
+
+ -- Marek Habersack <grendel@debian.org>  Mon, 16 Oct 2006 12:04:54 +0200
+
 caudium (2:1.4.7-15.1) unstable; urgency=low
 
   * NMU

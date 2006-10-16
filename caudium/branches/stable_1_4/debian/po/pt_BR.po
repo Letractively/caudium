@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: caudium\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-13 21:30+0200\n"
+"Report-Msgid-Bugs-To: grendel@debian.org\n"
+"POT-Creation-Date: 2006-10-16 10:52+0200\n"
 "PO-Revision-Date: 2006-06-16 17:24-0300\n"
 "Last-Translator: André Luís Lopes <andrelop@debian.org>\n"
 "Language-Team: Debian-BR Project <debian-l10n-portuguese@lists.debian.org>\n"
@@ -25,13 +25,14 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:4
-msgid "On what port should the config interface be?"
-msgstr "Em qual porta a interface de configuração deverá estar ?"
+#: ../templates:1001
+#, fuzzy
+msgid "Config interface port:"
+msgstr "Senha para a interface de configuração"
 
 #. Type: string
 #. Description
-#: ../templates:4
+#: ../templates:1001
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
@@ -43,37 +44,37 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
-msgid "What port should the server listen on?"
-msgstr "Em qual porta o servidor deverá ouvir ?"
+#: ../templates:2001
+msgid "Server port:"
+msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
+#: ../templates:2001
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
 "there's such need."
 msgstr ""
 "O Caudium está atualmente configurado para ouvir na porta '${portno}' de "
-"cada interface em sua máquina. Você pode especificar uma porta "
-"diferente aqui caso não exista essa necessidade."
+"cada interface em sua máquina. Você pode especificar uma porta diferente "
+"aqui caso não exista essa necessidade."
 
 #. Type: multiselect
 #. Choices
-#: ../templates:19
+#: ../templates:3001
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "threads, debug, once, profile, fd-debug, keep-alive"
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
-msgid "Select options that should be used on startup"
-msgstr "Selecione as opções que deverão ser usadas na inicialização"
+#: ../templates:3002
+msgid "Startup options:"
+msgstr ""
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
+#: ../templates:3002
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -93,13 +94,14 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
-msgid "Tune Caudium settings for maximum performance?"
+#: ../templates:4001
+#, fuzzy
+msgid "Tune for maximum performance settings?"
 msgstr "Modificar configurações do Caudium para máxima perfomance ?"
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 msgid ""
 "If you select this option the Caudium default configuration will be tweaked "
 "by turning off certain features that can severely slow your server down. The "
@@ -122,21 +124,22 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
-"Caso você utilize qualquer uma das funcionalidades acima, NÂO ACEITE "
-"estas modificações !"
+"Caso você utilize qualquer uma das funcionalidades acima, NÂO ACEITE estas "
+"modificações !"
 
 #. Type: note
 #. Description
-#: ../templates:47
-msgid "Cannot bind to port."
+#: ../templates:5001
+#, fuzzy
+msgid "Cannot bind to port"
 msgstr "Não foi possível conectar na porta."
 
 #. Type: note
 #. Description
-#: ../templates:47
+#: ../templates:5001
 msgid ""
 "The port you have specified for the Caudium configuration interface is "
 "unavailable. Please specify another port number - Caudium cannot function "
@@ -144,19 +147,19 @@ msgid ""
 "system."
 msgstr ""
 "A porta que você especificou para a interface de configuração do Caudium não "
-"está disponível. Por favor, especifique outro número de porta - O "
-"Caudium não funcionará corretamente sem associar sua interface de "
-"configuração a uma porta em seu sistema."
+"está disponível. Por favor, especifique outro número de porta - O Caudium "
+"não funcionará corretamente sem associar sua interface de configuração a uma "
+"porta em seu sistema."
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid "Caudium configuration"
 msgstr "Configuração do Caudium"
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
@@ -166,12 +169,12 @@ msgstr ""
 "Depois que seu servidor Caudium estiver instalado e em execução você deverá "
 "apontar seu navegador capaz de lidar com formulários para http://localhost:"
 "${cfgport} para configuração adicional do Caudium usando sua interface de "
-"configuração baseada na Web. ISSO É MUITO IMPORTANTE, uma vez que esse "
-"passo envolve a criação do login/senha administrativo."
+"configuração baseada na Web. ISSO É MUITO IMPORTANTE, uma vez que esse passo "
+"envolve a criação do login/senha administrativo."
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -181,37 +184,16 @@ msgstr ""
 "diretório /usr/share/doc/caudium e certifique-se de visitar os endereços "
 "http://caudium.net/ e http://caudium.org/"
 
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid "Use the experimental HTTP protocol module?"
-msgstr "Utilizar o módulo de protocolo HTTP experimental ?"
-
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid ""
-"Caudium comes with an experimental HTTP module that is faster than the "
-"original one. The code is still Work-In-Progress, so you might experience "
-"problems running it. It is NOT recommended to run this code on a production "
-"server. If, however, you want to test its functionality, turn this option on."
-msgstr ""
-"O Caudium é fornecido com um módulo de protocolo HTTP experimental que é "
-"mais rápido que o original. O código ainda é um Trabalho-Em-Progresso "
-"e, por isso, você poderá enfrentar problemas utilizando esse novo "
-"módulo. NÂO é recomendado executar esse código em um servidor de "
-"produção. Porém, caso queira testar sua funcionalidade, habilite "
-"esta opção."
-
 #. Type: string
 #. Description
-#: ../templates:79
-msgid "Configuration interface login."
+#: ../templates:7001
+#, fuzzy
+msgid "Configuration interface login:"
 msgstr "Login para a interface de configuração."
 
 #. Type: string
 #. Description
-#: ../templates:79
+#: ../templates:7001
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -227,13 +209,14 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:89
-msgid "Configuration interface password"
+#: ../templates:8001
+#, fuzzy
+msgid "Configuration interface password:"
 msgstr "Senha para a interface de configuração"
 
 #. Type: password
 #. Description
-#: ../templates:89
+#: ../templates:8001
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
@@ -244,13 +227,14 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:97
-msgid "Confirm the configuration interface password"
+#: ../templates:9001
+#, fuzzy
+msgid "Confirm the configuration interface password:"
 msgstr "Confirme a senha da interface de configuração"
 
 #. Type: password
 #. Description
-#: ../templates:97
+#: ../templates:9001
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr ""
@@ -259,13 +243,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid "Configuration interface password mismatch"
 msgstr "Senha para interface de configuração não confere"
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
@@ -275,13 +259,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "Configuration interface password reset"
 msgstr "Senha para interface de configuração redefinida"
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid ""
 "The password has been reset to 'password'. You cannot have an empty  "
 "password for the configuration interface. Please change the default password "
@@ -291,11 +275,36 @@ msgstr ""
 "A senha foi redefinida para 'password'. Você não pode ter uma senha em "
 "branco para a interface de configuração. Por favor, mude a senha padrão "
 "assim que a instalação do Caudium for finalizada. Você pode fazê-lo se "
-"autenticando na interface de configuração acessível através da URL "
-"informada abaixo :"
+"autenticando na interface de configuração acessível através da URL informada "
+"abaixo :"
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"
+
+#~ msgid "On what port should the config interface be?"
+#~ msgstr "Em qual porta a interface de configuração deverá estar ?"
+
+#~ msgid "What port should the server listen on?"
+#~ msgstr "Em qual porta o servidor deverá ouvir ?"
+
+#~ msgid "Select options that should be used on startup"
+#~ msgstr "Selecione as opções que deverão ser usadas na inicialização"
+
+#~ msgid "Use the experimental HTTP protocol module?"
+#~ msgstr "Utilizar o módulo de protocolo HTTP experimental ?"
+
+#~ msgid ""
+#~ "Caudium comes with an experimental HTTP module that is faster than the "
+#~ "original one. The code is still Work-In-Progress, so you might experience "
+#~ "problems running it. It is NOT recommended to run this code on a "
+#~ "production server. If, however, you want to test its functionality, turn "
+#~ "this option on."
+#~ msgstr ""
+#~ "O Caudium é fornecido com um módulo de protocolo HTTP experimental que é "
+#~ "mais rápido que o original. O código ainda é um Trabalho-Em-Progresso e, "
+#~ "por isso, você poderá enfrentar problemas utilizando esse novo módulo. "
+#~ "NÂO é recomendado executar esse código em um servidor de produção. Porém, "
+#~ "caso queira testar sua funcionalidade, habilite esta opção."
