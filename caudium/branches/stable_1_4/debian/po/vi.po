@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: caudium 2/1.2.35.1-1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-13 21:30+0200\n"
+"Report-Msgid-Bugs-To: grendel@debian.org\n"
+"POT-Creation-Date: 2006-10-16 10:52+0200\n"
 "PO-Revision-Date: 2005-06-12 23:00+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net>\n"
@@ -17,13 +17,14 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:4
-msgid "On what port should the config interface be?"
-msgstr "Bạn có muốn gán giao diện cấu hình cho cổng nào?"
+#: ../templates:1001
+#, fuzzy
+msgid "Config interface port:"
+msgstr "Mật khẩu cho giao diện cấu hình"
 
 #. Type: string
 #. Description
-#: ../templates:4
+#: ../templates:1001
 msgid ""
 "Specify the port on which Caudium will provide its configuration interface. "
 "You can access the interface using any form capable web browser (like "
@@ -35,13 +36,13 @@ msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
-msgid "What port should the server listen on?"
-msgstr "Bạn có muốn trình phục vụ lắng nghe trên cổng nào?"
+#: ../templates:2001
+msgid "Server port:"
+msgstr ""
 
 #. Type: string
 #. Description
-#: ../templates:12
+#: ../templates:2001
 msgid ""
 "Caudium is currently configured to listen on port '${portno}' of every "
 "interface in your machine. You can however specify a different port here if "
@@ -53,19 +54,19 @@ msgstr ""
 
 #. Type: multiselect
 #. Choices
-#: ../templates:19
+#: ../templates:3001
 msgid "threads, debug, once, profile, fd-debug, keep-alive"
 msgstr "mạch, gỡ lỗi, một lần, nét chính, gỡ lỗi bt, giữ sống"
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
-msgid "Select options that should be used on startup"
-msgstr "Hãy chọn những tùy chọn cần dùng khi khởi chạy."
+#: ../templates:3002
+msgid "Startup options:"
+msgstr ""
 
 #. Type: multiselect
 #. Description
-#: ../templates:21
+#: ../templates:3002
 msgid ""
 "You can select zero or more options from:\n"
 " 'threads' - use threads (if available)\n"
@@ -85,15 +86,16 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
-msgid "Tune Caudium settings for maximum performance?"
+#: ../templates:4001
+#, fuzzy
+msgid "Tune for maximum performance settings?"
 msgstr ""
 "Bạn có muốn điều hưởng tinh các thiết lập Caudium để đạt hiệu năng tối đa "
 "không?"
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 #, fuzzy
 msgid ""
 "If you select this option the Caudium default configuration will be tweaked "
@@ -116,7 +118,7 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../templates:33
+#: ../templates:4001
 msgid "If you use any of the above features DO NOT turn this option on!"
 msgstr ""
 "Nếu bạn có phải sử dụng bất cứ tính năng nào ở trên, • ĐỪNG • hiệu lực tùy "
@@ -124,13 +126,14 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:47
-msgid "Cannot bind to port."
+#: ../templates:5001
+#, fuzzy
+msgid "Cannot bind to port"
 msgstr "Không đóng kết được đến cổng."
 
 #. Type: note
 #. Description
-#: ../templates:47
+#: ../templates:5001
 #, fuzzy
 msgid ""
 "The port you have specified for the Caudium configuration interface is "
@@ -144,13 +147,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid "Caudium configuration"
 msgstr "Cấu hình Caudium"
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "After your Caudium is installed and running, you should point your forms-"
 "capable browser to http://localhost:${cfgport} to further configure Caudium "
@@ -165,7 +168,7 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:55
+#: ../templates:6001
 msgid ""
 "For more information about Caudium see the documents in the /usr/share/doc/"
 "caudium directory and make sure to visit http://caudium.net/ and http://"
@@ -175,36 +178,16 @@ msgstr ""
 "«/usr/share/doc/caudium», và bạn hãy tham gia «http://caudium.net/» và "
 "«http://caudium.org/» nhé."
 
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid "Use the experimental HTTP protocol module?"
-msgstr "Bạn có muốn sử dụng mô-đun giao thức HTTP đựa trên thí nghiệm không?"
-
-#. Type: boolean
-#. Description
-#: ../templates:69
-msgid ""
-"Caudium comes with an experimental HTTP module that is faster than the "
-"original one. The code is still Work-In-Progress, so you might experience "
-"problems running it. It is NOT recommended to run this code on a production "
-"server. If, however, you want to test its functionality, turn this option on."
-msgstr ""
-"Trình Caudium có sẵn một mô-đun HTTP đựa trên thí nghiệm mà nhanh hơn điều "
-"gốc. Chúng tôi vấn còn đang phát triển mã này, thì bạn có lẽ sẽ gặp lỗi khi "
-"chạy nó. •• Không •• đệ nghị chạy mã này khi sử dụng trình phục vụ với thông "
-"tin mà bạn không muốn mất. Tuy nhiên, nếu bạn muốn thử ra chức năng với "
-"thông tin có thể mất, hãy bật tùy chọn này."
-
 #. Type: string
 #. Description
-#: ../templates:79
-msgid "Configuration interface login."
+#: ../templates:7001
+#, fuzzy
+msgid "Configuration interface login:"
 msgstr "Tên người dùng để đăng nhập vào giao diện cấu hình"
 
 #. Type: string
 #. Description
-#: ../templates:79
+#: ../templates:7001
 msgid ""
 "This is the user login name for the configuration interface access. If you "
 "don't specify anything here, anybody who will access the config interface "
@@ -220,13 +203,14 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:89
-msgid "Configuration interface password"
+#: ../templates:8001
+#, fuzzy
+msgid "Configuration interface password:"
 msgstr "Mật khẩu cho giao diện cấu hình"
 
 #. Type: password
 #. Description
-#: ../templates:89
+#: ../templates:8001
 msgid ""
 "This is the password used to access the configuration interface. The default "
 "value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
@@ -238,26 +222,27 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../templates:97
-msgid "Confirm the configuration interface password"
+#: ../templates:9001
+#, fuzzy
+msgid "Confirm the configuration interface password:"
 msgstr "Hãy xác nhận mật khẩu cho giao diện cấu hình."
 
 #. Type: password
 #. Description
-#: ../templates:97
+#: ../templates:9001
 msgid ""
 "Please type in the configuration interface password again for confirmation."
 msgstr "Hãy gõ lại mật khẩu cho giao diện cấu hình, để xác nhận nó."
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid "Configuration interface password mismatch"
 msgstr "Hai mật khẩu ấy không khớp."
 
 #. Type: note
 #. Description
-#: ../templates:103
+#: ../templates:10001
 msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
@@ -267,13 +252,13 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "Configuration interface password reset"
 msgstr "Lập lại mật khẩu cho giao diện cấu hình."
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid ""
 "The password has been reset to 'password'. You cannot have an empty  "
 "password for the configuration interface. Please change the default password "
@@ -287,6 +272,32 @@ msgstr ""
 
 #. Type: note
 #. Description
-#: ../templates:109
+#: ../templates:11001
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"
+
+#~ msgid "On what port should the config interface be?"
+#~ msgstr "Bạn có muốn gán giao diện cấu hình cho cổng nào?"
+
+#~ msgid "What port should the server listen on?"
+#~ msgstr "Bạn có muốn trình phục vụ lắng nghe trên cổng nào?"
+
+#~ msgid "Select options that should be used on startup"
+#~ msgstr "Hãy chọn những tùy chọn cần dùng khi khởi chạy."
+
+#~ msgid "Use the experimental HTTP protocol module?"
+#~ msgstr ""
+#~ "Bạn có muốn sử dụng mô-đun giao thức HTTP đựa trên thí nghiệm không?"
+
+#~ msgid ""
+#~ "Caudium comes with an experimental HTTP module that is faster than the "
+#~ "original one. The code is still Work-In-Progress, so you might experience "
+#~ "problems running it. It is NOT recommended to run this code on a "
+#~ "production server. If, however, you want to test its functionality, turn "
+#~ "this option on."
+#~ msgstr ""
+#~ "Trình Caudium có sẵn một mô-đun HTTP đựa trên thí nghiệm mà nhanh hơn "
+#~ "điều gốc. Chúng tôi vấn còn đang phát triển mã này, thì bạn có lẽ sẽ gặp "
+#~ "lỗi khi chạy nó. •• Không •• đệ nghị chạy mã này khi sử dụng trình phục "
+#~ "vụ với thông tin mà bạn không muốn mất. Tuy nhiên, nếu bạn muốn thử ra "
+#~ "chức năng với thông tin có thể mất, hãy bật tùy chọn này."

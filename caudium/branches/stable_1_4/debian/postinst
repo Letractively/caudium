@@ -134,24 +134,6 @@ wwwuser=www-data
 flags="$START_OPTIONS"
 EOF
     fi
-
-##
-## HTTP2 is the default now
-##
-
-#    db_get caudium/experimental_http
-#    if test "$RET" = "true"; then
-#	PROTOCOL=http2
-#    else
-#	PROTOCOL=http
-#    fi
-#    
-#    if [ -f /etc/caudium/servers/localhost ]; then
-#	sed -e "s;@PROTOCOL@;$PROTOCOL;" /etc/caudium/servers/localhost > \
-#         /etc/caudium/servers/localhost.new && mv /etc/caudium/servers/localhost.new \
-# 	 /etc/caudium/servers/localhost
-#    fi
-
     
 # -----------------------
       if [ ! -f /var/www/index.html ]; then

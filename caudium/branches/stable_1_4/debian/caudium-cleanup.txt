@@ -8,3 +8,5 @@ usr/share/caudium/etc/include/ultralog
 usr/share/caudium/modules/ultralog
 usr/share/caudium/etc/include/ultralog
 usr/share/caudium/etc/modules/UltraSupport.pmod/
+usr/share/doc/caudium/README.FreeBSD
+usr/lib/caudium/start-caudium.in
