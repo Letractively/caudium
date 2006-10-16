@@ -31,6 +31,7 @@ Description: C modules for Caudium
 Package: caudium-pixsl
 Architecture: any
 Depends: ${shlibs:Depends}, caudium (= ${Source-Version})
+Replaces: caudium (<= 2:1.2.35.1-1)
 Description: Pike XSLT module for Caudium
  Certain parts of Caudium are coded in C for speed. This package contains
  the compiled  shared extension module that provides Caudium with 

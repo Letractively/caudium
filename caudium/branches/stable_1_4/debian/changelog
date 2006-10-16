@@ -1,3 +1,13 @@
+caudium (2:1.4.7-15.1) unstable; urgency=low
+
+  * NMU
+  * Make caudium-pixsl replaces caudium (<= 2:1.2.35.1-1), to fix upgrades
+    from the version in sarge, which contained /usr/bin/pixsl. Closes: #392825
+  * Don't die if /usr/local/share/caudium/modules/ cannot be created.
+    Closes: #392506
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 14 Oct 2006 23:00:54 -0400
+
 caudium (2:1.4.7-15) unstable; urgency=low
 
   * New Pike version dependency
