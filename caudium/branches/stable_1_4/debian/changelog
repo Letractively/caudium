@@ -1,3 +1,10 @@
+caudium (2:1.4.9.1-1) unstable; urgency=low
+
+  * Removed a non-DFSG font from the original source tarball
+  * ships a non-free font (Closes: #393751)
+
+ -- Marek Habersack <grendel@debian.org>  Wed, 18 Oct 2006 12:02:31 +0200
+
 caudium (2:1.4.9-1) unstable; urgency=low
 
   * The latest upstream release

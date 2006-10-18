@@ -1,6 +1,11 @@
 Caudium Webserver for Debian
 ----------------------------
-
+ The upstream version carries a font in the distribution called fontrstc.tff
+ which cannot be distributed with Debian due to its license disallowing
+ the sale of the font.
+ Therefore, the Debian version of Caudium does not have the font anywhere in the 
+ archive.
+ 
  The default configuration now forbids access to the configuration
  interface from IPs other than 127.0.0.1. That means, to access the
  configuration interface remotely, you will need to use SSH port
