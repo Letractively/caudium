@@ -53,7 +53,7 @@ constant module_type = MODULE_PARSER | MODULE_PROVIDER;
 constant module_name = "SQL-module";
 constant module_doc  = "This module gives the three tags &lt;SQLQUERY&gt;, "
 	     "&lt;SQLOUTPUT&gt;, and &lt;SQLTABLE&gt;, and when "
-             "using the XML compliant RXML parser, an EMIT provider for 
+             "using the XML compliant RXML parser, an EMIT provider for "
              "SQL.<br>\n"
 	     "Usage:<ul>\n"
 	     "<table border=0>\n"
