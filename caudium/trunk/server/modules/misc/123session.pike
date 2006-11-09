@@ -120,7 +120,7 @@ void create (mixed ... foo) {
   defvar("force_include_urls", "", "Force Include URLs", TYPE_TEXT_FIELD,
          "URLs that will trigger a session URL to be set. If empty, all urls that require a sesion will trigger the session URL to be set."
          "When using this setting, note that the values provided here must match the non-query portion of the request "
-         "exactly. Example: /foo would match a request mysite.com/foo, but not mysite.com/foo/.
+         "exactly. Example: /foo would match a request mysite.com/foo, but not mysite.com/foo/."
          "</pre>", 0);
   defvar("include_urls", "", "Include URLs", TYPE_TEXT_FIELD,
          "URLs that should be branded with a Session Identifier."
