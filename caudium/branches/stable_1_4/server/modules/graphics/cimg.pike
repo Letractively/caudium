@@ -45,11 +45,15 @@ mapping generate_image( mapping args, object id )
 
 mapping find_internal( string f, object id )
 {
-  return the_cache->http_file_answer( f, id );
+	string file = (f/"-")[0];
+
+  return the_cache->http_file_answer( file, id );
 }
 
 string tag_cimg( string t, mapping args, object id )
 {
+	string orig_src = args->src;
+
   mapping a = 
   ([  
     "src":Caudium.fix_relative( args->src, id ),
@@ -66,7 +70,8 @@ string tag_cimg( string t, mapping args, object id )
 
   args -= a;
 
-  args->src = query_internal_location()+the_cache->store( a, id );
+	// Keep web crawler safe by appending the original image filename
+  args->src = query_internal_location()+the_cache->store( a, id )+"-"+orig_src;
 
   if( mapping size = the_cache->metadata( a, id, 1 ) ) 
   {
@@ -79,6 +84,8 @@ string tag_cimg( string t, mapping args, object id )
 
 string tag_cimg_url( string t, mapping args, object id )
 {
+	string orig_src=args->src;
+
   mapping a = 
   ([  
     "src":Caudium.fix_relative( args->src, id ),  "quant":args->quant,
@@ -90,7 +97,8 @@ string tag_cimg_url( string t, mapping args, object id )
   foreach( glob( "*-*", indices(args)), string n )
     a[n] = args[n];
 
-  return query_internal_location()+the_cache->store( a, id );
+	// Keep web crawler safe by appending the original image filename
+  return query_internal_location()+the_cache->store( a, id )+"-"+orig_src;
 }
 
 mapping query_tag_callers()
