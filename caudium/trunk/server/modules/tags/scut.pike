@@ -38,6 +38,11 @@
 //! inherits: caudiumlib
 //! cvs_version: $Id$
 
+// Warning: Allowing scut to output strings not HTML encoded is a potential
+// security risk/bug generator. However, if you are in an environment you
+// fully control you may want this functionnality.
+//#define SCUT_ALLOW_NO_HTML_ENCODE
+
 #include <module.h>
 #include <process.h>
 inherit "module";
@@ -86,6 +91,13 @@ string scut(string tag_name, mapping args, string contents,
     else contents = contents[..max];
   }
  }
+
+// Warning: see the comment on the corresponding define on top
+#ifdef SCUT_ALLOW_NO_HTML_ENCODE
+	if(args->htmlencode=="no")
+		return contents;
+#endif
+
  return _Roxen.html_encode_string(contents);
 }
 
