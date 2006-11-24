@@ -1,5 +1,17 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Requests on the same 1st level virtual host can now be splitted into
+  different logfiles given the virtual host domain used in the HTTP request.
+    (Bertrand LUPART / Olivier CHENEL)
+- <scut cut_on_whites="1"></scut> ask scut to only cut on whitespaces. The
+  goal is not to cut words.
+  The module can be configured to do this by default in the CIF.
+  Not enabled by default for backward compatibility.
+    (Bertrand LUPART)
+- <scut htmlencode="1"></scut> won't encode string in HTML. Volontary not
+  documented on the user side, since that's not percieved as a good practice.
+  See scut.pike source code for enabling this.
+    (Bertrand LUPART)
 - Fix to destroy file objects after the request is sent when using shuffler.
   This should fix a problem with running out of file descriptors. Also, a 
   patch was applied to Pike 7.6 CVS to fix a crash caused by using shuffler.
