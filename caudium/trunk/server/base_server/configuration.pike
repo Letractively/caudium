@@ -740,7 +740,7 @@ array filter_modules(object id)
 string cache_hostname=gethostname();
 
 //!
-int init_log_file(int|void force_open)
+int init_log_file(int|void force_open, void|object id)
 {
   int t = time(1);
   remove_call_out(init_log_file);
@@ -767,9 +767,10 @@ int init_log_file(int|void force_open)
     if(m->mon < 10) m->mon = "0"+m->mon;
     if(m->mday < 10) m->mday = "0"+m->mday;
     if(m->hour < 10) m->hour = "0"+m->hour;
-    logfile = replace(logfile,({"%d","%m","%y","%h","%H"}),
+    logfile = replace(logfile,({"%d","%m","%y","%h","%H","%V"}),
                       ({ (string)m->mday, (string)(m->mon),
-                         (string)(m->year),(string)m->hour,cache_hostname}));
+                         (string)(m->year),(string)m->hour,cache_hostname,
+                         id->host}));
     if(strlen(logfile))
     {
       do {
@@ -829,7 +830,7 @@ public void log(mapping file, object request_id)
     // locker, if any. 
     if(!log_function)
 #endif
-      init_log_file(1);
+      init_log_file(1, request_id);
 #ifdef THREADS
     destruct(key);
 #endif
@@ -3947,6 +3948,7 @@ void create(string config)
          "%d    Date  (i.e. '10' for the tenth)\n"
          "%h    Hour  (i.e. '00')\n"
          "%H    The hostname of the server machine.\n"
+         "%V    The full domain of the HTTP request.\n"
          "</pre>"
          ,0, log_is_not_enabled);
   
