@@ -116,6 +116,14 @@ void resolv_handle_request(object c, object nid)
   int again;
   mixed file;
   function funp;
+
+  // TODO: be able to fill in the domain and let Caudium choose the right 1st
+  // level virtual server?
+  // TODO: MODULE_PRECACHE?
+
+	// TODO: reproducing http.pike behavior. Call it instead?
+  nid->site_id = c->name;
+
   do
   {
     again=0;
