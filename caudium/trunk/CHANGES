@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Added PAM Authentication provider; requires System.PAM module.
+    (Bill Welliver)
 - Requests on the same 1st level virtual host can now be splitted into
   different logfiles given the virtual host domain used in the HTTP request.
     (Bertrand LUPART / Olivier CHENEL)
