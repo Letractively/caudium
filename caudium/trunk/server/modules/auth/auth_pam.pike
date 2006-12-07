@@ -52,7 +52,7 @@ int succ, fail, nouser;
 string status()
 {
   return("<h1>Security info</h1>\n"
-	 "<b>PAM Service:</b> " + QUERY(service + "<br>\n"
+	 "<b>PAM Service:</b> " + QUERY(service) + "<br>\n"
 	 "<p>\n"
 	 "<b>Successful auths:</b> " + (string)succ +
 	 "<b>Failed auths:</b> " + (string)fail +
@@ -98,9 +98,9 @@ mixed conv(string user, mixed data, array c)
 
 void start(int i)
 {
-  if (!pam && QUERY(service)) 
+  if (!pam && QUERY(service) && strlen(QUERY(service))) 
   {
-    pam = System.PAM(QUERY(service));
+    pam = System.PAM.PAM(QUERY(service));
   }
 }
 
