@@ -154,7 +154,7 @@ class SQLCounter
 	{
 		catch
 		{
-			db=Sql.Sql(QUERY("sqldb"));
+			db=Sql.Sql(QUERY(sqldb));
 		};
 
 		table = module::query("table");
