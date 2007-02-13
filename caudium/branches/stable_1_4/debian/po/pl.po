@@ -243,7 +243,9 @@ msgstr "Has³o dostêpu do interfejsu konfiguracyjnego."
 msgid ""
 "The passwords you have typed don't match. Please type again and keep in mind "
 "that the passwords are case-sensitive."
-msgstr "Wpisane has³a nie pasuj± do siebie. Proszê wpisaæ je jeszcze raz i pamiêtaæ, ¿e wa¿na jest wielko¶æ liter."
+msgstr ""
+"Wpisane has³a nie pasuj± do siebie. Proszê wpisaæ je jeszcze raz i pamiêtaæ, "
+"¿e wa¿na jest wielko¶æ liter."
 
 #. Type: note
 #. Description
@@ -259,7 +261,11 @@ msgid ""
 "password for the configuration interface. Please change the default password "
 "as soon as Caudium has finished installing. You can do it by logging in to "
 "the configuration interface accessible under the URL given below:"
-msgstr "Has³o zosta³o ustawione na warto¶æ 'password'. Nie mo¿na mieæ pustego has³a do interfejsu konfiguracyjnego. Proszê zmieniæ domy¶lne has³o jak tylko Caudium zostanie zainstalowane. Mo¿na tego dokonaæ przez zalogowanie siê do interfejsu konfiguracyjnego dostêpnego pod adresem podanym poni¿ej:"
+msgstr ""
+"Has³o zosta³o ustawione na warto¶æ 'password'. Nie mo¿na mieæ pustego has³a "
+"do interfejsu konfiguracyjnego. Proszê zmieniæ domy¶lne has³o jak tylko "
+"Caudium zostanie zainstalowane. Mo¿na tego dokonaæ przez zalogowanie siê do "
+"interfejsu konfiguracyjnego dostêpnego pod adresem podanym poni¿ej:"
 
 #. Type: note
 #. Description
