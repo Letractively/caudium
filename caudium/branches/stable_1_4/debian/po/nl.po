@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: caudium\n"
 "Report-Msgid-Bugs-To: grendel@debian.org\n"
 "POT-Creation-Date: 2006-10-16 10:52+0200\n"
-"PO-Revision-Date: 2006-02-26 13:56+0100\n"
+"PO-Revision-Date: 2006-12-29 09:30+0100\n"
 "Last-Translator: Bart Cornelis <cobaco@linux.be>\n"
 "Language-Team: debian-l10n-dutch <debian-l10n-dutch@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -26,9 +26,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../templates:1001
-#, fuzzy
 msgid "Config interface port:"
-msgstr "Wachtwoord beheersinterface"
+msgstr "Poort voor de configuratieinterface:"
 
 #. Type: string
 #. Description
@@ -46,7 +45,7 @@ msgstr ""
 #. Description
 #: ../templates:2001
 msgid "Server port:"
-msgstr ""
+msgstr "Serverpoort:"
 
 #. Type: string
 #. Description
@@ -70,7 +69,7 @@ msgstr "draden, debug, eenmaal, profiel, fd-debug, hou-levend"
 #. Description
 #: ../templates:3002
 msgid "Startup options:"
-msgstr ""
+msgstr "Opstartopties:"
 
 #. Type: multiselect
 #. Description
@@ -95,9 +94,8 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../templates:4001
-#, fuzzy
 msgid "Tune for maximum performance settings?"
-msgstr "Caudium-instellingen bijstellen voor maximale performantie?"
+msgstr "Bijstellen voor maximale performantie?"
 
 #. Type: boolean
 #. Description
@@ -130,9 +128,8 @@ msgstr "Als u een van bovenstaande opties gebruikt zet deze optie dan NIET AF!"
 #. Type: note
 #. Description
 #: ../templates:5001
-#, fuzzy
 msgid "Cannot bind to port"
-msgstr "Kan niet aan poort binden."
+msgstr "Kan niet aan de poort vastbinden"
 
 #. Type: note
 #. Description
@@ -183,9 +180,8 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../templates:7001
-#, fuzzy
 msgid "Configuration interface login:"
-msgstr "Gebruikersnaam beheersinterface"
+msgstr "Gebruikersnaam configuratieinterface:"
 
 #. Type: string
 #. Description
@@ -206,9 +202,8 @@ msgstr ""
 #. Type: password
 #. Description
 #: ../templates:8001
-#, fuzzy
 msgid "Configuration interface password:"
-msgstr "Wachtwoord beheersinterface"
+msgstr "Wachtwoord voor de configuratieinterface:"
 
 #. Type: password
 #. Description
@@ -225,9 +220,8 @@ msgstr ""
 #. Type: password
 #. Description
 #: ../templates:9001
-#, fuzzy
 msgid "Confirm the configuration interface password:"
-msgstr "Bevestiging beheerderswachtwoord"
+msgstr "Bevestiging wachtwoord voor de configuratieinterface:"
 
 #. Type: password
 #. Description
@@ -278,28 +272,3 @@ msgstr ""
 #: ../templates:11001
 msgid "http://localhost:${cfgport}"
 msgstr "http://localhost:${cfgport}"
-
-#~ msgid "On what port should the config interface be?"
-#~ msgstr "Op welke poort moet de beheersinterface luisteren?"
-
-#~ msgid "What port should the server listen on?"
-#~ msgstr "Op welke poort moet de server luisteren?"
-
-#~ msgid "Select options that should be used on startup"
-#~ msgstr "Welke opties wilt u activeren bij het opstarten?"
-
-#~ msgid "Use the experimental HTTP protocol module?"
-#~ msgstr "Wilt u de experimentele HTTP-protocol-module gebruiken?"
-
-#~ msgid ""
-#~ "Caudium comes with an experimental HTTP module that is faster than the "
-#~ "original one. The code is still Work-In-Progress, so you might experience "
-#~ "problems running it. It is NOT recommended to run this code on a "
-#~ "production server. If, however, you want to test its functionality, turn "
-#~ "this option on."
-#~ msgstr ""
-#~ "Caudium beschikt over een experimentele HTTP-module die sneller is dan de "
-#~ "originele module. Aan deze code wordt nog steeds gewerkt, dus gebruik "
-#~ "hiervan kan problemen opleveren. Gebruik van deze code op een "
-#~ "produktieserver is NIET aangeraden. Wanneer u de functionaliteit wilt "
-#~ "testen kunt u deze optie natuurlijk activeren."
