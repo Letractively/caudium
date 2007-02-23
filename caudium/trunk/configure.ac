@@ -438,6 +438,7 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
                        $PIKE_DIRNAME/../../..\
                        $PIKE_DIRNAME/../../../.. ; do
       for INCDIR in $PIKE_INCDIR/pike/$THIS_PIKE_VER/include/pike \
+                  $PIKE_INCDIR/include/pike/`basename $PIKE` \
                   $PIKE_INCDIR/include/`basename $PIKE` \
                   $PIKE_INCDIR/include/pike/${THIS_PIKE_VER} \
                   $PIKE_INCDIR/include/pike${THIS_PIKE_VER} \
