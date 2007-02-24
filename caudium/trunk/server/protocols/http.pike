@@ -1686,10 +1686,7 @@ void handle_request( )
         }
     } else {
       MARK_FD("handle_request(): conf is not here");
-      if((err=catch(file = caudium->configuration_parse( this_object() )))) {
-        if(err == -1) return;
         INTERNAL_ERROR(err);
-      }
     }
   }  
   send_result();
