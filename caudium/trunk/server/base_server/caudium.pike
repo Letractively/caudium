@@ -102,7 +102,7 @@ object IFiles;
 //! An array that stores all the enabled configurations (clones of the
 //! configuration.pike program)
 array configurations = ({});
-object main_configuration_port;
+//object main_configuration_port;
 mapping allmodules, somemodules=([]);
 
 //! A mapping from ports (objects, that is) to an array of information
@@ -297,7 +297,8 @@ private static void low_shutdown(int exit_type)
 #endif
   stop_all_modules();
 
-  if(main_configuration_port && objectp(main_configuration_port))
+//  if(main_configuration_port && objectp(main_configuration_port))
+  if(portno && sizeof(portno)) // TODO: is this a good enough check?
   {
     // Only _really_ do something in the main process.
     int pid;
@@ -1797,7 +1798,7 @@ void reload_all_configurations()
   report_notice("Reloading configuration files from disk\n");
   caudium->configs = ([]);
   caudium->setvars(caudium->retrieve("Variables", 0));
-  caudium->initiate_configuration_port( 0 );
+//  caudium->initiate_configuration_port( 0 );
 
   if(!watchdog_enabled && GLOBVAR(watchdog_enable))
   {
@@ -1915,7 +1916,7 @@ public string config_url(void|object id)
   }  else if(strlen(QUERY(ConfigurationURL)-" "))
     return QUERY(ConfigurationURL)-" ";
 
-  array ports = QUERY(ConfigPorts), port, tmp;
+  array ports, port, tmp; // TODO: We need to see where we're using this method. // = QUERY(ConfigPorts), port, tmp;
 
   if(!sizeof(ports)) return "CONFIG";
 
@@ -2729,14 +2730,14 @@ private void define_global_variables(int argc, array (string) argv)
 
     globvar("DOC", 1, "Configuration interface: Help texts", TYPE_FLAG|VAR_MORE,
             "Do you want documentation? (this is an example of documentation)");
-
+/*
     globvar("ConfigPorts", ({ ({ 22202, "http", "ANY", "" }) }),
             "Configuration interface: Ports",
             TYPE_PORTS,
             "These are the ports through which you can configure the "
             "server.<br>Note that you should at least have one open port, since "
             "otherwise you won't be able to configure your server.");
-  
+*/  
     globvar("ConfigurationURL", 
             "",
             "Configuration interface: URL", TYPE_STRING,
@@ -3020,7 +3021,7 @@ string get_domain(int|void l)
   return s;
 }
 
-
+/*
 //! Somewhat misnamed, since there can be more then one
 //! configuration-interface port nowdays. But, anyway, this function
 //! opens and listens to all configuration interface ports.
@@ -3140,7 +3141,7 @@ void initiate_configuration_port( int|void first )
       exit( -1 );	// Restart.
   }
 }
-
+*/
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
 private int|array compile_and_load (string file) {
@@ -3559,7 +3560,7 @@ int main(int argc, array(string) argv)
   initiate_supports();
 
 
-  initiate_configuration_port( 1 );
+//  initiate_configuration_port( 1 );
 
   // Open all the ports before changing uid:gid in case permanent_uid is set.
   enabling_configurations = 1;
