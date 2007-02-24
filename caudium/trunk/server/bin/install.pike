@@ -28,6 +28,9 @@ constant cvs_version = "$Id$";
 
 import Stdio;
 
+class dummyConfig(string name)
+{}
+
 array(int) caudium_fstat(string|object file, int|void nolink) {
   mixed st;
   if(objectp(file)) {
@@ -196,6 +199,14 @@ void setglobvar(string var, mixed value)
   store("Variables", v, 1, 0);
 }
 
+void setconfigvar(string sect, string var, mixed value)
+{
+  mapping v;
+  object c = dummyConfig("ConfigurationInterface");
+  v = retrieve(sect, c);
+  v[var] = value;
+  store(sect, v, 1, c);
+}
 
 int run(string file,string ... foo)
 {
@@ -660,6 +671,7 @@ void main(int argc, array argv)
 	configuration_dir = tmp;
       if(configuration_dir[-1] != '/')
 	configuration_dir += "/";
+	dir = 0; // clear the configuration object, in case the directory has changed.
       if(sizeof(list_all_configurations())) 
 	write("\n   Caudium is already installed in that directory! "
 	      "Choose another one.\n\n");
@@ -756,21 +768,30 @@ void main(int argc, array argv)
 		prot_spec, host, port));
   
   setglobvar("_v",  CONFIGURATION_FILE_LEVEL);
-  setglobvar("ConfigPorts", ({ ({ port, prot_prog, "ANY", prot_extras }) }));
-  setglobvar("ConfigurationURL",  prot_spec+host+":"+port+"/");
   setglobvar("logdirprefix", log_dir);
   setglobvar("ConfigurationStateDir", var_dir);
+  setglobvar("ConfigurationURL",  prot_spec+host+":"+port+"/");
+
+/*
   setglobvar("ConfigurationUser", user);
   setglobvar("ConfigurationPassword", crypt(pass));
+*/
 
-  write("./start-caudium "
+// let's create a configuration, shall we?
+   setconfigvar("spider#0", "Ports", ({ ({port, prot_prog, "ANY", prot_extras }) }));
+   setconfigvar("spider#0", "MyWorldLocation", prot_spec+host+":"+port+"/");
+   setconfigvar("spider#0", "name", "Configuration Interface");
+   setconfigvar("configure#0", "mountpoint", "/");
+   setconfigvar("EnabledModules", "configure#0", 1);
+
+  write("./start-caudium --shuffler"
 		+(configuration_dir_changed?
 		  "--config-dir="+configuration_dir
 		  +" ":"")
 		+(logdir_changed?"--log-dir="+log_dir+" ":"")
 		+argv[1..] * " ");
     
-  Process.create_process(({"./start-caudium"}) + ({
+  Process.create_process(({"./start-caudium"}) + ({"--shuffler",
 		(configuration_dir_changed?
 		  "--config-dir="+configuration_dir:"") })
 		+({(logdir_changed?"--log-dir="+log_dir:"")})
