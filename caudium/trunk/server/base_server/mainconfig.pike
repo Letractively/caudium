@@ -954,7 +954,6 @@ int low_enable_configuration(string name, string type)
   object o, o2, confnode;
   array(string) arr = replace(type,"."," ")/" ";
   object template;
-
   if(check_config_name(name)) return 0;
   
   if((type = lower_case(arr[0])) == "copy")
@@ -1039,17 +1038,15 @@ mapping new_configuration(object id)
 }
 
 //!
-int conf_auth_ok(mixed auth)
+int conf_auth_ok(object id)
 {
-  if(!(auth && sizeof(auth)>1))
+  mixed u = id->get_user();
+  if(!u)
     return 0;
-  
-  if(sscanf(auth[1], "%s:%s", auth[0], auth[1]) < 2)
-    return 0;
-  
-  if((auth[0] == caudium->QUERY(ConfigurationUser))
-     && crypt(auth[1], caudium->QUERY(ConfigurationPassword)))
-    return 1;
+
+  id->misc->cif_username = u->username;
+  if(u->superuser) id->misc->cif_superuser = 1;
+  return 1;  
 }
 
 //!
@@ -1443,13 +1440,8 @@ mapping configuration_parse(object id)
   // Permission denied by userid?
   if(!id->misc->read_allow)
   {
-/*
-    if(!(strlen(caudium->QUERY(ConfigurationPassword))
-         && strlen(caudium->QUERY(ConfigurationUser))))
-      return initial_configuration(id); // Never configured before
-    else if(!conf_auth_ok(id->auth))
+    if(!conf_auth_ok(id))
       return Caudium.HTTP.auth_required("Caudium maintenance"); // Denied
-*/
   } else {
     
     id->prestate = aggregate_multiset(@indices(id->prestate)
@@ -1486,6 +1478,54 @@ mapping configuration_parse(object id)
                               cif->status_row(root)+
                               display_tabular_header(root)+
                               replace(Stdio.read_bytes("etc/config.html"), "$version", __caudium_version__+"."+__caudium_build__), "text/html");
+  }
+
+  // ok, we should do some permission checking at this point.
+  // if the user is a "superuser", we short circuit things and just let 'em through.
+  // otherwise, we act accordingly.
+  if(!id->misc->cif_superuser)	
+  {
+	// first, we see where we are.
+    object mn = o;
+    while(!(<NODE_CONFIGURATION, NODE_CONFIGURATIONS, NODE_ERRORS, NODE_WIZARDS, NODE_GLOBAL_VARIABLES>)[mn->type])
+    {
+	  mn = mn->up;
+    }
+    switch(mn->type)
+    {
+	  case NODE_CONFIGURATIONS:
+	  case NODE_ERRORS:
+	  case NODE_WIZARDS:
+	  case NODE_GLOBAL_VARIABLES:
+	    // users can see the configurations page, but we're read-only.
+	    id->misc->read_only = 1;
+		break;
+	  case NODE_CONFIGURATION:
+	    mn = mn->descend("Global");
+	    mn = mn->descend("Configuration Interface");
+	    mn = mn->descend("Write Users");
+        
+	    if(mn->data[0] && sizeof(mn->data[0]) && (search(mn->data[0], id->misc->cif_username)!=-1))
+        {
+			int stop;
+			object mn2 = o;
+			mn = mn->up->up; // should be "Global"
+			// we're a valid user; but we should make sure that we're not setting anything in the "globals" section.
+			do
+			{
+			  if(mn2 == mn)
+			  { 
+				id->misc->read_only = 1;
+			    stop = 1;
+			  }
+			  else mn2 = mn2->up;
+			} while(mn2 && !stop);
+        }
+        else
+        {
+			return Caudium.HTTP.string_answer("Error: you are not permitted to view this configuration.\n");
+        }
+    }
   }
 
   if(sizeof(id->prestate))
@@ -1549,7 +1589,7 @@ mapping configuration_parse(object id)
         case "reload":
           string name, modname;
           mapping cmod;
-      
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           mod = module_of(o);
           if(!mod || mod==caudium)
             error("This module cannot be updated.\n");
@@ -1615,15 +1655,18 @@ mapping configuration_parse(object id)
       
           /* Shutdown Caudium... */
         case "shutdown":	
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           return caudium->shutdown();
       
           /* Restart Caudium, somewhat more nice. */
         case "restart":	
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           return caudium->restart();
       
           /* Rename a configuration. Not Yet Used... */
 #if 0
         case "rename":
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           if(o->type == NODE_CONFIGURATION)
           {
             mv("configurations/"+o->data->name, 
@@ -1645,6 +1688,7 @@ mapping configuration_parse(object id)
           /* This only asks "do you really want to...", it does not delete
            * the node */
         case "delete":	
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           PUSH(cif->head("Caudium Configuration")+cif->body()+
                cif->status_row(o));
 //     PUSH("<hr noshade>");
@@ -1692,6 +1736,7 @@ mapping configuration_parse(object id)
            */
 
         case "really_delete":
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           id->referrer = CONFIG_URL + o->up->path(1);
       
           switch(o->type)
@@ -1791,6 +1836,7 @@ mapping configuration_parse(object id)
           // function.. This _should_ be the case with some of the other
           // actions too.
         case "newconfig":
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           id->referrer = CONFIG_URL + o->path(1);
           return new_configuration(id);
 
@@ -1800,6 +1846,7 @@ mapping configuration_parse(object id)
           // done.
        
         case "modify_server_url":
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
 
           string srv, url;
           object thenode;
@@ -1844,18 +1891,21 @@ mapping configuration_parse(object id)
 
           // Hmm. No idea, really. Beats me :-)  /Per
         case "new":
+          if(!id->misc->cif_superuser) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           o->new();
           break;
 
           // Add a new module to the current configuration.
         case "newmodule": // For backward compatibility
         case "addmodule":
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           id->referrer = CONFIG_URL + o->path(1);
           return new_module(id,o);
 
 
           // Add a new copy of the current module to the current configuration.
         case "newmodulecopy":
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           id->referrer = CONFIG_URL + o->path(1);
           new_module_copy_copy(o, id);
           break;
@@ -1866,6 +1916,7 @@ mapping configuration_parse(object id)
           varval = "1";
           
         case "set":
+          if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           o->error = 0;
           if (!varval)
             varval = values(id->variables)[0];
@@ -1930,7 +1981,7 @@ mapping configuration_parse(object id)
   int lm=1;
   array(mixed) buttons = ({});
   
-  if(o->type == NODE_CONFIGURATIONS)
+  if(o->type == NODE_CONFIGURATIONS && id->misc->cif_superuser)
     BUTTON(newconfig, "New virtual server", left);
   
   if(o->type == NODE_CONFIGURATION)
@@ -1952,7 +2003,7 @@ mapping configuration_parse(object id)
       BUTTON(refresh, "Reload module", left);
   }
   
-  if(o->type == NODE_CONFIGURATION)
+  if(o->type == NODE_CONFIGURATION && id->misc->cif_superuser)
     BUTTON(delete,"Delete this server", left);
 
   if(nunfolded(o))
@@ -1978,7 +2029,7 @@ mapping configuration_parse(object id)
     
   if((o->changed||root->changed))
     BUTTON(save, "Save", left);
-  if(expert_mode) {
+  if(expert_mode && id->misc->cif_superuser) {
     BUTTON(restart, "Restart", left);
     BUTTON(shutdown,"Shutdown", left);
   }
