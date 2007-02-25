@@ -373,7 +373,7 @@ mapping save_it(object id, object o)
     changed_port_servers = (<>);
     root->save();
     caudium->update_supports_from_caudium_net();
-    caudium->initiate_configuration_port( 0 );
+//    caudium->initiate_configuration_port( 0 );
     id->referrer = CONFIG_URL + o->path(1);
     caudium->update_storage_manager();
     if(sizeof(changed_port_servers))
@@ -1426,12 +1426,6 @@ mapping configuration_parse(object id)
 
   id->since = 0; // We do not want 'get-if-modified-since' to work here.
 
-  // Permisson denied by address?
-  if(id->remoteaddr)
-    if(strlen(caudium->QUERY(ConfigurationIPpattern)) &&
-       !glob(caudium->QUERY(ConfigurationIPpattern),id->remoteaddr))
-      return stores("Permission denied.\n");
-
   // it might be a netcraft redirect
   if (sizeof(id->prestate) && id->prestate->netcraft) {
     string ncurl="http://uptime.netcraft.com/up/graph?mode_u=off&mode_w=on&site=%s&submit=Examine";
@@ -1449,11 +1443,13 @@ mapping configuration_parse(object id)
   // Permission denied by userid?
   if(!id->misc->read_allow)
   {
+/*
     if(!(strlen(caudium->QUERY(ConfigurationPassword))
          && strlen(caudium->QUERY(ConfigurationUser))))
       return initial_configuration(id); // Never configured before
     else if(!conf_auth_ok(id->auth))
       return Caudium.HTTP.auth_required("Caudium maintenance"); // Denied
+*/
   } else {
     
     id->prestate = aggregate_multiset(@indices(id->prestate)
