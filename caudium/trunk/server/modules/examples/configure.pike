@@ -169,12 +169,13 @@ mapping find_file( string f, object id )
   old_conf=id->conf;
   old_auth = id->auth;
   
-  if(id->auth)
-    id->auth = ({ 0, id->realauth||"" });
-  else if(pass)
+//  if(id->auth)
+//    id->auth = ({ 0, id->realauth||"" });
+//  else 
+if(pass)
     id->misc->read_allow = 1;
   
-  id->conf = 0;
+//  id->conf = 0;
   id->not_query = "/" + f;
   ret = caudium->configuration_parse( id );
   id->not_query = old_file;
