@@ -2730,39 +2730,13 @@ private void define_global_variables(int argc, array (string) argv)
 
     globvar("DOC", 1, "Configuration interface: Help texts", TYPE_FLAG|VAR_MORE,
             "Do you want documentation? (this is an example of documentation)");
-/*
-    globvar("ConfigPorts", ({ ({ 22202, "http", "ANY", "" }) }),
-            "Configuration interface: Ports",
-            TYPE_PORTS,
-            "These are the ports through which you can configure the "
-            "server.<br>Note that you should at least have one open port, since "
-            "otherwise you won't be able to configure your server.");
-*/  
-    globvar("ConfigurationURL", 
+
+	globvar("ConfigurationURL", 
             "",
             "Configuration interface: URL", TYPE_STRING,
             "The URL of the configuration interface. This is used to "
             "generate redirects now and then (when you press save, when "
             "a module is added, etc.).");
-  
-    globvar("ConfigurationPassword", "", "Configuration interface: Password", 
-            TYPE_PASSWORD|VAR_EXPERT,
-            "The password you will have to enter to use the configuration "
-            "interface. Please note that changing this password in the "
-            "configuration interface will _not_ require an additional entry "
-            "of the password, so it is easy to make a typo. It is recommended "
-            "that you use the <a href=\"/(changepass)/Globals/\">form instead</a>.");
-  
-    globvar("ConfigurationUser", "", "Configuration interface: User", 
-            TYPE_STRING|VAR_EXPERT,
-            "The username you will have to enter to use the configuration "
-            "interface");
-  
-    globvar("ConfigurationIPpattern","*", "Configuration interface: IP-Pattern", 
-            TYPE_STRING|VAR_MORE,
-            "Only clients running on computers with IP numbers matching "
-            "this pattern will be able to use the configuration "
-            "interface.");
 
     globvar("ConfigurationStateDir","./", "Configuration interface: Status Directory",
             TYPE_DIR|VAR_MORE,
@@ -3021,127 +2995,6 @@ string get_domain(int|void l)
   return s;
 }
 
-/*
-//! Somewhat misnamed, since there can be more then one
-//! configuration-interface port nowdays. But, anyway, this function
-//! opens and listens to all configuration interface ports.
-void initiate_configuration_port( int|void first )
-{
-  object o;
-  array port;
-
-  // Hm.
-  if (!first && !config_ports_changed)
-    return 0;
-  
-  config_ports_changed = 0;
-
-  // First find out if we have any new ports.
-  mapping(string:array(string)) new_ports = ([]);
-  
-  foreach (QUERY(ConfigPorts), port) {
-    if ((< "ssl", "ssleay" >)[port[1]]) {
-      // Obsolete versions of the SSL protocol.
-      report_warning("Obsolete SSL protocol-module \""+port[1]+"\".\n"
-                     "Converted to SSL3.\n");
-      port[1] = "ssl3";
-    }
-    
-    if ((< "ftp2" >)[port[1]]) {
-      // Obsolete versions of the SSL protocol.
-      report_warning("Obsolete FTP protocol-module \""+port[1]+"\"."
-                     " Converted to FTP.\n");
-      port[1] = "FTP";
-    }
-
-    if ((< "http2" >)[port[1]]) {
-      // Obsolete versions of the SSL protocol.
-      report_warning("Obsolete HTTP2 protocol-module \""+port[1]+"\"."
-                     " Converted to HTTP.\n");
-      port[1] = "http";
-    }
-    
-    string key = MKPORTKEY(port);
-    if (!configuration_ports[key]) {
-      report_notice("New configuration port: %s\n", key);
-      new_ports[key] = port;
-    } else {
-      // This is needed not to delete old unchanged ports.
-      new_ports[key] = 0;
-    }
-  }
-
-  // Then disable the old ones that are no more.
-  foreach (indices(configuration_ports), string key) {
-    if (zero_type(new_ports[key])) {
-      report_notice("Disabling configuration port: %s...\n", key);
-      object o = configuration_ports[key];
-      if (main_configuration_port == o)
-        main_configuration_port = 0;
-      m_delete(configuration_ports, key);
-      mixed err;
-      if (err = catch{
-        destruct(o);
-      }) {
-        report_warning("Error disabling configuration port: %s:\n"
-                               "%s\n", key, describe_backtrace(err));
-      }
-      o = 0;	// Be sure that there are no references left...
-    }
-  }
-
-  current_configuration = 0;	// Compatibility...
-
-  // Now we can create the new ports.
-  foreach (indices(new_ports), string key) {
-    port = new_ports[key];
-    if (port) {
-      array old = port;
-      mixed erro;
-      erro = catch {
-        program requestprogram = (program)(getcwd()+"/protocols/"+port[1]);
-        function rp;
-        array tmp;
-        
-        if (!requestprogram) {
-          report_error("No request program for %s\n", port[1]);
-          continue;
-        }
-        
-        if (rp = requestprogram()->real_port)
-          if (tmp = rp(port, 0))
-            port = tmp;
-
-        object privs;
-        if (port[0] < 1024)
-          privs = Privs("Opening listen port below 1024");
-        
-        if (o=create_listen_socket(port[0],0,port[2],requestprogram,port)) {
-          report_notice("Opening configuration port: %s\n", key);
-          
-          if (!main_configuration_port)
-            main_configuration_port = o;
-          configuration_ports[key] = o;
-        } else {
-          report_error("The configuration port %s could not be opened\n", key);
-        }
-      };
-      
-      if (erro) {
-        report_error("Failed to open configuration port %s:\n%s\n",
-                     key, (stringp(erro)?erro:describe_backtrace(erro)));
-      }
-    }
-  }
-  
-  if (!main_configuration_port) {
-    report_error("No configuration ports could be created.\n"
-                 "Is caudium already running?\n");
-    if (first)
-      exit( -1 );	// Restart.
-  }
-}
-*/
 // Find all modules, so a list of them can be presented to the
 // user. This is not needed when the server is started.
 private int|array compile_and_load (string file) {
