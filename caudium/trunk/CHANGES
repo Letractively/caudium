@@ -1,5 +1,13 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Client certificate request support added. We can specify a set of issuers
+    and a root authority chain. We still need a module to equate the client
+    certificate with a user.
+    (Bill Welliver)
+- Multi-User aware configuration interface.
+    (Bill Welliver)
+- Configuration Interface is now a regular virtual server.
+    (Bill Welliver)
 - Added PAM Authentication provider; requires System.PAM module.
     (Bill Welliver)
 - Requests on the same 1st level virtual host can now be splitted into
