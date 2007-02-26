@@ -371,9 +371,10 @@ string encode_one_port(array port, int id)
   switch(lower_case(port[1]))
   {
    case "ssl3":
-    string cf, kf;
+    string cf, kf, cc;
     sscanf(port[3], "%*scert-file %s\n", cf);
     sscanf(port[3], "%*skey-file %s\n", kf);
+    sscanf(port[3], "%*sclient-cert-request %s\n", cc);
     res += ("<tr><td colspan=3>"
 	    "<table width=100% cellspacing=0  border=0 bgcolor=#f0f0ff>\n"
 	    "<tr width=100%><td colspan=2 width=100%><b>SSL Options</b></td></tr>\n");
@@ -383,6 +384,11 @@ string encode_one_port(array port, int id)
 	    "<tr><td>Key file: (OPTIONAL)</td><td><input size=30,1 "
 	    "name=key_"+id+"  value="+Caudium.html_encode_tag_value(kf||"")+
 	    "></td></tr>\n");
+    string ccrw = "";
+    foreach(({"no", "request", "require"});; string opt)
+      ccrw +=("<option value=\"" + opt + "\" " + ((cc == opt)?"SELECTED=\"1\"":"") + ">" + opt + "</option>");
+    res += ("<tr><td>Client Certificate Request: (OPTIONAL)</td><td><select "
+	    "name=cc_"+id+>" + ccrw + "</select></td></tr>\n");
     res += "</table></td></tr>\n";
     break;
 #if 0
