@@ -371,17 +371,20 @@ string encode_one_port(array port, int id)
   switch(lower_case(port[1]))
   {
    case "ssl3":
-    string cf, kf, cc;
+    string cf, kf, cc, cca, cci;
     sscanf(port[3], "%*scert-file %s\n", cf);
     sscanf(port[3], "%*skey-file %s\n", kf);
     sscanf(port[3], "%*sclient-cert-request %s\n", cc);
+    sscanf(port[3], "%*sclient-cert-authorities %s\n", cca);
+   sscanf(port[3], "%*sclient-cert-issuers %s\n", cci);
+
     res += ("<tr><td colspan=3>"
 	    "<table width=100% cellspacing=0  border=0 bgcolor=#f0f0ff>\n"
 	    "<tr width=100%><td colspan=2 width=100%><b>SSL Options</b></td></tr>\n");
-    res += ("<tr><td>Certificate file(s):</td> <td><input size=30,1 "
+    res += ("<tr><td>Certificate file(s):<br>(A comma-separated list of files)</td> <td><input size=30,1 "
 	    "name=cert_"+id+" value="+Caudium.html_encode_tag_value(cf||"")+
 	    "></td></tr>\n"
-	    "<tr><td>Key file: (OPTIONAL)</td><td><input size=30,1 "
+	    "<tr><td>Key file: (OPTIONAL)<br>(A comma-separated list of files)</td><td><input size=30,1 "
 	    "name=key_"+id+"  value="+Caudium.html_encode_tag_value(kf||"")+
 	    "></td></tr>\n");
     string ccrw = "";
@@ -389,6 +392,13 @@ string encode_one_port(array port, int id)
       ccrw +=("<option value=\"" + opt + "\" " + ((cc == opt)?"SELECTED=\"1\"":"") + ">" + opt + "</option>");
     res += ("<tr><td>Client Certificate Request: (OPTIONAL)</td><td><select "
 	    "name=cc_"+id+">" + ccrw + "</select></td></tr>\n");
+	res += ("<tr><td>Accept client certificates from the following authorities(s):<br>(A comma-separated list of files)</td> <td><input size=30,1 "
+		    "name=auth_"+id+" value="+Caudium.html_encode_tag_value(cca||"")+
+		    "></td></tr>\n");
+	res += ("<tr><td>Trust certificates only if signed by this CA issuer chain:<br>(A comma-separated list of files)</td> <td><input size=30,1 "
+		    "name=cci_"+id+" value="+Caudium.html_encode_tag_value(cci||"")+
+		    "></td></tr>\n");
+
     res += "</table></td></tr>\n";
     break;
 #if 0
