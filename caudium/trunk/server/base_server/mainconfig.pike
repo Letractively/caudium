@@ -482,6 +482,10 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
               args += "cert-file "+allvars["cert_"+i]+"\n";
             if(allvars["cc_"+i] && strlen(allvars["cc_"+i]))
               args += "client-cert-request "+allvars["cc_"+i]+"\n";
+            if(allvars["auth_"+i] && strlen(allvars["auth_"+i]))
+              args += "client-cert-authorities "+allvars["auth_"+i]+"\n";
+            if(allvars["cci_"+i] && strlen(allvars["cci_"+i]))
+              args += "client-cert-issuers "+allvars["cci_"+i]+"\n";
        
             if(strlen(args))
               op[i][3] = args;

@@ -136,6 +136,62 @@ array|void real_port(array port, object cfg)
     }
   }
 
+  if(options["client-cert-authorities"]) 
+  {
+	array cca = ({});
+
+    foreach((options["client-cert-authorities"]/",")-({}), string c)
+    {
+      c=String.trim_whites(c);
+      if(c!="")
+      {
+        string f = read_file(c);
+        if (!f)
+          ({ report_error, throw }) ("ssl3: Reading client-cert-authority " + c + " failed!\n");
+  
+        msg = Tools.PEM.pem_msg()->init(f);
+ 
+        part = msg->parts["CERTIFICATE"]
+          ||msg->parts["X509 CERTIFICATE"];
+  
+        if (!part || !(cert = part->decoded_body()))
+          ({ report_error, throw }) ("ssl3: No certificate found.\n");
+        cca += ({ cert });
+      }
+    }
+
+    ctx->set_authorities(cca);
+    ctx->verify_certificates = 1;
+  }
+
+  if(options["client-cert-issuers"]) 
+  {
+	array cca = ({});
+
+    foreach((options["client-cert-issuers"]/",")-({}), string c)
+    {
+      c=String.trim_whites(c);
+      if(c!="")
+      {
+        string f = read_file(c);
+        if (!f)
+          ({ report_error, throw }) ("ssl3: Reading client-cert-issuer " + c + " failed!\n");
+  
+        msg = Tools.PEM.pem_msg()->init(f);
+ 
+        part = msg->parts["CERTIFICATE"]
+          ||msg->parts["X509 CERTIFICATE"];
+  
+        if (!part || !(cert = part->decoded_body()))
+          ({ report_error, throw }) ("ssl3: No certificate found.\n");
+        cca += ({ cert });
+      }
+    }
+
+    ctx->set_trusted_issuers(({cca}));
+    ctx->require_trust = 1;
+  }
+
   string f2 = options["key-file"] && read_file(options["key-file"]);
   destruct (privs);
 
@@ -171,6 +227,14 @@ array|void real_port(array port, object cfg)
     ctx->short_rsa = Crypto.RSA()->generate_key(512, r);
 
     // ctx->long_rsa = Crypto.RSA()->generate_key(rsa->rsa_size(), r);
+  }
+
+  if(options["client-cert-request"])
+  {
+     if(options["client-cert-request"] == "request")
+		ctx->auth_level = SSL.Constants.AUTHLEVEL_ask;
+     else if(options["client-cert-request"] == "require")
+		ctx->auth_level = SSL.Constants.AUTHLEVEL_require;
   }
 
   // we need the certificates to be in the opposite order (my cert first) for ssl to work.
