@@ -388,7 +388,7 @@ string encode_one_port(array port, int id)
     foreach(({"no", "request", "require"});; string opt)
       ccrw +=("<option value=\"" + opt + "\" " + ((cc == opt)?"SELECTED=\"1\"":"") + ">" + opt + "</option>");
     res += ("<tr><td>Client Certificate Request: (OPTIONAL)</td><td><select "
-	    "name=cc_"+id+>" + ccrw + "</select></td></tr>\n");
+	    "name=cc_"+id+">" + ccrw + "</select></td></tr>\n");
     res += "</table></td></tr>\n";
     break;
 #if 0

@@ -480,6 +480,8 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
               args += "key-file "+allvars["key_"+i]+"\n";
             if(allvars["cert_"+i] && strlen(allvars["cert_"+i]))
               args += "cert-file "+allvars["cert_"+i]+"\n";
+            if(allvars["cc_"+i] && strlen(allvars["cc_"+i]))
+              args += "client-cert-request "+allvars["cc_"+i]+"\n";
        
             if(strlen(args))
               op[i][3] = args;
