@@ -1067,7 +1067,8 @@ static void f_parse_query_string( INT32 args )
           if (!valulen) {
             /* valueless, add the name to the multiset */
             skey.type = T_STRING;
-            skey.u.string = make_shared_binary_string(name, namelen);
+            // This overrides url_decode(), a few lines before
+            //skey.u.string = make_shared_binary_string(name, namelen);
             if (!skey.u.string)
               Pike_error("Out of memory.\n");
             multiset_insert(emptyvars, &skey);
