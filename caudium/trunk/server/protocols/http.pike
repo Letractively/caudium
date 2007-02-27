@@ -249,7 +249,7 @@ void handle_body_encoding(int content_length)
 
 private static mixed f, line;
 static int last_search;
-private int parse_got()
+static int parse_got()
 {
   multiset (string) sup;
   array mod_config;

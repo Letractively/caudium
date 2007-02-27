@@ -564,6 +564,29 @@ void send_result(mapping|void result)
   if (done++) destroy();
 }
 
+static int parse_got()
+{
+  int r = ::parse_got();
+  if(r == -1)
+  {
+    array certs;
+    if(my_fd && my_fd->get_peer_certificates)
+      certs = my_fd->get_peer_certificates();
+    foreach(certs;int cn;string der)
+    {
+      werror("cert %d subject: %s\n", cn, Standards.PKCS.Certificate.get_dn_string(
+          Standards.PKCS.Certificate.get_certificate_subject(der)));
+    }
+  }
+
+  // let's slide our client certificate info in...
+  if()
+  {
+  }
+
+  return r;
+}
+
 class fallback_redirect_request {
   string in = "";
   string out;
