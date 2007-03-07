@@ -1066,14 +1066,14 @@ static void f_parse_query_string( INT32 args )
 
           if (!valulen) {
             /* valueless, add the name to the multiset */
-            sval.type = T_STRING;
-            sval.u.string = make_shared_binary_string(name, namelen);
-            if (!sval.u.string)
+            skey.type = T_STRING;
+            skey.u.string = make_shared_binary_string(name, namelen);
+            if (!skey.u.string)
               Pike_error("Out of memory.\n");
-            multiset_insert(emptyvars, &sval);
+            multiset_insert(emptyvars, &skey);
 
             free_svalue(&skey);
-            free_svalue(&sval);
+            //free_svalue(&sval);
             
             name = ptr + 1;
             equal = NULL;
