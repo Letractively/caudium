@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- The CIF can now show if the server is running with Shuffler or nbio.
+   (Bertrand LUPART)
+- Fixed a bug where empty variables passed in the URL would totally mess up the
+  other variables and empty variables in the request id object.
+   (Bertrand LUPART)
 - Client certificate request support added. We can specify a set of issuers
     and a root authority chain. We still need a module to equate the client
     certificate with a user.
