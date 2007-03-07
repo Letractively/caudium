@@ -1245,7 +1245,16 @@ string full_status()
                   "<tr><td><b>Received data:</b></td>"
                   "<td>%s</td></tr>\n",
                   foo[4], (float)tmp/(float)10, foo[3]));
-  
+
+  res += "<tr><td colspan=3>&nbsp;</td></tr>\n";
+  res += "<tr><td><b>Data handling:</b></td><td>";
+#ifdef USE_SHUFFLER
+  res += "Pike's Shuffler";
+#else
+  res += "Caudium's nbio";
+#endif
+  res += "</td></tr>";
+ 
   return res +"</table>";
 }
 
