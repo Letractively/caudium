@@ -1,5 +1,10 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- The CIF can now show if the server is running with Shuffler or nbio.
+   (Bertrand LUPART)
+- Fixed a bug where empty variables passed in the URL would totally mess up the
+  other variables and empty variables in the request id object.
+   (Bertrand LUPART)
 
 Changes in Caudium 1.4.8 since Caudium 1.4.5
 --------------------------------------------
