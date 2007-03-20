@@ -10,11 +10,6 @@ all: $(MODNAME).$(SO)
 INSTALLDIR=$(prefix)/caudium/server/lib/@PIKE_VERSION@/
 INSTALL=@INSTALL@
 CLIBRARY_LINK=@CLIBRARY_LINK@
-
-ifneq ($(shell echo $(SRCDIR)|cut -b 1),/)
-SRCDIR=../@srcdir@/$(MODNAME)/
-endif
-
 all:  Makefile $(MODNAME).$(SO)
 
 .SUFFIXES: .c .o
