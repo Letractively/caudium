@@ -36,6 +36,131 @@ object mm = (object)"/master";
 
 inherit "/master": old_master;
 
+function current_thread = Thread.this_thread;
+int findprog_mappings = 0;
+
+class findprog_handler
+{
+  inherit "/master": old_master;
+
+  mixed resolv(mixed ... args)
+  {
+//    werror("surrogate resolv(%O)\n", args);
+    return ::resolv(@args);
+  }
+
+  program low_findprog(mixed ... args)
+  {
+//    werror("surrogate low_findprog(%O)\n", args);
+    return ::low_findprog(@args);
+  }
+
+  program low_cast_to_program(mixed ... args)
+  {
+//    werror("surrogate low_cast_to_program(%O)\n", args);
+    return ::low_cast_to_program(@args);
+  }
+
+  //!   
+  void create()
+  {
+    object o = this_object();
+    /* Copy variables from the original master */  
+    foreach(indices(mm), string varname) {
+      catch(o[varname] = mm[varname]);
+      /* Ignore errors when copying functions */
+    }
+    programs["/master"] = object_program(o);
+    program_names[object_program(o)] = "/master";
+    objects[object_program(o)] = o;
+ 
+    /* Move the old efuns to the new object. */
+  }
+
+}
+
+mapping findprog_handlers = ([]);
+mapping findprog_thread_keys = ([]);
+
+void add_handler_for_key(mixed key, object handler)
+{
+  findprog_mappings++;
+  findprog_handlers[key] = handler;
+}
+
+void add_thread_for_key(mixed key, object thread)
+{
+  findprog_thread_keys[thread] = key;
+}
+
+array get_program_path()
+{
+  object handler = get_findprog_handler_for_thread();
+   return handler->pike_program_path;
+}
+
+array get_module_path()
+{
+  object handler = get_findprog_handler_for_thread();
+   return handler->pike_module_path;
+}
+
+array get_include_path()
+{
+  object handler = get_findprog_handler_for_thread();
+   return handler->pike_include_path;
+}
+
+void add_module_path(string tmp)
+{
+  object handler = get_findprog_handler_for_thread();
+  if(handler != this)
+    handler->add_module_path(tmp);
+  else ::add_module_path(tmp);
+}
+
+void add_program_path(string tmp)
+{
+  object handler = get_findprog_handler_for_thread();
+
+  if(handler != this)
+    handler->add_program_path(tmp);
+  else ::add_program_path(tmp);
+//  werror("program_path: %O\n",  handler->pike_program_path - master()->pike_program_path);
+}
+
+
+void add_include_path(string tmp)
+{
+  object handler = get_findprog_handler_for_thread();
+
+  if(handler != this)
+    handler->add_include_path(tmp);
+  else 
+    ::add_include_path(tmp);
+}
+
+object get_findprog_handler_for_thread()
+{
+  object key;
+  object thandler;
+
+//   werror("get_findprog_handler_for_thread(%O)\n", current_thread());
+//   werror("%O\n", findprog_thread_keys);
+
+  if(findprog_mappings)
+    key = findprog_thread_keys[current_thread()];
+  else
+    return this;
+
+  if(key)
+  {
+//   werror("got a handler!: %O\n", findprog_handlers);
+    return findprog_handlers[key];
+  }
+  else return this;  
+}
+
 //!
 string program_name(program p)
 {
@@ -185,6 +310,45 @@ function functionof(array f)
   return o[f[-1]];
 }
 
+  program low_cast_to_program(mixed ... args)
+  {
+    mixed key;
+    object thandler;
+    if(findprog_mappings)
+      key = findprog_thread_keys[current_thread()];
+    else
+      return ::low_cast_to_program(@args);
+
+    if(key)
+    {
+      //werror("low_cast_to_program(%O)\n", args);
+      return findprog_handlers[key]->low_cast_to_program(@args);
+    }
+    else
+      return ::low_cast_to_program(@args);
+
+  }
+
+
+
+mixed resolv(mixed ... args)
+{
+  mixed key;
+  object thandler;
+  if(findprog_mappings)
+    key = findprog_thread_keys[current_thread()];
+  else
+    return ::resolv(@args);
+
+  if(key)
+  {
+    return findprog_handlers[key]->resolv(@args);
+  }
+  else
+    return ::resolv(@args);
+}
+
+
 // This will avoid messages about cannot set a mutex when
 // threads are disabled. Since threads are automatically
 // disabled when compiling a program.
@@ -196,6 +360,13 @@ function functionof(array f)
 #define THREADED
 // NOTE: compilation_mutex is inherited from the original master.
 #endif
+
+program findprog(mixed ... args)
+{
+  //werror("findprog(%O)\n", args);
+  return ::findprog(@args);
+
+}
 
 //! Caudium low_findprog() 
 program low_findprog(string pname, string ext,
@@ -212,8 +383,18 @@ program low_findprog(string pname, string ext,
   };
 #endif
 
-  return old_master::low_findprog(pname, ext, handler, mkobj);
+  object thandler;
+  if(findprog_mappings)
+    key = findprog_thread_keys[current_thread()];
+  else
+    return old_master::low_findprog(pname, ext, handler, mkobj);
 
+  if(key)
+  {
+    return findprog_handlers[key]->low_findprog(pname, ext, handler, mkobj);
+  }
+  else
+    return old_master::low_findprog(pname, ext, handler, mkobj);
 }
 
 //!
@@ -294,6 +475,7 @@ void create()
   add_constant("name_program", name_program);
   add_constant("objectof", objectof);
   add_constant("nameof", nameof);
+  add_constant("findprog", findprog);
 }
 
 //!
