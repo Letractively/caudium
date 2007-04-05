@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- CIF pages using the wizard form now sport a unique identifier in the request
+  so that the page is still up to date, even with browsers that caches a lot.
+   (Bertrand LUPART)
 - The CIF can now show if the server is running with Shuffler or nbio.
    (Bertrand LUPART)
 - Fixed a bug where empty variables passed in the URL would totally mess up the
