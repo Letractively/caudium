@@ -524,6 +524,7 @@ string parse_wizard_page(string form, object id, string wiz_name, void|string pa
    (stringp (id->variables->action) ?
     " <input type=hidden name=action value=\""+id->variables->action+"\">\n" :
     "") +
+   " <input type=hidden name=unique value=\""+time()+"\""
    " <input type=hidden name=_page value=\""+page+"\">\n"
    " <input type=hidden name=_state value=\""+compress_state(id->variables)+"\">\n"
    "<table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=80%>\n"
