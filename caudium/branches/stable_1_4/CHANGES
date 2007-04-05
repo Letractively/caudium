@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- CIF pages using the wizard form now sport a unique identifier in the         
+  request so that the page is still up to date, even with browsers that
+  caches a lot.
+   (Bertrand LUPART)
 - Fix C modules to be builded bug reported by Michel Luczak
    (Xavier Beaudouin)
 - The CIF can now show if the server is running with Shuffler or nbio.
