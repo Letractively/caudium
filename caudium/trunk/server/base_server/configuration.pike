@@ -1438,7 +1438,7 @@ mapping|int low_get_file(object id, int|void no_magic)
   {
       if (id->prestate->internal && id->prestate->image)
         return internal_caudium_image(file);
-    }
+   
       
 #ifndef NO_INTERNAL_HACK 
     // No, this is not beautiful... :) 
