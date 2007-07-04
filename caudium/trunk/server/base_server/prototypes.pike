@@ -131,7 +131,9 @@ mapping (string:string) request_headers = ([ ]);
 //! The prestates (comma separated strings enclosed between parentheses)
 //! present in the URL used to access the server for the current request.
 multiset (string) prestate  = (< >);
-multiset (string) internal  = (< >);
+
+/* disable, as it's of marginal value */
+// multiset (string) internal  = (< >);
 
 //! Config variables (comma separated strings enclosed between the angle
 //! brackets) present in the URL used to access the server for the current
