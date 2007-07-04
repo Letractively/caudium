@@ -449,7 +449,7 @@ static int parse_got()
 
   REQUEST_WERR(sprintf("After cookie scan:%O", f));
 
-#if 0  
+#if 1  
   if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
   {
     prestate = aggregate_multiset(@(a/","-({""})));

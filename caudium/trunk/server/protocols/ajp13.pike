@@ -393,11 +393,18 @@ int parse_forward()
   }
 
   REQUEST_WERR(sprintf("After cookie scan:%O", f));
+#if 1
+  if ((sscanf(f, "/(%s)/%s", a, f)==2) && strlen(a))
+  {
+    prestate = aggregate_multiset(@(a/","-({""})));
+    f = "/"+f;
+  }
+#else
 
   f = Caudium.parse_prestates(f, prestate, internal);
   REQUEST_WERR(sprintf("prestate == %O\ninternal == %O\n",
                        prestate, internal));
-
+#endif
   REQUEST_WERR(sprintf("After prestate scan:%O", f));
 
   not_query = Caudium.simplify_path(f);
