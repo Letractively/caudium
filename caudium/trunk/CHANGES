@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Make running with Shuffler the default.
+    (Bill Welliver)
+- Rework the module add page to make it load faster and look better.
+    (Bill Welliver)
 - Reverting to Pike language prestate parser; disable use of "internal" 
     prestates.
     (Bill Welliver)
