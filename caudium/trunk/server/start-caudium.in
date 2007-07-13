@@ -444,7 +444,7 @@ void preamble()
 		options->watchdog_debug = 1;
 	}
 
-  command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN"});
+  command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN", "USE_SHUFFLER"});
 
   System.umask(022);
 
@@ -852,9 +852,9 @@ int act_on_args()
         case "quiet":
           options->quiet=1;
           break;
-				case "shuffler":
-					command_line->DEFINES+=({"USE_SHUFFLER"});
-					break;
+	case "shuffler":
+//	  command_line->DEFINES+=({"USE_SHUFFLER"});
+	  break;
     }    
   }
   
