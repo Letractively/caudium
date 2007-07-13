@@ -884,22 +884,43 @@ string new_module_form(object id, object node)
       if(b = module_nomore(q, a[q][2], node->config()))
       {
 	if(b->sname != q)
-	  res += ("<p><img alt=\""+a[q][0]+"\" src=\"/auto/module/"+a[q][2] +
-		  "/"+ q+"\" height=24 width=500><br><blockquote>"+a[q][1] +
+	  res += ("<p><img alt=\"Module\" src=\"/(internal,image)/module.gif\"> <b>"
+		  + a[q][0] + "</b> " + module_descr_icons(a[q][2]) + "<blockquote>"+a[q][1] +
 		  "<p><i>A module of the same type is already enabled (" +
 		  b->name + "). <a href=\"/(delete)" +
 		  node->descend(b->name, 1)->path(1) + "?" + (bar++) +
 		  "\">Disable that module</a> if you want this one instead</i>"
-		  "\n<p><br><p></blockquote>");
+		  "\n<p></blockquote>");
       } else {
-	res += "<p><a href=\"/(addmodule)"+node->path(1)+"?"+q+"=1\">"
-	  "<img border=0 alt=\""+a[q][0]+"\" src=\"/auto/module/" +
-	  a[q][2]+"/"+q+"\" height=24 width=500>"
-	  "</a><blockquote><br>"+a[q][1]+"<p><br><p></blockquote>";
+		  res += ("<p><img alt=\"Module\" src=\"/(internal,image)/module.gif\">" + 
+	              "<a href=\"/(addmodule)/"+node->path(1)+"?"+q+"=1\"> <b>" + a[q][0] + 
+	              "</b></a> " + module_descr_icons(a[q][2])  + "<blockquote>"+ a[q][1] +"<p></blockquote>");
       }
     }
   }
   return res+"</td></tr></table>";
+}
+
+#define PASTE(X,Y) rv+=("<img src=\"/(internal,image)/modules/" + X + ".gif\">")
+string module_descr_icons(int type)
+{
+  string rv = "";
+	
+  if(type&MODULE_EXPERIMENTAL) PASTE("experimental","Experimental");
+  if((type&MODULE_AUTH)||(type&MODULE_SECURITY)) PASTE("security","");
+  if(type&MODULE_FIRST) PASTE("first","First");
+  if(type&MODULE_URL) PASTE("1stfilt","Filter");
+  if(type&MODULE_PROXY) PASTE("proxy","Proxy");
+  if(type&MODULE_LOCATION) PASTE("find","Location");
+  if(type&MODULE_DIRECTORIES) PASTE("dir","Dir");
+  if((type&MODULE_EXTENSION)||(type&MODULE_FILE_EXTENSION))
+    PASTE("extension","Ext.");
+  if(type&MODULE_PARSER) PASTE("tag","");
+  if(type&MODULE_FILTER) PASTE("lastfilt","Filter");
+  if(type&MODULE_LAST) PASTE("last","Last");
+  if(type&MODULE_LOGGER) PASTE("log","Logger");
+  
+  return rv;	
 }
 
 //!
