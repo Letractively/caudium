@@ -34,6 +34,7 @@
 constant cvs_version = "$Id$";
 
 #define EXPIRE_CHECK 300
+#define EXPIRE_RUN_LIMIT 5
 inherit "helpers";
 
 string namespace;
@@ -248,7 +249,18 @@ void expire_cache( void|int nocallout ) {
 #ifdef CACHE_DEBUG
   write( "DISK_CACHE::expire_cache() called.\n" );
 #endif
+
+  int starttime = time();
+
   foreach(storage->list(), string fname) {
+
+    // don't run forever during each expire run
+    if((time() - starttime) > EXPIRE_RUN_LIMIT)
+    {
+      call_out( expire_cache, EXPIRE_RUN_LIMIT );
+      break;
+    }
+
     if ((fname / "/")[2] == "meta")
       continue;
     string hash = (fname / "/")[1];
