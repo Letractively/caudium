@@ -1172,7 +1172,8 @@ string draw_saturation_bar(int hue,int brightness, int where)
   where = 255-where;
   bar->line(0,where,29,where, 255,255,255);
 
-  return bar->togif(255,255,255);
+  return Image.GIF.encode(bar);
+//  return bar->togif(255,255,255);
 }
 
 
