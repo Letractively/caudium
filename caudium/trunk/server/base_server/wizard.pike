@@ -249,7 +249,7 @@ string wizard_tag_var(string n, mapping m, mixed a, mixed b)
      ("<table><tr>\n"
       "<td width=258 rowspan=2>\n"
       "  <table bgcolor=black cellpadding=1 border=0 cellspacing=0 width=258><tr><td>\n"
-      "  <input type=image name='"+m->name+".foo' src='/(internal,image)/caudium-colsel' width=256 height=256 border=0></td>"
+      "  <input type=image name='"+m->name+".foo' src='/(internal,image)/colsel' width=256 height=256 border=0></td>"
       "</table>\n"
       "</td>\n"
       "<td width=30 rowspan=2></td>\n"
