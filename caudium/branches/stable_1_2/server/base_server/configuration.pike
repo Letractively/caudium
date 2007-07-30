@@ -1197,24 +1197,23 @@ void clear_memory_caches()
   }
 }
 
-
-string draw_saturation_bar(int hue,int brightness, int where)
-{
-  object bar=Image.image(30,256);
-
-  for(int i=0;i<128;i++)
-  {
-    int j = i*2;
-    bar->line(0,j,29,j,@Colors.hsv_to_rgb(hue,255-j,brightness));
-    bar->line(0,j+1,29,j+1,@Colors.hsv_to_rgb(hue,255-j,brightness));
-  }
-
-  where = 255-where;
-  bar->line(0,where,29,where, 255,255,255);
-
-  return bar->togif(255,255,255);
-}
-
+  
+array(string) draw_saturation_bar(int hue,int brightness, int where)            
+{                                                                               
+   Image.Image bar=Image.Image(30,256);                                          
+                                                                           
+   for(int i=0;i<128;i++)                                                        
+   {                                                                             
+     int j = i*2;                                                                
+     bar->line(0,j,29,j,@hsv_to_rgb(hue,255-j,brightness));                      
+     bar->line(0,j+1,29,j+1,@hsv_to_rgb(hue,255-j,brightness));                  
+   }                                                                             
+                                                                         
+   where = 255-where;                                                            
+   bar->line(0,where,29,where, 255,255,255);                                     
+                                                                                 
+   return ({ Image.PNG.encode(bar), "image/png" });                              
+}             
 
 // Inspired by the internal-gopher-... thingie, this is the for internal
 // Caudium images, like logos etc.
@@ -1242,7 +1241,10 @@ private mapping internal_caudium_image(string from)
   
   // New idea: Automatically generated colorbar. Used by wizard code...
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
-    return http_string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
+  {
+    array bar = draw_saturation_bar(hue, bright, w);
+    return http_string_answer(@bar);
+  }    
   from = replace(from, "roxen", "caudium");
 
 #if 0

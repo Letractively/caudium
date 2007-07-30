@@ -1,5 +1,7 @@
 Changes in Caudium 1.2.xx since 1.2.34
 --------------------------------------
+- Fix for Color picker used by Wizards.
+   (Josef Radinger)
 - Fixed errors in russian translations (Caudium bug id #18)
    (Xavier Beaudouin)
 - Added vhs_syslogger module to log using Syslog to local or distant host
