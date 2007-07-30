@@ -782,6 +782,8 @@ void main(int argc, array argv)
    setconfigvar("spider#0", "MyWorldLocation", prot_spec+host+":"+port+"/");
    setconfigvar("spider#0", "name", "Configuration Interface");
    setconfigvar("spider#0", "netcraft_done", 1);
+   setconfigvar("filesystem#0", "mountpoint", "/config_interface");
+   setconfigvar("filesystem#0", "searchpath", "config_interface");
    setconfigvar("configure#0", "mountpoint", "/");
    setconfigvar("auth_master#0", "name", "Master Authentication Handler");
    setconfigvar("auth_configdefault#0", "username", user);
@@ -789,6 +791,7 @@ void main(int argc, array argv)
    setconfigvar("EnabledModules", "configure#0", 1);
    setconfigvar("EnabledModules", "auth_master#0", 1);
    setconfigvar("EnabledModules", "auth_configdefault#0", 1);
+   setconfigvar("EnabledModules", "filesystem#0", 1);
 
   write("./start-caudium --shuffler"
 		+(configuration_dir_changed?
