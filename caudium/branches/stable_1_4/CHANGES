@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- Color picker input for wizard should now work properly.
+   (Josef Radinger)
 - CIF pages using the wizard form now sport a unique identifier in the         
   request so that the page is still up to date, even with browsers that
   caches a lot.
