@@ -46,7 +46,7 @@ class ThemedConfig {
 
     string head(string h, string|void save) {
 	return ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">"
-		"<head><title>"+h+"</title>\n<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n</head>\n" );
+		"<head><title>"+h+"</title>\n<META HTTP-EQUIV=\"Expires\" CONTENT=\"0\">\n<link rel=\"stylesheet\" href=\"/config_interface/cif.css\" type=\"text/css\"/>\n</head>\n" );
     }
 
     string tablist(array(string) nodes, array(string) links, int selected) {

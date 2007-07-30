@@ -884,24 +884,26 @@ string new_module_form(object id, object node)
       if(b = module_nomore(q, a[q][2], node->config()))
       {
 	if(b->sname != q)
-	  res += ("<p><img alt=\"Module\" src=\"/(internal,image)/module.gif\"> <b>"
+	  res += ("<div class=\"moduleentry\"><p class=\"moduletitle\"><img alt=\"Module\" src=\"/(internal,image)/add.gif\" height=\"22\" width=\"22\"> <b>"
 		  + a[q][0] + "</b> " + module_descr_icons(a[q][2]) + "<blockquote>"+a[q][1] +
 		  "<p><i>A module of the same type is already enabled (" +
 		  b->name + "). <a href=\"/(delete)" +
 		  node->descend(b->name, 1)->path(1) + "?" + (bar++) +
 		  "\">Disable that module</a> if you want this one instead</i>"
-		  "\n<p></blockquote>");
+		  "\n<p></blockquote></div>\n");
       } else {
-		  res += ("<p><img alt=\"Module\" src=\"/(internal,image)/module.gif\">" + 
-	              "<a href=\"/(addmodule)/"+node->path(1)+"?"+q+"=1\"> <b>" + a[q][0] + 
-	              "</b></a> " + module_descr_icons(a[q][2])  + "<blockquote>"+ a[q][1] +"<p></blockquote>");
+		  res += ("<div class=\"moduleentry\"><p class=\"modulename\">"
+	              "<a href=\"/(addmodule)/"+node->path(1)+"?"+q+"=1\">"
+		      "<img alt=\"Module\" src=\"/(internal,image)/add.gif\" border=\"0\" width=\"22\" height=\"22\">" + 
+                      " <b>" + a[q][0] + 
+	              "</b></a> " + module_descr_icons(a[q][2])  + "<blockquote>"+ a[q][1] +"<p></blockquote></div>\n");
       }
     }
   }
   return res+"</td></tr></table>";
 }
 
-#define PASTE(X,Y) rv+=("<img src=\"/(internal,image)/modules/" + X + ".gif\">")
+#define PASTE(X,Y) rv+=(" <img src=\"/(internal,image)/modules/" + X + ".gif\"> ")
 string module_descr_icons(int type)
 {
   string rv = "";
