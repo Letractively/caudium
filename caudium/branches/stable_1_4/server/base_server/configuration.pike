@@ -1157,9 +1157,11 @@ void clear_memory_caches()
 }
 
 //!
-string draw_saturation_bar(int hue,int brightness, int where)
+
+   
+array(string) draw_saturation_bar(int hue,int brightness, int where)
 {
-  object bar=Image.image(30,256);
+  Image.Image bar=Image.Image(30,256);
 
   for(int i=0;i<128;i++)
   {
@@ -1171,9 +1173,8 @@ string draw_saturation_bar(int hue,int brightness, int where)
   where = 255-where;
   bar->line(0,where,29,where, 255,255,255);
 
-  return bar->togif(255,255,255);
-}
-
+  return ({ Image.PNG.encode(bar), "image/png" });
+}       
 
 // Inspired by the internal-gopher-... thingie, this is the for internal
 // Caudium images, like logos etc.
@@ -1201,7 +1202,10 @@ private mapping internal_caudium_image(string from)
   
   // New idea: Automatically generated colorbar. Used by wizard code...
   if(sscanf(from, "%*s:%d,%d,%d", hue, bright,w)==4)
-    return Caudium.HTTP.string_answer(draw_saturation_bar(hue,bright,w),"image/gif");
+  {
+    array bar = draw_saturation_bar(hue, bright, w);
+    return Caudium.HTTP.string_answer(@bar);
+  }
   from = replace(from, "roxen", "caudium");
 
 #if 0
