@@ -103,7 +103,10 @@ private mapping(string:mixed)
         imgfile->close();
 
         /* Get some information on the file */
-        object img = Image.ANY.decode(ret->data);
+        object img;
+        mixed err = catch {
+           img = Image.ANY.decode(ret->data);
+        };
         if (!img) {
             ret->width = 0;
             ret->height = 0;
