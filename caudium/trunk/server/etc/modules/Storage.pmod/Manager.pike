@@ -71,6 +71,9 @@ void start(string _permstore, string path) {
   case "GDBM":
     permstore = Storage.Methods.GDBM(path);
     break;
+  case "None":
+    permstore = Storage.Methods.None();
+    break;
   }
 #ifdef STORAGE_DEBUG
   write("Starting storage manager with %O backed.\n", _permstore);
@@ -97,7 +100,7 @@ public mapping storage_globvar() {
 
 //!
 public array storage_types() {
-  return ({ "Disk", "MySQL", "GDBM" });
+  return ({ "Disk", "MySQL", "GDBM", "None" });
 }
 
 //!
