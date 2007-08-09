@@ -116,7 +116,7 @@ static string encode(string namespace, string key, string value) {
   if (!namespace || !key || !value)
     return "";
 
-  string data = sprintf("/* Storage.Disk */\n\nmapping data = ([ \"namespace\" : \"%s\", \"key\" : \"%s\", \"value\" : \"%s\" ]);", namespace, replace(key, "\"", "\\\""), replace(value, "\"", "\\\""));
+  string data = sprintf("/* Storage.GDBM */\n\nmapping data = ([ \"namespace\" : \"%s\", \"key\" : \"%s\", \"value\" : \"%s\" ]);", namespace, replace(key, "\"", "\\\""), replace(value, "\"", "\\\""));
   return MIME.encode_base64(data, 1);
 }
 
