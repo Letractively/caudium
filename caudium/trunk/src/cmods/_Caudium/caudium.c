@@ -2100,7 +2100,7 @@ void pike_module_init( void )
   set_exit_callback(free_buf_struct);
   end_class("ParseHTTP", 0);
 #ifdef ENABLE_NBIO
-  init_nbio();
+//  init_nbio();
 #endif /* ENABLE_NBIO */
 }
 
@@ -2123,7 +2123,7 @@ printf("shutting down\n");
   free_array(html_mta_safe_entities);
   
 #ifdef ENABLE_NBIO
-  exit_nbio();
+//  exit_nbio();
 #endif /* ENABLE_NBIO */
   exit_datetime();
 }
