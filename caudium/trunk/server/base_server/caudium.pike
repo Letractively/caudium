@@ -1542,6 +1542,9 @@ void cache_start() {
   case "MySQL":
     cache_manager->set_slowstorage(Storage.Manager(QUERY(cache_storage_type), QUERY(cache_storage_mysql_url)));
     break;
+  case "None":
+    cache_manager->set_slowstorage(Storage.Manager(QUERY(cache_storage_type)));
+    break;
   }
   cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576,
                         QUERY(cache_vigilance),
@@ -2659,7 +2662,7 @@ private void define_global_variables(int argc, array (string) argv)
 	    "Please note that when changing this value you will need to "
 	    "restart caudium for it to take effect, you will also need to "
 	    "manually clean the data out of the old method.",
-	    ({ "Disk", "MySQL" }));
+	    ({ "Disk", "MySQL", "None" }));
 
     globvar("cache_storage_mysql_url", "",
             "Caching engine: MySQL Database URL", TYPE_STRING,
