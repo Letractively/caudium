@@ -65,7 +65,7 @@ void unlink_regexp(string namespace, string regexp) {
 
 //!
 int size(string namespace) {
-  return 0
+  return 0;
 }
 
 //!
