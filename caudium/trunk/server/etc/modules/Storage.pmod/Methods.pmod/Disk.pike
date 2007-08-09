@@ -312,7 +312,6 @@ void idx_sync(void|int stop) {
 #endif
   string ipath = Stdio.append_path(path, "storage_index"); 
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
-  data = MIME.encode_base64(data, 1);
   catch(write_file(ipath, data));
   if (stop)
     idx_sync_stop = 1;
