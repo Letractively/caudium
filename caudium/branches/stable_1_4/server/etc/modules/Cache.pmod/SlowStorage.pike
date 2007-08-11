@@ -34,6 +34,7 @@
 constant cvs_version = "$Id$";
 
 #define EXPIRE_CHECK 300
+#define EXPIRE_RUN_LIMIT 5
 inherit "helpers";
 
 string namespace;
@@ -248,7 +249,18 @@ void expire_cache( void|int nocallout ) {
 #ifdef CACHE_DEBUG
   write( "DISK_CACHE::expire_cache() called.\n" );
 #endif
+
+  int starttime = time();
+
   foreach(storage->list(), string fname) {
+
+    // don't run forever during each expire run
+    if((time() - starttime) > EXPIRE_RUN_LIMIT)
+    {
+      call_out( expire_cache, EXPIRE_RUN_LIMIT );
+      break;
+    }
+
     if ((fname / "/")[2] == "meta")
       continue;
     string hash = (fname / "/")[1];
@@ -294,9 +306,9 @@ int object_count() {
 //! The pike datatype being encoded.
 static string _encode_value( mixed var ) {
   if (programp(var) && master()->Encoder)
-    return MIME.encode_base64( encode_value( var, master()->Encoder(var) ), 1 );
+    return encode_value( var, master()->Encoder(var) );
   else
-    return MIME.encode_base64( encode_value( var, master()->Codec() ), 1 );
+    return encode_value( var, master()->Codec() );
 }
 
 //! Private method to decode from bytecode.
@@ -305,7 +317,7 @@ static string _encode_value( mixed var ) {
 //! The encoded data.
 mixed _decode_value( string data ) {
   mixed obj;
-  if (catch(obj =  decode_value( MIME.decode_base64( data )))) {
+  if (catch(obj =  decode_value( data ))) {
     return 0;
   }
   return obj;

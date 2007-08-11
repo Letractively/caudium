@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -177,7 +177,7 @@ void unlink_regexp(string namespace, string regexp) {
 static string encode(string namespace, string key, string value) {
   mapping tmp = ([ "namespace" : namespace, "key" : key, "value" : value ]);
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n", tmp);
-  return MIME.encode_base64(data, 1);
+  return data;
 }
 
 //!
@@ -185,7 +185,7 @@ static mixed decode(string data) {
   program p;
   object e = ErrorContainer();
   master()->set_inhibit_compile_errors(e);
-  if (mixed err = catch(p = compile_string(MIME.decode_base64(data)))) {
+  if (mixed err = catch(p = compile_string(data))) {
     return 0;
     master()->clear_compilation_failures();
     master()->set_inhibit_compile_errors(0);
@@ -201,7 +201,7 @@ static string get_hash(string data) {
 }
 
 static string hash_path(string namespace, string key) {
-  return Caudium.Crypto.hash_md5(namespace, 1) + "_" + Caudium.Crypto.hash_md5(key, 1);
+  return Caudium.Crypto.hash_md5(namespace + key, 1);
 }
 
 //!
@@ -312,7 +312,6 @@ void idx_sync(void|int stop) {
 #endif
   string ipath = Stdio.append_path(path, "storage_index"); 
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
-  data = MIME.encode_base64(data, 1);
   catch(write_file(ipath, data));
   if (stop)
     idx_sync_stop = 1;
@@ -393,19 +392,9 @@ void stop() {
 }
 
 int write_file(string filename, string content) {
-  object f = Stdio.File();
-  f->open(filename, "cwt");
-  int i = f->write(content);
-  f->close();
-  destruct(f);
-  return i;
+  return Stdio.write_file(filename, content);
 }
 
 string read_file(string filename) {
-  object f = Stdio.File();
-  f->open(filename, "r");
-  string s = f->read();
-  f->close();
-  destruct(f);
-  return s;
+  return Stdio.read_file(filename);
 }
