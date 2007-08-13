@@ -430,7 +430,8 @@ private array low_list_all_users()
   array m=my_configuration()->get_providers("authentication");
 
   foreach(m, object module)
-    data+=module->list_all_users();
+    if(module->list_all_users)
+      data+=module->list_all_users();
 
   int i=set_user_list(data);
   return data;
