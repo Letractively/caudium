@@ -716,12 +716,12 @@ mapping|array find_dir(string f, object id)
 {
   USERFS_WERR(sprintf("find_dir(%O, X)", f));
 
-  array a = find_user(f, id);
-
   // dir searched by filesystem is name "" when trying to find the
   // users listing. But this is cached by Caudium Cache and need to
   // intercepted before then...
-  if (!QUERY(user_listing) && (f == "") ) return 0;
+  if (!QUERY(user_listing) && (( f=="/") || (f == "")) ) return 0;
+
+  array a = find_user(f, id);
 
   if (!a) {
     if (QUERY(user_listing)) {
