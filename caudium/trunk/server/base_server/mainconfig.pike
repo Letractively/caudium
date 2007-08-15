@@ -375,7 +375,7 @@ mapping save_it(object id, object o)
     caudium->update_supports_from_caudium_net();
 //    caudium->initiate_configuration_port( 0 );
     id->referrer = CONFIG_URL + o->path(1);
-    caudium->update_storage_manager();
+//    caudium->update_storage_manager();
     if(sizeof(changed_port_servers))
 	return verify_changed_ports(id, o);
 }

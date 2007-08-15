@@ -220,7 +220,7 @@ array config_is_modified(string cl)
 private static void read_it(string cl)
 {
   string ccl = replace(cl, " ", "_");
-    
+
   if(configs[ccl])
     return;
 

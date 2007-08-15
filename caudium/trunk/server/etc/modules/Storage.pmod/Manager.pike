@@ -65,8 +65,8 @@ void start(string _permstore, string path) {
   case "Disk":
     permstore = Storage.Methods.Disk(path);
     break;
-  case "MySQL":
-    permstore = Storage.Methods.MySQL(path);
+  case "SQL":
+    permstore = Storage.Methods.SQL(path);
     break;
   case "GDBM":
     permstore = Storage.Methods.GDBM(path);
@@ -76,7 +76,7 @@ void start(string _permstore, string path) {
     break;
   }
 #ifdef STORAGE_DEBUG
-  write("Starting storage manager with %O backed.\n", _permstore);
+  write("Starting storage manager with %O backend.\n", _permstore);
 #endif
 }
 
