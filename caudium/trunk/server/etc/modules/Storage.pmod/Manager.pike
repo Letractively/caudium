@@ -55,7 +55,7 @@ void create(string _permstore, string path) {
 }
 
 //!
-void start(string _permstore, string path) {
+void start(string _permstore, string|void path) {
 
   if(functionp(path)) path=call_function(path);
   if (objectp(permstore)) {
