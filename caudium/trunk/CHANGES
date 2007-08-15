@@ -1,5 +1,11 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Config interface variables pertaining to cache storage engine now use
+    SQL instead of MySQL.
+    (Bill Welliver)
+- Storage.Methods.MySQL is now Storage.Methods.SQL in honor of its newly 
+    found cross-databasiness, which includes support for SQLite.
+    (Bill Welliver)
 - User listing toggle in User Filesystem works more properly.
     (Bill Welliver)
 - Fixes for authentication providers that don't support user listings
