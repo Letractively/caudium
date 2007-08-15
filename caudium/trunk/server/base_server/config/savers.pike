@@ -91,7 +91,7 @@ void save_module_variable(object o)
 void save_global_variables(object o)
 {
   caudium->store("Variables", caudium->variables, 0, 0);
-  caudium->initiate_configuration_port();
+//  caudium->initiate_configuration_port();
   init_logger();
   caudium->initiate_supports();
   if(o->changed) o->change(-o->changed);

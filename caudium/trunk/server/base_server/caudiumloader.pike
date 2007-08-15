@@ -574,6 +574,9 @@ object cache_manager() {
  
 static private void initiate_cache()
 {
+#ifdef CACHE_DEBUG
+  werror("initiate_cache()\n");
+#endif
   object cache=Cache.Compatible( cache_manager() );
   add_constant("cache_set", cache->cache_set);
   add_constant("cache_lookup", cache->cache_lookup);
