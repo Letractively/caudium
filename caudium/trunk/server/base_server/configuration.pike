@@ -3929,9 +3929,9 @@ void create(string config)
          log_is_not_enabled);
   defvar("PostBodySize", POST_MAX_BODY_SIZE, 
 	 "Maximum body size for a POST request",
-	 TYPE_INT, "This variable determines how large a body of a POST "
-	 "request could become. If the value is -1 the size is unlimited."
-	 "A value of 0 ignores the body completely.");
+	 TYPE_INT, "This variable determines how large (in bytes) a body of a POST "
+	 "request could become before rejecting the request. If the value is -1 the size is "
+         "unlimited. A value of 0 ignores the body completely.");
 
   defvar("Log", 1, "Logging: Enabled", TYPE_FLAG, "Log requests");
   
