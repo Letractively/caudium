@@ -177,3 +177,8 @@ array list(string namespace) {
   object db = DB();
   return db->query("select dkey from storage where namespace = %s", namespace)->dkey;
 }
+
+void stop()
+{
+  // we don't have to do anything!
+}
