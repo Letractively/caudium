@@ -485,15 +485,15 @@ static int parse_got()
 	 if(!data) data="";
 	 int l = misc->len;
 	 
-	 if ( objectp(conf) ) {
-	   int conf_size = conf->query("PostBodySize");
-	   if ( conf_size < 0 )
-	     wanted_data = l;
-	   else
-	     wanted_data = min(l, conf_size);
-	 }
-	 else
-	   wanted_data = min(l, POST_MAX_BODY_SIZE);
+	 int conf_size = conf->query("PostBodySize");
+	 if ( conf_size > 0 && conf_size < l)
+         {
+           // error 413!
+	   send_result(Caudium.HTTP.low_answer(413, "<h1>" +Caudium.Const.errors[413] + "</h1>"));
+           return 0;
+         }
+
+	 wanted_data = l;
 	 have_data=strlen(data);
 	 
 	 if( have_data < wanted_data )
