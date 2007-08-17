@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Default maximum POST size is now 5MB for new virtual servers.
+    (Bill Welliver)
+- An error 413 is returned for requests crossing the maximum POST size,
+    even though it may be interpreted as a "premature close".
+    (Bill Welliver)
 - Config interface variables pertaining to cache storage engine now use
     SQL instead of MySQL.
     (Bill Welliver)
