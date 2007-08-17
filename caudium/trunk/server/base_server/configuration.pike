@@ -770,7 +770,7 @@ int init_log_file(int|void force_open, void|object id)
     logfile = replace(logfile,({"%d","%m","%y","%h","%H","%V"}),
                       ({ (string)m->mday, (string)(m->mon),
                          (string)(m->year),(string)m->hour,cache_hostname,
-                         id?id->host:"NONE"}));
+                         (id && id->host)?id->host:"NONE"}));
     if(strlen(logfile))
     {
       do {
