@@ -358,7 +358,6 @@ mixed resolv(mixed ... args)
 // For low_findprog();
 #if constant(_static_modules.Builtin.mutex)
 #define THREADED
-// NOTE: compilation_mutex is inherited from the original master.
 #endif
 
 program findprog(mixed ... args)
@@ -372,17 +371,7 @@ program findprog(mixed ... args)
 program low_findprog(string pname, string ext,
 		     object|void handler, void|int mkobj)
 {
-
-#ifdef THREADED
   object key;
-  // FIXME: The catch is needed, since we might be called in
-  // a context when threads are disabled.
-  // (compile() disables threads).
-  catch {
-    key=compilation_mutex->lock(2);
-  };
-#endif
-
   object thandler;
   if(findprog_mappings)
     key = findprog_thread_keys[current_thread()];
