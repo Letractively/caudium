@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Cache tuning to prevent runaway cache expiration.
+    (Bill Welliver)
 - Default maximum POST size is now 5MB for new virtual servers.
     (Bill Welliver)
 - An error 413 is returned for requests crossing the maximum POST size,

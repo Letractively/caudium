@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- Require Pike 7.6.112
+   (Bill Welliver)
 - Backporting devel changes in cache and added None cache type
    (Bill Welliver)
 - Color picker input for wizard should now work properly.
