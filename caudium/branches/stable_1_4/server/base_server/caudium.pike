@@ -1545,7 +1545,6 @@ void cache_start() {
     cache_manager->set_slowstorage(Storage.Manager(QUERY(cache_storage_type)));
     break;
    }
-  }
   cache_manager->start( QUERY(cache_max_ram) * 1048576, QUERY(cache_max_slow) * 1048576,
                         QUERY(cache_vigilance),
                         QUERY(cache_default_ttl),
