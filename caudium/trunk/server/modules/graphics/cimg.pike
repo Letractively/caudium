@@ -34,9 +34,9 @@ constant thread_safe = 1;
 caudium.ImageCache the_cache;
 
 
-void start()
+void start(object id)
 {
-  the_cache = caudium.ImageCache( "cimg", generate_image );
+  the_cache = caudium.ImageCache(sprintf("cimg-%s", id->site_id), generate_image );
 }
 
 mapping generate_image( mapping args, object id )
