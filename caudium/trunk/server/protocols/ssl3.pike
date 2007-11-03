@@ -572,17 +572,18 @@ static int parse_got()
     array certs;
     if(my_fd && my_fd->get_peer_certificates)
       certs = my_fd->get_peer_certificates();
-    foreach(certs;int cn;string der)
-    {
-      werror("cert %d subject: %s\n", cn, Standards.PKCS.Certificate.get_dn_string(
+    if(certs)
+      foreach(certs;int cn;string der)
+      {
+        werror("cert %d subject: %s\n", cn, Standards.PKCS.Certificate.get_dn_string(
           Standards.PKCS.Certificate.get_certificate_subject(der)));
-    }
+      }
   }
 
   // let's slide our client certificate info in...
-  if()
-  {
-  }
+//  if()
+//  {
+//  }
 
   return r;
 }
