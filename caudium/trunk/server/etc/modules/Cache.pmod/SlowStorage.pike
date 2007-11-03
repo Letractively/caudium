@@ -33,6 +33,7 @@
 
 constant cvs_version = "$Id$";
 
+#define EXPIRE_DATA_SYNC 7200 
 #define EXPIRE_CHECK 300
 #define EXPIRE_RUN_LIMIT 5
 inherit "helpers";
@@ -41,6 +42,7 @@ string namespace;
 int disk_usage;
 int _hits, _misses;
 object storage;
+mapping expiration_data;
 
 //! Initialise the disk cache and create the neccessary data structures.
 //!
@@ -54,6 +56,9 @@ void create( string _namespace, object _storage ) {
   namespace = _namespace;
   disk_usage = storage->size();
   call_out( expire_cache, EXPIRE_CHECK );
+  expiration_data = _decode_value(storage->retrieve("/expiration_data"));
+  call_out( expire_data_sync, 0);
+  if(!expiration_data) expiration_data = ([]);
 }
 
 //! Store an object on the disk, and it's metadata in RAM.
@@ -113,6 +118,9 @@ void store( mapping meta ) {
 #endif
     break;
   }
+  
+  if(meta->expires)
+    expiration_data[meta->hash] = meta->expires;
 }
 
 //! Retrieve an object from the disk.
@@ -171,7 +179,9 @@ void|mixed retrieve(string name, void|int object_only) {
 //! @param name
 //! The name of the object to remove.
 void refresh(string name) {
-  storage->unlink(get_hash(name));
+  string n = get_hash(name);
+  storage->unlink(n);
+  m_delete(expiration_data, n);
 }
 
 //! Flush the cache.
@@ -186,6 +196,8 @@ void flush( void|string regexp ) {
   // flush the cache.
   disk_usage = 0;
   storage->unlink();
+  expiration_data = ([]);
+  store_expiration();
 }
 
 //! Return the amount of disk space being occupied by the cache.
@@ -199,6 +211,7 @@ void stop() {
 #ifdef CACHE_DEBUG
   write("DISK_CACHE: Shutting down (%s)\n", namespace);
 #endif
+  store_expiration();
   storage->stop();
 #ifdef CACHE_DEBUG
   write("DISK_CACHE: All done.\n");
@@ -238,7 +251,10 @@ void free( int n ) {
     }
     storage->unlink(Stdio.append_path("/", hash, "/object"));
     storage->unlink(Stdio.append_path("/", hash, "/meta"));
+    m_delete(expiration_data, hash);
   }
+
+  store_expiration();
 }
 
 //! Remove objects from the cache that have expired.
@@ -252,7 +268,7 @@ void expire_cache( void|int nocallout ) {
 
   int starttime = time();
 
-  foreach(storage->list(), string fname) {
+  foreach(expiration_data; string hash; mixed expires) {
 
     // don't run forever during each expire run
     if((time() - starttime) > EXPIRE_RUN_LIMIT)
@@ -260,29 +276,57 @@ void expire_cache( void|int nocallout ) {
       call_out( expire_cache, EXPIRE_RUN_LIMIT );
       break;
     }
-
-    if ((fname / "/")[2] == "meta")
-      continue;
-    string hash = (fname / "/")[1];
-    mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
-    if (!meta) // retrieve can return 0
-      return;
     
-    if ( meta->expires == -1 ) {
+    if ( expires == -1 ) {
       continue;
     }
-    if ( meta->expires <= time() ) {
+    if ( expires <= time() ) {
+      mapping meta = _decode_value(storage->retrieve(Stdio.append_path("/", hash, "/meta")));
       disk_usage -= meta->size;
+
 #ifdef CACHE_DEBUG
       write( "Object Expired: %s, expiry: %d, removing from disk.\n", meta->name, meta->expires );
 #endif
       storage->unlink(Stdio.append_path("/", hash, "/object"));
       storage->unlink(Stdio.append_path("/", hash, "/meta"));
+
+	  m_delete(expiration_data, hash);
     }
   }
+
+  store_expiration();
+
   if ( ! nocallout ) {
     call_out( expire_cache, EXPIRE_CHECK );
   }
+}
+
+void store_expiration()
+{
+  storage->store("/expiration_data", _encode_value(expiration_data));
+}
+
+void expire_data_sync()
+{
+	array x = indices(expiration_data);
+	array y = storage->list();
+	array z = allocate(sizeof(y));
+	foreach(y; int q; string name)
+	{
+		string hash;
+		hash = (name/"/")[1];
+		z[q] = hash;
+	}
+	
+	// remove everything on disc from what we know about
+	// leaving all of the records which don't exist on disk.
+	x -= z;
+	
+	// then, we delete those expiration records
+	expiration_data -= x;
+
+	
+	call_out(expire_data_sync, EXPIRE_DATA_SYNC);
 }
 
 //! Return the total number of hits against this cache.
