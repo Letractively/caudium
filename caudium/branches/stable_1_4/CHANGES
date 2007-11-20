@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- IMPORTANT: The cache storage filename format is different with this 
+    release. It is highly recommended that you empty the 
+    $PREFIX/caudium_cache directory before starting this version.
+    (Bill Welliver)
 - Added randomization to cache and storage jobs to prevent surges.
     (Bill Welliver)
 - We now store cache item sizes, which should reduce fd usage and
