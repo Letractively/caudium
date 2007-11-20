@@ -33,6 +33,9 @@
 
 constant cvs_version = "$Id$";
 
+
+// we use the expiration check as a base starting point and add a randomization 
+// to prevent cache expiration getting stuck in lockstep.
 #define EXPIRE_DATA_SYNC 7200 
 #define EXPIRE_CHECK 300
 #define EXPIRE_RUN_LIMIT 5
@@ -43,6 +46,16 @@ int disk_usage;
 int _hits, _misses;
 object storage;
 mapping expiration_data;
+
+int get_expire_check()
+{
+  return EXPIRE_CHECK + random(EXPIRE_CHECK/10);
+}
+
+int get_expire_data_sync()
+{
+  return EXPIRE_DATA_SYNC + random(EXPIRE_DATA_SYNC/10);
+}
 
 //! Initialise the disk cache and create the neccessary data structures.
 //!
@@ -55,7 +68,7 @@ void create( string _namespace, object _storage ) {
   storage = _storage;
   namespace = _namespace;
   disk_usage = storage->size();
-  call_out( expire_cache, EXPIRE_CHECK );
+  call_out( expire_cache, get_expire_check());
   expiration_data = _decode_value(storage->retrieve("/expiration_data"));
   call_out( expire_data_sync, 0);
   if(!expiration_data) expiration_data = ([]);
@@ -297,7 +310,7 @@ void expire_cache( void|int nocallout ) {
   store_expiration();
 
   if ( ! nocallout ) {
-    call_out( expire_cache, EXPIRE_CHECK );
+    call_out( expire_cache, get_expire_check() );
   }
 }
 
@@ -326,7 +339,7 @@ void expire_data_sync()
 	expiration_data -= x;
 
 	
-	call_out(expire_data_sync, EXPIRE_DATA_SYNC);
+	call_out(expire_data_sync, get_expire_data_sync());
 }
 
 //! Return the total number of hits against this cache.
