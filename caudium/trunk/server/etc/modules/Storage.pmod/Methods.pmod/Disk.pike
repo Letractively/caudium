@@ -83,7 +83,10 @@ void create(string _path) {
       rm(Stdio.append_path(path, _f));
   }
   else 
+  {
     idx = ([]);
+    idx_sz = ([]);
+  }
   call_out(idx_sync, get_sync_time());
   if (!Stdio.is_dir(path))
     Stdio.mkdirhier(path);
@@ -267,7 +270,10 @@ array list(string namespace) {
     }
   }
   if (!sizeof(ret))
+  {
     idx[namespace]=([]);
+    idx_sz[namespace]=([]);
+  }
 #ifdef STORAGE_DEBUG
   write("STORAGE: index = %O\n", idx);
 #endif
@@ -300,6 +306,7 @@ string idx_path(string namespace, string key, void|string _path) {
 #endif
   if (!idx[namespace]) {
     idx[namespace] = ([]);
+    idx_sz[namespace] = ([]);
   }
   if (stringp(_path)) {
     idx[namespace][key] = _path;
@@ -459,7 +466,7 @@ void idx_rm(string namespace, void|string key) {
     if (idx[namespace][key])
     {
       m_delete(idx[namespace], key);
-      m_delete(idx_sz[namespace], key);
+      catch(m_delete(idx_sz[namespace], key));
     }
   }
 }
