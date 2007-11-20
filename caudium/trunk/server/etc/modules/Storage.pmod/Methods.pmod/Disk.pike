@@ -208,8 +208,14 @@ static string hash_path(string namespace, string key) {
 //! all possible. additionally, it's hard to say whether the value
 //! returned is useful.
 int size(string namespace) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: size(%s).\n", namespace);
+#endif
   if (_size[namespace])
     return _size[namespace];
+#ifdef STORAGE_DEBUG
+    write("STORAGE: size(%s): generating size.\n", namespace);
+#endif
   int total;
   array keys = list(namespace)||({});
   foreach(keys, string key) {
