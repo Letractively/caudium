@@ -1,8 +1,17 @@
 Changes in Caudium 1.4.x since Caudium 1.4.9
 --------------------------------------------
+- Added randomization to cache and storage jobs to prevent surges.
+    (Bill Welliver)
+- We now store cache item sizes, which should reduce fd usage and
+    improve startup times.
+    (Bill Welliver)
+- Removed a double read on cache items, which should improve performance.
+    (Bill Welliver)
+- Cache tuning to prevent runaway cache expiration.
+    (Bill Welliver)
 - Require Pike 7.6.112
    (Bill Welliver)
-- Backporting devel changes in cache and added None cache type
+- Added "None" cache type
    (Bill Welliver)
 - Color picker input for wizard should now work properly.
    (Josef Radinger)
