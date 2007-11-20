@@ -204,7 +204,9 @@ static string hash_path(string namespace, string key) {
   return Caudium.Crypto.hash_md5(namespace + key, 1);
 }
 
-//!
+//! this is an _extremely_ heavy operation. avoid using it if at 
+//! all possible. additionally, it's hard to say whether the value
+//! returned is useful.
 int size(string namespace) {
   if (_size[namespace])
     return _size[namespace];
@@ -248,7 +250,7 @@ array list(string namespace) {
     string s = read_file(objpath);
     mapping obj = decode(s);
     if (mappingp(obj)) {
-      string key = decode(read_file(objpath))->key;
+      string key = obj->key;
       if (obj->namespace == namespace)
         ret += ({ key });
       idx_path(obj->namespace, key, objpath);
