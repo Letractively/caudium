@@ -43,26 +43,37 @@ constant storage_doc     = "Please enter the path on the filesystem that you wou
 //!
 constant storage_default = "+";
 
-#define SYNCTIME 30
+// we use a base time plus a randomization to prevent things from getting locked
+// into a cycle of sync processes.
+#define SYNCTIME 60
 
 static string path;
 mapping idx;
+mapping idx_sz;
 static mapping _size;
 array _sending;
 int idx_sync_stop;
 
+int get_sync_time()
+{
+  return SYNCTIME + random(SYNCTIME/10);
+}
+
 //!
+//! the index is the canonical source for information about whether something is stored.
+//! at startup, if a file is present on disk, but is not in the index, it will be deleted.
 void create(string _path) {
   _sending = ({});
   path = _path;
   _size = ([]);
+  idx_sz = idx_size_get();
   idx = idx_get();
   if (mappingp(idx)) {
     array f = ({});
     foreach(indices(idx), string n) {
       f += values(idx[n]);
     }
-    array _d = get_dir(path) - ({ "storage_index" });
+    array _d = get_dir(path) - ({ "storage_index", "storage_size" });
     array d = ({});
     string _f;
     foreach(_d, _f)
@@ -73,7 +84,7 @@ void create(string _path) {
   }
   else 
     idx = ([]);
-  call_out(idx_sync, SYNCTIME);
+  call_out(idx_sync, get_sync_time());
   if (!Stdio.is_dir(path))
     Stdio.mkdirhier(path);
 #ifdef CACHE_DEBUG
@@ -97,6 +108,7 @@ void store(string namespace, string key, string value) {
     return;
   string objpath = idx_path(namespace, key);
   string data = encode(namespace, key, value);
+  idx_size(namespace, key, data);
   write_file(objpath, encode(namespace, key, value));
 }
 
@@ -219,16 +231,8 @@ int size(string namespace) {
   int total;
   array keys = list(namespace)||({});
   foreach(keys, string key) {
-    string objpath = idx_path(namespace, key);
-    string s;
-    if (catch(s = read_file(objpath))) {
-      continue;
-    }
-    mapping p = decode(s);
-    if (!mappingp(p))
-      continue;
-    mixed data = p->value;
-    total += data?sizeof(data):0;
+    int size = idx_size(namespace, key);
+    total += size;
   }
   _size[namespace] = total;
   return total;
@@ -314,6 +318,36 @@ string idx_path(string namespace, string key, void|string _path) {
 }
 
 //!
+int idx_size(string namespace, string key, void|mixed data) {
+#ifdef STORAGE_DEBUG
+  write("STORAGE INDEX SIZE: path %O %O %O\n", namespace, key, sizeof(data||""));
+#endif
+  if (!idx_sz[namespace]) {
+    idx_sz[namespace] = ([]);
+  }
+  if (idx_sz[namespace][key]) {
+    return idx_sz[namespace][key];
+  }
+  else if(data){
+    int sz = sizeof(data);
+    idx_sz[namespace][key] = sz;
+    return sz;
+  }
+  else
+  {
+    string objpath = idx_path(namespace, key);
+    int sz;
+    if (Stdio.exist(objpath))
+    {
+      string s = read_file(objpath);
+      sz = sizeof(s);
+    }
+    idx_sz[namespace][key] = sz;
+    return sz;
+  }
+}
+
+//!
 void idx_sync(void|int stop) {
 #ifdef STORAGE_DEBUG
   write("STORAGE: Syncing index to disk.\n");
@@ -321,10 +355,15 @@ void idx_sync(void|int stop) {
   string ipath = Stdio.append_path(path, "storage_index"); 
   string data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx);
   catch(write_file(ipath, data));
+
+  ipath = Stdio.append_path(path, "storage_size"); 
+  data = sprintf("/* Storage.Disk */\n\nmapping data = %O;\n\n", idx_sz);
+  catch(write_file(ipath, data));
+
   if (stop)
     idx_sync_stop = 1;
   if (!idx_sync_stop) {
-    call_out(idx_sync, SYNCTIME);
+    call_out(idx_sync, get_sync_time());
   }
 }
 
@@ -378,6 +417,32 @@ void|mapping _idx_get() {
   return p;
 }
 
+mapping idx_size_get()
+{
+  string s;
+  mapping idx_sz;
+  string ipath = Stdio.append_path(path, "storage_size");
+  catch(s = read_file(ipath));
+
+  mixed p;
+  if (mixed err = catch(idx_sz = decode(s))) {
+#ifdef STORAGE_DEBUG
+    write("STORAGE: Unable to load index - exception during decode.\n");
+    throw(err);
+#endif
+    return ([]);
+  }
+
+  if (!mappingp(idx_sz))
+    return ([]);
+
+#ifdef STORAGE_DEBUG
+  write("loading index size file %O: %O\n", ipath, idx_sz);
+#endif
+  
+  return idx_sz;
+}
+
 //!
 void idx_rm(string namespace, void|string key) {
 #ifdef STORAGE_DEBUG
@@ -385,11 +450,17 @@ void idx_rm(string namespace, void|string key) {
 #endif
   if (!key) {
     if (idx[namespace])
+    {
       m_delete(idx, namespace);
+      m_delete(idx_sz, namespace);
+    }
   }
   if (idx[namespace]) {
     if (idx[namespace][key])
+    {
       m_delete(idx[namespace], key);
+      m_delete(idx_sz[namespace], key);
+    }
   }
 }
 
