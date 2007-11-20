@@ -43,7 +43,7 @@ static mapping clients;
 function destroy = sync_all;
 
 //!
-void create(string _permstore, string path) {
+void create(string _permstore, string|void path) {
   start(_permstore, path);
   storage = ([ ]);
   clients = ([ ]);
@@ -55,7 +55,7 @@ void create(string _permstore, string path) {
 }
 
 //!
-void start(string _permstore, string path) {
+void start(string _permstore, string|void path) {
 
   if(functionp(path)) path=call_function(path);
   if (objectp(permstore)) {
