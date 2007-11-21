@@ -1,5 +1,9 @@
-Changes in Caudium 1.4.x since Caudium 1.4.9
+Changes in Caudium 1.4.x since Caudium 1.4.8
 --------------------------------------------
+- Actually use Pike's Shuffler as default instead of Caudium's NBIO (backport
+  from 1.5).
+  Added --with-nbio for forcing NBIO usage instead fo Shuffler.
+   (Bertrand LUPART)
 - IMPORTANT: The cache storage filename format is different with this 
     release. It is highly recommended that you empty the 
     $PREFIX/caudium_cache directory before starting this version.
