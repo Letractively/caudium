@@ -216,7 +216,7 @@ install_alt:
 	@(cd tools;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
 	@echo "Caudium installed."
 
-spotless:  clean
+spotless:  force clean
 #	@(cd extern;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd tools/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
 	@(cd src/;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" spotless)
@@ -309,36 +309,44 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	  exit 1; \
 	fi
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
-	if ls -d $$version* >/dev/null 2>&1; then \
+	if ls -d /tmp/$$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
-	  rm -rf $$version* || exit 1; \
+	  rm -rf /tmp/$$version* || exit 1; \
 	else :; fi; \
-	mkdir $$version; \
+	mkdir /tmp/$$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -; ./autogen.sh); \
+	(cd $(SRCDIR); tar cf - .)|(cd /tmp/$$version; tar xf -); \
 	if test "`echo $$version| sed s/cvs//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
          echo "Non-test/devel version. Removing CVS directories.";\
-	 find $$version/. -type d -name 'CVS' -print0 |xargs -0 rm -rf; \
+	 find /tmp/$$version/. -type d -name 'CVS' -print0 |xargs -0 rm -rf; \
 	else \
 	 echo "Making sure CVS root is anonymous...";\
-	 for f in `find $$version/. -type f -path '*/CVS/Root' -print`; do\
+	 for f in `find /tmp/$$version/. -type f -path '*/CVS/Root' -print`; do\
 	   echo $$f;\
            (cat $$f | sed 's/[^@]*\(.*\)/:pserver:anonymous\1/' >$$f.new)&&\
 	   mv $$f.new $$f; \
          done;\
         fi;\
+        echo "Current dir is `pwd`" ; \
 	echo Cleaning up the copied sources...; \
-	for f in `find $$version/. -type f -name '*~' -print` \
-	  `find $$version/. -type f -name '.#*' -print` \
-	  `find $$version/. -type f -name '#*#' -print`; do \
-	  echo $$f; rm $$f || exit 1; \
-	done
+	cd /tmp/$$version && $(MAKE) spotless && cd $(SRCDIR) ;\
+        cd /tmp/$$version && ./autogen.sh ; \
+	for f in `find /tmp/$$version/. -type f -name '*~' -print` \
+	  `find /tmp/$$version/. -type f -name 'autom4*' -print` \
+	  `find /tmp/$$version/. -type f -name '.#*' -print` \
+	  `find /tmp/$$version/. -type f -name 'Makefile' -print` \
+	  `find /tmp/$$version/. -type f -name '*.tar*' -print` \
+	  `find /tmp/$$version/. -type f -name '#*#' -print`; do \
+	  echo $$f; rm -r $$f || exit 1; \
+	done; \
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
 	echo -n "Building tarfile..."; \
-	tar cf $$version.tar $$version; \
+        cd /tmp; \
+	tar cf $(SRCDIR)/$$version.tar $$version; \
+         cd $(SRCDIR); \
 	echo -n "tar.gz..."; \
 	gzip -9 < $$version.tar >$$version.tar.gz; \
 	echo -n "tar.bz2..."; \
@@ -346,7 +354,7 @@ tar_dist:
 	echo "done."; \
 	rm $$version.tar
 
-dist: copy_dist tar_dist 
+dist: clean copy_dist tar_dist 
 	@echo "Distribution build complete. Don't forget to run"
 	@echo "'make only_bump_version' if this is not a test release."
 
