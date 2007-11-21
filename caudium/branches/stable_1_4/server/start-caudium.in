@@ -71,7 +71,7 @@ array(array(string | array(string))) arguments = ({
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})}),
-	({"shuffler", Getopt.NO_ARG, ({ "--shuffler", "--with-shuffler" })}),
+	({"nbio", Getopt.NO_ARG, ({ "--nbio", "--with-nbio" })}),
 });
 
 // loader options (with defaults)
@@ -444,7 +444,7 @@ void preamble()
 		options->watchdog_debug = 1;
 	}
 
-  command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN"});
+  command_line->DEFINES += ({"CAUDIUM", "CAUDIUM_CACHE", "ROXEN", "USE_SHUFFLER"});
 
   System.umask(022);
 
@@ -852,8 +852,8 @@ int act_on_args()
         case "quiet":
           options->quiet=1;
           break;
-				case "shuffler":
-					command_line->DEFINES+=({"USE_SHUFFLER"});
+				case "nbio":
+					command_line->DEFINES-=({"USE_SHUFFLER"});
 					break;
     }    
   }
@@ -900,9 +900,9 @@ information
                                   the default. Some clients might have
 				  problems with keepalive.
 
-      .B--with-shufflerB.:  Enable use of the Shuffler module instead of
-				  Caudium's NBIO module. 
-				  
+      .B--with-nbioB.:  Enable use of legacy Caudium's NBIO module instead of
+				  Pike's Shuffler. 
+
       .B--onceB.:  Run the server only once, in the foreground.
 			   	  This is very useful when debugging.
        				  Implies --without-watchdog.
