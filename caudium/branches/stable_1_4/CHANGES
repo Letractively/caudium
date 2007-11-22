@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.x since Caudium 1.4.8
 --------------------------------------------
+- New option --with-pike-module in start-caudium allows to specify some more
+  Pike modules to load at start time.
+   (Bertrand LUPART)
 - Actually use Pike's Shuffler as default instead of Caudium's NBIO (backport
   from 1.5).
   Added --with-nbio for forcing NBIO usage instead fo Shuffler.
