@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- New option --with-pike-module in start-caudium allows to specify some more
+  Pike modules to load at start time.
+   (Bertrand LUPART)
 - Added randomization to cache and storage jobs to prevent surges.
     (Bill Welliver)
 - We now store cache item sizes, which should reduce fd usage and
