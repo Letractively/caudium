@@ -1,7 +1,7 @@
 #!@PIKE@ -M@CAUDIUM_SERVERDIR@etc/modules
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2004 The Caudium Group
+ * Copyright © 2000-2007 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,12 +66,12 @@ array(array(string | array(string))) arguments = ({
   ({"keepalive", Getopt.NO_ARG, ({"--keep-alive", "--with-keep-alive", "--enable-keep-alive"})}),
   ({"pike", Getopt.HAS_ARG, ({"--with-pike"})}),
   ({"once", Getopt.NO_ARG, ({"--once"})}),
-  ({"gdb", Getopt.MAY_HAVE_ARG, ({"--gdb"}), 0, "gdb"}),
+  ({"gdb", Getopt.MAY_HAVE_ARG, ({"--with-gdb", "--gdb"}), 0, "gdb"}),
   ({"program", Getopt.HAS_ARG, ({"--program"})}),
   ({"version", Getopt.NO_ARG, ({"--version"})}),
   ({"piketrace", Getopt.MAY_HAVE_ARG, ({ "--piketrace", "-t" })}),
   ({"help", Getopt.NO_ARG, ({"--help", "-?"})}),
-	({"pmod", Getopt.HAS_ARG, ({"--with-pike-module", "--pike-module", "--with-pmod", "--pmod", "-M"})}),
+	({"pmod", Getopt.HAS_ARG, ({"--with-pike-module", "--pike-module", "--with-pmod", "--pmod"})}),
 	({"nbio", Getopt.NO_ARG, ({ "--nbio", "--with-nbio" })}),
 });
 
