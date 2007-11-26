@@ -55,16 +55,16 @@ mixed page_0(object id, object conf) {
     mapping status = ((mapping)caudium->cache_manager->status())[namespace];
     ret += sprintf(
       "<tr>\n"
-      "<td bgcolor=\"#eeeeff\">%s</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
-      "<td bgcolor=\"#eeeeff\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%s</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
+      "<td bgcolor=\"#eeeeff\" align=\"right\">%d</td>"
       "</tr>\n",
       roxen_encode(namespace, "html"),
       status->total_object_count,
