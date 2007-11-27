@@ -1,7 +1,7 @@
 /* -*-Pike-*-
  *
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2007 The Caudium Group
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -154,6 +154,8 @@ string status()
 		"<ul><li>"+leak_ncount+" strings</li>"+
 		"<li>"+leak_scount+" bytes</li></ul></p>";
 
+    out += sprintf("<p>%s</p>", (string)sizeof(leaked));
+ 
 	return out;
 }
 
