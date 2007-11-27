@@ -425,7 +425,8 @@ class RXMLWrapper
 
     if(strlen(data))
     {
-      output( parse_rxml( data, mid ) );
+      if(mid)
+        output( parse_rxml( data, mid ) );
       data="";
     }
     ::done();
