@@ -425,8 +425,7 @@ class RXMLWrapper
 
     if(strlen(data))
     {
-      if(mid)
-        output( parse_rxml( data, mid ) );
+      output( parse_rxml( data, mid ) );
       data="";
     }
     ::done();
@@ -766,15 +765,15 @@ class CGIScript
 
     mid = id;
 
-#ifndef THREADS
-    if(id->misc->orig) // An <insert file=...> operation, and we have no threads.
+    // FIXME: is id->misc->orig sufficient for identifying an <insert file=...>
+    // operation?
+    // <insert file=...> should be blocking. Otherwise, I'm not sure why, but
+    // if you <insert file="foo.php"> and have RXML parsing enabled in
+    // uniscript, that will lock your server: parse_rxml() crashes because it
+    // doesn't get a RequestID object and the CGI script never finishes.
+    if(id->misc->orig) // An <insert file=...> operation
       blocking = 1;
-#else
-    if(id->misc->orig && this_thread() == caudium.backend_thread)
-      blocking = 1; 
-    // An <insert file=...> and we are 
-    // currently in the backend thread.
-#endif
+    
     if(!id->realfile)
     {
       id->realfile = id->conf->real_file( id->not_query, id );
