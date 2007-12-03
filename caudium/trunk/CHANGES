@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Error Log tab now only stores the most recent 250 items. This should 
+   prevent a source of constantly growing memory usage.
+   (Bill Welliver)
 - New option --with-pike-module in start-caudium allows to specify some more
   Pike modules to load at start time.
    (Bertrand LUPART)
