@@ -145,17 +145,16 @@ string fix_err(string s)
 int last_time;
 
 //!
-string describe_error(string err, array (int) times)
+string describe_error(int type, int time, string err)
 {
   int code, nt;
   array(string) codetext=({ "Notice:", "Warning:", "Error:" });
   
-  if(sizeof(times)==1 && times[0]/60==last_time) nt=1;
-  last_time=times[0]/60;
-  sscanf(err, "%d,%s", code, err);
-  return ("<table><tr><td valign=top><img src=/image/err_"+code+".gif \n"
-	  "alt="+codetext[code-1]+">"
-	  "</td><td>"+(nt?"":describe_times(times)+"<br>")+
+  if(times/60==last_time) nt=1;
+  last_time=times/60;
+  return ("<table><tr><td valign=top><img src=/image/err_" + type + ".gif \n"
+	  "alt="+codetext[type-1]+">"
+	  "</td><td>"+(nt?"":describe_times(({time}))+"<br>")+
 	  replace(fix_err(err),"\n","<br>\n")+"</table>");
 }
 
@@ -259,15 +258,18 @@ int reverse_report = 1;
 //!
 string describe_errors(object node)
 {
-  array report = indices(node->data), r2;
+  array report = allocate(sizeof(node->data));
 
+/*
   last_time=0;
   r2 = map(values(node->data),lambda(array a){
      return reverse_report?-a[-1]:a[0];
   });
   sort(r2,report);
-  for(int i=0;i<sizeof(report);i++) 
-     report[i] = describe_error(report[i], node->data[report[i]]);
+*/
+
+  for(int i=0;i<sizeof(node->data);i++) 
+     report[i] = describe_error(@node->data[i]);
   return "</dl>"+(sizeof(report)?(report*""):"Empty")+"<dl>";
 }
 
