@@ -150,8 +150,9 @@ string describe_error(int type, int time, string err)
   int code, nt;
   array(string) codetext=({ "Notice:", "Warning:", "Error:" });
   
-  if(times/60==last_time) nt=1;
-  last_time=times/60;
+  if(time/60==last_time) nt=1;
+  else nt = 0;
+  last_time=time/60;
   return ("<table><tr><td valign=top><img src=/image/err_" + type + ".gif \n"
 	  "alt="+codetext[type-1]+">"
 	  "</td><td>"+(nt?"":describe_times(({time}))+"<br>")+
@@ -258,18 +259,11 @@ int reverse_report = 1;
 //!
 string describe_errors(object node)
 {
-  array report = allocate(sizeof(node->data));
-
-/*
+  array report = values(node->data);
   last_time=0;
-  r2 = map(values(node->data),lambda(array a){
-     return reverse_report?-a[-1]:a[0];
-  });
-  sort(r2,report);
-*/
 
-  for(int i=0;i<sizeof(node->data);i++) 
-     report[i] = describe_error(@node->data[i]);
+  foreach(report;int i; array data) 
+   report[i] = describe_error(@data);
   return "</dl>"+(sizeof(report)?(report*""):"Empty")+"<dl>";
 }
 
