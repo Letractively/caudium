@@ -847,18 +847,16 @@ mixed configuration_parse(mixed ... args)
     return configuration_interface()->configuration_parse(@args);
 }
 
-mapping(string:array(int)) error_log=([]);
+ADT.History error_log = ADT.History(500);
 
 string last_error="";
 
 //! Write a string to the configuration interface error log and to stderr.
 void nwrite(string s, int|void perr, int|void type) {
   last_error = s;
-  if (!error_log[type+","+s]) {
-    error_log[type+","+s] = ({ time() });
-  } else {
-    error_log[type+","+s] += ({ time() });
-  }
+
+  error_log->push(({type, time(), s}));
+
   if(type>=1) roxen_perror(s);
 }
 
