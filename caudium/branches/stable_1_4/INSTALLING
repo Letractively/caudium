@@ -45,6 +45,32 @@ Optional Packages (recommended)
   PHP
     See http://caudium.net/server/docs/related/php4.rxml
 
+Tuning Notes
+++++++++++++
+
+Caudium is designed to operate with a minimum of dedicated resources. 
+However, as a non-forking webserver, there are some special considerations 
+you should keep in mind when deploying Caudium. 
+
+1. Most operating systems have a default limit of 256 file 
+descriptors per process. This low limit most commonly results in a "No 
+more file descriptors" error. This usually happens when you have many 
+virtual servers or experience a spike in traffic. Setting this value to 
+2048 or more usually provides better results.
+
+Unfortunately, every operating system has different limits and means for 
+altering these limits. On many modern operating systems, the system wide 
+limit is set sufficiently high that you can use the "ulimit" command 
+before starting Caudium to increase these limits. 
+
+Some useful links are provided below that may provide additional insight 
+into the file descriptor limit situation for your particular OS:
+
+Solaris: http://www.unixguide.net/sun/faq/3.48.shtml
+MacOS X: http://www.amug.org/~glguerin/howto/More-open-files.html
+Linux: http://bloggerdigest.blogspot.com/2006/10/file-descriptors-vs-linux-performance.html
+FreeBSD: http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/configtuning-kernel-limits.html
+
 ----------------------------------------------------------------------------
 
 Installing Caudium 1.4 from source:
