@@ -20,6 +20,24 @@ Pike is Copyright © to Fredrik Hübinette, 1994 - 2000
 This software is distributed under GPL, see the file COPYING for
 more details.
 
+Upgrading
+---------
+
+If you are upgrading from a previous release of Caudium, you are strongly
+encouraged to follow the following instructions in order to ensure the 
+upgrade process is completed smoothly.
+
+1. Read the release notes contained in the CHANGES file, noting any 
+   changes that may impact your installation, such as incompatible 
+   differences between versions. This file may also contain directions
+   for dealing with any upgrade issues that may not be handled 
+   automatically.
+
+2. Make a backup of your configuration and server directories. The 
+   installation process will make a backup of the server directory, but it 
+   will only keep the most recent backup copy.
+
+3. Delete the contents of your caudium_cache directory.
 
 Installing
 ----------
