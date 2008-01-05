@@ -616,11 +616,7 @@ class CGIScript
       stdin->close();
       stdin=0;
     }
-    return read_result();
-}
 
-object read_result()
-{
     // And then read the output.
     if(!blocking)
     {
