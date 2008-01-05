@@ -1,5 +1,11 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix CGI processing for POSTs when running under Shuffler.
+    (Bill Welliver)
+- Testing out a new cache expiration technique that doesn't involve
+    large amounts of I/O. This should reduce occurances of runaway
+    cache expiration as well as file descriptor shortages.
+    (Bill Welliver)
 - Error Log tab now only stores the most recent 250 items. This should 
    prevent a source of constantly growing memory usage.
    (Bill Welliver)
