@@ -56,6 +56,7 @@ void sendfile( string data, object tofd, function done )
     s = pipe->shuffle(tofd);
     s->set_done_callback(done);
     s->add_source(data);
+    s->start();
 #else
     object pipe = Caudium.nbio();
     pipe->write(data);
@@ -607,13 +608,19 @@ class CGIScript
 
     // Send input to script..
     if(tosend) 
-      sendfile(tosend, stdin, lambda(object pipe){ stdin=0; pipe=0;});
+    {
+      sendfile(tosend, stdin, lambda(object pipe){ stdin=0; pipe=0; });
+    }
     else
     {
       stdin->close();
       stdin=0;
     }
+    return read_result();
+}
 
+object read_result()
+{
     // And then read the output.
     if(!blocking)
     {
