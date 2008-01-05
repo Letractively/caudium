@@ -56,6 +56,7 @@ void sendfile( string data, object tofd, function done )
     s = pipe->shuffle(tofd);
     s->set_done_callback(done);
     s->add_source(data);
+    s->start();
 #else
    object pipe = Caudium.nbio();
    pipe->write(data);

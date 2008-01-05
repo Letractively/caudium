@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- Fix CGI handling of POST requests when running with Shuffler.
+    (Bill Welliver)
 - Fix redirects and other responses that don't return data when running in
   SSL mode.
     (Bill Welliver)
