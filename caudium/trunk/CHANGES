@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix XML encoding of strings in _Caudium.xml_encode_mapping and friends.
+    (Bill Welliver with Bertrand LUPART)
+- Add missing characters to HTML encoding list.
+    (Bill Welliver with Bertrand LUPART)
 - Fix CGI processing for POSTs when running under Shuffler.
     (Bill Welliver)
 - Testing out a new cache expiration technique that doesn't involve
