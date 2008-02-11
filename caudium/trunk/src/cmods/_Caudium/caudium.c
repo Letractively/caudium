@@ -106,10 +106,10 @@ static struct array    *html_mta_safe_entities;
 
 /* unsafe characters and entities for encode_mapping (used by make_tag_attributes)
  * used to generate tags and containers */
-const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\000"};
+const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\0"};
 const static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
-const static char            *html_unsafechars[] = { "\"" };
-const static char            *html_safeentities[] = { "&quot;" };
+const static char            *html_unsafechars[] = { "\"", "<", ">", "&" };
+const static char            *html_safeentities[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
 
 #define XML_UNSAFECHARS_SIZE sizeof(xml_unsafechars)/sizeof(char*)
 #define HTML_UNSAFECHARS_SIZE sizeof(html_unsafechars)/sizeof(char*)
@@ -2002,6 +2002,7 @@ static void f_getip(INT32 args)
 void pike_module_init( void )
 {
   unsigned   i;
+  struct pike_string * ps;
   
   STRS(data)       = make_shared_string("data");
   STRS(file)       = make_shared_string("file");
@@ -2024,7 +2025,11 @@ void pike_module_init( void )
   SVAL(mta_equals)->type = T_STRING;
 
   for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
-    push_text(xml_unsafechars[i]);
+  {
+    ps = make_shared_binary_string(xml_unsafechars[i], 1);
+    push_string(ps);
+    free_string(ps);
+  }
   xml_mta_unsafe_chars = aggregate_array(XML_UNSAFECHARS_SIZE);
 
   for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
@@ -2032,7 +2037,11 @@ void pike_module_init( void )
   xml_mta_safe_entities = aggregate_array(XML_UNSAFECHARS_SIZE);
 
   for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
-    push_text(html_unsafechars[i]);
+  {
+    ps = make_shared_binary_string(html_unsafechars[i], 1);
+    push_string(ps);
+    free_string(ps);
+  }
   html_mta_unsafe_chars = aggregate_array(HTML_UNSAFECHARS_SIZE);
 
   for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
