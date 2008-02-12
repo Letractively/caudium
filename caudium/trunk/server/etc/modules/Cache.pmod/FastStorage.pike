@@ -41,6 +41,7 @@ string namespace;
 mixed disk_cache;
 int ram_usage;
 int _hits, _misses;
+int in_expire;
 
 //! Initialise the cache, create the internal data structures that we need.
 //!
@@ -308,6 +309,11 @@ void expire_cache( void|int nocallout ) {
 #ifdef CACHE_DEBUG
   write( "RAM_CACHE::expire_cache() called.\n" );
 #endif
+  // only run one expiration at a time.
+  if(in_expire)
+    return;
+  in_expire = 1;
+
   foreach( indices( thecache ), string hash ) {
     if ( thecache[ hash ]->expires == -1 ) {
       continue;
@@ -323,6 +329,8 @@ void expire_cache( void|int nocallout ) {
   if ( ! nocallout ) {
     call_out( expire_cache, EXPIRE_CHECK );
   }
+
+  in_expire = 0;
 }
 
 //! Return the total number of hits against this cache.
