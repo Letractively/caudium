@@ -37,7 +37,7 @@ constant cvs_version = "$Id$";
 // we use the expiration check as a base starting point and add a randomization 
 // to prevent cache expiration getting stuck in lockstep.
 #define EXPIRE_DATA_SYNC 7200 
-#define EXPIRE_CHECK 300
+#define EXPIRE_CHECK 14400
 #define EXPIRE_RUN_LIMIT 5
 inherit "helpers";
 
@@ -46,10 +46,11 @@ int disk_usage;
 int _hits, _misses;
 object storage;
 mapping expiration_data;
+int in_sync, in_expire;
 
 int get_expire_check()
 {
-  return EXPIRE_CHECK + random(EXPIRE_CHECK/10);
+  return (EXPIRE_CHECK/10) + random(EXPIRE_CHECK);
 }
 
 int get_expire_data_sync()
@@ -279,6 +280,14 @@ void expire_cache( void|int nocallout ) {
   write( "DISK_CACHE::expire_cache() called.\n" );
 #endif
 
+  if(in_expire)
+  {
+    return;
+  }
+  else 
+  {
+    in_expire = 1;
+  }
   int starttime = time();
 
   foreach(expiration_data; string hash; mixed expires) {
@@ -312,6 +321,7 @@ void expire_cache( void|int nocallout ) {
   if ( ! nocallout ) {
     call_out( expire_cache, get_expire_check() );
   }
+  in_expire = 0;
 }
 
 void store_expiration()
@@ -321,6 +331,9 @@ void store_expiration()
 
 void expire_data_sync()
 {
+  if(in_sync) return;
+
+  in_sync = 1;
 	array x = indices(expiration_data);
 	array y = storage->list();
 	array z = allocate(sizeof(y));
@@ -340,6 +353,7 @@ void expire_data_sync()
 
 	
 	call_out(expire_data_sync, get_expire_data_sync());
+   in_sync = 0;
 }
 
 //! Return the total number of hits against this cache.
