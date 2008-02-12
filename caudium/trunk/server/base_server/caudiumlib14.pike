@@ -68,6 +68,7 @@ static string parse_rxml(string what, object id,
 {
   if (!id)
     error("No id passed to parse_rxml\n");
+    // TODO: and you server is locked
 
   if (!defines) {
     defines = id->misc->defines||([]);
