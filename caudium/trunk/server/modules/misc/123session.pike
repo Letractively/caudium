@@ -485,7 +485,7 @@ void sessionid_set_cookie(object id, string SessionID) {
 // to guarantee that www.domain.com and domain.com have the same session id
   if(QUERY(domaincookies)) 
     if (!(Regexp("^[0-9.]+$")->match((string)id->misc->host)))
-      Cookie += ";domain=."+(((string)id->misc->host / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
+      Cookie += "; domain=."+(((((string)id->misc->host/":")[0]) / ".")[(sizeof((string)id->misc->host / ".")-2)..]) * ".";
 // cd34, 10/4/2001, set cookie expiration based on info in the config interface
   if (query ("cookieexpire") > 0)
     Cookie += "; Expires=" + Caudium.HTTP.date(time()+query("cookieexpire")) +";";
