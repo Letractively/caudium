@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix for using domain cookies with 123session and ports that are non-
+   standard (ie other than 80 and 443).
+   (Bill Welliver)
 - Fix XML encoding of strings in _Caudium.xml_encode_mapping and friends.
     (Bill Welliver with Bertrand LUPART)
 - Add missing characters to HTML encoding list.
