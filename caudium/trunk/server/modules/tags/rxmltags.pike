@@ -937,7 +937,7 @@ string tag_echo(string tag,mapping m,object id,object file,
       
    case "server_name":
     string tmp;
-    tmp=id->conf->query("MyWorldLocation");
+    tmp=id->get_canonical_url();
     sscanf(tmp, "%*s//%s", tmp);
     sscanf(tmp, "%s:", tmp);
     sscanf(tmp, "%s/", tmp);

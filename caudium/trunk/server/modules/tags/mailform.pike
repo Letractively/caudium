@@ -230,7 +230,7 @@ string simpletag_mailform( string tag, mapping m,string cont, object got)
 	}
 
 
-        pagename=got->conf->query("MyWorldLocation");
+        pagename=got->get_canonical_url();
         sscanf(pagename,"http://%s/",pagename);
         pagename="http://"+pagename+got->not_query;
         if(m->help )

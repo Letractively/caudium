@@ -426,7 +426,7 @@ string get_host_url(object id)
     else
       url=prot+id->misc->host;
   } else {
-    url = id->conf->query("MyWorldLocation");
+    url = id->get_canonical_url();
     url = url[..strlen(url)-2];
   }
   return lower_case(id->misc->_host_url = url);
@@ -454,7 +454,7 @@ mixed first_try(object id)
 
   if(!to)  return 0;
 
-  url = id->conf->query("MyWorldLocation");
+  url = id->get_canonical_url();
   url = url[..strlen(url)-2];
   hurl = get_host_url(id);
   

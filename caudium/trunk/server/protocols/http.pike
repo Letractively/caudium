@@ -120,7 +120,7 @@ private int really_set_config(array mod_config)
 {
   string url, m;
   string base;
-  base = conf->query("MyWorldLocation")||"/";
+  base = get_canonical_url()||"/";
   if(supports->cookies)
   {
 #ifdef REQUEST_DEBUG

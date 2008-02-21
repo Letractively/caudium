@@ -143,7 +143,7 @@ mapping|int handle_error(object id, void|mapping extra_heads)
       error_text=replace(parse_rxml(QUERY(404msg), id),
                         ({"$File", "$Me"}),
                         ({_Roxen.html_encode_string(id->not_query),
-                          id->conf->query("MyWorldLocation") }) );
+                          id->get_canonical_url() }) );
       return Caudium.HTTP.low_answer(error_code, error_text);
   }
   else if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
@@ -153,7 +153,7 @@ mapping|int handle_error(object id, void|mapping extra_heads)
                 replace(parse_rxml(QUERY(404msg), id),
                         ({"$File", "$Me"}),
                         ({_Roxen.html_encode_string(id->not_query),
-                          id->conf->query("MyWorldLocation") }) ));
+                          id->get_canonical_url() }) ));
     }) {
         if(mixed __eRr = catch(id->internal_error(err)))
           report_error("Internal server error: "+describe_backtrace(err)+

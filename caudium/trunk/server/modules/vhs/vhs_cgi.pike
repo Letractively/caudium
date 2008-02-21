@@ -749,7 +749,7 @@ class CGIScript
     }
     else
     {
-       global_env["SERVER_URL"] = id->conf->query("MyWorldLocation");
+       global_env["SERVER_URL"] = id->get_canonical_url();
        global_env["SERVER_NAME"] = "undefined";
     }
 
@@ -807,14 +807,14 @@ void start(int n, object conf)
   module_dependencies(conf, ({ "pathinfo" }));
   if(conf)
   {
-    string tmp=conf->query("MyWorldLocation");
+    string tmp=get_canonical_url();
     sscanf(tmp, "%*s//%s", tmp);
     sscanf(tmp, "%s:", tmp);
     sscanf(tmp, "%s/", tmp);
     global_env["SERVER_SOFTWARE"] = caudium.version();
     global_env["GATEWAY_INTERFACE"] = "CGI/1.1";
     global_env["SERVER_PROTOCOL"] = "HTTP/1.0";
-    // global_env["SERVER_URL"] = conf->query("MyWorldLocation");
+    // global_env["SERVER_URL"] = get_canonical_url();
 
     array us = ({0,0});
     foreach(query("extra_env")/"\n", tmp)

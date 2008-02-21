@@ -108,7 +108,7 @@ string tag_compat_exec(string tag,mapping m,object id,object file,
   if(m->cmd) {
     if(QUERY(exec)) {
       string tmp;
-      tmp=id->conf->query("MyWorldLocation");
+      tmp=id->get_canonical_url();
       sscanf(tmp, "%*s//%s", tmp);
       sscanf(tmp, "%s:", tmp);
       sscanf(tmp, "%s/", tmp);

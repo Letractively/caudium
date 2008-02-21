@@ -192,7 +192,7 @@ mixed not_allowed(string f, object id)
 				    replace(parse_rxml(query("authpage"), id),
 					    ({"$File", "$Me"}), 
 					    ({id->not_query,
-					      id->conf->query("MyWorldLocation")})));
+					      id->get_canonical_url()})));
 
 	   } else {
 	     return http_auth_failed("user");
@@ -212,7 +212,7 @@ mixed not_allowed(string f, object id)
 			     replace(parse_rxml(query("authpage"), id),
 				     ({"$File", "$Me"}), 
 				     ({id->not_query,
-				       id->conf->query("MyWorldLocation")})));
+				       id->get_canonical_url()})));
     } else {
       return http_auth_failed("user");
     }
