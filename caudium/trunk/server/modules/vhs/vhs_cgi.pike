@@ -807,10 +807,6 @@ void start(int n, object conf)
   module_dependencies(conf, ({ "pathinfo" }));
   if(conf)
   {
-    string tmp=get_canonical_url();
-    sscanf(tmp, "%*s//%s", tmp);
-    sscanf(tmp, "%s:", tmp);
-    sscanf(tmp, "%s/", tmp);
     global_env["SERVER_SOFTWARE"] = caudium.version();
     global_env["GATEWAY_INTERFACE"] = "CGI/1.1";
     global_env["SERVER_PROTOCOL"] = "HTTP/1.0";
