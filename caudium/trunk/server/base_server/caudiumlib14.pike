@@ -446,7 +446,7 @@ private int compare( string a, string b ) // what a mess!
 //!       mapping nmap = ([]);
 //!
 //!       nmap->url = sprintf("%s(showpart)/?name=%d",
-//!                         id->conf->query("MyWorldLocation"),
+//!                         id->get_canonical_url(),
 //!                         i);
 //!       nmap->name = sprintf("Part %d", i++);
 //!       rep += ({nmap});

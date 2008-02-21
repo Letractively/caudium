@@ -289,6 +289,13 @@ int|mapping get_user()
   else return 0;
 } 
 
+//! returns the canonical url for this request. the default implementation
+//! simply returns the server url specified for the virtual server handling
+//! this request.
+string get_canonical_url()
+{
+  return conf->query("MyWorldLocation");
+}
 
 //! Get the base portion of a URL
 //! Returned string will end in "/" or will be "" if no base could
@@ -296,7 +303,7 @@ int|mapping get_user()
 string url_base()
 {
   string base;
-  base=conf->query("MyWorldLocation");
+  base=get_canonical_url();
   if(!base)
     base="";
   else if(base[sizeof(base)-1..]!="/")

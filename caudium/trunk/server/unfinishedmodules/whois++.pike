@@ -29,7 +29,7 @@ inherit "caudiumlib";
 
 //import Array;
 
-//#define MY_URL (id->conf->query("MyWorldLocation") + QUERY(mountpoint))
+//#define MY_URL (id->get_canonical_url() + QUERY(mountpoint))
 
 int request_counter=0;
 array hosts;

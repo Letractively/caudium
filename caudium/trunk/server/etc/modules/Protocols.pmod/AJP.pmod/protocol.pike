@@ -214,7 +214,7 @@ string packet_forward_request(object id)
   }
 
 
-  server_name=id->conf->query("MyWorldLocation");
+  server_name=id->get_canonical_url();
   sscanf(server_name, "%*s//%s", server_name);
   sscanf(server_name, "%s:", server_name);
   sscanf(server_name, "%s/", server_name);

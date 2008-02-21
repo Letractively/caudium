@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Added RequestID()->get_canonical_url(), which should be used
+    by any code attempting to determine the "official" url of the 
+    current virtual server.
+    (Bill Welliver)
 - Fix for using domain cookies with 123session and ports that are non-
    standard (ie other than 80 and 443).
    (Bill Welliver)

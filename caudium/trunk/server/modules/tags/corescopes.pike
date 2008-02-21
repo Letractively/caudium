@@ -367,12 +367,12 @@ class CaudiumScope {
      case "server":
       //! entity: server
       //!  The user-configured URL for the current server.
-      ret = id->conf->query("MyWorldLocation");
+      ret = id->get_canonical_url();
       break;
      case "domain":
       //! entity: domain
       //!  The hostname of the current server (i.e. the URL without http:// etc).
-      tmp = id->conf->query("MyWorldLocation");
+      tmp = id->get_canonical_url();
       sscanf(tmp, "%*s//%s", tmp);
       sscanf(tmp, "%s:", tmp);
       sscanf(tmp, "%s/", tmp);

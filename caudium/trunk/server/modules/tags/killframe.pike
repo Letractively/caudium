@@ -88,7 +88,7 @@ string tag_killframe( string tag, mapping m, object id )
   // Some versions of IE will choke on :80. (Reload and repeat..)
   string tmp;
   string prestate;
-  string my_url = id->conf->query("MyWorldLocation");
+  string my_url = id->get_canonical_url();
 
   //Get the prestates in correct order. id->prestates is sorted.
   if( sscanf(id->raw_url, "/(%s)", tmp) )

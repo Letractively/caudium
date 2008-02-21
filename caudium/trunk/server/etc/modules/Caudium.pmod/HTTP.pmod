@@ -503,6 +503,8 @@ mapping redirect( string url, object|void id )
     if(id)
     {
       url = Caudium.add_pre_state(url, id->prestate);
+/*
+  // this algorithm breaks reverse proxies.
       if(id->request_headers->host) {
 	string p = ":80", prot = "http://";
 	array h;
@@ -516,9 +518,11 @@ mapping redirect( string url, object|void id )
 	  // Remove redundant port number.
 	  url=prot+h[0]+url;
 	else
-	  url=prot+id->request_headers->host+url;
+	  url=prot+id->request_headers->host
+        url = id->get_canonical_url() + url;
       } else
-	url = id->conf->query("MyWorldLocation") + url[1..];
+*/  
+	url = id->get_canonical_url() + url[1..];
     }
   }
 #ifdef HTTP_DEBUG
