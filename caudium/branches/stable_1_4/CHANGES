@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- Fix handling of invalid date strings in Caudium.is_modified() and 
+  friends on systems with threadsafe strptime() (like Linux.) Should fix  
+  some fatal errors.
+    (Bill Welliver)
 - Fix XML encoding of strings in _Caudium.xml_encode_mapping and friends.
     (Bill Welliver with Bertrand LUPART)
 - Add missing characters to HTML encoding list.
