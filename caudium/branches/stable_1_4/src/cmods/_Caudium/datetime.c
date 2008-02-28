@@ -456,7 +456,7 @@ static void f_is_modified(INT32 args)
   pop_n_elems(args);
   
   if (!is_modified_formats[i].fmt) {
-    ref_push_string(gd_bad_format);
+    push_int(-1);
     return;
   }
 
@@ -468,17 +468,14 @@ static void f_is_modified(INT32 args)
   }
 
   ret = mktime(&ttm);
-  if (ret >= 0)
-    ref_push_string(gd_bad_format);  
 #else /* HAVE_STRPTIME */
   ret = get_date(header->str, NULL);
   pop_n_elems(args);
-
-  if (ret < 0)
-    ref_push_string(gd_bad_format);
 #endif /* HAVE_STRPTIME */
 
-  if (tmod > ret)
+  if (ret < 0)
+    push_int(-1);
+  else if (tmod > ret)
     push_int(0);
   else
     push_int(1);
