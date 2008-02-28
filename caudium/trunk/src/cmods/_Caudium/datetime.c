@@ -261,7 +261,7 @@ static void f_strptime(INT32 args)
 #ifdef HAVE_STRFTIME
 static void f_strftime(INT32 args) {
   time_t now;
-  INT_TYPE timestamp = NULL;
+  INT_TYPE timestamp = 0;
   struct pike_string *ret;
   struct pike_string *format;
   /* FIXME:  Use dynamic loading... */
@@ -446,18 +446,19 @@ static void f_is_modified(INT32 args)
 #ifdef HAVE_STRPTIME
   i = 0;
   while(is_modified_formats[i].fmt) {
-/*    char      *tmp; */
     
     if (!is_modified_formats[i].is_anal || use_weird)
       if (strptime(header->str, is_modified_formats[i].fmt, &ttm))
+      {
         break;
+      }
     
     i++;
   }
   pop_n_elems(args);
   
   if (!is_modified_formats[i].fmt) {
-    ref_push_string(gd_bad_format);
+     push_int(-1); /* let's err on the side of caution: we return a detectable yes if the format is invalid */
     return;
   }
 
@@ -469,15 +470,17 @@ static void f_is_modified(INT32 args)
   }
 
   ret = mktime(&ttm);
-  if (ret >= 0)
-    ref_push_string(gd_bad_format);  
+
 #else /* HAVE_STRPTIME */
   ret = get_date(header->str, NULL);
   pop_n_elems(args);
+#endif /* HAVE_STRPTIME */
 
   if (ret < 0)
-    ref_push_string(gd_bad_format);
-#endif /* HAVE_STRPTIME */
+  {
+    push_int(-1);
+    return;
+  }
 
   if (tmod > ret)
     push_int(0);
