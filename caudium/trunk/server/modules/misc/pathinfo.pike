@@ -89,6 +89,22 @@ mapping|int first_try(object id)
 	// Found a file!
 	id->misc->path_info = saved_query[offsets[probe]..];
 	id->not_query = file;
+
+	multiset pi_empty_variables = (< >);
+	mapping pi_variables = ([ ]);
+
+
+	if(sizeof(id->misc->path_info)>0)
+	{
+		string path_info = replace(id->misc->path_info,"/","&")[1..];
+		Caudium.parse_query_string(path_info, pi_variables, pi_empty_variables);
+    foreach(indices(pi_empty_variables), string varname)
+      pi_variables[varname] = "";
+	}
+
+	id->misc->path_info_variables = pi_variables; 
+	id->misc->path_info_empty_variables = pi_empty_variables;
+
 #ifdef PATHINFO_DEBUG
 	roxen_perror(sprintf("PATHINFO: Found: %O:%O\n",
 			     id->not_query, id->misc->path_info));
