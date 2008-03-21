@@ -1,5 +1,13 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- PATH_INFO how allows to pass variables into URL like:
+  http://domain.tld/file.html/foo=bar/baz=gazonk
+  Those are stored into id->misc->path_info_variables and
+  id->misc->path_info_variables id->misc->path_info_empty_variables
+  (Bertrand LUPART)
+- Added CAUDIUM_SITE_ID environment variables for being able to get it from
+  external scripts.
+  (Bertrand LUPART)
 - Fix handling of invalid date strings in Caudium.is_modified() and 
   friends on systems with threadsafe strptime() (like Linux.) Should fix  
   some fatal errors.
