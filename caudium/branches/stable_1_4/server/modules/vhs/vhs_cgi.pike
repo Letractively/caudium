@@ -947,7 +947,9 @@ void create(object conf)
 	 "<dd>The all applicable 'supports' vars.</dd>"
 	 "<dt><b>COOKIES, VARIABLES, PRESTATES, SUPPORTS</b></dt>"
 	 "<dd>Space-separated lists of all COOKIE_, VAR_, PRESTATE_ and "
-	 "SUPPORTS_ variables set. </dd></dl>"
+	 "SUPPORTS_ variables set. </dd>"
+   "<dt><b>CAUDIUM_SITE_ID</b></dt>"
+   "<dd>The Caudium site_id.</dd></dl>"
 	 "<p>Sometimes this breaks scripts and you might want to disable "
 	 "this option.</p>");
 	 
