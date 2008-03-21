@@ -2,22 +2,23 @@
 #
 # Changelog for the Caudium 1.4 fink packages.
 # See http://fink.sf.net/ for more informations.
+#
+# http://bertrand.gotpike.org/ may contain usefull informations too.
+
+** 2008/02/29 - Caudium 1.4.12 - caudium1.4-1.4.12-6
+- The password for the CIF is asked at installation/upgrade only if not already
+  set.
+- Dependencies fixes.
+- Fixed an error on Ultralog.so path
 
 
-*
 ** 2006/01/02 - Caudium 1.4.6 - caudium1.4-1.4.6-3
-*
 - Caudium 1.4.6, compiling against Pike 7.6.58
 
-*
 ** 2004/11/10 - Caudium 1.4.4 RC2 - caudium1.4-1.4.4-2
-*
 - Correction of a bug in caudiumctl alternatives.
 - Patch that correct the real version of Caudium which declares itself as RC1
   instead of RC2.
 
-
-*
 ** 2004/10/28 - Caudium 1.4.4 RC2 - caudium1.4-1.4.4-1
-*
 - Initial package release.
