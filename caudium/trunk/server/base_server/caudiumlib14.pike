@@ -67,8 +67,10 @@ static string parse_rxml(string what, object id,
                          void|object file, void|mapping defines)
 {
   if (!id)
-    error("No id passed to parse_rxml\n");
-    // TODO: and you server is locked
+  {
+    werror("No id passed to parse_rxml\n");
+    return "";
+  }
 
   if (!defines) {
     defines = id->misc->defines||([]);
