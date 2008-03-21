@@ -205,12 +205,13 @@ mapping build_vars(string f, object id, string path_info) {
 
   if(id->ssl_accept_callback)
     new["HTTPS"]="on";
-    
+
   return new;
 }
 
 //!  Build a mapping of the Caudium extended environment variables. These
-//!  include COOKIE_[cookiename], VAR_[variablename], SUPPORTS and PRESTATES.
+//!  include COOKIE_[cookiename], VAR_[variablename], SUPPORTS, PRESTATES and
+//!  CAUDIUM_SITE_ID.
 //!  When programming CGI, using these variables can be rather handy. 
 //! @param id
 //!  The request id object.
@@ -276,6 +277,9 @@ mapping build_caudium_vars(object id) {
     else
       new["SUPPORTS"] = tmp;
   }
+
+  new["CAUDIUM_SITE_ID"] = id->site_id;
+
   return new;
 }
 
