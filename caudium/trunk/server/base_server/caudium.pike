@@ -653,6 +653,7 @@ void stop_handler_threads()
   while (thread_reap_cnt) {
     if (--timeout<=0) {
       report_warning("Giving up waiting on threads!\n");
+			// TODO: describe threads here. SIGTRAP?
       return;
     }
     sleep(1);
