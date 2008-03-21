@@ -1,5 +1,9 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- Using <insert file="foo.php"> and setting up Uniscript to parse RXML in PHP's
+  result won't freeze your server anymore.
+  This feature should be still discussed.
+  (Bertrand LUPART)
 - PATH_INFO how allows to pass variables into URL like:
   http://domain.tld/file.html/foo=bar/baz=gazonk
   Those are stored into id->misc->path_info_variables and
