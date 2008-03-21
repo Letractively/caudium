@@ -426,7 +426,14 @@ class RXMLWrapper
 
     if(strlen(data))
     {
-      output( parse_rxml( data, mid ) );
+      if(mid)
+        output( parse_rxml( data, mid ) );
+      else
+      {
+        werror("CGI:RXMLWrapper: no mid object, no RXML parsing\n");
+        output(data);
+      }
+    
       data="";
     }
     ::done();
