@@ -67,10 +67,7 @@ static string parse_rxml(string what, object id,
                          void|object file, void|mapping defines)
 {
   if (!id)
-  {
-    werror("No id passed to parse_rxml\n");
-    return "";
-  }
+    error("No id passed to parse_rxml\n");
 
   if (!defines) {
     defines = id->misc->defines||([]);
