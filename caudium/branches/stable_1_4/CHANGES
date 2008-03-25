@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- Avoid a backtrace when <cimg> is called without src atrribute.
+  (Bertrand LUPART)
 - Using <insert file="foo.php"> and setting up Uniscript to parse RXML in PHP's
   result won't freeze your server anymore.
   This feature should be still discussed.
