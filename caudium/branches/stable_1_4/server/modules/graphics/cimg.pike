@@ -52,6 +52,13 @@ mapping find_internal( string f, object id )
 
 string tag_cimg( string t, mapping args, object id )
 {
+  // src="" is mandatory. If missing, just output an empty string
+  if(!args->src)
+  {
+    werror("%O: %O: Missing src attribute in cimg\n", id->site_id, id->not_query);
+    return "";
+  }
+
 	string orig_src = args->src;
 
   mapping a = 
