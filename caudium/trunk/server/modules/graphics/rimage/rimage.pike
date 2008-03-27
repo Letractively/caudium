@@ -44,7 +44,32 @@ void start()
 {
   Stdio.mkdirhier(query("cache-dir")+"foo");
 }
+
+string status()
+{
+	string out = "";
+
+	out += "<h3>Available plugins:</h3>";
+	out += "<table>";
+	foreach(available_plugins(), string name)
+	{
+		out += sprintf("<tr><td>%s</td></tr>", name);
+	}
+	out += "</table>";
+
+	out += "<h3>Currently active plugins:</h3>";
+	out += "<table>";
+	foreach(plugins; string name; mixed fun)
+	{
+		out += sprintf("<tr><td>%s</td></tr>", name);
+	}
+	out += "</table>";
+
+	return out;
+}
+
 #endif // __VERSION__ > 0.5
+
 
 #if __VERSION__ > 0.5
 /*  --------------------------------------- RENDERING FUNCTIONS */
@@ -58,7 +83,7 @@ mapping layer_ops = ([
   "diff":    5,
 ]);
 
-constant plugin_dir = combine_path(__FILE__, "./plugins/");
+constant plugin_dir = combine_path(__FILE__, "../plugins/");
 
 mapping plugins = ([]);
 
