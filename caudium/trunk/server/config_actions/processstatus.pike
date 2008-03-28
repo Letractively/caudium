@@ -101,6 +101,15 @@ mixed page_0(object id, object conf)
          out += "Nb of preemptions         : " + ru->nivcsw + "\n";
 
   out += "</pre>";
+
+	out += "<h1>Raw information:</h1>"
+	out += "<table>";
+	foreach(ru; string i; mixed v)
+	{
+		out += sprintf("<tr><td>%s</td><td align='right'>%s</td></tr>", i, (string)v);
+	}
+	out += "</table>";
+
   return out;
 }
 
