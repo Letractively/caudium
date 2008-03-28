@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed some rimage plugins with wrong Colors.parse_color() calls.
+  (Bertrand LUPART)
+- Fixed a bug in rimage.pike than prevented plugins to be loaded.
+  Available modules and currently loaded modules are now shown in module status.
+  (Bertrand LUPART)
 - Avoid a backtrace when <cimg> is called without src atrribute.
   (Bertrand LUPART)
 - Using <insert file="foo.php"> and setting up Uniscript to parse RXML in PHP's
