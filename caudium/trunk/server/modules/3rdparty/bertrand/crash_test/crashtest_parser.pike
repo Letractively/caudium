@@ -3,13 +3,20 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version = "$Id";
+constant cvs_version = "$Id$";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Crash Test: RXML parser";
 
-constant module_doc = "Try to get your caudium crashed with the following: <br>"
-  "&lt;a href='mailto:&amp;crash_test.encoded_email:none;'&gt;foo&lt;/a&gt;";
+constant module_doc =
+	"<p>Crash your Caudium server putting an unencoded entity "
+	"(&amp;crashtest_parser.encoded_email:none;) in an HTML attribute that "
+ 	"will be RXML-parsed, like:</p>"
+  "<p>&lt;a href='mailto:&amp;crashtest_parser.encoded_email:none;'&gt;foo&lt;/a&gt;</p>"
+	"<p>Your server will crash, and the page won't be displayed. If enabled, the "
+	"watchdog should restart your server immediately.</p>"
+	"<p><strong>Warning</strong>: this module is intended for educational "
+  "purpose only, eg for monitoring systems testing.</p>";
 
 constant module_unique = 1;
 constant thread_safe = 1;
@@ -34,7 +41,7 @@ array(object) query_scopes()
 class CrashTestScope
 {
 	inherit "scope";
-	string name = "crash_test";
+	string name = "crashtest_parser";
 
 	string ret = "";
 
@@ -43,9 +50,12 @@ class CrashTestScope
     switch(entity)
     {
       case "encoded_email":
+				// Real encoded email can be obtained this way:
 				// > Public.Standards.XML.encode_numeric_entity("foo@domain.tld");
         // (1) Result: "&#102;&#111;&#111;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#116;&#108;&#100;"
-				ret = "&#102;&#111;&#111;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#116;&#108;&#100;";
+				werror("Crash Test: RXML parser: CrashTestScope()->get(encoded_email)\n");
+				// if encoding is ":none", Pike's Parser.HTML() will crash
+				ret = "&gt;";
 				break;
 
 			default:
