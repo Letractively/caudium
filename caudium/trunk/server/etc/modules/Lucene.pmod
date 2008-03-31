@@ -25,6 +25,7 @@
 //!
 string cvs_version = "$Id$";
 
+#if constant(Java.machine)
 //!
 static constant jvm = Java.machine;
 
@@ -542,5 +543,5 @@ array(mapping) search(string q)
 
 
 #endif
-
+#endif
 
