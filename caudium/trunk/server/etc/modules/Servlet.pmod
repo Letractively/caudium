@@ -21,12 +21,13 @@
  * $Id$
  */
 
-//! Java Servelet interface for Caudium
+//! Java Servlet interface for Caudium
 //! @fixme
 //!   Not documented.
 
-static constant jvm = Java.machine;
 #if constant(Java.machine)
+
+static constant jvm = Java.machine;
 
 #define FINDCLASS(X) (jvm->find_class(X)||(jvm->exception_describe(),jvm->exception_clear(),error("Failed to load class " X ".\n"),0))
 
