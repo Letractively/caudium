@@ -18,33 +18,13 @@
  *
  */
 
-//
-//! module: Filesystem
-//!  This is a virtual filesystem, use it to make files available to
-//!  the users of your WWW-server. If you want to serve any 'normal'
-//!  files from your server, you will have to have at least one filesystem.
-//!  A file system mounted on '/' is what other servers generally call
-//!  <b>DOCUMENT ROOT</b>. The whole concept is somewhat different in
-//!  Caudium however, since you can have any number of file systems mounted in
-//!  different locations.
-//! inherits: module
-//! inherits: caudiumlib
-//! inherits: socket
-//! type: MODULE_LOCATION
-//! cvs_version: $Id$
-//
+#include <module.h>
+#include <caudium.h>
+#include <stat.h>
 
 inherit "module";
 inherit "caudiumlib";
 inherit "socket";
-
-constant cvs_version= "$Id$";
-constant thread_safe=1;
-
-
-#include <module.h>
-#include <caudium.h>
-#include <stat.h>
 
 constant module_type = MODULE_LOCATION|MODULE_EXPERIMENTAL;
 constant module_name = "Filesystem v2";
@@ -56,6 +36,9 @@ constant module_doc  = "This is a virtual filesystem, use it to make files avail
 "Caudium however, since you can have any number of file systems mounted in "
 "different locations. ";
 constant module_unique = 0;
+constant cvs_version= "$Id$";
+constant thread_safe=1;
+
 
 #if DEBUG_LEVEL > 20
 # ifndef FILESYSTEM_DEBUG
@@ -63,11 +46,13 @@ constant module_unique = 0;
 # endif
 #endif
 
-// import Array;
+#define FILE_SIZE(X) (Stdio.file_size(X))
 
 #define TRACE_ENTER(A,B) do{if(id->misc->trace_enter)id->misc->trace_enter((A),(B));}while(0)
 #define TRACE_LEAVE(A) do{if(id->misc->trace_leave)id->misc->trace_leave((A));}while(0)
 
+
+// Global variables
 
 int redirects, accesses, errors, dirlists;
 int puts, deletes, mkdirs, moves, chmods, appes;
@@ -75,28 +60,34 @@ string path;
 int dirperm, fileperm, default_umask;
 static int do_stat = 1;
 
+mapping putting = ([]);
+
+
 
 /*****************************************************************************
  * Caudium API
  *****************************************************************************/
 
-string status()
+void start()
 {
-  return ("<h2>Accesses to this filesystem</h2>"+
-	  (redirects?"<b>Redirects</b>: "+redirects+"<br>":"")+
-	  (accesses?"<b>Normal files</b>: "+accesses+"<br>"
-	   :"No file accesses<br>")+
-	  (QUERY(put)&&puts?"<b>Puts</b>: "+puts+"<br>":"")+
-	  (QUERY(put)&&QUERY(appe)&&appes?"<b>Appends</b>: "+appes+"<br>":"")+
-	  (QUERY(method_mkdir)&&mkdirs?"<b>Mkdirs</b>: "+mkdirs+"<br>":"")+
-	  (QUERY(method_mv)&&moves?
-	   "<b>Moved files</b>: "+moves+"<br>":"")+
-	  (QUERY(method_chmod)&&chmods?"<b>CHMODs</b>: "+chmods+"<br>":"")+
-	  (QUERY(delete)&&deletes?"<b>Deletes</b>: "+deletes+"<br>":"")+
-	  (errors?"<b>Permission denied</b>: "+errors
-	   +" (not counting .htaccess)<br>":"")+
-	  (dirlists?"<b>Directories</b>:"+dirlists+"<br>":""));
+#ifdef THREADS
+  if(QUERY(access_as_user))
+    report_warning("When running in threaded mode,  'Access as user' will only "
+		   "be used for requests that do some kind of modification. "
+		   "If you want reading to be done as the user as well, you "
+		   "need to run with threads disabled.");
+#endif
+  sscanf(QUERY(dirperm),  "%o", dirperm);
+  sscanf(QUERY(fileperm), "%o", fileperm);
+  sscanf(QUERY(umask),    "%o", default_umask);
+  
+  path = QUERY(searchpath);
+#ifdef FILESYSTEM_DEBUG
+  perror("FILESYSTEM: Online at "+QUERY(mountpoint)+" (path="+path+")\n");
+#endif
 }
+
+
 
 void create()
 {
@@ -113,10 +104,12 @@ void create()
 	 TYPE_STRING, "This is the default mode, specified as an octal "
 	 "integer, for uploaded files. The default or specified umask "
 	 "will modify the actual permission of uploaded files.");
+  
   defvar("dirperm", "0777", "Permissions: Default for created directories",
 	 TYPE_STRING, "This is the default mode, specified in octal "
 	 "integer, for created files. The default or specified umask "
 	 "will modify the actual permission of uploaded files.");
+  
   defvar("umask", "022", "Permissions: Default umask",
 	 TYPE_STRING, "This is the default umask for creating files and is "
 	 "used as a modified for the default file and directory "
@@ -148,21 +141,27 @@ void create()
   defvar("put", 0, "Allowed Access Methods: PUT", TYPE_FLAG,
 	 "If set, allow use of the PUT method, which is used for file "
 	 "uploads. ");
+  
   defvar("appe", 0, "Allowed Access Methods: APPE", TYPE_FLAG,
          "If set and if PUT method too, APPEND method can be used on "
          "file uploads.");
+  
   defvar("delete", 0, "Allowed Access Methods: DELETE", TYPE_FLAG,
 	 "If set, allow use of the DELETE method, which is used for file "
 	 "deletion.");
+  
   defvar("copy", 0, "Allowed Access Methods: COPY", TYPE_FLAG,
 	 "If set, allow use of the COPY method, which is used for file "
 	 "copy by WebDAV.");
+  
   defvar("method_mkdir", 0, "Allowed Access Methods: MKDIR", TYPE_FLAG,
 	 "If set, allow use of the MKDIR method, enabling the ability to "
 	 "the create new directories.");
+  
   defvar("method_mv", 0, "Allowed Access Methods: MV", TYPE_FLAG,
 	 "If set, allow use of the MV method, which is used for renaming "
 	 "files and directories.");
+  
   defvar("method_chmod", 0, "Allowed Access Methods: CHMOD", TYPE_FLAG,
 	 "If set, allow use of the CHMOD command, which is used to change "
 	 "file permissions.");
@@ -195,64 +194,35 @@ void create()
 }
 
 
-void start()
+string status()
 {
-#ifdef THREADS
-  if(QUERY(access_as_user))
-    report_warning("When running in threaded mode,  'Access as user' will only "
-		   "be used for requests that do some kind of modification. "
-		   "If you want reading to be done as the user as well, you "
-		   "need to run with threads disabled.");
-#endif
-  sscanf(QUERY(dirperm),  "%o", dirperm);
-  sscanf(QUERY(fileperm), "%o", fileperm);
-  sscanf(QUERY(umask),    "%o", default_umask);
-  
-  path = QUERY(searchpath);
-#ifdef FILESYSTEM_DEBUG
-  perror("FILESYSTEM: Online at "+QUERY(mountpoint)+" (path="+path+")\n");
-#endif
-}
-
-string query_location()
-{
-  return QUERY(mountpoint);
+  return ("<h2>Accesses to this filesystem</h2>"+
+	  (redirects?"<b>Redirects</b>: "+redirects+"<br>":"")+
+	  (accesses?"<b>Normal files</b>: "+accesses+"<br>"
+	   :"No file accesses<br>")+
+	  (QUERY(put)&&puts?"<b>Puts</b>: "+puts+"<br>":"")+
+	  (QUERY(put)&&QUERY(appe)&&appes?"<b>Appends</b>: "+appes+"<br>":"")+
+	  (QUERY(method_mkdir)&&mkdirs?"<b>Mkdirs</b>: "+mkdirs+"<br>":"")+
+	  (QUERY(method_mv)&&moves?
+	   "<b>Moved files</b>: "+moves+"<br>":"")+
+	  (QUERY(method_chmod)&&chmods?"<b>CHMODs</b>: "+chmods+"<br>":"")+
+	  (QUERY(delete)&&deletes?"<b>Deletes</b>: "+deletes+"<br>":"")+
+	  (errors?"<b>Permission denied</b>: "+errors
+	   +" (not counting .htaccess)<br>":"")+
+	  (dirlists?"<b>Directories</b>:"+dirlists+"<br>":""));
 }
 
 
-mixed stat_file( mixed f, mixed id )
+string query_name()
 {
-  array fs;
-#ifndef THREADS
-  object privs;
-  if (id->get_user() && ((int)id->get_user()->uid) && ((int)id->get_user()->gid) &&
-      (QUERY(access_as_user))) {
-    // NB: Root-access is prevented.
-    privs=Privs("Statting file", (int)id->get_user()->uid, (int)id->get_user()->gid );
-  }
-#endif
-
-  fs = file_stat(path + f);  /* No security currently in this function */
-#ifndef THREADS
-  privs = 0;
-#endif
-  return fs;
+  return sprintf("<i>%s</i> mounted on <i>%s</i>", query("searchpath"),
+		 query("mountpoint"));
 }
 
-string real_file( mixed f, mixed id )
-{
-  if(this->stat_file( f, id )) 
-/* This filesystem might be inherited by other filesystem, therefore
-   'this'  */
-    return path + f;
-}
 
-int dir_filter_function(string f)
-{
-  if(f[0]=='.' && !QUERY(.files))           return 0;
-  if(!QUERY(tilde) && Caudium.backup_extension(f))  return 0;
-  return 1;
-}
+/*****************************************************************************
+ * Caudium MODULE_LOCATION API
+ *****************************************************************************/
 
 array find_dir( string f, object id )
 {
@@ -308,46 +278,6 @@ array find_dir( string f, object id )
   return Array.filter(dir, dir_filter_function);
 }
 
-
-mapping putting = ([]);
-
-void done_with_put( array(object) id )
-{
-//  perror("Done with put.\n");
-  id[0]->close();
-  id[1]->send_result(Caudium.HTTP.low_answer(201,""));
-  m_delete(putting, id[1]->my_fd);
-  destruct(id[0]);
-  destruct(id[1]->my_fd);
-}
-
-void got_put_data( array (object) id, string data )
-{
-// perror(strlen(data)+" .. ");
-  id[0]->write( data );
-  putting[id[1]] -= strlen(data);
-  if(putting[id[1]->my_fd] <= 0)
-    done_with_put( id );
-}
-
-#define FILE_SIZE(X) (Stdio.file_size(X))
-
-int contains_symlinks(string root, string path)
-{
-  array arr = path/"/";
-
-  foreach(arr - ({ "" }), path) {
-    root += "/" + path;
-    if (arr = file_stat(root, 1)) {
-      if (arr[1] == -3) {
-	return(1);
-      }
-    } else {
-      return(0);
-    }
-  }
-  return(0);
-}
 
 mixed find_file( string f, object id )
 {
@@ -945,119 +875,97 @@ mixed find_file( string f, object id )
   return 0;
 }
 
-string query_name()
+
+string query_location()
 {
-  return sprintf("<i>%s</i> mounted on <i>%s</i>", query("searchpath"),
-		 query("mountpoint"));
+  return QUERY(mountpoint);
 }
 
-/* START AUTOGENERATED DEFVAR DOCS */
 
-//! defvar: mountpoint
-//! This is where the module will be inserted in the 
-//!  type: TYPE_LOCATION
-//!  name: Paths: Mount point
-//
-//! defvar: searchpath
-//! This is where the module will find the files in the real file system and is equivalent to what is normally referred to as the <b>document root</b>.
-//!  type: TYPE_DIR
-//!  name: Paths: Search path
-//
-//! defvar: fileperm
-//! This is the default mode, specified as an octal integer, for uploaded files. The default or specified umask will modify the actual permission of uploaded files.
-//!  type: TYPE_STRING
-//!  name: Permissions: Default mode for uploaded files
-//
-//! defvar: dirperm
-//! This is the default mode, specified in octal integer, for created files. The default or specified umask will modify the actual permission of uploaded files.
-//!  type: TYPE_STRING
-//!  name: Permissions: Default for created directories
-//
-//! defvar: umask
-//! This is the default umask for creating files and is used as a modified for the default file and directory modes. It can be overridden by using the 'SITE UMASK' command in FTP.
-//!  type: TYPE_STRING
-//!  name: Permissions: Default umask
-//
-//! defvar: html
-//! If you set this variable, the filesystem will _know_ that all files are really HTML files. This might be useful now and then.
-//!  type: TYPE_FLAG|VAR_EXPERT
-//!  name: All files are really HTML files
-//
-//! defvar: .files
-//! If set, hidden files will be shown in dirlistings and you will be able to retrieve them.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Directory Settings: Show hidden files
-//
-//! defvar: dir
-//! If set, you have to create a file named .www_not_browsable (or .nodiraccess) in a directory to disable directory listings. If unset, a file named .www_browsable in a directory will _enable_ directory listings.
-//!
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Directory Settings: Enable directory listings per default
-//
-//! defvar: tilde
-//! If set, files ending with '~', '#', '.old' or '.bak' will 
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Directory Settings: Show backup files
-//
-//! defvar: put
-//! If set, allow use of the PUT method, which is used for file uploads. 
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: PUT
-//
-//! defvar: appe
-//! If set and if PUT method too, APPEND method can be used on file uploads.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: APPE
-//
-//! defvar: delete
-//! If set, allow use of the DELETE method, which is used for file deletion.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: DELETE
-//
-//! defvar: copy
-//! If set, allow use of the COPY method, which is used for file copy by WebDAV.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: COPY
-//
-//! defvar: method_mkdir
-//! If set, allow use of the MKDIR method, enabling the ability to the create new directories.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: MKDIR
-//
-//! defvar: method_mv
-//! If set, allow use of the MV method, which is used for renaming files and directories.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: MV
-//
-//! defvar: method_chmod
-//! If set, allow use of the CHMOD command, which is used to change file permissions.
-//!  type: TYPE_FLAG
-//!  name: Allowed Access Methods: CHMOD
-//
-//! defvar: keep_old_perms
-//! If true, existing files replaced by an FTP or HTTP upload will keep their previous file mode instead of using the default one. When enabled, the default mode and umask settings (default or specified by the client) won't apply. Pleae note that the user and group won't be retained by setting this flag. 
-//!  type: TYPE_FLAG
-//!  name: Permissions: Keep old file mode
-//
-//! defvar: check_auth
-//! Only allow authenticated users to use methods other than GET and POST. If unset, this filesystem will be a _very_ public one (anyone can edit files located on it)
-//!  type: TYPE_FLAG
-//!  name: Permissions: Require authentication for modification
-//
-//! defvar: access_as_user
-//! Accesses to a file will be made  as the logged in user.
-//!This is useful for named ftp, or if you want higher security.<br />
-//!NOTE: When running a threaded server requests that don't do any modification will be done as the server uid/gid.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Permissions: Access file as the logged in user
-//
-//! defvar: no_symlinks
-//! EXPERIMENTAL.
-//!Forbid access to paths containing symbolic links.<br />
-//!NOTE : This can cause *alot* of lstat system-calls to be performed and can make the server much slower.
-//!  type: TYPE_FLAG|VAR_MORE
-//!  name: Permissions: Forbid access to symlinks
-//
+string real_file( mixed f, mixed id )
+{
+  if(this->stat_file( f, id )) 
+/* This filesystem might be inherited by other filesystem, therefore
+   'this'  */
+    return path + f;
+}
+
+
+mixed stat_file( mixed f, mixed id )
+{
+  array fs;
+#ifndef THREADS
+  object privs;
+  if (id->get_user() && ((int)id->get_user()->uid) && ((int)id->get_user()->gid) &&
+      (QUERY(access_as_user))) {
+    // NB: Root-access is prevented.
+    privs=Privs("Statting file", (int)id->get_user()->uid, (int)id->get_user()->gid );
+  }
+#endif
+
+  fs = file_stat(path + f);  /* No security currently in this function */
+#ifndef THREADS
+  privs = 0;
+#endif
+  return fs;
+}
+
+
+
+
+/*****************************************************************************
+ * Module-specific code
+ *****************************************************************************/
+
+int dir_filter_function(string f)
+{
+  if(f[0]=='.' && !QUERY(.files))           return 0;
+  if(!QUERY(tilde) && Caudium.backup_extension(f))  return 0;
+  return 1;
+}
+
+
+void done_with_put( array(object) id )
+{
+//  perror("Done with put.\n");
+  id[0]->close();
+  id[1]->send_result(Caudium.HTTP.low_answer(201,""));
+  m_delete(putting, id[1]->my_fd);
+  destruct(id[0]);
+  destruct(id[1]->my_fd);
+}
+
+void got_put_data( array (object) id, string data )
+{
+// perror(strlen(data)+" .. ");
+  id[0]->write( data );
+  putting[id[1]] -= strlen(data);
+  if(putting[id[1]->my_fd] <= 0)
+    done_with_put( id );
+}
+
+
+int contains_symlinks(string root, string path)
+{
+  array arr = path/"/";
+
+  foreach(arr - ({ "" }), path) {
+    root += "/" + path;
+    if (arr = file_stat(root, 1)) {
+      if (arr[1] == -3) {
+	return(1);
+      }
+    } else {
+      return(0);
+    }
+  }
+  return(0);
+}
+
+
+
+
+
 
 /*
  * If you visit a file that doesn't contain these lines at its end, please
