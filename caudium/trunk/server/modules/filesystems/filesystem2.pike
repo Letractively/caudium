@@ -56,7 +56,6 @@ constant thread_safe=1;
 
 int redirects, accesses, errors, dirlists;
 int puts, deletes, mkdirs, moves, chmods, appes;
-string path;
 int dirperm, fileperm, default_umask;
 static int do_stat = 1;
 
@@ -68,7 +67,7 @@ mapping putting = ([]);
  * Caudium API
  *****************************************************************************/
 
-void start()
+void start(int count, object conf)
 {
 #ifdef THREADS
   if(QUERY(access_as_user))
@@ -81,15 +80,14 @@ void start()
   sscanf(QUERY(fileperm), "%o", fileperm);
   sscanf(QUERY(umask),    "%o", default_umask);
   
-  path = QUERY(searchpath);
 #ifdef FILESYSTEM_DEBUG
-  perror("FILESYSTEM: Online at "+QUERY(mountpoint)+" (path="+path+")\n");
+  perror("FILESYSTEM: Online at "+QUERY(mountpoint)+"\n");
 #endif
 }
 
 
 
-void create()
+void create(object conf)
 {
   defvar("mountpoint", "/", "Paths: Mount point", TYPE_LOCATION, 
 	 "This is where the module will be inserted in the "+
@@ -242,13 +240,13 @@ array find_dir( string f, object id )
   }
 #endif
 
-  if(!(dir = get_dir( path + f ))) {
+  if(!(dir = get_dir( file_path(f, id) ))) {
     privs = 0;
     return 0;
   }
   privs = 0;
 
-  if (QUERY(no_symlinks) && contains_symlinks(path, f))
+  if (QUERY(no_symlinks) && contains_symlinks(base_root(id), f))
   {
      errors++;
      return 0;
@@ -294,7 +292,8 @@ mixed find_file( string f, object id )
   roxen_perror("FILESYSTEM: Request for file \""+f+"\"\n");
 #endif /* FILESYSTEM_DEBUG */
 
-  f = path + f;
+  f = file_path(f, id);
+
   size = FILE_SIZE( f );
 
   /*
@@ -359,7 +358,7 @@ mixed find_file( string f, object id )
       privs = 0;
 #endif
 
-      if(!o || (QUERY(no_symlinks) && (contains_symlinks(path, oldf))))
+      if(!o || (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))))
       {
          errors++;
          report_error("Open of " + f + " failed. Permission denied.\n");
@@ -406,7 +405,7 @@ mixed find_file( string f, object id )
 		  (int)id->get_user()->uid, (int)id->get_user()->gid );
     }
 
-    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+    if (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))) {
       privs = 0;
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
@@ -454,7 +453,7 @@ mixed find_file( string f, object id )
       privs=Privs("Saving file", (int)id->get_user()->uid, (int)id->get_user()->gid );
     }
 
-    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+    if (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))) {
       privs = 0;
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
@@ -529,7 +528,7 @@ mixed find_file( string f, object id )
     }
 // #endif
 
-    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+    if (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))) {
       privs = 0;
       errors++;
       report_error("Creation of " + f + " failed. Permission denied.\n");
@@ -598,7 +597,7 @@ mixed find_file( string f, object id )
     }
     // #endif
     
-    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+    if (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))) {
       privs = 0;
       errors++;
       TRACE_LEAVE("CHMOD: Contains symlinks. Permission denied");
@@ -672,8 +671,8 @@ mixed find_file( string f, object id )
     // #endif
     
     if (QUERY(no_symlinks) &&
-	((contains_symlinks(path, oldf)) ||
-	 (contains_symlinks(path, id->misc->move_from)))) {
+	((contains_symlinks(base_root(id), oldf)) ||
+	 (contains_symlinks(base_root(id), id->misc->move_from)))) {
       privs = 0;
       errors++;
       TRACE_LEAVE("MV: Contains symlinks. Permission denied");
@@ -739,7 +738,7 @@ mixed find_file( string f, object id )
       TRACE_LEAVE("MOVE: Dest file on other filesystem.");
       return(0);
     }
-    moveto = path + moveto[sizeof(mountpoint)..];
+    moveto = base_root(id) + moveto[sizeof(mountpoint)..];
 
     size = FILE_SIZE(moveto);
 
@@ -765,8 +764,8 @@ mixed find_file( string f, object id )
     // #endif
 
     if (QUERY(no_symlinks) &&
-        ((contains_symlinks(path, f)) ||
-         (contains_symlinks(path, moveto)))) {
+        ((contains_symlinks(base_root(id), f)) ||
+         (contains_symlinks(base_root(id), moveto)))) {
       privs = 0;
       errors++;
       TRACE_LEAVE("MOVE: Contains symlinks. Permission denied");
@@ -798,15 +797,15 @@ mixed find_file( string f, object id )
    case "COPY":
     if(!QUERY(copy) )
 	return Caudium.HTTP.error_answer(id, 405, "Copy disallowed");
-    id->misc->destination = path + id->misc->destination;
+    id->misc->destination = base_root(id) + id->misc->destination;
     size = FILE_SIZE(id->misc->destination);
     if ( size != -1 && id->misc->overwrite != "T" )
 	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     if(QUERY(check_auth) && (!id->get_user()))
 	return Caudium.HTTP.auth_required("copy", "Permission to 'COPY' files denied");
     if(QUERY(no_symlinks) && 
-       (contains_symlinks(path, f) || 
-	contains_symlinks(path,id->misc->destination)))
+       (contains_symlinks(base_root(id), f) || 
+	contains_symlinks(base_root(id),id->misc->destination)))
 	return Caudium.HTTP.error_answer(id, 403, "Forbidden");
     if ( !stringp(id->misc->destination) ) 
 	return Caudium.HTTP.error_answer(id, 403, "No destination");
@@ -836,7 +835,7 @@ mixed find_file( string f, object id )
       return Caudium.HTTP.error_answer (id, 403, 0, "Permission to DELETE file denied");
     }
 
-    if (QUERY(no_symlinks) && (contains_symlinks(path, oldf))) {
+    if (QUERY(no_symlinks) && (contains_symlinks(base_root(id), oldf))) {
       errors++;
       report_error("Deletion of " + f + " failed. Permission denied.\n");
       TRACE_LEAVE("DELETE: Contains symlinks");
@@ -887,7 +886,7 @@ string real_file( mixed f, mixed id )
   if(this->stat_file( f, id )) 
 /* This filesystem might be inherited by other filesystem, therefore
    'this'  */
-    return path + f;
+    return file_path(f, id); 
 }
 
 
@@ -903,10 +902,11 @@ mixed stat_file( mixed f, mixed id )
   }
 #endif
 
-  fs = file_stat(path + f);  /* No security currently in this function */
+  fs = file_stat(file_path(f, id));  /* No security currently in this function */
 #ifndef THREADS
   privs = 0;
 #endif
+
   return fs;
 }
 
@@ -934,6 +934,7 @@ void done_with_put( array(object) id )
   destruct(id[0]);
   destruct(id[1]->my_fd);
 }
+
 
 void got_put_data( array (object) id, string data )
 {
@@ -963,8 +964,41 @@ int contains_symlinks(string root, string path)
 }
 
 
+//! Returns the base root for the current request.
+//!
+//! Any module inheriting this one can override this method to do fancy things
+//! like live changing the base root given information found in the request id
+//! object.
+//!
+//! @param id
+//! The request id object
+//!
+//! @returns
+//! The base root for the current request as a string
+string base_root(object id)
+{
+  return QUERY(searchpath);
+}
 
 
+//! Returns the filesystem file path for the current request.
+//!
+//! Any module inheriting this one can override this method to do fancy things
+//! like live changing the file path given information found in the request id
+//! object.
+//!
+//! @param f
+//! The path to the object, in the modules name space.
+//!
+//! @param id
+//! The request id object
+//!
+//! @returns
+//! The absolute file path in the real filesystem.
+string file_path(string f, object id)
+{
+  return combine_path(base_root(id), f);
+}
 
 
 /*
