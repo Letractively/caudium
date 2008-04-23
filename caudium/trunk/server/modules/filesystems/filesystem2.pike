@@ -358,7 +358,7 @@ mixed find_file( string f, object id )
       privs = 0;
 #endif
 
-      if(!o || (QUERY(no_symlinks) && (contains_symlinks(base_root(odlf, id), oldf))))
+      if(!o || (QUERY(no_symlinks) && (contains_symlinks(base_root(oldf, id), oldf))))
       {
          errors++;
          report_error("Open of " + f + " failed. Permission denied.\n");
