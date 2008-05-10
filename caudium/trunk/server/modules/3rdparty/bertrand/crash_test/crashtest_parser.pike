@@ -54,8 +54,16 @@ class CrashTestScope
 				// > Public.Standards.XML.encode_numeric_entity("foo@domain.tld");
         // (1) Result: "&#102;&#111;&#111;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#116;&#108;&#100;"
 				werror("Crash Test: RXML parser: CrashTestScope()->get(encoded_email)\n");
-				// if encoding is ":none", Pike's Parser.HTML() will crash
-				ret = "&gt;";
+				// if encoding is ":none", Pike's Parser.HTML() may crash:
+				// This one will:
+				//ret = "f&#111;&#111;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#116;&#108;&#100;";
+				// But this one won't
+				//ret="&#102;&#111;&#111;&#64;&#100;&#111;&#109;&#97;&#105;&#110;&#46;&#116;&#108;d";
+
+				// Will crash:
+				//ret = "&nbsp;";
+				// Won't:
+				ret = "&nbsp;";
 				break;
 
 			default:
