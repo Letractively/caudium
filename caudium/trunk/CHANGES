@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- New demo certificate with extended expiration date.
+  (Henrik Andreasson)
 - Fixed some rimage plugins with wrong Colors.parse_color() calls.
   (Bertrand LUPART)
 - Fixed a bug in rimage.pike than prevented plugins to be loaded.
