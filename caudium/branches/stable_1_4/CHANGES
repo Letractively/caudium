@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.12
 --------------------------------------------
+- New demo certificate with extended expiration date.
+  (Henrik Andreasson)
 - Avoid a backtrace when <cimg> is called without src atrribute.
   (Bertrand LUPART)
 - Using <insert file="foo.php"> and setting up Uniscript to parse RXML in PHP's
