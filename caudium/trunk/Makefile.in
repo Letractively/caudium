@@ -283,6 +283,10 @@ date_version: force
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-svn" >../../../VERSION;
 
+xenofarm_version: force
+	@cd $(SRCDIR)/server/etc/modules; \
+	 echo "$(RESULT)" >../../../VERSION;
+
 
 $(SRCDIR)/ChangeLog.gz:
 	cd $(SRCDIR); pike tools/make_changelog.pike | gzip -9 > ChangeLog.gz
@@ -305,6 +309,8 @@ faked_pre_dist:
 	echo "Caudium 1.3-test" > $(SRCDIR)/VERSION
 
 date_pre_dist:  date_version
+
+xenofarm_pre_dist:  xenofarm_version
 
 #copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 copy_dist:
