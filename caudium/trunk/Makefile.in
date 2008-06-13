@@ -319,6 +319,7 @@ copy_dist:
 	  exit 1; \
 	fi
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
+        TMPDIR="$(TMPDIR)" \
 	if ls -d $$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
@@ -328,7 +329,7 @@ copy_dist:
 	(cd $(SRCDIR); tar cf - .)|(cd $(TMPDIR)$$version; tar xf -); \
 	if test "`echo $$version| sed s/svn//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
-	 find $$version/. -type d -name '.svn' -print0 |xargs -0 rm -rf; \
+	 find $$TMPDIR$$version/. -type d -name '.svn' -print |xargs rm -rf; \
         fi;\
         echo "Current dir is `pwd`" ; \
 	echo Cleaning up the copied sources...; \
