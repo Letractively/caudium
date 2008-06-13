@@ -319,7 +319,7 @@ copy_dist:
 	  exit 1; \
 	fi
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
-        TMPDIR="$(TMPDIR)" \
+        TMPDIR="$(TMPDIR)"; \
 	if ls -d $$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
