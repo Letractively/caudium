@@ -33,9 +33,7 @@ xenofarm_build() {
   [ $LASTERR = 0 ] || return 1
   log_start compile
   pwd > xenofarm_result/workingdir.txt
-echo $MAKE
-  $MAKE
-# > xenofarm_result/compilelog.txt 2>&1
+  $MAKE > xenofarm_result/compilelog.txt 2>&1
   log_end $?
   [ $LASTERR = 0 ] || return 1
 }
