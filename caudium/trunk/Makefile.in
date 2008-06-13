@@ -104,7 +104,7 @@ install_only:
 	fi
 #	OpenBSD rm doesn't like empty args
 #	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
-	@find $(prefix)/caudium/server/ -name CVS -print | xargs rm -rf
+	@find $(prefix)/caudium/server/ -name \.svn -print | xargs rm -rf
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
 	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
 	for d in local local/modules local/pmods local/nfonts server/lib ; \
@@ -164,16 +164,16 @@ install_alt:
 	done
 	@echo "Copying examples ..."
 	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name CVS -print`	
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name \.svn -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
 	          protocols languages server_templates modules \
 			  unfinishedmodules; do \
 	 echo "Copying $$f ..."; \
 	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
 	done
-	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -or -name start-caudium.in`
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name \.svn -or -name start-caudium.in`
 	@echo "Copying modules..."
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name \.svn -print`
 	@for f in $(SRCDIR)/server/*; do \
 	 if test -f $$f; then \
 	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
@@ -255,7 +255,7 @@ only_bump_version:  force
 	    exit 1; \
 	  fi; \
 	  version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
+	  svn ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
 	  echo "Caudium $$version.$$newbuild" >../../../VERSION; \
 	  cat ../../../VERSION; \
 	)
@@ -263,7 +263,7 @@ only_bump_version:  force
 bump_version: force only_bump_version
 	@(cd $(SRCDIR); \
 	  echo Tagging...; \
-	  cvs -z3 tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
+	  svn copy trunk/caudium tags/`cat VERSION | tr 'A-Z. ' 'a-z__'`/caudium ||exit 1; \
 	)
 	@touch bump_version
 
@@ -278,7 +278,7 @@ date_version: force
 	@cd $(SRCDIR)/server/etc/modules; \
 	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../../VERSION;
+	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-svn" >../../../VERSION;
 
 
 $(SRCDIR)/ChangeLog.gz:
@@ -316,7 +316,7 @@ copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 	mkdir $$version; \
 	echo Copying files...; \
 	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -); \
-	if test "`echo $$version| sed s/cvs//`" = "$$version" -a \
+	if test "`echo $$version| sed s/svn//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
 	 find $$version/. -type d -name '.svn' -print0 |xargs -0 rm -rf; \
         fi;\
