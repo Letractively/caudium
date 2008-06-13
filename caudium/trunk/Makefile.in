@@ -19,7 +19,9 @@ CPPFLAGS=@CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 PIKE=@PIKE@
 PIKE_VERISON=@PIKE_VERSION@
-TMPDIR=/tmp
+
+# TMPDIR must contain a trailing slash.
+TMPDIR=/tmp/
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 #extern tools
@@ -337,14 +339,14 @@ copy_dist:
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
-	echo -n "Building tarfile..."; \
+	echo "Building tarfile from $$TMPDIR..."; \
 	cd $$TMPDIR && tar cf $$version.tar $$version; \
-	echo -n "tar.gz..."; \
+	echo "tar.gz..."; \
 	gzip -9 < $$version.tar >$$version.tar.gz; \
-	echo -n "tar.bz2..."; \
+	echo "tar.bz2..."; \
 	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
 	echo "done."; \
-	rm -rf $$TMPDIR/$$version; \
+	rm -rf $$TMPDIR$$version; \
 	rm $$version.tar
 
 dist: clean copy_dist tar_dist 
