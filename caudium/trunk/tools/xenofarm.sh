@@ -39,10 +39,10 @@ xenofarm_post_build() {
   log_start features
   pike -x features > xenofarm_result/features.txt 2>/dev/null
   log_end $?
-  [ $LASTERR = 0 ] || return 1
-  log_start benchmark
+#  [ $LASTERR = 0 ] || return 1
+#  log_start benchmark
 #  $MAKE benchmark > xenofarm_result/benchmark.txt 2>&1
-  log_end $?
+#  log_end $?
   POST_RESULT=$LASTERR
 
   log_start verify
