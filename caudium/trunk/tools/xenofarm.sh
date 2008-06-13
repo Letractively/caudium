@@ -28,12 +28,14 @@ log_end() {
 
 xenofarm_build() {
   log_start configure
-  ./configure $CONFIGURE_ARGS 
+  ./configure $CONFIGURE_ARGS >xenofarm_result/configlog.txt 2>&1
   log_end 0
   [ $LASTERR = 0 ] || return 1
   log_start compile
   pwd > xenofarm_result/workingdir.txt
-  $MAKE |tee xenofarm_result/compilelog.txt
+echo $MAKE
+  $MAKE
+# > xenofarm_result/compilelog.txt 2>&1
   log_end $?
   [ $LASTERR = 0 ] || return 1
 }
