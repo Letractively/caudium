@@ -190,7 +190,7 @@ void main(int argc, array (string) argv)
   thread_create(twiddle);
 #endif
   werror("Running CVS log ");
-  string data = Process.popen("cvs -q -z3 log");
+  string data = Process.popen("svn -q log");
   werror("Done ["+strlen(data)/1024+" Kb]\n");
   array entries = ({});
   rxml = argv[-1]=="--rxml";
