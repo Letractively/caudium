@@ -32,7 +32,6 @@ xenofarm_build() {
   log_end 0
   [ $LASTERR = 0 ] || return 1
   log_start compile
-  pwd > xenofarm_result/workingdir.txt
   $MAKE > xenofarm_result/compilelog.txt 2>&1
   log_end $?
   [ $LASTERR = 0 ] || return 1
@@ -54,13 +53,14 @@ xenofarm_post_build() {
   #       if not compiled --with-valgrind.
 #  $MAKE METATARGET=valgrind_verify TESTARGS="-a -T -F" > \
 #    xenofarm_result/verifylog.txt 2>&1
+  make verify > xenofarm_result/verifylog.txt 2>&1
   log_end $?
   [ $LASTERR = 0 ] || return 1
   
-  log_start export
+#  log_start export
 #  $MAKE bin_export > xenofarm_result/exportlog.txt 2>&1
-  log_end $?
-  [ $LASTERR = 0 ] || return 1
+#  log_end $?
+#  [ $LASTERR = 0 ] || return 1
   return $POST_RESULT
 }
 
