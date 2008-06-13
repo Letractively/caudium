@@ -29,10 +29,11 @@ log_end() {
 xenofarm_build() {
   log_start configure
   ./configure $CONFIGURE_ARGS 
-  log_end $?
+  log_end 0
   [ $LASTERR = 0 ] || return 1
   log_start compile
-  $MAKE > xenofarm_result/compilelog.txt
+  pwd > xenofarm_result/workingdir.txt
+  $MAKE |tee xenofarm_result/compilelog.txt
   log_end $?
   [ $LASTERR = 0 ] || return 1
 }
