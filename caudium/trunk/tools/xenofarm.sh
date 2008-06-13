@@ -28,8 +28,8 @@ log_end() {
 
 xenofarm_build() {
   log_start compile
-  ./configure $CONFIGURE_ARGS
-  $MAKE > xenofarm_result/compilelog.txt 2>&1
+  ./configure $CONFIGURE_ARGS 
+  $MAKE 2>&1 > xenofarm_result/compilelog.txt
   log_end $?
   [ $LASTERR = 0 ] || return 1
 }
