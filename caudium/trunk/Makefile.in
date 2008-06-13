@@ -19,6 +19,7 @@ CPPFLAGS=@CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 PIKE=@PIKE@
 PIKE_VERISON=@PIKE_VERSION@
+TMPDIR=/tmp
 # Used to avoid make compatibility problems.
 BIN_TRUE=":"
 #extern tools
@@ -314,35 +315,36 @@ copy_dist:
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
 	else :; fi; \
-	mkdir $$version; \
+	mkdir $$TMPDIR$$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -); \
+	(cd $(SRCDIR); tar cf - .)|(cd $$TMPDIR$$version; tar xf -); \
 	if test "`echo $$version| sed s/svn//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
 	 find $$version/. -type d -name '.svn' -print0 |xargs -0 rm -rf; \
         fi;\
         echo "Current dir is `pwd`" ; \
 	echo Cleaning up the copied sources...; \
-	cd $$version && $(MAKE) spotless && cd $(SRCDIR) ;\
-        cd $$version && ./autogen.sh ; \
+	cd $$TMPDIR$$version && $(MAKE) spotless && cd $(SRCDIR) ;\
+        cd $$TMPDIR$$version && ./autogen.sh ; \
 	for f in `find $$version/. -type f -name '*~' -print` \
-	  `find $$version/. -type f -name 'autom4*' -print` \
-	  `find $$version/. -type f -name '.#*' -print` \
-	  `find $$version/. -type f -name 'Makefile' -print` \
-	  `find $$version/. -type f -name '*.tar*' -print` \
-	  `find $$version/. -type f -name '#*#' -print`; do \
+	  `find $$TMPDIR$$version/. -type f -name 'autom4*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '.#*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name 'Makefile' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '*.tar*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '#*#' -print`; do \
 	  echo $$f; rm -r $$f || exit 1; \
 	done; \
 
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
 	echo -n "Building tarfile..."; \
-	tar cf $$version.tar $$version; \
+	cd $$TMPDIR && tar cf $$version.tar $$version; \
 	echo -n "tar.gz..."; \
 	gzip -9 < $$version.tar >$$version.tar.gz; \
 	echo -n "tar.bz2..."; \
 	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
 	echo "done."; \
+	rm -rf $$TMPDIR/$$version; \
 	rm $$version.tar
 
 dist: clean copy_dist tar_dist 
