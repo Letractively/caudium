@@ -335,7 +335,7 @@ copy_dist:
 	echo Cleaning up the copied sources...; \
 	cd $$TMPDIR$$version && $(MAKE) spotless && cd $(SRCDIR) ;\
         cd $$TMPDIR$$version && ./autogen.sh ; \
-	for f in `find $$version/. -type f -name '*~' -print` \
+	for f in `find $$TMPDIR$$version/. -type f -name '*~' -print` \
 	  `find $$TMPDIR$$version/. -type f -name 'autom4*' -print` \
 	  `find $$TMPDIR$$version/. -type f -name '.#*' -print` \
 	  `find $$TMPDIR$$version/. -type f -name 'Makefile' -print` \
