@@ -325,7 +325,7 @@ copy_dist:
 	else :; fi; \
 	mkdir $$TMPDIR$$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$TMPDIR$$version; tar xf -); \
+	(cd $(SRCDIR); tar cf - .)|(cd $(TMPDIR)$$version; tar xf -); \
 	if test "`echo $$version| sed s/svn//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
 	 find $$version/. -type d -name '.svn' -print0 |xargs -0 rm -rf; \
