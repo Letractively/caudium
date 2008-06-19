@@ -27,10 +27,10 @@
 //!  strict, in the XML-sense. Please note that although this parser
 //!  handles XML-syntax, it never requires it. For example you can still
 //!  use unquoted arguments.
-//! cvs_version: $Id$
+//! cvs_version: $Id: xmlparse.pike,v 1.45.2.1 2004/09/20 22:21:58 jnt Exp $
 //
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: xmlparse.pike,v 1.45.2.1 2004/09/20 22:21:58 jnt Exp $";
 constant thread_safe=1;
 
 #include <config.h>
@@ -48,10 +48,11 @@ inherit "caudiumlib";
 string date_doc=Stdio.read_bytes("modules/tags/doc/date_doc");
 constant language = caudium->language;
 
-constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER;
+constant module_type = MODULE_FILE_EXTENSION | MODULE_MAIN_PARSER | MODULE_PARSER | MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "XML-Compliant RXML Parser";
-constant module_doc  = "This is a XML-compliant RXML parser which relies on " 
-                       "Pike's Parser.HTML. Depending on the "
+constant module_doc  = "This is a new XML-compliant RXML parser. It requires " 
+                       "Pike 7.0 or newer, since it depends on Parser.HTML  "
+                       "which doesn't exist in Pike 0.6. Depending on the "
                        "module is configured, it is more or less strict, " 
                        "in the XML-sense. Please note that although this "
                        "parser handles XML-syntax,it never requires it. "  
@@ -491,8 +492,8 @@ string container_emit(string t, mapping args, string contents, object id,
 
   NOCACHE();
 
-  // we can short circuit things right here.
-  if(!contents || !dataset) return "";
+  if(!contents || ! dataset)
+    return "";
 
   object retval = String.Buffer(sizeof(contents) * sizeof(dataset));
 
@@ -909,7 +910,7 @@ class EmitScope(mapping v) {
 
     if(e) roxen_encode(e, q);
 
-    return e;
+    return (string)e;
   }
 }
 
