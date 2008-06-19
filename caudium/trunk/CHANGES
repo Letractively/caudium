@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Data returned from a scope entity will be cast to a string, allowing
+  potentially mixed datasets to be returned for use by emit and friends.
+  (Bill Welliver)
 - New demo certificate with extended expiration date.
   (Henrik Andreasson)
 - Fixed some rimage plugins with wrong Colors.parse_color() calls.
