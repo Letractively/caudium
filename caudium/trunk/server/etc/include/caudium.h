@@ -1,4 +1,4 @@
-// $Id$
+// $Id: caudium.h,v 1.5 2003-02-17 04:01:02 jnt Exp $
 #ifndef _CAUDIUM_H_
 #define _CAUDIUM_H_
 #include <config.h>
@@ -7,9 +7,9 @@
 #endif
 
 #define perror	roxen_perror
-#if constant(Stdio.Stat)
-#define file_stat caudium_fstat
-#endif
+//#if constant(Stdio.Stat)
+//#define file_stat caudium_fstat
+//#endif
 #define CONFIGURATION_FILE_LEVEL 6
 
 #ifdef DEBUG_LEVEL

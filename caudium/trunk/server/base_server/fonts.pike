@@ -18,13 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id$
+ * $Id: fonts.pike,v 1.15 2005-01-03 17:04:40 kiwi Exp $
  */
 //! Font handler for Caudium
 //! @fixme
 //!   Document this !
 
-constant cvs_version="$Id$";
+constant cvs_version="$Id: fonts.pike,v 1.15 2005-01-03 17:04:40 kiwi Exp $";
 
 #include <module.h>
 
@@ -409,7 +409,7 @@ array available_fonts( )
       foreach(d,string f)
       {
 	if(f=="CVS") continue;
-	array a;
+	Stdio.Stat a;
 	if((a=file_stat(dir+f)) && (a[1]==-2))
 	  res |= ({ replace(f,"_"," ") });
       }
