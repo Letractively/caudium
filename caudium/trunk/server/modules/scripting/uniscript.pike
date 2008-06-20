@@ -29,10 +29,10 @@ inherit "modules/scripting/cgi.pike";
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
-//! cvs_version: $Id$
+//! cvs_version: $Id: uniscript.pike,v 1.34 2005-01-03 17:04:48 kiwi Exp $
 //
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: uniscript.pike,v 1.34 2005-01-03 17:04:48 kiwi Exp $";
 
 constant module_type = MODULE_FILE_EXTENSION|MODULE_EXPERIMENTAL;
 constant module_name = "Universal script parser";
@@ -274,7 +274,7 @@ class CGIScript
 
     if (QUERY(runowner))
     {
-       array(int) statres = file_stat(id->realfile);
+       Stdio.Stat statres = file_stat(id->realfile);
        if (statres[5] >= 100) uid = statres[5];
        if (statres[6] >= 100) gid = statres[6];
     }

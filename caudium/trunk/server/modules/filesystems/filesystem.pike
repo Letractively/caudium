@@ -31,14 +31,14 @@
 //! inherits: caudiumlib
 //! inherits: socket
 //! type: MODULE_LOCATION
-//! cvs_version: $Id$
+//! cvs_version: $Id: filesystem.pike,v 1.41 2005-01-03 17:04:45 kiwi Exp $
 //
 
 inherit "module";
 inherit "caudiumlib";
 inherit "socket";
 
-constant cvs_version= "$Id$";
+constant cvs_version= "$Id: filesystem.pike,v 1.41 2005-01-03 17:04:45 kiwi Exp $";
 constant thread_safe=1;
 
 
@@ -218,7 +218,7 @@ string query_location()
 
 mixed stat_file( mixed f, mixed id )
 {
-  array fs;
+  Stdio.Stat fs;
 #ifndef THREADS
   object privs;
   if (id->get_user() && ((int)id->get_user()->uid) && ((int)id->get_user()->gid) &&
@@ -331,11 +331,12 @@ void got_put_data( array (object) id, string data )
 int contains_symlinks(string root, string path)
 {
   array arr = path/"/";
+  Stdio.Stat stat;
 
   foreach(arr - ({ "" }), path) {
     root += "/" + path;
-    if (arr = file_stat(root, 1)) {
-      if (arr[1] == -3) {
+    if (stat = file_stat(root, 1)) {
+      if (stat[1] == -3) {
 	return(1);
       }
     } else {
@@ -354,7 +355,7 @@ mixed find_file( string f, object id )
   string tmp;
   string oldf = f;
   object privs;
-  array|object st;
+  Stdio.Stat st;
 
 #ifdef FILESYSTEM_DEBUG
   roxen_perror("FILESYSTEM: Request for file \""+f+"\"\n");

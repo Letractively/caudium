@@ -25,7 +25,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER
-//! cvs_version: $Id$
+//! cvs_version: $Id: cgi.pike,v 1.70 2008-03-21 16:46:21 bertrand Exp $
 //
 
 /* Da CGI module */
@@ -35,7 +35,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: cgi.pike,v 1.70 2008-03-21 16:46:21 bertrand Exp $";
 
 constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER;
 constant module_name = "CGI executable support";
@@ -150,7 +150,7 @@ array init_groups( int uid, int gid )
 
 array verify_access( object id )
 {
-  array us;
+  Stdio.Stat us;
   if(!getuid())
   {
     if(QUERY(user) && id->misc->is_user &&
@@ -159,7 +159,8 @@ array verify_access( object id )
     {
       // Scan for symlinks
       string fname = "";
-      array a, b;
+      array b;
+      Stdio.Stat a;
       foreach(id->misc->is_user/"/", string part) 
       {
         fname += part;
@@ -191,7 +192,7 @@ array verify_access( object id )
 			    fname));
 	    }
           }
-	  b = a;
+	  b = (array)a;
 	}
         fname += "/";
       }
@@ -863,7 +864,7 @@ void start(int n, object conf)
   }
 }
 
-array stat_file( string f, object id )
+mixed stat_file( string f, object id )
 {
   DWERROR("CGI:stat_file()\n");
 

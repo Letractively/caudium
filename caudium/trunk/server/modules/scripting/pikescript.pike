@@ -29,7 +29,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
-//! cvs_version: $Id$
+//! cvs_version: $Id: pikescript.pike,v 1.28 2005-09-29 23:36:54 hww3 Exp $
 //
 
 /*
@@ -39,7 +39,7 @@
  *
  * This is an extension module.
  */
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: pikescript.pike,v 1.28 2005-09-29 23:36:54 hww3 Exp $";
 
 constant thread_safe=1;
 // MAST: Blatant lie; we're using fork() here. Disabling this wouldn't
@@ -161,7 +161,8 @@ array|mapping call_script(function fun, object id, object file)
   object privs;
   if(!functionp(fun))
     return 0;
-  string|array (int) uid, olduid, us;
+  string|array (int) uid, olduid
+  Stdio.Stat us;
 
   if(id->rawauth && QUERY(fork_exec) && (!QUERY(rawauth) || !QUERY(clearpass)))
     id->rawauth=0;

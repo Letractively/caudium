@@ -36,7 +36,7 @@ constant module_doc  = "This is a virtual filesystem, use it to make files avail
 "Caudium however, since you can have any number of file systems mounted in "
 "different locations. ";
 constant module_unique = 0;
-constant cvs_version= "$Id$";
+constant cvs_version= "$Id: filesystem2.pike,v 1.5 2008-04-23 04:55:54 bertrand Exp $";
 constant thread_safe=1;
 
 
@@ -286,7 +286,7 @@ mixed find_file( string f, object id )
   string tmp;
   string oldf = f;
   object privs;
-  array|object st;
+  Stdio.Stat st;
 
 #ifdef FILESYSTEM_DEBUG
   roxen_perror("FILESYSTEM: Request for file \""+f+"\"\n");
@@ -949,11 +949,12 @@ void got_put_data( array (object) id, string data )
 int contains_symlinks(string root, string path)
 {
   array arr = path/"/";
+  Stdio.Stat stat;
 
   foreach(arr - ({ "" }), path) {
     root += "/" + path;
-    if (arr = file_stat(root, 1)) {
-      if (arr[1] == -3) {
+    if (stat = file_stat(root, 1)) {
+      if (stat[1] == -3) {
 	return(1);
       }
     } else {

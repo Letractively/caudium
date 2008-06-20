@@ -4,7 +4,7 @@
 // Written by Bill Welliver, <hww3@riverweb.com>
 //
 //
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: mailit.pike,v 1.14 2004-08-04 17:21:28 hww3 Exp $";
 #include <module.h>
 #include <process.h>
 inherit "module";
@@ -253,7 +253,7 @@ request_id->misc->mailitattachments;
 #endif
 	array(mixed) f_user;
 	if(query("checkowner")){
-		array(int) file_uid=file_stat(request_id->realfile);
+		Stdio.Stat file_uid=file_stat(request_id->realfile);
 #if constant(getpwuid)
 		f_user=getpwuid(file_uid[5]);
 #else

@@ -33,10 +33,10 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PROVIDER
-//! cvs_version: $Id$
+//! cvs_version: $Id: auth_userdb.pike,v 1.18 2005-01-03 17:04:45 kiwi Exp $
 //
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: auth_userdb.pike,v 1.18 2005-01-03 17:04:45 kiwi Exp $";
 constant thread_safe=0;
 
 #include <module.h>
@@ -65,7 +65,7 @@ constant module_unique = 0;
 mapping groups, gid2group;
 mapping users, uid2user;
 mapping usergroups;
-array fstat;
+Stdio.Stat fstat;
 
 private static int last_password_read = 0;
 private static int last_group_read = 0;
@@ -86,7 +86,7 @@ void read_group_data_if_not_current()
   if (query("method") == "file" || query("method") == "shadow")
   {
     string filename=query("groupfile");
-    array|int status=file_stat(filename);
+    Stdio.Stat status=file_stat(filename);
     int mtime;
 
     if (arrayp(status))
@@ -104,7 +104,7 @@ void read_user_data_if_not_current()
   if (query("method") == "file" || query("method") == "shadow")
   {
     string filename=query("userfile");
-    array|int status=file_stat(filename);
+    Stdio.Stat status=file_stat(filename);
     int mtime;
 
     if (arrayp(status))

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id$
+ * $Id: cookieauth.pike,v 1.5 2005-01-03 17:04:47 kiwi Exp $
  */
 
 /*
@@ -78,7 +78,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version="$Id$";
+constant cvs_version="$Id: cookieauth.pike,v 1.5 2005-01-03 17:04:47 kiwi Exp $";
 constant module_type= MODULE_FIRST | MODULE_FILTER;
 constant module_name= "Cookie Authentication Module";
 constant module_doc = "Allow site designer to use forms and cookie to "
@@ -150,7 +150,7 @@ mixed filter( mapping res, object id ) {
 
   if(res) {
     if(QUERY(replace401) && res->extra_heads["WWW-Authenticate"]) {
-      array t=file_stat(QUERY(authpage));
+      Stdio.Stat t=file_stat(QUERY(authpage));
       if(t && t[1]>0) {
         m_delete(id->misc,"cookie_auth");
         res=http_string_answer(Stdio.read_file(QUERY(authpage)));

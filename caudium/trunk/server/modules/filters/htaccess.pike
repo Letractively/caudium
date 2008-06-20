@@ -27,7 +27,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_SECURITY | MODULE_URL
-//! cvs_version: $Id$
+//! cvs_version: $Id: htaccess.pike,v 1.37 2005-01-03 17:04:46 kiwi Exp $
 //
 
 // .htaccess compability by David Hedbor, neotron@idonex.se 
@@ -35,7 +35,7 @@
 
 // import Stdio;
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: htaccess.pike,v 1.37 2005-01-03 17:04:46 kiwi Exp $";
 constant thread_safe=1;
 
 #include <module.h>
@@ -372,7 +372,7 @@ int validate_user(int|multiset users, array auth, string userfile, object id)
     return 0;
   }
 
-  array st;
+  Stdio.Stat st;
 
   if((!(st = file_stat(userfile))) || (st[1] == -4) || (!(passwd = Stdio.read_bytes(userfile))))
   {
@@ -460,7 +460,7 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
     return 0;
   }
 
-  array st;
+  Stdio.Stat st;
 
   f = Stdio.File();
 
@@ -757,13 +757,13 @@ array new_find_htaccess_file(object id, string vpath)
   if (vpath == "") return 0;
 
   string|int path;
+  Stdio.Stat st;
 
   int use_cache;
   if (use_cache = (!id->pragma["no-cache"])) {
     if (path = cache_path_of_htaccess(vpath, id)) {
       HT_WERR(sprintf("Cached: path = %O", path));
 
-      array st;
 
       if (stringp(path) && (st = file_stat(path)) && (st[1] != -4)) {
 	Stdio.File f = open(path, "r");
@@ -812,7 +812,7 @@ array new_find_htaccess_file(object id, string vpath)
       break;
     }
     string fname = p + query("file");
-    array st;
+    Stdio.Stat st;
     if(st = file_stat(fname)) {
       HT_WERR(sprintf("Found htaccess-file: %O", fname));
       if (st[1] >= 0) {
@@ -833,7 +833,7 @@ array new_find_htaccess_file(object id, string vpath)
   if (stringp(path)) {
     HT_WERR(sprintf("Result htaccess-file: %O", path));
 
-    array st;
+    Stdio.Stat st;
     if ((st = file_stat(path)) && (st[1] >= 0)) {
       Stdio.File f = open(path, "r");
       if (f)
@@ -873,7 +873,7 @@ mapping htaccess_no_file(object id)
 
   if(access && (access->nofile || (access->nofile=access->errorfile)))
   {
-    array st;
+    Stdio.Stat st;
 
     if ((st = file_stat(access->nofile)) && (st[1] != -4) &&
 	(file = Stdio.read_bytes(access->nofile)))
@@ -920,7 +920,7 @@ mapping try_htaccess(object id)
       {
 	if(access->errorfile)
 	{
-	  array st;
+	  Stdio.Stat st;
 
 	  if ((st = file_stat(access->errorfile)) && (st[1] != -4) &&
 	      (file = Stdio.read_bytes(access->errorfile))) {
@@ -961,7 +961,7 @@ mapping try_htaccess(object id)
       {
 	if(access->errorfile)
 	{
-	  array st;
+	  Stdio.Stat st;
 
 	  if ((st = file_stat(access->errorfile)) && (st[1] != -4) &&
 	      (file = Stdio.read_bytes(access->errorfile))) {

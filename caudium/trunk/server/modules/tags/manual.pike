@@ -25,7 +25,7 @@
  * Fredrik Noring
  */
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: manual.pike,v 1.12 2005-01-03 17:04:49 kiwi Exp $";
 constant thread_safe=1;
 
 #include <module.h>
@@ -48,7 +48,7 @@ static private string doc()
 
 array file_finder(string entry, int lvl)
 {
-  array files = ({}), fs = file_stat(entry);
+  array files = ({}), fs = (array)file_stat(entry);
   if(!fs || lvl > 500)
     return files;
   switch(fs[1]) {
