@@ -109,11 +109,11 @@ log_start response_assembly
     ) >xenofarm_result/compilation_failure.txt
   fi
   # Installation
-  cp "$BUILDDIR/dumpmodule.log" xenofarm_result/dumplog.txt || /bin/true
+#  cp "$BUILDDIR/dumpmodule.log" xenofarm_result/dumplog.txt || /bin/true
   # Testing
-  if test ! -f "xenofarm_result/exportlog.txt"; then
-    cp "$BUILDDIR/testsuite" xenofarm_result/testsuite.txt || /bin/true;
-  fi
+#  if test ! -f "xenofarm_result/exportlog.txt"; then
+#    cp "$BUILDDIR/testsuite" xenofarm_result/testsuite.txt || /bin/true;
+#  fi
   # Core files
 #  find . -name "core" -exec \
 #    gdb --batch --nx --command=bin/xenofarm_gdb_cmd "$BUILDDIR/pike" {} >> \
