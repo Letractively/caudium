@@ -1,5 +1,11 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Xenofarm builds can be modified using:
+  CONFIGURE_ARGS (already present)
+  MAKE_ARGS (just added)
+  These arguments can be passed on the action line in your xenofarm  
+  project cfg file.
+  (Bill Welliver)
 - Data returned from a scope entity will be cast to a string, allowing
   potentially mixed datasets to be returned for use by emit and friends.
   (Bill Welliver)
