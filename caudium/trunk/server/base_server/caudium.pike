@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id$
+ * $Id: caudium.pike,v 1.263 2008-03-21 09:58:23 bertrand Exp $
  */
 
 //! This file is the very core of Caudium. This is were all global
@@ -29,7 +29,7 @@
 //! on disk.
 //! ABS and suicide systems contributed freely by Francesco Chemolli
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: caudium.pike,v 1.263 2008-03-21 09:58:23 bertrand Exp $";
 
 object backend_thread;
 object argcache;
@@ -1422,7 +1422,7 @@ mapping(string:array) module_stat_cache = ([]);
 object load(string s, object conf)   // Should perhaps be renamed to 'reload'. 
 {
   string   cvs;
-  array    st;
+  Stdio.Stat st;
   program  prog;
   if(st = file_stat(s+".pike")) {
     if(prog = compile_file(s+".pike")) {
@@ -3043,7 +3043,7 @@ void scan_module_dir(string d)
     
     master()->set_inhibit_compile_errors(e);
     if (file[0]!='.' && !Caudium.backup_extension(file) && (file[-1]!='z')) {
-      array stat = file_stat(path+file);
+      Stdio.Stat stat = file_stat(path+file);
       
       if (!stat || (stat[ST_SIZE] < 0)) {
         if (err = catch ( scan_module_dir(path+file+"/") ))

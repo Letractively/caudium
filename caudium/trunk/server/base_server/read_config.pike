@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id$
+ * $Id: read_config.pike,v 1.29 2007-08-15 01:48:51 hww3 Exp $
  */
 
 //! Read Configuration file for Caudium.
@@ -30,7 +30,7 @@
 
 #ifndef IN_INSTALL
 inherit "newdecode";
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: read_config.pike,v 1.29 2007-08-15 01:48:51 hww3 Exp $";
 #else
 import spider;
 # define error(X) do{array Y=backtrace();throw(({(X),Y[..sizeof(Y)-2]}));}while(0)
@@ -206,7 +206,7 @@ void fix_config(mixed c)
 //!
 array config_is_modified(string cl)
 {
-  array st = file_stat(configuration_dir + replace(cl, " ", "_"));
+  Stdio.Stat st = file_stat(configuration_dir + replace(cl, " ", "_"));
   
   if(st)
     if(!config_stat_cache[cl])
