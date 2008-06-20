@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id$
+ * $Id: FileWatch.pmod,v 1.12 2005-01-03 17:04:42 kiwi Exp $
  */
 
 //!  This Pike module provides a couple of classes that makes it possible for
@@ -50,7 +50,7 @@ class _base {
   static int timeout;
   static string file;
   static function cb;
-  static array|object last_stat;
+  static Stdio.Stat last_stat;
 
   void create(string _file, int _timeout, function _cb) {
     file    = _file;
@@ -111,7 +111,7 @@ class Callout {
 
   void callback() {
     if(!this_object()) { return; }
-    array|object new_stat;
+    Stdio.Stat new_stat;
     new_stat = file_stat(file);
     catch { 
       do_callback(new_stat);
@@ -141,7 +141,7 @@ class Threaded {
   }
 
   void watcher() {
-    array|object new_stat;
+    Stdio.Stat new_stat;
     while(this_object() && timeout > 0)
     {
       sleep(timeout);
