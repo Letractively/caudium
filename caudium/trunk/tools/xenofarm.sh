@@ -32,7 +32,7 @@ xenofarm_build() {
   log_end 0
   [ $LASTERR = 0 ] || return 1
   log_start compile
-  $MAKE > xenofarm_result/compilelog.txt 2>&1
+  $MAKE $MAKE_ARGS > xenofarm_result/compilelog.txt 2>&1
   log_end $?
   [ $LASTERR = 0 ] || return 1
 }
