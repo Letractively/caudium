@@ -26,12 +26,12 @@
 //! inherits: caudiumlib
 //! inherits: wizard
 //! type: MODULE_LOCATION
-//! cvs_version: $Id$
+//! cvs_version: $Id: ultraparse.pike,v 1.30 2005-01-03 17:04:50 kiwi Exp $
 //
 
 /* Ultraparse,pike, the main UltraLog Roxen module */
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: ultraparse.pike,v 1.30 2005-01-03 17:04:50 kiwi Exp $";
 #include <module.h>
 #include <pcre.h>
 
@@ -679,7 +679,7 @@ array(string)|string get_profile_list(void|int raw)
   servers = 
     sort(Array.filter(servers,
 		      lambda(string sname) {
-			array st;
+			Stdio.Stat st;
 			if((st = file_stat(profile_master->savedir+sname)) &&
 			   st[1] == -2)
 			  return 1;

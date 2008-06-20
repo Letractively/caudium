@@ -24,13 +24,13 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOCATION
-//! cvs_version: $Id$
+//! cvs_version: $Id: cvsfs.pike,v 1.21 2005-01-03 17:04:45 kiwi Exp $
 //
 /*
  * Written by Niels Möller 1997
  */
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: cvsfs.pike,v 1.21 2005-01-03 17:04:45 kiwi Exp $";
 constant thread_safe=1;
 
 #include <module.h>
@@ -175,7 +175,7 @@ string lookup_cvs_module(string prog, string root, string module)
 string locate_binary(array path, string name)
 {
   string dir;
-  array info;
+  Stdio.Stat info;
   foreach(path, dir)
     {
       string fname = dir + "/" + name;
@@ -388,8 +388,8 @@ object|mapping|int find_file(string name, object id)
       return is_text ? Caudium.HTTP.file_answer(f, "text/plain") : f;
     }
     else {
-      array arr = file_stat(fname + "/.");
-      if (arr && (arr[1] < 0)) {
+      Stdio.Stat stat = file_stat(fname + "/.");
+      if (stat && (stat[1] < 0)) {
 #ifdef CVSFS_DEBUG
 	roxen_perror("CVS: \"" + fname + "\" is a directory.\n");
 #endif /* CVSFS_DEBUG */
@@ -416,7 +416,7 @@ string try_get_file(string name, object id)
 
 array find_dir(string name, object id)
 {
-  array info;
+  Stdio.Stat info;
   string fname = combine_path(query("cvsroot"),
 			      cvs_module_path + "/" + secure_path(name));
   // report_debug("find_dir: Looking for '%s'\n", name);

@@ -9,7 +9,7 @@ inherit "modules/filesystems/filesystem.pike";
 
 import Parser.XML.Tree;
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: webapp.pike,v 1.4 2004-10-28 15:33:55 hww3 Exp $";
 
 constant thread_safe=1;
 constant module_unique = 0;
@@ -348,7 +348,7 @@ void start(int x, object conf)
   if (has_suffix(warname, ".war"))
     {
       string dir = warname[..sizeof(warname)-5];
-      mixed s = file_stat( dir );
+      Stdio.Stat s = file_stat( dir );
       if( !s )
         {
           // extract
@@ -1726,7 +1726,7 @@ class ClassPathList
       array(string) value_exp = glob_expand(value);
       if (sizeof(value_exp) > 0)
         foreach(value_exp, string val2) {
-          mixed s = file_stat( val2 );
+          Stdio.Stat s = file_stat( val2 );
           Stdio.File f = Stdio.File();
           if( !s )
             warn += val2 + " does not exist\n";
@@ -1762,7 +1762,7 @@ class WARPath
     while (has_suffix(value, "/"))
       value = value[..sizeof(value)-2];
     string warn = "";
-    mixed s = file_stat( value );
+    Stdio.Stat s = file_stat( value );
     Stdio.File f = Stdio.File();
     if( !s )
       warn += value + " does not exist\n";

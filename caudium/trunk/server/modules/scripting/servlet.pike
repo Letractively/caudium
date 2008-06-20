@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id$
+ * $Id: servlet.pike,v 1.27 2004-08-25 16:22:48 bertrand Exp $
  */
 
 //
@@ -28,14 +28,14 @@
 //! inherits: module
 //! inherits: http
 //! type: MODULE_FILE_EXTENSION | MODULE_LOCATION
-//! cvs_version: $Id$
+//! cvs_version: $Id: servlet.pike,v 1.27 2004-08-25 16:22:48 bertrand Exp $
 //
 
 #include <module.h>
 inherit "module";
 inherit "http";
 
-constant cvs_version   = "$Id$";
+constant cvs_version   = "$Id: servlet.pike,v 1.27 2004-08-25 16:22:48 bertrand Exp $";
 constant module_type   = MODULE_LOCATION | MODULE_FILE_EXTENSION;
 constant module_name   = "Java Servlet bridge";
 constant module_unique = 0;
@@ -229,7 +229,7 @@ string|void check_value( string s, string|array(string) value )
     string warn = "";
     foreach( value-({""}), string val ) 
     {
-      array s = (array)predef::file_stat( val );
+      array s = (array)file_stat( val );
       Stdio.File f = Stdio.File();
       if( !s )
         warn += val+" does not exist\n";

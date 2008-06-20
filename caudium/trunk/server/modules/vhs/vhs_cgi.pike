@@ -26,7 +26,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: vhs_cgi.pike,v 1.25 2008-03-10 13:36:00 bertrand Exp $";
 
 constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION;
 constant module_name = "VHS - CGI executable support";
@@ -141,8 +141,7 @@ array verify_access( object id )
   if(!getuid())
   {
     if(QUERY(user) && id->misc->is_user &&
-       (us = file_stat(id->misc->is_user)) &&
-       (us[5] >= 10))
+       (us = (array)file_stat(id->misc->is_user)) && (us[5] >= 10))
     {
       // Scan for symlinks
       string fname = "";
@@ -151,7 +150,7 @@ array verify_access( object id )
       {
         fname += part;
         if ((fname != "")) {
-          if(((!(a = file_stat(fname, 1))) || ((< -3, -4 >)[a[1]])))
+          if(((!(a = (array)file_stat(fname, 1))) || ((< -3, -4 >)[a[1]])))
           {
             // Symlink or device encountered.
             // Don't allow symlinks from directories not owned by the
@@ -172,7 +171,7 @@ array verify_access( object id )
 	    // Stat what the symlink points to.
 	    // NB: This can be fooled if root is stupid enough to symlink
 	    //     to something the user can move.
-	    a = file_stat(fname);
+	    a = (array)file_stat(fname);
 	    if (!a || a[1] == -4) {
 	      error(sprintf("CGI: Bad symlink or device encountered: \"%s\"\n",
 			    fname));
@@ -759,7 +758,7 @@ class CGIScript
        global_env["HOME"] = id->misc->vhs->homedir;
     }
 
-    array(int) statres = file_stat(id->realfile);
+    array(int) statres = (array)file_stat(id->realfile);
 
     if (statres[5] >= 100) uid = statres[5];
     if (statres[6] >= 100) gid = statres[6];
@@ -830,7 +829,7 @@ mapping handle_file_extension(object o, string e, object id)
   return Caudium.HTTP.stream( CGIScript( id )->run()->get_fd() );
 }
 
-array stat_file( string f, object id )
+mixed stat_file( string f, object id )
 {
   DWERROR("CGI:stat_file()\n");
 

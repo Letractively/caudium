@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id$
+ * $Id: ssi_compat.pike,v 1.14 2008-02-21 00:21:17 hww3 Exp $
  */
 
 //! module: SSI Compat Tags
@@ -26,7 +26,7 @@
 //!   starting with &lt;!--#).
 //!   Apache to Caudium.
 //! type: MODULE_PARSER
-//! cvs_version: $Id$"
+//! cvs_version: $Id: ssi_compat.pike,v 1.14 2008-02-21 00:21:17 hww3 Exp $"
 //! inherits: module
 //! inherits: caudiumlib
 
@@ -37,7 +37,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version   = "$Id$";
+constant cvs_version   = "$Id: ssi_compat.pike,v 1.14 2008-02-21 00:21:17 hww3 Exp $";
 constant thread_safe   = 1;
 constant module_type   = MODULE_PARSER;
 constant module_name   = "SSI Compat Tags";
@@ -272,7 +272,7 @@ string tag_compat_fsize(string tag,mapping m,object id,object file,
     m->file = combine_path(id->conf->real_file(id->not_query, id) || "/", "../" + m->file);
   }
   if(m->file) {
-    array s;
+    Stdio.Stat s;
     s = file_stat(m->file);
     CACHE(5);
     if(s) {
