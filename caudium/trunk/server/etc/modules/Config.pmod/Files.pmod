@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id$
+ * $Id: Files.pmod,v 1.28 2004-05-18 09:34:07 vida Exp $
  */
 
 //! This module implements parsing and management of the flatfile configs on
 //! the local filesystem.
-constant cvs_version = "$Id$";
+constant cvs_version = "$Id: Files.pmod,v 1.28 2004-05-18 09:34:07 vida Exp $";
 
 #define FORMAT_OLD  0
 #define FORMAT_XML  1
@@ -65,7 +65,7 @@ class Dir
     Stdio.Stat  fs;
 
     error = catch{
-      fs = Stdio.Stat(file_stat(dir));
+      fs = file_stat(dir);
     };
         
     if (fs && !fs->isdir)
@@ -223,7 +223,7 @@ class Dir
     Stdio.Stat fs;
 
     error = catch {
-      fs = Stdio.Stat(file_stat(my_dir + fname));
+      fs = file_stat(my_dir + fname);
     };
         
     if (fs && !fs->isreg)
