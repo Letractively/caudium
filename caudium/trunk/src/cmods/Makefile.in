@@ -1,9 +1,9 @@
-# $Id$
+# $Id: Makefile.in,v 1.7 2003-02-13 17:20:06 kiwi Exp $
 
 SRCDIR=@srcdir@
 CPP=@CPP@
 
-MODULES=@subdirs@
+MODULES=Mhash PCRE PiXSL UltraLog _Caudium
 
 all: modules
 
