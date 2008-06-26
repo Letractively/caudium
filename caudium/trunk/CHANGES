@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Only consider specified pike when using --with-pike rather than also 
+checking a list of possible pike locations.
+  (Bill Welliver and Martin Baehr)
+- Added --with-any-pike-version to disable standard version compatibility
+  (Bill Welliver and Martin Baehr)
 - file_stat() is now just standard Pike (returns Stdio.Stat object)
   rather than an array.
   (Bill Welliver)
@@ -30,8 +35,8 @@ Changes in Caudium 1.5.1 since Caudium 1.4.1
   Those are stored into id->misc->path_info_variables and
   id->misc->path_info_variables id->misc->path_info_empty_variables
   (Bertrand LUPART)
-- Added CAUDIUM_SITE_ID environment variables for being able to get it from
-  external scripts.
+- Added CAUDIUM_SITE_ID environment variables for being able to get it 
+  from external scripts.
   (Bertrand LUPART)
 - Added RequestID()->get_canonical_url(), which should be used
     by any code attempting to determine the "official" url of the 

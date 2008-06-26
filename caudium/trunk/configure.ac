@@ -1,10 +1,10 @@
 #
-# $Id$
+# $Id: configure.ac,v 1.65 2007-10-12 01:20:32 hww3 Exp $
 #
 AC_PREREQ(2.53)
 AC_INIT(Caudium, 1.5.1, bugs@caudium.net)
 
-AC_REVISION($Revision$)
+AC_REVISION($Revision: 1.65 $)
 
 #
 # Some prerequisites of ours
@@ -375,9 +375,14 @@ AC_HELP_STRING([--with-serverdir=DIR],[Location of the top-level Caudium directo
 
 ### Pike Detection ###
 ######################
+CHECK_PIKE_VERSION=1
+
+AC_ARG_WITH(any-pike-version, 
+AC_HELP_STRING([--with-any-pike-version],[Allow any pike version to be used, disabling the standard version compatibility checks]), 
+  [CHECK_PIKE_VERSION=0], [CHECK_PIKE_VERSION=1])
 
 AC_ARG_WITH(pike, 
-AC_HELP_STRING([--with-pike[=binary]],[Use the specified Pike.]),
+AC_HELP_STRING([--with-pike[=binary]],[Use the specified Pike rather than searching for a suitable Pike.]),
 [
     if test ! -z "$withval" -a "$withval" != "yes"; then 
 		extpike="`type  $withval |sed "s:$withval is ::" 2>/dev/null`"
@@ -407,7 +412,13 @@ PIKE_INCLUDE_DIRS=""
 REQ_MIN_PIKE_DECNUM=`expr '(' $REQ_MIN_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MIN_PIKE_MINOR '*' 1000 ')' + $REQ_MIN_PIKE_BUILD`
 REQ_MAX_PIKE_DECNUM=`expr '(' $REQ_MAX_PIKE_MAJOR '*' 10000 ')' + '(' $REQ_MAX_PIKE_MINOR '*' 1000 ')' + $REQ_MAX_PIKE_BUILD`
 OLD_DIR=`pwd`
-for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike76 /opt/local/bin/pike /opt/local/bin/pike76 /opt/bin/pike /opt/bin/pike76 /usr/bin/pike7.6 /usr/bin/pike7.6; do
+if test "x$DEFPIKE" != "x" ; then
+PIKES_TO_CHECK="$DEFPIKE"
+else
+PIKES_TO_CHECK="$PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pike /sw/bin/pike74 /sw/local/bin/pike /opt/local/bin/pike /usr/gnu/bin/pike /usr/bin/pike /usr/pkg/bin/pike /usr/pkg/bin/pike76 /opt/local/bin/pike /opt/local/bin/pike76 /opt/bin/pike /opt/bin/pike76 /usr/bin/pike7.6 /usr/bin/pike7.6"
+fi
+
+for PIKE in $PIKES_TO_CHECK; do
   if test -x $PIKE; then
     echo -n "  ...${PIKE}"
     THIS_PIKE_VER=`$PIKE -e 'int maj,min,bld;sscanf(version(),"Pike v%d.%d release %d",maj,min,bld);write(sprintf("%d.%d.%d",maj,min,bld));exit(0);'`
@@ -421,16 +432,26 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
     THIS_PIKE_VERNUM=$THIS_PIKE_MAJOR$THIS_PIKE_MINOR$THIS_PIKE_BUILD
     THIS_PIKE_DECNUM=`expr '(' $THIS_PIKE_MAJOR '*' 10000 ')' + '(' $THIS_PIKE_MINOR '*' 1000 ')' + $THIS_PIKE_BUILD`
 
+
     if test $THIS_PIKE_DECNUM -lt $REQ_MIN_PIKE_DECNUM; then
-       echo " => too old"
-       continue
-    fi
-    if test $THIS_PIKE_DECNUM -ge $REQ_MAX_PIKE_DECNUM; then
-      echo " => too new"
-      continue
+      if test CHECK_PIKE_VERSION = 1 ; then
+         echo " => too old"
+         continue
+      else
+         echo " => too old (but using anyway due to --with-any-pike-version)"
+      fi
+    elif test $THIS_PIKE_DECNUM -ge $REQ_MAX_PIKE_DECNUM; then
+      if test CHECK_PIKE_VERSION = 1 ; then
+        echo " => too new"
+        continue
+      else
+         echo " => too new (but using anyway due to --with-any-pike-version)"
+      fi
+    else
+      echo " => good version"
     fi
 
-    echo " => good version"
+  
 
     PIKE_DIRNAME="`dirname $PIKE`"
     for PIKE_INCDIR in $PIKE_DIRNAME/.. \
@@ -477,13 +498,13 @@ for PIKE in $DEFPIKE $PREFIXPIKE $pathpike /usr/local/bin/pike /opt/pike/bin/pik
       done
     done
   fi
-  if test x"$FOUND_PIKE" = "x1"; then
+  if test "x$FOUND_PIKE" = "x1"; then
     break
   fi
 done
 
 cd $OLD_DIR
-if test x"$FOUND_PIKE" = "x1"; then 
+if test "x$FOUND_PIKE" = "x1"; then 
   AC_MSG_RESULT([found Pike $PIKE_VERSION ($PIKE) with C headers in $PIKE_INCLUDE_DIRS])
 else
   cat << EOF
