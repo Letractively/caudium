@@ -18,7 +18,7 @@
  *
  */
 /*
- * $Id$
+ * $Id: testsuite.pike,v 1.23 2005-01-03 17:04:52 kiwi Exp $
  */
 
 // Global variables
@@ -33,8 +33,8 @@ void write_result(int retcode, mixed a, mixed b) {
     write("+");
   } else {
     write("-\n");
-    write(sprintf("     a = %O \n",a));
-    write(sprintf("     b = %O \n",b));
+    write(sprintf("     a (expected) = %O \n",a));
+    write(sprintf("     b (got)      = %O \n",b));
   }
 }
 
@@ -62,21 +62,31 @@ void prtest(string name) {
 // can output several good values
 int mapping_test(mapping tst, function totest, void|mixed ...args) {
   int out = 0;
-  foreach(indices(tst), string foo) {
+  foreach(tst; string inv; string|array outv) {
     int i = 1, j = 0;
-    array ress = ({ tst[foo] });
-    if(arrayp(tst[foo]))
-      ress = tst[foo];
+    array ress;
+    if(arrayp(outv)) ress = outv;
+    else ress = ({ outv });
     array ress_from_fun = allocate(sizeof(ress));
+
+      if(args && sizeof(args))
+        ress_from_fun[j] = totest(inv, @args); 
+      else
+        ress_from_fun[j] = totest(inv);
+
+
+    //werror("input: %O\n", inv);
+    //werror("result: %O\n", ress_from_fun[j]);
 
     foreach(ress, string res)
     {
-      if(args && sizeof(args))
-        ress_from_fun[j] = totest(foo, @args); 
-      else
-        ress_from_fun[j] = totest(foo);
-      i &= !(res == ress_from_fun[j++]);
+
+      
+//      werror("does %O equal %O?   result: %O\n", res, ress_from_fun[j], res == ress_from_fun[j]);
+
+      i &= !(res == ress_from_fun[j]);
     }
+    j++;
     out |= i;
     write_result(out, ress, ress_from_fun);
   }
@@ -117,10 +127,9 @@ int TEST_http_encode_string() {
 int TEST_http_encode_url() {
   mapping tst = ([ " ":"%20", "\t":"%09", "\n":"%0A", "\r":"%0D",
                    "%":"%25", "'":"%27", "\"":"%22", "#":"%23",
-                   "&":"%26", "?":"%3F", "=":"%3D", "/":"%2F",
-                   ":":"%3A", "+":"%2B", "<":"%3C", ">":"%3E",
-                   "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F",
-                   "eaud.b@free.fr":"eaud.b%40free.fr"
+                   "<":"%3C", ">":"%3E",
+                   "http://caudium.net/":"http://caudium.net/",
+                   "eaud.b@free.fr":"eaud.b@free.fr"
   ]);
   prtest("http_encode_url");
   return mapping_test(tst, _Caudium.http_encode_url);
