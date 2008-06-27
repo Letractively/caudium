@@ -18,11 +18,11 @@
  *
  */
 /*
- * $Id$
+ * $Id: caudium.c,v 1.172 2008-02-11 23:33:08 hww3 Exp $
  */
 
 #include "global.h"
-RCSID("$Id$");
+RCSID("$Id: caudium.c,v 1.172 2008-02-11 23:33:08 hww3 Exp $");
 #include "caudium_util.h"
 #include "caudium_machine.h"
 #include "entparse.h"
@@ -87,7 +87,7 @@ static_strings strs;
 /*
 **! file: Caudium/caudium.c
 **!  Caudium specific classes and functions.
-**! cvs_version: $Id$
+**! cvs_version: $Id: caudium.c,v 1.172 2008-02-11 23:33:08 hww3 Exp $
 */
 
 /*
@@ -106,7 +106,7 @@ static struct array    *html_mta_safe_entities;
 
 /* unsafe characters and entities for encode_mapping (used by make_tag_attributes)
  * used to generate tags and containers */
-const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\0"};
+const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\\0"};
 const static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
 const static char            *html_unsafechars[] = { "\"", "<", ">", "&" };
 const static char            *html_safeentities[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
@@ -140,9 +140,9 @@ static INLINE struct pike_string *_encode_pike_string(struct pike_string *ps,
   struct pike_string *ret;
   
   int          do_replace = 0, i;
-  
   /* let's see whether we have anything to encode */
   for (i = 0; i < unsafe_size; i++) {
+
     if (memchr(ps->str, unsafe_chars[i][0], ps->len)) {
       do_replace = 1;
       break;
@@ -186,11 +186,13 @@ static INLINE struct mapping *encode_mapping(struct mapping *mapping2encode, int
     if (k->ind.type != T_STRING || k->val.type != T_STRING)
       continue;
     
+
     key = _encode_pike_string(k->ind.u.string,
                               __unsafe_chars[encode_type],
                               encode_type == ENCODE_TYPE_XML ? XML_UNSAFECHARS_SIZE : HTML_UNSAFECHARS_SIZE,
                               __mta_unsafe_chars[encode_type],
                               __mta_safe_entities[encode_type]);
+
     val = _encode_pike_string(k->val.u.string,
                               __unsafe_chars[encode_type],
                               encode_type == ENCODE_TYPE_XML ? XML_UNSAFECHARS_SIZE : HTML_UNSAFECHARS_SIZE,
@@ -2026,9 +2028,7 @@ void pike_module_init( void )
 
   for (i = 0; i < XML_UNSAFECHARS_SIZE; i++)
   {
-    ps = make_shared_binary_string(xml_unsafechars[i], 1);
-    push_string(ps);
-    free_string(ps);
+    push_text(xml_unsafechars[i]);
   }
   xml_mta_unsafe_chars = aggregate_array(XML_UNSAFECHARS_SIZE);
 
@@ -2038,9 +2038,7 @@ void pike_module_init( void )
 
   for (i = 0; i < HTML_UNSAFECHARS_SIZE; i++)
   {
-    ps = make_shared_binary_string(html_unsafechars[i], 1);
-    push_string(ps);
-    free_string(ps);
+    push_text(html_unsafechars[i]);
   }
   html_mta_unsafe_chars = aggregate_array(HTML_UNSAFECHARS_SIZE);
 
@@ -2125,7 +2123,6 @@ void pike_module_exit( void )
   free_string(STRS(mta_slash));
   free_string(STRS(mta_equals));
 
-printf("shutting down\n");
   free_array(xml_mta_unsafe_chars);
   free_array(xml_mta_safe_entities);
   free_array(html_mta_unsafe_chars);
