@@ -55,5 +55,11 @@ int upgrade_server()
    caudium->save_it("ConfigurationInterface");
    caudium->save_it("Global Variables");
 
+  report_notice("Converted old style configuration interface to new configuration interface.\n");
+  report_notice("*** NOTE: we will request a restart of the server in 10 seconds. \n"
+                "    If running in --once mode, you will have to restart manually.\n\n");
+
+
+  call_out(caudium->restart, 10);
   return 1;
 }
