@@ -2438,10 +2438,9 @@ private void define_global_variables(int argc, array (string) argv)
 {
   int p;
 
-  globvar("upgrade_performed", 0, "Upgrade Performed?", TYPE_FLAG|VAR_MORE,
-	"If set to No, the server will attempt to perform any upgrade steps on the next startup."
-        "Normally, the upgrade procedure is run on the first startup, though you might need to set this "
-        "if you migrate configurations from an older server, or upgrade the server software in the future.");
+  globvar("upgrade_version", 0, "Upgraded Version", TYPE_STRING|VAR_MORE,
+        "Contains the version of Caudium last run. On startup, Caudium will "
+        "check this value to see if additional upgrade steps are necessary.");
 
   globvar("snmp_enable", 0, "SNMP Agent: Enable SNMP Agent", TYPE_FLAG,
 	"If set to Yes, the server will enable access to server status "
@@ -3484,29 +3483,64 @@ int main(int argc, array(string) argv)
 // check to see if we've upgraded yet. if not, run the upgrade.
 void check_perform_upgrade()
 {
-  mixed e=catch(GLOBVAR(upgrade_performed));
-  if(e || !GLOBVAR(upgrade_performed))
-    do_perform_upgrade();
+  string v;
+  mixed e=catch(GLOBVAR(upgrade_version));
+  if(e || !(v = GLOBVAR(upgrade_version)))
+    do_perform_upgrade(v);
 }
 
 // run the upgrade procedure, running code from files in etc/upgrade.d
-void do_perform_upgrade()
+void do_perform_upgrade(string version)
 {
-   report_notice("Performing upgrade...\n");
+   report_notice("Performing upgrade from " + version + "...\n");
    array uc=get_dir("etc/upgrade.d");
-   if(uc) uc=glob("*.pike", uc);
-   if(!uc || sizeof(uc)==0) report_error("no upgrade code found in etc/upgrade.d!\n");
-   else foreach(caudium->configurations, object config)
+
+   foreach(uc;;string dir)
    {
-     report_notice("Upgrading virtual server configuration " + config->name + "...\n");
-     foreach(uc, string codefile)
+     Stdio.Stat fs = file_stat(combine_path("etc/upgrade.d", dir));
+     if(!fs->isdir)
      {
-       object upgrade_object=((program)("etc/upgrade.d/" + codefile))(config);
-       if(!upgrade_object->run())
-         report_error("Upgrade " + codefile + "  failed for configuration " + config->name + "\n");
+       uc -= ({ dir });
+     }
+   } 
+
+   uc = Array.sort_array(uc, Array.oid_sort_func);
+
+   foreach(uc;; string ver)
+   {
+     if(Array.oid_sort_func(version, ver) || version == ver)
+       continue; // we've already performed upgrades to this release
+
+     else
+     {
+       do_perform_version(ver);
      }
    }
-   set("upgrade_performed", 1);
+
+   // if we get to the end, we should be at the current release.
+   set("upgrade_version", __caudium_version__ + "." + __caudium_build__);
+
+}
+
+void do_perform_upgrade_version(string version)
+{
+  report_info("Performing upgrade to version " + version + ".");
+   string ud = combine_path("etc/upgrade.d" , version);
+   array uc = get_dir(ud);
+   if(uc) uc=glob("*.pike", uc);
+   if(!uc || sizeof(uc)==0) 
+     report_error("no upgrade code found in " + ud + "!\n");
+   else
+   {
+     foreach(uc, string codefile)
+     {
+       object upgrade_object=((program)(combine_path(ud, codefile)))();
+       if(upgrade_object->run)
+         upgrade_object->run();
+     }
+   }
+
+   set("upgrade_version", version);
 }
 
 void|string diagnose_error(array from)

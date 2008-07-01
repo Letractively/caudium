@@ -1,20 +1,18 @@
-// upgrade configurations containing activedirectoryauth to auth_master + auth_activedirectory.
+// upgrade configurations containing ldapuserauth to auth_master + auth_ldap.
+
+inherit Caudium.UpgradeTask;
 
 object config;
 
-void create(object c)
+int upgrade_configuration(object c)
 {
-  config=c;
-}
-
-int run()
-{
-  array varstoget=({"addomain", "adservers", "aduser", "adpassword"});
+  config = c;
+  array varstoget=({"CI_dir_server", "CI_basename", "CI_level"});
   mapping vars=([]);
   mapping reg;
   string mod_reg;
 
-  if(mod_reg=is_module_enabled("activedirectoryauth"))
+  if(mod_reg=is_module_enabled("ldapuserauth"))
   {
     reg=caudium->retrieve(mod_reg, config);
     if(reg && sizeof(reg)>0)
@@ -22,7 +20,10 @@ int run()
       // non-default settings here.
       foreach(varstoget, string v)
       {
-         vars[v]=reg[v];
+           if(v=="CI_dir_server")
+             vars[v]="ldap://" + reg[v];
+           else
+             vars[v]=reg[v];
       }
     }
    
@@ -31,7 +32,7 @@ int run()
     m_delete(enabled_modules, mod_reg);
     caudium->remove(mod_reg, config);
 
-    // now that we have the existing settings, and have removed the old module, we can add auth_master and auth_activedirectory.
+    // now that we have the existing settings, and have removed the old module, we can add auth_master and sqldb.
 
     // do we need to add auth_master? (presumably yes, but let's not take any chances...
     if(!(mod_reg=is_module_enabled("auth_master")))
@@ -39,16 +40,17 @@ int run()
       enabled_modules["auth_master#0"] = 1;
     }
 
-    enabled_modules["auth_activedirectory#0"] = 1;
+    enabled_modules["auth_ldap#0"] = 1;
    
     if(sizeof(vars)>0)
-      caudium->store("auth_activedirectory#0", vars, 1, config);
+      caudium->store("auth_ldap#0", vars, 1, config);
 
     caudium->store("EnabledModules",enabled_modules, 1, config);
     caudium->save_it(config->name);
 
-    report_notice("Active Directory module upgraded to use the new Authentication Provider system. "
-      "Your settings have been retained.\n");
+    report_notice("LDAP User DB module upgraded to use the new Authentication Provider system. "
+      "NOTE: Some of your existing settings have been retained, however, you will need to configure "
+      "the field parameters that will be used to authenticate users.\n");
 
   }
   return 1;
