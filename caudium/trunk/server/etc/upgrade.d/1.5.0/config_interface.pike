@@ -21,13 +21,14 @@ void setconfigvar(string sect, string var, mixed value)
 // the meat of the upgrade task
 int upgrade_server()
 {
-  // if we already have a configuration interface virtual server, we don't need to 
-  // continue.
+  // if we already have a configuration interface virtual server, we don't 
+  // need to continue.
   foreach(caudium->configurations;; object c)
   {
     if(c->name == "ConfigurationInterface") return 1;
   }
 
+   // the configuration interface vs doesn't exist, so we can create it.
    setconfigvar("spider#0", "Ports", GLOBVAR("ConfigPorts"));
    setconfigvar("spider#0", "MyWorldLocation", GLOBVAR("ConfigurationURL"));
    setconfigvar("spider#0", "name", "Configuration Interface");
@@ -43,14 +44,14 @@ int upgrade_server()
    setconfigvar("EnabledModules", "auth_configdefault#0", 1);
    setconfigvar("EnabledModules", "filesystem#0", 1);
 
-
+   // let's clean up the Global Variables config a bit
    mapping v = caudium->retrieve("Variables", 0);
 
    m_delete(v, "ConfigPorts");
    m_delete(v, "ConfigurationUser");
    m_delete(v, "ConfigurationPassword");
- 
 
+   // and finally, we can save our changes.
    caudium->save_it("ConfigurationInterface");
    caudium->save_it("Global Variables");
 
