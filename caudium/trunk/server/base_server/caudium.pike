@@ -2438,6 +2438,8 @@ private void define_global_variables(int argc, array (string) argv)
 {
   int p;
 
+  globvar("upgrade_performed", 0, "Upgrade Performed? (DEPRECATED)", TYPE_FLAG|VAR_MORE, "");
+
   globvar("upgrade_version", 0, "Upgraded Version", TYPE_STRING|VAR_MORE,
         "Contains the version of Caudium last run. On startup, Caudium will "
         "check this value to see if additional upgrade steps are necessary.");
@@ -3487,17 +3489,14 @@ int main(int argc, array(string) argv)
 void check_perform_upgrade()
 {
   string v;
-  mixed e=catch(GLOBVAR(upgrade_version));
-  if(e && !catch(GLOBVAR(upgrade_performed)))
+  mixed e=catch(v = GLOBVAR(upgrade_version));
+  if(e || !v)
   {
-    v = "1.4.999";
+    if(GLOBVAR(upgrade_performed))
+      v = "1.4.999";
+    else
+      v = "1.3.999";
   }
-  else if(e)
-  {
-    v = "1.3.999";
-  }
-  else v = GLOBVAR(upgrade_version);
-
   if(v)
     do_perform_upgrade(v);
 }
@@ -3511,7 +3510,7 @@ void do_perform_upgrade(string version)
    foreach(uc;;string dir)
    {
      Stdio.Stat fs = file_stat(combine_path("etc/upgrade.d", dir));
-     if(!fs->isdir || Array.oid_sort_func(version, ver) || version == ver)
+     if(!fs->isdir || Array.oid_sort_func(version, dir) || version == dir)
      {
         // either we're not a directory, or
         // we've already performed upgrades to this release
@@ -3524,20 +3523,17 @@ void do_perform_upgrade(string version)
 
    foreach(uc;; string ver)
    {
-     else
-     {
-       do_perform_upgrade_version(ver);
-     }
+     do_perform_upgrade_version(ver);
    }
 
    // if we get to the end, we should be at the current release.
    set("upgrade_version", __caudium_version__ + "." + __caudium_build__);
-
+   store("Variables", variables, 0, 0);
 }
 
 void do_perform_upgrade_version(string version)
 {
-  report_info("Performing upgrade to version " + version + ".");
+  report_notice("Performing upgrade to version " + version + ".\n");
    string ud = combine_path("etc/upgrade.d" , version);
    array uc = get_dir(ud);
    if(uc) uc=glob("*.pike", uc);
@@ -3554,6 +3550,7 @@ void do_perform_upgrade_version(string version)
    }
 
    set("upgrade_version", version);
+   store("Variables", variables, 0, 0);
 }
 
 void|string diagnose_error(array from)

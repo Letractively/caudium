@@ -11,8 +11,9 @@ int run()
     foreach(caudium->configurations, object config)
     {
       report_notice("Upgrading virtual server configuration " + config->name + "...\n");
-       if(!upgrade_configuration())
-         report_error("Upgrade " + codefile + "  failed for configuration " + config->name + "\n");
+       if(!upgrade_configuration(config))
+         report_error("Upgrade " + sprintf("%O", this) + "  failed for configuration " 
+           + config->name + "\n");
     }
   }
 

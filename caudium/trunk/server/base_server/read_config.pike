@@ -135,7 +135,7 @@ array(mapping(string:string|int)) list_all_configurations()
 void save_it(string cl)
 {
   if (!configs[cl]) {
-    report_error("Config '%s' does not exist while trying to save.\n");
+    report_error("Config '%s' does not exist while trying to save.\n", cl);
     return;
   }
 
@@ -204,7 +204,7 @@ void fix_config(mixed c)
 }
 
 //!
-array config_is_modified(string cl)
+Stdio.Stat config_is_modified(string cl)
 {
   Stdio.Stat st = file_stat(configuration_dir + replace(cl, " ", "_"));
   

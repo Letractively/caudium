@@ -1,8 +1,9 @@
 
 // upgrade configuration interface to be a virtual server
 
-#include <module.h>
 inherit Caudium.UpgradeTask;
+
+#define GLOBVAR(X) caudium->retrieve("Variables", 0)[X]
 
 // some support functionality
 class dummyConfig(string name)
@@ -24,25 +25,34 @@ int upgrade_server()
   // continue.
   foreach(caudium->configurations;; object c)
   {
-    if(c->name == "ConfigurationInterface") return;
+    if(c->name == "ConfigurationInterface") return 1;
   }
 
-   setconfigvar("spider#0", "Ports", GLOBVAR(ConfigPorts));
-   setconfigvar("spider#0", "MyWorldLocation", GLOBVAR(ConfigurationURL));
+   setconfigvar("spider#0", "Ports", GLOBVAR("ConfigPorts"));
+   setconfigvar("spider#0", "MyWorldLocation", GLOBVAR("ConfigurationURL"));
    setconfigvar("spider#0", "name", "Configuration Interface");
    setconfigvar("spider#0", "netcraft_done", 1);
    setconfigvar("filesystem#0", "mountpoint", "/config_interface");
    setconfigvar("filesystem#0", "searchpath", "config_interface");
    setconfigvar("configure#0", "mountpoint", "/");
    setconfigvar("auth_master#0", "name", "Master Authentication Handler");
-   setconfigvar("auth_configdefault#0", "username", GLOBVAR(ConfigurationUser));
-   setconfigvar("auth_configdefault#0", "password", GLOBVAR(ConfigurationPassword));
+   setconfigvar("auth_configdefault#0", "username", GLOBVAR("ConfigurationUser"));
+   setconfigvar("auth_configdefault#0", "password", GLOBVAR("ConfigurationPassword"));
    setconfigvar("EnabledModules", "configure#0", 1);
    setconfigvar("EnabledModules", "auth_master#0", 1);
    setconfigvar("EnabledModules", "auth_configdefault#0", 1);
    setconfigvar("EnabledModules", "filesystem#0", 1);
 
+
+   mapping v = caudium->retrieve("Variables", 0);
+
+   m_delete(v, "ConfigPorts");
+   m_delete(v, "ConfigurationUser");
+   m_delete(v, "ConfigurationPassword");
+ 
+
    caudium->save_it("ConfigurationInterface");
+   caudium->save_it("Global Variables");
 
   return 1;
 }
