@@ -3481,11 +3481,24 @@ int main(int argc, array(string) argv)
 }
 
 // check to see if we've upgraded yet. if not, run the upgrade.
+// if the upgrade_version variable isn't present but upgrade_performed is 
+// present, we make the version be 1.4.999. If neither is present, we 
+// assume 1.3.999.
 void check_perform_upgrade()
 {
   string v;
   mixed e=catch(GLOBVAR(upgrade_version));
-  if(e || !(v = GLOBVAR(upgrade_version)))
+  if(e && !catch(GLOBVAR(upgrade_performed)))
+  {
+    v = "1.4.999";
+  }
+  else if(e)
+  {
+    v = "1.3.999";
+  }
+  else v = GLOBVAR(upgrade_version);
+
+  if(v)
     do_perform_upgrade(v);
 }
 
@@ -3498,9 +3511,12 @@ void do_perform_upgrade(string version)
    foreach(uc;;string dir)
    {
      Stdio.Stat fs = file_stat(combine_path("etc/upgrade.d", dir));
-     if(!fs->isdir)
+     if(!fs->isdir || Array.oid_sort_func(version, ver) || version == ver)
      {
-       uc -= ({ dir });
+        // either we're not a directory, or
+        // we've already performed upgrades to this release
+
+        uc -= ({ dir });
      }
    } 
 
@@ -3508,12 +3524,9 @@ void do_perform_upgrade(string version)
 
    foreach(uc;; string ver)
    {
-     if(Array.oid_sort_func(version, ver) || version == ver)
-       continue; // we've already performed upgrades to this release
-
      else
      {
-       do_perform_version(ver);
+       do_perform_upgrade_version(ver);
      }
    }
 
@@ -3529,7 +3542,7 @@ void do_perform_upgrade_version(string version)
    array uc = get_dir(ud);
    if(uc) uc=glob("*.pike", uc);
    if(!uc || sizeof(uc)==0) 
-     report_error("no upgrade code found in " + ud + "!\n");
+     report_error("* no upgrade code found in " + ud + "!\n");
    else
    {
      foreach(uc, string codefile)
