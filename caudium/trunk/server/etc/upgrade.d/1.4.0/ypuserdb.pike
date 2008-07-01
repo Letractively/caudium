@@ -1,14 +1,12 @@
 // upgrade configurations containing ypuserdb to auth_master + auth_ypuserdb.
 
+inherit Caudium.UpgradeTask;
+
 object config;
 
-void create(object c)
+int upgrade_configuration(object c)
 {
-  config=c;
-}
-
-int run()
-{
+  config = c;
   array varstoget=({"update"});
   mapping vars=([]);
   mapping reg;

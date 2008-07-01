@@ -1,20 +1,18 @@
-// upgrade configurations containing ldapuserauth to auth_master + auth_ldap.
+// upgrade configurations containing SQLuserdb to auth_master + auth_sqldb.
+
+inherit Caudium.UpgradeTask;
 
 object config;
 
-void create(object c)
+int upgrade_configuration(object c)
 {
-  config=c;
-}
-
-int run()
-{
-  array varstoget=({"CI_dir_server", "CI_basename", "CI_level"});
+  config = c;
+  array varstoget=({"sqlserver", "table"});
   mapping vars=([]);
   mapping reg;
   string mod_reg;
 
-  if(mod_reg=is_module_enabled("ldapuserauth"))
+  if(mod_reg=is_module_enabled("SQLuserdb"))
   {
     reg=caudium->retrieve(mod_reg, config);
     if(reg && sizeof(reg)>0)
@@ -22,10 +20,10 @@ int run()
       // non-default settings here.
       foreach(varstoget, string v)
       {
-           if(v=="CI_dir_server")
-             vars[v]="ldap://" + reg[v];
-           else
-             vars[v]=reg[v];
+         if(v=="table")
+           vars["usertable"]=reg[v];
+         else
+           vars[v]=reg[v];
       }
     }
    
@@ -42,15 +40,15 @@ int run()
       enabled_modules["auth_master#0"] = 1;
     }
 
-    enabled_modules["auth_ldap#0"] = 1;
+    enabled_modules["auth_sqldb#0"] = 1;
    
     if(sizeof(vars)>0)
-      caudium->store("auth_ldap#0", vars, 1, config);
+      caudium->store("auth_sqldb#0", vars, 1, config);
 
     caudium->store("EnabledModules",enabled_modules, 1, config);
     caudium->save_it(config->name);
 
-    report_notice("LDAP User DB module upgraded to use the new Authentication Provider system. "
+    report_notice("SQL User DB module upgraded to use the new Authentication Provider system. "
       "NOTE: Some of your existing settings have been retained, however, you will need to configure "
       "the field parameters that will be used to authenticate users.\n");
 
