@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Proxies: Relay module (relay2.pike) now passes X-Forwarded-For
+  header to destination.
+  (Bill Welliver)
 - Added new upgrade support system. Allows multiple installation or 
   virtual server upgrade tasks to be performed per version.
   (Bill Welliver)
