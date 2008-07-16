@@ -19,7 +19,7 @@
  *
  */
 /*
- * $Id$
+ * $Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $
  */
 //
 //! module: Proxies: HTTP Relay module
@@ -27,11 +27,11 @@
 //!  expressions
 //! inherits: module
 //! type: MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL
-//! cvs_version: $Id$
+//! cvs_version: $Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $
 //
 #include <module.h>
 inherit "module";
-constant cvs_version   = "$Id$";
+constant cvs_version   = "$Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $";
 constant thread_safe   = 1;
 constant module_type   = MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL;
 constant module_name   = "Proxies: HTTP Relay module";
@@ -60,6 +60,9 @@ class Relay
   mapping make_headers( object from, int trim )
   {
     mapping res = ([ "Proxy-Software":roxen->version(), ]);
+    string xff =  (id->remoteaddr/" ")[0];
+    res["X-Forwarded-For"] =  xff;
+
     if( trim ) return res;
     foreach( indices(from->request_headers), string i )
     {
@@ -70,6 +73,9 @@ class Relay
          break;
        case "host":
          res->Host = host+":"+port;
+         break;
+       case "x-forwarded-for":
+         res["X-Forwarded-For"] = from->request_headers[i] + ", " + res["X-Forwarded-For"];
          break;
        default:
 	 res[String.capitalize( i )] = from->request_headers[i];
