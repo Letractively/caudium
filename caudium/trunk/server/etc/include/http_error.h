@@ -176,7 +176,7 @@ class http_error_handler {
               if (id->method != "GET" && id->method != "HEAD" && id->method != "POST")
                  error_message = "Method (" + html_encode_string (id->method) + ") not recognised.";
               else
-                 error_message = "Unable to locate the file: " + id->not_query + ".<br>\n" +
+                 error_message = "Unable to locate the file: " + html_encode_string (id->not_query) + ".<br />\n" +
                          "The page you are looking for may have moved or been removed.";
            }
         }
