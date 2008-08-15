@@ -167,7 +167,7 @@ class FileCounter {
       if(names_file=open(olf+".names", "wrca"))
       {
 	cnum=0;
-	array tmp=parse_accessed_database(names_file->read(0x7ffffff));
+	array tmp=spider.parse_accessed_database(names_file->read(0x7ffffff));
 	fton=tmp[0];
 	cnum=tmp[1];
 	names_file = 0;
