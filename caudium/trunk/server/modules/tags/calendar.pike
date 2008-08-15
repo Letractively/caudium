@@ -444,48 +444,260 @@ static void check_array(mapping var, string name)
   var[name] = varray[-1];
 }
 
-static multiset mark_active_days(string c, object target)
+//TODO: too many options here, rel is not needed anymore
+static int value_in_range(int val, array(mapping) range, int rel, void|int min, void|int max)
 {
-  if (!c || !sizeof(c))
-    return (<>);
+  if (!range || !sizeof(range))
+    return 0;
+
+  if (!zero_type(min) && val < min)
+    return 0;
+
+  if (!zero_type(max) && val > max)
+    return 0;
+  
+//  report_notice("value_in_range: val == %d, range:\n\t%O\n", val, range);
+  
+  int  checks_counter;
+  
+  foreach(range, mapping r) {
+    checks_counter = -1;
     
-  string    tmp = replace(c, ({" ", "\t", "\n", "\r"}), ({"", "", "", ""}));
-
-  if (!sizeof(tmp))
-    return (<>);
-
-  multiset ret = (<>);
-  int      y, m;
-
-  y = target->year_no();
-  m = target->month_no();
-    
-  foreach((tmp / ","), string part) {
-    int dval,mval,yval, pval;
-
-    switch (sscanf(part, "%d.%d.%d", dval, mval, yval)) {
-        case 3:
-          if (mval == m && yval == y)
-            pval = dval;
-          break;
-
-        case 2:
-          if (mval == m)
-            pval = dval;
-          break;
-
-        case 1:
-          pval = dval;
-          break;
-
-        default:
-          pval = -1;
+    if (rel < 0) { // before?
+      if (r->rend >= 0 && val < r->rend)
+        checks_counter++;
+      else if (r->rend < 0)
+        checks_counter++;
+      else
+        checks_counter--;      
+    } else if (!rel) { // in range?
+      if (r->rstart >= 0 && val >= r->rstart)
+        checks_counter++;
+      else if (r->rstart < 0)
+        checks_counter++;
+      else
+        checks_counter--;
+      
+      if (r->rend >= 0 && val <= r->rend)
+        checks_counter++;
+      else if (r->rend < 0 && val == r->rstart)
+        checks_counter++;
+      else
+        checks_counter--;
+    } else { // after?
+      if (r->rstart >= 0 && val > r->rstart)
+        checks_counter++;
+      else if (r->rstart < 0)
+        checks_counter++;
+      else
+        checks_counter--;
     }
 
-    if (pval > 0 && pval <= 31)
-      ret += (<pval>);
+    if (checks_counter >= 0)
+      break;
   }
 
+  report_notice("(rel == %d; val == %d) checks_counter: %d\n", rel, val, checks_counter);
+  
+  if (checks_counter >= 0)
+    return 1;
+  
+  return 0;
+}
+
+static multiset check_in_range(object date, mapping range, int maxdays)
+{
+  int      day, month, year, week;
+  mixed    error;
+  multiset ret = (<>);
+  
+  if (!range || !date)
+    return 0;
+
+  report_notice("check_in_range: %O\n", date);
+  
+
+  day = date->month_day();
+  month = date->month_no();
+  year = date->year_no();
+  week = date->week_no();
+
+  if (range->before) {
+    int y, m, d, w;
+
+    // take the minimum day, month, week and year from the passed ranges
+    // (if any) and store them in the above variables
+    y = 0;
+    if (range->years) {
+      foreach(range->years, mapping mp)
+        if (mp->rend > 0 && mp->rend > y)
+          y = mp->rend;
+        else if (mp->rstart > 0 && mp->rstart > y)
+          y = mp->rstart;
+    }
+
+    m = 0;
+    if (range->months) {
+      foreach(range->months, mapping mp)
+        if (mp->rend && mp->rend > m)
+          m = mp->rend;
+        else if (mp->rstart > 0 && mp->rstart > m)
+          m = mp->rstart;
+    }
+
+    d = 0;
+    if (range->days) {
+      foreach(range->days, mapping mp)
+        if (mp->rend && mp->rend > d)
+          d = mp->rend;
+        else if (mp->rstart > 0 && mp->rstart > d)
+          d = mp->rstart;
+    }
+
+    w = 0;
+    if (range->weeks) {
+      foreach(range->weeks, mapping mp)
+        if (mp->rend && mp->rend > w)
+          w = mp->rend;
+        else if (mp->rstart > 0 && mp->rstart > w)
+          w = mp->rstart;
+    }
+
+//    report_notice("option 1: y == %d, m == %d, d == %d, w == %d\n", y, m, d, w);
+//    report_notice("option 1: year == %d, month == %d, day == %d, week ==
+//    %d\n", year, month, day, week);
+    
+    // accept only dates where ymd, md or ym are set, other dates are ignored
+    if ((y && m && d) || (m && d) || (y && m)) {
+      if (year > y || (year == y && month > m))
+        return ret;
+      if (!d) // no day? Should we return all days in the month?
+        return ret;
+      for (int i = 1; i <= maxdays; i++)
+        if (year < y || month < m || i < d)
+          ret += (<i>);
+      return ret;
+    }
+
+    return ret;
+  }
+
+  if (range->after) {
+    int y, m, d, w;
+
+    // take the maximum day, month, week and year from the passed ranges
+    // (if any) and store them in the above variables
+    y = 100000;
+    if (range->years) {
+      foreach(range->years, mapping mp)
+        if (mp->rstart > 0 && mp->rstart < y)
+          y = mp->rstart;
+    }
+
+    m = 13;
+    if (range->months) {
+      foreach(range->months, mapping mp)
+        if (mp->rstart && mp->rstart < m)
+          m = mp->rstart;
+    }
+
+    d = 32;
+    if (range->days) {
+      foreach(range->days, mapping mp)
+        if (mp->rstart && mp->rstart < d)
+          d = mp->rstart;
+    }
+
+    w = 53;
+    if (range->weeks) {
+      foreach(range->weeks, mapping mp)
+        if (mp->rstart && mp->rstart < w)
+          w = mp->rstart;
+    }
+
+//     report_notice("option 2: y == %d, m == %d, d == %d, w == %d\n", y, m, d, w);
+//     report_notice("option 2: year == %d, month == %d, day == %d, week == %d\n", year, month, day, week);
+    if (((y != 100000) && (m != 13) && (d != 32)) || ((m != 13) && (d != 32)) || ((y != 100000) && (m != 13))) {
+      if ((y != 100000 && year < y) || (year == y && (m != 13 && month < m)))
+        return ret;
+      if (y == 100000 && m != 13 && month < m)
+        return ret;
+      if (!d)
+        return ret;
+      for (int i = 1; i <= maxdays; i++)
+        if (year > y || month > m || i > d)
+          ret += (<i>);
+      return ret;
+    }
+
+    return ret;
+  }
+    
+  if (range->years)
+    if (!value_in_range(year, range->years, 0))
+      return ret;
+
+  if (range->months)
+    if (!value_in_range(month, range->months, 0, 1, 12))
+      return ret;
+
+  if (range->weeks)
+    if (!value_in_range(week, range->weeks, 0, 1, 52))
+      return ret;
+  
+  for (int i = 1; i <= maxdays; i++) {
+    if (!range->days) {
+      return ret;
+    } else {
+      if (value_in_range(i, range->days, 0, 1, maxdays))
+        ret += (<i>);
+    }
+  }
+  
+  report_notice("match_ret: %O\n", ret);
+  
+  return ret;
+}
+
+static multiset mark_active_days(object target, object id)
+{
+  if (!target || !objectp(target))
+    return (<>);    
+
+  if (!id->misc->_calendar->hotdates || !sizeof(id->misc->_calendar->hotdates))
+    return (<>);
+  
+  multiset ret = (<>);
+  int      maxdays;
+
+  maxdays = sizeof(target->month()->days());
+
+  multiset day_matches = 0;
+
+  report_notice("working through the hot dates (target: %O)\n", target);
+  
+  foreach(id->misc->_calendar->hotdates, mapping range) {
+    if (range->before) {
+      day_matches = check_in_range(target, range, maxdays);
+      if (day_matches) {
+        ret += day_matches;
+        continue;
+      }
+    }
+
+    if (range->after) {
+      day_matches = check_in_range(target, range, maxdays);
+      if (day_matches) {
+        ret += day_matches;
+        continue;
+      }
+    }
+
+    day_matches = check_in_range(target, range, maxdays);
+    if (day_matches)
+      ret += day_matches;
+  }
+  
   return ret;
 }
 
@@ -620,30 +832,32 @@ static private mapping how_dir = ([
 static array(mapping) make_ba_range(object date, string when, string how)
 {
   string           fun;
+
+  report_notice("make_ba_range(%O,%O,%O)\n", date, when, how);
   
   if (!date || !when || !sizeof(when))
     return ({});
 
   fun = how_dir[how];
-  if (fun || !sizeof(fun))
+  if (!fun || !sizeof(fun))
     return ({});
 
   object           then;
   mapping          range = ([]);
 
   range[how] = 1;
-  
-  switch(lower_case(when)) {
+
+  switch(when) {
       case "today":
-        then = date->day()[fun]();
+        then = date;
         break;
 
       case "yesterday":
         then = date->day()->prev()->day()[fun]();
         break;
-
+        
       case "tomorrow":
-        then = date->day()->next()->day()[fun]();
+        then = date->day()->next();
         break;
 
       default:
@@ -651,20 +865,27 @@ static array(mapping) make_ba_range(object date, string when, string how)
   }
 
   range->days = ({([
-    "rstart" : (string)then->month_day(),
-    "rend" : "-1"
+    "rstart" : then->month_day(),
+    "rend" : -1
   ])});
   
   range->months = ({([
-    "rstart" : (string)then->month_no(),
-    "rend" : "-1"
+    "rstart" : then->month_no(),
+    "rend" : -1
   ])});
   
   range->years = ({([
-    "rstart" : (string)then->month_year(),
-    "rend" : "-1"
+    "rstart" : then->year_no(),
+    "rend" : -1
   ])});
 
+  range->weeks = ({([
+    "rstart" : then->week_no(),
+    "rend" : -1
+  ])});
+
+  report_notice("make_ba_range returning: %O\n", ({range}));
+  
   return ({range});
 }
 
@@ -721,10 +942,10 @@ static string hotdate_tag(string tag, mapping args, object id)
 
     if (!error) {
       if (after)
-        id->misc->_calendar->hotdates += ({make_ba_range(now, after, "after")});
+        id->misc->_calendar->hotdates += make_ba_range(now, after, "after");
         
       if (before)
-        id->misc->_calendar->hotdates += ({make_ba_range(now, before, "before")});
+        id->misc->_calendar->hotdates += make_ba_range(now, before, "before");
     }
   }
   
@@ -818,8 +1039,11 @@ string calendar_tag(string tag, mapping args, string cont,
                                               id->variables->calmonth,
                                               id->variables->calday));
 
-//  active_days = mark_active_days(parse_rxml(cont, id), target);
-
+  report_notice("marking active days for: %O\n", target);
+  
+  active_days = mark_active_days(target, id);
+  report_notice("active_days: %O\n", active_days);
+  
   contents += make_monthyear_selector(id, my_args, now, target);
   contents += make_weekdays_row(id, my_args, now, target);
   contents += make_monthdays_grid(id, my_args, now, target, active_days);
@@ -847,9 +1071,9 @@ string calendar_action_tag(string tag, mapping args, string cont,
     wanted[1] = (int)(myargs->month || 0);
     wanted[2] = (int)(myargs->year || 0);
     
-    has[0] = (int)(id->variables->calday || 0);
-    has[1] = (int)(id->variables->calmonth || 0);
-    has[2] = (int)(id->variables->calyear || 0);
+    has[0] = myargs->day ? (int)(id->variables->calday || 0) : 0;
+    has[1] = myargs->month ? (int)(id->variables->calmonth || 0) : 0;
+    has[2] = myargs->year ? (int)(id->variables->calyear || 0) : 0;
   } else if (!myargs->default)
     wantedweek = id->variables->calweek;
 
