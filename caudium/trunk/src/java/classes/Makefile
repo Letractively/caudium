@@ -9,7 +9,7 @@ SRCDIR = ../src
 
 MODULEDIR = ../../modules
 
-all : caudium_module.jar caudium_servlet.jar compile_modules
+all : caudium_module.jar caudium_servlet.jar
 
 caudium_servlet.jar : servlet_classes
 	jar cf $@ net/caudium/servlet/*.class
@@ -23,6 +23,6 @@ caudium_module.jar : module_classes
 module_classes : $(SRCDIR)/net/caudium/caudium/*.java
 	CLASSPATH=$(CLASSPATH) $(JAVAC) $(JAVAFLAGS) $^ -d .
 
-compile_modules: caudium_module.jar 
-	CLASSPATH=caudium_module.jar find $(MODULEDIR) -name '*.java' \
-		-exec $(JAVAC) $(JAVAFLAGS) {} \;
+#compile_modules: caudium_module.jar 
+#	CLASSPATH=caudium_module.jar find $(MODULEDIR) -name '*.java' \
+#		-exec $(JAVAC) $(JAVAFLAGS) {} \;
