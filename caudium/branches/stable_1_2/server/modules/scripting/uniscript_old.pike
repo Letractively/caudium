@@ -37,7 +37,7 @@ inherit "caudiumlib";
 constant cvs_version = "$Id$";
 
 constant module_type = MODULE_FILE_EXTENSION;
-constant module_name = "Universal script parser";
+constant module_name = "Universal script parser (old fashion)";
 constant module_doc  = "This module provides extensions handling by misc script interpreters. "
 			"Scripts can be run as choosen user, or by owner. Module is based on "
 			"CGI module.";
