@@ -1,6 +1,6 @@
 #summary Source code access
 
-[ [http://code.google.com/p/caudium/source/checkout Checkout] |  [http://code.google.com/p/caudium/source/browse Browse] | [http://code.google.com/p/caudium/source/list Changes] ]
+[ [Source] |  [http://code.google.com/p/caudium/source/browse Browse] | [http://code.google.com/p/caudium/source/list Changes] ]
  
 
 
