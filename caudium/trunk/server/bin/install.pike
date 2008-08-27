@@ -793,14 +793,14 @@ void main(int argc, array argv)
    setconfigvar("EnabledModules", "auth_configdefault#0", 1);
    setconfigvar("EnabledModules", "filesystem#0", 1);
 
-  write("./start-caudium --shuffler"
+  write("./start-caudium --once"
 		+(configuration_dir_changed?
 		  "--config-dir="+configuration_dir
 		  +" ":"")
 		+(logdir_changed?"--log-dir="+log_dir+" ":"")
 		+argv[1..] * " ");
     
-  Process.create_process(({"./start-caudium"}) + ({"--shuffler",
+  Process.create_process(({"./start-caudium"}) + ({"--once",
 		(configuration_dir_changed?
 		  "--config-dir="+configuration_dir:"") })
 		+({(logdir_changed?"--log-dir="+log_dir:"")})

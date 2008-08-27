@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: Files.pmod,v 1.28 2004-05-18 09:34:07 vida Exp $
+ * $Id$
  */
 
 //! This module implements parsing and management of the flatfile configs on
 //! the local filesystem.
-constant cvs_version = "$Id: Files.pmod,v 1.28 2004-05-18 09:34:07 vida Exp $";
+constant cvs_version = "$Id$";
 
 #define FORMAT_OLD  0
 #define FORMAT_XML  1
@@ -232,8 +232,12 @@ class Dir
     Stdio.File ret = Stdio.File(my_dir + fname, mode ? mode : "rwc");
 
     if (ret && !fs)
+    {
       chmod(my_dir + fname, file_mode);
-
+      ret->write(xml_prolog + xml_epilog);
+      ret->close();
+      return open_file(fname, mode);
+    }
     return ret;
   }
 
@@ -368,7 +372,7 @@ class File
       contents = replace(contents, "&amp;", "&");
     }
     else
-      root = Parser.XML.Tree.parse_input(my_file->read());
+     root = Parser.XML.Tree.parse_input(my_file->read());
     if (!root)
       return sprintf("Error parsing the config file '%s%s'\n",
                      my_dir->get_path(), my_file_format->name);

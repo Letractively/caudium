@@ -22,7 +22,7 @@
 void run(object env)
 {
   object f = Stdio.File();
-  array(string) oracles = ({});
+  array(array(string)) oracles = ({});
   string sid, home, bootstart;
   write("Checking for Oracle...");
   if((sid = getenv("ORACLE_SID")) && (home = getenv("ORACLE_HOME")))
@@ -46,10 +46,11 @@ void run(object env)
   }
   write("\n");
   while(sizeof(oracles)>1) {
+werror("oracles: %O\n", oracles);
     write("Multiple Oracle instances found.  Please select your"
 	  " preferred one:\n");
-    foreach(indices(oracles), int i)
-      write(sprintf("%2d) %s (in %s)\n", i+1, @oracles[i]));
+    foreach(oracles; int i; array(string) o)
+      write(sprintf("%2d) %s (in %s)\n", i+1, @o));
     write("Enter preference (or 0 to skip this step) > ");
     string in = gets();
     int x;
