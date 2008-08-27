@@ -1,49 +1,13 @@
-#!/bin/sh
-# -*- Emacs, this is: lpc -*-
-# This file use the built-in configuration file parsers in Roxen.
-# It is not at all fast, but it _does_ work all the time, and it will
-# continue to work even if the save-file format is changed in the future.
-
-if [ ! -f base_server/roxen.pike ] ; then
-  echo "This program must be run from the roxen/server directory"
-  exit
-fi
-
-# Pike default Master-program
-if [ -f lib/pike/master.pike ]; then
-  DEFINES="$DEFINES -mlib/pike/master.pike"
-else
-  # This is used with localinstall
-  if [ -f ../pike/src/lib/master.pike ]; then
-    DEFINES="$DEFINES -m../pike/src/lib/master.pike"
-  fi
-fi
-
-# Extra module-path
-if [ -d etc/modules ]; then
-  DEFINES="$DEFINES -Metc/modules"
-fi
-
-# Extra include-path
-if [ -d etc/include ]; then
-  DEFINES="$DEFINES -Ietc/include"
-fi
-
-# Extra include-path (2)
-if [ -d base_server ]; then
-  DEFINES="$DEFINES -Ibase_server"
-fi
-
-pike=pike
-if [ -x bin/pike ] ; then pike=bin/pike; fi
-
-cat > /tmp/roxen$$.pike  << "____________________"
-#42 "configvar"
 import Stdio;
 
-void report_error(string s) 
+void report_error(string s, mixed ... args) 
 {
-  werror(s);
+  werror(s, @args);
+}
+
+void report_fatal(string s, mixed ... args) 
+{
+  werror(s, @args);
 }
 
 void roxen_perror(mixed ... args)
@@ -77,7 +41,7 @@ class fake_config_object
 #define IN_INSTALL
 #define VAR_VALUE 0
 #define BASE ""
-#include "base_server/read_config.pike"
+#include "../base_server/read_config.pike"
 
 string find_arg(array argv, array|string shortform, 
 		array|string|void longform, 
@@ -157,7 +121,7 @@ mixed my_decode(string from)
   return compile_string("mixed value = "+from+";", "Supplied value")()->value;
 }
 
-void main(int argc, string *argv)
+void main(int argc, array(string) argv)
 {
   int query_only, quiet;
   string region;
@@ -170,7 +134,7 @@ void main(int argc, string *argv)
 
   if((argc <= 1) || find_arg(argv, "?", "help"))
   {
-    write(sprintf("Syntax: roxenvar [flags] VAR[=VALUE] ...\n"
+    write("Syntax: %s [flags] VAR[=VALUE] ...\n"
 	  "Args are:\n"
 " -n, --quiet              Just output the values of the variables.\n"
 " -d, --config-dir=DIR     This is where the configuration files are\n"
@@ -182,7 +146,7 @@ void main(int argc, string *argv)
 "                          global variables from the Global_Variables file.\n"
 " -c, --configuration=CONF Set the name of the configurationfile to use.\n"
 "                          The default value is 'Global_Variables'\n"
-		  , argv[0]));
+		  , argv[0]);
     exit(0);
   }
 
@@ -201,7 +165,7 @@ void main(int argc, string *argv)
 
   configuration_dir = find_arg(argv, "d", "config-dir", 0,"../configurations");
 
-  if(configuration_dir[-1] != "/")
+  if(configuration_dir[-1] != '/')
     configuration_dir += "/";
   argv -= ({ 0 });
   
@@ -259,13 +223,3 @@ void main(int argc, string *argv)
     store(region, vars, 1, current_configuration);
   }
 }
-
-
-
-
-// The line below _must_ be there.. 
-____________________
-
-echo Starting $pike $DEFINES /tmp/roxen$$.pike "$@"...
-$pike $DEFINES /tmp/roxen$$.pike "$@"
-/bin/rm /tmp/roxen$$.pike
