@@ -1,5 +1,12 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- install app should get proper executable permissions
+  (Bill Welliver)
+- install app starts caudium in --once mode, which is more friendly if 
+  there's a problem starting up.
+  (Bill Welliver)
+- configvar is no more (script is in bin but is non-working)
+  (Bill Welliver)
 - Proxies: Relay module (relay2.pike) now passes X-Forwarded-For
   header to destination.
   (Bill Welliver)
