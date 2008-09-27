@@ -106,7 +106,7 @@ static struct array    *html_mta_safe_entities;
 
 /* unsafe characters and entities for encode_mapping (used by make_tag_attributes)
  * used to generate tags and containers */
-const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\0"};
+const static char            *xml_unsafechars[] = {"<",">","&", "\"", "\'", "\\0"};
 const static char            *xml_safeentities[] = {"&lt;", "&gt;", "&amp;", "&#34;", "&#39;", "&#0;"};
 const static char            *html_unsafechars[] = { "\"", "<", ">", "&" };
 const static char            *html_safeentities[] = { "&quot;", "&gt;", "&lt;", "&amp;" };
