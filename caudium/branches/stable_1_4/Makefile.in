@@ -343,14 +343,14 @@ copy_dist:
 tar_dist:
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
 	echo -n "Building tarfile..."; \
-	tar cf $$version.tar $$version; \
+	tar cf $$TMPDIR$$version.tar $$TMPDIR$$version; \
 	echo -n "tar.gz..."; \
-	gzip -9 < $$version.tar >$$version.tar.gz; \
+	gzip -9 < $$TMPDIR$$version.tar >$$TMPDIR$$version.tar.gz; \
 	echo -n "tar.bz2..."; \
-	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
+	bzip2 -9 < $$TMPDIR$$version.tar >$$TMPDIR$$version.tar.bz2; \
 	echo "done."; \
-	rm $$version.tar
-
+	rm $$TMPDIR$$version.tar
+	rm -rf $$TMPDIR$$version
 dist: clean copy_dist tar_dist 
 	@echo "Distribution build complete. Don't forget to run"
 	@echo "'make only_bump_version' if this is not a test release."
