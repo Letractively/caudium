@@ -104,7 +104,7 @@ install_only:
 	fi
 #	OpenBSD rm doesn't like empty args
 #	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
-	@find $(prefix)/caudium/server/ -name CVS -print | xargs rm -rf
+	@find $(prefix)/caudium/server/ -name \.svn -print | xargs rm -rf
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
 	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
 	for d in local local/modules local/pmods local/nfonts server/lib ; \
@@ -130,7 +130,7 @@ install_only:
           rm -f $(prefix)/caudium/server/start-caudium.in ; \
 	done
 	@(cd src;$(MAKE) "prefix=$(prefix)" "CC=$(CC)" "LDFLAGS=$(LDFLAGS)" install)
-	-@for f in install install.pike pdbi.pike pike caudium; \
+	-@for f in fcgi install.pike pdbi.pike pike caudium install; \
 	do \
 	  if test -f $(prefix)/caudium/server/bin/$$f ; then \
 	    echo Modifying permissions for file $(prefix)/caudium/server/bin/$$f... ; \
@@ -307,41 +307,34 @@ faked_pre_dist:
 date_pre_dist:  date_version
 
 #copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
-copy_dist: 
+copy_dist:
 	@if test -f $(SRCDIR)/VERSION; then :; else \
 	  echo 'You need to make pre_dist first!'; \
 	  exit 1; \
 	fi
 	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
+        TMPDIR="$(TMPDIR)"; \
 	if ls -d $$version* >/dev/null 2>&1; then \
 	  echo Deleting old distributions...; \
 	  rm -rf $$version* || exit 1; \
 	else :; fi; \
-	mkdir $$version; \
+	mkdir $$TMPDIR$$version; \
 	echo Copying files...; \
-	(cd $(SRCDIR); tar cf - .)|(cd $$version; tar xf -); \
-	if test "`echo $$version| sed s/cvs//`" = "$$version" -a \
+	(cd $(SRCDIR); tar cf - .)|(cd $$TMPDIR$$version; tar xf -); \
+	if test "`echo $$version| sed s/svn//`" = "$$version" -a \
 		"`echo $$version| sed s/test//`" = "$$version" ; then \
-         echo "Non-test/devel version. Removing CVS directories.";\
-	 find $$version/. -type d -name 'CVS' -print0 |xargs -0 rm -rf; \
-	else \
-	 echo "Making sure CVS root is anonymous...";\
-	 for f in `find $$version/. -type f -path '*/CVS/Root' -print`; do\
-	   echo $$f;\
-           (cat $$f | sed 's/[^@]*\(.*\)/:pserver:anonymous\1/' >$$f.new)&&\
-	   mv $$f.new $$f; \
-         done;\
+	 find $$TMPDIR$$version/. -type d -name '.svn' -print |xargs rm -rf; \
         fi;\
         echo "Current dir is `pwd`" ; \
 	echo Cleaning up the copied sources...; \
-	cd $$version && $(MAKE) spotless && cd $(SRCDIR) ;\
-        cd $$version && ./autogen.sh ; \
-	for f in `find $$version/. -type f -name '*~' -print` \
-	  `find $$version/. -type f -name 'autom4*' -print` \
-	  `find $$version/. -type f -name '.#*' -print` \
-	  `find $$version/. -type f -name 'Makefile' -print` \
-	  `find $$version/. -type f -name '*.tar*' -print` \
-	  `find $$version/. -type f -name '#*#' -print`; do \
+	cd $$TMPDIR$$version && $(MAKE) spotless && cd $(SRCDIR) ;\
+        cd $$TMPDIR$$version && ./autogen.sh ; \
+	for f in `find $$TMPDIR$$version/. -type f -name '*~' -print` \
+	  `find $$TMPDIR$$version/. -type f -name 'autom4*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '.#*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name 'Makefile' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '*.tar*' -print` \
+	  `find $$TMPDIR$$version/. -type f -name '#*#' -print`; do \
 	  echo $$f; rm -r $$f || exit 1; \
 	done; \
 
