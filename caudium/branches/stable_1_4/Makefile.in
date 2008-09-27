@@ -280,6 +280,9 @@ date_version: force
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
 	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../../VERSION;
 
+xenofarm_version: force
+	@cd $(SRCDIR)/server/etc/modules; \
+	 echo "$(RESULT)" >../../../VERSION;
 
 $(SRCDIR)/ChangeLog.gz:
 	cd $(SRCDIR); pike tools/make_changelog.pike | gzip -9 > ChangeLog.gz
