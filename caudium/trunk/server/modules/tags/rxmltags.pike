@@ -1865,12 +1865,9 @@ string add_header(mapping to, string name, string value)
 string tag_add_cookie(string tag, mapping m, object id, object file,
 		      mapping defines)
 {
-  string cookies;
   int    t;     //time
 
-  if(m->name)
-    cookies = m->name+"="+Caudium.http_encode_cookie(m->value||"");
-  else
+  if(!m->name)
     return "<!-- set_cookie requires a `name' -->";
 
   if(m->persistent)
@@ -1886,13 +1883,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
     if (m->years)   t+=((int)(m->years))*(3600*(24*365+6));   /* 365.25d */
   }
 
-  if(t) cookies += "; expires="+Caudium.HTTP.date(t+time());
-
-  //obs! no check of the parameter's usability
-  cookies += "; path=" +(Caudium.http_encode_cookie(m->path||"/"));
-  if(m->domain)
-    cookies += "; domain="+Caudium.http_encode_cookie(m->domain);
-  add_header(_extra_heads, "Set-Cookie", cookies);
+	Caudium.HTTP.set_cookie(name, value, id, t, m->path||"/", m->domain);
 
   return "";
 }
