@@ -4,6 +4,7 @@ VPATH=@srcdir@
 prefix=@prefix@
 DESTDIR=
 EXTRAVER=
+TMPDIR=/tmp
 
 @SET_MAKE@
 
