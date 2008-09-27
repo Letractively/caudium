@@ -33,8 +33,8 @@ void write_result(int retcode, mixed a, mixed b) {
     write("+");
   } else {
     write("-\n");
-    write(sprintf("     a = %O \n",a));
-    write(sprintf("     b = %O \n",b));
+    write(sprintf("     a (expected) = %O \n",a));
+    write(sprintf("     b (got)      = %O \n",b));
   }
 }
 
@@ -117,10 +117,9 @@ int TEST_http_encode_string() {
 int TEST_http_encode_url() {
   mapping tst = ([ " ":"%20", "\t":"%09", "\n":"%0A", "\r":"%0D",
                    "%":"%25", "'":"%27", "\"":"%22", "#":"%23",
-                   "&":"%26", "?":"%3F", "=":"%3D", "/":"%2F",
-                   ":":"%3A", "+":"%2B", "<":"%3C", ">":"%3E",
-                   "@":"%40","http://caudium.net/":"http%3A%2F%2Fcaudium.net%2F",
-                   "eaud.b@free.fr":"eaud.b%40free.fr"
+                   "<":"%3C", ">":"%3E",
+                   "http://caudium.net/":"http://caudium.net/",
+                   "eaud.b@free.fr":"eaud.b@free.fr"
   ]);
   prtest("http_encode_url");
   return mapping_test(tst, _Caudium.http_encode_url);
