@@ -341,7 +341,6 @@ copy_dist:
 	done; \
 
 tar_dist:
-tar_dist:
         @version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
         TMPDIR="$(TMPDIR)"; \
         echo "Building tarfile from $$TMPDIR..."; \
