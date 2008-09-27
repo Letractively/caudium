@@ -3,7 +3,7 @@
 SRCDIR=@srcdir@
 CPP=@CPP@
 
-MODULES=@subdirs@
+MODULES=_Caudium UltraLog Mhash PCRE PiXSL
 
 all: modules
 
