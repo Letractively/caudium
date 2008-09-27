@@ -617,6 +617,50 @@ mapping proxy_auth_needed(object id)
   return 0;
 }
 
+
+//! Set a cookie
+//!
+//! @param name
+//! The name for the cookie.
+//!
+//! @param value
+//! The value for the cookie
+//!
+//! @param id
+//! The request id object
+//!
+//! @param t
+//! The lifetime for the cookie
+//!
+//! @param path
+//! The path for the cookie
+//!
+//! @param domain
+//! The domain for the cookie
+void set_cookie(string name, string value, object id, void|int t, void|string path, void|string domain)
+{
+  string cookie = "";
+
+  cookies = name+"="+Caudium.http_encode_cookie(value);
+
+  if(t)
+    cookies += "; expires="+Caudium.HTTP.date(t+time());
+
+  string _path = "/";
+  if(path && sizeof(path) && stringp(path))
+    _path = path;
+  //obs! no check of the parameter's usability
+  cookies += "; path=" +(Caudium.http_encode_cookie(_path));
+
+  if(domain && sizeof(domain) && stringp(domain))
+    cookies += "; domain="+Caudium.http_encode_cookie(domain);
+
+  id->misc->defines->[" _extra_heads"]["Set-Cookie"] = cookie;
+
+  return;
+}
+
+
 /*
  * If you visit a file that doesn't contain these lines at its end, please
  * cut and paste everything from here to that file.
