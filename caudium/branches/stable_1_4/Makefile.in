@@ -308,7 +308,6 @@ faked_pre_dist:
 
 date_pre_dist:  date_version
 
-#copy_dist: $(SRCDIR)/ChangeLog.gz $(SRCDIR)/ChangeLog.rxml.gz
 copy_dist:
 	@if test -f $(SRCDIR)/VERSION; then :; else \
 	  echo 'You need to make pre_dist first!'; \
@@ -341,18 +340,18 @@ copy_dist:
 	done; \
 
 tar_dist:
-        @version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
-        TMPDIR="$(TMPDIR)"; \
-        echo "Building tarfile from $$TMPDIR..."; \
-        cd $$TMPDIR && tar cf $(SRCDIR)/$$version.tar $$version; \
-        cd $(SRCDIR); \
-        echo "tar.gz..."; \
-        gzip -9 < $$version.tar >$$version.tar.gz; \
-        echo "tar.bz2..."; \
-        bzip2 -9 < $$version.tar >$$version.tar.bz2; \
-        echo "done."; \
-        rm -rf $$TMPDIR$$version; \
-        rm $(SRCDIR)/$$version.tar
+	@version=`cat $(SRCDIR)/VERSION | tr 'A-Z ' 'a-z-'`${rc}; \
+	TMPDIR="$(TMPDIR)"; \
+	echo "Building tarfile from $$TMPDIR..."; \
+	cd $$TMPDIR && tar cf $(SRCDIR)/$$version.tar $$version; \
+	cd $(SRCDIR); \
+	echo "tar.gz..."; \
+	gzip -9 < $$version.tar >$$version.tar.gz; \
+	echo "tar.bz2..."; \
+	bzip2 -9 < $$version.tar >$$version.tar.bz2; \
+	echo "done."; \
+	rm -rf $$TMPDIR$$version; \
+	rm $(SRCDIR)/$$version.tar
 
 dist: clean copy_dist tar_dist 
 	@echo "Distribution build complete. Don't forget to run"
