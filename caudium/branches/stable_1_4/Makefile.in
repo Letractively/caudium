@@ -4,7 +4,8 @@ VPATH=@srcdir@
 prefix=@prefix@
 DESTDIR=
 EXTRAVER=
-TMPDIR=/tmp
+# TMPDIR must contain a trailing slash.
+TMPDIR=/tmp/
 
 @SET_MAKE@
 
