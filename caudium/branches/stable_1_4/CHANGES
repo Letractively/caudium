@@ -1,4 +1,11 @@
-Changes in Caudium 1.4.x since Caudium 1.4.12
+Changes in Caudium 1.4.x since Caudium 1.4.14
+--------------------------------------------
+- Caudium.sexpr("10 + 1") nor Caudium.sexpr("1+1") would produce the expected 
+  result.
+  (Closes Google bug #2)
+  (Bertrand LUPART)
+
+Changes in Caudium 1.4.14 since Caudium 1.4.12
 --------------------------------------------
 - New demo certificate with extended expiration date.
   (Henrik Andreasson)
@@ -30,7 +37,7 @@ Changes in Caudium 1.4.x since Caudium 1.4.12
   SSL mode.
     (Bill Welliver)
 
-Changes in Caudium 1.4.x since Caudium 1.4.8
+Changes in Caudium 1.4.12 since Caudium 1.4.8
 --------------------------------------------
 - New option --with-pike-module in start-caudium allows to specify some more
   Pike modules to load at start time.
