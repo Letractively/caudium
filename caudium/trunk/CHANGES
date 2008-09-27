@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Caudium.sexpr_eval("10 + 1") and Caudium.sexpr_eval("1+1") now produce the
+	expected result.
+  (Closes Google bug #2)
+  (Bertrand LUPART)
 - install app should get proper executable permissions
   (Bill Welliver)
 - install app starts caudium in --once mode, which is more friendly if 
