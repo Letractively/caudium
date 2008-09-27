@@ -103,7 +103,7 @@ install_only:
 	  cp -p $(prefix)/caudium/server.old/etc/environment $(prefix)/caudium/server/etc/ ; \
 	fi
 #	OpenBSD rm doesn't like empty args
-#	@rm -rf	`find $(prefix)/caudium/server/ -name CVS -print`
+#	@rm -rf	`find $(prefix)/caudium/server/ -name \.svn -print`
 	@find $(prefix)/caudium/server/ -name \.svn -print | xargs rm -rf
 	-@rm -f $(prefix)/caudium/server/bin/caudium >/dev/null 2>&1
 	ln -s $(PIKE) $(prefix)/caudium/server/bin/caudium
@@ -164,16 +164,16 @@ install_alt:
 	done
 	@echo "Copying examples ..."
 	@cp -pr $(SRCDIR)/examples $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name CVS -print`	
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/doc/caudium$(EXTRAVER)/ -name \.svn -print`	
 	@for f in base_server bin caudium-images config_actions etc fonts nfonts \
 	          protocols languages server_templates modules \
 			  unfinishedmodules; do \
 	 echo "Copying $$f ..."; \
 	 cp -pr $(SRCDIR)/server/$$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
 	done
-	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name CVS -or -name start-caudium.in`
+	@rm -rf `find $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER) -name \.svn -or -name start-caudium.in`
 	@echo "Copying modules..."
-	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name CVS -print`
+	@rm -rf `find $(DESTDIR)/$(prefix)/share/caudium$(EXTRAVER) -name \.svn -print`
 	@for f in $(SRCDIR)/server/*; do \
 	 if test -f $$f; then \
 	  cp -p $$f $(DESTDIR)/$(prefix)/lib/caudium$(EXTRAVER); \
@@ -278,7 +278,7 @@ date_version: force
 	@cd $(SRCDIR)/server/etc/modules; \
 	 build=`sed <CaudiumVersion.pmod -e'/__caudium_build__/s/[^0-9]*//gp' -ed|head -1`; \
 	 version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-cvs" >../../../VERSION;
+	 echo "Caudium $$version.$$build `date '+%Y%m%d'`-svn" >../../../VERSION;
 
 xenofarm_version: force
 	@cd $(SRCDIR)/server/etc/modules; \
