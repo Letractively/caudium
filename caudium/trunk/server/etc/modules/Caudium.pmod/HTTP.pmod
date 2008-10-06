@@ -641,21 +641,21 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
 {
   string cookie = "";
 
-  cookies = name+"="+Caudium.http_encode_cookie(value);
+  cookie = name+"="+Caudium.http_encode_cookie(value);
 
   if(t)
-    cookies += "; expires="+Caudium.HTTP.date(t+time());
+    cookie += "; expires="+Caudium.HTTP.date(t+time());
 
   string _path = "/";
   if(path && sizeof(path) && stringp(path))
     _path = path;
   //obs! no check of the parameter's usability
-  cookies += "; path=" +(Caudium.http_encode_cookie(_path));
+  cookie += "; path=" +(Caudium.http_encode_cookie(_path));
 
   if(domain && sizeof(domain) && stringp(domain))
-    cookies += "; domain="+Caudium.http_encode_cookie(domain);
+    cookie += "; domain="+Caudium.http_encode_cookie(domain);
 
-  id->misc->defines->[" _extra_heads"]["Set-Cookie"] = cookie;
+  id->misc->defines[" _extra_heads"]["Set-Cookie"] = cookie;
 
   return;
 }
