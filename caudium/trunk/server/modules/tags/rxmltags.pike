@@ -378,7 +378,9 @@ string tag_set( string tag, mapping m, object id )
             // Set variable to value.
             ret = set_scope_var(m->variable, m->scope, m->value, id);
         } else if (m->expr) {
-            ret = set_scope_var(m->variable, m->scope, Caudium.sexpr_eval( m->expr ), id);
+						// casting sexpr_eval return to string to be able to return "0"
+						string expr_res = (string)Caudium.sexpr_eval( m->expr );
+            ret = set_scope_var(m->variable, m->scope, expr_res, id);
         } else if (m->from) {
             mixed val;
             // Set variable to the value of another variable
