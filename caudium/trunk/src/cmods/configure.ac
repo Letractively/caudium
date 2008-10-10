@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.8 2005-05-24 07:30:52 kiwi Exp $
+# $Id$
 AC_INIT(Caudium, 1.3.3, bugs@caudium.net)
 
 CAUDIUM_LOW_MODULE_INIT()
@@ -6,8 +6,16 @@ CAUDIUM_LOW_MODULE_INIT()
 # reset it just in case
 CAUDIUM_CPPFLAGS="$CAUDIUM_CPPFLAGS"
 AC_SUBST(CAUDIUM_CPPFLAGS)
+AC_SUBST(INSTALLDIR)
 export CAUDIUM_CPPFLAGS
 
-AC_CONFIG_SUBDIRS(_Caudium UltraLog Mhash PCRE PiXSL)
+MODULE_SUBDIRS="_Caudium"
+#MODULE_SUBDIRS="_Caudium UltraLog Mhash PCRE PiXSL"
+
+for x in $MODULE_SUBDIRS ; do
+ cd $x
+ $PIKE -x module --configure
+ cd ..
+done
 
 AC_OUTPUT(Makefile module_makefile)	
