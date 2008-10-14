@@ -1,7 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
 - Caudium modules now use pike -x module for building.
-- Caudium.set_cookie() added for setting a cookie to the browser.
+- Caudium.HTTP.set_cookie() added for setting a cookie to the browser.
   <set_cookie> now use it.
   (Bertrand LUPART)
 - Caudium.sexpr_eval("10 + 1") and Caudium.sexpr_eval("1+1") now produce the
