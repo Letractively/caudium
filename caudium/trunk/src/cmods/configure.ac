@@ -14,7 +14,9 @@ MODULE_SUBDIRS="_Caudium"
 
 for x in $MODULE_SUBDIRS ; do
  cd $x
- $PIKE -x module --automake --autoheader --configure
+ $PIKE -x module --automake
+ $PIKE -x module --autoheader
+ $PIKE -x module --configure
  cd ..
 done
 
