@@ -1,8 +1,15 @@
 Changes in Caudium 1.4.x since Caudium 1.4.14
 --------------------------------------------
+- Caudium.HTTP.set_cookie() added for setting a cookie to the browser.
+  (Bertrand LUPART)
+- Only consider specified pike when using --with-pike rather than also
+  checking a list of possible pike locations.
+  (Bill Welliver and Martin Baehr / Backport from Bertrand LUPART)
+- Added --with-any-pike-version to disable standard version compatibility
+  (Bill Welliver and Martin Baehr / Backport from Bertrand LUPART) 
 - Caudium.sexpr("10 + 1") nor Caudium.sexpr("1+1") would produce the expected 
   result.
-  (Closes Google bug #2)
+  (Closes Google Issue #2)
   (Bertrand LUPART)
 
 Changes in Caudium 1.4.14 since Caudium 1.4.12
