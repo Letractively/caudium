@@ -69,7 +69,7 @@ install_alt:
 
 clean:
 	for a in $(MODULES) ; do \
-	  ( cd $$a && ${PIKE} -x module $(MAKE_FLAGS)  clean ) ; \
+	  ( cd $$a && ${PIKE} -x module && ${PIKE} -x module $(MAKE_FLAGS) clean ) ; \
 	done
 
 
