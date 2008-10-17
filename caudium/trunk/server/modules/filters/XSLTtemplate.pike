@@ -43,10 +43,12 @@
 //
 
 /*
- * XSLTtemplate.pike - XSLT template module for Caudium. Utilizes the
- * Sablotron XSLT Library available from http://www.gingerall.com/
+ * XSLTtemplate.pike - XSLT template module for Caudium. 
+ * Uses libxslt (http://xmlsoft.org) and the Public.Parser.XML2
+ * module for Pike.
  * Tries to be (semi-)compatible with mod_xslt for Apache.
  * Written by David Hedbor <david@hedbor.org>
+ * updates by Bill Welliver <hww3@riverweb.com>
  */
 
 /* TODO: Caching, various RXML parsing options */
@@ -78,9 +80,9 @@ constant module_doc =
 "To post-process a document, use <b>&lt;xsl:output&gt;</b> with the "
 "media-type attribute set to <b>rxml:real/type</b>, ie <b>rxml:text/html</b> "
 "for an HTML document.</p>"
-#if !constant(PiXSL.Parser)
+#if !constant(Public.Parser.XML2)
 "<p><b><blink>ERROR</blink>: "
-"<font color=red>The PiXSL.so pike-module is missing. This "
+"<font color=red>The Public.Parser.XML2 pike-module is missing. This "
 "module will not function correctly!</font></b></p>\n"
 #endif
 ;
@@ -118,7 +120,7 @@ void create()
 	 ".xml will result in the file being sent as back as text/xml "
 	 "without trying to find and apply a stylesheet.");
 }
-#if constant(PiXSL.Parser)
+#if constant(Public.Parser.XML2)
 #define ERROR(x) return Caudium.HTTP.string_answer("<html><head><title>XSLT Template error</title></head><body><p><b>XSLT Template error: "+ x +"</b><p></body></html>")
 object regexp;
 string xsldir;
@@ -136,7 +138,7 @@ mapping|int first_try(object id)
 {
   string xsl, xml, xsl_name, xml_name;
   string|mapping res;
-  object(PiXSL.Parser) parser;
+  object(Public.Parser.XML2.Stylesheet) parser;
   string content_type, charset;
   string basedir, basename, extension;
   if(id->not_query[-1] == '/') {
@@ -203,54 +205,34 @@ mapping|int first_try(object id)
 	ERROR("Couldn't find a wanted stylesheet '"+xsl_name+"'.");
     }
   }
-  parser = PiXSL.Parser();
-  parser->set_xsl_data(xsl);
-  parser->set_xml_data(xml);
-  parser->set_variables(id->variables);
-  parser->set_base_uri(xsl_name);
-  if(catch(res = parser->run())) {
-    res = parser->error();
-    if(!res) 
+  object xml_node;
+  mixed e;
+  e = catch(xml_node = Public.Parser.XML2.parse_xml(xml, xml_name));
+  if(e)
+    throw(Error.Generic("An error occurred while parsing the XML document " + xml_name + ".");
+  e = catch(parser = Public.Parser.XML2.parse_xslt(xsl, xsl_name));
+  if(e)
+    throw(Error.Generic("An error occurred while parsing the XSL document " + xsl_name + ".");
+
+  object xml_result;
+  e = catch(xml_result = parser->apply(xml_node, id->variables));
+  if(e)
+    throw(Error.Generic("An error occurred while applying the XSL document " + xsl_name + " to " + xml_name + ".");
+
+// TODO: we don't seem to have an equivalent of this; probably the 
+// xsl_name argument to parse_xslt does the same.
+//  parser->set_base_uri(xsl_name);
+
+    if(!xml_result) 
       ERROR("XSLT Parsing failed with unknown error.");
-    else if(mappingp(res)) {
-      int line = (int)res->line, sline, eline;
-      string line_emph="";
-      array lines;
-      if(!res->URI) res->URI = "unknown file";
-      if(search(res->URI, "xsl") != -1) {
-	res->URI = "XSLT input <i>"+xsl_name+"</i>";
-	if(line) lines = xsl / "\n";
-      } else if(search(res->URI, "xml") != -1) {
-	res->URI = "XML file <i>"+xml_name+"</i>";
-	if(line) lines = xml / "\n";
-      }
-      if(lines) {
-	line--;
-	sline = max(line - 3, 0);
-	eline = min(sizeof(lines), sline + 7);
-	line_emph="<h3>Extract of incorrect line</h3>";
-	for(int i = sline; i < eline; i++) {
-	  if(i == line) {
-	    line_emph += "<b>"+(i+1)+": <font size=+3>"+
-	      _Roxen.html_encode_string(lines[i])+"</font></b><br>";
-	  } else {
-	    line_emph += "<b>"+(i+1)+"</b>: "+
-	      _Roxen.html_encode_string(lines[i])+"<br>";
-	  }
-	}
-      }
-      ERROR(sprintf("<b>%s:</b> XSLT Parsing failed with %serror code %s on<br>\n"
-		    "line %s in %s:<br>\n%s<p>%s<br>\n<false>",
-		    res->level||upper_case(res->msgtype||"ERROR"), 
-		    res->module ? res->module + " " : "",
-		    res->code || "???",
-		    res->line || "???",
-		    res->URI || "unknown file",
-		    res->msg || "Unknown error", line_emph));
-    }
-  }
-  charset = parser->charset();
-  content_type = parser->content_type() || "text/html";
+
+  // we're going to just proclaim this to be a utf8-world.
+  // if anyone complains, we'll revisit
+  charset = "utf-8";
+  res = parser->output(xml_result, 
+         Public.Parser.XML2.Constants.CHAR_ENCODING_UTF8);
+
+  content_type = parser->output_type() || "text/html";
   if(content_type[..4] == "rxml:") {
     res = parse_rxml(res, id);
     content_type=content_type[5..];
