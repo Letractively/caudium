@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 /*
- * $Id: caudium.pike,v 1.263 2008-03-21 09:58:23 bertrand Exp $
+ * $Id$
  */
 
 //! This file is the very core of Caudium. This is were all global
@@ -29,7 +29,7 @@
 //! on disk.
 //! ABS and suicide systems contributed freely by Francesco Chemolli
 
-constant cvs_version = "$Id: caudium.pike,v 1.263 2008-03-21 09:58:23 bertrand Exp $";
+constant cvs_version = "$Id$";
 
 object backend_thread;
 object argcache;
@@ -169,7 +169,7 @@ void watchdog_on()
      Stdio.File wds = Stdio.File();
      if(!wds->connect_unix(sock))
      {
-       report_error("Watchdog not listening on "+sock+". Unable to turn watchdog on.\n");
+       report_error("Watchdog not listening on %s: err: %d '%s'. Unable to turn watchdog on.\n", sock, errno(), strerror(errno()));
        return;
      }
      wds->write("WATCHDOG ON %d", pid);
@@ -192,7 +192,7 @@ void watchdog_off()
      Stdio.File wds = Stdio.File();
      if(!wds->connect_unix(sock))
      {
-       werror("Watchdog not listening. Unable to turn watchdog off.\n");
+       werror("Watchdog not listening on %s: err: %d '%s'. Unable to turn watchdog off.\n", sock, errno(), strerror(errno()));
        return;
      }
      wds->write("WATCHDOG OFF %d", pid);
