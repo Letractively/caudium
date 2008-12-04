@@ -135,7 +135,11 @@
  * This is not enabled for performance reasons (eg Caudium with lots of
  * virtuals servers that are mostly unused.).
  */
-#undef LOAD_CONFIGS_STARTUP
+// Unconditionnaly undef this and the user have no chance to define it
+// using -DLOAD_CONFIGS_STARTUP
+// Not defined anywhere by default, thus the virtual servers won't be
+// automatically loaded at startup.
+//#undef LOAD_CONFIGS_STARTUP
 
 
 /*
