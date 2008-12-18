@@ -1,6 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Redirects from 123session module should mangle the original URL less
+  when browsing without cookies.
+  (Bill Welliver with Dave Walton)
 - Caudium modules now use pike -x module for building.
+  (Bill Welliver)
 - Caudium.HTTP.set_cookie() added for setting a cookie to the browser.
   <set_cookie> now use it.
   (Bertrand LUPART)
