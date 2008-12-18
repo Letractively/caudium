@@ -467,6 +467,7 @@ string sessionid_create() {
 
 mixed sessionid_set_prestate(object id, string SessionID) {
   string url=Caudium.strip_prestate(Caudium.strip_config(id->raw_url));
+  url = Caudium.http_decode_url(url);
   string new_prestate = "SessionID="+SessionID;
   id->prestate += (<new_prestate>);
   return Caudium.HTTP.redirect(url, id);
