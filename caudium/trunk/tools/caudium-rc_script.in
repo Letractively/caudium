@@ -71,8 +71,13 @@ case $1 in
 	  fi
 	  if [ -x "$caudiumhome/start-caudium" ]; then
  	    cd $caudiumhome
-	    ./start-caudium $flags 2>/dev/null
-            echo "Done."
+	    ./start-caudium $flags
+            RET=$?
+            if [ $RET != 0 ]; then
+              echo "Failed ($RET)"
+            else
+              echo "Done."
+            fi
           else
             echo "I cannot find the Caudium dir '('$caudiumhome')'"
 	  fi
@@ -109,7 +114,13 @@ case $1 in
 	  echo Starting a new Caudium in $caudiumhome...
 	  if [ -x "$caudiumhome/start-caudium" ]; then
  	    cd $caudiumhome
-	    ./start-caudium $flags 2>/dev/null
+	    ./start-caudium $flags
+            RET=$?
+            if [ $RET != 0 ]; then
+              echo "Failed ($RET)"
+            else
+              echo "Done."
+            fi
           else
             echo "I cannot find the Caudium dir '('$caudiumhome')'"
 	  fi
