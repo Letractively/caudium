@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Caudium now display the error code and message when it can't talk to the
+  watchdog.
+  (Bertrand LUPART)
 - Caudium RC script now display Caudium startup error if any and just tell if
   startup failed.
   (Bertrand LUPART) 
