@@ -1,5 +1,8 @@
 Changes in Caudium 1.4.x since Caudium 1.4.14
 --------------------------------------------
+- Caudium now display the error code and message when it can't talk to the
+  watchdog.
+  (Bertrand LUPART - backported from r5822)
 - Caudium.HTTP.set_cookie() added for setting a cookie to the browser.
   (Bertrand LUPART)
 - Only consider specified pike when using --with-pike rather than also
