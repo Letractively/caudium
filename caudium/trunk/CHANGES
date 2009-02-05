@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Caudium RC script now display Caudium startup error if any and just tell if
+  startup failed.
+  (Bertrand LUPART) 
 - Redirects from 123session module should mangle the original URL less
   when browsing without cookies.
   (Bill Welliver with Dave Walton)
@@ -9,7 +12,7 @@ Changes in Caudium 1.5.1 since Caudium 1.4.1
   <set_cookie> now use it.
   (Bertrand LUPART)
 - Caudium.sexpr_eval("10 + 1") and Caudium.sexpr_eval("1+1") now produce the
-	expected result.
+  expected result.
   (Closes Google issue #2)
   (Bertrand LUPART)
 - install app should get proper executable permissions
