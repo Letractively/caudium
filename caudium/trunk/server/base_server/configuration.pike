@@ -2815,12 +2815,15 @@ object enable_module( string modname )
                       MODULE_PRECACHE | MODULE_ERROR))
   {
     me->defvar("_priority", 5, "Priority", TYPE_INT_LIST,
-               "The priority of the module. 9 is highest and 0 is lowest."
+               "The priority of the module. "
+       	       "This allow to call the modules of a same type in a defined "
+               "order. 9 is highest priority (called first) and "
+               "0 is lowest priority (called last)."
                " Modules with the same priority can be assumed to be"
-               " called in random order"
+               " called in random order."
                "<p>You have to restart Caudium to ensure that the new"
                " priority is applied.",
-               ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+               ({ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 }));
       
     if(!(module->type & (MODULE_LOGGER | MODULE_PROVIDER | MODULE_PRECACHE)))
     {
