@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- CIF documentation about module priorities made more clear.
+  Reversed order of the select list: highest priority now on top.
+  (Bertrand LUPART and Benjamin GANDON)
 - Caudium now display the error code and message when it can't talk to the
   watchdog.
   (Bertrand LUPART)
