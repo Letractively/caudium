@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Make the watchdog more verbose in case it has to kick in in GET mode.
+  (Bertrand LUPART)
 - CIF documentation about module priorities made more clear.
   Reversed order of the select list: highest priority now on top.
   (Bertrand LUPART and Benjamin GANDON)

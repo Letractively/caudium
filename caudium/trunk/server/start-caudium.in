@@ -185,18 +185,44 @@ class SiteChecker
 			// if we're running, we need to be kicked, otherwise it will get
 			// restarted at the next check of the starter. 
 
-			int proc_status = proc->status();
-
-			if(proc && proc->status()==1)
+			if(proc)
 			{
-				flex_write("Killing Caudium...\n");
-				// try to make caudium describing all the threads
-				proc->kill(signum("SIGTRAP"));
-				proc->kill(signum("SIGKILL"));
+				int proc_status = proc->status();
+				int proc_pid = proc->pid();
+
+				// TODO: why only ==1?
+				if(proc_status==1)
+				{
+					flex_write("Killing Caudium (PID: "+proc_pid+" Status: "+proc_status+")...\n");
+
+					// try to make caudium describing all the threads
+					int ok = proc->kill(signum("SIGTRAP"));
+					if(ok)
+					{
+						flex_write("SIGTRAP succeeded.\n");
+						flex_write("Backtrace available in Caudium debug log for post-mortem analysis.\n");
+					}
+					else
+						flex_write("SIGTRAP failed. err: "+errno()+" ("+strerror(errno())+")\n");
+
+					ok = proc->kill(signum("SIGKILL"));
+					if(ok)
+					{
+						flex_write("SIGKILL succeeded\n");
+						flex_write("Caudium will restart in a few seconds.\n");
+					}
+					else
+						flex_write("SIGKILL failed. err: "+errno()+" ("+strerror(errno())+")\n");
+				}
+				else
+				{
+					flex_write("Not killing Caudium because it's not running (PID: "+proc_pid+" Status: "+proc_status+")\n");
+					flex_write("Try investigate using 'kill -5 "+proc_pid+"'\n");
+				}
 			}
 			else
 			{
-				flex_write("Not killing Caudium because we are not running\n");
+				flex_write("WTF? No process available!\n");
 			}
 		}
 
