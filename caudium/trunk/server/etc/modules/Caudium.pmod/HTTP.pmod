@@ -641,6 +641,7 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
 {
   string cookie = "";
 
+  // Build the cookie string
   cookie = name+"="+Caudium.http_encode_cookie(value);
 
   if(t)
@@ -655,7 +656,31 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
   if(domain && sizeof(domain) && stringp(domain))
     cookie += "; domain="+Caudium.http_encode_cookie(domain);
 
-  id->misc->defines[" _extra_heads"]["Set-Cookie"] = cookie;
+  // Build the hierarchy if doesn't exist (eg when using a clone of id)
+  if(!id->misc)
+    id->misc = ([ ]);
+  if(!id->misc->defines)
+    id->misc->defines = ([ ]);
+  if(!id->misc->defines[" _extra_heads"])
+    id->misc->defines[" _extra_heads"] = ([ ]);
+
+  // 
+  if(id->misc->defines[" _extra_heads"]["Set-Cookie"])
+  {
+    if(arrayp(id->misc->defines[" _extra_heads"]["Set-Cookie"]))
+    {
+      id->misc->defines[" _extra_heads"]["Set-Cookie"] += ({ cookie });
+    }
+    else
+    {
+      id->misc->defines[" _extra_heads"]["Set-Cookie"] = ({ id->misc->defines[" _extra_heads"]["Set-Cookie"], cookie });
+    }
+  }
+  else
+  {
+    // TODO: why not returning an array? (see before)
+    id->misc->defines[" _extra_heads"]["Set-Cookie"] = cookie;
+  }
 
   return;
 }
