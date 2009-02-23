@@ -1,5 +1,10 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixed a bug in gtext that would try to parse the empty tag (<>) if list of
+  tags to get colors from was left empty in the CIF. This used to break
+  javascript code.
+  (Closes Google issue #4)
+  (Bertrand LUPART and Bill Welliver)
 - Make the watchdog more verbose in case it has to kick in in GET mode.
   (Bertrand LUPART)
 - CIF documentation about module priorities made more clear.

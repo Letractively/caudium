@@ -45,11 +45,46 @@ inherit "images";
 
 constant module_type = MODULE_PARSER;
 constant module_name = "Graphics text";
-constant module_doc  = "Generates graphical texts.<p>"
-	    "See <tt>&lt;gtext help&gt;&lt;/gtext&gt;</tt> for "
-	    "more information.";
+constant module_doc  = "<p>Generates graphical texts.</p>"
+  "<p>See <tt>&lt;gtext help&gt;&lt;/gtext&gt;</tt> for "
+  "more information.</p>";
 constant module_unique = 1;
-	    
+
+string status()
+{
+  string out = "";
+
+  mapping t = query_tag_callers();
+  if(sizeof(t))
+  {
+    out += sprintf("<p>Currently set up to parse the following tags:<ul>"); 
+    foreach(t; string tag; mixed cb)
+    {
+      out += sprintf("<li>&lt;%s/&gt;</li>", tag);
+    }
+    out += "</ul></p>";
+  }
+  else
+    out += "<p>Currently not set up to parse any tag</p>";
+
+  mapping c = query_container_callers();
+  if(sizeof(c))
+  {
+    out += sprintf("<p>Currently set up to parse the following containers:<ul>"); 
+    foreach(c; string container; mixed cb)
+    {
+      out += sprintf("<li>&lt;%s&gt; &lt;/%s&gt;</li>", container, container);
+    }
+    out += "</ul></p>";
+  }
+  else
+    out += "<p>Currently not set up to parse any container</p>";
+
+  out += "<p>If you changed this configuration, you have to reload this module for these to take effect.</p>"
+
+  return out;
+}
+
 void create()
 {
   defvar("colorparse", 1, "Parse tags for document colors", TYPE_FLAG,
@@ -1180,14 +1215,17 @@ mapping query_tag_callers()
   if(QUERY(colorparse))
     foreach(QUERY(colorparsing), string t)
     {
-      switch(t)
+      if(sizeof(t))
       {
-       case "body":
-	 tags[t] = tag_body;
-	 break;
-       default:
-	 tags[t] = tag_fix_color;
-	 tags["/"+t]=pop_color;
+        switch(t)
+        {
+         case "body":
+	   tags[t] = tag_body;
+	   break;
+         default:
+	   tags[t] = tag_fix_color;
+	   tags["/"+t]=pop_color;
+        }
       }
     }
   return tags;
