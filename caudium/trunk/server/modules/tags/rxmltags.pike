@@ -1885,7 +1885,7 @@ string tag_add_cookie(string tag, mapping m, object id, object file,
     if (m->years)   t+=((int)(m->years))*(3600*(24*365+6));   /* 365.25d */
   }
 
-	Caudium.HTTP.set_cookie(name, value, id, t, m->path||"/", m->domain);
+	Caudium.HTTP.set_cookie(m->name, m->value, id, t, m->path||"/", m->domain);
 
   return "";
 }
