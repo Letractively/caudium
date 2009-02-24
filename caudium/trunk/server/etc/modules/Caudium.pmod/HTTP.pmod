@@ -682,17 +682,23 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
 //! The value of the header
 //!
 //! @note
-//! Duplicated code from server/modules/tags/rxmltags.pike
-void add_header(mapping headers, string name, string value)
+//! Code inspired from server/modules/tags/rxmltags.pike
+void add_header(mapping headers, string name, string|array value)
 {
+  // Always deal with an array
+  array newvalue = ({ });
+  if(arrayp(value))
+    newvalue = value;
+  else
+    newvalue = ({ value });
+
   if(headers[name])
     if(arrayp(headers[name]))
-      headers[name] += ({ value });
+      headers[name] += newvalue;
     else
-      headers[name] = ({ headers[name], value });
+      headers[name] = ({ headers[name] }) + newvalue;
   else
-    // TODO: why not returning an array? (see before)
-    headers[name] = value;
+    headers[name] = newvalue;
 
   return;
 }
