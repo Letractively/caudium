@@ -664,23 +664,35 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
   if(!id->misc->defines[" _extra_heads"])
     id->misc->defines[" _extra_heads"] = ([ ]);
 
-  // 
-  if(id->misc->defines[" _extra_heads"]["Set-Cookie"])
-  {
-    if(arrayp(id->misc->defines[" _extra_heads"]["Set-Cookie"]))
-    {
-      id->misc->defines[" _extra_heads"]["Set-Cookie"] += ({ cookie });
-    }
+  add_header(id->misc->defines[" _extra_heads"], "Set-Cookie", cookie);
+
+  return;
+}
+
+
+//! Sets some headers
+//!
+//! @param header
+//! Where to set the headers (usually id->misc->defines[" _extra_heads"])
+//!
+//! @param name
+//! The name of the header to set up (ie "Set-Cookie")
+//!
+//! @param value
+//! The value of the header
+//!
+//! @note
+//! Duplicated code from server/modules/tags/rxmltags.pike
+void add_header(mapping headers, string name, string value)
+{
+  if(headers[name])
+    if(arrayp(headers[name]))
+      headers[name] += ({ value });
     else
-    {
-      id->misc->defines[" _extra_heads"]["Set-Cookie"] = ({ id->misc->defines[" _extra_heads"]["Set-Cookie"], cookie });
-    }
-  }
+      headers[name] = ({ headers[name], value });
   else
-  {
     // TODO: why not returning an array? (see before)
-    id->misc->defines[" _extra_heads"]["Set-Cookie"] = cookie;
-  }
+    headers[name] = value;
 
   return;
 }
