@@ -1,5 +1,7 @@
 Changes in Caudium 1.4.x since Caudium 1.4.14
 --------------------------------------------
+- Added --dtruss support (MacOS X 10.5)
+  (Bertrand LUPART)
 - Caudium RC script now display Caudium startup error if any and just tell if
   startup failed.
   (Bertrand LUPART - backported from r5825)
