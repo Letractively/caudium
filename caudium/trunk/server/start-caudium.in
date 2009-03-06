@@ -44,7 +44,6 @@ array(array(string | array(string))) arguments = ({
   ({"quiet", Getopt.NO_ARG, ({"--quiet"})}),
   ({"truss", Getopt.NO_ARG, ({"--truss"})}),
   ({"dtruss", Getopt.NO_ARG, ({"--dtruss"})}),
-  ({"dtruss", Getopt.NO_ARG, ({"--dtruss"})}),
   ({"strace", Getopt.NO_ARG, ({"--strace"})}),
   ({"ltrace", Getopt.NO_ARG, ({"--ltrace"})}),
   ({"ktrace", Getopt.NO_ARG, ({"--ktrace"})}),
