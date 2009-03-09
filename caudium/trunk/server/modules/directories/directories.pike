@@ -55,7 +55,7 @@ class Dirnode
 {
   string prefix;
   int finished, nocache=time();
-  array stat;
+  array|Stdio.Stat stat;
   inherit "base_server/struct/node";
 
 #define configurl(f) ("/(internal,image)/"+f)

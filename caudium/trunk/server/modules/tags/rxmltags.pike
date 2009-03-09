@@ -1252,7 +1252,7 @@ static string|array(string) inc(mapping m, int val, object id)
 string tag_modified(string tag, mapping m, object id, object file,
 		    mapping defines)
 {
-  array (int) s;
+  Stdio.Stat s;
   object f;
   
   if(m->by && !m->file && !m->realfile)
