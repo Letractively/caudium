@@ -24,7 +24,7 @@ constant module_doc  = "Please document me";
 constant module_unique = 1;
 // Is this code thread safe? Beware of global variables...
 constant thread_safe = 1;
-constant csv_version = "$Id$";
+constant cvs_version = "$Id$";
 
 
 
