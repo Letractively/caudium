@@ -29,10 +29,10 @@ inherit "modules/scripting/cgi.pike";
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
-//! cvs_version: $Id: uniscript.pike,v 1.34 2005-01-03 17:04:48 kiwi Exp $
+//! cvs_version: $Id$
 //
 
-constant cvs_version = "$Id: uniscript.pike,v 1.34 2005-01-03 17:04:48 kiwi Exp $";
+constant cvs_version = "$Id$";
 
 constant module_type = MODULE_FILE_EXTENSION|MODULE_EXPERIMENTAL;
 constant module_name = "Universal script parser";
@@ -326,12 +326,6 @@ mapping handle_file_extension(object o, string e, object id)
 void create(object conf)
 {
   ::create(conf);
-  killvar("rxml");
-
-  defvar("rxml", 0, "Parse RXML in uni-scripts", TYPE_FLAG,
-         "If this is set, the output from uni-scripts handled by this "
-         "module will be RXML parsed. NOTE: No data will be returned to the "
-         "client until the uni-script is fully parsed.",0,getuid);
 
   killvar("location");
   killvar("searchpath");
