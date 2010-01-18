@@ -658,24 +658,11 @@ void set_cookie(string name, string value, object id, void|int t, void|string pa
     id->misc->defines = ([ ]);
   if(!id->misc->defines[" _extra_heads"])
     id->misc->defines[" _extra_heads"] = ([ ]);
+  if(!id->misc->defines[" _extra_heads"]["Set-Cookie"])
+		id->misc->defines[" _extra_heads"]["Set-Cookie"] = ({ });
 
-  // 
-  if(id->misc->defines[" _extra_heads"]["Set-Cookie"])
-  {
-    if(arrayp(id->misc->defines[" _extra_heads"]["Set-Cookie"]))
-    {
-      id->misc->defines[" _extra_heads"]["Set-Cookie"] += ({ cookie });
-    }
-    else
-    {
-      id->misc->defines[" _extra_heads"]["Set-Cookie"] = ({ id->misc->defines[" _extra_heads"]["Set-Cookie"], cookie });
-    }
-  }
-  else
-  {
-    // TODO: why not returning an array? (see before)
-    id->misc->defines[" _extra_heads"]["Set-Cookie"] = cookie;
-  }
+	// Add the cookie value to be set up
+	id->misc->defines[" _extra_heads"]["Set-Cookie"] += ({ cookie });
 
   return;
 }
