@@ -487,6 +487,13 @@ private int parse_got()
 	 
 	 if ( objectp(conf) ) {
 	   int conf_size = conf->query("PostBodySize");
+
+		// Report if the data posted are bigger than what the server allows
+		if(conf_size>0 && l>conf_size)
+		{
+			report_warning("PostBodySize too small: %O (%d>%d)\n", conf->name, l, conf_size);
+		}
+
 	   if ( conf_size < 0 )
 	     wanted_data = l;
 	   else
