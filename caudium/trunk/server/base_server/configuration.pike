@@ -1160,7 +1160,7 @@ void clear_memory_caches()
 //!
 string draw_saturation_bar(int hue,int brightness, int where)
 {
-  object bar=Image.image(30,256);
+  object bar=Image.Image(30,256);
 
   for(int i=0;i<128;i++)
   {

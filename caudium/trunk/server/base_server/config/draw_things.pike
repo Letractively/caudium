@@ -30,11 +30,11 @@
 constant cvs_version = "$Id$";
 
 //!
-Image.image load_image(string f)
+Image.Image load_image(string f)
 {
   object file = Stdio.File();
   string data;
-  object img = Image.image();
+  object img = Image.Image();
 
 //  report_debug("Loading "+f+"\n");
 
@@ -58,7 +58,7 @@ Image.image load_image(string f)
   if(X){knappar->paste(X,cxp,0);cxp+=X->xsize();first_icon=0;}\
   if(strlen(Y)) {\
     object f = font->write(Y)->scale(0.45);\
-    knappar->paste_mask(Image.image(f->xsize(),f->ysize()),f,cxp-f->xsize()-4,-1);\
+    knappar->paste_mask(Image.Image(f->xsize(),f->ysize()),f,cxp-f->xsize()-4,-1);\
    }\
  }while(0)
 
@@ -78,10 +78,10 @@ Image.image load_image(string f)
 #define pad           load_image("padding.ppm")->scale(0,48)
 
 //!
-Image.image draw_module_header(string name, int type, object font)
+Image.Image draw_module_header(string name, int type, object font)
 {
-  object result = Image.image(1000,48);
-  object knappar = Image.image(1000,48);
+  object result = Image.Image(1000,48);
+  object knappar = Image.Image(1000,48);
   object text;
   int cxp = 0, first_icon;
   text = font->write(name);
@@ -195,10 +195,10 @@ Image.Image draw_config_button(string name, object font, int lm, int rm,
 }
 
 //!
-Image.image draw_tab( object tab, object text, array(int) bgcolor )
+Image.Image draw_tab( object tab, object text, array(int) bgcolor )
 {
   text = text->scale( 0, tab->ysize()-2 );
-  object i = Image.image( tab->xsize()*2 + text->xsize(), tab->ysize() );
+  object i = Image.Image( tab->xsize()*2 + text->xsize(), tab->ysize() );
   if(bgcolor)
     tab *= bgcolor;
   i = i->paste( tab );
@@ -215,7 +215,7 @@ Image.image draw_tab( object tab, object text, array(int) bgcolor )
 
 
 //!
-Image.image draw_unselected_button(string name, object font,
+Image.Image draw_unselected_button(string name, object font,
 					    void|array(int) pagecol)
 {
   object txt = font->write(name);
@@ -223,7 +223,7 @@ Image.image draw_unselected_button(string name, object font,
 }
 
 //!
-Image.image draw_selected_button(string name, object font,
+Image.Image draw_selected_button(string name, object font,
 					  void|array(int) pagecol)
 {
   object txt = font->write(name);
@@ -234,9 +234,9 @@ Image.image draw_selected_button(string name, object font,
 //!
 object pil(int c, object s)
 {
-  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
-  object fgc = s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB });
-  object f=Image.image(50,50,@bgc);
+  array(int) bgc = (s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB }) );
+  array(int) fgc = (s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB }) );
+  object f=Image.Image(50,50,@bgc);
   if(c) 
     f->setcolor(200,0,0);
   else
@@ -249,23 +249,23 @@ object pil(int c, object s)
 //!
 object draw_unfold(int c, void|object s)
 {
-  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  array(int) bgc = (s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB }) );
   return pil(c, s)->setcolor(@bgc)->rotate(-90)->scale(15,0);
 }
 
 //!
 object draw_fold(int c, void|object s)
 {
-  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
+  array(int) bgc = (s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB }) );
   return pil(c, s)->setcolor(@bgc)->rotate(-180)->scale(15,0);
 }
 
 //!
 object draw_back(int c, void|object s)
 {
-  object bgc = s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB });
-  object fgc = s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB });
-  object f=Image.image(50,50,@bgc);
+  array(int) bgc = (s ? s->rgb_colour("bgcolor") :  ({ dR,dG,dB }) );
+  array(int) fgc = (s ? s->rgb_colour("titlebg") :  ({ dR,dG,dB }) );
+  object f=Image.Image(50,50,@bgc);
   f->setcolor(@fgc);
   for(int i=1; i<25; i++)
     f->line(25-i,i,25+i,i);

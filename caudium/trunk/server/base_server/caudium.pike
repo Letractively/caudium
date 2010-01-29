@@ -1406,7 +1406,7 @@ string filename(object|program o)
 }
 
 // ([ filename:stat_array ])
-mapping(string:array) module_stat_cache = ([]);
+mapping(string:Stdio.Stat) module_stat_cache = ([]);
 
 //! (Re)loads the specified source file in the context of the passed
 //! configuration object.
@@ -2069,7 +2069,7 @@ class ImageCache
         if (alpha)
           alpha *= ov;
         else
-          alpha = Image.image( reply->xsize(), reply->ysize(), ov,ov,ov );
+          alpha = Image.Image( reply->xsize(), reply->ysize(), ov,ov,ov );
       }
 
       if (args->gamma)
