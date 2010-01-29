@@ -109,7 +109,7 @@ int main(int argc, array argv)
 	    String.implode_nicely(missing));
   }
 
-  array databases = ({ "Msql", "Mysql", "Odbc", "Oracle", "Postgres", "sybase" });
+  array databases = ({ "Msql", "Mysql", "Odbc", "Oracle", "Postgres", "sybase", "SQLite" });
   missing = databases - existing;
   array supported_backend = databases & existing;
   
