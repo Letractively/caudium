@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fixes for running Caudium using Pike 7.8
+  (Bill Welliver)
 - Added --dtruss support (MacOS X 10.5)
   (Bertrand LUPART)
 - Fixed a bug in gtext that would try to parse the empty tag (<>) if list of

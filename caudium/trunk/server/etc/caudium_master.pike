@@ -449,10 +449,10 @@ void create()
   /* Move the old efuns to the new object. */
   if (o->master_efuns) {
     foreach(o->master_efuns, string e) {
-      if (o[e]) {
+      if (has_index(o, e)) {
 	add_constant(e, o[e]);
       } else {
-	throw(({ sprintf("Function %O is missing from roxen_master.pike.\n",
+	throw(({ sprintf("Function %O is missing from caudium_master.pike.\n",
 			 e), backtrace() }));
       }
     }
