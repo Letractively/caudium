@@ -1725,7 +1725,14 @@ mapping configuration_parse(object id)
           switch(o->type)
           {
               case NODE_CONFIGURATION:
-                PUSH("<font size=\"+2\">Do you really want to delete the configuration "+
+                if(o->data->name =="ConfigurationInterface")
+                {
+                  PUSH("<font size=\"+2\">The Configuration Interface server cannot be deleted."
+                     "\n\n<p></font>");
+                  return stores(res*"");
+                }
+		else 
+                  PUSH("<font size=\"+2\">Do you really want to delete the configuration "+
                      o->data->name + ", all its modules and their copies?"
                      "\n\n<p></font>");
                 break;
@@ -1780,6 +1787,8 @@ mapping configuration_parse(object id)
                 if(i==sizeof(caudium->configurations))
                   error("Configuration not found.\n");
 	
+                if(o->data->name =="ConfigurationInterface")
+                  throw(Error.Generic("ConfigurationInterface cannot be deleted.\n"));
                 caudium->remove_configuration(o->data->name);
 
                 if(caudium->configurations[i]->ports_open)
@@ -2032,7 +2041,8 @@ mapping configuration_parse(object id)
       BUTTON(refresh, "Reload module", left);
   }
   
-  if(o->type == NODE_CONFIGURATION && id->misc->cif_superuser)
+  if(o->type == NODE_CONFIGURATION && id->misc->cif_superuser &&
+    o->data->name !="ConfigurationInterface")
     BUTTON(delete,"Delete this server", left);
 
   if(nunfolded(o))

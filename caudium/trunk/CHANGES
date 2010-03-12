@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Add checks to prevent a user from deleting the Configuration Interface
+   virtual server (a config named "ConfigurationInterface") from within 
+   the CIF.
+  (Bill Welliver)
 - Fixes for running Caudium using Pike 7.8
   (Bill Welliver)
 - Added --dtruss support (MacOS X 10.5)
