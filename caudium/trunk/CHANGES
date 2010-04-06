@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Add support for not URL encoding requests when using AJP. This should 
+   allow AJP to work better for containers that expec this (newer 
+   Tomcats, flup on Python, etc)
+  (Bill Welliver)
 - Add checks to prevent a user from deleting the Configuration Interface
    virtual server (a config named "ConfigurationInterface") from within 
    the CIF.

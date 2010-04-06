@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2004 The Caudium Group
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@
  */
 
 /* Standard includes */
+#define AJP_DEBUG 1
 
 #include <module.h>
 inherit "module";
@@ -53,6 +54,11 @@ void create () {
 	    "module will be mounted.",0, lambda() {return query("ex");} );
     defvar("rxml", 1, "Parse output?", TYPE_FLAG,
             "If set to yes, html output will be RXML-parsed.");
+    defvar("url_encode_request", 1, "URL Encode Request?", TYPE_FLAG,
+            "If set to yes, this module will pass the requested URI to the AJP "
+            "container in URL encoded format. Not all AJP containers like this, so "
+            "this may need to be turned off if problems occur while making requests "
+            "with non-alphanumeric characters, such as spaces or hyphens");
     defvar("hosts", "localhost:8009", "Container Host", TYPE_TEXT_FIELD,
             "This is the hostname or ip address and port for your Tomcat host, formatted as host:port."
             "Multiple hosts may be used for load balancing by placing one entry on each line.");
@@ -152,13 +158,13 @@ mixed handle_request(object id)
 
   if(!clients || !clients[sident] || !objectp(clients[sident]))
   {
-    clients[sident]=Protocols.AJP.client(shost, sport, 2);
+    clients[sident]=Protocols.AJP.client(shost, sport, 2, QUERY(url_encode_request));
 #ifdef AJP_DEBUG
     werror("clients[" + sident+ "]=Protocols.AJP.client(" + shost+ ", " + sport +" , 2);\n");
 #endif
   }
   err=catch(mapping res= clients[sident]->handle_request(id));
-  if(err)
+  if(err || !res) // jetty seems to return empty packets every once in a while
   {
      int ok=0;
      foreach(ajp_hosts, array host)
@@ -170,7 +176,7 @@ mixed handle_request(object id)
          sident=host[2];
          if(!clients[sident] || !objectp(clients[sident]))
          {
-           clients[sident]=Protocols.AJP.client(shost, sport, 2);
+           clients[sident]=Protocols.AJP.client(shost, sport, 2, QUERY(encode_req_uri));
 #ifdef AJP_DEBUG
            werror("clients[" + sident+ "]=Protocols.AJP.client(" + shost+ ", " + sport +" , 2);\n");
 #endif
@@ -189,8 +195,9 @@ mixed handle_request(object id)
           break; 
        }
      }
-
-    if(!ok) return "ERROR: Unable to connect to an AJP host.";
+if(err) throw(err);
+if(!res) return "ERROR: container returned bad data!";
+//    if(!ok) return "ERROR: Unable to connect to an AJP host.";
        
   }
 
@@ -202,7 +209,6 @@ mixed handle_request(object id)
   if (jsid) id->misc->ajpsession = decode_session(jsid);
 
   // done with the load balancing stuff.
-
   mapping ret=([]);  
   ret->error= res->response_code;
 
