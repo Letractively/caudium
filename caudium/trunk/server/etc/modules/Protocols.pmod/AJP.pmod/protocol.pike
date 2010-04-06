@@ -190,7 +190,7 @@ string packet_get_body(string d)
   return sprintf("%2c%s",strlen(d),d);
 }
 
-string packet_forward_request(object id)
+string packet_forward_request(object id, int(0..1) encode_req_uri)
 {
   int method=method_from_string(id->method);    
   mapping attributes=([]);
@@ -214,7 +214,7 @@ string packet_forward_request(object id)
   }
 
 
-  server_name=id->get_canonical_url();
+  server_name=id->conf->query("MyWorldLocation");
   sscanf(server_name, "%*s//%s", server_name);
   sscanf(server_name, "%s:", server_name);
   sscanf(server_name, "%s/", server_name);
@@ -234,7 +234,7 @@ string packet_forward_request(object id)
      MSG_FORWARD_REQUEST,
      method,
      push_string(id->clientprot),
-     push_string(Caudium.http_encode_url(id->not_query)),
+     push_string((encode_req_uri?Caudium.http_encode_url(id->not_query):id->not_query)),
      push_string(id->remoteaddr),
      push_string(rhost),
      push_string(server_name),

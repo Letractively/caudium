@@ -21,11 +21,12 @@
 string hostname;
 int port;
 int max_conns;
+int(0..1) encode_req_uri;
 
 array conns=({});
 
 //! Create a new AJP1.3 client. 
-void create(string _host, int _port, int maxconn)
+void create(string _host, int _port, int maxconn, int(0..1) _encode_req_uri)
 {
 #ifdef AJP_DEBUG
   report_debug("Protocols.AJP.Client()\n");
@@ -35,6 +36,7 @@ void create(string _host, int _port, int maxconn)
   hostname=_host;
   port=_port;
   max_conns=maxconn;
+  encode_req_uri=_encode_req_uri;
 }
 
 void destruct()
@@ -70,7 +72,7 @@ object get_connection()
       return c;
     }    
   }  
-  return connection(hostname, port);
+  return connection(hostname, port, encode_req_uri);
 
 }
 
@@ -95,13 +97,14 @@ class connection
   int inuse=0;
   int destruct_on_close=0;
   function destroy_function;
-
+  int(0..1) encode_req_uri;
 //!
-  void create(string host, int port)
+  void create(string host, int port, int(0..1) _encode_req_uri)
   {
 #ifdef AJP_DEBUG
      report_debug("Protocols.AJP.Client.connection()\n");
 #endif
+   encode_req_uri = _encode_req_uri;
      c=Stdio.File();    
      if(!c->connect(host, port))
        error("Protocols.AJP.client.connection(): Unable to connect to " + host + ":" + port + ".");
@@ -124,7 +127,7 @@ class connection
     mapping r=([]);
 
     // send request
-    c->write(generate_server_packet(packet_forward_request(id)));
+    c->write(generate_server_packet(packet_forward_request(id, encode_req_uri)));
 
     // do we have a request body to send?
     if(id->request_headers["content-length"] && 
