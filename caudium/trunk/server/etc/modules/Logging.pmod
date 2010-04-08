@@ -98,8 +98,9 @@ class Logger {
   // Parse the logging format strings.
   inline string fix_logging(string s)
   {
-    string pre, post, c;
-    sscanf(s, "%*[\t ]", s);
+    string pre, post;
+    int c;
+    sscanf(s, "%*[\t ]%s", s);
     s = replace(s, ({"\\t", "\\n", "\\r" }), ({"\t", "\n", "\r" }));
 
     // FIXME: This looks like a bug.

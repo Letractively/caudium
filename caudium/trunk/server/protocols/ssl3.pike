@@ -35,6 +35,35 @@ mapping to_send;
 
 // #define SSL3_DEBUG
 
+#if constant(gethrtime)
+# define HRTIME() gethrtime()
+# define HRSEC(X) ((int)((X)*1000000))
+# define SECHR(X) ((X)/(float)1000000)
+#else
+# define HRTIME() (predef::time())
+# define HRSEC(X) (X)
+# define SECHR(X) ((float)(X))
+#endif
+
+#ifdef PROFILE
+#define REQUEST_DEBUG
+int req_time = HRTIME();
+#endif
+
+//#define REQUEST_DEBUG
+
+#ifdef REQUEST_DEBUG
+#define REQUEST_WERR(X)	roxen_perror((X)+"\n")
+#else
+#define REQUEST_WERR(X)
+#endif
+
+#ifdef FD_DEBUG
+#define MARK_FD(X) catch{REQUEST_WERR(X); mark_fd(my_fd->query_fd(), (X)+" "+remoteaddr);}
+#else
+#define MARK_FD(X) REQUEST_WERR(X)
+#endif
+
 mapping parse_args(string options)
 {
 #ifdef SSL3_DEBUG
@@ -424,129 +453,8 @@ static void write_more_file()
   }
 }
 
-void send_result(mapping|void result)
+void do_send_result_async(string head_string)
 {
-  array err;
-  int tmp;
-  mapping heads;
-  string head_string;
-
-  if (result) {
-    file = result;
-  }
-
-  if(!mappingp(file))
-  {
-    // There is no file so calling error
-    mixed tmperr;
-    tmperr = conf->handle_error_request(this_object());
-    if(mappingp(tmperr)) 
-      file = (mapping)tmperr;
-    else {  // Fallback error handler.
-      if(misc->error_code)
-        file = Caudium.HTTP.low_answer(misc->error_code, Caudium.Const.errors[misc->error]);
-      else if(method != "GET" && method != "HEAD" && method != "POST")
-        file = Caudium.HTTP.low_answer(501,"Not implemented.");
-      else 
-        file = Caudium.HTTP.low_answer(404,"Not found.");
-    }
-  } else {
-    if((file->file == -1) || file->leave_me) 
-    {
-      if(do_not_disconnect) {
-	file = pipe = 0;
-	return;
-      }
-      destroy(); // To mark we're not interested in my_fd anymore.
-      my_fd = file = 0;
-      return;
-    }
-
-    if(file->type == "raw")
-      file->raw = 1;
-    else if(!file->type)
-      file->type="text/plain";
-  }
-  
-  if(!file->raw && prot != "HTTP/0.9")
-  {
-    string h;
-    heads=
-      ([
-	"Content-type":file["type"],
-		      "Server":replace(version(), " ", "·"),
-		      "Date":Caudium.HTTP.date(time)
-	 ]);
-    
-    if(file->encoding)
-      heads["Content-Encoding"] = file->encoding;
-    
-    if(!file->error) 
-      file->error=200;
-    
-    if(!zero_type(file->expires))
-      heads->Expires = file->expires ? Caudium.HTTP.date(file->expires) : "0";
-
-    if(!file->len)
-    {
-      if(objectp(file->file))
-	if(!file->stat && !(file->stat=misc->stat))
-	  file->stat = (array(int))file->file->stat();
-      array fstat;
-      if(arrayp(fstat = file->stat))
-      {
-	if(file->file && !file->len)
-	  file->len = fstat[1];
-    
-    
-	heads["Last-Modified"] = Caudium.HTTP.date(fstat[3]);
-	
-	if(since)
-	{
-	  if(Caudium.is_modified(since, fstat[3], fstat[1]))
-	  {
-	    file->error = 304;
-	    method="HEAD";
-	  }
-	}
-      }
-      if(stringp(file->data)) 
-	file->len += strlen(file->data);
-    }
-
-    if(mappingp(file->extra_heads)) 
-      heads |= file->extra_heads;
-
-    if(mappingp(misc->moreheads))
-      heads |= misc->moreheads;
-    
-    array myheads = ({prot+" "+(file->rettext||Caudium.Const.errors[file->error])});
-    foreach(indices(heads), h)
-      if(arrayp(heads[h]))
-	foreach(heads[h], tmp)
-	  myheads += ({ `+(h,": ", tmp)});
-      else
-	myheads +=  ({ `+(h, ": ", heads[h])});
-
-
-    if(file->len > -1)
-      myheads += ({"Content-length: " + file->len });
-    head_string = (myheads+({"",""}))*"\r\n";
-    
-    if(conf) conf->hsent+=strlen(head_string||"");
-  }
-
-  if(method == "HEAD")
-  {
-    file->data = 0;
-    file->file = 0;
-  }
-
-  if(conf) {
-    conf->sent+=(file->len>0 ? file->len : 1000);
-    conf->log(file, this_object());
-  }
-
   file->head = head_string;
   to_send = copy_value(file);
 
@@ -554,14 +462,29 @@ void send_result(mapping|void result)
     array st = to_send->file->stat && to_send->file->stat();
     if (st && (st[1] >= 0)) {
       // Ordinary file -- can't use non-blocking I/O
-      my_fd->set_nonblocking(0, write_more_file, end);
+      my_fd->set_nonblocking(0, write_more_file, do_log);
     } else {
-      my_fd->set_nonblocking(0, write_more, end);
+      my_fd->set_nonblocking(0, write_more, do_log);
       to_send->file->set_nonblocking(got_data_to_send, 0, no_data_to_send);
     }
   } else
-    my_fd->set_nonblocking(0, write_more, end);
+    my_fd->set_nonblocking(0, write_more, do_log);
   if (done++) destroy();
+}
+
+void do_log()
+{
+  MARK_FD("HTTP logging"); // fd can be closed here
+
+  if(conf)
+  {
+    if(file->len > 0) conf->sent+=file->len;
+    file->len += misc->_log_cheat_addition;
+    conf->log(file, this_object());
+  }
+
+  end(0,1);
+  return;
 }
 
 static int parse_got()
@@ -588,6 +511,9 @@ static int parse_got()
   return r;
 }
 
+
+// TODO: when we have an http->ssl3 redirect, we end up with spurious errors in the log file
+// from sslfile (indexing the null value query_backend, etc). 
 class fallback_redirect_request {
   string in = "";
   string out;

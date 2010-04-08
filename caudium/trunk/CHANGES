@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Response generation and sending for HTTP and SSL protocols have been
+   consolidated, resulting in (hopefully) much more consistent results
+  (Bill Welliver)
 - Add support for not URL encoding requests when using AJP. This should 
    allow AJP to work better for containers that expec this (newer 
    Tomcats, flup on Python, etc)
