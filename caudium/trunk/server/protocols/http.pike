@@ -1595,6 +1595,12 @@ void send_result(mapping|void result)
     return;
   }
 
+  do_send_data_async(head_string);
+}
+
+void do_send_data_async(string head_string)
+{
+
   if(head_string) send(head_string);
 
   if(method != "HEAD" && file->error != 304)
@@ -1661,6 +1667,11 @@ void handle_magic_error()
       }
     }
   }
+}
+
+void destroy()
+{
+
 }
 
 //! Handle the request
