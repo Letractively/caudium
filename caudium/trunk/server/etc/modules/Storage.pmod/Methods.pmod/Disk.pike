@@ -431,7 +431,6 @@ mapping idx_size_get()
   string ipath = Stdio.append_path(path, "storage_size");
   catch(s = read_file(ipath));
 
-  mixed p;
   if (mixed err = catch(idx_sz = decode(s))) {
 #ifdef STORAGE_DEBUG
     write("STORAGE: Unable to load index - exception during decode.\n");

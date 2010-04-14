@@ -196,7 +196,6 @@ void handle_body_encoding(int content_length)
   switch(content_type)
   {
     default: // Normal form data.
-      string v;
       if ( method != "POST" )
 	return; // no encoding if not POST method
       if(content_length < 200000) {
@@ -251,9 +250,8 @@ private static mixed f, line;
 static int last_search;
 static int parse_got()
 {
-  multiset (string) sup;
   array mod_config;
-  string a, b, linename, contents, s;
+  string a, linename, contents, s;
   int config_in_url;
 
   REQUEST_WERR(sprintf("HTTP: parse_got(%O)", raw));
@@ -1049,7 +1047,6 @@ void do_log()
   MARK_FD("HTTP logging"); // fd can be closed here
   if(conf)
   {
-    int len;
     if(pipe)
 #ifdef USE_SHUFFLER
       file->len = pipe->sent_data();
@@ -1354,8 +1351,6 @@ static string make_content_type(object conf, mapping file)
 //!  The result mapping
 void send_result(mapping|void result)
 {
-  array err;
-  int tmp;
   mapping heads;
   string head_string;
 
@@ -1468,7 +1463,6 @@ void send_result(mapping|void result)
     if(prot != "HTTP/0.9")
     {
 #endif
-      string h;
       heads +=
         (["MIME-Version":(file["mime-version"] || "1.0"),
           "Content-Type": make_content_type(conf, file),
@@ -1634,7 +1628,6 @@ void do_send_data_async(string head_string)
 
 void handle_magic_error()
 {
-  function funp;
   mixed     err;
 
   if(prestate->old_error)

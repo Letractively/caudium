@@ -414,7 +414,6 @@ void stop()
 //! basically, from now on this is just a dummy function. the old one tried to play voodoo magic
 //! with data it didn't really have, so...
 public array|string type_from_filename( string file, int|void to ) {
-  object current_configuration;
 
   // the defaultest (grah) content-type and content-encoding. never ever EVER dare to change this, or else...
   array retval = ({ "application/octet-stream", 0 });
@@ -812,8 +811,6 @@ private object log_file_mutex = Thread.Mutex();
 public void log(mapping file, object request_id)
 {
 //    _debug(2);
-  string a;
-  string form;
   object fobj;
   function f;
 
@@ -1181,11 +1178,11 @@ string draw_saturation_bar(int hue,int brightness, int where)
 // Caudium images, like logos etc.
 private mapping internal_caudium_image(string from)
 {
-  object img;
   int hue,bright,w;
-  string ext;
 
 #if 0
+  string ext;
+
   sscanf(from, "%s.%s", from, ext);
 //  sscanf(from, "%s.gif", from);
 //  sscanf(from, "%s.jpg", from);
@@ -2502,8 +2499,7 @@ void start(int num, void|object conf_id, array|void args)
   string server_name = query_name();
   array port;
   int err=0;
-  object lf;
-  mapping new=([]), o2;
+  mapping new=([]);
 #ifdef ENABLE_RAM_CACHE
   if(!datacache)
     datacache = DataCache(query( "data_cache_size" ) * 1024,
@@ -2760,7 +2756,6 @@ object enable_module( string modname )
   }
 
   object me;
-  mapping tmp;
   int pr;
   array err;
 
@@ -3338,10 +3333,9 @@ void register_module_load_hook( string modname, function fun, mixed ... args )
 //!
 int load_module(string module_file)
 {
-  int foo, disablep;
+  int foo;
   mixed err;
   array module_data;
-  mapping loaded_modules;
   object obj;
   program prog;
 #if constant(gethrtime)
@@ -3358,7 +3352,6 @@ int load_module(string module_file)
       obj = prog(this_object());
     };
   } else {
-    string dir;
     object e = ErrorContainer();
     master()->set_inhibit_compile_errors(e);
     err = catch {
@@ -3475,7 +3468,6 @@ int load_module(string module_file)
 int unload_module(string module_file)
 {
   mapping module;
-  int id;
 
   module = modules[ module_file ];
 

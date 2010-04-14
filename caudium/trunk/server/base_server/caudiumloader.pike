@@ -124,7 +124,6 @@ void roxen_perror(string format,mixed ... args)
     perror_status_reported = t + 60;	// 60s delay.
   }
 
-  string s;
   spider;
   if(sizeof(args)) format=sprintf(format,@args);
   if (format=="") return;
@@ -470,10 +469,6 @@ int low_spawne(string s, array args,
                Stdio.File stdin, Stdio.File stdout, Stdio.File stderr,
                void|string wd)
 {
-  object p;
-  int pid;
-  string t;
-
   if(arrayp(env))
     env = make_mapping([array(string)]env);
   if(!mappingp(env)) 
@@ -495,7 +490,6 @@ int low_spawne(string s, array args,
 int spawne(string s, array(string) args, mapping|array env, object stdin, 
            object stdout, object stderr, void|string wd, void|array (int) uid)
 {
-  int pid;
   array(int) olduid = allocate(2);
 
   int u, g;

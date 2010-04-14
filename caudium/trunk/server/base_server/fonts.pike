@@ -198,7 +198,6 @@ array get_font_italic_bold(string n)
 
 string make_font_name(string name, int size, int bold, int italic)
 {
-  string base_dir, dir;
   mixed available = available_font_versions( name,size );
   if(file_stat(name)) return name;
 
