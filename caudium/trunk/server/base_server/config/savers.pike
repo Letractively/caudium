@@ -101,7 +101,6 @@ void save_global_variables(object o)
 void save_module_master_copy(object o, object config)
 {
   string s;
-  object n;
 
   caudium->current_configuration = config;
   caudium->store(s=o->data->sname+"#0", o->data->master->query(), 0, o->config());

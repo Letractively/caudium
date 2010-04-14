@@ -726,7 +726,6 @@ void create(void|object f, void|object c)
   if(f)
   {
     object ctx;
-    array port;
 
     ctx = get_context(c);
     if (!ctx)

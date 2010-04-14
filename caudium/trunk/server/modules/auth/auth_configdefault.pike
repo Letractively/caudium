@@ -56,8 +56,6 @@ string status()
 
 int authenticate(string user, string password)
 {
-  int result;
-werror("r: %O\n", crypt(password, QUERY(password)));
   if(user == QUERY(username) && crypt(password, QUERY(password)))
     return 1;
 

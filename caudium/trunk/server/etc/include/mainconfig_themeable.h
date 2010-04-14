@@ -94,7 +94,7 @@ class ThemedConfig {
     string describe_node_path(object node) {
 	string q="/";
 	array res = ({ });
-	int cnt;
+
 	/* This appears to have always been buggy, it's fixed now */
 	array nodes = ( node->path( 1 ) / "/" ) - ({ "" });
 	if ( sizeof( nodes ) > 0 ) {
@@ -188,7 +188,6 @@ class ThemedConfig {
     }
 
     object logo() {
-	object i;
 	array fg_rgb = s->rgb_colour( "titlefg" );
 	array bg_rgb = s->rgb_colour( "titlebg" );
 	object text = Image.PNM.decode(Stdio.read_file(datadir+"/cif_logo_txt.pnm"));

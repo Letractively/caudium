@@ -543,7 +543,7 @@ string describe_variable_low(array var, mixed path, int really_short,
     sort(select_from);
     
     res="<select name="+path+">  ";
-    array a;
+
     foreach(select_from, string f)
     {
       f = replace(f, "_", " ");

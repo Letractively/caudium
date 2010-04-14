@@ -133,7 +133,6 @@ void build_module_copy_status(object node)
 //!
 void build_module_copy(object node)
 {
-  string res;
   object o;
 
 #ifdef CONFIG_DEBUG
@@ -153,10 +152,9 @@ void build_module_copy(object node)
 //!
 void build_module(object node)
 {
-  string res;
   int t;
   mixed copies, mod;
-  object o, c;
+  object o;
 
   if(!node->data->master && !node->data->copies) return;
   
@@ -208,7 +206,6 @@ void build_global_variables(object node)
 void build_configuration(object node)
 {
   object cf;
-  string res;
   array (mapping) modules;
   int i;
   cf = node->data;
