@@ -31,14 +31,14 @@
 //! inherits: caudiumlib
 //! inherits: socket
 //! type: MODULE_LOCATION
-//! cvs_version: $Id: filesystem.pike,v 1.41 2005-01-03 17:04:45 kiwi Exp $
+//! cvs_version: $Id$
 //
 
 inherit "module";
 inherit "caudiumlib";
 inherit "socket";
 
-constant cvs_version= "$Id: filesystem.pike,v 1.41 2005-01-03 17:04:45 kiwi Exp $";
+constant cvs_version= "$Id$";
 constant thread_safe=1;
 
 
@@ -252,7 +252,6 @@ int dir_filter_function(string f)
 
 array find_dir( string f, object id )
 {
-  mixed ret;
   array dir;
   object privs;
 

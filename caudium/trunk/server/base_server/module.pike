@@ -83,7 +83,7 @@ string fix_cvs(string from)
 int module_dependencies(object configuration, array (string) modules)
 {
   if(configuration) configuration->add_modules (modules);
-  mixed err;
+  // mixed err;
   //  if (err = catch (_do_call_outs()))
   //    report_error ("Error doing call outs:\n" + describe_backtrace (err));
   return 1;
@@ -118,7 +118,7 @@ object my_configuration()
 string module_creator;
 string module_url;
 
-nomask void set_configuration(object c)
+final void set_configuration(object c)
 {
   if(_my_configuration && _my_configuration != c)
     error("set_configuration() called twice.\n");

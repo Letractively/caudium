@@ -537,7 +537,6 @@ mixed decode_form_result(string var, int type, object node, mapping allvars)
         return bar;
     
       case TYPE_DIR:
-        array st;
         if (!strlen( var ) || !Stdio.is_dir(var))
         {
           node->error = var + " is not a directory";
@@ -818,7 +817,6 @@ mixed new_module_copy_copy(object node, object id)
 //!
 string new_module_form(object id, object node)
 {
-  int i;
   mixed a,b;
   string q;
   array mods;
@@ -1215,7 +1213,7 @@ array tab_names = ({
 //!
 string display_tabular_header(object node)
 {
-  string p, s;
+  string s;
   
   array links = Array.map(tabs, lambda(string q) {
     return selected_nodes[q]+"?"+(bar++);
@@ -1251,7 +1249,6 @@ mapping auto_image(string in, object id)
 {
   string key, value, imgext;
   array trans = ({ (int)("0x"+dR),(int)("0x"+dG),(int)("0x"+dB) });
-  mapping r;
   mixed e;
   object i;
 
@@ -1778,8 +1775,6 @@ mapping configuration_parse(object id)
           switch(o->type)
           {
               case NODE_CONFIGURATION:
-                object oroot;
-	
                 for(i=0; i<sizeof(caudium->configurations); i++)
                   if(caudium->configurations[i] == o->data)
                     break;

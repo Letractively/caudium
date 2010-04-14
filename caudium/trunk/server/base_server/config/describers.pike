@@ -147,7 +147,7 @@ int last_time;
 //!
 string describe_error(int type, int time, string err)
 {
-  int code, nt;
+  int nt;
   array(string) codetext=({ "Notice:", "Warning:", "Error:" });
   
   if(time/60==last_time) nt=1;
@@ -367,7 +367,6 @@ string shorten(string in, object node)
 string describe_module_copy(object node)
 {
   string name, com;
-  object o;
 
   if(!node->data)
   {
