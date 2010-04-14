@@ -1028,7 +1028,6 @@ array get_servers() {
 			flex_debug("spider#0 region found for "+cf->name+"\n");
 
       int port;
-      string host, prot;
       object uri;
 
       mixed err = catch {

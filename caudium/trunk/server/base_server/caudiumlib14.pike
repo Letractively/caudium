@@ -672,7 +672,6 @@ string do_output_tag( mapping args, array (mapping) var_arr, string contents,
               Array.map (lower_case (args->encode) / ",",
                          String.trim_all_whites) : ({"html"});
 
-          string tmp_val;
           foreach (encodings, string encoding)
             if (!(val = roxen_encode( val, encoding )))
               return ("<b>Unknown encoding " + encoding

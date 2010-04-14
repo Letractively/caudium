@@ -77,6 +77,11 @@ class findprog_handler
     /* Move the old efuns to the new object. */
   }
 
+  string _sprintf(mixed t)
+  {
+     return "findprog_handler(" + sprintf("%O", pike_module_path) + ")";
+  }
+
 }
 
 mapping findprog_handlers = ([]);
@@ -84,12 +89,14 @@ mapping findprog_thread_keys = ([]);
 
 void add_handler_for_key(mixed key, object handler)
 {
+	werror("add_handler_for_key(%O, %O)\n", key, handler);
   findprog_mappings++;
   findprog_handlers[key] = handler;
 }
 
 void add_thread_for_key(mixed key, object thread)
 {
+	werror("add_thread_for_key(%O, %O)\n", key, thread);
   findprog_thread_keys[thread] = key;
 }
 
@@ -143,10 +150,9 @@ void add_include_path(string tmp)
 object get_findprog_handler_for_thread()
 {
   object key;
-  object thandler;
 
-//   werror("get_findprog_handler_for_thread(%O)\n", current_thread());
-//   werror("%O\n", findprog_thread_keys);
+   werror("get_findprog_handler_for_thread(%O)\n", current_thread());
+   werror("%O, %O\n", findprog_thread_keys, findprog_mappings);
 
   if(findprog_mappings)
     key = findprog_thread_keys[current_thread()];
@@ -155,7 +161,7 @@ object get_findprog_handler_for_thread()
 
   if(key)
   {
-//   werror("got a handler!: %O\n", findprog_handlers);
+    werror("got a handler!: %O\n", findprog_handlers);
     return findprog_handlers[key];
   }
   else return this;  
@@ -313,7 +319,7 @@ function functionof(array f)
   program low_cast_to_program(mixed ... args)
   {
     mixed key;
-    object thandler;
+
     if(findprog_mappings)
       key = findprog_thread_keys[current_thread()];
     else
@@ -334,7 +340,7 @@ function functionof(array f)
 mixed resolv(mixed ... args)
 {
   mixed key;
-  object thandler;
+
   if(findprog_mappings)
     key = findprog_thread_keys[current_thread()];
   else
@@ -372,7 +378,7 @@ program low_findprog(string pname, string ext,
 		     object|void handler, void|int mkobj)
 {
   object key;
-  object thandler;
+
   if(findprog_mappings)
     key = findprog_thread_keys[current_thread()];
   else

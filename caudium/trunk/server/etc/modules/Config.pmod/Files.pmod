@@ -429,7 +429,6 @@ class File
   private string render_xml(string tname, mapping attrs, string|void contents, int|void doindent)
   {
     string att = "";
-    string fmt;
         
     if (!contents)
       contents = "";

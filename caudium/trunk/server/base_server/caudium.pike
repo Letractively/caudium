@@ -44,7 +44,7 @@ object snmp_agent;
 #include <caudium.h>
 #include <config.h>
 #include <module.h>
-#include <variables.h>
+//#include <variables.h>
 #include <pcre.h>
 #include <schemes.h>;
 #include <http_error.h>
@@ -299,9 +299,6 @@ private static void low_shutdown(int exit_type)
 //  if(main_configuration_port && objectp(main_configuration_port))
   if(portno && sizeof(portno)) // TODO: is this a good enough check?
   {
-    // Only _really_ do something in the main process.
-    int pid;
-
     if (exit_type) {
       report_notice("Restarting Caudium.\n");
       send_trap("server_restart");
@@ -521,7 +518,6 @@ private static void accept_callback( Stdio.Port port )
              replace(file->query_address(), " ", ":"));
 #endif
     if (pn[1] && !pn[1]->inited) {
-      array err;
       pn[1]->enable_all_modules();
       if(!watchdog_enabled && GLOBVAR(watchdog_enable))
       {
@@ -909,7 +905,6 @@ private void parse_supports_string(string what)
   string foo;
   
   array lines;
-  int i;
   lines=replace(what, "\\\n", " ")/"\n"-({""});
 
   foreach(lines, foo) {
@@ -1324,20 +1319,6 @@ public string last_modified_by(object file, object id)
 
 #endif /* !NO_COMPAT */
 
-// FIXME 
-private object find_configuration_for(object bar)
-{
-  object maybe;
-  if (!bar)
-    return configurations[0];
-  
-  foreach (configurations, maybe)
-    if (maybe->otomod[bar])
-      return maybe;
-  
-  return configurations[-1];
-}
-
 // FIXME  
 string|array type_from_filename( string|void file, int|void to )
 {
@@ -1421,7 +1402,6 @@ mapping(string:Stdio.Stat) module_stat_cache = ([]);
 //!  The (re)loaded program's instance.
 object load(string s, object conf)   // Should perhaps be renamed to 'reload'. 
 {
-  string   cvs;
   Stdio.Stat st;
   program  prog;
   if(st = file_stat(s+".pike")) {
@@ -1593,22 +1573,6 @@ void create()
   Configuration = (program)"configuration";
 
   call_out(post_create,1); //we just want to delay some things a little
-}
-
-// This is the most likely URL for a virtual server. Again, this
-// should move into the actual 'configuration' object. It is not all
-// that nice to have all this code lying around in here.
-
-private string get_my_url()
-{
-  string s;
-#if constant(gethostname)
-  s = (gethostname()/".")[0] + "." + query("Domain");
-#else
-  s = "localhost";
-#endif
-  s -= "\n";
-  return "http://" + s + "/";
 }
 
 //! Set the uid and gid to the ones requested by the user. If the sete*
@@ -1805,7 +1769,7 @@ void reload_all_configurations()
   }
 
   foreach(caudium->list_all_configurations(), mapping config) {
-    array err, st;
+    array err;
     foreach(caudium->configurations, conf) {
       if(lower_case(conf->name) == lower_case(config->name)) {
         break;
@@ -3108,7 +3072,7 @@ void scan_module_dir(string d)
 
 void rescan_modules()
 {
-  string file, path;
+  string path;
   mixed err;
   
   report_notice("Scanning module directories for modules.\n");
@@ -3275,7 +3239,7 @@ private void __close_caudium()
 void exit_when_done()
 {
   object o;
-  int i;
+
   report_notice("Interrupt request received. Exiting,\n");
   die_die_die=1;
 //   trace(9);

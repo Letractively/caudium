@@ -24,7 +24,6 @@
 // Really write an entry to the log.
 void write_to_log( string host, string rest, string oh, function fun )
 {
-  int s;
   if(!host) host=oh;
   if(!stringp(host))
     host = "error:no_host";

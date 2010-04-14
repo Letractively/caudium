@@ -116,7 +116,6 @@ public void my_pipe_done(object which)
 void async_pipe(object to, object from, function|void callback, 
 		mixed|void id)
 {
-  object cache;
 #ifndef USE_SHUFFLER
   object pipe = Caudium.nbio ();
 
