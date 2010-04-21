@@ -1,5 +1,12 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Removed a number of unsupported modules:
+    ultralog
+    proxies/ftpgateway
+    proxies/connect
+    perl
+    unfinishedmodules
+   (Bill Welliver)
 - Response generation and sending for HTTP and SSL protocols have been
    consolidated, resulting in (hopefully) much more consistent results
   (Bill Welliver)
