@@ -179,10 +179,14 @@ void precache_rewrite(object id)
     }
   }
 
+  // we really ought to set the site ID properly here.
+  id->site_id = id->conf->name || host;
+
   // remove the request from the 'host' server
   old_conf->requests--;
   // add the request to the 'destination' server
   id->conf->requests++;
+  
 
   return;
 }
