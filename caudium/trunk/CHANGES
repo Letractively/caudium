@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Fix a bug that causes Request_Id->site_id to not be updated when using
+   ip-less virtual hosting. Should fix odd behavior problems when using
+   try_get_file(), such as <insert file> and many other situations.
+  (Bill Welliver)
 - Removed a number of unsupported modules:
     ultralog
     proxies/ftpgateway

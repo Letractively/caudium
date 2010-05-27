@@ -27,7 +27,7 @@
 //!  and then does an exact match on the result. No rules or no matched
 //!  rules uses exact matching on the host header.
 //!  <p>Please note that <strong> IP less hosting
-//!  doesn't work well together with proxy modules.</strong> The reason is that the
+//!  doesn't work well together with proxies.</strong> The reason is that the
 //!  host header sent isn't the one of the proxy server, but the
 //!  one of the requested host. We strongly  recommend having the
 //!  proxies in their own virtual server with a dedicated
@@ -66,7 +66,7 @@ constant module_doc  = "This module adds support for ip-less virtual hosts. Add 
 	    "hosting module, which used fuzzy matching which often gave a bad "
 	    "result"
 	    "<p>Please note that <strong>IP less hosting "
-	    "doesn't work well together with proxy modules.</strong>"
+	    "doesn't work well together with proxies.</strong>"
 	    "The reason is that the "
 	    "host header sent isn't the one of the proxy server, but the "
 	    "one of the requested host. We strongly  recommend having the "
@@ -150,8 +150,8 @@ void precache_rewrite(object id)
 			array h=array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s:%s/");
 			if(sizeof(h)!=3)
 			{
-  			h = array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s/");
-  			h += ({ (["http":"80","https":"443"])[h[0]] });
+				h = array_sscanf(lower_case(s->query("MyWorldLocation")), "%s://%s/");
+				h += ({ (["http":"80","https":"443"])[h[0]] });
 			}
 
       DWERR(sprintf(" %s://%s:%s/", h[0], h[1], h[2]||""));
@@ -179,10 +179,14 @@ void precache_rewrite(object id)
     }
   }
 
+  // we really ought to set the site ID properly here.
+  id->site_id = id->conf->name || host;
+
   // remove the request from the 'host' server
   old_conf->requests--;
   // add the request to the 'destination' server
   id->conf->requests++;
+  
 
   return;
 }
