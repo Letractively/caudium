@@ -1,5 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Beetter handling of AJP containers that don't keep track of POST data 
+   they've already received, as well as better indications of situations 
+   where a POST size limitation has occurred.
+  (Bill Welliver)
 - Fix a bug that causes Request_Id->site_id to not be updated when using
    ip-less virtual hosting. Should fix odd behavior problems when using
    try_get_file(), such as <insert file> and many other situations.

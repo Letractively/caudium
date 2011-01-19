@@ -134,6 +134,11 @@ class connection
        (int)(id->request_headers["content-length"]) > 0)
     {
       string data=id->data;
+      if((int)(id->request_headers["content-length"]) != sizeof(id->data))
+        error("Expected Content-Length is " + 
+          (int)(id->request_headers["content-length"]) + ", got " + 
+          sizeof(id->data) + ". Perhaps maximum POST length needs adjustment?");
+
       // loop through, sending at most the maximum packet length
       foreach(id->data/(float)(MAX_PACKET_SIZE-6), string d)
       {
@@ -154,9 +159,10 @@ class connection
       if(r1->type==MSG_GET_BODY_CHUNK)
       {
         c->write(generate_server_packet(packet_body("")));   
-        error("container asked for data we already should have sent.");
+        werror("AJP13: container asked for data we already should have sent."
+		"If everything is working properly, this can be ignored\n");
       }
-      if(r1->type==MSG_SEND_HEADERS)
+      else if(r1->type==MSG_SEND_HEADERS)
        r=decode_send_headers(r1);
       else if(r1->type==MSG_SEND_BODY_CHUNK)
       {
