@@ -54,7 +54,7 @@ function create_listen_socket = caudium->create_listen_socket;
 
 object logger = Logging.Logger();
 
-#if constant(_Protocols_DNS_SD)
+#if constant(_Protocols_DNS_SD.Service)
 //! an object for service announcements using Bonjour (aka Zeroconf)
 Protocols.DNS_SD.Service bonjour;
 #endif
@@ -3836,7 +3836,7 @@ void create(string config)
          "already and the submission form won't appear at the top of the "
          "virtual server's description.");
 
-#if constant(_Protocols_DNS_SD)
+#if constant(_Protocols_DNS_SD.Service)
   defvar("bonjour_announce", 0, "Announce Virtual Server via Bonjour", TYPE_FLAG,
          "If set, Caudium will announce this virtual server via the Bonjour (Zeroconf/Rendezvous) protocol.");
 #endif
@@ -4001,7 +4001,7 @@ void create(string config)
   
 setvars(retrieve("spider#0", this));
 
-#if constant(_Protocols_DNS_SD)
+#if constant(_Protocols_DNS_SD.Service)
   if(QUERY(bonjour_announce))
   {
      int my_port;
