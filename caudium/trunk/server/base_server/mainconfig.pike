@@ -1180,6 +1180,7 @@ mapping (string:string) selected_nodes =
 ([
   "Configurations":"/Configurations",
   "Globals":"/Globals",
+  "Accounts": "/Accounts",
   "Errors":"/Errors",
   "Actions":"/Actions",
 #ifdef ENABLE_MANUAL
@@ -1191,6 +1192,7 @@ mapping (string:string) selected_nodes =
 array tabs = ({
   "Configurations",
   "Globals",
+  "Accounts",
   "Errors",
   "Actions",
 #ifdef ENABLE_MANUAL
@@ -1202,6 +1204,7 @@ array tabs = ({
 array tab_names = ({
  "Virtual Servers",
  "Global Variables",
+ "Accounts",
  "Event Log",
  "Actions",
 #ifdef ENABLE_MANUAL
@@ -1409,6 +1412,8 @@ string dn(object node)
     return "Global Variables";
    case "Configurations":
     return "Servers";
+   case "Accounts":
+    return "Accounts";
    case "Errors":
     return "Event Log";
   }
@@ -1433,7 +1438,6 @@ mapping configuration_parse(object id)
 {
   array (string) res=({});
   mixed          tmp;
-  string         do_netcraft = 0;
   string         varval = 0;
   
   // Is it an image?
@@ -1449,19 +1453,6 @@ mapping configuration_parse(object id)
 
   id->since = 0; // We do not want 'get-if-modified-since' to work here.
 
-  // it might be a netcraft redirect
-  if (sizeof(id->prestate) && id->prestate->netcraft) {
-    string ncurl="http://uptime.netcraft.com/up/graph?mode_u=off&mode_w=on&site=%s&submit=Examine";
-
-      
-    if (id->variables && id->variables->goahead && stringp(id->variables->URL) && sizeof(id->variables->URL)) {
-      array(string) t = Caudium.HTTP.decode_url(id->variables->URL) / "/";
-
-      if (t && sizeof(t) >= 3)
-        do_netcraft = sprintf(ncurl, t[2]);
-    } else if (id->variables && id->variables->forgetit)
-      do_netcraft = "";
-  }
   
   // Permission denied by userid?
   if(!id->misc->read_allow)
@@ -1513,7 +1504,7 @@ mapping configuration_parse(object id)
   {
 	// first, we see where we are.
     object mn = o;
-    while(!(<NODE_CONFIGURATION, NODE_CONFIGURATIONS, NODE_ERRORS, NODE_WIZARDS, NODE_GLOBAL_VARIABLES>)[mn->type])
+    while(!(<NODE_CONFIGURATION, NODE_CONFIGURATIONS, NODE_ERRORS, NODE_ACCOUNTS, NODE_WIZARDS, NODE_GLOBAL_VARIABLES>)[mn->type])
     {
 	  mn = mn->up;
     }
@@ -1526,6 +1517,9 @@ mapping configuration_parse(object id)
 	    // users can see the configurations page, but we're read-only.
 	    id->misc->read_only = 1;
 		break;
+	  case NODE_ACCOUNTS:
+            if(!is_superuser(id->misc->cif_username))
+		return Caudium.HTTP.string_answer("Error: you are not permitted to view this configuration.\n");
 	  case NODE_CONFIGURATION:
 	    mn = mn->descend("Global");
 	    mn = mn->descend("Configuration Interface");
@@ -1945,9 +1939,6 @@ mapping configuration_parse(object id)
 
 
           // Set a variable to a new (or back to an old..) value.
-        case "netcraft":
-          varval = "1";
-          
         case "set":
           if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           o->error = 0;
@@ -1976,12 +1967,9 @@ mapping configuration_parse(object id)
             } 
           break;
     }
-    
-    if (stringp(do_netcraft) && sizeof(do_netcraft)) {
-      save_it(id, o); // so that the user doesn't have to do it :>
-      return Caudium.HTTP.redirect(do_netcraft);
-    } else if (stringp(do_netcraft) && !sizeof(do_netcraft))
-      save_it(id, o);
+  
+// netcraft  
+//      save_it(id, o);
     
     return std_redirect(o, id);
   }
@@ -2075,6 +2063,11 @@ mapping configuration_parse(object id)
 //  PUSH("</table>");
   PUSH("</body>\n");
   return stores(res*"");
+}
+
+int is_superuser(string username)
+{
+  return 1;
 }
 
 /*
