@@ -139,11 +139,6 @@ if(!has_value(existing, "Image.TTF"))
 	  "truetype fonts, you need to install the freetype library available from\n"
 	  "http://www.freetype.org/ and recompile Pike.");
 
-if(!has_value(existing, "Gdbm"))
-  warning("No gdbm support available. UltraLog will not be able to use the gdbm backend\n"
-	  "for storing log summaries. You can still use UltraLog with the File and\n"
-	  " Filetree backends however.");
-
 #endif
   endreport();
 }
