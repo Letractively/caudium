@@ -15,4 +15,4 @@
 #!       define NODE_MODULE_COPY_VARIABLE  9
 #       define NODE_MODULE_COPY_VARIABLE  9
 #    define NODE_MODULE_MASTER_COPY   10
-
+#define NODE_ACCOUNTS 32

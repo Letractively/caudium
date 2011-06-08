@@ -3502,32 +3502,6 @@ int port_open(array prt)
   return(server_ports[MKPORTKEY(prt)] != 0);
 }
 
-//! Function to add the current webserver to netcraft :)
-static string netcraft_submit()
-{
-  if (query("netcraft_done"))
-    return "";
-
-  string ret =
-    "<blockquote><table width='400'><tr><td>" 
-    "The Caudium Group would appreciate if you agreed to submit the name "
-    "of this virtual domain to the <a href='http://netcraft.com' target='self_'>NetCraft.Com</a> "
-    "server survey. That would help making Caudium more recognized and popular.<br>"
-    "As soon as you click either button, this form will not be visible in this virtual "
-    "host ever again.<br>"
-    "Thank you in advance for your support!</td></tr>"
-    "<tr><td>"
-    "<form action='/(netcraft)/Configurations/%s/Global/netcraft_done' method='POST' name='netcraftform'>"
-    "<input type='hidden' name='/Configurations/%s/Global/netcraft_done' value='1'>"
-    "<input type='hidden' name='URL' value='%s'>"
-    "<input type='hidden' name='random' value='%d'>"
-    "<input type='submit' name='goahead' value='OK, go ahead'>&nbsp;"
-    "<input type='submit' name='forgetit' value='Forget it.'>"
-    "</form></td></tr></table></blockquote><br>";
-
-  return sprintf(ret, name, name, query("MyWorldLocation"), random(123456));
-}
-
 //!
 string desc()
 {
@@ -3599,8 +3573,7 @@ string desc()
         prt+"\">"+prtfile+"</a></font> <br>\n";
   }
   return (res+"<font color=darkgreen>Server URL:</font> <a target=server_view "
-          "href=\""+query("MyWorldLocation")+"\">"+query("MyWorldLocation")+"</a><p>"
-          + netcraft_submit());
+          "href=\""+query("MyWorldLocation")+"\">"+query("MyWorldLocation")+"</a><p>");
 }
 
 // BEGIN SQL
@@ -3831,11 +3804,6 @@ void create(string config)
          "The format for this option is a valid ISO character set value in "
          "lowercase.", 0, default_charset_not_used);
   
-  defvar("netcraft_done", 0, "Netcraft submission done", TYPE_INT | VAR_MORE,
-         "If different than 0, the domain has been submitted to Netcraft "
-         "already and the submission form won't appear at the top of the "
-         "virtual server's description.");
-
 #if constant(_Protocols_DNS_SD.Service)
   defvar("bonjour_announce", 0, "Announce Virtual Server via Bonjour", TYPE_FLAG,
          "If set, Caudium will announce this virtual server via the Bonjour (Zeroconf/Rendezvous) protocol.");
