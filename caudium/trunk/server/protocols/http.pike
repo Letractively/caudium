@@ -1466,7 +1466,6 @@ void send_result(mapping|void result)
       heads +=
         (["MIME-Version":(file["mime-version"] || "1.0"),
           "Content-Type": make_content_type(conf, file),
-          "Accept-Ranges": "bytes",
 #ifdef KEEP_ALIVE
           "Connection": (request_headers->connection == "close" ? "close": "Keep-Alive"),
 #else
@@ -1476,6 +1475,16 @@ void send_result(mapping|void result)
           "X-Got-Fish": (caudium->query("identpikever") ? fish_version : "Yes"),	
           "Date":Caudium.HTTP.date(time)
         ]);    
+
+      // Advertise Accept-Ranges only if partial requests are enabled
+      if(GLOBVAR(EnableRangeHandling))
+      {
+	heads += ([ "Accept-Ranges": "bytes" ]);
+      }
+      else
+      {
+        heads += ([ "Accept-Ranges": "none" ]);
+      }
       
       if(file->encoding)
         heads["Content-Encoding"] = file->encoding;
