@@ -1,6 +1,9 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
-- Beetter handling of AJP containers that don't keep track of POST data 
+- Impliment an additional ABS check that should catch blocked servers
+   while running in threaded mode that traditional ABS would not detect.
+  (Bill Welliver
+- Better handling of AJP containers that don't keep track of POST data 
    they've already received, as well as better indications of situations 
    where a POST size limitation has occurred.
   (Bill Welliver)
