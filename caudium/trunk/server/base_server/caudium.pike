@@ -1529,7 +1529,8 @@ void restart_if_stuck (int force)
   // 
   // note that a non-threaded caudium will not set the last_request_* mileposts, thus preventing
   // the threaded ABS from trampling on a server. 
-  if(last_request_read && last_request_written > last_request_read && ((time() - last_request_read) > (60*1/*QUERY(abs_timeout)*/)) )
+  if(last_request_read && last_request_written > last_request_read && 
+    ((time() - last_request_read) > (60*QUERY(abs_timeout))) )
   {
     report_notice("Threaded ABS: Hung, restarting.\n");
     signal(signum("SIGALRM"), handle_sigalrm);
