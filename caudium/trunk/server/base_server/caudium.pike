@@ -93,6 +93,10 @@ int startpid, roxenpid;
 //! is the watchdog turned on?
 int watchdog_enabled;
 
+// mileposts for thread enabled ABS
+int last_request_written;
+int last_request_read;
+
 object caudium = this_object(), roxen=this_object(), current_configuration;
 
 program Configuration;	/*set in create*/
@@ -580,6 +584,10 @@ void handler_thread(int id)
       do {
         h = handle_queue->read();
 //        report_debug("handle_queue : %O\n",h);
+        // this value is used by the ABS system to determine if
+        // a server is actually processing requests (ie, not blocked).
+        last_request_read = time();
+
         if((h) && h[0]) {
           h[0](@h[1]);
           h=0;
@@ -613,6 +621,11 @@ void handler_thread(int id)
 void threaded_handle(function f, mixed ... args)
 {
   // trace(100);
+
+  // this value is used by the ABS system to determine if
+  // a server is actually processing requests (ie, not blocked).
+  last_request_written = time();   
+
   handle_queue->write(({f, args }));
 }
 
@@ -1505,6 +1518,25 @@ void restart_if_stuck (int force)
     abs_started = 1;
     report_notice("Anti-Block System Enabled.\n");
   }
+
+  // traditional ABS doesn't work with a threaded caudium, as the backend thread doesn't actually
+  // ever run requests, so it's unlikely to block. therefore, when running in threaded mode, we
+  // consider a server which has waiting requests to be blocked if the last request processed was
+  // more than abs_timeout minutes ago.
+  // 
+  // we allow the existing ABS system to continue to run in parallel, as it might catch something 
+  // outside the request handler thread pool.
+  // 
+  // note that a non-threaded caudium will not set the last_request_* mileposts, thus preventing
+  // the threaded ABS from trampling on a server. 
+  if(last_request_read && last_request_written > last_request_read && ((time() - last_request_read) > (60*1/*QUERY(abs_timeout)*/)) )
+  {
+    report_notice("Threaded ABS: Hung, restarting.\n");
+    signal(signum("SIGALRM"), handle_sigalrm);
+    alarm (1);
+    return;
+  }
+
   call_out (restart_if_stuck,10);
   signal(signum("SIGALRM"), handle_sigalrm);
   alarm (60*QUERY(abs_timeout)+10);
