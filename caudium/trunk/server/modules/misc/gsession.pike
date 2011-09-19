@@ -498,8 +498,15 @@ private string gsession_build_cookie(object id, string sid, void|int remove)
 #else
       Cookie += "; Expires=" + http_date(time()+QUERY(cookieexpire)) +";";
 #endif  
+
+    // Google Issue #11
     if (QUERY (cookieexpire) < 0)
-      Cookie += "; Expires=Fri, 31 Dec 2010 23:59:59 GMT;";
+#if constant(Caudium.HTTP.date)
+      Cookie += "; Expires=" + Caudium.HTTP.date(time()+252288000) +";";
+#else
+      Cookie += "; Expires=" + http_date(time()+252288000) +";";
+#endif  
+
   } else
 #if constant(Caudium.HTTP.date)
     Cookie += "; Expires=" + Caudium.HTTP.date(0) + ";";
