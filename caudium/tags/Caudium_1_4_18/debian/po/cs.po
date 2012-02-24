@@ -1,0 +1,282 @@
+# Czech translation of caudium_2 templates
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: caudium_2 1.2.35.1-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-06-13 21:30+0200\n"
+"PO-Revision-Date: 2005-10-01 21:09+0200\n"
+"Last-Translator: Martin Sin <martin.sin@seznam.cz>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid "On what port should the config interface be?"
+msgstr "Na kterém portu má běžet konfigurační rozhraní?"
+
+#. Type: string
+#. Description
+#: ../templates:4
+msgid ""
+"Specify the port on which Caudium will provide its configuration interface. "
+"You can access the interface using any form capable web browser (like "
+"Mozilla, Lynx, Links or Galeon)"
+msgstr ""
+"Určete na kterém portu bude Caudium poskytovat svoje konfigurační rozhraní. "
+"Na rozhraní můžete vstoupit libovolným prohlížečem, který umí formuláře "
+"(např. Mozilla, Lynx, Links nebo Galeon)"
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid "What port should the server listen on?"
+msgstr "Na kterém portu má server naslouchat?"
+
+#. Type: string
+#. Description
+#: ../templates:12
+msgid ""
+"Caudium is currently configured to listen on port '${portno}' of every "
+"interface in your machine. You can however specify a different port here if "
+"there's such need."
+msgstr ""
+"Caudium je v nyní nastaven poslouchat na portu '${portno}' a to pro každé "
+"rozhraní v počítači. Jestliže potřebujete, můžete samozřejmě zvolit jiný "
+"port."
+
+#. Type: multiselect
+#. Choices
+#: ../templates:19
+msgid "threads, debug, once, profile, fd-debug, keep-alive"
+msgstr "threads, debug, once, profile, fd-debug, keep-alive"
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid "Select options that should be used on startup"
+msgstr "Zvolte možnost, která se má použít při startu systému."
+
+#. Type: multiselect
+#. Description
+#: ../templates:21
+msgid ""
+"You can select zero or more options from:\n"
+" 'threads' - use threads (if available)\n"
+" 'debug' - output debugging information while running\n"
+" 'once' - run in foreground\n"
+" 'profile' - store profiling information\n"
+" 'fd-debug' - debug file descriptor usage\n"
+" 'keep-alive' - keep connections alive with HTTP/1.1"
+msgstr ""
+"Můžete vybrat nula nebo více možností:\n"
+" 'threads' - používat vlákna (jsou-li k dispozici)\n"
+" 'debug' - dávat při běhu ladící informace\n"
+" 'once' - spustit v popředí\n"
+" 'profile' - ukládat analýzu informací\n"
+" 'fd-debug' - ladit použití deskriptoru souboru\n"
+" 'keep-alive' - udržovat spojení HTTP/1.1 na živu"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "Tune Caudium settings for maximum performance?"
+msgstr "Nastavit Caudium na nejvyšší výkon?"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid ""
+"If you select this option the Caudium default configuration will be tweaked "
+"by turning off certain features that can severely slow your server down. The "
+"features turned off are:\n"
+" - extra Roxen compatibility\n"
+" - module level security\n"
+" - the support database\n"
+" - DNS lookups\n"
+" - URL modules"
+msgstr ""
+"Jestliže si vyberete tyto volby, pak bude změněno původní nastavení Caudium. "
+"Vypnutím určitých vlastností se může vážně zpomalit váš server. Vypnuté "
+"vlastnosti jsou:\n"
+" - extra kompatibilita s Roxen\n"
+" - modulární úroveň ochrany\n"
+" - podpora databází\n"
+" - vyhledávání DNS\n"
+" - moduly URL"
+
+#. Type: boolean
+#. Description
+#: ../templates:33
+msgid "If you use any of the above features DO NOT turn this option on!"
+msgstr ""
+"Jestliže použijete jakoukoliv předchozí vlastnost pak tuto volbu NEZAPÍNEJTE!"
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid "Cannot bind to port."
+msgstr "Nemohu přiřadit port."
+
+#. Type: note
+#. Description
+#: ../templates:47
+msgid ""
+"The port you have specified for the Caudium configuration interface is "
+"unavailable. Please specify another port number - Caudium cannot function "
+"properly without binding its configuration interface to a port on your "
+"system."
+msgstr ""
+"Port, který jste určili pro konfigurační rozhraní Caudium je nedostupný. "
+"Určete jiné číslo portu - Caudium nemůže správně fungovat bez provázání "
+"svého konfigurační rozhraní a portu vašeho systému."
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid "Caudium configuration"
+msgstr "Konfigurace Caudium"
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"After your Caudium is installed and running, you should point your forms-"
+"capable browser to http://localhost:${cfgport} to further configure Caudium "
+"using its web-based configuration interface. THIS IS VERY IMPORTANT since "
+"that step involves creation of administrative login/password."
+msgstr ""
+"Jakmile se Caudium nainstaluje a spustí, můžete zamířit se svým formuláře-"
+"podporujícím prohlížečem na adresu http://localhost:${cfgport} pro další "
+"konfiguraci Caudium s využitím jeho webového konfiguračního rozhraní. TOTO "
+"JE VELMI DŮLEŽITÉ neboť tento krok způsobí vytvoření administrátorkého jména/"
+"hesla."
+
+#. Type: note
+#. Description
+#: ../templates:55
+msgid ""
+"For more information about Caudium see the documents in the /usr/share/doc/"
+"caudium directory and make sure to visit http://caudium.net/ and http://"
+"caudium.org/"
+msgstr ""
+"Pro více informací o Caudium se podívejte na dokumenty v /usr/share/doc/"
+"adresář_caudia a určitě se podívejte na http://caudium.net/ a http://caudium."
+"org/"
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid "Use the experimental HTTP protocol module?"
+msgstr "Použít experimentální modul protokolu HTTP?"
+
+#. Type: boolean
+#. Description
+#: ../templates:69
+msgid ""
+"Caudium comes with an experimental HTTP module that is faster than the "
+"original one. The code is still Work-In-Progress, so you might experience "
+"problems running it. It is NOT recommended to run this code on a production "
+"server. If, however, you want to test its functionality, turn this option on."
+msgstr ""
+"Caudium přichází s experimentálním modulem HTTP, který je rychlejší než "
+"originální. Na programu se stále pracuje, takže jeho běh může způsobit "
+"problémy. Na serveru se NEDOPORUČUJE spouštět tento kód. Samozřejmě, "
+"jestliže chcete vyzkoušet jeho funkčnost, pak zvolte tu volbu."
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid "Configuration interface login."
+msgstr "Konfigurace přihlašovacího rozhraní."
+
+#. Type: string
+#. Description
+#: ../templates:79
+msgid ""
+"This is the user login name for the configuration interface access. If you "
+"don't specify anything here, anybody who will access the config interface "
+"first will be able to set the login/password and manage your server. This is "
+"probably not what you want. Please specify the login name below or accept "
+"the default value."
+msgstr ""
+"Toto bude uživatelské přihlašovací jméno pro konfiguraci přístupového "
+"rozhraní. Jestliže zde nic neuvedete, pak kdokoliv kdo vstoupí jako první na "
+"konfigurační rozhraní bude schopen nastavit přihlašovací jméno/heslo a "
+"kontrolovat váš server. Tohle pravděpodobně nechcete. Prosím uveďte "
+"přihlašovací jméno nebo souhlaste s výchozím nastavením."
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid "Configuration interface password"
+msgstr "Heslo konfiguračního rozhraní"
+
+#. Type: password
+#. Description
+#: ../templates:89
+msgid ""
+"This is the password used to access the configuration interface. The default "
+"value for it is 'password' - it is HIGHLY RECOMMENDED to change the default "
+"below!"
+msgstr ""
+"Toto bude heslo, které se použije pro přístup ke konfiguračnímu rozhraní. "
+"Výchozí hodnota je 'password' - je VELMI DOPORUČENÉ změnit výchozí hodnotu!"
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid "Confirm the configuration interface password"
+msgstr "Podtvrďte heslo konfiguračního rozhraní"
+
+#. Type: password
+#. Description
+#: ../templates:97
+msgid ""
+"Please type in the configuration interface password again for confirmation."
+msgstr "Prosím, napište heslo konfiguračního rozhraní znovu pro ověření."
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid "Configuration interface password mismatch"
+msgstr "Hesla konfiguračního rozhraní nesouhlasí"
+
+#. Type: note
+#. Description
+#: ../templates:103
+msgid ""
+"The passwords you have typed don't match. Please type again and keep in mind "
+"that the passwords are case-sensitive."
+msgstr ""
+"Hesla, která jste napsali nesouhlasí. Prosím napište je znovu a mějte v "
+"paměti,že hesla jsou case-sensitivní."
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "Configuration interface password reset"
+msgstr "Heslo konfigurační rozhraní obnoveno na původní stav"
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid ""
+"The password has been reset to 'password'. You cannot have an empty  "
+"password for the configuration interface. Please change the default password "
+"as soon as Caudium has finished installing. You can do it by logging in to "
+"the configuration interface accessible under the URL given below:"
+msgstr ""
+"Heslo bylo nastaveno na 'password'. Pro konfigurační rozhraní nemůžete mít "
+"prázdné heslo . Prosím změňte výchozí heslo  ihned jak Caudium dokončí "
+"instalaci. Můžete to udělat pomocí přihlášení do konfiguračního rozhraní, "
+"které je přístupné přesl URL adresu napsanou níže:"
+
+#. Type: note
+#. Description
+#: ../templates:109
+msgid "http://localhost:${cfgport}"
+msgstr "http://localhost:${cfgport}"

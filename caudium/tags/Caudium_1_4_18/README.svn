@@ -1,0 +1,69 @@
+Compiling Caudium from SVN:
+-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+It's easy to compile Caudium from SVN. Just run ./autogen.sh before
+following the standard installation instructions. Please note that
+this step requires a new version of the autoconf package.
+
+To get Caudium from SVN:
+-=-=-=-=-=-=-=--=-=-=-=-
+
+Caudium's source repository is located in a Subversion repository hosted 
+by Google Code. Anyone may check out a copy from the read-only repository 
+located at the following URLs:
+
+  http://caudium.googlecode.com/caudium/trunk (current development tree)
+  http://caudium/googlecode.com/caudium/branches/stable_1_4 (1.4)
+
+For example, the following command:
+
+  svn co http://caudium.googlecode.com/caudium/trunk caudium
+
+will check out the latest development tree and place it in the directory 
+"caudium". Note that you will not be able to commit any changes checked out
+from these repositories. If you're a member of the Caudium project, you'll 
+need to check out from the https version of the URLs above in order to commit.
+
+To build Caudium from SVN:
+-=-=-=-=-=-=-=-=-=-=-=-=-
+
+You also need a Pike 7.0.268 or newer for Caudium 1.2. We recommend
+using 7.2 as opposed to 7.0 or 7.3. We consider 7.2 to be more stable
+and proven than 7.3 and faster than 7.0.
+For Caudium 1.4, you will need Pike 7.6.66 or later at the time of this 
+writing.
+
+To get Pike you can either fetch it from CVS or from our snapshot page.
+The URLs are below:
+
+	http://pike.ida.liu.se
+
+Unless you plan to / want to update your Pike often, we recommend that
+you use our pre-built Pike snapshots. The major reason for this as
+opposed to using a CVS version is that the CVS versions require Pike
+to build Pike (what came first, Pike or Pike?).
+
+Once you've installed Pike following the instructions you can continue
+installing Caudium. A typical install would then look like (assuming 
+Pike is installed in /opt/pike):
+
+# ./autogen.sh
+Running autogen in 'src'
+Running autogen in 'src/cmods'
+Running autogen in 'src/cmods/Caudium'
+Running autogen in 'src/cmods/PiXSL'
+Running autogen in 'src/cmods/UltraLog'
+Running autogen in 'src/tools'
+Running autogen in 'tools'
+# ./configure --prefix=/opt/www --with-pike=/opt/bin/pike
+[configure checks]
+# make
+[compilation]
+# make install
+[installation]
+# cd /opt/www/caudium/server/
+# ./install
+[install questions]
+
+This will place the caudium base-directory in /opt/www/caudium . 
+
