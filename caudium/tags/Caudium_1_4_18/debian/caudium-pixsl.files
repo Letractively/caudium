@@ -1,0 +1,6 @@
+usr/bin/pixsl
+usr/lib/caudium/bin/pixsl*
+usr/share/man/man1/pixsl*
+usr/lib/caudium/lib/*/PiXSL.so
+usr/lib/caudium/modules/tags/XSLTtag.pike
+usr/lib/caudium/modules/filters/XSLTtemplate.pike

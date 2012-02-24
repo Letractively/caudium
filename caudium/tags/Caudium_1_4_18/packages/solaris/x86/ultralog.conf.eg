@@ -1,0 +1,7 @@
+<savedir path="/usr/local/caudium/ultralog/">
+<table maxsize="5000">
+
+<profile name="profile.name.com">
+   <file restore path="/usr/local/caudium/caudium/logs/servername/Log*">
+   <extensions list="html html shtml cgi pike php3 rxml">
+</profile>
