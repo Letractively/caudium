@@ -265,7 +265,7 @@ only_bump_version:  force
 bump_version: force only_bump_version
 	@(cd $(SRCDIR); \
 	  echo Tagging...; \
-	  cvs -z3 tag `cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
+	  svn copy https://caudium.googlecode.com/svn/caudium/trunk https://caudium.googlecode.com/svn/caudium/tags/`cat VERSION | tr 'A-Z. ' 'a-z__'`||exit 1; \
 	)
 	@touch bump_version
 
