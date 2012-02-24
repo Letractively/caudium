@@ -257,7 +257,7 @@ only_bump_version:  force
 	    exit 1; \
 	  fi; \
 	  version=`sed <CaudiumVersion.pmod -e'/__caudium_version__/s/[^.0-9]*//gp' -ed|head -1`; \
-	  cvs -z3 ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
+	  svn ci -m "Version bumped to $$version.$$newbuild by bump_version." CaudiumVersion.pmod || exit 1; \
 	  echo "Caudium $$version.$$newbuild" >../../../VERSION; \
 	  cat ../../../VERSION; \
 	)
