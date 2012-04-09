@@ -79,10 +79,49 @@ movie	video/x-sgi-movie
 mpe	video/mpeg
 mpeg	video/mpeg
 mpg	video/mpeg
+m1v	video/mpeg
+m2v	video/mpeg
+mp4	video/mp4
+mp4v	video/mp4
+mpg4	video/mp4
 qt	video/quicktime
 viv	video/vnd.vivo
 vivo	video/vnd.vivo
 vos	video/vosaic
+uvh video/vnd.dece.hd
+uvm video/vnd.dece.mobile
+uvp video/vnd.dece.pd
+uvs video/vnd.dece.sd
+uvv video/vnd.dece.video
+uvvh video/vnd.dece.hd
+uvvm video/vnd.dece.mobile
+uvvp video/vnd.dece.pd
+uvvs video/vnd.dece.sd
+uvvv video/vnd.dece.video
+dvb video/vnd.dvb.file
+fvt video/vnd.fvt
+mxu m4u video/vnd.mpegurl
+pyv video/vnd.ms-playready.media.pyv
+uvu video/vnd.uvvu.mp4
+uvvu video/vnd.uvvu.mp4
+webm video/webm
+f4v video/x-f4v
+fli video/x-fli
+flv video/x-flv
+m4v video/x-m4v
+mkv video/x-matroska
+mks video/x-matroska
+mk3d video/x-matroska
+mng video/x-mng
+asx video/x-ms-asf
+vob video/x-ms-vob
+wm video/x-ms-wm
+wmv video/x-ms-wmv
+wmx video/x-ms-wmx
+wvx video/x-ms-wvx
+avi video/x-msvideo
+ogv video/ogg
+
 
 asc	text/plain
 c	text/plain
@@ -316,3 +355,86 @@ pgp	application/pgp-keys
 
 # Bittorrent
 torrent	application/x-bittorrent
+
+# Modern office application formats
+ppt pps pot application/vnd.ms-powerpoint
+ppam application/vnd.ms-powerpoint.addin.macroenabled.12
+pptm application/vnd.ms-powerpoint.presentation.macroenabled.12
+sldm application/vnd.ms-powerpoint.slide.macroenabled.12
+ppsm application/vnd.ms-powerpoint.slideshow.macroenabled.12
+potm application/vnd.ms-powerpoint.template.macroenabled.12
+mpp mpt application/vnd.ms-project
+docm application/vnd.ms-word.document.macroenabled.12
+dotm application/vnd.ms-word.template.macroenabled.12
+wps application/vnd.ms-works
+wks application/vnd.ms-works
+wcm application/vnd.ms-works
+wdb application/vnd.ms-works
+wpl application/vnd.ms-wpl
+xps application/vnd.ms-xpsdocument
+thmx application/vnd.ms-officetheme
+xls application/vnd.ms-excel
+xlm application/vnd.ms-excel
+xla application/vnd.ms-excel
+xlc application/vnd.ms-excel
+xlt application/vnd.ms-excel
+xlw application/vnd.ms-excel
+xlam application/vnd.ms-excel.addin.macroenabled.12
+xlsb application/vnd.ms-excel.sheet.binary.macroenabled.12
+xlsm application/vnd.ms-excel.sheet.macroenabled.12
+xltm application/vnd.ms-excel.template.macroenabled.12
+eot application/vnd.ms-fontobject
+chm application/vnd.ms-htmlhelp
+ppam application/vnd.ms-powerpoint.addin.macroenabled.12
+pptm application/vnd.ms-powerpoint.presentation.macroenabled.12
+sldm application/vnd.ms-powerpoint.slide.macroenabled.12
+ppsm application/vnd.ms-powerpoint.slideshow.macroenabled.12
+potm application/vnd.ms-powerpoint.template.macroenabled.12
+mpp mpt application/vnd.ms-project
+docm application/vnd.ms-word.document.macroenabled.12
+dotm application/vnd.ms-word.template.macroenabled.12
+
+odc application/vnd.oasis.opendocument.chart
+otc application/vnd.oasis.opendocument.chart-template
+odb application/vnd.oasis.opendocument.database
+odf application/vnd.oasis.opendocument.formula
+odft application/vnd.oasis.opendocument.formula-template
+odg application/vnd.oasis.opendocument.graphics
+otg application/vnd.oasis.opendocument.graphics-template
+odi application/vnd.oasis.opendocument.image
+oti application/vnd.oasis.opendocument.image-template
+odp application/vnd.oasis.opendocument.presentation
+otp application/vnd.oasis.opendocument.presentation-template
+ods application/vnd.oasis.opendocument.spreadsheet
+ots application/vnd.oasis.opendocument.spreadsheet-template
+odt application/vnd.oasis.opendocument.text
+odm application/vnd.oasis.opendocument.text-master
+ott application/vnd.oasis.opendocument.text-template
+oth application/vnd.oasis.opendocument.text-web
+
+oxt application/vnd.openofficeorg.extension
+pptx application/vnd.openxmlformats-officedocument.presentationml.presentation
+sldx application/vnd.openxmlformats-officedocument.presentationml.slide
+ppsx application/vnd.openxmlformats-officedocument.presentationml.slideshow
+potx application/vnd.openxmlformats-officedocument.presentationml.template
+xlsx application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+xltx application/vnd.openxmlformats-officedocument.spreadsheetml.template
+docx application/vnd.openxmlformats-officedocument.wordprocessingml.document
+dotx application/vnd.openxmlformats-officedocument.wordprocessingml.template
+
+sxc application/vnd.sun.xml.calc
+stc application/vnd.sun.xml.calc.template
+sxd application/vnd.sun.xml.draw
+std application/vnd.sun.xml.draw.template
+sxi application/vnd.sun.xml.impress
+sti application/vnd.sun.xml.impress.template
+sxm application/vnd.sun.xml.math
+sxw application/vnd.sun.xml.writer
+sxg application/vnd.sun.xml.writer.global
+stw application/vnd.sun.xml.writer.template
+
+vsd application/vnd.visio
+vst application/vnd.visio
+vss application/vnd.visio
+vsw application/vnd.visio
+

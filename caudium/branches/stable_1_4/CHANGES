@@ -1,3 +1,8 @@
+Changes in Caudium 1.4.x since Caudium 1.4.18
+---------------------------------------------
+- Added some "new" content types.
+  (Bill Welliver)
+
 Changes in Caudium 1.4.x since Caudium 1.4.14
 --------------------------------------------
 - Impliment an additional ABS check that should catch blocked servers
