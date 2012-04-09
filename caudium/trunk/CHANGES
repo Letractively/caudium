@@ -1,5 +1,7 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- Added some "new" content types.
+  (Bill Welliver)
 - Un-harcoded cookie expiration time.
   (Closes Google issue #11)
   (Bertrand LUPART)
