@@ -309,7 +309,7 @@ void no_data_to_send(mixed fooid)
   }
 }
 
-string get_data()
+string|int get_data()
 {
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:get_data()\n"));
@@ -334,8 +334,11 @@ string get_data()
     /* There's a file, but no data yet
      * disable ourselves until there is.
      */
+#ifdef SSL3_DEBUG
+  roxen_perror("SSL3:get_data(): file, but no data yet.\n");
+#endif /* SSL3_DEBUG */
     my_fd->set_nonblocking(0, 0, end);
-    return s || "";
+    return s || -1;
   }
 
   return s;
@@ -354,12 +357,15 @@ static void write_more()
 #ifdef SSL3_DEBUG
   roxen_perror(sprintf("SSL3:write_more()\n"));
 #endif /* SSL3_DEBUG */
-  string s;
+  string|int s;
   if (!(s = (cache || get_data())) || s == "") {
 //    perror("SSL3:: Done.\n");
     die();
     return;
   }
+
+  if(s == -1) // we have an fd, but no data yet.
+    return;
 
   if (sizeof(s)) {
     int pos = my_fd->write(s);

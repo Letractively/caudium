@@ -1,5 +1,8 @@
 Changes in Caudium 1.5.1 since Caudium 1.4.1
 ---------------------------------------------
+- SSL should play more nicely with streaming responses whose data isn't
+   immediately available (such as CGI).
+  (Bill Weliver)
 - Added some "new" content types.
   (Bill Welliver)
 - Un-harcoded cookie expiration time.
