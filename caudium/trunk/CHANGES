@@ -197,6 +197,43 @@ Changes in Caudium 1.5.1 since Caudium 1.4.1
     certificate with a user.
     (Bill Welliver)
 - Multi-User aware configuration interface.
+
+  User authentication is handled by the standard Caudium authentication 
+  system using authentication providers configured in the "Configuration
+  Interface" virtual server. A new authentication provider is available,
+  called "Authentication Provider: Configuration Interface" that knows
+  about 1 user. A user configured using this provider will be a "superuser",
+  with rights to do anything in the server. More than 1 superuser can be 
+  defined by adding additional "Authentication Provider: Configuration 
+  Interface" modules to the Configuration Interface virtual server.
+
+  You can also set up other auth providers that provide non-superusers 
+  (users whose user info mapping has no "superuser" element. These users 
+  can access the configuration interface in read-only mode, and can only 
+  access those configurations which they have been granted access using 
+  Configuration->yourVirtualServer->Server Variables->Admin Users.
+
+  Non-superusers do NOT have permission to change anything in their 
+  virtual server's "Server Variables" section. This is to prevent folks 
+  from fiddling with ports and so on.
+
+  Functions reserved for superusers:
+
+  restart, shutdown, delete virtual server, new virtual server, changing 
+  global variables and virtual server "server variables".
+
+  config interface actions need to be made "multi-user" aware by checking for:
+
+  id->misc->read_only (a non-super user acting on a server config node)
+  id->misc->cif_superuser (a superuser who should be able to do anything)
+
+  Things that need to be done:
+
+  1. provide an upgrade mechanism
+  2. perhaps allow groups to be specified in a given configuration
+  3. protect any necessary cif actions (wizards)
+  4. ponder the situation surrounding "save" (ie, it's a global save in the CIF)
+
     (Bill Welliver)
 - Configuration Interface is now a regular virtual server.
     (Bill Welliver)
