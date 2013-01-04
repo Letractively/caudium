@@ -1161,6 +1161,8 @@ object module_of(object node)
       return node->data;
     if(node->type == NODE_MODULE_MASTER_COPY)
       return node->data->master;
+    if(node->type == NODE_CONFIGURATION)
+      return node->data;
     node = node->up;
   }
   return caudium;
@@ -1522,20 +1524,18 @@ mapping configuration_parse(object id)
 		return Caudium.HTTP.string_answer("Error: you are not permitted to view this configuration.\n");
 	  case NODE_CONFIGURATION:
 	    mn = mn->descend("Global");
-	    mn = mn->descend("Configuration Interface");
-	    mn = mn->descend("Write Users");
-        
-	    if(mn->data[0] && sizeof(mn->data[0]) && (search(mn->data[0], id->misc->cif_username)!=-1))
+	    mn = mn->descend("AdminUsers");
+	    if(mn && mn->data[0] && sizeof(mn->data[0]) && (search((mn->data[0]/"\n"), id->misc->cif_username)!=-1))
         {
 			int stop;
 			object mn2 = o;
-			mn = mn->up->up; // should be "Global"
+			mn = mn->up; // should be "Global"
 			// we're a valid user; but we should make sure that we're not setting anything in the "globals" section.
 			do
 			{
 			  if(mn2 == mn)
 			  { 
-				id->misc->read_only = 1;
+			    id->misc->read_only = 1;
 			    stop = 1;
 			  }
 			  else mn2 = mn2->up;
@@ -1611,7 +1611,7 @@ mapping configuration_parse(object id)
           mapping cmod;
           if(id->misc->read_only) return Caudium.HTTP.string_answer("Error: you are not permitted to perform this action.\n");
           mod = module_of(o);
-          if(!mod || mod==caudium)
+          if(!mod || mod==caudium || object_program(mod) == caudium->Configuration)
             error("This module cannot be updated.\n");
           name = module_short_name(mod, o->config());
           if(!name)
