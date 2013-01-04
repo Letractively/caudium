@@ -32,11 +32,12 @@ inherit "caudiumlib";
 
 constant module_type = MODULE_PROVIDER | MODULE_EXPERIMENTAL;
 constant module_name = "Authentication Provider: PAM";
-constant module_doc  = "Experimental module for authorization using "
-	      "Pluggable Authentication Modules (PAM).";
 constant module_unique = 1;
 
 #if constant(System.PAM)
+
+constant module_doc  = "Experimental module for authorization using "
+	      "Pluggable Authentication Modules (PAM).";
 
 /*
  * Globals
@@ -118,4 +119,9 @@ defvar("service", "caudium",
          " a PAM profile (typically defined in /etc/pam.conf or /etc/pam.d.)");
 
 }
+#else
+
+constant module_doc  = "Experimental module for authorization using "
+	      "Pluggable Authentication Modules (PAM). <b>NOTE: System.PAM not present, this module won't function.</b>";
+
 #endif /* constant(System.PAM) */
