@@ -118,6 +118,29 @@ string status()
 //
 //
 
+
+//! map the function "fun" over all matching provider modules and
+//! return the first non-negative integer response.
+protected mixed call_provider(string provides, string fun, mixed ... args)
+{
+  foreach(my_configuration()->get_providers(provides), object mod) {
+    function f;
+    if(objectp(mod) && functionp(f = mod[fun])) {
+      mixed error;
+      if (arrayp(error = catch {
+        mixed ret;
+        if (!intp(ret = f(@args))|| ret > 0) {
+          return(ret);
+        }
+      })) {
+        error[0] = "Error in call_provider(): "+error[0];
+        throw(error);
+      }
+    }
+  }
+}
+
+
 //
 // 
 // Public functions
@@ -391,7 +414,7 @@ mapping failed  = ([ ]);
 
 private int low_authenticate(string user, string password)
 {
-  int res=my_configuration()->call_provider("authentication", "authenticate", user, password);
+  int res=call_provider("authentication", "authenticate", user, password);
   //ERROR("low_authenticate: " + res + "\n");
   return res;
 }
@@ -411,7 +434,7 @@ private mapping|int get_group_info(string groupname)
 
 private mapping|int low_get_user_info(string username)
 {
-  mapping data=my_configuration()->call_provider("authentication", "get_user_info", username);
+  mapping data=call_provider("authentication", "get_user_info", username);
   if(!data) return 0; // we won't set data for a non existant user.
   if(!(data->username && data->uid && 
     data->name && data->primary_group && data->groups))
@@ -452,7 +475,7 @@ private array low_list_all_groups()
 
 private string|int low_get_username(int uid)
 {
-  string data=my_configuration()->call_provider("authentication", "get_username", uid);
+  string data=call_provider("authentication", "get_username", uid);
   if(!data) return -1; // we won't set data for a non existant user.
 
   int i=set_username(uid, data);
@@ -461,7 +484,7 @@ private string|int low_get_username(int uid)
 
 private string|int low_get_groupname(int gid)
 {
-  string data=my_configuration()->call_provider("authentication", "get_groupname", gid);
+  string data=call_provider("authentication", "get_groupname", gid);
   if(!data) return -1; // we won't set data for a non existant user.
 
   int i=set_groupname(gid, data);
@@ -470,7 +493,7 @@ private string|int low_get_groupname(int gid)
 
 private mapping|int low_get_group_info(string groupname)
 {
-  mapping data=my_configuration()->call_provider("authentication", "get_group_info", groupname);
+  mapping data=call_provider("authentication", "get_group_info", groupname);
   if(!data) return 0; // we won't set data for a non existant group.
   if(!(data->groupname && data->gid && 
     data->name && data->users))
