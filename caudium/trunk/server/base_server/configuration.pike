@@ -3117,8 +3117,17 @@ object enable_module( string modname )
 //! Called from the configuration interface.
 string check_variable(string name, string value)
 {
+ werror("check_variable(%O, %O)\n", name, value);
   switch(name)
   {
+      case "AdminUsers":
+        array x = value/"\n";
+        foreach(x;int i; string j)
+          x[i] = String.trim_whites(j);
+          x-=({""});
+          if(value != (x*"\n"))
+            return "User list must not contain extra spaces or blank lines.";
+        return 0;
       case "Ports":
         ports_changed=1; 
         return 0;
@@ -3836,6 +3845,11 @@ void create(string config)
   defvar("ZAuthenticationFailed", "<h1>Authentication Failed.</h1>\n",
          "Authentication Failed Message - Error 401", TYPE_TEXT_FIELD,
          "What to return when authentication has failed");
+
+  defvar("AdminUsers", "",
+         "Admin Users", TYPE_TEXT_FIELD,
+         "A list of users who are granted administrative access to this virtual server. " +
+         "Place one username on each line.");
 
   defvar("comment", "", "Virtual server comment",
          TYPE_TEXT_FIELD|VAR_MORE,
