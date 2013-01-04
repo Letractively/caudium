@@ -492,7 +492,7 @@ mixed call_provider(string provides, string fun, mixed ... args)
       mixed error;
       if (arrayp(error = catch {
         mixed ret;
-        if (ret = f(@args)) {
+        if ((ret = f(@args)) > 0) {
           return(ret);
         }
       })) {
