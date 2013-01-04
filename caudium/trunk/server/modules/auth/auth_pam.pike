@@ -37,7 +37,9 @@ constant module_unique = 1;
 #if constant(System.PAM)
 
 constant module_doc  = "Experimental module for authorization using "
-	      "Pluggable Authentication Modules (PAM).";
+	      "Pluggable Authentication Modules (PAM). NOTE: This module" 
+              " provides authentication only, most access control also "
+              " requires a user database provider, such as <i>Authentication Provider: User Database</i>.";
 
 /*
  * Globals
