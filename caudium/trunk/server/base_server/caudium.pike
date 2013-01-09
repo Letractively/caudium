@@ -93,7 +93,7 @@ int startpid, roxenpid;
 //! is the watchdog turned on?
 int watchdog_enabled;
 
-// mileposts for thread enabled ABS
+// mileposts for thread enabled ABS 
 int last_request_written;
 int last_request_read;
 
@@ -584,6 +584,7 @@ void handler_thread(int id)
       do {
         h = handle_queue->read();
 //        report_debug("handle_queue : %O\n",h);
+
         // this value is used by the ABS system to determine if
         // a server is actually processing requests (ie, not blocked).
         last_request_read = time();
@@ -1509,7 +1510,8 @@ private void handle_sigalrm(int sig)
 
 static int abs_started;
 void restart_if_stuck (int force) 
-{
+{  
+
 #if constant(alarm)
   remove_call_out(restart_if_stuck);
   if (!(QUERY(abs_engage) || force))

@@ -438,7 +438,7 @@ object find_finished_node(string f, object id)
 
 mapping standard_redirect(object o, object id)
 {
-  string loc, l2;
+  string loc;
   
   if(!o) o=root(id,0);
   

@@ -27,10 +27,10 @@
 //!  strict, in the XML-sense. Please note that although this parser
 //!  handles XML-syntax, it never requires it. For example you can still
 //!  use unquoted arguments.
-//! cvs_version: $Id: xmlparse.pike,v 1.45.2.1 2004/09/20 22:21:58 jnt Exp $
+//! cvs_version: $Id$
 //
 
-constant cvs_version = "$Id: xmlparse.pike,v 1.45.2.1 2004/09/20 22:21:58 jnt Exp $";
+constant cvs_version = "$Id$";
 constant thread_safe=1;
 
 #include <config.h>
@@ -206,7 +206,7 @@ array(string)|string tag_with_contents(object parser, mapping args,
 {
   array tag = parser->tag();
   CDEBUG("tag_with_contents called for tag: " + tag * ","); 
-  string res;
+
   if(!strlen(contents)) {
     /* <foo></foo> should be the same as <foo/> */
     return call_tag(parser, args, @extra);
@@ -899,7 +899,6 @@ class EmitScope(mapping v) {
   string name = "emit";
   
   string get(string entity) {
-    int l;
 
     mixed e, q;
     array a = entity/":";

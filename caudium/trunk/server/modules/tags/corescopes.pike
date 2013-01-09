@@ -130,7 +130,6 @@ class PageScope {
   string name = "page";
 
   array(string)|string get(string entity, object id) {
-    mixed tmp;
     mixed ret = -4711;
     switch(entity) {
      case "filesize":
