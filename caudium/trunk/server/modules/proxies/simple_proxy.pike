@@ -28,9 +28,7 @@
 //!  redirection.<br />
 //!  it can be used either as an HTTP proxy, or with 
 //!  the redirect module to transparently 'mount' 
-//!  other websites in your tree. <br /> Note that 
-//!  this module *REQUIRES* a Pike 7.2 and will not 
-//!  works with pike 7.0.
+//!  other websites in your tree. <br /> 
 //! inherits: module
 //! inherits: caudiumlib
 //! inherits: socket
@@ -53,15 +51,15 @@ constant module_doc = "This is a complete rewrite of the proxy module. "
                       "redirection.<br />\n"
                       "it can be used either as an HTTP proxy, or with "
                       "the redirect module to transparently 'mount' "
-                      "other websites in your tree.<br />"
-		      "Note that this module *REQUIRES* a Pike 7.2 and will "
-                      "not works with pike 7.0.";
+                      "other websites in your tree.<br />";
 constant module_unique = 0;
 //constant thread_safe = 0;	// Is this module not thread safe ?
 
 array status_requests = ({ });
 
 // #define VPROXY_DEBUG
+
+object shuffler = Shuffler.Shuffler();
 
 #define WANT_HEADERS /* needs to be defined to get returned error code */
 
@@ -182,7 +180,7 @@ class request
 
       parse_url ();
 
-      rpipe = Caudium.nbio ();
+//      rpipe = Caudium.nbio ();
 
       connect_to_server ();
    }
@@ -373,7 +371,7 @@ class request
 
             bytesent += strlen (s);
             buffer += s;
-            rpipe->write (s);
+            rpipe->add_source (s);
 
             if (found_server_headers)
             {
@@ -401,9 +399,11 @@ class request
    void nbio (object from, object to, function(:void)|void callback)
    {
       VDEBUG ("nbio (%O)", this_object ());
-      rpipe->input (from);
+      rpipe = shuffler->shuffle(to);
+      rpipe->add_source(from);
       rpipe->set_done_callback (callback);
-      rpipe->output (to);
+      
+      rpipe->start();
    }
 
    void completed ()
