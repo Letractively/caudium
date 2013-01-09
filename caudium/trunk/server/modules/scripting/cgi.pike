@@ -25,7 +25,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER
-//! cvs_version: $Id: cgi.pike,v 1.70 2008-03-21 16:46:21 bertrand Exp $
+//! cvs_version: $Id$
 //
 
 /* Da CGI module */
@@ -35,7 +35,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version = "$Id: cgi.pike,v 1.70 2008-03-21 16:46:21 bertrand Exp $";
+constant cvs_version = "$Id$";
 
 constant module_type = MODULE_LOCATION | MODULE_FILE_EXTENSION | MODULE_PARSER;
 constant module_name = "CGI executable support";
@@ -150,11 +150,12 @@ array init_groups( int uid, int gid )
 
 array verify_access( object id )
 {
-  Stdio.Stat us;
+  array us; // really, not the best approach
+  
   if(!getuid())
   {
     if(QUERY(user) && id->misc->is_user &&
-       (us = file_stat(id->misc->is_user)) &&
+       (us = (array)file_stat(id->misc->is_user)) &&
        (us[5] >= 10))
     {
       // Scan for symlinks

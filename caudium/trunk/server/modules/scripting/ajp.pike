@@ -267,9 +267,9 @@ int|mapping last_resort(object id)
 string query_name()
 {
   if(query("ex"))
-    return sprintf("Server(s) %s handling extension %s",
+    return sprintf("Server(s:%s) %s handling extension %s",
                    (query("hosts")/"\n")*" ,", 
-                   query("port"),
+                   (string)query("port"),
                    query("ext")*", ");
 
   else return sprintf("%s mounted on <i>%s</i>",

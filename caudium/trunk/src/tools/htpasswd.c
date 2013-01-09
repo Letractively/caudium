@@ -52,7 +52,7 @@ void getword(char *word, char *line, char stop) {
   while((line[y++] = line[x++]))
     ;
 }
-
+/*
 int getline(char *s, int n, FILE *f) {
   register int i=0;
 
@@ -69,7 +69,7 @@ int getline(char *s, int n, FILE *f) {
     ++i;
   }
 }
-
+*/
 void putline(FILE *f,char *l) {
   int x;
 

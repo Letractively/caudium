@@ -89,7 +89,7 @@ void start (int cnt, object conf) {
 string status() {
   if(!tarfs) return "No tar file currently loaded.";
   return sprintf("There have been %d file request%s, %d directory request%s "
-		 "and %d file stats since the last reload.",
+		 "and %d file stat%s since the last reload.",
 		 req_files, S(req_files),
 		 req_dirs, S(req_dirs),
 		 req_stats, S(req_stats));

@@ -1041,7 +1041,7 @@ mapping find_file(string f, object id)
     ct = palette_cache[res->colortable_cache];
     if(!ct)
       ct = palette_cache[res->colortable_cache] =
-	   Image.colortable(img)->nodither();
+	   Image.Colortable(img)->nodither();
   }
 
   if (res->turn)

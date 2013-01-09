@@ -29,7 +29,7 @@
 
 static constant jvm = Java.machine;
 
-#define FINDCLASS(X) (jvm->find_class(X)||(jvm->exception_describe(),jvm->exception_clear(),error("Failed to load class " X ".\n"),0))
+#define FINDCLASS(X) (jvm.find_class(X)||(jvm.exception_describe(),jvm.exception_clear(),error("Failed to load class " X ".\n"),0))
 
 static object servlet_ifc = FINDCLASS("javax/servlet/Servlet");
 static object singlethread_ifc = FINDCLASS("javax/servlet/SingleThreadModel");
@@ -99,9 +99,9 @@ static object natives_bind1, natives_bind2, natives_bind3;
 
 static void check_exception()
 {
-  object e = jvm->exception_occurred();
+  object e = jvm.exception_occurred();
   if(e) {
-    jvm->exception_clear();
+    jvm.exception_clear();
     object sw = stringwriter_class->alloc();
     stringwriter_init(sw);
     object pw = printwriter_class->alloc();
@@ -126,11 +126,11 @@ static void check_exception()
 
 static void check_unavailable_exception()
 {
-  object e = jvm->exception_occurred();
+  object e = jvm.exception_occurred();
   if(e) {
     if (e->is_instance_of(unavailable_class))
       {
-        jvm->exception_clear();
+        jvm.exception_clear();
         array bt = backtrace();
         throw(
               ({ "UnavailableException\n",

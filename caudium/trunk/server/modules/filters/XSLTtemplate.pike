@@ -209,15 +209,15 @@ mapping|int first_try(object id)
   mixed e;
   e = catch(xml_node = Public.Parser.XML2.parse_xml(xml, xml_name));
   if(e)
-    throw(Error.Generic("An error occurred while parsing the XML document " + xml_name + ".");
+    throw(Error.Generic("An error occurred while parsing the XML document " + xml_name + "."));
   e = catch(parser = Public.Parser.XML2.parse_xslt(xsl, xsl_name));
   if(e)
-    throw(Error.Generic("An error occurred while parsing the XSL document " + xsl_name + ".");
+    throw(Error.Generic("An error occurred while parsing the XSL document " + xsl_name + "."));
 
   object xml_result;
   e = catch(xml_result = parser->apply(xml_node, id->variables));
   if(e)
-    throw(Error.Generic("An error occurred while applying the XSL document " + xsl_name + " to " + xml_name + ".");
+    throw(Error.Generic("An error occurred while applying the XSL document " + xsl_name + " to " + xml_name + "."));
 
 // TODO: we don't seem to have an equivalent of this; probably the 
 // xsl_name argument to parse_xslt does the same.
