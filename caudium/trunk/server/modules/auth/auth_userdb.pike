@@ -33,10 +33,10 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_PROVIDER
-//! cvs_version: $Id: auth_userdb.pike,v 1.18 2005-01-03 17:04:45 kiwi Exp $
+//! cvs_version: $Id$
 //
 
-constant cvs_version = "$Id: auth_userdb.pike,v 1.18 2005-01-03 17:04:45 kiwi Exp $";
+constant cvs_version = "$Id$";
 constant thread_safe=0;
 
 #include <module.h>
@@ -230,12 +230,10 @@ void slow_group_update()
 
 void read_user_data()
 {
-  string data,u;
+  string data;
   array(string)  entry, tmp, tmp2;
-  int foo, i;
-  int original_data = 1; // Did we inherit this user list from another
-  //  user-database module?
-  int saved_uid;
+  int i;
+  int original_data = 1; // Did we inherit this user list from another user-database module?
   
   users=([]);
   uid2user=([]);
@@ -285,7 +283,7 @@ void read_user_data()
     
       case "shadow":
         string shadow;
-        array pw, a, b;
+        array pw, a;
         mapping sh = ([]);
 #if constant(System.geteuid)
         if(System.getuid() != System.geteuid()) privs=Privs("Reading password database");
@@ -374,10 +372,7 @@ void read_group_data()
 {
   string data,g;
   array entry, tmp, tmp2;
-  int foo, i;
-  int original_data = 1; // Did we inherit this group list from another
-  //  user-database module?
-  int saved_gid;
+  int original_data = 1; // Did we inherit this group list from another user-database module?
 
   usergroups=([]);  
   groups=([]);
@@ -604,7 +599,7 @@ string query_provides()
 mapping|int get_user_info(string u)
 {
   ERROR("get_user_info: " + u);
-  int res;
+
   if(!u)  // user not provided.
     return 0;
   if(!users[u])
@@ -653,8 +648,6 @@ mapping|int get_groupname(string gid)
 mapping|int get_group_info(string groupname)
 {
   ERROR("get_user_info: " + groupname);
-  int res;
-  string common_name,gid,users;
 
   if(!groupname)
     return 0;
