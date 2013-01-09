@@ -29,7 +29,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_FILE_EXTENSION
-//! cvs_version: $Id: pikescript.pike,v 1.28 2005-09-29 23:36:54 hww3 Exp $
+//! cvs_version: $Id$
 //
 
 /*
@@ -39,7 +39,7 @@
  *
  * This is an extension module.
  */
-constant cvs_version = "$Id: pikescript.pike,v 1.28 2005-09-29 23:36:54 hww3 Exp $";
+constant cvs_version = "$Id$";
 
 constant thread_safe=1;
 // MAST: Blatant lie; we're using fork() here. Disabling this wouldn't
@@ -161,8 +161,8 @@ array|mapping call_script(function fun, object id, object file)
   object privs;
   if(!functionp(fun))
     return 0;
-  string|array (int) uid, olduid
-  Stdio.Stat us;
+  string|array (int) uid, olduid;
+  array us; // really, not the best solution.
 
   if(id->rawauth && QUERY(fork_exec) && (!QUERY(rawauth) || !QUERY(clearpass)))
     id->rawauth=0;
@@ -186,7 +186,7 @@ array|mapping call_script(function fun, object id, object file)
     call_out(lambda(){exit(0);}, 0);
     
     if(QUERY(user) && id->misc->is_user && 
-       (us = file_stat(id->misc->is_user)))
+       (us = (array)file_stat(id->misc->is_user)))
       uid = us[5..6];
     else if (!getuid() || !geteuid()) {
       if (runuser)
@@ -206,7 +206,7 @@ array|mapping call_script(function fun, object id, object file)
   } else 
 #endif
   {
-    if(id->misc->is_user && (us = file_stat(id->misc->is_user)))
+    if(id->misc->is_user && (us = (array)file_stat(id->misc->is_user)))
       privs = Privs("Executing pikescript as non-www user", @us[5..6]);
   }
 

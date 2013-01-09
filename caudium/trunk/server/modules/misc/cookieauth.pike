@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: cookieauth.pike,v 1.5 2005-01-03 17:04:47 kiwi Exp $
+ * $Id$
  */
 
 /*
@@ -78,7 +78,7 @@
 inherit "module";
 inherit "caudiumlib";
 
-constant cvs_version="$Id: cookieauth.pike,v 1.5 2005-01-03 17:04:47 kiwi Exp $";
+constant cvs_version="$Id$";
 constant module_type= MODULE_FIRST | MODULE_FILTER;
 constant module_name= "Cookie Authentication Module";
 constant module_doc = "Allow site designer to use forms and cookie to "
@@ -121,7 +121,7 @@ void create() {
 mixed first_try( object id ) {
 
   if(!id->auth ) {
-    object n=Crypto.arcfour();
+    object n=Crypto.Arcfour();
     n->set_encrypt_key(QUERY(key));
 
     // check to see if the form variables are present, set auth info if so

@@ -175,7 +175,7 @@ mapping low_render_image(string how, object id)
 
   Caudium.parse_html_lines( how, ([]), ([ "layer":internal_parse_layer]), id, res );
 
-  object i = Image.image( (int)res->xsize, (int)res->ysize );
+  object i = Image.Image( (int)res->xsize, (int)res->ysize );
   foreach(res->layers, mapping l)
     switch(l->method)
     {
@@ -185,7 +185,7 @@ mapping low_render_image(string how, object id)
 	 if(l->mask)
 	   l->mask *= l->opaque_value/255.0;
 	 else
-	   l->mask = Image.image(l->image->xsize(), l->image->ysize(),
+	   l->mask = Image.Image(l->image->xsize(), l->image->ysize(),
 				 l->opaque_value, l->opaque_value,
 				 l->opaque_value);
        }
@@ -212,7 +212,7 @@ mapping low_render_image(string how, object id)
 mapping render_image(string how, object id)
 {
   mapping res = low_render_image( how, id );
-  object ct = Image.colortable( res->image );
+  object ct = Image.Colortable( res->image );
   ct->floyd_steinberg();
   res->data = Image.GIF.encode( res->image, ct );
   m_delete(res, "image");

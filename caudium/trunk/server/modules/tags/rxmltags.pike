@@ -87,7 +87,6 @@ string tagtime(int t,mapping m)
 {
   string s;
   mixed eris;
-  string res;
   if (m->strftime || m->strfmt)
 #if constant(Caudium.strftime)
     return Caudium.strftime( m->strftime || m->strfmt, t );
@@ -168,14 +167,15 @@ string tagtime(int t,mapping m)
   }
   else if (m->dayssince)
   {
-    int diffyear, diffmonth = 0, diffday;
-
+    int diffyear, diffday;
+    mixed diffmonth = 0;
+    
     if (sscanf(m->dayssince, "%d-%d-%d", diffyear, diffmonth, diffday) != 3 &&
         sscanf(m->dayssince, "%d-%s-%d", diffyear, diffmonth, diffday) == 3)
     { diffmonth = ([ "jan":  1, "feb":  2, "mar":  3, "apr":  4,
                      "may":  5, "jun":  6, "jul":  7, "aug":  8,
                      "sep":  9, "oct": 10, "nov": 11, "dec": 12 ])
-            [lower_case(sprintf("%s", diffmonth))[0..2]];
+            [lower_case(sprintf("%s", (string)diffmonth))[0..2]];
     }
     if (diffmonth >= 1 && diffmonth <= 12)
     { return sprintf("%d",
@@ -1045,7 +1045,7 @@ string tag_echo(string tag,mapping m,object id,object file,
 
 array(string)|string tag_insert(string tag,mapping m,object id,object file,mapping defines)
 {
-  string n, scope, var;
+  string n;
   mapping fake_id=([]);
   array encodings=({ "html" });
   mixed val;
@@ -2204,7 +2204,6 @@ string tag_ximage(string tagname, mapping m, object id)
   string tmp="";
   if(m->src)
   {
-    array a;
     string fname=id->conf->real_file(Caudium.fix_relative(m->src||"", id),id);
 
     if(fname)

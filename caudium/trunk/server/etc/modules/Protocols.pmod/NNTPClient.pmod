@@ -307,7 +307,7 @@ class connection
 
     while (res != ".")
     {
-      if (sscanf(res, "%s %d %d %s", string grp, int min, int max, int mode))
+      if (sscanf(res, "%s %d %d %s", string grp, int min, int max, string mode))
          result[grp] = ({ min, max, mode });
 
       res = _gets();
