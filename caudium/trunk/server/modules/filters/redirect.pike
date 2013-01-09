@@ -357,7 +357,7 @@ void start()
 	break;
       }
       if(modifier && sizeof (new_patterns)) {
-	sscanf(modifier, "%s=%s", value);
+	sscanf(modifier, "%s=%s", modifier, value);
 	switch(lower_case(modifier)) {
 	case "host":
 	  new_patterns[-1] = HostModifier(new_patterns[-1]); 
