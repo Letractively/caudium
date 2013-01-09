@@ -27,7 +27,7 @@
 //! inherits: module
 //! inherits: caudiumlib
 //! type: MODULE_SECURITY | MODULE_URL
-//! cvs_version: $Id: htaccess.pike,v 1.37 2005-01-03 17:04:46 kiwi Exp $
+//! cvs_version: $Id$
 //
 
 // .htaccess compability by David Hedbor, neotron@idonex.se 
@@ -35,7 +35,7 @@
 
 // import Stdio;
 
-constant cvs_version = "$Id: htaccess.pike,v 1.37 2005-01-03 17:04:46 kiwi Exp $";
+constant cvs_version = "$Id$";
 constant thread_safe=1;
 
 #include <module.h>
@@ -522,10 +522,8 @@ int validate_group(multiset grps, array auth, string groupfile, string userfile,
 mapping|string|int htaccess(mapping access, object id)
 {
   int hok;
-  mixed tmp;
-  multiset l;
 
-  string htaccess, aname, userfile, tmp2, groupfile, hname, method, errorfile;
+  string aname, userfile, groupfile, hname, method;
 
   TRACE_ENTER("htaccess->htaccess()", htaccess);
 
