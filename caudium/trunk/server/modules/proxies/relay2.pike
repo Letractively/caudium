@@ -19,7 +19,7 @@
  *
  */
 /*
- * $Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $
+ * $Id$
  */
 //
 //! module: Proxies: HTTP Relay module
@@ -27,11 +27,11 @@
 //!  expressions
 //! inherits: module
 //! type: MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL
-//! cvs_version: $Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $
+//! cvs_version: $Id$
 //
 #include <module.h>
 inherit "module";
-constant cvs_version   = "$Id: relay2.pike,v 1.6 2005-11-04 06:22:54 hww3 Exp $";
+constant cvs_version   = "$Id$";
 constant thread_safe   = 1;
 constant module_type   = MODULE_FIRST|MODULE_LAST|MODULE_EXPERIMENTAL;
 constant module_name   = "Proxies: HTTP Relay module";
@@ -122,10 +122,16 @@ class Relay
     
     string rewrite( string what )
     {
+      // this is actually somewhat difficult to do in a completely general
+      // manner. we will assume that if there is a full uri passed here,
+      // we are interested in replacing the host, port and protocol if they
+      // match those in the relayed-to url. to be better at this, we'd need
+      // a reverse regexp, which would be complex to validate in the config 
+      // interface and thus prone to error.
+
       // in what: URL.
       if(!strlen(what))
 	return what; // local, is OK.
-
       if( what[0] == '/' ) // absolute, is not OK.
       {
 	string base = id->not_query;
@@ -134,10 +140,17 @@ class Relay
 	  base = base[..search(id->not_query, f2 )-2];
 	return combine_path( base, what[1..] );
       }
-      else if( search( what, url ) == 0 )
+
+      object w = Standards.URI(what);  
+      object u = Standards.URI(url);
+      if(w->host == u->host && w->protocol == u->protocol && w->port == u->port)
       {
-	return replace( what, url, id->not_query );
+        w->protocol = id->protocol;
+        w->host = id->host;
+        w->port = ((id->my_fd->query_address(1)||" 80")/" ")[1];
+        return (string)w;
       }
+
       return what;
     };
 
@@ -187,7 +200,10 @@ class Relay
              h["Content-Type"] = b;
              type = b;
              break;
-           default:
+           case "location":
+             h["Location"] = rewrite(b);
+             break;
+          default:
 	     if (h[a]) {
 	       if (arrayp(h[a])) h[a] += ({ b });
 	       else h[a] = ({ h[a], b });
@@ -320,7 +336,6 @@ destruct();
     id = _id;
     url = _url;
     options = _options;
-
     if( sscanf(url,"%*[^:/]://%[^:/]:%d/%s",host,port,file) != 4 )
     {
       port=80;
