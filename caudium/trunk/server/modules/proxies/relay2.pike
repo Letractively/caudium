@@ -143,9 +143,9 @@ class Relay
 
       object w = Standards.URI(what);  
       object u = Standards.URI(url);
-      if(w->host == u->host && w->protocol == u->protocol && w->port == u->port)
+      if(w->host == u->host && w->scheme == u->scheme && w->port == u->port)
       {
-        w->protocol = id->protocol;
+        w->scheme = id->server_protocol || "http";
         w->host = id->host;
         w->port = ((id->my_fd->query_address(1)||" 80")/" ")[1];
         return (string)w;
