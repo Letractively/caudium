@@ -141,8 +141,17 @@ class Relay
 	return combine_path( base, what[1..] );
       }
 
-      object w = Standards.URI(what);  
-      object u = Standards.URI(url);
+      object w, u;
+      if(catch(w = Standards.URI(what)))
+      {
+	string base = id->not_query;
+	string f2 = (file/"?")[0];
+	if( strlen(f2) && search(id->not_query, f2 ) != -1)
+	  base = base[..search(id->not_query, f2 )-2];
+	return combine_path( base, what );
+      }
+  
+      u = Standards.URI(url);
       if(w->host == u->host && w->scheme == u->scheme && w->port == u->port)
       {
         w->scheme = id->server_protocol || "http";
