@@ -1,6 +1,6 @@
 /*
  * Caudium - An extensible World Wide Web server
- * Copyright © 2000-2005 The Caudium Group
+ * Copyright © 2000-2014 The Caudium Group
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,13 +86,13 @@ int main(int argc, array argv)
   write("Checking for potential compatibility problems with your Pike installation...");
   master()->set_inhibit_compile_errors("");
 
-  if(ver < 7.6 ||
-     (ver == 7.6 && rel < 1))
-    warning("Caudium 1.5 requires Pike 7.6.1 or newer, current version is\n%s",
+  if(ver < 7.8 ||
+     (ver == 7.8 && rel < 1))
+    warning("Caudium 1.5 requires Pike 7.8 or newer, current version is\n%s",
       version());
 
-  if(ver == 7.7) {
-    warning("We strongly recommend the use of Pike 7.6 for Caudium. "
+  if(ver == 7.9) {
+    warning("We strongly recommend the use of Pike 7.8 for Caudium. "
             "Pike %f is less\n"
 	    "tested and still a development version.", ver);
   }
@@ -102,6 +102,11 @@ int main(int argc, array argv)
   array missing, existing = Tools.Install.features();
   
   missing = ({ "Image.GIF", "Image.JPEG", "Image.PNG" }) - existing;
+  if(search(missing, "Image.PNG") != -1)
+    warning("Caudium requires the Image.PNG module. \n"
+            "You must resolve this problem before attempting to start Caudium.\n");
+  missing -= ({ "Image.PNG" });
+
   if(sizeof(missing)) {
     warning("Pike is missing support for the image format%s %s.\n"
 	    "This might limit the functionality of the dynamic image generation in Caudium.",
