@@ -1,0 +1,42 @@
+[[Source](.md) |  [Browse](http://code.google.com/p/caudium/source/browse) | [Changes](http://code.google.com/p/caudium/source/list) ]
+
+
+
+**Command-Line Access**
+
+If you plan to make changes, use this command to check out the code as yourself using HTTPS:
+
+```
+# Project members authenticate over HTTPS to allow committing changes.
+svn checkout https://caudium.googlecode.com/svn/caudium/trunk caudium --username yourgoogleusername
+```
+
+When prompted, enter your generated googlecode.com password.
+
+Use this command to anonymously check out the latest project source code:
+
+```
+# Non-members may check out a read-only working copy anonymously over HTTP.
+svn checkout http://caudium.googlecode.com/svn/caudium/trunk/ caudium-read-only 
+```
+
+**GUI and IDE Access**
+
+This project's Subversion repository may be accessed using many different client programs and plug-ins. See your client's documentation for more information.
+
+
+> <form action="http://www.google.com/codesearch" method="get" style="display:inline"
+> onsubmit="document.getElementById('codesearchq').value = document.getElementById('origq').value + ' package:http://caudium\\.googlecode\\.com'">
+> 
+
+&lt;input type="hidden" name="q" id="codesearchq" value=""&gt;
+
+
+> 
+
+&lt;input maxlength="2048" size="35" id="origq" name="origq" value="" title="Google Code Search" style="font-size:92%"&gt;
+
+&nbsp;
+
+&lt;input type="submit" value="Search Trunk" name="btnG" style="font-size:92%"&gt;
+
